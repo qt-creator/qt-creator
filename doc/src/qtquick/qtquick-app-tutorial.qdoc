@@ -39,6 +39,8 @@
 
     This tutorial uses built-in QML types and illustrates basic concepts of
     \l{Qt Quick}.
+    For more information about the UI choices you have, see \l{User Interfaces}.
+
 
     This tutorial describes how to use \QC to implement Qt Quick states and
     transitions. We create an application that displays a Qt logo that moves
@@ -49,8 +51,8 @@
     For more information about using \QMLD, see
     \l{Developing Qt Quick Applications}.
 
-    For tutorials that describe using Qt Quick Controls, see
-    \l{Qt Quick Text Editor Guide} and \l{Qt Quick Controls - UI Forms}.
+    For examples of using Qt Quick Controls 2, see
+    \l{Qt Quick Controls 2 Examples}.
 
     \include creator-tutorial-create-qq-project.qdocinc
 
@@ -66,7 +68,7 @@
 
     \list 1
 
-        \li In the \uicontrol Projects view, double-click the MainForm.ui.qml
+        \li In the \uicontrol Projects view, double-click the \e Page1Form.ui.qml
             file to open it in \QMLD.
 
             \image qmldesigner-tutorial-design-mode.png "Transitions project in Design Mode"
@@ -179,28 +181,28 @@
 
     \endlist
 
-    To check your code, you can open MainForm.ui.qml in the
-    \uicontrol Edit mode and compare it with the \l{transitions/MainForm.ui.qml}
-    {MainForm.ui.qml} example file.
+    To check your code, you can view \e Page1Form.ui.qml in the
+    \uicontrol {Text Editor} and compare it with the \l{transitions/Page1Form.ui.qml}
+    {Page1Form.ui.qml} example file.
+
+    The new project wizard adds boilerplate code to the \e Page1.qml file to
+    create menu items and push buttons. Modify the boilerplate code by removing
+    obsolete code. You removed the push buttons from the
+    UI form, so you also need to remove the corresponding code from
+    \e Page1.qml (or the application cannot be built).
 
     The UI is now ready and you can switch to editing the \e main.qml file in
-    the \uicontrol Edit mode to add animation to the application, as described
+    the \uicontrol {Text Editor} to add animation to the application, as described
     in the following section.
 
     \image qmldesigner-tutorial-ui-ready.png "Transitions UI"
 
     \section1 Adding Application Logic
 
-    The new project wizard adds boilerplate code to the \e main.qml file to
-    create menu items and push buttons. Modify the boilerplate code by removing
-    obsolete code and by adding new code. You removed the push buttons from the
-    UI form, so you also need to remove the corresponding code from
-    \e main.qml (or the application cannot be built).
-
-    Edit the main.qml file to add pointers to two additional states: \e State1
-    and \e State2. You cannot use the \QMLD to add states for a Window QML
-    type. Use the code editor to add the states inside a StateGroup QML type and
-    refer to them by using the id of the state group.
+    Edit the \e main.qml file to add pointers to two additional states: \e State1
+    and \e State2. You cannot use the \uicontrol {Form Editor} to add states for
+    a Window QML type. Use the \uicontrol {Text Editor} to add the states inside
+    a StateGroup QML type and refer to them by using the id of the state group.
 
     \list 1
 
@@ -211,24 +213,24 @@
             \skipto ApplicationWindow
             \printuntil title
 
-        \li Specify an id for the MainForm type to be able to use the properties
-            that you exported in \e MainForm.ui.qml:
+        \li Specify an id for the Page1 type to be able to use the properties
+            that you exported in \e Page1Form.ui.qml:
 
             \printuntil page
 
-        \li Add a pointer to the clicked expressions in \uicontrol mouseArea1:
+        \li Add a pointer to the clicked expressions in \uicontrol mouseArea:
 
             \printuntil }
 
             The expression sets the state to the base state and returns the
             image to its initial position.
 
-        \li Add a pointer to a clicked expression to \uicontrol mouseArea2
+        \li Add a pointer to a clicked expression to \uicontrol mouseArea1
             to set the state to \e State1:
 
             \printuntil }
 
-        \li Add a pointer to a clicked expression to \uicontrol mouseArea3 to
+        \li Add a pointer to a clicked expression to \uicontrol mouseArea2 to
             set the state to \e State2:
 
             \printuntil }
@@ -254,13 +256,13 @@
     when the Qt logo moves
     between states. The transitions apply animations to the Qt logo. For example,
     the Qt logo bounces back when it moves to the middleRightRect and eases into
-    bottomLeftRect. Add the transitions in the code editor.
+    bottomLeftRect.
 
     \list 1
 
-        \li In the code editor, add the following code to specify that when
-            moving to State1, the x and y coordinates of the Qt logo change
-            linearly over a duration of 1 second:
+        \li In the \uicontrol {Text Editor}, add the following code to specify
+            that when moving to State1, the x and y coordinates of the Qt logo
+            change linearly over a duration of 1 second:
 
             \printuntil },
 
@@ -269,8 +271,8 @@
 
         \list a
 
-            \li Click \uicontrol NumberAnimation in the code editor to display the
-                \inlineimage refactormarker.png
+            \li Click \uicontrol NumberAnimation in the \uicontrol {Text Editor}
+                to display the \inlineimage refactormarker.png
                 icon, and then click the icon to open the toolbar:
 
                 \image qmldesigner-tutorial-quick-toolbar.png "Qt Quick toolbar for animation"
