@@ -64,6 +64,8 @@ protected:
     QList<ToolChain *> autoDetectToolchains(const QString &compiler, const Abi &requiredAbi,
                                             Core::Id language, const Core::Id requiredTypeId,
                                             const QList<ToolChain *> &alreadyKnown);
+    QList<ToolChain *> autoDetectToolChain(const Utils::FileName &compilerPath, const Core::Id language,
+                                           const Abi &requiredAbi = Abi());
 };
 
 // --------------------------------------------------------------------------
