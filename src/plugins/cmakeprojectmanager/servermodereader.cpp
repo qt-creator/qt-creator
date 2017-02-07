@@ -683,18 +683,23 @@ void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
         toList.append(newFileNodes);
 
         // Add scanned header files:
+        const FileNameList headerPaths = headers.keys();
         for (const IncludePath *i : f->includePaths) {
-            const QList<const FileNode *> &headerFiles = headers.value(i->path);
-            const QList<const FileNode *> unseenHeaders = Utils::filtered(headerFiles, [&alreadyListed](const FileNode *fn) {
-                const int count = alreadyListed.count();
-                alreadyListed.insert(fn->filePath());
-                return count != alreadyListed.count();
-            });
-            toList.append(Utils::transform(unseenHeaders, [](const FileNode *fn) -> FileNode * {
-                              auto copy = new FileNode(fn->filePath(), fn->fileType(), fn->isGenerated());
-                              copy->setEnabled(false);
-                              return copy;
-                          }));
+            for (const FileName &hp : headerPaths) {
+                if (hp != i->path && !hp.isChildOf(i->path))
+                    continue;
+                const QList<const FileNode *> &headerFiles = headers.value(hp);
+                const QList<const FileNode *> unseenHeaders = Utils::filtered(headerFiles, [&alreadyListed](const FileNode *fn) {
+                    const int count = alreadyListed.count();
+                    alreadyListed.insert(fn->filePath());
+                    return count != alreadyListed.count();
+                });
+                toList.append(Utils::transform(unseenHeaders, [](const FileNode *fn) {
+                                  auto copy = new FileNode(fn->filePath(), fn->fileType(), fn->isGenerated());
+                                  copy->setEnabled(false);
+                                  return copy;
+                              }));
+            }
         }
     }
 
