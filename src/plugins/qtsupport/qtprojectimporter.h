@@ -29,8 +29,6 @@
 
 #include <projectexplorer/projectimporter.h>
 
-#include <QPair>
-
 namespace QtSupport {
 
 class BaseQtVersion;
