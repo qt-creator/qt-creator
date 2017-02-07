@@ -106,7 +106,7 @@ enum { debugLeaks = 0 };
     loading.
     \code
         // 'plugins' and subdirs will be searched for plugins
-        PluginManager::setPluginPaths(QStringList() << "plugins");
+        PluginManager::setPluginPaths(QStringList("plugins"));
         PluginManager::loadPlugins(); // try to load all the plugins
     \endcode
     Additionally, it is possible to directly access the plugin specifications

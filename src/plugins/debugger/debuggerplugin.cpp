@@ -3786,67 +3786,67 @@ void DebuggerUnitTests::testDebuggerMatching_data()
             << QString::fromLatin1("x86-linux-generic-elf-32bit")
             << int(DebuggerItem::DoesNotMatch);
     QTest::newRow("Invalid target")
-            << (QStringList() << QLatin1String("x86-linux-generic-elf-32bit"))
+            << QStringList("x86-linux-generic-elf-32bit")
             << QString()
             << int(DebuggerItem::DoesNotMatch);
 
     QTest::newRow("Fuzzy match 1")
-            << (QStringList() << QLatin1String("unknown-unknown-unknown-unknown-0bit"))
+            << QStringList("unknown-unknown-unknown-unknown-0bit")
             << QString::fromLatin1("x86-linux-generic-elf-32bit")
             << int(DebuggerItem::MatchesWell); // Is this the expected behavior?
     QTest::newRow("Fuzzy match 2")
-            << (QStringList() << QLatin1String("unknown-unknown-unknown-unknown-0bit"))
+            << QStringList("unknown-unknown-unknown-unknown-0bit")
             << QString::fromLatin1("arm-windows-msys-pe-64bit")
             << int(DebuggerItem::MatchesWell); // Is this the expected behavior?
 
     QTest::newRow("Architecture mismatch")
-            << (QStringList() << QLatin1String("x86-linux-generic-elf-32bit"))
+            << QStringList("x86-linux-generic-elf-32bit")
             << QString::fromLatin1("arm-linux-generic-elf-32bit")
             << int(DebuggerItem::DoesNotMatch);
     QTest::newRow("OS mismatch")
-            << (QStringList() << QLatin1String("x86-linux-generic-elf-32bit"))
+            << QStringList("x86-linux-generic-elf-32bit")
             << QString::fromLatin1("x86-macosx-generic-elf-32bit")
             << int(DebuggerItem::DoesNotMatch);
     QTest::newRow("Format mismatch")
-            << (QStringList() << QLatin1String("x86-linux-generic-elf-32bit"))
+            << QStringList("x86-linux-generic-elf-32bit")
             << QString::fromLatin1("x86-linux-generic-pe-32bit")
             << int(DebuggerItem::DoesNotMatch);
 
     QTest::newRow("Linux perfect match")
-            << (QStringList() << QLatin1String("x86-linux-generic-elf-32bit"))
+            << QStringList("x86-linux-generic-elf-32bit")
             << QString::fromLatin1("x86-linux-generic-elf-32bit")
             << int(DebuggerItem::MatchesWell);
     QTest::newRow("Linux match")
-            << (QStringList() << QLatin1String("x86-linux-generic-elf-64bit"))
+            << QStringList("x86-linux-generic-elf-64bit")
             << QString::fromLatin1("x86-linux-generic-elf-32bit")
             << int(DebuggerItem::MatchesSomewhat);
 
     QTest::newRow("Windows perfect match 1")
-            << (QStringList() << QLatin1String("x86-windows-msvc2013-pe-64bit"))
+            << QStringList("x86-windows-msvc2013-pe-64bit")
             << QString::fromLatin1("x86-windows-msvc2013-pe-64bit")
             << int(DebuggerItem::MatchesWell);
     QTest::newRow("Windows perfect match 2")
-            << (QStringList() << QLatin1String("x86-windows-msvc2013-pe-64bit"))
+            << QStringList("x86-windows-msvc2013-pe-64bit")
             << QString::fromLatin1("x86-windows-msvc2012-pe-64bit")
             << int(DebuggerItem::MatchesWell);
     QTest::newRow("Windows match 1")
-            << (QStringList() << QLatin1String("x86-windows-msvc2013-pe-64bit"))
+            << QStringList("x86-windows-msvc2013-pe-64bit")
             << QString::fromLatin1("x86-windows-msvc2013-pe-32bit")
             << int(DebuggerItem::MatchesSomewhat);
     QTest::newRow("Windows match 2")
-            << (QStringList() << QLatin1String("x86-windows-msvc2013-pe-64bit"))
+            << QStringList("x86-windows-msvc2013-pe-64bit")
             << QString::fromLatin1("x86-windows-msvc2012-pe-32bit")
             << int(DebuggerItem::MatchesSomewhat);
     QTest::newRow("Windows mismatch on word size")
-            << (QStringList() << QLatin1String("x86-windows-msvc2013-pe-32bit"))
+            << QStringList("x86-windows-msvc2013-pe-32bit")
             << QString::fromLatin1("x86-windows-msvc2013-pe-64bit")
             << int(DebuggerItem::DoesNotMatch);
     QTest::newRow("Windows mismatch on osflavor 1")
-            << (QStringList() << QLatin1String("x86-windows-msvc2013-pe-32bit"))
+            << QStringList("x86-windows-msvc2013-pe-32bit")
             << QString::fromLatin1("x86-windows-msys-pe-64bit")
             << int(DebuggerItem::DoesNotMatch);
     QTest::newRow("Windows mismatch on osflavor 2")
-            << (QStringList() << QLatin1String("x86-windows-msys-pe-32bit"))
+            << QStringList("x86-windows-msys-pe-32bit")
             << QString::fromLatin1("x86-windows-msvc2010-pe-64bit")
             << int(DebuggerItem::DoesNotMatch);
 }

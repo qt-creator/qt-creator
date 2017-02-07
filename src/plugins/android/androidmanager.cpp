@@ -408,15 +408,8 @@ bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QS
 bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd)
 {
     // assumes that the keystore password is correct
-    QStringList arguments;
-    arguments << QLatin1String("-certreq")
-              << QLatin1String("-keystore")
-              << keystorePath
-              << QLatin1String("--storepass")
-              << keystorePasswd
-              << QLatin1String("-alias")
-              << alias
-              << QLatin1String("-keypass");
+    QStringList arguments = { "-certreq", "-keystore", keystorePath,
+                              "--storepass", keystorePasswd, "-alias", alias, "-keypass" };
     if (certificatePasswd.isEmpty())
         arguments << keystorePasswd;
     else
@@ -433,14 +426,8 @@ bool AndroidManager::checkCertificateExists(const QString &keystorePath,
                                             const QString &keystorePasswd, const QString &alias)
 {
     // assumes that the keystore password is correct
-    QStringList arguments;
-    arguments << QLatin1String("-list")
-              << QLatin1String("-keystore")
-              << keystorePath
-              << QLatin1String("--storepass")
-              << keystorePasswd
-              << QLatin1String("-alias")
-              << alias;
+    QStringList arguments = { "-list", "-keystore", keystorePath,
+                              "--storepass", keystorePasswd, "-alias", alias };
 
     Utils::SynchronousProcess proc;
     proc.setTimeoutS(10);

@@ -136,9 +136,7 @@ Utils::Port IosSimulator::nextPort() const
         QProcess portVerifier;
         // this is a bit too broad (it does not check just listening sockets, but also connections
         // to that port from this computer)
-        portVerifier.start(QLatin1String("lsof"), QStringList() << QLatin1String("-n")
-                         << QLatin1String("-P") << QLatin1String("-i")
-                         << QString::fromLatin1(":%1").arg(m_lastPort));
+        portVerifier.start(QLatin1String("lsof"), {"-n", "-P", "-i", QString(":%1").arg(m_lastPort) });
         if (!portVerifier.waitForStarted())
             break;
         portVerifier.closeWriteChannel();

@@ -678,7 +678,7 @@ void AndroidSettingsWidget::manageAVD()
 
     avdProcess->setProcessEnvironment(m_androidConfig.androidToolEnvironment().toProcessEnvironment());
     QString executable = m_androidConfig.androidToolPath().toString();
-    QStringList arguments = QStringList() << QLatin1String("avd");
+    QStringList arguments = QStringList("avd");
 
     avdProcess->start(executable, arguments);
 }

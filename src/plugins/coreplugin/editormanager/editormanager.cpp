@@ -2176,7 +2176,7 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
             return;
 
         if (diffService && msgBox.clickedButton() == diffButton) {
-            diffService->diffModifiedFiles(QStringList() << fileName);
+            diffService->diffModifiedFiles(QStringList(fileName));
             return;
         }
     }

@@ -545,8 +545,8 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
     const QString testCpp2 = QLatin1String("source2.cpp");
 
     const QString fileToChange = testCpp;
-    const QStringList projectFiles1 = QStringList() << testCpp;
-    const QStringList projectFiles2 = QStringList() << testCpp << testCpp2;
+    const QStringList projectFiles1 = { testCpp };
+    const QStringList projectFiles2 = { testCpp, testCpp2 };
 
     // Add a file
     QTest::newRow("case: add project file") << fileToChange << projectFiles1 << projectFiles2;
@@ -568,9 +568,7 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
     // Project 1
     project1.create(_("test_modelmanager_snapshot_after_two_projects.1"),
                     _("testdata_project1"),
-                    QStringList() << _("foo.h")
-                                  << _("foo.cpp")
-                                  << _("main.cpp"));
+                    { "foo.h", "foo.cpp",  "main.cpp" });
 
     refreshedFiles = helper.updateProjectInfo(project1.projectInfo);
     QCOMPARE(refreshedFiles, project1.projectFiles.toSet());
@@ -582,9 +580,7 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
     // Project 2
     project2.create(_("test_modelmanager_snapshot_after_two_projects.2"),
                     _("testdata_project2"),
-                    QStringList() << _("bar.h")
-                                  << _("bar.cpp")
-                                  << _("main.cpp"));
+                    { "bar.h", "bar.cpp",  "main.cpp" });
 
     refreshedFiles = helper.updateProjectInfo(project2.projectInfo);
     QCOMPARE(refreshedFiles, project2.projectFiles.toSet());
@@ -1029,7 +1025,7 @@ void CppToolsPlugin::test_modelmanager_renameIncludes()
     QVERIFY(tmpDir.isValid());
 
     const QDir workingDir(tmpDir.path());
-    const QStringList fileNames = QStringList() << _("foo.h") << _("foo.cpp") << _("main.cpp");
+    const QStringList fileNames = { "foo.h", "foo.cpp", "main.cpp" };
     const QString oldHeader(workingDir.filePath(_("foo.h")));
     const QString newHeader(workingDir.filePath(_("bar.h")));
     CppModelManager *modelManager = CppModelManager::instance();
@@ -1075,7 +1071,7 @@ void CppToolsPlugin::test_modelmanager_renameIncludesInEditor()
     QVERIFY(tmpDir.isValid());
 
     const QDir workingDir(tmpDir.path());
-    const QStringList fileNames = QStringList() << _("foo.h") << _("foo.cpp") << _("main.cpp");
+    const QStringList fileNames = { "foo.h", "foo.cpp", "main.cpp" };
     const QString oldHeader(workingDir.filePath(_("foo.h")));
     const QString newHeader(workingDir.filePath(_("bar.h")));
     const QString mainFile(workingDir.filePath(_("main.cpp")));

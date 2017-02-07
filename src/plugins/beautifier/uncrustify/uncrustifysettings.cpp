@@ -129,7 +129,7 @@ void UncrustifySettings::createDocumentationFile() const
     Utils::SynchronousProcess process;
     process.setTimeoutS(2);
     Utils::SynchronousProcessResponse response
-            = process.runBlocking(command(), QStringList() << QLatin1String("--show-config"));
+            = process.runBlocking(command(), QStringList("--show-config"));
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
 

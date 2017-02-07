@@ -245,7 +245,7 @@ void ModelManagerInterface::addTaskInternal(QFuture<void> result, const QString 
 void ModelManagerInterface::loadQmlTypeDescriptionsInternal(const QString &resourcePath)
 {
     const QDir typeFileDir(resourcePath + QLatin1String("/qml-type-descriptions"));
-    const QStringList qmlTypesExtensions = QStringList() << QLatin1String("*.qmltypes");
+    const QStringList qmlTypesExtensions = QStringList("*.qmltypes");
     QFileInfoList qmlTypesFiles = typeFileDir.entryInfoList(
                 qmlTypesExtensions,
                 QDir::Files,
@@ -352,7 +352,7 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QStringList &sourc
 void ModelManagerInterface::fileChangedOnDisk(const QString &path)
 {
     Utils::runAsync(&ModelManagerInterface::parse,
-                    workingCopyInternal(), QStringList() << path,
+                    workingCopyInternal(), QStringList(path),
                     this, Dialect(Dialect::AnyLanguage), true);
 }
 

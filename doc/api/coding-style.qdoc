@@ -873,7 +873,7 @@
             \code
             auto something = new MyCustomType;
             auto keyEvent = static_cast<QKeyEvent *>(event);
-            auto myList = QStringList() << QLatin1String("FooThing") << QLatin1String("BarThing");
+            auto myList = QStringList({ "FooThing",  "BarThing" });
             \endcode
 
         \li When assigning iterator types.

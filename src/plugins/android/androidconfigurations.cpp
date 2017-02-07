@@ -154,7 +154,7 @@ namespace {
                 SynchronousProcess proc;
                 proc.setProcessChannelMode(QProcess::MergedChannels);
                 proc.setTimeoutS(30);
-                SynchronousProcessResponse response = proc.runBlocking(executable, QStringList() << shell);
+                SynchronousProcessResponse response = proc.runBlocking(executable, QStringList(shell));
                 if (response.result != SynchronousProcessResponse::Finished)
                     return true;
                 return !response.allOutput().contains("x86-64");
@@ -327,7 +327,7 @@ void AndroidConfig::updateNdkInformation() const
         return;
     m_availableNdkPlatforms.clear();
     FileName path = ndkLocation();
-    QDirIterator it(path.appendPath(QLatin1String("platforms")).toString(), QStringList() << QLatin1String("android-*"), QDir::Dirs);
+    QDirIterator it(path.appendPath("platforms").toString(), QStringList("android-*"), QDir::Dirs);
     while (it.hasNext()) {
         const QString &fileName = it.next();
         m_availableNdkPlatforms.push_back(fileName.midRef(fileName.lastIndexOf(QLatin1Char('-')) + 1).toInt());
@@ -378,7 +378,7 @@ void AndroidConfig::updateAvailableSdkPlatforms() const
     proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
     SynchronousProcessResponse response
             = proc.runBlocking(androidToolPath().toString(),
-                               QStringList() << QLatin1String("list") << QLatin1String("target")); // list avaialbe AVDs
+                               QStringList({ "list",  "target" })); // list available AVDs
     if (response.result != SynchronousProcessResponse::Finished)
         return;
 
@@ -539,8 +539,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const QString &adbToo
     QVector<AndroidDeviceInfo> devices;
     SynchronousProcess adbProc;
     adbProc.setTimeoutS(30);
-    SynchronousProcessResponse response
-            = adbProc.runBlocking(adbToolPath, QStringList() << QLatin1String("devices"));
+    SynchronousProcessResponse response = adbProc.runBlocking(adbToolPath, QStringList("devices"));
     if (response.result != SynchronousProcessResponse::Finished) {
         if (error)
             *error = QApplication::translate("AndroidConfiguration",
@@ -669,9 +668,7 @@ bool AndroidConfig::removeAVD(const QString &name) const
     proc.setTimeoutS(5);
     proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
     SynchronousProcessResponse response
-            = proc.runBlocking(androidToolPath().toString(),
-                               QStringList() << QLatin1String("delete") << QLatin1String("avd")
-                               << QLatin1String("-n") << name);
+            = proc.runBlocking(androidToolPath().toString(), QStringList({ "delete", "avd", "-n", name }));
     return response.result == SynchronousProcessResponse::Finished && response.exitCode == 0;
 }
 
@@ -687,9 +684,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices(const QString &a
     SynchronousProcess proc;
     proc.setTimeoutS(20);
     proc.setProcessEnvironment(environment.toProcessEnvironment());
-    SynchronousProcessResponse response
-            = proc.run(androidTool,
-                       QStringList() << QLatin1String("list") << QLatin1String("avd")); // list available AVDs
+    SynchronousProcessResponse response = proc.run(androidTool, { "list", "avd" }); // list available AVDs
     if (response.result != SynchronousProcessResponse::Finished)
         return devices;
 
@@ -739,16 +734,16 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices(const QString &a
                 int lastIndex = line.lastIndexOf(QLatin1Char('/')) + 1;
                 if (lastIndex >= line.size())
                     break;
-                dev.cpuAbi = QStringList() << line.mid(lastIndex);
+                dev.cpuAbi = QStringList(line.mid(lastIndex));
             } else if (line.contains(QLatin1String("ABI:"))) {
                 int lastIndex = line.lastIndexOf(QLatin1Char(' ')) + 1;
                 if (lastIndex >= line.size())
                     break;
-                dev.cpuAbi = QStringList() << line.mid(lastIndex).trimmed();
+                dev.cpuAbi = QStringList(line.mid(lastIndex).trimmed());
             }
         }
         // armeabi-v7a devices can also run armeabi code
-        if (dev.cpuAbi == QStringList(QLatin1String("armeabi-v7a")))
+        if (dev.cpuAbi == QStringList("armeabi-v7a"))
             dev.cpuAbi << QLatin1String("armeabi");
         dev.state = AndroidDeviceInfo::OkState;
         dev.type = AndroidDeviceInfo::Emulator;
@@ -1354,8 +1349,8 @@ bool AndroidConfigurations::force32bitEmulator()
 QStringList AndroidDeviceInfo::adbSelector(const QString &serialNumber)
 {
     if (serialNumber.startsWith(QLatin1String("????")))
-        return QStringList() << QLatin1String("-d");
-    return QStringList() << QLatin1String("-s") << serialNumber;
+        return QStringList("-d");
+    return QStringList({ "-s",  serialNumber });
 }
 
 const AndroidConfig &AndroidConfigurations::currentConfig()

@@ -297,7 +297,7 @@ QList<AndroidToolChainFactory::AndroidToolChainInformation> AndroidToolChainFact
     QRegExp versionRegExp(NDKGccVersionRegExp);
     FileName path = ndkPath;
     QDirIterator it(path.appendPath(QLatin1String("toolchains")).toString(),
-                    QStringList() << QLatin1String("*"), QDir::Dirs);
+                    QStringList("*"), QDir::Dirs);
     while (it.hasNext()) {
         const QString &fileName = FileName::fromString(it.next()).fileName();
         int idx = versionRegExp.indexIn(fileName);
@@ -387,7 +387,7 @@ AndroidToolChainFactory::autodetectToolChainsForNdk(const FileName &ndkPath,
     QRegExp versionRegExp(NDKGccVersionRegExp);
     FileName path = ndkPath;
     QDirIterator it(path.appendPath(QLatin1String("toolchains")).toString(),
-                    QStringList() << QLatin1String("*"), QDir::Dirs);
+                    QStringList("*"), QDir::Dirs);
     QHash<Abi, QList<AndroidToolChain *>> newestToolChainForArch;
 
     while (it.hasNext()) {
@@ -437,7 +437,7 @@ QList<int> AndroidToolChainFactory::newestToolChainVersionForArch(const Abi &abi
         m_ndkLocation = AndroidConfigurations::currentConfig().ndkLocation();
         FileName path = m_ndkLocation;
         QDirIterator it(path.appendPath(QLatin1String("toolchains")).toString(),
-                        QStringList() << QLatin1String("*"), QDir::Dirs);
+                        QStringList("*"), QDir::Dirs);
         while (it.hasNext()) {
             const QString &fileName = FileName::fromString(it.next()).fileName();
             int idx = versionRegExp.indexIn(fileName);

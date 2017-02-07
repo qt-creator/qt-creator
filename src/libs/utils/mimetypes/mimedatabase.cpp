@@ -118,7 +118,7 @@ MimeType MimeDatabasePrivate::mimeTypeForName(const QString &nameOrAlias)
 QStringList MimeDatabasePrivate::mimeTypeForFileName(const QString &fileName, QString *foundSuffix)
 {
     if (fileName.endsWith(QLatin1Char('/')))
-        return QStringList() << QLatin1String("inode/directory");
+        return QStringList("inode/directory");
 
     const QStringList matchingMimeTypes = provider()->findByFileName(QFileInfo(fileName).fileName(), foundSuffix);
     return matchingMimeTypes;

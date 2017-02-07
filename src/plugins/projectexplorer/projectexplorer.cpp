@@ -1620,7 +1620,7 @@ void ProjectExplorerPlugin::openProjectWelcomePage(const QString &fileName)
 
 ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProject(const QString &fileName)
 {
-    OpenProjectResult result = openProjects(QStringList() << fileName);
+    OpenProjectResult result = openProjects(QStringList(fileName));
     Project *project = result.project();
     if (!project)
         return result;

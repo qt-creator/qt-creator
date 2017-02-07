@@ -82,7 +82,7 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
         fileNames.append(fileInfo.fileName());
     } else if (fileInfo.isDir()) {
         dir.setPath(path);
-        dir.setNameFilters(QStringList() << QStringLiteral("*.def"));
+        dir.setNameFilters(QStringList("*.def"));
         fileNames = dir.entryList(QDir::Files);
     } else {
         // TODO add error handling

@@ -461,7 +461,7 @@ Qt::DropActions TreeModel::supportedDropActions() const
 
 QStringList TreeModel::mimeTypes() const
 {
-    return QStringList() << QStringLiteral("text/model-elements");
+    return QStringList(QString("text/model-elements"));
 }
 
 void TreeModel::onBeginResetModel()

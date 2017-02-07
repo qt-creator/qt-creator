@@ -1600,7 +1600,7 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
                 VersionSelector selector(file, response.stdErr);
                 if (selector.exec() == QDialog::Accepted) {
                     if (selector.isUpdate())
-                        ccUpdate(workingDir, QStringList() << file);
+                        ccUpdate(workingDir, QStringList(file));
                     else
                         args.removeOne(QLatin1String("-query"));
                     response = runCleartool(topLevel, args, m_settings.timeOutS,
@@ -1795,7 +1795,7 @@ static QString baseName(const QString &fileName)
 bool ClearCasePlugin::vcsAdd(const QString &workingDir, const QString &fileName)
 {
     return ccFileOp(workingDir, tr("ClearCase Add File %1").arg(baseName(fileName)),
-                    QStringList() << QLatin1String("mkelem") << QLatin1String("-ci"), fileName);
+                    QStringList({ "mkelem", "-ci" }), fileName);
 }
 
 bool ClearCasePlugin::vcsDelete(const QString &workingDir, const QString &fileName)
@@ -1806,14 +1806,14 @@ bool ClearCasePlugin::vcsDelete(const QString &workingDir, const QString &fileNa
         return true;
 
     return ccFileOp(workingDir, tr("ClearCase Remove File %1").arg(baseName(fileName)),
-                    QStringList() << QLatin1String("rmname") << QLatin1String("-force"), fileName);
+                    QStringList({ "rmname", "-force" }), fileName);
 }
 
 bool ClearCasePlugin::vcsMove(const QString &workingDir, const QString &from, const QString &to)
 {
     return ccFileOp(workingDir, tr("ClearCase Rename File %1 -> %2")
                     .arg(baseName(from)).arg(baseName(to)),
-                    QStringList() << QLatin1String("move"), from, to);
+                    QStringList("move"), from, to);
 }
 
 bool ClearCasePlugin::vcsCheckout(const QString & /*directory*/, const QByteArray & /*url*/)

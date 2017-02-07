@@ -165,7 +165,7 @@ public:
         const QString hFile = files.at(1);
 
         QCOMPARE(DocumentModel::openedDocuments().size(), files.size());
-        waitForFilesInGlobalSnapshot(QStringList() << cppFile << hFile);
+        waitForFilesInGlobalSnapshot({ cppFile, hFile });
 
         // Execute "Go To Slot"
         QDesignerIntegrationInterface *integration = FormEditorW::designerEditor()->integration();

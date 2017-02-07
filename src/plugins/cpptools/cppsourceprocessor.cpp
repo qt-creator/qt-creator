@@ -168,7 +168,7 @@ void CppSourceProcessor::addFrameworkPath(const ProjectPartHeaderPath &framework
         m_headerPaths.append(cleanFrameworkPath);
 
     const QDir frameworkDir(cleanFrameworkPath.path);
-    const QStringList filter = QStringList() << QLatin1String("*.framework");
+    const QStringList filter = QStringList("*.framework");
     foreach (const QFileInfo &framework, frameworkDir.entryInfoList(filter)) {
         if (!framework.isDir())
             continue;

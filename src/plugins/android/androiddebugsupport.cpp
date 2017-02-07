@@ -69,7 +69,7 @@ static QStringList qtSoPaths(QtSupport::BaseQtVersion *qtVersion)
         QString path = qtVersion->qmakeProperty(qMakeVariables[i]);
         if (path.isNull())
             continue;
-        QDirIterator it(path, QStringList() << QLatin1String("*.so"), QDir::Files, QDirIterator::Subdirectories);
+        QDirIterator it(path, QStringList("*.so"), QDir::Files, QDirIterator::Subdirectories);
         while (it.hasNext()) {
             it.next();
             paths.insert(it.fileInfo().absolutePath());

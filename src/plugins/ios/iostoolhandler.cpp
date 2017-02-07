@@ -101,7 +101,7 @@ public:
                 if (!fi.isCanceled())
                     emit logMessage(QString::fromLocal8Bit(tailProcess->readAll()));
             });
-            tailProcess->start(QStringLiteral("tail"), QStringList() << "-f" << file->fileName());
+            tailProcess->start(QStringLiteral("tail"), { "-f", file->fileName() });
         };
 
         auto processDeleter = [](QProcess *process) {

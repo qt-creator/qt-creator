@@ -1056,8 +1056,8 @@ bool AndroidManifestEditorWidget::parseMetaData(QXmlStreamReader &reader, QXmlSt
     QXmlStreamAttributes result;
 
     if (attributes.value(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")) {
-        QStringList keys = QStringList() << QLatin1String("android:value");
-        QStringList values = QStringList() << m_targetLineEdit->currentText();
+        QStringList keys = QStringList("android:value");
+        QStringList values = QStringList(m_targetLineEdit->currentText());
         result = modifyXmlStreamAttributes(attributes, keys, values);
         found = true;
     } else {

@@ -68,7 +68,7 @@ private:
 ClangStaticAnalyzerDiagnosticModel::ClangStaticAnalyzerDiagnosticModel(QObject *parent)
     : Utils::TreeModel<>(parent)
 {
-    setHeader(QStringList() << tr("Issue") << tr("Location"));
+    setHeader({ tr("Issue"), tr("Location") });
 }
 
 void ClangStaticAnalyzerDiagnosticModel::addDiagnostics(const QList<Diagnostic> &diagnostics)

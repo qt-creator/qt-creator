@@ -40,7 +40,7 @@ SystemEditor::SystemEditor(QObject *parent) :
 
 QStringList SystemEditor::mimeTypes() const
 {
-    return QStringList() << QLatin1String("application/octet-stream");
+    return QStringList("application/octet-stream");
 }
 
 Id SystemEditor::id() const

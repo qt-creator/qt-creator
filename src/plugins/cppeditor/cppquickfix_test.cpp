@@ -3644,7 +3644,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noDoubleQtH
                                          ProjectPartHeaderPath::IncludePath);
 
     AddIncludeForUndefinedIdentifier factory;
-    const QStringList expectedOperations = QStringList() << QLatin1String("Add #include <QDir>");
+    const QStringList expectedOperations = QStringList("Add #include <QDir>");
     QuickFixOfferedOperationsTest(testDocuments, &factory, headerPaths, expectedOperations);
 }
 

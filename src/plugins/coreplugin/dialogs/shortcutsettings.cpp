@@ -499,7 +499,7 @@ void ShortcutSettingsWidget::initialize()
         const QString section = identifier.left(pos);
         const QString subId = identifier.mid(pos + 1);
         if (!sections.contains(section)) {
-            QTreeWidgetItem *categoryItem = new QTreeWidgetItem(commandList(), QStringList() << section);
+            QTreeWidgetItem *categoryItem = new QTreeWidgetItem(commandList(), QStringList(section));
             QFont f = categoryItem->font(0);
             f.setBold(true);
             categoryItem->setFont(0, f);

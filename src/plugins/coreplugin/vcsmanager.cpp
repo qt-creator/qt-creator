@@ -596,9 +596,9 @@ void CorePlugin::testVcsManager_data()
                 << QLatin1String("a/1/b/../../2:a:A:*") // in A
                 );
     QTest::newRow("A and B") // first one wins...
-            << (QStringList() << QLatin1String("a:a") << QLatin1String("a/1:a") << QLatin1String("a/2:a"))
-            << (QStringList() << QLatin1String("a:a") << QLatin1String("a/1:a") << QLatin1String("a/2:a"))
-            << (QStringList() << QLatin1String("a/2:a:A:*"));
+            << QStringList({ "a:a", "a/1:a", "a/2:a" })
+            << QStringList({ "a:a", "a/1:a", "a/2:a" })
+            << QStringList({ "a/2:a:A:*" });
 }
 
 void CorePlugin::testVcsManager()

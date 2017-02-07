@@ -89,7 +89,7 @@ DropSupport::DropSupport(QWidget *parentWidget, const DropFilterFunction &filter
 
 QStringList DropSupport::mimeTypesForFilePaths()
 {
-    return QStringList() << QStringLiteral("text/uri-list");
+    return QStringList("text/uri-list");
 }
 
 bool DropSupport::isFileDrop(QDropEvent *event) const
