@@ -68,7 +68,7 @@ public:
     const DesignerActionManager &designerActionManager() const;
 
 signals:
-    void selectionChanged(bool itemsSelected);
+    void selectionChanged(bool itemsSelected, bool rootItemIsSelected);
 
 protected:
     void setupContext();

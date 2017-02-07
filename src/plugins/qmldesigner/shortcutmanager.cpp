@@ -268,9 +268,9 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     Core::ActionManager::registerAction(&m_hideSidebarsAction, Core::Constants::TOGGLE_SIDEBAR, qmlDesignerMainContext);
 
-    connect(designerActionManager.view(), &DesignerActionManagerView::selectionChanged, this, [this](bool itemsSelected) {
-        m_deleteAction.setEnabled(itemsSelected);
-        m_cutAction.setEnabled(itemsSelected);
+    connect(designerActionManager.view(), &DesignerActionManagerView::selectionChanged, this, [this](bool itemsSelected, bool rootItemIsSelected) {
+        m_deleteAction.setEnabled(itemsSelected && !rootItemIsSelected);
+        m_cutAction.setEnabled(itemsSelected && !rootItemIsSelected);
         m_copyAction.setEnabled(itemsSelected);
     });
 

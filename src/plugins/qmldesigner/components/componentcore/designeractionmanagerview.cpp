@@ -107,7 +107,7 @@ void DesignerActionManagerView::selectedNodesChanged(const QList<ModelNode> &sel
      * Without this signal the ShortcutManager would have to be refactored completely.
      * This signal is only used to update the state of the cut/copy/delete actions.
     */
-    emit selectionChanged(!selectedNodes.isEmpty());
+    emit selectionChanged(!selectedNodes.isEmpty(), singleSelectedModelNode().isRootNode());
 }
 
 void DesignerActionManagerView::nodeOrderChanged(const NodeListProperty &, const ModelNode &, int)
