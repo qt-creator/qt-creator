@@ -271,8 +271,11 @@ void ServerModeReader::generateProjectTree(CMakeListsNode *root,
     }
     m_cmakeInputsFileNodes.clear(); // Clean out, they are not going to be used anymore!
 
-    if (!m_projects.isEmpty())
-        root->setDisplayName(m_projects.at(0)->name);
+    const Project *topLevel = Utils::findOrDefault(m_projects, [this](const Project *p) {
+        return m_parameters.sourceDirectory == p->sourceDirectory;
+    });
+    if (topLevel)
+        root->setDisplayName(topLevel->name);
 
     if (!cmakeFilesSource.isEmpty() || !cmakeFilesBuild.isEmpty() || !cmakeFilesOther.isEmpty())
         addCMakeInputs(root, m_parameters.sourceDirectory, m_parameters.buildDirectory,
