@@ -46,6 +46,7 @@ public:
     virtual ~ProjectImporter();
 
     const Utils::FileName projectFilePath() const { return m_projectPath; }
+    const Utils::FileName projectDirectory() const { return m_projectPath.parentDir(); }
 
     virtual QList<BuildInfo *> import(const Utils::FileName &importPath, bool silent = false);
     virtual QStringList importCandidates() = 0;
