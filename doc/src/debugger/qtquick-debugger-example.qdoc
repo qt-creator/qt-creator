@@ -63,7 +63,7 @@
         \li Select \uicontrol {Debug > Start Debugging > Start Debugging} or press
             \key{F5}.
 
-        \li Once the Same Game application starts, select \uicontrol {1 Player}
+        \li Once the Same Game application starts, select \uicontrol {Puzzle}
             to start a new game.
 
             \image samegame.png
