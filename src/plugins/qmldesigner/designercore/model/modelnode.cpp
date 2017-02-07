@@ -870,10 +870,9 @@ bool ModelNode::isSelected() const
 */
 bool ModelNode::isRootNode() const
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return false;
+
     return view()->rootModelNode() == *this;
 }
 
