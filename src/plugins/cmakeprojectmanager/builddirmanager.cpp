@@ -337,6 +337,19 @@ CMakeConfig BuildDirManager::parsedConfiguration() const
     return m_cmakeCache;
 }
 
+CMakeConfig BuildDirManager::parseConfiguration(const Utils::FileName &cacheFile, QString *errorMessage)
+{
+    if (!cacheFile.exists()) {
+        if (errorMessage)
+            *errorMessage = tr("CMakeCache.txt file not found.");
+        return { };
+    }
+    CMakeConfig result = CMakeConfigItem::itemsFromFile(cacheFile, errorMessage);
+    if (!errorMessage->isEmpty())
+        return { };
+    return result;
+}
+
 void BuildDirManager::checkConfiguration()
 {
     if (m_tempDir) // always throw away changes in the tmpdir!

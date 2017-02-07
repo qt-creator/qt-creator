@@ -25,6 +25,7 @@
 
 #include "tealeafreader.h"
 
+#include "builddirmanager.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakecbpparser.h"
 #include "cmakekitinformation.h"
@@ -222,15 +223,16 @@ QList<CMakeBuildTarget> TeaLeafReader::buildTargets() const
 
 CMakeConfig TeaLeafReader::takeParsedConfiguration()
 {
-    CMakeConfig result;
     FileName cacheFile = m_parameters.buildDirectory;
     cacheFile.appendPath(QLatin1String("CMakeCache.txt"));
-    if (!cacheFile.exists())
-        return result;
     QString errorMessage;
-    result = CMakeConfigItem::itemsFromFile(cacheFile, &errorMessage);
-    if (!errorMessage.isEmpty())
+    CMakeConfig result = BuildDirManager::parseConfiguration(cacheFile, &errorMessage);
+
+    if (!errorMessage.isEmpty()) {
         emit errorOccured(errorMessage);
+        return { };
+    }
+
     const FileName sourceOfBuildDir
             = FileName::fromUtf8(CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", result));
     const FileName canonicalSourceOfBuildDir = FileUtils::canonicalPath(sourceOfBuildDir);
@@ -239,6 +241,7 @@ CMakeConfig TeaLeafReader::takeParsedConfiguration()
         emit errorOccured(tr("The build directory is not for %1 but for %2")
                           .arg(canonicalSourceOfBuildDir.toUserOutput(),
                                canonicalSourceDirectory.toUserOutput()));
+        return { };
     }
     return result;
 }
