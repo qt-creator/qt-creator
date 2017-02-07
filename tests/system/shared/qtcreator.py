@@ -52,6 +52,7 @@ source("../../shared/project_explorer.py")
 source("../../shared/hook_utils.py")
 source("../../shared/debugger.py")
 source("../../shared/clang.py")
+source("../../shared/welcome.py")
 source("../../shared/workarounds.py") # include this at last
 
 # ATTENTION: if a test case calls startApplication("qtcreator...") for several times this

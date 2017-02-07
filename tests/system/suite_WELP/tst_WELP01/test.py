@@ -57,27 +57,6 @@ def waitForButtonsState(projectsActive, examplesActive, tutorialsActive, timeout
                    'and buttonActive(exmpButton) == examplesActive '
                    'and buttonActive(tutoButton) == tutorialsActive', timeout)
 
-def __getWelcomeScreenButtonHelper__(buttonLabel, widgetWithQFrames):
-    frames = [child for child in object.children(widgetWithQFrames) if className(child) == 'QFrame']
-    for frame in frames:
-        label = getChildByClass(frame, 'QLabel')
-        if str(label.text) == buttonLabel:
-            return frame, label
-    return None, None
-
-def getWelcomeScreenSideBarButton(buttonLabel):
-    sideBar = waitForObject("{type='Welcome::Internal::SideBar' unnamed='1' "
-                            "window=':Qt Creator_Core::Internal::MainWindow'}")
-    return __getWelcomeScreenButtonHelper__(buttonLabel, sideBar)
-
-def getWelcomeScreenMainButton(buttonLabel):
-    stackedWidget = waitForObject("{type='QWidget' unnamed='1' visible='1' "
-                                  "leftWidget={type='QWidget' unnamed='1' visible='1' "
-                                  "leftWidget={type='Welcome::Internal::SideBar' unnamed='1' "
-                                  "window=':Qt Creator_Core::Internal::MainWindow'}}}")
-    currentStackWidget = stackedWidget.currentWidget()
-    return __getWelcomeScreenButtonHelper__(buttonLabel, currentStackWidget)
-
 def checkTableViewForContent(tableViewStr, expectedRegExTitle, section, atLeastOneText):
     try:
         tableView = findObject(tableViewStr) # waitForObject does not work - visible is 0?

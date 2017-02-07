@@ -34,10 +34,11 @@ def openQbsProject(projectPath):
 def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWelcome=False):
     cleanUpUserFiles(projectPath)
     if fromWelcome:
-        welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
-        mouseClick(waitForObject("{clip='false' container='%s' enabled='true' text='Open Project' "
-                                 "type='Button' unnamed='1' visible='true'}" % welcomePage),
-                   5, 5, 0, Qt.LeftButton)
+        wsButtonFrame, wsButtonLabel = getWelcomeScreenMainButton('Open Project')
+        if not all((wsButtonFrame, wsButtonLabel)):
+            test.fatal("Could not find 'Open Project' button on Welcome Page.")
+            return []
+        mouseClick(wsButtonLabel)
     else:
         invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
@@ -82,10 +83,11 @@ def openCmakeProject(projectPath, buildDir):
 # this list can be used in __chooseTargets__()
 def __createProjectOrFileSelectType__(category, template, fromWelcome = False, isProject=True):
     if fromWelcome:
-        welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
-        mouseClick(waitForObject("{clip='false' container='%s' enabled='true' text='New Project' "
-                                 "type='Button' unnamed='1' visible='true'}" % welcomePage),
-                   5, 5, 0, Qt.LeftButton)
+        wsButtonFrame, wsButtonLabel = getWelcomeScreenMainButton("New Project")
+        if not all((wsButtonFrame, wsButtonLabel)):
+            test.fatal("Could not find 'New Project' button on Welcome Page")
+            return []
+        mouseClick(wsButtonLabel)
     else:
         invokeMenuItem("File", "New File or Project...")
     categoriesView = waitForObject(":New.templateCategoryView_QTreeView")
