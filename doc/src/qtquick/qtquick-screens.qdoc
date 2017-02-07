@@ -39,7 +39,7 @@
     \title Creating Screens
 
     You can use predefined QML types and your own components to create
-    screens. Typically, the main qml file in a Qt Quick project specifies the
+    screens. Typically, the main QML file in a Qt Quick project specifies the
     main window of an application.
 
     The QML files in the project folder are displayed in \uicontrol {QML Components}
