@@ -251,6 +251,9 @@ public:
     void addFolderNode(FolderNode *subFolder);
     void setFolderNodes(const QList<FolderNode*> &folders);
 
+    // all subFolders that are projects
+    QList<ProjectNode*> projectNodes() const;
+
     void makeEmpty();
     bool isEmpty() const;
 
@@ -296,16 +299,8 @@ public:
 
     virtual QList<RunConfiguration *> runConfigurations() const;
 
-    void accept(NodesVisitor *visitor) override;
-
     ProjectNode *projectNode(const Utils::FileName &file) const;
-    // all subFolders that are projects
-    QList<ProjectNode*> projectNodes() const;
     void addProjectNode(ProjectNode *subProject);
-    void removeProjectNode(ProjectNode *subProject);
-
-    void makeEmpty();
-    bool isEmpty() const;
 
     ProjectNode *asProjectNode() final { return this; }
     const ProjectNode *asProjectNode() const final { return this; }
@@ -316,8 +311,6 @@ protected:
     explicit ProjectNode(const Utils::FileName &projectFilePath);
 
 private:
-    QList<ProjectNode*> m_projectNodes;
-
     // let SessionNode call setParentFolderNode
     friend class SessionNode;
 };
@@ -327,12 +320,10 @@ class PROJECTEXPLORER_EXPORT SessionNode : public FolderNode
 {
 public:
     SessionNode();
-    QList<ProjectNode*> projectNodes() const;
 
 private:
     QList<ProjectAction> supportedActions(Node *node) const final;
     QString addFileFilter() const final;
-    void accept(NodesVisitor *visitor) final;
 
     bool showInSimpleTree() const final;
     void projectDisplayNameChanged(Node *node);
@@ -343,8 +334,6 @@ private:
     friend class SessionManager;
     void addProjectNode(ProjectNode *projectNode);
     void removeProjectNode(ProjectNode *projectNode);
-
-    QList<ProjectNode*> m_projectNodes;
 };
 
 } // namespace ProjectExplorer

@@ -36,15 +36,13 @@ namespace ProjectExplorer {
 class Node;
 class FileNode;
 class SessionNode;
-class ProjectNode;
 class FolderNode;
 
-class PROJECTEXPLORER_EXPORT NodesVisitor {
+class PROJECTEXPLORER_EXPORT NodesVisitor
+{
 public:
     virtual ~NodesVisitor();
 
-    virtual void visitSessionNode(SessionNode *) { }
-    virtual void visitProjectNode(ProjectNode *) { }
     virtual void visitFolderNode(FolderNode *) { }
 
 protected:
@@ -53,26 +51,25 @@ protected:
 
 /* useful visitors */
 
-class PROJECTEXPLORER_EXPORT FindNodesForFileVisitor : public NodesVisitor {
+class PROJECTEXPLORER_EXPORT FindNodesForFileVisitor : public NodesVisitor
+{
 public:
     explicit FindNodesForFileVisitor(const Utils::FileName &fileToSearch);
 
     QList<Node*> nodes() const;
 
-    void visitProjectNode(ProjectNode *node) override;
     void visitFolderNode(FolderNode *node) override;
-    void visitSessionNode(SessionNode *node) override;
 
 private:
     Utils::FileName m_path;
     QList<Node *> m_nodes;
 };
 
-class PROJECTEXPLORER_EXPORT FindAllFilesVisitor : public NodesVisitor {
+class PROJECTEXPLORER_EXPORT FindAllFilesVisitor : public NodesVisitor
+{
 public:
     Utils::FileNameList filePaths() const;
 
-    void visitProjectNode(ProjectNode *projectNode) override;
     void visitFolderNode(FolderNode *folderNode) override;
 
 private:

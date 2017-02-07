@@ -686,24 +686,24 @@ QList<RunConfiguration *> ProjectNode::runConfigurations() const
     return QList<RunConfiguration *>();
 }
 
-void ProjectNode::accept(NodesVisitor *visitor)
-{
-    visitor->visitProjectNode(this);
-
-    foreach (FolderNode *folder, m_folderNodes)
-        folder->accept(visitor);
-}
-
 ProjectNode *ProjectNode::projectNode(const Utils::FileName &file) const
 {
-    return Utils::findOrDefault(m_projectNodes, [&file](const ProjectNode *fn) {
-        return fn->filePath() == file;
-    });
+    for (FolderNode *node : m_folderNodes) {
+        if (ProjectNode *pnode = node->asProjectNode())
+            if (pnode->filePath() == file)
+                return pnode;
+    }
+    return nullptr;
 }
 
-QList<ProjectNode*> ProjectNode::projectNodes() const
+QList<ProjectNode*> FolderNode::projectNodes() const
 {
-    return m_projectNodes;
+    QList<ProjectNode *> nodes;
+    for (FolderNode *node : m_folderNodes) {
+        if (ProjectNode *pnode = node->asProjectNode())
+            nodes.append(pnode);
+    }
+    return nodes;
 }
 
 /*!
@@ -717,31 +717,13 @@ void ProjectNode::addProjectNode(ProjectNode *subProject)
 
     subProject->setParentFolderNode(this);
     m_folderNodes.append(subProject);
-    m_projectNodes.append(subProject);
 
     Utils::sort(m_folderNodes);
-    Utils::sort(m_projectNodes);
 }
 
-
-/*!
-  Removes all child nodes from the node hierarchy and deletes them.
-*/
-
-void ProjectNode::makeEmpty()
+bool FolderNode::isEmpty() const
 {
-    foreach (ProjectNode *subProject, m_projectNodes)
-        m_folderNodes.removeAll(subProject);
-
-    qDeleteAll(m_projectNodes);
-    m_projectNodes.clear();
-
-    FolderNode::makeEmpty();
-}
-
-bool ProjectNode::isEmpty() const
-{
-    return m_fileNodes.isEmpty() && m_folderNodes.isEmpty() && m_projectNodes.isEmpty();
+    return m_fileNodes.isEmpty() && m_folderNodes.isEmpty();
 }
 
 /*!
@@ -758,22 +740,9 @@ QList<ProjectAction> SessionNode::supportedActions(Node *node) const
     return QList<ProjectAction>();
 }
 
-
-void SessionNode::accept(NodesVisitor *visitor)
-{
-    visitor->visitSessionNode(this);
-    foreach (ProjectNode *project, m_projectNodes)
-        project->accept(visitor);
-}
-
 bool SessionNode::showInSimpleTree() const
 {
     return true;
-}
-
-QList<ProjectNode*> SessionNode::projectNodes() const
-{
-    return m_projectNodes;
 }
 
 QString SessionNode::addFileFilter() const
@@ -787,16 +756,12 @@ void SessionNode::addProjectNode(ProjectNode *projectNode)
                qDebug("Project node has already a parent folder"));
     projectNode->setParentFolderNode(this);
     m_folderNodes.append(projectNode);
-    m_projectNodes.append(projectNode);
-
     Utils::sort(m_folderNodes);
-    Utils::sort(m_projectNodes);
 }
 
 void SessionNode::removeProjectNode(ProjectNode *projectNode)
 {
     m_folderNodes.removeOne(projectNode);
-    m_projectNodes.removeOne(projectNode);
 }
 
 } // namespace ProjectExplorer

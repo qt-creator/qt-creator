@@ -1391,18 +1391,15 @@ static QmakeProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::Templ
 
 namespace {
     // feed all files accepted by any of the factories to the callback.
-    class FindGeneratorSourcesVisitor : public NodesVisitor {
+    class FindGeneratorSourcesVisitor : public NodesVisitor
+    {
     public:
         FindGeneratorSourcesVisitor(
                 const QList<ProjectExplorer::ExtraCompilerFactory *> &factories,
                 std::function<void(FileNode *, ProjectExplorer::ExtraCompilerFactory *)> callback) :
             factories(factories), callback(callback) {}
 
-        void visitProjectNode(ProjectNode *projectNode)
-        {
-            visitFolderNode(projectNode);
-        }
-        void visitFolderNode(FolderNode *folderNode)
+        void visitFolderNode(FolderNode *folderNode) final
         {
             foreach (FileNode *fileNode, folderNode->fileNodes()) {
                 foreach (ProjectExplorer::ExtraCompilerFactory *factory, factories) {

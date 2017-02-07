@@ -81,11 +81,6 @@ QList<Node*> FindNodesForFileVisitor::nodes() const
     return m_nodes;
 }
 
-void FindNodesForFileVisitor::visitProjectNode(ProjectNode *node)
-{
-    visitFolderNode(node);
-}
-
 void FindNodesForFileVisitor::visitFolderNode(FolderNode *node)
 {
     if (node->filePath() == m_path)
@@ -94,11 +89,6 @@ void FindNodesForFileVisitor::visitFolderNode(FolderNode *node)
         if (fileNode->filePath() == m_path)
             m_nodes << fileNode;
     }
-}
-
-void FindNodesForFileVisitor::visitSessionNode(SessionNode *node)
-{
-    visitFolderNode(node);
 }
 
 /*!
@@ -110,11 +100,6 @@ void FindNodesForFileVisitor::visitSessionNode(SessionNode *node)
 Utils::FileNameList FindAllFilesVisitor::filePaths() const
 {
     return m_filePaths;
-}
-
-void FindAllFilesVisitor::visitProjectNode(ProjectNode *projectNode)
-{
-    visitFolderNode(projectNode);
 }
 
 void FindAllFilesVisitor::visitFolderNode(FolderNode *folderNode)

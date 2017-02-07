@@ -161,11 +161,9 @@ class ProjectFilesVisitor : public NodesVisitor
     ProjectFilesVisitor(QmakeProjectFiles *files);
 
 public:
-
     static void findProjectFiles(QmakeProFileNode *rootNode, QmakeProjectFiles *files);
 
-    void visitProjectNode(ProjectNode *projectNode);
-    void visitFolderNode(FolderNode *folderNode);
+    void visitFolderNode(FolderNode *folderNode) final;
 
 private:
     QmakeProjectFiles *m_files;
@@ -199,14 +197,10 @@ void ProjectFilesVisitor::findProjectFiles(QmakeProFileNode *rootNode, QmakeProj
     unique(files->proFiles);
 }
 
-void ProjectFilesVisitor::visitProjectNode(ProjectNode *projectNode)
-{
-    m_files->proFiles.append(projectNode->filePath().toString());
-    visitFolderNode(projectNode);
-}
-
 void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
 {
+    if (ProjectNode *projectNode = folderNode->asProjectNode())
+        m_files->proFiles.append(projectNode->filePath().toString());
     if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
         m_files->files[static_cast<int>(FileType::Resource)].push_back(folderNode->filePath().toString());
 

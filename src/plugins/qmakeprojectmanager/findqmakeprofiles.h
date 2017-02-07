@@ -27,6 +27,8 @@
 
 #include <projectexplorer/nodesvisitor.h>
 
+namespace ProjectExplorer { class ProjectNode; }
+
 namespace QmakeProjectManager {
 class QmakeProFileNode;
 namespace Internal {
@@ -36,7 +38,7 @@ class FindQmakeProFiles: protected ProjectExplorer::NodesVisitor
 public:
     QList<QmakeProFileNode *> operator()(ProjectExplorer::ProjectNode *root);
 protected:
-    virtual void visitProjectNode(ProjectExplorer::ProjectNode *projectNode);
+    void visitFolderNode(ProjectExplorer::FolderNode *folderNode) final;
 private:
     QList<QmakeProFileNode *> m_proFiles;
 };
