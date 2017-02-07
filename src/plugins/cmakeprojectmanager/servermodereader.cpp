@@ -570,32 +570,23 @@ void ServerModeReader::addCMakeLists(CMakeListsNode *root, const QList<FileNode 
 
 static CMakeListsNode *findCMakeNode(CMakeListsNode *root, const Utils::FileName &dir)
 {
-    Utils::FileName stepDir = dir;
+    const Utils::FileName stepDir = dir;
+    const Utils::FileName topDir = root->filePath().parentDir();
 
-    CMakeListsNode *base = root;
-    forever {
-        Utils::FileName stepLists = stepDir;
-        stepLists.appendPath("CMakeLists.txt");
+    QStringList relative = stepDir.relativeChildPath(topDir).toString().split('/');
 
-        CMakeListsNode *cmln = nullptr;
-        if (base->filePath() == stepLists) {
-            cmln = base;
-        } else {
-            ProjectNode *pcmln = base->projectNode(stepLists);
-            cmln = static_cast<CMakeListsNode *>(pcmln);
-        }
+    CMakeListsNode *result = root;
 
-        if (!cmln) {
-            stepDir = stepDir.parentDir();
-            if (stepDir.isEmpty())
-                return nullptr;
-        } else {
-            if (cmln->filePath().parentDir() == dir)
-                return cmln;
-            stepDir = dir;
-            base = cmln;
-        }
+    while (!relative.isEmpty()) {
+        const QString nextPathElement = relative.takeFirst();
+        if (nextPathElement.isEmpty())
+            continue;
+        const QString nextFullPath
+                = result->filePath().parentDir().toString() + '/' + nextPathElement + "/CMakeLists.txt";
+        result = static_cast<CMakeListsNode *>(result->projectNode(Utils::FileName::fromString(nextFullPath)));
+        QTC_ASSERT(result, return nullptr);
     }
+    return result;
 }
 
 static CMakeProjectNode *findOrCreateProjectNode(CMakeListsNode *root, const Utils::FileName &dir,
