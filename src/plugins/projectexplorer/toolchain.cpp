@@ -319,6 +319,13 @@ QList<ToolChain *> ToolChainFactory::autoDetect(const QList<ToolChain *> &alread
     return QList<ToolChain *>();
 }
 
+QList<ToolChain *> ToolChainFactory::autoDetect(const Utils::FileName &compilerPath, const Core::Id &language)
+{
+    Q_UNUSED(compilerPath);
+    Q_UNUSED(language);
+    return QList<ToolChain *>();
+}
+
 bool ToolChainFactory::canCreate()
 {
     return false;
