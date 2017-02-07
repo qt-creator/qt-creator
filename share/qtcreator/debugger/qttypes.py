@@ -489,7 +489,10 @@ def qdump__QFile(d, value):
     is32bit = d.ptrSize() == 4
     if qtVersion >= 0x050600:
         if d.isWindowsTarget():
-            offset = 164 if is32bit else 248
+            if d.isMsvcTarget():
+                offset = 184 if is32bit else 248
+            else:
+                offset = 164 if is32bit else 248
         else:
             offset = 168 if is32bit else 248
     elif qtVersion >= 0x050500:
@@ -752,7 +755,7 @@ def qdump__QHostAddress(d, value):
             (ipString, scopeId, a4, pad, a6, protocol, isParsed) \
                 = d.split('{QString}{QString}{quint32}I16sI{bool}', dd)
     elif qtVersion >= 0x050600: # 5.6.0 at f3aabb42
-        if d.ptrSize() == 8:
+        if d.ptrSize() == 8 or d.isMsvcTarget():
             (ipString, scopeId, a4, pad, a6, protocol, isParsed) \
                 = d.split('{QString}{QString}{quint32}I16sI{bool}', dd)
         else:
