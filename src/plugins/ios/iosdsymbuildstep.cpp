@@ -387,14 +387,11 @@ QStringList IosDsymBuildStep::defaultCleanCmdList() const
 {
     IosRunConfiguration *runConf =
             qobject_cast<IosRunConfiguration *>(target()->activeRunConfiguration());
-    QTC_ASSERT(runConf, return QStringList(QLatin1String("echo")));
+    QTC_ASSERT(runConf, return QStringList("echo"));
     QString dsymPath = runConf->bundleDirectory().toUserOutput();
     dsymPath.chop(4);
     dsymPath.append(QLatin1String(".dSYM"));
-    return QStringList()
-            << QLatin1String("rm")
-            << QLatin1String("-rf")
-            << dsymPath;
+    return QStringList({ "rm", "-rf", dsymPath });
 }
 
 QStringList IosDsymBuildStep::defaultCmdList() const
@@ -410,11 +407,7 @@ QStringList IosDsymBuildStep::defaultCmdList() const
     QString dsymPath = runConf->bundleDirectory().toUserOutput();
     dsymPath.chop(4);
     dsymPath.append(QLatin1String(".dSYM"));
-    return QStringList()
-            << dsymutilCmd
-            << QLatin1String("-o")
-            << dsymPath
-            << runConf->localExecutable().toUserOutput();
+    return QStringList({ dsymutilCmd, "-o", dsymPath, runConf->localExecutable().toUserOutput() });
 }
 
 

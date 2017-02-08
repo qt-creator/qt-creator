@@ -65,12 +65,11 @@ BacktraceCollector::~BacktraceCollector()
 
 void BacktraceCollector::run(Q_PID pid)
 {
-    d->debugger.start(QLatin1String("gdb"), QStringList()
-        << QLatin1String("--nw") // Do not use a window interface.
-        << QLatin1String("--nx") // Do not read .gdbinit file.
-        << QLatin1String("--batch") // Exit after processing options.
-        << QLatin1String("--command") << createTemporaryCommandFile()
-        << QLatin1String("--pid") << QString::number(pid)
+    d->debugger.start(QLatin1String("gdb"), QStringList({
+        "--nw",    // Do not use a window interface.
+        "--nx",    // Do not read .gdbinit file.
+        "--batch", // Exit after processing options.
+        "--command", createTemporaryCommandFile(), "--pid", QString::number(pid) })
     );
 }
 

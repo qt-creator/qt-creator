@@ -214,9 +214,8 @@ public:
 
         // Since no project is opened and the ui_*.h is not generated,
         // the following diagnostic messages will be ignored.
-        const QStringList ignoreList = QStringList()
-            << QLatin1String("ui_form.h: No such file or directory")
-            << QLatin1String("QWidget: No such file or directory");
+        const QStringList ignoreList = QStringList({ "ui_form.h: No such file or directory",
+                                                     "QWidget: No such file or directory" });
         QList<Document::DiagnosticMessage> cleanedDiagnosticMessages;
         foreach (const Document::DiagnosticMessage &message, document->diagnosticMessages()) {
             if (!ignoreList.contains(message.text()))
@@ -247,10 +246,9 @@ void FormEditorPlugin::test_gotoslot_data()
 
     MyTestDataDir testDataDirWithoutProject(_("gotoslot_withoutProject"));
     QTest::newRow("withoutProject")
-        << (QStringList()
-            << testDataDirWithoutProject.file(_("form.cpp"))
-            << testDataDirWithoutProject.file(_("form.h"))
-            << testDataDirWithoutProject.file(_("form.ui")));
+        << QStringList({ testDataDirWithoutProject.file(_("form.cpp")),
+                         testDataDirWithoutProject.file(_("form.h")),
+                         testDataDirWithoutProject.file(_("form.ui")) });
 
     // Finding the right class for inserting definitions/declarations is based on
     // finding a class with a member whose type is the class from the "ui_xxx.h" header.
@@ -261,24 +259,18 @@ void FormEditorPlugin::test_gotoslot_data()
 
     testDataDir = MyTestDataDir(_("gotoslot_insertIntoCorrectClass_pointer"));
     QTest::newRow("insertIntoCorrectClass_pointer")
-        << (QStringList()
-            << testDataDir.file(_("form.cpp"))
-            << testDataDir.file(_("form.h"))
-            << testDataDirWithoutProject.file(_("form.ui"))); // reuse
+        << QStringList({ testDataDir.file(_("form.cpp")), testDataDir.file(_("form.h")),
+                         testDataDirWithoutProject.file(_("form.ui")) }); // reuse
 
     testDataDir = MyTestDataDir(_("gotoslot_insertIntoCorrectClass_non-pointer"));
     QTest::newRow("insertIntoCorrectClass_non-pointer")
-        << (QStringList()
-            << testDataDir.file(_("form.cpp"))
-            << testDataDir.file(_("form.h"))
-            << testDataDirWithoutProject.file(_("form.ui"))); // reuse
+        << QStringList({ testDataDir.file(_("form.cpp")), testDataDir.file(_("form.h")),
+                         testDataDirWithoutProject.file(_("form.ui")) }); // reuse
 
     testDataDir = MyTestDataDir(_("gotoslot_insertIntoCorrectClass_pointer_ns_using"));
     QTest::newRow("insertIntoCorrectClass_pointer_ns_using")
-        << (QStringList()
-            << testDataDir.file(_("form.cpp"))
-            << testDataDir.file(_("form.h"))
-            << testDataDir.file(_("form.ui")));
+        << QStringList({ testDataDir.file(_("form.cpp")), testDataDir.file(_("form.h")),
+                         testDataDir.file(_("form.ui")) });
 }
 
 } // namespace Internal

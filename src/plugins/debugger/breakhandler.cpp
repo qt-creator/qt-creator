@@ -902,9 +902,8 @@ BreakHandler::BreakHandler()
 #if USE_BREAK_MODEL_TEST
     new ModelTest(this, 0);
 #endif
-    setHeader(QStringList()
-        << tr("Number") <<  tr("Function") << tr("File") << tr("Line")
-        << tr("Address") << tr("Condition") << tr("Ignore") << tr("Threads"));
+    setHeader(QStringList({ tr("Number"), tr("Function"), tr("File"), tr("Line"), tr("Address"),
+                            tr("Condition"), tr("Ignore"), tr("Threads") }));
 }
 
 static inline bool fileNameMatch(const QString &f1, const QString &f2)

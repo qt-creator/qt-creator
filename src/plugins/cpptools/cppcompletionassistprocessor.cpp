@@ -42,34 +42,14 @@ namespace CppTools {
 
 CppCompletionAssistProcessor::CppCompletionAssistProcessor(int snippetItemOrder)
     : m_positionForProposal(-1)
-    , m_preprocessorCompletions(QStringList()
-          << QLatin1String("define")
-          << QLatin1String("error")
-          << QLatin1String("include")
-          << QLatin1String("line")
-          << QLatin1String("pragma")
-          << QLatin1String("pragma once")
-          << QLatin1String("pragma omp atomic")
-          << QLatin1String("pragma omp parallel")
-          << QLatin1String("pragma omp for")
-          << QLatin1String("pragma omp ordered")
-          << QLatin1String("pragma omp parallel for")
-          << QLatin1String("pragma omp section")
-          << QLatin1String("pragma omp sections")
-          << QLatin1String("pragma omp parallel sections")
-          << QLatin1String("pragma omp single")
-          << QLatin1String("pragma omp master")
-          << QLatin1String("pragma omp critical")
-          << QLatin1String("pragma omp barrier")
-          << QLatin1String("pragma omp flush")
-          << QLatin1String("pragma omp threadprivate")
-          << QLatin1String("undef")
-          << QLatin1String("if")
-          << QLatin1String("ifdef")
-          << QLatin1String("ifndef")
-          << QLatin1String("elif")
-          << QLatin1String("else")
-          << QLatin1String("endif"))
+    , m_preprocessorCompletions(
+          QStringList({ "define", "error", "include", "line", "pragma", "pragma once",
+                        "pragma omp atomic", "pragma omp parallel", "pragma omp for",
+                        "pragma omp ordered", "pragma omp parallel for", "pragma omp section",
+                        "pragma omp sections", "pragma omp parallel sections", "pragma omp single",
+                        "pragma omp master", "pragma omp critical", "pragma omp barrier",
+                        "pragma omp flush", "pragma omp threadprivate", "undef", "if", "ifdef",
+                        "ifndef", "elif", "else", "endif" }))
     , m_hintProposal(0)
     , m_snippetCollector(QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID),
                          QIcon(QLatin1String(":/texteditor/images/snippet.png")),

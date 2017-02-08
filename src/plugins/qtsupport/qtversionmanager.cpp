@@ -418,7 +418,7 @@ static FileNameList gatherQmakePathsFromQtChooser()
     if (qtchooser.isEmpty())
         return FileNameList();
 
-    QList<QByteArray> versions = runQtChooser(qtchooser, QStringList() << QStringLiteral("-l"));
+    QList<QByteArray> versions = runQtChooser(qtchooser, QStringList("-l"));
     QSet<FileName> foundQMakes;
     foreach (const QByteArray &version, versions) {
         FileName possibleQMake = FileName::fromString(
@@ -475,12 +475,12 @@ static void updateDocumentation()
 {
     QStringList files;
     foreach (BaseQtVersion *v, m_versions) {
-        const QStringList docPaths = QStringList() << v->documentationPath() + QLatin1Char('/')
-                                                   << v->documentationPath() + QLatin1String("/qch/");
+        const QStringList docPaths = QStringList({ v->documentationPath() + QChar('/'),
+                                                   v->documentationPath() + "/qch/" });
         foreach (const QString &docPath, docPaths) {
             const QDir versionHelpDir(docPath);
             foreach (const QString &helpFile,
-                     versionHelpDir.entryList(QStringList() << QLatin1String("*.qch"), QDir::Files))
+                     versionHelpDir.entryList(QStringList("*.qch"), QDir::Files))
                 files << docPath + helpFile;
         }
     }

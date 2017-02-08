@@ -87,15 +87,12 @@ void CppFileSettings::toSettings(QSettings *s) const
 
 void CppFileSettings::fromSettings(QSettings *s)
 {
-    const QStringList defaultHeaderSearchPaths = QStringList()
-            << QLatin1String("include")
-            << QLatin1String("Include")
-            << QDir::toNativeSeparators(QLatin1String("../include"))
-            << QDir::toNativeSeparators(QLatin1String("../Include"));
-    const QStringList defaultSourceSearchPaths = QStringList()
-            << QDir::toNativeSeparators(QLatin1String("../src"))
-            << QDir::toNativeSeparators(QLatin1String("../Src"))
-            << QLatin1String("..");
+    const QStringList defaultHeaderSearchPaths
+            = QStringList({ "include", "Include", QDir::toNativeSeparators("../include"),
+                            QDir::toNativeSeparators("../Include") });
+    const QStringList defaultSourceSearchPaths
+            = QStringList({ QDir::toNativeSeparators("../src"), QDir::toNativeSeparators("../Src"),
+                            ".." });
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
     headerPrefixes = s->value(QLatin1String(headerPrefixesKeyC)).toStringList();
     sourcePrefixes = s->value(QLatin1String(sourcePrefixesKeyC)).toStringList();

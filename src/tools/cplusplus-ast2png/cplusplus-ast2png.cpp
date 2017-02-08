@@ -362,8 +362,7 @@ private:
 static void createImageFromDot(const QString &inputFile, const QString &outputFile, bool verbose)
 {
     const QString command = CplusplusToolsUtils::portableExecutableName(QLatin1String("dot"));
-    const QStringList arguments = QStringList()
-            << QLatin1String("-Tpng") << QLatin1String("-o") <<  outputFile << inputFile;
+    const QStringList arguments = QStringList({ "-Tpng", "-o", outputFile, inputFile });
     CplusplusToolsUtils::executeCommand(command, arguments, QString(), verbose);
 }
 
