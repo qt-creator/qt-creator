@@ -799,9 +799,7 @@ public:
 
     const Data &operator+(const CoreProfile &) const
     {
-        profileExtra +=
-            "CONFIG += QT\n"
-            "QT += core\n";
+        profileExtra += "QT += core\n";
 
         useQt = true;
         useQHash = true;
@@ -811,9 +809,7 @@ public:
 
     const Data &operator+(const NetworkProfile &) const
     {
-        profileExtra +=
-            "CONFIG += QT\n"
-            "QT += core network\n";
+        profileExtra += "QT += core network\n";
 
         useQt = true;
         useQHash = true;
@@ -1218,7 +1214,7 @@ void tst_Dumpers::dumper()
         if (data.useQt)
             proFile.write("QT -= widgets gui\n");
         else
-            proFile.write("CONFIG -= QT\n");
+            proFile.write("CONFIG -= qt\n");
         if (m_useGLibCxxDebug)
             proFile.write("DEFINES += _GLIBCXX_DEBUG\n");
         if (m_debuggerEngine == GdbEngine && m_debuggerVersion < 70500)
