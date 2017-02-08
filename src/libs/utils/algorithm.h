@@ -240,6 +240,7 @@ struct TransformImpl {
     static C call(const SC &container, F function)
     {
         C result;
+        result.reserve(container.size());
         std::transform(container.begin(), container.end(),
                        inserter(result),
                        function);
