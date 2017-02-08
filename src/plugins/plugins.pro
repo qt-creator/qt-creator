@@ -22,13 +22,11 @@ SUBDIRS   = \
     qtsupport \
     qmakeprojectmanager \
     debugger \
-    help \
     cpaster \
     cmakeprojectmanager \
     autotoolsprojectmanager \
     fakevim \
     emacskeys \
-    designer \
     resourceeditor \
     genericprojectmanager \
     qmljseditor \
@@ -58,6 +56,18 @@ SUBDIRS   = \
     updateinfo \
     scxmleditor \
     welcome
+
+qtHaveModule(help) {
+    SUBDIRS += help
+} else {
+    warning("Help plugin has been disabled.")
+}
+
+qtHaveModule(designercomponents_private) {
+    SUBDIRS += designer
+} else {
+    warning("Qt Widget Designer plugin has been disabled.")
+}
 
 DO_NOT_BUILD_QMLDESIGNER = $$(DO_NOT_BUILD_QMLDESIGNER)
 isEmpty(DO_NOT_BUILD_QMLDESIGNER) {

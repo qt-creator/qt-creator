@@ -104,8 +104,11 @@ ExampleSetModel::ExampleSetModel()
 
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsLoaded,
             this, &ExampleSetModel::qtVersionManagerLoaded);
-    connect(Core::HelpManager::instance(), &Core::HelpManager::setupFinished,
-            this, &ExampleSetModel::helpManagerInitialized);
+
+    if (auto helpManager = Core::HelpManager::instance()) {
+        connect(helpManager, &Core::HelpManager::setupFinished,
+                this, &ExampleSetModel::helpManagerInitialized);
+    }
 }
 
 void ExampleSetModel::recreateModel()

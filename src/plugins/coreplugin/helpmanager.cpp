@@ -35,6 +35,9 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QStringList>
+#include <QUrl>
+
+#ifdef QT_HELP_LIB
 
 #include <QHelpEngineCore>
 
@@ -452,3 +455,50 @@ void HelpManagerPrivate::writeSettings()
 }
 
 }   // Core
+
+#else // QT_HELP_LIB
+
+namespace Core {
+
+HelpManager *HelpManager::instance() { return 0; }
+
+QString HelpManager::collectionFilePath() { return QString(); }
+
+void HelpManager::registerDocumentation(const QStringList &) {}
+void HelpManager::unregisterDocumentation(const QStringList &) {}
+
+void HelpManager::registerUserDocumentation(const QStringList &) {}
+QSet<QString> HelpManager::userDocumentationPaths() { return {}; }
+
+QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &) { return {}; }
+QMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &) { return {}; }
+
+QUrl HelpManager::findFile(const QUrl &) { return QUrl();}
+QByteArray HelpManager::fileData(const QUrl &) { return QByteArray();}
+
+QStringList HelpManager::registeredNamespaces() { return {}; }
+QString HelpManager::namespaceFromFile(const QString &) { return QString(); }
+QString HelpManager::fileFromNamespace(const QString &) { return QString(); }
+
+void HelpManager::setCustomValue(const QString &, const QVariant &) {}
+QVariant HelpManager::customValue(const QString &, const QVariant &) { return QVariant(); }
+
+HelpManager::Filters filters() { return {}; }
+HelpManager::Filters fixedFilters() { return {}; }
+
+HelpManager::Filters userDefinedFilters() { return {}; }
+
+void HelpManager::removeUserDefinedFilter(const QString &) {}
+void HelpManager::addUserDefinedFilter(const QString &, const QStringList &) {}
+
+void HelpManager::handleHelpRequest(const QUrl &, HelpManager::HelpViewerLocation) {}
+void HelpManager::handleHelpRequest(const QString &, HelpViewerLocation) {}
+
+HelpManager::HelpManager(QObject *) {}
+HelpManager::~HelpManager() {}
+
+void HelpManager::setupHelpManager() {}
+
+} // namespace Core
+
+#endif // QT_HELP_LIB
