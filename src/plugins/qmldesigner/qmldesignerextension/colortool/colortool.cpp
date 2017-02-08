@@ -70,7 +70,7 @@ public:
 
     Type type() const
     {
-        return ContextMenuAction;
+        return FormEditorAction;
     }
 
 protected:

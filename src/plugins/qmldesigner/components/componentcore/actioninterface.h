@@ -41,7 +41,8 @@ public:
         ContextMenu,
         ContextMenuAction,
         ToolBarAction,
-        Action
+        Action,
+        FormEditorAction
     };
 
     enum Priorities {

@@ -78,8 +78,9 @@ void populateMenu(QSet<ActionInterface* > &actionInterfaces,
             //recurse
 
             populateMenu(actionInterfaces, actionInterface->menuId(), newMenu, selectionContext);
-       } else if (actionInterface->type() == ActionInterface::ContextMenuAction
-                  || actionInterface->type() == ActionInterface::Action) {
+        } else if (actionInterface->type() == ActionInterface::ContextMenuAction
+                   || actionInterface->type() == ActionInterface::Action
+                   || actionInterface->type() == ActionInterface::FormEditorAction) {
            QAction* action = actionInterface->action();
            actionInterface->currentContextChanged(selectionContext);
            action->setIconVisibleInMenu(false);
