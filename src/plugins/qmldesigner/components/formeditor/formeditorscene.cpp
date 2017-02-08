@@ -242,6 +242,11 @@ QList<QGraphicsItem *> FormEditorScene::itemsAt(const QPointF &pos)
 
 void FormEditorScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    event->ignore();
+    QGraphicsScene::mousePressEvent(event);
+    if (event->isAccepted())
+        return;
+
     if (editorView() && editorView()->model())
         currentTool()->mousePressEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 }
@@ -257,6 +262,8 @@ void FormEditorScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     static QTime time = staticTimer();
 
+    QGraphicsScene::mouseMoveEvent(event);
+
     if (time.elapsed() > 30) {
         time.restart();
         if (event->buttons())
@@ -270,6 +277,11 @@ void FormEditorScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void FormEditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+    event->ignore();
+    QGraphicsScene::mouseReleaseEvent(event);
+    if (event->isAccepted())
+        return;
+
     if (editorView() && editorView()->model()) {
         currentTool()->mouseReleaseEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 
@@ -279,6 +291,11 @@ void FormEditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void FormEditorScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
+    event->ignore();
+    QGraphicsScene::mousePressEvent(event);
+    if (event->isAccepted())
+        return;
+
     if (editorView() && editorView()->model()) {
         currentTool()->mouseDoubleClickEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 
@@ -325,13 +342,13 @@ bool FormEditorScene::event(QEvent * event)
     {
         case QEvent::GraphicsSceneHoverEnter :
             hoverEnterEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
-            return true;
+            return QGraphicsScene::event(event);
         case QEvent::GraphicsSceneHoverMove :
             hoverMoveEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
-            return true;
+            return QGraphicsScene::event(event);
         case QEvent::GraphicsSceneHoverLeave :
             hoverLeaveEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
-            return true;
+            return QGraphicsScene::event(event);
         case QEvent::ShortcutOverride :
             if (static_cast<QKeyEvent*>(event)->key() == Qt::Key_Escape) {
                 currentTool()->keyPressEvent(static_cast<QKeyEvent*>(event));
