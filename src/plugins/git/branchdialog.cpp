@@ -93,7 +93,7 @@ BranchDialog::BranchDialog(QWidget *parent) :
     connect(m_model, &QAbstractItemModel::rowsInserted, this, &BranchDialog::resizeColumns);
     connect(m_model, &QAbstractItemModel::rowsRemoved, this, &BranchDialog::resizeColumns);
 
-    enableButtons();
+    m_ui->branchView->selectionModel()->clear();
 }
 
 BranchDialog::~BranchDialog()
@@ -258,7 +258,7 @@ void BranchDialog::checkout()
         else if (branchCheckoutDialog.popStashOfNextBranch())
             client->synchronousStashRestore(m_repository, stashName, true);
     }
-    enableButtons();
+    m_ui->branchView->selectionModel()->clear();
 }
 
 /* Prompt to delete a local branch and do so. */
@@ -320,7 +320,7 @@ void BranchDialog::rename()
             m_model->renameBranch(oldName, branchAddDialog.branchName());
         refreshCurrentRepository();
     }
-    enableButtons();
+    m_ui->branchView->selectionModel()->clear();
 }
 
 void BranchDialog::diff()
