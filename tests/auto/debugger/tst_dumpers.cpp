@@ -677,6 +677,7 @@ struct GuiPrivateProfile {};
 struct NetworkProfile {};
 struct QmlProfile {};
 struct QmlPrivateProfile {};
+struct SqlProfile {};
 
 struct NimProfile {};
 
@@ -813,6 +814,15 @@ public:
 
         useQt = true;
         useQHash = true;
+
+        return *this;
+    }
+
+    const Data &operator+(const SqlProfile &) const
+    {
+        profileExtra += "QT += core sql\n";
+
+        useQt = true;
 
         return *this;
     }
@@ -6532,6 +6542,30 @@ void tst_Dumpers::dumper_data()
             + RequiredMessage("Searching for type int (*)(int *) across all target modules, this could be very slow")
             + LldbEngine;
 
+    QTest::newRow("Sql")
+            << Data("#include <QSqlField>\n"
+                    "#include <QSqlDatabase>\n"
+                    "#include <QSqlQuery>\n"
+                    "#include <QSqlRecord>\n",
+                    "QSqlDatabase db = QSqlDatabase::addDatabase(\"QSQLITE\");\n"
+                    "db.setDatabaseName(\":memory:\");\n"
+                    "Q_ASSERT(db.open());\n"
+                    "QSqlQuery query;\n"
+                    "query.exec(\"create table images (itemid int, file varchar(20))\");\n"
+                    "query.exec(\"insert into images values(1, 'qt-logo.png')\");\n"
+                    "query.exec(\"insert into images values(2, 'qt-creator.png')\");\n"
+                    "query.exec(\"insert into images values(3, 'qt-project.png')\");\n"
+                    "query.exec(\"select * from images\");\n"
+                    "query.next();\n"
+                    "QSqlRecord rec = query.record();\n"
+                    "QSqlField f1 = rec.field(0);\n"
+                    "QSqlField f2 = rec.field(1);\n"
+                    "QSqlField f3 = rec.field(2);\n"
+                    "unused(&f1, &f2, &f3);\n")
+            + SqlProfile()
+            + Check("f1", "1", "@QSqlField (qlonglong)")
+            + Check("f2", "\"qt-logo.png\"", "@QSqlField (QString)")
+            + Check("f3", "(invalid)", "@QSqlField (invalid)");
 #if 0
 #ifdef Q_OS_LINUX
     // Hint: To open a failing test in Creator, do:

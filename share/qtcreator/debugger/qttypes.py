@@ -2691,3 +2691,37 @@ def qdump__QJsonArray(d, value):
 def qdump__QJsonObject(d, value):
     qdumpHelper_QJsonObject(d, value['d'].pointer(), value['o'].pointer())
 
+
+def qdump__QSqlResultPrivate(d, value):
+    # QSqlResult *q_ptr;
+    # QPointer<QSqlDriver> sqldriver;
+    # int idx;
+    # QString sql;
+    # bool active;
+    # bool isSel;
+    # QSqlError error;
+    # bool forwardOnly;
+    # QSql::NumericalPrecisionPolicy precisionPolicy;
+    # int bindCount;
+    # QSqlResult::BindingSyntax binds;
+    # QString executedQuery;
+    # QHash<int, QSql::ParamType> types;
+    # QVector<QVariant> values;
+    # QHash<QString, QList<int> > indexes;
+    # QVector<QHolder> holders
+    vptr, qptr, sqldriver1, sqldriver2, idx, pad, sql, active, isSel, pad, \
+        error1, error2, error3, \
+        forwardOnly, pad, precisionPolicy, bindCount, \
+        binds, executedQuery, types, values, indexes, holders = \
+        value.split('ppppi@{QString}bb@pppb@iiii{QString}ppp')
+
+    d.putStringValue(sql)
+    d.putPlainChildren(value)
+
+
+def qdump__QSqlField(d, value):
+    val, dptr = value.split('{QVariant}p')
+    d.putNumChild(1)
+    qdump__QVariant(d, val)
+    d.putBetterType(d.currentType.value.replace('QVariant', 'QSqlField'))
+    d.putPlainChildren(value)
