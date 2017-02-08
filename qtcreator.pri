@@ -58,6 +58,12 @@ defineReplace(stripSrcDir) {
     return($$relative_path($$absolute_path($$1, $$OUT_PWD), $$_PRO_FILE_PWD_))
 }
 
+macos:!minQtVersion(5, 7, 0) {
+    # Qt 5.6 still sets deployment target 10.7, which does not work
+    # with all C++11/14 features (e.g. std::future)
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.8
+}
+
 QTC_BUILD_TESTS = $$(QTC_BUILD_TESTS)
 !isEmpty(QTC_BUILD_TESTS):TEST = $$QTC_BUILD_TESTS
 
