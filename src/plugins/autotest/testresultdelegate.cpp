@@ -66,7 +66,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         painter->setBrush(opt.palette.highlight().color());
         foreground = opt.palette.highlightedText().color();
     } else {
-        painter->setBrush(opt.palette.background().color());
+        painter->setBrush(opt.palette.window().color());
         foreground = opt.palette.text().color();
     }
     painter->setPen(Qt::NoPen);
