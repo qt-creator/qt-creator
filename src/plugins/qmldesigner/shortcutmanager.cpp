@@ -241,7 +241,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     command = Core::ActionManager::registerAction(&m_toggleLeftSidebarAction, Constants::TOGGLE_LEFT_SIDEBAR, qmlDesignerMainContext);
     command->setAttribute(Core::Command::CA_Hide);
-    command->setDefaultKeySequence(QKeySequence("Ctrl+Alt+0"));
+    command->setDefaultKeySequence(QKeySequence("Ctrl+Shift+0"));
     viewsMenu->addAction(command);
 
     command = Core::ActionManager::registerAction(&m_toggleRightSidebarAction, Constants::TOGGLE_RIGHT_SIDEBAR, qmlDesignerMainContext);
@@ -251,7 +251,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     command = Core::ActionManager::registerAction(&m_collapseExpandStatesAction,  Constants::TOGGLE_STATES_EDITOR, qmlDesignerMainContext);
     command->setAttribute(Core::Command::CA_Hide);
-    command->setDefaultKeySequence(QKeySequence("Ctrl+Alt+s"));
+    command->setDefaultKeySequence(QKeySequence("Ctrl+Shift+s"));
     viewsMenu->addAction(command);
 
     command = Core::ActionManager::registerAction(&m_restoreDefaultViewAction,  Constants::RESTORE_DEFAULT_VIEW, qmlDesignerMainContext);
