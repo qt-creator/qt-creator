@@ -286,7 +286,7 @@ void BuildDirManager::generateProjectTree(CMakeListsNode *root, const QList<cons
 
     // Make sure the top level CMakeLists.txt is always visible:
     if (root->isEmpty())
-        root->addFileNode(new FileNode(projectFile, FileType::Project, false));
+        root->addNode(new FileNode(projectFile, FileType::Project, false));
 }
 
 QSet<Core::Id> BuildDirManager::updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder)

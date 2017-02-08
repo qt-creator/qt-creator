@@ -322,9 +322,9 @@ QbsGroupNode::QbsGroupNode(const qbs::GroupData &grp, const QString &productPath
 
     setIcon(m_groupIcon);
 
-    addFileNode(new QbsFileNode(Utils::FileName::fromString(grp.location().filePath()),
-                                ProjectExplorer::FileType::Project, false,
-                                grp.location().line()));
+    addNode(new QbsFileNode(Utils::FileName::fromString(grp.location().filePath()),
+                            ProjectExplorer::FileType::Project, false,
+                            grp.location().line()));
 
     updateQbsGroupData(grp, productPath, true);
 }
@@ -472,7 +472,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
             }
             if (!fn) {
                 fn = new ProjectExplorer::FileNode(path, newFileType, generated);
-                root->addFileNode(fn);
+                root->addNode(fn);
             }
             continue;
         } else {
@@ -493,7 +493,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
                                            ProjectExplorer::NodeType::Folder,
                                            displayNameFromPath(c->path(), baseDir), false);
                 }
-                root->addFolderNode(fn);
+                root->addNode(fn);
             } else {
                 fn->setDisplayName(displayNameFromPath(c->path(), baseDir));
             }
@@ -542,10 +542,10 @@ QbsProductNode::QbsProductNode(const qbs::Project &project, const qbs::ProductDa
 
     setIcon(m_productIcon);
 
-    addFolderNode(m_generatedFilesNode);
-    addFileNode(new QbsFileNode(Utils::FileName::fromString(prd.location().filePath()),
-                                ProjectExplorer::FileType::Project, false,
-                                prd.location().line()));
+    addNode(m_generatedFilesNode);
+    addNode(new QbsFileNode(Utils::FileName::fromString(prd.location().filePath()),
+                            ProjectExplorer::FileType::Project, false,
+                            prd.location().line()));
 
     setQbsProductData(project, prd);
 }
@@ -641,7 +641,7 @@ void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::P
             QbsGroupNode::setupFiles(this, grp, grp.allFilePaths(), productPath, false);
             continue;
         }
-        addProjectNode(new QbsGroupNode(grp, productPath));
+        addNode(new QbsGroupNode(grp, productPath));
     }
 
     if (prd.isEnabled()) {
@@ -703,11 +703,11 @@ void QbsProjectNode::update(const qbs::Project &qbsProject, const qbs::ProjectDa
         auto subProject =
                 new QbsProjectNode(Utils::FileName::fromString(subData.location().filePath()));
         subProject->update(qbsProject, subData);
-        addProjectNode(subProject);
+        addNode(subProject);
     }
 
     foreach (const qbs::ProductData &prd, prjData.products())
-        addProjectNode(new QbsProductNode(qbsProject, prd));
+        addNode(new QbsProductNode(qbsProject, prd));
 
     if (!prjData.name().isEmpty())
         setDisplayName(prjData.name());
@@ -738,7 +738,7 @@ void QbsProjectNode::ctor()
         m_projectIcon = generateIcon(QString::fromLatin1(ProjectExplorer::Constants::FILEOVERLAY_QT));
 
     setIcon(m_projectIcon);
-    addFileNode(new ProjectExplorer::FileNode(filePath(), ProjectExplorer::FileType::Project, false));
+    addNode(new ProjectExplorer::FileNode(filePath(), ProjectExplorer::FileType::Project, false));
 }
 
 QbsProductNode *QbsProjectNode::findProductNode(const QString &uniqueName)
@@ -772,7 +772,7 @@ QbsRootProjectNode::QbsRootProjectNode(QbsProject *project) :
                                                        ProjectExplorer::NodeType::Folder,
                                                        QCoreApplication::translate("QbsRootProjectNode", "Qbs files")))
 {
-    addFolderNode(m_buildSystemFiles);
+    addNode(m_buildSystemFiles);
 }
 
 void QbsRootProjectNode::update()

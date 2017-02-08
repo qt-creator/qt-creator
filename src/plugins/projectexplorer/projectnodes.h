@@ -154,12 +154,12 @@ public:
     virtual const SessionNode *asSessionNode() const { return nullptr; }
 
     static bool sortByPath(const Node *a, const Node *b);
+    void setParentFolderNode(FolderNode *parentFolder);
 
 protected:
     Node(NodeType nodeType, const Utils::FileName &filePath, int line = -1);
 
     void setPriority(int priority);
-    void setParentFolderNode(FolderNode *parentFolder);
 
 private:
     FolderNode *m_parentFolderNode = nullptr;
@@ -206,6 +206,7 @@ public:
     QString displayName() const override;
     QIcon icon() const;
 
+    const QList<Node *> nodes() const { return m_nodes; }
     QList<FileNode *> fileNodes() const;
     FileNode *fileNode(const Utils::FileName &file) const;
     FileNode *recursiveFileNode(const Utils::FileName &file) const;
@@ -245,11 +246,9 @@ public:
     // determines if node will be shown in the flat view, by default folder and projects aren't shown
     virtual bool showInSimpleTree() const;
 
-    void addFileNode(FileNode *file);
-    void setFileNodes(const QList<FileNode*> &files);
-
-    void addFolderNode(FolderNode *subFolder);
-    void setFolderNodes(const QList<FolderNode*> &folders);
+    void addNode(Node *node);
+    void removeNode(Node *node);
+    void setNodes(const QList<Node *> &nodes);
 
     // all subFolders that are projects
     QList<ProjectNode*> projectNodes() const;
@@ -261,8 +260,7 @@ public:
     const FolderNode *asFolderNode() const override { return this; }
 
 protected:
-    QList<FolderNode*> m_folderNodes;
-    QList<FileNode*> m_fileNodes;
+    QList<Node *> m_nodes;
 
 private:
     QString m_displayName;
@@ -300,7 +298,6 @@ public:
     virtual QList<RunConfiguration *> runConfigurations() const;
 
     ProjectNode *projectNode(const Utils::FileName &file) const;
-    void addProjectNode(ProjectNode *subProject);
 
     ProjectNode *asProjectNode() final { return this; }
     const ProjectNode *asProjectNode() const final { return this; }
@@ -330,10 +327,6 @@ private:
 
     SessionNode *asSessionNode() final { return this; }
     const SessionNode *asSessionNode() const final { return this; }
-
-    friend class SessionManager;
-    void addProjectNode(ProjectNode *projectNode);
-    void removeProjectNode(ProjectNode *projectNode);
 };
 
 } // namespace ProjectExplorer

@@ -224,7 +224,7 @@ static void addCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, i
         return;
     auto folder = new VirtualFolderNode(basePath, priority);
     folder->setDisplayName(displayName);
-    base->addFolderNode(folder);
+    base->addNode(folder);
     folder->buildTree(files);
 }
 
@@ -236,7 +236,7 @@ static void addCMakeInputs(CMakeListsNode *root,
                            QList<FileNode *> &rootInputs)
 {
     ProjectNode *cmakeVFolder = new CMakeInputsNode(root->filePath());
-    root->addProjectNode(cmakeVFolder);
+    root->addNode(cmakeVFolder);
 
     addCMakeVFolder(cmakeVFolder, sourceDir, 1000,
                     QCoreApplication::translate("CMakeProjectManager::Internal::ServerModeReader", "<Source Directory>"),
@@ -550,14 +550,14 @@ void ServerModeReader::addCMakeLists(CMakeListsNode *root, const QList<FileNode 
             cmln = static_cast<CMakeListsNode *>(parentNode->projectNode(fn->filePath()));
         if (!cmln) {
             cmln = new CMakeListsNode(fn->filePath());
-            parentNode->addProjectNode(cmln);
+            parentNode->addNode(cmln);
         }
 
         // Find or create CMakeLists.txt filenode below CMakeListsNode:
         FileNode *cmFn = cmln->fileNode(fn->filePath());
         if (!cmFn) {
             cmFn = fn;
-            cmln->addFileNode(cmFn);
+            cmln->addNode(cmFn);
         }
         // Update displayName of CMakeListsNode:
         const QString dn = prefix.isEmpty() ? k : k.mid(prefix.count() + 1);
@@ -601,7 +601,7 @@ static CMakeProjectNode *findOrCreateProjectNode(CMakeListsNode *root, const Uti
     CMakeProjectNode *pn = static_cast<CMakeProjectNode *>(cmln->projectNode(projectName));
     if (!pn) {
         pn = new CMakeProjectNode(projectName);
-        cmln->addProjectNode(pn);
+        cmln->addNode(pn);
     }
     pn->setDisplayName(displayName);
     return pn;
@@ -637,7 +637,7 @@ static CMakeTargetNode *findOrCreateTargetNode(CMakeListsNode *root, const Utils
     CMakeTargetNode *tn = static_cast<CMakeTargetNode *>(cmln->projectNode(targetName));
     if (!tn) {
         tn = new CMakeTargetNode(targetName);
-        cmln->addProjectNode(tn);
+        cmln->addNode(tn);
     }
     tn->setDisplayName(displayName);
     return tn;

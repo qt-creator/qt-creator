@@ -381,7 +381,7 @@ void SessionManager::addProject(Project *pro)
     QTC_ASSERT(!d->m_projects.contains(pro), return);
 
     d->m_projects.append(pro);
-    d->m_sessionNode.addProjectNode(pro->rootProjectNode());
+    d->m_sessionNode.addNode(pro->rootProjectNode());
 
     connect(pro, &Project::fileListChanged,
             m_instance, &SessionManager::clearProjectFileCache);
@@ -738,7 +738,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
                    m_instance, &SessionManager::clearProjectFileCache);
         d->m_projectFileCache.remove(pro);
 
-        d->m_sessionNode.removeProjectNode(pro->rootProjectNode());
+        d->m_sessionNode.removeNode(pro->rootProjectNode());
         emit m_instance->projectRemoved(pro);
         delete pro;
     }

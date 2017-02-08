@@ -405,19 +405,19 @@ struct InternalNode
                 if (contents.isEmpty())
                     vfs->readVirtualFile(file.toString(), QMakeVfs::VfsExact, &contents);
                 auto resourceNode = new ResourceEditor::ResourceTopLevelNode(file, contents, folder);
-                folder->addFolderNode(resourceNode);
+                folder->addNode(resourceNode);
                 resourceNode->addInternalNodes();
             }
         } else {
             for (const FileName &file : files)
-                folder->addFileNode(new FileNode(file, type, false));
+                folder->addNode(new FileNode(file, type, false));
         }
 
         // Virtual
         {
             for (InternalNode *node : virtualfolders) {
                 FolderNode *newNode = createFolderNode(node);
-                folder->addFolderNode(newNode);
+                folder->addNode(newNode);
                 node->addSubFolderContents(newNode);
             }
         }
@@ -427,7 +427,7 @@ struct InternalNode
             QMap<QString, InternalNode *>::const_iterator end = subnodes.constEnd();
             for ( ; it != end; ++it) {
                 FolderNode *newNode = createFolderNode(it.value());
-                folder->addFolderNode(newNode);
+                folder->addNode(newNode);
                 it.value()->addSubFolderContents(newNode);
             }
         }
@@ -591,8 +591,8 @@ void QmakePriFileNode::processValues(PriFileEvalResult &result)
 void QmakePriFileNode::update(const Internal::PriFileEvalResult &result)
 {
     // add project file node
-    if (m_fileNodes.isEmpty())
-        addFileNode(new FileNode(m_projectFilePath, FileType::Project, false));
+    if (m_nodes.isEmpty())
+        addNode(new FileNode(m_projectFilePath, FileType::Project, false));
 
     m_recursiveEnumerateFiles = result.recursiveEnumerateFiles;
     watchFolders(result.folders.toSet());
@@ -1979,14 +1979,14 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
 
             if (priFile->proFile) {
                 QmakePriFileNode *qmakePriFileNode = new QmakePriFileNode(m_project, this, priFile->name);
-                pn->addProjectNode(qmakePriFileNode);
+                pn->addNode(qmakePriFileNode);
                 qmakePriFileNode->setIncludedInExactParse(
                             (result->state == EvalResult::EvalOk) && pn->includedInExactParse());
                 qmakePriFileNode->update(priFile->result);
                 toCompare.append(qMakePair(qmakePriFileNode, priFile));
             } else {
                 QmakeProFileNode *qmakeProFileNode = new QmakeProFileNode(m_project, priFile->name);
-                pn->addProjectNode(qmakeProFileNode);
+                pn->addNode(qmakeProFileNode);
                 qmakeProFileNode->setIncludedInExactParse(
                             result->exactSubdirs.contains(qmakeProFileNode->filePath())
                             && pn->includedInExactParse());
