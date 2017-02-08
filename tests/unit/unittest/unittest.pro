@@ -24,6 +24,12 @@ msvc: QMAKE_CXXFLAGS_WARN_ON -= -w34100 # 'unreferenced formal parameter' in MAT
 win32:DEFINES += ECHOSERVER=\"R\\\"xxx($$OUT_PWD/../echo)xxx\\\"\"
 unix: DEFINES += ECHOSERVER=\"R\\\"xxx($$OUT_PWD/../echoserver/echo)xxx\\\"\"
 
+linux {
+QMAKE_LFLAGS_RELEASE = #disable optimization
+QMAKE_LFLAGS += -fno-merge-debug-strings -fuse-ld=gold
+CONFIG(release, debug|release):QMAKE_LFLAGS += -Wl,--strip-debug
+}
+
 SOURCES += \
     clientserverinprocess-test.cpp \
     lineprefixer-test.cpp \
