@@ -128,6 +128,21 @@ static const QString pidScript = QStringLiteral("for p in /proc/[0-9]*; "
                                                 "do cat <$p/cmdline && echo :${p##*/}; done");
 static const QString pidPollingScript = QStringLiteral("while true; do sleep 1; "
                                                        "cat /proc/%1/cmdline > /dev/null; done");
+
+static const QString regExpLogcat = QStringLiteral("[0-9\\-]*"  // date
+                                                  "\\s+"
+                                                  "[0-9\\-:.]*"// time
+                                                  "\\s*"
+                                                  "(\\d*)"     // pid           1. capture
+                                                  "\\s+"
+                                                  "\\d*"       // unknown
+                                                  "\\s+"
+                                                  "(\\w)"      // message type  2. capture
+                                                  "\\s+"
+                                                  "(.*): "     // source        3. capture
+                                                  "(.*)"       // message       4. capture
+                                                  "[\\n\\r]*"
+                                                 );
 static int APP_START_TIMEOUT = 45000;
 
 static bool isTimedOut(const chrono::high_resolution_clock::time_point &start,
@@ -199,8 +214,6 @@ public:
                         const QString &packageName, const QStringList &selector);
     ~AndroidRunnerWorker();
 
-    void init();
-
     void asyncStart(const QString &intentName, const QVector<QStringList> &adbCommands);
     void asyncStop(const QVector<QStringList> &adbCommands);
 
@@ -246,7 +259,6 @@ private:
     QString m_gdbserverPath;
     QString m_gdbserverSocket;
     QString m_adb;
-    bool m_isBusyBox = false;
     QStringList m_selector;
     QRegExp m_logCatRegExp;
     DebugHandShakeType m_handShakeMethod = SocketHandShake;
@@ -261,6 +273,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(AndroidRunConfiguration *runConfig, Cor
     : m_adbLogcatProcess(nullptr, deleter)
     , m_psIsAlive(nullptr, deleter)
     , m_selector(selector)
+    , m_logCatRegExp(regExpLogcat)
     , m_packageName(packageName)
 {
     Debugger::DebuggerRunConfigurationAspect *aspect
@@ -328,41 +341,6 @@ AndroidRunnerWorker::~AndroidRunnerWorker()
         m_pidFinder.cancel();
 }
 
-// This is run from the worker thread.
-void AndroidRunnerWorker::init()
-{
-    QTC_ASSERT(!m_adbLogcatProcess, /**/);
-    m_adbLogcatProcess.reset(new QProcess);
-
-    // Detect busybox, as we need to pass -w to ps to get wide output.
-    Utils::SynchronousProcess psProc;
-    psProc.setTimeoutS(5);
-    Utils::SynchronousProcessResponse response = psProc.runBlocking(
-                m_adb, selector() << "shell" << "readlink" << "$(which ps)");
-    const QString which = response.allOutput();
-    m_isBusyBox = which.startsWith("busybox");
-
-    connect(m_adbLogcatProcess.get(), &QProcess::readyReadStandardOutput,
-            this, &AndroidRunnerWorker::logcatReadStandardOutput);
-    connect(m_adbLogcatProcess.get(), &QProcess::readyReadStandardError,
-            this, &AndroidRunnerWorker::logcatReadStandardError);
-
-    m_logCatRegExp = QRegExp(QLatin1String("[0-9\\-]*"  // date
-                                           "\\s+"
-                                           "[0-9\\-:.]*"// time
-                                           "\\s*"
-                                           "(\\d*)"     // pid           1. capture
-                                           "\\s+"
-                                           "\\d*"       // unknown
-                                           "\\s+"
-                                           "(\\w)"      // message type  2. capture
-                                           "\\s+"
-                                           "(.*): "     // source        3. capture
-                                           "(.*)"       // message       4. capture
-                                           "[\\n\\r]*"
-                                          ));
-}
-
 void AndroidRunnerWorker::forceStop()
 {
     runAdb(selector() << "shell" << "am" << "force-stop" << m_packageName, nullptr, 30);
@@ -383,8 +361,14 @@ void AndroidRunnerWorker::asyncStart(const QString &intentName,
 {
     forceStop();
 
-    // Its assumed that the device or avd serial returned by selector() is online.
-    m_adbLogcatProcess->start(m_adb, selector() << "logcat");
+    // Start the logcat process before app starts.
+    std::unique_ptr<QProcess, decltype(&deleter)> logcatProcess(new QProcess, deleter);
+    connect(logcatProcess.get(), &QProcess::readyReadStandardOutput,
+            this, &AndroidRunnerWorker::logcatReadStandardOutput);
+    connect(logcatProcess.get(), &QProcess::readyReadStandardError,
+            this, &AndroidRunnerWorker::logcatReadStandardError);
+    // Its assumed that the device or avd returned by selector() is online.
+    logcatProcess->start(m_adb, selector() << "logcat");
 
     QString errorMessage;
 
@@ -481,9 +465,6 @@ void AndroidRunnerWorker::asyncStart(const QString &intentName,
                 break;
             }
 
-            if (!wasSuccess)
-                emit remoteProcessFinished(tr("Failed to contact debugging port."));
-
             if (!m_customPort) {
                 // increment running port to avoid clash when using multiple
                 // debug sessions at the same time
@@ -491,6 +472,11 @@ void AndroidRunnerWorker::asyncStart(const QString &intentName,
                 // wrap ports around to avoid overflow
                 if (m_socketHandShakePort == MAX_SOCKET_HANDSHAKE_PORT)
                     m_socketHandShakePort = MIN_SOCKET_HANDSHAKE_PORT;
+            }
+
+            if (!wasSuccess) {
+                emit remoteProcessFinished(tr("Failed to contact debugging port."));
+                return;
             }
         } else {
             // Handling ping.
@@ -517,6 +503,9 @@ void AndroidRunnerWorker::asyncStart(const QString &intentName,
         }
 
     }
+
+    QTC_ASSERT(!m_adbLogcatProcess, /**/);
+    m_adbLogcatProcess = std::move(logcatProcess);
     m_pidFinder = Utils::onResultReady(Utils::runAsync(&findProcessPID, m_adb, selector(),
                                                        m_packageName),
                                        bind(&AndroidRunnerWorker::onProcessIdChanged, this, _1));
@@ -578,16 +567,11 @@ void AndroidRunnerWorker::asyncStop(const QVector<QStringList> &adbCommands)
     if (!m_pidFinder.isFinished())
         m_pidFinder.cancel();
 
-    m_adbLogcatProcess.reset();
-    m_psIsAlive.reset();
-
     if (m_processPID != -1) {
         forceStop();
     }
     foreach (const QStringList &entry, adbCommands)
         runAdb(selector() << entry);
-
-    emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" terminated.").arg(m_packageName));
 }
 
 void AndroidRunnerWorker::setAdbParameters(const QString &packageName, const QStringList &selector)
@@ -645,9 +629,11 @@ void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
     QTC_ASSERT(QThread::currentThread() == thread(), return);
     m_processPID = pid;
     if (m_processPID == -1) {
-            emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" died.")
-                                       .arg(m_packageName));
-            m_psIsAlive.reset();
+        emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" died.")
+                                   .arg(m_packageName));
+        // App died/killed. Reset log and monitor processes.
+        m_adbLogcatProcess.reset();
+        m_psIsAlive.reset();
     } else {
         if (m_useCppDebugger) {
             // This will be funneled to the engine to actually start and attach
@@ -719,8 +705,6 @@ AndroidRunner::AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig
                 runConfig, runMode, m_androidRunnable.packageName,
                 AndroidDeviceInfo::adbSelector(m_androidRunnable.deviceSerialNumber)));
     m_worker->moveToThread(&m_thread);
-
-    connect(&m_thread, &QThread::started, m_worker.data(), &AndroidRunnerWorker::init);
 
     connect(this, &AndroidRunner::asyncStart, m_worker.data(), &AndroidRunnerWorker::asyncStart);
     connect(this, &AndroidRunner::asyncStop, m_worker.data(), &AndroidRunnerWorker::asyncStop);
