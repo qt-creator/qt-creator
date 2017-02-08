@@ -172,8 +172,7 @@ void BranchDialog::add()
 
     QString suggestedName;
     if (!isTag) {
-        QString suggestedNameBase;
-        suggestedNameBase = trackedBranch.mid(trackedBranch.lastIndexOf('/') + 1);
+        const QString suggestedNameBase = trackedBranch.mid(trackedBranch.lastIndexOf('/') + 1);
         suggestedName = suggestedNameBase;
         int i = 2;
         while (localNames.contains(suggestedName)) {
