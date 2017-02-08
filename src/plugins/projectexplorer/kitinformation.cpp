@@ -550,7 +550,7 @@ QSet<Core::Id> DeviceTypeKitInformation::availableFeatures(const Kit *k) const
 {
     Core::Id id = DeviceTypeKitInformation::deviceTypeId(k);
     if (id.isValid())
-        return { Core::Id::fromString(QString::fromLatin1("DeviceType.") + id.toString()) };
+        return { id.withPrefix("DeviceType.") };
     return QSet<Core::Id>();
 }
 
