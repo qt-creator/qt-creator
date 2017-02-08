@@ -35,6 +35,7 @@ ResizeHandleItem::ResizeHandleItem(QGraphicsItem *parent, const ResizeController
 {
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
+    setAcceptedMouseButtons(Qt::NoButton);
 }
 
 ResizeHandleItem::~ResizeHandleItem()

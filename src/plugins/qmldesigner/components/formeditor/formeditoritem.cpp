@@ -60,6 +60,7 @@ FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* 
 
 void FormEditorItem::setup()
 {
+    setAcceptedMouseButtons(Qt::NoButton);
     if (qmlItemNode().hasInstanceParent()) {
         setParentItem(scene()->itemForQmlItemNode(qmlItemNode().instanceParent().toQmlItemNode()));
         setOpacity(qmlItemNode().instanceValue("opacity").toDouble());
