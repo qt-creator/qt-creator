@@ -55,6 +55,10 @@ QRectF ResizeHandleItem::boundingRect() const
 void ResizeHandleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /* option */, QWidget * /* widget */)
 {
     painter->save();
+    QPen pen = painter->pen();
+    pen.setWidth(1);
+    pen.setCosmetic(true);
+    painter->setPen(pen);
     painter->setRenderHint(QPainter::Antialiasing, false);
     painter->setBrush(QColor(255, 255, 255));
     painter->drawRect(QRectF(-2., -2., 4., 4.));
