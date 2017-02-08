@@ -40,22 +40,12 @@ def handlePackagingMessageBoxes():
         except:
             break
 
-def findExample(tableView, exampleRegex, verbose=False):
-    model = tableView.model()
-    children = [ch for ch in object.children(tableView) if className(ch) == 'QModelIndex']
-    for child in children:
-        if re.match(exampleRegex, str(child.text)):
-            if verbose:
-                test.log("Returning matching example '%s'." % str(child.text), exampleRegex)
-            return child
-    return None
-
 def openExample(examplesLineEdit, input, exampleRegex, exampleName):
     replaceEditorContent(examplesLineEdit, input)
     tableView = waitForObject("{type='QTableView' unnamed='1' visible='1' "
                               "window=':Qt Creator_Core::Internal::MainWindow'}")
-    waitFor('findExample(tableView, exampleRegex) is not None', 3000)
-    example = findExample(tableView, exampleRegex, True)
+    waitFor('findExampleOrTutorial(tableView, exampleRegex) is not None', 3000)
+    example = findExampleOrTutorial(tableView, exampleRegex, True)
     if test.verify(example is not None, "Verifying: Example (%s) is shown." % exampleName):
         mouseClick(example)
         handlePackagingMessageBoxes()
@@ -102,8 +92,8 @@ def main():
     test.log("Using examples from Kit %s." % str(combo.currentText))
     replaceEditorContent(examplesLineEdit, "qwerty")
     tableView = waitForObject(search % (expect[0][0], expect[0][1]))
-    waitFor('findExample(tableView, ".*") is None', 3000)
-    example = findExample(tableView, ".*", True)
+    waitFor('findExampleOrTutorial(tableView, ".*") is None', 3000)
+    example = findExampleOrTutorial(tableView, ".*", True)
     test.verify(example is None, "Verifying: No example is shown.")
 
     proFiles = map(lambda p: os.path.join(p, "opengl", "2dpainting", "2dpainting.pro"),

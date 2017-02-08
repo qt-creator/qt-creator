@@ -51,3 +51,13 @@ def getWelcomeTreeView(treeViewLabel):
                              "type='QTreeView' unnamed='1' visible='1'}" % treeViewLabel)
     except:
         return None
+
+def findExampleOrTutorial(tableView, regex, verbose=False):
+    model = tableView.model()
+    children = [ch for ch in object.children(tableView) if className(ch) == 'QModelIndex']
+    for child in children:
+        if re.match(regex, str(child.text)):
+            if verbose:
+                test.log("Returning matching example/tutorial '%s'." % str(child.text), regex)
+            return child
+    return None
