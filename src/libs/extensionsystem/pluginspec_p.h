@@ -82,6 +82,7 @@ public:
     QString category;
     QRegExp platformSpecification;
     QVector<PluginDependency> dependencies;
+    QJsonObject metaData;
     bool enabledBySettings = true;
     bool enabledIndirectly = false;
     bool forceEnabled = false;
@@ -104,7 +105,7 @@ public:
 
     void enableDependenciesIndirectly();
 
-    bool readMetaData(const QJsonObject &metaData);
+    bool readMetaData(const QJsonObject &pluginMetaData);
 
 private:
     PluginSpec *q;

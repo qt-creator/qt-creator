@@ -36,7 +36,6 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
-#include <utils/mimetypes/mimedatabase.h>
 
 #include <QtPlugin>
 
@@ -52,7 +51,6 @@ bool ScxmlEditorPlugin::initialize(const QStringList &arguments, QString *errorS
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    Utils::MimeDatabase::addMimeTypes(":/scxmleditor/ScxmlEditor.mimetypes.xml");
     addAutoReleasedObject(new ScxmlEditorFactory);
 
     return true;

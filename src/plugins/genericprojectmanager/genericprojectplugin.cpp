@@ -44,7 +44,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
-#include <utils/mimetypes/mimedatabase.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -58,7 +57,6 @@ namespace Internal {
 bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    Utils::MimeDatabase::addMimeTypes(":genericproject/GenericProjectManager.mimetypes.xml");
 
     addAutoReleasedObject(new Manager);
     addAutoReleasedObject(new ProjectFilesFactory);

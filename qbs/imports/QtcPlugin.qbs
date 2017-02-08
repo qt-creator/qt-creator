@@ -55,12 +55,6 @@ QtcProduct {
         fileTags: ["pluginJsonIn"]
     }
 
-    Group {
-        name: "MimeTypes"
-        prefix: product.sourceDirectory + '/'
-        files: [ "*.mimetypes.xml" ]
-    }
-
     Export {
         Depends { name: "ExtensionSystem" }
         Depends { name: "cpp" }

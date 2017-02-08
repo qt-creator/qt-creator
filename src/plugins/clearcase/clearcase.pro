@@ -31,5 +31,3 @@ FORMS += checkoutdialog.ui \
     settingspage.ui \
     undocheckout.ui \
     versionselector.ui
-
-RESOURCES += clearcase.qrc

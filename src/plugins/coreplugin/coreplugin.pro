@@ -264,7 +264,6 @@ else:unix {
         INSTALLS += image$${imagesize}
     }
 }
-DISTFILES += editormanager/BinFiles.mimetypes.xml
 
 equals(TEST, 1) {
     SOURCES += testdatadir.cpp

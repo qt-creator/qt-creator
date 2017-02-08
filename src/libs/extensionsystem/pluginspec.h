@@ -104,6 +104,7 @@ public:
     bool isForceEnabled() const;
     bool isForceDisabled() const;
     QVector<PluginDependency> dependencies() const;
+    QJsonObject metaData() const;
 
     typedef QVector<PluginArgumentDescription> PluginArgumentDescriptions;
     PluginArgumentDescriptions argumentDescriptions() const;

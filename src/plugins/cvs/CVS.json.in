@@ -15,5 +15,15 @@
     \"Category\" : \"Version Control\",
     \"Description\" : \"CVS integration.\",
     \"Url\" : \"http://www.qt.io\",
-    $$dependencyList
+    $$dependencyList,
+
+    \"Mimetypes\" : \"
+    <?xml version=\'1.0\'?>
+    <mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>
+        <mime-type type=\'text/vnd.qtcreator.cvs.submit\'>
+            <comment>CVS submit template</comment>
+            <sub-class-of type=\'text/plain\'/>
+        </mime-type>
+    </mime-info>
+    \"
 }

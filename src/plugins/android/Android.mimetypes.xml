@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-    <mime-type type="application/vnd.google.android.android_manifest">
-        <comment>Android manifest file</comment>
-        <sub-class-of type="application/xml"/>
-        <glob pattern="AndroidManifest.xml"/>
-    </mime-type>
-</mime-info>

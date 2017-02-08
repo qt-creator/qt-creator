@@ -52,8 +52,6 @@
 
 #include <qtsupport/qtversionmanager.h>
 
-#include <utils/mimetypes/mimedatabase.h>
-
 #include <QtPlugin>
 
 using namespace ProjectExplorer;
@@ -80,8 +78,6 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     addAutoReleasedObject(new Internal::AndroidPotentialKit);
     addAutoReleasedObject(new Internal::JavaEditorFactory);
     KitManager::registerKitInformation(new Internal::AndroidGdbServerKitInformation);
-
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/android/Android.mimetypes.xml"));
 
     addAutoReleasedObject(new Internal::AndroidManifestEditorFactory);
 

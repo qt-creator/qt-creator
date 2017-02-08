@@ -22,9 +22,6 @@ SOURCES += \
     scxmleditorstack.cpp \
     scxmltexteditor.cpp
 
-RESOURCES += \
-    resources.qrc
-
 include(plugin_interface/plugin_interface.pri)
 include(common/common.pri)
 include(outputpane/outputpane.pri)

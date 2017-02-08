@@ -19,7 +19,6 @@ SOURCES = genericproject.cpp \
     genericmakestep.cpp \
     genericbuildconfiguration.cpp \
     filesselectionwizardpage.cpp
-RESOURCES += genericproject.qrc
 FORMS += genericmakestep.ui
 
 equals(TEST, 1) {

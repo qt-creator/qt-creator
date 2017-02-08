@@ -17,7 +17,6 @@ QtcPlugin {
         "settingspage.cpp",
         "settingspage.h",
         "settingspage.ui",
-        "subversion.qrc",
         "subversionclient.cpp",
         "subversionclient.h",
         "subversionconstants.h",

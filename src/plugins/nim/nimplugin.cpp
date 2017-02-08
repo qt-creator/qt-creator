@@ -42,7 +42,6 @@
 
 #include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/toolchainmanager.h>
-#include <utils/mimetypes/mimedatabase.h>
 
 #include <QtPlugin>
 
@@ -68,8 +67,6 @@ bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Q_UNUSED(errorMessage)
 
     ProjectExplorer::ToolChainManager::registerLanguage(Constants::C_NIMLANGUAGE_ID, Constants::C_NIMLANGUAGE_NAME);
-
-    MimeDatabase::addMimeTypes(QLatin1String(":/Nim.mimetypes.xml"));
 
     addAutoReleasedObject(new NimSettings);
     addAutoReleasedObject(new NimSnippetProvider);

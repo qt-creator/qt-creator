@@ -140,8 +140,6 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     Q_UNUSED(arguments)
     Q_UNUSED(error)
 
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/cpptools/CppTools.mimetypes.xml"));
-
     CppModelManager::instance()->setParent(this);
 
     m_settings = new CppToolsSettings(this); // force registration of cpp tools settings

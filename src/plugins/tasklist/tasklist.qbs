@@ -14,7 +14,6 @@ QtcPlugin {
         "stopmonitoringhandler.h",
         "taskfile.cpp",
         "taskfile.h",
-        "tasklist.qrc",
         "tasklistconstants.h",
         "tasklistplugin.cpp",
         "tasklistplugin.h",

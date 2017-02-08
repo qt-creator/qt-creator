@@ -58,7 +58,6 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/hostosinfo.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/parameteraction.h>
 
 #ifdef WITH_TESTS
@@ -82,8 +81,6 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     Q_UNUSED(errorMessage)
     const Context projectContext(QmakeProjectManager::Constants::PROJECT_ID);
     Context projecTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
-
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":qmakeprojectmanager/QmakeProjectManager.mimetypes.xml"));
 
     //create and register objects
     m_qmakeProjectManager = new QmakeManager;

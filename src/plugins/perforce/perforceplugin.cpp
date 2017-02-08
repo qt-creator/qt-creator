@@ -45,7 +45,6 @@
 #include <coreplugin/locator/commandlocator.h>
 #include <texteditor/textdocument.h>
 #include <utils/fileutils.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
@@ -185,8 +184,6 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     Context context(PERFORCE_CONTEXT);
 
     initializeVcs(new PerforceVersionControl(this), context);
-
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.perforce/Perforce.mimetypes.xml"));
 
     m_instance = this;
 

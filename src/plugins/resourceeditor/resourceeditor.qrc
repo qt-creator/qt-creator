@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/resourceeditor">
-        <file>ResourceEditor.mimetypes.xml</file>
-    </qresource>
-</RCC>

@@ -44,7 +44,6 @@
 #include <projectexplorer/projectnodes.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 
@@ -121,7 +120,6 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/resourceeditor/ResourceEditor.mimetypes.xml"));
 
     ResourceEditorFactory *editor = new ResourceEditorFactory(this);
     addAutoReleasedObject(editor);

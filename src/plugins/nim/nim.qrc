@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>Nim.mimetypes.xml</file>
         <file>images/nim.png</file>
     </qresource>
 </RCC>

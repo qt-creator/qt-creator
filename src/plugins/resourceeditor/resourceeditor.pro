@@ -13,6 +13,4 @@ resourceeditorplugin.cpp \
 resourceeditorw.cpp \
 resourcenode.cpp
 
-RESOURCES += resourceeditor.qrc
-
 DEFINES += RESOURCE_LIBRARY

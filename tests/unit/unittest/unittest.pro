@@ -28,6 +28,13 @@ QMAKE_LFLAGS += -fno-merge-debug-strings -fuse-ld=gold
 CONFIG(release, debug|release):QMAKE_LFLAGS += -Wl,--strip-debug
 }
 
+# create fake CppTools.json for the mime type definitions
+dependencyList = "\"Dependencies\" : []"
+cpptoolsjson.input = $$PWD/../../../src/plugins/cpptools/CppTools.json.in
+cpptoolsjson.output = $$OUT_PWD/CppTools.json
+QMAKE_SUBSTITUTES += cpptoolsjson
+DEFINES += CPPTOOLS_JSON=\"R\\\"xxx($${cpptoolsjson.output})xxx\\\"\"
+
 SOURCES += \
     clientserverinprocess-test.cpp \
     lineprefixer-test.cpp \

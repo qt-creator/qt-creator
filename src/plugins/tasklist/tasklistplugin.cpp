@@ -35,7 +35,6 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
-#include <utils/mimetypes/mimedatabase.h>
 
 #include <QDir>
 #include <QMessageBox>
@@ -193,8 +192,6 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     //: Category under which tasklist tasks are listed in Issues view
     TaskHub::addCategory(Constants::TASKLISTTASK_ID, tr("My Tasks"));
-
-    MimeDatabase::addMimeTypes(QLatin1String(":tasklist/TaskList.mimetypes.xml"));
 
     m_fileFactory = new IDocumentFactory;
     m_fileFactory->addMimeType(QLatin1String("text/x-tasklist"));

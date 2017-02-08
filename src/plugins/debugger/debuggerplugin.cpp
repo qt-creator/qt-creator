@@ -117,7 +117,6 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fancymainwindow.h>
 #include <utils/hostosinfo.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -1275,8 +1274,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     QString *errorMessage)
 {
     Q_UNUSED(errorMessage);
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/debugger/Debugger.mimetypes.xml"));
-
     m_arguments = arguments;
     if (!m_arguments.isEmpty())
         connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::finishedInitialization,

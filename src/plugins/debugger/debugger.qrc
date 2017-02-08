@@ -48,6 +48,5 @@
         <file>images/recordfill@2x.png</file>
         <file>images/recordoutline.png</file>
         <file>images/recordoutline@2x.png</file>
-        <file>Debugger.mimetypes.xml</file>
     </qresource>
 </RCC>

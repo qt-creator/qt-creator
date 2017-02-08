@@ -30,8 +30,6 @@ QtcPlugin {
         "scxmleditorplugin.cpp", "scxmleditorplugin.h",
         "scxmleditorstack.cpp", "scxmleditorstack.h",
         "scxmltexteditor.cpp", "scxmltexteditor.h",
-
-        "resources.qrc",
     ]
 
     Group {

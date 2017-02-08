@@ -46,7 +46,6 @@
 
 #include <texteditor/texteditorconstants.h>
 
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -117,8 +116,6 @@ GlslEditorPlugin::~GlslEditorPlugin()
 
 bool GlslEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/glsleditor/GLSLEditor.mimetypes.xml"));
-
     addAutoReleasedObject(new GlslEditorFactory);
     addAutoReleasedObject(new GlslCompletionAssistProvider);
 

@@ -89,7 +89,7 @@ public:
     QList<MimeType> allMimeTypes() const;
 
     // Qt Creator additions
-    static void addMimeTypes(const QString &fileName);
+    static void addMimeTypes(const QString &id, const QByteArray &data);
     static QString allFiltersString(QString *allFilesFilter = 0);
     static QString allFilesFilterString();
     static QStringList allGlobPatterns();

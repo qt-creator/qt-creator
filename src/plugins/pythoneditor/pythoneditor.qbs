@@ -17,7 +17,6 @@ QtcPlugin {
             "pythoneditor.cpp", "pythoneditor.h",
             "pythoneditorconstants.h",
             "pythoneditorplugin.cpp", "pythoneditorplugin.h",
-            "pythoneditorplugin.qrc",
             "pythonhighlighter.h", "pythonhighlighter.cpp",
             "pythonindenter.cpp", "pythonindenter.h",
             "pythonformattoken.h",

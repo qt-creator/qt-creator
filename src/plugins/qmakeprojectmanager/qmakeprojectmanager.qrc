@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/qmakeprojectmanager">
-        <file>QmakeProjectManager.mimetypes.xml</file>
         <file>images/dark_headers.png</file>
         <file>images/dark_sources.png</file>
         <file>images/dark_unknown.png</file>

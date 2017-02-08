@@ -56,7 +56,6 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
@@ -214,8 +213,6 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     initializeVcs(new SubversionControl(this), context);
 
     m_subversionPluginInstance = this;
-
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.subversion/Subversion.mimetypes.xml"));
 
     m_client = new SubversionClient;
 

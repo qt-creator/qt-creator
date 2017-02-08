@@ -15,5 +15,17 @@
     \"Category\" : \"Qt Quick\",
     \"Description\" : \"Qt Quick support\",
     \"Url\" : \"http://www.qt.io\",
-    $$dependencyList
+    $$dependencyList,
+
+    \"Mimetypes\" : \"
+    <?xml version=\'1.0\'?>
+
+    <mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>
+      <mime-type type=\'application/x-qmlproject\'>
+        <sub-class-of type=\'text/x-qml\'/>
+        <comment>QML Project file</comment>
+        <glob pattern=\'*.qmlproject\'/>
+      </mime-type>
+    </mime-info>
+    \"
 }

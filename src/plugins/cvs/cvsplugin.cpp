@@ -56,7 +56,6 @@
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/fileutils.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/stringutils.h>
 
 #include <QDebug>
@@ -202,8 +201,6 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     initializeVcs(new CvsControl(this), context);
 
     m_cvsPluginInstance = this;
-
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.cvs/CVS.mimetypes.xml"));
 
     m_client = new CvsClient;
 

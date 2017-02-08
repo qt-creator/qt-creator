@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/cpptools">
         <file>images/category_cpp.png</file>
-        <file>CppTools.mimetypes.xml</file>
     </qresource>
 </RCC>

@@ -16,5 +16,103 @@
     \"Category\" : \"C++\",
     \"Description\" : \"Tools for analyzing C/C++ code.\",
     \"Url\" : \"http://www.qt.io\",
-    $$dependencyList
+    $$dependencyList,
+
+    \"Mimetypes\" : \"
+    <?xml version=\'1.0\' encoding=\'UTF-8\'?>
+    <mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>
+        <mime-type type=\'text/x-csrc\'>
+            <comment>C source code</comment>
+            <sub-class-of type=\'text/plain\'/>
+            <alias type=\'text/x-c\'/>
+            <glob pattern=\'*.c\' case-sensitive=\'true\' weight=\'70\'/>
+        </mime-type>
+
+        <mime-type type=\'text/vnd.nvidia.cuda.csrc\'>
+            <sub-class-of type=\'text/x-csrc\'/>
+            <comment>NVIDIA CUDA C source code</comment>
+            <glob pattern=\'*.cu\'/>
+        </mime-type>
+
+        <mime-type type=\'text/x-chdr\'>
+            <comment>C header</comment>
+            <sub-class-of type=\'text/x-csrc\'/>
+            <!-- reduce weight from freedesktop to avoid conflict with text/x-c++hdr -->
+            <glob pattern=\'*.h\' weight=\'30\'/>
+        </mime-type>
+
+        <!-- Those are used to find matching headers by the CppTools plugin,
+             so, they should match -->
+        <mime-type type=\'text/x-c++hdr\'>
+            <sub-class-of type=\'text/x-chdr\'/>
+            <comment>C++ header</comment>
+            <glob pattern=\'*.hh\' weight=\'70\'/>
+            <glob pattern=\'*.hxx\' weight=\'70\'/>
+            <glob pattern=\'*.h++\' weight=\'70\'/>
+            <glob pattern=\'*.hpp\' weight=\'70\'/>
+            <glob pattern=\'*.hp\' weight=\'70\'/>
+            <!-- Additions to freedesktop: -->
+            <glob pattern=\'*.h\' weight=\'70\'/>
+            <glob pattern=\'*.H\' weight=\'70\'/>
+            <!-- Find include guards of header files without extension, for
+                 example, STL ones like <string>. Those can have a big initial
+                 comment exceeding 1000 chars, though. -->
+            <magic priority=\'50\'>
+                <match value=\'#ifndef \' type=\'string\' offset=\'0:2000\'/>
+                <match value=\'#if \' type=\'string\' offset=\'0:2000\'/>
+                <match value=\'#include \' type=\'string\' offset=\'0:2000\'/>
+            </magic>
+        </mime-type>
+
+        <mime-type type=\'text/x-c++src\'>
+            <comment>C++ source code</comment>
+            <sub-class-of type=\'text/x-csrc\'/>
+            <glob pattern=\'*.cpp\' weight=\'70\'/>
+            <glob pattern=\'*.cxx\' weight=\'70\'/>
+            <glob pattern=\'*.cc\' weight=\'70\'/>
+            <glob pattern=\'*.C\' case-sensitive=\'true\' weight=\'70\'/>
+            <glob pattern=\'*.c++\' weight=\'70\'/>
+            <!-- Additions to freedesktop: -->
+            <glob pattern=\'*.cp\' weight=\'70\'/>
+            <glob pattern=\'*.inl\' weight=\'70\'/>
+            <glob pattern=\'*.tcc\' weight=\'70\'/>
+            <glob pattern=\'*.tpp\' weight=\'70\'/>
+            <glob pattern=\'*.t++\' weight=\'70\'/>
+            <glob pattern=\'*.txx\' weight=\'70\'/>
+            <magic priority=\'30\'>
+                <match value=\'-*- C++ -*-\' type=\'string\' offset=\'0:30\'/>
+            </magic>
+        </mime-type>
+
+        <mime-type type=\'text/x-qdoc\'>
+            <comment>Qt documentation file</comment>
+            <sub-class-of type=\'text/plain\'/>
+            <glob pattern=\'*.qdoc\' weight=\'70\'/>
+        </mime-type>
+
+        <mime-type type=\'text/x-moc\'>
+            <comment>Qt MOC file</comment>
+            <!-- Fix to freedesktop: moc is C++ source -->
+            <sub-class-of type=\'text/x-c++src\'/>
+            <glob pattern=\'*.moc\' weight=\'70\'/>
+        </mime-type>
+
+        <mime-type type=\'text/x-objc++src\'>
+            <comment>Objective-C++ source code</comment>
+            <sub-class-of type=\'text/x-c++src\'/>
+            <sub-class-of type=\'text/x-objcsrc\'/>
+            <glob pattern=\'*.mm\' weight=\'70\'/>
+        </mime-type>
+
+        <mime-type type=\'text/x-objcsrc\'>
+            <comment>Objective-C source code</comment>
+            <sub-class-of type=\'text/x-csrc\'/>
+            <glob pattern=\'*.m\' weight=\'70\'/>
+            <magic priority=\'30\'>
+                <match value=\'#import\' type=\'string\' offset=\'0\'/>
+            </magic>
+        </mime-type>
+
+    </mime-info>
+    \"
 }

@@ -15,5 +15,16 @@
     \"Category\" : \"Qt Creator\",
     \"Description\" : \"Editor for qrc files.\",
     \"Url\" : \"http://www.qt.io\",
-    $$dependencyList
+    $$dependencyList,
+
+    \"Mimetypes\" : \"
+    <?xml version=\'1.0\'?>
+    <mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>
+        <mime-type type=\'application/vnd.qt.xml.resource\'>
+            <sub-class-of type=\'text/xml\'/>
+            <comment>Qt Resource file</comment>
+            <glob pattern=\'*.qrc\'/>
+        </mime-type>
+    </mime-info>
+    \"
 }

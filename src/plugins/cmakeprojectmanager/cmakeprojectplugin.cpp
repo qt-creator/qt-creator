@@ -47,7 +47,6 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projecttree.h>
 
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/parameteraction.h>
 
 using namespace CMakeProjectManager::Internal;
@@ -58,8 +57,6 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
 {
     Q_UNUSED(errorMessage)
     const Context projectContext(Constants::PROJECTCONTEXT);
-
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":cmakeproject/CMakeProjectManager.mimetypes.xml"));
 
     Core::FileIconProvider::registerIconOverlayForSuffix(Constants::FILEOVERLAY_CMAKE, "cmake");
     Core::FileIconProvider::registerIconOverlayForFilename(Constants::FILEOVERLAY_CMAKE, "CMakeLists.txt");

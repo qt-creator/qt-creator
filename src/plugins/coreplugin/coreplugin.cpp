@@ -46,9 +46,11 @@
 
 #include <extensionsystem/pluginerroroverview.h>
 #include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 #include <utils/algorithm.h>
 #include <utils/pathchooser.h>
 #include <utils/macroexpander.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/savefile.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
@@ -123,6 +125,17 @@ CoreArguments parseArguments(const QStringList &arguments)
 
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
+    // register all mime types from all plugins
+    Utils::MimeDatabase mdb;
+    for (ExtensionSystem::PluginSpec *plugin : ExtensionSystem::PluginManager::plugins()) {
+        if (!plugin->isEffectivelyEnabled())
+            continue;
+        const QJsonObject metaData = plugin->metaData();
+        const QJsonValue mimetypes = metaData.value("Mimetypes");
+        if (mimetypes.isString())
+            mdb.addMimeTypes(plugin->name() + ".mimetypes", mimetypes.toString().trimmed().toUtf8());
+    }
+
     if (ThemeEntry::availableThemes().isEmpty()) {
         *errorMessage = tr("No themes found in installation.");
         return false;

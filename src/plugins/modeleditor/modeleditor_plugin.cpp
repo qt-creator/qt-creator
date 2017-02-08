@@ -43,8 +43,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/jsexpander.h>
 
-#include <utils/mimetypes/mimedatabase.h>
-
 #include <QAction>
 #include <QApplication>
 #include <QMessageBox>
@@ -88,8 +86,6 @@ bool ModelEditorPlugin::initialize(const QStringList &arguments, QString *errorS
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
-
-    Utils::MimeDatabase::addMimeTypes(QStringLiteral(":/modeleditor/modeleditor.mimetypes.xml"));
 
     d->modelsManager = new ModelsManager(this);
     addAutoReleasedObject(d->modelsManager);

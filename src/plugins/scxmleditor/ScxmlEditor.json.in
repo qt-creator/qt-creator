@@ -16,5 +16,16 @@
     \"Description\" : \"Visual Editor for SCXML (State Chart XML) files.\",
     \"Url\" : \"http://www.qt.io\",
     \"Experimental\" : true,
-    $$dependencyList
+    $$dependencyList,
+
+    \"Mimetypes\" : \"
+    <?xml version=\'1.0\'?>
+    <mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>
+        <mime-type type=\'application/scxml+xml\'>
+            <sub-class-of type=\'text/xml\'/>
+            <comment>SCXML file</comment>
+            <glob pattern=\'*.scxml\'/>
+        </mime-type>
+    </mime-info>
+    \"
 }

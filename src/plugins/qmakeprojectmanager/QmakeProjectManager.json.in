@@ -15,5 +15,41 @@
     \"Category\" : \"Build Systems\",
     \"Description\" : \"Provides project type for Qt/QMake .pro files and tools.\",
     \"Url\" : \"http://www.qt.io\",
-    $$dependencyList
+    $$dependencyList,
+
+    \"Mimetypes\" : \"
+    <?xml version=\'1.0\'?>
+    <mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>
+      <mime-type type=\'application/vnd.qt.qmakeprofile\'>
+        <sub-class-of type=\'text/plain\'/>
+        <comment>Qt Project file</comment>
+        <glob pattern=\'*.pro\'/>
+      </mime-type>
+      <mime-type type=\'application/vnd.qt.qmakeproincludefile\'>
+        <sub-class-of type=\'text/plain\'/>
+        <comment>Qt Project include file</comment>
+        <glob pattern=\'*.pri\'/>
+      </mime-type>
+      <mime-type type=\'application/vnd.qt.qmakeprofeaturefile\'>
+        <sub-class-of type=\'text/plain\'/>
+        <comment>Qt Project feature file</comment>
+        <glob pattern=\'*.prf\'/>
+      </mime-type>
+      <mime-type type=\'application/vnd.qt.qmakeproconfigurationfile\'>
+        <sub-class-of type=\'text/plain\'/>
+        <comment>Qt Project configuration file</comment>
+        <glob pattern=\'.qmake.conf\'/>
+      </mime-type>
+      <mime-type type=\'application/vnd.qt.qmakeprocachefile\'>
+        <sub-class-of type=\'text/plain\'/>
+        <comment>Qt Project cache file</comment>
+        <glob pattern=\'.qmake.cache\'/>
+      </mime-type>
+      <mime-type type=\'application/vnd.qt.qmakeprostashfile\'>
+        <sub-class-of type=\'text/plain\'/>
+        <comment>Qt Project stash file</comment>
+        <glob pattern=\'.qmake.stash\'/>
+      </mime-type>
+    </mime-info>
+    \"
 }

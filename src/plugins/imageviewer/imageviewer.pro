@@ -17,9 +17,6 @@ SOURCES += \
     imageviewer.cpp \
     imageview.cpp
 
-RESOURCES += \
-    imageviewer.qrc
-
 !isEmpty(QT.svg.name): QT += svg
 else: DEFINES += QT_NO_SVG
 

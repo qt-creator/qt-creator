@@ -16,5 +16,27 @@
     \"Category\" : \"Build Systems\",
     \"Description\" : \"Provides support code for build systems.\",
     \"Url\" : \"http://www.qt.io\",
-    $$dependencyList
+    $$dependencyList,
+
+    \"Mimetypes\" : \"
+    <?xml version=\'1.0\'?>
+    <mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>
+      <mime-type type=\'application/x-linguist-translation\'>
+        <comment>Linguist compiled translations</comment>
+        <glob pattern=\'*.qm\'/>
+      </mime-type>
+      <mime-type type=\'application/x-linguist\'>
+        <comment>Linguist source translations</comment>
+        <magic>
+          <match value=\'&lt;TS\' type=\'string\' offset=\'0:256\'/>
+        </magic>
+        <glob pattern=\'*.ts\' weight=\'70\'/>
+      </mime-type>
+      <mime-type type=\'application/scxml+xml\'>
+        <comment>SCXML State Chart</comment>
+        <sub-class-of type=\'application/xml\'/>
+        <glob pattern=\'*.scxml\'/>
+      </mime-type>
+    </mime-info>
+    \"
 }

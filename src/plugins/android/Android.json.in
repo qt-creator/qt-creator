@@ -15,5 +15,16 @@
     \"Category\" : \"Device Support\",
     \"Description\" : \"Support for deployment to and execution on Android Devices.\",
     \"Url\" : \"http://necessitas.kde.org\",
-    $$dependencyList
+    $$dependencyList,
+
+    \"Mimetypes\" : \"
+    <?xml version=\'1.0\'?>
+    <mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>
+        <mime-type type=\'application/vnd.google.android.android_manifest\'>
+            <comment>Android manifest file</comment>
+            <sub-class-of type=\'application/xml\'/>
+            <glob pattern=\'AndroidManifest.xml\'/>
+        </mime-type>
+    </mime-info>
+    \"
 }

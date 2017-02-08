@@ -52,7 +52,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
@@ -884,8 +883,6 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
-
-    MimeDatabase::addMimeTypes(":/pythoneditor/PythonEditor.mimetypes.xml");
 
     addAutoReleasedObject(new PythonProjectManager);
     addAutoReleasedObject(new PythonEditorFactory);

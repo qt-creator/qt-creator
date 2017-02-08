@@ -59,7 +59,6 @@
 
 #include <coreplugin/messagebox.h>
 #include <utils/asconst.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
 #include <utils/pathchooser.h>
@@ -99,7 +98,6 @@ namespace Git {
 namespace Internal {
 
 const unsigned minimumRequiredVersion = 0x010800;
-const char RC_GIT_MIME_XML[] = ":/git/Git.mimetypes.xml";
 
 const VcsBaseEditorParameters editorParameters[] = {
 {
@@ -641,8 +639,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
             this, &GitPlugin::updateContinueAndAbortCommands);
     connect(VcsManager::instance(), &VcsManager::repositoryChanged,
             this, &GitPlugin::updateBranches, Qt::QueuedConnection);
-
-    Utils::MimeDatabase::addMimeTypes(RC_GIT_MIME_XML);
 
     /* "Gerrit" */
     m_gerritPlugin = new Gerrit::Internal::GerritPlugin(this);

@@ -16,5 +16,15 @@
     \"Category\" : \"Version Control\",
     \"Description\" : \"ClearCase integration.\",
     \"Url\" : \"http://www.qt.io\",
-    $$dependencyList
+    $$dependencyList,
+
+    \"Mimetypes\" : \"
+    <?xml version=\'1.0\'?>
+    <mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>
+        <mime-type type=\'application/vnd.audc.text.clearcase.submit\'>
+            <comment>ClearCase submit template</comment>
+            <sub-class-of type=\'text/plain\'/>
+        </mime-type>
+    </mime-info>
+    \"
 }

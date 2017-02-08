@@ -34,8 +34,6 @@
 
 #include <qtsupport/qtsupportconstants.h>
 
-#include <utils/mimetypes/mimedatabase.h>
-
 #include <QtPlugin>
 
 #include <QApplication>
@@ -54,7 +52,6 @@ QmlProjectPlugin::~QmlProjectPlugin()
 bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/qmlproject/QmlProjectManager.mimetypes.xml"));
 
     addAutoReleasedObject(new Internal::Manager);
     addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);

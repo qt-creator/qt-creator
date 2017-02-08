@@ -54,7 +54,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/iprojectmanager.h>
 #include <utils/algorithm.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/synchronousprocess.h>
 #include <utils/temporarydirectory.h>
 #include <utils/parameteraction.h>
@@ -417,8 +416,6 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     connect(ICore::instance(), &ICore::coreAboutToClose, this, &ClearCasePlugin::closing);
     connect(ProgressManager::instance(), &ProgressManager::allTasksFinished,
             this, &ClearCasePlugin::tasksFinished);
-
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/clearcase/ClearCase.mimetypes.xml"));
 
     m_settings.fromSettings(ICore::settings());
 
