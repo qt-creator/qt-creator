@@ -379,15 +379,16 @@ void FormEditorScene::clearFormEditorItems()
 {
     const QList<QGraphicsItem*> itemList(items());
 
-    foreach (QGraphicsItem *item, itemList) {
-        if (qgraphicsitem_cast<FormEditorItem* >(item))
-            item->setParentItem(0);
-    }
+    const QList<FormEditorItem*> formEditorItemsTransformed =
+            Utils::transform(itemList, [](QGraphicsItem *item) { return qgraphicsitem_cast<FormEditorItem* >(item); });
 
-    foreach (QGraphicsItem *item, itemList) {
-        if (qgraphicsitem_cast<FormEditorItem* >(item))
+    const QList<FormEditorItem*> formEditorItems = Utils::filtered(formEditorItemsTransformed,
+                                                                   [](FormEditorItem *item) { return item; });
+    foreach (FormEditorItem *item, formEditorItems)
+            item->setParentItem(0);
+
+    foreach (FormEditorItem *item, formEditorItems)
             delete item;
-    }
 }
 
 void FormEditorScene::highlightBoundingRect(FormEditorItem *highlighItem)
