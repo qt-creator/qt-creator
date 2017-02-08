@@ -379,10 +379,12 @@ class Dumper(DumperBase):
 
     def nativeTypeEnumDisplay(self, nativeType, intval):
         try:
-            val = gdb.parse_and_eval('(%s)%d' % (nativeType, intval))
-            return  '%s (%d)' % (val, intval)
+            for field in nativeType.fields():
+                if field.enumval == intval:
+                    return '%s (%d)' % (field.name, intval)
         except:
-            return '%d' % intval
+            pass
+        return '%d' % intval
 
     def nativeTypeId(self, nativeType):
         name = str(nativeType)
