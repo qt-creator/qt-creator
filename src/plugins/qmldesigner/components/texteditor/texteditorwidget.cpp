@@ -143,13 +143,28 @@ int TextEditorWidget::currentLine() const
 
 bool TextEditorWidget::eventFilter( QObject *, QEvent *event)
 {
-    static std::vector<int> overrideKeys = { Qt::Key_Delete, Qt::Key_Backspace, Qt::Key_Left, Qt::Key_Right, Qt::Key_Up, Qt::Key_Down };
+    static std::vector<int> overrideKeys = { Qt::Key_Delete, Qt::Key_Backspace, Qt::Key_Left,
+                                             Qt::Key_Right, Qt::Key_Up, Qt::Key_Down, Qt::Key_Insert,
+                                             Qt::Key_Escape, Qt::Key_Home, Qt::Key_End };
+
+    static std::vector<QKeySequence> overrideSequences = { QKeySequence::SelectAll, QKeySequence::Cut,
+                                                          QKeySequence::Copy, QKeySequence::Delete,
+                                                          QKeySequence::Paste, QKeySequence::Undo,
+                                                          QKeySequence::Redo, QKeySequence(Qt::CTRL + Qt::ALT) };
     if (event->type() == QEvent::ShortcutOverride) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+
         if (std::find(overrideKeys.begin(), overrideKeys.end(), keyEvent->key()) != overrideKeys.end()) {
             keyEvent->accept();
             return true;
         }
+
+        QKeySequence keySqeuence(keyEvent->key() | keyEvent->modifiers());
+        for (QKeySequence overrideSequence : overrideSequences)
+            if (keySqeuence.matches(overrideSequence)) {
+                keyEvent->accept();
+                return true;
+            }
     }
     return false;
 }
