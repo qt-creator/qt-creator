@@ -649,8 +649,8 @@ ResourceFolderNode *SimpleResourceFolderNode::prefixNode() const
     return m_prefixNode;
 }
 
-void SimpleResourceFolderNode::addFilesAndSubfolders(QMap<PrefixFolderLang, QList<ProjectExplorer::FolderNode*> > foldersToAdd,
-                                                     QMap<PrefixFolderLang, QList<ProjectExplorer::Node*> > nodesToAdd,
+void SimpleResourceFolderNode::addFilesAndSubfolders(const QMap<PrefixFolderLang, QList<ProjectExplorer::FolderNode*> > &foldersToAdd,
+                                                     const QMap<PrefixFolderLang, QList<ProjectExplorer::Node*> > &nodesToAdd,
                                                      const QString &prefix, const QString &lang)
 {
     setNodes(nodesToAdd.value(PrefixFolderLang(prefix, m_folderName, lang)));
