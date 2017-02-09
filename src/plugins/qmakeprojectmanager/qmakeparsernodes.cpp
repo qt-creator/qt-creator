@@ -73,10 +73,11 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QLoggingCategory>
+#include <QMessageBox>
 #include <QTextCodec>
 #include <QXmlStreamReader>
 
-#include <QMessageBox>
 #include <utils/QtConcurrentTools>
 
 using namespace Core;
@@ -171,12 +172,12 @@ static void clearQmakeParserNodeStaticData()
     qmakeParserNodeStaticData()->projectIcon = QIcon();
 }
 
-enum { debug = 0 };
-
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 
 namespace QmakeProjectManager {
+
+Q_LOGGING_CATEGORY(qmakeParse, "qtc.qmake.parsing");
 
 uint qHash(Variable key, uint seed) { return ::qHash(static_cast<int>(key), seed); }
 
@@ -658,8 +659,7 @@ void QmakeParserPriFileNode::watchFolders(const QSet<QString> &folders)
 
 bool QmakeParserPriFileNode::folderChanged(const QString &changedFolder, const QSet<FileName> &newFiles)
 {
-    //qDebug()<<"########## QmakeParserPriFileNode::folderChanged";
-    // So, we need to figure out which files changed.
+    qCDebug(qmakeParse()) << "QmakeParserPriFileNode::folderChanged";
 
     QSet<FileName> addedFiles = newFiles;
     addedFiles.subtract(m_recursiveEnumerateFiles);
@@ -677,8 +677,7 @@ bool QmakeParserPriFileNode::folderChanged(const QString &changedFolder, const Q
 
     m_recursiveEnumerateFiles = newFiles;
 
-    // Apply the differences
-    // per file type
+    // Apply the differences per file type
     const QVector<QmakeParserNodeStaticData::FileTypeData> &fileTypes = qmakeParserNodeStaticData()->fileTypeData;
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
@@ -686,10 +685,9 @@ bool QmakeParserPriFileNode::folderChanged(const QString &changedFolder, const Q
         QSet<FileName> remove = filterFilesRecursiveEnumerata(type, removedFiles);
 
         if (!add.isEmpty() || !remove.isEmpty()) {
-            // Scream :)
-//            qDebug()<<"For type"<<fileTypes.at(i).typeName<<"\n"
-//                    <<"added files"<<add<<"\n"
-//                    <<"removed files"<<remove;
+            qCDebug(qmakeParse()) << "For type" << fileTypes.at(i).typeName <<"\n"
+                                  << "added files"  <<  add << "\n"
+                                  << "removed files" << remove;
 
             m_files[type].unite(add);
             m_files[type].subtract(remove);
@@ -1940,8 +1938,7 @@ void QmakeParserProFileNode::applyEvaluate(QmakeEvalResult *evalResult)
         return;
     }
 
-    if (debug)
-        qDebug() << "QmakeParserProFileNode - updating files for file " << filePath();
+    qCDebug(qmakeParse()) << "QmakeParserProFileNode - updating files for file " << filePath();
 
     if (result->projectType != m_projectType) {
         // probably all subfiles/projects have changed anyway
