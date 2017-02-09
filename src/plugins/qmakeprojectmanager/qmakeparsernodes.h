@@ -99,7 +99,7 @@ enum class Variable {
 uint qHash(Variable key, uint seed = 0);
 
 namespace Internal {
-class QmakeParserPriFile;
+class QmakePriFileDocument;
 struct InternalParserNode;
 
 class QmakeEvalInput;
@@ -205,7 +205,7 @@ private:
     Utils::FileName m_projectFilePath;
     QString m_projectDir;
 
-    Internal::QmakeParserPriFile *m_qmakePriFile;
+    Internal::QmakePriFileDocument *m_priFileDocument;
 
     // Memory is cheap...
     QMap<ProjectExplorer::FileType, QSet<Utils::FileName>> m_files;
@@ -215,7 +215,7 @@ private:
 
     // managed by QmakeProFileNode
     friend class QmakeProjectManager::QmakeParserProFileNode;
-    friend class Internal::QmakeParserPriFile; // for scheduling updates on modified
+    friend class Internal::QmakePriFileDocument; // for scheduling updates on modified
     // internal temporary subtree representation
     friend struct Internal::InternalParserNode;
 };

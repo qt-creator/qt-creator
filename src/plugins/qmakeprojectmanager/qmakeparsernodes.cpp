@@ -232,10 +232,10 @@ public:
     QStringList errors;
 };
 
-class QmakeParserPriFile : public Core::IDocument
+class QmakePriFileDocument : public Core::IDocument
 {
 public:
-    QmakeParserPriFile(QmakeParserPriFileNode *qmakePriFile)
+    QmakePriFileDocument(QmakeParserPriFileNode *qmakePriFile)
         : IDocument(nullptr), m_priFile(qmakePriFile)
     {
         setId("Qmake.PriFile");
@@ -460,8 +460,8 @@ QmakeParserPriFileNode::QmakeParserPriFileNode(QmakeProject *project,
       m_projectDir(filePath.toFileInfo().absolutePath())
 {
     Q_ASSERT(project);
-    m_qmakePriFile = new QmakeParserPriFile(this);
-    Core::DocumentManager::addDocument(m_qmakePriFile);
+    m_priFileDocument = new QmakePriFileDocument(this);
+    Core::DocumentManager::addDocument(m_priFileDocument);
 
     setDisplayName(filePath.toFileInfo().completeBaseName());
     setIcon(qmakeParserNodeStaticData()->projectIcon);
@@ -470,7 +470,7 @@ QmakeParserPriFileNode::QmakeParserPriFileNode(QmakeProject *project,
 QmakeParserPriFileNode::~QmakeParserPriFileNode()
 {
     watchFolders(QSet<QString>());
-    delete m_qmakePriFile;
+    delete m_priFileDocument;
 }
 
 void QmakeParserPriFileNode::scheduleUpdate()
