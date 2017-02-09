@@ -101,7 +101,6 @@ enum class Variable {
 uint qHash(Variable key, uint seed = 0);
 
 namespace Internal {
-
 class QmakeEvalInput;
 class QmakeEvalResult;
 class QmakePriFileEvalResult;
@@ -118,6 +117,9 @@ public:
 
     Utils::FileName filePath() const;
     Utils::FileName directoryPath() const;
+
+    QmakePriFile *parent() const;
+    QVector<QmakePriFile *> children() const;
 
     void update(const Internal::QmakePriFileEvalResult &result);
 
@@ -181,8 +183,11 @@ protected:
                      ChangeType change,
                      Change mode = Change::Save);
 
+    void addChild(QmakePriFile *pf);
 
 private:
+    void setParent(QmakePriFile *p);
+
     bool prepareForChange();
     static bool ensureWriteableProFile(const QString &file);
     static QPair<ProFile *, QStringList> readProFile(const QString &file);
@@ -206,6 +211,8 @@ private:
 
     QmakeProject *m_project = nullptr;
     QmakeProFile *m_qmakeProFile = nullptr;
+    QmakePriFile *m_parent = nullptr;
+    QVector<QmakePriFile *> m_children;
 
     std::unique_ptr<Core::IDocument> m_priFileDocument;
 

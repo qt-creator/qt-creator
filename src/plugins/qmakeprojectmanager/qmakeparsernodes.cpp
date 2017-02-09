@@ -216,6 +216,7 @@ Q_LOGGING_CATEGORY(qmakeParse, "qtc.qmake.parsing");
 uint qHash(Variable key, uint seed) { return ::qHash(static_cast<int>(key), seed); }
 
 namespace Internal {
+
 class QmakeEvalInput
 {
 public:
@@ -293,9 +294,20 @@ FileName QmakePriFile::directoryPath() const
     return filePath().parentDir();
 }
 
+QmakePriFile *QmakePriFile::parent() const
+{
+    return m_parent;
+}
+
+QVector<QmakePriFile *> QmakePriFile::children() const
+{
+    return m_children;
+}
+
 QmakePriFile::~QmakePriFile()
 {
     watchFolders(QSet<QString>());
+    qDeleteAll(m_children);
 }
 
 void QmakePriFile::scheduleUpdate()
@@ -419,10 +431,6 @@ void QmakePriFile::processValues(QmakePriFileEvalResult &result)
 
 void QmakePriFile::update(const Internal::QmakePriFileEvalResult &result)
 {
-    // add project file node
-    if (fileNodes().isEmpty())
-        addNode(new FileNode(filePath(), FileType::Project, false));
-
     m_recursiveEnumerateFiles = result.recursiveEnumerateFiles;
     watchFolders(result.folders.toSet());
 
@@ -956,6 +964,20 @@ void QmakePriFile::changeFiles(const QString &mimeType,
     if (mode == Change::Save)
         save(lines);
     includeFile->deref();
+}
+
+void QmakePriFile::addChild(QmakePriFile *pf)
+{
+    QTC_ASSERT(!m_children.contains(pf), return);
+    QTC_ASSERT(!pf->parent(), return);
+    m_children.append(pf);
+    pf->setParent(this);
+}
+
+void QmakePriFile::setParent(QmakePriFile *p)
+{
+    QTC_ASSERT(!m_parent, return);
+    m_parent = p;
 }
 
 bool QmakePriFile::setProVariable(const QString &var, const QStringList &values, const QString &scope, int flags)
@@ -1748,9 +1770,9 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
         for (QmakeIncludedPriFile *priFile : tree->children) {
             // Loop preventation, make sure that exact same node is not in our parent chain
             bool loop = false;
-            Node *n = pn;
-            while ((n = n->parentFolderNode())) {
-                if (dynamic_cast<QmakePriFile *>(n) && n->filePath() == priFile->name) {
+            QmakePriFile *n = pn;
+            while ((n = n->parent())) {
+                if (n->filePath() == priFile->name) {
                     loop = true;
                     break;
                 }
@@ -1761,14 +1783,14 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
 
             if (priFile->proFile) {
                 QmakePriFile *qmakePriFileNode = new QmakePriFile(m_project, this, priFile->name);
-                pn->addNode(qmakePriFileNode);
+                pn->addChild(qmakePriFileNode);
                 qmakePriFileNode->setIncludedInExactParse(
                             (result->state == QmakeEvalResult::EvalOk) && pn->includedInExactParse());
                 qmakePriFileNode->update(priFile->result);
                 toCompare.append(qMakePair(qmakePriFileNode, priFile));
             } else {
                 QmakeProFile *qmakeProFileNode = new QmakeProFile(m_project, priFile->name);
-                pn->addNode(qmakeProFileNode);
+                pn->addChild(qmakeProFileNode);
                 qmakeProFileNode->setIncludedInExactParse(
                             result->exactSubdirs.contains(qmakeProFileNode->filePath())
                             && pn->includedInExactParse());
