@@ -29,6 +29,7 @@
 #include "formeditorscene.h"
 
 #include <qmlanchors.h>
+#include <nodehints.h>
 #include <nodemetainfo.h>
 #include <variantproperty.h>
 #include <nodeabstractproperty.h>
@@ -343,11 +344,10 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
     if (!newParent->qmlItemNode().modelNode().metaInfo().isLayoutable()
             && newParent->qmlItemNode().modelNode().hasParentProperty()) {
         ModelNode grandParent = newParent->qmlItemNode().modelNode().parentProperty().parentModelNode();
-        if (grandParent.metaInfo().isLayoutable())
+        if (grandParent.metaInfo().isLayoutable()
+                && !NodeHints::fromModelNode(grandParent).isStackedContainer())
             newParent = m_view.data()->scene()->itemForQmlItemNode(QmlItemNode(grandParent));
     }
-
-
 
     QVector<ModelNode> nodeReparentVector;
     NodeAbstractProperty parentProperty;
