@@ -8,6 +8,7 @@ HEADERS += \
     qmakebuildinfo.h \
     qmakekitinformation.h \
     qmakekitconfigwidget.h \
+    qmakeparsernodes.h \
     qmakeprojectimporter.h \
     qmakerunconfigurationfactory.h \
     qmakeprojectmanagerplugin.h \
@@ -51,6 +52,7 @@ HEADERS += \
 SOURCES += \
     qmakekitconfigwidget.cpp \
     qmakekitinformation.cpp \
+    qmakeparsernodes.cpp \
     qmakeprojectimporter.cpp \
     qmakerunconfigurationfactory.cpp \
     qmakeprojectmanagerplugin.cpp \
