@@ -630,6 +630,12 @@ bool QmlItemNode::canBereparentedTo(const ModelNode &potentialParent) const
     return NodeHints::fromModelNode(modelNode()).canBeReparentedTo(potentialParent);
 }
 
+bool QmlItemNode::isInStackedContainer() const
+{
+    if (hasInstanceParent())
+        return NodeHints::fromModelNode(instanceParent()).isStackedContainer();
+    return false;
+}
 
 void QmlItemNode::setSize(const QSizeF &size)
 {
