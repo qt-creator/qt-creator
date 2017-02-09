@@ -180,6 +180,9 @@ FormEditorItem* AbstractFormEditorTool::nearestFormEditorItem(const QPointF &poi
             nearestItem = formEditorItem;
     }
 
+    if (nearestItem && nearestItem->qmlItemNode().isInStackedContainer())
+        return nearestItem->parentItem();
+
     return nearestItem;
 }
 
