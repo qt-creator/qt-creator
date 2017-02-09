@@ -252,7 +252,7 @@ public:
     QString objectsDirectory() const;
     QByteArray cxxDefines() const;
 
-    void scheduleUpdate(QmakeParserProFileNode::AsyncUpdateDelay delay);
+    void scheduleUpdate(QmakeProFile::AsyncUpdateDelay delay);
 
     bool validParse() const;
     bool parseInProgress() const;

@@ -48,7 +48,7 @@ namespace ProjectExplorer { class RunConfiguration; }
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
-class QmakeParserProFileNode;
+class QmakeProFile;
 class QmakeProject;
 
 //  Type of projects
@@ -110,11 +110,11 @@ class QmakePriFileEvalResult;
 struct InstallsParserList;
 
 // Implements ProjectNode for qmake .pri files
-class QMAKEPROJECTMANAGER_EXPORT QmakeParserPriFileNode : public ProjectExplorer::ProjectNode
+class QMAKEPROJECTMANAGER_EXPORT QmakePriFile : public ProjectExplorer::ProjectNode
 {
 public:
-    QmakeParserPriFileNode(QmakeProject *project, QmakeParserProFileNode *qmakeProFileNode, const Utils::FileName &filePath);
-    ~QmakeParserPriFileNode() override;
+    QmakePriFile(QmakeProject *project, QmakeProFile *qmakeProFile, const Utils::FileName &filePath);
+    ~QmakePriFile() override;
 
     Utils::FileName filePath() const;
     Utils::FileName directoryPath() const;
@@ -147,8 +147,8 @@ public:
     bool deploysFolder(const QString &folder) const override;
     QList<ProjectExplorer::RunConfiguration *> runConfigurations() const override;
 
-    QmakeParserProFileNode *proFileNode() const;
-    QList<QmakeParserPriFileNode*> subProjectNodesExact() const;
+    QmakeProFile *proFile() const;
+    QList<QmakePriFile*> subPriFilesExact() const;
 
     // Set by parent
     bool includedInExactParse() const;
@@ -205,7 +205,7 @@ private:
     void watchFolders(const QSet<QString> &folders);
 
     QmakeProject *m_project = nullptr;
-    QmakeParserProFileNode *m_qmakeProFileNode = nullptr;
+    QmakeProFile *m_qmakeProFile = nullptr;
 
     std::unique_ptr<Core::IDocument> m_priFileDocument;
 
@@ -215,8 +215,8 @@ private:
     QSet<QString> m_watchedFolders;
     bool m_includedInExactParse = true;
 
-    // managed by QmakeProFileNode
-    friend class QmakeProjectManager::QmakeParserProFileNode;
+    // managed by QmakeProFile
+    friend class QmakeProjectManager::QmakeProFile;
 };
 
 class QMAKEPROJECTMANAGER_EXPORT TargetParserInformation
@@ -260,13 +260,13 @@ struct QMAKEPROJECTMANAGER_EXPORT InstallsParserList {
 };
 
 // Implements ProjectNode for qmake .pro files
-class QMAKEPROJECTMANAGER_EXPORT QmakeParserProFileNode : public QmakeParserPriFileNode
+class QMAKEPROJECTMANAGER_EXPORT QmakeProFile : public QmakePriFile
 {
 public:
-    QmakeParserProFileNode(QmakeProject *project, const Utils::FileName &filePath);
-    ~QmakeParserProFileNode() override;
+    QmakeProFile(QmakeProject *project, const Utils::FileName &filePath);
+    ~QmakeProFile() override;
 
-    bool isParent(QmakeParserProFileNode *node);
+    bool isParent(QmakeProFile *node);
 
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
 
@@ -286,7 +286,7 @@ public:
                                const ProjectExplorer::FileNode *sourceFile) const;
     QList<ProjectExplorer::ExtraCompiler *> extraCompilers() const;
 
-    QmakeParserProFileNode *findProFileFor(const Utils::FileName &string) const;
+    QmakeProFile *findProFileFor(const Utils::FileName &string) const;
     TargetParserInformation targetInformation() const;
 
     InstallsParserList installsList() const;
@@ -297,7 +297,7 @@ public:
     QByteArray cxxDefines() const;
 
     enum AsyncUpdateDelay { ParseNow, ParseLater };
-    using QmakeParserPriFileNode::scheduleUpdate;
+    using QmakePriFile::scheduleUpdate;
     void scheduleUpdate(AsyncUpdateDelay delay);
 
     bool validParse() const;

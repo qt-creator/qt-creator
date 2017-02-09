@@ -473,7 +473,7 @@ QmakePriFileNode::~QmakePriFileNode()
 void QmakePriFileNode::scheduleUpdate()
 {
     QtSupport::ProFileCacheManager::instance()->discardFile(m_projectFilePath.toString());
-    m_qmakeProFileNode->scheduleUpdate(QmakeParserProFileNode::ParseLater);
+    m_qmakeProFileNode->scheduleUpdate(QmakeProFile::ParseLater);
 }
 
 QStringList QmakePriFileNode::baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir, const QString &buildDir)
@@ -1588,7 +1588,7 @@ bool QmakeProFileNode::parseInProgress() const
     return m_parseInProgress;
 }
 
-void QmakeProFileNode::scheduleUpdate(QmakeParserProFileNode::AsyncUpdateDelay delay)
+void QmakeProFileNode::scheduleUpdate(QmakeProFile::AsyncUpdateDelay delay)
 {
     setParseInProgressRecursive(true);
     m_project->scheduleAsyncUpdate(this, delay);
