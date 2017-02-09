@@ -327,14 +327,26 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
 
     painter->save();
 
-    if (qmlItemNode().instanceIsRenderPixmapNull() || !isContentVisible()) {
-        if (scene()->showBoundingRects() && m_boundingRect.width() > 15 && m_boundingRect.height() > 15)
-            paintPlaceHolderForInvisbleItem(painter);
-    } else {
-        if (m_blurContent)
-            painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceBlurredRenderPixmap());
-        else
-            painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceRenderPixmap());
+    bool showPlaceHolder = qmlItemNode().instanceIsRenderPixmapNull() || !isContentVisible();
+
+    const bool isInStackedContainer = qmlItemNode().isInStackedContainer();
+
+    /* If already the parent is invisible then show nothing */
+    const bool hideCompletely = !isContentVisible() && (parentItem() && !parentItem()->isContentVisible());
+
+    if (isInStackedContainer)
+        showPlaceHolder = qmlItemNode().instanceIsRenderPixmapNull() && isContentVisible();
+
+    if (!hideCompletely) {
+        if (showPlaceHolder) {
+            if (scene()->showBoundingRects() && m_boundingRect.width() > 15 && m_boundingRect.height() > 15)
+                paintPlaceHolderForInvisbleItem(painter);
+        } else if (!isInStackedContainer || isContentVisible() ) {
+            if (m_blurContent)
+                painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceBlurredRenderPixmap());
+            else
+                painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceRenderPixmap());
+        }
     }
 
     if (!qmlItemNode().isRootModelNode())
