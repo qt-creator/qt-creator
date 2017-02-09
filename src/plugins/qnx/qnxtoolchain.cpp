@@ -114,9 +114,10 @@ void QnxToolChain::addToEnvironment(Environment &env) const
 FileNameList QnxToolChain::suggestedMkspecList() const
 {
     FileNameList mkspecList;
-    mkspecList << FileName::fromLatin1("qnx-armv7le-qcc");
     mkspecList << FileName::fromLatin1("qnx-armle-v7-qcc");
     mkspecList << FileName::fromLatin1("qnx-x86-qcc");
+    mkspecList << FileName::fromLatin1("qnx-aarch64le-qcc");
+    mkspecList << FileName::fromLatin1("qnx-x86-64-qcc");
 
     return mkspecList;
 }
