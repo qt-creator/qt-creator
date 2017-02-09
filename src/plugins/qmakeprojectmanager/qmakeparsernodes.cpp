@@ -840,7 +840,7 @@ bool QmakePriFile::ensureWriteableProFile(const QString &file)
 QPair<ProFile *, QStringList> QmakePriFile::readProFile(const QString &file)
 {
     QStringList lines;
-    ProFile *includeFile = 0;
+    ProFile *includeFile = nullptr;
     {
         QString contents;
         {
@@ -856,7 +856,7 @@ QPair<ProFile *, QStringList> QmakePriFile::readProFile(const QString &file)
 
         QMakeVfs vfs;
         QtSupport::ProMessageHandler handler;
-        QMakeParser parser(0, &vfs, &handler);
+        QMakeParser parser(nullptr, &vfs, &handler);
         includeFile = parser.parsedProBlock(QStringRef(&contents), file, 1);
     }
     return qMakePair(includeFile, lines);
@@ -891,7 +891,7 @@ bool QmakePriFile::renameFile(const QString &oldName,
         return false;
 
     // We need to re-parse here: The file has changed.
-    QMakeParser parser(0, 0, 0);
+    QMakeParser parser(nullptr, nullptr, nullptr);
     QString contents = lines.join(QLatin1Char('\n'));
     includeFile = parser.parsedProBlock(QStringRef(&contents),
                                         filePath().toString(), 1, QMakeParser::FullGrammar);
@@ -1205,7 +1205,7 @@ QmakeProFile *QmakeProFile::findProFileFor(const FileName &fileName) const
         if (QmakeProFile *qmakeProFileNode = dynamic_cast<QmakeProFile *>(pn))
             if (QmakeProFile *result = qmakeProFileNode->findProFileFor(fileName))
                 return result;
-    return 0;
+    return nullptr;
 }
 
 QString QmakeProFile::makefile() const
@@ -1257,17 +1257,13 @@ QByteArray QmakeProFile::cxxDefines() const
   \class QmakeProFile
   Implements abstract ProjectNode class
   */
-QmakeProFile::QmakeProFile(QmakeProject *project,
-                               const FileName &filePath)
-        : QmakePriFile(project, this, filePath)
+QmakeProFile::QmakeProFile(QmakeProject *project, const FileName &filePath) :
+    QmakePriFile(project, this, filePath)
 {
-    // The slot is a lambda, so that QmakeProFile does not need to be
-    // a qobject. The lifetime of the m_parserFutureWatcher is shorter
+    // The lifetime of the m_parserFutureWatcher is shorter
     // than of this, so this is all safe
     QObject::connect(&m_parseFutureWatcher, &QFutureWatcherBase::finished,
-                     [this](){
-                         applyAsyncEvaluate();
-                     });
+                     [this](){ applyAsyncEvaluate(); });
 }
 
 QmakeProFile::~QmakeProFile()
@@ -1515,7 +1511,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
     }
 
     if (result->projectType == ProjectType::SubDirsTemplate) {
-        FileNameList subDirs = subDirsPaths(input.readerCumulative, input.projectDir, 0, 0);
+        FileNameList subDirs = subDirsPaths(input.readerCumulative, input.projectDir, nullptr, nullptr);
         foreach (const Utils::FileName &subDirName, subDirs) {
             auto it = result->includedFiles.children.find(subDirName);
             if (it == result->includedFiles.children.end()) {
