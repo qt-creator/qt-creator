@@ -1411,11 +1411,10 @@ void QmakeProFile::setupReader()
 #endif
 }
 
-static bool evaluateOne(
-        const EvalInput &input, ProFile *pro, QtSupport::ProFileReader *reader,
-        bool cumulative, QtSupport::ProFileReader **buildPassReader)
+static bool evaluateOne(const QmakeEvalInput &input, ProFile *pro,
+                        QtSupport::ProFileReader *reader, bool cumulative,
+                        QtSupport::ProFileReader **buildPassReader)
 {
-#if 0
     if (!reader->accept(pro, QMakeEvaluator::LoadAll))
         return false;
 
@@ -1444,14 +1443,13 @@ static bool evaluateOne(
         else
             delete bpReader;
     }
-#endif
+
     return true;
 }
 
 QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
 {
     QmakeEvalResult *result = new QmakeEvalResult;
-#if 0
     QtSupport::ProFileReader *exactBuildPassReader = nullptr;
     QtSupport::ProFileReader *cumulativeBuildPassReader = nullptr;
     ProFile *pro;
@@ -1459,30 +1457,32 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
         bool exactOk = evaluateOne(input, pro, input.readerExact, false, &exactBuildPassReader);
         bool cumulOk = evaluateOne(input, pro, input.readerCumulative, true, &cumulativeBuildPassReader);
         pro->deref();
-        result->state = exactOk ? ParserEvalResult::EvalOk : cumulOk ? ParserEvalResult::EvalPartial : ParserEvalResult::EvalFail;
+        result->state = exactOk ? QmakeEvalResult::EvalOk
+                                : cumulOk ? QmakeEvalResult::EvalPartial : QmakeEvalResult::EvalFail;
     } else {
-        result->state = ParserEvalResult::EvalFail;
+        result->state = QmakeEvalResult::EvalFail;
     }
 
-    if (result->state == ParserEvalResult::EvalFail)
+    if (result->state == QmakeEvalResult::EvalFail)
         return result;
 
     result->includedFiles.proFile = pro;
     result->includedFiles.name = input.projectFilePath;
 
-    QHash<const ProFile *, PriFileEvalResult *> proToResult;
+    QHash<const ProFile *, QmakePriFileEvalResult *> proToResult;
 
-    result->projectType = proFileTemplateTypeToProjectType(
-                (result->state == ParserEvalResult::EvalOk ? input.readerExact
-                                                     : input.readerCumulative)->templateType());
-    if (result->state == ParserEvalResult::EvalOk) {
-        if (result->projectType == SubDirsTemplate) {
+    result->projectType
+            = proFileTemplateTypeToProjectType(
+                (result->state == QmakeEvalResult::EvalOk ? input.readerExact
+                                                          : input.readerCumulative)->templateType());
+    if (result->state == QmakeEvalResult::EvalOk) {
+        if (result->projectType == ProjectType::SubDirsTemplate) {
             QStringList errors;
             FileNameList subDirs = subDirsPaths(input.readerExact, input.projectDir, &result->subProjectsNotToDeploy, &errors);
             result->errors.append(errors);
 
             foreach (const Utils::FileName &subDirName, subDirs) {
-                IncludedPriFile *subDir = new IncludedPriFile;
+                auto subDir = new QmakeIncludedPriFile;
                 subDir->proFile = nullptr;
                 subDir->name = subDirName;
                 result->includedFiles.children.insert(subDirName, subDir);
@@ -1493,9 +1493,9 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
 
         // Convert ProFileReader::includeFiles to IncludedPriFile structure
         QHash<ProFile *, QVector<ProFile *>> includeFiles = input.readerExact->includeFiles();
-        QList<IncludedPriFile *> toBuild = { &result->includedFiles };
+        QList<QmakeIncludedPriFile *> toBuild = { &result->includedFiles };
         while (!toBuild.isEmpty()) {
-            IncludedPriFile *current = toBuild.takeFirst();
+            QmakeIncludedPriFile *current = toBuild.takeFirst();
             if (!current->proFile)
                 continue;  // Don't attempt to map subdirs here
             QVector<ProFile *> children = includeFiles.value(current->proFile);
@@ -1503,7 +1503,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
                 const Utils::FileName childName = Utils::FileName::fromString(child->fileName());
                 auto it = current->children.find(childName);
                 if (it == current->children.end()) {
-                    IncludedPriFile *childTree = new IncludedPriFile;
+                    auto childTree = new QmakeIncludedPriFile;
                     childTree->proFile = child;
                     childTree->name = childName;
                     current->children.insert(childName, childTree);
@@ -1514,12 +1514,12 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
         }
     }
 
-    if (result->projectType == SubDirsTemplate) {
+    if (result->projectType == ProjectType::SubDirsTemplate) {
         FileNameList subDirs = subDirsPaths(input.readerCumulative, input.projectDir, 0, 0);
         foreach (const Utils::FileName &subDirName, subDirs) {
             auto it = result->includedFiles.children.find(subDirName);
             if (it == result->includedFiles.children.end()) {
-                IncludedPriFile *subDir = new IncludedPriFile;
+                auto subDir = new QmakeIncludedPriFile;
                 subDir->proFile = nullptr;
                 subDir->name = subDirName;
                 result->includedFiles.children.insert(subDirName, subDir);
@@ -1529,9 +1529,9 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
 
     // Add ProFileReader::includeFiles information from cumulative parse to IncludedPriFile structure
     QHash<ProFile *, QVector<ProFile *>> includeFiles = input.readerCumulative->includeFiles();
-    QList<IncludedPriFile *> toBuild = { &result->includedFiles };
+    QList<QmakeIncludedPriFile *> toBuild = { &result->includedFiles };
     while (!toBuild.isEmpty()) {
-        IncludedPriFile *current = toBuild.takeFirst();
+        QmakeIncludedPriFile *current = toBuild.takeFirst();
         if (!current->proFile)
             continue;  // Don't attempt to map subdirs here
         QVector<ProFile *> children = includeFiles.value(current->proFile);
@@ -1539,7 +1539,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
             const Utils::FileName childName = Utils::FileName::fromString(child->fileName());
             auto it = current->children.find(childName);
             if (it == current->children.end()) {
-                IncludedPriFile *childTree = new IncludedPriFile;
+                auto childTree = new QmakeIncludedPriFile;
                 childTree->proFile = child;
                 childTree->name = childName;
                 current->children.insert(childName, childTree);
@@ -1558,13 +1558,13 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
     QStringList baseVPathsExact = baseVPaths(exactReader, input.projectDir, input.buildDirectory);
     QStringList baseVPathsCumulative = baseVPaths(cumulativeReader, input.projectDir, input.buildDirectory);
 
-    const QVector<QmakeParserNodeStaticData::FileTypeData> &fileTypes = qmakeNodeStaticData()->fileTypeData;
+    const QVector<QmakeStaticData::FileTypeData> &fileTypes = qmakeStaticData()->fileTypeData;
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
         QStringList qmakeVariables = varNames(type, exactReader);
         foreach (const QString &qmakeVariable, qmakeVariables) {
             QHash<ProString, bool> handled;
-            if (result->state == ParserEvalResult::EvalOk) {
+            if (result->state == QmakeEvalResult::EvalOk) {
                 QStringList vPathsExact = fullVPaths(
                             baseVPathsExact, exactReader, qmakeVariable, input.projectDir);
                 auto sourceFiles = exactReader->absoluteFileValues(
@@ -1590,7 +1590,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
                                         input.projectDir, input.buildDirectory);
     extractInstalls(proToResult, &result->includedFiles.result, result->installsList);
 
-    if (result->state == ParserEvalResult::EvalOk) {
+    if (result->state == QmakeEvalResult::EvalOk) {
         result->targetInformation = targetInformation(input.readerExact, exactBuildPassReader,
                                                       input.buildDirectory, input.projectFilePath.toString());
 
@@ -1641,11 +1641,11 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
         result->newVarValues[Variable::QmakeCxx] = exactReader->values("QMAKE_CXX");
     }
 
-    if (result->state == ParserEvalResult::EvalOk || result->state == ParserEvalResult::EvalPartial) {
+    if (result->state == QmakeEvalResult::EvalOk || result->state == QmakeEvalResult::EvalPartial) {
 
-        QList<IncludedPriFile *> toExtract = { &result->includedFiles };
+        QList<QmakeIncludedPriFile *> toExtract = { &result->includedFiles };
         while (!toExtract.isEmpty()) {
-            IncludedPriFile *current = toExtract.takeFirst();
+            QmakeIncludedPriFile *current = toExtract.takeFirst();
             processValues(current->result);
             toExtract.append(current->children.values());
         }
@@ -1655,7 +1655,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
         delete exactBuildPassReader;
     if (cumulativeBuildPassReader && cumulativeBuildPassReader != input.readerCumulative)
         delete cumulativeBuildPassReader;
-#endif
+
     return result;
 }
 
