@@ -24,61 +24,36 @@
 ****************************************************************************/
 
 #include "qmakeparsernodes.h"
+
 #include "qmakeproject.h"
-#include "qmakeprojectmanager.h"
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakebuildconfiguration.h"
 #include "qmakerunconfigurationfactory.h"
 
-#include <projectexplorer/nodesvisitor.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/fileiconprovider.h>
+#include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
-#include <coreplugin/dialogs/readonlyfilesdialog.h>
-
-#include <extensionsystem/pluginmanager.h>
-
-#include <projectexplorer/buildmanager.h>
+#include <cpptools/cpptoolsconstants.h>
+#include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/projecttree.h>
 #include <qtsupport/profilereader.h>
-#include <qtsupport/qtkitinformation.h>
-#include <cpptools/generatedcodemodelsupport.h>
-
 #include <resourceeditor/resourcenode.h>
 
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsconstants.h>
-
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
-#include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/stringutils.h>
-#include <utils/theme/theme.h>
-#include <proparser/prowriter.h>
-#include <proparser/qmakevfs.h>
-#include <proparser/ioutils.h>
+#include <utils/QtConcurrentTools>
 
 #include <QApplication>
-#include <QDebug>
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QTextCodec>
-#include <QXmlStreamReader>
-
-#include <utils/QtConcurrentTools>
 
 using namespace Core;
 using namespace ProjectExplorer;

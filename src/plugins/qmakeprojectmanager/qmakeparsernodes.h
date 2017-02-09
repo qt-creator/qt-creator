@@ -30,7 +30,6 @@
 #include "proparser/profileevaluator.h"
 
 #include <coreplugin/idocument.h>
-#include <projectexplorer/projectnodes.h>
 #include <cpptools/generatedcodemodelsupport.h>
 
 #include <QHash>
@@ -41,9 +40,7 @@
 #include <memory>
 
 namespace Utils { class FileName; }
-
 namespace QtSupport { class ProFileReader; }
-
 namespace ProjectExplorer { class RunConfiguration; }
 
 namespace QmakeProjectManager {
