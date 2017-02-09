@@ -300,6 +300,7 @@ Type {
 
     Hints {
         isStackedContainer: true
+        indexPropertyForStackedContainer: "currentIndex"
     }
 
     ItemLibraryEntry {

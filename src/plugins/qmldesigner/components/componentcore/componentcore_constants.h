@@ -39,6 +39,7 @@ const char editCategory[] = "Edit";
 const char anchorsCategory[] = "Anchors";
 const char positionCategory[] = "Position";
 const char layoutCategory[] = "Layout";
+const char stackedContainerCategory[] = "StackedContainer";
 const char genericToolBarCategory[] = "GenericToolBar";
 
 const char toFrontCommandId[] = "ToFront";
@@ -66,13 +67,17 @@ const char goIntoComponentCommandId[] = "GoIntoComponent";
 const char goToImplementationCommandId[] = "GoToImplementation";
 const char addSignalHandlerCommandId[] = "AddSignalHandler";
 const char moveToComponentCommandId[] = "MoveToComponent";
+const char addItemToStackedContainerCommandId[] = "AddItemToStackedContainer";
+const char IncreaseIndexOfStackedContainerCommandId[] = "IncreaseIndexOfStackedContainer";
+const char DecreaseIndexOfStackedContainerCommandId[] = "decreaseIndexOfStackedContainer";
 
 const char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Selection");
-const char stackCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Stack (z)");
+const char stackCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Stacked Container");
 const char editCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit");
 const char anchorsCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Anchors");
 const char positionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Position");
 const char layoutCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout");
+const char stackedContainerCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Stacked Container");
 
 const char selectParentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select Parent: %1");
 const char selectDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select: %1");
@@ -116,6 +121,10 @@ const char layoutFlowPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerCon
 const char removePositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove Positioner");
 const char removeLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove Layout");
 
+const char addItemToStackedContainerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add Item");
+const char increaseIndexToStackedContainerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Increase Index");
+const char decreaseIndexToStackedContainerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Decrease Index");
+
 const char layoutColumnLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Column Layout");
 const char layoutRowLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Row Layout");
 const char layoutGridLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout in Grid Layout");
@@ -144,6 +153,7 @@ const int priorityEditCategory = 160;
 const int priorityAnchorsCategory = 140;
 const int priorityPositionCategory = 130;
 const int priorityLayoutCategory = 120;
+const int priorityStackedContainerCategory = priorityLayoutCategory;
 const int priorityTopLevelSeperator = 100;
 const int priorityCustomActions = 80;
 const int priorityRefactoring = 60;

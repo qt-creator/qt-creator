@@ -32,6 +32,7 @@
 
 #include <cmath>
 #include <nodeabstractproperty.h>
+#include <nodehints.h>
 #include <nodemetainfo.h>
 #include <modelnode.h>
 #include <qmlitemnode.h>
@@ -48,13 +49,15 @@
 
 #include <coreplugin/messagebox.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <utils/algorithm.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/icore.h>
 
 #include <qmljseditor/qmljsfindreferences.h>
+
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QByteArray>
@@ -796,6 +799,93 @@ void goImplementation(const SelectionContext &selectionState)
 void addNewSignalHandler(const SelectionContext &selectionState)
 {
     addSignalHandlerOrGotoImplementation(selectionState, true);
+}
+
+void addItemToStackedContainer(const SelectionContext &selectionContext)
+{
+    AbstractView *view = selectionContext.view();
+
+    QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
+    ModelNode container = selectionContext.currentSingleSelectedNode();
+    QTC_ASSERT(container.isValid(), return);
+    QTC_ASSERT(container.metaInfo().isValid(), return);
+
+    try {
+        RewriterTransaction transaction =
+                view->beginRewriterTransaction(QByteArrayLiteral("DesignerActionManager:addItemToStackedContainer"));
+
+        QmlDesigner::ModelNode itemNode =
+                view->createModelNode("QtQuick.Item", view->majorQtQuickVersion(), view->minorQtQuickVersion());
+        container.defaultNodeListProperty().reparentHere(itemNode);
+
+        transaction.commit();
+    }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
+        exception.showException();
+    }
+}
+
+PropertyName getIndexPropertyName(const ModelNode &modelNode)
+{
+    const PropertyName propertyName = NodeHints::fromModelNode(modelNode).indexPropertyForStackedContainer().toUtf8();
+
+    if (modelNode.metaInfo().hasProperty(propertyName))
+        return propertyName;
+
+    if (modelNode.metaInfo().hasProperty("currentIndex"))
+        return "currentIndex";
+
+    if (modelNode.metaInfo().hasProperty("index"))
+        return "index";
+
+    return PropertyName();
+}
+
+void increaseIndexOfStackedContainer(const SelectionContext &selectionContext)
+{
+    AbstractView *view = selectionContext.view();
+
+    QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
+    ModelNode container = selectionContext.currentSingleSelectedNode();
+    QTC_ASSERT(container.isValid(), return);
+    QTC_ASSERT(container.metaInfo().isValid(), return);
+
+    const PropertyName propertyName = getIndexPropertyName(container);
+    QTC_ASSERT(container.metaInfo().hasProperty(propertyName), return);
+
+    QmlItemNode containerItemNode(container);
+    QTC_ASSERT(containerItemNode.isValid(), return);
+
+    int value = containerItemNode.instanceValue(propertyName).toInt();
+    ++value;
+
+    const int maxValue = container.directSubModelNodes().count();
+
+    QTC_ASSERT(value < maxValue, return);
+
+    containerItemNode.setVariantProperty(propertyName, value);
+}
+
+void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext)
+{
+    AbstractView *view = selectionContext.view();
+
+    QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
+    ModelNode container = selectionContext.currentSingleSelectedNode();
+    QTC_ASSERT(container.isValid(), return);
+    QTC_ASSERT(container.metaInfo().isValid(), return);
+
+    const PropertyName propertyName = getIndexPropertyName(container);
+    QTC_ASSERT(container.metaInfo().hasProperty(propertyName), return);
+
+    QmlItemNode containerItemNode(container);
+    QTC_ASSERT(containerItemNode.isValid(), return);
+
+    int value = containerItemNode.instanceValue(propertyName).toInt();
+    --value;
+
+    QTC_ASSERT(value > -1, return);
+
+    containerItemNode.setVariantProperty(propertyName, value);
 }
 
 } // namespace Mode

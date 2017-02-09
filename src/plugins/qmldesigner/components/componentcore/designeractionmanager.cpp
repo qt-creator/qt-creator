@@ -28,6 +28,7 @@
 #include "changestyleaction.h"
 #include "modelnodecontextmenu_helper.h"
 #include <nodeproperty.h>
+#include <nodehints.h>
 #include <nodemetainfo.h>
 #include "designeractionmanagerview.h"
 #include "qmldesignerconstants.h"
@@ -39,6 +40,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 namespace QmlDesigner {
@@ -373,6 +375,56 @@ bool singleSelectionAndInQtQuickLayout(const SelectionContext &context)
     return metaInfo.isSubclassOf("QtQuick.Layouts.Layout");
 }
 
+bool isStackedContainer(const SelectionContext &context)
+{
+    if (!singleSelection(context))
+            return false;
+
+    ModelNode currentSelectedNode = context.currentSingleSelectedNode();
+
+    return NodeHints::fromModelNode(currentSelectedNode).isStackedContainer();
+}
+
+bool isStackedContainerAndIndexCanBeDecreased(const SelectionContext &context)
+{
+    if (!isStackedContainer(context))
+        return false;
+
+    ModelNode currentSelectedNode = context.currentSingleSelectedNode();
+
+    const PropertyName propertyName = ModelNodeOperations::getIndexPropertyName(currentSelectedNode);
+
+    QTC_ASSERT(currentSelectedNode.metaInfo().hasProperty(propertyName), return false);
+
+    QmlItemNode containerItemNode(currentSelectedNode);
+    QTC_ASSERT(containerItemNode.isValid(), return false);
+
+    const int value = containerItemNode.instanceValue(propertyName).toInt();
+
+    return value > 0;
+}
+
+bool isStackedContainerAndIndexCanBeIncreased(const SelectionContext &context)
+{
+    if (!isStackedContainer(context))
+        return false;
+
+    ModelNode currentSelectedNode = context.currentSingleSelectedNode();
+
+    const PropertyName propertyName = ModelNodeOperations::getIndexPropertyName(currentSelectedNode);
+
+    QTC_ASSERT(currentSelectedNode.metaInfo().hasProperty(propertyName), return false);
+
+    QmlItemNode containerItemNode(currentSelectedNode);
+    QTC_ASSERT(containerItemNode.isValid(), return false);
+
+    const int value = containerItemNode.instanceValue(propertyName).toInt();
+
+    const int maxValue = currentSelectedNode.directSubModelNodes().count() - 1;
+
+    return value < maxValue;
+}
+
 bool isLayout(const SelectionContext &context)
 {
     if (!inBaseState(context))
@@ -390,6 +442,10 @@ bool isLayout(const SelectionContext &context)
 
     if (!metaInfo.isValid())
         return false;
+
+    /* Stacked containers have different semantics */
+    if (isStackedContainer(context))
+            return false;
 
     return metaInfo.isSubclassOf("QtQuick.Layouts.Layout");
 }
@@ -442,7 +498,6 @@ bool singleSelectedAndUiFile(const SelectionContext &context)
     return designDocument->fileName().toFileInfo().completeSuffix()
             == QLatin1String("ui.qml");
 }
-
 
 void DesignerActionManager::createDefaultDesignerActions()
 {
@@ -588,6 +643,12 @@ void DesignerActionManager::createDefaultDesignerActions()
                           priorityLayoutCategory,
                           &layoutOptionVisible));
 
+    addDesignerAction(new ActionGroup(
+                          stackCategoryDisplayName,
+                          stackedContainerCategory,
+                          priorityStackedContainerCategory,
+                          &isStackedContainer));
+
     addDesignerAction(new ModelNodeContextMenuAction(
                           removePositionerCommandId,
                           removePositionerDisplayName,
@@ -649,6 +710,36 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &removeLayout,
                           &isLayout,
                           &isLayout));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          addItemToStackedContainerCommandId,
+                          addItemToStackedContainerDisplayName,
+                          stackedContainerCategory,
+                          QKeySequence("Ctrl+Shift+a"),
+                          110,
+                          &addItemToStackedContainer,
+                          &isStackedContainer,
+                          &isStackedContainer));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          DecreaseIndexOfStackedContainerCommandId,
+                          decreaseIndexToStackedContainerDisplayName,
+                          stackedContainerCategory,
+                          QKeySequence("Ctrl+Shift+Left"),
+                          80,
+                          &decreaseIndexOfStackedContainer,
+                          &isStackedContainerAndIndexCanBeDecreased,
+                          &isStackedContainer));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          IncreaseIndexOfStackedContainerCommandId,
+                          increaseIndexToStackedContainerDisplayName,
+                          stackedContainerCategory,
+                          QKeySequence("Ctrl+Shift+Right"),
+                          80,
+                          &increaseIndexOfStackedContainer,
+                          &isStackedContainerAndIndexCanBeIncreased,
+                          &isStackedContainer));
 
     addDesignerAction(new ModelNodeAction(
                           layoutRowLayoutCommandId,
