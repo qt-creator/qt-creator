@@ -75,10 +75,7 @@ void ConnectionModel::resetModel()
 {
     beginResetModel();
     clear();
-    setHorizontalHeaderLabels(QStringList()
-                              << tr("Target")
-                              << tr("Signal Handler")
-                              << tr("Action"));
+    setHorizontalHeaderLabels(QStringList({ tr("Target"), tr("Signal Handler"), tr("Action") }));
 
     if (connectionView()->isAttached()) {
         foreach (const ModelNode modelNode, connectionView()->allModelNodes())

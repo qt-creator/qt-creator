@@ -258,24 +258,23 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
 
     // make sure adding directories works (once;-)
     QTest::newRow("entering directory")
-            << (QStringList() << QString::fromLatin1("/test/dir") )
+            << QStringList("/test/dir")
             << QString::fromLatin1("make[4]: Entering directory `/home/code/build/qt/examples/opengl/grabber'\n"
                                    "make[4]: Entering directory `/home/code/build/qt/examples/opengl/grabber'")
             << OutputParserTester::STDOUT
             << QString() << QString()
             << QList<Task>()
             << QString()
-            << (QStringList() << QString::fromLatin1("/home/code/build/qt/examples/opengl/grabber")
-                              << QString::fromLatin1("/home/code/build/qt/examples/opengl/grabber")
-                              << QString::fromLatin1("/test/dir"));
+            << QStringList({ "/home/code/build/qt/examples/opengl/grabber",
+                             "/home/code/build/qt/examples/opengl/grabber", "/test/dir" });
     QTest::newRow("leaving directory")
-            << (QStringList()  << QString::fromLatin1("/home/code/build/qt/examples/opengl/grabber") << QString::fromLatin1("/test/dir"))
+            << QStringList({ "/home/code/build/qt/examples/opengl/grabber", "/test/dir" })
             << QString::fromLatin1("make[4]: Leaving directory `/home/code/build/qt/examples/opengl/grabber'")
             << OutputParserTester::STDOUT
             << QString() << QString()
             << QList<Task>()
             << QString()
-            << (QStringList() << QString::fromLatin1("/test/dir"));
+            << QStringList("/test/dir");
     QTest::newRow("make error")
             << QStringList()
             << QString::fromLatin1("make: *** No rule to make target `hello.c', needed by `hello.o'.  Stop.")
@@ -476,8 +475,8 @@ void ProjectExplorerPlugin::testGnuMakeParserTaskMangling_data()
                     -1,
                     Constants::TASK_CATEGORY_COMPILE);
     QTest::newRow("find file")
-            << (QStringList(QLatin1String("test/file.cpp")))
-            << (QStringList(QLatin1String("test")))
+            << QStringList("test/file.cpp")
+            << QStringList("test")
             << Task(Task::Error,
                     QLatin1String("mangling"),
                     Utils::FileName::fromUserInput(QLatin1String("file.cpp")),

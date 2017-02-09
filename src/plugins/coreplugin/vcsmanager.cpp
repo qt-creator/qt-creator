@@ -550,51 +550,42 @@ void CorePlugin::testVcsManager_data()
     QTest::addColumn<QStringList>("results");
 
     QTest::newRow("A and B next to each other")
-            << (QStringList()
-                << QLatin1String("a:a") << QLatin1String("a/1:a") << QLatin1String("a/2:a")
-                << QLatin1String("a/2/5:a") << QLatin1String("a/2/5/6:a"))
-            << (QStringList()
-                << QLatin1String("b:b") << QLatin1String("b/3:b") << QLatin1String("b/4:b"))
-            << (QStringList()
-                << QLatin1String(":::-") // empty directory to look up
-                << QLatin1String("c:::*") // Neither in A nor B
-                << QLatin1String("a:a:A:*") // in A
-                << QLatin1String("b:b:B:*") // in B
-                << QLatin1String("b/3:b:B:*") // in B
-                << QLatin1String("b/4:b:B:*") // in B
-                << QLatin1String("a/1:a:A:*") // in A
-                << QLatin1String("a/2:a:A:*") // in A
-                << QLatin1String(":::-") // empty directory to look up
-                << QLatin1String("a/2/5/6:a:A:*") // in A
-                << QLatin1String("a/2/5:a:A:-") // in A (cached from before!)
-                // repeat: These need to come from the cache now:
-                << QLatin1String("c:::-") // Neither in A nor B
-                << QLatin1String("a:a:A:-") // in A
-                << QLatin1String("b:b:B:-") // in B
-                << QLatin1String("b/3:b:B:-") // in B
-                << QLatin1String("b/4:b:B:-") // in B
-                << QLatin1String("a/1:a:A:-") // in A
-                << QLatin1String("a/2:a:A:-") // in A
-                << QLatin1String("a/2/5/6:a:A:-") // in A
-                << QLatin1String("a/2/5:a:A:-") // in A
-                );
+            << QStringList({ "a:a", "a/1:a", "a/2:a", "a/2/5:a", "a/2/5/6:a" })
+            << QStringList({ "b:b", "b/3:b", "b/4:b" })
+            << QStringList({ ":::-",          // empty directory to look up
+                             "c:::*",         // Neither in A nor B
+                             "a:a:A:*",       // in A
+                             "b:b:B:*",       // in B
+                             "b/3:b:B:*",     // in B
+                             "b/4:b:B:*",     // in B
+                             "a/1:a:A:*",     // in A
+                             "a/2:a:A:*",     // in A
+                             ":::-",          // empty directory to look up
+                             "a/2/5/6:a:A:*", // in A
+                             "a/2/5:a:A:-",   // in A (cached from before!)
+                             // repeat: These need to come from the cache now:
+                             "c:::-",         // Neither in A nor B
+                             "a:a:A:-",       // in A
+                             "b:b:B:-",       // in B
+                             "b/3:b:B:-",     // in B
+                             "b/4:b:B:-",     // in B
+                             "a/1:a:A:-",     // in A
+                             "a/2:a:A:-",     // in A
+                             "a/2/5/6:a:A:-", // in A
+                             "a/2/5:a:A:-"    // in A
+                });
     QTest::newRow("B in A")
-            << (QStringList()
-                << QLatin1String("a:a") << QLatin1String("a/1:a") << QLatin1String("a/2:a")
-                << QLatin1String("a/2/5:a") << QLatin1String("a/2/5/6:a"))
-            << (QStringList()
-                << QLatin1String("a/1/b:a/1/b") << QLatin1String("a/1/b/3:a/1/b")
-                << QLatin1String("a/1/b/4:a/1/b") << QLatin1String("a/1/b/3/5:a/1/b")
-                << QLatin1String("a/1/b/3/5/6:a/1/b"))
-            << (QStringList()
-                << QLatin1String("a:a:A:*") // in A
-                << QLatin1String("c:::*") // Neither in A nor B
-                << QLatin1String("a/3:::*") // Neither in A nor B
-                << QLatin1String("a/1/b/x:::*") // Neither in A nor B
-                << QLatin1String("a/1/b:a/1/b:B:*") // in B
-                << QLatin1String("a/1:a:A:*") // in A
-                << QLatin1String("a/1/b/../../2:a:A:*") // in A
-                );
+            << QStringList({ "a:a", "a/1:a", "a/2:a", "a/2/5:a", "a/2/5/6:a" })
+            << QStringList({ "a/1/b:a/1/b", "a/1/b/3:a/1/b", "a/1/b/4:a/1/b", "a/1/b/3/5:a/1/b",
+                             "a/1/b/3/5/6:a/1/b" })
+            << QStringList({ "a:a:A:*",            // in A
+                             "c:::*",              // Neither in A nor B
+                             "a/3:::*",            // Neither in A nor B
+                             "a/1/b/x:::*",        // Neither in A nor B
+                             "a/1/b:a/1/b:B:*",    // in B
+                             "a/1:a:A:*",          // in A
+                             "a/1/b/../../2:a:A:*" // in A
+                });
     QTest::newRow("A and B") // first one wins...
             << QStringList({ "a:a", "a/1:a", "a/2:a" })
             << QStringList({ "a:a", "a/1:a", "a/2:a" })

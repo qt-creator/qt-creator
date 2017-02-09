@@ -614,8 +614,7 @@ void PropertiesView::MView::visitMDependency(const MDependency *dependency)
     bool isSingleSelection = selection.size() == 1;
     if (m_directionSelector == 0) {
         m_directionSelector = new QComboBox(m_topWidget);
-        m_directionSelector->addItems(QStringList()
-                                      << QStringLiteral("->") << QStringLiteral("<-") << QStringLiteral("<->"));
+        m_directionSelector->addItems(QStringList({ "->", "<-", "<->" }));
         addRow(tr("Direction:"), m_directionSelector, "direction");
         connect(m_directionSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
                 this, &PropertiesView::MView::onDependencyDirectionChanged);
@@ -1051,9 +1050,9 @@ void PropertiesView::MView::visitDAnnotation(const DAnnotation *annotation)
     }
     if (m_annotationVisualRoleSelector == 0) {
         m_annotationVisualRoleSelector = new QComboBox(m_topWidget);
-        m_annotationVisualRoleSelector->addItems(QStringList()
-                                                 << tr("Normal") << tr("Title") << tr("Subtitle")
-                                                 << tr("Emphasized") << tr("Soften") << tr("Footnote"));
+        m_annotationVisualRoleSelector->addItems(QStringList({ tr("Normal"), tr("Title"),
+                                                               tr("Subtitle"), tr("Emphasized"),
+                                                               tr("Soften"), tr("Footnote") }));
         addRow(tr("Role:"), m_annotationVisualRoleSelector, "visual role");
         connect(m_annotationVisualRoleSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
                 this, &PropertiesView::MView::onAnnotationVisualRoleChanged);

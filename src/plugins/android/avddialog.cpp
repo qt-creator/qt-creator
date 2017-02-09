@@ -45,11 +45,7 @@ AvdDialog::AvdDialog(int minApiLevel, const QString &targetArch, const AndroidCo
     m_hideTipTimer.setSingleShot(true);
 
     if (targetArch.isEmpty())
-        m_avdDialog.abiComboBox->addItems(QStringList()
-                                        << QLatin1String("armeabi-v7a")
-                                        << QLatin1String("armeabi")
-                                        << QLatin1String("x86")
-                                        << QLatin1String("mips"));
+        m_avdDialog.abiComboBox->addItems(QStringList({ "armeabi-v7a", "armeabi", "x86", "mips" }));
     else
         m_avdDialog.abiComboBox->addItems(QStringList(targetArch));
 

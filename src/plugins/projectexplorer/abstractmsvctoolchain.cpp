@@ -193,8 +193,7 @@ QString AbstractMsvcToolChain::makeCommand(const Utils::Environment &environment
     Utils::FileName tmp;
 
     if (useJom) {
-        tmp = environment.searchInPath(jom, QStringList()
-                                       << QCoreApplication::applicationDirPath());
+        tmp = environment.searchInPath(jom, QStringList(QCoreApplication::applicationDirPath()));
         if (!tmp.isEmpty())
             return tmp.toString();
     }

@@ -659,9 +659,8 @@ bool QtcProcess::prepareCommand(const QString &command, const QString &arguments
             if (err != QtcProcess::FoundMeta)
                 return false;
             *outCmd = QLatin1String("/bin/sh");
-            *outArgs = Arguments::createUnixArgs(QStringList()
-                            << QLatin1String("-c")
-                            << (quoteArg(command) + QLatin1Char(' ') + arguments));
+            *outArgs = Arguments::createUnixArgs(
+                        QStringList({ "-c", (quoteArg(command) + ' ' + arguments) }));
         }
     }
     return true;

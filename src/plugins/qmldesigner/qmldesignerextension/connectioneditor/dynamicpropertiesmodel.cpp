@@ -128,11 +128,8 @@ void DynamicPropertiesModel::resetModel()
 {
     beginResetModel();
     clear();
-    setHorizontalHeaderLabels(QStringList()
-                              << tr("Item")
-                              << tr("Property")
-                              << tr("Property Type")
-                              << tr("Property Value"));
+    setHorizontalHeaderLabels(QStringList({ tr("Item"), tr("Property"), tr("Property Type"),
+                                            tr("Property Value") }));
 
     foreach (const ModelNode modelNode, m_selectedModelNodes)
         addModelNode(modelNode);

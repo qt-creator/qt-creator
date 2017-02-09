@@ -100,9 +100,8 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
             return false;
         }
         pcmd = QLatin1String("/bin/sh");
-        pargs = QtcProcess::Arguments::createUnixArgs(QStringList()
-                    << QLatin1String("-c")
-                    << (QtcProcess::quoteArg(program) + QLatin1Char(' ') + args));
+        pargs = QtcProcess::Arguments::createUnixArgs(
+                    QStringList({ "-c", (QtcProcess::quoteArg(program) + ' ' + args) }));
     }
 
     QtcProcess::SplitError qerr;

@@ -278,35 +278,33 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
                 buildStep->project()->activeTarget()->activeBuildConfiguration());
     if (buildConfig) {
         const QString buildDir = buildConfig->buildDirectory().toUserOutput();
-        Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("-d") << buildDir);
+        Utils::QtcProcess::addArgs(&commandLine, QStringList({ "-d", buildDir }));
     }
-    Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("-f")
+    Utils::QtcProcess::addArgs(&commandLine, QStringList("-f")
                                << buildStep->project()->projectFilePath().toUserOutput());
     if (QbsProjectManagerSettings::useCreatorSettingsDirForQbs()) {
-        Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("--settings-dir")
-                << QDir::toNativeSeparators(QbsProjectManagerSettings::qbsSettingsBaseDir()));
+        Utils::QtcProcess::addArgs(&commandLine, QStringList({ "--settings-dir",
+                QDir::toNativeSeparators(QbsProjectManagerSettings::qbsSettingsBaseDir()) }));
     }
     if (stepProxy.dryRun())
         Utils::QtcProcess::addArg(&commandLine, QLatin1String("--dry-run"));
     if (stepProxy.keepGoing())
         Utils::QtcProcess::addArg(&commandLine, QLatin1String("--keep-going"));
     if (stepProxy.showCommandLines())
-        Utils::QtcProcess::addArgs(&commandLine, QStringList()
-                                   << QLatin1String("--command-echo-mode")
-                                   << QLatin1String("command-line"));
+        Utils::QtcProcess::addArgs(&commandLine, QStringList({ "--command-echo-mode",
+                                                               "command-line" }));
     if (stepProxy.noInstall())
         Utils::QtcProcess::addArg(&commandLine, QLatin1String("--no-install"));
     if (stepProxy.cleanInstallRoot())
         Utils::QtcProcess::addArg(&commandLine, QLatin1String("--clean-install-root"));
     const int jobCount = stepProxy.jobCount();
     if (jobCount > 0) {
-        Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("--jobs")
-                                   << QString::number(jobCount));
+        Utils::QtcProcess::addArgs(&commandLine, QStringList({ "--jobs",
+                                                               QString::number(jobCount) }));
     }
     const QString installRoot = stepProxy.installRoot();
     if (!installRoot.isEmpty()) {
-        Utils::QtcProcess::addArgs(&commandLine, QStringList() << QLatin1String("--install-root")
-                                   << installRoot);
+        Utils::QtcProcess::addArgs(&commandLine, QStringList({ "--install-root", installRoot }));
     }
 
     const QString profileName = QbsManager::instance()->profileForKit(buildStep->target()->kit());

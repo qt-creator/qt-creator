@@ -68,11 +68,7 @@ void BackendModel::resetModel()
     beginResetModel();
     clear();
 
-    setHorizontalHeaderLabels(QStringList()
-                              << tr("Type")
-                              << tr("Name")
-                              << tr("Singleton")
-                              << tr("Local"));
+    setHorizontalHeaderLabels(QStringList({ tr("Type"), tr("Name"), tr("Singleton"), tr("Local") }));
 
     ModelNode rootNode = connectionView()->rootModelNode();
 

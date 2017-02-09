@@ -52,11 +52,8 @@ void BindingModel::resetModel()
 {
     beginResetModel();
     clear();
-    setHorizontalHeaderLabels(QStringList()
-                              << tr("Item")
-                              << tr("Property")
-                              << tr("Source Item")
-                              << tr("Source Property"));
+    setHorizontalHeaderLabels(QStringList({ tr("Item"), tr("Property"), tr("Source Item"),
+                                            tr("Source Property") }));
 
     foreach (const ModelNode modelNode, m_selectedModelNodes)
         addModelNode(modelNode);
