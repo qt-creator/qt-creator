@@ -230,10 +230,10 @@ public:
     QStringList errors;
 };
 
-class QmakePriFile : public Core::IDocument
+class QmakePriFileNodeDocument : public Core::IDocument
 {
 public:
-    QmakePriFile(QmakePriFileNode *qmakePriFile)
+    QmakePriFileNodeDocument(QmakePriFileNode *qmakePriFile)
         : IDocument(nullptr), m_priFile(qmakePriFile)
     {
         setId("Qmake.PriFile");
@@ -457,7 +457,7 @@ QmakePriFileNode::QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmak
       m_projectDir(filePath.toFileInfo().absolutePath())
 {
     Q_ASSERT(project);
-    m_qmakePriFile = new QmakePriFile(this);
+    m_qmakePriFile = new QmakePriFileNodeDocument(this);
     Core::DocumentManager::addDocument(m_qmakePriFile);
 
     setDisplayName(filePath.toFileInfo().completeBaseName());

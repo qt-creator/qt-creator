@@ -51,7 +51,7 @@ class QmakeProFileNode;
 class QmakeProject;
 
 namespace Internal {
-class QmakePriFile;
+class QmakePriFileNodeDocument;
 struct InternalNode;
 
 class EvalInput;
@@ -157,7 +157,7 @@ private:
     Utils::FileName m_projectFilePath;
     QString m_projectDir;
 
-    Internal::QmakePriFile *m_qmakePriFile;
+    Internal::QmakePriFileNodeDocument *m_qmakePriFile;
 
     // Memory is cheap...
     QMap<ProjectExplorer::FileType, QSet<Utils::FileName> > m_files;
@@ -167,7 +167,7 @@ private:
 
     // managed by QmakeProFileNode
     friend class QmakeProjectManager::QmakeProFileNode;
-    friend class Internal::QmakePriFile; // for scheduling updates on modified
+    friend class Internal::QmakePriFileNodeDocument; // for scheduling updates on modified
     // internal temporary subtree representation
     friend struct Internal::InternalNode;
 };
