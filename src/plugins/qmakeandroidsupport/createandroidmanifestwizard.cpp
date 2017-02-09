@@ -172,7 +172,7 @@ bool ChooseDirectoryPage::isComplete() const
 
 void ChooseDirectoryPage::initializePage()
 {
-    QString androidPackageDir = m_wizard->node()->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir);
+    QString androidPackageDir = m_wizard->node()->singleVariableValue(QmakeProjectManager::Variable::AndroidPackageSourceDir);
     if (androidPackageDir.isEmpty()) {
         m_label->setText(tr("Select the Android package source directory.\n\n"
                           "The files in the Android package source directory are copied to the build directory's "
@@ -336,7 +336,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
     }
     m_node->addFiles(addedFiles);
 
-    if (m_node->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir).isEmpty()) {
+    if (m_node->singleVariableValue(QmakeProjectManager::Variable::AndroidPackageSourceDir).isEmpty()) {
         // and now time for some magic
         QString value = QLatin1String("$$PWD/")
                 + m_node->filePath().toFileInfo().absoluteDir().relativeFilePath(m_directory);

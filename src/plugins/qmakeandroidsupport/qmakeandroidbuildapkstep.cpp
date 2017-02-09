@@ -112,7 +112,7 @@ Utils::FileName QmakeAndroidBuildApkStep::androidPackageSourceDir() const
     if (!node)
         return Utils::FileName();
 
-    QFileInfo sourceDirInfo(node->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir));
+    QFileInfo sourceDirInfo(node->singleVariableValue(QmakeProjectManager::Variable::AndroidPackageSourceDir));
     return Utils::FileName::fromString(sourceDirInfo.canonicalFilePath());
 }
 
@@ -152,7 +152,7 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     if (m_skipBuilding)
         return true;
 
-    QString inputFile = node->singleVariableValue(QmakeProjectManager::AndroidDeploySettingsFile);
+    QString inputFile = node->singleVariableValue(QmakeProjectManager::Variable::AndroidDeploySettingsFile);
     if (inputFile.isEmpty()) {
         m_skipBuilding = true;
         return true;

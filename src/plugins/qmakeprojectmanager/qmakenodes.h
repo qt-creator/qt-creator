@@ -50,43 +50,6 @@ class QmakeBuildConfiguration;
 class QmakeProFileNode;
 class QmakeProject;
 
-// Other variables of interest
-enum QmakeVariable {
-    DefinesVar = 1,
-    IncludePathVar,
-    CppFlagsVar,
-    SourceVar,
-    ExactResourceVar,
-    CumulativeResourceVar,
-    UiDirVar,
-    HeaderExtensionVar,
-    CppExtensionVar,
-    MocDirVar,
-    PkgConfigVar,
-    PrecompiledHeaderVar,
-    LibDirectoriesVar,
-    ConfigVar,
-    QtVar,
-    QmlImportPathVar,
-    QmlDesignerImportPathVar,
-    Makefile,
-    ObjectExt,
-    ObjectsDir,
-    VersionVar,
-    TargetExtVar,
-    TargetVersionExtVar,
-    StaticLibExtensionVar,
-    ShLibExtensionVar,
-    AndroidArchVar,
-    AndroidDeploySettingsFile,
-    AndroidPackageSourceDir,
-    AndroidExtraLibs,
-    IsoIconsVar,
-    QmakeProjectName,
-    QmakeCc,
-    QmakeCxx
-};
-
 namespace Internal {
 class QmakePriFile;
 struct InternalNode;
@@ -265,8 +228,8 @@ public:
 
     QmakeProjectManager::ProjectType projectType() const;
 
-    QStringList variableValue(const QmakeVariable var) const;
-    QString singleVariableValue(const QmakeVariable var) const;
+    QStringList variableValue(const Variable var) const;
+    QString singleVariableValue(const Variable var) const;
 
     bool isSubProjectDeployable(const QString &filePath) const {
         return !m_subProjectsNotToDeploy.contains(filePath);
@@ -318,7 +281,7 @@ private:
     void asyncEvaluate(QFutureInterface<Internal::EvalResult *> &fi, Internal::EvalInput input);
     void cleanupProFileReaders();
 
-    typedef QHash<QmakeVariable, QStringList> QmakeVariablesHash;
+    using VariablesHash = QHash<Variable, QStringList>;
 
     void updateGeneratedFiles(const QString &buildDir);
 
@@ -336,7 +299,7 @@ private:
     bool m_parseInProgress = false;
 
     ProjectType m_projectType = ProjectType::Invalid;
-    QmakeVariablesHash m_varValues;
+    VariablesHash m_varValues;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
 
     TargetInformation m_qmakeTargetInformation;

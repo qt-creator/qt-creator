@@ -373,13 +373,13 @@ void QmakeProject::updateCppCodeModel()
 
         ppBuilder.setDisplayName(pro->displayName());
         ppBuilder.setProjectFile(pro->filePath().toString());
-        ppBuilder.setCxxFlags(pro->variableValue(CppFlagsVar)); // TODO: Handle QMAKE_CFLAGS
+        ppBuilder.setCxxFlags(pro->variableValue(Variable::CppFlags)); // TODO: Handle QMAKE_CFLAGS
         ppBuilder.setDefines(pro->cxxDefines());
-        ppBuilder.setPreCompiledHeaders(pro->variableValue(PrecompiledHeaderVar));
+        ppBuilder.setPreCompiledHeaders(pro->variableValue(Variable::PrecompiledHeader));
         ppBuilder.setSelectedForBuilding(pro->includedInExactParse());
 
         // Qt Version
-        if (pro->variableValue(ConfigVar).contains(QLatin1String("qt")))
+        if (pro->variableValue(Variable::Config).contains(QLatin1String("qt")))
             ppBuilder.setQtVersion(qtVersionForPart);
         else
             ppBuilder.setQtVersion(ProjectPart::NoQt);
@@ -387,7 +387,7 @@ void QmakeProject::updateCppCodeModel()
         // Header paths
         CppTools::ProjectPartHeaderPaths headerPaths;
         using CppToolsHeaderPath = CppTools::ProjectPartHeaderPath;
-        foreach (const QString &inc, pro->variableValue(IncludePathVar)) {
+        foreach (const QString &inc, pro->variableValue(Variable::IncludePath)) {
             const auto headerPath = CppToolsHeaderPath(inc, CppToolsHeaderPath::IncludePath);
             if (!headerPaths.contains(headerPath))
                 headerPaths += headerPath;
@@ -400,7 +400,7 @@ void QmakeProject::updateCppCodeModel()
         ppBuilder.setHeaderPaths(headerPaths);
 
         // Files and generators
-        QStringList fileList = pro->variableValue(SourceVar);
+        QStringList fileList = pro->variableValue(Variable::Source);
         QList<ProjectExplorer::ExtraCompiler *> proGenerators = pro->extraCompilers();
         foreach (ProjectExplorer::ExtraCompiler *ec, proGenerators) {
             ec->forEachTarget([&](const Utils::FileName &generatedFile) {
@@ -434,11 +434,11 @@ void QmakeProject::updateQmlJSCodeModel()
 
     bool hasQmlLib = false;
     foreach (QmakeProFileNode *node, proFiles) {
-        foreach (const QString &path, node->variableValue(QmlImportPathVar))
+        foreach (const QString &path, node->variableValue(Variable::QmlImportPath))
             projectInfo.importPaths.maybeInsert(FileName::fromString(path),
                                                 QmlJS::Dialect::Qml);
-        const QStringList &exactResources = node->variableValue(ExactResourceVar);
-        const QStringList &cumulativeResources = node->variableValue(CumulativeResourceVar);
+        const QStringList &exactResources = node->variableValue(Variable::ExactResource);
+        const QStringList &cumulativeResources = node->variableValue(Variable::CumulativeResource);
         projectInfo.activeResourceFiles.append(exactResources);
         projectInfo.allResourceFiles.append(exactResources);
         projectInfo.allResourceFiles.append(cumulativeResources);
@@ -453,7 +453,7 @@ void QmakeProject::updateQmlJSCodeModel()
                 projectInfo.resourceFileContents[rc] = contents;
         }
         if (!hasQmlLib) {
-            QStringList qtLibs = node->variableValue(QtVar);
+            QStringList qtLibs = node->variableValue(Variable::Qt);
             hasQmlLib = qtLibs.contains(QLatin1String("declarative")) ||
                     qtLibs.contains(QLatin1String("qml")) ||
                     qtLibs.contains(QLatin1String("quick"));
@@ -1285,14 +1285,14 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
 
     TargetInformation ti = node->targetInformation();
     QString targetFileName = ti.target;
-    const QStringList config = node->variableValue(ConfigVar);
+    const QStringList config = node->variableValue(Variable::Config);
     const bool isStatic = config.contains(QLatin1String("static"));
     const bool isPlugin = config.contains(QLatin1String("plugin"));
     switch (toolchain->targetAbi().os()) {
     case Abi::WindowsOS: {
-        QString targetVersionExt = node->singleVariableValue(TargetVersionExtVar);
+        QString targetVersionExt = node->singleVariableValue(Variable::TargetVersionExt);
         if (targetVersionExt.isEmpty()) {
-            const QString version = node->singleVariableValue(VersionVar);
+            const QString version = node->singleVariableValue(Variable::Version);
             if (!version.isEmpty()) {
                 targetVersionExt = version.left(version.indexOf(QLatin1Char('.')));
                 if (targetVersionExt == QLatin1String("0"))
@@ -1315,7 +1315,7 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
 
             if (!isPlugin) {
                 targetFileName += QLatin1Char('.');
-                const QString version = node->singleVariableValue(VersionVar);
+                const QString version = node->singleVariableValue(Variable::Version);
                 QString majorVersion = version.left(version.indexOf(QLatin1Char('.')));
                 if (majorVersion.isEmpty())
                     majorVersion = QLatin1String("1");
@@ -1323,7 +1323,7 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
             }
             targetFileName += QLatin1Char('.');
             targetFileName += node->singleVariableValue(isStatic
-                    ? StaticLibExtensionVar : ShLibExtensionVar);
+                    ? Variable::StaticLibExtension : Variable::ShLibExtension);
         }
         deploymentData.addFile(destDir + QLatin1Char('/') + targetFileName, targetPath);
         break;
@@ -1341,7 +1341,7 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
             targetFileName += QLatin1String("so");
             deploymentData.addFile(destDirFor(ti) + QLatin1Char('/') + targetFileName, targetPath);
             if (!isPlugin) {
-                QString version = node->singleVariableValue(VersionVar);
+                QString version = node->singleVariableValue(Variable::Version);
                 if (version.isEmpty())
                     version = QLatin1String("1.0.0");
                 targetFileName += QLatin1Char('.');
@@ -1371,7 +1371,7 @@ bool QmakeProject::matchesKit(const Kit *kit)
     });
 }
 
-static Utils::FileName getFullPathOf(const QmakeProFileNode *pro, QmakeVariable variable,
+static Utils::FileName getFullPathOf(const QmakeProFileNode *pro, Variable variable,
                                      const BuildConfiguration *bc)
 {
     // Take last non-flag value, to cover e.g. '@echo $< && $$QMAKE_CC' or 'ccache gcc'
@@ -1417,9 +1417,9 @@ void QmakeProject::warnOnToolChainMismatch(const QmakeProFileNode *pro) const
         return;
 
     testToolChain(ToolChainKitInformation::toolChain(t->kit(), ProjectExplorer::Constants::C_LANGUAGE_ID),
-                  getFullPathOf(pro, QmakeCc, bc));
+                  getFullPathOf(pro, Variable::QmakeCc, bc));
     testToolChain(ToolChainKitInformation::toolChain(t->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID),
-                  getFullPathOf(pro, QmakeCxx, bc));
+                  getFullPathOf(pro, Variable::QmakeCxx, bc));
 }
 
 QString QmakeProject::executableFor(const QmakeProFileNode *node)
@@ -1434,13 +1434,13 @@ QString QmakeProject::executableFor(const QmakeProFileNode *node)
 
     switch (toolchain->targetAbi().os()) {
     case Abi::DarwinOS:
-        if (node->variableValue(ConfigVar).contains(QLatin1String("app_bundle"))) {
+        if (node->variableValue(Variable::Config).contains(QLatin1String("app_bundle"))) {
             target = ti.target + QLatin1String(".app/Contents/MacOS/") + ti.target;
             break;
         }
         // else fall through
     default: {
-        QString extension = node->singleVariableValue(TargetExtVar);
+        QString extension = node->singleVariableValue(Variable::TargetExt);
         target = ti.target + extension;
         break;
     }

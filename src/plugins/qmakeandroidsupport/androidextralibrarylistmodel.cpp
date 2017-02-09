@@ -93,13 +93,13 @@ void AndroidExtraLibraryListModel::activeRunConfigurationChanged()
     }
 
     m_scope = QLatin1String("contains(ANDROID_TARGET_ARCH,")
-            + node->singleVariableValue(QmakeProjectManager::AndroidArchVar)
+            + node->singleVariableValue(QmakeProjectManager::Variable::AndroidArch)
             + QLatin1Char(')');
 
     bool enabled;
     beginResetModel();
     if (node->validParse() && node->projectType() == QmakeProjectManager::ProjectType::ApplicationTemplate) {
-        m_entries = node->variableValue(QmakeProjectManager::AndroidExtraLibs);
+        m_entries = node->variableValue(QmakeProjectManager::Variable::AndroidExtraLibs);
         enabled = true;
     } else {
         // parsing error or not a application template

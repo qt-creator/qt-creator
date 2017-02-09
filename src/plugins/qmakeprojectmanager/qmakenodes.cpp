@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "qmakenodes.h"
+#include "qmakeparsernodes.h"
 #include "qmakeproject.h"
 #include "qmakeprojectmanager.h"
 #include "qmakeprojectmanagerconstants.h"
@@ -225,7 +226,7 @@ public:
     IncludedPriFile includedFiles;
     TargetInformation targetInformation;
     InstallsList installsList;
-    QHash<QmakeVariable, QStringList> newVarValues;
+    QHash<Variable, QStringList> newVarValues;
     QStringList errors;
 };
 
@@ -1426,25 +1427,25 @@ QmakeProFileNode *QmakeProFileNode::findProFileFor(const FileName &fileName) con
 
 QString QmakeProFileNode::makefile() const
 {
-    return singleVariableValue(Makefile);
+    return singleVariableValue(Variable::Makefile);
 }
 
 QString QmakeProFileNode::objectExtension() const
 {
-    if (m_varValues[ObjectExt].isEmpty())
+    if (m_varValues[Variable::ObjectExt].isEmpty())
         return HostOsInfo::isWindowsHost() ? QLatin1String(".obj") : QLatin1String(".o");
-    return m_varValues[ObjectExt].first();
+    return m_varValues[Variable::ObjectExt].first();
 }
 
 QString QmakeProFileNode::objectsDirectory() const
 {
-    return singleVariableValue(ObjectsDir);
+    return singleVariableValue(Variable::ObjectsDir);
 }
 
 QByteArray QmakeProFileNode::cxxDefines() const
 {
     QByteArray result;
-    foreach (const QString &def, variableValue(DefinesVar)) {
+    foreach (const QString &def, variableValue(Variable::Defines)) {
         // 'def' is shell input, so interpret it.
         QtcProcess::SplitError error = QtcProcess::SplitOk;
         const QStringList args = QtcProcess::splitArgs(def, HostOsInfo::hostOs(), false, &error);
@@ -1523,13 +1524,13 @@ bool QmakeProFileNode::showInSimpleTree(ProjectType projectType) const
 
 bool QmakeProFileNode::isDebugAndRelease() const
 {
-    const QStringList configValues = m_varValues.value(ConfigVar);
+    const QStringList configValues = m_varValues.value(Variable::Config);
     return configValues.contains(QLatin1String("debug_and_release"));
 }
 
 bool QmakeProFileNode::isQtcRunnable() const
 {
-    const QStringList configValues = m_varValues.value(ConfigVar);
+    const QStringList configValues = m_varValues.value(Variable::Config);
     return configValues.contains(QLatin1String("qtc_runnable"));
 }
 
@@ -1538,12 +1539,12 @@ ProjectType QmakeProFileNode::projectType() const
     return m_projectType;
 }
 
-QStringList QmakeProFileNode::variableValue(const QmakeVariable var) const
+QStringList QmakeProFileNode::variableValue(const Variable var) const
 {
     return m_varValues.value(var);
 }
 
-QString QmakeProFileNode::singleVariableValue(const QmakeVariable var) const
+QString QmakeProFileNode::singleVariableValue(const Variable var) const
 {
     const QStringList &values = variableValue(var);
     return values.isEmpty() ? QString() : values.first();
@@ -1815,50 +1816,50 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
                                                       input.buildDirectory, input.projectFilePath.toString());
 
         // update other variables
-        result->newVarValues[DefinesVar] = exactReader->values(QLatin1String("DEFINES"));
-        result->newVarValues[IncludePathVar] = includePaths(exactReader, input.sysroot,
+        result->newVarValues[Variable::Defines] = exactReader->values(QLatin1String("DEFINES"));
+        result->newVarValues[Variable::IncludePath] = includePaths(exactReader, input.sysroot,
                                                             input.buildDirectory, input.projectDir);
-        result->newVarValues[CppFlagsVar] = exactReader->values(QLatin1String("QMAKE_CXXFLAGS"));
-        result->newVarValues[SourceVar] =
+        result->newVarValues[Variable::CppFlags] = exactReader->values(QLatin1String("QMAKE_CXXFLAGS"));
+        result->newVarValues[Variable::Source] =
                 fileListForVar(exactSourceFiles, QLatin1String("SOURCES")) +
                 fileListForVar(cumulativeSourceFiles, QLatin1String("SOURCES")) +
                 fileListForVar(exactSourceFiles, QLatin1String("HEADERS")) +
                 fileListForVar(cumulativeSourceFiles, QLatin1String("HEADERS")) +
                 fileListForVar(exactSourceFiles, QLatin1String("OBJECTIVE_HEADERS")) +
                 fileListForVar(cumulativeSourceFiles, QLatin1String("OBJECTIVE_HEADERS"));
-        result->newVarValues[UiDirVar] = QStringList() << uiDirPath(exactReader, input.buildDirectory);
-        result->newVarValues[HeaderExtensionVar] = QStringList() << exactReader->value(QLatin1String("QMAKE_EXT_H"));
-        result->newVarValues[CppExtensionVar] = QStringList() << exactReader->value(QLatin1String("QMAKE_EXT_CPP"));
-        result->newVarValues[MocDirVar] = QStringList() << mocDirPath(exactReader, input.buildDirectory);
-        result->newVarValues[ExactResourceVar] = fileListForVar(exactSourceFiles, QLatin1String("RESOURCES"));
-        result->newVarValues[CumulativeResourceVar] = fileListForVar(cumulativeSourceFiles, QLatin1String("RESOURCES"));
-        result->newVarValues[PkgConfigVar] = exactReader->values(QLatin1String("PKGCONFIG"));
-        result->newVarValues[PrecompiledHeaderVar] = ProFileEvaluator::sourcesToFiles(exactReader->fixifiedValues(
+        result->newVarValues[Variable::UiDir] = QStringList() << uiDirPath(exactReader, input.buildDirectory);
+        result->newVarValues[Variable::HeaderExtension] = QStringList() << exactReader->value(QLatin1String("QMAKE_EXT_H"));
+        result->newVarValues[Variable::CppExtension] = QStringList() << exactReader->value(QLatin1String("QMAKE_EXT_CPP"));
+        result->newVarValues[Variable::MocDir] = QStringList() << mocDirPath(exactReader, input.buildDirectory);
+        result->newVarValues[Variable::ExactResource] = fileListForVar(exactSourceFiles, QLatin1String("RESOURCES"));
+        result->newVarValues[Variable::CumulativeResource] = fileListForVar(cumulativeSourceFiles, QLatin1String("RESOURCES"));
+        result->newVarValues[Variable::PkgConfig] = exactReader->values(QLatin1String("PKGCONFIG"));
+        result->newVarValues[Variable::PrecompiledHeader] = ProFileEvaluator::sourcesToFiles(exactReader->fixifiedValues(
                     QLatin1String("PRECOMPILED_HEADER"), input.projectDir, input.buildDirectory));
-        result->newVarValues[LibDirectoriesVar] = libDirectories(exactReader);
-        result->newVarValues[ConfigVar] = exactReader->values(QLatin1String("CONFIG"));
-        result->newVarValues[QmlImportPathVar] = exactReader->absolutePathValues(
+        result->newVarValues[Variable::LibDirectories] = libDirectories(exactReader);
+        result->newVarValues[Variable::Config] = exactReader->values(QLatin1String("CONFIG"));
+        result->newVarValues[Variable::QmlImportPath] = exactReader->absolutePathValues(
                     QLatin1String("QML_IMPORT_PATH"), input.projectDir);
-        result->newVarValues[QmlDesignerImportPathVar] = exactReader->absolutePathValues(
+        result->newVarValues[Variable::QmlDesignerImportPath] = exactReader->absolutePathValues(
                     QLatin1String("QML_DESIGNER_IMPORT_PATH"), input.projectDir);
-        result->newVarValues[Makefile] = exactReader->values(QLatin1String("MAKEFILE"));
-        result->newVarValues[QtVar] = exactReader->values(QLatin1String("QT"));
-        result->newVarValues[ObjectExt] = exactReader->values(QLatin1String("QMAKE_EXT_OBJ"));
-        result->newVarValues[ObjectsDir] = exactReader->values(QLatin1String("OBJECTS_DIR"));
-        result->newVarValues[VersionVar] = exactReader->values(QLatin1String("VERSION"));
-        result->newVarValues[TargetExtVar] = exactReader->values(QLatin1String("TARGET_EXT"));
-        result->newVarValues[TargetVersionExtVar]
+        result->newVarValues[Variable::Makefile] = exactReader->values(QLatin1String("MAKEFILE"));
+        result->newVarValues[Variable::Qt] = exactReader->values(QLatin1String("QT"));
+        result->newVarValues[Variable::ObjectExt] = exactReader->values(QLatin1String("QMAKE_EXT_OBJ"));
+        result->newVarValues[Variable::ObjectsDir] = exactReader->values(QLatin1String("OBJECTS_DIR"));
+        result->newVarValues[Variable::Version] = exactReader->values(QLatin1String("VERSION"));
+        result->newVarValues[Variable::TargetExt] = exactReader->values(QLatin1String("TARGET_EXT"));
+        result->newVarValues[Variable::TargetVersionExt]
                 = exactReader->values(QLatin1String("TARGET_VERSION_EXT"));
-        result->newVarValues[StaticLibExtensionVar] = exactReader->values(QLatin1String("QMAKE_EXTENSION_STATICLIB"));
-        result->newVarValues[ShLibExtensionVar] = exactReader->values(QLatin1String("QMAKE_EXTENSION_SHLIB"));
-        result->newVarValues[AndroidArchVar] = exactReader->values(QLatin1String("ANDROID_TARGET_ARCH"));
-        result->newVarValues[AndroidDeploySettingsFile] = exactReader->values(QLatin1String("ANDROID_DEPLOYMENT_SETTINGS_FILE"));
-        result->newVarValues[AndroidPackageSourceDir] = exactReader->values(QLatin1String("ANDROID_PACKAGE_SOURCE_DIR"));
-        result->newVarValues[AndroidExtraLibs] = exactReader->values(QLatin1String("ANDROID_EXTRA_LIBS"));
-        result->newVarValues[IsoIconsVar] = exactReader->values(QLatin1String("ISO_ICONS"));
-        result->newVarValues[QmakeProjectName] = exactReader->values(QLatin1String("QMAKE_PROJECT_NAME"));
-        result->newVarValues[QmakeCc] = exactReader->values("QMAKE_CC");
-        result->newVarValues[QmakeCxx] = exactReader->values("QMAKE_CXX");
+        result->newVarValues[Variable::StaticLibExtension] = exactReader->values(QLatin1String("QMAKE_EXTENSION_STATICLIB"));
+        result->newVarValues[Variable::ShLibExtension] = exactReader->values(QLatin1String("QMAKE_EXTENSION_SHLIB"));
+        result->newVarValues[Variable::AndroidArch] = exactReader->values(QLatin1String("ANDROID_TARGET_ARCH"));
+        result->newVarValues[Variable::AndroidDeploySettingsFile] = exactReader->values(QLatin1String("ANDROID_DEPLOYMENT_SETTINGS_FILE"));
+        result->newVarValues[Variable::AndroidPackageSourceDir] = exactReader->values(QLatin1String("ANDROID_PACKAGE_SOURCE_DIR"));
+        result->newVarValues[Variable::AndroidExtraLibs] = exactReader->values(QLatin1String("ANDROID_EXTRA_LIBS"));
+        result->newVarValues[Variable::IsoIcons] = exactReader->values(QLatin1String("ISO_ICONS"));
+        result->newVarValues[Variable::QmakeProjectName] = exactReader->values(QLatin1String("QMAKE_PROJECT_NAME"));
+        result->newVarValues[Variable::QmakeCc] = exactReader->values("QMAKE_CC");
+        result->newVarValues[Variable::QmakeCxx] = exactReader->values("QMAKE_CXX");
     }
 
     if (result->state == EvalResult::EvalOk || result->state == EvalResult::EvalPartial) {
@@ -2010,7 +2011,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
         if (m_varValues != result->newVarValues)
             m_varValues = result->newVarValues;
 
-        const QString projectName = singleVariableValue(QmakeProjectName);
+        const QString projectName = singleVariableValue(Variable::QmakeProjectName);
         if (projectName.isEmpty())
             setDisplayName(m_projectFilePath.toFileInfo().completeBaseName());
         else
@@ -2268,7 +2269,7 @@ QStringList QmakeProFileNode::generatedFiles(const QString &buildDir,
     switch (sourceFile->fileType()) {
     case FileType::Form: {
         FileName location;
-        auto it = m_varValues.constFind(UiDirVar);
+        auto it = m_varValues.constFind(Variable::UiDir);
         if (it != m_varValues.constEnd() && !it.value().isEmpty())
             location = FileName::fromString(it.value().front());
         else
@@ -2277,7 +2278,7 @@ QStringList QmakeProFileNode::generatedFiles(const QString &buildDir,
             return QStringList();
         location.appendPath(QLatin1String("ui_")
                             + sourceFile->filePath().toFileInfo().completeBaseName()
-                            + singleVariableValue(HeaderExtensionVar));
+                            + singleVariableValue(Variable::HeaderExtension));
         return QStringList(QDir::cleanPath(location.toString()));
     }
     case FileType::StateChart: {
@@ -2285,8 +2286,8 @@ QStringList QmakeProFileNode::generatedFiles(const QString &buildDir,
             return QStringList();
         QString location = QDir::cleanPath(FileName::fromString(buildDir).appendPath(
                     sourceFile->filePath().toFileInfo().completeBaseName()).toString());
-        return QStringList({location + singleVariableValue(HeaderExtensionVar),
-                            location + singleVariableValue(CppExtensionVar)});
+        return QStringList({location + singleVariableValue(Variable::HeaderExtension),
+                            location + singleVariableValue(Variable::CppExtension)});
     }
     default:
         // TODO: Other types will be added when adapters for their compilers become available.

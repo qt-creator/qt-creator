@@ -439,7 +439,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     if (m_currentProject) {
         QmakeProjectManager::QmakeProject *qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(m_currentProject);
         if (qmakeProject) {
-            QStringList designerImports = qmakeProject->rootProjectNode()->variableValue(QmakeProjectManager::QmlDesignerImportPathVar);
+            QStringList designerImports = qmakeProject->rootProjectNode()->variableValue(QmakeProjectManager::Variable::QmlDesignerImportPath);
             importPaths.append(designerImports);
         }
     }

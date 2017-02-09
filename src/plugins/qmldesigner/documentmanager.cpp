@@ -345,7 +345,7 @@ QStringList DocumentManager::isoIconsQmakeVariableValue(const QString &proPath)
         return QStringList();
     }
 
-    return proNode->variableValue(QmakeProjectManager::IsoIconsVar);
+    return proNode->variableValue(QmakeProjectManager::Variable::IsoIcons);
 }
 
 bool DocumentManager::setIsoIconsQmakeVariableValue(const QString &proPath, const QStringList &value)

@@ -385,10 +385,10 @@ QString DesktopQmakeRunConfiguration::baseWorkingDirectory() const
 bool DesktopQmakeRunConfiguration::isConsoleApplication() const
 {
     if (QmakeProFileNode *node = projectNode()) {
-        const QStringList config = node->variableValue(ConfigVar);
+        const QStringList config = node->variableValue(Variable::Config);
         if (!config.contains("console") || config.contains("testcase"))
             return false;
-        const QStringList qt = node->variableValue(QtVar);
+        const QStringList qt = node->variableValue(Variable::Qt);
         return !qt.contains("testlib") && !qt.contains("qmltest");
     }
     return false;
@@ -404,7 +404,7 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
     // dirs to the library search path
     const QmakeProFileNode *node = projectNode();
     if (m_isUsingLibrarySearchPath && node) {
-        const QStringList libDirectories = node->variableValue(LibDirectoriesVar);
+        const QStringList libDirectories = node->variableValue(Variable::LibDirectories);
         if (!libDirectories.isEmpty()) {
             const QString proDirectory = node->buildDir();
             foreach (QString dir, libDirectories) {
@@ -472,7 +472,7 @@ QPair<QString, QString> DesktopQmakeRunConfiguration::extractWorkingDirAndExecut
     if (!ti.valid)
         return qMakePair(QString(), QString());
 
-    const QStringList &config = node->variableValue(ConfigVar);
+    const QStringList &config = node->variableValue(Variable::Config);
 
     QString destDir = ti.destDir;
     QString workingDir;

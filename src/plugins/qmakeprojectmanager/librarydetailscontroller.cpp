@@ -853,7 +853,7 @@ bool PackageLibraryDetailsController::isLinkPackageGenerated() const
     if (!currentProject)
         return false;
 
-    const QStringList configVar = currentProject->variableValue(ConfigVar);
+    const QStringList configVar = currentProject->variableValue(Variable::Config);
     if (configVar.contains(QLatin1String("link_pkgconfig")))
         return true;
 
@@ -943,7 +943,7 @@ AddLibraryWizard::LinkageType InternalLibraryDetailsController::suggestedLinkage
     AddLibraryWizard::LinkageType type = AddLibraryWizard::NoLinkage;
     if (currentIndex >= 0) {
         QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
-        const QStringList configVar = proFileNode->variableValue(ConfigVar);
+        const QStringList configVar = proFileNode->variableValue(Variable::Config);
         if (configVar.contains(QLatin1String("staticlib"))
                 || configVar.contains(QLatin1String("static")))
             type = AddLibraryWizard::StaticLinkage;
@@ -959,7 +959,7 @@ AddLibraryWizard::MacLibraryType InternalLibraryDetailsController::suggestedMacL
     AddLibraryWizard::MacLibraryType type = AddLibraryWizard::NoLibraryType;
     if (currentIndex >= 0) {
         QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
-        const QStringList configVar = proFileNode->variableValue(ConfigVar);
+        const QStringList configVar = proFileNode->variableValue(Variable::Config);
         if (configVar.contains(QLatin1String("lib_bundle")))
             type = AddLibraryWizard::FrameworkType;
         else
@@ -1007,7 +1007,7 @@ void InternalLibraryDetailsController::updateProFile()
         const QString proFilePath = proFileNode->filePath().toString();
         QmakeProjectManager::ProjectType type = proFileNode->projectType();
         if (type == ProjectType::SharedLibraryTemplate || type == ProjectType::StaticLibraryTemplate) {
-            const QStringList configVar = proFileNode->variableValue(ConfigVar);
+            const QStringList configVar = proFileNode->variableValue(Variable::Config);
             if (!configVar.contains(QLatin1String("plugin"))) {
                 const QString relProFilePath = rootDir.relativeFilePath(proFilePath);
                 TargetInformation targetInfo = proFileNode->targetInformation();
@@ -1032,7 +1032,7 @@ void InternalLibraryDetailsController::slotCurrentLibraryChanged()
                     libraryDetailsWidget()->libraryComboBox->itemData(
                         currentIndex, Qt::ToolTipRole).toString());
         QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
-        const QStringList configVar = proFileNode->variableValue(ConfigVar);
+        const QStringList configVar = proFileNode->variableValue(Variable::Config);
         if (Utils::HostOsInfo::isWindowsHost()) {
             bool useSubfolders = false;
             if (configVar.contains(QLatin1String("debug_and_release"))
