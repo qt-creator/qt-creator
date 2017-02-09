@@ -161,7 +161,7 @@ private Q_SLOTS:
     void testValgrindStartError();
 
 private:
-    void initTest(const QLatin1String &testfile, const QStringList &otherArgs = QStringList());
+    void initTest(const QString &testfile, const QStringList &otherArgs = QStringList());
 
     QTcpServer *m_server = 0;
     QProcess *m_process = 0;
