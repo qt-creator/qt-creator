@@ -298,6 +298,10 @@ Type {
     name: "QtQuick.Layouts.StackLayout"
     icon: ":/componentsplugin/images/stack-layouts-icon-16px.png"
 
+    Hints {
+        isStackedContainer: true
+    }
+
     ItemLibraryEntry {
         name: "StackLayout"
         category: "Qt Quick - Layouts"
