@@ -460,8 +460,8 @@ QmakeParserPriFileNode::QmakeParserPriFileNode(QmakeProject *project,
       m_projectDir(filePath.toFileInfo().absolutePath())
 {
     Q_ASSERT(project);
-    m_priFileDocument = new QmakePriFileDocument(this);
-    Core::DocumentManager::addDocument(m_priFileDocument);
+    m_priFileDocument = std::make_unique<QmakePriFileDocument>(this);
+    Core::DocumentManager::addDocument(m_priFileDocument.get());
 
     setDisplayName(filePath.toFileInfo().completeBaseName());
     setIcon(qmakeParserNodeStaticData()->projectIcon);
@@ -470,7 +470,6 @@ QmakeParserPriFileNode::QmakeParserPriFileNode(QmakeProject *project,
 QmakeParserPriFileNode::~QmakeParserPriFileNode()
 {
     watchFolders(QSet<QString>());
-    delete m_priFileDocument;
 }
 
 void QmakeParserPriFileNode::scheduleUpdate()

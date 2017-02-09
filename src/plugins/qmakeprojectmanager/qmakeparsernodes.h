@@ -38,6 +38,8 @@
 #include <QMap>
 #include <QFutureWatcher>
 
+#include <memory>
+
 namespace Utils { class FileName; }
 
 namespace QtSupport { class ProFileReader; }
@@ -99,7 +101,6 @@ enum class Variable {
 uint qHash(Variable key, uint seed = 0);
 
 namespace Internal {
-class QmakePriFileDocument;
 struct InternalParserNode;
 
 class QmakeEvalInput;
@@ -152,6 +153,8 @@ public:
 
     static QSet<Utils::FileName> recursiveEnumerate(const QString &folder);
 
+    void scheduleUpdate();
+
 protected:
     void setIncludedInExactParse(bool b);
     static QStringList varNames(ProjectExplorer::FileType type, QtSupport::ProFileReader *readerExact);
@@ -176,9 +179,8 @@ protected:
                      ChangeType change,
                      Change mode = Change::Save);
 
-private:
-    void scheduleUpdate();
 
+private:
     bool prepareForChange();
     static bool ensureWriteableProFile(const QString &file);
     static QPair<ProFile *, QStringList> readProFile(const QString &file);
@@ -205,7 +207,7 @@ private:
     Utils::FileName m_projectFilePath;
     QString m_projectDir;
 
-    Internal::QmakePriFileDocument *m_priFileDocument;
+    std::unique_ptr<Core::IDocument> m_priFileDocument;
 
     // Memory is cheap...
     QMap<ProjectExplorer::FileType, QSet<Utils::FileName>> m_files;
@@ -215,7 +217,6 @@ private:
 
     // managed by QmakeProFileNode
     friend class QmakeProjectManager::QmakeParserProFileNode;
-    friend class Internal::QmakePriFileDocument; // for scheduling updates on modified
     // internal temporary subtree representation
     friend struct Internal::InternalParserNode;
 };
@@ -298,6 +299,7 @@ public:
     QByteArray cxxDefines() const;
 
     enum AsyncUpdateDelay { ParseNow, ParseLater };
+    using QmakeParserPriFileNode::scheduleUpdate;
     void scheduleUpdate(AsyncUpdateDelay delay);
 
     bool validParse() const;
