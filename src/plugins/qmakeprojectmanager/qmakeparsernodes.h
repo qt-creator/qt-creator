@@ -117,6 +117,9 @@ public:
     QmakeParserPriFileNode(QmakeProject *project, QmakeParserProFileNode *qmakeProFileNode, const Utils::FileName &filePath);
     ~QmakeParserPriFileNode() override;
 
+    Utils::FileName filePath() const;
+    Utils::FileName directoryPath() const;
+
     void update(const Internal::QmakePriFileEvalResult &result);
 
     // ProjectNode interface
@@ -202,10 +205,8 @@ private:
     static void processValues(Internal::QmakePriFileEvalResult &result);
     void watchFolders(const QSet<QString> &folders);
 
-    QmakeProject *m_project;
-    QmakeParserProFileNode *m_qmakeProFileNode;
-    Utils::FileName m_projectFilePath;
-    QString m_projectDir;
+    QmakeProject *m_project = nullptr;
+    QmakeParserProFileNode *m_qmakeProFileNode = nullptr;
 
     std::unique_ptr<Core::IDocument> m_priFileDocument;
 

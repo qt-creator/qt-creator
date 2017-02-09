@@ -235,12 +235,12 @@ public:
 class QmakePriFileDocument : public Core::IDocument
 {
 public:
-    QmakePriFileDocument(QmakeParserPriFileNode *qmakePriFile)
-        : IDocument(nullptr), m_priFile(qmakePriFile)
+    QmakePriFileDocument(QmakeParserPriFileNode *qmakePriFile, const Utils::FileName &filePath) :
+        IDocument(nullptr), m_priFile(qmakePriFile)
     {
         setId("Qmake.PriFile");
         setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
-        setFilePath(m_priFile->filePath());
+        setFilePath(filePath);
     }
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override
@@ -455,16 +455,24 @@ QmakeParserPriFileNode::QmakeParserPriFileNode(QmakeProject *project,
                                                const FileName &filePath)
     : ProjectNode(filePath),
       m_project(project),
-      m_qmakeProFileNode(qmakeProFileNode),
-      m_projectFilePath(filePath),
-      m_projectDir(filePath.toFileInfo().absolutePath())
+      m_qmakeProFileNode(qmakeProFileNode)
 {
     Q_ASSERT(project);
-    m_priFileDocument = std::make_unique<QmakePriFileDocument>(this);
+    m_priFileDocument = std::make_unique<QmakePriFileDocument>(this, filePath);
     Core::DocumentManager::addDocument(m_priFileDocument.get());
 
     setDisplayName(filePath.toFileInfo().completeBaseName());
     setIcon(qmakeParserNodeStaticData()->projectIcon);
+}
+
+FileName QmakeParserPriFileNode::filePath() const
+{
+    return m_priFileDocument->filePath();
+}
+
+FileName QmakeParserPriFileNode::directoryPath() const
+{
+    return filePath().parentDir();
 }
 
 QmakeParserPriFileNode::~QmakeParserPriFileNode()
@@ -474,7 +482,7 @@ QmakeParserPriFileNode::~QmakeParserPriFileNode()
 
 void QmakeParserPriFileNode::scheduleUpdate()
 {
-    QtSupport::ProFileCacheManager::instance()->discardFile(m_projectFilePath.toString());
+    QtSupport::ProFileCacheManager::instance()->discardFile(filePath().toString());
     m_qmakeProFileNode->scheduleUpdate(QmakeParserProFileNode::ParseLater);
 }
 
@@ -595,7 +603,7 @@ void QmakeParserPriFileNode::update(const Internal::QmakePriFileEvalResult &resu
 {
     // add project file node
     if (fileNodes().isEmpty())
-        addNode(new FileNode(m_projectFilePath, FileType::Project, false));
+        addNode(new FileNode(filePath(), FileType::Project, false));
 
     m_recursiveEnumerateFiles = result.recursiveEnumerateFiles;
     watchFolders(result.folders.toSet());
@@ -616,14 +624,14 @@ void QmakeParserPriFileNode::update(const Internal::QmakePriFileEvalResult &resu
             InternalParserNode *subfolder = new InternalParserNode;
             subfolder->type = type;
             subfolder->icon = fileTypes.at(i).icon;
-            subfolder->fullPath = m_projectDir;
+            subfolder->fullPath = directoryPath().toString();
             subfolder->typeName = fileTypes.at(i).typeName;
             subfolder->addFileFilter = fileTypes.at(i).addFileFilter;
             subfolder->priority = Node::DefaultVirtualFolderPriority - i;
             subfolder->displayName = fileTypes.at(i).typeName;
             contents.virtualfolders.append(subfolder);
             // create the hierarchy with subdirectories
-            subfolder->create(m_projectDir, newFilePaths, type);
+            subfolder->create(directoryPath().toString(), newFilePaths, type);
         }
     }
 
@@ -696,13 +704,13 @@ bool QmakeParserPriFileNode::folderChanged(const QString &changedFolder, const Q
             InternalParserNode *subfolder = new InternalParserNode;
             subfolder->type = type;
             subfolder->icon = fileTypes.at(i).icon;
-            subfolder->fullPath = m_projectDir;
+            subfolder->fullPath = directoryPath().toString();
             subfolder->typeName = fileTypes.at(i).typeName;
             subfolder->priority = Node::DefaultVirtualFolderPriority - i;
             subfolder->displayName = fileTypes.at(i).typeName;
             contents.virtualfolders.append(subfolder);
             // create the hierarchy with subdirectories
-            subfolder->create(m_projectDir, m_files[type], type);
+            subfolder->create(directoryPath().toString(), m_files[type], type);
         }
     }
 
@@ -1005,7 +1013,7 @@ bool QmakeParserPriFileNode::priFileWritable(const QString &path)
 bool QmakeParserPriFileNode::saveModifiedEditors()
 {
     Core::IDocument *document
-            = Core::DocumentModel::documentForFilePath(m_projectFilePath.toString());
+            = Core::DocumentModel::documentForFilePath(filePath().toString());
     if (!document || !document->isModified())
         return true;
 
@@ -1013,8 +1021,8 @@ bool QmakeParserPriFileNode::saveModifiedEditors()
         return false;
 
     // force instant reload of ourselves
-    QtSupport::ProFileCacheManager::instance()->discardFile(m_projectFilePath.toString());
-    m_project->projectManager()->notifyChanged(m_projectFilePath);
+    QtSupport::ProFileCacheManager::instance()->discardFile(filePath().toString());
+    m_project->projectManager()->notifyChanged(filePath());
     return true;
 }
 
@@ -1100,7 +1108,7 @@ QPair<ProFile *, QStringList> QmakeParserPriFileNode::readProFile(const QString 
 
 bool QmakeParserPriFileNode::prepareForChange()
 {
-    return saveModifiedEditors() && ensureWriteableProFile(m_projectFilePath.toString());
+    return saveModifiedEditors() && ensureWriteableProFile(filePath().toString());
 }
 
 bool QmakeParserPriFileNode::renameFile(const QString &oldName,
@@ -1111,14 +1119,14 @@ bool QmakeParserPriFileNode::renameFile(const QString &oldName,
     if (!prepareForChange())
         return false;
 
-    QPair<ProFile *, QStringList> pair = readProFile(m_projectFilePath.toString());
+    QPair<ProFile *, QStringList> pair = readProFile(filePath().toString());
     ProFile *includeFile = pair.first;
     QStringList lines = pair.second;
 
     if (!includeFile)
         return false;
 
-    QDir priFileDir = QDir(m_qmakeProFileNode->m_projectDir);
+    QDir priFileDir = QDir(m_qmakeProFileNode->directoryPath().toString());
     QStringList notChanged = ProWriter::removeFiles(includeFile, &lines, priFileDir,
                                                     QStringList(oldName), varNamesForRemoving());
 
@@ -1130,7 +1138,7 @@ bool QmakeParserPriFileNode::renameFile(const QString &oldName,
     QMakeParser parser(0, 0, 0);
     QString contents = lines.join(QLatin1Char('\n'));
     includeFile = parser.parsedProBlock(QStringRef(&contents),
-                                        m_projectFilePath.toString(), 1, QMakeParser::FullGrammar);
+                                        filePath().toString(), 1, QMakeParser::FullGrammar);
     QTC_ASSERT(includeFile, return false); // The file should still be valid after what we did.
 
     ProWriter::addFiles(includeFile, &lines,
@@ -1156,7 +1164,7 @@ void QmakeParserPriFileNode::changeFiles(const QString &mimeType,
     if (!prepareForChange())
         return;
 
-    QPair<ProFile *, QStringList> pair = readProFile(m_projectFilePath.toString());
+    QPair<ProFile *, QStringList> pair = readProFile(filePath().toString());
     ProFile *includeFile = pair.first;
     QStringList lines = pair.second;
 
@@ -1168,7 +1176,7 @@ void QmakeParserPriFileNode::changeFiles(const QString &mimeType,
         ProWriter::addFiles(includeFile, &lines, filePaths, varNameForAdding(mimeType));
         notChanged->clear();
     } else { // RemoveFromProFile
-        QDir priFileDir = QDir(m_qmakeProFileNode->m_projectDir);
+        QDir priFileDir = QDir(m_qmakeProFileNode->directoryPath().toString());
         *notChanged = ProWriter::removeFiles(includeFile, &lines, priFileDir, filePaths, varNamesForRemoving());
     }
 
@@ -1183,7 +1191,7 @@ bool QmakeParserPriFileNode::setProVariable(const QString &var, const QStringLis
     if (!prepareForChange())
         return false;
 
-    QPair<ProFile *, QStringList> pair = readProFile(m_projectFilePath.toString());
+    QPair<ProFile *, QStringList> pair = readProFile(filePath().toString());
     ProFile *includeFile = pair.first;
     QStringList lines = pair.second;
 
@@ -1202,8 +1210,8 @@ bool QmakeParserPriFileNode::setProVariable(const QString &var, const QStringLis
 void QmakeParserPriFileNode::save(const QStringList &lines)
 {
     {
-        FileChangeBlocker changeGuard(m_projectFilePath.toString());
-        FileSaver saver(m_projectFilePath.toString(), QIODevice::Text);
+        FileChangeBlocker changeGuard(filePath().toString());
+        FileSaver saver(filePath().toString(), QIODevice::Text);
         const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
         saver.write(codec->fromUnicode(lines.join(QLatin1Char('\n'))));
         saver.finalize(Core::ICore::mainWindow());
@@ -1215,7 +1223,7 @@ void QmakeParserPriFileNode::save(const QStringList &lines)
     // We manually tell each editor to reload it's file.
     // (The .pro files are notified by the file system watcher.)
     QStringList errorStrings;
-    Core::IDocument *document = Core::DocumentModel::documentForFilePath(m_projectFilePath.toString());
+    Core::IDocument *document = Core::DocumentModel::documentForFilePath(filePath().toString());
     if (document) {
         QString errorString;
         if (!document->reload(&errorString, Core::IDocument::FlagReload, Core::IDocument::TypeContents))
@@ -1609,8 +1617,8 @@ void QmakeParserProFileNode::asyncUpdate()
 QmakeEvalInput QmakeParserProFileNode::evalInput() const
 {
     QmakeEvalInput input;
-    input.projectDir = m_projectDir;
-    input.projectFilePath = m_projectFilePath;
+    input.projectDir = directoryPath().toString();
+    input.projectFilePath = filePath();
     input.buildDirectory = buildDir();
     input.sysroot = m_project->qmakeSysroot();
     input.readerExact = m_readerExact;
@@ -1921,7 +1929,7 @@ void QmakeParserProFileNode::applyEvaluate(QmakeEvalResult *evalResult)
 
         if (result->state == QmakeEvalResult::EvalFail) {
             QmakeProject::proFileParseError(QCoreApplication::translate("QmakeParserProFileNode", "Error while parsing file %1. Giving up.")
-                                            .arg(m_projectFilePath.toUserOutput()));
+                                            .arg(filePath().toUserOutput()));
             if (m_projectType == ProjectType::Invalid)
                 return;
 
@@ -1933,7 +1941,7 @@ void QmakeParserProFileNode::applyEvaluate(QmakeEvalResult *evalResult)
     }
 
     if (debug)
-        qDebug() << "QmakeParserProFileNode - updating files for file " << m_projectFilePath;
+        qDebug() << "QmakeParserProFileNode - updating files for file " << filePath();
 
     if (result->projectType != m_projectType) {
         // probably all subfiles/projects have changed anyway
@@ -2014,7 +2022,7 @@ void QmakeParserProFileNode::applyEvaluate(QmakeEvalResult *evalResult)
 
         const QString projectName = singleVariableValue(Variable::QmakeProjectName);
         if (projectName.isEmpty())
-            setDisplayName(m_projectFilePath.toFileInfo().completeBaseName());
+            setDisplayName(filePath().toFileInfo().completeBaseName());
         else
             setDisplayName(projectName);
     } // result == EvalOk
@@ -2247,13 +2255,13 @@ InstallsParserList QmakeParserProFileNode::installsList() const
 
 QString QmakeParserProFileNode::sourceDir() const
 {
-    return m_projectDir;
+    return directoryPath().toString();
 }
 
 QString QmakeParserProFileNode::buildDir(QmakeBuildConfiguration *bc) const
 {
     const QDir srcDirRoot = m_project->rootProjectNode()->sourceDir();
-    const QString relativeDir = srcDirRoot.relativeFilePath(m_projectDir);
+    const QString relativeDir = srcDirRoot.relativeFilePath(directoryPath().toString());
     if (!bc && m_project->activeTarget())
         bc = static_cast<QmakeBuildConfiguration *>(m_project->activeTarget()->activeBuildConfiguration());
     if (!bc)
