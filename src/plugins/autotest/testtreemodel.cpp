@@ -67,7 +67,10 @@ TestTreeModel *TestTreeModel::instance()
 
 TestTreeModel::~TestTreeModel()
 {
-    for (Utils::TreeItem *item : *rootItem()) {
+    const Utils::TreeItem *invisibleRoot = rootItem();
+    const int frameworkRootCount = invisibleRoot ? invisibleRoot->childCount() : 0;
+    for (int row = frameworkRootCount - 1; row >= 0; --row) {
+        Utils::TreeItem *item = invisibleRoot->childAt(row);
         item->removeChildren();
         takeItem(item); // do NOT delete the item as it's still a ptr hold by TestFrameworkManager
     }
