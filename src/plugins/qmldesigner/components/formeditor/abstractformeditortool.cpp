@@ -310,7 +310,8 @@ FormEditorItem *AbstractFormEditorTool::containerFormEditorItem(const QList<QGra
         if (formEditorItem
                 && !selectedItemList.contains(formEditorItem)
                 && isNotAncestorOfItemInList(formEditorItem, selectedItemList)
-                && formEditorItem->isContainer())
+                && formEditorItem->isContainer()
+                && formEditorItem->isContentVisible())
             return formEditorItem;
     }
 
