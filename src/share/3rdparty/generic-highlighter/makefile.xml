@@ -350,10 +350,6 @@
         <DetectSpaces attribute="Error" context="#stay"/>
         <!-- Handle bmake Variable modifiers: ${variable[:modifier[:...]]} -->
         <Detect2Chars context="#stay" char="\" char1=":"/>
-        <!-- modifiers without arguments-->
-        <keyword attribute="Keyword"  context="#pop!expect}" String="bmake_var_modifiers_noarg"/>
-        <!-- with arguments -->
-        <keyword attribute="Keyword"  context="#pop!bmake_var_modifier_arg" String="bmake_var_modifiers_with_arg"/>
         <!-- other modifiers -->
         <DetectChar attribute="RealOperator" context="bmake_var_modifier" char=":"/>
         <AnyChar attribute="Error" context="#stay" String="=#"/>
