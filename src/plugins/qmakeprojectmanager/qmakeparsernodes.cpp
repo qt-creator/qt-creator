@@ -68,7 +68,8 @@ namespace {
 // for file types and the project. Do some magic via qAddPostRoutine()
 // to make sure the icons do not outlive QApplication, triggering warnings on X11.
 
-struct FileTypeDataStorage {
+class FileTypeDataStorage {
+public:
     FileType type;
     const char *typeName;
     const char *icon;

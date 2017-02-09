@@ -103,7 +103,7 @@ class QmakeEvalResult;
 class QmakePriFileEvalResult;
 } // namespace Internal;
 
-struct InstallsParserList;
+class InstallsParserList;
 
 // Implements ProjectNode for qmake .pri files
 class QMAKEPROJECTMANAGER_EXPORT QmakePriFile : public ProjectExplorer::ProjectNode
@@ -248,7 +248,8 @@ public:
     TargetParserInformation(const TargetParserInformation &other) = default;
 };
 
-struct QMAKEPROJECTMANAGER_EXPORT InstallsParserItem {
+class QMAKEPROJECTMANAGER_EXPORT InstallsParserItem {
+public:
     InstallsParserItem() = default;
     InstallsParserItem(QString p, QVector<ProFileEvaluator::SourceFile> f, bool a)
         : path(p), files(f), active(a) {}
@@ -257,7 +258,8 @@ struct QMAKEPROJECTMANAGER_EXPORT InstallsParserItem {
     bool active = false;
 };
 
-struct QMAKEPROJECTMANAGER_EXPORT InstallsParserList {
+class QMAKEPROJECTMANAGER_EXPORT InstallsParserList {
+public:
     void clear() { targetPath.clear(); items.clear(); }
     QString targetPath;
     QVector<InstallsParserItem> items;
