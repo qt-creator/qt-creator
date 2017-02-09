@@ -208,7 +208,7 @@ private:
     Internal::QmakeParserPriFile *m_qmakePriFile;
 
     // Memory is cheap...
-    QMap<ProjectExplorer::FileType, QSet<Utils::FileName> > m_files;
+    QMap<ProjectExplorer::FileType, QSet<Utils::FileName>> m_files;
     QSet<Utils::FileName> m_recursiveEnumerateFiles;
     QSet<QString> m_watchedFolders;
     bool m_includedInExactParse = true;

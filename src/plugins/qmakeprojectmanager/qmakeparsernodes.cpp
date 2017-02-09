@@ -199,7 +199,7 @@ class QmakePriFileEvalResult
 public:
     QStringList folders;
     QSet<FileName> recursiveEnumerateFiles;
-    QMap<FileType, QSet<FileName> > foundFiles;
+    QMap<FileType, QSet<FileName>> foundFiles;
 };
 
 class QmakeIncludedPriFile
@@ -518,7 +518,7 @@ QSet<FileName> QmakeParserPriFileNode::recursiveEnumerate(const QString &folder)
 }
 
 static QStringList fileListForVar(
-        const QHash<QString, QVector<ProFileEvaluator::SourceFile> > &sourceFiles,
+        const QHash<QString, QVector<ProFileEvaluator::SourceFile>> &sourceFiles,
         const QString &varName)
 {
     const QVector<ProFileEvaluator::SourceFile> &sources = sourceFiles[varName];
@@ -1715,7 +1715,7 @@ QmakeEvalResult *QmakeParserProFileNode::evaluate(const QmakeEvalInput &input)
         }
 
         // Convert ProFileReader::includeFiles to IncludedPriFile structure
-        QHash<ProFile *, QVector<ProFile *> > includeFiles = input.readerExact->includeFiles();
+        QHash<ProFile *, QVector<ProFile *>> includeFiles = input.readerExact->includeFiles();
         QList<IncludedPriFile *> toBuild = { &result->includedFiles };
         while (!toBuild.isEmpty()) {
             IncludedPriFile *current = toBuild.takeFirst();
@@ -1751,7 +1751,7 @@ QmakeEvalResult *QmakeParserProFileNode::evaluate(const QmakeEvalInput &input)
     }
 
     // Add ProFileReader::includeFiles information from cumulative parse to IncludedPriFile structure
-    QHash<ProFile *, QVector<ProFile *> > includeFiles = input.readerCumulative->includeFiles();
+    QHash<ProFile *, QVector<ProFile *>> includeFiles = input.readerCumulative->includeFiles();
     QList<IncludedPriFile *> toBuild = { &result->includedFiles };
     while (!toBuild.isEmpty()) {
         IncludedPriFile *current = toBuild.takeFirst();
@@ -1775,8 +1775,8 @@ QmakeEvalResult *QmakeParserProFileNode::evaluate(const QmakeEvalInput &input)
     auto exactReader = exactBuildPassReader ? exactBuildPassReader : input.readerExact;
     auto cumulativeReader = cumulativeBuildPassReader ? cumulativeBuildPassReader : input.readerCumulative;
 
-    QHash<QString, QVector<ProFileEvaluator::SourceFile> > exactSourceFiles;
-    QHash<QString, QVector<ProFileEvaluator::SourceFile> > cumulativeSourceFiles;
+    QHash<QString, QVector<ProFileEvaluator::SourceFile>> exactSourceFiles;
+    QHash<QString, QVector<ProFileEvaluator::SourceFile>> cumulativeSourceFiles;
 
     QStringList baseVPathsExact = baseVPaths(exactReader, input.projectDir, input.buildDirectory);
     QStringList baseVPathsCumulative = baseVPaths(cumulativeReader, input.projectDir, input.buildDirectory);

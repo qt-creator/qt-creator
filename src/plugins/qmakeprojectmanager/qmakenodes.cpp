@@ -196,7 +196,7 @@ class PriFileEvalResult
 public:
     QStringList folders;
     QSet<FileName> recursiveEnumerateFiles;
-    QMap<FileType, QSet<FileName> > foundFiles;
+    QMap<FileType, QSet<FileName>> foundFiles;
 };
 
 class IncludedPriFile
