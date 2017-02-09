@@ -31,11 +31,14 @@
 #include <nodehints.h>
 #include <rewritingexception.h>
 
-#include <QGraphicsSceneMouseEvent>
 #include <QDebug>
+#include <QGraphicsSceneMouseEvent>
+#include <QLoggingCategory>
 #include <QMimeData>
 #include <QTimer>
 #include <QWidget>
+
+static Q_LOGGING_CATEGORY(dragToolInfo, "qtc.qmldesigner.formeditor");
 
 namespace QmlDesigner {
 
@@ -365,7 +368,12 @@ void  DragTool::move(const QPointF &scenePosition, const QList<QGraphicsItem*> &
         if (containerItem && m_movingItem->parentItem() &&
                 containerItem != m_movingItem->parentItem()) {
 
-            if (m_movingItem->qmlItemNode().canBereparentedTo(containerItem->qmlItemNode()))
+            const QmlItemNode movingNode = m_movingItem->qmlItemNode();
+            const QmlItemNode containerNode = containerItem->qmlItemNode();
+
+            qCInfo(dragToolInfo()) << Q_FUNC_INFO << movingNode << containerNode << movingNode.canBereparentedTo(containerNode);
+
+            if (movingNode.canBereparentedTo(containerNode))
                 m_moveManipulator.reparentTo(containerItem);
         }
 

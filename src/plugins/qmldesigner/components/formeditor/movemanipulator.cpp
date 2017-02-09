@@ -28,15 +28,18 @@
 #include "formeditoritem.h"
 #include "formeditorscene.h"
 
-#include <QPointF>
-#include <QDebug>
-
-#include <limits>
 #include <qmlanchors.h>
 #include <nodemetainfo.h>
 #include <variantproperty.h>
 #include <nodeabstractproperty.h>
 
+#include <QDebug>
+#include <QLoggingCategory>
+#include <QPointF>
+
+#include <limits>
+
+static Q_LOGGING_CATEGORY(moveManipulatorInfo, "qtc.qmldesigner.formeditor");
 
 namespace QmlDesigner {
 
@@ -334,6 +337,8 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
 
     if (!itemsCanReparented())
         return;
+
+    qCInfo(moveManipulatorInfo()) << Q_FUNC_INFO << newParent->qmlItemNode();
 
     if (!newParent->qmlItemNode().modelNode().metaInfo().isLayoutable()
             && newParent->qmlItemNode().modelNode().hasParentProperty()) {
