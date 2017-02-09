@@ -138,7 +138,7 @@ void PropertyEditorView::changeValue(const QString &name)
     if (m_locked)
         return;
 
-    if (propertyName == "type")
+    if (propertyName == "className")
         return;
 
     if (!m_selectedNode.isValid())
