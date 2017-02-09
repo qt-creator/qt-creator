@@ -87,6 +87,7 @@ FlatModel::FlatModel(QObject *parent)
     connect(sm, &SessionManager::sessionLoaded, this, &FlatModel::loadExpandData);
     connect(sm, &SessionManager::aboutToSaveSession, this, &FlatModel::saveExpandData);
     connect(sm, &SessionManager::projectAdded, this, &FlatModel::handleProjectAdded);
+    update();
 }
 
 void FlatModel::setView(QTreeView *view)
