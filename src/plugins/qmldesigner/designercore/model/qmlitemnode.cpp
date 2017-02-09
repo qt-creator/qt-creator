@@ -623,7 +623,7 @@ bool QmlItemNode::isInLayout() const
     return false;
 }
 
-bool QmlItemNode::canBereparentedTo(const ModelNode &potentialParent)
+bool QmlItemNode::canBereparentedTo(const ModelNode &potentialParent) const
 {
     if (!NodeHints::fromModelNode(potentialParent).canBeContainerFor(modelNode()))
         return false;
