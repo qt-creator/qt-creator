@@ -263,7 +263,7 @@ bool QMakeStep::init(QList<const BuildStep *> &earlierSteps)
         }
     }
 
-    m_scriptTemplate = node->projectType() == ScriptTemplate;
+    m_scriptTemplate = node->projectType() == ProjectType::ScriptTemplate;
 
     return AbstractProcessStep::init(earlierSteps);
 }

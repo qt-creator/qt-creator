@@ -848,7 +848,7 @@ bool QmakeProject::parseInProgress(const FileName &proFilePath) const
 }
 
 void QmakeProject::collectAllProFiles(QList<QmakeProFileNode *> &list, QmakeProFileNode *node, Parsing parse,
-                                      const QList<QmakeProjectType> &projectTypes)
+                                      const QList<ProjectType> &projectTypes)
 {
     if (parse == ExactAndCumulativeParse || node->includedInExactParse())
         if (projectTypes.isEmpty() || projectTypes.contains(node->projectType()))
@@ -862,10 +862,10 @@ void QmakeProject::collectAllProFiles(QList<QmakeProFileNode *> &list, QmakeProF
 
 QList<QmakeProFileNode *> QmakeProject::applicationProFiles(Parsing parse) const
 {
-    return allProFiles(QList<QmakeProjectType>() << ApplicationTemplate << ScriptTemplate, parse);
+    return allProFiles({ ProjectType::ApplicationTemplate, ProjectType::ScriptTemplate }, parse);
 }
 
-QList<QmakeProFileNode *> QmakeProject::allProFiles(const QList<QmakeProjectType> &projectTypes, Parsing parse) const
+QList<QmakeProFileNode *> QmakeProject::allProFiles(const QList<ProjectType> &projectTypes, Parsing parse) const
 {
     QList<QmakeProFileNode *> list;
     if (!rootProjectNode())
@@ -1234,15 +1234,15 @@ void QmakeProject::collectData(const QmakeProFileNode *node, DeploymentData &dep
     }
 
     switch (node->projectType()) {
-    case ApplicationTemplate:
+    case ProjectType::ApplicationTemplate:
         if (!installsList.targetPath.isEmpty())
             collectApplicationData(node, deploymentData);
         break;
-    case SharedLibraryTemplate:
-    case StaticLibraryTemplate:
+    case ProjectType::SharedLibraryTemplate:
+    case ProjectType::StaticLibraryTemplate:
         collectLibraryData(node, deploymentData);
         break;
-    case SubDirsTemplate:
+    case ProjectType::SubDirsTemplate:
         foreach (const ProjectNode * const subProject, node->subProjectNodesExact()) {
             const QmakeProFileNode * const qt4SubProject
                     = dynamic_cast<const QmakeProFileNode *>(subProject);

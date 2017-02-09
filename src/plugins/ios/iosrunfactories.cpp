@@ -44,8 +44,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 
-#include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakeproject.h>
 #include <coreplugin/id.h>
 
 using namespace Debugger;
@@ -99,10 +99,9 @@ QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent,
         return QList<Core::Id>();
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
 
-    QList<QmakeProFileNode *> nodes = project->allProFiles(QList<QmakeProjectType>()
-                                                           << ApplicationTemplate
-                                                           << SharedLibraryTemplate
-                                                           << AuxTemplate);
+    QList<QmakeProFileNode *> nodes = project->allProFiles({ ProjectType::ApplicationTemplate,
+                                                             ProjectType::SharedLibraryTemplate,
+                                                             ProjectType::AuxTemplate });
     if (mode == AutoCreate)
         nodes = QmakeProject::nodesWithQtcRunnable(nodes);
     Core::Id baseId(IOS_RC_ID_PREFIX);

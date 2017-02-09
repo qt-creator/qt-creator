@@ -27,6 +27,7 @@
 #include "ui_librarydetailswidget.h"
 #include "findqmakeprofiles.h"
 #include "qmakenodes.h"
+#include "qmakeparsernodes.h"
 #include "qmakebuildconfiguration.h"
 
 #include <projectexplorer/projectexplorer.h>
@@ -1004,8 +1005,8 @@ void InternalLibraryDetailsController::updateProFile()
     QList<QmakeProFileNode *> proFiles = findQt4ProFiles(rootProject);
     foreach (QmakeProFileNode *proFileNode, proFiles) {
         const QString proFilePath = proFileNode->filePath().toString();
-        QmakeProjectManager::QmakeProjectType type = proFileNode->projectType();
-        if (type == SharedLibraryTemplate || type == StaticLibraryTemplate) {
+        QmakeProjectManager::ProjectType type = proFileNode->projectType();
+        if (type == ProjectType::SharedLibraryTemplate || type == ProjectType::StaticLibraryTemplate) {
             const QStringList configVar = proFileNode->variableValue(ConfigVar);
             if (!configVar.contains(QLatin1String("plugin"))) {
                 const QString relProFilePath = rootDir.relativeFilePath(proFilePath);

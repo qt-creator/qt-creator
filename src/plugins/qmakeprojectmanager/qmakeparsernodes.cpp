@@ -1374,24 +1374,24 @@ QSet<FileName> QmakeParserPriFileNode::filterFilesRecursiveEnumerata(FileType fi
 
 } // namespace QmakeProjectManager
 
-static QmakeProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateType type)
+static ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateType type)
 {
     switch (type) {
     case ProFileEvaluator::TT_Unknown:
     case ProFileEvaluator::TT_Application:
-        return ApplicationTemplate;
+        return ProjectType::ApplicationTemplate;
     case ProFileEvaluator::TT_StaticLibrary:
-        return StaticLibraryTemplate;
+        return ProjectType::StaticLibraryTemplate;
     case ProFileEvaluator::TT_SharedLibrary:
-        return SharedLibraryTemplate;
+        return ProjectType::SharedLibraryTemplate;
     case ProFileEvaluator::TT_Script:
-        return ScriptTemplate;
+        return ProjectType::ScriptTemplate;
     case ProFileEvaluator::TT_Aux:
-        return AuxTemplate;
+        return ProjectType::AuxTemplate;
     case ProFileEvaluator::TT_Subdirs:
-        return SubDirsTemplate;
+        return ProjectType::SubDirsTemplate;
     default:
-        return InvalidProject;
+        return ProjectType::Invalid;
     }
 }
 

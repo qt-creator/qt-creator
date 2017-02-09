@@ -218,7 +218,7 @@ class EvalResult
 public:
     enum EvalResultState { EvalAbort, EvalFail, EvalPartial, EvalOk };
     EvalResultState state;
-    QmakeProjectType projectType;
+    ProjectType projectType;
 
     QStringList subProjectsNotToDeploy;
     QSet<FileName> exactSubdirs;
@@ -765,10 +765,10 @@ QList<ProjectAction> QmakePriFileNode::supportedActions(Node *node) const
     Q_ASSERT(proFileNode);
 
     switch (proFileNode->projectType()) {
-    case ApplicationTemplate:
-    case StaticLibraryTemplate:
-    case SharedLibraryTemplate:
-    case AuxTemplate: {
+    case ProjectType::ApplicationTemplate:
+    case ProjectType::StaticLibraryTemplate:
+    case ProjectType::SharedLibraryTemplate:
+    case ProjectType::AuxTemplate: {
         // TODO: Some of the file types don't make much sense for aux
         // projects (e.g. cpp). It'd be nice if the "add" action could
         // work on a subset of the file types according to project type.
@@ -799,7 +799,7 @@ QList<ProjectAction> QmakePriFileNode::supportedActions(Node *node) const
 
         break;
     }
-    case SubDirsTemplate:
+    case ProjectType::SubDirsTemplate:
         actions << AddSubProject << RemoveSubProject;
         break;
     default:
@@ -1367,24 +1367,24 @@ QSet<FileName> QmakePriFileNode::filterFilesRecursiveEnumerata(FileType fileType
 
 } // namespace QmakeProjectManager
 
-static QmakeProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateType type)
+static ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateType type)
 {
     switch (type) {
     case ProFileEvaluator::TT_Unknown:
     case ProFileEvaluator::TT_Application:
-        return ApplicationTemplate;
+        return ProjectType::ApplicationTemplate;
     case ProFileEvaluator::TT_StaticLibrary:
-        return StaticLibraryTemplate;
+        return ProjectType::StaticLibraryTemplate;
     case ProFileEvaluator::TT_SharedLibrary:
-        return SharedLibraryTemplate;
+        return ProjectType::SharedLibraryTemplate;
     case ProFileEvaluator::TT_Script:
-        return ScriptTemplate;
+        return ProjectType::ScriptTemplate;
     case ProFileEvaluator::TT_Aux:
-        return AuxTemplate;
+        return ProjectType::AuxTemplate;
     case ProFileEvaluator::TT_Subdirs:
-        return SubDirsTemplate;
+        return ProjectType::SubDirsTemplate;
     default:
-        return InvalidProject;
+        return ProjectType::Invalid;
     }
 }
 
@@ -1514,9 +1514,11 @@ FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const QStringL
     return AddNewInformation(filePath().fileName(), context && context->parentProjectNode() == this ? 120 : 100);
 }
 
-bool QmakeProFileNode::showInSimpleTree(QmakeProjectType projectType) const
+bool QmakeProFileNode::showInSimpleTree(ProjectType projectType) const
 {
-    return (projectType == ApplicationTemplate || projectType == SharedLibraryTemplate  || projectType == StaticLibraryTemplate);
+    return projectType == ProjectType::ApplicationTemplate
+            || projectType == ProjectType::SharedLibraryTemplate
+            || projectType == ProjectType::StaticLibraryTemplate;
 }
 
 bool QmakeProFileNode::isDebugAndRelease() const
@@ -1531,7 +1533,7 @@ bool QmakeProFileNode::isQtcRunnable() const
     return configValues.contains(QLatin1String("qtc_runnable"));
 }
 
-QmakeProjectType QmakeProFileNode::projectType() const
+ProjectType QmakeProFileNode::projectType() const
 {
     return m_projectType;
 }
@@ -1694,7 +1696,7 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
                 (result->state == EvalResult::EvalOk ? input.readerExact
                                                      : input.readerCumulative)->templateType());
     if (result->state == EvalResult::EvalOk) {
-        if (result->projectType == SubDirsTemplate) {
+        if (result->projectType == ProjectType::SubDirsTemplate) {
             QStringList errors;
             FileNameList subDirs = subDirsPaths(input.readerExact, input.projectDir, &result->subProjectsNotToDeploy, &errors);
             result->errors.append(errors);
@@ -1732,7 +1734,7 @@ EvalResult *QmakeProFileNode::evaluate(const EvalInput &input)
         }
     }
 
-    if (result->projectType == SubDirsTemplate) {
+    if (result->projectType == ProjectType::SubDirsTemplate) {
         FileNameList subDirs = subDirsPaths(input.readerCumulative, input.projectDir, 0, 0);
         foreach (const Utils::FileName &subDirName, subDirs) {
             auto it = result->includedFiles.children.find(subDirName);
@@ -1918,12 +1920,12 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
         if (result->state == EvalResult::EvalFail) {
             QmakeProject::proFileParseError(QCoreApplication::translate("QmakeProFileNode", "Error while parsing file %1. Giving up.")
                                             .arg(m_projectFilePath.toUserOutput()));
-            if (m_projectType == InvalidProject)
+            if (m_projectType == ProjectType::Invalid)
                 return;
 
             // delete files && folders && projects
             makeEmpty();
-            m_projectType = InvalidProject;
+            m_projectType = ProjectType::Invalid;
         }
         return;
     }
@@ -2304,8 +2306,9 @@ void QmakeProFileNode::updateGeneratedFiles(const QString &buildDir)
     m_extraCompilers.clear();
 
     // Only those project types can have generated files for us
-    if (m_projectType != ApplicationTemplate && m_projectType != SharedLibraryTemplate &&
-            m_projectType != StaticLibraryTemplate) {
+    if (m_projectType != ProjectType::ApplicationTemplate
+            && m_projectType != ProjectType::SharedLibraryTemplate
+            && m_projectType != ProjectType::StaticLibraryTemplate) {
         return;
     }
 

@@ -98,7 +98,7 @@ void AndroidExtraLibraryListModel::activeRunConfigurationChanged()
 
     bool enabled;
     beginResetModel();
-    if (node->validParse() && node->projectType() == QmakeProjectManager::ApplicationTemplate) {
+    if (node->validParse() && node->projectType() == QmakeProjectManager::ProjectType::ApplicationTemplate) {
         m_entries = node->variableValue(QmakeProjectManager::AndroidExtraLibs);
         enabled = true;
     } else {
@@ -135,7 +135,7 @@ bool AndroidExtraLibraryListModel::isEnabled() const
         return false;
     if (node->parseInProgress())
         return false;
-    if (node->projectType() != QmakeProjectManager::ApplicationTemplate)
+    if (node->projectType() != QmakeProjectManager::ProjectType::ApplicationTemplate)
         return false;
     return true;
 }
@@ -143,7 +143,7 @@ bool AndroidExtraLibraryListModel::isEnabled() const
 void AndroidExtraLibraryListModel::addEntries(const QStringList &list)
 {
     QmakeProjectManager::QmakeProFileNode *node = activeNode();
-    if (!node || node->projectType() != QmakeProjectManager::ApplicationTemplate)
+    if (!node || node->projectType() != QmakeProjectManager::ProjectType::ApplicationTemplate)
         return;
 
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size() + list.size());
@@ -167,7 +167,7 @@ bool greaterModelIndexByRow(const QModelIndex &a, const QModelIndex &b)
 void AndroidExtraLibraryListModel::removeEntries(QModelIndexList list)
 {
     QmakeProjectManager::QmakeProFileNode *node = activeNode();
-    if (list.isEmpty() || !node || node->projectType() != QmakeProjectManager::ApplicationTemplate)
+    if (list.isEmpty() || !node || node->projectType() != QmakeProjectManager::ProjectType::ApplicationTemplate)
         return;
 
     std::sort(list.begin(), list.end(), greaterModelIndexByRow);

@@ -26,6 +26,7 @@
 #pragma once
 
 #include "qmakeprojectmanager_global.h"
+#include "qmakeparsernodes.h"
 #include "proparser/prowriter.h"
 #include "proparser/profileevaluator.h"
 
@@ -48,17 +49,6 @@ namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
 class QmakeProFileNode;
 class QmakeProject;
-
-//  Type of projects
-enum QmakeProjectType {
-    InvalidProject = 0,
-    ApplicationTemplate,
-    StaticLibraryTemplate,
-    SharedLibraryTemplate,
-    ScriptTemplate,
-    AuxTemplate,
-    SubDirsTemplate
-};
 
 // Other variables of interest
 enum QmakeVariable {
@@ -273,7 +263,7 @@ public:
 
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
 
-    QmakeProjectType projectType() const;
+    QmakeProjectManager::ProjectType projectType() const;
 
     QStringList variableValue(const QmakeVariable var) const;
     QString singleVariableValue(const QmakeVariable var) const;
@@ -305,7 +295,7 @@ public:
     bool validParse() const;
     bool parseInProgress() const;
 
-    bool showInSimpleTree(QmakeProjectType projectType) const;
+    bool showInSimpleTree(ProjectType projectType) const;
     bool isDebugAndRelease() const;
     bool isQtcRunnable() const;
 
@@ -345,7 +335,7 @@ private:
     bool m_validParse = false;
     bool m_parseInProgress = false;
 
-    QmakeProjectType m_projectType = InvalidProject;
+    ProjectType m_projectType = ProjectType::Invalid;
     QmakeVariablesHash m_varValues;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
 

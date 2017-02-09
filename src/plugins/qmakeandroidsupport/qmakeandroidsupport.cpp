@@ -85,7 +85,7 @@ QStringList QmakeAndroidSupport::projectTargetApplications(const ProjectExplorer
     if (!qmakeProject)
         return apps;
     foreach (QmakeProFileNode *proFile, qmakeProject->applicationProFiles()) {
-        if (proFile->projectType() == ApplicationTemplate) {
+        if (proFile->projectType() == ProjectType::ApplicationTemplate) {
             if (proFile->targetInformation().target.startsWith(QLatin1String("lib"))
                     && proFile->targetInformation().target.endsWith(QLatin1String(".so")))
                 apps << proFile->targetInformation().target.mid(3, proFile->targetInformation().target.lastIndexOf(QLatin1Char('.')) - 3);
