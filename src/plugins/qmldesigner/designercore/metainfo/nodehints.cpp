@@ -68,6 +68,11 @@ static QVariant evaluateExpression(const QString &expression, const ModelNode &m
 
     s_jsObject->setModelNode(modelNode);
     s_jsObject->setOtherNode(otherNode);
+
+    QJSValue value = s_qJSEngine->evaluate(expression);
+
+    if (value.isError())
+        return expression;
     return s_qJSEngine->evaluate(expression).toVariant();
 }
 
