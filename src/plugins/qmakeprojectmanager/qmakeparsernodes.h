@@ -101,12 +101,11 @@ enum class Variable {
 uint qHash(Variable key, uint seed = 0);
 
 namespace Internal {
-struct InternalParserNode;
 
 class QmakeEvalInput;
 class QmakeEvalResult;
 class QmakePriFileEvalResult;
-}
+} // namespace Internal;
 
 struct InstallsParserList;
 
@@ -218,8 +217,6 @@ private:
 
     // managed by QmakeProFileNode
     friend class QmakeProjectManager::QmakeParserProFileNode;
-    // internal temporary subtree representation
-    friend struct Internal::InternalParserNode;
 };
 
 class QMAKEPROJECTMANAGER_EXPORT TargetParserInformation

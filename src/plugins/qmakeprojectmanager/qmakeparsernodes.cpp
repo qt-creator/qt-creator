@@ -264,186 +264,6 @@ private:
     QmakeParserPriFileNode *m_priFile;
 };
 
-class ProParserVirtualFolderNode : public VirtualFolderNode
-{
-public:
-    ProParserVirtualFolderNode(InternalParserNode *node);
-
-    QString displayName() const final { return m_typeName; }
-    QString addFileFilter() const final { return m_addFileFilter; }
-    QString tooltip() const final { return QString(); }
-
-private:
-    QString m_typeName;
-    QString m_addFileFilter;
-};
-
-struct InternalParserNode
-{
-    QList<InternalParserNode *> virtualfolders;
-    QMap<QString, InternalParserNode *> subnodes;
-    FileNameList files;
-    FileType type = FileType::Unknown;
-    int priority = Node::DefaultVirtualFolderPriority;
-    QString displayName;
-    QString typeName;
-    QString addFileFilter;
-    QString fullPath;
-    QIcon icon;
-
-    ~InternalParserNode()
-    {
-        qDeleteAll(virtualfolders);
-        qDeleteAll(subnodes);
-    }
-
-    // Creates: a tree structure from a list of absolute file paths.
-    // Empty directories are compressed into a single entry with a longer path.
-    // * project
-    //    * /absolute/path
-    //       * file1
-    //    * relative
-    //       * path1
-    //          * file1
-    //          * file2
-    //       * path2
-    //          * file1
-    // The function first creates a tree that looks like the directory structure, i.e.
-    //    * /
-    //       * absolute
-    //          * path
-    // ...
-    // and afterwards calls compress() which merges directory nodes with single children, i.e. to
-    //    * /absolute/path
-    void create(const QString &projectDir, const QSet<FileName> &newFilePaths, FileType type)
-    {
-        static const QChar separator = QLatin1Char('/');
-        const FileName projectDirFileName = FileName::fromString(projectDir);
-        foreach (const FileName &file, newFilePaths) {
-            FileName fileWithoutPrefix;
-            bool isRelative;
-            if (file.isChildOf(projectDirFileName)) {
-                isRelative = true;
-                fileWithoutPrefix = file.relativeChildPath(projectDirFileName);
-            } else {
-                isRelative = false;
-                fileWithoutPrefix = file;
-            }
-            QStringList parts = fileWithoutPrefix.toString().split(separator, QString::SkipEmptyParts);
-            if (!HostOsInfo::isWindowsHost() && !isRelative && parts.count() > 0)
-                parts[0].prepend(separator);
-            QStringListIterator it(parts);
-            InternalParserNode *currentNode = this;
-            QString path = (isRelative ? (projectDirFileName.toString() + QLatin1Char('/')) : QString());
-            while (it.hasNext()) {
-                const QString &key = it.next();
-                if (it.hasNext()) { // key is directory
-                    path += key;
-                    if (!currentNode->subnodes.contains(path)) {
-                        InternalParserNode *val = new InternalParserNode;
-                        val->type = type;
-                        val->fullPath = path;
-                        val->displayName = key;
-                        currentNode->subnodes.insert(path, val);
-                        currentNode = val;
-                    } else {
-                        currentNode = currentNode->subnodes.value(path);
-                    }
-                    path += separator;
-                } else { // key is filename
-                    currentNode->files.append(file);
-                }
-            }
-        }
-        this->compress();
-    }
-
-    // Removes folder nodes with only a single sub folder in it
-    void compress()
-    {
-        QMap<QString, InternalParserNode*> newSubnodes;
-        QMapIterator<QString, InternalParserNode*> i(subnodes);
-        while (i.hasNext()) {
-            i.next();
-            i.value()->compress();
-            if (i.value()->files.isEmpty() && i.value()->subnodes.size() == 1) {
-                // replace i.value() by i.value()->subnodes.begin()
-                QString key = i.value()->subnodes.begin().key();
-                InternalParserNode *keep = i.value()->subnodes.value(key);
-                keep->displayName = i.value()->displayName + QDir::separator() + keep->displayName;
-                newSubnodes.insert(key, keep);
-                i.value()->subnodes.clear();
-                delete i.value();
-            } else {
-                newSubnodes.insert(i.key(), i.value());
-            }
-        }
-        subnodes = newSubnodes;
-    }
-
-    FolderNode *createFolderNode(InternalParserNode *node)
-    {
-        FolderNode *newNode = 0;
-        if (node->typeName.isEmpty())
-            newNode = new FolderNode(FileName::fromString(node->fullPath));
-        else
-            newNode = new ProParserVirtualFolderNode(node);
-
-        newNode->setDisplayName(node->displayName);
-        if (!node->icon.isNull())
-            newNode->setIcon(node->icon);
-        return newNode;
-    }
-
-    // Makes the projectNode's subtree below the given folder match this internal node's subtree
-    void addSubFolderContents(FolderNode *folder)
-    {
-        if (type == FileType::Resource) {
-            for (const FileName &file : files) {
-                auto vfs = static_cast<QmakeParserPriFileNode *>(folder->parentProjectNode())->m_project->qmakeVfs();
-                QString contents;
-                // Prefer the cumulative file if it's non-empty, based on the assumption
-                // that it contains more "stuff".
-                vfs->readVirtualFile(file.toString(), QMakeVfs::VfsCumulative, &contents);
-                // If the cumulative evaluation botched the file too much, try the exact one.
-                if (contents.isEmpty())
-                    vfs->readVirtualFile(file.toString(), QMakeVfs::VfsExact, &contents);
-                auto resourceNode = new ResourceEditor::ResourceTopLevelNode(file, contents, folder);
-                folder->addNode(resourceNode);
-                resourceNode->addInternalNodes();
-            }
-        } else {
-            for (const FileName &file : files)
-                folder->addNode(new FileNode(file, type, false));
-        }
-
-        // Virtual
-        {
-            for (InternalParserNode *node : virtualfolders) {
-                FolderNode *newNode = createFolderNode(node);
-                folder->addNode(newNode);
-                node->addSubFolderContents(newNode);
-            }
-        }
-        // Subnodes
-        {
-            QMap<QString, InternalParserNode *>::const_iterator it = subnodes.constBegin();
-            QMap<QString, InternalParserNode *>::const_iterator end = subnodes.constEnd();
-            for ( ; it != end; ++it) {
-                FolderNode *newNode = createFolderNode(it.value());
-                folder->addNode(newNode);
-                it.value()->addSubFolderContents(newNode);
-            }
-        }
-    }
-};
-
-ProParserVirtualFolderNode::ProParserVirtualFolderNode(InternalParserNode *node)
-    : VirtualFolderNode(FileName::fromString(node->fullPath), node->priority),
-      m_typeName(node->typeName),
-      m_addFileFilter(node->addFileFilter)
-{}
-
 } // Internal
 
 /*!
@@ -609,34 +429,11 @@ void QmakeParserPriFileNode::update(const Internal::QmakePriFileEvalResult &resu
     m_recursiveEnumerateFiles = result.recursiveEnumerateFiles;
     watchFolders(result.folders.toSet());
 
-    InternalParserNode contents;
     const QVector<QmakeParserNodeStaticData::FileTypeData> &fileTypes = qmakeParserNodeStaticData()->fileTypeData;
     for (int i = 0; i < fileTypes.size(); ++i) {
-        FileType type = fileTypes.at(i).type;
-        const QSet<FileName> &newFilePaths = result.foundFiles.value(type);
-        // We only need to save this information if
-        // we are watching folders
-        if (!result.folders.isEmpty())
-            m_files[type] = newFilePaths;
-        else
-            m_files[type].clear();
-
-        if (!newFilePaths.isEmpty()) {
-            InternalParserNode *subfolder = new InternalParserNode;
-            subfolder->type = type;
-            subfolder->icon = fileTypes.at(i).icon;
-            subfolder->fullPath = directoryPath().toString();
-            subfolder->typeName = fileTypes.at(i).typeName;
-            subfolder->addFileFilter = fileTypes.at(i).addFileFilter;
-            subfolder->priority = Node::DefaultVirtualFolderPriority - i;
-            subfolder->displayName = fileTypes.at(i).typeName;
-            contents.virtualfolders.append(subfolder);
-            // create the hierarchy with subdirectories
-            subfolder->create(directoryPath().toString(), newFilePaths, type);
-        }
+        const FileType type = fileTypes.at(i).type;
+        m_files[type] = result.foundFiles.value(type);
     }
-
-    contents.addSubFolderContents(this);
 }
 
 void QmakeParserPriFileNode::watchFolders(const QSet<QString> &folders)
@@ -693,26 +490,6 @@ bool QmakeParserPriFileNode::folderChanged(const QString &changedFolder, const Q
             m_files[type].subtract(remove);
         }
     }
-
-    // Now apply stuff
-    InternalParserNode contents;
-    for (int i = 0; i < fileTypes.size(); ++i) {
-        FileType type = fileTypes.at(i).type;
-        if (!m_files[type].isEmpty()) {
-            InternalParserNode *subfolder = new InternalParserNode;
-            subfolder->type = type;
-            subfolder->icon = fileTypes.at(i).icon;
-            subfolder->fullPath = directoryPath().toString();
-            subfolder->typeName = fileTypes.at(i).typeName;
-            subfolder->priority = Node::DefaultVirtualFolderPriority - i;
-            subfolder->displayName = fileTypes.at(i).typeName;
-            contents.virtualfolders.append(subfolder);
-            // create the hierarchy with subdirectories
-            subfolder->create(directoryPath().toString(), m_files[type], type);
-        }
-    }
-
-    contents.addSubFolderContents(this);
     return true;
 }
 
