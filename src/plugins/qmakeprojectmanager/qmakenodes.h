@@ -252,8 +252,7 @@ public:
     QString objectsDirectory() const;
     QByteArray cxxDefines() const;
 
-    enum AsyncUpdateDelay { ParseNow, ParseLater };
-    void scheduleUpdate(AsyncUpdateDelay delay);
+    void scheduleUpdate(QmakeParserProFileNode::AsyncUpdateDelay delay);
 
     bool validParse() const;
     bool parseInProgress() const;

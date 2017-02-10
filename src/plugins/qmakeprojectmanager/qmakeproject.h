@@ -100,7 +100,7 @@ public:
 
     /// \internal
     void scheduleAsyncUpdate(QmakeProjectManager::QmakeProFileNode *node,
-                             QmakeProFileNode::AsyncUpdateDelay delay = QmakeProFileNode::ParseLater);
+                             QmakeParserProFileNode::AsyncUpdateDelay delay = QmakeParserProFileNode::ParseLater);
     /// \internal
     void incrementPendingEvaluateFutures();
     /// \internal
@@ -143,7 +143,7 @@ signals:
     void proFilesEvaluated();
 
 public:
-    void scheduleAsyncUpdate(QmakeProFileNode::AsyncUpdateDelay delay = QmakeProFileNode::ParseLater);
+    void scheduleAsyncUpdate(QmakeParserProFileNode::AsyncUpdateDelay delay = QmakeParserProFileNode::ParseLater);
     void scheduleAsyncUpdateLater() { scheduleAsyncUpdate(); }
 
 protected:
@@ -175,7 +175,7 @@ private:
                                 ProjectExplorer::DeploymentData &deploymentData);
     void collectLibraryData(const QmakeProFileNode *node,
             ProjectExplorer::DeploymentData &deploymentData);
-    void startAsyncTimer(QmakeProFileNode::AsyncUpdateDelay delay);
+    void startAsyncTimer(QmakeParserProFileNode::AsyncUpdateDelay delay);
     bool matchesKit(const ProjectExplorer::Kit *kit);
 
     void warnOnToolChainMismatch(const QmakeProFileNode *pro) const;

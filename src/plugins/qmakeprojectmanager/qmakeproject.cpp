@@ -326,7 +326,7 @@ Project::RestoreResult QmakeProject::fromMap(const QVariantMap &map, QString *er
     connect(this, &Project::activeTargetChanged,
             this, &QmakeProject::activeTargetWasChanged);
 
-    scheduleAsyncUpdate(QmakeProFileNode::ParseNow);
+    scheduleAsyncUpdate(QmakeParserProFileNode::ParseNow);
     return RestoreResult::Ok;
 }
 
@@ -479,7 +479,7 @@ void QmakeProject::updateRunConfigurations()
         activeTarget()->updateDefaultRunConfigurations();
 }
 
-void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode *node, QmakeProFileNode::AsyncUpdateDelay delay)
+void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode *node, QmakeParserProFileNode::AsyncUpdateDelay delay)
 {
     if (m_asyncUpdateState == ShuttingDown)
         return;
@@ -538,7 +538,7 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode *node, QmakeProFileNode:
     }
 }
 
-void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode::AsyncUpdateDelay delay)
+void QmakeProject::scheduleAsyncUpdate(QmakeParserProFileNode::AsyncUpdateDelay delay)
 {
     if (m_asyncUpdateState == ShuttingDown)
         return;
@@ -565,10 +565,10 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode::AsyncUpdateDelay delay)
     startAsyncTimer(delay);
 }
 
-void QmakeProject::startAsyncTimer(QmakeProFileNode::AsyncUpdateDelay delay)
+void QmakeProject::startAsyncTimer(QmakeParserProFileNode::AsyncUpdateDelay delay)
 {
     m_asyncUpdateTimer.stop();
-    m_asyncUpdateTimer.setInterval(qMin(m_asyncUpdateTimer.interval(), delay == QmakeProFileNode::ParseLater ? 3000 : 0));
+    m_asyncUpdateTimer.setInterval(qMin(m_asyncUpdateTimer.interval(), delay == QmakeParserProFileNode::ParseLater ? 3000 : 0));
     m_asyncUpdateTimer.start();
 }
 
@@ -596,7 +596,7 @@ void QmakeProject::decrementPendingEvaluateFutures()
         if (m_asyncUpdateState == AsyncFullUpdatePending || m_asyncUpdateState == AsyncPartialUpdatePending) {
             rootProjectNode()->setParseInProgressRecursive(true);
             setAllBuildConfigurationsEnabled(false);
-            startAsyncTimer(QmakeProFileNode::ParseLater);
+            startAsyncTimer(QmakeParserProFileNode::ParseLater);
         } else  if (m_asyncUpdateState != ShuttingDown){
             // After being done, we need to call:
             setAllBuildConfigurationsEnabled(true);
@@ -965,7 +965,7 @@ void QmakeProject::notifyChanged(const FileName &name)
         findProFile(name, rootProjectNode(), list);
         foreach (QmakeProFileNode *node, list) {
             QtSupport::ProFileCacheManager::instance()->discardFile(name.toString());
-            node->scheduleUpdate(QmakeProFileNode::ParseNow);
+            node->scheduleUpdate(QmakeParserProFileNode::ParseNow);
         }
     }
 }
