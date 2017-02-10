@@ -502,17 +502,9 @@ QList<RunConfiguration *> QmakePriFile::runConfigurations() const
     return QList<RunConfiguration *>();
 }
 
-QList<QmakePriFile *> QmakePriFile::subPriFilesExact() const
+QVector<QmakePriFile *> QmakePriFile::subPriFilesExact() const
 {
-    QList<QmakePriFile *> nodes;
-#if 0
-    foreach (ProjectNode *node, projectNodes()) {
-        QmakePriFile *n = dynamic_cast<QmakePriFile *>(node);
-        if (n && n->includedInExactParse())
-            nodes << n;
-    }
-#endif
-    return nodes;
+    return Utils::filtered(m_children, &QmakePriFile::includedInExactParse);
 }
 
 QmakeProFile *QmakePriFile::proFile() const

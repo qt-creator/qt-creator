@@ -143,7 +143,7 @@ public:
     virtual QList<ProjectExplorer::RunConfiguration *> runConfigurations() const;
 
     QmakeProFile *proFile() const;
-    QList<QmakePriFile*> subPriFilesExact() const;
+    QVector<QmakePriFile *> subPriFilesExact() const;
 
     // Set by parent
     bool includedInExactParse() const;
