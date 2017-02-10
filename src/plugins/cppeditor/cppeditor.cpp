@@ -223,14 +223,8 @@ void CppEditorWidget::finalizeInitialization()
         d->m_cppSelectionChanger.onCursorPositionChanged(textCursor());
     });
 
-    // Toolbar: '#' Button
-    d->m_preprocessorButton = new QToolButton(this);
-    d->m_preprocessorButton->setText(QLatin1String("#"));
-    Command *cmd = ActionManager::command(Constants::OPEN_PREPROCESSOR_DIALOG);
-    connect(cmd, &Command::keySequenceChanged, this, &CppEditorWidget::updatePreprocessorButtonTooltip);
-    updatePreprocessorButtonTooltip();
-    connect(d->m_preprocessorButton, &QAbstractButton::clicked, this, &CppEditorWidget::showPreProcessorWidget);
-    insertExtraToolBarWidget(TextEditorWidget::Left, d->m_preprocessorButton);
+    // Toolbar: Outline/Overview combo box
+    insertExtraToolBarWidget(TextEditorWidget::Left, d->m_cppEditorOutline->widget());
 
     // Toolbar: Parse context
     ParseContextModel &parseContextModel = cppEditorDocument()->parseContextModel();
@@ -243,8 +237,14 @@ void CppEditorWidget::finalizeInitialization()
         d->m_parseContextAction->setVisible(areMultipleAvailable);
     });
 
-    // Toolbar: Outline/Overview combo box
-    insertExtraToolBarWidget(TextEditorWidget::Left, d->m_cppEditorOutline->widget());
+    // Toolbar: '#' Button
+    d->m_preprocessorButton = new QToolButton(this);
+    d->m_preprocessorButton->setText(QLatin1String("#"));
+    Command *cmd = ActionManager::command(Constants::OPEN_PREPROCESSOR_DIALOG);
+    connect(cmd, &Command::keySequenceChanged, this, &CppEditorWidget::updatePreprocessorButtonTooltip);
+    updatePreprocessorButtonTooltip();
+    connect(d->m_preprocessorButton, &QAbstractButton::clicked, this, &CppEditorWidget::showPreProcessorWidget);
+    insertExtraToolBarWidget(TextEditorWidget::Left, d->m_preprocessorButton);
 
     // Toolbar: Actions to show minimized info bars
     d->m_showInfoBarActions = MinimizableInfoBars::createShowInfoBarActions([this](QWidget *w) {
