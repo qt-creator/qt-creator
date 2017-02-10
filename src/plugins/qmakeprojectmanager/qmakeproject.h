@@ -86,7 +86,8 @@ public:
     void notifyChanged(const Utils::FileName &name);
 
     /// \internal
-    QtSupport::ProFileReader *createProFileReader(const QmakeProFileNode *qmakeProFileNode, QmakeBuildConfiguration *bc = 0);
+    QtSupport::ProFileReader *createProFileReader(const QmakeProFileNode *qmakeProFileNode,
+                                                  QmakeBuildConfiguration *bc = nullptr);
     /// \internal
     QMakeGlobals *qmakeGlobals();
     /// \internal

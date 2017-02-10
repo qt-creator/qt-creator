@@ -694,7 +694,7 @@ static FolderNode *folderOf(FolderNode *in, const FileName &fileName)
     foreach (FolderNode *folder, in->folderNodes())
         if (FolderNode *pn = folderOf(folder, fileName))
             return pn;
-    return 0;
+    return nullptr;
 }
 
 // Find the QmakeProFileNode that contains a certain file.
@@ -709,7 +709,7 @@ static FileNode *fileNodeOf(QmakeProFileNode *in, const FileName &fileName)
             }
         }
     }
-    return 0;
+    return nullptr;
 }
 
 QStringList QmakeProject::filesGeneratedFrom(const QString &input) const
@@ -742,7 +742,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNo
         Environment env = Environment::systemEnvironment();
         QStringList qmakeArgs;
         if (!bc)
-            bc = activeTarget() ? static_cast<QmakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration()) : 0;
+            bc = activeTarget() ? static_cast<QmakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration()) : nullptr;
 
         if (bc) {
             k = bc->target()->kit();
