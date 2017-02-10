@@ -990,11 +990,6 @@ void QmakeProject::unwatchFolders(const QStringList &l, QmakePriFileNode *node)
 ////////////
 
 // All the folder have a trailing slash!
-
-namespace {
-    bool debugCFW = false;
-}
-
 CentralizedFolderWatcher::CentralizedFolderWatcher(QmakeProject *parent)
     : QObject(parent), m_project(parent)
 {
@@ -1020,8 +1015,6 @@ QSet<QString> CentralizedFolderWatcher::recursiveDirs(const QString &folder)
 
 void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, QmakePriFileNode *node)
 {
-    if (debugCFW)
-        qDebug()<<"CFW::watchFolders()"<<folders<<"for node"<<node->filePath();
     m_watcher.addPaths(folders);
 
     const QChar slash = QLatin1Char('/');
@@ -1037,16 +1030,11 @@ void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, Qmake
         if (!tmp.isEmpty())
             m_watcher.addPaths(tmp.toList());
         m_recursiveWatchedFolders += tmp;
-
-        if (debugCFW)
-            qDebug()<<"adding recursive dirs for"<< folder<<":"<<tmp;
     }
 }
 
 void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, QmakePriFileNode *node)
 {
-    if (debugCFW)
-        qDebug()<<"CFW::unwatchFolders()"<<folders<<"for node"<<node->filePath();
     const QChar slash = QLatin1Char('/');
     foreach (const QString &f, folders) {
         QString folder = f;
@@ -1082,12 +1070,8 @@ void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qma
             }
         }
 
-        if (debugCFW)
-            qDebug()<<"removing recursive dirs for"<<folder<<":"<<toRemove;
-
-        foreach (const QString &tr, toRemove) {
+        foreach (const QString &tr, toRemove)
             m_recursiveWatchedFolders.remove(tr);
-        }
     }
 }
 
@@ -1106,10 +1090,7 @@ void CentralizedFolderWatcher::onTimer()
 
 void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
 {
-    if (debugCFW)
-        qDebug()<<"CFW::folderChanged"<<folder;
     // Figure out whom to inform
-
     QString dir = folder;
     const QChar slash = QLatin1Char('/');
     bool newOrRemovedFiles = false;
@@ -1146,9 +1127,6 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
     // If a subdirectory was added, watch it too
     QSet<QString> tmp = recursiveDirs(folderWithSlash);
     if (!tmp.isEmpty()) {
-        if (debugCFW)
-            qDebug()<<"found new recursive dirs"<<tmp;
-
         QSet<QString> alreadyAdded = m_watcher.directories().toSet();
         tmp.subtract(alreadyAdded);
         if (!tmp.isEmpty())
