@@ -407,7 +407,7 @@ void ProjectTreeWidget::showContextMenu(const QPoint &pos)
 void ProjectTreeWidget::openItem(const QModelIndex &mainIndex)
 {
     Node *node = m_model->nodeForIndex(mainIndex);
-    if (node->nodeType() != NodeType::File)
+    if (!node || node->nodeType() != NodeType::File)
         return;
     IEditor *editor = EditorManager::openEditor(node->filePath().toString());
     if (editor && node->line() >= 0)

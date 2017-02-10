@@ -192,6 +192,7 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
         return false;
 
     Node *node = nodeForIndex(index);
+    QTC_ASSERT(node, return false);
 
     Utils::FileName orgFilePath = node->filePath();
     Utils::FileName newFilePath = orgFilePath.parentDir().appendPath(value.toString());
@@ -328,10 +329,11 @@ QMimeData *FlatModel::mimeData(const QModelIndexList &indexes) const
 {
     auto data = new Utils::DropMimeData;
     foreach (const QModelIndex &index, indexes) {
-        Node *node = nodeForIndex(index);
-        if (node->asFileNode())
-            data->addFile(node->filePath().toString());
-        data->addValue(QVariant::fromValue(node));
+        if (Node *node = nodeForIndex(index)) {
+            if (node->asFileNode())
+                data->addFile(node->filePath().toString());
+            data->addValue(QVariant::fromValue(node));
+        }
     }
     return data;
 }
