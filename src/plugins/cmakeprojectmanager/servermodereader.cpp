@@ -631,6 +631,7 @@ void ServerModeReader::addProjects(CMakeListsNode *root,
     for (const Project *p : projects) {
         CMakeProjectNode *pNode = findOrCreateProjectNode(root, p->sourceDirectory, p->name);
         QTC_ASSERT(pNode, continue);
+        QTC_ASSERT(root, continue);
         addTargets(root, p->targets, includeFiles);
     }
 }
@@ -659,6 +660,7 @@ void ServerModeReader::addTargets(CMakeListsNode *root,
 {
     for (const Target *t : targets) {
         CMakeTargetNode *tNode = findOrCreateTargetNode(root, t->sourceDirectory, t->name);
+        QTC_ASSERT(tNode, qDebug() << "No target node for" << t->sourceDirectory << t->name; return);
         tNode->setTargetInformation(t->artifacts, t->type);
         addFileGroups(tNode, t->sourceDirectory, t->buildDirectory, t->fileGroups, headers);
     }
