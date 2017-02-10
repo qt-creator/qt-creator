@@ -811,6 +811,23 @@ void addItemToStackedContainer(const SelectionContext &selectionContext)
     QTC_ASSERT(container.isValid(), return);
     QTC_ASSERT(container.metaInfo().isValid(), return);
 
+    const PropertyName propertyName = getIndexPropertyName(container);
+    QTC_ASSERT(container.metaInfo().hasProperty(propertyName), return);
+    BindingProperty binding = container.bindingProperty(propertyName);
+
+    /* Check if there is already a TabBar attached. */
+    ModelNode potentialTabBar;
+    if (binding.isValid()) {
+        AbstractProperty bindingTarget = binding.resolveToProperty();
+        if (bindingTarget.isValid()) { // In this case the stacked container might be hooked up to a TabBar
+            potentialTabBar = bindingTarget.parentModelNode();
+
+            if (!(potentialTabBar.metaInfo().isValid()
+                  && potentialTabBar.metaInfo().isSubclassOf("QtQuick.Controls.TabBar")))
+                potentialTabBar = ModelNode();
+        }
+    }
+
     try {
         RewriterTransaction transaction =
                 view->beginRewriterTransaction(QByteArrayLiteral("DesignerActionManager:addItemToStackedContainer"));
@@ -818,6 +835,21 @@ void addItemToStackedContainer(const SelectionContext &selectionContext)
         QmlDesigner::ModelNode itemNode =
                 view->createModelNode("QtQuick.Item", view->majorQtQuickVersion(), view->minorQtQuickVersion());
         container.defaultNodeListProperty().reparentHere(itemNode);
+
+        if (potentialTabBar.isValid()) {// The stacked container is hooked up to a TabBar
+            NodeMetaInfo tabButtonMetaInfo = view->model()->metaInfo("QtQuick.Controls.TabButton", -1, -1);
+            if (tabButtonMetaInfo.isValid()) {
+                const int buttonIndex = potentialTabBar.directSubModelNodes().count();
+                ModelNode tabButtonNode =
+                        view->createModelNode("QtQuick.Controls.TabButton",
+                                              tabButtonMetaInfo.majorVersion(),
+                                              tabButtonMetaInfo.minorVersion());
+
+                tabButtonNode.variantProperty("text").setValue(QString::fromLatin1("Tab %1").arg(buttonIndex));
+                potentialTabBar.defaultNodeListProperty().reparentHere(tabButtonNode);
+
+            }
+        }
 
         transaction.commit();
     }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
