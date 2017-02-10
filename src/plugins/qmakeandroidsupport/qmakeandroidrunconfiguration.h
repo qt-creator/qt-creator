@@ -30,9 +30,9 @@
 #include <utils/fileutils.h>
 
 namespace QmakeProjectManager {
-class QmakeProFileNode;
+class QmakeProFile;
 class QmakeProject;
-}
+} // namespace QmakeProjectManager
 
 namespace QmakeAndroidSupport {
 namespace Internal {
@@ -61,7 +61,7 @@ protected:
     QString defaultDisplayName();
 
 private:
-    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
+    void proFileUpdated(QmakeProjectManager::QmakeProFile *pro, bool success, bool parseInProgress);
     QmakeProjectManager::QmakeProject *qmakeProject() const;
     void init();
 

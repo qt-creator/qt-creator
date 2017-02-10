@@ -53,14 +53,15 @@ QStringList QmakeAndroidSupport::soLibSearchPath(const ProjectExplorer::Target *
     if (!project)
         return res;
 
-    foreach (QmakeProFileNode *node, project->allProFiles()) {
-        TargetInformation info = node->targetInformation();
+    foreach (QmakeProFile *file, project->allProFiles()) {
+        TargetInformation info = file->targetInformation();
         res << info.buildDir.toString();
-        QString destDir = info.destDir.toString();
+        Utils::FileName destDir = info.destDir;
         if (!destDir.isEmpty()) {
-            if (QFileInfo(destDir).isRelative())
-                destDir = QDir::cleanPath(info.buildDir.toString() + '/' + destDir);
-            res << destDir;
+            if (destDir.toFileInfo().isRelative())
+                destDir = Utils::FileName::fromString(QDir::cleanPath(info.buildDir.toString()
+                                                                      + '/' + destDir.toString()));
+            res << destDir.toString();
         }
     }
 
@@ -84,7 +85,7 @@ QStringList QmakeAndroidSupport::projectTargetApplications(const ProjectExplorer
     QmakeProject *qmakeProject = qobject_cast<QmakeProject *>(target->project());
     if (!qmakeProject)
         return apps;
-    foreach (QmakeProFileNode *proFile, qmakeProject->applicationProFiles()) {
+    for (QmakeProFile *proFile : qmakeProject->applicationProFiles()) {
         if (proFile->projectType() == ProjectType::ApplicationTemplate) {
             if (proFile->targetInformation().target.startsWith(QLatin1String("lib"))
                     && proFile->targetInformation().target.endsWith(QLatin1String(".so")))

@@ -211,7 +211,6 @@ private:
     static void processValues(Internal::QmakePriFileEvalResult &result);
     void watchFolders(const QSet<QString> &folders);
 
-
     QmakeProject *m_project = nullptr;
     QmakeProFile *m_qmakeProFile = nullptr;
     QmakePriFile *m_parent = nullptr;
@@ -225,8 +224,7 @@ private:
     QSet<QString> m_watchedFolders;
     bool m_includedInExactParse = true;
 
-    // managed by QmakeProFile
-    friend class QmakeProjectManager::QmakeProFile;
+    friend class QmakeProFile;
 };
 
 class QMAKEPROJECTMANAGER_EXPORT TargetInformation
@@ -297,7 +295,8 @@ public:
     Utils::FileName buildDir(QmakeBuildConfiguration *bc = nullptr) const;
 
     Utils::FileNameList generatedFiles(const Utils::FileName &buildDirectory,
-                                       const Utils::FileName &sourceFile) const;
+                                       const Utils::FileName &sourceFile,
+                                       const ProjectExplorer::FileType &sourceFileType) const;
     QList<ProjectExplorer::ExtraCompiler *> extraCompilers() const;
 
     TargetInformation targetInformation() const;
@@ -348,6 +347,10 @@ private:
 
     static TargetInformation targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass, const Utils::FileName &buildDir, const Utils::FileName &projectFilePath);
     static InstallsList installsList(const QtSupport::ProFileReader *reader, const QString &projectFilePath, const QString &projectDir, const QString &buildDir);
+
+    void setupExtraCompiler(const Utils::FileName &buildDir,
+                             const ProjectExplorer::FileType &fileType,
+                             ProjectExplorer::ExtraCompilerFactory *factory);
 
     bool m_validParse = false;
     bool m_parseInProgress = false;

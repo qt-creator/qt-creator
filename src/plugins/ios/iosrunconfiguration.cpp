@@ -141,7 +141,7 @@ void IosRunConfiguration::deviceChanges() {
     enabledCheck();
 }
 
-void IosRunConfiguration::proFileUpdated(QmakeProFileNode *pro, bool success,
+void IosRunConfiguration::proFileUpdated(QmakeProFile *pro, bool success,
                                          bool parseInProgress)
 {
     if (m_profilePath != pro->filePath())
@@ -193,16 +193,20 @@ FileName IosRunConfiguration::profilePath() const
     return m_profilePath;
 }
 
+static QmakeProFile *proFile(const IosRunConfiguration *rc)
+{
+    QmakeProject *pro = qobject_cast<QmakeProject *>(rc->target()->project());
+    QmakeProFile *proFile = pro ? pro->rootProFile() : nullptr;
+    if (proFile)
+        proFile = proFile->findProFile(rc->profilePath());
+    return proFile;
+}
+
 QString IosRunConfiguration::applicationName() const
 {
-    QmakeProject *pro = qobject_cast<QmakeProject *>(target()->project());
-    const QmakeProFileNode *node = 0;
-    if (pro)
-        node = pro->rootProjectNode();
-    if (node)
-        node = node->findProFileFor(profilePath());
-    if (node) {
-        TargetInformation ti = node->targetInformation();
+    QmakeProFile *pro = proFile(this);
+    if (pro) {
+        TargetInformation ti = pro->targetInformation();
         if (ti.valid)
             return ti.target;
     }
@@ -221,14 +225,9 @@ FileName IosRunConfiguration::bundleDirectory() const
     QmakeBuildConfiguration *bc =
             qobject_cast<QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
     if (bc) {
-        QmakeProject *pro = qobject_cast<QmakeProject *>(target()->project());
-        const QmakeProFileNode *node = 0;
-        if (pro)
-            node = pro->rootProjectNode();
-        if (node)
-            node = node->findProFileFor(profilePath());
-        if (node) {
-            TargetInformation ti = node->targetInformation();
+        const QmakeProFile *pro = proFile(this);
+        if (pro) {
+            TargetInformation ti = pro->targetInformation();
             if (ti.valid)
                 res = ti.buildDir;
         }

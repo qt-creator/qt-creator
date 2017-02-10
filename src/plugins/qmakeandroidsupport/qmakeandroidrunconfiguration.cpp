@@ -141,7 +141,8 @@ QString QmakeAndroidRunConfiguration::buildSystemTarget() const
     return qmakeProject()->mapProFilePathToTarget(m_proFilePath);
 }
 
-void QmakeAndroidRunConfiguration::proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress)
+void QmakeAndroidRunConfiguration::proFileUpdated(QmakeProjectManager::QmakeProFile *pro,
+                                                  bool success, bool parseInProgress)
 {
     QmakeProject *project = qmakeProject();
     if (m_proFilePath.isEmpty() && project->rootProjectNode())

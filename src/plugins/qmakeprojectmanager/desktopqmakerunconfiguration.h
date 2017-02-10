@@ -41,6 +41,7 @@ QT_END_NAMESPACE
 
 namespace QmakeProjectManager {
 
+class QmakeProFile;
 class QmakeProFileNode;
 class QmakeProject;
 
@@ -89,7 +90,7 @@ signals:
     void effectiveTargetInformationChanged();
 
 private:
-    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
+    void proFileUpdated(QmakeProjectManager::QmakeProFile *pro, bool success, bool parseInProgress);
     void proFileEvaluated();
 
 protected:

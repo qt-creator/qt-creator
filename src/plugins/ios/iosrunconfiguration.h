@@ -32,9 +32,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <utils/fileutils.h>
 
-namespace QmakeProjectManager {
-class QmakeProFileNode;
-}
+namespace QmakeProjectManager { class QmakeProFile; }
 
 namespace Ios {
 namespace Internal {
@@ -77,7 +75,7 @@ signals:
     void localExecutableChanged();
 
 private:
-    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
+    void proFileUpdated(QmakeProjectManager::QmakeProFile *pro, bool success, bool parseInProgress);
     void deviceChanges();
     void init();
     void enabledCheck();

@@ -369,7 +369,10 @@ bool DocumentManager::setIsoIconsQmakeVariableValue(const QString &proPath, cons
     }
 
     int flags = QmakeProjectManager::Internal::ProWriter::ReplaceValues | QmakeProjectManager::Internal::ProWriter::MultiLine;
-    return proNode->setProVariable("ISO_ICONS", value, QString(), flags);
+    QmakeProjectManager::QmakeProFile *pro = proNode->proFile();
+    if (pro)
+        return pro->setProVariable("ISO_ICONS", value, QString(), flags);
+    return false;
 }
 
 void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, QString *resourceFilePath,

@@ -53,16 +53,16 @@ QList<Core::Id> QnxRunConfigurationFactory::availableCreationIds(ProjectExplorer
     if (!canHandle(parent))
         return QList<Core::Id>();
 
-    QmakeProject *qt4Project = qobject_cast<QmakeProject *>(parent->project());
-    if (!qt4Project)
+    auto project = qobject_cast<QmakeProject *>(parent->project());
+    if (!project)
         return QList<Core::Id>();
-    QList<QmakeProjectManager::QmakeProFileNode *> nodes = qt4Project->applicationProFiles();
+    QList<QmakeProjectManager::QmakeProFile *> files = project->applicationProFiles();
 
     if (mode == AutoCreate)
-        nodes = QmakeProject::nodesWithQtcRunnable(nodes);
+        files = QmakeProject::proFilesWithQtcRunnable(files);
 
-    return QmakeProject::idsForNodes(Core::Id(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX),
-                                     nodes);
+    return QmakeProject::idsForProFiles(Core::Id(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX),
+                                        files);
 }
 
 QString QnxRunConfigurationFactory::displayNameForId(Core::Id id) const
@@ -92,16 +92,14 @@ bool QnxRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, Core
 ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, Core::Id id)
 {
     const Utils::FileName projectFilePath = pathFromId(id);
-    const QmakeProjectManager::QmakeProject * const qt4Project
-            = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
-    QTC_ASSERT(qt4Project, return 0);
-    foreach (const QmakeProjectManager::QmakeProFileNode * const node,
-             qt4Project->applicationProFiles()) {
-        if (node->filePath() == projectFilePath)
-            return new QnxRunConfiguration(parent, id, node->targetInformation().target);
+    auto project = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
+    QTC_ASSERT(project, return nullptr);
+    for (const QmakeProjectManager::QmakeProFile *file : project->applicationProFiles()) {
+        if (file->filePath() == projectFilePath)
+            return new QnxRunConfiguration(parent, id, file->targetInformation().target);
     }
     QTC_CHECK(false);
-    return 0;
+    return nullptr;
 }
 
 bool QnxRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const

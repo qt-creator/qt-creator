@@ -194,14 +194,15 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
     QString args;
 
     QmakeProjectManager::QmakeProFileNode *subNode = bc->subNodeBuild();
-    if (subNode) {
-        QString makefile = subNode->makefile();
+    QmakeProjectManager::QmakeProFile *subProFile = subNode ? subNode->proFile() : nullptr;
+    if (subProFile) {
+        QString makefile = subProFile->makefile();
         if (makefile.isEmpty())
             makefile = QLatin1String("Makefile");
         // Use Makefile.Debug and Makefile.Release
         // for file builds, since the rules for that are
         // only in those files.
-        if (subNode->isDebugAndRelease() && bc->fileNodeBuild()) {
+        if (subProFile->isDebugAndRelease() && bc->fileNodeBuild()) {
             if (bc->buildType() == QmakeBuildConfiguration::Debug)
                 makefile += QLatin1String(".Debug");
             else
@@ -223,11 +224,11 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
     }
 
     Utils::QtcProcess::addArgs(&args, m_userArgs);
-    if (bc->fileNodeBuild() && subNode) {
-        QString objectsDir = subNode->objectsDirectory();
+    if (bc->fileNodeBuild() && subProFile) {
+        QString objectsDir = subProFile->objectsDirectory();
         if (objectsDir.isEmpty()) {
-            objectsDir = subNode->buildDir(bc);
-            if (subNode->isDebugAndRelease()) {
+            objectsDir = subProFile->buildDir(bc).toString();
+            if (subProFile->isDebugAndRelease()) {
                 if (bc->buildType() == QmakeBuildConfiguration::Debug)
                     objectsDir += QLatin1String("/debug");
                 else
@@ -241,7 +242,7 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
             relObjectsDir += QLatin1Char('/');
         QString objectFile = relObjectsDir +
                 bc->fileNodeBuild()->filePath().toFileInfo().baseName() +
-                subNode->objectExtension();
+                subProFile->objectExtension();
         Utils::QtcProcess::addArg(&args, objectFile);
     }
     Utils::Environment env = bc->environment();

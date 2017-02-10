@@ -227,7 +227,7 @@ bool QmakeBuildConfiguration::isShadowBuild() const
 
 QString QmakeBuildConfiguration::makefile() const
 {
-    return static_cast<QmakeProject *>(target()->project())->rootProjectNode()->makefile();
+    return static_cast<QmakeProject *>(target()->project())->rootProFile()->makefile();
 }
 
 BaseQtVersion::QmakeBuildConfigs QmakeBuildConfiguration::qmakeBuildConfiguration() const

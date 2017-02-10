@@ -121,7 +121,7 @@ QString DesktopQmakeRunConfiguration::disabledReason() const
     return QString();
 }
 
-void DesktopQmakeRunConfiguration::proFileUpdated(QmakeProFileNode *pro, bool success, bool parseInProgress)
+void DesktopQmakeRunConfiguration::proFileUpdated(QmakeProFile *pro, bool success, bool parseInProgress)
 {
     if (m_proFilePath != pro->filePath())
         return;
@@ -467,12 +467,16 @@ OutputFormatter *DesktopQmakeRunConfiguration::createOutputFormatter() const
 QPair<QString, QString> DesktopQmakeRunConfiguration::extractWorkingDirAndExecutable(const QmakeProFileNode *node) const
 {
     if (!node)
-        return qMakePair(QString(), QString());
-    TargetInformation ti = node->targetInformation();
+        return { };
+
+    QmakeProFile *pro = node->proFile();
+    QTC_ASSERT(pro, return { });
+
+    TargetInformation ti = pro->targetInformation();
     if (!ti.valid)
         return qMakePair(QString(), QString());
 
-    const QStringList &config = node->variableValue(Variable::Config);
+    const QStringList &config = pro->variableValue(Variable::Config);
 
     QString destDir = ti.destDir.toString();
     QString workingDir;
@@ -560,10 +564,10 @@ QList<Core::Id> DesktopQmakeRunConfigurationFactory::availableCreationIds(Target
         return QList<Core::Id>();
 
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
-    QList<QmakeProFileNode *> nodes = project->applicationProFiles();
+    QList<QmakeProFile *> files = project->applicationProFiles();
     if (mode == AutoCreate)
-        nodes = QmakeProject::nodesWithQtcRunnable(nodes);
-    return QmakeProject::idsForNodes(Core::Id(QMAKE_RC_PREFIX), nodes);
+        files = QmakeProject::proFilesWithQtcRunnable(files);
+    return QmakeProject::idsForProFiles(Core::Id(QMAKE_RC_PREFIX), files);
 }
 
 QString DesktopQmakeRunConfigurationFactory::displayNameForId(Core::Id id) const

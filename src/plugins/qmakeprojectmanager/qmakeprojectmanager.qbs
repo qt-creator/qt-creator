@@ -27,7 +27,6 @@ Project {
                 "addlibrarywizard.cpp", "addlibrarywizard.h",
                 "desktopqmakerunconfiguration.cpp", "desktopqmakerunconfiguration.h",
                 "externaleditors.cpp", "externaleditors.h",
-                "findqmakeprofiles.cpp", "findqmakeprofiles.h",
                 "librarydetailscontroller.cpp", "librarydetailscontroller.h",
                 "librarydetailswidget.ui",
                 "makestep.cpp", "makestep.h", "makestep.ui",

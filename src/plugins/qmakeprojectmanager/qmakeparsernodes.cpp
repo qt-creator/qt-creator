@@ -370,12 +370,10 @@ void QmakePriFile::watchFolders(const QSet<QString> &folders)
     QSet<QString> toWatch = folders;
     toWatch.subtract(m_watchedFolders);
 
-#if 0 // Enable again!
     if (!toUnwatch.isEmpty())
         m_project->unwatchFolders(toUnwatch.toList(), this);
     if (!toWatch.isEmpty())
         m_project->watchFolders(toWatch.toList(), this);
-#endif
 
     m_watchedFolders = folders;
 }
@@ -1166,9 +1164,7 @@ void QmakeProFile::setParseInProgress(bool b)
     if (m_parseInProgress == b)
         return;
     m_parseInProgress = b;
-#if 0
     emit m_project->proFileUpdated(this, m_validParse, m_parseInProgress);
-#endif
 }
 
 // Do note the absence of signal emission, always set validParse
@@ -1195,9 +1191,7 @@ bool QmakeProFile::parseInProgress() const
 void QmakeProFile::scheduleUpdate(QmakeProFile::AsyncUpdateDelay delay)
 {
     setParseInProgressRecursive(true);
-#if 0
     m_project->scheduleAsyncUpdate(this, delay);
-#endif
 }
 
 void QmakeProFile::asyncUpdate()
@@ -1234,12 +1228,10 @@ void QmakeProFile::setupReader()
     Q_ASSERT(!m_readerExact);
     Q_ASSERT(!m_readerCumulative);
 
-#if 0
     m_readerExact = m_project->createProFileReader(this);
 
     m_readerCumulative = m_project->createProFileReader(this);
     m_readerCumulative->setCumulative(true);
-#endif
 }
 
 static bool evaluateOne(const QmakeEvalInput &input, ProFile *pro,
@@ -1869,17 +1861,16 @@ FileName QmakeProFile::buildDir(QmakeBuildConfiguration *bc) const
     return FileName::fromString(QDir::cleanPath(QDir(bc->buildDirectory().toString()).absoluteFilePath(relativeDir)));
 }
 
-FileNameList QmakeProFile::generatedFiles(const Utils::FileName &buildDir,
-                                          const Utils::FileName &sourceFile) const
+FileNameList QmakeProFile::generatedFiles(const FileName &buildDir,
+                                          const FileName &sourceFile,
+                                          const FileType &sourceFileType) const
 {
     // The mechanism for finding the file names is rather crude, but as we
     // cannot parse QMAKE_EXTRA_COMPILERS and qmake has facilities to put
     // ui_*.h files into a special directory, or even change the .h suffix, we
     // cannot help doing this here.
 
-    Utils::MimeDatabase mdb;
-    MimeType sourceFileType = mdb.mimeTypeForFile(sourceFile.toString());
-    if (sourceFileType.matchesName(ProjectExplorer::Constants::FORM_MIMETYPE)) {
+    if (sourceFileType == FileType::Form) {
         FileName location;
         auto it = m_varValues.constFind(Variable::UiDir);
         if (it != m_varValues.constEnd() && !it.value().isEmpty())
@@ -1892,7 +1883,7 @@ FileNameList QmakeProFile::generatedFiles(const Utils::FileName &buildDir,
                             + sourceFile.toFileInfo().completeBaseName()
                             + singleVariableValue(Variable::HeaderExtension));
         return { Utils::FileName::fromString(QDir::cleanPath(location.toString())) };
-    } else if (sourceFileType.matchesName(ProjectExplorer::Constants::SCXML_MIMETYPE)) {
+    } else if (sourceFileType == FileType::StateChart) {
         if (buildDir.isEmpty())
             return { };
         FileName location = buildDir;
@@ -1912,6 +1903,17 @@ QList<ExtraCompiler *> QmakeProFile::extraCompilers() const
     return m_extraCompilers;
 }
 
+void QmakeProFile::setupExtraCompiler(const FileName &buildDir,
+                                       const FileType &fileType, ExtraCompilerFactory *factory)
+{
+    foreach (const FileName &fn, files(fileType)) {
+        const FileNameList generated = generatedFiles(buildDir, fn, fileType);
+        if (!generated.isEmpty()) {
+            m_extraCompilers.append(factory->create(m_project, fn, generated));
+        }
+    }
+}
+
 void QmakeProFile::updateGeneratedFiles(const FileName &buildDir)
 {
     // We can do this because other plugins are not supposed to keep the compilers around.
@@ -1925,22 +1927,15 @@ void QmakeProFile::updateGeneratedFiles(const FileName &buildDir)
         return;
     }
 
-    QList<ExtraCompilerFactory *> factories =
+    const QList<ExtraCompilerFactory *> factories =
             ProjectExplorer::ExtraCompilerFactory::extraCompilerFactories();
 
-#if 0
-    FindGeneratorSourcesVisitor filesVisitor(factories, [&](
-                                             FileNode *file, ExtraCompilerFactory *factory) {
-        QStringList generated = generatedFiles(buildDir, file);
-        if (!generated.isEmpty()) {
-            FileNameList fileNames = Utils::transform(generated, [](const QString &name) {
-                return FileName::fromString(name);
-            });
-            m_extraCompilers.append(factory->create(m_project, file->filePath(), fileNames));
-        }
-    });
-
-    // Find all generated files
-    accept(&filesVisitor);
-#endif
+    ExtraCompilerFactory *formFactory
+            = Utils::findOrDefault(factories, Utils::equal(&ExtraCompilerFactory::sourceType, FileType::Form));
+    if (formFactory)
+        setupExtraCompiler(buildDir, FileType::Form, formFactory);
+    ExtraCompilerFactory *scxmlFactory
+            = Utils::findOrDefault(factories, Utils::equal(&ExtraCompilerFactory::sourceType, FileType::StateChart));
+    if (scxmlFactory)
+        setupExtraCompiler(buildDir, FileType::StateChart, scxmlFactory);
 }

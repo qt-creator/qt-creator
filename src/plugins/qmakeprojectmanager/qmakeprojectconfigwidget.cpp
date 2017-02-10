@@ -210,7 +210,7 @@ void QmakeProjectConfigWidget::updateProblemLabel()
     }
 
     QmakeProject *p = static_cast<QmakeProject *>(m_buildConfiguration->target()->project());
-    if (p->rootProjectNode()->parseInProgress() || !p->rootProjectNode()->validParse()) {
+    if (p->rootProFile()->parseInProgress() || !p->rootProFile()->validParse()) {
         setProblemLabel(QString());
         return;
     }

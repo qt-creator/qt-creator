@@ -44,7 +44,6 @@ HEADERS += \
     qmakeparser.h \
     addlibrarywizard.h \
     librarydetailscontroller.h \
-    findqmakeprofiles.h \
     qmakeprojectmanager_global.h \
     desktopqmakerunconfiguration.h \
     profilecompletionassist.h \
@@ -88,7 +87,6 @@ SOURCES += \
     qmakeparser.cpp \
     addlibrarywizard.cpp \
     librarydetailscontroller.cpp \
-    findqmakeprofiles.cpp \
     desktopqmakerunconfiguration.cpp \
     profilecompletionassist.cpp \
     makefileparse.cpp

@@ -34,7 +34,7 @@ class RunConfiguration;
 class Target;
 }
 
-namespace QmakeProjectManager { class QmakeProFileNode; }
+namespace QmakeProjectManager { class QmakeProFile; }
 
 namespace QmakeAndroidSupport {
 
@@ -61,9 +61,9 @@ signals:
     void enabledChanged(bool);
 
 private:
-    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *node);
+    void proFileUpdated(QmakeProjectManager::QmakeProFile *pro);
     void activeRunConfigurationChanged();
-    QmakeProjectManager::QmakeProFileNode *activeNode() const;
+    QmakeProjectManager::QmakeProFile *activeProFile() const;
 
     ProjectExplorer::Target *m_target;
     QStringList m_entries;
