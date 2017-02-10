@@ -79,6 +79,7 @@ public:
     PropertyName name() const;
 
     bool isValid() const;
+    bool exists() const;
     ModelNode parentModelNode() const;
     QmlObjectNode parentQmlObjectNode() const;
 

@@ -145,6 +145,13 @@ bool AbstractProperty::isValid() const
             m_propertyName != "id";
 }
 
+bool AbstractProperty::exists() const
+{
+    if (!isValid())
+        return false;
+    return parentModelNode().hasProperty(name());
+}
+
  /*!
     Returns the model node to which the property belongs.
 */
