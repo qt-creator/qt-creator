@@ -591,8 +591,7 @@ void QmakePriFileNode::processValues(PriFileEvalResult &result)
 void QmakePriFileNode::update(const Internal::PriFileEvalResult &result)
 {
     // add project file node
-    if (m_nodes.isEmpty())
-        addNode(new FileNode(m_projectFilePath, FileType::Project, false));
+    addNode(new FileNode(m_projectFilePath, FileType::Project, false));
 
     m_recursiveEnumerateFiles = result.recursiveEnumerateFiles;
     watchFolders(result.folders.toSet());
