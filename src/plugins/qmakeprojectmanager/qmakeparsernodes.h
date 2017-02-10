@@ -106,36 +106,32 @@ class QmakePriFileEvalResult;
 class InstallsParserList;
 
 // Implements ProjectNode for qmake .pri files
-class QMAKEPROJECTMANAGER_EXPORT QmakePriFile : public ProjectExplorer::ProjectNode
+class QMAKEPROJECTMANAGER_EXPORT QmakePriFile
 {
 public:
     QmakePriFile(QmakeProject *project, QmakeProFile *qmakeProFile, const Utils::FileName &filePath);
-    ~QmakePriFile() override;
+    virtual ~QmakePriFile();
 
     Utils::FileName filePath() const;
     Utils::FileName directoryPath() const;
 
     QmakePriFile *parent() const;
     QVector<QmakePriFile *> children() const;
+    void makeEmpty();
 
     void update(const Internal::QmakePriFileEvalResult &result);
 
     // ProjectNode interface
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
+    virtual bool canAddSubProject(const QString &proFilePath) const;
 
-    bool showInSimpleTree() const override { return false; }
+    virtual bool addSubProjects(const QStringList &proFilePaths);
+    virtual bool removeSubProjects(const QStringList &proFilePaths);
 
-    bool canAddSubProject(const QString &proFilePath) const override;
-
-    bool addSubProjects(const QStringList &proFilePaths) override;
-    bool removeSubProjects(const QStringList &proFilePaths) override;
-
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr) override;
-    bool deleteFiles(const QStringList &filePaths) override;
-    bool canRenameFile(const QString &filePath, const QString &newFilePath) override;
-    bool renameFile(const QString &filePath, const QString &newFilePath) override;
-    AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
+    virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr);
+    virtual bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr);
+    virtual bool deleteFiles(const QStringList &filePaths);
+    virtual bool canRenameFile(const QString &filePath, const QString &newFilePath);
+    virtual bool renameFile(const QString &filePath, const QString &newFilePath);
 
     bool setProVariable(const QString &var, const QStringList &values,
                         const QString &scope = QString(),
@@ -143,8 +139,8 @@ public:
 
     bool folderChanged(const QString &changedFolder, const QSet<Utils::FileName> &newFiles);
 
-    bool deploysFolder(const QString &folder) const override;
-    QList<ProjectExplorer::RunConfiguration *> runConfigurations() const override;
+    virtual bool deploysFolder(const QString &folder) const;
+    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurations() const;
 
     QmakeProFile *proFile() const;
     QList<QmakePriFile*> subPriFilesExact() const;
@@ -273,8 +269,7 @@ public:
     ~QmakeProFile() override;
 
     bool isParent(QmakeProFile *node);
-
-    AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
+    QString displayName() const;
 
     ProjectType projectType() const;
 
@@ -348,6 +343,7 @@ private:
     bool m_validParse = false;
     bool m_parseInProgress = false;
 
+    QString m_displayName;
     ProjectType m_projectType = ProjectType::Invalid;
     VariablesHash m_varValues;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;

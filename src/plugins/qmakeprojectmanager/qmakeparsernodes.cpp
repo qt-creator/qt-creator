@@ -247,17 +247,13 @@ public:
 } // namespace Internal
 
 QmakePriFile::QmakePriFile(QmakeProject *project, QmakeProFile *qmakeProFile,
-                           const FileName &filePath)
-    : ProjectNode(filePath),
-      m_project(project),
-      m_qmakeProFile(qmakeProFile)
+                           const FileName &filePath) :
+    m_project(project),
+    m_qmakeProFile(qmakeProFile)
 {
     Q_ASSERT(project);
     m_priFileDocument = std::make_unique<QmakePriFileDocument>(this, filePath);
     Core::DocumentManager::addDocument(m_priFileDocument.get());
-
-    setDisplayName(filePath.toFileInfo().completeBaseName());
-    setIcon(qmakeStaticData()->projectIcon);
 }
 
 FileName QmakePriFile::filePath() const
@@ -278,6 +274,12 @@ QmakePriFile *QmakePriFile::parent() const
 QVector<QmakePriFile *> QmakePriFile::children() const
 {
     return m_children;
+}
+
+void QmakePriFile::makeEmpty()
+{
+    qDeleteAll(m_children);
+    m_children.clear();
 }
 
 QmakePriFile::~QmakePriFile()
@@ -492,20 +494,24 @@ bool QmakePriFile::deploysFolder(const QString &folder) const
 
 QList<RunConfiguration *> QmakePriFile::runConfigurations() const
 {
+#if 0
     QmakeRunConfigurationFactory *factory = QmakeRunConfigurationFactory::find(m_project->activeTarget());
     if (factory)
         return factory->runConfigurationsForNode(m_project->activeTarget(), this);
+#endif
     return QList<RunConfiguration *>();
 }
 
 QList<QmakePriFile *> QmakePriFile::subPriFilesExact() const
 {
     QList<QmakePriFile *> nodes;
+#if 0
     foreach (ProjectNode *node, projectNodes()) {
         QmakePriFile *n = dynamic_cast<QmakePriFile *>(node);
         if (n && n->includedInExactParse())
             nodes << n;
     }
+#endif
     return nodes;
 }
 
@@ -522,74 +528,6 @@ bool QmakePriFile::includedInExactParse() const
 void QmakePriFile::setIncludedInExactParse(bool b)
 {
     m_includedInExactParse = b;
-}
-
-QList<ProjectAction> QmakePriFile::supportedActions(Node *node) const
-{
-    QList<ProjectAction> actions;
-
-    const FolderNode *folderNode = this;
-    const QmakeProFile *proFile;
-    while (!(proFile = dynamic_cast<const QmakeProFile*>(folderNode)))
-        folderNode = folderNode->parentFolderNode();
-    Q_ASSERT(proFile);
-
-    switch (proFile->projectType()) {
-    case ProjectType::ApplicationTemplate:
-    case ProjectType::StaticLibraryTemplate:
-    case ProjectType::SharedLibraryTemplate:
-    case ProjectType::AuxTemplate: {
-        // TODO: Some of the file types don't make much sense for aux
-        // projects (e.g. cpp). It'd be nice if the "add" action could
-        // work on a subset of the file types according to project type.
-
-        actions << AddNewFile;
-        if (m_recursiveEnumerateFiles.contains(node->filePath()))
-            actions << EraseFile;
-        else
-            actions << RemoveFile;
-
-        bool addExistingFiles = true;
-        if (node->nodeType() == NodeType::VirtualFolder) {
-            // A virtual folder, we do what the projectexplorer does
-            FolderNode *folder = node->asFolderNode();
-            if (folder) {
-                QStringList list;
-                foreach (FolderNode *f, folder->folderNodes())
-                    list << f->filePath().toString() + QLatin1Char('/');
-                if (deploysFolder(Utils::commonPath(list)))
-                    addExistingFiles = false;
-            }
-        }
-
-        addExistingFiles = addExistingFiles && !deploysFolder(node->filePath().toString());
-
-        if (addExistingFiles)
-            actions << AddExistingFile << AddExistingDirectory;
-
-        break;
-    }
-    case ProjectType::SubDirsTemplate:
-        actions << AddSubProject << RemoveSubProject;
-        break;
-    default:
-        break;
-    }
-
-    FileNode *fileNode = node->asFileNode();
-    if ((fileNode && fileNode->fileType() != FileType::Project)
-            || dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(node)) {
-        actions << Rename;
-        actions << DuplicateFile;
-    }
-
-
-    Target *target = m_project->activeTarget();
-    QmakeRunConfigurationFactory *factory = QmakeRunConfigurationFactory::find(target);
-    if (factory && !factory->runConfigurationsForNode(target, node).isEmpty())
-        actions << HasSubProjectRunConfigurations;
-
-    return actions;
 }
 
 bool QmakePriFile::canAddSubProject(const QString &proFilePath) const
@@ -615,14 +553,11 @@ static QString simplifyProFilePath(const QString &proFilePath)
 
 bool QmakePriFile::addSubProjects(const QStringList &proFilePaths)
 {
-    FindAllFilesVisitor visitor;
-    accept(&visitor);
-    const FileNameList &allFiles = visitor.filePaths();
-
     QStringList uniqueProFilePaths;
-    foreach (const QString &proFile, proFilePaths)
-        if (!allFiles.contains(FileName::fromString(proFile)))
+    foreach (const QString &proFile, proFilePaths) {
+        if (!m_recursiveEnumerateFiles.contains(FileName::fromString(proFile)))
             uniqueProFilePaths.append(simplifyProFilePath(proFile));
+    }
 
     QStringList failedFiles;
     changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), uniqueProFilePaths, &failedFiles, AddToProFile);
@@ -650,10 +585,6 @@ bool QmakePriFile::addFiles(const QStringList &filePaths, QStringList *notAdded)
     // So it's obviously a bit limited, but in those cases you need to edit the
     // project files manually anyway.
 
-    FindAllFilesVisitor visitor;
-    accept(&visitor);
-    const FileNameList &allFiles = visitor.filePaths();
-
     typedef QMap<QString, QStringList> TypeFileMap;
     // Split into lists by file type and bulk-add them.
     TypeFileMap typeFileMap;
@@ -678,13 +609,13 @@ bool QmakePriFile::addFiles(const QStringList &filePaths, QStringList *notAdded)
 
         QStringList uniqueQrcFiles;
         foreach (const QString &file, qrcFiles) {
-            if (!allFiles.contains(FileName::fromString(file)))
+            if (!m_recursiveEnumerateFiles.contains(FileName::fromString(file)))
                 uniqueQrcFiles.append(file);
         }
 
         QStringList uniqueFilePaths;
         foreach (const QString &file, typeFiles) {
-            if (!allFiles.contains(FileName::fromString(file)))
+            if (!m_recursiveEnumerateFiles.contains(FileName::fromString(file)))
                 uniqueFilePaths.append(file);
         }
 
@@ -751,12 +682,6 @@ bool QmakePriFile::renameFile(const QString &filePath, const QString &newFilePat
     if (renameFile(filePath, newFilePath, mt.name()))
         return true;
     return changeProFileOptional;
-}
-
-FolderNode::AddNewInformation QmakePriFile::addNewInformation(const QStringList &files, Node *context) const
-{
-    Q_UNUSED(files)
-    return FolderNode::AddNewInformation(filePath().fileName(), context && context->parentProjectNode() == this ? 120 : 90);
 }
 
 bool QmakePriFile::priFileWritable(const QString &path)
@@ -1201,8 +1126,8 @@ QmakeProFile *QmakeProFile::findProFileFor(const FileName &fileName) const
 {
     if (fileName == filePath())
         return const_cast<QmakeProFile *>(this);
-    foreach (ProjectNode *pn, projectNodes())
-        if (QmakeProFile *qmakeProFileNode = dynamic_cast<QmakeProFile *>(pn))
+    foreach (const QmakePriFile *n, children())
+        if (auto qmakeProFileNode = dynamic_cast<const QmakeProFile *>(n))
             if (QmakeProFile *result = qmakeProFileNode->findProFileFor(fileName))
                 return result;
     return nullptr;
@@ -1276,17 +1201,16 @@ QmakeProFile::~QmakeProFile()
 
 bool QmakeProFile::isParent(QmakeProFile *node)
 {
-    while ((node = dynamic_cast<QmakeProFile *>(node->parentFolderNode()))) {
+    while ((node = dynamic_cast<QmakeProFile *>(node->parent()))) {
         if (node == this)
             return true;
     }
     return false;
 }
 
-FolderNode::AddNewInformation QmakeProFile::addNewInformation(const QStringList &files, Node *context) const
+QString QmakeProFile::displayName() const
 {
-    Q_UNUSED(files)
-    return AddNewInformation(filePath().fileName(), context && context->parentProjectNode() == this ? 120 : 100);
+    return m_displayName;
 }
 
 bool QmakeProFile::isDebugAndRelease() const
@@ -1320,8 +1244,8 @@ QString QmakeProFile::singleVariableValue(const Variable var) const
 void QmakeProFile::setParseInProgressRecursive(bool b)
 {
     setParseInProgress(b);
-    foreach (ProjectNode *subNode, projectNodes()) {
-        if (QmakeProFile *node = dynamic_cast<QmakeProFile *>(subNode))
+    foreach (QmakePriFile *c, children()) {
+        if (auto node = dynamic_cast<QmakeProFile *>(c))
             node->setParseInProgressRecursive(b);
     }
 }
@@ -1341,8 +1265,8 @@ void QmakeProFile::setParseInProgress(bool b)
 void QmakeProFile::setValidParseRecursive(bool b)
 {
     m_validParse = b;
-    foreach (ProjectNode *subNode, projectNodes()) {
-        if (QmakeProFile *node = dynamic_cast<QmakeProFile *>(subNode))
+    foreach (QmakePriFile *c, children()) {
+        if (QmakeProFile *node = dynamic_cast<QmakeProFile *>(c))
             node->setValidParseRecursive(b);
     }
 }
@@ -1701,6 +1625,7 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
 
             // delete files && folders && projects
             makeEmpty();
+
             m_projectType = ProjectType::Invalid;
         }
         return;
@@ -1711,10 +1636,10 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
     if (result->projectType != m_projectType) {
         // probably all subfiles/projects have changed anyway
         // delete files && folders && projects
-        foreach (ProjectNode *projectNode, projectNodes()) {
-            if (QmakeProFile *qmakeProFileNode = dynamic_cast<QmakeProFile *>(projectNode)) {
-                qmakeProFileNode->setValidParseRecursive(false);
-                qmakeProFileNode->setParseInProgressRecursive(false);
+        foreach (QmakePriFile *c, children()) {
+            if (auto qmakeProFile = dynamic_cast<QmakeProFile *>(c)) {
+                qmakeProFile->setValidParseRecursive(false);
+                qmakeProFile->setParseInProgressRecursive(false);
             }
         }
 
@@ -1786,10 +1711,8 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
             m_varValues = result->newVarValues;
 
         const QString projectName = singleVariableValue(Variable::QmakeProjectName);
-        if (projectName.isEmpty())
-            setDisplayName(filePath().toFileInfo().completeBaseName());
-        else
-            setDisplayName(projectName);
+        m_displayName = projectName.isEmpty() ? filePath().toFileInfo().completeBaseName()
+                                              : projectName;
     } // result == EvalOk
 
     setParseInProgress(false);
@@ -1797,7 +1720,6 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
     updateGeneratedFiles(buildDirectory);
 
     cleanupProFileReaders();
-    ProjectNode::emitTreeChanged();
 }
 
 void QmakeProFile::cleanupProFileReaders()
@@ -2091,6 +2013,7 @@ void QmakeProFile::updateGeneratedFiles(const QString &buildDir)
     QList<ExtraCompilerFactory *> factories =
             ProjectExplorer::ExtraCompilerFactory::extraCompilerFactories();
 
+#if 0
     FindGeneratorSourcesVisitor filesVisitor(factories, [&](
                                              FileNode *file, ExtraCompilerFactory *factory) {
         QStringList generated = generatedFiles(buildDir, file);
@@ -2104,4 +2027,5 @@ void QmakeProFile::updateGeneratedFiles(const QString &buildDir)
 
     // Find all generated files
     accept(&filesVisitor);
+#endif
 }
