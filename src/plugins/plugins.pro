@@ -52,10 +52,15 @@ SUBDIRS   = \
     modeleditor \
     qmakeandroidsupport \
     winrt \
-    qmlprofiler \
     updateinfo \
     scxmleditor \
     welcome
+
+qtHaveModule(quick) {
+    SUBDIRS += qmlprofiler
+} else {
+    warning("QmlProfiler plugin has been disabled since the Qt Quick module is not available.")
+}
 
 qtHaveModule(help) {
     SUBDIRS += help
@@ -70,10 +75,14 @@ qtHaveModule(designercomponents_private) {
 }
 
 DO_NOT_BUILD_QMLDESIGNER = $$(DO_NOT_BUILD_QMLDESIGNER)
-isEmpty(DO_NOT_BUILD_QMLDESIGNER) {
+isEmpty(DO_NOT_BUILD_QMLDESIGNER):qtHaveModule(quick) {
     SUBDIRS += qmldesigner
 } else {
-    warning("QmlDesigner plugin has been disabled.")
+    !qtHaveModule(quick) {
+        warning("QmlDesigner plugin has been disabled since the Qt Quick module is not available.")
+    } else {
+        warning("QmlDesigner plugin has been disabled since DO_NOT_BUILD_QMLDESIGNER is set.")
+    }
 }
 
 

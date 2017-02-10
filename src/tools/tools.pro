@@ -5,8 +5,9 @@ SUBDIRS = qtpromaker \
      sdktool \
      valgrindfake \
      3rdparty \
-     qml2puppet \
      buildoutputparser
+
+qtHaveModule(quick): SUBDIRS += qml2puppet
 
 win32 {
     SUBDIRS += qtcdebugger \

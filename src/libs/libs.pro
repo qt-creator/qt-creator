@@ -14,10 +14,14 @@ SUBDIRS   = \
     qmleditorwidgets \
     glsl \
     ssh \
-    timeline \
     sqlite \
-    clangbackendipc \
-    flamegraph
+    clangbackendipc
+
+qtHaveModule(quick) {
+    SUBDIRS += \
+        flamegraph \
+        timeline
+}
 
 for(l, SUBDIRS) {
     QTC_LIB_DEPENDS =
