@@ -122,8 +122,7 @@ public:
                      const QString &prefix, const QString &lang, Utils::FileName absolutePath,
                      ResourceTopLevelNode *topLevel, ResourceFolderNode *prefixNode);
     QList<ProjectExplorer::ProjectAction> supportedActions(ProjectExplorer::Node *node) const;
-    void addFilesAndSubfolders(const QMap<PrefixFolderLang, QList<FolderNode *> > &foldersToAdd,
-                               const QMap<PrefixFolderLang, QList<Node *> > &nodesToAdd,
+    void addFilesAndSubfolders(const QMap<PrefixFolderLang, QList<Node *> > &nodesToAdd,
                                const QString &prefix, const QString &lang);
     bool addFiles(const QStringList &filePaths, QStringList *notAdded);
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved);

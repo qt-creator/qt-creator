@@ -122,7 +122,6 @@ ResourceTopLevelNode::~ResourceTopLevelNode()
 void ResourceTopLevelNode::addInternalNodes()
 {
     QMap<PrefixFolderLang, QList<ProjectExplorer::Node *>> nodesToAdd;
-    QMap<PrefixFolderLang, QList<ProjectExplorer::FolderNode *>> foldersToAddToFolders;
     QMap<PrefixFolderLang, QList<ProjectExplorer::FolderNode *>> foldersToAddToPrefix;
 
     ResourceFile file(filePath().toString(), m_contents);
@@ -186,9 +185,9 @@ void ResourceTopLevelNode::addInternalNodes()
                                                                  this, currentPrefixNode);
                             if (parentIsPrefix) {
                                 foldersToAddToPrefix[prefixId] << newNode;
+                                nodesToAdd[prefixId] << newNode;
                             } else {
                                 PrefixFolderLang parentFolderId(prefix, parentFolderName, lang);
-                                foldersToAddToFolders[parentFolderId] << newNode;
                                 nodesToAdd[parentFolderId] << newNode;
                             }
                             folderNodes.insert(folderId, newNode);
@@ -207,13 +206,17 @@ void ResourceTopLevelNode::addInternalNodes()
         }
     }
 
-    foreach (FolderNode *sfn, folderNodes()) {
+    const QList<FolderNode *> fnodes = folderNodes();
+    for (FolderNode *sfn : fnodes) {
         ResourceFolderNode *srn = static_cast<ResourceFolderNode *>(sfn);
         PrefixFolderLang folderId(srn->prefix(), QString(), srn->lang());
-        srn->setNodes(nodesToAdd[folderId]);
-        foreach (FolderNode* ssfn, sfn->folderNodes()) {
+        const QList<ProjectExplorer::Node *> nodes = nodesToAdd[folderId];
+        for (Node *n : nodes)
+            srn->addNode(n);
+        const QList<FolderNode *> sfnodes = sfn->folderNodes();
+        for (FolderNode *ssfn : sfnodes) {
             SimpleResourceFolderNode *sssn = static_cast<SimpleResourceFolderNode *>(ssfn);
-            sssn->addFilesAndSubfolders(foldersToAddToFolders, nodesToAdd, srn->prefix(), srn->lang());
+            sssn->addFilesAndSubfolders(nodesToAdd, srn->prefix(), srn->lang());
         }
     }
 }
@@ -649,13 +652,13 @@ ResourceFolderNode *SimpleResourceFolderNode::prefixNode() const
     return m_prefixNode;
 }
 
-void SimpleResourceFolderNode::addFilesAndSubfolders(const QMap<PrefixFolderLang, QList<ProjectExplorer::FolderNode*> > &foldersToAdd,
-                                                     const QMap<PrefixFolderLang, QList<ProjectExplorer::Node*> > &nodesToAdd,
+void SimpleResourceFolderNode::addFilesAndSubfolders(const QMap<PrefixFolderLang, QList<Node *>> &nodesToAdd,
                                                      const QString &prefix, const QString &lang)
 {
-    setNodes(nodesToAdd.value(PrefixFolderLang(prefix, m_folderName, lang)));
+    for (Node *node : nodesToAdd.value(PrefixFolderLang(prefix, m_folderName, lang)))
+        addNode(node);
     foreach (FolderNode* subNode, folderNodes()) {
         SimpleResourceFolderNode* sn = static_cast<SimpleResourceFolderNode*>(subNode);
-        sn->addFilesAndSubfolders(foldersToAdd, nodesToAdd, prefix, lang);
+        sn->addFilesAndSubfolders(nodesToAdd, prefix, lang);
     }
 }

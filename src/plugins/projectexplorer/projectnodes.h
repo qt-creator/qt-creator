@@ -248,7 +248,6 @@ public:
 
     void addNode(Node *node);
     void removeNode(Node *node);
-    void setNodes(const QList<Node *> &nodes);
 
     // all subFolders that are projects
     QList<ProjectNode*> projectNodes() const;

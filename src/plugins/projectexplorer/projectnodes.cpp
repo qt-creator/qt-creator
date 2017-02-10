@@ -546,20 +546,13 @@ void FolderNode::removeNode(Node *node)
   and emits the corresponding signals from the projectNode.
 */
 
-void FolderNode::setNodes(const QList<Node *> &nodes)
-{
-    qDeleteAll(m_nodes);
-    m_nodes = nodes;
-    for (Node *node : m_nodes)
-        node->setParentFolderNode(this);
-}
-
 /*!
   Removes all files and subfolders from this folder node.
 */
 void FolderNode::makeEmpty()
 {
-    setNodes({});
+    qDeleteAll(m_nodes);
+    m_nodes.clear();
 }
 
 bool FolderNode::showInSimpleTree() const
