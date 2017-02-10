@@ -380,7 +380,7 @@ struct InternalNode
 
     FolderNode *createFolderNode(InternalNode *node)
     {
-        FolderNode *newNode = 0;
+        FolderNode *newNode = nullptr;
         if (node->typeName.isEmpty())
             newNode = new FolderNode(FileName::fromString(node->fullPath));
         else
@@ -1071,7 +1071,7 @@ bool QmakePriFileNode::ensureWriteableProFile(const QString &file)
 QPair<ProFile *, QStringList> QmakePriFileNode::readProFile(const QString &file)
 {
     QStringList lines;
-    ProFile *includeFile = 0;
+    ProFile *includeFile = nullptr;
     {
         QString contents;
         {
@@ -1087,7 +1087,7 @@ QPair<ProFile *, QStringList> QmakePriFileNode::readProFile(const QString &file)
 
         QMakeVfs vfs;
         QtSupport::ProMessageHandler handler;
-        QMakeParser parser(0, &vfs, &handler);
+        QMakeParser parser(nullptr, &vfs, &handler);
         includeFile = parser.parsedProBlock(QStringRef(&contents), file, 1);
     }
     return qMakePair(includeFile, lines);
@@ -1122,7 +1122,7 @@ bool QmakePriFileNode::renameFile(const QString &oldName,
         return false;
 
     // We need to re-parse here: The file has changed.
-    QMakeParser parser(0, 0, 0);
+    QMakeParser parser(nullptr, nullptr, nullptr);
     QString contents = lines.join(QLatin1Char('\n'));
     includeFile = parser.parsedProBlock(QStringRef(&contents),
                                         m_projectFilePath.toString(), 1, QMakeParser::FullGrammar);
@@ -1422,7 +1422,7 @@ QmakeProFileNode *QmakeProFileNode::findProFileFor(const FileName &fileName) con
         if (QmakeProFileNode *qmakeProFileNode = dynamic_cast<QmakeProFileNode *>(pn))
             if (QmakeProFileNode *result = qmakeProFileNode->findProFileFor(fileName))
                 return result;
-    return 0;
+    return nullptr;
 }
 
 QString QmakeProFileNode::makefile() const
