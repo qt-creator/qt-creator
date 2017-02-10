@@ -956,21 +956,24 @@ bool QmakeProject::hasSubNode(QmakePriFileNode *root, const FileName &path)
     return false;
 }
 
-void QmakeProject::findProFile(const FileName &fileName, QmakeProFileNode *root, QList<QmakeProFileNode *> &list)
+QList<QmakeProFileNode *> QmakeProject::findProFile(const FileName &fileName, QmakeProFileNode *root)
 {
+    QList<QmakeProFileNode *> result;
     if (hasSubNode(root, fileName))
-        list.append(root);
+        result.append(root);
 
-    foreach (FolderNode *fn, root->folderNodes())
+    foreach (FolderNode *fn, root->folderNodes()) {
         if (QmakeProFileNode *qt4proFileNode = dynamic_cast<QmakeProFileNode *>(fn))
-            findProFile(fileName, qt4proFileNode, list);
+            result.append(findProFile(fileName, qt4proFileNode));
+    }
+
+    return result;
 }
 
 void QmakeProject::notifyChanged(const FileName &name)
 {
     if (files(QmakeProject::SourceFiles).contains(name.toString())) {
-        QList<QmakeProFileNode *> list;
-        findProFile(name, rootProjectNode(), list);
+        const QList<QmakeProFileNode *> list = findProFile(name, rootProjectNode());
         foreach (QmakeProFileNode *node, list) {
             QtSupport::ProFileCacheManager::instance()->discardFile(name.toString());
             node->scheduleUpdate(QmakeProFile::ParseNow);

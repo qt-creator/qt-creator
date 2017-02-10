@@ -165,7 +165,7 @@ private:
 
     static void collectAllProFiles(QList<QmakeProFileNode *> &list, QmakeProFileNode *node, Parsing parse,
                                    const QList<ProjectType> &projectTypes);
-    static void findProFile(const Utils::FileName &fileName, QmakeProFileNode *root, QList<QmakeProFileNode *> &list);
+    static QList<QmakeProFileNode *> findProFile(const Utils::FileName &fileName, QmakeProFileNode *root);
     static bool hasSubNode(QmakePriFileNode *root, const Utils::FileName &path);
 
     static bool equalFileList(const QStringList &a, const QStringList &b);
