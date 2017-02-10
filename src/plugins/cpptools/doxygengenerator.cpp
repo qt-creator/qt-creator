@@ -65,7 +65,12 @@ void DoxygenGenerator::setGenerateBrief(bool get)
 
 void DoxygenGenerator::setAddLeadingAsterisks(bool add)
 {
-    m_addLeadingAsterisks = add;
+  m_addLeadingAsterisks = add;
+}
+
+void DoxygenGenerator::setAddExtraStartEndLines(bool add)
+{
+  m_addExtraStartEndLines = add;
 }
 
 static int lineBeforeCursor(const QTextCursor &cursor)
@@ -156,8 +161,12 @@ QString DoxygenGenerator::generate(QTextCursor cursor, DeclarationAST *decl)
     QString comment;
     if (m_startComment)
         writeStart(&comment);
-    writeNewLine(&comment);
-    writeContinuation(&comment);
+
+    if (m_addExtraStartEndLines)
+    {
+        writeNewLine(&comment);
+        writeContinuation(&comment);
+    }
 
     if (decltr
             && decltr->core_declarator
@@ -249,7 +258,7 @@ QChar DoxygenGenerator::startMark() const
 QChar DoxygenGenerator::styleMark() const
 {
     if (m_style == QtStyle || m_style == CppStyleA || m_style == CppStyleB)
-        return QLatin1Char('\\');
+        return QLatin1Char('@');
     return QLatin1Char('@');
 }
 
@@ -276,6 +285,12 @@ void DoxygenGenerator::writeStart(QString *comment) const
 
 void DoxygenGenerator::writeEnd(QString *comment) const
 {
+    if(!m_addExtraStartEndLines)
+    {
+        comment->chop(1);
+        return;
+    }
+
     if (m_style == CppStyleA)
         comment->append(QLatin1String("///"));
     else if (m_style == CppStyleB)

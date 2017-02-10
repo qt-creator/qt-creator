@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>551</width>
-    <height>493</height>
+    <width>719</width>
+    <height>567</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -359,6 +359,13 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         </property>
         <property name="text">
          <string>Add leading asterisks</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="extraStartEndLines">
+        <property name="text">
+         <string>Add extra start and end lines</string>
         </property>
        </widget>
       </item>
