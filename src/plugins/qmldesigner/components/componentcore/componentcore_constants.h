@@ -68,6 +68,7 @@ const char goToImplementationCommandId[] = "GoToImplementation";
 const char addSignalHandlerCommandId[] = "AddSignalHandler";
 const char moveToComponentCommandId[] = "MoveToComponent";
 const char addItemToStackedContainerCommandId[] = "AddItemToStackedContainer";
+const char addTabBarToStackedContainerCommandId[] = "AddTabBarToStackedContainer";
 const char IncreaseIndexOfStackedContainerCommandId[] = "IncreaseIndexOfStackedContainer";
 const char DecreaseIndexOfStackedContainerCommandId[] = "decreaseIndexOfStackedContainer";
 
@@ -122,6 +123,7 @@ const char removePositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContext
 const char removeLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove Layout");
 
 const char addItemToStackedContainerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add Item");
+const char addTabBarToStackedContainerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add Tab Bar");
 const char increaseIndexToStackedContainerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Increase Index");
 const char decreaseIndexToStackedContainerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Decrease Index");
 

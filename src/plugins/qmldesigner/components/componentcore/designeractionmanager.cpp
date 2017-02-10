@@ -27,6 +27,7 @@
 
 #include "changestyleaction.h"
 #include "modelnodecontextmenu_helper.h"
+#include <bindingproperty.h>
 #include <nodeproperty.h>
 #include <nodehints.h>
 #include <nodemetainfo.h>
@@ -385,6 +386,23 @@ bool isStackedContainer(const SelectionContext &context)
     return NodeHints::fromModelNode(currentSelectedNode).isStackedContainer();
 }
 
+bool isStackedContainerWithoutTabBar(const SelectionContext &context)
+{
+    if (!isStackedContainer(context))
+        return false;
+
+    ModelNode currentSelectedNode = context.currentSingleSelectedNode();
+
+    const PropertyName propertyName = ModelNodeOperations::getIndexPropertyName(currentSelectedNode);
+
+    QTC_ASSERT(currentSelectedNode.metaInfo().hasProperty(propertyName), return false);
+
+    BindingProperty binding = currentSelectedNode.bindingProperty(propertyName);
+
+    /* There is already a TabBar or something similar attached */
+    return !(binding.isValid() && binding.resolveToProperty().isValid());
+}
+
 bool isStackedContainerAndIndexCanBeDecreased(const SelectionContext &context)
 {
     if (!isStackedContainer(context))
@@ -719,6 +737,16 @@ void DesignerActionManager::createDefaultDesignerActions()
                           110,
                           &addItemToStackedContainer,
                           &isStackedContainer,
+                          &isStackedContainer));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          addTabBarToStackedContainerCommandId,
+                          addTabBarToStackedContainerDisplayName,
+                          stackedContainerCategory,
+                          QKeySequence("Ctrl+Shift+t"),
+                          100,
+                          &addTabBarToStackedContainer,
+                          &isStackedContainerWithoutTabBar,
                           &isStackedContainer));
 
     addDesignerAction(new ModelNodeContextMenuAction(

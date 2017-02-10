@@ -71,6 +71,7 @@ PropertyName getIndexPropertyName(const ModelNode &modelNode);
 void addItemToStackedContainer(const SelectionContext &selectionContext);
 void increaseIndexOfStackedContainer(const SelectionContext &selectionContext);
 void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext);
+void addTabBarToStackedContainer(const SelectionContext &selectionContext);
 
 
 } // namespace ModelNodeOperationso

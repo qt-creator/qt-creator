@@ -943,6 +943,70 @@ void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext)
     setIndexProperty(container.property(propertyName), value);
 }
 
+void addTabBarToStackedContainer(const SelectionContext &selectionContext)
+{
+    AbstractView *view = selectionContext.view();
+
+    QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
+    ModelNode container = selectionContext.currentSingleSelectedNode();
+    QTC_ASSERT(container.isValid(), return);
+    QTC_ASSERT(container.metaInfo().isValid(), return);
+
+    NodeMetaInfo tabBarMetaInfo = view->model()->metaInfo("QtQuick.Controls.TabBar", -1, -1);
+    QTC_ASSERT(tabBarMetaInfo.isValid(), return);
+    QTC_ASSERT(tabBarMetaInfo.majorVersion() == 2, return);
+
+    NodeMetaInfo tabButtonMetaInfo = view->model()->metaInfo("QtQuick.Controls.TabButton", -1, -1);
+    QTC_ASSERT(tabButtonMetaInfo.isValid(), return);
+    QTC_ASSERT(tabButtonMetaInfo.majorVersion() == 2, return);
+
+    QmlItemNode containerItemNode(container);
+    QTC_ASSERT(containerItemNode.isValid(), return);
+
+    const PropertyName indexPropertyName = getIndexPropertyName(container);
+    QTC_ASSERT(container.metaInfo().hasProperty(indexPropertyName), return);
+
+    try {
+        RewriterTransaction transaction =
+                view->beginRewriterTransaction(QByteArrayLiteral("DesignerActionManager:addItemToStackedContainer"));
+
+        ModelNode tabBarNode =
+                view->createModelNode("QtQuick.Controls.TabBar",
+                                      tabBarMetaInfo.majorVersion(),
+                                      tabBarMetaInfo.minorVersion());
+
+        container.parentProperty().reparentHere(tabBarNode);
+
+        const int maxValue = container.directSubModelNodes().count();
+
+        for (int i = 0; i < maxValue; ++i) {
+            ModelNode tabButtonNode =
+                    view->createModelNode("QtQuick.Controls.TabButton",
+                                          tabButtonMetaInfo.majorVersion(),
+                                          tabButtonMetaInfo.minorVersion());
+
+            tabButtonNode.variantProperty("text").setValue(QString::fromLatin1("Tab %1").arg(i));
+            tabBarNode.defaultNodeListProperty().reparentHere(tabButtonNode);
+        }
+
+        QmlItemNode tabBarItem(tabBarNode);
+
+        tabBarItem.anchors().setAnchor(AnchorLineLeft, containerItemNode, AnchorLineLeft);
+        tabBarItem.anchors().setAnchor(AnchorLineRight, containerItemNode, AnchorLineRight);
+        tabBarItem.anchors().setAnchor(AnchorLineBottom, containerItemNode, AnchorLineTop);
+
+        const QString id = tabBarNode.validId();
+
+        container.removeProperty(indexPropertyName);
+        const QString expression = id + "." + indexPropertyName;
+        container.bindingProperty(indexPropertyName).setExpression(expression);
+
+        transaction.commit();
+    }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
+        exception.showException();
+    }
+}
+
 } // namespace Mode
 
 } //QmlDesigner
