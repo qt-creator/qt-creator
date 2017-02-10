@@ -27,20 +27,14 @@
 
 #include "projectexplorer_export.h"
 
-#include <utils/fileutils.h>
-
 #include <QFutureInterface>
 #include <QIcon>
-
 #include <QObject>
 #include <QStringList>
-#include <QDebug>
+
+#include <utils/fileutils.h>
 
 #include <functional>
-
-QT_BEGIN_NAMESPACE
-class QFileInfo;
-QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 class RunConfiguration;
@@ -96,12 +90,10 @@ enum ProjectAction {
 
 class Node;
 class FileNode;
-class FileContainerNode;
 class FolderNode;
 class ProjectNode;
 class SessionNode;
 class NodesVisitor;
-class SessionManager;
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT Node : public QObject
@@ -187,10 +179,6 @@ public:
                                           QFutureInterface<QList<FileNode *>> *future = nullptr);
 
 private:
-    // managed by ProjectNode
-    friend class FolderNode;
-    friend class ProjectNode;
-
     FileType m_fileType;
     bool m_generated;
 };
@@ -264,9 +252,6 @@ protected:
 private:
     QString m_displayName;
     mutable QIcon m_icon;
-
-    // managed by ProjectNode
-    friend class ProjectNode;
 };
 
 class PROJECTEXPLORER_EXPORT VirtualFolderNode : public FolderNode
