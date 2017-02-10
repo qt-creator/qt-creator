@@ -52,7 +52,7 @@
     For tutorials that describe using Qt Quick Controls, see
     \l{Qt Quick Text Editor Guide} and \l{Qt Quick Controls - UI Forms}.
 
-    \include creator-tutorial-create-qq-project.qdocinc
+    \include creator-tutorial-create-qq-project.qdocinc qt quick application
 
     \section1 Creating the Main View
 

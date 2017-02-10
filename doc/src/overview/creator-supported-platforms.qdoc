@@ -123,5 +123,5 @@
     To build \QC from the source, see the requirements and instructions in the
     readme file that is located in the source repository.
 
-    \include overview/creator-target-platforms.qdocinc
+    \include overview/creator-target-platforms.qdocinc target platforms
 */
