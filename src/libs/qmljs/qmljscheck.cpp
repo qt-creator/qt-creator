@@ -1625,11 +1625,14 @@ bool Check::visit(CallExpression *ast)
 
     const QString namespaceName = functionNamespace(ast->base);
 
-    // We have to allow the qsTr function for translation.
+    // We have to allow the translation functions
 
-    const bool isTranslationFunction = (name == QLatin1String("qsTr") || name == QLatin1String("qsTrId"));
+    const QStringList translationFunctions = { "qsTr", "qsTrId", "qsTranslate",
+                                             "qsTrNoOp", "qsTrIdNoOp", "qsTranslateNoOp" };
+
+    const bool isTranslationFunction = translationFunctions.contains(name);
+
     // We allow the Math. functions
-
     const bool isMathFunction = namespaceName == "Math";
     // allow adding connections with the help of the qt quick designer ui
     bool isDirectInConnectionsScope =
