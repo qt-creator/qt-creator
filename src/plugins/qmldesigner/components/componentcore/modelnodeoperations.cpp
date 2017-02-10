@@ -30,7 +30,7 @@
 
 #include "addsignalhandlerdialog.h"
 
-#include <cmath>
+#include <bindingproperty.h>
 #include <nodeabstractproperty.h>
 #include <nodehints.h>
 #include <nodemetainfo.h>
@@ -64,6 +64,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <cmath>
 
 namespace QmlDesigner {
 
@@ -840,6 +841,28 @@ PropertyName getIndexPropertyName(const ModelNode &modelNode)
     return PropertyName();
 }
 
+void static setIndexProperty(const AbstractProperty &property, const QVariant &value)
+{
+    if (!property.exists() || property.isVariantProperty()) {
+        /* Using QmlObjectNode ensures we take states into account. */
+        property.parentQmlObjectNode().setVariantProperty(property.name(), value);
+        return;
+    } else if (property.isBindingProperty()) {
+        /* Track one binding to the original source, incase a TabBar is attached */
+        const AbstractProperty orignalProperty = property.toBindingProperty().resolveToProperty();
+        if (orignalProperty.isValid() && (orignalProperty.isVariantProperty() || !orignalProperty.exists())) {
+            orignalProperty.parentQmlObjectNode().setVariantProperty(orignalProperty.name(), value);
+            return;
+        }
+    }
+
+    const QString propertyName = QString::fromUtf8(property.name());
+
+    QString title = QCoreApplication::translate("ModelNodeOperations", "Cannot set property %1.").arg(propertyName);
+    QString description = QCoreApplication::translate("ModelNodeOperations", "The property %1 is bound to an expression.").arg(propertyName);
+    Core::AsynchronousMessageBox::warning(title, description);
+}
+
 void increaseIndexOfStackedContainer(const SelectionContext &selectionContext)
 {
     AbstractView *view = selectionContext.view();
@@ -862,7 +885,7 @@ void increaseIndexOfStackedContainer(const SelectionContext &selectionContext)
 
     QTC_ASSERT(value < maxValue, return);
 
-    containerItemNode.setVariantProperty(propertyName, value);
+    setIndexProperty(container.property(propertyName), value);
 }
 
 void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext)
@@ -885,7 +908,7 @@ void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext)
 
     QTC_ASSERT(value > -1, return);
 
-    containerItemNode.setVariantProperty(propertyName, value);
+    setIndexProperty(container.property(propertyName), value);
 }
 
 } // namespace Mode
