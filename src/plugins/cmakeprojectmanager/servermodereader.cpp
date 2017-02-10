@@ -573,17 +573,27 @@ static CMakeListsNode *findCMakeNode(CMakeListsNode *root, const Utils::FileName
     const Utils::FileName stepDir = dir;
     const Utils::FileName topDir = root->filePath().parentDir();
 
-    QStringList relative = stepDir.relativeChildPath(topDir).toString().split('/');
+    QStringList relative = stepDir.relativeChildPath(topDir).toString().split('/', QString::SkipEmptyParts);
 
     CMakeListsNode *result = root;
 
+    QString relativePathElement;
     while (!relative.isEmpty()) {
-        const QString nextPathElement = relative.takeFirst();
-        if (nextPathElement.isEmpty())
-            continue;
-        const QString nextFullPath
-                = result->filePath().parentDir().toString() + '/' + nextPathElement + "/CMakeLists.txt";
-        result = static_cast<CMakeListsNode *>(result->projectNode(Utils::FileName::fromString(nextFullPath)));
+        const QString nextDirPath = result->filePath().parentDir().toString();
+        Utils::FileName nextFullPath;
+        // Some directory may not contain CMakeLists.txt file, skip it:
+        do {
+            relativePathElement += '/' + relative.takeFirst();
+            nextFullPath = Utils::FileName::fromString(nextDirPath + relativePathElement + "/CMakeLists.txt");
+        } while (!nextFullPath.exists() && !relative.isEmpty());
+        result = static_cast<CMakeListsNode *>(result->projectNode(nextFullPath));
+        // Intermediate directory can contain CMakeLists.txt file
+        // that is not a part of the root node, skip it:
+        if (!result && !relative.isEmpty()) {
+            result = root;
+        } else {
+            relativePathElement.clear();
+        }
         QTC_ASSERT(result, return nullptr);
     }
     return result;
