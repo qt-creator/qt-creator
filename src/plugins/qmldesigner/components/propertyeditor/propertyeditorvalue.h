@@ -128,6 +128,8 @@ public:
     Q_INVOKABLE bool isAttachedProperty() const;
     Q_INVOKABLE void removeAliasExport();
 
+    Q_INVOKABLE QString getTranslationContext() const;
+
 public slots:
     void resetValue();
     void setEnumeration(const QString &scope, const QString &name);

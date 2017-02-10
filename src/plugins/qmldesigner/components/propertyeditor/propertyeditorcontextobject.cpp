@@ -111,9 +111,17 @@ QColor PropertyEditorContextObject::colorFromString(const QString &colorString)
 QString PropertyEditorContextObject::translateFunction()
 {
     if (QmlDesignerPlugin::instance()->settings().value(
-            DesignerSettingsKey::USE_QSTR_FUNCTION).toBool())
-        return QStringLiteral("qsTr");
-    return QStringLiteral("qsTrId");
+            DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt())
+
+        switch (QmlDesignerPlugin::instance()->settings().value(
+                    DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
+        case 0: return "qsTr";
+        case 1: return "qsTrId";
+        case 2: return "qsTranslate";
+        default:
+            break;
+        }
+    return "qsTr";
 }
 
 QStringList PropertyEditorContextObject::autoComplete(const QString &text, int pos, bool explicitComplete, bool filter)

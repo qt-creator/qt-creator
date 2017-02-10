@@ -349,6 +349,13 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QRadioButton" name="useQsTranslateFunctionRadioButton">
+          <property name="text">
+           <string>qsTranslate()</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>

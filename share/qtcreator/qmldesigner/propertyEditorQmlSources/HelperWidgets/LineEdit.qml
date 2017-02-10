@@ -50,6 +50,19 @@ Controls.TextField {
 
     signal commitData
 
+    property string context
+
+    function setTranslateExpression()
+    {
+        if (translateFunction() === "qsTranslate") {
+            backendValue.expression = translateFunction()
+                    + "(\"" + backendValue.getTranslationContext()
+                    + "\", " + "\"" + trCheckbox.escapeString(text) + "\")"
+        } else {
+            backendValue.expression = translateFunction() + "(\"" + trCheckbox.escapeString(text) + "\")"
+        }
+    }
+
     ExtendedFunctionButton {
         x: 2
         anchors.verticalCenter: parent.verticalCenter
@@ -96,7 +109,7 @@ Controls.TextField {
             return
 
         if (backendValue.isTranslated) {
-            backendValue.expression = translateFunction() + "(\"" + trCheckbox.escapeString(text) + "\")"
+           setTranslateExpression()
         } else {
             if (lineEdit.backendValue.value !== text)
                 lineEdit.backendValue.value = text;
@@ -142,7 +155,7 @@ Controls.TextField {
 
         onClicked: {
             if (trCheckbox.checked) {
-                lineEdit.backendValue.expression = translateFunction() + "(\"" + escapeString(lineEdit.text) + "\")"
+                setTranslateExpression()
             } else {
                 var textValue = lineEdit.text
                 lineEdit.backendValue.value = textValue

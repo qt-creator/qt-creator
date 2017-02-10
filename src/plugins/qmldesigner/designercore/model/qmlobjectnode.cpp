@@ -466,11 +466,20 @@ QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const Property
 QString QmlObjectNode::generateTranslatableText(const QString &text)
 {
 #ifndef QMLDESIGNER_TEST
+
     if (QmlDesignerPlugin::instance()->settings().value(
-            DesignerSettingsKey::USE_QSTR_FUNCTION).toBool())
-        return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
-    else
-        return QString(QStringLiteral("qsTrId(\"%1\")")).arg(text);
+            DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt())
+
+        switch (QmlDesignerPlugin::instance()->settings().value(
+                    DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
+        case 0: return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
+        case 1: return QString(QStringLiteral("qsTrId(\"%1\")")).arg(text);
+        case 2: return QString(QStringLiteral("qsTranslate(\"\"\"%1\")")).arg(text);
+        default:
+            break;
+
+        }
+    return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
 #else
     Q_UNUSED(text);
     return QString();

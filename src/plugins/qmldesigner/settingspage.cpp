@@ -106,8 +106,19 @@ DesignerSettings SettingsPageWidget::settings() const
         m_ui.designerEnableDebuggerCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::USE_ONLY_FALLBACK_PUPPET,
         m_ui.useDefaultPuppetRadioButton->isChecked());
-    settings.insert(DesignerSettingsKey::USE_QSTR_FUNCTION,
-        m_ui.useQsTrFunctionRadioButton->isChecked());
+
+    int typeOfQsTrFunction;
+
+    if (m_ui.useQsTrFunctionRadioButton->isChecked())
+        typeOfQsTrFunction = 0;
+    else if (m_ui.useQsTrIdFunctionRadioButton->isChecked())
+        typeOfQsTrFunction = 1;
+    else if (m_ui.useQsTranslateFunctionRadioButton->isChecked())
+        typeOfQsTrFunction = 2;
+    else
+        typeOfQsTrFunction = 0;
+
+    settings.insert(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION, typeOfQsTrFunction);
     settings.insert(DesignerSettingsKey::CONTROLS_STYLE, m_ui.styleLineEdit->text());
     settings.insert(DesignerSettingsKey::FORWARD_PUPPET_OUTPUT,
         m_ui.forwardPuppetOutputComboBox->currentText());
@@ -160,9 +171,11 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
     m_ui.useQtRelatedPuppetRadioButton->setChecked(!settings.value(
         DesignerSettingsKey::USE_ONLY_FALLBACK_PUPPET).toBool());
     m_ui.useQsTrFunctionRadioButton->setChecked(settings.value(
-        DesignerSettingsKey::USE_QSTR_FUNCTION).toBool());
-    m_ui.useQsTrIdFunctionRadioButton->setChecked(!settings.value(
-        DesignerSettingsKey::USE_QSTR_FUNCTION).toBool());
+        DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 0);
+    m_ui.useQsTrIdFunctionRadioButton->setChecked(settings.value(
+        DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 1);
+    m_ui.useQsTranslateFunctionRadioButton->setChecked(settings.value(
+        DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 2);
     m_ui.styleLineEdit->setText(settings.value(
         DesignerSettingsKey::CONTROLS_STYLE).toString());
 

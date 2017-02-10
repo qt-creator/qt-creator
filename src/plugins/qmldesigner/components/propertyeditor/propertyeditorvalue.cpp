@@ -243,7 +243,7 @@ bool PropertyEditorValue::isTranslated() const
         if (modelNode().metaInfo().propertyTypeName(name()) == "QString" || modelNode().metaInfo().propertyTypeName(name()) == "string") {
             const QmlDesigner::QmlObjectNode objectNode(modelNode());
             if (objectNode.isValid() && objectNode.hasBindingProperty(name())) {
-                QRegExp rx("qsTr(|Id)\\(\".*\"\\)");
+                QRegExp rx("qsTr(|Id|anslate)\\(\".*\"\\)");
                 //qsTr()
                 if (objectNode.propertyAffectedByCurrentState(name())) {
                     return rx.exactMatch(expression());
@@ -326,6 +326,21 @@ bool PropertyEditorValue::isAttachedProperty() const
 void PropertyEditorValue::removeAliasExport()
 {
     emit removeAliasExportRequested(nameAsQString());
+}
+
+QString PropertyEditorValue::getTranslationContext() const
+{
+    if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name())) {
+        if (modelNode().metaInfo().propertyTypeName(name()) == "QString" || modelNode().metaInfo().propertyTypeName(name()) == "string") {
+            const QmlDesigner::QmlObjectNode objectNode(modelNode());
+            if (objectNode.isValid() && objectNode.hasBindingProperty(name())) {
+                QRegExp rx("qsTranslate\\(\"(.*)\"\\s*,\\s*\".*\"\\s*\\)");
+                if (rx.exactMatch(expression()))
+                    return rx.cap(1);
+            }
+        }
+    }
+    return "";
 }
 
 void PropertyEditorValue::registerDeclarativeTypes()
