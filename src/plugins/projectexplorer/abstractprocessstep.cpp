@@ -257,7 +257,7 @@ void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus sta
                        BuildStep::OutputFormat::NormalMessage);
     } else if (status == QProcess::NormalExit) {
         emit addOutput(tr("The process \"%1\" exited with code %2.")
-                       .arg(command, QString::number(m_process->exitCode())),
+                       .arg(command, QString::number(exitCode)),
                        BuildStep::OutputFormat::ErrorMessage);
     } else {
         emit addOutput(tr("The process \"%1\" crashed.").arg(command), BuildStep::OutputFormat::ErrorMessage);
