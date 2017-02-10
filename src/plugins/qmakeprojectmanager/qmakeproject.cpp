@@ -1055,9 +1055,8 @@ void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qma
                 // So the rwf is a subdirectory of a folder we aren't watching
                 // but maybe someone else wants us to watch
                 bool needToWatch = false;
-                QMultiMap<QString, QmakePriFileNode *>::const_iterator it, end;
-                end = m_map.constEnd();
-                for (it = m_map.constEnd(); it != end; ++it) {
+                auto end = m_map.constEnd();
+                for (auto it = m_map.constBegin(); it != end; ++it) {
                     if (rwf.startsWith(it.key())) {
                         needToWatch = true;
                         break;
