@@ -869,6 +869,7 @@ public:
 
     const Data &operator+(const QmlProfile &) const
     {
+        this->operator+(CoreProfile());
         profileExtra +=
             "greaterThan(QT_MAJOR_VERSION, 4) {\n"
             "  QT += qml\n"
@@ -3005,6 +3006,7 @@ void tst_Dumpers::dumper_data()
                     "SomeStructPointer p(s); unused(p);\n"
                     "Pointer<SomeStruct> pp(s); unused(pp);\n"
                     "QAtomicPointer<SomeStruct> ppp(s); unused(ppp);\n")
+                + CoreProfile()
                 + Cxx11Profile()
                 + Check("p.@1.a", "1", "int")
                 + Check("p.@1.e", "<2 items>", "@QList<@QString>")
@@ -4230,6 +4232,7 @@ void tst_Dumpers::dumper_data()
                     "l2.push_back(new Foo(2));\n"
                     "unused(&l2);\n")
 
+               + CoreProfile()
                + Check("l1", "<2 items>", "std::list<Foo>")
                + Check("l1.0", "[0]", "", "Foo")
                + Check("l1.0.a", "15", "int")
@@ -4428,6 +4431,7 @@ void tst_Dumpers::dumper_data()
                     "std::unique_ptr<Foo> p2(new Foo); unused(&p2);\n\n"
                     "std::unique_ptr<std::string> p3(new std::string(\"ABC\")); unused(&p3);\n\n")
 
+               + CoreProfile()
                + Cxx11Profile()
                + MacLibCppProfile()
 
@@ -4455,6 +4459,7 @@ void tst_Dumpers::dumper_data()
                     "std::weak_ptr<Foo> wf = pf; unused(&wf);\n"
                     "std::weak_ptr<std::string> ws = ps; unused(&ws);\n")
 
+               + CoreProfile()
                + Cxx11Profile()
                + MacLibCppProfile()
 
@@ -4546,6 +4551,7 @@ void tst_Dumpers::dumper_data()
 
                     "unused(&ptr, &ob, &set1, &set2);\n")
 
+               + CoreProfile()
                + Check("set1", "<1 items>", "std::set<@QString>")
                + Check("set1.0", "[0]", "\"22.0\"", "@QString")
 
@@ -5092,6 +5098,7 @@ void tst_Dumpers::dumper_data()
                     "quint8 qu  = -12;\n"
                     "unused(&c, &sc, &uc, &qs, &qu);\n")
 
+               + CoreProfile()
                + Check("c", "-12", "char")  // on all our platforms char is signed.
                + Check("sc", "-12", TypeDef("char", "signed char"))
                + Check("uc", "244", "unsigned char")
@@ -5237,6 +5244,7 @@ void tst_Dumpers::dumper_data()
                     "for (int i = 0; i < 5; ++i)\n"
                     "    a3[i].a = i;\n")
 
+               + CoreProfile()
                + CheckType("a1", "@QString [20]")
                + Check("a1.0", "[0]", "\"a\"", "@QString")
                + Check("a1.3", "[3]", "\"d\"", "@QString")
@@ -5364,6 +5372,7 @@ void tst_Dumpers::dumper_data()
                     "Foo *p = new Foo();\n"
                     "unused(&p);\n")
 
+               + CoreProfile()
                + Check("f", "", "Foo")
                + Check("f.a", "3", "int")
                + Check("f.b", "2", "int")
@@ -5569,6 +5578,7 @@ void tst_Dumpers::dumper_data()
                    "}\n",
                    "Foo f(12);\n"
                    "testPassByReference(f);\n")
+               + CoreProfile()
                + NoCdbEngine // The Cdb has no information about references
                + CheckType("f", "Foo &")
                + Check("f.a", "12", "int");
@@ -5699,6 +5709,7 @@ void tst_Dumpers::dumper_data()
                     "boost::shared_ptr<QStringList> sl(new QStringList(QStringList() << \"HUH!\"));\n"
                     "unused(&s, &i, &j, &sl);\n")
 
+             + CoreProfile()
              + BoostProfile()
 
              + Check("s", "(null)", "boost::shared_ptr<int>")
@@ -6417,6 +6428,7 @@ void tst_Dumpers::dumper_data()
                     "unused(&ob,&b,&a);\n"
                     "#endif\n")
             + Cxx11Profile()
+            + CoreProfile()
             + QtVersion(0x50000)
             + Check("a",                  "<6 items>",  "@QJsonArray")
             + Check("a.0",   "[0]",       "1",            "QJsonValue (Number)")
@@ -6461,9 +6473,9 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("QV4")
             << Data("#include <private/qv4value_p.h>\n"
                     "#include <private/qjsvalue_p.h>\n"
-                    "#include <QGuiApplication>\n"
+                    "#include <QCoreApplication>\n"
                     "#include <QJSEngine>\n",
-                    "QGuiApplication app(argc, argv);\n"
+                    "QCoreApplication app(argc, argv);\n"
                     "QJSEngine eng;\n\n"
                     "//QV4::Value q0; unused(&q0); // Uninitialized data.\n\n"
                     "//QV4::Value q1; unused(&q1); // Upper 32 bit uninitialized.\n"
