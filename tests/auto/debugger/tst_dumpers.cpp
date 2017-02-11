@@ -5094,6 +5094,20 @@ void tst_Dumpers::dumper_data()
                 + Check("fd", "d (2)", "Foo");
 
 
+    QTest::newRow("EnumFlags")
+            << Data("\n"
+                    "enum Flags { one = 1, two = 2, four = 4 };\n",
+                    "Flags fone = one; unused(&fone);\n"
+                    "Flags fthree = (Flags)(one|two); unused(&fthree);\n"
+                    "Flags fmixed = (Flags)(two|8); unused(&fmixed);\n"
+                    "Flags fbad = (Flags)(24); unused(&fbad);\n")
+               + GdbEngine
+               + Check("fone", "one (1)", "Flags")
+               + Check("fthree", "(one | two) (3)", "Flags")
+               + Check("fmixed", "(two | unknown:8) (10)", "Flags")
+               + Check("fbad", "(unknown:24) (24)", "Flags");
+
+
     QTest::newRow("Array")
             << Data("double a1[3][3];\n"
                     "for (int i = 0; i != 3; ++i)\n"

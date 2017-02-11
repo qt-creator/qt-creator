@@ -379,9 +379,27 @@ class Dumper(DumperBase):
 
     def nativeTypeEnumDisplay(self, nativeType, intval):
         try:
+            enumerators = []
             for field in nativeType.fields():
+                # If we found an exact match, return it immediately
                 if field.enumval == intval:
                     return '%s (%d)' % (field.name, intval)
+                enumerators.append((field.name, field.enumval))
+
+            # No match was found, try to return as flags
+            enumerators.sort(key = lambda x: x[1])
+            flags = []
+            v = intval
+            found = False
+            for (name, value) in enumerators:
+                if v & value != 0:
+                    flags.append(name)
+                    v = v & ~value
+                    found = True
+            if not found or v != 0:
+                # Leftover value
+                flags.append('unknown:%d' % v)
+            return "(%s) (%d)" % (" | ".join(flags), intval)
         except:
             pass
         return '%d' % intval
