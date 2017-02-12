@@ -63,7 +63,6 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     , m_ui(new Ui::GerritDialog)
     , m_model(new GerritModel(p, this))
     , m_queryModel(new QStringListModel(this))
-    , m_fetchRunning(false)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 

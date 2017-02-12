@@ -100,7 +100,7 @@ private:
     Utils::ProgressIndicator *m_progressIndicator;
     QTimer m_progressIndicatorTimer;
     QString m_repository;
-    bool m_fetchRunning;
+    bool m_fetchRunning = false;
 };
 
 } // namespace Internal
