@@ -47,6 +47,8 @@
 #include <QStringListModel>
 #include <QUrl>
 
+Q_DECLARE_METATYPE(Gerrit::Internal::GerritServer);
+
 namespace Gerrit {
 namespace Internal {
 
@@ -67,7 +69,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     m_ui->setupUi(this);
-    setCurrentPath(repository);
+    setWindowTitle(tr("Gerrit"));
     m_queryModel->setStringList(m_parameters->savedQueries);
     QCompleter *completer = new QCompleter(this);
     completer->setModel(m_queryModel);
@@ -82,6 +84,8 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
             m_filterModel, &QSortFilterProxyModel::setFilterFixedString);
     connect(m_ui->queryLineEdit, &QLineEdit::returnPressed, this, &GerritDialog::slotRefresh);
     connect(m_model, &GerritModel::stateChanged, m_ui->queryLineEdit, &Utils::FancyLineEdit::validate);
+    connect(m_ui->remoteComboBox, &QComboBox::currentTextChanged,
+            this, &GerritDialog::remoteChanged);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_filterModel->setSourceModel(m_model);
     m_filterModel->setFilterRole(GerritModel::FilterRole);
@@ -117,8 +121,8 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     connect(m_model, &GerritModel::refreshStateChanged,
             this, &GerritDialog::slotRefreshStateChanged);
 
+    setCurrentPath(repository);
     slotCurrentChanged();
-    slotRefresh();
 
     m_ui->treeView->setFocus();
     m_refreshButton->setDefault(true);
@@ -135,6 +139,7 @@ void GerritDialog::setCurrentPath(const QString &path)
         return;
     m_repository = path;
     m_ui->repositoryLabel->setText(Git::Internal::GitPlugin::msgRepositoryLabel(path));
+    updateRemotes();
 }
 
 QPushButton *GerritDialog::addActionButton(const QString &text,
@@ -204,37 +209,44 @@ void GerritDialog::slotRefresh()
 {
     const QString &query = m_ui->queryLineEdit->text().trimmed();
     updateCompletions(query);
-    updateRemote();
     m_model->refresh(m_server, query);
     m_ui->treeView->sortByColumn(-1);
 }
 
-void GerritDialog::updateRemote()
+void GerritDialog::remoteChanged()
 {
+    if (m_updatingRemotes || m_ui->remoteComboBox->count() == 0)
+        return;
+    const GerritServer server = m_ui->remoteComboBox->currentData().value<GerritServer>();
+    if (m_server->host == server.host)
+        return;
+    *m_server = server;
+    slotRefresh();
+}
+
+void GerritDialog::updateRemotes()
+{
+    m_ui->remoteComboBox->clear();
     if (m_repository.isEmpty() || !QFileInfo(m_repository).isDir())
         return;
+    m_updatingRemotes = true;
     static const QRegularExpression sshPattern(
                 "^(?:(?<protocol>[^:]+)://)?(?:(?<user>[^@]+)@)?(?<host>[^:/]+)(?::(?<port>\\d+))?");
     *m_server = m_parameters->server;
     QString errorMessage; // Mute errors. We'll just fallback to the defaults
     QMap<QString, QString> remotesList =
             Git::Internal::GitPlugin::client()->synchronousRemotesList(m_repository, &errorMessage);
-    QStringList remoteUrls;
-    // Prefer a remote named gerrit
-    const QString gerritRemote = remotesList.value("gerrit");
-    if (!gerritRemote.isEmpty()) {
-        remoteUrls << gerritRemote;
-        remotesList.remove("gerrit");
-    }
-    remoteUrls.append(remotesList.values());
-    GerritServer server;
-    for (const QString &r : Utils::asConst(remoteUrls)) {
+    QMapIterator<QString, QString> mapIt(remotesList);
+    while (mapIt.hasNext()) {
+        mapIt.next();
+        const QString r = mapIt.value();
         // Skip local remotes (refer to the root or relative path)
         if (r.isEmpty() || r.startsWith('/') || r.startsWith('.'))
             continue;
         // On Windows, local paths typically starts with <drive>:
         if (Utils::HostOsInfo::isWindowsHost() && r[1] == ':')
             continue;
+        GerritServer server;
         QRegularExpressionMatch match = sshPattern.match(r);
         if (match.hasMatch()) {
             const QString protocol = match.captured("protocol");
@@ -253,16 +265,29 @@ void GerritDialog::updateRemote()
             // Only Ssh is currently supported. In order to extend support for http[s],
             // we need to move this logic to the model, and attempt connection to each
             // remote (do it only on refresh, not on each path change)
-            if (server.type == GerritServer::Ssh) {
-                *m_server = server;
-                break;
-            }
+            if (server.type == GerritServer::Ssh)
+                addRemote(server, mapIt.key());
         }
     }
-    QString user = m_server->user;
-    if (!user.isEmpty())
-        user.append('@');
-    setWindowTitle(tr("Gerrit %1%2").arg(user, m_server->host));
+    addRemote(m_parameters->server, tr("Fallback"));
+    m_updatingRemotes = false;
+    remoteChanged();
+}
+
+void GerritDialog::addRemote(const GerritServer &server, const QString &name)
+{
+    // Clearly not gerrit
+    if (server.host.contains("github.com"))
+        return;
+    for (int i = 0, total = m_ui->remoteComboBox->count(); i < total; ++i) {
+        const GerritServer s = m_ui->remoteComboBox->itemData(i).value<GerritServer>();
+        if (s.host == server.host)
+            return;
+    }
+    m_ui->remoteComboBox->addItem(server.host + QString(" (%1)").arg(name),
+                                  QVariant::fromValue(server));
+    if (name == "gerrit")
+        m_ui->remoteComboBox->setCurrentIndex(m_ui->remoteComboBox->count() - 1);
 }
 
 void GerritDialog::manageProgressIndicator()

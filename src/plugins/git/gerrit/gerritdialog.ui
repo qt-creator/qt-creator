@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>950</width>
-    <height>700</height>
+    <height>706</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -41,6 +41,29 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="remoteLabel">
+       <property name="text">
+        <string>Remote:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="remoteComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>40</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

@@ -77,7 +77,9 @@ private:
     void slotFetchCherryPick();
     void slotFetchCheckout();
     void slotRefresh();
-    void updateRemote();
+    void remoteChanged();
+    void updateRemotes();
+    void addRemote(const GerritServer &server, const QString &name);
 
     void manageProgressIndicator();
 
@@ -101,6 +103,7 @@ private:
     QTimer m_progressIndicatorTimer;
     QString m_repository;
     bool m_fetchRunning = false;
+    bool m_updatingRemotes = false;
 };
 
 } // namespace Internal
