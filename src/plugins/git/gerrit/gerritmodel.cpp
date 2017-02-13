@@ -220,7 +220,7 @@ QString GerritChange::fullTitle() const
 class QueryContext : public QObject {
     Q_OBJECT
 public:
-    QueryContext(const QStringList &queries,
+    QueryContext(const QString &query,
                  const QSharedPointer<GerritParameters> &p,
                  const GerritServer &server,
                  QObject *parent = nullptr);
@@ -233,7 +233,7 @@ public slots:
     void start();
 
 signals:
-    void queryFinished(const QByteArray &);
+    void resultRetrieved(const QByteArray &);
     void finished();
 
 private:
@@ -247,7 +247,7 @@ private:
     void errorTermination(const QString &msg);
     void terminate();
 
-    const QStringList m_queries;
+    const QString m_query;
     QProcess m_process;
     QTimer m_timer;
     QString m_binary;
@@ -260,12 +260,12 @@ private:
 
 enum { timeOutMS = 30000 };
 
-QueryContext::QueryContext(const QStringList &queries,
+QueryContext::QueryContext(const QString &query,
                            const QSharedPointer<GerritParameters> &p,
                            const GerritServer &server,
                            QObject *parent)
     : QObject(parent)
-    , m_queries(queries)
+    , m_query(query)
     , m_currentQuery(0)
 {
     m_baseArguments << p->ssh;
@@ -282,7 +282,7 @@ QueryContext::QueryContext(const QStringList &queries,
     connect(&m_watcher, &QFutureWatcherBase::canceled, this, &QueryContext::terminate);
     m_watcher.setFuture(m_progress.future());
     m_process.setProcessEnvironment(Git::Internal::GitPlugin::client()->processEnvironment());
-    m_progress.setProgressRange(0, m_queries.size());
+    m_progress.setProgressRange(0, 1);
 
     // Determine binary and common command line arguments.
     m_baseArguments << "query" << "--dependencies"
@@ -312,7 +312,7 @@ void QueryContext::start()
                                            "gerrit-query");
     fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
     m_progress.reportStarted();
-    startQuery(m_queries.front()); // Order: synchronous call to  error handling if something goes wrong.
+    startQuery(m_query); // Order: synchronous call to error handling if something goes wrong.
 }
 
 void QueryContext::startQuery(const QString &query)
@@ -360,16 +360,9 @@ void QueryContext::processFinished(int exitCode, QProcess::ExitStatus es)
         errorTermination(tr("%1 returned %2.").arg(m_binary).arg(exitCode));
         return;
     }
-    emit queryFinished(m_output);
-    m_output.clear();
-
-    if (++m_currentQuery >= m_queries.size()) {
-        m_progress.reportFinished();
-        emit finished();
-    } else {
-        m_progress.setProgressValue(m_currentQuery);
-        startQuery(m_queries.at(m_currentQuery));
-    }
+    emit resultRetrieved(m_output);
+    m_progress.reportFinished();
+    emit finished();
 }
 
 void QueryContext::readyReadStandardError()
@@ -525,27 +518,17 @@ void GerritModel::refresh(const QSharedPointer<GerritServer> &server, const QStr
     clearData();
     m_server = server;
 
-    // Assemble list of queries
-
-    QStringList queries;
-    if (!query.trimmed().isEmpty())
-        queries.push_back(query);
-    else
-    {
-        const QString statusOpenQuery = "status:open";
-        if (m_server->user.isEmpty()) {
-            queries.push_back(statusOpenQuery);
-        } else {
-            // Owned by:
-            queries.push_back(statusOpenQuery + " owner:" + m_server->user);
-            // For Review by:
-            queries.push_back(statusOpenQuery + " reviewer:" + m_server->user);
-        }
+    QString realQuery = query.trimmed();
+    if (realQuery.isEmpty()) {
+        realQuery = "status:open";
+        const QString user = m_server->user;
+        if (!user.isEmpty())
+            realQuery += QString(" (owner:%1 OR reviewer:%1)").arg(user);
     }
 
-    m_query = new QueryContext(queries, m_parameters, *m_server, this);
-    connect(m_query, &QueryContext::queryFinished, this, &GerritModel::queryFinished);
-    connect(m_query, &QueryContext::finished, this, &GerritModel::queriesFinished);
+    m_query = new QueryContext(realQuery, m_parameters, *m_server, this);
+    connect(m_query, &QueryContext::resultRetrieved, this, &GerritModel::resultRetrieved);
+    connect(m_query, &QueryContext::finished, this, &GerritModel::queryFinished);
     emit refreshStateChanged(true);
     m_query->start();
     setState(Running);
@@ -755,7 +738,7 @@ bool gerritChangeLessThan(const GerritChangePtr &c1, const GerritChangePtr &c2)
     return c1->lastUpdated < c2->lastUpdated;
 }
 
-void GerritModel::queryFinished(const QByteArray &output)
+void GerritModel::resultRetrieved(const QByteArray &output)
 {
     QList<GerritChangePtr> changes;
     setState(parseOutput(m_parameters, *m_server, output, changes) ? Ok : Error);
@@ -817,7 +800,7 @@ void GerritModel::queryFinished(const QByteArray &output)
     }
 }
 
-void GerritModel::queriesFinished()
+void GerritModel::queryFinished()
 {
     m_query->deleteLater();
     m_query = nullptr;

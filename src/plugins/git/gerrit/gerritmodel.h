@@ -129,8 +129,8 @@ signals:
     void stateChanged();
 
 private:
-    void queryFinished(const QByteArray &);
-    void queriesFinished();
+    void resultRetrieved(const QByteArray &);
+    void queryFinished();
     void clearData();
 
     void setState(QueryState s);
