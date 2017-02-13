@@ -39,6 +39,7 @@
 
 #include <abstractaction.h>
 
+#include <utils/icon.h>
 
 #include <QApplication>
 #include <QGraphicsSceneMouseEvent>
@@ -70,7 +71,13 @@ namespace QmlDesigner {
 class SourceToolAction : public AbstractAction
 {
 public:
-    SourceToolAction() : AbstractAction(QCoreApplication::translate("SourceToolAction","Change Source URL...")) {}
+    SourceToolAction() : AbstractAction(QCoreApplication::translate("SourceToolAction","Change Source URL..."))
+    {
+        const Utils::Icon prevIcon({
+                {QLatin1String(":/utils/images/fileopen.png"), Utils::Theme::OutputPanes_NormalMessageTextColor}}, Utils::Icon::MenuTintedStyle);
+
+        action()->setIcon(prevIcon.icon());
+    }
 
     QByteArray category() const
     {
@@ -89,7 +96,7 @@ public:
 
     Type type() const
     {
-        return ContextMenuAction;
+        return FormEditorAction;
     }
 
 protected:
