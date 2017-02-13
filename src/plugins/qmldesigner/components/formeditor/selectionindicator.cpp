@@ -163,7 +163,8 @@ void SelectionIndicator::updateItems(const QList<FormEditorItem*> &itemList)
     if (!itemList.isEmpty())
         itemList.first()->qmlItemNode().view()->singleSelectedModelNode().isValid();
 
-    if (checkSingleSelection(itemList)) {
+    if (checkSingleSelection(itemList)
+            && m_labelItem) {
         FormEditorItem *selectedItem = itemList.first();
         QPolygonF labelPolygon = boundingRectInLayerItemSpaceForItem(selectedItem, m_layerItem.data());
         QRectF labelRect = labelPolygon.boundingRect();
