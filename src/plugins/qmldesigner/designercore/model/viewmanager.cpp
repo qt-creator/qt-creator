@@ -215,13 +215,13 @@ void ViewManager::attachViewsExceptRewriterAndComponetView()
         currentModel()->attachView(&d->debugView);
 
     attachNodeInstanceView();
+    currentModel()->attachView(&d->designerActionManagerView);
     currentModel()->attachView(&d->formEditorView);
     currentModel()->attachView(&d->textEditorView);
     currentModel()->attachView(&d->navigatorView);
     attachItemLibraryView();
     currentModel()->attachView(&d->statesEditorView);
     currentModel()->attachView(&d->propertyEditorView);
-    currentModel()->attachView(&d->designerActionManagerView);
     attachAdditionalViews();
     switchStateEditorViewToSavedState();
 }
