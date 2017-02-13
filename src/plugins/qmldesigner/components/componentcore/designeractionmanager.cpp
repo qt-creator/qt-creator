@@ -34,10 +34,14 @@
 #include "designeractionmanagerview.h"
 #include "qmldesignerconstants.h"
 
+#include <formeditortoolbutton.h>
+
 #include <documentmanager.h>
 #include <qmldesignerplugin.h>
+#include <viewmanager.h>
 
 #include <QHBoxLayout>
+#include <QGraphicsLinearLayout>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <utils/algorithm.h>
@@ -122,6 +126,45 @@ void DesignerActionManager::polishActions() const
             action->action()->setShortcutContext(Qt::WidgetShortcut); //Hack to avoid conflicting shortcuts. We use the Core::Command for the shortcut.
         }
     }
+}
+
+QGraphicsWidget *DesignerActionManager::createFormEditorToolBar(QGraphicsItem *parent)
+{
+    QList<ActionInterface* > actions = Utils::filtered(designerActions(),
+                                                       [](ActionInterface *action) {
+            return action->type() ==  ActionInterface::FormEditorAction
+                && action->action()->isVisible();
+    });
+
+    Utils::sort(actions, [](ActionInterface *l, ActionInterface *r) {
+        return l->priority() > r->priority();
+    });
+
+    QGraphicsWidget *toolbar = new QGraphicsWidget(parent);
+
+    QGraphicsLinearLayout *layout = new QGraphicsLinearLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+    toolbar->setLayout(layout);
+
+    for (ActionInterface *action : actions) {
+        FormEditorToolButton *button = new FormEditorToolButton(action->action(), toolbar);
+        layout->addItem(button);
+    }
+
+    toolbar->resize(toolbar->preferredSize());
+
+    layout->invalidate();
+    layout->activate();
+
+    toolbar->update();
+
+    return toolbar;
+}
+
+DesignerActionManager &DesignerActionManager::instance()
+{
+    return QmlDesignerPlugin::instance()->viewManager().designerActionManager();
 }
 
 class VisiblityModelNodeAction : public ModelNodeContextMenuAction

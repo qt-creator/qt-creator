@@ -25,11 +25,17 @@
 
 #include "abstractaction.h"
 
+#include <utils/icon.h>
+
 namespace QmlDesigner {
 
 AbstractAction::AbstractAction(const QString &description)
     : m_defaultAction(new DefaultAction(description))
 {
+    const Utils::Icon prevIcon({
+            {QLatin1String(":/debugger/images/qml/select.png"), Utils::Theme::OutputPanes_NormalMessageTextColor}}, Utils::Icon::MenuTintedStyle);
+
+    action()->setIcon(prevIcon.icon());
 }
 
 AbstractAction::AbstractAction(DefaultAction *action)

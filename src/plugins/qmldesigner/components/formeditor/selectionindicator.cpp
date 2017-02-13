@@ -25,11 +25,15 @@
 
 #include "selectionindicator.h"
 
+#include <designeractionmanager.h>
+
 #include <QPen>
 #include <QGraphicsScene>
 #include <QGraphicsTextItem>
 
 #include <abstractview.h>
+
+#include <designeractionmanager.h>
 
 namespace QmlDesigner {
 
@@ -76,6 +80,7 @@ static QPolygonF boundingRectInLayerItemSpaceForItem(FormEditorItem *item, QGrap
 static bool checkSingleSelection(const QList<FormEditorItem*> &itemList)
 {
     return !itemList.isEmpty()
+            && itemList.first()
             && itemList.first()->qmlItemNode().view()->singleSelectedModelNode().isValid();
 }
 
@@ -108,6 +113,10 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
     if (checkSingleSelection(itemList)) {
         FormEditorItem *selectedItem = itemList.first();
         m_labelItem.reset(new QGraphicsPolygonItem(m_layerItem.data()));
+
+        QGraphicsWidget *toolbar = DesignerActionManager::instance().createFormEditorToolBar(m_labelItem.get());
+        toolbar->setPos(1, -1);
+
         ModelNode modelNode = selectedItem->qmlItemNode().modelNode();
         QGraphicsTextItem *textItem = new QGraphicsTextItem(modelNode.simplifiedTypeName(), m_labelItem.get());
 
@@ -118,13 +127,13 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
         QPolygonF labelPolygon = boundingRectInLayerItemSpaceForItem(selectedItem, m_layerItem.data());
         QRectF labelRect = labelPolygon.boundingRect();
         labelRect.setHeight(labelHeight);
-        labelRect.setWidth(textItem->boundingRect().width());
+        labelRect.setWidth(textItem->boundingRect().width() + toolbar->size().width());
         QPointF pos = labelRect.topLeft();
         labelRect.moveTo(0, 0);
         m_labelItem->setPolygon(labelRect);
         m_labelItem->setPos(pos + QPointF(0, -labelHeight));
         int offset = labelHeight + 2 - textItem->boundingRect().height();
-        textItem->setPos(QPointF(0, offset));
+        textItem->setPos(QPointF(toolbar->size().width(), offset));
         m_labelItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
         QPen pen;
         pen.setCosmetic(true);
@@ -134,6 +143,7 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
         pen.setColor(selectionColor);
         m_labelItem->setPen(pen);
         m_labelItem->setBrush(selectionColor);
+        m_labelItem->update();
     }
 }
 

@@ -488,6 +488,8 @@ Project {
                 "formeditor/toolbox.h",
                 "formeditor/zoomaction.cpp",
                 "formeditor/zoomaction.h",
+                "formeditor/formeditortoolbutton.cpp",
+                "formeditor/formeditortoolbutton.h",
                 "importmanager/importlabel.cpp",
                 "importmanager/importlabel.h",
                 "importmanager/importmanagercombobox.cpp",

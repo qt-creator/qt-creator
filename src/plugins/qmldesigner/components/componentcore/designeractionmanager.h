@@ -33,6 +33,11 @@
 
 #include <QToolBar>
 
+QT_BEGIN_NAMESPACE
+class QGraphicsItem;
+class QGraphicsWidget;
+QT_END_NAMESPACE
+
 namespace QmlDesigner {
 
 class DesignerActionManagerView;
@@ -63,6 +68,9 @@ public:
 
     DesignerActionToolBar *createToolBar(QWidget *parent = 0) const;
     void polishActions() const;
+    QGraphicsWidget *createFormEditorToolBar(QGraphicsItem *parent);
+
+    static DesignerActionManager &instance();
 
 private:
     QList<QSharedPointer<ActionInterface> > m_designerActions;
