@@ -47,7 +47,7 @@ class GerritOptionsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit GerritOptionsWidget(QWidget *parent = 0);
+    explicit GerritOptionsWidget(QWidget *parent = nullptr);
 
     GerritParameters parameters() const;
     void setParameters(const GerritParameters &);
@@ -65,8 +65,7 @@ class GerritOptionsPage : public VcsBase::VcsBaseOptionsPage
     Q_OBJECT
 
 public:
-    GerritOptionsPage(const QSharedPointer<GerritParameters> &p,
-                      QObject *parent = 0);
+    GerritOptionsPage(const QSharedPointer<GerritParameters> &p, QObject *parent = nullptr);
     ~GerritOptionsPage();
 
     QWidget *widget() override;

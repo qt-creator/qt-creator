@@ -109,7 +109,7 @@ public:
         GerritChangeRole = Qt::UserRole + 2,
         SortRole = Qt::UserRole + 3
     };
-    GerritModel(const QSharedPointer<GerritParameters> &, QObject *parent = 0);
+    GerritModel(const QSharedPointer<GerritParameters> &, QObject *parent = nullptr);
     ~GerritModel();
 
     QVariant data(const QModelIndex &index, int role) const override;
@@ -141,7 +141,7 @@ private:
 
     const QSharedPointer<GerritParameters> m_parameters;
     QSharedPointer<GerritServer> m_server;
-    QueryContext *m_query = 0;
+    QueryContext *m_query = nullptr;
     QueryState m_state = Idle;
 };
 

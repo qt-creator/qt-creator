@@ -93,7 +93,7 @@ public:
     FetchContext(const QSharedPointer<GerritChange> &change,
                  const QString &repository, const Utils::FileName &git,
                  const GerritServer &server,
-                 FetchMode fm, QObject *parent = 0);
+                 FetchMode fm, QObject *parent = nullptr);
     ~FetchContext();
     void start();
 

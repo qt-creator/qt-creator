@@ -223,7 +223,7 @@ public:
     QueryContext(const QStringList &queries,
                  const QSharedPointer<GerritParameters> &p,
                  const GerritServer &server,
-                 QObject *parent = 0);
+                 QObject *parent = nullptr);
 
     ~QueryContext();
 
@@ -820,7 +820,7 @@ void GerritModel::queryFinished(const QByteArray &output)
 void GerritModel::queriesFinished()
 {
     m_query->deleteLater();
-    m_query = 0;
+    m_query = nullptr;
     setState(Idle);
     emit refreshStateChanged(false);
 }

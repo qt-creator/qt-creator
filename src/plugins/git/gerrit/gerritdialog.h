@@ -55,7 +55,7 @@ public:
     explicit GerritDialog(const QSharedPointer<GerritParameters> &p,
                           const QSharedPointer<GerritServer> &s,
                           const QString &repository,
-                          QWidget *parent = 0);
+                          QWidget *parent = nullptr);
     ~GerritDialog();
     QString repositoryPath() const;
     void setCurrentPath(const QString &path);
