@@ -204,6 +204,7 @@ public:
     FolderNode *recursiveFindOrCreateFolderNode(const Utils::FileName &directory,
                                                 const Utils::FileName &overrideBaseDir = Utils::FileName());
     void buildTree(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir = Utils::FileName());
+    void compress();
 
     virtual void accept(NodesVisitor *visitor);
 

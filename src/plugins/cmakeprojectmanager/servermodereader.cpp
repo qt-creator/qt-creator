@@ -226,6 +226,8 @@ static void addCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, i
     folder->setDisplayName(displayName);
     base->addNode(folder);
     folder->buildTree(files);
+    for (FolderNode *fn : folder->folderNodes())
+        fn->compress();
 }
 
 static void addCMakeInputs(CMakeListsNode *root,

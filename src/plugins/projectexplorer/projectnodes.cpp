@@ -459,6 +459,33 @@ void FolderNode::buildTree(QList<FileNode *> &files, const Utils::FileName &over
     emitTreeChanged();
 }
 
+// "Compress" a tree of foldernodes such that foldernodes with exactly one foldernode as a child
+// are merged into one. This e.g. turns a sequence of FolderNodes "foo" "bar" "baz" into one
+// FolderNode named "foo/bar/baz", saving a lot of clicks in the Project View to get to the actual
+// files.
+void FolderNode::compress()
+{
+    QList<Node *> children = nodes();
+    if (auto subFolder = children.count() == 1 ? children.at(0)->asFolderNode() : nullptr) {
+        // Only one subfolder: Compress!
+        setDisplayName(QDir::toNativeSeparators(displayName() + "/" + subFolder->displayName()));
+        for (Node *n : subFolder->nodes()) {
+            subFolder->removeNode(n);
+            n->setParentFolderNode(nullptr);
+            addNode(n);
+        }
+        setAbsoluteFilePathAndLine(subFolder->filePath(), -1);
+
+        removeNode(subFolder);
+        delete subFolder;
+
+        compress();
+    } else {
+        for (FolderNode *fn : folderNodes())
+            fn->compress();
+    }
+}
+
 void FolderNode::accept(NodesVisitor *visitor)
 {
     visitor->visitFolderNode(this);
