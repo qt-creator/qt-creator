@@ -33,7 +33,7 @@ namespace QmlDesigner {
 ZoomAction::ZoomAction(QObject *parent)
     :  QWidgetAction(parent),
     m_zoomLevel(1.0),
-    m_currentComboBoxIndex(3)
+    m_currentComboBoxIndex(8)
 {
 
 }
@@ -82,7 +82,7 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
         comboBox->addItem(QLatin1String("66 %"), 0.66);
         comboBox->addItem(QLatin1String("75 %"), 0.75);
         comboBox->addItem(QLatin1String("90 %"), 0.90);
-        comboBox->addItem(QLatin1String("100 %"), 1.0);
+        comboBox->addItem(QLatin1String("100 %"), 1.0); // initial m_zoomLevel and m_currentComboBoxIndex
         comboBox->addItem(QLatin1String("125 %"), 1.25);
         comboBox->addItem(QLatin1String("150 %"), 1.5);
         comboBox->addItem(QLatin1String("175 %"), 1.75);
