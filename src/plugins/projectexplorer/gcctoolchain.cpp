@@ -413,6 +413,19 @@ bool GccToolChain::isValid() const
     return fi.isExecutable();
 }
 
+static Utils::FileName findLocalCompiler(const Utils::FileName &compilerPath,
+                                         const Environment &env)
+{
+    const Utils::FileName path = env.searchInPath(compilerPath.fileName(), QStringList(),
+                                                  [](const QString &pathEntry) {
+        return !pathEntry.contains("icecc")
+            && !pathEntry.contains("distcc");
+    });
+
+    QTC_ASSERT(path != FileName(), return compilerPath);
+    return path;
+}
+
 ToolChain::PredefinedMacrosRunner GccToolChain::createPredefinedMacrosRunner() const
 {
     // Using a clean environment breaks ccache/distcc/etc.
@@ -464,7 +477,9 @@ ToolChain::PredefinedMacrosRunner GccToolChain::createPredefinedMacrosRunner() c
         if (!macros.isNull())
             return macros;
 
-        macros = gccPredefinedMacros(compilerCommand, arguments, env.toStringList());
+        macros = gccPredefinedMacros(findLocalCompiler(compilerCommand, env),
+                                     arguments,
+                                     env.toStringList());
         macroCache->insert(arguments, macros);
 
         return macros;
@@ -631,7 +646,9 @@ ToolChain::SystemHeaderPathsRunner GccToolChain::createSystemHeaderPathsRunner()
         if (cacheHit)
             return paths;
 
-        paths = gccHeaderPaths(compilerCommand, arguments, env.toStringList());
+        paths = gccHeaderPaths(findLocalCompiler(compilerCommand, env),
+                               arguments,
+                               env.toStringList());
         headerCache->insert(arguments, paths);
 
         return paths;
@@ -848,14 +865,17 @@ GccToolChain::DetectedAbisResult GccToolChain::detectSupportedAbis() const
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
     QByteArray macros = predefinedMacros(QStringList());
-    return guessGccAbi(m_compilerCommand, env.toStringList(), macros, platformCodeGenFlags());
+    return guessGccAbi(findLocalCompiler(m_compilerCommand, env),
+                       env.toStringList(),
+                       macros,
+                       platformCodeGenFlags());
 }
 
 QString GccToolChain::detectVersion() const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
-    return gccVersion(m_compilerCommand, env.toStringList());
+    return gccVersion(findLocalCompiler(m_compilerCommand, env), env.toStringList());
 }
 
 // --------------------------------------------------------------------------
@@ -980,9 +1000,10 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolChain(const FileName &comp
 
     Environment systemEnvironment = Environment::systemEnvironment();
     GccToolChain::addCommandPathToEnvironment(compilerPath, systemEnvironment);
+    const FileName localCompilerPath = findLocalCompiler(compilerPath, systemEnvironment);
     QByteArray macros
-            = gccPredefinedMacros(compilerPath, gccPredefinedMacrosOptions(), systemEnvironment.toStringList());
-    const GccToolChain::DetectedAbisResult detectedAbis = guessGccAbi(compilerPath,
+            = gccPredefinedMacros(localCompilerPath, gccPredefinedMacrosOptions(), systemEnvironment.toStringList());
+    const GccToolChain::DetectedAbisResult detectedAbis = guessGccAbi(localCompilerPath,
                                                                       systemEnvironment.toStringList(),
                                                                       macros);
 
@@ -1133,8 +1154,9 @@ void GccToolChainConfigWidget::handleCompilerCommandChange()
         Environment env = Environment::systemEnvironment();
         GccToolChain::addCommandPathToEnvironment(path, env);
         QStringList args = gccPredefinedMacrosOptions() + splitString(m_platformCodeGenFlagsLineEdit->text());
-        m_macros = gccPredefinedMacros(path, args, env.toStringList());
-        abiList = guessGccAbi(path, env.toStringList(), m_macros,
+        const FileName localCompilerPath = findLocalCompiler(path, env);
+        m_macros = gccPredefinedMacros(localCompilerPath, args, env.toStringList());
+        abiList = guessGccAbi(localCompilerPath, env.toStringList(), m_macros,
                               splitString(m_platformCodeGenFlagsLineEdit->text())).supportedAbis;
     }
     m_abiWidget->setEnabled(haveCompiler);
