@@ -64,11 +64,6 @@ protected:
     ClangBackEnd::ProjectPartPch projectPartPch{"projectPartId", "/path/to/pch"};
 };
 
-bool operator==(const std::unique_ptr<FakeProcess> &first, FakeProcess *const second)
-{
-    return first.get() == second;
-}
-
 TEST_F(PchGenerator, ProcessFinished)
 {
     EXPECT_CALL(mockNotifier, taskFinished(TaskFinishStatus::Successfully, std::move(projectPartPch)));
