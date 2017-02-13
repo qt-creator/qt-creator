@@ -87,6 +87,16 @@ TEST_F(IncludeCollector, IncludesAreSorted)
                 ElementsAre(0, 1, 2));
 }
 
+TEST_F(IncludeCollector, If)
+{
+    emptyCollector.addFile(TESTDATA_DIR, "includecollector_if.cpp", "", {"cc", "includecollector_if.cpp"});
+
+    emptyCollector.collectIncludes();
+
+    ASSERT_THAT(emptyCollector.takeIncludeIds(),
+                ElementsAre(id(TESTDATA_DIR "/includecollector_true.h")));
+}
+
 TEST_F(IncludeCollector, LocalPath)
 {
     emptyCollector.addFile(TESTDATA_DIR, "includecollector_main.cpp", "", {"cc", "includecollector_main.cpp"});
