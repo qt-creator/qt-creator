@@ -292,7 +292,9 @@ public:
 
         /* QmlDesigner */
         QmlDesigner_BackgroundColor,
-        QmlDesigner_HighlightColor
+        QmlDesigner_HighlightColor,
+        QmlDesigner_FormEditorSelectionColor,
+        QmlDesigner_FormEditorForegroundColor
     };
 
     enum Gradient {

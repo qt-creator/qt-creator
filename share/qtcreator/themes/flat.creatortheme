@@ -194,6 +194,8 @@ ClangCodeModel_Warning_TextMarkColor=warning
 
 QmlDesigner_BackgroundColor=ff4c4e50
 QmlDesigner_HighlightColor=ff46a2da
+QmlDesigner_FormEditorSelectionColor=ff4ba2ff
+QmlDesigner_FormEditorForegroundColor=ffffffff
 
 [Flags]
 ComboBoxDrawTextShadow=false

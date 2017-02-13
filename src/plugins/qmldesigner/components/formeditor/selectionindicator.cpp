@@ -35,6 +35,8 @@
 
 #include <designeractionmanager.h>
 
+#include <utils/theme/theme.h>
+
 namespace QmlDesigner {
 
 SelectionIndicator::SelectionIndicator(LayerItem *layerItem)
@@ -90,7 +92,7 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
 {
     clear();
 
-    static QColor selectionColor = QColor(75, 162, 255);
+    static QColor selectionColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorSelectionColor);
 
     foreach (FormEditorItem *item, itemList) {
         if (!item->qmlItemNode().isValid())
@@ -123,7 +125,9 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
         if (modelNode.hasId())
             textItem->setPlainText(modelNode.id());
 
-        textItem->setDefaultTextColor(Qt::white);
+        static QColor textColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorForegroundColor);
+
+        textItem->setDefaultTextColor(textColor);
         QPolygonF labelPolygon = boundingRectInLayerItemSpaceForItem(selectedItem, m_layerItem.data());
         QRectF labelRect = labelPolygon.boundingRect();
         labelRect.setHeight(labelHeight);
