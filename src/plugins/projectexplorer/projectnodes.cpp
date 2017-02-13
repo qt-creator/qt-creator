@@ -335,6 +335,38 @@ QIcon FolderNode::icon() const
     return m_icon;
 }
 
+void FolderNode::forEachNode(const std::function<void(FileNode *)> &fileTask,
+                             const std::function<void(FolderNode *)> &folderTask,
+                             const std::function<bool(const FolderNode *)> &folderFilterTask) const
+{
+    if (folderFilterTask) {
+        if (!folderFilterTask(this))
+            return;
+    }
+    if (fileTask) {
+        for (Node *n : m_nodes) {
+            if (FileNode *fn = n->asFileNode())
+                fileTask(fn);
+        }
+    }
+    for (Node *n : m_nodes) {
+        if (FolderNode *fn = n->asFolderNode()) {
+            if (folderTask)
+                folderTask(fn);
+            fn->forEachNode(fileTask, folderTask, folderFilterTask);
+        }
+    }
+}
+
+void FolderNode::forEachGenericNode(const std::function<void(Node *)> &genericTask) const
+{
+    for (Node *n : m_nodes) {
+        genericTask(n);
+        if (FolderNode *fn = n->asFolderNode())
+            fn->forEachNode(genericTask);
+    }
+}
+
 QList<FileNode*> FolderNode::fileNodes() const
 {
     QList<FileNode *> result;
