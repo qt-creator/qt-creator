@@ -33,14 +33,10 @@ namespace QbsProjectManager {
 namespace Internal {
 
 class QbsDeployConfigurationFactory;
-class QbsInstallStep;
 
 class QbsDeployConfiguration : public ProjectExplorer::DeployConfiguration
 {
     Q_OBJECT
-
-public:
-    QbsInstallStep *qbsInstallStep() const;
 
 private:
     QbsDeployConfiguration(ProjectExplorer::Target *target, Core::Id id);

@@ -50,7 +50,6 @@ class QbsProject;
 
 namespace Internal {
 
-class QbsInstallStep;
 class QbsRunConfigurationFactory;
 
 class QbsRunConfiguration : public ProjectExplorer::RunConfiguration
@@ -87,11 +86,8 @@ protected:
 
 private:
     void installStepChanged();
-    void installStepToBeRemoved(int pos);
     QString baseWorkingDirectory() const;
     QString defaultDisplayName();
-    qbs::InstallOptions installOptions() const;
-    QString installRoot() const;
 
     void ctor();
 
@@ -101,7 +97,6 @@ private:
 
     // Cached startup sub project information
 
-    QbsInstallStep *m_currentInstallStep; // We do not take ownership!
     ProjectExplorer::BuildStepList *m_currentBuildStepList; // We do not take ownership!
 };
 

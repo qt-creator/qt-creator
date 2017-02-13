@@ -57,6 +57,7 @@ static const char QBS_VARIANT_RELEASE[] = "release";
 
 static const char QBS_CONFIG_VARIANT_KEY[] = "qbs.buildVariant";
 static const char QBS_CONFIG_PROFILE_KEY[] = "qbs.profile";
+static const char QBS_INSTALL_ROOT_KEY[] = "qbs.installRoot";
 static const char QBS_CONFIG_DECLARATIVE_DEBUG_KEY[] = "Qt.declarative.qmlDebugging";
 static const char QBS_CONFIG_QUICK_DEBUG_KEY[] = "Qt.quick.qmlDebugging";
 const char QBS_FORCE_PROBES_KEY[] = "qbspm.forceProbes";

@@ -76,7 +76,9 @@ public:
 
     void emitBuildTypeChanged();
 
-    static QString equivalentCommandLine(const ProjectExplorer::BuildStep *buildStep);
+    QString configurationName() const;
+
+    QString equivalentCommandLine(const ProjectExplorer::BuildStep *buildStep) const;
 
 signals:
     void qbsConfigurationChanged();

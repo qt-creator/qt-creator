@@ -82,6 +82,8 @@ private:
     void changeJobCount(int count);
     void changeInstall(bool install);
     void changeCleanInstallRoot(bool clean);
+    void changeUseDefaultInstallDir(bool useDefault);
+    void changeInstallDir(const QString &dir);
     void changeForceProbes(bool forceProbes);
     void applyCachedProperties();
 
@@ -257,6 +259,24 @@ bool QbsBuildStep::install() const
 bool QbsBuildStep::cleanInstallRoot() const
 {
     return m_qbsBuildOptions.removeExistingInstallation();
+}
+
+bool QbsBuildStep::hasCustomInstallRoot() const
+{
+    return m_qbsConfiguration.contains(QLatin1String(Constants::QBS_INSTALL_ROOT_KEY));
+}
+
+Utils::FileName QbsBuildStep::installRoot() const
+{
+    Utils::FileName root = Utils::FileName::fromString(m_qbsConfiguration
+            .value(QLatin1String(Constants::QBS_INSTALL_ROOT_KEY)).toString());
+    if (root.isNull()) {
+        const QbsBuildConfiguration * const bc
+                = static_cast<QbsBuildConfiguration *>(buildConfiguration());
+        root = bc->buildDirectory().appendPath(bc->configurationName())
+                .appendPath(qbs::InstallOptions::defaultInstallRoot());
+    }
+    return root;
 }
 
 int QbsBuildStep::maxJobs() const
@@ -538,6 +558,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
 
     m_ui = new Ui::QbsBuildStepConfigWidget;
     m_ui->setupUi(this);
+    m_ui->installDirChooser->setExpectedKind(Utils::PathChooser::Directory);
 
     auto chooser = new Core::VariableChooser(this);
     chooser->addSupportedWidget(m_ui->propertyEdit);
@@ -560,6 +581,10 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
             &QbsBuildStepConfigWidget::changeInstall);
     connect(m_ui->cleanInstallRootCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeCleanInstallRoot);
+    connect(m_ui->defaultInstallDirCheckBox, &QCheckBox::toggled, this,
+            &QbsBuildStepConfigWidget::changeUseDefaultInstallDir);
+    connect(m_ui->installDirChooser, &Utils::PathChooser::rawPathChanged, this,
+            &QbsBuildStepConfigWidget::changeInstallDir);
     connect(m_ui->forceProbesCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeForceProbes);
     connect(m_ui->qmlDebuggingLibraryCheckBox, &QAbstractButton::toggled,
@@ -595,6 +620,8 @@ void QbsBuildStepConfigWidget::updateState()
         m_ui->forceProbesCheckBox->setChecked(m_step->forceProbes());
         updatePropertyEdit(m_step->qbsConfiguration(QbsBuildStep::PreserveVariables));
         m_ui->qmlDebuggingLibraryCheckBox->setChecked(m_step->isQmlDebuggingEnabled());
+        m_ui->installDirChooser->setFileName(m_step->installRoot());
+        m_ui->defaultInstallDirCheckBox->setChecked(!m_step->hasCustomInstallRoot());
     }
 
     updateQmlDebuggingOption();
@@ -602,7 +629,8 @@ void QbsBuildStepConfigWidget::updateState()
     const QString buildVariant = m_step->buildVariant();
     const int idx = (buildVariant == QLatin1String(Constants::QBS_VARIANT_DEBUG)) ? 0 : 1;
     m_ui->buildVariantComboBox->setCurrentIndex(idx);
-    QString command = QbsBuildConfiguration::equivalentCommandLine(m_step);
+    QString command = static_cast<QbsBuildConfiguration *>(m_step->buildConfiguration())
+            ->equivalentCommandLine(m_step);
 
     for (int i = 0; i < m_propertyCache.count(); ++i) {
         command += QLatin1Char(' ') + m_propertyCache.at(i).name
@@ -645,6 +673,7 @@ void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
     editable.remove(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY));
     editable.remove(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY));
     editable.remove(QLatin1String(Constants::QBS_FORCE_PROBES_KEY));
+    editable.remove(QLatin1String(Constants::QBS_INSTALL_ROOT_KEY));
 
     QStringList propertyList;
     for (QVariantMap::const_iterator i = editable.constBegin(); i != editable.constEnd(); ++i)
@@ -697,6 +726,30 @@ void QbsBuildStepConfigWidget::changeCleanInstallRoot(bool clean)
 {
     m_ignoreChange = true;
     m_step->setCleanInstallRoot(clean);
+    m_ignoreChange = false;
+}
+
+void QbsBuildStepConfigWidget::changeUseDefaultInstallDir(bool useDefault)
+{
+    m_ignoreChange = true;
+    QVariantMap config = m_step->qbsConfiguration(QbsBuildStep::PreserveVariables);
+    m_ui->installDirChooser->setEnabled(!useDefault);
+    if (useDefault)
+        config.remove(Constants::QBS_INSTALL_ROOT_KEY);
+    else
+        config.insert(Constants::QBS_INSTALL_ROOT_KEY, m_ui->installDirChooser->rawPath());
+    m_step->setQbsConfiguration(config);
+    m_ignoreChange = false;
+}
+
+void QbsBuildStepConfigWidget::changeInstallDir(const QString &dir)
+{
+    if (!m_step->hasCustomInstallRoot())
+        return;
+    m_ignoreChange = true;
+    QVariantMap config = m_step->qbsConfiguration(QbsBuildStep::PreserveVariables);
+    config.insert(Constants::QBS_INSTALL_ROOT_KEY, dir);
+    m_step->setQbsConfiguration(config);
     m_ignoreChange = false;
 }
 

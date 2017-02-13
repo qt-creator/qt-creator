@@ -30,7 +30,6 @@
 #include "qbscleanstep.h"
 #include "qbsdeployconfigurationfactory.h"
 #include "qbsinfopage.h"
-#include "qbsinstallstep.h"
 #include "qbsnodes.h"
 #include "qbsprofilessettingspage.h"
 #include "qbsproject.h"
@@ -101,7 +100,6 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new QbsBuildConfigurationFactory);
     addAutoReleasedObject(new QbsBuildStepFactory);
     addAutoReleasedObject(new QbsCleanStepFactory);
-    addAutoReleasedObject(new QbsInstallStepFactory);
     addAutoReleasedObject(new QbsDeployConfigurationFactory);
     addAutoReleasedObject(new QbsRunConfigurationFactory);
     addAutoReleasedObject(new QbsProfilesSettingsPage);

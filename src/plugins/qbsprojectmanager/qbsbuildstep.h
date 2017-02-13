@@ -71,6 +71,8 @@ public:
     bool showCommandLines() const;
     bool install() const;
     bool cleanInstallRoot() const;
+    bool hasCustomInstallRoot() const;
+    Utils::FileName installRoot() const;
     int maxJobs() const;
     QString buildVariant() const;
 
