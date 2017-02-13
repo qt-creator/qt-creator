@@ -178,8 +178,11 @@
             \li Qt Quick UI
 
                 Use a single QML file that contains the main view. You can
-                review Qt Quick UI projects in a \l{Previewing QML Files}
-                {preview tool} and you need not build them.
+                review \l{Creating Qt Quick UI Projects}{Qt Quick UI projects}
+                in a \l{Previewing QML Files}{preview tool} and you need not
+                build them. Qt Quick UI projects cannot be deployed to embedded
+                or mobile target platforms. For those platforms, create a
+                Qt Quick application instead.
 
             \li Qt Quick Controls UI
 
