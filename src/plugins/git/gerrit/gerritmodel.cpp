@@ -596,6 +596,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
     const QString numberKey = "number";
     const QString ownerKey = "owner";
     const QString ownerNameKey = "name";
+    const QString ownerUserKey = "username";
     const QString ownerEmailKey = "email";
     const QString statusKey = "status";
     const QString projectKey = "project";
@@ -662,6 +663,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
         change->title = object.value(titleKey).toString();
         const QJsonObject ownerJ = object.value(ownerKey).toObject();
         change->owner = ownerJ.value(ownerNameKey).toString();
+        change->user = ownerJ.value(ownerUserKey).toString();
         change->email = ownerJ.value(ownerEmailKey).toString();
         change->project = object.value(projectKey).toString();
         change->branch = object.value(branchKey).toString();
@@ -730,11 +732,11 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
     row[ApprovalsColumn]->setText(c->currentPatchSet.approvalsColumn());
     // Mark changes awaiting action using a bold font.
     bool bold = false;
-    if (c->owner == m_userName) { // Owned changes: Review != 0,1. Submit or amend.
+    if (c->user == m_server->user) { // Owned changes: Review != 0,1. Submit or amend.
         const int level = c->currentPatchSet.approvalLevel();
         bold = level != 0 && level != 1;
     } else if (m_query->currentQuery() == 1) { // Changes pending for review: No review yet.
-        bold = !m_userName.isEmpty() && !c->currentPatchSet.hasApproval(m_userName);
+        bold = !m_server->user.isEmpty() && !c->currentPatchSet.hasApproval(m_server->user);
     }
     if (bold) {
         QFont font = row.first()->font();
@@ -797,10 +799,6 @@ void GerritModel::queryFinished(const QByteArray &output)
         // Avoid duplicate entries for example in the (unlikely)
         // case people do self-reviews.
         if (!itemForNumber(c->number)) {
-            // Determine the verbose user name from the owner of the first query.
-            // It used for marking the changes pending for review in bold.
-            if (m_userName.isEmpty() && !m_query->currentQuery())
-                m_userName = c->owner;
             const QList<QStandardItem *> newRow = changeToRow(c);
             if (c->depth) {
                 QStandardItem *parent = itemForNumber(c->dependsOnNumber);

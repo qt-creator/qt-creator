@@ -77,6 +77,7 @@ public:
     int neededByNumber = 0;
     QString title;
     QString owner;
+    QString user;
     QString email;
     QString project;
     QString branch;
@@ -142,7 +143,6 @@ private:
     QSharedPointer<GerritServer> m_server;
     QueryContext *m_query = 0;
     QueryState m_state = Idle;
-    QString m_userName;
 };
 
 } // namespace Internal
