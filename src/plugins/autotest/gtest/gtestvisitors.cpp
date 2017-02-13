@@ -40,7 +40,7 @@ GTestVisitor::GTestVisitor(CPlusPlus::Document::Ptr doc)
 
 bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
 {
-    static QString disabledPrefix = QString::fromLatin1("DISABLED_");
+    static const QString disabledPrefix("DISABLED_");
     if (!ast || !ast->declarator || !ast->declarator->core_declarator)
         return false;
 

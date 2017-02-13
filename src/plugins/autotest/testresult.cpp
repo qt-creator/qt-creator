@@ -95,37 +95,37 @@ QString TestResult::resultToString(const Result::Type type)
     switch (type) {
     case Result::Pass:
     case Result::MessageTestCaseSuccess:
-        return QLatin1String("PASS");
+        return QString("PASS");
     case Result::Fail:
     case Result::MessageTestCaseFail:
-        return QLatin1String("FAIL");
+        return QString("FAIL");
     case Result::ExpectedFail:
-        return QLatin1String("XFAIL");
+        return QString("XFAIL");
     case Result::UnexpectedPass:
-        return QLatin1String("XPASS");
+        return QString("XPASS");
     case Result::Skip:
-        return QLatin1String("SKIP");
+        return QString("SKIP");
     case Result::Benchmark:
-        return QLatin1String("BENCH");
+        return QString("BENCH");
     case Result::MessageDebug:
-        return QLatin1String("DEBUG");
+        return QString("DEBUG");
     case Result::MessageInfo:
-        return QLatin1String("INFO");
+        return QString("INFO");
     case Result::MessageWarn:
     case Result::MessageTestCaseWarn:
-        return QLatin1String("WARN");
+        return QString("WARN");
     case Result::MessageFatal:
-        return QLatin1String("FATAL");
+        return QString("FATAL");
     case Result::MessageSystem:
-        return QLatin1String("SYSTEM");
+        return QString("SYSTEM");
     case Result::BlacklistedPass:
-        return QLatin1String("BPASS");
+        return QString("BPASS");
     case Result::BlacklistedFail:
-        return QLatin1String("BFAIL");
+        return QString("BFAIL");
     default:
         if (type >= Result::INTERNAL_MESSAGES_BEGIN && type <= Result::INTERNAL_MESSAGES_END)
             return QString();
-        return QLatin1String("UNKNOWN");
+        return QString("UNKNOWN");
     }
 }
 
@@ -182,7 +182,7 @@ bool TestResult::isIntermediateFor(const TestResult *other) const
 
 TestResult *TestResult::createIntermediateResultFor(const TestResult *other)
 {
-    QTC_ASSERT(other, return 0);
+    QTC_ASSERT(other, return nullptr);
     TestResult *intermediate = new TestResult(other->m_name);
     return intermediate;
 }

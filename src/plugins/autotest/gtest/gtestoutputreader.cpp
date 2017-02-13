@@ -140,8 +140,8 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
         m_description.chop(1);
         testResult->setDescription(m_description);
 
-        foreach (const QString &output, m_description.split('\n')) {
-            QRegExp *match = 0;
+        for (const QString &output : m_description.split('\n')) {
+            QRegExp *match = nullptr;
             if (failureLocation.exactMatch(output))
                 match = &failureLocation;
             else if (errorLocation.exactMatch(output))

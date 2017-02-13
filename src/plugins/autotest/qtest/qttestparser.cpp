@@ -46,7 +46,7 @@ TestTreeItem *QtTestParseResult::createTestTreeItem() const
     item->setColumn(column);
     item->setInherited(m_inherited);
 
-    foreach (const TestParseResult *funcParseResult, children)
+    for (const TestParseResult *funcParseResult : children)
         item->appendChild(funcParseResult->createTestTreeItem());
     return item;
 }
@@ -59,11 +59,11 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus:
 
     const QList<CPlusPlus::Document::Include> includes = doc->resolvedIncludes();
 
-    foreach (const CPlusPlus::Document::Include &inc, includes) {
+    for (const CPlusPlus::Document::Include &inc : includes) {
         // TODO this short cut works only for #include <QtTest>
         // bad, as there could be much more different approaches
-        if (inc.unresolvedFileName() == QLatin1String("QtTest")) {
-            foreach (const QString &prefix, expectedHeaderPrefixes) {
+        if (inc.unresolvedFileName() == QString("QtTest")) {
+            for (const QString &prefix : expectedHeaderPrefixes) {
                 if (inc.resolvedFileName().endsWith(QString("%1/QtTest").arg(prefix)))
                     return true;
             }
@@ -71,8 +71,8 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus:
     }
 
     const QSet<QString> allIncludes = snapshot.allIncludesForDocument(doc->fileName());
-    foreach (const QString &include, allIncludes) {
-        foreach (const QString &prefix, expectedHeaderPrefixes) {
+    for (const QString &include : allIncludes) {
+        for (const QString &prefix : expectedHeaderPrefixes) {
         if (include.endsWith(QString("%1/qtest.h").arg(prefix)))
             return true;
         }
@@ -99,7 +99,7 @@ static QString testClass(const CppTools::CppModelManager *modelManager,
 
     const QList<CPlusPlus::Document::MacroUse> macros = document->macroUses();
 
-    foreach (const CPlusPlus::Document::MacroUse &macro, macros) {
+    for (const CPlusPlus::Document::MacroUse &macro : macros) {
         if (!macro.isFunctionLike())
             continue;
         const QByteArray name = macro.macro().name();
@@ -303,7 +303,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
 
         // TODO: change to QHash<>
         QMap<QString, QtTestCodeLocationList> dataTags;
-        foreach (const QString &file, files)
+        for (const QString &file : files)
             dataTags.unite(checkForDataTags(file, snapshot));
 
         QtTestParseResult *parseResult = new QtTestParseResult(id);
@@ -333,7 +333,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
             func->setInherited(location.m_inherited);
 
             const QtTestCodeLocationList &tagLocations = tagLocationsFor(func, dataTags);
-            foreach (const QtTestCodeLocationAndType &tag, tagLocations) {
+            for (const QtTestCodeLocationAndType &tag : tagLocations) {
                 QtTestParseResult *dataTag = new QtTestParseResult(id);
                 dataTag->itemType = tag.m_type;
                 dataTag->name = tag.m_name;

@@ -47,7 +47,7 @@ TestTreeItem *QuickTestParseResult::createTestTreeItem() const
     item->setProFile(proFile);
     item->setLine(line);
     item->setColumn(column);
-    foreach (const TestParseResult *funcResult, children)
+    for (const TestParseResult *funcResult : children)
         item->appendChild(funcResult->createTestTreeItem());
     return item;
 }
@@ -62,9 +62,9 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
 
     const QList<CPlusPlus::Document::Include> includes = doc->resolvedIncludes();
 
-    foreach (const CPlusPlus::Document::Include &inc, includes) {
+    for (const CPlusPlus::Document::Include &inc : includes) {
         if (inc.unresolvedFileName() == "QtQuickTest/quicktest.h") {
-            foreach (const QString &prefix, expectedHeaderPrefixes) {
+            for (const QString &prefix : expectedHeaderPrefixes) {
                 if (inc.resolvedFileName().endsWith(
                             QString("%1/quicktest.h").arg(prefix))) {
                     return true;
@@ -73,8 +73,8 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
         }
     }
 
-    foreach (const QString &include, snapshot.allIncludesForDocument(doc->fileName())) {
-        foreach (const QString &prefix, expectedHeaderPrefixes) {
+    for (const QString &include : snapshot.allIncludesForDocument(doc->fileName())) {
+        for (const QString &prefix : expectedHeaderPrefixes) {
             if (include.endsWith(QString("%1/quicktest.h").arg(prefix)))
                 return true;
         }
@@ -89,7 +89,7 @@ static QString quickTestSrcDir(const CppTools::CppModelManager *cppMM,
     const QList<CppTools::ProjectPart::Ptr> parts = cppMM->projectPart(fileName);
     if (parts.size() > 0) {
         QByteArray projDefines(parts.at(0)->projectDefines);
-        foreach (const QByteArray &line, projDefines.split('\n')) {
+        for (const QByteArray &line : projDefines.split('\n')) {
             if (line.contains(qtsd)) {
                 QByteArray result = line.mid(line.indexOf(qtsd) + qtsd.length());
                 if (result.startsWith('"'))
@@ -107,7 +107,7 @@ static QString quickTestName(const CPlusPlus::Document::Ptr &doc)
 {
     const QList<CPlusPlus::Document::MacroUse> macros = doc->macroUses();
 
-    foreach (const CPlusPlus::Document::MacroUse &macro, macros) {
+    for (const CPlusPlus::Document::MacroUse &macro : macros) {
         if (!macro.isFunctionLike())
             continue;
         const QByteArray name = macro.macro().name();
@@ -142,9 +142,9 @@ static QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const QStri
     }
     QList<QmlJS::Document::Ptr> foundDocs;
 
-    foreach (const QString &path, dirs) {
+    for (const QString &path : dirs) {
         const QList<QmlJS::Document::Ptr> docs = snapshot.documentsInDirectory(path);
-        foreach (const QmlJS::Document::Ptr &doc, docs) {
+        for (const QmlJS::Document::Ptr &doc : docs) {
             const QString fileName(QFileInfo(doc->fileName()).fileName());
             if (fileName.startsWith("tst_") && fileName.endsWith(".qml"))
                 foundDocs << doc;
@@ -218,7 +218,7 @@ static bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterfa
 
     const QList<QmlJS::Document::Ptr> qmlDocs = scanDirectoryForQuickTestQmlFiles(srcDir);
     bool result = false;
-    foreach (const QmlJS::Document::Ptr &qmlJSDoc, qmlDocs)
+    for (const QmlJS::Document::Ptr &qmlJSDoc : qmlDocs)
         result |= checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc, id, proFile);
     return result;
 }

@@ -51,7 +51,7 @@ static QIcon testTreeIcon(TestTreeItem::Type type)
         QIcon(),
         CPlusPlus::Icons::iconForType(CPlusPlus::Icons::ClassIconType),
         CPlusPlus::Icons::iconForType(CPlusPlus::Icons::SlotPrivateIconType),
-        QIcon(QLatin1String(":/images/data.png"))
+        QIcon(":/images/data.png")
     };
 
     if (int(type) >= int(sizeof icons / sizeof *icons))
@@ -344,7 +344,7 @@ TestTreeItem *TestTreeItem::findChildBy(CompareFunction compare) const
         if (compare(child))
             return child;
     }
-    return 0;
+    return nullptr;
 }
 
 } // namespace Internal

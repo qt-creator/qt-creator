@@ -63,7 +63,7 @@
 using namespace Autotest::Internal;
 using namespace Core;
 
-static AutotestPlugin *m_instance = 0;
+static AutotestPlugin *s_instance = nullptr;
 
 AutotestPlugin::AutotestPlugin()
     : m_settings(new TestSettings)
@@ -73,7 +73,7 @@ AutotestPlugin::AutotestPlugin()
     qRegisterMetaType<TestTreeItem *>();
     qRegisterMetaType<TestCodeLocationAndType>();
 
-    m_instance = this;
+    s_instance = this;
 }
 
 AutotestPlugin::~AutotestPlugin()
@@ -83,7 +83,7 @@ AutotestPlugin::~AutotestPlugin()
 
 AutotestPlugin *AutotestPlugin::instance()
 {
-    return m_instance;
+    return s_instance;
 }
 
 QSharedPointer<TestSettings> AutotestPlugin::settings() const

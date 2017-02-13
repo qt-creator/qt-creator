@@ -54,13 +54,13 @@
 namespace Autotest {
 namespace Internal {
 
-static TestRunner *m_instance = 0;
+static TestRunner *s_instance = nullptr;
 
 TestRunner *TestRunner::instance()
 {
-    if (!m_instance)
-        m_instance = new TestRunner;
-    return m_instance;
+    if (!s_instance)
+        s_instance = new TestRunner;
+    return s_instance;
 }
 
 TestRunner::TestRunner(QObject *parent) :
@@ -85,7 +85,7 @@ TestRunner::~TestRunner()
 {
     qDeleteAll(m_selectedTests);
     m_selectedTests.clear();
-    m_instance = 0;
+    s_instance = nullptr;
 }
 
 void TestRunner::setSelectedTests(const QList<TestConfiguration *> &selected)
@@ -102,7 +102,7 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
     const int timeout = settings.timeout;
     QEventLoop eventLoop;
     int testCaseCount = 0;
-    foreach (TestConfiguration *config, selectedTests) {
+    for (TestConfiguration *config : selectedTests) {
         config->completeTestInformation(TestRunner::Run);
         if (config->project()) {
             testCaseCount += config->testCaseCount();
@@ -119,7 +119,7 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
     futureInterface.setProgressRange(0, testCaseCount);
     futureInterface.setProgressValue(0);
 
-    foreach (const TestConfiguration *testConfiguration, selectedTests) {
+    for (const TestConfiguration *testConfiguration : selectedTests) {
         QScopedPointer<TestOutputReader> outputReader;
         outputReader.reset(testConfiguration->outputReader(futureInterface, &testProcess));
         QTC_ASSERT(outputReader, continue);
@@ -166,11 +166,11 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
             }
         } else {
             futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
-                QString::fromLatin1("Failed to start test for project \"%1\".").arg(testConfiguration->displayName()))));
+                QString("Failed to start test for project \"%1\".").arg(testConfiguration->displayName()))));
         }
         if (testProcess.exitStatus() == QProcess::CrashExit) {
             futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
-                QString::fromLatin1("Test for project \"%1\" crashed.").arg(testConfiguration->displayName()))));
+                QString("Test for project \"%1\" crashed.").arg(testConfiguration->displayName()))));
         }
 
         if (canceledByTimeout) {
@@ -204,7 +204,7 @@ void TestRunner::prepareToRunTests(Mode mode)
     // clear old log and output pane
     TestResultsPane::instance()->clearContents();
 
-    foreach (TestConfiguration *config, m_selectedTests) {
+    for (TestConfiguration *config : m_selectedTests) {
         if (!omitRunConfigWarnings && config->guessedConfiguration()) {
             emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
                 tr("Project's run configuration was guessed for \"%1\".\n"

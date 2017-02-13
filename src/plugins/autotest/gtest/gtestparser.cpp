@@ -47,7 +47,7 @@ TestTreeItem *GTestParseResult::createTestTreeItem() const
         item->setState(GTestTreeItem::Typed);
     if (disabled)
         item->setState(GTestTreeItem::Disabled);
-    foreach (const TestParseResult *testSet, children)
+    for (const TestParseResult *testSet : children)
         item->appendChild(testSet->createTestTreeItem());
     return item;
 }
@@ -56,12 +56,12 @@ static bool includesGTest(const CPlusPlus::Document::Ptr &doc,
                           const CPlusPlus::Snapshot &snapshot)
 {
     static const QString gtestH("gtest/gtest.h");
-    foreach (const CPlusPlus::Document::Include &inc, doc->resolvedIncludes()) {
+    for (const CPlusPlus::Document::Include &inc : doc->resolvedIncludes()) {
         if (inc.resolvedFileName().endsWith(gtestH))
             return true;
     }
 
-    foreach (const QString &include, snapshot.allIncludesForDocument(doc->fileName())) {
+    for (const QString &include : snapshot.allIncludesForDocument(doc->fileName())) {
         if (include.endsWith(gtestH))
             return true;
     }
@@ -71,7 +71,7 @@ static bool includesGTest(const CPlusPlus::Document::Ptr &doc,
 
 static bool hasGTestNames(const CPlusPlus::Document::Ptr &document)
 {
-    foreach (const CPlusPlus::Document::MacroUse &macro, document->macroUses()) {
+    for (const CPlusPlus::Document::MacroUse &macro : document->macroUses()) {
         if (!macro.isFunctionLike())
             continue;
         if (GTestUtils::isGTestMacro(QLatin1String(macro.macro().name()))) {
@@ -106,7 +106,7 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
     else
         return false; // happens if shutting down while parsing
 
-    foreach (const GTestCaseSpec &testSpec, result.keys()) {
+    for (const GTestCaseSpec &testSpec : result.keys()) {
         GTestParseResult *parseResult = new GTestParseResult(id);
         parseResult->itemType = TestTreeItem::TestCase;
         parseResult->fileName = filePath;
@@ -116,7 +116,7 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
         parseResult->disabled = testSpec.disabled;
         parseResult->proFile = proFile;
 
-        foreach (const GTestCodeLocationAndType &location, result.value(testSpec)) {
+        for (const GTestCodeLocationAndType &location : result.value(testSpec)) {
             GTestParseResult *testSet = new GTestParseResult(id);
             testSet->name = location.m_name;
             testSet->fileName = filePath;

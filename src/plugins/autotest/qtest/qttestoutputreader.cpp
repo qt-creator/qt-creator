@@ -59,9 +59,9 @@ static QString formatResult(double value)
 {
     //NAN is not supported with visual studio 2010
     if (value < 0)// || value == NAN)
-        return QLatin1String("NAN");
+        return QString("NAN");
     if (value == 0)
-        return QLatin1String("0");
+        return QString("0");
 
     int significantDigits = 0;
     qreal divisor = 1;
@@ -83,7 +83,7 @@ static QString formatResult(double value)
         beforeDecimalPoint.append('0');
 
     int afterUse = significantDigits - beforeUse;
-    if (beforeDecimalPoint == QLatin1String("0") && !afterDecimalPoint.isEmpty()) {
+    if (beforeDecimalPoint == QString("0") && !afterDecimalPoint.isEmpty()) {
         ++afterUse;
         int i = 0;
         while (i < afterDecimalPoint.count() && afterDecimalPoint.at(i) == '0')

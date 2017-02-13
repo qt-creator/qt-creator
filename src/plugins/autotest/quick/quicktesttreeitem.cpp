@@ -112,9 +112,9 @@ bool QuickTestTreeItem::canProvideTestConfiguration() const
 TestConfiguration *QuickTestTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
-    QTC_ASSERT(project, return 0);
+    QTC_ASSERT(project, return nullptr);
 
-    QuickTestConfiguration *config = 0;
+    QuickTestConfiguration *config = nullptr;
     switch (type()) {
     case TestCase: {
         QStringList testFunctions;
@@ -136,7 +136,7 @@ TestConfiguration *QuickTestTreeItem::testConfiguration() const
         break;
     }
     default:
-        return 0;
+        return nullptr;
     }
     return config;
 }
@@ -185,7 +185,7 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
     if (!project || type() != Root)
         return result;
 
-    QuickTestConfiguration *tc = 0;
+    QuickTestConfiguration *tc = nullptr;
     QHash<QString, QuickTestConfiguration *> foundProFiles;
     // unnamed Quick Tests must be handled first
     if (TestTreeItem *unnamed = unnamedQuickTests()) {
@@ -266,7 +266,7 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
 
 TestTreeItem *QuickTestTreeItem::find(const TestParseResult *result)
 {
-    QTC_ASSERT(result, return 0);
+    QTC_ASSERT(result, return nullptr);
 
     switch (type()) {
     case Root:
@@ -275,7 +275,7 @@ TestTreeItem *QuickTestTreeItem::find(const TestParseResult *result)
         return name().isEmpty() ? findChildByNameAndFile(result->name, result->fileName)
                                 : findChildByName(result->name);
     default:
-        return 0;
+        return nullptr;
     }
 }
 
@@ -310,14 +310,14 @@ bool QuickTestTreeItem::lessThan(const TestTreeItem *other, TestTreeItem::SortMo
 TestTreeItem *QuickTestTreeItem::unnamedQuickTests() const
 {
     if (type() != Root)
-        return 0;
+        return nullptr;
 
     for (int row = 0, count = childCount(); row < count; ++row) {
         TestTreeItem *child = childItem(row);
         if (child->name().isEmpty())
             return child;
     }
-    return 0;
+    return nullptr;
 }
 
 } // namespace Internal

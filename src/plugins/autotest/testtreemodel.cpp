@@ -56,13 +56,13 @@ TestTreeModel::TestTreeModel(QObject *parent) :
     setupParsingConnections();
 }
 
-static TestTreeModel *m_instance = 0;
+static TestTreeModel *s_instance = nullptr;
 
 TestTreeModel *TestTreeModel::instance()
 {
-    if (!m_instance)
-        m_instance = new TestTreeModel;
-    return m_instance;
+    if (!s_instance)
+        s_instance = new TestTreeModel;
+    return s_instance;
 }
 
 TestTreeModel::~TestTreeModel()
@@ -75,7 +75,7 @@ TestTreeModel::~TestTreeModel()
         takeItem(item); // do NOT delete the item as it's still a ptr hold by TestFrameworkManager
     }
 
-    m_instance = 0;
+    s_instance = nullptr;
 }
 
 void TestTreeModel::setupParsingConnections()
@@ -177,7 +177,7 @@ void TestTreeModel::syncTestFrameworks()
 
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     QVector<Core::Id> sortedIds = frameworkManager->sortedActiveFrameworkIds();
-    foreach (const Core::Id &id, sortedIds)
+    for (const Core::Id &id : sortedIds)
         rootItem()->appendChild(frameworkManager->rootNodeForTestFramework(id));
 
     m_parser->syncTestFrameworks(sortedIds);
@@ -186,7 +186,7 @@ void TestTreeModel::syncTestFrameworks()
 
 void TestTreeModel::removeFiles(const QStringList &files)
 {
-    foreach (const QString &file, files)
+    for (const QString &file : files)
         markForRemoval(file);
     sweep();
 }
@@ -268,7 +268,7 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
             emit dataChanged(idx, idx);
         }
         // recursively handle children of this item
-        foreach (const TestParseResult *child, result->children)
+        for (const TestParseResult *child : result->children)
             handleParseResult(child, toBeModified);
         return;
     }
@@ -324,14 +324,14 @@ TestTreeItem *TestTreeModel::unnamedQuickTests() const
 {
     TestTreeItem *rootNode = quickRootNode();
     if (!rootNode)
-        return 0;
+        return nullptr;
 
     for (int row = 0, count = rootNode->childCount(); row < count; ++row) {
         TestTreeItem *child = rootNode->childItem(row);
         if (child->name().isEmpty())
             return child;
     }
-    return 0;
+    return nullptr;
 }
 
 int TestTreeModel::namedQuickTestsCount() const

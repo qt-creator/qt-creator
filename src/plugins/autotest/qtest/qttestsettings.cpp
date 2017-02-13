@@ -72,13 +72,13 @@ QString QtTestSettings::metricsTypeToOption(const MetricsType type)
     case MetricsType::Walltime:
         return QString();
     case MetricsType::TickCounter:
-        return QLatin1String("-tickcounter");
+        return QString("-tickcounter");
     case MetricsType::EventCounter:
-        return QLatin1String("-eventcounter");
+        return QString("-eventcounter");
     case MetricsType::CallGrind:
-        return QLatin1String("-callgrind");
+        return QString("-callgrind");
     case MetricsType::Perf:
-        return QLatin1String("-perf");
+        return QString("-perf");
     default:
         return QString();
     }

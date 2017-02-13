@@ -123,7 +123,7 @@ void TestCodeParser::syncTestFrameworks(const QVector<Core::Id> &frameworkIds)
     m_testCodeParsers.clear();
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     qCDebug(LOG) << "Setting" << frameworkIds << "as current parsers";
-    foreach (const Core::Id &id, frameworkIds) {
+    for (const Core::Id &id : frameworkIds) {
         ITestParser *testParser = frameworkManager->testParserForTestFramework(id);
         QTC_ASSERT(testParser, continue);
         m_testCodeParsers.append(testParser);
@@ -292,7 +292,7 @@ bool TestCodeParser::postponed(const QStringList &fileList)
             if (m_fullUpdatePostponed)
                 return true;
             // partial parse triggered, postpone or add current files to already postponed partial
-            foreach (const QString &file, fileList)
+            for (const QString &file : fileList)
                 m_postponedFiles.insert(file);
             m_partialUpdatePostponed = true;
         }
@@ -307,7 +307,7 @@ static void parseFileForTests(const QVector<ITestParser *> &parsers,
                               QFutureInterface<TestParseResultPtr> &futureInterface,
                               const QString &fileName)
 {
-    foreach (ITestParser *parser, parsers) {
+    for (ITestParser *parser : parsers) {
         if (futureInterface.isCanceled())
             return;
         if (parser->processDocument(futureInterface, fileName))
@@ -357,7 +357,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
         });
         m_model->markAllForRemoval();
     } else {
-        foreach (const QString &filePath, list)
+        for (const QString &filePath : list)
             m_model->markForRemoval(filePath);
     }
 
@@ -373,7 +373,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList)
         return;
     }
     qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "StartParsing";
-    foreach (ITestParser *parser, m_testCodeParsers)
+    for (ITestParser *parser : m_testCodeParsers)
         parser->init(list);
 
     QFuture<TestParseResultPtr> future = Utils::map(list,

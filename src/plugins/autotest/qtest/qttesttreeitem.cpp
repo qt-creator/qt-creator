@@ -102,9 +102,9 @@ bool QtTestTreeItem::canProvideDebugConfiguration() const
 TestConfiguration *QtTestTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
-    QTC_ASSERT(project, return 0);
+    QTC_ASSERT(project, return nullptr);
 
-    QtTestConfiguration *config = 0;
+    QtTestConfiguration *config = nullptr;
     switch (type()) {
     case TestCase:
         config = new QtTestConfiguration;
@@ -125,9 +125,9 @@ TestConfiguration *QtTestTreeItem::testConfiguration() const
     }
     case TestDataTag: {
         const TestTreeItem *function = parentItem();
-        const TestTreeItem *parent = function ? function->parentItem() : 0;
+        const TestTreeItem *parent = function ? function->parentItem() : nullptr;
         if (!parent)
-            return 0;
+            return nullptr;
         const QString functionWithTag = function->name() + ':' + name();
         config = new QtTestConfiguration();
         config->setTestCases(QStringList(functionWithTag));
@@ -138,7 +138,7 @@ TestConfiguration *QtTestTreeItem::testConfiguration() const
         break;
     }
     default:
-        return 0;
+        return nullptr;
     }
     return config;
 }
@@ -180,7 +180,7 @@ QList<TestConfiguration *> QtTestTreeItem::getSelectedTestConfigurations() const
     if (!project || type() != Root)
         return result;
 
-    QtTestConfiguration *testConfiguration = 0;
+    QtTestConfiguration *testConfiguration = nullptr;
 
     for (int row = 0, count = childCount(); row < count; ++row) {
         const TestTreeItem *child = childItem(row);
@@ -231,7 +231,7 @@ QList<TestConfiguration *> QtTestTreeItem::getSelectedTestConfigurations() const
 
 TestTreeItem *QtTestTreeItem::find(const TestParseResult *result)
 {
-    QTC_ASSERT(result, return 0);
+    QTC_ASSERT(result, return nullptr);
 
     switch (type()) {
     case Root:
@@ -245,7 +245,7 @@ TestTreeItem *QtTestTreeItem::find(const TestParseResult *result)
     case TestSpecialFunction:
         return findChildByName(result->name);
     default:
-        return 0;
+        return nullptr;
     }
 }
 
@@ -277,9 +277,9 @@ TestTreeItem *QtTestTreeItem::findChildByNameAndInheritance(const QString &name,
 
 QString QtTestTreeItem::nameSuffix() const
 {
-    static QString inheritedSuffix = QLatin1String(" [")
+    static QString inheritedSuffix = QString(" [")
                 + QCoreApplication::translate("QtTestTreeItem", "inherited")
-                + QLatin1String("]");
+                + QString("]");
     return m_inherited ? inheritedSuffix : QString();
 }
 

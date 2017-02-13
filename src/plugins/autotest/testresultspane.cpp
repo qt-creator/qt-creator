@@ -165,7 +165,7 @@ void TestResultsPane::createToolButtons()
 
     m_runSelected = new QToolButton(m_treeView);
     Utils::Icon runSelectedIcon = Utils::Icons::RUN_SMALL_TOOLBAR;
-    foreach (const Utils::IconMaskAndColor &maskAndColor, Icons::RUN_SELECTED_OVERLAY)
+    for (const Utils::IconMaskAndColor &maskAndColor : Icons::RUN_SELECTED_OVERLAY)
         runSelectedIcon.append(maskAndColor);
     m_runSelected->setIcon(runSelectedIcon.icon());
     m_runSelected->setToolTip(tr("Run Selected Tests"));
@@ -190,19 +190,19 @@ void TestResultsPane::createToolButtons()
     m_filterButton->setMenu(m_filterMenu);
 }
 
-static TestResultsPane *m_instance = 0;
+static TestResultsPane *s_instance = nullptr;
 
 TestResultsPane *TestResultsPane::instance()
 {
-    if (!m_instance)
-        m_instance = new TestResultsPane;
-    return m_instance;
+    if (!s_instance)
+        s_instance = new TestResultsPane;
+    return s_instance;
 }
 
 TestResultsPane::~TestResultsPane()
 {
     delete m_treeView;
-    m_instance = 0;
+    s_instance = nullptr;
 }
 
 void TestResultsPane::addTestResult(const TestResultPtr &result)
@@ -419,7 +419,7 @@ void TestResultsPane::initializeFilterMenu()
     textAndType.insert(Result::MessageDebug, tr("Debug Messages"));
     textAndType.insert(Result::MessageWarn, tr("Warning Messages"));
     textAndType.insert(Result::MessageInternal, tr("Internal Messages"));
-    foreach (Result::Type result, textAndType.keys()) {
+    for (Result::Type result : textAndType.keys()) {
         QAction *action = new QAction(m_filterMenu);
         action->setText(textAndType.value(result));
         action->setCheckable(true);
@@ -464,7 +464,7 @@ void TestResultsPane::updateSummaryLabel()
 
 void TestResultsPane::enableAllFilter()
 {
-    foreach (QAction *action, m_filterMenu->actions()) {
+    for (QAction *action : m_filterMenu->actions()) {
         if (action->isCheckable())
             action->setChecked(true);
     }

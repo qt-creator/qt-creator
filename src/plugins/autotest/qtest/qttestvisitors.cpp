@@ -142,7 +142,7 @@ bool TestAstVisitor::visit(CPlusPlus::CallAST *ast)
 bool TestAstVisitor::visit(CPlusPlus::CompoundStatementAST *ast)
 {
     if (!ast || !ast->symbol) {
-        m_currentScope = 0;
+        m_currentScope = nullptr;
         return false;
     }
     m_currentScope = ast->symbol->asScope();

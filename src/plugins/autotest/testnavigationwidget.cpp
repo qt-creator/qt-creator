@@ -118,10 +118,10 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
     const bool hasTests = m_model->hasTests();
 
     QMenu menu;
-    QAction *runThisTest = 0;
-    QAction *runWithoutDeploy = 0;
-    QAction *debugThisTest = 0;
-    QAction *debugWithoutDeploy = 0;
+    QAction *runThisTest = nullptr;
+    QAction *runWithoutDeploy = nullptr;
+    QAction *debugThisTest = nullptr;
+    QAction *debugWithoutDeploy = nullptr;
     const QModelIndexList list = m_view->selectionModel()->selectedIndexes();
     if (list.size() == 1) {
         const QModelIndex index = list.first();
@@ -312,7 +312,7 @@ void TestNavigationWidget::onRunThisTestTriggered(TestRunner::Mode runMode)
         configuration = item->debugConfiguration();
         break;
     default:
-        configuration = 0;
+        configuration = nullptr;
     }
 
     if (configuration) {

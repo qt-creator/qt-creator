@@ -46,7 +46,7 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.frameworkmanager")
 namespace Autotest {
 namespace Internal {
 
-TestFrameworkManager *s_instance = 0;
+TestFrameworkManager *s_instance = nullptr;
 
 TestFrameworkManager::TestFrameworkManager()
 {
@@ -100,7 +100,7 @@ void TestFrameworkManager::activateFrameworksFromSettings(QSharedPointer<TestSet
 
 QString TestFrameworkManager::frameworkNameForId(const Core::Id &id) const
 {
-    ITestFramework *framework = m_registeredFrameworks.value(id, 0);
+    ITestFramework *framework = m_registeredFrameworks.value(id, nullptr);
     return framework ? QString::fromLatin1(framework->name()) : QString();
 }
 
@@ -143,15 +143,15 @@ QVector<Core::Id> TestFrameworkManager::sortedActiveFrameworkIds() const
 
 TestTreeItem *TestFrameworkManager::rootNodeForTestFramework(const Core::Id &frameworkId) const
 {
-    ITestFramework *framework = m_registeredFrameworks.value(frameworkId, 0);
-    return framework ? framework->rootNode() : 0;
+    ITestFramework *framework = m_registeredFrameworks.value(frameworkId, nullptr);
+    return framework ? framework->rootNode() : nullptr;
 }
 
 ITestParser *TestFrameworkManager::testParserForTestFramework(const Core::Id &frameworkId) const
 {
-    ITestFramework *framework = m_registeredFrameworks.value(frameworkId, 0);
+    ITestFramework *framework = m_registeredFrameworks.value(frameworkId, nullptr);
     if (!framework)
-        return 0;
+        return nullptr;
     ITestParser *testParser = framework->testParser();
     qCDebug(LOG) << "Setting" << frameworkId << "as Id for test parser";
     testParser->setId(frameworkId);

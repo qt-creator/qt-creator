@@ -32,7 +32,7 @@
 namespace Autotest {
 namespace Internal {
 
-static CppParser *s_parserInstance = 0;
+static CppParser *s_parserInstance = nullptr;
 
 CppParser::CppParser()
 {

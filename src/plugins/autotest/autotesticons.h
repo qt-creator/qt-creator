@@ -31,12 +31,12 @@ namespace Autotest {
 namespace Icons {
 
 const Utils::Icon SORT_ALPHABETICALLY({
-        {QLatin1String(":/images/sort.png"), Utils::Theme::IconsBaseColor}});
+        {":/images/sort.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon SORT_NATURALLY({
-        {QLatin1String(":/images/leafsort.png"), Utils::Theme::IconsBaseColor}});
+        {":/images/leafsort.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon RUN_SELECTED_OVERLAY({
-        {QLatin1String(":/images/runselected_boxes.png"), Utils::Theme::BackgroundColorDark},
-        {QLatin1String(":/images/runselected_tickmarks.png"), Utils::Theme::IconsBaseColor}});
+        {":/images/runselected_boxes.png", Utils::Theme::BackgroundColorDark},
+        {":/images/runselected_tickmarks.png", Utils::Theme::IconsBaseColor}});
 
 const Utils::Icon RESULT_PASS({
         {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestPassTextColor}},
