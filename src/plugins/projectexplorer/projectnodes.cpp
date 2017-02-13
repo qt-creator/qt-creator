@@ -33,8 +33,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -401,20 +403,29 @@ FolderNode *FolderNode::folderNode(const Utils::FileName &directory) const
     }));
 }
 
-FolderNode *FolderNode::recursiveFindOrCreateFolderNode(const QString &directory,
+FolderNode *FolderNode::recursiveFindOrCreateFolderNode(const Utils::FileName &directory,
                                                         const Utils::FileName &overrideBaseDir)
 {
     Utils::FileName path = overrideBaseDir.isEmpty() ? filePath() : overrideBaseDir;
-    QString workPath;
+
+    Utils::FileName directoryWithoutPrefix;
+    bool isRelative = false;
+
     if (path.isEmpty() || path.toFileInfo().isRoot()) {
-        workPath = directory;
+        directoryWithoutPrefix = directory;
+        isRelative = false;
     } else {
-        QDir parentDir(path.toString());
-        workPath = parentDir.relativeFilePath(directory);
-        if (workPath == ".")
-            workPath.clear();
+        if (directory.isChildOf(path) || directory == path) {
+            isRelative = true;
+            directoryWithoutPrefix = directory.relativeChildPath(path);
+        } else {
+            isRelative = false;
+            directoryWithoutPrefix = directory;
+        }
     }
-    const QStringList parts = workPath.split('/', QString::SkipEmptyParts);
+    QStringList parts = directoryWithoutPrefix.toString().split('/', QString::SkipEmptyParts);
+    if (!Utils::HostOsInfo::isWindowsHost() && !isRelative && parts.count() > 0)
+        parts[0].prepend('/');
 
     ProjectExplorer::FolderNode *parent = this;
     foreach (const QString &part, parts) {
@@ -440,7 +451,8 @@ void FolderNode::buildTree(QList<FileNode *> &files, const Utils::FileName &over
     foreach (ProjectExplorer::FileNode *fn, files) {
         // Get relative path to rootNode
         QString parentDir = fn->filePath().toFileInfo().absolutePath();
-        ProjectExplorer::FolderNode *folder = recursiveFindOrCreateFolderNode(parentDir, overrideBaseDir);
+        ProjectExplorer::FolderNode *folder
+                = recursiveFindOrCreateFolderNode(Utils::FileName::fromString(parentDir), overrideBaseDir);
         folder->addNode(fn);
     }
 
