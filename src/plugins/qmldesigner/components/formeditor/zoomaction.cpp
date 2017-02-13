@@ -57,16 +57,9 @@ void ZoomAction::zoomOut()
 
 void ZoomAction::setZoomLevel(double zoomLevel)
 {
-    if (zoomLevel < .1)
-        m_zoomLevel = 0.1;
-    else if (zoomLevel > 16.0)
-        m_zoomLevel = 16.0;
-    else
-        m_zoomLevel = zoomLevel;
-
+    m_zoomLevel = qBound(0.1, zoomLevel, 16.0);
     emit zoomLevelChanged(m_zoomLevel);
 }
-
 
 QWidget *ZoomAction::createWidget(QWidget *parent)
 {
