@@ -1696,7 +1696,9 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
         // update TargetInformation
         m_qmakeTargetInformation = result->targetInformation;
 
-        m_subProjectsNotToDeploy = result->subProjectsNotToDeploy;
+        m_subProjectsNotToDeploy
+                = Utils::transform(result->subProjectsNotToDeploy,
+                                   [](const QString &s) { return FileName::fromString(s); });
         m_installsList = result->installsList;
 
         if (m_varValues != result->newVarValues)

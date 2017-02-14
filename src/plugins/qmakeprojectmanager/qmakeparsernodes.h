@@ -276,7 +276,7 @@ public:
     QStringList variableValue(const Variable var) const;
     QString singleVariableValue(const Variable var) const;
 
-    bool isSubProjectDeployable(const QString &filePath) const {
+    bool isSubProjectDeployable(const Utils::FileName &filePath) const {
         return !m_subProjectsNotToDeploy.contains(filePath);
     }
 
@@ -349,7 +349,7 @@ private:
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
 
     TargetParserInformation m_qmakeTargetInformation;
-    QStringList m_subProjectsNotToDeploy;
+    Utils::FileNameList m_subProjectsNotToDeploy;
     InstallsParserList m_installsList;
 
     // Async stuff
