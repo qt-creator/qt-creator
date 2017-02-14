@@ -17,5 +17,9 @@ Qbs Projects
 
 Version Control Systems
 
-* Gerrit
+* Git
     * Fixed crash when committing and pushing to Gerrit (QTCREATORBUG-17634)
+    * Fixed searching for patterns starting with dash in `Files in File System`
+      when using `git grep`
+    * Fixed discarding changes before performing other actions (such as Pull)
+      (QTCREATORBUG-17156)

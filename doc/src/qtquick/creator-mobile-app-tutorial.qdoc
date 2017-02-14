@@ -66,7 +66,7 @@
     Program certificate that you receive from Apple. For more information, see
     \l{Connecting iOS Devices}.
 
-    \include creator-tutorial-create-qq-project.qdocinc
+    \include creator-tutorial-create-qq-project.qdocinc qt quick application
 
     \section1 Creating the Accelbubble Main View
 

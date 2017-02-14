@@ -153,7 +153,7 @@ public:
             arguments << "-P";
         else
             arguments << "-F";
-        arguments << m_parameters.text;
+        arguments << "-e" << m_parameters.text;
         GitGrepParameters params = m_parameters.searchEngineParameters.value<GitGrepParameters>();
         if (!params.ref.isEmpty()) {
             arguments << params.ref;

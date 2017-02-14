@@ -54,7 +54,7 @@
     For examples of using Qt Quick Controls 2, see
     \l{Qt Quick Controls 2 Examples}.
 
-    \include creator-tutorial-create-qq-project.qdocinc
+    \include creator-tutorial-create-qq-project.qdocinc qt quick application
 
     \section1 Creating the Main View
 

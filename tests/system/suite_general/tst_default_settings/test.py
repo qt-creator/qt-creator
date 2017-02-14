@@ -87,7 +87,8 @@ def __checkBuildAndRun__():
 def __processSubItems__(treeObjStr, section, parModelIndexStr, doneItems,
                         additionalFunc, *additionalParameters):
     global currentSelectedTreeItem
-    model = waitForObject(treeObjStr).model()
+    tree = waitForObject(treeObjStr)
+    model = tree.model()
     items = dumpIndices(model, section)
     for it in items:
         indexName = str(it.data().toString())
@@ -97,6 +98,7 @@ def __processSubItems__(treeObjStr, section, parModelIndexStr, doneItems,
         if alreadyDone:
             itObj = "%s occurrence='%d'}" % (itObj[:-1], alreadyDone + 1)
         currentSelectedTreeItem = waitForObject(itObj, 3000)
+        tree.scrollTo(it)
         mouseClick(currentSelectedTreeItem, 5, 5, 0, Qt.LeftButton)
         additionalFunc(indexName, *additionalParameters)
         currentSelectedTreeItem = None

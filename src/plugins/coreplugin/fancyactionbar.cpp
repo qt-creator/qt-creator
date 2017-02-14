@@ -325,6 +325,7 @@ void FancyToolButton::hoverOverlay(QPainter *painter, const QRect &spanRect)
         p.setPen(QPen(grad, 1.0));
         p.drawLine(borderRect.topLeft(), borderRect.topRight());
         p.drawLine(borderRect.bottomLeft(), borderRect.bottomRight());
+        p.end();
 
         QPixmapCache::insert(cacheKey, overlay);
     }

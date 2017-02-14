@@ -2830,6 +2830,8 @@ class DumperBase:
         def integer(self):
             if self.type.code == TypeCodeTypedef:
                 return self.detypedef().integer()
+            elif self.type.code == TypeCodeBitfield:
+                return self.lvalue
             unsigned = self.type.name.startswith('unsigned')
             bitsize = self.type.bitsize()
             return self.extractInteger(bitsize, unsigned)

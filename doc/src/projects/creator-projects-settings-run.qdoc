@@ -61,12 +61,12 @@
     \QC creates run configurations only for subprojects that also have
     \c {CONFIG += qtc_runnable} set in their .pro files.
 
-    \include projects/creator-projects-settings-run-desktop.qdocinc
-    \include projects/creator-projects-settings-run-analyze.qdocinc
-    \include projects/creator-projects-settings-run-debug.qdocinc
-    \include linux-mobile/creator-projects-settings-run-linux.qdocinc
-    \include qnx/creator-projects-settings-run-qnx.qdocinc
-    \include linux-mobile/creator-projects-settings-run-b2qt.qdocinc
+    \include projects/creator-projects-settings-run-desktop.qdocinc run settings desktop
+    \include projects/creator-projects-settings-run-analyze.qdocinc settings valgrind
+    \include projects/creator-projects-settings-run-debug.qdocinc run settings debugger
+    \include linux-mobile/creator-projects-settings-run-linux.qdocinc run settings linux
+    \include qnx/creator-projects-settings-run-qnx.qdocinc run settings qnx
+    \include linux-mobile/creator-projects-settings-run-b2qt.qdocinc run settings embedded
 
     \section1 Selecting the Run Environment
 
@@ -105,5 +105,5 @@
 
     \image qmldesigner-run-custom-exe.png "Run settings for custom executables"
 
-    \include qtquick/creator-projects-settings-run-qtquick.qdocinc
+    \include qtquick/creator-projects-settings-run-qtquick.qdocinc run settings qt quick ui
 */
