@@ -27,6 +27,7 @@
 #include <clangstaticanalyzer/clangstaticanalyzerrunner.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/temporarydirectory.h>
 
 #include <QtTest>
 
@@ -168,8 +169,7 @@ void ClangStaticAnalyzerRunnerTest::runWithTestCodeGeneratedOneIssue()
             "}\n";
     QVERIFY(writeFile(testFilePath, source));
 
-    QTemporaryDir temporaryDir(QDir::tempPath() + QLatin1String("/qtc-clangstaticanalyzer-XXXXXX"));
-    QVERIFY(temporaryDir.isValid());
+    Utils::TemporaryDirectory temporaryDir("runWithTestCodeGeneratedOneIssue");
     ClangStaticAnalyzerRunner runner(m_clangExecutable, temporaryDir.path(),
                                      Utils::Environment::systemEnvironment());
 
@@ -185,8 +185,7 @@ void ClangStaticAnalyzerRunnerTest::runWithNonExistentFileToAnalyze()
     if (m_clangExecutable.isEmpty())
         QSKIP("Clang executable in PATH required.");
 
-    QTemporaryDir temporaryDir(QDir::tempPath() + QLatin1String("/qtc-clangstaticanalyzer-XXXXXX"));
-    QVERIFY(temporaryDir.isValid());
+    Utils::TemporaryDirectory temporaryDir("runWithNonExistentFileToAnalyze");
     ClangStaticAnalyzerRunner runner(m_clangExecutable, temporaryDir.path(),
                                      Utils::Environment::systemEnvironment());
 
@@ -197,6 +196,14 @@ void ClangStaticAnalyzerRunnerTest::runWithNonExistentFileToAnalyze()
     QVERIFY(st.expectFinishWithFailureSignal(finishedWithBadExitCode(1)));
 }
 
-QTEST_MAIN(ClangStaticAnalyzerRunnerTest)
+int main(int argc, char *argv[])
+{
+    Utils::TemporaryDirectory::setMasterTemporaryDirectory(
+                QDir::tempPath() + "/qtc-clangstaticanalyzer-test-XXXXXX");
+
+    QCoreApplication app(argc, argv);
+    ClangStaticAnalyzerRunnerTest test;
+    return QTest::qExec(&test, argc, argv);
+}
 
 #include "tst_clangstaticanalyzerrunner.moc"
