@@ -273,6 +273,7 @@ static void paintSelectedTabBackground(QPainter *painter, const QRect &spanRect)
         p.drawLine(borderRect.topLeft() + QPointF(0, 0), borderRect.topRight());
         p.drawLine(borderRect.topRight() + QPointF(0, 1), borderRect.bottomRight() - QPointF(0, 1));
         p.drawLine(borderRect.bottomLeft() + QPointF(0, -1), borderRect.bottomRight() - QPointF(0, 1));
+        p.end();
 
         QPixmapCache::insert(cacheKey, selection);
     }

@@ -60,10 +60,14 @@
             \l{http://threejs.org}{three.js}.
 
         \li \uicontrol {Qt Quick 2 UI} (in the \uicontrol {Other Project}
-            category) creates a Qt Quick UI project with a single QML file that
+            category) creates a \l{Creating Qt Quick UI Projects}
+            {Qt Quick UI project} with a single QML file that
             contains the main view. You can review Qt Quick 2 UI projects in the
             \l{Previewing QML Files}{QML Scene preview tool}. You do not need to
             build them, because they do not contain any C++ code.
+            Qt Quick UI projects cannot be deployed to embedded or mobile
+            target platforms. For those platforms, create a Qt Quick application
+            instead.
 
         \li \uicontrol {Qt Quick 2 Extension Plugin} (in the \uicontrol Library category)
             create C++ plugins that make it possible to offer extensions that
@@ -120,6 +124,18 @@
     \include creator-tutorial-create-qq-project.qdocinc
 
     \section1 Creating Qt Quick UI Projects
+
+    Qt Quick UI projects are useful for testing or prototyping user interfaces,
+    or for setting up a separate project just for QML editing, for example. You
+    cannot use them for application development, because they do not contain:
+
+    \list
+        \li C++ code
+        \li Resource files (.qrc)
+        \li Code needed for deploying applications to mobile or embedded devices
+    \endlist
+
+    To create a Qt Quick UI project:
 
     \list 1
 

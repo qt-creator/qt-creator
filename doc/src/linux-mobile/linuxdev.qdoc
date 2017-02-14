@@ -133,6 +133,6 @@
 
     \endlist
 
-    \include linux-mobile/linuxdev-keys.qdocinc
-    \include linux-mobile/linuxdev-processes.qdocinc
+    \include linux-mobile/linuxdev-keys.qdocinc generating ssh keys
+    \include linux-mobile/linuxdev-processes.qdocinc managing device processes
 */

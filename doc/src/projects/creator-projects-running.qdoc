@@ -64,6 +64,6 @@
     For more information on the options you have, see
     \l{Specifying Run Settings}.
 
-    \include linux-mobile/creator-projects-running-generic-linux.qdocinc
-    \include qnx/creator-projects-running-qnx.qdocinc
+    \include linux-mobile/creator-projects-running-generic-linux.qdocinc running on embedded linux
+    \include qnx/creator-projects-running-qnx.qdocinc running on qnx
 */

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProfiles>
-<!-- Written by QtCreator 4.2.1, 2017-01-05T18:03:28. -->
+<!-- Written by QtCreator 4.2.2, 2017-02-10T17:44:37. -->
 <qtcreator>
  <data>
   <variable>Profile.0</variable>
@@ -37,7 +37,7 @@
    <value type="QString" key="PE.Profile.AutoDetectionSource"></value>
    <valuemap type="QVariantMap" key="PE.Profile.Data">
     <value type="QString" key="Android.GdbServer.Information"></value>
-    <value type="QString" key="Debugger.Information">{811977c9-ea95-4616-bc28-c66d1935ff65}</value>
+    <value type="QString" key="Debugger.Information">{1b25f20a-d584-4fb7-85b3-74dd15b82f6f}</value>
     <value type="QString" key="PE.Profile.Device">Desktop Device</value>
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
     <valuelist type="QVariantList" key="PE.Profile.Environment"/>
@@ -65,7 +65,7 @@
    <value type="QString" key="PE.Profile.AutoDetectionSource"></value>
    <valuemap type="QVariantMap" key="PE.Profile.Data">
     <value type="QString" key="Android.GdbServer.Information"></value>
-    <value type="QString" key="Debugger.Information">{811977c9-ea95-4616-bc28-c66d1935ff65}</value>
+    <value type="QString" key="Debugger.Information">{1b25f20a-d584-4fb7-85b3-74dd15b82f6f}</value>
     <value type="QString" key="PE.Profile.Device">Desktop Device</value>
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
     <valuelist type="QVariantList" key="PE.Profile.Environment"/>
@@ -121,7 +121,7 @@
    <value type="QString" key="PE.Profile.AutoDetectionSource"></value>
    <valuemap type="QVariantMap" key="PE.Profile.Data">
     <value type="QString" key="Android.GdbServer.Information"></value>
-    <value type="QString" key="Debugger.Information">{811977c9-ea95-4616-bc28-c66d1935ff65}</value>
+    <value type="QString" key="Debugger.Information">{1b25f20a-d584-4fb7-85b3-74dd15b82f6f}</value>
     <value type="QString" key="PE.Profile.Device">Desktop Device</value>
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
     <valuelist type="QVariantList" key="PE.Profile.Environment"/>

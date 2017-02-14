@@ -72,8 +72,8 @@ private:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
-    bool m_useTerminal;
-    bool m_userSet;
+    bool m_useTerminal = false;
+    bool m_userSet = false;
     QPointer<QCheckBox> m_checkBox; // Owned by RunConfigWidget
     QString m_key;
 };

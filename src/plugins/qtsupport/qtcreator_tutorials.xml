@@ -19,7 +19,7 @@
     </tutorial>
     <tutorial imageUrl=":qtsupport/images/icons/androidapp.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qtcreator-accelbubble-example.html" projectPath="" name="Creating a Mobile Application">
       <description><![CDATA[Developing Qt Quick applications for Android and iOS devices using Qt Quick Controls.]]></description>
-      <tags>qt creator,qt quick designer,qml,android</tags>
+      <tags>qt creator,qt quick designer,qml,android,ios,controls</tags>
     </tutorial>
     <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtdoc/qtdoc/gettingstartedqml.html" projectPath="" name="Getting Started Programming with Qt Quick">
       <description><![CDATA[Developing Qt Quick applications using QML and C++.]]></description>
@@ -49,76 +49,76 @@
       <description><![CDATA[Using the Linux perf tool to generate data for code analysis.]]></description>
       <tags>qt creator,cpu usage analyzer,perf</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/ddays13.png" difficulty="" projectPath="" name="Targeting Multiple Mobile Platforms with Qt Creator" isVideo="true" videoUrl="http://www.youtube.com/watch?v=jDRup5z2qz0" videoLength="52:38">
-      <description><![CDATA[Using Qt Creator to develop a cross-platform application for mobile devices and other small devices.]]></description>
-      <tags>qt creator,qt quick,qml,c++,android,sailfishos</tags>
+    <tutorial imageUrl=":qtsupport/images/icons/worldsummit16.png" difficulty="" projectPath="" name="Qt SCXML: State Machines Made Easier" isVideo="true" videoUrl="https://youtu.be/X0kEkB0ewyw" videoLength="42:22">
+      <description><![CDATA[Using the Qt SCXML module and Qt Creator SCXML editor.]]></description>
+      <tags>qt creator,SCXML</tags>
     </tutorial>
     <tutorial imageUrl=":qtsupport/images/icons/worldsummit15.png" difficulty="" projectPath="" name="Effective Multi-Platform Development with Qt Creator, Qbs, and QEMU" isVideo="true" videoUrl="https://www.youtube.com/watch?v=v4glCQt2jE0" videoLength="19:08">
       <description><![CDATA[Using Qt Creator, Qbs, and QEMU for application development.]]></description>
       <tags>qt creator,qbs,qemu</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/worldsummit15.png" difficulty="" projectPath="" name="Getting Started with Qt on Android" isVideo="true" videoUrl="https://www.youtube.com/watch?v=FWGUA9RS_ak" videoLength="41:30">
-      <description><![CDATA[Using Qt Creator to develop a Qt Quick application for Android devices.]]></description>
+    <tutorial imageUrl=":qtsupport/images/icons/worldsummit16.png" difficulty="" projectPath="" name="All about Qt on Android" isVideo="true" videoUrl="https://youtu.be/dmKNxyi_YNk" videoLength="31:20">
+      <description><![CDATA[Developing Qt applications for Android devices.]]></description>
       <tags>qt creator,android</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/worldsummit15.png" difficulty="" projectPath="" name="Mastering Qt on Android" isVideo="true" videoUrl="https://www.youtube.com/watch?v=xqtoUCjG6GM" videoLength="43:54">
-      <description><![CDATA[Using the Qt Android Extras module.]]></description>
-      <tags>qt,android</tags>
+    <tutorial imageUrl=":qtsupport/images/icons/videotutorialicon.png" difficulty="" projectPath="" name="Meet Qt Creator" isVideo="true" videoUrl="https://youtu.be/zAqSiIGdj8M" videoLength="2:06">
+      <description><![CDATA[Overview of Qt Creator.]]></description>
+      <tags>qt creator</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/worldsummit15.png" difficulty="" projectPath="" name="Qt on iOS A to Z" isVideo="true" videoUrl="https://www.youtube.com/watch?v=8A7DPUwIcDg" videoLength="1:05:32">
-      <description><![CDATA[Using Qt Creator to develop an application for iOS.]]></description>
+    <tutorial imageUrl=":qtsupport/images/icons/worldsummit16.png" difficulty="" projectPath="" name="Qt on iOS A to Z" isVideo="true" videoUrl="https://youtu.be/T_13aX5NTPk" videoLength="1:00:13">
+      <description><![CDATA[Developing Qt applications for iOS.]]></description>
       <tags>qt creator,ios</tags>
     </tutorial>
     <tutorial imageUrl=":qtsupport/images/icons/ddays13.png" difficulty="" projectPath="" name="Qt Creator for Bare Metal Development" isVideo="true" videoUrl="http://www.youtube.com/watch?v=hrKz63Q_Rf0" videoLength="9:35">
-      <description><![CDATA[Using Qt Creator to develop for Bare Metal devices.]]></description>
+      <description><![CDATA[Developing Qt Applications for Bare Metal devices.]]></description>
       <tags>qt creator,baremetal</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/worldsummit15.png" difficulty="" projectPath="" name="Qt and Windows 10" isVideo="true" videoUrl="https://www.youtube.com/watch?v=J9QrPvr-Sg0" videoLength="21:19">
-    <description><![CDATA[Qt support for Windows 10 on desktop, mobile, and embedded devices.]]></description>
-    <tags>qt,Windows 10</tags>
+    <tutorial imageUrl=":qtsupport/images/icons/worldsummit16.png" difficulty="" projectPath="" name="Integrating Universal Windows Platform to Qt" isVideo="true" videoUrl="https://youtu.be/tpNdw2Cs4KY" videoLength="47:38">
+    <description><![CDATA[Qt support for Universal Windows Platform on desktop, mobile, and embedded devices.]]></description>
+    <tags>windows</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/worldsummit15.png" difficulty="" projectPath="" name="Developing for Windows 10 with Qt" isVideo="true" videoUrl="https://www.youtube.com/watch?v=o5Xdt-j3hkA" videoLength="38:53">
-      <description><![CDATA[Using Qt Creator to develop applications for Windows 10.]]></description>
-      <tags>qt creator,Windows 10,demo</tags>
+    <tutorial imageUrl=":qtsupport/images/icons/videotutorialicon.png" difficulty="" projectPath="" name="Qt SCXML and State Machine Tooling in Qt Creator" isVideo="true" videoUrl="https://youtu.be/9xqhq9nDiOg" videoLength="4:53">
+      <description><![CDATA[Creating state machines.]]></description>
+      <tags>qt creator,SCXML</tags>
     </tutorial>
     <tutorial imageUrl=":qtsupport/images/icons/worldsummit15.png" difficulty="" projectPath="" name="Qt for Device Creation" isVideo="true" videoUrl="https://www.youtube.com/watch?v=nRf1e-AYk0o" videoLength="57:45">
       <description><![CDATA[Creating your own embedded devices that run Qt applications.]]></description>
-      <tags>qt, embedded, device creation</tags>
+      <tags>qt,embedded,device creation</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/worldsummit15.png" difficulty="" projectPath="" name="Qt Quick Controls Re-Engineered" isVideo="true" videoUrl="https://www.youtube.com/watch?v=FqjabvHSiZk" videoLength="45:34">
-      <description><![CDATA[Overview of changes planned to Qt Quick Controls.]]></description>
-      <tags>qt quick,controls</tags>
+    <tutorial imageUrl=":qtsupport/images/icons/worldsummit16.png" difficulty="" projectPath="" name="Developing UIs with Qt Quick Controls 2" isVideo="true" videoUrl="https://youtu.be/ozpSl7WbVt4" videoLength="23:13">
+      <description><![CDATA[Using Qt Quick Controls 2 to create UIs.]]></description>
+      <tags>qt quick designer,controls</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/ddays13.png" difficulty="" projectPath="" name="Adaptable UIs with Qt Quick" isVideo="true" videoUrl="http://www.youtube.com/watch?v=7zlvbHow9Gw" videoLength="46:16">
-      <description><![CDATA[Implementing adaptable Qt Quick UIs using layouts, bindings, file selectors, and loaders.]]></description>
-      <tags>qt quick,layouts,bindings</tags>
+    <tutorial imageUrl=":qtsupport/images/icons/worldsummit16.png" difficulty="" projectPath="" name="Overview of GUI technologies in Qt" isVideo="true" videoUrl="https://youtu.be/WIRRoPxIerc" videoLength="40:45">
+      <description><![CDATA[Overview of UI technologies that can be used with Qt.]]></description>
+      <tags>qt quick,ui,widgets</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/worldsummit15.png" difficulty="" projectPath="" name="Qt 3D CAD Demo" isVideo="true" videoUrl="https://www.youtube.com/watch?v=pDgo3EQxtaE" videoLength="10:10">
-      <description><![CDATA[Creating a CAD application using Qt 3D.]]></description>
-      <tags>qt 3d,demo</tags>
+    <tutorial imageUrl=":qtsupport/images/icons/worldsummit16.png" difficulty="" projectPath="" name="Qt on Your Wrist – Qt on Android Wear" isVideo="true" videoUrl="https://youtu.be/Rd187QxihRo" videoLength="8:08">
+      <description><![CDATA[Running Qt apps on Android Wear devices.]]></description>
+      <tags>qt creator,android</tags>
     </tutorial>
     <tutorial imageUrl=":qtsupport/images/icons/worldsummit15.png" difficulty="" projectPath="" name="Effective QML" isVideo="true" videoUrl="https://www.youtube.com/watch?v=vzs5VPTf4QQ" videoLength="55:25">
       <description><![CDATA[Improving your QML code by using tools and by understanding the QML system.]]></description>
     <tags>qml,qml profiler</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/ddays14.png" difficulty="" projectPath="" name="Qt Widgets and Qt Quick Controls - A Comparison" isVideo="true" videoUrl="https://www.youtube.com/watch?v=-S9ki14ZtIk" videoLength="57:00">
-      <description><![CDATA[Comparison of Qt Widgets and Qt Quick Controls.]]></description>
-      <tags>qt quick,widgets</tags>
+    <tutorial imageUrl=":qtsupport/images/icons/worldsummit16.png" difficulty="" projectPath="" name="Qt on macOS Updates" isVideo="true" videoUrl="https://youtu.be/qfyxXxeC73Y" videoLength="25:51">
+      <description><![CDATA[Using Qt with macOS native windows.]]></description>
+      <tags>macos</tags>
     </tutorial>
     <tutorial imageUrl=":qtsupport/images/icons/worldsummit15.png" difficulty="" projectPath="" name="Qt's Web Offering - An Overview" isVideo="true" videoUrl="https://www.youtube.com/watch?v=XW-oTBCj1JQ" videoLength="23:32">
       <description><![CDATA[Overview of the Qt modules that provide functions for embedding web content into applications.]]></description>
       <tags>qt webengine</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/worldsummit15.png" difficulty="" projectPath="" name="Qt WebEngine – Taming the Beast" isVideo="true" videoUrl="https://www.youtube.com/watch?v=3CTFxhBc_1I" videoLength="58:23">
+    <tutorial imageUrl=":qtsupport/images/icons/worldsummit16.png" difficulty="" projectPath="" name="New Possibilities with Qt WebEngine" isVideo="true" videoUrl="https://youtu.be/E7CIIHT_jCk" videoLength="22:29">
       <description><![CDATA[Using the Qt WebEngine module.]]></description>
       <tags>qt webengine</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/worldsummit15.png" difficulty="" projectPath="" name="Building Desktop and Embedded UIs with Qt 3D" isVideo="true" videoUrl="https://www.youtube.com/watch?v=QCdti6xmug0" videoLength="47:40">
-      <description><![CDATA[Adding 3D content to Qt applications.]]></description>
-      <tags>qt,qt creator,3d</tags>
+    <tutorial imageUrl=":qtsupport/images/icons/worldsummit16.png" difficulty="" projectPath="" name="Qt Automotive Suite" isVideo="true" videoUrl="https://youtu.be/Ohzr1reeGDM" videoLength="26:15">
+      <description><![CDATA[Overview of the future of Qt in automotive.]]></description>
+      <tags>automotive</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/worldsummit15.png" difficulty="" projectPath="" name="Developing for Multiple Screen Resolutions" isVideo="true" videoUrl="https://www.youtube.com/watch?v=nNyhsdX6BsI" videoLength="40:09">
-      <description><![CDATA[Developing for multiple screen resolutions.]]></description>
+    <tutorial imageUrl=":qtsupport/images/icons/worldsummit16.png" difficulty="" projectPath="" name="Developing for Multiple Screen Resolutions and Platforms" isVideo="true" videoUrl="https://youtu.be/qclquZ99ZVQ" videoLength="27:44">
+      <description><![CDATA[Best practices for an efficient app lifecycle.]]></description>
       <tags>qt,qt quick,screen resolution</tags>
     </tutorial>
     </tutorials>
