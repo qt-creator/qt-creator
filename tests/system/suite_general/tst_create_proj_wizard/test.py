@@ -26,7 +26,7 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    global tmpSettingsDir
+    global tmpSettingsDir, availableBuildSystems
     qtVersionsForQuick = ["5.3"]
     availableBuildSystems = ["qmake", "Qbs"]
     if platform.system() != 'Darwin':
@@ -65,7 +65,8 @@ def main():
         for template in dumpItems(templatesView.model(), templatesView.rootIndex()):
             template = template.replace(".", "\\.")
             # skip non-configurable
-            if not template in ["Qt Quick UI", "Qt Quick Controls UI", "Qt Canvas 3D Application"]:
+            if not template in ["Qt Quick UI", "Qt Quick Controls UI", "Qt Canvas 3D Application",
+                                "Auto Test Project"]: # FIXME
                 availableProjectTypes.append({category:template})
     safeClickButton("Cancel")
     for current in availableProjectTypes:
@@ -74,34 +75,25 @@ def main():
         displayedPlatforms = __createProject__(category, template)
         if template == "Qt Quick Application" or template == "Qt Quick Controls Application":
             for counter, qtVersion in enumerate(qtVersionsForQuick):
-                requiredQtVersion = __createProjectHandleQtQuickSelection__(qtVersion)
-                __modifyAvailableTargets__(displayedPlatforms, requiredQtVersion, True)
-                verifyKitCheckboxes(kits, displayedPlatforms)
-                # FIXME: if QTBUG-35203 is fixed replace by triggering the shortcut for Back
-                safeClickButton("Cancel")
+                def additionalFunc(displayedPlatforms, qtVersion):
+                    requiredQtVersion = __createProjectHandleQtQuickSelection__(qtVersion)
+                    __modifyAvailableTargets__(displayedPlatforms, requiredQtVersion, True)
+                handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
+                                            additionalFunc, qtVersion)
                 # are there more Quick combinations - then recreate this project
                 if counter < len(qtVersionsForQuick) - 1:
                     displayedPlatforms = __createProject__(category, template)
             continue
         elif template == "Qt Quick Controls 2 Application": # needs a Qt5.7
-            clickButton(waitForObject(":Next_QPushButton")) # ignore this details page for now
-            verifyKitCheckboxes(kits, displayedPlatforms)
-            safeClickButton("Cancel")
+            def additionalFunc(displayedPlatforms):
+                clickButton(waitForObject(":Next_QPushButton")) # ignore this details page for now
+            handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms, additionalFunc)
             continue
         elif template.startswith("Plain C"):
-            for counter, buildSystem in enumerate(availableBuildSystems):
-                combo = "{name='BuildSystem' type='Utils::TextFieldComboBox' visible='1'}"
-                selectFromCombo(combo, buildSystem)
-                clickButton(waitForObject(":Next_QPushButton"))
-                verifyKitCheckboxes(kits, displayedPlatforms)
-                # FIXME: if QTBUG-35203 is fixed replace by triggering the shortcut for Back
-                safeClickButton("Cancel")
-                if counter < len(availableBuildSystems) - 1:
-                    displayedPlatforms = __createProject__(category, template)
+            handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms)
             continue
 
-        verifyKitCheckboxes(kits, displayedPlatforms)
-        safeClickButton("Cancel")
+        handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms)
 
     invokeMenuItem("File", "Exit")
 
@@ -124,6 +116,35 @@ def verifyKitCheckboxes(kits, displayedPlatforms):
     if len(availableCheckboxes) != 0:
         test.fail("Found unexpected additional kit(s) %s on 'Kit Selection' page."
                   % str(availableCheckboxes))
+
+def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
+                                specialHandlingFunc = None, *args):
+    global availableBuildSystems
+    combo = "{name='BuildSystem' type='Utils::TextFieldComboBox' visible='1'}"
+    try:
+        waitForObject(combo, 2000)
+        skipBuildsystemChooser = False
+    except:
+        skipBuildsystemChooser = True
+
+    if skipBuildsystemChooser:
+        test.log("Wizard without build system support.")
+        if specialHandlingFunc:
+            specialHandlingFunc(displayedPlatforms, *args)
+        verifyKitCheckboxes(kits, displayedPlatforms)
+        safeClickButton("Cancel")
+        return
+
+    for counter, buildSystem in enumerate(availableBuildSystems):
+        test.log("Using build system '%s'" % buildSystem)
+        selectFromCombo(combo, buildSystem)
+        clickButton(waitForObject(":Next_QPushButton"))
+        if specialHandlingFunc:
+            specialHandlingFunc(displayedPlatforms, *args)
+        verifyKitCheckboxes(kits, displayedPlatforms)
+        safeClickButton("Cancel")
+        if counter < len(availableBuildSystems) - 1:
+            displayedPlatforms = __createProject__(category, template)
 
 def __createProject__(category, template):
     def safeGetTextBrowserText():
