@@ -27,7 +27,6 @@
 
 #include "cpptools_global.h"
 
-#include "cppmodelmanagersupport.h"
 #include "projectinfo.h"
 #include "projectpart.h"
 #include "projectpartheaderpath.h"
@@ -37,7 +36,6 @@
 #include <QFuture>
 #include <QObject>
 #include <QStringList>
-
 
 namespace Core {
 class IDocument;
@@ -54,6 +52,7 @@ class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
 class CppEditorDocumentHandle;
 class CppIndexingSupport;
+class ModelManagerSupportProvider;
 class RefactoringEngineInterface;
 class SymbolFinder;
 class WorkingCopy;
