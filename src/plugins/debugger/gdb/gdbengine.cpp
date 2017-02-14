@@ -4069,7 +4069,7 @@ void GdbEngine::loadInitScript()
               ).arg(script));
         }
     } else {
-        const QString commands = nativeStartupCommands();
+        const QString commands = nativeStartupCommands().trimmed();
         if (!commands.isEmpty())
             runCommand({commands});
     }
