@@ -1657,6 +1657,25 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
     menu->addMenu(createBreakpointMenu(item));
     menu->addSeparator();
 
+    addAction(menu, tr("Expand All Children"),
+              item,
+              [this, item] {
+                m_expandedINames.insert(item->iname);
+                item->forFirstLevelChildren([this](WatchItem *child) {
+                    m_expandedINames.insert(child->iname);
+                });
+                m_engine->updateLocals();
+              });
+
+    addAction(menu, tr("Collapse All Children"),
+              item,
+              [this, item] {
+                item->forFirstLevelChildren([this](WatchItem *child) {
+                    m_expandedINames.remove(child->iname);
+                });
+                m_engine->updateLocals();
+              });
+
     addAction(menu, tr("Close Editor Tooltips"),
               DebuggerToolTipManager::hasToolTips(),
               [this] { DebuggerToolTipManager::closeAllToolTips(); });
