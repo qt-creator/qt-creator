@@ -50,6 +50,14 @@ TreeScanner::TreeScanner(QObject *parent) : QObject(parent)
     connect(&m_futureWatcher, &FutureWatcher::finished, this, &TreeScanner::finished);
 }
 
+TreeScanner::~TreeScanner()
+{
+    if (!m_futureWatcher.isFinished()) {
+        m_futureWatcher.cancel();
+        m_futureWatcher.waitForFinished();
+    }
+}
+
 bool TreeScanner::asyncScanForFiles(const Utils::FileName &directory)
 {
     if (!m_futureWatcher.isFinished())

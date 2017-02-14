@@ -128,6 +128,11 @@ CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName)
 
 CMakeProject::~CMakeProject()
 {
+    if (!m_treeScanner.isFinished()) {
+        auto future = m_treeScanner.future();
+        future.cancel();
+        future.waitForFinished();
+    }
     setRootProjectNode(nullptr);
     m_codeModelFuture.cancel();
     qDeleteAll(m_extraCompilers);

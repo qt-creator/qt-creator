@@ -53,6 +53,7 @@ public:
     using FileTypeFactory = std::function<ProjectExplorer::FileType(const Utils::MimeType &, const Utils::FileName &)>;
 
     explicit TreeScanner(QObject *parent = nullptr);
+    ~TreeScanner();
 
     // Start scanning in given directory
     bool asyncScanForFiles(const Utils::FileName& directory);
