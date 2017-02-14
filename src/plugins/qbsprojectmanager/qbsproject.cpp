@@ -174,8 +174,21 @@ static void collectFilesForProject(const qbs::ProjectData &project, Project::Fil
         }
         if (mode & Project::GeneratedFiles) {
             foreach (const qbs::ProductData &prd, project.products()) {
-                foreach (const qbs::ArtifactData &artifact, prd.generatedArtifacts())
-                    result.insert(artifact.filePath());
+                foreach (const qbs::ArtifactData &artifact, prd.generatedArtifacts()) {
+                    // A list of human-readable file types that we can reasonably expect
+                    // to get generated during a build. Extend as needed.
+                    static const QSet<QString> sourceTags = {
+                        QLatin1String("c"), QLatin1String("cpp"), QLatin1String("hpp"),
+                        QLatin1String("objc"), QLatin1String("objcpp"),
+                        QLatin1String("c_pch_src"), QLatin1String("cpp_pch_src"),
+                        QLatin1String("objc_pch_src"), QLatin1String("objcpp_pch_src"),
+                        QLatin1String("asm"), QLatin1String("asm_cpp"),
+                        QLatin1String("linkerscript"),
+                        QLatin1String("qrc"), QLatin1String("java.java")
+                    };
+                    if (artifact.fileTags().toSet().intersects(sourceTags))
+                        result.insert(artifact.filePath());
+                }
             }
         }
     }
