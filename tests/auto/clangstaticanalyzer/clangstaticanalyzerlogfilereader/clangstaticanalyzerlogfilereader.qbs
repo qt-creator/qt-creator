@@ -3,6 +3,7 @@ import "../clangstaticanalyzerautotest.qbs" as ClangStaticAnalyzerAutotest
 
 ClangStaticAnalyzerAutotest {
     name: "ClangStaticAnalyzerLogFileReader Autotest"
+    cpp.defines: base.concat('SRCDIR="' + sourceDirectory + '"')
 
     Group {
         name: "sources from plugin"
