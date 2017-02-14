@@ -1200,7 +1200,7 @@ QString QmakeProject::buildNameFor(const Kit *k)
 
 void QmakeProject::updateBuildSystemData()
 {
-    Target * const target = activeTarget();
+    Target *const target = activeTarget();
     if (!target)
         return;
     const QmakeProFileNode * const rootNode = rootProjectNode();
