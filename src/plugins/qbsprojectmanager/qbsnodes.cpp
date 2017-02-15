@@ -674,10 +674,10 @@ QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurations() c
 
 QbsGroupNode *QbsProductNode::findGroupNode(const QString &name)
 {
-    foreach (ProjectExplorer::ProjectNode *n, projectNodes()) {
-        QbsGroupNode *qn = static_cast<QbsGroupNode *>(n);
-        if (qn->qbsGroupData().name() == name)
-            return qn;
+    for (ProjectExplorer::Node *n : nodes()) {
+        if (QbsGroupNode *qn = dynamic_cast<QbsGroupNode *>(n))
+            if (qn->qbsGroupData().name() == name)
+                return qn;
     }
     return 0;
 }
@@ -743,20 +743,20 @@ void QbsProjectNode::ctor()
 
 QbsProductNode *QbsProjectNode::findProductNode(const QString &uniqueName)
 {
-    foreach (ProjectExplorer::ProjectNode *n, projectNodes()) {
-        QbsProductNode *qn = dynamic_cast<QbsProductNode *>(n);
-        if (qn && QbsProject::uniqueProductName(qn->qbsProductData()) == uniqueName)
-            return qn;
+    for (ProjectExplorer::Node *n : nodes()) {
+        if (QbsProductNode *qn = dynamic_cast<QbsProductNode *>(n))
+            if (QbsProject::uniqueProductName(qn->qbsProductData()) == uniqueName)
+                return qn;
     }
     return 0;
 }
 
 QbsProjectNode *QbsProjectNode::findProjectNode(const QString &name)
 {
-    foreach (ProjectExplorer::ProjectNode *n, projectNodes()) {
-        QbsProjectNode *qn = dynamic_cast<QbsProjectNode *>(n);
-        if (qn && qn->qbsProjectData().name() == name)
-            return qn;
+    for (ProjectExplorer::Node *n : nodes()) {
+        if (QbsProjectNode *qn = dynamic_cast<QbsProjectNode *>(n))
+            if (qn->qbsProjectData().name() == name)
+                return qn;
     }
     return 0;
 }
