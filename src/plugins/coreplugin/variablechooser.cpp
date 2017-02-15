@@ -26,7 +26,7 @@
 #include "variablechooser.h"
 #include "coreconstants.h"
 
-#include <utils/fancylineedit.h> // IconButton
+#include <utils/fancylineedit.h>
 #include <utils/headerviewstretcher.h> // IconButton
 #include <utils/macroexpander.h>
 #include <utils/treemodel.h>
@@ -135,7 +135,7 @@ public:
     QPointer<QPlainTextEdit> m_plainTextEdit;
     QPointer<IconButton> m_iconButton;
 
-    QLineEdit *m_variableFilter;
+    Utils::FancyLineEdit *m_variableFilter;
     VariableTreeView *m_variableTree;
     QLabel *m_variableDescription;
     QSortFilterProxyModel *m_sortModel;
@@ -277,11 +277,11 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
 {
     m_defaultDescription = VariableChooser::tr("Select a variable to insert.");
 
-    m_variableFilter = new QLineEdit(q);
+    m_variableFilter = new Utils::FancyLineEdit(q);
     m_variableTree = new VariableTreeView(q, this);
     m_variableDescription = new QLabel(q);
 
-    m_variableFilter->setPlaceholderText(VariableChooser::tr("Filter"));
+    m_variableFilter->setFiltering(true);
 
     m_sortModel = new VariableSortFilterProxyModel(this);
     m_sortModel->setSourceModel(&m_model);
