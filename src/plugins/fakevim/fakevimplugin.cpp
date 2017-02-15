@@ -1629,13 +1629,10 @@ void FakeVimPluginPrivate::fold(FakeVimHandler *handler, int depth, bool fold)
         if (TextDocumentLayout::isFolded(block)) {
             if (depth < 0) {
                 // recursively open fold
-                while (depth < 0 && block.isValid()
+                while (block.isValid()
                     && TextDocumentLayout::foldingIndent(block) >= indent) {
-                    if (TextDocumentLayout::canFold(block)) {
+                    if (TextDocumentLayout::canFold(block))
                         TextDocumentLayout::doFoldOrUnfold(block, true);
-                        if (depth > 0)
-                            --depth;
-                    }
                     block = block.next();
                 }
             } else {
