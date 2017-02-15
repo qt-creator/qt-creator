@@ -225,9 +225,15 @@ private:
 class ModelNodeAction : public ModelNodeContextMenuAction
 {
 public:
-    ModelNodeAction(const QByteArray &id, const QString &description, const QIcon &icon, const QString &tooltip, const QByteArray &category, const QKeySequence &key, int priority,
-                                SelectionContextOperation selectionAction,
-                                SelectionContextPredicate enabled = &SelectionContextFunctors::always) :
+    ModelNodeAction(const QByteArray &id,
+                    const QString &description,
+                    const QIcon &icon,
+                    const QString &tooltip,
+                    const QByteArray &category,
+                    const QKeySequence &key,
+                    int priority,
+                    SelectionContextOperation selectionAction,
+                    SelectionContextPredicate enabled = &SelectionContextFunctors::always) :
         ModelNodeContextMenuAction(id, description, category, key, priority, selectionAction, enabled, &SelectionContextFunctors::always)
     {
         action()->setIcon(icon);
@@ -235,6 +241,29 @@ public:
     }
 
     Type type() const override { return Action; }
+};
+
+class ModelNodeFormEditorAction : public ModelNodeContextMenuAction
+{
+public:
+    ModelNodeFormEditorAction(const QByteArray &id,
+                              const QString &description,
+                              const QIcon &icon,
+                              const QString &tooltip,
+                              const QByteArray &category,
+                              const QKeySequence &key,
+                              int priority,
+                              SelectionContextOperation selectionAction,
+                              SelectionContextPredicate enabled = &SelectionContextFunctors::always,
+                              SelectionContextPredicate visible = &SelectionContextFunctors::always) :
+        ModelNodeContextMenuAction(id, description, category, key, priority, selectionAction, enabled, visible)
+    {
+        action()->setIcon(icon);
+        action()->setToolTip(tooltip);
+    }
+
+
+    Type type() const override { return FormEditorAction; }
 };
 
 

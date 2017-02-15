@@ -772,9 +772,21 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &isLayout,
                           &isLayout));
 
-    addDesignerAction(new ModelNodeContextMenuAction(
+    const Utils::Icon prevIcon({
+        {QLatin1String(":/utils/images/prev.png"), Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
+
+    const Utils::Icon nextIcon({
+        {QLatin1String(":/utils/images/next.png"), Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
+
+    const Utils::Icon addIcon({
+        {QLatin1String(":/utils/images/plus.png"), Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
+
+
+    addDesignerAction(new ModelNodeFormEditorAction(
                           addItemToStackedContainerCommandId,
                           addItemToStackedContainerDisplayName,
+                          addIcon.icon(),
+                          addItemToStackedContainerToolTip,
                           stackedContainerCategory,
                           QKeySequence("Ctrl+Shift+a"),
                           110,
@@ -792,9 +804,11 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &isStackedContainerWithoutTabBar,
                           &isStackedContainer));
 
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          DecreaseIndexOfStackedContainerCommandId,
+    addDesignerAction(new ModelNodeFormEditorAction(
+                          decreaseIndexOfStackedContainerCommandId,
                           decreaseIndexToStackedContainerDisplayName,
+                          prevIcon.icon(),
+                          decreaseIndexOfStackedContainerToolTip,
                           stackedContainerCategory,
                           QKeySequence("Ctrl+Shift+Left"),
                           80,
@@ -802,9 +816,11 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &isStackedContainerAndIndexCanBeDecreased,
                           &isStackedContainer));
 
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          IncreaseIndexOfStackedContainerCommandId,
+    addDesignerAction(new ModelNodeFormEditorAction(
+                          increaseIndexOfStackedContainerCommandId,
                           increaseIndexToStackedContainerDisplayName,
+                          nextIcon.icon(),
+                          increaseIndexOfStackedContainerToolTip,
                           stackedContainerCategory,
                           QKeySequence("Ctrl+Shift+Right"),
                           80,

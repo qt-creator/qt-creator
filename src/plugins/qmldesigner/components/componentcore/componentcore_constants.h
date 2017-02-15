@@ -69,8 +69,8 @@ const char addSignalHandlerCommandId[] = "AddSignalHandler";
 const char moveToComponentCommandId[] = "MoveToComponent";
 const char addItemToStackedContainerCommandId[] = "AddItemToStackedContainer";
 const char addTabBarToStackedContainerCommandId[] = "AddTabBarToStackedContainer";
-const char IncreaseIndexOfStackedContainerCommandId[] = "IncreaseIndexOfStackedContainer";
-const char DecreaseIndexOfStackedContainerCommandId[] = "decreaseIndexOfStackedContainer";
+const char increaseIndexOfStackedContainerCommandId[] = "IncreaseIndexOfStackedContainer";
+const char decreaseIndexOfStackedContainerCommandId[] = "decreaseIndexOfStackedContainer";
 
 const char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Selection");
 const char stackCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Stacked Container");
@@ -147,6 +147,9 @@ const char layoutColumnLayoutToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMe
 const char layoutRowLayoutToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout selected items in row layout.");
 const char layoutGridLayoutToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout selected items in grid layout.");
 
+const char increaseIndexOfStackedContainerToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Increase index of stacked container.");
+const char decreaseIndexOfStackedContainerToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Decrease index of stacked container.");
+const char addItemToStackedContainerToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add item to stacked container.");
 
 const int priorityFirst = 220;
 const int prioritySelectionCategory = 200;
