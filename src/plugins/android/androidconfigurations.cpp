@@ -1327,10 +1327,10 @@ void AndroidConfigurations::updateAutomaticKitList()
 
             AndroidGdbServerKitInformation::setGdbSever(newKit, tc->suggestedGdbServer());
             newKit->makeSticky();
-            newKit->setUnexpandedDisplayName(tr("Android for %1 (GCC %2, Qt %3)")
+            newKit->setUnexpandedDisplayName(tr("Android for %1 (GCC %2, %3)")
                                              .arg(static_cast<const AndroidQtVersion *>(qt)->targetArch())
                                              .arg(tc->ndkToolChainVersion())
-                                             .arg(qt->qtVersionString()));
+                                             .arg(qt->displayName()));
             if (!existingKit)
                 KitManager::registerKit(newKit);
         }
