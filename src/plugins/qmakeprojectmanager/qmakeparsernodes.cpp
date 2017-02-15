@@ -33,7 +33,6 @@
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
@@ -49,7 +48,6 @@
 #include <utils/stringutils.h>
 #include <utils/QtConcurrentTools>
 
-#include <QApplication>
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QTextCodec>
@@ -62,94 +60,6 @@ using namespace QMakeInternal;
 using namespace Utils;
 
 namespace {
-
-// Static cached data in struct QmakeStaticData providing information and icons
-// for file types and the project. Do some magic via qAddPostRoutine()
-// to make sure the icons do not outlive QApplication, triggering warnings on X11.
-
-class FileTypeDataStorage {
-public:
-    FileType type;
-    const char *typeName;
-    const char *icon;
-    const char *addFileFilter;
-};
-
-const FileTypeDataStorage fileTypeDataStorage[] = {
-    { FileType::Header, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "Headers"),
-      ProjectExplorer::Constants::FILEOVERLAY_H, "*.h; *.hh; *.hpp; *.hxx;"},
-    { FileType::Source, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "Sources"),
-      ProjectExplorer::Constants::FILEOVERLAY_CPP, "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++;" },
-    { FileType::Form, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "Forms"),
-      ProjectExplorer::Constants::FILEOVERLAY_UI, "*.ui;" },
-    { FileType::StateChart, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "State charts"),
-      ProjectExplorer::Constants::FILEOVERLAY_SCXML, "*.scxml;" },
-    { FileType::Resource, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "Resources"),
-      ProjectExplorer::Constants::FILEOVERLAY_QRC, "*.qrc;" },
-    { FileType::QML, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "QML"),
-      ProjectExplorer::Constants::FILEOVERLAY_QML, "*.qml;" },
-    { FileType::Unknown, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "Other files"),
-      ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN, "*;" }
-};
-
-class QmakeStaticData {
-public:
-    class FileTypeData {
-    public:
-        FileTypeData(FileType t = FileType::Unknown,
-                     const QString &tN = QString(),
-                     const QString &aff = QString(),
-                     const QIcon &i = QIcon()) :
-        type(t), typeName(tN), addFileFilter(aff), icon(i) { }
-
-        FileType type;
-        QString typeName;
-        QString addFileFilter;
-        QIcon icon;
-    };
-
-    QmakeStaticData();
-
-    QVector<FileTypeData> fileTypeData;
-    QIcon projectIcon;
-};
-
-void clearQmakeStaticData();
-
-QmakeStaticData::QmakeStaticData()
-{
-    // File type data
-    const unsigned count = sizeof(fileTypeDataStorage)/sizeof(FileTypeDataStorage);
-    fileTypeData.reserve(count);
-
-    // Overlay the SP_DirIcon with the custom icons
-    const QSize desiredSize = QSize(16, 16);
-
-    const QPixmap dirPixmap = qApp->style()->standardIcon(QStyle::SP_DirIcon).pixmap(desiredSize);
-    for (unsigned i = 0 ; i < count; ++i) {
-        const QIcon overlayIcon(QLatin1String(fileTypeDataStorage[i].icon));
-        QIcon folderIcon;
-        folderIcon.addPixmap(FileIconProvider::overlayIcon(dirPixmap, overlayIcon));
-        const QString desc = QCoreApplication::translate("QmakeProjectManager::QmakePriFile", fileTypeDataStorage[i].typeName);
-        const QString filter = QString::fromUtf8(fileTypeDataStorage[i].addFileFilter);
-        fileTypeData.push_back(QmakeStaticData::FileTypeData(fileTypeDataStorage[i].type,
-                                                                 desc, filter, folderIcon));
-    }
-    // Project icon
-    const QIcon projectBaseIcon(ProjectExplorer::Constants::FILEOVERLAY_QT);
-    const QPixmap projectPixmap = FileIconProvider::overlayIcon(dirPixmap, projectBaseIcon);
-    projectIcon.addPixmap(projectPixmap);
-
-    qAddPostRoutine(clearQmakeStaticData);
-}
-
-Q_GLOBAL_STATIC(QmakeStaticData, qmakeStaticData)
-
-void clearQmakeStaticData()
-{
-    qmakeStaticData()->fileTypeData.clear();
-    qmakeStaticData()->projectIcon = QIcon();
-}
 
 class QmakePriFileDocument : public Core::IDocument
 {
@@ -431,9 +341,8 @@ void QmakePriFile::processValues(QmakePriFileEvalResult &result)
     foreach (const QString &folder, result.folders)
         result.recursiveEnumerateFiles += recursiveEnumerate(folder);
 
-    const QVector<QmakeStaticData::FileTypeData> &fileTypes = qmakeStaticData()->fileTypeData;
-    for (int i = 0; i < fileTypes.size(); ++i) {
-        FileType type = fileTypes.at(i).type;
+    for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
+        FileType type = static_cast<FileType>(i);
         QSet<FileName> &foundFiles = result.foundFiles[type];
         result.recursiveEnumerateFiles.subtract(foundFiles);
         QSet<FileName> newFilePaths = filterFilesProVariables(type, foundFiles);
@@ -447,9 +356,8 @@ void QmakePriFile::update(const Internal::QmakePriFileEvalResult &result)
     m_recursiveEnumerateFiles = result.recursiveEnumerateFiles;
     watchFolders(result.folders.toSet());
 
-    const QVector<QmakeStaticData::FileTypeData> &fileTypes = qmakeStaticData()->fileTypeData;
-    for (int i = 0; i < fileTypes.size(); ++i) {
-        const FileType type = fileTypes.at(i).type;
+    for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
+        const FileType type = static_cast<FileType>(i);
         m_files[type] = result.foundFiles.value(type);
     }
 }
@@ -493,14 +401,13 @@ bool QmakePriFile::folderChanged(const QString &changedFolder, const QSet<FileNa
     m_recursiveEnumerateFiles = newFiles;
 
     // Apply the differences per file type
-    const QVector<QmakeStaticData::FileTypeData> &fileTypes = qmakeStaticData()->fileTypeData;
-    for (int i = 0; i < fileTypes.size(); ++i) {
-        FileType type = fileTypes.at(i).type;
+    for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
+        FileType type = static_cast<FileType>(i);
         QSet<FileName> add = filterFilesRecursiveEnumerata(type, addedFiles);
         QSet<FileName> remove = filterFilesRecursiveEnumerata(type, removedFiles);
 
         if (!add.isEmpty() || !remove.isEmpty()) {
-            qCDebug(qmakeParse()) << "For type" << fileTypes.at(i).typeName <<"\n"
+            qCDebug(qmakeParse()) << "For type" << static_cast<int>(type) <<"\n"
                                   << "added files"  <<  add << "\n"
                                   << "removed files" << remove;
 
@@ -1489,9 +1396,8 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
     QStringList baseVPathsCumulative
             = baseVPaths(cumulativeReader, input.projectDir, input.buildDirectory.toString());
 
-    const QVector<QmakeStaticData::FileTypeData> &fileTypes = qmakeStaticData()->fileTypeData;
-    for (int i = 0; i < fileTypes.size(); ++i) {
-        FileType type = fileTypes.at(i).type;
+    for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
+        FileType type = static_cast<FileType>(i);
         QStringList qmakeVariables = varNames(type, exactReader);
         foreach (const QString &qmakeVariable, qmakeVariables) {
             QHash<ProString, bool> handled;

@@ -15,6 +15,7 @@ HEADERS += \
     qmakeprojectmanager.h \
     qmakeproject.h \
     qmakenodes.h \
+    qmakenodetreebuilder.h \
     profileeditor.h \
     profilehighlighter.h \
     profilehoverhandler.h \
@@ -59,6 +60,7 @@ SOURCES += \
     qmakeprojectmanager.cpp \
     qmakeproject.cpp \
     qmakenodes.cpp \
+    qmakenodetreebuilder.cpp \
     profileeditor.cpp \
     profilehighlighter.cpp \
     profilehoverhandler.cpp \

@@ -46,6 +46,7 @@ Project {
                 "qmakestep.cpp", "qmakestep.h", "qmakestep.ui",
                 "qmakebuildconfiguration.cpp", "qmakebuildconfiguration.h",
                 "qmakenodes.cpp", "qmakenodes.h",
+                "qmakenodetreebuilder.cpp", "qmakenodetreebuilder.h",
                 "qmakeproject.cpp", "qmakeproject.h",
                 "qmakeprojectconfigwidget.cpp", "qmakeprojectconfigwidget.h", "qmakeprojectconfigwidget.ui",
                 "qmakeprojectmanager.cpp", "qmakeprojectmanager.h",
