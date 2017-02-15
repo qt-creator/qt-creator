@@ -123,6 +123,7 @@ LLVM_CXXFLAGS ~= s,/O\S*,
 LLVM_CXXFLAGS ~= s,/W4,
 LLVM_CXXFLAGS ~= s,/EH\S*,
 LLVM_CXXFLAGS ~= s,-Werror=date-time,
+LLVM_CXXFLAGS ~= s,-Wcovered-switch-default,
 LLVM_CXXFLAGS ~= s,-fPIC,
 LLVM_CXXFLAGS ~= s,-pedantic,
 # split-dwarf needs objcopy which does not work via icecc out-of-the-box
