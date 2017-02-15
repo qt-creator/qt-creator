@@ -114,7 +114,7 @@ void DesignerActionManager::polishActions() const
     for (auto *action : actions) {
         if (!action->menuId().isEmpty()) {
             const QString id =
-                    QString("QmlDesigner.FormEditor.%1.%2").arg(QString::fromLatin1(action->category())).arg(QString::fromLatin1(action->menuId()));
+                    QString("QmlDesigner.%1").arg(QString::fromLatin1(action->menuId()));
 
             Core::Command *cmd = Core::ActionManager::registerAction(action->action(), id.toLatin1().constData(), qmlDesignerFormEditorContext);
 
