@@ -6767,6 +6767,35 @@
          sodipodi:nodetypes="ccccccc" />
     </g>
     <g
+       id="src/libs/utils/images/iconoverlay_reset"
+       transform="translate(208)">
+      <rect
+         id="rect5759-5-9-0-8-6-3-01"
+         height="16"
+         width="16"
+         y="363"
+         x="570"
+         style="fill:#ffffff" />
+      <circle
+         style="opacity:1;fill:#000000"
+         id="path5134-8"
+         cx="581.5"
+         cy="374.5"
+         r="3.5" />
+      <path
+         style="fill:none;stroke:#ffffff"
+         d="m 580,376.5 h 2 c 2.5,0 2,-3 0.5,-3 H 580"
+         id="path5676"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccc" />
+      <path
+         style="fill:#ffffff"
+         d="m 582,371.5 -3,2 3,2"
+         id="path5677"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccc" />
+    </g>
+    <g
        id="src/plugins/cmakeprojectmanager/images/fileoverlay_cmake">
       <rect
          style="fill:none"
