@@ -71,6 +71,10 @@ void FormEditorToolButton::paint(QPainter *painter, const QStyleOptionGraphicsIt
 
     if (m_state != Normal)
         painter->drawRoundedRect(adjustedRect, 1, 1, Qt::AbsoluteSize);
+
+    if (!isEnabled())
+        setOpacity(0.5);
+
     painter->drawPixmap(size().width() - toolButtonSize, size().height() - toolButtonSize, m_action->icon().pixmap(toolButtonSize, toolButtonSize));
 
     painter->restore();
