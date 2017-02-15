@@ -42,38 +42,6 @@ using namespace ProjectExplorer;
 namespace Designer {
 namespace Internal {
 
-// Visit project nodes and collect qrc-files.
-class QrcFilesVisitor : public NodesVisitor
-{
-public:
-    QStringList qrcFiles() const;
-
-    void visitProjectNode(ProjectNode *node);
-    void visitFolderNode(FolderNode *node);
-private:
-    QStringList m_qrcFiles;
-};
-
-QStringList QrcFilesVisitor::qrcFiles() const
-{
-    return m_qrcFiles;
-}
-
-void QrcFilesVisitor::visitProjectNode(ProjectNode *projectNode)
-{
-    visitFolderNode(projectNode);
-}
-
-void QrcFilesVisitor::visitFolderNode(FolderNode *folderNode)
-{
-    foreach (const FileNode *fileNode, folderNode->fileNodes()) {
-        if (fileNode->fileType() == FileType::Resource)
-            m_qrcFiles.append(fileNode->filePath().toString());
-    }
-    if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
-        m_qrcFiles.append(folderNode->filePath().toString());
-}
-
 // ------------ ResourceHandler
 ResourceHandler::ResourceHandler(QDesignerFormWindowInterface *fw) :
     QObject(fw),
@@ -130,9 +98,14 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
     if (project) {
         // Collect project resource files.
         ProjectNode *root = project->rootProjectNode();
-        QrcFilesVisitor qrcVisitor;
-        root->accept(&qrcVisitor);
-        QStringList projectQrcFiles = qrcVisitor.qrcFiles();
+        QStringList projectQrcFiles;
+        root->forEachNode([&](FileNode *node) {
+            if (node->fileType() == FileType::Resource)
+                projectQrcFiles.append(node->filePath().toString());
+        }, [&](FolderNode *node) {
+            if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(node))
+                projectQrcFiles.append(node->filePath().toString());
+        });
         // Check if the user has chosen to update the lacking resource inside designer
         if (dirty && updateProjectResources) {
             QStringList qrcPathsToBeAdded;
