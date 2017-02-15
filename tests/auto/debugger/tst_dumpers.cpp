@@ -1222,6 +1222,7 @@ void tst_Dumpers::dumper()
         proFile.write("\nCONFIG -= app_bundle\n");
         proFile.write("\nCONFIG -= release\n");
         proFile.write("\nCONFIG += debug\n");
+        proFile.write("\nCONFIG += console\n");
         if (data.useQt)
             proFile.write("QT -= widgets gui\n");
         else
@@ -1928,6 +1929,7 @@ void tst_Dumpers::dumper_data()
                     "file.setObjectName(\"A QFile instance\");\n"
                     "QFileInfo fi(\"C:\\\\Program Files\\\\tt\");\n"
                     "QString s = fi.absoluteFilePath();\n")
+               + CoreProfile()
                + Check("fi", "\"C:/Program Files/tt\"", "QFileInfo")
                + Check("file", "\"C:\\Program Files\\t\"", "QFile")
                + Check("s", "\"C:/Program Files/tt\"", "QString");
