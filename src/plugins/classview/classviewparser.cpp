@@ -711,28 +711,19 @@ void Parser::emitCurrentTree()
     Generates a project node file list for the root node \a node.
 */
 
-QStringList Parser::projectNodeFileList(const FolderNode *node) const
+QStringList Parser::projectNodeFileList(const FolderNode *folderNode) const
 {
     QStringList list;
-    if (!node)
-        return list;
-
-    QList<FileNode *> fileNodes = node->fileNodes();
-    QList<FolderNode *> subFolderNodes = node->folderNodes();
-
-    foreach (const FileNode *file, fileNodes) {
-        if (file->isGenerated())
-            continue;
-
-        list << file->filePath().toString();
-    }
-
-    foreach (const FolderNode *folder, subFolderNodes) {
-        if (folder->nodeType() != NodeType::Folder && folder->nodeType() != NodeType::VirtualFolder)
-            continue;
-        list << projectNodeFileList(folder);
-    }
-
+    folderNode->forEachNode(
+        [&](FileNode *node) {
+            if (!node->isGenerated())
+                list.append(node->filePath().toString());
+        },
+        {},
+        [&](const FolderNode *node) {
+            return node->nodeType() == NodeType::Folder || node->nodeType() == NodeType::VirtualFolder;
+        }
+    );
     return list;
 }
 
@@ -768,19 +759,19 @@ QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item, const Projec
     }
 
     // subnodes
-    QList<ProjectNode *> projectNodes = node->projectNodes();
+    for (const Node *n : node->nodes()) {
+        if (const ProjectNode *project = n->asProjectNode()) {
+            ParserTreeItem::Ptr itemPrj(new ParserTreeItem());
+            SymbolInformation information(project->displayName(), project->filePath().toString());
 
-    foreach (const ProjectNode *project, projectNodes) {
-        ParserTreeItem::Ptr itemPrj(new ParserTreeItem());
-        SymbolInformation information(project->displayName(), project->filePath().toString());
+            projectList += addProjectNode(itemPrj, project);
 
-        projectList += addProjectNode(itemPrj, project);
+            itemPrj->setIcon(project->icon());
 
-        itemPrj->setIcon(project->icon());
-
-        // append child if item is not null and there is at least 1 child
-        if (!item.isNull() && itemPrj->childCount() > 0)
-            item->appendChild(itemPrj, information);
+            // append child if item is not null and there is at least 1 child
+            if (!item.isNull() && itemPrj->childCount() > 0)
+                item->appendChild(itemPrj, information);
+        }
     }
 
     return projectList;
@@ -804,10 +795,10 @@ QStringList Parser::getAllFiles(const ProjectNode *node)
         d->cachedPrjFileLists[nodePath] = fileList;
     }
     // subnodes
-    QList<ProjectNode *> projectNodes = node->projectNodes();
 
-    foreach (const ProjectNode *project, projectNodes)
-        fileList += getAllFiles(project);
+    for (const Node *n : node->nodes())
+        if (const ProjectNode *project = n->asProjectNode())
+            fileList += getAllFiles(project);
     return fileList;
 }
 
