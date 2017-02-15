@@ -229,8 +229,8 @@ class QMAKEPROJECTMANAGER_EXPORT TargetParserInformation
 public:
     bool valid = false;
     QString target;
-    QString destDir;
-    QString buildDir;
+    Utils::FileName destDir;
+    Utils::FileName buildDir;
     QString buildTarget;
     bool operator==(const TargetParserInformation &other) const
     {
@@ -287,11 +287,11 @@ public:
         return !m_subProjectsNotToDeploy.contains(filePath);
     }
 
-    QString sourceDir() const;
-    QString buildDir(QmakeBuildConfiguration *bc = nullptr) const;
+    Utils::FileName sourceDir() const;
+    Utils::FileName buildDir(QmakeBuildConfiguration *bc = nullptr) const;
 
-    QStringList generatedFiles(const QString &buildDirectory,
-                               const ProjectExplorer::FileNode *sourceFile) const;
+    Utils::FileNameList generatedFiles(const Utils::FileName &buildDirectory,
+                                       const Utils::FileName &sourceFile) const;
     QList<ProjectExplorer::ExtraCompiler *> extraCompilers() const;
 
     QmakeProFile *findProFileFor(const Utils::FileName &string) const;
@@ -335,16 +335,16 @@ private:
 
     using VariablesHash = QHash<Variable, QStringList>;
 
-    void updateGeneratedFiles(const QString &buildDir);
+    void updateGeneratedFiles(const Utils::FileName &buildDir);
 
-    static QString uiDirPath(QtSupport::ProFileReader *reader, const QString &buildDir);
-    static QString mocDirPath(QtSupport::ProFileReader *reader, const QString &buildDir);
+    static QString uiDirPath(QtSupport::ProFileReader *reader, const Utils::FileName &buildDir);
+    static QString mocDirPath(QtSupport::ProFileReader *reader, const Utils::FileName &buildDir);
     static QString sysrootify(const QString &path, const QString &sysroot, const QString &baseDir, const QString &outputDir);
-    static QStringList includePaths(QtSupport::ProFileReader *reader, const QString &sysroot, const QString &buildDir, const QString &projectDir);
+    static QStringList includePaths(QtSupport::ProFileReader *reader, const Utils::FileName &sysroot, const Utils::FileName &buildDir, const QString &projectDir);
     static QStringList libDirectories(QtSupport::ProFileReader *reader);
     static Utils::FileNameList subDirsPaths(QtSupport::ProFileReader *reader, const QString &projectDir, QStringList *subProjectsNotToDeploy, QStringList *errors);
 
-    static TargetParserInformation targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass, const QString &buildDir, const QString &projectFilePath);
+    static TargetParserInformation targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass, const Utils::FileName &buildDir, const Utils::FileName &projectFilePath);
     static InstallsParserList installsList(const QtSupport::ProFileReader *reader, const QString &projectFilePath, const QString &projectDir, const QString &buildDir);
 
     bool m_validParse = false;
