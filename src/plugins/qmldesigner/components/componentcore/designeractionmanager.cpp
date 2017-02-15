@@ -597,7 +597,7 @@ void DesignerActionManager::createDefaultDesignerActions()
 
     addDesignerAction(new ModelNodeAction(
                           raiseCommandId, raiseDisplayName,
-                          Utils::Icon(":/qmldesigner/icon/designeractions/images/lower.png").icon(),
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/lower.png", Utils::Theme::IconsBaseColor}}).icon(),
                           raiseToolTip,
                           stackCategory,
                           QKeySequence("Ctrl+Up"),
@@ -608,7 +608,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           lowerCommandId,
                           lowerDisplayName,
-                          Utils::Icon(":/qmldesigner/icon/designeractions/images/raise.png").icon(),
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/raise.png", Utils::Theme::IconsBaseColor}}).icon(),
                           lowerToolTip,
                           stackCategory,
                           QKeySequence("Ctrl+Down"),
@@ -634,7 +634,8 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           resetPositionCommandId,
                           resetPositionDisplayName,
-                          Utils::Icon(":/qmldesigner/icon/designeractions/images/move.png").icon(),
+                          Utils::Icon({{":/utils/images/pan.png", Utils::Theme::IconsBaseColor},
+                                      {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
                           resetPositionTooltip, editCategory, QKeySequence("Ctrl+d"),
                           200,
                           &resetPosition,
@@ -643,7 +644,8 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           resetSizeCommandId,
                           resetSizeDisplayName,
-                          Utils::Icon(":/qmldesigner/icon/designeractions/images/size.png").icon(),
+                          Utils::Icon({{":/utils/images/fittoview.png", Utils::Theme::IconsBaseColor},
+                                      {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
                           resetSizeToolTip,
                           editCategory,
                           QKeySequence("Ctrl+f"),
@@ -671,7 +673,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           anchorsFillCommandId,
                           anchorsFillDisplayName,
-                          Utils::Icon(":/qmldesigner/icon/designeractions/images/fill.png").icon(),
+                          Utils::Icon({{":/qmldesigner/images/anchor_fill.png", Utils::Theme::IconsBaseColor}}).icon(),
                           anchorsFillToolTip,
                           anchorsCategory,
                           QKeySequence(QKeySequence("Ctrl+f")),
@@ -682,7 +684,8 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           anchorsResetCommandId,
                           anchorsResetDisplayName,
-                          Utils::Icon(":/qmldesigner/icon/designeractions/images/fill.png").icon(),
+                          Utils::Icon({{":/qmldesigner/images/anchor_fill.png", Utils::Theme::IconsBaseColor},
+                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
                           anchorsResetToolTip,
                           anchorsCategory,
                           QKeySequence(QKeySequence("Ctrl+Shift+f")),
@@ -831,7 +834,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           layoutRowLayoutCommandId,
                           layoutRowLayoutDisplayName,
-                          Utils::Icon(":/qmldesigner/icon/designeractions/images/row.png").icon(),
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/row.png", Utils::Theme::IconsBaseColor}}).icon(),
                           layoutRowLayoutToolTip,
                           layoutCategory,
                           QKeySequence("Ctrl+u"),
@@ -842,7 +845,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           layoutColumnLayoutCommandId,
                           layoutColumnLayoutDisplayName,
-                          Utils::Icon(":/qmldesigner/icon/designeractions/images/column.png").icon(),
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/column.png", Utils::Theme::IconsBaseColor}}).icon(),
                           layoutColumnLayoutToolTip,
                           layoutCategory,
                           QKeySequence("Ctrl+i"),
@@ -853,7 +856,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           layoutGridLayoutCommandId,
                           layoutGridLayoutDisplayName,
-                          Utils::Icon(":/qmldesigner/icon/designeractions/images/grid.png").icon(),
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/grid.png", Utils::Theme::IconsBaseColor}}).icon(),
                           layoutGridLayoutToolTip,
                           layoutCategory,
                           QKeySequence("Ctrl+h"),
