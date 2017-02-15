@@ -42,7 +42,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/profilereader.h>
-#include <resourceeditor/resourcenode.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcprocess.h>
@@ -266,9 +265,19 @@ FileName QmakePriFile::directoryPath() const
     return filePath().parentDir();
 }
 
+QString QmakePriFile::displayName() const
+{
+    return filePath().toFileInfo().completeBaseName();
+}
+
 QmakePriFile *QmakePriFile::parent() const
 {
     return m_parent;
+}
+
+QmakeProject *QmakePriFile::project() const
+{
+    return m_project;
 }
 
 QVector<QmakePriFile *> QmakePriFile::children() const
@@ -1202,7 +1211,9 @@ bool QmakeProFile::isParent(QmakeProFile *node)
 
 QString QmakeProFile::displayName() const
 {
-    return m_displayName;
+    if (!m_displayName.isEmpty())
+        return m_displayName;
+    return QmakePriFile::displayName();
 }
 
 bool QmakeProFile::isDebugAndRelease() const
@@ -1704,9 +1715,7 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
         if (m_varValues != result->newVarValues)
             m_varValues = result->newVarValues;
 
-        const QString projectName = singleVariableValue(Variable::QmakeProjectName);
-        m_displayName = projectName.isEmpty() ? filePath().toFileInfo().completeBaseName()
-                                              : projectName;
+        m_displayName = singleVariableValue(Variable::QmakeProjectName);
     } // result == EvalOk
 
     setParseInProgress(false);

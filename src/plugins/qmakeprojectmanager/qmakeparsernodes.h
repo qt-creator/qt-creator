@@ -114,8 +114,10 @@ public:
 
     Utils::FileName filePath() const;
     Utils::FileName directoryPath() const;
+    virtual QString displayName() const;
 
     QmakePriFile *parent() const;
+    QmakeProject *project() const;
     QVector<QmakePriFile *> children() const;
     void makeEmpty();
 
@@ -269,7 +271,7 @@ public:
     ~QmakeProFile() override;
 
     bool isParent(QmakeProFile *node);
-    QString displayName() const;
+    QString displayName() const final;
 
     ProjectType projectType() const;
 
