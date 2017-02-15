@@ -40,7 +40,7 @@ Project {
                 "qmakekitconfigwidget.cpp", "qmakekitconfigwidget.h",
                 "qmakekitinformation.cpp", "qmakekitinformation.h",
                 "qmakeparser.cpp", "qmakeparser.h",
-                "qmakeparsernode.cpp", "qmakeparsernode.h",
+                "qmakeparsernodes.cpp", "qmakeparsernodes.h",
                 "qmakeprojectimporter.cpp", "qmakeprojectimporter.h",
                 "qmakerunconfigurationfactory.cpp", "qmakerunconfigurationfactory.h",
                 "qmakestep.cpp", "qmakestep.h", "qmakestep.ui",
