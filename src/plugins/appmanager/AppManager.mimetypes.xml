@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-    <mime-type type="text/x-appmanager-project">
-        <sub-class-of type="text/plain"/>
-        <comment>AppManager project file</comment>
-        <glob pattern="info.yaml"/>
-    </mime-type>
-</mime-info>
