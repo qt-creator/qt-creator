@@ -294,7 +294,6 @@ void DesignModeWidget::setup()
     toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     DesignerActionToolBar *designerToolBar = QmlDesignerPlugin::instance()->viewManager().designerActionManager().createToolBar(m_toolBar);
 
-    QmlDesignerPlugin::instance()->viewManager().designerActionManager().polishActions();
     designerToolBar->layout()->addWidget(toolBar);
 
     m_toolBar->addCenterToolBar(designerToolBar);
