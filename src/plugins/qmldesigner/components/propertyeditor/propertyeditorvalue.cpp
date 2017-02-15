@@ -340,7 +340,7 @@ QString PropertyEditorValue::getTranslationContext() const
             }
         }
     }
-    return "";
+    return QString();
 }
 
 void PropertyEditorValue::registerDeclarativeTypes()

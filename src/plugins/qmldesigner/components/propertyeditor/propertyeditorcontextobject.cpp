@@ -115,13 +115,13 @@ QString PropertyEditorContextObject::translateFunction()
 
         switch (QmlDesignerPlugin::instance()->settings().value(
                     DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
-        case 0: return "qsTr";
-        case 1: return "qsTrId";
-        case 2: return "qsTranslate";
+        case 0: return QLatin1String("qsTr");
+        case 1: return QLatin1String("qsTrId");
+        case 2: return QLatin1String("qsTranslate");
         default:
             break;
         }
-    return "qsTr";
+    return QLatin1String("qsTr");
 }
 
 QStringList PropertyEditorContextObject::autoComplete(const QString &text, int pos, bool explicitComplete, bool filter)
