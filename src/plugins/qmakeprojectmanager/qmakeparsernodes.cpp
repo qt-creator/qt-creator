@@ -439,16 +439,6 @@ bool QmakePriFile::deploysFolder(const QString &folder) const
     return false;
 }
 
-QList<RunConfiguration *> QmakePriFile::runConfigurations() const
-{
-#if 0
-    QmakeRunConfigurationFactory *factory = QmakeRunConfigurationFactory::find(m_project->activeTarget());
-    if (factory)
-        return factory->runConfigurationsForNode(m_project->activeTarget(), this);
-#endif
-    return QList<RunConfiguration *>();
-}
-
 QVector<QmakePriFile *> QmakePriFile::subPriFilesExact() const
 {
     return Utils::filtered(m_children, &QmakePriFile::includedInExactParse);

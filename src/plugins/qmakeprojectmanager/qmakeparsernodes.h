@@ -150,7 +150,6 @@ public:
     bool folderChanged(const QString &changedFolder, const QSet<Utils::FileName> &newFiles);
 
     virtual bool deploysFolder(const QString &folder) const;
-    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurations() const;
 
     QmakeProFile *proFile() const;
     QVector<QmakePriFile *> subPriFilesExact() const;
