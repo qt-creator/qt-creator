@@ -232,10 +232,11 @@ static inline AddNewTree *createNoneNode(BestNodeSelector *selector)
 static inline AddNewTree *buildAddProjectTree(ProjectNode *root, const QString &projectPath, Node *contextNode, BestNodeSelector *selector)
 {
     QList<AddNewTree *> children;
-    foreach (ProjectNode *pn, root->projectNodes()) {
-        AddNewTree *child = buildAddProjectTree(pn, projectPath, contextNode, selector);
-        if (child)
-            children.append(child);
+    for (Node *node : root->nodes()) {
+        if (ProjectNode *pn = node->asProjectNode()) {
+            if (AddNewTree *child = buildAddProjectTree(pn, projectPath, contextNode, selector))
+                children.append(child);
+        }
     }
 
     const QList<ProjectAction> &list = root->supportedActions(root);
@@ -256,10 +257,11 @@ static inline AddNewTree *buildAddProjectTree(ProjectNode *root, const QString &
 static inline AddNewTree *buildAddProjectTree(SessionNode *root, const QString &projectPath, Node *contextNode, BestNodeSelector *selector)
 {
     QList<AddNewTree *> children;
-    foreach (ProjectNode *pn, root->projectNodes()) {
-        AddNewTree *child = buildAddProjectTree(pn, projectPath, contextNode, selector);
-        if (child)
-            children.append(child);
+    for (Node *node : root->nodes()) {
+        if (ProjectNode *pn = node->asProjectNode()) {
+            if (AddNewTree *child = buildAddProjectTree(pn, projectPath, contextNode, selector))
+                children.append(child);
+        }
     }
     children.prepend(createNoneNode(selector));
     return new AddNewTree(root, children, root->displayName());
