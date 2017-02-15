@@ -2250,8 +2250,8 @@ QString QmakeProFileNode::sourceDir() const
 
 QString QmakeProFileNode::buildDir(QmakeBuildConfiguration *bc) const
 {
-    const QDir srcDirRoot = m_project->rootProjectNode()->sourceDir();
-    const QString relativeDir = srcDirRoot.relativeFilePath(m_projectDir);
+    const QDir srcDirRoot(m_project->projectDirectory().toString());
+    const QString relativeDir = srcDirRoot.relativeFilePath(filePath().parentDir().toString());
     if (!bc && m_project->activeTarget())
         bc = static_cast<QmakeBuildConfiguration *>(m_project->activeTarget()->activeBuildConfiguration());
     if (!bc)
