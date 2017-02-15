@@ -972,7 +972,7 @@ Breakpoint BreakHandler::findBreakpointByFunction(const QString &functionName) c
 Breakpoint BreakHandler::findBreakpointByAddress(quint64 address) const
 {
     return Breakpoint(findItemAtLevel<1>([address](BreakpointItem *b) {
-        return b->m_params.address == address || b->m_params.address == address;
+        return b->m_params.address == address;
     }));
 }
 
