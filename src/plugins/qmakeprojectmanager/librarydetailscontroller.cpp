@@ -1096,7 +1096,7 @@ QString InternalLibraryDetailsController::snippet() const
     QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
     TargetInformation targetInfo = proFileNode->targetInformation();
 
-    const QString targetRelativePath = appendSeparator(projectBuildDir.relativeFilePath(targetInfo.buildDir));
+    const QString targetRelativePath = appendSeparator(projectBuildDir.relativeFilePath(targetInfo.buildDir.toString()));
     const QString includeRelativePath = projectSrcDir.relativeFilePath(libraryDetailsWidget()->includePathChooser->path());
 
     const bool useSubfolders = libraryDetailsWidget()->useSubfoldersCheckBox->isChecked();

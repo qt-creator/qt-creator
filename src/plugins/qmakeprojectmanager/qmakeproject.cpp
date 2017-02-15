@@ -1278,10 +1278,10 @@ void QmakeProject::collectApplicationData(const QmakeProFileNode *node, Deployme
 static QString destDirFor(const TargetInformation &ti)
 {
     if (ti.destDir.isEmpty())
-        return ti.buildDir;
-    if (QDir::isRelativePath(ti.destDir))
-        return QDir::cleanPath(ti.buildDir + QLatin1Char('/') + ti.destDir);
-    return ti.destDir;
+        return ti.buildDir.toString();
+    if (QDir::isRelativePath(ti.destDir.toString()))
+        return QDir::cleanPath(ti.buildDir.toString() + '/' + ti.destDir.toString());
+    return ti.destDir.toString();
 }
 
 void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentData &deploymentData)

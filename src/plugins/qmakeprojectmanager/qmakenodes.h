@@ -59,7 +59,7 @@ class EvalResult;
 class PriFileEvalResult;
 }
 
-struct InstallsList;
+class InstallsList;
 
 // Implements ProjectNode for qmake .pri files
 class QMAKEPROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::ProjectNode
@@ -170,47 +170,6 @@ private:
     friend class Internal::QmakePriFileNodeDocument; // for scheduling updates on modified
     // internal temporary subtree representation
     friend struct Internal::InternalNode;
-};
-
-class QMAKEPROJECTMANAGER_EXPORT TargetInformation
-{
-public:
-    bool valid = false;
-    QString target;
-    QString destDir;
-    QString buildDir;
-    QString buildTarget;
-    bool operator==(const TargetInformation &other) const
-    {
-        return target == other.target
-                && valid == other.valid
-                && destDir == other.destDir
-                && buildDir == other.buildDir
-                && buildTarget == other.buildTarget;
-    }
-    bool operator!=(const TargetInformation &other) const
-    {
-        return !(*this == other);
-    }
-
-    TargetInformation() = default;
-
-    TargetInformation(const TargetInformation &other) = default;
-};
-
-struct QMAKEPROJECTMANAGER_EXPORT InstallsItem {
-    InstallsItem() = default;
-    InstallsItem(QString p, QVector<ProFileEvaluator::SourceFile> f, bool a)
-        : path(p), files(f), active(a) {}
-    QString path;
-    QVector<ProFileEvaluator::SourceFile> files;
-    bool active = false;
-};
-
-struct QMAKEPROJECTMANAGER_EXPORT InstallsList {
-    void clear() { targetPath.clear(); items.clear(); }
-    QString targetPath;
-    QVector<InstallsItem> items;
 };
 
 // Implements ProjectNode for qmake .pro files

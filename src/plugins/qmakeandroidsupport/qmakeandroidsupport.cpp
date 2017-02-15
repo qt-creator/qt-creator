@@ -55,11 +55,11 @@ QStringList QmakeAndroidSupport::soLibSearchPath(const ProjectExplorer::Target *
 
     foreach (QmakeProFileNode *node, project->allProFiles()) {
         TargetInformation info = node->targetInformation();
-        res << info.buildDir;
-        QString destDir = info.destDir;
+        res << info.buildDir.toString();
+        QString destDir = info.destDir.toString();
         if (!destDir.isEmpty()) {
             if (QFileInfo(destDir).isRelative())
-                destDir = QDir::cleanPath(info.buildDir + QLatin1Char('/') + destDir);
+                destDir = QDir::cleanPath(info.buildDir.toString() + '/' + destDir);
             res << destDir;
         }
     }

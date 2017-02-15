@@ -103,7 +103,7 @@ class QmakeEvalResult;
 class QmakePriFileEvalResult;
 } // namespace Internal;
 
-class InstallsParserList;
+class InstallsList;
 
 // Implements ProjectNode for qmake .pri files
 class QMAKEPROJECTMANAGER_EXPORT QmakePriFile
@@ -206,7 +206,7 @@ private:
     static void extractInstalls(
             QHash<const ProFile *, Internal::QmakePriFileEvalResult *> proToResult,
             Internal::QmakePriFileEvalResult *fallback,
-            const InstallsParserList &installList);
+            const InstallsList &installList);
     static void processValues(Internal::QmakePriFileEvalResult &result);
     void watchFolders(const QSet<QString> &folders);
 
@@ -227,7 +227,7 @@ private:
     friend class QmakeProjectManager::QmakeProFile;
 };
 
-class QMAKEPROJECTMANAGER_EXPORT TargetParserInformation
+class QMAKEPROJECTMANAGER_EXPORT TargetInformation
 {
 public:
     bool valid = false;
@@ -235,7 +235,7 @@ public:
     Utils::FileName destDir;
     Utils::FileName buildDir;
     QString buildTarget;
-    bool operator==(const TargetParserInformation &other) const
+    bool operator==(const TargetInformation &other) const
     {
         return target == other.target
                 && valid == other.valid
@@ -243,30 +243,30 @@ public:
                 && buildDir == other.buildDir
                 && buildTarget == other.buildTarget;
     }
-    bool operator!=(const TargetParserInformation &other) const
+    bool operator!=(const TargetInformation &other) const
     {
         return !(*this == other);
     }
 
-    TargetParserInformation() = default;
-    TargetParserInformation(const TargetParserInformation &other) = default;
+    TargetInformation() = default;
+    TargetInformation(const TargetInformation &other) = default;
 };
 
-class QMAKEPROJECTMANAGER_EXPORT InstallsParserItem {
+class QMAKEPROJECTMANAGER_EXPORT InstallsItem {
 public:
-    InstallsParserItem() = default;
-    InstallsParserItem(QString p, QVector<ProFileEvaluator::SourceFile> f, bool a)
+    InstallsItem() = default;
+    InstallsItem(QString p, QVector<ProFileEvaluator::SourceFile> f, bool a)
         : path(p), files(f), active(a) {}
     QString path;
     QVector<ProFileEvaluator::SourceFile> files;
     bool active = false;
 };
 
-class QMAKEPROJECTMANAGER_EXPORT InstallsParserList {
+class QMAKEPROJECTMANAGER_EXPORT InstallsList {
 public:
     void clear() { targetPath.clear(); items.clear(); }
     QString targetPath;
-    QVector<InstallsParserItem> items;
+    QVector<InstallsItem> items;
 };
 
 // Implements ProjectNode for qmake .pro files
@@ -298,9 +298,8 @@ public:
                                        const Utils::FileName &sourceFile) const;
     QList<ProjectExplorer::ExtraCompiler *> extraCompilers() const;
 
-    TargetParserInformation targetInformation() const;
-
-    InstallsParserList installsList() const;
+    TargetInformation targetInformation() const;
+    InstallsList installsList() const;
 
     QString makefile() const;
     QString objectExtension() const;
@@ -345,8 +344,8 @@ private:
     static QStringList libDirectories(QtSupport::ProFileReader *reader);
     static Utils::FileNameList subDirsPaths(QtSupport::ProFileReader *reader, const QString &projectDir, QStringList *subProjectsNotToDeploy, QStringList *errors);
 
-    static TargetParserInformation targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass, const Utils::FileName &buildDir, const Utils::FileName &projectFilePath);
-    static InstallsParserList installsList(const QtSupport::ProFileReader *reader, const QString &projectFilePath, const QString &projectDir, const QString &buildDir);
+    static TargetInformation targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass, const Utils::FileName &buildDir, const Utils::FileName &projectFilePath);
+    static InstallsList installsList(const QtSupport::ProFileReader *reader, const QString &projectFilePath, const QString &projectDir, const QString &buildDir);
 
     bool m_validParse = false;
     bool m_parseInProgress = false;
@@ -359,9 +358,9 @@ private:
 
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
 
-    TargetParserInformation m_qmakeTargetInformation;
+    TargetInformation m_qmakeTargetInformation;
     Utils::FileNameList m_subProjectsNotToDeploy;
-    InstallsParserList m_installsList;
+    InstallsList m_installsList;
 
     // Async stuff
     QFutureWatcher<Internal::QmakeEvalResult *> m_parseFutureWatcher;

@@ -147,8 +147,8 @@ public:
     QStringList subProjectsNotToDeploy;
     QSet<FileName> exactSubdirs;
     QmakeIncludedPriFile includedFiles;
-    TargetParserInformation targetInformation;
-    InstallsParserList installsList;
+    TargetInformation targetInformation;
+    InstallsList installsList;
     QHash<Variable, QStringList> newVarValues;
     QStringList errors;
 };
@@ -303,9 +303,9 @@ void QmakePriFile::extractSources(
 
 void QmakePriFile::extractInstalls(
         QHash<const ProFile *, QmakePriFileEvalResult *> proToResult, QmakePriFileEvalResult *fallback,
-        const InstallsParserList &installList)
+        const InstallsList &installList)
 {
-    for (const InstallsParserItem &item : installList.items) {
+    for (const InstallsItem &item : installList.items) {
         for (const ProFileEvaluator::SourceFile &source : item.files) {
             auto *result = proToResult.value(source.proFile);
             if (!result)
@@ -1765,12 +1765,12 @@ FileNameList QmakeProFile::subDirsPaths(QtSupport::ProFileReader *reader,
     return Utils::filteredUnique(subProjectPaths);
 }
 
-TargetParserInformation QmakeProFile::targetInformation(QtSupport::ProFileReader *reader,
-                                                        QtSupport::ProFileReader *readerBuildPass,
-                                                        const FileName &buildDir,
-                                                        const FileName &projectFilePath)
+TargetInformation QmakeProFile::targetInformation(QtSupport::ProFileReader *reader,
+                                                  QtSupport::ProFileReader *readerBuildPass,
+                                                  const FileName &buildDir,
+                                                  const FileName &projectFilePath)
 {
-    TargetParserInformation result;
+    TargetInformation result;
     if (!reader || !readerBuildPass)
         return result;
 
@@ -1796,15 +1796,15 @@ TargetParserInformation QmakeProFile::targetInformation(QtSupport::ProFileReader
     return result;
 }
 
-TargetParserInformation QmakeProFile::targetInformation() const
+TargetInformation QmakeProFile::targetInformation() const
 {
     return m_qmakeTargetInformation;
 }
 
-InstallsParserList QmakeProFile::installsList(const QtSupport::ProFileReader *reader, const QString &projectFilePath,
-                                                        const QString &projectDir, const QString &buildDir)
+InstallsList QmakeProFile::installsList(const QtSupport::ProFileReader *reader, const QString &projectFilePath,
+                                        const QString &projectDir, const QString &buildDir)
 {
-    InstallsParserList result;
+    InstallsList result;
     if (!reader)
         return result;
     const QStringList &itemList = reader->values(QLatin1String("INSTALLS"));
@@ -1847,13 +1847,13 @@ InstallsParserList QmakeProFile::installsList(const QtSupport::ProFileReader *re
         } else {
             const auto &itemFiles = reader->fixifiedValues(
                         item + QLatin1String(".files"), projectDir, buildDir);
-            result.items << InstallsParserItem(itemPath, itemFiles, active);
+            result.items << InstallsItem(itemPath, itemFiles, active);
         }
     }
     return result;
 }
 
-InstallsParserList QmakeProFile::installsList() const
+InstallsList QmakeProFile::installsList() const
 {
     return m_installsList;
 }

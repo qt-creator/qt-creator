@@ -474,22 +474,22 @@ QPair<QString, QString> DesktopQmakeRunConfiguration::extractWorkingDirAndExecut
 
     const QStringList &config = node->variableValue(Variable::Config);
 
-    QString destDir = ti.destDir;
+    QString destDir = ti.destDir.toString();
     QString workingDir;
     if (!destDir.isEmpty()) {
         bool workingDirIsBaseDir = false;
         if (destDir == ti.buildTarget)
             workingDirIsBaseDir = true;
         if (QDir::isRelativePath(destDir))
-            destDir = QDir::cleanPath(ti.buildDir + QLatin1Char('/') + destDir);
+            destDir = QDir::cleanPath(ti.buildDir.toString() + '/' + destDir);
 
         if (workingDirIsBaseDir)
-            workingDir = ti.buildDir;
+            workingDir = ti.buildDir.toString();
         else
             workingDir = destDir;
     } else {
-        destDir = ti.buildDir;
-        workingDir = ti.buildDir;
+        destDir = ti.buildDir.toString();
+        workingDir = ti.buildDir.toString();
     }
 
     if (HostOsInfo::isMacHost() && config.contains(QLatin1String("app_bundle"))) {

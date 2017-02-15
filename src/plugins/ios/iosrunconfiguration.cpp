@@ -230,7 +230,7 @@ FileName IosRunConfiguration::bundleDirectory() const
         if (node) {
             TargetInformation ti = node->targetInformation();
             if (ti.valid)
-                res = FileName::fromString(ti.buildDir);
+                res = ti.buildDir;
         }
         if (res.isEmpty())
             res = bc->buildDirectory();

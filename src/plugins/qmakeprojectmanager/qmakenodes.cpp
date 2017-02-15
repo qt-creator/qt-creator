@@ -2166,10 +2166,10 @@ TargetInformation QmakeProFileNode::targetInformation(QtSupport::ProFileReader *
     }
 
     // BUILD DIR
-    result.buildDir = buildDir;
+    result.buildDir = FileName::fromString(buildDir);
 
     if (readerBuildPass->contains(QLatin1String("DESTDIR")))
-        result.destDir = readerBuildPass->value(QLatin1String("DESTDIR"));
+        result.destDir = FileName::fromString(readerBuildPass->value(QLatin1String("DESTDIR")));
 
     // Target
     result.target = readerBuildPass->value(QLatin1String("TARGET"));
