@@ -998,7 +998,7 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
         const QString id = tabBarNode.validId();
 
         container.removeProperty(indexPropertyName);
-        const QString expression = id + "." + indexPropertyName;
+        const QString expression = id + "." + QString::fromLatin1(indexPropertyName);
         container.bindingProperty(indexPropertyName).setExpression(expression);
 
         transaction.commit();
