@@ -119,6 +119,9 @@ public:
     QmakePriFile *parent() const;
     QmakeProject *project() const;
     QVector<QmakePriFile *> children() const;
+
+    QmakePriFile *findPriFile(const Utils::FileName &fileName);
+
     void makeEmpty();
 
     QSet<Utils::FileName> files(const ProjectExplorer::FileType &type) const;
@@ -216,7 +219,7 @@ private:
 
     // Memory is cheap...
     QMap<ProjectExplorer::FileType, QSet<Utils::FileName>> m_files;
-    QSet<Utils::FileName> m_recursiveEnumerateFiles;
+    QSet<Utils::FileName> m_recursiveEnumerateFiles; // FIXME: Remove this?!
     QSet<QString> m_watchedFolders;
     bool m_includedInExactParse = true;
 
@@ -277,6 +280,7 @@ public:
     QString displayName() const final;
 
     QList<QmakeProFile *> allProFiles();
+    QmakeProFile *findProFile(const Utils::FileName &fileName);
 
     ProjectType projectType() const;
 
@@ -294,7 +298,6 @@ public:
                                        const Utils::FileName &sourceFile) const;
     QList<ProjectExplorer::ExtraCompiler *> extraCompilers() const;
 
-    QmakeProFile *findProFileFor(const Utils::FileName &string) const;
     TargetParserInformation targetInformation() const;
 
     InstallsParserList installsList() const;
@@ -333,8 +336,6 @@ private:
     void asyncEvaluate(QFutureInterface<Internal::QmakeEvalResult *> &fi, Internal::QmakeEvalInput input);
     void cleanupProFileReaders();
 
-    using VariablesHash = QHash<Variable, QStringList>;
-
     void updateGeneratedFiles(const Utils::FileName &buildDir);
 
     static QString uiDirPath(QtSupport::ProFileReader *reader, const Utils::FileName &buildDir);
@@ -352,7 +353,10 @@ private:
 
     QString m_displayName;
     ProjectType m_projectType = ProjectType::Invalid;
+
+    using VariablesHash = QHash<Variable, QStringList>;
     VariablesHash m_varValues;
+
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
 
     TargetParserInformation m_qmakeTargetInformation;

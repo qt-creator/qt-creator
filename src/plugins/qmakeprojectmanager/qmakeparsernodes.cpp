@@ -38,7 +38,6 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 #include <cpptools/cpptoolsconstants.h>
-#include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -284,6 +283,18 @@ QmakeProject *QmakePriFile::project() const
 QVector<QmakePriFile *> QmakePriFile::children() const
 {
     return m_children;
+}
+
+QmakePriFile *QmakePriFile::findPriFile(const FileName &fileName)
+{
+    if (fileName == filePath())
+        return this;
+    for (QmakePriFile *n : children()) {
+        if (QmakePriFile *result = n->findPriFile(fileName))
+            return result;
+    }
+    return nullptr;
+
 }
 
 void QmakePriFile::makeEmpty()
@@ -1113,40 +1124,9 @@ static ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateTy
     }
 }
 
-namespace {
-    // feed all files accepted by any of the factories to the callback.
-    class FindGeneratorSourcesVisitor : public NodesVisitor
-    {
-    public:
-        FindGeneratorSourcesVisitor(
-                const QList<ProjectExplorer::ExtraCompilerFactory *> &factories,
-                std::function<void(FileNode *, ProjectExplorer::ExtraCompilerFactory *)> callback) :
-            factories(factories), callback(callback) {}
-
-        void visitFolderNode(FolderNode *folderNode) final
-        {
-            foreach (FileNode *fileNode, folderNode->fileNodes()) {
-                foreach (ProjectExplorer::ExtraCompilerFactory *factory, factories) {
-                    if (factory->sourceType() == fileNode->fileType())
-                        callback(fileNode, factory);
-                }
-            }
-        }
-
-        const QList<ProjectExplorer::ExtraCompilerFactory *> factories;
-        std::function<void(FileNode *, ProjectExplorer::ExtraCompilerFactory *)> callback;
-    };
-}
-
-QmakeProFile *QmakeProFile::findProFileFor(const FileName &fileName) const
+QmakeProFile *QmakeProFile::findProFile(const FileName &fileName)
 {
-    if (fileName == filePath())
-        return const_cast<QmakeProFile *>(this);
-    foreach (const QmakePriFile *n, children())
-        if (auto qmakeProFileNode = dynamic_cast<const QmakeProFile *>(n))
-            if (QmakeProFile *result = qmakeProFileNode->findProFileFor(fileName))
-                return result;
-    return nullptr;
+    return dynamic_cast<QmakeProFile *>(findPriFile(fileName));
 }
 
 QString QmakeProFile::makefile() const
