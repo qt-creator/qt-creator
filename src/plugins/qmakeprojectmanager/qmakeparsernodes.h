@@ -121,6 +121,9 @@ public:
     QVector<QmakePriFile *> children() const;
     void makeEmpty();
 
+    QSet<Utils::FileName> files(const ProjectExplorer::FileType &type) const;
+    bool buildsFile(const Utils::FileName &fn) const;
+
     void update(const Internal::QmakePriFileEvalResult &result);
 
     // ProjectNode interface
