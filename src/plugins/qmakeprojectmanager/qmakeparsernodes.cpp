@@ -1216,6 +1216,17 @@ QString QmakeProFile::displayName() const
     return QmakePriFile::displayName();
 }
 
+QList<QmakeProFile *> QmakeProFile::allProFiles()
+{
+    QList<QmakeProFile *> result = { this };
+    for (QmakePriFile *c : m_children) {
+        auto proC = dynamic_cast<QmakeProFile *>(c);
+        if (proC)
+            result.append(proC->allProFiles());
+    }
+    return result;
+}
+
 bool QmakeProFile::isDebugAndRelease() const
 {
     const QStringList configValues = m_varValues.value(Variable::Config);

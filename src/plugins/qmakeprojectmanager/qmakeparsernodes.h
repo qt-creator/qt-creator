@@ -273,6 +273,8 @@ public:
     bool isParent(QmakeProFile *node);
     QString displayName() const final;
 
+    QList<QmakeProFile *> allProFiles();
+
     ProjectType projectType() const;
 
     QStringList variableValue(const Variable var) const;
