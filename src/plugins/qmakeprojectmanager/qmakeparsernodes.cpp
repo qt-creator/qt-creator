@@ -380,6 +380,11 @@ void QmakePriFile::watchFolders(const QSet<QString> &folders)
     m_watchedFolders = folders;
 }
 
+bool QmakePriFile::knowsFile(const FileName &filePath) const
+{
+    return m_recursiveEnumerateFiles.contains(filePath);
+}
+
 bool QmakePriFile::folderChanged(const QString &changedFolder, const QSet<FileName> &newFiles)
 {
     qCDebug(qmakeParse()) << "QmakePriFile::folderChanged";

@@ -122,6 +122,8 @@ public:
 
     QmakePriFile *findPriFile(const Utils::FileName &fileName);
 
+    bool knowsFile(const Utils::FileName &filePath) const;
+
     void makeEmpty();
 
     QSet<Utils::FileName> files(const ProjectExplorer::FileType &type) const;
@@ -209,6 +211,7 @@ private:
             const InstallsList &installList);
     static void processValues(Internal::QmakePriFileEvalResult &result);
     void watchFolders(const QSet<QString> &folders);
+
 
     QmakeProject *m_project = nullptr;
     QmakeProFile *m_qmakeProFile = nullptr;
