@@ -63,6 +63,8 @@ public:
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChangeFlag) override;
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChangeFlag) override;
 
+    void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
+
     void setDesignerActionList(const QList<ActionInterface* > &designerActionList);
     DesignerActionManager &designerActionManager();
     const DesignerActionManager &designerActionManager() const;

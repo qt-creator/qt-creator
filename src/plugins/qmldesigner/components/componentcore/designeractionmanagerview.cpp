@@ -27,6 +27,7 @@
 
 #include <selectioncontext.h>
 #include <actioninterface.h>
+#include <variantproperty.h>
 
 namespace QmlDesigner {
 
@@ -134,11 +135,19 @@ void DesignerActionManagerView::variantPropertiesChanged(const QList<VariantProp
 {
     if (propertyChangeFlag == AbstractView::PropertiesAdded)
         setupContext();
+    else if (hasSingleSelectedModelNode())
+        setupContext();
 }
 
 void DesignerActionManagerView::bindingPropertiesChanged(const QList<BindingProperty> &, AbstractView::PropertyChangeFlags propertyChangeFlag)
 {
     if (propertyChangeFlag == AbstractView::PropertiesAdded)
+        setupContext();
+}
+
+void DesignerActionManagerView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &)
+{
+    if (hasSingleSelectedModelNode())
         setupContext();
 }
 
@@ -152,6 +161,8 @@ const DesignerActionManager &DesignerActionManagerView::designerActionManager() 
     return m_designerActionManager;
 }
 
+/* We should consider compressing this. */
+/* One update every 100ms should be enough. */
 void DesignerActionManagerView::setupContext()
 {
     if (m_isInRewriterTransaction) {
