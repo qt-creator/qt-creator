@@ -58,7 +58,7 @@ public:
                                                                     diagnosticConsumer);
     }
 
-    clang::FrontendAction *create()
+    clang::FrontendAction *create() override
     {
         return new CollectIncludesAction(m_includeIds,
                                          m_filePathCache,

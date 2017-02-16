@@ -65,7 +65,7 @@ public:
         return QString(CLANG_COMPILER_PATH);
     }
 
-    uint hardwareConcurrency() const
+    uint hardwareConcurrency() const override
     {
         return std::thread::hardware_concurrency();
     }

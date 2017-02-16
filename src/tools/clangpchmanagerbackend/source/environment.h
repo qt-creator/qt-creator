@@ -32,6 +32,7 @@ namespace ClangBackEnd {
 class Environment
 {
 public:
+    virtual ~Environment() = default;
     virtual QString pchBuildDirectory() const = 0;
     virtual QString clangCompilerPath() const = 0;
     virtual uint hardwareConcurrency() const = 0;
