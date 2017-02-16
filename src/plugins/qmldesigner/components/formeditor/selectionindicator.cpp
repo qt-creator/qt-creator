@@ -160,9 +160,6 @@ void SelectionIndicator::updateItems(const QList<FormEditorItem*> &itemList)
         }
     }
 
-    if (!itemList.isEmpty())
-        itemList.first()->qmlItemNode().view()->singleSelectedModelNode().isValid();
-
     if (checkSingleSelection(itemList)
             && m_labelItem) {
         FormEditorItem *selectedItem = itemList.first();
