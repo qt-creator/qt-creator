@@ -45,8 +45,10 @@ bool ClangAssistProposal::isCorrective() const
 
 void ClangAssistProposal::makeCorrection(TextEditor::TextEditorWidget *editorWidget)
 {
+    const int oldPosition = editorWidget->position();
     editorWidget->setCursorPosition(basePosition() - 1);
     editorWidget->replace(1, QLatin1String("->"));
+    editorWidget->setCursorPosition(oldPosition + 1);
     moveBasePosition(1);
 }
 
