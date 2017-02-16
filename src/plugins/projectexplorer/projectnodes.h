@@ -263,6 +263,12 @@ class PROJECTEXPLORER_EXPORT VirtualFolderNode : public FolderNode
 {
 public:
     explicit VirtualFolderNode(const Utils::FileName &folderPath, int priority);
+
+    void setAddFileFilter(const QString &filter) { m_addFileFilter = filter; }
+    QString addFileFilter() const override;
+
+private:
+    QString m_addFileFilter;
 };
 
 // Documentation inside.

@@ -648,6 +648,13 @@ VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath, int prio
     setPriority(priority);
 }
 
+QString VirtualFolderNode::addFileFilter() const
+{
+    if (!m_addFileFilter.isNull())
+        return m_addFileFilter;
+    return FolderNode::addFileFilter();
+}
+
 /*!
   \class ProjectExplorer::ProjectNode
 
