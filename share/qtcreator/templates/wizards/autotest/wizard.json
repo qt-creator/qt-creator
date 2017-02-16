@@ -46,7 +46,7 @@
             "typeId": "Project",
             "data":
             {
-                "trDescription": "This wizard creates a simple Qmake based project with an additional auto test skeleton."
+                "trDescription": "This wizard creates a simple project with an additional auto test skeleton."
             }
         },
         {
@@ -172,7 +172,7 @@
                         "items":
                         [
                             {
-                                "trKey": "Qmake",
+                                "trKey": "qmake",
                                 "value": "qmake"
                             },
                             {
