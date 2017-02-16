@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -57,14 +57,9 @@
     the necessary files for you. You can add your own custom wizards to
     standardize the way subprojects and classes are added to a project.
 
-    Most wizards create projects that use the Qt build tool, qmake. It is a
-    cross-platform system for build automation that helps simplify the build
-    process for development projects across different platforms. qmake
-    automates the generation of build configurations so that only a few lines
-    of information are needed to create each configuration. For more
-    information about qmake, see the \l{qmake Manual}.
-    You can modify the build and run settings for qmake projects in the
-    \uicontrol Projects mode.
+    Most \QC project wizards enable you to choose the build system to use for
+    building the project: qmake, CMake, or Qbs. If you are not presented with a
+    choice, the project is set up to use qmake.
 
     You can use wizards also to create plain C or C++ projects that use
     qmake, Qbs, or CMake, but do not use the Qt library.
@@ -78,6 +73,8 @@
     installed device types are set up automatically. However, you might need to
     install and configure some additional software on the devices to be able to
     connect to them from the development PC.
+
+    \include creator-projects-build-systems.qdocinc build systems
 
     \section1 Using Project Wizards
 
@@ -265,13 +262,6 @@
 
     For more information about creating Qt Quick projects, see
     \l {Creating Qt Quick Projects}.
-
-    To change the location of the project directory, and to specify settings
-    for building and running projects, select \uicontrol{Tools} > \uicontrol{Options} >
-    \uicontrol{Build & Run} > \uicontrol{General}.
-
-    To specify build and run settings for different target platforms,
-    select \uicontrol Projects.
 
     \section1 Adding Files to Projects
 

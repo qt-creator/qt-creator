@@ -40,6 +40,10 @@
             files, and then select \uicontrol Next (or \uicontrol Continue on
             \macos).
 
+        \li In the \uicontrol {Build system} field, select the build system to
+            use for building and running the project: \l qmake,
+            \l {Setting Up CMake}{CMake}, or \l {Setting Up Qbs}{Qbs}.
+
         \li In the \uicontrol {Qt Quick Controls 2 Style} field, select one of
             the predefined \l{Styling Qt Quick Controls 2}{UI styles} to use,
             and then select \uicontrol Next.

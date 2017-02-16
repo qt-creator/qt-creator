@@ -1,0 +1,70 @@
+/****************************************************************************
+**
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+//! [build systems]
+
+    \section1 Selecting the Build System
+
+    Most \QC project wizards enable you to choose the build system to use for
+    building the project: qmake, CMake, or Qbs. If you are not presented with a
+    choice, the project is set up to use qmake.
+
+    \l{qmake Manual}{qmake} is a cross-platform system for build automation
+    that helps simplify the build process for development projects across
+    different platforms. qmake automates the generation of build configurations
+    so that only a few lines of information are needed to create each
+    configuration. qmake is installed and configured when you install Qt.
+    To use one of the other supported build systems, you need to set it up.
+
+    \l {CMake Manual}{CMake} is an alternative to qmake for automating the
+    generation of build configurations. For more information, see
+    \l {Setting Up CMake}.
+
+    \l{Qbs Manual}{Qbs} is an all-in-one build tool that generates a build graph
+    from a high-level project description (like qmake or CMake do) and executes
+    the commands in the low-level build graph (like make does). For more
+    information, see \l{Setting Up Qbs}.
+
+    To change the location of the project directory, and to specify settings
+    for building and running projects, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol General. The
+    \uicontrol CMake tab contains additional CMake settings.
+
+    To specify build profiles for Qbs, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Qbs.
+
+    To specify build and run settings for different target platforms,
+    select \uicontrol Projects. For more information on the options you have,
+    see \l{Specifying Build Settings}.
+
+//! [build systems]
+*/
