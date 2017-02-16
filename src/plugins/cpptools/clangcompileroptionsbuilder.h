@@ -40,7 +40,6 @@ public:
                              const QString &clangVersion,
                              const QString &clangResourceDirectory);
 
-protected:
     ClangCompilerOptionsBuilder(const ProjectPart &projectPart,
                                 const QString &clangVersion,
                                 const QString &clangResourceDirectory);
@@ -58,7 +57,6 @@ protected:
     void addProjectConfigFileInclude();
 
     void addExtraOptions();
-
 private:
     QString clangIncludeDirectory() const;
 

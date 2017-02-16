@@ -37,19 +37,22 @@ class FilePath
 {
 public:
     FilePath() = default;
-    explicit FilePath(const QString &filePath)
+    explicit FilePath(Utils::SmallString &&filePath)
     {
-        Utils::SmallString utf8FilePath = filePath;
-
-        auto foundReverse = std::find(utf8FilePath.rbegin(), utf8FilePath.rend(), '/');
+        auto foundReverse = std::find(filePath.rbegin(), filePath.rend(), '/');
         auto found = foundReverse.base();
 
-        Utils::SmallString fileName(found, utf8FilePath.end());
-        if (foundReverse != utf8FilePath.rend())
-            utf8FilePath.resize(std::size_t(std::distance(utf8FilePath.begin(), --found)));
+        Utils::SmallString fileName(found, filePath.end());
+        if (foundReverse != filePath.rend())
+            filePath.resize(std::size_t(std::distance(filePath.begin(), --found)));
 
-        directory_ = std::move(utf8FilePath);
+        directory_ = std::move(filePath);
         name_ = std::move(fileName);
+    }
+
+    explicit FilePath(const QString &filePath)
+        : FilePath(Utils::SmallString(filePath))
+    {
     }
 
     FilePath(Utils::SmallString &&directory, Utils::SmallString &&name)

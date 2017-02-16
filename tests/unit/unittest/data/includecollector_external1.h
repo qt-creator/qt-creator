@@ -1,3 +1,3 @@
 #pragma once
 
-#include <algorithm>
+#include "includecollector_indirect_external.h"

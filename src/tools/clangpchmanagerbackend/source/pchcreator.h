@@ -93,6 +93,8 @@ unittest_public:
             const V2::ProjectPartContainer &projectPart) const;
     Utils::PathStringVector generateProjectPartHeaders(
             const V2::ProjectPartContainer &projectPart) const;
+    static Utils::SmallString generateProjectPartHeaderAndSourcesContent(
+            const V2::ProjectPartContainer &projectPart);
     static Utils::PathStringVector generateProjectPartHeaderAndSourcePaths(
             const V2::ProjectPartContainer &projectPart);
     std::vector<uint> generateProjectPartPchIncludes(
@@ -101,13 +103,15 @@ unittest_public:
             const V2::ProjectPartContainer &projectPart) const;
     Utils::SmallString  generateProjectPartPchFilePath(
            const V2::ProjectPartContainer &projectPart) const;
+    Utils::SmallString  generateProjectPartSourceFilePath(
+           const V2::ProjectPartContainer &projectPart) const;
     Utils::SmallStringVector generateProjectPartPchCompilerArguments(
             const V2::ProjectPartContainer &projectPart) const;
     Utils::SmallStringVector generateProjectPartClangCompilerArguments(
              const V2::ProjectPartContainer &projectPart) const;
     IdPaths generateProjectPartPch(
             const V2::ProjectPartContainer &projectPart);
-    static std::unique_ptr<QFile> generatePchHeaderFile(
+    static std::unique_ptr<QFile> generateFileWithContent(
             const Utils::SmallString &filePath,
             const Utils::SmallString &content);
 

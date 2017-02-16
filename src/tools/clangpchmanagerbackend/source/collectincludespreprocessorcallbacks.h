@@ -66,18 +66,17 @@ public:
     {
         if (file) {
             auto fileUID = file->getUID();
-
-            flagIncludeAlreadyRead(file);
-
             if (isNotInExcludedIncludeUID(fileUID)) {
+                flagIncludeAlreadyRead(file);
+
                 auto notAlreadyIncluded = isNotAlreadyIncluded(fileUID);
                 if (notAlreadyIncluded.first) {
                     m_alreadyIncludedFileUIDs.insert(notAlreadyIncluded.second, fileUID);
-                    Utils::PathString filePath = fromNativePath({{searchPath.data(), searchPath.size()},
-                                                                 "/",
-                                                                 {fileName.data(), fileName.size()}});
-                    uint includeId = m_filePathCache.stringId(filePath);
-                    m_includeIds.emplace_back(includeId);
+                    Utils::PathString filePath = filePathFromFile(file);
+                    if (!filePath.isEmpty()) {
+                        uint includeId = m_filePathCache.stringId(filePath);
+                        m_includeIds.emplace_back(includeId);
+                    }
                 }
             }
         }
@@ -105,15 +104,25 @@ public:
 
         headerFileInfo.isImport = true;
         ++headerFileInfo.NumIncludes;
-
     }
 
-    Utils::PathString fromNativePath(Utils::PathString &&filePath)
+    static Utils::PathString fromNativePath(Utils::PathString &&filePath)
     {
 #ifdef _WIN32
+        if (filePath.startsWith("\\\\?\\"))
+            filePath = Utils::PathString(filePath.mid(4));
         filePath.replace('\\', '/');
 #endif
         return std::move(filePath);
+    }
+
+    static Utils::PathString filePathFromFile(const clang::FileEntry *file)
+    {
+        clang::StringRef realPath = file->tryGetRealPathName();
+        if (!realPath.empty())
+            return fromNativePath({realPath.data(), realPath.size()});
+
+        return fromNativePath(file->getName());
     }
 
 private:

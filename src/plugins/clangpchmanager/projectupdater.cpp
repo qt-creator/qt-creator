@@ -111,17 +111,44 @@ HeaderAndSources ProjectUpdater::headerAndSourcesFromProjectPart(
     return headerAndSources;
 }
 
-ClangBackEnd::V2::ProjectPartContainer ProjectUpdater::toProjectPartContainer(
-        CppTools::ProjectPart *projectPart) const
+QStringList ProjectUpdater::compilerArguments(CppTools::ProjectPart *projectPart)
 {
     using CppTools::ClangCompilerOptionsBuilder;
 
-    QStringList arguments = ClangCompilerOptionsBuilder::build(
-                projectPart,
-                CppTools::ProjectFile::CXXHeader,
-                ClangCompilerOptionsBuilder::PchUsage::None,
-                CLANG_VERSION,
-                CLANG_RESOURCE_DIR);
+        ClangCompilerOptionsBuilder builder(*projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR);
+
+        builder.addWordWidth();
+        builder.addTargetTriple();
+        builder.addLanguageOption(CppTools::ProjectFile::CXXHeader);
+        builder.addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
+        builder.enableExceptions();
+
+        builder.addDefineToAvoidIncludingGccOrMinGwIntrinsics();
+        builder.addDefineFloat128ForMingw();
+        builder.addToolchainAndProjectDefines();
+        builder.undefineCppLanguageFeatureMacrosForMsvc2015();
+
+        builder.addPredefinedMacrosAndHeaderPathsOptions();
+        builder.addWrappedQtHeadersIncludePath();
+        builder.addPrecompiledHeaderOptions(ClangCompilerOptionsBuilder::PchUsage::None);
+        builder.addHeaderPathOptions();
+        builder.addProjectConfigFileInclude();
+
+        builder.addMsvcCompatibilityVersion();
+
+        builder.add("-fmessage-length=0");
+        builder.add("-fmacro-backtrace-limit=0");
+        builder.add("-w");
+        builder.add("-ferror-limit=100000");
+
+        return builder.options();
+}
+
+ClangBackEnd::V2::ProjectPartContainer ProjectUpdater::toProjectPartContainer(
+        CppTools::ProjectPart *projectPart) const
+{
+
+    QStringList arguments = compilerArguments(projectPart);
 
     HeaderAndSources headerAndSources = headerAndSourcesFromProjectPart(projectPart);
 

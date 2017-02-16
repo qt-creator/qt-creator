@@ -430,6 +430,11 @@ public:
         return size() == 0;
     }
 
+    bool empty() const noexcept
+    {
+        return isEmpty();
+    }
+
     bool hasContent() const noexcept
     {
         return size() != 0;

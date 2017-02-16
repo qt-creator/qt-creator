@@ -136,13 +136,8 @@ void ProjectUpdater::SetUp()
     projectPart.files.push_back(source2ProjectFile);
     projectPart.displayName = projectPartId;
 
-    Utils::SmallStringVector arguments{ClangCompilerOptionsBuilder::build(
-                    &projectPart,
-                    CppTools::ProjectFile::CXXHeader,
-                    ClangCompilerOptionsBuilder::PchUsage::None,
-                    CLANG_VERSION,
-                    CLANG_RESOURCE_DIR
-                    )};
+    Utils::SmallStringVector arguments{ClangPchManager::ProjectUpdater::compilerArguments(
+                    &projectPart)};
 
     expectedContainer = {projectPartId.clone(),
                          arguments.clone(),
