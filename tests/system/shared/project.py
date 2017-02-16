@@ -124,6 +124,24 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True, lib
     clickButton(waitForObject(":Next_QPushButton"))
     return str(projectName)
 
+def __handleBuildSystem__(buildSystem):
+    combo = "{name='BuildSystem' type='Utils::TextFieldComboBox' visible='1'}"
+    try:
+        comboObj = waitForObject(combo, 2000)
+    except:
+        test.warning("No build system combo box found at all.")
+        return
+    try:
+        if buildSystem is None:
+            test.log("Keeping default build system '%s'" % str(comboObj.currentText))
+        else:
+            test.log("Trying to select build system '%s'" % buildSystem)
+            selectFromCombo(combo, buildSystem)
+    except:
+        t, v = sys.exc_info()[:2]
+        test.warning("Exception while handling build system", "%s(%s)" % (str(t), str(v)))
+    clickButton(waitForObject(":Next_QPushButton"))
+
 def __createProjectHandleQtQuickSelection__(minimumQtVersion):
     comboBox = waitForObject("{leftWidget=':Minimal required Qt version:_QLabel' name='QtVersion' "
                              "type='Utils::TextFieldComboBox' visible='1'}")
@@ -240,9 +258,10 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
 # param path specifies where to create the project
 # param projectName is the name for the new project
 # param checks turns tests in the function on if set to True
-def createProject_Qt_Console(path, projectName, checks = True):
+def createProject_Qt_Console(path, projectName, checks = True, buildSystem = None):
     available = __createProjectOrFileSelectType__("  Application", "Qt Console Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
+    __handleBuildSystem__(buildSystem)
     checkedTargets = __selectQtVersionDesktop__(checks, available)
 
     expectedFiles = []
@@ -263,13 +282,14 @@ def createProject_Qt_Console(path, projectName, checks = True):
 
 def createNewQtQuickApplication(workingDir, projectName = None,
                                 targets=Targets.desktopTargetClasses(), minimumQtVersion="5.3",
-                                withControls = False, fromWelcome=False):
+                                withControls = False, fromWelcome = False, buildSystem = None):
     if withControls:
         template = "Qt Quick Controls Application"
     else:
         template = "Qt Quick Application"
     available = __createProjectOrFileSelectType__("  Application", template, fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
+    __handleBuildSystem__(buildSystem)
     requiredQt = __createProjectHandleQtQuickSelection__(minimumQtVersion)
     __modifyAvailableTargets__(available, requiredQt)
     checkedTargets = __chooseTargets__(targets, available)
