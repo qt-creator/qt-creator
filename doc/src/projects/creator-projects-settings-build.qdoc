@@ -171,9 +171,8 @@
     set up to use the Qt Resource System. To compile Qt Quick projects, select
     the \uicontrol {Enable Qt Quick Compiler} check box.
 
-    \note For more information about the build steps when using Qbs, see
-    \l{Building Applications with Qbs}.
     \include creator-projects-cmake-building.qdocinc cmake build steps
+    \include creator-projects-settings-build-qbs.qdocinc qbs build steps
 
     \section2 Adding Custom Build Steps
 
@@ -217,9 +216,8 @@
             (\uicontrol {Move Down}).
     \endlist
 
-    \note For more information about the cleaning steps when using Qbs, see
-    \l{Building Applications with Qbs}.
     \include creator-projects-cmake-building.qdocinc cmake clean steps
+    \include creator-projects-settings-build-qbs.qdocinc qbs clean steps
 
     \section1 Build Environment
 

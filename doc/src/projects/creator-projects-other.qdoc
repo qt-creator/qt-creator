@@ -49,7 +49,7 @@
             CMake is an alternative to qmake for automating the generation of
             build configurations.
 
-        \li \l{Setting Up a Qbs Project}
+        \li \l{Setting Up Qbs}
 
             \l{Qbs Manual}{Qbs} is an all-in-one build
             tool that generates a build graph from a high-level project

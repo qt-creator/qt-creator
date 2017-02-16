@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -29,7 +29,7 @@
     \page creator-project-qbs.html
     \nextpage creator-projects-autotools.html
 
-    \title Setting Up a Qbs Project
+    \title Setting Up Qbs
 
     To use Qbs to build a project, you must create a .qbs file for the project.
     You can use \QC to create a C or C++ project that is built with Qbs.
@@ -56,118 +56,6 @@
         \li Run qmake on \QC and build \QC again.
 
     \endlist
-
-    \section1 Building Applications with Qbs
-
-    To build your application with Qbs:
-
-    \list 1
-
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Non-Qt Project} > \uicontrol {Plain C Project} or
-            \uicontrol {Plain C++ Project} > \uicontrol Choose.
-
-        \li In the \uicontrol {Project Location} dialog, specify the name and
-            location for the project and select \uicontrol Next.
-
-        \li In the \uicontrol {Define Build System} dialog, select
-            \uicontrol Qbs in the \uicontrol {Build system} field, and then
-            select \uicontrol Next.
-
-        \li In the \uicontrol {Kit Selection} dialog, select a build and run kit
-            for the project, and then select \uicontrol Next.
-
-        \li In the \uicontrol {Project Management} dialog, select
-            \uicontrol Finish to create a Qbs project.
-
-            \image creator-qbs-project.png
-
-        \li Edit the .qbs file for you project. Usually, you must add the
-            \c Depends item for a Qt application. For examples, see the
-            \c {examples} directory in the qbs repository.
-
-        \li Select \uicontrol Projects to specify \uicontrol {Build Settings} for the
-            project.
-
-        \li Select \uicontrol {Build Steps} > \uicontrol Details to specify build steps:
-
-            \image creator-qbs-build-app.png
-
-            \list 1
-
-                \li In the \uicontrol {Build variant} field, select \uicontrol Debug to
-                    include debug symbols in the build for debugging the
-                    application and \uicontrol Release to create the final
-                    installation file.
-
-                \li In the \uicontrol {Parallel jobs} field, specify the number of
-                    parallel jobs to use for building.
-
-                \li Select the \uicontrol {Enable QML debugging} check box to debug
-                    Qt Quick application projects.
-
-                    \note Debugging requires opening a socket at a well-known
-                    port, which presents a security risk. Anyone on the Internet
-                    could connect to the application that you are debugging and
-                    execute any JavaScript functions. Therefore, you must make
-                    sure that the port is properly protected by a firewall.
-
-                \li In the \uicontrol Properties field, specify the properties to pass
-                    to the project. Use colons (:) to separate keys from values.
-                    For more information, see
-                    \l{http://doc.qt.io/qbs/language-introduction.html}
-                    {Modules} in the Qbs Manual.
-
-                \li In the \uicontrol Flags field:
-
-                    \list
-
-                        \li Select \uicontrol {Keep going} to continue building when
-                            errors occur, if possible.
-
-                        \li Select \uicontrol {Show command lines} to print actual command lines
-                            to the compile output pane instead of high-level descriptions.
-
-                        \li Select \uicontrol {Force probes} to force re-execution of the
-                            configure scripts of \l{https://doc.qt.io/qbs/probe-item.html}{Probes}.
-
-                        \li Select \uicontrol {Install} to copy artifacts to their install location
-                            after building them. This option is enabled by default.
-
-                        \li Select \uicontrol {Clean install root} to remove the contents of
-                            the install root directory before the build starts.
-
-                    \endlist
-
-            \endlist
-
-            The \uicontrol {Equivalent command line} field displays the build command
-            that is constructed based on the selected options.
-
-        \li Select \uicontrol {Clean Steps} > \uicontrol Details to specify flags for the
-            cleaning step.
-
-            \image creator-qbs-build-clean.png
-
-            \list
-
-                \li Select \uicontrol {Dry run} to test cleaning without executing
-                    commands or making permanent changes to the build graph.
-
-                \li Select \uicontrol {Keep going} to continue cleaning when errors
-                    occur, if possible.
-
-            \endlist
-
-            The \uicontrol {Equivalent command line} field displays the clean command
-            that is constructed based on the selected options.
-
-        \li Select \uicontrol Build > \uicontrol {Build Project} to build the application.
-
-        \li Click the
-            \inlineimage run_small.png
-            (\uicontrol Run) button to deploy and run the application.
-        \endlist
 
     \section1 Editing Build Profiles
 
@@ -209,4 +97,12 @@
     For a list of available keys and values, see the
     \l{http://doc.qt.io/qbs/list-of-modules.html}{List of Modules} in the
     Qbs Manual.
+
+    \section1 Related Topics
+
+    \list
+        \li \l {Opening Projects}
+        \li \l {Specifying Build Settings}
+        \li \l {Specifying Run Settings}
+    \endlist
 */

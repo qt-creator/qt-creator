@@ -1,0 +1,114 @@
+/****************************************************************************
+**
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+//! [qbs build steps]
+
+    \section2 Qbs Build Steps
+
+    \image creator-qbs-build-app.png
+
+    To specify build steps for Qbs:
+
+    \list 1
+
+        \li In the \uicontrol {Build variant} field, select \uicontrol Debug to
+            include debug symbols in the build for debugging the application and
+            \uicontrol Release to create the final installation file.
+
+        \li In the \uicontrol {Parallel jobs} field, specify the number of
+            parallel jobs to use for building.
+
+        \li Select the \uicontrol {Enable QML debugging} check box to debug
+            Qt Quick application projects.
+
+            \note Debugging requires opening a socket at a well-known
+            port, which presents a security risk. Anyone on the Internet
+            could connect to the application that you are debugging and
+            execute any JavaScript functions. Therefore, you must make
+            sure that the port is properly protected by a firewall.
+
+        \li In the \uicontrol Properties field, specify the properties to pass
+            to the project. Use colons (:) to separate keys from values.
+            For more information, see
+            \l{http://doc.qt.io/qbs/language-introduction.html}
+            {Modules} in the Qbs Manual.
+
+        \li In the \uicontrol Flags field:
+
+            \list
+
+                \li Select \uicontrol {Keep going} to continue building when
+                    errors occur, if possible.
+
+                \li Select \uicontrol {Show command lines} to print actual
+                    command lines to the compile output pane instead of
+                    high-level descriptions.
+
+                \li Select \uicontrol {Force probes} to force re-execution of
+                    the configure scripts of
+                    \l{https://doc.qt.io/qbs/probe-item.html}{Probes}.
+
+                \li Select \uicontrol Install to copy artifacts to their install
+                    location after building them. This option is enabled by
+                    default.
+
+                \li Select \uicontrol {Clean install root} to remove the
+                    contents of the install root directory before the build
+                    starts.
+
+            \endlist
+
+    \endlist
+
+    The \uicontrol {Equivalent command line} field displays the build command
+    that is constructed based on the selected options.
+
+//! [qbs build steps]
+
+
+//! [qbs clean steps]
+
+    \section2 Qbs Clean Steps
+
+    When building with Qbs, you can specify flags in \uicontrol {Clean Steps}:
+
+    \image creator-qbs-build-clean.png
+
+    \list
+
+        \li Select \uicontrol {Dry run} to test cleaning without executing
+            commands or making permanent changes to the build graph.
+
+        \li Select \uicontrol {Keep going} to continue cleaning when errors
+            occur, if possible.
+
+    \endlist
+
+    The \uicontrol {Equivalent command line} field displays the clean command
+    that is constructed based on the selected options.
+
+//! [qbs clean steps]
+*/
