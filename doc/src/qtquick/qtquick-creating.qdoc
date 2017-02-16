@@ -121,7 +121,7 @@
     application logic. The \e .ui.qml file is created if you selected the
     \uicontrol {With .ui.qml file} check box.
 
-    \include creator-tutorial-create-qq-project.qdocinc
+    \include creator-tutorial-create-qq-project.qdocinc qt quick application
 
     \section1 Creating Qt Quick UI Projects
 
