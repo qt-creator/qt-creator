@@ -546,7 +546,7 @@ public:
         vbox2->addWidget(projectsList);
 
         auto hbox = new QHBoxLayout(this);
-        hbox->setContentsMargins(30, 27, 27, 27);
+        hbox->setContentsMargins(30, 27, 0, 27);
         hbox->addItem(vbox1);
         hbox->addSpacing(d);
         hbox->addItem(vbox2);
