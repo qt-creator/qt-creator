@@ -636,7 +636,7 @@ void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
         const FileNameList headerPaths = headers.keys();
         for (const IncludePath *i : f->includePaths) {
             for (const FileName &hp : headerPaths) {
-                if (hp != i->path && !hp.isChildOf(i->path))
+                if (hp != i->path && hp != sourceDirectory && !hp.isChildOf(i->path))
                     continue;
                 const QList<const FileNode *> &headerFiles = headers.value(hp);
                 const QList<const FileNode *> unseenHeaders = Utils::filtered(headerFiles, [&alreadyListed](const FileNode *fn) {
