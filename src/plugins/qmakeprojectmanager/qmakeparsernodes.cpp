@@ -1378,25 +1378,25 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
     QHash<QString, QVector<ProFileEvaluator::SourceFile>> exactSourceFiles;
     QHash<QString, QVector<ProFileEvaluator::SourceFile>> cumulativeSourceFiles;
 
-    QStringList baseVPathsExact
+    const QStringList baseVPathsExact
             = baseVPaths(exactReader, input.projectDir, input.buildDirectory.toString());
-    QStringList baseVPathsCumulative
+    const QStringList baseVPathsCumulative
             = baseVPaths(cumulativeReader, input.projectDir, input.buildDirectory.toString());
 
     for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
-        FileType type = static_cast<FileType>(i);
-        QStringList qmakeVariables = varNames(type, exactReader);
+        const FileType type = static_cast<FileType>(i);
+        const QStringList qmakeVariables = varNames(type, exactReader);
         foreach (const QString &qmakeVariable, qmakeVariables) {
             QHash<ProString, bool> handled;
             if (result->state == QmakeEvalResult::EvalOk) {
-                QStringList vPathsExact = fullVPaths(
+                const QStringList vPathsExact = fullVPaths(
                             baseVPathsExact, exactReader, qmakeVariable, input.projectDir);
                 auto sourceFiles = exactReader->absoluteFileValues(
                             qmakeVariable, input.projectDir, vPathsExact, &handled);
                 exactSourceFiles[qmakeVariable] = sourceFiles;
                 extractSources(proToResult, &result->includedFiles.result, sourceFiles, type);
             }
-            QStringList vPathsCumulative = fullVPaths(
+            const QStringList vPathsCumulative = fullVPaths(
                         baseVPathsCumulative, cumulativeReader, qmakeVariable, input.projectDir);
             auto sourceFiles = cumulativeReader->absoluteFileValues(
                         qmakeVariable, input.projectDir, vPathsCumulative, &handled);
