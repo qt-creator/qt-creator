@@ -591,7 +591,7 @@ public:
         m_searcher = searchBox->m_lineEdit;
 
         auto vbox = new QVBoxLayout(this);
-        vbox->setContentsMargins(30, 27, 20, 20);
+        vbox->setContentsMargins(30, 27, 0, 0);
         if (m_isExamples) {
             m_searcher->setPlaceholderText(tr("Search in Examples..."));
 
@@ -631,7 +631,7 @@ public:
 
     int bestColumnCount() const
     {
-        return qMax(1, (width() - 30) / (itemWidth + itemGap));
+        return qMax(1, width() / (itemWidth + itemGap));
     }
 
     void resizeEvent(QResizeEvent *ev) final
