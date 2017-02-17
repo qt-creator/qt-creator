@@ -25,27 +25,23 @@
 
 #pragma once
 
-#include <QStyledItemDelegate>
-#include <QFileSystemModel>
+#include <QListView>
+
+QT_BEGIN_NAMESPACE
+class QActionGroup;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class ResourceItemDelegate : public QStyledItemDelegate
-{
+class ItemLibraryResourceView : public QListView {
+
+    Q_OBJECT
 public:
-    explicit ResourceItemDelegate(QObject *parent=0);
+    explicit ItemLibraryResourceView(QWidget *parent = 0);
 
-    void paint(QPainter *painter,
-               const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
-
-    QSize sizeHint(const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const;
-
-    void setModel(QFileSystemModel *model);
-
+    void startDrag(Qt::DropActions supportedActions) override;
 private:
-    QFileSystemModel *m_model;
+    void addSizeAction(QActionGroup *group, const QString &text, int size, int iconSize);
 };
 
 } // namespace QmlDesigner

@@ -51,10 +51,10 @@ namespace {
 // This style basically allows us to span the entire row
 // including the arrow indicators which would otherwise not be
 // drawn by the delegate
-class TreeViewStyle : public QProxyStyle
+class TableViewStyle : public QProxyStyle
 {
 public:
-    TreeViewStyle(QObject *parent) : QProxyStyle(QStyleFactory::create("fusion"))
+    TableViewStyle(QObject *parent) : QProxyStyle(QStyleFactory::create("fusion"))
     {
         setParent(parent);
         baseStyle()->setParent(parent);
@@ -169,7 +169,7 @@ private: // variables
 NavigatorTreeView::NavigatorTreeView(QWidget *parent)
     : QTreeView(parent)
 {
-    setStyle(new TreeViewStyle(this));
+    setStyle(new TableViewStyle(this));
 }
 
 void NavigatorTreeView::drawSelectionBackground(QPainter *painter, const QStyleOption &option)

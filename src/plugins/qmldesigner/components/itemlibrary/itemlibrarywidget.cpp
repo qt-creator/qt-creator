@@ -25,6 +25,8 @@
 
 #include "itemlibrarywidget.h"
 
+#include "customfilesystemmodel.h"
+
 #include <theming.h>
 
 #include <utils/fileutils.h>
@@ -62,10 +64,8 @@ namespace QmlDesigner {
 ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     QFrame(parent),
     m_itemIconSize(24, 24),
-    m_resIconSize(64, 64),
-    m_iconProvider(m_resIconSize),
     m_itemViewQuickWidget(new QQuickWidget),
-    m_resourcesView(new ItemLibraryTreeView(this)),
+    m_resourcesView(new ItemLibraryResourceView(this)),
     m_filterFlag(QtBasic)
 {
     m_compressionTimer.setInterval(200);
@@ -88,10 +88,8 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_itemViewQuickWidget->rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
 
     /* create Resources view and its model */
-    m_resourcesFileSystemModel = new QFileSystemModel(this);
-    m_resourcesFileSystemModel->setIconProvider(&m_iconProvider);
+    m_resourcesFileSystemModel = new CustomFileSystemModel(this);
     m_resourcesView->setModel(m_resourcesFileSystemModel.data());
-    m_resourcesView->setIconSize(m_resIconSize);
 
     /* create image provider for loading item icons */
     m_itemViewQuickWidget->engine()->addImageProvider(QStringLiteral("qmldesigner_itemlibrary"), new Internal::ItemLibraryImageProvider);
@@ -199,18 +197,9 @@ void ItemLibraryWidget::setSearchFilter(const QString &searchFilter)
         m_itemViewQuickWidget->update();
     } else {
         QStringList nameFilterList;
-        if (searchFilter.contains(QLatin1Char('.'))) {
-            nameFilterList.append(QString(QStringLiteral("*%1*")).arg(searchFilter));
-        } else {
-            foreach (const QByteArray &extension, QImageReader::supportedImageFormats()) {
-                nameFilterList.append(QString(QStringLiteral("*%1*.%2")).arg(searchFilter, QString::fromUtf8(extension)));
-            }
-        }
 
+        m_resourcesFileSystemModel->setSearchFilter(searchFilter);
         m_resourcesFileSystemModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
-        m_resourcesFileSystemModel->setNameFilterDisables(false);
-        m_resourcesFileSystemModel->setNameFilters(nameFilterList);
-        m_resourcesView->expandToDepth(1);
         m_resourcesView->scrollToTop();
     }
 }
@@ -320,44 +309,4 @@ void ItemLibraryWidget::addImport(const QString &name, const QString &version)
     m_model->changeImports(QList<Import>() << Import::createLibraryImport(name, version), QList<Import>());
 }
 
-QIcon ItemLibraryFileIconProvider::icon(const QFileInfo &info) const
-{
-    QSize iconSize = m_iconSize;
-
-    QPixmap pixmap(info.absoluteFilePath());
-
-    if (pixmap.isNull()) {
-        QIcon defaultIcon(QFileIconProvider::icon(info));
-        pixmap = defaultIcon.pixmap(defaultIcon.actualSize(QSize(16, 16)));
-    }
-
-    if (pixmap.isNull())
-        return pixmap;
-
-    if (pixmap.width() == iconSize.width()
-            && pixmap.height() == iconSize.height())
-        return pixmap;
-
-    if ((pixmap.width() > iconSize.width())
-            || (pixmap.height() > iconSize.height())) {
-
-        pixmap = pixmap.scaled(iconSize, Qt::KeepAspectRatio,
-                             Qt::SmoothTransformation);
-    }
-
-    QImage newIcon(iconSize, QImage::Format_ARGB32_Premultiplied);
-    newIcon.fill(Qt::transparent);
-    QPainter painter(&newIcon);
-
-    painter.drawPixmap(qAbs(m_iconSize.width() - pixmap.width()) / 2, qAbs(m_iconSize.height() - pixmap.height()) / 2, pixmap);
-
-    QIcon icon(QPixmap::fromImage(newIcon));
-
-    return icon;
-}
-
-ItemLibraryFileIconProvider::ItemLibraryFileIconProvider(const QSize &iconSize)
-    : QFileIconProvider(),
-      m_iconSize(iconSize)
-{}
 }

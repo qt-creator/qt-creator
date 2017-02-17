@@ -25,38 +25,50 @@
 
 #pragma once
 
-#include <QTreeView>
-#include <QStyledItemDelegate>
+#include <QAbstractTableModel>
+#include <QDir>
+
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QFileSystemModel;
-class QLabel;
+class QFileIconProvider;
 QT_END_NAMESPACE
+
+namespace Utils { class FileSystemWatcher; }
 
 namespace QmlDesigner {
 
-class ResourceItemDelegate;
-
-// ItemLibraryTreeView with Drag implementation
-class ItemLibraryTreeView : public QTreeView {
-
+class CustomFileSystemModel : public QAbstractListModel
+{
     Q_OBJECT
 public:
-    explicit ItemLibraryTreeView(QWidget *parent = 0);
+    CustomFileSystemModel(QObject *parent = 0);
 
-    virtual void startDrag(Qt::DropActions supportedActions);
-    virtual void setModel(QAbstractItemModel *model);
+    void setFilter(QDir::Filters filters);
+    QString rootPath() const;
+    QModelIndex setRootPath(const QString &newPath);
 
-    static void drawSelectionBackground(QPainter *painter, const QStyleOption &option);
+    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex & parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex & parent = QModelIndex()) const override;
 
-signals:
-    void itemActivated(const QString &itemName);
+    QModelIndex index(const QString & path, int column = 0) const;
 
-private slots:
-    void activateItem( const QModelIndex &index);
+    QIcon fileIcon(const QModelIndex & index) const;
+    QString fileName(const QModelIndex & index) const;
+    QFileInfo fileInfo(const QModelIndex & index) const;
+
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    void setSearchFilter(const QString &nameFilterList);
 
 private:
-    ResourceItemDelegate *m_delegate;
+    QModelIndex fileSystemModelIndex(const QModelIndex &index) const;
+
+    std::unique_ptr<QFileSystemModel> m_fileSystemModel;
+    QStringList m_files;
+    QString m_searchFilter;
+    Utils::FileSystemWatcher *m_fileSystemWatcher;
 };
 
-} // namespace QmlDesigner
+} //QmlDesigner
