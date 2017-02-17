@@ -1867,18 +1867,18 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item)
     addAction(menu, tr("Change Display for Type \"%1\":").arg(item->type), false);
 
     addCheckableAction(menu, spacer + tr("Automatic"), true, typeFormat == AutomaticFormat,
-                       [this, iname] {
+                       [this, item] {
                             //const QModelIndexList active = activeRows();
                            //foreach (const QModelIndex &idx, active)
                            //    setModelData(LocalsTypeFormatRole, AutomaticFormat, idx);
-                           setTypeFormat(iname, AutomaticFormat);
+                           setTypeFormat(item->type, AutomaticFormat);
                            m_engine->updateLocals();
                        });
 
     for (int format : alternativeFormats) {
         addCheckableAction(menu, spacer + nameForFormat(format), true, format == typeFormat,
-                           [this, act, format, iname] {
-                                setTypeFormat(iname, format);
+                           [this, act, format, item] {
+                                setTypeFormat(item->type, format);
                                 m_engine->updateLocals();
                            });
     }
