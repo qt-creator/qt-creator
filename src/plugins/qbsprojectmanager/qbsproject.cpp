@@ -300,27 +300,9 @@ bool QbsProject::ensureWriteableQbsFile(const QString &file)
     return true;
 }
 
-qbs::GroupData QbsProject::reRetrieveGroupData(const qbs::ProductData &oldProduct,
-                                          const qbs::GroupData &oldGroup)
-{
-    qbs::GroupData newGroup;
-    foreach (const qbs::ProductData &pd, m_projectData.allProducts()) {
-        if (uniqueProductName(pd) == uniqueProductName(oldProduct)) {
-            foreach (const qbs::GroupData &gd, pd.groups()) {
-                if (gd.location() == oldGroup.location()) {
-                    newGroup = gd;
-                    break;
-                }
-            }
-            break;
-        }
-    }
-    QTC_CHECK(newGroup.isValid());
-    return newGroup;
-}
-
-bool QbsProject::addFilesToProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
-        const qbs::ProductData &productData, const qbs::GroupData &groupData, QStringList *notAdded)
+bool QbsProject::addFilesToProduct(const QStringList &filePaths,
+                                   const qbs::ProductData &productData,
+                                   const qbs::GroupData &groupData, QStringList *notAdded)
 {
     QTC_ASSERT(m_qbsProject.isValid(), return false);
     QStringList allPaths = groupData.allFilePaths();
@@ -338,17 +320,16 @@ bool QbsProject::addFilesToProduct(QbsBaseProjectNode *node, const QStringList &
     }
     if (notAdded->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
-        QbsGroupNode::setupFiles(node, reRetrieveGroupData(productData, groupData),
-                                 allPaths, QFileInfo(productFilePath).absolutePath(), false);
         rootProjectNode()->update();
         emit fileListChanged();
     }
     return notAdded->isEmpty();
 }
 
-bool QbsProject::removeFilesFromProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
-        const qbs::ProductData &productData, const qbs::GroupData &groupData,
-        QStringList *notRemoved)
+bool QbsProject::removeFilesFromProduct(const QStringList &filePaths,
+                                        const qbs::ProductData &productData,
+                                        const qbs::GroupData &groupData,
+                                        QStringList *notRemoved)
 {
     QTC_ASSERT(m_qbsProject.isValid(), return false);
     QStringList allPaths = groupData.allFilePaths();
@@ -367,22 +348,20 @@ bool QbsProject::removeFilesFromProduct(QbsBaseProjectNode *node, const QStringL
     }
     if (notRemoved->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
-        QbsGroupNode::setupFiles(node, reRetrieveGroupData(productData, groupData), allPaths,
-                                 QFileInfo(productFilePath).absolutePath(), false);
         rootProjectNode()->update();
         emit fileListChanged();
     }
     return notRemoved->isEmpty();
 }
 
-bool QbsProject::renameFileInProduct(QbsBaseProjectNode *node, const QString &oldPath,
-        const QString &newPath, const qbs::ProductData &productData,
-        const qbs::GroupData &groupData)
+bool QbsProject::renameFileInProduct(const QString &oldPath, const QString &newPath,
+                                     const qbs::ProductData &productData,
+                                     const qbs::GroupData &groupData)
 {
     if (newPath.isEmpty())
         return false;
     QStringList dummy;
-    if (!removeFilesFromProduct(node, QStringList() << oldPath, productData, groupData, &dummy))
+    if (!removeFilesFromProduct(QStringList(oldPath), productData, groupData, &dummy))
         return false;
     qbs::ProductData newProductData;
     foreach (const qbs::ProductData &p, m_projectData.allProducts()) {
@@ -403,7 +382,7 @@ bool QbsProject::renameFileInProduct(QbsBaseProjectNode *node, const QString &ol
     if (!newGroupData.isValid())
         return false;
 
-    return addFilesToProduct(node, QStringList() << newPath, newProductData, newGroupData, &dummy);
+    return addFilesToProduct(QStringList() << newPath, newProductData, newGroupData, &dummy);
 }
 
 void QbsProject::invalidate()

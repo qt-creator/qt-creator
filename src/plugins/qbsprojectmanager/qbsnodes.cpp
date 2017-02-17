@@ -352,7 +352,7 @@ bool QbsGroupNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
         return false;
     }
 
-    return prjNode->project()->addFilesToProduct(this, filePaths, prdNode->qbsProductData(),
+    return prjNode->project()->addFilesToProduct(filePaths, prdNode->qbsProductData(),
                                                  m_qbsGroupData, notAdded);
 }
 
@@ -374,7 +374,7 @@ bool QbsGroupNode::removeFiles(const QStringList &filePaths, QStringList *notRem
         return false;
     }
 
-    return prjNode->project()->removeFilesFromProduct(this, filePaths, prdNode->qbsProductData(),
+    return prjNode->project()->removeFilesFromProduct(filePaths, prdNode->qbsProductData(),
                                                       m_qbsGroupData, notRemoved);
 }
 
@@ -387,7 +387,7 @@ bool QbsGroupNode::renameFile(const QString &filePath, const QString &newFilePat
     if (!prdNode || !prdNode->qbsProductData().isValid())
         return false;
 
-    return prjNode->project()->renameFileInProduct(this, filePath, newFilePath,
+    return prjNode->project()->renameFileInProduct(filePath, newFilePath,
                                                    prdNode->qbsProductData(), m_qbsGroupData);
 }
 
@@ -574,8 +574,7 @@ bool QbsProductNode::addFiles(const QStringList &filePaths, QStringList *notAdde
 
     qbs::GroupData grp = findMainQbsGroup(m_qbsProductData);
     if (grp.isValid()) {
-        return prjNode->project()->addFilesToProduct(this, filePaths, m_qbsProductData, grp,
-                                                     notAdded);
+        return prjNode->project()->addFilesToProduct(filePaths, m_qbsProductData, grp, notAdded);
     }
 
     QTC_ASSERT(false, return false);
@@ -595,7 +594,7 @@ bool QbsProductNode::removeFiles(const QStringList &filePaths, QStringList *notR
 
     qbs::GroupData grp = findMainQbsGroup(m_qbsProductData);
     if (grp.isValid()) {
-        return prjNode->project()->removeFilesFromProduct(this, filePaths, m_qbsProductData, grp,
+        return prjNode->project()->removeFilesFromProduct(filePaths, m_qbsProductData, grp,
                                                           notRemoved);
     }
 
@@ -609,8 +608,7 @@ bool QbsProductNode::renameFile(const QString &filePath, const QString &newFileP
         return false;
     const qbs::GroupData grp = findMainQbsGroup(m_qbsProductData);
     QTC_ASSERT(grp.isValid(), return false);
-    return prjNode->project()->renameFileInProduct(this, filePath, newFilePath, m_qbsProductData,
-                                                   grp);
+    return prjNode->project()->renameFileInProduct(filePath, newFilePath, m_qbsProductData, grp);
 }
 
 void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::ProductData prd)

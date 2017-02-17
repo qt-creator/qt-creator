@@ -71,13 +71,12 @@ public:
     QStringList filesGeneratedFrom(const QString &sourceFile) const override;
 
     bool isProjectEditable() const;
-    bool addFilesToProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
-                           const qbs::ProductData &productData, const qbs::GroupData &groupData,
-                           QStringList *notAdded);
-    bool removeFilesFromProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
+    bool addFilesToProduct(const QStringList &filePaths, const qbs::ProductData &productData,
+                           const qbs::GroupData &groupData, QStringList *notAdded);
+    bool removeFilesFromProduct(const QStringList &filePaths,
             const qbs::ProductData &productData, const qbs::GroupData &groupData,
             QStringList *notRemoved);
-    bool renameFileInProduct(QbsBaseProjectNode *node, const QString &oldPath,
+    bool renameFileInProduct(const QString &oldPath,
             const QString &newPath, const qbs::ProductData &productData,
             const qbs::GroupData &groupData);
 
@@ -144,9 +143,6 @@ private:
     void projectLoaded() override;
 
     static bool ensureWriteableQbsFile(const QString &file);
-
-    qbs::GroupData reRetrieveGroupData(const qbs::ProductData &oldProduct,
-                                       const qbs::GroupData &oldGroup);
 
     const QString m_projectName;
     QHash<ProjectExplorer::Target *, qbs::Project> m_qbsProjects;
