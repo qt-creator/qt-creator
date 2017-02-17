@@ -1964,12 +1964,13 @@ void FakeVimPluginPrivate::handleExCommand(FakeVimHandler *handler, bool *handle
             saved = !editor->document()->isModified();
             if (saved) {
                 QFile file3(fileName);
-                file3.open(QIODevice::ReadOnly);
-                const QByteArray ba = file3.readAll();
-                handler->showMessage(MessageInfo, Tr::tr("\"%1\" %2 %3L, %4C written")
-                    .arg(fileName).arg(' ').arg(ba.count('\n')).arg(ba.size()));
-                if (cmd.cmd == "wq")
-                    delayedQuitRequested(cmd.hasBang, m_editorToHandler.key(handler));
+                if (file3.open(QIODevice::ReadOnly)) {
+                    const QByteArray ba = file3.readAll();
+                    handler->showMessage(MessageInfo, Tr::tr("\"%1\" %2 %3L, %4C written")
+                        .arg(fileName).arg(' ').arg(ba.count('\n')).arg(ba.size()));
+                    if (cmd.cmd == "wq")
+                        delayedQuitRequested(cmd.hasBang, m_editorToHandler.key(handler));
+                }
             }
         }
 
