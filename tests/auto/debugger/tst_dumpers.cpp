@@ -175,7 +175,7 @@ static void setupCdb(QString *makeBinary, QProcessEnvironment *environment, int 
 
 #else
 
-static void setupCdb(QString *, QProcessEnvironment *) {}
+static void setupCdb(QString *, QProcessEnvironment *, int *) {}
 
 #endif // Q_CC_MSVC
 
