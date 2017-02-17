@@ -118,7 +118,7 @@ public:
 class QmakePriFileEvalResult
 {
 public:
-    QStringList folders;
+    QSet<FileName> folders;
     QSet<FileName> recursiveEnumerateFiles;
     QMap<FileType, QSet<FileName>> foundFiles;
 };
@@ -229,7 +229,7 @@ bool QmakePriFile::buildsFile(const FileName &fn) const
 
 QmakePriFile::~QmakePriFile()
 {
-    watchFolders(QSet<QString>());
+    watchFolders( {} );
     qDeleteAll(m_children);
 }
 
@@ -310,26 +310,25 @@ void QmakePriFile::extractInstalls(
             auto *result = proToResult.value(source.proFile);
             if (!result)
                 result = fallback;
-            result->folders << source.fileName;
+            result->folders.insert(FileName::fromString(source.fileName));
         }
     }
 }
 
 void QmakePriFile::processValues(QmakePriFileEvalResult &result)
 {
-    result.folders.removeDuplicates();
-
     // Remove non existing items and non folders
-    QStringList::iterator it = result.folders.begin();
+    auto it = result.folders.begin();
     while (it != result.folders.end()) {
-        QFileInfo fi(*it);
+        QFileInfo fi((*it).toFileInfo());
         if (fi.exists()) {
             if (fi.isDir()) {
+                result.recursiveEnumerateFiles += recursiveEnumerate((*it).toString());
                 // keep directories
                 ++it;
             } else {
                 // move files directly to recursiveEnumerateFiles
-                result.recursiveEnumerateFiles << FileName::fromString(*it);
+                result.recursiveEnumerateFiles += (*it);
                 it = result.folders.erase(it);
             }
         } else {
@@ -337,9 +336,6 @@ void QmakePriFile::processValues(QmakePriFileEvalResult &result)
             it = result.folders.erase(it);
         }
     }
-
-    foreach (const QString &folder, result.folders)
-        result.recursiveEnumerateFiles += recursiveEnumerate(folder);
 
     for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
         FileType type = static_cast<FileType>(i);
@@ -354,7 +350,7 @@ void QmakePriFile::processValues(QmakePriFileEvalResult &result)
 void QmakePriFile::update(const Internal::QmakePriFileEvalResult &result)
 {
     m_recursiveEnumerateFiles = result.recursiveEnumerateFiles;
-    watchFolders(result.folders.toSet());
+    watchFolders(result.folders);
 
     for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
         const FileType type = static_cast<FileType>(i);
@@ -362,20 +358,20 @@ void QmakePriFile::update(const Internal::QmakePriFileEvalResult &result)
     }
 }
 
-void QmakePriFile::watchFolders(const QSet<QString> &folders)
+void QmakePriFile::watchFolders(const QSet<FileName> &folders)
 {
+    const QSet<QString> folderStrings =
+            Utils::transform(folders, [] (const FileName &f) { return f.toString(); });
     QSet<QString> toUnwatch = m_watchedFolders;
-    toUnwatch.subtract(folders);
+    toUnwatch.subtract(folderStrings);
 
-    QSet<QString> toWatch = folders;
+    QSet<QString> toWatch = folderStrings;
     toWatch.subtract(m_watchedFolders);
 
-    if (!toUnwatch.isEmpty())
-        m_project->unwatchFolders(toUnwatch.toList(), this);
-    if (!toWatch.isEmpty())
-        m_project->watchFolders(toWatch.toList(), this);
+    m_project->unwatchFolders(toUnwatch.toList(), this);
+    m_project->watchFolders(toWatch.toList(), this);
 
-    m_watchedFolders = folders;
+    m_watchedFolders = folderStrings;
 }
 
 bool QmakePriFile::knowsFile(const FileName &filePath) const

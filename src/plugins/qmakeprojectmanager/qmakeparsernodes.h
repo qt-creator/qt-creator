@@ -209,7 +209,7 @@ private:
             Internal::QmakePriFileEvalResult *fallback,
             const InstallsList &installList);
     static void processValues(Internal::QmakePriFileEvalResult &result);
-    void watchFolders(const QSet<QString> &folders);
+    void watchFolders(const QSet<Utils::FileName> &folders);
 
     QmakeProject *m_project = nullptr;
     QmakeProFile *m_qmakeProFile = nullptr;
