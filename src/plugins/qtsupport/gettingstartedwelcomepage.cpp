@@ -276,6 +276,7 @@ public:
     GridView(QWidget *parent)
         : QTableView(parent)
     {
+        setVerticalScrollMode(ScrollPerPixel);
         horizontalHeader()->hide();
         horizontalHeader()->setDefaultSectionSize(itemWidth);
         verticalHeader()->hide();
