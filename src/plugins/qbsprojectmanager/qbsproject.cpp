@@ -916,12 +916,12 @@ void QbsProject::updateCppCodeModel()
     QtSupport::BaseQtVersion *qtVersion =
             QtSupport::QtKitInformation::qtVersion(activeTarget()->kit());
 
-    CppTools::ProjectPart::QtVersion qtVersionForPart = CppTools::ProjectPart::NoQt;
+    CppTools::ProjectPart::QtVersion qtVersionFromKit = CppTools::ProjectPart::NoQt;
     if (qtVersion) {
         if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
-            qtVersionForPart = CppTools::ProjectPart::Qt4;
+            qtVersionFromKit = CppTools::ProjectPart::Qt4;
         else
-            qtVersionForPart = CppTools::ProjectPart::Qt5;
+            qtVersionFromKit = CppTools::ProjectPart::Qt5;
     }
 
     QList<ProjectExplorer::ExtraCompilerFactory *> factories =
@@ -955,9 +955,13 @@ void QbsProject::updateCppCodeModel()
             std::for_each(sourceArtifacts.cbegin(), sourceArtifacts.cend(), pchFinder);
         }
 
+        const CppTools::ProjectPart::QtVersion qtVersionForPart =
+                 prd.moduleProperties().getModuleProperty("Qt.core", "version").isValid()
+                    ? qtVersionFromKit
+                    : CppTools::ProjectPart::NoQt;
+
         foreach (const qbs::GroupData &grp, prd.groups()) {
             CppTools::RawProjectPart rpp;
-            // TODO: Set the Qt version only if this particular product depends on Qt.
             rpp.setQtVersion(qtVersionForPart);
             const qbs::PropertyMap &props = grp.properties();
 
