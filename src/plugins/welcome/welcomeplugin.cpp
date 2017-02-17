@@ -142,6 +142,7 @@ public:
         : QWidget(parent), m_iconSource(iconSource), m_title(title), m_openUrl(openUrl)
     {
         setAutoFillBackground(true);
+        setMinimumHeight(30);
 
         const QString fileName = QString(":/welcome/images/%1.png").arg(iconSource);
         const Icon icon({{ fileName, Theme::Welcome_ForegroundPrimaryColor }}, Icon::Tint);
@@ -251,7 +252,7 @@ public:
         {
             auto l = new QVBoxLayout;
             l->setContentsMargins(0, 0, 0, 0);
-            l->setSpacing(sd + 3);
+            l->setSpacing(5);
             l->addWidget(new IconAndLink("qtaccount", tr("Qt Account"), "https://account.qt.io", this));
             l->addWidget(new IconAndLink("community", tr("Online Community"), "http://forum.qt.io", this));
             l->addWidget(new IconAndLink("blogs", tr("Blogs"), "http://planet.qt.io", this));
