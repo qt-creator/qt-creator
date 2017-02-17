@@ -569,15 +569,32 @@ void QmlEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
         if (result.qmlServerPort.isValid())
             runParameters().qmlServer.port = result.qmlServerPort;
 
-        notifyEngineSetupOk();
+        switch (state()) {
+        case InferiorSetupOk:
+            // FIXME: This is not a legal transition, but we need to
+            // get to EngineSetupOk somehow from InferiorSetupOk.
+            // fallthrough. QTCREATORBUG-14089.
+        case EngineSetupRequested:
+            notifyEngineSetupOk();
+            break;
+        case EngineSetupOk:
+        case EngineRunRequested:
+            // QTCREATORBUG-17718: On Android while doing debugging in mixed mode, the QML debug engine
+            // sometimes reports EngineSetupOK after the EngineRunRequested thus overwriting the state
+            // which eventually results into app to waiting for the QML engine connection.
+            // Skipping the EngineSetupOK in aforementioned case.
+            // Nothing to do here. The setup is already done.
+            break;
+        default:
+            QTC_ASSERT(false, qDebug() << "Unexpected state" << state());
+        }
 
         // The remote setup can take while especialy with mixed debugging.
         // Just waiting for 8 seconds is not enough. Increase the timeout
         // to 60 s
         // In case we get an output the d->outputParser will start the connection.
         d->noDebugOutputTimer.setInterval(60000);
-    }
-    else {
+    } else {
         if (isMasterEngine())
             QMessageBox::critical(ICore::dialogParent(), tr("Failed to start application"),
                                   tr("Application startup failed: %1").arg(result.reason));
