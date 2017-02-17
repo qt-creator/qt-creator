@@ -34,6 +34,7 @@
 
 #include <coreplugin/messagemanager.h>
 
+#include <QCoreApplication>
 #include <QLatin1String>
 
 using namespace TextEditor;
