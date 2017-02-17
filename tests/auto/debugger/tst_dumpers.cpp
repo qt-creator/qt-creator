@@ -143,14 +143,14 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
 #define CDBEXT_PATH ""
 #endif
 
-static void setupCdb(QString *makeBinary, QProcessEnvironment *environment)
+static void setupCdb(QString *makeBinary, QProcessEnvironment *environment, int *msvcVersion)
 {
     QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
     QMap <QString, QString> envPairs;
     Utils::Environment env = Utils::Environment::systemEnvironment();
     QVERIFY(generateEnvironmentSettings(env, QString::fromLatin1(envBat), QString(), envPairs));
-    for (QMap<QString,QString>::const_iterator envIt = envPairs.begin(); envIt != envPairs.end(); ++envIt)
-            env.set(envIt.key(), envIt.value());
+    for (auto envIt = envPairs.begin(); envIt != envPairs.end(); ++envIt)
+        env.set(envIt.key(), envIt.value());
     QByteArray cdbextPath = qgetenv("QTC_CDBEXT_PATH");
     if (cdbextPath.isEmpty())
         cdbextPath = CDBEXT_PATH "\\qtcreatorcdbext64";
@@ -158,6 +158,19 @@ static void setupCdb(QString *makeBinary, QProcessEnvironment *environment)
     env.set(QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"), QString::fromLatin1(cdbextPath));
     *makeBinary = env.searchInPath(QLatin1String("nmake.exe")).toString();
     *environment = env.toProcessEnvironment();
+
+    QProcess cl;
+    cl.start(env.searchInPath(QLatin1String("cl.exe")).toString(), QStringList());
+    QVERIFY(cl.waitForFinished());
+    QString output = cl.readAllStandardError();
+    int pos = output.indexOf('\n');
+    if (pos != -1)
+        output = output.left(pos);
+    qDebug() << "Extracting MSVC version from: " << output;
+    QRegularExpression reg(" (\\d\\d)\\.(\\d\\d)\\.");
+    QRegularExpressionMatch match = reg.match(output);
+    if (match.matchType() != QRegularExpression::NoMatch)
+        *msvcVersion = QString(match.captured(1) + match.captured(2)).toInt();
 }
 
 #else
@@ -215,6 +228,13 @@ struct ClangVersion : VersionBase
     {}
 };
 
+struct MsvcVersion : VersionBase
+{
+    explicit MsvcVersion(int minimum = 0, int maximum = INT_MAX)
+        : VersionBase(minimum, maximum)
+    {}
+};
+
 struct GdbVersion : VersionBase
 {
     explicit GdbVersion(int minimum = 0, int maximum = INT_MAX)
@@ -260,6 +280,7 @@ struct Context
     int qtVersion = 0;
     int gccVersion = 0;
     int clangVersion = 0;
+    int msvcVersion = 0;
     int boostVersion = 0;
     DebuggerEngine engine;
 };
@@ -508,6 +529,7 @@ struct Check
             && debuggerVersionForCheck.covers(debuggerVersion)
             && gccVersionForCheck.covers(context.gccVersion)
             && clangVersionForCheck.covers(context.clangVersion)
+            && msvcVersionForCheck.covers(context.msvcVersion)
             && qtVersionForCheck.covers(context.qtVersion);
     }
 
@@ -551,6 +573,13 @@ struct Check
         return *this;
     }
 
+    const Check &operator%(MsvcVersion version) const
+    {
+        enginesForCheck = CdbEngine;
+        msvcVersionForCheck = version;
+        return *this;
+    }
+
     const Check &operator%(BoostVersion version) const
     {
         boostVersionForCheck = version;
@@ -572,6 +601,7 @@ struct Check
     mutable VersionBase debuggerVersionForCheck;
     mutable VersionBase gccVersionForCheck;
     mutable VersionBase clangVersionForCheck;
+    mutable VersionBase msvcVersionForCheck;
     mutable QtVersion qtVersionForCheck;
     mutable BoostVersion boostVersionForCheck;
     mutable bool optionallyPresent = false;
@@ -727,6 +757,12 @@ public:
     const Data &operator+(const ClangVersion &clangVersion) const
     {
         neededClangVersion = clangVersion;
+        return *this;
+    }
+
+    const Data &operator+(const MsvcVersion &msvcVersion) const
+    {
+        neededMsvcVersion = msvcVersion;
         return *this;
     }
 
@@ -909,6 +945,7 @@ public:
     mutable QtVersion neededQtVersion;       // HEX! 0x50300
     mutable GccVersion neededGccVersion;     // DEC. 40702  for 4.7.2
     mutable ClangVersion neededClangVersion; // DEC.
+    mutable MsvcVersion neededMsvcVersion;   // DEC.
     mutable BoostVersion neededBoostVersion; // DEC. 105400 for 1.54.0
     mutable DwarfVersion neededDwarfVersion; // DEC. 105400 for 1.54.0
 
@@ -975,6 +1012,7 @@ private:
     int m_gdbBuildVersion = 0;
     int m_qtVersion = 0; // 5.2.0 -> 50200
     int m_gccVersion = 0;
+    int m_msvcVersion = 0;
     bool m_isMacGdb = false;
     bool m_isQnxGdb = false;
     bool m_useGLibCxxDebug = false;
@@ -1053,7 +1091,7 @@ void tst_Dumpers::initTestCase()
         qDebug() << "Make path          : " << m_makeBinary;
         qDebug() << "Gdb version        : " << m_debuggerVersion;
     } else if (m_debuggerEngine == CdbEngine) {
-        setupCdb(&m_makeBinary, &m_env);
+        setupCdb(&m_makeBinary, &m_env, &m_msvcVersion);
     } else if (m_debuggerEngine == LldbEngine) {
         qDebug() << "Dumper dir         : " << DUMPERDIR;
         QProcess debugger;
@@ -1199,6 +1237,15 @@ void tst_Dumpers::dumper()
         if (data.neededGccVersion.max < m_gccVersion)
             MSKIP_SINGLE("Need maximum GCC version "
                 + QByteArray::number(data.neededGccVersion.max));
+    }
+
+    if (data.neededMsvcVersion.isRestricted && m_debuggerEngine == CdbEngine) {
+        if (data.neededMsvcVersion.min > m_msvcVersion)
+            MSKIP_SINGLE("Need minimum Msvc version "
+                         + QByteArray::number(data.neededMsvcVersion.min));
+        if (data.neededMsvcVersion.max < m_msvcVersion)
+            MSKIP_SINGLE("Need maximum Msvc version "
+                         + QByteArray::number(data.neededMsvcVersion.max));
     }
 
     if (!data.configTest.isEmpty()) {
@@ -3010,6 +3057,7 @@ void tst_Dumpers::dumper_data()
                     "QAtomicPointer<SomeStruct> ppp(s); unused(ppp);\n")
                 + CoreProfile()
                 + Cxx11Profile()
+                + MsvcVersion(1900)
                 + Check("p.@1.a", "1", "int")
                 + Check("p.@1.e", "<2 items>", "@QList<@QString>")
                 + Check("pp.@1.a", "1", "int")
@@ -3373,7 +3421,7 @@ void tst_Dumpers::dumper_data()
                     "#endif\n")
 
                + CoreProfile()
-
+               + MsvcVersion(1900)
                + Check("s0", "\"Prefix: Hello\"", "@QByteArray")
                + Check("s1", expected1, "@QByteArray")
                + Check("s2", "\"Hell\"", "@QString")
@@ -6446,6 +6494,7 @@ void tst_Dumpers::dumper_data()
             + Cxx11Profile()
             + CoreProfile()
             + QtVersion(0x50000)
+            + MsvcVersion(1900)
             + Check("a",                  "<6 items>",  "@QJsonArray")
             + Check("a.0",   "[0]",       "1",            "QJsonValue (Number)")
             + Check("a.1",   "[1]",       "\"asd\"",      "QJsonValue (String)")
@@ -6549,6 +6598,7 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("Internal1")
             << Data("struct QtcDumperTest_FieldAccessByIndex { int d[3] = { 10, 11, 12 }; };\n",
                     "QtcDumperTest_FieldAccessByIndex d; unused(&d);\n")
+            + MsvcVersion(1900)
             + Check("d", "12", "QtcDumperTest_FieldAccessByIndex");
 
 
