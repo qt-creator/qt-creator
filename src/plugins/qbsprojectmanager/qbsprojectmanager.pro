@@ -29,6 +29,7 @@ HEADERS = \
     qbsinfopage.h \
     qbslogsink.h \
     qbsnodes.h \
+    qbsnodetreebuilder.h \
     qbsparser.h \
     qbspmlogging.h \
     qbsprofilessettingspage.h \
@@ -53,6 +54,7 @@ SOURCES = \
     qbsinfopage.cpp \
     qbslogsink.cpp \
     qbsnodes.cpp \
+    qbsnodetreebuilder.cpp \
     qbsparser.cpp \
     qbspmlogging.cpp \
     qbsprofilessettingspage.cpp \

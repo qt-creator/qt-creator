@@ -96,7 +96,6 @@ public:
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
-    void updateQbsGroupData(const qbs::GroupData &grp, const QString &productPath, bool productIsEnabled);
 
     qbs::GroupData qbsGroupData() const { return m_qbsGroupData; }
 
@@ -111,7 +110,6 @@ private:
                             const QHash<QString, ProjectExplorer::FileType> &fileTypeHash,
                             const FileTreeNode *subFileTree, const QString &baseDir,
                             bool generated);
-    static ProjectExplorer::FileType fileType(const qbs::ArtifactData &artifact);
 
     qbs::GroupData m_qbsGroupData;
     QString m_productPath;

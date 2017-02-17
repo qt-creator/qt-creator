@@ -25,6 +25,7 @@
 
 #include "qbsnodes.h"
 
+#include "qbsnodetreebuilder.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsrunconfiguration.h"
@@ -322,11 +323,8 @@ QbsGroupNode::QbsGroupNode(const qbs::GroupData &grp, const QString &productPath
 
     setIcon(m_groupIcon);
 
-    addNode(new QbsFileNode(Utils::FileName::fromString(grp.location().filePath()),
-                            ProjectExplorer::FileType::Project, false,
-                            grp.location().line()));
-
-    updateQbsGroupData(grp, productPath, true);
+    m_productPath = productPath;
+    m_qbsGroupData = grp;
 }
 
 QList<ProjectExplorer::ProjectAction> QbsGroupNode::supportedActions(ProjectExplorer::Node *node) const
@@ -391,32 +389,6 @@ bool QbsGroupNode::renameFile(const QString &filePath, const QString &newFilePat
                                                    prdNode->qbsProductData(), m_qbsGroupData);
 }
 
-void QbsGroupNode::updateQbsGroupData(const qbs::GroupData &grp, const QString &productPath,
-                                      bool productIsEnabled)
-{
-    QTC_ASSERT(grp.isValid(), return);
-
-    setEnabled(productIsEnabled && grp.isEnabled());
-
-    m_productPath = productPath;
-    m_qbsGroupData = grp;
-
-    setAbsoluteFilePathAndLine(Utils::FileName::fromString(grp.location().filePath()), line());
-    setDisplayName(grp.name());
-
-    QbsFileNode *idx = 0;
-    foreach (ProjectExplorer::FileNode *fn, fileNodes()) {
-        idx = dynamic_cast<QbsFileNode *>(fn);
-        if (idx)
-            break;
-    }
-    QTC_ASSERT(idx, return);
-    idx->setAbsoluteFilePathAndLine(Utils::FileName::fromString(grp.location().filePath()),
-                        grp.location().line());
-
-    setupFiles(this, grp, grp.allFilePaths(), productPath, false);
-}
-
 void QbsGroupNode::setupFiles(ProjectExplorer::FolderNode *root, const qbs::GroupData &group,
         const QStringList &files, const QString &productPath, bool generated)
 {
@@ -438,7 +410,7 @@ void QbsGroupNode::setupFiles(ProjectExplorer::FolderNode *root, const qbs::Grou
 
     QHash<QString, ProjectExplorer::FileType> fileTypeHash;
     foreach (const qbs::ArtifactData &sa, group.allSourceArtifacts())
-        fileTypeHash[sa.filePath()] = fileType(sa);
+        fileTypeHash[sa.filePath()] = Internal::QbsNodeTreeBuilder::fileType(sa);
 
     setupFolder(root, fileTypeHash, &tree, productPath, generated);
 }
@@ -504,27 +476,6 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
                 setupFolder(fn, fileTypeHash, c, c->path(), generated);
         }
     }
-}
-
-ProjectExplorer::FileType QbsGroupNode::fileType(const qbs::ArtifactData &artifact)
-{
-    QTC_ASSERT(artifact.isValid(), return ProjectExplorer::FileType::Unknown);
-
-    if (artifact.fileTags().contains(QLatin1String("c"))
-            || artifact.fileTags().contains(QLatin1String("cpp"))
-            || artifact.fileTags().contains(QLatin1String("objc"))
-            || artifact.fileTags().contains(QLatin1String("objcpp"))) {
-        return ProjectExplorer::FileType::Source;
-    }
-    if (artifact.fileTags().contains(QLatin1String("hpp")))
-        return ProjectExplorer::FileType::Header;
-    if (artifact.fileTags().contains(QLatin1String("qrc")))
-        return ProjectExplorer::FileType::Resource;
-    if (artifact.fileTags().contains(QLatin1String("ui")))
-        return ProjectExplorer::FileType::Form;
-    if (artifact.fileTags().contains(QLatin1String("scxml")))
-        return ProjectExplorer::FileType::StateChart;
-    return ProjectExplorer::FileType::Unknown;
 }
 
 // --------------------------------------------------------------------
@@ -619,7 +570,8 @@ void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::P
     setEnabled(prd.isEnabled());
 
     setDisplayName(QbsProject::productDisplayName(project, prd));
-    setAbsoluteFilePathAndLine(Utils::FileName::fromString(prd.location().filePath()), line());
+    setAbsoluteFilePathAndLine(Utils::FileName::fromString(prd.location().filePath()).parentDir(),
+                               line());
     const QString &productPath = QFileInfo(prd.location().filePath()).absolutePath();
 
     // Find the QbsFileNode we added earlier:
@@ -636,18 +588,14 @@ void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::P
     foreach (const qbs::GroupData &grp, prd.groups()) {
         if (grp.name() == prd.name() && grp.location() == prd.location()) {
             // Set implicit product group right onto this node:
-            QbsGroupNode::setupFiles(this, grp, grp.allFilePaths(), productPath, false);
+            QbsNodeTreeBuilder::setupArtifacts(this, grp.allSourceArtifacts());
             continue;
         }
-        addNode(new QbsGroupNode(grp, productPath));
+        addNode(QbsNodeTreeBuilder::buildGroupNodeTree(grp, productPath, prd.isEnabled()));
     }
 
-    if (prd.isEnabled()) {
-        const QStringList generatedFiles
-                = Utils::transform(prd.generatedArtifacts(), &qbs::ArtifactData::filePath);
-        QbsGroupNode::setupFiles(m_generatedFilesNode, qbs::GroupData(), generatedFiles,
-                                 prd.buildDirectory(), true);
-    }
+    if (prd.isEnabled())
+        QbsNodeTreeBuilder::setupArtifacts(this, prd.generatedArtifacts());
 
     m_qbsProductData = prd;
 }
