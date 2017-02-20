@@ -282,6 +282,7 @@ void GenericProject::refresh(RefreshOptions options)
                                               FileType::Project,
                                               /* generated = */ false);
         fileNodes << projectFilesNode << projectIncludesNode << projectConfigNode;
+        rootProjectNode()->makeEmpty();
         rootProjectNode()->buildTree(fileNodes);
     }
 

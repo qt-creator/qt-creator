@@ -478,8 +478,6 @@ FolderNode *FolderNode::recursiveFindOrCreateFolderNode(const Utils::FileName &d
 
 void FolderNode::buildTree(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir)
 {
-    makeEmpty();
-
     foreach (ProjectExplorer::FileNode *fn, files) {
         // Get relative path to rootNode
         QString parentDir = fn->filePath().toFileInfo().absolutePath();

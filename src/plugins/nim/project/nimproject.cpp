@@ -159,6 +159,7 @@ void NimProject::updateProject()
     if (oldFiles == m_files)
         return;
 
+    rootProjectNode()->makeEmpty();
     rootProjectNode()->buildTree(fileNodes);
 
     emit fileListChanged();
