@@ -35,6 +35,10 @@
 
 #include <utils/smallstringvector.h>
 
+#include <QFile>
+#include <QDir>
+#include <QTemporaryDir>
+
 #include <algorithm>
 
 namespace ClangBackEnd {
@@ -64,7 +68,7 @@ public:
                             llvm::StringRef /*relativePath*/,
                             const clang::Module * /*imported*/) override
     {
-        if (file) {
+        if (!m_skipInclude && file) {
             auto fileUID = file->getUID();
             if (isNotInExcludedIncludeUID(fileUID)) {
                 flagIncludeAlreadyRead(file);
@@ -80,6 +84,45 @@ public:
                 }
             }
         }
+
+        m_skipInclude = false;
+    }
+
+    bool FileNotFound(clang::StringRef fileNameRef, clang::SmallVectorImpl<char> &recoveryPath) override
+    {
+        QTemporaryDir temporaryDirectory;
+        temporaryDirectory.setAutoRemove(false);
+        const QByteArray temporaryDirUtf8 = temporaryDirectory.path().toUtf8();
+
+        const QString fileName = QString::fromUtf8(fileNameRef.data(), int(fileNameRef.size()));
+        QString filePath = temporaryDirectory.path() + '/' + fileName;
+
+        ensureDirectory(temporaryDirectory.path(), fileName);
+        createFakeFile(filePath);
+
+        recoveryPath.append(temporaryDirUtf8.cbegin(), temporaryDirUtf8.cend());
+
+        m_skipInclude = true;
+
+        return true;
+    }
+
+    void ensureDirectory(const QString &directory, const QString &fileName)
+    {
+        QStringList directoryEntries = fileName.split('/');
+        directoryEntries.pop_back();
+
+        if (!directoryEntries.isEmpty())
+            QDir(directory).mkpath(directoryEntries.join('/'));
+    }
+
+    void createFakeFile(const QString &filePath)
+    {
+        QFile fakeFile;
+        fakeFile.setFileName(filePath);
+
+        fakeFile.open(QIODevice::ReadWrite);
+        fakeFile.close();
     }
 
     bool isNotInExcludedIncludeUID(uint uid) const
@@ -131,6 +174,7 @@ private:
     StringCache<Utils::PathString> &m_filePathCache;
     const std::vector<uint> &m_excludedIncludeUID;
     std::vector<uint> &m_alreadyIncludedFileUIDs;
+    bool m_skipInclude = false;
 };
 
 } // namespace ClangBackEnd

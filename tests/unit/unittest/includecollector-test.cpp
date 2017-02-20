@@ -109,6 +109,16 @@ TEST_F(IncludeCollector, LocalPath)
                                      id(TESTDATA_DIR "/includecollector_external3.h")));
 }
 
+TEST_F(IncludeCollector, IgnoreMissingFile)
+{
+    emptyCollector.addFile(TESTDATA_DIR, "includecollector_missingfile.cpp", "", {"cc", "includecollector_missingfile.cpp"});
+
+    emptyCollector.collectIncludes();
+
+    ASSERT_THAT(emptyCollector.takeIncludeIds(),
+                UnorderedElementsAre(id(TESTDATA_DIR "/includecollector_external1.h")));
+}
+
 void IncludeCollector::SetUp()
 {
     collector.addFile(TESTDATA_DIR, "includecollector_main.cpp", "", {"cc", "includecollector_main.cpp"});

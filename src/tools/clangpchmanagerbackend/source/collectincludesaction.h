@@ -56,6 +56,8 @@ public:
           auto &preprocessor = compilerInstance.getPreprocessor();
           auto &headerSearch = preprocessor.getHeaderSearchInfo();
 
+          preprocessor.SetSuppressIncludeNotFoundError(true);
+
           auto macroPreprocessorCallbacks = new CollectIncludesPreprocessorCallbacks(headerSearch,
                                                                                      m_includeIds,
                                                                                      m_filePathCache,
