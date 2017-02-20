@@ -45,7 +45,7 @@ public:
 
     virtual void finishSearch() = 0;
 
-    void cancel();
+    virtual void cancel();
 
     void setRefactoringServer(ClangBackEnd::RefactoringServerInterface *server);
 

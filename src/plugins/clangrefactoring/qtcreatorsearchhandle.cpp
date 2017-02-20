@@ -55,6 +55,12 @@ void QtCreatorSearchHandle::setResultCounter(uint counter)
     promise.setProgressValue(counter);
 }
 
+void QtCreatorSearchHandle::cancel()
+{
+    SearchHandle::cancel();
+    promise.reportCanceled();
+}
+
 void QtCreatorSearchHandle::finishSearch()
 {
     searchResult->finishSearch(false);
