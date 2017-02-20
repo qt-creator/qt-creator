@@ -117,7 +117,7 @@ public:
 
     virtual GdbServerProvider *create() = 0;
 
-    virtual bool canRestore(const QVariantMap &data) = 0;
+    virtual bool canRestore(const QVariantMap &data) const = 0;
     virtual GdbServerProvider *restore(const QVariantMap &data) = 0;
 
     static QString idFromMap(const QVariantMap &data);

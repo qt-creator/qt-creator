@@ -148,7 +148,7 @@ GdbServerProvider *DefaultGdbServerProviderFactory::create()
     return new DefaultGdbServerProvider;
 }
 
-bool DefaultGdbServerProviderFactory::canRestore(const QVariantMap &data)
+bool DefaultGdbServerProviderFactory::canRestore(const QVariantMap &data) const
 {
     const auto id = idFromMap(data);
     return id.startsWith(QLatin1String(Constants::DEFAULT_PROVIDER_ID)

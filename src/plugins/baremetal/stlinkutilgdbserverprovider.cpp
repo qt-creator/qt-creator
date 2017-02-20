@@ -224,7 +224,7 @@ GdbServerProvider *StLinkUtilGdbServerProviderFactory::create()
     return new StLinkUtilGdbServerProvider;
 }
 
-bool StLinkUtilGdbServerProviderFactory::canRestore(const QVariantMap &data)
+bool StLinkUtilGdbServerProviderFactory::canRestore(const QVariantMap &data) const
 {
     const QString id = idFromMap(data);
     return id.startsWith(QLatin1String(Constants::STLINK_UTIL_PROVIDER_ID)

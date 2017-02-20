@@ -232,7 +232,7 @@ GdbServerProvider *OpenOcdGdbServerProviderFactory::create()
     return new OpenOcdGdbServerProvider;
 }
 
-bool OpenOcdGdbServerProviderFactory::canRestore(const QVariantMap &data)
+bool OpenOcdGdbServerProviderFactory::canRestore(const QVariantMap &data) const
 {
     const QString id = idFromMap(data);
     return id.startsWith(QLatin1String(Constants::OPENOCD_PROVIDER_ID)
