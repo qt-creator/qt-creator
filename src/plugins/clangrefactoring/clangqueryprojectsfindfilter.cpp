@@ -168,6 +168,11 @@ bool unsavedContentContains(const ClangBackEnd::FilePath &sourceFilePath,
     return found != unsavedContent.end();
 }
 
+bool isCHeader(CppTools::ProjectFile::Kind kind)
+{
+    return kind == CppTools::ProjectFile::CHeader;
+}
+
 void appendSource(std::vector<ClangBackEnd::V2::FileContainer> &sources,
                   const CppTools::ProjectPart::Ptr &projectPart,
                   const CppTools::ProjectFile &projectFile,
@@ -175,7 +180,7 @@ void appendSource(std::vector<ClangBackEnd::V2::FileContainer> &sources,
 {
     ClangBackEnd::FilePath sourceFilePath(projectFile.path);
 
-    if (!unsavedContentContains(sourceFilePath, unsavedContent)) {
+    if (!unsavedContentContains(sourceFilePath, unsavedContent) && !isCHeader(projectFile.kind)) {
         sources.emplace_back(ClangBackEnd::FilePath(projectFile.path),
                              "",
                              createCommandLine(projectPart.data(),
