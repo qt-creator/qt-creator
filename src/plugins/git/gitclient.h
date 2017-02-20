@@ -113,10 +113,10 @@ public:
         void stashPrompt(const QString &command, const QString &statusOutput, QString *errorMessage);
         void executeStash(const QString &command, QString *errorMessage);
 
-        StashResult m_stashResult;
+        StashResult m_stashResult = NotStashed;
         QString m_message;
         QString m_workingDir;
-        StashFlag m_flags;
+        StashFlag m_flags = Default;
         PushAction m_pushAction = NoPush;
     };
 

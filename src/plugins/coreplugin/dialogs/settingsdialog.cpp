@@ -480,10 +480,16 @@ void SettingsDialog::showPage(const Id pageId)
         return; // Unknown settings page, probably due to missing plugin.
 
     if (initialCategoryIndex != -1) {
-        const QModelIndex modelIndex = m_proxyModel->mapFromSource(m_model->index(initialCategoryIndex));
+        QModelIndex modelIndex = m_proxyModel->mapFromSource(m_model->index(initialCategoryIndex));
+        if (!modelIndex.isValid()) { // filtered out, so clear filter first
+            m_filterLineEdit->setText(QString());
+            modelIndex = m_proxyModel->mapFromSource(m_model->index(initialCategoryIndex));
+        }
         m_categoryList->setCurrentIndex(modelIndex);
-        if (initialPageIndex != -1)
-            categories.at(initialCategoryIndex)->tabWidget->setCurrentIndex(initialPageIndex);
+        if (initialPageIndex != -1) {
+            if (QTC_GUARD(categories.at(initialCategoryIndex)->tabWidget))
+                categories.at(initialCategoryIndex)->tabWidget->setCurrentIndex(initialPageIndex);
+        }
     }
 }
 

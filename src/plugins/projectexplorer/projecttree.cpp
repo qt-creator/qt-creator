@@ -208,10 +208,16 @@ void ProjectTree::update(Node *node, Project *project)
         }
     }
 
-    if (!node && Core::EditorManager::currentDocument()) {
-        connect(Core::EditorManager::currentDocument(), &Core::IDocument::changed,
-                this, &ProjectTree::updateExternalFileWarning,
-                Qt::UniqueConnection);
+    if (Core::IDocument *document = Core::EditorManager::currentDocument()) {
+        if (node) {
+            disconnect(document, &Core::IDocument::changed,
+                       this, &ProjectTree::updateExternalFileWarning);
+            document->infoBar()->removeInfo(EXTERNAL_FILE_WARNING);
+        } else {
+            connect(document, &Core::IDocument::changed,
+                    this, &ProjectTree::updateExternalFileWarning,
+                    Qt::UniqueConnection);
+        }
     }
 
     if (changedNode) {
