@@ -168,6 +168,12 @@ QString Uncrustify::configurationFile() const
         }
     }
 
+    if (m_settings->useSpecificConfigFile()) {
+        const Utils::FileName file = m_settings->specificConfigFile();
+        if (file.exists())
+            return file.toString();
+    }
+
     if (m_settings->useHomeFile()) {
         const QString file = QDir::home().filePath("uncrustify.cfg");
         if (QFile::exists(file))

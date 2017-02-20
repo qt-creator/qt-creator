@@ -57,6 +57,20 @@
        </widget>
       </item>
       <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QCheckBox" name="useSpecificFile">
+          <property name="text">
+           <string>Use file specific uncrustify.cfg</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Utils::PathChooser" name="uncrusifyFilePath" native="true"/>
+        </item>
+       </layout>
+      </item>
+      <item>
        <widget class="QCheckBox" name="useHomeFile">
         <property name="text">
          <string extracomment="HOME is replaced by the user's home directory">Use file uncrustify.cfg in HOME</string>
@@ -122,6 +136,8 @@
  <tabstops>
   <tabstop>mime</tabstop>
   <tabstop>useOtherFiles</tabstop>
+  <tabstop>useSpecificFile</tabstop>
+  <tabstop>uncrusifyFilePath</tabstop>
   <tabstop>useHomeFile</tabstop>
   <tabstop>useCustomStyle</tabstop>
   <tabstop>formatEntireFileFallback</tabstop>

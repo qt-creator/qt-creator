@@ -44,11 +44,13 @@ namespace Internal {
 namespace Uncrustify {
 
 namespace {
-const char USE_OTHER_FILES[]             = "useOtherFiles";
-const char USE_HOME_FILE[]               = "useHomeFile";
-const char USE_CUSTOM_STYLE[]            = "useCustomStyle";
-const char CUSTOM_STYLE[]                = "customStyle";
-const char FORMAT_ENTIRE_FILE_FALLBACK[] = "formatEntireFileFallback";
+const char USE_OTHER_FILES[]               = "useOtherFiles";
+const char USE_HOME_FILE[]                 = "useHomeFile";
+const char USE_SPECIFIC_CONFIG_FILE_PATH[] = "useSpecificConfigFile";
+const char SPECIFIC_CONFIG_FILE_PATH[]     = "specificConfigFile";
+const char USE_CUSTOM_STYLE[]              = "useCustomStyle";
+const char CUSTOM_STYLE[]                  = "customStyle";
+const char FORMAT_ENTIRE_FILE_FALLBACK[]   = "formatEntireFileFallback";
 }
 
 UncrustifySettings::UncrustifySettings() :
@@ -62,8 +64,10 @@ UncrustifySettings::UncrustifySettings() :
     m_settings.insert(USE_OTHER_FILES, QVariant(true));
     m_settings.insert(USE_HOME_FILE, QVariant(false));
     m_settings.insert(USE_CUSTOM_STYLE, QVariant(false));
+    m_settings.insert(USE_SPECIFIC_CONFIG_FILE_PATH, QVariant(false));
     m_settings.insert(CUSTOM_STYLE, QVariant());
     m_settings.insert(FORMAT_ENTIRE_FILE_FALLBACK, QVariant(true));
+    m_settings.insert(SPECIFIC_CONFIG_FILE_PATH, QVariant());
     read();
 }
 
@@ -85,6 +89,26 @@ bool UncrustifySettings::useHomeFile() const
 void UncrustifySettings::setUseHomeFile(bool useHomeFile)
 {
     m_settings.insert(USE_HOME_FILE, QVariant(useHomeFile));
+}
+
+Utils::FileName UncrustifySettings::specificConfigFile() const
+{
+    return Utils::FileName::fromString(m_settings.value(SPECIFIC_CONFIG_FILE_PATH).toString());
+}
+
+void UncrustifySettings::setSpecificConfigFile(const Utils::FileName &filePath)
+{
+    m_settings.insert(SPECIFIC_CONFIG_FILE_PATH, QVariant(filePath.toString()));
+}
+
+bool UncrustifySettings::useSpecificConfigFile() const
+{
+    return m_settings.value(USE_SPECIFIC_CONFIG_FILE_PATH).toBool();
+}
+
+void UncrustifySettings::setUseSpecificConfigFile(bool useConfigFile)
+{
+    m_settings.insert(USE_SPECIFIC_CONFIG_FILE_PATH, QVariant(useConfigFile));
 }
 
 bool UncrustifySettings::useCustomStyle() const
