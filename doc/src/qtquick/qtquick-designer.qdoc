@@ -218,6 +218,9 @@
     \uicontrol {Edit > Reset Position} or \uicontrol {Reset Size} in the context menu. To
     set the visibility of the item, select \uicontrol {Edit > Visibility}.
 
+    To specify the color of the selected item in the \uicontrol {Select Color}
+    dialog, select \uicontrol {Edit Color} in the context menu.
+
     For more information on the properties available for an item, press
     \key {F1}.
 
