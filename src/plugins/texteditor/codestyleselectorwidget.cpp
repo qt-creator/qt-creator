@@ -272,7 +272,7 @@ void CodeStyleSelectorWidget::slotCopyClicked()
                                                   QLineEdit::Normal,
                                                   tr("%1 (Copy)").arg(currentPreferences->displayName()),
                                                   &ok);
-    if (!ok)
+    if (!ok || newName.trimmed().isEmpty())
         return;
     ICodeStylePreferences *copy = codeStylePool->cloneCodeStyle(currentPreferences);
     if (copy) {
