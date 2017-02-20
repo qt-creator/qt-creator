@@ -55,12 +55,13 @@ public:
     bool isEmpty() const;
     void addEvent(const QmlEvent &event);
     void addEvents(const QVector<QmlEvent> &events);
-    void replayEvents(qint64 startTime, qint64 endTime,
+    bool replayEvents(qint64 startTime, qint64 endTime,
                       QmlProfilerModelManager::EventLoader loader) const;
     void finalize();
 
 signals:
     void allTypesLoaded();
+    void traceFileError();
 
 protected slots:
     void detailsChanged(int typeId, const QString &newString);

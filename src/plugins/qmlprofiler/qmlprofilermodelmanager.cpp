@@ -176,6 +176,10 @@ QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent) :
     d->textMarkModel = new QmlProfilerTextMarkModel(this);
     connect(d->model, &QmlProfilerDataModel::allTypesLoaded,
             this, &QmlProfilerModelManager::processingDone);
+    connect(d->model, &QmlProfilerDataModel::traceFileError,
+            this, [this]() {
+        emit error(tr("Could not open a temporary file for storing QML traces."));
+    });
 }
 
 QmlProfilerModelManager::~QmlProfilerModelManager()
@@ -543,12 +547,17 @@ void QmlProfilerModelManager::restrictToRange(qint64 startTime, qint64 endTime)
     setVisibleFeatures(0);
 
     startAcquiring();
-    d->model->replayEvents(startTime, endTime,
-                           std::bind(&QmlProfilerModelManagerPrivate::dispatch, d,
-                                     std::placeholders::_1, std::placeholders::_2));
-    d->notesModel->setNotes(notes);
-    d->traceTime->restrictToRange(startTime, endTime);
-    acquiringDone();
+    if (!d->model->replayEvents(startTime, endTime,
+                                std::bind(&QmlProfilerModelManagerPrivate::dispatch, d,
+                                          std::placeholders::_1, std::placeholders::_2))) {
+        emit error(tr("Could not re-read events from temporary trace file. "
+                      "The trace data is lost."));
+        clear();
+    } else {
+        d->notesModel->setNotes(notes);
+        d->traceTime->restrictToRange(startTime, endTime);
+        acquiringDone();
+    }
 }
 
 bool QmlProfilerModelManager::isRestrictedToRange() const

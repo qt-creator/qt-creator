@@ -120,13 +120,17 @@ void QmlProfilerStatisticsModel::restrictToFeatures(qint64 features)
         return;
 
     clear();
-    d->modelManager->qmlModel()->replayEvents(d->modelManager->traceTime()->startTime(),
-                                              d->modelManager->traceTime()->endTime(),
-                                              std::bind(&QmlProfilerStatisticsModel::loadEvent,
-                                                        this, std::placeholders::_1,
-                                                        std::placeholders::_2));
-    finalize();
-    notesChanged(-1); // Reload notes
+    if (!d->modelManager->qmlModel()->replayEvents(d->modelManager->traceTime()->startTime(),
+                                                   d->modelManager->traceTime()->endTime(),
+                                                   std::bind(&QmlProfilerStatisticsModel::loadEvent,
+                                                             this, std::placeholders::_1,
+                                                             std::placeholders::_2))) {
+        emit d->modelManager->error(tr("Could not re-read events from temporary trace file."));
+        clear();
+    } else {
+        finalize();
+        notesChanged(-1); // Reload notes
+    }
 }
 
 const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &QmlProfilerStatisticsModel::getData() const

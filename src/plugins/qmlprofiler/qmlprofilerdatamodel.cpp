@@ -101,8 +101,10 @@ QmlProfilerDataModel::QmlProfilerDataModel(QObject *parent) :
             this, &QmlProfilerDataModel::detailsChanged);
     connect(d->detailsRewriter, &QmlProfilerDetailsRewriter::eventDetailsChanged,
             this, &QmlProfilerDataModel::allTypesLoaded);
-    d->file.open();
-    d->eventStream.setDevice(&d->file);
+    if (!d->file.open())
+        emit traceFileError();
+    else
+        d->eventStream.setDevice(&d->file);
 }
 
 QmlProfilerDataModel::~QmlProfilerDataModel()
@@ -170,8 +172,11 @@ void QmlProfilerDataModel::clear()
 {
     Q_D(QmlProfilerDataModel);
     d->file.remove();
-    d->file.open();
-    d->eventStream.setDevice(&d->file);
+    d->eventStream.unsetDevice();
+    if (!d->file.open())
+        emit traceFileError();
+    else
+        d->eventStream.setDevice(&d->file);
     d->eventTypes.clear();
     d->detailsRewriter->clearRequests();
 }
@@ -207,14 +212,16 @@ static bool isStateful(const QmlEventType &type)
     return message == PixmapCacheEvent || message == MemoryAllocation;
 }
 
-void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
+bool QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
                                         QmlProfilerModelManager::EventLoader loader) const
 {
     Q_D(const QmlProfilerDataModel);
     QStack<QmlEvent> stack;
     QmlEvent event;
     QFile file(d->file.fileName());
-    file.open(QIODevice::ReadOnly);
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
+
     QDataStream stream(&file);
     bool crossedRangeStart = false;
     while (!stream.atEnd()) {
@@ -271,6 +278,7 @@ void QmlProfilerDataModel::replayEvents(qint64 rangeStart, qint64 rangeEnd,
 
         loader(event, type);
     }
+    return true;
 }
 
 void QmlProfilerDataModel::finalize()

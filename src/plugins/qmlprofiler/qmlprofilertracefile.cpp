@@ -668,8 +668,9 @@ void QmlProfilerFileWriter::saveQtd(QIODevice *device)
         stream.writeStartElement(_("profilerDataModel"));
 
         QStack<QmlEvent> stack;
-        m_model->replayEvents(-1, -1, [this, &stack, &stream](const QmlEvent &event,
-                                                              const QmlEventType &type) {
+        const bool success = m_model->replayEvents(
+                    -1, -1, [this, &stack, &stream](const QmlEvent &event,
+                    const QmlEventType &type) {
             if (isCanceled())
                 return;
 
@@ -741,6 +742,10 @@ void QmlProfilerFileWriter::saveQtd(QIODevice *device)
             if ((event.timestamp() & 0xfff) == 0)
                 updateProgress(event.timestamp());
         });
+        if (!success) {
+            emit error(tr("Could not re-read events from temporary trace file. Saving failed."));
+            return;
+        }
 
         stream.writeEndElement(); // profilerDataModel
     }
@@ -807,8 +812,9 @@ void QmlProfilerFileWriter::saveQzt(QFile *file)
 
     if (!isCanceled()) {
         buffer.open(QIODevice::WriteOnly);
-        m_model->replayEvents(-1, -1, [this, &stream, &buffer, &bufferStream](
-                              const QmlEvent &event, const QmlEventType &type) {
+        const bool success = m_model->replayEvents(
+                    -1, -1, [this, &stream, &buffer, &bufferStream](const QmlEvent &event,
+                                                                    const QmlEventType &type) {
             Q_UNUSED(type);
             bufferStream << event;
             // 32MB buffer should be plenty for efficient compression
@@ -822,6 +828,10 @@ void QmlProfilerFileWriter::saveQzt(QFile *file)
                 updateProgress(event.timestamp());
             }
         });
+        if (!success) {
+            emit error(tr("Could not re-read events from temporary trace file. Saving failed."));
+            return;
+        }
     }
 
     if (isCanceled()) {
