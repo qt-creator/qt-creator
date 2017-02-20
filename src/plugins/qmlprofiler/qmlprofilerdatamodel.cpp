@@ -48,7 +48,7 @@ public:
     int resolveStackTop();
 
     QVector<QmlEventType> eventTypes;
-    Internal::QmlProfilerDetailsRewriter *detailsRewriter;
+    Internal::QmlProfilerDetailsRewriter *detailsRewriter = 0;
 
     Utils::TemporaryFile file;
     QDataStream eventStream;
