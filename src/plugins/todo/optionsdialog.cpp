@@ -98,9 +98,9 @@ Settings OptionsDialog::settings()
 void OptionsDialog::addKeywordButtonClicked()
 {
     Keyword keyword;
-    KeywordDialog *keywordDialog = new KeywordDialog(keyword, keywordNames(), this);
-    if (keywordDialog->exec() == QDialog::Accepted) {
-        keyword = keywordDialog->keyword();
+    KeywordDialog keywordDialog(keyword, keywordNames(), this);
+    if (keywordDialog.exec() == QDialog::Accepted) {
+        keyword = keywordDialog.keyword();
         addToKeywordsList(keyword);
     }
 }
@@ -121,9 +121,9 @@ void OptionsDialog::editKeyword(QListWidgetItem *item)
     QSet<QString> keywordNamesButThis = keywordNames();
     keywordNamesButThis.remove(keyword.name);
 
-    KeywordDialog *keywordDialog = new KeywordDialog(keyword, keywordNamesButThis, this);
-    if (keywordDialog->exec() == QDialog::Accepted) {
-        keyword = keywordDialog->keyword();
+    KeywordDialog keywordDialog(keyword, keywordNamesButThis, this);
+    if (keywordDialog.exec() == QDialog::Accepted) {
+        keyword = keywordDialog.keyword();
         item->setIcon(icon(keyword.iconType));
         item->setText(keyword.name);
         item->setData(Qt::UserRole, static_cast<int>(keyword.iconType));
