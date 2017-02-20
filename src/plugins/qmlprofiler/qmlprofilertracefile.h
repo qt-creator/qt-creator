@@ -51,8 +51,8 @@ public:
 
     void setFuture(QFutureInterface<void> *future);
 
-    bool loadQtd(QIODevice *device);
-    bool loadQzt(QIODevice *device);
+    void loadQtd(QIODevice *device);
+    void loadQzt(QIODevice *device);
 
     quint64 loadedFeatures() const;
 
@@ -65,6 +65,7 @@ signals:
     void qmlEventsLoaded(const QVector<QmlProfiler::QmlEvent> &event);
     void error(const QString &error);
     void success();
+    void canceled();
 
 private:
     void loadEventTypes(QXmlStreamReader &reader);
@@ -96,16 +97,26 @@ public:
     void saveQtd(QIODevice *device);
     void saveQzt(QFile *file);
 
+signals:
+    void error(const QString &error);
+    void success();
+    void canceled();
+
 private:
-    void calculateMeasuredTime();
-    void incrementProgress();
+    void updateProgress(qint64 timestamp);
     bool isCanceled() const;
+
+    enum ProgressValues {
+        ProgressTypes  = -128,
+        ProgressNotes  = -32,
+        ProgressEvents = 1024,
+        ProgressTotal  = ProgressEvents - ProgressTypes - ProgressNotes
+    };
 
     qint64 m_startTime, m_endTime, m_measuredTime;
     QFutureInterface<void> *m_future;
     const QmlProfilerDataModel *m_model;
     QVector<QmlNote> m_notes;
-    int m_newProgressValue;
 };
 
 
