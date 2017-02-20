@@ -25,6 +25,8 @@
 
 #include "qbsnodetreebuilder.h"
 
+#include "qbsproject.h"
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -43,6 +45,63 @@ void setupArtifacts(ProjectExplorer::FolderNode *root, const QList<qbs::Artifact
 
     root->buildTree(fileNodes);
     root->compress();
+}
+
+QbsProjectManager::Internal::QbsGroupNode
+*buildGroupNodeTree(const qbs::GroupData &grp, const QString &productPath, bool productIsEnabled)
+{
+    QTC_ASSERT(grp.isValid(), return nullptr);
+
+    auto result = new QbsProjectManager::Internal::QbsGroupNode(grp, productPath);
+
+    result->setEnabled(productIsEnabled && grp.isEnabled());
+    result->setAbsoluteFilePathAndLine(
+                Utils::FileName::fromString(grp.location().filePath()).parentDir(), -1);
+    result->setDisplayName(grp.name());
+    result->addNode(new QbsProjectManager::Internal::QbsFileNode(
+                        Utils::FileName::fromString(grp.location().filePath()),
+                        ProjectExplorer::FileType::Project, false,
+                        grp.location().line()));
+
+    ::setupArtifacts(result, grp.allSourceArtifacts());
+
+    return result;
+}
+
+void setupQbsProductData(QbsProjectManager::Internal::QbsProductNode *node,
+                         const qbs::ProductData &prd, const qbs::Project &project)
+{
+    using namespace QbsProjectManager::Internal;
+    node->makeEmpty();
+
+    node->setEnabled(prd.isEnabled());
+
+    node->setDisplayName(QbsProject::productDisplayName(project, prd));
+    node->setAbsoluteFilePathAndLine(Utils::FileName::fromString(prd.location().filePath()).parentDir(), -1);
+    const QString &productPath = QFileInfo(prd.location().filePath()).absolutePath();
+
+    // Add QbsFileNode:
+    node->addNode(new QbsFileNode(Utils::FileName::fromString(prd.location().filePath()),
+                                  ProjectExplorer::FileType::Project, false,
+                                  prd.location().line()));
+
+
+    foreach (const qbs::GroupData &grp, prd.groups()) {
+        if (grp.name() == prd.name() && grp.location() == prd.location()) {
+            // Set implicit product group right onto this node:
+            setupArtifacts(node, grp.allSourceArtifacts());
+            continue;
+        }
+        node->addNode(buildGroupNodeTree(grp, productPath, prd.isEnabled()));
+    }
+
+    // Add "Generated Files" Node:
+    auto genFiles
+            = new ProjectExplorer::VirtualFolderNode(node->filePath(),
+                                                     ProjectExplorer::Node::DefaultProjectFilePriority - 10);
+    genFiles->setDisplayName(QCoreApplication::translate("QbsProductNode", "Generated files"));
+    node->addNode(genFiles);
+    setupArtifacts(genFiles, prd.generatedArtifacts());
 }
 
 } // namespace
@@ -71,30 +130,13 @@ ProjectExplorer::FileType QbsNodeTreeBuilder::fileType(const qbs::ArtifactData &
     return ProjectExplorer::FileType::Unknown;
 }
 
-QbsGroupNode *QbsNodeTreeBuilder::buildGroupNodeTree(const qbs::GroupData &grp,
-                                                     const QString &productPath,
-                                                     bool productIsEnabled)
+QbsProductNode *QbsNodeTreeBuilder::buildProductNodeTree(const qbs::Project &project,
+                                                         const qbs::ProductData &prd)
 {
-    QTC_ASSERT(grp.isValid(), return nullptr);
+    auto result = new QbsProductNode(prd);
 
-    auto result = new QbsGroupNode(grp, productPath);
-
-    result->setEnabled(productIsEnabled && grp.isEnabled());
-    result->setAbsoluteFilePathAndLine(
-                Utils::FileName::fromString(grp.location().filePath()).parentDir(), -1);
-    result->setDisplayName(grp.name());
-    result->addNode(new QbsFileNode(Utils::FileName::fromString(grp.location().filePath()),
-                                    ProjectExplorer::FileType::Project, false,
-                                    grp.location().line()));
-
-    ::setupArtifacts(result, grp.allSourceArtifacts());
-
+    setupQbsProductData(result, prd, project);
     return result;
-}
-
-void QbsNodeTreeBuilder::setupArtifacts(QbsBaseProjectNode *node, const QList<qbs::ArtifactData> &artifacts)
-{
-    ::setupArtifacts(node, artifacts);
 }
 
 } // namespace Internal

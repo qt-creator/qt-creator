@@ -482,23 +482,13 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
 // QbsProductNode:
 // --------------------------------------------------------------------
 
-QbsProductNode::QbsProductNode(const qbs::Project &project, const qbs::ProductData &prd) :
-    QbsBaseProjectNode(Utils::FileName::fromString(prd.location().filePath())),
-    m_generatedFilesNode(new QbsFolderNode(Utils::FileName::fromString(prd.buildDirectory()),
-            ProjectExplorer::NodeType::Folder,
-            QCoreApplication::translate("QbsProductNode", "Generated files"), true))
+QbsProductNode::QbsProductNode(const qbs::ProductData &prd) :
+    QbsBaseProjectNode(Utils::FileName::fromString(prd.location().filePath()))
 {
     if (m_productIcon.isNull())
         m_productIcon = generateIcon(QString::fromLatin1(Constants::QBS_PRODUCT_OVERLAY_ICON));
 
     setIcon(m_productIcon);
-
-    addNode(m_generatedFilesNode);
-    addNode(new QbsFileNode(Utils::FileName::fromString(prd.location().filePath()),
-                            ProjectExplorer::FileType::Project, false,
-                            prd.location().line()));
-
-    setQbsProductData(project, prd);
 }
 
 bool QbsProductNode::showInSimpleTree() const
@@ -562,44 +552,6 @@ bool QbsProductNode::renameFile(const QString &filePath, const QString &newFileP
     return prjNode->project()->renameFileInProduct(filePath, newFilePath, m_qbsProductData, grp);
 }
 
-void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::ProductData prd)
-{
-    if (m_qbsProductData == prd)
-        return;
-
-    setEnabled(prd.isEnabled());
-
-    setDisplayName(QbsProject::productDisplayName(project, prd));
-    setAbsoluteFilePathAndLine(Utils::FileName::fromString(prd.location().filePath()).parentDir(),
-                               line());
-    const QString &productPath = QFileInfo(prd.location().filePath()).absolutePath();
-
-    // Find the QbsFileNode we added earlier:
-    QbsFileNode *idx = 0;
-    foreach (ProjectExplorer::FileNode *fn, fileNodes()) {
-        idx = dynamic_cast<QbsFileNode *>(fn);
-        if (idx)
-            break;
-    }
-    QTC_ASSERT(idx, return);
-    idx->setAbsoluteFilePathAndLine(Utils::FileName::fromString(prd.location().filePath()),
-                        prd.location().line());
-
-    foreach (const qbs::GroupData &grp, prd.groups()) {
-        if (grp.name() == prd.name() && grp.location() == prd.location()) {
-            // Set implicit product group right onto this node:
-            QbsNodeTreeBuilder::setupArtifacts(this, grp.allSourceArtifacts());
-            continue;
-        }
-        addNode(QbsNodeTreeBuilder::buildGroupNodeTree(grp, productPath, prd.isEnabled()));
-    }
-
-    if (prd.isEnabled())
-        QbsNodeTreeBuilder::setupArtifacts(this, prd.generatedArtifacts());
-
-    m_qbsProductData = prd;
-}
-
 QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurations() const
 {
     QList<ProjectExplorer::RunConfiguration *> result;
@@ -653,7 +605,7 @@ void QbsProjectNode::update(const qbs::Project &qbsProject, const qbs::ProjectDa
     }
 
     foreach (const qbs::ProductData &prd, prjData.products())
-        addNode(new QbsProductNode(qbsProject, prd));
+        addNode(QbsNodeTreeBuilder::buildProductNodeTree(qbsProject, prd));
 
     if (!prjData.name().isEmpty())
         setDisplayName(prjData.name());
@@ -685,26 +637,6 @@ void QbsProjectNode::ctor()
 
     setIcon(m_projectIcon);
     addNode(new ProjectExplorer::FileNode(filePath(), ProjectExplorer::FileType::Project, false));
-}
-
-QbsProductNode *QbsProjectNode::findProductNode(const QString &uniqueName)
-{
-    for (ProjectExplorer::Node *n : nodes()) {
-        if (QbsProductNode *qn = dynamic_cast<QbsProductNode *>(n))
-            if (QbsProject::uniqueProductName(qn->qbsProductData()) == uniqueName)
-                return qn;
-    }
-    return 0;
-}
-
-QbsProjectNode *QbsProjectNode::findProjectNode(const QString &name)
-{
-    for (ProjectExplorer::Node *n : nodes()) {
-        if (QbsProjectNode *qn = dynamic_cast<QbsProjectNode *>(n))
-            if (qn->qbsProjectData().name() == name)
-                return qn;
-    }
-    return 0;
 }
 
 // --------------------------------------------------------------------

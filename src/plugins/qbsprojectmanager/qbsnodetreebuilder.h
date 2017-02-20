@@ -43,7 +43,7 @@ public:
 
     static QbsGroupNode *buildGroupNodeTree(const qbs::GroupData &grp, const QString &productPath,
                                             bool productIsEnabled);
-    static void setupArtifacts(QbsBaseProjectNode *node, const QList<qbs::ArtifactData> &artifacts);
+    static QbsProductNode *buildProductNodeTree(const qbs::Project &project, const qbs::ProductData &prd);
 };
 
 } // namespace Internal

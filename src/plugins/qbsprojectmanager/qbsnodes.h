@@ -124,7 +124,7 @@ private:
 class QbsProductNode : public QbsBaseProjectNode
 {
 public:
-    explicit QbsProductNode(const qbs::Project &project, const qbs::ProductData &prd);
+    explicit QbsProductNode(const qbs::ProductData &prd);
 
     bool showInSimpleTree() const override;
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
@@ -132,7 +132,6 @@ public:
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
-    void setQbsProductData(const qbs::Project &project, const qbs::ProductData prd);
     const qbs::ProductData qbsProductData() const { return m_qbsProductData; }
 
     QList<ProjectExplorer::RunConfiguration *> runConfigurations() const override;
@@ -141,7 +140,6 @@ private:
     QbsGroupNode *findGroupNode(const QString &name);
 
     qbs::ProductData m_qbsProductData;
-    ProjectExplorer::FolderNode * const m_generatedFilesNode;
     static QIcon m_productIcon;
 };
 
@@ -166,9 +164,6 @@ protected:
 
 private:
     void ctor();
-
-    QbsProductNode *findProductNode(const QString &uniqueName);
-    QbsProjectNode *findProjectNode(const QString &name);
 
     static QIcon m_projectIcon;
     qbs::ProjectData m_projectData;
