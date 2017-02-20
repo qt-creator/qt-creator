@@ -584,39 +584,18 @@ QbsGroupNode *QbsProductNode::findGroupNode(const QString &name)
 // QbsProjectNode:
 // --------------------------------------------------------------------
 
-QbsProjectNode::QbsProjectNode(const Utils::FileName &path) :
-    QbsBaseProjectNode(path)
+QbsProjectNode::QbsProjectNode(const Utils::FileName &projectDirectory) :
+    QbsBaseProjectNode(projectDirectory)
 {
     if (m_projectIcon.isNull())
         m_projectIcon = generateIcon(QString::fromLatin1(ProjectExplorer::Constants::FILEOVERLAY_QT));
 
     setIcon(m_projectIcon);
-    addNode(new ProjectExplorer::FileNode(filePath(), ProjectExplorer::FileType::Project, false));
 }
 
 QbsProjectNode::~QbsProjectNode()
 {
     // do not delete m_project
-}
-
-void QbsProjectNode::update(const qbs::Project &qbsProject, const qbs::ProjectData &prjData)
-{
-    foreach (const qbs::ProjectData &subData, prjData.subProjects()) {
-        auto subProject =
-                new QbsProjectNode(Utils::FileName::fromString(subData.location().filePath()));
-        subProject->update(qbsProject, subData);
-        addNode(subProject);
-    }
-
-    foreach (const qbs::ProductData &prd, prjData.products())
-        addNode(QbsNodeTreeBuilder::buildProductNodeTree(qbsProject, prd));
-
-    if (!prjData.name().isEmpty())
-        setDisplayName(prjData.name());
-    else
-        setDisplayName(project()->displayName());
-
-    m_projectData = prjData;
 }
 
 QbsProject *QbsProjectNode::project() const
@@ -634,12 +613,17 @@ bool QbsProjectNode::showInSimpleTree() const
     return true;
 }
 
+void QbsProjectNode::setProjectData(const qbs::ProjectData &data)
+{
+    m_projectData = data;
+}
+
 // --------------------------------------------------------------------
 // QbsRootProjectNode:
 // --------------------------------------------------------------------
 
 QbsRootProjectNode::QbsRootProjectNode(QbsProject *project) :
-    QbsProjectNode(project->projectFilePath()),
+    QbsProjectNode(project->projectDirectory()),
     m_project(project),
     m_buildSystemFiles(new ProjectExplorer::FolderNode(project->projectDirectory(),
                                                        ProjectExplorer::NodeType::Folder,
@@ -661,7 +645,7 @@ void QbsRootProjectNode::update()
     QbsGroupNode::setupFiles(m_buildSystemFiles, qbs::GroupData(), projectBuildSystemFiles,
                              base.toString(), false);
 
-    update(m_project->qbsProject(), m_project->qbsProjectData());
+    QbsNodeTreeBuilder::setupProjectNode(this, m_project->qbsProjectData(), m_project->qbsProject());
 }
 
 static QSet<QString> referencedBuildSystemFiles(const qbs::ProjectData &data)

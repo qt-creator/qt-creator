@@ -35,6 +35,7 @@ namespace QbsProjectManager {
 namespace Internal {
 
 class FileTreeNode;
+class QbsNodeTreeBuilder;
 class QbsProject;
 class QbsProjectFile;
 
@@ -150,7 +151,7 @@ private:
 class QbsProjectNode : public QbsBaseProjectNode
 {
 public:
-    explicit QbsProjectNode(const Utils::FileName &absoluteFilePath);
+    explicit QbsProjectNode(const Utils::FileName &projectDirectory);
     ~QbsProjectNode() override;
 
     virtual QbsProject *project() const;
@@ -159,12 +160,13 @@ public:
 
     bool showInSimpleTree() const override;
 
-protected:
-    void update(const qbs::Project &qbsProject, const qbs::ProjectData &prjData);
-
 private:
+    void setProjectData(const qbs::ProjectData &data);
+
     static QIcon m_projectIcon;
     qbs::ProjectData m_projectData;
+
+    friend class QbsNodeTreeBuilder;
 };
 
 // --------------------------------------------------------------------
@@ -176,7 +178,6 @@ class QbsRootProjectNode : public QbsProjectNode
 public:
     explicit QbsRootProjectNode(QbsProject *project);
 
-    using QbsProjectNode::update;
     void update();
 
     QbsProject *project() const  override { return m_project; }

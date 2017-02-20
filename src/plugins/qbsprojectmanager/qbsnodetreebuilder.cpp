@@ -104,6 +104,15 @@ void setupQbsProductData(QbsProjectManager::Internal::QbsProductNode *node,
     setupArtifacts(genFiles, prd.generatedArtifacts());
 }
 
+QbsProjectManager::Internal::QbsProductNode *
+buildProductNodeTree(const qbs::Project &project, const qbs::ProductData &prd)
+{
+    auto result = new QbsProjectManager::Internal::QbsProductNode(prd);
+
+    setupQbsProductData(result, prd, project);
+    return result;
+}
+
 } // namespace
 
 namespace QbsProjectManager {
@@ -130,13 +139,37 @@ ProjectExplorer::FileType QbsNodeTreeBuilder::fileType(const qbs::ArtifactData &
     return ProjectExplorer::FileType::Unknown;
 }
 
-QbsProductNode *QbsNodeTreeBuilder::buildProductNodeTree(const qbs::Project &project,
-                                                         const qbs::ProductData &prd)
+QbsProjectNode *QbsNodeTreeBuilder::buildProjectNodeTree(const qbs::Project &qbsProject,
+                                                         const qbs::ProjectData &prjData)
 {
-    auto result = new QbsProductNode(prd);
+    Utils::FileName filePath = Utils::FileName::fromString(prjData.location().filePath());
+    auto result = new QbsProjectNode(filePath.parentDir());
+    result->setProjectData(prjData);
 
-    setupQbsProductData(result, prd, project);
+    result->addNode(new ProjectExplorer::FileNode(filePath, ProjectExplorer::FileType::Project, false));
+
+    setupProjectNode(result, prjData, qbsProject);
+
     return result;
+}
+
+void QbsNodeTreeBuilder::setupProjectNode(QbsProjectNode *node, const qbs::ProjectData &prjData,
+                                          const qbs::Project &qbsProject)
+{
+    foreach (const qbs::ProjectData &subData, prjData.subProjects()) {
+        auto subProject =
+                new QbsProjectNode(Utils::FileName::fromString(subData.location().filePath()).parentDir());
+        setupProjectNode(subProject, subData, qbsProject);
+        node->addNode(subProject);
+    }
+
+    foreach (const qbs::ProductData &prd, prjData.products())
+        node->addNode(buildProductNodeTree(qbsProject, prd));
+
+    if (!prjData.name().isEmpty())
+        node->setDisplayName(prjData.name());
+    else
+        node->setDisplayName(node->project()->displayName());
 }
 
 } // namespace Internal

@@ -41,9 +41,10 @@ class QbsNodeTreeBuilder
 public:
     static ProjectExplorer::FileType fileType(const qbs::ArtifactData &artifact);
 
-    static QbsGroupNode *buildGroupNodeTree(const qbs::GroupData &grp, const QString &productPath,
-                                            bool productIsEnabled);
-    static QbsProductNode *buildProductNodeTree(const qbs::Project &project, const qbs::ProductData &prd);
+    static QbsProjectNode *buildProjectNodeTree(const qbs::Project &qbsProject,
+                                                const qbs::ProjectData &prjData);
+
+    static void setupProjectNode(QbsProjectNode *node, const qbs::ProjectData &prjData, const qbs::Project &qbsProject);
 };
 
 } // namespace Internal
