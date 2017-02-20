@@ -163,8 +163,6 @@ protected:
     void update(const qbs::Project &qbsProject, const qbs::ProjectData &prjData);
 
 private:
-    void ctor();
-
     static QIcon m_projectIcon;
     qbs::ProjectData m_projectData;
 };

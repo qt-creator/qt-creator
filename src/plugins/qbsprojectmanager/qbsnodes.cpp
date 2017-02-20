@@ -587,7 +587,11 @@ QbsGroupNode *QbsProductNode::findGroupNode(const QString &name)
 QbsProjectNode::QbsProjectNode(const Utils::FileName &path) :
     QbsBaseProjectNode(path)
 {
-    ctor();
+    if (m_projectIcon.isNull())
+        m_projectIcon = generateIcon(QString::fromLatin1(ProjectExplorer::Constants::FILEOVERLAY_QT));
+
+    setIcon(m_projectIcon);
+    addNode(new ProjectExplorer::FileNode(filePath(), ProjectExplorer::FileType::Project, false));
 }
 
 QbsProjectNode::~QbsProjectNode()
@@ -628,15 +632,6 @@ const qbs::Project QbsProjectNode::qbsProject() const
 bool QbsProjectNode::showInSimpleTree() const
 {
     return true;
-}
-
-void QbsProjectNode::ctor()
-{
-    if (m_projectIcon.isNull())
-        m_projectIcon = generateIcon(QString::fromLatin1(ProjectExplorer::Constants::FILEOVERLAY_QT));
-
-    setIcon(m_projectIcon);
-    addNode(new ProjectExplorer::FileNode(filePath(), ProjectExplorer::FileType::Project, false));
 }
 
 // --------------------------------------------------------------------
