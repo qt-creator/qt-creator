@@ -56,11 +56,11 @@ public:
 
     void InclusionDirective(clang::SourceLocation /*hashLocation*/,
                             const clang::Token &/*includeToken*/,
-                            llvm::StringRef fileName,
+                            llvm::StringRef /*fileName*/,
                             bool /*isAngled*/,
                             clang::CharSourceRange /*fileNameRange*/,
                             const clang::FileEntry *file,
-                            llvm::StringRef searchPath,
+                            llvm::StringRef /*searchPath*/,
                             llvm::StringRef /*relativePath*/,
                             const clang::Module * /*imported*/) override
     {
