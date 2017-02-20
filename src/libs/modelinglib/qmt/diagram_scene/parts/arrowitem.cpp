@@ -248,9 +248,9 @@ ArrowItem::ArrowItem(const ArrowItem &rhs, QGraphicsItem *parent)
       m_arrowSize(rhs.m_arrowSize),
       m_diamondSize(rhs.m_diamondSize),
       m_startHead(rhs.m_startHead),
-      m_startHeadItem(0),
+      m_startHeadItem(nullptr),
       m_endHead(rhs.m_endHead),
-      m_endHeadItem(0)
+      m_endHeadItem(nullptr)
 {
 }
 

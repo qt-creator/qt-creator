@@ -49,8 +49,8 @@ namespace qmt {
 
 ModelTreeView::ModelTreeView(QWidget *parent)
     : QTreeView(parent),
-      m_sortedTreeModel(0),
-      m_elementTasks(0)
+      m_sortedTreeModel(nullptr),
+      m_elementTasks(nullptr)
 {
     setHeaderHidden(true);
     setSortingEnabled(false);

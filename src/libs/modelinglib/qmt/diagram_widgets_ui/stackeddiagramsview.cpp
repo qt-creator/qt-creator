@@ -38,7 +38,7 @@ namespace qmt {
 
 StackedDiagramsView::StackedDiagramsView(QWidget *parent)
     : QStackedWidget(parent),
-      m_diagramsManager(0)
+      m_diagramsManager(nullptr)
 {
     connect(this, &QStackedWidget::currentChanged, this, &StackedDiagramsView::onCurrentChanged);
 }

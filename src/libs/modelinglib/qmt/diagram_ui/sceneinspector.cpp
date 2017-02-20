@@ -39,7 +39,7 @@ namespace qmt {
 
 SceneInspector::SceneInspector(QObject *parent)
     : QObject(parent),
-      m_diagramsManager(0)
+      m_diagramsManager(nullptr)
 {
 }
 

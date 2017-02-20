@@ -172,7 +172,7 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const FormatDescriptions &fd,
     m_displayName(displayName),
     m_settingsGroup(Utils::settingsKey(category)),
     m_descriptions(fd),
-    m_ui(0),
+    m_ui(nullptr),
     m_schemeListModel(new SchemeListModel),
     m_refreshingSchemeList(false)
 {

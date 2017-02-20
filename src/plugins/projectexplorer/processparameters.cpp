@@ -47,7 +47,7 @@
 using namespace ProjectExplorer;
 
 ProcessParameters::ProcessParameters() :
-    m_macroExpander(0),
+    m_macroExpander(nullptr),
     m_commandMissing(false)
 {
 }

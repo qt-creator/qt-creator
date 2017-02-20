@@ -94,8 +94,8 @@ DetailsWidgetPrivate::DetailsWidgetPrivate(QWidget *parent) :
         m_summaryLabel(new QLabel(parent)),
         m_summaryCheckBox(new QCheckBox(parent)),
         m_additionalSummaryLabel(new QLabel(parent)),
-        m_toolWidget(0),
-        m_widget(0),
+        m_toolWidget(nullptr),
+        m_widget(nullptr),
         m_state(DetailsWidget::Collapsed),
         m_hovered(false),
         m_useCheckBox(false)

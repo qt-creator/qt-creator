@@ -326,8 +326,8 @@ private:
 
 DiagramController::DiagramController(QObject *parent)
     : QObject(parent),
-      m_modelController(0),
-      m_undoController(0)
+      m_modelController(nullptr),
+      m_undoController(nullptr)
 {
 }
 

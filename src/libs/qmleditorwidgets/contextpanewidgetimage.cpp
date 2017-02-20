@@ -67,7 +67,7 @@ bool WheelFilter::eventFilter(QObject *obj, QEvent *event)
 
 ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage) :
     QWidget(parent),
-    ui(0), uiBorderImage(0), previewWasVisible(false)
+    ui(nullptr), uiBorderImage(nullptr), previewWasVisible(false)
 {
     LabelFilter *labelFilter = new LabelFilter(this);
 

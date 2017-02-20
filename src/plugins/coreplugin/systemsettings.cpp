@@ -49,7 +49,7 @@ namespace Core {
 namespace Internal {
 
 SystemSettings::SystemSettings()
-    : m_page(0), m_dialog(0)
+    : m_page(nullptr), m_dialog(0)
 {
     setId(Constants::SETTINGS_ID_SYSTEM);
     setDisplayName(tr("System"));

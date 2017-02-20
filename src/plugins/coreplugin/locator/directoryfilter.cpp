@@ -35,7 +35,7 @@ using namespace Core;
 using namespace Core::Internal;
 
 DirectoryFilter::DirectoryFilter(Id id)
-    : m_dialog(0)
+    : m_dialog(nullptr)
 {
     setId(id);
     setIncludedByDefault(true);

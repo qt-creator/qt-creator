@@ -32,7 +32,7 @@ namespace qmt {
 
 FindDiagramVisitor::FindDiagramVisitor()
     : MVoidConstVisitor(),
-      m_diagram(0)
+      m_diagram(nullptr)
 {
 }
 

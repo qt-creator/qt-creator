@@ -76,14 +76,14 @@ MimeDatabasePrivate *MimeDatabasePrivate::instance()
 }
 
 MimeDatabasePrivate::MimeDatabasePrivate()
-    : m_provider(0), m_defaultMimeType(QLatin1String("application/octet-stream"))
+    : m_provider(nullptr), m_defaultMimeType(QLatin1String("application/octet-stream"))
 {
 }
 
 MimeDatabasePrivate::~MimeDatabasePrivate()
 {
     delete m_provider;
-    m_provider = 0;
+    m_provider = nullptr;
 }
 
 MimeProviderBase *MimeDatabasePrivate::provider()

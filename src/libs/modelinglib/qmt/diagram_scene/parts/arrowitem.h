@@ -88,13 +88,13 @@ private:
     void updateGeometry();
 
     Shaft m_shaft = ShaftSolid;
-    GraphicsShaftItem *m_shaftItem = 0;
+    GraphicsShaftItem *m_shaftItem = nullptr;
     double m_arrowSize = 10.0;
     double m_diamondSize = 15.0;
     Head m_startHead = HeadNone;
-    GraphicsHeadItem *m_startHeadItem = 0;
+    GraphicsHeadItem *m_startHeadItem = nullptr;
     Head m_endHead = HeadNone;
-    GraphicsHeadItem *m_endHeadItem = 0;
+    GraphicsHeadItem *m_endHeadItem = nullptr;
     QList<QPointF> m_points;
 };
 

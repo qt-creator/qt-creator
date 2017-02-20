@@ -69,7 +69,7 @@ public:
 
 SourceAgentPrivate::SourceAgentPrivate()
   : editor(0)
-  , locationMark(0)
+  , locationMark(nullptr)
   , producer(QLatin1String("remote"))
 {
 }
@@ -91,7 +91,7 @@ SourceAgent::SourceAgent(DebuggerEngine *engine)
 SourceAgent::~SourceAgent()
 {
     delete d;
-    d = 0;
+    d = nullptr;
 }
 
 void SourceAgent::setSourceProducerName(const QString &name)

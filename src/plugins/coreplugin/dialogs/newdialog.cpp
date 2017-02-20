@@ -191,7 +191,7 @@ QWidget *NewDialog::m_currentDialog = nullptr;
 NewDialog::NewDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::NewDialog),
-    m_okButton(0)
+    m_okButton(nullptr)
 {
     QTC_CHECK(m_currentDialog == nullptr);
 

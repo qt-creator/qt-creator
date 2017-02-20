@@ -30,12 +30,12 @@
 namespace Utils {
 
 ChangeSet::ChangeSet()
-    : m_string(0), m_cursor(0), m_error(false)
+    : m_string(nullptr), m_cursor(nullptr), m_error(false)
 {
 }
 
 ChangeSet::ChangeSet(const QList<EditOp> &operations)
-    : m_string(0), m_cursor(0), m_operationList(operations), m_error(false)
+    : m_string(nullptr), m_cursor(nullptr), m_operationList(operations), m_error(false)
 {
 }
 
