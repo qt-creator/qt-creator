@@ -37,7 +37,7 @@ class SessionView : public QTreeView {
     Q_OBJECT
 
 public:
-    explicit SessionView(QWidget *parent = Q_NULLPTR);
+    explicit SessionView(QWidget *parent = nullptr);
 
     void createNewSession();
     void deleteCurrentSession();
