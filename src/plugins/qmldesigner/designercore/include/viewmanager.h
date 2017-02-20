@@ -73,7 +73,8 @@ public:
     void registerFormEditorToolTakingOwnership(AbstractCustomTool *tool);
     void registerViewTakingOwnership(AbstractView *view);
 
-    QList<WidgetInfo> widgetInfos();
+    QList<WidgetInfo> widgetInfos() const;
+    QWidget *widget(const QString & uniqueId) const;
 
     void disableWidgets();
     void enableWidgets();

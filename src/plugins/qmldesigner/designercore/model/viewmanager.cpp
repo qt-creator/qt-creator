@@ -251,7 +251,7 @@ void QmlDesigner::ViewManager::setNodeInstanceViewProject(ProjectExplorer::Proje
     d->nodeInstanceView.setProject(project);
 }
 
-QList<WidgetInfo> ViewManager::widgetInfos()
+QList<WidgetInfo> ViewManager::widgetInfos() const
 {
     QList<WidgetInfo> widgetInfoList;
 
@@ -274,6 +274,15 @@ QList<WidgetInfo> ViewManager::widgetInfos()
     });
 
     return widgetInfoList;
+}
+
+QWidget *ViewManager::widget(const QString &uniqueId) const
+{
+    foreach (const WidgetInfo &widgetInfo, widgetInfos()) {
+        if (widgetInfo.uniqueId == uniqueId)
+            return widgetInfo.widget;
+    }
+    return nullptr;
 }
 
 void ViewManager::disableWidgets()
