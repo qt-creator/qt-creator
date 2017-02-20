@@ -32,6 +32,7 @@
 #include "qbsprojectparser.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsnodes.h"
+#include "qbsnodetreebuilder.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
@@ -131,6 +132,7 @@ QbsProject::QbsProject(const QString &fileName) :
     setDocument(new QbsProjectFile(this, fileName));
     DocumentManager::addDocument(document());
     setRootProjectNode(new QbsRootProjectNode(this));
+    Internal::QbsNodeTreeBuilder::buildTree(this); // Populate with initial data
 
     setProjectContext(Context(Constants::PROJECT_ID));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
@@ -312,7 +314,7 @@ bool QbsProject::addFilesToProduct(const QStringList &filePaths,
     }
     if (notAdded->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
-        rootProjectNode()->update();
+        Internal::QbsNodeTreeBuilder::buildTree(this);
         emit fileListChanged();
     }
     return notAdded->isEmpty();
@@ -340,7 +342,7 @@ bool QbsProject::removeFilesFromProduct(const QStringList &filePaths,
     }
     if (notRemoved->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
-        rootProjectNode()->update();
+        Internal::QbsNodeTreeBuilder::buildTree(this);
         emit fileListChanged();
     }
     return notRemoved->isEmpty();
@@ -482,7 +484,7 @@ void QbsProject::updateAfterParse()
 void QbsProject::updateProjectNodes()
 {
     OpTimer opTimer("updateProjectNodes");
-    rootProjectNode()->update();
+    Internal::QbsNodeTreeBuilder::buildTree(this);
 }
 
 void QbsProject::handleQbsParsingDone(bool success)

@@ -39,12 +39,7 @@ namespace Internal {
 class QbsNodeTreeBuilder
 {
 public:
-    static ProjectExplorer::FileType fileType(const qbs::ArtifactData &artifact);
-
-    static QbsProjectNode *buildProjectNodeTree(const qbs::Project &qbsProject,
-                                                const qbs::ProjectData &prjData);
-
-    static void setupProjectNode(QbsProjectNode *node, const qbs::ProjectData &prjData, const qbs::Project &qbsProject);
+    static void buildTree(QbsProject *project);
 };
 
 } // namespace Internal

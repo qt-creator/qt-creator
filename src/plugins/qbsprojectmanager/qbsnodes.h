@@ -102,16 +102,7 @@ public:
 
     QString productPath() const;
 
-    // group can be invalid
-    static void setupFiles(FolderNode *root, const qbs::GroupData &group, const QStringList &files,
-                           const QString &productPath, bool generated);
-
 private:
-    static void setupFolder(ProjectExplorer::FolderNode *folder,
-                            const QHash<QString, ProjectExplorer::FileType> &fileTypeHash,
-                            const FileTreeNode *subFileTree, const QString &baseDir,
-                            bool generated);
-
     qbs::GroupData m_qbsGroupData;
     QString m_productPath;
 
@@ -160,9 +151,9 @@ public:
 
     bool showInSimpleTree() const override;
 
-private:
     void setProjectData(const qbs::ProjectData &data);
 
+private:
     static QIcon m_projectIcon;
     qbs::ProjectData m_projectData;
 
@@ -178,15 +169,10 @@ class QbsRootProjectNode : public QbsProjectNode
 public:
     explicit QbsRootProjectNode(QbsProject *project);
 
-    void update();
-
     QbsProject *project() const  override { return m_project; }
 
 private:
-    QStringList unreferencedBuildSystemFiles(const qbs::Project &p) const;
-
     QbsProject *const m_project;
-    ProjectExplorer::FolderNode *m_buildSystemFiles;
 };
 
 
