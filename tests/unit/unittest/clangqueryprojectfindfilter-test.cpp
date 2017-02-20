@@ -174,16 +174,14 @@ std::vector<CppTools::ProjectPart::Ptr> createProjectParts()
 std::vector<Utils::SmallStringVector>
 createCommandLines(const std::vector<CppTools::ProjectPart::Ptr> &projectParts)
 {
+    using Filter = ClangRefactoring::ClangQueryProjectsFindFilter;
+
     std::vector<Utils::SmallStringVector> commandLines;
 
     for (const CppTools::ProjectPart::Ptr &projectPart : projectParts) {
         for (const CppTools::ProjectFile &projectFile : projectPart->files) {
-            Utils::SmallStringVector commandLine{ClangCompilerOptionsBuilder::build(
-                            projectPart.data(),
-                            projectFile.kind,
-                            ClangCompilerOptionsBuilder::PchUsage::None,
-                            CLANG_VERSION,
-                            CLANG_RESOURCE_DIR)};
+            Utils::SmallStringVector commandLine = Filter::compilerArguments(projectPart.data(),
+                                                                             projectFile.kind);
             commandLine.emplace_back(projectFile.path);
             commandLines.push_back(commandLine);
         }

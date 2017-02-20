@@ -27,6 +27,7 @@
 #include "mockrefactoringclientcallback.h"
 #include "mocksearchhandle.h"
 
+#include <clangqueryprojectsfindfilter.h>
 #include <refactoringclient.h>
 #include <refactoringengine.h>
 #include <refactoringconnectionclient.h>
@@ -247,17 +248,14 @@ TEST_F(RefactoringClient, XXX)
 
 void RefactoringClient::SetUp()
 {
+    using Filter = ClangRefactoring::ClangQueryProjectsFindFilter;
+
     client.setRefactoringEngine(&engine);
 
     projectPart = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
     projectPart->files.push_back(projectFile);
 
-    commandLine = Utils::SmallStringVector{ClangCompilerOptionsBuilder::build(
-                projectPart.data(),
-                projectFile.kind,
-                ClangCompilerOptionsBuilder::PchUsage::None,
-                CLANG_VERSION,
-                CLANG_RESOURCE_DIR)};
+    commandLine = Filter::compilerArguments(projectPart.data(), projectFile.kind);
 
     client.setSearchHandle(&mockSearchHandle);
     client.setExpectedResultCount(1);

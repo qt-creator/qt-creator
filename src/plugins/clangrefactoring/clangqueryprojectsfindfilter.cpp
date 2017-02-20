@@ -107,6 +107,40 @@ void ClangQueryProjectsFindFilter::setUnsavedContent(
     this->unsavedContent = std::move(unsavedContent);
 }
 
+Utils::SmallStringVector ClangQueryProjectsFindFilter::compilerArguments(CppTools::ProjectPart *projectPart,
+                                                                         CppTools::ProjectFile::Kind fileKind)
+{
+    using CppTools::ClangCompilerOptionsBuilder;
+
+    ClangCompilerOptionsBuilder builder(*projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR);
+
+    builder.addWordWidth();
+    builder.addTargetTriple();
+    builder.addLanguageOption(fileKind);
+    builder.addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
+    builder.enableExceptions();
+
+    builder.addDefineToAvoidIncludingGccOrMinGwIntrinsics();
+    builder.addDefineFloat128ForMingw();
+    builder.addToolchainAndProjectDefines();
+    builder.undefineCppLanguageFeatureMacrosForMsvc2015();
+
+    builder.addPredefinedMacrosAndHeaderPathsOptions();
+    builder.addWrappedQtHeadersIncludePath();
+    builder.addPrecompiledHeaderOptions(ClangCompilerOptionsBuilder::PchUsage::None);
+    builder.addHeaderPathOptions();
+    builder.addProjectConfigFileInclude();
+
+    builder.addMsvcCompatibilityVersion();
+
+    builder.add("-fmessage-length=0");
+    builder.add("-fmacro-backtrace-limit=0");
+    builder.add("-w");
+    builder.add("-ferror-limit=1000000");
+
+    return Utils::SmallStringVector(builder.options());
+}
+
 namespace {
 
 Utils::SmallStringVector createCommandLine(CppTools::ProjectPart *projectPart,
@@ -115,12 +149,7 @@ Utils::SmallStringVector createCommandLine(CppTools::ProjectPart *projectPart,
 {
     using CppTools::ClangCompilerOptionsBuilder;
 
-    Utils::SmallStringVector commandLine{ClangCompilerOptionsBuilder::build(
-                    projectPart,
-                    fileKind,
-                    CppTools::CompilerOptionsBuilder::PchUsage::None,
-                    CLANG_VERSION,
-                    CLANG_RESOURCE_DIR)};
+    Utils::SmallStringVector commandLine = ClangQueryProjectsFindFilter::compilerArguments(projectPart, fileKind);
 
     commandLine.push_back(documentFilePath);
 

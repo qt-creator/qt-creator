@@ -69,6 +69,9 @@ public:
 
     void setUnsavedContent(std::vector<ClangBackEnd::V2::FileContainer> &&unsavedContent);
 
+    static Utils::SmallStringVector compilerArguments(CppTools::ProjectPart *projectPart,
+                                                      CppTools::ProjectFile::Kind fileKind);
+
 private:
     ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage createMessage(
             const QString &queryText) const;
