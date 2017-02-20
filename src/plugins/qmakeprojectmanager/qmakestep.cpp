@@ -192,8 +192,10 @@ bool QMakeStep::init(QList<const BuildStep *> &earlierSteps)
     QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
     const BaseQtVersion *qtVersion = QtKitInformation::qtVersion(target()->kit());
 
-    if (!qtVersion)
+    if (!qtVersion) {
+        emit addOutput(tr("No Qt version configured."), BuildStep::OutputFormat::ErrorMessage);
         return false;
+    }
 
     QString workingDirectory;
 
@@ -207,8 +209,12 @@ bool QMakeStep::init(QList<const BuildStep *> &earlierSteps)
     m_runMakeQmake = (qtVersion->qtVersion() >= QtVersionNumber(5, 0 ,0));
     if (m_runMakeQmake) {
         m_makeExecutable = makeCommand();
-        if (m_makeExecutable.isEmpty())
+        if (m_makeExecutable.isEmpty()) {
+            emit addOutput(tr("Could not determine which \"make\" command to run. "
+                              "Check the \"make\" step in the build configuration."),
+                           BuildStep::OutputFormat::ErrorMessage);
             return false;
+        }
         m_makeArguments = makeArguments();
     } else {
         m_makeExecutable.clear();
