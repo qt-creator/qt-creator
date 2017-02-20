@@ -43,28 +43,28 @@ LocalsAndExpressionsWindow::LocalsAndExpressionsWindow(QWidget *locals,
     layout->setMargin(0);
     layout->setSpacing(0);
 
-    m_splitter = new Core::MiniSplitter(Qt::Vertical);
-    layout->addWidget(m_splitter);
+    auto splitter = new Core::MiniSplitter(Qt::Vertical);
+    layout->addWidget(splitter);
 
-    m_localsAndInspector = new QStackedWidget();
-    m_localsAndInspector->addWidget(locals);
-    m_localsAndInspector->addWidget(inspector);
-    m_localsAndInspector->setCurrentWidget(inspector);
+    auto localsAndInspector = new QStackedWidget;
+    localsAndInspector->addWidget(locals);
+    localsAndInspector->addWidget(inspector);
+    localsAndInspector->setCurrentWidget(inspector);
 
-    m_splitter->addWidget(m_localsAndInspector);
-    m_splitter->addWidget(returnWidget);
-    m_splitter->addWidget(watchers);
+    splitter->addWidget(localsAndInspector);
+    splitter->addWidget(returnWidget);
+    splitter->addWidget(watchers);
 
-    m_splitter->setStretchFactor(0, 3);
-    m_splitter->setStretchFactor(2, 1);
-    m_splitter->setStretchFactor(3, 1);
+    splitter->setStretchFactor(0, 3);
+    splitter->setStretchFactor(2, 1);
+    splitter->setStretchFactor(3, 1);
 
     // Timer is to prevent flicker when switching between Inpector and Locals
     // when debugger engine changes states.
     m_timer.setSingleShot(true);
     m_timer.setInterval(500); // TODO: remove the magic number!
-    connect(&m_timer, &QTimer::timeout, [this] {
-        m_localsAndInspector->setCurrentIndex(m_showLocals ? LocalsIndex : InspectorIndex);
+    connect(&m_timer, &QTimer::timeout, [this, localsAndInspector] {
+        localsAndInspector->setCurrentIndex(m_showLocals ? LocalsIndex : InspectorIndex);
     });
 }
 
