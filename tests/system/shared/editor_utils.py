@@ -386,8 +386,11 @@ def openDocument(treeElement):
             expected = str(item.text).split("/")[-1]
             if waitFor("expected in str(mainWindow.windowTitle)", 5000):
                 return True
+        test.log("Expected file (%s) was not being opened in openDocument()" % expected)
         return False
     except:
+        t,v = sys.exc_info()[:2]
+        test.log("An exception occurred in openDocument(): %s(%s)" % (str(t), str(v)))
         return False
 
 def earlyExit(details="No additional information"):
