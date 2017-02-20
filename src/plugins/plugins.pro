@@ -88,7 +88,6 @@ exists($$LLVM_INSTALL_DIR) {
     SUBDIRS += clangcodemodel
 
     QTC_NO_CLANG_LIBTOOLING=$$(QTC_NO_CLANG_LIBTOOLING)
-    win32-msvc2015:lessThan(QT_CL_PATCH_VERSION, 24210): QTC_NO_CLANG_LIBTOOLING = 1
     isEmpty(QTC_NO_CLANG_LIBTOOLING) {
         SUBDIRS += clangrefactoring
         SUBDIRS += clangpchmanager
