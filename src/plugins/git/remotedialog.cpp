@@ -143,7 +143,7 @@ void RemoteDialog::addRemote()
 void RemoteDialog::removeRemote()
 {
     const QModelIndexList indexList = m_ui->remoteView->selectionModel()->selectedIndexes();
-    if (indexList.count() == 0)
+    if (indexList.isEmpty())
         return;
 
     int row = indexList.at(0).row();
@@ -159,7 +159,7 @@ void RemoteDialog::removeRemote()
 void RemoteDialog::pushToRemote()
 {
     const QModelIndexList indexList = m_ui->remoteView->selectionModel()->selectedIndexes();
-    if (indexList.count() == 0)
+    if (indexList.isEmpty())
         return;
 
     const int row = indexList.at(0).row();
@@ -170,7 +170,7 @@ void RemoteDialog::pushToRemote()
 void RemoteDialog::fetchFromRemote()
 {
     const QModelIndexList indexList = m_ui->remoteView->selectionModel()->selectedIndexes();
-    if (indexList.count() == 0)
+    if (indexList.isEmpty())
         return;
 
     int row = indexList.at(0).row();

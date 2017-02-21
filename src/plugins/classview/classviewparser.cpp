@@ -604,7 +604,7 @@ void Parser::setFileList(const QStringList &fileList)
 
 void Parser::removeFiles(const QStringList &fileList)
 {
-    if (fileList.count() == 0)
+    if (fileList.isEmpty())
         return;
 
     QWriteLocker lockerPrj(&d->prjLocker);

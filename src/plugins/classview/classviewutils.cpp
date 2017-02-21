@@ -119,7 +119,7 @@ int Utils::iconTypeSortOrder(int icon)
     static QHash<int, int> sortOrder;
 
     // initialization
-    if (sortOrder.count() == 0) {
+    if (sortOrder.isEmpty()) {
         for (unsigned i = 0 ;
              i < sizeof(Constants::IconSortOrder) / sizeof(Constants::IconSortOrder[0]) ; ++i)
             sortOrder.insert(Constants::IconSortOrder[i], sortOrder.count());

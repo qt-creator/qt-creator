@@ -164,7 +164,7 @@ void TaskModel::clearTasks(Core::Id categoryId)
     typedef QHash<Core::Id,CategoryData>::ConstIterator IdCategoryConstIt;
 
     if (!categoryId.isValid()) {
-        if (m_tasks.count() == 0)
+        if (m_tasks.isEmpty())
             return;
         beginRemoveRows(QModelIndex(), 0, m_tasks.count() -1);
         m_tasks.clear();

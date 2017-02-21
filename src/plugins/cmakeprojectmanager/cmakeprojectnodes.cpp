@@ -136,7 +136,7 @@ void CMakeTargetNode::setTargetInformation(const QList<Utils::FileName> &artifac
                                            const QString &type)
 {
     m_tooltip = QCoreApplication::translate("CMakeTargetNode", "Target type: ") + type + "<br>";
-    if (artifacts.count() == 0) {
+    if (artifacts.isEmpty()) {
         m_tooltip += QCoreApplication::translate("CMakeTargetNode", "No build artifacts");
     } else {
         const QStringList tmp = Utils::transform(artifacts, &Utils::FileName::toUserOutput);
