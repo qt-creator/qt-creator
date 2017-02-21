@@ -605,14 +605,22 @@ ObjectNodeInstance::Pointer ObjectNodeInstance::create(QObject *object)
 
 QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
-    QObject *object = QmlPrivateGate::createPrimitive(typeName, majorNumber, minorNumber, context);
+    QString polishTypeName = typeName;
+    if (typeName == "QtQuick.Controls/Popup"
+            || typeName == "QtQuick.Controls/Drawer"
+            || typeName == "QtQuick.Controls/Dialog"
+            || typeName == "QtQuick.Controls/Menu"
+            || typeName == "QtQuick.Controls/ToolTip")
+        polishTypeName = "QtQuick/Item";
+
+    QObject *object = QmlPrivateGate::createPrimitive(polishTypeName, majorNumber, minorNumber, context);
 
     /* Let's try to create the primitive from source, since with incomplete meta info this might be a pure
      * QML type. This is the case for example if a C++ type is mocked up with a QML file.
      */
 
     if (!object)
-        object = createPrimitiveFromSource(typeName, majorNumber, minorNumber, context);
+        object = createPrimitiveFromSource(polishTypeName, majorNumber, minorNumber, context);
 
     return object;
 }
