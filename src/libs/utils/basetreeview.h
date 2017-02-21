@@ -70,6 +70,7 @@ public:
 
     void showProgressIndicator();
     void hideProgressIndicator();
+    void resizeColumns();
 
 signals:
     void aboutToShow();

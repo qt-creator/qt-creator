@@ -3154,6 +3154,7 @@ void updateWatchersWindow(bool showWatch, bool showReturn)
 {
     dd->m_watchersWindow->setVisible(showWatch);
     dd->m_returnWindow->setVisible(showReturn);
+    dd->m_localsView->resizeColumns();
 }
 
 bool hasSnapshots()

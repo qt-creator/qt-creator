@@ -1126,7 +1126,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
                 m_expandedINames.remove(item->iname);
             }
             if (item->iname.contains('.'))
-                emit columnAdjustmentRequested();
+                m_handler->updateWatchersWindow();
             return true;
 
         case LocalsTypeFormatRole:
@@ -2347,8 +2347,6 @@ void WatchModel::clearWatches()
 
 void WatchHandler::updateWatchersWindow()
 {
-    emit m_model->columnAdjustmentRequested();
-
     // Force show/hide of watchers and return view.
     int showWatch = !theWatcherNames.isEmpty();
     int showReturn = m_model->m_returnRoot->childCount() != 0;

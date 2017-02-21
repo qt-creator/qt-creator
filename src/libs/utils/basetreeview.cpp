@@ -47,8 +47,6 @@ const char ColumnKey[] = "Columns";
 
 class BaseTreeViewPrivate : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit BaseTreeViewPrivate(BaseTreeView *parent)
         : q(parent), m_settings(0), m_expectUserChanges(false), m_progressIndicator(0)
@@ -169,7 +167,7 @@ public:
         return minimum;
     }
 
-    Q_SLOT void resizeColumns() // Needs moc, see BaseTreeView::setModel
+    void resizeColumns()
     {
         QHeaderView *h = q->header();
         QTC_ASSERT(h, return);
@@ -281,7 +279,6 @@ void BaseTreeView::setModel(QAbstractItemModel *m)
     };
 #define DESC(sign, receiver, slot) { #sign, SIGNAL(sign), receiver, SLOT(slot) }
     const ExtraConnection c[] = {
-        DESC(columnAdjustmentRequested(), d, resizeColumns()),
         DESC(requestExpansion(QModelIndex), this, expand(QModelIndex))
     };
 #undef DESC
@@ -406,6 +403,11 @@ void BaseTreeView::rowClicked(const QModelIndex &index)
     model()->setData(index, QVariant(), ItemClickedRole);
 }
 
+void BaseTreeView::resizeColumns()
+{
+    d->resizeColumns();
+}
+
 void BaseTreeView::setSettings(QSettings *settings, const QByteArray &key)
 {
     QTC_ASSERT(!d->m_settings, qDebug() << "DUPLICATED setSettings" << key);
@@ -454,5 +456,3 @@ QModelIndexList ItemViewEvent::currentOrSelectedRows() const
 }
 
 } // namespace Utils
-
-#include "basetreeview.moc"

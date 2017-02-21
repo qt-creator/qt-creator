@@ -50,7 +50,6 @@ signals:
     void currentIndexRequested(const QModelIndex &idx);
     void itemIsExpanded(const QModelIndex &idx);
     void inameIsExpanded(const QString &iname);
-    void columnAdjustmentRequested();
     void updateStarted();
     void updateFinished();
 };
