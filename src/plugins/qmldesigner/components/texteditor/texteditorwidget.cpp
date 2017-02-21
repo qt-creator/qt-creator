@@ -65,6 +65,7 @@ void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
     layout()->removeWidget(m_statusBar);
     layout()->addWidget(textEditor->editorWidget());
     layout()->addWidget(m_statusBar);
+    setFocusProxy(textEditor->editorWidget());
 
     connect(textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged,
             &m_updateSelectionTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
