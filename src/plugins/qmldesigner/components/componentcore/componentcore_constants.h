@@ -73,7 +73,7 @@ const char increaseIndexOfStackedContainerCommandId[] = "IncreaseIndexOfStackedC
 const char decreaseIndexOfStackedContainerCommandId[] = "decreaseIndexOfStackedContainer";
 
 const char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Selection");
-const char stackCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Stacked Container");
+const char stackCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Stack (z)");
 const char editCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit");
 const char anchorsCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Anchors");
 const char positionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Position");
