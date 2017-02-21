@@ -894,18 +894,18 @@ void SessionManagerPrivate::askUserAboutFailedProjects()
     if (!failedProjects.isEmpty()) {
         QString fileList =
             QDir::toNativeSeparators(failedProjects.join(QLatin1String("<br>")));
-        auto box = new QMessageBox(QMessageBox::Warning,
+        QMessageBox box(QMessageBox::Warning,
                                    SessionManager::tr("Failed to restore project files"),
                                    SessionManager::tr("Could not restore the following project files:<br><b>%1</b>").
                                    arg(fileList));
-        auto keepButton = new QPushButton(SessionManager::tr("Keep projects in Session"), box);
-        auto removeButton = new QPushButton(SessionManager::tr("Remove projects from Session"), box);
-        box->addButton(keepButton, QMessageBox::AcceptRole);
-        box->addButton(removeButton, QMessageBox::DestructiveRole);
+        auto keepButton = new QPushButton(SessionManager::tr("Keep projects in Session"), &box);
+        auto removeButton = new QPushButton(SessionManager::tr("Remove projects from Session"), &box);
+        box.addButton(keepButton, QMessageBox::AcceptRole);
+        box.addButton(removeButton, QMessageBox::DestructiveRole);
 
-        box->exec();
+        box.exec();
 
-        if (box->clickedButton() == removeButton)
+        if (box.clickedButton() == removeButton)
             m_failedProjects.clear();
     }
 }
