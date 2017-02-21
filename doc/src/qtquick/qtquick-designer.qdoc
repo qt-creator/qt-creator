@@ -154,10 +154,13 @@
     up.
 
     To change the stacking order of an item, right-click it in the navigator or
-    on the canvas and
-    select \uicontrol {Stack (z)}. You can raise or lower the stack value of an item
+    the \uicontrol {Form Editor} and select \uicontrol {Stacked Container}. You
+    can raise or lower the stack value of an item
     or move the item to the front or back of all its siblings. To remove the
     \c z property, select \uicontrol {Reset z Property}.
+
+    You can also use a \uicontrol StackLayout item (Qt Quick Controls 2) to
+    create a stacked view. For more information, see \l {Using Layouts}.
 
     \section2 Switching Parent Items
 

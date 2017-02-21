@@ -260,16 +260,38 @@
         \li \l{GridLayout}{Grid Layout} provides a way of dynamically arranging
             items in a grid.
 
+        \li \l{StackLayout}{Stack Layout} provides a stack of items where only
+            one item is visible at a time.
+
     \endlist
 
-    To lay out several items in a \uicontrol {Column Layout}, \uicontrol {Row Layout}, or
-    \uicontrol {Grid Layout}, select the items on the canvas, and then select
-    \uicontrol Layout in the context menu.
+    To lay out several items in a \uicontrol {Column Layout}, \uicontrol {Row Layout},
+    \uicontrol {Grid Layout}, or \uicontrol {Stack Layout}, select the items in
+    the \uicontrol {Form Editor}, and then select \uicontrol Layout in the
+    context menu.
 
     To make an item within a layout as wide as possible while respecting the
     given constraints, select the item on the canvas and then select
     \uicontrol Layout > \uicontrol {Fill Width} in the context menu. To make the item as
     high as possible, select \uicontrol {Fill Height}.
+
+    \section3 Editing Stack Layouts
+
+    \image qtquick-designer-stacked-view.png
+
+    To add items to a \uicontrol {Stack Layout}, select the
+    \inlineimage plus.png
+    button next to the type name in the \uicontrol {Form Editor}. To move
+    between items, select the \inlineimage prev.png
+    (\uicontrol Previous) and \inlineimage next.png
+    (\uicontrol Next) buttons.
+
+    To add a tab bar to a stack layout, select \uicontrol {Stacked Container} >
+    \uicontrol {Add Tab Bar}.
+
+    To raise or lower the stacking order of an item, select
+    \uicontrol {Stacked Container} > \uicontrol {Increase Index} or
+    \uicontrol {Decrease Index}.
 
     \section2 Organizing Items
 
