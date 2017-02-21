@@ -26,6 +26,7 @@
 ############################################################################
 
 import glob
+import json
 import logging
 import os
 import re
@@ -100,26 +101,25 @@ class Plugin(Library):
     def _parsePluginSpec(self, spec):
         dirname = os.path.dirname(spec)
         with open(spec) as f:
-            content = f.readlines()
-        for line in content:
-            m = re.search('(plugin|dependency)\s+name="([^"]+)"(?:.*\stype="([^"]+)")?', line)
-            if not(m):
-                continue
-            if m.group(1) == 'plugin':
-                if self.name != '':
-                    log.critical('Plugin name already set to "%s"!', self.name)
-                else:
-                    self.name = m.group(2)
-            else:
-                kind = m.group(3)
-                if not(kind):
-                    kind = 'strong'
-                self.specDependencies[m.group(2)] = kind
+            content = json.load(f)
+        self.name = content.get("Name")
+        dependencies = content.get("Dependencies")
+        if dependencies is not None:
+            for dep in dependencies:
+                depName = dep.get("Name")
+                depType = dep.get("Type")
+                if depName is None:
+                    log.critical("Unnamed dependency inside '%s'?" % spec)
+                    continue
+                if depType is None:
+                    depType = 'strong'
+                self.specDependencies[depName] = depType
 
-        if self.name == '':
+        if self.name is None or self.name == '':
             log.critical('Plugin name not set for spec "%s".', spec)
 
-        return os.path.join(dirname, "lib%s.so" % self.name)
+        return os.path.normpath(os.path.join(dirname, "..", "..", "..", "lib", "qtcreator",
+                                             "plugins", "lib%s.so" % self.name))
 
     def _parseNMline(self, line):
         m = re.search('^\s+ U (.*)$', line)
@@ -229,7 +229,11 @@ class BinaryDirExaminer:
             self.libraries.append(Library(l))
 
     def _findPlugins(self, path):
-        pluginspecs = glob.glob(os.path.join(path, "lib", "qtcreator", "plugins", "*.pluginspec"))
+        pluginspecs = glob.glob(os.path.join(path, "src", "plugins", "*", "*.json"))
+        if len(pluginspecs) == 0:
+            log.critical("This script only works for qmake builds that have not been installed "
+                         "already.")
+
         for spec in pluginspecs:
             log.debug('   Looking at plugin "%s".', spec)
             self.plugins.append(Plugin(spec))
