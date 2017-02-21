@@ -317,7 +317,7 @@ def qdump__QDateTime(d, value):
                 spec = (status & 0x30) >> 4
                 isValid = True
 
-            d.putValue('%s/%s/%s/%s/%s' % (msecs, spec, offsetFromUtc, timeZone, status),
+            d.putValue('%s/%s/%s/%s/%s/%s' % (msecs, spec, offsetFromUtc, timeZone, status, tiVersion),
                 'datetimeinternal')
         else:
             if d.isWindowsTarget():
@@ -344,7 +344,7 @@ def qdump__QDateTime(d, value):
                 else:
                     idBase = tzp + 2 * d.ptrSize() # [QSharedData] + [vptr]
                     elided, tz = d.encodeByteArrayHelper(d.extractPointer(idBase), limit=100)
-                d.putValue('%s/%s/%s/%s/%s' % (msecs, spec, offset, tz, status),
+                d.putValue('%s/%s/%s/%s/%s/%s' % (msecs, spec, offset, tz, status, 0),
                     'datetimeinternal')
     else:
         # This relies on the Qt4/Qt5 internal structure layout:

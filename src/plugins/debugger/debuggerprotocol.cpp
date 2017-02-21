@@ -512,7 +512,7 @@ static QTime timeFromData(int ms)
 }
 
 // Stolen and adapted from qdatetime.cpp
-static void getDateTime(qint64 msecs, int status, QDate *date, QTime *time)
+static void getDateTime(qint64 msecs, int status, QDate *date, QTime *time, int tiVersion)
 {
     enum {
         SECS_PER_DAY = 86400,
@@ -554,8 +554,8 @@ static void getDateTime(qint64 msecs, int status, QDate *date, QTime *time)
         ds = msecs;
     }
 
-    *date = (status & NullDate) ? QDate() : QDate::fromJulianDay(jd);
-    *time = (status & NullTime) ? QTime() : QTime::fromMSecsSinceStartOfDay(ds);
+    *date = ((status & NullDate) && tiVersion < 14) ? QDate() : QDate::fromJulianDay(jd);
+    *time = ((status & NullTime) && tiVersion < 14) ? QTime() : QTime::fromMSecsSinceStartOfDay(ds);
 }
 
 QString decodeData(const QString &ba, const QString &encoding)
@@ -671,6 +671,7 @@ QString decodeData(const QString &ba, const QString &encoding)
             int p1 = ba.indexOf('/', p0 + 1);
             int p2 = ba.indexOf('/', p1 + 1);
             int p3 = ba.indexOf('/', p2 + 1);
+            int p4 = ba.indexOf('/', p3 + 1);
 
             qint64 msecs = ba.left(p0).toLongLong();
             ++p0;
@@ -680,11 +681,13 @@ QString decodeData(const QString &ba, const QString &encoding)
             ++p2;
             QByteArray timeZoneId = QByteArray::fromHex(ba.mid(p2, p3 - p2).toUtf8());
             ++p3;
-            int status = ba.mid(p3).toInt();
+            int status = ba.mid(p3, p4 - p3).toInt();
+            ++p4;
+            int tiVersion = ba.mid(p4).toInt();
 
             QDate date;
             QTime time;
-            getDateTime(msecs, status, &date, &time);
+            getDateTime(msecs, status, &date, &time, tiVersion);
 
             QDateTime dateTime;
             if (spec == Qt::OffsetFromUTC) {
