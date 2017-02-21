@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -100,5 +100,7 @@
     enabled in its SSH daemon. Some versions of Dropbear that come without SFTP
     support will crash when an SFTP upload is being attempted. This is not a bug
     in \QC.
+
+    \include creator-projects-cmake-deploying.qdocinc cmake deploying embedded
 
 */

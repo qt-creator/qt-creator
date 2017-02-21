@@ -30,44 +30,51 @@
 // **********************************************************************
 
 /*!
-    \contentspage {Qt Creator Manual}
-    \previouspage creator-os-supported-platforms.html
-    \page creator-project-other.html
-    \nextpage creator-project-cmake.html
+//! [cmake build configuration]
 
-    \title Using Other Build Systems
+    \section2 CMake Build Configuration
 
-    Most \QC project wizards enable you to choose the build system to use for
-    building the project: qmake, CMake, or Qbs. qmake is installed and
-    configured when you install Qt. To use one of the other supported build
-    systems, you need to set it up, as described in the the following sections:
+    \image qtcreator-cmake-build-settings.png
 
-    \list
+    To view all settings, select the \uicontrol Advanced check box.
 
-        \li \l{Setting Up CMake}
+    To modify the value of a build setting, select it, and then select
+    \uicontrol Edit. The new value is displayed in italics until you save the
+    changes by selecting \uicontrol {Apply Configuration Changes}. Any
+    configuration change might trigger a follow-up configuration change, so keep
+    saving until no more values are displayed in italics.
 
-            CMake is an alternative to qmake for automating the generation of
-            build configurations.
 
-        \li \l{Setting Up a Qbs Project}
+//! [cmake build configuration]
 
-            \l{Qbs Manual}{Qbs} is an all-in-one build
-            tool that generates a build graph from a high-level project
-            description (like qmake or CMake do) and executes the commands in
-            the low-level build graph (like make does).
 
-        \li \l{Setting Up an Autotools Project}
+//! [cmake build steps]
 
-            \QC can open projects that use the Autotools build system. You can
-            build and run the projects directly from \QC.
+    \section2 CMake Build Steps
 
-        \li \l{Setting Up a Generic Project}
+    \QC builds CMake projects by running \c {cmake . --build}, which then runs
+    run whatever is needed based on how the project was configured: \c make,
+    \c mingw32-make, \c nmake, or \c ninja, for example.
 
-            \QC supports generic projects, so you can import existing projects
-            that do not use qmake or CMake. This enables you to use \QC as a
-            code editor and to fully control the steps and commands used to
-            build the project.
+    You can add arguments and targets for the build command in
+    \uicontrol {Build Steps}.
 
-    \endlist
+    \image qtcreator-cmake-build-steps.png
 
+//! [cmake build steps]
+
+
+//! [cmake clean steps]
+
+    \section2 CMake Clean Steps
+
+    When building with CMake, you can add arguments and targets for the clean
+    command in \uicontrol {Clean Steps}.
+
+    \image qtcreator-cmake-clean-steps.png
+
+    The build errors and warnings are parsed and displayed in the
+    \uicontrol Issues output pane.
+
+//! [cmake clean steps]
 */

@@ -1,6 +1,7 @@
+
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -76,8 +77,10 @@
     \list 1
 
         \li Select \uicontrol File > \uicontrol {Open File or Project}
-            (\key Ctrl+O or \key Cmd+O on \macos) and select the project to
-            open.
+            (\key Ctrl+O or \key Cmd+O on \macos) and select the project file
+            for the project to open: \e {.pro} (qmake), \e {CMakeLists.txt}
+            (CMake), \e {.qbs} (Qbs), or \e {Makefile.am} (Autotools,
+            experimental).
 
         \li In the \uicontrol {Configure Project} tab, select kits for building and running your
             project, and click \uicontrol {Configure Project}.

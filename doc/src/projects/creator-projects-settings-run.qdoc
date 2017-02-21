@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -46,11 +46,12 @@
     Click \uicontrol Add to add run settings for a project and \uicontrol Remove to remove
     the current settings.
 
-    \section1 Specifying Run Settings for qmake Projects
-
     The run configurations for qmake projects derive their executable from the
     parsed .pro files. For more information on how the commands are constructed,
     see \l{Starting External Processes}.
+
+    \QC automatically adds run configurations for all targets specified in the
+    CMake project file, \c {CMakeLists.txt}.
 
     \section2 Creating Run Configurations for Subprojects
 

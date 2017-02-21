@@ -1,0 +1,103 @@
+/****************************************************************************
+**
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+//! [cmake deploying embedded]
+
+    \section1 Deploying CMake Projects to Embedded Linux Devices
+
+    \QC cannot extract files to be installed from a CMake project, and
+    therefore, only executable targets are automatically added to deployment
+    files. You must specify all other files in the \c {QtCreatorDeployment.txt}
+    file that you create and place in either the root directory of the CMake
+    project or the build directory of the active build configuration.
+    Currently, \QC first checks the root directory and only if no
+    \c {QtCreatorDeployment.txt} exists it checks the active build directory.
+
+    Use the following syntax in the file:
+
+    \code
+    <deployment/prefix>
+    <relative/source/file1>:<relative/destination/dir1>
+    ...
+    <relative/source/filen>:<relative/destination/dirn>
+    \endcode
+
+    Where:
+
+    \list
+
+        \li \c {<deployment/prefix>} is the (absolute) path prefix to where
+            files are copied on the remote machine.
+
+        \li \c {<relative/source/file>} is the file path relative to the CMake
+            project root. No directories or wildcards are allowed in this
+            value.
+
+        \li \c {<relative/destination/dir>} is the destination directory path
+            relative to \c {deployment/prefix}.
+
+    \endlist
+
+    To automate the creation of \c {QtCreatorDeployment.txt} file:
+
+    \list 1
+
+        \li Define the following macros in the top level \c {CMakeLists.txt}
+            file:
+
+            \code
+            file(WRITE "${CMAKE_SOURCE_DIR}/QtCreatorDeployment.txt" "<deployment/prefix>\n")
+
+            macro(add_deployment_file SRC DEST)
+                file(RELATIVE_PATH path ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+                file(APPEND "${CMAKE_SOURCE_DIR}/QtCreatorDeployment.txt" "${path}/${SRC}:${DEST}\n")
+            endmacro()
+
+            macro(add_deployment_directory SRC DEST)
+                file(GLOB_RECURSE files RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${SRC}/*")
+                foreach(filename ${files})
+                    get_filename_component(path ${filename} PATH)
+                    add_deployment_file("${filename}" "${DEST}/${path}")
+                endforeach(filename)
+            endmacro()
+            \endcode
+
+        \li Use \c {add_deployment_file(<file/name>)} to add files and
+            \c {add_deployment_directory(<folder/name>)} to add directories
+             (including subdirectories) to the \c QtCreatorDeployment.txt file.
+
+        \li Re-run \c cmake after you add or remove files using the macros.
+
+    \endlist
+
+//! [cmake deploying embedded]
+*/
