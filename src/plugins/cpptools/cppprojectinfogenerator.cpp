@@ -175,9 +175,11 @@ ProjectInfo ProjectInfoGenerator::generate()
     return m_projectInfo;
 }
 
-static ProjectPart::Ptr projectPartFromRawProjectPart(const RawProjectPart &rawProjectPart)
+static ProjectPart::Ptr projectPartFromRawProjectPart(const RawProjectPart &rawProjectPart,
+                                                      ProjectExplorer::Project *project)
 {
     ProjectPart::Ptr part(new ProjectPart);
+    part->project = project;
     part->projectFile = rawProjectPart.projectFile;
     part->projectConfigFile = rawProjectPart.projectConfigFile;
     part->qtVersion = rawProjectPart.qtVersion;
@@ -196,7 +198,8 @@ void ProjectInfoGenerator::createProjectParts(const RawProjectPart &rawProjectPa
                                rawProjectPart.fileClassifier);
 
     if (cat.hasParts()) {
-        const ProjectPart::Ptr part = projectPartFromRawProjectPart(rawProjectPart);
+        const ProjectPart::Ptr part = projectPartFromRawProjectPart(rawProjectPart,
+                                                                    m_projectUpdateInfo.project);
 
         if (cat.hasCxxSources()) {
             createProjectPart(rawProjectPart,
