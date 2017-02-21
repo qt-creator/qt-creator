@@ -122,7 +122,7 @@ TestConfiguration *QuickTestTreeItem::testConfiguration() const
             testFunctions << name() + "::" + childItem(row)->name();
         config = new QuickTestConfiguration;
         config->setTestCases(testFunctions);
-        config->setProFile(proFile());
+        config->setProjectFile(proFile());
         config->setProject(project);
         break;
     }
@@ -131,7 +131,7 @@ TestConfiguration *QuickTestTreeItem::testConfiguration() const
         QStringList testFunction(parent->name() + "::" + name());
         config = new QuickTestConfiguration;
         config->setTestCases(testFunction);
-        config->setProFile(parent->proFile());
+        config->setProjectFile(parent->proFile());
         config->setProject(project);
         break;
     }
@@ -171,7 +171,7 @@ QList<TestConfiguration *> QuickTestTreeItem::getAllTestConfigurations() const
     for ( ; it != end; ++it) {
         QuickTestConfiguration *tc = new QuickTestConfiguration;
         tc->setTestCaseCount(it.value());
-        tc->setProFile(it.key());
+        tc->setProjectFile(it.key());
         tc->setProject(project);
         result << tc;
     }
@@ -201,7 +201,7 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
                 tc = new QuickTestConfiguration;
                 tc->setTestCaseCount(1);
                 tc->setUnnamedOnly(true);
-                tc->setProFile(proFile);
+                tc->setProjectFile(proFile);
                 tc->setProject(project);
                 foundProFiles.insert(proFile, tc);
             }
@@ -244,7 +244,7 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
             } else {
                 tc = new QuickTestConfiguration;
                 tc->setTestCases(testFunctions);
-                tc->setProFile(child->proFile());
+                tc->setProjectFile(child->proFile());
                 tc->setProject(project);
                 foundProFiles.insert(child->proFile(), tc);
             }

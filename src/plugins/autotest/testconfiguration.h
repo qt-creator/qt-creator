@@ -59,9 +59,8 @@ public:
 
     void setTestCases(const QStringList &testCases);
     void setTestCaseCount(int count);
-    void setTargetFile(const QString &targetFile);
-    void setTargetName(const QString &targetName);
-    void setProFile(const QString &proFile);
+    void setExecutableFile(const QString &executableFile);
+    void setProjectFile(const QString &projectFile);
     void setWorkingDirectory(const QString &workingDirectory);
     void setBuildDirectory(const QString &buildDirectory);
     void setDisplayName(const QString &displayName);
@@ -71,10 +70,7 @@ public:
 
     QStringList testCases() const { return m_testCases; }
     int testCaseCount() const { return m_testCaseCount; }
-    QString proFile() const { return m_proFile; }
-    QString targetFile() const { return m_targetFile; }
     QString executableFilePath() const;
-    QString targetName() const { return m_targetName; }
     QString workingDirectory() const;
     QString buildDirectory() const { return m_buildDir; }
     QString displayName() const { return m_displayName; }
@@ -90,9 +86,8 @@ public:
 private:
     QStringList m_testCases;
     int m_testCaseCount = 0;
-    QString m_proFile;
-    QString m_targetFile;
-    QString m_targetName;
+    QString m_projectFile;
+    QString m_executableFile;
     QString m_workingDir;
     QString m_buildDir;
     QString m_displayName;

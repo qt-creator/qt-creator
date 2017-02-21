@@ -87,13 +87,13 @@ static bool isLocal(RunConfiguration *runConfiguration)
 
 void TestConfiguration::completeTestInformation(int runMode)
 {
-    QTC_ASSERT(!m_proFile.isEmpty(), return);
+    QTC_ASSERT(!m_projectFile.isEmpty(), return);
 
     Project *project = SessionManager::startupProject();
     if (!project)
         return;
 
-    QString targetFile;
+    QString executable;
     QString targetName;
     QString workDir;
     QString displayName = m_displayName;
@@ -105,7 +105,7 @@ void TestConfiguration::completeTestInformation(int runMode)
     bool guessedRunConfiguration = false;
     setProject(0);
 
-    completeBasicProjectInformation(project, m_proFile, &displayName, &targetProject);
+    completeBasicProjectInformation(project, m_projectFile, &displayName, &targetProject);
 
     Target *target = project->activeTarget();
     if (!target)
@@ -115,10 +115,10 @@ void TestConfiguration::completeTestInformation(int runMode)
     if (m_displayName.isEmpty()) {
         foreach (const BuildTargetInfo &bti, appTargets.list) {
             // some project manager store line/column information as well inside ProjectPart
-            if (bti.isValid() && m_proFile.startsWith(bti.projectFilePath.toString())) {
-                targetFile = bti.targetFilePath.toString();
-                if (Utils::HostOsInfo::isWindowsHost() && !targetFile.toLower().endsWith(".exe"))
-                    targetFile = Utils::HostOsInfo::withExecutableSuffix(targetFile);
+            if (bti.isValid() && m_projectFile.startsWith(bti.projectFilePath.toString())) {
+                executable = bti.targetFilePath.toString();
+                if (Utils::HostOsInfo::isWindowsHost() && !executable.toLower().endsWith(".exe"))
+                    executable = Utils::HostOsInfo::withExecutableSuffix(executable);
                 targetName = bti.targetName;
                 break;
             }
@@ -127,7 +127,7 @@ void TestConfiguration::completeTestInformation(int runMode)
         foreach (const BuildTargetInfo &bti, appTargets.list) {
             if (bti.isValid() && m_displayName == bti.targetName) {
                 // for CMake base projects targetFilePath has executable suffix already
-                targetFile = bti.targetFilePath.toString();
+                executable = bti.targetFilePath.toString();
                 targetName = m_displayName;
                 break;
             }
@@ -138,8 +138,8 @@ void TestConfiguration::completeTestInformation(int runMode)
         if (auto buildConfig = target->activeBuildConfiguration()) {
             const QString buildBase = buildConfig->buildDirectory().toString();
             const QString projBase = targetProject->projectDirectory().toString();
-            if (m_proFile.startsWith(projBase))
-                buildDir = QFileInfo(buildBase + m_proFile.mid(projBase.length())).absolutePath();
+            if (m_projectFile.startsWith(projBase))
+                buildDir = QFileInfo(buildBase + m_projectFile.mid(projBase.length())).absolutePath();
         }
     }
 
@@ -149,11 +149,11 @@ void TestConfiguration::completeTestInformation(int runMode)
         if (isLocal(rc) && runnable.is<StandardRunnable>()) {
             StandardRunnable stdRunnable = runnable.as<StandardRunnable>();
             // we might have an executable that gets installed - in such a case the
-            // runnable's executable and targetFile won't match - but the (unique) display name
+            // runnable's executable and executable won't match - but the (unique) display name
             // of the run configuration should match targetName
-            if (stdRunnable.executable == targetFile
+            if (stdRunnable.executable == executable
                     || (!targetName.isEmpty() && rc->displayName() == targetName)) {
-                targetFile = stdRunnable.executable;
+                executable = stdRunnable.executable;
                 workDir = Utils::FileUtils::normalizePathName(stdRunnable.workingDirectory);
                 env = stdRunnable.environment;
                 hasDesktopTarget = true;
@@ -165,7 +165,7 @@ void TestConfiguration::completeTestInformation(int runMode)
 
     // if we could not figure out the run configuration
     // try to use the run configuration of the parent project
-    if (!hasDesktopTarget && targetProject && !targetFile.isEmpty()) {
+    if (!hasDesktopTarget && targetProject && !executable.isEmpty()) {
         if (auto rc = target->activeRunConfiguration()) {
             Runnable runnable = rc->runnable();
             if (isLocal(rc) && runnable.is<StandardRunnable>()) {
@@ -182,8 +182,7 @@ void TestConfiguration::completeTestInformation(int runMode)
     setDisplayName(displayName);
 
     if (hasDesktopTarget) {
-        setTargetFile(targetFile);
-        setTargetName(targetName);
+        setExecutableFile(executable);
         setWorkingDirectory(workDir);
         setBuildDirectory(buildDir);
         setEnvironment(env);
@@ -215,19 +214,14 @@ void TestConfiguration::setTestCaseCount(int count)
     m_testCaseCount = count;
 }
 
-void TestConfiguration::setTargetFile(const QString &targetFile)
+void TestConfiguration::setExecutableFile(const QString &executableFile)
 {
-    m_targetFile = targetFile;
+    m_executableFile = executableFile;
 }
 
-void TestConfiguration::setTargetName(const QString &targetName)
+void TestConfiguration::setProjectFile(const QString &projectFile)
 {
-    m_targetName = targetName;
-}
-
-void TestConfiguration::setProFile(const QString &proFile)
-{
-    m_proFile = proFile;
+    m_projectFile = projectFile;
 }
 
 void TestConfiguration::setWorkingDirectory(const QString &workingDirectory)
@@ -262,16 +256,14 @@ void TestConfiguration::setGuessedConfiguration(bool guessed)
 
 QString TestConfiguration::executableFilePath() const
 {
-    if (m_targetFile.isEmpty())
+    if (m_executableFile.isEmpty())
         return QString();
 
-    QFileInfo commandFileInfo(m_targetFile);
+    QFileInfo commandFileInfo(m_executableFile);
     if (commandFileInfo.isExecutable() && commandFileInfo.path() != ".") {
         return commandFileInfo.absoluteFilePath();
     } else if (commandFileInfo.path() == "."){
-        QString fullCommandFileName = m_targetFile;
-        if (Utils::HostOsInfo::isWindowsHost() && !m_targetFile.endsWith(".exe"))
-            fullCommandFileName = m_targetFile + ".exe";
+        QString fullCommandFileName = m_executableFile;
         // TODO: check if we can use searchInPath() from Utils::Environment
         const QStringList &pathList = m_environment.toProcessEnvironment().value("PATH").split(
                     Utils::HostOsInfo::pathListSeparator());

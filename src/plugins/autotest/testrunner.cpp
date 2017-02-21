@@ -134,7 +134,7 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
         if (commandFilePath.isEmpty()) {
             futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
                 TestRunner::tr("Could not find command \"%1\". (%2)")
-                                                   .arg(testConfiguration->targetFile())
+                                                   .arg(testConfiguration->executableFilePath())
                                                    .arg(testConfiguration->displayName()))));
             continue;
         }
@@ -294,7 +294,7 @@ void TestRunner::debugTests()
     if (commandFilePath.isEmpty()) {
         emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
             TestRunner::tr("Could not find command \"%1\". (%2)")
-                                               .arg(config->targetFile())
+                                               .arg(config->executableFilePath())
                                                .arg(config->displayName()))));
         onFinished();
         return;

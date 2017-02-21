@@ -86,7 +86,7 @@ TestConfiguration *GTestTreeItem::testConfiguration() const
             config = new GTestConfiguration;
             config->setTestCases(QStringList(testSpecifier));
             config->setTestCaseCount(count);
-            config->setProFile(proFile());
+            config->setProjectFile(proFile());
             config->setProject(project);
             // item has no filePath set - so take it of the first children
             config->setDisplayName(
@@ -101,7 +101,7 @@ TestConfiguration *GTestTreeItem::testConfiguration() const
         const QString &testSpecifier = gtestFilter(parent->state()).arg(parent->name()).arg(name());
         config = new GTestConfiguration;
         config->setTestCases(QStringList(testSpecifier));
-        config->setProFile(proFile());
+        config->setProjectFile(proFile());
         config->setProject(project);
         config->setDisplayName(
                     TestUtils::getCMakeDisplayNameIfNecessary(filePath(), parent->proFile()));
@@ -178,7 +178,7 @@ QList<TestConfiguration *> GTestTreeItem::getAllTestConfigurations() const
         const ProFileWithDisplayName &key = it.key();
         GTestConfiguration *tc = new GTestConfiguration;
         tc->setTestCaseCount(it.value());
-        tc->setProFile(key.proFile);
+        tc->setProjectFile(key.proFile);
         tc->setDisplayName(key.displayName);
         tc->setProject(project);
         result << tc;
@@ -243,7 +243,7 @@ QList<TestConfiguration *> GTestTreeItem::getSelectedTestConfigurations() const
         GTestConfiguration *tc = new GTestConfiguration;
         tc->setTestCases(it.value().filters);
         tc->setTestCaseCount(tc->testCaseCount() + it.value().additionalTestCaseCount);
-        tc->setProFile(proFileWithDisplayName.proFile);
+        tc->setProjectFile(proFileWithDisplayName.proFile);
         tc->setDisplayName(proFileWithDisplayName.displayName);
         tc->setProject(project);
         result << tc;

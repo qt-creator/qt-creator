@@ -109,7 +109,7 @@ TestConfiguration *QtTestTreeItem::testConfiguration() const
     case TestCase:
         config = new QtTestConfiguration;
         config->setTestCaseCount(childCount());
-        config->setProFile(proFile());
+        config->setProjectFile(proFile());
         config->setProject(project);
         config->setDisplayName(TestUtils::getCMakeDisplayNameIfNecessary(filePath(), proFile()));
         break;
@@ -117,7 +117,7 @@ TestConfiguration *QtTestTreeItem::testConfiguration() const
         TestTreeItem *parent = parentItem();
         config = new QtTestConfiguration();
         config->setTestCases(QStringList(name()));
-        config->setProFile(parent->proFile());
+        config->setProjectFile(parent->proFile());
         config->setProject(project);
         config->setDisplayName(
                 TestUtils::getCMakeDisplayNameIfNecessary(filePath(), parent->proFile()));
@@ -131,7 +131,7 @@ TestConfiguration *QtTestTreeItem::testConfiguration() const
         const QString functionWithTag = function->name() + ':' + name();
         config = new QtTestConfiguration();
         config->setTestCases(QStringList(functionWithTag));
-        config->setProFile(parent->proFile());
+        config->setProjectFile(parent->proFile());
         config->setProject(project);
         config->setDisplayName(TestUtils::getCMakeDisplayNameIfNecessary(filePath(),
                                                                          parent->proFile()));
@@ -164,7 +164,7 @@ QList<TestConfiguration *> QtTestTreeItem::getAllTestConfigurations() const
 
         TestConfiguration *tc = new QtTestConfiguration();
         tc->setTestCaseCount(child->childCount());
-        tc->setProFile(child->proFile());
+        tc->setProjectFile(child->proFile());
         tc->setProject(project);
         tc->setDisplayName(TestUtils::getCMakeDisplayNameIfNecessary(child->filePath(),
                                                                      child->proFile()));
@@ -191,7 +191,7 @@ QList<TestConfiguration *> QtTestTreeItem::getSelectedTestConfigurations() const
         case Qt::Checked:
             testConfiguration = new QtTestConfiguration();
             testConfiguration->setTestCaseCount(child->childCount());
-            testConfiguration->setProFile(child->proFile());
+            testConfiguration->setProjectFile(child->proFile());
             testConfiguration->setProject(project);
             testConfiguration->setDisplayName(
                     TestUtils::getCMakeDisplayNameIfNecessary(child->filePath(), child->proFile()));
@@ -218,7 +218,7 @@ QList<TestConfiguration *> QtTestTreeItem::getSelectedTestConfigurations() const
 
             testConfiguration = new QtTestConfiguration();
             testConfiguration->setTestCases(testCases);
-            testConfiguration->setProFile(child->proFile());
+            testConfiguration->setProjectFile(child->proFile());
             testConfiguration->setProject(project);
             testConfiguration->setDisplayName(
                     TestUtils::getCMakeDisplayNameIfNecessary(child->filePath(), child->proFile()));
