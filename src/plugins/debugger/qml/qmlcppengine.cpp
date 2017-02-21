@@ -254,6 +254,11 @@ void QmlCppEngine::attemptBreakpointSynchronization()
     }
 }
 
+void QmlCppEngine::doUpdateLocals(const UpdateParameters &up)
+{
+    m_activeEngine->doUpdateLocals(up);
+}
+
 bool QmlCppEngine::acceptsBreakpoint(Breakpoint bp) const
 {
     return m_cppEngine->acceptsBreakpoint(bp)

@@ -107,6 +107,7 @@ protected:
     void executeRunToFunction(const QString &functionName) override;
     void executeJumpToLine(const ContextData &data) override;
     void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
+    void doUpdateLocals(const UpdateParameters &up) override;
 
     void setupEngine() override;
     void setupInferior() override;
