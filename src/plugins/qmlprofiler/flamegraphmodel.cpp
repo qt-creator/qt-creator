@@ -108,7 +108,6 @@ void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
     QStack<QmlEvent> &stack =  isCompiling ? m_compileStack : m_callStack;
     FlameGraphData *&stackTop = isCompiling ? m_compileStackTop : m_callStackTop;
 
-    const QmlEvent *potentialParent = &(stack.top());
     if (type.message() == MemoryAllocation) {
         if (type.detailType() == HeapPage)
             return; // We're only interested in actual allocations, not heap pages being mmap'd
@@ -123,10 +122,9 @@ void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
         }
 
     } else if (event.rangeStage() == RangeEnd) {
-        stackTop->duration += event.timestamp() - potentialParent->timestamp();
+        stackTop->duration += event.timestamp() - stack.top().timestamp();
         stack.pop();
         stackTop = stackTop->parent;
-        potentialParent = &(stack.top());
     } else {
         QTC_ASSERT(event.rangeStage() == RangeStart, return);
         stack.push(event);
