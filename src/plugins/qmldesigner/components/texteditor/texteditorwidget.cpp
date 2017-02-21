@@ -115,6 +115,7 @@ void TextEditorWidget::jumpTextCursorToSelectedModelNode()
             }
         }
     }
+    m_updateSelectionTimer.stop();
 }
 
 void TextEditorWidget::gotoCursorPosition(int line, int column)
