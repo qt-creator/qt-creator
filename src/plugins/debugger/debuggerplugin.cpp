@@ -920,8 +920,12 @@ public:
         else
             exp = fixCppExpression(exp);
         exp = exp.trimmed();
-        if (exp.isEmpty())
+        if (exp.isEmpty()) {
+            // Happens e.g. when trying to evaluate 'char' or 'return'.
+            AsynchronousMessageBox::warning(tr("Warning"),
+                tr("Select a valid expression to evaluate."));
             return;
+        }
         currentEngine()->watchHandler()->watchVariable(exp);
     }
 
