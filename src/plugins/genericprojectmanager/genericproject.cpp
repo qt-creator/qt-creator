@@ -363,6 +363,7 @@ void GenericProject::refreshCppCodeModel()
     }
 
     CppTools::RawProjectPart rpp;
+    rpp.setDisplayName(displayName());
     rpp.setProjectFile(projectFilePath().toString());
     rpp.setQtVersion(activeQtVersion);
     rpp.setIncludePaths(projectIncludePaths());

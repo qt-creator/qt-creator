@@ -288,6 +288,7 @@ void AutotoolsProject::updateCppCodeModel()
     m_cppCodeModelUpdater->cancel();
 
     CppTools::RawProjectPart rpp;
+    rpp.setDisplayName(displayName());
     rpp.setProjectFile(projectFilePath().toString());
 
     CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
