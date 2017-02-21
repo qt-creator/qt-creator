@@ -367,7 +367,7 @@ bool QmlProfilerModelManager::replayEvents(qint64 rangeStart, qint64 rangeEnd,
 void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::dispatch(const QmlEvent &event,
                                                                        const QmlEventType &type)
 {
-    foreach (const EventLoader &loader, eventLoaders[type.feature()])
+    for (const EventLoader &loader : eventLoaders.value(type.feature()))
         loader(event, type);
     ++numLoadedEvents;
 }
