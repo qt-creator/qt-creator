@@ -230,6 +230,32 @@ static bool symbolIdentical(Symbol *s1, Symbol *s2)
     return QByteArray(s1->fileName()) == QByteArray(s2->fileName());
 }
 
+static const Name *toName(const QList<const Name *> &names, Control *control)
+{
+    const Name *n = 0;
+    for (int i = names.size() - 1; i >= 0; --i) {
+        if (! n)
+            n = names.at(i);
+        else
+            n = control->qualifiedNameId(names.at(i), n);
+    }
+
+    return n;
+}
+
+static bool isInlineNamespace(ClassOrNamespace *con, const Name *name)
+{
+    const QList<LookupItem> items = con->find(name);
+    if (!items.isEmpty()) {
+        if (const Symbol *declaration = items.first().declaration() ) {
+            if (const Namespace *ns = declaration->asNamespace())
+                return ns->isInline();
+        }
+    }
+
+    return false;
+}
+
 const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target, Control *control)
 {
     const Name *n = 0;
@@ -245,8 +271,17 @@ const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target,
         if (target) {
             const QList<LookupItem> tresults = target->lookup(n);
             foreach (const LookupItem &tr, tresults) {
-                if (symbolIdentical(tr.declaration(), symbol))
-                    return n;
+                if (symbolIdentical(tr.declaration(), symbol)) {
+                    // eliminate inline namespaces
+                    QList<const Name *> minimal = names.mid(i);
+                    for (int i = minimal.size() - 2; i >= 0; --i) {
+                        const Name *candidate = toName(minimal.mid(0, i + 1), control);
+                        if (isInlineNamespace(target, candidate))
+                            minimal.removeAt(i);
+                    }
+
+                    return toName(minimal, control);
+                }
             }
         }
     }

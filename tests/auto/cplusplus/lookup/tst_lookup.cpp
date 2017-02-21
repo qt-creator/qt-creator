@@ -32,6 +32,7 @@
 #include <cplusplus/Literals.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Name.h>
+#include <cplusplus/NamePrettyPrinter.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/Symbols.h>
@@ -99,6 +100,9 @@ private slots:
     void templates_3();
     void templates_4();
     void templates_5();
+
+    void minimalname_data();
+    void minimalname();
 };
 
 void tst_Lookup::base_class_defined_1()
@@ -629,6 +633,48 @@ void tst_Lookup::templates_5()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
+}
+
+void tst_Lookup::minimalname_data()
+{
+    QTest::addColumn<QByteArray>("source");
+    QTest::addColumn<int>("index");
+
+    QTest::newRow("inlineNamespace1")
+            << QByteArray("namespace std { inline namespace __cxx11 { class string{}; } }\n")
+            << 0;
+
+    // This case is extracted from libstdc++ 5.4.0.
+    // The inline namespace is re-opened as non-inline, which is not standard
+    // compliant. However, gcc does this and clang only issues a warning.
+    QTest::newRow("inlineNamespace2")
+            << QByteArray("namespace std { inline namespace __cxx11 {} }\n"
+                          "namespace std { namespace __cxx11 { class string{}; } }\n")
+            << 1;
+}
+
+void tst_Lookup::minimalname()
+{
+    QFETCH(QByteArray, source);
+    QFETCH(int, index);
+
+    Document::Ptr doc = Document::create("minimalname");
+    doc->setUtf8Source(source);
+    doc->parse();
+    doc->check();
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+    LookupContext ctx(doc, snapshot);
+    Control control;
+    Symbol *symbol = doc->globalSymbolAt(unsigned(index))
+            ->asNamespace()->memberAt(0)->asNamespace()->memberAt(0);
+
+    const Name *minimalName = LookupContext::minimalName(symbol, ctx.globalNamespace(), &control);
+
+    Overview oo;
+    const QString minimalNameAsString = NamePrettyPrinter(&oo)(minimalName);
+    QCOMPARE(minimalNameAsString, QString::fromUtf8("std::string"));
 }
 
 QTEST_APPLESS_MAIN(tst_Lookup)
