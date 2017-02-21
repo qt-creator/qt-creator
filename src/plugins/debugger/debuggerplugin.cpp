@@ -87,6 +87,7 @@
 #include <coreplugin/rightpane.h>
 
 #include <cppeditor/cppeditorconstants.h>
+#include <qmljseditor/qmljseditorconstants.h>
 #include <cpptools/cppmodelmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -1010,8 +1011,8 @@ public:
     QAction *m_jumpToLineAction = 0; // In the Debug menu.
     QAction *m_returnFromFunctionAction = 0;
     QAction *m_nextAction = 0;
-    QAction *m_watchAction1 = 0; // In the Debug menu.
-    QAction *m_watchAction2 = 0; // In the text editor context menu.
+    QAction *m_watchAction = 0;
+    Command *m_watchCommand = 0;
     QAction *m_breakAction = 0;
     QAction *m_reverseDirectionAction = 0;
     QAction *m_frameUpAction = 0;
@@ -1326,7 +1327,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     connect(ICore::instance(), &ICore::coreAboutToClose, this, &DebuggerPluginPrivate::coreShutdown);
 
     const Context cppDebuggercontext(C_CPPDEBUGGER);
-    const Context cppeditorcontext(CppEditor::Constants::CPPEDITOR_ID);
+    const Context qmljsDebuggercontext(C_QMLDEBUGGER);
 
     m_busy = false;
 
@@ -1458,10 +1459,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     m_breakAction = new QAction(tr("Toggle Breakpoint"), this);
 
-    act = m_watchAction1 = new QAction(tr("Add Expression Evaluator"), this);
-    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleAddToWatchWindow);
-
-    act = m_watchAction2 = new QAction(tr("Add Expression Evaluator"), this);
+    act = m_watchAction = new QAction(tr("Add Expression Evaluator"), this);
     connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleAddToWatchWindow);
 
     //act = m_snapshotAction = new QAction(tr("Create Snapshot"), this);
@@ -1742,27 +1740,10 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     debugMenu->addSeparator();
 
-    // Don't add '1' to the string as it shows up in the shortcut dialog.
-    cmd = ActionManager::registerAction(m_watchAction1,
-        "Debugger.AddToWatch", cppeditorcontext);
+    cmd = m_watchCommand = ActionManager::registerAction(m_watchAction, "Debugger.AddToWatch",
+            Context(CppEditor::Constants::CPPEDITOR_ID,  QmlJSEditor::Constants::C_QMLJSEDITOR_ID));
     //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+W")));
     debugMenu->addAction(cmd);
-
-    // If the CppEditor plugin is there, we want to add something to
-    // the editor context menu.
-    if (ActionContainer *editorContextMenu =
-            ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT)) {
-        cmd = editorContextMenu->addSeparator(cppDebuggercontext);
-        cmd->setAttribute(Command::CA_Hide);
-
-        cmd = ActionManager::registerAction(m_watchAction2,
-            "Debugger.AddToWatch2", cppDebuggercontext);
-        cmd->action()->setEnabled(true);
-        editorContextMenu->addAction(cmd);
-        cmd->setAttribute(Command::CA_Hide);
-        cmd->setAttribute(Command::CA_NonConfigurable);
-        // Debugger.AddToWatch is enough.
-    }
 
     QList<IOptionsPage *> engineOptionPages;
     addGdbOptionPages(&engineOptionPages);
@@ -2553,8 +2534,7 @@ void DebuggerPluginPrivate::setInitialState()
     m_attachToUnstartedApplication->setEnabled(true);
     m_detachAction->setEnabled(false);
 
-    m_watchAction1->setEnabled(true);
-    m_watchAction2->setEnabled(true);
+    m_watchAction->setEnabled(true);
     m_breakAction->setEnabled(false);
     //m_snapshotAction->setEnabled(false);
     m_operateByInstructionAction->setEnabled(false);
@@ -2689,8 +2669,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
                 && boolSetting(EnableReverseDebugging);
     m_reverseDirectionAction->setEnabled(canReverse);
 
-    m_watchAction1->setEnabled(true);
-    m_watchAction2->setEnabled(true);
+    m_watchAction->setEnabled(true);
     m_breakAction->setEnabled(true);
 
     const bool canOperateByInstruction = engine->hasCapability(OperateByInstructionCapability)
@@ -3033,6 +3012,23 @@ bool isReverseDebugging()
 
 void DebuggerPluginPrivate::extensionsInitialized()
 {
+    // If the CppEditor or QmlJS editor plugin is there, we want to add something to
+    // the editor context menu.
+    const Id menuIds[2] = {
+        CppEditor::Constants::M_CONTEXT,
+        QmlJSEditor::Constants::M_CONTEXT
+    };
+    for (int i = 0; i < sizeof(menuIds) / sizeof(menuIds[0]); ++i) {
+        if (ActionContainer *editorContextMenu = ActionManager::actionContainer(menuIds[i])) {
+            auto cmd = editorContextMenu->addSeparator(m_watchCommand->context());
+            cmd->setAttribute(Command::CA_Hide);
+            cmd = m_watchCommand;
+            cmd->action()->setEnabled(true);
+            editorContextMenu->addAction(cmd);
+            cmd->setAttribute(Command::CA_Hide);
+            cmd->setAttribute(Command::CA_NonConfigurable);
+        }
+    }
 }
 
 DebuggerEngine *currentEngine()
