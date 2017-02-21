@@ -32,15 +32,15 @@
 
     \title Connecting Android Devices
 
-    You can connect Android devices to the development PC to build, run, debug,
-    and analyze applications on them from \QC.
+    You can connect Android devices to the development PC to run, debug,
+    and analyze applications built for them from \QC.
 
     If you have a tool chain for building applications for Android devices
     installed on the development PC, you can add it to \QC. You can then add a
     \l{glossary-buildandrun-kit}{kit}
     with the Android device type, the tool chain, and the Qt version for Android,
-    to build and run applications on Android devices. You can also allow \QC to
-    automatically configure the kit.
+    to build applications for and run them on Android devices. You can also
+    allow \QC to automatically configure the kit.
 
     The Android Debug Bridge (adb) command line tool is integrated to \QC to
     enable you to deploy applications to connected Android devices, to run

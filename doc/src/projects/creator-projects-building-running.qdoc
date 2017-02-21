@@ -39,7 +39,7 @@
 
     \image creator_buildingrunning.png
 
-    \QC provides support for building, running, and deploying Qt applications
+    \QC provides support for running and deploying Qt applications built
     for different target platforms, or using different compilers, debuggers, or
     Qt versions.
     \l{glossary-buildandrun-kit}{Kits} define the tools,

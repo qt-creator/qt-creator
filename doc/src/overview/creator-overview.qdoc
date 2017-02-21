@@ -92,9 +92,9 @@
                 projects as \e {generic projects} and fully control the steps
                 and commands used to build the project.
 
-                \QC provides support for building, running, and deploying Qt
-                applications for desktop environment as well as embedded and
-                 mobile devices. \l{glossary-buildandrun-kit}{Kits}, build,
+                \QC provides support for running and deploying Qt applications
+                built for the desktop environment as well as embedded and
+                mobile devices. \l{glossary-buildandrun-kit}{Kits}, build,
                 run, and deployment settings allow you to quickly switch between
                 different setups and target platforms.
 

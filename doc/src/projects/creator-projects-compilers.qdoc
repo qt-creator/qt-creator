@@ -40,8 +40,8 @@
     Qt is supported on a variety of 32-bit and 64-bit platforms, and can
     usually be built on each platform with GCC, a vendor-supplied compiler, or
     a third party compiler. In \QC, a \l{glossary-buildandrun-kit}{kit}
-    specifies the compiler and other necessary tools for building and running an
-    application on a particular platform.
+    specifies the compiler and other necessary tools for building an application
+    for and running it on a particular platform.
 
     \QC automatically detects the compilers that are registered by your system
     or by an installer. You can add compilers to build applications by using other

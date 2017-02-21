@@ -32,14 +32,14 @@
 
     \title Connecting Embedded Linux Devices
 
-    You can connect embedded Linux devices to the development PC to build, run,
-    debug, and analyze applications on them from \QC.
+    You can connect embedded Linux devices to the development PC to run,
+    debug, and analyze applications built for them from \QC.
 
     If you have a tool chain for building applications for embedded Linux
     devices installed on the development PC, you can add
     it to \QC. You can then select a \l{glossary-buildandrun-kit}{kit}
     with \uicontrol {Embedded Linux} device type to
-    build and run applications on embedded Linux devices.
+    build applications for and run them on embedded Linux devices.
 
     To be able to run and debug applications on embedded Linux devices, you must
     add devices and select them in the \QC \l{glossary-buildandrun-kit}{kit}.
