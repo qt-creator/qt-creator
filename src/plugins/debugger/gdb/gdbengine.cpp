@@ -2375,7 +2375,7 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
                 else if (catchType == "syscall")
                     response.type = BreakpointAtSysCall;
             }
-        } else if (child.hasName("hitcount")) {
+        } else if (child.hasName("times")) {
             response.hitCount = child.toInt();
         } else if (child.hasName("original-location")) {
             originalLocation = child.data();
