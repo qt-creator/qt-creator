@@ -243,15 +243,13 @@ void QmlProfilerFileReader::loadQzt(QIODevice *device)
         updateProgress(device);
     }
 
-    const int eventBufferLength = 1024;
-    QVector<QmlEvent> eventBuffer(eventBufferLength);
-    int eventBufferIndex = 0;
+    QVector<QmlEvent> eventBuffer;
     while (!stream.atEnd() && !isCanceled()) {
         stream >> data;
         buffer.setData(qUncompress(data));
         buffer.open(QIODevice::ReadOnly);
         while (!buffer.atEnd() && !isCanceled()) {
-            QmlEvent &event = eventBuffer[eventBufferIndex];
+            QmlEvent event;
             bufferStream >> event;
             if (bufferStream.status() == QDataStream::Ok) {
                 if (event.typeIndex() >= m_eventTypes.length()) {
@@ -267,11 +265,10 @@ void QmlProfilerFileReader::loadQzt(QIODevice *device)
             } else {
                 Q_UNREACHABLE();
             }
-            if (++eventBufferIndex == eventBufferLength) {
-                emit qmlEventsLoaded(eventBuffer);
-                eventBufferIndex = 0;
-            }
+            eventBuffer.append(event);
         }
+        emit qmlEventsLoaded(eventBuffer);
+        eventBuffer.clear();
         buffer.close();
         updateProgress(device);
     }
@@ -279,7 +276,6 @@ void QmlProfilerFileReader::loadQzt(QIODevice *device)
     if (isCanceled()) {
         emit canceled();
     } else {
-        eventBuffer.resize(eventBufferIndex);
         emit qmlEventsLoaded(eventBuffer);
         emit success();
     }
