@@ -237,7 +237,7 @@ bool MatchingText::isInCommentHelper(const QTextCursor &cursor, Token *retToken)
     return tk.isComment();
 }
 
-bool MatchingText::isInStringHelper(const QTextCursor &cursor)
+Kind MatchingText::stringKindAtCursor(const QTextCursor &cursor)
 {
     int prevState = 0;
     const Tokens tokens = getTokens(cursor, prevState);
@@ -245,15 +245,15 @@ bool MatchingText::isInStringHelper(const QTextCursor &cursor)
     const unsigned pos = cursor.selectionEnd() - cursor.block().position();
 
     if (tokens.isEmpty() || pos <= tokens.first().utf16charsBegin())
-        return false;
+        return T_EOF_SYMBOL;
 
     if (pos >= tokens.last().utf16charsEnd()) {
         const Token tk = tokens.last();
-        return tk.isStringLiteral() && prevState > 0;
+        return tk.isStringLiteral() && prevState > 0 ? tk.kind() : T_EOF_SYMBOL;
     }
 
     Token tk = tokenAtPosition(tokens, pos);
-    return tk.isStringLiteral() && pos > tk.utf16charsBegin();
+    return tk.isStringLiteral() && pos > tk.utf16charsBegin() ? tk.kind() : T_EOF_SYMBOL;
 }
 
 QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QString &textToProcess,

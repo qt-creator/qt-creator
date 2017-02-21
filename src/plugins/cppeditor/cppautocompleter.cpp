@@ -56,7 +56,7 @@ bool CppAutoCompleter::isInComment(const QTextCursor &cursor) const
 
 bool CppAutoCompleter::isInString(const QTextCursor &cursor) const
 {
-    return CPlusPlus::MatchingText::isInStringHelper(cursor);
+    return CPlusPlus::MatchingText::stringKindAtCursor(cursor) != CPlusPlus::T_EOF_SYMBOL;
 }
 
 QString CppAutoCompleter::insertMatchingBrace(const QTextCursor &cursor, const QString &text,

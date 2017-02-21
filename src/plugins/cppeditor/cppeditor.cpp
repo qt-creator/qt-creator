@@ -804,7 +804,8 @@ bool CppEditorWidget::handleStringSplitting(QKeyEvent *e) const
     if (e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter) {
         QTextCursor cursor = textCursor();
 
-        if (CPlusPlus::MatchingText::isInStringHelper(cursor)) {
+        const Kind stringKind = CPlusPlus::MatchingText::stringKindAtCursor(cursor);
+        if (stringKind >= T_FIRST_STRING_LITERAL && stringKind < T_FIRST_RAW_STRING_LITERAL) {
             cursor.beginEditBlock();
             if (cursor.positionInBlock() > 0
                     && cursor.block().text().at(cursor.positionInBlock() - 1) == QLatin1Char('\\')) {
