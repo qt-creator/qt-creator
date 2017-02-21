@@ -41,3 +41,4 @@ UrlChooser 2.0 UrlChooser.qml
 PaddingSection 2.0 PaddingSection.qml
 RoundedPanel 2.0 RoundedPanel.qml
 ExpressionTextField 2.0 ExpressionTextField.qml
+MarginSection 2.0 MarginSection.qml
