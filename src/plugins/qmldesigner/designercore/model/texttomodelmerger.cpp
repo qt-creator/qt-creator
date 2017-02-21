@@ -913,6 +913,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 {
     qCInfo(rewriterBenchmark) << Q_FUNC_INFO;
 
+    const bool justSanityCheck = !differenceHandler.isValidator();
+
     QTime time;
     if (rewriterBenchmark().isInfoEnabled())
         time.start();
@@ -963,7 +965,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
                 setActive(false);
                 return false;
             }
-            m_rewriterView->setWarnings(warnings);
+            if (!justSanityCheck)
+                m_rewriterView->setWarnings(warnings);
             qCInfo(rewriterBenchmark) << "checked semantic errors:" << time.elapsed();
         }
         setupUsedImports();
