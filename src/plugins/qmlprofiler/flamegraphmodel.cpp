@@ -136,7 +136,7 @@ void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 
 void FlameGraphModel::finalize()
 {
-    foreach (FlameGraphData *child, m_stackBottom.children)
+    for (FlameGraphData *child : m_stackBottom.children)
         m_stackBottom.duration += child->duration;
 
     loadNotes(-1, false);
@@ -217,9 +217,19 @@ FlameGraphData::~FlameGraphData()
 
 FlameGraphData *FlameGraphModel::pushChild(FlameGraphData *parent, const QmlEvent &data)
 {
-    foreach (FlameGraphData *child, parent->children) {
+    QVector<FlameGraphData *> &siblings = parent->children;
+
+    for (auto it = siblings.begin(), end = siblings.end(); it != end; ++it) {
+        FlameGraphData *child = *it;
         if (child->typeIndex == data.typeIndex()) {
             ++child->calls;
+            for (auto back = it, front = siblings.begin(); back != front;) {
+                 --back;
+                if ((*back)->calls >= (*it)->calls)
+                    break;
+                qSwap(*it, *back);
+                it = back;
+            }
             return child;
         }
     }
