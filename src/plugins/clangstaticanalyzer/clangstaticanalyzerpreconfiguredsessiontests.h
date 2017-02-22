@@ -31,7 +31,6 @@
 namespace ProjectExplorer {
 class Project;
 class Target;
-class SessionManager;
 }
 
 namespace ClangStaticAnalyzer {
@@ -56,7 +55,6 @@ private:
     bool switchToProjectAndTarget(ProjectExplorer::Project *project,
                                   ProjectExplorer::Target *target);
 
-    ProjectExplorer::SessionManager &m_sessionManager;
     ClangStaticAnalyzerTool &m_analyzerTool;
 };
 
