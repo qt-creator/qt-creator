@@ -135,7 +135,6 @@
 :Qt Creator.Replace All_QToolButton	{name='replaceAllButton' text='Replace All' type='QToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Replace_QToolButton	{name='replaceButton' text='Replace' type='QToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Stop_QToolButton	{text='Stop' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator.WelcomePage_QQuickWidget	{name='WelcomePage' type='QQuickWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.replaceEdit_Utils::FilterLineEdit	{name='replaceEdit' type='Utils::FancyLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.scrollArea_QScrollArea	{type='ProjectExplorer::PanelsWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.splitter_QSplitter	{name='splitter' type='QSplitter' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}

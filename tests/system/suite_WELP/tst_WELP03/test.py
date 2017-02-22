@@ -58,7 +58,6 @@ def openExample(examplesLineEdit, input, exampleRegex, exampleName):
     return example
 
 def main():
-    welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
