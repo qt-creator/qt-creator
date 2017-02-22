@@ -59,12 +59,15 @@
             that imports the Qt Canvas 3D module and, optionally, includes
             \l{http://threejs.org}{three.js}.
 
-        \li \uicontrol {Qt Quick 2 UI} (in the \uicontrol {Other Project}
+        \li \uicontrol {Qt Quick UI Prototype} (in the \uicontrol {Other Project}
             category) creates a \l{Creating Qt Quick UI Projects}
             {Qt Quick UI project} with a single QML file that
             contains the main view. You can review Qt Quick 2 UI projects in the
             \l{Previewing QML Files}{QML Scene preview tool}. You do not need to
             build them, because they do not contain any C++ code.
+            Use this only if you are prototyping. You cannot create a full application
+            with this.
+
             Qt Quick UI projects cannot be deployed to embedded or mobile
             target platforms. For those platforms, create a Qt Quick application
             instead.
