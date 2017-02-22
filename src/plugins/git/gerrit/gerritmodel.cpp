@@ -226,8 +226,6 @@ public:
                  QObject *parent = nullptr);
 
     ~QueryContext();
-
-public slots:
     void start();
 
 signals:
