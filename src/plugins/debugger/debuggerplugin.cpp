@@ -963,7 +963,6 @@ public:
 
     void updateUiForProject(ProjectExplorer::Project *project);
     void updateUiForTarget(ProjectExplorer::Target *target);
-    void updateUiForRunConfiguration(ProjectExplorer::RunConfiguration *rc);
     void updateActiveLanguages();
 
 public:
@@ -3332,12 +3331,11 @@ void DebuggerPluginPrivate::updateUiForProject(Project *project)
     }
     m_previousProject = project;
     if (!project) {
-        updateUiForTarget(0);
+        updateUiForTarget(nullptr);
         return;
     }
     connect(project, &Project::activeTargetChanged,
-            this, &DebuggerPluginPrivate::updateUiForTarget,
-            Qt::QueuedConnection);
+            this, &DebuggerPluginPrivate::updateUiForTarget);
     updateUiForTarget(project->activeTarget());
 }
 
@@ -3345,35 +3343,19 @@ void DebuggerPluginPrivate::updateUiForTarget(Target *target)
 {
     if (m_previousTarget) {
          disconnect(m_previousTarget.data(), &Target::activeRunConfigurationChanged,
-                    this, &DebuggerPluginPrivate::updateUiForRunConfiguration);
+                    this, &DebuggerPluginPrivate::updateActiveLanguages);
     }
 
     m_previousTarget = target;
 
     if (!target) {
-        updateUiForRunConfiguration(0);
+        updateActiveLanguages();
         return;
     }
 
     connect(target, &Target::activeRunConfigurationChanged,
-            this, &DebuggerPluginPrivate::updateUiForRunConfiguration,
-            Qt::QueuedConnection);
-    updateUiForRunConfiguration(target->activeRunConfiguration());
-}
-
-// updates default debug language settings per run config.
-void DebuggerPluginPrivate::updateUiForRunConfiguration(RunConfiguration *rc)
-{
-//    if (m_previousRunConfiguration)
-//        disconnect(m_previousRunConfiguration, &RunConfiguration::requestRunActionsUpdate,
-//                   this, &DebuggerPluginPrivate::updateActiveLanguages);
-//    m_previousRunConfiguration = rc;
-    Q_UNUSED(rc); // FIXME
+            this, &DebuggerPluginPrivate::updateActiveLanguages);
     updateActiveLanguages();
-//    if (m_previousRunConfiguration)
-//        connect(m_previousRunConfiguration, &RunConfiguration::requestRunActionsUpdate,
-//                this, &DebuggerPluginPrivate::updateActiveLanguages,
-//                Qt::QueuedConnection);
 }
 
 void DebuggerPluginPrivate::updateActiveLanguages()
