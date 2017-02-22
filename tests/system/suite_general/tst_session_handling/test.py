@@ -41,7 +41,7 @@ def main():
     for project in projects:
         openQmakeProject(project, Targets.DESKTOP_531_DEFAULT)
     progressBarWait(20000)
-    checkNavigator(53, "Verifying whether all projects have been opened.")
+    checkNavigator(52, "Verifying whether all projects have been opened.")
     openDocument("animation.Resources.animation\\.qrc./animation.basics.animators\\.qml")
     openDocument("keyinteraction.Sources.main\\.cpp")
     checkOpenDocuments(2, "Verifying whether 2 files are open.")
@@ -51,12 +51,12 @@ def main():
                 "Verifying window title is set to default.")
     checkWelcomePage(sessionName, False)
     switchViewTo(ViewConstants.EDIT)
-    checkNavigator(1, "Verifying that no more project is opened.")
+    checkNavigator(0, "Verifying that no more project is opened.")
     checkOpenDocuments(0, "Verifying whether all files have been closed.")
     switchSession(sessionName)
     test.verify(waitFor("sessionName in str(mainWindow.windowTitle)", 2000),
                 "Verifying window title contains created session name.")
-    checkNavigator(53, "Verifying whether all projects have been re-opened.")
+    checkNavigator(52, "Verifying whether all projects have been re-opened.")
     checkOpenDocuments(2, "Verifying whether 2 files have been re-opened.")
     if test.verify("main.cpp" in str(mainWindow.windowTitle),
                    "Verifying whether utility.h has been opened."):
@@ -100,24 +100,32 @@ def createAndSwitchToSession(toSession):
     lineEdit = waitForObject("{type='QLineEdit' unnamed='1' visible='1' window=%s}"
                              % sessionInputDialog)
     replaceEditorContent(lineEdit, toSession)
-    clickButton(waitForObject("{text='Switch To' type='QPushButton' unnamed='1' visible='1' "
+    clickButton(waitForObject("{text='Create and Open' type='QPushButton' unnamed='1' visible='1' "
                               "window=%s}" % sessionInputDialog))
 
 def checkWelcomePage(sessionName, isCurrent=False):
-    welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
     switchViewTo(ViewConstants.WELCOME)
-    mouseClick(waitForObject("{container='%s' text='Projects' type='Button' "
-                             "unnamed='1' visible='true'}" % welcomePage))
-    waitForObject("{container='%s' id='sessionsTitle' text='Sessions' type='Text' "
-                  "unnamed='1' visible='true'}" % welcomePage)
-    if isCurrent:
-        sessions = ["default", "%s (current session)" % sessionName]
-    else:
-        sessions = ["default (current session)", sessionName]
-    for sessionName in sessions:
-        test.verify(object.exists("{container='%s' enabled='true' type='Text' unnamed='1' "
-                                  "visible='true' text='%s'}" % (welcomePage, sessionName)),
-                                  "Verifying session '%s' exists." % sessionName)
+    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Projects')
+    if not all((wsButtonFrame, wsButtonLabel)):
+        test.fatal("Something's pretty wrong - leaving check for WelcomePage.")
+        return
+    mouseClick(wsButtonLabel)
+    treeView = getWelcomeTreeView("Sessions")
+    if not treeView:
+        test.fatal("Failed to find Sessions tree view - leaving check for WelcomePage.")
+        return
+    sessions = {"default":not isCurrent, sessionName:isCurrent}
+    indices = dumpIndices(treeView.model())
+    for session, current in sessions.items():
+        found = False
+        for index in indices:
+            if session == str(index.data()):
+                # 259 -> ActiveSessionRole [sessionmodel.h]
+                isCurrent = index.data(259).toBool()
+                if current == isCurrent:
+                    found = True
+                    break
+        test.verify(found, "Verifying: Qt Creator displays Welcome Page with %s." % session)
 
 def checkNavigator(expectedRows, message):
     navigatorModel = waitForObject(":Qt Creator_Utils::NavigationTreeView").model()
