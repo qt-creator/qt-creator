@@ -220,7 +220,7 @@ void ChangeSelectionDialog::recalculateCompletion()
 
     GitClient *client = GitPlugin::client();
     VcsBase::VcsCommand *command = client->asyncForEachRefCmd(
-                workingDir, { "--format=%(refname:short)" });
+                workingDir, {"--format=%(refname:short)"});
     connect(this, &QObject::destroyed, command, &VcsBase::VcsCommand::abort);
     connect(command, &VcsBase::VcsCommand::stdOutText, [this](const QString &output) {
         m_changeModel->setStringList(output.split('\n'));
@@ -251,7 +251,7 @@ void ChangeSelectionDialog::recalculateDetails()
     connect(m_process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
             this, &ChangeSelectionDialog::setDetails);
 
-    m_process->start(m_gitExecutable.toString(), { "show", "--stat=80", ref });
+    m_process->start(m_gitExecutable.toString(), {"show", "--stat=80", ref});
     m_process->closeWriteChannel();
     if (!m_process->waitForStarted())
         m_ui->detailsText->setPlainText(tr("Error: Could not start Git."));

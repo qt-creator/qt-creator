@@ -326,9 +326,9 @@ QList<BuildStepInfo> GenericMakeStepFactory::availableSteps(BuildStepList *paren
     if (parent->target()->project()->id() != Constants::GENERICPROJECT_ID)
         return {};
 
-    return {{ GENERIC_MS_ID,
-              QCoreApplication::translate("GenericProjectManager::Internal::GenericMakeStep",
-              GENERIC_MS_DISPLAY_NAME) }};
+    return {{GENERIC_MS_ID,
+             QCoreApplication::translate("GenericProjectManager::Internal::GenericMakeStep",
+             GENERIC_MS_DISPLAY_NAME)}};
 }
 
 BuildStep *GenericMakeStepFactory::create(BuildStepList *parent, const Id id)

@@ -660,7 +660,7 @@ bool QtcProcess::prepareCommand(const QString &command, const QString &arguments
                 return false;
             *outCmd = QLatin1String("/bin/sh");
             *outArgs = Arguments::createUnixArgs(
-                        QStringList({ "-c", (quoteArg(command) + ' ' + arguments) }));
+                        QStringList({"-c", (quoteArg(command) + ' ' + arguments)}));
         }
     }
     return true;
@@ -1039,7 +1039,7 @@ bool QtcProcess::expandMacros(QString *cmd, AbstractMacroExpander *mx, OsType os
         }
     } else {
         // !Windows
-        MxState state = { MxBasic, false };
+        MxState state = {MxBasic, false};
         QStack<MxState> sstack;
         QStack<MxSave> ostack;
 
@@ -1085,7 +1085,7 @@ bool QtcProcess::expandMacros(QString *cmd, AbstractMacroExpander *mx, OsType os
                     if (str.unicode()[pos + 1].unicode() == '(') {
                         // $(( starts a math expression. This may also be a $( ( in fact,
                         // so we push the current string and offset on a stack so we can retry.
-                        MxSave sav = { str, pos + 2, varPos };
+                        MxSave sav = {str, pos + 2, varPos};
                         ostack.push(sav);
                         state.current = MxMath;
                         pos += 2;
@@ -1315,7 +1315,7 @@ bool QtcProcess::ArgIterator::next()
             }
         }
     } else {
-        MxState state = { MxBasic, false };
+        MxState state = {MxBasic, false};
         QStack<MxState> sstack;
         QStack<int> ostack;
         bool hadWord = false;

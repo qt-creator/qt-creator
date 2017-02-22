@@ -50,7 +50,7 @@ QList<BuildStepInfo> AndroidPackageInstallationFactory::availableSteps(BuildStep
     if (parent->contains(AndroidPackageInstallationStep::Id))
         return {};
 
-    return {{ AndroidPackageInstallationStep::Id, tr("Deploy to device"), BuildStepInfo::Uncreatable }};
+    return {{AndroidPackageInstallationStep::Id, tr("Deploy to device"), BuildStepInfo::Uncreatable}};
 }
 
 BuildStep *AndroidPackageInstallationFactory::create(BuildStepList *parent, Core::Id id)

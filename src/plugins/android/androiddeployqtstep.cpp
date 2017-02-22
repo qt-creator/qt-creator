@@ -83,7 +83,7 @@ QList<BuildStepInfo> AndroidDeployQtStepFactory::availableSteps(BuildStepList *p
             || parent->contains(AndroidDeployQtStep::Id))
         return {};
 
-    return {{ AndroidDeployQtStep::Id, tr("Deploy to Android device or emulator") }};
+    return {{AndroidDeployQtStep::Id, tr("Deploy to Android device or emulator")}};
 }
 
 ProjectExplorer::BuildStep *AndroidDeployQtStepFactory::create(ProjectExplorer::BuildStepList *parent, Core::Id id)

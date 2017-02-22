@@ -498,11 +498,11 @@ CallgrindTool::CallgrindTool(QObject *parent)
     Debugger::registerToolbar(CallgrindPerspectiveId, toolbar);
 
     Debugger::registerPerspective(CallgrindPerspectiveId, new Perspective(tr("Callgrind"), {
-        { CallgrindFlatDockId, m_flatView, {}, Perspective::SplitVertical },
-        { CallgrindCalleesDockId, m_calleesView, {}, Perspective::SplitVertical },
-        { CallgrindCallersDockId, m_callersView, CallgrindCalleesDockId, Perspective::SplitHorizontal },
-        { CallgrindVisualizationDockId, m_visualization, {}, Perspective::SplitVertical,
-          false, Qt::RightDockWidgetArea }
+        {CallgrindFlatDockId, m_flatView, {}, Perspective::SplitVertical},
+        {CallgrindCalleesDockId, m_calleesView, {}, Perspective::SplitVertical},
+        {CallgrindCallersDockId, m_callersView, CallgrindCalleesDockId, Perspective::SplitHorizontal},
+        {CallgrindVisualizationDockId, m_visualization, {}, Perspective::SplitVertical,
+         false, Qt::RightDockWidgetArea}
     }));
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,

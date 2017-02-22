@@ -1848,22 +1848,22 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 //    qmlToolbar.addWidget(new StyledSeparator);
 
     auto createBasePerspective = [this] { return new Perspective({}, {
-        { DOCKWIDGET_STACK, m_stackWindow, {}, Perspective::SplitVertical },
-        { DOCKWIDGET_BREAK, m_breakWindow, DOCKWIDGET_STACK, Perspective::SplitHorizontal },
-        { DOCKWIDGET_THREADS, m_threadsWindow, DOCKWIDGET_BREAK, Perspective::AddToTab, false },
-        { DOCKWIDGET_MODULES, m_modulesWindow, DOCKWIDGET_THREADS, Perspective::AddToTab, false },
-        { DOCKWIDGET_SOURCE_FILES, m_sourceFilesWindow, DOCKWIDGET_MODULES, Perspective::AddToTab, false },
-        { DOCKWIDGET_SNAPSHOTS, m_snapshotWindow, DOCKWIDGET_SOURCE_FILES, Perspective::AddToTab, false },
-        { DOCKWIDGET_WATCHERS, m_localsAndExpressionsWindow, {}, Perspective::AddToTab, true,
-          Qt::RightDockWidgetArea },
-        { DOCKWIDGET_OUTPUT, m_logWindow, {}, Perspective::AddToTab, false, Qt::TopDockWidgetArea },
-        { DOCKWIDGET_BREAK, 0, {}, Perspective::Raise }
+        {DOCKWIDGET_STACK, m_stackWindow, {}, Perspective::SplitVertical},
+        {DOCKWIDGET_BREAK, m_breakWindow, DOCKWIDGET_STACK, Perspective::SplitHorizontal},
+        {DOCKWIDGET_THREADS, m_threadsWindow, DOCKWIDGET_BREAK, Perspective::AddToTab, false},
+        {DOCKWIDGET_MODULES, m_modulesWindow, DOCKWIDGET_THREADS, Perspective::AddToTab, false},
+        {DOCKWIDGET_SOURCE_FILES, m_sourceFilesWindow, DOCKWIDGET_MODULES, Perspective::AddToTab, false},
+        {DOCKWIDGET_SNAPSHOTS, m_snapshotWindow, DOCKWIDGET_SOURCE_FILES, Perspective::AddToTab, false},
+        {DOCKWIDGET_WATCHERS, m_localsAndExpressionsWindow, {}, Perspective::AddToTab, true,
+         Qt::RightDockWidgetArea},
+        {DOCKWIDGET_OUTPUT, m_logWindow, {}, Perspective::AddToTab, false, Qt::TopDockWidgetArea},
+        {DOCKWIDGET_BREAK, 0, {}, Perspective::Raise}
     }); };
 
     Perspective *cppPerspective = createBasePerspective();
     cppPerspective->setName(tr("Debugger"));
-    cppPerspective->addOperation({ DOCKWIDGET_REGISTER, m_registerWindow, DOCKWIDGET_SNAPSHOTS,
-                                  Perspective::AddToTab, false });
+    cppPerspective->addOperation({DOCKWIDGET_REGISTER, m_registerWindow, DOCKWIDGET_SNAPSHOTS,
+                                  Perspective::AddToTab, false});
 
     Debugger::registerToolbar(CppPerspectiveId, toolbar);
     Debugger::registerPerspective(CppPerspectiveId, cppPerspective);
@@ -2142,16 +2142,16 @@ void DebuggerPlugin::getEnginesState(QByteArray *json) const
 {
     QTC_ASSERT(json, return);
     QVariantMap result {
-        { "version", 1 }
+        {"version", 1}
     };
     QVariantMap states;
 
     for (int i = 0; i < dd->m_snapshotHandler->size(); ++i) {
         const DebuggerEngine *engine = dd->m_snapshotHandler->at(i);
         states[QString::number(i)] = QVariantMap({
-                   { "current", dd->m_snapshotHandler->currentIndex() == i },
-                   { "pid", engine->inferiorPid() },
-                   { "state", engine->state() }
+                   {"current", dd->m_snapshotHandler->currentIndex() == i},
+                   {"pid", engine->inferiorPid()},
+                   {"state", engine->state()}
         });
     }
 
@@ -3873,7 +3873,7 @@ void DebuggerUnitTests::testDebuggerMatching()
 
 QList<QObject *> DebuggerPlugin::createTestObjects() const
 {
-    return { new DebuggerUnitTests };
+    return {new DebuggerUnitTests};
 }
 
 #else // ^-- if WITH_TESTS else --v

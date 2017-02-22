@@ -220,7 +220,7 @@ const DebuggerItem *findDebugger(const Predicate &pred)
 
 DebuggerItemModel::DebuggerItemModel()
 {
-    setHeader({ tr("Name"), tr("Location"), tr("Type") });
+    setHeader({tr("Name"), tr("Location"), tr("Type")});
     rootItem()->appendChild(new StaticTreeItem(tr("Auto-detected")));
     rootItem()->appendChild(new StaticTreeItem(tr("Manual")));
 }
@@ -702,8 +702,8 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
 
 void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
 {
-    const QStringList filters = { "gdb-i686-pc-mingw32", "gdb-i686-pc-mingw32.exe", "gdb",
-                                  "gdb.exe", "lldb", "lldb.exe", "lldb-*" };
+    const QStringList filters = {"gdb-i686-pc-mingw32", "gdb-i686-pc-mingw32.exe", "gdb",
+                                 "gdb.exe", "lldb", "lldb.exe", "lldb-*"};
 
 //    DebuggerItem result;
 //    result.setAutoDetected(true);
@@ -731,7 +731,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
         SynchronousProcess lldbInfo;
         lldbInfo.setTimeoutS(2);
         SynchronousProcessResponse response
-                = lldbInfo.runBlocking(QLatin1String("xcrun"), { "--find", "lldb" });
+                = lldbInfo.runBlocking(QLatin1String("xcrun"), {"--find", "lldb"});
         if (response.result == Utils::SynchronousProcessResponse::Finished) {
             QString lPath = response.allOutput().trimmed();
             if (!lPath.isEmpty()) {

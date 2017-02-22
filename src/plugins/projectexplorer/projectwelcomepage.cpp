@@ -330,7 +330,7 @@ public:
                     m_expandedSessions.removeOne(sessionName);
                 else
                     m_expandedSessions.append(sessionName);
-                model->layoutChanged({ QPersistentModelIndex(idx) });
+                model->layoutChanged({QPersistentModelIndex(idx)});
                 return false;
             }
             // One of the action links?
@@ -347,7 +347,7 @@ public:
             return true;
         }
         if (ev->type() == QEvent::MouseMove) {
-            model->layoutChanged({ QPersistentModelIndex(idx) }); // Somewhat brutish.
+            model->layoutChanged({QPersistentModelIndex(idx)}); // Somewhat brutish.
             //update(option.rect);
             return true;
         }

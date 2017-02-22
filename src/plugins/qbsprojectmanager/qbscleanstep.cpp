@@ -309,7 +309,7 @@ QList<ProjectExplorer::BuildStepInfo> QbsCleanStepFactory::availableSteps(Projec
 {
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN
             && qobject_cast<QbsBuildConfiguration *>(parent->parent()))
-        return {{ Constants::QBS_CLEANSTEP_ID, tr("Qbs Clean") }};
+        return {{Constants::QBS_CLEANSTEP_ID, tr("Qbs Clean")}};
     return {};
 }
 

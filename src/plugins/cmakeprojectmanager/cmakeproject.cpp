@@ -456,8 +456,8 @@ QStringList CMakeProject::filesGeneratedFrom(const QString &sourceFile) const
     } else if (fi.suffix() == "scxml") {
         generatedFilePath += "/";
         generatedFilePath += QDir::cleanPath(fi.completeBaseName());
-        return QStringList({ generatedFilePath + ".h",
-                             generatedFilePath + ".cpp" });
+        return QStringList({generatedFilePath + ".h",
+                            generatedFilePath + ".cpp"});
     } else {
         // TODO: Other types will be added when adapters for their compilers become available.
         return QStringList();

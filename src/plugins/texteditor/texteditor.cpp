@@ -5663,7 +5663,7 @@ void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()
 
     const QString &fileName = m_document->filePath().toString();
     FileListIterator *it =
-            new FileListIterator( { fileName } , { const_cast<QTextCodec *>(m_document->codec()) } );
+            new FileListIterator({fileName} , {const_cast<QTextCodec *>(m_document->codec())});
     QMap<QString, QString> fileToContentsMap;
     fileToContentsMap[fileName] = m_document->plainText();
 

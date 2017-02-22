@@ -56,7 +56,7 @@ using namespace QtSupport;
 // -------------------- QtWizard
 QtWizard::QtWizard()
 {
-    setSupportedProjectTypes({ Constants::QMAKEPROJECT_ID });
+    setSupportedProjectTypes({Constants::QMAKEPROJECT_ID});
 }
 
 QString QtWizard::sourceSuffix()
@@ -200,7 +200,7 @@ int BaseQmakeProjectWizardDialog::addTargetSetupPage(int id)
 {
     m_targetSetupPage = new ProjectExplorer::TargetSetupPage;
     const Core::Id platform = selectedPlatform();
-    QSet<Core::Id> features = { QtSupport::Constants::FEATURE_DESKTOP };
+    QSet<Core::Id> features = {QtSupport::Constants::FEATURE_DESKTOP};
     if (!platform.isValid())
         m_targetSetupPage->setPreferredKitPredicate(QtKitInformation::qtVersionPredicate(features));
     else

@@ -75,7 +75,7 @@ ToolChain *NimToolChainFactory::restore(const QVariantMap &data)
 
 QSet<Core::Id> NimToolChainFactory::supportedLanguages() const
 {
-    return { Constants::C_NIMLANGUAGE_ID };
+    return {Constants::C_NIMLANGUAGE_ID};
 }
 
 QList<ToolChain *> NimToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)

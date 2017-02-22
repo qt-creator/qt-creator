@@ -45,7 +45,7 @@ CMakeConfigItem::CMakeConfigItem() = default;
 CMakeConfigItem::CMakeConfigItem(const CMakeConfigItem &other) :
     key(other.key), type(other.type), isAdvanced(other.isAdvanced),
     value(other.value), documentation(other.documentation), values(other.values)
-{ }
+{}
 
 CMakeConfigItem::CMakeConfigItem(const QByteArray &k, Type t,
                                  const QByteArray &d, const QByteArray &v) :
@@ -372,34 +372,34 @@ void CMakeProjectPlugin::testCMakeSplitValue_data()
             << "" << true << QStringList();
 
     QTest::newRow("single path")
-            << "C:/something" << false << QStringList({ "C:/something" });
+            << "C:/something" << false << QStringList({"C:/something"});
     QTest::newRow("single path, keep empty")
-            << "C:/something" << true << QStringList({ "C:/something" });
+            << "C:/something" << true << QStringList({"C:/something"});
 
     QTest::newRow(";single path")
-            << ";C:/something" << false << QStringList({ "C:/something" });
+            << ";C:/something" << false << QStringList({"C:/something"});
     QTest::newRow(";single path, keep empty")
-            << ";C:/something" << true << QStringList({ "", "C:/something" });
+            << ";C:/something" << true << QStringList({"", "C:/something"});
 
     QTest::newRow("single path;")
-            << "C:/something;" << false << QStringList({ "C:/something" });
+            << "C:/something;" << false << QStringList({"C:/something"});
     QTest::newRow("single path;, keep empty")
-            << "C:/something;" << true << QStringList({ "C:/something", "" });
+            << "C:/something;" << true << QStringList({"C:/something", ""});
 
     QTest::newRow("single path\\;")
-            << "C:/something\\;" << false << QStringList({ "C:/something;" });
+            << "C:/something\\;" << false << QStringList({"C:/something;"});
     QTest::newRow("single path\\;, keep empty")
-            << "C:/something\\;" << true << QStringList({ "C:/something;" });
+            << "C:/something\\;" << true << QStringList({"C:/something;"});
 
     QTest::newRow("single path\\;;second path")
-            << "C:/something\\;;/second/path" << false << QStringList({ "C:/something;", "/second/path" });
+            << "C:/something\\;;/second/path" << false << QStringList({"C:/something;", "/second/path"});
     QTest::newRow("single path\\;;second path, keep empty")
-            << "C:/something\\;;/second/path" << true << QStringList({ "C:/something;", "/second/path" });
+            << "C:/something\\;;/second/path" << true << QStringList({"C:/something;", "/second/path"});
 
     QTest::newRow("single path;;second path")
-            << "C:/something;;/second/path" << false << QStringList({ "C:/something", "/second/path" });
+            << "C:/something;;/second/path" << false << QStringList({"C:/something", "/second/path"});
     QTest::newRow("single path;;second path, keep empty")
-            << "C:/something;;/second/path" << true << QStringList({ "C:/something", "", "/second/path" });
+            << "C:/something;;/second/path" << true << QStringList({"C:/something", "", "/second/path"});
 }
 
 void CMakeProjectPlugin::testCMakeSplitValue()

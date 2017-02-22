@@ -543,14 +543,14 @@ Kit::Predicate DeviceTypeKitInformation::deviceTypePredicate(Core::Id type)
 
 QSet<Core::Id> DeviceTypeKitInformation::supportedPlatforms(const Kit *k) const
 {
-    return { deviceTypeId(k) };
+    return {deviceTypeId(k)};
 }
 
 QSet<Core::Id> DeviceTypeKitInformation::availableFeatures(const Kit *k) const
 {
     Core::Id id = DeviceTypeKitInformation::deviceTypeId(k);
     if (id.isValid())
-        return { id.withPrefix("DeviceType.") };
+        return {id.withPrefix("DeviceType.")};
     return QSet<Core::Id>();
 }
 

@@ -82,7 +82,7 @@ QSet<Core::Id> QnxQtVersion::availableFeatures() const
 
 QSet<Core::Id> QnxQtVersion::targetDeviceTypes() const
 {
-    return { Constants::QNX_QNX_OS_TYPE };
+    return {Constants::QNX_QNX_OS_TYPE};
 }
 
 QString QnxQtVersion::qnxHost() const

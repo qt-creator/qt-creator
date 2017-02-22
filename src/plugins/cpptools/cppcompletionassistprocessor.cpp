@@ -43,13 +43,13 @@ namespace CppTools {
 CppCompletionAssistProcessor::CppCompletionAssistProcessor(int snippetItemOrder)
     : m_positionForProposal(-1)
     , m_preprocessorCompletions(
-          QStringList({ "define", "error", "include", "line", "pragma", "pragma once",
-                        "pragma omp atomic", "pragma omp parallel", "pragma omp for",
-                        "pragma omp ordered", "pragma omp parallel for", "pragma omp section",
-                        "pragma omp sections", "pragma omp parallel sections", "pragma omp single",
-                        "pragma omp master", "pragma omp critical", "pragma omp barrier",
-                        "pragma omp flush", "pragma omp threadprivate", "undef", "if", "ifdef",
-                        "ifndef", "elif", "else", "endif" }))
+          QStringList({"define", "error", "include", "line", "pragma", "pragma once",
+                       "pragma omp atomic", "pragma omp parallel", "pragma omp for",
+                       "pragma omp ordered", "pragma omp parallel for", "pragma omp section",
+                       "pragma omp sections", "pragma omp parallel sections", "pragma omp single",
+                       "pragma omp master", "pragma omp critical", "pragma omp barrier",
+                       "pragma omp flush", "pragma omp threadprivate", "undef", "if", "ifdef",
+                       "ifndef", "elif", "else", "endif"}))
     , m_hintProposal(0)
     , m_snippetCollector(QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID),
                          QIcon(QLatin1String(":/texteditor/images/snippet.png")),

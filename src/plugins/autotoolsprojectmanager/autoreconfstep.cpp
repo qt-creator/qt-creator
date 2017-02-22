@@ -62,7 +62,7 @@ QList<BuildStepInfo> AutoreconfStepFactory::availableSteps(BuildStepList *parent
         return {};
 
     QString display = tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id.");
-    return {{ AUTORECONF_STEP_ID, display }};
+    return {{AUTORECONF_STEP_ID, display}};
 }
 
 BuildStep *AutoreconfStepFactory::create(BuildStepList *parent, Core::Id id)

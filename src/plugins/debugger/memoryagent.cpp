@@ -161,8 +161,8 @@ QString registerViewTitle(const QString &registerName, quint64 addr)
 
 QList<MemoryMarkup> registerViewMarkup(quint64 a, const QString &regName)
 {
-    return { MemoryMarkup(a, 1, QColor(Qt::blue).lighter(),
-                          MemoryAgent::tr("Register \"%1\"").arg(regName)) };
+    return {MemoryMarkup(a, 1, QColor(Qt::blue).lighter(),
+                         MemoryAgent::tr("Register \"%1\"").arg(regName))};
 }
 
 ///////////////////////////////////////////////////////////////////////

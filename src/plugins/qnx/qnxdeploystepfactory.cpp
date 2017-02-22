@@ -53,10 +53,10 @@ QList<BuildStepInfo> QnxDeployStepFactory::availableSteps(BuildStepList *parent)
     if (deviceType != QnxDeviceFactory::deviceType())
         return {};
 
-    return {{ RemoteLinux::GenericDirectUploadStep::stepId(),
-              RemoteLinux::GenericDirectUploadStep::displayName() },
-            { DeviceCheckBuildStep::stepId(),
-              DeviceCheckBuildStep::stepDisplayName() }};
+    return {{RemoteLinux::GenericDirectUploadStep::stepId(),
+             RemoteLinux::GenericDirectUploadStep::displayName()},
+            {DeviceCheckBuildStep::stepId(),
+             DeviceCheckBuildStep::stepDisplayName()}};
 }
 
 ProjectExplorer::BuildStep *QnxDeployStepFactory::create(ProjectExplorer::BuildStepList *parent, Core::Id id)

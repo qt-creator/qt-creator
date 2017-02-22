@@ -359,9 +359,9 @@ QList<BuildStepInfo> IosBuildStepFactory::availableSteps(BuildStepList *parent) 
             && parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
         return {};
 
-    return {{ IOS_BUILD_STEP_ID,
-              QCoreApplication::translate("GenericProjectManager::Internal::IosBuildStep",
-                                         IOS_BUILD_STEP_DISPLAY_NAME) }};
+    return {{IOS_BUILD_STEP_ID,
+             QCoreApplication::translate("GenericProjectManager::Internal::IosBuildStep",
+                                         IOS_BUILD_STEP_DISPLAY_NAME)}};
 }
 
 } // namespace Internal

@@ -378,7 +378,7 @@ void AndroidConfig::updateAvailableSdkPlatforms() const
     proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
     SynchronousProcessResponse response
             = proc.runBlocking(androidToolPath().toString(),
-                               QStringList({ "list",  "target" })); // list available AVDs
+                               QStringList({"list",  "target"})); // list available AVDs
     if (response.result != SynchronousProcessResponse::Finished)
         return;
 
@@ -668,7 +668,7 @@ bool AndroidConfig::removeAVD(const QString &name) const
     proc.setTimeoutS(5);
     proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
     SynchronousProcessResponse response
-            = proc.runBlocking(androidToolPath().toString(), QStringList({ "delete", "avd", "-n", name }));
+            = proc.runBlocking(androidToolPath().toString(), QStringList({"delete", "avd", "-n", name}));
     return response.result == SynchronousProcessResponse::Finished && response.exitCode == 0;
 }
 
@@ -684,7 +684,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices(const QString &a
     SynchronousProcess proc;
     proc.setTimeoutS(20);
     proc.setProcessEnvironment(environment.toProcessEnvironment());
-    SynchronousProcessResponse response = proc.run(androidTool, { "list", "avd" }); // list available AVDs
+    SynchronousProcessResponse response = proc.run(androidTool, {"list", "avd"}); // list available AVDs
     if (response.result != SynchronousProcessResponse::Finished)
         return devices;
 
@@ -1350,7 +1350,7 @@ QStringList AndroidDeviceInfo::adbSelector(const QString &serialNumber)
 {
     if (serialNumber.startsWith(QLatin1String("????")))
         return QStringList("-d");
-    return QStringList({ "-s",  serialNumber });
+    return QStringList({"-s",  serialNumber});
 }
 
 const AndroidConfig &AndroidConfigurations::currentConfig()

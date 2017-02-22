@@ -53,7 +53,7 @@ static const char mainWindowUiContentsC[] =
 static const char mainWindowMobileUiContentsC[] =
 "\n  <widget class=\"QWidget\" name=\"centralWidget\" />";
 
-static const char *baseClassesC[] = { "QMainWindow", "QWidget", "QDialog" };
+static const char *baseClassesC[] = {"QMainWindow", "QWidget", "QDialog"};
 
 static inline QStringList baseClasses()
 {
@@ -78,7 +78,7 @@ GuiAppWizard::GuiAppWizard()
                   "Includes a Qt Designer-based main window.\n\n"
                   "Preselects a desktop Qt for building the application if available."));
     setIcon(QIcon(QLatin1String(":/wizards/images/gui.png")));
-    setRequiredFeatures({ QtSupport::Constants::FEATURE_QWIDGETS });
+    setRequiredFeatures({QtSupport::Constants::FEATURE_QWIDGETS});
 }
 
 Core::BaseFileWizard *GuiAppWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const

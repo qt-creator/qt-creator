@@ -526,8 +526,8 @@ QList<BuildStepInfo> CMakeBuildStepFactory::availableSteps(BuildStepList *parent
     if (parent->target()->project()->id() != Constants::CMAKEPROJECT_ID)
         return {};
 
-    return {{ Constants::CMAKE_BUILD_STEP_ID,
-                    tr("Build", "Display name for CMakeProjectManager::CMakeBuildStep id.") }};
+    return {{Constants::CMAKE_BUILD_STEP_ID,
+             tr("Build", "Display name for CMakeProjectManager::CMakeBuildStep id.")}};
 }
 
 BuildStep *CMakeBuildStepFactory::create(BuildStepList *parent, Core::Id id)

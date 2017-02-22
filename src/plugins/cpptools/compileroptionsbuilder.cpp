@@ -343,7 +343,7 @@ static QStringList languageFeatureMacros()
     // Collected with:
     //  $ CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
     //  $ D:\usr\llvm-3.8.0\bin\clang++.exe -fms-compatibility-version=19 -std=c++1y -dM -E D:\empty.cpp | grep __cpp_
-    static QStringList macros {
+    static QStringList macros{
         QLatin1String("__cpp_aggregate_nsdmi"),
         QLatin1String("__cpp_alias_templates"),
         QLatin1String("__cpp_attributes"),

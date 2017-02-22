@@ -647,10 +647,10 @@ QString PluginDumper::resolvePlugin(const QDir &qmldirPath, const QString &qmldi
     QString prefix;
     if (Utils::HostOsInfo::isWindowsHost()) {
         // try a qmake-style debug build first
-        validSuffixList = QStringList({ "d.dll",  ".dll" });
+        validSuffixList = QStringList({"d.dll",  ".dll"});
     } else if (Utils::HostOsInfo::isMacHost()) {
         // try a qmake-style debug build first
-        validSuffixList = QStringList({ "_debug.dylib", ".dylib", ".so", ".bundle", "lib" });
+        validSuffixList = QStringList({"_debug.dylib", ".dylib", ".so", ".bundle", "lib"});
     } else {
         // Examples of valid library names:
         //  libfoo.so

@@ -151,7 +151,7 @@ void CommandMappings::setPageTitle(const QString &s)
 
 void CommandMappings::setTargetHeader(const QString &s)
 {
-    d->commandList->setHeaderLabels({ tr("Command"), tr("Label"), s});
+    d->commandList->setHeaderLabels({tr("Command"), tr("Label"), s});
 }
 
 void CommandMappings::filterChanged(const QString &f)

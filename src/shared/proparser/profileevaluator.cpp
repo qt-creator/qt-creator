@@ -83,14 +83,14 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::fixifiedValues(
     foreach (const ProString &str, d->values(ProKey(variable))) {
         const QString &el = d->m_option->expandEnvVars(str.toQString());
         if (IoUtils::isAbsolutePath(el)) {
-            result << SourceFile{ QDir::cleanPath(el), str.sourceFile() };
+            result << SourceFile{QDir::cleanPath(el), str.sourceFile()};
         } else {
             QString fn = QDir::cleanPath(baseDirectory + QLatin1Char('/') + el);
             if (IoUtils::exists(fn))
-                result << SourceFile{ fn, str.sourceFile() };
+                result << SourceFile{fn, str.sourceFile()};
             else
-                result << SourceFile{ QDir::cleanPath(buildDirectory + QLatin1Char('/') + el),
-                                      str.sourceFile() };
+                result << SourceFile{QDir::cleanPath(buildDirectory + QLatin1Char('/') + el),
+                                     str.sourceFile()};
         }
     }
     return result;
@@ -142,7 +142,7 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::absoluteFileValues(
             foreach (const QString &dir, searchDirs) {
                 QString fn = QDir::cleanPath(dir + QLatin1Char('/') + el);
                 if (m_vfs->exists(fn, flags)) {
-                    result << SourceFile{ fn, str.sourceFile() };
+                    result << SourceFile{fn, str.sourceFile()};
                     goto next;
                 }
             }
@@ -166,7 +166,7 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::absoluteFileValues(
                     theDir.setFilter(theDir.filter() & ~QDir::AllDirs);
                     foreach (const QString &fn, theDir.entryList(QStringList(wildcard)))
                         if (fn != QLatin1String(".") && fn != QLatin1String(".."))
-                            result << SourceFile{ absDir + QLatin1Char('/') + fn, str.sourceFile() };
+                            result << SourceFile{absDir + QLatin1Char('/') + fn, str.sourceFile()};
                 } // else if (acceptMissing)
             }
         }

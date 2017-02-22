@@ -371,7 +371,7 @@ void CppToolsPlugin::test_global_completion_data()
     const QByteArray codeTemplate = "int myGlobal;\n"
                                     "<REPLACEMENT>\n"
                                     "@\n";
-    const QStringList replacements = QStringList({ "// text", "// text.", "/// text", "/// text." });
+    const QStringList replacements = QStringList({"// text", "// text.", "/// text", "/// text."});
     foreach (const QString &replacement, replacements) {
         QByteArray code = codeTemplate;
         code.replace("<REPLACEMENT>", replacement.toUtf8());
@@ -427,14 +427,14 @@ static void enumTestCase(const QByteArray &tag, const QByteArray &source,
     QByteArray fullSource = source;
     fullSource.replace('$', "enum E { val1, val2, val3 };");
     QTest::newRow(tag) << fullSource << (prefix + "val")
-            << QStringList({ "val1", "val2", "val3" });
+            << QStringList({"val1", "val2", "val3"});
 
     QTest::newRow(tag + "_cxx11") << fullSource << (prefix + "E::")
-            << QStringList({ "E", "val1", "val2", "val3" });
+            << QStringList({"E", "val1", "val2", "val3"});
 
     fullSource.replace("enum E ", "enum ");
     QTest::newRow(tag + "_anon") << fullSource << (prefix + "val")
-            << QStringList({ "val1", "val2", "val3" });
+            << QStringList({"val1", "val2", "val3"});
 }
 
 void CppToolsPlugin::test_completion_data()
@@ -475,7 +475,7 @@ void CppToolsPlugin::test_completion_data()
             "    if (1)\n"
             "        @;\n"
             "}\n"
-        ) << _("((Derived *)b)->") << QStringList({ "Derived", "Base", "i_derived", "i_base" });
+        ) << _("((Derived *)b)->") << QStringList({"Derived", "Base", "i_derived", "i_base"});
 
     QTest::newRow("inside_parentheses_cast_operator_conversion") << _(
             "class Base\n"
@@ -494,8 +494,8 @@ void CppToolsPlugin::test_completion_data()
             "    if (1)\n"
             "        @;\n"
             "}\n"
-        ) << _("(static_cast<Derived *>(b))->") << QStringList({ "Derived", "Base", "i_derived",
-                                                                 "i_base" });
+        ) << _("(static_cast<Derived *>(b))->") << QStringList({"Derived", "Base", "i_derived",
+                                                                "i_base"});
 
     QTest::newRow("template_1") << _(
             "template <class T>\n"
@@ -510,7 +510,7 @@ void CppToolsPlugin::test_completion_data()
             "    Foo f;\n"
             "    @\n"
             "}"
-        ) << _("Foo::") << QStringList({ "Foo", "Type", "foo", "m" });
+        ) << _("Foo::") << QStringList({"Foo", "Type", "foo", "m"});
 
     QTest::newRow("template_2") << _(
             "template <class T>\n"
@@ -525,7 +525,7 @@ void CppToolsPlugin::test_completion_data()
             "    List<Tupple> l;\n"
             "    @\n"
             "}"
-        ) << _("l.at(0).") << QStringList({ "Tupple", "a", "b" });
+        ) << _("l.at(0).") << QStringList({"Tupple", "a", "b"});
 
     QTest::newRow("template_3") << _(
             "template <class T>\n"
@@ -540,7 +540,7 @@ void CppToolsPlugin::test_completion_data()
             "    List<Tupple> l;\n"
             "    @\n"
             "}"
-        ) << _("l.t.") << QStringList({ "Tupple", "a", "b" });
+        ) << _("l.t.") << QStringList({"Tupple", "a", "b"});
 
     QTest::newRow("template_4") << _(
             "template <class T>\n"
@@ -556,7 +556,7 @@ void CppToolsPlugin::test_completion_data()
             "    List<Tupple> l;\n"
             "    @\n"
             "}"
-        ) << _("l.u.") << QStringList({ "Tupple", "a", "b" });
+        ) << _("l.u.") << QStringList({"Tupple", "a", "b"});
 
     QTest::newRow("template_5") << _(
             "template <class T>\n"
@@ -572,7 +572,7 @@ void CppToolsPlugin::test_completion_data()
             "    LT l;"
             "    @\n"
             "}"
-        ) << _("l.u.") << QStringList({ "Tupple", "a", "b" });
+        ) << _("l.u.") << QStringList({"Tupple", "a", "b"});
 
     QTest::newRow("template_6") << _(
             "class Item\n"
@@ -592,7 +592,7 @@ void CppToolsPlugin::test_completion_data()
             "{};\n"
             "ItemContainer container;\n"
             "@\n"
-        ) << _("container.get().") << QStringList({ "Item", "i" });
+        ) << _("container.get().") << QStringList({"Item", "i"});
 
     QTest::newRow("template_7") << _(
             "struct Test\n"
@@ -615,7 +615,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "TemplateClass<Test> p(new Test);\n"
             "@\n"
-        ) << _("p->") << QStringList({ "Test", "i" });
+        ) << _("p->") << QStringList({"Test", "i"});
 
     QTest::newRow("type_of_pointer_is_typedef") << _(
             "typedef struct Foo\n"
@@ -624,7 +624,7 @@ void CppToolsPlugin::test_completion_data()
             "} Foo;\n"
             "Foo *bar;\n"
             "@\n"
-        ) << _("bar->") << QStringList({ "Foo", "foo" });
+        ) << _("bar->") << QStringList({"Foo", "foo"});
 
     QTest::newRow("instantiate_full_specialization") << _(
             "template<typename T>\n"
@@ -641,7 +641,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "Template<char> templateChar;\n"
             "@\n"
-        ) << _("templateChar.") << QStringList({ "Template", "templateChar_i" });
+        ) << _("templateChar.") << QStringList({"Template", "templateChar_i"});
 
     QTest::newRow("template_as_base: base as template directly") << _(
             "class Data { int dataMember; };\n"
@@ -651,7 +651,7 @@ void CppToolsPlugin::test_completion_data()
             "    Other<Data> c;\n"
             "    @\n"
             "}"
-        ) << _("c.") << QStringList({ "Data", "dataMember", "Other", "otherMember" });
+        ) << _("c.") << QStringList({"Data", "dataMember", "Other", "otherMember"});
 
     QTest::newRow("template_as_base: base as class template") << _(
             "class Data { int dataMember; };\n"
@@ -662,8 +662,8 @@ void CppToolsPlugin::test_completion_data()
             "    More<Data> c;\n"
             "    @\n"
             "}"
-        ) << _("c.") << QStringList({ "Data", "dataMember", "Other", "otherMember", "More",
-                                      "moreMember" });
+        ) << _("c.") << QStringList({"Data", "dataMember", "Other", "otherMember", "More",
+                                     "moreMember"});
 
     QTest::newRow("template_as_base: base as globally qualified class template") << _(
             "class Data { int dataMember; };\n"
@@ -674,8 +674,8 @@ void CppToolsPlugin::test_completion_data()
             "    More<Data> c;\n"
             "    @\n"
             "}"
-        ) << _("c.") << QStringList({ "Data", "dataMember", "Other", "otherMember", "More",
-                                      "moreMember" });
+        ) << _("c.") << QStringList({"Data", "dataMember", "Other", "otherMember", "More",
+                                     "moreMember"});
 
     QTest::newRow("template_as_base: base as namespace qualified class template") << _(
             "class Data { int dataMember; };\n"
@@ -688,8 +688,8 @@ void CppToolsPlugin::test_completion_data()
             "    More<Data> c;\n"
             "    @\n"
             "}"
-        ) << _("c.") << QStringList({ "Data", "dataMember", "Other", "otherMember", "More",
-                                      "moreMember" });
+        ) << _("c.") << QStringList({"Data", "dataMember", "Other", "otherMember", "More",
+                                     "moreMember"});
 
     QTest::newRow("template_as_base: base as nested template name") << _(
             "class Data { int dataMember; };\n"
@@ -702,7 +702,7 @@ void CppToolsPlugin::test_completion_data()
             "    Final<Data> c;\n"
             "    @\n"
             "}"
-        ) << _("c.") << QStringList({ "Data", "dataMember", "Final", "finalMember" });
+        ) << _("c.") << QStringList({"Data", "dataMember", "Final", "finalMember"});
 
     QTest::newRow("template_as_base: base as nested template name in non-template") << _(
             "class Data { int dataMember; };\n"
@@ -715,7 +715,7 @@ void CppToolsPlugin::test_completion_data()
             "    Final c;\n"
             "    @\n"
             "}"
-        ) << _("c.") << QStringList({ "Data", "dataMember", "Final", "finalMember" });
+        ) << _("c.") << QStringList({"Data", "dataMember", "Final", "finalMember"});
 
     QTest::newRow("template_as_base: base as template name in non-template") << _(
             "class Data { int dataMember; };\n"
@@ -728,8 +728,8 @@ void CppToolsPlugin::test_completion_data()
             "    Final c;\n"
             "    @\n"
             "}"
-        ) << _("c.") << QStringList({ "Data", "dataMember", "Final", "finalMember", "Other",
-                                      "otherMember" });
+        ) << _("c.") << QStringList({"Data", "dataMember", "Final", "finalMember", "Other",
+                                     "otherMember"});
 
     QTest::newRow("template_as_base: typedef not available in derived") << _(
             "class Data { int dataMember; };\n"
@@ -755,7 +755,7 @@ void CppToolsPlugin::test_completion_data()
             "    Derived<Data> d;\n"
             "    @\n"
             "}\n"
-        ) << _("d.f.") << QStringList({ "Data", "dataMember" });
+        ) << _("d.f.") << QStringList({"Data", "dataMember"});
 
     QTest::newRow("use_global_identifier_as_base_class: derived as global and base as global") << _(
             "struct Global\n"
@@ -770,7 +770,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "Final c;\n"
             "@\n"
-        ) << _("c.") << QStringList({ "int_global", "int_final", "Final", "Global" });
+        ) << _("c.") << QStringList({"int_global", "int_final", "Final", "Global"});
 
     QTest::newRow("use_global_identifier_as_base_class: derived is inside namespace. "
                   "base as global") << _(
@@ -789,7 +789,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "NS::Final c;\n"
             "@\n"
-        ) << _("c.") << QStringList({ "int_global", "int_final", "Final", "Global" });
+        ) << _("c.") << QStringList({"int_global", "int_final", "Final", "Global"});
 
     QTest::newRow("use_global_identifier_as_base_class: derived is enclosed by template. "
                   "base as global") << _(
@@ -809,7 +809,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "Enclosing<int>::Final c;\n"
             "@\n"
-        ) << _("c.") << QStringList({ "int_global", "int_final", "Final", "Global" });
+        ) << _("c.") << QStringList({"int_global", "int_final", "Final", "Global"});
 
     QTest::newRow("base_class_has_name_the_same_as_derived: base class is derived class") << _(
             "struct A : A\n"
@@ -819,7 +819,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "A c;\n"
             "@\n"
-        ) << _("c.") << QStringList({ "int_a", "A" });
+        ) << _("c.") << QStringList({"int_a", "A"});
 
     QTest::newRow("base_class_has_name_the_same_as_derived: base class is derived class. "
                   "class is in namespace") << _(
@@ -833,7 +833,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "NS::A c;\n"
             "@\n"
-        ) << _("c.") << QStringList({ "int_a", "A" });
+        ) << _("c.") << QStringList({"int_a", "A"});
 
     QTest::newRow("base_class_has_name_the_same_as_derived: base class is derived class. "
                   "class is in namespace. use scope operator for base class") << _(
@@ -847,7 +847,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "NS::A c;\n"
             "@\n"
-        ) << _("c.") << QStringList({ "int_a", "A" });
+        ) << _("c.") << QStringList({"int_a", "A"});
 
     QTest::newRow("base_class_has_name_the_same_as_derived: base class has the same name as "
                   "derived but in different namespace") << _(
@@ -868,7 +868,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "NS2::A c;\n"
             "@\n"
-        ) << _("c.") << QStringList({ "int_ns1_a", "int_ns2_a", "A" });
+        ) << _("c.") << QStringList({"int_ns1_a", "int_ns2_a", "A"});
 
     QTest::newRow("base_class_has_name_the_same_as_derived: base class has the same name as "
                   "derived (in namespace) but is nested by different class") << _(
@@ -889,7 +889,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "NS2::A c;\n"
             "@\n"
-        ) << _("c.") << QStringList({ "int_enclosing_a", "int_ns2_a", "A" });
+        ) << _("c.") << QStringList({"int_enclosing_a", "int_ns2_a", "A"});
 
     QTest::newRow("base_class_has_name_the_same_as_derived: base class has the same name as "
                   "derived (nested) but is nested by different class") << _(
@@ -910,7 +910,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "EnclosingDerived::A c;\n"
             "@\n"
-        ) << _("c.") << QStringList({ "int_enclosing_base_a", "int_enclosing_derived_a", "A" });
+        ) << _("c.") << QStringList({"int_enclosing_base_a", "int_enclosing_derived_a", "A"});
 
     QTest::newRow("base_class_has_name_the_same_as_derived: base class is derived class. "
                   "class is a template") << _(
@@ -922,7 +922,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "A<int> c;\n"
             "@\n"
-        ) << _("c.") << QStringList({ "int_a", "A" });
+        ) << _("c.") << QStringList({"int_a", "A"});
 
     QTest::newRow("cyclic_inheritance: direct cyclic inheritance") << _(
             "struct B;\n"
@@ -931,7 +931,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "A c;\n"
             "@\n"
-        ) << _("c.") << QStringList({ "A", "_a", "B", "_b" });
+        ) << _("c.") << QStringList({"A", "_a", "B", "_b"});
 
     QTest::newRow("cyclic_inheritance: indirect cyclic inheritance") << _(
             "struct C;\n"
@@ -941,7 +941,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "A c;\n"
             "@\n"
-        ) << _("c.") << QStringList({ "A", "_a", "B", "_b", "C", "_c" });
+        ) << _("c.") << QStringList({"A", "_a", "B", "_b", "C", "_c"});
 
     QTest::newRow("cyclic_inheritance: indirect cyclic inheritance") << _(
             "struct B;\n"
@@ -951,7 +951,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "A c;\n"
             "@\n"
-        ) << _("c.") << QStringList({ "A", "_a", "B", "_b", "C", "_c" });
+        ) << _("c.") << QStringList({"A", "_a", "B", "_b", "C", "_c"});
 
     QTest::newRow("cyclic_inheritance: direct cyclic inheritance with templates") << _(
             "template< typename T > struct C;\n"
@@ -967,7 +967,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "D<int, float> c;\n"
             "@\n"
-        ) << _("c.") << QStringList({ "D", "_d_t", "_d_s", "C", "_c_t" });
+        ) << _("c.") << QStringList({"D", "_d_t", "_d_s", "C", "_c_t"});
 
     QTest::newRow("cyclic_inheritance: indirect cyclic inheritance with templates") << _(
             "template< typename T > struct C;\n"
@@ -987,7 +987,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "D<int, float> c;\n"
             "@\n"
-        ) << _("c.") << QStringList({ "D", "_d_t", "_d_s", "C", "_c_t", "B", "_b_t" });
+        ) << _("c.") << QStringList({"D", "_d_t", "_d_s", "C", "_c_t", "B", "_b_t"});
 
     QTest::newRow("cyclic_inheritance: direct cyclic inheritance with templates. "
                   "more complex situation") << _(
@@ -1018,8 +1018,8 @@ void CppToolsPlugin::test_completion_data()
            "\n"
            "Class<int> c;\n"
            "@\n"
-        ) << _("c.") << QStringList({ "Class", "ClassRecurse", "class_t", "class_recurse_s",
-                                      "class_recurse_t" });
+        ) << _("c.") << QStringList({"Class", "ClassRecurse", "class_t", "class_recurse_s",
+                                     "class_recurse_t"});
 
     QTest::newRow("enclosing_template_class: nested class with enclosing template class") << _(
             "template<typename T>\n"
@@ -1031,7 +1031,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "Enclosing<int>::Nested c;"
             "@\n"
-        ) << _("c.") << QStringList({ "Nested", "int_nested" });
+        ) << _("c.") << QStringList({"Nested", "int_nested"});
 
     QTest::newRow("enclosing_template_class: nested template class with enclosing template "
                   "class") << _(
@@ -1044,7 +1044,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "Enclosing<int>::Nested<int> c;"
             "@\n"
-        ) << _("c.") << QStringList({ "Nested", "int_nested" });
+        ) << _("c.") << QStringList({"Nested", "int_nested"});
 
     QTest::newRow("instantiate_nested_class_when_enclosing_is_template") << _(
             "struct Foo \n"
@@ -1065,7 +1065,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "Enclosing<Foo> enclosing;\n"
             "@\n"
-        ) << _("enclosing.nested.nested_t.") << QStringList({ "Foo", "foo_i" });
+        ) << _("enclosing.nested.nested_t.") << QStringList({"Foo", "foo_i"});
 
     QTest::newRow("instantiate_nested_of_nested_class_when_enclosing_is_template") << _(
             "struct Foo \n"
@@ -1090,7 +1090,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "Enclosing<Foo> enclosing;\n"
             "@\n"
-        ) << _("enclosing.nested.nestedNested.nestedNested_t.") << QStringList({ "Foo", "foo_i" });
+        ) << _("enclosing.nested.nestedNested.nestedNested_t.") << QStringList({"Foo", "foo_i"});
 
     QTest::newRow("instantiate_template_with_default_argument_type") << _(
             "struct Foo\n"
@@ -1106,7 +1106,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "Template<> templateWithDefaultTypeOfArgument;\n"
             "@\n"
-        ) << _("templateWithDefaultTypeOfArgument.t.") << QStringList({ "Foo", "bar" });
+        ) << _("templateWithDefaultTypeOfArgument.t.") << QStringList({"Foo", "bar"});
 
     QTest::newRow("instantiate_template_with_default_argument_type_as_template") << _(
             "struct Foo\n"
@@ -1127,7 +1127,7 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "Template<Foo> templateWithDefaultTypeOfArgument;\n"
             "@\n"
-        ) << _("templateWithDefaultTypeOfArgument.s.t.") << QStringList({ "Foo", "bar" });
+        ) << _("templateWithDefaultTypeOfArgument.s.t.") << QStringList({"Foo", "bar"});
 
     QTest::newRow("typedef_of_pointer") << _(
             "struct Foo { int bar; };\n"
@@ -1137,7 +1137,7 @@ void CppToolsPlugin::test_completion_data()
             "   FooPtr ptr;\n"
             "   @\n"
             "}"
-        ) << _("ptr->") << QStringList({ "Foo", "bar" });
+        ) << _("ptr->") << QStringList({"Foo", "bar"});
 
     QTest::newRow("typedef_of_pointer_inside_function") << _(
             "struct Foo { int bar; };\n"
@@ -1147,7 +1147,7 @@ void CppToolsPlugin::test_completion_data()
             "   FooPtr ptr;\n"
             "   @\n"
             "}"
-        ) << _("ptr->") << QStringList({ "Foo", "bar" });
+        ) << _("ptr->") << QStringList({"Foo", "bar"});
 
     QTest::newRow("typedef_is_inside_function_before_declaration_block") << _(
             "struct Foo { int bar; };\n"
@@ -1159,7 +1159,7 @@ void CppToolsPlugin::test_completion_data()
             "       @\n"
             "   }"
             "}"
-        ) << _("ptr->") << QStringList({ "Foo", "bar" });
+        ) << _("ptr->") << QStringList({"Foo", "bar"});
 
     QTest::newRow("resolve_complex_typedef_with_template") << _(
             "template <typename T>\n"
@@ -1182,7 +1182,7 @@ void CppToolsPlugin::test_completion_data()
             "    Template2<Foo> template2;\n"
             "    @\n"
             "}\n"
-        ) << _("template2.templateTypedef.") << QStringList({ "Foo", "bar", "Template1" });
+        ) << _("template2.templateTypedef.") << QStringList({"Foo", "bar", "Template1"});
 
     QTest::newRow("template_specialization_with_pointer") << _(
             "template <typename T>\n"
@@ -1197,7 +1197,7 @@ void CppToolsPlugin::test_completion_data()
             "};\n"
             "Template<int*> templ;\n"
             "@\n"
-        ) << _("templ.") << QStringList({ "Template", "pointer" });
+        ) << _("templ.") << QStringList({"Template", "pointer"});
 
     QTest::newRow("typedef_using_templates1") << _(
             "namespace NS1\n"
@@ -1230,7 +1230,7 @@ void CppToolsPlugin::test_completion_data()
             "    NS2::NS2Struct<Foo> s;\n"
             "    @\n"
             "}\n"
-        ) << _("s.p->") << QStringList({ "Foo", "bar" });
+        ) << _("s.p->") << QStringList({"Foo", "bar"});
 
     QTest::newRow("typedef_using_templates2") << _(
             "namespace NS1\n"
@@ -1263,7 +1263,7 @@ void CppToolsPlugin::test_completion_data()
             "    NS2::NS2Struct<Foo>::pointer p;\n"
             "    @\n"
             "}\n"
-        ) << _("p->") << QStringList({ "Foo", "bar" });
+        ) << _("p->") << QStringList({"Foo", "bar"});
 
     QTest::newRow("namespace_alias_with_many_namespace_declarations") << _(
             "namespace NS1\n"
@@ -1291,7 +1291,7 @@ void CppToolsPlugin::test_completion_data()
             "{\n"
             "    @\n"
             "}\n"
-        ) << _("NS::") << QStringList({ "Foo1", "Foo2" });
+        ) << _("NS::") << QStringList({"Foo1", "Foo2"});
 
     QTest::newRow("QTCREATORBUG9098") << _(
             "template <typename T>\n"
@@ -1310,7 +1310,7 @@ void CppToolsPlugin::test_completion_data()
             "       @\n"
             "    }\n"
             "};\n"
-        ) << _("b.") << QStringList({ "c", "B" });
+        ) << _("b.") << QStringList({"c", "B"});
 
     QTest::newRow("type_and_using_declaration: type and using declaration inside function") << _(
             "namespace NS\n"
@@ -1323,7 +1323,7 @@ void CppToolsPlugin::test_completion_data()
             "    C c;\n"
             "    @\n"
             "}\n"
-        ) << _("c.") << QStringList({ "C", "m" });
+        ) << _("c.") << QStringList({"C", "m"});
 
     QTest::newRow("type_and_using_declaration: type and using declaration in global "
                   "namespace") << _(
@@ -1337,7 +1337,7 @@ void CppToolsPlugin::test_completion_data()
             "    C c;\n"
             "    @\n"
             "}\n"
-        ) << _("c.") << QStringList({ "C", "m" });
+        ) << _("c.") << QStringList({"C", "m"});
 
     QTest::newRow("type_and_using_declaration: type in global namespace and using declaration in "
                   "NS namespace") << _(
@@ -1351,7 +1351,7 @@ void CppToolsPlugin::test_completion_data()
             "       @\n"
             "   }\n"
             "}\n"
-        ) << _("c.") << QStringList({ "C", "m" });
+        ) << _("c.") << QStringList({"C", "m"});
 
     QTest::newRow("type_and_using_declaration: type in global namespace and using declaration "
                   "inside function in NS namespace") << _(
@@ -1365,7 +1365,7 @@ void CppToolsPlugin::test_completion_data()
             "       @\n"
             "   }\n"
             "}\n"
-        ) << _("c.") << QStringList({ "C", "m" });
+        ) << _("c.") << QStringList({"C", "m"});
 
     QTest::newRow("type_and_using_declaration: type inside namespace NS1 and using declaration in "
                   "function inside NS2 namespace") << _(
@@ -1382,7 +1382,7 @@ void CppToolsPlugin::test_completion_data()
             "       @\n"
             "   }\n"
             "}\n"
-        ) << _("c.") << QStringList({ "C", "m" });
+        ) << _("c.") << QStringList({"C", "m"});
 
     QTest::newRow("type_and_using_declaration: type inside namespace NS1 and using declaration "
                   "inside NS2 namespace") << _(
@@ -1399,7 +1399,7 @@ void CppToolsPlugin::test_completion_data()
             "       @\n"
             "   }\n"
             "}\n"
-        ) << _("c.") << QStringList({ "C", "m" });
+        ) << _("c.") << QStringList({"C", "m"});
 
     QTest::newRow("instantiate_template_with_anonymous_class") << _(
             "template <typename T>\n"
@@ -1412,7 +1412,7 @@ void CppToolsPlugin::test_completion_data()
             "   S<int> s;\n"
             "   @\n"
             "}\n"
-        ) << _("s.") << QStringList({ "S", "i", "c" });
+        ) << _("s.") << QStringList({"S", "i", "c"});
 
     QTest::newRow("instantiate_template_function") << _(
             "template <typename T>\n"
@@ -1433,7 +1433,7 @@ void CppToolsPlugin::test_completion_data()
             "    } n;\n"
             "    @;\n"
             "}\n"
-        ) << _("n.") << QStringList({ "Nested", "i" });
+        ) << _("n.") << QStringList({"Nested", "i"});
 
     QTest::newRow("nested_class_inside_member_function") << _(
           "struct User { void use(); };\n"
@@ -1443,7 +1443,7 @@ void CppToolsPlugin::test_completion_data()
           "   Foo foo;\n"
           "   @\n"
           "}\n"
-    ) << _("foo.") << QStringList({ "Foo", "bar" });
+    ) << _("foo.") << QStringList({"Foo", "bar"});
 
     QTest::newRow("nested_typedef_inside_member_function") << _(
           "struct User { void use(); };\n"
@@ -1461,7 +1461,7 @@ void CppToolsPlugin::test_completion_data()
           "   MyFoo::Ptr myfoo;\n"
           "   @\n"
           "}\n"
-    ) << _("myfoo->") << QStringList({ "Foo", "Ptr", "bar" });
+    ) << _("myfoo->") << QStringList({"Foo", "Ptr", "bar"});
 
     QTest::newRow("nested_anonymous_class_QTCREATORBUG10876_1") << _(
             "struct EnclosingStruct\n"
@@ -1476,8 +1476,8 @@ void CppToolsPlugin::test_completion_data()
             "       @\n"
             "   }\n"
             "};\n"
-        ) << _("member") << QStringList({ "memberNestedAnonymousClass",
-                                          "memberOfEnclosingStruct" });
+        ) << _("member") << QStringList({"memberNestedAnonymousClass",
+                                         "memberOfEnclosingStruct"});
 
     QTest::newRow("nested_anonymous_class_QTCREATORBUG10876_2") << _(
             "struct EnclosingStruct\n"
@@ -1496,9 +1496,9 @@ void CppToolsPlugin::test_completion_data()
             "       @\n"
             "   }\n"
             "};\n"
-        ) << _("member") << QStringList({ "memberOfNestedAnonymousClass",
-                                          "memberOfNestedOfNestedAnonymousClass",
-                                          "memberOfEnclosingStruct" });
+        ) << _("member") << QStringList({"memberOfNestedAnonymousClass",
+                                         "memberOfNestedOfNestedAnonymousClass",
+                                         "memberOfEnclosingStruct"});
 
     QTest::newRow("nested_anonymous_class_QTCREATORBUG10876_3") << _(
             "struct EnclosingStruct\n"
@@ -1529,7 +1529,7 @@ void CppToolsPlugin::test_completion_data()
             "   };\n"
             "   @\n"
             "}\n"
-        ) << _("foo") << QStringList({ "foo1", "foo2" });
+        ) << _("foo") << QStringList({"foo1", "foo2"});
 
     QTest::newRow("crash_cloning_template_class_QTCREATORBUG9329") << _(
             "struct A {};\n"
@@ -1542,7 +1542,7 @@ void CppToolsPlugin::test_completion_data()
             "       @\n"
             "   }\n"
             "};\n"
-        ) << _("this->") << QStringList({ "A", "B", "Templ", "f" });
+        ) << _("this->") << QStringList({"A", "B", "Templ", "f"});
 
     QTest::newRow("recursive_auto_declarations1_QTCREATORBUG9503") << _(
             "void f()\n"
@@ -1658,7 +1658,7 @@ void CppToolsPlugin::test_completion_data()
             "    C c;\n"
             "    @\n"
             "}\n"
-        ) << _("c.") << QStringList({ "C", "m" });
+        ) << _("c.") << QStringList({"C", "m"});
 
     QTest::newRow("class_declaration_inside_function_or_block_QTCREATORBUG3620: "
                   "class definition inside block inside function") << _(
@@ -1670,7 +1670,7 @@ void CppToolsPlugin::test_completion_data()
             "       @\n"
             "   }\n"
             "}\n"
-        ) << _("c.") << QStringList({ "C", "m" });
+        ) << _("c.") << QStringList({"C", "m"});
 
     QTest::newRow("class_declaration_inside_function_or_block_QTCREATORBUG3620: "
                   "class definition with the same name inside different block inside function") << _(
@@ -1685,7 +1685,7 @@ void CppToolsPlugin::test_completion_data()
             "       @\n"
             "   }\n"
             "}\n"
-        ) << _("c.") << QStringList({ "C", "m2" });
+        ) << _("c.") << QStringList({"C", "m2"});
 
     QTest::newRow("namespace_alias_inside_function_or_block_QTCREATORBUG166: "
                   "namespace alias inside function") << _(
@@ -1705,7 +1705,7 @@ void CppToolsPlugin::test_completion_data()
             "   NS::C c;\n"
             "   @\n"
             "}\n"
-        ) << _("c.") << QStringList({ "C", "m" });
+        ) << _("c.") << QStringList({"C", "m"});
 
     QTest::newRow("namespace_alias_inside_function_or_block_QTCREATORBUG166: "
                   "namespace alias inside block inside function") << _(
@@ -1727,7 +1727,7 @@ void CppToolsPlugin::test_completion_data()
             "       @\n"
             "   }\n"
             "}\n"
-        ) << _("c.") << QStringList({ "C", "m" });
+        ) << _("c.") << QStringList({"C", "m"});
 
     QTest::newRow("class_declaration_inside_function_or_block_QTCREATORBUG3620_static_member") << _(
             "void foo()\n"
@@ -1740,7 +1740,7 @@ void CppToolsPlugin::test_completion_data()
             "       @\n"
             "   }\n"
             "}\n"
-        ) << _("C::") << QStringList({ "C", "staticFun2", "m2" });
+        ) << _("C::") << QStringList({"C", "staticFun2", "m2"});
 
     enumTestCase(
             "enum_inside_block_inside_function",
@@ -1841,7 +1841,7 @@ void CppToolsPlugin::test_completion_data()
             "};\n"
             "Enclosing e;\n"
             "@\n"
-        ) << _("e.") << QStringList({ "Enclosing", "i" });
+        ) << _("e.") << QStringList({"Enclosing", "i"});
 
     QTest::newRow("lambdaCalls_1") << _(
             "struct S { int bar; };\n"
@@ -1849,7 +1849,7 @@ void CppToolsPlugin::test_completion_data()
             "{\n"
             "   @\n"
             "}\n"
-        ) << _("[](){ return new S; } ()->") << QStringList({ "S", "bar" });
+        ) << _("[](){ return new S; } ()->") << QStringList({"S", "bar"});
 
     QTest::newRow("lambdaCalls_2") << _(
             "struct S { int bar; };\n"
@@ -1857,7 +1857,7 @@ void CppToolsPlugin::test_completion_data()
             "{\n"
             "   @\n"
             "}\n"
-        ) << _("[] { return new S; } ()->") << QStringList({ "S", "bar" });
+        ) << _("[] { return new S; } ()->") << QStringList({"S", "bar"});
 
     QTest::newRow("lambdaCalls_3") << _(
             "struct S { int bar; };\n"
@@ -1865,7 +1865,7 @@ void CppToolsPlugin::test_completion_data()
             "{\n"
             "   @\n"
             "}\n"
-        ) << _("[]() ->S* { return new S; } ()->") << QStringList({ "S", "bar" });
+        ) << _("[]() ->S* { return new S; } ()->") << QStringList({"S", "bar"});
 
     QTest::newRow("lambdaCalls_4") << _(
             "struct S { int bar; };\n"
@@ -1873,7 +1873,7 @@ void CppToolsPlugin::test_completion_data()
             "{\n"
             "   @\n"
             "}\n"
-        ) << _("[]() throw() { return new S; } ()->") << QStringList({ "S", "bar" });
+        ) << _("[]() throw() { return new S; } ()->") << QStringList({"S", "bar"});
 
     QTest::newRow("lambdaCalls_5") << _(
             "struct S { int bar; };\n"
@@ -1881,7 +1881,7 @@ void CppToolsPlugin::test_completion_data()
             "{\n"
             "   @\n"
             "}\n"
-        ) << _("[]() throw()->S* { return new S; } ()->") << QStringList({ "S", "bar" });
+        ) << _("[]() throw()->S* { return new S; } ()->") << QStringList({"S", "bar"});
 
     QTest::newRow("local_type_and_member_1") << _(
             "struct OtherType { int otherTypeMember; };\n"
@@ -1895,7 +1895,7 @@ void CppToolsPlugin::test_completion_data()
             "    LocalType lt;\n"
             "    @\n"
             "}\n"
-        ) << _("lt.ot.") << QStringList({ "OtherType", "otherTypeMember" });
+        ) << _("lt.ot.") << QStringList({"OtherType", "otherTypeMember"});
 
     QTest::newRow("local_type_and_member_2") << _(
             "void foo()\n"
@@ -1909,7 +1909,7 @@ void CppToolsPlugin::test_completion_data()
             "    LocalType lt;\n"
             "    @\n"
             "}\n"
-        ) << _("lt.ot.") << QStringList({ "OtherType", "otherTypeMember" });
+        ) << _("lt.ot.") << QStringList({"OtherType", "otherTypeMember"});
 
     QTest::newRow("local_type_and_member_3") << _(
             "void foo()\n"
@@ -1925,7 +1925,7 @@ void CppToolsPlugin::test_completion_data()
             "       @\n"
             "    }\n"
             "}\n"
-        ) << _("lt.ot.") << QStringList({ "OtherType", "otherTypeMember" });
+        ) << _("lt.ot.") << QStringList({"OtherType", "otherTypeMember"});
 
     QTest::newRow("local_type_and_member_4") << _(
             "namespace NS {struct OtherType { int otherTypeMember; };}\n"
@@ -1939,7 +1939,7 @@ void CppToolsPlugin::test_completion_data()
             "    LocalType lt;\n"
             "    @\n"
             "}\n"
-        ) << _("lt.ot.") << QStringList({ "OtherType", "otherTypeMember" });
+        ) << _("lt.ot.") << QStringList({"OtherType", "otherTypeMember"});
 
     QTest::newRow("local_type_and_member_5") << _(
             "namespace NS {struct OtherType { int otherTypeMember; };}\n"
@@ -1954,7 +1954,7 @@ void CppToolsPlugin::test_completion_data()
             "    LocalType lt;\n"
             "    @\n"
             "}\n"
-        ) << _("lt.ot.") << QStringList({ "OtherType", "otherTypeMember" });
+        ) << _("lt.ot.") << QStringList({"OtherType", "otherTypeMember"});
 
     QTest::newRow("local_type_and_member_6") << _(
             "namespace NS {struct OtherType { int otherTypeMember; };}\n"
@@ -1969,7 +1969,7 @@ void CppToolsPlugin::test_completion_data()
             "    LocalType lt;\n"
             "    @\n"
             "}\n"
-        ) << _("lt.ot.") << QStringList({ "OtherType", "otherTypeMember" });
+        ) << _("lt.ot.") << QStringList({"OtherType", "otherTypeMember"});
 
     QTest::newRow("template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG9169_1") << _(
             "struct A\n"
@@ -1998,7 +1998,7 @@ void CppToolsPlugin::test_completion_data()
             "    Template<B> templ;\n"
             "    @\n"
             "}\n"
-        ) << _("templ.get()->") << QStringList({ "B", "b" });
+        ) << _("templ.get()->") << QStringList({"B", "b"});
 
     QTest::newRow("template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG9169_2") << _(
             "struct A\n"
@@ -2027,7 +2027,7 @@ void CppToolsPlugin::test_completion_data()
             "    Template<B> templ;\n"
             "    @\n"
             "}\n"
-        ) << _("templ.t.") << QStringList({ "B", "b" });
+        ) << _("templ.t.") << QStringList({"B", "b"});
 
     QTest::newRow("template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG8852_1") << _(
             "template <typename T>\n"
@@ -2044,7 +2044,7 @@ void CppToolsPlugin::test_completion_data()
             "       @\n"
             "    }\n"
             "}\n"
-        ) << _("list.at(0).") << QStringList({ "Foo", "bar" });
+        ) << _("list.at(0).") << QStringList({"Foo", "bar"});
 
     QTest::newRow("template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG8852_2") << _(
             "template <typename T>\n"
@@ -2064,7 +2064,7 @@ void CppToolsPlugin::test_completion_data()
             "       }\n"
             "    }\n"
             "}\n"
-        ) << _("list.at(0).") << QStringList({ "Foo", "bar" });
+        ) << _("list.at(0).") << QStringList({"Foo", "bar"});
 
     QTest::newRow("template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG8852_3") << _(
             "template <typename T>\n"
@@ -2082,7 +2082,7 @@ void CppToolsPlugin::test_completion_data()
             "    QList<Foo> list;\n"
             "    @\n"
             "}\n"
-        ) << _("list.at(0).") << QStringList({ "Foo", "bar" });
+        ) << _("list.at(0).") << QStringList({"Foo", "bar"});
 
     const QByteArray commonSignalSlotCompletionTestCode =
             "#define SIGNAL(a) #a\n"
@@ -2133,14 +2133,14 @@ void CppToolsPlugin::test_completion_data()
 
     QTest::newRow("SIGNAL(")
          << commonSignalSlotCompletionTestCode
-         << _("connect(myObject, SIGNAL(") << QStringList({ "baseSignal1()", "baseSignal2(int)",
-                                                            "hiddenSignal()", "derivedSignal1()",
-                                                            "derivedSignal2(int)" });
+         << _("connect(myObject, SIGNAL(") << QStringList({"baseSignal1()", "baseSignal2(int)",
+                                                           "hiddenSignal()", "derivedSignal1()",
+                                                           "derivedSignal2(int)"});
 
     QTest::newRow("SLOT(")
          << commonSignalSlotCompletionTestCode
          << _("connect(myObject, SIGNAL(baseSignal1()), myObject, SLOT(")
-         << QStringList({ "baseSlot1()", "baseSlot2(int)", "derivedSlot1()", "derivedSlot2(int)" });
+         << QStringList({"baseSlot1()", "baseSlot2(int)", "derivedSlot1()", "derivedSlot2(int)"});
 
     QTest::newRow("Qt5 signals: complete class after & at 2nd connect arg")
          << commonSignalSlotCompletionTestCode
@@ -2153,23 +2153,23 @@ void CppToolsPlugin::test_completion_data()
     QTest::newRow("Qt5 signals: complete signals")
          << commonSignalSlotCompletionTestCode
          << _("connect(myObject, &N::Derived::")
-         << QStringList({ "baseSignal1", "baseSignal2", "hiddenSignal", "derivedSignal1",
-                          "derivedSignal2" });
+         << QStringList({"baseSignal1", "baseSignal2", "hiddenSignal", "derivedSignal1",
+                         "derivedSignal2"});
 
     QTest::newRow("Qt5 slots")
          << commonSignalSlotCompletionTestCode
          << _("connect(myObject, &N::Derived, myObject, &N::Derived::")
-         << QStringList({ "baseFunction", "baseSignal1", "baseSignal2", "baseSlot1", "baseSlot2",
-                          "derivedFunction", "derivedSignal1", "derivedSignal2", "derivedSlot1",
-                          "derivedSlot2", "hiddenFunction", "hiddenSignal" });
+         << QStringList({"baseFunction", "baseSignal1", "baseSignal2", "baseSlot1", "baseSlot2",
+                         "derivedFunction", "derivedSignal1", "derivedSignal2", "derivedSlot1",
+                         "derivedSlot2", "hiddenFunction", "hiddenSignal"});
 
     QTest::newRow("Qt5 signals: fallback to scope completion")
          << commonSignalSlotCompletionTestCode
-         << _("connect(myObject, &N::") << QStringList({ "Base", "Derived" });
+         << _("connect(myObject, &N::") << QStringList({"Base", "Derived"});
 
     QTest::newRow("Qt5 slots: fallback to scope completion")
          << commonSignalSlotCompletionTestCode
-         << _("connect(myObject, &N::Derived, myObject, &N::") << QStringList({ "Base", "Derived" });
+         << _("connect(myObject, &N::Derived, myObject, &N::") << QStringList({"Base", "Derived"});
 
     QTest::newRow("signals_hide_QPrivateSignal") << _(
             "#define SIGNAL(a) #a\n"
@@ -2250,7 +2250,7 @@ void CppToolsPlugin::test_completion_data()
             "   Temp<Foo>::Nested2 n2;\n"
             "   @\n"
             "}\n"
-        ) << _("n2.n1.t.") << QStringList({ "foo", "Foo" });
+        ) << _("n2.n1.t.") << QStringList({"foo", "Foo"});
 
     QTest::newRow("infiniteLoopLocalTypedef_QTCREATORBUG-11999") << _(
             "template <typename T>\n"
@@ -2268,7 +2268,7 @@ void CppToolsPlugin::test_completion_data()
             "   Temp<Foo> tempFoo;\n"
             "   @\n"
             "}\n"
-        ) << _("tempFoo.nested.t.") << QStringList({ "foo", "Foo" });
+        ) << _("tempFoo.nested.t.") << QStringList({"foo", "Foo"});
 
     QTest::newRow("lambda_parameter") << _(
             "auto func = [](int arg1) { return @; };\n"
@@ -2282,7 +2282,7 @@ void CppToolsPlugin::test_completion_data()
             "   Derived<> derived;\n"
             "   @\n"
             "}\n"
-        ) << _("derived.") << QStringList({ "Derived", "foo", "Foo" });
+        ) << _("derived.") << QStringList({"Derived", "foo", "Foo"});
 
     QTest::newRow("default_arguments_for_class_templates_and_template_base_class_QTCREATORBUG-12606") << _(
             "struct Foo { int foo; };\n"
@@ -2294,7 +2294,7 @@ void CppToolsPlugin::test_completion_data()
             "   Derived<> derived;\n"
             "   @\n"
             "}\n"
-        ) << _("derived.t.") << QStringList({ "foo", "Foo" });
+        ) << _("derived.t.") << QStringList({"foo", "Foo"});
 
     QTest::newRow("template_specialization_and_initialization_with_pointer1") << _(
             "template <typename T>\n"
@@ -2306,7 +2306,7 @@ void CppToolsPlugin::test_completion_data()
             "   S<Foo*> s;\n"
             "   @\n"
             "}\n"
-        ) << _("s.t->") << QStringList({ "foo", "Foo" });
+        ) << _("s.t->") << QStringList({"foo", "Foo"});
 
     // this is not a valid code(is not compile) but it caused a crash
     QTest::newRow("template_specialization_and_initialization_with_pointer2") << _(
@@ -2319,7 +2319,7 @@ void CppToolsPlugin::test_completion_data()
             "   S<Foo*> s;\n"
             "   @\n"
             "}\n"
-        ) << _("s.t->") << QStringList({ "foo", "Foo" });
+        ) << _("s.t->") << QStringList({"foo", "Foo"});
 
     QTest::newRow("typedef_of_pointer_of_array_QTCREATORBUG-12703") << _(
             "struct Foo { int foo; };\n"
@@ -2328,7 +2328,7 @@ void CppToolsPlugin::test_completion_data()
             "   FooArr arr;\n"
             "   @\n"
             "}\n"
-        ) << _("arr[0]->") << QStringList({ "foo", "Foo" });
+        ) << _("arr[0]->") << QStringList({"foo", "Foo"});
 
     QTest::newRow("template_specialization_with_array1") << _(
             "template <typename T>\n"
@@ -2339,7 +2339,7 @@ void CppToolsPlugin::test_completion_data()
             "   S<int[]> s;\n"
             "   @\n"
             "}\n"
-    ) << _("s.") << QStringList({ "foo", "S" });
+    ) << _("s.") << QStringList({"foo", "S"});
 
     QTest::newRow("template_specialization_with_array2") << _(
             "template <typename T>\n"
@@ -2350,7 +2350,7 @@ void CppToolsPlugin::test_completion_data()
             "   S<int[3]> s;\n"
             "   @\n"
             "}\n"
-    ) << _("s.") << QStringList({ "foo", "S" });
+    ) << _("s.") << QStringList({"foo", "S"});
 
     QTest::newRow("template_specialization_with_array3") << _(
             "struct Bar {};\n"
@@ -2371,7 +2371,7 @@ void CppToolsPlugin::test_completion_data()
             "      @\n"
             "   }\n"
             "}\n"
-    ) << _("s->") << QStringList({ "Foo", "bar" });
+    ) << _("s->") << QStringList({"Foo", "bar"});
 
     QTest::newRow("dereference_of_nested_type_opertor_*") << _(
             "template<typename T>\n"
@@ -2389,7 +2389,7 @@ void CppToolsPlugin::test_completion_data()
             "   QList<Foo> list;\n"
             "   @\n"
             "}\n"
-    ) << _("(*list.begin()).") << QStringList({ "Foo", "bar" });
+    ) << _("(*list.begin()).") << QStringList({"Foo", "bar"});
 
     QTest::newRow("dereference_of_nested_type_opertor_->") << _(
             "template<typename T>\n"
@@ -2407,7 +2407,7 @@ void CppToolsPlugin::test_completion_data()
             "   QList<Foo> list;\n"
             "   @\n"
             "}\n"
-    ) << _("list.begin()->") << QStringList({ "Foo", "bar" });
+    ) << _("list.begin()->") << QStringList({"Foo", "bar"});
 
     QTest::newRow("dereference_of_nested_type_opertor_*_and_auto") << _(
             "template<typename T>\n"
@@ -2426,7 +2426,7 @@ void CppToolsPlugin::test_completion_data()
             "   auto a = list.begin();\n"
             "   @\n"
             "}\n"
-    ) << _("(*a).") << QStringList({ "Foo", "bar" });
+    ) << _("(*a).") << QStringList({"Foo", "bar"});
 
     QTest::newRow("dereference_of_nested_type_opertor_->_and_auto") << _(
             "template<typename T>\n"
@@ -2445,7 +2445,7 @@ void CppToolsPlugin::test_completion_data()
             "   auto a = list.begin();\n"
             "   @\n"
             "}\n"
-    ) << _("a->") << QStringList({ "Foo", "bar" });
+    ) << _("a->") << QStringList({"Foo", "bar"});
 
     QTest::newRow("direct_nested_template_type_access") << _(
             "template<typename T>\n"
@@ -2463,7 +2463,7 @@ void CppToolsPlugin::test_completion_data()
             "   auto a = QList<Foo>::begin();\n"
             "   @\n"
             "}\n"
-    ) << _("a.") << QStringList({ "operator ->", "t", "iterator" });
+    ) << _("a.") << QStringList({"operator ->", "t", "iterator"});
 
     QTest::newRow("pointer_indirect_specialization") << _(
             "template<typename T>\n"
@@ -2490,7 +2490,7 @@ void CppToolsPlugin::test_completion_data()
             "   Temp<Foo *> t;\n"
             "   @\n"
             "}\n"
-    ) << _("t.p->") << QStringList({ "Foo", "bar" });
+    ) << _("t.p->") << QStringList({"Foo", "bar"});
 
     QTest::newRow("pointer_indirect_specialization_typedef") << _(
             "template<typename T>\n"
@@ -2517,7 +2517,7 @@ void CppToolsPlugin::test_completion_data()
             "   Temp t;\n"
             "   @\n"
             "}\n"
-    ) << _("t.p->") << QStringList({ "Foo", "bar" });
+    ) << _("t.p->") << QStringList({"Foo", "bar"});
 
     QTest::newRow("pointer_indirect_specialization_double_indirection") << _(
             "template<typename _Tp>\n"
@@ -2548,7 +2548,7 @@ void CppToolsPlugin::test_completion_data()
             "   Temp<Foo>::indirect t;\n"
             "   @\n"
             "}\n"
-    ) << _("t.p->") << QStringList({ "Foo", "bar" });
+    ) << _("t.p->") << QStringList({"Foo", "bar"});
 
     QTest::newRow("pointer_indirect_specialization_double_indirection_with_base") << _(
             "template<typename _Tp>\n"
@@ -2583,7 +2583,7 @@ void CppToolsPlugin::test_completion_data()
             "   Temp<Foo>::indirect t;\n"
             "   @\n"
             "}\n"
-    ) << _("t.p->") << QStringList({ "Foo", "bar" });
+    ) << _("t.p->") << QStringList({"Foo", "bar"});
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()
@@ -2639,7 +2639,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "typedef S SType;\n"
             "SType p;\n"
             "@\n"
-        ) << _("p.") << QStringList({ "S", "m" })
+        ) << _("p.") << QStringList({"S", "m"})
         << false
         << false;
 
@@ -2657,7 +2657,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "typedef S SType;\n"
             "SType *p;\n"
             "@\n"
-        ) << _("p.") << QStringList({ "S", "m" })
+        ) << _("p.") << QStringList({"S", "m"})
         << false
         << true;
 
@@ -2666,7 +2666,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "typedef S* SPtr;\n"
             "SPtr p;\n"
             "@\n"
-        ) << _("p.") << QStringList({ "S", "m" })
+        ) << _("p.") << QStringList({"S", "m"})
         << false
         << true;
 
@@ -2675,7 +2675,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "struct S { int m; };\n"
             "SType *p;\n"
             "@\n"
-        ) << _("p.") << QStringList({ "S", "m" })
+        ) << _("p.") << QStringList({"S", "m"})
         << false
         << true;
 
@@ -2684,7 +2684,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "struct S { int m; };\n"
             "SType p;\n"
             "@\n"
-        ) << _("p.") << QStringList({ "S", "m" })
+        ) << _("p.") << QStringList({"S", "m"})
         << false
         << false;
 
@@ -2702,7 +2702,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "struct S { int m; };\n"
             "SType p;\n"
             "@\n"
-        ) << _("p.") << QStringList({ "S", "m" })
+        ) << _("p.") << QStringList({"S", "m"})
         << false
         << true;
 
@@ -2712,7 +2712,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "typedef struct SType *STypePtr;\n"
             "STypePtr p;\n"
             "@\n"
-        ) << _("p.") << QStringList({ "S", "m" })
+        ) << _("p.") << QStringList({"S", "m"})
         << false
         << true;
 
@@ -2722,7 +2722,7 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "typedef struct SType *STypePtr;\n"
             "STypePtr p;\n"
             "@\n"
-        ) << _("p->") << QStringList({ "S", "m" })
+        ) << _("p->") << QStringList({"S", "m"})
         << false
         << false;
 }

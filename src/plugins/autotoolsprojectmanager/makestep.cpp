@@ -67,7 +67,7 @@ QList<BuildStepInfo> MakeStepFactory::availableSteps(BuildStepList *parent) cons
     if (parent->target()->project()->id() != AUTOTOOLS_PROJECT_ID)
         return {};
 
-    return {{ MAKE_STEP_ID, tr("Make", "Display name for AutotoolsProjectManager::MakeStep id.") }};
+    return {{MAKE_STEP_ID, tr("Make", "Display name for AutotoolsProjectManager::MakeStep id.")}};
 }
 
 BuildStep *MakeStepFactory::create(BuildStepList *parent, Core::Id id)

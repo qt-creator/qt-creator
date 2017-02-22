@@ -136,7 +136,7 @@ void PdbEngine::setupEngine()
         notifyEngineSetupFailed();
     }
 
-    QStringList args = { bridge, scriptFile.fileName() };
+    QStringList args = {bridge, scriptFile.fileName()};
     args.append(Utils::QtcProcess::splitArgs(runParameters().inferior.workingDirectory));
     showMessage("STARTING " + m_interpreter + QLatin1Char(' ') + args.join(QLatin1Char(' ')));
     m_proc.setEnvironment(runParameters().debugger.environment.toStringList());

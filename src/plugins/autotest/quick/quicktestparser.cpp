@@ -57,8 +57,8 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
 {
     static QStringList expectedHeaderPrefixes
             = Utils::HostOsInfo::isMacHost()
-            ? QStringList({ "QtQuickTest.framework/Headers", "QtQuickTest" })
-            : QStringList({ "QtQuickTest" });
+            ? QStringList({"QtQuickTest.framework/Headers", "QtQuickTest"})
+            : QStringList({"QtQuickTest"});
 
     const QList<CPlusPlus::Document::Include> includes = doc->resolvedIncludes();
 

@@ -74,7 +74,7 @@ QList<ProjectExplorer::BuildStepInfo> QmakeAndroidBuildApkStepFactory::available
             || parent->contains(ANDROID_BUILD_APK_ID))
         return {};
 
-    return {{ ANDROID_BUILD_APK_ID, tr("Build Android APK") }};
+    return {{ANDROID_BUILD_APK_ID, tr("Build Android APK")}};
 }
 
 ProjectExplorer::BuildStep *QmakeAndroidBuildApkStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)

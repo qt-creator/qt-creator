@@ -188,7 +188,7 @@ Core::Id ToolChain::typeId() const
 
 QList<Abi> ToolChain::supportedAbis() const
 {
-    return { targetAbi() };
+    return {targetAbi()};
 }
 
 Core::Id ToolChain::language() const

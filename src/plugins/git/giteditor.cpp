@@ -213,7 +213,7 @@ void GitEditorWidget::revertChange()
 void GitEditorWidget::logChange()
 {
     GitPlugin::client()->log(
-                sourceWorkingDirectory(), QString(), false, { m_currentChange });
+                sourceWorkingDirectory(), QString(), false, {m_currentChange});
 }
 
 void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
@@ -227,7 +227,7 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
     patchFile.write(chunk.chunk);
     patchFile.close();
 
-    QStringList args = { "--cached" };
+    QStringList args = {"--cached"};
     if (revert)
         args << "--reverse";
     QString errorMessage;

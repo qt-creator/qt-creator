@@ -139,7 +139,7 @@ CrashHandlerSetup::CrashHandlerSetup(const QString &appName,
     sa.sa_flags = SA_RESETHAND | SA_NODEFER | SA_ONSTACK;
     // See "man 7 signal" for an overview of signals.
     // Do not add SIGPIPE here, QProcess and QTcpSocket use it.
-    const int signalsToHandle[] = { SIGILL, SIGABRT, SIGFPE, SIGSEGV, SIGBUS, 0 };
+    const int signalsToHandle[] = {SIGILL, SIGABRT, SIGFPE, SIGSEGV, SIGBUS, 0};
     for (int i = 0; signalsToHandle[i]; ++i) {
         if (sigaction(signalsToHandle[i], &sa, 0) == -1 ) {
             qWarning("Warning: Failed to install signal handler for signal \"%s\" (%s).",

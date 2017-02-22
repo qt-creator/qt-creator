@@ -58,7 +58,7 @@ QString WinRtPhoneQtVersion::type() const
 
 QSet<Core::Id> WinRtPhoneQtVersion::targetDeviceTypes() const
 {
-    return { Constants::WINRT_DEVICE_TYPE_PHONE, Constants::WINRT_DEVICE_TYPE_EMULATOR };
+    return {Constants::WINRT_DEVICE_TYPE_PHONE, Constants::WINRT_DEVICE_TYPE_EMULATOR};
 }
 
 } // Internal

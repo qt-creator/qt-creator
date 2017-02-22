@@ -51,7 +51,7 @@ QList<BuildStepInfo> NimCompilerBuildStepFactory::availableSteps(BuildStepList *
     if (!bc || bc->hasNimCompilerBuildStep())
         return {};
 
-    return {{ Constants::C_NIMCOMPILERBUILDSTEP_ID, tr("Nim Compiler Build Step") }};
+    return {{Constants::C_NIMCOMPILERBUILDSTEP_ID, tr("Nim Compiler Build Step")}};
 }
 
 BuildStep *NimCompilerBuildStepFactory::create(BuildStepList *parent, Core::Id)

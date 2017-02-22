@@ -977,8 +977,8 @@ void AndroidManifestEditorWidget::parseApplication(QXmlStreamReader &reader, QXm
     writer.writeStartElement(reader.name().toString());
 
     QXmlStreamAttributes attributes = reader.attributes();
-    QStringList keys = { QLatin1String("android:label") };
-    QStringList values = { m_appNameLineEdit->text() };
+    QStringList keys = {QLatin1String("android:label")};
+    QStringList values = {m_appNameLineEdit->text()};
     bool ensureIconAttribute =  !m_lIconPath.isEmpty()
             || !m_mIconPath.isEmpty()
             || !m_hIconPath.isEmpty();

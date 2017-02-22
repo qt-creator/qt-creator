@@ -133,8 +133,8 @@ void ValgrindMemcheckParserTest::initTest(const QString &testfile, const QString
 
     m_process->start(
         fakeValgrind,
-        QStringList({ QString("--xml-socket=127.0.0.1:%1").arg(m_server->serverPort()), "-i",
-                      dataFile(testfile)}) << otherArgs);
+        QStringList({QString("--xml-socket=127.0.0.1:%1").arg(m_server->serverPort()), "-i",
+                     dataFile(testfile)}) << otherArgs);
 
     QVERIFY(m_process->waitForStarted(5000));
     QCOMPARE(m_process->state(), QProcess::Running);

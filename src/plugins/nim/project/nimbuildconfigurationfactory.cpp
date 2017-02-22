@@ -67,14 +67,14 @@ QList<BuildInfo *> NimBuildConfigurationFactory::availableBuilds(const Target *p
     info->displayName.clear(); // ask for a name
     info->buildDirectory.clear(); // This depends on the displayName
 
-    return { info };
+    return {info};
 }
 
 QList<BuildInfo *> NimBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
     BuildInfo *debug = createBuildInfo(k, projectPath, BuildConfiguration::Debug);
     BuildInfo *release = createBuildInfo(k, projectPath, BuildConfiguration::Release);
-    return { debug, release };
+    return {debug, release};
 }
 
 BuildConfiguration *NimBuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const

@@ -51,7 +51,7 @@ LibraryWizard::LibraryWizard()
                 "<li>a shared C++ library for use with <tt>QPluginLoader</tt> and runtime (Plugins)</li>"
                 "<li>a shared or static C++ library for use with another project at linktime</li></ul>"));
     setIcon(QIcon(QLatin1String(":/wizards/images/lib.png")));
-    setRequiredFeatures({ QtSupport::Constants::FEATURE_QT_PREFIX });
+    setRequiredFeatures({QtSupport::Constants::FEATURE_QT_PREFIX});
 }
 
 Core::BaseFileWizard *LibraryWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const

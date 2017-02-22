@@ -68,9 +68,9 @@ void Android::Internal::AndroidSignalOperation::adbFindRunAsFinished(int exitCod
                 this, &AndroidSignalOperation::adbKillFinished);
         m_state = Kill;
         m_timeout->start();
-        m_adbProcess->start(m_adbPath, QStringList({ "shell", "run-as", runAs, "kill",
-                                                     QString("-%1").arg(m_signal),
-                                                     QString::number(m_pid) }));
+        m_adbProcess->start(m_adbPath, QStringList({"shell", "run-as", runAs, "kill",
+                                                    QString("-%1").arg(m_signal),
+                                                    QString::number(m_pid)}));
     }
 }
 

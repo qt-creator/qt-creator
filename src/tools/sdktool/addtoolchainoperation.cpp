@@ -259,25 +259,25 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map, const QS
         nameList << GetOperation::get(map, nameKey).toString();
     const QString uniqueName = makeUnique(displayName, nameList);
 
-    QVariantMap result = RmKeysOperation::rmKeys(map, { COUNT });
+    QVariantMap result = RmKeysOperation::rmKeys(map, {COUNT});
 
     const QString tc = QString::fromLatin1(PREFIX) + QString::number(count);
 
     KeyValuePairList data;
-    data << KeyValuePair({ tc, ID }, QVariant(id));
-    data << KeyValuePair({ tc, LANGUAGE_KEY }, QVariant(lang));
-    data << KeyValuePair({ tc, DISPLAYNAME }, QVariant(uniqueName));
-    data << KeyValuePair({ tc, AUTODETECTED }, QVariant(true));
-    data << KeyValuePair({ tc, PATH }, QVariant(path));
-    data << KeyValuePair({ tc, TARGET_ABI }, QVariant(abi));
+    data << KeyValuePair({tc, ID}, QVariant(id));
+    data << KeyValuePair({tc, LANGUAGE_KEY}, QVariant(lang));
+    data << KeyValuePair({tc, DISPLAYNAME}, QVariant(uniqueName));
+    data << KeyValuePair({tc, AUTODETECTED}, QVariant(true));
+    data << KeyValuePair({tc, PATH}, QVariant(path));
+    data << KeyValuePair({tc, TARGET_ABI}, QVariant(abi));
     QVariantList abis;
     QStringList abiStrings = supportedAbis.split(',');
     foreach (const QString &s, abiStrings)
         abis << QVariant(s);
-    data << KeyValuePair({ tc, SUPPORTED_ABIS }, QVariant(abis));
+    data << KeyValuePair({tc, SUPPORTED_ABIS}, QVariant(abis));
     KeyValuePairList tcExtraList;
     foreach (const KeyValuePair &pair, extra)
-        tcExtraList << KeyValuePair(QStringList({ tc }) << pair.key, pair.value);
+        tcExtraList << KeyValuePair(QStringList({tc}) << pair.key, pair.value);
     data.append(tcExtraList);
     data << KeyValuePair(COUNT, QVariant(count + 1));
 

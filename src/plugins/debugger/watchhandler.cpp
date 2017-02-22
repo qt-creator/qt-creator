@@ -466,7 +466,7 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
 
     m_contentsValid = true;
 
-    setHeader({ tr("Name"), tr("Value"), tr("Type") });
+    setHeader({tr("Name"), tr("Value"), tr("Type")});
     m_localsRoot = new WatchItem;
     m_localsRoot->iname = "local";
     m_localsRoot->name = tr("Locals");
@@ -2070,7 +2070,7 @@ void WatchHandler::notifyUpdateStarted(const UpdateParameters &updateParameters)
 {
     QStringList inames = updateParameters.partialVariables();
     if (inames.isEmpty())
-        inames = QStringList({ "local", "return" });
+        inames = QStringList({"local", "return"});
 
     auto marker = [](WatchItem *item) { item->outdated = true; };
 

@@ -140,7 +140,7 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
 
     Debugger::registerPerspective(ClangStaticAnalyzerPerspectiveId, new Perspective(
         tr("Clang Static Analyzer"),
-        {{ ClangStaticAnalyzerDockId, m_diagnosticView, {}, Perspective::SplitVertical }}
+        {{ClangStaticAnalyzerDockId, m_diagnosticView, {}, Perspective::SplitVertical}}
     ));
 
     ActionDescription desc;

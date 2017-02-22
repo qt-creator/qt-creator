@@ -66,7 +66,7 @@ QString GerritPushDialog::determineRemoteBranch(const QString &localBranch)
     QString error;
 
     if (!GitPlugin::client()->synchronousBranchCmd(
-                m_workingDir, { "-r", "--contains", earliestCommit + '^' }, &output, &error)) {
+                m_workingDir, {"-r", "--contains", earliestCommit + '^'}, &output, &error)) {
         return QString();
     }
     const QString head = "/HEAD";
@@ -99,7 +99,7 @@ void GerritPushDialog::initRemoteBranches()
 
     QString remotesPrefix("refs/remotes/");
     if (!GitPlugin::client()->synchronousForEachRefCmd(
-                m_workingDir, { "--format=%(refname)\t%(committerdate:raw)", remotesPrefix }, &output)) {
+                m_workingDir, {"--format=%(refname)\t%(committerdate:raw)", remotesPrefix}, &output)) {
         return;
     }
 

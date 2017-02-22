@@ -49,7 +49,7 @@ QString QnxDeviceFactory::displayNameForId(Core::Id type) const
 
 QList<Core::Id> QnxDeviceFactory::availableCreationIds() const
 {
-    return { Constants::QNX_QNX_OS_TYPE };
+    return {Constants::QNX_QNX_OS_TYPE};
 }
 
 QIcon QnxDeviceFactory::iconForId(Core::Id type) const

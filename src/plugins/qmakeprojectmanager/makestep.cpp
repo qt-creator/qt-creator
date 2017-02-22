@@ -490,7 +490,7 @@ QList<BuildStepInfo> MakeStepFactory::availableSteps(BuildStepList *parent) cons
     if (parent->target()->project()->id() != Constants::QMAKEPROJECT_ID)
         return {};
 
-    return {{ MAKESTEP_BS_ID, tr("Make") }};
+    return {{MAKESTEP_BS_ID, tr("Make")}};
 }
 
 BuildStep *MakeStepFactory::create(BuildStepList *parent, Core::Id id)

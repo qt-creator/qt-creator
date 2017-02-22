@@ -119,9 +119,9 @@ void tst_ImportCheck::test_data()
     QTest::addColumn<QStringList>("expectedLibraries");
     QTest::addColumn<QStringList>("expectedFiles");
     QTest::newRow("base") << QStringList(QString(TESTSRCDIR "/base"))
-                          << QStringList({ "QML 1.0", "QtQml 2.2", "QtQml 2.1", "QtQuick 2.0",
-                                           "QtQml 2.0", "QtQuick 2.-1", "QtQuick 2.1",
-                                           "QtQuick 2.2", "<cpp>" })
+                          << QStringList({"QML 1.0", "QtQml 2.2", "QtQml 2.1", "QtQuick 2.0",
+                                          "QtQml 2.0", "QtQuick 2.-1", "QtQuick 2.1",
+                                          "QtQuick 2.2", "<cpp>"})
                           << QStringList();
     QTest::newRow("001_flatQmlOnly") << QStringList(QString(TESTSRCDIR "/001_flatQmlOnly"))
                           << QStringList()

@@ -474,7 +474,7 @@ void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList 
 
 void QbsProjectManagerPlugin::buildSingleFile(QbsProject *project, const QString &file)
 {
-    buildFiles(project, QStringList(file), QStringList({ "obj", "hpp" }));
+    buildFiles(project, QStringList(file), QStringList({"obj", "hpp"}));
 }
 
 void QbsProjectManagerPlugin::buildProducts(QbsProject *project, const QStringList &products)

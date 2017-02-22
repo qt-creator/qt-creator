@@ -492,34 +492,34 @@ private:
 class IdsThatShouldNotBeUsedInDesigner  : public QStringList
 {
 public:
-    IdsThatShouldNotBeUsedInDesigner() : QStringList({ "top",
-                                                   "bottom",
-                                                   "left",
-                                                   "right",
-                                                   "width",
-                                                   "height",
-                                                   "x",
-                                                   "y",
-                                                   "opacity",
-                                                   "parent",
-                                                   "item",
-                                                   "flow",
-                                                   "color",
-                                                   "margin",
-                                                   "padding",
-                                                   "border",
-                                                   "font",
-                                                   "text",
-                                                   "source",
-                                                   "state",
-                                                   "visible",
-                                                   "focus",
-                                                   "data",
-                                                   "clip",
-                                                   "layer",
-                                                   "scale",
-                                                   "enabled",
-                                                   "anchors"})
+    IdsThatShouldNotBeUsedInDesigner() : QStringList({"top",
+                                                      "bottom",
+                                                      "left",
+                                                      "right",
+                                                      "width",
+                                                      "height",
+                                                      "x",
+                                                      "y",
+                                                      "opacity",
+                                                      "parent",
+                                                      "item",
+                                                      "flow",
+                                                      "color",
+                                                      "margin",
+                                                      "padding",
+                                                      "border",
+                                                      "font",
+                                                      "text",
+                                                      "source",
+                                                      "state",
+                                                      "visible",
+                                                      "focus",
+                                                      "data",
+                                                      "clip",
+                                                      "layer",
+                                                      "scale",
+                                                      "enabled",
+                                                      "anchors"})
     {
     }
 
@@ -550,13 +550,13 @@ class UnsupportedTypesByVisualDesigner : public QStringList
 {
 public:
     UnsupportedTypesByVisualDesigner() : QStringList({"Transform",
-                                                     "Timer",
-                                                     "Rotation",
-                                                     "Scale",
-                                                     "Translate",
-                                                     "Package",
-                                                     "Particles",
-                                                     "Dialog"})
+                                                      "Timer",
+                                                      "Rotation",
+                                                      "Scale",
+                                                      "Translate",
+                                                      "Package",
+                                                      "Particles",
+                                                      "Dialog"})
     {
 
     }
@@ -566,18 +566,18 @@ class UnsupportedTypesByQmlUi : public QStringList
 {
 public:
     UnsupportedTypesByQmlUi() : QStringList({"Binding",
-                                            "ShaderEffect",
-                                            "ShaderEffectSource",
-                                            "Component",
-                                            "Loader",
-                                            "Transition",
-                                            "PropertyAnimation",
-                                            "SequentialAnimation",
-                                            "PropertyAnimation",
-                                            "SequentialAnimation",
-                                            "ParallelAnimation",
-                                            "NumberAnimation",
-                                            "Drawer"})
+                                             "ShaderEffect",
+                                             "ShaderEffectSource",
+                                             "Component",
+                                             "Loader",
+                                             "Transition",
+                                             "PropertyAnimation",
+                                             "SequentialAnimation",
+                                             "PropertyAnimation",
+                                             "SequentialAnimation",
+                                             "ParallelAnimation",
+                                             "NumberAnimation",
+                                             "Drawer"})
     {
         append(UnsupportedTypesByVisualDesigner());
     }
@@ -1627,8 +1627,8 @@ bool Check::visit(CallExpression *ast)
 
     // We have to allow the translation functions
 
-    const QStringList translationFunctions = { "qsTr", "qsTrId", "qsTranslate",
-                                             "qsTrNoOp", "qsTrIdNoOp", "qsTranslateNoOp" };
+    const QStringList translationFunctions = {"qsTr", "qsTrId", "qsTranslate",
+                                              "qsTrNoOp", "qsTrIdNoOp", "qsTranslateNoOp"};
 
     const bool isTranslationFunction = translationFunctions.contains(name);
 

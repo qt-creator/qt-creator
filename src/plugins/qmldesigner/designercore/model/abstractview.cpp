@@ -577,7 +577,7 @@ QList<ModelNode> AbstractView::allModelNodes() const
 
 void AbstractView::emitDocumentMessage(const QString &error)
 {
-    emitDocumentMessage( { DocumentMessage(error) } );
+    emitDocumentMessage({DocumentMessage(error)});
 }
 
 void AbstractView::emitDocumentMessage(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings)

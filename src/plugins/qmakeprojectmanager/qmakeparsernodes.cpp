@@ -1312,7 +1312,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
 
         // Convert ProFileReader::includeFiles to IncludedPriFile structure
         QHash<ProFile *, QVector<ProFile *>> includeFiles = input.readerExact->includeFiles();
-        QList<QmakeIncludedPriFile *> toBuild = { &result->includedFiles };
+        QList<QmakeIncludedPriFile *> toBuild = {&result->includedFiles};
         while (!toBuild.isEmpty()) {
             QmakeIncludedPriFile *current = toBuild.takeFirst();
             if (!current->proFile)
@@ -1348,7 +1348,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
 
     // Add ProFileReader::includeFiles information from cumulative parse to IncludedPriFile structure
     QHash<ProFile *, QVector<ProFile *>> includeFiles = input.readerCumulative->includeFiles();
-    QList<QmakeIncludedPriFile *> toBuild = { &result->includedFiles };
+    QList<QmakeIncludedPriFile *> toBuild = {&result->includedFiles};
     while (!toBuild.isEmpty()) {
         QmakeIncludedPriFile *current = toBuild.takeFirst();
         if (!current->proFile)
@@ -1463,7 +1463,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
 
     if (result->state == QmakeEvalResult::EvalOk || result->state == QmakeEvalResult::EvalPartial) {
 
-        QList<QmakeIncludedPriFile *> toExtract = { &result->includedFiles };
+        QList<QmakeIncludedPriFile *> toExtract = {&result->includedFiles};
         while (!toExtract.isEmpty()) {
             QmakeIncludedPriFile *current = toExtract.takeFirst();
             processValues(current->result);

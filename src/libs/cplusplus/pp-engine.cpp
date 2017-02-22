@@ -840,7 +840,7 @@ void Preprocessor::handleDefined(PPToken *tk)
 
 void Preprocessor::pushToken(Preprocessor::PPToken *tk)
 {
-    const PPToken currentTokenBuffer[] = { *tk };
+    const PPToken currentTokenBuffer[] = {*tk};
     m_state.pushTokenBuffer(currentTokenBuffer, currentTokenBuffer + 1, 0);
 }
 

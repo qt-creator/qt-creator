@@ -475,8 +475,8 @@ static void updateDocumentation()
 {
     QStringList files;
     foreach (BaseQtVersion *v, m_versions) {
-        const QStringList docPaths = QStringList({ v->documentationPath() + QChar('/'),
-                                                   v->documentationPath() + "/qch/" });
+        const QStringList docPaths = QStringList({v->documentationPath() + QChar('/'),
+                                                  v->documentationPath() + "/qch/"});
         foreach (const QString &docPath, docPaths) {
             const QDir versionHelpDir(docPath);
             foreach (const QString &helpFile,

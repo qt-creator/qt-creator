@@ -99,9 +99,9 @@ QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent,
         return QList<Core::Id>();
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
 
-    QList<QmakeProFile *> files = project->allProFiles({ ProjectType::ApplicationTemplate,
-                                                         ProjectType::SharedLibraryTemplate,
-                                                         ProjectType::AuxTemplate });
+    QList<QmakeProFile *> files = project->allProFiles({ProjectType::ApplicationTemplate,
+                                                        ProjectType::SharedLibraryTemplate,
+                                                        ProjectType::AuxTemplate});
     if (mode == AutoCreate)
         files = QmakeProject::proFilesWithQtcRunnable(files);
     Core::Id baseId(IOS_RC_ID_PREFIX);

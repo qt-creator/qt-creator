@@ -233,7 +233,7 @@ void tst_Misc::astPathOnGeneratedTokens()
     QVERIFY(paths.at(4)->asSimpleName());
 
     // Check end
-    for (auto i : { 7, 8, 9 }) {
+    for (auto i : {7, 8, 9}) {
         paths = astPath(3, i);
         QCOMPARE(paths.size(), 2);
         QVERIFY(paths.at(0)->asTranslationUnit());

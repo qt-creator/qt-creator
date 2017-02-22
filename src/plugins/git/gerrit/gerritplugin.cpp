@@ -346,7 +346,7 @@ void GerritPlugin::push(const QString &topLevel)
     if (!options.isEmpty())
         target += '%' + options.join(',');
 
-    GitPlugin::client()->push(topLevel, { dialog.selectedRemoteName(), target });
+    GitPlugin::client()->push(topLevel, {dialog.selectedRemoteName(), target});
 }
 
 // Open or raise the Gerrit dialog window.

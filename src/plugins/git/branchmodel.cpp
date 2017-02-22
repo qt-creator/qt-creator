@@ -174,7 +174,7 @@ public:
             }
             return names;
         }
-        return { fullName().join('/') };
+        return {fullName().join('/')};
     }
 
     int rowOf(BranchNode *node)
@@ -318,7 +318,7 @@ bool BranchModel::setData(const QModelIndex &index, const QVariant &value, int r
     QString output;
     QString errorMessage;
     if (!m_client->synchronousBranchCmd(m_workingDirectory,
-                                        { "-m", oldFullName.last(), newFullName.last() },
+                                        {"-m", oldFullName.last(), newFullName.last()},
                                         &output, &errorMessage)) {
         node->name = oldFullName.last();
         VcsOutputWindow::appendError(errorMessage);
@@ -363,8 +363,8 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
     }
 
     m_currentSha = m_client->synchronousTopRevision(workingDirectory);
-    const QStringList args = { "--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
-                               "%(*objectname)\t%(committerdate:raw)\t%(*committerdate:raw)" };
+    const QStringList args = {"--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
+                              "%(*objectname)\t%(committerdate:raw)\t%(*committerdate:raw)"};
     QString output;
     if (!m_client->synchronousForEachRefCmd(workingDirectory, args, &output, errorMessage))
         VcsOutputWindow::appendError(*errorMessage);
@@ -403,7 +403,7 @@ void BranchModel::renameBranch(const QString &oldName, const QString &newName)
 {
     QString errorMessage;
     QString output;
-    if (!m_client->synchronousBranchCmd(m_workingDirectory, { "-m", oldName,  newName },
+    if (!m_client->synchronousBranchCmd(m_workingDirectory, {"-m", oldName,  newName},
                                         &output, &errorMessage))
         VcsOutputWindow::appendError(errorMessage);
     else
@@ -414,9 +414,9 @@ void BranchModel::renameTag(const QString &oldName, const QString &newName)
 {
     QString errorMessage;
     QString output;
-    if (!m_client->synchronousTagCmd(m_workingDirectory, { newName, oldName },
+    if (!m_client->synchronousTagCmd(m_workingDirectory, {newName, oldName},
                                      &output, &errorMessage)
-            || !m_client->synchronousTagCmd(m_workingDirectory, { "-d", oldName },
+            || !m_client->synchronousTagCmd(m_workingDirectory, {"-d", oldName},
                                             &output, &errorMessage)) {
         VcsOutputWindow::appendError(errorMessage);
     } else {
@@ -513,7 +513,7 @@ void BranchModel::removeBranch(const QModelIndex &idx)
     QString errorMessage;
     QString output;
 
-    if (!m_client->synchronousBranchCmd(m_workingDirectory, { "-D", branch }, &output, &errorMessage)) {
+    if (!m_client->synchronousBranchCmd(m_workingDirectory, {"-D", branch}, &output, &errorMessage)) {
         VcsOutputWindow::appendError(errorMessage);
         return;
     }
@@ -529,7 +529,7 @@ void BranchModel::removeTag(const QModelIndex &idx)
     QString errorMessage;
     QString output;
 
-    if (!m_client->synchronousTagCmd(m_workingDirectory, { "-d", tag }, &output, &errorMessage)) {
+    if (!m_client->synchronousTagCmd(m_workingDirectory, {"-d", tag}, &output, &errorMessage)) {
         VcsOutputWindow::appendError(errorMessage);
         return;
     }
@@ -556,7 +556,7 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
     QString errorMessage;
     QString output;
 
-    if (!m_client->synchronousBranchCmd(m_workingDirectory, { "-a", "--contains", sha(idx) },
+    if (!m_client->synchronousBranchCmd(m_workingDirectory, {"-a", "--contains", sha(idx)},
                                         &output, &errorMessage)) {
         VcsOutputWindow::appendError(errorMessage);
     }
@@ -594,7 +594,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     QString errorMessage;
     QDateTime branchDateTime;
 
-    QStringList args = { QLatin1String(track ? "--track" : "--no-track"), name };
+    QStringList args = {QLatin1String(track ? "--track" : "--no-track"), name};
     if (!fullTrackedBranch.isEmpty()) {
         args << fullTrackedBranch;
         startSha = sha(startPoint);

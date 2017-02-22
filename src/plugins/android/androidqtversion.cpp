@@ -140,5 +140,5 @@ QSet<Core::Id> AndroidQtVersion::availableFeatures() const
 
 QSet<Core::Id> AndroidQtVersion::targetDeviceTypes() const
 {
-    return { Constants::ANDROID_DEVICE_TYPE };
+    return {Constants::ANDROID_DEVICE_TYPE};
 }

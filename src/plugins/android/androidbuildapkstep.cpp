@@ -355,8 +355,8 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
 
     CertificatesModel *model = nullptr;
     QStringList params
-            = { QLatin1String("-list"), QLatin1String("-v"), QLatin1String("-keystore"),
-                m_keystorePath.toUserOutput(), QLatin1String("-storepass") };
+            = {QLatin1String("-list"), QLatin1String("-v"), QLatin1String("-keystore"),
+               m_keystorePath.toUserOutput(), QLatin1String("-storepass")};
 
     params << m_keystorePasswd;
     params << QLatin1String("-J-Duser.language=en");

@@ -51,7 +51,7 @@ QList<BuildStepInfo> IosDeployStepFactory::availableSteps(BuildStepList *parent)
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY
             && IosManager::supportsIos(parent->target())
             && !parent->contains(IosDeployStep::Id))
-        return {{ IosDeployStep::Id, tr("Deploy to iOS device or emulator") }};
+        return {{IosDeployStep::Id, tr("Deploy to iOS device or emulator")}};
     return {};
 }
 

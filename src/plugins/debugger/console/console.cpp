@@ -164,8 +164,8 @@ QWidget *Console::outputWidget(QWidget *)
 
 QList<QWidget *> Console::toolBarWidgets() const
 {
-     return { m_showDebugButton, m_showWarningButton, m_showErrorButton,
-              m_spacer, m_statusLabel };
+     return {m_showDebugButton, m_showWarningButton, m_showErrorButton,
+             m_spacer, m_statusLabel};
 }
 
 int Console::priorityInStatusBar() const

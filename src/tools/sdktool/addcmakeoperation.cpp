@@ -210,18 +210,18 @@ QVariantMap AddCMakeOperation::addCMake(const QVariantMap &map, const QString &i
         nameList << GetOperation::get(map, nameKey).toString();
     const QString uniqueName = makeUnique(displayName, nameList);
 
-    QVariantMap result = RmKeysOperation::rmKeys(map, { COUNT });
+    QVariantMap result = RmKeysOperation::rmKeys(map, {COUNT});
 
     const QString cm = QString::fromLatin1(PREFIX) + QString::number(count);
 
     KeyValuePairList data;
-    data << KeyValuePair({ cm, ID_KEY }, QVariant(id));
-    data << KeyValuePair({ cm, DISPLAYNAME_KEY }, QVariant(uniqueName));
-    data << KeyValuePair({ cm, AUTODETECTED_KEY }, QVariant(true));
-    data << KeyValuePair({ cm, PATH_KEY }, QVariant(path));
+    data << KeyValuePair({cm, ID_KEY}, QVariant(id));
+    data << KeyValuePair({cm, DISPLAYNAME_KEY}, QVariant(uniqueName));
+    data << KeyValuePair({cm, AUTODETECTED_KEY}, QVariant(true));
+    data << KeyValuePair({cm, PATH_KEY}, QVariant(path));
     KeyValuePairList extraList;
     foreach (const KeyValuePair &pair, extra)
-        extraList << KeyValuePair(QStringList({ cm }) << pair.key, pair.value);
+        extraList << KeyValuePair(QStringList({cm}) << pair.key, pair.value);
     data.append(extraList);
     data << KeyValuePair(COUNT, QVariant(count + 1));
 

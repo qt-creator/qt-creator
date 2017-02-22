@@ -198,7 +198,7 @@ QList<ProjectExplorer::ToolChain *> QnxToolChainFactory::autoDetect(
 
 QSet<Core::Id> QnxToolChainFactory::supportedLanguages() const
 {
-    return { ProjectExplorer::Constants::CXX_LANGUAGE_ID };
+    return {ProjectExplorer::Constants::CXX_LANGUAGE_ID};
 }
 
 bool QnxToolChainFactory::canRestore(const QVariantMap &data)

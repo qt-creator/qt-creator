@@ -323,20 +323,20 @@ void NimPlugin::testNimParser_data()
             << QString::fromLatin1("main.nim(23, 1) Error: undeclared identifier: 'x'")
             << OutputParserTester::STDERR
             << QString("") << QString("main.nim(23, 1) Error: undeclared identifier: 'x'\n")
-            << QList<Task>({ Task(Task::Error,
-                             "Error: undeclared identifier: 'x'",
-                             Utils::FileName::fromUserInput("main.nim"), 23,
-                             ProjectExplorer::Constants::TASK_CATEGORY_COMPILE) })
+            << QList<Task>({Task(Task::Error,
+                            "Error: undeclared identifier: 'x'",
+                            Utils::FileName::fromUserInput("main.nim"), 23,
+                            ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)})
             << QString();
 
     QTest::newRow("Parse warning string")
             << QString::fromLatin1("lib/pure/parseopt.nim(56, 34) Warning: quoteIfContainsWhite is deprecated [Deprecated]")
             << OutputParserTester::STDERR
             << QString("") << QString("lib/pure/parseopt.nim(56, 34) Warning: quoteIfContainsWhite is deprecated [Deprecated]\n")
-            << QList<Task>({ Task(Task::Warning,
-                             "Warning: quoteIfContainsWhite is deprecated [Deprecated]",
-                             Utils::FileName::fromUserInput("lib/pure/parseopt.nim"), 56,
-                             ProjectExplorer::Constants::TASK_CATEGORY_COMPILE) })
+            << QList<Task>({Task(Task::Warning,
+                            "Warning: quoteIfContainsWhite is deprecated [Deprecated]",
+                            Utils::FileName::fromUserInput("lib/pure/parseopt.nim"), 56,
+                            ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)})
             << QString();
 }
 

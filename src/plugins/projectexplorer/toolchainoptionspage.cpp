@@ -113,7 +113,7 @@ public:
         m_factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>(
                     [](ToolChainFactory *factory) { return factory->canCreate();});
 
-        m_model.setHeader({ ToolChainOptionsPage::tr("Name"), ToolChainOptionsPage::tr("Type") });
+        m_model.setHeader({ToolChainOptionsPage::tr("Name"), ToolChainOptionsPage::tr("Type")});
         auto autoRoot = new StaticTreeItem(ToolChainOptionsPage::tr("Auto-detected"));
         auto manualRoot = new StaticTreeItem(ToolChainOptionsPage::tr("Manual"));
 

@@ -120,40 +120,40 @@ void tst_StringUtils::testMacroExpander_data()
         const char * const in;
         const char * const out;
     } vals[] = {
-        { "text", "text" },
-        { "%{a}", "hi" },
-        { "%%{a}", "%hi" },
-        { "%%%{a}", "%%hi" },
-        { "%{b}", "%{b}" },
-        { "pre%{a}", "prehi" },
-        { "%{a}post", "hipost" },
-        { "pre%{a}post", "prehipost" },
-        { "%{a}%{a}", "hihi" },
-        { "%{a}text%{a}", "hitexthi" },
-        { "%{foo}%{a}text%{a}", "ahitexthi" },
-        { "%{}{a}", "%{a}" },
-        { "%{}", "%" },
-        { "test%{}", "test%" },
-        { "%{}test", "%test" },
-        { "%{abc", "%{abc" },
-        { "%{%{a}", "%{hi" },
-        { "%{%{a}}", "ho" },
-        { "%{%{a}}}post", "ho}post" },
-        { "%{hi%{a}}", "bar" },
-        { "%{hi%{%{foo}}}", "bar" },
-        { "%{hihi/b/c}", "car" },
-        { "%{hihi/a/}", "br" }, // empty replacement
-        { "%{hihi/b}", "bar" }, // incomplete substitution
-        { "%{hihi/./c}", "car" },
-        { "%{hihi//./c}", "ccc" },
-        { "%{hihi/(.)(.)r/\\2\\1c}", "abc" }, // no escape for capture groups
-        { "%{hihi/b/c/d}", "c/dar" },
-        { "%{hihi/a/e{\\}e}", "be{}er" }, // escape closing brace
-        { "%{slash/o\\/b/ol's c}", "fool's car" },
-        { "%{sl\\/sh/(.)(a)(.)/\\2\\1\\3as}", "salsash" }, // escape in variable name
-        { "%{JS:foo/b/c}", "%{JS:foo/b/c}" }, // No replacement for JS (all considered varName)
-        { "%{%{a}%{a}/b/c}", "car" },
-        { "%{nonsense:-sense}", "sense" },
+        {"text", "text"},
+        {"%{a}", "hi"},
+        {"%%{a}", "%hi"},
+        {"%%%{a}", "%%hi"},
+        {"%{b}", "%{b}"},
+        {"pre%{a}", "prehi"},
+        {"%{a}post", "hipost"},
+        {"pre%{a}post", "prehipost"},
+        {"%{a}%{a}", "hihi"},
+        {"%{a}text%{a}", "hitexthi"},
+        {"%{foo}%{a}text%{a}", "ahitexthi"},
+        {"%{}{a}", "%{a}"},
+        {"%{}", "%"},
+        {"test%{}", "test%"},
+        {"%{}test", "%test"},
+        {"%{abc", "%{abc"},
+        {"%{%{a}", "%{hi"},
+        {"%{%{a}}", "ho"},
+        {"%{%{a}}}post", "ho}post"},
+        {"%{hi%{a}}", "bar"},
+        {"%{hi%{%{foo}}}", "bar"},
+        {"%{hihi/b/c}", "car"},
+        {"%{hihi/a/}", "br"}, // empty replacement
+        {"%{hihi/b}", "bar"}, // incomplete substitution
+        {"%{hihi/./c}", "car"},
+        {"%{hihi//./c}", "ccc"},
+        {"%{hihi/(.)(.)r/\\2\\1c}", "abc"}, // no escape for capture groups
+        {"%{hihi/b/c/d}", "c/dar"},
+        {"%{hihi/a/e{\\}e}", "be{}er"}, // escape closing brace
+        {"%{slash/o\\/b/ol's c}", "fool's car"},
+        {"%{sl\\/sh/(.)(a)(.)/\\2\\1\\3as}", "salsash"}, // escape in variable name
+        {"%{JS:foo/b/c}", "%{JS:foo/b/c}"}, // No replacement for JS (all considered varName)
+        {"%{%{a}%{a}/b/c}", "car"},
+        {"%{nonsense:-sense}", "sense"},
     };
 
     for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++)

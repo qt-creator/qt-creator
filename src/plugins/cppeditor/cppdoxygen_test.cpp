@@ -318,7 +318,7 @@ void DoxygenTest::testWithMacroFromHeaderBeforeFunction()
 
     const TestDocument headerDocumentDefiningMacro("header.h", "#define API\n");
 
-    runTest(given, expected, /*settings=*/ 0, { headerDocumentDefiningMacro });
+    runTest(given, expected, /*settings=*/ 0, {headerDocumentDefiningMacro});
 }
 
 void DoxygenTest::testNoLeadingAsterisks_data()

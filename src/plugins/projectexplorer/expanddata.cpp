@@ -45,7 +45,7 @@ ExpandData ExpandData::fromSettings(const QVariant &v)
 
 QVariant ExpandData::toSettings() const
 {
-    return QVariant::fromValue(QStringList({ path, displayName }));
+    return QVariant::fromValue(QStringList({path, displayName}));
 }
 
 int ProjectExplorer::Internal::qHash(const ExpandData &data)

@@ -304,17 +304,17 @@ MemcheckTool::MemcheckTool(QObject *parent)
         tr("These suppression files were used in the last memory analyzer run."));
 
     QAction *a = new QAction(tr("Definite Memory Leaks"), this);
-    initKindFilterAction(a, { Leak_DefinitelyLost, Leak_IndirectlyLost });
+    initKindFilterAction(a, {Leak_DefinitelyLost, Leak_IndirectlyLost});
     m_errorFilterActions.append(a);
 
     a = new QAction(tr("Possible Memory Leaks"), this);
-    initKindFilterAction(a, { Leak_PossiblyLost, Leak_StillReachable });
+    initKindFilterAction(a, {Leak_PossiblyLost, Leak_StillReachable});
     m_errorFilterActions.append(a);
 
     a = new QAction(tr("Use of Uninitialized Memory"), this);
-    initKindFilterAction(a, { InvalidRead, InvalidWrite, InvalidJump, Overlap,
-                              InvalidMemPool, UninitCondition, UninitValue,
-                              SyscallParam, ClientCheck });
+    initKindFilterAction(a, {InvalidRead, InvalidWrite, InvalidJump, Overlap,
+                             InvalidMemPool, UninitCondition, UninitValue,
+                             SyscallParam, ClientCheck});
     m_errorFilterActions.append(a);
 
     a = new QAction(tr("Invalid Calls to \"free()\""), this);
@@ -338,7 +338,7 @@ MemcheckTool::MemcheckTool(QObject *parent)
     m_errorView->setWindowTitle(tr("Memory Issues"));
 
     Debugger::registerPerspective(MemcheckPerspectiveId, new Perspective (tr("Memcheck"), {
-        { MemcheckErrorDockId, m_errorView, {}, Perspective::SplitVertical }
+        {MemcheckErrorDockId, m_errorView, {}, Perspective::SplitVertical}
     }));
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,

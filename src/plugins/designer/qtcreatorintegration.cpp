@@ -353,9 +353,9 @@ static QString addConstRefIfNeeded(const QString &argument)
         return argument;
 
     // for those types we don't want to add "const &"
-    static const QStringList nonConstRefs = QStringList({ "bool", "int", "uint", "float", "double",
-                                                          "long", "short", "char", "signed",
-                                                          "unsigned", "qint64", "quint64" });
+    static const QStringList nonConstRefs = QStringList({"bool", "int", "uint", "float", "double",
+                                                         "long", "short", "char", "signed",
+                                                         "unsigned", "qint64", "quint64"});
 
     for (int i = 0; i < nonConstRefs.count(); i++) {
         const QString nonConstRef = nonConstRefs.at(i);

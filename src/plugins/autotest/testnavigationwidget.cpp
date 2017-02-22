@@ -317,7 +317,7 @@ void TestNavigationWidget::onRunThisTestTriggered(TestRunner::Mode runMode)
 
     if (configuration) {
         TestRunner *runner = TestRunner::instance();
-        runner->setSelectedTests( {configuration} );
+        runner->setSelectedTests({configuration});
         runner->prepareToRunTests(runMode);
     }
 }

@@ -101,7 +101,7 @@ public:
                 if (!fi.isCanceled())
                     emit logMessage(QString::fromLocal8Bit(tailProcess->readAll()));
             });
-            tailProcess->start(QStringLiteral("tail"), { "-f", file->fileName() });
+            tailProcess->start(QStringLiteral("tail"), {"-f", file->fileName()});
         };
 
         auto processDeleter = [](QProcess *process) {
@@ -479,7 +479,7 @@ void IosDeviceToolHandlerPrivate::processXml()
                 stack.append(ParserState(ParserState::AppOutput));
             } else if (elName == QLatin1String("control_char")) {
                 QXmlStreamAttributes attributes = outputParser.attributes();
-                QChar c[1] = { QChar::fromLatin1(static_cast<char>(attributes.value(QLatin1String("code")).toString().toInt())) };
+                QChar c[1] = {QChar::fromLatin1(static_cast<char>(attributes.value(QLatin1String("code")).toString().toInt()))};
                 if (stack.size() > 0 && stack.last().collectChars())
                     stack.last().chars.append(c[0]);
                 stack.append(ParserState(ParserState::ControlChar));

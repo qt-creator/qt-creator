@@ -60,8 +60,8 @@ using namespace WinRt::Internal::Constants;
 static QString extractToolchainPrefix(QString *compilerName)
 {
     QString prefix;
-    const QStringList candidates = { QLatin1String("g++"), QLatin1String("clang++"),
-                                     QLatin1String("gcc"), QLatin1String("clang") };
+    const QStringList candidates = {QLatin1String("g++"), QLatin1String("clang++"),
+                                    QLatin1String("gcc"), QLatin1String("clang")};
     foreach (const QString &candidate, candidates) {
         const QString suffix = Utils::HostOsInfo::withExecutableSuffix(QLatin1Char('-')
                                                                        + candidate);

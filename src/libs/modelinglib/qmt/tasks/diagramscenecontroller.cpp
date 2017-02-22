@@ -313,19 +313,19 @@ void DiagramSceneController::dropNewElement(const QString &newElementId, const Q
             auto package = new MPackage();
             newName = tr("New Package");
             if (!stereotype.isEmpty())
-                package->setStereotypes({ stereotype });
+                package->setStereotypes({stereotype});
             newObject = package;
         } else if (newElementId == QLatin1String(ELEMENT_TYPE_COMPONENT)) {
             auto component = new MComponent();
             newName = tr("New Component");
             if (!stereotype.isEmpty())
-                component->setStereotypes({ stereotype });
+                component->setStereotypes({stereotype});
             newObject = component;
         } else if (newElementId == QLatin1String(ELEMENT_TYPE_CLASS)) {
             auto klass = new MClass();
             newName = tr("New Class");
             if (!stereotype.isEmpty())
-                klass->setStereotypes({ stereotype });
+                klass->setStereotypes({stereotype});
             newObject = klass;
         } else if (newElementId == QLatin1String(ELEMENT_TYPE_ITEM)) {
             auto item = new MItem();

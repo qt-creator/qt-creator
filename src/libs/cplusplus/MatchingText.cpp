@@ -102,7 +102,7 @@ static bool insertQuote(const QChar ch, const BackwardsScanner &tk)
         return tk.text(index) == "operator";
 
     // Insert matching quote after identifier when identifier is a known literal prefixes
-    static const QStringList stringLiteralPrefixes = { "L", "U", "u", "u8", "R"};
+    static const QStringList stringLiteralPrefixes = {"L", "U", "u", "u8", "R"};
     return token.kind() == CPlusPlus::T_IDENTIFIER
             && stringLiteralPrefixes.contains(tk.text(index));
 }

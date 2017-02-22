@@ -266,7 +266,7 @@ AndroidToolChainFactory::AndroidToolChainFactory()
 
 QSet<Core::Id> Android::Internal::AndroidToolChainFactory::supportedLanguages() const
 {
-    return { ProjectExplorer::Constants::CXX_LANGUAGE_ID };
+    return {ProjectExplorer::Constants::CXX_LANGUAGE_ID};
 }
 
 QList<ToolChain *> AndroidToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
@@ -303,8 +303,8 @@ QList<AndroidToolChainFactory::AndroidToolChainInformation> AndroidToolChainFact
         int idx = versionRegExp.indexIn(fileName);
         if (idx == -1)
             continue;
-        for (const Core::Id lang : { ProjectExplorer::Constants::CXX_LANGUAGE_ID,
-                                     ProjectExplorer::Constants::C_LANGUAGE_ID }) {
+        for (const Core::Id lang : {ProjectExplorer::Constants::CXX_LANGUAGE_ID,
+                                    ProjectExplorer::Constants::C_LANGUAGE_ID}) {
             AndroidToolChainInformation ati;
             ati.language = lang;
             ati.version = fileName.mid(idx + 1);
@@ -401,7 +401,7 @@ AndroidToolChainFactory::autodetectToolChainsForNdk(const FileName &ndkPath,
         if (abi.architecture() == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
             continue;
         QList<AndroidToolChain *> toolChainBundle;
-        for (Core::Id lang : { ProjectExplorer::Constants::CXX_LANGUAGE_ID, ProjectExplorer::Constants::C_LANGUAGE_ID }) {
+        for (Core::Id lang : {ProjectExplorer::Constants::CXX_LANGUAGE_ID, ProjectExplorer::Constants::C_LANGUAGE_ID}) {
             FileName compilerPath = AndroidConfigurations::currentConfig().gccPath(abi, lang, version);
 
             AndroidToolChain *tc = findToolChain(compilerPath, lang, alreadyKnown);

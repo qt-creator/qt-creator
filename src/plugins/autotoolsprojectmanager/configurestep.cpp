@@ -77,7 +77,7 @@ QList<BuildStepInfo> ConfigureStepFactory::availableSteps(BuildStepList *parent)
         return {};
 
     QString display = tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id.");
-    return {{ CONFIGURE_STEP_ID, display }};
+    return {{CONFIGURE_STEP_ID, display}};
 }
 
 BuildStep *ConfigureStepFactory::create(BuildStepList *parent, Core::Id id)

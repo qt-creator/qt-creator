@@ -267,7 +267,7 @@ void CMakeGeneratorKitInformation::set(Kit *k,
                                        const QString &generator, const QString &extraGenerator,
                                        const QString &platform, const QString &toolset)
 {
-    GeneratorInfo info = { generator, extraGenerator, platform, toolset };
+    GeneratorInfo info = {generator, extraGenerator, platform, toolset};
     setGeneratorInfo(k, info);
 }
 
@@ -311,7 +311,7 @@ QVariant CMakeGeneratorKitInformation::defaultValue(const Kit *k) const
         k->addToEnvironment(env);
         const Utils::FileName ninjaExec = env.searchInPath(QLatin1String("ninja"));
         if (!ninjaExec.isEmpty())
-            return GeneratorInfo({ QString("Ninja"), extraGenerator, QString(), QString() }).toVariant();
+            return GeneratorInfo({QString("Ninja"), extraGenerator, QString(), QString()}).toVariant();
     }
 
     if (Utils::HostOsInfo::isWindowsHost()) {
@@ -341,7 +341,7 @@ QVariant CMakeGeneratorKitInformation::defaultValue(const Kit *k) const
     if (it == known.constEnd())
         return QVariant();
 
-    return GeneratorInfo({ it->name, extraGenerator, QString(), QString() }).toVariant();
+    return GeneratorInfo({it->name, extraGenerator, QString(), QString()}).toVariant();
 }
 
 QList<Task> CMakeGeneratorKitInformation::validate(const Kit *k) const
@@ -407,9 +407,9 @@ void CMakeGeneratorKitInformation::fix(Kit *k)
         dv.fromVariant(defaultValue(k));
         setGeneratorInfo(k, dv);
     } else {
-        const GeneratorInfo dv = { info.generator, info.extraGenerator,
-                                   it->supportsPlatform ? info.platform : QString(),
-                                   it->supportsToolset ? info.toolset : QString() };
+        const GeneratorInfo dv = {info.generator, info.extraGenerator,
+                                  it->supportsPlatform ? info.platform : QString(),
+                                  it->supportsToolset ? info.toolset : QString()};
         setGeneratorInfo(k, dv);
     }
 }

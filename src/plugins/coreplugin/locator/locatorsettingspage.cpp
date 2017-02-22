@@ -281,7 +281,7 @@ void LocatorSettingsPage::restoreFilterStates()
 
 void LocatorSettingsPage::initializeModel()
 {
-    m_model->setHeader(QStringList({ tr("Name"), tr("Prefix"), tr("Default") }));
+    m_model->setHeader(QStringList({tr("Name"), tr("Prefix"), tr("Default")}));
     m_model->setHeaderToolTip(QStringList({
         QString(),
         ILocatorFilter::msgPrefixToolTip(),

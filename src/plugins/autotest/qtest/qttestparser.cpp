@@ -55,7 +55,7 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus:
 {
     static QStringList expectedHeaderPrefixes
             = Utils::HostOsInfo::isMacHost()
-            ? QStringList({ "QtTest.framework/Headers", "QtTest" }) : QStringList({ "QtTest" });
+            ? QStringList({"QtTest.framework/Headers", "QtTest"}) : QStringList({"QtTest"});
 
     const QList<CPlusPlus::Document::Include> includes = doc->resolvedIncludes();
 

@@ -58,13 +58,13 @@ const struct {
     SshRemoteProcess::Signal signalEnum;
     const char * const signalString;
 } signalMap[] = {
-    { SshRemoteProcess::AbrtSignal, "ABRT" }, { SshRemoteProcess::AlrmSignal, "ALRM" },
-    { SshRemoteProcess::FpeSignal, "FPE" }, { SshRemoteProcess::HupSignal, "HUP" },
-    { SshRemoteProcess::IllSignal, "ILL" }, { SshRemoteProcess::IntSignal, "INT" },
-    { SshRemoteProcess::KillSignal, "KILL" }, { SshRemoteProcess::PipeSignal, "PIPE" },
-    { SshRemoteProcess::QuitSignal, "QUIT" }, { SshRemoteProcess::SegvSignal, "SEGV" },
-    { SshRemoteProcess::TermSignal, "TERM" }, { SshRemoteProcess::Usr1Signal, "USR1" },
-    { SshRemoteProcess::Usr2Signal, "USR2" }
+    {SshRemoteProcess::AbrtSignal, "ABRT"}, {SshRemoteProcess::AlrmSignal, "ALRM"},
+    {SshRemoteProcess::FpeSignal, "FPE"}, {SshRemoteProcess::HupSignal, "HUP"},
+    {SshRemoteProcess::IllSignal, "ILL"}, {SshRemoteProcess::IntSignal, "INT"},
+    {SshRemoteProcess::KillSignal, "KILL"}, {SshRemoteProcess::PipeSignal, "PIPE"},
+    {SshRemoteProcess::QuitSignal, "QUIT"}, {SshRemoteProcess::SegvSignal, "SEGV"},
+    {SshRemoteProcess::TermSignal, "TERM"}, {SshRemoteProcess::Usr1Signal, "USR1"},
+    {SshRemoteProcess::Usr2Signal, "USR2"}
 };
 
 SshRemoteProcess::SshRemoteProcess(const QByteArray &command, quint32 channelId,

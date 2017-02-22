@@ -157,7 +157,7 @@ bool ProcessStep::fromMap(const QVariantMap &map)
 QList<BuildStepInfo> ProcessStepFactory::availableSteps(BuildStepList *parent) const
 {
     Q_UNUSED(parent);
-    return {{ PROCESS_STEP_ID, ProcessStep::tr("Custom Process Step", "item in combobox") }};
+    return {{PROCESS_STEP_ID, ProcessStep::tr("Custom Process Step", "item in combobox")}};
 }
 
 BuildStep *ProcessStepFactory::create(BuildStepList *parent, Core::Id id)

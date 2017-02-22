@@ -229,7 +229,7 @@ QWidget *TestResultsPane::outputWidget(QWidget *parent)
 
 QList<QWidget *> TestResultsPane::toolBarWidgets() const
 {
-    return { m_expandCollapse, m_runAll, m_runSelected, m_stopTestRun, m_filterButton };
+    return {m_expandCollapse, m_runAll, m_runSelected, m_stopTestRun, m_filterButton};
 }
 
 QString TestResultsPane::displayName() const

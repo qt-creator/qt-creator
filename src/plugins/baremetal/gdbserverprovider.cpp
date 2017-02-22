@@ -155,11 +155,11 @@ bool GdbServerProvider::operator==(const GdbServerProvider &other) const
 QVariantMap GdbServerProvider::toMap() const
 {
     return {
-        { QLatin1String(idKeyC), m_id },
-        { QLatin1String(displayNameKeyC), m_displayName },
-        { QLatin1String(startupModeKeyC), m_startupMode },
-        { QLatin1String(initCommandsKeyC), m_initCommands },
-        { QLatin1String(resetCommandsKeyC), m_resetCommands }
+        {QLatin1String(idKeyC), m_id},
+        {QLatin1String(displayNameKeyC), m_displayName},
+        {QLatin1String(startupModeKeyC), m_startupMode},
+        {QLatin1String(initCommandsKeyC), m_initCommands},
+        {QLatin1String(resetCommandsKeyC), m_resetCommands}
     };
 }
 

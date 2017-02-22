@@ -120,11 +120,11 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     addAutoReleasedObject(settingsPage);
 
     // Create the protocols and append them to the Settings
-    Protocol *protos[] =  { new PasteBinDotComProtocol,
-                            new PasteBinDotCaProtocol,
-                            new KdePasteProtocol,
-                            new FileShareProtocol
-                           };
+    Protocol *protos[] =  {new PasteBinDotComProtocol,
+                           new PasteBinDotCaProtocol,
+                           new KdePasteProtocol,
+                           new FileShareProtocol
+                          };
     const int count = sizeof(protos) / sizeof(Protocol *);
     for (int i = 0; i < count; ++i) {
         connect(protos[i], &Protocol::pasteDone, this, &CodepasterPlugin::finishPost);

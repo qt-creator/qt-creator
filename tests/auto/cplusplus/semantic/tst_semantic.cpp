@@ -612,7 +612,7 @@ void tst_Semantic::template_instance_1()
     Declaration *decl = templ->memberAt(1)->asClass()->memberAt(0)->asDeclaration();
     QVERIFY(decl);
 
-    FullySpecifiedType templArgs[] = { control->integerType(IntegerType::Int) };
+    FullySpecifiedType templArgs[] = {control->integerType(IntegerType::Int)};
     const Name *templId = control->templateNameId(control->identifier("QList"), false, templArgs, 1);
 
     FullySpecifiedType genTy = DeprecatedGenTemplateInstance::instantiate(templId, decl, control);

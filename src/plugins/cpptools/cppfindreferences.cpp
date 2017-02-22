@@ -276,7 +276,7 @@ static void find_helper(QFutureInterface<Usage> &future,
 
     const Utils::FileName sourceFile = Utils::FileName::fromUtf8(symbol->fileName(),
                                                                  symbol->fileNameLength());
-    Utils::FileNameList files {sourceFile};
+    Utils::FileNameList files{sourceFile};
 
     if (symbol->isClass()
         || symbol->isForwardClassDeclaration()
@@ -578,7 +578,7 @@ static void findMacroUses_helper(QFutureInterface<Usage> &future,
                                  const Macro macro)
 {
     const Utils::FileName sourceFile = Utils::FileName::fromString(macro.fileName());
-    Utils::FileNameList files {sourceFile};
+    Utils::FileNameList files{sourceFile};
     files = Utils::filteredUnique(files + snapshot.filesDependingOn(sourceFile));
 
     future.setProgressRange(0, files.size());

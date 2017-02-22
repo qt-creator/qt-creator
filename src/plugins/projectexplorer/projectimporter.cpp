@@ -342,7 +342,7 @@ void ProjectImporter::useTemporaryKitInformation(Core::Id id,
                                                  ProjectImporter::PersistFunction persist)
 {
     QTC_ASSERT(!findTemporaryHandler(id), return);
-    m_temporaryHandlers.append({ id, cleanup, persist });
+    m_temporaryHandlers.append({id, cleanup, persist});
 }
 
 void ProjectImporter::addTemporaryData(Core::Id id, const QVariant &cleanupData, Kit *k) const

@@ -1795,7 +1795,7 @@ static QString baseName(const QString &fileName)
 bool ClearCasePlugin::vcsAdd(const QString &workingDir, const QString &fileName)
 {
     return ccFileOp(workingDir, tr("ClearCase Add File %1").arg(baseName(fileName)),
-                    QStringList({ "mkelem", "-ci" }), fileName);
+                    QStringList({"mkelem", "-ci"}), fileName);
 }
 
 bool ClearCasePlugin::vcsDelete(const QString &workingDir, const QString &fileName)
@@ -1806,7 +1806,7 @@ bool ClearCasePlugin::vcsDelete(const QString &workingDir, const QString &fileNa
         return true;
 
     return ccFileOp(workingDir, tr("ClearCase Remove File %1").arg(baseName(fileName)),
-                    QStringList({ "rmname", "-force" }), fileName);
+                    QStringList({"rmname", "-force"}), fileName);
 }
 
 bool ClearCasePlugin::vcsMove(const QString &workingDir, const QString &from, const QString &to)

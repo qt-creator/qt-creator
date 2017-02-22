@@ -59,9 +59,9 @@ static GdbServerProviderManager *m_instance = 0;
 GdbServerProviderManager::GdbServerProviderManager(QObject *parent)
     : QObject(parent)
     , m_configFile(settingsFileName(QLatin1String(fileNameKeyC)))
-    , m_factories({ new DefaultGdbServerProviderFactory,
-                    new OpenOcdGdbServerProviderFactory,
-                    new StLinkUtilGdbServerProviderFactory })
+    , m_factories({new DefaultGdbServerProviderFactory,
+                   new OpenOcdGdbServerProviderFactory,
+                   new StLinkUtilGdbServerProviderFactory})
 {
     m_writer = new Utils::PersistentSettingsWriter(
                 m_configFile, QLatin1String("QtCreatorGdbServerProviders"));

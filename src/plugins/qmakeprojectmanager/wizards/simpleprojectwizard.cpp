@@ -129,7 +129,7 @@ void FilesSelectionWizardPage::initializePage()
 
 SimpleProjectWizard::SimpleProjectWizard()
 {
-    setSupportedProjectTypes({ Constants::PROJECT_ID });
+    setSupportedProjectTypes({Constants::PROJECT_ID});
     // TODO do something about the ugliness of standard icons in sizes different than 16, 32, 64, 128
     {
         QPixmap icon(22, 22);
@@ -217,7 +217,7 @@ GeneratedFiles SimpleProjectWizard::generateFiles(const QWizard *w,
         "#DEFINES = \n\n"
     );
 
-    return GeneratedFiles { generatedProFile };
+    return GeneratedFiles{generatedProFile};
 }
 
 bool SimpleProjectWizard::postGenerateFiles(const QWizard *w, const GeneratedFiles &l,

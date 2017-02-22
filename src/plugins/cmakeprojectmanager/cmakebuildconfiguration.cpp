@@ -598,22 +598,22 @@ CMakeBuildInfo *CMakeBuildConfigurationFactory::createBuildInfo(const ProjectExp
         info->typeName = tr("Build");
         break;
     case BuildTypeDebug:
-        buildTypeItem = { CMakeConfigItem("CMAKE_BUILD_TYPE", "Debug") };
+        buildTypeItem = {CMakeConfigItem("CMAKE_BUILD_TYPE", "Debug")};
         info->typeName = tr("Debug");
         info->buildType = BuildConfiguration::Debug;
         break;
     case BuildTypeRelease:
-        buildTypeItem = { CMakeConfigItem("CMAKE_BUILD_TYPE", "Release") };
+        buildTypeItem = {CMakeConfigItem("CMAKE_BUILD_TYPE", "Release")};
         info->typeName = tr("Release");
         info->buildType = BuildConfiguration::Release;
         break;
     case BuildTypeMinSizeRel:
-        buildTypeItem = { CMakeConfigItem("CMAKE_BUILD_TYPE", "MinSizeRel") };
+        buildTypeItem = {CMakeConfigItem("CMAKE_BUILD_TYPE", "MinSizeRel")};
         info->typeName = tr("Minimum Size Release");
         info->buildType = BuildConfiguration::Release;
         break;
     case BuildTypeRelWithDebInfo:
-        buildTypeItem = { CMakeConfigItem("CMAKE_BUILD_TYPE", "RelWithDebInfo") };
+        buildTypeItem = {CMakeConfigItem("CMAKE_BUILD_TYPE", "RelWithDebInfo")};
         info->typeName = tr("Release with Debug Information");
         info->buildType = BuildConfiguration::Profile;
         break;

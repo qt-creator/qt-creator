@@ -167,10 +167,10 @@ void AutoTestUnitTests::testCodeParserSwitchStartup_data()
     QTest::addColumn<QList<int> >("expectedUnnamedQuickTestsCount");
     QTest::addColumn<QList<int> >("expectedDataTagsCount");
 
-    QStringList projects = QStringList({ m_tmpDir->path() + "/plain/plain.pro",
+    QStringList projects = QStringList({m_tmpDir->path() + "/plain/plain.pro",
             m_tmpDir->path() + "/mixed_atp/mixed_atp.pro",
             m_tmpDir->path() + "/plain/plain.qbs",
-            m_tmpDir->path() + "/mixed_atp/mixed_atp.qbs" });
+            m_tmpDir->path() + "/mixed_atp/mixed_atp.qbs"});
 
     QList<int> expectedAutoTests = QList<int>()         << 1 << 4 << 1 << 4;
     QList<int> expectedNamedQuickTests = QList<int>()   << 0 << 5 << 0 << 5;

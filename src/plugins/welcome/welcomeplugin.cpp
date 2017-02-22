@@ -145,7 +145,7 @@ public:
         setMinimumHeight(30);
 
         const QString fileName = QString(":/welcome/images/%1.png").arg(iconSource);
-        const Icon icon({{ fileName, Theme::Welcome_ForegroundPrimaryColor }}, Icon::Tint);
+        const Icon icon({{fileName, Theme::Welcome_ForegroundPrimaryColor}}, Icon::Tint);
 
         m_icon = new QLabel;
         m_icon->setPixmap(icon.pixmap());

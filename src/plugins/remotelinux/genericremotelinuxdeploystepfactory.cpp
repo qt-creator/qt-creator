@@ -47,16 +47,16 @@ QList<BuildStepInfo> GenericRemoteLinuxDeployStepFactory::availableSteps(BuildSt
     if (!qobject_cast<RemoteLinuxDeployConfiguration *>(parent->parent()))
         return {};
 
-    return {{ TarPackageCreationStep::stepId(),
-              TarPackageCreationStep::displayName() },
-            { UploadAndInstallTarPackageStep::stepId(),
-              UploadAndInstallTarPackageStep::displayName() },
-            { GenericDirectUploadStep::stepId(),
-              GenericDirectUploadStep::displayName() },
-            { GenericRemoteLinuxCustomCommandDeploymentStep::stepId(),
-              GenericRemoteLinuxCustomCommandDeploymentStep::stepDisplayName() },
-            { RemoteLinuxCheckForFreeDiskSpaceStep::stepId(),
-              RemoteLinuxCheckForFreeDiskSpaceStep::stepDisplayName() }};
+    return {{TarPackageCreationStep::stepId(),
+             TarPackageCreationStep::displayName()},
+            {UploadAndInstallTarPackageStep::stepId(),
+             UploadAndInstallTarPackageStep::displayName()},
+            {GenericDirectUploadStep::stepId(),
+             GenericDirectUploadStep::displayName()},
+            {GenericRemoteLinuxCustomCommandDeploymentStep::stepId(),
+             GenericRemoteLinuxCustomCommandDeploymentStep::stepDisplayName()},
+            {RemoteLinuxCheckForFreeDiskSpaceStep::stepId(),
+             RemoteLinuxCheckForFreeDiskSpaceStep::stepDisplayName()}};
 }
 
 BuildStep *GenericRemoteLinuxDeployStepFactory::create(BuildStepList *parent, Core::Id id)

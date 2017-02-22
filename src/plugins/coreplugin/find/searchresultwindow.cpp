@@ -340,8 +340,8 @@ QWidget *SearchResultWindow::outputWidget(QWidget *)
 */
 QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 {
-    return { d->m_expandCollapseButton, d->m_spacer,
-             d->m_historyLabel, d->m_spacer2, d->m_recentSearchesBox };
+    return {d->m_expandCollapseButton, d->m_spacer,
+            d->m_historyLabel, d->m_spacer2, d->m_recentSearchesBox};
 }
 
 /*!

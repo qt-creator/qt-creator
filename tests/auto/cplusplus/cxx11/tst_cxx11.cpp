@@ -83,7 +83,7 @@ class tst_cxx11: public QObject
             if (! errors)
                 return;
 
-            static const char *const pretty[] = { "warning", "error", "fatal" };
+            static const char *const pretty[] = {"warning", "error", "fatal"};
 
             QString str;
             str.sprintf("%s:%d:%d: %s: ", fileName->chars(), line, column, pretty[level]);

@@ -870,7 +870,7 @@ QList<BuildStepInfo> QMakeStepFactory::availableSteps(BuildStepList *parent) con
     if (!qobject_cast<QmakeBuildConfiguration *>(parent->parent()))
         return {};
 
-    return {{ QMAKE_BS_ID, tr("qmake"), BuildStepInfo::UniqueStep }};
+    return {{QMAKE_BS_ID, tr("qmake"), BuildStepInfo::UniqueStep}};
 }
 
 ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildStepList *parent, Core::Id id)

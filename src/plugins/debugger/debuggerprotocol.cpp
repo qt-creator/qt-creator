@@ -646,11 +646,11 @@ QString decodeData(const QString &ba, const QString &encoding)
         case DebuggerEncoding::HexEncodedFloat: {
             const QByteArray s = QByteArray::fromHex(ba.toUtf8());
             if (enc.size == 4) {
-                union { char c[4]; float f; } u = { { s[3], s[2], s[1], s[0] } };
+                union { char c[4]; float f; } u = {{s[3], s[2], s[1], s[0]}};
                 return QString::number(u.f);
             }
             if (enc.size == 8) {
-                union { char c[8]; double d; } u = { { s[7], s[6], s[5], s[4], s[3], s[2], s[1], s[0] } };
+                union { char c[8]; double d; } u = {{s[7], s[6], s[5], s[4], s[3], s[2], s[1], s[0]}};
                 return QString::number(u.d);
             }
         }

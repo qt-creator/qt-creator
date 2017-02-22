@@ -63,7 +63,7 @@ QString EmbeddedLinuxQtVersion::description() const
 
 QSet<Core::Id> EmbeddedLinuxQtVersion::targetDeviceTypes() const
 {
-    return { Constants::GenericLinuxOsType };
+    return {Constants::GenericLinuxOsType};
 }
 
 } // namespace Internal

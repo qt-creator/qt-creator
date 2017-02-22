@@ -518,9 +518,9 @@ void SimulatorControlPrivate::createSimulator(QFutureInterface<SimulatorControl:
 {
     SimulatorControl::ResponseData response("Invalid");
     if (!name.isEmpty()) {
-        response.success = runSimCtlCommand({ QStringLiteral("create"), name,
-                                              deviceType.identifier,
-                                              runtime.identifier },
+        response.success = runSimCtlCommand({QStringLiteral("create"), name,
+                                             deviceType.identifier,
+                                             runtime.identifier},
                                             &response.commandOutput);
         response.simUdid = response.success ? QString::fromLatin1(response.commandOutput.trimmed())
                                             : QString();
@@ -534,8 +534,8 @@ void SimulatorControlPrivate::takeSceenshot(QFutureInterface<SimulatorControl::R
                                             const QString &simUdid, const QString &filePath)
 {
     SimulatorControl::ResponseData response(simUdid);
-    response.success = runSimCtlCommand({ QStringLiteral("io"), simUdid, QStringLiteral("screenshot"),
-                                              filePath },
+    response.success = runSimCtlCommand({QStringLiteral("io"), simUdid, QStringLiteral("screenshot"),
+                                         filePath},
                                         &response.commandOutput);
     if (!fi.isCanceled())
         fi.reportResult(response);

@@ -341,7 +341,7 @@ WinCEToolChainFactory::WinCEToolChainFactory()
 
 QSet<Core::Id> WinCEToolChainFactory::supportedLanguages() const
 {
-    return { Constants::CXX_LANGUAGE_ID };
+    return {Constants::CXX_LANGUAGE_ID};
 }
 
 static ToolChain *findOrCreateToolChain(const QList<ToolChain *> &alreadyKnown,

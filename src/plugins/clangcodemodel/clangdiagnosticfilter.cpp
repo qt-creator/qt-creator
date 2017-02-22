@@ -48,7 +48,7 @@ bool isWarningOrNote(ClangBackEnd::DiagnosticSeverity severity)
 bool isBlackListedDiagnostic(const ClangBackEnd::DiagnosticContainer &diagnostic,
                              bool isHeaderFile)
 {
-    static const Utf8StringVector blackList {
+    static const Utf8StringVector blackList{
         Utf8StringLiteral("warning: #pragma once in main file"),
         Utf8StringLiteral("warning: #include_next in primary source file")
     };

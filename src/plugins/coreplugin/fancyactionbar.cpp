@@ -116,7 +116,7 @@ static QVector<QString> splitInTwoLines(const QString &text, const QFontMetrics 
     if (splitPos < 0) {
         splitLines[0] = fontMetrics.elidedText(text, Qt::ElideRight,
                                                        availableWidth);
-        QString common = Utils::commonPrefix(QStringList({ splitLines[0], text }));
+        QString common = Utils::commonPrefix(QStringList({splitLines[0], text}));
         splitLines[1] = text.mid(common.length());
         // elide the second line even if it fits, since it is cut off in mid-word
         while (fontMetrics.width(QChar(0x2026) /*'...'*/ + splitLines[1]) > availableWidth

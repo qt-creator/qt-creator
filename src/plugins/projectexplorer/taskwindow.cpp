@@ -348,7 +348,7 @@ void TaskWindow::delayedInitialization()
 
 QList<QWidget*> TaskWindow::toolBarWidgets() const
 {
-    return { d->m_filterWarningsButton, d->m_categoriesButton };
+    return {d->m_filterWarningsButton, d->m_categoriesButton};
 }
 
 QWidget *TaskWindow::outputWidget(QWidget *)

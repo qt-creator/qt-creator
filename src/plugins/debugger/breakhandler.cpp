@@ -902,8 +902,8 @@ BreakHandler::BreakHandler()
 #if USE_BREAK_MODEL_TEST
     new ModelTest(this, 0);
 #endif
-    setHeader(QStringList({ tr("Number"), tr("Function"), tr("File"), tr("Line"), tr("Address"),
-                            tr("Condition"), tr("Ignore"), tr("Threads") }));
+    setHeader(QStringList({tr("Number"), tr("Function"), tr("File"), tr("Line"), tr("Address"),
+                           tr("Condition"), tr("Ignore"), tr("Threads")}));
 }
 
 static inline bool fileNameMatch(const QString &f1, const QString &f2)
@@ -1936,7 +1936,7 @@ bool BreakHandler::setData(const QModelIndex &idx, const QVariant &value, int ro
         if (ev.as<QMouseEvent>(QEvent::MouseButtonDblClick)) {
             if (Breakpoint b = findBreakpointByIndex(idx)) {
                 if (idx.column() >= BreakpointAddressColumn)
-                    editBreakpoints({ b }, ev.view());
+                    editBreakpoints({b}, ev.view());
                 else
                     b.gotoLocation();
             } else {

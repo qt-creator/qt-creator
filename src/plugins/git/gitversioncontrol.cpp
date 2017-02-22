@@ -113,13 +113,13 @@ bool GitVersionControl::vcsOpen(const QString & /*fileName*/)
 bool GitVersionControl::vcsAdd(const QString & fileName)
 {
     const QFileInfo fi(fileName);
-    return m_client->synchronousAdd(fi.absolutePath(), { fi.fileName() });
+    return m_client->synchronousAdd(fi.absolutePath(), {fi.fileName()});
 }
 
 bool GitVersionControl::vcsDelete(const QString & fileName)
 {
     const QFileInfo fi(fileName);
-    return m_client->synchronousDelete(fi.absolutePath(), true, { fi.fileName() });
+    return m_client->synchronousDelete(fi.absolutePath(), true, {fi.fileName()});
 }
 
 bool GitVersionControl::vcsMove(const QString &from, const QString &to)
@@ -148,7 +148,7 @@ Core::ShellCommand *GitVersionControl::createInitialCheckoutCommand(const QStrin
                                                                     const QString &localName,
                                                                     const QStringList &extraArgs)
 {
-    QStringList args = { "clone", "--progress" };
+    QStringList args = {"clone", "--progress"};
     args << extraArgs << url << localName;
 
     auto command = new VcsBase::VcsCommand(baseDirectory.toString(), m_client->processEnvironment());

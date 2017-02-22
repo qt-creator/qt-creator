@@ -50,9 +50,9 @@ QList<BuildStepInfo> NimCompilerCleanStepFactory::availableSteps(BuildStepList *
     if (!bc || bc->hasNimCompilerCleanStep())
         return {};
 
-    return {{ Constants::C_NIMCOMPILERCLEANSTEP_ID,
-              tr(Nim::Constants::C_NIMCOMPILERCLEANSTEP_DISPLAY),
-              BuildStepInfo::Unclonable }};
+    return {{Constants::C_NIMCOMPILERCLEANSTEP_ID,
+             tr(Nim::Constants::C_NIMCOMPILERCLEANSTEP_DISPLAY),
+             BuildStepInfo::Unclonable}};
 }
 
 BuildStep *NimCompilerCleanStepFactory::create(BuildStepList *parent, Core::Id)

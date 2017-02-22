@@ -475,9 +475,9 @@ FileSaver::FileSaver(const QString &filename, QIODevice::OpenMode mode)
     if (HostOsInfo::isWindowsHost()) {
         // Taken from: https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
         static const QStringList reservedNames
-                = { "CON", "PRN", "AUX", "NUL",
-                    "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
-                    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
+                = {"CON", "PRN", "AUX", "NUL",
+                   "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+                   "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
         const QString fn = QFileInfo(filename).baseName().toUpper();
         for (const QString &rn : reservedNames) {
             if (fn == rn) {

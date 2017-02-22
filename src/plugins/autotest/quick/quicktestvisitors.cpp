@@ -30,7 +30,7 @@
 namespace Autotest {
 namespace Internal {
 
-static QStringList specialFunctions({ "initTestCase", "cleanupTestCase", "init", "cleanup" });
+static QStringList specialFunctions({"initTestCase", "cleanupTestCase", "init", "cleanup"});
 
 TestQmlVisitor::TestQmlVisitor(QmlJS::Document::Ptr doc)
     : m_currentDoc(doc)

@@ -190,7 +190,7 @@ static void addThemesFromPath(const QString &path, QList<ThemeEntry> *themes)
 {
     static const QLatin1String extension("*.creatortheme");
     QDir themeDir(path);
-    themeDir.setNameFilters({ extension });
+    themeDir.setNameFilters({extension});
     themeDir.setFilter(QDir::Files);
     const QStringList themeList = themeDir.entryList();
     foreach (const QString &fileName, themeList) {

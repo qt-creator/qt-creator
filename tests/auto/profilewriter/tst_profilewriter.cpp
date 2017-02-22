@@ -94,8 +94,8 @@ void tst_ProFileWriter::adds_data()
         const char *output;
     };
 
-    static const char *f_foo[] = { "foo", 0 };
-    static const char *f_foo_bar[] = { "foo", "bar", 0 };
+    static const char *f_foo[] = {"foo", 0};
+    static const char *f_foo_bar[] = {"foo", "bar", 0};
     static const Case cases[] = {
         {
             PW::AppendValues|PW::AppendOperator|PW::MultiLine,
@@ -469,8 +469,8 @@ void tst_ProFileWriter::removes_data()
         const char *output;
     };
 
-    static const char *f_foo[] = { "foo", 0 };
-    static const char *f_foo_bar[] = { "foo", "bar", 0 };
+    static const char *f_foo[] = {"foo", 0};
+    static const char *f_foo_bar[] = {"foo", "bar", 0};
     static const Case cases[] = {
         {
             "remove fail", f_foo,

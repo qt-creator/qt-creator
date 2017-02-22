@@ -52,16 +52,16 @@ struct PluginBaseClasses {
 
 static const PluginBaseClasses pluginBaseClasses[] =
 {
-    { "QAccessiblePlugin", "QtGui", "QtCore", "accessible", "QAccessibleFactoryInterface" },
-    { "QDecorationPlugin", "QtGui", "QtCore", 0, 0 }, // Qt 4 only.
-    { "QGenericPlugin", "QtGui", "QtCore", "generic", "QGenericPluginFactoryInterface" },
-    { "QIconEnginePluginV2", "QtGui", "QtCore", "imageformats", 0 }, // Qt 4 only.
-    { "QIconEnginePlugin", "QtGui", "QtCore", "imageformats", "QIconEngineFactoryInterface" },
-    { "QImageIOPlugin", "QtGui", "QtCore", "imageformats",  "QImageIOHandlerFactoryInterface" },
-    { "QScriptExtensionPlugin", "QtScript", "QtCore", 0, "QScriptExtensionInterface" },
-    { "QSqlDriverPlugin", "QtSql", "QtCore", "sqldrivers", "QSqlDriverFactoryInterface" },
-    { "QStylePlugin", "QtGui", "QtCore", "styles", "QStyleFactoryInterface" },
-    { "QTextCodecPlugin", "QtCore", 0, "codecs", 0 } // Qt 4 only.
+    {"QAccessiblePlugin", "QtGui", "QtCore", "accessible", "QAccessibleFactoryInterface"},
+    {"QDecorationPlugin", "QtGui", "QtCore", 0, 0}, // Qt 4 only.
+    {"QGenericPlugin", "QtGui", "QtCore", "generic", "QGenericPluginFactoryInterface"},
+    {"QIconEnginePluginV2", "QtGui", "QtCore", "imageformats", 0}, // Qt 4 only.
+    {"QIconEnginePlugin", "QtGui", "QtCore", "imageformats", "QIconEngineFactoryInterface"},
+    {"QImageIOPlugin", "QtGui", "QtCore", "imageformats",  "QImageIOHandlerFactoryInterface"},
+    {"QScriptExtensionPlugin", "QtScript", "QtCore", 0, "QScriptExtensionInterface"},
+    {"QSqlDriverPlugin", "QtSql", "QtCore", "sqldrivers", "QSqlDriverFactoryInterface"},
+    {"QStylePlugin", "QtGui", "QtCore", "styles", "QStyleFactoryInterface"},
+    {"QTextCodecPlugin", "QtCore", 0, "codecs", 0} // Qt 4 only.
 };
 
 enum { defaultPluginBaseClass = 2 };

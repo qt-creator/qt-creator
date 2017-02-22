@@ -45,7 +45,7 @@ void BranchComboBox::init(const QString &repository)
     QString output;
     const QString branchPrefix("refs/heads/");
     if (!GitPlugin::client()->synchronousForEachRefCmd(
-                m_repository, { "--format=%(refname)", branchPrefix }, &output)) {
+                m_repository, {"--format=%(refname)", branchPrefix}, &output)) {
         return;
     }
     const QStringList branches = output.trimmed().split('\n');

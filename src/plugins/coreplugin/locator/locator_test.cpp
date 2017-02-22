@@ -94,9 +94,9 @@ void Core::Internal::CorePlugin::test_basefilefilter_data()
 
     const QChar pathSeparator = QDir::separator();
     const MyTestDataDir testDir(QLatin1String("testdata_basic"));
-    const QStringList testFiles({ QDir::fromNativeSeparators(testDir.file("file.cpp")),
-                                  QDir::fromNativeSeparators(testDir.file("main.cpp")),
-                                  QDir::fromNativeSeparators(testDir.file("subdir/main.cpp")) });
+    const QStringList testFiles({QDir::fromNativeSeparators(testDir.file("file.cpp")),
+                                 QDir::fromNativeSeparators(testDir.file("main.cpp")),
+                                 QDir::fromNativeSeparators(testDir.file("subdir/main.cpp"))});
     QStringList testFilesShort;
     foreach (const QString &file, testFiles)
         testFilesShort << Utils::FileUtils::shortNativePath(Utils::FileName::fromString(file));

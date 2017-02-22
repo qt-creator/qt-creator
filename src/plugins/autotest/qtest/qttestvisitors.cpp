@@ -35,7 +35,7 @@
 namespace Autotest {
 namespace Internal {
 
-static QStringList specialFunctions({ "initTestCase", "cleanupTestCase", "init", "cleanup" });
+static QStringList specialFunctions({"initTestCase", "cleanupTestCase", "init", "cleanup"});
 
 /************************** Cpp Test Symbol Visitor ***************************/
 

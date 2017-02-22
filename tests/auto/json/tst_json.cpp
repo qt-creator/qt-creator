@@ -1598,12 +1598,12 @@ void tst_Json::parseNumbers()
             int n;
         };
         Numbers numbers [] = {
-            { "0", 0 },
-            { "1", 1 },
-            { "10", 10 },
-            { "-1", -1 },
-            { "100000", 100000 },
-            { "-999", -999 }
+            {"0", 0},
+            {"1", 1},
+            {"10", 10},
+            {"-1", -1},
+            {"100000", 100000},
+            {"-999", -999}
         };
         int size = sizeof(numbers)/sizeof(Numbers);
         for (int i = 0; i < size; ++i) {
@@ -1628,26 +1628,26 @@ void tst_Json::parseNumbers()
             double n;
         };
         Numbers numbers [] = {
-            { "0", 0 },
-            { "1", 1 },
-            { "10", 10 },
-            { "-1", -1 },
-            { "100000", 100000 },
-            { "-999", -999 },
-            { "1.1", 1.1 },
-            { "1e10", 1e10 },
-            { "-1.1", -1.1 },
-            { "-1e10", -1e10 },
-            { "-1E10", -1e10 },
-            { "1.1e10", 1.1e10 },
-            { "1.1e308", 1.1e308 },
-            { "-1.1e308", -1.1e308 },
-            { "1.1e-308", 1.1e-308 },
-            { "-1.1e-308", -1.1e-308 },
-            { "1.1e+308", 1.1e+308 },
-            { "-1.1e+308", -1.1e+308 },
-            { "1.e+308", 1.e+308 },
-            { "-1.e+308", -1.e+308 }
+            {"0", 0},
+            {"1", 1},
+            {"10", 10},
+            {"-1", -1},
+            {"100000", 100000},
+            {"-999", -999},
+            {"1.1", 1.1},
+            {"1e10", 1e10},
+            {"-1.1", -1.1},
+            {"-1e10", -1e10},
+            {"-1E10", -1e10},
+            {"1.1e10", 1.1e10},
+            {"1.1e308", 1.1e308},
+            {"-1.1e308", -1.1e308},
+            {"1.1e-308", 1.1e-308},
+            {"-1.1e-308", -1.1e-308},
+            {"1.1e+308", 1.1e+308},
+            {"-1.1e+308", -1.1e+308},
+            {"1.e+308", 1.e+308},
+            {"-1.e+308", -1.e+308}
         };
         int size = sizeof(numbers)/sizeof(Numbers);
         for (int i = 0; i < size; ++i) {
@@ -1710,10 +1710,10 @@ void tst_Json::parseStrings()
         const char *out;
     };
     Pairs pairs [] = {
-        { "abc\\/abc", "abc/abc" },
-        { "abc\\u0402abc", "abc" UNICODE_DJE "abc" },
-        { "abc\\u0065abc", "abceabc" },
-        { "abc\\uFFFFabc", "abc" UNICODE_NON_CHARACTER "abc" }
+        {"abc\\/abc", "abc/abc"},
+        {"abc\\u0402abc", "abc" UNICODE_DJE "abc"},
+        {"abc\\u0065abc", "abceabc"},
+        {"abc\\uFFFFabc", "abc" UNICODE_NON_CHARACTER "abc"}
     };
     size = sizeof(pairs)/sizeof(Pairs);
 
@@ -2024,7 +2024,7 @@ void tst_Json::assignArrays()
 
 void tst_Json::testTrailingComma()
 {
-    const char *jsons[] = { "{ \"Key\": 1, }", "[ { \"Key\": 1 }, ]" };
+    const char *jsons[] = {"{ \"Key\": 1, }", "[ { \"Key\": 1 }, ]"};
 
     for (unsigned i = 0; i < sizeof(jsons)/sizeof(jsons[0]); ++i) {
         JsonParseError error;
@@ -2390,21 +2390,21 @@ void tst_Json::arrayInitializerList()
     {
         JsonObject o;
         o["property"] = 1;
-        JsonArray a1 {o};
+        JsonArray a1{o};
         QCOMPARE(a1.count(), 1);
         QCOMPARE(a1[0].toObject(), o);
 
-        JsonArray a2 {o, 23};
+        JsonArray a2{o, 23};
         QCOMPARE(a2.count(), 2);
         QCOMPARE(a2[0].toObject(), o);
         QCOMPARE(JsonValue(a2[1]), JsonValue(23));
 
-        JsonArray a3 { a1, o, a2 };
+        JsonArray a3{a1, o, a2};
         QCOMPARE(JsonValue(a3[0]), JsonValue(a1));
         QCOMPARE(JsonValue(a3[1]), JsonValue(o));
         QCOMPARE(JsonValue(a3[2]), JsonValue(a2));
 
-        JsonArray a4 { 1, JsonArray{1,2,3}, JsonArray{"hello", 2}, JsonObject{{"one", 1}} };
+        JsonArray a4{1, JsonArray{1,2,3}, JsonArray{"hello", 2}, JsonObject{{"one", 1}}};
         QCOMPARE(a4.count(), 4);
         QCOMPARE(JsonValue(a4[0]), JsonValue(1));
 
@@ -2439,9 +2439,9 @@ void tst_Json::objectInitializerList()
     }
     {   // two properties
         JsonObject two {
-                           {"one", 1},
-                           {"two", 2}
-                        };
+            {"one", 1},
+            {"two", 2}
+        };
         QCOMPARE(two.count(), 2);
         QVERIFY(two.contains("one"));
         QVERIFY(two.contains("two"));

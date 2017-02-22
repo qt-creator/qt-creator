@@ -38,7 +38,7 @@ namespace Internal {
 
 FormClassWizard::FormClassWizard()
 {
-    setRequiredFeatures({ QtSupport::Constants::FEATURE_QWIDGETS });
+    setRequiredFeatures({QtSupport::Constants::FEATURE_QWIDGETS});
 }
 
 QString FormClassWizard::headerSuffix() const

@@ -236,9 +236,9 @@ class ToolTipModel : public TreeModel<ToolTipWatchItem>
 public:
     ToolTipModel()
     {
-        setHeader({ DebuggerToolTipManager::tr("Name"),
-                    DebuggerToolTipManager::tr("Value"),
-                    DebuggerToolTipManager::tr("Type") });
+        setHeader({DebuggerToolTipManager::tr("Name"),
+                   DebuggerToolTipManager::tr("Value"),
+                   DebuggerToolTipManager::tr("Type")});
         m_enabled = true;
         auto item = new ToolTipWatchItem;
         item->expandable = true;

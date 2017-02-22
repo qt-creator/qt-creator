@@ -110,7 +110,7 @@ namespace Internal {
 
 ShortcutButton::ShortcutButton(QWidget *parent)
     : QPushButton(parent)
-    , m_key({{ 0, 0, 0, 0 }})
+    , m_key({{0, 0, 0, 0}})
 {
     // Using ShortcutButton::tr() as workaround for QTBUG-34128
     setToolTip(ShortcutButton::tr("Click and type the new key sequence."));

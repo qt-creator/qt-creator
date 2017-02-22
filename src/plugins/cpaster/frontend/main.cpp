@@ -91,9 +91,9 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-    const QStringList protocols = { KdePasteProtocol::protocolName().toLower(),
-                                    PasteBinDotCaProtocol::protocolName().toLower(),
-                                    PasteBinDotComProtocol::protocolName().toLower() };
+    const QStringList protocols = {KdePasteProtocol::protocolName().toLower(),
+                                   PasteBinDotCaProtocol::protocolName().toLower(),
+                                   PasteBinDotComProtocol::protocolName().toLower()};
     ArgumentsCollector argsCollector(protocols);
     QStringList arguments = QCoreApplication::arguments();
     arguments.removeFirst();

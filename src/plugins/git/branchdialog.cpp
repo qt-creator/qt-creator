@@ -336,7 +336,7 @@ void BranchDialog::log()
     QString branchName = m_model->fullName(selectedIndex(), true);
     if (branchName.isEmpty())
         return;
-    GitPlugin::client()->log(m_repository, QString(), false, { branchName });
+    GitPlugin::client()->log(m_repository, QString(), false, {branchName});
 }
 
 void BranchDialog::reset()

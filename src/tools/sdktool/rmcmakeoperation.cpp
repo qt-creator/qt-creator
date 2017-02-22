@@ -98,7 +98,7 @@ bool RmCMakeOperation::test() const
     // Add cmakes:
     QVariantMap map = AddCMakeOperation::initializeCMake();
     map = AddCMakeOperation::addCMake(map, "testId", "name", "/tmp/test",
-                                      KeyValuePairList({ KeyValuePair("ExtraKey", QVariant("ExtraValue")) }));
+                                      KeyValuePairList({KeyValuePair("ExtraKey", QVariant("ExtraValue"))}));
     map = AddCMakeOperation::addCMake(map, "testId2", "other name", "/tmp/test2", KeyValuePairList());
 
     QVariantMap result = rmCMake(QVariantMap(), "nonexistent");

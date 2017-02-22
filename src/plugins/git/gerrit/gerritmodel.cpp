@@ -200,7 +200,7 @@ QString GerritChange::filterString() const
 
 QStringList GerritChange::gitFetchArguments(const GerritServer &server) const
 {
-    return { "fetch", server.url() + '/' + project, currentPatchSet.ref };
+    return {"fetch", server.url() + '/' + project, currentPatchSet.ref};
 }
 
 QString GerritChange::fullTitle() const

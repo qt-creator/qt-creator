@@ -114,7 +114,7 @@ ServerMode::ServerMode(const Environment &env,
     m_socketName = QString::fromLatin1("\\\\.\\pipe\\") + QUuid::createUuid().toString();
 #endif
 
-    const QStringList args = QStringList({ "-E", "server", "--pipe=" + m_socketName });
+    const QStringList args = QStringList({"-E", "server", "--pipe=" + m_socketName});
 
     connect(m_cmakeProcess.get(), &QtcProcess::started, this, [this]() { m_connectionTimer.start(); });
     connect(m_cmakeProcess.get(),
@@ -168,7 +168,7 @@ void ServerMode::sendRequest(const QString &type, const QVariantMap &extra, cons
     data.insert(TYPE_KEY, type);
     const QVariant realCookie = cookie.isNull() ? QVariant(m_requestCounter) : cookie;
     data.insert(COOKIE_KEY, realCookie);
-    m_expectedReplies.push_back({ type, realCookie });
+    m_expectedReplies.push_back({type, realCookie});
 
     QJsonObject object = QJsonObject::fromVariantMap(data);
     QJsonDocument document;

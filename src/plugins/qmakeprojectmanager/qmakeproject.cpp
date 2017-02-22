@@ -884,7 +884,7 @@ QmakeProject::collectAllProFiles(QmakeProFile *file, Parsing parse,
 
 QList<QmakeProFile *> QmakeProject::applicationProFiles(Parsing parse) const
 {
-    return allProFiles({ ProjectType::ApplicationTemplate, ProjectType::ScriptTemplate }, parse);
+    return allProFiles({ProjectType::ApplicationTemplate, ProjectType::ScriptTemplate}, parse);
 }
 
 QList<QmakeProFile *> QmakeProject::allProFiles(const QList<ProjectType> &projectTypes, Parsing parse) const

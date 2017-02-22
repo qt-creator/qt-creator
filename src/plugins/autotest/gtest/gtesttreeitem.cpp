@@ -311,8 +311,8 @@ TestTreeItem *GTestTreeItem::findChildByNameStateAndFile(const QString &name,
 
 QString GTestTreeItem::nameSuffix() const
 {
-    static QString markups[] = { QCoreApplication::translate("GTestTreeItem", "parameterized"),
-                                 QCoreApplication::translate("GTestTreeItem", "typed") };
+    static QString markups[] = {QCoreApplication::translate("GTestTreeItem", "parameterized"),
+                                QCoreApplication::translate("GTestTreeItem", "typed")};
     QString suffix;
     if (m_state & Parameterized)
         suffix =  QString(" [") + markups[0];

@@ -302,7 +302,7 @@ void CrashHandler::debugApplication()
     QString executable = d->creatorInPath.toString();
     if (executable.isEmpty() && !d->restartAppCommandLine.isEmpty())
         executable = d->restartAppCommandLine.at(0);
-    const QStringList commandLine = QStringList({ executable, "-debug", QString::number(d->pid) });
+    const QStringList commandLine = QStringList({executable, "-debug", QString::number(d->pid)});
     QStringList environment;
     if (!d->restartAppEnvironment.isEmpty())
         environment = d->restartAppEnvironment;

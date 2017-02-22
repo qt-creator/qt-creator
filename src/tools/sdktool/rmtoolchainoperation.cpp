@@ -99,7 +99,7 @@ bool RmToolChainOperation::test() const
     QVariantMap map = AddToolChainOperation::initializeToolChains();
     map = AddToolChainOperation::addToolChain(map, "testId", "langId", "name", "/tmp/test", "test-abi",
                                               "test-abi,test-abi2",
-                                              KeyValuePairList({ KeyValuePair("ExtraKey", QVariant("ExtraValue")) }));
+                                              KeyValuePairList({KeyValuePair("ExtraKey", QVariant("ExtraValue"))}));
     map = AddToolChainOperation::addToolChain(map, "testId2", "langId", "other name", "/tmp/test2", "test-abi",
                                               "test-abi,test-abi2", KeyValuePairList());
 

@@ -83,7 +83,7 @@ void NimIndenter::indentBlock(QTextDocument *document,
 
 const QSet<QChar> &NimIndenter::electricCharacters()
 {
-    static QSet<QChar> result { QLatin1Char(':'), QLatin1Char('=') };
+    static QSet<QChar> result{QLatin1Char(':'), QLatin1Char('=')};
     return result;
 }
 

@@ -849,7 +849,7 @@ QList<ProjectExplorer::BuildStepInfo> QbsBuildStepFactory::availableSteps(Projec
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD
             && qobject_cast<QbsBuildConfiguration *>(parent->parent())
             && qobject_cast<QbsProject *>(parent->target()->project()))
-       return {{ Constants::QBS_BUILDSTEP_ID, tr("Qbs Build") }};
+       return {{Constants::QBS_BUILDSTEP_ID, tr("Qbs Build")}};
 
     return {};
 }

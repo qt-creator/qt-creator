@@ -435,7 +435,7 @@ namespace peekandpoke {
             struct { int i; int b; };
             struct { float f; };
             double d;
-        } a = { { 42, 43 } };
+        } a = {{42, 43}};
         BREAK_HERE;
         // Expand a.
         // CheckType a union {...}.
@@ -669,7 +669,7 @@ namespace qbytearray {
 
     void testQByteArray4()
     {
-        char data[] = { 'H', 'e', 'l', 'l', 'o' };
+        char data[] = {'H', 'e', 'l', 'l', 'o'};
         QByteArray ba1 = QByteArray::fromRawData(data, 4);
         QByteArray ba2 = QByteArray::fromRawData(data + 1, 4);
         BREAK_HERE;
@@ -2279,10 +2279,10 @@ namespace qregion {
         BREAK_HERE;
         // Check region <4 items> QRegion.
         // Continue.
-        QVector<int> vv = { 1, 2, 3 };
+        QVector<int> vv = {1, 2, 3};
         dummyStatement(&region, &vv);
         QRect x(12, 34, 66, 77);
-        QVector<QRect> rr = { {1, 2, 3, 4}, {5, 6, 7, 8} };
+        QVector<QRect> rr = {{1, 2, 3, 4}, {5, 6, 7, 8}};
         dummyStatement(&region, &vv, &rr, &x);
         #endif
     }
@@ -2650,8 +2650,8 @@ namespace stdarray {
     void testStdArray()
     {
         #if USE_CXX11LIB
-        std::array<int, 4> a = { { 1, 2, 3, 4} };
-        std::array<QString, 4> b = { { "1", "2", "3", "4"} };
+        std::array<int, 4> a = {{1, 2, 3, 4}};
+        std::array<QString, 4> b = {{"1", "2", "3", "4"}};
         BREAK_HERE;
         // Expand a.
         // Check a <4 items> std::array<int, 4u>.
@@ -4063,7 +4063,7 @@ namespace qstring  {
 
     void testQString2()
     {
-        QChar data[] = { 'H', 'e', 'l', 'l', 'o' };
+        QChar data[] = {'H', 'e', 'l', 'l', 'o'};
         QString str1 = QString::fromRawData(data, 4);
         QString str2 = QString::fromRawData(data + 1, 4);
         BREAK_HERE;
@@ -4197,7 +4197,7 @@ namespace formats {
         // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
         // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
 
-        const unsigned char uu[] = { 'a', 153 /* ö Latin1 */, 'a' };
+        const unsigned char uu[] = {'a', 153 /* ö Latin1 */, 'a'};
         const unsigned char *u = uu;
         BREAK_HERE;
         // CheckType u unsigned char *.
@@ -4956,10 +4956,10 @@ namespace gccextensions {
     void testGccExtensions()
     {
 #ifdef __GNUC__
-        char v[8] = { 1, 2 };
-        char w __attribute__ ((vector_size (8))) = { 1, 2 };
-        int y[2] = { 1, 2 };
-        int z __attribute__ ((vector_size (8))) = { 1, 2 };
+        char v[8] = {1, 2};
+        char w __attribute__ ((vector_size (8))) = {1, 2};
+        int y[2] = {1, 2};
+        int z __attribute__ ((vector_size (8))) = {1, 2};
         BREAK_HERE;
         // Expand v.
         // Check v.0 1 char.
@@ -5193,7 +5193,7 @@ namespace basic {
         dummyStatement(&s);
     }
 
-    static char buf[20] = { 0 };
+    static char buf[20] = {0};
 
     void testCharStar()
     {

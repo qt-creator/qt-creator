@@ -743,7 +743,7 @@ void GitPlugin::undoFileChanges(bool revertStaging)
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     FileChangeBlocker fcb(state.currentFile());
-    m_gitClient->revert({ state.currentFile() }, revertStaging);
+    m_gitClient->revert({state.currentFile()}, revertStaging);
 }
 
 class ResetItemDelegate : public LogItemDelegate
@@ -858,7 +858,7 @@ void GitPlugin::unstageFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_gitClient->synchronousReset(state.currentFileTopLevel(), { state.relativeCurrentFile() });
+    m_gitClient->synchronousReset(state.currentFileTopLevel(), {state.relativeCurrentFile()});
 }
 
 void GitPlugin::gitkForCurrentFile()

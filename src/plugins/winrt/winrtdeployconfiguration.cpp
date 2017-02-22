@@ -146,9 +146,9 @@ QList<BuildStepInfo> WinRtDeployStepFactory::availableSteps(BuildStepList *paren
             || parent->contains(Constants::WINRT_BUILD_STEP_DEPLOY))
         return {};
 
-    return {{ Constants::WINRT_BUILD_STEP_DEPLOY,
-              QCoreApplication::translate("WinRt::Internal::WinRtDeployStepFactory", "Run windeployqt"),
-              BuildStepInfo::Unclonable }};
+    return {{Constants::WINRT_BUILD_STEP_DEPLOY,
+             QCoreApplication::translate("WinRt::Internal::WinRtDeployStepFactory", "Run windeployqt"),
+             BuildStepInfo::Unclonable}};
 }
 
 BuildStep *WinRtDeployStepFactory::create(BuildStepList *parent, Core::Id id)

@@ -91,8 +91,8 @@ QStringList QScxmlcGenerator::arguments() const
 {
     QTC_ASSERT(!m_header.isEmpty(), return QStringList());
 
-    return QStringList({ QLatin1String("--header"), m_header, QLatin1String("--impl"), m_impl,
-                         tmpFile().fileName() });
+    return QStringList({QLatin1String("--header"), m_header, QLatin1String("--impl"), m_impl,
+                        tmpFile().fileName()});
 }
 
 Utils::FileName QScxmlcGenerator::workingDirectory() const

@@ -161,27 +161,27 @@ void QMakeEvaluator::initStatics()
     static const struct {
         const char * const oldname, * const newname;
     } mapInits[] = {
-        { "INTERFACES", "FORMS" },
-        { "QMAKE_POST_BUILD", "QMAKE_POST_LINK" },
-        { "TARGETDEPS", "POST_TARGETDEPS" },
-        { "LIBPATH", "QMAKE_LIBDIR" },
-        { "QMAKE_EXT_MOC", "QMAKE_EXT_CPP_MOC" },
-        { "QMAKE_MOD_MOC", "QMAKE_H_MOD_MOC" },
-        { "QMAKE_LFLAGS_SHAPP", "QMAKE_LFLAGS_APP" },
-        { "PRECOMPH", "PRECOMPILED_HEADER" },
-        { "PRECOMPCPP", "PRECOMPILED_SOURCE" },
-        { "INCPATH", "INCLUDEPATH" },
-        { "QMAKE_EXTRA_WIN_COMPILERS", "QMAKE_EXTRA_COMPILERS" },
-        { "QMAKE_EXTRA_UNIX_COMPILERS", "QMAKE_EXTRA_COMPILERS" },
-        { "QMAKE_EXTRA_WIN_TARGETS", "QMAKE_EXTRA_TARGETS" },
-        { "QMAKE_EXTRA_UNIX_TARGETS", "QMAKE_EXTRA_TARGETS" },
-        { "QMAKE_EXTRA_UNIX_INCLUDES", "QMAKE_EXTRA_INCLUDES" },
-        { "QMAKE_EXTRA_UNIX_VARIABLES", "QMAKE_EXTRA_VARIABLES" },
-        { "QMAKE_RPATH", "QMAKE_LFLAGS_RPATH" },
-        { "QMAKE_FRAMEWORKDIR", "QMAKE_FRAMEWORKPATH" },
-        { "QMAKE_FRAMEWORKDIR_FLAGS", "QMAKE_FRAMEWORKPATH_FLAGS" },
-        { "IN_PWD", "PWD" },
-        { "DEPLOYMENT", "INSTALLS" }
+        {"INTERFACES", "FORMS"},
+        {"QMAKE_POST_BUILD", "QMAKE_POST_LINK"},
+        {"TARGETDEPS", "POST_TARGETDEPS"},
+        {"LIBPATH", "QMAKE_LIBDIR"},
+        {"QMAKE_EXT_MOC", "QMAKE_EXT_CPP_MOC"},
+        {"QMAKE_MOD_MOC", "QMAKE_H_MOD_MOC"},
+        {"QMAKE_LFLAGS_SHAPP", "QMAKE_LFLAGS_APP"},
+        {"PRECOMPH", "PRECOMPILED_HEADER"},
+        {"PRECOMPCPP", "PRECOMPILED_SOURCE"},
+        {"INCPATH", "INCLUDEPATH"},
+        {"QMAKE_EXTRA_WIN_COMPILERS", "QMAKE_EXTRA_COMPILERS"},
+        {"QMAKE_EXTRA_UNIX_COMPILERS", "QMAKE_EXTRA_COMPILERS"},
+        {"QMAKE_EXTRA_WIN_TARGETS", "QMAKE_EXTRA_TARGETS"},
+        {"QMAKE_EXTRA_UNIX_TARGETS", "QMAKE_EXTRA_TARGETS"},
+        {"QMAKE_EXTRA_UNIX_INCLUDES", "QMAKE_EXTRA_INCLUDES"},
+        {"QMAKE_EXTRA_UNIX_VARIABLES", "QMAKE_EXTRA_VARIABLES"},
+        {"QMAKE_RPATH", "QMAKE_LFLAGS_RPATH"},
+        {"QMAKE_FRAMEWORKDIR", "QMAKE_FRAMEWORKPATH"},
+        {"QMAKE_FRAMEWORKDIR_FLAGS", "QMAKE_FRAMEWORKPATH_FLAGS"},
+        {"IN_PWD", "PWD"},
+        {"DEPLOYMENT", "INSTALLS"}
     };
     statics.varMap.reserve((int)(sizeof(mapInits)/sizeof(mapInits[0])));
     for (unsigned i = 0; i < sizeof(mapInits)/sizeof(mapInits[0]); ++i)

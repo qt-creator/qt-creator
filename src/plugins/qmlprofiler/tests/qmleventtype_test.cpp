@@ -71,35 +71,35 @@ void QmlEventTypeTest::testFeature()
 {
     const ProfileFeature features[][MaximumEventType] = {
         // Event
-        { MaximumProfileFeature, ProfileInputEvents, ProfileInputEvents,
-          ProfileAnimations, MaximumProfileFeature, MaximumProfileFeature },
+        {MaximumProfileFeature, ProfileInputEvents, ProfileInputEvents,
+         ProfileAnimations, MaximumProfileFeature, MaximumProfileFeature},
         // RangeStart
-        { MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature,
-          MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature },
+        {MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature,
+         MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature},
         // RangeData
-        { MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature,
-          MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature },
+        {MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature,
+         MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature},
         // RangeLocation
-        { MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature,
-          MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature },
+        {MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature,
+         MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature},
         // RangeEnd
-        { MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature,
-          MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature },
+        {MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature,
+         MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature},
         // Complete
-        { MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature,
-          MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature },
+        {MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature,
+         MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature},
         // PixmapCacheEvent
-        { ProfilePixmapCache, ProfilePixmapCache, ProfilePixmapCache,
-          ProfilePixmapCache, ProfilePixmapCache, ProfilePixmapCache },
+        {ProfilePixmapCache, ProfilePixmapCache, ProfilePixmapCache,
+         ProfilePixmapCache, ProfilePixmapCache, ProfilePixmapCache},
         // SceneGraphFrame
-        { ProfileSceneGraph, ProfileSceneGraph, ProfileSceneGraph,
-          ProfileSceneGraph, ProfileSceneGraph, ProfileSceneGraph },
+        {ProfileSceneGraph, ProfileSceneGraph, ProfileSceneGraph,
+         ProfileSceneGraph, ProfileSceneGraph, ProfileSceneGraph},
         // MemoryAllocation
-        { ProfileMemory, ProfileMemory, ProfileMemory,
-          ProfileMemory, ProfileMemory, ProfileMemory },
+        {ProfileMemory, ProfileMemory, ProfileMemory,
+         ProfileMemory, ProfileMemory, ProfileMemory},
         // DebugMessage
-        { ProfileDebugMessages, ProfileDebugMessages, ProfileDebugMessages,
-          ProfileDebugMessages, ProfileDebugMessages, ProfileDebugMessages }
+        {ProfileDebugMessages, ProfileDebugMessages, ProfileDebugMessages,
+         ProfileDebugMessages, ProfileDebugMessages, ProfileDebugMessages}
     };
 
     for (int i = 0; i < MaximumMessage; ++i) {

@@ -365,7 +365,7 @@ public:
     ProjectWindowPrivate(ProjectWindow *parent)
         : q(parent)
     {
-        m_projectsModel.setHeader({ ProjectWindow::tr("Projects") });
+        m_projectsModel.setHeader({ProjectWindow::tr("Projects")});
 
         m_selectorTree = new SelectorTree;
         m_selectorTree->setModel(&m_projectsModel);

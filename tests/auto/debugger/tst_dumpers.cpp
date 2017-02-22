@@ -1397,7 +1397,7 @@ void tst_Dumpers::dumper()
     if (data.neededDwarfVersion.isRestricted) {
         QProcess readelf;
         readelf.setWorkingDirectory(t->buildPath);
-        readelf.start("readelf", { "-wi", "doit" });
+        readelf.start("readelf", {"-wi", "doit"});
         QVERIFY(readelf.waitForFinished());
         output = readelf.readAllStandardOutput();
         error = readelf.readAllStandardError();

@@ -135,12 +135,12 @@ QtTestOutputReader::QtTestOutputReader(const QFutureInterface<TestResultPtr> &fu
 
 void QtTestOutputReader::processOutput(const QByteArray &outputLine)
 {
-    static QStringList validEndTags = { QStringLiteral("Incident"),
-                                        QStringLiteral("Message"),
-                                        QStringLiteral("BenchmarkResult"),
-                                        QStringLiteral("QtVersion"),
-                                        QStringLiteral("QtBuild"),
-                                        QStringLiteral("QTestVersion") };
+    static QStringList validEndTags = {QStringLiteral("Incident"),
+                                       QStringLiteral("Message"),
+                                       QStringLiteral("BenchmarkResult"),
+                                       QStringLiteral("QtVersion"),
+                                       QStringLiteral("QtBuild"),
+                                       QStringLiteral("QTestVersion")};
 
     if (m_className.isEmpty() && outputLine.trimmed().isEmpty())
         return;

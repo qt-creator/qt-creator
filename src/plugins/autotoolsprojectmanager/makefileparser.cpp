@@ -400,7 +400,7 @@ QStringList MakefileParser::targetValues(bool *hasVariables)
 
 void MakefileParser::appendHeader(QStringList &list,  const QDir &dir, const QString &fileName)
 {
-    const char *const headerExtensions[] = { ".h", ".hh", ".hg", ".hxx", ".hpp", 0 };
+    const char *const headerExtensions[] = {".h", ".hh", ".hg", ".hxx", ".hpp", 0};
     int i = 0;
     while (headerExtensions[i] != 0) {
         const QString headerFile = fileName + QLatin1String(headerExtensions[i]);

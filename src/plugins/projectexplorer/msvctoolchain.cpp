@@ -68,15 +68,15 @@ struct MsvcPlatform {
 
 const MsvcPlatform platforms[] =
 {
-    { MsvcToolChain::x86, "x86", "/bin", "vcvars32.bat" },
-    { MsvcToolChain::amd64, "amd64", "/bin/amd64", "vcvars64.bat" },
-    { MsvcToolChain::x86_amd64, "x86_amd64", "/bin/x86_amd64", "vcvarsx86_amd64.bat" },
-    { MsvcToolChain::ia64, "ia64", "/bin/ia64", "vcvars64.bat" },
-    { MsvcToolChain::x86_ia64, "x86_ia64", "/bin/x86_ia64", "vcvarsx86_ia64.bat" },
-    { MsvcToolChain::arm, "arm", "/bin/arm", "vcvarsarm.bat" },
-    { MsvcToolChain::x86_arm, "x86_arm", "/bin/x86_arm", "vcvarsx86_arm.bat" },
-    { MsvcToolChain::amd64_arm, "amd64_arm", "/bin/amd64_arm", "vcvarsamd64_arm.bat" },
-    { MsvcToolChain::amd64_x86, "amd64_x86", "/bin/amd64_x86", "vcvarsamd64_x86.bat" }
+    {MsvcToolChain::x86, "x86", "/bin", "vcvars32.bat"},
+    {MsvcToolChain::amd64, "amd64", "/bin/amd64", "vcvars64.bat"},
+    {MsvcToolChain::x86_amd64, "x86_amd64", "/bin/x86_amd64", "vcvarsx86_amd64.bat"},
+    {MsvcToolChain::ia64, "ia64", "/bin/ia64", "vcvars64.bat"},
+    {MsvcToolChain::x86_ia64, "x86_ia64", "/bin/x86_ia64", "vcvarsx86_ia64.bat"},
+    {MsvcToolChain::arm, "arm", "/bin/arm", "vcvarsarm.bat"},
+    {MsvcToolChain::x86_arm, "x86_arm", "/bin/x86_arm", "vcvarsx86_arm.bat"},
+    {MsvcToolChain::amd64_arm, "amd64_arm", "/bin/amd64_arm", "vcvarsamd64_arm.bat"},
+    {MsvcToolChain::amd64_x86, "amd64_x86", "/bin/amd64_x86", "vcvarsamd64_x86.bat"}
 };
 
 static const MsvcPlatform *platformEntry(MsvcToolChain::Platform t)
@@ -668,7 +668,7 @@ MsvcToolChainFactory::MsvcToolChainFactory()
 
 QSet<Core::Id> MsvcToolChainFactory::supportedLanguages() const
 {
-    return { Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID };
+    return {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID};
 }
 
 QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath, MsvcToolChain::Platform platform,
@@ -693,7 +693,7 @@ static QList<ToolChain *> findOrCreateToolChain(
         ToolChain::Detection d = ToolChain::ManualDetection)
 {
     QList<ToolChain *> res;
-    for (auto language: { Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID }) {
+    for (auto language: {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
         ToolChain *tc = Utils::findOrDefault(
                     alreadyKnown,
                     [&varsBat, &varsBatArg, &abi, &language](ToolChain *tc) -> bool {
@@ -747,7 +747,7 @@ static void detectCppBuildTools(QList<ToolChain *> *list)
         const Entry &e = entries[i];
         const Abi abi(e.architecture, Abi::WindowsOS, Abi::WindowsMsvc2015Flavor,
                       e.format, e.wordSize);
-        for (auto language: { Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID }) {
+        for (auto language: {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
             list->append(new MsvcToolChain(name + QLatin1String(e.postFix), abi,
                                            vcVarsBat, QLatin1String(e.varsBatArg),
                                            language, ToolChain::AutoDetection));

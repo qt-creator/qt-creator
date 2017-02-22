@@ -226,7 +226,7 @@ QVector<CMakeToolChainData> extractToolChainsFromCache(const CMakeConfig &config
         if (!i.key.startsWith("CMAKE_") || !i.key.endsWith("_COMPILER"))
             continue;
         const QByteArray language = i.key.mid(6, i.key.count() - 6 - 9); // skip "CMAKE_" and "_COMPILER"
-        result.append({ language, Utils::FileName::fromUtf8(i.value) });
+        result.append({language, Utils::FileName::fromUtf8(i.value)});
     }
     return result;
 }
@@ -278,7 +278,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const Utils::FileName &impo
     data->toolChains = extractToolChainsFromCache(config);
 
     qCInfo(cmInputLog()) << "Offering to import" << importPath.toUserOutput();
-    return { static_cast<void *>(data.release()) };
+    return {static_cast<void *>(data.release())};
 }
 
 bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
@@ -442,7 +442,7 @@ void CMakeProjectPlugin::testCMakeProjectImporterQt_data()
             << QStringList() << QString();
 
     QTest::newRow("Qt4")
-            << QStringList({ QString::fromLatin1("QT_QMAKE_EXECUTABLE=/usr/bin/xxx/qmake") })
+            << QStringList({QString::fromLatin1("QT_QMAKE_EXECUTABLE=/usr/bin/xxx/qmake")})
             << "/usr/bin/xxx/qmake";
 
     // Everything else will require Qt installations!
@@ -477,29 +477,29 @@ void CMakeProjectPlugin::testCMakeProjectImporterToolChain_data()
     QTest::newRow("Unrelated input")
             << QStringList("CMAKE_SOMETHING_ELSE=/tmp") << QByteArrayList() << QStringList();
     QTest::newRow("CXX compiler")
-            << QStringList({ "CMAKE_CXX_COMPILER=/usr/bin/g++" })
-            << QByteArrayList({ "CXX" })
-            << QStringList({ "/usr/bin/g++" });
+            << QStringList({"CMAKE_CXX_COMPILER=/usr/bin/g++"})
+            << QByteArrayList({"CXX"})
+            << QStringList({"/usr/bin/g++"});
     QTest::newRow("CXX compiler, C compiler")
-            << QStringList({ "CMAKE_CXX_COMPILER=/usr/bin/g++", "CMAKE_C_COMPILER=/usr/bin/clang" })
-            << QByteArrayList({ "CXX", "C" })
-            << QStringList({ "/usr/bin/g++", "/usr/bin/clang" });
+            << QStringList({"CMAKE_CXX_COMPILER=/usr/bin/g++", "CMAKE_C_COMPILER=/usr/bin/clang"})
+            << QByteArrayList({"CXX", "C"})
+            << QStringList({"/usr/bin/g++", "/usr/bin/clang"});
     QTest::newRow("CXX compiler, C compiler, strange compiler")
-            << QStringList({ "CMAKE_CXX_COMPILER=/usr/bin/g++",
+            << QStringList({"CMAKE_CXX_COMPILER=/usr/bin/g++",
                              "CMAKE_C_COMPILER=/usr/bin/clang",
-                             "CMAKE_STRANGE_LANGUAGE_COMPILER=/tmp/strange/compiler" })
-            << QByteArrayList({ "CXX", "C", "STRANGE_LANGUAGE" })
-            << QStringList({ "/usr/bin/g++", "/usr/bin/clang", "/tmp/strange/compiler" });
+                             "CMAKE_STRANGE_LANGUAGE_COMPILER=/tmp/strange/compiler"})
+            << QByteArrayList({"CXX", "C", "STRANGE_LANGUAGE"})
+            << QStringList({"/usr/bin/g++", "/usr/bin/clang", "/tmp/strange/compiler"});
     QTest::newRow("CXX compiler, C compiler, strange compiler (with junk)")
-            << QStringList({ "FOO=test",
+            << QStringList({"FOO=test",
                              "CMAKE_CXX_COMPILER=/usr/bin/g++",
                              "CMAKE_BUILD_TYPE=debug",
                              "CMAKE_C_COMPILER=/usr/bin/clang",
                              "SOMETHING_COMPILER=/usr/bin/something",
                              "CMAKE_STRANGE_LANGUAGE_COMPILER=/tmp/strange/compiler",
-                             "BAR=more test" })
-            << QByteArrayList({ "CXX", "C", "STRANGE_LANGUAGE" })
-            << QStringList({ "/usr/bin/g++", "/usr/bin/clang", "/tmp/strange/compiler" });
+                             "BAR=more test"})
+            << QByteArrayList({"CXX", "C", "STRANGE_LANGUAGE"})
+            << QStringList({"/usr/bin/g++", "/usr/bin/clang", "/tmp/strange/compiler"});
 }
 
 void CMakeProjectPlugin::testCMakeProjectImporterToolChain()
