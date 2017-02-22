@@ -384,7 +384,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, Enumerator)
                                          CodeCompletion::Available));
 }
 
-TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_Constructor)
+TEST_F(CodeCompletionsExtractorSlowTest, Constructor)
 {
     ClangCodeCompleteResults completeResults(getResults(constructorDocument, 20));
 
