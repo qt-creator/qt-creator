@@ -729,7 +729,7 @@ bool gerritChangeLessThan(const GerritChangePtr &c1, const GerritChangePtr &c2)
 {
     if (c1->depth != c2->depth)
         return c1->depth < c2->depth;
-    return c1->lastUpdated < c2->lastUpdated;
+    return c1->lastUpdated > c2->lastUpdated;
 }
 
 void GerritModel::resultRetrieved(const QByteArray &output)
