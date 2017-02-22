@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -295,8 +295,8 @@
             \li \l{Supported Platforms}
             \li \l{Using Other Build Systems}
             \list
-                \li \l{Setting Up a CMake Project}
-                \li \l{Setting Up a Qbs Project}
+                \li \l{Setting Up CMake}
+                \li \l{Setting Up Qbs}
                 \li \l{Setting Up an Autotools Project}
                 \li \l{Setting Up a Generic Project}
             \endlist
