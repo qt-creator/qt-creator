@@ -176,6 +176,8 @@ protected: // functions
     void notifyErrorsAndWarnings(const QList<DocumentMessage> &errors);
 
 private: //variables
+    ModelNode nodeAtTextCursorPositionRekursive(const ModelNode &root, int cursorPosition) const;
+
     TextModifier *m_textModifier = nullptr;
     int transactionLevel = 0;
     bool m_modificationGroupActive = false;

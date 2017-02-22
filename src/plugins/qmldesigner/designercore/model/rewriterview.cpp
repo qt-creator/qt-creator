@@ -556,24 +556,28 @@ static bool isInNodeDefinition(int nodeTextOffset, int nodeTextLength, int curso
     return (nodeTextOffset <= cursorPosition) && (nodeTextOffset + nodeTextLength > cursorPosition);
 }
 
-ModelNode RewriterView::nodeAtTextCursorPosition(int cursorPosition) const
+ModelNode RewriterView::nodeAtTextCursorPositionRekursive(const ModelNode &root, int cursorPosition) const
 {
-    const QList<ModelNode> allNodes = allModelNodes();
-
-    ModelNode nearestNode;
-    int nearestNodeTextOffset = -1;
-
-    foreach (const ModelNode &currentNode, allNodes) {
-        const int nodeTextOffset = nodeOffset(currentNode);
-        const int nodeTextLength = nodeLength(currentNode);
-        if (isInNodeDefinition(nodeTextOffset, nodeTextLength, cursorPosition)
-            && (nodeTextOffset > nearestNodeTextOffset)) {
-            nearestNode = currentNode;
-            nearestNodeTextOffset = nodeTextOffset;
-        }
+    ModelNode node = root;
+    foreach (const ModelNode &currentNode, node.directSubModelNodes()) {
+        const int offset = nodeOffset(currentNode);
+        if (offset < cursorPosition)
+            node = nodeAtTextCursorPositionRekursive(currentNode, cursorPosition);
+        else
+            break;
     }
 
-    return nearestNode;
+    const int nodeTextLength = nodeLength(node);
+    const int nodeTextOffset = nodeOffset(node);
+    if (isInNodeDefinition(nodeTextOffset, nodeTextLength, cursorPosition))
+        return node;
+
+    return root;
+}
+
+ModelNode RewriterView::nodeAtTextCursorPosition(int cursorPosition) const
+{
+    return nodeAtTextCursorPositionRekursive(rootModelNode(), cursorPosition);
 }
 
 bool RewriterView::renameId(const QString& oldId, const QString& newId)
