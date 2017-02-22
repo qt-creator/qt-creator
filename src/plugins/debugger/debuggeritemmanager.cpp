@@ -126,8 +126,8 @@ private:
     PathChooser *m_binaryChooser;
     PathChooser *m_workingDirectoryChooser;
     QLineEdit *m_abis;
-    bool m_autodetected;
-    DebuggerEngineType m_engineType;
+    bool m_autodetected = false;
+    DebuggerEngineType m_engineType = NoEngineType;
     QVariant m_id;
 };
 
