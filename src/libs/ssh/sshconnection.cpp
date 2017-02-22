@@ -802,7 +802,7 @@ void SshConnectionPrivate::closeConnection(SshErrorCode sshError,
     try {
         m_channelManager->closeAllChannels(SshChannelManager::CloseAllAndReset);
         m_sendFacility.sendDisconnectPacket(sshError, serverErrorString);
-    } catch (const Botan::Exception &) {}  // Nothing sensible to be done here.
+    } catch (...) {}  // Nothing sensible to be done here.
     if (m_error != SshNoError)
         emit error(userError);
     if (m_state == ConnectionEstablished)
