@@ -65,13 +65,13 @@ qtHaveModule(quick) {
 qtHaveModule(help) {
     SUBDIRS += help
 } else {
-    warning("Help plugin has been disabled.")
+    warning("Help plugin has been disabled since the Qt Help module is not available.")
 }
 
 qtHaveModule(designercomponents_private) {
     SUBDIRS += designer
 } else {
-    warning("Qt Widget Designer plugin has been disabled.")
+    warning("Qt Widget Designer plugin has been disabled since the Qt Designer module is not available.")
 }
 
 DO_NOT_BUILD_QMLDESIGNER = $$(DO_NOT_BUILD_QMLDESIGNER)
