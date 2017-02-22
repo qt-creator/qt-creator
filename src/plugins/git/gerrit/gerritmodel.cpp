@@ -227,8 +227,6 @@ public:
 
     ~QueryContext();
 
-    int currentQuery() const { return m_currentQuery; }
-
 public slots:
     void start();
 
@@ -252,7 +250,6 @@ private:
     QTimer m_timer;
     QString m_binary;
     QByteArray m_output;
-    int m_currentQuery;
     QFutureInterface<void> m_progress;
     QFutureWatcher<void> m_watcher;
     QStringList m_baseArguments;
@@ -266,7 +263,6 @@ QueryContext::QueryContext(const QString &query,
                            QObject *parent)
     : QObject(parent)
     , m_query(query)
-    , m_currentQuery(0)
 {
     m_baseArguments << p->ssh;
     if (server.port)
@@ -628,7 +624,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
             const QJsonObject ao = approvalsJ.at(a).toObject();
             GerritApproval approval;
             const QJsonObject approverO = ao.value(approvalsByKey).toObject();
-            approval.reviewer = approverO.value(ownerNameKey).toString();
+            approval.reviewer = approverO.value(ownerUserKey).toString();
             approval.email = approverO.value(ownerEmailKey).toString();
             approval.approval = ao.value(approvalsValueKey).toString().toInt();
             approval.type = ao.value(approvalsTypeKey).toString();
@@ -718,7 +714,7 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
     if (c->user == m_server->user) { // Owned changes: Review != 0,1. Submit or amend.
         const int level = c->currentPatchSet.approvalLevel();
         bold = level != 0 && level != 1;
-    } else if (m_query->currentQuery() == 1) { // Changes pending for review: No review yet.
+    } else { // Changes pending for review: No review yet.
         bold = !m_server->user.isEmpty() && !c->currentPatchSet.hasApproval(m_server->user);
     }
     if (bold) {
