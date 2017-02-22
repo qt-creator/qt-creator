@@ -3018,12 +3018,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
 {
     // If the CppEditor or QmlJS editor plugin is there, we want to add something to
     // the editor context menu.
-    const Id menuIds[2] = {
-        CppEditor::Constants::M_CONTEXT,
-        QmlJSEditor::Constants::M_CONTEXT
-    };
-    for (int i = 0; i < sizeof(menuIds) / sizeof(menuIds[0]); ++i) {
-        if (ActionContainer *editorContextMenu = ActionManager::actionContainer(menuIds[i])) {
+    for (Id menuId : { CppEditor::Constants::M_CONTEXT, QmlJSEditor::Constants::M_CONTEXT }) {
+        if (ActionContainer *editorContextMenu = ActionManager::actionContainer(menuId)) {
             auto cmd = editorContextMenu->addSeparator(m_watchCommand->context());
             cmd->setAttribute(Command::CA_Hide);
             cmd = m_watchCommand;
