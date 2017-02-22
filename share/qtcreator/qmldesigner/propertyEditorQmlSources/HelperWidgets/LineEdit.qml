@@ -124,8 +124,8 @@ Controls.TextField {
         textColor: lineEdit.textColor
         placeholderTextColor: creatorTheme.PanelTextColorMid
 
-        padding.top: 3
-        padding.bottom: 3
+        padding.top: 2
+        padding.bottom: 2
         padding.left: 16
         padding.right: lineEdit.showTranslateCheckBox ? 16 : 1
         background: Rectangle {

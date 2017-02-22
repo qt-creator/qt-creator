@@ -33,8 +33,8 @@ SpinBoxStyle {
     textColor: spinBox.textColor
 
 
-    padding.top: 3
-    padding.bottom: 1
+    padding.top: 2
+    padding.bottom: 2
     padding.right: 18
     padding.left: 12
 
