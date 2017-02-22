@@ -40,20 +40,20 @@ class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public AbstractRemoteLinuxRun
 public:
     LinuxDeviceDebugSupport(ProjectExplorer::RunConfiguration *runConfig,
             Debugger::DebuggerRunControl *runControl);
-    ~LinuxDeviceDebugSupport();
+    ~LinuxDeviceDebugSupport() override;
 
 protected:
-    void startExecution();
-    void handleAdapterSetupFailed(const QString &error);
-    void handleAdapterSetupDone();
+    void startExecution() override;
+    void handleAdapterSetupFailed(const QString &error) override;
+    void handleAdapterSetupDone() override;
 
 private:
-    void handleRemoteSetupRequested();
-    void handleAppRunnerError(const QString &error);
-    void handleRemoteOutput(const QByteArray &output);
-    void handleRemoteErrorOutput(const QByteArray &output);
-    void handleAppRunnerFinished(bool success);
-    void handleProgressReport(const QString &progressOutput);
+    void handleRemoteSetupRequested() override;
+    void handleAppRunnerError(const QString &error) override;
+    void handleRemoteOutput(const QByteArray &output) override;
+    void handleRemoteErrorOutput(const QByteArray &output) override;
+    void handleAppRunnerFinished(bool success) override;
+    void handleProgressReport(const QString &progressOutput) override;
 
     void handleRemoteProcessStarted();
     void handleDebuggingFinished();
