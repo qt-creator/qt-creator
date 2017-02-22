@@ -164,7 +164,7 @@ class Dumper(DumperBase):
                     self.listFields(nativeType, value)
                 tdata.lalignment = lambda : \
                     self.nativeStructAlignment(nativeType)
-            tdata.templateArguments = self.listTemplateParameters(nativeType)
+            tdata.templateArguments = self.listTemplateParameters(nativeType.name())
             self.registerType(typeId, tdata) # Fix up fields and template args
         return self.Type(self, typeId)
 
@@ -188,20 +188,6 @@ class Dumper(DumperBase):
         for f in nativeType.fields():
             align = handleItem(f.type(), align)
         return align
-
-    def listTemplateParameters(self, nativeType):
-        targs = []
-        for targ in nativeType.templateArguments():
-            if isinstance(targ, str):
-                if self.typeData.get(targ, None) is None:
-                    targs.append(self.lookupType(targ))
-                else:
-                    targs.append(self.Type(self, targ))
-            elif isinstance(targ, int):
-                targs.append(targ)
-            else:
-                error('CDBCRAP %s' % type(targ))
-        return targs
 
     def nativeTypeEnumDisplay(self, nativeType, intval):
         # TODO: generate fake value
@@ -403,7 +389,12 @@ class Dumper(DumperBase):
         typeName = self.stripQintTypedefs(typeNameIn)
         if self.typeData.get(typeName, None) is None:
             nativeType = self.lookupNativeType(typeName, module)
-            return None if nativeType is None else self.fromNativeType(nativeType)
+            if nativeType is None:
+                return None
+            type = self.fromNativeType(nativeType)
+            if type.name != typeName:
+                self.registerType(typeName, type.typeData())
+            return type
         return self.Type(self, typeName)
 
     def lookupNativeType(self, name, module = 0):
