@@ -887,7 +887,7 @@ QString DebuggerEncoding::toString() const
 
 QString fromHex(const QString &str)
 {
-    return QString::fromLatin1(QByteArray::fromHex(str.toUtf8()));
+    return QString::fromUtf8(QByteArray::fromHex(str.toUtf8()));
 }
 
 QString toHex(const QString &str)
