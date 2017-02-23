@@ -148,20 +148,16 @@ FormatTask format(FormatTask task)
             return task;
         }
 
-        const bool addsNewline = task.command.pipeAddsNewline();
-        const bool returnsCRLF = task.command.returnsCRLF();
-        if (addsNewline || returnsCRLF) {
-            task.formattedData = QString::fromUtf8(process.readAllStandardOutput());
-            if (addsNewline && task.formattedData.endsWith('\n')) {
-                task.formattedData.chop(1);
-                if (task.formattedData.endsWith('\r'))
-                    task.formattedData.chop(1);
-            }
-            if (returnsCRLF)
-                task.formattedData.replace("\r\n", "\n");
-            return task;
-        }
         task.formattedData = QString::fromUtf8(process.readAllStandardOutput());
+
+        if (task.command.pipeAddsNewline() && task.formattedData.endsWith('\n')) {
+            task.formattedData.chop(1);
+            if (task.formattedData.endsWith('\r'))
+                task.formattedData.chop(1);
+        }
+        if (task.command.returnsCRLF())
+            task.formattedData.replace("\r\n", "\n");
+
         return task;
     }
     }
