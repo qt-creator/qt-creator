@@ -28,11 +28,32 @@
 #include <Python.h>
 #include <vector>
 
+#include "dbgeng.h"
+
 void initCdbextPythonModule();
 int pointerSize();
 
 constexpr bool debugPyCdbextModule = false;
 using Bytes = std::vector<char>;
+
+class CurrentSymbolGroup
+{
+public:
+    CurrentSymbolGroup() = default;
+    ~CurrentSymbolGroup();
+
+    static IDebugSymbolGroup2 *get();
+    static IDebugSymbolGroup2 *create();
+
+private:
+    static IDebugSymbolGroup2 *create(ULONG threadId, ULONG64 frameNumber);
+    void releaseSymbolGroup ();
+
+private:
+    IDebugSymbolGroup2 *m_symbolGroup = nullptr;
+    ULONG m_threadId = 0;
+    ULONG64 m_frameNumber = 0;
+};
 
 #define PY_IMPL_GUARD                       if (!self->impl || !self->impl->isValid()) Py_RETURN_NONE
 #define PY_FUNC_DECL(func,pyObj)            PyObject *func(pyObj *self)

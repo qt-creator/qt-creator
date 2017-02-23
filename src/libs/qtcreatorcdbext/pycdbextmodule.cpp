@@ -39,64 +39,59 @@
 
 #include <iterator>
 
-class CurrentSymbolGroup
-{
-public:
-    CurrentSymbolGroup() = default;
-    ~CurrentSymbolGroup()
-    {
-        releaseSymbolGroup();
-    }
-    IDebugSymbolGroup2 *get()
-    {
-        ULONG threadId = ExtensionCommandContext::instance()->threadId();
-        CIDebugControl *control = ExtensionCommandContext::instance()->control();
-        DEBUG_STACK_FRAME frame;
-        if (FAILED(control->GetStackTrace(0, 0, 0, &frame, 1, NULL)))
-            return nullptr;
-        if (m_symbolGroup && m_threadId == threadId && m_frameNumber == frame.FrameNumber)
-            return m_symbolGroup;
-        return create(threadId, frame.FrameNumber);
-    }
-
-    IDebugSymbolGroup2 *create()
-    {
-        ULONG threadId = ExtensionCommandContext::instance()->threadId();
-        CIDebugControl *control = ExtensionCommandContext::instance()->control();
-        DEBUG_STACK_FRAME frame;
-        if (FAILED(control->GetStackTrace(0, 0, 0, &frame, 1, NULL)))
-            return nullptr;
-        return create(threadId, frame.FrameNumber);
-    }
-
-private:
-    IDebugSymbolGroup2 *create(ULONG threadId, ULONG64 frameNumber)
-    {
-        CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
-        releaseSymbolGroup();
-        if (FAILED(symbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_ALL, NULL, &m_symbolGroup))) {
-            releaseSymbolGroup();
-            return nullptr;
-        }
-        m_frameNumber = frameNumber;
-        m_threadId = threadId;
-        return m_symbolGroup;
-    }
-    void releaseSymbolGroup ()
-    {
-        if (!m_symbolGroup)
-            return;
-        m_symbolGroup->Release();
-        m_symbolGroup = nullptr;
-    }
-
-private:
-    IDebugSymbolGroup2 *m_symbolGroup = nullptr;
-    ULONG m_threadId = 0;
-    ULONG64 m_frameNumber = 0;
-};
-
 static CurrentSymbolGroup currentSymbolGroup;
+
+CurrentSymbolGroup::~CurrentSymbolGroup()
+{
+    releaseSymbolGroup();
+}
+
+IDebugSymbolGroup2 *CurrentSymbolGroup::get()
+{
+    ULONG threadId = ExtensionCommandContext::instance()->threadId();
+    CIDebugControl *control = ExtensionCommandContext::instance()->control();
+    DEBUG_STACK_FRAME frame;
+    if (FAILED(control->GetStackTrace(0, 0, 0, &frame, 1, NULL)))
+        return nullptr;
+    if (currentSymbolGroup.m_symbolGroup
+            && currentSymbolGroup.m_threadId == threadId
+            && currentSymbolGroup.m_frameNumber == frame.FrameNumber) {
+        return currentSymbolGroup.m_symbolGroup;
+    }
+    return create(threadId, frame.FrameNumber);
+}
+
+IDebugSymbolGroup2 *CurrentSymbolGroup::create()
+{
+    ULONG threadId = ExtensionCommandContext::instance()->threadId();
+    CIDebugControl *control = ExtensionCommandContext::instance()->control();
+    DEBUG_STACK_FRAME frame;
+    if (FAILED(control->GetStackTrace(0, 0, 0, &frame, 1, NULL)))
+        return nullptr;
+    return create(threadId, frame.FrameNumber);
+}
+
+IDebugSymbolGroup2 *CurrentSymbolGroup::create(ULONG threadId, ULONG64 frameNumber)
+{
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    currentSymbolGroup.releaseSymbolGroup();
+    if (FAILED(symbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_ALL, NULL,
+                                             &currentSymbolGroup.m_symbolGroup))) {
+        currentSymbolGroup.releaseSymbolGroup();
+        return nullptr;
+    }
+    currentSymbolGroup.m_frameNumber = frameNumber;
+    currentSymbolGroup.m_threadId = threadId;
+    return currentSymbolGroup.m_symbolGroup;
+}
+
+void CurrentSymbolGroup::releaseSymbolGroup()
+{
+    if (!m_symbolGroup)
+        return;
+    m_symbolGroup->Release();
+    m_symbolGroup = nullptr;
+}
 
 // cdbext python module
 static PyObject *cdbext_parseAndEvaluate(PyObject *, PyObject *args) // -> Value
@@ -201,11 +196,11 @@ static PyObject *cdbext_listOfLocals(PyObject *, PyObject *args) // -> [ Value ]
     IDebugSymbolGroup2 *symbolGroup = nullptr;
     auto locals = PyList_New(0);
     if (partialVariable.empty()) {
-        symbolGroup = currentSymbolGroup.create();
+        symbolGroup = CurrentSymbolGroup::create();
         if (symbolGroup == nullptr)
             return locals;
     } else {
-        symbolGroup = currentSymbolGroup.get();
+        symbolGroup = CurrentSymbolGroup::get();
         if (symbolGroup == nullptr)
             return locals;
 
@@ -303,7 +298,7 @@ static PyObject *cdbext_createValue(PyObject *, PyObject *args)
                      << " type name: " << type->impl->name();
     }
 
-    IDebugSymbolGroup2 *symbolGroup = currentSymbolGroup.get();
+    IDebugSymbolGroup2 *symbolGroup = CurrentSymbolGroup::get();
     if (symbolGroup == nullptr)
         Py_RETURN_NONE;
 
@@ -367,7 +362,7 @@ static PyObject *cdbext_call(PyObject *, PyObject *args)
     if (debugPyCdbextModule)
         DebugPrint() << "Call ret value expression: " << name;
 
-    IDebugSymbolGroup2 *symbolGroup = currentSymbolGroup.get();
+    IDebugSymbolGroup2 *symbolGroup = CurrentSymbolGroup::get();
     if (FAILED(symbolGroup->AddSymbol(name.c_str(), &index)))
         Py_RETURN_NONE;
     return createPythonObject(PyValue(index, symbolGroup));
