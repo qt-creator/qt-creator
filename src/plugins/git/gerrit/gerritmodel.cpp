@@ -547,13 +547,8 @@ void GerritModel::setState(GerritModel::QueryState s)
 \endcode
 */
 
-static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
-                        const GerritServer &server,
-                        const QByteArray &output,
-                        QList<GerritChangePtr> &result)
+static GerritChangePtr parseSshOutput(const QJsonObject &object)
 {
-    // The output consists of separate lines containing a document each
-    const QString typeKey = "type";
     const QString dependsOnKey = "dependsOn";
     const QString neededByKey = "neededBy";
     const QString branchKey = "branch";
@@ -572,95 +567,109 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
     const QString approvalsValueKey = "value";
     const QString approvalsByKey = "by";
     const QString lastUpdatedKey = "lastUpdated";
-    const QList<QByteArray> lines = output.split('\n');
     const QString approvalsTypeKey = "type";
     const QString approvalsDescriptionKey = "description";
 
-    bool res = true;
-    result.clear();
-    result.reserve(lines.size());
+    GerritChangePtr change(new GerritChange);
+    // Read current patch set.
+    const QJsonObject patchSet = object.value(patchSetKey).toObject();
+    change->currentPatchSet.patchSetNumber = qMax(1, patchSet.value(numberKey).toString().toInt());
+    change->currentPatchSet.ref = patchSet.value(refKey).toString();
+    const QJsonArray approvalsJ = patchSet.value(approvalsKey).toArray();
+    const int ac = approvalsJ.size();
+    for (int a = 0; a < ac; ++a) {
+        const QJsonObject ao = approvalsJ.at(a).toObject();
+        GerritApproval approval;
+        const QJsonObject approverO = ao.value(approvalsByKey).toObject();
+        approval.reviewer = approverO.value(ownerUserKey).toString();
+        approval.email = approverO.value(ownerEmailKey).toString();
+        approval.approval = ao.value(approvalsValueKey).toString().toInt();
+        approval.type = ao.value(approvalsTypeKey).toString();
+        approval.description = ao.value(approvalsDescriptionKey).toString();
+        change->currentPatchSet.approvals.push_back(approval);
+    }
+    std::stable_sort(change->currentPatchSet.approvals.begin(),
+                     change->currentPatchSet.approvals.end(),
+                     gerritApprovalLessThan);
+    // Remaining
+    change->number = object.value(numberKey).toString().toInt();
+    change->url = object.value(urlKey).toString();
+    change->title = object.value(titleKey).toString();
+    const QJsonObject ownerJ = object.value(ownerKey).toObject();
+    change->owner = ownerJ.value(ownerNameKey).toString();
+    change->user = ownerJ.value(ownerUserKey).toString();
+    change->email = ownerJ.value(ownerEmailKey).toString();
+    change->project = object.value(projectKey).toString();
+    change->branch = object.value(branchKey).toString();
+    change->status =  object.value(statusKey).toString();
+    if (const int timeT = qRound(object.value(lastUpdatedKey).toDouble()))
+        change->lastUpdated = QDateTime::fromTime_t(timeT);
+    // Read out dependencies
+    const QJsonValue dependsOnValue = object.value(dependsOnKey);
+    if (dependsOnValue.isArray()) {
+        const QJsonArray dependsOnArray = dependsOnValue.toArray();
+        if (!dependsOnArray.isEmpty()) {
+            const QJsonValue first = dependsOnArray.at(0);
+            if (first.isObject())
+                change->dependsOnNumber = first.toObject()[numberKey].toString().toInt();
+        }
+    }
+    // Read out needed by
+    const QJsonValue neededByValue = object.value(neededByKey);
+    if (neededByValue.isArray()) {
+        const QJsonArray neededByArray = neededByValue.toArray();
+        if (!neededByArray.isEmpty()) {
+            const QJsonValue first = neededByArray.at(0);
+            if (first.isObject())
+                change->neededByNumber = first.toObject()[numberKey].toString().toInt();
+        }
+    }
+    return change;
+}
 
-    for (const QByteArray &line : lines) {
-        if (line.isEmpty())
-            continue;
-        QJsonParseError error;
-        const QJsonDocument doc = QJsonDocument::fromJson(line, &error);
-        if (doc.isNull()) {
-            QString errorMessage = GerritModel::tr("Parse error: \"%1\" -> %2")
-                    .arg(QString::fromLocal8Bit(line))
-                    .arg(error.errorString());
-            qWarning() << errorMessage;
-            VcsOutputWindow::appendError(errorMessage);
-            res = false;
-            continue;
-        }
-        GerritChangePtr change(new GerritChange);
-        const QJsonObject object = doc.object();
+static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
+                        const GerritServer &server,
+                        const QByteArray &output,
+                        QList<GerritChangePtr> &result)
+{
+    // The output consists of separate lines containing a document each
+    // Add a comma after each line (except the last), and enclose it as an array
+    QByteArray adaptedOutput = '[' + output + ']';
+    adaptedOutput.replace('\n', ',');
+    const int lastComma = adaptedOutput.lastIndexOf(',');
+    if (lastComma >= 0)
+        adaptedOutput[lastComma] = '\n';
+    bool res = true;
+
+    QJsonParseError error;
+    const QJsonDocument doc = QJsonDocument::fromJson(adaptedOutput, &error);
+    if (doc.isNull()) {
+        QString errorMessage = GerritModel::tr("Parse error: \"%1\" -> %2")
+                .arg(QString::fromUtf8(output))
+                .arg(error.errorString());
+        qWarning() << errorMessage;
+        VcsOutputWindow::appendError(errorMessage);
+        res = false;
+    }
+    const QJsonArray rootArray = doc.array();
+    result.clear();
+    result.reserve(rootArray.count());
+    for (const QJsonValue &value : rootArray) {
+        const QJsonObject object = value.toObject();
         // Skip stats line: {"type":"stats","rowCount":9,"runTimeMilliseconds":13}
-        if (!object.value(typeKey).toString().isEmpty())
+        if (object.contains("type"))
             continue;
-        // Read current patch set.
-        const QJsonObject patchSet = object.value(patchSetKey).toObject();
-        change->currentPatchSet.patchSetNumber = qMax(1, patchSet.value(numberKey).toString().toInt());
-        change->currentPatchSet.ref = patchSet.value(refKey).toString();
-        const QJsonArray approvalsJ = patchSet.value(approvalsKey).toArray();
-        const int ac = approvalsJ.size();
-        for (int a = 0; a < ac; ++a) {
-            const QJsonObject ao = approvalsJ.at(a).toObject();
-            GerritApproval approval;
-            const QJsonObject approverO = ao.value(approvalsByKey).toObject();
-            approval.reviewer = approverO.value(ownerUserKey).toString();
-            approval.email = approverO.value(ownerEmailKey).toString();
-            approval.approval = ao.value(approvalsValueKey).toString().toInt();
-            approval.type = ao.value(approvalsTypeKey).toString();
-            approval.description = ao.value(approvalsDescriptionKey).toString();
-            change->currentPatchSet.approvals.push_back(approval);
-        }
-        std::stable_sort(change->currentPatchSet.approvals.begin(),
-                         change->currentPatchSet.approvals.end(),
-                         gerritApprovalLessThan);
-        // Remaining
-        change->number = object.value(numberKey).toString().toInt();
-        change->url = object.value(urlKey).toString();
-        if (change->url.isEmpty()) //  No "canonicalWebUrl" is in gerrit.config.
-            change->url = defaultUrl(parameters, server, change->number);
-        change->title = object.value(titleKey).toString();
-        const QJsonObject ownerJ = object.value(ownerKey).toObject();
-        change->owner = ownerJ.value(ownerNameKey).toString();
-        change->user = ownerJ.value(ownerUserKey).toString();
-        change->email = ownerJ.value(ownerEmailKey).toString();
-        change->project = object.value(projectKey).toString();
-        change->branch = object.value(branchKey).toString();
-        change->status =  object.value(statusKey).toString();
-        if (const int timeT = qRound(object.value(lastUpdatedKey).toDouble()))
-            change->lastUpdated = QDateTime::fromTime_t(timeT);
+        GerritChangePtr change = parseSshOutput(object);
         if (change->isValid()) {
+            if (change->url.isEmpty()) //  No "canonicalWebUrl" is in gerrit.config.
+                change->url = defaultUrl(parameters, server, change->number);
             result.push_back(change);
         } else {
-            qWarning("%s: Parse error: '%s'.", Q_FUNC_INFO, line.constData());
+            const QByteArray jsonObject = QJsonDocument(object).toJson();
+            qWarning("%s: Parse error: '%s'.", Q_FUNC_INFO, jsonObject.constData());
             VcsOutputWindow::appendError(GerritModel::tr("Parse error: \"%1\"")
-                                  .arg(QString::fromLocal8Bit(line)));
+                                  .arg(QString::fromUtf8(jsonObject)));
             res = false;
-        }
-        // Read out dependencies
-        const QJsonValue dependsOnValue = object.value(dependsOnKey);
-        if (dependsOnValue.isArray()) {
-            const QJsonArray dependsOnArray = dependsOnValue.toArray();
-            if (!dependsOnArray.isEmpty()) {
-                const QJsonValue first = dependsOnArray.at(0);
-                if (first.isObject())
-                    change->dependsOnNumber = first.toObject()[numberKey].toString().toInt();
-            }
-        }
-        // Read out needed by
-        const QJsonValue neededByValue = object.value(neededByKey);
-        if (neededByValue.isArray()) {
-            const QJsonArray neededByArray = neededByValue.toArray();
-            if (!neededByArray.isEmpty()) {
-                const QJsonValue first = neededByArray.at(0);
-                if (first.isObject())
-                    change->neededByNumber = first.toObject()[numberKey].toString().toInt();
-            }
         }
     }
     return res;
