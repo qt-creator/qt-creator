@@ -239,18 +239,16 @@ private:
     void readyReadStandardOutput();
     void timeout();
 
-    void startQuery(const QString &query);
     void errorTermination(const QString &msg);
     void terminate();
 
-    const QString m_query;
     QProcess m_process;
     QTimer m_timer;
     QString m_binary;
     QByteArray m_output;
     QFutureInterface<void> m_progress;
     QFutureWatcher<void> m_watcher;
-    QStringList m_baseArguments;
+    QStringList m_arguments;
 };
 
 enum { timeOutMS = 30000 };
@@ -260,12 +258,14 @@ QueryContext::QueryContext(const QString &query,
                            const GerritServer &server,
                            QObject *parent)
     : QObject(parent)
-    , m_query(query)
 {
-    m_baseArguments << p->ssh;
+    m_binary = p->ssh;
     if (server.port)
-        m_baseArguments << p->portFlag << QString::number(server.port);
-    m_baseArguments << server.sshHostArgument() << "gerrit";
+        m_arguments << p->portFlag << QString::number(server.port);
+    m_arguments << server.sshHostArgument() << "gerrit"
+                << "query" << "--dependencies"
+                << "--current-patch-set"
+                << "--format=JSON" << query;
     connect(&m_process, &QProcess::readyReadStandardError,
             this, &QueryContext::readyReadStandardError);
     connect(&m_process, &QProcess::readyReadStandardOutput,
@@ -277,13 +277,6 @@ QueryContext::QueryContext(const QString &query,
     m_watcher.setFuture(m_progress.future());
     m_process.setProcessEnvironment(Git::Internal::GitPlugin::client()->processEnvironment());
     m_progress.setProgressRange(0, 1);
-
-    // Determine binary and common command line arguments.
-    m_baseArguments << "query" << "--dependencies"
-                    << "--current-patch-set"
-                    << "--format=JSON";
-    m_binary = m_baseArguments.front();
-    m_baseArguments.pop_front();
 
     m_timer.setInterval(timeOutMS);
     m_timer.setSingleShot(true);
@@ -306,17 +299,11 @@ void QueryContext::start()
                                            "gerrit-query");
     fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
     m_progress.reportStarted();
-    startQuery(m_query); // Order: synchronous call to error handling if something goes wrong.
-}
-
-void QueryContext::startQuery(const QString &query)
-{
-    QStringList arguments = m_baseArguments;
-    arguments.push_back(query);
+    // Order: synchronous call to error handling if something goes wrong.
     VcsOutputWindow::appendCommand(
-                m_process.workingDirectory(), Utils::FileName::fromString(m_binary), arguments);
+                m_process.workingDirectory(), Utils::FileName::fromString(m_binary), m_arguments);
     m_timer.start();
-    m_process.start(m_binary, arguments);
+    m_process.start(m_binary, m_arguments);
     m_process.closeWriteChannel();
 }
 
