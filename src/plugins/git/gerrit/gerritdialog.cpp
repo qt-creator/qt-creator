@@ -218,8 +218,10 @@ void GerritDialog::remoteChanged()
     if (m_updatingRemotes || m_ui->remoteComboBox->count() == 0)
         return;
     const GerritServer server = m_ui->remoteComboBox->currentData().value<GerritServer>();
-    if (m_server->host == server.host)
-        return;
+    if (QSharedPointer<GerritServer> modelServer = m_model->server()) {
+        if (*modelServer == server)
+           return;
+    }
     *m_server = server;
     slotRefresh();
 }

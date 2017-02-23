@@ -118,6 +118,7 @@ public:
     QString toHtml(const QModelIndex &index) const;
 
     QStandardItem *itemForNumber(int number) const;
+    QSharedPointer<GerritServer> server() const { return m_server; }
 
     enum QueryState { Idle, Running, Ok, Error };
     QueryState state() const { return m_state; }
