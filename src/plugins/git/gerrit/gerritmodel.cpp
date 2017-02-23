@@ -538,6 +538,11 @@ static GerritUser parseGerritUser(const QJsonObject &object)
     return user;
 }
 
+static int numberValue(const QJsonObject &object)
+{
+    return object.value("number").toString().toInt();
+}
+
 /* Parse gerrit query Json output.
  * See http://gerrit.googlecode.com/svn/documentation/2.1.5/cmd-query.html
  * Note: The url will be present only if  "canonicalWebUrl" is configured
@@ -558,71 +563,53 @@ static GerritUser parseGerritUser(const QJsonObject &object)
 
 static GerritChangePtr parseSshOutput(const QJsonObject &object)
 {
-    const QString dependsOnKey = "dependsOn";
-    const QString neededByKey = "neededBy";
-    const QString branchKey = "branch";
-    const QString numberKey = "number";
-    const QString ownerKey = "owner";
-    const QString statusKey = "status";
-    const QString projectKey = "project";
-    const QString titleKey = "subject";
-    const QString urlKey = "url";
-    const QString patchSetKey = "currentPatchSet";
-    const QString refKey = "ref";
-    const QString approvalsKey = "approvals";
-    const QString approvalsValueKey = "value";
-    const QString approvalsByKey = "by";
-    const QString lastUpdatedKey = "lastUpdated";
-    const QString approvalsTypeKey = "type";
-    const QString approvalsDescriptionKey = "description";
-
     GerritChangePtr change(new GerritChange);
     // Read current patch set.
-    const QJsonObject patchSet = object.value(patchSetKey).toObject();
-    change->currentPatchSet.patchSetNumber = qMax(1, patchSet.value(numberKey).toString().toInt());
-    change->currentPatchSet.ref = patchSet.value(refKey).toString();
-    const QJsonArray approvalsJ = patchSet.value(approvalsKey).toArray();
+    const QJsonObject patchSet = object.value("currentPatchSet").toObject();
+    change->currentPatchSet.patchSetNumber = qMax(1, numberValue(patchSet));
+    change->currentPatchSet.ref = patchSet.value("ref").toString();
+    const QJsonArray approvalsJ = patchSet.value("approvals").toArray();
     const int ac = approvalsJ.size();
     for (int a = 0; a < ac; ++a) {
         const QJsonObject ao = approvalsJ.at(a).toObject();
         GerritApproval approval;
-        approval.reviewer = parseGerritUser(ao.value(approvalsByKey).toObject());
-        approval.approval = ao.value(approvalsValueKey).toString().toInt();
-        approval.type = ao.value(approvalsTypeKey).toString();
-        approval.description = ao.value(approvalsDescriptionKey).toString();
+        approval.reviewer = parseGerritUser(ao.value("by").toObject());
+        approval.approval = ao.value("value").toString().toInt();
+        approval.type = ao.value("type").toString();
+        approval.description = ao.value("description").toString();
         change->currentPatchSet.approvals.push_back(approval);
     }
     std::stable_sort(change->currentPatchSet.approvals.begin(),
                      change->currentPatchSet.approvals.end(),
                      gerritApprovalLessThan);
     // Remaining
-    change->number = object.value(numberKey).toString().toInt();
-    change->url = object.value(urlKey).toString();
-    change->title = object.value(titleKey).toString();
-    change->owner = parseGerritUser(object.value(ownerKey).toObject());
-    change->project = object.value(projectKey).toString();
-    change->branch = object.value(branchKey).toString();
-    change->status =  object.value(statusKey).toString();
-    if (const int timeT = qRound(object.value(lastUpdatedKey).toDouble()))
-        change->lastUpdated = QDateTime::fromTime_t(timeT);
+    change->number = numberValue(object);
+    change->url = object.value("url").toString();
+    change->title = object.value("subject").toString();
+    change->owner = parseGerritUser(object.value("owner").toObject());
+    change->project = object.value("project").toString();
+    change->branch = object.value("branch").toString();
+    change->status =  object.value("status").toString();
+    if (const int timeT = object.value("lastUpdated").toInt())
+        change->lastUpdated = QDateTime::fromTime_t(uint(timeT));
     // Read out dependencies
-    const QJsonValue dependsOnValue = object.value(dependsOnKey);
+    const QJsonValue dependsOnValue = object.value("dependsOn");
     if (dependsOnValue.isArray()) {
         const QJsonArray dependsOnArray = dependsOnValue.toArray();
         if (!dependsOnArray.isEmpty()) {
             const QJsonValue first = dependsOnArray.at(0);
             if (first.isObject())
-                change->dependsOnNumber = first.toObject()[numberKey].toString().toInt();
+                change->dependsOnNumber = numberValue(first.toObject());
         }
     }
     // Read out needed by
-    const QJsonValue neededByValue = object.value(neededByKey);
+    const QJsonValue neededByValue = object.value("neededBy");
     if (neededByValue.isArray()) {
         const QJsonArray neededByArray = neededByValue.toArray();
         if (!neededByArray.isEmpty()) {
             const QJsonValue first = neededByArray.at(0);
             if (first.isObject())
-                change->neededByNumber = first.toObject()[numberKey].toString().toInt();
+                change->neededByNumber = numberValue(first.toObject());
         }
     }
     return change;
