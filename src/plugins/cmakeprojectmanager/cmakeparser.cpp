@@ -30,7 +30,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 using namespace CMakeProjectManager;
-using namespace Internal;
 using namespace ProjectExplorer;
 
 const char COMMON_ERROR_PATTERN[] = "^CMake Error at (.*):([0-9]*) \\((.*)\\):";
@@ -141,7 +140,7 @@ void CMakeParser::doFlush()
 
 #include <QTest>
 
-void CMakeProjectPlugin::testCMakeParser_data()
+void Internal::CMakeProjectPlugin::testCMakeParser_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
@@ -265,7 +264,7 @@ void CMakeProjectPlugin::testCMakeParser_data()
             << QString();
 }
 
-void CMakeProjectPlugin::testCMakeParser()
+void Internal::CMakeProjectPlugin::testCMakeParser()
 {
     OutputParserTester testbench;
     testbench.appendOutputParser(new CMakeParser);
