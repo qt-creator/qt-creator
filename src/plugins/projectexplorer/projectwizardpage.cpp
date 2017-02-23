@@ -293,10 +293,11 @@ static inline AddNewTree *buildAddFilesTree(SessionNode *root, const QStringList
                                             Node *contextNode, BestNodeSelector *selector)
 {
     QList<AddNewTree *> children;
-    foreach (ProjectNode *pn, root->projectNodes()) {
-        AddNewTree *child = buildAddFilesTree(pn, files, contextNode, selector);
-        if (child)
-            children.append(child);
+    for (Node *node : root->nodes()) {
+        if (ProjectNode *pn = node->asProjectNode()) {
+            if (AddNewTree *child = buildAddFilesTree(pn, files, contextNode, selector))
+                children.append(child);
+        }
     }
     children.prepend(createNoneNode(selector));
     return new AddNewTree(root, children, root->displayName());

@@ -218,10 +218,11 @@ void FlatModel::rebuildModel()
     QSet<Node *> seen;
 
     rootItem()->removeChildren();
-    const QList<ProjectNode *> projectNodes = SessionManager::sessionNode()->projectNodes();
-    for (ProjectNode *projectNode : projectNodes) {
-        if (!seen.contains(projectNode))
-            addProjectNode(rootItem(), projectNode, &seen);
+    for (Node *node : SessionManager::sessionNode()->nodes()) {
+        if (ProjectNode *projectNode = node->asProjectNode()) {
+            if (!seen.contains(projectNode))
+                addProjectNode(rootItem(), projectNode, &seen);
+        }
     }
     rootItem()->sortChildren(&sortWrapperNodes);
 
@@ -284,10 +285,11 @@ void FlatModel::addProjectNode(WrapperNode *parent, ProjectNode *projectNode, QS
     auto node = new WrapperNode(projectNode);
     parent->appendChild(node);
     addFolderNode(node, projectNode, seen);
-    const QList<ProjectNode *> subProjectNodes = projectNode->projectNodes();
-    for (ProjectNode *subProjectNode : subProjectNodes) {
-        if (!seen->contains(subProjectNode))
-            addProjectNode(node, subProjectNode, seen);
+    for (Node *subNode : projectNode->nodes()) {
+        if (ProjectNode *subProjectNode = subNode->asProjectNode()) {
+            if (!seen->contains(subProjectNode))
+                addProjectNode(node, subProjectNode, seen);
+        }
     }
     node->sortChildren(&sortWrapperNodes);
 }

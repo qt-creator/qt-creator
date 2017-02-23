@@ -242,9 +242,6 @@ public:
     void addNode(Node *node);
     void removeNode(Node *node);
 
-    // all subFolders that are projects
-    QList<ProjectNode*> projectNodes() const;
-
     void makeEmpty();
     bool isEmpty() const;
 

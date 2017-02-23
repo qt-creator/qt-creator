@@ -764,16 +764,6 @@ ProjectNode *ProjectNode::projectNode(const Utils::FileName &file) const
     return nullptr;
 }
 
-QList<ProjectNode*> FolderNode::projectNodes() const
-{
-    QList<ProjectNode *> nodes;
-    for (Node *node : m_nodes) {
-        if (ProjectNode *pnode = node->asProjectNode())
-            nodes.append(pnode);
-    }
-    return nodes;
-}
-
 bool FolderNode::isEmpty() const
 {
     return m_nodes.isEmpty();
