@@ -35,6 +35,8 @@
 #include <QSettings>
 #include <QStandardPaths>
 
+using namespace Utils;
+
 namespace Gerrit {
 namespace Internal {
 
@@ -62,8 +64,8 @@ static inline QString detectSsh()
     QString ssh = QStandardPaths::findExecutable(defaultSsh);
     if (!ssh.isEmpty())
         return ssh;
-    if (Utils::HostOsInfo::isWindowsHost()) { // Windows: Use ssh.exe from git if it cannot be found.
-        Utils::FileName path = GerritPlugin::gitBinDirectory();
+    if (HostOsInfo::isWindowsHost()) { // Windows: Use ssh.exe from git if it cannot be found.
+        FileName path = GerritPlugin::gitBinDirectory();
         if (!path.isEmpty())
             ssh = path.appendPath(defaultSsh).toString();
     }
@@ -95,7 +97,7 @@ void GerritParameters::setPortFlagBySshType()
 {
     bool isPlink = false;
     if (!ssh.isEmpty()) {
-        const QString version = Utils::PathChooser::toolVersion(ssh, {"-V"});
+        const QString version = PathChooser::toolVersion(ssh, {"-V"});
         isPlink = version.contains("plink", Qt::CaseInsensitive);
     }
     portFlag = QLatin1String(isPlink ? "-P" : defaultPortFlag);
@@ -129,7 +131,7 @@ bool GerritServer::fillFromRemote(const QString &remote, const QString &defaultU
     if (remote.isEmpty() || remote.startsWith('/') || remote.startsWith('.'))
         return false;
     // On Windows, local paths typically starts with <drive>:
-    if (Utils::HostOsInfo::isWindowsHost() && remote[1] == ':')
+    if (HostOsInfo::isWindowsHost() && remote[1] == ':')
         return false;
     QRegularExpressionMatch match = remotePattern.match(remote);
     if (!match.hasMatch())
