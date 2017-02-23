@@ -47,6 +47,7 @@ public:
     bool operator==(const GerritServer &other) const;
     QString sshHostArgument() const;
     QString url() const;
+    bool fillFromRemote(const QString &remote, const QString &defaultUser);
 
     QString host;
     QString user;

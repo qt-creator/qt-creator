@@ -31,6 +31,7 @@
 
 #include <QDebug>
 #include <QFileInfo>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QStandardPaths>
 
@@ -116,6 +117,38 @@ QString GerritServer::url() const
     if (port)
         res += ':' + QString::number(port);
     return res;
+}
+
+bool GerritServer::fillFromRemote(const QString &remote, const QString &defaultUser)
+{
+    static const QRegularExpression remotePattern(
+                "^(?:(?<protocol>[^:]+)://)?(?:(?<user>[^@]+)@)?(?<host>[^:/]+)(?::(?<port>\\d+))?");
+
+    // Skip local remotes (refer to the root or relative path)
+    if (remote.isEmpty() || remote.startsWith('/') || remote.startsWith('.'))
+        return false;
+    // On Windows, local paths typically starts with <drive>:
+    if (Utils::HostOsInfo::isWindowsHost() && remote[1] == ':')
+        return false;
+    QRegularExpressionMatch match = remotePattern.match(remote);
+    if (!match.hasMatch())
+        return false;
+    const QString protocol = match.captured("protocol");
+    if (protocol == "https")
+        type = GerritServer::Https;
+    else if (protocol == "http")
+        type = GerritServer::Http;
+    else if (protocol.isEmpty() || protocol == "ssh")
+        type = GerritServer::Ssh;
+    else
+        return false;
+    const QString userName = match.captured("user");
+    user = userName.isEmpty() ? defaultUser : userName;
+    host = match.captured("host");
+    port = match.captured("port").toUShort();
+    if (host.contains("github.com")) // Clearly not gerrit
+        return false;
+    return true;
 }
 
 bool GerritParameters::equals(const GerritParameters &rhs) const
