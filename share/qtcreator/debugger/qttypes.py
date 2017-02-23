@@ -2572,7 +2572,7 @@ def qdumpHelper_QJsonValue(d, data, base, pv):
         else:
             length = d.extractUInt(data)
             d.putValue(d.readMemory(data + 4, length * 2), 'utf16')
-        d.putNumChild(1)
+        d.putNumChild(0)
         return
     if t == 4:
         d.putType('QJsonValue (Array)')
