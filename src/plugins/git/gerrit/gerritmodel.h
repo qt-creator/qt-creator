@@ -57,6 +57,7 @@ public:
     bool hasApproval(const GerritUser &user) const;
     int approvalLevel() const;
 
+    QString url;
     QString ref;
     int patchSetNumber;
     QList<GerritApproval> approvals;

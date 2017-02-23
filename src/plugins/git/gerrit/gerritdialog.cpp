@@ -240,13 +240,9 @@ void GerritDialog::updateRemotes()
     while (mapIt.hasNext()) {
         mapIt.next();
         GerritServer server;
-        if (!server.fillFromRemote(mapIt.value(), m_parameters->server.user.userName))
+        if (!server.fillFromRemote(mapIt.value(), *m_parameters))
             continue;
-        // Only Ssh is currently supported. In order to extend support for http[s],
-        // we need to move this logic to the model, and attempt connection to each
-        // remote (do it only on refresh, not on each path change)
-        if (server.type == GerritServer::Ssh)
-            addRemote(server, mapIt.key());
+        addRemote(server, mapIt.key());
     }
     addRemote(m_parameters->server, tr("Fallback"));
     m_updatingRemotes = false;
@@ -257,7 +253,7 @@ void GerritDialog::addRemote(const GerritServer &server, const QString &name)
 {
     for (int i = 0, total = m_ui->remoteComboBox->count(); i < total; ++i) {
         const GerritServer s = m_ui->remoteComboBox->itemData(i).value<GerritServer>();
-        if (s.host == server.host)
+        if (s == server)
             return;
     }
     m_ui->remoteComboBox->addItem(server.host + QString(" (%1)").arg(name),

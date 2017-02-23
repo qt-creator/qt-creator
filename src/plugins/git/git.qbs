@@ -77,6 +77,9 @@ QtcPlugin {
         name: "Gerrit"
         prefix: "gerrit/"
         files: [
+            "authenticationdialog.cpp",
+            "authenticationdialog.h",
+            "authenticationdialog.ui",
             "branchcombobox.cpp",
             "branchcombobox.h",
             "gerritdialog.cpp",

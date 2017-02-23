@@ -25,6 +25,10 @@
 
 #include "gerritparameters.h"
 #include "gerritplugin.h"
+#include "authenticationdialog.h"
+#include "../gitplugin.h"
+#include "../gitclient.h"
+#include <coreplugin/shellcommand.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
@@ -32,6 +36,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QJsonDocument>
 #include <QRegularExpression>
 #include <QSettings>
 #include <QStandardPaths>
@@ -51,6 +56,7 @@ static const char curlKeyC[] = "Curl";
 static const char httpsKeyC[] = "Https";
 static const char defaultHostC[] = "codereview.qt-project.org";
 static const char savedQueriesKeyC[] = "SavedQueries";
+static const char accountUrlC[] = "/accounts/self";
 
 static const char defaultPortFlag[] = "-p";
 
@@ -141,23 +147,44 @@ GerritParameters::GerritParameters()
 {
 }
 
-QString GerritServer::sshHostArgument() const
+QString GerritServer::hostArgument() const
 {
     return user.userName.isEmpty() ? host : (user.userName + '@' + host);
 }
 
-QString GerritServer::url() const
+QString GerritServer::url(bool withHttpUser) const
 {
-    QString res = "ssh://" + sshHostArgument();
+    QString protocol;
+    switch (type) {
+        case Ssh:   protocol = "ssh"; break;
+        case Http:  protocol = "http"; break;
+        case Https: protocol = "https"; break;
+    }
+    QString res = protocol + "://";
+    if (type == Ssh || withHttpUser)
+        res += hostArgument();
+    else
+        res += host;
     if (port)
         res += ':' + QString::number(port);
+    if (type != Ssh)
+        res += rootPath;
     return res;
 }
 
-bool GerritServer::fillFromRemote(const QString &remote, const QString &defaultUser)
+QString GerritServer::restUrl() const
+{
+    QString res = url(true);
+    if (type != Ssh && authenticated)
+        res += "/a";
+    return res;
+}
+
+bool GerritServer::fillFromRemote(const QString &remote, const GerritParameters &parameters)
 {
     static const QRegularExpression remotePattern(
-                "^(?:(?<protocol>[^:]+)://)?(?:(?<user>[^@]+)@)?(?<host>[^:/]+)(?::(?<port>\\d+))?");
+                "^(?:(?<protocol>[^:]+)://)?(?:(?<user>[^@]+)@)?(?<host>[^:/]+)"
+                "(?::(?<port>\\d+))?:?(?<path>/.*)$");
 
     // Skip local remotes (refer to the root or relative path)
     if (remote.isEmpty() || remote.startsWith('/') || remote.startsWith('.'))
@@ -178,12 +205,93 @@ bool GerritServer::fillFromRemote(const QString &remote, const QString &defaultU
     else
         return false;
     const QString userName = match.captured("user");
-    user.userName = userName.isEmpty() ? defaultUser : userName;
+    user.userName = userName.isEmpty() ? parameters.server.user.userName : userName;
     host = match.captured("host");
     port = match.captured("port").toUShort();
     if (host.contains("github.com")) // Clearly not gerrit
         return false;
+    if (type != GerritServer::Ssh) {
+        curlBinary = parameters.curl;
+        if (curlBinary.isEmpty() || !QFile::exists(curlBinary))
+            return false;
+        rootPath = match.captured("path");
+        // Strip the last part of the path, which is always the repo name
+        // The rest of the path needs to be inspected to find the root path
+        // (can be http://example.net/review)
+        ascendPath();
+        if (!resolveRoot())
+            return false;
+    }
     return true;
+}
+
+QStringList GerritServer::curlArguments()
+{
+    // -k - insecure - do not validate certificate
+    // -f - fail silently on server error
+    // -n - use credentials from ~/.netrc (or ~/_netrc on Windows)
+    // -sS - silent, except server error (no progress)
+    // --basic, --digest - try both authentication types
+    return {"-kfnsS", "--basic", "--digest"};
+}
+
+int GerritServer::testConnection()
+{
+    static Git::Internal::GitClient *const client = Git::Internal::GitPlugin::client();
+    const QStringList arguments = curlArguments() << (restUrl() + accountUrlC);
+    const SynchronousProcessResponse resp = client->vcsFullySynchronousExec(
+                QString(), FileName::fromString(curlBinary), arguments,
+                Core::ShellCommand::NoOutput);
+    if (resp.result == SynchronousProcessResponse::Finished) {
+        QString output = resp.stdOut();
+        output.remove(0, output.indexOf('\n')); // Strip first line
+        QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
+        if (!doc.isNull())
+            user.fullName = doc.object().value("name").toString();
+        return 200;
+    }
+    const QRegularExpression errorRegexp("returned error: (\\d+)");
+    QRegularExpressionMatch match = errorRegexp.match(resp.stdErr());
+    if (match.hasMatch())
+        return match.captured(1).toInt();
+    return 400;
+}
+
+bool GerritServer::setupAuthentication()
+{
+    AuthenticationDialog dialog(this);
+    if (!dialog.exec())
+        return false;
+    authenticated = dialog.isAuthenticated();
+    return true;
+}
+
+bool GerritServer::ascendPath()
+{
+    const int lastSlash = rootPath.lastIndexOf('/');
+    if (lastSlash == -1)
+        return false;
+    rootPath = rootPath.left(lastSlash);
+    return true;
+}
+
+bool GerritServer::resolveRoot()
+{
+    for (;;) {
+        switch (testConnection()) {
+        case 200:
+            return true;
+        case 401:
+            return setupAuthentication();
+        case 404:
+            if (!ascendPath())
+                return false;
+            break;
+        default: // unknown error - fail
+            return false;
+        }
+    }
+    return false;
 }
 
 bool GerritParameters::equals(const GerritParameters &rhs) const

@@ -4,7 +4,8 @@ SOURCES += $$PWD/gerritdialog.cpp \
     $$PWD/gerritplugin.cpp \
     $$PWD/gerritoptionspage.cpp \
     $$PWD/gerritpushdialog.cpp \
-    $$PWD/branchcombobox.cpp
+    $$PWD/branchcombobox.cpp \
+    $$PWD/authenticationdialog.cpp
 
 HEADERS += $$PWD/gerritdialog.h \
     $$PWD/gerritmodel.h \
@@ -12,8 +13,10 @@ HEADERS += $$PWD/gerritdialog.h \
     $$PWD/gerritplugin.h \
     $$PWD/gerritoptionspage.h \
     $$PWD/gerritpushdialog.h \
-    $$PWD/branchcombobox.h
+    $$PWD/branchcombobox.h \
+    $$PWD/authenticationdialog.h
 
 FORMS += $$PWD/gerritdialog.ui \
-    $$PWD/gerritpushdialog.ui
+    $$PWD/gerritpushdialog.ui \
+    $$PWD/authenticationdialog.ui
 

@@ -50,6 +50,7 @@
 #include <QTimer>
 #include <QApplication>
 #include <QFutureWatcher>
+#include <QUrl>
 
 enum { debug = 0 };
 
@@ -199,7 +200,9 @@ QString GerritChange::filterString() const
 
 QStringList GerritChange::gitFetchArguments(const GerritServer &server) const
 {
-    return {"fetch", server.url() + '/' + project, currentPatchSet.ref};
+    const QString url = currentPatchSet.url.isEmpty() ? server.url(true) + '/' + project
+                                                      : currentPatchSet.url;
+    return {"fetch", url, currentPatchSet.ref};
 }
 
 QString GerritChange::fullTitle() const
@@ -258,13 +261,21 @@ QueryContext::QueryContext(const QString &query,
                            QObject *parent)
     : QObject(parent)
 {
-    m_binary = p->ssh;
-    if (server.port)
-        m_arguments << p->portFlag << QString::number(server.port);
-    m_arguments << server.sshHostArgument() << "gerrit"
-                << "query" << "--dependencies"
-                << "--current-patch-set"
-                << "--format=JSON" << query;
+    if (server.type == GerritServer::Ssh) {
+        m_binary = p->ssh;
+        if (server.port)
+            m_arguments << p->portFlag << QString::number(server.port);
+        m_arguments << server.hostArgument() << "gerrit"
+                    << "query" << "--dependencies"
+                    << "--current-patch-set"
+                    << "--format=JSON" << query;
+    } else {
+        m_binary = p->curl;
+        const QString url = server.restUrl() + "/changes/?q="
+                + QString::fromUtf8(QUrl::toPercentEncoding(query))
+                + "&o=CURRENT_REVISION&o=DETAILED_LABELS&o=DETAILED_ACCOUNTS";
+        m_arguments = GerritServer::curlArguments() << url;
+    }
     connect(&m_process, &QProcess::readyReadStandardError,
             this, &QueryContext::readyReadStandardError);
     connect(&m_process, &QProcess::readyReadStandardOutput,
@@ -615,18 +626,178 @@ static GerritChangePtr parseSshOutput(const QJsonObject &object)
     return change;
 }
 
+/*
+  {
+    "kind": "gerritcodereview#change",
+    "id": "qt-creator%2Fqt-creator~master~Icc164b9d84abe4efc34deaa5d19dca167fdb14e1",
+    "project": "qt-creator/qt-creator",
+    "branch": "master",
+    "change_id": "Icc164b9d84abe4efc34deaa5d19dca167fdb14e1",
+    "subject": "WIP: Gerrit: Support REST query for HTTP servers",
+    "status": "NEW",
+    "created": "2017-02-22 21:23:39.403000000",
+    "updated": "2017-02-23 21:03:51.055000000",
+    "reviewed": true,
+    "mergeable": false,
+    "_sortkey": "004368cf0002d84f",
+    "_number": 186447,
+    "owner": {
+      "_account_id": 1000534,
+      "name": "Orgad Shaneh",
+      "email": "orgads@gmail.com"
+    },
+    "labels": {
+      "Code-Review": {
+        "all": [
+          {
+            "value": 0,
+            "_account_id": 1000009,
+            "name": "Tobias Hunger",
+            "email": "tobias.hunger@qt.io"
+          },
+          {
+            "value": 0,
+            "_account_id": 1000528,
+            "name": "André Hartmann",
+            "email": "aha_1980@gmx.de"
+          },
+          {
+            "value": 0,
+            "_account_id": 1000049,
+            "name": "Qt Sanity Bot",
+            "email": "qt_sanitybot@qt-project.org"
+          }
+        ],
+        "values": {
+          "-2": "This shall not be merged",
+          "-1": "I would prefer this is not merged as is",
+          " 0": "No score",
+          "+1": "Looks good to me, but someone else must approve",
+          "+2": "Looks good to me, approved"
+        }
+      },
+      "Sanity-Review": {
+        "all": [
+          {
+            "value": 0,
+            "_account_id": 1000009,
+            "name": "Tobias Hunger",
+            "email": "tobias.hunger@qt.io"
+          },
+          {
+            "value": 0,
+            "_account_id": 1000528,
+            "name": "André Hartmann",
+            "email": "aha_1980@gmx.de"
+          },
+          {
+            "value": 1,
+            "_account_id": 1000049,
+            "name": "Qt Sanity Bot",
+            "email": "qt_sanitybot@qt-project.org"
+          }
+        ],
+        "values": {
+          "-2": "Major sanity problems found",
+          "-1": "Sanity problems found",
+          " 0": "No sanity review",
+          "+1": "Sanity review passed"
+        }
+      }
+    },
+    "permitted_labels": {
+      "Code-Review": [
+        "-2",
+        "-1",
+        " 0",
+        "+1",
+        "+2"
+      ],
+      "Sanity-Review": [
+        "-2",
+        "-1",
+        " 0",
+        "+1"
+      ]
+    },
+    "current_revision": "87916545e2974913d56f56c9f06fc3822a876aca",
+    "revisions": {
+      "87916545e2974913d56f56c9f06fc3822a876aca": {
+        "draft": true,
+        "_number": 2,
+        "fetch": {
+          "http": {
+            "url": "https://codereview.qt-project.org/qt-creator/qt-creator",
+            "ref": "refs/changes/47/186447/2"
+          },
+          "ssh": {
+            "url": "ssh:// *:29418/qt-creator/qt-creator",
+            "ref": "refs/changes/47/186447/2"
+          }
+        }
+      }
+    }
+  }
+*/
+
+static GerritChangePtr parseRestOutput(const QJsonObject &object, const GerritServer &server)
+{
+    GerritChangePtr change(new GerritChange);
+    change->number = object.value("_number").toInt();
+    change->url = QString("%1/%2").arg(server.url()).arg(change->number);
+    change->title = object.value("subject").toString();
+    change->owner = parseGerritUser(object.value("owner").toObject());
+    change->project = object.value("project").toString();
+    change->branch = object.value("branch").toString();
+    change->status =  object.value("status").toString();
+    change->lastUpdated = QDateTime::fromString(object.value("updated").toString(),
+                                                Qt::DateFormat::ISODate);
+    // Read current patch set.
+    const QJsonObject patchSet = object.value("revisions").toObject().begin().value().toObject();
+    change->currentPatchSet.patchSetNumber = qMax(1, patchSet.value("number").toString().toInt());
+    change->currentPatchSet.ref = patchSet.value("ref").toString();
+    // Replace * in ssh://*:29418/qt-creator/qt-creator with the hostname
+    change->currentPatchSet.url = patchSet.value("url").toString().replace('*', server.host);
+    const QJsonObject labels = object.value("labels").toObject();
+    for (auto it = labels.constBegin(), end = labels.constEnd(); it != end; ++it) {
+        const QJsonArray all = it.value().toObject().value("all").toArray();
+        for (const QJsonValue &av : all) {
+            const QJsonObject ao = av.toObject();
+            const int value = ao.value("value").toInt();
+            if (!value)
+                continue;
+            GerritApproval approval;
+            approval.reviewer = parseGerritUser(ao);
+            approval.approval = value;
+            approval.type = it.key();
+            change->currentPatchSet.approvals.push_back(approval);
+        }
+    }
+    std::stable_sort(change->currentPatchSet.approvals.begin(),
+                     change->currentPatchSet.approvals.end(),
+                     gerritApprovalLessThan);
+    return change;
+}
+
 static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
                         const GerritServer &server,
                         const QByteArray &output,
                         QList<GerritChangePtr> &result)
 {
-    // The output consists of separate lines containing a document each
-    // Add a comma after each line (except the last), and enclose it as an array
-    QByteArray adaptedOutput = '[' + output + ']';
-    adaptedOutput.replace('\n', ',');
-    const int lastComma = adaptedOutput.lastIndexOf(',');
-    if (lastComma >= 0)
-        adaptedOutput[lastComma] = '\n';
+    QByteArray adaptedOutput;
+    if (server.type == GerritServer::Ssh) {
+        // The output consists of separate lines containing a document each
+        // Add a comma after each line (except the last), and enclose it as an array
+        adaptedOutput = '[' + output + ']';
+        adaptedOutput.replace('\n', ',');
+        const int lastComma = adaptedOutput.lastIndexOf(',');
+        if (lastComma >= 0)
+            adaptedOutput[lastComma] = '\n';
+    } else {
+        adaptedOutput = output;
+        // Strip first line, which is )]}'
+        adaptedOutput.remove(0, adaptedOutput.indexOf("\n"));
+    }
     bool res = true;
 
     QJsonParseError error;
@@ -647,7 +818,9 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
         // Skip stats line: {"type":"stats","rowCount":9,"runTimeMilliseconds":13}
         if (object.contains("type"))
             continue;
-        GerritChangePtr change = parseSshOutput(object);
+        GerritChangePtr change =
+                (server.type == GerritServer::Ssh ? parseSshOutput(object)
+                                                  : parseRestOutput(object, server));
         if (change->isValid()) {
             if (change->url.isEmpty()) //  No "canonicalWebUrl" is in gerrit.config.
                 change->url = defaultUrl(parameters, server, change->number);
