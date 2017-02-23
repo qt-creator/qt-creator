@@ -32,8 +32,6 @@ QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class SessionNode; }
-
 namespace Designer {
 namespace Internal {
 

@@ -92,7 +92,6 @@ class Node;
 class FileNode;
 class FolderNode;
 class ProjectNode;
-class SessionNode;
 class NodesVisitor;
 
 // Documentation inside.
@@ -296,10 +295,6 @@ protected:
     // this is just the in-memory representation, a subclass
     // will add the persistent stuff
     explicit ProjectNode(const Utils::FileName &projectFilePath);
-
-private:
-    // let SessionNode call setParentFolderNode
-    friend class SessionNode;
 };
 
 // Documentation inside.
@@ -313,7 +308,6 @@ private:
     QString addFileFilter() const final;
 
     bool showInSimpleTree() const final;
-    void projectDisplayNameChanged(Node *node);
 };
 
 } // namespace ProjectExplorer
