@@ -185,19 +185,10 @@ bool NimProject::supportsKit(Kit *k, QString *errorMessage) const
 FileNameList NimProject::nimFiles() const
 {
     FileNameList result;
-
-    QQueue<FolderNode *> folders;
-    folders.enqueue(rootProjectNode());
-
-    while (!folders.isEmpty()) {
-        FolderNode *folder = folders.takeFirst();
-        for (FileNode *file : folder->fileNodes()) {
-            if (file->displayName().endsWith(QLatin1String(".nim")))
-                result.append(file->filePath());
-        }
-        folders.append(folder->folderNodes());
-    }
-
+    rootProjectNode()->forEachNode([&](FileNode *file) {
+        if (file->displayName().endsWith(QLatin1String(".nim")))
+            result.append(file->filePath());
+    });
     return result;
 }
 
