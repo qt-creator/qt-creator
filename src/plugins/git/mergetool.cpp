@@ -212,6 +212,7 @@ void MergeTool::readData()
             m_mergeType = mergeType(m_line.left(index));
             int quote = m_line.indexOf('\'');
             m_fileName = QString::fromLocal8Bit(m_line.mid(quote + 1, m_line.lastIndexOf('\'') - quote - 1));
+            m_line.clear();
         } else if (m_line.startsWith("  {local}")) {
             waitForFurtherInput = !hasLine;
             if (waitForFurtherInput)
@@ -229,7 +230,11 @@ void MergeTool::readData()
             prompt(tr("Unchanged File"), tr("Was the merge successful?"));
         } else if (m_line.startsWith("Continue merging")) {
             prompt(tr("Continue Merging"), tr("Continue merging other unresolved paths?"));
+        } else if (m_line.endsWith('\n')) {
+            // Skip unidentified lines
+            m_line.clear();
         }
+
     }
     if (!waitForFurtherInput)
         m_line.clear();
