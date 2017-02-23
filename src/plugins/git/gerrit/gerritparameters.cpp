@@ -58,13 +58,14 @@ static inline QString detectSsh()
     const QByteArray gitSsh = qgetenv("GIT_SSH");
     if (!gitSsh.isEmpty())
         return QString::fromLocal8Bit(gitSsh);
-    QString ssh = QStandardPaths::findExecutable(defaultSshC);
+    const QString defaultSsh = Utils::HostOsInfo::withExecutableSuffix(defaultSshC);
+    QString ssh = QStandardPaths::findExecutable(defaultSsh);
     if (!ssh.isEmpty())
         return ssh;
     if (Utils::HostOsInfo::isWindowsHost()) { // Windows: Use ssh.exe from git if it cannot be found.
         Utils::FileName path = GerritPlugin::gitBinDirectory();
         if (!path.isEmpty())
-            ssh = path.appendPath(defaultSshC).toString();
+            ssh = path.appendPath(defaultSsh).toString();
     }
     return ssh;
 }
@@ -186,7 +187,7 @@ void GerritParameters::fromSettings(const QSettings *s)
     savedQueries = s->value(rootKey + savedQueriesKeyC, QString()).toString()
             .split(',');
     https = s->value(rootKey + httpsKeyC, QVariant(true)).toBool();
-    if (ssh.isEmpty())
+    if (ssh.isEmpty() || !QFile::exists(ssh))
         ssh = detectSsh();
 }
 
