@@ -506,6 +506,33 @@ filterFilesFunction(const QStringList &filters, const QStringList &exclusionFilt
     };
 }
 
+QStringList splitFilterUiText(const QString &text)
+{
+    const QStringList parts = text.split(',');
+    const QStringList trimmedPortableParts = Utils::transform(parts, [](const QString &s) {
+        return QDir::fromNativeSeparators(s.trimmed());
+    });
+    return Utils::filtered(trimmedPortableParts, [](const QString &s) { return !s.isEmpty(); });
+}
+
+
+QString msgFilePatternLabel()
+{
+    return QCoreApplication::translate("Utils::FileSearch", "Fi&le pattern:");
+}
+
+QString msgExclusionPatternLabel()
+{
+    return QCoreApplication::translate("Utils::FileSearch", "Exclusion pattern:");
+}
+
+QString msgFilePatternToolTip()
+{
+    return QCoreApplication::translate("Utils::FileSearch",
+                                       "List of comma separated wildcard filters. "
+                                       "Files with file name or full file path matching any filter are included.");
+}
+
 QString matchCaseReplacement(const QString &originalText, const QString &replaceText)
 {
     if (originalText.isEmpty())

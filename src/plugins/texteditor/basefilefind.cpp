@@ -196,15 +196,6 @@ bool BaseFileFind::isEnabled() const
     return true;
 }
 
-static QStringList splitFilterUiText(const QString &text)
-{
-    const QStringList parts = text.split(',');
-    const QStringList trimmedPortableParts = Utils::transform(parts, [](const QString &s) {
-        return QDir::fromNativeSeparators(s.trimmed());
-    });
-    return Utils::filtered(trimmedPortableParts, [](const QString &s) { return !s.isEmpty(); });
-}
-
 QStringList BaseFileFind::fileNameFilters() const
 {
     if (d->m_filterCombo)
@@ -384,16 +375,14 @@ static QLabel *createLabel(const QString &text)
 
 QList<QPair<QWidget *, QWidget *>> BaseFileFind::createPatternWidgets()
 {
-    static const QString filterToolTip = tr("List of comma separated wildcard filters. "
-                                            "Files with file name or full file path matching any filter are included.");
-    QLabel *filterLabel = createLabel(tr("Fi&le pattern:"));
+    QLabel *filterLabel = createLabel(msgFilePatternLabel());
     d->m_filterCombo = createCombo(&d->m_filterStrings);
-    d->m_filterCombo->setToolTip(filterToolTip);
+    d->m_filterCombo->setToolTip(msgFilePatternToolTip());
     filterLabel->setBuddy(d->m_filterCombo);
     syncComboWithSettings(d->m_filterCombo, d->m_filterSetting);
-    QLabel *exclusionLabel = createLabel(tr("Exclusion pattern:"));
+    QLabel *exclusionLabel = createLabel(msgExclusionPatternLabel());
     d->m_exclusionCombo = createCombo(&d->m_exclusionStrings);
-    d->m_exclusionCombo->setToolTip(filterToolTip);
+    d->m_exclusionCombo->setToolTip(msgFilePatternToolTip());
     exclusionLabel->setBuddy(d->m_exclusionCombo);
     syncComboWithSettings(d->m_exclusionCombo, d->m_exclusionSetting);
     return { qMakePair(filterLabel,    d->m_filterCombo),

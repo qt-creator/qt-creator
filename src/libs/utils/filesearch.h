@@ -47,6 +47,18 @@ QTCREATOR_UTILS_EXPORT
 std::function<QStringList(const QStringList &)>
 filterFilesFunction(const QStringList &filters, const QStringList &exclusionFilters);
 
+QTCREATOR_UTILS_EXPORT
+QStringList splitFilterUiText(const QString &text);
+
+QTCREATOR_UTILS_EXPORT
+QString msgFilePatternLabel();
+
+QTCREATOR_UTILS_EXPORT
+QString msgExclusionPatternLabel();
+
+QTCREATOR_UTILS_EXPORT
+QString msgFilePatternToolTip();
+
 class QTCREATOR_UTILS_EXPORT FileIterator
 {
 public:
