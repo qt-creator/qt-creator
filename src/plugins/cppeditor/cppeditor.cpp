@@ -484,6 +484,9 @@ ProjectPart *findProjectPartForCurrentProject(const QList<ProjectPart::Ptr> &pro
 
 ProjectPart *CppEditorWidget::projectPart() const
 {
+    if (!d->m_modelManager)
+        return 0;
+
     auto projectParts = fetchProjectParts(d->m_modelManager, textDocument()->filePath());
 
     return findProjectPartForCurrentProject(projectParts,
