@@ -119,7 +119,7 @@ FolderNode *Node::parentFolderNode() const
 
 ProjectNode *Node::managingProject()
 {
-    if (asSessionNode())
+    if (!m_parentFolderNode)
         return nullptr;
     ProjectNode *pn = parentProjectNode();
     return pn ? pn : asProjectNode(); // projects manage themselves...

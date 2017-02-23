@@ -142,8 +142,6 @@ public:
     virtual const FolderNode *asFolderNode() const { return nullptr; }
     virtual ProjectNode *asProjectNode() { return nullptr; }
     virtual const ProjectNode *asProjectNode() const { return nullptr; }
-    virtual SessionNode *asSessionNode() { return nullptr; }
-    virtual const SessionNode *asSessionNode() const { return nullptr; }
 
     static bool sortByPath(const Node *a, const Node *b);
     void setParentFolderNode(FolderNode *parentFolder);
@@ -316,9 +314,6 @@ private:
 
     bool showInSimpleTree() const final;
     void projectDisplayNameChanged(Node *node);
-
-    SessionNode *asSessionNode() final { return this; }
-    const SessionNode *asSessionNode() const final { return this; }
 };
 
 } // namespace ProjectExplorer
