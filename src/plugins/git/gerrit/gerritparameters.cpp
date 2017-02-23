@@ -84,7 +84,9 @@ GerritServer::GerritServer(const QString &host, unsigned short port,
 
 bool GerritServer::operator==(const GerritServer &other) const
 {
-    return host == other.host && user == other.user && port == other.port && type == other.type;
+    if (port && other.port && port != other.port)
+        return false;
+    return host == other.host && user == other.user && type == other.type;
 }
 
 void GerritParameters::setPortFlagBySshType()
