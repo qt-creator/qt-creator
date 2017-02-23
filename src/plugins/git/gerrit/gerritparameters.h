@@ -69,6 +69,7 @@ public:
 
     GerritServer server;
     QString ssh;
+    QString curl;
     QStringList savedQueries;
     bool https;
     QString portFlag;

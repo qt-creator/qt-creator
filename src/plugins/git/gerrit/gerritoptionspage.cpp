@@ -85,6 +85,7 @@ GerritOptionsWidget::GerritOptionsWidget(QWidget *parent)
     , m_hostLineEdit(new QLineEdit(this))
     , m_userLineEdit(new QLineEdit(this))
     , m_sshChooser(new Utils::PathChooser)
+    , m_curlChooser(new Utils::PathChooser)
     , m_portSpinBox(new QSpinBox(this))
     , m_httpsCheckBox(new QCheckBox(tr("HTTPS")))
 {
@@ -96,15 +97,19 @@ GerritOptionsWidget::GerritOptionsWidget(QWidget *parent)
     m_sshChooser->setCommandVersionArguments({"-V"});
     m_sshChooser->setHistoryCompleter("Git.SshCommand.History");
     formLayout->addRow(tr("&ssh:"), m_sshChooser);
+    m_curlChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_curlChooser->setCommandVersionArguments({"-V"});
+    formLayout->addRow(tr("cur&l:"), m_curlChooser);
     m_portSpinBox->setMinimum(1);
     m_portSpinBox->setMaximum(65535);
-    formLayout->addRow(tr("&Port:"), m_portSpinBox);
+    formLayout->addRow(tr("SSH &Port:"), m_portSpinBox);
     formLayout->addRow(tr("P&rotocol:"), m_httpsCheckBox);
     m_httpsCheckBox->setToolTip(tr(
     "Determines the protocol used to form a URL in case\n"
     "\"canonicalWebUrl\" is not configured in the file\n"
     "\"gerrit.config\"."));
-    setTabOrder(m_sshChooser, m_portSpinBox);
+    setTabOrder(m_sshChooser, m_curlChooser);
+    setTabOrder(m_curlChooser, m_portSpinBox);
 }
 
 GerritParameters GerritOptionsWidget::parameters() const
@@ -115,6 +120,7 @@ GerritParameters GerritOptionsWidget::parameters() const
                                  m_userLineEdit->text().trimmed(),
                                  GerritServer::Ssh);
     result.ssh = m_sshChooser->path();
+    result.curl = m_curlChooser->path();
     result.https = m_httpsCheckBox->isChecked();
     return result;
 }
@@ -124,6 +130,7 @@ void GerritOptionsWidget::setParameters(const GerritParameters &p)
     m_hostLineEdit->setText(p.server.host);
     m_userLineEdit->setText(p.server.user);
     m_sshChooser->setPath(p.ssh);
+    m_curlChooser->setPath(p.curl);
     m_portSpinBox->setValue(p.server.port);
     m_httpsCheckBox->setChecked(p.https);
 }
