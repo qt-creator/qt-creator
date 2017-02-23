@@ -54,6 +54,7 @@
 #include <time.h>
 #include <utime.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
@@ -1828,10 +1829,16 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             evalError(fL1S("Cannot stat() reference file %1: %2.").arg(rfn, fL1S(strerror(errno))));
             return ReturnFalse;
         }
+#if defined(_POSIX_VERSION) && _POSIX_VERSION >= 200809L
+        const struct timespec times[2] = { { 0, UTIME_NOW }, st.st_mtim };
+        const bool utimeError = utimensat(AT_FDCWD, tfn.toLocal8Bit().constData(), times, 0) < 0;
+#else
         struct utimbuf utb;
         utb.actime = time(0);
         utb.modtime = st.st_mtime;
-        if (utime(tfn.toLocal8Bit().constData(), &utb)) {
+        const bool utimeError = utime(tfn.toLocal8Bit().constData(), &utb) < 0;
+#endif
+        if (utimeError) {
             evalError(fL1S("Cannot touch %1: %2.").arg(tfn, fL1S(strerror(errno))));
             return ReturnFalse;
         }
