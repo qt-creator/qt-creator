@@ -78,14 +78,6 @@ static QbsProject *currentEditorProject()
     return doc ? qobject_cast<QbsProject *>(SessionManager::projectForFile(doc->filePath())) : 0;
 }
 
-QbsProjectManagerPlugin::QbsProjectManagerPlugin() :
-    m_selectedProject(0),
-    m_selectedNode(0),
-    m_currentProject(0),
-    m_editorProject(0),
-    m_editorNode(0)
-{ }
-
 bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments);

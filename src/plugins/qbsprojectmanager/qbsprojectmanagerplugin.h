@@ -52,8 +52,6 @@ class QbsProjectManagerPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QbsProjectManager.json")
 
 public:
-    QbsProjectManagerPlugin();
-
     bool initialize(const QStringList &arguments, QString *errorMessage);
 
     void extensionsInitialized();
@@ -87,22 +85,22 @@ private:
     void buildSingleFile(QbsProject *project, const QString &file);
     void buildProducts(QbsProject *project, const QStringList &products);
 
-    QAction *m_reparseQbs;
-    QAction *m_reparseQbsCtx;
-    QAction *m_buildFileCtx;
-    QAction *m_buildProductCtx;
-    QAction *m_buildSubprojectCtx;
-    Utils::ParameterAction *m_buildFile;
-    Utils::ParameterAction *m_buildProduct;
-    Utils::ParameterAction *m_buildSubproject;
+    QAction *m_reparseQbs = nullptr;
+    QAction *m_reparseQbsCtx = nullptr;
+    QAction *m_buildFileCtx = nullptr;
+    QAction *m_buildProductCtx = nullptr;
+    QAction *m_buildSubprojectCtx = nullptr;
+    Utils::ParameterAction *m_buildFile = nullptr;
+    Utils::ParameterAction *m_buildProduct = nullptr;
+    Utils::ParameterAction *m_buildSubproject = nullptr;
 
-    Internal::QbsProject *m_selectedProject;
-    ProjectExplorer::Node *m_selectedNode;
+    Internal::QbsProject *m_selectedProject = nullptr;
+    ProjectExplorer::Node *m_selectedNode = nullptr;
 
-    Internal::QbsProject *m_currentProject;
+    Internal::QbsProject *m_currentProject = nullptr;
 
-    Internal::QbsProject *m_editorProject;
-    ProjectExplorer::Node *m_editorNode;
+    Internal::QbsProject *m_editorProject = nullptr;
+    ProjectExplorer::Node *m_editorNode = nullptr;
 };
 
 } // namespace Internal
