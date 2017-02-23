@@ -2249,9 +2249,18 @@ FileName GitClient::gitBinDirectory()
     // Git for Windows has git and gitk redirect executables in {setup dir}/cmd
     // and the real binaries are in {setup dir}/bin. If cmd is configured in PATH
     // or in Git settings, return bin instead.
-    if (HostOsInfo::isWindowsHost()
-            && path.endsWith("/cmd", HostOsInfo::fileNameCaseSensitivity())) {
-        path.replace(path.size() - 3, 3, "bin");
+    if (HostOsInfo::isWindowsHost()) {
+        if (path.endsWith("/cmd", Qt::CaseInsensitive))
+            path.replace(path.size() - 3, 3, "bin");
+        if (path.endsWith("/bin", Qt::CaseInsensitive)
+                && !path.endsWith("/usr/bin", Qt::CaseInsensitive)) {
+            // Legacy msysGit used Git/bin for additional tools.
+            // Git for Windows uses Git/usr/bin. Prefer that if it exists.
+            QString usrBinPath = path;
+            usrBinPath.replace(usrBinPath.size() - 3, 3, "usr/bin");
+            if (QFile::exists(usrBinPath))
+                path = usrBinPath;
+        }
     }
     return FileName::fromString(path);
 }
