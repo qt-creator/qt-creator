@@ -32,7 +32,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <QPushButton>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 
 namespace Beautifier {
 namespace Internal {
@@ -44,8 +44,8 @@ ConfigurationDialog::ConfigurationDialog(QWidget *parent) :
     ui->setupUi(this);
 
     // Filter out characters which are not allowed in a file name
-    QRegExpValidator *fileNameValidator = new QRegExpValidator(ui->name);
-    fileNameValidator->setRegExp(QRegExp("^[^\\/\\\\\\?\\>\\<\\*\\%\\:\\\"\\']*$"));
+    QRegularExpressionValidator *fileNameValidator = new QRegularExpressionValidator(
+                QRegularExpression("^[^\\/\\\\\\?\\>\\<\\*\\%\\:\\\"\\']*$"), ui->name);
     ui->name->setValidator(fileNameValidator);
 
     updateDocumentation();

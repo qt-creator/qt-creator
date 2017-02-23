@@ -152,8 +152,11 @@ FormatTask format(FormatTask task)
         const bool returnsCRLF = task.command.returnsCRLF();
         if (addsNewline || returnsCRLF) {
             task.formattedData = QString::fromUtf8(process.readAllStandardOutput());
-            if (addsNewline)
-                task.formattedData.remove(QRegExp("(\\r\\n|\\n)$"));
+            if (addsNewline && task.formattedData.endsWith('\n')) {
+                task.formattedData.chop(1);
+                if (task.formattedData.endsWith('\r'))
+                    task.formattedData.chop(1);
+            }
             if (returnsCRLF)
                 task.formattedData.replace("\r\n", "\n");
             return task;

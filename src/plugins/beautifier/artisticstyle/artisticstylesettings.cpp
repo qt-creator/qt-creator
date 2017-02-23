@@ -37,6 +37,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
+#include <QRegularExpression>
 #include <QXmlStreamWriter>
 
 namespace Beautifier {
@@ -67,10 +68,11 @@ ArtisticStyleSettings::ArtisticStyleSettings() :
 static int parseVersion(const QString &text)
 {
     // The version in Artistic Style is printed like "Artistic Style Version 2.04"
-    const QRegExp rx("([2-9]{1})\\.([0-9]{2})(\\.[1-9]{1})?$");
-    if (rx.indexIn(text) != -1) {
-        const int major = rx.cap(1).toInt() * 100;
-        const int minor = rx.cap(2).toInt();
+    const QRegularExpression rx("([2-9]{1})\\.([0-9]{2})(\\.[1-9]{1})?$");
+    const QRegularExpressionMatch match = rx.match(text);
+    if (match.hasMatch()) {
+        const int major = match.capturedRef(1).toInt() * 100;
+        const int minor = match.capturedRef(2).toInt();
         return major + minor;
     }
     return 0;
@@ -200,7 +202,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
                         stream.writeTextElement(Constants::DOCUMENTATION_XMLKEY, key);
                     stream.writeEndElement();
                     const QString text = "<p><span class=\"option\">"
-                            + keys.filter(QRegExp("^\\-")).join(", ") + "</span></p><p>"
+                            + keys.filter(QRegularExpression("^\\-")).join(", ") + "</span></p><p>"
                             + (docu.join(' ').toHtmlEscaped()) + "</p>";
                     stream.writeTextElement(Constants::DOCUMENTATION_XMLDOC, text);
                     stream.writeEndElement();
