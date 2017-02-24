@@ -259,7 +259,7 @@ void StickyNotesPasteProtocol::listFinished()
         emit listDone(name(), parseList(m_listReply));
     }
     m_listReply->deleteLater();
-    m_listReply = 0;
+    m_listReply = nullptr;
 }
 
 QString KdePasteProtocol::protocolName()

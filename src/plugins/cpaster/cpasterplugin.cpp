@@ -94,7 +94,7 @@ void CodePasterServiceImpl::postClipboard()
 }
 
 // ---------- CodepasterPlugin
-CodepasterPlugin *CodepasterPlugin::m_instance = 0;
+CodepasterPlugin *CodepasterPlugin::m_instance = nullptr;
 
 CodepasterPlugin::CodepasterPlugin() :
     m_settings(new Settings)
@@ -106,7 +106,7 @@ CodepasterPlugin::~CodepasterPlugin()
 {
     delete m_urlOpen;
     qDeleteAll(m_protocols);
-    CodepasterPlugin::m_instance = 0;
+    CodepasterPlugin::m_instance = nullptr;
 }
 
 bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMessage)

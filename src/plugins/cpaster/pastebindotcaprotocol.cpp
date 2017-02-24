@@ -243,7 +243,7 @@ void PasteBinDotCaProtocol::listFinished()
     else
         emit listDone(name(), parseLists(m_listReply));
     m_listReply->deleteLater();
-    m_listReply = 0;
+    m_listReply = nullptr;
 }
 
 } // namespace CodePaster

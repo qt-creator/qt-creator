@@ -59,7 +59,7 @@ void UrlOpenProtocol::fetchFinished()
     else
         content = QString::fromUtf8(m_fetchReply->readAll());
     m_fetchReply->deleteLater();
-    m_fetchReply = 0;
+    m_fetchReply = nullptr;
     emit fetchDone(title, content, error);
 }
 

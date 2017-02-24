@@ -176,7 +176,7 @@ void PasteBinDotComProtocol::fetchFinished()
         }
     }
     m_fetchReply->deleteLater();
-    m_fetchReply = 0;
+    m_fetchReply = nullptr;
     emit fetchDone(title, content, error);
 }
 
@@ -410,7 +410,7 @@ void PasteBinDotComProtocol::listFinished()
             qDebug() << list;
     }
     m_listReply->deleteLater();
-    m_listReply = 0;
+    m_listReply = nullptr;
 }
 
 } // namespace CodePaster

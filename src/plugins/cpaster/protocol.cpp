@@ -161,7 +161,7 @@ bool Protocol::showConfigurationError(const Protocol *p,
         parent = Core::ICore::mainWindow();
     const QString title = tr("%1 - Configuration Error").arg(p->name());
     QMessageBox mb(QMessageBox::Warning, title, message, QMessageBox::Cancel, parent);
-    QPushButton *settingsButton = 0;
+    QPushButton *settingsButton = nullptr;
     if (showConfig)
         settingsButton = mb.addButton(Core::ICore::msgShowOptionsDialog(), QMessageBox::AcceptRole);
     mb.exec();

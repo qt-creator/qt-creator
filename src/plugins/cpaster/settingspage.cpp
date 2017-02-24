@@ -63,7 +63,7 @@ Settings SettingsWidget::settings()
 }
 
 SettingsPage::SettingsPage(const QSharedPointer<Settings> &settings) :
-    m_settings(settings), m_widget(0)
+    m_settings(settings), m_widget(nullptr)
 {
     setId("A.CodePaster.General");
     setDisplayName(tr("General"));

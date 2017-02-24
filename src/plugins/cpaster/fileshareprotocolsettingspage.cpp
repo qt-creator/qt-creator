@@ -93,7 +93,7 @@ FileShareProtocolSettings FileShareProtocolSettingsWidget::settings() const
 // ----------FileShareProtocolSettingsPage
 FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(const QSharedPointer<FileShareProtocolSettings> &s,
                                                              QObject *parent) :
-    Core::IOptionsPage(parent), m_settings(s), m_widget(0)
+    Core::IOptionsPage(parent), m_settings(s), m_widget(nullptr)
 {
     setId("X.CodePaster.FileSharePaster");
     setDisplayName(tr("Fileshare"));
