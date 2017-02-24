@@ -52,9 +52,7 @@
 
 #ifdef Q_OS_UNIX
 #include <time.h>
-#include <utime.h>
 #include <errno.h>
-#include <fcntl.h>
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
@@ -252,23 +250,6 @@ QMakeEvaluator::getMemberArgs(const ProKey &func, int srclen, const ProStringLis
         return false;
     return true;
 }
-
-#if defined(Q_OS_WIN) && defined(PROEVALUATOR_FULL)
-static QString windowsErrorCode()
-{
-    wchar_t *string = 0;
-    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-                  NULL,
-                  GetLastError(),
-                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                  (LPWSTR)&string,
-                  0,
-                  NULL);
-    QString ret = QString::fromWCharArray(string);
-    LocalFree((HLOCAL)string);
-    return ret.trimmed();
-}
-#endif
 
 QString
 QMakeEvaluator::quoteValue(const ProString &val)
@@ -1823,46 +1804,11 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
 #ifdef PROEVALUATOR_FULL
         const QString &tfn = resolvePath(args.at(0).toQString(m_tmp1));
         const QString &rfn = resolvePath(args.at(1).toQString(m_tmp2));
-#ifdef Q_OS_UNIX
-        struct stat st;
-        if (stat(rfn.toLocal8Bit().constData(), &st)) {
-            evalError(fL1S("Cannot stat() reference file %1: %2.").arg(rfn, fL1S(strerror(errno))));
+        QString error;
+        if (!IoUtils::touchFile(tfn, rfn, &error)) {
+            evalError(error);
             return ReturnFalse;
         }
-#if defined(_POSIX_VERSION) && _POSIX_VERSION >= 200809L
-        const struct timespec times[2] = { { 0, UTIME_NOW }, st.st_mtim };
-        const bool utimeError = utimensat(AT_FDCWD, tfn.toLocal8Bit().constData(), times, 0) < 0;
-#else
-        struct utimbuf utb;
-        utb.actime = time(0);
-        utb.modtime = st.st_mtime;
-        const bool utimeError = utime(tfn.toLocal8Bit().constData(), &utb) < 0;
-#endif
-        if (utimeError) {
-            evalError(fL1S("Cannot touch %1: %2.").arg(tfn, fL1S(strerror(errno))));
-            return ReturnFalse;
-        }
-#else
-        HANDLE rHand = CreateFile((wchar_t*)rfn.utf16(),
-                                  GENERIC_READ, FILE_SHARE_READ,
-                                  NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (rHand == INVALID_HANDLE_VALUE) {
-            evalError(fL1S("Cannot open reference file %1: %2").arg(rfn, windowsErrorCode()));
-            return ReturnFalse;
-        }
-        FILETIME ft;
-        GetFileTime(rHand, 0, 0, &ft);
-        CloseHandle(rHand);
-        HANDLE wHand = CreateFile((wchar_t*)tfn.utf16(),
-                                  GENERIC_WRITE, FILE_SHARE_READ,
-                                  NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (wHand == INVALID_HANDLE_VALUE) {
-            evalError(fL1S("Cannot open %1: %2").arg(tfn, windowsErrorCode()));
-            return ReturnFalse;
-        }
-        SetFileTime(wHand, 0, 0, &ft);
-        CloseHandle(wHand);
-#endif
 #endif
         return ReturnTrue;
     }
