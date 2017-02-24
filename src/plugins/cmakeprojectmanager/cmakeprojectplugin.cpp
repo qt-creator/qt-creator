@@ -108,9 +108,10 @@ void CMakeProjectPlugin::extensionsInitialized()
     CMakeToolManager::restoreCMakeTools();
 }
 
-void CMakeProjectPlugin::updateContextActions(ProjectExplorer::Node *node,
-                                              ProjectExplorer::Project *project)
+void CMakeProjectPlugin::updateContextActions()
 {
+    Project *project = ProjectTree::currentProject();
+    Node *node = ProjectTree::currentNode();
     CMakeTargetNode *targetNode = dynamic_cast<CMakeTargetNode *>(node);
     // as targetNode can be deleted while the menu is open, we keep only the
     const QString targetDisplayName = targetNode ? targetNode->displayName() : QString();

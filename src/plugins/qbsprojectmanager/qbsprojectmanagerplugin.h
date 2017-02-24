@@ -60,7 +60,6 @@ private:
     void projectWasAdded(ProjectExplorer::Project *project);
     void currentProjectWasChanged(ProjectExplorer::Project *project);
     void projectWasRemoved();
-    void nodeSelectionChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
     void buildStateChanged(ProjectExplorer::Project *project);
     void parsingStateChanged();
     void currentEditorChanged();
@@ -93,9 +92,6 @@ private:
     Utils::ParameterAction *m_buildFile = nullptr;
     Utils::ParameterAction *m_buildProduct = nullptr;
     Utils::ParameterAction *m_buildSubproject = nullptr;
-
-    Internal::QbsProject *m_selectedProject = nullptr;
-    ProjectExplorer::Node *m_selectedNode = nullptr;
 
     Internal::QbsProject *m_currentProject = nullptr;
 

@@ -32,11 +32,6 @@ class QAction;
 class QMenu;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-class Node;
-class Project;
-}
-
 namespace Utils { class ParameterAction; }
 
 namespace ResourceEditor {
@@ -75,7 +70,7 @@ private slots:
     void copyPathContextMenu();
     void copyUrlContextMenu();
 
-    void updateContextActions(ProjectExplorer::Node*,ProjectExplorer::Project*);
+    void updateContextActions();
 
 public:
     void onUndoStackChanged(ResourceEditorW const *editor, bool canUndo, bool canRedo);

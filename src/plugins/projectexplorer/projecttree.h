@@ -64,7 +64,7 @@ public:
 
 signals:
     void currentProjectChanged(ProjectExplorer::Project *project);
-    void currentNodeChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
+    void currentNodeChanged();
 
     // Emitted whenever the model needs to send a update signal.
     void nodeUpdated(ProjectExplorer::Node *node);

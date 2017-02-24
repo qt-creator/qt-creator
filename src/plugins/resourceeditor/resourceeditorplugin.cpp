@@ -306,8 +306,9 @@ void ResourceEditorPlugin::renamePrefixContextMenu()
     node->renamePrefix(prefix, dialog.lang());
 }
 
-void ResourceEditorPlugin::updateContextActions(Node *node, Project *)
+void ResourceEditorPlugin::updateContextActions()
 {
+    Node *node = ProjectTree::currentNode();
     bool isResourceNode = dynamic_cast<ResourceTopLevelNode *>(node);
     m_addPrefix->setEnabled(isResourceNode);
     m_addPrefix->setVisible(isResourceNode);

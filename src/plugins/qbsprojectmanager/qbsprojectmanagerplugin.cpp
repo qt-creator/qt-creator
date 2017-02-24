@@ -180,7 +180,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     // Connect
     connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
-            this, &QbsProjectManagerPlugin::nodeSelectionChanged);
+            this, &QbsProjectManagerPlugin::updateContextActions);
 
     connect(BuildManager::instance(), &BuildManager::buildStateChanged,
             this, &QbsProjectManagerPlugin::buildStateChanged);
@@ -234,26 +234,19 @@ void QbsProjectManagerPlugin::projectWasRemoved()
     updateBuildActions();
 }
 
-void QbsProjectManagerPlugin::nodeSelectionChanged(Node *node, Project *project)
-{
-    m_selectedNode = node;
-    m_selectedProject = qobject_cast<Internal::QbsProject *>(project);
-
-    updateContextActions();
-}
-
 void QbsProjectManagerPlugin::updateContextActions()
 {
-    bool isEnabled = !BuildManager::isBuilding(m_selectedProject)
-            && m_selectedProject && !m_selectedProject->isParsing()
-            && m_selectedNode && m_selectedNode->isEnabled();
+    QbsProject *project = qobject_cast<Internal::QbsProject *>(ProjectTree::currentProject());
+    Node *node = ProjectTree::currentNode();
+    bool isEnabled = !BuildManager::isBuilding(project)
+            && project && !project->isParsing()
+            && node && node->isEnabled();
 
-    bool isFile = m_selectedProject && m_selectedNode && (m_selectedNode->nodeType() == NodeType::File);
-    bool isProduct = m_selectedProject
-            && m_selectedNode
-            && dynamic_cast<QbsProductNode *>(m_selectedNode);
-    QbsProjectNode *subproject = dynamic_cast<QbsProjectNode *>(m_selectedNode);
-    bool isSubproject = m_selectedProject && subproject && subproject != m_selectedProject->rootProjectNode();
+    bool isFile = project && node && (node->nodeType() == NodeType::File);
+    bool isProduct = project && node
+            && dynamic_cast<QbsProductNode *>(node);
+    QbsProjectNode *subproject = dynamic_cast<QbsProjectNode *>(node);
+    bool isSubproject = project && subproject && subproject != project->rootProjectNode();
 
     m_reparseQbsCtx->setEnabled(isEnabled);
     m_buildFileCtx->setEnabled(isEnabled && isFile);
@@ -319,7 +312,7 @@ void QbsProjectManagerPlugin::buildStateChanged(Project *project)
     if (project == m_currentProject)
         updateReparseQbsAction();
 
-    if (project == m_selectedProject)
+    if (project == ProjectTree::currentProject())
         updateContextActions();
 
     m_editorNode = currentEditorNode();
@@ -335,7 +328,7 @@ void QbsProjectManagerPlugin::parsingStateChanged()
     if (!project || project == m_currentProject)
         updateReparseQbsAction();
 
-    if (!project || project == m_selectedProject)
+    if (!project || project == ProjectTree::currentProject())
         updateContextActions();
 
     m_editorNode = currentEditorNode();
@@ -354,10 +347,11 @@ void QbsProjectManagerPlugin::currentEditorChanged()
 
 void QbsProjectManagerPlugin::buildFileContextMenu()
 {
-    QTC_ASSERT(m_selectedNode, return);
-    QTC_ASSERT(m_selectedProject, return);
-
-    buildSingleFile(m_selectedProject, m_selectedNode->filePath().toString());
+    Node *node = ProjectTree::currentNode();
+    QTC_ASSERT(node, return);
+    QbsProject *project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
+    QTC_ASSERT(project, return);
+    buildSingleFile(project, node->filePath().toString());
 }
 
 void QbsProjectManagerPlugin::buildFile()
@@ -370,14 +364,15 @@ void QbsProjectManagerPlugin::buildFile()
 
 void QbsProjectManagerPlugin::buildProductContextMenu()
 {
-    QTC_ASSERT(m_selectedNode, return);
-    QTC_ASSERT(m_selectedProject, return);
+    Node *node = ProjectTree::currentNode();
+    QTC_ASSERT(node, return);
+    QbsProject *project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
+    QTC_ASSERT(project, return);
 
-    const QbsProductNode * const productNode = dynamic_cast<QbsProductNode *>(m_selectedNode);
+    const QbsProductNode * const productNode = dynamic_cast<QbsProductNode *>(node);
     QTC_ASSERT(productNode, return);
 
-    buildProducts(m_selectedProject,
-                  QStringList(QbsProject::uniqueProductName(productNode->qbsProductData())));
+    buildProducts(project, {QbsProject::uniqueProductName(productNode->qbsProductData())});
 }
 
 void QbsProjectManagerPlugin::buildProduct()
@@ -396,17 +391,19 @@ void QbsProjectManagerPlugin::buildProduct()
 
 void QbsProjectManagerPlugin::buildSubprojectContextMenu()
 {
-    QTC_ASSERT(m_selectedNode, return);
-    QTC_ASSERT(m_selectedProject, return);
+    Node *node = ProjectTree::currentNode();
+    QTC_ASSERT(node, return);
+    QbsProject *project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
+    QTC_ASSERT(project, return);
 
-    QbsProjectNode *subProject = dynamic_cast<QbsProjectNode *>(m_selectedNode);
+    QbsProjectNode *subProject = dynamic_cast<QbsProjectNode *>(node);
     QTC_ASSERT(subProject, return);
 
     QStringList toBuild;
     foreach (const qbs::ProductData &data, subProject->qbsProjectData().allProducts())
         toBuild << QbsProject::uniqueProductName(data);
 
-    buildProducts(m_selectedProject, toBuild);
+    buildProducts(project, toBuild);
 }
 
 void QbsProjectManagerPlugin::buildSubproject()
@@ -497,7 +494,7 @@ void QbsProjectManagerPlugin::buildProducts(QbsProject *project, const QStringLi
 
 void QbsProjectManagerPlugin::reparseSelectedProject()
 {
-    reparseProject(m_selectedProject);
+    reparseProject(dynamic_cast<QbsProject *>(ProjectTree::currentProject()));
 }
 
 void QbsProjectManagerPlugin::reparseCurrentProject()

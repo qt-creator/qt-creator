@@ -29,11 +29,6 @@
 
 #include <QObject>
 
-namespace ProjectExplorer {
-class Node;
-class Project;
-} // namespace ProjectExplorer
-
 namespace Utils { class ParameterAction; }
 
 namespace CMakeProjectManager {
@@ -69,7 +64,7 @@ private slots:
 #endif
 
 private:
-    void updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
+    void updateContextActions();
 
     Utils::ParameterAction *m_buildTargetContextAction = nullptr;
     QMetaObject::Connection m_actionConnect;

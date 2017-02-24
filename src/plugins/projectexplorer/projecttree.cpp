@@ -222,9 +222,8 @@ void ProjectTree::update(Node *node, Project *project)
 
     if (changedNode) {
         m_currentNode = node;
-        emit currentNodeChanged(m_currentNode, project);
+        emit currentNodeChanged();
     }
-
 
     if (changedProject) {
         emit currentProjectChanged(m_currentProject);

@@ -315,8 +315,10 @@ void QmakeProjectManagerPlugin::updateRunQMakeAction()
     m_runQMakeAction->setEnabled(enable);
 }
 
-void QmakeProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project)
+void QmakeProjectManagerPlugin::updateContextActions()
 {
+    Node *node = ProjectTree::currentNode();
+    Project *project = ProjectTree::currentProject();
     m_addLibraryActionContextMenu->setEnabled(dynamic_cast<QmakeProFileNode *>(node));
 
     auto proFileNode = dynamic_cast<QmakeProFileNode *>(node);
@@ -377,10 +379,9 @@ void QmakeProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node
 
 void QmakeProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
 {
-    ProjectExplorer::Project *currentProject = ProjectTree::currentProject();
-    if (pro == currentProject) {
+    if (pro == ProjectTree::currentProject()) {
         updateRunQMakeAction();
-        updateContextActions(ProjectTree::currentNode(), pro);
+        updateContextActions();
         updateBuildFileAction();
     }
 }
