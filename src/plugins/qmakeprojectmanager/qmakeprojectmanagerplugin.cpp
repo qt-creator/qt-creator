@@ -321,24 +321,12 @@ void QmakeProjectManagerPlugin::updateContextActions()
     Project *project = ProjectTree::currentProject();
     m_addLibraryActionContextMenu->setEnabled(dynamic_cast<QmakeProFileNode *>(node));
 
-    auto proFileNode = dynamic_cast<QmakeProFileNode *>(node);
-    auto qmakeProject = qobject_cast<QmakeProject *>(project);
-    QmakeProFileNode *subProjectNode = nullptr;
-    if (node) {
-        auto subPriFileNode = dynamic_cast<QmakePriFileNode *>(node);
-        if (!subPriFileNode)
-            subPriFileNode = dynamic_cast<QmakePriFileNode *>(node->parentProjectNode());
-        if (subPriFileNode)
-            subProjectNode = subPriFileNode->proFileNode();
-    }
-    ProjectExplorer::FileNode *fileNode = node ? node->asFileNode() : nullptr;
-    bool buildFilePossible = subProjectNode && fileNode
-            && (fileNode->fileType() == ProjectExplorer::FileType::Source);
+    FileNode *proFileNode = QmakeManager::contextFile();
+    QmakeProject *qmakeProject = QmakeManager::contextProject();
+    Node *subProjectNode = QmakeManager::contextNode();
+    FileNode *fileNode = node ? node->asFileNode() : nullptr;
 
-    m_qmakeProjectManager->setContextNode(subProjectNode);
-    m_qmakeProjectManager->setContextProject(qmakeProject);
-    m_qmakeProjectManager->setContextFile(buildFilePossible ? fileNode : nullptr);
-
+    bool buildFilePossible = subProjectNode && fileNode && (fileNode->fileType() == FileType::Source);
     bool subProjectActionsVisible = qmakeProject && subProjectNode && (subProjectNode != qmakeProject->rootProjectNode());
 
     QString subProjectName;

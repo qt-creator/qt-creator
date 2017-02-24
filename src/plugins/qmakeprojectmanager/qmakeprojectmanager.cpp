@@ -86,34 +86,37 @@ ProjectExplorer::Project *QmakeManager::openProject(const QString &fileName, QSt
     return new QmakeProject(this, fileName);
 }
 
-ProjectExplorer::Node *QmakeManager::contextNode() const
+Node *QmakeManager::contextNode()
 {
-    return m_contextNode;
+    Node *node = ProjectTree::currentNode();
+    if (!node)
+        return nullptr;
+    auto subPriFileNode = dynamic_cast<QmakePriFileNode *>(node);
+    return subPriFileNode ? subPriFileNode->proFileNode() : node->parentProjectNode();
 }
 
-void QmakeManager::setContextNode(ProjectExplorer::Node *node)
+QmakeProject *QmakeManager::contextProject()
 {
-    m_contextNode = node;
+    return qobject_cast<QmakeProject *>(ProjectTree::currentProject());
 }
 
-ProjectExplorer::Project *QmakeManager::contextProject() const
+FileNode *QmakeManager::contextFile()
 {
-    return m_contextProject;
-}
+    Node *node = ProjectTree::currentNode();
 
-void QmakeManager::setContextProject(ProjectExplorer::Project *project)
-{
-    m_contextProject = project;
-}
+    QmakeProFileNode *subProjectNode = nullptr;
+    if (node) {
+        auto subPriFileNode = dynamic_cast<QmakePriFileNode *>(node);
+        if (!subPriFileNode)
+            subPriFileNode = dynamic_cast<QmakePriFileNode *>(node->parentProjectNode());
+        if (subPriFileNode)
+            subProjectNode = subPriFileNode->proFileNode();
+    }
+    FileNode *fileNode = node ? node->asFileNode() : nullptr;
+    bool buildFilePossible = subProjectNode && fileNode
+            && (fileNode->fileType() == ProjectExplorer::FileType::Source);
 
-ProjectExplorer::FileNode *QmakeManager::contextFile() const
-{
-    return m_contextFile;
-}
-
-void QmakeManager::setContextFile(ProjectExplorer::FileNode *file)
-{
-    m_contextFile = file;
+    return buildFilePossible ? fileNode : nullptr;
 }
 
 void QmakeManager::addLibrary()
@@ -162,7 +165,7 @@ void QmakeManager::runQMake()
 
 void QmakeManager::runQMakeContextMenu()
 {
-    runQMakeImpl(m_contextProject, m_contextNode);
+    runQMakeImpl(contextProject(), contextNode());
 }
 
 void QmakeManager::runQMakeImpl(ProjectExplorer::Project *p, ProjectExplorer::Node *node)
@@ -227,31 +230,28 @@ void QmakeManager::buildFile()
 
 void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isFileBuild)
 {
-    handleSubDirContextMenu(action, isFileBuild, m_contextProject, m_contextNode, m_contextFile);
+    handleSubDirContextMenu(action, isFileBuild, contextProject(), contextNode(), contextFile());
 }
 
 void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isFileBuild,
-                                         ProjectExplorer::Project *contextProject,
-                                         ProjectExplorer::Node *contextNode,
-                                         ProjectExplorer::FileNode *contextFile)
+                                           Project *contextProject, Node *contextNode, FileNode *contextFile)
 {
-    QmakeProject *qmakeProject = qobject_cast<QmakeProject *>(contextProject);
-    QTC_ASSERT(qmakeProject, return);
+    QTC_ASSERT(contextProject, return);
+    Target *target = contextProject->activeTarget();
+    if (!target)
+        return;
 
-    if (!qmakeProject->activeTarget() ||
-        !qmakeProject->activeTarget()->activeBuildConfiguration())
-    return;
+    QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration *>(target->activeBuildConfiguration());
+    if (!bc)
+        return;
 
     if (!contextNode || !contextFile)
         isFileBuild = false;
-    QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration *>(qmakeProject->activeTarget()->activeBuildConfiguration());
-    if (!bc)
-        return;
 
     if (contextNode) {
         if (QmakePriFileNode *prifile = dynamic_cast<QmakePriFileNode *>(contextNode)) {
             if (QmakeProFileNode *profile = prifile->proFileNode()) {
-                if (profile != qmakeProject->rootProjectNode() || isFileBuild)
+                if (profile != contextProject->rootProjectNode() || isFileBuild)
                     bc->setSubNodeBuild(profile);
             }
         }

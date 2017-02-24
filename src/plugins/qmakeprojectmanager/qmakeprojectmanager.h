@@ -56,12 +56,9 @@ public:
     ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString) override;
 
     // Context information used in the slot implementations
-    ProjectExplorer::Node *contextNode() const;
-    void setContextNode(ProjectExplorer::Node *node);
-    ProjectExplorer::Project *contextProject() const;
-    void setContextProject(ProjectExplorer::Project *project);
-    ProjectExplorer::FileNode *contextFile() const;
-    void setContextFile(ProjectExplorer::FileNode *file);
+    static ProjectExplorer::Node *contextNode();
+    static QmakeProject *contextProject();
+    static ProjectExplorer::FileNode *contextFile();
 
     enum Action { BUILD, REBUILD, CLEAN };
 
@@ -84,10 +81,6 @@ private:
                                  ProjectExplorer::FileNode *contextFile);
     void addLibraryImpl(const QString &fileName, TextEditor::BaseTextEditor *editor);
     void runQMakeImpl(ProjectExplorer::Project *p, ProjectExplorer::Node *node);
-
-    ProjectExplorer::Node *m_contextNode = nullptr;
-    ProjectExplorer::Project *m_contextProject = nullptr;
-    ProjectExplorer::FileNode *m_contextFile = nullptr;
 };
 
 } // namespace QmakeProjectManager
