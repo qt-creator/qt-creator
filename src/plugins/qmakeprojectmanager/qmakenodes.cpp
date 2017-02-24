@@ -25,14 +25,12 @@
 
 #include "qmakenodes.h"
 #include "qmakeproject.h"
-#include "qmakebuildconfiguration.h"
 #include "qmakerunconfigurationfactory.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/profilereader.h>
 #include <resourceeditor/resourcenode.h>
 
-#include <utils/algorithm.h>
 #include <utils/stringutils.h>
 
 using namespace ProjectExplorer;
@@ -259,15 +257,16 @@ QString QmakeProFileNode::singleVariableValue(const Variable var) const
     return values.isEmpty() ? QString() : values.first();
 }
 
-QString QmakeProFileNode::buildDir(QmakeBuildConfiguration *bc) const
+QString QmakeProFileNode::buildDir() const
 {
-    const QDir srcDirRoot(m_project->projectDirectory().toString());
-    const QString relativeDir = srcDirRoot.relativeFilePath(filePath().parentDir().toString());
-    if (!bc && m_project->activeTarget())
-        bc = static_cast<QmakeBuildConfiguration *>(m_project->activeTarget()->activeBuildConfiguration());
-    if (!bc)
-        return QString();
-    return QDir::cleanPath(QDir(bc->buildDirectory().toString()).absoluteFilePath(relativeDir));
+    if (Target *target = m_project->activeTarget()) {
+        if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
+            const QDir srcDirRoot(m_project->projectDirectory().toString());
+            const QString relativeDir = srcDirRoot.relativeFilePath(filePath().parentDir().toString());
+            return QDir::cleanPath(QDir(bc->buildDirectory().toString()).absoluteFilePath(relativeDir));
+        }
+    }
+    return QString();
 }
 
 } // namespace QmakeProjectManager

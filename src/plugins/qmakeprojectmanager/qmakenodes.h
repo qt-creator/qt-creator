@@ -30,21 +30,12 @@
 
 #include <projectexplorer/projectnodes.h>
 
-#include <QStringList>
-#include <QMap>
-
 namespace Utils { class FileName; }
 namespace ProjectExplorer { class RunConfiguration; }
 
 namespace QmakeProjectManager {
-class QmakeBuildConfiguration;
 class QmakeProFileNode;
 class QmakeProject;
-
-namespace Internal {
-struct InternalNode;
-class PriFileEvalResult;
-} // namespace Internal
 
 // Implements ProjectNode for qmake .pri files
 class QMAKEPROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::ProjectNode
@@ -97,11 +88,10 @@ public:
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
 
     QmakeProjectManager::ProjectType projectType() const;
+    QString buildDir() const;
 
     QStringList variableValue(const Variable var) const;
     QString singleVariableValue(const Variable var) const;
-
-    QString buildDir(QmakeBuildConfiguration *bc = nullptr) const;
 
     QmakeProFileNode *findProFileFor(const Utils::FileName &string) const;
 
