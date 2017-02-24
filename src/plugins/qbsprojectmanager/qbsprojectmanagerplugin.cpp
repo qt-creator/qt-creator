@@ -183,17 +183,17 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
             this, &QbsProjectManagerPlugin::updateContextActions);
 
     connect(BuildManager::instance(), &BuildManager::buildStateChanged,
-            this, &QbsProjectManagerPlugin::buildStateChanged);
+            this, &QbsProjectManagerPlugin::projectChanged);
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
-            this, &QbsProjectManagerPlugin::currentEditorChanged);
+            this, &QbsProjectManagerPlugin::updateBuildActions);
 
     connect(SessionManager::instance(), &SessionManager::projectAdded,
             this, &QbsProjectManagerPlugin::projectWasAdded);
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
-            this, &QbsProjectManagerPlugin::projectWasRemoved);
+            this, &QbsProjectManagerPlugin::updateBuildActions);
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
-            this, &QbsProjectManagerPlugin::currentProjectWasChanged);
+            this, &QbsProjectManagerPlugin::updateReparseQbsAction);
 
     // Run initial setup routines
     updateContextActions();
@@ -214,24 +214,9 @@ void QbsProjectManagerPlugin::projectWasAdded(Project *project)
         return;
 
     connect(qbsProject, &QbsProject::projectParsingStarted,
-            this, &QbsProjectManagerPlugin::parsingStateChanged);
+            this, &QbsProjectManagerPlugin::projectChanged);
     connect(qbsProject, &QbsProject::projectParsingDone,
-            this, &QbsProjectManagerPlugin::parsingStateChanged);
-}
-
-void QbsProjectManagerPlugin::currentProjectWasChanged(Project *project)
-{
-    m_currentProject = qobject_cast<QbsProject *>(project);
-
-    updateReparseQbsAction();
-}
-
-void QbsProjectManagerPlugin::projectWasRemoved()
-{
-    m_editorNode = currentEditorNode();
-    m_editorProject = currentEditorProject();
-
-    updateBuildActions();
+            this, &QbsProjectManagerPlugin::projectChanged);
 }
 
 void QbsProjectManagerPlugin::updateContextActions()
@@ -243,8 +228,7 @@ void QbsProjectManagerPlugin::updateContextActions()
             && node && node->isEnabled();
 
     bool isFile = project && node && (node->nodeType() == NodeType::File);
-    bool isProduct = project && node
-            && dynamic_cast<QbsProductNode *>(node);
+    bool isProduct = project && node && dynamic_cast<QbsProductNode *>(node);
     QbsProjectNode *subproject = dynamic_cast<QbsProjectNode *>(node);
     bool isSubproject = project && subproject && subproject != project->rootProjectNode();
 
@@ -256,9 +240,10 @@ void QbsProjectManagerPlugin::updateContextActions()
 
 void QbsProjectManagerPlugin::updateReparseQbsAction()
 {
-    m_reparseQbs->setEnabled(m_currentProject
-                             && !BuildManager::isBuilding(m_currentProject)
-                             && !m_currentProject->isParsing());
+    QbsProject *project = qobject_cast<QbsProject *>(SessionManager::startupProject());
+    m_reparseQbs->setEnabled(project
+                             && !BuildManager::isBuilding(project)
+                             && !project->isParsing());
 }
 
 void QbsProjectManagerPlugin::updateBuildActions()
@@ -272,23 +257,24 @@ void QbsProjectManagerPlugin::updateBuildActions()
     QString productName;
     QString subprojectName;
 
-    if (m_editorNode) {
-        enabled = m_editorProject
-                && !BuildManager::isBuilding(m_editorProject)
-                && !m_editorProject->isParsing();
+    if (Node *editorNode = currentEditorNode()) {
+        QbsProject *editorProject = currentEditorProject();
+        enabled = editorProject
+                && !BuildManager::isBuilding(editorProject)
+                && !editorProject->isParsing();
 
-        fileName = m_editorNode->filePath().fileName();
-        fileVisible = m_editorProject && m_editorNode && dynamic_cast<QbsBaseProjectNode *>(m_editorNode->parentProjectNode());
+        fileName = editorNode->filePath().fileName();
+        fileVisible = editorProject && editorNode && dynamic_cast<QbsBaseProjectNode *>(editorNode->parentProjectNode());
 
-        QbsProductNode *productNode
-                = dynamic_cast<QbsProductNode *>(m_editorNode ? m_editorNode->parentProjectNode() : 0);
+        QbsProductNode *productNode =
+            dynamic_cast<QbsProductNode *>(editorNode ? editorNode->parentProjectNode() : 0);
         if (productNode) {
             productVisible = true;
             productName = productNode->displayName();
         }
-        QbsProjectNode *subprojectNode
-                = dynamic_cast<QbsProjectNode *>(productNode ? productNode->parentFolderNode() : 0);
-        if (subprojectNode && m_editorProject && subprojectNode != m_editorProject->rootProjectNode()) {
+        QbsProjectNode *subprojectNode =
+            dynamic_cast<QbsProjectNode *>(productNode ? productNode->parentFolderNode() : 0);
+        if (subprojectNode && editorProject && subprojectNode != editorProject->rootProjectNode()) {
             subprojectVisible = true;
             subprojectName = subprojectNode->displayName();
         }
@@ -307,42 +293,18 @@ void QbsProjectManagerPlugin::updateBuildActions()
     m_buildSubproject->setParameter(subprojectName);
 }
 
-void QbsProjectManagerPlugin::buildStateChanged(Project *project)
-{
-    if (project == m_currentProject)
-        updateReparseQbsAction();
-
-    if (project == ProjectTree::currentProject())
-        updateContextActions();
-
-    m_editorNode = currentEditorNode();
-    m_editorProject = currentEditorProject();
-    if (project == m_editorProject)
-        updateBuildActions();
-}
-
-void QbsProjectManagerPlugin::parsingStateChanged()
+void QbsProjectManagerPlugin::projectChanged()
 {
     QbsProject *project = qobject_cast<QbsProject *>(sender());
 
-    if (!project || project == m_currentProject)
+    if (!project || project == SessionManager::startupProject())
         updateReparseQbsAction();
 
     if (!project || project == ProjectTree::currentProject())
         updateContextActions();
 
-    m_editorNode = currentEditorNode();
-    m_editorProject = currentEditorProject();
-    if (!project || project == m_editorProject)
+    if (!project || project == currentEditorProject())
         updateBuildActions();
-}
-
-void QbsProjectManagerPlugin::currentEditorChanged()
-{
-    m_editorNode = currentEditorNode();
-    m_editorProject = currentEditorProject();
-
-    updateBuildActions();
 }
 
 void QbsProjectManagerPlugin::buildFileContextMenu()
@@ -356,10 +318,12 @@ void QbsProjectManagerPlugin::buildFileContextMenu()
 
 void QbsProjectManagerPlugin::buildFile()
 {
-    if (!m_editorProject || !m_editorNode)
+    Node *node = currentEditorNode();
+    QbsProject *project = currentEditorProject();
+    if (!project || !node)
         return;
 
-    buildSingleFile(m_editorProject, m_editorNode->filePath().toString());
+    buildSingleFile(project, node->filePath().toString());
 }
 
 void QbsProjectManagerPlugin::buildProductContextMenu()
@@ -377,16 +341,19 @@ void QbsProjectManagerPlugin::buildProductContextMenu()
 
 void QbsProjectManagerPlugin::buildProduct()
 {
-    if (!m_editorProject || !m_editorNode)
+    Node *node = currentEditorNode();
+    if (!node)
         return;
 
-    QbsProductNode *product = dynamic_cast<QbsProductNode *>(m_editorNode->parentProjectNode());
-
+    QbsProductNode *product = dynamic_cast<QbsProductNode *>(node->parentProjectNode());
     if (!product)
         return;
 
-    buildProducts(m_editorProject,
-                  QStringList(QbsProject::uniqueProductName(product->qbsProductData())));
+    QbsProject *project = currentEditorProject();
+    if (!project)
+        return;
+
+    buildProducts(project, {QbsProject::uniqueProductName(product->qbsProductData())});
 }
 
 void QbsProjectManagerPlugin::buildSubprojectContextMenu()
@@ -408,12 +375,14 @@ void QbsProjectManagerPlugin::buildSubprojectContextMenu()
 
 void QbsProjectManagerPlugin::buildSubproject()
 {
-    if (!m_editorNode || !m_editorProject)
+    Node *editorNode = currentEditorNode();
+    QbsProject *editorProject = currentEditorProject();
+    if (!editorNode || !editorProject)
         return;
 
     QbsProjectNode *subproject = 0;
-    QbsBaseProjectNode *start = dynamic_cast<QbsBaseProjectNode *>(m_editorNode->parentProjectNode());
-    while (start && start != m_editorProject->rootProjectNode()) {
+    QbsBaseProjectNode *start = dynamic_cast<QbsBaseProjectNode *>(editorNode->parentProjectNode());
+    while (start && start != editorProject->rootProjectNode()) {
         QbsProjectNode *tmp = dynamic_cast<QbsProjectNode *>(start);
         if (tmp) {
             subproject = tmp;
@@ -429,7 +398,7 @@ void QbsProjectManagerPlugin::buildSubproject()
     foreach (const qbs::ProductData &data, subproject->qbsProjectData().allProducts())
         toBuild << QbsProject::uniqueProductName(data);
 
-    buildProducts(m_editorProject, toBuild);
+    buildProducts(editorProject, toBuild);
 }
 
 void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList &files,
@@ -499,7 +468,7 @@ void QbsProjectManagerPlugin::reparseSelectedProject()
 
 void QbsProjectManagerPlugin::reparseCurrentProject()
 {
-    reparseProject(m_currentProject);
+    reparseProject(dynamic_cast<QbsProject *>(SessionManager::startupProject()));
 }
 
 void QbsProjectManagerPlugin::reparseProject(QbsProject *project)

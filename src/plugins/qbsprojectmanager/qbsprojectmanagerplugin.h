@@ -28,18 +28,7 @@
 #include <extensionsystem/iplugin.h>
 #include <utils/parameteraction.h>
 
-#include <QObject>
-
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
-
-namespace ProjectExplorer {
-class Project;
-class ProjectExplorerPlugin;
-class Node;
-class Target;
-} // namespace ProjectExplorer
+namespace ProjectExplorer { class Project; }
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -58,11 +47,7 @@ public:
 
 private:
     void projectWasAdded(ProjectExplorer::Project *project);
-    void currentProjectWasChanged(ProjectExplorer::Project *project);
-    void projectWasRemoved();
-    void buildStateChanged(ProjectExplorer::Project *project);
-    void parsingStateChanged();
-    void currentEditorChanged();
+    void projectChanged();
 
     void buildFileContextMenu();
     void buildFile();
@@ -92,11 +77,6 @@ private:
     Utils::ParameterAction *m_buildFile = nullptr;
     Utils::ParameterAction *m_buildProduct = nullptr;
     Utils::ParameterAction *m_buildSubproject = nullptr;
-
-    Internal::QbsProject *m_currentProject = nullptr;
-
-    Internal::QbsProject *m_editorProject = nullptr;
-    ProjectExplorer::Node *m_editorNode = nullptr;
 };
 
 } // namespace Internal
