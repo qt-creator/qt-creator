@@ -42,9 +42,6 @@ public:
     void extensionsInitialized();
 
 private:
-    void maybeHandleBatchFileAndExit() const;
-
-private:
     ModelManagerSupportProviderClang m_modelManagerSupportProvider;
 
 #ifdef WITH_TESTS

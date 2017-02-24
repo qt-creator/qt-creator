@@ -9,9 +9,7 @@ SOURCES += \
     clangassistproposal.cpp \
     clangassistproposalitem.cpp \
     clangassistproposalmodel.cpp \
-    clangautomationutils.cpp \
     clangbackendipcintegration.cpp \
-    clangbatchfileprocessor.cpp \
     clangcodemodelplugin.cpp \
     clangcompletionassistinterface.cpp \
     clangcompletionassistprocessor.cpp \
@@ -41,9 +39,7 @@ HEADERS += \
     clangassistproposal.h \
     clangassistproposalitem.h \
     clangassistproposalmodel.h \
-    clangautomationutils.h \
     clangbackendipcintegration.h \
-    clangbatchfileprocessor.h \
     clangcodemodelplugin.h \
     clangcompletionassistinterface.h \
     clangcompletionassistprocessor.h \
