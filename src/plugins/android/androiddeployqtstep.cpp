@@ -64,6 +64,7 @@ const QLatin1String UninstallPreviousPackageKey("UninstallPreviousPackage");
 const QLatin1String InstallFailedInconsistentCertificatesString("INSTALL_PARSE_FAILED_INCONSISTENT_CERTIFICATES");
 const QLatin1String InstallFailedUpdateIncompatible("INSTALL_FAILED_UPDATE_INCOMPATIBLE");
 const QLatin1String InstallFailedPermissionModelDowngrade("INSTALL_FAILED_PERMISSION_MODEL_DOWNGRADE");
+const QLatin1String InstallFailedVersionDowngrade("INSTALL_FAILED_VERSION_DOWNGRADE");
 const Core::Id AndroidDeployQtStep::Id("Qt4ProjectManager.AndroidDeployQtStep");
 
 //////////////////
@@ -389,6 +390,9 @@ void AndroidDeployQtStep::slotAskForUninstall(DeployErrorCode errorCode)
       case UpdateIncompatible:
           uninstallMsg += InstallFailedUpdateIncompatible+"\n";
           break;
+      case VersionDowngrade:
+          uninstallMsg += InstallFailedVersionDowngrade+"\n";
+          break;
       default:
           break;
       }
@@ -517,6 +521,8 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::parseDeployErrors(QStr
         errorCode |= UpdateIncompatible;
     if (deployOutputLine.contains(InstallFailedPermissionModelDowngrade))
         errorCode |= PermissionModelDowngrade;
+    if (deployOutputLine.contains(InstallFailedVersionDowngrade))
+        errorCode |= VersionDowngrade;
 
     return errorCode;
 }
