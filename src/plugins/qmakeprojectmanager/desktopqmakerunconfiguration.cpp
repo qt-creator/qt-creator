@@ -565,8 +565,11 @@ QList<Core::Id> DesktopQmakeRunConfigurationFactory::availableCreationIds(Target
 
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
     QList<QmakeProFile *> files = project->applicationProFiles();
-    if (mode == AutoCreate)
-        files = QmakeProject::proFilesWithQtcRunnable(files);
+    if (mode == AutoCreate) {
+        QList<QmakeProFile *> markedFiles = QmakeProject::proFilesWithQtcRunnable(files);
+        if (!markedFiles.isEmpty())
+            files = markedFiles;
+    }
     return QmakeProject::idsForProFiles(Core::Id(QMAKE_RC_PREFIX), files);
 }
 
