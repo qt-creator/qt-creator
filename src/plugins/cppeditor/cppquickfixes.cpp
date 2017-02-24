@@ -4463,7 +4463,7 @@ public:
             } else {
                 setter << "if (" << m_storageName << " == " << baseName << ")\nreturn;\n\n"
                        << m_storageName << " = " << baseName << ";\nemit " << m_signalName
-                       << '(' << baseName << ");\n}\n";
+                       << '(' << m_storageName << ");\n}\n";
             }
             InsertionLocation setterLoc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::PublicSlot);
             QTC_ASSERT(setterLoc.isValid(), return);
