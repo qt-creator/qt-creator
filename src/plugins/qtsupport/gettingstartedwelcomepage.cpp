@@ -244,15 +244,12 @@ static QString resourcePath()
     return FileUtils::normalizePathName(ICore::resourcePath());
 }
 
-class SearchBox : public QFrame
+class SearchBox : public WelcomePageFrame
 {
 public:
     SearchBox(QWidget *parent)
-        : QFrame(parent)
+        : WelcomePageFrame(parent)
     {
-        setFrameShape(QFrame::Box);
-        setFrameShadow(QFrame::Plain);
-
         QPalette pal;
         pal.setColor(QPalette::Base, themeColor(Theme::Welcome_BackgroundColor));
 

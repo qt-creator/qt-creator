@@ -33,6 +33,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMetaEnum>
+#include <QPainter>
 #include <QPixmap>
 #include <QUrl>
 
@@ -90,6 +91,25 @@ static QPalette buttonPalette(bool isActive, bool isCursorInside, bool forText)
     return pal;
 }
 
+WelcomePageFrame::WelcomePageFrame(QWidget *parent)
+    : QWidget(parent)
+{
+    setContentsMargins(1, 1, 1, 1);
+}
+
+void WelcomePageFrame::paintEvent(QPaintEvent *event)
+{
+    QWidget::paintEvent(event);
+
+    const QRectF adjustedRect(QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5));
+    QPen pen(palette().color(QPalette::WindowText));
+    pen.setJoinStyle(Qt::MiterJoin);
+
+    QPainter p(this);
+    p.setPen(pen);
+    p.drawRect(adjustedRect);
+}
+
 class WelcomePageButtonPrivate
 {
 public:
@@ -107,11 +127,9 @@ public:
 };
 
 WelcomePageButton::WelcomePageButton(QWidget *parent)
-    : QFrame(parent), d(new WelcomePageButtonPrivate(this))
+    : WelcomePageFrame(parent), d(new WelcomePageButtonPrivate(this))
 {
     setAutoFillBackground(true);
-    setFrameShape(QFrame::Box);
-    setFrameShadow(QFrame::Plain);
     setPalette(buttonPalette(false, false, false));
 
     QFont f = font();

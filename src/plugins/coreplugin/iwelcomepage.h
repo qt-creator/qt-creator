@@ -29,7 +29,7 @@
 
 #include "id.h"
 
-#include <QFrame>
+#include <QWidget>
 #include <QObject>
 
 #include <functional>
@@ -61,7 +61,15 @@ public:
 
 class WelcomePageButtonPrivate;
 
-class CORE_EXPORT WelcomePageButton : public QFrame
+class CORE_EXPORT WelcomePageFrame : public QWidget
+{
+public:
+    WelcomePageFrame(QWidget *parent);
+
+    void paintEvent(QPaintEvent *event) override;
+};
+
+class CORE_EXPORT WelcomePageButton : public WelcomePageFrame
 {
 public:
     WelcomePageButton(QWidget *parent);
