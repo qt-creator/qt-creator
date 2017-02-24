@@ -195,6 +195,13 @@ inline bool isQtStringTranslation(const QByteArray &id)
     return id == "tr" || id == "trUtf8" || id == "translate" || id == "QT_TRANSLATE_NOOP";
 }
 
+inline bool isQtFuzzyComparable(const QString &typeName)
+{
+    return typeName == QLatin1String("double")
+        || typeName == QLatin1String("float")
+        || typeName == QLatin1String("qreal");
+}
+
 Class *isMemberFunction(const LookupContext &context, Function *function)
 {
     QTC_ASSERT(function, return 0);
@@ -4461,8 +4468,13 @@ public:
             if (m_signalName.isEmpty()) {
                 setter << m_storageName <<  " = " << baseName << ";\n}\n";
             } else {
-                setter << "if (" << m_storageName << " == " << baseName << ")\nreturn;\n\n"
-                       << m_storageName << " = " << baseName << ";\nemit " << m_signalName
+                if (isQtFuzzyComparable(typeName)) {
+                    setter << "qWarning(\"Floating point comparison needs context sanity check\");\n";
+                    setter << "if (qFuzzyCompare(" << m_storageName << ", " << baseName << "))\nreturn;\n\n";
+                }
+                else
+                    setter << "if (" << m_storageName << " == " << baseName << ")\nreturn;\n\n";
+                setter << m_storageName << " = " << baseName << ";\nemit " << m_signalName
                        << '(' << m_storageName << ");\n}\n";
             }
             InsertionLocation setterLoc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::PublicSlot);
