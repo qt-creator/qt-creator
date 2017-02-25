@@ -174,29 +174,6 @@ QString CMakeManager::mimeType() const
     return QLatin1String(Constants::CMAKEPROJECTMIMETYPE);
 }
 
-// need to refactor this out
-// we probably want the process instead of this function
-// cmakeproject then could even run the cmake process in the background, adding the files afterwards
-// sounds like a plan
-void CMakeManager::createXmlFile(Utils::QtcProcess *proc, const QString &executable,
-                                 const QString &arguments, const QString &sourceDirectory,
-                                 const QDir &buildDirectory, const Utils::Environment &env)
-{
-    QString buildDirectoryPath = buildDirectory.absolutePath();
-    buildDirectory.mkpath(buildDirectoryPath);
-    proc->setWorkingDirectory(buildDirectoryPath);
-    proc->setEnvironment(env);
-
-    const QString srcdir = buildDirectory.exists(QLatin1String("CMakeCache.txt")) ?
-                QString(QLatin1Char('.')) : sourceDirectory;
-    QString args;
-    Utils::QtcProcess::addArg(&args, srcdir);
-    Utils::QtcProcess::addArgs(&args, arguments);
-
-    proc->setCommand(executable, args);
-    proc->start();
-}
-
 QString CMakeManager::findCbpFile(const QDir &directory)
 {
     // Find the cbp file
