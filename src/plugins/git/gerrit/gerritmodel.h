@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "gerritparameters.h"
+
 #include <QStandardItemModel>
 #include <QSharedPointer>
 #include <QDateTime>
@@ -35,8 +37,6 @@ QT_END_NAMESPACE
 
 namespace Gerrit {
 namespace Internal {
-class GerritServer;
-class GerritParameters;
 class QueryContext;
 
 class GerritApproval {
@@ -45,8 +45,7 @@ public:
 
     QString type; // Review type
     QString description; // Type description, possibly empty
-    QString reviewer;
-    QString email;
+    GerritUser reviewer;
     int approval;
 };
 
@@ -76,9 +75,7 @@ public:
     int dependsOnNumber = 0;
     int neededByNumber = 0;
     QString title;
-    QString owner;
-    QString user;
-    QString email;
+    GerritUser owner;
     QString project;
     QString branch;
     QString status;

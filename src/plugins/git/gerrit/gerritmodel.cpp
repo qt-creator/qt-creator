@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "gerritmodel.h"
-#include "gerritparameters.h"
 #include "../gitplugin.h"
 #include "../gitclient.h"
 
@@ -32,6 +31,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <vcsbase/vcsoutputwindow.h>
 
+#include <utils/algorithm.h>
 #include <utils/asconst.h>
 #include <utils/synchronousprocess.h>
 
@@ -60,7 +60,7 @@ namespace Internal {
 
 QDebug operator<<(QDebug d, const GerritApproval &a)
 {
-    d.nospace() << a.reviewer << " :" << a.approval << " ("
+    d.nospace() << a.reviewer.fullName << ": " << a.approval << " ("
                 << a.type << ", " << a.description << ')';
     return d;
 }
@@ -68,7 +68,7 @@ QDebug operator<<(QDebug d, const GerritApproval &a)
 // Sort approvals by type and reviewer
 bool gerritApprovalLessThan(const GerritApproval &a1, const GerritApproval &a2)
 {
-    return a1.type.compare(a2.type) < 0 || a1.reviewer.compare(a2.reviewer) < 0;
+    return a1.type.compare(a2.type) < 0 || a1.reviewer.fullName.compare(a2.reviewer.fullName) < 0;
 }
 
 QDebug operator<<(QDebug d, const GerritPatchSet &p)
@@ -80,7 +80,7 @@ QDebug operator<<(QDebug d, const GerritPatchSet &p)
 
 QDebug operator<<(QDebug d, const GerritChange &c)
 {
-    d.nospace() << c.fullTitle() << " by " << c.email
+    d.nospace() << c.fullTitle() << " by " << c.owner.email
                 << ' ' << c.lastUpdated << ' ' <<  c.currentPatchSet;
     return d;
 }
@@ -119,9 +119,9 @@ QString GerritPatchSet::approvalsToHtml() const
         } else {
             str << ", ";
         }
-        str << a.reviewer;
-        if (!a.email.isEmpty())
-            str << " <a href=\"mailto:" << a.email << "\">" << a.email << "</a>";
+        str << a.reviewer.fullName;
+        if (!a.reviewer.email.isEmpty())
+            str << " <a href=\"mailto:" << a.reviewer.email << "\">" << a.reviewer.email << "</a>";
         str << ": " << forcesign << a.approval << noforcesign;
     }
     str << "</tr>\n";
@@ -171,10 +171,9 @@ QString GerritPatchSet::approvalsColumn() const
 
 bool GerritPatchSet::hasApproval(const QString &userName) const
 {
-    for (const GerritApproval &a : approvals)
-        if (a.reviewer == userName)
-            return true;
-    return false;
+    return Utils::contains(approvals, [&userName](const GerritApproval &a) {
+        return a.reviewer.userName == userName;
+    });
 }
 
 int GerritPatchSet::approvalLevel() const
@@ -189,11 +188,11 @@ QString GerritChange::filterString() const
 {
     const QChar blank = ' ';
     QString result = QString::number(number) + blank + title + blank
-            + owner + blank + project + blank
+            + owner.fullName + blank + project + blank
             + branch + blank + status;
     for (const GerritApproval &a : currentPatchSet.approvals) {
         result += blank;
-        result += a.reviewer;
+        result += a.reviewer.fullName;
     }
     return result;
 }
@@ -452,8 +451,8 @@ QString GerritModel::toHtml(const QModelIndex& index) const
     str << "<html><head/><body><table>"
         << "<tr><td>" << subjectHeader << "</td><td>" << c->fullTitle() << "</td></tr>"
         << "<tr><td>" << numberHeader << "</td><td><a href=\"" << c->url << "\">" << c->number << "</a></td></tr>"
-        << "<tr><td>" << ownerHeader << "</td><td>" << c->owner << ' '
-        << "<a href=\"mailto:" << c->email << "\">" << c->email << "</a></td></tr>"
+        << "<tr><td>" << ownerHeader << "</td><td>" << c->owner.fullName << ' '
+        << "<a href=\"mailto:" << c->owner.email << "\">" << c->owner.email << "</a></td></tr>"
         << "<tr><td>" << projectHeader << "</td><td>" << c->project << " (" << c->branch << ")</td></tr>"
         << dependencyHtml(dependsOnHeader, c->dependsOnNumber, serverPrefix)
         << dependencyHtml(neededByHeader, c->neededByNumber, serverPrefix)
@@ -529,6 +528,16 @@ void GerritModel::setState(GerritModel::QueryState s)
     emit stateChanged();
 }
 
+// {"name":"Hans Mustermann","email":"hm@acme.com","username":"hansm"}
+static GerritUser parseGerritUser(const QJsonObject &object)
+{
+    GerritUser user;
+    user.userName = object.value("username").toString();
+    user.fullName = object.value("name").toString();
+    user.email = object.value("email").toString();
+    return user;
+}
+
 /* Parse gerrit query Json output.
  * See http://gerrit.googlecode.com/svn/documentation/2.1.5/cmd-query.html
  * Note: The url will be present only if  "canonicalWebUrl" is configured
@@ -554,9 +563,6 @@ static GerritChangePtr parseSshOutput(const QJsonObject &object)
     const QString branchKey = "branch";
     const QString numberKey = "number";
     const QString ownerKey = "owner";
-    const QString ownerNameKey = "name";
-    const QString ownerUserKey = "username";
-    const QString ownerEmailKey = "email";
     const QString statusKey = "status";
     const QString projectKey = "project";
     const QString titleKey = "subject";
@@ -580,9 +586,7 @@ static GerritChangePtr parseSshOutput(const QJsonObject &object)
     for (int a = 0; a < ac; ++a) {
         const QJsonObject ao = approvalsJ.at(a).toObject();
         GerritApproval approval;
-        const QJsonObject approverO = ao.value(approvalsByKey).toObject();
-        approval.reviewer = approverO.value(ownerUserKey).toString();
-        approval.email = approverO.value(ownerEmailKey).toString();
+        approval.reviewer = parseGerritUser(ao.value(approvalsByKey).toObject());
         approval.approval = ao.value(approvalsValueKey).toString().toInt();
         approval.type = ao.value(approvalsTypeKey).toString();
         approval.description = ao.value(approvalsDescriptionKey).toString();
@@ -595,10 +599,7 @@ static GerritChangePtr parseSshOutput(const QJsonObject &object)
     change->number = object.value(numberKey).toString().toInt();
     change->url = object.value(urlKey).toString();
     change->title = object.value(titleKey).toString();
-    const QJsonObject ownerJ = object.value(ownerKey).toObject();
-    change->owner = ownerJ.value(ownerNameKey).toString();
-    change->user = ownerJ.value(ownerUserKey).toString();
-    change->email = ownerJ.value(ownerEmailKey).toString();
+    change->owner = parseGerritUser(object.value(ownerKey).toObject());
     change->project = object.value(projectKey).toString();
     change->branch = object.value(branchKey).toString();
     change->status =  object.value(statusKey).toString();
@@ -689,7 +690,7 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
     }
     row[NumberColumn]->setData(c->number, Qt::DisplayRole);
     row[TitleColumn]->setText(c->fullTitle());
-    row[OwnerColumn]->setText(c->owner);
+    row[OwnerColumn]->setText(c->owner.fullName);
     // Shorten columns: Display time if it is today, else date
     const QString dateString = c->lastUpdated.date() == QDate::currentDate() ?
                 c->lastUpdated.time().toString(Qt::SystemLocaleShortDate) :
@@ -705,7 +706,7 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
     row[ApprovalsColumn]->setText(c->currentPatchSet.approvalsColumn());
     // Mark changes awaiting action using a bold font.
     bool bold = false;
-    if (c->user == m_server->user) { // Owned changes: Review != 0,1. Submit or amend.
+    if (c->owner.userName == m_server->user) { // Owned changes: Review != 0,1. Submit or amend.
         const int level = c->currentPatchSet.approvalLevel();
         bold = level != 0 && level != 1;
     } else { // Changes pending for review: No review yet.

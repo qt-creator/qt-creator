@@ -32,6 +32,14 @@ QT_FORWARD_DECLARE_CLASS(QSettings)
 namespace Gerrit {
 namespace Internal {
 
+class GerritUser
+{
+public:
+    QString userName;
+    QString fullName;
+    QString email;
+};
+
 class GerritServer
 {
 public:
