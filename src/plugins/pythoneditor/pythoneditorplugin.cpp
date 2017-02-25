@@ -96,19 +96,12 @@ class PythonProjectManager : public IProjectManager
 public:
     QString mimeType() const override { return QLatin1String(PythonMimeType); }
     Project *openProject(const QString &fileName, QString *errorString) override;
-
-    void registerProject(PythonProject *project) { m_projects.append(project); }
-    void unregisterProject(PythonProject *project) { m_projects.removeAll(project); }
-
-private:
-    QList<PythonProject *> m_projects;
 };
 
 class PythonProject : public Project
 {
 public:
     PythonProject(PythonProjectManager *manager, const QString &filename);
-    ~PythonProject() override;
 
     QString displayName() const override { return m_projectName; }
     PythonProjectManager *projectManager() const override;
@@ -465,13 +458,6 @@ PythonProject::PythonProject(PythonProjectManager *manager, const QString &fileN
     QFileInfo fileInfo = projectFilePath().toFileInfo();
 
     m_projectName = fileInfo.completeBaseName();
-
-    projectManager()->registerProject(this);
-}
-
-PythonProject::~PythonProject()
-{
-    projectManager()->unregisterProject(this);
 }
 
 PythonProjectManager *PythonProject::projectManager() const
