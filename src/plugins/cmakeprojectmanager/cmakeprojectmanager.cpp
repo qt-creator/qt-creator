@@ -173,23 +173,3 @@ QString CMakeManager::mimeType() const
 {
     return QLatin1String(Constants::CMAKEPROJECTMIMETYPE);
 }
-
-QString CMakeManager::findCbpFile(const QDir &directory)
-{
-    // Find the cbp file
-    //   the cbp file is named like the project() command in the CMakeList.txt file
-    //   so this function below could find the wrong cbp file, if the user changes the project()
-    //   2name
-    QDateTime t;
-    QString file;
-    foreach (const QString &cbpFile , directory.entryList()) {
-        if (cbpFile.endsWith(QLatin1String(".cbp"))) {
-            QFileInfo fi(directory.path() + QLatin1Char('/') + cbpFile);
-            if (t.isNull() || fi.lastModified() > t) {
-                file = directory.path() + QLatin1Char('/') + cbpFile;
-                t = fi.lastModified();
-            }
-        }
-    }
-    return file;
-}

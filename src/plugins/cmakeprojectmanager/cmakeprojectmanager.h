@@ -29,7 +29,6 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QDir;
 QT_END_NAMESPACE
 
 namespace CMakeProjectManager {
@@ -45,8 +44,6 @@ public:
 
     ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString) override;
     QString mimeType() const override;
-
-    static QString findCbpFile(const QDir &);
 
 private:
     void updateCmakeActions();
