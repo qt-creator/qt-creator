@@ -35,6 +35,8 @@ namespace Internal {
 class GerritUser
 {
 public:
+    bool isSameAs(const GerritUser &other) const;
+
     QString userName;
     QString fullName;
     QString email;
@@ -51,14 +53,14 @@ public:
     };
 
     GerritServer();
-    GerritServer(const QString &host, unsigned short port, const QString &user, HostType type);
+    GerritServer(const QString &host, unsigned short port, const QString &userName, HostType type);
     bool operator==(const GerritServer &other) const;
     QString sshHostArgument() const;
     QString url() const;
     bool fillFromRemote(const QString &remote, const QString &defaultUser);
 
     QString host;
-    QString user;
+    GerritUser user;
     unsigned short port = 0;
     HostType type = Ssh;
 };

@@ -77,6 +77,15 @@ static inline QString detectSsh()
     return detectApp("ssh");
 }
 
+bool GerritUser::isSameAs(const GerritUser &other) const
+{
+    if (!userName.isEmpty() && !other.userName.isEmpty())
+        return userName == other.userName;
+    if (!fullName.isEmpty() && !other.fullName.isEmpty())
+        return fullName == other.fullName;
+    return false;
+}
+
 GerritServer::GerritServer()
     : host(defaultHostC)
     , port(defaultPort)
@@ -84,18 +93,19 @@ GerritServer::GerritServer()
 }
 
 GerritServer::GerritServer(const QString &host, unsigned short port,
-                           const QString &user, HostType type)
+                           const QString &userName, HostType type)
     : host(host)
-    , user(user)
     , port(port)
     , type(type)
-{}
+{
+    user.userName = userName;
+}
 
 bool GerritServer::operator==(const GerritServer &other) const
 {
     if (port && other.port && port != other.port)
         return false;
-    return host == other.host && user == other.user && type == other.type;
+    return host == other.host && user.isSameAs(other.user) && type == other.type;
 }
 
 void GerritParameters::setPortFlagBySshType()
@@ -116,7 +126,7 @@ GerritParameters::GerritParameters()
 
 QString GerritServer::sshHostArgument() const
 {
-    return user.isEmpty() ? host : (user + '@' + host);
+    return user.userName.isEmpty() ? host : (user.userName + '@' + host);
 }
 
 QString GerritServer::url() const
@@ -151,7 +161,7 @@ bool GerritServer::fillFromRemote(const QString &remote, const QString &defaultU
     else
         return false;
     const QString userName = match.captured("user");
-    user = userName.isEmpty() ? defaultUser : userName;
+    user.userName = userName.isEmpty() ? defaultUser : userName;
     host = match.captured("host");
     port = match.captured("port").toUShort();
     if (host.contains("github.com")) // Clearly not gerrit
@@ -168,7 +178,7 @@ void GerritParameters::toSettings(QSettings *s) const
 {
     s->beginGroup(settingsGroupC);
     s->setValue(hostKeyC, server.host);
-    s->setValue(userKeyC, server.user);
+    s->setValue(userKeyC, server.user.userName);
     s->setValue(portKeyC, server.port);
     s->setValue(portFlagKeyC, portFlag);
     s->setValue(sshKeyC, ssh);
@@ -188,7 +198,7 @@ void GerritParameters::fromSettings(const QSettings *s)
 {
     const QString rootKey = QLatin1String(settingsGroupC) + '/';
     server.host = s->value(rootKey + hostKeyC, defaultHostC).toString();
-    server.user = s->value(rootKey + userKeyC, QString()).toString();
+    server.user.userName = s->value(rootKey + userKeyC, QString()).toString();
     ssh = s->value(rootKey + sshKeyC, QString()).toString();
     curl = s->value(rootKey + curlKeyC).toString();
     server.port = s->value(rootKey + portKeyC, QVariant(int(defaultPort))).toInt();
@@ -204,7 +214,7 @@ void GerritParameters::fromSettings(const QSettings *s)
 
 bool GerritParameters::isValid() const
 {
-    return !server.host.isEmpty() && !server.user.isEmpty() && !ssh.isEmpty();
+    return !server.host.isEmpty() && !server.user.userName.isEmpty() && !ssh.isEmpty();
 }
 
 } // namespace Internal

@@ -54,7 +54,7 @@ public:
     GerritPatchSet() : patchSetNumber(1) {}
     QString approvalsToHtml() const;
     QString approvalsColumn() const;
-    bool hasApproval(const QString &userName) const;
+    bool hasApproval(const GerritUser &user) const;
     int approvalLevel() const;
 
     QString ref;

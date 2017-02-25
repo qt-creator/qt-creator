@@ -169,10 +169,10 @@ QString GerritPatchSet::approvalsColumn() const
     return result;
 }
 
-bool GerritPatchSet::hasApproval(const QString &userName) const
+bool GerritPatchSet::hasApproval(const GerritUser &user) const
 {
-    return Utils::contains(approvals, [&userName](const GerritApproval &a) {
-        return a.reviewer.userName == userName;
+    return Utils::contains(approvals, [&user](const GerritApproval &a) {
+        return a.reviewer.isSameAs(user);
     });
 }
 
@@ -501,7 +501,7 @@ void GerritModel::refresh(const QSharedPointer<GerritServer> &server, const QStr
     QString realQuery = query.trimmed();
     if (realQuery.isEmpty()) {
         realQuery = "status:open";
-        const QString user = m_server->user;
+        const QString user = m_server->user.userName;
         if (!user.isEmpty())
             realQuery += QString(" (owner:%1 OR reviewer:%1)").arg(user);
     }
@@ -693,11 +693,11 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
     row[ApprovalsColumn]->setText(c->currentPatchSet.approvalsColumn());
     // Mark changes awaiting action using a bold font.
     bool bold = false;
-    if (c->owner.userName == m_server->user) { // Owned changes: Review != 0,1. Submit or amend.
+    if (c->owner.isSameAs(m_server->user)) { // Owned changes: Review != 0,1. Submit or amend.
         const int level = c->currentPatchSet.approvalLevel();
         bold = level != 0 && level != 1;
     } else { // Changes pending for review: No review yet.
-        bold = !m_server->user.isEmpty() && !c->currentPatchSet.hasApproval(m_server->user);
+        bold = !c->currentPatchSet.hasApproval(m_server->user);
     }
     if (bold) {
         QFont font = row.first()->font();

@@ -240,7 +240,7 @@ void GerritDialog::updateRemotes()
     while (mapIt.hasNext()) {
         mapIt.next();
         GerritServer server;
-        if (!server.fillFromRemote(mapIt.value(), m_parameters->server.user))
+        if (!server.fillFromRemote(mapIt.value(), m_parameters->server.user.userName))
             continue;
         // Only Ssh is currently supported. In order to extend support for http[s],
         // we need to move this logic to the model, and attempt connection to each

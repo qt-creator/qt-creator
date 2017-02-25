@@ -128,7 +128,7 @@ GerritParameters GerritOptionsWidget::parameters() const
 void GerritOptionsWidget::setParameters(const GerritParameters &p)
 {
     m_hostLineEdit->setText(p.server.host);
-    m_userLineEdit->setText(p.server.user);
+    m_userLineEdit->setText(p.server.user.userName);
     m_sshChooser->setPath(p.ssh);
     m_curlChooser->setPath(p.curl);
     m_portSpinBox->setValue(p.server.port);
