@@ -149,10 +149,18 @@ class Dumper(DumperBase):
 
         code = nativeType.code()
         if code == TypeCodePointer:
-            return self.createPointerType(self.lookupType(nativeType.targetName(), nativeType.moduleId()))
+            if nativeType.name().startswith('<function>'):
+                code = TypeCodeFunction
+            else:
+                targetType = self.lookupType(nativeType.targetName(), nativeType.moduleId())
+                return self.createPointerType(targetType)
 
         if code == TypeCodeArray:
-            return self.createArrayType(self.lookupType(nativeType.targetName(), nativeType.moduleId()), nativeType.arrayElements())
+            if nativeType.name().startswith('__fptr()'):
+                code = TypeCodeStruct
+            else:
+                targetType = self.lookupType(nativeType.targetName(), nativeType.moduleId())
+                return self.createArrayType(targetType, nativeType.arrayElements())
 
         tdata = self.TypeData(self)
         tdata.name = nativeType.name()

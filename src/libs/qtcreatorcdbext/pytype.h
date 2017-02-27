@@ -36,7 +36,8 @@ class PyType
 {
 public:
     PyType() = default;
-    PyType(ULONG64 module, unsigned long typeId, const std::string &name = std::string());
+    PyType(ULONG64 module, unsigned long typeId,
+           const std::string &name = std::string(), int tag = -1);
     PyType(const PyType &other) = default;
 
     std::string name(bool withModule = false) const;
@@ -75,6 +76,7 @@ private:
     ULONG64                 m_module = 0;
     bool                    m_resolved = false;
     mutable std::string     m_name;
+    mutable int             m_tag = -1;
 };
 
 struct TypePythonObject

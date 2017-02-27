@@ -27,8 +27,18 @@
 
 #include "extensioncontext.h"
 #include "pycdbextmodule.h"
+#include "pyvalue.h"
 #include "stringutils.h"
 #include "symbolgroupvalue.h"
+
+#include <Windows.h>
+#ifndef _NO_CVCONST_H
+#define _NO_CVCONST_H
+#include <dbghelp.h>
+#undef _NO_CVCONST_H
+#else
+#include <dbghelp.h>
+#endif
 
 constexpr bool debugPyType = false;
 constexpr bool debuggingTypeEnabled() { return debugPyType || debugPyCdbextModule; }
@@ -202,10 +212,11 @@ static std::string getModuleName(ULONG64 module)
     return std::string();
 }
 
-PyType::PyType(ULONG64 module, unsigned long typeId, const std::string &name)
+PyType::PyType(ULONG64 module, unsigned long typeId, const std::string &name, int tag)
     : m_module(module)
     , m_typeId(typeId)
     , m_resolved(true)
+    , m_tag(tag)
 {
     m_name = SymbolGroupValue::stripClassPrefixes(name);
     if (m_name.compare(0, 6, "union ") == 0)
@@ -257,19 +268,44 @@ int PyType::code() const
 {
     if (!m_resolved)
         return TypeCodeUnresolvable;
-    const std::string &typeName = name();
-    if (typeName.empty())
-        return TypeCodeUnresolvable;
-    if (isPointerType(typeName))
-        return TypeCodePointer;
-    if (isArrayType(typeName))
-        return TypeCodeArray;
-    if (typeName.find("<function>") != std::string::npos)
-        return TypeCodeFunction;
-    if (isIntegralType(typeName))
-        return TypeCodeIntegral;
-    if (isFloatType(typeName))
-        return TypeCodeFloat;
+
+    if (m_tag < 0) {
+        // try to parse typeName
+        const std::string &typeName = name();
+        if (typeName.empty())
+            return TypeCodeUnresolvable;
+        if (isPointerType(typeName))
+            return TypeCodePointer;
+        if (isArrayType(typeName))
+            return TypeCodeArray;
+        if (typeName.find("<function>") == 0)
+            return TypeCodeFunction;
+        if (isIntegralType(typeName))
+            return TypeCodeIntegral;
+        if (isFloatType(typeName))
+            return TypeCodeFloat;
+
+        IDebugSymbolGroup2 *sg = 0;
+        if (FAILED(ExtensionCommandContext::instance()->symbols()->CreateSymbolGroup2(&sg)))
+            return TypeCodeStruct;
+
+        const std::string helperValueName = SymbolGroupValue::pointedToSymbolName(0, name(true));
+        ULONG index = DEBUG_ANY_ID;
+        if (SUCCEEDED(sg->AddSymbol(helperValueName.c_str(), &index)))
+            m_tag = PyValue(index, sg).tag();
+        sg->Release();
+    }
+    switch (m_tag) {
+    case SymTagUDT: return TypeCodeStruct;
+    case SymTagEnum: return TypeCodeEnum;
+    case SymTagTypedef: return TypeCodeTypedef;
+    case SymTagFunctionType: return TypeCodeFunction;
+    case SymTagPointerType: return TypeCodePointer;
+    case SymTagArrayType: return TypeCodeArray;
+    case SymTagBaseType: return isIntegralType(name()) ? TypeCodeIntegral : TypeCodeFloat;
+    default: break;
+    }
+
     return TypeCodeStruct;
 }
 

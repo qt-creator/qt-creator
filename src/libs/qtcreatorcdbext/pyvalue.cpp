@@ -85,12 +85,13 @@ PyType PyValue::type()
         return PyType();
     ULONG size = 0;
     m_symbolGroup->GetSymbolTypeName(m_index, NULL, 0, &size);
+    std::string typeName;
     if (size != 0) {
-        std::string typeName(size - 1, '\0');
-        if (SUCCEEDED(m_symbolGroup->GetSymbolTypeName(m_index, &typeName[0], size, NULL)))
-            return PyType(params.Module, params.TypeId, typeName);
+        typeName = std::string(size - 1, '\0');
+        if (FAILED(m_symbolGroup->GetSymbolTypeName(m_index, &typeName[0], size, NULL)))
+            typeName.clear();
     }
-    return PyType(params.Module, params.TypeId);
+    return PyType(params.Module, params.TypeId, typeName, tag());
 }
 
 ULONG64 PyValue::bitsize()
@@ -186,6 +187,16 @@ std::string PyValue::nativeDebuggerValue()
 int PyValue::isValid()
 {
     return m_symbolGroup != nullptr;
+}
+
+int PyValue::tag()
+{
+    if (!m_symbolGroup)
+        return -1;
+    DEBUG_SYMBOL_ENTRY info;
+    if (FAILED(m_symbolGroup->GetSymbolEntryInformation(m_index, &info)))
+        return -1;
+    return info.Tag;
 }
 
 PyValue PyValue::childFromName(const std::string &name)
@@ -299,6 +310,23 @@ PyValue PyValue::createValue(ULONG64 address, const PyType &type)
         return PyValue();
 
     return PyValue(index, symbolGroup);
+}
+
+int PyValue::tag(const std::string &typeName)
+{
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    IDebugSymbolGroup2 *sg = 0;
+    if (FAILED(symbols->CreateSymbolGroup2(&sg)))
+        return -1;
+
+    int tag = -1;
+    const std::string name = SymbolGroupValue::pointedToSymbolName(0, typeName);
+    ULONG index = DEBUG_ANY_ID;
+    if (SUCCEEDED(sg->AddSymbol(name.c_str(), &index)))
+        tag = PyValue(index, sg).tag();
+
+    sg->Release();
+    return tag;
 }
 
 // Python interface implementation

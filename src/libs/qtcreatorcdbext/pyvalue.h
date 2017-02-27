@@ -49,12 +49,15 @@ public:
     std::string nativeDebuggerValue();
 
     int isValid();
+    int tag();
 
     PyValue childFromName(const std::string &name);
     PyValue childFromField(const PyField &field);
     PyValue childFromIndex(int index);
 
     static PyValue createValue(ULONG64 address, const PyType &type);
+    static int tag(const std::string &typeName);
+
 private:
     static void indicesMoved(CIDebugSymbolGroup *symbolGroup, ULONG start, ULONG delta);
 
