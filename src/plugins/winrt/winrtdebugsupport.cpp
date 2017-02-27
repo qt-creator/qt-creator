@@ -138,7 +138,7 @@ RunControl *WinRtDebugSupport::createDebugRunControl(WinRtRunConfiguration *runC
             QList<QByteArray> arg = output.split(':');
             if (arg.first() == "PID") {
                 bool ok =false;
-                params.attachPID = arg.last().toInt(&ok);
+                params.attachPID = Utils::ProcessHandle(arg.last().toInt(&ok));
                 if (!ok) {
                     *errorMessage = tr("Cannot extract the PID from the WinRT debugging helper. "
                                        "(output: %1)").arg(QString::fromLocal8Bit(output));

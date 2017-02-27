@@ -380,9 +380,9 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
     }
 
     // We might get an executable from a local PID.
-    if (rp.inferior.executable.isEmpty() && rp.attachPID != InvalidPid) {
+    if (rp.inferior.executable.isEmpty() && rp.attachPID.isValid()) {
         foreach (const DeviceProcessItem &p, DeviceProcessList::localProcesses())
-            if (p.pid == rp.attachPID)
+            if (p.pid == rp.attachPID.pid())
                 rp.inferior.executable = p.exe;
     }
 

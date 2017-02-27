@@ -366,9 +366,9 @@ void LldbEngine::setupInferior()
         cmd2.arg("startmode", rp.startMode);
         // it is better not to check the start mode on the python sid (as we would have to duplicate the
         // enum values), and thus we assume that if the rp.attachPID is valid we really have to attach
-        QTC_CHECK(rp.attachPID <= 0 || (rp.startMode == AttachCrashedExternal
-                                    || rp.startMode == AttachExternal));
-        cmd2.arg("attachpid", rp.attachPID);
+        QTC_CHECK(!rp.attachPID.isValid() || (rp.startMode == AttachCrashedExternal
+                                              || rp.startMode == AttachExternal));
+        cmd2.arg("attachpid", rp.attachPID.pid());
         cmd2.arg("sysroot", rp.deviceSymbolsRoot.isEmpty() ? rp.sysRoot : rp.deviceSymbolsRoot);
         cmd2.arg("remotechannel", ((rp.startMode == AttachToRemoteProcess
                                    || rp.startMode == AttachToRemoteServer)

@@ -119,7 +119,7 @@ void QnxAttachDebugSupport::launchPDebug()
 void QnxAttachDebugSupport::attachToProcess()
 {
     Debugger::DebuggerStartParameters sp;
-    sp.attachPID = m_process.pid;
+    sp.attachPID = Utils::ProcessHandle(m_process.pid);
     sp.startMode = Debugger::AttachToRemoteServer;
     sp.closeMode = Debugger::DetachAtClose;
     sp.connParams.port = m_pdebugPort.number();

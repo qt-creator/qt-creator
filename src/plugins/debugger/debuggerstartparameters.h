@@ -31,6 +31,7 @@
 #include <ssh/sshconnection.h>
 #include <utils/environment.h>
 #include <utils/port.h>
+#include <utils/processhandle.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runnables.h>
@@ -73,7 +74,7 @@ public:
     ProjectExplorer::StandardRunnable inferior;
     QString displayName; // Used in the Snapshots view.
     Utils::Environment stubEnvironment;
-    qint64 attachPID = InvalidPid;
+    Utils::ProcessHandle attachPID;
     QStringList solibSearchPath;
     bool useTerminal = false;
 

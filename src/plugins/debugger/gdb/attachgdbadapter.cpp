@@ -59,7 +59,7 @@ void GdbAttachEngine::setupInferior()
 void GdbAttachEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    const qint64 pid = runParameters().attachPID;
+    const qint64 pid = runParameters().attachPID.pid();
     showStatusMessage(tr("Attaching to process %1.").arg(pid));
     runCommand({"attach " + QString::number(pid),
                 [this](const DebuggerResponse &r) { handleAttach(r); }});
@@ -110,10 +110,9 @@ void GdbAttachEngine::handleAttach(const DebuggerResponse &response)
     }
 }
 
-
 void GdbAttachEngine::interruptInferior2()
 {
-    interruptLocalInferior(runParameters().attachPID);
+    interruptLocalInferior(runParameters().attachPID.pid());
 }
 
 void GdbAttachEngine::shutdownEngine()

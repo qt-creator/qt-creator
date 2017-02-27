@@ -108,7 +108,7 @@ QDebug operator<<(QDebug str, const DebuggerRunParameters &sp)
             << " inferior environment=<" << sp.inferior.environment.size() << " variables>"
             << " debugger environment=<" << sp.debugger.environment.size() << " variables>"
             << " workingDir=" << sp.inferior.workingDirectory
-            << " attachPID=" << sp.attachPID
+            << " attachPID=" << sp.attachPID.pid()
             << " useTerminal=" << sp.useTerminal
             << " remoteChannel=" << sp.remoteChannel
             << " serverStartScript=" << sp.serverStartScript
@@ -311,7 +311,7 @@ public:
     void raiseApplication()
     {
         QTC_ASSERT(runControl(), return);
-        runControl()->bringApplicationToForeground(m_inferiorPid);
+        runControl()->bringApplicationToForeground(m_inferiorPid.pid());
     }
 
     void scheduleResetLocation()
@@ -363,7 +363,7 @@ public:
     RemoteSetupState m_remoteSetupState = RemoteSetupNone;
 
     Terminal m_terminal;
-    qint64 m_inferiorPid = 0;
+    ProcessHandle m_inferiorPid;
 
     ModulesHandler m_modulesHandler;
     RegisterHandler m_registerHandler;
@@ -593,10 +593,10 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 
     d->m_runControl = runControl;
 
-    d->m_inferiorPid = d->m_runParameters.attachPID > 0
-        ? d->m_runParameters.attachPID : 0;
-    if (d->m_inferiorPid)
-        d->m_runControl->setApplicationProcessHandle(ProcessHandle(d->m_inferiorPid));
+    d->m_inferiorPid = d->m_runParameters.attachPID.isValid()
+        ? d->m_runParameters.attachPID : ProcessHandle();
+    if (d->m_inferiorPid.isValid())
+        d->m_runControl->setApplicationProcessHandle(d->m_inferiorPid);
 
     if (isNativeMixedActive())
         d->m_runParameters.inferior.environment.set("QV4_FORCE_INTERPRETER", "1");
@@ -945,7 +945,7 @@ void DebuggerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &re
             }
         } else if (result.inferiorPid != InvalidPid && runParameters().startMode == AttachExternal) {
             // e.g. iOS Simulator
-            runParameters().attachPID = result.inferiorPid;
+            runParameters().attachPID = ProcessHandle(result.inferiorPid);
         }
 
         if (result.qmlServerPort.isValid()) {
@@ -1430,11 +1430,11 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
 
 void DebuggerEngine::notifyInferiorPid(qint64 pid)
 {
-    if (d->m_inferiorPid == pid)
+    if (d->m_inferiorPid.pid() == pid)
         return;
-    d->m_inferiorPid = pid;
-    if (pid) {
-        runControl()->setApplicationProcessHandle(ProcessHandle(pid));
+    d->m_inferiorPid = ProcessHandle(pid);
+    if (d->m_inferiorPid.isValid()) {
+        runControl()->setApplicationProcessHandle(d->m_inferiorPid);
         showMessage(tr("Taking notice of pid %1").arg(pid));
         if (d->m_runParameters.startMode == StartInternal
             || d->m_runParameters.startMode == StartExternal
@@ -1445,7 +1445,7 @@ void DebuggerEngine::notifyInferiorPid(qint64 pid)
 
 qint64 DebuggerEngine::inferiorPid() const
 {
-    return d->m_inferiorPid;
+    return d->m_inferiorPid.pid();
 }
 
 bool DebuggerEngine::isReverseDebugging() const

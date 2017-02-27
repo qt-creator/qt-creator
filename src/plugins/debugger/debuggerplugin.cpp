@@ -1166,9 +1166,9 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         if (pid) {
             rp.startMode = AttachExternal;
             rp.closeMode = DetachAtClose;
-            rp.attachPID = pid;
-            rp.displayName = tr("Process %1").arg(rp.attachPID);
-            rp.startMessage = tr("Attaching to local process %1.").arg(rp.attachPID);
+            rp.attachPID = ProcessHandle(pid);
+            rp.displayName = tr("Process %1").arg(rp.attachPID.pid());
+            rp.startMessage = tr("Attaching to local process %1.").arg(rp.attachPID.pid());
         } else {
             rp.startMode = StartExternal;
             QStringList args = it->split(QLatin1Char(','));
@@ -1230,10 +1230,10 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         DebuggerRunParameters rp;
         rp.startMode = AttachCrashedExternal;
         rp.crashParameter = it->section(QLatin1Char(':'), 0, 0);
-        rp.attachPID = it->section(QLatin1Char(':'), 1, 1).toULongLong();
-        rp.displayName = tr("Crashed process %1").arg(rp.attachPID);
-        rp.startMessage = tr("Attaching to crashed process %1").arg(rp.attachPID);
-        if (!rp.attachPID) {
+        rp.attachPID = ProcessHandle(it->section(QLatin1Char(':'), 1, 1).toULongLong());
+        rp.displayName = tr("Crashed process %1").arg(rp.attachPID.pid());
+        rp.startMessage = tr("Attaching to crashed process %1").arg(rp.attachPID.pid());
+        if (!rp.attachPID.isValid()) {
             *errorMessage = DebuggerPlugin::tr("The parameter \"%1\" of option \"%2\" "
                 "does not match the pattern <handle>:<pid>.").arg(*it, option);
             return false;
@@ -2108,7 +2108,7 @@ DebuggerRunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     }
 
     DebuggerRunParameters rp;
-    rp.attachPID = process.pid;
+    rp.attachPID = ProcessHandle(process.pid);
     rp.displayName = tr("Process %1").arg(process.pid);
     rp.inferior.executable = process.exe;
     rp.startMode = AttachExternal;
@@ -2120,8 +2120,8 @@ DebuggerRunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
 void DebuggerPlugin::attachExternalApplication(RunControl *rc)
 {
     DebuggerRunParameters rp;
-    rp.attachPID = rc->applicationProcessHandle().pid();
-    rp.displayName = tr("Process %1").arg(rp.attachPID);
+    rp.attachPID = rc->applicationProcessHandle();
+    rp.displayName = tr("Process %1").arg(rp.attachPID.pid());
     rp.startMode = AttachExternal;
     rp.closeMode = DetachAtClose;
     rp.toolChainAbi = rc->abi();
@@ -2924,8 +2924,8 @@ static QString formatStartParameters(DebuggerRunParameters &sp)
         str << "Debugger: " << QDir::toNativeSeparators(cmd) << '\n';
     if (!sp.coreFile.isEmpty())
         str << "Core: " << QDir::toNativeSeparators(sp.coreFile) << '\n';
-    if (sp.attachPID > 0)
-        str << "PID: " << sp.attachPID << ' ' << sp.crashParameter << '\n';
+    if (sp.attachPID.isValid())
+        str << "PID: " << sp.attachPID.pid() << ' ' << sp.crashParameter << '\n';
     if (!sp.projectSourceDirectory.isEmpty()) {
         str << "Project: " << QDir::toNativeSeparators(sp.projectSourceDirectory);
         str << "Addtional Search Directories:"

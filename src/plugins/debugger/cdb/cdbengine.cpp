@@ -428,10 +428,10 @@ void CdbEngine::consoleStubProcessStarted()
     DebuggerRunParameters attachParameters = runParameters();
     attachParameters.inferior.executable.clear();
     attachParameters.inferior.commandLineArguments.clear();
-    attachParameters.attachPID = m_consoleStub->applicationPID();
+    attachParameters.attachPID = ProcessHandle(m_consoleStub->applicationPID());
     attachParameters.startMode = AttachExternal;
     attachParameters.useTerminal = false;
-    showMessage(QString("Attaching to %1...").arg(attachParameters.attachPID), LogMisc);
+    showMessage(QString("Attaching to %1...").arg(attachParameters.attachPID.pid()), LogMisc);
     QString errorMessage;
     if (!launchCDB(attachParameters, &errorMessage)) {
         showMessage(errorMessage, LogError);
@@ -570,7 +570,7 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
         break;
     case AttachExternal:
     case AttachCrashedExternal:
-        arguments << "-p" << QString::number(sp.attachPID);
+        arguments << "-p" << QString::number(sp.attachPID.pid());
         if (sp.startMode == AttachCrashedExternal) {
             arguments << "-e" << sp.crashParameter << "-g";
         } else {

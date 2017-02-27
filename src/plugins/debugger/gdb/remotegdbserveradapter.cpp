@@ -294,9 +294,9 @@ void GdbRemoteServerEngine::handleTargetExtendedRemote(const DebuggerResponse &r
         QString commands = expand(stringSetting(GdbPostAttachCommands));
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
-        if (runParameters().attachPID > 0) { // attach to pid if valid
+        if (runParameters().attachPID.isValid()) { // attach to pid if valid
             // gdb server will stop the remote application itself.
-            runCommand({"attach " + QString::number(runParameters().attachPID),
+            runCommand({"attach " + QString::number(runParameters().attachPID.pid()),
                         CB(handleTargetExtendedAttach)});
         } else if (!runParameters().inferior.executable.isEmpty()) {
             runCommand({"-gdb-set remote exec-file " + runParameters().inferior.executable,
@@ -347,10 +347,9 @@ void GdbRemoteServerEngine::handleTargetQnx(const DebuggerResponse &response)
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
 
         const DebuggerRunParameters &rp = isMasterEngine() ? runParameters() : masterEngine()->runParameters();
-        const qint64 pid = rp.attachPID;
         const QString remoteExecutable = rp.inferior.executable;
-        if (pid > -1)
-            runCommand({"attach " + QString::number(pid), CB(handleAttach)});
+        if (rp.attachPID.isValid())
+            runCommand({"attach " + QString::number(rp.attachPID.pid()), CB(handleAttach)});
         else if (!remoteExecutable.isEmpty())
             runCommand({"set nto-executable " + remoteExecutable, CB(handleSetNtoExecutable)});
         else
@@ -465,7 +464,7 @@ void GdbRemoteServerEngine::notifyEngineRemoteServerRunning
     (const QString &serverChannel, int inferiorPid)
 {
     // Currently only used by Android support.
-    runParameters().attachPID = inferiorPid;
+    runParameters().attachPID = Utils::ProcessHandle(inferiorPid);
     runParameters().remoteChannel = serverChannel;
     runParameters().useExtendedRemote = true;
     showMessage("NOTE: REMOTE SERVER RUNNING IN MULTIMODE");
