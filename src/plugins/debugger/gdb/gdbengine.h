@@ -235,8 +235,6 @@ private: ////////// Inferior Management //////////
     void handleExecuteJumpToLine(const DebuggerResponse &response);
     void handleExecuteRunToLine(const DebuggerResponse &response);
 
-    void maybeHandleInferiorPidChanged(const QString &pid);
-    void handleInfoProc(const DebuggerResponse &response);
     QString msgPtraceError(DebuggerStartMode sm);
 
 private: ////////// View & Data Stuff //////////
