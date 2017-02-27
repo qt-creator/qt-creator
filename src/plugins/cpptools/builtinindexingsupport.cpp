@@ -357,7 +357,6 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(
     params.indexerFileSizeLimitInMb = indexerFileSizeLimitInMb();
     params.headerPaths = mgr->headerPaths();
     params.workingCopy = mgr->workingCopy();
-    params.workingCopy.insert(mgr->configurationFileName(), mgr->definedMacros());
     params.sourceFiles = sourceFiles;
 
     QFuture<void> result = Utils::runAsync(mgr->sharedThreadPool(), parse, superFuture, params);

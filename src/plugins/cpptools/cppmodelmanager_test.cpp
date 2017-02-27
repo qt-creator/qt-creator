@@ -618,7 +618,7 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     CppModelManager *mm = CppModelManager::instance();
     WorkingCopy workingCopy = mm->workingCopy();
 
-    QCOMPARE(workingCopy.size(), 1);
+    QCOMPARE(workingCopy.size(), 2); // mm->configurationFileName() and "ui_*.h"
 
     QStringList fileNamesInWorkinCopy;
     QHashIterator<Utils::FileName, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
@@ -628,7 +628,8 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     }
     fileNamesInWorkinCopy.sort();
     const QString expectedUiHeaderFileName = _("ui_mainwindow.h");
-    QCOMPARE(fileNamesInWorkinCopy.at(0), expectedUiHeaderFileName);
+    QCOMPARE(fileNamesInWorkinCopy.at(0), mm->configurationFileName());
+    QCOMPARE(fileNamesInWorkinCopy.at(1), expectedUiHeaderFileName);
 
     // Check CppSourceProcessor / includes.
     // The CppSourceProcessor is expected to find the ui_* file in the working copy.
@@ -777,7 +778,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     pi.appendProjectPart(part2);
 
     helper.updateProjectInfo(pi);
-    QCOMPARE(mm->snapshot().size(), 3);
+    QCOMPARE(mm->snapshot().size(), 4);
 
     // Open a file in the editor
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);
@@ -845,7 +846,7 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
     pi.appendProjectPart(part2);
 
     helper.updateProjectInfo(pi);
-    QCOMPARE(mm->snapshot().size(), 3);
+    QCOMPARE(mm->snapshot().size(), 4);
 
     // Open a file in the editor
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);
@@ -925,7 +926,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
 
     helper.updateProjectInfo(pi);
 
-    QCOMPARE(mm->snapshot().size(), 3);
+    QCOMPARE(mm->snapshot().size(), 4);
 
     // Open a file in the editor
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);

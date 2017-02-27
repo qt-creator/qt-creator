@@ -43,6 +43,7 @@
 #include <cpptools/projectinfo.h>
 #include <cpptools/projectpartheaderpath.h>
 #include <cpptools/cppprojectupdater.h>
+#include <cpptools/cppmodelmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -424,6 +425,7 @@ void QmakeProject::updateCppCodeModel()
             });
         }
         generators.append(proGenerators);
+        fileList.prepend(CppTools::CppModelManager::configurationFileName());
         rpp.setFiles(fileList);
 
         rpps.append(rpp);

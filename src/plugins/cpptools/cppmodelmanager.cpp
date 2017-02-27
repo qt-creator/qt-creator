@@ -594,6 +594,11 @@ WorkingCopy CppModelManager::buildWorkingCopyList()
         workingCopy.insert(es->fileName(), es->contents(), es->revision());
     }
 
+    // Add the project configuration file
+    QByteArray conf = codeModelConfiguration();
+    conf += definedMacros();
+    workingCopy.insert(configurationFileName(), conf);
+
     return workingCopy;
 }
 
@@ -871,6 +876,12 @@ QFuture<void> CppModelManager::updateProjectInfo(QFutureInterface<void> &futureI
                     removeProjectInfoFilesAndIncludesFromSnapshot(oldProjectInfo);
                     filesToReindex.unite(newSourceFiles);
 
+                    // The "configuration file" includes all defines and therefore should be updated
+                    if (comparer.definesChanged()) {
+                        QMutexLocker snapshotLocker(&d->m_snapshotMutex);
+                        d->m_snapshot.remove(configurationFileName());
+                    }
+
                 // Otherwise check for added and modified files
                 } else {
                     const QSet<QString> addedFiles = comparer.addedFiles();
@@ -999,9 +1010,6 @@ bool CppModelManager::isClangCodeModelActive() const
 
 void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
 {
-    if (Client::isInjectedFile(doc->fileName()))
-        return;
-
     if (replaceDocument(doc))
         emit documentUpdated(doc);
 }

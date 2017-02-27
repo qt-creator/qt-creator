@@ -423,8 +423,11 @@ bool VerifyCleanCppModelManager::isClean(bool testOnlyForCleanedProjects)
     RETURN_FALSE_IF_NOT(mm->headerPaths().isEmpty());
     RETURN_FALSE_IF_NOT(mm->definedMacros().isEmpty());
     RETURN_FALSE_IF_NOT(mm->projectFiles().isEmpty());
-    if (!testOnlyForCleanedProjects)
+    if (!testOnlyForCleanedProjects) {
         RETURN_FALSE_IF_NOT(mm->snapshot().isEmpty());
+        RETURN_FALSE_IF_NOT(mm->workingCopy().size() == 1);
+        RETURN_FALSE_IF_NOT(mm->workingCopy().contains(mm->configurationFileName()));
+    }
     return true;
 }
 

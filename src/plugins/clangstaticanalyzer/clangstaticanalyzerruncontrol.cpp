@@ -382,6 +382,8 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QVector<ProjectPart::Pt
             continue;
 
         foreach (const ProjectFile &file, projectPart->files) {
+            if (file.path == CppModelManager::configurationFileName())
+                continue;
             QTC_CHECK(file.kind != ProjectFile::Unclassified);
             QTC_CHECK(file.kind != ProjectFile::Unsupported);
             if (ProjectFile::isSource(file.kind)) {
