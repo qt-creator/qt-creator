@@ -5241,7 +5241,6 @@ void tst_Dumpers::dumper_data()
                     "Foo fb = b; unused(&fb);\n"
                     "Foo fc = c; unused(&fc);\n"
                     "Foo fd = d; unused(&fd);\n")
-                + NoCdbEngine // This doesn't work in cdb for now
                 + Check("fa", "a (-1000)", "Foo")
                 + Check("fb", "b (-999)", "Foo")
                 + Check("fc", "c (1)", "Foo")

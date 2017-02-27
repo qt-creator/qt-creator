@@ -346,7 +346,7 @@ class Dumper(DumperBase):
                 gdb.TYPE_CODE_STRING : TypeCodeFortranString,
             }[code]
             if tdata.code == TypeCodeEnum:
-                tdata.enumDisplay = lambda intval : \
+                tdata.enumDisplay = lambda intval, addr : \
                     self.nativeTypeEnumDisplay(nativeType, intval)
             if tdata.code == TypeCodeStruct:
                 tdata.lalignment = lambda : \

@@ -434,7 +434,7 @@ class Dumper(DumperBase):
                     warn('UNKNOWN TYPE KEY: %s: %s' % (typeName, code))
             elif code == lldb.eTypeClassEnumeration:
                 tdata.code = TypeCodeEnum
-                tdata.enumDisplay = lambda intval : \
+                tdata.enumDisplay = lambda intval, addr : \
                     self.nativeTypeEnumDisplay(nativeType, intval)
             elif code in (lldb.eTypeClassComplexInteger, lldb.eTypeClassComplexFloat):
                 tdata.code = TypeCodeComplex

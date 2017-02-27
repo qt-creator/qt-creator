@@ -173,6 +173,9 @@ class Dumper(DumperBase):
                 self.listFields(nativeType, value)
             tdata.lalignment = lambda : \
                 self.nativeStructAlignment(nativeType)
+        if code == TypeCodeEnum:
+            tdata.enumDisplay = lambda intval, addr : \
+                self.nativeTypeEnumDisplay(nativeType, addr)
         tdata.templateArguments = self.listTemplateParameters(nativeType.name())
         self.registerType(typeId, tdata) # Fix up fields and template args
         return self.Type(self, typeId)
@@ -198,9 +201,13 @@ class Dumper(DumperBase):
             align = handleItem(f.type(), align)
         return align
 
-    def nativeTypeEnumDisplay(self, nativeType, intval):
-        # TODO: generate fake value
-        return None
+    def nativeTypeEnumDisplay(self, nativeType, addr):
+        value = cdbext.createValue(addr, nativeType)
+        if value is None:
+            return ''
+        enumDisplay = value.nativeDebuggerValue()
+        # remove '0n' decimal prefix of the native cdb value output
+        return enumDisplay.replace('(0n', '(')
 
     def enumExpression(self, enumType, enumValue):
         ns = self.qtNamespace()
