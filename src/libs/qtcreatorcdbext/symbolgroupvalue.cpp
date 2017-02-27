@@ -902,6 +902,20 @@ std::string QtInfo::prependModuleAndNameSpace(const std::string &type,
     return rc;
 }
 
+int QtInfo::qtTypeInfoVersion(const SymbolGroupValueContext &ctx)
+{
+    const QtInfo qtInfo = QtInfo::get(ctx);
+    const std::string &hookDataSymbolName = qtInfo.prependQtCoreModule("qtHookData");
+    ULONG64 offset = 0;
+    if (FAILED(ctx.symbols->GetOffsetByName(hookDataSymbolName.c_str(), &offset)))
+        return 0;
+    ULONG64 hookVer = SymbolGroupValue::readPointerValue(ctx.dataspaces, offset);
+    if (hookVer < 3)
+        return 0;
+    offset += 6 * SymbolGroupValue::pointerSize();
+    return static_cast<int>(SymbolGroupValue::readPointerValue(ctx.dataspaces, offset));
+}
+
 std::ostream &operator<<(std::ostream &os, const QtInfo &i)
 {
     os << "Qt Info: Version: " << i.version << " Modules '"
@@ -2404,33 +2418,59 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str, std::st
 {
     // QDate is 64bit starting from Qt 5 which is always aligned 64bit.
     if (QtInfo::get(v.context()).version == 5) {
-        // the dumper on the creator side expects msecs/spec/offset/tz/status
+        // the dumper on the creator side expects msecs/spec/offset/tz/status/type info version
         const char separator = '/';
-        const ULONG64 msecsAddr = addressOfQPrivateMember(v, QPDM_None, 0);
-        if (!msecsAddr)
-            return false;
+        LONG64 msecs = 0;
+        int spec = 0;
+        int offset  = 0;
+        std::wstring timeZoneString;
+        int status = 0;
+        int tiVersion = QtInfo::qtTypeInfoVersion(v.context());
+        if (tiVersion > 10) {
+            const ULONG64 data = SymbolGroupValue::readUnsignedValue(
+                        v.context().dataspaces, v.address(), 8, 0);
+            status = data & 0xFF;
+            ULONG64 timeZone = 0;
+            if (status & 0x01) {
+                msecs = data >> 8;
+                spec = (status & 0x30) >> 4;
+            } else {
+                ULONG64 addr = SymbolGroupValue::readPointerValue(v.context().dataspaces, v.address());
+                msecs = SymbolGroupValue::readSignedValue(v.context().dataspaces, addr, 8, 0);
 
-        int addrOffset = 8 /*QSharedData + padded*/;
-        const LONG64 msecs = SymbolGroupValue::readSignedValue(
-                    v.context().dataspaces, msecsAddr + addrOffset, 8, 0);
+                addr += 8 /*int64*/;
+                status = SymbolGroupValue::readIntValue(v.context().dataspaces, addr);
 
-        addrOffset += 8 /*int64*/;
-        const int spec = SymbolGroupValue::readIntValue(
-                    v.context().dataspaces, msecsAddr + addrOffset);
+                addr += SymbolGroupValue::intSize();
+                offset = SymbolGroupValue::readIntValue(v.context().dataspaces, addr);
 
-        addrOffset += SymbolGroupValue::sizeOf("Qt::TimeSpec");
-        const int offset = SymbolGroupValue::readIntValue(
-                    v.context().dataspaces, msecsAddr + addrOffset);
+                addr += 2 * SymbolGroupValue::intSize();
+                timeZone = SymbolGroupValue::readPointerValue(v.context().dataspaces, addr);
+            }
+            timeZoneString = std::to_wstring(timeZone);
+        } else {
+            const ULONG64 msecsAddr = addressOfQPrivateMember(v, QPDM_None, 0);
+            if (!msecsAddr)
+                return false;
 
-        addrOffset += SymbolGroupValue::intSize();
-        std::wostringstream timeZoneStream;
-        dumpQTimeZoneFromQPrivateClass(v, QPDM_None, addrOffset, timeZoneStream, 0);
-        const std::wstring &timeZoneString = timeZoneStream.str();
+            int addrOffset = 8 /*QSharedData + padded*/;
+            msecs = SymbolGroupValue::readSignedValue(
+                        v.context().dataspaces, msecsAddr + addrOffset, 8, 0);
 
-        addrOffset += SymbolGroupValue::sizeOf("QTimeZone");
-        const int status = SymbolGroupValue::readIntValue(
-                    v.context().dataspaces, msecsAddr + addrOffset);
+            addrOffset += 8 /*int64*/;
+            spec = SymbolGroupValue::readIntValue(v.context().dataspaces, msecsAddr + addrOffset);
 
+            addrOffset += SymbolGroupValue::sizeOf("Qt::TimeSpec");
+            offset = SymbolGroupValue::readIntValue(v.context().dataspaces, msecsAddr + addrOffset);
+
+            addrOffset += SymbolGroupValue::intSize();
+            std::wostringstream timeZoneStream;
+            dumpQTimeZoneFromQPrivateClass(v, QPDM_None, addrOffset, timeZoneStream, 0);
+            timeZoneString = timeZoneStream.str();
+
+            addrOffset += SymbolGroupValue::sizeOf("QTimeZone");
+            status = SymbolGroupValue::readIntValue(v.context().dataspaces, msecsAddr + addrOffset);
+        }
         enum StatusFlag {
             ValidDate = 0x04,
             ValidTime = 0x08,
@@ -2440,12 +2480,12 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str, std::st
             str << L"(invalid)";
             return true;
         }
-
         str << msecs << separator
             << spec << separator
             << offset << separator
             << timeZoneString << separator
-            << status;
+            << status << separator
+            << tiVersion;
 
         if (encoding)
             *encoding = "datetimeinternal";

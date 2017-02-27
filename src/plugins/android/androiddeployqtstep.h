@@ -66,7 +66,8 @@ class AndroidDeployQtStep : public ProjectExplorer::BuildStep
         InconsistentCertificates = 0x0001,
         UpdateIncompatible = 0x0002,
         PermissionModelDowngrade = 0x0004,
-        Failure = 0x0008
+        VersionDowngrade = 0x0008,
+        Failure = 0x0010
     };
 
 public:

@@ -49,7 +49,7 @@
 
     \section1 Setting up the Development Environment
 
-    To be able to build and run the application on a mobile device, you must
+    To be able to build the application for and run it on a mobile device, you must
     set up the development environment for the device platform and configure a
     connection between \QC and the mobile device.
 

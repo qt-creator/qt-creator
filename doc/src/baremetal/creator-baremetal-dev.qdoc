@@ -92,7 +92,7 @@
 
         \li Select \uicontrol Tools > \uicontrol Options >
             \uicontrol {Build & Run} > \uicontrol Kits > \uicontrol Add to add a
-            kit for building and running applications on bare metal devices:
+            kit for building applications and running them on bare metal devices:
 
             \image creator-baremetal-kits.png "Bare Metal Device kits"
 
@@ -114,7 +114,7 @@
             device.
 
         \li Select \uicontrol Projects > \uicontrol {Build & Run}, and then
-            select the kit for building and running the application on the bare
+            select the kit for building the application and running it on the bare
             metal device specified in the kit.
 
             \image creator-baremetal-kit-for-project.png "Adding a bare metal kit for a project"

@@ -61,7 +61,7 @@
                 device.
 
             \li Select \uicontrol Projects > \uicontrol {Build & Run} to
-                enable a kit for building and running applications on Windows
+                enable a kit for building applications and running them on Windows
                 Runtime devices (the local computer, for now), Windows Phones,
                 or the Windows Phone emulator.
 

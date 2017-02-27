@@ -171,7 +171,10 @@ void BareMetalDebugSupport::startExecution()
 
     StandardRunnable r;
     r.executable = p->executable();
-    r.commandLineArguments = Utils::QtcProcess::joinArgs(p->arguments(), Utils::OsTypeLinux);
+    // We need to wrap the command arguments depending on a host OS,
+    // as the bare metal's GDB servers are launched on a host,
+    // but not on a target.
+    r.commandLineArguments = Utils::QtcProcess::joinArgs(p->arguments(), Utils::HostOsInfo::hostOs());
     m_appRunner->start(dev, r);
 }
 

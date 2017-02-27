@@ -230,6 +230,8 @@ struct QtInfo
                                                  const std::string &module,
                                                  const std::string &nameSpace);
 
+    static int qtTypeInfoVersion(const SymbolGroupValueContext &ctx);
+
     std::string moduleName(Module m) const;
 
     int version = 0;

@@ -1933,8 +1933,8 @@ void tst_Dumpers::dumper_data()
                + CheckType("t1.(SystemLocale)", "@QString") % Optional()
 
                + Check("dt0", "(invalid)", "@QDateTime")
-               //+ Check("dt1", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
-               //+ Check("dt1", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime")
+               + Check("dt1", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
+               + Check("dt1", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime")
                + Check("dt1.(ISO)",
                     "\"1980-01-01T13:15:32Z\"", "@QString") % Optional()
                + CheckType("dt1.(Locale)", "@QString") % Optional()

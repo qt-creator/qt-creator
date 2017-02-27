@@ -28,7 +28,7 @@
 
     \section1 Running on Embedded Linux Devices
 
-    To build and run the application for a device:
+    To build the application and run it on a device:
 
         \list 1
 

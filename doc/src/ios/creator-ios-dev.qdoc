@@ -33,12 +33,12 @@
     \title Connecting iOS Devices
 
     You can connect iOS devices to a Mac computer with a USB cable to
-    build and run applications on them from \QC.
+    run applications built for them from \QC.
 
     To be able to use \QC on \macos, you must install Xcode, and therefore,
     you already have the tool chain for building applications for iOS. \QC
     automatically detects the tool chain and creates the necessary
-    \l{glossary-buildandrun-kit}{kits} for building and running applications on
+    \l{glossary-buildandrun-kit}{kits} to build applications for and run them on
     configured iOS devices.
 
     You only need Qt libraries that are built for iOS. You can install them as
@@ -85,7 +85,7 @@
                 device.
 
             \li Select \uicontrol Projects > \uicontrol {Build & Run} to select
-                the kit for building and running applications on iOS.
+                the kit for building applications for and running them on iOS.
 
                 \image qtcreator-ios-add-kit.png "Build & Run Settings"
 

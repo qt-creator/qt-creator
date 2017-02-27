@@ -1579,7 +1579,8 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     }
 
     QSettings *s = ICore::settings();
-    s->setValue(QLatin1String("ProjectExplorer/StartupSession"), SessionManager::activeSession());
+    if (!SessionManager::isDefaultVirgin())
+        s->setValue(QLatin1String("ProjectExplorer/StartupSession"), SessionManager::activeSession());
     s->remove(QLatin1String("ProjectExplorer/RecentProjects/Files"));
 
     QStringList fileNames;

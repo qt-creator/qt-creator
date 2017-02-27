@@ -129,6 +129,7 @@ def checkWelcomePage(sessionName, isCurrent=False):
 
 def checkNavigator(expectedRows, message):
     navigatorModel = waitForObject(":Qt Creator_Utils::NavigationTreeView").model()
+    waitFor("expectedRows == len(__iterateChildren__(navigatorModel, QModelIndex()))", 1000)
     test.compare(expectedRows, len(__iterateChildren__(navigatorModel, QModelIndex())), message)
 
 def checkOpenDocuments(expectedRows, message):
