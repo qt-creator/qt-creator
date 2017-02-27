@@ -583,6 +583,7 @@ public:
     ExamplesPageWidget(bool isExamples)
         : m_isExamples(isExamples)
     {
+        const int sideMargin = 27;
         static ExamplesListModel *s_examplesModel = new ExamplesListModel(this);
         m_examplesModel = s_examplesModel;
 
@@ -592,7 +593,9 @@ public:
         m_searcher = searchBox->m_lineEdit;
 
         auto vbox = new QVBoxLayout(this);
-        vbox->setContentsMargins(30, 27, 0, 0);
+        vbox->setContentsMargins(30, sideMargin, 0, 0);
+
+        auto hbox = new QHBoxLayout;
         if (m_isExamples) {
             m_searcher->setPlaceholderText(tr("Search in Examples..."));
 
@@ -607,15 +610,14 @@ public:
             connect(exampleSetModel, &ExampleSetModel::selectedExampleSetChanged,
                     exampleSetSelector, &QComboBox::setCurrentIndex);
 
-            auto hbox = new QHBoxLayout;
             hbox->setSpacing(17);
             hbox->addWidget(exampleSetSelector);
-            hbox->addWidget(searchBox);
-            vbox->addItem(hbox);
         } else {
             m_searcher->setPlaceholderText(tr("Search in Tutorials..."));
-            vbox->addWidget(searchBox);
         }
+        hbox->addWidget(searchBox);
+        hbox->addSpacing(sideMargin);
+        vbox->addItem(hbox);
 
         m_gridModel.setSourceModel(filteredModel);
 
