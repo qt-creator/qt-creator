@@ -39,9 +39,6 @@ class IMacroHandler: public QObject
     Q_OBJECT
 
 public:
-    IMacroHandler();
-    ~IMacroHandler();
-
     virtual void startRecording(Macro* macro);
     virtual void endRecordingMacro(Macro* macro);
 
@@ -58,8 +55,7 @@ protected:
 private:
     friend class MacroManager;
 
-    class IMacroHandlerPrivate;
-    IMacroHandlerPrivate *d;
+    Macro *m_currentMacro = nullptr;
 };
 
 } // namespace Internal

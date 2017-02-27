@@ -53,7 +53,7 @@ public:
     void closeEditor(Core::IEditor *editor);
 
 private:
-    TextEditor::BaseTextEditor *m_currentEditor;
+    TextEditor::BaseTextEditor *m_currentEditor = nullptr;
 };
 
 } // namespace Internal
