@@ -9,9 +9,7 @@ SOURCES += \
     clangassistproposal.cpp \
     clangassistproposalitem.cpp \
     clangassistproposalmodel.cpp \
-    clangautomationutils.cpp \
     clangbackendipcintegration.cpp \
-    clangbatchfileprocessor.cpp \
     clangcodemodelplugin.cpp \
     clangcompletionassistinterface.cpp \
     clangcompletionassistprocessor.cpp \
@@ -41,9 +39,7 @@ HEADERS += \
     clangassistproposal.h \
     clangassistproposalitem.h \
     clangassistproposalmodel.h \
-    clangautomationutils.h \
     clangbackendipcintegration.h \
-    clangbatchfileprocessor.h \
     clangcodemodelplugin.h \
     clangcompletionassistinterface.h \
     clangcompletionassistprocessor.h \
@@ -80,10 +76,14 @@ DISTFILES += \
 
 equals(TEST, 1) {
     HEADERS += \
-        test/clangcodecompletion_test.h
+        test/clangautomationutils.h \
+        test/clangbatchfileprocessor.h \
+        test/clangcodecompletion_test.h \
 
     SOURCES += \
-        test/clangcodecompletion_test.cpp
+        test/clangautomationutils.cpp \
+        test/clangbatchfileprocessor.cpp \
+        test/clangcodecompletion_test.cpp \
 
     RESOURCES += test/data/clangtestdata.qrc
     OTHER_FILES += $$files(test/data/*)

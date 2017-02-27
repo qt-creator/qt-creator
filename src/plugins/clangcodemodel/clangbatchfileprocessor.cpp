@@ -54,7 +54,7 @@
 #include <QLoggingCategory>
 #include <QSharedPointer>
 #include <QString>
-#include <QtTest>
+#include <QThread>
 
 using namespace ClangBackEnd;
 using namespace ClangCodeModel;

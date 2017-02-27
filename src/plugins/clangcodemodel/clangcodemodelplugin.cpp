@@ -98,11 +98,13 @@ void ClangCodeModelPlugin::extensionsInitialized()
 // For e.g. creation of profile-guided optimization builds.
 void ClangCodeModelPlugin::maybeHandleBatchFileAndExit() const
 {
+#ifdef WITH_TESTS
     const QString batchFilePath = QString::fromLocal8Bit(qgetenv("QTC_CLANG_BATCH"));
     if (!batchFilePath.isEmpty() && QTC_GUARD(QFileInfo::exists(batchFilePath))) {
         const bool runSucceeded = runClangBatchFile(batchFilePath);
         QCoreApplication::exit(!runSucceeded);
     }
+#endif
 }
 
 #ifdef WITH_TESTS
