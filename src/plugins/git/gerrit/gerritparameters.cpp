@@ -30,6 +30,7 @@
 #include <utils/pathchooser.h>
 
 #include <QDebug>
+#include <QDir>
 #include <QFileInfo>
 #include <QRegularExpression>
 #include <QSettings>
@@ -59,14 +60,30 @@ static inline QString detectApp(const char *defaultExe)
 {
     const QString defaultApp = HostOsInfo::withExecutableSuffix(QLatin1String(defaultExe));
     QString app = QStandardPaths::findExecutable(defaultApp);
-    if (!app.isEmpty())
+    if (!app.isEmpty() || !HostOsInfo::isWindowsHost())
         return app;
-    if (HostOsInfo::isWindowsHost()) { // Windows: Use app.exe from git if it cannot be found.
-        FileName path = GerritPlugin::gitBinDirectory();
-        if (!path.isEmpty())
-            app = path.appendPath(defaultApp).toString();
-    }
-    return app;
+    // Windows: Use app.exe from git if it cannot be found.
+    const FileName gitBinDir = GerritPlugin::gitBinDirectory();
+    if (gitBinDir.isEmpty())
+        return QString();
+    FileName path = gitBinDir;
+    path.appendPath(defaultApp);
+    if (path.exists())
+        return path.toString();
+
+    // If app was not found, and git bin is Git/usr/bin (Git for Windows),
+    // search also in Git/mingw{32,64}/bin
+    if (!gitBinDir.endsWith("/usr/bin"))
+        return QString();
+    path = gitBinDir.parentDir().parentDir();
+    QDir dir(path.toString());
+    const QStringList entries = dir.entryList({"mingw*"});
+    if (entries.isEmpty())
+        return QString();
+    path.appendPath(entries.first()).appendPath("bin").appendPath(defaultApp);
+    if (path.exists())
+        return path.toString();
+    return QString();
 }
 
 static inline QString detectSsh()
