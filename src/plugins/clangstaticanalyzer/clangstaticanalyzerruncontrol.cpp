@@ -405,7 +405,12 @@ static QHash<QString, ProjectPart::Ptr> generateProjectFileToProjectPartMapping(
 
     foreach (const ProjectPart::Ptr &projectPart, projectParts) {
         QTC_ASSERT(projectPart, continue);
-        mapping[projectPart->projectFile] = projectPart;
+        QString projectFile = projectPart->projectFile;
+        if (projectPart->projectFileLine >= 0)
+            projectFile += ':' + QString::number(projectPart->projectFileLine);
+        if (projectPart->projectFileColumn >= 0)
+            projectFile += ':' + QString::number(projectPart->projectFileColumn);
+        mapping[projectFile] = projectPart;
     }
 
     return mapping;

@@ -64,6 +64,10 @@ ProjectPart::Ptr ProjectPart::copy() const
 QString ProjectPart::id() const
 {
     QString projectPartId = QDir::fromNativeSeparators(projectFile);
+    if (projectFileLine > 0)
+        projectPartId += ":" + QString::number(projectFileLine);
+    if (projectFileColumn > 0)
+        projectPartId += ":" + QString::number(projectFileColumn);
     if (!displayName.isEmpty())
         projectPartId.append(QLatin1Char(' ') + displayName);
     return projectPartId;

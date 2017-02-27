@@ -182,6 +182,8 @@ static ProjectPart::Ptr projectPartFromRawProjectPart(const RawProjectPart &rawP
     part->project = project;
     part->projectFile = rawProjectPart.projectFile;
     part->projectConfigFile = rawProjectPart.projectConfigFile;
+    part->projectFileLine = rawProjectPart.projectFileLine;
+    part->projectFileColumn = rawProjectPart.projectFileColumn;
     part->qtVersion = rawProjectPart.qtVersion;
     part->projectDefines = rawProjectPart.projectDefines;
     part->headerPaths = rawProjectPart.headerPaths;

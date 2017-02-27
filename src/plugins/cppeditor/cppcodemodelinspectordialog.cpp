@@ -1777,10 +1777,15 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
         projectName = project->displayName();
         projectFilePath = project->projectFilePath().toUserOutput();
     }
+    QString projectFileLocation = QDir::toNativeSeparators(part->projectFile);
+    if (part->projectFileLine > 0)
+        projectFileLocation += ":" + QString::number(part->projectFileLine);
+    if (part->projectFileColumn > 0)
+        projectFileLocation += ":" + QString::number(part->projectFileColumn);
+
     KeyValueModel::Table table = KeyValueModel::Table()
         << qMakePair(QString::fromLatin1("Project Part Name"), part->displayName)
-        << qMakePair(QString::fromLatin1("Project Part File"),
-                     QDir::toNativeSeparators(part->projectFile))
+        << qMakePair(QString::fromLatin1("Project Part File"), projectFileLocation)
         << qMakePair(QString::fromLatin1("Project Name"), projectName)
         << qMakePair(QString::fromLatin1("Project File"), projectFilePath)
         << qMakePair(QString::fromLatin1("Selected For Building"),
