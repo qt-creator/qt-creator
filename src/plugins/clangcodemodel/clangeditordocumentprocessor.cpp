@@ -331,18 +331,24 @@ void ClangEditorDocumentProcessor::onParserFinished()
 
 void ClangEditorDocumentProcessor::registerTranslationUnitForEditor(CppTools::ProjectPart *projectPart)
 {
+    // On registration we send the document content immediately as an unsaved
+    // file, because
+    //   (1) a refactoring action might have opened and already modified
+    //       this document.
+    //   (2) it prevents an extra preamble generation on first user
+    //       modification of the document in case the line endings on disk
+    //       differ from the ones returned by textDocument()->toPlainText(),
+    //       like on Windows.
+
     if (m_projectPart) {
-        if (projectPart->id() != m_projectPart->id()) {
-            m_ipcCommunicator.unregisterTranslationUnitsForEditor({fileContainerWithArguments()});
-            m_ipcCommunicator.registerTranslationUnitsForEditor({fileContainerWithArguments(projectPart)});
-        }
-    } else if (revision() != 1) {
-        // E.g. a refactoring action opened the document and modified it immediately.
-        m_ipcCommunicator.registerTranslationUnitsForEditor({{fileContainerWithArgumentsAndDocumentContent(projectPart)}});
-        ClangCodeModel::Utils::setLastSentDocumentRevision(filePath(), revision());
-    } else {
-        m_ipcCommunicator.registerTranslationUnitsForEditor({{fileContainerWithArguments(projectPart)}});
+        if (projectPart->id() == m_projectPart->id())
+            return;
+        m_ipcCommunicator.unregisterTranslationUnitsForEditor({fileContainerWithArguments()});
     }
+
+    m_ipcCommunicator.registerTranslationUnitsForEditor(
+        {fileContainerWithArgumentsAndDocumentContent(projectPart)});
+    ClangCodeModel::Utils::setLastSentDocumentRevision(filePath(), revision());
 }
 
 void ClangEditorDocumentProcessor::updateTranslationUnitIfProjectPartExists()
