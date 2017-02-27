@@ -41,7 +41,6 @@ namespace Internal {
 AndroidRunControl::AndroidRunControl(AndroidRunConfiguration *rc)
     : RunControl(rc, ProjectExplorer::Constants::NORMAL_RUN_MODE)
     , m_runner(new AndroidRunner(this, rc, ProjectExplorer::Constants::NORMAL_RUN_MODE))
-    , m_running(false)
 {
     setRunnable(m_runner->runnable());
     setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
@@ -54,8 +53,7 @@ AndroidRunControl::~AndroidRunControl()
 
 void AndroidRunControl::start()
 {
-    m_running = true;
-    emit started();
+    reportApplicationStart();
     disconnect(m_runner, 0, this, 0);
 
     connect(m_runner, &AndroidRunner::remoteErrorOutput,
@@ -79,8 +77,7 @@ void AndroidRunControl::handleRemoteProcessFinished(const QString &error)
 {
     appendMessage(error, Utils::ErrorMessageFormat);
     disconnect(m_runner, 0, this, 0);
-    m_running = false;
-    emit finished();
+    reportApplicationStop();
 }
 
 void AndroidRunControl::handleRemoteOutput(const QString &output)
@@ -91,11 +88,6 @@ void AndroidRunControl::handleRemoteOutput(const QString &output)
 void AndroidRunControl::handleRemoteErrorOutput(const QString &output)
 {
     appendMessage(output, Utils::StdErrFormatSameLine);
-}
-
-bool AndroidRunControl::isRunning() const
-{
-    return m_running;
 }
 
 QString AndroidRunControl::displayName() const

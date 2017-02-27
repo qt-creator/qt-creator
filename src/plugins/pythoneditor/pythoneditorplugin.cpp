@@ -225,7 +225,6 @@ public:
 
     void start() override;
     StopResult stop() override;
-    bool isRunning() const override { return m_running; }
 
 private:
     void processStarted();
@@ -238,7 +237,6 @@ private:
     QString m_commandLineArguments;
     Utils::Environment m_environment;
     ApplicationLauncher::Mode m_runMode;
-    bool m_running;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -756,7 +754,7 @@ RunControl *PythonRunControlFactory::create(RunConfiguration *runConfiguration, 
 // PythonRunControl
 
 PythonRunControl::PythonRunControl(PythonRunConfiguration *rc, Core::Id mode)
-    : RunControl(rc, mode), m_running(false)
+    : RunControl(rc, mode)
 {
     setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
 
@@ -778,16 +776,15 @@ PythonRunControl::PythonRunControl(PythonRunConfiguration *rc, Core::Id mode)
 
 void PythonRunControl::start()
 {
-    emit started();
+    reportApplicationStart();
     if (m_interpreter.isEmpty()) {
         appendMessage(tr("No Python interpreter specified.") + '\n', Utils::ErrorMessageFormat);
-        emit finished();
+        reportApplicationStop();
     }  else if (!QFileInfo::exists(m_interpreter)) {
         appendMessage(tr("Python interpreter %1 does not exist.").arg(QDir::toNativeSeparators(m_interpreter)) + '\n',
                       Utils::ErrorMessageFormat);
-        emit finished();
+        reportApplicationStop();
     } else {
-        m_running = true;
         QString msg = tr("Starting %1...").arg(QDir::toNativeSeparators(m_interpreter)) + '\n';
         appendMessage(msg, Utils::NormalMessageFormat);
 
@@ -822,8 +819,6 @@ void PythonRunControl::processStarted()
 
 void PythonRunControl::processExited(int exitCode, QProcess::ExitStatus status)
 {
-    m_running = false;
-    setApplicationProcessHandle(ProcessHandle());
     QString msg;
     if (status == QProcess::CrashExit) {
         msg = tr("%1 crashed")
@@ -833,7 +828,7 @@ void PythonRunControl::processExited(int exitCode, QProcess::ExitStatus status)
                 .arg(QDir::toNativeSeparators(m_interpreter)).arg(exitCode);
     }
     appendMessage(msg + '\n', Utils::NormalMessageFormat);
-    emit finished();
+    reportApplicationStop();
 }
 
 void PythonRunConfigurationWidget::setInterpreter(const QString &interpreter)

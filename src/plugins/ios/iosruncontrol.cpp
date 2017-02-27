@@ -40,7 +40,6 @@ namespace Internal {
 IosRunControl::IosRunControl(IosRunConfiguration *rc)
     : RunControl(rc, ProjectExplorer::Constants::NORMAL_RUN_MODE)
     , m_runner(new IosRunner(this, rc, false, QmlDebug::NoQmlDebugServices))
-    , m_running(false)
 {
     setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
 }
@@ -52,8 +51,7 @@ IosRunControl::~IosRunControl()
 
 void IosRunControl::start()
 {
-    m_running = true;
-    emit started();
+    reportApplicationStart();
     disconnect(m_runner, 0, this, 0);
 
     connect(m_runner, &IosRunner::errorMsg,
@@ -79,8 +77,7 @@ void IosRunControl::handleRemoteProcessFinished(bool cleanEnd)
     else
         appendMessage(tr("Run ended."), Utils::NormalMessageFormat);
     disconnect(m_runner, 0, this, 0);
-    m_running = false;
-    emit finished();
+    reportApplicationStop();
 }
 
 void IosRunControl::handleRemoteOutput(const QString &output)
@@ -91,11 +88,6 @@ void IosRunControl::handleRemoteOutput(const QString &output)
 void IosRunControl::handleRemoteErrorOutput(const QString &output)
 {
     appendMessage(output, Utils::StdErrFormat);
-}
-
-bool IosRunControl::isRunning() const
-{
-    return m_running;
 }
 
 QString IosRunControl::displayName() const

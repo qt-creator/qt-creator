@@ -49,7 +49,6 @@ public:
     void notifyRemoteSetupFailed(const QString &errorMessage) override;
     void start() override;
     StopResult stop() override;
-    bool isRunning() const override;
     void cancelProcess();
     void notifyRemoteFinished() override;
     bool supportsReRunning() const override { return false; }

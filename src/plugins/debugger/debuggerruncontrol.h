@@ -69,7 +69,6 @@ public:
     void start() override;
     bool promptToStop(bool *prompt = 0) const override;
     StopResult stop() override; // Called from SnapshotWindow.
-    bool isRunning() const override;
     QString displayName() const override;
     bool supportsReRunning() const override;
     void handleApplicationOutput(const QString &msg, int channel);
@@ -104,7 +103,6 @@ private:
                        Internal::DebuggerEngine *engine);
 
     Internal::DebuggerEngine *m_engine;
-    bool m_running;
     OutputProcessor *m_outputProcessor = 0;
 };
 

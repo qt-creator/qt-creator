@@ -70,7 +70,6 @@ public:
     Internal::QmlProfilerTool *m_tool = 0;
     QmlProfilerStateManager *m_profilerState = 0;
     QTimer m_noDebugOutputTimer;
-    bool m_running = false;
 };
 
 //
@@ -96,17 +95,18 @@ QmlProfilerRunControl::QmlProfilerRunControl(RunConfiguration *runConfiguration,
 
 QmlProfilerRunControl::~QmlProfilerRunControl()
 {
-    if (d->m_running && d->m_profilerState)
+    if (isRunning() && d->m_profilerState)
         stop();
     delete d;
 }
 
 void QmlProfilerRunControl::start()
 {
+    reportApplicationStart();
     d->m_tool->finalizeRunControl(this);
-    QTC_ASSERT(d->m_profilerState, finished(); return);
+    QTC_ASSERT(d->m_profilerState, reportApplicationStop(); return);
 
-    QTC_ASSERT(connection().is<AnalyzerConnection>(), finished(); return);
+    QTC_ASSERT(connection().is<AnalyzerConnection>(), reportApplicationStop(); return);
     auto conn = connection().as<AnalyzerConnection>();
 
     if (conn.analyzerPort.isValid())
@@ -115,13 +115,11 @@ void QmlProfilerRunControl::start()
         d->m_noDebugOutputTimer.start();
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
-    d->m_running = true;
     emit starting();
 }
 
 RunControl::StopResult QmlProfilerRunControl::stop()
 {
-    d->m_running = false;
     QTC_ASSERT(d->m_profilerState, return RunControl::StoppedSynchronously);
 
     switch (d->m_profilerState->currentState()) {
@@ -147,11 +145,6 @@ RunControl::StopResult QmlProfilerRunControl::stop()
     return RunControl::StoppedSynchronously;
 }
 
-bool QmlProfilerRunControl::isRunning() const
-{
-    return d->m_running;
-}
-
 void QmlProfilerRunControl::notifyRemoteFinished()
 {
     QTC_ASSERT(d->m_profilerState, return);
@@ -159,8 +152,7 @@ void QmlProfilerRunControl::notifyRemoteFinished()
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppRunning:
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
-        d->m_running = false;
-        emit finished();
+        reportApplicationStop();
         break;
     case QmlProfilerStateManager::Idle:
         break;
@@ -189,8 +181,7 @@ void QmlProfilerRunControl::cancelProcess()
         return;
     }
     }
-    d->m_running = false;
-    emit finished();
+    reportApplicationStop();
 }
 
 void QmlProfilerRunControl::notifyRemoteSetupFailed(const QString &errorMessage)
@@ -213,8 +204,7 @@ void QmlProfilerRunControl::notifyRemoteSetupFailed(const QString &errorMessage)
     // KILL
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
     d->m_noDebugOutputTimer.stop();
-    d->m_running = false;
-    emit finished();
+    reportApplicationStop();
 }
 
 void QmlProfilerRunControl::wrongSetupMessageBoxFinished(int button)
@@ -256,8 +246,7 @@ void QmlProfilerRunControl::profilerStateChanged()
 {
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::Idle:
-        d->m_running = false;
-        emit finished();
+        reportApplicationStop();
         d->m_noDebugOutputTimer.stop();
         break;
     default:

@@ -40,7 +40,6 @@ public:
 
     virtual void start() override;
     virtual StopResult stop() override;
-    virtual bool isRunning() const override;
 
 private:
     void handleErrorMessage(const QString &error);

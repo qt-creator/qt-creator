@@ -58,7 +58,6 @@ public:
 
     void start() override;
     StopResult stop() override;
-    bool isRunning() const override;
 
     bool success() const { return m_success; } // For testing.
     bool supportsReRunning() const override { return false; }
@@ -95,7 +94,6 @@ private:
     int m_filesAnalyzed;
     int m_filesNotAnalyzed;
     bool m_success;
-    bool m_running = false;
 };
 
 } // namespace Internal

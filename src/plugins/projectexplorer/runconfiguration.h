@@ -361,11 +361,13 @@ public:
 
     virtual bool promptToStop(bool *optionalPrompt = nullptr) const;
     virtual StopResult stop() = 0;
-    virtual bool isRunning() const = 0;
     virtual bool supportsReRunning() const { return true; }
+
 
     virtual QString displayName() const;
     void setDisplayName(const QString &displayName);
+
+    bool isRunning() const;
 
     void setIcon(const Utils::Icon &icon);
     Utils::Icon icon() const;
@@ -396,11 +398,14 @@ public slots:
 signals:
     void appendMessageRequested(ProjectExplorer::RunControl *runControl,
                                 const QString &msg, Utils::OutputFormat format);
-    void started();
-    void finished();
-    void applicationProcessHandleChanged();
+    void started(QPrivateSignal); // Use reportApplicationStart!
+    void finished(QPrivateSignal); // Use reportApplicationStop!
+    void applicationProcessHandleChanged(QPrivateSignal); // Use setApplicationProcessHandle
 
 protected:
+    void reportApplicationStart(); // Call this when the application starts to run
+    void reportApplicationStop(); // Call this when the application has stopped for any reason
+
     bool showPromptToStopDialog(const QString &title, const QString &text,
                                 const QString &stopButtonText = QString(),
                                 const QString &cancelButtonText = QString(),

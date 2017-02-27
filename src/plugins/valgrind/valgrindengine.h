@@ -47,7 +47,6 @@ public:
 
     void start() override;
     StopResult stop() override;
-    bool isRunning() const override;
     bool supportsReRunning() const override { return false; }
 
     QString executable() const;
@@ -71,7 +70,6 @@ private:
     QStringList genericToolArguments() const;
 
 private:
-    bool m_isRunning = false;
     bool m_isStopping = false;
 };
 

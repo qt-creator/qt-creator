@@ -37,6 +37,7 @@
 #include <utils/algorithm.h>
 #include <utils/outputformatter.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/qtcassert.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -534,10 +535,12 @@ public:
     // A handle to the actual application process.
     Utils::ProcessHandle applicationProcessHandle;
 
+    bool isRunning = false;
+
 #ifdef Q_OS_OSX
     //these two are used to bring apps in the foreground on Mac
-    qint64 internalPid;
     int foregroundCount;
+    qint64 internalPid;
 #endif
 };
 
@@ -662,7 +665,7 @@ void RunControl::setApplicationProcessHandle(const ProcessHandle &handle)
 {
     if (d->applicationProcessHandle != handle) {
         d->applicationProcessHandle = handle;
-        emit applicationProcessHandleChanged();
+        emit applicationProcessHandleChanged(QPrivateSignal());
     }
 }
 
@@ -683,6 +686,11 @@ bool RunControl::promptToStop(bool *optionalPrompt) const
     return showPromptToStopDialog(tr("Application Still Running"), msg,
                                   tr("Force &Quit"), tr("&Keep Running"),
                                   optionalPrompt);
+}
+
+bool RunControl::isRunning() const
+{
+    return d->isRunning;
 }
 
 /*!
@@ -730,6 +738,20 @@ void RunControl::bringApplicationToForeground(qint64 pid)
 #else
     Q_UNUSED(pid)
 #endif
+}
+
+void RunControl::reportApplicationStart()
+{
+    d->isRunning = true;
+    emit started(QPrivateSignal());
+}
+
+void RunControl::reportApplicationStop()
+{
+    d->isRunning = false;
+    QTC_CHECK(d->applicationProcessHandle.isValid());
+    setApplicationProcessHandle(Utils::ProcessHandle());
+    emit finished(QPrivateSignal());
 }
 
 void RunControl::bringApplicationToForegroundInternal()

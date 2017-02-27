@@ -36,7 +36,6 @@ namespace RemoteLinux {
 class RemoteLinuxRunControl::RemoteLinuxRunControlPrivate
 {
 public:
-    bool running;
     DeviceApplicationRunner runner;
 };
 
@@ -45,8 +44,6 @@ RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
 {
     setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
     setRunnable(rc->runnable());
-
-    d->running = false;
 }
 
 RemoteLinuxRunControl::~RemoteLinuxRunControl()
@@ -56,8 +53,7 @@ RemoteLinuxRunControl::~RemoteLinuxRunControl()
 
 void RemoteLinuxRunControl::start()
 {
-    d->running = true;
-    emit started();
+    reportApplicationStart();
     d->runner.disconnect(this);
     connect(&d->runner, &DeviceApplicationRunner::reportError,
             this, &RemoteLinuxRunControl::handleErrorMessage);
@@ -103,16 +99,10 @@ void RemoteLinuxRunControl::handleProgressReport(const QString &progressString)
     appendMessage(progressString + QLatin1Char('\n'), Utils::NormalMessageFormat);
 }
 
-bool RemoteLinuxRunControl::isRunning() const
-{
-    return d->running;
-}
-
 void RemoteLinuxRunControl::setFinished()
 {
     d->runner.disconnect(this);
-    d->running = false;
-    emit finished();
+    reportApplicationStop();
 }
 
 } // namespace RemoteLinux

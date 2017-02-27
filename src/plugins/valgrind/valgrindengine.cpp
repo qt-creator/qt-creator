@@ -70,6 +70,7 @@ ValgrindRunControl::ValgrindRunControl(RunConfiguration *runConfiguration, Core:
 
 void ValgrindRunControl::start()
 {
+    reportApplicationStart();
     emit starting();
     FutureProgress *fp = ProgressManager::addTimedTask(m_progress, progressTitle(), "valgrind", 100);
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
@@ -101,12 +102,9 @@ void ValgrindRunControl::start()
 
     if (!run->start()) {
         m_progress.cancel();
-        emit finished();
+        reportApplicationStop();
         return;
     }
-
-    m_isRunning = true;
-    emit started();
 }
 
 RunControl::StopResult ValgrindRunControl::stop()
@@ -114,11 +112,6 @@ RunControl::StopResult ValgrindRunControl::stop()
     m_isStopping = true;
     runner()->stop();
     return AsynchronousStop;
-}
-
-bool ValgrindRunControl::isRunning() const
-{
-    return m_isRunning;
 }
 
 QString ValgrindRunControl::executable() const
@@ -161,10 +154,8 @@ void ValgrindRunControl::handleProgressFinished()
 
 void ValgrindRunControl::runnerFinished()
 {
-    m_isRunning = false;
-
     appendMessage(tr("Analyzing finished.") + QLatin1Char('\n'), NormalMessageFormat);
-    emit finished();
+    reportApplicationStop();
 
     m_progress.reportFinished();
 

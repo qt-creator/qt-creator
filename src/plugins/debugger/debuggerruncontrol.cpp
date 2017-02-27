@@ -112,8 +112,7 @@ DebuggerRunControl *createHelper(RunConfiguration *runConfig, Internal::Debugger
 
 DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfig, DebuggerEngine *engine)
     : RunControl(runConfig, DebugRunMode),
-      m_engine(engine),
-      m_running(false)
+      m_engine(engine)
 {
     setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
     connect(this, &RunControl::finished, this, &DebuggerRunControl::handleFinished);
@@ -192,8 +191,8 @@ void DebuggerRunControl::start()
             && m_engine->runParameters().inferior.executable.isEmpty()
             && m_engine->runParameters().interpreter.isEmpty()) {
         appendMessage(tr("No executable specified.") + QLatin1Char('\n'), ErrorMessageFormat);
-        emit started();
-        emit finished();
+        reportApplicationStart();
+        reportApplicationStop();
         return;
     }
 
@@ -226,20 +225,18 @@ void DebuggerRunControl::start()
 
     // We might get a synchronous startFailed() notification on Windows,
     // when launching the process fails. Emit a proper finished() sequence.
-    emit started();
-    m_running = true;
+    reportApplicationStart();
 
     m_engine->startDebugger(this);
 
-    if (m_running)
+    if (isRunning())
         appendMessage(tr("Debugging starts") + QLatin1Char('\n'), NormalMessageFormat);
 }
 
 void DebuggerRunControl::startFailed()
 {
     appendMessage(tr("Debugging has failed") + QLatin1Char('\n'), NormalMessageFormat);
-    m_running = false;
-    emit finished();
+    reportApplicationStop();
     m_engine->handleStartFailed();
 }
 
@@ -288,18 +285,12 @@ RunControl::StopResult DebuggerRunControl::stop()
 
 void DebuggerRunControl::debuggingFinished()
 {
-    m_running = false;
-    emit finished();
+    reportApplicationStop();
 }
 
 void DebuggerRunControl::showMessage(const QString &msg, int channel)
 {
     m_engine->showMessage(msg, channel);
-}
-
-bool DebuggerRunControl::isRunning() const
-{
-    return m_running;
 }
 
 DebuggerStartParameters &DebuggerRunControl::startParameters()

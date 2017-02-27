@@ -50,14 +50,12 @@ public:
 
     void start() override;
     StopResult stop() override;
-    bool isRunning() const override;
 
 private:
     void processStarted();
     void processExited(int exitCode, QProcess::ExitStatus status);
 
     ApplicationLauncher m_applicationLauncher;
-    bool m_running = false;
 };
 
 LocalApplicationRunControl::LocalApplicationRunControl(RunConfiguration *rc, Core::Id mode)
@@ -79,17 +77,16 @@ void LocalApplicationRunControl::start()
 {
     QTC_ASSERT(runnable().is<StandardRunnable>(), return);
     auto r = runnable().as<StandardRunnable>();
-    emit started();
+    reportApplicationStart();
     if (r.executable.isEmpty()) {
         appendMessage(tr("No executable specified.") + QLatin1Char('\n'), Utils::ErrorMessageFormat);
-        emit finished();
+        reportApplicationStop();
     }  else if (!QFileInfo::exists(r.executable)) {
         appendMessage(tr("Executable %1 does not exist.")
                         .arg(QDir::toNativeSeparators(r.executable)) + QLatin1Char('\n'),
                       Utils::ErrorMessageFormat);
-        emit finished();
+        reportApplicationStop();
     } else {
-        m_running = true;
         QString msg = tr("Starting %1...").arg(QDir::toNativeSeparators(r.executable)) + QLatin1Char('\n');
         appendMessage(msg, Utils::NormalMessageFormat);
         m_applicationLauncher.start(r);
@@ -103,11 +100,6 @@ LocalApplicationRunControl::StopResult LocalApplicationRunControl::stop()
     return StoppedSynchronously;
 }
 
-bool LocalApplicationRunControl::isRunning() const
-{
-    return m_running;
-}
-
 void LocalApplicationRunControl::processStarted()
 {
     // Console processes only know their pid after being started
@@ -116,8 +108,6 @@ void LocalApplicationRunControl::processStarted()
 
 void LocalApplicationRunControl::processExited(int exitCode, QProcess::ExitStatus status)
 {
-    m_running = false;
-    setApplicationProcessHandle(ProcessHandle());
     QString msg;
     QString exe = runnable().as<StandardRunnable>().executable;
     if (status == QProcess::CrashExit)
@@ -125,7 +115,7 @@ void LocalApplicationRunControl::processExited(int exitCode, QProcess::ExitStatu
     else
         msg = tr("%1 exited with code %2").arg(QDir::toNativeSeparators(exe)).arg(exitCode);
     appendMessage(msg + QLatin1Char('\n'), Utils::NormalMessageFormat);
-    emit finished();
+    reportApplicationStop();
 }
 
 // LocalApplicationRunControlFactory

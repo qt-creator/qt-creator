@@ -52,7 +52,6 @@ public:
 
     void start() override;
     StopResult stop() override;
-    bool isRunning() const override;
 
 private:
     enum State { StartingState, StartedState, StoppedState };

@@ -43,7 +43,6 @@ public:
 
     void start() override;
     StopResult stop() override;
-    bool isRunning() const override;
 
 private:
     void processStarted();
@@ -51,7 +50,6 @@ private:
     void slotAppendMessage(const QString &err, Utils::OutputFormat isError);
 
     ProjectExplorer::ApplicationLauncher m_applicationLauncher;
-    bool m_running;
     ProjectExplorer::StandardRunnable m_runnable;
 };
 

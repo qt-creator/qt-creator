@@ -39,7 +39,6 @@ namespace Nim {
 
 NimRunControl::NimRunControl(NimRunConfiguration *rc, Core::Id mode)
     : RunControl(rc, mode)
-    , m_running(false)
     , m_runnable(rc->runnable().as<StandardRunnable>())
 {
     connect(&m_applicationLauncher, &ApplicationLauncher::appendMessage,
@@ -54,8 +53,7 @@ NimRunControl::NimRunControl(NimRunConfiguration *rc, Core::Id mode)
 
 void NimRunControl::start()
 {
-    emit started();
-    m_running = true;
+    reportApplicationStart();
     m_applicationLauncher.start(m_runnable);
     setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
 }
@@ -66,11 +64,6 @@ ProjectExplorer::RunControl::StopResult NimRunControl::stop()
     return StoppedSynchronously;
 }
 
-bool NimRunControl::isRunning() const
-{
-    return m_running;
-}
-
 void NimRunControl::processStarted()
 {
     // Console processes only know their pid after being started
@@ -79,7 +72,6 @@ void NimRunControl::processStarted()
 
 void NimRunControl::processExited(int exitCode, QProcess::ExitStatus status)
 {
-    m_running = false;
     setApplicationProcessHandle(ProcessHandle());
     QString msg;
     if (status == QProcess::CrashExit) {
@@ -90,7 +82,7 @@ void NimRunControl::processExited(int exitCode, QProcess::ExitStatus status)
                 .arg(QDir::toNativeSeparators(m_runnable.executable)).arg(exitCode);
     }
     appendMessage(msg + QLatin1Char('\n'), NormalMessageFormat);
-    emit finished();
+    reportApplicationStop();
 }
 
 void NimRunControl::slotAppendMessage(const QString &err, OutputFormat format)
