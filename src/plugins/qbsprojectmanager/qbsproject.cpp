@@ -790,7 +790,7 @@ static CppTools::ProjectFile::Kind cppFileType(const qbs::ArtifactData &sourceFi
     return CppTools::ProjectFile::Unsupported;
 }
 
-static QString groupLocationToProjectFile(const qbs::CodeLocation &location)
+static QString groupLocationToCallGroupId(const qbs::CodeLocation &location)
 {
     return QString::fromLatin1("%1:%2:%3")
                         .arg(location.filePath())
@@ -950,6 +950,7 @@ void QbsProject::updateCppCodeModel()
             CppTools::RawProjectPart rpp;
             rpp.setQtVersion(qtVersionForPart);
             const qbs::PropertyMap &props = grp.properties();
+            rpp.setCallGroupId(groupLocationToCallGroupId(grp.location()));
 
             QStringList cFlags;
             QStringList cxxFlags;
@@ -1091,7 +1092,7 @@ void QbsProject::updateCppCompilerCallData()
                 continue;
 
             CppTools::ProjectInfo::CompilerCallGroup compilerCallGroup;
-            compilerCallGroup.groupId = groupLocationToProjectFile(group.location());
+            compilerCallGroup.groupId = groupLocationToCallGroupId(group.location());
 
             foreach (const qbs::ArtifactData &file, group.allSourceArtifacts()) {
                 const QString &filePath = file.filePath();

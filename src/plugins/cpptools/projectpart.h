@@ -108,6 +108,7 @@ public:
     int projectFileLine = -1;
     int projectFileColumn = -1;
     QString projectConfigFile; // currently only used by the Generic Project Manager
+    QString callGroupId;
 
     ProjectFiles files;
 

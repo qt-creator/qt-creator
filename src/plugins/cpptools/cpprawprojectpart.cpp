@@ -66,6 +66,11 @@ void RawProjectPart::setConfigFileName(const QString &configFileName)
     this->projectConfigFile = configFileName;
 }
 
+void RawProjectPart::setCallGroupId(const QString &id)
+{
+    callGroupId = id;
+}
+
 void RawProjectPart::setQtVersion(ProjectPart::QtVersion qtVersion)
 {
     this->qtVersion = qtVersion;

@@ -62,6 +62,7 @@ public:
 
     void setProjectFile(const QString &projectFile, int line = -1, int column = -1);
     void setConfigFileName(const QString &configFileName);
+    void setCallGroupId(const QString &id);
 
     void setQtVersion(ProjectPart::QtVersion qtVersion);
 
@@ -82,6 +83,7 @@ public:
     int projectFileLine = -1;
     int projectFileColumn = -1;
     QString projectConfigFile; // currently only used by the Generic Project Manager
+    QString callGroupId;
     QStringList precompiledHeaders;
     ProjectPartHeaderPaths headerPaths;
     QByteArray projectDefines;

@@ -1782,12 +1782,15 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
         projectFileLocation += ":" + QString::number(part->projectFileLine);
     if (part->projectFileColumn > 0)
         projectFileLocation += ":" + QString::number(part->projectFileColumn);
+    const QString callGroupId = part->callGroupId.isEmpty() ? QString::fromLatin1("<None>")
+                                                            : part->callGroupId;
 
     KeyValueModel::Table table = KeyValueModel::Table()
         << qMakePair(QString::fromLatin1("Project Part Name"), part->displayName)
         << qMakePair(QString::fromLatin1("Project Part File"), projectFileLocation)
         << qMakePair(QString::fromLatin1("Project Name"), projectName)
         << qMakePair(QString::fromLatin1("Project File"), projectFilePath)
+        << qMakePair(QString::fromLatin1("Callgroup Id"), callGroupId)
         << qMakePair(QString::fromLatin1("Selected For Building"),
                      CMI::Utils::toString(part->selectedForBuilding))
         << qMakePair(QString::fromLatin1("Language Version"),
