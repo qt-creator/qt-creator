@@ -121,13 +121,13 @@ void AutoTestUnitTests::testCodeParser_data()
             << 1 << 0 << 0 << 0;
     QTest::newRow("mixedAutoTestAndQuickTests")
             << QString(m_tmpDir->path() + "/mixed_atp/mixed_atp.pro")
-            << 4 << 5 << 3 << 10;
+            << 4 << 7 << 3 << 10;
     QTest::newRow("plainAutoTestQbs")
             << QString(m_tmpDir->path() + "/plain/plain.qbs")
             << 1 << 0 << 0 << 0;
     QTest::newRow("mixedAutoTestAndQuickTestsQbs")
             << QString(m_tmpDir->path() + "/mixed_atp/mixed_atp.qbs")
-            << 4 << 5 << 3 << 10;
+            << 4 << 7 << 3 << 10;
 }
 
 void AutoTestUnitTests::testCodeParserSwitchStartup()
@@ -173,7 +173,7 @@ void AutoTestUnitTests::testCodeParserSwitchStartup_data()
             m_tmpDir->path() + "/mixed_atp/mixed_atp.qbs"});
 
     QList<int> expectedAutoTests = QList<int>()         << 1 << 4 << 1 << 4;
-    QList<int> expectedNamedQuickTests = QList<int>()   << 0 << 5 << 0 << 5;
+    QList<int> expectedNamedQuickTests = QList<int>()   << 0 << 7 << 0 << 7;
     QList<int> expectedUnnamedQuickTests = QList<int>() << 0 << 3 << 0 << 3;
     QList<int> expectedDataTagsCount = QList<int>()     << 0 << 10 << 0 << 10;
 
