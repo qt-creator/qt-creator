@@ -1502,7 +1502,7 @@ void CppEditorPlugin::test_quickfix_data()
                  "            return;\n"
                  "\n"
                  "        m_it = it;\n"
-                 "        emit itChanged(it);\n"
+                 "        emit itChanged(m_it);\n"
                  "    }\n"
                  "\n"
                  "signals:\n"
