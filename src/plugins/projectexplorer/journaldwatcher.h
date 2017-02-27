@@ -41,7 +41,7 @@ class JournaldWatcher : public QObject
 
 public:
     typedef QMap<QByteArray, QByteArray> LogEntry;
-    typedef std::function<void(LogEntry)> Subscription;
+    typedef std::function<void(const LogEntry&)> Subscription;
 
     ~JournaldWatcher() override;
 
@@ -51,9 +51,6 @@ public:
 
     static bool subscribe(QObject *subscriber, const Subscription &subscription);
     static void unsubscribe(QObject *subscriber);
-
-signals:
-    void journaldOutput(quint64 pid, const QString &message);
 
 private:
     JournaldWatcher();

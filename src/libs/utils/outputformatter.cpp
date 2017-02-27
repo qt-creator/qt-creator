@@ -145,6 +145,10 @@ void OutputFormatter::initFormats()
     d->formats[ErrorMessageFormat].setFont(boldFont, QTextCharFormat::FontPropertiesSpecifiedOnly);
     d->formats[ErrorMessageFormat].setForeground(theme->color(Theme::OutputPanes_ErrorMessageTextColor));
 
+    // LogMessageFormat
+    d->formats[LogMessageFormat].setFont(d->font, QTextCharFormat::FontPropertiesSpecifiedOnly);
+    d->formats[LogMessageFormat].setForeground(theme->color(Theme::OutputPanes_WarningMessageTextColor));
+
     // StdOutFormat
     d->formats[StdOutFormat].setFont(d->font, QTextCharFormat::FontPropertiesSpecifiedOnly);
     d->formats[StdOutFormat].setForeground(theme->color(Theme::OutputPanes_StdOutTextColor));

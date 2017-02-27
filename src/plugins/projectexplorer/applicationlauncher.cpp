@@ -27,9 +27,6 @@
 #ifdef Q_OS_WIN
 #include "windebuginterface.h"
 #endif
-#ifdef WITH_JOURNALD
-#include "journaldwatcher.h"
-#endif
 
 #include <coreplugin/icore.h>
 
@@ -72,12 +69,12 @@ struct ApplicationLauncherPrivate {
     Utils::QtcProcess m_guiProcess;
     Utils::ConsoleProcess m_consoleProcess;
     ApplicationLauncher::Mode m_currentMode;
+    // Keep track whether we need to emit a finished signal
+    bool m_processRunning = false;
 
     QTextCodec *m_outputCodec;
     QTextCodec::ConverterState m_outputCodecState;
     QTextCodec::ConverterState m_errorCodecState;
-    // Keep track whether we need to emit a finished signal
-    bool m_processRunning = false;
 
     qint64 m_listeningPid = 0;
 };
@@ -125,10 +122,6 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent) : QObject(parent),
             this, &ApplicationLauncher::cannotRetrieveDebugOutput);
     connect(WinDebugInterface::instance(), &WinDebugInterface::debugOutput,
             this, &ApplicationLauncher::checkDebugOutput, Qt::BlockingQueuedConnection);
-#endif
-#ifdef WITH_JOURNALD
-    connect(JournaldWatcher::instance(), &JournaldWatcher::journaldOutput,
-            this, &ApplicationLauncher::checkDebugOutput);
 #endif
 }
 

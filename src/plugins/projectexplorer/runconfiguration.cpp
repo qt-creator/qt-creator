@@ -48,6 +48,10 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
+#if defined (WITH_JOURNALD)
+#include "journaldwatcher.h"
+#endif
+
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -541,10 +545,31 @@ public:
 
 RunControl::RunControl(RunConfiguration *runConfiguration, Core::Id mode) :
     d(new Internal::RunControlPrivate(runConfiguration, mode))
-{ }
+{
+#ifdef WITH_JOURNALD
+    JournaldWatcher::instance()->subscribe(this, [this](const JournaldWatcher::LogEntry &entry) {
+        if (entry.value("_MACHINE_ID") != JournaldWatcher::instance()->machineId())
+            return;
+
+        const QByteArray pid = entry.value("_PID");
+        if (pid.isEmpty())
+            return;
+
+        const qint64 pidNum = static_cast<qint64>(QString::fromLatin1(pid).toInt());
+        if (pidNum != d->applicationProcessHandle.pid())
+            return;
+
+        const QString message = QString::fromUtf8(entry.value("MESSAGE")) + "\n";
+        appendMessageRequested(this, message, Utils::OutputFormat::LogMessageFormat);
+    });
+#endif
+}
 
 RunControl::~RunControl()
 {
+#ifdef WITH_JOURNALD
+    JournaldWatcher::instance()->unsubscribe(this);
+#endif
     delete d;
 }
 

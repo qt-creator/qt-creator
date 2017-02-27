@@ -31,6 +31,7 @@ enum OutputFormat
 {
     NormalMessageFormat,
     ErrorMessageFormat,
+    LogMessageFormat,
     DebugFormat,
     StdOutFormat,
     StdErrFormat,
