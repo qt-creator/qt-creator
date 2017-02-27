@@ -140,32 +140,33 @@ class Dumper(DumperBase):
 
     def fromNativeType(self, nativeType):
         self.check(isinstance(nativeType, cdbext.Type))
-        code = nativeType.code()
+        typeId = self.nativeTypeId(nativeType)
+        if self.typeData.get(typeId, None) is not None:
+            return self.Type(self, typeId)
 
         if nativeType.name().startswith('void'):
             nativeType = FakeVoidType(nativeType.name(), self)
 
+        code = nativeType.code()
         if code == TypeCodePointer:
             return self.createPointerType(self.lookupType(nativeType.targetName(), nativeType.moduleId()))
 
         if code == TypeCodeArray:
             return self.createArrayType(self.lookupType(nativeType.targetName(), nativeType.moduleId()), nativeType.arrayElements())
 
-        typeId = self.nativeTypeId(nativeType)
-        if self.typeData.get(typeId, None) is None:
-            tdata = self.TypeData(self)
-            tdata.name = nativeType.name()
-            tdata.typeId = typeId
-            tdata.lbitsize = nativeType.bitsize()
-            tdata.code = code
-            self.registerType(typeId, tdata) # Prevent recursion in fields.
-            if  code == TypeCodeStruct:
-                tdata.lfields = lambda value : \
-                    self.listFields(nativeType, value)
-                tdata.lalignment = lambda : \
-                    self.nativeStructAlignment(nativeType)
-            tdata.templateArguments = self.listTemplateParameters(nativeType.name())
-            self.registerType(typeId, tdata) # Fix up fields and template args
+        tdata = self.TypeData(self)
+        tdata.name = nativeType.name()
+        tdata.typeId = typeId
+        tdata.lbitsize = nativeType.bitsize()
+        tdata.code = code
+        self.registerType(typeId, tdata) # Prevent recursion in fields.
+        if  code == TypeCodeStruct:
+            tdata.lfields = lambda value : \
+                self.listFields(nativeType, value)
+            tdata.lalignment = lambda : \
+                self.nativeStructAlignment(nativeType)
+        tdata.templateArguments = self.listTemplateParameters(nativeType.name())
+        self.registerType(typeId, tdata) # Fix up fields and template args
         return self.Type(self, typeId)
 
     def listFields(self, nativeType, value):
