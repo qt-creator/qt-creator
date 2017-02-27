@@ -26,6 +26,7 @@
 #include "pyvalue.h"
 
 #include "extensioncontext.h"
+#include "symbolgroupvalue.h"
 
 #include <list>
 
@@ -261,6 +262,43 @@ PyValue PyValue::childFromIndex(int index)
         offset += childDescendantCount;
     }
     return PyValue(m_index + offset, m_symbolGroup);
+}
+
+PyValue PyValue::createValue(ULONG64 address, const PyType &type)
+{
+    if (debuggingValueEnabled()) {
+        DebugPrint() << "Create Value address: 0x" << std::hex << address
+                     << " type name: " << type.name();
+    }
+
+    IDebugSymbolGroup2 *symbolGroup = CurrentSymbolGroup::get();
+    if (symbolGroup == nullptr)
+        return PyValue();
+
+    ULONG numberOfSymbols = 0;
+    symbolGroup->GetNumberSymbols(&numberOfSymbols);
+    ULONG index = 0;
+    for (;index < numberOfSymbols; ++index) {
+        ULONG64 offset;
+        symbolGroup->GetSymbolOffset(index, &offset);
+        if (offset == address) {
+            DEBUG_SYMBOL_PARAMETERS params;
+            if (SUCCEEDED(symbolGroup->GetSymbolParameters(index, 1, &params))) {
+                if (params.TypeId == type.getTypeId() && params.Module == type.moduleId())
+                    return PyValue(index, symbolGroup);
+            }
+        }
+    }
+
+    const std::string name = SymbolGroupValue::pointedToSymbolName(address, type.name(true));
+    if (debuggingValueEnabled())
+        DebugPrint() << "Create Value expression: " << name;
+
+    index = DEBUG_ANY_ID;
+    if (FAILED(symbolGroup->AddSymbol(name.c_str(), &index)))
+        return PyValue();
+
+    return PyValue(index, symbolGroup);
 }
 
 // Python interface implementation

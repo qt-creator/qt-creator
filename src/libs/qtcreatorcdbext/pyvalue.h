@@ -54,6 +54,7 @@ public:
     PyValue childFromField(const PyField &field);
     PyValue childFromIndex(int index);
 
+    static PyValue createValue(ULONG64 address, const PyType &type);
 private:
     static void indicesMoved(CIDebugSymbolGroup *symbolGroup, ULONG start, ULONG delta);
 

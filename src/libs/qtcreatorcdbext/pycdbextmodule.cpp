@@ -293,41 +293,7 @@ static PyObject *cdbext_createValue(PyObject *, PyObject *args)
     if (!type->impl)
         Py_RETURN_NONE;
 
-    if (debugPyCdbextModule) {
-        DebugPrint() << "Create Value address: 0x" << std::hex << address
-                     << " type name: " << type->impl->name();
-    }
-
-    IDebugSymbolGroup2 *symbolGroup = CurrentSymbolGroup::get();
-    if (symbolGroup == nullptr)
-        Py_RETURN_NONE;
-
-    ULONG numberOfSymbols = 0;
-    symbolGroup->GetNumberSymbols(&numberOfSymbols);
-    ULONG index = 0;
-    for (;index < numberOfSymbols; ++index) {
-        ULONG64 offset;
-        symbolGroup->GetSymbolOffset(index, &offset);
-        if (offset == address) {
-            DEBUG_SYMBOL_PARAMETERS params;
-            if (SUCCEEDED(symbolGroup->GetSymbolParameters(index, 1, &params))) {
-                if (params.TypeId == type->impl->getTypeId() && params.Module == type->impl->moduleId())
-                    break;
-            }
-        }
-    }
-
-    if (index >= numberOfSymbols) {
-        ULONG index = DEBUG_ANY_ID;
-        const std::string name = SymbolGroupValue::pointedToSymbolName(address, type->impl->name(true));
-        if (debugPyCdbextModule)
-            DebugPrint() << "Create Value expression: " << name;
-
-        if (FAILED(symbolGroup->AddSymbol(name.c_str(), &index)))
-            Py_RETURN_NONE;
-    }
-
-    return createPythonObject(PyValue(index, symbolGroup));
+    return createPythonObject(PyValue::createValue(address, *(type->impl)));
 }
 
 static PyObject *cdbext_call(PyObject *, PyObject *args)
