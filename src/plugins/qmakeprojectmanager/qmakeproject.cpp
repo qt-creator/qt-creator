@@ -246,7 +246,7 @@ bool QmakeProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType 
   QmakeProject manages information about an individual Qt 4 (.pro) project file.
   */
 
-QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
+QmakeProject::QmakeProject(IProjectManager *manager, const QString &fileName) :
     m_projectFiles(new QmakeProjectFiles),
     m_qmakeVfs(new QMakeVfs),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))

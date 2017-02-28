@@ -62,7 +62,7 @@ class  QMAKEPROJECTMANAGER_EXPORT QmakeProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    QmakeProject(QmakeManager *manager, const QString &proFile);
+    QmakeProject(ProjectExplorer::IProjectManager *manager, const QString &proFile);
     ~QmakeProject() final;
 
     QmakeProFile *rootProFile() const;

@@ -49,7 +49,7 @@ class GenericProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    GenericProject(Manager *manager, const QString &filename);
+    explicit GenericProject(const QString &filename);
     ~GenericProject() override;
 
     QString filesFileName() const;

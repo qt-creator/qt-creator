@@ -100,7 +100,7 @@ public:
 class PythonProject : public Project
 {
 public:
-    PythonProject(PythonProjectManager *manager, const QString &filename);
+    explicit PythonProject(const QString &filename);
 
     QString displayName() const override { return m_projectName; }
     PythonProjectManager *projectManager() const override;
@@ -370,7 +370,7 @@ Project *PythonProjectManager::openProject(const QString &fileName, QString *err
         return 0;
     }
 
-    return new PythonProject(this, fileName);
+    return new PythonProject(fileName);
 }
 
 class PythonRunConfigurationFactory : public IRunConfigurationFactory
@@ -443,10 +443,9 @@ private:
     }
 };
 
-PythonProject::PythonProject(PythonProjectManager *manager, const QString &fileName)
+PythonProject::PythonProject(const QString &fileName)
 {
     setId(PythonProjectId);
-    setProjectManager(manager);
     setDocument(new PythonProjectFile(this, fileName));
     DocumentManager::addDocument(document());
     setRootProjectNode(new PythonProjectNode(this));

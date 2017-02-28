@@ -50,7 +50,6 @@ namespace CMakeProjectManager {
 namespace Internal {
 class CMakeBuildConfiguration;
 class CMakeBuildSettingsWidget;
-class CMakeManager;
 } // namespace Internal
 
 enum TargetType {
@@ -84,7 +83,7 @@ class CMAKE_EXPORT CMakeProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    CMakeProject(Internal::CMakeManager *manager, const Utils::FileName &filename);
+    explicit CMakeProject(const Utils::FileName &filename);
     ~CMakeProject() final;
 
     QString displayName() const final;

@@ -117,7 +117,7 @@ private:
 // QbsProject:
 // --------------------------------------------------------------------
 
-QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
+QbsProject::QbsProject(const QString &fileName) :
     m_projectName(QFileInfo(fileName).completeBaseName()),
     m_qbsProjectParser(0),
     m_qbsUpdateFutureInterface(0),
@@ -130,7 +130,6 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
 
     setId(Constants::PROJECT_ID);
-    setProjectManager(manager);
     setDocument(new QbsProjectFile(this, fileName));
     DocumentManager::addDocument(document());
     setRootProjectNode(new QbsRootProjectNode(this));

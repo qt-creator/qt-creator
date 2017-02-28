@@ -114,7 +114,7 @@ ProjectExplorer::Project *QbsManager::openProject(const QString &fileName, QStri
         return nullptr;
     }
 
-    return new QbsProject(this, fileName);
+    return new QbsProject(fileName);
 }
 
 QString QbsManager::profileForKit(const ProjectExplorer::Kit *k)

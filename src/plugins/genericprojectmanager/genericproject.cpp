@@ -65,11 +65,10 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-GenericProject::GenericProject(Manager *manager, const QString &fileName)
+GenericProject::GenericProject(const QString &fileName)
     : m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(Constants::GENERICPROJECT_ID);
-    setProjectManager(manager);
     setDocument(new GenericProjectFile(this, fileName, GenericProject::Everything));
     setRootProjectNode(new GenericProjectNode(this));
     setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));

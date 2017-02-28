@@ -51,7 +51,7 @@ ProjectExplorer::Project *Manager::openProject(const QString &fileName, QString 
         return 0;
     }
 
-    return new GenericProject(this, fileName);
+    return new GenericProject(fileName);
 }
 
 void Manager::registerProject(GenericProject *project)

@@ -54,10 +54,9 @@ namespace Nim {
 
 const int MIN_TIME_BETWEEN_PROJECT_SCANS = 4500;
 
-NimProject::NimProject(NimProjectManager *projectManager, const QString &fileName)
+NimProject::NimProject(const QString &fileName)
 {
     setId(Constants::C_NIMPROJECT_ID);
-    setProjectManager(projectManager);
     setDocument(new TextEditor::TextDocument);
     document()->setFilePath(FileName::fromString(fileName));
     QFileInfo fi = QFileInfo(fileName);

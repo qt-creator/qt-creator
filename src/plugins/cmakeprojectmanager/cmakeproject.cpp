@@ -73,11 +73,10 @@ using namespace Internal;
 /*!
   \class CMakeProject
 */
-CMakeProject::CMakeProject(CMakeManager *manager, const FileName &fileName)
+CMakeProject::CMakeProject(const FileName &fileName)
     : m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
-    setProjectManager(manager);
     setDocument(new TextEditor::TextDocument);
     document()->setFilePath(fileName);
 

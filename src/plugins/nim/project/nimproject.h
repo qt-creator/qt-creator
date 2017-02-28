@@ -29,23 +29,17 @@
 #include <projectexplorer/projectnodes.h>
 
 #include <QElapsedTimer>
-#include <QFileSystemWatcher>
 #include <QFutureWatcher>
 #include <QTimer>
 
-namespace TextEditor { class TextDocument; }
-
 namespace Nim {
-
-class NimProjectManager;
-class NimProjectNode;
 
 class NimProject : public ProjectExplorer::Project
 {
     Q_OBJECT
 
 public:
-    NimProject(NimProjectManager *projectManager, const QString &fileName);
+    explicit NimProject(const QString &fileName);
 
     QString displayName() const override;
     QStringList files(FilesMode) const override;

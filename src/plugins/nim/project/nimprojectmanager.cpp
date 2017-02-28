@@ -44,7 +44,7 @@ Project *NimProjectManager::openProject(const QString &fileName, QString *errorS
         return nullptr;
     }
 
-    return new NimProject(this, fileName);
+    return new NimProject(fileName);
 }
 
 }

@@ -166,7 +166,7 @@ Project *CMakeManager::openProject(const QString &fileName, QString *errorString
         return 0;
     }
 
-    return new CMakeProject(this, file);
+    return new CMakeProject(file);
 }
 
 QString CMakeManager::mimeType() const

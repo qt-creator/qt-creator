@@ -50,7 +50,7 @@ Project *AutotoolsManager::openProject(const QString &fileName, QString *errorSt
         return 0;
     }
 
-    return new AutotoolsProject(this, fileName);
+    return new AutotoolsProject(fileName);
 }
 
 QString AutotoolsManager::mimeType() const

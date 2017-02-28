@@ -1709,6 +1709,7 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
                     foundProjectManager = true;
                     QString tmp;
                     if (Project *pro = manager->openProject(filePath, &tmp)) {
+                        pro->setProjectManager(manager);
                         QObject::connect(pro, &Project::parsingFinished, [pro]() {
                             emit SessionManager::instance()->projectFinishedParsing(pro);
                         });

@@ -69,12 +69,11 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fileName) :
+AutotoolsProject::AutotoolsProject(const QString &fileName) :
     m_fileWatcher(new Utils::FileSystemWatcher(this)),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(Constants::AUTOTOOLS_PROJECT_ID);
-    setProjectManager(manager);
     setDocument(new AutotoolsProjectFile(fileName));
     setRootProjectNode(new AutotoolsProjectNode(projectDirectory()));
     setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
