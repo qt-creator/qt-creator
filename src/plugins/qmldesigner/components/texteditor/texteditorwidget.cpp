@@ -61,6 +61,7 @@ TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView)
 
 void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
 {
+    TextEditor::BaseTextEditor *oldEditor = m_textEditor.release();
     m_textEditor.reset(textEditor);
     layout()->removeWidget(m_statusBar);
     layout()->addWidget(textEditor->editorWidget());
@@ -70,6 +71,9 @@ void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
     connect(textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged,
             &m_updateSelectionTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
     textEditor->editorWidget()->installEventFilter(this);
+
+    if (oldEditor)
+        oldEditor->deleteLater();
 }
 
 QString TextEditorWidget::contextHelpId() const
