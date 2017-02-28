@@ -25,11 +25,11 @@
 
 #include "clangcodemodelplugin.h"
 
-#include "clangbatchfileprocessor.h"
 #include "clangconstants.h"
 #include "clangprojectsettingswidget.h"
 
 #ifdef WITH_TESTS
+#  include "test/clangbatchfileprocessor.h"
 #  include "test/clangcodecompletion_test.h"
 #endif
 

@@ -25,7 +25,7 @@
 
 #include "clangcodecompletion_test.h"
 
-#include "../clangautomationutils.h"
+#include "clangautomationutils.h"
 #include "../clangbackendipcintegration.h"
 #include "../clangcompletionassistinterface.h"
 #include "../clangmodelmanagersupport.h"

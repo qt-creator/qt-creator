@@ -25,8 +25,8 @@
 
 #include "clangautomationutils.h"
 
-#include "clangcompletionassistinterface.h"
-#include "clangcompletionassistprovider.h"
+#include "../clangcompletionassistinterface.h"
+#include "../clangcompletionassistprovider.h"
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/assistproposalitem.h>
