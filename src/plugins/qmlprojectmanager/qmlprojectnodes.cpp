@@ -73,6 +73,7 @@ void QmlProjectNode::refresh()
     });
     fileNodes.append(projectFilesNode);
 
+    makeEmpty();
     buildTree(fileNodes);
 }
 
