@@ -34,6 +34,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <limits>
+
 namespace QmlDesigner {
 
 QmlTimelineFrames::QmlTimelineFrames()
@@ -124,6 +126,42 @@ bool QmlTimelineFrames::hasKeyframe(qreal frame)
     }
 
     return false;
+}
+
+qreal QmlTimelineFrames::minActualFrame() const
+{
+    qreal min = std::numeric_limits<double>::max();
+    for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
+        QVariant value = childNode.variantProperty("frame").value();
+        if (value.isValid() && value.toReal() < min)
+            min = value.toReal();
+    }
+
+    return min;
+}
+
+qreal QmlTimelineFrames::maxActualFrame() const
+{
+    qreal max = std::numeric_limits<double>::min();
+    for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
+        QVariant value = childNode.variantProperty("frame").value();
+        if (value.isValid() && value.toReal() > max)
+            max = value.toReal();
+    }
+
+    return max;
+}
+
+const QList<ModelNode> QmlTimelineFrames::keyframePositions() const
+{
+    QList<ModelNode> returnValues;
+    for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
+        QVariant value = childNode.variantProperty("frame").value();
+        if (value.isValid())
+            returnValues.append(childNode);
+    }
+
+    return returnValues;
 }
 
 bool QmlTimelineFrames::isValidKeyframe(const ModelNode &node)

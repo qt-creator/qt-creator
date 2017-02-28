@@ -36,6 +36,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <limits>
+
 namespace QmlDesigner {
 
 QmlTimelineMutator::QmlTimelineMutator()
@@ -121,6 +123,73 @@ qreal QmlTimelineMutator::currentFrame() const
     if (isValid())
         return QmlObjectNode(modelNode()).instanceValue("currentFrame").toReal();
     return 0;
+}
+
+qreal QmlTimelineMutator::duration() const
+{
+    return endFrame() - startFrame();
+}
+
+qreal QmlTimelineMutator::minActualFrame() const
+{
+    qreal min = std::numeric_limits<double>::max();
+
+    for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
+        if (QmlTimelineFrames::isValidQmlTimelineFrames(childNode)) {
+            QmlTimelineFrames frames(childNode);
+            qreal value = frames.minActualFrame();
+            if (value < min)
+                min = value;
+        }
+    }
+
+    return min;
+}
+
+qreal QmlTimelineMutator::maxActualFrame() const
+{
+    qreal max = std::numeric_limits<double>::min();
+
+    for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
+        if (QmlTimelineFrames::isValidQmlTimelineFrames(childNode)) {
+            QmlTimelineFrames frames(childNode);
+            qreal value = frames.maxActualFrame();
+            if (value > max)
+                max = value;
+        }
+    }
+
+    return max;
+}
+
+QList<ModelNode> QmlTimelineMutator::allTargets() const
+{
+    QList<ModelNode> result;
+    if (isValid()) {
+        for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
+            if (QmlTimelineFrames::isValidQmlTimelineFrames(childNode)) {
+                const QmlTimelineFrames frames(childNode);
+                if (!result.contains(frames.target()))
+                    result.append(frames.target());
+            }
+        }
+    }
+    return result;
+}
+
+QList<QmlTimelineFrames> QmlTimelineMutator::framesForTarget(const ModelNode &target) const
+{
+     QList<QmlTimelineFrames> result;
+     if (isValid()) {
+         for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
+             if (QmlTimelineFrames::isValidQmlTimelineFrames(childNode)) {
+                 const QmlTimelineFrames frames(childNode);
+                 if (frames.target() == target)
+                     result.append(frames);
+             }
+         }
+     }
+     return result;
 }
 
 void QmlTimelineMutator::addFramesIfNotExists(const ModelNode &node, const PropertyName &propertyName)
