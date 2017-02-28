@@ -140,26 +140,26 @@ class QmlProfilerModelManager::QmlProfilerModelManagerPrivate
 public:
     QmlProfilerModelManagerPrivate() : file("qmlprofiler-data") {}
 
-    QmlProfilerNotesModel *notesModel;
-    QmlProfilerTextMarkModel *textMarkModel;
+    QmlProfilerNotesModel *notesModel = nullptr;
+    QmlProfilerTextMarkModel *textMarkModel = nullptr;
 
-    QmlProfilerModelManager::State state;
-    QmlProfilerTraceTime *traceTime;
+    QmlProfilerModelManager::State state = Empty;
+    QmlProfilerTraceTime *traceTime = nullptr;
 
-    int numRegisteredModels;
-    int numFinishedFinalizers;
+    int numRegisteredModels = 0;
+    int numFinishedFinalizers = 0;
 
-    uint numLoadedEvents;
-    quint64 availableFeatures;
-    quint64 visibleFeatures;
-    quint64 recordedFeatures;
-    bool aggregateTraces;
+    uint numLoadedEvents = 0;
+    quint64 availableFeatures = 0;
+    quint64 visibleFeatures = 0;
+    quint64 recordedFeatures = 0;
+    bool aggregateTraces = false;
 
     QHash<ProfileFeature, QVector<EventLoader> > eventLoaders;
     QVector<Finalizer> finalizers;
 
     QVector<QmlEventType> eventTypes;
-    QmlProfilerDetailsRewriter *detailsRewriter;
+    QmlProfilerDetailsRewriter *detailsRewriter = nullptr;
 
     Utils::TemporaryFile file;
     QDataStream eventStream;
@@ -173,14 +173,6 @@ public:
 QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent) :
     QObject(parent), d(new QmlProfilerModelManagerPrivate)
 {
-    d->numRegisteredModels = 0;
-    d->numFinishedFinalizers = 0;
-    d->numLoadedEvents = 0;
-    d->availableFeatures = 0;
-    d->visibleFeatures = 0;
-    d->recordedFeatures = 0;
-    d->aggregateTraces = false;
-    d->state = Empty;
     d->traceTime = new QmlProfilerTraceTime(this);
     d->notesModel = new QmlProfilerNotesModel(this);
     d->textMarkModel = new QmlProfilerTextMarkModel(this);
