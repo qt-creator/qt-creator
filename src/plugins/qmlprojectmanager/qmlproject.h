@@ -36,13 +36,10 @@
 
 namespace ProjectExplorer { class RunConfiguration; }
 namespace QmlJS { class ModelManagerInterface; }
-namespace Utils { class FileSystemWatcher; }
 
 namespace QmlProjectManager {
 
 class QmlProjectItem;
-
-namespace Internal { class QmlProjectFile; }
 
 class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
 {
@@ -51,8 +48,6 @@ class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
 public:
     QmlProject(Internal::Manager *manager, const Utils::FileName &filename);
     ~QmlProject() override;
-
-    Utils::FileName filesFileName() const;
 
     QString displayName() const override;
     Internal::Manager *projectManager() const override;

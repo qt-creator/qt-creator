@@ -55,20 +55,5 @@ ProjectExplorer::Project *Manager::openProject(const QString &fileName, QString 
     return new QmlProject(this, Utils::FileName::fromString(fileName));
 }
 
-void Manager::registerProject(QmlProject *project)
-{ m_projects.append(project); }
-
-void Manager::unregisterProject(QmlProject *project)
-{ m_projects.removeAll(project); }
-
-void Manager::notifyChanged(const QString &fileName)
-{
-    const Utils::FileName file = Utils::FileName::fromString(fileName);
-    foreach (QmlProject *project, m_projects) {
-        if (file == project->filesFileName())
-            project->refresh(QmlProject::Files);
-    }
-}
-
 } // namespace Internal
 } // namespace QmlProjectManager

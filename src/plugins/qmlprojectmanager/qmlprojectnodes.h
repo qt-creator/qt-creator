@@ -27,11 +27,6 @@
 
 #include <projectexplorer/projectnodes.h>
 
-#include <QStringList>
-#include <QHash>
-
-namespace Core { class IDocument; }
-
 namespace QmlProjectManager {
 
 class QmlProject;
@@ -42,7 +37,6 @@ class QmlProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
     QmlProjectNode(QmlProject *project);
-    ~QmlProjectNode() override;
 
     virtual bool showInSimpleTree() const override;
 

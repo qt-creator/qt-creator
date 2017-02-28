@@ -32,14 +32,15 @@
 
 #include <utils/algorithm.h>
 
-#include <QFileInfo>
 #include <QStyle>
+
+using namespace ProjectExplorer;
 
 namespace QmlProjectManager {
 namespace Internal {
 
 QmlProjectNode::QmlProjectNode(QmlProject *project)
-    : ProjectExplorer::ProjectNode(project->projectDirectory()),
+    : ProjectNode(project->projectDirectory()),
       m_project(project)
 {
     setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
@@ -52,26 +53,17 @@ QmlProjectNode::QmlProjectNode(QmlProject *project)
     setIcon(QIcon(projectPixmap));
 }
 
-QmlProjectNode::~QmlProjectNode()
-{ }
-
 void QmlProjectNode::refresh()
 {
-    using namespace ProjectExplorer;
-
-    FileNode *projectFilesNode = new FileNode(m_project->filesFileName(),
-                                              FileType::Project,
-                                              /* generated = */ false);
-
     QStringList files = m_project->files();
-    files.removeAll(m_project->filesFileName().toString());
+    files.removeAll(m_project->projectFilePath().toString());
 
     QList<FileNode *> fileNodes = Utils::transform(files, [](const QString &f) {
         FileType fileType = FileType::Source; // ### FIXME
         return new FileNode(Utils::FileName::fromString(f), fileType, false);
 
     });
-    fileNodes.append(projectFilesNode);
+    fileNodes.append(new FileNode(m_project->projectFilePath(), FileType::Project, false));
 
     makeEmpty();
     buildTree(fileNodes);
@@ -82,16 +74,13 @@ bool QmlProjectNode::showInSimpleTree() const
     return true;
 }
 
-QList<ProjectExplorer::ProjectAction> QmlProjectNode::supportedActions(Node *node) const
+QList<ProjectAction> QmlProjectNode::supportedActions(Node *node) const
 {
-    Q_UNUSED(node);
-    QList<ProjectExplorer::ProjectAction> actions;
-    actions.append(ProjectExplorer::AddNewFile);
-    actions.append(ProjectExplorer::EraseFile);
-    if (node->nodeType() == ProjectExplorer::NodeType::File) {
-        ProjectExplorer::FileNode *fileNode = static_cast<ProjectExplorer::FileNode *>(node);
-        if (fileNode->fileType() != ProjectExplorer::FileType::Project)
-            actions.append(ProjectExplorer::Rename);
+    QList<ProjectAction> actions = {AddNewFile, EraseFile};
+    if (node->nodeType() == NodeType::File) {
+        FileNode *fileNode = static_cast<FileNode *>(node);
+        if (fileNode->fileType() != FileType::Project)
+            actions.append(Rename);
     }
     return actions;
 }

@@ -49,9 +49,6 @@ using namespace Core;
 using namespace ProjectExplorer;
 
 namespace QmlProjectManager {
-namespace Internal {
-
-} // namespace Internal
 
 QmlProject::QmlProject(Internal::Manager *manager, const Utils::FileName &fileName) :
     m_defaultImport(UnknownImport)
@@ -66,14 +63,10 @@ QmlProject::QmlProject(Internal::Manager *manager, const Utils::FileName &fileNa
     setProjectLanguages(Context(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID));
 
     m_projectName = projectFilePath().toFileInfo().completeBaseName();
-
-    projectManager()->registerProject(this);
 }
 
 QmlProject::~QmlProject()
 {
-    projectManager()->unregisterProject(this);
-
     delete m_projectItem.data();
 }
 
@@ -117,10 +110,8 @@ QDir QmlProject::projectDir() const
     return projectFilePath().toFileInfo().dir();
 }
 
-Utils::FileName QmlProject::filesFileName() const
-{ return projectFilePath(); }
-
-static QmlProject::QmlImport detectImport(const QString &qml) {
+static QmlProject::QmlImport detectImport(const QString &qml)
+{
     static QRegExp qtQuick1RegExp(QLatin1String("import\\s+QtQuick\\s+1"));
     static QRegExp qtQuick2RegExp(QLatin1String("import\\s+QtQuick\\s+2"));
 
