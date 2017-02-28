@@ -645,7 +645,11 @@ void ExampleSetModel::helpManagerInitialized()
 
 void ExampleSetModel::tryToInitialize()
 {
-    if (m_initalized || !m_qtVersionManagerInitialized || !m_helpManagerInitialized)
+    if (m_initalized)
+        return;
+    if (!m_qtVersionManagerInitialized)
+        return;
+    if (Core::HelpManager::instance() && !m_helpManagerInitialized)
         return;
 
     m_initalized = true;
