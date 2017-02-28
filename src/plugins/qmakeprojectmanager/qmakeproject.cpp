@@ -238,6 +238,8 @@ bool QmakeProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType 
     return true;
 }
 
+static QList<QmakeProject *> s_projects;
+
 } // namespace Internal
 
 /*!
@@ -246,13 +248,13 @@ bool QmakeProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType 
   QmakeProject manages information about an individual Qt 4 (.pro) project file.
   */
 
-QmakeProject::QmakeProject(IProjectManager *manager, const QString &fileName) :
+QmakeProject::QmakeProject(const QString &fileName) :
     m_projectFiles(new QmakeProjectFiles),
     m_qmakeVfs(new QMakeVfs),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
+    s_projects.append(this);
     setId(Constants::QMAKEPROJECT_ID);
-    setProjectManager(manager);
     setDocument(new QmakeProjectFile(fileName));
     setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
@@ -276,6 +278,7 @@ QmakeProject::QmakeProject(IProjectManager *manager, const QString &fileName) :
 
 QmakeProject::~QmakeProject()
 {
+    s_projects.removeOne(this);
     delete m_projectImporter;
     m_projectImporter = nullptr;
     delete m_cppCodeModelUpdater;
@@ -286,7 +289,6 @@ QmakeProject::~QmakeProject()
     setRootProjectNode(nullptr);
     m_rootProFile.reset();
 
-    projectManager()->unregisterProject(this);
     delete m_projectFiles;
     m_cancelEvaluate = true;
     Q_ASSERT(m_qmakeGlobalsRefCnt == 0);
@@ -323,8 +325,6 @@ Project::RestoreResult QmakeProject::fromMap(const QVariantMap &map, QString *er
             removeTarget(t);
         }
     }
-
-    projectManager()->registerProject(this);
 
     // On active buildconfiguration changes, reevaluate the .pro files
     m_activeTarget = activeTarget();
@@ -667,11 +667,6 @@ void QmakeProject::buildFinished(bool success)
         m_qmakeVfs->invalidateContents();
 }
 
-QmakeManager *QmakeProject::projectManager() const
-{
-    return static_cast<QmakeManager *>(Project::projectManager());
-}
-
 bool QmakeProject::supportsKit(Kit *k, QString *errorMessage) const
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
@@ -950,28 +945,24 @@ void QmakeProject::setAllBuildConfigurationsEnabled(bool enabled)
     }
 }
 
-QList<QmakeProFile *> QmakeProject::findProFiles(const FileName &fileName, QmakeProFile *root)
+static void notifyChangedHelper(const FileName &fileName, QmakeProFile *file)
 {
-    QList<QmakeProFile *> result;
-    if (root->filePath() == fileName)
-        result.append(root);
-
-    for (QmakePriFile *fn : root->children()) {
-        if (auto pro = dynamic_cast<QmakeProFile *>(fn))
-            result.append(findProFiles(fileName, pro));
+    if (file->filePath() == fileName) {
+        QtSupport::ProFileCacheManager::instance()->discardFile(fileName.toString());
+        file->scheduleUpdate(QmakeProFile::ParseNow);
     }
 
-    return result;
+    for (QmakePriFile *fn : file->children()) {
+        if (auto pro = dynamic_cast<QmakeProFile *>(fn))
+            notifyChangedHelper(fileName, pro);
+    }
 }
 
 void QmakeProject::notifyChanged(const FileName &name)
 {
-    if (files(QmakeProject::SourceFiles).contains(name.toString())) {
-        const QList<QmakeProFile *> list = findProFiles(name, rootProFile());
-        for (QmakeProFile *file : list) {
-            QtSupport::ProFileCacheManager::instance()->discardFile(name.toString());
-            file->scheduleUpdate(QmakeProFile::ParseNow);
-        }
+    for (QmakeProject *project : s_projects) {
+        if (project->files(QmakeProject::SourceFiles).contains(name.toString()))
+            notifyChangedHelper(name, project->rootProFile());
     }
 }
 

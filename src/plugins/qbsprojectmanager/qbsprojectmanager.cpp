@@ -114,7 +114,7 @@ QString QbsManager::profileForKit(const ProjectExplorer::Kit *k)
 {
     if (!k)
         return QString();
-    updateProfileIfNecessary(k);
+    m_instance->updateProfileIfNecessary(k);
     return settings()->value(qtcProfilePrefix() + k->id().toString()).toString();
 }
 

@@ -256,10 +256,7 @@ bool BaseQmakeProjectWizardDialog::writeUserFile(const QString &proFileName) con
     if (!m_targetSetupPage)
         return false;
 
-    QmakeManager *manager = ExtensionSystem::PluginManager::getObject<QmakeManager>();
-    Q_ASSERT(manager);
-
-    QmakeProject *pro = new QmakeProject(manager, proFileName);
+    QmakeProject *pro = new QmakeProject(proFileName);
     bool success = m_targetSetupPage->setupProject(pro);
     if (success)
         pro->saveSettings();

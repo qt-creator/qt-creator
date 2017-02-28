@@ -53,22 +53,6 @@ using namespace TextEditor;
 
 namespace QmakeProjectManager {
 
-void QmakeManager::registerProject(QmakeProject *project)
-{
-    m_projects.append(project);
-}
-
-void QmakeManager::unregisterProject(QmakeProject *project)
-{
-    m_projects.removeOne(project);
-}
-
-void QmakeManager::notifyChanged(const Utils::FileName &name)
-{
-    foreach (QmakeProject *pro, m_projects)
-        pro->notifyChanged(name);
-}
-
 QString QmakeManager::mimeType() const
 {
     return QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
@@ -76,7 +60,7 @@ QString QmakeManager::mimeType() const
 
 ProjectExplorer::Project *QmakeManager::openProject(const QString &fileName)
 {
-    return new QmakeProject(this, fileName);
+    return new QmakeProject(fileName);
 }
 
 Node *QmakeManager::contextNode()

@@ -90,7 +90,6 @@ public:
 
     Core::Id m_id;
     Core::IDocument *m_document = nullptr;
-    IProjectManager *m_manager = nullptr;
     ProjectNode *m_rootProjectNode = nullptr;
     QList<Target *> m_targets;
     Target *m_activeTarget = nullptr;
@@ -419,13 +418,6 @@ void Project::setDocument(Core::IDocument *doc)
     d->m_document = doc;
 }
 
-void Project::setProjectManager(IProjectManager *manager)
-{
-    QTC_ASSERT(manager, return);
-    QTC_ASSERT(!d->m_manager, return);
-    d->m_manager = manager;
-}
-
 void Project::setRootProjectNode(ProjectNode *root)
 {
     ProjectNode *oldNode = d->m_rootProjectNode;
@@ -527,12 +519,6 @@ Utils::FileName Project::projectDirectory(const Utils::FileName &top)
     if (top.isEmpty())
         return Utils::FileName();
     return Utils::FileName::fromString(top.toFileInfo().absoluteDir().path());
-}
-
-IProjectManager *Project::projectManager() const
-{
-    QTC_CHECK(d->m_manager);
-    return d->m_manager;
 }
 
 ProjectNode *Project::rootProjectNode() const

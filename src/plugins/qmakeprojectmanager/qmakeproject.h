@@ -52,9 +52,7 @@ class QmakeBuildConfiguration;
 
 namespace Internal {
 class CentralizedFolderWatcher;
-class QmakeProjectFile;
 class QmakeProjectFiles;
-class QmakeProjectConfigWidget;
 }
 
 class  QMAKEPROJECTMANAGER_EXPORT QmakeProject : public ProjectExplorer::Project
@@ -62,13 +60,12 @@ class  QMAKEPROJECTMANAGER_EXPORT QmakeProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    QmakeProject(ProjectExplorer::IProjectManager *manager, const QString &proFile);
+    explicit QmakeProject(const QString &proFile);
     ~QmakeProject() final;
 
     QmakeProFile *rootProFile() const;
 
     QString displayName() const final;
-    QmakeManager *projectManager() const final;
 
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMesage) const final;
 
@@ -89,7 +86,7 @@ public:
                                 ProjectExplorer::IRunConfigurationFactory::CreationMode mode,
                                 const QList<ProjectType> &projectTypes = {});
 
-    void notifyChanged(const Utils::FileName &name);
+    static void notifyChanged(const Utils::FileName &name);
 
     /// \internal
     QtSupport::ProFileReader *createProFileReader(const QmakeProFile *qmakeProFile);
@@ -168,7 +165,6 @@ private:
 
     static QList<QmakeProFile *> collectAllProFiles(QmakeProFile *file, Parsing parse,
                                                     const QList<ProjectType> &projectTypes);
-    static QList<QmakeProFile *> findProFiles(const Utils::FileName &fileName, QmakeProFile *root);
 
     static bool equalFileList(const QStringList &a, const QStringList &b);
 
@@ -216,10 +212,6 @@ private:
 
     ProjectExplorer::Target *m_activeTarget = nullptr;
     mutable ProjectExplorer::ProjectImporter *m_projectImporter = nullptr;
-
-    friend class Internal::QmakeProjectFile;
-    friend class Internal::QmakeProjectConfigWidget;
-    friend class QmakeManager; // to schedule a async update if the unconfigured settings change
 };
 
 } // namespace QmakeProjectManager

@@ -57,7 +57,7 @@ public:
     ProjectExplorer::Project *openProject(const QString &fileName) override;
 
     // QBS profiles management:
-    QString profileForKit(const ProjectExplorer::Kit *k);
+    static QString profileForKit(const ProjectExplorer::Kit *k);
     void setProfileForKit(const QString &name, const ProjectExplorer::Kit *k);
 
     void updateProfileIfNecessary(const ProjectExplorer::Kit *kit);

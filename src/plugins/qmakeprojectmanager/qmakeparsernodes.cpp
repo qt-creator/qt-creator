@@ -626,7 +626,7 @@ bool QmakePriFile::saveModifiedEditors()
 
     // force instant reload of ourselves
     QtSupport::ProFileCacheManager::instance()->discardFile(filePath().toString());
-    m_project->projectManager()->notifyChanged(filePath());
+    QmakeProject::notifyChanged(filePath());
     return true;
 }
 

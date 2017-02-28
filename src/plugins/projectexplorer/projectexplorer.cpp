@@ -1711,7 +1711,6 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
                          appendError(errorString,
                             tr("Failed opening project \"%1\": Project is not a file").arg(fileName));
                     } else if (Project *pro = manager->openProject(filePath)) {
-                        pro->setProjectManager(manager);
                         QObject::connect(pro, &Project::parsingFinished, [pro]() {
                             emit SessionManager::instance()->projectFinishedParsing(pro);
                         });

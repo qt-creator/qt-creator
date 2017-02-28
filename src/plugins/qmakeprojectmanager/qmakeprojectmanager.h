@@ -41,17 +41,12 @@ class ToolChain;
 
 namespace QmakeProjectManager {
 
-class QmakeProject;
-
 class QMAKEPROJECTMANAGER_EXPORT QmakeManager : public ProjectExplorer::IProjectManager
 {
     Q_OBJECT
 
 public:
-    void registerProject(QmakeProject *project);
-    void unregisterProject(QmakeProject *project);
     void notifyChanged(const Utils::FileName &name);
-
     QString mimeType() const override;
     ProjectExplorer::Project *openProject(const QString &fileName) override;
 
@@ -73,7 +68,6 @@ public:
     void buildFile();
 
 private:
-    QList<QmakeProject *> m_projects;
     void handleSubDirContextMenu(Action action, bool isFileBuild);
     void handleSubDirContextMenu(QmakeManager::Action action, bool isFileBuild,
                                  ProjectExplorer::Project *contextProject,

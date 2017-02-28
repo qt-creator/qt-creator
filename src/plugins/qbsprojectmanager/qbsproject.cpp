@@ -426,7 +426,7 @@ qbs::InstallJob *QbsProject::install(const qbs::InstallOptions &opts)
 
 QString QbsProject::profileForTarget(const Target *t) const
 {
-    return static_cast<QbsManager *>(projectManager())->profileForKit(t->kit());
+    return QbsManager::profileForKit(t->kit());
 }
 
 bool QbsProject::isParsing() const
