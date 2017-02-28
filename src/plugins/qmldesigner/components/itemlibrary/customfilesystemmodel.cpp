@@ -31,6 +31,7 @@
 #include <QDirIterator>
 #include <QFileIconProvider>
 #include <QFileSystemModel>
+#include <QFont>
 #include <QImageReader>
 
 namespace QmlDesigner {
@@ -185,7 +186,6 @@ void CustomFileSystemModel::setSearchFilter(const QString &nameFilterList)
 QModelIndex CustomFileSystemModel::fileSystemModelIndex(const QModelIndex &index) const
 {
     const int row = index.row();
-    const int column = index.column();
     return m_fileSystemModel->index(m_files.at(row));
 }
 

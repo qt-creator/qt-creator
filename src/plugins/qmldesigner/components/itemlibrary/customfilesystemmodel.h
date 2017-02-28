@@ -27,11 +27,11 @@
 
 #include <QAbstractTableModel>
 #include <QDir>
+#include <QFileSystemModel>
 
 #include <memory>
 
 QT_BEGIN_NAMESPACE
-class QFileSystemModel;
 class QFileIconProvider;
 QT_END_NAMESPACE
 
