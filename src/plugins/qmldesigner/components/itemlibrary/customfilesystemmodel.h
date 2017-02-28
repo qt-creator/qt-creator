@@ -51,7 +51,7 @@ public:
     int rowCount(const QModelIndex & parent = QModelIndex()) const override;
     int columnCount(const QModelIndex & parent = QModelIndex()) const override;
 
-    QModelIndex index(const QString & path, int column = 0) const;
+    QModelIndex indexForPath(const QString & path, int column = 0) const;
 
     QIcon fileIcon(const QModelIndex & index) const;
     QString fileName(const QModelIndex & index) const;

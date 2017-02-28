@@ -83,7 +83,6 @@ CustomFileSystemModel::CustomFileSystemModel(QObject *parent) : QAbstractListMod
     connect(m_fileSystemWatcher, &Utils::FileSystemWatcher::directoryChanged, [this] {
         setRootPath(m_fileSystemModel->rootPath());
     });
-
 }
 
 void CustomFileSystemModel::setFilter(QDir::Filters)
@@ -152,7 +151,7 @@ int CustomFileSystemModel::columnCount(const QModelIndex &) const
     return 1;
 }
 
-QModelIndex CustomFileSystemModel::index(const QString &path, int /*column*/) const
+QModelIndex CustomFileSystemModel::indexForPath(const QString &path, int /*column*/) const
 {
     return QAbstractListModel::index(m_files.indexOf(path), 0);
 }

@@ -261,7 +261,7 @@ void ItemLibraryWidget::setResourcePath(const QString &resourcePath)
 {
     if (m_resourcesView->model() == m_resourcesFileSystemModel.data()) {
         m_resourcesFileSystemModel->setRootPath(resourcePath);
-        m_resourcesView->setRootIndex(m_resourcesFileSystemModel->index(resourcePath));
+        m_resourcesView->setRootIndex(m_resourcesFileSystemModel->indexForPath(resourcePath));
     }
     updateSearch();
 }
