@@ -75,7 +75,7 @@ public:
 };
 
 CustomFileSystemModel::CustomFileSystemModel(QObject *parent) : QAbstractListModel(parent)
-  , m_fileSystemModel(new QFileSystemModel)
+  , m_fileSystemModel(new QFileSystemModel(this))
   , m_fileSystemWatcher(new Utils::FileSystemWatcher(this))
 {
     m_fileSystemModel->setIconProvider(new ItemLibraryFileIconProvider());

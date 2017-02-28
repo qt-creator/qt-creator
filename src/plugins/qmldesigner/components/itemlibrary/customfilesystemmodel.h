@@ -27,12 +27,10 @@
 
 #include <QAbstractTableModel>
 #include <QDir>
-#include <QFileSystemModel>
-
-#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QFileIconProvider;
+class QFileSystemModel;
 QT_END_NAMESPACE
 
 namespace Utils { class FileSystemWatcher; }
@@ -65,7 +63,7 @@ public:
 private:
     QModelIndex fileSystemModelIndex(const QModelIndex &index) const;
 
-    std::unique_ptr<QFileSystemModel> m_fileSystemModel;
+    QFileSystemModel *m_fileSystemModel;
     QStringList m_files;
     QString m_searchFilter;
     Utils::FileSystemWatcher *m_fileSystemWatcher;
