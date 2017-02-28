@@ -36,8 +36,7 @@ using namespace Core;
 using namespace Core::Internal;
 
 DirectoryFilter::DirectoryFilter(Id id)
-    : m_dialog(nullptr),
-      m_filters({"*.h", "*.cpp", "*.ui", "*.qrc"}),
+    : m_filters({"*.h", "*.cpp", "*.ui", "*.qrc"}),
       m_exclusionFilters({"*/.git/*", "*/.cvs/*", "*/.svn/*"})
 {
     setId(id);
