@@ -304,10 +304,10 @@ ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInfor
         // The ResourceFolderNode '/' defers to us, as otherwise
         // two nodes would be responsible for '/'
         // Thus also return a high priority for it
-        if (ResourceFolderNode *rfn = dynamic_cast<ResourceFolderNode *>(context))
+        if (auto rfn = dynamic_cast<ResourceFolderNode *>(context))
             if (rfn->prefix() == QLatin1String("/") && rfn->parentFolderNode() == this)
                 p = 120;
-        if (SimpleResourceFolderNode *rfn = dynamic_cast<SimpleResourceFolderNode *>(context))
+        if (auto rfn = dynamic_cast<SimpleResourceFolderNode *>(context))
             if (rfn->prefix() == QLatin1String("/") && rfn->resourceNode() == this)
                 p = 120;
     }
@@ -456,7 +456,7 @@ ProjectExplorer::FolderNode::AddNewInformation ResourceFolderNode::addNewInforma
         if (context == this)
             p = 120;
 
-        if (SimpleResourceFolderNode *sfn = dynamic_cast<SimpleResourceFolderNode *>(context)) {
+        if (auto sfn = dynamic_cast<SimpleResourceFolderNode *>(context)) {
             if (sfn->prefixNode() == this)
                 p = 120;
         }
