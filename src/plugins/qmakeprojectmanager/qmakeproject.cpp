@@ -902,9 +902,14 @@ bool QmakeProject::hasApplicationProFile(const FileName &path) const
     return Utils::contains(list, Utils::equal(&QmakeProFile::filePath, path));
 }
 
-QList<Core::Id> QmakeProject::creationIds(Core::Id base, const QList<QmakeProFile *> &files,
-                                             IRunConfigurationFactory::CreationMode mode)
+QList<Core::Id> QmakeProject::creationIds(Core::Id base,
+                                          IRunConfigurationFactory::CreationMode mode,
+                                          const QList<ProjectType> &projectTypes)
 {
+    QList<ProjectType> realTypes = projectTypes;
+    if (realTypes.isEmpty())
+        realTypes = {ProjectType::ApplicationTemplate, ProjectType::ScriptTemplate};
+    QList<QmakeProFile *> files = allProFiles(realTypes);
     QList<QmakeProFile *> temp = files;
 
     if (mode == IRunConfigurationFactory::AutoCreate) {

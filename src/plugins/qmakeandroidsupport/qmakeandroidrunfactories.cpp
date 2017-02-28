@@ -83,10 +83,9 @@ QList<Core::Id> QmakeAndroidRunConfigurationFactory::availableCreationIds(Target
     if (!canHandle(parent))
         return QList<Core::Id>();
 
-    QmakeProject *project = static_cast<QmakeProject *>(parent->project());
-    QList<QmakeProFile *> files = project->allProFiles({ProjectType::ApplicationTemplate,
-                                                        ProjectType::SharedLibraryTemplate});
-    return QmakeProject::creationIds(ANDROID_RC_ID_PREFIX, files, mode);
+    auto project = static_cast<QmakeProject *>(parent->project());
+    return project->creationIds(ANDROID_RC_ID_PREFIX, mode,
+                                {ProjectType::ApplicationTemplate, ProjectType::SharedLibraryTemplate});
 }
 
 RunConfiguration *QmakeAndroidRunConfigurationFactory::doCreate(Target *parent, Core::Id id)

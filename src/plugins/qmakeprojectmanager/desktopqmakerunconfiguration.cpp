@@ -564,7 +564,7 @@ QList<Core::Id> DesktopQmakeRunConfigurationFactory::availableCreationIds(Target
         return QList<Core::Id>();
 
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
-    return QmakeProject::creationIds(QMAKE_RC_PREFIX, project->applicationProFiles(), mode);
+    return project->creationIds(QMAKE_RC_PREFIX, mode);
 }
 
 QString DesktopQmakeRunConfigurationFactory::displayNameForId(Core::Id id) const

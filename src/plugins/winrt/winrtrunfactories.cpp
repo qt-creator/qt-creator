@@ -66,8 +66,7 @@ QList<Core::Id> WinRtRunConfigurationFactory::availableCreationIds(Target *paren
         return QList<Core::Id>();
 
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
-    QList<QmakeProFile *> files = project->applicationProFiles();
-    return QmakeProject::creationIds(Constants::WINRT_RC_PREFIX, files, mode);
+    return project->creationIds(Constants::WINRT_RC_PREFIX, mode);
 }
 
 QString WinRtRunConfigurationFactory::displayNameForId(Core::Id id) const

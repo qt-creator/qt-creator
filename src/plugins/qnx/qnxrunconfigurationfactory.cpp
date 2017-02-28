@@ -57,8 +57,7 @@ QList<Core::Id> QnxRunConfigurationFactory::availableCreationIds(ProjectExplorer
     if (!project)
         return QList<Core::Id>();
 
-    QList<QmakeProjectManager::QmakeProFile *> files = project->applicationProFiles();
-    return QmakeProject::creationIds(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX, files, mode);
+    return project->creationIds(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX, mode);
 }
 
 QString QnxRunConfigurationFactory::displayNameForId(Core::Id id) const

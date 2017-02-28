@@ -85,8 +85,9 @@ public:
     QList<QmakeProFile *> applicationProFiles(Parsing parse = ExactParse) const;
     bool hasApplicationProFile(const Utils::FileName &path) const;
 
-    static QList<Core::Id> creationIds(Core::Id base, const QList<QmakeProFile *> &files,
-                                          ProjectExplorer::IRunConfigurationFactory::CreationMode mode);
+    QList<Core::Id> creationIds(Core::Id base,
+                                ProjectExplorer::IRunConfigurationFactory::CreationMode mode,
+                                const QList<ProjectType> &projectTypes = {});
 
     void notifyChanged(const Utils::FileName &name);
 
