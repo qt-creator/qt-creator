@@ -564,13 +564,7 @@ QList<Core::Id> DesktopQmakeRunConfigurationFactory::availableCreationIds(Target
         return QList<Core::Id>();
 
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
-    QList<QmakeProFile *> files = project->applicationProFiles();
-    if (mode == AutoCreate) {
-        QList<QmakeProFile *> markedFiles = QmakeProject::proFilesWithQtcRunnable(files);
-        if (!markedFiles.isEmpty())
-            files = markedFiles;
-    }
-    return QmakeProject::idsForProFiles(Core::Id(QMAKE_RC_PREFIX), files);
+    return QmakeProject::creationIds(QMAKE_RC_PREFIX, project->applicationProFiles(), mode);
 }
 
 QString DesktopQmakeRunConfigurationFactory::displayNameForId(Core::Id id) const

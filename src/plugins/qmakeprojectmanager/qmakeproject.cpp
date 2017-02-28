@@ -902,14 +902,19 @@ bool QmakeProject::hasApplicationProFile(const FileName &path) const
     return Utils::contains(list, Utils::equal(&QmakeProFile::filePath, path));
 }
 
-QList<QmakeProFile *> QmakeProject::proFilesWithQtcRunnable(QList<QmakeProFile *> files)
+QList<Core::Id> QmakeProject::creationIds(Core::Id base, const QList<QmakeProFile *> &files,
+                                             IRunConfigurationFactory::CreationMode mode)
 {
-    return Utils::filtered(files, [](const QmakeProFile *f) { return f->isQtcRunnable(); });
-}
+    QList<QmakeProFile *> temp = files;
 
-QList<Core::Id> QmakeProject::idsForProFiles(Core::Id base, const QList<QmakeProFile *> &files)
-{
-    return Utils::transform(files, [&base](QmakeProFile *f) {
+    if (mode == IRunConfigurationFactory::AutoCreate) {
+        QList<QmakeProFile *> filtered = Utils::filtered(files, [](const QmakeProFile *f) {
+            return f->isQtcRunnable();
+        });
+        temp = filtered.isEmpty() ? files : filtered;
+    }
+
+    return Utils::transform(temp, [&base](QmakeProFile *f) {
         return base.withSuffix(f->filePath().toString());
     });
 }

@@ -56,13 +56,9 @@ QList<Core::Id> QnxRunConfigurationFactory::availableCreationIds(ProjectExplorer
     auto project = qobject_cast<QmakeProject *>(parent->project());
     if (!project)
         return QList<Core::Id>();
+
     QList<QmakeProjectManager::QmakeProFile *> files = project->applicationProFiles();
-
-    if (mode == AutoCreate)
-        files = QmakeProject::proFilesWithQtcRunnable(files);
-
-    return QmakeProject::idsForProFiles(Core::Id(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX),
-                                        files);
+    return QmakeProject::creationIds(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX, files, mode);
 }
 
 QString QnxRunConfigurationFactory::displayNameForId(Core::Id id) const

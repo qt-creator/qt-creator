@@ -31,6 +31,7 @@
 #include "qmakeparsernodes.h"
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/runconfiguration.h>
 
 #include <QStringList>
 #include <QFutureInterface>
@@ -84,8 +85,8 @@ public:
     QList<QmakeProFile *> applicationProFiles(Parsing parse = ExactParse) const;
     bool hasApplicationProFile(const Utils::FileName &path) const;
 
-    static QList<QmakeProFile *> proFilesWithQtcRunnable(QList<QmakeProFile *> nodes);
-    static QList<Core::Id> idsForProFiles(Core::Id base, const QList<QmakeProFile *> &files);
+    static QList<Core::Id> creationIds(Core::Id base, const QList<QmakeProFile *> &files,
+                                          ProjectExplorer::IRunConfigurationFactory::CreationMode mode);
 
     void notifyChanged(const Utils::FileName &name);
 
