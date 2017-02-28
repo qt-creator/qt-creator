@@ -82,6 +82,7 @@ public:
 
     DesignerSettings settings;
     Internal::DesignModeContext *context = nullptr;
+    bool blockEditorChange = false;
 };
 
 QmlDesignerPlugin *QmlDesignerPlugin::m_instance = nullptr;
@@ -345,6 +346,9 @@ void QmlDesignerPlugin::hideDesigner()
 
 void QmlDesignerPlugin::changeEditor()
 {
+    if (d->blockEditorChange)
+         return;
+
     if (d->documentManager.hasCurrentDesignDocument()) {
         deactivateAutoSynchronization();
         d->mainWidget->saveSettings();
@@ -470,6 +474,13 @@ void QmlDesignerPlugin::switchToTextModeDeferred()
     QTimer::singleShot(0, this, [] () {
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
     });
+}
+
+void QmlDesignerPlugin::emitCurrentTextEditorChanged(Core::IEditor *editor)
+{
+    d->blockEditorChange = true;
+    Core::EditorManager::instance()->currentEditorChanged(editor);
+    d->blockEditorChange = false;
 }
 
 QmlDesignerPlugin *QmlDesignerPlugin::instance()

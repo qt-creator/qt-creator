@@ -83,6 +83,7 @@ public:
     Internal::DesignModeWidget *mainWidget() const;
 
     void switchToTextModeDeferred();
+    void emitCurrentTextEditorChanged(Core::IEditor *editor);
 
 private: // functions
     void integrateIntoQtCreator(QWidget *modeWidget);
