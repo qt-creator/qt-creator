@@ -302,9 +302,7 @@ void ExamplesListModel::parseExamples(QXmlStreamReader *reader,
                 item.projectPath = relativeOrInstallPath(item.projectPath, projectsOffset, examplesInstallPath);
                 item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
-
-                if (attributes.hasAttribute(QLatin1String("isHighlighted")))
-                    item.isHighlighted = attributes.value(QLatin1String("isHighlighted")).toString() == QLatin1String("true");
+                item.isHighlighted = attributes.value(QLatin1String("isHighlighted")).toString() == QLatin1String("true");
 
             } else if (reader->name() == QLatin1String("fileToOpen")) {
                 const QString mainFileAttribute = reader->attributes().value(
@@ -357,10 +355,7 @@ void ExamplesListModel::parseDemos(QXmlStreamReader *reader,
                 item.projectPath = relativeOrInstallPath(item.projectPath, projectsOffset, demosInstallPath);
                 item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
-
-                if (attributes.hasAttribute(QLatin1String("isHighlighted")))
-                    item.isHighlighted = attributes.value(QLatin1String("isHighlighted")).toString() == QLatin1String("true");
-
+                item.isHighlighted = attributes.value(QLatin1String("isHighlighted")).toString() == QLatin1String("true");
             } else if (reader->name() == QLatin1String("fileToOpen")) {
                 item.filesToOpen.append(relativeOrInstallPath(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement),
                                                               projectsOffset, demosInstallPath));
@@ -402,16 +397,11 @@ void ExamplesListModel::parseTutorials(QXmlStreamReader *reader, const QString &
                 item.hasSourceCode = !item.projectPath.isEmpty();
                 item.projectPath.prepend(slash);
                 item.projectPath.prepend(projectsOffset);
-                if (attributes.hasAttribute(QLatin1String("imageUrl")))
-                    item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
-                if (attributes.hasAttribute(QLatin1String("docUrl")))
-                    item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
-                if (attributes.hasAttribute(QLatin1String("isVideo")))
-                    item.isVideo = attributes.value(QLatin1String("isVideo")).toString() == QLatin1String("true");
-                if (attributes.hasAttribute(QLatin1String("videoUrl")))
-                    item.videoUrl = attributes.value(QLatin1String("videoUrl")).toString();
-                if (attributes.hasAttribute(QLatin1String("videoLength")))
-                    item.videoLength = attributes.value(QLatin1String("videoLength")).toString();
+                item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
+                item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
+                item.isVideo = attributes.value(QLatin1String("isVideo")).toString() == QLatin1String("true");
+                item.videoUrl = attributes.value(QLatin1String("videoUrl")).toString();
+                item.videoLength = attributes.value(QLatin1String("videoLength")).toString();
             } else if (reader->name() == QLatin1String("fileToOpen")) {
                 item.filesToOpen.append(projectsOffset + slash + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("description")) {
