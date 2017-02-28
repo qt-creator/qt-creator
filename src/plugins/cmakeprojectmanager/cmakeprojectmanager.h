@@ -42,7 +42,7 @@ class CMakeManager : public ProjectExplorer::IProjectManager
 public:
     CMakeManager();
 
-    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString) override;
+    ProjectExplorer::Project *openProject(const QString &fileName) override;
     QString mimeType() const override;
 
 private:

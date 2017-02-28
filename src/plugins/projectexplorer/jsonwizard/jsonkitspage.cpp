@@ -109,7 +109,6 @@ void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
 
     foreach (const JsonWizard::GeneratorFile &f, files) {
         if (f.file.attributes() & GeneratedFile::OpenProjectAttribute) {
-            QString errorMessage;
             const QFileInfo fi(f.file.path());
             const QString path = fi.absoluteFilePath();
 
@@ -119,7 +118,7 @@ void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
                 continue;
 
             auto manager = Utils::findOrDefault(managerList, Utils::equal(&IProjectManager::mimeType, mt.name()));
-            project = manager ? manager->openProject(path, &errorMessage) : nullptr;
+            project = manager ? manager->openProject(path) : nullptr;
             if (project) {
                 if (setupProject(project))
                     project->saveSettings();

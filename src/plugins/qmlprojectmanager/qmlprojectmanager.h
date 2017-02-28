@@ -39,7 +39,7 @@ public:
     Manager();
 
     QString mimeType() const override;
-    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString) override;
+    ProjectExplorer::Project *openProject(const QString &fileName) override;
 };
 
 } // namespace Internal

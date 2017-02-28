@@ -156,17 +156,9 @@ void CMakeManager::rescanProject(Project *project)
     cmakeProject->runCMake(); // by my experience: every rescan run requires cmake run too
 }
 
-Project *CMakeManager::openProject(const QString &fileName, QString *errorString)
+Project *CMakeManager::openProject(const QString &fileName)
 {
-    Utils::FileName file = Utils::FileName::fromString(fileName);
-    if (!file.toFileInfo().isFile()) {
-        if (errorString)
-            *errorString = tr("Failed opening project \"%1\": Project is not a file")
-                .arg(file.toUserOutput());
-        return 0;
-    }
-
-    return new CMakeProject(file);
+    return new CMakeProject(Utils::FileName::fromString(fileName));
 }
 
 QString CMakeManager::mimeType() const

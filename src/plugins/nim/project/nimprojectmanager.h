@@ -36,7 +36,7 @@ class NimProjectManager : public ProjectExplorer::IProjectManager
 public:
     QString mimeType() const override;
 
-    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString) override;
+    ProjectExplorer::Project *openProject(const QString &fileName) override;
 };
 
 }

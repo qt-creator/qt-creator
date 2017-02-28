@@ -94,7 +94,7 @@ class PythonProjectManager : public IProjectManager
     Q_OBJECT
 public:
     QString mimeType() const override { return QLatin1String(PythonMimeType); }
-    Project *openProject(const QString &fileName, QString *errorString) override;
+    Project *openProject(const QString &fileName) override;
 };
 
 class PythonProject : public Project
@@ -361,15 +361,8 @@ PythonRunConfigurationWidget::PythonRunConfigurationWidget(PythonRunConfiguratio
     setEnabled(runConfiguration->isEnabled());
 }
 
-Project *PythonProjectManager::openProject(const QString &fileName, QString *errorString)
+Project *PythonProjectManager::openProject(const QString &fileName)
 {
-    if (!QFileInfo(fileName).isFile()) {
-        if (errorString)
-            *errorString = tr("Failed opening project \"%1\": Project is not a file.")
-                .arg(fileName);
-        return 0;
-    }
-
     return new PythonProject(fileName);
 }
 

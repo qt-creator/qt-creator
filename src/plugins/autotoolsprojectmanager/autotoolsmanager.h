@@ -44,7 +44,7 @@ class AutotoolsManager : public ProjectExplorer::IProjectManager
     Q_OBJECT
 
 public:
-    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString) override;
+    ProjectExplorer::Project *openProject(const QString &fileName) override;
     QString mimeType() const override;
 };
 

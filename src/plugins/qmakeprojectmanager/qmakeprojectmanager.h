@@ -53,7 +53,7 @@ public:
     void notifyChanged(const Utils::FileName &name);
 
     QString mimeType() const override;
-    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString) override;
+    ProjectExplorer::Project *openProject(const QString &fileName) override;
 
     // Context information used in the slot implementations
     static ProjectExplorer::Node *contextNode();

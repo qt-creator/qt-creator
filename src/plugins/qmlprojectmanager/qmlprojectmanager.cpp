@@ -43,15 +43,8 @@ Manager::Manager()
 QString Manager::mimeType() const
 { return QLatin1String(Constants::QMLPROJECT_MIMETYPE); }
 
-ProjectExplorer::Project *Manager::openProject(const QString &fileName, QString *errorString)
+ProjectExplorer::Project *Manager::openProject(const QString &fileName)
 {
-    if (!QFileInfo(fileName).isFile()) {
-        if (errorString)
-            *errorString = tr("Failed opening project \"%1\": Project is not a file.")
-                .arg(fileName);
-        return 0;
-    }
-
     return new QmlProject(this, Utils::FileName::fromString(fileName));
 }
 

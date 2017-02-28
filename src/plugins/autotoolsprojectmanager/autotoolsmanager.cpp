@@ -29,27 +29,13 @@
 #include "autotoolsproject.h"
 #include "autotoolsprojectconstants.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
-#include <coreplugin/messagemanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
-
 using namespace ProjectExplorer;
 
 namespace AutotoolsProjectManager {
 namespace Internal {
 
-Project *AutotoolsManager::openProject(const QString &fileName, QString *errorString)
+Project *AutotoolsManager::openProject(const QString &fileName)
 {
-    if (!QFileInfo(fileName).isFile()) {
-        if (errorString)
-            *errorString = tr("Failed opening project \"%1\": Project is not a file")
-                .arg(fileName);
-        return 0;
-    }
-
     return new AutotoolsProject(fileName);
 }
 

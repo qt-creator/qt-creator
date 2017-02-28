@@ -39,8 +39,8 @@ class PROJECTEXPLORER_EXPORT IProjectManager : public QObject
 
 public:
     virtual QString mimeType() const = 0;
-    // fileName is a canonical path!
-    virtual Project *openProject(const QString &fileName, QString *errorString) = 0;
+    // FileName is a canonical path of a checked-to-exist file.
+    virtual Project *openProject(const QString &fileName) = 0;
 };
 
 } // namespace ProjectExplorer

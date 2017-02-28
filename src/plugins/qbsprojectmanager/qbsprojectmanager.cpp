@@ -105,15 +105,8 @@ QString QbsManager::mimeType() const
     return QLatin1String(QmlJSTools::Constants::QBS_MIMETYPE);
 }
 
-ProjectExplorer::Project *QbsManager::openProject(const QString &fileName, QString *errorString)
+ProjectExplorer::Project *QbsManager::openProject(const QString &fileName)
 {
-    if (!QFileInfo(fileName).isFile()) {
-        if (errorString)
-            *errorString = tr("Failed opening project \"%1\": Project is not a file.")
-                .arg(fileName);
-        return nullptr;
-    }
-
     return new QbsProject(fileName);
 }
 
