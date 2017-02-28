@@ -94,6 +94,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     m_ui->useGradleCheckBox->setChecked(m_step->useGradle());
     m_ui->verboseOutputCheckBox->setChecked(m_step->verboseOutput());
     m_ui->openPackageLocationCheckBox->setChecked(m_step->openPackageLocation());
+    m_ui->addDebuggerCheckBox->setChecked(m_step->addDebugger());
 
     // target sdk
     connect(m_ui->targetSDKComboBox,
@@ -120,6 +121,8 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
             this, &AndroidBuildApkWidget::openPackageLocationCheckBoxToggled);
     connect(m_ui->verboseOutputCheckBox, &QAbstractButton::toggled,
             this, &AndroidBuildApkWidget::verboseOutputCheckBoxToggled);
+    connect(m_ui->addDebuggerCheckBox, &QAbstractButton::toggled,
+            m_step, &AndroidBuildApkStep::setAddDebugger);
 
     //signing
     connect(m_ui->signPackageCheckBox, &QAbstractButton::toggled,
@@ -185,6 +188,7 @@ void AndroidBuildApkWidget::signPackageCheckBoxToggled(bool checked)
 {
     m_ui->certificatesAliasComboBox->setEnabled(checked);
     m_step->setSignPackage(checked);
+    m_ui->addDebuggerCheckBox->setChecked(!checked);
     updateSigningWarning();
     if (!checked)
         return;

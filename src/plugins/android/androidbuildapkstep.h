@@ -73,6 +73,9 @@ public:
     bool useGradle() const;
     void setUseGradle(bool b);
 
+    bool addDebugger() const;
+    void setAddDebugger(bool debug);
+
     QString buildTargetSdk() const;
     void setBuildTargetSdk(const QString &sdk);
 
@@ -102,6 +105,7 @@ protected:
     bool m_useGradle = false;
     bool m_openPackageLocation = false;
     bool m_openPackageLocationForRun = false;
+    bool m_addDebugger = true;
     QString m_buildTargetSdk;
 
     Utils::FileName m_keystorePath;

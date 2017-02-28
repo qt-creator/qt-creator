@@ -182,13 +182,6 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
 
     QStringList argumentsPasswordConcealed = arguments;
 
-    if (version->qtVersion() >= QtSupport::QtVersionNumber(5, 6, 0)) {
-        if (bc->buildType() == ProjectExplorer::BuildConfiguration::Debug)
-            arguments << QLatin1String("--gdbserver");
-        else
-            arguments << QLatin1String("--no-gdbserver");
-    }
-
     if (m_signPackage) {
         arguments << QLatin1String("--sign")
                   << m_keystorePath.toString()
@@ -204,6 +197,15 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
                       << QLatin1String("******");
         }
 
+    }
+
+    // Must be the last option, otherwise androiddeployqt might use the other
+    // params (e.g. --sign) to choose not to add gdbserver
+    if (version->qtVersion() >= QtSupport::QtVersionNumber(5, 6, 0)) {
+        if (m_addDebugger || bc->buildType() == ProjectExplorer::BuildConfiguration::Debug)
+            arguments << QLatin1String("--gdbserver");
+        else
+            arguments << QLatin1String("--no-gdbserver");
     }
 
     ProjectExplorer::ProcessParameters *pp = processParameters();

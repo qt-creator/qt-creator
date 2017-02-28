@@ -342,6 +342,16 @@ void AndroidBuildApkStep::setUseGradle(bool b)
     }
 }
 
+bool AndroidBuildApkStep::addDebugger() const
+{
+    return m_addDebugger;
+}
+
+void AndroidBuildApkStep::setAddDebugger(bool debug)
+{
+    m_addDebugger = debug;
+}
+
 bool AndroidBuildApkStep::verboseOutput() const
 {
     return m_verbose;
