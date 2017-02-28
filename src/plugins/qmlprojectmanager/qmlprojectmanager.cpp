@@ -27,25 +27,17 @@
 #include "qmlprojectconstants.h"
 #include "qmlproject.h"
 
-#include <coreplugin/idocument.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
-
-#include <QDebug>
-
 namespace QmlProjectManager {
 namespace Internal {
 
-Manager::Manager()
-{
-}
-
 QString Manager::mimeType() const
-{ return QLatin1String(Constants::QMLPROJECT_MIMETYPE); }
+{
+    return QLatin1String(Constants::QMLPROJECT_MIMETYPE);
+}
 
 ProjectExplorer::Project *Manager::openProject(const QString &fileName)
 {
-    return new QmlProject(this, Utils::FileName::fromString(fileName));
+    return new QmlProject(Utils::FileName::fromString(fileName));
 }
 
 } // namespace Internal

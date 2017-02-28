@@ -29,7 +29,6 @@
 #include "qbslogsink.h"
 #include "qbspmlogging.h"
 #include "qbsprojectfile.h"
-#include "qbsprojectmanager.h"
 #include "qbsprojectparser.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsnodes.h"
@@ -67,7 +66,6 @@
 #include <qbs.h>
 
 #include <QCoreApplication>
-#include <QDir>
 #include <QElapsedTimer>
 #include <QFileInfo>
 #include <QMessageBox>
@@ -166,11 +164,6 @@ QbsProject::~QbsProject()
 QString QbsProject::displayName() const
 {
     return m_projectName;
-}
-
-QbsManager *QbsProject::projectManager() const
-{
-    return static_cast<QbsManager *>(Project::projectManager());
 }
 
 QbsRootProjectNode *QbsProject::rootProjectNode() const
@@ -433,7 +426,7 @@ qbs::InstallJob *QbsProject::install(const qbs::InstallOptions &opts)
 
 QString QbsProject::profileForTarget(const Target *t) const
 {
-    return projectManager()->profileForKit(t->kit());
+    return static_cast<QbsManager *>(projectManager())->profileForKit(t->kit());
 }
 
 bool QbsProject::isParsing() const

@@ -27,14 +27,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QObject>
-#include <QAction>
-
-namespace ProjectExplorer {
-class Project;
-class Node;
-}
-
 namespace GenericProjectManager {
 namespace Internal {
 

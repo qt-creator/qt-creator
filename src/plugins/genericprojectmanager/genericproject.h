@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "genericprojectmanager.h"
 #include "genericprojectnodes.h"
 
 #include <projectexplorer/project.h>
@@ -57,7 +56,6 @@ public:
     QString configFileName() const;
 
     QString displayName() const override;
-    Manager *projectManager() const override;
 
     QStringList files(FilesMode fileMode) const override;
 

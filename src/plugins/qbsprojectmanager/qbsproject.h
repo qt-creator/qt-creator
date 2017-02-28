@@ -40,7 +40,6 @@
 
 #include <qbs.h>
 
-#include <QFuture>
 #include <QHash>
 #include <QTimer>
 
@@ -50,8 +49,7 @@ namespace ProjectExplorer { class BuildConfiguration; }
 
 namespace QbsProjectManager {
 namespace Internal {
-class QbsBaseProjectNode;
-class QbsProjectNode;
+
 class QbsProjectParser;
 class QbsBuildConfiguration;
 
@@ -64,7 +62,6 @@ public:
     ~QbsProject() override;
 
     QString displayName() const override;
-    QbsManager *projectManager() const override;
     QbsRootProjectNode *rootProjectNode() const override;
 
     QStringList files(FilesMode fileMode) const override;

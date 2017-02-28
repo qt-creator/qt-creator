@@ -26,8 +26,6 @@
 #pragma once
 
 #include "qmlprojectmanager_global.h"
-
-#include "qmlprojectmanager.h"
 #include "qmlprojectnodes.h"
 
 #include <projectexplorer/project.h>
@@ -46,11 +44,10 @@ class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    QmlProject(Internal::Manager *manager, const Utils::FileName &filename);
+    explicit QmlProject(const Utils::FileName &filename);
     ~QmlProject() override;
 
     QString displayName() const override;
-    Internal::Manager *projectManager() const override;
 
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
 

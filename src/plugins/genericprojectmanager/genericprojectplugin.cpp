@@ -45,6 +45,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 
+#include <QAction>
 #include <QtPlugin>
 #include <QDebug>
 

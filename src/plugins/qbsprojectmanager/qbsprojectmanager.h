@@ -30,26 +30,20 @@
 #include <projectexplorer/iprojectmanager.h>
 
 #include <QList>
-
-namespace qbs {
-class Settings;
-class Preferences;
-} // namespace qbs
-
 #include <QString>
 #include <QVariantMap>
+
+namespace qbs { class Settings; }
 
 namespace ProjectExplorer {
 class Kit;
 class Project;
-class ProjectExplorerPlugin;
 } // namespace ProjectExplorer
 
 namespace QbsProjectManager {
 namespace Internal {
 class DefaultPropertyProvider;
 class QbsLogSink;
-class QbsProject;
 
 class QbsManager : public ProjectExplorer::IProjectManager
 {

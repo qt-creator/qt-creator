@@ -51,7 +51,6 @@
 #include <utils/qtcassert.h>
 
 #include <QDir>
-#include <QProcessEnvironment>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -90,14 +89,11 @@ GenericProject::GenericProject(const QString &fileName)
     DocumentManager::addDocument(m_filesIDocument);
     DocumentManager::addDocument(m_includesIDocument);
     DocumentManager::addDocument(m_configIDocument);
-
-    projectManager()->registerProject(this);
 }
 
 GenericProject::~GenericProject()
 {
     delete m_cppCodeModelUpdater;
-    projectManager()->unregisterProject(this);
 }
 
 QString GenericProject::filesFileName() const
@@ -409,11 +405,6 @@ QStringList GenericProject::files() const
 QString GenericProject::displayName() const
 {
     return m_projectName;
-}
-
-Manager *GenericProject::projectManager() const
-{
-    return static_cast<Manager *>(Project::projectManager());
 }
 
 QStringList GenericProject::files(FilesMode fileMode) const

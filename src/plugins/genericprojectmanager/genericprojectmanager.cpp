@@ -40,15 +40,5 @@ ProjectExplorer::Project *Manager::openProject(const QString &fileName)
     return new GenericProject(fileName);
 }
 
-void Manager::registerProject(GenericProject *project)
-{
-    m_projects.append(project);
-}
-
-void Manager::unregisterProject(GenericProject *project)
-{
-    m_projects.removeAll(project);
-}
-
 } // namespace Internal
 } // namespace GenericProjectManager

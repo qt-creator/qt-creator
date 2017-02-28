@@ -34,8 +34,6 @@ namespace Utils { class PathChooser; }
 namespace AutotoolsProjectManager {
 namespace Internal {
 
-class AutotoolsManager;
-
 class AutotoolsOpenProjectWizard : public Utils::Wizard
 {
     Q_OBJECT
@@ -43,16 +41,13 @@ class AutotoolsOpenProjectWizard : public Utils::Wizard
 public:
     enum PageId { BuildPathPageId };
 
-    AutotoolsOpenProjectWizard(AutotoolsManager *manager, const QString &sourceDirectory,
-                               QWidget *parent = 0);
+    AutotoolsOpenProjectWizard(const QString &sourceDirectory, QWidget *parent = 0);
 
     QString buildDirectory() const;
     QString sourceDirectory() const;
     void setBuildDirectory(const QString &directory);
-    AutotoolsManager *autotoolsManager() const;
 
 private:
-   AutotoolsManager *m_manager;
    QString m_buildDirectory;
    QString m_sourceDirectory;
 };

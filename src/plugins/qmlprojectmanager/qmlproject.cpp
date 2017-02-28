@@ -32,6 +32,7 @@
 #include "qmlprojectnodes.h"
 #include "qmlprojectmanager.h"
 
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/documentmanager.h>
@@ -50,11 +51,10 @@ using namespace ProjectExplorer;
 
 namespace QmlProjectManager {
 
-QmlProject::QmlProject(Internal::Manager *manager, const Utils::FileName &fileName) :
+QmlProject::QmlProject(const Utils::FileName &fileName) :
     m_defaultImport(UnknownImport)
 {
     setId("QmlProjectManager.QmlProject");
-    setProjectManager(manager);
     setDocument(new Internal::QmlProjectFile(this, fileName));
     DocumentManager::addDocument(document(), true);
     setRootProjectNode(new Internal::QmlProjectNode(this));
@@ -271,11 +271,6 @@ void QmlProject::refreshFiles(const QSet<QString> &/*added*/, const QSet<QString
 QString QmlProject::displayName() const
 {
     return m_projectName;
-}
-
-Internal::Manager *QmlProject::projectManager() const
-{
-    return static_cast<Internal::Manager *>(Project::projectManager());
 }
 
 bool QmlProject::supportsKit(Kit *k, QString *errorMessage) const

@@ -31,25 +31,13 @@
 
 #include <utils/fileutils.h>
 
-#include <QFuture>
-
-QT_FORWARD_DECLARE_CLASS(QDir)
-
 namespace Utils { class FileSystemWatcher; }
 
 namespace CppTools { class CppProjectUpdater; }
 
-namespace ProjectExplorer {
-class Node;
-class FolderNode;
-} // namespace ProjectExplorer
-
 namespace AutotoolsProjectManager {
 namespace Internal {
-class AutotoolsConfigurationFactory;
-class AutotoolsProjectFile;
-class AutotoolsProjectNode;
-class AutotoolsManager;
+
 class MakefileParserThread;
 class AutotoolsTarget;
 

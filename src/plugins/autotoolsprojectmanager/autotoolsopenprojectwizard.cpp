@@ -40,11 +40,9 @@ using namespace AutotoolsProjectManager::Internal;
 //////////////////////////////////////
 // AutotoolsOpenProjectWizard class
 //////////////////////////////////////
-AutotoolsOpenProjectWizard::AutotoolsOpenProjectWizard(AutotoolsManager *manager,
-                                                       const QString &sourceDirectory,
+AutotoolsOpenProjectWizard::AutotoolsOpenProjectWizard(const QString &sourceDirectory,
                                                        QWidget *parent) :
     Utils::Wizard(parent),
-    m_manager(manager),
     m_sourceDirectory(sourceDirectory)
 {
     QDir dir(m_sourceDirectory);
@@ -54,11 +52,6 @@ AutotoolsOpenProjectWizard::AutotoolsOpenProjectWizard(AutotoolsManager *manager
 
     setStartId(BuildPathPageId);
     setWindowTitle(tr("Autotools Wizard"));
-}
-
-AutotoolsManager *AutotoolsOpenProjectWizard::autotoolsManager() const
-{
-    return m_manager;
 }
 
 QString AutotoolsOpenProjectWizard::buildDirectory() const

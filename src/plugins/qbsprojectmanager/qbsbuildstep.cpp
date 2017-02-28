@@ -227,7 +227,7 @@ void QbsBuildStep::setQbsConfiguration(const QVariantMap &config)
     QbsProject *pro = static_cast<QbsProject *>(project());
 
     QVariantMap tmp = config;
-    tmp.insert(QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY), pro->projectManager()->profileForKit(target()->kit()));
+    tmp.insert(QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY), pro->profileForTarget(target()));
     if (!tmp.contains(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)))
         tmp.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
                    QString::fromLatin1(Constants::QBS_VARIANT_DEBUG));

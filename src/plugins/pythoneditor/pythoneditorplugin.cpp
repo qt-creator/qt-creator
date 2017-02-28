@@ -89,21 +89,12 @@ static Core::Id idFromScript(const QString &target)
     return Core::Id(PythonRunConfigurationPrefix).withSuffix(target);
 }
 
-class PythonProjectManager : public IProjectManager
-{
-    Q_OBJECT
-public:
-    QString mimeType() const override { return QLatin1String(PythonMimeType); }
-    Project *openProject(const QString &fileName) override;
-};
-
 class PythonProject : public Project
 {
 public:
     explicit PythonProject(const QString &filename);
 
     QString displayName() const override { return m_projectName; }
-    PythonProjectManager *projectManager() const override;
 
     QStringList files(FilesMode) const override { return m_files; }
     QStringList files() const { return m_files; }
@@ -361,10 +352,12 @@ PythonRunConfigurationWidget::PythonRunConfigurationWidget(PythonRunConfiguratio
     setEnabled(runConfiguration->isEnabled());
 }
 
-Project *PythonProjectManager::openProject(const QString &fileName)
+class PythonProjectManager : public IProjectManager
 {
-    return new PythonProject(fileName);
-}
+public:
+    QString mimeType() const override { return QLatin1String(PythonMimeType); }
+    Project *openProject(const QString &fileName) override { return new PythonProject(fileName); }
+};
 
 class PythonRunConfigurationFactory : public IRunConfigurationFactory
 {
@@ -449,11 +442,6 @@ PythonProject::PythonProject(const QString &fileName)
     QFileInfo fileInfo = projectFilePath().toFileInfo();
 
     m_projectName = fileInfo.completeBaseName();
-}
-
-PythonProjectManager *PythonProject::projectManager() const
-{
-    return static_cast<PythonProjectManager *>(Project::projectManager());
 }
 
 static QStringList readLines(const QString &absoluteFileName)
