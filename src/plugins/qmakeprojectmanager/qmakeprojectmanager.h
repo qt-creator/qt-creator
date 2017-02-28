@@ -57,8 +57,8 @@ public:
 
     // Context information used in the slot implementations
     static ProjectExplorer::Node *contextNode();
-    static QmakeProject *contextProject();
-    static ProjectExplorer::FileNode *contextFile();
+    static ProjectExplorer::Project *contextProject();
+    static ProjectExplorer::FileNode *contextBuildableFileNode();
 
     enum Action { BUILD, REBUILD, CLEAN };
 
@@ -77,8 +77,8 @@ private:
     void handleSubDirContextMenu(Action action, bool isFileBuild);
     void handleSubDirContextMenu(QmakeManager::Action action, bool isFileBuild,
                                  ProjectExplorer::Project *contextProject,
-                                 ProjectExplorer::Node *contextNode,
-                                 ProjectExplorer::FileNode *contextFile);
+                                 ProjectExplorer::Node *contextProFileNode,
+                                 ProjectExplorer::FileNode *buildableFile);
     void addLibraryImpl(const QString &fileName, TextEditor::BaseTextEditor *editor);
     void runQMakeImpl(ProjectExplorer::Project *p, ProjectExplorer::Node *node);
 };
