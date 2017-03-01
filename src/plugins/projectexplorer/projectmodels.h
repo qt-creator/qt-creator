@@ -83,15 +83,12 @@ signals:
     void renamed(const Utils::FileName &oldName, const Utils::FileName &newName);
 
 private:
-    void startupProjectChanged(Project *project);
     void nodeUpdated(ProjectExplorer::Node *node);
 
     bool filter(Node *node) const; // Returns true if node is hidden.
 
     bool m_filterProjects = false;
     bool m_filterGeneratedFiles = true;
-
-    ProjectNode *m_startupProject = nullptr;
 
     static const QLoggingCategory &logger();
 

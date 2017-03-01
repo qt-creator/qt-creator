@@ -82,11 +82,10 @@ FlatModel::FlatModel(QObject *parent)
 
     SessionManager *sm = SessionManager::instance();
     connect(sm, &SessionManager::projectRemoved, this, &FlatModel::update);
-    connect(sm, &SessionManager::startupProjectChanged, this, &FlatModel::startupProjectChanged);
-
     connect(sm, &SessionManager::sessionLoaded, this, &FlatModel::loadExpandData);
     connect(sm, &SessionManager::aboutToSaveSession, this, &FlatModel::saveExpandData);
     connect(sm, &SessionManager::projectAdded, this, &FlatModel::handleProjectAdded);
+    connect(sm, &SessionManager::startupProjectChanged, this, [this] { layoutChanged(); });
     update();
 }
 
@@ -96,15 +95,6 @@ void FlatModel::setView(QTreeView *view)
     m_view = view;
     connect(m_view, &QTreeView::expanded, this, &FlatModel::onExpanded);
     connect(m_view, &QTreeView::collapsed, this, &FlatModel::onCollapsed);
-}
-
-void FlatModel::startupProjectChanged(Project *project)
-{
-    ProjectNode *projectNode = project ? project->rootProjectNode() : nullptr;
-    if (m_startupProject == projectNode)
-        return;
-    m_startupProject = projectNode;
-    layoutChanged();
 }
 
 QVariant FlatModel::data(const QModelIndex &index, int role) const
@@ -145,8 +135,10 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         }
         case Qt::FontRole: {
             QFont font;
-            if (node == m_startupProject)
-                font.setBold(true);
+            if (Project *project = SessionManager::startupProject()) {
+                if (node == project->rootProjectNode())
+                    font.setBold(true);
+            }
             result = font;
             break;
         }
