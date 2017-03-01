@@ -78,6 +78,9 @@ public:
     virtual void token(const TokenCommand &command) = 0;
     virtual void removeSharedMemory(const RemoveSharedMemoryCommand &command) = 0;
 
+    virtual void benchmark(const QString &)
+    {}
+
     static void registerCommands();
 };
 

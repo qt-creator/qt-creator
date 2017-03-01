@@ -1129,6 +1129,8 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
         }
     }
 
+    m_nodeInstanceServer->benchmark(Q_FUNC_INFO + QString::number(renderImageChangeSet.count()));
+
     if (!renderImageChangeSet.isEmpty())
         emitInstancesRenderImageChanged(renderImageChangeSet.toList().toVector());
 }
@@ -1157,6 +1159,8 @@ void NodeInstanceView::informationChanged(const InformationChangedCommand &comma
         return;
 
     QMultiHash<ModelNode, InformationName> informationChangeHash = informationChanged(command.informations());
+
+    m_nodeInstanceServer->benchmark(Q_FUNC_INFO + QString::number(informationChangeHash.count()));
 
     if (!informationChangeHash.isEmpty())
         emitInstanceInformationsChange(informationChangeHash);
@@ -1221,6 +1225,8 @@ void NodeInstanceView::componentCompleted(const ComponentCompletedCommand &comma
         if (hasModelNodeForInternalId(instanceId))
             nodeVector.append(modelNodeForInternalId(instanceId));
     }
+
+    m_nodeInstanceServer->benchmark(Q_FUNC_INFO + QString::number(nodeVector.count()));
 
     if (!nodeVector.isEmpty())
         emitInstancesCompleted(nodeVector);

@@ -73,6 +73,7 @@
 
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QLoggingCategory>
 #include <QProcess>
 #include <QCoreApplication>
 #include <QUuid>
@@ -83,6 +84,8 @@
 #include <QMessageBox>
 
 namespace QmlDesigner {
+
+static Q_LOGGING_CATEGORY(instanceViewBenchmark, "qtc.nodeinstances.init")
 
 void NodeInstanceServerProxy::showCannotConnectToPuppetWarningAndSwitchToEditMode()
 {
@@ -114,6 +117,9 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
       m_runModus(runModus),
       m_synchronizeId(-1)
 {
+    if (instanceViewBenchmark().isInfoEnabled())
+        m_benchmarkTimer.start();
+
    QString socketToken(QUuid::createUuid().toString());
    m_localServer->listen(socketToken);
    m_localServer->setMaxPendingConnections(3);
@@ -147,6 +153,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    if (m_qmlPuppetEditorProcess->waitForStarted(waitConstant)) {
        connect(m_qmlPuppetEditorProcess.data(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             m_qmlPuppetEditorProcess.data(), &QProcess::deleteLater);
+    qCInfo(instanceViewBenchmark) << "puppets started:" << m_benchmarkTimer.elapsed();
 
        if (runModus == NormalModus) {
            m_qmlPuppetPreviewProcess->waitForStarted(waitConstant / 2);
@@ -178,6 +185,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
                    if (!m_localServer->hasPendingConnections())
                         connectedToPuppet = m_localServer->waitForNewConnection(waitConstant / 4);
 
+    qCInfo(instanceViewBenchmark) << "puppets connected:" << m_benchmarkTimer.elapsed();
                    if (connectedToPuppet) {
                        m_thirdSocket = m_localServer->nextPendingConnection();
                        connect(m_thirdSocket.data(), SIGNAL(readyRead()), this, SLOT(readThirdDataStream()));
@@ -272,6 +280,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
     static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
     static const int puppetAliveCommandType = QMetaType::type("PuppetAliveCommand");
 
+    qCInfo(instanceViewBenchmark) << "dispatching command" << command.userType() << command.typeName();
     if (command.userType() ==  informationChangedCommandType) {
         nodeInstanceClient()->informationChanged(command.value<InformationChangedCommand>());
     } else if (command.userType() ==  valuesChangedCommandType) {
@@ -295,6 +304,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
         m_synchronizeId = synchronizeCommand.synchronizeId();
     }  else
         Q_ASSERT(false);
+     qCInfo(instanceViewBenchmark) << "dispatching command" << "done" << command.userType();
 }
 
 NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const
@@ -588,6 +598,7 @@ void NodeInstanceServerProxy::changeFileUrl(const ChangeFileUrlCommand &command)
 
 void NodeInstanceServerProxy::createScene(const CreateSceneCommand &command)
 {
+    qCInfo(instanceViewBenchmark) << Q_FUNC_INFO << m_benchmarkTimer.elapsed();
     writeCommand(QVariant::fromValue(command));
 }
 
@@ -654,6 +665,11 @@ void NodeInstanceServerProxy::token(const TokenCommand &command)
 void NodeInstanceServerProxy::removeSharedMemory(const RemoveSharedMemoryCommand &command)
 {
    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceServerProxy::benchmark(const QString &message)
+{
+    qCInfo(instanceViewBenchmark) << message << m_benchmarkTimer.elapsed();
 }
 
 } // namespace QmlDesigner

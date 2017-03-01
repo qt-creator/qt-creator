@@ -30,6 +30,7 @@
 #include <QPointer>
 #include <QProcess>
 #include <QFile>
+#include <QTime>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
@@ -81,6 +82,7 @@ public:
     void changeNodeSource(const ChangeNodeSourceCommand &command);
     void token(const TokenCommand &command);
     void removeSharedMemory(const RemoveSharedMemoryCommand &command);
+    void benchmark(const QString &message) override;
 
 protected:
     void writeCommand(const QVariant &command);
@@ -125,6 +127,7 @@ private:
     quint32 m_thirdLastReadCommandCounter;
     RunModus m_runModus;
     int m_synchronizeId;
+    QTime m_benchmarkTimer;
 };
 
 } // namespace QmlDesigner
