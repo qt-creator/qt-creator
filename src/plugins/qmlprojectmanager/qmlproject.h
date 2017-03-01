@@ -82,6 +82,7 @@ protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
 private:
+    void generateProjectTree();
     void refreshFiles(const QSet<QString> &added, const QSet<QString> &removed);
     void addedTarget(ProjectExplorer::Target *target);
     void onActiveTargetChanged(ProjectExplorer::Target *target);

@@ -39,9 +39,8 @@ using namespace ProjectExplorer;
 namespace QmlProjectManager {
 namespace Internal {
 
-QmlProjectNode::QmlProjectNode(QmlProject *project)
-    : ProjectNode(project->projectDirectory()),
-      m_project(project)
+QmlProjectNode::QmlProjectNode(QmlProject *project) : ProjectNode(project->projectDirectory()),
+    m_project(project)
 {
     setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
     // make overlay
@@ -51,22 +50,6 @@ QmlProjectNode::QmlProjectNode(QmlProject *project)
                                                                       projectBaseIcon,
                                                                       desiredSize);
     setIcon(QIcon(projectPixmap));
-}
-
-void QmlProjectNode::refresh()
-{
-    QStringList files = m_project->files();
-    files.removeAll(m_project->projectFilePath().toString());
-
-    QList<FileNode *> fileNodes = Utils::transform(files, [](const QString &f) {
-        FileType fileType = FileType::Source; // ### FIXME
-        return new FileNode(Utils::FileName::fromString(f), fileType, false);
-
-    });
-    fileNodes.append(new FileNode(m_project->projectFilePath(), FileType::Project, false));
-
-    makeEmpty();
-    buildTree(fileNodes);
 }
 
 bool QmlProjectNode::showInSimpleTree() const

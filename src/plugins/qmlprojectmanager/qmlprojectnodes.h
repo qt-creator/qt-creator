@@ -46,8 +46,6 @@ public:
     virtual bool deleteFiles(const QStringList &filePaths) override;
     virtual bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
-    void refresh();
-
 private:
     QmlProject *m_project;
 };

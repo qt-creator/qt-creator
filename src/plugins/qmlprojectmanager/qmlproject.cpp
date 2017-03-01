@@ -44,6 +44,8 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/qtsupportconstants.h>
 
+#include <utils/algorithm.h>
+
 #include <QDebug>
 
 using namespace Core;
@@ -161,7 +163,7 @@ void QmlProject::parseProject(RefreshOptions options)
                 }
             }
         }
-        rootProjectNode()->refresh();
+        generateProjectTree();
     }
 
     if (options & Configuration) {
@@ -177,7 +179,7 @@ void QmlProject::refresh(RefreshOptions options)
     parseProject(options);
 
     if (options & Files)
-        rootProjectNode()->refresh();
+        generateProjectTree();
 
     if (!modelManager())
         return;
@@ -380,6 +382,21 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
     onActiveTargetChanged(activeTarget());
 
     return RestoreResult::Ok;
+}
+
+void QmlProject::generateProjectTree()
+{
+    QStringList allFiles = files();
+
+    QList<FileNode *> fileNodes = Utils::transform(allFiles, [this](const QString &f) {
+        FileType fileType = FileType::Source; // ### FIXME
+        if (f == projectFilePath().toString())
+            fileType = FileType::Project;
+        return new FileNode(Utils::FileName::fromString(f), fileType, false);
+    });
+
+    rootProjectNode()->makeEmpty();
+    rootProjectNode()->buildTree(fileNodes);
 }
 
 } // namespace QmlProjectManager
