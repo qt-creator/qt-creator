@@ -11,8 +11,9 @@ qtHaveModule(quick): SUBDIRS += qml2puppet
 
 win32 {
     SUBDIRS += qtcdebugger \
-        wininterrupt \
         winrtdebughelper
+
+    isEmpty(QTC_SKIP_WININTERRUPT): SUBDIRS += wininterrupt
 }
 
 mac {
