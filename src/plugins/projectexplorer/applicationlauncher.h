@@ -31,10 +31,12 @@
 
 #include <QProcess>
 
+namespace Utils { class ProcessHandle; }
+
 namespace ProjectExplorer {
 
-struct ApplicationLauncherPrivate;
-class StandardRunnable;
+class Runnable;
+namespace Internal { class ApplicationLauncherPrivate; }
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT ApplicationLauncher : public QObject
@@ -51,7 +53,7 @@ public:
     ~ApplicationLauncher() override;
 
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
-    void start(const ProjectExplorer::StandardRunnable &runnable);
+    void start(const Runnable &runnable);
     void stop();
     bool isRunning() const;
     qint64 applicationPID() const;
@@ -69,19 +71,7 @@ signals:
     void error(QProcess::ProcessError error);
 
 private:
-    void handleProcessStarted();
-    void guiProcessError();
-    void consoleProcessError(const QString &error);
-    void readStandardOutput();
-    void readStandardError();
-#ifdef Q_OS_WIN
-    void cannotRetrieveDebugOutput();
-#endif
-    void checkDebugOutput(qint64 pid, const QString &message);
-    void processDone(int, QProcess::ExitStatus);
-    void bringToForeground();
-
-    ApplicationLauncherPrivate *d;
+    Internal::ApplicationLauncherPrivate *d;
 };
 
 } // namespace ProjectExplorer
