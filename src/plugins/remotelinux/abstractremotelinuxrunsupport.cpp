@@ -174,7 +174,7 @@ void AbstractRemoteLinuxRunSupport::createRemoteFifo()
         errors->append(data);
     });
 
-    d->fifoCreator.start(d->device, r);
+    d->fifoCreator.start(r, d->device);
 }
 
 const IDevice::ConstPtr AbstractRemoteLinuxRunSupport::device() const

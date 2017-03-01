@@ -175,7 +175,7 @@ void BareMetalDebugSupport::startExecution()
     // as the bare metal's GDB servers are launched on a host,
     // but not on a target.
     r.commandLineArguments = Utils::QtcProcess::joinArgs(p->arguments(), Utils::HostOsInfo::hostOs());
-    m_appRunner->start(dev, r);
+    m_appRunner->start(r, dev);
 }
 
 void BareMetalDebugSupport::setFinished()

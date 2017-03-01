@@ -115,7 +115,7 @@ void QnxDebugSupport::startExecution()
     r.commandLineArguments = Utils::QtcProcess::joinArgs(arguments);
     r.environment = m_runnable.environment;
     r.workingDirectory = m_runnable.workingDirectory;
-    appRunner()->start(device(), r);
+    appRunner()->start(r, device());
 }
 
 void QnxDebugSupport::handleRemoteProcessStarted()

@@ -107,7 +107,7 @@ void QnxAnalyzeSupport::startExecution()
         r.commandLineArguments += QLatin1Char(' ');
     r.commandLineArguments += QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices,
                                                              m_qmlPort);
-    appRunner()->start(device(), r);
+    appRunner()->start(r, device());
 }
 
 void QnxAnalyzeSupport::handleRemoteProcessFinished(bool success)

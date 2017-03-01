@@ -162,7 +162,7 @@ void LinuxDeviceDebugSupport::startExecution()
     }
     r.executable = command;
     r.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);
-    runner->start(device(), r);
+    runner->start(r, device());
 }
 
 void LinuxDeviceDebugSupport::handleAppRunnerError(const QString &error)

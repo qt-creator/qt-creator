@@ -65,7 +65,7 @@ void RemoteLinuxRunControl::start()
             this, &RemoteLinuxRunControl::handleRunnerFinished);
     connect(&d->runner, &DeviceApplicationRunner::reportProgress,
             this, &RemoteLinuxRunControl::handleProgressReport);
-    d->runner.start(device(), runnable());
+    d->runner.start(runnable(), device());
 }
 
 RunControl::StopResult RemoteLinuxRunControl::stop()

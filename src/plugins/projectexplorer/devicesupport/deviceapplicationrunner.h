@@ -44,7 +44,7 @@ public:
     explicit DeviceApplicationRunner(QObject *parent = 0);
     ~DeviceApplicationRunner() override;
 
-    void start(const IDevice::ConstPtr &device, const Runnable &runnable);
+    void start(const Runnable &runnable, const IDevice::ConstPtr &device);
     void stop();
 
 signals:

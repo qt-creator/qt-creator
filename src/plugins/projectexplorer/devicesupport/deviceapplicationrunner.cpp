@@ -59,7 +59,7 @@ DeviceApplicationRunner::~DeviceApplicationRunner()
     delete d;
 }
 
-void DeviceApplicationRunner::start(const IDevice::ConstPtr &device, const Runnable &runnable)
+void DeviceApplicationRunner::start(const Runnable &runnable, const IDevice::ConstPtr &device)
 {
     QTC_ASSERT(d->state == Inactive, return);
 

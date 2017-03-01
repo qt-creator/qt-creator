@@ -182,10 +182,10 @@ void RemoteLinuxAnalyzeSupport::startExecution()
         outputRunner.executable = QLatin1String("sh");
         outputRunner.commandLineArguments =
                 QString::fromLatin1("-c 'cat %1 && rm -r `dirname %1`'").arg(d->remoteFifo);
-        d->outputGatherer.start(device(), outputRunner);
+        d->outputGatherer.start(outputRunner, device());
         remoteIsRunning();
     }
-    runner->start(device(), r);
+    runner->start(r, device());
 }
 
 void RemoteLinuxAnalyzeSupport::handleAppRunnerError(const QString &error)

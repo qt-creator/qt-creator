@@ -113,7 +113,7 @@ void QnxAttachDebugSupport::launchPDebug()
     StandardRunnable r;
     r.executable = QLatin1String("pdebug");
     r.commandLineArguments = QString::number(m_pdebugPort.number());
-    m_runner->start(m_device, r);
+    m_runner->start(r, m_device);
 }
 
 void QnxAttachDebugSupport::attachToProcess()
