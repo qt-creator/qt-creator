@@ -41,6 +41,7 @@ namespace ClangFormat {
 namespace {
 const char USE_PREDEFINED_STYLE[]        = "usePredefinedStyle";
 const char PREDEFINED_STYLE[]            = "predefinedStyle";
+const char FALLBACK_STYLE[]              = "fallbackStyle";
 const char CUSTOM_STYLE[]                = "customStyle";
 const char FORMAT_ENTIRE_FILE_FALLBACK[] = "formatEntireFileFallback";
 }
@@ -51,6 +52,7 @@ ClangFormatSettings::ClangFormatSettings() :
     setCommand("clang-format");
     m_settings.insert(USE_PREDEFINED_STYLE, QVariant(true));
     m_settings.insert(PREDEFINED_STYLE, "LLVM");
+    m_settings.insert(FALLBACK_STYLE, "Default");
     m_settings.insert(CUSTOM_STYLE, QVariant());
     m_settings.insert(FORMAT_ENTIRE_FILE_FALLBACK, QVariant(true));
     read();
@@ -191,6 +193,18 @@ void ClangFormatSettings::setPredefinedStyle(const QString &predefinedStyle)
         m_settings.insert(PREDEFINED_STYLE, QVariant(predefinedStyle));
 }
 
+QString ClangFormatSettings::fallbackStyle() const
+{
+    return m_settings.value(FALLBACK_STYLE).toString();
+}
+
+void ClangFormatSettings::setFallbackStyle(const QString &fallbackStyle)
+{
+    const QStringList test = fallbackStyles();
+    if (test.contains(fallbackStyle))
+        m_settings.insert(FALLBACK_STYLE, QVariant(fallbackStyle));
+}
+
 QString ClangFormatSettings::customStyle() const
 {
     return m_settings.value(CUSTOM_STYLE).toString();
@@ -214,6 +228,11 @@ void ClangFormatSettings::setFormatEntireFileFallback(bool formatEntireFileFallb
 QStringList ClangFormatSettings::predefinedStyles() const
 {
     return {"LLVM", "Google", "Chromium", "Mozilla", "WebKit", "File"};
+}
+
+QStringList ClangFormatSettings::fallbackStyles() const
+{
+    return {"Default", "None", "LLVM", "Google", "Chromium", "Mozilla", "WebKit"};
 }
 
 QString ClangFormatSettings::styleFileName(const QString &key) const

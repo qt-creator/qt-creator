@@ -137,7 +137,14 @@ Command ClangFormat::command() const
     command.setProcessing(Command::PipeProcessing);
 
     if (m_settings->usePredefinedStyle()) {
-        command.addOption("-style=" + m_settings->predefinedStyle());
+        const QString predefinedStyle = m_settings->predefinedStyle();
+        command.addOption("-style=" + predefinedStyle);
+        if (predefinedStyle == "File") {
+            const QString fallbackStyle = m_settings->fallbackStyle();
+            if (fallbackStyle != "Default")
+                command.addOption("-fallback-style=" + fallbackStyle);
+        }
+
         command.addOption("-assume-filename=%file");
     } else {
         command.addOption("-style=file");

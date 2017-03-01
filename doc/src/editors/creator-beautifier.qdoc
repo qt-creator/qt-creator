@@ -137,6 +137,11 @@
                     same directory as the source file or in one of its parent
                     directories.
 
+                    To specify a fallback style to use if the style configuration
+                    file is not available, use the \uicontrol {Fallback style}
+                    combo box. Select \uicontrol Default to use the default style.
+                    Select \uicontrol None to skip formatting.
+
                 \li Select the \uicontrol {Use customized style} option, and
                     then \uicontrol Add to define your own style.
 

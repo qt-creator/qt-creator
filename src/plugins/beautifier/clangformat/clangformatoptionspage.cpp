@@ -47,10 +47,18 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
     ui->setupUi(this);
     ui->options->setEnabled(false);
     ui->predefinedStyle->addItems(m_settings->predefinedStyles());
+    ui->fallbackStyle->addItems(m_settings->fallbackStyles());
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
     ui->command->setPromptDialogTitle(
                 BeautifierPlugin::msgCommandPromptDialogTitle("Clang Format"));
     connect(ui->command, &Utils::PathChooser::validChanged, ui->options, &QWidget::setEnabled);
+    connect(ui->predefinedStyle, &QComboBox::currentTextChanged, [this](const QString &item) {
+        ui->fallbackStyle->setEnabled(item == "File");
+    });
+    connect(ui->usePredefinedStyle, &QRadioButton::toggled, [this](bool checked) {
+        ui->fallbackStyle->setEnabled(checked && ui->predefinedStyle->currentText() == "File");
+        ui->predefinedStyle->setEnabled(checked);
+    });
     ui->configurations->setSettings(m_settings);
 }
 
@@ -63,9 +71,12 @@ void ClangFormatOptionsPageWidget::restore()
 {
     ui->command->setPath(m_settings->command());
     ui->mime->setText(m_settings->supportedMimeTypesAsString());
-    const int textIndex = ui->predefinedStyle->findText(m_settings->predefinedStyle());
-    if (textIndex != -1)
-        ui->predefinedStyle->setCurrentIndex(textIndex);
+    const int predefinedStyleIndex = ui->predefinedStyle->findText(m_settings->predefinedStyle());
+    if (predefinedStyleIndex != -1)
+        ui->predefinedStyle->setCurrentIndex(predefinedStyleIndex);
+    const int fallbackStyleIndex = ui->fallbackStyle->findText(m_settings->fallbackStyle());
+    if (fallbackStyleIndex != -1)
+        ui->fallbackStyle->setCurrentIndex(fallbackStyleIndex);
     ui->formatEntireFileFallback->setChecked(m_settings->formatEntireFileFallback());
     ui->configurations->setSettings(m_settings);
     ui->configurations->setCurrentConfiguration(m_settings->customStyle());
@@ -82,6 +93,7 @@ void ClangFormatOptionsPageWidget::apply()
     m_settings->setSupportedMimeTypes(ui->mime->text());
     m_settings->setUsePredefinedStyle(ui->usePredefinedStyle->isChecked());
     m_settings->setPredefinedStyle(ui->predefinedStyle->currentText());
+    m_settings->setFallbackStyle(ui->fallbackStyle->currentText());
     m_settings->setCustomStyle(ui->configurations->currentConfiguration());
     m_settings->setFormatEntireFileFallback(ui->formatEntireFileFallback->isChecked());
     m_settings->save();
