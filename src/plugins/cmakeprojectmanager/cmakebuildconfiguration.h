@@ -112,6 +112,7 @@ private:
     QList<ConfigModel::DataItem> completeCMakeConfiguration() const;
     void setCurrentCMakeConfiguration(const QList<ConfigModel::DataItem> &items);
 
+    void clearError();
     void setError(const QString &message);
     void setWarning(const QString &message);
 
