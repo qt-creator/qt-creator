@@ -538,9 +538,8 @@ public:
     bool isRunning = false;
 
 #ifdef Q_OS_OSX
-    //these two are used to bring apps in the foreground on Mac
+    // This is used to bring apps in the foreground on Mac
     int foregroundCount;
-    qint64 internalPid;
 #endif
 };
 
@@ -656,6 +655,13 @@ bool RunControl::canReUseOutputPane(const RunControl *other) const
     return d->runnable.canReUseOutputPane(other->d->runnable);
 }
 
+/*!
+    A handle to the application process.
+
+    This is typically a process id, but should be treated as
+    opaque handle to the process controled by this \c RunControl.
+*/
+
 ProcessHandle RunControl::applicationProcessHandle() const
 {
     return d->applicationProcessHandle;
@@ -729,14 +735,18 @@ bool RunControl::showPromptToStopDialog(const QString &title,
     return close;
 }
 
-void RunControl::bringApplicationToForeground(qint64 pid)
+/*!
+    Brings the application determined by this RunControl's \c applicationProcessHandle
+    to the foreground.
+
+    The default implementation raises the application on Mac, and does
+    nothing elsewhere.
+*/
+void RunControl::bringApplicationToForeground()
 {
 #ifdef Q_OS_OSX
-    d->internalPid = pid;
     d->foregroundCount = 0;
     bringApplicationToForegroundInternal();
-#else
-    Q_UNUSED(pid)
 #endif
 }
 
@@ -758,14 +768,13 @@ void RunControl::bringApplicationToForegroundInternal()
 {
 #ifdef Q_OS_OSX
     ProcessSerialNumber psn;
-    GetProcessForPID(d->internalPid, &psn);
+    GetProcessForPID(d->applicationProcessHandle.pid(), &psn);
     if (SetFrontProcess(&psn) == procNotFound && d->foregroundCount < 15) {
         // somehow the mac/carbon api says
         // "-600 no eligible process with specified process id"
         // if we call SetFrontProcess too early
         ++d->foregroundCount;
         QTimer::singleShot(200, this, &RunControl::bringApplicationToForegroundInternal);
-        return;
     }
 #endif
 }

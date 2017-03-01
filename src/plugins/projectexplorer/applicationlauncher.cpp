@@ -281,8 +281,8 @@ void ApplicationLauncher::processDone(int exitCode, QProcess::ExitStatus status)
 
 void ApplicationLauncher::bringToForeground()
 {
-    emit bringToForegroundRequested(applicationPID());
     handleProcessStarted();
+    emit bringToForegroundRequested();
 }
 
 QString ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput()

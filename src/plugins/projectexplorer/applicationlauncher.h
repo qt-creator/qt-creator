@@ -65,7 +65,7 @@ signals:
     void appendMessage(const QString &message, Utils::OutputFormat format);
     void processStarted();
     void processExited(int exitCode, QProcess::ExitStatus);
-    void bringToForegroundRequested(qint64 pid);
+    void bringToForegroundRequested();
     void error(QProcess::ProcessError error);
 
 private:

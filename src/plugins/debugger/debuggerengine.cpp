@@ -311,7 +311,7 @@ public:
     void raiseApplication()
     {
         QTC_ASSERT(runControl(), return);
-        runControl()->bringApplicationToForeground(m_inferiorPid.pid());
+        runControl()->bringApplicationToForeground();
     }
 
     void scheduleResetLocation()

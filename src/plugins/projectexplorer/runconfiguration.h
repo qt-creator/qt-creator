@@ -391,9 +391,7 @@ public:
     void setConnection(const Connection &connection);
 
     virtual void appendMessage(const QString &msg, Utils::OutputFormat format);
-
-public slots:
-    void bringApplicationToForeground(qint64 pid);
+    virtual void bringApplicationToForeground();
 
 signals:
     void appendMessageRequested(ProjectExplorer::RunControl *runControl,
