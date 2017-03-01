@@ -511,10 +511,6 @@ public:
             device = DeviceKitInformation::device(runConfiguration->target()->kit());
             project = runConfiguration->target()->project();
         }
-
-        // We need to ensure that there's always a OutputFormatter
-        if (!outputFormatter)
-            outputFormatter = new Utils::OutputFormatter();
     }
 
     ~RunControlPrivate()

@@ -196,7 +196,8 @@ OutputFormatter *OutputWindow::formatter() const
 void OutputWindow::setFormatter(OutputFormatter *formatter)
 {
     d->formatter = formatter;
-    d->formatter->setPlainTextEdit(this);
+    if (d->formatter)
+        d->formatter->setPlainTextEdit(this);
 }
 
 void OutputWindow::showEvent(QShowEvent *e)
@@ -286,9 +287,8 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
     const bool atBottom = isScrollbarAtBottom() || m_scrollTimer.isActive();
 
     if (format == ErrorMessageFormat || format == NormalMessageFormat) {
-
-        d->formatter->appendMessage(doNewlineEnforcement(out), format);
-
+        if (d->formatter)
+            d->formatter->appendMessage(doNewlineEnforcement(out), format);
     } else {
 
         bool sameLine = format == StdOutFormatSameLine
@@ -304,7 +304,7 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
             if (!enforceNewline) {
                 newline = out.indexOf(QLatin1Char('\n'));
                 moveCursor(QTextCursor::End);
-                if (newline != -1)
+                if (newline != -1 && d->formatter)
                     d->formatter->appendMessage(out.left(newline), format);// doesn't enforce new paragraph like appendPlainText
             }
 
@@ -316,10 +316,12 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
                     d->enforceNewline = true;
                     s.chop(1);
                 }
-                d->formatter->appendMessage(QLatin1Char('\n') + s, format);
+                if (d->formatter)
+                    d->formatter->appendMessage(QLatin1Char('\n') + s, format);
             }
         } else {
-            d->formatter->appendMessage(doNewlineEnforcement(out), format);
+            if (d->formatter)
+                d->formatter->appendMessage(doNewlineEnforcement(out), format);
         }
     }
 
