@@ -328,10 +328,13 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
                                    FileName::fromString(m_directory),
                                    0, [this, &addedFiles](QFileInfo src, QFileInfo dst, QString *){return copy(src, dst, &addedFiles);});
 
-        if (m_copyGradle)
-            FileUtils::copyRecursively(AndroidConfigurations::currentConfig().sdkLocation().appendPath(QLatin1String("/tools/templates/gradle/wrapper")),
-                                       FileName::fromString(m_directory),
+        if (m_copyGradle) {
+            FileName gradlePath = FileName::fromString(version->qmakeProperty("QT_INSTALL_PREFIX").append(QLatin1String("/src/3rdparty/gradle")));
+            if (!gradlePath.exists())
+                gradlePath = AndroidConfigurations::currentConfig().sdkLocation().appendPath(QLatin1String("/tools/templates/gradle/wrapper"));
+            FileUtils::copyRecursively(gradlePath, FileName::fromString(m_directory),
                                        0, [this, &addedFiles](QFileInfo src, QFileInfo dst, QString *){return copy(src, dst, &addedFiles);});
+        }
 
         AndroidManager::updateGradleProperties(m_target);
     }
