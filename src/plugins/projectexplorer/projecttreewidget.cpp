@@ -175,7 +175,6 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
     m_view->setItemDelegate(new ProjectTreeItemDelegate(this));
     setFocusProxy(m_view);
     m_view->installEventFilter(this);
-    m_model->setView(m_view);
 
     auto layout = new QVBoxLayout();
     layout->addWidget(ItemViewFind::createSearchableWrapper(
@@ -198,12 +197,18 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
     // connections
     connect(m_model, &FlatModel::renamed,
             this, &ProjectTreeWidget::renamed);
+    connect(m_model, &FlatModel::requestExpansion,
+            m_view, &QTreeView::expand);
     connect(m_view, &QAbstractItemView::activated,
             this, &ProjectTreeWidget::openItem);
     connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &ProjectTreeWidget::handleCurrentItemChange);
     connect(m_view, &QWidget::customContextMenuRequested,
             this, &ProjectTreeWidget::showContextMenu);
+    connect(m_view, &QTreeView::expanded,
+            m_model, &FlatModel::onExpanded);
+    connect(m_view, &QTreeView::collapsed,
+            m_model, &FlatModel::onCollapsed);
 
     m_toggleSync = new QToolButton;
     m_toggleSync->setIcon(Utils::Icons::LINK.icon());

@@ -89,14 +89,6 @@ FlatModel::FlatModel(QObject *parent)
     update();
 }
 
-void FlatModel::setView(QTreeView *view)
-{
-    QTC_CHECK(!m_view);
-    m_view = view;
-    connect(m_view, &QTreeView::expanded, this, &FlatModel::onExpanded);
-    connect(m_view, &QTreeView::collapsed, this, &FlatModel::onCollapsed);
-}
-
 QVariant FlatModel::data(const QModelIndex &index, int role) const
 {
     QVariant result;
@@ -221,7 +213,7 @@ void FlatModel::rebuildModel()
         const QString displayName = node->m_node->displayName();
         ExpandData ed(path, displayName);
         if (m_toExpand.contains(ed))
-            m_view->expand(node->index());
+            emit requestExpansion(node->index());
     });
 }
 
