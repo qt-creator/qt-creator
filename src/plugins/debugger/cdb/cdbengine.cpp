@@ -261,7 +261,6 @@ CdbEngine::CdbEngine(const DebuggerRunParameters &sp) :
 void CdbEngine::init()
 {
     m_effectiveStartMode = NoStartMode;
-    notifyInferiorPid(0);
     m_accessible = false;
     m_specialStopMode = NoSpecialStop;
     m_nextCommandToken  = 0;
