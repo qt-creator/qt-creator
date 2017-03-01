@@ -46,6 +46,7 @@ namespace ProjectExplorer {
 namespace Internal { class ToolChainPrivate; }
 
 namespace Deprecated {
+// Deprecated in 4.3:
 namespace Toolchain {
 enum Language {
     None = 0,
@@ -154,7 +155,6 @@ public:
 protected:
     explicit ToolChain(Core::Id typeId, Detection d);
     explicit ToolChain(const ToolChain &);
-
 
     void toolChainUpdated();
 
