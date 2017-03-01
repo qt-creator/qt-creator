@@ -747,28 +747,25 @@ void QmakeProject::proFileParseError(const QString &errorMessage)
     Core::MessageManager::write(errorMessage);
 }
 
-QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFile *qmakeProFileNode,
-                                                            QmakeBuildConfiguration *bc)
+QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFile *qmakeProFile)
 {
     if (!m_qmakeGlobals) {
         m_qmakeGlobals = new QMakeGlobals;
         m_qmakeGlobalsRefCnt = 0;
 
-        Kit *k = nullptr;
+        Kit *k = KitManager::defaultKit();
         Environment env = Environment::systemEnvironment();
         QStringList qmakeArgs;
-        if (!bc)
-            bc = activeTarget() ? static_cast<QmakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration()) : nullptr;
 
-        if (bc) {
-            k = bc->target()->kit();
-            env = bc->environment();
-            if (QMakeStep *qs = bc->qmakeStep())
-                qmakeArgs = qs->parserArguments();
-            else
-                qmakeArgs = bc->configCommandLineArguments();
-        } else {
-            k = KitManager::defaultKit();
+        if (Target *t = activeTarget()) {
+            k = t->kit();
+            if (auto bc = static_cast<QmakeBuildConfiguration *>(t->activeBuildConfiguration())) {
+                env = bc->environment();
+                if (QMakeStep *qs = bc->qmakeStep())
+                    qmakeArgs = qs->parserArguments();
+                else
+                    qmakeArgs = bc->configCommandLineArguments();
+            }
         }
 
         QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
@@ -808,7 +805,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFile *
 
     auto reader = new QtSupport::ProFileReader(m_qmakeGlobals, m_qmakeVfs);
 
-    reader->setOutputDir(qmakeProFileNode->buildDir().toString());
+    reader->setOutputDir(qmakeProFile->buildDir().toString());
 
     return reader;
 }
