@@ -125,7 +125,7 @@ ProjectExplorer::Project *VcsProjectCache::projectForToplevel(const Utils::FileN
 {
     PathMatcher parentMatcher;
     PathMatcher childMatcher;
-    foreach (ProjectExplorer::Project *project, ProjectExplorer::SessionManager::projects()) {
+    for (ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects()) {
         const Utils::FileName projectDir = project->projectDirectory();
         if (projectDir == vcsTopLevel)
             return project;

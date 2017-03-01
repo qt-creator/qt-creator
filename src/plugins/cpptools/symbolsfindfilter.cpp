@@ -132,7 +132,7 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
     SymbolSearcher::Parameters parameters = search->userData().value<SymbolSearcher::Parameters>();
     QSet<QString> projectFileNames;
     if (parameters.scope == SymbolSearcher::SearchProjectsOnly) {
-        foreach (ProjectExplorer::Project *project, ProjectExplorer::SessionManager::projects())
+        for (ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects())
             projectFileNames += project->files(ProjectExplorer::Project::AllFiles).toSet();
     }
 

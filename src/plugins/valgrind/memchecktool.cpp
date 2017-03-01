@@ -195,7 +195,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         // ALGORITHM: look at last five stack frames, if none of these is inside any open projects,
         // assume this error was created by an external library
         QSet<QString> validFolders;
-        foreach (Project *project, SessionManager::projects()) {
+        for (Project *project : SessionManager::projects()) {
             validFolders << project->projectDirectory().toString();
             foreach (Target *target, project->targets()) {
                 foreach (const DeployableFile &file,

@@ -284,10 +284,7 @@ ParserTreeItem::ConstPtr Parser::parse()
     ParserTreeItem::Ptr rootItem(new ParserTreeItem());
 
     // check all projects
-    foreach (const Project *prj, SessionManager::projects()) {
-        if (!prj)
-            continue;
-
+    for (const Project *prj : SessionManager::projects()) {
         ParserTreeItem::Ptr item;
         QString prjName(prj->displayName());
         QString prjType(prjName);
@@ -644,10 +641,8 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
     QStringList fileList;
 
     // check all projects
-    foreach (const Project *prj, SessionManager::projects()) {
-        if (prj)
-            fileList += prj->files(Project::SourceFiles);
-    }
+    for (const Project *prj : SessionManager::projects())
+        fileList += prj->files(Project::SourceFiles);
     setFileList(fileList);
 
     emit resetDataDone();

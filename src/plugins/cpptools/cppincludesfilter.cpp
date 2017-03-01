@@ -158,7 +158,7 @@ void CppIncludesFilter::prepareSearch(const QString &entry)
     if (m_needsUpdate) {
         m_needsUpdate = false;
         QSet<QString> seedPaths;
-        foreach (Project *project, SessionManager::projects()) {
+        for (Project *project : SessionManager::projects()) {
             foreach (const QString &filePath, project->files(Project::AllFiles))
                 seedPaths.insert(filePath);
         }

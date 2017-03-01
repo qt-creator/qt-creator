@@ -86,7 +86,7 @@ bool checkPackageName(const QString &packageName)
 
 Project *androidProject(const Utils::FileName &fileName)
 {
-    foreach (Project *project, SessionManager::projects()) {
+    for (Project *project : SessionManager::projects()) {
         if (!project->activeTarget())
             continue;
         Kit *kit = project->activeTarget()->kit();

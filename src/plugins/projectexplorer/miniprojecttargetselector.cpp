@@ -1172,7 +1172,7 @@ void MiniProjectTargetSelector::updateProjectListVisible()
 void MiniProjectTargetSelector::updateTargetListVisible()
 {
     int maxCount = 0;
-    foreach (Project *p, SessionManager::projects())
+    for (Project *p : SessionManager::projects())
         maxCount = qMax(p->targets().size(), maxCount);
 
     bool visible = maxCount > 1;
@@ -1185,7 +1185,7 @@ void MiniProjectTargetSelector::updateTargetListVisible()
 void MiniProjectTargetSelector::updateBuildListVisible()
 {
     int maxCount = 0;
-    foreach (Project *p, SessionManager::projects())
+    for (Project *p : SessionManager::projects())
         foreach (Target *t, p->targets())
             maxCount = qMax(t->buildConfigurations().size(), maxCount);
 
@@ -1199,7 +1199,7 @@ void MiniProjectTargetSelector::updateBuildListVisible()
 void MiniProjectTargetSelector::updateDeployListVisible()
 {
     int maxCount = 0;
-    foreach (Project *p, SessionManager::projects())
+    for (Project *p : SessionManager::projects())
         foreach (Target *t, p->targets())
             maxCount = qMax(t->deployConfigurations().size(), maxCount);
 
@@ -1213,7 +1213,7 @@ void MiniProjectTargetSelector::updateDeployListVisible()
 void MiniProjectTargetSelector::updateRunListVisible()
 {
     int maxCount = 0;
-    foreach (Project *p, SessionManager::projects())
+    for (Project *p : SessionManager::projects())
         foreach (Target *t, p->targets())
             maxCount = qMax(t->runConfigurations().size(), maxCount);
 
@@ -1493,7 +1493,7 @@ void MiniProjectTargetSelector::updateActionAndSummary()
     Project *project = SessionManager::startupProject();
     if (project) {
         projectName = project->displayName();
-        foreach (Project *p, SessionManager::projects()) {
+        for (Project *p : SessionManager::projects()) {
             if (p != project && p->displayName() == projectName) {
                 fileName = project->projectFilePath().toUserOutput();
                 break;

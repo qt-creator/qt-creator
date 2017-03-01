@@ -99,8 +99,9 @@ public:
     static Utils::FileName sessionNameToFileName(const QString &session);
     static Project *startupProject();
 
-    static QList<Project *> projects();
+    static const QList<Project *> projects();
     static bool hasProjects();
+    static bool hasProject(Project *p);
 
     static bool isDefaultVirgin();
     static bool isDefaultSession(const QString &session);

@@ -1257,7 +1257,7 @@ static QTextCodec *findProjectCodec(const QString &dir)
                     return codec;
                 }
     }
-    return 0;
+    return nullptr;
 }
 
 QTextCodec *VcsBaseEditor::getCodec(const QString &source)

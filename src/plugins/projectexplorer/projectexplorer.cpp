@@ -1572,7 +1572,7 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
         return;
 
     if (!SessionManager::loadingSession())  {
-        foreach (Project *pro, SessionManager::projects())
+        for (Project *pro : SessionManager::projects())
             pro->saveSettings();
 
         SessionManager::save();
@@ -1688,7 +1688,7 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
         const QFileInfo fi(fileName);
         const QString filePath = fi.absoluteFilePath();
         bool found = false;
-        foreach (Project *pi, SessionManager::projects()) {
+        for (Project *pi : SessionManager::projects()) {
             if (filePath == pi->projectFilePath().toString()) {
                 alreadyOpen.append(pi);
                 found = true;
@@ -2866,7 +2866,7 @@ void ProjectExplorerPluginPrivate::updateUnloadProjectMenu()
     ActionContainer *aci = ActionManager::actionContainer(Constants::M_UNLOADPROJECTS);
     QMenu *menu = aci->menu();
     menu->clear();
-    foreach (Project *project, SessionManager::projects()) {
+    for (Project *project : SessionManager::projects()) {
         QAction *action = menu->addAction(tr("Close Project \"%1\"").arg(project->displayName()));
         connect(action, &QAction::triggered,
                 [project] { ProjectExplorerPlugin::unloadProject(project); } );

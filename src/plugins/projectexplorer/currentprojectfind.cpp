@@ -79,7 +79,7 @@ Utils::FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
     QTC_ASSERT(additionalParameters.isValid(),
                return new Utils::FileListIterator(QStringList(), QList<QTextCodec *>()));
     QString projectFile = additionalParameters.toString();
-    foreach (Project *project, SessionManager::projects()) {
+    for (Project *project : SessionManager::projects()) {
         if (project->document() && projectFile == project->projectFilePath().toString())
             return filesForProjects(nameFilters, exclusionFilters, QList<Project *>() << project);
     }
@@ -105,7 +105,7 @@ void CurrentProjectFind::recheckEnabled()
     if (!search)
         return;
     QString projectFile = getAdditionalParameters(search).toString();
-    foreach (Project *project, SessionManager::projects()) {
+    for (Project *project : SessionManager::projects()) {
         if (projectFile == project->projectFilePath().toString()) {
             search->setSearchAgainEnabled(true);
             return;

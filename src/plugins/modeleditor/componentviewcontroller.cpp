@@ -255,7 +255,7 @@ bool UpdateIncludeDependenciesVisitor::haveMatchingStereotypes(const qmt::MObjec
 QStringList UpdateIncludeDependenciesVisitor::findFilePathOfComponent(const qmt::MComponent *component)
 {
     QMultiHash<QString, Node> filePaths;
-    foreach (const ProjectExplorer::Project *project, ProjectExplorer::SessionManager::projects()) {
+    for (const ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects()) {
         ProjectExplorer::ProjectNode *projectNode = project->rootProjectNode();
         if (projectNode)
             collectElementPaths(projectNode, &filePaths);

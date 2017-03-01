@@ -60,7 +60,7 @@ CMakeLocatorFilter::CMakeLocatorFilter()
 void CMakeLocatorFilter::prepareSearch(const QString &entry)
 {
     m_result.clear();
-    foreach (Project *p, SessionManager::projects()) {
+    for (Project *p : SessionManager::projects()) {
         CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p);
         if (!cmakeProject)
             continue;

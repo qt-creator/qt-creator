@@ -296,7 +296,7 @@ void ProjectTree::updateExternalFileWarning()
     const QList<Project *> projects = SessionManager::projects();
     if (projects.isEmpty())
         return;
-    foreach (Project *project, projects) {
+    for (Project *project : projects) {
         FileName projectDir = project->projectDirectory();
         if (projectDir.isEmpty())
             continue;
