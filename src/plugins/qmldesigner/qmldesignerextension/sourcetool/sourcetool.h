@@ -83,7 +83,7 @@ private:
 
 
     /* members */
-    QPointer<FormEditorItem> m_formEditorItem;
+    FormEditorItem *m_formEditorItem = nullptr;
     QString m_oldFileName;
 };
 

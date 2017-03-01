@@ -100,7 +100,7 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
 
     foreach (const QmlObjectNode &nextNode, qmlItemNode.allDirectSubNodes()) //TODO instance children
         //If the node has source for components/custom parsers we ignore it.
-        if (QmlItemNode(nextNode).isValid() && nextNode.modelNode().nodeSourceType() == ModelNode::NodeWithoutSource)
+        if (QmlItemNode::isValidQmlItemNode(nextNode) && nextNode.modelNode().nodeSourceType() == ModelNode::NodeWithoutSource)
             setupFormEditorItemTree(nextNode.toQmlItemNode());
 }
 
@@ -216,8 +216,7 @@ void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 void FormEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
     foreach (FormEditorItem *item, m_scene->allFormEditorItems()) {
-        item->setParentItem(0);
-        item->setParent(0);
+        item->setParentItem(nullptr);
     }
 
     foreach (FormEditorItem *item, m_scene->allFormEditorItems()) {

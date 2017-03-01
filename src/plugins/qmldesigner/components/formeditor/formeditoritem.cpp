@@ -47,7 +47,7 @@ FormEditorScene *FormEditorItem::scene() const {
 }
 
 FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene)
-    : QGraphicsObject(scene->formLayerItem()),
+    : QGraphicsItem(scene->formLayerItem()),
     m_snappingLineCreator(this),
     m_qmlItemNode(qmlItemNode),
     m_borderWidth(1.0),

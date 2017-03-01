@@ -92,7 +92,7 @@ protected:
 private:
     MoveManipulator m_moveManipulator;
     SelectionIndicator m_selectionIndicator;
-    QPointer<FormEditorItem> m_movingItem;
+    FormEditorItem *m_movingItem = nullptr;
     RewriterTransaction m_rewriterTransaction;
     QmlItemNode m_dragNode;
     bool m_blockMove;

@@ -50,7 +50,7 @@ public:
 
 private:
     QPointer<LayerItem> m_layerItem;
-    QPointer<FormEditorItem> m_formEditorItem;
+    FormEditorItem *m_formEditorItem = nullptr;
     QPointer<BindingIndicatorGraphicsItem> m_indicatorTopShape;
     QPointer<BindingIndicatorGraphicsItem> m_indicatorBottomShape;
     QPointer<BindingIndicatorGraphicsItem> m_indicatorLeftShape;
