@@ -326,16 +326,16 @@ void QmakeProjectManagerPlugin::updateContextActions()
     FileNode *fileNode = node ? node->asFileNode() : nullptr;
 
     bool buildFilePossible = subProjectNode && fileNode && (fileNode->fileType() == FileType::Source);
-    bool subProjectActionsVisible = qmakeProject && proFileNode && (proFileNode != qmakeProject->rootProjectNode());
+    bool subProjectActionsVisible = qmakeProject && subProjectNode && (subProjectNode != qmakeProject->rootProjectNode());
 
     QString subProjectName;
     if (subProjectActionsVisible)
-        subProjectName = proFileNode->displayName();
+        subProjectName = subProjectNode->displayName();
 
     m_buildSubProjectAction->setParameter(subProjectName);
     m_rebuildSubProjectAction->setParameter(subProjectName);
     m_cleanSubProjectAction->setParameter(subProjectName);
-    m_buildSubProjectContextMenu->setParameter(subProjectName);
+    m_buildSubProjectContextMenu->setParameter(proFileNode ? proFileNode->displayName() : QString());
     m_buildFileAction->setParameter(buildFilePossible ? fileNode->filePath().fileName() : QString());
 
     auto buildConfiguration = (qmakeProject && qmakeProject->activeTarget()) ?
