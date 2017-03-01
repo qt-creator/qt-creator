@@ -17,11 +17,13 @@ msvc {
 
     SOURCES += \
         $$IDE_SOURCE_TREE/src/libs/utils/treemodel.cpp \
-        $$IDE_SOURCE_TREE/src/libs/utils/qtcassert.cpp
+        $$IDE_SOURCE_TREE/src/libs/utils/qtcassert.cpp \
+        $$IDE_SOURCE_TREE/src/libs/utils/processhandle.cpp
 
     HEADERS += \
         $$IDE_SOURCE_TREE/src/libs/utils/treemodel.h \
-        $$IDE_SOURCE_TREE/src/libs/utils/qtcassert.h
+        $$IDE_SOURCE_TREE/src/libs/utils/qtcassert.h \
+        $$IDE_SOURCE_TREE/src/libs/utils/processhandle.h
 
 }
 

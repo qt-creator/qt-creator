@@ -45,7 +45,11 @@ class QAbstractItemModel;
 QT_END_NAMESPACE
 
 namespace Core { class IOptionsPage; }
-namespace Utils { class MacroExpander; }
+
+namespace Utils {
+class MacroExpander;
+class ProcessHandle;
+} // Utils
 
 namespace Debugger {
 
@@ -300,7 +304,7 @@ public:
 
     static QString stateName(int s);
 
-    void notifyInferiorPid(qint64 pid);
+    void notifyInferiorPid(const Utils::ProcessHandle &pid);
     qint64 inferiorPid() const;
     bool isReverseDebugging() const;
     void handleCommand(int role, const QVariant &value);

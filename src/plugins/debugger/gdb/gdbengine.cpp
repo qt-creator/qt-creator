@@ -637,13 +637,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
         // 7.1.50 has thread-group-started,id="i1",pid="3529"
         QString id = result["id"].data();
         showStatusMessage(tr("Thread group %1 created").arg(id), 1000);
-        int pid = id.toInt();
-        if (!pid) {
-            id = result["pid"].data();
-            pid = id.toInt();
-        }
-        if (pid)
-            notifyInferiorPid(pid);
+        notifyInferiorPid(result["pid"].toProcessHandle());
         handleThreadGroupCreated(result);
     } else if (asyncClass == "thread-created") {
         //"{id="1",group-id="28902"}"

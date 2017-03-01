@@ -34,6 +34,8 @@
 
 #include <functional>
 
+namespace Utils { class ProcessHandle; }
+
 namespace Debugger {
 namespace Internal {
 
@@ -153,6 +155,7 @@ public:
 
     QString toString(bool multiline = false, int indent = 0) const;
     qulonglong toAddress() const;
+    Utils::ProcessHandle toProcessHandle() const;
     int toInt() const { return m_data.toInt(); }
     qint64 toLongLong() const { return m_data.toLongLong(); }
     void fromString(const QString &str);

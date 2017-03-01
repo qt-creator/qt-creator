@@ -1428,14 +1428,14 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
     return false;
 }
 
-void DebuggerEngine::notifyInferiorPid(qint64 pid)
+void DebuggerEngine::notifyInferiorPid(const ProcessHandle &pid)
 {
-    if (d->m_inferiorPid.pid() == pid)
+    if (d->m_inferiorPid == pid)
         return;
-    d->m_inferiorPid = ProcessHandle(pid);
-    if (d->m_inferiorPid.isValid()) {
-        runControl()->setApplicationProcessHandle(d->m_inferiorPid);
-        showMessage(tr("Taking notice of pid %1").arg(pid));
+    d->m_inferiorPid = pid;
+    if (pid.isValid()) {
+        runControl()->setApplicationProcessHandle(pid);
+        showMessage(tr("Taking notice of pid %1").arg(pid.pid()));
         if (d->m_runParameters.startMode == StartInternal
             || d->m_runParameters.startMode == StartExternal
             || d->m_runParameters.startMode == AttachExternal)

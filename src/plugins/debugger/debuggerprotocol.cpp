@@ -36,6 +36,8 @@
 
 #include <ctype.h>
 
+#include <utils/processhandle.h>
+
 #define QTC_ASSERT_STRINGIFY_HELPER(x) #x
 #define QTC_ASSERT_STRINGIFY(x) QTC_ASSERT_STRINGIFY_HELPER(x)
 #define QTC_ASSERT_STRING(cond) qDebug("SOFT ASSERT: \"" cond"\" in file " __FILE__ ", line " QTC_ASSERT_STRINGIFY(__LINE__))
@@ -383,6 +385,11 @@ qulonglong GdbMi::toAddress() const
     if (ba.startsWith('*') || ba.startsWith('@'))
         ba = ba.mid(1);
     return ba.toULongLong(0, 0);
+}
+
+Utils::ProcessHandle GdbMi::toProcessHandle() const
+{
+    return Utils::ProcessHandle(m_data.toULongLong());
 }
 
 //////////////////////////////////////////////////////////////////////////////////

@@ -662,7 +662,7 @@ void CdbEngine::setupInferior()
     runCommand({"pid", ExtensionCommand, [this](const DebuggerResponse &response) {
         // Fails for core dumps.
         if (response.resultClass == ResultDone)
-            notifyInferiorPid(response.data.data().toULongLong());
+            notifyInferiorPid(response.data.toProcessHandle());
         if (response.resultClass == ResultDone || runParameters().startMode == AttachCore) {
             STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorSetupOk")
                     notifyInferiorSetupOk();

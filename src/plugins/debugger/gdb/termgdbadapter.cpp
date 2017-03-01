@@ -116,7 +116,7 @@ void GdbTermEngine::setupInferior()
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     const qint64 attachedPID = m_stubProc.applicationPID();
     const qint64 attachedMainThreadID = m_stubProc.applicationMainThreadID();
-    notifyInferiorPid(attachedPID);
+    notifyInferiorPid(ProcessHandle(attachedPID));
     const QString msg = (attachedMainThreadID != -1)
             ? QString("Going to attach to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
             : QString("Going to attach to %1").arg(attachedPID);
