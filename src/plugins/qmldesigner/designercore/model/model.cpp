@@ -247,6 +247,9 @@ InternalNode::Pointer ModelPrivate::createNode(const TypeName &typeName,
 
     notifyNodeCreated(newInternalNodePointer);
 
+    if (!newInternalNodePointer->propertyNameList().isEmpty())
+        notifyVariantPropertiesChanged(newInternalNodePointer, newInternalNodePointer->propertyNameList(), AbstractView::PropertiesAdded);
+
     return newInternalNodePointer;
 }
 
