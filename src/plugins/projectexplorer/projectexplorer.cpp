@@ -122,6 +122,7 @@
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/objectpool.h>
 #include <utils/parameteraction.h>
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
@@ -340,6 +341,7 @@ public:
     QStringList m_profileMimeTypes;
     AppOutputPane *m_outputPane = nullptr;
 
+    Utils::ObjectPool<IProjectManager> m_projectManagers;
     QList<QPair<QString, QString> > m_recentProjects; // pair of filename, displayname
     static const int m_maxRecentProjects = 25;
 
@@ -1453,9 +1455,6 @@ void ProjectExplorerPluginPrivate::closeAllProjects()
 void ProjectExplorerPlugin::extensionsInitialized()
 {
     // Register factories for all project managers
-    QList<IProjectManager*> projectManagers =
-        ExtensionSystem::PluginManager::getObjects<IProjectManager>();
-
     QStringList allGlobPatterns;
 
     const QString filterSeparator = QLatin1String(";;");
@@ -1474,7 +1473,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
     });
 
     factory->addMimeType(QStringLiteral("inode/directory"));
-    foreach (IProjectManager *manager, projectManagers) {
+    dd->m_projectManagers.forEachObject([&](IProjectManager *manager) {
         const QString mimeType = manager->mimeType();
         factory->addMimeType(mimeType);
         Utils::MimeType mime = Utils::mimeTypeForName(mimeType);
@@ -1482,7 +1481,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
         filterStrings.append(mime.filterString());
 
         dd->m_profileMimeTypes += mimeType;
-    }
+    });
 
     addAutoReleasedObject(factory);
 
@@ -1660,11 +1659,6 @@ void ProjectExplorerPlugin::showOpenProjectError(const OpenProjectResult &result
     }
 }
 
-static QList<IProjectManager*> allProjectManagers()
-{
-    return ExtensionSystem::PluginManager::getObjects<IProjectManager>();
-}
-
 static void appendError(QString &errorString, const QString &error)
 {
     if (error.isEmpty())
@@ -1677,8 +1671,6 @@ static void appendError(QString &errorString, const QString &error)
 
 ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(const QStringList &fileNames)
 {
-    const QList<IProjectManager*> projectManagers = allProjectManagers();
-
     QList<Project*> openedPro;
     QList<Project *> alreadyOpen;
     QString errorString;
@@ -1702,34 +1694,28 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
 
         Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
         if (mt.isValid()) {
-            bool foundProjectManager = false;
-            foreach (IProjectManager *manager, projectManagers) {
-                if (mt.matchesName(manager->mimeType())) {
-                    foundProjectManager = true;
-                    if (!QFileInfo(filePath).isFile()) {
-                         appendError(errorString,
-                            tr("Failed opening project \"%1\": Project is not a file").arg(fileName));
-                    } else if (Project *pro = manager->openProject(filePath)) {
-                        QObject::connect(pro, &Project::parsingFinished, [pro]() {
-                            emit SessionManager::instance()->projectFinishedParsing(pro);
-                        });
-                        QString restoreError;
-                        Project::RestoreResult restoreResult = pro->restoreSettings(&restoreError);
-                        if (restoreResult == Project::RestoreResult::Ok) {
-                            connect(pro, &Project::fileListChanged,
-                                    m_instance, &ProjectExplorerPlugin::fileListChanged);
-                            SessionManager::addProject(pro);
-                            openedPro += pro;
-                        } else {
-                            if (restoreResult == Project::RestoreResult::Error)
-                                appendError(errorString, restoreError);
-                            delete pro;
-                        }
+            if (IProjectManager *manager = IProjectManager::managerForMimeType(mt)) {
+                if (!QFileInfo(filePath).isFile()) {
+                    appendError(errorString,
+                                tr("Failed opening project \"%1\": Project is not a file").arg(fileName));
+                } else if (Project *pro = manager->openProject(filePath)) {
+                    QObject::connect(pro, &Project::parsingFinished, [pro]() {
+                        emit SessionManager::instance()->projectFinishedParsing(pro);
+                    });
+                    QString restoreError;
+                    Project::RestoreResult restoreResult = pro->restoreSettings(&restoreError);
+                    if (restoreResult == Project::RestoreResult::Ok) {
+                        connect(pro, &Project::fileListChanged,
+                                m_instance, &ProjectExplorerPlugin::fileListChanged);
+                        SessionManager::addProject(pro);
+                        openedPro += pro;
+                    } else {
+                        if (restoreResult == Project::RestoreResult::Error)
+                            appendError(errorString, restoreError);
+                        delete pro;
                     }
-                    break;
                 }
-            }
-            if (!foundProjectManager) {
+            } else {
                 appendError(errorString, tr("Failed opening project \"%1\": No plugin can open project type \"%2\".")
                             .arg(QDir::toNativeSeparators(fileName))
                             .arg(mt.name()));
@@ -3401,11 +3387,11 @@ ProjectExplorerSettings ProjectExplorerPlugin::projectExplorerSettings()
 QStringList ProjectExplorerPlugin::projectFilePatterns()
 {
     QStringList patterns;
-    foreach (const IProjectManager *pm, allProjectManagers()) {
+    dd->m_projectManagers.forEachObject([&](IProjectManager *pm) {
         Utils::MimeType mt = Utils::mimeTypeForName(pm->mimeType());
         if (mt.isValid())
             patterns.append(mt.globPatterns());
-    }
+    });
     return patterns;
 }
 
@@ -3420,6 +3406,19 @@ void ProjectExplorerPlugin::openOpenProjectDialog()
 QList<QPair<QString, QString> > ProjectExplorerPlugin::recentProjects()
 {
     return dd->recentProjects();
+}
+
+IProjectManager::IProjectManager()
+{
+    dd->m_projectManagers.addObject(this);
+}
+
+IProjectManager *IProjectManager::managerForMimeType(const Utils::MimeType &mt)
+{
+    if (!mt.isValid())
+        return nullptr;
+    auto pred = [mt](IProjectManager *m) { return mt.matchesName(m->mimeType()); };
+    return dd->m_projectManagers.findObject(pred);
 }
 
 } // namespace ProjectExplorer

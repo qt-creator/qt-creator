@@ -32,8 +32,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -103,22 +101,13 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
 
     result = scan(project.absolutePath(), project);
 
-    QList<IProjectManager *> projectManagers
-            = ExtensionSystem::PluginManager::getObjects<IProjectManager>();
-
     int projectCount = 0;
     for (auto it = result.begin(); it != result.end(); ++it) {
         const QString relPath = project.relativeFilePath(it->path());
         it->setBinary(binaryPattern.match(relPath).hasMatch());
-
-        Utils::MimeType mt = Utils::mimeTypeForFile(relPath);
-        if (mt.isValid()) {
-            bool found = Utils::anyOf(projectManagers, [mt](IProjectManager *m) {
-                return mt.matchesName(m->mimeType());
-            });
-            if (found && !(onlyFirst && projectCount++))
-                it->setAttributes(it->attributes() | Core::GeneratedFile::OpenProjectAttribute);
-        }
+        bool found = IProjectManager::managerForMimeType(Utils::mimeTypeForFile(relPath));
+        if (found && !(onlyFirst && projectCount++))
+            it->setAttributes(it->attributes() | Core::GeneratedFile::OpenProjectAttribute);
     }
 
     return result;

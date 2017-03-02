@@ -33,8 +33,6 @@
 
 #include <coreplugin/featureprovider.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/macroexpander.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -105,18 +103,12 @@ void JsonKitsPage::setPreferredFeatures(const QVariant &data)
 void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
 {
     Project *project = nullptr;
-    QList<IProjectManager *> managerList = ExtensionSystem::PluginManager::getObjects<IProjectManager>();
 
-    foreach (const JsonWizard::GeneratorFile &f, files) {
+    for (const JsonWizard::GeneratorFile &f : files) {
         if (f.file.attributes() & GeneratedFile::OpenProjectAttribute) {
             const QFileInfo fi(f.file.path());
             const QString path = fi.absoluteFilePath();
-
-            Utils::MimeType mt = Utils::mimeTypeForFile(fi);
-            if (!mt.isValid())
-                continue;
-
-            auto manager = Utils::findOrDefault(managerList, Utils::equal(&IProjectManager::mimeType, mt.name()));
+            IProjectManager *manager = IProjectManager::managerForMimeType(Utils::mimeTypeForFile(fi));
             project = manager ? manager->openProject(path) : nullptr;
             if (project) {
                 if (setupProject(project))

@@ -29,6 +29,8 @@
 
 #include <QObject>
 
+namespace Utils { class MimeType; }
+
 namespace ProjectExplorer {
 
 class Project;
@@ -38,6 +40,10 @@ class PROJECTEXPLORER_EXPORT IProjectManager : public QObject
     Q_OBJECT
 
 public:
+    IProjectManager();
+    // Finds a IProjectManager matching the passed MimeType.
+    static IProjectManager *managerForMimeType(const Utils::MimeType &mt);
+
     virtual QString mimeType() const = 0;
     // FileName is a canonical path of a checked-to-exist file.
     virtual Project *openProject(const QString &fileName) = 0;
