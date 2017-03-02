@@ -40,10 +40,15 @@
 namespace Gerrit {
 namespace Internal {
 
-static QString findEntry(const QString &line, const QString &type)
+static QRegularExpressionMatch entryMatch(const QString &line, const QString &type)
 {
     const QRegularExpression regexp("(?:^|\\s)" + type + "\\s(\\S+)");
-    const QRegularExpressionMatch match = regexp.match(line);
+    return regexp.match(line);
+}
+
+static QString findEntry(const QString &line, const QString &type)
+{
+    const QRegularExpressionMatch match = entryMatch(line, type);
     if (match.hasMatch())
         return match.captured(1);
     return QString();
@@ -51,8 +56,7 @@ static QString findEntry(const QString &line, const QString &type)
 
 static bool replaceEntry(QString &line, const QString &type, const QString &value)
 {
-    const QRegularExpression regexp("(?:^|\\s)" + type + "\\s(\\S+)");
-    const QRegularExpressionMatch match = regexp.match(line);
+    const QRegularExpressionMatch match = entryMatch(line, type);
     if (!match.hasMatch())
         return false;
     line.replace(match.capturedStart(1), match.capturedLength(1), value);
