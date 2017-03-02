@@ -201,8 +201,7 @@ void registerIconOverlayForSuffix(const QString &path, const QString &suffix)
   */
 void registerIconOverlayForMimeType(const QIcon &icon, const QString &mimeType)
 {
-    Utils::MimeDatabase mdb;
-    instance()->registerIconOverlayForMimeType(icon, mdb.mimeTypeForName(mimeType));
+    instance()->registerIconOverlayForMimeType(icon, Utils::mimeTypeForName(mimeType));
 }
 
 /*!
@@ -210,8 +209,7 @@ void registerIconOverlayForMimeType(const QIcon &icon, const QString &mimeType)
  */
 void registerIconOverlayForMimeType(const QString &path, const QString &mimeType)
 {
-    Utils::MimeDatabase mdb;
-    instance()->registerIconOverlayForMimeType(QIcon(path), mdb.mimeTypeForName(mimeType));
+    instance()->registerIconOverlayForMimeType(QIcon(path), Utils::mimeTypeForName(mimeType));
 }
 
 void registerIconOverlayForFilename(const QString &path, const QString &filename)

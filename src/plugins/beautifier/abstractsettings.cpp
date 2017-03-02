@@ -155,10 +155,9 @@ QString AbstractSettings::supportedMimeTypesAsString() const
 void AbstractSettings::setSupportedMimeTypes(const QString &mimes)
 {
     const QStringList stringTypes = mimes.split(';');
-    const Utils::MimeDatabase mdb;
     QStringList types;
     for (const QString &type : stringTypes) {
-        const Utils::MimeType mime = mdb.mimeTypeForName(type.trimmed());
+        const Utils::MimeType mime = Utils::mimeTypeForName(type.trimmed());
         if (!mime.isValid())
             continue;
         const QString canonicalName = mime.name();
@@ -180,8 +179,7 @@ bool AbstractSettings::isApplicable(const Core::IDocument *document) const
     if (m_supportedMimeTypes.isEmpty())
         return true;
 
-    const Utils::MimeDatabase mdb;
-    const Utils::MimeType documentMimeType = mdb.mimeTypeForName(document->mimeType());
+    const Utils::MimeType documentMimeType = Utils::mimeTypeForName(document->mimeType());
     return Utils::anyOf(m_supportedMimeTypes, [&documentMimeType](const QString &mime) {
         return documentMimeType.inherits(mime);
     });

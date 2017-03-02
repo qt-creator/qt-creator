@@ -1274,8 +1274,7 @@ bool InternalCppCompletionAssistProcessor::completeInclude(const QTextCursor &cu
     if (!headerPaths.contains(currentFilePath))
         headerPaths.append(currentFilePath);
 
-    Utils::MimeDatabase mdb;
-    const QStringList suffixes = mdb.mimeTypeForName(QLatin1String("text/x-c++hdr")).suffixes();
+    const QStringList suffixes = Utils::mimeTypeForName(QLatin1String("text/x-c++hdr")).suffixes();
 
     foreach (const ProjectPartHeaderPath &headerPath, headerPaths) {
         QString realPath = headerPath.path;
@@ -1324,8 +1323,7 @@ bool InternalCppCompletionAssistProcessor::objcKeywordsWanted() const
 
     const QString fileName = m_interface->fileName();
 
-    Utils::MimeDatabase mdb;
-    const Utils::MimeType mt = mdb.mimeTypeForFile(fileName);
+    const Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
     return mt.matchesName(QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE))
             || mt.matchesName(QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
 }

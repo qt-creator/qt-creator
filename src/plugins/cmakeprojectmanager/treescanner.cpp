@@ -170,14 +170,12 @@ void TreeScanner::scanForFiles(FutureInterface *fi, const Utils::FileName& direc
 {
     std::unique_ptr<FutureInterface> fip(fi);
     fip->reportStarted();
-    Utils::MimeDatabase mdb;
 
-    Result nodes
-            = FileNode::scanForFiles(directory,
-                                     [&mdb,&filter,&factory](const Utils::FileName &fn) -> FileNode * {
+    Result nodes = FileNode::scanForFiles(directory,
+                                          [&filter, &factory](const Utils::FileName &fn) -> FileNode * {
         QTC_ASSERT(!fn.isEmpty(), return nullptr);
 
-        const Utils::MimeType mimeType = mdb.mimeTypeForFile(fn.toString());
+        const Utils::MimeType mimeType = Utils::mimeTypeForFile(fn.toString());
 
         // Skip some files during scan.
         // Filter out nullptr records after.

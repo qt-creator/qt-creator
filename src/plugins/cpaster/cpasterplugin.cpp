@@ -366,8 +366,7 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     // Default to "txt".
     QByteArray byteContent = content.toUtf8();
     QString suffix;
-    Utils::MimeDatabase mdb;
-    const Utils::MimeType mimeType = mdb.mimeTypeForData(byteContent);
+    const Utils::MimeType mimeType = Utils::mimeTypeForData(byteContent);
     if (mimeType.isValid())
         suffix = mimeType.preferredSuffix();
     if (suffix.isEmpty())

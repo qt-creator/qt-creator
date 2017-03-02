@@ -486,8 +486,7 @@ QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableBui
 
 int CMakeBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const QString &projectPath) const
 {
-    Utils::MimeDatabase mdb;
-    if (k && mdb.mimeTypeForFile(projectPath).matchesName(QLatin1String(Constants::CMAKEPROJECTMIMETYPE)))
+    if (k && Utils::mimeTypeForFile(projectPath).matchesName(Constants::CMAKEPROJECTMIMETYPE))
         return 0;
     return -1;
 }

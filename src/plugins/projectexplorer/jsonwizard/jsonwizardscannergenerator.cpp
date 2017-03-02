@@ -87,7 +87,6 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
 
     QDir project(projectDir);
     Core::GeneratedFiles result;
-    Utils::MimeDatabase mdb;
 
     QRegularExpression binaryPattern;
     if (!m_binaryPattern.isEmpty()) {
@@ -112,7 +111,7 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
         const QString relPath = project.relativeFilePath(it->path());
         it->setBinary(binaryPattern.match(relPath).hasMatch());
 
-        Utils::MimeType mt = mdb.mimeTypeForFile(relPath);
+        Utils::MimeType mt = Utils::mimeTypeForFile(relPath);
         if (mt.isValid()) {
             bool found = Utils::anyOf(projectManagers, [mt](IProjectManager *m) {
                 return mt.matchesName(m->mimeType());

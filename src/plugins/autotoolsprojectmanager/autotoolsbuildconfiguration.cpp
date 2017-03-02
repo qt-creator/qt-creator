@@ -106,8 +106,7 @@ QList<BuildInfo *> AutotoolsBuildConfigurationFactory::availableBuilds(const Tar
 
 int AutotoolsBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    Utils::MimeDatabase mdb;
-    if (k && mdb.mimeTypeForFile(projectPath).matchesName(QLatin1String(Constants::MAKEFILE_MIMETYPE)))
+    if (k && Utils::mimeTypeForFile(projectPath).matchesName(QLatin1String(Constants::MAKEFILE_MIMETYPE)))
         return 0;
     return -1;
 }

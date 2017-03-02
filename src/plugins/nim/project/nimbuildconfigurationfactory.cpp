@@ -166,8 +166,7 @@ BuildConfiguration *NimBuildConfigurationFactory::clone(Target *parent, BuildCon
 
 int NimBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    MimeDatabase mdb;
-    if (k && mdb.mimeTypeForFile(projectPath).matchesName(Constants::C_NIM_PROJECT_MIMETYPE))
+    if (k && Utils::mimeTypeForFile(projectPath).matchesName(Constants::C_NIM_PROJECT_MIMETYPE))
         return 0;
     return -1;
 }

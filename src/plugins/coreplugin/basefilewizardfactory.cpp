@@ -275,8 +275,7 @@ QString BaseFileWizardFactory::buildFileName(const QString &path,
 QString BaseFileWizardFactory::preferredSuffix(const QString &mimeType)
 {
     QString rc;
-    Utils::MimeDatabase mdb;
-    Utils::MimeType mt = mdb.mimeTypeForName(mimeType);
+    Utils::MimeType mt = Utils::mimeTypeForName(mimeType);
     if (mt.isValid())
         rc = mt.preferredSuffix();
     if (rc.isEmpty())

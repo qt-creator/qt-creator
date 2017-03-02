@@ -48,8 +48,7 @@ static bool hasPriority(const QStringList &files)
 {
     if (files.isEmpty())
         return false;
-    Utils::MimeDatabase mdb;
-    QString type = mdb.mimeTypeForFile(files.at(0)).name();
+    QString type = Utils::mimeTypeForFile(files.at(0)).name();
     if (type.startsWith(QLatin1String("image/"))
             || type == QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
             || type == QLatin1String(QmlJSTools::Constants::JS_MIMETYPE))

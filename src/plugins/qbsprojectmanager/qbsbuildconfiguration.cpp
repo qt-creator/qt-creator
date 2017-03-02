@@ -377,8 +377,7 @@ QList<BuildInfo *> QbsBuildConfigurationFactory::availableBuilds(const Target *p
 
 int QbsBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    Utils::MimeDatabase mdb;
-    if (k && mdb.mimeTypeForFile(projectPath).matchesName(QLatin1String(Constants::MIME_TYPE)))
+    if (k && Utils::mimeTypeForFile(projectPath).matchesName(Constants::MIME_TYPE))
         return 0;
     return -1;
 }

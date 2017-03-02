@@ -194,8 +194,7 @@ QString ResourcePreviewHoverHandler::makeTooltip() const
 
     QString ret;
 
-    Utils::MimeDatabase mdb;
-    const Utils::MimeType mimeType = mdb.mimeTypeForFile(m_resPath);
+    const Utils::MimeType mimeType = Utils::mimeTypeForFile(m_resPath);
     if (mimeType.isValid()) {
         if (mimeType.name().startsWith("image", Qt::CaseInsensitive))
             ret += QString("<img src=\"file:///%1\" /><br/>").arg(m_resPath);

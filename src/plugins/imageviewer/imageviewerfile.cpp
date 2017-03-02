@@ -142,8 +142,7 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString, cons
     }
 
     setFilePath(Utils::FileName::fromString(fileName));
-    Utils::MimeDatabase mdb;
-    setMimeType(mdb.mimeTypeForFile(fileName).name());
+    setMimeType(Utils::mimeTypeForFile(fileName).name());
     return OpenResult::Success;
 }
 

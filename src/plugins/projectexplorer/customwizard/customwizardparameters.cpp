@@ -907,12 +907,11 @@ void CustomWizardContext::reset()
     const QDate currentDate = QDate::currentDate();
     const QTime currentTime = QTime::currentTime();
     baseReplacements.clear();
-    Utils::MimeDatabase mdb;
     baseReplacements.insert(QLatin1String("CppSourceSuffix"),
-                            mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE))
+                            Utils::mimeTypeForName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE))
                             .preferredSuffix());
     baseReplacements.insert(QLatin1String("CppHeaderSuffix"),
-                            mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE))
+                            Utils::mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE))
                             .preferredSuffix());
     baseReplacements.insert(QLatin1String("CurrentDate"),
                             currentDate.toString(Qt::ISODate));

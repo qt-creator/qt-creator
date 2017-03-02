@@ -511,9 +511,8 @@ bool QmakePriFile::addFiles(const QStringList &filePaths, QStringList *notAdded)
     typedef QMap<QString, QStringList> TypeFileMap;
     // Split into lists by file type and bulk-add them.
     TypeFileMap typeFileMap;
-    Utils::MimeDatabase mdb;
     foreach (const QString &file, filePaths) {
-        const Utils::MimeType mt = mdb.mimeTypeForFile(file);
+        const Utils::MimeType mt = Utils::mimeTypeForFile(file);
         typeFileMap[mt.name()] << file;
     }
 
@@ -559,9 +558,8 @@ bool QmakePriFile::removeFiles(const QStringList &filePaths,
     typedef QMap<QString, QStringList> TypeFileMap;
     // Split into lists by file type and bulk-add them.
     TypeFileMap typeFileMap;
-    Utils::MimeDatabase mdb;
     foreach (const QString &file, filePaths) {
-        const Utils::MimeType mt = mdb.mimeTypeForFile(file);
+        const Utils::MimeType mt = Utils::mimeTypeForFile(file);
         typeFileMap[mt.name()] << file;
     }
     foreach (const QString &type, typeFileMap.keys()) {
@@ -587,9 +585,8 @@ bool QmakePriFile::canRenameFile(const QString &filePath, const QString &newFile
     bool changeProFileOptional = deploysFolder(QFileInfo(filePath).absolutePath());
     if (changeProFileOptional)
         return true;
-    Utils::MimeDatabase mdb;
-    const Utils::MimeType mt = mdb.mimeTypeForFile(newFilePath);
 
+    const Utils::MimeType mt = Utils::mimeTypeForFile(newFilePath);
     return renameFile(filePath, newFilePath, mt.name(), Change::TestOnly);
 }
 
@@ -599,8 +596,7 @@ bool QmakePriFile::renameFile(const QString &filePath, const QString &newFilePat
         return false;
 
     bool changeProFileOptional = deploysFolder(QFileInfo(filePath).absolutePath());
-    Utils::MimeDatabase mdb;
-    const Utils::MimeType mt = mdb.mimeTypeForFile(newFilePath);
+    const Utils::MimeType mt = Utils::mimeTypeForFile(newFilePath);
 
     if (renameFile(filePath, newFilePath, mt.name()))
         return true;

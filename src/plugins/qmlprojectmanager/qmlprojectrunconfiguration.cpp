@@ -265,9 +265,8 @@ void QmlProjectRunConfiguration::updateEnabled()
 {
     bool qmlFileFound = false;
     if (mainScriptSource() == FileInEditor) {
-        Utils::MimeDatabase mimeDataBase;
         IDocument *document = EditorManager::currentDocument();
-        Utils::MimeType mainScriptMimeType = mimeDataBase.mimeTypeForFile(mainScript());
+        Utils::MimeType mainScriptMimeType = Utils::mimeTypeForFile(mainScript());
         if (document) {
             m_currentFileFilename = document->filePath().toString();
             if (mainScriptMimeType.matchesName(QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE)))
@@ -281,7 +280,7 @@ void QmlProjectRunConfiguration::updateEnabled()
                 const QFileInfo fi(filename);
 
                 if (!filename.isEmpty() && fi.baseName()[0].isLower()
-                        && mimeDataBase.mimeTypeForFile(fi).matchesName(QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE)))
+                        && Utils::mimeTypeForFile(fi).matchesName(QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE)))
                 {
                     m_currentFileFilename = filename;
                     qmlFileFound = true;

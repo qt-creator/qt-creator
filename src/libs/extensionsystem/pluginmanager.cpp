@@ -1234,15 +1234,15 @@ void PluginManagerPrivate::removeObject(QObject *obj)
 void PluginManagerPrivate::loadPlugins()
 {
     QList<PluginSpec *> queue = loadQueue();
-    MimeDatabase::setStartupPhase(MimeDatabase::PluginsLoading);
+    Utils::setMimeStartupPhase(MimeStartupPhase::PluginsLoading);
     foreach (PluginSpec *spec, queue) {
         loadPlugin(spec, PluginSpec::Loaded);
     }
-    MimeDatabase::setStartupPhase(MimeDatabase::PluginsInitializing);
+    Utils::setMimeStartupPhase(MimeStartupPhase::PluginsInitializing);
     foreach (PluginSpec *spec, queue) {
         loadPlugin(spec, PluginSpec::Initialized);
     }
-    MimeDatabase::setStartupPhase(MimeDatabase::PluginsDelayedInitializing);
+    Utils::setMimeStartupPhase(MimeStartupPhase::PluginsDelayedInitializing);
     Utils::reverseForeach(queue, [this](PluginSpec *spec) {
         loadPlugin(spec, PluginSpec::Running);
         if (spec->state() == PluginSpec::Running) {
@@ -1253,7 +1253,7 @@ void PluginManagerPrivate::loadPlugins()
         }
     });
     emit q->pluginsChanged();
-    MimeDatabase::setStartupPhase(MimeDatabase::UpAndRunning);
+    Utils::setMimeStartupPhase(MimeStartupPhase::UpAndRunning);
 
     delayedInitializeTimer = new QTimer;
     delayedInitializeTimer->setInterval(DELAYED_INITIALIZE_INTERVAL);

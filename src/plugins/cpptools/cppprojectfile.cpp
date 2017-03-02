@@ -50,8 +50,7 @@ ProjectFile::Kind ProjectFile::classify(const QString &filePath)
     if (isAmbiguousHeader(filePath))
         return AmbiguousHeader;
 
-    Utils::MimeDatabase mdb;
-    const Utils::MimeType mimeType = mdb.mimeTypeForFile(filePath);
+    const Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath);
     if (!mimeType.isValid())
         return Unsupported;
     const QString mt = mimeType.name();

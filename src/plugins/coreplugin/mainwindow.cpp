@@ -754,8 +754,7 @@ void MainWindow::openFile()
 static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fileFactories,
                                      const QFileInfo &fi)
 {
-    MimeDatabase mdb;
-    const MimeType mt = mdb.mimeTypeForFile(fi);
+    const MimeType mt = Utils::mimeTypeForFile(fi);
     if (mt.isValid()) {
         const QString typeName = mt.name();
         foreach (IDocumentFactory *factory, fileFactories) {

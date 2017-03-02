@@ -79,13 +79,10 @@ bool FormClassWizardPage::lowercaseHeaderFiles()
 // Set up new class widget from settings
 void FormClassWizardPage::initFileGenerationSettings()
 {
-    Utils::MimeDatabase mdb;
     m_ui->newClassWidget->setHeaderExtension(
-                mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE))
-                .preferredSuffix());
+                Utils::mimeTypeForName(CppTools::Constants::CPP_HEADER_MIMETYPE).preferredSuffix());
     m_ui->newClassWidget->setSourceExtension(
-                mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE))
-                .preferredSuffix());
+                Utils::mimeTypeForName(CppTools::Constants::CPP_SOURCE_MIMETYPE).preferredSuffix());
     m_ui->newClassWidget->setLowerCaseFiles(lowercaseHeaderFiles());
 }
 

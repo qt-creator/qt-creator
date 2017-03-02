@@ -614,8 +614,7 @@ Core::IDocument::OpenResult TextDocument::open(QString *errorString, const QStri
     emit aboutToOpen(fileName, realFileName);
     OpenResult success = openImpl(errorString, fileName, realFileName, /*reload =*/ false);
     if (success == OpenResult::Success) {
-        Utils::MimeDatabase mdb;
-        setMimeType(mdb.mimeTypeForFile(fileName).name());
+        setMimeType(Utils::mimeTypeForFile(fileName).name());
         emit openFinishedSuccessfully();
     }
     return success;

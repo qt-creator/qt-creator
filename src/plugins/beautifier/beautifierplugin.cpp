@@ -181,8 +181,7 @@ bool isAutoFormatApplicable(const Core::IDocument *document,
     if (allowedMimeTypes.isEmpty())
         return true;
 
-    const Utils::MimeDatabase mdb;
-    const Utils::MimeType documentMimeType = mdb.mimeTypeForName(document->mimeType());
+    const Utils::MimeType documentMimeType = Utils::mimeTypeForName(document->mimeType());
     return Utils::anyOf(allowedMimeTypes, [&documentMimeType](const Utils::MimeType &mime) {
         return documentMimeType.inherits(mime.name());
     });

@@ -149,7 +149,6 @@ static bool matchesPattern(const QString &fileName, DefinitionMetaDataPtr metaDa
 
 QString Manager::definitionIdByMimeType(const Utils::MimeType &mimeType) const
 {
-    Utils::MimeDatabase mdb;
     QList<Utils::MimeType> queue;
     queue.append(mimeType);
     while (!queue.isEmpty()) {
@@ -158,7 +157,7 @@ QString Manager::definitionIdByMimeType(const Utils::MimeType &mimeType) const
         if (!id.isEmpty())
             return id;
         foreach (const QString &parent, mt.parentMimeTypes()) {
-            const Utils::MimeType parentMt = mdb.mimeTypeForName(parent);
+            const Utils::MimeType parentMt = Utils::mimeTypeForName(parent);
             if (parentMt.isValid())
                 queue.append(parentMt);
         }

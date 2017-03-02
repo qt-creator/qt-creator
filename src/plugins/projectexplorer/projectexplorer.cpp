@@ -1473,12 +1473,11 @@ void ProjectExplorerPlugin::extensionsInitialized()
         return nullptr;
     });
 
-    Utils::MimeDatabase mdb;
     factory->addMimeType(QStringLiteral("inode/directory"));
     foreach (IProjectManager *manager, projectManagers) {
         const QString mimeType = manager->mimeType();
         factory->addMimeType(mimeType);
-        Utils::MimeType mime = mdb.mimeTypeForName(mimeType);
+        Utils::MimeType mime = Utils::mimeTypeForName(mimeType);
         allGlobPatterns.append(mime.globPatterns());
         filterStrings.append(mime.filterString());
 
@@ -1701,8 +1700,7 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
             continue;
         }
 
-        Utils::MimeDatabase mdb;
-        Utils::MimeType mt = mdb.mimeTypeForFile(fileName);
+        Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
         if (mt.isValid()) {
             bool foundProjectManager = false;
             foreach (IProjectManager *manager, projectManagers) {
@@ -1802,9 +1800,8 @@ void ProjectExplorerPluginPrivate::determineSessionToRestoreAtStartup()
 QStringList ProjectExplorerPlugin::projectFileGlobs()
 {
     QStringList result;
-    Utils::MimeDatabase mdb;
     foreach (const IProjectManager *ipm, ExtensionSystem::PluginManager::getObjects<IProjectManager>()) {
-        Utils::MimeType mimeType = mdb.mimeTypeForName(ipm->mimeType());
+        Utils::MimeType mimeType = Utils::mimeTypeForName(ipm->mimeType());
         if (mimeType.isValid()) {
             const QStringList patterns = mimeType.globPatterns();
             if (!patterns.isEmpty())
@@ -3404,9 +3401,8 @@ ProjectExplorerSettings ProjectExplorerPlugin::projectExplorerSettings()
 QStringList ProjectExplorerPlugin::projectFilePatterns()
 {
     QStringList patterns;
-    Utils::MimeDatabase mdb;
     foreach (const IProjectManager *pm, allProjectManagers()) {
-        Utils::MimeType mt = mdb.mimeTypeForName(pm->mimeType());
+        Utils::MimeType mt = Utils::mimeTypeForName(pm->mimeType());
         if (mt.isValid())
             patterns.append(mt.globPatterns());
     }

@@ -389,7 +389,7 @@ void ModelIndexer::scanProject(ProjectExplorer::Project *project)
 
     foreach (const QString &file, files) {
         QFileInfo fileInfo(file);
-        Utils::MimeType mimeType = Utils::MimeDatabase().mimeTypeForFile(fileInfo);
+        Utils::MimeType mimeType = Utils::mimeTypeForFile(fileInfo);
         if (mimeType.name() == QLatin1String(Constants::MIME_TYPE_MODEL)) {
             QueuedFile queuedFile(file, project, fileInfo.lastModified());
             filesQueue.append(queuedFile);
@@ -451,8 +451,7 @@ void ModelIndexer::scanProject(ProjectExplorer::Project *project)
 QString ModelIndexer::findFirstModel(ProjectExplorer::FolderNode *folderNode)
 {
     foreach (ProjectExplorer::FileNode *fileNode, folderNode->fileNodes()) {
-        Utils::MimeType mimeType = Utils::MimeDatabase().mimeTypeForFile(
-                    fileNode->filePath().toFileInfo());
+        Utils::MimeType mimeType = Utils::mimeTypeForFile(fileNode->filePath().toFileInfo());
         if (mimeType.name() == QLatin1String(Constants::MIME_TYPE_MODEL))
             return fileNode->filePath().toString();
     }

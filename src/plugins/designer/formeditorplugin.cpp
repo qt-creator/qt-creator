@@ -157,19 +157,17 @@ static QString otherFile()
     const QString current = currentFile();
     if (current.isEmpty())
         return QString();
-    Utils::MimeDatabase mdb;
-    const Utils::MimeType currentMimeType = mdb.mimeTypeForFile(current);
+    const Utils::MimeType currentMimeType = Utils::mimeTypeForFile(current);
     if (!currentMimeType.isValid())
         return QString();
     // Determine potential suffixes of candidate files
     // 'ui' -> 'cpp', 'cpp/h' -> 'ui'.
     QStringList candidateSuffixes;
     if (currentMimeType.matchesName(QLatin1String(FORM_MIMETYPE))) {
-        candidateSuffixes += mdb.mimeTypeForName(
-                    QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)).suffixes();
+        candidateSuffixes += Utils::mimeTypeForName(CppTools::Constants::CPP_SOURCE_MIMETYPE).suffixes();
     } else if (currentMimeType.matchesName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE))
                || currentMimeType.matchesName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE))) {
-        candidateSuffixes += mdb.mimeTypeForName(QLatin1String(FORM_MIMETYPE)).suffixes();
+        candidateSuffixes += Utils::mimeTypeForName(FORM_MIMETYPE).suffixes();
     } else {
         return QString();
     }

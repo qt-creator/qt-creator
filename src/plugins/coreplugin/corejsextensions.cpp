@@ -110,8 +110,7 @@ bool UtilsJsExtension::isFile(const QString &in) const
 
 QString UtilsJsExtension::preferredSuffix(const QString &mimetype) const
 {
-    Utils::MimeDatabase mdb;
-    Utils::MimeType mt = mdb.mimeTypeForName(mimetype);
+    Utils::MimeType mt = Utils::mimeTypeForName(mimetype);
     if (mt.isValid())
         return mt.preferredSuffix();
     return QString();

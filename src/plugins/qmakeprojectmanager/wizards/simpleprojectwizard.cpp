@@ -173,8 +173,7 @@ GeneratedFiles SimpleProjectWizard::generateFiles(const QWizard *w,
     const QString proFileName = QFileInfo(dir, projectName + ".pro").absoluteFilePath();
     const QStringList paths = Utils::transform(wizard->selectedPaths(), &FileName::toString);
 
-    MimeDatabase mdb;
-    MimeType headerType = mdb.mimeTypeForName("text/x-chdr");
+    MimeType headerType = Utils::mimeTypeForName("text/x-chdr");
 
     QStringList nameFilters = headerType.globPatterns();
 
@@ -194,7 +193,7 @@ GeneratedFiles SimpleProjectWizard::generateFiles(const QWizard *w,
 
     for (const FileName &fileName : wizard->selectedFiles()) {
         QString source = dir.relativeFilePath(fileName.toString());
-        MimeType mimeType = mdb.mimeTypeForFile(fileName.toFileInfo());
+        MimeType mimeType = Utils::mimeTypeForFile(fileName.toFileInfo());
         if (mimeType.matchesName("text/x-chdr") || mimeType.matchesName("text/x-c++hdr"))
             proHeaders += "   $$PWD/" + source + " \\\n";
         else

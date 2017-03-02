@@ -76,7 +76,6 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     ModelManagerInterface::ProjectInfo projectInfo(project);
     Target *activeTarget = 0;
     if (project) {
-        MimeDatabase mdb;
         QSet<QString> qmlTypeNames;
         qmlTypeNames << QLatin1String(Constants::QML_MIMETYPE)
                      << QLatin1String(Constants::QBS_MIMETYPE)
@@ -84,8 +83,8 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
                      << QLatin1String(Constants::QMLTYPES_MIMETYPE)
                      << QLatin1String(Constants::QMLUI_MIMETYPE);
         foreach (const QString &filePath, project->files(Project::SourceFiles)) {
-            if (qmlTypeNames.contains(mdb.mimeTypeForFile(
-                                          filePath, MimeDatabase::MatchExtension).name())) {
+            if (qmlTypeNames.contains(Utils::mimeTypeForFile(
+                                          filePath, MimeMatchMode::MatchExtension).name())) {
                 projectInfo.sourceFiles << filePath;
             }
         }
@@ -174,23 +173,22 @@ QHash<QString,Dialect> ModelManager::initLanguageForSuffix() const
     QHash<QString,Dialect> res = ModelManagerInterface::languageForSuffix();
 
     if (ICore::instance()) {
-        MimeDatabase mdb;
-        MimeType jsSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::JS_MIMETYPE));
+        MimeType jsSourceTy = Utils::mimeTypeForName(Constants::JS_MIMETYPE);
         foreach (const QString &suffix, jsSourceTy.suffixes())
             res[suffix] = Dialect::JavaScript;
-        MimeType qmlSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::QML_MIMETYPE));
+        MimeType qmlSourceTy = Utils::mimeTypeForName(Constants::QML_MIMETYPE);
         foreach (const QString &suffix, qmlSourceTy.suffixes())
             res[suffix] = Dialect::Qml;
-        MimeType qbsSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::QBS_MIMETYPE));
+        MimeType qbsSourceTy = Utils::mimeTypeForName(Constants::QBS_MIMETYPE);
         foreach (const QString &suffix, qbsSourceTy.suffixes())
             res[suffix] = Dialect::QmlQbs;
-        MimeType qmlProjectSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::QMLPROJECT_MIMETYPE));
+        MimeType qmlProjectSourceTy = Utils::mimeTypeForName(Constants::QMLPROJECT_MIMETYPE);
         foreach (const QString &suffix, qmlProjectSourceTy.suffixes())
             res[suffix] = Dialect::QmlProject;
-        MimeType qmlUiSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::QMLUI_MIMETYPE));
+        MimeType qmlUiSourceTy = Utils::mimeTypeForName(Constants::QMLUI_MIMETYPE);
         foreach (const QString &suffix, qmlUiSourceTy.suffixes())
             res[suffix] = Dialect::QmlQtQuick2Ui;
-        MimeType jsonSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::JSON_MIMETYPE));
+        MimeType jsonSourceTy = Utils::mimeTypeForName(Constants::JSON_MIMETYPE);
         foreach (const QString &suffix, jsonSourceTy.suffixes())
             res[suffix] = Dialect::Json;
     }

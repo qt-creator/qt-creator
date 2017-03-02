@@ -126,14 +126,13 @@ CoreArguments parseArguments(const QStringList &arguments)
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     // register all mime types from all plugins
-    Utils::MimeDatabase mdb;
     for (ExtensionSystem::PluginSpec *plugin : ExtensionSystem::PluginManager::plugins()) {
         if (!plugin->isEffectivelyEnabled())
             continue;
         const QJsonObject metaData = plugin->metaData();
         const QJsonValue mimetypes = metaData.value("Mimetypes");
         if (mimetypes.isString())
-            mdb.addMimeTypes(plugin->name() + ".mimetypes", mimetypes.toString().trimmed().toUtf8());
+            Utils::addMimeTypes(plugin->name() + ".mimetypes", mimetypes.toString().trimmed().toUtf8());
     }
 
     if (ThemeEntry::availableThemes().isEmpty()) {

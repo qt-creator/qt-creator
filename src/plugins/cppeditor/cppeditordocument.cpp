@@ -230,8 +230,7 @@ void CppEditorDocument::onFilePathChanged(const Utils::FileName &oldPath,
     Q_UNUSED(oldPath);
 
     if (!newPath.isEmpty()) {
-        Utils::MimeDatabase mdb;
-        setMimeType(mdb.mimeTypeForFile(newPath.toFileInfo()).name());
+        setMimeType(Utils::mimeTypeForFile(newPath.toFileInfo()).name());
 
         connect(this, &Core::IDocument::contentsChanged,
                 this, &CppEditorDocument::scheduleProcessDocument,

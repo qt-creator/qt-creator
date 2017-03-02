@@ -696,7 +696,7 @@ QString DocumentManager::getSaveFileName(const QString &title, const QString &pa
             // specified. Otherwise the suffix must be one available in the selected filter. If
             // the name already ends with such suffix nothing needs to be done. But if not, the
             // first one from the filter is appended.
-            if (selectedFilter && *selectedFilter != MimeDatabase::allFilesFilterString()) {
+            if (selectedFilter && *selectedFilter != Utils::allFilesFilterString()) {
                 // Mime database creates filter strings like this: Anything here (*.foo *.bar)
                 QRegExp regExp(QLatin1String(".*\\s+\\((.*)\\)$"));
                 const int index = regExp.lastIndexIn(*selectedFilter);
@@ -742,17 +742,16 @@ QString DocumentManager::getSaveFileNameWithExtension(const QString &title, cons
 QString DocumentManager::getSaveAsFileName(const IDocument *document)
 {
     QTC_ASSERT(document, return QString());
-    Utils::MimeDatabase mdb;
-    const QString filter = Utils::MimeDatabase::allFiltersString();
+    const QString filter = Utils::allFiltersString();
     const QString filePath = document->filePath().toString();
     QString selectedFilter;
     QString fileDialogPath = filePath;
     if (!filePath.isEmpty()) {
-        selectedFilter = mdb.mimeTypeForFile(filePath).filterString();
+        selectedFilter = Utils::mimeTypeForFile(filePath).filterString();
     } else {
         const QString suggestedName = document->fallbackSaveAsFileName();
         if (!suggestedName.isEmpty()) {
-            const QList<MimeType> types = mdb.mimeTypesForFileName(suggestedName);
+            const QList<MimeType> types = Utils::mimeTypesForFileName(suggestedName);
             if (!types.isEmpty())
                 selectedFilter = types.first().filterString();
         }
@@ -763,7 +762,7 @@ QString DocumentManager::getSaveAsFileName(const IDocument *document)
                     : '/' + suggestedName);
     }
     if (selectedFilter.isEmpty())
-        selectedFilter = mdb.mimeTypeForName(document->mimeType()).filterString();
+        selectedFilter = Utils::mimeTypeForName(document->mimeType()).filterString();
 
     return getSaveFileName(tr("Save File As"),
                            fileDialogPath,

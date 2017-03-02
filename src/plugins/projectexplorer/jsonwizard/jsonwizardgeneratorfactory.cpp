@@ -86,8 +86,7 @@ bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *fi
     if (file->isBinary() || file->contents().isEmpty())
         return true; // nothing to do
 
-    Utils::MimeDatabase mdb;
-    Id languageId = TextEditorSettings::languageId(mdb.mimeTypeForFile(file->path()).name());
+    Id languageId = TextEditorSettings::languageId(Utils::mimeTypeForFile(file->path()).name());
 
     if (!languageId.isValid())
         return true; // don't modify files like *.ui, *.pro

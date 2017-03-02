@@ -96,8 +96,7 @@ QList<BuildInfo *> GenericBuildConfigurationFactory::availableBuilds(const Targe
 
 int GenericBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    Utils::MimeDatabase mdb;
-    if (k && mdb.mimeTypeForFile(projectPath).matchesName(QLatin1String(Constants::GENERICMIMETYPE)))
+    if (k && Utils::mimeTypeForFile(projectPath).matchesName(Constants::GENERICMIMETYPE))
         return 0;
     return -1;
 }

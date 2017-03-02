@@ -136,8 +136,7 @@ QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) co
 void MimeTypeSettingsModel::load()
 {
     beginResetModel();
-    Utils::MimeDatabase mdb;
-    m_mimeTypes = mdb.allMimeTypes();
+    m_mimeTypes = Utils::allMimeTypes();
     Utils::sort(m_mimeTypes, [](const Utils::MimeType &a, const Utils::MimeType &b) {
         return a.name().compare(b.name(), Qt::CaseInsensitive) < 0;
     });
@@ -271,7 +270,7 @@ void MimeTypeSettingsPrivate::syncData(const QModelIndex &current,
 
         QMap<int, QList<Utils::Internal::MimeMagicRule> > rules =
                 modifiedType.isValid() ? modifiedType.rules
-                                       : Utils::MimeDatabase::magicRulesForMimeType(currentMimeType);
+                                       : Utils::magicRulesForMimeType(currentMimeType);
         for (auto it = rules.constBegin(); it != rules.constEnd(); ++it) {
             int priority = it.key();
             foreach (const Utils::Internal::MimeMagicRule &rule, it.value()) {
@@ -417,7 +416,7 @@ void MimeTypeSettingsPrivate::ensurePendingMimeType(const Utils::MimeType &mimeT
         UserMimeType userMt;
         userMt.name = mimeType.name();
         userMt.globPatterns = mimeType.globPatterns();
-        userMt.rules = Utils::MimeDatabase::magicRulesForMimeType(mimeType);
+        userMt.rules = Utils::magicRulesForMimeType(mimeType);
         m_pendingModifiedMimeTypes.insert(userMt.name, userMt);
     }
 }
@@ -544,14 +543,13 @@ MimeTypeSettingsPrivate::UserMimeTypeHash MimeTypeSettingsPrivate::readUserModif
 void MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(const UserMimeTypeHash &mimeTypes)
 {
     // register in mime data base, and remember for later
-    Utils::MimeDatabase mdb;
     for (auto it = mimeTypes.constBegin(); it != mimeTypes.constEnd(); ++it) {
-        Utils::MimeType mt = mdb.mimeTypeForName(it.key());
+        Utils::MimeType mt = Utils::mimeTypeForName(it.key());
         if (!mt.isValid()) // loaded from settings
             continue;
         m_userModifiedMimeTypes.insert(it.key(), it.value());
-        Utils::MimeDatabase::setGlobPatternsForMimeType(mt, it.value().globPatterns);
-        Utils::MimeDatabase::setMagicRulesForMimeType(mt, it.value().rules);
+        Utils::setGlobPatternsForMimeType(mt, it.value().globPatterns);
+        Utils::setMagicRulesForMimeType(mt, it.value().rules);
     }
 }
 

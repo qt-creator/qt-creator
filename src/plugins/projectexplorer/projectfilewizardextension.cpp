@@ -214,8 +214,7 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
     if (file->isBinary() || file->contents().isEmpty())
         return; // nothing to do
 
-    Utils::MimeDatabase mdb;
-    Id languageId = TextEditorSettings::languageId(mdb.mimeTypeForFile(file->path()).name());
+    Id languageId = TextEditorSettings::languageId(Utils::mimeTypeForFile(file->path()).name());
 
     if (!languageId.isValid())
         return; // don't modify files like *.ui *.pro

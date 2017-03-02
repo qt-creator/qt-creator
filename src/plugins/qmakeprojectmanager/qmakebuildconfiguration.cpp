@@ -628,8 +628,7 @@ QList<BuildInfo *> QmakeBuildConfigurationFactory::availableBuilds(const Target 
 
 int QmakeBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    MimeDatabase mdb;
-    if (k && mdb.mimeTypeForFile(projectPath).matchesName(QLatin1String(Constants::PROFILE_MIMETYPE)))
+    if (k && Utils::mimeTypeForFile(projectPath).matchesName(Constants::PROFILE_MIMETYPE))
         return 0;
     return -1;
 }

@@ -116,10 +116,9 @@ void GeneralSettings::setAutoFormatMime(const QString &mimeList)
     const QStringList stringTypes = mimeList.split(';');
     QList<Utils::MimeType> types;
     types.reserve(stringTypes.count());
-    const Utils::MimeDatabase mdb;
     for (QString t : stringTypes) {
         t = t.trimmed();
-        const Utils::MimeType mime = mdb.mimeTypeForName(t);
+        const Utils::MimeType mime = Utils::mimeTypeForName(t);
         if (mime.isValid())
             types << mime;
     }

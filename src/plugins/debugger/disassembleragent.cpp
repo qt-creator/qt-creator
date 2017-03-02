@@ -255,8 +255,7 @@ void DisassemblerAgentPrivate::configureMimeType()
 
     document->setMimeType(mimeType);
 
-    Utils::MimeDatabase mdb;
-    Utils::MimeType mtype = mdb.mimeTypeForName(mimeType);
+    Utils::MimeType mtype = Utils::mimeTypeForName(mimeType);
     if (mtype.isValid()) {
         foreach (IEditor *editor, DocumentModel::editorsForDocument(document))
             if (TextEditorWidget *widget = qobject_cast<TextEditorWidget *>(editor->widget()))
