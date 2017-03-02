@@ -5,8 +5,6 @@ COMPAT =
 
 VERSION_TAG = $$replace(QTCREATOR_VERSION, "[-.]", )
 
-isEmpty(LICENSE_TYPE):LICENSE_TYPE=opensource
-
 # unset the installdir for qdoc, so we force generation
 # of URLs for the links to the Qt documentation
 QMAKE_DOCS_INSTALLDIR =
@@ -17,7 +15,7 @@ defineReplace(cmdEnv) {
 }
 
 defineReplace(qdoc) {
-    return("$$cmdEnv(SRCDIR=$$PWD OUTDIR=$$1 QTC_VERSION=$$QTCREATOR_VERSION QTC_VERSION_TAG=$$VERSION_TAG QTC_LICENSE_TYPE=$$LICENSE_TYPE $$QDOC_GLOBAL) $$QDOC_BIN")
+    return("$$cmdEnv(SRCDIR=$$PWD OUTDIR=$$1 QTC_VERSION=$$QTCREATOR_VERSION QTC_VERSION_TAG=$$VERSION_TAG $$QDOC_GLOBAL) $$QDOC_BIN")
 }
 
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp
