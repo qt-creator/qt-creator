@@ -396,11 +396,7 @@ def __chooseTargets__(targets=[Targets.DESKTOP_474_GCC], availableTargets=None, 
         available = availableTargets
     else:
         # following targets depend on the build environment - added for further/later tests
-        available = list(Targets.ALL_TARGETS)
-        if platform.system() in ('Windows', 'Microsoft'):
-            available.remove(Targets.EMBEDDED_LINUX)
-        elif platform.system() == 'Darwin':
-            available.remove(Targets.DESKTOP_541_GCC)
+        available = Targets.availableTargetClasses()
     checkedTargets = []
     for current in available:
         mustCheck = current in targets
@@ -642,10 +638,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
             if platform.system() != 'Darwin':
                 result.append(Targets.DESKTOP_541_GCC)
     elif 'Platform independent' in text:
-        result = list(Targets.ALL_TARGETS)
-        result.remove(Targets.EMBEDDED_LINUX)
-        if platform.system() == 'Darwin':
-            result.remove(Targets.DESKTOP_541_GCC)
+        result = Targets.desktopTargetClasses()
     else:
         test.warning("Returning None (__getSupportedPlatforms__())",
                      "Parsed text: '%s'" % text)

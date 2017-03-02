@@ -38,11 +38,19 @@ class Targets:
      DESKTOP_561_DEFAULT) = ALL_TARGETS
 
     @staticmethod
+    def availableTargetClasses():
+        availableTargets = list(Targets.ALL_TARGETS)
+        if platform.system() in ('Windows', 'Microsoft'):
+            availableTargets.remove(Targets.EMBEDDED_LINUX)
+        elif platform.system() == 'Darwin':
+            availableTargets.remove(Targets.DESKTOP_541_GCC)
+        return availableTargets
+
+    @staticmethod
     def desktopTargetClasses():
-        desktopTargets = list(Targets.ALL_TARGETS)
-        desktopTargets.remove(Targets.EMBEDDED_LINUX)
-        if platform.system() == 'Darwin':
-            desktopTargets.remove(Targets.DESKTOP_541_GCC)
+        desktopTargets = Targets.availableTargetClasses()
+        if Targets.EMBEDDED_LINUX in desktopTargets:
+            desktopTargets.remove(Targets.EMBEDDED_LINUX)
         return desktopTargets
 
     @staticmethod
