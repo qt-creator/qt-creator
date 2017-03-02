@@ -176,10 +176,11 @@ AppOutputPane::AppOutputPane() :
 
     // Stop
     m_stopAction->setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());
-    m_stopAction->setToolTip(tr("Stop"));
+    m_stopAction->setToolTip(tr("Stop Running Program"));
     m_stopAction->setEnabled(false);
 
     Core::Command *cmd = Core::ActionManager::registerAction(m_stopAction, Constants::STOP);
+    cmd->setDescription(m_stopAction->toolTip());
 
     m_stopButton->setDefaultAction(cmd->action());
     m_stopButton->setAutoRaise(true);
