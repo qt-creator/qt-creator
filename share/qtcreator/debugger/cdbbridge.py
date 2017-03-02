@@ -117,8 +117,12 @@ class Dumper(DumperBase):
                 else:
                     base = 10
                 signed = not val.type.name.startswith('unsigned')
-                val.ldata = int(integerString, base).to_bytes(val.type.size(), \
-                        byteorder='little', signed=signed)
+                try:
+                    val.ldata = int(integerString, base).to_bytes(val.type.size(), \
+                            byteorder='little', signed=signed)
+                except:
+                    # read raw memory in case the integerString can not be interpreted
+                    pass
         val.isBaseClass = val.name == val.type.name
         val.lIsInScope = True
         val.laddress = nativeValue.address()
