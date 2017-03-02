@@ -146,6 +146,7 @@ Project {
             "outputformat.h",
             "outputformatter.cpp",
             "outputformatter.h",
+            "objectpool.h",
             "overridecursor.cpp",
             "overridecursor.h",
             "parameteraction.cpp",
