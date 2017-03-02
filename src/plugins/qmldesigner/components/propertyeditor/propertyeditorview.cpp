@@ -384,8 +384,9 @@ void PropertyEditorView::setupPanes()
 
 void PropertyEditorView::delayedResetView()
 {
-    if (m_timerId == 0)
-        m_timerId = startTimer(50);
+    if (m_timerId)
+        killTimer(m_timerId);
+    m_timerId = startTimer(50);
 }
 
 void PropertyEditorView::timerEvent(QTimerEvent *timerEvent)
