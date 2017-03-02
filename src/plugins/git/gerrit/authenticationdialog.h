@@ -48,8 +48,8 @@ public:
 private:
     void readExistingConf();
     bool setupCredentials();
-    Ui::AuthenticationDialog *ui;
-    GerritServer *m_server;
+    Ui::AuthenticationDialog *ui = nullptr;
+    GerritServer *m_server = nullptr;
     QString m_netrcFileName;
     QStringList m_allMachines;
     bool m_authenticated = true;
