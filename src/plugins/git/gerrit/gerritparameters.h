@@ -54,12 +54,18 @@ public:
         Ssh
     };
 
+    enum UrlType
+    {
+        DefaultUrl,
+        UrlWithHttpUser,
+        RestUrl
+    };
+
     GerritServer();
     GerritServer(const QString &host, unsigned short port, const QString &userName, HostType type);
     bool operator==(const GerritServer &other) const;
     QString hostArgument() const;
-    QString url(bool withHttpUser = false) const;
-    QString restUrl() const;
+    QString url(UrlType urlType = DefaultUrl) const;
     bool fillFromRemote(const QString &remote, const GerritParameters &parameters);
     int testConnection();
     static QStringList curlArguments();

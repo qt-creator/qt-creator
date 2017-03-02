@@ -200,8 +200,9 @@ QString GerritChange::filterString() const
 
 QStringList GerritChange::gitFetchArguments(const GerritServer &server) const
 {
-    const QString url = currentPatchSet.url.isEmpty() ? server.url(true) + '/' + project
-                                                      : currentPatchSet.url;
+    const QString url = currentPatchSet.url.isEmpty()
+            ? server.url(GerritServer::UrlWithHttpUser) + '/' + project
+            : currentPatchSet.url;
     return {"fetch", url, currentPatchSet.ref};
 }
 
@@ -271,7 +272,7 @@ QueryContext::QueryContext(const QString &query,
                     << "--format=JSON" << query;
     } else {
         m_binary = p->curl;
-        const QString url = server.restUrl() + "/changes/?q="
+        const QString url = server.url(GerritServer::RestUrl) + "/changes/?q="
                 + QString::fromUtf8(QUrl::toPercentEncoding(query))
                 + "&o=CURRENT_REVISION&o=DETAILED_LABELS&o=DETAILED_ACCOUNTS";
         m_arguments = GerritServer::curlArguments() << url;

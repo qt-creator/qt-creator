@@ -152,7 +152,7 @@ QString GerritServer::hostArgument() const
     return user.userName.isEmpty() ? host : (user.userName + '@' + host);
 }
 
-QString GerritServer::url(bool withHttpUser) const
+QString GerritServer::url(UrlType urlType) const
 {
     QString protocol;
     switch (type) {
@@ -161,22 +161,17 @@ QString GerritServer::url(bool withHttpUser) const
         case Https: protocol = "https"; break;
     }
     QString res = protocol + "://";
-    if (type == Ssh || withHttpUser)
+    if (type == Ssh || urlType != DefaultUrl)
         res += hostArgument();
     else
         res += host;
     if (port)
         res += ':' + QString::number(port);
-    if (type != Ssh)
+    if (type != Ssh) {
         res += rootPath;
-    return res;
-}
-
-QString GerritServer::restUrl() const
-{
-    QString res = url(true);
-    if (type != Ssh && authenticated)
-        res += "/a";
+        if (authenticated && urlType == RestUrl)
+            res += "/a";
+    }
     return res;
 }
 
@@ -238,7 +233,7 @@ QStringList GerritServer::curlArguments()
 int GerritServer::testConnection()
 {
     static Git::Internal::GitClient *const client = Git::Internal::GitPlugin::client();
-    const QStringList arguments = curlArguments() << (restUrl() + accountUrlC);
+    const QStringList arguments = curlArguments() << (url(RestUrl) + accountUrlC);
     const SynchronousProcessResponse resp = client->vcsFullySynchronousExec(
                 QString(), FileName::fromString(curlBinary), arguments,
                 Core::ShellCommand::NoOutput);
