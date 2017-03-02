@@ -29,14 +29,14 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    available = [("5.6", False), ("5.6", True)]
+    available = ["5.6"]
     if platform.system() != 'Darwin':
-        available.extend([("5.4", False), ("5.4", True)])
+        available.extend(["5.4"])
 
-    for qtVersion, controls in available:
+    for qtVersion in available:
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
-        projectName = createNewQtQuickUI(workingDir, qtVersion, controls)
+        projectName = createNewQtQuickUI(workingDir, qtVersion)
         if qtVersion == "5.6":
             kit = Targets.getStringForTarget(Targets.DESKTOP_561_DEFAULT)
             if addAndActivateKit(Targets.DESKTOP_561_DEFAULT):
@@ -53,10 +53,7 @@ def main():
             else:
                 test.fatal("Failed to activate kit %s" % kit)
                 continue
-        additionalText = ''
-        if controls:
-            additionalText = ' Controls '
-        test.log("Running project Qt Quick%sUI (%s)" % (additionalText, kit))
+        test.log("Running project Qt Quick UI Prototype (%s)" % kit)
         qmlViewer = modifyRunSettingsForHookIntoQtQuickUI(2, 1, workingDir, projectName, 11223, quick)
         if qmlViewer!=None:
             qmlViewerPath = os.path.dirname(qmlViewer)
