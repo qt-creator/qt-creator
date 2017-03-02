@@ -53,7 +53,7 @@ static const char *const keywords[] = {
     "double",
     "implements",
     "protected",
-    "throw"
+    "throw",
     "byte",
     "else",
     "import",
