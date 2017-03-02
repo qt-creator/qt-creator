@@ -80,7 +80,8 @@ def main():
     checkSimpleCppLib("SampleApp2", True)
 
     # Qt Plugin needs Qt4.8 for QGenericPlugin which is tested by default
-    targets = Targets.desktopTargetClasses() & ~Targets.DESKTOP_474_GCC
+    targets = Targets.desktopTargetClasses()
+    targets.remove(Targets.DESKTOP_474_GCC)
     checkedTargets, projectName, className = createNewQtPlugin(tempDir(), "SampleApp3", "MyPlugin",
                                                                target=targets)
     virtualFunctionsAdded = False

@@ -39,9 +39,10 @@ class Targets:
 
     @staticmethod
     def desktopTargetClasses():
-        desktopTargets = (sum(Targets.ALL_TARGETS) & ~Targets.EMBEDDED_LINUX)
+        desktopTargets = list(Targets.ALL_TARGETS)
+        desktopTargets.remove(Targets.EMBEDDED_LINUX)
         if platform.system() == 'Darwin':
-            desktopTargets &= ~Targets.DESKTOP_541_GCC
+            desktopTargets.remove(Targets.DESKTOP_541_GCC)
         return desktopTargets
 
     @staticmethod
@@ -78,14 +79,6 @@ class Targets:
         if None in result:
             test.fatal("You've passed at least one unknown target!")
         return result
-
-    @staticmethod
-    def intToArray(targets):
-        return filter(lambda x: x & targets, Targets.ALL_TARGETS)
-
-    @staticmethod
-    def arrayToInt(targetArr):
-        return reduce(operator.or_, targetArr, 0)
 
     @staticmethod
     def getDefaultKit():
