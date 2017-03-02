@@ -65,6 +65,15 @@ const char RC_KEY_PREFIX[] = "ProjectExplorer.Target.RunConfiguration.";
 const char RC_COUNT_KEY[] = "ProjectExplorer.Target.RunConfigurationCount";
 const char PLUGIN_SETTINGS_KEY[] = "ProjectExplorer.Target.PluginSettings";
 
+static QString formatDeviceInfo(const ProjectExplorer::IDevice::DeviceInfo &input)
+{
+    const QStringList lines
+            = Utils::transform(input, [](const ProjectExplorer::IDevice::DeviceInfoItem &i) {
+        return QString::fromLatin1("<b>%1:</b> %2").arg(i.key, i.value);
+    });
+    return lines.join(QLatin1String("<br>"));
+}
+
 } // namespace
 
 // -------------------------------------------------------------------------
@@ -81,9 +90,7 @@ public:
     QList<DeployConfigurationFactory *> deployFactories() const;
 
     bool m_isEnabled = true;
-    QIcon m_icon;
     QIcon m_overlayIcon;
-    QString m_toolTip;
 
     QList<BuildConfiguration *> m_buildConfigurations;
     BuildConfiguration *m_activeBuildConfiguration = 0;
@@ -115,7 +122,7 @@ Target::Target(Project *project, Kit *k) :
     connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
 
     setDisplayName(d->m_kit->displayName());
-    setIcon(d->m_kit->icon());
+    setToolTip(d->m_kit->toHtml());
 
     KitManager *km = KitManager::instance();
     connect(km, &KitManager::kitUpdated, this, &Target::handleKitUpdates);
@@ -187,9 +194,11 @@ void Target::handleKitUpdates(Kit *k)
         return;
 
     setDisplayName(k->displayName());
-    setIcon(k->icon());
     updateDefaultDeployConfigurations();
     updateDeviceState(); // in case the device changed...
+    setToolTip(k->toHtml());
+
+    emit iconChanged();
     emit kitChanged();
 }
 
@@ -457,13 +466,7 @@ bool Target::isEnabled() const
 
 QIcon Target::icon() const
 {
-    return d->m_icon;
-}
-
-void Target::setIcon(QIcon icon)
-{
-    d->m_icon = icon;
-    emit iconChanged();
+    return d->m_kit->icon();
 }
 
 QIcon Target::overlayIcon() const
@@ -477,15 +480,10 @@ void Target::setOverlayIcon(QIcon icon)
     emit overlayIconChanged();
 }
 
-QString Target::toolTip() const
+QString Target::overlayIconToolTip()
 {
-    return d->m_toolTip;
-}
-
-void Target::setToolTip(const QString &text)
-{
-    d->m_toolTip = text;
-    emit toolTipChanged();
+    IDevice::ConstPtr current = DeviceKitInformation::device(kit());
+    return current.isNull() ? QString() : formatDeviceInfo(current->deviceInformation());
 }
 
 QVariantMap Target::toMap() const
@@ -709,14 +707,6 @@ void Target::setNamedSettings(const QString &name, const QVariant &value)
         d->m_pluginSettings.insert(name, value);
 }
 
-static QString formatToolTip(const IDevice::DeviceInfo &input)
-{
-    QStringList lines;
-    foreach (const IDevice::DeviceInfoItem &item, input)
-        lines << QString::fromLatin1("<b>%1:</b> %2").arg(item.key, item.value);
-    return lines.join(QLatin1String("<br>"));
-}
-
 void Target::updateDeviceState()
 {
     IDevice::ConstPtr current = DeviceKitInformation::device(kit());
@@ -729,7 +719,6 @@ void Target::updateDeviceState()
         switch (current->deviceState()) {
         case IDevice::DeviceStateUnknown:
             overlay = QIcon();
-            setToolTip(QString());
             return;
         case IDevice::DeviceReadyToUse: {
             static const QIcon ready = Icons::DEVICE_READY_INDICATOR_OVERLAY.icon();
@@ -750,7 +739,6 @@ void Target::updateDeviceState()
     }
 
     setOverlayIcon(overlay);
-    setToolTip(current.isNull() ? QString() : formatToolTip(current->deviceInformation()));
 }
 
 void Target::setEnabled(bool enabled)
