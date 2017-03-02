@@ -1288,7 +1288,12 @@ def qdump__QPolygon(d, value):
 def qdump__QGraphicsPolygonItem(d, value):
     (vtbl, dptr) = value.split('pp')
     # Assume sizeof(QGraphicsPolygonItemPrivate) == 400
-    offset = 308 if d.ptrSize() == 4 else 384
+    if d.ptrSize() == 8:
+        offset = 384
+    elif d.isWindowsTarget():
+        offset = 328 if d.isMsvcTarget() else 320
+    else:
+        offset = 308
     data, size, alloc = d.vectorDataHelper(d.extractPointer(dptr + offset))
     d.putItemCount(size)
     d.putPlotData(data, size, d.createType('QPointF'))
