@@ -31,12 +31,12 @@
 namespace QbsProjectManager {
 namespace Internal {
 
-QbsProjectFile::QbsProjectFile(QbsProject *parent, QString fileName) : Core::IDocument(parent),
+QbsProjectFile::QbsProjectFile(QbsProject *parent, const Utils::FileName &fileName) : Core::IDocument(parent),
     m_project(parent)
 {
     setId("Qbs.ProjectFile");
-    setMimeType(QLatin1String(Constants::MIME_TYPE));
-    setFilePath(Utils::FileName::fromString(fileName));
+    setMimeType(Constants::MIME_TYPE);
+    setFilePath(fileName);
 }
 
 Core::IDocument::ReloadBehavior QbsProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const

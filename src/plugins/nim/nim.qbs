@@ -45,7 +45,6 @@ QtcPlugin {
             "nimcompilercleanstepconfigwidget.h", "nimcompilercleanstepconfigwidget.cpp", "nimcompilercleanstepconfigwidget.ui",
             "nimcompilercleanstepfactory.h", "nimcompilercleanstepfactory.cpp",
             "nimproject.h", "nimproject.cpp",
-            "nimprojectmanager.h", "nimprojectmanager.cpp",
             "nimprojectnode.h", "nimprojectnode.cpp",
             "nimrunconfiguration.h", "nimrunconfiguration.cpp",
             "nimrunconfigurationfactory.h", "nimrunconfigurationfactory.cpp",

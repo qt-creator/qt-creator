@@ -53,16 +53,6 @@ using namespace TextEditor;
 
 namespace QmakeProjectManager {
 
-QString QmakeManager::mimeType() const
-{
-    return QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
-}
-
-ProjectExplorer::Project *QmakeManager::openProject(const QString &fileName)
-{
-    return new QmakeProject(fileName);
-}
-
 Node *QmakeManager::contextNode()
 {
     return ProjectTree::currentNode();

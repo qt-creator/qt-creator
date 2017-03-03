@@ -155,13 +155,3 @@ void CMakeManager::rescanProject(Project *project)
     cmakeProject->scanProjectTree();
     cmakeProject->runCMake(); // by my experience: every rescan run requires cmake run too
 }
-
-Project *CMakeManager::openProject(const QString &fileName)
-{
-    return new CMakeProject(Utils::FileName::fromString(fileName));
-}
-
-QString CMakeManager::mimeType() const
-{
-    return QLatin1String(Constants::CMAKEPROJECTMIMETYPE);
-}

@@ -30,19 +30,20 @@
 #include "qmlprojectrunconfiguration.h"
 #include "qmlprojectconstants.h"
 #include "qmlprojectnodes.h"
-#include "qmlprojectmanager.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/documentmanager.h>
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
+
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/target.h>
+
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/algorithm.h>
 

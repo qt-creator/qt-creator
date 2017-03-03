@@ -77,7 +77,7 @@ namespace Internal {
 class QmakeProjectFile : public Core::IDocument
 {
 public:
-    QmakeProjectFile(const QString &filePath);
+    explicit QmakeProjectFile(const FileName &fileName);
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
@@ -158,11 +158,11 @@ QDebug operator<<(QDebug d, const  QmakeProjectFiles &f)
 
 // ----------- QmakeProjectFile
 
-QmakeProjectFile::QmakeProjectFile(const QString &filePath)
+QmakeProjectFile::QmakeProjectFile(const FileName &fileName)
 {
     setId("Qmake.ProFile");
-    setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
-    setFilePath(FileName::fromString(filePath));
+    setMimeType(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
+    setFilePath(fileName);
 }
 
 Core::IDocument::ReloadBehavior QmakeProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
@@ -190,7 +190,7 @@ static QList<QmakeProject *> s_projects;
   QmakeProject manages information about an individual Qt 4 (.pro) project file.
   */
 
-QmakeProject::QmakeProject(const QString &fileName) :
+QmakeProject::QmakeProject(const FileName &fileName) :
     m_projectFiles(new QmakeProjectFiles),
     m_qmakeVfs(new QMakeVfs),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))

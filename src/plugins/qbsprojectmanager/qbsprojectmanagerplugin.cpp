@@ -46,14 +46,18 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/fileiconprovider.h>
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/qtsupportconstants.h>
+#include <qmljstools/qmljstoolsconstants.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -86,6 +90,8 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     const Core::Context projectContext(::QbsProjectManager::Constants::PROJECT_ID);
 
     Core::FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_QT, "qbs");
+
+    ProjectManager::registerProjectType<QbsProject>(QmlJSTools::Constants::QBS_MIMETYPE);
 
     //create and register objects
     addAutoReleasedObject(new QbsManager);

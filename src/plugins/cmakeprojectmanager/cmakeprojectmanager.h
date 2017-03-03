@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <projectexplorer/iprojectmanager.h>
+#include <projectexplorer/project.h>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -36,14 +36,12 @@ namespace Internal {
 
 class CMakeSettingsPage;
 
-class CMakeManager : public ProjectExplorer::IProjectManager
+class CMakeManager : public QObject
 {
     Q_OBJECT
+
 public:
     CMakeManager();
-
-    ProjectExplorer::Project *openProject(const QString &fileName) override;
-    QString mimeType() const override;
 
 private:
     void updateCmakeActions();

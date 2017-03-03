@@ -116,8 +116,8 @@ private:
 // QbsProject:
 // --------------------------------------------------------------------
 
-QbsProject::QbsProject(const QString &fileName) :
-    m_projectName(QFileInfo(fileName).completeBaseName()),
+QbsProject::QbsProject(const FileName &fileName) :
+    m_projectName(fileName.toFileInfo().completeBaseName()),
     m_qbsProjectParser(0),
     m_qbsUpdateFutureInterface(0),
     m_parsingScheduled(false),
@@ -766,7 +766,7 @@ void QbsProject::updateDocuments(const QSet<QString> &files)
     }
     QSet<IDocument *> toAdd;
     foreach (const QString &f, filesToAdd)
-        toAdd.insert(new QbsProjectFile(this, f));
+        toAdd.insert(new QbsProjectFile(this, FileName::fromString(f)));
 
     DocumentManager::addDocuments(toAdd.toList());
     m_qbsDocuments.unite(toAdd);

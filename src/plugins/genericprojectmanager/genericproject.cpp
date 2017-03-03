@@ -54,6 +54,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace GenericProjectManager {
 namespace Internal {
@@ -64,7 +65,7 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-GenericProject::GenericProject(const QString &fileName)
+GenericProject::GenericProject(const Utils::FileName &fileName)
     : m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(Constants::GENERICPROJECT_ID);
@@ -81,9 +82,9 @@ GenericProject::GenericProject(const QString &fileName)
     m_includesFileName = QFileInfo(dir, m_projectName + ".includes").absoluteFilePath();
     m_configFileName   = QFileInfo(dir, m_projectName + ".config").absoluteFilePath();
 
-    m_filesIDocument    = new GenericProjectFile(this, m_filesFileName, GenericProject::Files);
-    m_includesIDocument = new GenericProjectFile(this, m_includesFileName, GenericProject::Configuration);
-    m_configIDocument   = new GenericProjectFile(this, m_configFileName, GenericProject::Configuration);
+    m_filesIDocument    = new GenericProjectFile(this, FileName::fromString(m_filesFileName), GenericProject::Files);
+    m_includesIDocument = new GenericProjectFile(this, FileName::fromString(m_includesFileName), GenericProject::Configuration);
+    m_configIDocument   = new GenericProjectFile(this, FileName::fromString(m_configFileName), GenericProject::Configuration);
 
     DocumentManager::addDocument(document());
     DocumentManager::addDocument(m_filesIDocument);
@@ -461,14 +462,14 @@ Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName,
+GenericProjectFile::GenericProjectFile(GenericProject *parent, const Utils::FileName &fileName,
                                        GenericProject::RefreshOptions options) :
       m_project(parent),
       m_options(options)
 {
     setId("Generic.ProjectFile");
     setMimeType(Constants::GENERICMIMETYPE);
-    setFilePath(Utils::FileName::fromString(fileName));
+    setFilePath(fileName);
 }
 
 IDocument::ReloadBehavior GenericProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const

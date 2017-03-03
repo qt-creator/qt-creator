@@ -7,7 +7,6 @@ DEFINES += QMLPROJECTMANAGER_LIBRARY
 HEADERS += qmlproject.h \
     qmlprojectenvironmentaspect.h \
     qmlprojectplugin.h \
-    qmlprojectmanager.h \
     qmlprojectconstants.h \
     qmlprojectnodes.h \
     qmlprojectfile.h \
@@ -20,7 +19,6 @@ HEADERS += qmlproject.h \
 SOURCES += qmlproject.cpp \
     qmlprojectenvironmentaspect.cpp \
     qmlprojectplugin.cpp \
-    qmlprojectmanager.cpp \
     qmlprojectnodes.cpp \
     qmlprojectfile.cpp \
     qmlprojectrunconfiguration.cpp \

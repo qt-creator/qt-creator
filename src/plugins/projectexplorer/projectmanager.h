@@ -27,26 +27,32 @@
 
 #include "projectexplorer_export.h"
 
-#include <QObject>
-
-namespace Utils { class MimeType; }
+namespace Utils {
+class FileName;
+class MimeType;
+} // Utils
 
 namespace ProjectExplorer {
 
 class Project;
 
-class PROJECTEXPLORER_EXPORT IProjectManager : public QObject
+class PROJECTEXPLORER_EXPORT ProjectManager
 {
-    Q_OBJECT
-
 public:
-    IProjectManager();
-    // Finds a IProjectManager matching the passed MimeType.
-    static IProjectManager *managerForMimeType(const Utils::MimeType &mt);
+    static bool canOpenProjectForMimeType(const Utils::MimeType &mt);
+    static Project *openProject(const Utils::MimeType &mt, const Utils::FileName &fileName);
 
-    virtual QString mimeType() const = 0;
-    // FileName is a canonical path of a checked-to-exist file.
-    virtual Project *openProject(const QString &fileName) = 0;
+    template <typename T>
+    static void registerProjectType(const QString &mimeType)
+    {
+        ProjectManager::registerProjectCreator(mimeType, [](const Utils::FileName &fileName) {
+            return new T(fileName);
+        });
+    }
+
+private:
+    static void registerProjectCreator(const QString &mimeType,
+                                       const std::function<Project *(const Utils::FileName &)> &);
 };
 
 } // namespace ProjectExplorer
