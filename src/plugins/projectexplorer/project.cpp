@@ -421,7 +421,11 @@ void Project::setDocument(Core::IDocument *doc)
 void Project::setRootProjectNode(ProjectNode *root)
 {
     ProjectNode *oldNode = d->m_rootProjectNode;
+    if (oldNode == root)
+        return;
+
     d->m_rootProjectNode = root;
+    emit projectTreeChanged(this, QPrivateSignal());
     delete oldNode;
 }
 

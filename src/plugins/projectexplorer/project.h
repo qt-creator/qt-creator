@@ -141,6 +141,7 @@ public:
     Utils::MacroExpander *macroExpander() const;
 
 signals:
+    void projectTreeChanged(Project *project, QPrivateSignal);
     void displayNameChanged();
     void fileListChanged();
 
