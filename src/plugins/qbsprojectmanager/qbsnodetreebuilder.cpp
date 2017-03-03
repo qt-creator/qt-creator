@@ -180,13 +180,11 @@ QStringList unreferencedBuildSystemFiles(const qbs::Project &p)
 namespace QbsProjectManager {
 namespace Internal {
 
-void QbsNodeTreeBuilder::buildTree(QbsProject *project)
+QbsRootProjectNode *QbsNodeTreeBuilder::buildTree(QbsProject *project)
 {
-    QbsRootProjectNode *root = project->rootProjectNode();
-    QTC_ASSERT(root, return);
-    root->makeEmpty();
-
-    root->addNode(new ProjectExplorer::FileNode(project->projectFilePath(), ProjectExplorer::FileType::Project, false));
+    auto root = new QbsRootProjectNode(project);
+    root->addNode(new ProjectExplorer::FileNode(project->projectFilePath(),
+                                                ProjectExplorer::FileType::Project, false));
 
     auto buildSystemFiles
             = new ProjectExplorer::FolderNode(project->projectDirectory(),
@@ -205,8 +203,7 @@ void QbsNodeTreeBuilder::buildTree(QbsProject *project)
     root->addNode(buildSystemFiles);
 
     setupProjectNode(root, project->qbsProjectData(), project->qbsProject());
-    root->emitNodeUpdated();
-    root->emitTreeChanged();
+    return root;
 }
 
 } // namespace Internal

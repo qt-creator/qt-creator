@@ -196,16 +196,12 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node)
     }
 }
 
-QmakeProFileNode *QmakeNodeTreeBuilder::buildTree(const QmakeProFile *rootProFile, QmakeProFileNode *rootNode)
+QmakeProFileNode *QmakeNodeTreeBuilder::buildTree(QmakeProject *project)
 {
-    rootNode->makeEmpty();
+    auto root = new QmakeProFileNode(project, project->projectFilePath());
+    createTree(project->rootProFile(), root);
 
-    createTree(rootProFile, rootNode);
-
-    rootNode->emitTreeChanged();
-    rootNode->emitNodeUpdated();
-
-    return rootNode;
+    return root;
 }
 
 } // namespace QmakeProjectManager

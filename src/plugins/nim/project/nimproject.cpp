@@ -157,8 +157,10 @@ void NimProject::updateProject()
     if (oldFiles == m_files)
         return;
 
-    rootProjectNode()->makeEmpty();
-    rootProjectNode()->buildTree(fileNodes);
+    auto newRoot = new NimProjectNode(*this, projectDirectory());
+    newRoot->setDisplayName(displayName());
+    newRoot->buildTree(fileNodes);
+    setRootProjectNode(newRoot);
 
     emit fileListChanged();
 

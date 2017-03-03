@@ -39,7 +39,7 @@ namespace Internal {
 class QbsNodeTreeBuilder
 {
 public:
-    static void buildTree(QbsProject *project);
+    static QbsRootProjectNode *buildTree(QbsProject *project);
 };
 
 } // namespace Internal

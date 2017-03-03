@@ -227,8 +227,10 @@ void AutotoolsProject::makefileParsingFinished()
                              f == QLatin1String("configure.ac")) ? FileType::Project : FileType::Resource,
                             false);
     });
-    rootProjectNode()->makeEmpty();
-    rootProjectNode()->buildTree(fileNodes);
+
+    auto newRoot = new AutotoolsProjectNode(projectDirectory());
+    newRoot->buildTree(fileNodes);
+    setRootProjectNode(newRoot);
 
     updateCppCodeModel();
 

@@ -573,8 +573,9 @@ void PythonProject::refresh()
         const QString displayName = baseDir.relativeFilePath(f);
         return new PythonFileNode(FileName::fromString(f), displayName);
     });
-    rootProjectNode()->makeEmpty();
-    rootProjectNode()->buildTree(fileNodes);
+    auto newRoot = new PythonProjectNode(this);
+    newRoot->buildTree(fileNodes);
+    setRootProjectNode(newRoot);
 
     emit parsingFinished();
 }

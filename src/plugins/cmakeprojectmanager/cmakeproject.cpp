@@ -151,7 +151,9 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     Kit *k = t->kit();
 
-    bc->generateProjectTree(static_cast<CMakeListsNode *>(rootProjectNode()), m_allFiles);
+    auto newRoot = bc->generateProjectTree(m_allFiles);
+    if (newRoot)
+        setRootProjectNode(newRoot);
 
     updateApplicationAndDeploymentTargets();
     updateTargetRunConfigurations(t);

@@ -278,8 +278,10 @@ void GenericProject::refresh(RefreshOptions options)
                                               FileType::Project,
                                               /* generated = */ false);
         fileNodes << projectFilesNode << projectIncludesNode << projectConfigNode;
-        rootProjectNode()->makeEmpty();
-        rootProjectNode()->buildTree(fileNodes);
+
+        auto newRoot = new GenericProjectNode(this);
+        newRoot->buildTree(fileNodes);
+        setRootProjectNode(newRoot);
     }
 
     refreshCppCodeModel();

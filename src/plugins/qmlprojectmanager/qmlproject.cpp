@@ -396,8 +396,9 @@ void QmlProject::generateProjectTree()
         return new FileNode(Utils::FileName::fromString(f), fileType, false);
     });
 
-    rootProjectNode()->makeEmpty();
-    rootProjectNode()->buildTree(fileNodes);
+    auto newRoot = new Internal::QmlProjectNode(this);
+    newRoot->buildTree(fileNodes);
+    setRootProjectNode(newRoot);
 }
 
 } // namespace QmlProjectManager
