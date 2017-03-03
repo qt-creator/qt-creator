@@ -25,6 +25,7 @@
 
 #include "iosplugin.h"
 
+#include "iosbuildconfiguration.h"
 #include "iosbuildstep.h"
 #include "iosconfigurations.h"
 #include "iosconstants.h"
@@ -64,6 +65,7 @@ bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     Internal::IosConfigurations::initialize();
 
+    addAutoReleasedObject(new Internal::IosBuildConfigurationFactory);
     addAutoReleasedObject(new Internal::IosToolChainFactory);
     addAutoReleasedObject(new Internal::IosRunControlFactory);
     addAutoReleasedObject(new Internal::IosRunConfigurationFactory);
