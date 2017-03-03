@@ -420,13 +420,12 @@ void Project::setDocument(Core::IDocument *doc)
 
 void Project::setRootProjectNode(ProjectNode *root)
 {
-    ProjectNode *oldNode = d->m_rootProjectNode;
-    if (oldNode == root)
+    if (d->m_rootProjectNode == root)
         return;
 
     d->m_rootProjectNode = root;
     emit projectTreeChanged(this, QPrivateSignal());
-    delete oldNode;
+    // Do not delete oldNode! The ProjectTree owns that!
 }
 
 Target *Project::restoreTarget(const QVariantMap &data)

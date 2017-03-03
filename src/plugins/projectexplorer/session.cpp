@@ -188,6 +188,29 @@ void SessionManager::clearProjectFileCache()
         d->m_projectFileCache.clear();
 }
 
+void SessionManager::updateProjectTree(Project *pro)
+{
+    if (!pro)
+        return;
+
+    QPair<Project *, ProjectNode *> *currentPair = nullptr;
+    for (QPair<Project *, ProjectNode *> &pair : d->m_projects) {
+        if (pair.first == pro) {
+            currentPair = &pair;
+            break;
+        }
+    }
+
+    if (!currentPair)
+        return; // Project was already de-registered and is shutting down
+
+    ProjectNode *const oldNode = currentPair->second;
+    ProjectNode *const newNode = pro->rootProjectNode();
+
+    d->m_sessionNode.replaceSubtree(oldNode, newNode);
+    currentPair->second = newNode;
+}
+
 bool SessionManagerPrivate::recursiveDependencyCheck(const QString &newDep, const QString &checkDep) const
 {
     if (newDep == checkDep)
@@ -385,11 +408,11 @@ void SessionManager::addProject(Project *pro)
     d->m_virginSession = false;
     QTC_ASSERT(!hasProject(pro), return);
 
-    d->m_projects.append(qMakePair(pro, pro->rootProjectNode()));
-    d->m_sessionNode.addNode(pro->rootProjectNode());
+    d->m_projects.append(qMakePair(pro, nullptr));
+    m_instance->updateProjectTree(pro);
 
-    connect(pro, &Project::fileListChanged,
-            m_instance, &SessionManager::clearProjectFileCache);
+    connect(pro, &Project::fileListChanged, m_instance, &SessionManager::clearProjectFileCache);
+    connect(pro, &Project::projectTreeChanged, m_instance, &SessionManager::updateProjectTree);
 
     connect(pro, &Project::displayNameChanged, m_instance, [pro] {
         d->m_sessionNode.emitNodeUpdated();
@@ -405,7 +428,7 @@ void SessionManager::removeProject(Project *project)
 {
     d->m_virginSession = false;
     QTC_ASSERT(project, return);
-    removeProjects(QList<Project*>() << project);
+    removeProjects({project});
 }
 
 bool SessionManager::loadingSession()
@@ -737,6 +760,8 @@ void SessionManager::removeProjects(QList<Project *> remove)
     // Delete projects
     foreach (Project *pro, remove) {
         pro->saveSettings();
+        pro->setRootProjectNode(nullptr); // Deregister project with sessionnode!
+
         d->m_projects
                 = Utils::filtered(d->m_projects, [pro](const QPair<Project *, ProjectNode *> &pair)
         {
@@ -749,8 +774,6 @@ void SessionManager::removeProjects(QList<Project *> remove)
         disconnect(pro, &Project::fileListChanged,
                    m_instance, &SessionManager::clearProjectFileCache);
         d->m_projectFileCache.remove(pro);
-
-        d->m_sessionNode.removeNode(pro->rootProjectNode());
         emit m_instance->projectRemoved(pro);
         delete pro;
     }

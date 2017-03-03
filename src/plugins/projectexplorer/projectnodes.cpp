@@ -465,8 +465,6 @@ void FolderNode::buildTree(QList<FileNode *> &files, const Utils::FileName &over
                                                   overrideBaseDir);
         folder->addNode(fn);
     }
-
-    emitTreeChanged();
 }
 
 // "Compress" a tree of foldernodes such that foldernodes with exactly one foldernode as a child

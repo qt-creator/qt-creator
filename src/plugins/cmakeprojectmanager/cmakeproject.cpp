@@ -134,7 +134,6 @@ CMakeProject::~CMakeProject()
         future.waitForFinished();
     }
     delete m_cppCodeModelUpdater;
-    setRootProjectNode(nullptr);
     qDeleteAll(m_extraCompilers);
     qDeleteAll(m_allFiles);
 }

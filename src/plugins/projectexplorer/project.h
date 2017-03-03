@@ -51,6 +51,7 @@ class NamedWidget;
 class ProjectImporter;
 class ProjectNode;
 class ProjectPrivate;
+class Session;
 class Target;
 
 // Documentation inside.
@@ -189,6 +190,8 @@ private:
 
     void setActiveTarget(Target *target);
     ProjectPrivate *d;
+
+    friend class Session;
 };
 
 } // namespace ProjectExplorer
