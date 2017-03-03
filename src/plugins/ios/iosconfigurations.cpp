@@ -32,6 +32,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
+#include <utils/synchronousprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 #include <projectexplorer/kitmanager.h>
@@ -49,12 +50,15 @@
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtversionfactory.h>
 
+#include <QDir>
 #include <QDomDocument>
 #include <QFileInfo>
+#include <QFileSystemWatcher>
 #include <QHash>
 #include <QList>
+#include <QLoggingCategory>
+#include <QProcess>
 #include <QSettings>
-#include <QStringList>
 #include <QTimer>
 
 using namespace ProjectExplorer;
@@ -73,6 +77,21 @@ namespace Internal {
 
 const QLatin1String SettingsGroup("IosConfigurations");
 const QLatin1String ignoreAllDevicesKey("IgnoreAllDevices");
+
+const char provisioningTeamsTag[] = "IDEProvisioningTeams";
+const char freeTeamTag[] = "isFreeProvisioningTeam";
+const char emailTag[] = "eMail";
+const char teamNameTag[] = "teamName";
+const char teamIdTag[] = "teamID";
+
+const char udidTag[] = "UUID";
+const char profileNameTag[] = "Name";
+const char appIdTag[] = "AppIDName";
+const char expirationDateTag[] = "ExpirationDate";
+const char profileTeamIdTag[] = "TeamIdentifier";
+
+static const QString xcodePlistPath = QDir::homePath() + "/Library/Preferences/com.apple.dt.Xcode.plist";
+static const QString provisioningProfileDirPath = QDir::homePath() + "/Library/MobileDevice/Provisioning Profiles";
 
 static Core::Id deviceId(const Platform &platform)
 {
@@ -246,6 +265,20 @@ static QVersionNumber findXcodeVersion()
     return QVersionNumber();
 }
 
+static QByteArray decodeProvisioningProfile(const QString &path)
+{
+    QTC_ASSERT(!path.isEmpty(), return QByteArray());
+
+    Utils::SynchronousProcess p;
+    p.setTimeoutS(3);
+    // path is assumed to be valid file path to .mobileprovision
+    const QStringList args = {"smime", "-inform", "der", "-verify", "-in", path};
+    Utils::SynchronousProcessResponse res = p.runBlocking("openssl", args);
+    if (res.result != Utils::SynchronousProcessResponse::Finished)
+        qCDebug(iosCommonLog) << "Reading signed provisioning file failed" << path;
+    return res.stdOut().toLatin1();
+}
+
 void IosConfigurations::updateAutomaticKitList()
 {
     const QList<Platform> platforms = handledPlatforms();
@@ -320,9 +353,9 @@ void IosConfigurations::updateAutomaticKitList()
         KitManager::deregisterKit(kit);
 }
 
-static IosConfigurations *m_instance = 0;
+static IosConfigurations *m_instance = nullptr;
 
-QObject *IosConfigurations::instance()
+IosConfigurations *IosConfigurations::instance()
 {
     return m_instance;
 }
@@ -409,6 +442,137 @@ void IosConfigurations::setDeveloperPath(const FileName &devPath)
     }
 }
 
+void IosConfigurations::initializeProvisioningData()
+{
+    // Initialize provisioning data only on demand. i.e. when first call to a provisioing data API
+    // is made.
+    static bool initialized = false;
+    if (initialized)
+        return;
+    initialized = true;
+
+    m_instance->loadProvisioningData(false);
+
+    // Watch the provisioing profiles folder and xcode plist for changes and
+    // update the content accordingly.
+    m_provisioningDataWatcher = new QFileSystemWatcher(this);
+    m_provisioningDataWatcher->addPath(xcodePlistPath);
+    m_provisioningDataWatcher->addPath(provisioningProfileDirPath);
+    connect(m_provisioningDataWatcher, &QFileSystemWatcher::directoryChanged,
+            std::bind(&IosConfigurations::loadProvisioningData, this, true));
+    connect(m_provisioningDataWatcher, &QFileSystemWatcher::fileChanged,
+            std::bind(&IosConfigurations::loadProvisioningData, this, true));
+}
+
+void IosConfigurations::loadProvisioningData(bool notify)
+{
+    m_developerTeams.clear();
+    m_provisioningProfiles.clear();
+
+    // Populate Team id's
+    const QSettings xcodeSettings(xcodePlistPath, QSettings::NativeFormat);
+    const QVariantMap teamMap = xcodeSettings.value(provisioningTeamsTag).toMap();
+    QList<QVariantMap> teams;
+    QMapIterator<QString, QVariant> accountiterator(teamMap);
+    while (accountiterator.hasNext()) {
+        accountiterator.next();
+        QVariantMap teamInfo = accountiterator.value().toMap();
+        int provisioningTeamIsFree = teamInfo.value(freeTeamTag).toBool() ? 1 : 0;
+        teamInfo[freeTeamTag] = provisioningTeamIsFree;
+        teamInfo[emailTag] = accountiterator.key();
+        teams.append(teamInfo);
+    }
+
+    // Sort team id's to move the free provisioning teams at last of the list.
+    Utils::sort(teams, [](const QVariantMap &teamInfo1, const QVariantMap &teamInfo2) {
+        return teamInfo1.value(freeTeamTag).toInt() < teamInfo2.value(freeTeamTag).toInt();
+    });
+
+    foreach (auto teamInfo, teams) {
+        auto team = std::shared_ptr<DevelopmentTeam>::make_shared();
+        team->m_name = teamInfo.value(teamNameTag).toString();
+        team->m_email = teamInfo.value(emailTag).toString();
+        team->m_identifier = teamInfo.value(teamIdTag).toString();
+        team->m_freeTeam = teamInfo.value(freeTeamTag).toInt() == 1;
+        m_developerTeams.append(team);
+    }
+
+    const QDir provisioningProflesDir(provisioningProfileDirPath);
+    foreach (QFileInfo fileInfo, provisioningProflesDir.entryInfoList({"*.mobileprovision"}, QDir::NoDotAndDotDot | QDir::Files)) {
+        QDomDocument provisioningDoc;
+        auto profile = ProvisioningProfilePtr::make_shared();;
+        QString teamID;
+        if (provisioningDoc.setContent(decodeProvisioningProfile(fileInfo.absoluteFilePath()))) {
+            QDomNodeList nodes =  provisioningDoc.elementsByTagName("key");
+            for (int i = 0;i<nodes.count(); ++i) {
+                QDomElement e = nodes.at(i).toElement();
+
+                if (e.text().compare(udidTag) == 0)
+                    profile->m_identifier = e.nextSiblingElement().text();
+
+                if (e.text().compare(profileNameTag) == 0)
+                    profile->m_name = e.nextSiblingElement().text();
+
+                if (e.text().compare(appIdTag) == 0)
+                    profile->m_appID = e.nextSiblingElement().text();
+
+                if (e.text().compare(expirationDateTag) == 0)
+                    profile->m_expirationDate = QDateTime::fromString(e.nextSiblingElement().text(),
+                                                                      Qt::ISODate).toUTC();
+
+                if (e.text().compare(profileTeamIdTag) == 0) {
+                    teamID = e.nextSibling().firstChildElement().text();
+                    auto team =  developmentTeam(teamID);
+                    if (team) {
+                        profile->m_team = team;
+                        team->m_profiles.append(profile);
+                    }
+                }
+            }
+        } else {
+            qCDebug(iosCommonLog) << "Error reading provisoing profile" << fileInfo.absoluteFilePath();
+        }
+
+        if (profile->m_team)
+            m_provisioningProfiles.append(profile);
+        else
+            qCDebug(iosCommonLog) << "Skipping profile. No corresponding team found" << profile;
+    }
+
+    if (notify)
+        emit provisioningDataChanged();
+}
+
+const DevelopmentTeams &IosConfigurations::developmentTeams()
+{
+    QTC_CHECK(m_instance);
+    m_instance->initializeProvisioningData();
+    return m_instance->m_developerTeams;
+}
+
+DevelopmentTeamPtr IosConfigurations::developmentTeam(const QString &teamID)
+{
+    QTC_CHECK(m_instance);
+    m_instance->initializeProvisioningData();
+    return findOrDefault(m_instance->m_developerTeams,
+                         Utils::equal(&DevelopmentTeam::identifier, teamID));
+}
+
+const ProvisioningProfiles &IosConfigurations::provisioningProfiles()
+{
+    QTC_CHECK(m_instance);
+    m_instance->initializeProvisioningData();
+    return m_instance->m_provisioningProfiles;
+}
+
+ProvisioningProfilePtr IosConfigurations::provisioningProfile(const QString &profileID)
+{
+    QTC_CHECK(m_instance);
+    m_instance->initializeProvisioningData();
+    return Utils::findOrDefault(m_instance->m_provisioningProfiles,
+                                Utils::equal(&ProvisioningProfile::identifier, profileID));
+}
+
 static ClangToolChain *createToolChain(const Platform &platform, Core::Id l)
 {
     if (!l.isValid())
@@ -453,6 +617,53 @@ QList<ToolChain *> IosToolChainFactory::autoDetect(const QList<ToolChain *> &exi
         createOrAdd(platformToolchains.second, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     }
     return Utils::transform(toolChains, [](ClangToolChain *tc) -> ToolChain * { return tc; });
+}
+
+QString DevelopmentTeam::identifier() const
+{
+    return m_identifier;
+}
+
+QString DevelopmentTeam::displayName() const
+{
+    return QString("%1 - %2").arg(m_email).arg(m_name);
+}
+
+QString DevelopmentTeam::details() const
+{
+    return tr("%1 - Free Provisioning Team : %2")
+            .arg(m_identifier).arg(m_freeTeam ? tr("Yes") : tr("No"));
+}
+
+QDebug &operator<<(QDebug &stream, DevelopmentTeamPtr team)
+{
+    QTC_ASSERT(team, return stream);
+    stream << team->displayName() << team->identifier() << team->isFreeProfile();
+    foreach (auto profile, team->m_profiles)
+        stream << "Profile:" << profile;
+    return stream;
+}
+
+QString ProvisioningProfile::identifier() const
+{
+    return m_identifier;
+}
+
+QString ProvisioningProfile::displayName() const
+{
+    return m_name;
+}
+
+QString ProvisioningProfile::details() const
+{
+    return tr("Team: %1\nApp ID: %2\nExpiration date: %3").arg(m_team->identifier()).arg(m_appID)
+            .arg(m_expirationDate.toLocalTime().toString(Qt::SystemLocaleShortDate));
+}
+
+QDebug &operator<<(QDebug &stream, std::shared_ptr<ProvisioningProfile> profile)
+{
+    QTC_ASSERT(profile, return stream);
+    return stream << profile->displayName() << profile->identifier() << profile->details();
 }
 
 } // namespace Internal
