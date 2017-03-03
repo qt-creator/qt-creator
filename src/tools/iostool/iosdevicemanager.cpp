@@ -151,7 +151,7 @@ typedef int (MDEV_API *AMDeviceSecureInstallApplicationPtr)(int, AMDeviceRef, CF
 namespace Ios {
 namespace Internal {
 
-static const am_res_t DeveloperImageAlreadyInstalled = 0xe8000076; /*Already installed*/
+static const am_res_t kAMDMobileImageMounterImageMountFailed = 0xe8000076;
 
 class MobileDeviceLib {
 public :
@@ -1036,8 +1036,8 @@ bool CommandSession::mountDeveloperDiskImage() {
             if (connectDevice()) {
                 CFStringRef cfImgPath = imagePath.toCFString();
                 am_res_t result = lib()->deviceMountImage(device, cfImgPath, options, &mountCallback, 0);
-                if (result == 0 || result == DeveloperImageAlreadyInstalled)  {
-                    // Mounting succeeded.
+                if (result == 0 || result == kAMDMobileImageMounterImageMountFailed)  {
+                    // Mounting succeeded or developer image already installed
                     success = true;
                 } else {
                     addError(QString::fromLatin1("Mount Developer Disk Image \"%1\" failed, AMDeviceMountImage returned %2 (0x%3)")
