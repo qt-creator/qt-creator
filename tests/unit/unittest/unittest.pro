@@ -11,7 +11,7 @@ include(benchmark_dependency.pri)
 
 OBJECTS_DIR = $$OUT_PWD/obj # workaround for qmake bug in object_parallel_to_source
 
-force_debug_info:QMAKE_CXXFLAGS += -fno-omit-frame-pointer
+!msvc:force_debug_info:QMAKE_CXXFLAGS += -fno-omit-frame-pointer
 
 DEFINES += \
     QT_RESTRICTED_CAST_FROM_ASCII \
