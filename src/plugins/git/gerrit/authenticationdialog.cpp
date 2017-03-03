@@ -73,7 +73,8 @@ AuthenticationDialog::AuthenticationDialog(GerritServer *server) :
     ui->descriptionLabel->setOpenExternalLinks(true);
     ui->serverLineEdit->setText(server->host);
     ui->userLineEdit->setText(server->user.userName);
-    m_netrcFileName = QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "_netrc" : ".netrc");
+    m_netrcFileName = QDir::homePath() + '/' +
+            QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "_netrc" : ".netrc");
     readExistingConf();
 
     QPushButton *anonymous = ui->buttonBox->addButton(tr("Anonymous"), QDialogButtonBox::AcceptRole);
@@ -98,7 +99,7 @@ AuthenticationDialog::~AuthenticationDialog()
 
 void AuthenticationDialog::readExistingConf()
 {
-    QFile netrcFile(QDir::homePath() + '/' + m_netrcFileName);
+    QFile netrcFile(m_netrcFileName);
     if (!netrcFile.open(QFile::ReadOnly | QFile::Text))
         return;
 
