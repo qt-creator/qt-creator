@@ -3208,7 +3208,7 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
             break;
         }
     }
-    if (rc != SymbolGroupNode::SimpleDumperFailed && SymbolGroupValue::isPointerType(v.type()))
+    if (rc != SymbolGroupNode::SimpleDumperFailed && SymbolGroupValue::isPointerType(v.type()) && encoding->empty())
         str << L" @" << std::showbase << std::hex << v.pointerValue() << std::dec << std::noshowbase;
 
     if (rc == SymbolGroupNode::SimpleDumperOk)
