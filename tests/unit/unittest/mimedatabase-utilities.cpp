@@ -49,7 +49,7 @@ bool addCppToolsMimeTypes()
         QJsonValue mimetypes = doc.object().value("Mimetypes");
         if (!mimetypes.isString())
             return false;
-        Utils::MimeDatabase::addMimeTypes(filePath, mimetypes.toString().trimmed().toUtf8());
+        Utils::addMimeTypes(filePath, mimetypes.toString().trimmed().toUtf8());
         alreadyAdded = true;
         return true;
     }
