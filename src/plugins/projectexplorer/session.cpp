@@ -92,7 +92,11 @@ public:
     static QString sessionTitle(const QString &filePath);
 
     bool hasProjects() const { return !m_projects.isEmpty(); }
-    bool hasProject(Project *p) const { return m_projects.contains(p); }
+    bool hasProject(Project *p) const
+    {
+        return Utils::contains(m_projects,
+                               [p](const QPair<Project *, ProjectNode *> &pair) { return pair.first == p; });
+    }
 
     SessionNode m_sessionNode;
     QString m_sessionName = QLatin1String("default");
@@ -106,7 +110,7 @@ public:
     mutable QHash<Project *, QStringList> m_projectFileCache;
 
     Project *m_startupProject = nullptr;
-    QList<Project *> m_projects;
+    QList<QPair<Project *,ProjectNode*>> m_projects;
     QStringList m_failedProjects;
     QMap<QString, QStringList> m_depMap;
     QMap<QString, QVariant> m_values;
@@ -381,7 +385,7 @@ void SessionManager::addProject(Project *pro)
     d->m_virginSession = false;
     QTC_ASSERT(!hasProject(pro), return);
 
-    d->m_projects.append(pro);
+    d->m_projects.append(qMakePair(pro, pro->rootProjectNode()));
     d->m_sessionNode.addNode(pro->rootProjectNode());
 
     connect(pro, &Project::fileListChanged,
@@ -493,7 +497,8 @@ void SessionManager::closeAllProjects()
 
 const QList<Project *> SessionManager::projects()
 {
-    return d->m_projects;
+    return Utils::transform(d->m_projects,
+                            [](const QPair<Project *, ProjectNode *> &pair) { return pair.first; });
 }
 
 bool SessionManager::hasProjects()
@@ -574,8 +579,8 @@ QStringList SessionManagerPrivate::dependenciesOrder() const
     QStringList ordered;
 
     // copy the map to a temporary list
-    for (Project *pro : m_projects) {
-        const QString proName = pro->projectFilePath().toString();
+    for (const QPair<Project *, ProjectNode *> &pro : m_projects) {
+        const QString proName = pro.first->projectFilePath().toString();
         unordered << QPair<QString, QStringList>(proName, m_depMap.value(proName));
     }
 
@@ -650,7 +655,11 @@ Project *SessionManager::projectForNode(Node *node)
     while (rootProjectNode && rootProjectNode->parentFolderNode() != &d->m_sessionNode)
         rootProjectNode = rootProjectNode->parentFolderNode();
 
-    return Utils::findOrDefault(projects(), Utils::equal(&Project::rootProjectNode, rootProjectNode));
+    for (const QPair<Project *,ProjectNode*> pair : d->m_projects) {
+        if (pair.second == rootProjectNode)
+            return pair.first;
+    }
+    return nullptr;
 }
 
 Project *SessionManager::projectForFile(const Utils::FileName &fileName)
@@ -728,7 +737,11 @@ void SessionManager::removeProjects(QList<Project *> remove)
     // Delete projects
     foreach (Project *pro, remove) {
         pro->saveSettings();
-        d->m_projects.removeOne(pro);
+        d->m_projects
+                = Utils::filtered(d->m_projects, [pro](const QPair<Project *, ProjectNode *> &pair)
+        {
+            return pair.first != pro;
+        });
 
         if (pro == d->m_startupProject)
             setStartupProject(nullptr);
@@ -914,9 +927,9 @@ void SessionManagerPrivate::restoreStartupProject(const PersistentSettingsReader
 {
     const QString startupProject = reader.restoreValue(QLatin1String("StartupProject")).toString();
     if (!startupProject.isEmpty()) {
-        foreach (Project *pro, m_projects) {
-            if (pro->projectFilePath().toString() == startupProject) {
-                m_instance->setStartupProject(pro);
+        for (const QPair<Project *, ProjectNode *> &pro : m_projects) {
+            if (pro.first->projectFilePath().toString() == startupProject) {
+                m_instance->setStartupProject(pro.first);
                 break;
             }
         }
@@ -925,7 +938,7 @@ void SessionManagerPrivate::restoreStartupProject(const PersistentSettingsReader
         if (!startupProject.isEmpty())
             qWarning() << "Could not find startup project" << startupProject;
         if (hasProjects())
-            m_instance->setStartupProject(m_projects.first());
+            m_instance->setStartupProject(m_projects.first().first);
     }
 }
 
