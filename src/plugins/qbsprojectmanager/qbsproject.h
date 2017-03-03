@@ -141,7 +141,6 @@ private:
 
     static bool ensureWriteableQbsFile(const QString &file);
 
-    const QString m_projectName;
     QHash<ProjectExplorer::Target *, qbs::Project> m_qbsProjects;
     qbs::Project m_qbsProject;
     qbs::ProjectData m_projectData;

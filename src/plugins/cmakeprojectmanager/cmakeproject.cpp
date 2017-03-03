@@ -80,14 +80,10 @@ CMakeProject::CMakeProject(const FileName &fileName)
     setDocument(new TextEditor::TextDocument);
     document()->setFilePath(fileName);
 
-    setRootProjectNode(new CMakeListsNode(fileName));
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
-    rootProjectNode()->setDisplayName(fileName.parentDir().fileName());
-
     connect(this, &CMakeProject::activeTargetChanged, this, &CMakeProject::handleActiveTargetChanged);
-
     connect(&m_treeScanner, &TreeScanner::finished, this, &CMakeProject::handleTreeScanningFinished);
 
     m_treeScanner.setFilter([this](const Utils::MimeType &mimeType, const Utils::FileName &fn) {
@@ -306,6 +302,8 @@ bool CMakeProject::hasBuildTarget(const QString &title) const
 
 QString CMakeProject::displayName() const
 {
+    if (!rootProjectNode())
+        return projectDirectory().fileName();
     return rootProjectNode()->displayName();
 }
 

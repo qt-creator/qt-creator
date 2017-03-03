@@ -56,12 +56,9 @@ const int MIN_TIME_BETWEEN_PROJECT_SCANS = 4500;
 NimProject::NimProject(const FileName &fileName)
 {
     setId(Constants::C_NIMPROJECT_ID);
-    setDocument(new TextEditor::TextDocument);
-    document()->setFilePath(fileName);
-    QFileInfo fi = fileName.toFileInfo();
-    QDir dir = fi.dir();
-    setRootProjectNode(new NimProjectNode(*this, FileName::fromString(dir.absolutePath())));
-    rootProjectNode()->setDisplayName(dir.dirName());
+    auto doc = new TextEditor::TextDocument;
+    doc->setFilePath(fileName);
+    setDocument(doc);
 
     m_projectScanTimer.setSingleShot(true);
     connect(&m_projectScanTimer, &QTimer::timeout, this, &NimProject::collectProjectFiles);
@@ -73,7 +70,7 @@ NimProject::NimProject(const FileName &fileName)
 
 QString NimProject::displayName() const
 {
-    return rootProjectNode()->displayName();
+    return projectFilePath().toFileInfo().completeBaseName();
 }
 
 QStringList NimProject::files(FilesMode) const

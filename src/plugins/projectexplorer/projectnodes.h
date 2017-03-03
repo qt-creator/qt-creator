@@ -38,6 +38,7 @@
 
 namespace ProjectExplorer {
 class RunConfiguration;
+class Project;
 
 enum class NodeType : quint16 {
     File = 1,
@@ -293,6 +294,8 @@ protected:
     // this is just the in-memory representation, a subclass
     // will add the persistent stuff
     explicit ProjectNode(const Utils::FileName &projectFilePath);
+
+    friend class Project;
 };
 
 // Documentation inside.

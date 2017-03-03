@@ -117,7 +117,6 @@ private:
 // --------------------------------------------------------------------
 
 QbsProject::QbsProject(const FileName &fileName) :
-    m_projectName(fileName.toFileInfo().completeBaseName()),
     m_qbsProjectParser(0),
     m_qbsUpdateFutureInterface(0),
     m_parsingScheduled(false),
@@ -131,9 +130,6 @@ QbsProject::QbsProject(const FileName &fileName) :
     setId(Constants::PROJECT_ID);
     setDocument(new QbsProjectFile(this, fileName));
     DocumentManager::addDocument(document());
-    auto newRoot = new QbsRootProjectNode(this);
-    Internal::QbsNodeTreeBuilder::buildTree(this); // Populate with initial data
-    setRootProjectNode(newRoot);
 
     setProjectContext(Context(Constants::PROJECT_ID));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
@@ -166,7 +162,7 @@ QbsProject::~QbsProject()
 
 QString QbsProject::displayName() const
 {
-    return m_projectName;
+    return projectFilePath().toFileInfo().completeBaseName();
 }
 
 QbsRootProjectNode *QbsProject::rootProjectNode() const

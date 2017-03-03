@@ -200,6 +200,8 @@ void SessionManager::updateProjectTree(Project *pro)
             break;
         }
     }
+    if (!currentPair)
+        return;
 
     if (!currentPair)
         return; // Project was already de-registered and is shutting down

@@ -209,7 +209,6 @@ QmakeProject::QmakeProject(const FileName &fileName) :
     m_asyncUpdateTimer.setInterval(3000);
     connect(&m_asyncUpdateTimer, &QTimer::timeout, this, &QmakeProject::asyncUpdate);
 
-    setRootProjectNode(new QmakeProFileNode(this, projectFilePath()));
     m_rootProFile = std::make_unique<QmakeProFile>(this, projectFilePath());
 
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
