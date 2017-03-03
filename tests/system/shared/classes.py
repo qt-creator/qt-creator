@@ -28,7 +28,7 @@ import operator
 
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
-    ALL_TARGETS = map(lambda x: 2 ** x , range(6))
+    ALL_TARGETS = tuple(map(lambda x: 2 ** x , range(6)))
 
     (DESKTOP_474_GCC,
      DESKTOP_480_DEFAULT,
