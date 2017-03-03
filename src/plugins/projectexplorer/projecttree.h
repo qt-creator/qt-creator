@@ -62,23 +62,20 @@ public:
 
     static void highlightProject(Project *project, const QString &message);
 
+    void collapseAll();
+
 signals:
     void currentProjectChanged(ProjectExplorer::Project *project);
     void currentNodeChanged();
 
     // Emitted whenever the model needs to send a update signal.
-    void nodeUpdated(ProjectExplorer::Node *node);
     void subtreeChanged(ProjectExplorer::Node *node);
-    void dataChanged();
 
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
                                 ProjectExplorer::Node *node);
 
 public: // for nodes to emit signals, do not call unless you are a node
-    static void emitNodeUpdated(ProjectExplorer::Node *node);
     static void emitSubtreeChanged(ProjectExplorer::Node *node);
-    static void emitDataChanged();
-    void collapseAll();
 
 private:
     void sessionChanged();

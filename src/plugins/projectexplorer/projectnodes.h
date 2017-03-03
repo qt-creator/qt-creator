@@ -131,9 +131,6 @@ public:
     void setEnabled(bool enabled);
     void setAbsoluteFilePathAndLine(const Utils::FileName &filePath, int line);
 
-    void emitNodeUpdated();
-    void emitTreeChanged();
-
     virtual FileNode *asFileNode() { return nullptr; }
     virtual const FileNode *asFileNode() const { return nullptr; }
     virtual FolderNode *asFolderNode() { return nullptr; }

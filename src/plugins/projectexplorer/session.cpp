@@ -416,11 +416,6 @@ void SessionManager::addProject(Project *pro)
     connect(pro, &Project::fileListChanged, m_instance, &SessionManager::clearProjectFileCache);
     connect(pro, &Project::projectTreeChanged, m_instance, &SessionManager::updateProjectTree);
 
-    connect(pro, &Project::displayNameChanged, m_instance, [pro] {
-        d->m_sessionNode.emitNodeUpdated();
-        emit m_instance->projectDisplayNameChanged(pro);
-    });
-
     emit m_instance->projectAdded(pro);
     configureEditors(pro);
     connect(pro, &Project::fileListChanged, [pro](){ configureEditors(pro); });

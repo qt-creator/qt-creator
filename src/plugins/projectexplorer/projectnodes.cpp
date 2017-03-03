@@ -129,13 +129,9 @@ void Node::setAbsoluteFilePathAndLine(const Utils::FileName &path, int line)
 
     m_filePath = path;
     m_line = line;
-    emitNodeUpdated();
 }
 
-Node::~Node()
-{
-
-}
+Node::~Node() = default;
 
 NodeType Node::nodeType() const
 {
@@ -225,18 +221,6 @@ void Node::setEnabled(bool enabled)
     if (m_isEnabled == enabled)
         return;
     m_isEnabled = enabled;
-    emitNodeUpdated();
-}
-
-void Node::emitNodeUpdated()
-{
-    if (parentFolderNode())
-        ProjectTree::emitNodeUpdated(this);
-}
-
-void Node::emitTreeChanged()
-{
-    ProjectTree::emitDataChanged();
 }
 
 bool Node::sortByPath(const Node *a, const Node *b)
@@ -532,7 +516,6 @@ void FolderNode::setDisplayName(const QString &name)
     if (m_displayName == name)
         return;
     m_displayName = name;
-    emitNodeUpdated();
 }
 
 void FolderNode::setIcon(const QIcon &icon)
@@ -611,11 +594,6 @@ void FolderNode::removeNode(Node *node)
 {
     m_nodes.removeOne(node);
 }
-
-/*!
-  Sets file nodes specified by \a files to the internal list of the folder
-  and emits the corresponding signals from the projectNode.
-*/
 
 /*!
   Removes all files and subfolders from this folder node.

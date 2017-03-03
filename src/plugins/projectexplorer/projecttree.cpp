@@ -259,23 +259,11 @@ void ProjectTree::updateContext()
     Core::ICore::updateAdditionalContexts(oldContext, newContext);
 }
 
-void ProjectTree::emitNodeUpdated(Node *node)
-{
-    if (!s_instance->isInNodeHierarchy(node))
-        return;
-    emit s_instance->nodeUpdated(node);
-}
-
 void ProjectTree::emitSubtreeChanged(Node *node)
 {
     if (!s_instance->isInNodeHierarchy(node))
         return;
     emit s_instance->subtreeChanged(node);
-}
-
-void ProjectTree::emitDataChanged()
-{
-    instance()->dataChanged();
 }
 
 void ProjectTree::collapseAll()

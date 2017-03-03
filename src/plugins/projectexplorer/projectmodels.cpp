@@ -77,8 +77,6 @@ FlatModel::FlatModel(QObject *parent)
     connect(&m_timer, &QTimer::timeout, this, &FlatModel::doUpdate);
 
     ProjectTree *tree = ProjectTree::instance();
-    connect(tree, &ProjectTree::dataChanged, this, &FlatModel::update);
-    connect(tree, &ProjectTree::nodeUpdated, this, &FlatModel::update);
     connect(tree, &ProjectTree::subtreeChanged, this, &FlatModel::update);
 
     SessionManager *sm = SessionManager::instance();
