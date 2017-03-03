@@ -3382,7 +3382,8 @@ class DumperBase:
                 return tdata.ltarget.alignment()
             if tdata.code in (TypeCodeIntegral, TypeCodeFloat, TypeCodeEnum):
                 if tdata.name in ('double', 'long long', 'unsigned long long'):
-                    return self.dumper.ptrSize() # Crude approximation.
+                    # Crude approximation.
+                    return 8 if self.dumper.isWindowsTarget() else self.dumper.ptrSize()
                 return self.size()
             if tdata.code in (TypeCodePointer, TypeCodeReference):
                 return self.dumper.ptrSize()
