@@ -42,6 +42,7 @@ public:
     void clear();
     bool refresh(const QString &workingDirectory, QString *errorMessage);
 
+    QStringList allRemoteNames() const;
     QString remoteName(int row) const;
     QString remoteUrl(int row) const;
 

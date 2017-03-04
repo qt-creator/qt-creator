@@ -27,12 +27,19 @@
 #include "gitplugin.h"
 #include "gitclient.h"
 
+#include <utils/algorithm.h>
+
 namespace Git {
 namespace Internal {
 
 // ------ RemoteModel
 RemoteModel::RemoteModel(QObject *parent) : QAbstractTableModel(parent)
 { }
+
+QStringList RemoteModel::allRemoteNames() const
+{
+    return Utils::transform(m_remotes, std::mem_fn(&Remote::name));
+}
 
 QString RemoteModel::remoteName(int row) const
 {
