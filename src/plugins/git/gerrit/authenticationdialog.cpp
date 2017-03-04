@@ -90,6 +90,8 @@ AuthenticationDialog::AuthenticationDialog(GerritServer *server) :
         const int result = server->testConnection();
         okButton->setEnabled(result == 200);
     });
+    if (!ui->userLineEdit->text().isEmpty())
+        ui->passwordLineEdit->setFocus();
 }
 
 AuthenticationDialog::~AuthenticationDialog()
