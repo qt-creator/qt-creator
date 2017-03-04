@@ -523,7 +523,7 @@ QString msgFilePatternLabel()
 
 QString msgExclusionPatternLabel()
 {
-    return QCoreApplication::translate("Utils::FileSearch", "Exclusion pattern:");
+    return QCoreApplication::translate("Utils::FileSearch", "Excl&usion pattern:");
 }
 
 QString msgFilePatternToolTip()
