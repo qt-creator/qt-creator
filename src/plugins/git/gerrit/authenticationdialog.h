@@ -29,6 +29,10 @@
 #include <QCoreApplication>
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
+class QTimer;
+QT_END_NAMESPACE
+
 namespace Gerrit {
 namespace Internal {
 
@@ -48,11 +52,13 @@ public:
 private:
     void readExistingConf();
     bool setupCredentials();
+    void checkCredentials();
     Ui::AuthenticationDialog *ui = nullptr;
     GerritServer *m_server = nullptr;
     QString m_netrcFileName;
     QStringList m_allMachines;
     bool m_authenticated = true;
+    QTimer *m_checkTimer = nullptr;
 };
 
 } // Internal

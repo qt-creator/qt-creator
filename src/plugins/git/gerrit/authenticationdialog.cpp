@@ -31,11 +31,14 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 
+#include <QClipboard>
 #include <QDir>
 #include <QFile>
+#include <QGuiApplication>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QTextStream>
+#include <QTimer>
 
 namespace Gerrit {
 namespace Internal {
@@ -83,12 +86,19 @@ AuthenticationDialog::AuthenticationDialog(GerritServer *server) :
         if (button == anonymous)
             m_authenticated = false;
     });
-    QPushButton *okButton = ui->buttonBox->button(QDialogButtonBox::Ok);
-    okButton->setEnabled(false);
-    connect(ui->passwordLineEdit, &QLineEdit::editingFinished, this, [this, server, okButton] {
-        setupCredentials();
-        const int result = server->testConnection();
-        okButton->setEnabled(result == 200);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    connect(ui->passwordLineEdit, &QLineEdit::editingFinished,
+            this, &AuthenticationDialog::checkCredentials);
+    m_checkTimer = new QTimer(this);
+    m_checkTimer->setSingleShot(true);
+    connect(m_checkTimer, &QTimer::timeout, this, &AuthenticationDialog::checkCredentials);
+    connect(ui->passwordLineEdit, &QLineEdit::textChanged, [this]() {
+        if (QGuiApplication::clipboard()->text() == ui->passwordLineEdit->text()) {
+            checkCredentials();
+            return;
+        }
+
+        m_checkTimer->start(2000);
     });
     if (!ui->userLineEdit->text().isEmpty())
         ui->passwordLineEdit->setFocus();
@@ -129,6 +139,10 @@ bool AuthenticationDialog::setupCredentials()
     bool found = false;
     const QString user = ui->userLineEdit->text().trimmed();
     const QString password = ui->passwordLineEdit->text().trimmed();
+
+    if (user.isEmpty() || password.isEmpty())
+        return false;
+
     for (QString &line : m_allMachines) {
         const QString machine = findEntry(line, "machine");
         if (machine == m_server->host) {
@@ -143,6 +157,14 @@ bool AuthenticationDialog::setupCredentials()
     Utils::FileSaver saver(m_netrcFileName, QFile::WriteOnly | QFile::Truncate | QFile::Text);
     saver.write(netrcContents.toUtf8());
     return saver.finalize();
+}
+
+void AuthenticationDialog::checkCredentials()
+{
+    int result = 400;
+    if (setupCredentials())
+        result = m_server->testConnection();
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(result == 200);
 }
 
 } // Internal
