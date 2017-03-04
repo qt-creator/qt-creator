@@ -68,6 +68,9 @@ public:
     {
         Q_UNUSED(pos)
 
+        if (input.isEmpty())
+            return Intermediate;
+
         input.replace(m_invalidChars, "_");
 
         // "Intermediate" patterns, may change to Acceptable when user edits further:
