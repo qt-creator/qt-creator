@@ -43,34 +43,29 @@ namespace Internal {
 // RemoteAdditionDialog:
 // --------------------------------------------------------------------------
 
-RemoteAdditionDialog::RemoteAdditionDialog(QWidget *parent) :
-    QDialog(parent),
-    m_ui(new Ui::RemoteAdditionDialog)
+class RemoteAdditionDialog : public QDialog
 {
-    m_ui->setupUi(this);
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-}
+public:
+    RemoteAdditionDialog()
+    {
+        m_ui.setupUi(this);
+        setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    }
 
-RemoteAdditionDialog::~RemoteAdditionDialog()
-{
-    delete m_ui;
-}
+    QString remoteName() const
+    {
+        return m_ui.nameEdit->text();
+    }
 
-QString RemoteAdditionDialog::remoteName() const
-{
-    return m_ui->nameEdit->text();
-}
+    QString remoteUrl() const
+    {
+        return m_ui.urlEdit->text();
+    }
 
-QString RemoteAdditionDialog::remoteUrl() const
-{
-    return m_ui->urlEdit->text();
-}
+private:
+    Ui::RemoteAdditionDialog m_ui;
+};
 
-void RemoteAdditionDialog::clear()
-{
-    m_ui->nameEdit->clear();
-    m_ui->urlEdit->clear();
-}
 
 // --------------------------------------------------------------------------
 // RemoteDialog:
@@ -130,14 +125,11 @@ void RemoteDialog::refreshRemotes()
 
 void RemoteDialog::addRemote()
 {
-    if (!m_addDialog)
-        m_addDialog = new RemoteAdditionDialog;
-    m_addDialog->clear();
-
-    if (m_addDialog->exec() != QDialog::Accepted)
+    RemoteAdditionDialog addDialog;
+    if (addDialog.exec() != QDialog::Accepted)
         return;
 
-    m_remoteModel->addRemote(m_addDialog->remoteName(), m_addDialog->remoteUrl());
+    m_remoteModel->addRemote(addDialog.remoteName(), addDialog.remoteUrl());
 }
 
 void RemoteDialog::removeRemote()

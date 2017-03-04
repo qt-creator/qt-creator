@@ -30,38 +30,9 @@
 namespace Git {
 namespace Internal {
 
-namespace Ui {
-class RemoteDialog;
-class RemoteAdditionDialog;
-} // namespace Ui
+namespace Ui { class RemoteDialog; }
 
-class GitClient;
 class RemoteModel;
-
-// --------------------------------------------------------------------------
-// RemoteAdditionDialog:
-// --------------------------------------------------------------------------
-
-class RemoteAdditionDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    explicit RemoteAdditionDialog(QWidget *parent = 0);
-    ~RemoteAdditionDialog() override;
-
-    QString remoteName() const;
-    QString remoteUrl() const;
-
-    void clear();
-
-private:
-    Ui::RemoteAdditionDialog *m_ui;
-};
-
-// --------------------------------------------------------------------------
-// RemoteDialog:
-// --------------------------------------------------------------------------
 
 class RemoteDialog : public QDialog
 {
@@ -85,7 +56,6 @@ private:
     Ui::RemoteDialog *m_ui;
 
     RemoteModel *m_remoteModel;
-    RemoteAdditionDialog *m_addDialog = nullptr;
 };
 
 } // namespace Internal
