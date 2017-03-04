@@ -29,6 +29,7 @@
 #include <utils/hostosinfo.h>
 
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QValidator>
 
 namespace Git {
@@ -94,7 +95,7 @@ public:
     }
 
 private:
-    const QRegExp m_invalidChars;
+    const QRegularExpression m_invalidChars;
     QStringList m_localBranches;
 };
 
