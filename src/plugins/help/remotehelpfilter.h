@@ -72,7 +72,9 @@ public:
 private:
     void addNewItem();
     void removeItem();
-    void updateRemoveButton();
+    void moveItemUp();
+    void moveItemDown();
+    void updateActionButtons();
 
     RemoteHelpFilter *m_filter;
     Ui::RemoteFilterOptions m_ui;
