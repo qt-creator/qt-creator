@@ -80,8 +80,6 @@ void ModelToTextMerger::propertiesRemoved(const QList<AbstractProperty>& propert
 void ModelToTextMerger::propertiesChanged(const QList<AbstractProperty>& propertyList, PropertyChangeFlags propertyChange)
 {
     foreach (const AbstractProperty &property, propertyList) {
-        if (!isInHierarchy(property))
-            continue;
 
         ModelNode containedModelNode;
         const int indentDepth = m_rewriterView->textModifier()->indentDepth();
