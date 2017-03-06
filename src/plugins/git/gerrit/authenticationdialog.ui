@@ -23,7 +23,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gerrit server with HTTP was detected, but you need to setup credentials for it.&lt;/p&gt;&lt;p&gt;To get your password, &lt;a href=&quot;LINK_PLACEHOLDER&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;click here&lt;/span&gt;&lt;/a&gt; (sign in if needed). Click Generate Password if it is blank, and copy the user name and password to this form.&lt;/p&gt;&lt;p&gt;Choose Anonymous if you do not want authentication for this server. On this case, changes that require authentication (like draft changes, or private projects) will not be displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gerrit server with HTTP was detected, but you need to set up credentials for it.&lt;/p&gt;&lt;p&gt;To get your password, &lt;a href=&quot;LINK_PLACEHOLDER&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;click here&lt;/span&gt;&lt;/a&gt; (sign in if needed). Click Generate Password if the password is blank, and copy the user name and password to this form.&lt;/p&gt;&lt;p&gt;Choose Anonymous if you do not want authentication for this server. In this case, changes that require authentication (like draft changes or private projects) will not be displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="textFormat">
       <enum>Qt::RichText</enum>
