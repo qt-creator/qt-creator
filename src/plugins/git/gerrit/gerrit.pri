@@ -1,22 +1,24 @@
-SOURCES += $$PWD/gerritdialog.cpp \
+SOURCES += \
+    $$PWD/authenticationdialog.cpp \
+    $$PWD/branchcombobox.cpp \
+    $$PWD/gerritdialog.cpp \
     $$PWD/gerritmodel.cpp \
+    $$PWD/gerritoptionspage.cpp \
     $$PWD/gerritparameters.cpp \
     $$PWD/gerritplugin.cpp \
-    $$PWD/gerritoptionspage.cpp \
-    $$PWD/gerritpushdialog.cpp \
-    $$PWD/branchcombobox.cpp \
-    $$PWD/authenticationdialog.cpp
+    $$PWD/gerritpushdialog.cpp
 
-HEADERS += $$PWD/gerritdialog.h \
+HEADERS += \
+    $$PWD/authenticationdialog.h \
+    $$PWD/branchcombobox.h \
+    $$PWD/gerritdialog.h \
     $$PWD/gerritmodel.h \
+    $$PWD/gerritoptionspage.h \
     $$PWD/gerritparameters.h \
     $$PWD/gerritplugin.h \
-    $$PWD/gerritoptionspage.h \
-    $$PWD/gerritpushdialog.h \
-    $$PWD/branchcombobox.h \
-    $$PWD/authenticationdialog.h
+    $$PWD/gerritpushdialog.h
 
-FORMS += $$PWD/gerritdialog.ui \
-    $$PWD/gerritpushdialog.ui \
-    $$PWD/authenticationdialog.ui
-
+FORMS += \
+    $$PWD/authenticationdialog.ui \
+    $$PWD/gerritdialog.ui \
+    $$PWD/gerritpushdialog.ui
