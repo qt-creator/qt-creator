@@ -1068,6 +1068,7 @@ void tst_Dumpers::initTestCase()
             cdbextPath = CDBEXT_PATH "\\qtcreatorcdbext64";
         QVERIFY(QFile::exists(QString::fromLatin1(cdbextPath + QByteArray("\\qtcreatorcdbext.dll"))));
         env.set(QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"), QString::fromLatin1(cdbextPath));
+        env.prependOrSetPath(QDir::toNativeSeparators(QFileInfo(m_qmakeBinary).absolutePath()));
         m_makeBinary = env.searchInPath(QLatin1String("nmake.exe")).toString();
         m_env = env.toProcessEnvironment();
 
