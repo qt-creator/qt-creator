@@ -349,7 +349,7 @@ public:
     static QPalette initialPalette();
 
 protected:
-    Theme(ThemePrivate &dd, QObject *parent = nullptr);
+    Theme(Theme *originTheme, QObject *parent = nullptr);
     ThemePrivate *d;
 
 private:

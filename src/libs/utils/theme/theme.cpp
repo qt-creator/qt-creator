@@ -54,7 +54,7 @@ Theme *creatorTheme()
 
 Theme *proxyTheme()
 {
-    return new Theme(*(new ThemePrivate(*(m_creatorTheme->d))));
+    return new Theme(m_creatorTheme);
 }
 
 void setCreatorTheme(Theme *theme)
@@ -74,7 +74,9 @@ Theme::Theme(const QString &id, QObject *parent)
     d->id = id;
 }
 
-Theme::Theme(ThemePrivate &dd, QObject *parent) : QObject(parent), d(&dd)
+Theme::Theme(Theme *originTheme, QObject *parent)
+    : QObject(parent)
+    , d(new ThemePrivate(*(originTheme->d)))
 {
 }
 
