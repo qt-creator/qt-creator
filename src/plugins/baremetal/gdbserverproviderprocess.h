@@ -41,20 +41,20 @@ public:
             const QSharedPointer<const ProjectExplorer::IDevice> &device,
             QObject *parent = 0);
 
-    void start(const ProjectExplorer::Runnable &runnable);
-    void interrupt();
-    void terminate();
-    void kill();
+    void start(const ProjectExplorer::Runnable &runnable) override;
+    void interrupt() override;
+    void terminate() override;
+    void kill() override;
 
-    QProcess::ProcessState state() const;
-    QProcess::ExitStatus exitStatus() const;
-    int exitCode() const;
-    QString errorString() const;
+    QProcess::ProcessState state() const override;
+    QProcess::ExitStatus exitStatus() const override;
+    int exitCode() const override;
+    QString errorString() const override;
 
-    QByteArray readAllStandardOutput();
-    QByteArray readAllStandardError();
+    QByteArray readAllStandardOutput() override;
+    QByteArray readAllStandardError() override;
 
-    qint64 write(const QByteArray &data);
+    qint64 write(const QByteArray &data) override;
 
 private:
     Utils::QtcProcess *m_process;
