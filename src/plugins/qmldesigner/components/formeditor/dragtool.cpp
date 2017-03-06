@@ -258,6 +258,15 @@ void DragTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSce
         event->accept();
         end(generateUseSnapping(event->modifiers()));
 
+        if (m_dragNode.isValid()) {
+            if (m_dragNode.instanceParentItem().isValid()
+                    && m_dragNode.instanceParent().modelNode().metaInfo().isLayoutable()) {
+                m_dragNode.removeProperty("x");
+                m_dragNode.removeProperty("y");
+                view()->resetPuppet(); //Otherwise the layout might not reposition the item
+            }
+        }
+
         commitTransaction();
 
         if (m_dragNode.isValid())
