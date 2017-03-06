@@ -42,6 +42,8 @@ public:
 class QuickTestParser : public CppParser
 {
 public:
+    QuickTestParser();
+    virtual ~QuickTestParser();
     void init(const QStringList &filesToParse) override;
     void release() override;
     bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,

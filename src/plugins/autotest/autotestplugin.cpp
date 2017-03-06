@@ -114,8 +114,9 @@ void AutotestPlugin::initializeMenuEntries()
     action = new QAction(tr("Re&scan Tests"), this);
     command = ActionManager::registerAction(action, Constants::ACTION_SCAN_ID);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+T,Alt+S")));
-    connect(action, &QAction::triggered,
-            TestTreeModel::instance()->parser(), &TestCodeParser::updateTestTree);
+    connect(action, &QAction::triggered, [this] () {
+        TestTreeModel::instance()->parser()->updateTestTree();
+    });
     menu->addAction(command);
 
     ActionContainer *toolsMenu = ActionManager::actionContainer(Core::Constants::M_TOOLS);

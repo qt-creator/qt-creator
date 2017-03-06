@@ -72,8 +72,8 @@ signals:
     void parsingFailed();
 
 public:
-    void emitUpdateTestTree();
-    void updateTestTree();
+    void emitUpdateTestTree(ITestParser *parser = nullptr);
+    void updateTestTree(ITestParser *parser = nullptr);
     void onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document);
     void onQmlDocumentUpdated(const QmlJS::Document::Ptr &document);
     void onStartupProjectChanged(ProjectExplorer::Project *project);
@@ -82,7 +82,7 @@ public:
 
 private:
     bool postponed(const QStringList &fileList);
-    void scanForTests(const QStringList &fileList = QStringList());
+    void scanForTests(const QStringList &fileList = QStringList(), ITestParser *parser = nullptr);
 
     void onDocumentUpdated(const QString &fileName);
     void onTaskStarted(Core::Id type);

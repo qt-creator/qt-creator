@@ -28,15 +28,21 @@
 #include "quicktestvisitors.h"
 #include "quicktest_utils.h"
 #include "../autotest_utils.h"
+#include "../testcodeparser.h"
 
+#include <projectexplorer/session.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsdialect.h>
 #include <qmljstools/qmljsmodelmanager.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
+#include <QFileSystemWatcher>
+
 namespace Autotest {
 namespace Internal {
+
+static QFileSystemWatcher s_directoryWatcher;
 
 TestTreeItem *QuickTestParseResult::createTestTreeItem() const
 {
@@ -140,6 +146,8 @@ static QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const QStri
         QFileInfo fi(it.fileInfo().canonicalFilePath());
         dirs << fi.filePath();
     }
+    s_directoryWatcher.addPaths(dirs);
+
     QList<QmlJS::Document::Ptr> foundDocs;
 
     for (const QString &path : dirs) {
@@ -225,6 +233,27 @@ static bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterfa
     for (const QmlJS::Document::Ptr &qmlJSDoc : qmlDocs)
         result |= checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc, id, proFile);
     return result;
+}
+
+QuickTestParser::QuickTestParser()
+    : CppParser()
+{
+    QObject::connect(ProjectExplorer::SessionManager::instance(),
+                     &ProjectExplorer::SessionManager::startupProjectChanged, [] {
+        const QStringList &dirs = s_directoryWatcher.directories();
+        if (!dirs.isEmpty())
+            s_directoryWatcher.removePaths(dirs);
+    });
+    QObject::connect(&s_directoryWatcher, &QFileSystemWatcher::directoryChanged,
+                     [this] { TestTreeModel::instance()->parser()->emitUpdateTestTree(this); });
+}
+
+QuickTestParser::~QuickTestParser()
+{
+    QObject::disconnect(&s_directoryWatcher, 0, 0, 0);
+    const QStringList &dirs = s_directoryWatcher.directories();
+    if (!dirs.isEmpty())
+        s_directoryWatcher.removePaths(dirs);
 }
 
 void QuickTestParser::init(const QStringList &filesToParse)
