@@ -101,7 +101,7 @@ public:
 
 private:
     V2::SourceRangeContainer sourceRange_;
-    ClangQueryDiagnosticErrorType errorType_;
+    ClangQueryDiagnosticErrorType errorType_ = ClangQueryDiagnosticErrorType::None;
     Utils::SmallStringVector arguments_;
 };
 
