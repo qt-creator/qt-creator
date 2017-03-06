@@ -31,9 +31,8 @@
 #include "buildconfiguration.h"
 #include "deployconfiguration.h"
 #include "projectexplorer.h"
-#include "nodesvisitor.h"
-#include "editorconfiguration.h"
 #include "projectnodes.h"
+#include "editorconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -624,23 +623,18 @@ QList<Project *> SessionManager::projectOrder(const Project *project)
     return result;
 }
 
-QList<Node *> SessionManager::nodesForFile(const Utils::FileName &fileName)
-{
-    FindNodesForFileVisitor findNodes(fileName);
-    sessionNode()->accept(&findNodes);
-    return findNodes.nodes();
-}
-
 // node for file returns a randomly selected node if there are multiple
 // prefer to use nodesForFile and figure out which node you want
 Node *SessionManager::nodeForFile(const Utils::FileName &fileName)
 {
     Node *node = nullptr;
-    foreach (Node *n, nodesForFile(fileName)) {
-        // prefer file nodes
-        if (!node || (node->nodeType() != NodeType::File && n->nodeType() == NodeType::File))
-            node = n;
-    }
+    sessionNode()->forEachGenericNode([&](Node *n) {
+        if (n->filePath() == fileName) {
+            // prefer file nodes
+            if (!node || (node->nodeType() != NodeType::File && n->nodeType() == NodeType::File))
+                node = n;
+        }
+    });
     return node;
 }
 

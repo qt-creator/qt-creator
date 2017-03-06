@@ -48,12 +48,11 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
-#include <projectexplorer/nodesvisitor.h>
-#include <projectexplorer/toolchain.h>
 #include <projectexplorer/headerpath.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/toolchain.h>
 #include <proparser/qmakevfs.h>
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtkitinformation.h>
@@ -157,66 +156,8 @@ QDebug operator<<(QDebug d, const  QmakeProjectFiles &f)
     return d;
 }
 
-// A visitor to collect all files of a project in a QmakeProjectFiles struct
-class ProjectFilesVisitor : public NodesVisitor
-{
-    ProjectFilesVisitor(QmakeProjectFiles *files);
-
-public:
-    static void findProjectFiles(QmakeProFileNode *rootNode, QmakeProjectFiles *files);
-
-    void visitFolderNode(FolderNode *folderNode) final;
-
-private:
-    QmakeProjectFiles *m_files;
-};
-
-ProjectFilesVisitor::ProjectFilesVisitor(QmakeProjectFiles *files) :
-    m_files(files)
-{
-}
-
-namespace {
-// uses std::unique, so takes a sorted list
-void unique(QStringList &list)
-{
-    list.erase(std::unique(list.begin(), list.end()), list.end());
-}
-}
-
-void ProjectFilesVisitor::findProjectFiles(QmakeProFileNode *rootNode, QmakeProjectFiles *files)
-{
-    files->clear();
-    ProjectFilesVisitor visitor(files);
-    rootNode->accept(&visitor);
-    for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
-        Utils::sort(files->files[i]);
-        unique(files->files[i]);
-        Utils::sort(files->generatedFiles[i]);
-        unique(files->generatedFiles[i]);
-    }
-    Utils::sort(files->proFiles);
-    unique(files->proFiles);
-}
-
-void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
-{
-    if (ProjectNode *projectNode = folderNode->asProjectNode())
-        m_files->proFiles.append(projectNode->filePath().toString());
-    if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
-        m_files->files[static_cast<int>(FileType::Resource)].push_back(folderNode->filePath().toString());
-
-    foreach (FileNode *fileNode, folderNode->fileNodes()) {
-        const int type = static_cast<int>(fileNode->fileType());
-        QStringList &targetList = fileNode->isGenerated() ? m_files->generatedFiles[type] : m_files->files[type];
-        targetList.push_back(fileNode->filePath().toString());
-    }
-}
-
-}
-
 // ----------- QmakeProjectFile
-namespace Internal {
+
 QmakeProjectFile::QmakeProjectFile(const QString &filePath)
 {
     setId("Qmake.ProFile");
@@ -303,10 +244,26 @@ QmakeProFile *QmakeProject::rootProFile() const
 
 void QmakeProject::updateFileList()
 {
-    QmakeProjectFiles newFiles;
-    ProjectFilesVisitor::findProjectFiles(rootProjectNode(), &newFiles);
-    if (newFiles != *m_projectFiles) {
-        *m_projectFiles = newFiles;
+    QmakeProjectFiles files;
+    rootProjectNode()->forEachNode([&](FileNode *fileNode) {
+        const int type = static_cast<int>(fileNode->fileType());
+        QStringList &targetList = fileNode->isGenerated() ? files.generatedFiles[type] : files.files[type];
+        targetList.push_back(fileNode->filePath().toString());
+    }, [&](FolderNode *folderNode) {
+        if (ProjectNode *projectNode = folderNode->asProjectNode())
+            files.proFiles.append(projectNode->filePath().toString());
+        if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
+            files.files[static_cast<int>(FileType::Resource)].push_back(folderNode->filePath().toString());
+    });
+
+    for (QStringList &f : files.files)
+        f.removeDuplicates();
+    for (QStringList &f : files.generatedFiles)
+        f.removeDuplicates();
+    files.proFiles.removeDuplicates();
+
+    if (files != *m_projectFiles) {
+        *m_projectFiles = files;
         emit fileListChanged();
     }
 }

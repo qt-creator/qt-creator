@@ -100,7 +100,6 @@ Project {
                 "localenvironmentaspect.cpp", "localenvironmentaspect.h",
                 "miniprojecttargetselector.cpp", "miniprojecttargetselector.h",
                 "namedwidget.cpp", "namedwidget.h",
-                "nodesvisitor.cpp", "nodesvisitor.h",
                 "osparser.cpp", "osparser.h",
                 "panelswidget.cpp", "panelswidget.h",
                 "processparameters.cpp", "processparameters.h",

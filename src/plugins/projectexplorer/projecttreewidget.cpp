@@ -272,29 +272,27 @@ void ProjectTreeWidget::rowsInserted(const QModelIndex &parent, int start, int e
 
 Node *ProjectTreeWidget::nodeForFile(const Utils::FileName &fileName)
 {
-    return mostExpandedNode(SessionManager::nodesForFile(fileName));
-}
-
-Node *ProjectTreeWidget::mostExpandedNode(const QList<Node *> &nodes)
-{
-    Node *bestNode = 0;
+    Node *bestNode = nullptr;
     int bestNodeExpandCount = INT_MAX;
 
-    foreach (Node *node, nodes) {
-        if (!bestNode) {
-            bestNode = node;
-            bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
-        } else if (node->nodeType() < bestNode->nodeType()) {
-            bestNode = node;
-            bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
-        } else if (node->nodeType() == bestNode->nodeType()) {
-            int nodeExpandCount = ProjectTreeWidget::expandedCount(node);
-            if (nodeExpandCount < bestNodeExpandCount) {
+    SessionManager::sessionNode()->forEachGenericNode([&](Node *node) {
+        if (node->filePath() == fileName) {
+            if (!bestNode) {
                 bestNode = node;
                 bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
+            } else if (node->nodeType() < bestNode->nodeType()) {
+                bestNode = node;
+                bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
+            } else if (node->nodeType() == bestNode->nodeType()) {
+                int nodeExpandCount = ProjectTreeWidget::expandedCount(node);
+                if (nodeExpandCount < bestNodeExpandCount) {
+                    bestNode = node;
+                    bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
+                }
             }
         }
-    }
+    });
+
     return bestNode;
 }
 

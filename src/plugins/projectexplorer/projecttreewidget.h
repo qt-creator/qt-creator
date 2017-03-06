@@ -62,7 +62,6 @@ public:
     void showMessage(ProjectExplorer::Node *node, const QString &message);
 
     static Node *nodeForFile(const Utils::FileName &fileName);
-    static Node *mostExpandedNode(const QList<Node*> &nodes);
 
     void toggleAutoSynchronization();
     void editCurrentItem();

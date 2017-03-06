@@ -63,7 +63,6 @@
 #include "dependenciespanel.h"
 #include "foldernavigationwidget.h"
 #include "iprojectmanager.h"
-#include "nodesvisitor.h"
 #include "appoutputpane.h"
 #include "processstep.h"
 #include "kitinformation.h"

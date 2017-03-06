@@ -80,7 +80,6 @@ HEADERS += projectexplorer.h \
     sessionview.h \
     projectwizardpage.h \
     buildstepspage.h \
-    nodesvisitor.h \
     projectmodels.h \
     currentprojectfind.h \
     toolchain.h \
@@ -227,7 +226,6 @@ SOURCES += projectexplorer.cpp \
     sessionview.cpp \
     projectwizardpage.cpp \
     buildstepspage.cpp \
-    nodesvisitor.cpp \
     projectmodels.cpp \
     currentprojectfind.cpp \
     toolchain.cpp \

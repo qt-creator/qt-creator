@@ -29,7 +29,6 @@
 #include "project.h"
 #include "projectnodes.h"
 #include "projectexplorerconstants.h"
-#include "nodesvisitor.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

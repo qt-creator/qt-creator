@@ -25,7 +25,6 @@
 
 #include "projectnodes.h"
 
-#include "nodesvisitor.h"
 #include "projectexplorerconstants.h"
 #include "projecttree.h"
 
@@ -58,7 +57,7 @@ namespace ProjectExplorer {
   A Visitor can be used to traverse all Projects and other Folders.
 
   \sa ProjectExplorer::FileNode, ProjectExplorer::FolderNode, ProjectExplorer::ProjectNode
-  \sa ProjectExplorer::NodesWatcher, ProjectExplorer::NodesVisitor
+  \sa ProjectExplorer::NodesWatcher
 */
 
 Node::Node(NodeType nodeType, const Utils::FileName &filePath, int line) :
@@ -513,15 +512,6 @@ void FolderNode::compress()
     } else {
         for (FolderNode *fn : folderNodes())
             fn->compress();
-    }
-}
-
-void FolderNode::accept(NodesVisitor *visitor)
-{
-    visitor->visitFolderNode(this);
-    for (Node *n : m_nodes) {
-        if (FolderNode *subFolder = n->asFolderNode())
-            subFolder->accept(visitor);
     }
 }
 
