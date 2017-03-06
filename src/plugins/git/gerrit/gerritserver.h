@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 Orgad Shaneh <orgads@gmail.com>.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,39 +25,65 @@
 
 #pragma once
 
-#include "gerritserver.h"
-
 #include <QStringList>
-
-QT_FORWARD_DECLARE_CLASS(QSettings)
 
 namespace Gerrit {
 namespace Internal {
 
-class GerritParameters
+class GerritParameters;
+
+class GerritUser
 {
 public:
-    GerritParameters();
+    bool isSameAs(const GerritUser &other) const;
 
-    bool isValid() const;
-    bool equals(const GerritParameters &rhs) const;
-    void toSettings(QSettings *) const;
-    void saveQueries(QSettings *) const;
-    void fromSettings(const QSettings *);
-    void setPortFlagBySshType();
-
-    GerritServer server;
-    QString ssh;
-    QString curl;
-    QStringList savedQueries;
-    bool https;
-    QString portFlag;
+    QString userName;
+    QString fullName;
+    QString email;
 };
 
-inline bool operator==(const GerritParameters &p1, const GerritParameters &p2)
-{ return p1.equals(p2); }
-inline bool operator!=(const GerritParameters &p1, const GerritParameters &p2)
-{ return !p1.equals(p2); }
+class GerritServer
+{
+public:
+    enum { defaultPort = 29418 };
+
+    enum HostType
+    {
+        Http,
+        Https,
+        Ssh
+    };
+
+    enum UrlType
+    {
+        DefaultUrl,
+        UrlWithHttpUser,
+        RestUrl
+    };
+
+    GerritServer();
+    GerritServer(const QString &host, unsigned short port, const QString &userName, HostType type);
+    bool operator==(const GerritServer &other) const;
+    static QString defaultHost();
+    QString hostArgument() const;
+    QString url(UrlType urlType = DefaultUrl) const;
+    bool fillFromRemote(const QString &remote, const GerritParameters &parameters);
+    int testConnection();
+    static QStringList curlArguments();
+
+    QString host;
+    GerritUser user;
+    QString rootPath; // for http
+    unsigned short port = 0;
+    HostType type = Ssh;
+    bool authenticated = true;
+
+private:
+    QString curlBinary;
+    bool setupAuthentication();
+    bool ascendPath();
+    bool resolveRoot();
+};
 
 } // namespace Internal
 } // namespace Gerrit

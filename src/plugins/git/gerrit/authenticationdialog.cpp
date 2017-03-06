@@ -25,7 +25,7 @@
 
 #include "authenticationdialog.h"
 #include "ui_authenticationdialog.h"
-#include "gerritparameters.h"
+#include "gerritserver.h"
 
 #include <utils/asconst.h>
 #include <utils/fileutils.h>
