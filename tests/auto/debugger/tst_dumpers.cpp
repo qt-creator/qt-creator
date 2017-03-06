@@ -143,42 +143,7 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
 #define CDBEXT_PATH ""
 #endif
 
-static void setupCdb(QString *makeBinary, QProcessEnvironment *environment, int *msvcVersion)
-{
-    QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
-    QMap <QString, QString> envPairs;
-    Utils::Environment env = Utils::Environment::systemEnvironment();
-    QVERIFY(generateEnvironmentSettings(env, QString::fromLatin1(envBat), QString(), envPairs));
-    for (auto envIt = envPairs.begin(); envIt != envPairs.end(); ++envIt)
-        env.set(envIt.key(), envIt.value());
-    QByteArray cdbextPath = qgetenv("QTC_CDBEXT_PATH");
-    if (cdbextPath.isEmpty())
-        cdbextPath = CDBEXT_PATH "\\qtcreatorcdbext64";
-    QVERIFY(QFile::exists(QString::fromLatin1(cdbextPath + QByteArray("\\qtcreatorcdbext.dll"))));
-    env.set(QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"), QString::fromLatin1(cdbextPath));
-    *makeBinary = env.searchInPath(QLatin1String("nmake.exe")).toString();
-    *environment = env.toProcessEnvironment();
-
-    QProcess cl;
-    cl.start(env.searchInPath(QLatin1String("cl.exe")).toString(), QStringList());
-    QVERIFY(cl.waitForFinished());
-    QString output = cl.readAllStandardError();
-    int pos = output.indexOf('\n');
-    if (pos != -1)
-        output = output.left(pos);
-    qDebug() << "Extracting MSVC version from: " << output;
-    QRegularExpression reg(" (\\d\\d)\\.(\\d\\d)\\.");
-    QRegularExpressionMatch match = reg.match(output);
-    if (match.matchType() != QRegularExpression::NoMatch)
-        *msvcVersion = QString(match.captured(1) + match.captured(2)).toInt();
-}
-
-#else
-
-static void setupCdb(QString *, QProcessEnvironment *, int *) {}
-
 #endif // Q_CC_MSVC
-
 
 struct VersionBase
 {
@@ -1091,7 +1056,34 @@ void tst_Dumpers::initTestCase()
         qDebug() << "Make path          : " << m_makeBinary;
         qDebug() << "Gdb version        : " << m_debuggerVersion;
     } else if (m_debuggerEngine == CdbEngine) {
-        setupCdb(&m_makeBinary, &m_env, &m_msvcVersion);
+#ifdef Q_CC_MSVC
+        QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
+        QMap <QString, QString> envPairs;
+        Utils::Environment env = Utils::Environment::systemEnvironment();
+        QVERIFY(generateEnvironmentSettings(env, QString::fromLatin1(envBat), QString(), envPairs));
+        for (auto envIt = envPairs.begin(); envIt != envPairs.end(); ++envIt)
+            env.set(envIt.key(), envIt.value());
+        QByteArray cdbextPath = qgetenv("QTC_CDBEXT_PATH");
+        if (cdbextPath.isEmpty())
+            cdbextPath = CDBEXT_PATH "\\qtcreatorcdbext64";
+        QVERIFY(QFile::exists(QString::fromLatin1(cdbextPath + QByteArray("\\qtcreatorcdbext.dll"))));
+        env.set(QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"), QString::fromLatin1(cdbextPath));
+        m_makeBinary = env.searchInPath(QLatin1String("nmake.exe")).toString();
+        m_env = env.toProcessEnvironment();
+
+        QProcess cl;
+        cl.start(env.searchInPath(QLatin1String("cl.exe")).toString(), QStringList());
+        QVERIFY(cl.waitForFinished());
+        QString output = cl.readAllStandardError();
+        int pos = output.indexOf('\n');
+        if (pos != -1)
+            output = output.left(pos);
+        qDebug() << "Extracting MSVC version from: " << output;
+        QRegularExpression reg(" (\\d\\d)\\.(\\d\\d)\\.");
+        QRegularExpressionMatch match = reg.match(output);
+        if (match.matchType() != QRegularExpression::NoMatch)
+            m_msvcVersion = QString(match.captured(1) + match.captured(2)).toInt();
+#endif //Q_CC_MSVC
     } else if (m_debuggerEngine == LldbEngine) {
         qDebug() << "Dumper dir         : " << DUMPERDIR;
         QProcess debugger;
