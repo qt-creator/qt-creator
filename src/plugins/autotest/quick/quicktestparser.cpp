@@ -145,7 +145,11 @@ static QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const QStri
     for (const QString &path : dirs) {
         const QList<QmlJS::Document::Ptr> docs = snapshot.documentsInDirectory(path);
         for (const QmlJS::Document::Ptr &doc : docs) {
-            const QString fileName(QFileInfo(doc->fileName()).fileName());
+            const QFileInfo fi(doc->fileName());
+            // using working copy above might provide no more existing files
+            if (!fi.exists())
+                continue;
+            const QString fileName(fi.fileName());
             if (fileName.startsWith("tst_") && fileName.endsWith(".qml"))
                 foundDocs << doc;
         }
