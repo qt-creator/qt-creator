@@ -149,7 +149,9 @@ GerritParameters::GerritParameters()
 
 QString GerritServer::hostArgument() const
 {
-    return user.userName.isEmpty() ? host : (user.userName + '@' + host);
+    if (!authenticated || user.userName.isEmpty())
+        return host;
+    return user.userName + '@' + host;
 }
 
 QString GerritServer::url(UrlType urlType) const
