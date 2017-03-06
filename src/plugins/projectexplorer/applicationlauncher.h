@@ -60,6 +60,7 @@ public:
 
     QString errorString() const;
     QProcess::ProcessError processError() const;
+    void bringToForeground();
 
     static QString msgWinCannotRetrieveDebuggingOutput();
 
@@ -67,7 +68,6 @@ signals:
     void appendMessage(const QString &message, Utils::OutputFormat format);
     void processStarted();
     void processExited(int exitCode, QProcess::ExitStatus);
-    void bringToForegroundRequested();
     void error(QProcess::ProcessError error);
 
 private:

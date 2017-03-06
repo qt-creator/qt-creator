@@ -261,7 +261,7 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
     connect(&d->applicationLauncher, &ApplicationLauncher::appendMessage,
             this, &QmlEngine::appendMessage);
     connect(&d->applicationLauncher, &ApplicationLauncher::processStarted,
-            &d->noDebugOutputTimer, static_cast<void(QTimer::*)()>(&QTimer::start));
+            this, &QmlEngine::handleLauncherStarted);
 
     d->outputParser.setNoOutputText(ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput());
     connect(&d->outputParser, &QmlOutputParser::waitingForConnectionOnPort,
@@ -341,6 +341,14 @@ void QmlEngine::setupInferior()
 
     if (d->automaticConnect)
         beginConnection();
+}
+
+void QmlEngine::handleLauncherStarted()
+{
+    // FIXME: The QmlEngine never calls notifyInferiorPid() triggering the
+    // raising, so do it here manually for now.
+    runControl()->bringApplicationToForeground();
+    d->noDebugOutputTimer.start();
 }
 
 void QmlEngine::appendMessage(const QString &msg, Utils::OutputFormat /* format */)
@@ -646,11 +654,6 @@ void QmlEngine::setupEngine()
         // we need to get the port first
         notifyEngineRequestRemoteSetup();
     } else {
-        // We can't do this in the constructore because runControl() isn't yet defined
-        connect(&d->applicationLauncher, &ApplicationLauncher::bringToForegroundRequested,
-                runControl(), &RunControl::bringApplicationToForeground,
-                Qt::UniqueConnection);
-
         notifyEngineSetupOk();
     }
 }

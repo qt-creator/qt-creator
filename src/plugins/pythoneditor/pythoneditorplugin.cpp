@@ -770,8 +770,6 @@ PythonRunControl::PythonRunControl(PythonRunConfiguration *rc, Core::Id mode)
             this, &PythonRunControl::processStarted);
     connect(&m_applicationLauncher, &ApplicationLauncher::processExited,
             this, &PythonRunControl::processExited);
-    connect(&m_applicationLauncher, &ApplicationLauncher::bringToForegroundRequested,
-            this, &RunControl::bringApplicationToForeground);
 }
 
 void PythonRunControl::start()
@@ -815,6 +813,7 @@ void PythonRunControl::processStarted()
 {
     // Console processes only know their pid after being started
     setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
+    bringApplicationToForeground();
 }
 
 void PythonRunControl::processExited(int exitCode, QProcess::ExitStatus status)
