@@ -342,8 +342,6 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &displayName);
 
-    const QVariantMap &values() const;
-
     void readSettings(QSettings &settings);
 
     static QPalette initialPalette();
