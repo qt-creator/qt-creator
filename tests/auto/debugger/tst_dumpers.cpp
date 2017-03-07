@@ -1990,6 +1990,7 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("QFixed")
             << Data("#include <private/qfixed_p.h>\n",
                     "QFixed f(1234);\n")
+               + Qt5
                + GuiPrivateProfile()
                + Check("f", "78976/64 = 1234.0", "@QFixed");
 
