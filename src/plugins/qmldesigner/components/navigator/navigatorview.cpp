@@ -266,19 +266,22 @@ void NavigatorView::instanceErrorChanged(const QVector<ModelNode> &errorNodeList
         m_treeModel->updateItemRow(currentModelNode);
 }
 
-void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int /*oldIndex*/)
+void NavigatorView::nodeOrderChanged(const NodeListProperty & /*listProperty*/, const ModelNode &node, int /*oldIndex*/)
 {
+    bool blocked = blockSelectionChangedSignal(true);
+
     if (m_treeModel->isInTree(node)) {
-        m_treeModel->removeSubTree(listProperty.parentModelNode());
+        m_treeModel->removeSubTree(rootModelNode());
+        m_treeModel->addSubTree(rootModelNode());
 
-        if (node.isInHierarchy())
-            m_treeModel->addSubTree(listProperty.parentModelNode());
-
-        if (listProperty.parentModelNode().isValid()) {
-            QModelIndex index = m_treeModel->indexForNode(listProperty.parentModelNode());
-            treeWidget()->expand(index);
-        }
+        QModelIndex index = m_treeModel->indexForNode(rootModelNode());
+        treeWidget()->expand(index);
     }
+
+    // make sure selection is in sync again
+    updateItemSelection();
+
+    blockSelectionChangedSignal(blocked);
 }
 
 void NavigatorView::changeToComponent(const QModelIndex &index)
