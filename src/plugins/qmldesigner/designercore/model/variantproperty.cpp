@@ -130,13 +130,14 @@ void VariantProperty::setDynamicTypeNameAndEnumeration(const TypeName &type, con
     setDynamicTypeNameAndValue(type, QVariant::fromValue(Enumeration(enumerationName)));
 }
 
-QDebug operator<<(QDebug debug, const VariantProperty &VariantProperty)
+QDebug operator<<(QDebug debug, const VariantProperty &property)
 {
-    return debug.nospace() << "VariantProperty(" << VariantProperty.name() << ')';
+    return debug.nospace() << "VariantProperty(" << property.name() << ',' << ' ' << property.value().toString() << ' ' << property.value().typeName() << property.parentModelNode() << ')';
 }
+
 QTextStream& operator<<(QTextStream &stream, const VariantProperty &property)
 {
-    stream << "VariantProperty(" << property.name() << ',' << ' ' << property.value().toString() << ' ' << property.value().typeName() << ')';
+    stream << "VariantProperty(" << property.name() << ',' << ' ' << property.value().toString() << ' ' << property.value().typeName() << property.parentModelNode() << ')';
 
     return stream;
 }
