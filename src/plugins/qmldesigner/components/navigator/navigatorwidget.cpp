@@ -27,7 +27,7 @@
 #include "navigatorview.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"
-#include <theming.h>
+#include <theme.h>
 
 #include <QBoxLayout>
 #include <QToolButton>
@@ -60,8 +60,8 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view) :
 
     setWindowTitle(tr("Navigator", "Title of navigator view"));
 
-    setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/stylesheet.css")))));
-    m_treeView->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
+    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/stylesheet.css")))));
+    m_treeView->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 }
 
 void NavigatorWidget::setTreeModel(QAbstractItemModel* model)

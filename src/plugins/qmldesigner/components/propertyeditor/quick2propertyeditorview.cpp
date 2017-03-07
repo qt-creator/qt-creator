@@ -29,7 +29,7 @@
 #include "fileresourcesmodel.h"
 #include "gradientmodel.h"
 #include "qmlanchorbindingproxy.h"
-#include "theming.h"
+#include "theme.h"
 
 namespace QmlDesigner {
 
@@ -37,7 +37,7 @@ Quick2PropertyEditorView::Quick2PropertyEditorView(QWidget *parent) :
     QQuickWidget(parent)
 {
     setResizeMode(QQuickWidget::SizeRootObjectToView);
-    Theming::registerIconProvider(engine());
+    Theme::setupTheme(engine());
 }
 
 void Quick2PropertyEditorView::registerQmlTypes()

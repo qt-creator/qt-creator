@@ -27,6 +27,7 @@ import QtQuick 2.1
 import HelperWidgets 2.0
 import QtQuick.Layouts 1.0
 import QtQuick.Controls 1.0 as Controls
+import QtQuickDesignerTheme 1.0
 
 Section {
     id: fontSection
@@ -113,7 +114,7 @@ Section {
             Controls.ComboBox {
                 id: sizeType
                 model: ["pixels", "points"]
-                property color textColor: creatorTheme.PanelTextColorLight
+                property color textColor: Theme.color(Theme.PanelTextColorLight)
                 onCurrentIndexChanged: {
                     if (sizeWidget.isSetup)
                         return;
