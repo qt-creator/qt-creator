@@ -386,7 +386,7 @@ void AbstractView::setSelectedModelNodes(const QList<ModelNode> &selectedNodeLis
 
 void AbstractView::setSelectedModelNode(const ModelNode &modelNode)
 {
-    setSelectedModelNodes(QList<ModelNode>() << modelNode);
+    setSelectedModelNodes({modelNode});
 }
 
 /*!
