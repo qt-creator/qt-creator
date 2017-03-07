@@ -3261,7 +3261,7 @@ class DumperBase:
 
         @property
         def name(self):
-            tdata = self.typeData()
+            tdata = self.dumper.typeData.get(self.typeId)
             if tdata is None:
                 return self.typeId
             return tdata.name
