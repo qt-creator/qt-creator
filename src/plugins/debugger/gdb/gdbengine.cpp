@@ -1172,8 +1172,8 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
 bool GdbEngine::acceptsDebuggerCommands() const
 {
     return true;
-    return state() == InferiorStopOk
-        || state() == InferiorUnrunnable;
+//    return state() == InferiorStopOk
+//        || state() == InferiorUnrunnable;
 }
 
 void GdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)

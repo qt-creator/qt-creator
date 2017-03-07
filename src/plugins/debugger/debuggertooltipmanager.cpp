@@ -1110,7 +1110,7 @@ void DebuggerToolTipManager::saveSessionData()
     w.writeEndDocument();
 
     return; // FIXME
-    setSessionValue(sessionSettingsKeyC, QVariant(data));
+//    setSessionValue(sessionSettingsKeyC, QVariant(data));
 }
 
 void DebuggerToolTipManager::closeAllToolTips()
