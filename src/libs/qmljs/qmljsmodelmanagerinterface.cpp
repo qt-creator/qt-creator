@@ -990,7 +990,7 @@ struct ScanItem {
 void ModelManagerInterface::importScan(QFutureInterface<void> &future,
                               ModelManagerInterface::WorkingCopy workingCopy,
                               PathsAndLanguages paths, ModelManagerInterface *modelManager,
-                              bool emitDocChangedOnDisk, bool libOnly)
+                              bool emitDocChangedOnDisk, bool libOnly, bool forceRescan)
 {
     // paths we have scanned for files and added to the files list
     QSet<QString> scannedPaths;
@@ -1008,7 +1008,7 @@ void ModelManagerInterface::importScan(QFutureInterface<void> &future,
         for (int i = 0; i < paths.size(); ++i) {
             PathAndLanguage pAndL = paths.at(i);
             QString cPath = QDir::cleanPath(pAndL.path().toString());
-            if (modelManager->m_scannedPaths.contains(cPath))
+            if (!forceRescan && modelManager->m_scannedPaths.contains(cPath))
                 continue;
             pathsToScan.append(ScanItem(cPath, 0, pAndL.language()));
             modelManager->m_scannedPaths.insert(cPath);
@@ -1024,13 +1024,15 @@ void ModelManagerInterface::importScan(QFutureInterface<void> &future,
         ScanItem toScan = pathsToScan.last();
         pathsToScan.pop_back();
         int pathBudget = (1 << (maxScanDepth + 2 - toScan.depth));
-        if (!scannedPaths.contains(toScan.path)) {
+        if (forceRescan || !scannedPaths.contains(toScan.path)) {
             QStringList importedFiles;
-            if (!findNewQmlLibraryInPath(toScan.path, snapshot, modelManager, &importedFiles,
+            if (forceRescan ||
+                    (!findNewQmlLibraryInPath(toScan.path, snapshot, modelManager, &importedFiles,
                                          &scannedPaths, &newLibraries, true)
-                    && !libOnly && snapshot.documentsInDirectory(toScan.path).isEmpty())
+                    && !libOnly && snapshot.documentsInDirectory(toScan.path).isEmpty())) {
                 importedFiles += filesInDirectoryForLanguages(toScan.path,
                                                      toScan.language.companionLanguages());
+            }
             workDone += 1;
             future.setProgressValue(progressRange * workDone / totalWork);
             if (!importedFiles.isEmpty()) {
@@ -1101,7 +1103,7 @@ void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
     if (pathToScan.length() > 1) {
         QFuture<void> result = Utils::runAsync(&ModelManagerInterface::importScan,
                                                workingCopyInternal(), pathToScan,
-                                               this, true, true);
+                                               this, true, true, false);
         cleanupFutures();
         m_futures.append(result);
 
