@@ -31,6 +31,7 @@
 #include <bindingproperty.h>
 #include <signalhandlerproperty.h>
 #include <nodeabstractproperty.h>
+#include <nodelistproperty.h>
 #include <variantproperty.h>
 
 #include <qmlitemnode.h>
@@ -455,9 +456,18 @@ void DebugView::currentStateChanged(const ModelNode &/*node*/)
 
 }
 
-void DebugView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode &/*movedNode*/, int /*oldIndex*/)
+void DebugView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex)
 {
+    if (isDebugViewEnabled()) {
+        QTextStream message;
+        QString string;
+        message.setString(&string);
 
+        message << movedNode << listProperty;
+        message << oldIndex << "to" << listProperty.indexOf(movedNode);
+
+        log("::nodeSlide:", string);
+    }
 }
 
 void DebugView::log(const QString &title, const QString &message, bool highlight)
