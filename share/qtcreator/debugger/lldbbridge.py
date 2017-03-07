@@ -1078,8 +1078,8 @@ class Dumper(DumperBase):
             raise RuntimeError("Unreadable %s bytes at 0x%x" % (size, address))
         return res
 
-    def findStaticMetaObject(self, typeName):
-        symbolName = self.mangleName(typeName + '::staticMetaObject')
+    def findStaticMetaObject(self, type):
+        symbolName = self.mangleName(type.name + '::staticMetaObject')
         symbol = self.target.FindFirstGlobalVariable(symbolName)
         return symbol.AddressOf().GetValueAsUnsigned() if symbol.IsValid() else 0
 

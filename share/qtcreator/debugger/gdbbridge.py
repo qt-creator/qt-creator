@@ -858,8 +858,8 @@ class Dumper(DumperBase):
         self.ping('readMem')
         return res
 
-    def findStaticMetaObject(self, typename):
-        symbolName = typename + '::staticMetaObject'
+    def findStaticMetaObject(self, type):
+        symbolName = type.name + '::staticMetaObject'
         symbol = gdb.lookup_global_symbol(symbolName, gdb.SYMBOL_VAR_DOMAIN)
         if not symbol:
             return 0

@@ -171,6 +171,7 @@ class Dumper(DumperBase):
         tdata.typeId = typeId
         tdata.lbitsize = nativeType.bitsize()
         tdata.code = code
+        tdata.moduleName = nativeType.module()
         self.registerType(typeId, tdata) # Prevent recursion in fields.
         if  code == TypeCodeStruct:
             tdata.lfields = lambda value : \
@@ -431,7 +432,10 @@ class Dumper(DumperBase):
             raise Exception("Invalid memory request")
         return mem
 
-    def findStaticMetaObject(self, typeName):
+    def findStaticMetaObject(self, type):
+        typeName = type.name
+        if type.moduleName is not None:
+            typeName = type.moduleName + '!' + typeName
         ptr = cdbext.getAddressByName(typeName + '::staticMetaObject')
         return ptr
 
