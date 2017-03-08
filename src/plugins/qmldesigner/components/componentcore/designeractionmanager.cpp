@@ -752,7 +752,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &layoutOptionVisible));
 
     addDesignerAction(new ActionGroup(
-                          stackCategoryDisplayName,
+                          stackedContainerCategoryDisplayName,
                           stackedContainerCategory,
                           priorityStackedContainerCategory,
                           &isStackedContainer));
