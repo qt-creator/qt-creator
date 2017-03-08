@@ -51,6 +51,16 @@
 
 namespace QmlDesigner {
 
+
+static bool isSwipeView(const ModelNode &node)
+{
+    if (node.metaInfo().isValid()
+            && node.metaInfo().isSubclassOf("QtQuick.Controls.SwipeView"))
+        return true;
+
+    return false;
+}
+
 namespace Internal {
 
 static std::once_flag s_singletonFlag;
@@ -111,6 +121,9 @@ bool NodeHints::forceClip() const
     if (!isValid())
         return false;
 
+    if (isSwipeView(modelNode()))
+        return true;
+
     return evaluateBooleanExpression("forceClip", false);
 }
 
@@ -118,6 +131,9 @@ bool NodeHints::doesLayoutChildren() const
 {
     if (!isValid())
         return false;
+
+    if (isSwipeView(modelNode()))
+        return true;
 
     return evaluateBooleanExpression("doesLayoutChildren", false);
 }
@@ -149,6 +165,9 @@ bool NodeHints::isStackedContainer() const
 {
     if (!isValid())
         return false;
+
+    if (isSwipeView(modelNode()))
+        return true;
 
     return evaluateBooleanExpression("isStackedContainer", false);
 }
