@@ -751,8 +751,8 @@ static GerritChangePtr parseRestOutput(const QJsonObject &object, const GerritSe
     change->project = object.value("project").toString();
     change->branch = object.value("branch").toString();
     change->status =  object.value("status").toString();
-    change->lastUpdated = QDateTime::fromString(object.value("updated").toString(),
-                                                Qt::DateFormat::ISODate);
+    change->lastUpdated = QDateTime::fromString(object.value("updated").toString() + "Z",
+                                                Qt::DateFormat::ISODate).toLocalTime();
     // Read current patch set.
     const QJsonObject patchSet = object.value("revisions").toObject().begin().value().toObject();
     change->currentPatchSet.patchSetNumber = qMax(1, patchSet.value("number").toString().toInt());
