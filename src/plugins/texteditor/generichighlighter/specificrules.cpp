@@ -265,6 +265,9 @@ bool KeywordRule::doMatchSucceed(const QString &text,
                                  const int length,
                                  ProgressData *progress)
 {
+    if (m_list.isNull()) // Happens if a keyword rule points to a none existing keyword list
+        return false;
+
     int current = progress->offset();
 
     if (current > 0 && !definition()->isDelimiter(text.at(current - 1)))
