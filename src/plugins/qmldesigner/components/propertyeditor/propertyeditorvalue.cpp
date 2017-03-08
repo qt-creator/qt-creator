@@ -299,9 +299,11 @@ void PropertyEditorValue::exportPopertyAsAlias()
 
 bool PropertyEditorValue::hasPropertyAlias() const
 {
-    if (modelNode().isValid())
-        if (modelNode().isRootNode())
-            return false;
+    if (!modelNode().isValid())
+        return false;
+
+    if (modelNode().isRootNode())
+        return false;
 
     if (!modelNode().hasId())
         return false;
