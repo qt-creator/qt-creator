@@ -441,7 +441,7 @@ QString matchCaseReplacement(const QString &originalText, const QString &replace
             restIsUpperCase = false;
 
         if (!restIsLowerCase && !restIsUpperCase)
-            return replaceText; // mixed
+            break;
     }
 
     if (restIsLowerCase) {
@@ -449,16 +449,14 @@ QString matchCaseReplacement(const QString &originalText, const QString &replace
         if (firstIsUpperCase)
             res.replace(0, 1, res.at(0).toUpper());
         return res;
-    }
-
-    if (restIsUpperCase) {
+    } else if (restIsUpperCase) {
         QString res = replaceText.toUpper();
         if (firstIsLowerCase)
             res.replace(0, 1, res.at(0).toLower());
         return res;
+    } else {
+        return replaceText; // mixed
     }
-
-    return replaceText;         // mixed
 }
 } // namespace
 
