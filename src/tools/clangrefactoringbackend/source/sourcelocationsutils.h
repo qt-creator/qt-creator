@@ -53,7 +53,7 @@
 namespace ClangBackEnd {
 
 inline
-llvm::SmallString<256> absolutePath(const char *path)
+llvm::SmallString<256> absolutePath(const llvm::StringRef &path)
 {
     llvm::SmallString<256> absolutePath(path);
 
