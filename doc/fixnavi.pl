@@ -74,8 +74,6 @@ for my $file (@files) {
             $inif = 0;
             $skipping = 0;
             $define_skip = "";
-        } elsif (keys(%title2page) == 1 && /^\h*\\section1 Table Of Contents/) {
-            $havetoc = 1;
         } elsif ($havetoc && /^\h*\\list/) {
             $intoc++;
         } elsif ($intoc) {
@@ -110,7 +108,11 @@ for my $file (@files) {
                 }
                 $title2type{$1} = $curtype;
                 $title2page{$1} = $curpage;
-                $doctitle = $1 if (!$doctitle);
+                if ($1 eq "Qt Creator TOC") {
+                    $havetoc = 1;
+                } elsif (!$doctitle) {
+                    $doctitle = $1;
+                }
                 $curpage = "";
                 $inhdr = 0;
             }
