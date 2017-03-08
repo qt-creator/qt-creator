@@ -5848,6 +5848,9 @@ void tst_Dumpers::dumper_data()
              + Check("p3", "Thu Jan 1 00:00:00 1970", "boost::posix_time::ptime");
 
 
+/*
+    FIXME
+
     QTest::newRow("BoostList")
             << Data("#include <boost/container/list.hpp>\n",
                     "typedef std::pair<int, double> p;\n"
@@ -5859,6 +5862,7 @@ void tst_Dumpers::dumper_data()
              + BoostProfile()
              + Check("l", "<4 items>", TypePattern("boost::container::list<std::pair<int,double>.*>"))
              + Check("l.2.second", FloatValue("65"), "double");
+*/
 
 
     QTest::newRow("BoostUnorderedSet")
@@ -6137,6 +6141,45 @@ void tst_Dumpers::dumper_data()
                + NoCdbEngine // FIXME
                + Check("b.@1.a", "a", "21", "int")
                + Check("b.b", "b", "42", "int");
+
+
+
+    // https://bugreports.qt.io/browse/QTCREATORBUG-17823
+    QTest::newRow("Bug17823")
+            << Data("struct Base1\n"
+                    "{\n"
+                    "    virtual ~Base1() {}\n"
+                    "    int foo = 42;\n"
+                    "};\n\n"
+                    "struct Base2\n"
+                    "{\n"
+                    "    virtual ~Base2() {}\n"
+                    "    int bar = 43;\n"
+                    "};\n\n"
+                    "struct Derived : Base1, Base2\n"
+                    "{\n"
+                    "    int baz = 84;\n"
+                    "};\n\n"
+                    "struct Container\n"
+                    "{\n"
+                    "    Container(Base2 *b) : b2(b) {}\n"
+                    "    Base2 *b2;\n"
+                    "};\n",
+
+                    "Derived d;\n"
+                    "Container c(&d); // c.b2 has wrong address\n"
+                    "unused(&c);\n"
+                    "Base2 *b2 = &d; // This has the right address\n"
+                    "unused(&b2);\n")
+                + NoCdbEngine // FIXME
+
+                + Check("c.b2.@1.foo", "42", "int")
+                + Check("c.b2.@2.bar", "43", "int")
+                + Check("c.b2.baz", "84", "int")
+
+                + Check("d.@1.foo", "42", "int")
+                + Check("d.@2.bar", "43", "int")
+                + Check("d.baz", "84", "int");
 
 
 

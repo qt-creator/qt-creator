@@ -204,13 +204,6 @@ class Dumper(DumperBase):
         val.name = nativeValue.GetName()
         return val
 
-    def nativeTypeFieldTypeByName(self, nativeType, name):
-        for i in range(nativeType.GetNumberOfFields()):
-            field = nativeType.GetFieldAtIndex(i)
-            if field.GetName() == name:
-                return self.fromNativeType(field.GetType())
-        return None
-
     def nativeStructAlignment(self, nativeType):
         def handleItem(nativeFieldType, align):
             a = self.fromNativeType(nativeFieldType).alignment()
@@ -224,7 +217,7 @@ class Dumper(DumperBase):
             align = handleItem(child.GetType(), align)
         return align
 
-    def listMembers(self, nativeType, value):
+    def listMembers(self, value, nativeType):
         #warn("ADDR: 0x%x" % self.fakeAddress)
         fakeAddress = self.fakeAddress if value.laddress is None else value.laddress
         sbaddr = lldb.SBAddress(fakeAddress, self.target)
@@ -250,33 +243,36 @@ class Dumper(DumperBase):
             fieldBits[f.name] = (bitsize, bitpos, f.IsBitfield())
 
         # Normal members and non-empty base classes.
+        anonNumber = 0
         for i in range(fakeValue.GetNumChildren()):
             nativeField = fakeValue.GetChildAtIndex(i)
             nativeField.SetPreferSyntheticValue(False)
 
-            field = self.Field(self)
-            field.name = nativeField.GetName()
+            fieldName = nativeField.GetName()
             nativeFieldType = nativeField.GetType()
 
-            if field.name in fieldBits:
-                (field.lbitsize, field.lbitpos, isBitfield) = fieldBits[field.name]
+            if fieldName in fieldBits:
+                (fieldBitsize, fieldBitpos, isBitfield) = fieldBits[fieldName]
             else:
-                field.lbitsize = nativeFieldType.GetByteSize() * 8
+                fieldBitsize = nativeFieldType.GetByteSize() * 8
+                fieldBitpost = None
                 isBitfield = False
 
             if isBitfield: # Bit fields
-                field.ltype = self.createBitfieldType(self.typeName(nativeFieldType), field.lbitsize)
-                yield field
+                fieldType = self.createBitfieldType(self.typeName(nativeFieldType), fieldBitsize)
+                yield self.Field(self, name=fieldName, type=fieldType,
+                                 bitsize=fieldBitsize, bitpos=fieldBitpos)
 
-            elif field.name is None: # Anon members
+            elif fieldName is None: # Anon members
+                anonNumber += 1
+                fieldName = '#%s' % anonNumber
                 fakeMember = fakeValue.GetChildAtIndex(i)
                 fakeMemberAddress = fakeMember.GetLoadAddress()
                 offset = fakeMemberAddress - fakeAddress
-                field.lbitpos = 8 * offset
-                field.ltype = self.fromNativeType(nativeFieldType)
-                yield field
+                yield self.Field(self, name=fieldName, type=self.fromNativeType(nativeFieldType),
+                                 bitsize=fieldBitsize, bitpos=8*offset)
 
-            elif field.name in baseNames:  # Simple bases
+            elif fieldName in baseNames:  # Simple bases
                 member = self.fromNativeValue(fakeValue.GetChildAtIndex(i))
                 member.isBaseClass = True
                 yield member
@@ -443,9 +439,7 @@ class Dumper(DumperBase):
                 tdata.lalignment = lambda : \
                     self.nativeStructAlignment(nativeType)
                 tdata.lfields = lambda value : \
-                    self.listMembers(nativeType, value)
-                tdata.lfieldByName = lambda name : \
-                    self.nativeTypeFieldTypeByName(nativeType, name)
+                    self.listMembers(value, nativeType)
                 tdata.templateArguments = self.listTemplateParametersHelper(nativeType)
             elif code == lldb.eTypeClassFunction:
                 tdata.code = TypeCodeFunction,
