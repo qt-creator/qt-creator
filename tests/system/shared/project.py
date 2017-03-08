@@ -284,13 +284,19 @@ def createNewQtQuickApplication(workingDir, projectName = None,
                                 targets=Targets.desktopTargetClasses(), minimumQtVersion="5.3",
                                 withControls = False, fromWelcome = False, buildSystem = None):
     if withControls:
-        template = "Qt Quick Controls Application"
+        template = "Qt Quick Controls 2 Application"
     else:
         template = "Qt Quick Application"
     available = __createProjectOrFileSelectType__("  Application", template, fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     __handleBuildSystem__(buildSystem)
-    requiredQt = __createProjectHandleQtQuickSelection__(minimumQtVersion)
+    if withControls:
+        requiredQt = "5.7"
+        # TODO use parameter to define style to choose
+        test.log("Using default controls style")
+        clickButton(waitForObject(":Next_QPushButton"))
+    else:
+        requiredQt = __createProjectHandleQtQuickSelection__(minimumQtVersion)
     __modifyAvailableTargets__(available, requiredQt)
     checkedTargets = __chooseTargets__(targets, available)
     snooze(1)
@@ -314,9 +320,8 @@ def createNewQtQuickUI(workingDir, qtVersion = "5.3"):
 
     return projectName
 
-def createNewQmlExtension(workingDir, targets=Targets.DESKTOP_474_GCC, qtQuickVersion=1):
-    available = __createProjectOrFileSelectType__("  Library", "Qt Quick %d Extension Plugin"
-                                                  % qtQuickVersion)
+def createNewQmlExtension(workingDir, targets=[Targets.DESKTOP_531_DEFAULT]):
+    available = __createProjectOrFileSelectType__("  Library", "Qt Quick 2 Extension Plugin")
     if workingDir == None:
         workingDir = tempDir()
     __createProjectSetNameAndPath__(workingDir)
