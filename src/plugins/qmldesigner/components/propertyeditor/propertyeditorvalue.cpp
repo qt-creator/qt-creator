@@ -38,12 +38,12 @@
 //using namespace QmlDesigner;
 
 PropertyEditorValue::PropertyEditorValue(QObject *parent)
-   : QObject(parent),
-   m_isInSubState(false),
-   m_isInModel(false),
-   m_isBound(false),
-   m_isValid(false),
-   m_complexNode(new PropertyEditorNodeWrapper(this))
+    : QObject(parent),
+      m_isInSubState(false),
+      m_isInModel(false),
+      m_isBound(false),
+      m_isValid(false),
+      m_complexNode(new PropertyEditorNodeWrapper(this))
 {
 }
 
@@ -52,7 +52,7 @@ QVariant PropertyEditorValue::value() const
     QVariant returnValue = m_value;
     if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name()))
         if (modelNode().metaInfo().propertyTypeName(name()) == "QUrl")
-        returnValue = returnValue.toUrl().toString();
+            returnValue = returnValue.toUrl().toString();
     return returnValue;
 }
 
@@ -133,7 +133,7 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
         QVariant newValue = value;
         if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name()))
             if (modelNode().metaInfo().propertyTypeName(name()) == "QUrl")
-            newValue = QUrl(newValue.toString());
+                newValue = QUrl(newValue.toString());
 
         if (cleverDoubleCompare(newValue, m_value))
             return;
