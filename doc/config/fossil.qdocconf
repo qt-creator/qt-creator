@@ -1,0 +1,35 @@
+project     = "fossil"
+description = "Qt Creator Fossil Plugin Manual"
+
+sourcedirs += ../src
+#imagedirs += ../images
+
+include($$QTC_DOCS_DIR/config/macros.qdocconf)
+include($$QTC_DOCS_DIR/config/qt-cpp-ignore.qdocconf)
+include($$QTC_DOCS_DIR/config/qt-defines.qdocconf)
+
+sources.fileextensions  = "*.qdoc"
+
+depends += qtcreator
+
+qhp.projects                = fossil
+qhp.fossil.file             = fossil.qhp
+qhp.fossil.namespace        = org.qt-project.qtcreatorfossil.$$QTC_VERSION_TAG
+qhp.fossil.virtualFolder    = qtcreatorfossil
+qhp.fossil.indexTitle       = Qt Creator Fossil Plugin Manual
+qhp.fossil.filterAttributes = qtcreatorfossil $QTC_VERSION
+qhp.fossil.customFilters.QtCreatorFossil.name = Qt Creator Fossil Plugin $QTC_VERSION
+qhp.fossil.customFilters.QtCreatorFossil.filterAttributes = qtcreatorfossil $QTC_VERSION
+qhp.fossil.indexRoot        =
+
+qhp.fossil.subprojects                   = manual
+qhp.fossil.subprojects.manual.indexTitle = Qt Creator Fossil Plugin Manual
+qhp.fossil.subprojects.manual.title      = Qt Creator Fossil Plugin Manual
+qhp.fossil.subprojects.manual.type       = manual
+
+# Doxygen compatibility commands
+macro.see                       = "\\sa"
+macro.function                  = "\\fn"
+
+navigation.homepage = "Qt Creator Fossil Plugin Manual"
+buildversion        = "Qt Creator Fossil Plugin Manual $QTC_VERSION"

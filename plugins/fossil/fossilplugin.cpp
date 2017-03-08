@@ -43,6 +43,7 @@
 #include <coreplugin/id.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/documentmanager.h>
@@ -151,6 +152,9 @@ bool FossilPlugin::initialize(const QStringList &arguments, QString *errorMessag
     createMenu(context);
 
     createSubmitEditorActions();
+
+    Core::HelpManager::registerDocumentation({Core::ICore::documentationPath()
+                                              + "/fossil.qch"});
 
     return true;
 }
