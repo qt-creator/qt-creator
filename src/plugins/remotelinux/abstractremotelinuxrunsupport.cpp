@@ -25,7 +25,6 @@
 
 #include "abstractremotelinuxrunsupport.h"
 
-#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runnables.h>
@@ -51,9 +50,9 @@ public:
 
     AbstractRemoteLinuxRunSupport::State state;
     StandardRunnable runnable;
-    DeviceApplicationRunner appRunner;
+    ApplicationLauncher appLauncher;
     DeviceUsedPortsGatherer portsGatherer;
-    DeviceApplicationRunner fifoCreator;
+    ApplicationLauncher fifoCreator;
     const IDevice::ConstPtr device;
     Utils::PortList portList;
     QString fifo;
@@ -115,7 +114,7 @@ void AbstractRemoteLinuxRunSupport::setFinished()
     if (d->state == Inactive)
         return;
     if (d->state == Running)
-        d->appRunner.stop();
+        d->appLauncher.stop();
     d->state = Inactive;
 }
 
@@ -154,7 +153,7 @@ void AbstractRemoteLinuxRunSupport::createRemoteFifo()
     QSharedPointer<QByteArray> output(new QByteArray);
     QSharedPointer<QByteArray> errors(new QByteArray);
 
-    connect(&d->fifoCreator, &DeviceApplicationRunner::finished,
+    connect(&d->fifoCreator, &ApplicationLauncher::finished,
             this, [this, output, errors](bool success) {
         if (!success) {
             handleResourcesError(QString("Failed to create fifo: %1").arg(QLatin1String(*errors)));
@@ -164,12 +163,12 @@ void AbstractRemoteLinuxRunSupport::createRemoteFifo()
         }
     });
 
-    connect(&d->fifoCreator, &DeviceApplicationRunner::remoteStdout,
+    connect(&d->fifoCreator, &ApplicationLauncher::remoteStdout,
             this, [output](const QByteArray &data) {
         output->append(data);
     });
 
-    connect(&d->fifoCreator, &DeviceApplicationRunner::remoteStderr,
+    connect(&d->fifoCreator, &ApplicationLauncher::remoteStderr,
             this, [errors](const QByteArray &data) {
         errors->append(data);
     });
@@ -190,13 +189,13 @@ const StandardRunnable &AbstractRemoteLinuxRunSupport::runnable() const
 void AbstractRemoteLinuxRunSupport::reset()
 {
     d->portsGatherer.disconnect(this);
-    d->appRunner.disconnect(this);
+    d->appLauncher.disconnect(this);
     d->state = Inactive;
 }
 
-DeviceApplicationRunner *AbstractRemoteLinuxRunSupport::appRunner() const
+ApplicationLauncher *AbstractRemoteLinuxRunSupport::appRunner() const
 {
-    return &d->appRunner;
+    return &d->appLauncher;
 }
 
 } // namespace RemoteLinux

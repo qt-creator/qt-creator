@@ -33,7 +33,6 @@
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 
-#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/runnables.h>
 
 #include <utils/qtcprocess.h>
@@ -45,7 +44,7 @@ namespace Internal {
 
 BareMetalDebugSupport::BareMetalDebugSupport(Debugger::DebuggerRunControl *runControl)
     : QObject(runControl)
-    , m_appRunner(new ProjectExplorer::DeviceApplicationRunner(this))
+    , m_appLauncher(new ProjectExplorer::ApplicationLauncher(this))
     , m_runControl(runControl)
     , m_state(BareMetalDebugSupport::Inactive)
 {
@@ -156,17 +155,17 @@ void BareMetalDebugSupport::startExecution()
     m_state = StartingRunner;
     showMessage(tr("Starting GDB server...") + QLatin1Char('\n'), Debugger::LogStatus);
 
-    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::remoteStderr,
+    connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::remoteStderr,
             this, &BareMetalDebugSupport::remoteErrorOutputMessage);
-    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::remoteStdout,
+    connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::remoteStdout,
             this, &BareMetalDebugSupport::remoteOutputMessage);
-    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::remoteProcessStarted,
+    connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::remoteProcessStarted,
             this, &BareMetalDebugSupport::remoteProcessStarted);
-    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::finished,
+    connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::finished,
             this, &BareMetalDebugSupport::appRunnerFinished);
-    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::reportProgress,
+    connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::reportProgress,
             this, &BareMetalDebugSupport::progressReport);
-    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::reportError,
+    connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::reportError,
             this, &BareMetalDebugSupport::appRunnerError);
 
     StandardRunnable r;
@@ -175,7 +174,7 @@ void BareMetalDebugSupport::startExecution()
     // as the bare metal's GDB servers are launched on a host,
     // but not on a target.
     r.commandLineArguments = Utils::QtcProcess::joinArgs(p->arguments(), Utils::HostOsInfo::hostOs());
-    m_appRunner->start(r, dev);
+    m_appLauncher->start(r, dev);
 }
 
 void BareMetalDebugSupport::setFinished()
@@ -183,13 +182,13 @@ void BareMetalDebugSupport::setFinished()
     if (m_state == Inactive)
         return;
     if (m_state == Running)
-        m_appRunner->stop();
+        m_appLauncher->stop();
     m_state = Inactive;
 }
 
 void BareMetalDebugSupport::reset()
 {
-    m_appRunner->disconnect(this);
+    m_appLauncher->disconnect(this);
     m_state = Inactive;
 }
 

@@ -33,7 +33,6 @@
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
-#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
@@ -55,22 +54,22 @@ namespace Internal {
 QnxAttachDebugSupport::QnxAttachDebugSupport(QObject *parent)
     : QObject(parent)
 {
-    m_runner = new DeviceApplicationRunner(this);
+    m_launcher = new ApplicationLauncher(this);
     m_portsGatherer = new DeviceUsedPortsGatherer(this);
 
     connect(m_portsGatherer, &DeviceUsedPortsGatherer::portListReady,
             this, &QnxAttachDebugSupport::launchPDebug);
     connect(m_portsGatherer, &DeviceUsedPortsGatherer::error,
             this, &QnxAttachDebugSupport::handleError);
-    connect(m_runner, &DeviceApplicationRunner::remoteProcessStarted,
+    connect(m_launcher, &ApplicationLauncher::remoteProcessStarted,
             this, &QnxAttachDebugSupport::attachToProcess);
-    connect(m_runner, &DeviceApplicationRunner::reportError,
+    connect(m_launcher, &ApplicationLauncher::reportError,
             this, &QnxAttachDebugSupport::handleError);
-    connect(m_runner, &DeviceApplicationRunner::reportProgress,
+    connect(m_launcher, &ApplicationLauncher::reportProgress,
             this, &QnxAttachDebugSupport::handleProgressReport);
-    connect(m_runner, &DeviceApplicationRunner::remoteStdout,
+    connect(m_launcher, &ApplicationLauncher::remoteStdout,
             this, &QnxAttachDebugSupport::handleRemoteOutput);
-    connect(m_runner, &DeviceApplicationRunner::remoteStderr,
+    connect(m_launcher, &ApplicationLauncher::remoteStderr,
             this, &QnxAttachDebugSupport::handleRemoteOutput);
 }
 
@@ -113,7 +112,7 @@ void QnxAttachDebugSupport::launchPDebug()
     StandardRunnable r;
     r.executable = QLatin1String("pdebug");
     r.commandLineArguments = QString::number(m_pdebugPort.number());
-    m_runner->start(r, m_device);
+    m_launcher->start(r, m_device);
 }
 
 void QnxAttachDebugSupport::attachToProcess()
@@ -177,7 +176,7 @@ void QnxAttachDebugSupport::handleRemoteOutput(const QByteArray &output)
 
 void QnxAttachDebugSupport::stopPDebug()
 {
-    m_runner->stop();
+    m_launcher->stop();
 }
 
 } // namespace Internal

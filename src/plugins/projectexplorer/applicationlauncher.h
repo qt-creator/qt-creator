@@ -27,6 +27,8 @@
 
 #include "projectexplorer_export.h"
 
+#include "devicesupport/idevice.h"
+
 #include <utils/outputformat.h>
 
 #include <QProcess>
@@ -54,6 +56,7 @@ public:
 
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     void start(const Runnable &runnable);
+    void start(const Runnable &runnable, const IDevice::ConstPtr &device);
     void stop();
     bool isRunning() const;
     qint64 applicationPID() const;
@@ -69,6 +72,13 @@ signals:
     void processStarted();
     void processExited(int exitCode, QProcess::ExitStatus);
     void error(QProcess::ProcessError error);
+
+    void remoteStdout(const QByteArray &output);
+    void remoteStderr(const QByteArray &output);
+    void reportProgress(const QString &progressOutput);
+    void reportError(const QString &errorOutput);
+    void remoteProcessStarted();
+    void finished(bool success);
 
 private:
     Internal::ApplicationLauncherPrivate *d;

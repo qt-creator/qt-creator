@@ -33,7 +33,6 @@
 #include <debugger/debuggerkitinformation.h>
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
@@ -128,19 +127,19 @@ void LinuxDeviceDebugSupport::startExecution()
     setState(StartingRunner);
     d->gdbserverOutput.clear();
 
-    DeviceApplicationRunner *runner = appRunner();
-    connect(runner, &DeviceApplicationRunner::remoteStderr,
+    ApplicationLauncher *launcher = appRunner();
+    connect(launcher, &ApplicationLauncher::remoteStderr,
             this, &LinuxDeviceDebugSupport::handleRemoteErrorOutput);
-    connect(runner, &DeviceApplicationRunner::remoteStdout,
+    connect(launcher, &ApplicationLauncher::remoteStdout,
             this, &LinuxDeviceDebugSupport::handleRemoteOutput);
-    connect(runner, &DeviceApplicationRunner::finished,
+    connect(launcher, &ApplicationLauncher::finished,
             this, &LinuxDeviceDebugSupport::handleAppRunnerFinished);
-    connect(runner, &DeviceApplicationRunner::reportProgress,
+    connect(launcher, &ApplicationLauncher::reportProgress,
             this, &LinuxDeviceDebugSupport::handleProgressReport);
-    connect(runner, &DeviceApplicationRunner::reportError,
+    connect(launcher, &ApplicationLauncher::reportError,
             this, &LinuxDeviceDebugSupport::handleAppRunnerError);
     if (d->qmlDebugging && !d->cppDebugging)
-        connect(runner, &DeviceApplicationRunner::remoteProcessStarted,
+        connect(launcher, &ApplicationLauncher::remoteProcessStarted,
                 this, &LinuxDeviceDebugSupport::handleRemoteProcessStarted);
 
     StandardRunnable r = runnable();
@@ -162,7 +161,7 @@ void LinuxDeviceDebugSupport::startExecution()
     }
     r.executable = command;
     r.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);
-    runner->start(r, device());
+    launcher->start(r, device());
 }
 
 void LinuxDeviceDebugSupport::handleAppRunnerError(const QString &error)

@@ -201,7 +201,6 @@ Project {
             files: [
                 "desktopdevice.cpp", "desktopdevice.h",
                 "desktopdevicefactory.cpp", "desktopdevicefactory.h",
-                "deviceapplicationrunner.cpp", "deviceapplicationrunner.h",
                 "devicecheckbuildstep.cpp", "devicecheckbuildstep.h",
                 "devicefactoryselectiondialog.cpp", "devicefactoryselectiondialog.h", "devicefactoryselectiondialog.ui",
                 "devicemanager.cpp", "devicemanager.h",
