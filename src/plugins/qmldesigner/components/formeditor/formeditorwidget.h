@@ -80,6 +80,9 @@ public:
     void showWarningMessageBox(const QList<DocumentMessage> &warnings);
 
     void exportAsImage(const QRectF &boundingRect);
+
+    FormEditorGraphicsView *graphicsView() const;
+
 protected:
     void wheelEvent(QWheelEvent *event);
     QActionGroup *toolActionGroup() const;

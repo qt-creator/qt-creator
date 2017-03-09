@@ -29,6 +29,7 @@
 #include "resizetool.h"
 #include "dragtool.h"
 #include "formeditorwidget.h"
+#include <formeditorgraphicsview.h>
 #include "formeditoritem.h"
 #include "formeditorscene.h"
 #include "abstractcustomtool.h"
@@ -46,6 +47,8 @@
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
+
+#include <QTimer>
 
 namespace QmlDesigner {
 
@@ -70,6 +73,7 @@ void FormEditorView::modelAttached(Model *model)
     Q_ASSERT(model);
 
     AbstractView::modelAttached(model);
+    temporaryBlockView();
 
     Q_ASSERT(m_scene->formLayerItem());
 
@@ -150,6 +154,16 @@ void FormEditorView::createFormEditorWidget()
     });
     connect(formEditorWidget()->showBoundingRectAction(), &QAction::toggled,
             scene(), &FormEditorScene::setShowBoundingRects);
+}
+
+void FormEditorView::temporaryBlockView()
+{
+    formEditorWidget()->graphicsView()->setBlockPainting(true);
+
+    QTimer::singleShot(1000, this, [this]() {
+        formEditorWidget()->graphicsView()->setBlockPainting(false);
+
+    });
 }
 
 void FormEditorView::nodeCreated(const ModelNode &node)
@@ -294,6 +308,8 @@ void FormEditorView::customNotification(const AbstractView * /*view*/, const QSt
 {
     if (identifier == QStringLiteral("puppet crashed"))
         m_dragTool->clearMoveDelay();
+    if (identifier == QStringLiteral("reset QmlPuppet"))
+        temporaryBlockView();
 }
 
 AbstractFormEditorTool* FormEditorView::currentTool() const
