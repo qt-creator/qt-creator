@@ -26,6 +26,8 @@
 #include "disassemblerlines.h"
 #include "debuggerengine.h"
 #include "sourceutils.h"
+#include "debuggercore.h"
+#include "debuggeractions.h"
 
 #include <QDebug>
 #include <QFile>
@@ -218,10 +220,14 @@ QString DisassemblerLine::toString(int maxOp) const
     if (isAssembler()) {
         if (address)
             str += QString("0x%1  ").arg(address, 0, 16);
-        if (offset)
-            str += QString("<+0x%2> ").arg(offset, 4, 16, QLatin1Char('0'));
-        else
-            str += "          ";
+        if (boolSetting(ShowOffset))
+        {
+            if (offset)
+                str += QString("<+0x%2> ").arg(offset, 4, 16, QLatin1Char('0'));
+            else
+                str += "          ";
+        }
+
         str += QString("       %1 ").arg(bytes);
         str += QString(maxOp - bytes.size(), QLatin1Char(' '));
         str += data;

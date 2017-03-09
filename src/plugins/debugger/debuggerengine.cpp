@@ -242,6 +242,12 @@ public:
                 this, &DebuggerEnginePrivate::resetLocation);
         connect(action(IntelFlavor), &Utils::SavedAction::valueChanged,
                 this, &DebuggerEnginePrivate::reloadDisassembly);
+        connect(action(ShowMixed), &Utils::SavedAction::valueChanged,
+                this, &DebuggerEnginePrivate::reloadDisassembly);
+        connect(action(ShowOpcode), &Utils::SavedAction::valueChanged,
+                this, &DebuggerEnginePrivate::reloadDisassembly);
+        connect(action(ShowOffset), &Utils::SavedAction::valueChanged,
+                this, &DebuggerEnginePrivate::reloadDisassembly);
 
         Utils::globalMacroExpander()->registerFileVariables(PrefixDebugExecutable,
             tr("Debugged executable"),
