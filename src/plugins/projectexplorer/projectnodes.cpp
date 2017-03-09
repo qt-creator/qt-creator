@@ -45,6 +45,15 @@
 
 namespace ProjectExplorer {
 
+static FolderNode *folderNode(const FolderNode *folder, const Utils::FileName &directory)
+{
+    return static_cast<FolderNode *>(Utils::findOrDefault(folder->nodes(),
+                                                          [&directory](const Node *n) {
+        const FolderNode *fn = n->asFolderNode();
+        return fn && fn->filePath() == directory;
+    }));
+}
+
 static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
                                                    const Utils::FileName &directory,
                                                    const Utils::FileName &overrideBaseDir)
@@ -74,7 +83,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
     foreach (const QString &part, parts) {
         path.appendPath(part);
         // Find folder in subFolders
-        FolderNode *next = parent->folderNode(path);
+        FolderNode *next = folderNode(parent, path);
         if (!next) {
             // No FolderNode yet, so create it
             auto tmp = new ProjectExplorer::FolderNode(path);
@@ -467,15 +476,6 @@ QList<FolderNode*> FolderNode::folderNodes() const
             result.append(fn);
     }
     return result;
-}
-
-
-FolderNode *FolderNode::folderNode(const Utils::FileName &directory) const
-{
-    return static_cast<FolderNode *>(Utils::findOrDefault(m_nodes, [&directory](const Node *n) {
-        const FolderNode *fn = n->asFolderNode();
-        return fn && fn->filePath() == directory;
-    }));
 }
 
 void FolderNode::buildTree(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir)
