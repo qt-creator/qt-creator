@@ -29,6 +29,7 @@
 #include <rewritingexception.h>
 
 #include <QDebug>
+#include <QRegExp>
 #include <math.h>
 
 #include <nodemetainfo.h>

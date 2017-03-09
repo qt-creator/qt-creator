@@ -43,6 +43,7 @@
 #include <rewriterview.h>
 
 #include <QHash>
+#include <QRegExp>
 #include <QSet>
 #include <QTextStream>
 

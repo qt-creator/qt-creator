@@ -65,6 +65,7 @@
 #include <QQuickItem>
 #include <QQuickWidget>
 #include <QApplication>
+#include <QRegExp>
 #include <QTextCursor>
 
 #include <math.h>

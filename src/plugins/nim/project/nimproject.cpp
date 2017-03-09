@@ -39,6 +39,7 @@
 #include <utils/algorithm.h>
 
 #include <QFileInfo>
+#include <QRegExp>
 #include <QQueue>
 
 using namespace ProjectExplorer;

@@ -46,6 +46,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QElapsedTimer>
+#include <QRegExp>
 
 using namespace CppTools;
 using namespace CppTools::Internal;

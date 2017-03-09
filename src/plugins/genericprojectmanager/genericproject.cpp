@@ -52,6 +52,7 @@
 
 #include <QDir>
 #include <QProcessEnvironment>
+#include <QRegExp>
 
 using namespace Core;
 using namespace ProjectExplorer;

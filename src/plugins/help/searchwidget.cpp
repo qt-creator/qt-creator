@@ -45,6 +45,7 @@
 #include <QLayout>
 #include <QMap>
 #include <QMenu>
+#include <QRegExp>
 #include <QString>
 #include <QStringList>
 #include <QTextBrowser>

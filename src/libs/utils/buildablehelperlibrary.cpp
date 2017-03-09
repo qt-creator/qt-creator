@@ -30,6 +30,7 @@
 #include <QDir>
 #include <QDateTime>
 #include <QDebug>
+#include <QRegExp>
 
 namespace Utils {
 

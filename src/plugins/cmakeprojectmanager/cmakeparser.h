@@ -28,6 +28,7 @@
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
 
+#include <QRegExp>
 #include <QRegularExpression>
 
 namespace CMakeProjectManager {

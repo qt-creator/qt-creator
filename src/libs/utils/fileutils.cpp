@@ -36,6 +36,7 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QMessageBox>
+#include <QRegExp>
 #include <QTimer>
 #include <QUrl>
 

@@ -28,6 +28,7 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QRegExp>
 
 namespace Autotest {
 namespace Internal {

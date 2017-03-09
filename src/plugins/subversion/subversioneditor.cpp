@@ -34,6 +34,7 @@
 
 #include <QDebug>
 #include <QFileInfo>
+#include <QRegExp>
 #include <QTextCursor>
 #include <QTextBlock>
 

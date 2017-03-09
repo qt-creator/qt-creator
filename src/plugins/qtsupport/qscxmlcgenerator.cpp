@@ -30,9 +30,10 @@
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
-#include <QLoggingCategory>
-#include <QUuid>
 #include <QDateTime>
+#include <QLoggingCategory>
+#include <QRegExp>
+#include <QUuid>
 
 using namespace ProjectExplorer;
 

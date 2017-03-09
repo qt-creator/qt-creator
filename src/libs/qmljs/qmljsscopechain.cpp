@@ -29,6 +29,8 @@
 #include "qmljsmodelmanagerinterface.h"
 #include "parser/qmljsengine_p.h"
 
+#include <QRegExp>
+
 using namespace QmlJS;
 
 /*!

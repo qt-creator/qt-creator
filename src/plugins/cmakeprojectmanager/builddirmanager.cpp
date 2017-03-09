@@ -57,6 +57,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QRegExp>
 #include <QRegularExpression>
 #include <QSet>
 #include <QTemporaryDir>

@@ -33,6 +33,7 @@
 #include <utils/qtcassert.h>
 #include <QUrl>
 #include <QDebug>
+#include <QRegExp>
 #include <QStack>
 #include <QTemporaryFile>
 #include <algorithm>

@@ -45,6 +45,7 @@
 #include <QPointer>
 #include <QTextCodec>
 #include <QDir>
+#include <QRegExp>
 #include <QTextStream>
 #include <QTime>
 #include <QPoint>

@@ -28,6 +28,7 @@
 #include "proitems.h"
 
 #include <QDir>
+#include <QRegExp>
 #include <QPair>
 
 using namespace QmakeProjectManager::Internal;

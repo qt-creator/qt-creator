@@ -39,6 +39,8 @@
 #include <qmldesignerplugin.h>
 #endif
 
+#include <QRegExp>
+
 namespace QmlDesigner {
 
 void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant &value)

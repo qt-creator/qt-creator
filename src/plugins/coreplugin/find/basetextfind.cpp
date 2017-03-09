@@ -30,8 +30,9 @@
 
 #include <QPointer>
 
-#include <QTextBlock>
 #include <QPlainTextEdit>
+#include <QRegExp>
+#include <QTextBlock>
 #include <QTextCursor>
 
 namespace Core {

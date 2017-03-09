@@ -37,6 +37,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
+#include <QRegExp>
 #include <QXmlStreamWriter>
 
 namespace Beautifier {

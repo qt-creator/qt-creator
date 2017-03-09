@@ -32,6 +32,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QCoreApplication>
+#include <QRegExp>
 #include <QStack>
 
 #ifdef Q_OS_WIN

@@ -60,6 +60,7 @@
 #include <QtPlugin>
 #include <QCoreApplication>
 #include <QFormLayout>
+#include <QRegExp>
 
 using namespace Core;
 using namespace ProjectExplorer;
