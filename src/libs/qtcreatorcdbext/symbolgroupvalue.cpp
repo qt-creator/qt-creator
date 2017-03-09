@@ -2427,15 +2427,17 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str, std::st
         int status = 0;
         int tiVersion = QtInfo::qtTypeInfoVersion(v.context());
         if (tiVersion > 10) {
+            const ULONG64 address =
+                    SymbolGroupValue::isPointerType(v.type()) ? v.pointerValue() : v.address();
             const ULONG64 data = SymbolGroupValue::readUnsignedValue(
-                        v.context().dataspaces, v.address(), 8, 0);
+                        v.context().dataspaces, address, 8, 0);
             status = data & 0xFF;
             ULONG64 timeZone = 0;
             if (status & 0x01) {
                 msecs = data >> 8;
                 spec = (status & 0x30) >> 4;
             } else {
-                ULONG64 addr = SymbolGroupValue::readPointerValue(v.context().dataspaces, v.address());
+                ULONG64 addr = SymbolGroupValue::readPointerValue(v.context().dataspaces, address);
                 msecs = SymbolGroupValue::readSignedValue(v.context().dataspaces, addr, 8, 0);
 
                 addr += 8 /*int64*/;
@@ -3222,7 +3224,7 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
             break;
         }
     }
-    if (rc != SymbolGroupNode::SimpleDumperFailed && SymbolGroupValue::isPointerType(v.type()))
+    if (rc != SymbolGroupNode::SimpleDumperFailed && SymbolGroupValue::isPointerType(v.type()) && encoding->empty())
         str << L" @" << std::showbase << std::hex << v.pointerValue() << std::dec << std::noshowbase;
 
     if (rc == SymbolGroupNode::SimpleDumperOk)

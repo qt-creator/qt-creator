@@ -1,0 +1,216 @@
+/****************************************************************************
+**
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+
+/*!
+    \contentspage {Qt Creator}
+    \page qtcreator-toc.html
+
+    \title Qt Creator TOC
+
+    This file is used only for generating the TOC for the help file to be
+    displayed in the Qt Creator Help mode Contents view.
+
+    \list
+        \li \l{Getting Started}
+        \list
+            \li \l{IDE Overview}
+            \li \l{User Interface}
+            \li \l{Configuring Qt Creator}
+            \li \l{Building and Running an Example}
+            \li \l{Tutorials}
+            \list
+                \li \l{Creating a Qt Quick Application}
+                \li \l{Creating a Qt Widget Based Application}
+                \li \l{Creating a Mobile Application}
+            \endlist
+        \endlist
+        \li \l{Managing Projects}
+        \list
+            \li \l{Creating Projects}
+            \list
+                \li \l{Opening Projects}
+                \li \l{Adding Libraries to Projects}
+                \li \l{Adding New Custom Wizards}
+                \list
+                    \li \l{Adding JSON-Based Wizards}
+                    \li \l{Adding XML-Based Wizards}
+                \endlist
+            \endlist
+            \li \l{Using Version Control Systems}
+            \list
+                \li \l{Using Bazaar}
+                \li \l{Using ClearCase}
+                \li \l{Using CVS}
+                \li \l{Using Git}
+                \li \l{Using Mercurial}
+                \li \l{Using Perforce}
+                \li \l{Using Subversion}
+            \endlist
+            \li \l{Configuring Projects}
+            \list
+                \li \l{Adding Kits}
+                \li \l{Adding Qt Versions}
+                \li \l{Adding Compilers}
+                \li \l{Adding Debuggers}
+                \li \l{Specifying Build Settings}
+                \li \l{Specifying Run Settings}
+                \li \l{Specifying Editor Settings}
+                \li \l{Specifying Code Style Settings}
+                \li \l{Specifying Dependencies}
+                \li \l{Sharing Project Settings}
+            \endlist
+            \li \l{Managing Sessions}
+        \endlist
+        \li \l{Designing User Interfaces}
+        \list
+            \li \l{Developing Qt Quick Applications}
+            \list
+                \li \l {Creating Qt Quick Projects}
+                \li \l {Qt Quick UI Forms}
+                \li \l {Using Qt Quick Designer}
+                \li \l {Editing PathView Properties}
+                \li \l {Adding Connections}
+                \li \l {Creating Components}
+                \li \l {Creating Buttons}
+                \li \l {Creating Scalable Buttons and Borders}
+                \li \l {Creating Screens}
+                \li \l {Browsing ISO 7000 Icons}
+                \li \l {Exporting Designs from Graphics Software}
+                \li \l {Using QML Modules with Plugins}
+            \endlist
+            \li \l{Developing Widget Based Applications}
+            \list
+                \li  \l{Adding Qt Designer Plugins}
+            \endlist
+            \li \l{Optimizing Applications for Mobile Devices}
+        \endlist
+        \li \l{Coding}
+        \list
+        \li \l{Writing Code}
+            \list
+                \li \l{Working in Edit Mode}
+                \li \l{Semantic Highlighting}
+                \li \l{Checking Code Syntax}
+                \li \l{Completing Code}
+                \li \l{Indenting Text or Code}
+                \li \l{Using Qt Quick Toolbars}
+                \li \l{Pasting and Fetching Code Snippets}
+                \li \l{Using Text Editing Macros}
+                \li \l{Comparing Files}
+                \li \l{Parsing C++ Files with the Clang Code Model}
+            \endlist
+            \li \l{Finding}
+            \list
+                \li \l{Finding and Replacing}
+                \li \l{Searching with the Locator}
+            \endlist
+            \li \l{Refactoring}
+            \li \l{Beautifying Source Code}
+            \li \l{Configuring the Editor}
+            \list
+                \li \l{Specifying Text Editor Settings}
+                \li \l{Using FakeVim Mode}
+            \endlist
+            \li \l{Editing MIME Types}
+            \li \l{Modeling}
+            \li \l{Editing State Charts}
+
+        \endlist
+        \li \l{Building and Running}
+        \list
+            \li \l{Building for Multiple Platforms}
+            \li \l{Running on Multiple Platforms}
+            \li \l{Deploying to Mobile Devices}
+            \list
+                \li \l{Deploying Applications to Android Devices}
+                \li \l{Deploying Applications to Embedded Linux Devices}
+                \li \l{Deploying Applications to QNX Neutrino Devices}
+            \endlist
+            \li \l{Connecting Mobile Devices}
+            \list
+                \li \l{Connecting Android Devices}
+                \li \l{Connecting Bare Metal Devices}
+                \li \l{Connecting Embedded Linux Devices}
+                \li \l{Connecting iOS Devices}
+                \li \l{Connecting QNX Devices}
+                \li \l{Connecting Windows Runtime Devices}
+            \endlist
+            \li \l{Customizing the Build Process}
+        \endlist
+        \li \l{Testing}
+        \list
+            \li \l{Debugging}
+            \list
+                \li \l{Setting Up Debugger}
+                \li \l{Launching the Debugger}
+                \li \l{Interacting with the Debugger}
+                \li \l{Using Debugging Helpers}
+                \li \l{Debugging Qt Quick Projects}
+                \li \l{Debugging a C++ Example Application}
+                \li \l{Debugging a Qt Quick Example Application}
+                \li \l{Troubleshooting Debugger}
+            \endlist
+            \li \l{Analyzing Code}
+            \list
+                \li \l{Profiling QML Applications}
+                \li \l{Using Valgrind Code Analysis Tools}
+                \list
+                    \li \l{Detecting Memory Leaks}
+                    \li \l{Profiling Function Execution}
+                    \li \l{Running Valgrind Tools on External Applications}
+                \endlist
+                \li \l{Using Clang Static Analyzer}
+                \li \l{Analyzing CPU Usage}
+            \endlist
+            \li \l{Running Autotests}
+        \endlist
+        \li \l{Advanced Use}
+        \list
+            \li \l{Supported Platforms}
+            \li \l{Using Other Build Systems}
+            \list
+                \li \l{Setting Up CMake}
+                \li \l{Setting Up Qbs}
+                \li \l{Setting Up an Autotools Project}
+                \li \l{Setting Up a Generic Project}
+            \endlist
+            \li \l{Using Command Line Options}
+            \li \l{Keyboard Shortcuts}
+            \li \l{Using External Tools}
+            \li \l{Showing Task List Files in Issues Pane}
+        \endlist
+        \li  \l{Getting Help}
+        \list
+            \li \l{Using the Help Mode}
+            \li \l{FAQ}
+            \li \l{Tips and Tricks}
+            \li \l{Known Issues}
+            \li \l{Glossary}
+            \li \l{Technical Support}
+            \li \l{Acknowledgements}
+        \endlist
+    \endlist
+*/

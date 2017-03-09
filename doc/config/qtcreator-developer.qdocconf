@@ -38,27 +38,26 @@ sourcedirs              = . \
 headers.fileextensions  = "*.h"
 sources.fileextensions  = "*.cpp *.qdoc"
 
-imagedirs = $SRCDIR/api/images $SRCDIR/images $SRCDIR/templates/images
-outputdir = $OUTDIR
-exampledirs = $SRCDIR/api/examples
+imagedirs = ../api/images ../images ../templates/images
+exampledirs = ../api/examples
 
-indexes +=    $QDOC_INDEX_DIR/qtwidgets/qtwidgets.index \
-              $QDOC_INDEX_DIR/qtcore/qtcore.index \
-              $QDOC_INDEX_DIR/qtqml/qtqml.index \
-              $QDOC_INDEX_DIR/qtquick/qtquick.index \
-              $QDOC_INDEX_DIR/qmake/qmake.index \
-              $QDOC_INDEX_DIR/qtdesigner/qtdesigner.index \
-              $QDOC_INDEX_DIR/qtdoc/qtdoc.index \
-              $QDOC_INDEX_DIR/qtgui/qtgui.index \
-              $QDOC_INDEX_DIR/qthelp/qthelp.index \
-              $QDOC_INDEX_DIR/qtquickcontrols/qtquickcontrols.index \
-              $QDOC_INDEX_DIR/qtquicklayouts/qtquicklayouts.index \
-              $QDOC_INDEX_DIR/qtlinguist/qtlinguist.index \
-              $QDOC_INDEX_DIR/qtscript/qtscript.index \
-              $QDOC_INDEX_DIR/qtsensors/qtsensors.index \
-              $QDOC_INDEX_DIR/qtuitools/qtuitools.index \
-              $QDOC_INDEX_DIR/qtwebkit/qtwebkit.index \
-              $QDOC_INDEX_DIR/qtxml/qtxml.index
+depends +=    qtwidgets \
+              qtcore \
+              qtqml \
+              qtquick \
+              qmake \
+              qtdesigner \
+              qtdoc \
+              qtgui \
+              qthelp \
+              qtquickcontrols \
+              qtquicklayouts \
+              qtlinguist \
+              qtscript \
+              qtsensors \
+              qtuitools \
+              qtwebkit \
+              qtxml
 
 include(macros.qdocconf)
 include(qt-cpp-ignore.qdocconf)

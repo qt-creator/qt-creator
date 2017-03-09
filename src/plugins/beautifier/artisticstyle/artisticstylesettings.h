@@ -40,7 +40,8 @@ class ArtisticStyleSettings : public AbstractSettings
 
 public:
     enum ArtisticStyleVersion {
-        Version_2_03 = 203
+        Version_2_03 = 203,
+        Version_2_04 = 204
     };
 
     ArtisticStyleSettings();

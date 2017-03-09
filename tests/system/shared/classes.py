@@ -28,7 +28,7 @@ import operator
 
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
-    ALL_TARGETS = map(lambda x: 2 ** x , range(6))
+    ALL_TARGETS = tuple(map(lambda x: 2 ** x , range(6)))
 
     (DESKTOP_474_GCC,
      DESKTOP_480_DEFAULT,
@@ -38,10 +38,19 @@ class Targets:
      DESKTOP_561_DEFAULT) = ALL_TARGETS
 
     @staticmethod
+    def availableTargetClasses():
+        availableTargets = list(Targets.ALL_TARGETS)
+        if platform.system() in ('Windows', 'Microsoft'):
+            availableTargets.remove(Targets.EMBEDDED_LINUX)
+        elif platform.system() == 'Darwin':
+            availableTargets.remove(Targets.DESKTOP_541_GCC)
+        return availableTargets
+
+    @staticmethod
     def desktopTargetClasses():
-        desktopTargets = (sum(Targets.ALL_TARGETS) & ~Targets.EMBEDDED_LINUX)
-        if platform.system() == 'Darwin':
-            desktopTargets &= ~Targets.DESKTOP_541_GCC
+        desktopTargets = Targets.availableTargetClasses()
+        if Targets.EMBEDDED_LINUX in desktopTargets:
+            desktopTargets.remove(Targets.EMBEDDED_LINUX)
         return desktopTargets
 
     @staticmethod
@@ -78,14 +87,6 @@ class Targets:
         if None in result:
             test.fatal("You've passed at least one unknown target!")
         return result
-
-    @staticmethod
-    def intToArray(targets):
-        return filter(lambda x: x & targets, Targets.ALL_TARGETS)
-
-    @staticmethod
-    def arrayToInt(targetArr):
-        return reduce(operator.or_, targetArr, 0)
 
     @staticmethod
     def getDefaultKit():

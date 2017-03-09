@@ -174,7 +174,7 @@ def main():
     for useClang in [False, True]:
         if not startCreator(useClang):
             continue
-        openQmakeProject(examplePath, Targets.DESKTOP_531_DEFAULT)
+        openQmakeProject(examplePath, [Targets.DESKTOP_531_DEFAULT])
         checkCodeModelSettings(useClang)
         if not openDocument("cplusplus-tools.Sources.main\\.cpp"):
             earlyExit("Failed to open main.cpp.")

@@ -72,8 +72,8 @@ def openCmakeProject(projectPath, buildDir):
 
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
-    __chooseTargets__(0) # uncheck all
-    __chooseTargets__(Targets.DESKTOP_480_DEFAULT, additionalFunc=additionalFunction)
+    __chooseTargets__([]) # uncheck all
+    __chooseTargets__([Targets.DESKTOP_480_DEFAULT], additionalFunc=additionalFunction)
     clickButton(waitForObject(":Qt Creator.Configure Project_QPushButton"))
     return True
 
@@ -344,7 +344,7 @@ def createEmptyQtProject(workingDir=None, projectName=None, targets=Targets.desk
     __createProjectHandleLastPage__()
     return projectName, checkedTargets
 
-def createNewNonQtProject(workingDir=None, projectName=None, target=Targets.DESKTOP_474_GCC,
+def createNewNonQtProject(workingDir=None, projectName=None, target=[Targets.DESKTOP_474_GCC],
                           plainC=False, cmake=False, qbs=False):
     if plainC:
         template = "Plain C Application"
@@ -373,7 +373,7 @@ def createNewNonQtProject(workingDir=None, projectName=None, target=Targets.DESK
     return projectName
 
 def createNewCPPLib(projectDir = None, projectName = None, className = None, fromWelcome = False,
-                    target = Targets.DESKTOP_474_GCC, isStatic = False, modules = ["QtCore"]):
+                    target = [Targets.DESKTOP_474_GCC], isStatic = False, modules = ["QtCore"]):
     available = __createProjectOrFileSelectType__("  Library", "C++ Library", fromWelcome, True)
     if isStatic:
         libType = LibType.STATIC
@@ -391,7 +391,7 @@ def createNewCPPLib(projectDir = None, projectName = None, className = None, fro
     return checkedTargets, projectName, className
 
 def createNewQtPlugin(projectDir=None, projectName=None, className=None, fromWelcome=False,
-                      target=Targets.DESKTOP_474_GCC, baseClass="QGenericPlugin"):
+                      target=[Targets.DESKTOP_474_GCC], baseClass="QGenericPlugin"):
     available = __createProjectOrFileSelectType__("  Library", "C++ Library", fromWelcome, True)
     if projectDir == None:
         projectDir = tempDir()
@@ -403,25 +403,21 @@ def createNewQtPlugin(projectDir=None, projectName=None, className=None, fromWel
     __createProjectHandleLastPage__()
     return checkedTargets, projectName, className
 
-# parameter target can be an OR'd value of Targets
+# parameter target can be a list of Targets
 # parameter availableTargets should be the result of __createProjectOrFileSelectType__()
 #           or use None as a fallback
 # parameter additionalFunc function to be executed inside the detailed view of each chosen kit
 #           if present, 'Details' button will be clicked, function will be executed,
 #           'Details' button will be clicked again
-def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None, additionalFunc=None):
+def __chooseTargets__(targets=[Targets.DESKTOP_474_GCC], availableTargets=None, additionalFunc=None):
     if availableTargets != None:
         available = availableTargets
     else:
         # following targets depend on the build environment - added for further/later tests
-        available = list(Targets.ALL_TARGETS)
-        if platform.system() in ('Windows', 'Microsoft'):
-            available.remove(Targets.EMBEDDED_LINUX)
-        elif platform.system() == 'Darwin':
-            available.remove(Targets.DESKTOP_541_GCC)
+        available = Targets.availableTargetClasses()
     checkedTargets = []
     for current in available:
-        mustCheck = targets & current == current
+        mustCheck = current in targets
         try:
             ensureChecked("{type='QCheckBox' text='%s' visible='1'}" % Targets.getStringForTarget(current),
                           mustCheck, 3000)
@@ -660,10 +656,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
             if platform.system() != 'Darwin':
                 result.append(Targets.DESKTOP_541_GCC)
     elif 'Platform independent' in text:
-        result = list(Targets.ALL_TARGETS)
-        result.remove(Targets.EMBEDDED_LINUX)
-        if platform.system() == 'Darwin':
-            result.remove(Targets.DESKTOP_541_GCC)
+        result = Targets.desktopTargetClasses()
     else:
         test.warning("Returning None (__getSupportedPlatforms__())",
                      "Parsed text: '%s'" % text)
