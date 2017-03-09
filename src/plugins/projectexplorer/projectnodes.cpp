@@ -45,6 +45,50 @@
 
 namespace ProjectExplorer {
 
+static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
+                                                   const Utils::FileName &directory,
+                                                   const Utils::FileName &overrideBaseDir)
+{
+    Utils::FileName path = overrideBaseDir.isEmpty() ? folder->filePath() : overrideBaseDir;
+
+    Utils::FileName directoryWithoutPrefix;
+    bool isRelative = false;
+
+    if (path.isEmpty() || path.toFileInfo().isRoot()) {
+        directoryWithoutPrefix = directory;
+        isRelative = false;
+    } else {
+        if (directory.isChildOf(path) || directory == path) {
+            isRelative = true;
+            directoryWithoutPrefix = directory.relativeChildPath(path);
+        } else {
+            isRelative = false;
+            directoryWithoutPrefix = directory;
+        }
+    }
+    QStringList parts = directoryWithoutPrefix.toString().split('/', QString::SkipEmptyParts);
+    if (!Utils::HostOsInfo::isWindowsHost() && !isRelative && parts.count() > 0)
+        parts[0].prepend('/');
+
+    ProjectExplorer::FolderNode *parent = folder;
+    foreach (const QString &part, parts) {
+        path.appendPath(part);
+        // Find folder in subFolders
+        FolderNode *next = parent->folderNode(path);
+        if (!next) {
+            // No FolderNode yet, so create it
+            auto tmp = new ProjectExplorer::FolderNode(path);
+            tmp->setDisplayName(part);
+            parent->addNode(tmp);
+            next = tmp;
+        }
+        parent = next;
+    }
+    return parent;
+}
+
+
+
 /*!
   \class ProjectExplorer::Node
 
@@ -434,54 +478,14 @@ FolderNode *FolderNode::folderNode(const Utils::FileName &directory) const
     }));
 }
 
-FolderNode *FolderNode::recursiveFindOrCreateFolderNode(const Utils::FileName &directory,
-                                                        const Utils::FileName &overrideBaseDir)
-{
-    Utils::FileName path = overrideBaseDir.isEmpty() ? filePath() : overrideBaseDir;
-
-    Utils::FileName directoryWithoutPrefix;
-    bool isRelative = false;
-
-    if (path.isEmpty() || path.toFileInfo().isRoot()) {
-        directoryWithoutPrefix = directory;
-        isRelative = false;
-    } else {
-        if (directory.isChildOf(path) || directory == path) {
-            isRelative = true;
-            directoryWithoutPrefix = directory.relativeChildPath(path);
-        } else {
-            isRelative = false;
-            directoryWithoutPrefix = directory;
-        }
-    }
-    QStringList parts = directoryWithoutPrefix.toString().split('/', QString::SkipEmptyParts);
-    if (!Utils::HostOsInfo::isWindowsHost() && !isRelative && parts.count() > 0)
-        parts[0].prepend('/');
-
-    ProjectExplorer::FolderNode *parent = this;
-    foreach (const QString &part, parts) {
-        path.appendPath(part);
-        // Find folder in subFolders
-        FolderNode *next = parent->folderNode(path);
-        if (!next) {
-            // No FolderNode yet, so create it
-            auto tmp = new ProjectExplorer::FolderNode(path);
-            tmp->setDisplayName(part);
-            parent->addNode(tmp);
-            next = tmp;
-        }
-        parent = next;
-    }
-    return parent;
-}
-
 void FolderNode::buildTree(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir)
 {
     foreach (ProjectExplorer::FileNode *fn, files) {
         // Get relative path to rootNode
         QString parentDir = fn->filePath().toFileInfo().absolutePath();
         ProjectExplorer::FolderNode *folder
-                = recursiveFindOrCreateFolderNode(Utils::FileName::fromString(parentDir), overrideBaseDir);
+                = recursiveFindOrCreateFolderNode(this, Utils::FileName::fromString(parentDir),
+                                                  overrideBaseDir);
         folder->addNode(fn);
     }
 
