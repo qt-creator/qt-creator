@@ -196,10 +196,6 @@ void TypeDescriptionReader::readDependencies(UiScriptBinding *ast)
     }
     for (ElementList *l = exp->elements; l; l = l->next) {
         StringLiteral *str = AST::cast<StringLiteral *>(l->expression);
-        if (!exp) {
-            addWarning(l->expression->firstSourceLocation(),
-                       tr("Cannot read dependency: skipping."));
-        }
         *_dependencies << str->value.toString();
     }
 }
