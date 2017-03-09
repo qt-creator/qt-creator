@@ -42,6 +42,8 @@
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljseditor/qmljseditordocument.h>
 
+#include <coreplugin/icore.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/proxyaction.h>
 #include <utils/utilsicons.h>
@@ -198,15 +200,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     m_deleteAction.setIcon(QIcon::fromTheme(QLatin1String("edit-cut"), Utils::Icons::EDIT_CLEAR_TOOLBAR.icon()));
 
-    Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_BACKSPACE, qmlDesignerFormEditorContext);
-    command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_BACKSPACE, qmlDesignerNavigatorContext);
-    command->setDefaultKeySequence(QKeySequence(Qt::Key_Backspace));
-    command->setAttribute(Core::Command::CA_Hide); // don't show delete in other modes
-    if (Utils::HostOsInfo::isMacHost())
-        editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
-
-    Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_DELETE, qmlDesignerFormEditorContext);
-    command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_DELETE, qmlDesignerNavigatorContext);
+    command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_DELETE, qmlDesignerMainContext);
     command->setDefaultKeySequence(QKeySequence::Delete);
     command->setAttribute(Core::Command::CA_Hide); // don't show delete in other modes
     if (!Utils::HostOsInfo::isMacHost())
@@ -272,6 +266,15 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
         m_deleteAction.setEnabled(itemsSelected && !rootItemIsSelected);
         m_cutAction.setEnabled(itemsSelected && !rootItemIsSelected);
         m_copyAction.setEnabled(itemsSelected);
+    });
+
+    connect(Core::ICore::instance(), &Core::ICore::contextChanged, this, [this](const Core::Context &context){
+        if (!context.contains(Constants::C_QMLFORMEDITOR) && !context.contains(Constants::C_QMLNAVIGATOR)) {
+            m_deleteAction.setEnabled(false);
+            m_cutAction.setEnabled(false);
+            m_copyAction.setEnabled(false);
+            m_pasteAction.setEnabled(false);
+        }
     });
 
     updateClipboard(&m_pasteAction);
