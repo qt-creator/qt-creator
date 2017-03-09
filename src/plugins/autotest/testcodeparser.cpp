@@ -324,6 +324,8 @@ void TestCodeParser::scanForTests(const QStringList &fileList, ITestParser *pars
 {
     if (m_parserState == Shutdown || m_testCodeParsers.isEmpty())
         return;
+    if (parser && !m_testCodeParsers.contains(parser))
+        return;
 
     if (postponed(fileList))
         return;
