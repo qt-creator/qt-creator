@@ -682,7 +682,6 @@ class Data
 {
 public:
     Data() {}
-    Data(const QString &code) : code(code) {}
 
     Data(const QString &includes, const QString &code)
         : includes(includes), code(code)
@@ -5113,7 +5112,8 @@ void tst_Dumpers::dumper_data()
 
     const FloatValue ff("5.88545355e-44");
     QTest::newRow("AnonymousStruct")
-            << Data("union {\n"
+            << Data("",
+                    "union {\n"
                     "     struct { int i; int b; };\n"
                     "     struct { float f; };\n"
                     "     double d;\n"
@@ -5151,7 +5151,8 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("CharArrays")
-            << Data("char s[] = \"aöa\";\n"
+            << Data("",
+                    "char s[] = \"aöa\";\n"
                     "char t[] = \"aöax\";\n"
                     "wchar_t w[] = L\"aöa\";\n"
                     "unused(&s, &t, &w);\n")
@@ -5166,7 +5167,8 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("CharPointers")
-            << Data("const char *s = \"aöa\";\n"
+            << Data("",
+                    "const char *s = \"aöa\";\n"
                     "const char *t = \"a\\xc3\\xb6\";\n"
                     "unsigned char uu[] = { 'a', 153 /* ö Latin1 */, 'a' };\n"
                     "const unsigned char *u = uu;\n"
@@ -5185,7 +5187,7 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("GccExtensions")
-            << Data(
+            << Data("",
                    "char v[8] = { 1, 2 };\n"
                    "char w __attribute__ ((vector_size (8))) = { 1, 2 };\n"
                    "int y[2] = { 1, 2 };\n"
@@ -5256,7 +5258,8 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("Array")
-            << Data("double a1[3][3];\n"
+            << Data("",
+                    "double a1[3][3];\n"
                     "for (int i = 0; i != 3; ++i)\n"
                     "    for (int j = 0; j != 3; ++j)\n"
                     "        a1[i][j] = i + j;\n"
@@ -5320,7 +5323,8 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("Bitfields")
-            << Data("struct S\n"
+            << Data("",
+                    "struct S\n"
                     "{\n"
                     "    S() : x(2), y(3), z(39), c(1), b(0), f(5), d(6), i(7) {}\n"
                     "    unsigned int x : 3;\n"
@@ -5581,7 +5585,8 @@ void tst_Dumpers::dumper_data()
 */
 
     QTest::newRow("LongEvaluation2")
-            << Data("const int N = 10000;\n"
+            << Data("",
+                    "const int N = 10000;\n"
                     "int bigv[N];\n"
                     "for (int i = 0; i < N; ++i)\n"
                     "    bigv[i] = i;\n"
@@ -5941,7 +5946,8 @@ void tst_Dumpers::dumper_data()
 
     // https://bugreports.qt.io/browse/QTCREATORBUG-3611
     QTest::newRow("Bug3611")
-        << Data("typedef unsigned char byte;\n"
+        << Data("",
+                "typedef unsigned char byte;\n"
                 "byte f = '2';\n"
                 "int *x = (int*)&f;\n")
          + Check("f", "50", TypeDef("unsigned char", "byte"));
@@ -6046,7 +6052,8 @@ void tst_Dumpers::dumper_data()
 
     // https://bugreports.qt.io/browse/QTCREATORBUG-6465
     QTest::newRow("Bug6465")
-        << Data("typedef char Foo[20];\n"
+        << Data("",
+                "typedef char Foo[20];\n"
                 "Foo foo = \"foo\";\n"
                 "char bar[20] = \"baz\";\n")
         + CheckType("bar", "char[20]");
@@ -6412,7 +6419,8 @@ void tst_Dumpers::dumper_data()
     // The proposed fix has been reported to crash gdb steered from eclipse");
     // http://sourceware.org/ml/gdb-patches/2011-12/msg00420.html
     QTest::newRow("Gdb10586")
-            << Data("struct Test {\n"
+            << Data("",
+                    "struct Test {\n"
                     "    struct { int a; float b; };\n"
                     "    struct { int c; float d; };\n"
                     "} v = {{1, 2}, {3, 4}};\n"
@@ -6426,7 +6434,8 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("Gdb10586eclipse")
-            << Data("struct { int x; struct { int a; }; struct { int b; }; } "
+            << Data("",
+                    "struct { int x; struct { int a; }; struct { int b; }; } "
                     "   v = {1, {2}, {3}};\n"
                     "struct S { int x, y; } n = {10, 20};\n"
                     "unused(&v, &n);\n")
