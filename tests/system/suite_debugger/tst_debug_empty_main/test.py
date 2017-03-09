@@ -58,13 +58,12 @@ def main():
     performDebugging(projectName, checkedTargets)
     invokeMenuItem("File", "Close All Projects and Editors")
     # C/C++
-    targets = Targets.intToArray(Targets.desktopTargetClasses())
     for name,isC in {"C":True, "CPP":False}.items():
         for singleTarget in targets:
             workingDir = tempDir()
             qtVersion = re.search("\d{3}", Targets.getStringForTarget(singleTarget)).group()
             projectName = createNewNonQtProject(workingDir, "Sample%s%s" % (name, qtVersion),
-                                                singleTarget, isC)
+                                                [singleTarget], isC)
             if projectName == None:
                 test.fail("Failed to create Sample%s%s" % (name, qtVersion),
                           "Target: %s, plainC: %s" % (Targets.getStringForTargt(singleTarget), isC))

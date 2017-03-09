@@ -27,9 +27,9 @@
 #include "formeditorview.h"
 #include "formeditorwidget.h"
 #include "formeditoritem.h"
-#include "qmldesignerplugin.h"
-#include "designersettings.h"
-
+#include <nodehints.h>
+#include <qmldesignerplugin.h>
+#include <designersettings.h>
 
 #include <QGraphicsSceneDragDropEvent>
 
@@ -168,6 +168,9 @@ void FormEditorScene::synchronizeOtherProperty(FormEditorItem *item, const QByte
 
     if (propertyName == "clip")
         item->setFlag(QGraphicsItem::ItemClipsChildrenToShape, qmlItemNode.instanceValue("clip").toBool());
+
+    if (NodeHints::fromModelNode(qmlItemNode).forceClip())
+        item->setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
 
     if (propertyName == "z")
         item->setZValue(qmlItemNode.instanceValue("z").toDouble());

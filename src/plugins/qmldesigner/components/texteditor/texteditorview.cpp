@@ -27,6 +27,7 @@
 
 #include "texteditorwidget.h"
 
+#include <customnotifications.h>
 #include <designmodecontext.h>
 #include <designdocument.h>
 #include <designersettings.h>
@@ -160,8 +161,12 @@ void TextEditorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNode
     m_widget->jumpTextCursorToSelectedModelNode();
 }
 
-void TextEditorView::customNotification(const AbstractView * /*view*/, const QString &/*identifier*/, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
+void TextEditorView::customNotification(const AbstractView * /*view*/, const QString &identifier, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
 {
+    if (identifier == StartRewriterApply)
+        m_widget->setBlockCurserSelectionSyncronisation(true);
+    else if (identifier == EndRewriterApply)
+        m_widget->setBlockCurserSelectionSyncronisation(false);
 }
 
 void TextEditorView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &)

@@ -28,6 +28,8 @@
 #include "qmltextgenerator.h"
 #include "rewriteactioncompressor.h"
 
+#include <customnotifications.h>
+
 #include <rewriterview.h>
 #include <abstractproperty.h>
 #include <nodeproperty.h>
@@ -217,6 +219,8 @@ void ModelToTextMerger::applyChanges()
     if (m_rewriteActions.isEmpty())
         return;
 
+    m_rewriterView->emitCustomNotification(StartRewriterApply);
+
     Document::MutablePtr tmpDocument(Document::create(QStringLiteral("<ModelToTextMerger>"), Dialect::Qml));
     tmpDocument->setSource(m_rewriterView->textModifier()->text());
     if (!tmpDocument->parseQml()) {
@@ -297,6 +301,8 @@ void ModelToTextMerger::applyChanges()
         textModifier->commitGroup();
         textModifier->reactivateChangeSignals();
     }
+
+    m_rewriterView->emitCustomNotification(EndRewriterApply);
 }
 
 void ModelToTextMerger::reindent(const QMap<int, int> &dirtyAreas) const

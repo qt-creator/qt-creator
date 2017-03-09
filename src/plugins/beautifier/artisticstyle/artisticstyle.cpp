@@ -160,10 +160,13 @@ Command ArtisticStyle::command(const QString &cfgFile) const
     command.addOption("-q");
     command.addOption("--options=" + cfgFile);
 
-    if (m_settings->version() > ArtisticStyleSettings::Version_2_03) {
+    const int version = m_settings->version();
+    if (version > ArtisticStyleSettings::Version_2_03) {
         command.setProcessing(Command::PipeProcessing);
-        command.setPipeAddsNewline(true);
+        if (version == ArtisticStyleSettings::Version_2_04)
+            command.setPipeAddsNewline(true);
         command.setReturnsCRLF(Utils::HostOsInfo::isWindowsHost());
+        command.addOption("-z2");
     } else {
         command.addOption("%file");
     }

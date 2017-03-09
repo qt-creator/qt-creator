@@ -3,51 +3,49 @@ description = "Qt Creator Manual"
 url         = http://doc.qt.io/qtcreator
 
 headerdirs =
-sourcedirs = $SRCDIR/src
-imagedirs = $SRCDIR/images \
-            $SRCDIR/templates/images \
-            $SRCDIR/../src/libs/qmleditorwidgets/images \
-            $SRCDIR/../src/libs/utils/images \
-            $SRCDIR/../src/plugins/android/images \
-            $SRCDIR/../src/plugins/autotest/images \
-            $SRCDIR/../src/plugins/classview/images \
-            $SRCDIR/../src/plugins/coreplugin/images \
-            $SRCDIR/../src/plugins/debugger/images \
-            $SRCDIR/../src/plugins/diffeditor/images \
-            $SRCDIR/../src/plugins/help/images \
-            $SRCDIR/../src/plugins/projectexplorer/images \
-            $SRCDIR/../src/plugins/qmldesigner/components/formeditor \
-            $SRCDIR/../src/plugins/qmldesigner/components/navigator \
-            $SRCDIR/../src/plugins/scxmleditor/common/images \
-            $SRCDIR/../src/plugins/texteditor/images
+sourcedirs = ../src
+imagedirs = ../images \
+            ../templates/images \
+            ../../src/libs/qmleditorwidgets/images \
+            ../../src/libs/utils/images \
+            ../../src/plugins/android/images \
+            ../../src/plugins/autotest/images \
+            ../../src/plugins/classview/images \
+            ../../src/plugins/coreplugin/images \
+            ../../src/plugins/debugger/images \
+            ../../src/plugins/diffeditor/images \
+            ../../src/plugins/help/images \
+            ../../src/plugins/projectexplorer/images \
+            ../../src/plugins/qmldesigner/components/formeditor \
+            ../../src/plugins/qmldesigner/components/navigator \
+            ../../src/plugins/scxmleditor/common/images \
+            ../../src/plugins/texteditor/images
 
-outputdir = $OUTDIR
-exampledirs = $SRCDIR/examples
+exampledirs = ../examples
 examples.fileextensions += *.qml *.svg
 
 HTML.extraimages         = images/commercial.png
 qhp.QtCreator.extraFiles = images/commercial.png
 
-
-indexes +=    $QDOC_INDEX_DIR/qtwidgets/qtwidgets.index \
-              $QDOC_INDEX_DIR/qtcore/qtcore.index \
-              $QDOC_INDEX_DIR/qtqml/qtqml.index \
-              $QDOC_INDEX_DIR/qtquick/qtquick.index \
-              $QDOC_INDEX_DIR/qmake/qmake.index \
-              $QDOC_INDEX_DIR/qtdesigner/qtdesigner.index \
-              $QDOC_INDEX_DIR/qtdoc/qtdoc.index \
-              $QDOC_INDEX_DIR/qtgui/qtgui.index \
-              $QDOC_INDEX_DIR/qthelp/qthelp.index \
-              $QDOC_INDEX_DIR/qtquickcontrols/qtquickcontrols.index \
-              $QDOC_INDEX_DIR/qtquickcontrols2/qtquickcontrols2.index \
-              $QDOC_INDEX_DIR/qtquickextras/qtquickextras.index \
-              $QDOC_INDEX_DIR/qtlinguist/qtlinguist.index \
-              $QDOC_INDEX_DIR/qtscript/qtscript.index \
-              $QDOC_INDEX_DIR/qtscxml/qtscxml.index \
-              $QDOC_INDEX_DIR/qtsensors/qtsensors.index \
-              $QDOC_INDEX_DIR/qttestlib/qttestlib.index \
-              $QDOC_INDEX_DIR/qtuitools/qtuitools.index \
-              $QDOC_INDEX_DIR/qtxml/qtxml.index
+depends +=    qtwidgets \
+              qtcore \
+              qtqml \
+              qtquick \
+              qmake \
+              qtdesigner \
+              qtdoc \
+              qtgui \
+              qthelp \
+              qtquickcontrols \
+              qtquickcontrols2 \
+              qtquickextras \
+              qtlinguist \
+              qtscript \
+              qtscxml \
+              qtsensors \
+              qttestlib \
+              qtuitools \
+              qtxml
 
 include(macros.qdocconf)
 include(qt-cpp-ignore.qdocconf)
@@ -67,7 +65,7 @@ qhp.QtCreator.indexRoot        =
 
 qhp.QtCreator.subprojects = manual
 qhp.QtCreator.subprojects.manual.title = Qt Creator Manual
-qhp.QtCreator.subprojects.manual.indexTitle = Qt Creator Manual
+qhp.QtCreator.subprojects.manual.indexTitle = Qt Creator TOC
 qhp.QtCreator.subprojects.manual.type = manual
 
 # Doxygen compatibility commands
