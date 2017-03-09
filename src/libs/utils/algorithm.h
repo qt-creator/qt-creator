@@ -282,6 +282,15 @@ decltype(auto) transform(const C &container, R (S::*p)() const)
             >::call(container, p);
 }
 
+template<typename C,
+         typename R,
+         typename S>
+Q_REQUIRED_RESULT
+decltype(auto) transform(const C &container, R S::*member)
+{
+    return transform(container, std::mem_fn(member));
+}
+
 // different container types for input and output, e.g. transforming a QList into a QSet
 template<template<typename> class C, // result container type
          typename SC, // input container type
