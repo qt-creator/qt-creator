@@ -113,39 +113,27 @@ QString GerritServer::url(UrlType urlType) const
 
 bool GerritServer::fillFromRemote(const QString &remote, const GerritParameters &parameters)
 {
-    static const QRegularExpression remotePattern(
-                "^(?:(?<protocol>[^:]+)://)?(?:(?<user>[^@]+)@)?(?<host>[^:/]+)"
-                "(?::(?<port>\\d+))?:?(?<path>/.*)$");
+    const GitRemote r(remote);
+    if (!r.isValid)
+        return false;
 
-    // Skip local remotes (refer to the root or relative path)
-    if (remote.isEmpty() || remote.startsWith('/') || remote.startsWith('.'))
-        return false;
-    // On Windows, local paths typically starts with <drive>:
-    if (HostOsInfo::isWindowsHost() && remote[1] == ':')
-        return false;
-    QRegularExpressionMatch match = remotePattern.match(remote);
-    if (!match.hasMatch())
-        return false;
-    const QString protocol = match.captured("protocol");
-    if (protocol == "https")
+    if (r.protocol == "https")
         type = GerritServer::Https;
-    else if (protocol == "http")
+    else if (r.protocol == "http")
         type = GerritServer::Http;
-    else if (protocol.isEmpty() || protocol == "ssh")
+    else if (r.protocol.isEmpty() || r.protocol == "ssh")
         type = GerritServer::Ssh;
     else
         return false;
-    const QString userName = match.captured("user");
-    user.userName = userName.isEmpty() ? parameters.server.user.userName : userName;
-    host = match.captured("host");
-    port = match.captured("port").toUShort();
-    if (host.contains("github.com")) // Clearly not gerrit
+
+    user.userName = r.userName.isEmpty() ? parameters.server.user.userName : r.userName;
+    if (r.host.contains("github.com")) // Clearly not gerrit
         return false;
     if (type != GerritServer::Ssh) {
         curlBinary = parameters.curl;
         if (curlBinary.isEmpty() || !QFile::exists(curlBinary))
             return false;
-        rootPath = match.captured("path");
+        rootPath = r.path;
         // Strip the last part of the path, which is always the repo name
         // The rest of the path needs to be inspected to find the root path
         // (can be http://example.net/review)
