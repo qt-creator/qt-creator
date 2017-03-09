@@ -53,7 +53,7 @@ void NimRunControl::start()
 {
     reportApplicationStart();
     m_applicationLauncher.start(m_runnable);
-    setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
+    setApplicationProcessHandle(m_applicationLauncher.applicationPID());
     bringApplicationToForeground();
 }
 
@@ -66,7 +66,7 @@ ProjectExplorer::RunControl::StopResult NimRunControl::stop()
 void NimRunControl::processStarted()
 {
     // Console processes only know their pid after being started
-    setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
+    setApplicationProcessHandle(m_applicationLauncher.applicationPID());
 }
 
 void NimRunControl::processExited(int exitCode, QProcess::ExitStatus status)

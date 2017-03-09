@@ -225,9 +225,9 @@ bool ApplicationLauncherPrivate::isRunning() const
     return m_consoleProcess.isRunning();
 }
 
-qint64 ApplicationLauncher::applicationPID() const
+ProcessHandle ApplicationLauncher::applicationPID() const
 {
-    return d->applicationPID();
+    return ProcessHandle(d->applicationPID());
 }
 
 qint64 ApplicationLauncherPrivate::applicationPID() const

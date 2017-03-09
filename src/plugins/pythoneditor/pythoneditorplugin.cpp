@@ -786,7 +786,7 @@ void PythonRunControl::start()
         r.environment = m_environment;
         m_applicationLauncher.start(r);
 
-        setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
+        setApplicationProcessHandle(m_applicationLauncher.applicationPID());
     }
 }
 
@@ -804,7 +804,7 @@ void PythonRunControl::slotAppendMessage(const QString &err, Utils::OutputFormat
 void PythonRunControl::processStarted()
 {
     // Console processes only know their pid after being started
-    setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
+    setApplicationProcessHandle(m_applicationLauncher.applicationPID());
     bringApplicationToForeground();
 }
 

@@ -30,6 +30,7 @@
 #include "devicesupport/idevice.h"
 
 #include <utils/outputformat.h>
+#include <utils/processhandle.h>
 
 #include <QProcess>
 
@@ -59,7 +60,7 @@ public:
     void start(const Runnable &runnable, const IDevice::ConstPtr &device);
     void stop();
     bool isRunning() const;
-    qint64 applicationPID() const;
+    Utils::ProcessHandle applicationPID() const;
 
     QString errorString() const;
     QProcess::ProcessError processError() const;
