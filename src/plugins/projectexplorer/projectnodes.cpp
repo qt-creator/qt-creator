@@ -96,8 +96,6 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
     return parent;
 }
 
-
-
 /*!
   \class ProjectExplorer::Node
 
@@ -435,29 +433,6 @@ FileNode *FolderNode::fileNode(const Utils::FileName &file) const
         const FileNode *fn = n->asFileNode();
         return fn && fn->filePath() == file;
     }));
-}
-
-FileNode *FolderNode::recursiveFileNode(const Utils::FileName &file) const
-{
-    Utils::FileName dir = file.parentDir();
-
-    const QDir thisDir(filePath().toString());
-    QString relativePath = thisDir.relativeFilePath(dir.toString());
-    if (relativePath == ".")
-        relativePath.clear();
-    QStringList parts = relativePath.split('/', QString::SkipEmptyParts);
-    const ProjectExplorer::FolderNode *parent = this;
-    foreach (const QString &part, parts) {
-        dir.appendPath(part);
-        // Find folder in subFolders
-        parent = static_cast<FolderNode *>(Utils::findOrDefault(parent->nodes(), [&dir](const Node *n) {
-            const FolderNode *fn = n->asFolderNode();
-            return fn && fn->filePath() == dir;
-        }));
-        if (!parent)
-            return nullptr;
-    }
-    return parent->fileNode(file);
 }
 
 QList<FileNode *> FolderNode::recursiveFileNodes() const
