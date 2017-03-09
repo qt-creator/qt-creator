@@ -37,6 +37,7 @@
 #include <QRegularExpression>
 
 using namespace Utils;
+using namespace Git::Internal;
 
 namespace Gerrit {
 namespace Internal {
@@ -167,7 +168,7 @@ QStringList GerritServer::curlArguments()
 
 int GerritServer::testConnection()
 {
-    static Git::Internal::GitClient *const client = Git::Internal::GitPlugin::client();
+    static GitClient *const client = GitPlugin::client();
     const QStringList arguments = curlArguments() << (url(RestUrl) + accountUrlC);
     const SynchronousProcessResponse resp = client->vcsFullySynchronousExec(
                 QString(), FileName::fromString(curlBinary), arguments,
