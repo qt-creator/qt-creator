@@ -85,8 +85,6 @@ signals:
     void requestExpansion(const QModelIndex &index);
 
 private:
-    void nodeUpdated(ProjectExplorer::Node *node);
-
     bool filter(Node *node) const; // Returns true if node is hidden.
 
     bool m_filterProjects = false;

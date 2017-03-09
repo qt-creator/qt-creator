@@ -201,6 +201,10 @@ public:
     void buildTree(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir = Utils::FileName());
     void compress();
 
+    // takes ownership of newNode.
+    // Will delete newNode if oldNode is not a child of this node.
+    bool replaceSubtree(Node *oldNode, Node *newNode);
+
     void setDisplayName(const QString &name);
     void setIcon(const QIcon &icon);
 

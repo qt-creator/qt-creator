@@ -78,7 +78,8 @@ FlatModel::FlatModel(QObject *parent)
 
     ProjectTree *tree = ProjectTree::instance();
     connect(tree, &ProjectTree::dataChanged, this, &FlatModel::update);
-    connect(tree, &ProjectTree::nodeUpdated, this, &FlatModel::nodeUpdated);
+    connect(tree, &ProjectTree::nodeUpdated, this, &FlatModel::update);
+    connect(tree, &ProjectTree::subtreeChanged, this, &FlatModel::update);
 
     SessionManager *sm = SessionManager::instance();
     connect(sm, &SessionManager::projectRemoved, this, &FlatModel::update);
@@ -392,11 +393,6 @@ bool isSorted(const QList<Node *> &nodes)
             return false;
     }
     return true;
-}
-
-void FlatModel::nodeUpdated(Node *)
-{
-    update();
 }
 
 namespace Internal {

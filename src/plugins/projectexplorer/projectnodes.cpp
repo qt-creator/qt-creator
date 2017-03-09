@@ -43,6 +43,8 @@
 #include <QIcon>
 #include <QStyle>
 
+#include <memory>
+
 namespace ProjectExplorer {
 
 static FolderNode *folderNode(const FolderNode *folder, const Utils::FileName &directory)
@@ -492,6 +494,29 @@ void FolderNode::compress()
         for (FolderNode *fn : folderNodes())
             fn->compress();
     }
+}
+
+bool FolderNode::replaceSubtree(Node *oldNode, Node *newNode)
+{
+    std::unique_ptr<Node> nn(newNode);
+
+    if (!oldNode) {
+        addNode(nn.release()); // Happens e.g. when a project is registered
+    } else {
+        auto it = std::find_if(m_nodes.begin(), m_nodes.end(),
+                               [oldNode](const Node *n) { return oldNode == n; });
+        QTC_ASSERT(it != m_nodes.end(), return false);
+        if (nn) {
+            nn->setParentFolderNode(this);
+            *it = nn.release();
+        } else {
+            removeNode(oldNode); // Happens e.g. when project is shutting down
+        }
+        delete oldNode;
+    }
+
+    ProjectTree::emitSubtreeChanged(this);
+    return true;
 }
 
 void FolderNode::setDisplayName(const QString &name)
