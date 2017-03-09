@@ -2535,7 +2535,9 @@ void QmlEnginePrivate::stateChanged(State state)
     if (state == QmlDebugClient::Enabled) {
         /// Start session.
         flushSendBuffer();
-        runDirectCommand(CONNECT);
+        QJsonObject parameters;
+        parameters.insert("sanity", 1);
+        runDirectCommand(CONNECT, QJsonDocument(parameters).toJson());
         runCommand({VERSION}, CB(handleVersion));
     }
 }
