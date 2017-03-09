@@ -223,13 +223,15 @@ QString DisassemblerLine::toString(int maxOp) const
         if (boolSetting(ShowOffset))
         {
             if (offset)
-                str += QString("<+0x%2> ").arg(offset, 4, 16, QLatin1Char('0'));
+                str += QString("<+0x%2>  ").arg(offset, 4, 16, QLatin1Char('0'));
             else
                 str += "          ";
         }
 
-        str += QString("       %1 ").arg(bytes);
-        str += QString(maxOp - bytes.size(), QLatin1Char(' '));
+        if(boolSetting(ShowOpcode)) {
+            str += QString("    %1  ").arg(bytes.leftJustified(24));
+            str += QString(maxOp - bytes.size(), QLatin1Char(' '));
+        }
         str += data;
     } else if (isCode()) {
         str += someSpace;
@@ -248,8 +250,15 @@ QString DisassemblerLine::toString(int maxOp) const
 
 QString DisassemblerLines::toString() const
 {
+    bool hideMixed = !boolSetting(ShowMixed);
     QString str;
     for (int i = 0, n = size(); i != n; ++i) {
+
+        if(hideMixed) {
+            if(m_data.at(i).isCode())
+                continue;
+        }
+
         str += m_data.at(i).toString(m_bytesLength);
         str += QLatin1Char('\n');
     }

@@ -1040,12 +1040,12 @@ void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
             foreach (const GdbMi &line, response.data["lines"].children()) {
                 DisassemblerLine dl;
                 dl.address = line["address"].toAddress();
-                //dl.data = line["data"].data();
-                //dl.rawData = line["rawdata"].data();
-                dl.data = line["rawdata"].data();
-                if (!dl.data.isEmpty())
-                    dl.data += QString(30 - dl.data.size(), QLatin1Char(' '));
-                dl.data += line["data"].data();
+                dl.data = line["data"].data();
+                dl.bytes = line["rawdata"].data();
+//                dl.data = line["rawdata"].data();
+//                if (!dl.data.isEmpty())
+//                    dl.data += QString(30 - dl.data.size(), QLatin1Char(' '));
+//                dl.data += line["data"].data();
                 dl.offset = line["offset"].toInt();
                 dl.lineNumber = line["line"].toInt();
                 dl.fileName = line["file"].data();
