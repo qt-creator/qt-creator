@@ -93,6 +93,7 @@ public:
 
 public:
     QString id() const;
+    QString projectFileLocation() const;
 
     Ptr copy() const;
     void updateLanguageFeatures();

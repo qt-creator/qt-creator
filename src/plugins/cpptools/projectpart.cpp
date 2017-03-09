@@ -63,14 +63,20 @@ ProjectPart::Ptr ProjectPart::copy() const
 
 QString ProjectPart::id() const
 {
-    QString projectPartId = QDir::fromNativeSeparators(projectFile);
-    if (projectFileLine > 0)
-        projectPartId += ":" + QString::number(projectFileLine);
-    if (projectFileColumn > 0)
-        projectPartId += ":" + QString::number(projectFileColumn);
+    QString projectPartId = projectFileLocation();
     if (!displayName.isEmpty())
         projectPartId.append(QLatin1Char(' ') + displayName);
     return projectPartId;
+}
+
+QString ProjectPart::projectFileLocation() const
+{
+    QString location = QDir::fromNativeSeparators(projectFile);
+    if (projectFileLine > 0)
+        location += ":" + QString::number(projectFileLine);
+    if (projectFileColumn > 0)
+        location += ":" + QString::number(projectFileColumn);
+    return location;
 }
 
 QByteArray ProjectPart::readProjectConfigFile(const Ptr &projectPart)

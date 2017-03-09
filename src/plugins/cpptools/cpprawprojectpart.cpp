@@ -54,7 +54,7 @@ void RawProjectPart::setFiles(const QStringList &files, FileClassifier fileClass
     this->fileClassifier = fileClassifier;
 }
 
-void RawProjectPart::setProjectFile(const QString &projectFile, int line, int column)
+void RawProjectPart::setProjectFileLocation(const QString &projectFile, int line, int column)
 {
     this->projectFile = projectFile;
     projectFileLine = line;

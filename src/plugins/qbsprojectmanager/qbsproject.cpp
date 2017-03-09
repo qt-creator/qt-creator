@@ -997,8 +997,8 @@ void QbsProject::updateCppCodeModel()
             rpp.setHeaderPaths(grpHeaderPaths);
 
             rpp.setDisplayName(grp.name());
-            rpp.setProjectFile(grp.location().filePath(),
-                               grp.location().line(), grp.location().column());
+            rpp.setProjectFileLocation(grp.location().filePath(),
+                                       grp.location().line(), grp.location().column());
 
             QHash<QString, qbs::ArtifactData> filePathToSourceArtifact;
             bool hasCFiles = false;

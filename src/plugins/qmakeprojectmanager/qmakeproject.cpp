@@ -345,7 +345,7 @@ void QmakeProject::updateCppCodeModel()
 
         CppTools::RawProjectPart rpp;
         rpp.setDisplayName(pro->displayName());
-        rpp.setProjectFile(pro->filePath().toString());
+        rpp.setProjectFileLocation(pro->filePath().toString());
         // TODO: Handle QMAKE_CFLAGS
         rpp.setFlagsForCxx({cxxToolChain, pro->variableValue(Variable::CppFlags)});
         rpp.setDefines(pro->cxxDefines());

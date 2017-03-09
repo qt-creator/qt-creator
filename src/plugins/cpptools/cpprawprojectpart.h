@@ -60,7 +60,7 @@ public:
     using FileClassifier = std::function<ProjectFile::Kind (const QString &filePath)>;
     void setFiles(const QStringList &files, FileClassifier fileClassifier = FileClassifier());
 
-    void setProjectFile(const QString &projectFile, int line = -1, int column = -1);
+    void setProjectFileLocation(const QString &projectFile, int line = -1, int column = -1);
     void setConfigFileName(const QString &configFileName);
     void setCallGroupId(const QString &id);
 
