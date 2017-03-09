@@ -3158,10 +3158,6 @@ class DumperBase:
             val.type = self.dumper.createType(typish)
             return val
 
-        def downcast(self):
-            self.check()
-            return self
-
         def address(self):
             self.check()
             return self.laddress
