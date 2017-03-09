@@ -3681,18 +3681,9 @@ void GdbEngine::fetchDisassembler(DisassemblerAgent *agent)
 
 static inline QString disassemblerCommand(const Location &location, bool mixed)
 {
-    QString command;
-    if (boolSetting(ShowOpcode))
-        command += 'r';
-
+    QString command = "disassemble /r";
     if (mixed)
         command += 'm';
-
-    if(command.length())
-        command.prepend('/');
-
-    command.prepend("disassemble ");
-
     command += ' ';
     if (const quint64 address = location.address()) {
         command += "0x";
@@ -3708,7 +3699,7 @@ static inline QString disassemblerCommand(const Location &location, bool mixed)
 void GdbEngine::fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &ac)
 {
     QTC_ASSERT(ac.agent, return);
-    DebuggerCommand cmd(disassemblerCommand(ac.agent->location(), boolSetting(ShowMixed)), Discardable | ConsoleCommand);
+    DebuggerCommand cmd(disassemblerCommand(ac.agent->location(), true), Discardable | ConsoleCommand);
     cmd.callback = [this, ac](const DebuggerResponse &response) {
         if (response.resultClass == ResultDone)
             if (handleCliDisassemblerResult(response.consoleStreamOutput, ac.agent))
