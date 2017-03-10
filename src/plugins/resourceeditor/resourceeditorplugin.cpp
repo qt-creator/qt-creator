@@ -44,6 +44,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 
@@ -210,6 +211,19 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
 
 void ResourceEditorPlugin::extensionsInitialized()
 {
+    ProjectTree::registerTreeManager([](FolderNode *folder) {
+        QList<FileNode *> toReplace;
+        folder->forEachNode([&toReplace](FileNode *fn) {
+            if (fn->fileType() == FileType::Resource)
+                toReplace.append(fn);
+        });
+
+        for (FileNode *file : toReplace) {
+            FolderNode *const pn = file->parentFolderNode();
+            const Utils::FileName path = file->filePath();
+            pn->replaceSubtree(file, new ResourceTopLevelNode(path, QString(), pn));
+        }
+    });
 }
 
 void ResourceEditorPlugin::onUndo()

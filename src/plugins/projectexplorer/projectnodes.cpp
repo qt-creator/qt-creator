@@ -491,7 +491,6 @@ bool FolderNode::isAncesterOf(Node *n)
 bool FolderNode::replaceSubtree(Node *oldNode, Node *newNode)
 {
     std::unique_ptr<Node> nn(newNode);
-
     if (!oldNode) {
         addNode(nn.release()); // Happens e.g. when a project is registered
     } else {
@@ -506,7 +505,6 @@ bool FolderNode::replaceSubtree(Node *oldNode, Node *newNode)
         }
         delete oldNode;
     }
-
     ProjectTree::emitSubtreeChanged(this);
     return true;
 }
