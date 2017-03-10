@@ -259,7 +259,7 @@ void ProjectTree::updateContext()
     Core::ICore::updateAdditionalContexts(oldContext, newContext);
 }
 
-void ProjectTree::emitSubtreeChanged(Node *node)
+void ProjectTree::emitSubtreeChanged(FolderNode *node)
 {
     if (!s_instance->isInNodeHierarchy(node))
         return;
