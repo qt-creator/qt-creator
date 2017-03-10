@@ -170,7 +170,9 @@ QSet<QString> referencedBuildSystemFiles(const qbs::ProjectData &data)
 
 QStringList unreferencedBuildSystemFiles(const qbs::Project &p)
 {
-    return p.buildSystemFiles().subtract(referencedBuildSystemFiles(p.projectData())).toList();
+    return p.isValid()
+            ? p.buildSystemFiles().subtract(referencedBuildSystemFiles(p.projectData())).toList()
+            : QStringList();
 }
 
 } // namespace
