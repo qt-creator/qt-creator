@@ -377,6 +377,7 @@ QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
                 || a == QLatin1String("-m64") || a == QLatin1String("-m96bit-long-double")
                 || a == QLatin1String("-mabm") || a == QLatin1String("-maes")
                 || a.startsWith(QLatin1String("-march=")) || a == QLatin1String("-mavx")
+                || a.startsWith(QLatin1String("-mfloat-abi"))
                 || a.startsWith(QLatin1String("-masm=")) || a == QLatin1String("-mcx16")
                 || a == QLatin1String("-mfma") || a == QLatin1String("-mfma4")
                 || a == QLatin1String("-mlwp") || a == QLatin1String("-mpclmul")
