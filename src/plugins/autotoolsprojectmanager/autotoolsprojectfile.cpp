@@ -32,11 +32,11 @@
 namespace AutotoolsProjectManager {
 namespace Internal {
 
-AutotoolsProjectFile::AutotoolsProjectFile(const QString &fileName)
+AutotoolsProjectFile::AutotoolsProjectFile(const Utils::FileName &fileName)
 {
     setId("Autotools.ProjectFile");
     setMimeType(QLatin1String(Constants::MAKEFILE_MIMETYPE));
-    setFilePath(Utils::FileName::fromString(fileName));
+    setFilePath(fileName);
 }
 
 } // namespace Internal

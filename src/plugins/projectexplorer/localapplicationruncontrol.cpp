@@ -69,8 +69,6 @@ LocalApplicationRunControl::LocalApplicationRunControl(RunConfiguration *rc, Cor
             this, &LocalApplicationRunControl::processStarted);
     connect(&m_applicationLauncher, &ApplicationLauncher::processExited,
             this, &LocalApplicationRunControl::processExited);
-    connect(&m_applicationLauncher, &ApplicationLauncher::bringToForegroundRequested,
-            this, &RunControl::bringApplicationToForeground);
 }
 
 void LocalApplicationRunControl::start()
@@ -104,6 +102,7 @@ void LocalApplicationRunControl::processStarted()
 {
     // Console processes only know their pid after being started
     setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
+    bringApplicationToForeground();
 }
 
 void LocalApplicationRunControl::processExited(int exitCode, QProcess::ExitStatus status)

@@ -6,7 +6,8 @@ SOURCES += \
     $$PWD/gerritoptionspage.cpp \
     $$PWD/gerritparameters.cpp \
     $$PWD/gerritplugin.cpp \
-    $$PWD/gerritpushdialog.cpp
+    $$PWD/gerritpushdialog.cpp \
+    $$PWD/gerritserver.cpp
 
 HEADERS += \
     $$PWD/authenticationdialog.h \
@@ -16,7 +17,8 @@ HEADERS += \
     $$PWD/gerritoptionspage.h \
     $$PWD/gerritparameters.h \
     $$PWD/gerritplugin.h \
-    $$PWD/gerritpushdialog.h
+    $$PWD/gerritpushdialog.h \
+    $$PWD/gerritserver.h
 
 FORMS += \
     $$PWD/authenticationdialog.ui \

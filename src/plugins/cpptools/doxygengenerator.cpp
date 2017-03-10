@@ -27,14 +27,16 @@
 
 #include <texteditor/convenience.h>
 
-#include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/SimpleLexer.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QTextDocument>
 #include <QDebug>
+#include <QTextBlock>
+#include <QTextCursor>
+#include <QTextDocument>
 
 #include <limits>
 

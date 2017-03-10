@@ -131,10 +131,14 @@ const Icon CLEAN_TOOLBAR({
         {QLatin1String(":/utils/images/clean_pane_small.png"), Theme::IconsBaseColor}});
 const Icon RELOAD({
         {QLatin1String(":/utils/images/reload_gray.png"), Theme::IconsBaseColor}});
-const Icon TOGGLE_SIDEBAR({
-        {QLatin1String(":/utils/images/sidebaricon.png"), Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
-const Icon TOGGLE_SIDEBAR_TOOLBAR({
-        {QLatin1String(":/utils/images/sidebaricon.png"), Theme::IconsBaseColor}});
+const Icon TOGGLE_LEFT_SIDEBAR({
+        {QLatin1String(":/utils/images/leftsidebaricon.png"), Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+const Icon TOGGLE_LEFT_SIDEBAR_TOOLBAR({
+        {QLatin1String(":/utils/images/leftsidebaricon.png"), Theme::IconsBaseColor}});
+const Icon TOGGLE_RIGHT_SIDEBAR({
+        {QLatin1String(":/utils/images/rightsidebaricon.png"), Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+const Icon TOGGLE_RIGHT_SIDEBAR_TOOLBAR({
+        {QLatin1String(":/utils/images/rightsidebaricon.png"), Theme::IconsBaseColor}});
 const Icon CLOSE_TOOLBAR({
         {QLatin1String(":/utils/images/close.png"), Theme::IconsBaseColor}});
 const Icon CLOSE_FOREGROUND({

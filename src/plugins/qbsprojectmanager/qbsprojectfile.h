@@ -35,7 +35,7 @@ class QbsProject;
 class QbsProjectFile : public Core::IDocument
 {
 public:
-    QbsProjectFile(QbsProject *parent, QString fileName);
+    QbsProjectFile(QbsProject *parent, const Utils::FileName &fileName);
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;

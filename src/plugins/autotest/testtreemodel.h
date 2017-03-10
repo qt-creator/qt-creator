@@ -83,6 +83,7 @@ private:
     void onParseResultReady(const TestParseResultPtr result);
     void handleParseResult(const TestParseResult *result, TestTreeItem *rootNode);
     void removeAllTestItems();
+    void removeTestRootNodes();
     void removeFiles(const QStringList &files);
     bool sweepChildren(TestTreeItem *item);
 

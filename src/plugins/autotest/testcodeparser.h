@@ -105,6 +105,7 @@ private:
     QFutureWatcher<TestParseResultPtr> m_futureWatcher;
     QVector<ITestParser *> m_testCodeParsers; // ptrs are still owned by TestFrameworkManager
     QTimer m_reparseTimer;
+    ITestParser *m_updateParser = nullptr;
 };
 
 } // namespace Internal

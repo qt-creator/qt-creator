@@ -165,7 +165,11 @@ public:
         if (!realPath.empty())
             return fromNativePath({realPath.data(), realPath.size()});
 
+#if LLVM_VERSION_MAJOR >= 4
+        return fromNativePath({file->getName().data(), file->getName().size()});
+#else
         return fromNativePath(file->getName());
+#endif
     }
 
 private:

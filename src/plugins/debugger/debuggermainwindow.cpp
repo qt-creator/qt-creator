@@ -258,7 +258,7 @@ QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow)
     // Navigation and right-side window.
     auto splitter = new MiniSplitter;
     splitter->setFocusProxy(mainWindow->centralWidgetStack());
-    splitter->addWidget(new NavigationWidgetPlaceHolder(mode));
+    splitter->addWidget(new NavigationWidgetPlaceHolder(mode, Side::Left));
     splitter->addWidget(mainWindowSplitter);
     splitter->setStretchFactor(0, 0);
     splitter->setStretchFactor(1, 1);

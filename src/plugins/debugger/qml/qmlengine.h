@@ -62,6 +62,7 @@ private:
 
     void tryToConnect(Utils::Port port = Utils::Port());
     void beginConnection(Utils::Port port = Utils::Port());
+    void handleLauncherStarted();
     void connectionEstablished();
     void connectionStartupFailed();
     void appStartupFailed(const QString &errorMessage);

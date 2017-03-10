@@ -162,7 +162,7 @@ public:
     BookmarkViewFactory(BookmarkManager *bm);
 
 private:
-    Core::NavigationView createWidget();
+    Core::NavigationView createWidget() override;
 
     BookmarkManager *m_manager;
 };

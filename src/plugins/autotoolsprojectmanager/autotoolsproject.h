@@ -54,7 +54,7 @@ class AutotoolsProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    AutotoolsProject(const QString &fileName);
+    explicit AutotoolsProject(const Utils::FileName &fileName);
     ~AutotoolsProject() override;
 
     QString displayName() const override;

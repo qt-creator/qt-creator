@@ -26,6 +26,7 @@
 #pragma once
 
 #include "gerritparameters.h"
+#include "gerritserver.h"
 
 #include <QStandardItemModel>
 #include <QSharedPointer>

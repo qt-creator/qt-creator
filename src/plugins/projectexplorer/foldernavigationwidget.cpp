@@ -433,21 +433,19 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
     return n;
 }
 
-void FolderNavigationWidgetFactory::saveSettings(int position, QWidget *widget)
+void FolderNavigationWidgetFactory::saveSettings(QSettings *settings, int position, QWidget *widget)
 {
     auto fnw = qobject_cast<FolderNavigationWidget *>(widget);
     QTC_ASSERT(fnw, return);
-    QSettings *settings = Core::ICore::settings();
     const QString baseKey = QLatin1String("FolderNavigationWidget.") + QString::number(position);
     settings->setValue(baseKey + QLatin1String(".HiddenFilesFilter"), fnw->hiddenFilesFilter());
     settings->setValue(baseKey + QLatin1String(".SyncWithEditor"), fnw->autoSynchronization());
 }
 
-void FolderNavigationWidgetFactory::restoreSettings(int position, QWidget *widget)
+void FolderNavigationWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
 {
     auto fnw = qobject_cast<FolderNavigationWidget *>(widget);
     QTC_ASSERT(fnw, return);
-    QSettings *settings = Core::ICore::settings();
     const QString baseKey = QLatin1String("FolderNavigationWidget.") + QString::number(position);
     fnw->setHiddenFilesFilter(settings->value(baseKey + QLatin1String(".HiddenFilesFilter"), false).toBool());
     fnw->setAutoSynchronization(settings->value(baseKey +  QLatin1String(".SyncWithEditor"), true).toBool());

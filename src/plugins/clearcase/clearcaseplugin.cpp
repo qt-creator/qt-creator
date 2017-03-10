@@ -52,7 +52,7 @@
 #include <texteditor/textdocument.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/iprojectmanager.h>
+#include <projectexplorer/projectmanager.h>
 #include <utils/algorithm.h>
 #include <utils/synchronousprocess.h>
 #include <utils/temporarydirectory.h>

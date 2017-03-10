@@ -16,7 +16,6 @@ HEADERS += \
     tools/nimlexer.h \
     tools/sourcecodestream.h \
     project/nimproject.h \
-    project/nimprojectmanager.h \
     project/nimprojectnode.h \
     project/nimbuildconfiguration.h \
     project/nimbuildconfigurationfactory.h \
@@ -47,7 +46,6 @@ SOURCES += \
     editor/nimindenter.cpp \
     tools/nimlexer.cpp \
     project/nimproject.cpp \
-    project/nimprojectmanager.cpp \
     project/nimprojectnode.cpp \
     project/nimbuildconfiguration.cpp \
     project/nimbuildconfigurationfactory.cpp \

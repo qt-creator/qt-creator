@@ -59,7 +59,7 @@ HEADERS += projectexplorer.h \
     projectexplorerconstants.h \
     projectexplorersettings.h \
     project.h \
-    iprojectmanager.h \
+    projectmanager.h \
     currentprojectfilter.h \
     allprojectsfind.h \
     buildstep.h \

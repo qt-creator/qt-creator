@@ -116,8 +116,8 @@ private:
 // QbsProject:
 // --------------------------------------------------------------------
 
-QbsProject::QbsProject(const QString &fileName) :
-    m_projectName(QFileInfo(fileName).completeBaseName()),
+QbsProject::QbsProject(const FileName &fileName) :
+    m_projectName(fileName.toFileInfo().completeBaseName()),
     m_qbsProjectParser(0),
     m_qbsUpdateFutureInterface(0),
     m_parsingScheduled(false),
@@ -766,7 +766,7 @@ void QbsProject::updateDocuments(const QSet<QString> &files)
     }
     QSet<IDocument *> toAdd;
     foreach (const QString &f, filesToAdd)
-        toAdd.insert(new QbsProjectFile(this, f));
+        toAdd.insert(new QbsProjectFile(this, FileName::fromString(f)));
 
     DocumentManager::addDocuments(toAdd.toList());
     m_qbsDocuments.unite(toAdd);
@@ -790,7 +790,7 @@ static CppTools::ProjectFile::Kind cppFileType(const qbs::ArtifactData &sourceFi
     return CppTools::ProjectFile::Unsupported;
 }
 
-static QString groupLocationToProjectFile(const qbs::CodeLocation &location)
+static QString groupLocationToCallGroupId(const qbs::CodeLocation &location)
 {
     return QString::fromLatin1("%1:%2:%3")
                         .arg(location.filePath())
@@ -950,6 +950,7 @@ void QbsProject::updateCppCodeModel()
             CppTools::RawProjectPart rpp;
             rpp.setQtVersion(qtVersionForPart);
             const qbs::PropertyMap &props = grp.properties();
+            rpp.setCallGroupId(groupLocationToCallGroupId(grp.location()));
 
             QStringList cFlags;
             QStringList cxxFlags;
@@ -996,7 +997,8 @@ void QbsProject::updateCppCodeModel()
             rpp.setHeaderPaths(grpHeaderPaths);
 
             rpp.setDisplayName(grp.name());
-            rpp.setProjectFile(groupLocationToProjectFile(grp.location()));
+            rpp.setProjectFileLocation(grp.location().filePath(),
+                                       grp.location().line(), grp.location().column());
 
             QHash<QString, qbs::ArtifactData> filePathToSourceArtifact;
             bool hasCFiles = false;
@@ -1090,7 +1092,7 @@ void QbsProject::updateCppCompilerCallData()
                 continue;
 
             CppTools::ProjectInfo::CompilerCallGroup compilerCallGroup;
-            compilerCallGroup.groupId = groupLocationToProjectFile(group.location());
+            compilerCallGroup.groupId = groupLocationToCallGroupId(group.location());
 
             foreach (const qbs::ArtifactData &file, group.allSourceArtifacts()) {
                 const QString &filePath = file.filePath();

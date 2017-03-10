@@ -26,7 +26,6 @@
 #include "nimproject.h"
 #include "nimbuildconfiguration.h"
 #include "nimprojectnode.h"
-#include "nimprojectmanager.h"
 #include "nimtoolchain.h"
 
 #include "../nimconstants.h"
@@ -54,12 +53,12 @@ namespace Nim {
 
 const int MIN_TIME_BETWEEN_PROJECT_SCANS = 4500;
 
-NimProject::NimProject(const QString &fileName)
+NimProject::NimProject(const FileName &fileName)
 {
     setId(Constants::C_NIMPROJECT_ID);
     setDocument(new TextEditor::TextDocument);
-    document()->setFilePath(FileName::fromString(fileName));
-    QFileInfo fi = QFileInfo(fileName);
+    document()->setFilePath(fileName);
+    QFileInfo fi = fileName.toFileInfo();
     QDir dir = fi.dir();
     setRootProjectNode(new NimProjectNode(*this, FileName::fromString(dir.absolutePath())));
     rootProjectNode()->setDisplayName(dir.dirName());

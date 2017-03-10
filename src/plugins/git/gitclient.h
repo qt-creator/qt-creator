@@ -380,5 +380,17 @@ private:
     QFutureSynchronizer<void> m_synchronizer; // for commit updates
 };
 
+class GitRemote {
+public:
+    GitRemote(const QString &url);
+
+    QString protocol;
+    QString userName;
+    QString host;
+    QString path;
+    quint16 port = 0;
+    bool    isValid = false;
+};
+
 } // namespace Internal
 } // namespace Git

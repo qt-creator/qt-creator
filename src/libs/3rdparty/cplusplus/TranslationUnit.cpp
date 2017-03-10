@@ -446,25 +446,8 @@ void TranslationUnit::message(DiagnosticClient::Level level, unsigned index, con
     const StringLiteral *fileName = 0;
     getTokenPosition(index, &line, &column, &fileName);
 
-    if (DiagnosticClient *client = control()->diagnosticClient()) {
+    if (DiagnosticClient *client = control()->diagnosticClient())
         client->report(level, fileName, line, column, format, args);
-    } else {
-        fprintf(stderr, "%s:%u: ", fileName->chars(), line);
-        const char *l = "error";
-        if (level == DiagnosticClient::Warning)
-            l = "warning";
-        else if (level == DiagnosticClient::Fatal)
-            l = "fatal";
-        fprintf(stderr, "%s: ", l);
-
-        vfprintf(stderr, format, args);
-        fputc('\n', stderr);
-
-        showErrorLine(index, column, stderr);
-    }
-
-    if (level == DiagnosticClient::Fatal)
-        exit(EXIT_FAILURE);
 }
 
 void TranslationUnit::warning(unsigned index, const char *format, ...)
@@ -551,25 +534,6 @@ void TranslationUnit::releaseTokensAndComments()
     _tokens = 0;
     delete _comments;
     _comments = 0;
-}
-
-void TranslationUnit::showErrorLine(unsigned index, unsigned column, FILE *out)
-{
-    unsigned lineOffset = _lineOffsets[findLineNumber(tokenAt(index).utf16charsBegin())];
-    for (const char *cp = _firstSourceChar + lineOffset + 1; *cp && *cp != '\n'; ++cp) {
-        fputc(*cp, out);
-    }
-    fputc('\n', out);
-
-    const char *end = _firstSourceChar + lineOffset + 1 + column - 1;
-    for (const char *cp = _firstSourceChar + lineOffset + 1; cp != end; ++cp) {
-        if (*cp != '\t')
-            fputc(' ', out);
-        else
-            fputc('\t', out);
-    }
-    fputc('^', out);
-    fputc('\n', out);
 }
 
 void TranslationUnit::resetAST()

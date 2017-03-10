@@ -1,8 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Openismus GmbH.
-** Author: Peter Penz (ppenz@openismus.com)
-** Author: Patricia Santana Cruz (patriciasantanacruz@gmail.com)
+** Copyright (C) 2017 Orgad Shaneh <orgads@gmail.com>.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -27,26 +25,65 @@
 
 #pragma once
 
-#include <projectexplorer/iprojectmanager.h>
+#include <QStringList>
 
-namespace AutotoolsProjectManager {
+namespace Gerrit {
 namespace Internal {
 
-/**
- * @brief Implementation of ProjectExplorer::IProjectManager interface.
- *
- * An autotools project is identified by the MIME type text/x-makefile.
- * The project is represented by an instance of ProjectExplorer::Project,
- * which gets created by AutotoolsManager::openProject().
- */
-class AutotoolsManager : public ProjectExplorer::IProjectManager
-{
-    Q_OBJECT
+class GerritParameters;
 
+class GerritUser
+{
 public:
-    ProjectExplorer::Project *openProject(const QString &fileName) override;
-    QString mimeType() const override;
+    bool isSameAs(const GerritUser &other) const;
+
+    QString userName;
+    QString fullName;
+    QString email;
+};
+
+class GerritServer
+{
+public:
+    enum { defaultPort = 29418 };
+
+    enum HostType
+    {
+        Http,
+        Https,
+        Ssh
+    };
+
+    enum UrlType
+    {
+        DefaultUrl,
+        UrlWithHttpUser,
+        RestUrl
+    };
+
+    GerritServer();
+    GerritServer(const QString &host, unsigned short port, const QString &userName, HostType type);
+    bool operator==(const GerritServer &other) const;
+    static QString defaultHost();
+    QString hostArgument() const;
+    QString url(UrlType urlType = DefaultUrl) const;
+    bool fillFromRemote(const QString &remote, const GerritParameters &parameters);
+    int testConnection();
+    static QStringList curlArguments();
+
+    QString host;
+    GerritUser user;
+    QString rootPath; // for http
+    unsigned short port = 0;
+    HostType type = Ssh;
+    bool authenticated = true;
+
+private:
+    QString curlBinary;
+    bool setupAuthentication();
+    bool ascendPath();
+    bool resolveRoot();
 };
 
 } // namespace Internal
-} // namespace AutotoolsProjectManager
+} // namespace Gerrit

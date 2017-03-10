@@ -173,6 +173,26 @@ QString GitPlugin::msgRepositoryLabel(const QString &repository)
             tr("Repository: %1").arg(QDir::toNativeSeparators(repository));
 }
 
+// Returns a regular expression pattern with characters not allowed
+// in branch and remote names.
+QString GitPlugin::invalidBranchAndRemoteNamePattern()
+{
+    return QLatin1String(
+        "\\s"     // no whitespace
+        "|~"      // no "~"
+        "|\\^"    // no "^"
+        "|\\["    // no "["
+        "|\\.\\." // no ".."
+        "|/\\."   // no slashdot
+        "|:"      // no ":"
+        "|@\\{"   // no "@{" sequence
+        "|\\\\"   // no backslash
+        "|//"     // no double slash
+        "|^[/-]"  // no leading slash or dash
+        "|\""     // no quotes
+    );
+}
+
 const VcsBaseSubmitEditorParameters submitParameters = {
     Git::Constants::SUBMIT_MIMETYPE,
     Git::Constants::GITSUBMITEDITOR_ID,

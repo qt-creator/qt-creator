@@ -53,6 +53,9 @@ public:
     void setDisplayName(const QString &name);
     void setDefaultDisplayName(const QString &name);
 
+    void setToolTip(const QString &text);
+    QString toolTip() const;
+
     // Note: Make sure subclasses call the superclasses' fromMap() function!
     virtual bool fromMap(const QVariantMap &map);
 
@@ -64,6 +67,7 @@ public:
 
 signals:
     void displayNameChanged();
+    void toolTipChanged();
 
 protected:
     ProjectConfiguration(QObject *parent, Core::Id id);
@@ -73,6 +77,7 @@ private:
     Core::Id m_id;
     QString m_displayName;
     QString m_defaultDisplayName;
+    QString m_toolTip;
     Utils::MacroExpander m_macroExpander;
 };
 

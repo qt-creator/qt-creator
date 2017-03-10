@@ -25,64 +25,14 @@
 
 #pragma once
 
+#include "gerritserver.h"
+
 #include <QStringList>
 
 QT_FORWARD_DECLARE_CLASS(QSettings)
 
 namespace Gerrit {
 namespace Internal {
-
-class GerritParameters;
-
-class GerritUser
-{
-public:
-    bool isSameAs(const GerritUser &other) const;
-
-    QString userName;
-    QString fullName;
-    QString email;
-};
-
-class GerritServer
-{
-public:
-    enum HostType
-    {
-        Http,
-        Https,
-        Ssh
-    };
-
-    enum UrlType
-    {
-        DefaultUrl,
-        UrlWithHttpUser,
-        RestUrl
-    };
-
-    GerritServer();
-    GerritServer(const QString &host, unsigned short port, const QString &userName, HostType type);
-    bool operator==(const GerritServer &other) const;
-    QString hostArgument() const;
-    QString url(UrlType urlType = DefaultUrl) const;
-    bool fillFromRemote(const QString &remote, const GerritParameters &parameters);
-    int testConnection();
-    static QStringList curlArguments();
-
-    QString host;
-    GerritUser user;
-    QString rootPath; // for http
-    unsigned short port = 0;
-    HostType type = Ssh;
-    bool authenticated = true;
-
-private:
-    QString curlBinary;
-    bool setupAuthentication();
-    bool ascendPath();
-    bool resolveRoot();
-};
 
 class GerritParameters
 {

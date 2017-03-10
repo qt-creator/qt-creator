@@ -26,13 +26,15 @@
 ****************************************************************************/
 
 #include "autotoolsprojectplugin.h"
-#include "autotoolsmanager.h"
+#include "autotoolsproject.h"
+#include "autotoolsprojectconstants.h"
 #include "autotoolsbuildconfiguration.h"
 #include "makestep.h"
 #include "autogenstep.h"
 #include "autoreconfstep.h"
 #include "configurestep.h"
-#include "autotoolsprojectconstants.h"
+
+#include <projectexplorer/projectmanager.h>
 
 #include <QStringList>
 #include <QtPlugin>
@@ -53,7 +55,8 @@ bool AutotoolsProjectPlugin::initialize(const QStringList &arguments,
     addAutoReleasedObject(new AutogenStepFactory);
     addAutoReleasedObject(new ConfigureStepFactory);
     addAutoReleasedObject(new AutoreconfStepFactory);
-    addAutoReleasedObject(new AutotoolsManager);
+
+    ProjectExplorer::ProjectManager::registerProjectType<AutotoolsProject>(Constants::MAKEFILE_MIMETYPE);
 
     return true;
 }

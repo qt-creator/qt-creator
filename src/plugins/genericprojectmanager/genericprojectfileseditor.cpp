@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "genericprojectfileseditor.h"
-#include "genericprojectmanager.h"
 #include "genericprojectconstants.h"
 
 #include <coreplugin/editormanager/editormanager.h>

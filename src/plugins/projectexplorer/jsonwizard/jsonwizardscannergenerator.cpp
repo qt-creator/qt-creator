@@ -26,7 +26,7 @@
 #include "jsonwizardscannergenerator.h"
 
 #include "../projectexplorer.h"
-#include "../iprojectmanager.h"
+#include "../projectmanager.h"
 #include "jsonwizard.h"
 #include "jsonwizardfactory.h"
 
@@ -105,7 +105,7 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
     for (auto it = result.begin(); it != result.end(); ++it) {
         const QString relPath = project.relativeFilePath(it->path());
         it->setBinary(binaryPattern.match(relPath).hasMatch());
-        bool found = IProjectManager::managerForMimeType(Utils::mimeTypeForFile(relPath));
+        bool found = ProjectManager::canOpenProjectForMimeType(Utils::mimeTypeForFile(relPath));
         if (found && !(onlyFirst && projectCount++))
             it->setAttributes(it->attributes() | Core::GeneratedFile::OpenProjectAttribute);
     }

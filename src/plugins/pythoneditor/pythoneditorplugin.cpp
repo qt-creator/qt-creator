@@ -43,10 +43,10 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/iprojectmanager.h>
-#include <projectexplorer/projectnodes.h>
 
 #include <texteditor/texteditorconstants.h>
 
@@ -77,7 +77,6 @@ const char PythonProjectContext[] = "PythonProjectContext";
 
 class PythonRunConfiguration;
 class PythonProjectFile;
-class PythonProject;
 
 static QString scriptFromId(Core::Id id)
 {
@@ -92,7 +91,7 @@ static Core::Id idFromScript(const QString &target)
 class PythonProject : public Project
 {
 public:
-    explicit PythonProject(const QString &filename);
+    explicit PythonProject(const Utils::FileName &filename);
 
     QString displayName() const override { return m_projectName; }
 
@@ -123,11 +122,11 @@ private:
 class PythonProjectFile : public Core::IDocument
 {
 public:
-    PythonProjectFile(PythonProject *parent, QString fileName) : m_project(parent)
+    PythonProjectFile(PythonProject *parent, const FileName &fileName) : m_project(parent)
     {
         setId("Generic.ProjectFile");
         setMimeType(PythonMimeType);
-        setFilePath(FileName::fromString(fileName));
+        setFilePath(fileName);
     }
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override
@@ -350,13 +349,6 @@ PythonRunConfigurationWidget::PythonRunConfigurationWidget(PythonRunConfiguratio
     setEnabled(runConfiguration->isEnabled());
 }
 
-class PythonProjectManager : public IProjectManager
-{
-public:
-    QString mimeType() const override { return QLatin1String(PythonMimeType); }
-    Project *openProject(const QString &fileName) override { return new PythonProject(fileName); }
-};
-
 class PythonRunConfigurationFactory : public IRunConfigurationFactory
 {
 public:
@@ -427,7 +419,7 @@ private:
     }
 };
 
-PythonProject::PythonProject(const QString &fileName)
+PythonProject::PythonProject(const FileName &fileName)
 {
     setId(PythonProjectId);
     setDocument(new PythonProjectFile(this, fileName));
@@ -770,8 +762,6 @@ PythonRunControl::PythonRunControl(PythonRunConfiguration *rc, Core::Id mode)
             this, &PythonRunControl::processStarted);
     connect(&m_applicationLauncher, &ApplicationLauncher::processExited,
             this, &PythonRunControl::processExited);
-    connect(&m_applicationLauncher, &ApplicationLauncher::bringToForegroundRequested,
-            this, &RunControl::bringApplicationToForeground);
 }
 
 void PythonRunControl::start()
@@ -815,6 +805,7 @@ void PythonRunControl::processStarted()
 {
     // Console processes only know their pid after being started
     setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
+    bringApplicationToForeground();
 }
 
 void PythonRunControl::processExited(int exitCode, QProcess::ExitStatus status)
@@ -859,7 +850,8 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    addAutoReleasedObject(new PythonProjectManager);
+    ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
+
     addAutoReleasedObject(new PythonEditorFactory);
     addAutoReleasedObject(new PythonRunConfigurationFactory);
     addAutoReleasedObject(new PythonRunControlFactory);
