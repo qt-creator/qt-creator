@@ -593,6 +593,15 @@ ModelNode RewriterView::nodeAtTextCursorPosition(int cursorPosition) const
     return nodeAtTextCursorPositionRekursive(rootModelNode(), cursorPosition);
 }
 
+bool RewriterView::nodeContainsCursor(const ModelNode &node, int cursorPosition) const
+{
+    const int nodeTextLength = nodeLength(node);
+    const int nodeTextOffset = nodeOffset(node);
+
+    if (isInNodeDefinition(nodeTextOffset, nodeTextLength, cursorPosition))
+        return true;
+}
+
 bool RewriterView::renameId(const QString& oldId, const QString& newId)
 {
     if (textModifier()) {
