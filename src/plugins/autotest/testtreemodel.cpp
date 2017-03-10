@@ -67,14 +67,7 @@ TestTreeModel *TestTreeModel::instance()
 
 TestTreeModel::~TestTreeModel()
 {
-    const Utils::TreeItem *invisibleRoot = rootItem();
-    const int frameworkRootCount = invisibleRoot ? invisibleRoot->childCount() : 0;
-    for (int row = frameworkRootCount - 1; row >= 0; --row) {
-        Utils::TreeItem *item = invisibleRoot->childAt(row);
-        item->removeChildren();
-        takeItem(item); // do NOT delete the item as it's still a ptr hold by TestFrameworkManager
-    }
-
+    removeTestRootNodes();
     s_instance = nullptr;
 }
 
@@ -170,10 +163,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
 void TestTreeModel::syncTestFrameworks()
 {
     // remove all currently registered
-    for (Utils::TreeItem *item : *rootItem()) {
-        item->removeChildren();
-        takeItem(item); // do NOT delete the item as it's still a ptr hold by TestFrameworkManager
-    }
+    removeTestRootNodes();
 
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     QVector<Core::Id> sortedIds = frameworkManager->sortedActiveFrameworkIds();
@@ -283,6 +273,17 @@ void TestTreeModel::removeAllTestItems()
     for (Utils::TreeItem *item : *rootItem())
         item->removeChildren();
     emit testTreeModelChanged();
+}
+
+void TestTreeModel::removeTestRootNodes()
+{
+    const Utils::TreeItem *invisibleRoot = rootItem();
+    const int frameworkRootCount = invisibleRoot ? invisibleRoot->childCount() : 0;
+    for (int row = frameworkRootCount - 1; row >= 0; --row) {
+        Utils::TreeItem *item = invisibleRoot->childAt(row);
+        item->removeChildren();
+        takeItem(item); // do NOT delete the item as it's still a ptr held by TestFrameworkManager
+    }
 }
 
 #ifdef WITH_TESTS

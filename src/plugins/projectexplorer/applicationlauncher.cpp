@@ -68,7 +68,7 @@ class ApplicationLauncherPrivate : public QObject
 public:
     explicit ApplicationLauncherPrivate(ApplicationLauncher *parent);
 
-    void handleLocalProcessStarted();
+    void handleProcessStarted();
     void localGuiProcessError();
     void localConsoleProcessError(const QString &error);
     void readLocalStandardOutput();
@@ -117,14 +117,14 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *pare
     connect(&m_guiProcess, static_cast<void (QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
             this, &ApplicationLauncherPrivate::localProcessDone);
     connect(&m_guiProcess, &QProcess::started,
-            this, &ApplicationLauncherPrivate::bringToForeground);
+            this, &ApplicationLauncherPrivate::handleProcessStarted);
     connect(&m_guiProcess, &QProcess::errorOccurred,
             q, &ApplicationLauncher::error);
 
     m_consoleProcess.setSettings(Core::ICore::settings());
 
     connect(&m_consoleProcess, &ConsoleProcess::processStarted,
-            this, &ApplicationLauncherPrivate::handleLocalProcessStarted);
+            this, &ApplicationLauncherPrivate::handleProcessStarted);
     connect(&m_consoleProcess, &ConsoleProcess::processError,
             this, &ApplicationLauncherPrivate::localConsoleProcessError);
     connect(&m_consoleProcess, &ConsoleProcess::processStopped,
@@ -319,18 +319,12 @@ void ApplicationLauncherPrivate::localProcessDone(int exitCode, QProcess::ExitSt
     });
 }
 
-void ApplicationLauncherPrivate::bringToForeground()
-{
-    handleLocalProcessStarted();
-    emit q->bringToForegroundRequested();
-}
-
 QString ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput()
 {
     return tr("Cannot retrieve debugging output.") + QLatin1Char('\n');
 }
 
-void ApplicationLauncherPrivate::handleLocalProcessStarted()
+void ApplicationLauncherPrivate::handleProcessStarted()
 {
     m_listeningPid = applicationPID();
     emit q->processStarted();

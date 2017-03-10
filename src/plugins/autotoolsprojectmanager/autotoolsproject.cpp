@@ -28,7 +28,6 @@
 #include "autotoolsproject.h"
 #include "autotoolsbuildconfiguration.h"
 #include "autotoolsprojectconstants.h"
-#include "autotoolsmanager.h"
 #include "autotoolsprojectnode.h"
 #include "autotoolsprojectfile.h"
 #include "autotoolsopenprojectwizard.h"
@@ -69,7 +68,7 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-AutotoolsProject::AutotoolsProject(const QString &fileName) :
+AutotoolsProject::AutotoolsProject(const Utils::FileName &fileName) :
     m_fileWatcher(new Utils::FileSystemWatcher(this)),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
@@ -289,7 +288,7 @@ void AutotoolsProject::updateCppCodeModel()
 
     CppTools::RawProjectPart rpp;
     rpp.setDisplayName(displayName());
-    rpp.setProjectFile(projectFilePath().toString());
+    rpp.setProjectFileLocation(projectFilePath().toString());
 
     CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
     if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k)) {

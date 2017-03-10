@@ -48,7 +48,7 @@ class GenericProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    explicit GenericProject(const QString &filename);
+    explicit GenericProject(const Utils::FileName &filename);
     ~GenericProject() override;
 
     QString filesFileName() const;
@@ -112,7 +112,8 @@ private:
 class GenericProjectFile : public Core::IDocument
 {
 public:
-    GenericProjectFile(GenericProject *parent, QString fileName, GenericProject::RefreshOptions options);
+    GenericProjectFile(GenericProject *parent, const Utils::FileName &fileName,
+                       GenericProject::RefreshOptions options);
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;

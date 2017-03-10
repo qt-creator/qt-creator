@@ -30,6 +30,7 @@
 #include "actionmanager/command.h"
 #include "id.h"
 
+#include <coreplugin/icore.h>
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
@@ -137,6 +138,7 @@ void NavigationSubWidget::comboBoxIndexChanged(int factoryIndex)
     }
 
     restoreSettings();
+    emit factoryIndexChanged(factoryIndex);
 }
 
 void NavigationSubWidget::populateSplitMenu()
@@ -167,14 +169,22 @@ void NavigationSubWidget::saveSettings()
 {
     if (!m_navigationWidget || !factory())
         return;
-    factory()->saveSettings(position(), m_navigationWidget);
+
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup(m_parentWidget->settingsGroup());
+    factory()->saveSettings(settings, position(), m_navigationWidget);
+    settings->endGroup();
 }
 
 void NavigationSubWidget::restoreSettings()
 {
     if (!m_navigationWidget || !factory())
         return;
-    factory()->restoreSettings(position(), m_navigationWidget);
+
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup(m_parentWidget->settingsGroup());
+    factory()->restoreSettings(settings, position(), m_navigationWidget);
+    settings->endGroup();
 }
 
 Core::Command *NavigationSubWidget::command(const QString &title) const

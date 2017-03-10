@@ -56,6 +56,7 @@ class MessageManager;
 class ModeManager;
 class ProgressManager;
 class NavigationWidget;
+enum class Side;
 class RightPaneWidget;
 class SettingsDatabase;
 class VcsManager;
@@ -102,8 +103,6 @@ public:
     void updateAdditionalContexts(const Context &remove, const Context &add,
                                   ICore::ContextPriority priority);
 
-    void setSuppressNavigationWidget(bool suppress);
-
     void setOverrideColor(const QColor &color);
 
     QStringList additionalAboutInformation() const;
@@ -135,7 +134,8 @@ private:
     void aboutQtCreator();
     void aboutPlugins();
     void updateFocusWidget(QWidget *old, QWidget *now);
-    void setSidebarVisible(bool visible);
+    NavigationWidget *navigationWidget(Side side) const;
+    void setSidebarVisible(bool visible, Side side);
     void destroyVersionDialog();
     void openDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
     void restoreWindowState();
@@ -166,7 +166,8 @@ private:
     ModeManager *m_modeManager = nullptr;
     HelpManager *m_helpManager = nullptr;
     FancyTabWidget *m_modeStack = nullptr;
-    NavigationWidget *m_navigationWidget = nullptr;
+    NavigationWidget *m_leftNavigationWidget = nullptr;
+    NavigationWidget *m_rightNavigationWidget = nullptr;
     RightPaneWidget *m_rightPaneWidget = nullptr;
     StatusBarWidget *m_outputView = nullptr;
     VersionDialog *m_versionDialog = nullptr;
@@ -190,11 +191,13 @@ private:
     QAction *m_saveAllAction = nullptr;
     QAction *m_exitAction = nullptr;
     QAction *m_optionsAction = nullptr;
-    QAction *m_toggleSideBarAction = nullptr;
+    QAction *m_toggleLeftSideBarAction = nullptr;
+    QAction *m_toggleRightSideBarAction = nullptr;
     QAction *m_toggleModeSelectorAction = nullptr;
     QAction *m_themeAction = nullptr;
 
-    QToolButton *m_toggleSideBarButton = nullptr;
+    QToolButton *m_toggleLeftSideBarButton = nullptr;
+    QToolButton *m_toggleRightSideBarButton = nullptr;
     QColor m_overrideColor;
     QList<std::function<bool()>> m_preCloseListeners;
 };

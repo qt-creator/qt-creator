@@ -80,8 +80,10 @@
         <file>images/replace_b.png</file>
         <file>images/replace_b@2x.png</file>
         <file>images/reset.png</file>
-        <file>images/sidebaricon.png</file>
-        <file>images/sidebaricon@2x.png</file>
+        <file>images/leftsidebaricon.png</file>
+        <file>images/leftsidebaricon@2x.png</file>
+        <file>images/rightsidebaricon.png</file>
+        <file>images/rightsidebaricon@2x.png</file>
         <file>images/splitbutton_horizontal.png</file>
         <file>images/splitbutton_horizontal@2x.png</file>
         <file>images/undo.png</file>

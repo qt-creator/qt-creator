@@ -39,7 +39,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    openQmakeProject(os.path.join(templateDir, proFile), Targets.DESKTOP_531_DEFAULT)
+    openQmakeProject(os.path.join(templateDir, proFile), [Targets.DESKTOP_531_DEFAULT])
     qmlFiles = [treebase + "focus\\.qml", treebase + "Core.ListMenu\\.qml"]
     checkOutlineFor(qmlFiles)
     testModify()

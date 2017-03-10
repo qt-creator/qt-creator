@@ -303,7 +303,11 @@ void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfigura
         return;
 
     //: Title of a the cloned BuildConfiguration window, text of the window
-    QString name = uniqueName(QInputDialog::getText(this, tr("Clone Configuration"), tr("New configuration name:")));
+    QString name = uniqueName(QInputDialog::getText(this,
+                                                    tr("Clone Configuration"),
+                                                    tr("New configuration name:"),
+                                                    QLineEdit::Normal,
+                                                    m_buildConfiguration->displayName()));
     if (name.isEmpty())
         return;
 

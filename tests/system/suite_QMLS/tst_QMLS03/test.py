@@ -80,7 +80,7 @@ def main():
     if not startedWithoutPluginError():
         return
     # open example project
-    openQmakeProject(examplePath, Targets.DESKTOP_531_DEFAULT)
+    openQmakeProject(examplePath, [Targets.DESKTOP_531_DEFAULT])
     # open qml file
     openDocument("animation.Resources.animation\\.qrc./animation.basics.color-animation\\.qml")
     # get editor

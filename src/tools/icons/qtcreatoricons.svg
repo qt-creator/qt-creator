@@ -2349,7 +2349,7 @@
          transform="translate(0,-100)" />
     </g>
     <g
-       id="src/libs/utils/images/sidebaricon"
+       id="src/libs/utils/images/leftsidebaricon"
        clip-path="none"
        transform="translate(399,0)">
       <rect
@@ -4213,6 +4213,14 @@
        transform="matrix(1,0,0,-1,16,1152)"
        width="100%"
        height="100%" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/libs/utils/images/leftsidebaricon"
+       id="src/libs/utils/images/rightsidebaricon"
+       width="100%"
+       height="100%"
+       transform="matrix(-1,0,0,1,2293,0)" />
   </g>
   <g
      inkscape:groupmode="layer"

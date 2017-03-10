@@ -124,6 +124,7 @@ public:
 private:
     void rowChanged(int index);
     void displayNameChanged();
+    void toolTipChanged();
     QListWidgetItem *itemForProjectConfiguration(ProjectConfiguration *pc);
     bool m_ignoreIndexChange;
 };

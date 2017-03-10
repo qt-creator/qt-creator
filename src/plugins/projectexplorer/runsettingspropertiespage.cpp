@@ -262,7 +262,12 @@ void RunSettingsWidget::cloneRunConfiguration()
         return;
 
     //: Title of a the cloned RunConfiguration window, text of the window
-    QString name = uniqueRCName(QInputDialog::getText(this, tr("Clone Configuration"), tr("New configuration name:")));
+    QString name = uniqueRCName(
+                        QInputDialog::getText(this,
+                                              tr("Clone Configuration"),
+                                              tr("New configuration name:"),
+                                              QLineEdit::Normal,
+                                              m_target->activeRunConfiguration()->displayName()));
     if (name.isEmpty())
         return;
 

@@ -28,7 +28,6 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <resourceeditor/resourcenode.h>

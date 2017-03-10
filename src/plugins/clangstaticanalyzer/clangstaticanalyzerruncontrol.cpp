@@ -340,7 +340,7 @@ static QStringList tweakedArguments(const ProjectPart &projectPart,
 }
 
 static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
-            const QHash<QString, ProjectPart::Ptr> &projectFileToProjectPart,
+            const QHash<QString, ProjectPart::Ptr> &callGroupToProjectPart,
             const ProjectInfo::CompilerCallData &compilerCallData,
             const QString &targetTriple)
 {
@@ -350,7 +350,7 @@ static AnalyzeUnits unitsToAnalyzeFromCompilerCallData(
 
     foreach (const ProjectInfo::CompilerCallGroup &compilerCallGroup, compilerCallData) {
         const ProjectPart::Ptr projectPart
-                = projectFileToProjectPart.value(compilerCallGroup.groupId);
+                = callGroupToProjectPart.value(compilerCallGroup.groupId);
         QTC_ASSERT(projectPart, continue);
 
         QHashIterator<QString, QList<QStringList> > it(compilerCallGroup.callsPerSourceFile);
@@ -398,14 +398,14 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QVector<ProjectPart::Pt
     return unitsToAnalyze;
 }
 
-static QHash<QString, ProjectPart::Ptr> generateProjectFileToProjectPartMapping(
+static QHash<QString, ProjectPart::Ptr> generateCallGroupToProjectPartMapping(
             const QVector<ProjectPart::Ptr> &projectParts)
 {
     QHash<QString, ProjectPart::Ptr> mapping;
 
     foreach (const ProjectPart::Ptr &projectPart, projectParts) {
         QTC_ASSERT(projectPart, continue);
-        mapping[projectPart->projectFile] = projectPart;
+        mapping[projectPart->callGroupId] = projectPart;
     }
 
     return mapping;
@@ -420,9 +420,9 @@ AnalyzeUnits ClangStaticAnalyzerRunControl::sortedUnitsToAnalyze()
     if (compilerCallData.isEmpty()) {
         units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts());
     } else {
-        const QHash<QString, ProjectPart::Ptr> projectFileToProjectPart
-                = generateProjectFileToProjectPartMapping(m_projectInfo.projectParts());
-        units = unitsToAnalyzeFromCompilerCallData(projectFileToProjectPart,
+        const QHash<QString, ProjectPart::Ptr> callGroupToProjectPart
+                = generateCallGroupToProjectPartMapping(m_projectInfo.projectParts());
+        units = unitsToAnalyzeFromCompilerCallData(callGroupToProjectPart,
                                                    compilerCallData,
                                                    m_targetTriple);
     }

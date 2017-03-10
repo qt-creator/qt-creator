@@ -205,7 +205,7 @@ public:
                     WorkingCopy workingCopyInternal,
                     PathsAndLanguages paths,
                     ModelManagerInterface *modelManager,
-                    bool emitDocChangedOnDisk, bool libOnly = true);
+                    bool emitDocChangedOnDisk, bool libOnly = true, bool forceRescan = false);
 
     virtual void resetCodeModel();
     void removeProjectInfo(ProjectExplorer::Project *project);

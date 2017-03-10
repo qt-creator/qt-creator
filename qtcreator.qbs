@@ -6,7 +6,6 @@ Project {
     name: "Qt Creator"
     minimumQbsVersion: "1.6.0"
     property bool withAutotests: qbs.buildVariant === "debug"
-    property string licenseType: "opensource"
     property path ide_source_tree: path
     property pathList additionalPlugins: []
     property pathList additionalLibs: []

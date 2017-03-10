@@ -93,6 +93,7 @@ public:
 
 public:
     QString id() const;
+    QString projectFileLocation() const;
 
     Ptr copy() const;
     void updateLanguageFeatures();
@@ -105,7 +106,10 @@ public:
     QString displayName;
 
     QString projectFile;
+    int projectFileLine = -1;
+    int projectFileColumn = -1;
     QString projectConfigFile; // currently only used by the Generic Project Manager
+    QString callGroupId;
 
     ProjectFiles files;
 

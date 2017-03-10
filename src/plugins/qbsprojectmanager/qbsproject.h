@@ -58,7 +58,7 @@ class QbsProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    explicit QbsProject(const QString &filename);
+    explicit QbsProject(const Utils::FileName &filename);
     ~QbsProject() override;
 
     QString displayName() const override;

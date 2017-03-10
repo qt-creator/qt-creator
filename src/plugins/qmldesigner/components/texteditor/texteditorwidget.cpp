@@ -36,6 +36,9 @@
 
 #include <utils/fileutils.h>
 
+#include <texteditor/textdocument.h>
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <QEvent>
 #include <QVBoxLayout>
 
@@ -73,7 +76,12 @@ void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
     QmlDesignerPlugin::instance()->emitCurrentTextEditorChanged(textEditor);
 
     connect(textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged,
-            &m_updateSelectionTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+            this, [this]() {
+        /* Cursor position is changed by rewriter */
+        if (!m_blockCurserSelectionSyncronisation)
+            m_updateSelectionTimer.start();
+    });
+
     textEditor->editorWidget()->installEventFilter(this);
 
     if (oldEditor)
@@ -149,6 +157,11 @@ int TextEditorWidget::currentLine() const
     if (m_textEditor)
         return m_textEditor->currentLine();
     return -1;
+}
+
+void TextEditorWidget::setBlockCurserSelectionSyncronisation(bool b)
+{
+    m_blockCurserSelectionSyncronisation = b;
 }
 
 bool TextEditorWidget::eventFilter( QObject *, QEvent *event)

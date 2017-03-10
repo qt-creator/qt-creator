@@ -36,10 +36,10 @@ def main():
 
     for qtVersion, controls in available:
         if qtVersion == "5.3":
-            targ = Targets.DESKTOP_531_DEFAULT
+            targ = [Targets.DESKTOP_531_DEFAULT]
             quick = "2.3"
         else:
-            targ = Targets.DESKTOP_541_GCC
+            targ = [Targets.DESKTOP_541_GCC]
             quick = "2.4"
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
@@ -47,7 +47,10 @@ def main():
                                                                   minimumQtVersion=qtVersion,
                                                                   withControls = controls)
         if len(checkedTargets) == 0:
-            test.fatal("Could not check wanted target")
+            if controls and qtVersion < "5.7":
+                test.xfail("Could not check wanted target.", "Quick Controls 2 wizard needs Qt5.7+")
+            else:
+                test.fatal("Could not check wanted target")
             continue
         additionalText = ''
         if controls:

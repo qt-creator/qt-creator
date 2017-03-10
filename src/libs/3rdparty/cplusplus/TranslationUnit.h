@@ -174,7 +174,6 @@ private:
     unsigned findLineNumber(unsigned utf16charOffset) const;
     unsigned findColumnNumber(unsigned utf16CharOffset, unsigned lineNumber) const;
     PPLine findPreprocessorLine(unsigned utf16charOffset) const;
-    void showErrorLine(unsigned index, unsigned column, FILE *out);
 
     static const Token nullToken;
 

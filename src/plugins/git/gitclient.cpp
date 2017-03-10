@@ -728,16 +728,13 @@ void GitClient::requestReload(const QString &documentId, const QString &source,
 
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     QTC_ASSERT(document, return);
-    DiffEditorController *controller = DiffEditorController::controller(document);
-    if (!controller) {
-        controller = factory(document);
-        QTC_ASSERT(controller, return);
+    DiffEditorController *controller = factory(document);
+    QTC_ASSERT(controller, return);
 
-        connect(controller, &DiffEditorController::chunkActionsRequested,
-                this, &GitClient::slotChunkActionsRequested, Qt::DirectConnection);
-        connect(controller, &DiffEditorController::requestInformationForCommit,
-                this, &GitClient::branchesForCommit);
-    }
+    connect(controller, &DiffEditorController::chunkActionsRequested,
+            this, &GitClient::slotChunkActionsRequested, Qt::DirectConnection);
+    connect(controller, &DiffEditorController::requestInformationForCommit,
+            this, &GitClient::branchesForCommit);
 
     VcsBasePlugin::setSource(document, sourceCopy);
     EditorManager::activateEditorForDocument(document);
@@ -3192,6 +3189,39 @@ void GitClient::StashInfo::end()
 
     m_pushAction = NoPush;
     m_stashResult = NotStashed;
+}
+
+// GitRemote
+
+GitRemote::GitRemote(const QString &url)
+{
+    static const QRegularExpression remotePattern(
+                "^(?:(?<protocol>[^:]+)://)?(?:(?<user>[^@]+)@)?(?<host>[^:/]+)"
+                "(?::(?<port>\\d+))?:?(?<path>/.*)$");
+
+    if (url.isEmpty())
+        return;
+
+    // Check for local remotes (refer to the root or relative path)
+    // On Windows, local paths typically starts with <drive>:
+    if (url.startsWith('/') || url.startsWith('.')
+            || (HostOsInfo::isWindowsHost() && url[1] == ':')) {
+        protocol = "file";
+        path = QDir::fromNativeSeparators(url);
+        isValid = QDir(path).exists() || QDir(path + ".git").exists();
+        return;
+    }
+
+    const QRegularExpressionMatch match = remotePattern.match(url);
+    if (!match.hasMatch())
+        return;
+
+    protocol = match.captured("protocol");
+    userName = match.captured("user");
+    host     = match.captured("host");
+    port     = match.captured("port").toUShort();
+    path     = match.captured("path");
+    isValid  = true;
 }
 
 } // namespace Internal

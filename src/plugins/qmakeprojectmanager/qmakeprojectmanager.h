@@ -27,7 +27,6 @@
 
 #include "qmakeprojectmanager_global.h"
 
-#include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/projectnodes.h>
 
 namespace Core { class IEditor; }
@@ -41,14 +40,12 @@ class ToolChain;
 
 namespace QmakeProjectManager {
 
-class QMAKEPROJECTMANAGER_EXPORT QmakeManager : public ProjectExplorer::IProjectManager
+class QMAKEPROJECTMANAGER_EXPORT QmakeManager : public QObject
 {
     Q_OBJECT
 
 public:
     void notifyChanged(const Utils::FileName &name);
-    QString mimeType() const override;
-    ProjectExplorer::Project *openProject(const QString &fileName) override;
 
     // Context information used in the slot implementations
     static ProjectExplorer::Node *contextNode();

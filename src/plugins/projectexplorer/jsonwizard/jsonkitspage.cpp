@@ -26,10 +26,10 @@
 #include "jsonkitspage.h"
 #include "jsonwizard.h"
 
-#include "../iprojectmanager.h"
 #include "../kit.h"
 #include "../project.h"
 #include "../projectexplorer.h"
+#include "../projectmanager.h"
 
 #include <coreplugin/featureprovider.h>
 
@@ -102,19 +102,16 @@ void JsonKitsPage::setPreferredFeatures(const QVariant &data)
 
 void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
 {
-    Project *project = nullptr;
-
     for (const JsonWizard::GeneratorFile &f : files) {
         if (f.file.attributes() & GeneratedFile::OpenProjectAttribute) {
             const QFileInfo fi(f.file.path());
             const QString path = fi.absoluteFilePath();
-            IProjectManager *manager = IProjectManager::managerForMimeType(Utils::mimeTypeForFile(fi));
-            project = manager ? manager->openProject(path) : nullptr;
+            Project *project = ProjectManager::openProject(Utils::mimeTypeForFile(fi),
+                                                           Utils::FileName::fromString(path));
             if (project) {
                 if (setupProject(project))
                     project->saveSettings();
                 delete project;
-                project = nullptr;
             }
         }
     }

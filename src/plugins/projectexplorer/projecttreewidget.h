@@ -62,7 +62,6 @@ public:
     void showMessage(ProjectExplorer::Node *node, const QString &message);
 
     static Node *nodeForFile(const Utils::FileName &fileName);
-    static Node *mostExpandedNode(const QList<Node*> &nodes);
 
     void toggleAutoSynchronization();
     void editCurrentItem();
@@ -102,8 +101,8 @@ public:
     ProjectTreeWidgetFactory();
 
     Core::NavigationView createWidget();
-    void restoreSettings(int position, QWidget *widget);
-    void saveSettings(int position, QWidget *widget);
+    void restoreSettings(QSettings *settings, int position, QWidget *widget);
+    void saveSettings(QSettings *settings, int position, QWidget *widget);
 };
 
 } // namespace Internal

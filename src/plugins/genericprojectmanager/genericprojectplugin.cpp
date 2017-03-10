@@ -26,7 +26,6 @@
 #include "genericprojectplugin.h"
 
 #include "genericbuildconfiguration.h"
-#include "genericprojectmanager.h"
 #include "genericprojectwizard.h"
 #include "genericprojectconstants.h"
 #include "genericprojectfileseditor.h"
@@ -39,6 +38,7 @@
 #include <coreplugin/actionmanager/command.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/selectablefilesmodel.h>
 
@@ -59,7 +59,8 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
 {
     Q_UNUSED(errorMessage)
 
-    addAutoReleasedObject(new Manager);
+    ProjectManager::registerProjectType<GenericProject>(Constants::GENERICMIMETYPE);
+
     addAutoReleasedObject(new ProjectFilesFactory);
     addAutoReleasedObject(new GenericMakeStepFactory);
     addAutoReleasedObject(new GenericBuildConfigurationFactory);

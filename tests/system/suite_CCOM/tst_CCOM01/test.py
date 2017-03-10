@@ -40,7 +40,9 @@ def main():
     if not startedWithoutPluginError():
         return
     # open example project, supports only Qt 5
-    targets = Targets.desktopTargetClasses() & ~Targets.DESKTOP_474_GCC & ~Targets.DESKTOP_480_DEFAULT
+    targets = Targets.desktopTargetClasses()
+    targets.remove(Targets.DESKTOP_474_GCC)
+    targets.remove(Targets.DESKTOP_480_DEFAULT)
     checkedTargets = openQmakeProject(examplePath, targets)
     # build and wait until finished - on all build configurations
     availableConfigs = iterateBuildConfigs(len(checkedTargets))

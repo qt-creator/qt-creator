@@ -29,6 +29,7 @@
 #include "modelnodecontextmenu_helper.h"
 #include <bindingproperty.h>
 #include <nodeproperty.h>
+#include <nodelistproperty.h>
 #include <nodehints.h>
 #include <nodemetainfo.h>
 #include "designeractionmanagerview.h"
@@ -560,11 +561,54 @@ bool singleSelectedAndUiFile(const SelectionContext &context)
             == QLatin1String("ui.qml");
 }
 
+bool lowerAvailable(const SelectionContext &selectionState)
+{
+    if (!singleSelection(selectionState))
+        return false;
+
+    ModelNode modelNode = selectionState.currentSingleSelectedNode();
+
+    if (modelNode.isRootNode())
+        return false;
+
+    if (!modelNode.parentProperty().isNodeListProperty())
+        return false;
+
+    NodeListProperty parentProperty = modelNode.parentProperty().toNodeListProperty();
+    return parentProperty.indexOf(modelNode) > 0;
+}
+
+bool raiseAvailable(const SelectionContext &selectionState)
+{
+    if (!singleSelection(selectionState))
+        return false;
+
+    ModelNode modelNode = selectionState.currentSingleSelectedNode();
+
+    if (modelNode.isRootNode())
+        return false;
+
+    if (!modelNode.parentProperty().isNodeListProperty())
+        return false;
+
+    NodeListProperty parentProperty = modelNode.parentProperty().toNodeListProperty();
+    return parentProperty.indexOf(modelNode) < parentProperty.count() - 1;
+}
+
 void DesignerActionManager::createDefaultDesignerActions()
 {
     using namespace SelectionContextFunctors;
     using namespace ComponentCoreConstants;
     using namespace ModelNodeOperations;
+
+    const Utils::Icon prevIcon({
+        {QLatin1String(":/utils/images/prev.png"), Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
+
+    const Utils::Icon nextIcon({
+        {QLatin1String(":/utils/images/next.png"), Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
+
+    const Utils::Icon addIcon({
+        {QLatin1String(":/utils/images/plus.png"), Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
 
     addDesignerAction(new SelectionModelNodeAction(
                           selectionCategoryDisplayName,
@@ -600,10 +644,10 @@ void DesignerActionManager::createDefaultDesignerActions()
                           Utils::Icon({{":/qmldesigner/icon/designeractions/images/lower.png", Utils::Theme::IconsBaseColor}}).icon(),
                           raiseToolTip,
                           stackCategory,
-                          QKeySequence("Ctrl+Up"),
+                          QKeySequence(),
                           160,
                           &raise,
-                          &selectionNotEmpty));
+                          &raiseAvailable));
 
     addDesignerAction(new ModelNodeAction(
                           lowerCommandId,
@@ -611,10 +655,10 @@ void DesignerActionManager::createDefaultDesignerActions()
                           Utils::Icon({{":/qmldesigner/icon/designeractions/images/raise.png", Utils::Theme::IconsBaseColor}}).icon(),
                           lowerToolTip,
                           stackCategory,
-                          QKeySequence("Ctrl+Down"),
+                          QKeySequence(),
                           140,
                           &lower,
-                          &selectionNotEmpty));
+                          &lowerAvailable));
 
     addDesignerAction(new SeperatorDesignerAction(stackCategory, 120));
 
@@ -708,7 +752,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &layoutOptionVisible));
 
     addDesignerAction(new ActionGroup(
-                          stackCategoryDisplayName,
+                          stackedContainerCategoryDisplayName,
                           stackedContainerCategory,
                           priorityStackedContainerCategory,
                           &isStackedContainer));
@@ -775,16 +819,6 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &isLayout,
                           &isLayout));
 
-    const Utils::Icon prevIcon({
-        {QLatin1String(":/utils/images/prev.png"), Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
-
-    const Utils::Icon nextIcon({
-        {QLatin1String(":/utils/images/next.png"), Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
-
-    const Utils::Icon addIcon({
-        {QLatin1String(":/utils/images/plus.png"), Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
-
-
     addDesignerAction(new ModelNodeFormEditorAction(
                           addItemToStackedContainerCommandId,
                           addItemToStackedContainerDisplayName,
@@ -848,7 +882,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           Utils::Icon({{":/qmldesigner/icon/designeractions/images/column.png", Utils::Theme::IconsBaseColor}}).icon(),
                           layoutColumnLayoutToolTip,
                           layoutCategory,
-                          QKeySequence("Ctrl+i"),
+                          QKeySequence("Ctrl+l"),
                           80,
                           &layoutColumnLayout,
                           &selectionCanBeLayoutedAndQtQuickLayoutPossible));

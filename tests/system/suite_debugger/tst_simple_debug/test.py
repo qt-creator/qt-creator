@@ -30,7 +30,8 @@ def main():
     if not startedWithoutPluginError():
         return
     # Requires Qt 4.8
-    targets = Targets.desktopTargetClasses() & ~Targets.DESKTOP_474_GCC
+    targets = Targets.desktopTargetClasses()
+    targets.remove(Targets.DESKTOP_474_GCC)
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
     checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=targets)

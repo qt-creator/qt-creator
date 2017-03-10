@@ -127,19 +127,19 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
     }
     if (style != SideBarWidget) {
-        m_toggleSideBarAction = new QAction(Utils::Icons::TOGGLE_SIDEBAR_TOOLBAR.icon(),
-                                            QCoreApplication::translate("Core", Core::Constants::TR_SHOW_SIDEBAR),
+        m_toggleSideBarAction = new QAction(Utils::Icons::TOGGLE_LEFT_SIDEBAR_TOOLBAR.icon(),
+                                            QCoreApplication::translate("Core", Core::Constants::TR_SHOW_LEFT_SIDEBAR),
                                             toolBar);
         m_toggleSideBarAction->setCheckable(true);
         m_toggleSideBarAction->setChecked(false);
         cmd = Core::ActionManager::registerAction(m_toggleSideBarAction,
-                                                  Core::Constants::TOGGLE_SIDEBAR, context);
+                                                  Core::Constants::TOGGLE_LEFT_SIDEBAR, context);
         connect(m_toggleSideBarAction, &QAction::toggled, m_toggleSideBarAction,
                 [this](bool checked) {
                     m_toggleSideBarAction->setText(
                         QCoreApplication::translate("Core",
-                                                    checked ? Core::Constants::TR_HIDE_SIDEBAR
-                                                            : Core::Constants::TR_SHOW_SIDEBAR));
+                                                    checked ? Core::Constants::TR_HIDE_LEFT_SIDEBAR
+                                                            : Core::Constants::TR_SHOW_LEFT_SIDEBAR));
                 });
         addSideBar();
         m_toggleSideBarAction->setChecked(m_sideBar->isVisibleTo(this));
@@ -299,7 +299,7 @@ HelpWidget::~HelpWidget()
     Core::ActionManager::unregisterAction(m_copy, Core::Constants::COPY);
     Core::ActionManager::unregisterAction(m_printAction, Core::Constants::PRINT);
     if (m_toggleSideBarAction)
-        Core::ActionManager::unregisterAction(m_toggleSideBarAction, Core::Constants::TOGGLE_SIDEBAR);
+        Core::ActionManager::unregisterAction(m_toggleSideBarAction, Core::Constants::TOGGLE_LEFT_SIDEBAR);
     if (m_switchToHelp)
         Core::ActionManager::unregisterAction(m_switchToHelp, Constants::CONTEXT_HELP);
     Core::ActionManager::unregisterAction(m_homeAction, Constants::HELP_HOME);

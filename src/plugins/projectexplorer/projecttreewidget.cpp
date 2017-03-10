@@ -272,29 +272,27 @@ void ProjectTreeWidget::rowsInserted(const QModelIndex &parent, int start, int e
 
 Node *ProjectTreeWidget::nodeForFile(const Utils::FileName &fileName)
 {
-    return mostExpandedNode(SessionManager::nodesForFile(fileName));
-}
-
-Node *ProjectTreeWidget::mostExpandedNode(const QList<Node *> &nodes)
-{
-    Node *bestNode = 0;
+    Node *bestNode = nullptr;
     int bestNodeExpandCount = INT_MAX;
 
-    foreach (Node *node, nodes) {
-        if (!bestNode) {
-            bestNode = node;
-            bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
-        } else if (node->nodeType() < bestNode->nodeType()) {
-            bestNode = node;
-            bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
-        } else if (node->nodeType() == bestNode->nodeType()) {
-            int nodeExpandCount = ProjectTreeWidget::expandedCount(node);
-            if (nodeExpandCount < bestNodeExpandCount) {
+    SessionManager::sessionNode()->forEachGenericNode([&](Node *node) {
+        if (node->filePath() == fileName) {
+            if (!bestNode) {
                 bestNode = node;
                 bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
+            } else if (node->nodeType() < bestNode->nodeType()) {
+                bestNode = node;
+                bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
+            } else if (node->nodeType() == bestNode->nodeType()) {
+                int nodeExpandCount = ProjectTreeWidget::expandedCount(node);
+                if (nodeExpandCount < bestNodeExpandCount) {
+                    bestNode = node;
+                    bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
+                }
             }
         }
-    }
+    });
+
     return bestNode;
 }
 
@@ -470,22 +468,20 @@ NavigationView ProjectTreeWidgetFactory::createWidget()
     return n;
 }
 
-void ProjectTreeWidgetFactory::saveSettings(int position, QWidget *widget)
+void ProjectTreeWidgetFactory::saveSettings(QSettings *settings, int position, QWidget *widget)
 {
     auto ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
-    QSettings *settings = ICore::settings();
     const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
     settings->setValue(baseKey + QLatin1String(".ProjectFilter"), ptw->projectFilter());
     settings->setValue(baseKey + QLatin1String(".GeneratedFilter"), ptw->generatedFilesFilter());
     settings->setValue(baseKey + QLatin1String(".SyncWithEditor"), ptw->autoSynchronization());
 }
 
-void ProjectTreeWidgetFactory::restoreSettings(int position, QWidget *widget)
+void ProjectTreeWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
 {
     auto ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
-    QSettings *settings = ICore::settings();
     const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
     ptw->setProjectFilter(settings->value(baseKey + QLatin1String(".ProjectFilter"), false).toBool());
     ptw->setGeneratedFilesFilter(settings->value(baseKey + QLatin1String(".GeneratedFilter"), true).toBool());

@@ -1,0 +1,12 @@
+diff --git a/utils/TableGen/CMakeLists.txt b/utils/TableGen/CMakeLists.txt
+index 604e3f1..4e5874c 100644
+--- a/utils/TableGen/CMakeLists.txt
++++ b/utils/TableGen/CMakeLists.txt
+@@ -1,4 +1,7 @@
+ set(LLVM_LINK_COMPONENTS Support)
++if (MINGW)
++    set(CMAKE_BUILD_TYPE "Debug")
++endif()
+ 
+ add_tablegen(llvm-tblgen LLVM
+   AsmMatcherEmitter.cpp

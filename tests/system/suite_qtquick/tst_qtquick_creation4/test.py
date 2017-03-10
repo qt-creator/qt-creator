@@ -29,14 +29,13 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    for targ, quickVer in [[Targets.DESKTOP_480_DEFAULT, 1], [Targets.DESKTOP_561_DEFAULT, 2],
-                           [Targets.DESKTOP_531_DEFAULT, 2]]:
+    for target in [Targets.DESKTOP_561_DEFAULT, Targets.DESKTOP_531_DEFAULT]:
         # using a temporary directory won't mess up a potentially existing
-        createNewQmlExtension(tempDir(), targ, quickVer)
+        createNewQmlExtension(tempDir(), [target])
         # wait for parsing to complete
         progressBarWait(30000)
-        test.log("Building project Qt Quick %d Extension Plugin (%s)"
-                 % (quickVer, Targets.getStringForTarget(targ)))
+        test.log("Building project Qt Quick 2 Extension Plugin (%s)"
+                 % Targets.getStringForTarget(target))
         invokeMenuItem("Build","Build All")
         waitForCompile()
         checkCompile()

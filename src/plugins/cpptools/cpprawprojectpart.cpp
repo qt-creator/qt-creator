@@ -54,14 +54,21 @@ void RawProjectPart::setFiles(const QStringList &files, FileClassifier fileClass
     this->fileClassifier = fileClassifier;
 }
 
-void RawProjectPart::setProjectFile(const QString &projectFile)
+void RawProjectPart::setProjectFileLocation(const QString &projectFile, int line, int column)
 {
     this->projectFile = projectFile;
+    projectFileLine = line;
+    projectFileColumn = column;
 }
 
 void RawProjectPart::setConfigFileName(const QString &configFileName)
 {
     this->projectConfigFile = configFileName;
+}
+
+void RawProjectPart::setCallGroupId(const QString &id)
+{
+    callGroupId = id;
 }
 
 void RawProjectPart::setQtVersion(ProjectPart::QtVersion qtVersion)

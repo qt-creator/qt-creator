@@ -88,11 +88,9 @@ enum ProjectAction {
     HasSubProjectRunConfigurations
 };
 
-class Node;
 class FileNode;
 class FolderNode;
 class ProjectNode;
-class NodesVisitor;
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT Node : public QObject
@@ -206,8 +204,6 @@ public:
                                                 const Utils::FileName &overrideBaseDir = Utils::FileName());
     void buildTree(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir = Utils::FileName());
     void compress();
-
-    virtual void accept(NodesVisitor *visitor);
 
     void setDisplayName(const QString &name);
     void setIcon(const QIcon &icon);

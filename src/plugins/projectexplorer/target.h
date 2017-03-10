@@ -96,11 +96,9 @@ public:
     bool isEnabled() const;
 
     QIcon icon() const;
-    void setIcon(QIcon icon);
     QIcon overlayIcon() const;
     void setOverlayIcon(QIcon icon);
-    QString toolTip() const;
-    void setToolTip(const QString &text);
+    QString overlayIconToolTip();
 
     QVariantMap toMap() const override;
 
@@ -114,7 +112,6 @@ signals:
     void targetEnabled(bool);
     void iconChanged();
     void overlayIconChanged();
-    void toolTipChanged();
 
     void kitChanged();
 

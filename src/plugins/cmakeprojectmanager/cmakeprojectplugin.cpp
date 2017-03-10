@@ -45,6 +45,7 @@
 #include <coreplugin/fileiconprovider.h>
 
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 
 #include <utils/parameteraction.h>
@@ -64,6 +65,9 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     addAutoReleasedObject(new Internal::CMakeSnippetProvider);
     addAutoReleasedObject(new CMakeSettingsPage);
     addAutoReleasedObject(new CMakeManager);
+
+    ProjectManager::registerProjectType<CMakeProject>(Constants::CMAKEPROJECTMIMETYPE);
+
     addAutoReleasedObject(new CMakeBuildStepFactory);
     addAutoReleasedObject(new CMakeRunConfigurationFactory);
     addAutoReleasedObject(new CMakeBuildConfigurationFactory);

@@ -34,6 +34,7 @@
 #include "id.h"
 #include "imode.h"
 
+#include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QCoreApplication>
@@ -49,15 +50,24 @@ Q_DECLARE_METATYPE(Core::INavigationWidgetFactory *)
 
 namespace Core {
 
-NavigationWidgetPlaceHolder *NavigationWidgetPlaceHolder::m_current = 0;
+NavigationWidgetPlaceHolder *NavigationWidgetPlaceHolder::s_currentLeft = nullptr;
+NavigationWidgetPlaceHolder *NavigationWidgetPlaceHolder::s_currentRight = nullptr;
 
-NavigationWidgetPlaceHolder* NavigationWidgetPlaceHolder::current()
+NavigationWidgetPlaceHolder *NavigationWidgetPlaceHolder::current(Side side)
 {
-    return m_current;
+    return side == Side::Left ? s_currentLeft : s_currentRight;
 }
 
-NavigationWidgetPlaceHolder::NavigationWidgetPlaceHolder(Id mode, QWidget *parent)
-    :QWidget(parent), m_mode(mode)
+void NavigationWidgetPlaceHolder::setCurrent(Side side, NavigationWidgetPlaceHolder *navWidget)
+{
+    if (side == Side::Left)
+        s_currentLeft = navWidget;
+    else
+        s_currentRight = navWidget;
+}
+
+NavigationWidgetPlaceHolder::NavigationWidgetPlaceHolder(Id mode, Side side, QWidget *parent)
+    :QWidget(parent), m_mode(mode), m_side(side)
 {
     setLayout(new QVBoxLayout);
     layout()->setMargin(0);
@@ -67,9 +77,9 @@ NavigationWidgetPlaceHolder::NavigationWidgetPlaceHolder(Id mode, QWidget *paren
 
 NavigationWidgetPlaceHolder::~NavigationWidgetPlaceHolder()
 {
-    if (m_current == this) {
-        if (NavigationWidget *nw = NavigationWidget::instance()) {
-            nw->setParent(0);
+    if (NavigationWidgetPlaceHolder::current(m_side) == this) {
+        if (NavigationWidget *nw = NavigationWidget::instance(m_side)) {
+            nw->setParent(nullptr);
             nw->hide();
         }
     }
@@ -84,12 +94,20 @@ void NavigationWidgetPlaceHolder::applyStoredSize(int width)
             QList<int> sizes = splitter->sizes();
             int index = splitter->indexOf(this);
             int diff = width - sizes.at(index);
-            int adjust = sizes.count() > 1 ? (diff / (sizes.count() - 1)) : 0;
+
+            int count = sizes.count();
             for (int i = 0; i < sizes.count(); ++i) {
-                if (i != index)
+                if (qobject_cast<NavigationWidgetPlaceHolder *>(splitter->widget(i)))
+                    --count;
+            }
+
+            int adjust = count > 1 ? (diff / (count - 1)) : 0;
+            for (int i = 0; i < sizes.count(); ++i) {
+                if (!qobject_cast<NavigationWidgetPlaceHolder *>(splitter->widget(i)))
                     sizes[i] += adjust;
             }
-            sizes[index]= width;
+
+            sizes[index] = width;
             splitter->setSizes(sizes);
         } else {
             QSize s = size();
@@ -107,16 +125,18 @@ void NavigationWidgetPlaceHolder::applyStoredSize(int width)
 // And that the parent of the NavigationWidget gets the correct parent
 void NavigationWidgetPlaceHolder::currentModeAboutToChange(Id mode)
 {
-    NavigationWidget *navigationWidget = NavigationWidget::instance();
+    NavigationWidget *navigationWidget = NavigationWidget::instance(m_side);
+    NavigationWidgetPlaceHolder *current = NavigationWidgetPlaceHolder::current(m_side);
 
-    if (m_current == this) {
-        m_current = 0;
-        navigationWidget->setParent(0);
+    if (current == this) {
+        setCurrent(m_side, nullptr);
+        navigationWidget->setParent(nullptr);
         navigationWidget->hide();
-        navigationWidget->placeHolderChanged(m_current);
+        navigationWidget->placeHolderChanged(nullptr);
     }
+
     if (m_mode == mode) {
-        m_current = this;
+        setCurrent(m_side, this);
 
         int width = navigationWidget->storedWidth();
 
@@ -125,13 +145,19 @@ void NavigationWidgetPlaceHolder::currentModeAboutToChange(Id mode)
 
         applyStoredSize(width);
         setVisible(navigationWidget->isShown());
-        navigationWidget->placeHolderChanged(m_current);
+        navigationWidget->placeHolderChanged(this);
     }
 }
 
+struct ActivationInfo {
+    Side side;
+    int position;
+};
+using ActivationsMap = QHash<Id, ActivationInfo>;
+
 struct NavigationWidgetPrivate
 {
-    explicit NavigationWidgetPrivate(QAction *toggleSideBarAction);
+    explicit NavigationWidgetPrivate(QAction *toggleSideBarAction, Side side);
     ~NavigationWidgetPrivate() { delete m_factoryModel; }
 
     QList<Internal::NavigationSubWidget *> m_subWidgets;
@@ -142,55 +168,97 @@ struct NavigationWidgetPrivate
     bool m_shown;
     bool m_suppressed;
     int m_width;
-    static NavigationWidget* m_instance;
     QAction *m_toggleSideBarAction; // does not take ownership
+    Side m_side;
+
+    static NavigationWidget *s_instanceLeft;
+    static NavigationWidget *s_instanceRight;
+
+    static ActivationsMap s_activationsMap;
+
+    static void updateActivationsMap(Id activatedId, const ActivationInfo &activationInfo);
+    static void removeFromActivationsMap(const ActivationInfo &activationInfo);
 };
 
-NavigationWidgetPrivate::NavigationWidgetPrivate(QAction *toggleSideBarAction) :
+NavigationWidgetPrivate::NavigationWidgetPrivate(QAction *toggleSideBarAction, Side side) :
     m_factoryModel(new QStandardItemModel),
     m_shown(true),
     m_suppressed(false),
     m_width(0),
-    m_toggleSideBarAction(toggleSideBarAction)
+    m_toggleSideBarAction(toggleSideBarAction),
+    m_side(side)
 {
 }
 
-NavigationWidget *NavigationWidgetPrivate::m_instance = 0;
+void NavigationWidgetPrivate::updateActivationsMap(Id activatedId, const ActivationInfo &activationInfo)
+{
+    s_activationsMap.insert(activatedId, activationInfo);
+}
 
-NavigationWidget::NavigationWidget(QAction *toggleSideBarAction) :
-    d(new NavigationWidgetPrivate(toggleSideBarAction))
+NavigationWidget *NavigationWidgetPrivate::s_instanceLeft = nullptr;
+NavigationWidget *NavigationWidgetPrivate::s_instanceRight = nullptr;
+ActivationsMap NavigationWidgetPrivate::s_activationsMap;
+
+NavigationWidget::NavigationWidget(QAction *toggleSideBarAction, Side side) :
+    d(new NavigationWidgetPrivate(toggleSideBarAction, side))
 {
     d->m_factoryModel->setSortRole(FactoryPriorityRole);
     setOrientation(Qt::Vertical);
-    d->m_instance = this;
+
+    if (side == Side::Left)
+        d->s_instanceLeft = this;
+    else
+        d->s_instanceRight = this;
 }
 
 NavigationWidget::~NavigationWidget()
 {
-    NavigationWidgetPrivate::m_instance = 0;
+    if (d->m_side == Side::Left)
+        NavigationWidgetPrivate::s_instanceLeft = nullptr;
+    else
+        NavigationWidgetPrivate::s_instanceRight = nullptr;
+
     delete d;
 }
 
-NavigationWidget *NavigationWidget::instance()
+NavigationWidget *NavigationWidget::instance(Side side)
 {
-    return NavigationWidgetPrivate::m_instance;
+    return side == Side::Left ? NavigationWidgetPrivate::s_instanceLeft
+                              : NavigationWidgetPrivate::s_instanceRight;
+}
+
+QWidget *NavigationWidget::activateSubWidget(Id factoryId, Side fallbackSide)
+{
+    NavigationWidget *navigationWidget = NavigationWidget::instance(fallbackSide);
+    int preferredPosition = -1;
+
+    if (NavigationWidgetPrivate::s_activationsMap.contains(factoryId)) {
+        const ActivationInfo info = NavigationWidgetPrivate::s_activationsMap.value(factoryId);
+        navigationWidget = NavigationWidget::instance(info.side);
+        preferredPosition = info.position;
+    }
+
+    navigationWidget->activateSubWidget(factoryId, preferredPosition);
+    return navigationWidget;
 }
 
 void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &factories)
 {
     Context navicontext(Constants::C_NAVIGATION_PANE);
-
     foreach (INavigationWidgetFactory *factory, factories) {
         const Id id = factory->id();
-        QAction *action = new QAction(tr("Activate %1 View").arg(factory->displayName()), this);
-        d->m_actionMap.insert(action, id);
-        connect(action, &QAction::triggered,
-                this, [this, action]() { activateSubWidget(d->m_actionMap[action]); });
+        const Id actionId = id.withPrefix("QtCreator.Sidebar.");
 
-        Command *cmd = ActionManager::registerAction(action,
-            id.withPrefix("QtCreator.Sidebar."), navicontext);
-        cmd->setDefaultKeySequence(factory->activationSequence());
-        d->m_commandMap.insert(id, cmd);
+        if (!ActionManager::command(actionId)) {
+            QAction *action = new QAction(tr("Activate %1 View").arg(factory->displayName()), this);
+            d->m_actionMap.insert(action, id);
+            connect(action, &QAction::triggered, this, [this, action]() {
+                NavigationWidget::activateSubWidget(d->m_actionMap[action], Side::Left);
+            });
+            Command *cmd = ActionManager::registerAction(action, actionId, navicontext);
+            cmd->setDefaultKeySequence(factory->activationSequence());
+            d->m_commandMap.insert(id, cmd);
+        }
 
         QStandardItem *newRow = new QStandardItem(factory->displayName());
         newRow->setData(qVariantFromValue(factory), FactoryObjectRole);
@@ -200,6 +268,13 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &fac
     }
     d->m_factoryModel->sort(0);
     updateToggleText();
+}
+
+QString NavigationWidget::settingsGroup() const
+{
+    const QString side(d->m_side == Side::Left ? QStringLiteral("Left")
+                                               : QStringLiteral("Right"));
+    return QStringLiteral("Navigation%1").arg(side);
 }
 
 int NavigationWidget::storedWidth()
@@ -216,12 +291,13 @@ void NavigationWidget::updateToggleText()
 {
     bool haveData = d->m_factoryModel->rowCount();
     d->m_toggleSideBarAction->setVisible(haveData);
-    d->m_toggleSideBarAction->setEnabled(haveData && NavigationWidgetPlaceHolder::m_current);
+    d->m_toggleSideBarAction->setEnabled(haveData && NavigationWidgetPlaceHolder::current(d->m_side));
 
-    if (isShown())
-        d->m_toggleSideBarAction->setToolTip(QCoreApplication::translate("Core", Constants::TR_HIDE_SIDEBAR));
-    else
-        d->m_toggleSideBarAction->setToolTip(QCoreApplication::translate("Core", Constants::TR_SHOW_SIDEBAR));
+    const char *trToolTip = d->m_side == Side::Left
+                                ? (isShown() ? Constants::TR_HIDE_LEFT_SIDEBAR : Constants::TR_SHOW_LEFT_SIDEBAR)
+                                : (isShown() ? Constants::TR_HIDE_RIGHT_SIDEBAR : Constants::TR_SHOW_RIGHT_SIDEBAR);
+
+    d->m_toggleSideBarAction->setToolTip(QCoreApplication::translate("Core", trToolTip));
 }
 
 void NavigationWidget::placeHolderChanged(NavigationWidgetPlaceHolder *holder)
@@ -237,28 +313,33 @@ void NavigationWidget::resizeEvent(QResizeEvent *re)
     MiniSplitter::resizeEvent(re);
 }
 
-Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position,int index)
+Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position, int factoryIndex)
 {
     for (int pos = position + 1; pos < d->m_subWidgets.size(); ++pos) {
-        d->m_subWidgets.at(pos)->setPosition(pos + 1);
+        Internal::NavigationSubWidget *nsw = d->m_subWidgets.at(pos);
+        nsw->setPosition(pos + 1);
+        NavigationWidgetPrivate::updateActivationsMap(nsw->factory()->id(), {d->m_side, pos + 1});
     }
 
     if (!d->m_subWidgets.isEmpty()) // Make all icons the bottom icon
         d->m_subWidgets.at(0)->setCloseIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
 
-    Internal::NavigationSubWidget *nsw = new Internal::NavigationSubWidget(this, position, index);
-    connect(nsw, &Internal::NavigationSubWidget::splitMe,
-            this, &NavigationWidget::splitSubWidget);
+    Internal::NavigationSubWidget *nsw = new Internal::NavigationSubWidget(this, position, factoryIndex);
+    connect(nsw, &Internal::NavigationSubWidget::splitMe,  this, &NavigationWidget::splitSubWidget);
     connect(nsw, &Internal::NavigationSubWidget::closeMe, this, &NavigationWidget::closeSubWidget);
+    connect(nsw, &Internal::NavigationSubWidget::factoryIndexChanged,
+            this, &NavigationWidget::onSubWidgetFactoryIndexChanged);
     insertWidget(position, nsw);
+
     d->m_subWidgets.insert(position, nsw);
     d->m_subWidgets.at(0)->setCloseIcon(d->m_subWidgets.size() == 1
                                         ? Utils::Icons::CLOSE_SPLIT_LEFT.icon()
                                         : Utils::Icons::CLOSE_SPLIT_TOP.icon());
+    NavigationWidgetPrivate::updateActivationsMap(nsw->factory()->id(), {d->m_side, position});
     return nsw;
 }
 
-QWidget *NavigationWidget::activateSubWidget(Id factoryId)
+QWidget *NavigationWidget::activateSubWidget(Id factoryId, int preferredPosition)
 {
     setShown(true);
     foreach (Internal::NavigationSubWidget *subWidget, d->m_subWidgets) {
@@ -271,10 +352,13 @@ QWidget *NavigationWidget::activateSubWidget(Id factoryId)
 
     int index = factoryIndex(factoryId);
     if (index >= 0) {
-        d->m_subWidgets.first()->setFactoryIndex(index);
-        d->m_subWidgets.first()->setFocusWidget();
+        bool preferredIndexValid = 0 <= preferredPosition && preferredPosition < d->m_subWidgets.count();
+        const int activationIndex = preferredIndexValid ? preferredPosition : 0;
+        Internal::NavigationSubWidget *subWidget = d->m_subWidgets.at(activationIndex);
+        subWidget->setFactoryIndex(index);
+        subWidget->setFocusWidget();
         ICore::raiseWindow(this);
-        return d->m_subWidgets.first()->widget();
+        return subWidget->widget();
     }
     return nullptr;
 }
@@ -291,6 +375,14 @@ void NavigationWidget::closeSubWidget()
     if (d->m_subWidgets.count() != 1) {
         Internal::NavigationSubWidget *subWidget = qobject_cast<Internal::NavigationSubWidget *>(sender());
         subWidget->saveSettings();
+
+        int position = d->m_subWidgets.indexOf(subWidget);
+        for (int pos = position + 1; pos < d->m_subWidgets.size(); ++pos) {
+            Internal::NavigationSubWidget *nsw = d->m_subWidgets.at(pos);
+            nsw->setPosition(pos - 1);
+            NavigationWidgetPrivate::updateActivationsMap(nsw->factory()->id(), {d->m_side, pos - 1});
+        }
+
         d->m_subWidgets.removeOne(subWidget);
         subWidget->hide();
         subWidget->deleteLater();
@@ -311,10 +403,18 @@ void NavigationWidget::saveSettings(QSettings *settings)
         d->m_subWidgets.at(i)->saveSettings();
         viewIds.append(d->m_subWidgets.at(i)->factory()->id().toString());
     }
-    settings->setValue(QLatin1String("Navigation/Views"), viewIds);
-    settings->setValue(QLatin1String("Navigation/Visible"), isShown());
-    settings->setValue(QLatin1String("Navigation/VerticalPosition"), saveState());
-    settings->setValue(QLatin1String("Navigation/Width"), d->m_width);
+    settings->setValue(settingsKey("Views"), viewIds);
+    settings->setValue(settingsKey("Visible"), isShown());
+    settings->setValue(settingsKey("VerticalPosition"), saveState());
+    settings->setValue(settingsKey("Width"), d->m_width);
+
+    const QString activationKey = QStringLiteral("ActivationPosition.");
+    const auto keys = NavigationWidgetPrivate::s_activationsMap.keys();
+    for (const auto &factoryId : keys) {
+        const auto &info = NavigationWidgetPrivate::s_activationsMap[factoryId];
+        if (info.side == d->m_side)
+            settings->setValue(settingsKey(activationKey + factoryId.toString()), info.position);
+    }
 }
 
 void NavigationWidget::restoreSettings(QSettings *settings)
@@ -325,17 +425,19 @@ void NavigationWidget::restoreSettings(QSettings *settings)
         return;
     }
 
-    int version = settings->value(QLatin1String("Navigation/Version"), 1).toInt();
-    QStringList viewIds = settings->value(QLatin1String("Navigation/Views"),
-                                          QStringList(QLatin1String("Projects"))).toStringList();
+    const bool isLeftSide = d->m_side == Side::Left;
+    QLatin1String defaultFirstView = isLeftSide ? QLatin1String("Projects") : QLatin1String("Outline");
+    QStringList viewIds = settings->value(settingsKey("Views"), QStringList(defaultFirstView)).toStringList();
 
     bool restoreSplitterState = true;
+    int version = settings->value(settingsKey("Version"), 1).toInt();
     if (version == 1) {
-        if (!viewIds.contains(QLatin1String("Open Documents"))) {
-            viewIds += QLatin1String("Open Documents");
+        QLatin1String defaultSecondView = isLeftSide ? QLatin1String("Open Documents") : QLatin1String("Bookmarks");
+        if (!viewIds.contains(defaultSecondView)) {
+            viewIds += defaultSecondView;
             restoreSplitterState = false;
         }
-        settings->setValue(QLatin1String("Navigation/Version"), 2);
+        settings->setValue(settingsKey("Version"), 2);
     }
 
     int position = 0;
@@ -351,13 +453,13 @@ void NavigationWidget::restoreSettings(QSettings *settings)
     }
 
     if (d->m_subWidgets.isEmpty())
-        // Make sure we have at least the projects widget
-        insertSubItem(0, qMax(0, factoryIndex("Projects")));
+        // Make sure we have at least the projects widget or outline widget
+        insertSubItem(0, qMax(0, factoryIndex(defaultFirstView.data())));
 
-    setShown(settings->value(QLatin1String("Navigation/Visible"), true).toBool());
+    setShown(settings->value(settingsKey("Visible"), isLeftSide).toBool());
 
-    if (restoreSplitterState && settings->contains(QLatin1String("Navigation/VerticalPosition"))) {
-        restoreState(settings->value(QLatin1String("Navigation/VerticalPosition")).toByteArray());
+    if (restoreSplitterState && settings->contains(settingsKey("VerticalPosition"))) {
+        restoreState(settings->value(settingsKey("VerticalPosition")).toByteArray());
     } else {
         QList<int> sizes;
         sizes += 256;
@@ -366,13 +468,27 @@ void NavigationWidget::restoreSettings(QSettings *settings)
         setSizes(sizes);
     }
 
-    d->m_width = settings->value(QLatin1String("Navigation/Width"), 240).toInt();
+    d->m_width = settings->value(settingsKey("Width"), 240).toInt();
     if (d->m_width < 40)
         d->m_width = 40;
 
     // Apply
-    if (NavigationWidgetPlaceHolder::m_current)
-        NavigationWidgetPlaceHolder::m_current->applyStoredSize(d->m_width);
+    if (NavigationWidgetPlaceHolder::current(d->m_side))
+        NavigationWidgetPlaceHolder::current(d->m_side)->applyStoredSize(d->m_width);
+
+    // Restore last activation positions
+    settings->beginGroup(settingsGroup());
+    const QString activationKey = QStringLiteral("ActivationPosition.");
+    const auto keys = settings->allKeys();
+    for (const QString &key : keys) {
+        if (!key.startsWith(activationKey))
+            continue;
+
+        int position = settings->value(key).toInt();
+        Id factoryId = Id::fromString(key.mid(activationKey.length()));
+        NavigationWidgetPrivate::updateActivationsMap(factoryId, {d->m_side, position});
+    }
+    settings->endGroup();
 }
 
 void NavigationWidget::closeSubWidgets()
@@ -390,9 +506,11 @@ void NavigationWidget::setShown(bool b)
         return;
     bool haveData = d->m_factoryModel->rowCount();
     d->m_shown = b;
-    if (NavigationWidgetPlaceHolder::m_current) {
-        NavigationWidgetPlaceHolder::m_current->setVisible(d->m_shown && !d->m_suppressed && haveData);
-        d->m_toggleSideBarAction->setChecked(d->m_shown && !d->m_suppressed && haveData);
+    NavigationWidgetPlaceHolder *current = NavigationWidgetPlaceHolder::current(d->m_side);
+    if (current) {
+        bool visible = d->m_shown && !d->m_suppressed && haveData;
+        current->setVisible(visible);
+        d->m_toggleSideBarAction->setChecked(visible);
     } else {
         d->m_toggleSideBarAction->setChecked(false);
     }
@@ -414,8 +532,8 @@ void NavigationWidget::setSuppressed(bool b)
     if (d->m_suppressed == b)
         return;
     d->m_suppressed = b;
-    if (NavigationWidgetPlaceHolder::m_current)
-        NavigationWidgetPlaceHolder::m_current->setVisible(d->m_shown && !d->m_suppressed);
+    if (NavigationWidgetPlaceHolder::current(d->m_side))
+        NavigationWidgetPlaceHolder::current(d->m_side)->setVisible(d->m_shown && !d->m_suppressed);
 }
 
 int NavigationWidget::factoryIndex(Id id)
@@ -425,6 +543,20 @@ int NavigationWidget::factoryIndex(Id id)
             return row;
     }
     return -1;
+}
+
+QString NavigationWidget::settingsKey(const QString &key) const
+{
+    return QStringLiteral("%1/%2").arg(settingsGroup(), key);
+}
+
+void NavigationWidget::onSubWidgetFactoryIndexChanged(int factoryIndex)
+{
+    Q_UNUSED(factoryIndex);
+    Internal::NavigationSubWidget *subWidget = qobject_cast<Internal::NavigationSubWidget *>(sender());
+    QTC_ASSERT(subWidget, return);
+    Id factoryId = subWidget->factory()->id();
+    NavigationWidgetPrivate::updateActivationsMap(factoryId, {d->m_side, subWidget->position()});
 }
 
 QHash<Id, Command *> NavigationWidget::commandMap() const

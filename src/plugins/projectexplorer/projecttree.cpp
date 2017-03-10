@@ -29,7 +29,6 @@
 #include "project.h"
 #include "projectnodes.h"
 #include "projectexplorerconstants.h"
-#include "nodesvisitor.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -367,10 +366,9 @@ void ProjectTree::highlightProject(Project *project, const QString &message)
 {
 
     Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
-    Core::NavigationWidget *navigation = Core::NavigationWidget::instance();
 
     // Shows and focusses a project tree
-    QWidget *widget = navigation->activateSubWidget(ProjectExplorer::Constants::PROJECTTREE_ID);
+    QWidget *widget = Core::NavigationWidget::activateSubWidget(ProjectExplorer::Constants::PROJECTTREE_ID, Core::Side::Left);
 
     if (auto *projectTreeWidget = qobject_cast<ProjectTreeWidget *>(widget))
         projectTreeWidget->showMessage(project->rootProjectNode(), message);

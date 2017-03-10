@@ -407,7 +407,7 @@ bool QmlItemNode::modelIsInLayout() const
                 && parentModelNode.metaInfo().isLayoutable())
             return true;
 
-        return NodeHints::fromModelNode(modelNode()).doesLayoutChildren();
+        return NodeHints::fromModelNode(parentModelNode).doesLayoutChildren();
     }
 
     return false;
