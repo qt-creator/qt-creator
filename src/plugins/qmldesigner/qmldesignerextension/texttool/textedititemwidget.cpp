@@ -24,9 +24,12 @@
 ****************************************************************************/
 #include "textedititemwidget.h"
 
-#include <QTextEdit>
+#include <utils/theme/theme.h>
+
 #include <QLineEdit>
 #include <QGraphicsScene>
+#include <QPainter>
+#include <QTextEdit>
 
 namespace QmlDesigner {
 
@@ -43,19 +46,41 @@ TextEditItemWidget::~TextEditItemWidget()
     setWidget(0);
 }
 
+void TextEditItemWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    painter->fillRect(boundingRect(), Qt::white);
+    QGraphicsProxyWidget::paint(painter, option, widget);
+}
+
 QLineEdit* TextEditItemWidget::lineEdit() const
 {
     if (m_lineEdit.isNull()) {
         m_lineEdit.reset(new QLineEdit);
         m_lineEdit->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
+        QPalette palette = m_lineEdit->palette();
+        static QColor selectionColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorSelectionColor);
+        palette.setColor(QPalette::Highlight, selectionColor);
+        palette.setColor(QPalette::HighlightedText, Qt::white);
+        palette.setColor(QPalette::Base, Qt::white);
+        palette.setColor(QPalette::Text, Qt::black);
+        m_lineEdit->setPalette(palette);
     }
     return m_lineEdit.data();
 }
 
 QTextEdit* TextEditItemWidget::textEdit() const
 {
-    if (m_textEdit.isNull())
+    if (m_textEdit.isNull()) {
         m_textEdit.reset(new QTextEdit);
+        QPalette palette = m_textEdit->palette();
+        static QColor selectionColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorSelectionColor);
+        palette.setColor(QPalette::Highlight, selectionColor);
+        palette.setColor(QPalette::HighlightedText, Qt::white);
+        palette.setColor(QPalette::Base, Qt::white);
+        palette.setColor(QPalette::Text, Qt::black);
+        m_textEdit->setPalette(palette);
+    }
+
     return m_textEdit.data();
 }
 
