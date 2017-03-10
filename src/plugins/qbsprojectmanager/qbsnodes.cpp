@@ -376,7 +376,8 @@ bool QbsGroupNode::renameFile(const QString &filePath, const QString &newFilePat
 // --------------------------------------------------------------------
 
 QbsProductNode::QbsProductNode(const qbs::ProductData &prd) :
-    QbsBaseProjectNode(Utils::FileName::fromString(prd.location().filePath()))
+    QbsBaseProjectNode(Utils::FileName::fromString(prd.location().filePath())),
+    m_qbsProductData(prd)
 {
     if (m_productIcon.isNull())
         m_productIcon = generateIcon(QString::fromLatin1(Constants::QBS_PRODUCT_OVERLAY_ICON));
