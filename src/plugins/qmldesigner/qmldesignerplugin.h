@@ -85,6 +85,8 @@ public:
     void switchToTextModeDeferred();
     void emitCurrentTextEditorChanged(Core::IEditor *editor);
 
+    static double formEditorDevicePixelRatio();
+
 private: // functions
     void integrateIntoQtCreator(QWidget *modeWidget);
     void showDesigner();
