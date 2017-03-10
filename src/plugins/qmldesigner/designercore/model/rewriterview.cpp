@@ -38,6 +38,7 @@
 #include <customnotifications.h>
 #include <modelnodepositionstorage.h>
 #include <modelnode.h>
+#include <nodeproperty.h>
 
 #include <qmljs/parser/qmljsengine_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -559,12 +560,24 @@ static bool isInNodeDefinition(int nodeTextOffset, int nodeTextLength, int curso
 ModelNode RewriterView::nodeAtTextCursorPositionRekursive(const ModelNode &root, int cursorPosition) const
 {
     ModelNode node = root;
+
+    int lastOffset = -1;
+
+    bool sorted = true;
+
+    if (!root.nodeProperties().isEmpty())
+        sorted = false;
+
     foreach (const ModelNode &currentNode, node.directSubModelNodes()) {
         const int offset = nodeOffset(currentNode);
-        if (offset < cursorPosition)
+
+        if (offset < cursorPosition && offset > lastOffset) {
             node = nodeAtTextCursorPositionRekursive(currentNode, cursorPosition);
-        else
-            break;
+            lastOffset = offset;
+        } else {
+            if (sorted)
+                break;
+        }
     }
 
     const int nodeTextLength = nodeLength(node);
