@@ -450,14 +450,6 @@ FileNode *FolderNode::fileNode(const Utils::FileName &file) const
     }));
 }
 
-QList<FileNode *> FolderNode::recursiveFileNodes() const
-{
-    QList<FileNode *> result = fileNodes();
-    foreach (ProjectExplorer::FolderNode *folder, folderNodes())
-        result.append(folder->recursiveFileNodes());
-    return result;
-}
-
 QList<FolderNode*> FolderNode::folderNodes() const
 {
     QList<FolderNode *> result;

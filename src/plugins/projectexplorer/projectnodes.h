@@ -199,7 +199,6 @@ public:
     const QList<Node *> nodes() const { return m_nodes; }
     QList<FileNode *> fileNodes() const;
     FileNode *fileNode(const Utils::FileName &file) const;
-    QList<FileNode *> recursiveFileNodes() const;
     QList<FolderNode *> folderNodes() const;
     void addNestedNodes(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir = Utils::FileName());
     void addNestedNode(FileNode *fileNode, const Utils::FileName &overrideBaseDir = Utils::FileName());
