@@ -172,10 +172,8 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node)
                     vfolder->addNode(resourceNode);
                 }
             } else {
-                QList<FileNode *> fileNodes = Utils::transform<QList>(newFilePaths, [type](const FileName &fn) {
-                    return new FileNode(fn, type, false);
-                });
-                vfolder->buildTree(fileNodes);
+                for (const FileName &fn : newFilePaths)
+                    vfolder->addNestedNode(new FileNode(fn, type, false));
                 for (FolderNode *fn : vfolder->folderNodes())
                     fn->compress();
             }

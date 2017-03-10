@@ -468,16 +468,20 @@ QList<FolderNode*> FolderNode::folderNodes() const
     return result;
 }
 
-void FolderNode::buildTree(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir)
+void FolderNode::addNestedNode(FileNode *fileNode, const Utils::FileName &overrideBaseDir)
 {
-    foreach (ProjectExplorer::FileNode *fn, files) {
-        // Get relative path to rootNode
-        QString parentDir = fn->filePath().toFileInfo().absolutePath();
-        ProjectExplorer::FolderNode *folder
-                = recursiveFindOrCreateFolderNode(this, Utils::FileName::fromString(parentDir),
-                                                  overrideBaseDir);
-        folder->addNode(fn);
-    }
+    // Get relative path to rootNode
+    QString parentDir = fileNode->filePath().toFileInfo().absolutePath();
+    FolderNode *folder = recursiveFindOrCreateFolderNode(this, Utils::FileName::fromString(parentDir),
+                                                         overrideBaseDir);
+    folder->addNode(fileNode);
+
+}
+
+void FolderNode::addNestedNodes(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir)
+{
+    for (FileNode *fn : files)
+        addNestedNode(fn, overrideBaseDir);
 }
 
 // "Compress" a tree of foldernodes such that foldernodes with exactly one foldernode as a child

@@ -201,7 +201,8 @@ public:
     FileNode *fileNode(const Utils::FileName &file) const;
     QList<FileNode *> recursiveFileNodes() const;
     QList<FolderNode *> folderNodes() const;
-    void buildTree(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir = Utils::FileName());
+    void addNestedNodes(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir = Utils::FileName());
+    void addNestedNode(FileNode *fileNode, const Utils::FileName &overrideBaseDir = Utils::FileName());
     void compress();
 
     bool isAncesterOf(Node *n);

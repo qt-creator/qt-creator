@@ -311,7 +311,7 @@ void TeaLeafReader::generateProjectTree(CMakeListsNode *root, const QList<const 
 
     QList<FileNode *> fileNodes = m_files + Utils::transform(missingHeaders, [](const FileNode *fn) { return new FileNode(*fn); });
 
-    root->buildTree(fileNodes, m_parameters.sourceDirectory);
+    root->addNestedNodes(fileNodes, m_parameters.sourceDirectory);
     m_files.clear(); // Some of the FileNodes in files() were deleted!
 }
 

@@ -215,16 +215,12 @@ void AutotoolsProject::makefileParsingFinished()
         m_watchedFiles.append(configureAcFilePath);
     }
 
-    QList<FileNode *> fileNodes = Utils::transform(files, [dir](const QString &f) {
-        const Utils::FileName path = Utils::FileName::fromString(dir.absoluteFilePath(f));
-        return new FileNode(path,
-                            (f == QLatin1String("Makefile.am") ||
-                             f == QLatin1String("configure.ac")) ? FileType::Project : FileType::Resource,
-                            false);
-    });
-
     auto newRoot = new AutotoolsProjectNode(projectDirectory());
-    newRoot->buildTree(fileNodes);
+    for (const QString &f : files) {
+        const Utils::FileName path = Utils::FileName::fromString(dir.absoluteFilePath(f));
+        FileType ft = (f == "Makefile.am" || f == "configure.ac") ? FileType::Project : FileType::Resource;
+        newRoot->addNestedNode(new FileNode(path, ft, false));
+    }
     setRootProjectNode(newRoot);
 
     updateCppCodeModel();

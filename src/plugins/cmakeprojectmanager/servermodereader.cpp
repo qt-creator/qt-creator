@@ -226,7 +226,7 @@ static void addCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, i
     auto folder = new VirtualFolderNode(basePath, priority);
     folder->setDisplayName(displayName);
     base->addNode(folder);
-    folder->buildTree(files);
+    folder->addNestedNodes(files);
     for (FolderNode *fn : folder->folderNodes())
         fn->compress();
 }

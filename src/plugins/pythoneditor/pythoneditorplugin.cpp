@@ -556,14 +556,11 @@ void PythonProject::refresh()
     parseProject();
 
     QDir baseDir(projectDirectory().toString());
-
-    QList<FileNode *> fileNodes
-            = Utils::transform(m_files, [baseDir](const QString &f) -> FileNode * {
-        const QString displayName = baseDir.relativeFilePath(f);
-        return new PythonFileNode(FileName::fromString(f), displayName);
-    });
     auto newRoot = new PythonProjectNode(this);
-    newRoot->buildTree(fileNodes);
+    for (const QString &f : m_files) {
+        const QString displayName = baseDir.relativeFilePath(f);
+        newRoot->addNestedNode(new PythonFileNode(FileName::fromString(f), displayName));
+    }
     setRootProjectNode(newRoot);
 
     emit parsingFinished();

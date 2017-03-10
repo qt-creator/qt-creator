@@ -384,17 +384,15 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
 
 void QmlProject::generateProjectTree()
 {
-    QStringList allFiles = files();
+    auto newRoot = new Internal::QmlProjectNode(this);
 
-    QList<FileNode *> fileNodes = Utils::transform(allFiles, [this](const QString &f) {
+    for (const QString &f : files()) {
         FileType fileType = FileType::Source; // ### FIXME
         if (f == projectFilePath().toString())
             fileType = FileType::Project;
-        return new FileNode(Utils::FileName::fromString(f), fileType, false);
-    });
+        newRoot->addNestedNode(new FileNode(Utils::FileName::fromString(f), fileType, false));
+    }
 
-    auto newRoot = new Internal::QmlProjectNode(this);
-    newRoot->buildTree(fileNodes);
     setRootProjectNode(newRoot);
 }
 
