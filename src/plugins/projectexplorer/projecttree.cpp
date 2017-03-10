@@ -88,7 +88,7 @@ void ProjectTree::aboutToShutDown()
 {
     disconnect(qApp, &QApplication::focusChanged,
                s_instance, &ProjectTree::focusChanged);
-    s_instance->update(0, 0);
+    s_instance->update(nullptr, nullptr);
     qDeleteAll(s_instance->m_projectTreeWidgets);
     QTC_CHECK(s_instance->m_projectTreeWidgets.isEmpty());
 }
@@ -187,8 +187,7 @@ void ProjectTree::updateFromNode(Node *node)
 
 void ProjectTree::update(Node *node, Project *project)
 {
-    bool changedProject = project != m_currentProject;
-    bool changedNode = node != m_currentNode;
+    const bool changedProject = project != m_currentProject;
     if (changedProject) {
         if (m_currentProject) {
             disconnect(m_currentProject, &Project::projectContextUpdated,
@@ -219,7 +218,7 @@ void ProjectTree::update(Node *node, Project *project)
         }
     }
 
-    if (changedNode) {
+    if (node != m_currentNode) {
         m_currentNode = node;
         emit currentNodeChanged();
     }
