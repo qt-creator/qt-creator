@@ -26,9 +26,10 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.2
+import QtQuickDesignerTheme 1.0
 
 ComboBoxStyle {
-    property color textColor: creatorTheme.PanelTextColorLight
+    property color textColor: Theme.color(Theme.PanelTextColorLight)
     __editor: Item {
 
     }
@@ -42,16 +43,16 @@ ComboBoxStyle {
         Rectangle {
             anchors.fill: parent
             visible: !control.pressed
-            color: creatorTheme.QmlDesignerButtonColor
-            border.color: creatorTheme.QmlDesignerBorderColor
+            color: Theme.qmlDesignerButtonColor()
+            border.color: Theme.qmlDesignerBorderColor()
             border.width: 1
         }
 
         Rectangle {
-            color: creatorTheme.QmlDesignerBackgroundColorDarker
+            color: Theme.qmlDesignerBackgroundColorDarker()
             anchors.fill: parent
             visible: control.pressed
-            border.color: creatorTheme.QmlDesignerBorderColor
+            border.color: Theme.qmlDesignerBorderColor()
             border.width: 1
         }
 

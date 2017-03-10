@@ -89,11 +89,13 @@ void QmakeKitInformation::setup(Kit *k)
                 && t->language() == Core::Id(Constants::CXX_LANGUAGE_ID)
                 && version->qtAbis().contains(t->targetAbi());
         });
-        ToolChain *possibleTc
-                = Utils::findOr(possibleTcs, possibleTcs.last(),
-                                [&spec](const ToolChain *t) { return t->suggestedMkspecList().contains(spec); });
-        if (possibleTc)
-            ToolChainKitInformation::setToolChain(k, possibleTc);
+        if (!possibleTcs.isEmpty()) {
+            ToolChain *possibleTc
+                    = Utils::findOr(possibleTcs, possibleTcs.last(),
+                                    [&spec](const ToolChain *t) { return t->suggestedMkspecList().contains(spec); });
+            if (possibleTc)
+                ToolChainKitInformation::setToolChain(k, possibleTc);
+        }
     }
 }
 

@@ -35,7 +35,7 @@
 #include <texteditor/textdocument.h>
 #include <nodeinstanceview.h>
 #include <itemlibrarywidget.h>
-#include <theming.h>
+#include <theme.h>
 
 #include <coreplugin/outputpane.h>
 #include <coreplugin/modemanager.h>
@@ -289,7 +289,7 @@ void DesignModeWidget::setup()
             QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
             sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
             sheet += "QLabel { background-color: #4f4f4f; }";
-            navigationView.widget->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(sheet)));
+            navigationView.widget->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
         }
     }
 
@@ -484,7 +484,7 @@ static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widget
     SwitchSplitTabWidget *switchSplitTabWidget = new SwitchSplitTabWidget();
 
     QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/centerwidget.css"));
-    switchSplitTabWidget->setStyleSheet(Theming::replaceCssColors(sheet));
+    switchSplitTabWidget->setStyleSheet(Theme::replaceCssColors(sheet));
 
 
     foreach (const WidgetInfo &widgetInfo, widgetInfos) {

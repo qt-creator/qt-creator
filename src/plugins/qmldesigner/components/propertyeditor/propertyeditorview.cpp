@@ -40,7 +40,7 @@
 
 #include <nodeabstractproperty.h>
 
-#include <theming.h>
+#include <theme.h>
 
 #include <coreplugin/icore.h>
 #include <utils/fileutils.h>
@@ -82,7 +82,7 @@ PropertyEditorView::PropertyEditorView(QWidget *parent) :
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F3), m_stackedWidget);
     connect(m_updateShortcut, SIGNAL(activated()), this, SLOT(reloadQml()));
 
-    m_stackedWidget->setStyleSheet(Theming::replaceCssColors(
+    m_stackedWidget->setStyleSheet(Theme::replaceCssColors(
             QString::fromUtf8(Utils::FileReader::fetchQrc(QStringLiteral(":/qmldesigner/stylesheet.css")))));
     m_stackedWidget->setMinimumWidth(320);
     m_stackedWidget->move(0, 0);

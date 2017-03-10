@@ -32,7 +32,7 @@
 #include "bindingmodel.h"
 #include "connectionmodel.h"
 #include "dynamicpropertiesmodel.h"
-#include "theming.h"
+#include "theme.h"
 
 #include <coreplugin/coreconstants.h>
 #include <utils/fileutils.h>
@@ -56,7 +56,7 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     QStyle *style = QStyleFactory::create("fusion");
     setStyle(style);
 
-    setStyleSheet(Theming::replaceCssColors(QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/connectionview/stylesheet.css")))));
+    setStyleSheet(Theme::replaceCssColors(QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/connectionview/stylesheet.css")))));
 
     //ui->tabWidget->tabBar()->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
@@ -69,16 +69,16 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     ui->tabBar->addTab(tr("Backends", "Title of dynamic properties view"));
     ui->tabBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 
-    ui->connectionView->setStyleSheet(Theming::replaceCssColors(
+    ui->connectionView->setStyleSheet(Theme::replaceCssColors(
             QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 
-    ui->bindingView->setStyleSheet(Theming::replaceCssColors(
+    ui->bindingView->setStyleSheet(Theme::replaceCssColors(
             QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 
-    ui->dynamicPropertiesView->setStyleSheet(Theming::replaceCssColors(
+    ui->dynamicPropertiesView->setStyleSheet(Theme::replaceCssColors(
                 QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 
-    ui->backendView->setStyleSheet(Theming::replaceCssColors(
+    ui->backendView->setStyleSheet(Theme::replaceCssColors(
                 QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 
     connect(ui->tabBar, SIGNAL(currentChanged(int)),

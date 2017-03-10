@@ -25,17 +25,37 @@
 
 #pragma once
 
-#include <QQmlEngine>
-#include <QQmlPropertyMap>
+#include <utils/theme/theme.h>
+
+#include <QColor>
+#include <QMap>
+
+QT_BEGIN_NAMESPACE
+class QQmlEngine;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class Theming
+class Theme : public Utils::Theme
 {
+    Q_OBJECT
 public:
-    static const QVariantMap &theme();
+    static Theme *instance();
     static QString replaceCssColors(const QString &input);
-    static void registerIconProvider(QQmlEngine *engine);
+    static void setupTheme(QQmlEngine *engine);
+
+    Q_INVOKABLE QColor qmlDesignerBackgroundColorDarker() const;
+    Q_INVOKABLE QColor qmlDesignerBackgroundColorDarkAlternate() const;
+    Q_INVOKABLE QColor qmlDesignerTabLight() const;
+    Q_INVOKABLE QColor qmlDesignerTabDark() const;
+    Q_INVOKABLE QColor qmlDesignerButtonColor() const;
+    Q_INVOKABLE QColor qmlDesignerBorderColor() const;
+
+private:
+    Theme(Utils::Theme *originTheme, QObject *parent);
+    QColor evaluateColorAtThemeInstance(const QString &themeColorName);
+
+    QMap<QString, QColor> m_derivedColors;
 };
 
 } // namespace QmlDesigner

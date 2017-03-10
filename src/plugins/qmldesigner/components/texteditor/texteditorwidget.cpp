@@ -32,7 +32,7 @@
 
 #include <qmldesignerplugin.h>
 
-#include <theming.h>
+#include <theme.h>
 
 #include <utils/fileutils.h>
 
@@ -61,7 +61,7 @@ TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView)
     m_updateSelectionTimer.setInterval(200);
 
     connect(&m_updateSelectionTimer, &QTimer::timeout, this, &TextEditorWidget::updateSelectionByCursorPosition);
-    setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
+    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 }
 
 void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)

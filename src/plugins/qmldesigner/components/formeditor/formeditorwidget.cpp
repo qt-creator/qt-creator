@@ -32,7 +32,7 @@
 #include "qmldesignericons.h"
 #include "viewmanager.h"
 #include <model.h>
-#include <theming.h>
+#include <theme.h>
 
 #include <QWheelEvent>
 #include <QVBoxLayout>
@@ -59,7 +59,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     : QWidget(),
     m_formEditorView(view)
 {
-    setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/formeditorstylesheet.css")))));
+    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/formeditorstylesheet.css")))));
 
     QVBoxLayout *fillLayout = new QVBoxLayout(this);
     fillLayout->setMargin(0);
@@ -167,7 +167,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_graphicsView = new FormEditorGraphicsView(this);
 
     fillLayout->addWidget(m_graphicsView.data());
-    m_graphicsView.data()->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
+    m_graphicsView.data()->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 }
 
 void FormEditorWidget::changeTransformTool(bool checked)

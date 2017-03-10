@@ -199,9 +199,6 @@ public:
     FileNode *recursiveFileNode(const Utils::FileName &file) const;
     QList<FileNode *> recursiveFileNodes() const;
     QList<FolderNode *> folderNodes() const;
-    FolderNode *folderNode(const Utils::FileName &directory) const;
-    FolderNode *recursiveFindOrCreateFolderNode(const Utils::FileName &directory,
-                                                const Utils::FileName &overrideBaseDir = Utils::FileName());
     void buildTree(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir = Utils::FileName());
     void compress();
 

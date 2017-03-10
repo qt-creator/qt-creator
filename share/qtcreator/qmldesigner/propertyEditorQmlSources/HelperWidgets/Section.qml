@@ -26,6 +26,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.1 as Controls
 import QtQuick.Layouts 1.0
+import QtQuickDesignerTheme 1.0
 
 Item {
     id: section
@@ -50,7 +51,7 @@ Item {
         Controls.Label {
             id: label
             anchors.verticalCenter: parent.verticalCenter
-            color: creatorTheme.PanelTextColorLight
+            color: Theme.color(Theme.PanelTextColorLight)
             x: 22
             font.bold: true
         }
@@ -72,7 +73,7 @@ Item {
 
         }
 
-        color: creatorTheme.BackgroundColorDark
+        color: Theme.color(Theme.BackgroundColorDark)
 
         Rectangle {
             visible: false

@@ -28,6 +28,7 @@ import QtQuick.Controls 1.0 as Controls
 import QtQuick.Window 2.0
 import QtQuick.Controls.Styles 1.1
 import "Constants.js" as Constants
+import QtQuickDesignerTheme 1.0
 
 Item {
     width: 14
@@ -184,7 +185,7 @@ Item {
 
                 Rectangle {
                     anchors.fill: parent
-                    color: creatorTheme.QmlDesignerBackgroundColorDarker
+                    color: Theme.qmlDesignerBackgroundColorDarker()
                     opacity: 0.6
                 }
 
@@ -205,8 +206,8 @@ Item {
                     height: 260
 
                     radius: 2
-                    color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
-                    border.color: creatorTheme.QmlDesignerBorderColor
+                    color: Theme.qmlDesignerBackgroundColorDarkAlternate()
+                    border.color: Theme.qmlDesignerBorderColor()
 
                     Label {
                         x: 8

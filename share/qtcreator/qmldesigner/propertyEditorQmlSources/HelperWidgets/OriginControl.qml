@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import QtQuickDesignerTheme 1.0
 
 Item {
     width: grid.width
@@ -33,12 +34,12 @@ Item {
 
     property variant backendValue
     property color borderColorSelected: colorLogic.textColor
-    property color borderColor: creatorTheme.QmlDesignerBorderColor
+    property color borderColor: Theme.qmlDesignerBorderColor()
 
     property bool showTranslateCheckBox: true
 
-    readonly property color selectedColor: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
-    readonly property color unselectedColor: creatorTheme.QmlDesignerBackgroundColorDarker
+    readonly property color selectedColor: Theme.qmlDesignerBackgroundColorDarkAlternate()
+    readonly property color unselectedColor: Theme.qmlDesignerBackgroundColorDarker()
 
     ExtendedFunctionButton {
         backendValue: originControl.backendValue
