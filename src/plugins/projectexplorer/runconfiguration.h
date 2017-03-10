@@ -51,7 +51,10 @@ class RunConfigWidget;
 class RunControl;
 class Target;
 
-namespace Internal { class RunControlPrivate; }
+namespace Internal {
+class RunControlPrivate;
+class SimpleRunControlPrivate;
+} // Internal
 
 /**
  * An interface for a hunk of global or per-project
@@ -412,6 +415,23 @@ protected:
 private:
     void bringApplicationToForegroundInternal();
     Internal::RunControlPrivate *d;
+};
+
+class PROJECTEXPLORER_EXPORT SimpleRunControl : public RunControl
+{
+public:
+    SimpleRunControl(RunConfiguration *runConfiguration, Core::Id mode);
+    ~SimpleRunControl();
+
+    ApplicationLauncher &applicationLauncher();
+    void start() override;
+    StopResult stop() override;
+
+    virtual void onProcessStarted();
+    virtual void onProcessFinished(int exitCode, QProcess::ExitStatus status);
+
+private:
+    Internal::SimpleRunControlPrivate *d;
 };
 
 } // namespace ProjectExplorer

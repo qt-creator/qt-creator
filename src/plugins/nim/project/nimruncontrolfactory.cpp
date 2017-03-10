@@ -25,7 +25,6 @@
 
 #include "nimruncontrolfactory.h"
 #include "nimrunconfiguration.h"
-#include "nimruncontrol.h"
 
 namespace Nim {
 
@@ -39,7 +38,7 @@ ProjectExplorer::RunControl *NimRunControlFactory::create(ProjectExplorer::RunCo
 {
     Q_UNUSED(errorMessage)
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-    return new NimRunControl(static_cast<NimRunConfiguration *>(runConfiguration), mode);
+    return new ProjectExplorer::SimpleRunControl(runConfiguration, mode);
 }
 
 }

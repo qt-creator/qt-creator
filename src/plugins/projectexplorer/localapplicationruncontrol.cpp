@@ -25,7 +25,6 @@
 
 #include "localapplicationruncontrol.h"
 #include "runnables.h"
-#include "environmentaspect.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitinformation.h>
@@ -34,90 +33,10 @@
 #include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
 
-#include <QDir>
-
 using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
-
-class LocalApplicationRunControl : public RunControl
-{
-    Q_OBJECT
-
-public:
-    LocalApplicationRunControl(RunConfiguration *runConfiguration, Core::Id mode);
-
-    void start() override;
-    StopResult stop() override;
-
-private:
-    void processStarted();
-    void processExited(int exitCode, QProcess::ExitStatus status);
-
-    ApplicationLauncher m_applicationLauncher;
-};
-
-LocalApplicationRunControl::LocalApplicationRunControl(RunConfiguration *rc, Core::Id mode)
-    : RunControl(rc, mode)
-{
-    setRunnable(rc->runnable());
-    setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
-    connect(&m_applicationLauncher, &ApplicationLauncher::appendMessage,
-            this, static_cast<void(RunControl::*)(const QString &, Utils::OutputFormat)>(&RunControl::appendMessage));
-    connect(&m_applicationLauncher, &ApplicationLauncher::processStarted,
-            this, &LocalApplicationRunControl::processStarted);
-    connect(&m_applicationLauncher, &ApplicationLauncher::processExited,
-            this, &LocalApplicationRunControl::processExited);
-}
-
-void LocalApplicationRunControl::start()
-{
-    QTC_ASSERT(runnable().is<StandardRunnable>(), return);
-    auto r = runnable().as<StandardRunnable>();
-    reportApplicationStart();
-    if (r.executable.isEmpty()) {
-        appendMessage(tr("No executable specified.") + QLatin1Char('\n'), Utils::ErrorMessageFormat);
-        reportApplicationStop();
-    }  else if (!QFileInfo::exists(r.executable)) {
-        appendMessage(tr("Executable %1 does not exist.")
-                        .arg(QDir::toNativeSeparators(r.executable)) + QLatin1Char('\n'),
-                      Utils::ErrorMessageFormat);
-        reportApplicationStop();
-    } else {
-        QString msg = tr("Starting %1...").arg(QDir::toNativeSeparators(r.executable)) + QLatin1Char('\n');
-        appendMessage(msg, Utils::NormalMessageFormat);
-        m_applicationLauncher.start(r);
-        setApplicationProcessHandle(m_applicationLauncher.applicationPID());
-    }
-}
-
-LocalApplicationRunControl::StopResult LocalApplicationRunControl::stop()
-{
-    m_applicationLauncher.stop();
-    return StoppedSynchronously;
-}
-
-void LocalApplicationRunControl::processStarted()
-{
-    // Console processes only know their pid after being started
-    setApplicationProcessHandle(m_applicationLauncher.applicationPID());
-    bringApplicationToForeground();
-}
-
-void LocalApplicationRunControl::processExited(int exitCode, QProcess::ExitStatus status)
-{
-    QString msg;
-    QString exe = runnable().as<StandardRunnable>().executable;
-    if (status == QProcess::CrashExit)
-        msg = tr("%1 crashed.").arg(QDir::toNativeSeparators(exe));
-    else
-        msg = tr("%1 exited with code %2").arg(QDir::toNativeSeparators(exe)).arg(exitCode);
-    appendMessage(msg + QLatin1Char('\n'), Utils::NormalMessageFormat);
-    reportApplicationStop();
-}
-
-// LocalApplicationRunControlFactory
 
 static bool isLocal(RunConfiguration *runConfiguration)
 {
@@ -142,10 +61,8 @@ bool LocalApplicationRunControlFactory::canRun(RunConfiguration *runConfiguratio
 RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    return new LocalApplicationRunControl(runConfiguration, mode);
+    return new SimpleRunControl(runConfiguration, mode);
 }
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#include "localapplicationruncontrol.moc"

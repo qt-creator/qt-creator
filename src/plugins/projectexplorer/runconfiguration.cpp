@@ -32,18 +32,22 @@
 #include "buildconfiguration.h"
 #include "environmentaspect.h"
 #include "kitinformation.h"
+#include "runnables.h"
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/outputformatter.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 
-#include <QTimer>
+#include <QDir>
 #include <QPushButton>
+#include <QTimer>
 
 #ifdef Q_OS_OSX
 #include <ApplicationServices/ApplicationServices.h>
@@ -783,6 +787,91 @@ void RunControl::appendMessage(const QString &msg, Utils::OutputFormat format)
 bool Runnable::canReUseOutputPane(const Runnable &other) const
 {
     return d ? d->canReUseOutputPane(other.d) : (other.d.get() == 0);
+}
+
+
+// SimpleRunControlPrivate
+
+namespace Internal {
+
+class SimpleRunControlPrivate
+{
+public:
+    ApplicationLauncher m_launcher;
+};
+
+} // Internal
+
+SimpleRunControl::SimpleRunControl(RunConfiguration *runConfiguration, Core::Id mode)
+    : RunControl(runConfiguration, mode), d(new Internal::SimpleRunControlPrivate)
+{
+    setRunnable(runConfiguration->runnable());
+    setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
+}
+
+SimpleRunControl::~SimpleRunControl()
+{
+    delete d;
+}
+
+ApplicationLauncher &SimpleRunControl::applicationLauncher()
+{
+    return d->m_launcher;
+}
+
+void SimpleRunControl::start()
+{
+    reportApplicationStart();
+    d->m_launcher.disconnect(this);
+
+    connect(&d->m_launcher, &ApplicationLauncher::appendMessage,
+            this, static_cast<void(RunControl::*)(const QString &, Utils::OutputFormat)>(&RunControl::appendMessage));
+    connect(&d->m_launcher, &ApplicationLauncher::processStarted,
+            this, &SimpleRunControl::onProcessStarted);
+    connect(&d->m_launcher, &ApplicationLauncher::processExited,
+            this, &SimpleRunControl::onProcessFinished);
+
+    QTC_ASSERT(runnable().is<StandardRunnable>(), return);
+    auto r = runnable().as<StandardRunnable>();
+    if (r.executable.isEmpty()) {
+        appendMessage(RunControl::tr("No executable specified.") + QLatin1Char('\n'), Utils::ErrorMessageFormat);
+        reportApplicationStop();
+    }  else if (!QFileInfo::exists(r.executable)) {
+        appendMessage(RunControl::tr("Executable %1 does not exist.")
+                      .arg(QDir::toNativeSeparators(r.executable)) + QLatin1Char('\n'),
+                      Utils::ErrorMessageFormat);
+        reportApplicationStop();
+    } else {
+        QString msg = RunControl::tr("Starting %1...").arg(QDir::toNativeSeparators(r.executable)) + QLatin1Char('\n');
+        appendMessage(msg, Utils::NormalMessageFormat);
+        d->m_launcher.start(r);
+        setApplicationProcessHandle(d->m_launcher.applicationPID());
+    }
+}
+
+RunControl::StopResult SimpleRunControl::stop()
+{
+    d->m_launcher.stop();
+    return StoppedSynchronously;
+}
+
+void SimpleRunControl::onProcessStarted()
+{
+    // Console processes only know their pid after being started
+    setApplicationProcessHandle(d->m_launcher.applicationPID());
+    bringApplicationToForeground();
+}
+
+void SimpleRunControl::onProcessFinished(int exitCode, QProcess::ExitStatus status)
+{
+    QString msg;
+    QString exe = runnable().as<StandardRunnable>().executable;
+    if (status == QProcess::CrashExit)
+        msg = tr("%1 crashed.").arg(QDir::toNativeSeparators(exe));
+    else
+        msg = tr("%1 exited with code %2").arg(QDir::toNativeSeparators(exe)).arg(exitCode);
+    appendMessage(msg + QLatin1Char('\n'), Utils::NormalMessageFormat);
+    reportApplicationStop();
 }
 
 } // namespace ProjectExplorer
