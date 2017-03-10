@@ -70,8 +70,9 @@ public:
     {
         if (type == TypePermissions)
             return true;
-        m_node->makeEmpty();
-        m_node->addInternalNodes();
+        auto newNode = new ResourceTopLevelNode(m_node->filePath(), m_node->contents(),
+                                                m_node->parentFolderNode());
+        m_node->parentFolderNode()->replaceSubtree(m_node, newNode);
         return true;
     }
 
@@ -282,6 +283,8 @@ ResourceTopLevelNode::ResourceTopLevelNode(const FileName &filePath, const QStri
         setDisplayName(filePath.relativeChildPath(base).toUserOutput());
     else
         setDisplayName(filePath.toUserOutput());
+
+    addInternalNodes();
 }
 
 ResourceTopLevelNode::~ResourceTopLevelNode()

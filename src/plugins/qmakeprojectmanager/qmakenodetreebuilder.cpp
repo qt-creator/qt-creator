@@ -170,7 +170,6 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node)
                         vfs->readVirtualFile(file.toString(), QMakeVfs::VfsExact, &contents);
                     auto resourceNode = new ResourceEditor::ResourceTopLevelNode(file, contents, vfolder);
                     vfolder->addNode(resourceNode);
-                    resourceNode->addInternalNodes();
                 }
             } else {
                 QList<FileNode *> fileNodes = Utils::transform<QList>(newFilePaths, [type](const FileName &fn) {
