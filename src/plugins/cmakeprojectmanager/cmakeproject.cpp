@@ -77,8 +77,9 @@ CMakeProject::CMakeProject(const FileName &fileName)
     : m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
-    setDocument(new TextEditor::TextDocument);
-    document()->setFilePath(fileName);
+    auto doc = new TextEditor::TextDocument;
+    doc->setFilePath(fileName);
+    setDocument(doc);
 
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
@@ -302,9 +303,8 @@ bool CMakeProject::hasBuildTarget(const QString &title) const
 
 QString CMakeProject::displayName() const
 {
-    if (!rootProjectNode())
-        return projectDirectory().fileName();
-    return rootProjectNode()->displayName();
+    auto root = dynamic_cast<CMakeProjectNode *>(rootProjectNode());
+    return root ? root->displayName() : projectDirectory().fileName();
 }
 
 QStringList CMakeProject::files(FilesMode fileMode) const
