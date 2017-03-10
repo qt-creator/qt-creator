@@ -261,8 +261,9 @@ void ProjectTree::updateContext()
 
 void ProjectTree::emitSubtreeChanged(FolderNode *node)
 {
-    if (!s_instance->isInNodeHierarchy(node))
+    if (!SessionManager::sessionNode()->isAncesterOf(node))
         return;
+
     emit s_instance->subtreeChanged(node);
 }
 
@@ -358,7 +359,6 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
 
 void ProjectTree::highlightProject(Project *project, const QString &message)
 {
-
     Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
 
     // Shows and focusses a project tree
@@ -368,20 +368,24 @@ void ProjectTree::highlightProject(Project *project, const QString &message)
         projectTreeWidget->showMessage(project->rootProjectNode(), message);
 }
 
+void ProjectTree::registerTreeManager(const TreeManagerFunction &treeChange)
+{
+    if (treeChange)
+        s_instance->m_treeManagers.append(treeChange);
+}
+
+void ProjectTree::applyTreeManager(FolderNode *folder)
+{
+    if (!folder)
+        return;
+
+    for (TreeManagerFunction &f : s_instance->m_treeManagers)
+        f(folder);
+}
+
 void ProjectTree::hideContextMenu()
 {
     m_focusForContextMenu = nullptr;
-}
-
-bool ProjectTree::isInNodeHierarchy(Node *n)
-{
-    Node *sessionNode = SessionManager::sessionNode();
-    do {
-        if (n == sessionNode)
-            return true;
-        n = n->parentFolderNode();
-    } while (n);
-    return false;
 }
 
 } // namespace ProjectExplorer

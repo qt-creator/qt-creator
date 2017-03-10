@@ -41,6 +41,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projecttree.h>
 
 #include <utils/algorithm.h>
 #include <utils/macroexpander.h>
@@ -429,6 +430,8 @@ void Project::setRootProjectNode(ProjectNode *root)
 {
     if (d->m_rootProjectNode == root)
         return;
+
+    ProjectTree::applyTreeManager(root);
 
     d->m_rootProjectNode = root;
     emit projectTreeChanged(this, QPrivateSignal());

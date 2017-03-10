@@ -29,6 +29,8 @@
 
 #include <coreplugin/icontext.h>
 
+#include <functional>
+
 namespace ProjectExplorer {
 class FileNode;
 class FolderNode;
@@ -62,6 +64,10 @@ public:
 
     static void highlightProject(Project *project, const QString &message);
 
+    using TreeManagerFunction = std::function<void(FolderNode *)>;
+    static void registerTreeManager(const TreeManagerFunction &treeChange);
+    static void applyTreeManager(FolderNode *folder);
+
     void collapseAll();
 
 signals:
@@ -92,11 +98,11 @@ private:
     void updateExternalFileWarning();
     static bool hasFocus(Internal::ProjectTreeWidget *widget);
     void hideContextMenu();
-    bool isInNodeHierarchy(Node *n);
 
 private:
     static ProjectTree *s_instance;
     QList<QPointer<Internal::ProjectTreeWidget>> m_projectTreeWidgets;
+    QVector<TreeManagerFunction> m_treeManagers;
     QPointer<Node> m_currentNode;
     Project *m_currentProject = nullptr;
     Internal::ProjectTreeWidget *m_focusForContextMenu = nullptr;
