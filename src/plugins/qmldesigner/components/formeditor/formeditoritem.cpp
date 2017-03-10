@@ -54,7 +54,7 @@ FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* 
     m_isContentVisible(true),
     m_isFormEditorVisible(true)
 {
-    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
+    setCacheMode(QGraphicsItem::NoCache);
     setup();
 }
 
