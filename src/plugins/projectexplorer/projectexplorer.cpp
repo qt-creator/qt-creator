@@ -41,6 +41,7 @@
 #include "project.h"
 #include "projectexplorersettings.h"
 #include "projectexplorersettingspage.h"
+#include "projectmanager.h"
 #include "removetaskhandler.h"
 #include "kitfeatureprovider.h"
 #include "kitmanager.h"
@@ -62,11 +63,11 @@
 #include "codestylesettingspropertiespage.h"
 #include "dependenciespanel.h"
 #include "foldernavigationwidget.h"
-#include "iprojectmanager.h"
 #include "appoutputpane.h"
 #include "processstep.h"
 #include "kitinformation.h"
 #include "projectfilewizardextension.h"
+#include "projectmanager.h"
 #include "projecttreewidget.h"
 #include "projectwindow.h"
 #include "runsettingspropertiespage.h"
@@ -340,7 +341,7 @@ public:
     QStringList m_profileMimeTypes;
     AppOutputPane *m_outputPane = nullptr;
 
-    Utils::ObjectPool<IProjectManager> m_projectManagers;
+    QHash<QString, std::function<Project *(const Utils::FileName &)>> m_projectCreators;
     QList<QPair<QString, QString> > m_recentProjects; // pair of filename, displayname
     static const int m_maxRecentProjects = 25;
 
@@ -1472,15 +1473,13 @@ void ProjectExplorerPlugin::extensionsInitialized()
     });
 
     factory->addMimeType(QStringLiteral("inode/directory"));
-    dd->m_projectManagers.forEachObject([&](IProjectManager *manager) {
-        const QString mimeType = manager->mimeType();
+    for (const QString &mimeType : dd->m_projectCreators.keys()) {
         factory->addMimeType(mimeType);
         Utils::MimeType mime = Utils::mimeTypeForName(mimeType);
         allGlobPatterns.append(mime.globPatterns());
         filterStrings.append(mime.filterString());
-
         dd->m_profileMimeTypes += mimeType;
-    });
+    }
 
     addAutoReleasedObject(factory);
 
@@ -1693,11 +1692,11 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
 
         Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
         if (mt.isValid()) {
-            if (IProjectManager *manager = IProjectManager::managerForMimeType(mt)) {
+            if (ProjectManager::canOpenProjectForMimeType(mt)) {
                 if (!QFileInfo(filePath).isFile()) {
                     appendError(errorString,
                                 tr("Failed opening project \"%1\": Project is not a file").arg(fileName));
-                } else if (Project *pro = manager->openProject(filePath)) {
+                } else if (Project *pro = ProjectManager::openProject(mt, Utils::FileName::fromString(filePath))) {
                     QObject::connect(pro, &Project::parsingFinished, [pro]() {
                         emit SessionManager::instance()->projectFinishedParsing(pro);
                     });
@@ -1785,8 +1784,8 @@ void ProjectExplorerPluginPrivate::determineSessionToRestoreAtStartup()
 QStringList ProjectExplorerPlugin::projectFileGlobs()
 {
     QStringList result;
-    foreach (const IProjectManager *ipm, ExtensionSystem::PluginManager::getObjects<IProjectManager>()) {
-        Utils::MimeType mimeType = Utils::mimeTypeForName(ipm->mimeType());
+    for (const QString &mt : dd->m_projectCreators.keys()) {
+        Utils::MimeType mimeType = Utils::mimeTypeForName(mt);
         if (mimeType.isValid()) {
             const QStringList patterns = mimeType.globPatterns();
             if (!patterns.isEmpty())
@@ -3386,11 +3385,11 @@ ProjectExplorerSettings ProjectExplorerPlugin::projectExplorerSettings()
 QStringList ProjectExplorerPlugin::projectFilePatterns()
 {
     QStringList patterns;
-    dd->m_projectManagers.forEachObject([&](IProjectManager *pm) {
-        Utils::MimeType mt = Utils::mimeTypeForName(pm->mimeType());
+    for (const QString &mime : dd->m_projectCreators.keys()) {
+        Utils::MimeType mt = Utils::mimeTypeForName(mime);
         if (mt.isValid())
             patterns.append(mt.globPatterns());
-    });
+    }
     return patterns;
 }
 
@@ -3407,17 +3406,32 @@ QList<QPair<QString, QString> > ProjectExplorerPlugin::recentProjects()
     return dd->recentProjects();
 }
 
-IProjectManager::IProjectManager()
+void ProjectManager::registerProjectCreator(const QString &mimeType,
+    const std::function<Project *(const Utils::FileName &)> &creator)
 {
-    dd->m_projectManagers.addObject(this);
+    dd->m_projectCreators[mimeType] = creator;
 }
 
-IProjectManager *IProjectManager::managerForMimeType(const Utils::MimeType &mt)
+Project *ProjectManager::openProject(const Utils::MimeType &mt, const Utils::FileName &fileName)
 {
-    if (!mt.isValid())
-        return nullptr;
-    auto pred = [mt](IProjectManager *m) { return mt.matchesName(m->mimeType()); };
-    return dd->m_projectManagers.findObject(pred);
+    if (mt.isValid()) {
+        for (const QString &mimeType : dd->m_projectCreators.keys()) {
+            if (mt.matchesName(mimeType))
+                return dd->m_projectCreators[mimeType](fileName);
+        }
+    }
+    return nullptr;
+}
+
+bool ProjectManager::canOpenProjectForMimeType(const Utils::MimeType &mt)
+{
+    if (mt.isValid()) {
+        for (const QString &mimeType : dd->m_projectCreators.keys()) {
+            if (mt.matchesName(mimeType))
+                return true;
+        }
+    }
+    return false;
 }
 
 } // namespace ProjectExplorer

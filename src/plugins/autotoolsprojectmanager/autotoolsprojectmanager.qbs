@@ -20,8 +20,6 @@ QtcPlugin {
         "autotoolsbuildconfiguration.h",
         "autotoolsbuildsettingswidget.cpp",
         "autotoolsbuildsettingswidget.h",
-        "autotoolsmanager.cpp",
-        "autotoolsmanager.h",
         "autotoolsopenprojectwizard.cpp",
         "autotoolsopenprojectwizard.h",
         "autotoolsproject.cpp",

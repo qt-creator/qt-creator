@@ -357,7 +357,7 @@ void TeaLeafReader::updateCodeModel(CppTools::RawProjectParts &rpps)
         }
         includePaths += m_parameters.buildDirectory.toString();
         CppTools::RawProjectPart rpp;
-        rpp.setProjectFile(QString()); // No project file information available!
+        rpp.setProjectFileLocation(QString()); // No project file information available!
         rpp.setIncludePaths(includePaths);
 
         CppTools::RawProjectPartFlags cProjectFlags;

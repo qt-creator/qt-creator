@@ -100,16 +100,6 @@ QbsManager::~QbsManager()
     m_instance = nullptr;
 }
 
-QString QbsManager::mimeType() const
-{
-    return QLatin1String(QmlJSTools::Constants::QBS_MIMETYPE);
-}
-
-ProjectExplorer::Project *QbsManager::openProject(const QString &fileName)
-{
-    return new QbsProject(fileName);
-}
-
 QString QbsManager::profileForKit(const ProjectExplorer::Kit *k)
 {
     if (!k)

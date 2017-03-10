@@ -89,13 +89,17 @@ const char PRINT[]                 = "QtCreator.Print";
 const char EXIT[]                  = "QtCreator.Exit";
 
 const char OPTIONS[]               = "QtCreator.Options";
-const char TOGGLE_SIDEBAR[]        = "QtCreator.ToggleSidebar";
+const char TOGGLE_LEFT_SIDEBAR[]   = "QtCreator.ToggleLeftSidebar";
+const char TOGGLE_RIGHT_SIDEBAR[]  = "QtCreator.ToggleRightSidebar";
 const char TOGGLE_MODE_SELECTOR[]  = "QtCreator.ToggleModeSelector";
 const char TOGGLE_FULLSCREEN[]     = "QtCreator.ToggleFullScreen";
 const char THEMEOPTIONS[]          = "QtCreator.ThemeOptions";
 
-const char TR_SHOW_SIDEBAR[]       = QT_TRANSLATE_NOOP("Core", "Show Sidebar");
-const char TR_HIDE_SIDEBAR[]       = QT_TRANSLATE_NOOP("Core", "Hide Sidebar");
+const char TR_SHOW_LEFT_SIDEBAR[]  = QT_TRANSLATE_NOOP("Core", "Show Left Sidebar");
+const char TR_HIDE_LEFT_SIDEBAR[]  = QT_TRANSLATE_NOOP("Core", "Hide Left Sidebar");
+
+const char TR_SHOW_RIGHT_SIDEBAR[] = QT_TRANSLATE_NOOP("Core", "Show Right Sidebar");
+const char TR_HIDE_RIGHT_SIDEBAR[] = QT_TRANSLATE_NOOP("Core", "Hide Right Sidebar");
 
 const char MINIMIZE_WINDOW[]       = "QtCreator.MinimizeWindow";
 const char ZOOM_WINDOW[]           = "QtCreator.ZoomWindow";

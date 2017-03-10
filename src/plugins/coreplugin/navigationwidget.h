@@ -43,22 +43,30 @@ class NavigationWidget;
 struct NavigationWidgetPrivate;
 namespace Internal { class NavigationSubWidget; }
 
+enum class Side {
+    Left,
+    Right
+};
+
 class CORE_EXPORT NavigationWidgetPlaceHolder : public QWidget
 {
     Q_OBJECT
     friend class Core::NavigationWidget;
 
 public:
-    explicit NavigationWidgetPlaceHolder(Id mode, QWidget *parent = 0);
+    explicit NavigationWidgetPlaceHolder(Id mode, Side side, QWidget *parent = 0);
     virtual ~NavigationWidgetPlaceHolder();
-    static NavigationWidgetPlaceHolder* current();
+    static NavigationWidgetPlaceHolder *current(Side side);
+    static void setCurrent(Side side, NavigationWidgetPlaceHolder *navWidget);
     void applyStoredSize(int width);
 
 private:
     void currentModeAboutToChange(Id mode);
 
     Id m_mode;
-    static NavigationWidgetPlaceHolder* m_current;
+    Side m_side;
+    static NavigationWidgetPlaceHolder *s_currentLeft;
+    static NavigationWidgetPlaceHolder *s_currentRight;
 };
 
 class CORE_EXPORT NavigationWidget : public MiniSplitter
@@ -72,15 +80,16 @@ public:
         FactoryPriorityRole
     };
 
-    explicit NavigationWidget(QAction *toggleSideBarAction);
+    explicit NavigationWidget(QAction *toggleSideBarAction, Side side);
     virtual ~NavigationWidget();
 
     void setFactories(const QList<INavigationWidgetFactory*> &factories);
 
+    QString settingsGroup() const;
     void saveSettings(QSettings *settings);
     void restoreSettings(QSettings *settings);
 
-    QWidget *activateSubWidget(Id factoryId);
+    QWidget *activateSubWidget(Id factoryId, int preferredPosition);
     void closeSubWidgets();
 
     bool isShown() const;
@@ -89,7 +98,8 @@ public:
     bool isSuppressed() const;
     void setSuppressed(bool b);
 
-    static NavigationWidget* instance();
+    static NavigationWidget *instance(Side side);
+    static QWidget *activateSubWidget(Id factoryId, Side fallbackSide);
 
     int storedWidth();
 
@@ -106,8 +116,10 @@ private:
     void splitSubWidget(int factoryIndex);
     void closeSubWidget();
     void updateToggleText();
-    Internal::NavigationSubWidget *insertSubItem(int position, int index);
+    Internal::NavigationSubWidget *insertSubItem(int position, int factoryIndex);
     int factoryIndex(Id id);
+    QString settingsKey(const QString &key) const;
+    void onSubWidgetFactoryIndexChanged(int factoryIndex);
 
     NavigationWidgetPrivate *d;
 };

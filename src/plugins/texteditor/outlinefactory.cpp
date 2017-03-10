@@ -89,37 +89,36 @@ QToolButton *OutlineWidgetStack::filterButton()
     return m_filterButton;
 }
 
-void OutlineWidgetStack::restoreSettings(int position)
+void OutlineWidgetStack::saveSettings(QSettings *settings, int position)
 {
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String("Sidebar.Outline.") + QString::number(position));
+    const QString baseKey = QStringLiteral("Outline.%1.").arg(position);
+    settings->setValue(baseKey + QLatin1String("SyncWithEditor"), toggleSyncButton()->isChecked());
+    for (auto iter = m_widgetSettings.constBegin(); iter != m_widgetSettings.constEnd(); ++iter)
+        settings->setValue(baseKey + iter.key(), iter.value());
+}
+
+void OutlineWidgetStack::restoreSettings(QSettings *settings, int position)
+{
+    const QString baseKey = QStringLiteral("Outline.%1.").arg(position);
 
     bool syncWithEditor = true;
     m_widgetSettings.clear();
-    foreach (const QString &key, settings->allKeys()) {
+    foreach (const QString &longKey, settings->allKeys()) {
+        if (!longKey.startsWith(baseKey))
+            continue;
+
+        const QString key = longKey.mid(baseKey.length());
+
         if (key == QLatin1String("SyncWithEditor")) {
-            syncWithEditor = settings->value(key).toBool();
+            syncWithEditor = settings->value(longKey).toBool();
             continue;
         }
-        m_widgetSettings.insert(key, settings->value(key));
+        m_widgetSettings.insert(key, settings->value(longKey));
     }
-    settings->endGroup();
 
     toggleSyncButton()->setChecked(syncWithEditor);
     if (IOutlineWidget *outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget()))
         outlineWidget->restoreSettings(m_widgetSettings);
-}
-
-void OutlineWidgetStack::saveSettings(int position)
-{
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String("Sidebar.Outline.") + QString::number(position));
-
-    settings->setValue(QLatin1String("SyncWithEditor"), toggleSyncButton()->isChecked());
-    for (auto iter = m_widgetSettings.constBegin(); iter != m_widgetSettings.constEnd(); ++iter)
-        settings->setValue(iter.key(), iter.value());
-
-    settings->endGroup();
 }
 
 bool OutlineWidgetStack::isCursorSynchronized() const
@@ -206,18 +205,18 @@ Core::NavigationView OutlineFactory::createWidget()
     return n;
 }
 
-void OutlineFactory::saveSettings(int position, QWidget *widget)
+void OutlineFactory::saveSettings(QSettings *settings, int position, QWidget *widget)
 {
     OutlineWidgetStack *widgetStack = qobject_cast<OutlineWidgetStack *>(widget);
     Q_ASSERT(widgetStack);
-    widgetStack->saveSettings(position);
+    widgetStack->saveSettings(settings, position);
 }
 
-void OutlineFactory::restoreSettings(int position, QWidget *widget)
+void OutlineFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
 {
     OutlineWidgetStack *widgetStack = qobject_cast<OutlineWidgetStack *>(widget);
     Q_ASSERT(widgetStack);
-    widgetStack->restoreSettings(position);
+    widgetStack->restoreSettings(settings, position);
 }
 
 } // namespace Internal

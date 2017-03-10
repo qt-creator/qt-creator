@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "qmlprojectplugin.h"
-#include "qmlprojectmanager.h"
 #include "qmlproject.h"
 #include "qmlprojectrunconfigurationfactory.h"
 #include "fileformat/qmlprojectfileformat.h"
@@ -32,13 +31,17 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 
-#include <qtsupport/qtsupportconstants.h>
+#include <projectexplorer/projectmanager.h>
+
+#include <qmljstools/qmljstoolsconstants.h>
 
 #include <QtPlugin>
 
 #include <QApplication>
 #include <QMessageBox>
 #include <QPushButton>
+
+using namespace ProjectExplorer;
 
 namespace QmlProjectManager {
 
@@ -53,9 +56,9 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
 
-    addAutoReleasedObject(new Internal::Manager);
     addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);
 
+    ProjectManager::registerProjectType<QmlProject>(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
     Core::FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png", "qmlproject");
     return true;
 }

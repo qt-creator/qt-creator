@@ -39,7 +39,7 @@ class NimProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    explicit NimProject(const QString &fileName);
+    explicit NimProject(const Utils::FileName &fileName);
 
     QString displayName() const override;
     QStringList files(FilesMode) const override;

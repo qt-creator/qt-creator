@@ -77,6 +77,19 @@ void ProjectConfiguration::setDefaultDisplayName(const QString &name)
         emit displayNameChanged();
 }
 
+void ProjectConfiguration::setToolTip(const QString &text)
+{
+    if (text == m_toolTip)
+        return;
+    m_toolTip = text;
+    emit toolTipChanged();
+}
+
+QString ProjectConfiguration::toolTip() const
+{
+    return m_toolTip;
+}
+
 bool ProjectConfiguration::usesDefaultDisplayName() const
 {
     return m_displayName.isEmpty();

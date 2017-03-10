@@ -47,8 +47,6 @@ NimRunControl::NimRunControl(NimRunConfiguration *rc, Core::Id mode)
             this, &NimRunControl::processStarted);
     connect(&m_applicationLauncher, &ApplicationLauncher::processExited,
             this, &NimRunControl::processExited);
-    connect(&m_applicationLauncher, &ApplicationLauncher::bringToForegroundRequested,
-            this, &RunControl::bringApplicationToForeground);
 }
 
 void NimRunControl::start()
@@ -56,6 +54,7 @@ void NimRunControl::start()
     reportApplicationStart();
     m_applicationLauncher.start(m_runnable);
     setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
+    bringApplicationToForeground();
 }
 
 ProjectExplorer::RunControl::StopResult NimRunControl::stop()

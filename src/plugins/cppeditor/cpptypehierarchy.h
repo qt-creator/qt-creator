@@ -104,7 +104,7 @@ class CppTypeHierarchyFactory : public Core::INavigationWidgetFactory
 public:
     CppTypeHierarchyFactory();
 
-    virtual Core::NavigationView createWidget();
+    Core::NavigationView createWidget()  override;
 };
 
 } // namespace Internal

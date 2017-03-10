@@ -53,9 +53,13 @@ RemoteFilterOptions::RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *pare
             this, &RemoteFilterOptions::addNewItem);
     connect(m_ui.remove, &QPushButton::clicked,
             this, &RemoteFilterOptions::removeItem);
+    connect(m_ui.moveUp, &QPushButton::clicked,
+            this, &RemoteFilterOptions::moveItemUp);
+    connect(m_ui.moveDown, &QPushButton::clicked,
+            this, &RemoteFilterOptions::moveItemDown);
     connect(m_ui.listWidget, &QListWidget::currentItemChanged,
-            this, &RemoteFilterOptions::updateRemoveButton);
-    updateRemoveButton();
+            this, &RemoteFilterOptions::updateActionButtons);
+    updateActionButtons();
 }
 
 void RemoteFilterOptions::addNewItem()
@@ -76,9 +80,32 @@ void RemoteFilterOptions::removeItem()
     }
 }
 
-void RemoteFilterOptions::updateRemoveButton()
+void RemoteFilterOptions::moveItemUp()
+{
+    const int row = m_ui.listWidget->currentRow();
+    if (row > 0) {
+        QListWidgetItem *item = m_ui.listWidget->takeItem(row);
+        m_ui.listWidget->insertItem(row - 1, item);
+        m_ui.listWidget->setCurrentRow(row - 1);
+    }
+}
+
+void RemoteFilterOptions::moveItemDown()
+{
+    const int row = m_ui.listWidget->currentRow();
+    if (row >= 0 && row < m_ui.listWidget->count() - 1) {
+        QListWidgetItem *item = m_ui.listWidget->takeItem(row);
+        m_ui.listWidget->insertItem(row + 1, item);
+        m_ui.listWidget->setCurrentRow(row + 1);
+    }
+}
+
+void RemoteFilterOptions::updateActionButtons()
 {
     m_ui.remove->setEnabled(m_ui.listWidget->currentItem());
+    const int row = m_ui.listWidget->currentRow();
+    m_ui.moveUp->setEnabled(row > 0);
+    m_ui.moveDown->setEnabled(row >= 0 && row < m_ui.listWidget->count() - 1);
 }
 
 // -- RemoteHelpFilter

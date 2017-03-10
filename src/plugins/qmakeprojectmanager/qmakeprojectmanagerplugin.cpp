@@ -45,18 +45,22 @@
 #include "profilehighlighter.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/buildmanager.h>
-#include <projectexplorer/session.h>
-#include <projectexplorer/projecttree.h>
-#include <projectexplorer/target.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+
+#include <projectexplorer/buildmanager.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/target.h>
+
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/parameteraction.h>
 
@@ -81,6 +85,8 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     //create and register objects
     m_qmakeProjectManager = new QmakeManager;
     addAutoReleasedObject(m_qmakeProjectManager);
+
+    ProjectManager::registerProjectType<QmakeProject>(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
 
     ProjectExplorer::KitManager::registerKitInformation(new QmakeKitInformation);
 

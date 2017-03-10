@@ -94,8 +94,8 @@ public:
     FolderNavigationWidgetFactory();
 
     Core::NavigationView createWidget() override;
-    void saveSettings(int position, QWidget *widget) override;
-    void restoreSettings(int position, QWidget *widget) override;
+    void saveSettings(QSettings *settings, int position, QWidget *widget) override;
+    void restoreSettings(QSettings *settings, int position, QWidget *widget) override;
 };
 
 } // namespace Internal

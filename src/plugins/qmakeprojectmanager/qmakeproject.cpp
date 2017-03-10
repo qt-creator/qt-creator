@@ -77,7 +77,7 @@ namespace Internal {
 class QmakeProjectFile : public Core::IDocument
 {
 public:
-    QmakeProjectFile(const QString &filePath);
+    explicit QmakeProjectFile(const FileName &fileName);
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
@@ -158,11 +158,11 @@ QDebug operator<<(QDebug d, const  QmakeProjectFiles &f)
 
 // ----------- QmakeProjectFile
 
-QmakeProjectFile::QmakeProjectFile(const QString &filePath)
+QmakeProjectFile::QmakeProjectFile(const FileName &fileName)
 {
     setId("Qmake.ProFile");
-    setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
-    setFilePath(FileName::fromString(filePath));
+    setMimeType(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
+    setFilePath(fileName);
 }
 
 Core::IDocument::ReloadBehavior QmakeProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
@@ -190,7 +190,7 @@ static QList<QmakeProject *> s_projects;
   QmakeProject manages information about an individual Qt 4 (.pro) project file.
   */
 
-QmakeProject::QmakeProject(const QString &fileName) :
+QmakeProject::QmakeProject(const FileName &fileName) :
     m_projectFiles(new QmakeProjectFiles),
     m_qmakeVfs(new QMakeVfs),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
@@ -345,7 +345,7 @@ void QmakeProject::updateCppCodeModel()
 
         CppTools::RawProjectPart rpp;
         rpp.setDisplayName(pro->displayName());
-        rpp.setProjectFile(pro->filePath().toString());
+        rpp.setProjectFileLocation(pro->filePath().toString());
         // TODO: Handle QMAKE_CFLAGS
         rpp.setFlagsForCxx({cxxToolChain, pro->variableValue(Variable::CppFlags)});
         rpp.setDefines(pro->cxxDefines());
@@ -737,7 +737,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFile *
         for (; eit != eend; ++eit)
             m_qmakeGlobals->environment.insert(env.key(eit), env.value(eit));
 
-        m_qmakeGlobals->setCommandLineArguments(rootProjectNode()->buildDir(), qmakeArgs);
+        m_qmakeGlobals->setCommandLineArguments(rootProFile()->buildDir().toString(), qmakeArgs);
 
         QtSupport::ProFileCacheManager::instance()->incRefCount();
 

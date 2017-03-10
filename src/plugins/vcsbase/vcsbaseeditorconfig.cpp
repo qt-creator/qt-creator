@@ -194,7 +194,7 @@ void VcsBaseEditorConfig::mapSetting(QComboBox *comboBox, QString *setting)
         d->m_settingMapping.insert(comboBox, Internal::SettingMappingData(setting));
         if (setting) {
             comboBox->blockSignals(true);
-            const int itemIndex = setting ? comboBox->findData(*setting) : -1;
+            const int itemIndex = comboBox->findData(*setting);
             if (itemIndex != -1)
                 comboBox->setCurrentIndex(itemIndex);
             comboBox->blockSignals(false);

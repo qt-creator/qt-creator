@@ -31,10 +31,12 @@
 #include "ui_remotedialog.h"
 #include "ui_remoteadditiondialog.h"
 
+#include <utils/fancylineedit.h>
 #include <utils/headerviewstretcher.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QMessageBox>
+#include <QRegularExpression>
 
 namespace Git {
 namespace Internal {
@@ -46,10 +48,55 @@ namespace Internal {
 class RemoteAdditionDialog : public QDialog
 {
 public:
-    RemoteAdditionDialog()
+    RemoteAdditionDialog(const QStringList &remoteNames) :
+        m_invalidRemoteNameChars(GitPlugin::invalidBranchAndRemoteNamePattern()),
+        m_remoteNames(remoteNames)
     {
         m_ui.setupUi(this);
         setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+        m_ui.nameEdit->setValidationFunction([this](Utils::FancyLineEdit *edit, QString *errorMessage) {
+            if (!edit)
+                return false;
+
+            QString input = edit->text();
+            edit->setText(input.replace(m_invalidRemoteNameChars, "_"));
+
+            // "Intermediate" patterns, may change to Acceptable when user edits further:
+
+            if (input.endsWith(".lock")) //..may not end with ".lock"
+                return false;
+
+            if (input.endsWith('.')) // no dot at the end (but allowed in the middle)
+                return false;
+
+            if (input.endsWith('/')) // no slash at the end (but allowed in the middle)
+                return false;
+
+            if (m_remoteNames.contains(input)) {
+                if (errorMessage)
+                    *errorMessage = tr("A remote with the name \"%1\" already exists.").arg(input);
+                return false;
+            }
+
+            // is a valid remote name
+            return !input.isEmpty();
+        });
+        connect(m_ui.nameEdit, &QLineEdit::textChanged, [this]() {
+            m_ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(m_ui.nameEdit->isValid());
+        });
+
+        m_ui.urlEdit->setValidationFunction([](Utils::FancyLineEdit *edit, QString *errorMessage) {
+            if (!edit || edit->text().isEmpty())
+                return false;
+
+            const GitRemote r(edit->text());
+            if (!r.isValid && errorMessage)
+                *errorMessage = tr("The URL may not be valid.");
+
+            return r.isValid;
+        });
+
+        m_ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     }
 
     QString remoteName() const
@@ -64,6 +111,8 @@ public:
 
 private:
     Ui::RemoteAdditionDialog m_ui;
+    const QRegularExpression m_invalidRemoteNameChars;
+    QStringList m_remoteNames;
 };
 
 
@@ -125,7 +174,7 @@ void RemoteDialog::refreshRemotes()
 
 void RemoteDialog::addRemote()
 {
-    RemoteAdditionDialog addDialog;
+    RemoteAdditionDialog addDialog(m_remoteModel->allRemoteNames());
     if (addDialog.exec() != QDialog::Accepted)
         return;
 

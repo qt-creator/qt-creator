@@ -60,8 +60,9 @@ public:
     using FileClassifier = std::function<ProjectFile::Kind (const QString &filePath)>;
     void setFiles(const QStringList &files, FileClassifier fileClassifier = FileClassifier());
 
-    void setProjectFile(const QString &projectFile);
+    void setProjectFileLocation(const QString &projectFile, int line = -1, int column = -1);
     void setConfigFileName(const QString &configFileName);
+    void setCallGroupId(const QString &id);
 
     void setQtVersion(ProjectPart::QtVersion qtVersion);
 
@@ -79,7 +80,10 @@ public:
 public:
     QString displayName;
     QString projectFile;
+    int projectFileLine = -1;
+    int projectFileColumn = -1;
     QString projectConfigFile; // currently only used by the Generic Project Manager
+    QString callGroupId;
     QStringList precompiledHeaders;
     ProjectPartHeaderPaths headerPaths;
     QByteArray projectDefines;
