@@ -36,6 +36,8 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimetypes/mimetype.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -231,6 +233,33 @@ bool Node::sortByPath(const Node *a, const Node *b)
 void Node::setParentFolderNode(FolderNode *parentFolder)
 {
     m_parentFolderNode = parentFolder;
+}
+
+FileType Node::fileTypeForMimeType(const Utils::MimeType &mt)
+{
+    FileType type = FileType::Source;
+    if (mt.isValid()) {
+        const QString mtName = mt.name();
+        if (mtName == Constants::C_HEADER_MIMETYPE
+                || mtName == Constants::CPP_HEADER_MIMETYPE)
+            type = FileType::Header;
+        else if (mtName == Constants::FORM_MIMETYPE)
+            type = FileType::Form;
+        else if (mtName == Constants::RESOURCE_MIMETYPE)
+            type = FileType::Resource;
+        else if (mtName == Constants::SCXML_MIMETYPE)
+            type = FileType::StateChart;
+        else if (mtName == Constants::QML_MIMETYPE)
+            type = FileType::QML;
+    } else {
+        type = FileType::Unknown;
+    }
+    return type;
+}
+
+FileType Node::fileTypeForFileName(const Utils::FileName &file)
+{
+    return fileTypeForMimeType(Utils::mimeTypeForFile(file.toString()));
 }
 
 /*!

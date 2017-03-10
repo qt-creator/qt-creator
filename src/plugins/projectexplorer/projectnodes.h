@@ -36,6 +36,8 @@
 
 #include <functional>
 
+namespace Utils { class MimeType; }
+
 namespace ProjectExplorer {
 class RunConfiguration;
 class Project;
@@ -140,6 +142,9 @@ public:
 
     static bool sortByPath(const Node *a, const Node *b);
     void setParentFolderNode(FolderNode *parentFolder);
+
+    static FileType fileTypeForMimeType(const Utils::MimeType &mt);
+    static FileType fileTypeForFileName(const Utils::FileName &file);
 
 protected:
     Node(NodeType nodeType, const Utils::FileName &filePath, int line = -1);

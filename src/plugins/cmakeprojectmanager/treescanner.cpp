@@ -141,29 +141,7 @@ bool TreeScanner::isMimeBinary(const Utils::MimeType &mimeType, const Utils::Fil
 
 FileType TreeScanner::genericFileType(const Utils::MimeType &mimeType, const Utils::FileName &/*fn*/)
 {
-    FileType type = FileType::Unknown;
-    if (mimeType.isValid()) {
-        const QString mt = mimeType.name();
-        if (mt == CppTools::Constants::C_SOURCE_MIMETYPE
-            || mt == CppTools::Constants::CPP_SOURCE_MIMETYPE
-            || mt == CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE
-            || mt == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE
-            || mt == CppTools::Constants::QDOC_MIMETYPE
-            || mt == CppTools::Constants::MOC_MIMETYPE)
-            type = FileType::Source;
-        else if (mt == CppTools::Constants::C_HEADER_MIMETYPE
-                 || mt == CppTools::Constants::CPP_HEADER_MIMETYPE)
-            type = FileType::Header;
-        else if (mt == ProjectExplorer::Constants::FORM_MIMETYPE)
-            type = FileType::Form;
-        else if (mt == ProjectExplorer::Constants::RESOURCE_MIMETYPE)
-            type = FileType::Resource;
-        else if (mt == ProjectExplorer::Constants::SCXML_MIMETYPE)
-            type = FileType::StateChart;
-        else if (mt == ProjectExplorer::Constants::QML_MIMETYPE)
-            type = FileType::QML;
-    }
-    return type;
+    return Node::fileTypeForMimeType(mimeType);
 }
 
 void TreeScanner::scanForFiles(FutureInterface *fi, const Utils::FileName& directory, const FileFilter &filter, const FileTypeFactory &factory)
