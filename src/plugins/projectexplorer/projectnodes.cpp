@@ -496,6 +496,16 @@ void FolderNode::compress()
     }
 }
 
+bool FolderNode::isAncesterOf(Node *n)
+{
+    if (n == this)
+        return true;
+    FolderNode *p = n->parentFolderNode();
+    while (p && p != this)
+        p = p->parentFolderNode();
+    return p == this;
+}
+
 bool FolderNode::replaceSubtree(Node *oldNode, Node *newNode)
 {
     std::unique_ptr<Node> nn(newNode);
