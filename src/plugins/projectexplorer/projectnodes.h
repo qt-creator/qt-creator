@@ -235,7 +235,6 @@ public:
     void addNode(Node *node);
     void removeNode(Node *node);
 
-    void makeEmpty();
     bool isEmpty() const;
 
     FolderNode *asFolderNode() override { return this; }

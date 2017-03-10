@@ -92,7 +92,6 @@ void setupQbsProductData(QbsProjectManager::Internal::QbsProductNode *node,
                          const qbs::ProductData &prd, const qbs::Project &project)
 {
     using namespace QbsProjectManager::Internal;
-    node->makeEmpty();
 
     node->setEnabled(prd.isEnabled());
 

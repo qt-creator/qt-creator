@@ -593,15 +593,6 @@ void FolderNode::removeNode(Node *node)
     m_nodes.removeOne(node);
 }
 
-/*!
-  Removes all files and subfolders from this folder node.
-*/
-void FolderNode::makeEmpty()
-{
-    qDeleteAll(m_nodes);
-    m_nodes.clear();
-}
-
 bool FolderNode::showInSimpleTree() const
 {
     return false;
