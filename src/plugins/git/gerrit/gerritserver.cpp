@@ -223,8 +223,13 @@ int GerritServer::testConnection()
         QString output = resp.stdOut();
         output.remove(0, output.indexOf('\n')); // Strip first line
         QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
-        if (!doc.isNull())
-            user.fullName = doc.object().value("name").toString();
+        if (!doc.isNull()) {
+            const QJsonObject obj = doc.object();
+            user.fullName = obj.value("name").toString();
+            const QString userName = obj.value("username").toString();
+            if (!userName.isEmpty())
+                user.userName = userName;
+        }
         return 200;
     }
     const QRegularExpression errorRegexp("returned error: (\\d+)");
