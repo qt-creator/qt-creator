@@ -126,9 +126,11 @@ bool GerritServer::fillFromRemote(const QString &remote, const GerritParameters 
     else
         return false;
 
-    user.userName = r.userName.isEmpty() ? parameters.server.user.userName : r.userName;
     if (r.host.contains("github.com")) // Clearly not gerrit
         return false;
+    host = r.host;
+    port = r.port;
+    user.userName = r.userName.isEmpty() ? parameters.server.user.userName : r.userName;
     if (type != GerritServer::Ssh) {
         curlBinary = parameters.curl;
         if (curlBinary.isEmpty() || !QFile::exists(curlBinary))
