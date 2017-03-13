@@ -24,43 +24,26 @@
 ****************************************************************************/
 
 #include "builddirmanager.h"
+
 #include "cmakebuildconfiguration.h"
 #include "cmakekitinformation.h"
-#include "cmakeparser.h"
-#include "cmakeprojectconstants.h"
-#include "cmakeprojectmanager.h"
 #include "cmakeprojectnodes.h"
 #include "cmaketool.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <cpptools/cpptoolsconstants.h>
-#include <projectexplorer/headerpath.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <utils/synchronousprocess.h>
-#include <utils/temporarydirectory.h>
 
-#include <QDateTime>
-#include <QFile>
-#include <QFileInfo>
 #include <QMessageBox>
-#include <QRegularExpression>
 #include <QSet>
 
 using namespace ProjectExplorer;
