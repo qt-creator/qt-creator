@@ -37,6 +37,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 #include <utils/theme/theme.h>
 
 #include <QCompleter>
@@ -109,6 +110,10 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
             this, &GerritDialog::slotCurrentChanged);
     connect(m_ui->treeView, &QAbstractItemView::activated,
             this, &GerritDialog::slotActivated);
+
+    m_ui->resetRemoteButton->setIcon(Utils::Icons::RESET_TOOLBAR.icon());
+    connect(m_ui->resetRemoteButton, &QToolButton::clicked,
+            this, [this] { updateRemotes(true); });
 
     m_displayButton = addActionButton(tr("&Show"), [this]() { slotFetchDisplay(); });
     m_cherryPickButton = addActionButton(tr("Cherry &Pick"), [this]() { slotFetchCherryPick(); });
@@ -225,7 +230,7 @@ void GerritDialog::remoteChanged()
     slotRefresh();
 }
 
-void GerritDialog::updateRemotes()
+void GerritDialog::updateRemotes(bool forceReload)
 {
     m_ui->remoteComboBox->clear();
     if (m_repository.isEmpty() || !QFileInfo(m_repository).isDir())
@@ -239,7 +244,7 @@ void GerritDialog::updateRemotes()
     while (mapIt.hasNext()) {
         mapIt.next();
         GerritServer server;
-        if (!server.fillFromRemote(mapIt.value(), *m_parameters))
+        if (!server.fillFromRemote(mapIt.value(), *m_parameters, forceReload))
             continue;
         addRemote(server, mapIt.key());
     }

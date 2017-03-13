@@ -118,7 +118,9 @@ QString GerritServer::url(UrlType urlType) const
     return res;
 }
 
-bool GerritServer::fillFromRemote(const QString &remote, const GerritParameters &parameters)
+bool GerritServer::fillFromRemote(const QString &remote,
+                                  const GerritParameters &parameters,
+                                  bool forceReload)
 {
     const GitRemote r(remote);
     if (!r.isValid)
@@ -143,7 +145,8 @@ bool GerritServer::fillFromRemote(const QString &remote, const GerritParameters 
     curlBinary = parameters.curl;
     if (curlBinary.isEmpty() || !QFile::exists(curlBinary))
         return false;
-    switch (loadSettings()) {
+    const StoredHostValidity validity = forceReload ? Invalid : loadSettings();
+    switch (validity) {
     case Invalid:
         rootPath = r.path;
         // Strip the last part of the path, which is always the repo name

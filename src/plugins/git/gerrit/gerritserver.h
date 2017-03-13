@@ -74,7 +74,7 @@ public:
     static QString defaultHost();
     QString hostArgument() const;
     QString url(UrlType urlType = DefaultUrl) const;
-    bool fillFromRemote(const QString &remote, const GerritParameters &parameters);
+    bool fillFromRemote(const QString &remote, const GerritParameters &parameters, bool forceReload);
     StoredHostValidity loadSettings();
     void saveSettings(StoredHostValidity validity) const;
     int testConnection();
