@@ -25,25 +25,24 @@
 
 #pragma once
 
-#include <remotelinux/remotelinuxruncontrol.h>
+#include <projectexplorer/runconfiguration.h>
 
 namespace Qnx {
 namespace Internal {
 
 class Slog2InfoRunner;
 
-class QnxRunControl : public RemoteLinux::RemoteLinuxRunControl
+class QnxRunControl : public ProjectExplorer::SimpleRunControl
 {
     Q_OBJECT
 public:
     explicit QnxRunControl(ProjectExplorer::RunConfiguration *runConfig);
 
-    RemoteLinux::RemoteLinuxRunControl::StopResult stop() override;
-
-private slots:
-    void printMissingWarning();
+    StopResult stop() override;
 
 private:
+    void printMissingWarning();
+
     Slog2InfoRunner *m_slog2Info;
 };
 

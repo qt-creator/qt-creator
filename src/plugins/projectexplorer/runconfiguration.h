@@ -431,7 +431,9 @@ public:
     virtual void onProcessFinished(int exitCode, QProcess::ExitStatus status);
 
 private:
-    Internal::SimpleRunControlPrivate *d;
+    void setFinished();
+
+    Internal::SimpleRunControlPrivate * const d;
 };
 
 } // namespace ProjectExplorer

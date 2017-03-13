@@ -98,8 +98,6 @@ Project {
             "remotelinuxrunconfigurationfactory.h",
             "remotelinuxrunconfigurationwidget.cpp",
             "remotelinuxrunconfigurationwidget.h",
-            "remotelinuxruncontrol.cpp",
-            "remotelinuxruncontrol.h",
             "remotelinuxruncontrolfactory.cpp",
             "remotelinuxruncontrolfactory.h",
             "remotelinuxsignaloperation.cpp",

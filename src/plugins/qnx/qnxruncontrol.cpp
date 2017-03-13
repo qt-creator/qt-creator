@@ -33,14 +33,13 @@
 #include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;
-using namespace RemoteLinux;
 using namespace Utils;
 
 namespace Qnx {
 namespace Internal {
 
 QnxRunControl::QnxRunControl(RunConfiguration *runConfig)
-    : RemoteLinuxRunControl(runConfig)
+    : SimpleRunControl(runConfig, ProjectExplorer::Constants::NORMAL_RUN_MODE)
     , m_slog2Info(0)
 {
     IDevice::ConstPtr dev = DeviceKitInformation::device(runConfig->target()->kit());
@@ -61,7 +60,7 @@ QnxRunControl::QnxRunControl(RunConfiguration *runConfig)
 RunControl::StopResult QnxRunControl::stop()
 {
     m_slog2Info->stop();
-    return RemoteLinuxRunControl::stop();
+    return SimpleRunControl::stop();
 }
 
 void QnxRunControl::printMissingWarning()
