@@ -62,6 +62,7 @@ private:
     void handleReply(const QVariantMap &data, const QString &inReplyTo);
     void handleError(const QString &message);
     void handleProgress(int min, int cur, int max, const QString &inReplyTo);
+    void handleSignal(const QString &signal, const QVariantMap &data);
 
     struct Target;
     struct Project;

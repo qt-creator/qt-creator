@@ -95,6 +95,8 @@ void ServerModeReader::setParameters(const BuildDirReader::Parameters &p)
                 this, &ServerModeReader::handleError);
         connect(m_cmakeServer.get(), &ServerMode::cmakeProgress,
                 this, &ServerModeReader::handleProgress);
+        connect(m_cmakeServer.get(), &ServerMode::cmakeSignal,
+                this, &ServerModeReader::handleSignal);
         connect(m_cmakeServer.get(), &ServerMode::cmakeMessage,
                 this, [this](const QString &m) { Core::MessageManager::write(m); });
         connect(m_cmakeServer.get(), &ServerMode::message,
@@ -385,6 +387,13 @@ void ServerModeReader::handleProgress(int min, int cur, int max, const QString &
     int progress = m_progressStepMinimum
             + (((max - min) / (cur - min)) * (m_progressStepMaximum  - m_progressStepMinimum));
     m_future->setProgressValue(progress);
+}
+
+void ServerModeReader::handleSignal(const QString &signal, const QVariantMap &data)
+{
+    Q_UNUSED(data);
+    if (signal == "dirty")
+        emit dirty();
 }
 
 void ServerModeReader::extractCodeModelData(const QVariantMap &data)
