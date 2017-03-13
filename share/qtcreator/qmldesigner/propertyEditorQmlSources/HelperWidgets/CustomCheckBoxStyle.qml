@@ -26,6 +26,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.1
+import QtQuickDesignerTheme 1.0
 
 CheckBoxStyle {
     spacing: 24
@@ -36,9 +37,9 @@ CheckBoxStyle {
         Rectangle {
             anchors.fill: parent
             color: control.pressed
-                   ? creatorTheme.FancyToolButtonHoverColor
-                   : creatorTheme.FancyToolButtonSelectedColor
-            border.color: creatorTheme.QmlDesignerBorderColor
+                   ? Theme.color(Theme.FancyToolButtonHoverColor)
+                   : Theme.color(Theme.FancyToolButtonSelectedColor)
+            border.color: Theme.qmlDesignerBorderColor()
             anchors.margins: 1
         }
         Image {

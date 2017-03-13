@@ -57,8 +57,10 @@ def main():
     doubleClick(manualQMIObj, 5, 5, 0, Qt.LeftButton)
     if not waitFor("not manualQMIObj.collapsed", 2000):
         test.warning("It takes more than two seconds to expand the help content tree.")
+    gettingStartedQModelIndex = getQModelIndexStr("text='Getting Started'", manualQModelIndex)
+    doubleClick(gettingStartedQModelIndex, 5, 5, 0, Qt.LeftButton)
     mouseClick(waitForObject(getQModelIndexStr("text='Building and Running an Example'",
-                                               manualQModelIndex)), 5, 5, 0, Qt.LeftButton)
+                                               gettingStartedQModelIndex)))
     helpSelector = waitForObject(":Qt Creator_HelpSelector_QComboBox")
     pageOpened = "str(helpSelector.currentText).startswith('Building and Running an Example')"
     if not waitFor(pageOpened, 10000):

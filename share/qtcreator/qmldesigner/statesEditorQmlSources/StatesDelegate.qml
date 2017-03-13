@@ -27,6 +27,7 @@ import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
 import "../propertyEditorQmlSources/HelperWidgets"
+import QtQuickDesignerTheme 1.0
 
 Rectangle {
     z: expressionTextField.visible ? 5 : 0
@@ -41,7 +42,7 @@ Rectangle {
     property string delegateWhenConditionString
 
     color: baseColor
-    border.color: creatorTheme.QmlDesignerBorderColor
+    border.color: Theme.qmlDesignerBorderColor()
 
     function autoComplete(text, pos, explicitComplete, filter) {
         var stringList = statesEditorModel.autoComplete(text, pos, explicitComplete)
@@ -174,7 +175,7 @@ Rectangle {
             anchors.margins: -1
             anchors.fill: stateImage
             border.width: 1
-            border.color: creatorTheme.QmlDesignerBackgroundColorDarker
+            border.color: Theme.qmlDesignerBackgroundColorDarker()
         }
         Image {
             id: stateImage

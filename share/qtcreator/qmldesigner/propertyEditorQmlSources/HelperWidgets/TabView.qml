@@ -26,6 +26,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0 as Controls
 import QtQuick.Controls.Styles 1.1
+import QtQuickDesignerTheme 1.0
 
 Controls.TabView {
     id: root
@@ -35,7 +36,7 @@ Controls.TabView {
         frameOverlap: 0
         frame: Item { }
         tab: Rectangle {
-            color: styleData.selected ? creatorTheme.QmlDesignerTabLight : creatorTheme.QmlDesignerTabDark
+            color: styleData.selected ? Theme.qmlDesignerTabLight() : Theme.qmlDesignerTabDark()
             implicitWidth: root.width/root.count + 2
             implicitHeight: 28
             Text {
@@ -45,11 +46,11 @@ Controls.TabView {
                 anchors.verticalCenterOffset: -1
                 text: styleData.title
                 renderType: Text.NativeRendering
-                color: styleData.selected ? creatorTheme.QmlDesignerTabDark : creatorTheme.QmlDesignerTabLight
+                color: styleData.selected ? Theme.qmlDesignerTabDark() : Theme.qmlDesignerTabLight()
             }
 
             Rectangle {
-                color:creatorTheme.QmlDesignerTabLight
+                color:Theme.qmlDesignerTabLight()
                 width: parent.width
                 height: 4
                 anchors.bottom: parent.bottom

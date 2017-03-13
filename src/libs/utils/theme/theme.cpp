@@ -54,7 +54,7 @@ Theme *creatorTheme()
 
 Theme *proxyTheme()
 {
-    return new Theme(*(new ThemePrivate(*(m_creatorTheme->d))));
+    return new Theme(m_creatorTheme);
 }
 
 void setCreatorTheme(Theme *theme)
@@ -74,7 +74,9 @@ Theme::Theme(const QString &id, QObject *parent)
     d->id = id;
 }
 
-Theme::Theme(ThemePrivate &dd, QObject *parent) : QObject(parent), d(&dd)
+Theme::Theme(Theme *originTheme, QObject *parent)
+    : QObject(parent)
+    , d(new ThemePrivate(*(originTheme->d)))
 {
 }
 
@@ -148,29 +150,6 @@ QString Theme::displayName() const
 void Theme::setDisplayName(const QString &name)
 {
     d->displayName = name;
-}
-
-const QVariantMap &Theme::values() const
-{
-    if (d->values.isEmpty()) {
-        const QMetaObject &m = *metaObject();
-        {
-            const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
-            for (int i = 0, total = e.keyCount(); i < total; ++i) {
-                const QString key = QLatin1String(e.key(i));
-                const QPair<QColor, QString> &var = d->colors.at(i);
-                d->values.insert(key, var.first);
-            }
-        }
-        {
-            const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Flag"));
-            for (int i = 0, total = e.keyCount(); i < total; ++i) {
-                const QString key = QLatin1String(e.key(i));
-                d->values.insert(key, flag(static_cast<Theme::Flag>(i)));
-            }
-        }
-    }
-    return d->values;
 }
 
 static QColor readColor(const QString &color)

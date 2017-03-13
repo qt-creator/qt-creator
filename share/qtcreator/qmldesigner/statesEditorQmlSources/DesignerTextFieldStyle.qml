@@ -26,12 +26,13 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
+import QtQuickDesignerTheme 1.0
 
 TextFieldStyle {
-    selectionColor: creatorTheme.PanelTextColorLight
-    selectedTextColor: creatorTheme.PanelTextColorDark
-    textColor: creatorTheme.PanelTextColorLight
-    placeholderTextColor: creatorTheme.PanelTextColorMid
+    selectionColor: Theme.color(Theme.PanelTextColorLight)
+    selectedTextColor: Theme.color(Theme.PanelTextColorDark)
+    textColor: Theme.color(Theme.PanelTextColorLight)
+    placeholderTextColor: Theme.color(Theme.PanelTextColorMid)
 
     padding.top: 4
     padding.bottom: 4
@@ -39,7 +40,7 @@ TextFieldStyle {
     background: Rectangle {
         implicitWidth: 100
         implicitHeight: font.pixelSize + padding.top + padding.bottom
-        color: creatorTheme.FancyToolButtonSelectedColor
-        border.color: creatorTheme.QmlDesignerBackgroundColorDarker
+        color: Theme.color(Theme.FancyToolButtonSelectedColor)
+        border.color: Theme.qmlDesignerBackgroundColorDarker()
     }
 }

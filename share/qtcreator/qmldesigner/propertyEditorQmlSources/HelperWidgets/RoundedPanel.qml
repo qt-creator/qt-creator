@@ -26,6 +26,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0 as Controls
 import QtQuick.Layouts 1.0
+import QtQuickDesignerTheme 1.0
 
 Rectangle {
     id: panel
@@ -43,8 +44,8 @@ Rectangle {
     */
 
     border.width: roundLeft || roundRight ? 1 : 0
-    color: creatorTheme.QmlDesignerButtonColor
-    border.color: creatorTheme.QmlDesignerBorderColor
+    color: Theme.qmlDesignerButtonColor()
+    border.color: Theme.qmlDesignerBorderColor()
 
     Rectangle {
         anchors.fill: parent
@@ -71,7 +72,7 @@ Rectangle {
     }
 
     Rectangle {
-        color: creatorTheme.QmlDesignerBorderColor
+        color: Theme.qmlDesignerBorderColor()
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
@@ -81,7 +82,7 @@ Rectangle {
     }
 
     Rectangle {
-        color: creatorTheme.QmlDesignerBorderColor
+        color: Theme.qmlDesignerBorderColor()
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right

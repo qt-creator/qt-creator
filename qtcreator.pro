@@ -82,6 +82,8 @@ exists(src/shared/qbs/qbs.pro) {
     QBS_DOCS_BUILD_DIR=$$IDE_DOC_PATH
     QBS_HTML_DOC_PATH=$$OUT_PWD/doc/html-qbs
     QBS_DOCS_INSTALL_DIR=$$INSTALL_DOC_PATH
+    QDOC_BIN = $$QDOC
+    HELPGENERATOR = $$QHELPGENERATOR
     include(src/shared/qbs/qbs_version.pri)
     include(src/shared/qbs/doc/doc_targets.pri)
     docs.depends += qbs_docs

@@ -26,10 +26,11 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.1
+import QtQuickDesignerTheme 1.0
 
 SpinBoxStyle {
-    selectionColor: creatorTheme.PanelTextColorLight
-    selectedTextColor: creatorTheme.PanelTextColorMid
+    selectionColor: Theme.color(Theme.PanelTextColorLight)
+    selectedTextColor: Theme.color(Theme.PanelTextColorMid)
     textColor: spinBox.textColor
 
 
@@ -67,7 +68,7 @@ SpinBoxStyle {
     background: Rectangle {
         implicitWidth: Math.max(64, styleData.contentWidth)
         implicitHeight: 24
-        color: creatorTheme.QmlDesignerBackgroundColorDarker
-        border.color: creatorTheme.QmlDesignerBorderColor
+        color: Theme.qmlDesignerBackgroundColorDarker()
+        border.color: Theme.qmlDesignerBorderColor()
     }
 }

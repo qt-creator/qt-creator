@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "disassemblerlines.h"
-#include "debuggerengine.h"
 #include "sourceutils.h"
 #include "debuggercore.h"
 #include "debuggeractions.h"

@@ -2,7 +2,7 @@ VPATH += $$PWD
 
 SOURCES += modelnodecontextmenu.cpp
 SOURCES += changestyleaction.cpp
-SOURCES += theming.cpp
+SOURCES += theme.cpp
 SOURCES += findimplementation.cpp
 SOURCES += addsignalhandlerdialog.cpp
 SOURCES += layoutingridlayout.cpp
@@ -18,7 +18,7 @@ SOURCES += qmldesignericonprovider.cpp
 
 HEADERS += modelnodecontextmenu.h
 HEADERS += changestyleaction.h
-HEADERS += theming.h
+HEADERS += theme.h
 HEADERS += findimplementation.h
 HEADERS += addsignalhandlerdialog.h
 HEADERS += layoutingridlayout.h

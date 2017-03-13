@@ -28,12 +28,19 @@ for (qtc_doc, QTC_DOCS) {
     QTC_DOCS_TARGETDIR = $$QTC_DOCS_TARGET
     QTC_DOCS_OUTPUTDIR = $$QTC_DOCS_BASE_OUTDIR/$$QTC_DOCS_TARGETDIR
 
+    html_docs_$${QTC_DOCS_TARGET}.commands = $$QDOC -outputdir $$shell_quote($$QTC_DOCS_OUTPUTDIR) $$qtc_doc $$DOC_INDEXES
+    QMAKE_EXTRA_TARGETS += html_docs_$${QTC_DOCS_TARGET}
+
     !isEmpty(html_docs.commands): html_docs.commands += &&
-    html_docs.commands += $$QDOC -outputdir $$shell_quote($$QTC_DOCS_OUTPUTDIR) $$qtc_doc $$DOC_INDEXES
+    html_docs.commands += $$eval(html_docs_$${QTC_DOCS_TARGET}.commands)
 
     !build_online_docs {
+        qch_docs_$${QTC_DOCS_TARGET}.commands = $$QHELPGENERATOR $$shell_quote($$QTC_DOCS_OUTPUTDIR/$${QTC_DOCS_TARGET}.qhp) -o $$shell_quote($$IDE_DOC_PATH/$${QTC_DOCS_TARGET}.qch)
+        qch_docs_$${QTC_DOCS_TARGET}.depends = html_docs_$${QTC_DOCS_TARGET}
+        QMAKE_EXTRA_TARGETS += qch_docs_$${QTC_DOCS_TARGET}
+
         !isEmpty(qch_docs.commands): qch_docs.commands += &&
-        qch_docs.commands += $$QHELPGENERATOR $$shell_quote($$QTC_DOCS_OUTPUTDIR/$${QTC_DOCS_TARGET}.qhp) -o $$shell_quote($$IDE_DOC_PATH/$${QTC_DOCS_TARGET}.qch)
+        qch_docs.commands += $$eval(qch_docs_$${QTC_DOCS_TARGET}.commands)
 
         inst_qch_docs.files += $$IDE_DOC_PATH/$${QTC_DOCS_TARGET}.qch
     }

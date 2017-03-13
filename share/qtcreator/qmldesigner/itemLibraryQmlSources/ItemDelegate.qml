@@ -26,6 +26,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.0
+import QtQuickDesignerTheme 1.0
 
 Item {
     Rectangle {
@@ -33,7 +34,7 @@ Item {
         anchors.topMargin: 1
         anchors.fill: parent
 
-        color: creatorTheme.QmlDesignerButtonColor
+        color: Theme.qmlDesignerButtonColor()
 
         Image {
             id: itemIcon // to be set by model
@@ -64,7 +65,7 @@ Item {
             verticalAlignment: Qt.AlignVCenter
             horizontalAlignment: Qt.AlignHCenter
             text: itemName  // to be set by model
-            color: creatorTheme.PanelTextColorLight
+            color: Theme.color(Theme.PanelTextColorLight)
             renderType: Text.NativeRendering
         }
 

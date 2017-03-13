@@ -15,6 +15,9 @@ Module {
     property string pluginsInstallDir: qtc.ide_plugin_path
     property string appInstallDir: qtc.ide_bin_path
     property string libexecInstallDir: qtc.ide_libexec_path
+    property bool installHtml: false
+    property bool installQch: !qbs.targetOS.contains("macos")
+    property string docInstallDir: qtc.ide_doc_path
     property string relativeLibexecPath: FileInfo.relativePath('/' + appInstallDir,
                                                                '/' + libexecInstallDir)
     property string relativePluginsPath: FileInfo.relativePath('/' + appInstallDir,

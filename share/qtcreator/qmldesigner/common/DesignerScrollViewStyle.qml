@@ -26,10 +26,11 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
+import QtQuickDesignerTheme 1.0
 
 ScrollViewStyle {
-    readonly property color scrollbarColor: creatorTheme.BackgroundColorDark
-    readonly property color scrollBarHandleColor: creatorTheme.QmlDesignerButtonColor
+    readonly property color scrollbarColor: Theme.color(Theme.BackgroundColorDark)
+    readonly property color scrollBarHandleColor: Theme.qmlDesignerButtonColor()
 
     padding {left: 0; top: 0; right: 0; bottom: 0}
 
@@ -52,6 +53,8 @@ ScrollViewStyle {
     corner: Item {}
 
     //Even if the platform style reports touch support a scrollview should not be flickable.
-    Component.onCompleted: control.flickableItem.interactive = false
+    Component.onCompleted: {
+        control.flickableItem.interactive = false
+    }
     transientScrollBars: false
 }

@@ -25,6 +25,7 @@
 
 import QtQuick 2.1
 import QtQuick.Controls 1.0
+import QtQuickDesignerTheme 1.0
 
 SpinBox {
     id: spinBox
@@ -34,7 +35,7 @@ SpinBox {
     minimumValue: 0
     maximumValue: 1
 
-    property color textColor: creatorTheme.PanelTextColorLight
+    property color textColor: Theme.color(Theme.PanelTextColorLight)
 
     style: CustomSpinBoxStyle {
 

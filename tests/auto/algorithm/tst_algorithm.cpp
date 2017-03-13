@@ -42,6 +42,16 @@ int stringToInt(const QString &s)
     return s.toInt();
 }
 
+namespace {
+struct Struct
+{
+    Struct(int m) : member(m) {}
+    bool operator==(const Struct &other) const { return member == other.member; }
+
+    int member;
+};
+}
+
 void tst_Algorithm::transform()
 {
     // same container type
@@ -110,16 +120,11 @@ void tst_Algorithm::transform()
         Utils::sort(i3);
         QCOMPARE(i3, QList<int>({1, 1, 3}));
     }
-}
-
-namespace {
-struct Struct
-{
-    Struct(int m) : member(m) {}
-    bool operator==(const Struct &other) const { return member == other.member; }
-
-    int member;
-};
+    {
+        const QList<Struct> list({4, 3, 2, 1, 2});
+        const QList<int> trans = Utils::transform(list, &Struct::member);
+        QCOMPARE(trans, QList<int>({4, 3, 2, 1, 2}));
+    }
 }
 
 void tst_Algorithm::sort()
