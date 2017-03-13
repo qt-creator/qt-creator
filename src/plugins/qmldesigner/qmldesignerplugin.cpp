@@ -283,15 +283,14 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
         if (d && currentEditor && checkIfEditorIsQtQuick(currentEditor) &&
                 !documentIsAlreadyOpen(currentDesignDocument(), currentEditor, newMode)) {
 
-            if (!isDesignerMode(newMode) && isDesignerMode(oldMode))
-                hideDesigner();
-            else if (currentEditor && isDesignerMode(newMode))
+            if (isDesignerMode(newMode)) {
                 showDesigner();
-            else if (currentDesignDocument())
-                hideDesigner();
+            } else if (currentDesignDocument() ||
+                     (!isDesignerMode(newMode) && isDesignerMode(oldMode))) {
+                    hideDesigner();
+            }
         }
     });
-
 
     d->viewManager.designerActionManager().polishActions();
 }
