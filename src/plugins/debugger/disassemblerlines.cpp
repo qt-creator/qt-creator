@@ -225,7 +225,7 @@ QString DisassemblerLine::toString(int maxOp) const
             if (offset)
                 str += QString("<+0x%2>  ").arg(offset, 4, 16, QLatin1Char('0'));
             else
-                str += "          ";
+                str += "           ";
         }
 
         if(boolSetting(ShowOpcode)) {
