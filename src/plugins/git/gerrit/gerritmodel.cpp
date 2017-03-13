@@ -238,8 +238,6 @@ signals:
 private:
     void processError(QProcess::ProcessError);
     void processFinished(int exitCode, QProcess::ExitStatus);
-    void readyReadStandardError();
-    void readyReadStandardOutput();
     void timeout();
 
     void errorTermination(const QString &msg);
@@ -277,10 +275,12 @@ QueryContext::QueryContext(const QString &query,
                 + "&o=CURRENT_REVISION&o=DETAILED_LABELS&o=DETAILED_ACCOUNTS";
         m_arguments = GerritServer::curlArguments() << url;
     }
-    connect(&m_process, &QProcess::readyReadStandardError,
-            this, &QueryContext::readyReadStandardError);
-    connect(&m_process, &QProcess::readyReadStandardOutput,
-            this, &QueryContext::readyReadStandardOutput);
+    connect(&m_process, &QProcess::readyReadStandardError, this, [this] {
+        VcsOutputWindow::appendError(QString::fromLocal8Bit(m_process.readAllStandardError()));
+    });
+    connect(&m_process, &QProcess::readyReadStandardOutput, this, [this] {
+        m_output.append(m_process.readAllStandardOutput());
+    });
     connect(&m_process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, &QueryContext::processFinished);
     connect(&m_process, &QProcess::errorOccurred, this, &QueryContext::processError);
@@ -355,16 +355,6 @@ void QueryContext::processFinished(int exitCode, QProcess::ExitStatus es)
     emit resultRetrieved(m_output);
     m_progress.reportFinished();
     emit finished();
-}
-
-void QueryContext::readyReadStandardError()
-{
-    VcsOutputWindow::appendError(QString::fromLocal8Bit(m_process.readAllStandardError()));
-}
-
-void QueryContext::readyReadStandardOutput()
-{
-    m_output.append(m_process.readAllStandardOutput());
 }
 
 void QueryContext::timeout()
