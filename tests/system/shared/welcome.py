@@ -24,7 +24,7 @@
 ############################################################################
 
 def __getWelcomeScreenButtonHelper__(buttonLabel, widgetWithQFrames):
-    frames = [child for child in object.children(widgetWithQFrames) if className(child) == 'QFrame']
+    frames = [child for child in object.children(widgetWithQFrames) if className(child) == 'QWidget']
     for frame in frames:
         label = getChildByClass(frame, 'QLabel')
         if str(label.text) == buttonLabel:
