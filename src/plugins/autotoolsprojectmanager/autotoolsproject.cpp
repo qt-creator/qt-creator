@@ -74,31 +74,26 @@ AutotoolsProject::AutotoolsProject(const Utils::FileName &fileName) :
 {
     setId(Constants::AUTOTOOLS_PROJECT_ID);
     setDocument(new AutotoolsProjectFile(fileName));
-    setRootProjectNode(new AutotoolsProjectNode(projectDirectory()));
     setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-
-    const QFileInfo fileInfo = projectFilePath().toFileInfo();
-    m_projectName = fileInfo.absoluteDir().dirName();
-    rootProjectNode()->setDisplayName(m_projectName);
 }
 
 AutotoolsProject::~AutotoolsProject()
 {
     delete m_cppCodeModelUpdater;
 
-    setRootProjectNode(0);
+    setRootProjectNode(nullptr);
 
-    if (m_makefileParserThread != 0) {
+    if (m_makefileParserThread) {
         m_makefileParserThread->wait();
         delete m_makefileParserThread;
-        m_makefileParserThread = 0;
+        m_makefileParserThread = nullptr;
     }
 }
 
 QString AutotoolsProject::displayName() const
 {
-    return m_projectName;
+    return projectFilePath().toFileInfo().absoluteDir().dirName();
 }
 
 QString AutotoolsProject::defaultBuildDirectory(const QString &projectPath)
@@ -227,8 +222,10 @@ void AutotoolsProject::makefileParsingFinished()
                              f == QLatin1String("configure.ac")) ? FileType::Project : FileType::Resource,
                             false);
     });
-    rootProjectNode()->makeEmpty();
-    rootProjectNode()->buildTree(fileNodes);
+
+    auto newRoot = new AutotoolsProjectNode(projectDirectory());
+    newRoot->buildTree(fileNodes);
+    setRootProjectNode(newRoot);
 
     updateCppCodeModel();
 

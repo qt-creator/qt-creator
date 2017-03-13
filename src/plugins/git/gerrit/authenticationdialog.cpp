@@ -143,6 +143,7 @@ bool AuthenticationDialog::setupCredentials()
     if (user.isEmpty() || password.isEmpty())
         return false;
 
+    m_server->user.userName = user;
     for (QString &line : m_allMachines) {
         const QString machine = findEntry(line, "machine");
         if (machine == m_server->host) {

@@ -94,7 +94,6 @@ private:
     QStringList convertToAbsoluteFiles(const QStringList &paths) const;
     QmlJS::ModelManagerInterface *modelManager() const;
 
-    QString m_projectName;
     QmlImport m_defaultImport;
     ProjectExplorer::Target *m_activeTarget = 0;
 

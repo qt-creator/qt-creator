@@ -280,7 +280,6 @@ void BuildDirManager::generateProjectTree(CMakeListsNode *root, const QList<cons
 
     const Utils::FileName projectFile = m_buildConfiguration->target()->project()->projectFilePath();
 
-    root->makeEmpty();
     m_reader->generateProjectTree(root, allFiles);
 
     // Make sure the top level CMakeLists.txt is always visible:

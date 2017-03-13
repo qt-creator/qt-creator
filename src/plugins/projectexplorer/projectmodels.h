@@ -85,8 +85,6 @@ signals:
     void requestExpansion(const QModelIndex &index);
 
 private:
-    void nodeUpdated(ProjectExplorer::Node *node);
-
     bool filter(Node *node) const; // Returns true if node is hidden.
 
     bool m_filterProjects = false;
@@ -95,7 +93,6 @@ private:
     static const QLoggingCategory &logger();
 
     void update();
-    void doUpdate();
     void rebuildModel();
     void addProjectNode(WrapperNode *parent, ProjectNode *projectNode, QSet<Node *> *seen);
     void addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<Node *> *seen);

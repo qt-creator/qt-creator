@@ -94,7 +94,6 @@ private:
     QString m_filesFileName;
     QString m_includesFileName;
     QString m_configFileName;
-    QString m_projectName;
     GenericProjectFile *m_filesIDocument;
     GenericProjectFile *m_includesIDocument;
     GenericProjectFile *m_configIDocument;

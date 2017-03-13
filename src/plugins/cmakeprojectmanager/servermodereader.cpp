@@ -687,7 +687,7 @@ void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
             return count != alreadyListed.count();
         });
         const QList<FileNode *> newFileNodes = Utils::transform(newSources, [f](const Utils::FileName &fn) {
-            return new FileNode(fn, FileType::Source, f->isGenerated);
+            return new FileNode(fn, Node::fileTypeForFileName(fn), f->isGenerated);
         });
         toList.append(newFileNodes);
 

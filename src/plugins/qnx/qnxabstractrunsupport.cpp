@@ -26,7 +26,6 @@
 #include "qnxabstractrunsupport.h"
 #include "qnxrunconfiguration.h"
 
-#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
@@ -44,7 +43,7 @@ QnxAbstractRunSupport::QnxAbstractRunSupport(QnxRunConfiguration *runConfig, QOb
     , m_device(DeviceKitInformation::device(runConfig->target()->kit()))
     , m_state(Inactive)
 {
-    m_runner = new DeviceApplicationRunner(this);
+    m_launcher = new ApplicationLauncher(this);
     m_portsGatherer = new DeviceUsedPortsGatherer(this);
 
     connect(m_portsGatherer, &DeviceUsedPortsGatherer::error,
@@ -80,7 +79,7 @@ void QnxAbstractRunSupport::handleRemoteProcessFinished(bool)
 void QnxAbstractRunSupport::setFinished()
 {
     if (m_state != GatheringPorts && m_state != Inactive)
-        m_runner->stop();
+        m_launcher->stop();
 
     m_state = Inactive;
 }
@@ -95,9 +94,9 @@ void QnxAbstractRunSupport::setState(QnxAbstractRunSupport::State state)
     m_state = state;
 }
 
-DeviceApplicationRunner *QnxAbstractRunSupport::appRunner() const
+ApplicationLauncher *QnxAbstractRunSupport::appRunner() const
 {
-    return m_runner;
+    return m_launcher;
 }
 
 const IDevice::ConstPtr QnxAbstractRunSupport::device() const

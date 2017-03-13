@@ -131,7 +131,7 @@ public:
 private:
     QbsGroupNode *findGroupNode(const QString &name);
 
-    qbs::ProductData m_qbsProductData;
+    const qbs::ProductData m_qbsProductData;
     static QIcon m_productIcon;
 };
 

@@ -67,6 +67,8 @@
 #include <qplugin.h>
 #include <QDebug>
 #include <QProcessEnvironment>
+#include <QScreen>
+#include <QWindow>
 
 Q_LOGGING_CATEGORY(qmldesignerLog, "qtc.qmldesigner")
 
@@ -481,6 +483,17 @@ void QmlDesignerPlugin::emitCurrentTextEditorChanged(Core::IEditor *editor)
     d->blockEditorChange = true;
     Core::EditorManager::instance()->currentEditorChanged(editor);
     d->blockEditorChange = false;
+}
+
+double QmlDesignerPlugin::formEditorDevicePixelRatio()
+{
+    if (DesignerSettings::getValue(DesignerSettingsKey::IGNORE_DEVICE_PIXEL_RATIO).toBool())
+        return 1;
+
+    const QList<QWindow *> topLevelWindows = QApplication::topLevelWindows();
+    if (topLevelWindows.isEmpty())
+        return 1;
+    return topLevelWindows.first()->screen()->devicePixelRatio();
 }
 
 QmlDesignerPlugin *QmlDesignerPlugin::instance()

@@ -92,7 +92,6 @@ void setupQbsProductData(QbsProjectManager::Internal::QbsProductNode *node,
                          const qbs::ProductData &prd, const qbs::Project &project)
 {
     using namespace QbsProjectManager::Internal;
-    node->makeEmpty();
 
     node->setEnabled(prd.isEnabled());
 
@@ -170,7 +169,9 @@ QSet<QString> referencedBuildSystemFiles(const qbs::ProjectData &data)
 
 QStringList unreferencedBuildSystemFiles(const qbs::Project &p)
 {
-    return p.buildSystemFiles().subtract(referencedBuildSystemFiles(p.projectData())).toList();
+    return p.isValid()
+            ? p.buildSystemFiles().subtract(referencedBuildSystemFiles(p.projectData())).toList()
+            : QStringList();
 }
 
 } // namespace
@@ -178,13 +179,11 @@ QStringList unreferencedBuildSystemFiles(const qbs::Project &p)
 namespace QbsProjectManager {
 namespace Internal {
 
-void QbsNodeTreeBuilder::buildTree(QbsProject *project)
+QbsRootProjectNode *QbsNodeTreeBuilder::buildTree(QbsProject *project)
 {
-    QbsRootProjectNode *root = project->rootProjectNode();
-    QTC_ASSERT(root, return);
-    root->makeEmpty();
-
-    root->addNode(new ProjectExplorer::FileNode(project->projectFilePath(), ProjectExplorer::FileType::Project, false));
+    auto root = new QbsRootProjectNode(project);
+    root->addNode(new ProjectExplorer::FileNode(project->projectFilePath(),
+                                                ProjectExplorer::FileType::Project, false));
 
     auto buildSystemFiles
             = new ProjectExplorer::FolderNode(project->projectDirectory(),
@@ -203,8 +202,7 @@ void QbsNodeTreeBuilder::buildTree(QbsProject *project)
     root->addNode(buildSystemFiles);
 
     setupProjectNode(root, project->qbsProjectData(), project->qbsProject());
-    root->emitNodeUpdated();
-    root->emitTreeChanged();
+    return root;
 }
 
 } // namespace Internal

@@ -29,6 +29,8 @@
 
 #include <coreplugin/icontext.h>
 
+#include <functional>
+
 namespace ProjectExplorer {
 class FileNode;
 class FolderNode;
@@ -62,21 +64,24 @@ public:
 
     static void highlightProject(Project *project, const QString &message);
 
+    using TreeManagerFunction = std::function<void(FolderNode *)>;
+    static void registerTreeManager(const TreeManagerFunction &treeChange);
+    static void applyTreeManager(FolderNode *folder);
+
+    void collapseAll();
+
 signals:
     void currentProjectChanged(ProjectExplorer::Project *project);
     void currentNodeChanged();
 
     // Emitted whenever the model needs to send a update signal.
-    void nodeUpdated(ProjectExplorer::Node *node);
-    void dataChanged();
+    void subtreeChanged(ProjectExplorer::FolderNode *node);
 
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
                                 ProjectExplorer::Node *node);
 
 public: // for nodes to emit signals, do not call unless you are a node
-    static void emitNodeUpdated(ProjectExplorer::Node *node);
-    static void emitDataChanged();
-    void collapseAll();
+    static void emitSubtreeChanged(FolderNode *node);
 
 private:
     void sessionChanged();
@@ -93,11 +98,11 @@ private:
     void updateExternalFileWarning();
     static bool hasFocus(Internal::ProjectTreeWidget *widget);
     void hideContextMenu();
-    bool isInNodeHierarchy(Node *n);
 
 private:
     static ProjectTree *s_instance;
     QList<QPointer<Internal::ProjectTreeWidget>> m_projectTreeWidgets;
+    QVector<TreeManagerFunction> m_treeManagers;
     QPointer<Node> m_currentNode;
     Project *m_currentProject = nullptr;
     Internal::ProjectTreeWidget *m_focusForContextMenu = nullptr;

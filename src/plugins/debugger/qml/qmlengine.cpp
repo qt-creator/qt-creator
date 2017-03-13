@@ -2144,19 +2144,16 @@ StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal)
         return stackFrame;
     }
 
-    QmlV8ObjectData objectData = extractData(body.value("func"));
-    QString functionName = objectData.value.toString();
-    if (functionName.isEmpty())
-        functionName = QCoreApplication::translate("QmlEngine", "Anonymous Function");
-    stackFrame.function = functionName;
+    auto extractString = [this](const QVariant &item) {
+        return ((item.type() == QVariant::String) ? item : extractData(item).value).toString();
+    };
 
-    objectData = extractData(body.value("script"));
-    stackFrame.file = engine->toFileInProject(objectData.value.toString());
+    stackFrame.function = extractString(body.value("func"));
+    if (stackFrame.function.isEmpty())
+        stackFrame.function = QCoreApplication::translate("QmlEngine", "Anonymous Function");
+    stackFrame.file = engine->toFileInProject(extractString(body.value("script")));
     stackFrame.usable = QFileInfo(stackFrame.file).isReadable();
-
-    objectData = extractData(body.value("receiver"));
-    stackFrame.receiver = objectData.value.toString();
-
+    stackFrame.receiver = extractString(body.value("receiver"));
     stackFrame.line = body.value("line").toInt() + 1;
 
     return stackFrame;

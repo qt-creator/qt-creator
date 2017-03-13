@@ -97,8 +97,6 @@ private:
      */
     void updateCppCodeModel();
 
-    QString m_projectName;
-
     /// Return value for AutotoolsProject::files()
     QStringList m_files;
 

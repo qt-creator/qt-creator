@@ -124,7 +124,6 @@ HEADERS += projectexplorer.h \
     devicesupport/devicesettingspage.h \
     devicesupport/devicetestdialog.h \
     devicesupport/deviceusedportsgatherer.h \
-    devicesupport/deviceapplicationrunner.h \
     devicesupport/localprocesslist.h \
     devicesupport/sshdeviceprocess.h \
     devicesupport/sshdeviceprocesslist.h \
@@ -265,7 +264,6 @@ SOURCES += projectexplorer.cpp \
     devicesupport/devicesettingspage.cpp \
     devicesupport/devicetestdialog.cpp \
     devicesupport/deviceusedportsgatherer.cpp \
-    devicesupport/deviceapplicationrunner.cpp \
     devicesupport/localprocesslist.cpp \
     devicesupport/sshdeviceprocess.cpp \
     devicesupport/sshdeviceprocesslist.cpp \

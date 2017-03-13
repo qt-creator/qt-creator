@@ -57,10 +57,9 @@ const char ENABLE_MODEL_EXCEPTION_OUTPUT[] = "WarnException";
 const char PUPPET_KILL_TIMEOUT[] = "PuppetKillTimeout";
 const char DEBUG_PUPPET[] = "DebugPuppet";
 const char FORWARD_PUPPET_OUTPUT[] = "ForwardPuppetOutput";
-const char REFORMAT_UI_QML_FILES[] = "ReformatUiQmlFiles"; /* This Setting is not exposed in ui.
-                                                              The setting can be used to turn off the feature,
-                                                              if there are serious issues */
 const char STATESEDITOR_EXPANDED[] = "StatesEditorExpanded";
+const char REFORMAT_UI_QML_FILES[] = "ReformatUiQmlFiles";        /* These settings are not exposed in ui. */
+const char IGNORE_DEVICE_PIXEL_RATIO[] = "IgnoreDevicePixelRaio"; /* The settings can be used to turn off the feature, if there are serious issues */
 }
 
 class DesignerSettings : public QHash<QByteArray, QVariant>

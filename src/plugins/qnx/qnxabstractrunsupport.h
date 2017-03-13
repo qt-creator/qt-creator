@@ -33,7 +33,7 @@
 #include <QString>
 
 namespace ProjectExplorer {
-class DeviceApplicationRunner;
+class ApplicationLauncher;
 class DeviceUsedPortsGatherer;
 }
 
@@ -64,7 +64,7 @@ protected:
     State state() const;
     void setState(State state);
 
-    ProjectExplorer::DeviceApplicationRunner *appRunner() const;
+    ProjectExplorer::ApplicationLauncher *appRunner() const;
     const ProjectExplorer::IDevice::ConstPtr device() const;
 
 public slots:
@@ -83,7 +83,7 @@ private:
     ProjectExplorer::DeviceUsedPortsGatherer * m_portsGatherer;
     Utils::PortList m_portList;
     ProjectExplorer::IDevice::ConstPtr m_device;
-    ProjectExplorer::DeviceApplicationRunner *m_runner;
+    ProjectExplorer::ApplicationLauncher *m_launcher;
     State m_state;
 };
 

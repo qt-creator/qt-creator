@@ -73,12 +73,8 @@ static bool sortWrapperNodes(const WrapperNode *w1, const WrapperNode *w2)
 FlatModel::FlatModel(QObject *parent)
     : TreeModel<WrapperNode, WrapperNode>(new WrapperNode(SessionManager::sessionNode()), parent)
 {
-    m_timer.setInterval(200);
-    connect(&m_timer, &QTimer::timeout, this, &FlatModel::doUpdate);
-
     ProjectTree *tree = ProjectTree::instance();
-    connect(tree, &ProjectTree::dataChanged, this, &FlatModel::update);
-    connect(tree, &ProjectTree::nodeUpdated, this, &FlatModel::nodeUpdated);
+    connect(tree, &ProjectTree::subtreeChanged, this, &FlatModel::update);
 
     SessionManager *sm = SessionManager::instance();
     connect(sm, &SessionManager::projectRemoved, this, &FlatModel::update);
@@ -186,12 +182,6 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
 
 void FlatModel::update()
 {
-    m_timer.start(300);
-}
-
-void FlatModel::doUpdate()
-{
-    m_timer.stop();
     rebuildModel();
 }
 
@@ -244,7 +234,7 @@ void FlatModel::handleProjectAdded(Project *project)
             m_toExpand.insert(expandDataForNode(child->m_node));
         });
     }
-    doUpdate();
+    update();
 }
 
 void FlatModel::loadExpandData()
@@ -392,11 +382,6 @@ bool isSorted(const QList<Node *> &nodes)
             return false;
     }
     return true;
-}
-
-void FlatModel::nodeUpdated(Node *)
-{
-    update();
 }
 
 namespace Internal {

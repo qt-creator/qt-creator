@@ -32,7 +32,6 @@
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
-#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runnables.h>
@@ -56,13 +55,13 @@ QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::Debug
     , m_useCppDebugger(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger())
     , m_useQmlDebugger(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useQmlDebugger())
 {
-    const DeviceApplicationRunner *runner = appRunner();
-    connect(runner, &DeviceApplicationRunner::reportError, this, &QnxDebugSupport::handleError);
-    connect(runner, &DeviceApplicationRunner::remoteProcessStarted, this, &QnxDebugSupport::handleRemoteProcessStarted);
-    connect(runner, &DeviceApplicationRunner::finished, this, &QnxDebugSupport::handleRemoteProcessFinished);
-    connect(runner, &DeviceApplicationRunner::reportProgress, this, &QnxDebugSupport::handleProgressReport);
-    connect(runner, &DeviceApplicationRunner::remoteStdout, this, &QnxDebugSupport::handleRemoteOutput);
-    connect(runner, &DeviceApplicationRunner::remoteStderr, this, &QnxDebugSupport::handleRemoteOutput);
+    const ApplicationLauncher *runner = appRunner();
+    connect(runner, &ApplicationLauncher::reportError, this, &QnxDebugSupport::handleError);
+    connect(runner, &ApplicationLauncher::remoteProcessStarted, this, &QnxDebugSupport::handleRemoteProcessStarted);
+    connect(runner, &ApplicationLauncher::finished, this, &QnxDebugSupport::handleRemoteProcessFinished);
+    connect(runner, &ApplicationLauncher::reportProgress, this, &QnxDebugSupport::handleProgressReport);
+    connect(runner, &ApplicationLauncher::remoteStdout, this, &QnxDebugSupport::handleRemoteOutput);
+    connect(runner, &ApplicationLauncher::remoteStderr, this, &QnxDebugSupport::handleRemoteOutput);
 
     connect(m_runControl, &Debugger::DebuggerRunControl::requestRemoteSetup,
             this, &QnxDebugSupport::handleAdapterSetupRequested);
@@ -73,7 +72,7 @@ QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::Debug
 
     m_slog2Info = new Slog2InfoRunner(applicationId, qnxDevice, this);
     connect(m_slog2Info, &Slog2InfoRunner::output, this, &QnxDebugSupport::handleApplicationOutput);
-    connect(runner, &DeviceApplicationRunner::remoteProcessStarted, m_slog2Info, &Slog2InfoRunner::start);
+    connect(runner, &ApplicationLauncher::remoteProcessStarted, m_slog2Info, &Slog2InfoRunner::start);
     if (qnxDevice->qnxVersion() > 0x060500)
         connect(m_slog2Info, &Slog2InfoRunner::commandMissing, this, &QnxDebugSupport::printMissingWarning);
 }

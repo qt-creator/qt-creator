@@ -37,7 +37,7 @@ namespace QmakeProjectManager {
 class QmakeNodeTreeBuilder
 {
 public:
-    static QmakeProFileNode *buildTree(const QmakeProFile *rootProFile, QmakeProFileNode *rootNode);
+    static QmakeProFileNode *buildTree(QmakeProject *project);
 };
 
 } // namespace QmakeProjectManager
