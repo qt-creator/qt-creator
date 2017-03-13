@@ -200,8 +200,6 @@ void SessionManager::updateProjectTree(Project *pro)
             break;
         }
     }
-    if (!currentPair)
-        return;
 
     if (!currentPair)
         return; // Project was already de-registered and is shutting down
@@ -675,7 +673,7 @@ Project *SessionManager::projectForNode(Node *node)
     while (rootProjectNode && rootProjectNode->parentFolderNode() != &d->m_sessionNode)
         rootProjectNode = rootProjectNode->parentFolderNode();
 
-    for (const QPair<Project *,ProjectNode*> pair : d->m_projects) {
+    for (const QPair<Project *, ProjectNode *> &pair : d->m_projects) {
         if (pair.second == rootProjectNode)
             return pair.first;
     }
