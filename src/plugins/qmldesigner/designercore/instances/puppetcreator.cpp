@@ -414,7 +414,9 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
         environment.set(QLatin1String("QT_LABS_CONTROLS_STYLE"), controlsStyle);
     }
 
+#ifndef QMLDESIGNER_TEST
     environment.set(QLatin1String("FORMEDITOR_DEVICE_PIXEL_RATIO"), QString::number(QmlDesignerPlugin::formEditorDevicePixelRatio()));
+#endif
 
     const QString styleConfigFileName = getStyleConfigFileName();
 
