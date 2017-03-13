@@ -1969,15 +1969,15 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
 
 
     // FIXME BP: m_engine->threadsHandler()->currentThreadId();
-    int threadId = 0;
-    addAction(menu,
-              threadId == -1 ? tr("Associate Breakpoint with All Threads")
-                             : tr("Associate Breakpoint with Thread %1").arg(threadId),
-              !selectedItems.isEmpty(),
-              [this, selectedItems, threadId] {
-                    for (Breakpoint bp : selectedItems)
-                        bp.setThreadSpec(threadId);
-              });
+    // int threadId = 0;
+    // addAction(menu,
+    //           threadId == -1 ? tr("Associate Breakpoint with All Threads")
+    //                          : tr("Associate Breakpoint with Thread %1").arg(threadId),
+    //           !selectedItems.isEmpty(),
+    //           [this, selectedItems, threadId] {
+    //                 for (Breakpoint bp : selectedItems)
+    //                     bp.setThreadSpec(threadId);
+    //           });
 
     addAction(menu,
               selectedItems.size() > 1
