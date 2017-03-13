@@ -60,7 +60,8 @@ static FolderNode *folderNode(const FolderNode *folder, const Utils::FileName &d
 
 static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
                                                    const Utils::FileName &directory,
-                                                   const Utils::FileName &overrideBaseDir)
+                                                   const Utils::FileName &overrideBaseDir,
+                                                   const FolderNode::FolderNodeFactory &factory)
 {
     Utils::FileName path = overrideBaseDir.isEmpty() ? folder->filePath() : overrideBaseDir;
 
@@ -90,7 +91,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
         FolderNode *next = folderNode(parent, path);
         if (!next) {
             // No FolderNode yet, so create it
-            auto tmp = new ProjectExplorer::FolderNode(path);
+            auto tmp = factory(path);
             tmp->setDisplayName(part);
             parent->addNode(tmp);
             next = tmp;
@@ -460,20 +461,22 @@ QList<FolderNode*> FolderNode::folderNodes() const
     return result;
 }
 
-void FolderNode::addNestedNode(FileNode *fileNode, const Utils::FileName &overrideBaseDir)
+void FolderNode::addNestedNode(FileNode *fileNode, const Utils::FileName &overrideBaseDir,
+                               const FolderNodeFactory &factory)
 {
     // Get relative path to rootNode
     QString parentDir = fileNode->filePath().toFileInfo().absolutePath();
     FolderNode *folder = recursiveFindOrCreateFolderNode(this, Utils::FileName::fromString(parentDir),
-                                                         overrideBaseDir);
+                                                         overrideBaseDir, factory);
     folder->addNode(fileNode);
 
 }
 
-void FolderNode::addNestedNodes(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir)
+void FolderNode::addNestedNodes(const QList<FileNode *> &files, const Utils::FileName &overrideBaseDir,
+                                const FolderNodeFactory &factory)
 {
     for (FileNode *fn : files)
-        addNestedNode(fn, overrideBaseDir);
+        addNestedNode(fn, overrideBaseDir, factory);
 }
 
 // "Compress" a tree of foldernodes such that foldernodes with exactly one foldernode as a child

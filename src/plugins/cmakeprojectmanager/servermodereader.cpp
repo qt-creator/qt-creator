@@ -531,87 +531,31 @@ void ServerModeReader::addCMakeLists(CMakeListsNode *root, const QList<FileNode 
 {
     const QDir baseDir = QDir(m_parameters.sourceDirectory.toString());
 
-    QHash<QString, FileNode *> nodeHash;
-    for (FileNode *cm : cmakeLists) {
-        const QString relPath = baseDir.relativeFilePath(cm->filePath().parentDir().toString());
-        QTC_CHECK(!nodeHash.contains(relPath));
-        nodeHash[(relPath == ".") ? QString() : relPath ] = cm;
-    }
-    QStringList tmp = nodeHash.keys();
-    Utils::sort(tmp, [](const QString &a, const QString &b) { return a.count() < b.count(); });
-    const QStringList keys = tmp;
-
-    QHash<QString, CMakeListsNode *> knownNodes;
-    knownNodes[QString()] = root;
-
-    for (const QString &k : keys) {
-        FileNode *fn = nodeHash[k];
-        CMakeListsNode *parentNode = nullptr;
-        QString prefix = k;
-        forever {
-            if (knownNodes.contains(prefix)) {
-                parentNode = knownNodes.value(prefix);
-                break;
-            }
-            const int pos = prefix.lastIndexOf('/');
-            prefix = (pos < 0) ? QString() : prefix.left(prefix.lastIndexOf('/'));
-        }
-
-        // Find or create CMakeListsNode:
-        CMakeListsNode *cmln = nullptr;
-        if (parentNode->filePath() == fn->filePath())
-            cmln = parentNode; // Top level!
+    root->addNestedNodes(cmakeLists, Utils::FileName(),
+                         [&cmakeLists](const Utils::FileName &fp) -> ProjectExplorer::FolderNode * {
+        if (Utils::contains(cmakeLists, [&fp](const FileNode *fn) { return fn->filePath().parentDir() == fp; }))
+            return new CMakeListsNode(fp);
         else
-            cmln = static_cast<CMakeListsNode *>(parentNode->projectNode(fn->filePath()));
-        if (!cmln) {
-            cmln = new CMakeListsNode(fn->filePath());
-            parentNode->addNode(cmln);
-        }
-
-        // Find or create CMakeLists.txt filenode below CMakeListsNode:
-        FileNode *cmFn = cmln->fileNode(fn->filePath());
-        if (!cmFn) {
-            cmFn = fn;
-            cmln->addNode(cmFn);
-        }
-        // Update displayName of CMakeListsNode:
-        const QString dn = prefix.isEmpty() ? k : k.mid(prefix.count() + 1);
-        if (!dn.isEmpty())
-            cmln->setDisplayName(dn); // Set partial path as display name
-
-        knownNodes.insert(k, cmln);
-    }
+            return new FolderNode(fp);
+    });
 }
 
 static CMakeListsNode *findCMakeNode(CMakeListsNode *root, const Utils::FileName &dir)
 {
     const Utils::FileName stepDir = dir;
-    const Utils::FileName topDir = root->filePath().parentDir();
+    const Utils::FileName topDir = root->filePath();
 
     QStringList relative = stepDir.relativeChildPath(topDir).toString().split('/', QString::SkipEmptyParts);
 
-    CMakeListsNode *result = root;
-
-    QString relativePathElement;
+    FolderNode *result = root;
     while (!relative.isEmpty()) {
-        const QString nextDirPath = result->filePath().parentDir().toString();
-        Utils::FileName nextFullPath;
-        // Some directory may not contain CMakeLists.txt file, skip it:
-        do {
-            relativePathElement += '/' + relative.takeFirst();
-            nextFullPath = Utils::FileName::fromString(nextDirPath + relativePathElement + "/CMakeLists.txt");
-        } while (!nextFullPath.exists() && !relative.isEmpty());
-        result = static_cast<CMakeListsNode *>(result->projectNode(nextFullPath));
-        // Intermediate directory can contain CMakeLists.txt file
-        // that is not a part of the root node, skip it:
-        if (!result && !relative.isEmpty()) {
-            result = root;
-        } else {
-            relativePathElement.clear();
-        }
-        QTC_ASSERT(result, return nullptr);
+        Utils::FileName nextFullPath = result->filePath();
+        nextFullPath.appendPath(relative.takeFirst());
+        result = findOrDefault(result->folderNodes(), Utils::equal(&FolderNode::filePath, nextFullPath));
+        if (!result)
+            return nullptr;
     }
-    return result;
+    return dynamic_cast<CMakeListsNode *>(result);
 }
 
 static CMakeProjectNode *findOrCreateProjectNode(CMakeListsNode *root, const Utils::FileName &dir,

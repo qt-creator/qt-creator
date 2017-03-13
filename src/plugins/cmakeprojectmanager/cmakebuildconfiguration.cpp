@@ -218,7 +218,7 @@ QList<CMakeBuildTarget> CMakeBuildConfiguration::buildTargets() const
 CMakeListsNode *
 CMakeBuildConfiguration::generateProjectTree(const QList<const FileNode*> &allFiles) const
 {
-    auto root = new CMakeListsNode(target()->project()->projectFilePath());
+    auto root = new CMakeListsNode(target()->project()->projectDirectory());
     if (!m_buildDirManager || m_buildDirManager->isParsing())
         return nullptr;
 
