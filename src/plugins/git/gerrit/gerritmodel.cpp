@@ -233,6 +233,7 @@ public:
 
 signals:
     void resultRetrieved(const QByteArray &);
+    void errorText(const QString &text);
     void finished();
 
 private:
@@ -247,6 +248,7 @@ private:
     QTimer m_timer;
     QString m_binary;
     QByteArray m_output;
+    QString m_error;
     QFutureInterface<void> m_progress;
     QFutureWatcher<void> m_watcher;
     QStringList m_arguments;
@@ -276,7 +278,9 @@ QueryContext::QueryContext(const QString &query,
         m_arguments = GerritServer::curlArguments() << url;
     }
     connect(&m_process, &QProcess::readyReadStandardError, this, [this] {
-        VcsOutputWindow::appendError(QString::fromLocal8Bit(m_process.readAllStandardError()));
+        const QString text = QString::fromLocal8Bit(m_process.readAllStandardError());
+        VcsOutputWindow::appendError(text);
+        m_error.append(text);
     });
     connect(&m_process, &QProcess::readyReadStandardOutput, this, [this] {
         m_output.append(m_process.readAllStandardOutput());
@@ -345,6 +349,7 @@ void QueryContext::processFinished(int exitCode, QProcess::ExitStatus es)
 {
     if (m_timer.isActive())
         m_timer.stop();
+    emit errorText(m_error);
     if (es != QProcess::NormalExit) {
         errorTermination(tr("%1 crashed.").arg(m_binary));
         return;
@@ -510,6 +515,7 @@ void GerritModel::refresh(const QSharedPointer<GerritServer> &server, const QStr
 
     m_query = new QueryContext(realQuery, m_parameters, *m_server, this);
     connect(m_query, &QueryContext::resultRetrieved, this, &GerritModel::resultRetrieved);
+    connect(m_query, &QueryContext::errorText, this, &GerritModel::errorText);
     connect(m_query, &QueryContext::finished, this, &GerritModel::queryFinished);
     emit refreshStateChanged(true);
     m_query->start();

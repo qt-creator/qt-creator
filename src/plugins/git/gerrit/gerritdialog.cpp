@@ -124,6 +124,11 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
             m_refreshButton, &QWidget::setDisabled);
     connect(m_model, &GerritModel::refreshStateChanged,
             this, &GerritDialog::slotRefreshStateChanged);
+    connect(m_model, &GerritModel::errorText,
+            this, [this](const QString &text) {
+        if (text.contains("returned error: 401"))
+            updateRemotes(true);
+    }, Qt::QueuedConnection);
 
     setCurrentPath(repository);
     slotCurrentChanged();

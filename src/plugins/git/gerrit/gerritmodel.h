@@ -127,6 +127,7 @@ public:
 signals:
     void refreshStateChanged(bool isRefreshing); // For disabling the "Refresh" button.
     void stateChanged();
+    void errorText(const QString &text);
 
 private:
     void resultRetrieved(const QByteArray &);
