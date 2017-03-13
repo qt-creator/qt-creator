@@ -51,6 +51,7 @@ class NamedWidget;
 class ProjectImporter;
 class ProjectNode;
 class ProjectPrivate;
+class Session;
 class Target;
 
 // Documentation inside.
@@ -141,6 +142,7 @@ public:
     Utils::MacroExpander *macroExpander() const;
 
 signals:
+    void projectTreeChanged(Project *project, QPrivateSignal);
     void displayNameChanged();
     void fileListChanged();
 
@@ -188,6 +190,8 @@ private:
 
     void setActiveTarget(Target *target);
     ProjectPrivate *d;
+
+    friend class Session;
 };
 
 } // namespace ProjectExplorer

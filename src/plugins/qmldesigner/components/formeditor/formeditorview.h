@@ -130,6 +130,7 @@ private: //functions
     void removeNodeFromScene(const QmlItemNode &qmlItemNode);
     void hideNodeFromScene(const QmlItemNode &qmlItemNode);
     void createFormEditorWidget();
+    void temporaryBlockView();
 
 private: //variables
     QPointer<FormEditorWidget> m_formEditorWidget;

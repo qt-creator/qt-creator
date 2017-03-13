@@ -30,7 +30,7 @@
 
 namespace Debugger { class DebuggerRunControl; }
 
-namespace ProjectExplorer { class DeviceApplicationRunner; }
+namespace ProjectExplorer { class ApplicationLauncher; }
 
 namespace BareMetal {
 namespace Internal {
@@ -64,7 +64,7 @@ private:
     void reset();
     void showMessage(const QString &msg, int channel);
 
-    ProjectExplorer::DeviceApplicationRunner *m_appRunner;
+    ProjectExplorer::ApplicationLauncher *m_appLauncher;
     const QPointer<Debugger::DebuggerRunControl> m_runControl;
     BareMetalDebugSupport::State m_state;
 };

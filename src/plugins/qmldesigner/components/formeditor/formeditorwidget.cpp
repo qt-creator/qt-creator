@@ -381,6 +381,11 @@ void FormEditorWidget::exportAsImage(const QRectF &boundingRect)
     }
 }
 
+FormEditorGraphicsView *FormEditorWidget::graphicsView() const
+{
+    return m_graphicsView;
+}
+
 DocumentWarningWidget *FormEditorWidget::errorWidget()
 {
     if (m_documentErrorWidget.isNull()) {

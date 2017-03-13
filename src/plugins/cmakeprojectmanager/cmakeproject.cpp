@@ -77,17 +77,14 @@ CMakeProject::CMakeProject(const FileName &fileName)
     : m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
-    setDocument(new TextEditor::TextDocument);
-    document()->setFilePath(fileName);
+    auto doc = new TextEditor::TextDocument;
+    doc->setFilePath(fileName);
+    setDocument(doc);
 
-    setRootProjectNode(new CMakeListsNode(fileName));
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
-    rootProjectNode()->setDisplayName(fileName.parentDir().fileName());
-
     connect(this, &CMakeProject::activeTargetChanged, this, &CMakeProject::handleActiveTargetChanged);
-
     connect(&m_treeScanner, &TreeScanner::finished, this, &CMakeProject::handleTreeScanningFinished);
 
     m_treeScanner.setFilter([this](const Utils::MimeType &mimeType, const Utils::FileName &fn) {
@@ -134,7 +131,6 @@ CMakeProject::~CMakeProject()
         future.waitForFinished();
     }
     delete m_cppCodeModelUpdater;
-    setRootProjectNode(nullptr);
     qDeleteAll(m_extraCompilers);
     qDeleteAll(m_allFiles);
 }
@@ -152,7 +148,9 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     Kit *k = t->kit();
 
-    bc->generateProjectTree(static_cast<CMakeListsNode *>(rootProjectNode()), m_allFiles);
+    auto newRoot = bc->generateProjectTree(m_allFiles);
+    if (newRoot)
+        setRootProjectNode(newRoot);
 
     updateApplicationAndDeploymentTargets();
     updateTargetRunConfigurations(t);
@@ -305,7 +303,8 @@ bool CMakeProject::hasBuildTarget(const QString &title) const
 
 QString CMakeProject::displayName() const
 {
-    return rootProjectNode()->displayName();
+    auto root = dynamic_cast<CMakeProjectNode *>(rootProjectNode());
+    return root ? root->displayName() : projectDirectory().fileName();
 }
 
 QStringList CMakeProject::files(FilesMode fileMode) const

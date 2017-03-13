@@ -35,7 +35,7 @@
 namespace Debugger { class DebuggerRunControl; }
 
 namespace ProjectExplorer {
-class DeviceApplicationRunner;
+class ApplicationLauncher;
 class DeviceUsedPortsGatherer;
 class Kit;
 }
@@ -68,7 +68,7 @@ private:
     ProjectExplorer::IDevice::ConstPtr m_device;
     ProjectExplorer::DeviceProcessItem m_process;
 
-    ProjectExplorer::DeviceApplicationRunner *m_runner;
+    ProjectExplorer::ApplicationLauncher *m_launcher;
     ProjectExplorer::DeviceUsedPortsGatherer *m_portsGatherer;
     Debugger::DebuggerRunControl *m_runControl = 0;
 

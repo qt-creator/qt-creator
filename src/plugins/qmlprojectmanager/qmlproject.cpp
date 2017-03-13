@@ -60,12 +60,9 @@ QmlProject::QmlProject(const Utils::FileName &fileName) :
     setId("QmlProjectManager.QmlProject");
     setDocument(new Internal::QmlProjectFile(this, fileName));
     DocumentManager::addDocument(document(), true);
-    setRootProjectNode(new Internal::QmlProjectNode(this));
 
     setProjectContext(Context(QmlProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID));
-
-    m_projectName = projectFilePath().toFileInfo().completeBaseName();
 }
 
 QmlProject::~QmlProject()
@@ -273,7 +270,7 @@ void QmlProject::refreshFiles(const QSet<QString> &/*added*/, const QSet<QString
 
 QString QmlProject::displayName() const
 {
-    return m_projectName;
+    return projectFilePath().toFileInfo().completeBaseName();
 }
 
 bool QmlProject::supportsKit(Kit *k, QString *errorMessage) const
@@ -396,8 +393,9 @@ void QmlProject::generateProjectTree()
         return new FileNode(Utils::FileName::fromString(f), fileType, false);
     });
 
-    rootProjectNode()->makeEmpty();
-    rootProjectNode()->buildTree(fileNodes);
+    auto newRoot = new Internal::QmlProjectNode(this);
+    newRoot->buildTree(fileNodes);
+    setRootProjectNode(newRoot);
 }
 
 } // namespace QmlProjectManager

@@ -33,7 +33,7 @@
 #include <QObject>
 
 namespace ProjectExplorer {
-class DeviceApplicationRunner;
+class ApplicationLauncher;
 class RunConfiguration;
 class StandardRunnable;
 }
@@ -61,7 +61,7 @@ public:
 protected:
     void setState(State state);
     State state() const;
-    ProjectExplorer::DeviceApplicationRunner *appRunner() const;
+    ProjectExplorer::ApplicationLauncher *appRunner() const;
 
     virtual void startExecution() = 0;
 

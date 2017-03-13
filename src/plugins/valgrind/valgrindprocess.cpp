@@ -242,7 +242,7 @@ bool ValgrindProcess::isLocal() const
 
 void ValgrindProcess::localProcessStarted()
 {
-    m_pid = m_localProcess.applicationPID();
+    m_pid = m_localProcess.applicationPID().pid();
     emit started();
 }
 

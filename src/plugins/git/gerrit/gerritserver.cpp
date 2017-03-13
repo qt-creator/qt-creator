@@ -126,22 +126,22 @@ bool GerritServer::fillFromRemote(const QString &remote, const GerritParameters 
     else
         return false;
 
-    user.userName = r.userName.isEmpty() ? parameters.server.user.userName : r.userName;
     if (r.host.contains("github.com")) // Clearly not gerrit
         return false;
-    if (type != GerritServer::Ssh) {
-        curlBinary = parameters.curl;
-        if (curlBinary.isEmpty() || !QFile::exists(curlBinary))
-            return false;
-        rootPath = r.path;
-        // Strip the last part of the path, which is always the repo name
-        // The rest of the path needs to be inspected to find the root path
-        // (can be http://example.net/review)
-        ascendPath();
-        if (!resolveRoot())
-            return false;
-    }
-    return true;
+    host = r.host;
+    port = r.port;
+    user.userName = r.userName.isEmpty() ? parameters.server.user.userName : r.userName;
+    if (type == GerritServer::Ssh)
+        return true;
+    curlBinary = parameters.curl;
+    if (curlBinary.isEmpty() || !QFile::exists(curlBinary))
+        return false;
+    rootPath = r.path;
+    // Strip the last part of the path, which is always the repo name
+    // The rest of the path needs to be inspected to find the root path
+    // (can be http://example.net/review)
+    ascendPath();
+    return resolveRoot();
 }
 
 QStringList GerritServer::curlArguments()

@@ -32,7 +32,6 @@
 #include "iossimulator.h"
 #include "iosconstants.h"
 
-#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>

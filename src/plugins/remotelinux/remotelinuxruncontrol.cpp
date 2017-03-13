@@ -25,7 +25,7 @@
 
 #include "remotelinuxruncontrol.h"
 
-#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
+#include <projectexplorer/applicationlauncher.h>
 
 #include <utils/utilsicons.h>
 
@@ -36,7 +36,7 @@ namespace RemoteLinux {
 class RemoteLinuxRunControl::RemoteLinuxRunControlPrivate
 {
 public:
-    DeviceApplicationRunner runner;
+    ApplicationLauncher launcher;
 };
 
 RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
@@ -54,23 +54,23 @@ RemoteLinuxRunControl::~RemoteLinuxRunControl()
 void RemoteLinuxRunControl::start()
 {
     reportApplicationStart();
-    d->runner.disconnect(this);
-    connect(&d->runner, &DeviceApplicationRunner::reportError,
+    d->launcher.disconnect(this);
+    connect(&d->launcher, &ApplicationLauncher::reportError,
             this, &RemoteLinuxRunControl::handleErrorMessage);
-    connect(&d->runner, &DeviceApplicationRunner::remoteStderr,
+    connect(&d->launcher, &ApplicationLauncher::remoteStderr,
             this, &RemoteLinuxRunControl::handleRemoteErrorOutput);
-    connect(&d->runner, &DeviceApplicationRunner::remoteStdout,
+    connect(&d->launcher, &ApplicationLauncher::remoteStdout,
             this, &RemoteLinuxRunControl::handleRemoteOutput);
-    connect(&d->runner, &DeviceApplicationRunner::finished,
+    connect(&d->launcher, &ApplicationLauncher::finished,
             this, &RemoteLinuxRunControl::handleRunnerFinished);
-    connect(&d->runner, &DeviceApplicationRunner::reportProgress,
+    connect(&d->launcher, &ApplicationLauncher::reportProgress,
             this, &RemoteLinuxRunControl::handleProgressReport);
-    d->runner.start(runnable(), device());
+    d->launcher.start(runnable(), device());
 }
 
 RunControl::StopResult RemoteLinuxRunControl::stop()
 {
-    d->runner.stop();
+    d->launcher.stop();
     return AsynchronousStop;
 }
 
@@ -101,7 +101,7 @@ void RemoteLinuxRunControl::handleProgressReport(const QString &progressString)
 
 void RemoteLinuxRunControl::setFinished()
 {
-    d->runner.disconnect(this);
+    d->launcher.disconnect(this);
     reportApplicationStop();
 }
 

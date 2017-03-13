@@ -366,7 +366,13 @@ QImage QuickItemNodeInstance::renderImage() const
 
     QRectF renderBoundingRect = boundingRect();
 
-    QImage renderImage = designerSupport()->renderImageForItem(quickItem(), renderBoundingRect, renderBoundingRect.size().toSize());
+    QSize size = renderBoundingRect.size().toSize();
+    static float devicePixelRatio = qgetenv("FORMEDITOR_DEVICE_PIXEL_RATIO").toDouble();
+    size *= devicePixelRatio;
+
+    QImage renderImage = designerSupport()->renderImageForItem(quickItem(), renderBoundingRect, size);
+
+    renderImage.setDevicePixelRatio(devicePixelRatio);
 
     return renderImage;
 }

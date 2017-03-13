@@ -93,7 +93,7 @@ class PythonProject : public Project
 public:
     explicit PythonProject(const Utils::FileName &filename);
 
-    QString displayName() const override { return m_projectName; }
+    QString displayName() const override;
 
     QStringList files(FilesMode) const override { return m_files; }
     QStringList files() const { return m_files; }
@@ -113,7 +113,6 @@ private:
     QStringList processEntries(const QStringList &paths,
                                QHash<QString, QString> *map = 0) const;
 
-    QString m_projectName;
     QStringList m_rawFileList;
     QStringList m_files;
     QHash<QString, QString> m_rawListEntries;
@@ -424,14 +423,14 @@ PythonProject::PythonProject(const FileName &fileName)
     setId(PythonProjectId);
     setDocument(new PythonProjectFile(this, fileName));
     DocumentManager::addDocument(document());
-    setRootProjectNode(new PythonProjectNode(this));
 
     setProjectContext(Context(PythonProjectContext));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+}
 
-    QFileInfo fileInfo = projectFilePath().toFileInfo();
-
-    m_projectName = fileInfo.completeBaseName();
+QString PythonProject::displayName() const
+{
+    return projectFilePath().toFileInfo().completeBaseName();
 }
 
 static QStringList readLines(const QString &absoluteFileName)
@@ -573,8 +572,9 @@ void PythonProject::refresh()
         const QString displayName = baseDir.relativeFilePath(f);
         return new PythonFileNode(FileName::fromString(f), displayName);
     });
-    rootProjectNode()->makeEmpty();
-    rootProjectNode()->buildTree(fileNodes);
+    auto newRoot = new PythonProjectNode(this);
+    newRoot->buildTree(fileNodes);
+    setRootProjectNode(newRoot);
 
     emit parsingFinished();
 }
@@ -786,7 +786,7 @@ void PythonRunControl::start()
         r.environment = m_environment;
         m_applicationLauncher.start(r);
 
-        setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
+        setApplicationProcessHandle(m_applicationLauncher.applicationPID());
     }
 }
 
@@ -804,7 +804,7 @@ void PythonRunControl::slotAppendMessage(const QString &err, Utils::OutputFormat
 void PythonRunControl::processStarted()
 {
     // Console processes only know their pid after being started
-    setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
+    setApplicationProcessHandle(m_applicationLauncher.applicationPID());
     bringApplicationToForeground();
 }
 

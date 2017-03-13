@@ -88,7 +88,7 @@ void LocalApplicationRunControl::start()
         QString msg = tr("Starting %1...").arg(QDir::toNativeSeparators(r.executable)) + QLatin1Char('\n');
         appendMessage(msg, Utils::NormalMessageFormat);
         m_applicationLauncher.start(r);
-        setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
+        setApplicationProcessHandle(m_applicationLauncher.applicationPID());
     }
 }
 
@@ -101,7 +101,7 @@ LocalApplicationRunControl::StopResult LocalApplicationRunControl::stop()
 void LocalApplicationRunControl::processStarted()
 {
     // Console processes only know their pid after being started
-    setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
+    setApplicationProcessHandle(m_applicationLauncher.applicationPID());
     bringApplicationToForeground();
 }
 

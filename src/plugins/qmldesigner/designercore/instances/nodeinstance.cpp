@@ -25,10 +25,11 @@
 
 #include "nodeinstance.h"
 
-#include <QPainter>
 #include <modelnode.h>
+#include <qmldesignerplugin.h>
 
 #include <QDebug>
+#include <QPainter>
 
 QT_BEGIN_NAMESPACE
 void qt_blurImage(QPainter *painter, QImage &blurImage, qreal radius, bool quality, bool alphaOnly, int transposed = 0);
@@ -397,6 +398,7 @@ QPixmap NodeInstance::blurredRenderPixmap() const
 void NodeInstance::setRenderPixmap(const QImage &image)
 {
     d->renderPixmap = QPixmap::fromImage(image);
+    d->renderPixmap.setDevicePixelRatio(QmlDesignerPlugin::formEditorDevicePixelRatio());
     d->blurredRenderPixmap = QPixmap();
 }
 

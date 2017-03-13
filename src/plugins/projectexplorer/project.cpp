@@ -41,6 +41,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projecttree.h>
 
 #include <utils/algorithm.h>
 #include <utils/macroexpander.h>
@@ -416,13 +417,25 @@ void Project::setDocument(Core::IDocument *doc)
     QTC_ASSERT(doc, return);
     QTC_ASSERT(!d->m_document, return);
     d->m_document = doc;
+
+    if (!d->m_rootProjectNode) {
+        auto newRoot = new ProjectNode(projectDirectory());
+        newRoot->setDisplayName(displayName());
+        newRoot->addNode(new FileNode(projectFilePath(), FileType::Project, false));
+        setRootProjectNode(newRoot);
+    }
 }
 
 void Project::setRootProjectNode(ProjectNode *root)
 {
-    ProjectNode *oldNode = d->m_rootProjectNode;
+    if (d->m_rootProjectNode == root)
+        return;
+
+    ProjectTree::applyTreeManager(root);
+
     d->m_rootProjectNode = root;
-    delete oldNode;
+    emit projectTreeChanged(this, QPrivateSignal());
+    // Do not delete oldNode! The ProjectTree owns that!
 }
 
 Target *Project::restoreTarget(const QVariantMap &data)

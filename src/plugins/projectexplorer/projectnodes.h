@@ -36,8 +36,11 @@
 
 #include <functional>
 
+namespace Utils { class MimeType; }
+
 namespace ProjectExplorer {
 class RunConfiguration;
+class Project;
 
 enum class NodeType : quint16 {
     File = 1,
@@ -130,9 +133,6 @@ public:
     void setEnabled(bool enabled);
     void setAbsoluteFilePathAndLine(const Utils::FileName &filePath, int line);
 
-    void emitNodeUpdated();
-    void emitTreeChanged();
-
     virtual FileNode *asFileNode() { return nullptr; }
     virtual const FileNode *asFileNode() const { return nullptr; }
     virtual FolderNode *asFolderNode() { return nullptr; }
@@ -142,6 +142,9 @@ public:
 
     static bool sortByPath(const Node *a, const Node *b);
     void setParentFolderNode(FolderNode *parentFolder);
+
+    static FileType fileTypeForMimeType(const Utils::MimeType &mt);
+    static FileType fileTypeForFileName(const Utils::FileName &file);
 
 protected:
     Node(NodeType nodeType, const Utils::FileName &filePath, int line = -1);
@@ -196,11 +199,16 @@ public:
     const QList<Node *> nodes() const { return m_nodes; }
     QList<FileNode *> fileNodes() const;
     FileNode *fileNode(const Utils::FileName &file) const;
-    FileNode *recursiveFileNode(const Utils::FileName &file) const;
     QList<FileNode *> recursiveFileNodes() const;
     QList<FolderNode *> folderNodes() const;
     void buildTree(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir = Utils::FileName());
     void compress();
+
+    bool isAncesterOf(Node *n);
+
+    // takes ownership of newNode.
+    // Will delete newNode if oldNode is not a child of this node.
+    bool replaceSubtree(Node *oldNode, Node *newNode);
 
     void setDisplayName(const QString &name);
     void setIcon(const QIcon &icon);
@@ -232,7 +240,6 @@ public:
     void addNode(Node *node);
     void removeNode(Node *node);
 
-    void makeEmpty();
     bool isEmpty() const;
 
     FolderNode *asFolderNode() override { return this; }
@@ -288,6 +295,8 @@ protected:
     // this is just the in-memory representation, a subclass
     // will add the persistent stuff
     explicit ProjectNode(const Utils::FileName &projectFilePath);
+
+    friend class Project;
 };
 
 // Documentation inside.
