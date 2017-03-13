@@ -506,7 +506,7 @@ void AppOutputPane::reRunRunControl()
 
     handleOldOutput(tab.window);
     tab.window->scrollToBottom();
-    tab.runControl->start();
+    tab.runControl->initiateStart();
 }
 
 void AppOutputPane::attachToRunControl()
@@ -525,7 +525,7 @@ void AppOutputPane::stopRunControl()
 
     RunControl *rc = m_runControlTabs.at(index).runControl;
     if (rc->isRunning() && optionallyPromptToStop(rc))
-        rc->stop();
+        rc->initiateStop();
 
     if (debug)
         qDebug() << "OutputPane::stopRunControl " << rc;
@@ -556,7 +556,7 @@ bool AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
 
     if (debug)
         qDebug() << "OutputPane::closeTab tab " << tabIndex << m_runControlTabs[index].runControl
-                        << m_runControlTabs[index].window << m_runControlTabs[index].asyncClosing;
+                 << m_runControlTabs[index].window;
     // Prompt user to stop
     if (m_runControlTabs[index].runControl->isRunning()) {
         switch (closeTabMode) {
@@ -575,15 +575,8 @@ bool AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
             break;
         }
         if (m_runControlTabs[index].runControl->isRunning()) { // yes it might have stopped already, then just close
-            QWidget *tabWidget = m_tabWidget->widget(tabIndex);
-            if (m_runControlTabs[index].runControl->stop() == RunControl::AsynchronousStop) {
-                m_runControlTabs[index].asyncClosing = true;
-                return false;
-            }
-            tabIndex = m_tabWidget->indexOf(tabWidget);
-            index = indexOf(tabWidget);
-            if (tabIndex == -1 || index == -1)
-                return false;
+            m_runControlTabs[index].runControl->initiateStop();
+            return false;
         }
     }
 
@@ -740,10 +733,6 @@ void AppOutputPane::slotRunControlFinished2(RunControl *sender)
         enableButtons(current, false); // RunControl::isRunning() cannot be trusted in signal handler.
 
     m_runControlTabs.at(senderIndex).window->setFormatter(nullptr); // Reset formater for this RC
-
-    // Check for asynchronous close. Close the tab.
-    if (m_runControlTabs.at(senderIndex).asyncClosing)
-        closeTab(tabWidgetIndexOf(senderIndex), CloseTabNoPrompt);
 
     emit runControlFinished(sender);
 

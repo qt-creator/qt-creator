@@ -67,13 +67,12 @@ void WinRtRunControl::start()
         reportApplicationStart();
 }
 
-RunControl::StopResult WinRtRunControl::stop()
+void WinRtRunControl::stop()
 {
     if (m_state == StoppedState)
-        return StoppedSynchronously;
+        return;
 
     m_runner->stop();
-    return AsynchronousStop;
 }
 
 void WinRtRunControl::onProcessStarted()

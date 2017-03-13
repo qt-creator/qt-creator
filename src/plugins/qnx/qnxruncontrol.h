@@ -38,7 +38,7 @@ class QnxRunControl : public ProjectExplorer::SimpleRunControl
 public:
     explicit QnxRunControl(ProjectExplorer::RunConfiguration *runConfig);
 
-    StopResult stop() override;
+    void stop() override;
 
 private:
     void printMissingWarning();

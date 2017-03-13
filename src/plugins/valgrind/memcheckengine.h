@@ -43,7 +43,7 @@ public:
                        Core::Id runMode);
 
     void start() override;
-    StopResult stop() override;
+    void stop() override;
 
     QStringList suppressionFiles() const;
 

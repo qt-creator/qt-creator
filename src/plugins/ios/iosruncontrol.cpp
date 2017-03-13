@@ -64,10 +64,9 @@ void IosRunControl::start()
     m_runner->start();
 }
 
-RunControl::StopResult IosRunControl::stop()
+void IosRunControl::stop()
 {
     m_runner->stop();
-    return StoppedSynchronously;
 }
 
 void IosRunControl::handleRemoteProcessFinished(bool cleanEnd)

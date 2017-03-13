@@ -276,11 +276,10 @@ bool DebuggerRunControl::promptToStop(bool *optionalPrompt) const
     return result;
 }
 
-RunControl::StopResult DebuggerRunControl::stop()
+void DebuggerRunControl::stop()
 {
-    QTC_ASSERT(m_engine, return StoppedSynchronously);
+    QTC_ASSERT(m_engine, return);
     m_engine->quitDebugger();
-    return AsynchronousStop;
 }
 
 void DebuggerRunControl::debuggingFinished()

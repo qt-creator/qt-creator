@@ -535,7 +535,7 @@ public:
     // A handle to the actual application process.
     Utils::ProcessHandle applicationProcessHandle;
 
-    bool isRunning = false;
+    RunControl::State state = RunControl::State::Initialized;
 
 #ifdef Q_OS_OSX
     // This is used to bring apps in the foreground on Mac
@@ -573,6 +573,18 @@ RunControl::~RunControl()
     JournaldWatcher::instance()->unsubscribe(this);
 #endif
     delete d;
+}
+
+void RunControl::initiateStart()
+{
+    setState(State::Starting);
+    QTimer::singleShot(0, this, &RunControl::start);
+}
+
+void RunControl::initiateStop()
+{
+    setState(State::Stopping);
+    QTimer::singleShot(0, this, &RunControl::stop);
 }
 
 Utils::OutputFormatter *RunControl::outputFormatter() const
@@ -696,7 +708,7 @@ bool RunControl::promptToStop(bool *optionalPrompt) const
 
 bool RunControl::isRunning() const
 {
-    return d->isRunning;
+    return d->state == State::Running;
 }
 
 /*!
@@ -735,6 +747,33 @@ bool RunControl::showPromptToStopDialog(const QString &title,
     return close;
 }
 
+static bool isAllowedTransition(RunControl::State from, RunControl::State to)
+{
+    switch (from) {
+    case RunControl::State::Initialized:
+        return to == RunControl::State::Starting;
+    case RunControl::State::Starting:
+        return to == RunControl::State::Running;
+    case RunControl::State::Running:
+        return to == RunControl::State::Stopping
+            || to == RunControl::State::Stopped;
+    case RunControl::State::Stopping:
+        return to == RunControl::State::Stopped;
+    case RunControl::State::Stopped:
+        return false;
+    }
+    qDebug() << "UNKNOWN DEBUGGER STATE:" << from;
+    return false;
+}
+
+void RunControl::setState(RunControl::State state)
+{
+    if (!isAllowedTransition(d->state, state)) {
+        qDebug() << "Invalid run state transition from " << d->state << " to " << state;
+    }
+    d->state = state;
+}
+
 /*!
     Brings the application determined by this RunControl's \c applicationProcessHandle
     to the foreground.
@@ -752,13 +791,18 @@ void RunControl::bringApplicationToForeground()
 
 void RunControl::reportApplicationStart()
 {
-    d->isRunning = true;
+    setState(State::Running);
     emit started(QPrivateSignal());
 }
 
 void RunControl::reportApplicationStop()
 {
-    d->isRunning = false;
+    if (d->state == State::Stopped) {
+        // FIXME: Currently various tool implementations call reportApplicationStop()
+        // multiple times. Fix it there and then add a soft assert here.
+        return;
+    }
+    setState(State::Stopped);
     QTC_CHECK(d->applicationProcessHandle.isValid());
     setApplicationProcessHandle(Utils::ProcessHandle());
     emit finished(QPrivateSignal());
@@ -896,14 +940,9 @@ void SimpleRunControl::start()
     }
 }
 
-RunControl::StopResult SimpleRunControl::stop()
+void SimpleRunControl::stop()
 {
     d->m_launcher.stop();
-
-    if (isSynchronousLauncher(this))
-        return StoppedSynchronously;
-    else
-        return AsynchronousStop;
 }
 
 void SimpleRunControl::onProcessStarted()

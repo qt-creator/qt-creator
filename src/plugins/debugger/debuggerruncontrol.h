@@ -68,7 +68,7 @@ public:
     // ProjectExplorer::RunControl
     void start() override;
     bool promptToStop(bool *prompt = 0) const override;
-    StopResult stop() override; // Called from SnapshotWindow.
+    void stop() override; // Called from SnapshotWindow.
     QString displayName() const override;
     bool supportsReRunning() const override;
     void handleApplicationOutput(const QString &msg, int channel);

@@ -42,7 +42,7 @@ public:
     ~AndroidRunControl() override;
 
     void start() override;
-    StopResult stop() override;
+    void stop() override;
     QString displayName() const override;
 
 private:

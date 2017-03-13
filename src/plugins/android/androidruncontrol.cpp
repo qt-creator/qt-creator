@@ -67,10 +67,9 @@ void AndroidRunControl::start()
     m_runner->start();
 }
 
-RunControl::StopResult AndroidRunControl::stop()
+void AndroidRunControl::stop()
 {
     m_runner->stop();
-    return StoppedSynchronously;
 }
 
 void AndroidRunControl::handleRemoteProcessFinished(const QString &error)

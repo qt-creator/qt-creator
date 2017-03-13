@@ -46,7 +46,7 @@ public:
                        Core::Id runMode);
 
     void start() override;
-    StopResult stop() override;
+    void stop() override;
     bool supportsReRunning() const override { return false; }
 
     QString executable() const;

@@ -57,7 +57,7 @@ public:
                                   const CppTools::ProjectInfo &projectInfo);
 
     void start() override;
-    StopResult stop() override;
+    void stop() override;
 
     bool success() const { return m_success; } // For testing.
     bool supportsReRunning() const override { return false; }

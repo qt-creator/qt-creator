@@ -118,9 +118,9 @@ void QmlProfilerRunControl::start()
     emit starting();
 }
 
-RunControl::StopResult QmlProfilerRunControl::stop()
+void QmlProfilerRunControl::stop()
 {
-    QTC_ASSERT(d->m_profilerState, return RunControl::StoppedSynchronously);
+    QTC_ASSERT(d->m_profilerState, return);
 
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppRunning:
@@ -141,8 +141,6 @@ RunControl::StopResult QmlProfilerRunControl::stop()
     }
         break;
     }
-
-    return RunControl::StoppedSynchronously;
 }
 
 void QmlProfilerRunControl::notifyRemoteFinished()

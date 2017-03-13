@@ -563,7 +563,7 @@ void ClangStaticAnalyzerRunControl::start()
         analyzeNextFile();
 }
 
-RunControl::StopResult ClangStaticAnalyzerRunControl::stop()
+void ClangStaticAnalyzerRunControl::stop()
 {
     QSetIterator<ClangStaticAnalyzerRunner *> i(m_runners);
     while (i.hasNext()) {
@@ -577,7 +577,6 @@ RunControl::StopResult ClangStaticAnalyzerRunControl::stop()
                   Utils::NormalMessageFormat);
     m_progress.reportFinished();
     reportApplicationStop();
-    return RunControl::StoppedSynchronously;
 }
 
 void ClangStaticAnalyzerRunControl::analyzeNextFile()

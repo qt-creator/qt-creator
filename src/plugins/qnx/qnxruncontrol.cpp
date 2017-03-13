@@ -57,10 +57,10 @@ QnxRunControl::QnxRunControl(RunConfiguration *runConfig)
         connect(m_slog2Info, &Slog2InfoRunner::commandMissing, this, &QnxRunControl::printMissingWarning);
 }
 
-RunControl::StopResult QnxRunControl::stop()
+void QnxRunControl::stop()
 {
     m_slog2Info->stop();
-    return SimpleRunControl::stop();
+    SimpleRunControl::stop();
 }
 
 void QnxRunControl::printMissingWarning()

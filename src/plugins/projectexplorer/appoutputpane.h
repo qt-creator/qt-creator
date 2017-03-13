@@ -128,8 +128,6 @@ private:
                                Core::OutputWindow *window = nullptr);
         RunControl *runControl;
         Core::OutputWindow *window;
-        // Is the run control stopping asynchronously, close the tab once it finishes
-        bool asyncClosing = false;
         BehaviorOnOutput behaviorOnOutput = Flash;
     };
 

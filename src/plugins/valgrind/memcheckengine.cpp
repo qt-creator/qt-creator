@@ -81,11 +81,11 @@ void MemcheckRunControl::start()
     ValgrindRunControl::start();
 }
 
-RunControl::StopResult MemcheckRunControl::stop()
+void MemcheckRunControl::stop()
 {
     disconnect(&m_parser, &ThreadedParser::internalError,
                this, &MemcheckRunControl::internalParserError);
-    return ValgrindRunControl::stop();
+    ValgrindRunControl::stop();
 }
 
 QStringList MemcheckRunControl::toolArguments() const
@@ -163,7 +163,7 @@ void MemcheckWithGdbRunControl::startDebugger()
     QTC_ASSERT(gdbRunControl, return);
     connect(gdbRunControl, &RunControl::finished,
             gdbRunControl, &RunControl::deleteLater);
-    gdbRunControl->start();
+    gdbRunControl->initiateStart();
 }
 
 void MemcheckWithGdbRunControl::appendLog(const QByteArray &data)

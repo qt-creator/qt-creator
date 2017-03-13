@@ -107,11 +107,10 @@ void ValgrindRunControl::start()
     }
 }
 
-RunControl::StopResult ValgrindRunControl::stop()
+void ValgrindRunControl::stop()
 {
     m_isStopping = true;
     runner()->stop();
-    return AsynchronousStop;
 }
 
 QString ValgrindRunControl::executable() const
