@@ -63,7 +63,7 @@ void setupArtifacts(ProjectExplorer::FolderNode *root, const QList<qbs::Artifact
         return new ProjectExplorer::FileNode(path, type, isGenerated);
     });
 
-    root->buildTree(fileNodes);
+    root->addNestedNodes(fileNodes);
     root->compress();
 }
 
@@ -197,7 +197,7 @@ QbsRootProjectNode *QbsNodeTreeBuilder::buildTree(QbsProject *project)
         if (filePath.isChildOf(base))
                 projectBuildSystemFiles.append(new ProjectExplorer::FileNode(filePath, ProjectExplorer::FileType::Project, false));
     }
-    buildSystemFiles->buildTree(projectBuildSystemFiles);
+    buildSystemFiles->addNestedNodes(projectBuildSystemFiles);
     buildSystemFiles->compress();
     root->addNode(buildSystemFiles);
 
