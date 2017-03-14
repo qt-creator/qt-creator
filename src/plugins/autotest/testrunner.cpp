@@ -100,12 +100,19 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
                            const TestSettings &settings)
 {
     const int timeout = settings.timeout;
+    const bool omitRunConfigWarnings = settings.omitRunConfigWarn;
     QEventLoop eventLoop;
     int testCaseCount = 0;
     for (TestConfiguration *config : selectedTests) {
         config->completeTestInformation(TestRunner::Run);
         if (config->project()) {
             testCaseCount += config->testCaseCount();
+            if (!omitRunConfigWarnings && config->guessedConfiguration()) {
+                futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
+                    TestRunner::tr("Project's run configuration was guessed for \"%1\".\n"
+                                   "This might cause trouble during execution."
+                                   ).arg(config->displayName()))));
+            }
         } else {
             futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
                 TestRunner::tr("Project is null for \"%1\". Removing from test run.\n"
@@ -196,21 +203,11 @@ void TestRunner::prepareToRunTests(Mode mode)
             return;
     }
 
-    const bool omitRunConfigWarnings = AutotestPlugin::instance()->settings()->omitRunConfigWarn;
-
     m_executingTests = true;
     emit testRunStarted();
 
     // clear old log and output pane
     TestResultsPane::instance()->clearContents();
-
-    for (TestConfiguration *config : m_selectedTests) {
-        if (!omitRunConfigWarnings && config->guessedConfiguration()) {
-            emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
-                tr("Project's run configuration was guessed for \"%1\".\n"
-                "This might cause trouble during execution.").arg(config->displayName()))));
-        }
-    }
 
     if (m_selectedTests.empty()) {
         emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
