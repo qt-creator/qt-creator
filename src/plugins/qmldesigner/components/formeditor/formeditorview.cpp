@@ -37,17 +37,17 @@
 #include <designmodecontext.h>
 #include <modelnode.h>
 #include <model.h>
-#include <QDebug>
-#include <QPair>
-#include <QString>
-#include <QTimer>
-#include <zoomaction.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
+#include <rewriterview.h>
+#include <zoomaction.h>
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 
+#include <QDebug>
+#include <QPair>
+#include <QString>
 #include <QTimer>
 
 namespace QmlDesigner {
@@ -81,6 +81,14 @@ void FormEditorView::modelAttached(Model *model)
         setupFormEditorItemTree(rootModelNode());
 
     m_formEditorWidget->updateActions();
+
+    if (!rewriterView()->errors().isEmpty())
+        formEditorWidget()->showErrorMessageBox(rewriterView()->errors());
+    else
+        formEditorWidget()->hideErrorMessageBox();
+
+    if (!rewriterView()->warnings().isEmpty())
+        formEditorWidget()->showWarningMessageBox(rewriterView()->warnings());
 }
 
 
