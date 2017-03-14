@@ -489,7 +489,7 @@ void IosConfigurations::loadProvisioningData(bool notify)
     });
 
     foreach (auto teamInfo, teams) {
-        auto team = std::shared_ptr<DevelopmentTeam>::make_shared();
+        auto team = std::make_shared<DevelopmentTeam>();
         team->m_name = teamInfo.value(teamNameTag).toString();
         team->m_email = teamInfo.value(emailTag).toString();
         team->m_identifier = teamInfo.value(teamIdTag).toString();
@@ -500,7 +500,7 @@ void IosConfigurations::loadProvisioningData(bool notify)
     const QDir provisioningProflesDir(provisioningProfileDirPath);
     foreach (QFileInfo fileInfo, provisioningProflesDir.entryInfoList({"*.mobileprovision"}, QDir::NoDotAndDotDot | QDir::Files)) {
         QDomDocument provisioningDoc;
-        auto profile = ProvisioningProfilePtr::make_shared();;
+        auto profile = std::make_shared<ProvisioningProfile>();
         QString teamID;
         if (provisioningDoc.setContent(decodeProvisioningProfile(fileInfo.absoluteFilePath()))) {
             QDomNodeList nodes =  provisioningDoc.elementsByTagName("key");

@@ -35,6 +35,8 @@
 #include <QStringList>
 #include <QVersionNumber>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QSettings;
 class QFileSystemWatcher;
