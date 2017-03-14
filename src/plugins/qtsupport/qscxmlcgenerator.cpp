@@ -30,9 +30,9 @@
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
+#include <QDateTime>
 #include <QLoggingCategory>
 #include <QUuid>
-#include <QDateTime>
 
 using namespace ProjectExplorer;
 

@@ -45,6 +45,7 @@
 #include <QDirIterator>
 #include <QFormLayout>
 #include <QLabel>
+#include <QRegExp>
 #include <QVBoxLayout>
 
 namespace {

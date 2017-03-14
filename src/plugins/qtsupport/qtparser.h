@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <QRegExp>
+
 #include "qtsupport_global.h"
 #include <projectexplorer/ioutputparser.h>
 

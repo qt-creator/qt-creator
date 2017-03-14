@@ -39,6 +39,7 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 
+#include <QRegExp>
 #include <QTimer>
 
 using namespace ProjectExplorer;

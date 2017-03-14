@@ -27,6 +27,8 @@
 
 #include <texteditor/syntaxhighlighter.h>
 
+#include <QRegExp>
+
 namespace Git {
 namespace Internal {
 

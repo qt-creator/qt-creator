@@ -25,6 +25,7 @@
 
 #include "diffutils.h"
 #include "differ.h"
+#include <QRegExp>
 #include <QStringList>
 #include <QTextStream>
 #include "texteditor/fontsettings.h"

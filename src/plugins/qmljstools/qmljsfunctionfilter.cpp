@@ -29,6 +29,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
 
+#include <QRegExp>
 #include <QStringMatcher>
 
 using namespace QmlJSTools::Internal;

@@ -29,10 +29,9 @@
 #include <utils/filesearch.h>
 
 #include <QPointer>
-
-#include <QTextBlock>
 #include <QPlainTextEdit>
 #include <QRegularExpression>
+#include <QTextBlock>
 #include <QTextCursor>
 
 namespace Core {

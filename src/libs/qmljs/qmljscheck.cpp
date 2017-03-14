@@ -33,6 +33,7 @@
 
 #include <QColor>
 #include <QDir>
+#include <QRegExp>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

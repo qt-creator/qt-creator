@@ -28,6 +28,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <QRegExp>
 #include <QStringMatcher>
 
 #include <algorithm>

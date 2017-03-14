@@ -43,6 +43,7 @@
 
 #include <QApplication>
 #include <QDir>
+#include <QRegExp>
 
 using namespace Utils;
 

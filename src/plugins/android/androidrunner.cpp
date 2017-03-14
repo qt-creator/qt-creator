@@ -47,6 +47,7 @@
 #include <memory>
 #include <QApplication>
 #include <QDir>
+#include <QRegExp>
 #include <QTime>
 #include <QTcpServer>
 #include <QTcpSocket>

@@ -46,6 +46,7 @@
 #include <utils/runextensions.h>
 #include <utils/tooltip/tooltip.h>
 
+#include <QRegExp>
 #include <QVarLengthArray>
 
 using namespace CPlusPlus;

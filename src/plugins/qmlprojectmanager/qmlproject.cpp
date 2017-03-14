@@ -48,6 +48,7 @@
 #include <utils/algorithm.h>
 
 #include <QDebug>
+#include <QRegExp>
 
 using namespace Core;
 using namespace ProjectExplorer;
