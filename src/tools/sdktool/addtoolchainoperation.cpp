@@ -47,6 +47,7 @@ const char ID[] = "ProjectExplorer.ToolChain.Id";
 const char DISPLAYNAME[] = "ProjectExplorer.ToolChain.DisplayName";
 const char AUTODETECTED[] = "ProjectExplorer.ToolChain.Autodetect";
 const char LANGUAGE_KEY[] = "ProjectExplorer.ToolChain.Language";
+const char LANGUAGE_KEY_V2[] = "ProjectExplorer.ToolChain.LanguageV2";
 
 // GCC ToolChain:
 const char PATH[] = "ProjectExplorer.GccToolChain.Path";
@@ -265,7 +266,30 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map, const QS
 
     KeyValuePairList data;
     data << KeyValuePair({tc, ID}, QVariant(id));
-    data << KeyValuePair({tc, LANGUAGE_KEY}, QVariant(lang));
+
+    // Language compatibility hack for 4.2:
+    QString newLang; // QtC 4.3 and later
+    QString oldLang; // QtC 4.2
+    int langInt = lang.toInt(&ok);
+    Q_UNUSED(langInt);
+    if (lang == "2" || lang == "Cxx") {
+        newLang = "Cxx";
+        oldLang = "2";
+    } else if (lang == "1" || lang == "C") {
+        newLang = "C";
+        oldLang = "1";
+    } else if (ok) {
+        std::cerr << "Error: Language ID must be 1 for C, 2 for Cxx "
+                  << "or a string like (\"C\", \"Cxx\", \"Nim\", etc.)" << std::endl;
+        return {};
+    } else if (!ok) {
+        newLang = lang;
+        oldLang = "";
+    }
+    if (!oldLang.isEmpty())
+        data << KeyValuePair({tc, LANGUAGE_KEY}, QVariant(oldLang));
+    if (!newLang.isEmpty())
+        data << KeyValuePair({tc, LANGUAGE_KEY_V2}, QVariant(newLang));
     data << KeyValuePair({tc, DISPLAYNAME}, QVariant(uniqueName));
     data << KeyValuePair({tc, AUTODETECTED}, QVariant(true));
     data << KeyValuePair({tc, PATH}, QVariant(path));
