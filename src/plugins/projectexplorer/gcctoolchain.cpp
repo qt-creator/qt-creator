@@ -907,17 +907,6 @@ ToolChain *GccToolChainFactory::create(Core::Id language)
 QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
     QList<ToolChain *> tcs;
-    if (HostOsInfo::isMacHost()) {
-        // Old mac compilers needed to support macx-gccXY mkspecs:
-        tcs.append(autoDetectToolchains("g++-4.0", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
-                                        Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
-        tcs.append(autoDetectToolchains("g++-4.2", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
-                                        Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
-        tcs.append(autoDetectToolchains("gcc-4.0", Abi::hostAbi(), Constants::C_LANGUAGE_ID,
-                                        Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
-        tcs.append(autoDetectToolchains("gcc-4.2", Abi::hostAbi(), Constants::C_LANGUAGE_ID,
-                                        Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
-    }
     tcs.append(autoDetectToolchains("g++", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
                                     Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
     tcs.append(autoDetectToolchains("gcc", Abi::hostAbi(), Constants::C_LANGUAGE_ID,
