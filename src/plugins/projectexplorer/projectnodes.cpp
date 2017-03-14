@@ -401,6 +401,37 @@ QIcon FolderNode::icon() const
     return m_icon;
 }
 
+Node *FolderNode::findNode(const std::function<bool(Node *)> &filter)
+{
+    if (filter(this))
+        return this;
+
+    for (Node *n : m_nodes) {
+        if (n->asFileNode() && filter(n)) {
+            return n;
+        } else if (FolderNode *folder = n->asFolderNode()) {
+            Node *result = folder->findNode(filter);
+            if (result)
+                return result;
+        }
+    }
+    return nullptr;
+}
+
+QList<Node *> FolderNode::findNodes(const std::function<bool(Node *)> &filter)
+{
+    QList<Node *> result;
+    if (filter(this))
+        result.append(this);
+    for (Node *n : m_nodes) {
+        if (n->asFileNode() && filter(n))
+            result.append(n);
+        else if (FolderNode *folder = n->asFolderNode())
+            result.append(folder->findNode(filter));
+    }
+    return result;
+}
+
 void FolderNode::forEachNode(const std::function<void(FileNode *)> &fileTask,
                              const std::function<void(FolderNode *)> &folderTask,
                              const std::function<bool(const FolderNode *)> &folderFilterTask) const

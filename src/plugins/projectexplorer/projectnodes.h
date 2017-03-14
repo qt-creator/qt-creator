@@ -192,6 +192,9 @@ public:
     QString displayName() const override;
     QIcon icon() const;
 
+    Node *findNode(const std::function<bool(Node *)> &filter);
+    QList<Node *> findNodes(const std::function<bool(Node *)> &filter);
+
     void forEachNode(const std::function<void(FileNode *)> &fileTask,
                      const std::function<void(FolderNode *)> &folderTask = {},
                      const std::function<bool(const FolderNode *)> &folderFilterTask = {}) const;

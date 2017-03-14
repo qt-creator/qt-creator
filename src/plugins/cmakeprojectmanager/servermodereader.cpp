@@ -540,28 +540,16 @@ void ServerModeReader::addCMakeLists(CMakeProjectNode *root, const QList<FileNod
     });
 }
 
-static CMakeListsNode *findCMakeNode(FolderNode *root, const Utils::FileName &dir)
+static ProjectNode *findCMakeNode(ProjectNode *root, const Utils::FileName &dir)
 {
-    const Utils::FileName stepDir = dir;
-    const Utils::FileName topDir = root->filePath();
-
-    QStringList relative = stepDir.relativeChildPath(topDir).toString().split('/', QString::SkipEmptyParts);
-
-    FolderNode *result = root;
-    while (!relative.isEmpty()) {
-        Utils::FileName nextFullPath = result->filePath();
-        nextFullPath.appendPath(relative.takeFirst());
-        result = findOrDefault(result->folderNodes(), Utils::equal(&FolderNode::filePath, nextFullPath));
-        if (!result)
-            return nullptr;
-    }
-    return dynamic_cast<CMakeListsNode *>(result);
+    Node *n = root->findNode([&dir](Node *n) { return n->asProjectNode() && n->filePath() == dir; });
+    return n ? n->asProjectNode() : nullptr;
 }
 
-static CMakeProjectNode *findOrCreateProjectNode(FolderNode *root, const Utils::FileName &dir,
-                                                 const QString &displayName)
+static ProjectNode *findOrCreateProjectNode(ProjectNode *root, const Utils::FileName &dir,
+                                            const QString &displayName)
 {
-    CMakeListsNode *cmln = findCMakeNode(root, dir);
+    ProjectNode *cmln = findCMakeNode(root, dir);
     QTC_ASSERT(cmln, return nullptr);
 
     Utils::FileName projectName = dir;
@@ -588,17 +576,16 @@ void ServerModeReader::addProjects(CMakeProjectNode *root,
     }
 
     for (const Project *p : projects) {
-        CMakeProjectNode *pNode = findOrCreateProjectNode(root, p->sourceDirectory, p->name);
+        ProjectNode *pNode = findOrCreateProjectNode(root, p->sourceDirectory, p->name);
         QTC_ASSERT(pNode, continue);
-        QTC_ASSERT(root, continue);
         addTargets(root, p->targets, includeFiles);
     }
 }
 
-static CMakeTargetNode *findOrCreateTargetNode(FolderNode *root, const Utils::FileName &dir,
+static CMakeTargetNode *findOrCreateTargetNode(ProjectNode *root, const Utils::FileName &dir,
                                                const QString &displayName)
 {
-    CMakeListsNode *cmln = findCMakeNode(root, dir);
+    ProjectNode *cmln = findCMakeNode(root, dir);
     QTC_ASSERT(cmln, return nullptr);
 
     Utils::FileName targetName = dir;
