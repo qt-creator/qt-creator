@@ -63,7 +63,7 @@ static inline int classify2(const QChar *s, bool qmlMode) {
   }
   else if (qmlMode && s[0].unicode() == 'o') {
     if (s[1].unicode() == 'n') {
-      return qmlMode ? Lexer::T_ON : Lexer::T_IDENTIFIER;
+      return Lexer::T_ON;
     }
   }
   return Lexer::T_IDENTIFIER;
@@ -675,7 +675,7 @@ static inline int classify8(const QChar *s, bool qmlMode) {
             if (s[5].unicode() == 'r') {
               if (s[6].unicode() == 't') {
                 if (s[7].unicode() == 'y') {
-                  return qmlMode ? Lexer::T_PROPERTY : Lexer::T_IDENTIFIER;
+                  return Lexer::T_PROPERTY;
                 }
               }
             }
