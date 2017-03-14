@@ -600,6 +600,8 @@ bool RewriterView::nodeContainsCursor(const ModelNode &node, int cursorPosition)
 
     if (isInNodeDefinition(nodeTextOffset, nodeTextLength, cursorPosition))
         return true;
+
+    return false;
 }
 
 bool RewriterView::renameId(const QString& oldId, const QString& newId)
