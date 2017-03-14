@@ -55,15 +55,13 @@ ProjectExplorer::FileType fileType(const qbs::ArtifactData &artifact)
 
 void setupArtifacts(ProjectExplorer::FolderNode *root, const QList<qbs::ArtifactData> &artifacts)
 {
-    QList<ProjectExplorer::FileNode *> fileNodes
-            = Utils::transform(artifacts, [](const qbs::ArtifactData &ad) {
+    for (const qbs::ArtifactData &ad : artifacts) {
         const Utils::FileName path = Utils::FileName::fromString(ad.filePath());
         const ProjectExplorer::FileType type = fileType(ad);
         const bool isGenerated = ad.isGenerated();
-        return new ProjectExplorer::FileNode(path, type, isGenerated);
-    });
+        root->addNestedNode(new ProjectExplorer::FileNode(path, type, isGenerated));
+    };
 
-    root->addNestedNodes(fileNodes);
     root->compress();
 }
 
@@ -190,14 +188,12 @@ QbsRootProjectNode *QbsNodeTreeBuilder::buildTree(QbsProject *project)
                                               ProjectExplorer::NodeType::Folder,
                                               QCoreApplication::translate("QbsRootProjectNode", "Qbs files"));
 
-    QList<ProjectExplorer::FileNode *> projectBuildSystemFiles;
     Utils::FileName base = project->projectDirectory();
     for (const QString &f : unreferencedBuildSystemFiles(project->qbsProject())) {
         const Utils::FileName filePath = Utils::FileName::fromString(f);
         if (filePath.isChildOf(base))
-                projectBuildSystemFiles.append(new ProjectExplorer::FileNode(filePath, ProjectExplorer::FileType::Project, false));
+            root->addNestedNode(new ProjectExplorer::FileNode(filePath, ProjectExplorer::FileType::Project, false));
     }
-    buildSystemFiles->addNestedNodes(projectBuildSystemFiles);
     buildSystemFiles->compress();
     root->addNode(buildSystemFiles);
 
