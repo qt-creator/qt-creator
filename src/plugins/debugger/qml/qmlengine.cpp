@@ -2536,7 +2536,8 @@ void QmlEnginePrivate::stateChanged(State state)
         /// Start session.
         flushSendBuffer();
         QJsonObject parameters;
-        parameters.insert("sanity", 1);
+        parameters.insert("redundantRefs", false);
+        parameters.insert("namesAsObjects", false);
         runDirectCommand(CONNECT, QJsonDocument(parameters).toJson());
         runCommand({VERSION}, CB(handleVersion));
     }
