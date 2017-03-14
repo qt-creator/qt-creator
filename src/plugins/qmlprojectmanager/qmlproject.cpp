@@ -145,8 +145,8 @@ void QmlProject::parseProject(RefreshOptions options)
         }
         if (m_projectItem) {
             m_projectItem.data()->setSourceDirectory(projectDir().path());
-            if (modelManager())
-                modelManager()->updateSourceFiles(m_projectItem.data()->files(), true);
+            if (auto modelManager = QmlJS::ModelManagerInterface::instance())
+                modelManager->updateSourceFiles(m_projectItem.data()->files(), true);
 
             QString mainFilePath = m_projectItem.data()->mainFile();
             if (!mainFilePath.isEmpty()) {
@@ -180,35 +180,19 @@ void QmlProject::refresh(RefreshOptions options)
     if (options & Files)
         generateProjectTree();
 
-    if (!modelManager())
+    auto modelManager = QmlJS::ModelManagerInterface::instance();
+    if (!modelManager)
         return;
 
     QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
-            modelManager()->defaultProjectInfoForProject(this);
+            modelManager->defaultProjectInfoForProject(this);
     foreach (const QString &searchPath, customImportPaths())
         projectInfo.importPaths.maybeInsert(Utils::FileName::fromString(searchPath),
                                             QmlJS::Dialect::Qml);
 
-    modelManager()->updateProjectInfo(projectInfo, this);
+    modelManager->updateProjectInfo(projectInfo, this);
 
     emit parsingFinished();
-}
-
-QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const
-{
-    const QDir projectDir(projectDirectory().toString());
-    QStringList absolutePaths;
-    foreach (const QString &file, paths) {
-        QFileInfo fileInfo(projectDir, file);
-        absolutePaths.append(fileInfo.absoluteFilePath());
-    }
-    absolutePaths.removeDuplicates();
-    return absolutePaths;
-}
-
-QmlJS::ModelManagerInterface *QmlProject::modelManager() const
-{
-    return QmlJS::ModelManagerInterface::instance();
 }
 
 QStringList QmlProject::files() const
@@ -265,8 +249,10 @@ QmlProject::QmlImport QmlProject::defaultImport() const
 void QmlProject::refreshFiles(const QSet<QString> &/*added*/, const QSet<QString> &removed)
 {
     refresh(Files);
-    if (!removed.isEmpty() && modelManager())
-        modelManager()->removeFiles(removed.toList());
+    if (!removed.isEmpty()) {
+        if (auto modelManager = QmlJS::ModelManagerInterface::instance())
+            modelManager->removeFiles(removed.toList());
+    }
 }
 
 QString QmlProject::displayName() const
