@@ -703,7 +703,8 @@ ProjectNode::ProjectNode(const Utils::FileName &projectFilePath) :
 
 QString ProjectNode::vcsTopic() const
 {
-    const QString dir = filePath().toFileInfo().absolutePath();
+    const QFileInfo fi = filePath().toFileInfo();
+    const QString dir = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
 
     if (Core::IVersionControl *const vc =
             Core::VcsManager::findVersionControlForDirectory(dir))
