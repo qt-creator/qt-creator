@@ -104,7 +104,7 @@ void TextEditorWidget::updateSelectionByCursorPosition()
 
     if (rewriterView) {
         ModelNode modelNode = rewriterView->nodeAtTextCursorPosition(cursorPosition);
-        if (modelNode.isValid())
+        if (modelNode.isValid() && !m_textEditorView->isSelectedModelNode(modelNode))
             m_textEditorView->setSelectedModelNode(modelNode);
     }
 }
