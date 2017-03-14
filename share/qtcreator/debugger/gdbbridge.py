@@ -976,11 +976,18 @@ class Dumper(DumperBase):
 
         for objfile in gdb.objfiles():
             name = objfile.filename
-            if name.find('/libQt5Core') >= 0:
+            if self.isWindowsTarget():
+                isQtCoreObjFile = name.find('Qt5Cored.dll') >= 0 or name.find('Qt5Core.dll') >= 0
+            else:
+                isQtCoreObjFile = name.find('/libQt5Core') >= 0
+            if isQtCoreObjFile:
                 fd, tmppath = tempfile.mkstemp()
                 os.close(fd)
                 cmd = 'maint print msymbols %s "%s"' % (tmppath, name)
-                symbols = gdb.execute(cmd, to_string = True)
+                try:
+                    symbols = gdb.execute(cmd, to_string = True)
+                except:
+                    pass
                 ns = ''
                 with open(tmppath) as f:
                     for line in f:
