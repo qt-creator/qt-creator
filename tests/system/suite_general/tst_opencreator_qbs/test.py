@@ -43,8 +43,8 @@ def main():
         return
     test.log("Start parsing project")
     rootNodeTemplate = "{column='0' container=':Qt Creator_Utils::NavigationTreeView' text~='%s( \[\S+\])?' type='QModelIndex'}"
-    ntwObject = waitForObject(rootNodeTemplate % "qtcreator.qbs")
-    if waitFor("ntwObject.model().rowCount(ntwObject) > 2", 200000):    # No need to wait for C++-parsing
+    ntwObject = waitForObject(rootNodeTemplate % "Qt Creator", 200000)
+    if waitFor("ntwObject.model().rowCount(ntwObject) > 2", 20000):     # No need to wait for C++-parsing
         test.log("Parsing project done")                                # we only need the project
     else:
         test.warning("Parsing project timed out")
