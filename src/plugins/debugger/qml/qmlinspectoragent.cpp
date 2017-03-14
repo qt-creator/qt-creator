@@ -606,7 +606,15 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
             name = obj.className();
 
         if (name.isEmpty())
-            return;
+            name = obj.name();
+
+        if (name.isEmpty()) {
+            FileReference file = obj.source();
+            name = file.url().fileName() + ':' + QString::number(file.lineNumber());
+        }
+
+        if (name.isEmpty())
+            name = tr("<anonymous>");
 
         // object
         auto objWatch = new WatchItem;
