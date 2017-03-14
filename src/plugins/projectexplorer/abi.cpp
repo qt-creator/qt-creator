@@ -30,6 +30,7 @@
 #include <QDebug>
 #include <QtEndian>
 #include <QFile>
+#include <QRegExp>
 #include <QString>
 #include <QStringList>
 #include <QSysInfo>

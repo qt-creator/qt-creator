@@ -37,6 +37,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QMessageBox>
+#include <QRegExp>
 #include <QStack>
 
 #include <functional>

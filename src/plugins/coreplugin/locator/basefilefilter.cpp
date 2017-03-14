@@ -30,6 +30,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDir>
+#include <QRegExp>
 #include <QStringMatcher>
 #include <QTimer>
 

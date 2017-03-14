@@ -30,6 +30,8 @@
 #include <projectexplorer/runnables.h>
 #include <utils/qtcassert.h>
 
+#include <QRegExp>
+
 using namespace ProjectExplorer;
 
 namespace Qnx {

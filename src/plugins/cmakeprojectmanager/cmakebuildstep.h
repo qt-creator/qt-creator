@@ -27,6 +27,8 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 
+#include <QRegExp>
+
 QT_BEGIN_NAMESPACE
 class QLineEdit;
 class QListWidget;
