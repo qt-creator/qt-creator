@@ -582,6 +582,10 @@ ModelNode RewriterView::nodeAtTextCursorPositionRekursive(const ModelNode &root,
 
     const int nodeTextLength = nodeLength(node);
     const int nodeTextOffset = nodeOffset(node);
+
+    if (nodeTextLength < 0)
+        return ModelNode();
+
     if (isInNodeDefinition(nodeTextOffset, nodeTextLength, cursorPosition))
         return node;
 
