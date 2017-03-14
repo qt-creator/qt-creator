@@ -155,6 +155,11 @@ bool QnxToolChain::fromMap(const QVariantMap &data)
         return false;
 
     m_sdpPath = data.value(QLatin1String(CompilerSdpPath)).toString();
+
+    // Make the ABIs QNX specific (if they aren't already).
+    setSupportedAbis(QnxUtils::convertAbis(supportedAbis()));
+    setTargetAbi(QnxUtils::convertAbi(targetAbi()));
+
     return true;
 }
 

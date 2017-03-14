@@ -82,6 +82,7 @@ public:
 
 private:
     mutable QList<LocatorFilterEntry> mEntries;
+    bool hasExtraInfo = false;
 };
 
 class CompletionList : public QTreeView
@@ -128,6 +129,7 @@ void LocatorModel::clear()
 {
     beginResetModel();
     mEntries.clear();
+    hasExtraInfo = false;
     endResetModel();
 }
 
@@ -140,7 +142,9 @@ int LocatorModel::rowCount(const QModelIndex & parent) const
 
 int LocatorModel::columnCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : 2;
+    if (parent.isValid())
+        return 0;
+    return hasExtraInfo ? 2 : 1;
 }
 
 QVariant LocatorModel::data(const QModelIndex &index, int role) const
@@ -187,6 +191,9 @@ void LocatorModel::addEntries(const QList<LocatorFilterEntry> &entries)
 {
     beginInsertRows(QModelIndex(), mEntries.size(), mEntries.size() + entries.size() - 1);
     mEntries.append(entries);
+    hasExtraInfo = hasExtraInfo || Utils::anyOf(entries, [](const LocatorFilterEntry &e) {
+        return !e.extraInfo.isEmpty();
+    });
     endInsertRows();
 }
 

@@ -58,6 +58,7 @@ public:
         UnixOS,
         WindowsOS,
         VxWorks,
+        QnxOS,
         UnknownOS
     };
 
@@ -90,6 +91,9 @@ public:
         WindowsCEFlavor,
 
         VxWorksFlavor,
+
+        // QNX
+        GenericQnxFlavor,
 
         UnknownFlavor
     };

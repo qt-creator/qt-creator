@@ -47,7 +47,10 @@ def main():
                                                                   minimumQtVersion=qtVersion,
                                                                   withControls = controls)
         if len(checkedTargets) == 0:
-            test.fatal("Could not check wanted target")
+            if controls and qtVersion < "5.7":
+                test.xfail("Could not check wanted target.", "Quick Controls 2 wizard needs Qt5.7+")
+            else:
+                test.fatal("Could not check wanted target")
             continue
         additionalText = ''
         if controls:

@@ -65,5 +65,12 @@
         <file>unit_test/simple_gt/tests/gt3/gt3.qbs</file>
         <file>unit_test/simple_gt/tests/gt3/main.cpp</file>
         <file>unit_test/simple_gt/tests/common/functions.js</file>
+        <file>unit_test/mixed_atp/tests/auto/quickauto3/Bar.qml</file>
+        <file>unit_test/mixed_atp/tests/auto/quickauto3/Foo.qml</file>
+        <file>unit_test/mixed_atp/tests/auto/quickauto3/main.cpp</file>
+        <file>unit_test/mixed_atp/tests/auto/quickauto3/quickauto3.pro</file>
+        <file>unit_test/mixed_atp/tests/auto/quickauto3/quickauto3.qbs</file>
+        <file>unit_test/mixed_atp/tests/auto/quickauto3/tst_test1.qml</file>
+        <file>unit_test/mixed_atp/tests/auto/quickauto3/tst_test2.qml</file>
     </qresource>
 </RCC>
