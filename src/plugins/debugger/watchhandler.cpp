@@ -2008,7 +2008,7 @@ bool WatchHandler::insertItem(WatchItem *item)
 
     bool found = false;
     const std::vector<TreeItem *> siblings(parent->begin(), parent->end());
-    for (int row = 0, n = siblings.size(); row < n; ++row) {
+    for (int row = 0, n = int(siblings.size()); row < n; ++row) {
         if (static_cast<WatchItem *>(siblings[row])->iname == item->iname) {
             m_model->destroyItem(parent->childAt(row));
             parent->insertChild(row, item);
