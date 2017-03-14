@@ -257,7 +257,7 @@ bool BuildDirManager::persistCMakeState()
     return true;
 }
 
-void BuildDirManager::generateProjectTree(CMakeListsNode *root, const QList<const FileNode *> &allFiles)
+void BuildDirManager::generateProjectTree(CMakeProjectNode *root, const QList<const FileNode *> &allFiles)
 {
     QTC_ASSERT(m_reader, return);
 

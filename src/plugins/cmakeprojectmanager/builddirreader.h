@@ -42,7 +42,7 @@ namespace CMakeProjectManager {
 namespace Internal {
 
 class CMakeBuildConfiguration;
-class CMakeListsNode;
+class CMakeProjectNode;
 
 class BuildDirReader : public QObject
 {
@@ -95,7 +95,7 @@ public:
 
     virtual CMakeConfig takeParsedConfiguration() = 0;
     virtual QList<CMakeBuildTarget> buildTargets() const = 0;
-    virtual void generateProjectTree(CMakeListsNode *root,
+    virtual void generateProjectTree(CMakeProjectNode *root,
                                      const QList<const ProjectExplorer::FileNode *> &allFiles) = 0;
     virtual void updateCodeModel(CppTools::RawProjectParts &rpps) = 0;
 

@@ -231,7 +231,7 @@ static void addCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, i
         fn->compress();
 }
 
-static void addCMakeInputs(CMakeListsNode *root,
+static void addCMakeInputs(FolderNode *root,
                            const Utils::FileName &sourceDir,
                            const Utils::FileName &buildDir,
                            QList<FileNode *> &sourceInputs,
@@ -252,7 +252,7 @@ static void addCMakeInputs(CMakeListsNode *root,
                     rootInputs);
 }
 
-void ServerModeReader::generateProjectTree(CMakeListsNode *root,
+void ServerModeReader::generateProjectTree(CMakeProjectNode *root,
                                            const QList<const FileNode *> &allFiles)
 {
     // Split up cmake inputs into useful chunks:
@@ -527,7 +527,7 @@ void ServerModeReader::extractCacheData(const QVariantMap &data)
     m_cmakeCache = config;
 }
 
-void ServerModeReader::addCMakeLists(CMakeListsNode *root, const QList<FileNode *> &cmakeLists)
+void ServerModeReader::addCMakeLists(CMakeProjectNode *root, const QList<FileNode *> &cmakeLists)
 {
     const QDir baseDir = QDir(m_parameters.sourceDirectory.toString());
 
@@ -540,7 +540,7 @@ void ServerModeReader::addCMakeLists(CMakeListsNode *root, const QList<FileNode 
     });
 }
 
-static CMakeListsNode *findCMakeNode(CMakeListsNode *root, const Utils::FileName &dir)
+static CMakeListsNode *findCMakeNode(FolderNode *root, const Utils::FileName &dir)
 {
     const Utils::FileName stepDir = dir;
     const Utils::FileName topDir = root->filePath();
@@ -558,7 +558,7 @@ static CMakeListsNode *findCMakeNode(CMakeListsNode *root, const Utils::FileName
     return dynamic_cast<CMakeListsNode *>(result);
 }
 
-static CMakeProjectNode *findOrCreateProjectNode(CMakeListsNode *root, const Utils::FileName &dir,
+static CMakeProjectNode *findOrCreateProjectNode(FolderNode *root, const Utils::FileName &dir,
                                                  const QString &displayName)
 {
     CMakeListsNode *cmln = findCMakeNode(root, dir);
@@ -576,7 +576,7 @@ static CMakeProjectNode *findOrCreateProjectNode(CMakeListsNode *root, const Uti
     return pn;
 }
 
-void ServerModeReader::addProjects(CMakeListsNode *root,
+void ServerModeReader::addProjects(CMakeProjectNode *root,
                                    const QList<Project *> &projects,
                                    const QList<const FileNode *> &allFiles)
 {
@@ -595,7 +595,7 @@ void ServerModeReader::addProjects(CMakeListsNode *root,
     }
 }
 
-static CMakeTargetNode *findOrCreateTargetNode(CMakeListsNode *root, const Utils::FileName &dir,
+static CMakeTargetNode *findOrCreateTargetNode(FolderNode *root, const Utils::FileName &dir,
                                                const QString &displayName)
 {
     CMakeListsNode *cmln = findCMakeNode(root, dir);
@@ -613,7 +613,7 @@ static CMakeTargetNode *findOrCreateTargetNode(CMakeListsNode *root, const Utils
     return tn;
 }
 
-void ServerModeReader::addTargets(CMakeListsNode *root,
+void ServerModeReader::addTargets(CMakeProjectNode *root,
                                   const QList<ServerModeReader::Target *> &targets,
                                   const QHash<FileName, QList<const FileNode *>> &headers)
 {

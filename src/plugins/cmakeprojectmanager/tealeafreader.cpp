@@ -264,7 +264,7 @@ CMakeConfig TeaLeafReader::takeParsedConfiguration()
     return result;
 }
 
-void TeaLeafReader::generateProjectTree(CMakeListsNode *root, const QList<const FileNode *> &allFiles)
+void TeaLeafReader::generateProjectTree(CMakeProjectNode *root, const QList<const FileNode *> &allFiles)
 {
     root->setDisplayName(m_projectName);
 
