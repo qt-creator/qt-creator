@@ -44,8 +44,7 @@ public:
     explicit GenericProjectNode(GenericProject *project);
 
     bool showInSimpleTree() const override;
-
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
+    bool supportsAction(ProjectExplorer::ProjectAction action, Node *node) const override;
 
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;

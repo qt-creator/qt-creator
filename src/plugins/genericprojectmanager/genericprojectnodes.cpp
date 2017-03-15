@@ -78,16 +78,14 @@ bool GenericProjectNode::showInSimpleTree() const
     return true;
 }
 
-QList<ProjectAction> GenericProjectNode::supportedActions(Node *node) const
+bool GenericProjectNode::supportsAction(ProjectAction action, Node *node) const
 {
     Q_UNUSED(node);
-    return {
-        AddNewFile,
-        AddExistingFile,
-        AddExistingDirectory,
-        RemoveFile,
-        Rename
-    };
+    return action == AddNewFile
+        || action == AddExistingFile
+        || action == AddExistingDirectory
+        || action == RemoveFile
+        || action == Rename;
 }
 
 bool GenericProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)

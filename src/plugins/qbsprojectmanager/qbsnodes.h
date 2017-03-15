@@ -55,7 +55,7 @@ public:
                   const QString &displayName);
 
 private:
-    QList<ProjectExplorer::ProjectAction> supportedActions(ProjectExplorer::Node *node) const override;
+    bool supportsAction(ProjectExplorer::ProjectAction action, Node *node) const final;
 };
 
 // ---------------------------------------------------------------------------
@@ -70,10 +70,6 @@ public:
     explicit QbsBaseProjectNode(const Utils::FileName &absoluteFilePath);
 
     bool showInSimpleTree() const override;
-
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
-private:
-    friend class QbsGroupNode;
 };
 
 // --------------------------------------------------------------------
@@ -85,7 +81,7 @@ class QbsGroupNode : public QbsBaseProjectNode
 public:
     QbsGroupNode(const qbs::GroupData &grp, const QString &productPath);
 
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
+    bool supportsAction(ProjectExplorer::ProjectAction action, Node *node) const final;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
@@ -107,7 +103,7 @@ public:
     explicit QbsProductNode(const qbs::ProductData &prd);
 
     bool showInSimpleTree() const override;
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
+    bool supportsAction(ProjectExplorer::ProjectAction action, Node *node) const final;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;

@@ -42,9 +42,3 @@ bool AutotoolsProjectNode::showInSimpleTree() const
 {
     return true;
 }
-
-QList<ProjectAction> AutotoolsProjectNode::supportedActions(Node *node) const
-{
-    Q_UNUSED(node);
-    return QList<ProjectAction>();
-}

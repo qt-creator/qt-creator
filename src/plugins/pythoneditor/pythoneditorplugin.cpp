@@ -122,11 +122,7 @@ public:
     PythonProjectNode(PythonProject *project);
 
     bool showInSimpleTree() const override;
-
-    QList<ProjectAction> supportedActions(Node *node) const override;
-
     QString addFileFilter() const override;
-
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
 private:
@@ -653,13 +649,6 @@ QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<Q
 bool PythonProjectNode::showInSimpleTree() const
 {
     return true;
-}
-
-QList<ProjectAction> PythonProjectNode::supportedActions(Node *node) const
-{
-    Q_UNUSED(node);
-    //return { AddNewFile, AddExistingFile, AddExistingDirectory, RemoveFile, Rename };
-    return {};
 }
 
 QString PythonProjectNode::addFileFilter() const

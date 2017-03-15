@@ -2938,8 +2938,6 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
     Node *currentNode = ProjectTree::currentNode();
 
     if (currentNode && currentNode->managingProject()) {
-        QList<ProjectAction> actions = currentNode->supportedActions(currentNode);
-
         ProjectNode *pn;
         if (ContainerNode *cn = currentNode->asContainerNode())
             pn = cn->rootProjectNode();
@@ -2967,56 +2965,61 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
                 }
             }
         }
+
+        auto supports = [currentNode](ProjectAction action) {
+            return currentNode->supportsAction(action, currentNode);
+        };
+
         if (currentNode->asFolderNode()) {
             // Also handles ProjectNode
-            m_addNewFileAction->setEnabled(actions.contains(AddNewFile)
+            m_addNewFileAction->setEnabled(currentNode->supportsAction(AddNewFile, currentNode)
                                               && !ICore::isNewItemDialogRunning());
             m_addNewSubprojectAction->setEnabled(currentNode->nodeType() == NodeType::Project
-                                                    && actions.contains(AddSubProject)
+                                                    && supports(AddSubProject)
                                                     && !ICore::isNewItemDialogRunning());
             m_removeProjectAction->setEnabled(currentNode->nodeType() == NodeType::Project
-                                                    && actions.contains(RemoveSubProject));
-            m_addExistingFilesAction->setEnabled(actions.contains(AddExistingFile));
-            m_addExistingDirectoryAction->setEnabled(actions.contains(AddExistingDirectory));
-            m_renameFileAction->setEnabled(actions.contains(Rename));
+                                                    && supports(RemoveSubProject));
+            m_addExistingFilesAction->setEnabled(supports(AddExistingFile));
+            m_addExistingDirectoryAction->setEnabled(supports(AddExistingDirectory));
+            m_renameFileAction->setEnabled(supports(Rename));
         } else if (currentNode->asFileNode()) {
             // Enable and show remove / delete in magic ways:
             // If both are disabled show Remove
             // If both are enabled show both (can't happen atm)
             // If only removeFile is enabled only show it
             // If only deleteFile is enable only show it
-            bool enableRemove = actions.contains(RemoveFile);
+            bool enableRemove = supports(RemoveFile);
             m_removeFileAction->setEnabled(enableRemove);
-            bool enableDelete = actions.contains(EraseFile);
+            bool enableDelete = supports(EraseFile);
             m_deleteFileAction->setEnabled(enableDelete);
             m_deleteFileAction->setVisible(enableDelete);
 
             m_removeFileAction->setVisible(!enableDelete || enableRemove);
-            m_renameFileAction->setEnabled(actions.contains(Rename));
+            m_renameFileAction->setEnabled(supports(Rename));
             const bool currentNodeIsTextFile = isTextFile(
                         ProjectTree::currentNode()->filePath().toString());
             m_diffFileAction->setEnabled(isDiffServiceAvailable()
                         && currentNodeIsTextFile && TextEditor::TextDocument::currentTextDocument());
 
-            m_duplicateFileAction->setVisible(actions.contains(DuplicateFile));
-            m_duplicateFileAction->setEnabled(actions.contains(DuplicateFile));
+            m_duplicateFileAction->setVisible(supports(DuplicateFile));
+            m_duplicateFileAction->setEnabled(supports(DuplicateFile));
 
             EditorManager::populateOpenWithMenu(m_openWithMenu,
                                                 ProjectTree::currentNode()->filePath().toString());
         }
 
-        if (actions.contains(HidePathActions)) {
+        if (supports(HidePathActions)) {
             m_openTerminalHere->setVisible(false);
             m_showInGraphicalShell->setVisible(false);
             m_searchOnFileSystem->setVisible(false);
         }
 
-        if (actions.contains(HideFileActions)) {
+        if (supports(HideFileActions)) {
             m_deleteFileAction->setVisible(false);
             m_removeFileAction->setVisible(false);
         }
 
-        if (actions.contains(HideFolderActions)) {
+        if (supports(HideFolderActions)) {
             m_addNewFileAction->setVisible(false);
             m_addNewSubprojectAction->setVisible(false);
             m_removeProjectAction->setVisible(false);
@@ -3052,8 +3055,7 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
     QString location = directoryFor(currentNode);
 
     if (currentNode->nodeType() == NodeType::Project
-            && currentNode->supportedActions(
-                currentNode).contains(AddSubProject)) {
+            && currentNode->supportsAction(AddSubProject, currentNode)) {
         QVariantMap map;
         map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(currentNode));
         Project *project = ProjectTree::currentProject();

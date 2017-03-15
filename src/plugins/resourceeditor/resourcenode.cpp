@@ -160,7 +160,7 @@ public:
                      ResourceTopLevelNode *topLevel, ResourceFolderNode *prefixNode);
 
     QString displayName() const final;
-    QList<ProjectAction> supportedActions(Node *node) const final;
+    bool supportsAction(ProjectAction, Node *node) const final;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) final;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved) final;
     bool renameFile(const QString &filePath, const QString &newFilePath) final;
@@ -199,17 +199,15 @@ SimpleResourceFolderNode::SimpleResourceFolderNode(const QString &afolderName, c
 
 }
 
-QList<ProjectAction> SimpleResourceFolderNode::supportedActions(Node *) const
+bool SimpleResourceFolderNode::supportsAction(ProjectAction action, Node *) const
 {
-    return {
-        AddNewFile,
-        AddExistingFile,
-        AddExistingDirectory,
-        RemoveFile,
-        DuplicateFile,
-        Rename, // Note: only works for the filename, works akwardly for relative file paths
-        InheritedFromParent // Do not add to list of projects when adding new file
-    };
+    return action == AddNewFile
+        || action == AddExistingFile
+        || action == AddExistingDirectory
+        || action == RemoveFile
+        || action == DuplicateFile
+        || action == Rename // Note: only works for the filename, works akwardly for relative file paths
+        || action == InheritedFromParent; // Do not add to list of projects when adding new file
 }
 
 bool SimpleResourceFolderNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
@@ -387,11 +385,15 @@ QString ResourceTopLevelNode::addFileFilter() const
     return QLatin1String("*.png; *.jpg; *.gif; *.svg; *.ico; *.qml; *.qml.ui");
 }
 
-QList<ProjectAction> ResourceTopLevelNode::supportedActions(Node *node) const
+bool ResourceTopLevelNode::supportsAction(ProjectAction action, Node *node) const
 {
     if (node != this)
-        return {};
-    return {AddNewFile, AddExistingFile, AddExistingDirectory, HidePathActions, Rename};
+        return false;
+    return action == AddNewFile
+        || action == AddExistingFile
+        || action == AddExistingDirectory
+        || action == HidePathActions
+        || action == Rename;
 }
 
 bool ResourceTopLevelNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
@@ -504,25 +506,23 @@ ResourceFolderNode::~ResourceFolderNode()
 
 }
 
-QList<ProjectAction> ResourceFolderNode::supportedActions(Node *node) const
+bool ResourceFolderNode::supportsAction(ProjectAction action, Node *node) const
 {
     Q_UNUSED(node)
-    QList<ProjectAction> actions = {
-        AddNewFile,
-        AddExistingFile,
-        AddExistingDirectory,
-        RemoveFile,
-        DuplicateFile,
-        Rename, // Note: only works for the filename, works akwardly for relative file paths
-        HidePathActions, // hides open terminal etc.
-    };
 
-    // if the prefix is '/' (without lang) hide this node in add new dialog,
-    // as the ResouceTopLevelNode is always shown for the '/' prefix
-    if (m_prefix == QLatin1String("/") && m_lang.isEmpty())
-        actions << InheritedFromParent;
+    if (action == InheritedFromParent) {
+        // if the prefix is '/' (without lang) hide this node in add new dialog,
+        // as the ResouceTopLevelNode is always shown for the '/' prefix
+        return m_prefix == QLatin1String("/") && m_lang.isEmpty();
+    }
 
-    return actions;
+    return action == AddNewFile
+        || action == AddExistingFile
+        || action == AddExistingDirectory
+        || action == RemoveFile
+        || action == DuplicateFile
+        || action == Rename // Note: only works for the filename, works akwardly for relative file paths
+        || action == HidePathActions; // hides open terminal etc.
 }
 
 bool ResourceFolderNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
@@ -674,12 +674,11 @@ QString ResourceFileNode::qrcPath() const
     return m_qrcPath;
 }
 
-QList<ProjectAction> ResourceFileNode::supportedActions(Node *node) const
+bool ResourceFileNode::supportsAction(ProjectAction action, Node *node) const
 {
-    QList<ProjectAction> actions = parentFolderNode()->supportedActions(node);
-    actions.removeOne(HidePathActions);
-    return actions;
+    if (action == HidePathActions)
+        return false;
+    return parentFolderNode()->supportsAction(action, node);
 }
-
 
 } // ResourceEditor

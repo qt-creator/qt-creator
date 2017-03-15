@@ -38,7 +38,7 @@ class NimProjectNode : public ProjectExplorer::ProjectNode
 public:
     NimProjectNode(NimProject &project, const Utils::FileName &projectFilePath);
 
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
+    bool supportsAction(ProjectExplorer::ProjectAction action, Node *node) const override;
     bool addFiles(const QStringList &filePaths, QStringList *) override;
     bool removeFiles(const QStringList &filePaths, QStringList *) override;
     bool deleteFiles(const QStringList &) override;

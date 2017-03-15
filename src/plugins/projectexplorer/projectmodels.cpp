@@ -145,7 +145,7 @@ Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const
     if (Node *node = nodeForIndex(index)) {
         if (!node->asProjectNode()) {
             // either folder or file node
-            if (node->supportedActions(node).contains(Rename))
+            if (node->supportsAction(Rename, node))
                 f = f | Qt::ItemIsEditable;
         }
     }
