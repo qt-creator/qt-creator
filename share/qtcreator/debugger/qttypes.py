@@ -1078,6 +1078,26 @@ def qdump__QMetaObject(d, value):
             d.putMembersItem(value)
 
 
+def qdump__QObjectPrivate__ConnectionList(d, value):
+    d.putNumChild(1)
+    if d.isExpanded():
+        i = 0
+        with Children(d):
+            first, last = value.split('pp')
+            currentConnection = first
+            connectionType = d.createType('QObjectPrivate::Connection')
+            while currentConnection and currentConnection != last:
+                sender, receiver, slotObj, nextConnectionList, nextp, prev = \
+                    d.split('pppppp', currentConnection)
+                d.putSubItem(i, d.createValue(currentConnection, connectionType))
+                currentConnection = nextp
+                i += 1
+            d.putFields(value)
+        d.putItemCount(i)
+    else:
+        d.putSpecialValue('minimumitemcount', 0)
+
+
 def qdump__QPixmap(d, value):
     if d.qtVersion() < 0x050000:
         (vtbl, painters, dataPtr) = value.split('ppp');

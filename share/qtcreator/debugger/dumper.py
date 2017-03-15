@@ -1863,16 +1863,46 @@ class DumperBase:
                             self.putTypedPointer('[extraData]', extraData,
                                  ns + 'QObjectPrivate::ExtraData')
 
-                        if connectionListsPtr:
-                            self.putTypedPointer('[connectionLists]', connectionListsPtr,
-                                 ns + 'QObjectConnectionListVector')
-
                         with SubItem(self, '[metaObject]'):
                             self.putAddress(metaObjectPtr)
                             self.putNumChild(1)
                             if self.isExpanded():
                                 with Children(self):
                                     self.putQObjectGutsHelper(0, 0, -1, metaObjectPtr, 'QMetaObject')
+
+                        with SubItem(self, '[connections]'):
+                            if connectionListsPtr:
+                                typeName = ns + 'QVector<' + ns + 'QObjectPrivate::ConnectionList>'
+                                self.putItem(self.createValue(connectionListsPtr, typeName))
+                            else:
+                                self.putItemCount(0)
+
+                        with SubItem(self, '[signals]'):
+                            self.putItemCount(signalCount)
+                            if self.isExpanded():
+                                with Children(self):
+                                    j = -1
+                                    for i in range(signalCount):
+                                        t = self.split('IIIII', dataPtr + 56 + 20 * i)
+                                        flags = t[4]
+                                        if flags != 0x06:
+                                            continue
+                                        j += 1
+                                        with SubItem(self, j):
+                                            name = self.metaString(metaObjectPtr, t[0], revision)
+                                            self.putType(' ')
+                                            self.putValue(name)
+                                            self.putNumChild(1)
+                                            with Children(self):
+                                                putt('[nameindex]', t[0])
+                                                #putt('[type]', 'signal')
+                                                putt('[argc]', t[1])
+                                                putt('[parameter]', t[2])
+                                                putt('[tag]', t[3])
+                                                putt('[flags]', t[4])
+                                                putt('[localindex]', str(i))
+                                                putt('[globalindex]', str(globalOffset + i))
+                                                #self.putQObjectConnections(dd)
 
 
         if isQMetaObject or isQObject:
@@ -2011,20 +2041,6 @@ class DumperBase:
                 self.putField('sortgroup', 11)
                 self.putValue(globalOffset + localIndex)
 
-
-        #with SubItem(self, '[signals]'):
-        #    self.putItemCount(signalCount)
-        #    signalNames = metaData(52, -14, 5)
-        #    warn('NAMES: %s' % signalNames)
-        #    if self.isExpanded():
-        #        with Children(self):
-        #            putt('A', 'b')
-        #            for i in range(signalCount):
-        #                k = signalNames[i]
-        #                with SubItem(self, k):
-        #                    self.putEmptyValue()
-        #            if dd:
-        #                self.putQObjectConnections(dd)
 
     def putQObjectConnections(self, dd):
         with SubItem(self, '[connections]'):
