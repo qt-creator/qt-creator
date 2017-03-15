@@ -419,7 +419,7 @@ void Project::setDocument(Core::IDocument *doc)
     d->m_document = doc;
 
     if (!d->m_rootProjectNode) {
-        auto newRoot = new ProjectNode(projectFilePath());
+        auto newRoot = new ProjectNode(projectDirectory());
         newRoot->setDisplayName(displayName());
         newRoot->addNode(new FileNode(projectFilePath(), FileType::Project, false));
         setRootProjectNode(newRoot);
