@@ -625,7 +625,7 @@ QString ScxmlDocument::getUniqueCopyId(const ScxmlTag *tag)
         // Check duplicate
         foreach (const ScxmlTag *t, m_tags) {
             if (t->attribute("id") == name && t != tag) {
-                name = QString::fromLatin1("%1_Copy(%2)").arg(key).arg(counter);
+                name = QString::fromLatin1("%1_Copy%2").arg(key).arg(counter);
                 bFound = true;
                 counter++;
             }
