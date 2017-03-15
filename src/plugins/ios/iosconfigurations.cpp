@@ -77,8 +77,8 @@ using ToolChainPair = std::pair<ClangToolChain *, ClangToolChain *>;
 namespace Ios {
 namespace Internal {
 
-const QLatin1String SettingsGroup("IosConfigurations");
-const QLatin1String ignoreAllDevicesKey("IgnoreAllDevices");
+const char SettingsGroup[] = "IosConfigurations";
+const char ignoreAllDevicesKey[] = "IgnoreAllDevices";
 const char screenshotDirPathKey[] = "ScreeshotDirPath";
 
 const char provisioningTeamsTag[] = "IDEProvisioningTeams";
@@ -98,9 +98,9 @@ static const QString provisioningProfileDirPath = QDir::homePath() + "/Library/M
 
 static Core::Id deviceId(const QString &sdkName)
 {
-    if (sdkName.toLower().startsWith(QLatin1String("iphoneos")))
+    if (sdkName.startsWith("iphoneos", Qt::CaseInsensitive))
         return Constants::IOS_DEVICE_TYPE;
-    else if (sdkName.toLower().startsWith(QLatin1String("iphonesimulator")))
+    else if (sdkName.startsWith("iphonesimulator", Qt::CaseInsensitive))
         return Constants::IOS_SIMULATOR_TYPE;
     return Core::Id();
 }
@@ -124,8 +124,8 @@ static QList<ClangToolChain *> autoDetectedIosToolChains()
     const QList<ClangToolChain *> toolChains = clangToolChains(ToolChainManager::toolChains());
     return Utils::filtered(toolChains, [](ClangToolChain *toolChain) {
         return toolChain->isAutoDetected()
-               && (toolChain->displayName().startsWith(QLatin1String("iphone"))
-                   || toolChain->displayName().startsWith(QLatin1String("Apple Clang"))); // TODO tool chains should be marked directly
+               && (toolChain->displayName().startsWith("iphone")
+                   || toolChain->displayName().startsWith("Apple Clang")); // TODO tool chains should be marked directly
     });
 }
 
