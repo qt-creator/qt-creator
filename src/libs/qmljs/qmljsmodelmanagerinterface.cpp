@@ -579,7 +579,7 @@ void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectE
            &majorVersion, &minorVersion, &patchVersion) != 3)
         majorVersion = minorVersion = patchVersion = -1;
 
-    if (majorVersion > 4 || (majorVersion == 4 && (minorVersion > 8 || (majorVersion == 8
+    if (majorVersion > 4 || (majorVersion == 4 && (minorVersion > 8 || (minorVersion == 8
                                                                        && patchVersion >= 5)))) {
         m_pluginDumper->loadBuiltinTypes(pinfo);
     }
