@@ -28,9 +28,6 @@ source("../../shared/qtcreator.py")
 project = "untitled"
 
 def main():
-    if platform.system() == "Darwin" and JIRA.isBugStillOpen(6853, JIRA.Bug.CREATOR):
-        test.xfail("This test is unstable on Mac, see QTCREATORBUG-6853.")
-        return
     outputQDebug = "Output from qDebug()."
     outputStdOut = "Output from std::cout."
     outputStdErr = "Output from std::cerr."
@@ -88,7 +85,6 @@ def main():
         test.log("Debugging application")
         isMsvc = isMsvcConfig(len(checkedTargets), kit)
         invokeMenuItem("Debug", "Start Debugging", "Start Debugging")
-        JIRA.performWorkaroundForBug(6853, JIRA.Bug.CREATOR, config)
         handleDebuggerWarnings(config, isMsvc)
         ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
         outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
