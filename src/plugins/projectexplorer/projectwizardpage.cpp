@@ -254,19 +254,6 @@ static inline AddNewTree *buildAddProjectTree(ProjectNode *root, const QString &
     return new AddNewTree(root, children, root->displayName());
 }
 
-static inline AddNewTree *buildAddProjectTree(SessionNode *root, const QString &projectPath, Node *contextNode, BestNodeSelector *selector)
-{
-    QList<AddNewTree *> children;
-    for (Node *node : root->nodes()) {
-        if (ProjectNode *pn = node->asProjectNode()) {
-            if (AddNewTree *child = buildAddProjectTree(pn, projectPath, contextNode, selector))
-                children.append(child);
-        }
-    }
-    children.prepend(createNoneNode(selector));
-    return new AddNewTree(root, children, root->displayName());
-}
-
 static inline AddNewTree *buildAddFilesTree(FolderNode *root, const QStringList &files,
                                             Node *contextNode, BestNodeSelector *selector)
 {
@@ -287,31 +274,6 @@ static inline AddNewTree *buildAddFilesTree(FolderNode *root, const QStringList 
     if (children.isEmpty())
         return nullptr;
     return new AddNewTree(root, children, root->displayName());
-}
-
-static inline AddNewTree *buildAddFilesTree(SessionNode *root, const QStringList &files,
-                                            Node *contextNode, BestNodeSelector *selector)
-{
-    QList<AddNewTree *> children;
-    for (Node *node : root->nodes()) {
-        if (ProjectNode *pn = node->asProjectNode()) {
-            if (AddNewTree *child = buildAddFilesTree(pn, files, contextNode, selector))
-                children.append(child);
-        }
-    }
-    children.prepend(createNoneNode(selector));
-    return new AddNewTree(root, children, root->displayName());
-}
-
-static inline AddNewTree *getChoices(const QStringList &generatedFiles,
-                                     IWizardFactory::WizardKind wizardKind,
-                                     Node *contextNode,
-                                     BestNodeSelector *selector)
-{
-    if (wizardKind == IWizardFactory::ProjectWizard)
-        return buildAddProjectTree(SessionManager::sessionNode(), generatedFiles.first(), contextNode, selector);
-    else
-        return buildAddFilesTree(SessionManager::sessionNode(), generatedFiles, contextNode, selector);
 }
 
 // --------------------------------------------------------------------
@@ -491,7 +453,25 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const QStringList &
                                               ProjectAction action)
 {
     BestNodeSelector selector(m_commonDirectory, paths);
-    AddNewTree *tree = getChoices(paths, kind, context, &selector);
+
+    AddNewTree *tree;
+    SessionNode *root = SessionManager::sessionNode();
+    QList<AddNewTree *> children;
+
+    for (Node *node : root->nodes()) {
+        if (ProjectNode *pn = node->asProjectNode()) {
+            if (kind == IWizardFactory::ProjectWizard) {
+                if (AddNewTree *child = buildAddProjectTree(pn, paths.first(), context, &selector))
+                    children.append(child);
+            } else {
+                if (AddNewTree *child = buildAddFilesTree(pn, paths, context, &selector))
+                    children.append(child);
+            }
+        }
+    }
+
+    children.prepend(createNoneNode(&selector));
+    tree = new AddNewTree(root, children, root->displayName());
 
     setAdditionalInfo(selector.deployingProjects());
 
