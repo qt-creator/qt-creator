@@ -3212,7 +3212,7 @@ void ProjectExplorerPluginPrivate::removeProject()
         RemoveFileDialog removeFileDialog(subProjectNode->filePath().toString(), ICore::mainWindow());
         removeFileDialog.setDeleteFileVisible(false);
         if (removeFileDialog.exec() == QDialog::Accepted)
-            projectNode->removeSubProjects(QStringList() << subProjectNode->filePath().toString());
+            projectNode->removeSubProject(subProjectNode->filePath().toString());
     }
 }
 

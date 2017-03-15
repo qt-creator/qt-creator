@@ -148,16 +148,16 @@ bool QmakePriFileNode::canAddSubProject(const QString &proFilePath) const
     return pri ? pri->canAddSubProject(proFilePath) : false;
 }
 
-bool QmakePriFileNode::addSubProjects(const QStringList &proFilePaths)
+bool QmakePriFileNode::addSubProject(const QString &proFilePath)
 {
     QmakePriFile *pri = priFile();
-    return pri ? pri->addSubProjects(proFilePaths) : false;
+    return pri ? pri->addSubProject(proFilePath) : false;
 }
 
-bool QmakePriFileNode::removeSubProjects(const QStringList &proFilePaths)
+bool QmakePriFileNode::removeSubProject(const QString &proFilePath)
 {
     QmakePriFile *pri = priFile();
-    return pri ? pri->removeSubProjects(proFilePaths) : false;
+    return pri ? pri->removeSubProjects(proFilePath) : false;
 }
 
 bool QmakePriFileNode::addFiles(const QStringList &filePaths, QStringList *notAdded)

@@ -720,15 +720,15 @@ bool ProjectNode::canAddSubProject(const QString &proFilePath) const
     return false;
 }
 
-bool ProjectNode::addSubProjects(const QStringList &proFilePaths)
+bool ProjectNode::addSubProject(const QString &proFilePath)
 {
-    Q_UNUSED(proFilePaths)
+    Q_UNUSED(proFilePath)
     return false;
 }
 
-bool ProjectNode::removeSubProjects(const QStringList &proFilePaths)
+bool ProjectNode::removeSubProject(const QString &proFilePath)
 {
-    Q_UNUSED(proFilePaths)
+    Q_UNUSED(proFilePath)
     return false;
 }
 

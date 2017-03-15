@@ -134,8 +134,8 @@ public:
     // ProjectNode interface
     virtual bool canAddSubProject(const QString &proFilePath) const;
 
-    virtual bool addSubProjects(const QStringList &proFilePaths);
-    virtual bool removeSubProjects(const QStringList &proFilePaths);
+    virtual bool addSubProject(const QString &proFile);
+    virtual bool removeSubProjects(const QString &proFilePath);
 
     virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr);
     virtual bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr);
