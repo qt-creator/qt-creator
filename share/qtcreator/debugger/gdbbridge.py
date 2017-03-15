@@ -959,10 +959,8 @@ class Dumper(DumperBase):
                     self.importPlainDumper(printer)
 
     def qtNamespace(self):
-        self.preping('qtNamespace')
-        res = self.qtNamespaceX()
-        self.ping('qtNamespace')
-        return res
+        # This function is replaced by handleQtCoreLoaded()
+        return ''
 
     def findSymbol(self, symbolName):
         try:
@@ -1003,6 +1001,12 @@ class Dumper(DumperBase):
         strns = ('%d%s' % (lenns - 2, ns[:lenns - 2])) if lenns else ''
 
         if lenns:
+            # This might be wrong, but we can't do better: We found
+            # a libQt5Core and could not extract a namespace.
+            # The best guess is that there isn't any.
+            self.qtNamespaceToReport = ns
+            self.qtNamespace = lambda: ns
+
             sym = '_ZN%s7QObject11customEventEPNS_6QEventE' % strns
         else:
             sym = '_ZN7QObject11customEventEP6QEvent'
@@ -1013,19 +1017,6 @@ class Dumper(DumperBase):
 
         sym = '_ZNK%s7QObject8propertyEPKc' % strns
         self.qtPropertyFunc = self.findSymbol(sym)
-
-        # This might be wrong, but we can't do better: We found
-        # a libQt5Core and could not extract a namespace.
-        # The best guess is that there isn't any.
-        self.qtNamespaceToReport = ns
-        self.qtNamespace = lambda: ns
-
-    def qtNamespaceX(self):
-        if not self.currentQtNamespaceGuess is None:
-            return self.currentQtNamespaceGuess
-
-        self.currentQtNamespaceGuess = ''
-        return ''
 
     def assignValue(self, args):
         typeName = self.hexdecode(args['type'])

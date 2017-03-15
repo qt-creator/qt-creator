@@ -286,8 +286,6 @@ class DumperBase:
             'personaltypes',
         ]
 
-        self.currentQtNamespaceGuess = None
-
         # These values are never used, but the variables need to have
         # some value base for the swapping logic in Children.__enter__()
         # and Children.__exit__().
@@ -323,11 +321,6 @@ class DumperBase:
         #warn('NAMESPACE: "%s"' % self.qtNamespace())
         #warn('EXPANDED INAMES: %s' % self.expandedINames)
         #warn('WATCHERS: %s' % self.watchers)
-
-        # The guess does not need to be updated during a fetchVariables()
-        # as the result is fixed during that time (ignoring "active"
-        # dumpers causing loading of shared objects etc).
-        self.currentQtNamespaceGuess = None
 
     def resetCaches(self):
         # This is a cache mapping from 'type name' to 'display alternatives'.
