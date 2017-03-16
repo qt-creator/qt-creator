@@ -50,7 +50,7 @@ namespace Internal { class TextMarkRegistry; }
 class TEXTEDITOR_EXPORT TextMark
 {
 public:
-    TextMark(const QString &fileName, int lineNumber, Core::Id category);
+    TextMark(const QString &fileName, int lineNumber, Core::Id category, double widthFactor = 1.0);
     virtual ~TextMark();
 
     // determine order on markers on the same line.

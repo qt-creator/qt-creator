@@ -33,10 +33,9 @@ namespace Internal {
 
 QmlProfilerTextMark::QmlProfilerTextMark(QmlProfilerTool *tool, int typeId, const QString &fileName,
                                          int lineNumber) :
-    TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY), m_tool(tool),
+    TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY, 3.5), m_tool(tool),
     m_typeIds(1, typeId)
 {
-    setWidthFactor(3.5);
 }
 
 void QmlProfilerTextMark::addTypeId(int typeId)

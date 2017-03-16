@@ -41,14 +41,14 @@ using namespace TextEditor::Internal;
 
 namespace TextEditor {
 
-TextMark::TextMark(const QString &fileName, int lineNumber, Id category)
+TextMark::TextMark(const QString &fileName, int lineNumber, Id category, double widthFactor)
     : m_baseTextDocument(0),
       m_fileName(fileName),
       m_lineNumber(lineNumber),
       m_priority(NormalPriority),
       m_visible(true),
       m_category(category),
-      m_widthFactor(1.0)
+      m_widthFactor(widthFactor)
 {
     if (!m_fileName.isEmpty())
         TextEditorPlugin::baseTextMarkRegistry()->add(this);
