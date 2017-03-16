@@ -66,6 +66,11 @@ void RawProjectPart::setConfigFileName(const QString &configFileName)
     this->projectConfigFile = configFileName;
 }
 
+void RawProjectPart::setBuildSystemTarget(const QString &target)
+{
+    buildSystemTarget = target;
+}
+
 void RawProjectPart::setCallGroupId(const QString &id)
 {
     callGroupId = id;

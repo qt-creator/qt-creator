@@ -29,12 +29,14 @@
 #include "../gitplugin.h"
 #include "../gitclient.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/shellcommand.h>
 #include <utils/hostosinfo.h>
 
 #include <QFile>
 #include <QJsonDocument>
 #include <QRegularExpression>
+#include <QSettings>
 
 using namespace Utils;
 using namespace Git::Internal;
@@ -44,6 +46,11 @@ namespace Internal {
 
 static const char defaultHostC[] = "codereview.qt-project.org";
 static const char accountUrlC[] = "/accounts/self";
+static const char isGerritKey[] = "IsGerrit";
+static const char rootPathKey[] = "RootPath";
+static const char userNameKey[] = "UserName";
+static const char fullNameKey[] = "FullName";
+static const char isAuthenticatedKey[] = "IsAuthenticated";
 
 bool GerritUser::isSameAs(const GerritUser &other) const
 {
@@ -111,7 +118,9 @@ QString GerritServer::url(UrlType urlType) const
     return res;
 }
 
-bool GerritServer::fillFromRemote(const QString &remote, const GerritParameters &parameters)
+bool GerritServer::fillFromRemote(const QString &remote,
+                                  const GerritParameters &parameters,
+                                  bool forceReload)
 {
     const GitRemote r(remote);
     if (!r.isValid)
@@ -136,12 +145,61 @@ bool GerritServer::fillFromRemote(const QString &remote, const GerritParameters 
     curlBinary = parameters.curl;
     if (curlBinary.isEmpty() || !QFile::exists(curlBinary))
         return false;
-    rootPath = r.path;
-    // Strip the last part of the path, which is always the repo name
-    // The rest of the path needs to be inspected to find the root path
-    // (can be http://example.net/review)
-    ascendPath();
-    return resolveRoot();
+    const StoredHostValidity validity = forceReload ? Invalid : loadSettings();
+    switch (validity) {
+    case Invalid:
+        rootPath = r.path;
+        // Strip the last part of the path, which is always the repo name
+        // The rest of the path needs to be inspected to find the root path
+        // (can be http://example.net/review)
+        ascendPath();
+        return resolveRoot();
+    case NotGerrit:
+        return false;
+    case Valid:
+        return true;
+    }
+    return true;
+}
+
+GerritServer::StoredHostValidity GerritServer::loadSettings()
+{
+    StoredHostValidity validity = Invalid;
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup("Gerrit/" + host);
+    if (!settings->value(isGerritKey, true).toBool()) {
+        validity = NotGerrit;
+    } else if (settings->contains(isAuthenticatedKey)) {
+        rootPath = settings->value(rootPathKey).toString();
+        user.userName = settings->value(userNameKey).toString();
+        user.fullName = settings->value(fullNameKey).toString();
+        authenticated = settings->value(isAuthenticatedKey).toBool();
+        validity = Valid;
+    }
+    settings->endGroup();
+    return validity;
+}
+
+void GerritServer::saveSettings(StoredHostValidity validity) const
+{
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup("Gerrit/" + host);
+    switch (validity) {
+    case NotGerrit:
+        settings->setValue(isGerritKey, false);
+        break;
+    case Valid:
+        settings->setValue(rootPathKey, rootPath);
+        settings->setValue(userNameKey, user.userName);
+        settings->setValue(fullNameKey, user.fullName);
+        settings->setValue(isAuthenticatedKey, authenticated);
+        break;
+    case Invalid:
+        settings->clear();
+        break;
+    }
+
+    settings->endGroup();
 }
 
 QStringList GerritServer::curlArguments()
@@ -165,8 +223,13 @@ int GerritServer::testConnection()
         QString output = resp.stdOut();
         output.remove(0, output.indexOf('\n')); // Strip first line
         QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
-        if (!doc.isNull())
-            user.fullName = doc.object().value("name").toString();
+        if (!doc.isNull()) {
+            const QJsonObject obj = doc.object();
+            user.fullName = obj.value("name").toString();
+            const QString userName = obj.value("username").toString();
+            if (!userName.isEmpty())
+                user.userName = userName;
+        }
         return 200;
     }
     const QRegularExpression errorRegexp("returned error: (\\d+)");
@@ -182,6 +245,7 @@ bool GerritServer::setupAuthentication()
     if (!dialog.exec())
         return false;
     authenticated = dialog.isAuthenticated();
+    saveSettings(Valid);
     return true;
 }
 
@@ -199,12 +263,15 @@ bool GerritServer::resolveRoot()
     for (;;) {
         switch (testConnection()) {
         case 200:
+            saveSettings(Valid);
             return true;
         case 401:
             return setupAuthentication();
         case 404:
-            if (!ascendPath())
+            if (!ascendPath()) {
+                saveSettings(NotGerrit);
                 return false;
+            }
             break;
         default: // unknown error - fail
             return false;

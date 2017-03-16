@@ -156,7 +156,7 @@ void NimProject::updateProject()
 
     auto newRoot = new NimProjectNode(*this, projectDirectory());
     newRoot->setDisplayName(displayName());
-    newRoot->buildTree(fileNodes);
+    newRoot->addNestedNodes(fileNodes);
     setRootProjectNode(newRoot);
 
     emit fileListChanged();

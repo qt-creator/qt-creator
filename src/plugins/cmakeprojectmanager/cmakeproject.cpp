@@ -309,21 +309,15 @@ QString CMakeProject::displayName() const
 
 QStringList CMakeProject::files(FilesMode fileMode) const
 {
-    const QList<FileNode *> nodes = filtered(rootProjectNode()->recursiveFileNodes(),
-                                             [fileMode](const FileNode *fn) {
+    QStringList result;
+    rootProjectNode()->forEachNode([&](const FileNode *fn) {
         const bool isGenerated = fn->isGenerated();
-        switch (fileMode)
-        {
-        case Project::SourceFiles:
-            return !isGenerated;
-        case Project::GeneratedFiles:
-            return isGenerated;
-        case Project::AllFiles:
-        default:
-            return true;
-        }
+        if (fileMode == Project::SourceFiles && !isGenerated)
+            result.append(fn->filePath().toString());
+        if (fileMode == Project::GeneratedFiles && isGenerated)
+            result.append(fn->filePath().toString());
     });
-    return transform(nodes, [fileMode](const FileNode* fn) { return fn->filePath().toString(); });
+    return result;
 }
 
 Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *errorMessage)

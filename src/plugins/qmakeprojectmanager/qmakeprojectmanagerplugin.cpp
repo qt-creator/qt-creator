@@ -357,6 +357,7 @@ void QmakeProjectManagerPlugin::updateContextActions()
     m_subProjectRebuildSeparator->setVisible(subProjectActionsVisible && isProjectNode);
     m_rebuildSubProjectContextMenu->setVisible(subProjectActionsVisible && isProjectNode);
     m_cleanSubProjectContextMenu->setVisible(subProjectActionsVisible && isProjectNode);
+    m_buildFileAction->setVisible(buildFilePossible);
 
     m_buildSubProjectAction->setEnabled(enabled);
     m_rebuildSubProjectAction->setEnabled(enabled);

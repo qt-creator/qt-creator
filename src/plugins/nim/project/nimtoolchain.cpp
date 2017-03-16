@@ -32,6 +32,7 @@
 
 #include <QFileInfo>
 #include <QProcess>
+#include <QRegExp>
 
 using namespace ProjectExplorer;
 using namespace Utils;

@@ -33,6 +33,8 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
+class CMakeListsNode;
+
 class ServerModeReader : public BuildDirReader
 {
     Q_OBJECT
@@ -54,7 +56,7 @@ public:
 
     QList<CMakeBuildTarget> buildTargets() const final;
     CMakeConfig takeParsedConfiguration() final;
-    void generateProjectTree(CMakeListsNode *root,
+    void generateProjectTree(CMakeProjectNode *root,
                              const QList<const ProjectExplorer::FileNode *> &allFiles) final;
     void updateCodeModel(CppTools::RawProjectParts &rpps) final;
 
@@ -62,6 +64,7 @@ private:
     void handleReply(const QVariantMap &data, const QString &inReplyTo);
     void handleError(const QString &message);
     void handleProgress(int min, int cur, int max, const QString &inReplyTo);
+    void handleSignal(const QString &signal, const QVariantMap &data);
 
     struct Target;
     struct Project;
@@ -110,10 +113,10 @@ private:
     void extractCMakeInputsData(const QVariantMap &data);
     void extractCacheData(const QVariantMap &data);
 
-    void addCMakeLists(CMakeListsNode *root, const QList<ProjectExplorer::FileNode *> &cmakeLists);
-    void addProjects(CMakeListsNode *root, const QList<Project *> &projects,
+    void addCMakeLists(CMakeProjectNode *root, const QList<ProjectExplorer::FileNode *> &cmakeLists);
+    void addProjects(CMakeProjectNode *root, const QList<Project *> &projects,
                      const QList<const ProjectExplorer::FileNode *> &allFiles);
-    void addTargets(CMakeListsNode *root, const QList<Target *> &targets,
+    void addTargets(CMakeProjectNode *root, const QList<Target *> &targets,
                     const QHash<Utils::FileName, QList<const ProjectExplorer::FileNode *>> &headers);
     void addFileGroups(ProjectExplorer::ProjectNode *targetRoot,
                        const Utils::FileName &sourceDirectory,

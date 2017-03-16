@@ -35,6 +35,7 @@
 #include <QCryptographicHash>
 #include <QDir>
 #include <QFileInfo>
+#include <QRegExp>
 
 #include <algorithm>
 

@@ -29,6 +29,7 @@
 #include <QDir>
 #include <QFutureInterface>
 #include <QProcess>
+#include <QRegExp>
 #include <QStringList>
 #include <utils/qtcassert.h>
 

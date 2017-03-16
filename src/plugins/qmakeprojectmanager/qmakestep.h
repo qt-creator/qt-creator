@@ -135,8 +135,11 @@ public:
     QStringList parserArguments();
     // arguments set by the user
     QString userArguments();
-    Utils::FileName mkspec() const;
     void setUserArguments(const QString &arguments);
+    // QMake extra arguments. Not user editable.
+    QStringList extraArguments() const;
+    void setExtraArguments(const QStringList &args);
+    Utils::FileName mkspec() const;
     bool linkQmlDebuggingLibrary() const;
     void setLinkQmlDebuggingLibrary(bool enable);
     bool useQtQuickCompiler() const;
@@ -152,6 +155,7 @@ public:
 
 signals:
     void userArgumentsChanged();
+    void extraArgumentsChanged();
     void linkQmlDebuggingLibraryChanged();
     void useQtQuickCompilerChanged();
     void separateDebugInfoChanged();
@@ -174,6 +178,8 @@ private:
     QString m_makeExecutable;
     QString m_makeArguments;
     QString m_userArgs;
+    // Extra arguments for qmake.
+    QStringList m_extraArgs;
 
     QFutureInterface<bool> m_inputFuture;
     QFutureWatcher<bool> m_inputWatcher;

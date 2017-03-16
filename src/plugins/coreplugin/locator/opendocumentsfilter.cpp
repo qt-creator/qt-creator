@@ -32,6 +32,7 @@
 #include <QAbstractItemModel>
 #include <QFileInfo>
 #include <QMutexLocker>
+#include <QRegExp>
 
 using namespace Core;
 using namespace Core;

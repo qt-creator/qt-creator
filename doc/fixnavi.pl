@@ -133,7 +133,8 @@ my %next = ();
 my $last = $doctitle;
 my $lastpage = $title2page{$last};
 for my $title (@toc) {
-    my $page = $title2page{$title};
+    my $type = $title2type{$title};
+    my $page = ($type eq "page") ? $title2page{$title} : "{$title}\n";
     defined($page) or die "TOC refers to unknown page/example '$title'.\n";
     $next{$last} = $page;
     $prev{$title} = $lastpage;

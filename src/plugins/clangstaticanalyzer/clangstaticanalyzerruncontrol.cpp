@@ -189,9 +189,6 @@ public:
         optionsBuilder.addPrecompiledHeaderOptions(pchUsage);
         optionsBuilder.addMsvcCompatibilityVersion();
 
-        if (type != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
-            optionsBuilder.add(QLatin1String("-fPIC")); // TODO: Remove?
-
         return optionsBuilder.options();
     }
 

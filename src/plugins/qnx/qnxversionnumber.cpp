@@ -26,6 +26,7 @@
 #include "qnxversionnumber.h"
 
 #include <QDir>
+#include <QRegExp>
 
 namespace Qnx {
 namespace Internal {

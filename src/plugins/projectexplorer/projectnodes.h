@@ -192,6 +192,9 @@ public:
     QString displayName() const override;
     QIcon icon() const;
 
+    Node *findNode(const std::function<bool(Node *)> &filter);
+    QList<Node *> findNodes(const std::function<bool(Node *)> &filter);
+
     void forEachNode(const std::function<void(FileNode *)> &fileTask,
                      const std::function<void(FolderNode *)> &folderTask = {},
                      const std::function<bool(const FolderNode *)> &folderFilterTask = {}) const;
@@ -199,9 +202,12 @@ public:
     const QList<Node *> nodes() const { return m_nodes; }
     QList<FileNode *> fileNodes() const;
     FileNode *fileNode(const Utils::FileName &file) const;
-    QList<FileNode *> recursiveFileNodes() const;
     QList<FolderNode *> folderNodes() const;
-    void buildTree(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir = Utils::FileName());
+    using FolderNodeFactory = std::function<FolderNode *(const Utils::FileName &)>;
+    void addNestedNodes(const QList<FileNode *> &files, const Utils::FileName &overrideBaseDir = Utils::FileName(),
+                        const FolderNodeFactory &factory = [](const Utils::FileName &fn) { return new FolderNode(fn); });
+    void addNestedNode(FileNode *fileNode, const Utils::FileName &overrideBaseDir = Utils::FileName(),
+                       const FolderNodeFactory &factory = [](const Utils::FileName &fn) { return new FolderNode(fn); });
     void compress();
 
     bool isAncesterOf(Node *n);

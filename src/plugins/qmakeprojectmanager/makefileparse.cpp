@@ -32,6 +32,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QRegExp>
 #include <QTextStream>
 #include <QLoggingCategory>
 

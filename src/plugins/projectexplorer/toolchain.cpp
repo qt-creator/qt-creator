@@ -225,6 +225,15 @@ QVariantMap ToolChain::toMap() const
     result.insert(QLatin1String(ID_KEY), idToSave);
     result.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
     result.insert(QLatin1String(AUTODETECT_KEY), isAutoDetected());
+    // <Compatibility with QtC 4.2>
+    int oldLanguageId = -1;
+    if (language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
+        oldLanguageId = 1;
+    else if (language() == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
+        oldLanguageId = 2;
+    if (oldLanguageId >= 0)
+        result.insert(LANGUAGE_KEY_V1, oldLanguageId);
+    // </Compatibility>
     result.insert(QLatin1String(LANGUAGE_KEY_V2), language().toSetting());
     return result;
 }

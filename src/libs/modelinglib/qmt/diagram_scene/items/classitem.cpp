@@ -565,11 +565,6 @@ void ClassItem::updateMembers(const Style *style)
     auto dclass = dynamic_cast<DClass *>(object());
     QMT_CHECK(dclass);
 
-    // TODO move bool haveIconFonts into class Style?
-    bool haveIconFonts = false; // style->normalFont().family() == QStringLiteral("Modelling");
-    // TODO any reason to show visibility as group instead of per member?
-    bool useGroupVisibility = false;
-
     foreach (const MClassMember &member, dclass->members()) {
         switch (member.memberType()) {
         case MClassMember::MemberUndefined:
@@ -587,50 +582,14 @@ void ClassItem::updateMembers(const Style *style)
             break;
         }
 
-        if (!text->isEmpty())
+        if (text && !text->isEmpty())
             *text += QStringLiteral("<br/>");
 
         bool addNewline = false;
         bool addSpace = false;
-        if (member.visibility() != *currentVisibility) {
-            if (useGroupVisibility) {
-                if (member.visibility() != MClassMember::VisibilityUndefined) {
-                    QString vis;
-                    switch (member.visibility()) {
-                    case MClassMember::VisibilityUndefined:
-                        break;
-                    case MClassMember::VisibilityPublic:
-                        vis = QStringLiteral("public:");
-                        break;
-                    case MClassMember::VisibilityProtected:
-                        vis = QStringLiteral("protected:");
-                        break;
-                    case MClassMember::VisibilityPrivate:
-                        vis = QStringLiteral("private:");
-                        break;
-                    case MClassMember::VisibilitySignals:
-                        vis = QStringLiteral("signals:");
-                        break;
-                    case MClassMember::VisibilityPrivateSlots:
-                        vis = QStringLiteral("private slots:");
-                        break;
-                    case MClassMember::VisibilityProtectedSlots:
-                        vis = QStringLiteral("protected slots:");
-                        break;
-                    case MClassMember::VisibilityPublicSlots:
-                        vis = QStringLiteral("public slots:");
-                        break;
-                    }
-                    *text += vis;
-                    addNewline = true;
-                    addSpace = true;
-                }
-            }
+        if (currentVisibility)
             *currentVisibility = member.visibility();
-        }
         if (member.group() != currentGroup) {
-            if (addSpace)
-                *text += QStringLiteral(" ");
             *text += QString(QStringLiteral("[%1]")).arg(member.group());
             addNewline = true;
             *currentGroup = member.group();
@@ -638,61 +597,55 @@ void ClassItem::updateMembers(const Style *style)
         if (addNewline)
             *text += QStringLiteral("<br/>");
 
-        addSpace = false;
         bool haveSignal = false;
         bool haveSlot = false;
-        if (!useGroupVisibility) {
-            if (member.visibility() != MClassMember::VisibilityUndefined) {
-                QString vis;
-                switch (member.visibility()) {
-                case MClassMember::VisibilityUndefined:
-                    break;
-                case MClassMember::VisibilityPublic:
-                    vis = haveIconFonts ? QString(QChar(0xe990)) : QStringLiteral("+");
-                    addSpace = true;
-                    break;
-                case MClassMember::VisibilityProtected:
-                    vis = haveIconFonts ? QString(QChar(0xe98e)) : QStringLiteral("#");
-                    addSpace = true;
-                    break;
-                case MClassMember::VisibilityPrivate:
-                    vis = haveIconFonts ? QString(QChar(0xe98f)) : QStringLiteral("-");
-                    addSpace = true;
-                    break;
-                case MClassMember::VisibilitySignals:
-                    vis = haveIconFonts ? QString(QChar(0xe994)) : QStringLiteral("&gt;");
-                    haveSignal = true;
-                    addSpace = true;
-                    break;
-                case MClassMember::VisibilityPrivateSlots:
-                    vis = haveIconFonts ? QString(QChar(0xe98f)) + QChar(0xe9cb)
-                                        : QStringLiteral("-$");
-                    haveSlot = true;
-                    addSpace = true;
-                    break;
-                case MClassMember::VisibilityProtectedSlots:
-                    vis = haveIconFonts ? QString(QChar(0xe98e)) + QChar(0xe9cb)
-                                        : QStringLiteral("#$");
-                    haveSlot = true;
-                    addSpace = true;
-                    break;
-                case MClassMember::VisibilityPublicSlots:
-                    vis = haveIconFonts ? QString(QChar(0xe990)) + QChar(0xe9cb)
-                                        : QStringLiteral("+$");
-                    haveSlot = true;
-                    addSpace = true;
-                    break;
-                }
-                *text += vis;
+        if (member.visibility() != MClassMember::VisibilityUndefined) {
+            QString vis;
+            switch (member.visibility()) {
+            case MClassMember::VisibilityUndefined:
+                break;
+            case MClassMember::VisibilityPublic:
+                vis = QStringLiteral("+");
+                addSpace = true;
+                break;
+            case MClassMember::VisibilityProtected:
+                vis = QStringLiteral("#");
+                addSpace = true;
+                break;
+            case MClassMember::VisibilityPrivate:
+                vis = QStringLiteral("-");
+                addSpace = true;
+                break;
+            case MClassMember::VisibilitySignals:
+                vis = QStringLiteral("&gt;");
+                haveSignal = true;
+                addSpace = true;
+                break;
+            case MClassMember::VisibilityPrivateSlots:
+                vis = QStringLiteral("-$");
+                haveSlot = true;
+                addSpace = true;
+                break;
+            case MClassMember::VisibilityProtectedSlots:
+                vis = QStringLiteral("#$");
+                haveSlot = true;
+                addSpace = true;
+                break;
+            case MClassMember::VisibilityPublicSlots:
+                vis = QStringLiteral("+$");
+                haveSlot = true;
+                addSpace = true;
+                break;
             }
+            *text += vis;
         }
 
         if (member.properties() & MClassMember::PropertyQsignal && !haveSignal) {
-            *text += haveIconFonts ? QString(QChar(0xe994)) : QStringLiteral("&gt;");
+            *text += QStringLiteral("&gt;");
             addSpace = true;
         }
         if (member.properties() & MClassMember::PropertyQslot && !haveSlot) {
-            *text += haveIconFonts ? QString(QChar(0xe9cb)) : QStringLiteral("$");
+            *text += QStringLiteral("$");
             addSpace = true;
         }
         if (addSpace)

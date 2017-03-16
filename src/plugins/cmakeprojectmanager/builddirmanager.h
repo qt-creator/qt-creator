@@ -69,7 +69,7 @@ public:
     bool updateCMakeStateBeforeBuild();
     bool persistCMakeState();
 
-    void generateProjectTree(CMakeListsNode *root,
+    void generateProjectTree(CMakeProjectNode *root,
                              const QList<const ProjectExplorer::FileNode *> &allFiles);
     void updateCodeModel(CppTools::RawProjectParts &rpps);
 

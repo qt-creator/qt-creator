@@ -86,6 +86,7 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Core::Id id) :
 QMakeStep::QMakeStep(BuildStepList *bsl, QMakeStep *bs) :
     AbstractProcessStep(bsl, bs),
     m_userArgs(bs->m_userArgs),
+    m_extraArgs(bs->m_extraArgs),
     m_forced(bs->m_forced),
     m_linkQmlDebuggingLibrary(bs->m_linkQmlDebuggingLibrary),
     m_useQtQuickCompiler(bs->m_useQtQuickCompiler),
@@ -154,6 +155,8 @@ QString QMakeStep::allArguments(const BaseQtVersion *v, bool shorted) const
     QString args = QtcProcess::joinArgs(arguments);
     // User arguments
     QtcProcess::addArgs(&args, m_userArgs);
+    foreach (QString arg, m_extraArgs)
+        QtcProcess::addArgs(&args, arg);
     return args;
 }
 
@@ -405,6 +408,21 @@ void QMakeStep::setUserArguments(const QString &arguments)
     qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
 }
 
+QStringList QMakeStep::extraArguments() const
+{
+    return m_extraArgs;
+}
+
+void QMakeStep::setExtraArguments(const QStringList &args)
+{
+    if (m_extraArgs != args) {
+        m_extraArgs = args;
+        emit extraArgumentsChanged();
+        qmakeBuildConfiguration()->emitQMakeBuildConfigurationChanged();
+        qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
+    }
+}
+
 bool QMakeStep::linkQmlDebuggingLibrary() const
 {
     return m_linkQmlDebuggingLibrary;
@@ -517,6 +535,7 @@ QString QMakeStep::userArguments()
 FileName QMakeStep::mkspec() const
 {
     QString additionalArguments = m_userArgs;
+    QtcProcess::addArgs(&additionalArguments, m_extraArgs);
     for (QtcProcess::ArgIterator ait(&additionalArguments); ait.next(); ) {
         if (ait.value() == QLatin1String("-spec")) {
             if (ait.next())

@@ -264,7 +264,7 @@ CMakeConfig TeaLeafReader::takeParsedConfiguration()
     return result;
 }
 
-void TeaLeafReader::generateProjectTree(CMakeListsNode *root, const QList<const FileNode *> &allFiles)
+void TeaLeafReader::generateProjectTree(CMakeProjectNode *root, const QList<const FileNode *> &allFiles)
 {
     root->setDisplayName(m_projectName);
 
@@ -311,7 +311,7 @@ void TeaLeafReader::generateProjectTree(CMakeListsNode *root, const QList<const 
 
     QList<FileNode *> fileNodes = m_files + Utils::transform(missingHeaders, [](const FileNode *fn) { return new FileNode(*fn); });
 
-    root->buildTree(fileNodes, m_parameters.sourceDirectory);
+    root->addNestedNodes(fileNodes, m_parameters.sourceDirectory);
     m_files.clear(); // Some of the FileNodes in files() were deleted!
 }
 
@@ -358,6 +358,7 @@ void TeaLeafReader::updateCodeModel(CppTools::RawProjectParts &rpps)
         includePaths += m_parameters.buildDirectory.toString();
         CppTools::RawProjectPart rpp;
         rpp.setProjectFileLocation(QString()); // No project file information available!
+        rpp.setBuildSystemTarget(cbt.title);
         rpp.setIncludePaths(includePaths);
 
         CppTools::RawProjectPartFlags cProjectFlags;

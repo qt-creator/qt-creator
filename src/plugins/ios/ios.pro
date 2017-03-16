@@ -34,7 +34,9 @@ HEADERS += \
     iosdeploystepfactory.h \
     iosdeploystepwidget.h \
     iosanalyzesupport.h \
-    simulatorcontrol.h
+    simulatorcontrol.h \
+    iosbuildconfiguration.h \
+    iosbuildsettingswidget.h
 
 
 SOURCES += \
@@ -63,13 +65,16 @@ SOURCES += \
     iosdeploystepfactory.cpp \
     iosdeploystepwidget.cpp \
     iosanalyzesupport.cpp \
-    simulatorcontrol.cpp
+    simulatorcontrol.cpp \
+    iosbuildconfiguration.cpp \
+    iosbuildsettingswidget.cpp
 
 FORMS += \
     iossettingswidget.ui \
     iosbuildstep.ui \
     iosdeploystepwidget.ui \
-    iospresetbuildstep.ui
+    iospresetbuildstep.ui \
+    iosbuildsettingswidget.ui
 
 DEFINES += IOS_LIBRARY
 

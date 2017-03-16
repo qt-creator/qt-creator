@@ -59,6 +59,7 @@
 #include <QtPlugin>
 #include <QCoreApplication>
 #include <QFormLayout>
+#include <QRegExp>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -197,6 +198,7 @@ public:
     bool fromMap(const QVariantMap &map) override;
     bool isEnabled() const override { return m_enabled; }
     QString disabledReason() const override;
+    Runnable runnable() const override;
 
     bool supportsDebugger() const { return true; }
     QString mainScript() const { return m_mainScript; }
@@ -213,28 +215,6 @@ private:
     QString m_interpreter;
     QString m_mainScript;
     bool m_enabled;
-};
-
-class PythonRunControl : public RunControl
-{
-    Q_OBJECT
-public:
-    PythonRunControl(PythonRunConfiguration *runConfiguration, Core::Id mode);
-
-    void start() override;
-    StopResult stop() override;
-
-private:
-    void processStarted();
-    void processExited(int exitCode, QProcess::ExitStatus status);
-    void slotAppendMessage(const QString &err, Utils::OutputFormat isError);
-
-    ApplicationLauncher m_applicationLauncher;
-    QString m_interpreter;
-    QString m_mainScript;
-    QString m_commandLineArguments;
-    Utils::Environment m_environment;
-    ApplicationLauncher::Mode m_runMode;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -305,6 +285,17 @@ QString PythonRunConfiguration::disabledReason() const
     if (!m_enabled)
         return tr("The script is currently disabled.");
     return QString();
+}
+
+Runnable PythonRunConfiguration::runnable() const
+{
+    StandardRunnable r;
+    QtcProcess::addArg(&r.commandLineArguments, m_mainScript);
+    QtcProcess::addArgs(&r.commandLineArguments, extraAspect<ArgumentsAspect>()->arguments());
+    r.executable = m_interpreter;
+    r.runMode = extraAspect<TerminalAspect>()->runMode();
+    r.environment = extraAspect<EnvironmentAspect>()->environment();
+    return r;
 }
 
 QString PythonRunConfiguration::arguments() const
@@ -566,14 +557,11 @@ void PythonProject::refresh()
     parseProject();
 
     QDir baseDir(projectDirectory().toString());
-
-    QList<FileNode *> fileNodes
-            = Utils::transform(m_files, [baseDir](const QString &f) -> FileNode * {
-        const QString displayName = baseDir.relativeFilePath(f);
-        return new PythonFileNode(FileName::fromString(f), displayName);
-    });
     auto newRoot = new PythonProjectNode(this);
-    newRoot->buildTree(fileNodes);
+    for (const QString &f : m_files) {
+        const QString displayName = baseDir.relativeFilePath(f);
+        newRoot->addNestedNode(new PythonFileNode(FileName::fromString(f), displayName));
+    }
     setRootProjectNode(newRoot);
 
     emit parsingFinished();
@@ -732,95 +720,18 @@ public:
 
 bool PythonRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
 {
-    return mode == ProjectExplorer::Constants::NORMAL_RUN_MODE
-        && dynamic_cast<PythonRunConfiguration *>(runConfiguration);
+    auto rc = dynamic_cast<PythonRunConfiguration *>(runConfiguration);
+    return mode == ProjectExplorer::Constants::NORMAL_RUN_MODE && rc && !rc->interpreter().isEmpty();
 }
 
 RunControl *PythonRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-    return new PythonRunControl(static_cast<PythonRunConfiguration *>(runConfiguration), mode);
+    return new SimpleRunControl(runConfiguration, mode);
 }
 
-// PythonRunControl
-
-PythonRunControl::PythonRunControl(PythonRunConfiguration *rc, Core::Id mode)
-    : RunControl(rc, mode)
-{
-    setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
-
-    m_interpreter = rc->interpreter();
-    m_mainScript = rc->mainScript();
-    m_runMode = rc->extraAspect<TerminalAspect>()->runMode();
-    m_commandLineArguments = rc->extraAspect<ArgumentsAspect>()->arguments();
-    m_environment = rc->extraAspect<EnvironmentAspect>()->environment();
-
-    connect(&m_applicationLauncher, &ApplicationLauncher::appendMessage,
-            this, &PythonRunControl::slotAppendMessage);
-    connect(&m_applicationLauncher, &ApplicationLauncher::processStarted,
-            this, &PythonRunControl::processStarted);
-    connect(&m_applicationLauncher, &ApplicationLauncher::processExited,
-            this, &PythonRunControl::processExited);
-}
-
-void PythonRunControl::start()
-{
-    reportApplicationStart();
-    if (m_interpreter.isEmpty()) {
-        appendMessage(tr("No Python interpreter specified.") + '\n', Utils::ErrorMessageFormat);
-        reportApplicationStop();
-    }  else if (!QFileInfo::exists(m_interpreter)) {
-        appendMessage(tr("Python interpreter %1 does not exist.").arg(QDir::toNativeSeparators(m_interpreter)) + '\n',
-                      Utils::ErrorMessageFormat);
-        reportApplicationStop();
-    } else {
-        QString msg = tr("Starting %1...").arg(QDir::toNativeSeparators(m_interpreter)) + '\n';
-        appendMessage(msg, Utils::NormalMessageFormat);
-
-        StandardRunnable r;
-        QtcProcess::addArg(&r.commandLineArguments, m_mainScript);
-        QtcProcess::addArgs(&r.commandLineArguments, m_commandLineArguments);
-        r.executable = m_interpreter;
-        r.runMode = m_runMode;
-        r.environment = m_environment;
-        m_applicationLauncher.start(r);
-
-        setApplicationProcessHandle(m_applicationLauncher.applicationPID());
-    }
-}
-
-PythonRunControl::StopResult PythonRunControl::stop()
-{
-    m_applicationLauncher.stop();
-    return StoppedSynchronously;
-}
-
-void PythonRunControl::slotAppendMessage(const QString &err, Utils::OutputFormat format)
-{
-    appendMessage(err, format);
-}
-
-void PythonRunControl::processStarted()
-{
-    // Console processes only know their pid after being started
-    setApplicationProcessHandle(m_applicationLauncher.applicationPID());
-    bringApplicationToForeground();
-}
-
-void PythonRunControl::processExited(int exitCode, QProcess::ExitStatus status)
-{
-    QString msg;
-    if (status == QProcess::CrashExit) {
-        msg = tr("%1 crashed")
-                .arg(QDir::toNativeSeparators(m_interpreter));
-    } else {
-        msg = tr("%1 exited with code %2")
-                .arg(QDir::toNativeSeparators(m_interpreter)).arg(exitCode);
-    }
-    appendMessage(msg + '\n', Utils::NormalMessageFormat);
-    reportApplicationStop();
-}
+// PythonRunConfigurationWidget
 
 void PythonRunConfigurationWidget::setInterpreter(const QString &interpreter)
 {

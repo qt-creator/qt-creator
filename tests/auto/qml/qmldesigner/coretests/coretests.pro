@@ -14,6 +14,8 @@ QTC_PLUGIN_DEPENDS += \
     qmljseditor \
     qmakeprojectmanager
 
+CONFIG -= qtquickcompiler
+
 include(../../../qttest.pri)
 
 QT += qml network core-private

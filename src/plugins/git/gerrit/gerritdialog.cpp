@@ -37,6 +37,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 #include <utils/theme/theme.h>
 
 #include <QCompleter>
@@ -69,7 +70,6 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     m_ui->setupUi(this);
-    setWindowTitle(tr("Gerrit"));
     m_queryModel->setStringList(m_parameters->savedQueries);
     QCompleter *completer = new QCompleter(this);
     completer->setModel(m_queryModel);
@@ -111,6 +111,10 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     connect(m_ui->treeView, &QAbstractItemView::activated,
             this, &GerritDialog::slotActivated);
 
+    m_ui->resetRemoteButton->setIcon(Utils::Icons::RESET_TOOLBAR.icon());
+    connect(m_ui->resetRemoteButton, &QToolButton::clicked,
+            this, [this] { updateRemotes(true); });
+
     m_displayButton = addActionButton(tr("&Show"), [this]() { slotFetchDisplay(); });
     m_cherryPickButton = addActionButton(tr("Cherry &Pick"), [this]() { slotFetchCherryPick(); });
     m_checkoutButton = addActionButton(tr("C&heckout"), [this]() { slotFetchCheckout(); });
@@ -120,6 +124,11 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
             m_refreshButton, &QWidget::setDisabled);
     connect(m_model, &GerritModel::refreshStateChanged,
             this, &GerritDialog::slotRefreshStateChanged);
+    connect(m_model, &GerritModel::errorText,
+            this, [this](const QString &text) {
+        if (text.contains("returned error: 401"))
+            updateRemotes(true);
+    }, Qt::QueuedConnection);
 
     setCurrentPath(repository);
     slotCurrentChanged();
@@ -226,7 +235,7 @@ void GerritDialog::remoteChanged()
     slotRefresh();
 }
 
-void GerritDialog::updateRemotes()
+void GerritDialog::updateRemotes(bool forceReload)
 {
     m_ui->remoteComboBox->clear();
     if (m_repository.isEmpty() || !QFileInfo(m_repository).isDir())
@@ -240,7 +249,7 @@ void GerritDialog::updateRemotes()
     while (mapIt.hasNext()) {
         mapIt.next();
         GerritServer server;
-        if (!server.fillFromRemote(mapIt.value(), *m_parameters))
+        if (!server.fillFromRemote(mapIt.value(), *m_parameters, forceReload))
             continue;
         addRemote(server, mapIt.key());
     }

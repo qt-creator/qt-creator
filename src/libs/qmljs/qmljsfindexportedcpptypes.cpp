@@ -34,6 +34,7 @@
 #include <utils/qtcassert.h>
 
 #include <QList>
+#include <QRegExp>
 
 //using namespace QmlJS;
 

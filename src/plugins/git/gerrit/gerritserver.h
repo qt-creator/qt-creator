@@ -61,13 +61,22 @@ public:
         RestUrl
     };
 
+    enum StoredHostValidity
+    {
+        Invalid,
+        NotGerrit,
+        Valid
+    };
+
     GerritServer();
     GerritServer(const QString &host, unsigned short port, const QString &userName, HostType type);
     bool operator==(const GerritServer &other) const;
     static QString defaultHost();
     QString hostArgument() const;
     QString url(UrlType urlType = DefaultUrl) const;
-    bool fillFromRemote(const QString &remote, const GerritParameters &parameters);
+    bool fillFromRemote(const QString &remote, const GerritParameters &parameters, bool forceReload);
+    StoredHostValidity loadSettings();
+    void saveSettings(StoredHostValidity validity) const;
     int testConnection();
     static QStringList curlArguments();
 

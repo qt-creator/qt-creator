@@ -65,6 +65,13 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QToolButton" name="resetRemoteButton">
+       <property name="toolTip">
+        <string>Refresh Remote Servers</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>

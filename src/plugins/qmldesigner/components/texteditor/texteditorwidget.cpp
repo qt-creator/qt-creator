@@ -104,7 +104,7 @@ void TextEditorWidget::updateSelectionByCursorPosition()
 
     if (rewriterView) {
         ModelNode modelNode = rewriterView->nodeAtTextCursorPosition(cursorPosition);
-        if (modelNode.isValid())
+        if (modelNode.isValid() && !m_textEditorView->isSelectedModelNode(modelNode))
             m_textEditorView->setSelectedModelNode(modelNode);
     }
 }
@@ -121,10 +121,7 @@ void TextEditorWidget::jumpTextCursorToSelectedModelNode()
 
         const int nodeOffset = rewriterView->nodeOffset(selectedNode);
         if (nodeOffset > 0) {
-            const ModelNode currentSelectedNode = rewriterView->
-                nodeAtTextCursorPosition(m_textEditor->editorWidget()->textCursor().position());
-
-            if (currentSelectedNode != selectedNode) {
+            if (!rewriterView->nodeContainsCursor(selectedNode, m_textEditor->editorWidget()->textCursor().position())) {
                 int line, column;
                 m_textEditor->editorWidget()->convertPosition(nodeOffset, &line, &column);
                 m_textEditor->editorWidget()->gotoLine(line, column);

@@ -34,6 +34,7 @@ publication by Neil Fraser: http://neil.fraser.name/writing/diff/
 #include "differ.h"
 
 #include <QList>
+#include <QRegExp>
 #include <QStringList>
 #include <QMap>
 #include <QPair>

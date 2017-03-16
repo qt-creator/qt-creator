@@ -216,9 +216,11 @@ void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isF
     if (!contextNode || !buildableFile)
         isFileBuild = false;
 
-    if (QmakeProFileNode *profile = dynamic_cast<QmakeProFileNode *>(contextNode)) {
-        if (profile != contextProject->rootProjectNode() || isFileBuild)
-            bc->setSubNodeBuild(profile);
+    if (QmakePriFileNode *prifile = dynamic_cast<QmakePriFileNode *>(contextNode)) {
+        if (QmakeProFileNode *profile = prifile->proFileNode()) {
+            if (profile != contextProject->rootProjectNode() || isFileBuild)
+                bc->setSubNodeBuild(profile->proFileNode());
+        }
     }
 
     if (isFileBuild)

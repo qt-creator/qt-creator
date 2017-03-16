@@ -455,6 +455,7 @@ ToolChain::PredefinedMacrosRunner GccToolChain::createPredefinedMacrosRunner() c
             } else if (a == "-m128bit-long-double" || a == "-m32" || a == "-m3dnow" || a == "-m3dnowa"
                        || a == "-m64" || a == "-m96bit-long-double" || a == "-mabm" || a == "-maes"
                        || a.startsWith("-march=") || a == "-mavx" || a.startsWith("-masm=")
+                       || a.startsWith("-mfloat-abi")
                        || a == "-mcx16" || a == "-mfma" || a == "-mfma4" || a == "-mlwp"
                        || a == "-mpclmul" || a == "-mpopcnt" || a == "-msse" || a == "-msse2"
                        || a == "-msse2avx" || a == "-msse3" || a == "-msse4" || a == "-msse4.1"
@@ -907,17 +908,6 @@ ToolChain *GccToolChainFactory::create(Core::Id language)
 QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
     QList<ToolChain *> tcs;
-    if (HostOsInfo::isMacHost()) {
-        // Old mac compilers needed to support macx-gccXY mkspecs:
-        tcs.append(autoDetectToolchains("g++-4.0", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
-                                        Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
-        tcs.append(autoDetectToolchains("g++-4.2", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
-                                        Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
-        tcs.append(autoDetectToolchains("gcc-4.0", Abi::hostAbi(), Constants::C_LANGUAGE_ID,
-                                        Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
-        tcs.append(autoDetectToolchains("gcc-4.2", Abi::hostAbi(), Constants::C_LANGUAGE_ID,
-                                        Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
-    }
     tcs.append(autoDetectToolchains("g++", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
                                     Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
     tcs.append(autoDetectToolchains("gcc", Abi::hostAbi(), Constants::C_LANGUAGE_ID,

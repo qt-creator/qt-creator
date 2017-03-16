@@ -112,10 +112,16 @@ enum StepAction
 struct QmlV8ObjectData
 {
     int handle = -1;
+    int expectedProperties = -1;
     QString name;
     QString type;
     QVariant value;
     QVariantList properties;
+
+    bool hasChildren() const
+    {
+        return expectedProperties > 0 || !properties.isEmpty();
+    }
 };
 
 typedef std::function<void(const QVariantMap &)> QmlCallback;
@@ -1391,7 +1397,7 @@ void QmlEnginePrivate::handleEvaluateExpression(const QVariantMap &response,
     if (success) {
         item->type = body.type;
         item->value = body.value.toString();
-        item->wantsChildren = body.properties.count();
+        item->setHasChildren(body.hasChildren());
     } else {
         //Do not set type since it is unknown
         item->setError(body.value.toString());
@@ -1658,55 +1664,69 @@ QmlV8ObjectData QmlEnginePrivate::extractData(const QVariant &data) const
 
     objectData.name = dataMap.value(NAME).toString();
 
+    QString type = dataMap.value(TYPE).toString();
+    objectData.handle = dataMap.value(HANDLE).toInt();
+
+    if (type == "undefined") {
+        objectData.type = "undefined";
+        objectData.value = "undefined";
+
+    } else if (type == "null") { // Deprecated. typeof(null) == "object" in JavaScript
+        objectData.type = "object";
+        objectData.value = "null";
+
+    } else if (type == "boolean") {
+        objectData.type = "boolean";
+        objectData.value = dataMap.value(VALUE);
+
+    } else if (type == "number") {
+        objectData.type = "number";
+        objectData.value = dataMap.value(VALUE);
+
+    } else if (type == "string") {
+        QLatin1Char quote('"');
+        objectData.type = "string";
+        objectData.value = QString(quote + dataMap.value(VALUE).toString() + quote);
+
+    } else if (type == "object") {
+        objectData.type = "object";
+        // ignore "className": it doesn't make any sense.
+
+        if (dataMap.contains("value")) {
+            QVariant value = dataMap.value("value");
+            if (value.isNull())
+                objectData.value = "null"; // Yes, null is an object.
+            else if (value.isValid())
+                objectData.expectedProperties = value.toInt();
+        }
+
+        if (dataMap.contains("properties"))
+            objectData.properties = dataMap.value("properties").toList();
+    } else if (type == "function") {
+        objectData.type = "function";
+        objectData.value = dataMap.value(NAME);
+        objectData.properties = dataMap.value("properties").toList();
+        QVariant value = dataMap.value("value");
+        if (value.isValid())
+            objectData.expectedProperties = value.toInt();
+
+    } else if (type == "script") {
+        objectData.type = "script";
+        objectData.value = dataMap.value(NAME);
+    }
+
     if (dataMap.contains(REF)) {
         objectData.handle = dataMap.value(REF).toInt();
         if (refVals.contains(objectData.handle)) {
             QmlV8ObjectData data = refVals.value(objectData.handle);
-            objectData.type = data.type;
-            objectData.value = data.value;
-            objectData.properties = data.properties;
-        }
-    } else {
-        objectData.handle = dataMap.value(HANDLE).toInt();
-        QString type = dataMap.value(TYPE).toString();
-
-        if (type == "undefined") {
-            objectData.type = "undefined";
-            objectData.value = "undefined";
-
-        } else if (type == "null") { // Deprecated. typeof(null) == "object" in JavaScript
-            objectData.type = "object";
-            objectData.value = "null";
-
-        } else if (type == "boolean") {
-            objectData.type = "boolean";
-            objectData.value = dataMap.value(VALUE);
-
-        } else if (type == "number") {
-            objectData.type = "number";
-            objectData.value = dataMap.value(VALUE);
-
-        } else if (type == "string") {
-            QLatin1Char quote('"');
-            objectData.type = "string";
-            objectData.value = QString(quote + dataMap.value(VALUE).toString() + quote);
-
-        } else if (type == "object") {
-            objectData.type = "object";
-            // ignore "className": it doesn't make any sense.
-
-            if (dataMap.contains("properties"))
-                objectData.properties = dataMap.value("properties").toList();
-            else if (dataMap.value("value").isNull())
-                objectData.value = "null"; // Yes, null is an object.
-        } else if (type == "function") {
-            objectData.type = "function";
-            objectData.value = dataMap.value(NAME);
-            objectData.properties = dataMap.value("properties").toList();
-
-        } else if (type == "script") {
-            objectData.type = "script";
-            objectData.value = dataMap.value(NAME);
+            if (objectData.type.isEmpty())
+                objectData.type = data.type;
+            if (!objectData.value.isValid())
+                objectData.value = data.value;
+            if (objectData.properties.isEmpty())
+                objectData.properties = data.properties;
+            if (objectData.expectedProperties < 0)
+                objectData.expectedProperties = data.expectedProperties;
         }
     }
 
@@ -2216,7 +2236,7 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
         item->id = objectData.handle;
         item->type = objectData.type;
         item->value = objectData.value.toString();
-        item->setHasChildren(objectData.properties.count());
+        item->setHasChildren(objectData.hasChildren());
         // In case of global object, we do not get children
         // Set children nevertheless and query later.
         if (item->value == "global") {
@@ -2298,11 +2318,11 @@ void QmlEnginePrivate::handleScope(const QVariantMap &response)
         item->name = item->exp;
         item->iname = "local." + item->exp;
         item->id = localData.handle;
+        item->type = localData.type;
+        item->value = localData.value.toString();
+        item->setHasChildren(localData.hasChildren());
 
-        if (localData.value.isValid()) {
-            item->type = localData.type;
-            item->value = localData.value.toString();
-            item->setHasChildren(localData.properties.count());
+        if (localData.value.isValid() || item->wantsChildren || localData.expectedProperties == 0) {
             engine->watchHandler()->insertItem(item.release());
         } else {
             itemsToLookup.insert(int(item->id), {item->iname, item->name, item->exp});
@@ -2443,7 +2463,7 @@ void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &pro
         item->value = propertyData.value.toString();
         if (item->type.isEmpty() || expandedINames.contains(item->iname))
             itemsToLookup.insert(propertyData.handle, {item->iname, item->name, item->exp});
-        item->setHasChildren(propertyData.properties.count() > 0);
+        item->setHasChildren(propertyData.hasChildren());
         parent->appendChild(item.release());
     }
 
@@ -2499,7 +2519,7 @@ void QmlEnginePrivate::handleLookup(const QVariantMap &response)
             item->type = bodyObjectData.type;
             item->value = bodyObjectData.value.toString();
 
-            item->setHasChildren(bodyObjectData.properties.count());
+            item->setHasChildren(bodyObjectData.hasChildren());
             insertSubItems(item, bodyObjectData.properties);
 
             engine->watchHandler()->insertItem(item);
@@ -2515,7 +2535,10 @@ void QmlEnginePrivate::stateChanged(State state)
     if (state == QmlDebugClient::Enabled) {
         /// Start session.
         flushSendBuffer();
-        runDirectCommand(CONNECT);
+        QJsonObject parameters;
+        parameters.insert("redundantRefs", false);
+        parameters.insert("namesAsObjects", false);
+        runDirectCommand(CONNECT, QJsonDocument(parameters).toJson());
         runCommand({VERSION}, CB(handleVersion));
     }
 }

@@ -259,28 +259,25 @@ void GenericProject::refresh(RefreshOptions options)
     parseProject(options);
 
     if (options & Files) {
-        QList<FileNode *> fileNodes = Utils::transform(files(), [](const QString &f) {
+        auto newRoot = new GenericProjectNode(this);
+
+        for (const QString &f : files()) {
             FileType fileType = FileType::Source; // ### FIXME
             if (f.endsWith(".qrc"))
                 fileType = FileType::Resource;
-            return new FileNode(Utils::FileName::fromString(f), fileType, false);
-        });
+            newRoot->addNestedNode(new FileNode(Utils::FileName::fromString(f), fileType, false));
+        }
 
-        auto projectFilesNode = new FileNode(Utils::FileName::fromString(m_filesFileName),
+        newRoot->addNestedNode(new FileNode(Utils::FileName::fromString(m_filesFileName),
                                              FileType::Project,
-                                             /* generated = */ false);
+                                             /* generated = */ false));
+        newRoot->addNestedNode(new FileNode(Utils::FileName::fromString(m_includesFileName),
+                                             FileType::Project,
+                                             /* generated = */ false));
+        newRoot->addNestedNode(new FileNode(Utils::FileName::fromString(m_configFileName),
+                                             FileType::Project,
+                                             /* generated = */ false));
 
-        auto projectIncludesNode = new FileNode(Utils::FileName::fromString(m_includesFileName),
-                                                FileType::Project,
-                                                /* generated = */ false);
-
-        auto projectConfigNode = new FileNode(Utils::FileName::fromString(m_configFileName),
-                                              FileType::Project,
-                                              /* generated = */ false);
-        fileNodes << projectFilesNode << projectIncludesNode << projectConfigNode;
-
-        auto newRoot = new GenericProjectNode(this);
-        newRoot->buildTree(fileNodes);
         setRootProjectNode(newRoot);
     }
 

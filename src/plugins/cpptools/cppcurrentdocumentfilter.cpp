@@ -31,6 +31,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
+#include <QRegExp>
 #include <QStringMatcher>
 
 using namespace CppTools::Internal;

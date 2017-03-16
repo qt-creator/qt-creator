@@ -34,6 +34,8 @@
 #include <coreplugin/helpmanager.h>
 #include <utils/qtcassert.h>
 
+#include <QRegExp>
+
 namespace QmlDesigner {
 
 

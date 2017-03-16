@@ -60,7 +60,8 @@ static FolderNode *folderNode(const FolderNode *folder, const Utils::FileName &d
 
 static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
                                                    const Utils::FileName &directory,
-                                                   const Utils::FileName &overrideBaseDir)
+                                                   const Utils::FileName &overrideBaseDir,
+                                                   const FolderNode::FolderNodeFactory &factory)
 {
     Utils::FileName path = overrideBaseDir.isEmpty() ? folder->filePath() : overrideBaseDir;
 
@@ -90,7 +91,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
         FolderNode *next = folderNode(parent, path);
         if (!next) {
             // No FolderNode yet, so create it
-            auto tmp = new ProjectExplorer::FolderNode(path);
+            auto tmp = factory(path);
             tmp->setDisplayName(part);
             parent->addNode(tmp);
             next = tmp;
@@ -400,6 +401,37 @@ QIcon FolderNode::icon() const
     return m_icon;
 }
 
+Node *FolderNode::findNode(const std::function<bool(Node *)> &filter)
+{
+    if (filter(this))
+        return this;
+
+    for (Node *n : m_nodes) {
+        if (n->asFileNode() && filter(n)) {
+            return n;
+        } else if (FolderNode *folder = n->asFolderNode()) {
+            Node *result = folder->findNode(filter);
+            if (result)
+                return result;
+        }
+    }
+    return nullptr;
+}
+
+QList<Node *> FolderNode::findNodes(const std::function<bool(Node *)> &filter)
+{
+    QList<Node *> result;
+    if (filter(this))
+        result.append(this);
+    for (Node *n : m_nodes) {
+        if (n->asFileNode() && filter(n))
+            result.append(n);
+        else if (FolderNode *folder = n->asFolderNode())
+            result.append(folder->findNode(filter));
+    }
+    return result;
+}
+
 void FolderNode::forEachNode(const std::function<void(FileNode *)> &fileTask,
                              const std::function<void(FolderNode *)> &folderTask,
                              const std::function<bool(const FolderNode *)> &folderFilterTask) const
@@ -450,14 +482,6 @@ FileNode *FolderNode::fileNode(const Utils::FileName &file) const
     }));
 }
 
-QList<FileNode *> FolderNode::recursiveFileNodes() const
-{
-    QList<FileNode *> result = fileNodes();
-    foreach (ProjectExplorer::FolderNode *folder, folderNodes())
-        result.append(folder->recursiveFileNodes());
-    return result;
-}
-
 QList<FolderNode*> FolderNode::folderNodes() const
 {
     QList<FolderNode *> result;
@@ -468,16 +492,22 @@ QList<FolderNode*> FolderNode::folderNodes() const
     return result;
 }
 
-void FolderNode::buildTree(QList<FileNode *> &files, const Utils::FileName &overrideBaseDir)
+void FolderNode::addNestedNode(FileNode *fileNode, const Utils::FileName &overrideBaseDir,
+                               const FolderNodeFactory &factory)
 {
-    foreach (ProjectExplorer::FileNode *fn, files) {
-        // Get relative path to rootNode
-        QString parentDir = fn->filePath().toFileInfo().absolutePath();
-        ProjectExplorer::FolderNode *folder
-                = recursiveFindOrCreateFolderNode(this, Utils::FileName::fromString(parentDir),
-                                                  overrideBaseDir);
-        folder->addNode(fn);
-    }
+    // Get relative path to rootNode
+    QString parentDir = fileNode->filePath().toFileInfo().absolutePath();
+    FolderNode *folder = recursiveFindOrCreateFolderNode(this, Utils::FileName::fromString(parentDir),
+                                                         overrideBaseDir, factory);
+    folder->addNode(fileNode);
+
+}
+
+void FolderNode::addNestedNodes(const QList<FileNode *> &files, const Utils::FileName &overrideBaseDir,
+                                const FolderNodeFactory &factory)
+{
+    for (FileNode *fn : files)
+        addNestedNode(fn, overrideBaseDir, factory);
 }
 
 // "Compress" a tree of foldernodes such that foldernodes with exactly one foldernode as a child
@@ -673,7 +703,8 @@ ProjectNode::ProjectNode(const Utils::FileName &projectFilePath) :
 
 QString ProjectNode::vcsTopic() const
 {
-    const QString dir = filePath().toFileInfo().absolutePath();
+    const QFileInfo fi = filePath().toFileInfo();
+    const QString dir = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
 
     if (Core::IVersionControl *const vc =
             Core::VcsManager::findVersionControlForDirectory(dir))

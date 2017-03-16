@@ -959,10 +959,8 @@ class Dumper(DumperBase):
                     self.importPlainDumper(printer)
 
     def qtNamespace(self):
-        self.preping('qtNamespace')
-        res = self.qtNamespaceX()
-        self.ping('qtNamespace')
-        return res
+        # This function is replaced by handleQtCoreLoaded()
+        return ''
 
     def findSymbol(self, symbolName):
         try:
@@ -970,53 +968,55 @@ class Dumper(DumperBase):
         except:
             return 0
 
-    def qtNamespaceX(self):
-        if not self.currentQtNamespaceGuess is None:
-            return self.currentQtNamespaceGuess
+    def handleNewObjectFile(self, objfile):
+        name = objfile.filename
+        if self.isWindowsTarget():
+            isQtCoreObjFile = name.find('Qt5Cored.dll') >= 0 or name.find('Qt5Core.dll') >= 0
+        else:
+            isQtCoreObjFile = name.find('/libQt5Core') >= 0
+        if isQtCoreObjFile:
+            self.handleQtCoreLoaded(objfile)
 
-        for objfile in gdb.objfiles():
-            name = objfile.filename
-            if name.find('/libQt5Core') >= 0:
-                fd, tmppath = tempfile.mkstemp()
-                os.close(fd)
-                cmd = 'maint print msymbols %s "%s"' % (tmppath, name)
-                symbols = gdb.execute(cmd, to_string = True)
-                ns = ''
-                with open(tmppath) as f:
-                    for line in f:
-                        if line.find('msgHandlerGrabbed ') >= 0:
-                            # [11] b 0x7ffff683c000 _ZN4MynsL17msgHandlerGrabbedE
-                            # section .tbss Myns::msgHandlerGrabbed  qlogging.cpp
-                            ns = re.split('_ZN?(\d*)(\w*)L17msgHandlerGrabbedE? ', line)[2]
-                            if len(ns):
-                                ns += '::'
-                            break
-                os.remove(tmppath)
+    def handleQtCoreLoaded(self, objfile):
+        fd, tmppath = tempfile.mkstemp()
+        os.close(fd)
+        cmd = 'maint print msymbols %s "%s"' % (tmppath, objfile.filename)
+        try:
+            symbols = gdb.execute(cmd, to_string = True)
+        except:
+            pass
+        ns = ''
+        with open(tmppath) as f:
+            for line in f:
+                if line.find('msgHandlerGrabbed ') >= 0:
+                    # [11] b 0x7ffff683c000 _ZN4MynsL17msgHandlerGrabbedE
+                    # section .tbss Myns::msgHandlerGrabbed  qlogging.cpp
+                    ns = re.split('_ZN?(\d*)(\w*)L17msgHandlerGrabbedE? ', line)[2]
+                    if len(ns):
+                        ns += '::'
+                    break
+        os.remove(tmppath)
 
-                lenns = len(ns)
-                strns = ('%d%s' % (lenns - 2, ns[:lenns - 2])) if lenns else ''
+        lenns = len(ns)
+        strns = ('%d%s' % (lenns - 2, ns[:lenns - 2])) if lenns else ''
 
-                if lenns:
-                    sym = '_ZN%s7QObject11customEventEPNS_6QEventE' % strns
-                else:
-                    sym = '_ZN7QObject11customEventEP6QEvent'
-                self.qtCustomEventFunc = self.findSymbol(sym)
+        if lenns:
+            # This might be wrong, but we can't do better: We found
+            # a libQt5Core and could not extract a namespace.
+            # The best guess is that there isn't any.
+            self.qtNamespaceToReport = ns
+            self.qtNamespace = lambda: ns
 
-                sym += '@plt'
-                self.qtCustomEventPltFunc = self.findSymbol(sym)
+            sym = '_ZN%s7QObject11customEventEPNS_6QEventE' % strns
+        else:
+            sym = '_ZN7QObject11customEventEP6QEvent'
+        self.qtCustomEventFunc = self.findSymbol(sym)
 
-                sym = '_ZNK%s7QObject8propertyEPKc' % strns
-                self.qtPropertyFunc = self.findSymbol(sym)
+        sym += '@plt'
+        self.qtCustomEventPltFunc = self.findSymbol(sym)
 
-                # This might be wrong, but we can't do better: We found
-                # a libQt5Core and could not extract a namespace.
-                # The best guess is that there isn't any.
-                self.qtNamespaceToReport = ns
-                self.qtNamespace = lambda: ns
-                return ns
-
-        self.currentQtNamespaceGuess = ''
-        return ''
+        sym = '_ZNK%s7QObject8propertyEPKc' % strns
+        self.qtPropertyFunc = self.findSymbol(sym)
 
     def assignValue(self, args):
         typeName = self.hexdecode(args['type'])
@@ -1405,5 +1405,18 @@ class InterpreterMessageBreakpoint(gdb.Breakpoint):
     def stop(self):
         print('Interpreter event received.')
         return theDumper.handleInterpreterMessage()
+
+
+#######################################################################
+#
+# Shared objects
+#
+#######################################################################
+
+def new_objfile_handler(event):
+    return theDumper.handleNewObjectFile(event.new_objfile)
+
+gdb.events.new_objfile.connect(new_objfile_handler)
+
 
 #InterpreterMessageBreakpoint()
