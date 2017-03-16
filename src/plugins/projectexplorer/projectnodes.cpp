@@ -637,6 +637,7 @@ FolderNode::AddNewInformation FolderNode::addNewInformation(const QStringList &f
 
 void FolderNode::addNode(Node *node)
 {
+    QTC_ASSERT(node, return);
     QTC_ASSERT(!node->parentFolderNode(), qDebug("File node has already a parent folder"));
     node->setParentFolderNode(this);
     m_nodes.append(node);
