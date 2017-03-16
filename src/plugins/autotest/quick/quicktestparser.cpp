@@ -165,7 +165,6 @@ static QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const QStri
 }
 
 static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr> futureInterface,
-                                             const QmlJS::Snapshot &snapshot,
                                              const QmlJS::Document::Ptr &qmlJSDoc,
                                              const Core::Id &id,
                                              const QString &proFile = QString())
@@ -174,6 +173,7 @@ static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr
         return false;
     QmlJS::AST::Node *ast = qmlJSDoc->ast();
     QTC_ASSERT(ast, return false);
+    QmlJS::Snapshot snapshot = QmlJS::ModelManagerInterface::instance()->snapshot();
     TestQmlVisitor qmlVisitor(qmlJSDoc, snapshot);
     QmlJS::AST::Node::accept(ast, &qmlVisitor);
     if (!qmlVisitor.isValid())
@@ -212,7 +212,6 @@ static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr
 }
 
 static bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterface,
-                              const QmlJS::Snapshot &snapshot,
                               CPlusPlus::Document::Ptr document,
                               const Core::Id &id)
 {
@@ -233,7 +232,7 @@ static bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterfa
     const QList<QmlJS::Document::Ptr> qmlDocs = scanDirectoryForQuickTestQmlFiles(srcDir);
     bool result = false;
     for (const QmlJS::Document::Ptr &qmlJSDoc : qmlDocs)
-        result |= checkQmlDocumentForQuickTestCode(futureInterface, snapshot, qmlJSDoc, id, proFile);
+        result |= checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc, id, proFile);
     return result;
 }
 
@@ -280,14 +279,14 @@ bool QuickTestParser::processDocument(QFutureInterface<TestParseResultPtr> futur
         if (proFile.isEmpty())
             return false;
         QmlJS::Document::Ptr qmlJSDoc = m_qmlSnapshot.document(fileName);
-        return checkQmlDocumentForQuickTestCode(futureInterface, m_qmlSnapshot, qmlJSDoc, id(), proFile);
+        return checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc, id(), proFile);
     }
     if (!m_cppSnapshot.contains(fileName) || !selectedForBuilding(fileName))
         return false;
     CPlusPlus::Document::Ptr document = m_cppSnapshot.find(fileName).value();
     if (!includesQtQuickTest(document, m_cppSnapshot))
         return false;
-    return handleQtQuickTest(futureInterface, m_qmlSnapshot, document, id());
+    return handleQtQuickTest(futureInterface, document, id());
 }
 
 } // namespace Internal
