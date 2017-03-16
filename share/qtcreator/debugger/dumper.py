@@ -1502,20 +1502,20 @@ class DumperBase:
 
         return customEventFunc in (self.qtCustomEventFunc, self.qtCustomEventPltFunc)
 
-    def extractQObjectProperty(objectPtr):
-        vtablePtr = self.extractPointer(objectPtr)
-        metaObjectFunc = self.extractPointer(vtablePtr)
-        cmd = '((void*(*)(void*))0x%x)((void*)0x%x)' % (metaObjectFunc, objectPtr)
-        try:
-            #warn('MO CMD: %s' % cmd)
-            res = self.parseAndEvaluate(cmd)
-            #warn('MO RES: %s' % res)
-            self.bump('successfulMetaObjectCall')
-            return res.pointer()
-        except:
-            self.bump('failedMetaObjectCall')
-            #warn('COULD NOT EXECUTE: %s' % cmd)
-        return 0
+#    def extractQObjectProperty(objectPtr):
+#        vtablePtr = self.extractPointer(objectPtr)
+#        metaObjectFunc = self.extractPointer(vtablePtr)
+#        cmd = '((void*(*)(void*))0x%x)((void*)0x%x)' % (metaObjectFunc, objectPtr)
+#        try:
+#            #warn('MO CMD: %s' % cmd)
+#            res = self.parseAndEvaluate(cmd)
+#            #warn('MO RES: %s' % res)
+#            self.bump('successfulMetaObjectCall')
+#            return res.pointer()
+#        except:
+#            self.bump('failedMetaObjectCall')
+#            #warn('COULD NOT EXECUTE: %s' % cmd)
+#        return 0
 
     def extractMetaObjectPtr(self, objectPtr, typeobj):
         """ objectPtr - address of *potential* instance of QObject derived class
