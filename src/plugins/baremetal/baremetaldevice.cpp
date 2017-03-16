@@ -59,6 +59,12 @@ BareMetalDevice::Ptr BareMetalDevice::create(const BareMetalDevice &other)
     return Ptr(new BareMetalDevice(other));
 }
 
+BareMetalDevice::~BareMetalDevice()
+{
+    if (GdbServerProvider *provider = GdbServerProviderManager::findProvider(m_gdbServerProviderId))
+        provider->unregisterDevice(this);
+}
+
 QString BareMetalDevice::gdbServerProviderId() const
 {
     return m_gdbServerProviderId;
@@ -66,8 +72,26 @@ QString BareMetalDevice::gdbServerProviderId() const
 
 void BareMetalDevice::setGdbServerProviderId(const QString &id)
 {
+    if (id == m_gdbServerProviderId)
+        return;
+    if (GdbServerProvider *currentProvider = GdbServerProviderManager::findProvider(m_gdbServerProviderId))
+        currentProvider->unregisterDevice(this);
     m_gdbServerProviderId = id;
-    GdbServerProvider *provider = GdbServerProviderManager::findProvider(id);
+    if (GdbServerProvider *provider = GdbServerProviderManager::findProvider(id)) {
+        setChannelByServerProvider(provider);
+        provider->registerDevice(this);
+    }
+}
+
+void BareMetalDevice::providerUpdated(GdbServerProvider *provider)
+{
+    GdbServerProvider *myProvider = GdbServerProviderManager::findProvider(m_gdbServerProviderId);
+    if (provider == myProvider)
+        setChannelByServerProvider(provider);
+}
+
+void BareMetalDevice::setChannelByServerProvider(GdbServerProvider *provider)
+{
     QTC_ASSERT(provider, return);
     const QString channel = provider->channel();
     const int colon = channel.indexOf(QLatin1Char(':'));
