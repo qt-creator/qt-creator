@@ -53,6 +53,7 @@ public:
 class SimulatorInfo : public SimulatorEntity {
 public:
     bool isBooted() const { return state.compare(QStringLiteral("Booted")) == 0; }
+    bool isShutdown() const { return state.compare(QStringLiteral("Shutdown")) == 0; }
     bool available;
     QString state;
     QString runtimeName;
