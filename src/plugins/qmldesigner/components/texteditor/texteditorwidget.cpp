@@ -116,6 +116,12 @@ void TextEditorWidget::jumpTextCursorToSelectedModelNode()
 {
     ModelNode selectedNode;
 
+    if (hasFocus())
+        return;
+
+    if (m_textEditor && m_textEditor->editorWidget()->hasFocus())
+        return;
+
     if (!m_textEditorView->selectedModelNodes().isEmpty())
         selectedNode = m_textEditorView->selectedModelNodes().first();
 
