@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/qmljstools">
         <file>images/category_qml.png</file>
-        <file>images/prompt.png</file>
     </qresource>
 </RCC>

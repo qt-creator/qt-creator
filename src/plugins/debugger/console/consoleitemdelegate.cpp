@@ -29,29 +29,13 @@
 #include <coreplugin/coreconstants.h>
 
 #include <utils/utilsicons.h>
+#include <utils/theme/theme.h>
 
 #include <QPainter>
 #include <QTreeView>
 #include <QScrollBar>
 #include <QTextLayout>
 #include <QUrl>
-
-const char CONSOLE_LOG_BACKGROUND_COLOR[] = "#E8EEF2";
-const char CONSOLE_WARNING_BACKGROUND_COLOR[] = "#F6F4EB";
-const char CONSOLE_ERROR_BACKGROUND_COLOR[] = "#F6EBE7";
-const char CONSOLE_EDITOR_BACKGROUND_COLOR[] = "#F7F7F7";
-
-const char CONSOLE_LOG_BACKGROUND_SELECTED_COLOR[] = "#CDDEEA";
-const char CONSOLE_WARNING_BACKGROUND_SELECTED_COLOR[] = "#F3EED1";
-const char CONSOLE_ERROR_BACKGROUND_SELECTED_COLOR[] = "#F5D4CB";
-const char CONSOLE_EDITOR_BACKGROUND_SELECTED_COLOR[] = "#DEDEDE";
-
-const char CONSOLE_LOG_TEXT_COLOR[] = "#333333";
-const char CONSOLE_WARNING_TEXT_COLOR[] = "#666666";
-const char CONSOLE_ERROR_TEXT_COLOR[] = "#1D5B93";
-const char CONSOLE_EDITOR_TEXT_COLOR[] = "#000000";
-
-const char CONSOLE_BORDER_COLOR[] = "#C9C9C9";
 
 const int ELLIPSIS_GRADIENT_WIDTH = 16;
 
@@ -72,7 +56,8 @@ ConsoleItemDelegate::ConsoleItemDelegate(ConsoleItemModel *model, QObject *paren
     m_errorIcon(Utils::Icons::CRITICAL.icon()),
     m_expandIcon(Utils::Icons::EXPAND.icon()),
     m_collapseIcon(Utils::Icons::COLLAPSE.icon()),
-    m_prompt(QLatin1String(":/qmljstools/images/prompt.png")),
+    m_prompt(Utils::Icon({{QLatin1String(":/utils/images/next.png"),
+                          Utils::Theme::TextColorNormal}}, Utils::Icon::Tint).icon()),
     m_cachedHeight(0)
 {
 }
@@ -86,39 +71,15 @@ QColor ConsoleItemDelegate::drawBackground(QPainter *painter, const QRect &rect,
                                               const QModelIndex &index,
                                               bool selected) const
 {
+    const Utils::Theme *theme = Utils::creatorTheme();
     painter->save();
-    ConsoleItem::ItemType itemType = (ConsoleItem::ItemType)index.data(
-                ConsoleItem::TypeRole).toInt();
-    QColor backgroundColor;
-    switch (itemType) {
-    case ConsoleItem::DebugType:
-        backgroundColor = selected ? QColor(CONSOLE_LOG_BACKGROUND_SELECTED_COLOR) :
-                                     QColor(CONSOLE_LOG_BACKGROUND_COLOR);
-        break;
-    case ConsoleItem::WarningType:
-        backgroundColor = selected ? QColor(CONSOLE_WARNING_BACKGROUND_SELECTED_COLOR) :
-                                     QColor(CONSOLE_WARNING_BACKGROUND_COLOR);
-        break;
-    case ConsoleItem::ErrorType:
-        backgroundColor = selected ? QColor(CONSOLE_ERROR_BACKGROUND_SELECTED_COLOR) :
-                                     QColor(CONSOLE_ERROR_BACKGROUND_COLOR);
-        break;
-    case ConsoleItem::InputType:
-    default:
-        backgroundColor = selected ? QColor(CONSOLE_EDITOR_BACKGROUND_SELECTED_COLOR) :
-                                     QColor(CONSOLE_EDITOR_BACKGROUND_COLOR);
-        break;
-    }
+    QColor backgroundColor = theme->color(selected
+                                          ? Utils::Theme::BackgroundColorSelected
+                                          : Utils::Theme::BackgroundColorNormal);
     if (!(index.flags() & Qt::ItemIsEditable))
         painter->setBrush(backgroundColor);
     painter->setPen(Qt::NoPen);
     painter->drawRect(rect);
-
-    // Separator lines
-    painter->setPen(QColor(CONSOLE_BORDER_COLOR));
-    if (!(index.flags() & Qt::ItemIsEditable))
-        painter->drawLine(0, rect.bottom(), rect.right(),
-                          rect.bottom());
     painter->restore();
     return backgroundColor;
 }
@@ -126,6 +87,7 @@ QColor ConsoleItemDelegate::drawBackground(QPainter *painter, const QRect &rect,
 void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                    const QModelIndex &index) const
 {
+    const Utils::Theme *theme = Utils::creatorTheme();
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
     painter->save();
@@ -137,23 +99,23 @@ void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
                 ConsoleItem::TypeRole).toInt();
     switch (type) {
     case ConsoleItem::DebugType:
-        textColor = QColor(CONSOLE_LOG_TEXT_COLOR);
+        textColor = theme->color(Utils::Theme::OutputPanes_NormalMessageTextColor);
         taskIcon = m_logIcon;
         break;
     case ConsoleItem::WarningType:
-        textColor = QColor(CONSOLE_WARNING_TEXT_COLOR);
+        textColor = theme->color(Utils::Theme::OutputPanes_WarningMessageTextColor);
         taskIcon = m_warningIcon;
         break;
     case ConsoleItem::ErrorType:
-        textColor = QColor(CONSOLE_ERROR_TEXT_COLOR);
+        textColor = theme->color(Utils::Theme::OutputPanes_ErrorMessageTextColor);
         taskIcon = m_errorIcon;
         break;
     case ConsoleItem::InputType:
-        textColor = QColor(CONSOLE_EDITOR_TEXT_COLOR);
+        textColor = theme->color(Utils::Theme::TextColorNormal);
         taskIcon = m_prompt;
         break;
     default:
-        textColor = QColor(CONSOLE_EDITOR_TEXT_COLOR);
+        textColor = theme->color(Utils::Theme::TextColorNormal);
         break;
     }
 
@@ -307,18 +269,11 @@ QWidget *ConsoleItemDelegate::createEditor(QWidget *parent,
 
 {
     ConsoleEdit *editor = new ConsoleEdit(index, parent);
-    // Fiddle the prompt into the margin so that we don't have to put it into the text.
-    // Apparently you can have both background-image and background-color, which conveniently
-    // prevents the painted text from shining through.
+    // Make the background transparent so that the prompt shines through
     editor->setStyleSheet(QLatin1String("QTextEdit {"
                                         "margin-left: 24px;"
                                         "margin-top: 4px;"
-                                        "color: black;"
-                                        "background-color: white;"
-                                        "background-image: url(:/qmljstools/images/prompt.png);"
-                                        "background-position: baseline left;"
-                                        "background-origin: margin;"
-                                        "background-repeat: none;"
+                                        "background-color: transparent;"
                                         "}"));
     connect(editor, &ConsoleEdit::editingFinished, this, [this, editor] {
         auto delegate = const_cast<ConsoleItemDelegate*>(this);
