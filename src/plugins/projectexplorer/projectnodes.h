@@ -40,7 +40,7 @@ namespace Utils { class MimeType; }
 
 namespace ProjectExplorer {
 class RunConfiguration;
-class Project;
+class SessionManager;
 
 enum class NodeType : quint16 {
     File = 1,
@@ -302,7 +302,7 @@ protected:
     // will add the persistent stuff
     explicit ProjectNode(const Utils::FileName &projectFilePath);
 
-    friend class Project;
+    friend class SessionManager;
 };
 
 // Documentation inside.

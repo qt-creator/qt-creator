@@ -417,13 +417,6 @@ void Project::setDocument(Core::IDocument *doc)
     QTC_ASSERT(doc, return);
     QTC_ASSERT(!d->m_document, return);
     d->m_document = doc;
-
-    if (!d->m_rootProjectNode) {
-        auto newRoot = new ProjectNode(projectDirectory());
-        newRoot->setDisplayName(displayName());
-        newRoot->addNode(new FileNode(projectFilePath(), FileType::Project, false));
-        setRootProjectNode(newRoot);
-    }
 }
 
 void Project::setRootProjectNode(ProjectNode *root)
