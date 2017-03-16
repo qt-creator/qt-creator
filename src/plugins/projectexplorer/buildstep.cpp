@@ -115,6 +115,7 @@ BuildStep::BuildStep(BuildStepList *bsl, Core::Id id) :
     ProjectConfiguration(bsl, id), m_enabled(true)
 {
     Q_ASSERT(bsl);
+    ctor();
 }
 
 BuildStep::BuildStep(BuildStepList *bsl, BuildStep *bs) :
@@ -122,6 +123,15 @@ BuildStep::BuildStep(BuildStepList *bsl, BuildStep *bs) :
 {
     Q_ASSERT(bsl);
     setDisplayName(bs->displayName());
+    ctor();
+}
+
+void BuildStep::ctor()
+{
+    Utils::MacroExpander *expander = macroExpander();
+    expander->setDisplayName(tr("Build Step"));
+    expander->setAccumulating(true);
+    expander->registerSubProvider([this] { return projectConfiguration()->macroExpander(); });
 }
 
 bool BuildStep::fromMap(const QVariantMap &map)

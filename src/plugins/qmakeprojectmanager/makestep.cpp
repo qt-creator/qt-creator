@@ -32,6 +32,7 @@
 #include "qmakebuildconfiguration.h"
 #include "qmakeprojectmanagerconstants.h"
 
+#include <coreplugin/variablechooser.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildsteplist.h>
@@ -357,6 +358,8 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
             this, &MakeStepConfigWidget::updateDetails);
     connect(m_makeStep->target(), &Target::kitChanged, this, &MakeStepConfigWidget::updateDetails);
+
+    Core::VariableChooser::addSupportForChildWidgets(this, m_makeStep->macroExpander());
 }
 
 void MakeStepConfigWidget::activeBuildConfigurationChanged()
