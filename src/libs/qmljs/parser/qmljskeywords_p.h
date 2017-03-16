@@ -874,3 +874,4 @@ int Lexer::classify(const QChar *s, int n, bool qmlMode) {
 } // namespace QmlJS
 
 QT_QML_END_NAMESPACE
+

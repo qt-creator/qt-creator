@@ -159,7 +159,7 @@ public:
 
     inline DiagnosticMessage diagnosticMessage() const
     {
-        foreach (const DiagnosticMessage &d, diagnostic_messages) {
+        for (const DiagnosticMessage &d : diagnostic_messages) {
             if (d.kind != Severity::Warning)
                 return d;
         }
@@ -231,8 +231,9 @@ protected:
 
 
 
-#define J_SCRIPT_REGEXPLITERAL_RULE1 88
+#define J_SCRIPT_REGEXPLITERAL_RULE1 91
 
-#define J_SCRIPT_REGEXPLITERAL_RULE2 89
+#define J_SCRIPT_REGEXPLITERAL_RULE2 92
 
 QT_QML_END_NAMESPACE
+

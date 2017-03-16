@@ -79,7 +79,7 @@ public:
     inline void *allocate(size_t size)
     {
         size = (size + 7) & ~7;
-        if (_ptr && (_ptr + size < _end)) {
+        if (Q_LIKELY(_ptr && (_ptr + size < _end))) {
             void *addr = _ptr;
             _ptr += size;
             return addr;
@@ -96,7 +96,7 @@ public:
     template <typename Tp> Tp *New() { return new (this->allocate(sizeof(Tp))) Tp(); }
 
 private:
-    void *allocate_helper(size_t size)
+    Q_NEVER_INLINE void *allocate_helper(size_t size)
     {
         Q_ASSERT(size < BLOCK_SIZE);
 
@@ -107,6 +107,7 @@ private:
                 _allocatedBlocks *= 2;
 
             _blocks = (char **) realloc(_blocks, sizeof(char *) * _allocatedBlocks);
+            Q_CHECK_PTR(_blocks);
 
             for (int index = _blockCount; index < _allocatedBlocks; ++index)
                 _blocks[index] = 0;
@@ -114,8 +115,10 @@ private:
 
         char *&block = _blocks[_blockCount];
 
-        if (! block)
+        if (! block) {
             block = (char *) malloc(BLOCK_SIZE);
+            Q_CHECK_PTR(block);
+        }
 
         _ptr = block;
         _end = _ptr + BLOCK_SIZE;
@@ -156,3 +159,4 @@ public:
 } // namespace QmlJS
 
 QT_QML_END_NAMESPACE
+

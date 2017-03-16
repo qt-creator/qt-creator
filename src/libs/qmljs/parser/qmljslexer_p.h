@@ -237,3 +237,4 @@ private:
 } // end of namespace QmlJS
 
 QT_QML_END_NAMESPACE
+

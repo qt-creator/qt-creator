@@ -1,31 +1,37 @@
 ----------------------------------------------------------------------------
 --
--- Copyright (C) 2015 The Qt Company Ltd.
+-- Copyright (C) 2016 The Qt Company Ltd.
 -- Contact: http://www.qt.io/licensing/
 --
 -- This file is part of the QtQml module of the Qt Toolkit.
 --
--- $QT_BEGIN_LICENSE:LGPL21$
+-- $QT_BEGIN_LICENSE:LGPL$
 -- Commercial License Usage
 -- Licensees holding valid commercial Qt licenses may use this file in
 -- accordance with the commercial license agreement provided with the
 -- Software or, alternatively, in accordance with the terms contained in
 -- a written agreement between you and The Qt Company. For licensing terms
--- and conditions see http://www.qt.io/terms-conditions. For further
--- information use the contact form at http://www.qt.io/contact-us.
+-- and conditions see https://www.qt.io/terms-conditions. For further
+-- information use the contact form at https://www.qt.io/contact-us.
 --
 -- GNU Lesser General Public License Usage
 -- Alternatively, this file may be used under the terms of the GNU Lesser
--- General Public License version 2.1 or version 3 as published by the Free
--- Software Foundation and appearing in the file LICENSE.LGPLv21 and
--- LICENSE.LGPLv3 included in the packaging of this file. Please review the
--- following information to ensure the GNU Lesser General Public License
--- requirements will be met: https://www.gnu.org/licenses/lgpl.html and
--- http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+-- General Public License version 3 as published by the Free Software
+-- Foundation and appearing in the file LICENSE.LGPL3 included in the
+-- packaging of this file. Please review the following information to
+-- ensure the GNU Lesser General Public License version 3 requirements
+-- will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 --
--- As a special exception, The Qt Company gives you certain additional
--- rights. These rights are described in The Qt Company LGPL Exception
--- version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+-- GNU General Public License Usage
+-- Alternatively, this file may be used under the terms of the GNU
+-- General Public License version 2.0 or (at your option) the GNU General
+-- Public license version 3 or any later version approved by the KDE Free
+-- Qt Foundation. The licenses are as published by the Free Software
+-- Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+-- included in the packaging of this file. Please review the following
+-- information to ensure the GNU General Public License requirements will
+-- be met: https://www.gnu.org/licenses/gpl-2.0.html and
+-- https://www.gnu.org/licenses/gpl-3.0.html.
 --
 -- $QT_END_LICENSE$
 --
@@ -99,32 +105,38 @@
 
 /./****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtQml module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL21$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
-** As a special exception, The Qt Company gives you certain additional
-** rights. These rights are described in The Qt Company LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -144,32 +156,38 @@
 
 /:/****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtQml module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL21$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
-** As a special exception, The Qt Company gives you certain additional
-** rights. These rights are described in The Qt Company LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -199,7 +217,8 @@
 //    qlalr --no-debug --no-lines --qt qmljs.g
 //
 
-#prama once
+#ifndef QMLJSPARSER_P_H
+#define QMLJSPARSER_P_H
 
 #include "qmljsglobal_p.h"
 #include "qmljsgrammar_p.h"
@@ -311,7 +330,7 @@ public:
 
     inline DiagnosticMessage diagnosticMessage() const
     {
-        foreach (const DiagnosticMessage &d, diagnostic_messages) {
+        for (const DiagnosticMessage &d : diagnostic_messages) {
             if (d.kind != DiagnosticMessage::Warning)
                 return d;
         }
@@ -897,8 +916,40 @@ case $rule_number:
 ./
 
 UiPropertyType: T_VAR ;
+/.
+case $rule_number: {
+  AST::UiQualifiedId *node = new (pool) AST::UiQualifiedId(stringRef(1));
+  node->identifierToken = loc(1);
+  sym(1).Node = node;
+} break;
+./
+
 UiPropertyType: T_RESERVED_WORD ;
+/.
+case $rule_number: {
+  AST::UiQualifiedId *node = new (pool) AST::UiQualifiedId(stringRef(1));
+  node->identifierToken = loc(1);
+  sym(1).Node = node;
+} break;
+./
+
 UiPropertyType: T_IDENTIFIER ;
+/.
+case $rule_number: {
+  AST::UiQualifiedId *node = new (pool) AST::UiQualifiedId(stringRef(1));
+  node->identifierToken = loc(1);
+  sym(1).Node = node;
+} break;
+./
+
+UiPropertyType: UiPropertyType T_DOT T_IDENTIFIER ;
+/.
+case $rule_number: {
+  AST::UiQualifiedId *node = new (pool) AST::UiQualifiedId(sym(1).UiQualifiedId, stringRef(3));
+  node->identifierToken = loc(3);
+  sym(1).Node = node;
+} break;
+./
 
 UiParameterListOpt: ;
 /.
@@ -917,7 +968,7 @@ case $rule_number: {
 UiParameterList: UiPropertyType JsIdentifier ;
 /.
 case $rule_number: {
-  AST::UiParameterList *node = new (pool) AST::UiParameterList(stringRef(1), stringRef(2));
+  AST::UiParameterList *node = new (pool) AST::UiParameterList(sym(1).UiQualifiedId->finish(), stringRef(2));
   node->propertyTypeToken = loc(1);
   node->identifierToken = loc(2);
   sym(1).Node = node;
@@ -927,7 +978,7 @@ case $rule_number: {
 UiParameterList: UiParameterList T_COMMA UiPropertyType JsIdentifier ;
 /.
 case $rule_number: {
-  AST::UiParameterList *node = new (pool) AST::UiParameterList(sym(1).UiParameterList, stringRef(3), stringRef(4));
+  AST::UiParameterList *node = new (pool) AST::UiParameterList(sym(1).UiParameterList, sym(3).UiQualifiedId->finish(), stringRef(4));
   node->propertyTypeToken = loc(3);
   node->commaToken = loc(2);
   node->identifierToken = loc(4);
@@ -939,7 +990,7 @@ UiObjectMember: T_SIGNAL T_IDENTIFIER T_LPAREN UiParameterListOpt T_RPAREN T_AUT
 UiObjectMember: T_SIGNAL T_IDENTIFIER T_LPAREN UiParameterListOpt T_RPAREN T_SEMICOLON ;
 /.
 case $rule_number: {
-    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(QStringRef(), stringRef(2));
+    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(nullptr, stringRef(2));
     node->type = AST::UiPublicMember::Signal;
     node->propertyToken = loc(1);
     node->typeToken = loc(2);
@@ -954,7 +1005,7 @@ UiObjectMember: T_SIGNAL T_IDENTIFIER T_AUTOMATIC_SEMICOLON ;
 UiObjectMember: T_SIGNAL T_IDENTIFIER T_SEMICOLON ;
 /.
 case $rule_number: {
-    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(QStringRef(), stringRef(2));
+    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(nullptr, stringRef(2));
     node->type = AST::UiPublicMember::Signal;
     node->propertyToken = loc(1);
     node->typeToken = loc(2);
@@ -968,7 +1019,7 @@ UiObjectMember: T_PROPERTY T_IDENTIFIER T_LT UiPropertyType T_GT JsIdentifier T_
 UiObjectMember: T_PROPERTY T_IDENTIFIER T_LT UiPropertyType T_GT JsIdentifier T_SEMICOLON ;
 /.
 case $rule_number: {
-    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(stringRef(4), stringRef(6));
+    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(sym(4).UiQualifiedId->finish(), stringRef(6));
     node->typeModifier = stringRef(2);
     node->propertyToken = loc(1);
     node->typeModifierToken = loc(2);
@@ -983,7 +1034,7 @@ UiObjectMember: T_PROPERTY UiPropertyType JsIdentifier T_AUTOMATIC_SEMICOLON ;
 UiObjectMember: T_PROPERTY UiPropertyType JsIdentifier T_SEMICOLON ;
 /.
 case $rule_number: {
-    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(stringRef(2), stringRef(3));
+    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(sym(2).UiQualifiedId->finish(), stringRef(3));
     node->propertyToken = loc(1);
     node->typeToken = loc(2);
     node->identifierToken = loc(3);
@@ -996,7 +1047,7 @@ UiObjectMember: T_DEFAULT T_PROPERTY UiPropertyType JsIdentifier T_AUTOMATIC_SEM
 UiObjectMember: T_DEFAULT T_PROPERTY UiPropertyType JsIdentifier T_SEMICOLON ;
 /.
 case $rule_number: {
-    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(stringRef(3), stringRef(4));
+    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(sym(3).UiQualifiedId->finish(), stringRef(4));
     node->isDefaultMember = true;
     node->defaultToken = loc(1);
     node->propertyToken = loc(2);
@@ -1007,10 +1058,27 @@ case $rule_number: {
 }   break;
 ./
 
+UiObjectMember: T_DEFAULT T_PROPERTY T_IDENTIFIER T_LT UiPropertyType T_GT JsIdentifier T_AUTOMATIC_SEMICOLON ;
+UiObjectMember: T_DEFAULT T_PROPERTY T_IDENTIFIER T_LT UiPropertyType T_GT JsIdentifier T_SEMICOLON ;
+/.
+case $rule_number: {
+    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(sym(5).UiQualifiedId->finish(), stringRef(7));
+    node->isDefaultMember = true;
+    node->defaultToken = loc(1);
+    node->typeModifier = stringRef(3);
+    node->propertyToken = loc(2);
+    node->typeModifierToken = loc(2);
+    node->typeToken = loc(4);
+    node->identifierToken = loc(7);
+    node->semicolonToken = loc(8);
+    sym(1).Node = node;
+}   break;
+./
+
 UiObjectMember: T_PROPERTY UiPropertyType JsIdentifier T_COLON UiScriptStatement ;
 /.
 case $rule_number: {
-    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(stringRef(2), stringRef(3),
+    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(sym(2).UiQualifiedId->finish(), stringRef(3),
         sym(5).Statement);
     node->propertyToken = loc(1);
     node->typeToken = loc(2);
@@ -1023,7 +1091,7 @@ case $rule_number: {
 UiObjectMember: T_READONLY T_PROPERTY UiPropertyType JsIdentifier T_COLON UiScriptStatement ;
 /.
 case $rule_number: {
-    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(stringRef(3), stringRef(4),
+    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(sym(3).UiQualifiedId->finish(), stringRef(4),
         sym(6).Statement);
     node->isReadonlyMember = true;
     node->readonlyToken = loc(1);
@@ -1038,7 +1106,7 @@ case $rule_number: {
 UiObjectMember: T_DEFAULT T_PROPERTY UiPropertyType JsIdentifier T_COLON UiScriptStatement ;
 /.
 case $rule_number: {
-    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(stringRef(3), stringRef(4),
+    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(sym(3).UiQualifiedId->finish(), stringRef(4),
         sym(6).Statement);
     node->isDefaultMember = true;
     node->defaultToken = loc(1);
@@ -1053,7 +1121,7 @@ case $rule_number: {
 UiObjectMember: T_PROPERTY T_IDENTIFIER T_LT UiPropertyType T_GT JsIdentifier T_COLON T_LBRACKET UiArrayMemberList T_RBRACKET ;
 /.
 case $rule_number: {
-    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(stringRef(4), stringRef(6));
+    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(sym(4).UiQualifiedId->finish(), stringRef(6));
     node->typeModifier = stringRef(2);
     node->propertyToken = loc(1);
     node->typeModifierToken = loc(2);
@@ -1080,7 +1148,7 @@ case $rule_number: {
 UiObjectMember: T_PROPERTY UiPropertyType JsIdentifier T_COLON UiQualifiedId UiObjectInitializer ;
 /.
 case $rule_number: {
-    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(stringRef(2), stringRef(3));
+    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(sym(2).UiQualifiedId->finish(), stringRef(3));
     node->propertyToken = loc(1);
     node->typeToken = loc(2);
     node->identifierToken = loc(3);
@@ -1103,7 +1171,7 @@ case $rule_number: {
 UiObjectMember: T_READONLY T_PROPERTY UiPropertyType JsIdentifier T_COLON UiQualifiedId UiObjectInitializer ;
 /.
 case $rule_number: {
-    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(stringRef(3), stringRef(4));
+    AST::UiPublicMember *node = new (pool) AST::UiPublicMember(sym(3).UiQualifiedId->finish(), stringRef(4));
     node->isReadonlyMember = true;
     node->readonlyToken = loc(1);
     node->propertyToken = loc(2);
@@ -3041,7 +3109,7 @@ PropertyAssignmentListOpt: PropertyAssignmentList ;
             yylloc.startColumn += yylloc.length;
             yylloc.length = 0;
 
-            //const QString msg = qApp->translate("QmlParser", "Missing `;'");
+            //const QString msg = QCoreApplication::translate("QmlParser", "Missing \";\".");
             //diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Warning, yylloc, msg));
 
             first_token = &token_buffer[0];
@@ -3071,9 +3139,9 @@ PropertyAssignmentListOpt: PropertyAssignmentList ;
             QString msg;
             int token = token_buffer[0].token;
             if (token < 0 || token >= TERMINAL_COUNT)
-                msg = QCoreApplication::translate("QmlParser", "Syntax error");
+                msg = QCoreApplication::translate("QmlParser", "Syntax error.");
             else
-                msg = QCoreApplication::translate("QmlParser", "Unexpected token `%1'").arg(QLatin1String(spell[token]));
+                msg = QCoreApplication::translate("QmlParser", "Unexpected token \"%1\".").arg(QLatin1String(spell[token]));
             diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
 
             action = errorState;
@@ -3101,7 +3169,7 @@ PropertyAssignmentListOpt: PropertyAssignmentList ;
         for (int *tk = tokens; *tk != EOF_SYMBOL; ++tk) {
             int a = t_action(errorState, *tk);
             if (a > 0 && t_action(a, yytoken)) {
-                const QString msg = QCoreApplication::translate("QmlParser", "Expected token `%1'").arg(QLatin1String(spell[*tk]));
+                const QString msg = QCoreApplication::translate("QmlParser", "Expected token \"%1\".").arg(QLatin1String(spell[*tk]));
                 diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
 
                 yytoken = *tk;
@@ -3125,7 +3193,7 @@ PropertyAssignmentListOpt: PropertyAssignmentList ;
 
             int a = t_action(errorState, tk);
             if (a > 0 && t_action(a, yytoken)) {
-                const QString msg = QCoreApplication::translate("QmlParser", "Expected token `%1'").arg(QLatin1String(spell[tk]));
+                const QString msg = QCoreApplication::translate("QmlParser", "Expected token \"%1\".").arg(QLatin1String(spell[tk]));
                 diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
 
                 yytoken = tk;
@@ -3138,7 +3206,7 @@ PropertyAssignmentListOpt: PropertyAssignmentList ;
             }
         }
 
-        const QString msg = QCoreApplication::translate("QmlParser", "Syntax error");
+        const QString msg = QCoreApplication::translate("QmlParser", "Syntax error.");
         diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
     }
 
@@ -3153,4 +3221,6 @@ QT_QML_END_NAMESPACE
 QT_QML_END_NAMESPACE
 
 
+
+#endif // QMLJSPARSER_P_H
 :/

@@ -1045,9 +1045,8 @@ bool Check::visit(UiArrayBinding *ast)
 bool Check::visit(UiPublicMember *ast)
 {
     if (ast->type == UiPublicMember::Property) {
-        // check if the member type is valid
-        if (!ast->memberType.isEmpty()) {
-            const QStringRef name = ast->memberType;
+        if (ast->isValid()) {
+            const QStringRef name = ast->memberTypeName();
             if (!name.isEmpty() && name.at(0).isLower()) {
                 const QString nameS = name.toString();
                 if (!isValidBuiltinPropertyType(nameS))

@@ -323,8 +323,8 @@ protected:
 
     bool visit(UiPublicMember *ast)
     {
-        if (ast->typeToken.isValid() && !ast->memberType.isEmpty()) {
-            if (m_scopeChain.context()->lookupType(m_scopeChain.document().data(), QStringList(ast->memberType.toString())))
+        if (ast->typeToken.isValid() && ast->isValid()) {
+            if (m_scopeChain.context()->lookupType(m_scopeChain.document().data(), QStringList(ast->memberTypeName().toString())))
                 addUse(ast->typeToken, SemanticHighlighter::QmlTypeType);
         }
         if (ast->identifierToken.isValid())

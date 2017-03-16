@@ -170,3 +170,4 @@ class UiHeaderItemList;
 } } // namespace AST
 
 QT_QML_END_NAMESPACE
+

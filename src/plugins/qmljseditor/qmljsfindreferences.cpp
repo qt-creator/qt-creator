@@ -322,7 +322,7 @@ protected:
 
     virtual bool visit(AST::UiPublicMember *node)
     {
-        if (node->memberType == _name){
+        if (node->memberTypeName() == _name){
             const ObjectValue * tVal = _context->lookupType(_doc.data(), QStringList(_name));
             if (tVal == _typeValue)
                 _usages.append(node->typeToken);
@@ -583,8 +583,8 @@ protected:
     virtual bool visit(UiPublicMember *node)
     {
         if (containsOffset(node->typeToken)){
-            if (!node->memberType.isEmpty()) {
-                _name = node->memberType.toString();
+            if (node->isValid()) {
+                _name = node->memberTypeName().toString();
                 _targetValue = _scopeChain->context()->lookupType(_doc.data(), QStringList(_name));
                 _scope = 0;
                 _typeKind = TypeKind;
