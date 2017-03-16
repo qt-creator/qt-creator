@@ -382,6 +382,9 @@ void ModelIndexer::onProjectFileListChanged(ProjectExplorer::Project *project)
 
 void ModelIndexer::scanProject(ProjectExplorer::Project *project)
 {
+    if (!project->rootProjectNode())
+        return;
+
     // TODO harmonize following code with findFirstModel()?
     QStringList files = project->files(ProjectExplorer::Project::SourceFiles);
     QQueue<QueuedFile> filesQueue;
