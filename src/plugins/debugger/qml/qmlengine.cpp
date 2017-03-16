@@ -303,7 +303,7 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
     connect(d->connection, &QmlDebugConnection::logStateChange,
             this, &QmlEngine::showConnectionStateMessage);
     connect(d->connection, &QmlDebugConnection::logError, this,
-            [this](const QString &error) { showMessage("QML Debugger: " + error, StatusBar); });
+            [this](const QString &error) { showMessage("QML Debugger: " + error, LogWarning); });
 
     connect(d->connection, &QmlDebugConnection::connectionFailed,
             this, &QmlEngine::connectionFailed);
@@ -1261,6 +1261,8 @@ void QmlEngine::connectionFailed()
 {
     // this is only an error if we are already connected and something goes wrong.
     if (isConnected()) {
+        showMessage(tr("QML Debugger: Connection failed."), StatusBar);
+
         if (!isSlaveEngine()) { // normal flow for slave engine when gdb exits
             notifyInferiorSpontaneousStop();
             notifyInferiorIll();
