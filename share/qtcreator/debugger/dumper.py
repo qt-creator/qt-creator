@@ -24,6 +24,7 @@
 ############################################################################
 
 import os
+import codecs
 import copy
 import collections
 import struct
@@ -436,7 +437,7 @@ class DumperBase:
                     elif self.currentValue.encoding == 'utf8':
                         value = self.hexdecode(value)
                     elif self.currentValue.encoding == 'utf16':
-                        b = bytes.fromhex(value)
+                        b = bytes(bytearray.fromhex(value))
                         value = codecs.decode(b, 'utf-16')
                     self.put('"%s"' % value)
                     if self.currentValue.elided:
