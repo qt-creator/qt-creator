@@ -14,7 +14,7 @@ TEMPLATE = app
 
 SOURCES +=  %{TestCaseFileWithCppSuffix}
 @else
-include(../gtest_dependency.pri)
+include(gtest_dependency.pri)
 
 TEMPLATE = app
 @if "%{GTestCXX11}" == "true"
