@@ -67,6 +67,7 @@ bool BareMetalPlugin::initialize(const QStringList &arguments, QString *errorStr
    addAutoReleasedObject(new BareMetalRunControlFactory);
    addAutoReleasedObject(new BareMetalRunConfigurationFactory);
    addAutoReleasedObject(new GdbServerProvidersSettingsPage);
+   addAutoReleasedObject(new GdbServerProviderManager);
 
    return true;
 }

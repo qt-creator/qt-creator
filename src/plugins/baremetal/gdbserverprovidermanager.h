@@ -47,12 +47,12 @@ public:
     static GdbServerProviderManager *instance();
     ~GdbServerProviderManager();
 
-    QList<GdbServerProvider *> providers() const;
-    QList<GdbServerProviderFactory *> factories() const;
-    GdbServerProvider *findProvider(const QString &id) const;
-    GdbServerProvider *findByDisplayName(const QString &displayName) const;
-    bool registerProvider(GdbServerProvider *);
-    void deregisterProvider(GdbServerProvider *);
+    static QList<GdbServerProvider *> providers();
+    static QList<GdbServerProviderFactory *> factories();
+    static GdbServerProvider *findProvider(const QString &id);
+    static GdbServerProvider *findByDisplayName(const QString &displayName);
+    static bool registerProvider(GdbServerProvider *);
+    static void deregisterProvider(GdbServerProvider *);
 
 signals:
     void providerAdded(GdbServerProvider *);
@@ -66,7 +66,7 @@ private:
     explicit GdbServerProviderManager(QObject *parent = 0);
 
     void restoreProviders();
-    void notifyAboutUpdate(GdbServerProvider *);
+    static void notifyAboutUpdate(GdbServerProvider *);
 
     Utils::PersistentSettingsWriter *m_writer;
     QList<GdbServerProvider *> m_providers;

@@ -175,7 +175,7 @@ bool GdbServerProvider::canStartupMode(StartupMode m) const
 
 void GdbServerProvider::providerUpdated()
 {
-    GdbServerProviderManager::instance()->notifyAboutUpdate(this);
+    GdbServerProviderManager::notifyAboutUpdate(this);
 }
 
 bool GdbServerProvider::fromMap(const QVariantMap &data)

@@ -103,8 +103,7 @@ RunControl *BareMetalRunControlFactory::create(
         return 0;
     }
 
-    const GdbServerProvider *p = GdbServerProviderManager::instance()->findProvider(
-                dev->gdbServerProviderId());
+    const GdbServerProvider *p = GdbServerProviderManager::findProvider(dev->gdbServerProviderId());
     if (!p) {
         *errorMessage = tr("Cannot debug: Device has no GDB server provider configuration.");
         return 0;
