@@ -44,10 +44,11 @@ void SilverSearcherPlugin::extensionsInitialized()
 {
 }
 
+#ifdef WITH_TESTS
 QList<QObject *> SilverSearcherPlugin::createTestObjects() const
 {
     return {new OutputParserTest};
 }
-
+#endif
 } // namespace Internal
 } // namespace SilverSearcher

@@ -124,7 +124,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         case Qt::FontRole: {
             QFont font;
             if (Project *project = SessionManager::startupProject()) {
-                if (node == project->rootProjectNode())
+                if (node == SessionManager::nodeForProject(project))
                     font.setBold(true);
             }
             result = font;
@@ -227,7 +227,7 @@ ExpandData FlatModel::expandDataForNode(const Node *node) const
 
 void FlatModel::handleProjectAdded(Project *project)
 {
-    Node *node = project->rootProjectNode();
+    Node *node = SessionManager::nodeForProject(project);
     m_toExpand.insert(expandDataForNode(node));
     if (WrapperNode *wrapper = wrapperForNode(node)) {
         wrapper->forFirstLevelChildren([this](WrapperNode *child) {

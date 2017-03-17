@@ -442,7 +442,8 @@ QmakeProFileNode *DesktopQmakeRunConfiguration::projectNode() const
     QmakeProject *project = qmakeProject();
     QTC_ASSERT(project, return nullptr);
     QmakeProFileNode *rootNode = project->rootProjectNode();
-    QTC_ASSERT(rootNode, return nullptr);
+    if (!rootNode)
+        return nullptr;
     return rootNode->findProFileFor(m_proFilePath);
 }
 

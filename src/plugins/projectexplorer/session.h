@@ -116,6 +116,7 @@ public:
     static SessionNode *sessionNode();
 
     static Project *projectForNode(Node *node);
+    static Node *nodeForProject(Project *project);
     static Node *nodeForFile(const Utils::FileName &fileName);
     static Project *projectForFile(const Utils::FileName &fileName);
 

@@ -371,6 +371,8 @@ bool itemIsMovable(const ModelNode &modelNode)
     if (modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab"))
         return false;
 
+    if (!modelNode.parentProperty().isNodeListProperty())
+        return false;
 
     return NodeHints::fromModelNode(modelNode).isMovable();
 }

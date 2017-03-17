@@ -680,6 +680,15 @@ Project *SessionManager::projectForNode(Node *node)
     return nullptr;
 }
 
+Node *SessionManager::nodeForProject(Project *project)
+{
+    for (const QPair<Project *,ProjectNode*> &pair : d->m_projects) {
+        if (pair.first == project)
+            return pair.second;
+    }
+    return nullptr;
+}
+
 Project *SessionManager::projectForFile(const Utils::FileName &fileName)
 {
     const QList<Project *> &projectList = projects();

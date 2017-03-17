@@ -114,6 +114,10 @@ void TextEditorView::modelAttached(Model *model)
 void TextEditorView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
+
+    m_widget->setTextEditor(0);
+
+    QmlDesignerPlugin::instance()->emitCurrentTextEditorChanged(QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor());
 }
 
 void TextEditorView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)

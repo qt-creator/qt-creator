@@ -270,23 +270,10 @@ bool AbstractMsvcToolChain::canClone() const
 }
 
 // Function must be thread-safe!
-QByteArray AbstractMsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
-                                                       const Utils::Environment& env) const
+QByteArray AbstractMsvcToolChain::msvcPredefinedMacros(const QStringList,
+                                                       const Utils::Environment&) const
 {
-    Q_UNUSED(cxxflags);
-    Q_UNUSED(env);
-
-    static const QByteArray predefinedMacros(
-            "#define __MSVCRT__\n"
-            "#define __w64\n"
-            "#define __int64 long long\n"
-            "#define __int32 long\n"
-            "#define __int16 short\n"
-            "#define __int8 char\n"
-            "#define __ptr32\n"
-            "#define __ptr64\n");
-
-    return predefinedMacros;
+    return QByteArray();
 }
 
 bool AbstractMsvcToolChain::generateEnvironmentSettings(const Utils::Environment &env,

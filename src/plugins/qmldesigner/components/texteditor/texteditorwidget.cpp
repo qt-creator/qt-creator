@@ -68,21 +68,24 @@ void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
 {
     TextEditor::BaseTextEditor *oldEditor = m_textEditor.release();
     m_textEditor.reset(textEditor);
-    layout()->removeWidget(m_statusBar);
-    layout()->addWidget(textEditor->editorWidget());
-    layout()->addWidget(m_statusBar);
-    setFocusProxy(textEditor->editorWidget());
 
-    QmlDesignerPlugin::instance()->emitCurrentTextEditorChanged(textEditor);
+    if (textEditor) {
+        layout()->removeWidget(m_statusBar);
+        layout()->addWidget(textEditor->editorWidget());
+        layout()->addWidget(m_statusBar);
+        setFocusProxy(textEditor->editorWidget());
 
-    connect(textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged,
-            this, [this]() {
-        /* Cursor position is changed by rewriter */
-        if (!m_blockCurserSelectionSyncronisation)
-            m_updateSelectionTimer.start();
-    });
+        QmlDesignerPlugin::instance()->emitCurrentTextEditorChanged(textEditor);
 
-    textEditor->editorWidget()->installEventFilter(this);
+        connect(textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged,
+                this, [this]() {
+            /* Cursor position is changed by rewriter */
+            if (!m_blockCurserSelectionSyncronisation)
+                m_updateSelectionTimer.start();
+        });
+
+        textEditor->editorWidget()->installEventFilter(this);
+    }
 
     if (oldEditor)
         oldEditor->deleteLater();
@@ -112,6 +115,12 @@ void TextEditorWidget::updateSelectionByCursorPosition()
 void TextEditorWidget::jumpTextCursorToSelectedModelNode()
 {
     ModelNode selectedNode;
+
+    if (hasFocus())
+        return;
+
+    if (m_textEditor && m_textEditor->editorWidget()->hasFocus())
+        return;
 
     if (!m_textEditorView->selectedModelNodes().isEmpty())
         selectedNode = m_textEditorView->selectedModelNodes().first();

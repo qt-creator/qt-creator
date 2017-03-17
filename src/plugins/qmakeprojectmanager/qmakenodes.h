@@ -69,10 +69,10 @@ public:
     QmakeProFileNode *proFileNode() const;
 
 protected:
-    QmakeProject *m_project;
+    QmakeProject *m_project = nullptr;
 
 private:
-    QmakeProFileNode *m_qmakeProFileNode;
+    QmakeProFileNode *m_qmakeProFileNode = nullptr;
 };
 
 // Implements ProjectNode for qmake .pro files

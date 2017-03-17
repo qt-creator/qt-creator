@@ -618,26 +618,6 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
         return QProxyStyle::drawControl(element, option, painter, widget);
 
     switch (element) {
-    case CE_TabBarTabShape:
-        // Most styles draw a single dark outline. This looks rather ugly when combined with our
-        // single pixel dark separator so we adjust the first tab to compensate for this
-
-        if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
-            QStyleOptionTab adjustedTab = *tab;
-            if (tab->cornerWidgets == QStyleOptionTab::NoCornerWidgets && (
-                    tab->position == QStyleOptionTab::Beginning ||
-                    tab->position == QStyleOptionTab::OnlyOneTab))
-            {
-                if (option->direction == Qt::LeftToRight)
-                    adjustedTab.rect = adjustedTab.rect.adjusted(-1, 0, 0, 0);
-                else
-                    adjustedTab.rect = adjustedTab.rect.adjusted(0, 0, 1 ,0);
-            }
-            QProxyStyle::drawControl(element, &adjustedTab, painter, widget);
-            return;
-        }
-        break;
-
     case CE_MenuItem:
         painter->save();
         if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {

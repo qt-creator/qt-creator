@@ -498,7 +498,8 @@ void IosConfigurations::loadProvisioningData(bool notify)
     }
 
     const QDir provisioningProflesDir(provisioningProfileDirPath);
-    foreach (QFileInfo fileInfo, provisioningProflesDir.entryInfoList({"*.mobileprovision"}, QDir::NoDotAndDotDot | QDir::Files)) {
+    const QStringList filters = {"*.mobileprovision"};
+    foreach (QFileInfo fileInfo, provisioningProflesDir.entryInfoList(filters, QDir::NoDotAndDotDot | QDir::Files)) {
         QDomDocument provisioningDoc;
         auto profile = std::make_shared<ProvisioningProfile>();
         QString teamID;
