@@ -34,10 +34,11 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-using namespace ProjectExplorer;
+namespace ProjectExplorer {
 
 const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.BuildStepListCount";
 const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";
+const char DEFAULT_DEPLOYCONFIGURATION_ID[] = "ProjectExplorer.DefaultDeployConfiguration";
 
 DeployConfiguration::DeployConfiguration(Target *target, Core::Id id) :
     ProjectConfiguration(target, id)
@@ -204,12 +205,12 @@ QList<Core::Id> DefaultDeployConfigurationFactory::availableCreationIds(Target *
 {
     if (!canHandle(parent))
         return QList<Core::Id>();
-    return QList<Core::Id>() << Core::Id(Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
+    return QList<Core::Id>() << Core::Id(DEFAULT_DEPLOYCONFIGURATION_ID);
 }
 
 QString DefaultDeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
-    if (id == Constants::DEFAULT_DEPLOYCONFIGURATION_ID)
+    if (id == DEFAULT_DEPLOYCONFIGURATION_ID)
         //: Display name of the default deploy configuration
         return DeployConfigurationFactory::tr("Deploy Configuration");
     return QString();
@@ -219,7 +220,7 @@ bool DefaultDeployConfigurationFactory::canCreate(Target *parent, Core::Id id) c
 {
     if (!canHandle(parent))
         return false;
-    return id == Constants::DEFAULT_DEPLOYCONFIGURATION_ID;
+    return id == DEFAULT_DEPLOYCONFIGURATION_ID;
 }
 
 DeployConfiguration *DefaultDeployConfigurationFactory::create(Target *parent, Core::Id id)
@@ -264,3 +265,5 @@ bool DefaultDeployConfigurationFactory::canHandle(Target *parent) const
         return false;
     return DeviceTypeKitInformation::deviceTypeId(parent->kit()) == Constants::DESKTOP_DEVICE_TYPE;
 }
+
+} // namespace ProjectExplorer

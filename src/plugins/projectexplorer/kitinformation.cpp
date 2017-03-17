@@ -46,6 +46,10 @@
 
 namespace ProjectExplorer {
 
+const char KITINFORMATION_ID_V1[] = "PE.Profile.ToolChain";
+const char KITINFORMATION_ID_V2[] = "PE.Profile.ToolChains";
+const char KITINFORMATION_ID_V3[] = "PE.Profile.ToolChainsV3";
+
 // --------------------------------------------------------------------------
 // SysRootKitInformation:
 // --------------------------------------------------------------------------
@@ -195,8 +199,8 @@ QList<Task> ToolChainKitInformation::validate(const Kit *k) const
 
 void ToolChainKitInformation::upgrade(Kit *k)
 {
-    const Core::Id oldIdV1 = Constants::KITINFORMATION_ID_V1;
-    const Core::Id oldIdV2 = Constants::KITINFORMATION_ID_V2;
+    const Core::Id oldIdV1 = KITINFORMATION_ID_V1;
+    const Core::Id oldIdV2 = KITINFORMATION_ID_V2;
 
     // upgrade <=4.1 to 4.2 (keep old settings around for now)
     {
@@ -373,7 +377,7 @@ QSet<Core::Id> ToolChainKitInformation::availableFeatures(const Kit *k) const
 
 Core::Id ToolChainKitInformation::id()
 {
-    return Constants::KITINFORMATION_ID_V3;
+    return KITINFORMATION_ID_V3;
 }
 
 ToolChain *ToolChainKitInformation::toolChain(const Kit *k, Core::Id language)
