@@ -95,7 +95,7 @@ private:
 
     Ui::WizardPage *m_ui;
     QStringList m_projectToolTips;
-    Utils::TreeModel<> *m_model = nullptr;
+    Utils::TreeModel<> m_model;
 
     QList<Core::IVersionControl*> m_activeVersionControls;
     QString m_commonDirectory;

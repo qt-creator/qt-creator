@@ -94,7 +94,6 @@ private:
 
     void update();
     void rebuildModel();
-    void addProjectNode(WrapperNode *parent, ProjectNode *projectNode, QSet<Node *> *seen);
     void addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<Node *> *seen);
 
     ExpandData expandDataForNode(const Node *node) const;

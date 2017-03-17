@@ -275,23 +275,27 @@ Node *ProjectTreeWidget::nodeForFile(const Utils::FileName &fileName)
     Node *bestNode = nullptr;
     int bestNodeExpandCount = INT_MAX;
 
-    SessionManager::sessionNode()->forEachGenericNode([&](Node *node) {
-        if (node->filePath() == fileName) {
-            if (!bestNode) {
-                bestNode = node;
-                bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
-            } else if (node->nodeType() < bestNode->nodeType()) {
-                bestNode = node;
-                bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
-            } else if (node->nodeType() == bestNode->nodeType()) {
-                int nodeExpandCount = ProjectTreeWidget::expandedCount(node);
-                if (nodeExpandCount < bestNodeExpandCount) {
-                    bestNode = node;
-                    bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
+    for (Project *project : SessionManager::projects()) {
+        if (ProjectNode *projectNode = project->rootProjectNode()) {
+            projectNode->forEachGenericNode([&](Node *node) {
+                if (node->filePath() == fileName) {
+                    if (!bestNode) {
+                        bestNode = node;
+                        bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
+                    } else if (node->nodeType() < bestNode->nodeType()) {
+                        bestNode = node;
+                        bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
+                    } else if (node->nodeType() == bestNode->nodeType()) {
+                        int nodeExpandCount = ProjectTreeWidget::expandedCount(node);
+                        if (nodeExpandCount < bestNodeExpandCount) {
+                            bestNode = node;
+                            bestNodeExpandCount = ProjectTreeWidget::expandedCount(node);
+                        }
+                    }
                 }
-            }
+            });
         }
-    });
+    }
 
     return bestNode;
 }

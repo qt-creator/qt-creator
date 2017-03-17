@@ -81,6 +81,7 @@ public:
     static Utils::FileName projectDirectory(const Utils::FileName &top);
 
     virtual ProjectNode *rootProjectNode() const;
+    ProjectNode *containerNode() const;
 
     bool hasActiveBuildSettings() const;
 
@@ -142,7 +143,6 @@ public:
     Utils::MacroExpander *macroExpander() const;
 
 signals:
-    void projectTreeChanged(Project *project, QPrivateSignal);
     void displayNameChanged();
     void fileListChanged();
 
