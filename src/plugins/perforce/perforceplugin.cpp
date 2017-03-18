@@ -993,17 +993,23 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
     // connect stderr to the output window if desired
     if (flags & StdErrToWindow) {
         process.setStdErrBufferedSignalsEnabled(true);
-        connect(&process, SIGNAL(stdErrBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
+        connect(&process, &SynchronousProcess::stdErrBuffered,
+                outputWindow, [outputWindow](const QString &lines) {
+            outputWindow->append(lines);
+        });
     }
 
     // connect stdout to the output window if desired
     if (flags & StdOutToWindow) {
         process.setStdOutBufferedSignalsEnabled(true);
         if (flags & SilentStdOut) {
-            connect(&process, &SynchronousProcess::stdOutBuffered, outputWindow, &VcsOutputWindow::appendSilently);
-        }
-        else {
-            connect(&process, SIGNAL(stdOutBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
+            connect(&process, &SynchronousProcess::stdOutBuffered,
+                    outputWindow, &VcsOutputWindow::appendSilently);
+        } else {
+            connect(&process, &SynchronousProcess::stdOutBuffered,
+                    outputWindow, [outputWindow](const QString &lines) {
+                outputWindow->append(lines);
+            });
         }
     }
     process.setTimeOutMessageBoxEnabled(true);

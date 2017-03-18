@@ -127,7 +127,6 @@ private:
     void createFileActions(const Core::Context &context);
     void createDirectoryActions(const Core::Context &context);
     void createRepositoryActions(const Core::Context &context);
-    void createRepositoryManagementActions(const Core::Context &context);
 
     // Variables
     static MercurialPlugin *m_instance;
