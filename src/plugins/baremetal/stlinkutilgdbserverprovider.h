@@ -101,10 +101,9 @@ class StLinkUtilGdbServerProviderConfigWidget : public GdbServerProviderConfigWi
 public:
     explicit StLinkUtilGdbServerProviderConfigWidget(StLinkUtilGdbServerProvider *);
 
-private slots:
+private:
     void startupModeChanged();
 
-private:
     void applyImpl() final;
     void discardImpl() final;
 

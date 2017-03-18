@@ -42,10 +42,8 @@ public:
     explicit BareMetalDeviceConfigurationWidget(
         const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent = 0);
 
-private slots:
-    void gdbServerProviderChanged();
-
 private:
+    void gdbServerProviderChanged();
     void updateDeviceFromUi();
 
     GdbServerProviderChooser *m_gdbServerProviderChooser;

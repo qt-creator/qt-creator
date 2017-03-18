@@ -68,8 +68,6 @@ class BareMetalGdbCommandsDeployStepWidget: public ProjectExplorer::BuildStepCon
 
 public:
     explicit BareMetalGdbCommandsDeployStepWidget(BareMetalGdbCommandsDeployStep &step);
-
-public slots:
     void update();
 
 private:

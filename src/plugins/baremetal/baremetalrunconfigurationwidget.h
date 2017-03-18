@@ -50,11 +50,9 @@ public:
 
     Q_SLOT void runConfigurationEnabledChange();
 
-private slots:
+private:
     void updateTargetInformation();
     void handleWorkingDirectoryChanged();
-
-private:
     void setLabelText(QLabel &label, const QString &regularText, const QString &errorText);
 
     BareMetalRunConfigurationWidgetPrivate * const d;

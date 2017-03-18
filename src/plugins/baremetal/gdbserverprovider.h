@@ -145,14 +145,12 @@ public:
 signals:
     void dirty();
 
-protected slots:
-    void setErrorMessage(const QString &);
-    void clearErrorMessage();
-
 protected:
     virtual void applyImpl() = 0;
     virtual void discardImpl() = 0;
 
+    void setErrorMessage(const QString &);
+    void clearErrorMessage();
     void addErrorLabel();
 
     GdbServerProvider::StartupMode startupModeFromIndex(int idx) const;
