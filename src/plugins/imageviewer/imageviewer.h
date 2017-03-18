@@ -54,7 +54,6 @@ public:
 
     IEditor *duplicate() override;
 
-public slots:
     void exportImage();
     void imageSizeUpdated(const QSize &size);
     void scaleFactorUpdate(qreal factor);
@@ -68,12 +67,10 @@ public slots:
     void updateToolButtons();
     void togglePlay();
 
-private slots:
-    void playToggled();
-
 private:
     ImageViewer(const QSharedPointer<ImageViewerFile> &document, QWidget *parent = 0);
     void ctor();
+    void playToggled();
     void updatePauseAction();
 
     struct ImageViewerPrivate *d;
