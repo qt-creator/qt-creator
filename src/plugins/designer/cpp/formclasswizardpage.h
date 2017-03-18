@@ -48,6 +48,8 @@ public:
     virtual bool isComplete () const;
     virtual bool validatePage();
 
+    void setClassName(const QString &suggestedClassName);
+    void setPath(const QString &);
     QString path() const;
 
     // Fill out applicable parameters
@@ -58,11 +60,7 @@ public:
 
     static bool lowercaseHeaderFiles();
 
-public slots:
-    void setClassName(const QString &suggestedClassName);
-    void setPath(const QString &);
-
-private slots:
+private:
     void slotValidChanged();
 
 private:

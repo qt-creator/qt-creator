@@ -69,15 +69,13 @@ public:
     QString formWindowContents() const;
     ResourceHandler *resourceHandler() const;
 
-public slots:
     void setFilePath(const Utils::FileName &) override;
     void setShouldAutoSave(bool sad = true) { m_shouldAutoSave = sad; }
     void updateIsModified();
 
-private slots:
+private:
     void slotFormWindowRemoved(QDesignerFormWindowInterface *w);
 
-private:
     QString m_suggestedName;
     bool m_shouldAutoSave = false;
     // Might actually go out of scope before the IEditor due

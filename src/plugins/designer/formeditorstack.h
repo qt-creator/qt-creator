@@ -62,15 +62,13 @@ public:
 
     EditorData activeEditor() const;
 
-public slots:
     void removeFormWindowEditor(QObject *);
 
-private slots:
+private:
     void updateFormWindowSelectionHandles();
     void modeAboutToChange(Core::Id mode);
     void formSizeChanged(int w, int h);
 
-private:
     inline int indexOfFormWindow(const QDesignerFormWindowInterface *) const;
     inline int indexOfFormEditor(const QObject *xmlEditor) const;
 

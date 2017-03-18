@@ -63,8 +63,6 @@ public:
     SharedTools::WidgetHost *formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const;
 
     EditorData activeEditor() const;
-
-public slots:
     void resetToDefaultLayout();
 
 private:

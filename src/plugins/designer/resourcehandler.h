@@ -52,7 +52,6 @@ public:
     explicit ResourceHandler(QDesignerFormWindowInterface *fw);
     virtual ~ResourceHandler();
 
-public slots:
     void updateResources()        { updateResourcesHelper(false); }
     void updateProjectResources() { updateResourcesHelper(true); }
 

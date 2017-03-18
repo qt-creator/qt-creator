@@ -46,13 +46,11 @@ public:
     explicit FormClassWizardDialog(const Core::BaseFileWizardFactory *factory, QWidget *parent = 0);
 
     QString path() const;
+    void setPath(const QString &);
 
     Designer::FormClassWizardParameters parameters() const;
 
     bool validateCurrentPage();
-
-public slots:
-    void setPath(const QString &);
 
 protected:
     void initializePage(int id);
