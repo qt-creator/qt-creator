@@ -512,8 +512,6 @@ Project {
                 "integration/stackedutilitypanelcontroller.h",
                 "integration/utilitypanelcontroller.cpp",
                 "integration/utilitypanelcontroller.h",
-                "integration/xuifiledialog.cpp",
-                "integration/xuifiledialog.h",
                 "itemlibrary/itemlibrary.qrc",
                 "itemlibrary/itemlibraryimageprovider.cpp",
                 "itemlibrary/itemlibraryimageprovider.h",
