@@ -53,8 +53,8 @@ public:
     ProjectExplorer::NamedWidget *createConfigWidget() override;
     bool isShadowBuild() const;
 
-    void setSubNodeBuild(QmakeProjectManager::QmakeProFileNode *node);
-    QmakeProjectManager::QmakeProFileNode *subNodeBuild() const;
+    void setSubNodeBuild(QmakeProFileNode *node);
+    QmakeProFileNode *subNodeBuild() const;
 
     ProjectExplorer::FileNode *fileNodeBuild() const;
     void setFileNodeBuild(ProjectExplorer::FileNode *node);
@@ -138,7 +138,7 @@ private:
     bool m_shadowBuild = true;
     bool m_isEnabled = true;
     QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration = 0;
-    QmakeProjectManager::QmakeProFileNode *m_subNodeBuild = nullptr;
+    QmakeProFileNode *m_subNodeBuild = nullptr;
     ProjectExplorer::FileNode *m_fileNodeBuild = nullptr;
 
     friend class Internal::QmakeProjectConfigWidget;
