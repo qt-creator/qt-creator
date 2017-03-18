@@ -91,10 +91,8 @@ public:
 public:
     static ClangEditorDocumentProcessor *get(const QString &filePath);
 
-private slots:
-    void onParserFinished();
-
 private:
+    void onParserFinished();
     void updateProjectPartAndTranslationUnitForEditor();
     void registerTranslationUnitForEditor(CppTools::ProjectPart *projectPart);
     void updateTranslationUnitIfProjectPartExists();
