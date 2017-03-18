@@ -49,17 +49,15 @@ public:
                                     bool isSigningAutoManaged, QWidget *parent = 0);
     ~IosBuildSettingsWidget();
 
-public:
     bool isSigningAutomaticallyManaged() const;
-
-private slots:
-    void onSigningEntityComboIndexChanged();
-    void onReset();
 
 signals:
     void signingSettingsChanged(bool isAutoManaged, QString identifier);
 
 private:
+    void onSigningEntityComboIndexChanged();
+    void onReset();
+
     void setDefaultSigningIdentfier(const QString &identifier) const;
     void configureSigningUi(bool autoManageSigning);
     void populateDevelopmentTeams();
