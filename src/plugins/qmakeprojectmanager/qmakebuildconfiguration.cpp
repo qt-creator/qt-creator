@@ -156,6 +156,13 @@ void QmakeBuildConfiguration::ctor()
             this, &QmakeBuildConfiguration::emitProFileEvaluateNeeded);
     connect(target(), &Target::kitChanged,
             this, &QmakeBuildConfiguration::kitChanged);
+    MacroExpander *expander = macroExpander();
+    expander->registerVariable("Qmake:Makefile", "Qmake makefile", [this]() -> QString {
+        const QString file = makefile();
+        if (!file.isEmpty())
+            return file;
+        return QLatin1String("Makefile");
+    });
 }
 
 void QmakeBuildConfiguration::kitChanged()
