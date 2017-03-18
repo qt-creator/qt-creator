@@ -46,7 +46,7 @@ public:
     ElementTasks *elementTasks() const;
     PxNodeController *pxNodeController() const;
 
-private slots:
+private:
     void onProjectFileNameChanged(const QString &fileName);
 
 private:

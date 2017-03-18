@@ -54,7 +54,6 @@ public:
     bool hasRightHorizSplitterState() const;
     QByteArray rightHorizSplitterState() const;
 
-public slots:
     void onRightSplitterChanged(const QByteArray &state);
     void onRightHorizSplitterChanged(const QByteArray &state);
     void saveSettings(QSettings *settings);

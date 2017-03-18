@@ -71,7 +71,7 @@ public:
 
     void createActions();
 
-private slots:
+private:
     void undo();
     void redo();
     void cut();
@@ -88,7 +88,6 @@ private slots:
     void zoomOut();
     void resetZoom();
 
-private:
     Core::Command *registerCommand(const Core::Id &id, const std::function<void()> &slot,
                                    const Core::Context &context,
                                    bool scriptable = true, const QString &title = QString(),
