@@ -56,12 +56,8 @@ public:
     // Fills the plugin fields, excluding widget list.
     QSharedPointer<PluginOptions> basicPluginOptions() const;
 
-private slots:
-    void on_collectionClassEdit_textChanged();
-    void on_collectionHeaderEdit_textChanged();
-    void slotCheckCompleteness();
-
 private:
+    void slotCheckCompleteness();
     inline QString collectionClassName() const;
     inline QString pluginName() const;
     void setCollectionEnabled(bool enColl);
