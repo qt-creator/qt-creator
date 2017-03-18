@@ -38,6 +38,8 @@
 #include <QIcon>
 #include <QWidget>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QComboBox;
@@ -95,7 +97,7 @@ public:
     void showEditorStatusBar(const QString &id,
                            const QString &infoText,
                            const QString &buttonText,
-                           QObject *object, const char *member);
+                           QObject *object, const std::function<void()> &function);
     void hideEditorStatusBar(const QString &id);
     void setCloseSplitEnabled(bool enable);
     void setCloseSplitIcon(const QIcon &icon);

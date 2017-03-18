@@ -218,15 +218,15 @@ void EditorView::closeCurrentEditor()
 void EditorView::showEditorStatusBar(const QString &id,
                                      const QString &infoText,
                                      const QString &buttonText,
-                                     QObject *object, const char *member)
+                                     QObject *object, const std::function<void()> &function)
 {
     m_statusWidgetId = id;
     m_statusWidgetLabel->setText(infoText);
     m_statusWidgetButton->setText(buttonText);
     m_statusWidgetButton->setToolTip(buttonText);
     m_statusWidgetButton->disconnect();
-    if (object && member)
-        connect(m_statusWidgetButton, SIGNAL(clicked()), object, member);
+    if (object && function)
+        connect(m_statusWidgetButton, &QToolButton::clicked, object, function);
     m_statusWidget->setVisible(true);
     m_statusHLine->setVisible(true);
     //m_editorForInfoWidget = currentEditor();

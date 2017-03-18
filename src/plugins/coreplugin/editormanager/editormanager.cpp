@@ -2983,12 +2983,14 @@ bool EditorManager::restoreState(const QByteArray &state)
 }
 
 void EditorManager::showEditorStatusBar(const QString &id,
-                                      const QString &infoText,
-                                      const QString &buttonText,
-                                      QObject *object, const char *member)
+                                        const QString &infoText,
+                                        const QString &buttonText,
+                                        QObject *object,
+                                        const std::function<void()> &function)
 {
 
-    EditorManagerPrivate::currentEditorView()->showEditorStatusBar(id, infoText, buttonText, object, member);
+    EditorManagerPrivate::currentEditorView()->showEditorStatusBar(
+                id, infoText, buttonText, object, function);
 }
 
 void EditorManager::hideEditorStatusBar(const QString &id)
