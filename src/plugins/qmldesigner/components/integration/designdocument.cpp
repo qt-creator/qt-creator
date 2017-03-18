@@ -235,12 +235,12 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
 {
     Q_CHECK_PTR(edit);
 
-    connect(edit, SIGNAL(undoAvailable(bool)),
-            this, SIGNAL(undoAvailable(bool)));
-    connect(edit, SIGNAL(redoAvailable(bool)),
-            this, SIGNAL(redoAvailable(bool)));
-    connect(edit, SIGNAL(modificationChanged(bool)),
-            this, SIGNAL(dirtyStateChanged(bool)));
+    connect(edit, &QPlainTextEdit::undoAvailable,
+            this, &DesignDocument::undoAvailable);
+    connect(edit, &QPlainTextEdit::redoAvailable,
+            this, &DesignDocument::redoAvailable);
+    connect(edit, &QPlainTextEdit::modificationChanged,
+            this, &DesignDocument::dirtyStateChanged);
 
     m_documentTextModifier.reset(new BaseTextEditModifier(dynamic_cast<TextEditor::TextEditorWidget*>(plainTextEdit())));
 

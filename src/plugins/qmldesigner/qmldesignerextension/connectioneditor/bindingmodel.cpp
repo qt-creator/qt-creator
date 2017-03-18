@@ -228,7 +228,7 @@ void BindingModel::addBindingForCurrentNode()
                 modelNode.bindingProperty(unusedProperty(modelNode)).setExpression(QLatin1String("none.none"));
             } catch (RewritingException &e) {
                 m_exceptionError = e.description();
-                QTimer::singleShot(200, this, SLOT(handleException()));
+                QTimer::singleShot(200, this, &BindingModel::handleException);
             }
         }
     } else {
@@ -309,7 +309,7 @@ void BindingModel::updateExpression(int row)
         transaction.commit(); //committing in the try block
     } catch (Exception &e) {
         m_exceptionError = e.description();
-        QTimer::singleShot(200, this, SLOT(handleException()));
+        QTimer::singleShot(200, this, &BindingModel::handleException);
     }
 }
 
@@ -335,7 +335,7 @@ void BindingModel::updatePropertyName(int rowNumber)
             transaction.commit(); //committing in the try block
         } catch (Exception &e) { //better save then sorry
             m_exceptionError = e.description();
-            QTimer::singleShot(200, this, SLOT(handleException()));
+            QTimer::singleShot(200, this, &BindingModel::handleException);
         }
 
         QStandardItem* idItem = item(rowNumber, 0);

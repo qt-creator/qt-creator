@@ -107,7 +107,6 @@ public:
         : DefaultAction(description), m_action(action)
     { }
 
-public /*slots*/:
     virtual void actionTriggered(bool b)
     {
         m_selectionContext.setToggled(b);

@@ -122,7 +122,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
             QmlDesignerPlugin::instance()->mainWidget(),
             &Internal::DesignModeWidget::restoreDefaultView);
 
-    connect(&m_goIntoComponentAction, SIGNAL(triggered()), SLOT(goIntoComponent()));
+    connect(&m_goIntoComponentAction, &QAction::triggered, this, &ShortCutManager::goIntoComponent);
 
     connect(&m_toggleLeftSidebarAction,
             &QAction::triggered,
@@ -371,16 +371,16 @@ void ShortCutManager::toggleRightSidebar()
 void ShortCutManager::connectUndoActions(DesignDocument *designDocument)
 {
     if (designDocument) {
-        connect(designDocument, SIGNAL(undoAvailable(bool)), this, SLOT(undoAvailable(bool)));
-        connect(designDocument, SIGNAL(redoAvailable(bool)), this, SLOT(redoAvailable(bool)));
+        connect(designDocument, &DesignDocument::undoAvailable, this, &ShortCutManager::undoAvailable);
+        connect(designDocument, &DesignDocument::redoAvailable, this, &ShortCutManager::redoAvailable);
     }
 }
 
 void ShortCutManager::disconnectUndoActions(DesignDocument *designDocument)
 {
     if (currentDesignDocument()) {
-        disconnect(designDocument, SIGNAL(undoAvailable(bool)), this, SLOT(undoAvailable(bool)));
-        disconnect(designDocument, SIGNAL(redoAvailable(bool)), this, SLOT(redoAvailable(bool)));
+        disconnect(designDocument, &DesignDocument::undoAvailable, this, &ShortCutManager::undoAvailable);
+        disconnect(designDocument, &DesignDocument::redoAvailable, this, &ShortCutManager::redoAvailable);
     }
 }
 

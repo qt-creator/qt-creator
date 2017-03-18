@@ -75,7 +75,7 @@ public:
 
     QString name() const override;
 
-private slots:
+private:
     void colorDialogAccepted();
     void colorDialogRejected();
     void currentColorChanged(const QColor &color);

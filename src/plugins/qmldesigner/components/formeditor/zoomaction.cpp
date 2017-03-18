@@ -91,8 +91,9 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
     }
 
     comboBox->setCurrentIndex(8);
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), SLOT(emitZoomLevelChanged(int)));
-    connect(this, SIGNAL(indexChanged(int)), comboBox, SLOT(setCurrentIndex(int)));
+    connect(comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &ZoomAction::emitZoomLevelChanged);
+    connect(this, &ZoomAction::indexChanged, comboBox, &QComboBox::setCurrentIndex);
 
     comboBox->setProperty("hideborder", true);
     return comboBox;

@@ -69,7 +69,6 @@ public:
 
     ItemLibrarySection *sectionByName(const QString &sectionName);
 
-public slots:
     void setSearchText(const QString &searchText);
 
     void setExpanded(bool, const QString &section);

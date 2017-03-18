@@ -178,9 +178,9 @@ void ColorTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
             m_colorDialog = new QColorDialog(view()->formEditorWidget()->parentWidget());
             m_colorDialog.data()->setCurrentColor(m_oldColor);
 
-            connect(m_colorDialog.data(), SIGNAL(accepted()), SLOT(colorDialogAccepted()));
-            connect(m_colorDialog.data(), SIGNAL(rejected()), SLOT(colorDialogRejected()));
-            connect(m_colorDialog.data(), SIGNAL(currentColorChanged(QColor)), SLOT(currentColorChanged(QColor)));
+            connect(m_colorDialog.data(), &QDialog::accepted, this, &ColorTool::colorDialogAccepted);
+            connect(m_colorDialog.data(), &QDialog::rejected, this, &ColorTool::colorDialogRejected);
+            connect(m_colorDialog.data(), &QColorDialog::currentColorChanged, this, &ColorTool::currentColorChanged);
 
             m_colorDialog.data()->exec();
         }

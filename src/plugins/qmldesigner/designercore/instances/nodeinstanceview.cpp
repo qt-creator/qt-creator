@@ -151,9 +151,10 @@ bool isSkippedNode(const ModelNode &node)
 void NodeInstanceView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
-    m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus, m_currentKit, m_currentProject);
+    auto server = new NodeInstanceServerProxy(this, m_runModus, m_currentKit, m_currentProject);
+    m_nodeInstanceServer = server;
     m_lastCrashTime.start();
-    connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleCrash()));
+    connect(server, &NodeInstanceServerProxy::processCrashed, this, &NodeInstanceView::handleCrash);
 
     if (!isSkippedRootNode(rootModelNode()))
         nodeInstanceServer()->createScene(createCreateSceneCommand());
@@ -204,8 +205,9 @@ void NodeInstanceView::restartProcess()
     if (model()) {
         delete nodeInstanceServer();
 
-        m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus, m_currentKit, m_currentProject);
-        connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleCrash()));
+        auto server = new NodeInstanceServerProxy(this, m_runModus, m_currentKit, m_currentProject);
+        m_nodeInstanceServer = server;
+        connect(server, &NodeInstanceServerProxy::processCrashed, this, &NodeInstanceView::handleCrash);
 
         if (!isSkippedRootNode(rootModelNode()))
             nodeInstanceServer()->createScene(createCreateSceneCommand());

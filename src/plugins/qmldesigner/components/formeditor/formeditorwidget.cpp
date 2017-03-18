@@ -120,13 +120,15 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     m_rootWidthAction = new LineEditAction(tr("Override Width"), this);
     m_rootWidthAction->setToolTip(tr("Override width of root item."));
-    connect(m_rootWidthAction.data(), SIGNAL(textChanged(QString)), this, SLOT(changeRootItemWidth(QString)));
+    connect(m_rootWidthAction.data(), &LineEditAction::textChanged,
+            this, &FormEditorWidget::changeRootItemWidth);
     addAction(m_rootWidthAction.data());
     upperActions.append(m_rootWidthAction.data());
 
     m_rootHeightAction =  new LineEditAction(tr("Override Height"), this);
     m_rootHeightAction->setToolTip(tr("Override height of root item."));
-    connect(m_rootHeightAction.data(), SIGNAL(textChanged(QString)), this, SLOT(changeRootItemHeight(QString)));
+    connect(m_rootHeightAction.data(), &LineEditAction::textChanged,
+            this, &FormEditorWidget::changeRootItemHeight);
     addAction(m_rootHeightAction.data());
     upperActions.append(m_rootHeightAction.data());
 
@@ -150,7 +152,8 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_toolBox->addRightSideAction(m_backgroundAction.data());
 
     m_zoomAction = new ZoomAction(m_toolActionGroup.data());
-    connect(m_zoomAction.data(), SIGNAL(zoomLevelChanged(double)), SLOT(setZoomLevel(double)));
+    connect(m_zoomAction.data(), &ZoomAction::zoomLevelChanged,
+            this, &FormEditorWidget::setZoomLevel);
     addAction(m_zoomAction.data());
     upperActions.append(m_zoomAction.data());
     m_toolBox->addRightSideAction(m_zoomAction.data());
@@ -159,7 +162,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_resetAction->setShortcut(Qt::Key_R);
     m_resetAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_resetAction->setIcon(Utils::Icons::RESET_TOOLBAR.icon());
-    connect(m_resetAction.data(), SIGNAL(triggered(bool)), this, SLOT(resetNodeInstanceView()));
+    connect(m_resetAction.data(), &QAction::triggered, this, &FormEditorWidget::resetNodeInstanceView);
     addAction(m_resetAction.data());
     upperActions.append(m_resetAction.data());
     m_toolBox->addRightSideAction(m_resetAction.data());

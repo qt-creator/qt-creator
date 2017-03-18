@@ -51,7 +51,8 @@ protected:
 signals:
     void zoomLevelChanged(double zoom);
     void indexChanged(int);
-private slots:
+
+private:
     void emitZoomLevelChanged(int index);
 
 private:

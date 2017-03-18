@@ -65,8 +65,6 @@ signals:
     void modelNodeBackendChanged();
     void fileModelChanged();
 
-public slots:
-
 private:
     QVariant modelNodeBackend() const;
 

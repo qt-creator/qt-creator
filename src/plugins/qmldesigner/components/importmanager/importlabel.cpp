@@ -47,7 +47,7 @@ ImportLabel::ImportLabel(QWidget *parent) :
     m_removeButton->setFocusPolicy(Qt::NoFocus);
     m_removeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_removeButton->setToolTip(tr("Remove Import"));
-    connect(m_removeButton, SIGNAL(clicked()), this, SLOT(emitRemoveImport()));
+    connect(m_removeButton, &QAbstractButton::clicked, this, [this] { emit removeImport(m_import); });
     layout->addWidget(m_removeButton);
 
     m_importLabel = new QLabel(this);
@@ -73,11 +73,6 @@ void ImportLabel::setReadOnly(bool readOnly) const
     m_removeButton->setDisabled(readOnly);
     m_removeButton->setIcon(readOnly ? QIcon()
                                      : Utils::Icons::CLOSE_TOOLBAR.icon());
-}
-
-void ImportLabel::emitRemoveImport()
-{
-    emit removeImport(m_import);
 }
 
 } // namespace QmlDesigner

@@ -80,13 +80,13 @@ PropertyEditorView::PropertyEditorView(QWidget *parent) :
     m_qmlDir = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F3), m_stackedWidget);
-    connect(m_updateShortcut, SIGNAL(activated()), this, SLOT(reloadQml()));
+    connect(m_updateShortcut, &QShortcut::activated, this, &PropertyEditorView::reloadQml);
 
     m_stackedWidget->setStyleSheet(Theme::replaceCssColors(
             QString::fromUtf8(Utils::FileReader::fetchQrc(QStringLiteral(":/qmldesigner/stylesheet.css")))));
     m_stackedWidget->setMinimumWidth(320);
     m_stackedWidget->move(0, 0);
-    connect(m_stackedWidget, SIGNAL(resized()), this, SLOT(updateSize()));
+    connect(m_stackedWidget, &PropertyEditorWidget::resized, this, &PropertyEditorView::updateSize);
 
     m_stackedWidget->insertWidget(0, new QWidget(m_stackedWidget));
 
@@ -531,7 +531,7 @@ void PropertyEditorView::modelAttached(Model *model)
     if (!m_setupCompleted) {
         m_singleShotTimer->setSingleShot(true);
         m_singleShotTimer->setInterval(100);
-        connect(m_singleShotTimer, SIGNAL(timeout()), this, SLOT(setupPanes()));
+        connect(m_singleShotTimer, &QTimer::timeout, this, &PropertyEditorView::setupPanes);
         m_singleShotTimer->start();
     }
 

@@ -52,8 +52,8 @@ WidgetInfo ImportManagerView::widgetInfo()
 {
     if (m_importsWidget == 0) {
         m_importsWidget = new ImportsWidget;
-        connect(m_importsWidget, SIGNAL(removeImport(Import)), this, SLOT(removeImport(Import)));
-        connect(m_importsWidget, SIGNAL(addImport(Import)), this, SLOT(addImport(Import)));
+        connect(m_importsWidget.data(), &ImportsWidget::removeImport, this, &ImportManagerView::removeImport);
+        connect(m_importsWidget.data(), &ImportsWidget::addImport, this, &ImportManagerView::addImport);
 
         if (model())
             m_importsWidget->setImports(model()->imports());

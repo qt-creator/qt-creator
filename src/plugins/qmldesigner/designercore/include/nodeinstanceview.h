@@ -183,7 +183,7 @@ private: // functions
     void restartProcess();
     void delayedRestartProcess();
 
-private slots:
+private:
     void handleCrash();
 
 private: //variables

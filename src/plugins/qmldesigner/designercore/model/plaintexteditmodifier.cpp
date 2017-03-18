@@ -44,8 +44,8 @@ PlainTextEditModifier::PlainTextEditModifier(QPlainTextEdit *textEdit):
 {
     Q_ASSERT(textEdit);
 
-    connect(m_textEdit, SIGNAL(textChanged()),
-            this, SLOT(textEditChanged()));
+    connect(m_textEdit, &QPlainTextEdit::textChanged,
+            this, &PlainTextEditModifier::textEditChanged);
 }
 
 PlainTextEditModifier::~PlainTextEditModifier()

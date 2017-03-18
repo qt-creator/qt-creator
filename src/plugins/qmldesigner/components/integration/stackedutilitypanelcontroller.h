@@ -43,7 +43,6 @@ class StackedUtilityPanelController : public UtilityPanelController
 public:
     StackedUtilityPanelController(QObject* parent = 0);
 
-public slots:
     void show(DesignDocument* DesignDocument);
     void close(DesignDocument* DesignDocument);
 

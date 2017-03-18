@@ -46,10 +46,8 @@ public:
 
     Utils::CrumblePath *crumblePath();
 
-private slots:
-    void onCrumblePathElementClicked(const QVariant &data);
-
 private:
+    void onCrumblePathElementClicked(const QVariant &data);
     void updateVisibility();
     void showSaveDialog();
 

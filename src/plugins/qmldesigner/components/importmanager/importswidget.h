@@ -59,7 +59,7 @@ signals:
 protected:
     void updateLayout();
 
-private slots:
+private:
     void addSelectedImport(int addImportComboBoxIndex);
 
 private:

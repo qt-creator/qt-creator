@@ -74,7 +74,7 @@ public:
 
     void bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags) override;
 
-private slots:
+private:
     void changeSelection(const QItemSelection &selected, const QItemSelection &deselected);
     void updateItemSelection();
     void changeToComponent(const QModelIndex &index);

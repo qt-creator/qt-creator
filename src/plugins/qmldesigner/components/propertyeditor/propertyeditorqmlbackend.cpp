@@ -106,7 +106,8 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
     m_contextObject->setModel(propertyEditor->model());
     m_contextObject->insertInQmlContext(context());
 
-    QObject::connect(&m_backendValuesPropertyMap, &DesignerPropertyMap::valueChanged, propertyEditor, &PropertyEditorView::changeValue);
+    QObject::connect(&m_backendValuesPropertyMap, &DesignerPropertyMap::valueChanged,
+                     propertyEditor, &PropertyEditorView::changeValue);
 }
 
 PropertyEditorQmlBackend::~PropertyEditorQmlBackend()

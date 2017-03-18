@@ -80,10 +80,8 @@ protected:
     QPlainTextEdit *plainTextEdit() const
     { return m_textEdit; }
 
-private slots:
-    void textEditChanged();
-
 private:
+    void textEditChanged();
     void runRewriting(Utils::ChangeSet *writer);
 
 private:

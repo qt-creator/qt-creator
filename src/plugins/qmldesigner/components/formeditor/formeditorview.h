@@ -120,8 +120,6 @@ public:
 
 protected:
     void reset();
-
-protected slots:
     void delayedReset();
     bool isMoveToolAvailable() const;
 

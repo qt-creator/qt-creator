@@ -56,8 +56,6 @@ signals:
     void selectionToBeChanged();
     void selectionChanged();
 
-public slots:
-
 private:
     QmlItemNode m_qmlItemNode;
 };

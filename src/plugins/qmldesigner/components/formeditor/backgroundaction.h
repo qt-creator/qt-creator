@@ -46,7 +46,7 @@ signals:
 protected:
     QWidget *createWidget(QWidget *parent);
 
-private slots:
+private:
     void emitBackgroundChanged(int index);
 
 private:
