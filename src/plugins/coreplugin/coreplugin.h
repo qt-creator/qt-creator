@@ -68,8 +68,8 @@ public:
 public slots:
     void fileOpenRequest(const QString&);
 
-private slots:
 #if defined(WITH_TESTS)
+private slots:
     void testVcsManager_data();
     void testVcsManager();
     void testSplitLineAndColumnNumber();
