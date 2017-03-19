@@ -89,10 +89,12 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
     m_toolBar->addWidget(refreshButton);
 
     m_resourceEditor->setResourceDragEnabled(true);
-    m_contextMenu->addAction(tr("Open File"), this, SLOT(openCurrentFile()));
+    m_contextMenu->addAction(tr("Open File"), this, &ResourceEditorW::openCurrentFile);
     m_openWithMenu = m_contextMenu->addMenu(tr("Open With"));
-    m_renameAction = m_contextMenu->addAction(tr("Rename File..."), this, SLOT(renameCurrentFile()));
-    m_copyFileNameAction = m_contextMenu->addAction(tr("Copy Resource Path to Clipboard"), this, SLOT(copyCurrentResourcePath()));
+    m_renameAction = m_contextMenu->addAction(tr("Rename File..."), this,
+                                              &ResourceEditorW::renameCurrentFile);
+    m_copyFileNameAction = m_contextMenu->addAction(tr("Copy Resource Path to Clipboard"),
+                                                    this, &ResourceEditorW::copyCurrentResourcePath);
 
     connect(m_resourceDocument, &ResourceEditorDocument::loaded,
             m_resourceEditor, &QrcEditor::loaded);
