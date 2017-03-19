@@ -60,8 +60,7 @@ public:
     QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;
 
-public Q_SLOTS:
-    void rebuild(CPlusPlus::Document::Ptr doc);
+    void rebuild(Document::Ptr doc);
 
 private:
     bool hasDocument() const;
