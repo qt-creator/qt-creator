@@ -67,16 +67,14 @@ public:
 
     ValgrindProcess *valgrindProcess() const;
 
-protected:
-    virtual QString tool() const = 0;
-
 signals:
     void processOutputReceived(const QString &, Utils::OutputFormat);
     void processErrorReceived(const QString &, QProcess::ProcessError);
     void started();
     void finished();
 
-protected slots:
+protected:
+    virtual QString tool() const = 0;
     virtual void processError(QProcess::ProcessError);
     virtual void processFinished(int, QProcess::ExitStatus);
     virtual void localHostAddressRetrieved(const QHostAddress &localHostAddress);

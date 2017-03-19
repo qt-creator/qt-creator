@@ -52,10 +52,8 @@ public:
                       const QList<XmlProtocol::Error> &errors);
     static void maybeShow(MemcheckErrorView *view);
 
-private slots:
-    void validate();
-
 private:
+    void validate();
     void accept();
     void reject();
 

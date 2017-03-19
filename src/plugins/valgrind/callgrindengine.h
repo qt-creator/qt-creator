@@ -44,7 +44,6 @@ public:
 
     Valgrind::Callgrind::ParseData *takeParserData();
 
-public slots:
     /// controller actions
     void dump();
     void reset();

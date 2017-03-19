@@ -49,7 +49,6 @@ public:
     /// Only functions with an inclusive cost ratio above this minimum will be shown in the model
     double minimumInclusiveCostRatio() const { return m_minimumInclusiveCostRatio; }
 
-public Q_SLOTS:
     /// This will filter out all entries that are not located within \param baseDir
     void setFilterBaseDir(const QString& baseDir);
     void setFilterFunction(const Function *call);
@@ -59,7 +58,7 @@ public Q_SLOTS:
     /// by this model. If @c 0 is passed as argument, all rows will be shown.
     void setMinimumInclusiveCostRatio(double minimumInclusiveCost);
 
-Q_SIGNALS:
+signals:
     void filterFunctionChanged(const Function *previous, const Function *current);
     void filterMaximumRowsChanged(int rows);
 

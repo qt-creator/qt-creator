@@ -46,7 +46,6 @@ public:
     bool hasPrevious() const { return !m_stack.isEmpty(); }
     bool hasNext() const { return !m_redoStack.isEmpty(); }
 
-public slots:
     void goBack();
     void goNext();
 

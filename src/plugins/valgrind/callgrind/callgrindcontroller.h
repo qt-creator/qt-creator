@@ -68,22 +68,20 @@ public:
      */
     void getLocalDataFile();
 
-Q_SIGNALS:
+signals:
     void finished(Valgrind::Callgrind::CallgrindController::Option option);
 
     void localParseDataAvailable(const QString &file);
 
     void statusMessage(const QString &msg);
 
-private Q_SLOTS:
+private:
     void processError(QProcess::ProcessError);
     void processFinished(int, QProcess::ExitStatus);
 
     void foundRemoteFile();
     void sftpInitialized();
     void sftpJobFinished(QSsh::SftpJobId job, const QString &error);
-
-private:
     void cleanupTempFile();
 
     // callgrind_control process
