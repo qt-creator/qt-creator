@@ -51,7 +51,6 @@ public:
 
     QPointer<QTextDocument> doc;
 
-    void _q_reformatBlocks(int from, int charsRemoved, int charsAdded);
     void reformatBlocks(int from, int charsRemoved, int charsAdded);
     void reformatBlock(const QTextBlock &block, int from, int charsRemoved, int charsAdded);
 
@@ -61,13 +60,6 @@ public:
         cursor.movePosition(operation);
         reformatBlocks(from, 0, cursor.position() - from);
         inReformatBlocks = false;
-    }
-
-    inline void _q_delayedRehighlight() {
-        if (!rehighlightPending)
-            return;
-        rehighlightPending = false;
-        q_func()->rehighlight();
     }
 
     void applyFormatChanges(int from, int charsRemoved, int charsAdded);
@@ -92,6 +84,15 @@ static bool adjustRange(QTextLayout::FormatRange &range, int from, int charsRemo
         return true;
     }
     return false;
+}
+
+void SyntaxHighlighter::delayedRehighlight()
+{
+    Q_D(SyntaxHighlighter);
+    if (!d->rehighlightPending)
+        return;
+    d->rehighlightPending = false;
+    rehighlight();
 }
 
 void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, int charsAdded)
@@ -172,10 +173,11 @@ void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, in
     }
 }
 
-void SyntaxHighlighterPrivate::_q_reformatBlocks(int from, int charsRemoved, int charsAdded)
+void SyntaxHighlighter::reformatBlocks(int from, int charsRemoved, int charsAdded)
 {
-    if (!inReformatBlocks)
-        reformatBlocks(from, charsRemoved, charsAdded);
+    Q_D(SyntaxHighlighter);
+    if (!d->inReformatBlocks)
+        d->reformatBlocks(from, charsRemoved, charsAdded);
 }
 
 void SyntaxHighlighterPrivate::reformatBlocks(int from, int charsRemoved, int charsAdded)
@@ -310,8 +312,7 @@ void SyntaxHighlighter::setDocument(QTextDocument *doc)
 {
     Q_D(SyntaxHighlighter);
     if (d->doc) {
-        disconnect(d->doc, SIGNAL(contentsChange(int,int,int)),
-                   this, SLOT(_q_reformatBlocks(int,int,int)));
+        disconnect(d->doc, &QTextDocument::contentsChange, this, &SyntaxHighlighter::reformatBlocks);
 
         QTextCursor cursor(d->doc);
         cursor.beginEditBlock();
@@ -321,10 +322,9 @@ void SyntaxHighlighter::setDocument(QTextDocument *doc)
     }
     d->doc = doc;
     if (d->doc) {
-        connect(d->doc, SIGNAL(contentsChange(int,int,int)),
-                this, SLOT(_q_reformatBlocks(int,int,int)));
+        connect(d->doc, &QTextDocument::contentsChange, this, &SyntaxHighlighter::reformatBlocks);
         d->rehighlightPending = true;
-        QTimer::singleShot(0, this, SLOT(_q_delayedRehighlight()));
+        QTimer::singleShot(0, this, &SyntaxHighlighter::delayedRehighlight);
         d->foldValidator.setup(qobject_cast<TextDocumentLayout *>(doc->documentLayout()));
     }
 }
