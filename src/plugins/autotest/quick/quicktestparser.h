@@ -29,6 +29,8 @@
 
 #include <qmljs/qmljsdocument.h>
 
+#include <QFileSystemWatcher>
+
 namespace Autotest {
 namespace Internal {
 
@@ -39,8 +41,9 @@ public:
     TestTreeItem *createTestTreeItem() const override;
 };
 
-class QuickTestParser : public CppParser
+class QuickTestParser : public QObject, public CppParser
 {
+    Q_OBJECT
 public:
     QuickTestParser();
     virtual ~QuickTestParser();
@@ -48,9 +51,15 @@ public:
     void release() override;
     bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                          const QString &fileName) override;
+signals:
+    void updateWatchPaths(const QStringList &directories) const;
 private:
+    bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterface,
+                           CPlusPlus::Document::Ptr document, const Core::Id &id) const;
+    QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const QString &srcDir) const;
     QmlJS::Snapshot m_qmlSnapshot;
     QHash<QString, QString> m_proFilesForQmlFiles;
+    QFileSystemWatcher m_directoryWatcher;
 };
 
 } // namespace Internal
