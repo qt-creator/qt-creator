@@ -638,7 +638,7 @@ void QmlProfilerStatisticsMainView::parseModel()
             newRow << new StatisticsViewItem(QString::number(stats.calls), stats.calls);
 
         if (d->m_fieldShown[TimePerCall]) {
-            const qint64 timePerCall = stats.duration / stats.calls;
+            const qint64 timePerCall = stats.calls > 0 ? stats.duration / stats.calls : 0;
             newRow << new StatisticsViewItem(Timeline::formatTime(timePerCall),
                                              timePerCall);
         }
