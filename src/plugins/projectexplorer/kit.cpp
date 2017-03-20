@@ -583,18 +583,24 @@ QString Kit::toHtml(const QList<Task> &additional) const
 
 void Kit::setAutoDetected(bool detected)
 {
+    if (d->m_autodetected == detected)
+        return;
     d->m_autodetected = detected;
     kitUpdated();
 }
 
 void Kit::setAutoDetectionSource(const QString &autoDetectionSource)
 {
+    if (d->m_autoDetectionSource == autoDetectionSource)
+        return;
     d->m_autoDetectionSource = autoDetectionSource;
     kitUpdated();
 }
 
 void Kit::setSdkProvided(bool sdkProvided)
 {
+    if (d->m_sdkProvided == sdkProvided)
+        return;
     d->m_sdkProvided = sdkProvided;
     kitUpdated();
 }
@@ -609,6 +615,9 @@ void Kit::makeSticky()
 
 void Kit::setSticky(Id id, bool b)
 {
+    if (d->m_sticky.contains(id) == b)
+        return;
+
     if (b)
         d->m_sticky.insert(id);
     else
@@ -618,12 +627,17 @@ void Kit::setSticky(Id id, bool b)
 
 void Kit::makeUnSticky()
 {
+    if (d->m_sticky.isEmpty())
+        return;
     d->m_sticky.clear();
     kitUpdated();
 }
 
 void Kit::setMutable(Id id, bool b)
 {
+    if (d->m_mutable.contains(id) == b)
+        return;
+
     if (b)
         d->m_mutable.insert(id);
     else
