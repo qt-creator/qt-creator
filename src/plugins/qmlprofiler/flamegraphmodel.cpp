@@ -106,6 +106,7 @@ void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
     const bool isCompiling = (type.rangeType() == Compiling);
     QStack<QmlEvent> &stack =  isCompiling ? m_compileStack : m_callStack;
     FlameGraphData *&stackTop = isCompiling ? m_compileStackTop : m_callStackTop;
+    QTC_ASSERT(stackTop, return);
 
     if (type.message() == MemoryAllocation) {
         if (type.detailType() == HeapPage)
@@ -121,6 +122,8 @@ void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
         }
 
     } else if (event.rangeStage() == RangeEnd) {
+        QTC_ASSERT(stackTop != &m_stackBottom, return);
+        QTC_ASSERT(stackTop->typeIndex == event.typeIndex(), return);
         stackTop->duration += event.timestamp() - stack.top().timestamp();
         stack.pop();
         stackTop = stackTop->parent;
@@ -129,6 +132,7 @@ void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
         stack.push(event);
         stackTop = pushChild(stackTop, event);
     }
+    QTC_CHECK(stackTop);
 }
 
 void FlameGraphModel::finalize()

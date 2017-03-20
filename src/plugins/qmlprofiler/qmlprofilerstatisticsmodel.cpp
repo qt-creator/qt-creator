@@ -225,7 +225,8 @@ void QmlProfilerStatisticsModel::loadEvent(const QmlEvent &event, const QmlEvent
         break;
     case RangeEnd: {
         // update stats
-
+        QTC_ASSERT(!stack.isEmpty(), return);
+        QTC_ASSERT(stack.top().typeIndex() == event.typeIndex(), return);
         QmlEventStats *stats = &d->data[event.typeIndex()];
         qint64 duration = event.timestamp() - stack.top().timestamp();
         stats->duration += duration;
