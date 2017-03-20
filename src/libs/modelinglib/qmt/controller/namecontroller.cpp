@@ -62,10 +62,7 @@ QString NameController::convertFileNameToElementName(const QString &fileName)
             elementName += baseName.at(i).toTitleCase();
             makeTitlecase = false;
         } else {
-            if (insertSpace) {
-                elementName += QLatin1Char(' ');
-                insertSpace = false;
-            }
+            // insertSpace must be false here
             elementName += baseName.at(i);
         }
     }
