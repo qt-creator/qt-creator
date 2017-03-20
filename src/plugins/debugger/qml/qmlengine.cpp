@@ -1696,10 +1696,16 @@ QmlV8ObjectData QmlEnginePrivate::extractData(const QVariant &data) const
 
         if (dataMap.contains("value")) {
             QVariant value = dataMap.value("value");
-            if (value.isNull())
+            // The QVariant representation of null has changed across various Qt versions
+            // 5.6, 5.7: QVariant::Invalid
+            // 5.8: isValid(), !isNull(), type() == 51; only typeName() is unique: "std::nullptr_t"
+            // 5.9: isValid(), isNull(); We can then use isNull()
+            if (!value.isValid() || value.isNull()
+                    || strcmp(value.typeName(), "std::nullptr_t") == 0) {
                 objectData.value = "null"; // Yes, null is an object.
-            else if (value.isValid())
+            } else if (value.isValid()) {
                 objectData.expectedProperties = value.toInt();
+            }
         }
 
         if (dataMap.contains("properties"))
