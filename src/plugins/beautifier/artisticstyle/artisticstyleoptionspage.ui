@@ -57,6 +57,20 @@
        </widget>
       </item>
       <item>
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
+        <item>
+         <widget class="QCheckBox" name="useSpecificConfigFile">
+          <property name="text">
+           <string>Use specific config file:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Utils::PathChooser" name="specificConfigFile" native="true"/>
+        </item>
+       </layout>
+      </item>
+      <item>
        <widget class="QCheckBox" name="useHomeFile">
         <property name="text">
          <string extracomment="HOME is replaced by the user's home directory">Use file .astylerc or astylerc in HOME</string>

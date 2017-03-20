@@ -129,6 +129,12 @@ QString ArtisticStyle::configurationFile() const
         }
     }
 
+    if (m_settings->useSpecificConfigFile()) {
+        const Utils::FileName file = m_settings->specificConfigFile();
+        if (file.exists())
+            return file.toUserOutput();
+    }
+
     if (m_settings->useHomeFile()) {
         const QDir homeDirectory = QDir::home();
         QString file = homeDirectory.filePath(".astylerc");

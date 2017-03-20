@@ -117,6 +117,11 @@
                     selected tool. This option is available for Artistic Style
                     and Uncrustify.
 
+                \li Select the \uicontrol {Use specific config file} option to
+                    use the specified file as the configuration file for the
+                    selected tool. This option is available for Artistic Style
+                    and Uncrustify.
+
                 \li Select the \uicontrol {Use file in $HOME} option to use the
                     specified file in the user's home directory as the
                     configuration file for the selected tool. This option is

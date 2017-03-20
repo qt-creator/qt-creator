@@ -45,10 +45,12 @@ namespace Internal {
 namespace ArtisticStyle {
 
 namespace {
-const char USE_OTHER_FILES[]  = "useOtherFiles";
-const char USE_HOME_FILE[]    = "useHomeFile";
-const char USE_CUSTOM_STYLE[] = "useCustomStyle";
-const char CUSTOM_STYLE[]     = "customStyle";
+const char USE_OTHER_FILES[]          = "useOtherFiles";
+const char USE_SPECIFIC_CONFIG_FILE[] = "useSpecificConfigFile";
+const char SPECIFIC_CONFIG_FILE[]     = "specificConfigFile";
+const char USE_HOME_FILE[]            = "useHomeFile";
+const char USE_CUSTOM_STYLE[]         = "useCustomStyle";
+const char CUSTOM_STYLE[]             = "customStyle";
 }
 
 ArtisticStyleSettings::ArtisticStyleSettings() :
@@ -59,6 +61,8 @@ ArtisticStyleSettings::ArtisticStyleSettings() :
 
     setCommand("astyle");
     m_settings.insert(USE_OTHER_FILES, QVariant(true));
+    m_settings.insert(USE_SPECIFIC_CONFIG_FILE, QVariant(false));
+    m_settings.insert(SPECIFIC_CONFIG_FILE, QVariant());
     m_settings.insert(USE_HOME_FILE, QVariant(false));
     m_settings.insert(USE_CUSTOM_STYLE, QVariant(false));
     m_settings.insert(CUSTOM_STYLE, QVariant());
@@ -115,6 +119,26 @@ bool ArtisticStyleSettings::useOtherFiles() const
 void ArtisticStyleSettings::setUseOtherFiles(bool useOtherFiles)
 {
     m_settings.insert(USE_OTHER_FILES, QVariant(useOtherFiles));
+}
+
+bool ArtisticStyleSettings::useSpecificConfigFile() const
+{
+    return m_settings.value(USE_SPECIFIC_CONFIG_FILE).toBool();
+}
+
+void ArtisticStyleSettings::setUseSpecificConfigFile(bool useSpecificConfigFile)
+{
+    m_settings.insert(USE_SPECIFIC_CONFIG_FILE, QVariant(useSpecificConfigFile));
+}
+
+Utils::FileName ArtisticStyleSettings::specificConfigFile() const
+{
+    return Utils::FileName::fromString(m_settings.value(SPECIFIC_CONFIG_FILE).toString());
+}
+
+void ArtisticStyleSettings::setSpecificConfigFile(const Utils::FileName &specificConfigFile)
+{
+    m_settings.insert(SPECIFIC_CONFIG_FILE, QVariant(specificConfigFile.toString()));
 }
 
 bool ArtisticStyleSettings::useHomeFile() const

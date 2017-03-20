@@ -27,6 +27,8 @@
 
 #include "../abstractsettings.h"
 
+#include <utils/fileutils.h>
+
 #include <QFuture>
 #include <QFutureWatcher>
 
@@ -50,6 +52,12 @@ public:
 
     bool useOtherFiles() const;
     void setUseOtherFiles(bool useOtherFiles);
+
+    bool useSpecificConfigFile() const;
+    void setUseSpecificConfigFile(bool useSpecificConfigFile);
+
+    Utils::FileName specificConfigFile() const;
+    void setSpecificConfigFile(const Utils::FileName &specificConfigFile);
 
     bool useHomeFile() const;
     void setUseHomeFile(bool useHomeFile);
