@@ -77,7 +77,8 @@ public:
 
     void exec()
     {
-        if (schedule()) // do not enter event loop for empty containers
+        // do not enter event loop for empty containers or if already canceled
+        if (!m_futureInterface.isCanceled() && schedule())
             m_loop.exec();
     }
 
