@@ -1570,35 +1570,41 @@
 
             \list
 
-                \li \uicontrol {All Projects} searches files matching the
-                    defined file pattern in all currently open projects.
-
-                    For example, to search for a string only in \c {.cpp}
-                    and \c {.h} files, enter in \uicontrol {File pattern}
-                    \c {*.cpp,*.h}.
+                \li \uicontrol {All Projects} searches from all currently open
+                    projects.
 
                     \image qtcreator-search-allprojects.png
 
-                \li \uicontrol {Current Project} searches files matching the
-                    defined file pattern only in the project you are currently
-                    editing.
+                \li \uicontrol {Current Project} searches from the project you
+                    are currently editing.
 
-                \li \uicontrol {Files in File System} recursively searches files
-                    matching the defined file pattern in the selected directory.
+                \li \uicontrol {Files in File System} recursively searches from
+                    the selected directory.
 
                     \image qtcreator-search-filesystem.png
 
-                    Select the \uicontrol {Use Git Grep} check box to use Git to
-                    only search tracked files in the Git work tree. To restrict
-                    the search to the HEAD, a tag, a local or remote branch, or
-                    a commit hash, enter a reference in the field. Leave the
-                    field empty to search through the file system.
+                    In the \uicontrol {Search engine} field, select
+                    \uicontrol Internal to use the \QC search engine. Select
+                    \uicontrol {Git Grep} to use Git to only search tracked
+                    files in the Git work tree. To restrict the search to the
+                    HEAD, a tag, a local or remote branch, or a commit hash,
+                    enter a reference. Leave the field empty to search through
+                    the file system.
 
-                \li \uicontrol {Current File} searches only the current file.
+                \li \uicontrol {Current File} searches only from the current
+                    file.
 
-                \li \uicontrol {Open Documents} searches all open files.
+                \li \uicontrol {Open Documents} searches from all open files.
 
             \endlist
+
+        \li In the \uicontrol {File pattern} field, specify file patterns to
+            restrict the search to files that match the pattern. For example, to
+            search for a string only in \c {.cpp} and \c {.h} files, enter
+            \c {*.cpp,*.h}.
+
+        \li In the \uicontrol {Exclusion pattern} field, specify file patterns
+            to omit files from the search.
 
         \li Enter the text you are looking for and click \uicontrol Search.
 
