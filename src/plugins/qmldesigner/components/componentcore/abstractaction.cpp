@@ -76,7 +76,7 @@ SelectionContext AbstractAction::selectionContext() const
 DefaultAction::DefaultAction(const QString &description)
     : QAction(description, 0)
 {
-    connect(this, &DefaultAction::triggered, this, &DefaultAction::actionTriggered);
+    connect(this, &QAction::triggered, this, &DefaultAction::actionTriggered);
 }
 
 void DefaultAction::actionTriggered(bool enable)
