@@ -271,7 +271,7 @@ void DynamicPropertiesModel::addDynamicPropertyForCurrentNode()
                 modelNode.variantProperty(unusedProperty(modelNode)).setDynamicTypeNameAndValue("string", QLatin1String("none.none"));
             } catch (RewritingException &e) {
                 m_exceptionError = e.description();
-                QTimer::singleShot(200, this, SLOT(handleException()));
+                QTimer::singleShot(200, this, &DynamicPropertiesModel::handleException);
             }
         }
     } else {
@@ -437,7 +437,7 @@ void DynamicPropertiesModel::updateValue(int row)
             transaction.commit(); //committing in the try block
         } catch (Exception &e) {
             m_exceptionError = e.description();
-            QTimer::singleShot(200, this, SLOT(handleException()));
+            QTimer::singleShot(200, this, &DynamicPropertiesModel::handleException);
         }
         return;
     }
@@ -453,7 +453,7 @@ void DynamicPropertiesModel::updateValue(int row)
             transaction.commit(); //committing in the try block
         } catch (Exception &e) {
             m_exceptionError = e.description();
-            QTimer::singleShot(200, this, SLOT(handleException()));
+            QTimer::singleShot(200, this, &DynamicPropertiesModel::handleException);
         }
     }
 }

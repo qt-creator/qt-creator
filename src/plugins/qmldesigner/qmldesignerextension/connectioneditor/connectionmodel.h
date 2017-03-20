@@ -74,7 +74,7 @@ protected:
     void updateCustomData(QStandardItem *item, const SignalHandlerProperty &signalHandlerProperty);
     QStringList getPossibleSignalsForConnection(const ModelNode &connection) const;
 
-private slots:
+private:
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex& bottomRight);
     void handleException();
 

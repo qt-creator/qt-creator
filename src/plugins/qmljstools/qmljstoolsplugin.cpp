@@ -72,12 +72,12 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
     // Objects
     m_modelManager = new ModelManager(this);
 
-//    VCSManager *vcsManager = core->vcsManager();
-//    DocumentManager *fileManager = core->fileManager();
-//    connect(vcsManager, SIGNAL(repositoryChanged(QString)),
-//            m_modelManager, SLOT(updateModifiedSourceFiles()));
-//    connect(fileManager, SIGNAL(filesChangedInternally(QStringList)),
-//            m_modelManager, SLOT(updateSourceFiles(QStringList)));
+//    Core::VcsManager *vcsManager = Core::VcsManager::instance();
+//    Core::DocumentManager *documentManager = Core::DocumentManager::instance();
+//    connect(vcsManager, &Core::VcsManager::repositoryChanged,
+//            m_modelManager, &ModelManager::updateModifiedSourceFiles);
+//    connect(documentManager, &DocumentManager::filesChangedInternally,
+//            m_modelManager, &ModelManager::updateSourceFiles);
 
     LocatorData *locatorData = new LocatorData;
     addAutoReleasedObject(locatorData);

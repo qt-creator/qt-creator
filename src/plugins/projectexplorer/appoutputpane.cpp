@@ -85,6 +85,7 @@ static void replaceAllChildWidgets(QLayout *layout, const QList<QWidget *> &newC
 
 namespace {
 const char SETTINGS_KEY[] = "ProjectExplorer/AppOutput/Zoom";
+const char C_APP_OUTPUT[] = "ProjectExplorer.ApplicationOutput";
 }
 
 namespace ProjectExplorer {
@@ -425,7 +426,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     }
     // Create new
     static int counter = 0;
-    Core::Id contextId = Core::Id(Constants::C_APP_OUTPUT).withSuffix(counter++);
+    Core::Id contextId = Core::Id(C_APP_OUTPUT).withSuffix(counter++);
     Core::Context context(contextId);
     Core::OutputWindow *ow = new Core::OutputWindow(context, m_tabWidget);
     ow->setWindowTitle(tr("Application Output Window"));

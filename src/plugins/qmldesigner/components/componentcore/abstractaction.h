@@ -39,12 +39,12 @@ class QMLDESIGNERCORE_EXPORT DefaultAction : public QAction
 public:
     DefaultAction(const QString &description);
 
-signals:
-    void triggered(bool checked, const SelectionContext &selectionContext);
-
-public slots: //virtual function instead of slot
+    // virtual function instead of slot
     virtual void actionTriggered(bool enable);
     void setSelectionContext(const SelectionContext &selectionContext);
+
+signals:
+    void triggered(bool checked, const SelectionContext &selectionContext);
 
 protected:
     SelectionContext m_selectionContext;

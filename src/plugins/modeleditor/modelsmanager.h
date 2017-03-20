@@ -60,12 +60,11 @@ public:
     void releaseModel(ExtDocumentController *documentController);
     void openDiagram(const qmt::Uid &modelUid, const qmt::Uid &diagramUid);
 
-private slots:
+private:
     void onAboutToShowContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node);
     void onOpenDiagramFromProjectExplorer();
     void onOpenDefaultModel(const qmt::Uid &modelUid);
 
-private:
     void openDiagram(ExtDocumentController *documentController, qmt::MDiagram *diagram);
 
 private:

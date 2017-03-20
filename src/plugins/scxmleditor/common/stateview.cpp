@@ -89,7 +89,7 @@ void StateView::setDocument(ScxmlDocument *doc)
     m_scene->setDocument(doc);
     m_ui.m_graphicsView->setDocument(doc);
     if (doc)
-        connect(doc, SIGNAL(colorThemeChanged()), m_scene, SLOT(invalidate()));
+        connect(doc, &ScxmlDocument::colorThemeChanged, m_scene, [this] { m_scene->invalidate(); });
 }
 
 StateItem *StateView::parentState() const

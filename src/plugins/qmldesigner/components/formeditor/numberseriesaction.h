@@ -50,7 +50,7 @@ protected:
 signals:
     void valueChanged(const QVariant &value);
 
-private slots:
+private:
     void emitValueChanged(int index);
 
 private:

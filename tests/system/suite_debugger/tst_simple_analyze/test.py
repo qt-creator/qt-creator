@@ -111,7 +111,7 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
             # cannot run following test on colShortest (unstable)
             for i in [colTotal, colMean, colMedian, colLongest]:
                 for item in dumpItems(model, column=i)[1:5]:
-                    test.verify(item.endswith(' ms'), "Verify that '%s' ends with ' ms'" % item)
+                    test.verify(item.endswith('ms'), "Verify that '%s' ends with 'ms'" % item)
             for i in [colTotal, colMean, colMedian, colLongest, colShortest]:
                 for item in dumpItems(model, column=i):
                     test.verify(not item.startswith('0.000 '),
@@ -158,9 +158,8 @@ def containsOnce(tuple, items):
     return True
 
 def safeClickTab(tab):
-    for bar in [":*Qt Creator.JavaScript_QTabBar",
-                ":*Qt Creator.Events_QTabBar",
-                ":*Qt Creator.Timeline_QTabBar"]:
+    for bar in [":Qt Creator.Events_QTabBar",
+                ":Qt Creator.Timeline_QTabBar"]:
         try:
             clickOnTab(bar, tab, 1000)
             return True

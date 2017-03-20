@@ -197,7 +197,7 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
     puppetProcess->setObjectName(puppetMode);
     puppetProcess->setProcessEnvironment(processEnvironment());
 
-    QObject::connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), puppetProcess, SLOT(kill()));
+    QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, puppetProcess, &QProcess::kill);
     QObject::connect(puppetProcess, SIGNAL(finished(int,QProcess::ExitStatus)), handlerObject, finishSlot);
 
 #ifndef QMLDESIGNER_TEST

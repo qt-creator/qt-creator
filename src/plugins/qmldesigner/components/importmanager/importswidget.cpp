@@ -39,7 +39,8 @@ ImportsWidget::ImportsWidget(QWidget *parent) :
 {
     setWindowTitle(tr("Import Manager"));
     m_addImportComboBox = new ImportManagerComboBox(this);
-    connect(m_addImportComboBox, SIGNAL(activated(int)), this, SLOT(addSelectedImport(int)));
+    connect(m_addImportComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
+            this, &ImportsWidget::addSelectedImport);
 }
 
 void ImportsWidget::removeImports()
@@ -126,7 +127,7 @@ void ImportsWidget::setImports(const QList<Import> &imports)
         ImportLabel *importLabel = new ImportLabel(this);
         importLabel->setImport(import);
         m_importLabels.append(importLabel);
-        connect(importLabel, SIGNAL(removeImport(Import)), this, SIGNAL(removeImport(Import)));
+        connect(importLabel, &ImportLabel::removeImport, this, &ImportsWidget::removeImport);
     }
 
     updateLayout();

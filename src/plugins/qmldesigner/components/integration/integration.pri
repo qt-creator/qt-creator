@@ -6,8 +6,7 @@ SOURCES += \
     utilitypanelcontroller.cpp \
     stackedutilitypanelcontroller.cpp \
     componentaction.cpp \
-    componentview.cpp \
-    xuifiledialog.cpp
+    componentview.cpp
 
 HEADERS += \
     designdocumentview.h \
@@ -15,6 +14,4 @@ HEADERS += \
     utilitypanelcontroller.h \
     stackedutilitypanelcontroller.h \
     componentaction.h \
-    componentview.h \
-    xuifiledialog.h
-
+    componentview.h

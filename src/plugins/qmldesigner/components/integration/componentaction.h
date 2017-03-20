@@ -44,7 +44,7 @@ class ComponentAction : public QWidgetAction
 public:
     ComponentAction(ComponentView  *componentView);
     void setCurrentIndex(int index);
-
+    void emitCurrentComponentChanged(int index);
 
 protected:
     QWidget *createWidget(QWidget *parent);
@@ -53,9 +53,6 @@ signals:
     void currentComponentChanged(const ModelNode &node);
     void changedToMaster();
     void currentIndexChanged(int index);
-
-public slots:
-    void emitCurrentComponentChanged(int index);
 
 private:
     QPointer<ComponentView> m_componentView;

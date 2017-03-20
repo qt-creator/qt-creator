@@ -78,7 +78,6 @@ public:
         FileNameRole
     };
 
-public slots:
     /// enable/disable cycle detection
     void enableCycleDetection(bool enabled);
     void setShortenTemplates(bool enabled);

@@ -84,18 +84,16 @@ public:
     CrumbleBar* crumbleBar() const;
     void showInternalTextEditor();
 
-public slots:
     void restoreDefaultView();
     void toggleSidebars();
     void toggleLeftSidebar();
     void toggleRightSidebar();
 
-private slots:
-    void toolBarOnGoBackClicked();
-    void toolBarOnGoForwardClicked();
-
 private: // functions
     enum InitializeStatus { NotInitialized, Initializing, Initialized };
+
+    void toolBarOnGoBackClicked();
+    void toolBarOnGoForwardClicked();
 
     void setup();
     bool isInNodeDefinition(int nodeOffset, int nodeLength, int cursorPos) const;

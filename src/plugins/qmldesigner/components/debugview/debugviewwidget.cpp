@@ -36,7 +36,8 @@ namespace Internal {
 DebugViewWidget::DebugViewWidget(QWidget *parent) : QWidget(parent)
 {
     m_ui.setupUi(this);
-    connect(m_ui.enabledCheckBox, SIGNAL(toggled(bool)), this, SLOT(enabledCheckBoxToggled(bool)));
+    connect(m_ui.enabledCheckBox, &QAbstractButton::toggled,
+            this, &DebugViewWidget::enabledCheckBoxToggled);
 }
 
 void DebugViewWidget::addLogMessage(const QString &topic, const QString &message, bool highlight)

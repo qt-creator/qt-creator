@@ -51,14 +51,13 @@ public:
 signals:
     void logMessageReceived(const QByteArray &);
 
-private slots:
+private:
     void localHostAddressRetrieved(const QHostAddress &localHostAddress);
 
     void xmlSocketConnected();
     void logSocketConnected();
     void readLogSocket();
 
-private:
     QString tool() const;
 
     bool startServers(const QHostAddress &localHostAddress);

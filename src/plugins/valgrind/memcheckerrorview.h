@@ -46,14 +46,10 @@ public:
     void setDefaultSuppressionFile(const QString &suppFile);
     QString defaultSuppressionFile() const;
     ValgrindBaseSettings *settings() const { return m_settings; }
-
-public slots:
     void settingsChanged(ValgrindBaseSettings *settings);
 
-private slots:
-    void suppressError();
-
 private:
+    void suppressError();
     QList<QAction *> customActions() const override;
 
     QAction *m_suppressAction;

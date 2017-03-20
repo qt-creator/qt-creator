@@ -85,9 +85,8 @@ private:
 
     void load();
     static const IDeviceFactory *restoreFactory(const QVariantMap &map);
-    QList<IDevice::Ptr> fromMap(const QVariantMap &map);
+    QList<IDevice::Ptr> fromMap(const QVariantMap &map, QHash<Core::Id, Core::Id> *defaultDevices);
     QVariantMap toMap() const;
-    void ensureOneDefaultDevicePerType();
 
     // For SettingsWidget.
     IDevice::Ptr mutableDevice(Core::Id id) const;

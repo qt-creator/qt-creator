@@ -70,7 +70,7 @@ public:
 signals:
     void currentDiffFileIndexChanged(int index);
 
-private slots:
+private:
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
     void slotLeftJumpToOriginalFileRequested(int diffFileIndex,
                                              int lineNumber, int columnNumber);
@@ -87,7 +87,6 @@ private slots:
     void leftCursorPositionChanged();
     void rightCursorPositionChanged();
 
-private:
     void showDiff();
 
     SideDiffEditorWidget *m_leftEditor;

@@ -54,10 +54,9 @@ public:
     void updateUndoActions(DesignDocument *designDocument);
     DesignDocument *currentDesignDocument() const;
 
-public slots:
     void updateActions(Core::IEditor* editor);
 
-private slots:
+private:
     void undo();
     void redo();
     void deleteSelected();

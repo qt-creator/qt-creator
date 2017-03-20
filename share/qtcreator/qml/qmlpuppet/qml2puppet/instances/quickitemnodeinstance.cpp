@@ -473,6 +473,8 @@ QRectF QuickItemNodeInstance::boundingRectWithStepChilds(QQuickItem *parentItem)
 {
     QRectF boundingRect = parentItem->boundingRect();
 
+    boundingRect = boundingRect.united(QRectF(QPointF(0, 0), size()));
+
     foreach (QQuickItem *childItem, parentItem->childItems()) {
         if (!nodeInstanceServer()->hasInstanceForObject(childItem)) {
             QRectF transformedRect = childItem->mapRectToItem(parentItem, boundingRectWithStepChilds(childItem));

@@ -56,8 +56,6 @@ public:
     void executeLastMacro();
     void saveLastMacro();
     bool executeMacro(const QString &name);
-
-public slots:
     void endMacro();
 
 protected:

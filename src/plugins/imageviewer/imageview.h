@@ -68,11 +68,6 @@ public:
     void reset();
     void createScene();
 
-signals:
-    void scaleFactorChanged(qreal factor);
-    void imageSizeChanged(const QSize &size);
-
-public slots:
     void exportImage();
     void setViewBackground(bool enable);
     void setViewOutline(bool enable);
@@ -81,17 +76,18 @@ public slots:
     void resetToOriginalSize();
     void fitToScreen();
 
-private slots:
-    void emitScaleFactor();
+signals:
+    void scaleFactorChanged(qreal factor);
+    void imageSizeChanged(const QSize &size);
 
-protected:
+private:
+    void emitScaleFactor();
+    void doScale(qreal factor);
+
     void drawBackground(QPainter *p, const QRectF &rect);
     void hideEvent(QHideEvent *event);
     void showEvent(QShowEvent *event);
     void wheelEvent(QWheelEvent *event);
-
-private:
-    void doScale(qreal factor);
 
     ImageViewerFile *m_file;
     QGraphicsItem *m_imageItem = 0;

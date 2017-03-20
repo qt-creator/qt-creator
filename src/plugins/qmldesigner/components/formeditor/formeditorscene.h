@@ -84,7 +84,6 @@ public:
 
     void highlightBoundingRect(FormEditorItem *formEditorItem);
 
-public slots:
     void setShowBoundingRects(bool show);
     bool showBoundingRects() const;
 

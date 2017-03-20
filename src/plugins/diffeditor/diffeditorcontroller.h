@@ -59,7 +59,6 @@ public:
                                                  const QString &displayName);
     static DiffEditorController *controller(Core::IDocument *document);
 
-public slots:
     void informationForCommitReceived(const QString &output);
 
 signals:

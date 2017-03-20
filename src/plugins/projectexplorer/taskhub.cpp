@@ -31,7 +31,11 @@
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
-using namespace ProjectExplorer;
+namespace ProjectExplorer {
+
+// Task mark categories
+const char TASK_MARK_WARNING[] = "Task.Mark.Warning";
+const char TASK_MARK_ERROR[] = "Task.Mark.Error";
 
 static TaskHub *m_instance = nullptr;
 QVector<Core::Id> TaskHub::m_registeredCategories;
@@ -40,9 +44,9 @@ static Core::Id categoryForType(Task::TaskType type)
 {
     switch (type) {
     case Task::Error:
-        return Constants::TASK_MARK_ERROR;
+        return TASK_MARK_ERROR;
     case Task::Warning:
-        return Constants::TASK_MARK_WARNING;
+        return TASK_MARK_WARNING;
     default:
         return Core::Id();
     }
@@ -101,12 +105,12 @@ TaskHub::TaskHub()
     m_instance = this;
     qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");
     qRegisterMetaType<QList<ProjectExplorer::Task> >("QList<ProjectExplorer::Task>");
-    TaskMark::setCategoryColor(Constants::TASK_MARK_ERROR,
+    TaskMark::setCategoryColor(TASK_MARK_ERROR,
                                Utils::Theme::ProjectExplorer_TaskError_TextMarkColor);
-    TaskMark::setCategoryColor(Constants::TASK_MARK_WARNING,
+    TaskMark::setCategoryColor(TASK_MARK_WARNING,
                                Utils::Theme::ProjectExplorer_TaskWarn_TextMarkColor);
-    TaskMark::setDefaultToolTip(Constants::TASK_MARK_ERROR, tr("Error"));
-    TaskMark::setDefaultToolTip(Constants::TASK_MARK_WARNING, tr("Warning"));
+    TaskMark::setDefaultToolTip(TASK_MARK_ERROR, tr("Error"));
+    TaskMark::setDefaultToolTip(TASK_MARK_WARNING, tr("Warning"));
 }
 
 TaskHub::~TaskHub()
@@ -194,3 +198,5 @@ void TaskHub::requestPopup()
 {
     emit m_instance->popupRequested(Core::IOutputPane::NoModeSwitch);
 }
+
+} // namespace ProjectExplorer

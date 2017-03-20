@@ -67,8 +67,6 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
     void clear();
-
-public Q_SLOTS:
     void setError(const Valgrind::XmlProtocol::Error &error);
 
 private:

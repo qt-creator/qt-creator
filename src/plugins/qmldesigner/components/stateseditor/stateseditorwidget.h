@@ -61,9 +61,9 @@ public:
 
     void toggleStatesViewExpanded();
 
-private slots:
+private:
     void reloadQmlSource();
-    void handleExpandedChanged();
+    Q_SLOT void handleExpandedChanged();
 
 private:
     QPointer<StatesEditorView> m_statesEditorView;

@@ -95,10 +95,9 @@ class OpenOcdGdbServerProviderConfigWidget : public GdbServerProviderConfigWidge
 public:
     explicit OpenOcdGdbServerProviderConfigWidget(OpenOcdGdbServerProvider *);
 
-private slots:
+private:
     void startupModeChanged();
 
-private:
     void applyImpl() final;
     void discardImpl() final;
 

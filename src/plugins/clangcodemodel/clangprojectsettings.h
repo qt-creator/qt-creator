@@ -47,7 +47,6 @@ public:
     Core::Id warningConfigId() const;
     void setWarningConfigId(const Core::Id &warningConfigId);
 
-public slots:
     void load();
     void store();
 

@@ -45,7 +45,6 @@ public:
 
     void setDebugViewEnabled(bool b);
 
-public slots:
     void enabledCheckBoxToggled(bool b);
 
 private:

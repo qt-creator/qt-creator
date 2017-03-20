@@ -64,7 +64,8 @@ QWidget *BackgroundAction::createWidget(QWidget *parent)
     }
 
     comboBox->setCurrentIndex(0);
-    connect(comboBox, SIGNAL(currentIndexChanged(int)), SLOT(emitBackgroundChanged(int)));
+    connect(comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &BackgroundAction::emitBackgroundChanged);
 
     comboBox->setProperty("hideborder", true);
     comboBox->setToolTip(tr("Set the color of the canvas."));

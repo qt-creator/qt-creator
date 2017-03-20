@@ -31,6 +31,8 @@
 namespace BareMetal {
 namespace Internal {
 
+class GdbServerProvider;
+
 class BareMetalDevice : public ProjectExplorer::IDevice
 {
 public:
@@ -42,6 +44,7 @@ public:
                       Origin origin = ManuallyAdded, Core::Id id = Core::Id());
     static Ptr create(const BareMetalDevice &other);
 
+    ~BareMetalDevice();
     QString displayType() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
     QList<Core::Id> actionIds() const override;
@@ -56,6 +59,7 @@ public:
 
     QString gdbServerProviderId() const;
     void setGdbServerProviderId(const QString &id);
+    void providerUpdated(GdbServerProvider *provider);
 
     virtual void fromMap(const QVariantMap &map) override;
     virtual QVariantMap toMap() const override;
@@ -67,6 +71,7 @@ protected:
     BareMetalDevice(const BareMetalDevice &other);
 
 private:
+    void setChannelByServerProvider(GdbServerProvider *provider);
     BareMetalDevice &operator=(const BareMetalDevice &);
     QString m_gdbServerProviderId;
 };

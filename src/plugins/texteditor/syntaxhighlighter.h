@@ -64,7 +64,8 @@ public:
 
     // Don't call in constructors of derived classes
     virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
-public Q_SLOTS:
+
+public slots:
     void rehighlight();
     void rehighlightBlock(const QTextBlock &block);
 
@@ -90,8 +91,8 @@ protected:
     QTextBlock currentBlock() const;
 
 private:
-    Q_PRIVATE_SLOT(d_ptr, void _q_reformatBlocks(int from, int charsRemoved, int charsAdded))
-    Q_PRIVATE_SLOT(d_ptr, void _q_delayedRehighlight())
+    void reformatBlocks(int from, int charsRemoved, int charsAdded);
+    void delayedRehighlight();
 
     QScopedPointer<SyntaxHighlighterPrivate> d_ptr;
 };

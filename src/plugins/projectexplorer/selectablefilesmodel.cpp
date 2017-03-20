@@ -43,6 +43,10 @@
 
 namespace ProjectExplorer {
 
+const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.lo; *.la; *.obj; *~; *.files;"
+                                        " *.config; *.creator; *.user*; *.includes; *.autosave";
+const char SHOW_FILE_FILTER_DEFAULT[] = "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;";
+
 Tree::~Tree()
 {
     qDeleteAll(childDirectories);
@@ -550,11 +554,11 @@ SelectableFilesWidget::SelectableFilesWidget(QWidget *parent) :
     m_progressLabel(new QLabel)
 {
     const QString showFilter
-            = Core::ICore::settings()->value(QLatin1String(Constants::SHOW_FILE_FILTER_SETTING),
-                                             QLatin1String(Constants::SHOW_FILE_FILTER_DEFAULT)).toString();
+            = Core::ICore::settings()->value("GenericProject/ShowFileFilter",
+                                             QLatin1String(SHOW_FILE_FILTER_DEFAULT)).toString();
     const QString hideFilter
-            = Core::ICore::settings()->value(QLatin1String(Constants::HIDE_FILE_FILTER_SETTING),
-                                             QLatin1String(Constants::HIDE_FILE_FILTER_DEFAULT)).toString();
+            = Core::ICore::settings()->value("GenericProject/FileFilter",
+                                             QLatin1String(HIDE_FILE_FILTER_DEFAULT)).toString();
 
     auto layout = new QGridLayout(this);
     layout->setMargin(0);

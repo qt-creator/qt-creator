@@ -45,9 +45,6 @@ public:
 signals:
     void removeImport(const Import &import);
 
-private slots:
-    void emitRemoveImport();
-
 private:
     Import m_import;
     QLabel *m_importLabel;

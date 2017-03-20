@@ -69,8 +69,6 @@ signals:
     void anchorBackendChanged();
     void hasGradientChanged();
 
-public slots:
-
 private:
     void setupModel();
     void setAnchorBackend(const QVariant &anchorBackend);

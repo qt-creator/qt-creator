@@ -48,7 +48,7 @@ public:
     void setErrorOutputFile(const QString &filePath);
     void setErrorMessage(const QString &message);
 
-private slots:
+private:
     void setUseFallbackPuppet();
 
 private:

@@ -152,9 +152,10 @@ public:
     static bool hasSplitter();
 
     static void showEditorStatusBar(const QString &id,
-                           const QString &infoText,
-                           const QString &buttonText = QString(),
-                           QObject *object = 0, const char *member = 0);
+                                    const QString &infoText,
+                                    const QString &buttonText = QString(),
+                                    QObject *object = nullptr,
+                                    const std::function<void()> &function = nullptr);
     static void hideEditorStatusBar(const QString &id);
 
     static EditorFactoryList editorFactories(const Utils::MimeType &mimeType, bool bestMatchOnly = true);

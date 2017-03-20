@@ -713,7 +713,7 @@ TextToModelMerger::TextToModelMerger(RewriterView *reWriterView) :
 {
     Q_ASSERT(reWriterView);
     m_setupTimer.setSingleShot(true);
-    RewriterView::connect(&m_setupTimer, SIGNAL(timeout()), reWriterView, SLOT(delayedSetup()));
+    RewriterView::connect(&m_setupTimer, &QTimer::timeout, reWriterView, &RewriterView::delayedSetup);
 }
 
 void TextToModelMerger::setActive(bool active)

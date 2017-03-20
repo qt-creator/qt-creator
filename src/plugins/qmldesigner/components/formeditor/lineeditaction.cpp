@@ -57,9 +57,9 @@ QWidget *LineEditAction::createWidget(QWidget *parent)
     lineEdit->setFont(font);
     lineEdit->setValidator(new QIntValidator(0, 4096, this));
 
-    connect(lineEdit, SIGNAL(textEdited(QString)), this, SIGNAL(textChanged(QString)));
-    connect(this, SIGNAL(lineEditTextClear()), lineEdit, SLOT(clear()));
-    connect(this, SIGNAL(lineEditTextChange(QString)), lineEdit, SLOT(setText(QString)));
+    connect(lineEdit, &QLineEdit::textEdited, this, &LineEditAction::textChanged);
+    connect(this, &LineEditAction::lineEditTextClear, lineEdit, &QLineEdit::clear);
+    connect(this, &LineEditAction::lineEditTextChange, lineEdit, &QLineEdit::setText);
 
     return lineEdit;
 }

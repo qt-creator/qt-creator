@@ -43,7 +43,7 @@ PuppetBuildProgressDialog::PuppetBuildProgressDialog() :
     setWindowModality(Qt::ApplicationModal);
     ui->setupUi(this);
     ui->buildProgressBar->setMaximum(85);
-    connect(ui->useFallbackPuppetPushButton, SIGNAL(clicked()), this, SLOT(setUseFallbackPuppet()));
+    connect(ui->useFallbackPuppetPushButton, &QAbstractButton::clicked, this, &PuppetBuildProgressDialog::setUseFallbackPuppet);
 }
 
 PuppetBuildProgressDialog::~PuppetBuildProgressDialog()
@@ -71,7 +71,7 @@ void PuppetBuildProgressDialog::setErrorMessage(const QString &message)
 {
     ui->label->setText(QString::fromLatin1("<font color='red'>%1</font>").arg(message));
     ui->useFallbackPuppetPushButton->setText(tr("OK"));
-    connect(ui->useFallbackPuppetPushButton, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(ui->useFallbackPuppetPushButton, &QAbstractButton::clicked, this, &QDialog::accept);
 }
 
 void PuppetBuildProgressDialog::setUseFallbackPuppet()

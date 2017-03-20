@@ -115,8 +115,8 @@ NavigatorTreeModel::NavigatorTreeModel(QObject *parent)
     setColumnCount(2);
 #    endif
 
-    connect(this, SIGNAL(itemChanged(QStandardItem*)),
-            this, SLOT(handleChangedItem(QStandardItem*)));
+    connect(this, &QStandardItemModel::itemChanged,
+            this, &NavigatorTreeModel::handleChangedItem);
 }
 
 NavigatorTreeModel::~NavigatorTreeModel()

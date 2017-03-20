@@ -88,7 +88,7 @@ protected:
     QActionGroup *toolActionGroup() const;
     DocumentWarningWidget *errorWidget();
 
-private slots:
+private:
     void changeTransformTool(bool checked);
     void setZoomLevel(double zoomLevel);
     void changeRootItemWidth(const QString &widthText);

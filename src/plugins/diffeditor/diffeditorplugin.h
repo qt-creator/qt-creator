@@ -56,22 +56,23 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     void extensionsInitialized();
 
-private slots:
+private:
     void updateDiffCurrentFileAction();
     void updateDiffOpenFilesAction();
     void diffCurrentFile();
     void diffOpenFiles();
     void diffExternalFiles();
 
+    QAction *m_diffCurrentFileAction = nullptr;
+    QAction *m_diffOpenFilesAction = nullptr;
+
 #ifdef WITH_TESTS
+private slots:
     void testMakePatch_data();
     void testMakePatch();
     void testReadPatch_data();
     void testReadPatch();
 #endif // WITH_TESTS
-private:
-    QAction *m_diffCurrentFileAction = nullptr;
-    QAction *m_diffOpenFilesAction = nullptr;
 };
 
 } // namespace Internal

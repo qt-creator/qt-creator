@@ -148,13 +148,14 @@ void DeviceManager::load()
 
     Utils::PersistentSettingsReader reader;
     // read devices file from global settings path
+    QHash<Core::Id, Core::Id> defaultDevices;
     QList<IDevice::Ptr> sdkDevices;
     if (reader.load(systemSettingsFilePath(QLatin1String("/qtcreator/devices.xml"))))
-        sdkDevices = fromMap(reader.restoreValues().value(QLatin1String(DeviceManagerKey)).toMap());
+        sdkDevices = fromMap(reader.restoreValues().value(DeviceManagerKey).toMap(), &defaultDevices);
     // read devices file from user settings path
     QList<IDevice::Ptr> userDevices;
     if (reader.load(settingsFilePath(QLatin1String("/devices.xml"))))
-        userDevices = fromMap(reader.restoreValues().value(QLatin1String(DeviceManagerKey)).toMap());
+        userDevices = fromMap(reader.restoreValues().value(DeviceManagerKey).toMap(), &defaultDevices);
     // Insert devices into the model. Prefer the higher device version when there are multiple
     // devices with the same id.
     foreach (IDevice::Ptr device, userDevices) {
@@ -172,18 +173,25 @@ void DeviceManager::load()
     foreach (const IDevice::Ptr &sdkDevice, sdkDevices)
         addDevice(sdkDevice);
 
-    ensureOneDefaultDevicePerType();
+    // Overwrite with the saved default devices.
+    for (auto itr = defaultDevices.constBegin(); itr != defaultDevices.constEnd(); ++itr) {
+        IDevice::ConstPtr device = find(itr.value());
+        if (device)
+            d->defaultDevices[device->type()] = device->id();
+    }
 
     emit devicesLoaded();
 }
 
-QList<IDevice::Ptr> DeviceManager::fromMap(const QVariantMap &map)
+QList<IDevice::Ptr> DeviceManager::fromMap(const QVariantMap &map,
+                                           QHash<Core::Id, Core::Id> *defaultDevices)
 {
     QList<IDevice::Ptr> devices;
-    const QVariantMap defaultDevsMap = map.value(QLatin1String(DefaultDevicesKey)).toMap();
-    for (QVariantMap::ConstIterator it = defaultDevsMap.constBegin();
-         it != defaultDevsMap.constEnd(); ++it) {
-        d->defaultDevices.insert(Core::Id::fromString(it.key()), Core::Id::fromSetting(it.value()));
+
+    if (defaultDevices) {
+        const QVariantMap defaultDevsMap = map.value(DefaultDevicesKey).toMap();
+        for (auto it = defaultDevsMap.constBegin(); it != defaultDevsMap.constEnd(); ++it)
+            defaultDevices->insert(Core::Id::fromString(it.key()), Core::Id::fromSetting(it.value()));
     }
     const QVariantList deviceList = map.value(QLatin1String(DeviceListKey)).toList();
     foreach (const QVariant &v, deviceList) {
@@ -396,14 +404,6 @@ IDevice::ConstPtr DeviceManager::defaultDevice(Core::Id deviceType) const
 {
     const Core::Id id = d->defaultDevices.value(deviceType);
     return id.isValid() ? find(id) : IDevice::ConstPtr();
-}
-
-void DeviceManager::ensureOneDefaultDevicePerType()
-{
-    foreach (const IDevice::Ptr &device, d->devices) {
-        if (!defaultDevice(device->type()))
-            d->defaultDevices.insert(device->type(), device->id());
-    }
 }
 
 QString DeviceManager::hostKeysFilePath()

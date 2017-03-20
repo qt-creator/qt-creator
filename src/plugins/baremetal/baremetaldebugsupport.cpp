@@ -148,8 +148,7 @@ void BareMetalDebugSupport::startExecution()
     auto dev = qSharedPointerCast<const BareMetalDevice>(m_runControl->device());
     QTC_ASSERT(dev, return);
 
-    const GdbServerProvider *p = GdbServerProviderManager::instance()->findProvider(
-                dev->gdbServerProviderId());
+    const GdbServerProvider *p = GdbServerProviderManager::findProvider(dev->gdbServerProviderId());
     QTC_ASSERT(p, return);
 
     m_state = StartingRunner;

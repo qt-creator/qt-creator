@@ -49,12 +49,11 @@ public:
 
     void accept() override;
 
-private slots:
+private:
     void resetExportSize();
     void exportWidthChanged(int width);
     void exportHeightChanged(int height);
 
-private:
     void setExportWidthBlocked(int width);
     void setExportHeightBlocked(int height);
 

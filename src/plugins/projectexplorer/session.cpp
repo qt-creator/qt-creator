@@ -205,7 +205,14 @@ void SessionManager::updateProjectTree(Project *pro)
         return; // Project was already de-registered and is shutting down
 
     ProjectNode *const oldNode = currentPair->second;
-    ProjectNode *const newNode = pro->rootProjectNode();
+    ProjectNode *newNode = pro->rootProjectNode();
+
+    if (!newNode) {
+        // Set up generic project structure if the project does not provide any!
+        newNode = new ProjectNode(pro->projectDirectory());
+        newNode->setDisplayName(pro->displayName());
+        newNode->addNode(new FileNode(pro->projectFilePath(), FileType::Project, false));
+    }
 
     d->m_sessionNode.replaceSubtree(oldNode, newNode);
     currentPair->second = newNode;
@@ -765,6 +772,10 @@ void SessionManager::removeProjects(QList<Project *> remove)
     foreach (Project *pro, remove) {
         pro->saveSettings();
         pro->setRootProjectNode(nullptr); // Deregister project with sessionnode!
+
+        // Remove the project node:
+        Node *projectNode = nodeForProject(pro);
+        d->m_sessionNode.removeNode(projectNode);
 
         d->m_projects
                 = Utils::filtered(d->m_projects, [pro](const QPair<Project *, ProjectNode *> &pair)

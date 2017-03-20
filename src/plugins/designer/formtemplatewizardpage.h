@@ -68,10 +68,9 @@ public:
 signals:
     void templateActivated();
 
-private slots:
+private:
     void slotCurrentTemplateChanged(bool);
 
-private:
     QString m_templateContents;
     QDesignerNewFormWidgetInterface *m_newFormWidget;
     bool m_templateSelected;

@@ -106,7 +106,7 @@ signals:
     void designDocumentClosed();
     void qmlErrorsChanged(const QList<DocumentMessage> &errors);
 
-public slots:
+public:
     void deleteSelected();
     void copySelected();
     void cutSelected();
@@ -119,10 +119,9 @@ public slots:
     void changeToSubComponent(const ModelNode &componentNode);
     void changeToMaster();
 
-private slots:
+private: // functions
     void updateFileName(const Utils::FileName &oldFileName, const Utils::FileName &newFileName);
 
-private: // functions
     void changeToInFileComponentModel(ComponentTextModifier *textModifer);
 
     void updateQrcFiles();

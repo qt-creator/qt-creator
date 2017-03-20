@@ -44,18 +44,16 @@ public:
 
     bool supportsToSlotNavigation() { return true; }
 
+    void updateSelection() override;
+
 signals:
     void creatorHelpRequested(const QUrl &url);
 
-public slots:
-    void updateSelection() override;
-
-private slots:
+private:
     void slotNavigateToSlot(const QString &objectName, const QString &signalSignature, const QStringList &parameterNames);
     void slotDesignerHelpRequested(const QString &manual, const QString &document);
     void slotSyncSettingsToDesigner();
 
-private:
     bool navigateToSlot(const QString &objectName,
                         const QString &signalSignature,
                         const QStringList &parameterNames,

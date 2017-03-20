@@ -69,7 +69,7 @@ public:
     QVector<QPair<qint64,qint64> > errorcounts;
     QVector<QPair<QString,qint64> > suppcounts;
 
-public Q_SLOTS:
+public:
     void error(const Valgrind::XmlProtocol::Error &err)
     {
         errors.append(err);
@@ -108,7 +108,6 @@ public:
                 this, &RunnerDumper::processErrorReceived);
     }
 
-public slots:
     void error(const Valgrind::XmlProtocol::Error &e)
     {
         qDebug() << "error received";

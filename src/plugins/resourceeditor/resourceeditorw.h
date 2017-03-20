@@ -92,7 +92,7 @@ public:
     Core::IDocument *document() override { return m_resourceDocument; }
     QWidget *toolBar() override;
 
-private slots:
+private:
     void onUndoStackChanged(bool canUndo, bool canRedo);
     void showContextMenu(const QPoint &globalPoint, const QString &fileName);
     void openCurrentFile();
@@ -100,7 +100,6 @@ private slots:
     void renameCurrentFile();
     void copyCurrentResourcePath();
 
-private:
     const QString m_extension;
     const QString m_fileFilter;
     QString m_displayName;
@@ -114,10 +113,8 @@ private:
     QAction *m_renameAction;
     QAction *m_copyFileNameAction;
 
-public slots:
-    void onRefresh();
-
 public:
+    void onRefresh();
     void onUndo();
     void onRedo();
 

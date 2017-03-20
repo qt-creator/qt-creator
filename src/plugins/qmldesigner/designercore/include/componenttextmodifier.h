@@ -61,9 +61,6 @@ public:
     bool moveToComponent(int /* nodeOffset */) override
     { return false; }
 
-public slots:
-    void contentsChange(int position, int charsRemoved, int charsAdded);
-
 private:
     TextModifier *m_originalModifier;
     int m_componentStartOffset;

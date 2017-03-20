@@ -50,7 +50,7 @@ public:
 
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
 
-private slots:
+private:
     void removeImport(const Import &import);
     void addImport(const Import &import);
 

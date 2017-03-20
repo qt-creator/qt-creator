@@ -355,7 +355,7 @@ void PropertyEditorValue::registerDeclarativeTypes()
 PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(PropertyEditorValue* parent) : QObject(parent), m_valuesPropertyMap(this)
 {
     m_editorValue = parent;
-    connect(m_editorValue, SIGNAL(modelNodeChanged()), this, SLOT(update()));
+    connect(m_editorValue, &PropertyEditorValue::modelNodeChanged, this, &PropertyEditorNodeWrapper::update);
 }
 
 PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(QObject *parent) : QObject(parent), m_editorValue(NULL)
@@ -466,12 +466,12 @@ void PropertyEditorNodeWrapper::setup()
                 PropertyEditorValue *valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
                 valueObject->setName(propertyName);
                 valueObject->setValue(qmlObjectNode.instanceValue(propertyName));
-                connect(valueObject, SIGNAL(valueChanged(QString,QVariant)), &m_valuesPropertyMap, SIGNAL(valueChanged(QString,QVariant)));
+                connect(valueObject, &PropertyEditorValue::valueChanged, &m_valuesPropertyMap, &QQmlPropertyMap::valueChanged);
                 m_valuesPropertyMap.insert(QString::fromUtf8(propertyName), QVariant::fromValue(valueObject));
             }
         }
     }
-    connect(&m_valuesPropertyMap, SIGNAL(valueChanged(QString,QVariant)), this, SLOT(changeValue(QString)));
+    connect(&m_valuesPropertyMap, &QQmlPropertyMap::valueChanged, this, &PropertyEditorNodeWrapper::changeValue);
 
     emit propertiesChanged();
     emit existsChanged();

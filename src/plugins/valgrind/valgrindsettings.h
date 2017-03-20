@@ -74,7 +74,6 @@ public:
     QString valgrindExecutable() const;
     SelfModifyingCodeDetection selfModifyingCodeDetection() const;
 
-public slots:
     void setValgrindExecutable(const QString &);
     void setSelfModifyingCodeDetection(int);
 
@@ -102,7 +101,6 @@ public:
     virtual void addSuppressionFiles(const QStringList &) = 0;
     virtual void removeSuppressionFiles(const QStringList &) = 0;
 
-public slots:
     void setNumCallers(int);
     void setLeakCheckOnFinish(int);
     void setShowReachable(bool);
@@ -144,7 +142,6 @@ public:
     /// \return Minimum cost ratio, range [0.0..100.0]
     double visualisationMinimumInclusiveCostRatio() const { return m_visualisationMinimumInclusiveCostRatio; }
 
-public slots:
     void setEnableCacheSim(bool enable);
     void setEnableBranchSim(bool enable);
     void setCollectSystime(bool collect);
@@ -226,7 +223,6 @@ public:
     bool detectCycles() const;
     bool shortenTemplates() const;
 
-public slots:
     void setCostFormat(Valgrind::Internal::CostDelegate::CostFormat format);
     void setDetectCycles(bool on);
     void setShortenTemplates(bool on);

@@ -49,22 +49,17 @@ public:
 
     QString currentProviderId() const;
     void setCurrentProviderId(const QString &id);
+    void populate();
 
 signals:
     void providerChanged();
 
-public slots:
-    void populate();
-
-private slots:
+private:
     void currentIndexChanged(int index);
     void manageButtonClicked();
-
-protected:
     bool providerMatches(const GdbServerProvider *) const;
     QString providerText(const GdbServerProvider *) const;
 
-private:
     QComboBox *m_chooser;
     QPushButton *m_manageButton;
 };

@@ -53,8 +53,8 @@ public:
 
     bool canAddSubProject(const QString &proFilePath) const override;
 
-    bool addSubProjects(const QStringList &proFilePaths) override;
-    bool removeSubProjects(const QStringList &proFilePaths) override;
+    bool addSubProject(const QString &proFilePath) override;
+    bool removeSubProject(const QString &proFilePath) override;
 
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr) override;

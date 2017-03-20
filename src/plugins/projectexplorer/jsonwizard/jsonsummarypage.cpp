@@ -175,7 +175,7 @@ void JsonSummaryPage::addToProject(const JsonWizard::GeneratorFiles &files)
     if (!folder)
         return;
     if (kind == IWizardFactory::ProjectWizard) {
-        if (!static_cast<ProjectNode *>(folder)->addSubProjects(QStringList(generatedProject))) {
+        if (!static_cast<ProjectNode *>(folder)->addSubProject(generatedProject)) {
             QMessageBox::critical(m_wizard, tr("Failed to Add to Project"),
                                   tr("Failed to add subproject \"%1\"\nto project \"%2\".")
                                   .arg(QDir::toNativeSeparators(generatedProject))

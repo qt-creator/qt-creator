@@ -174,7 +174,7 @@ void ConnectionModel::updateSource(int row)
     }
     catch (Exception &e) {
         m_exceptionError = e.description();
-        QTimer::singleShot(200, this, SLOT(handleException()));
+        QTimer::singleShot(200, this, &ConnectionModel::handleException);
     }
 
 }

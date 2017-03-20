@@ -44,7 +44,7 @@ public:
         : DefaultAction(description)
     { }
 
-public /*slots*/:
+public:
     void actionTriggered(bool) override
     {
         DocumentManager::goIntoComponent(m_selectionContext.targetNode());

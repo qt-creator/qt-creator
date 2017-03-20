@@ -25,7 +25,9 @@
 
 #include "gdbserverprovider.h"
 #include "gdbserverprovidermanager.h"
+#include "baremetaldevice.h"
 
+#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
 
@@ -74,6 +76,9 @@ GdbServerProvider::GdbServerProvider(const GdbServerProvider &other)
 
 GdbServerProvider::~GdbServerProvider()
 {
+    const QSet<BareMetalDevice *> devices = m_devices;
+    for (BareMetalDevice *device : devices)
+        device->setGdbServerProviderId(QString());
 }
 
 QString GdbServerProvider::displayName() const
@@ -173,9 +178,21 @@ bool GdbServerProvider::canStartupMode(StartupMode m) const
     return m == NoStartup;
 }
 
+void GdbServerProvider::registerDevice(BareMetalDevice *device)
+{
+    m_devices.insert(device);
+}
+
+void GdbServerProvider::unregisterDevice(BareMetalDevice *device)
+{
+    m_devices.remove(device);
+}
+
 void GdbServerProvider::providerUpdated()
 {
-    GdbServerProviderManager::instance()->notifyAboutUpdate(this);
+    GdbServerProviderManager::notifyAboutUpdate(this);
+    for (BareMetalDevice *device : Utils::asConst(m_devices))
+        device->providerUpdated(this);
 }
 
 bool GdbServerProvider::fromMap(const QVariantMap &data)

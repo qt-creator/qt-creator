@@ -47,14 +47,14 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage = 0) override;
     void extensionsInitialized() override;
 
-private slots:
 #ifdef WITH_TESTS
+private slots:
     void test_gotoslot();
     void test_gotoslot_data();
 #endif
-    void switchSourceForm();
 
 private:
+    void switchSourceForm();
     void initializeTemplates();
 
     QAction *m_actionSwitchSource;

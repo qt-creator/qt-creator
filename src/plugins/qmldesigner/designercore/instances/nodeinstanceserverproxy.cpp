@@ -172,7 +172,8 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
        if (connectedToPuppet) {
            m_firstSocket = m_localServer->nextPendingConnection();
-           connect(m_firstSocket.data(), SIGNAL(readyRead()), this, SLOT(readFirstDataStream()));
+           connect(m_firstSocket.data(), &QIODevice::readyRead, this,
+                   &NodeInstanceServerProxy::readFirstDataStream);
 
            if (runModus == NormalModus) {
                if (!m_localServer->hasPendingConnections())
@@ -180,7 +181,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
                if (connectedToPuppet) {
                    m_secondSocket = m_localServer->nextPendingConnection();
-                   connect(m_secondSocket.data(), SIGNAL(readyRead()), this, SLOT(readSecondDataStream()));
+                   connect(m_secondSocket.data(), &QIODevice::readyRead, this, &NodeInstanceServerProxy::readSecondDataStream);
 
                    if (!m_localServer->hasPendingConnections())
                         connectedToPuppet = m_localServer->waitForNewConnection(waitConstant / 4);
@@ -188,7 +189,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
     qCInfo(instanceViewBenchmark) << "puppets connected:" << m_benchmarkTimer.elapsed();
                    if (connectedToPuppet) {
                        m_thirdSocket = m_localServer->nextPendingConnection();
-                       connect(m_thirdSocket.data(), SIGNAL(readyRead()), this, SLOT(readThirdDataStream()));
+                       connect(m_thirdSocket.data(), &QIODevice::readyRead, this, &NodeInstanceServerProxy::readThirdDataStream);
                    } else {
                        showCannotConnectToPuppetWarningAndSwitchToEditMode();
                    }
@@ -252,18 +253,18 @@ NodeInstanceServerProxy::~NodeInstanceServerProxy()
     }
 
     if (m_qmlPuppetEditorProcess) {
-        QTimer::singleShot(3000, m_qmlPuppetEditorProcess.data(), SLOT(terminate()));
-        QTimer::singleShot(6000, m_qmlPuppetEditorProcess.data(), SLOT(kill()));
+        QTimer::singleShot(3000, m_qmlPuppetEditorProcess.data(), &QProcess::terminate);
+        QTimer::singleShot(6000, m_qmlPuppetEditorProcess.data(), &QProcess::kill);
     }
 
     if (m_qmlPuppetPreviewProcess) {
-        QTimer::singleShot(3000, m_qmlPuppetPreviewProcess.data(), SLOT(terminate()));
-        QTimer::singleShot(6000, m_qmlPuppetPreviewProcess.data(), SLOT(kill()));
+        QTimer::singleShot(3000, m_qmlPuppetPreviewProcess.data(), &QProcess::terminate);
+        QTimer::singleShot(6000, m_qmlPuppetPreviewProcess.data(), &QProcess::kill);
     }
 
     if (m_qmlPuppetRenderProcess) {
-         QTimer::singleShot(3000, m_qmlPuppetRenderProcess.data(), SLOT(terminate()));
-         QTimer::singleShot(6000, m_qmlPuppetRenderProcess.data(), SLOT(kill()));
+         QTimer::singleShot(3000, m_qmlPuppetRenderProcess.data(), &QProcess::terminate);
+         QTimer::singleShot(6000, m_qmlPuppetRenderProcess.data(), &QProcess::kill);
     }
 }
 

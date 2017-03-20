@@ -607,7 +607,7 @@ bool FormEditorView::isMoveToolAvailable() const
 
 void FormEditorView::reset()
 {
-   QTimer::singleShot(200, this, SLOT(delayedReset()));
+   QTimer::singleShot(200, this, &FormEditorView::delayedReset);
 }
 
 void FormEditorView::delayedReset()

@@ -75,7 +75,7 @@ protected:
 
     void updateDisplayRole(int row, int columns, const QString &string);
 
-private slots:
+private:
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex& bottomRight);
     void handleException();
 

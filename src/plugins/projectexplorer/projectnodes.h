@@ -40,7 +40,7 @@ namespace Utils { class MimeType; }
 
 namespace ProjectExplorer {
 class RunConfiguration;
-class Project;
+class SessionManager;
 
 enum class NodeType : quint16 {
     File = 1,
@@ -278,8 +278,8 @@ public:
     QString vcsTopic() const;
 
     virtual bool canAddSubProject(const QString &proFilePath) const;
-    virtual bool addSubProjects(const QStringList &proFilePaths);
-    virtual bool removeSubProjects(const QStringList &proFilePaths);
+    virtual bool addSubProject(const QString &proFile);
+    virtual bool removeSubProject(const QString &proFilePath);
 
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
@@ -302,7 +302,7 @@ protected:
     // will add the persistent stuff
     explicit ProjectNode(const Utils::FileName &projectFilePath);
 
-    friend class Project;
+    friend class SessionManager;
 };
 
 // Documentation inside.

@@ -75,7 +75,6 @@ public:
     static QString qmlSourcesPath();
     void clearSearchFilter();
 
-public slots:
     void setSearchFilter(const QString &searchFilter);
     void delayedUpdateModel();
     void updateModel();
@@ -94,7 +93,7 @@ protected:
 signals:
     void itemActivated(const QString& itemName);
 
-private slots:
+private:
     void setCurrentIndexOfStackedWidget(int index);
     void reloadQmlSource();
 

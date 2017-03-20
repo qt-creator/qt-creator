@@ -37,7 +37,6 @@
 #include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 

@@ -107,7 +107,7 @@ GdbServerProviderModel::GdbServerProviderModel(QObject *parent)
     connect(manager, &GdbServerProviderManager::providerRemoved,
             this, &GdbServerProviderModel::removeProvider);
 
-    foreach (GdbServerProvider *p, manager->providers())
+    for (GdbServerProvider *p : GdbServerProviderManager::providers())
         addProvider(p);
 }
 
@@ -131,7 +131,7 @@ void GdbServerProviderModel::apply()
 {
     // Remove unused providers
     foreach (GdbServerProvider *provider, m_providersToRemove)
-        GdbServerProviderManager::instance()->deregisterProvider(provider);
+        GdbServerProviderManager::deregisterProvider(provider);
     QTC_ASSERT(m_providersToRemove.isEmpty(), m_providersToRemove.clear());
 
     // Update providers
@@ -151,7 +151,7 @@ void GdbServerProviderModel::apply()
     // Add new (and already updated) providers
     QStringList skippedProviders;
     foreach (GdbServerProvider *provider, m_providersToAdd) {
-        if (!GdbServerProviderManager::instance()->registerProvider(provider))
+        if (!GdbServerProviderManager::registerProvider(provider))
             skippedProviders << provider->displayName();
     }
 
@@ -326,7 +326,7 @@ GdbServerProvidersSettingsWidget::GdbServerProvidersSettingsWidget
     // Set up add menu:
     auto addMenu = new QMenu(m_addButton);
 
-    foreach (const auto f, GdbServerProviderManager::instance()->factories()) {
+    for (const auto f : GdbServerProviderManager::factories()) {
         auto action = new QAction(addMenu);
         action->setText(f->displayName());
         connect(action, &QAction::triggered, this, [this, f] { createProvider(f); });

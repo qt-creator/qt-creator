@@ -57,21 +57,6 @@ QList<ProjectAction> NimProjectNode::supportedActions(Node *node) const
     }
 }
 
-bool NimProjectNode::addSubProjects(const QStringList &)
-{
-    return false;
-}
-
-bool NimProjectNode::canAddSubProject(const QString &) const
-{
-    return false;
-}
-
-bool NimProjectNode::removeSubProjects(const QStringList &)
-{
-    return false;
-}
-
 bool NimProjectNode::addFiles(const QStringList &filePaths, QStringList *)
 {
     return m_project.addFiles(filePaths);

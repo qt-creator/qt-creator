@@ -344,12 +344,12 @@ TextModifier *RewriterView::textModifier() const
 void RewriterView::setTextModifier(TextModifier *textModifier)
 {
     if (m_textModifier)
-        disconnect(m_textModifier, SIGNAL(textChanged()), this, SLOT(qmlTextChanged()));
+        disconnect(m_textModifier, &TextModifier::textChanged, this, &RewriterView::qmlTextChanged);
 
     m_textModifier = textModifier;
 
     if (m_textModifier)
-        connect(m_textModifier, SIGNAL(textChanged()), this, SLOT(qmlTextChanged()));
+        connect(m_textModifier, &TextModifier::textChanged, this, &RewriterView::qmlTextChanged);
 }
 
 QString RewriterView::textModifierContent() const

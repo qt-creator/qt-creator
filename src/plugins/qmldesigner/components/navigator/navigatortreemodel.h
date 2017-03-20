@@ -123,10 +123,9 @@ public:
     ItemRow itemRowForNode(const ModelNode &node);
     bool blockItemChangedSignal(bool block);
 
-private slots:
+private:
     void handleChangedItem(QStandardItem *item);
 
-private:
     ItemRow createItemRow(const ModelNode &node);
     void updateItemRow(const ModelNode &node, ItemRow row);
     void handleChangedIdItem(QStandardItem *idItem, ModelNode &modelNode);

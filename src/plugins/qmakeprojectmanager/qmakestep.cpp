@@ -508,7 +508,7 @@ QString QMakeStep::effectiveQMakeCall() const
 
     QString result = qmake;
     if (qtVersion) {
-        result += QLatin1Char(' ') + allArguments(qtVersion);
+        result += ' ' + buildConfiguration()->macroExpander()->expand(allArguments(qtVersion));
         if (qtVersion->qtVersion() >= QtVersionNumber(5, 0, 0))
             result.append(QString::fromLatin1(" && %1 %2").arg(make).arg(makeArguments()));
     }

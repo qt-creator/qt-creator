@@ -63,7 +63,8 @@ SubComponentManager::SubComponentManager(Model *model, QObject *parent)
     : QObject(parent),
       m_model(model)
 {
-    connect(&m_watcher, SIGNAL(directoryChanged(QString)), this, SLOT(parseDirectory(QString)));
+    connect(&m_watcher, &QFileSystemWatcher::directoryChanged,
+            this, [this](const QString &path) { parseDirectory(path); });
 }
 
 void SubComponentManager::addImport(int pos, const Import &import)

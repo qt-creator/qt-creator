@@ -67,7 +67,6 @@ public:
 
     bool sccManaged(const QString &filename);
 
-public slots:
     // To be connected to the HgTask's success signal to emit the repository/
     // files changed signals according to the variant's type:
     // String -> repository, StringList -> files

@@ -225,7 +225,7 @@ void RunConfiguration::ctor()
         BuildConfiguration *bc = target()->activeBuildConfiguration();
         return bc ? bc->macroExpander() : target()->macroExpander();
     });
-    expander->registerPrefix(Constants::VAR_CURRENTRUN_ENV, tr("Variables in the current run environment"),
+    expander->registerPrefix("CurrentRun:Env", tr("Variables in the current run environment"),
                              [this](const QString &var) {
         const auto envAspect = extraAspect<EnvironmentAspect>();
         return envAspect ? envAspect->environment().value(var) : QString();

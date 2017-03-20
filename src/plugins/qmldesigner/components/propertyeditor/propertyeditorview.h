@@ -87,7 +87,6 @@ public:
                         const NodeAbstractProperty &oldPropertyParent,
                         AbstractView::PropertyChangeFlags propertyChange) override;
 
-public slots:
     void changeValue(const QString &name);
     void changeExpression(const QString &name);
     void exportPopertyAsAlias(const QString &name);
@@ -98,12 +97,10 @@ protected:
     void setupPane(const TypeName &typeName);
     void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
 
-private slots:
+private: //functions
     void reloadQml();
     void updateSize();
     void setupPanes();
-
-private: //functions
 
     void select(const ModelNode& node);
 

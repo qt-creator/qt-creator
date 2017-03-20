@@ -159,7 +159,6 @@ public:
 
     void setWidgetStatusCallback(std::function<void(bool)> setWidgetStatusCallback);
 
-public slots:
     void qmlTextChanged();
     void delayedSetup();
 
