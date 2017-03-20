@@ -325,8 +325,9 @@ void resetSize(const SelectionContext &selectionState)
     try {
         RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|resetSize"));
         foreach (ModelNode node, selectionState.selectedModelNodes()) {
-            node.removeProperty("width");
-            node.removeProperty("height");
+            QmlItemNode itemNode(node);
+            itemNode.removeProperty("width");
+            itemNode.removeProperty("height");
         }
     } catch (const RewritingException &e) { //better save then sorry
         e.showException();
@@ -341,8 +342,9 @@ void resetPosition(const SelectionContext &selectionState)
     try {
         RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|resetPosition"));
         foreach (ModelNode node, selectionState.selectedModelNodes()) {
-            node.removeProperty("x");
-            node.removeProperty("y");
+            QmlItemNode itemNode(node);
+            itemNode.removeProperty("x");
+            itemNode.removeProperty("y");
         }
         transaction.commit();
     } catch (const RewritingException &e) { //better save then sorry
@@ -366,7 +368,8 @@ void resetZ(const SelectionContext &selectionState)
 
     RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|resetZ"));
     foreach (ModelNode node, selectionState.selectedModelNodes()) {
-        node.removeProperty("z");
+        QmlItemNode itemNode(node);
+        itemNode.removeProperty("z");
     }
 }
 
