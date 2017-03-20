@@ -128,7 +128,6 @@ def doSimpleDebugging(kitCount, currentKit, currentConfigName, pressContinueCoun
     expectedLabelTexts = ['Stopped\.', 'Stopped at breakpoint \d+ \(\d+\) in thread \d+\.']
     if len(expectedBPOrder) == 0:
         expectedLabelTexts.append("Running\.")
-    expectedLabelTexts.append("QML Debugger: Error: Unknown socket error 0")
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(kitCount, currentKit, ProjectSettings.RUN)
     ensureChecked(waitForObject("{container=':Qt Creator.scrollArea_QScrollArea' text='Enable QML' "
