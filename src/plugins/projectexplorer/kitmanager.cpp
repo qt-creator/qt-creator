@@ -30,7 +30,6 @@
 #include "kitfeatureprovider.h"
 #include "kitmanagerconfigwidget.h"
 #include "project.h"
-#include "projectexplorerconstants.h"
 #include "task.h"
 
 #include <coreplugin/icore.h>

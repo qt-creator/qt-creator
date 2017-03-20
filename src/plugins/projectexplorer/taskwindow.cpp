@@ -26,7 +26,6 @@
 #include "taskwindow.h"
 
 #include "itaskhandler.h"
-#include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
 #include "session.h"
 #include "task.h"
