@@ -85,10 +85,9 @@
 
     \endlist
 
-    \QC creates the test in the \c{tests\auto} directory in the project
-    directory. Edit the .cpp file to add private slots for each test
-    function in your test. For more information about creating Qt tests, see
-    \l{Creating a Test}.
+    \QC creates the test in the specified project directory. Edit the .cpp file
+    to add private slots for each test function in your test. For more information
+    about creating Qt tests, see \l{Creating a Test}.
 
     \section2 Creating Google Tests
 
@@ -133,8 +132,7 @@
 
     \endlist
 
-    \QC creates the test in the \c{tests\auto} directory in the project
-    directory.
+    \QC creates the test in the specified project directory.
 
     \section1 Setting Up the Google C++ Testing Framework
 
