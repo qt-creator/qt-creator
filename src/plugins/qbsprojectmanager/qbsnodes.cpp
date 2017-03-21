@@ -42,6 +42,7 @@
 
 #include <QtDebug>
 #include <QDir>
+#include <QIcon>
 #include <QStyle>
 
 // ----------------------------------------------------------------------
@@ -63,10 +64,6 @@ static QIcon generateIcon(const QString &overlay)
 
 namespace QbsProjectManager {
 namespace Internal {
-
-QIcon QbsGroupNode::m_groupIcon;
-QIcon QbsProjectNode::m_projectIcon;
-QIcon QbsProductNode::m_productIcon;
 
 static QbsProjectNode *parentQbsProjectNode(ProjectExplorer::Node *node)
 {
@@ -263,9 +260,8 @@ QString QbsFileNode::displayName() const
 
 
 QbsFolderNode::QbsFolderNode(const Utils::FileName &folderPath, ProjectExplorer::NodeType nodeType,
-                             const QString &displayName, bool isGeneratedFilesFolder)
-    : ProjectExplorer::FolderNode(folderPath, nodeType, displayName),
-      m_isGeneratedFilesFolder(isGeneratedFilesFolder)
+                             const QString &displayName)
+    : ProjectExplorer::FolderNode(folderPath, nodeType, displayName)
 {
 }
 
@@ -300,10 +296,8 @@ QList<ProjectExplorer::ProjectAction> QbsBaseProjectNode::supportedActions(Proje
 QbsGroupNode::QbsGroupNode(const qbs::GroupData &grp, const QString &productPath) :
     QbsBaseProjectNode(Utils::FileName())
 {
-    if (m_groupIcon.isNull())
-        m_groupIcon = QIcon(QString::fromLatin1(Constants::QBS_GROUP_ICON));
-
-    setIcon(m_groupIcon);
+    static QIcon groupIcon = QIcon(QString(Constants::QBS_GROUP_ICON));
+    setIcon(groupIcon);
 
     m_productPath = productPath;
     m_qbsGroupData = grp;
@@ -379,10 +373,8 @@ QbsProductNode::QbsProductNode(const qbs::ProductData &prd) :
     QbsBaseProjectNode(Utils::FileName::fromString(prd.location().filePath())),
     m_qbsProductData(prd)
 {
-    if (m_productIcon.isNull())
-        m_productIcon = generateIcon(QString::fromLatin1(Constants::QBS_PRODUCT_OVERLAY_ICON));
-
-    setIcon(m_productIcon);
+    static QIcon productIcon = generateIcon(QString(Constants::QBS_PRODUCT_OVERLAY_ICON));
+    setIcon(productIcon);
 }
 
 bool QbsProductNode::showInSimpleTree() const
@@ -464,16 +456,6 @@ QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurations() c
     return result;
 }
 
-QbsGroupNode *QbsProductNode::findGroupNode(const QString &name)
-{
-    for (ProjectExplorer::Node *n : nodes()) {
-        if (QbsGroupNode *qn = dynamic_cast<QbsGroupNode *>(n))
-            if (qn->qbsGroupData().name() == name)
-                return qn;
-    }
-    return 0;
-}
-
 // --------------------------------------------------------------------
 // QbsProjectNode:
 // --------------------------------------------------------------------
@@ -481,15 +463,8 @@ QbsGroupNode *QbsProductNode::findGroupNode(const QString &name)
 QbsProjectNode::QbsProjectNode(const Utils::FileName &projectDirectory) :
     QbsBaseProjectNode(projectDirectory)
 {
-    if (m_projectIcon.isNull())
-        m_projectIcon = generateIcon(QString::fromLatin1(ProjectExplorer::Constants::FILEOVERLAY_QT));
-
-    setIcon(m_projectIcon);
-}
-
-QbsProjectNode::~QbsProjectNode()
-{
-    // do not delete m_project
+    static QIcon projectIcon = generateIcon(QString(ProjectExplorer::Constants::FILEOVERLAY_QT));
+    setIcon(projectIcon);
 }
 
 QbsProject *QbsProjectNode::project() const

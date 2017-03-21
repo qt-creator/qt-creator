@@ -29,15 +29,11 @@
 
 #include <qbs.h>
 
-#include <QIcon>
-
 namespace QbsProjectManager {
 namespace Internal {
 
-class FileTreeNode;
 class QbsNodeTreeBuilder;
 class QbsProject;
-class QbsProjectFile;
 
 // ----------------------------------------------------------------------
 // QbsFileNode:
@@ -56,14 +52,10 @@ class QbsFolderNode : public ProjectExplorer::FolderNode
 {
 public:
     QbsFolderNode(const Utils::FileName &folderPath, ProjectExplorer::NodeType nodeType,
-                  const QString &displayName, bool isGeneratedFilesFolder);
-
-    bool isGeneratedFilesFolder() const { return m_isGeneratedFilesFolder; }
+                  const QString &displayName);
 
 private:
     QList<ProjectExplorer::ProjectAction> supportedActions(ProjectExplorer::Node *node) const override;
-
-    const bool m_isGeneratedFilesFolder;
 };
 
 // ---------------------------------------------------------------------------
@@ -100,13 +92,9 @@ public:
 
     qbs::GroupData qbsGroupData() const { return m_qbsGroupData; }
 
-    QString productPath() const;
-
 private:
     qbs::GroupData m_qbsGroupData;
     QString m_productPath;
-
-    static QIcon m_groupIcon;
 };
 
 // --------------------------------------------------------------------
@@ -129,10 +117,7 @@ public:
     QList<ProjectExplorer::RunConfiguration *> runConfigurations() const override;
 
 private:
-    QbsGroupNode *findGroupNode(const QString &name);
-
     const qbs::ProductData m_qbsProductData;
-    static QIcon m_productIcon;
 };
 
 // ---------------------------------------------------------------------------
@@ -143,18 +128,15 @@ class QbsProjectNode : public QbsBaseProjectNode
 {
 public:
     explicit QbsProjectNode(const Utils::FileName &projectDirectory);
-    ~QbsProjectNode() override;
 
     virtual QbsProject *project() const;
     const qbs::Project qbsProject() const;
     const qbs::ProjectData qbsProjectData() const { return m_projectData; }
 
     bool showInSimpleTree() const override;
-
-    void setProjectData(const qbs::ProjectData &data);
+    void setProjectData(const qbs::ProjectData &data); // FIXME: Needed?
 
 private:
-    static QIcon m_projectIcon;
     qbs::ProjectData m_projectData;
 
     friend class QbsNodeTreeBuilder;
