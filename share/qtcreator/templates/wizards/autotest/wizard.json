@@ -13,7 +13,7 @@
     "options":
     [
         { "key": "ProjectFilePath",
-          "value": "%{JS: '%{BuildSystem}' == 'qmake' ? '%{ProFileName}' : '%{QbsFileName}' }"
+          "value": "%{JS: '%{BuildSystem}' == 'qmake' ? '%{ProFileName}' : ('%{BuildSystem}' == 'qbs' ? '%{QbsFileName}' : '%{CMakeFileName}') }"
         },
         { "key": "ProFileName",
           "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}"
@@ -21,6 +21,10 @@
         {
           "key": "QbsFileName",
           "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'qbs')}"
+        },
+        {
+          "key": "CMakeFileName",
+          "value": "%{ProjectDirectory}/CMakeLists.txt"
         },
         { "key": "IsTopLevelProject",
            "value": "%{JS: !'%{Exists:ProjectExplorer.Profile.Ids}' }"
@@ -159,6 +163,11 @@
                                 "trKey": "Qbs",
                                 "value": "qbs",
                                 "condition": "%{JS: [ %{Plugins} ].indexOf('QbsProjectManager') >= 0}"
+                            },
+                            {
+                                "trKey": "CMake",
+                                "value": "cmake",
+                                "condition": "%{JS: [ %{Plugins} ].indexOf('CMakeProjectManager') >= 0}"
                             }
                         ]
                     }
@@ -171,7 +180,8 @@
             "typeId": "Kits",
             "enabled": "%{IsTopLevelProject}",
             "data": {
-                 "projectFilePath": "%{ProjectFilePath}"
+                 "projectFilePath": "%{ProjectFilePath}",
+                 "requiredFeatures": [ "%{JS: ('%{BuildSystem}' == 'cmake' && '%{TestFrameWork}' == 'QtTest') ? 'QtSupport.Wizards.FeatureQt.5' : 'QtSupport.Wizards.FeatureQt' }" ]
             }
         },
         {
@@ -209,6 +219,13 @@
                     "source": "files/tst.qbs",
                     "target": "%{ProjectFilePath}",
                     "condition": "%{JS: '%{BuildSystem}' == 'qbs'}",
+                    "openInEditor": false,
+                    "openAsProject": true
+                },
+                {
+                    "source": "files/tst.txt",
+                    "target": "CMakeLists.txt",
+                    "condition": "%{JS: '%{BuildSystem}' == 'cmake'}",
                     "openInEditor": false,
                     "openAsProject": true
                 },
