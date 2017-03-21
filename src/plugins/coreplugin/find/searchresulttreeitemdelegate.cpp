@@ -67,19 +67,20 @@ void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionVi
 
     // icon
     QIcon icon = index.model()->data(index, ItemDataRoles::ResultIconRole).value<QIcon>();
-    if (!icon.isNull())
-        pixmapRect = QRect(0, 0, iconSize, iconSize);
+    if (!icon.isNull()) {
+        const QSize size = icon.actualSize(QSize(iconSize, iconSize));
+        pixmapRect = QRect(0, 0, size.width(), size.height());
+    }
 
     // text
     textRect = opt.rect.adjusted(0, 0, checkRect.width() + pixmapRect.width(), 0);
 
     // do layout
     doLayout(opt, &checkRect, &pixmapRect, &textRect, false);
-
     // ---- draw the items
     // icon
     if (!icon.isNull())
-        QItemDelegate::drawDecoration(painter, opt, pixmapRect, icon.pixmap(iconSize));
+        icon.paint(painter, pixmapRect, option.decorationAlignment);
 
     // line numbers
     int lineNumberAreaWidth = drawLineNumber(painter, opt, textRect, index);
