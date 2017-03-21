@@ -238,7 +238,7 @@ ExpandData FlatModel::expandDataForNode(const Node *node) const
 
 void FlatModel::handleProjectAdded(Project *project)
 {
-    Node *node = project->rootProjectNode();
+    Node *node = project->containerNode();
     m_toExpand.insert(expandDataForNode(node));
     if (WrapperNode *wrapper = wrapperForNode(node)) {
         wrapper->forFirstLevelChildren([this](WrapperNode *child) {
