@@ -422,7 +422,7 @@ public:
         painter->drawPixmap(x + 11, y + 3, pixmap("project", Theme::Welcome_ForegroundSecondaryColor));
 
         QString projectName = idx.data(Qt::DisplayRole).toString();
-        QString projectPath = idx.data(Qt::UserRole + 1).toString();
+        QString projectPath = idx.data(ProjectModel::FilePathRole).toString();
 
         painter->setPen(themeColor(Theme::Welcome_ForegroundSecondaryColor));
         painter->setFont(sizedFont(10, option.widget));
@@ -443,7 +443,7 @@ public:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &idx) const final
     {
         QString projectName = idx.data(Qt::DisplayRole).toString();
-        QString projectPath = idx.data(Qt::UserRole + 1).toString();
+        QString projectPath = idx.data(ProjectModel::FilePathRole).toString();
         QFontMetrics fm(sizedFont(13, option.widget));
         int width = std::max(fm.width(projectName), fm.width(projectPath)) + 36;
         return QSize(width, 48);
@@ -453,7 +453,7 @@ public:
         const QStyleOptionViewItem &, const QModelIndex &idx) final
     {
         if (ev->type() == QEvent::MouseButtonRelease) {
-            QString projectFile = idx.data(Qt::UserRole + 1).toString();
+            QString projectFile = idx.data(ProjectModel::FilePathRole).toString();
             ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
             return true;
         }
