@@ -307,9 +307,6 @@ void FormEditorView::documentMessagesChanged(const QList<DocumentMessage> &error
         formEditorWidget()->showErrorMessageBox(errors);
     else
         formEditorWidget()->hideErrorMessageBox();
-
-    if (!warnings.isEmpty())
-        formEditorWidget()->showWarningMessageBox(warnings);
 }
 
 void FormEditorView::customNotification(const AbstractView * /*view*/, const QString &identifier, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
