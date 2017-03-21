@@ -56,6 +56,7 @@ using namespace Core;
 using namespace Utils;
 
 const int LINK_HEIGHT = 35;
+const char PROJECT_BASE_ID[] = "Welcome.OpenRecentProject";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -84,6 +85,12 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
         return data.first;
     case PrettyFilePathRole:
         return Utils::withTildeHomePath(data.first);
+    case ShortcutRole: {
+        const Id projectBase = PROJECT_BASE_ID;
+        if (Command *cmd = ActionManager::command(projectBase.withSuffix(index.row() + 1)))
+            return cmd->keySequence().toString(QKeySequence::NativeText);
+        return QVariant();
+    }
     default:
         return QVariant();
     }
@@ -108,6 +115,26 @@ void ProjectModel::resetProjects()
 
 ///////////////////
 
+ProjectWelcomePage::ProjectWelcomePage()
+{
+    const int actionsCount = 9;
+    Context welcomeContext(Core::Constants::C_WELCOME_MODE);
+
+    const Id projectBase = PROJECT_BASE_ID;
+    const Id sessionBase = SESSION_BASE_ID;
+    for (int i = 1; i <= actionsCount; ++i) {
+        auto act = new QAction(tr("Open Session #%1").arg(i), this);
+        Command *cmd = ActionManager::registerAction(act, sessionBase.withSuffix(i), welcomeContext);
+        cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? tr("Ctrl+Meta+%1") : tr("Ctrl+Alt+%1")).arg(i)));
+        connect(act, &QAction::triggered, this, [this, i] { openSessionAt(i - 1); });
+
+        act = new QAction(tr("Open Recent Project #%1").arg(i), this);
+        cmd = ActionManager::registerAction(act, projectBase.withSuffix(i), welcomeContext);
+        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+%1").arg(i)));
+        connect(act, &QAction::triggered, this, [this, i] { openProjectAt(i - 1); });
+    }
+}
+
 Core::Id ProjectWelcomePage::id() const
 {
     return "Develop";
@@ -128,7 +155,21 @@ void ProjectWelcomePage::newProject()
 
 void ProjectWelcomePage::openProject()
 {
-     ProjectExplorerPlugin::openOpenProjectDialog();
+    ProjectExplorerPlugin::openOpenProjectDialog();
+}
+
+void ProjectWelcomePage::openSessionAt(int index)
+{
+    QTC_ASSERT(m_sessionModel, return);
+    m_sessionModel->switchToSession(m_sessionModel->sessionAt(index));
+}
+
+void ProjectWelcomePage::openProjectAt(int index)
+{
+    QTC_ASSERT(m_projectModel, return);
+    const QString projectFile = m_projectModel->data(m_projectModel->index(index, 0),
+                                                     ProjectModel::FilePathRole).toString();
+    ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
 }
 
 ///////////////////
@@ -160,6 +201,7 @@ protected:
     {
         return itemRect;
     }
+    virtual int shortcutRole() const = 0;
 
     bool helpEvent(QHelpEvent *ev, QAbstractItemView *view,
                    const QStyleOptionViewItem &option, const QModelIndex &idx) final
@@ -169,9 +211,7 @@ protected:
             return false;
         }
 
-        QString shortcut;
-        if (idx.row() < m_shortcuts.size())
-            shortcut = m_shortcuts.at(idx.row());
+        QString shortcut = idx.data(shortcutRole()).toString();
 
         QString name = idx.data(Qt::DisplayRole).toString();
         QString tooltipText;
@@ -187,8 +227,6 @@ protected:
         QToolTip::showText(ev->globalPos(), tooltipText, view);
         return true;
     }
-
-    QStringList m_shortcuts;
 };
 
 class SessionDelegate : public BaseDelegate
@@ -202,27 +240,9 @@ protected:
         const bool expanded = m_expandedSessions.contains(idx.data(Qt::DisplayRole).toString());
         return expanded ? itemRect.adjusted(0, 0, 0, -LINK_HEIGHT) : itemRect;
     }
+    int shortcutRole() const override { return SessionModel::ShortcutRole; }
 
 public:
-    SessionDelegate() {
-        const int actionsCount = 9;
-        Context welcomeContext(Core::Constants::C_WELCOME_MODE);
-
-        const Id sessionBase = "Welcome.OpenSession";
-        for (int i = 1; i <= actionsCount; ++i) {
-            auto act = new QAction(tr("Open Session #%1").arg(i), this);
-            Command *cmd = ActionManager::registerAction(act, sessionBase.withSuffix(i), welcomeContext);
-            cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? tr("Ctrl+Meta+%1") : tr("Ctrl+Alt+%1")).arg(i)));
-            m_shortcuts.append(cmd->keySequence().toString(QKeySequence::NativeText));
-
-//            connect(act, &QAction::triggered, this, [this, i] { openSessionTriggered(i-1); });
-            connect(cmd, &Command::keySequenceChanged, this, [this, i, cmd] {
-                m_shortcuts[i-1] = cmd->keySequence().toString(QKeySequence::NativeText);
-//                emit sessionsShortcutsChanged(m_sessionShortcuts);
-            });
-        }
-    }
-
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &idx) const final
     {
         static const QPixmap sessionIcon = pixmap("session", Theme::Welcome_ForegroundSecondaryColor);
@@ -393,27 +413,9 @@ private:
 class ProjectDelegate : public BaseDelegate
 {
     QString entryType() override { return tr("project", "Appears in \"Open project <name>\""); }
+    int shortcutRole() const override { return ProjectModel::ShortcutRole; }
 
 public:
-    ProjectDelegate()
-    {
-        const int actionsCount = 9;
-        Context welcomeContext(Core::Constants::C_WELCOME_MODE);
-
-        const Id projectBase = "Welcome.OpenRecentProject";
-        for (int i = 1; i <= actionsCount; ++i) {
-            auto act = new QAction(tr("Open Recent Project #%1").arg(i), this);
-            Command *cmd = ActionManager::registerAction(act, projectBase.withSuffix(i), welcomeContext);
-            cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+%1").arg(i)));
-            m_shortcuts.append(cmd->keySequence().toString(QKeySequence::NativeText));
-
-//            connect(act, &QAction::triggered, this, [this, i] { openRecentProjectTriggered(i-1); });
-            connect(cmd, &Command::keySequenceChanged, this, [this, i, cmd] {
-                m_shortcuts[i - 1] = cmd->keySequence().toString(QKeySequence::NativeText);
-            });
-        }
-    }
-
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &idx) const final
     {
         QRect rc = option.rect;
