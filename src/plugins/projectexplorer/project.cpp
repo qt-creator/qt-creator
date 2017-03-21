@@ -463,12 +463,13 @@ void Project::setRootProjectNode(ProjectNode *root)
 
     ProjectTree::applyTreeManager(root);
 
+    ProjectNode *oldNode = d->m_rootProjectNode;
     d->m_rootProjectNode = root;
     if (root)
-        d->m_rootProjectNode->setParentFolderNode(&d->m_containerNode);
-    ProjectTree::emitSubtreeChanged(d->m_rootProjectNode);
+        root->setParentFolderNode(&d->m_containerNode);
+    ProjectTree::emitSubtreeChanged(root);
 
-    delete d->m_rootProjectNode;
+    delete oldNode;
 }
 
 Target *Project::restoreTarget(const QVariantMap &data)
