@@ -188,7 +188,6 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
 bool QmlDesignerPlugin::delayedInitialize()
 {
-    integrateIntoQtCreator(d->mainWidget);
     // adding default path to item library plugins
     const QString pluginPath = Utils::HostOsInfo::isMacHost()
             ? QString(QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner")
@@ -210,6 +209,7 @@ bool QmlDesignerPlugin::delayedInitialize()
 
 void QmlDesignerPlugin::extensionsInitialized()
 {
+    integrateIntoQtCreator(d->mainWidget);
 }
 
 static QStringList allUiQmlFilesforCurrentProject(const Utils::FileName &fileName)
