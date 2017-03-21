@@ -645,7 +645,7 @@ int BinEditorWidget::dataLastIndexOf(const QByteArray &pattern, qint64 from, boo
     int block = from / m_blockSize;
     const int lowerBound = qMax(qint64(0), from - SearchStride);
     while (from > lowerBound) {
-        if (!requestDataAt(block * m_blockSize))
+        if (!requestDataAt(qint64(block) * m_blockSize))
             return -1;
         QByteArray data = blockData(block);
         ::memcpy(b + m_blockSize, b, trailing);
@@ -658,7 +658,7 @@ int BinEditorWidget::dataLastIndexOf(const QByteArray &pattern, qint64 from, boo
         if (pos >= 0)
             return pos + block * m_blockSize;
         --block;
-        from = block * m_blockSize + (m_blockSize-1) + trailing;
+        from = qint64(block) * m_blockSize + (m_blockSize-1) + trailing;
     }
     return lowerBound == 0 ? -1 : -2;
 }
