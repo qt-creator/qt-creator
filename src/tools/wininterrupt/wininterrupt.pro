@@ -8,12 +8,14 @@ include(../../qtcreatortool.pri)
 # TODO: No effect, currently?
 
 msvc {
-    QMAKE_CXXFLAGS_RELEASE    -= -MD
-    QMAKE_CXXFLAGS_DEBUG      -= -MDd
-    QMAKE_CXXFLAGS_RELEASE    += -MT
-    QMAKE_CXXFLAGS_DEBUG      += -MT
+    QMAKE_CFLAGS_RELEASE    -= -MD
+    QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO -= -MD
+    QMAKE_CFLAGS_DEBUG      -= -MDd
+    QMAKE_CFLAGS_RELEASE    += -MT
+    QMAKE_CFLAGS_DEBUG      += -MT
+    QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO += -MT
 } else {
-    QMAKE_CXXFLAGS            += -static
+    QMAKE_CFLAGS            += -static
 }
 
 SOURCES = wininterrupt.c
