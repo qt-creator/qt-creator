@@ -82,9 +82,9 @@ public:
 
     void setResourcePath(const QString &resourcePath);
 
-    void startDragAndDrop(QVariant itemLibId);
-
     void setModel(Model *model);
+
+    Q_INVOKABLE void startDragAndDrop(QVariant itemLibId);
 
 protected:
     void removeImport(const QString &name);

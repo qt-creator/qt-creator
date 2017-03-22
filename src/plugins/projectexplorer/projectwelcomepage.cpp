@@ -55,6 +55,8 @@
 using namespace Core;
 using namespace Utils;
 
+const int LINK_HEIGHT = 35;
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -154,13 +156,18 @@ class BaseDelegate : public QAbstractItemDelegate
 {
 protected:
     virtual QString entryType() = 0;
+    virtual QRect toolTipArea(const QRect &itemRect, const QModelIndex &) const
+    {
+        return itemRect;
+    }
 
     bool helpEvent(QHelpEvent *ev, QAbstractItemView *view,
                    const QStyleOptionViewItem &option, const QModelIndex &idx) final
     {
-        const int y = ev->pos().y();
-        if (y > option.rect.bottom() - 20)
+        if (!toolTipArea(option.rect, idx).contains(ev->pos())) {
+            QToolTip::hideText();
             return false;
+        }
 
         QString shortcut;
         if (idx.row() < m_shortcuts.size())
@@ -188,6 +195,13 @@ class SessionDelegate : public BaseDelegate
 {
 protected:
     QString entryType() override { return tr("session", "Appears in \"Open session <name>\""); }
+    QRect toolTipArea(const QRect &itemRect, const QModelIndex &idx) const override
+    {
+        // in expanded state bottom contains 'Clone', 'Rename', etc links, where the tool tip
+        // would be confusing
+        const bool expanded = m_expandedSessions.contains(idx.data(Qt::DisplayRole).toString());
+        return expanded ? itemRect.adjusted(0, 0, 0, -LINK_HEIGHT) : itemRect;
+    }
 
 public:
     SessionDelegate() {
@@ -312,7 +326,7 @@ public:
         QString sessionName = idx.data(Qt::DisplayRole).toString();
         if (m_expandedSessions.contains(sessionName)) {
             QStringList projects = SessionManager::projectsForSessionName(sessionName);
-            h += projects.size() * 40 + 35;
+            h += projects.size() * 40 + LINK_HEIGHT;
         }
         return QSize(380, h);
     }
@@ -408,7 +422,7 @@ public:
         painter->drawPixmap(x + 11, y + 3, pixmap("project", Theme::Welcome_ForegroundSecondaryColor));
 
         QString projectName = idx.data(Qt::DisplayRole).toString();
-        QString projectPath = idx.data(Qt::UserRole + 1).toString();
+        QString projectPath = idx.data(ProjectModel::FilePathRole).toString();
 
         painter->setPen(themeColor(Theme::Welcome_ForegroundSecondaryColor));
         painter->setFont(sizedFont(10, option.widget));
@@ -429,7 +443,7 @@ public:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &idx) const final
     {
         QString projectName = idx.data(Qt::DisplayRole).toString();
-        QString projectPath = idx.data(Qt::UserRole + 1).toString();
+        QString projectPath = idx.data(ProjectModel::FilePathRole).toString();
         QFontMetrics fm(sizedFont(13, option.widget));
         int width = std::max(fm.width(projectName), fm.width(projectPath)) + 36;
         return QSize(width, 48);
@@ -439,7 +453,7 @@ public:
         const QStyleOptionViewItem &, const QModelIndex &idx) final
     {
         if (ev->type() == QEvent::MouseButtonRelease) {
-            QString projectFile = idx.data(Qt::UserRole + 1).toString();
+            QString projectFile = idx.data(ProjectModel::FilePathRole).toString();
             ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
             return true;
         }

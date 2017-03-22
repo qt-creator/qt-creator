@@ -80,9 +80,6 @@ QString PxNodeUtilities::calcRelativePath(const ProjectExplorer::Node *node,
     case ProjectExplorer::NodeType::Project:
         nodePath = node->filePath().toString();
         break;
-    case ProjectExplorer::NodeType::Session:
-        QTC_ASSERT(false, return QString());
-        break;
     }
 
     return qmt::NameController::calcRelativePath(nodePath, anchorFolder);

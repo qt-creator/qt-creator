@@ -286,8 +286,6 @@ void FormEditorWidget::showWarningMessageBox(const QList<DocumentMessage> &warni
 
     errorWidget()->setWarnings(warnings);
     errorWidget()->setVisible(true);
-    m_graphicsView->setDisabled(true);
-    m_toolBox->setDisabled(true);
 }
 
 ZoomAction *FormEditorWidget::zoomAction() const

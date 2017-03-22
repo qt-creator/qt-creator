@@ -1033,6 +1033,12 @@ void EditorManagerPrivate::readSettings()
         d->m_autoSaveEnabled = qs->value(autoSaveEnabledKey).toBool();
         d->m_autoSaveInterval = qs->value(autoSaveIntervalKey).toInt();
     }
+
+    if (qs->contains(autoSuspendEnabledKey)) {
+        d->m_autoSuspendEnabled = qs->value(autoSuspendEnabledKey).toBool();
+        d->m_autoSuspendMinDocumentCount = qs->value(autoSuspendMinDocumentCountKey).toInt();
+    }
+
     updateAutoSave();
 }
 

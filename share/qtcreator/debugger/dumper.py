@@ -1494,12 +1494,49 @@ class DumperBase:
         return self.couldBeQObjectVTable(vtablePtr)
 
     def couldBeQObjectVTable(self, vtablePtr):
+        def getJumpAddress_x86(dumper, address):
+            relativeJumpCode = 0xe9
+            jumpCode = 0xff
+            data = dumper.readRawMemory(address, 6)
+            primaryOpcode = data[0]
+            if primaryOpcode == relativeJumpCode:
+                # relative jump on 32 and 64 bit with a 32bit offset
+                offset = int.from_bytes(data[1:5], byteorder='little')
+                return address + 5 + offset
+            if primaryOpcode == jumpCode:
+                if data[1] != 0x25: # check for known extended opcode
+                    return 0
+                # 0xff25 is a relative jump on 64bit and an absolute jump on 32 bit
+                if self.ptrSize() == 8:
+                    offset = int.from_bytes(data[2:6], byteorder='little')
+                    return address + 6 + offset
+                else:
+                    return int.from_bytes(data[2:6], byteorder='little')
+            return 0
+
+        # Do not try to extract a function pointer if there are no values to compare with
+        if self.qtCustomEventFunc == 0 and self.qtCustomEventPltFunc == 0:
+            return False
+
         try:
-            customEventFunc = self.extractPointer(vtablePtr + 9 * self.ptrSize())
+            customEventOffset = 8 if self.isMsvcTarget() else 9
+            customEventFunc = self.extractPointer(vtablePtr + customEventOffset * self.ptrSize())
         except:
             self.bump('nostruct-3')
             return False
 
+        if self.isWindowsTarget():
+            if customEventFunc in (self.qtCustomEventFunc, self.qtCustomEventPltFunc):
+                return True
+            # The vtable may point to a function that is just calling the customEvent function
+            customEventFunc = getJumpAddress_x86(self, customEventFunc)
+            if customEventFunc in (self.qtCustomEventFunc, self.qtCustomEventPltFunc):
+                return True
+            customEventFunc = self.extractPointer(customEventFunc)
+            if customEventFunc in (self.qtCustomEventFunc, self.qtCustomEventPltFunc):
+                return True
+            # If the object is defined in another module there may be another level of indirection
+            customEventFunc = getJumpAddress_x86(self, customEventFunc)
         return customEventFunc in (self.qtCustomEventFunc, self.qtCustomEventPltFunc)
 
 #    def extractQObjectProperty(objectPtr):
@@ -3120,10 +3157,6 @@ class DumperBase:
             val.ldata = self.ldata
             val.type = self.dumper.createType(typish)
             return val
-
-        def downcast(self):
-            self.check()
-            return self
 
         def address(self):
             self.check()

@@ -737,10 +737,15 @@ static GerritChangePtr parseSshOutput(const QJsonObject &object)
   }
 */
 
+static int restNumberValue(const QJsonObject &object)
+{
+    return object.value("_number").toInt();
+}
+
 static GerritChangePtr parseRestOutput(const QJsonObject &object, const GerritServer &server)
 {
     GerritChangePtr change(new GerritChange);
-    change->number = object.value("_number").toInt();
+    change->number = restNumberValue(object);
     change->url = QString("%1/%2").arg(server.url()).arg(change->number);
     change->title = object.value("subject").toString();
     change->owner = parseGerritUser(object.value("owner").toObject());
@@ -751,10 +756,11 @@ static GerritChangePtr parseRestOutput(const QJsonObject &object, const GerritSe
                                                 Qt::DateFormat::ISODate).toLocalTime();
     // Read current patch set.
     const QJsonObject patchSet = object.value("revisions").toObject().begin().value().toObject();
-    change->currentPatchSet.patchSetNumber = qMax(1, patchSet.value("number").toString().toInt());
-    change->currentPatchSet.ref = patchSet.value("ref").toString();
+    change->currentPatchSet.patchSetNumber = qMax(1, restNumberValue(patchSet));
+    const QJsonObject fetchInfo = patchSet.value("fetch").toObject().value("http").toObject();
+    change->currentPatchSet.ref = fetchInfo.value("ref").toString();
     // Replace * in ssh://*:29418/qt-creator/qt-creator with the hostname
-    change->currentPatchSet.url = patchSet.value("url").toString().replace('*', server.host);
+    change->currentPatchSet.url = fetchInfo.value("url").toString().replace('*', server.host);
     const QJsonObject labels = object.value("labels").toObject();
     for (auto it = labels.constBegin(), end = labels.constEnd(); it != end; ++it) {
         const QJsonArray all = it.value().toObject().value("all").toArray();

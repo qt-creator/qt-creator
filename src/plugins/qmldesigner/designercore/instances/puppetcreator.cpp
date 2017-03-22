@@ -66,6 +66,25 @@ static Q_LOGGING_CATEGORY(puppetBuild, "qtc.puppet.build")
 
 namespace QmlDesigner {
 
+class EventFilter : public QObject {
+
+public:
+    EventFilter()
+    {}
+
+    bool eventFilter(QObject *o, QEvent *event)
+    {
+        if (event->type() == QEvent::MouseButtonPress
+                || event->type() == QEvent::MouseButtonRelease
+                || event->type() == QEvent::KeyPress
+                || event->type() == QEvent::KeyRelease) {
+            return true;
+        }
+
+        return QObject::eventFilter(o, event);
+    }
+};
+
 QHash<Core::Id, PuppetCreator::PuppetType> PuppetCreator::m_qml2PuppetForKitPuppetHash;
 
 QByteArray PuppetCreator::qtHash() const
@@ -241,12 +260,23 @@ static QString idealProcessCount()
 bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
 {
     PuppetBuildProgressDialog progressDialog;
+    progressDialog.setParent(Core::ICore::mainWindow());
 
     m_compileLog.clear();
 
     Utils::TemporaryDirectory buildDirectory("qml-puppet-build");
 
     bool buildSucceeded = false;
+
+
+    /* Ensure the model dialog is shown and no events are delivered to the rest of Qt Creator. */
+    EventFilter eventFilter;
+    QCoreApplication::instance()->installEventFilter(&eventFilter);
+    progressDialog.show();
+    QCoreApplication::processEvents();
+    QCoreApplication::instance()->removeEventFilter(&eventFilter);
+    /* Now the modal dialog will block input to the rest of Qt Creator.
+       We can call process events without risking a mode change. */
 
     if (qtIsSupported()) {
         if (buildDirectory.isValid()) {

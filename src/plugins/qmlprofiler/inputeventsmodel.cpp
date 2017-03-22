@@ -84,6 +84,7 @@ QVariantMap InputEventsModel::details(int index) const
     switch (event.type) {
     case InputKeyPress:
         type = tr("Key Press");
+        // fallthrough
     case InputKeyRelease:
         if (type.isEmpty())
             type = tr("Key Release");
@@ -97,9 +98,11 @@ QVariantMap InputEventsModel::details(int index) const
         break;
     case InputMouseDoubleClick:
         type = tr("Double Click");
+        // fallthrough
     case InputMousePress:
         if (type.isEmpty())
             type = tr("Mouse Press");
+        // fallthrough
     case InputMouseRelease:
         if (type.isEmpty())
             type = tr("Mouse Release");
