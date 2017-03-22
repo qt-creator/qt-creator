@@ -160,7 +160,9 @@ class Dumper(DumperBase):
                 return self.createPointerType(targetType)
 
         if code == TypeCodeArray:
-            if nativeType.name().startswith('__fptr()'):
+            # cdb reports virtual function tables as arrays those ar handled separetly by
+            # the DumperBase. Declare those types as structs prevents a lookup to a none existing type
+            if nativeType.name().startswith('__fptr()') or nativeType.name().startswith('<gentype '):
                 code = TypeCodeStruct
             else:
                 targetType = self.lookupType(nativeType.targetName(), nativeType.moduleId())
