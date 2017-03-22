@@ -58,6 +58,14 @@ PyValue::PyValue(unsigned long index, CIDebugSymbolGroup *symbolGroup)
         valuesForSymbolGroup[symbolGroup].push_back(this);
 }
 
+PyValue::PyValue(const PyValue &other)
+    : m_index(other.m_index)
+    , m_symbolGroup(other.m_symbolGroup)
+{
+    if (m_symbolGroup)
+        valuesForSymbolGroup[m_symbolGroup].push_back(this);
+}
+
 PyValue::~PyValue()
 {
     if (m_symbolGroup)
