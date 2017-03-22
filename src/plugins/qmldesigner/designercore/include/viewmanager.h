@@ -95,6 +95,8 @@ public:
 
     void toggleStatesViewExpanded();
 
+    QString qmlJSEditorHelpId() const;
+
 private: // functions
     Q_DISABLE_COPY(ViewManager)
 

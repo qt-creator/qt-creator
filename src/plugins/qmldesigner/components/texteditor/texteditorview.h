@@ -69,6 +69,8 @@ public:
     WidgetInfo widgetInfo() override;
     QString contextHelpId() const override;
 
+    QString qmlJSEditorHelpId() const;
+
     TextEditor::BaseTextEditor *textEditor();
 
     bool changeToMoveTool();
