@@ -487,12 +487,20 @@ def qdump__QFile(d, value):
     # 9fc0965 and a373ffcd change the layout of the private structure
     qtVersion = d.qtVersion()
     is32bit = d.ptrSize() == 4
-    if qtVersion >= 0x050600:
+    if qtVersion >= 0x050700:
         if d.isWindowsTarget():
             if d.isMsvcTarget():
                 offset = 184 if is32bit else 248
             else:
-                offset = 164 if is32bit else 248
+                offset = 172 if is32bit else 248
+        else:
+            offset = 168 if is32bit else 248
+    elif qtVersion >= 0x050600:
+        if d.isWindowsTarget():
+            if d.isMsvcTarget():
+                offset = 184 if is32bit else 248
+            else:
+                offset = 180 if is32bit else 248
         else:
             offset = 168 if is32bit else 248
     elif qtVersion >= 0x050500:

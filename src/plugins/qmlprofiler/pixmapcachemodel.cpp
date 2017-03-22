@@ -208,9 +208,10 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
 
         PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
         if (state.cacheState == ToBeCached) {
-            m_lastCacheSizeEvent = updateCacheCount(m_lastCacheSizeEvent, pixmapStartTime,
-                                          state.size.width() * state.size.height(), newEvent,
-                                          event.typeIndex());
+            m_lastCacheSizeEvent = updateCacheCount(
+                        m_lastCacheSizeEvent, pixmapStartTime,
+                        (qint64) state.size.width() * (qint64) state.size.height(),
+                        newEvent, event.typeIndex());
             state.cacheState = Cached;
         }
         break;
@@ -230,7 +231,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
             } else if (!uncache && i->cacheState == Uncached) {
                 newEvent.sizeIndex = i - pixmap.sizes.begin();
                 if (i->size.isValid()) {
-                    pixSize = i->size.width() * i->size.height();
+                    pixSize = (qint64) i->size.width() * i->size.height();
                     i->cacheState = Cached;
                 } else {
                     i->cacheState = ToBeCached;
@@ -247,7 +248,7 @@ void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type
                 if (uncache && (i->cacheState == Cached || i->cacheState == ToBeCached)) {
                     newEvent.sizeIndex = i - pixmap.sizes.begin();
                     if (i->size.isValid())
-                        pixSize = -i->size.width() * i->size.height();
+                        pixSize = (qint64) -i->size.width() * i->size.height();
                     i->cacheState = Uncached;
                     break;
                 } else if (!uncache && i->cacheState == Uncacheable) {

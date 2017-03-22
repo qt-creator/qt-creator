@@ -148,6 +148,8 @@ void setupProjectNode(QbsProjectManager::Internal::QbsProjectNode *node, const q
         node->setDisplayName(prjData.name());
     else
         node->setDisplayName(node->project()->displayName());
+
+    node->setProjectData(prjData);
 }
 
 QSet<QString> referencedBuildSystemFiles(const qbs::ProjectData &data)

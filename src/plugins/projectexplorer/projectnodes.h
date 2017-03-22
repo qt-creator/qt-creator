@@ -40,14 +40,12 @@ namespace Utils { class MimeType; }
 
 namespace ProjectExplorer {
 class RunConfiguration;
-class SessionManager;
 
 enum class NodeType : quint16 {
     File = 1,
     Folder,
     VirtualFolder,
-    Project,
-    Session
+    Project
 };
 
 // File types common for qt projects
@@ -275,8 +273,6 @@ private:
 class PROJECTEXPLORER_EXPORT ProjectNode : public FolderNode
 {
 public:
-    QString vcsTopic() const;
-
     virtual bool canAddSubProject(const QString &proFilePath) const;
     virtual bool addSubProject(const QString &proFile);
     virtual bool removeSubProject(const QString &proFilePath);
@@ -298,24 +294,7 @@ public:
     const ProjectNode *asProjectNode() const final { return this; }
 
 protected:
-    // this is just the in-memory representation, a subclass
-    // will add the persistent stuff
     explicit ProjectNode(const Utils::FileName &projectFilePath);
-
-    friend class SessionManager;
-};
-
-// Documentation inside.
-class PROJECTEXPLORER_EXPORT SessionNode : public FolderNode
-{
-public:
-    SessionNode();
-
-private:
-    QList<ProjectAction> supportedActions(Node *node) const final;
-    QString addFileFilter() const final;
-
-    bool showInSimpleTree() const final;
 };
 
 } // namespace ProjectExplorer

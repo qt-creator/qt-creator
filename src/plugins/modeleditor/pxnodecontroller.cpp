@@ -198,8 +198,6 @@ void PxNodeController::addExplorerNode(const ProjectExplorer::Node *node,
         menu->popup(QCursor::pos());
         break;
     }
-    case ProjectExplorer::NodeType::Session:
-        break;
     }
 }
 

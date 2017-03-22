@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
     "id": "R.AutoTest",
     "category": "H.Project",
-    "trDescription": "Creates a new project including an auto test skeleton.",
+    "trDescription": "Creates a new unit test project. Unit tests allow you to verify that the code is fit for use and that there are no regressions.",
     "trDisplayName": "Auto Test Project",
     "trDisplayCategory": "Other Project",
     "icon": "autotest_24.png",
@@ -13,7 +13,7 @@
     "options":
     [
         { "key": "ProjectFilePath",
-          "value": "%{JS: '%{BuildSystem}' == 'qmake' ? '%{ProFileName}' : '%{QbsFileName}' }"
+          "value": "%{JS: '%{BuildSystem}' == 'qmake' ? '%{ProFileName}' : ('%{BuildSystem}' == 'qbs' ? '%{QbsFileName}' : '%{CMakeFileName}') }"
         },
         { "key": "ProFileName",
           "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}"
@@ -21,6 +21,10 @@
         {
           "key": "QbsFileName",
           "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'qbs')}"
+        },
+        {
+          "key": "CMakeFileName",
+          "value": "%{ProjectDirectory}/CMakeLists.txt"
         },
         { "key": "IsTopLevelProject",
            "value": "%{JS: !'%{Exists:ProjectExplorer.Profile.Ids}' }"
@@ -46,7 +50,7 @@
             "typeId": "Project",
             "data":
             {
-                "trDescription": "This wizard creates a simple project with an additional auto test skeleton."
+                "trDescription": "This wizard creates a simple unit test project."
             }
         },
         {
@@ -134,26 +138,6 @@
                     }
                 },
                 {
-                    "name": "BuildAutoTests",
-                    "trDisplayName": "Build auto tests",
-                    "type": "ComboBox",
-                    "data":
-                    {
-                        "index": 0,
-                        "items":
-                        [
-                            {
-                                "trKey": "always",
-                                "value": "always"
-                            },
-                            {
-                                "trKey": "debug only",
-                                "value": "debug"
-                            }
-                        ]
-                    }
-                },
-                {
                     "name": "GTestRepository",
                     "trDisplayName": "Googletest repository:",
                     "visible": "%{JS: '%{TestFrameWork}' === 'GTest'}",
@@ -179,6 +163,11 @@
                                 "trKey": "Qbs",
                                 "value": "qbs",
                                 "condition": "%{JS: [ %{Plugins} ].indexOf('QbsProjectManager') >= 0}"
+                            },
+                            {
+                                "trKey": "CMake",
+                                "value": "cmake",
+                                "condition": "%{JS: [ %{Plugins} ].indexOf('CMakeProjectManager') >= 0}"
                             }
                         ]
                     }
@@ -191,7 +180,8 @@
             "typeId": "Kits",
             "enabled": "%{IsTopLevelProject}",
             "data": {
-                 "projectFilePath": "%{ProjectFilePath}"
+                 "projectFilePath": "%{ProjectFilePath}",
+                 "requiredFeatures": [ "%{JS: ('%{BuildSystem}' == 'cmake' && '%{TestFrameWork}' == 'QtTest') ? 'QtSupport.Wizards.FeatureQt.5' : 'QtSupport.Wizards.FeatureQt' }" ]
             }
         },
         {
@@ -207,97 +197,53 @@
             "data":
             [
                 {
-                    "source": "files/tmp.pro",
-                    "target": "%{ProFileName}",
-                    "condition": "%{JS: '%{BuildSystem}' == 'qmake'}",
-                    "openAsProject": true
-                },
-                {
-                    "source": "files/tmp.qbs",
-                    "target": "%{QbsFileName}",
-                    "condition": "%{JS: '%{BuildSystem}' == 'qbs'}",
-                    "openAsProject": true
-                },
-                {
-                    "source": "files/src.pro",
-                    "target": "src/src.pro",
-                    "condition": "%{JS: '%{BuildSystem}' == 'qmake'}",
-                    "openInEditor": false
-                },
-                {
-                    "source": "files/src.qbs",
-                    "target": "src/src.qbs",
-                    "condition": "%{JS: '%{BuildSystem}' == 'qbs'}",
-                    "openInEditor": false
-                },
-                {
-                    "source": "files/main.cpp",
-                    "target": "src/%{MainCppName}",
-                    "openInEditor": true
-                },
-                {
-                    "source": "files/tests.pro",
-                    "target": "tests/tests.pro",
-                    "condition": "%{JS: '%{BuildSystem}' == 'qmake'}",
-                    "openInEditor": false
-                },
-                {
-                    "source": "files/tests.qbs",
-                    "target": "tests/tests.qbs",
-                    "condition": "%{JS: '%{BuildSystem}' == 'qbs'}",
-                    "openInEditor": false
-                },
-                {
-                    "source": "files/auto.pro",
-                    "target": "tests/auto/auto.pro",
-                    "condition": "%{JS: '%{BuildSystem}' == 'qmake'}",
-                    "openInEditor": false
-                },
-                {
-                    "source": "files/auto.qbs",
-                    "target": "tests/auto/auto.qbs",
-                    "condition": "%{JS: '%{BuildSystem}' == 'qbs'}",
-                    "openInEditor": false
-                },
-                {
                     "source": "files/gtest_dependency.pri",
-                    "target": "tests/auto/gtest_dependency.pri",
+                    "target": "gtest_dependency.pri",
                     "condition": "%{JS: '%{TestFrameWork}' == 'GTest' && '%{BuildSystem}' == 'qmake'}",
                     "openInEditor": false
                 },
                 {
                     "source": "files/googlecommon.js",
-                    "target": "tests/auto/googlecommon.js",
+                    "target": "googlecommon.js",
                     "condition": "%{JS: '%{TestFrameWork}' == 'GTest' && '%{BuildSystem}' == 'qbs'}",
                     "openInEditor": false
                 },
                 {
                     "source": "files/tst.pro",
-                    "target": "%{JS: 'tests/auto/' + '%{TestCaseName}/%{TestCaseName}'.toLowerCase() + '.pro' }",
+                    "target": "%{ProjectFilePath}",
                     "condition": "%{JS: '%{BuildSystem}' == 'qmake'}",
-                    "openInEditor": false
+                    "openInEditor": false,
+                    "openAsProject": true
                 },
                 {
                     "source": "files/tst.qbs",
-                    "target": "%{JS: 'tests/auto/' + '%{TestCaseName}/%{TestCaseName}'.toLowerCase() + '.qbs' }",
+                    "target": "%{ProjectFilePath}",
                     "condition": "%{JS: '%{BuildSystem}' == 'qbs'}",
-                    "openInEditor": false
+                    "openInEditor": false,
+                    "openAsProject": true
+                },
+                {
+                    "source": "files/tst.txt",
+                    "target": "CMakeLists.txt",
+                    "condition": "%{JS: '%{BuildSystem}' == 'cmake'}",
+                    "openInEditor": false,
+                    "openAsProject": true
                 },
                 {
                     "source": "files/tst_src.h",
-                    "target": "%{JS: 'tests/auto/' + '%{TestCaseName}/'.toLowerCase() + '%{TestCaseFileWithHeaderSuffix}' }",
+                    "target": "%{TestCaseFileWithHeaderSuffix}",
                     "condition": "%{JS: '%{TestFrameWork}' == 'GTest'}",
                     "openInEditor": true
                 },
                 {
                     "source": "files/tst_src.cpp",
-                    "target": "%{JS: 'tests/auto/' + '%{TestCaseName}/'.toLowerCase() + '%{TestCaseFileWithCppSuffix}' }",
+                    "target": "%{TestCaseFileWithCppSuffix}",
                     "condition": "%{JS: '%{TestFrameWork}' == 'QtTest'}",
                     "openInEditor": true
                 },
                 {
                     "source": "files/tst_main.cpp",
-                    "target": "%{JS: 'tests/auto/' + '%{TestCaseName}'.toLowerCase() + '/%{MainCppName}' }",
+                    "target": "%{MainCppName}",
                     "condition": "%{JS: '%{TestFrameWork}' == 'GTest'}",
                     "openInEditor": true
                 },

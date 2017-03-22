@@ -313,9 +313,9 @@ QStringList CMakeProject::files(FilesMode fileMode) const
     if (ProjectNode *rpn = rootProjectNode()) {
         rpn->forEachNode([&](const FileNode *fn) {
             const bool isGenerated = fn->isGenerated();
-            if (fileMode == Project::SourceFiles && !isGenerated)
+            if ((fileMode & Project::SourceFiles) && !isGenerated)
                 result.append(fn->filePath().toString());
-            if (fileMode == Project::GeneratedFiles && isGenerated)
+            if ((fileMode & Project::GeneratedFiles) && isGenerated)
                 result.append(fn->filePath().toString());
         });
     }

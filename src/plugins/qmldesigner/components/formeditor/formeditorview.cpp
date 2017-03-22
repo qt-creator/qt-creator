@@ -301,15 +301,12 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
     m_scene->update();
 }
 
-void FormEditorView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings)
+void FormEditorView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &)
 {
     if (!errors.isEmpty())
         formEditorWidget()->showErrorMessageBox(errors);
     else
         formEditorWidget()->hideErrorMessageBox();
-
-    if (!warnings.isEmpty())
-        formEditorWidget()->showWarningMessageBox(warnings);
 }
 
 void FormEditorView::customNotification(const AbstractView * /*view*/, const QString &identifier, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)

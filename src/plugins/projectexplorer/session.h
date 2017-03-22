@@ -44,7 +44,6 @@ class Target;
 class BuildConfiguration;
 class DeployConfiguration;
 class Node;
-class SessionNode;
 
 enum class SetActive { Cascade, NoCascade };
 
@@ -113,10 +112,7 @@ public:
     // NBS rewrite projectOrder (dependency management)
     static QList<Project *> projectOrder(const Project *project = 0);
 
-    static SessionNode *sessionNode();
-
     static Project *projectForNode(Node *node);
-    static Node *nodeForProject(Project *project);
     static Node *nodeForFile(const Utils::FileName &fileName);
     static Project *projectForFile(const Utils::FileName &fileName);
 
@@ -126,8 +122,7 @@ public:
     static bool loadingSession();
 
 signals:
-    void projectAdded(ProjectExplorer::Project *project);
-    void aboutToRemoveProject(ProjectExplorer::Project *project);
+    void projectAdded(ProjectExplorer::Project *project); void aboutToRemoveProject(ProjectExplorer::Project *project);
     void projectDisplayNameChanged(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
 
@@ -145,7 +140,6 @@ signals: // for tests only
 private:
     static void saveActiveMode(Core::Id mode);
     void clearProjectFileCache();
-    void updateProjectTree(Project *pro);
     static void configureEditor(Core::IEditor *editor, const QString &fileName);
     static void markSessionFileDirty(bool makeDefaultVirginDirty = true);
     static void configureEditors(Project *project);

@@ -214,9 +214,12 @@ bool Node::isEnabled() const
 
 QList<ProjectAction> Node::supportedActions(Node *node) const
 {
-    QList<ProjectAction> list = parentFolderNode()->supportedActions(node);
-    list.append(InheritedFromParent);
-    return list;
+    if (FolderNode *folder = parentFolderNode()) {
+        QList<ProjectAction> list = folder->supportedActions(node);
+        list.append(InheritedFromParent);
+        return list;
+    }
+    return {};
 }
 
 void Node::setEnabled(bool enabled)
@@ -702,18 +705,6 @@ ProjectNode::ProjectNode(const Utils::FileName &projectFilePath) :
     setDisplayName(projectFilePath.fileName());
 }
 
-QString ProjectNode::vcsTopic() const
-{
-    const QFileInfo fi = filePath().toFileInfo();
-    const QString dir = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-
-    if (Core::IVersionControl *const vc =
-            Core::VcsManager::findVersionControlForDirectory(dir))
-        return vc->vcsTopic(dir);
-
-    return QString();
-}
-
 bool ProjectNode::canAddSubProject(const QString &proFilePath) const
 {
     Q_UNUSED(proFilePath)
@@ -795,30 +786,6 @@ ProjectNode *ProjectNode::projectNode(const Utils::FileName &file) const
 bool FolderNode::isEmpty() const
 {
     return m_nodes.isEmpty();
-}
-
-/*!
-  \class ProjectExplorer::SessionNode
-*/
-
-SessionNode::SessionNode() :
-    FolderNode(Utils::FileName::fromString("session"), NodeType::Session)
-{ }
-
-QList<ProjectAction> SessionNode::supportedActions(Node *node) const
-{
-    Q_UNUSED(node)
-    return QList<ProjectAction>();
-}
-
-bool SessionNode::showInSimpleTree() const
-{
-    return true;
-}
-
-QString SessionNode::addFileFilter() const
-{
-    return QString::fromLatin1("*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;");
 }
 
 } // namespace ProjectExplorer

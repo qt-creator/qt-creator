@@ -589,7 +589,7 @@ void ClassItem::updateMembers(const Style *style)
         bool addSpace = false;
         if (currentVisibility)
             *currentVisibility = member.visibility();
-        if (member.group() != currentGroup) {
+        if (currentGroup && member.group() != *currentGroup) {
             *text += QString(QStringLiteral("[%1]")).arg(member.group());
             addNewline = true;
             *currentGroup = member.group();

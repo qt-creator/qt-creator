@@ -1570,35 +1570,53 @@
 
             \list
 
-                \li \uicontrol {All Projects} searches files matching the
-                    defined file pattern in all currently open projects.
-
-                    For example, to search for a string only in \c {.cpp}
-                    and \c {.h} files, enter in \uicontrol {File pattern}
-                    \c {*.cpp,*.h}.
+                \li \uicontrol {All Projects} searches from all currently open
+                    projects.
 
                     \image qtcreator-search-allprojects.png
 
-                \li \uicontrol {Current Project} searches files matching the
-                    defined file pattern only in the project you are currently
-                    editing.
+                \li \uicontrol {Current Project} searches from the project you
+                    are currently editing.
 
-                \li \uicontrol {Files in File System} recursively searches files
-                    matching the defined file pattern in the selected directory.
+                \li \uicontrol {Files in File System} recursively searches from
+                    the selected directory.
 
                     \image qtcreator-search-filesystem.png
 
-                    Select the \uicontrol {Use Git Grep} check box to use Git to
-                    only search tracked files in the Git work tree. To restrict
-                    the search to the HEAD, a tag, a local or remote branch, or
-                    a commit hash, enter a reference in the field. Leave the
-                    field empty to search through the file system.
+                    In the \uicontrol {Search engine} field, select the search
+                    engine to use:
 
-                \li \uicontrol {Current File} searches only the current file.
+                    \list
+                        \li Select \uicontrol Internal to use the \QC search
+                            engine.
 
-                \li \uicontrol {Open Documents} searches all open files.
+                        \li Select \uicontrol {Git Grep} to use Git to only
+                            search tracked files in the Git work tree. To
+                            restrict the search to the HEAD, a tag, a local or
+                            remote branch, or a commit hash, enter a reference.
+                            Leave the field empty to search through the file
+                            system.
+
+                        \li Select \uicontrol {Silver Searcher} to use the
+                            experimental Silver Searcher plugin. For more
+                            information, see \l{Enabling Silver Searcher}.
+
+                    \endlist
+
+                \li \uicontrol {Current File} searches only from the current
+                    file.
+
+                \li \uicontrol {Open Documents} searches from all open files.
 
             \endlist
+
+        \li In the \uicontrol {File pattern} field, specify file patterns to
+            restrict the search to files that match the pattern. For example, to
+            search for a string only in \c {.cpp} and \c {.h} files, enter
+            \c {*.cpp,*.h}.
+
+        \li In the \uicontrol {Exclusion pattern} field, specify file patterns
+            to omit files from the search.
 
         \li Enter the text you are looking for and click \uicontrol Search.
 
@@ -1628,6 +1646,32 @@
     \note You can use \uicontrol {Advanced Find} also to search for symbols. For
     more information, see \l{Finding Symbols}.
 
+    \section1 Enabling Silver Searcher
+
+    You can use Silver Searcher as a search engine in \QC if you install
+    Silver Searcher on the development PC and enable the experimental plugin.
+
+    To use Silver Searcher:
+
+    \list 1
+
+        \li Download and install Silver Searcher from
+            \l {https://geoff.greer.fm/ag/}{The Silver Searcher} or
+            \l {https://github.com/ggreer/the_silver_searcher}{GitHub}.
+
+            You might have to build Silver Searcher from sources for some
+            platforms.
+
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol {Utilities} > \uicontrol {SilverSearcher} to enable the
+            plugin.
+
+        \li Restart \QC to be able to use the plugin.
+
+        \li When searching, select \uicontrol {Silver Searcher} in the
+            \uicontrol {Search engine} field.
+
+    \endlist
 */
 
 

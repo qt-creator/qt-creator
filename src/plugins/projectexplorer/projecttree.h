@@ -70,6 +70,9 @@ public:
 
     void collapseAll();
 
+    // for nodes to emit signals, do not call unless you are a node
+    static void emitSubtreeChanged(FolderNode *node);
+
 signals:
     void currentProjectChanged(ProjectExplorer::Project *project);
     void currentNodeChanged();
@@ -79,9 +82,6 @@ signals:
 
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
                                 ProjectExplorer::Node *node);
-
-public: // for nodes to emit signals, do not call unless you are a node
-    static void emitSubtreeChanged(FolderNode *node);
 
 private:
     void sessionChanged();

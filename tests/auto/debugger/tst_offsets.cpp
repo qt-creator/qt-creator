@@ -146,12 +146,22 @@ void tst_offsets::offsets_data()
 
     const int qtVersion = QT_VERSION;
 
-    if (qtVersion >= 0x50600)
+    if (qtVersion >= 0x50700)
 #ifdef Q_OS_WIN
 #   ifdef Q_CC_MSVC
         OFFSET_TEST(QFilePrivate, fileName) << 184 << 248;
 #   else // MinGW
-        OFFSET_TEST(QFilePrivate, fileName) << 164 << 248;
+        OFFSET_TEST(QFilePrivate, fileName) << 172 << 248;
+#   endif
+#else
+        OFFSET_TEST(QFilePrivate, fileName) << 168 << 248;
+#endif
+    else if (qtVersion >= 0x50600)
+#ifdef Q_OS_WIN
+#   ifdef Q_CC_MSVC
+        OFFSET_TEST(QFilePrivate, fileName) << 184 << 248;
+#   else // MinGW
+        OFFSET_TEST(QFilePrivate, fileName) << 180 << 248;
 #   endif
 #else
         OFFSET_TEST(QFilePrivate, fileName) << 168 << 248;

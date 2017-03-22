@@ -192,7 +192,7 @@ IEditor *FindInFilesSilverSearcher::openEditor(const SearchResultItem & /*item*/
     return 0;
 }
 
-void FindInFilesSilverSearcher::readSettings(QSettings */*settings*/)
+void FindInFilesSilverSearcher::readSettings(QSettings * /*settings*/)
 {
 }
 
