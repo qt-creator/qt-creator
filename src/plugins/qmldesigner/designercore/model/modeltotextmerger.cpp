@@ -272,7 +272,7 @@ void ModelToTextMerger::applyChanges()
             if (!success) {
                 m_rewriterView->enterErrorState(QStringLiteral("Error rewriting document"));
 
-                if (true || DebugRewriteActions) {
+                if (DebugRewriteActions) {
                     qDebug() << "*** QML source code: ***";
                     qDebug() << qPrintable(textModifier->text());
                     qDebug() << "*** End of QML source code. ***";
