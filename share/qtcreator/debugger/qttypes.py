@@ -763,7 +763,7 @@ def qdump__QHostAddress(d, value):
             (ipString, scopeId, a4, pad, a6, protocol, isParsed) \
                 = d.split('{QString}{QString}{quint32}I16sI{bool}', dd)
     elif qtVersion >= 0x050600: # 5.6.0 at f3aabb42
-        if d.ptrSize() == 8 or d.isMsvcTarget():
+        if d.ptrSize() == 8 or d.isWindowsTarget():
             (ipString, scopeId, a4, pad, a6, protocol, isParsed) \
                 = d.split('{QString}{QString}{quint32}I16sI{bool}', dd)
         else:
