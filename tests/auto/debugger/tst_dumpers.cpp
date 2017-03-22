@@ -6152,7 +6152,6 @@ void tst_Dumpers::dumper_data()
                     "Derived d;\n"
                     "Base *b = &d;\n"
                     "unused(&d, &b);\n")
-               + NoCdbEngine // FIXME
                + Check("b.@1.a", "a", "21", "int")
                + Check("b.b", "b", "42", "int");
 
@@ -6185,8 +6184,6 @@ void tst_Dumpers::dumper_data()
                     "unused(&c);\n"
                     "Base2 *b2 = &d; // This has the right address\n"
                     "unused(&b2);\n")
-                + NoCdbEngine // FIXME
-
                 + Check("c.b2.@1.foo", "42", "int")
                 + Check("c.b2.@2.bar", "43", "int")
                 + Check("c.b2.baz", "84", "int")

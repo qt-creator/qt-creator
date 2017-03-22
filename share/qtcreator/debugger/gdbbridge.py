@@ -1050,11 +1050,12 @@ class Dumper(DumperBase):
         n = ("'%sQWidget'" % ns) if lenns else 'QWidget'
         self.reportResult('selected="0x%x",expr="(%s*)0x%x"' % (p, n, p), args)
 
-    def nativeValueDereferencePointer(self, nativeValue):
-        deref = nativeValue.dereference()
+    def nativeValueDereferencePointer(self, value):
+        deref = value.nativeValue.dereference()
         return self.fromNativeValue(deref.cast(deref.dynamic_type))
 
-    def nativeValueDereferenceReference(self, nativeValue):
+    def nativeValueDereferenceReference(self, value):
+        nativeValue = value.nativeValue
         return self.fromNativeValue(nativeValue.cast(nativeValue.type.target()))
 
     def nativeDynamicTypeName(self, address, baseType):

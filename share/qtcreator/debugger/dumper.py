@@ -3105,13 +3105,13 @@ class DumperBase:
                         val.laddress = self.laddress
                     val.type = self.dumper.nativeDynamicType(val.laddress, self.type.dereference())
                 else:
-                    val = self.dumper.nativeValueDereferenceReference(self.nativeValue)
+                    val = self.dumper.nativeValueDereferenceReference(self)
             elif self.type.code == TypeCodePointer:
                 if self.nativeValue is None:
                     val.laddress = self.pointer()
                     val.type = self.dumper.nativeDynamicType(val.laddress, self.type.dereference())
                 else:
-                    val = self.dumper.nativeValueDereferencePointer(self.nativeValue)
+                    val = self.dumper.nativeValueDereferencePointer(self)
             else:
                 error("WRONG: %s" % self.type.code)
             #warn("DEREFERENCING FROM: %s" % self)
