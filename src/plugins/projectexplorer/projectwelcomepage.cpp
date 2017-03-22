@@ -234,7 +234,8 @@ public:
         //const bool hovered = option.state & QStyle::State_MouseOver;
         const bool hovered = option.rect.contains(mousePos);
         const bool expanded = m_expandedSessions.contains(sessionName);
-        painter->fillRect(rc, hovered || expanded ? hoverColor : backgroundColor);
+        if (hovered)
+            painter->fillRect(expanded ? rc : rc.adjusted(0, 0, -24, 0), hoverColor);
 
         const int x = rc.x();
         const int x1 = x + 36;
@@ -242,6 +243,12 @@ public:
         const int firstBase = y + 18;
 
         painter->drawPixmap(x + 11, y + 6, sessionIcon);
+
+        if (hovered && !expanded) {
+            const QRect arrowRect = rc.adjusted(rc.width() - 24, 0, 0, 0);
+            if (arrowRect.contains(mousePos))
+                painter->fillRect(arrowRect, hoverColor);
+        }
 
         if (hovered || expanded) {
             static const QPixmap arrowUp = pixmap("expandarrow",Theme::Welcome_ForegroundSecondaryColor);
@@ -337,7 +344,7 @@ public:
     {
         if (ev->type() == QEvent::MouseButtonRelease) {
             const QPoint pos = static_cast<QMouseEvent *>(ev)->pos();
-            const QRect rc(option.rect.right() - 20, option.rect.top(), 20, 30);
+            const QRect rc(option.rect.right() - 24, option.rect.top(), 24, 30);
             const QString sessionName = idx.data(Qt::DisplayRole).toString();
             if (rc.contains(pos)) {
                 // The expand/collapse "button".
