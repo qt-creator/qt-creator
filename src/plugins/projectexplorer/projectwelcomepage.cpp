@@ -225,8 +225,6 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &idx) const final
     {
-        static const QPixmap arrowUp = pixmap("expandarrow",Theme::Welcome_ForegroundSecondaryColor);
-        static const QPixmap arrowDown = QPixmap::fromImage(arrowUp.toImage().mirrored(false, true));
         static const QPixmap sessionIcon = pixmap("session", Theme::Welcome_ForegroundSecondaryColor);
 
         const QRect rc = option.rect;
@@ -243,10 +241,13 @@ public:
         const int y = rc.y();
         const int firstBase = y + 18;
 
-        painter->drawPixmap(x + 11, y + 5, sessionIcon);
+        painter->drawPixmap(x + 11, y + 6, sessionIcon);
 
-        if (hovered || expanded)
-            painter->drawPixmap(rc.right() - 16, y + 5, expanded ? arrowDown : arrowUp);
+        if (hovered || expanded) {
+            static const QPixmap arrowUp = pixmap("expandarrow",Theme::Welcome_ForegroundSecondaryColor);
+            static const QPixmap arrowDown = QPixmap::fromImage(arrowUp.toImage().mirrored(false, true));
+            painter->drawPixmap(rc.right() - 20, y + 7, expanded ? arrowDown : arrowUp);
+        }
 
         if (idx.row() < 9) {
             painter->setPen(foregroundColor2);
@@ -264,10 +265,10 @@ public:
         if (isActiveSession && !isDefaultVirgin)
             fullSessionName = ProjectWelcomePage::tr("%1 (current session)").arg(fullSessionName);
 
-        const QRect switchRect = QRect(x, y, rc.width() - 20, firstBase + 3 - y);
+        const QRect switchRect = QRect(x, y, rc.width() - 24, firstBase + 3 - y);
         const bool switchActive = switchRect.contains(mousePos);
         painter->setPen(linkColor);
-        painter->setFont(sizedFont(12, option.widget, switchActive));
+        painter->setFont(sizedFont(13, option.widget, switchActive));
         painter->drawText(x1, firstBase, fullSessionName);
         if (switchActive)
             m_activeSwitchToRect = switchRect;
@@ -416,11 +417,11 @@ public:
 
         const int x = rc.x();
         const int y = rc.y();
-        const int firstBase = y + 15;
-        const int secondBase = firstBase + 15;
+        const int firstBase = y + 18;
+        const int secondBase = firstBase + 19;
 
         static const QPixmap projectIcon = pixmap("project", Theme::Welcome_ForegroundSecondaryColor);
-        painter->drawPixmap(x + 11, y + 3, projectIcon);
+        painter->drawPixmap(x + 11, y + 6, projectIcon);
 
         QString projectName = idx.data(Qt::DisplayRole).toString();
         QString projectPath = idx.data(ProjectModel::FilePathRole).toString();
@@ -432,11 +433,11 @@ public:
             painter->drawText(x + 3, firstBase, QString::number(idx.row() + 1));
 
         painter->setPen(themeColor(Theme::Welcome_LinkColor));
-        painter->setFont(sizedFont(12, option.widget, hovered));
+        painter->setFont(sizedFont(13, option.widget, hovered));
         painter->drawText(x + 36, firstBase, projectName);
 
         painter->setPen(themeColor(Theme::Welcome_ForegroundPrimaryColor));
-        painter->setFont(sizedFont(12, option.widget));
+        painter->setFont(sizedFont(13, option.widget));
         QString pathWithTilde = Utils::withTildeHomePath(QDir::toNativeSeparators(projectPath));
         painter->drawText(x + 36, secondBase, pathWithTilde);
     }
@@ -512,11 +513,11 @@ public:
         openButton->setOnClicked([] { ProjectExplorerPlugin::openOpenProjectDialog(); });
 
         auto sessionsLabel = new QLabel(this);
-        sessionsLabel->setFont(sizedFont(15, this));
+        sessionsLabel->setFont(sizedFont(16, this));
         sessionsLabel->setText(ProjectWelcomePage::tr("Sessions"));
 
         auto recentProjectsLabel = new QLabel(this);
-        recentProjectsLabel->setFont(sizedFont(15, this));
+        recentProjectsLabel->setFont(sizedFont(16, this));
         recentProjectsLabel->setText(ProjectWelcomePage::tr("Recent Projects"));
 
         auto sessionsList = new TreeView(this);
