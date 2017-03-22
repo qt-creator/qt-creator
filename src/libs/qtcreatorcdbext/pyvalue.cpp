@@ -54,12 +54,14 @@ PyValue::PyValue(unsigned long index, CIDebugSymbolGroup *symbolGroup)
     : m_index(index)
     , m_symbolGroup(symbolGroup)
 {
-    valuesForSymbolGroup[symbolGroup].push_back(this);
+    if (m_symbolGroup)
+        valuesForSymbolGroup[symbolGroup].push_back(this);
 }
 
 PyValue::~PyValue()
 {
-    valuesForSymbolGroup[m_symbolGroup].remove(this);
+    if (m_symbolGroup)
+        valuesForSymbolGroup[m_symbolGroup].remove(this);
 }
 
 std::string PyValue::name() const
