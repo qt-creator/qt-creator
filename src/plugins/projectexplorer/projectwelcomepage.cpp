@@ -411,15 +411,16 @@ public:
         QRect rc = option.rect;
 
         const bool hovered = option.widget->isActiveWindow() && option.state & QStyle::State_MouseOver;
-        QColor color = themeColor(hovered ? Theme::Welcome_HoverColor : Theme::Welcome_BackgroundColor);
-        painter->fillRect(rc, color);
+        if (hovered)
+            painter->fillRect(rc, themeColor(Theme::Welcome_HoverColor));
 
         const int x = rc.x();
         const int y = rc.y();
         const int firstBase = y + 15;
         const int secondBase = firstBase + 15;
 
-        painter->drawPixmap(x + 11, y + 3, pixmap("project", Theme::Welcome_ForegroundSecondaryColor));
+        static const QPixmap projectIcon = pixmap("project", Theme::Welcome_ForegroundSecondaryColor);
+        painter->drawPixmap(x + 11, y + 3, projectIcon);
 
         QString projectName = idx.data(Qt::DisplayRole).toString();
         QString projectPath = idx.data(ProjectModel::FilePathRole).toString();
