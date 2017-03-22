@@ -644,10 +644,12 @@ bool QmlItemNode::isInStackedContainer() const
 
 void QmlItemNode::setSize(const QSizeF &size)
 {
-    if (!hasBindingProperty("width") && !anchors().instanceHasAnchor(AnchorLineRight))
+    if (!hasBindingProperty("width") && !(anchors().instanceHasAnchor(AnchorLineRight)
+                                          && anchors().instanceHasAnchor(AnchorLineLeft)))
         setVariantProperty("width", qRound(size.width()));
 
-    if (!hasBindingProperty("height") && !anchors().instanceHasAnchor(AnchorLineBottom))
+    if (!hasBindingProperty("height") && !(anchors().instanceHasAnchor(AnchorLineBottom)
+                                           && anchors().instanceHasAnchor(AnchorLineTop)))
         setVariantProperty("height", qRound(size.height()));
 }
 
