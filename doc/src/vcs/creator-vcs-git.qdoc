@@ -292,11 +292,6 @@
     If your Git project uses Gerrit for code reviews, you can view your changes
     in \QC.
 
-    Select \uicontrol Tools > \uicontrol Options > \uicontrol {Version Control}
-    > \uicontrol Gerrit to specify the connection to the Gerrit server.
-
-    \image qtcreator-gerrit-options.png
-
     To push committed changes to Gerrit, select \uicontrol Tools >
     \uicontrol Git > \uicontrol {Remote Repository} >
     \uicontrol {Push to Gerrit}.
@@ -318,6 +313,17 @@
     To check out the change in a headless state, select \uicontrol Checkout.
 
     To refresh the list of changes, select \uicontrol Refresh.
+
+    The \uicontrol Remote field lists the remotes of the current repository that
+    are detected as Gerrit servers. Select \uicontrol Tools > \uicontrol Options
+    > \uicontrol {Version Control} > \uicontrol Gerrit to specify a fallback
+    connection to a Gerrit server over SSH. The Gerrit REST interface and the
+    \l{https://curl.haxx.se/}{curl} tool are used for HTTP connections.
+
+    Select the \uicontrol HTTPS check box to prepend \c https to the Gerrit URL
+    if Gerrit does not provide it.
+
+    \image qtcreator-gerrit-options.png
 
     \section1 Working with Git Tools
 
