@@ -349,7 +349,7 @@ QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractPrope
         return QmlRefactoring::ScriptBinding;
 
     Q_ASSERT(false); //Cannot convert property type
-    return (QmlRefactoring::PropertyType) -1;
+    return QmlRefactoring::Invalid;
 }
 
 PropertyNameList ModelToTextMerger::propertyOrder()
