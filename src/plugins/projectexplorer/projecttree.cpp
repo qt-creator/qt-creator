@@ -323,7 +323,7 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
     } else {
         switch (node->nodeType()) {
         case NodeType::Project:
-            if (node->parentFolderNode())
+            if (!node->parentFolderNode())
                 contextMenu = Core::ActionManager::actionContainer(Constants::M_PROJECTCONTEXT)->menu();
             else
                 contextMenu = Core::ActionManager::actionContainer(Constants::M_SUBPROJECTCONTEXT)->menu();
