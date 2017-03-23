@@ -112,10 +112,16 @@ private:
         label->setTextFormat(Qt::RichText);
         label->setText(text);
         label->setTextInteractionFlags(Qt::TextBrowserInteraction);
-        // Using "setWordWrap(true)" alone will wrap the text already for small
-        // widths, so do not require word wrapping until we hit limits.
-        if (m_displayHints.limitWidth && label->sizeHint().width() > widthLimit()) {
-            label->setMaximumWidth(widthLimit());
+
+        if (m_displayHints.limitWidth) {
+            const int limit = widthLimit();
+            // Using "setWordWrap(true)" alone will wrap the text already for small
+            // widths, so do not require word wrapping until we hit limits.
+            if (label->sizeHint().width() > limit) {
+                label->setMaximumWidth(limit);
+                label->setWordWrap(true);
+            }
+        } else {
             label->setWordWrap(true);
         }
 
@@ -141,7 +147,7 @@ private:
     QString htmlText(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics)
     {
         // For debugging, add: style='border-width:1px;border-color:black'
-        QString text = "<table cellspacing='0' cellpadding='0'>";
+        QString text = "<table cellspacing='0' cellpadding='0' width='100%'>";
 
         foreach (const ClangBackEnd::DiagnosticContainer &diagnostic, diagnostics)
             text.append(tableRows(diagnostic));
