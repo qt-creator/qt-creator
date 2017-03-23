@@ -488,6 +488,8 @@ void ServerModeReader::extractCMakeInputsData(const QVariantMap &data)
     QTC_ASSERT(src == m_parameters.sourceDirectory, return);
     QDir srcDir(src.toString());
 
+    m_cmakeFiles.clear();
+
     const QVariantList buildFiles = data.value("buildFiles").toList();
     for (const QVariant &bf : buildFiles) {
         const QVariantMap &section = bf.toMap();
