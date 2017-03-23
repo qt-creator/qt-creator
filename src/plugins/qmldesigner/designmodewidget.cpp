@@ -169,21 +169,6 @@ void DesignModeWidget::toggleRightSidebar()
         m_rightSideBar->setVisible(!m_rightSideBar->isVisible());
 }
 
-void DesignModeWidget::toggleSidebars()
-{
-    if (m_initStatus == Initializing)
-        return;
-
-    m_showSidebars = !m_showSidebars;
-
-    if (m_leftSideBar)
-        m_leftSideBar->setVisible(m_showSidebars);
-    if (m_rightSideBar)
-        m_rightSideBar->setVisible(m_showSidebars);
-    if (m_bottomSideBar)
-        m_bottomSideBar->setVisible(m_showSidebars);
-}
-
 void DesignModeWidget::readSettings()
 {
     QSettings *settings = Core::ICore::settings();
