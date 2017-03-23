@@ -30,12 +30,9 @@
 // **********************************************************************
 
 /*!
-    \contentspage {Qt Creator Manual}
-    \previouspage creator-vcs-cvs.html
     \page creator-vcs-fossil.html
-    \nextpage creator-vcs-git.html
 
-    \title Using Fossil
+    \title Qt Creator Fossil Plugin Manual
 
     Fossil is an open source distributed version control system, designed
     and developed by the creator of SQLite. A stand-alone Fossil executable
@@ -43,17 +40,21 @@
     wiki, and built-in web server. Fossil is available for Linux, Windows,
     and \macos.
 
+    To use Fossil from \QC, you must install and configure it, as described in
+    the following sections.
+
     \section1 Configuring Fossil
 
     \list 1
-        \li Download the \l{http://fossil-scm.org}{Fossil SCM client} and install
-            the \c fossil executable file in your \c PATH.
+        \li Download the \l{http://fossil-scm.org}{Fossil SCM client} and
+            install the \c fossil executable file in your \c PATH.
 
-        \li Create or designate a directory to store local Fossil repositories and
-           remote clones. For example: \c ~/fossils/qt.
+        \li Create or designate a directory to store local Fossil repositories
+            and remote clones. For example: \c ~/fossils/qt.
 
-        \li Configure \uicontrol {Version Control Options} for the Fossil plugin to use
-           the designated directory as \uicontrol {Local Repositories Default path}.
+        \li Configure \uicontrol {Version Control Options} for the Fossil plugin
+            to use the designated directory as
+            \uicontrol {Local Repositories Default path}.
     \endlist
 
     Now Fossil should become available as a VCS choice to create new local
@@ -63,8 +64,9 @@
     \section1 Additional Fossil Functions
 
     In addition to the standard version control system functions described in
-    \l{Using Common Functions}, the \uicontrol Fossil submenu contains
+    \l {Using Version Control Systems}, the \uicontrol Fossil submenu contains
     the following items:
+
     \table
         \header
             \li Menu Item
