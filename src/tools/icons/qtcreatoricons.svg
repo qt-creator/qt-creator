@@ -4188,22 +4188,19 @@
          x="473"
          style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none" />
       <path
-         style="fill:#000000"
-         d="m 475,580 h 13 v 1 h -13 z"
-         id="path5905"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="ccccc" />
-      <path
          sodipodi:nodetypes="ccccccccc"
          inkscape:connector-curvature="0"
          d="m 475.5,576 3,3 3,-3 z m 2.5,0 v -4 h 1 v 4 z"
          style="fill:#000000"
          id="path4774-4" />
       <path
-         id="path5907-4-74"
+         id="path5700"
+         style="fill:#000000;fill-opacity:1"
+         d="m 485,582 h 3 v 1 h -3 z m 0,-4 h 3 v 1 h -3 z m 0,-4 h 3 v 1 h -3 z m 0,2 h 3 v 1 h -3 z m 0,-4 h 3 v 1 h -3 z m -10,8 h 13 v 1 h -13 z" />
+      <path
          style="fill:#707070"
-         d="m 483,572 h 5 v 1 h -5 z m 0,4 h 5 v 1 h -5 z m 0,-2 h 5 v 1 h -5 z m 0,4 h 5 v 1 h -5 z m 0,4 h 5 v 1 h -5 z m -8,-12 h 13 v 1 h -13 z"
-         inkscape:connector-curvature="0" />
+         d="m 475,570 h 13 v 1 h -13 z"
+         id="path5907-4-74" />
     </g>
     <use
        x="0"
