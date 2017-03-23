@@ -116,38 +116,42 @@ void FlameGraphViewTest::testContextMenu()
         targetHeight = (testMenu.height() + prevHeight) / 2;
     }
 
-    QTimer timer;
-    timer.setInterval(50);
-    timer.start();
-
-    connect(&timer, &QTimer::timeout, this, [&]() {
-        auto activePopup = qApp->activePopupWidget();
-        if (!activePopup || !activePopup->windowHandle()->isExposed())
-            return;
-        QTest::mouseMove(activePopup, QPoint(targetWidth, targetHeight));
-        QTest::mouseClick(activePopup, Qt::LeftButton, Qt::NoModifier,
-                          QPoint(targetWidth, targetHeight));
-
-        if (!manager.isRestrictedToRange()) {
-            // click somewhere else to remove the menu and return to outer function
-            QTest::mouseClick(qApp->activePopupWidget(), Qt::LeftButton, Qt::NoModifier,
-                              QPoint(500, 500));
-        }
-    });
-
     QTest::mouseMove(&view, QPoint(250, 250));
     QSignalSpy spy(&view, SIGNAL(showFullRange()));
 
-    QContextMenuEvent event(QContextMenuEvent::Mouse, QPoint(250, 250));
-    QVERIFY(qApp->notify(&view, &event));
+    QTimer timer;
+    timer.setInterval(50);
+    int menuClicks = 0;
+
+    connect(&timer, &QTimer::timeout, this, [&]() {
+        auto activePopup = qApp->activePopupWidget();
+        if (!activePopup || !activePopup->windowHandle()->isExposed()) {
+            QContextMenuEvent *event = new QContextMenuEvent(QContextMenuEvent::Mouse,
+                                                             QPoint(250, 250));
+            qApp->postEvent(&view, event);
+            return;
+        }
+
+        QTest::mouseMove(activePopup, QPoint(targetWidth, targetHeight));
+        QTest::mouseClick(activePopup, Qt::LeftButton, Qt::NoModifier,
+                          QPoint(targetWidth, targetHeight));
+        ++menuClicks;
+
+        if (!manager.isRestrictedToRange()) {
+            // click somewhere else to remove the menu and return to outer function
+            QTest::mouseMove(activePopup, QPoint(-10, -10));
+            QTest::mouseClick(activePopup, Qt::LeftButton, Qt::NoModifier, QPoint(-10, -10));
+        }
+    });
+
+    timer.start();
+    QTRY_VERIFY(menuClicks > 0);
     QCOMPARE(spy.count(), 0);
-
     manager.restrictToRange(1, 10);
-
-    QVERIFY(qApp->notify(&view, &event));
-
-    if (spy.count() != 1)
-        QTRY_COMPARE(spy.count(), 1);
+    QVERIFY(manager.isRestrictedToRange());
+    QTRY_COMPARE(spy.count(), 1);
+    QVERIFY(menuClicks > 1);
+    timer.stop();
 }
 
 void FlameGraphViewTest::cleanupTestCase()
