@@ -458,7 +458,7 @@ public:
         , m_replaceDotForArrow(static_cast<CppAssistProposalModel *>(model)->m_replaceDotForArrow)
     {}
 
-    bool isCorrective() const override { return m_replaceDotForArrow; }
+    bool isCorrective(TextEditorWidget *) const override { return m_replaceDotForArrow; }
     void makeCorrection(TextEditorWidget *editorWidget) override;
 
 private:
