@@ -110,7 +110,7 @@ public:
 
     void fillWithZero()
     {
-        std::array<T, MaxSize>::fill(T(0));
+        std::array<T, MaxSize>::fill(T{});
     }
 
 private:
