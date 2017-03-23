@@ -74,7 +74,9 @@ SwitchSplitTabWidget::SwitchSplitTabWidget(QWidget *parent)
 
     QToolButton *horizontalButton = new QToolButton;
     horizontalButton->setObjectName("centralTabBar");
-    horizontalButton->setIcon(Utils::Icons::SPLIT_HORIZONTAL.icon());
+    horizontalButton->setIcon(Utils::Icon({{QLatin1String(":/qmldesigner/images/spliteditorvertically.png"),
+                                            Utils::Theme::TextColorNormal}}, Utils::Icon::Tint).icon());
+    horizontalButton->setIconSize(QSize(8, 16));
     connect(horizontalButton, &QToolButton::clicked, [this] () {
         m_splitter->setOrientation(Qt::Vertical);
         updateSplitterSizes();
@@ -82,7 +84,9 @@ SwitchSplitTabWidget::SwitchSplitTabWidget(QWidget *parent)
     });
     QToolButton *verticalButton = new QToolButton;
     verticalButton->setObjectName("centralTabBar");
-    verticalButton->setIcon(Utils::Icons::SPLIT_VERTICAL.icon());
+    verticalButton->setIcon(Utils::Icon({{QLatin1String(":/qmldesigner/images/spliteditorhorizontally.png"),
+                                          Utils::Theme::TextColorNormal}}, Utils::Icon::Tint).icon());
+    verticalButton->setIconSize(QSize(8, 16));
     connect(verticalButton, &QToolButton::clicked, [this] () {
         m_splitter->setOrientation(Qt::Horizontal);
         updateSplitterSizes();
