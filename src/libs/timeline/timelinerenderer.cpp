@@ -70,10 +70,8 @@ TimelineRenderer::TimelineRenderer(QQuickItem *parent) :
 
 void TimelineRenderer::TimelineRendererPrivate::resetCurrentSelection()
 {
-    currentSelection.startTime = -1;
-    currentSelection.endTime = -1;
-    currentSelection.row = -1;
-    currentSelection.eventIndex = -1;
+    currentEventIndex = -1;
+    currentRow = -1;
 }
 
 TimelineRenderState *TimelineRenderer::TimelineRendererPrivate::findRenderState()
@@ -182,7 +180,7 @@ void TimelineRenderer::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(TimelineRenderer);
     d->findCurrentSelection(event->pos().x(), event->pos().y(), width());
-    setSelectedItem(d->currentSelection.eventIndex);
+    setSelectedItem(d->currentEventIndex);
 }
 
 void TimelineRenderer::mouseMoveEvent(QMouseEvent *event)
@@ -195,10 +193,10 @@ void TimelineRenderer::hoverMoveEvent(QHoverEvent *event)
     Q_D(TimelineRenderer);
     if (!d->selectionLocked) {
         d->findCurrentSelection(event->pos().x(), event->pos().y(), width());
-        if (d->currentSelection.eventIndex != -1)
-            setSelectedItem(d->currentSelection.eventIndex);
+        if (d->currentEventIndex != -1)
+            setSelectedItem(d->currentEventIndex);
     }
-    if (d->currentSelection.eventIndex == -1)
+    if (d->currentEventIndex == -1)
         event->setAccepted(false);
 }
 
@@ -229,6 +227,88 @@ void TimelineRenderer::wheelEvent(QWheelEvent *event)
     }
 }
 
+TimelineRenderer::TimelineRendererPrivate::MatchResult
+TimelineRenderer::TimelineRendererPrivate::checkMatch(MatchParameters *params, int index,
+                                                      qint64 itemStart, qint64 itemEnd)
+{
+    const qint64 offset = qAbs(itemEnd - params->exactTime) + qAbs(itemStart - params->exactTime);
+    if (offset >= params->bestOffset)
+        return NoMatch;
+
+    // match
+    params->bestOffset = offset;
+    currentEventIndex = index;
+
+    // Exact match. If we can get better than this, then we have multiple overlapping
+    // events in one row. There is no point in sorting those out as you cannot properly
+    // discern them anyway.
+    return (itemEnd >= params->exactTime && itemStart <= params->exactTime)
+            ? ExactMatch : ApproximateMatch;
+}
+
+TimelineRenderer::TimelineRendererPrivate::MatchResult
+TimelineRenderer::TimelineRendererPrivate::matchForward(MatchParameters *params, int index)
+{
+    if (index < 0)
+        return NoMatch;
+
+    if (index >= model->count())
+        return Cutoff;
+
+    if (model->row(index) != currentRow)
+        return NoMatch;
+
+    const qint64 itemEnd = model->endTime(index);
+    if (itemEnd < params->startTime)
+        return NoMatch;
+
+    const qint64 itemStart = model->startTime(index);
+    if (itemStart > params->endTime)
+        return Cutoff;
+
+    // Further iteration will only increase the startOffset.
+    if (itemStart - params->exactTime >= params->bestOffset)
+        return Cutoff;
+
+    return checkMatch(params, index, itemStart, itemEnd);
+}
+
+TimelineRenderer::TimelineRendererPrivate::MatchResult
+TimelineRenderer::TimelineRendererPrivate::matchBackward(MatchParameters *params, int index)
+{
+    if (index < 0)
+        return Cutoff;
+
+    if (index >= model->count())
+        return NoMatch;
+
+    if (model->row(index) != currentRow)
+        return NoMatch;
+
+    const qint64 itemStart = model->startTime(index);
+    if (itemStart > params->endTime)
+        return NoMatch;
+
+    // There can be small events that don't reach the cursor position after large events
+    // that do but are in a different row. In that case, the parent index will be valid and will
+    // point to the large event. If that is also outside the range, we are really done.
+    const qint64 itemEnd = model->endTime(index);
+    if (itemEnd < params->startTime) {
+        const int parentIndex = model->parentIndex(index);
+        const qint64 parentEnd = parentIndex == -1 ? itemEnd : model->endTime(parentIndex);
+        return (parentEnd < params->startTime) ? Cutoff : NoMatch;
+    }
+
+    if (params->exactTime - itemStart >= params->bestOffset) {
+        // We cannot get better anymore as the startTimes are totally ordered.
+        // Thus, the startOffset will only get bigger and we're only adding a
+        // positive number (end offset) in checkMatch() when comparing with bestOffset.
+        return Cutoff;
+    }
+
+    return checkMatch(params, index, itemStart, itemEnd);
+}
+
 void TimelineRenderer::TimelineRendererPrivate::findCurrentSelection(int mouseX, int mouseY,
                                                                      int width)
 {
@@ -239,67 +319,48 @@ void TimelineRenderer::TimelineRendererPrivate::findCurrentSelection(int mouseX,
     if (duration <= 0)
         return;
 
+    MatchParameters params;
+
     // Make the "selected" area 3 pixels wide by adding/subtracting 1 to catch very narrow events.
-    qint64 startTime = (mouseX - 1) * duration / width + zoomer->windowStart();
-    qint64 endTime = (mouseX + 1) * duration / width + zoomer->windowStart();
-    qint64 exactTime = (startTime + endTime) / 2;
-    int row = rowFromPosition(mouseY);
+    params.startTime = (mouseX - 1) * duration / width + zoomer->windowStart();
+    params.endTime = (mouseX + 1) * duration / width + zoomer->windowStart();
+    params.exactTime = (params.startTime + params.endTime) / 2;
+    const int row = rowFromPosition(mouseY);
 
     // already covered? Only make sure d->selectedItem is correct.
-    if (currentSelection.eventIndex != -1 &&
-            exactTime >= currentSelection.startTime &&
-            exactTime < currentSelection.endTime &&
-            row == currentSelection.row) {
+    if (currentEventIndex != -1 &&
+            params.exactTime >= model->startTime(currentEventIndex) &&
+            params.exactTime < model->endTime(currentEventIndex) &&
+            row == currentRow) {
         return;
     }
 
-    // find if there's items in the time range
-    int eventFrom = model->firstIndex(startTime);
-    int eventTo = model->lastIndex(endTime);
+    currentRow = row;
+    currentEventIndex = -1;
 
-    currentSelection.eventIndex = -1;
-    if (eventFrom == -1 || eventTo < eventFrom || eventTo >= model->count())
+    const int middle = model->bestIndex(params.exactTime);
+    if (middle == -1)
         return;
 
-    // find if we are in the right column
-    qint64 bestOffset = std::numeric_limits<qint64>::max();
-    for (int i=eventTo; i>=eventFrom; --i) {
-        if (model->row(i) != row)
-            continue;
+    params.bestOffset = std::numeric_limits<qint64>::max();
+    const qint64 itemStart = model->startTime(middle);
+    const qint64 itemEnd = model->endTime(middle);
+    if (model->row(middle) == row && itemEnd >= params.startTime && itemStart <= params.endTime) {
+        if (checkMatch(&params, middle, itemStart, itemEnd) == ExactMatch)
+            return;
+    }
 
-        // There can be small events that don't reach the cursor position after large events
-        // that do but are in a different row.
-        qint64 itemEnd = model->endTime(i);
-        if (itemEnd < startTime)
-            continue;
-
-        qint64 itemStart = model->startTime(i);
-
-        qint64 startOffset = exactTime - itemStart;
-        if (startOffset >= bestOffset) {
-            // We cannot get better anymore as the startTimes are totally ordered and we're moving
-            // backwards. Thus, the startOffset will only get bigger and we're only adding a
-            // positive number (end offset) below when comparing with bestOffset.
-            break;
+    MatchResult forward = NoMatch;
+    MatchResult backward = NoMatch;
+    for (int offset = 1; forward != Cutoff || backward != Cutoff; ++offset) {
+        if (backward != Cutoff
+                && (backward = matchBackward(&params, middle - offset)) == ExactMatch) {
+            return;
         }
-
-        qint64 offset = qAbs(itemEnd - exactTime) + qAbs(startOffset);
-        if (offset >= bestOffset)
-            continue;
-
-        // match
-        currentSelection.eventIndex = i;
-        currentSelection.startTime = itemStart;
-        currentSelection.endTime = itemEnd;
-        currentSelection.row = row;
-
-        // Exact match. If we can get better than this, then we have multiple overlapping
-        // events in one row. There is no point in sorting those out as you cannot properly
-        // discern them anyway.
-        if (itemEnd >= exactTime && itemStart <= exactTime)
-            break;
-
-        bestOffset = offset;
+        if (forward != Cutoff
+                && (forward = matchForward(&params, middle + offset)) == ExactMatch) {
+            return;
+        }
     }
 }
 
