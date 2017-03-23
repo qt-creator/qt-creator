@@ -173,7 +173,7 @@ private:
         const QString text = QString::fromLatin1(
             "  <tr>"
             "    <td align='left'><b>%1</b></td>"
-            "    <td align='right'><font color='gray'>%2</font></td>"
+            "    <td align='right'>&nbsp;<font color='gray'>%2</font></td>"
             "  </tr>")
             .arg(diagnostic.category(), diagnostic.enableOption());
 
