@@ -647,7 +647,7 @@ void DesignerActionManager::createDefaultDesignerActions()
 
     addDesignerAction(new ModelNodeAction(
                           raiseCommandId, raiseDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/lower.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/raise.png", Utils::Theme::IconsBaseColor}}).icon(),
                           raiseToolTip,
                           stackCategory,
                           QKeySequence(),
@@ -658,7 +658,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           lowerCommandId,
                           lowerDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/raise.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/lower.png", Utils::Theme::IconsBaseColor}}).icon(),
                           lowerToolTip,
                           stackCategory,
                           QKeySequence(),
