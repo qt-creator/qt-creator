@@ -52,7 +52,6 @@ UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *set
                                  "HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
     ui->uncrusifyFilePath->setExpectedKind(Utils::PathChooser::File);
     ui->uncrusifyFilePath->setPromptDialogFilter(tr("Uncrustify file (*.cfg)"));
-    ui->uncrusifyFilePath->setFileName(Utils::FileName::fromString(QDir::toNativeSeparators(QDir::home().absoluteFilePath("uncrustify.cfg"))));
 
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
     ui->command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
