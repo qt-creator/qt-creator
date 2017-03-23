@@ -73,6 +73,7 @@ SwitchSplitTabWidget::SwitchSplitTabWidget(QWidget *parent)
     m_tabBarBackground->layout()->addWidget(m_tabBar);
 
     QToolButton *horizontalButton = new QToolButton;
+    horizontalButton->setObjectName("centralTabBar");
     horizontalButton->setIcon(Utils::Icons::SPLIT_HORIZONTAL.icon());
     connect(horizontalButton, &QToolButton::clicked, [this] () {
         m_splitter->setOrientation(Qt::Vertical);
@@ -80,6 +81,7 @@ SwitchSplitTabWidget::SwitchSplitTabWidget(QWidget *parent)
         selectFakeTab();
     });
     QToolButton *verticalButton = new QToolButton;
+    verticalButton->setObjectName("centralTabBar");
     verticalButton->setIcon(Utils::Icons::SPLIT_VERTICAL.icon());
     connect(verticalButton, &QToolButton::clicked, [this] () {
         m_splitter->setOrientation(Qt::Horizontal);
