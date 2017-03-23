@@ -59,6 +59,7 @@ public:
 
     QString gdbServerProviderId() const;
     void setGdbServerProviderId(const QString &id);
+    void unregisterProvider(GdbServerProvider *provider);
     void providerUpdated(GdbServerProvider *provider);
 
     virtual void fromMap(const QVariantMap &map) override;

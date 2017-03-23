@@ -78,7 +78,7 @@ GdbServerProvider::~GdbServerProvider()
 {
     const QSet<BareMetalDevice *> devices = m_devices;
     for (BareMetalDevice *device : devices)
-        device->setGdbServerProviderId(QString());
+        device->unregisterProvider(this);
 }
 
 QString GdbServerProvider::displayName() const

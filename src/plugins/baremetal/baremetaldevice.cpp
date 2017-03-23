@@ -83,6 +83,12 @@ void BareMetalDevice::setGdbServerProviderId(const QString &id)
     }
 }
 
+void BareMetalDevice::unregisterProvider(GdbServerProvider *provider)
+{
+    if (provider->id() == m_gdbServerProviderId)
+        m_gdbServerProviderId.clear();
+}
+
 void BareMetalDevice::providerUpdated(GdbServerProvider *provider)
 {
     GdbServerProvider *myProvider = GdbServerProviderManager::findProvider(m_gdbServerProviderId);
