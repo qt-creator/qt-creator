@@ -40,7 +40,6 @@ depends +=    qtwidgets \
               qtquickcontrols2 \
               qtquickextras \
               qtlinguist \
-              qtscript \
               qtscxml \
               qtsensors \
               qttestlib \

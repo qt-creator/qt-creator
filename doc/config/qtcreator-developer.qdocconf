@@ -51,9 +51,7 @@ depends +=    qtwidgets \
               qtgui \
               qthelp \
               qtquickcontrols \
-              qtquicklayouts \
               qtlinguist \
-              qtscript \
               qtsensors \
               qtuitools \
               qtwebkit \
