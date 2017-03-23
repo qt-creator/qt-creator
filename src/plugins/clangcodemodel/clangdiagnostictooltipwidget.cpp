@@ -185,15 +185,7 @@ private:
         const bool hasFixit = m_displayHints.enableClickableFixits
                 && !diagnostic.fixIts().isEmpty();
         const QString diagnosticText = diagnostic.text().toString().toHtmlEscaped();
-
-        // For debugging, add to <table>: style='border-width:1px;border-color:red'
-        const QString text = QString::fromLatin1(
-            "<table cellspacing='0' cellpadding='0'>"
-            "  <tr>"
-            "    <td>%1:&nbsp;</td>"
-            "    <td width='100%'>%2</td>"
-            "  </tr>"
-            "</table>")
+        const QString text = QString::fromLatin1("%1: %2")
             .arg(clickableLocation(diagnostic, m_mainFilePath),
                  clickableFixIt(diagnostic, diagnosticText, hasFixit));
 
