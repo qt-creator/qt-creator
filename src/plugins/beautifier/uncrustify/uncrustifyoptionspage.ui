@@ -133,15 +133,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <tabstops>
-  <tabstop>mime</tabstop>
-  <tabstop>useOtherFiles</tabstop>
-  <tabstop>useSpecificFile</tabstop>
-  <tabstop>uncrusifyFilePath</tabstop>
-  <tabstop>useHomeFile</tabstop>
-  <tabstop>useCustomStyle</tabstop>
-  <tabstop>formatEntireFileFallback</tabstop>
- </tabstops>
  <resources/>
  <connections/>
 </ui>
