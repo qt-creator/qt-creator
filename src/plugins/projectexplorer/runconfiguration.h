@@ -49,6 +49,7 @@ class IRunConfigurationAspect;
 class RunConfiguration;
 class RunConfigWidget;
 class RunControl;
+class ToolRunner;
 class Target;
 
 namespace Internal {
@@ -397,6 +398,9 @@ public:
     const Connection &connection() const;
     void setConnection(const Connection &connection);
 
+    ToolRunner *toolRunner() const;
+    void setToolRunner(ToolRunner *tool);
+
     virtual void appendMessage(const QString &msg, Utils::OutputFormat format);
     virtual void bringApplicationToForeground();
 
@@ -442,6 +446,21 @@ private:
     void setFinished();
 
     Internal::SimpleRunControlPrivate * const d;
+};
+
+/**
+ * A base for tool-specific additions to target-specific RunControl.
+ */
+
+class PROJECTEXPLORER_EXPORT ToolRunner : public QObject
+{
+public:
+    explicit ToolRunner(RunControl *runControl);
+
+    RunControl *runControl() const;
+
+private:
+    QPointer<RunControl> m_runControl;
 };
 
 } // namespace ProjectExplorer

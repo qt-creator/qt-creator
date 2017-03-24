@@ -519,6 +519,7 @@ public:
 
     ~RunControlPrivate()
     {
+        delete toolRunner;
         delete outputFormatter;
     }
 
@@ -528,8 +529,9 @@ public:
     Connection connection;
     Core::Id runMode;
     Utils::Icon icon;
-    const QPointer<RunConfiguration> runConfiguration;
-    QPointer<Project> project;
+    const QPointer<RunConfiguration> runConfiguration; // Not owned.
+    QPointer<Project> project; // Not owned.
+    QPointer<ToolRunner> toolRunner; // Owned. QPointer as "extra safety" for now.
     Utils::OutputFormatter *outputFormatter = nullptr;
 
     // A handle to the actual application process.
@@ -615,6 +617,16 @@ const Connection &RunControl::connection() const
 void RunControl::setConnection(const Connection &connection)
 {
     d->connection = connection;
+}
+
+ToolRunner *RunControl::toolRunner() const
+{
+    return d->toolRunner;
+}
+
+void RunControl::setToolRunner(ToolRunner *tool)
+{
+    d->toolRunner = tool;
 }
 
 QString RunControl::displayName() const
@@ -962,6 +974,19 @@ void SimpleRunControl::onProcessFinished(int exitCode, QProcess::ExitStatus stat
         msg = tr("%1 exited with code %2").arg(QDir::toNativeSeparators(exe)).arg(exitCode);
     appendMessage(msg + QLatin1Char('\n'), Utils::NormalMessageFormat);
     reportApplicationStop();
+}
+
+// ToolRunner
+
+ToolRunner::ToolRunner(RunControl *runControl)
+    : m_runControl(runControl)
+{
+    runControl->setToolRunner(this);
+}
+
+RunControl *ToolRunner::runControl() const
+{
+    return m_runControl;
 }
 
 } // namespace ProjectExplorer
