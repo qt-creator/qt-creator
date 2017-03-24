@@ -532,14 +532,11 @@ void ServerModeReader::extractCacheData(const QVariantMap &data)
 
 void ServerModeReader::addCMakeLists(CMakeProjectNode *root, const QList<FileNode *> &cmakeLists)
 {
-    const QDir baseDir = QDir(m_parameters.sourceDirectory.toString());
-
+    const QSet<Utils::FileName> cmakeDirs
+            = Utils::transform<QSet>(cmakeLists, [](const Node *n) { return n->filePath().parentDir(); });
     root->addNestedNodes(cmakeLists, Utils::FileName(),
-                         [&cmakeLists](const Utils::FileName &fp) -> ProjectExplorer::FolderNode * {
-        if (Utils::contains(cmakeLists, [&fp](const FileNode *fn) { return fn->filePath().parentDir() == fp; }))
-            return new CMakeListsNode(fp);
-        else
-            return new FolderNode(fp);
+                         [&cmakeDirs](const Utils::FileName &fp) -> ProjectExplorer::FolderNode * {
+        return cmakeDirs.contains(fp) ? new CMakeListsNode(fp) : new FolderNode(fp);
     });
 }
 
