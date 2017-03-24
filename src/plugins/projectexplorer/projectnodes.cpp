@@ -499,8 +499,7 @@ void FolderNode::addNestedNode(FileNode *fileNode, const Utils::FileName &overri
                                const FolderNodeFactory &factory)
 {
     // Get relative path to rootNode
-    QString parentDir = fileNode->filePath().toFileInfo().absolutePath();
-    FolderNode *folder = recursiveFindOrCreateFolderNode(this, Utils::FileName::fromString(parentDir),
+    FolderNode *folder = recursiveFindOrCreateFolderNode(this, fileNode->filePath().parentDir(),
                                                          overrideBaseDir, factory);
     folder->addNode(fileNode);
 
