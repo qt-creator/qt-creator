@@ -520,6 +520,8 @@ void FolderNode::compress()
 {
     QList<Node *> children = nodes();
     if (auto subFolder = children.count() == 1 ? children.at(0)->asFolderNode() : nullptr) {
+        if (subFolder->nodeType() != nodeType())
+            return;
         // Only one subfolder: Compress!
         setDisplayName(QDir::toNativeSeparators(displayName() + "/" + subFolder->displayName()));
         for (Node *n : subFolder->nodes()) {

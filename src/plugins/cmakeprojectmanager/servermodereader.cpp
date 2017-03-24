@@ -538,6 +538,7 @@ void ServerModeReader::addCMakeLists(CMakeProjectNode *root, const QList<FileNod
                          [&cmakeDirs](const Utils::FileName &fp) -> ProjectExplorer::FolderNode * {
         return cmakeDirs.contains(fp) ? new CMakeListsNode(fp) : new FolderNode(fp);
     });
+    root->compress();
 }
 
 static ProjectNode *findCMakeNode(ProjectNode *root, const Utils::FileName &dir)
