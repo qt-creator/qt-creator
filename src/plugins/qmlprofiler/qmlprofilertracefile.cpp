@@ -430,7 +430,7 @@ private:
         QmlEvent end;
     };
 
-    QVector<QmlRange> ranges;
+    QList<QmlRange> ranges; // We are going to do a lot of takeFirst() on this.
 };
 
 void EventList::addEvent(const QmlEvent &event)
