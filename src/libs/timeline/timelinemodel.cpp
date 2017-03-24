@@ -322,12 +322,14 @@ int TimelineModel::firstIndex(qint64 startTime) const
 int TimelineModel::TimelineModelPrivate::firstIndexNoParents(qint64 startTime) const
 {
     // in the "endtime" list, find the first event that ends after startTime
-    if (endTimes.isEmpty())
+
+    // lowerBound() cannot deal with empty lists, and it never finds the last element.
+    if (endTimes.isEmpty() || endTimes.last().end <= startTime)
         return -1;
-    if (endTimes.count() == 1 || endTimes.first().end > startTime)
+
+    // lowerBound() never returns "invalid", so handle this manually.
+    if (endTimes.first().end > startTime)
         return endTimes.first().startIndex;
-    if (endTimes.last().end <= startTime)
-        return -1;
 
     return endTimes[lowerBound(endTimes, startTime) + 1].startIndex;
 }
@@ -340,10 +342,12 @@ int TimelineModel::lastIndex(qint64 endTime) const
 {
     Q_D(const TimelineModel);
     // in the "starttime" list, find the last event that starts before endtime
+
+    // lowerBound() never returns "invalid", so handle this manually.
     if (d->ranges.isEmpty() || d->ranges.first().start >= endTime)
         return -1;
-    if (d->ranges.count() == 1)
-        return 0;
+
+    // lowerBound() never finds the last element.
     if (d->ranges.last().start < endTime)
         return d->ranges.count() - 1;
 
