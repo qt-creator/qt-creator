@@ -1,4 +1,4 @@
-QT += quickwidgets
+QT += quickwidgets core-private
 CONFIG += exceptions
 
 INCLUDEPATH += $$PWD
