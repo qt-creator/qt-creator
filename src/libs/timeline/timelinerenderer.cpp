@@ -43,8 +43,7 @@
 
 namespace Timeline {
 
-TimelineRenderer::TimelineRendererPrivate::TimelineRendererPrivate(TimelineRenderer *q) :
-    lastState(0), q_ptr(q)
+TimelineRenderer::TimelineRendererPrivate::TimelineRendererPrivate() : lastState(0)
 {
     resetCurrentSelection();
 }
@@ -63,7 +62,7 @@ void TimelineRenderer::TimelineRendererPrivate::clear()
 }
 
 TimelineRenderer::TimelineRenderer(QQuickItem *parent) :
-    TimelineAbstractRenderer(*(new TimelineRendererPrivate(this)), parent)
+    TimelineAbstractRenderer(*(new TimelineRendererPrivate), parent)
 {
     setAcceptedMouseButtons(Qt::LeftButton);
     setAcceptHoverEvents(true);
@@ -182,9 +181,8 @@ int TimelineRenderer::TimelineRendererPrivate::rowFromPosition(int y) const
 void TimelineRenderer::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(TimelineRenderer);
-    Q_UNUSED(event);
-    if (d->model && !d->model->isEmpty())
-        d->manageClicked();
+    d->findCurrentSelection(event->pos().x(), event->pos().y(), width());
+    setSelectedItem(d->currentSelection.eventIndex);
 }
 
 void TimelineRenderer::mouseMoveEvent(QMouseEvent *event)
@@ -195,7 +193,11 @@ void TimelineRenderer::mouseMoveEvent(QMouseEvent *event)
 void TimelineRenderer::hoverMoveEvent(QHoverEvent *event)
 {
     Q_D(TimelineRenderer);
-    d->manageHovered(event->pos().x(), event->pos().y());
+    if (!d->selectionLocked) {
+        d->findCurrentSelection(event->pos().x(), event->pos().y(), width());
+        if (d->currentSelection.eventIndex != -1)
+            setSelectedItem(d->currentSelection.eventIndex);
+    }
     if (d->currentSelection.eventIndex == -1)
         event->setAccepted(false);
 }
@@ -227,19 +229,10 @@ void TimelineRenderer::wheelEvent(QWheelEvent *event)
     }
 }
 
-void TimelineRenderer::TimelineRendererPrivate::manageClicked()
+void TimelineRenderer::TimelineRendererPrivate::findCurrentSelection(int mouseX, int mouseY,
+                                                                     int width)
 {
-    Q_Q(TimelineRenderer);
-    if (currentSelection.eventIndex != -1)
-        q->setSelectedItem(currentSelection.eventIndex);
-    else
-        q->setSelectedItem(-1);
-}
-
-void TimelineRenderer::TimelineRendererPrivate::manageHovered(int mouseX, int mouseY)
-{
-    Q_Q(TimelineRenderer);
-    if (!zoomer || !model || q->width() < 1)
+    if (!zoomer || !model || width < 1)
         return;
 
     qint64 duration = zoomer->windowDuration();
@@ -247,18 +240,16 @@ void TimelineRenderer::TimelineRendererPrivate::manageHovered(int mouseX, int mo
         return;
 
     // Make the "selected" area 3 pixels wide by adding/subtracting 1 to catch very narrow events.
-    qint64 startTime = (mouseX - 1) * duration / q->width() + zoomer->windowStart();
-    qint64 endTime = (mouseX + 1) * duration / q->width() + zoomer->windowStart();
+    qint64 startTime = (mouseX - 1) * duration / width + zoomer->windowStart();
+    qint64 endTime = (mouseX + 1) * duration / width + zoomer->windowStart();
     qint64 exactTime = (startTime + endTime) / 2;
     int row = rowFromPosition(mouseY);
 
-    // already covered? Only recheck selectionLocked and make sure d->selectedItem is correct.
+    // already covered? Only make sure d->selectedItem is correct.
     if (currentSelection.eventIndex != -1 &&
             exactTime >= currentSelection.startTime &&
             exactTime < currentSelection.endTime &&
             row == currentSelection.row) {
-        if (!selectionLocked)
-            q->setSelectedItem(currentSelection.eventIndex);
         return;
     }
 
@@ -310,8 +301,6 @@ void TimelineRenderer::TimelineRendererPrivate::manageHovered(int mouseX, int mo
 
         bestOffset = offset;
     }
-    if (!selectionLocked && currentSelection.eventIndex != -1)
-        q->setSelectedItem(currentSelection.eventIndex);
 }
 
 void TimelineRenderer::clearData()
