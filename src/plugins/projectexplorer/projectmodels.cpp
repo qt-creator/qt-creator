@@ -264,23 +264,25 @@ void FlatModel::saveExpandData()
 
 void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<Node *> *seen)
 {
-    const QList<FolderNode *> subFolderNodes = folderNode->folderNodes();
-    for (FolderNode *subFolderNode : subFolderNodes) {
-        if (!filter(subFolderNode) && !seen->contains(subFolderNode)) {
-            seen->insert(subFolderNode);
-            auto node = new WrapperNode(subFolderNode);
-            parent->appendChild(node);
-            addFolderNode(node, subFolderNode, seen);
-            node->sortChildren(&sortWrapperNodes);
-        } else {
-            addFolderNode(parent, subFolderNode, seen);
+    for (Node *node : folderNode->nodes()) {
+        if (FolderNode *subFolderNode = node->asFolderNode()) {
+            if (!filter(subFolderNode) && !seen->contains(subFolderNode)) {
+                seen->insert(subFolderNode);
+                auto node = new WrapperNode(subFolderNode);
+                parent->appendChild(node);
+                addFolderNode(node, subFolderNode, seen);
+                node->sortChildren(&sortWrapperNodes);
+            } else {
+                addFolderNode(parent, subFolderNode, seen);
+            }
         }
     }
-    const QList<FileNode *> fileNodes = folderNode->fileNodes();
-    for (FileNode *fileNode : fileNodes) {
-        if (!filter(fileNode) && !seen->contains(fileNode)) {
-            seen->insert(fileNode);
-            parent->appendChild(new WrapperNode(fileNode));
+    for (Node *node : folderNode->nodes()) {
+        if (FileNode *fileNode = node->asFileNode()) {
+            if (!filter(fileNode) && !seen->contains(fileNode)) {
+                seen->insert(fileNode);
+                parent->appendChild(new WrapperNode(fileNode));
+            }
         }
     }
 }
