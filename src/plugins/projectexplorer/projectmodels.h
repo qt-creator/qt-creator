@@ -85,8 +85,6 @@ signals:
     void requestExpansion(const QModelIndex &index);
 
 private:
-    bool filter(Node *node) const; // Returns true if node is hidden.
-
     bool m_filterProjects = false;
     bool m_filterGeneratedFiles = true;
 
