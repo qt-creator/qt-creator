@@ -75,7 +75,7 @@ const Utils::FileName BuildDirManager::workDirectory() const
     if (!m_tempDir) {
         m_tempDir.reset(new Utils::TemporaryDirectory("qtc-cmake-XXXXXXXX"));
         if (!m_tempDir->isValid())
-            emit errorOccured(tr("Failed to create temporary directory \"%1\".").arg(m_tempDir->path()));
+            emitErrorOccured(tr("Failed to create temporary directory \"%1\".").arg(m_tempDir->path()));
     }
     return Utils::FileName::fromString(m_tempDir->path());
 }
@@ -84,6 +84,13 @@ void BuildDirManager::emitDataAvailable()
 {
     if (!isParsing())
         emit dataAvailable();
+}
+
+void BuildDirManager::emitErrorOccured(const QString &message) const
+{
+    m_isHandlingError = true;
+    emit errorOccured(message);
+    m_isHandlingError = false;
 }
 
 void BuildDirManager::updateReaderType(std::function<void()> todo)
@@ -98,7 +105,7 @@ void BuildDirManager::updateReaderType(std::function<void()> todo)
         connect(m_reader.get(), &BuildDirReader::dataAvailable,
                 this, &BuildDirManager::emitDataAvailable);
         connect(m_reader.get(), &BuildDirReader::errorOccured,
-                this, &BuildDirManager::errorOccured);
+                this, &BuildDirManager::emitErrorOccured);
         connect(m_reader.get(), &BuildDirReader::dirty, this, &BuildDirManager::becameDirty);
     }
     m_reader->setParameters(p);
@@ -216,6 +223,8 @@ void BuildDirManager::becameDirty()
 
 void BuildDirManager::forceReparse()
 {
+    QTC_ASSERT(!m_isHandlingError, return);
+
     if (m_buildConfiguration->target()->activeBuildConfiguration() != m_buildConfiguration)
         return;
 
@@ -228,6 +237,8 @@ void BuildDirManager::forceReparse()
 
 void BuildDirManager::resetData()
 {
+    QTC_ASSERT(!m_isHandlingError, return);
+
     if (m_reader)
         m_reader->resetData();
 
@@ -259,6 +270,7 @@ bool BuildDirManager::persistCMakeState()
 
 void BuildDirManager::generateProjectTree(CMakeProjectNode *root, const QList<const FileNode *> &allFiles)
 {
+    QTC_ASSERT(!m_isHandlingError, return);
     QTC_ASSERT(m_reader, return);
 
     const Utils::FileName projectFile = m_buildConfiguration->target()->project()->projectFilePath();
@@ -272,6 +284,7 @@ void BuildDirManager::generateProjectTree(CMakeProjectNode *root, const QList<co
 
 void BuildDirManager::updateCodeModel(CppTools::RawProjectParts &rpps)
 {
+    QTC_ASSERT(!m_isHandlingError, return);
     QTC_ASSERT(m_reader, return);
     return m_reader->updateCodeModel(rpps);
 }
@@ -283,6 +296,8 @@ void BuildDirManager::parse()
 
 void BuildDirManager::clearCache()
 {
+    QTC_ASSERT(!m_isHandlingError, return);
+
     auto cmakeCache = Utils::FileName(workDirectory()).appendPath(QLatin1String("CMakeCache.txt"));
     auto cmakeFiles = Utils::FileName(workDirectory()).appendPath(QLatin1String("CMakeFiles"));
 
@@ -298,6 +313,8 @@ void BuildDirManager::clearCache()
 
 QList<CMakeBuildTarget> BuildDirManager::buildTargets() const
 {
+    QTC_ASSERT(!m_isHandlingError, return {});
+
     if (!m_reader)
         return QList<CMakeBuildTarget>();
     if (m_buildTargets.isEmpty())
@@ -307,6 +324,8 @@ QList<CMakeBuildTarget> BuildDirManager::buildTargets() const
 
 CMakeConfig BuildDirManager::parsedConfiguration() const
 {
+    QTC_ASSERT(!m_isHandlingError, return {});
+
     if (!m_reader)
         return m_cmakeCache;
     if (m_cmakeCache.isEmpty())
@@ -389,6 +408,9 @@ void BuildDirManager::checkConfiguration()
 
 void BuildDirManager::maybeForceReparse()
 {
+    if (m_isHandlingError)
+        return;
+
     if (!m_reader || !m_reader->hasData()) {
         forceReparse();
         return;
