@@ -7,7 +7,7 @@ SUBDIRS = qtpromaker \
      3rdparty \
      buildoutputparser
 
-qtHaveModule(quick): SUBDIRS += qml2puppet
+qtHaveModule(quick-private): SUBDIRS += qml2puppet
 
 win32 {
     SUBDIRS += qtcdebugger \
