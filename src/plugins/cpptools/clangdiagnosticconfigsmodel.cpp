@@ -33,6 +33,11 @@
 
 namespace CppTools {
 
+static QStringList commonOptions()
+{
+    return { QStringLiteral("-Wno-unknown-pragmas") };
+}
+
 static void addConfigForQuestionableConstructs(ClangDiagnosticConfigsModel &model)
 {
     ClangDiagnosticConfig config;
@@ -40,10 +45,10 @@ static void addConfigForQuestionableConstructs(ClangDiagnosticConfigsModel &mode
     config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
                                                       "Warnings for questionable constructs"));
     config.setIsReadOnly(true);
-    config.setCommandLineOptions({
+    config.setCommandLineOptions(QStringList{
         QStringLiteral("-Wall"),
         QStringLiteral("-Wextra"),
-    });
+    } + commonOptions());
 
     model.appendOrUpdate(config);
 }
@@ -55,7 +60,7 @@ static void addConfigForPedanticWarnings(ClangDiagnosticConfigsModel &model)
     config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
                                                       "Pedantic Warnings"));
     config.setIsReadOnly(true);
-    config.setCommandLineOptions({QStringLiteral("-Wpedantic")});
+    config.setCommandLineOptions(QStringList{QStringLiteral("-Wpedantic")} + commonOptions());
 
     model.appendOrUpdate(config);
 }
@@ -67,7 +72,7 @@ static void addConfigForAlmostEveryWarning(ClangDiagnosticConfigsModel &model)
     config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
                                                       "Warnings for almost everything"));
     config.setIsReadOnly(true);
-    config.setCommandLineOptions({
+    config.setCommandLineOptions(QStringList{
         QStringLiteral("-Weverything"),
         QStringLiteral("-Wno-c++98-compat"),
         QStringLiteral("-Wno-c++98-compat-pedantic"),
@@ -79,7 +84,7 @@ static void addConfigForAlmostEveryWarning(ClangDiagnosticConfigsModel &model)
         QStringLiteral("-Wno-documentation"),
         QStringLiteral("-Wno-shadow"),
         QStringLiteral("-Wno-missing-prototypes"), // Not optimal for C projects.
-    });
+    } + commonOptions());
 
     model.appendOrUpdate(config);
 }
