@@ -77,6 +77,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
             directoryWithoutPrefix = directory.relativeChildPath(path);
         } else {
             isRelative = false;
+            path.clear();
             directoryWithoutPrefix = directory;
         }
     }
