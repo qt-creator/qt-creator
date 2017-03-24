@@ -541,8 +541,6 @@ public:
         projectsList->setItemDelegate(&m_projectDelegate);
         projectsList->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-        const int d = IWelcomePage::screenDependHeightDistance();
-
         auto hbox11 = new QHBoxLayout;
         hbox11->setContentsMargins(0, 0, 0, 0);
         hbox11->addWidget(newButton);
@@ -557,23 +555,23 @@ public:
         vbox1->setContentsMargins(0, 0, 0, 0);
         vbox1->addStrut(200);
         vbox1->addItem(hbox11);
-        vbox1->addSpacing(d);
+        vbox1->addSpacing(16);
         vbox1->addWidget(sessionsLabel);
-        vbox1->addSpacing(d + 5);
+        vbox1->addSpacing(21);
         vbox1->addWidget(sessionsList);
 
         auto vbox2 = new QVBoxLayout;
         vbox2->setContentsMargins(0, 0, 0, 0);
         vbox2->addItem(hbox21);
-        vbox2->addSpacing(d);
+        vbox2->addSpacing(16);
         vbox2->addWidget(recentProjectsLabel);
-        vbox2->addSpacing(d + 5);
+        vbox2->addSpacing(21);
         vbox2->addWidget(projectsList);
 
         auto hbox = new QHBoxLayout(this);
         hbox->setContentsMargins(30, 27, 0, 27);
         hbox->addItem(vbox1);
-        hbox->addSpacing(d);
+        hbox->addSpacing(16);
         hbox->addItem(vbox2);
         hbox->setStretchFactor(vbox2, 2);
     }

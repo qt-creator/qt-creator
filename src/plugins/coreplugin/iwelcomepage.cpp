@@ -49,11 +49,6 @@ IWelcomePage::~IWelcomePage()
 {
 }
 
-int IWelcomePage::screenDependHeightDistance()
-{
-    return std::min(50, std::max(16, ICore::mainWindow()->height() / 30));
-}
-
 static QPalette buttonPalette(bool isActive, bool isCursorInside, bool forText)
 {
     QPalette pal;

@@ -208,12 +208,10 @@ public:
         vbox->setSpacing(0);
         vbox->setContentsMargins(0, 27, 0, 0);
 
-        int sd = IWelcomePage::screenDependHeightDistance();
-
         {
             auto l = m_pluginButtons = new QVBoxLayout;
             l->setContentsMargins(lrPadding, 0, lrPadding, 0);
-            l->setSpacing(sd + 3);
+            l->setSpacing(19);
             vbox->addItem(l);
             vbox->addSpacing(62);
         }
@@ -221,7 +219,7 @@ public:
         {
             auto l = new QVBoxLayout;
             l->setContentsMargins(lrPadding, 0, lrPadding, 0);
-            l->setSpacing(sd - 8);
+            l->setSpacing(8);
 
             auto newLabel = new QLabel(tr("New to Qt?"), this);
             newLabel->setFont(sizedFont(18, this));
