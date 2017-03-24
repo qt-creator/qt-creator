@@ -48,16 +48,13 @@
 #include <QTabBar>
 #include <QImageReader>
 #include <QMimeData>
+#include <QMouseEvent>
 #include <QWheelEvent>
 #include <QMenu>
 #include <QApplication>
 #include <QTimer>
 #include <QShortcut>
 #include <QQuickItem>
-
-#include <private/qquickwidget_p.h> // mouse ungrabbing workaround on quickitems
-#include <private/qquickwindow_p.h> // mouse ungrabbing workaround on quickitems
-
 
 namespace QmlDesigner {
 
@@ -265,14 +262,7 @@ void ItemLibraryWidget::setResourcePath(const QString &resourcePath)
     updateSearch();
 }
 
-static void ungrabMouseOnQMLWorldWorkAround(QQuickWidget *quickWidget)
-{
-    const QQuickWidgetPrivate *widgetPrivate = QQuickWidgetPrivate::get(quickWidget);
-    if (widgetPrivate && widgetPrivate->offscreenWindow && widgetPrivate->offscreenWindow->mouseGrabberItem())
-        widgetPrivate->offscreenWindow->mouseGrabberItem()->ungrabMouse();
-}
-
-void ItemLibraryWidget::startDragAndDrop(QVariant itemLibraryId)
+void ItemLibraryWidget::startDragAndDrop(QQuickItem *mouseArea, QVariant itemLibraryId)
 {
     m_currentitemLibraryEntry = itemLibraryId.value<ItemLibraryEntry>();
 
@@ -283,9 +273,14 @@ void ItemLibraryWidget::startDragAndDrop(QVariant itemLibraryId)
                         m_currentitemLibraryEntry.libraryEntryIconPath()));
     drag->setMimeData(mimeData);
 
-    drag->exec();
+    /* Workaround for bug in Qt. The release event is not delivered for Qt < 5.9 if a drag is started */
+    QMouseEvent event (QEvent::MouseButtonRelease, QPoint(-1, -1), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QApplication::sendEvent(mouseArea, &event);
 
-    ungrabMouseOnQMLWorldWorkAround(m_itemViewQuickWidget.data());
+    QTimer::singleShot(0, [drag]() {
+        drag->exec();
+        drag->deleteLater();
+    });
 }
 
 void ItemLibraryWidget::removeImport(const QString &name)

@@ -73,12 +73,8 @@ Item {
             id: mouseRegion
             anchors.fill: parent
 
-            property bool reallyPressed: false
-            property int pressedX
-            property int pressedY
-
             onPressed: {
-                rootView.startDragAndDrop(itemLibraryEntry)
+                rootView.startDragAndDrop(mouseRegion, itemLibraryEntry)
             }
         }
     }
