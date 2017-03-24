@@ -143,7 +143,6 @@ public:
     Utils::MacroExpander *macroExpander() const;
 
 signals:
-    void displayNameChanged();
     void fileListChanged();
 
     // Note: activeTarget can be 0 (if no targets are defined).

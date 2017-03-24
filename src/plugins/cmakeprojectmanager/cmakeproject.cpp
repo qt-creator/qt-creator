@@ -185,7 +185,6 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     updateQmlJSCodeModel();
 
-    emit displayNameChanged();
     emit fileListChanged();
 
     emit bc->emitBuildTypeChanged();
