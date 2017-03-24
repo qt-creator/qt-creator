@@ -240,12 +240,6 @@ void FlatModel::handleProjectAdded(Project *project)
 {
     Node *node = project->containerNode();
     m_toExpand.insert(expandDataForNode(node));
-    if (WrapperNode *wrapper = wrapperForNode(node)) {
-        wrapper->forFirstLevelChildren([this](WrapperNode *child) {
-            m_toExpand.insert(expandDataForNode(child->m_node));
-        });
-    }
-    update();
 }
 
 void FlatModel::loadExpandData()
