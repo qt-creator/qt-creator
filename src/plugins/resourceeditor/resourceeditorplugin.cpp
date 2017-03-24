@@ -220,6 +220,7 @@ void ResourceEditorPlugin::extensionsInitialized()
 
         for (FileNode *file : toReplace) {
             FolderNode *const pn = file->parentFolderNode();
+            QTC_ASSERT(pn, continue);
             const Utils::FileName path = file->filePath();
             pn->replaceSubtree(file, new ResourceTopLevelNode(path, QString(), pn));
         }
