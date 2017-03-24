@@ -91,6 +91,16 @@ LinuxDeviceDebugSupport::~LinuxDeviceDebugSupport()
     delete d;
 }
 
+bool LinuxDeviceDebugSupport::isCppDebugging() const
+{
+    return d->cppDebugging;
+}
+
+bool LinuxDeviceDebugSupport::isQmlDebugging() const
+{
+    return d->qmlDebugging;
+}
+
 void LinuxDeviceDebugSupport::showMessage(const QString &msg, int channel)
 {
     if (state() != Inactive && d->runControl)
@@ -142,6 +152,11 @@ void LinuxDeviceDebugSupport::startExecution()
         connect(launcher, &ApplicationLauncher::remoteProcessStarted,
                 this, &LinuxDeviceDebugSupport::handleRemoteProcessStarted);
 
+    launcher->start(realRunnable(), device());
+}
+
+Runnable LinuxDeviceDebugSupport::realRunnable() const
+{
     StandardRunnable r = runnable();
     QStringList args = QtcProcess::splitArgs(r.commandLineArguments, OsTypeLinux);
     QString command;
@@ -161,7 +176,7 @@ void LinuxDeviceDebugSupport::startExecution()
     }
     r.executable = command;
     r.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);
-    launcher->start(r, device());
+    return r;
 }
 
 void LinuxDeviceDebugSupport::handleAppRunnerError(const QString &error)

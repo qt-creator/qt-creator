@@ -35,6 +35,7 @@
 namespace ProjectExplorer {
 class ApplicationLauncher;
 class RunConfiguration;
+class Runnable;
 class StandardRunnable;
 }
 

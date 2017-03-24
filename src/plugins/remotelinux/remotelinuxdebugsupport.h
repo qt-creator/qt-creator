@@ -43,6 +43,10 @@ public:
     ~LinuxDeviceDebugSupport() override;
 
 protected:
+    virtual ProjectExplorer::Runnable realRunnable() const;
+    bool isCppDebugging() const;
+    bool isQmlDebugging() const;
+
     void startExecution() override;
     void handleAdapterSetupFailed(const QString &error) override;
     void handleAdapterSetupDone() override;
