@@ -78,9 +78,6 @@ public:
     void disableWidgets();
     void switchTextOrForm();
 
-    void showWarningMessageBox(const QList<DocumentMessage> &warnings);
-    bool gotoCodeWasClicked();
-
     CrumbleBar* crumbleBar() const;
     void showInternalTextEditor();
 
@@ -100,12 +97,9 @@ private: // functions
     void addNavigatorHistoryEntry(const Utils::FileName &fileName);
     QWidget *createCenterWidget();
     QWidget *createCrumbleBarFrame();
-    DocumentWarningWidget *warningWidget();
-    void hideWarningWidget();
 
 private: // variables
     QSplitter *m_mainSplitter = nullptr;
-    QPointer<DocumentWarningWidget> m_warningWidget;
     SwitchSplitTabWidget* m_centralTabWidget = nullptr;
 
     QScopedPointer<Core::SideBar> m_leftSideBar;

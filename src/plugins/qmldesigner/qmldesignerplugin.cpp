@@ -329,13 +329,7 @@ void QmlDesignerPlugin::showDesigner()
 
 void QmlDesignerPlugin::hideDesigner()
 {
-    if (currentDesignDocument() && currentModel()) {
-        // the message box handle the cursor jump itself
-    }
-
     if (d->documentManager.hasCurrentDesignDocument()) {
-        if (currentModel() && !mainWidget()->gotoCodeWasClicked())
-            jumpTextCursorToSelectedModelNode();
         deactivateAutoSynchronization();
         d->mainWidget->saveSettings();
     }
@@ -417,8 +411,6 @@ void QmlDesignerPlugin::activateAutoSynchronization()
     selectModelNodeUnderTextCursor();
 
     d->mainWidget->setupNavigatorHistory(currentDesignDocument()->textEditor());
-    if (showWarningsForFeaturesInDesigner() && currentDesignDocument()->hasQmlParseWarnings())
-        d->mainWidget->showWarningMessageBox(currentDesignDocument()->qmlParseWarnings());
 
     currentDesignDocument()->updateSubcomponentManager();
 }
