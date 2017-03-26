@@ -56,6 +56,7 @@ public:
     void refreshIfSame(const QString &repository);
 
 private:
+    void expandAndResize();
     void resizeColumns();
     void enableButtons();
     void refreshCurrentRepository();
