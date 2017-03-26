@@ -272,7 +272,7 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
         return res;
     }
     case Qt::EditRole:
-        return index.column() == 0 ? node->name : QVariant();
+        return index.column() == 0 ? node->fullName().join('/') : QVariant();
     case Qt::ToolTipRole:
         if (!node->isLeaf())
             return QVariant();
@@ -307,24 +307,11 @@ bool BranchModel::setData(const QModelIndex &index, const QVariant &value, int r
     if (newName.isEmpty())
         return false;
 
-    if (node->name == newName)
-        return true;
-
-    QStringList oldFullName = node->fullName();
-    node->name = newName;
-    QStringList newFullName = node->fullName();
-
-    QString output;
-    QString errorMessage;
-    if (!m_client->synchronousBranchCmd(m_workingDirectory,
-                                        {"-m", oldFullName.last(), newFullName.last()},
-                                        &output, &errorMessage)) {
-        node->name = oldFullName.last();
-        VcsOutputWindow::appendError(errorMessage);
+    const QString oldName = node->fullName().join('/');
+    if (oldName == newName)
         return false;
-    }
 
-    emit dataChanged(index, index);
+    renameBranch(oldName, newName);
     return true;
 }
 
