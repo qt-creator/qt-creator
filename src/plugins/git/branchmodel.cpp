@@ -374,7 +374,7 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
         parseOutputLine(l);
 
     if (m_currentBranch) {
-        if (m_currentBranch->parent == m_rootNode->children.at(LocalBranches))
+        if (m_currentBranch->isLocal())
             m_currentBranch = nullptr;
         setCurrentBranch();
     }
@@ -391,11 +391,13 @@ void BranchModel::setCurrentBranch()
         return;
 
     BranchNode *local = m_rootNode->children.at(LocalBranches);
-    int pos = 0;
-    for (pos = 0; pos < local->count(); ++pos) {
-        if (local->children.at(pos)->name == currentBranch)
-            m_currentBranch = local->children[pos];
+    const QStringList branchParts = currentBranch.split('/');
+    for (const QString &branchPart : branchParts) {
+        local = local->childOfName(branchPart);
+        if (!local)
+            return;
     }
+    m_currentBranch = local;
 }
 
 void BranchModel::renameBranch(const QString &oldName, const QString &newName)
