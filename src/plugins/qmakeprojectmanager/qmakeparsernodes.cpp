@@ -218,15 +218,6 @@ QSet<FileName> QmakePriFile::files(const FileType &type) const
     return m_files.value(type);
 }
 
-bool QmakePriFile::buildsFile(const FileName &fn) const
-{
-    for (auto it = m_files.constBegin(); it != m_files.constEnd(); ++it) {
-        if (it.value().contains(fn))
-            return true;
-    }
-    return false;
-}
-
 QmakePriFile::~QmakePriFile()
 {
     watchFolders( {} );
