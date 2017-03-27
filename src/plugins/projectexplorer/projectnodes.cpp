@@ -25,6 +25,7 @@
 
 #include "projectnodes.h"
 
+#include "project.h"
 #include "projectexplorerconstants.h"
 #include "projecttree.h"
 
@@ -171,8 +172,9 @@ FolderNode *Node::parentFolderNode() const
 
 ProjectNode *Node::managingProject()
 {
-    if (!m_parentFolderNode)
-        return nullptr;
+    if (asContainerNode())
+        return asContainerNode()->rootProjectNode();
+    QTC_ASSERT(m_parentFolderNode, return nullptr);
     ProjectNode *pn = parentProjectNode();
     return pn ? pn : asProjectNode(); // projects manage themselves...
 }
@@ -788,6 +790,37 @@ ProjectNode *ProjectNode::projectNode(const Utils::FileName &file) const
 bool FolderNode::isEmpty() const
 {
     return m_nodes.isEmpty();
+}
+
+ContainerNode::ContainerNode(Project *project)
+    : FolderNode(Utils::FileName(), NodeType::Project), m_project(project)
+{}
+
+QString ContainerNode::displayName() const
+{
+    QString name = m_project->displayName();
+
+    const QFileInfo fi = m_project->projectFilePath().toFileInfo();
+    const QString dir = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
+    if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(dir)) {
+        QString vcsTopic = vc->vcsTopic(dir);
+        if (!vcsTopic.isEmpty())
+            name += " [" + vcsTopic + ']';
+    }
+
+    return name;
+}
+
+QList<ProjectAction> ContainerNode::supportedActions(Node *node) const
+{
+    if (Node *rootNode = m_project->rootProjectNode())
+        return rootNode->supportedActions(node);
+    return {};
+}
+
+ProjectNode *ContainerNode::rootProjectNode() const
+{
+    return m_project->rootProjectNode();
 }
 
 } // namespace ProjectExplorer

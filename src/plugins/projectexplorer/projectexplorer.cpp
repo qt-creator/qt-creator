@@ -2913,7 +2913,13 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
     if (currentNode && currentNode->managingProject()) {
         QList<ProjectAction> actions = currentNode->supportedActions(currentNode);
 
-        if (ProjectNode *pn = currentNode->asProjectNode()) {
+        ProjectNode *pn;
+        if (ContainerNode *cn = currentNode->asContainerNode())
+            pn = cn->rootProjectNode();
+        else
+            pn = currentNode->asProjectNode();
+
+        if (pn) {
             if (ProjectTree::currentProject() && pn == ProjectTree::currentProject()->rootProjectNode()) {
                 m_runActionContextMenu->setVisible(true);
             } else {

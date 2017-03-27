@@ -48,6 +48,7 @@ namespace Utils { class MacroExpander; }
 namespace ProjectExplorer {
 
 class BuildInfo;
+class ContainerNode;
 class EditorConfiguration;
 class FileNode;
 class NamedWidget;
@@ -84,7 +85,7 @@ public:
     static Utils::FileName projectDirectory(const Utils::FileName &top);
 
     virtual ProjectNode *rootProjectNode() const;
-    ProjectNode *containerNode() const;
+    ContainerNode *containerNode() const;
 
     bool hasActiveBuildSettings() const;
 

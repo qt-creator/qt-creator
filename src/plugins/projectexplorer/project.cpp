@@ -84,38 +84,6 @@ const char PLUGIN_SETTINGS_KEY[] = "ProjectExplorer.Project.PluginSettings";
 
 namespace ProjectExplorer {
 
-class ContainerNode : public ProjectNode
-{
-public:
-    ContainerNode(Project *project)
-        : ProjectNode(Utils::FileName()),
-          m_project(project)
-    {}
-
-    QString displayName() const final
-    {
-        QString name = m_project->displayName();
-
-        const QFileInfo fi = m_project->projectFilePath().toFileInfo();
-        const QString dir = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-        if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(dir)) {
-            QString vcsTopic = vc->vcsTopic(dir);
-            if (!vcsTopic.isEmpty())
-                name += " [" + vcsTopic + ']';
-        }
-
-        return name;
-    }
-
-    QList<ProjectAction> supportedActions(Node *) const final
-    {
-        return {};
-    }
-
-private:
-    Project *m_project;
-};
-
 // -------------------------------------------------------------------------
 // Project
 // -------------------------------------------------------------------------
@@ -601,7 +569,7 @@ ProjectNode *Project::rootProjectNode() const
     return d->m_rootProjectNode;
 }
 
-ProjectNode *Project::containerNode() const
+ContainerNode *Project::containerNode() const
 {
     return &d->m_containerNode;
 }
