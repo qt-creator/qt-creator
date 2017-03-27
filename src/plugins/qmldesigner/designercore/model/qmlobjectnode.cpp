@@ -208,11 +208,8 @@ QString QmlObjectNode::stripedTranslatableText(const PropertyName &name) const
         if (regularExpressionPatter.exactMatch(modelNode().bindingProperty(name).expression()))
             return regularExpressionPatter.cap(2);
         return instanceValue(name).toString();
-    } else {
-        return modelNode().variantProperty(name).value().toString();
     }
-
-    return QString();
+    return modelNode().variantProperty(name).value().toString();
 }
 
 QString QmlObjectNode::expression(const PropertyName &name) const
