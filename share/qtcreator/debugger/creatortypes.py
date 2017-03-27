@@ -192,6 +192,10 @@ def qdump__Utils__ElfSection(d, value):
     d.putByteArrayValue(value["name"])
     d.putPlainChildren(value)
 
+def qdump__Utf8String(d, value):
+    d.putByteArrayValue(value['byteArray'])
+    d.putPlainChildren(value)
+
 def qdump__CPlusPlus__Token(d, value):
     k = value["f"]["kind"]
     e = int(k)
