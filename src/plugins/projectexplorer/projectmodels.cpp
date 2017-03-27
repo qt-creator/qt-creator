@@ -240,6 +240,7 @@ void FlatModel::handleProjectAdded(Project *project)
 {
     Node *node = project->containerNode();
     m_toExpand.insert(expandDataForNode(node));
+    update();
 }
 
 void FlatModel::loadExpandData()
