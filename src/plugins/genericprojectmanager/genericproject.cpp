@@ -249,9 +249,6 @@ void GenericProject::parseProject(RefreshOptions options)
         // TODO: Possibly load some configuration from the project file
         //QSettings projectInfo(m_fileName, QSettings::IniFormat);
     }
-
-    if (options & Files)
-        emit fileListChanged();
 }
 
 void GenericProject::refresh(RefreshOptions options)
@@ -261,7 +258,7 @@ void GenericProject::refresh(RefreshOptions options)
     if (options & Files) {
         auto newRoot = new GenericProjectNode(this);
 
-        for (const QString &f : files()) {
+        for (const QString &f : m_files) {
             FileType fileType = FileType::Source; // ### FIXME
             if (f.endsWith(".qrc"))
                 fileType = FileType::Resource;
@@ -364,7 +361,7 @@ void GenericProject::refreshCppCodeModel()
     rpp.setQtVersion(activeQtVersion);
     rpp.setIncludePaths(projectIncludePaths());
     rpp.setConfigFileName(configFileName());
-    rpp.setFiles(files());
+    rpp.setFiles(m_files);
 
     const CppTools::ProjectUpdateInfo projectInfoUpdate(this, cToolChain, cxxToolChain, k, {rpp});
     m_cppCodeModelUpdater->update(projectInfoUpdate);
@@ -397,20 +394,9 @@ QStringList GenericProject::projectIncludePaths() const
     return m_projectIncludePaths;
 }
 
-QStringList GenericProject::files() const
-{
-    return m_files;
-}
-
 QString GenericProject::displayName() const
 {
     return projectFilePath().toFileInfo().completeBaseName();
-}
-
-QStringList GenericProject::files(FilesMode fileMode) const
-{
-    Q_UNUSED(fileMode);
-    return m_files;
 }
 
 QStringList GenericProject::buildTargets() const

@@ -36,6 +36,8 @@
 #include <QObject>
 #include <QFileSystemModel>
 
+#include <functional>
+
 namespace Core {
 class IDocument;
 class Context;
@@ -47,6 +49,7 @@ namespace ProjectExplorer {
 
 class BuildInfo;
 class EditorConfiguration;
+class FileNode;
 class NamedWidget;
 class ProjectImporter;
 class ProjectNode;
@@ -112,7 +115,8 @@ public:
         GeneratedFiles = 0x2,
         AllFiles       = SourceFiles | GeneratedFiles
     };
-    virtual QStringList files(FilesMode fileMode) const = 0;
+    virtual QStringList files(FilesMode fileMode,
+                              const std::function<bool(const FileNode *)> &filter = {}) const;
     virtual QStringList filesGeneratedFrom(const QString &sourceFile) const;
 
     static QString makeUnique(const QString &preferredName, const QStringList &usedNames);

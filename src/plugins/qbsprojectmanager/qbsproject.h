@@ -64,7 +64,6 @@ public:
     QString displayName() const override;
     QbsRootProjectNode *rootProjectNode() const override;
 
-    QStringList files(FilesMode fileMode) const override;
     QStringList filesGeneratedFrom(const QString &sourceFile) const override;
 
     bool isProjectEditable() const;

@@ -476,6 +476,7 @@ void Project::setRootProjectNode(ProjectNode *root)
     if (root)
         root->setParentFolderNode(&d->m_containerNode);
     ProjectTree::emitSubtreeChanged(root);
+    emit fileListChanged();
 
     delete oldNode;
 }
@@ -521,6 +522,25 @@ Project::RestoreResult Project::restoreSettings(QString *errorMessage)
     RestoreResult result = fromMap(map, errorMessage);
     if (result == RestoreResult::Ok)
         emit settingsLoaded();
+    return result;
+}
+
+QStringList Project::files(Project::FilesMode fileMode,
+                           const std::function<bool (const FileNode *)> &filter) const
+{
+    QStringList result;
+
+    if (!rootProjectNode())
+        return result;
+
+    rootProjectNode()->forEachNode([&](const FileNode *fn) {
+        if (filter && !filter(fn))
+            return;
+        if ((fileMode == AllFiles)
+                || (fileMode == SourceFiles && !fn->isGenerated())
+                || (fileMode == GeneratedFiles && fn->isGenerated()))
+            result.append(fn->filePath().toString());
+    });
     return result;
 }
 

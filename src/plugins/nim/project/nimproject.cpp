@@ -34,6 +34,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/kitinformation.h>
@@ -71,11 +72,6 @@ NimProject::NimProject(const FileName &fileName)
 QString NimProject::displayName() const
 {
     return projectFilePath().toFileInfo().completeBaseName();
-}
-
-QStringList NimProject::files(FilesMode) const
-{
-    return m_files;
 }
 
 bool NimProject::needsConfiguration() const
@@ -133,7 +129,7 @@ void NimProject::collectProjectFiles()
 
 void NimProject::updateProject()
 {
-    QStringList oldFiles = m_files;
+    const QStringList oldFiles = m_files;
     m_files.clear();
 
     QList<FileNode *> fileNodes = Utils::filtered(m_futureWatcher.future().result(),
@@ -158,9 +154,6 @@ void NimProject::updateProject()
     newRoot->setDisplayName(displayName());
     newRoot->addNestedNodes(fileNodes);
     setRootProjectNode(newRoot);
-
-    emit fileListChanged();
-
     emit parsingFinished();
 }
 
@@ -182,12 +175,10 @@ bool NimProject::supportsKit(Kit *k, QString *errorMessage) const
 
 FileNameList NimProject::nimFiles() const
 {
-    FileNameList result;
-    rootProjectNode()->forEachNode([&](FileNode *file) {
-        if (file->displayName().endsWith(QLatin1String(".nim")))
-            result.append(file->filePath());
+    const QStringList nim = files(AllFiles, [](const ProjectExplorer::FileNode *fn) {
+        return fn->filePath().endsWith(".nim");
     });
-    return result;
+    return Utils::transform(nim, [](const QString &fp) { return Utils::FileName::fromString(fp); });
 }
 
 QVariantMap NimProject::toMap() const
@@ -203,4 +194,4 @@ Project::RestoreResult NimProject::fromMap(const QVariantMap &map, QString *erro
     return Project::fromMap(map, errorMessage);
 }
 
-}
+} // namespace Nim

@@ -306,21 +306,6 @@ QString CMakeProject::displayName() const
     return root ? root->displayName() : projectDirectory().fileName();
 }
 
-QStringList CMakeProject::files(FilesMode fileMode) const
-{
-    QStringList result;
-    if (ProjectNode *rpn = rootProjectNode()) {
-        rpn->forEachNode([&](const FileNode *fn) {
-            const bool isGenerated = fn->isGenerated();
-            if ((fileMode & Project::SourceFiles) && !isGenerated)
-                result.append(fn->filePath().toString());
-            if ((fileMode & Project::GeneratedFiles) && isGenerated)
-                result.append(fn->filePath().toString());
-        });
-    }
-    return result;
-}
-
 Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *errorMessage)
 {
     RestoreResult result = Project::fromMap(map, errorMessage);

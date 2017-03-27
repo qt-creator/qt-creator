@@ -45,8 +45,6 @@ public:
 
     QString displayName() const override { return m_name; }
 
-    QStringList files(FilesMode fileMode) const override { Q_UNUSED(fileMode); return QStringList(); }
-
 private:
     QString m_name;
 };
