@@ -13,4 +13,5 @@ CONFIG -= app_bundle
 @endif
 CONFIG += c++11
 
-SOURCES += main.%CppSourceSuffix%
+SOURCES += \\
+        main.%CppSourceSuffix%

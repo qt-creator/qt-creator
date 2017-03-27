@@ -26,9 +26,9 @@ CONFIG -= app_bundle
 CONFIG += thread
 CONFIG -= qt
 
-HEADERS += \
-    %{TestCaseFileWithHeaderSuffix}
+HEADERS += \\
+        %{TestCaseFileWithHeaderSuffix}
 
-SOURCES += \
-    %{MainCppName}
+SOURCES += \\
+        %{MainCppName}
 @endif
