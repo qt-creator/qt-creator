@@ -2680,12 +2680,14 @@ void tst_Dumpers::dumper_data()
                + Check("s", "\"HelloWorld\"", "@QString")
                + Check("test", "\"Name\"", "Bar::TestObject")
                + Check("test.[properties]", "<6 items>", "")
+#ifndef Q_OS_WIN
                + Check("test.[properties].myProp1",
-                    "\"Hello\"", "@QVariant (QString)") % NoCdbEngine
+                    "\"Hello\"", "@QVariant (QString)")
                + Check("test.[properties].myProp2",
-                    "\"World\"", "@QVariant (QByteArray)") % NoCdbEngine
-               + Check("test.[properties].myProp3", "54", "@QVariant (long)") % NoCdbEngine
-               + Check("test.[properties].myProp4", "44", "@QVariant (int)") % NoCdbEngine
+                    "\"World\"", "@QVariant (QByteArray)")
+               + Check("test.[properties].myProp3", "54", "@QVariant (long)")
+               + Check("test.[properties].myProp4", "44", "@QVariant (int)")
+#endif
                + Check("test.[properties].4", "\"New\"",
                     "\"Stuff\"", "@QVariant (QByteArray)")
                + Check("test.[properties].5", "\"Old\"",
