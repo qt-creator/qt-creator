@@ -42,16 +42,13 @@ using namespace ProjectExplorer;
 namespace BareMetal {
 namespace Internal {
 
-BareMetalDebugSupport::BareMetalDebugSupport(Debugger::DebuggerRunControl *runControl)
-    : QObject(runControl)
+BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
+    : ToolRunner(runControl)
     , m_appLauncher(new ProjectExplorer::ApplicationLauncher(this))
-    , m_runControl(runControl)
-    , m_state(BareMetalDebugSupport::Inactive)
 {
-    Q_ASSERT(runControl);
-    connect(m_runControl.data(), &Debugger::DebuggerRunControl::requestRemoteSetup,
+    connect(this->runControl(), &Debugger::DebuggerRunControl::requestRemoteSetup,
             this, &BareMetalDebugSupport::remoteSetupRequested);
-    connect(runControl, &Debugger::DebuggerRunControl::finished,
+    connect(runControl, &RunControl::finished,
             this, &BareMetalDebugSupport::debuggingFinished);
 }
 
@@ -99,12 +96,12 @@ void BareMetalDebugSupport::appRunnerFinished(bool success)
 
     if (m_state == Running) {
         if (!success)
-            m_runControl->notifyInferiorIll();
+            runControl()->notifyInferiorIll();
     } else if (m_state == StartingRunner) {
         Debugger::RemoteSetupResult result;
         result.success = false;
         result.reason = tr("Debugging failed.");
-        m_runControl->notifyEngineRemoteSetupFinished(result);
+        runControl()->notifyEngineRemoteSetupFinished(result);
     }
 
     reset();
@@ -119,7 +116,7 @@ void BareMetalDebugSupport::appRunnerError(const QString &error)
 {
     if (m_state == Running) {
         showMessage(error, Debugger::AppError);
-        m_runControl->notifyInferiorIll();
+        runControl()->notifyInferiorIll();
     } else if (m_state != Inactive) {
         adapterSetupFailed(error);
     }
@@ -130,7 +127,7 @@ void BareMetalDebugSupport::adapterSetupDone()
     m_state = Running;
     Debugger::RemoteSetupResult result;
     result.success = true;
-    m_runControl->notifyEngineRemoteSetupFinished(result);
+    runControl()->notifyEngineRemoteSetupFinished(result);
 }
 
 void BareMetalDebugSupport::adapterSetupFailed(const QString &error)
@@ -140,12 +137,12 @@ void BareMetalDebugSupport::adapterSetupFailed(const QString &error)
     Debugger::RemoteSetupResult result;
     result.success = false;
     result.reason = tr("Initial setup failed: %1").arg(error);
-    m_runControl->notifyEngineRemoteSetupFinished(result);
+    runControl()->notifyEngineRemoteSetupFinished(result);
 }
 
 void BareMetalDebugSupport::startExecution()
 {
-    auto dev = qSharedPointerCast<const BareMetalDevice>(m_runControl->device());
+    auto dev = qSharedPointerCast<const BareMetalDevice>(runControl()->device());
     QTC_ASSERT(dev, return);
 
     const GdbServerProvider *p = GdbServerProviderManager::findProvider(dev->gdbServerProviderId());
@@ -194,7 +191,12 @@ void BareMetalDebugSupport::reset()
 void BareMetalDebugSupport::showMessage(const QString &msg, int channel)
 {
     if (m_state != Inactive)
-        m_runControl->showMessage(msg, channel);
+        runControl()->showMessage(msg, channel);
+}
+
+Debugger::DebuggerRunControl *BareMetalDebugSupport::runControl()
+{
+    return qobject_cast<Debugger::DebuggerRunControl *>(ToolRunner::runControl());
 }
 
 } // namespace Internal
