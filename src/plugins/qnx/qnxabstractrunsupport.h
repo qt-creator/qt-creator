@@ -26,6 +26,8 @@
 #pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/runconfiguration.h>
+
 #include <utils/environment.h>
 #include <utils/portlist.h>
 
@@ -40,9 +42,7 @@ class DeviceUsedPortsGatherer;
 namespace Qnx {
 namespace Internal {
 
-class QnxRunConfiguration;
-
-class QnxAbstractRunSupport : public QObject
+class QnxAbstractRunSupport : public ProjectExplorer::ToolRunner
 {
     Q_OBJECT
 protected:
@@ -52,8 +52,9 @@ protected:
         StartingRemoteProcess,
         Running
     };
+
 public:
-    QnxAbstractRunSupport(QnxRunConfiguration *runConfig, QObject *parent = 0);
+    explicit QnxAbstractRunSupport(ProjectExplorer::RunControl *runControl);
 
 protected:
     bool setPort(Utils::Port &port);

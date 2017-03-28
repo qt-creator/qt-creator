@@ -43,11 +43,9 @@ using namespace Utils;
 namespace Qnx {
 namespace Internal {
 
-QnxAnalyzeSupport::QnxAnalyzeSupport(QnxRunConfiguration *runConfig,
-                                     Debugger::AnalyzerRunControl *runControl)
-    : QnxAbstractRunSupport(runConfig, runControl)
-    , m_runnable(runConfig->runnable().as<StandardRunnable>())
-    , m_runControl(runControl)
+QnxAnalyzeSupport::QnxAnalyzeSupport(RunControl *runControl)
+    : QnxAbstractRunSupport(runControl)
+    , m_runnable(runControl->runnable().as<StandardRunnable>())
     , m_qmlPort(-1)
 {
     const ApplicationLauncher *runner = appRunner();
@@ -64,15 +62,19 @@ QnxAnalyzeSupport::QnxAnalyzeSupport(QnxRunConfiguration *runConfig,
     connect(runner, &ApplicationLauncher::remoteStderr,
             this, &QnxAnalyzeSupport::handleRemoteOutput);
 
-    connect(m_runControl, &Debugger::AnalyzerRunControl::starting,
+    connect(runControl, &RunControl::starting,
             this, &QnxAnalyzeSupport::handleAdapterSetupRequested);
+    connect(runControl, &RunControl::finished,
+            this, &QnxAnalyzeSupport::setFinished);
+
     connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
             this, &QnxAnalyzeSupport::remoteIsRunning);
 
-    IDevice::ConstPtr dev = DeviceKitInformation::device(runConfig->target()->kit());
+    IDevice::ConstPtr dev = DeviceKitInformation::device(runControl->runConfiguration()->target()->kit());
     QnxDevice::ConstPtr qnxDevice = dev.dynamicCast<const QnxDevice>();
 
-    const QString applicationId = FileName::fromString(runConfig->remoteExecutableFilePath()).fileName();
+    auto qnxRunConfig = qobject_cast<QnxRunConfiguration *>(runControl->runConfiguration());
+    const QString applicationId = FileName::fromString(qnxRunConfig->remoteExecutableFilePath()).fileName();
     m_slog2Info = new Slog2InfoRunner(applicationId, qnxDevice, this);
     connect(m_slog2Info, &Slog2InfoRunner::output,
             this, &QnxAnalyzeSupport::showMessage);
@@ -109,22 +111,19 @@ void QnxAnalyzeSupport::startExecution()
     appRunner()->start(r, device());
 }
 
+Debugger::AnalyzerRunControl *QnxAnalyzeSupport::runControl()
+{
+    return qobject_cast<Debugger::AnalyzerRunControl *>(QnxAbstractRunSupport::runControl());
+}
+
 void QnxAnalyzeSupport::handleRemoteProcessFinished(bool success)
 {
-    if (!m_runControl)
-        return;
-
     if (!success)
         showMessage(tr("The %1 process closed unexpectedly.").arg(m_runnable.executable),
                     NormalMessageFormat);
-    m_runControl->notifyRemoteFinished();
+    runControl()->notifyRemoteFinished();
 
     m_slog2Info->stop();
-}
-
-void QnxAnalyzeSupport::handleProfilingFinished()
-{
-    setFinished();
 }
 
 void QnxAnalyzeSupport::handleProgressReport(const QString &progressOutput)
@@ -151,14 +150,13 @@ void QnxAnalyzeSupport::handleError(const QString &error)
 
 void QnxAnalyzeSupport::remoteIsRunning()
 {
-    if (m_runControl)
-        m_runControl->notifyRemoteSetupDone(m_qmlPort);
+    runControl()->notifyRemoteSetupDone(m_qmlPort);
 }
 
 void QnxAnalyzeSupport::showMessage(const QString &msg, OutputFormat format)
 {
-    if (state() != Inactive && m_runControl)
-        m_runControl->appendMessage(msg, format);
+    if (state() != Inactive)
+        runControl()->appendMessage(msg, format);
     m_outputParser.processOutput(msg);
 }
 

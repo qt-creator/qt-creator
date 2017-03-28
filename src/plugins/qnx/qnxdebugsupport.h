@@ -36,7 +36,6 @@ namespace Debugger { class DebuggerRunControl; }
 namespace Qnx {
 namespace Internal {
 
-class QnxRunConfiguration;
 class Slog2InfoRunner;
 
 class QnxDebugSupport : public QnxAbstractRunSupport
@@ -44,13 +43,11 @@ class QnxDebugSupport : public QnxAbstractRunSupport
     Q_OBJECT
 
 public:
-    QnxDebugSupport(QnxRunConfiguration *runConfig,
-                    Debugger::DebuggerRunControl *runControl);
+    explicit QnxDebugSupport(ProjectExplorer::RunControl *runControl);
 
-public slots:
     void handleDebuggingFinished();
 
-private slots:
+private:
     void handleAdapterSetupRequested() override;
 
     void handleRemoteProcessStarted() override;
@@ -62,9 +59,9 @@ private slots:
     void printMissingWarning();
     void handleApplicationOutput(const QString &msg, Utils::OutputFormat outputFormat);
 
-private:
     void startExecution() override;
 
+    Debugger::DebuggerRunControl *runControl();
     QString processExecutable() const;
 
     void killInferiorProcess();
@@ -72,7 +69,6 @@ private:
     ProjectExplorer::StandardRunnable m_runnable;
     Slog2InfoRunner *m_slog2Info;
 
-    Debugger::DebuggerRunControl *m_runControl;
     Utils::Port m_pdebugPort;
     Utils::Port m_qmlPort;
 

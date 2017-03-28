@@ -132,8 +132,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, Core::Id m
         const DebuggerStartParameters params = createDebuggerStartParameters(rc);
         DebuggerRunControl *runControl = createDebuggerRunControl(params, runConfig, errorMessage);
         QTC_ASSERT(runControl, return 0);
-        auto debugSupport = new QnxDebugSupport(rc, runControl);
-        connect(runControl, &RunControl::finished, debugSupport, &QnxDebugSupport::handleDebuggingFinished);
+        (void) new QnxDebugSupport(runControl);
         return runControl;
     }
 
@@ -150,8 +149,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, Core::Id m
         connection.analyzerHost = connection.connParams.host;
         connection.analyzerPort = Utils::Port(connection.connParams.port);
         runControl->setConnection(connection);
-        auto analyzeSupport = new QnxAnalyzeSupport(rc, runControl);
-        connect(runControl, &RunControl::finished, analyzeSupport, &QnxAnalyzeSupport::handleProfilingFinished);
+        (void) new QnxAnalyzeSupport(runControl);
         return runControl;
     }
 

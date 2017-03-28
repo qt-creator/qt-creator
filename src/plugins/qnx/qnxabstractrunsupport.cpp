@@ -38,9 +38,9 @@ using namespace RemoteLinux;
 namespace Qnx {
 namespace Internal {
 
-QnxAbstractRunSupport::QnxAbstractRunSupport(QnxRunConfiguration *runConfig, QObject *parent)
-    : QObject(parent)
-    , m_device(DeviceKitInformation::device(runConfig->target()->kit()))
+QnxAbstractRunSupport::QnxAbstractRunSupport(RunControl *runControl)
+    : ToolRunner(runControl)
+    , m_device(DeviceKitInformation::device(runControl->runConfiguration()->target()->kit()))
     , m_state(Inactive)
 {
     m_launcher = new ApplicationLauncher(this);
