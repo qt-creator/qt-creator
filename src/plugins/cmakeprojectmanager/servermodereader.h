@@ -117,15 +117,18 @@ private:
     addCMakeLists(CMakeProjectNode *root, const QList<ProjectExplorer::FileNode *> &cmakeLists);
     void addProjects(const QHash<Utils::FileName, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
                      const QList<Project *> &projects,
-                     const QList<const ProjectExplorer::FileNode *> &allFiles);
+                     QList<ProjectExplorer::FileNode *> &knownHeaderNodes);
     void addTargets(const QHash<Utils::FileName, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
                     const QList<Target *> &targets,
-                    const QHash<Utils::FileName, QList<const ProjectExplorer::FileNode *>> &headers);
+                    QList<ProjectExplorer::FileNode *> &knownHeaderNodes);
     void addFileGroups(ProjectExplorer::ProjectNode *targetRoot,
                        const Utils::FileName &sourceDirectory,
-                       const Utils::FileName &buildDirectory,
-                       const QList<FileGroup *> &fileGroups,
-                       const QHash<Utils::FileName, QList<const ProjectExplorer::FileNode *>> &headers);
+                       const Utils::FileName &buildDirectory, const QList<FileGroup *> &fileGroups,
+                       QList<ProjectExplorer::FileNode *> &knowHeaderNodes);
+
+    void addHeaderNodes(ProjectExplorer::ProjectNode *root,
+                        const QList<ProjectExplorer::FileNode *> knownHeaders,
+                        const QList<const ProjectExplorer::FileNode *> &allFiles);
 
     bool m_hasData = false;
 
