@@ -407,6 +407,7 @@ public:
 signals:
     void appendMessageRequested(ProjectExplorer::RunControl *runControl,
                                 const QString &msg, Utils::OutputFormat format);
+    void starting();
     void started(QPrivateSignal); // Use reportApplicationStart!
     void finished(QPrivateSignal); // Use reportApplicationStop!
     void applicationProcessHandleChanged(QPrivateSignal); // Use setApplicationProcessHandle
@@ -458,6 +459,7 @@ public:
     explicit ToolRunner(RunControl *runControl);
 
     RunControl *runControl() const;
+    void appendMessage(const QString &msg, Utils::OutputFormat format);
 
 private:
     QPointer<RunControl> m_runControl;

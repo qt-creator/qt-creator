@@ -138,7 +138,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
         DebuggerRunControl * const runControl = createDebuggerRunControl(params, runConfig, errorMessage, mode);
         if (!runControl)
             return 0;
-        (void) new LinuxDeviceDebugSupport(runConfig, runControl);
+        (void) new LinuxDeviceDebugSupport(runControl);
         return runControl;
     }
 
@@ -150,7 +150,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
             DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
         connection.analyzerHost = connection.connParams.host;
         runControl->setConnection(connection);
-        (void) new RemoteLinuxAnalyzeSupport(runConfig, runControl, mode);
+        (void) new RemoteLinuxAnalyzeSupport(runControl, mode);
         return runControl;
     }
 

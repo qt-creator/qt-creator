@@ -49,9 +49,6 @@ public:
     virtual void notifyRemoteSetupDone(Utils::Port) {}
     virtual void notifyRemoteSetupFailed(const QString &) {}
     virtual void notifyRemoteFinished() {}
-
-signals:
-    void starting();
 };
 
 } // namespace Debugger

@@ -42,8 +42,7 @@ class REMOTELINUX_EXPORT RemoteLinuxAnalyzeSupport : public AbstractRemoteLinuxR
 {
     Q_OBJECT
 public:
-    RemoteLinuxAnalyzeSupport(ProjectExplorer::RunConfiguration *runConfig,
-            Debugger::AnalyzerRunControl *engine, Core::Id runMode);
+    RemoteLinuxAnalyzeSupport(ProjectExplorer::RunControl *runConfig, Core::Id runMode);
     ~RemoteLinuxAnalyzeSupport() override;
 
 protected:

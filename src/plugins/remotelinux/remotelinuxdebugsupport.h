@@ -38,8 +38,7 @@ class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public AbstractRemoteLinuxRun
     Q_OBJECT
 
 public:
-    LinuxDeviceDebugSupport(ProjectExplorer::RunConfiguration *runConfig,
-            Debugger::DebuggerRunControl *runControl);
+    LinuxDeviceDebugSupport(ProjectExplorer::RunControl *runControl);
     ~LinuxDeviceDebugSupport() override;
 
 protected:
@@ -63,6 +62,7 @@ private:
     void handleDebuggingFinished();
 
     void showMessage(const QString &msg, int channel);
+    Debugger::DebuggerRunControl *runControl() const;
 
     Internal::LinuxDeviceDebugSupportPrivate * const d;
 };

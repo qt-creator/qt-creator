@@ -989,4 +989,9 @@ RunControl *ToolRunner::runControl() const
     return m_runControl;
 }
 
+void ToolRunner::appendMessage(const QString &msg, OutputFormat format)
+{
+    m_runControl->appendMessage(msg, format);
+}
+
 } // namespace ProjectExplorer

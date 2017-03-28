@@ -28,6 +28,8 @@
 #include "remotelinux_export.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/runconfiguration.h>
+
 #include <utils/port.h>
 
 #include <QObject>
@@ -43,7 +45,7 @@ namespace RemoteLinux {
 
 namespace Internal { class AbstractRemoteLinuxRunSupportPrivate; }
 
-class REMOTELINUX_EXPORT AbstractRemoteLinuxRunSupport : public QObject
+class REMOTELINUX_EXPORT AbstractRemoteLinuxRunSupport : public ProjectExplorer::ToolRunner
 {
     Q_OBJECT
 protected:
@@ -55,8 +57,7 @@ protected:
         Running
     };
 public:
-    AbstractRemoteLinuxRunSupport(ProjectExplorer::RunConfiguration *runConfig,
-                          QObject *parent = 0);
+    explicit AbstractRemoteLinuxRunSupport(ProjectExplorer::RunControl *runControl);
     ~AbstractRemoteLinuxRunSupport();
 
 protected:

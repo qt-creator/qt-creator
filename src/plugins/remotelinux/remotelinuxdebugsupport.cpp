@@ -56,14 +56,12 @@ namespace Internal {
 class LinuxDeviceDebugSupportPrivate
 {
 public:
-    LinuxDeviceDebugSupportPrivate(const RunConfiguration *runConfig, DebuggerRunControl *runControl)
-        : runControl(runControl),
-          qmlDebugging(runConfig->extraAspect<DebuggerRunConfigurationAspect>()->useQmlDebugger()),
+    LinuxDeviceDebugSupportPrivate(const RunConfiguration *runConfig)
+        : qmlDebugging(runConfig->extraAspect<DebuggerRunConfigurationAspect>()->useQmlDebugger()),
           cppDebugging(runConfig->extraAspect<DebuggerRunConfigurationAspect>()->useCppDebugger())
     {
     }
 
-    const QPointer<DebuggerRunControl> runControl;
     bool qmlDebugging;
     bool cppDebugging;
     QByteArray gdbserverOutput;
@@ -75,12 +73,11 @@ public:
 
 using namespace Internal;
 
-LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunConfiguration *runConfig,
-        DebuggerRunControl *runControl)
-    : AbstractRemoteLinuxRunSupport(runConfig, runControl),
-      d(new LinuxDeviceDebugSupportPrivate(runConfig, runControl))
+LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
+    : AbstractRemoteLinuxRunSupport(runControl),
+      d(new LinuxDeviceDebugSupportPrivate(runControl->runConfiguration()))
 {
-    connect(runControl, &DebuggerRunControl::requestRemoteSetup,
+    connect(this->runControl(), &DebuggerRunControl::requestRemoteSetup,
             this, &LinuxDeviceDebugSupport::handleRemoteSetupRequested);
     connect(runControl, &RunControl::finished,
             this, &LinuxDeviceDebugSupport::handleDebuggingFinished);
@@ -103,8 +100,13 @@ bool LinuxDeviceDebugSupport::isQmlDebugging() const
 
 void LinuxDeviceDebugSupport::showMessage(const QString &msg, int channel)
 {
-    if (state() != Inactive && d->runControl)
-        d->runControl->showMessage(msg, channel);
+    if (state() != Inactive)
+        runControl()->showMessage(msg, channel);
+}
+
+DebuggerRunControl *LinuxDeviceDebugSupport::runControl() const
+{
+    return qobject_cast<DebuggerRunControl *>(AbstractRemoteLinuxRunSupport::runControl());
 }
 
 void LinuxDeviceDebugSupport::handleRemoteSetupRequested()
@@ -183,8 +185,7 @@ void LinuxDeviceDebugSupport::handleAppRunnerError(const QString &error)
 {
     if (state() == Running) {
         showMessage(error, AppError);
-        if (d->runControl)
-            d->runControl->notifyInferiorIll();
+        runControl()->notifyInferiorIll();
     } else if (state() != Inactive) {
         handleAdapterSetupFailed(error);
     }
@@ -192,21 +193,21 @@ void LinuxDeviceDebugSupport::handleAppRunnerError(const QString &error)
 
 void LinuxDeviceDebugSupport::handleAppRunnerFinished(bool success)
 {
-    if (!d->runControl || state() == Inactive)
+    if (state() == Inactive)
         return;
 
     if (state() == Running) {
         // The QML engine does not realize on its own that the application has finished.
         if (d->qmlDebugging && !d->cppDebugging)
-            d->runControl->quitDebugger();
+            runControl()->quitDebugger();
         else if (!success)
-            d->runControl->notifyInferiorIll();
+            runControl()->notifyInferiorIll();
 
     } else if (state() == StartingRunner) {
         RemoteSetupResult result;
         result.success = false;
         result.reason = tr("Debugging failed.");
-        d->runControl->notifyEngineRemoteSetupFinished(result);
+        runControl()->notifyEngineRemoteSetupFinished(result);
     }
     reset();
 }
@@ -227,9 +228,6 @@ void LinuxDeviceDebugSupport::handleRemoteOutput(const QByteArray &output)
 void LinuxDeviceDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
 {
     QTC_ASSERT(state() != GatheringResources, return);
-
-    if (!d->runControl)
-        return;
 
     showMessage(QString::fromUtf8(output), AppError);
     if (state() == StartingRunner && d->cppDebugging) {
@@ -253,7 +251,7 @@ void LinuxDeviceDebugSupport::handleAdapterSetupFailed(const QString &error)
     RemoteSetupResult result;
     result.success = false;
     result.reason = tr("Initial setup failed: %1").arg(error);
-    d->runControl->notifyEngineRemoteSetupFinished(result);
+    runControl()->notifyEngineRemoteSetupFinished(result);
 }
 
 void LinuxDeviceDebugSupport::handleAdapterSetupDone()
@@ -264,7 +262,7 @@ void LinuxDeviceDebugSupport::handleAdapterSetupDone()
     result.success = true;
     result.gdbServerPort = d->gdbServerPort;
     result.qmlServerPort = d->qmlPort;
-    d->runControl->notifyEngineRemoteSetupFinished(result);
+    runControl()->notifyEngineRemoteSetupFinished(result);
 }
 
 void LinuxDeviceDebugSupport::handleRemoteProcessStarted()

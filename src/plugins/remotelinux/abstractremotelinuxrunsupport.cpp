@@ -62,9 +62,9 @@ public:
 
 using namespace Internal;
 
-AbstractRemoteLinuxRunSupport::AbstractRemoteLinuxRunSupport(RunConfiguration *runConfig, QObject *parent)
-    : QObject(parent),
-      d(new AbstractRemoteLinuxRunSupportPrivate(runConfig))
+AbstractRemoteLinuxRunSupport::AbstractRemoteLinuxRunSupport(RunControl *runControl)
+    : ToolRunner(runControl),
+      d(new AbstractRemoteLinuxRunSupportPrivate(runControl->runConfiguration()))
 {
 }
 
