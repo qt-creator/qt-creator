@@ -2122,7 +2122,7 @@ static QString pathOrDirectoryFor(Node *node, bool dir)
         while ((!fi.exists() || !fi.isDir()) && !fi.isRoot())
             fi.setFile(fi.absolutePath());
         location = fi.absoluteFilePath();
-    } else {
+    } else if (!path.isEmpty()) {
         QFileInfo fi = path.toFileInfo();
         // remove any /suffixes, which e.g. ResourceNode uses
         // Note this should be removed again by making node->path() a true path again
