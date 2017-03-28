@@ -604,6 +604,9 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
         }
     }
 
+    if (skipOpeningBigTextFile(fileName))
+        return nullptr;
+
     IEditor *editor = 0;
     auto overrideCursor = Utils::OverrideCursor(QCursor(Qt::WaitCursor));
 
@@ -2618,9 +2621,6 @@ EditorManager::ExternalEditorList
 IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
-    if (EditorManagerPrivate::skipOpeningBigTextFile(fileName))
-        return 0;
-
     if (flags & EditorManager::OpenInOtherSplit)
         EditorManager::gotoOtherSplit();
 
@@ -2631,9 +2631,6 @@ IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
 IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int column,
                                      Id editorId, OpenEditorFlags flags, bool *newEditor)
 {
-    if (EditorManagerPrivate::skipOpeningBigTextFile(fileName))
-        return 0;
-
     if (flags & EditorManager::OpenInOtherSplit)
         EditorManager::gotoOtherSplit();
 
