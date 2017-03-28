@@ -266,7 +266,8 @@ FileType Node::fileTypeForMimeType(const Utils::MimeType &mt)
 
 FileType Node::fileTypeForFileName(const Utils::FileName &file)
 {
-    return fileTypeForMimeType(Utils::mimeTypeForFile(file.toString()));
+    return fileTypeForMimeType(Utils::mimeTypeForFile(file.toString(),
+                                                      Utils::MimeMatchMode::MatchExtension));
 }
 
 /*!
