@@ -1309,7 +1309,7 @@ void QmakeProject::testToolChain(ToolChain *tc, const Utils::FileName &path) con
             t->kit()->addToEnvironment(env);
     }
 
-    if (env.isSameExecutable(path.toString(), expected.toString())) {
+    if (!env.isSameExecutable(path.toString(), expected.toString())) {
         const QPair<Utils::FileName, Utils::FileName> pair = qMakePair(expected, path);
         if (!m_toolChainWarnings.contains(pair)) {
             TaskHub::addTask(Task(Task::Warning,
