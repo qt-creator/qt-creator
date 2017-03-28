@@ -50,8 +50,7 @@ class AndroidRunner : public QObject
     Q_OBJECT
 
 public:
-    AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig,
-                  Core::Id runMode);
+    AndroidRunner(QObject *parent, ProjectExplorer::RunConfiguration *runConfig, Core::Id runMode);
     ~AndroidRunner();
 
     QString displayName() const;

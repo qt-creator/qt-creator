@@ -684,8 +684,8 @@ void AndroidRunnerWorker::adbKill(qint64 pid)
                       << "kill" << "-9" << QString::number(pid));
 }
 
-AndroidRunner::AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig, Core::Id runMode)
-    : QObject(parent), m_runConfig(runConfig)
+AndroidRunner::AndroidRunner(QObject *parent, RunConfiguration *runConfig, Core::Id runMode)
+    : QObject(parent), m_runConfig(qobject_cast<AndroidRunConfiguration *>(runConfig))
 {
     static const int metaTypes[] = {
         qRegisterMetaType<QVector<QStringList> >("QVector<QStringList>"),
@@ -703,7 +703,7 @@ AndroidRunner::AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig
     m_androidRunnable.deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
 
     m_worker.reset(new AndroidRunnerWorker(
-                runConfig, runMode, m_androidRunnable.packageName,
+                m_runConfig, runMode, m_androidRunnable.packageName,
                 AndroidDeviceInfo::adbSelector(m_androidRunnable.deviceSerialNumber)));
     m_worker->moveToThread(&m_thread);
 

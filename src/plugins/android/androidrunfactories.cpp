@@ -56,17 +56,15 @@ bool AndroidRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::
 }
 
 RunControl *AndroidRunControlFactory::create(RunConfiguration *runConfig,
-                                        Core::Id mode, QString *errorMessage)
+                                             Core::Id mode, QString *errorMessage)
 {
     Q_ASSERT(canRun(runConfig, mode));
-    AndroidRunConfiguration *rc = qobject_cast<AndroidRunConfiguration *>(runConfig);
-    Q_ASSERT(rc);
     if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
-        return new AndroidRunControl(rc);
+        return new AndroidRunControl(runConfig);
     if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN)
-        return AndroidDebugSupport::createDebugRunControl(rc, errorMessage);
+        return AndroidDebugSupport::createDebugRunControl(runConfig, errorMessage);
     if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
-        return AndroidAnalyzeSupport::createAnalyzeRunControl(rc, mode);
+        return AndroidAnalyzeSupport::createAnalyzeRunControl(runConfig, mode);
     QTC_CHECK(false); // The other run modes are not supported
     return 0;
 }

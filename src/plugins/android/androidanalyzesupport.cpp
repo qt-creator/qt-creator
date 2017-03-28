@@ -45,8 +45,7 @@ using namespace ProjectExplorer;
 namespace Android {
 namespace Internal {
 
-RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfiguration *runConfig,
-                                                           Core::Id runMode)
+RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(RunConfiguration *runConfig, Core::Id runMode)
 {
     AnalyzerRunControl *runControl = Debugger::createAnalyzerRunControl(runConfig, runMode);
     QTC_ASSERT(runControl, return 0);
@@ -59,18 +58,15 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
     }
     runControl->setDisplayName(AndroidManager::packageName(runConfig->target()));
     runControl->setConnection(connection);
-    (void) new AndroidAnalyzeSupport(runConfig, runControl);
+    (void) new AndroidAnalyzeSupport(runControl);
     return runControl;
 }
 
-AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
-    AnalyzerRunControl *runControl)
-    : QObject(runControl),
-      m_qmlPort(0)
+AndroidAnalyzeSupport::AndroidAnalyzeSupport(RunControl *runControl)
+    : ToolRunner(runControl)
 {
-    QTC_ASSERT(runControl, return);
-
-    auto runner = new AndroidRunner(this, runConfig, runControl->runMode());
+    auto runner = new AndroidRunner(this, runControl->runConfiguration(), runControl->runMode());
+    auto analyzerRunControl = qobject_cast<AnalyzerRunControl *>(runControl);
 
     connect(runControl, &AnalyzerRunControl::finished, runner,
         [runner]() { runner->stop(); });
@@ -79,8 +75,8 @@ AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
         [runner]() { runner->start(); });
 
     connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort, this,
-        [this, runControl](Utils::Port) {
-            runControl->notifyRemoteSetupDone(m_qmlPort);
+        [this, analyzerRunControl](Utils::Port) {
+            analyzerRunControl->notifyRemoteSetupDone(m_qmlPort);
         });
 
     connect(runner, &AndroidRunner::remoteProcessStarted, this,
@@ -89,8 +85,8 @@ AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
         });
 
     connect(runner, &AndroidRunner::remoteProcessFinished, this,
-        [this, runControl](const QString &errorMsg)  {
-            runControl->notifyRemoteFinished();
+        [this, runControl, analyzerRunControl](const QString &errorMsg)  {
+            analyzerRunControl->notifyRemoteFinished();
             runControl->appendMessage(errorMsg, Utils::NormalMessageFormat);
         });
 

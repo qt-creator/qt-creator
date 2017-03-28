@@ -38,7 +38,7 @@ using namespace ProjectExplorer;
 namespace Android {
 namespace Internal {
 
-AndroidRunControl::AndroidRunControl(AndroidRunConfiguration *rc)
+AndroidRunControl::AndroidRunControl(RunConfiguration *rc)
     : RunControl(rc, ProjectExplorer::Constants::NORMAL_RUN_MODE)
     , m_runner(new AndroidRunner(this, rc, ProjectExplorer::Constants::NORMAL_RUN_MODE))
 {
