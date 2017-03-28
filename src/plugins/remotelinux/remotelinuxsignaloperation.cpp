@@ -49,9 +49,9 @@ RemoteLinuxSignalOperation::~RemoteLinuxSignalOperation()
     }
 }
 
-static QString signalProcessByPidCommandLine(qint64 pid, int signal)
+static QString signalProcessGroupByPidCommandLine(qint64 pid, int signal)
 {
-    return QString::fromLatin1("kill -%1 %2").arg(signal).arg(pid);
+    return QString::fromLatin1("kill -%1 -- -%2 %2").arg(signal).arg(pid);
 }
 
 void RemoteLinuxSignalOperation::run(const QString &command)
@@ -72,32 +72,32 @@ void RemoteLinuxSignalOperation::finish()
     emit finished(m_errorMessage);
 }
 
-static QString signalProcessByNameCommandLine(const QString &filePath, int signal)
+static QString signalProcessGroupByNameCommandLine(const QString &filePath, int signal)
 {
     return QString::fromLatin1(
                 "cd /proc; for pid in `ls -d [0123456789]*`; "
                 "do "
                 "if [ \"`readlink /proc/$pid/exe`\" = \"%1\" ]; then "
-                "    kill -%2 $pid;"
+                "    kill -%2 -- -$pid $pid;"
                 "fi; "
                 "done").arg(filePath).arg(signal);
 }
 
 QString RemoteLinuxSignalOperation::killProcessByNameCommandLine(const QString &filePath) const
 {
-    return QString::fromLatin1("%1; %2").arg(signalProcessByNameCommandLine(filePath, 15),
-                                             signalProcessByNameCommandLine(filePath, 9));
+    return QString::fromLatin1("%1; %2").arg(signalProcessGroupByNameCommandLine(filePath, 15),
+                                             signalProcessGroupByNameCommandLine(filePath, 9));
 }
 
 QString RemoteLinuxSignalOperation::interruptProcessByNameCommandLine(const QString &filePath) const
 {
-    return signalProcessByNameCommandLine(filePath, 2);
+    return signalProcessGroupByNameCommandLine(filePath, 2);
 }
 
 void RemoteLinuxSignalOperation::killProcess(qint64 pid)
 {
-    run(QString::fromLatin1("%1; sleep 1; %2").arg(signalProcessByPidCommandLine(pid, 15),
-                                          signalProcessByPidCommandLine(pid, 9)));
+    run(QString::fromLatin1("%1; sleep 1; %2").arg(signalProcessGroupByPidCommandLine(pid, 15),
+                                                   signalProcessGroupByPidCommandLine(pid, 9)));
 }
 
 void RemoteLinuxSignalOperation::killProcess(const QString &filePath)
@@ -107,7 +107,7 @@ void RemoteLinuxSignalOperation::killProcess(const QString &filePath)
 
 void RemoteLinuxSignalOperation::interruptProcess(qint64 pid)
 {
-    run(signalProcessByPidCommandLine(pid, 2));
+    run(signalProcessGroupByPidCommandLine(pid, 2));
 }
 
 void RemoteLinuxSignalOperation::interruptProcess(const QString &filePath)

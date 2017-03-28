@@ -185,7 +185,6 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     updateQmlJSCodeModel();
 
-    emit displayNameChanged();
     emit fileListChanged();
 
     emit bc->emitBuildTypeChanged();
@@ -220,7 +219,7 @@ void CMakeProject::updateQmlJSCodeModel()
     }
 
     foreach (const QString &cmakeImport, CMakeConfigItem::cmakeSplitValue(cmakeImports))
-        projectInfo.importPaths.maybeInsert(FileName::fromString(cmakeImport),QmlJS::Dialect::Qml);
+        projectInfo.importPaths.maybeInsert(FileName::fromString(cmakeImport), QmlJS::Dialect::Qml);
 
     modelManager->updateProjectInfo(projectInfo, this);
 }
@@ -305,21 +304,6 @@ QString CMakeProject::displayName() const
 {
     auto root = dynamic_cast<CMakeProjectNode *>(rootProjectNode());
     return root ? root->displayName() : projectDirectory().fileName();
-}
-
-QStringList CMakeProject::files(FilesMode fileMode) const
-{
-    QStringList result;
-    if (ProjectNode *rpn = rootProjectNode()) {
-        rpn->forEachNode([&](const FileNode *fn) {
-            const bool isGenerated = fn->isGenerated();
-            if ((fileMode & Project::SourceFiles) && !isGenerated)
-                result.append(fn->filePath().toString());
-            if ((fileMode & Project::GeneratedFiles) && isGenerated)
-                result.append(fn->filePath().toString());
-        });
-    }
-    return result;
 }
 
 Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *errorMessage)

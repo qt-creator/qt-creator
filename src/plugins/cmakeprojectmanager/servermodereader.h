@@ -113,10 +113,13 @@ private:
     void extractCMakeInputsData(const QVariantMap &data);
     void extractCacheData(const QVariantMap &data);
 
-    void addCMakeLists(CMakeProjectNode *root, const QList<ProjectExplorer::FileNode *> &cmakeLists);
-    void addProjects(CMakeProjectNode *root, const QList<Project *> &projects,
+    QHash<Utils::FileName, ProjectExplorer::ProjectNode *>
+    addCMakeLists(CMakeProjectNode *root, const QList<ProjectExplorer::FileNode *> &cmakeLists);
+    void addProjects(const QHash<Utils::FileName, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
+                     const QList<Project *> &projects,
                      const QList<const ProjectExplorer::FileNode *> &allFiles);
-    void addTargets(CMakeProjectNode *root, const QList<Target *> &targets,
+    void addTargets(const QHash<Utils::FileName, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
+                    const QList<Target *> &targets,
                     const QHash<Utils::FileName, QList<const ProjectExplorer::FileNode *>> &headers);
     void addFileGroups(ProjectExplorer::ProjectNode *targetRoot,
                        const Utils::FileName &sourceDirectory,

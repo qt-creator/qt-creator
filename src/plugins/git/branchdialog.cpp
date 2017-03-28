@@ -92,6 +92,7 @@ BranchDialog::BranchDialog(QWidget *parent) :
     connect(m_model, &QAbstractItemModel::dataChanged, this, &BranchDialog::resizeColumns);
     connect(m_model, &QAbstractItemModel::rowsInserted, this, &BranchDialog::resizeColumns);
     connect(m_model, &QAbstractItemModel::rowsRemoved, this, &BranchDialog::resizeColumns);
+    connect(m_model, &QAbstractItemModel::modelReset, this, &BranchDialog::expandAndResize);
 
     m_ui->branchView->selectionModel()->clear();
 }
@@ -111,7 +112,10 @@ void BranchDialog::refresh(const QString &repository, bool force)
     QString errorMessage;
     if (!m_model->refresh(m_repository, &errorMessage))
         VcsOutputWindow::appendError(errorMessage);
+}
 
+void BranchDialog::expandAndResize()
+{
     m_ui->branchView->expandAll();
     resizeColumns();
 }

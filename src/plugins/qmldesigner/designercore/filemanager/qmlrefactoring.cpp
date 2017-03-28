@@ -90,7 +90,7 @@ bool QmlRefactoring::addToArrayMemberList(int parentLocation, const PropertyName
     if (parentLocation < 0)
         return false;
 
-    AddArrayMemberVisitor visit(*textModifier, (quint32) parentLocation, QString::fromUtf8(propertyName), content);
+    AddArrayMemberVisitor visit(*textModifier, parentLocation, QString::fromUtf8(propertyName), content);
     visit.setConvertObjectBindingIntoArrayBinding(true);
     return visit(qmlDocument->qmlProgram());
 }
@@ -100,7 +100,7 @@ bool QmlRefactoring::addToObjectMemberList(int parentLocation, const QString &co
     if (parentLocation < 0)
         return false;
 
-    AddObjectVisitor visit(*textModifier, (quint32) parentLocation, content, m_propertyOrder);
+    AddObjectVisitor visit(*textModifier, parentLocation, content, m_propertyOrder);
     return visit(qmlDocument->qmlProgram());
 }
 
@@ -113,7 +113,7 @@ bool QmlRefactoring::addProperty(int parentLocation,
     if (parentLocation < 0)
         return false;
 
-    AddPropertyVisitor visit(*textModifier, (quint32) parentLocation, name, value, propertyType, m_propertyOrder, dynamicTypeName);
+    AddPropertyVisitor visit(*textModifier, parentLocation, name, value, propertyType, m_propertyOrder, dynamicTypeName);
     return visit(qmlDocument->qmlProgram());
 }
 
@@ -123,7 +123,7 @@ bool QmlRefactoring::changeProperty(int parentLocation, const PropertyName &name
         return false;
 
     ChangePropertyVisitor visit(*textModifier,
-                                (quint32) parentLocation,
+                                parentLocation,
                                 QString::fromUtf8(name),
                                 value,
                                 propertyType);
@@ -135,7 +135,7 @@ bool QmlRefactoring::changeObjectType(int nodeLocation, const QString &newType)
     if (nodeLocation < 0 || newType.isEmpty())
         return false;
 
-    ChangeObjectTypeVisitor visit(*textModifier, (quint32) nodeLocation, newType);
+    ChangeObjectTypeVisitor visit(*textModifier, nodeLocation, newType);
     return visit(qmlDocument->qmlProgram());
 }
 
@@ -144,7 +144,7 @@ bool QmlRefactoring::moveObject(int objectLocation, const PropertyName &targetPr
     if (objectLocation < 0 || targetParentObjectLocation < 0)
         return false;
 
-    MoveObjectVisitor visit(*textModifier, (quint32) objectLocation, targetPropertyName, targetIsArrayBinding, (quint32) targetParentObjectLocation, m_propertyOrder);
+    MoveObjectVisitor visit(*textModifier, objectLocation, targetPropertyName, targetIsArrayBinding, (quint32) targetParentObjectLocation, m_propertyOrder);
     return visit(qmlDocument->qmlProgram());
 }
 
@@ -168,7 +168,7 @@ bool QmlRefactoring::removeObject(int nodeLocation)
     if (nodeLocation < 0)
         return false;
 
-    RemoveUIObjectMemberVisitor visit(*textModifier, (quint32) nodeLocation);
+    RemoveUIObjectMemberVisitor visit(*textModifier, nodeLocation);
     return visit(qmlDocument->qmlProgram());
 }
 
@@ -177,6 +177,6 @@ bool QmlRefactoring::removeProperty(int parentLocation, const PropertyName &name
     if (parentLocation < 0 || name.isEmpty())
         return false;
 
-    RemovePropertyVisitor visit(*textModifier, (quint32) parentLocation, QString::fromUtf8(name));
+    RemovePropertyVisitor visit(*textModifier, parentLocation, QString::fromUtf8(name));
     return visit(qmlDocument->qmlProgram());
 }

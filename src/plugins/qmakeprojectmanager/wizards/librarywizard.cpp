@@ -132,12 +132,14 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
         QTextStream proStr(&profileContents);
         QtProjectParameters::writeProFileHeader(proStr);
         projectParams.writeProFile(proStr);
-        proStr << "\nSOURCES += " << Utils::FileName::fromString(source.path()).fileName()
-               << "\n\nHEADERS += " << headerFileName;
+        proStr << "\nSOURCES +="
+               << " \\\n        " << Utils::FileName::fromString(source.path()).fileName()
+               << "\n\nHEADERS +="
+               << " \\\n        " << headerFileName;
         if (!globalHeaderFileName.isEmpty())
-            proStr << "\\\n        " << globalHeaderFileName << '\n';
+            proStr << " \\\n        " << globalHeaderFileName << " \n";
         if (!pluginJsonFileName.isEmpty())
-            proStr << "\nDISTFILES += " << pluginJsonFileName << '\n';
+            proStr << "\nDISTFILES += " << pluginJsonFileName << " \n";
         writeLinuxProFile(proStr);
     }
     profile.setContents(profileContents);

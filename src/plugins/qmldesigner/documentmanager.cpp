@@ -436,7 +436,9 @@ bool DocumentManager::isoProFileSupportsAddingExistingFiles(const QString &resou
     if (!node || !node->parentFolderNode())
         return false;
     ProjectExplorer::ProjectNode *projectNode = node->parentFolderNode()->asProjectNode();
-    if (!projectNode || !projectNode->supportedActions(projectNode).contains(ProjectExplorer::AddExistingFile)) {
+    if (!projectNode)
+        return false;
+    if (!projectNode->supportedActions(projectNode).contains(ProjectExplorer::AddExistingFile)) {
         qCWarning(documentManagerLog) << "Project" << projectNode->displayName() << "does not support adding existing files";
         return false;
     }

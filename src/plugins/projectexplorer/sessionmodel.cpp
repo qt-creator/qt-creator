@@ -28,12 +28,17 @@
 
 #include "sessiondialog.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/id.h>
+
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
 
 #include <QFileInfo>
 #include <QDir>
+
+using namespace Core;
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -146,6 +151,11 @@ QVariant SessionModel::data(const QModelIndex &index, int role) const
         case ProjectsDisplayRole:
             result = pathsToBaseNames(SessionManager::projectsForSessionName(sessionName));
             break;
+        case ShortcutRole: {
+            const Id sessionBase = SESSION_BASE_ID;
+            if (Command *cmd = ActionManager::command(sessionBase.withSuffix(index.row() + 1)))
+                result = cmd->keySequence().toString(QKeySequence::NativeText);
+        } break;
         } // switch (role)
     }
 

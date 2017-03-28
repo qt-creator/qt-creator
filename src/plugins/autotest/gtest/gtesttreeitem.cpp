@@ -88,9 +88,6 @@ TestConfiguration *GTestTreeItem::testConfiguration() const
             config->setTestCaseCount(count);
             config->setProjectFile(proFile());
             config->setProject(project);
-            // item has no filePath set - so take it of the first children
-            config->setDisplayName(
-                    TestUtils::getCMakeDisplayNameIfNecessary(childItem(0)->filePath(), proFile()));
         }
         break;
     }
@@ -103,8 +100,6 @@ TestConfiguration *GTestTreeItem::testConfiguration() const
         config->setTestCases(QStringList(testSpecifier));
         config->setProjectFile(proFile());
         config->setProject(project);
-        config->setDisplayName(
-                    TestUtils::getCMakeDisplayNameIfNecessary(filePath(), parent->proFile()));
         break;
     }
     default:
@@ -179,7 +174,6 @@ QList<TestConfiguration *> GTestTreeItem::getAllTestConfigurations() const
         GTestConfiguration *tc = new GTestConfiguration;
         tc->setTestCaseCount(it.value());
         tc->setProjectFile(key.proFile);
-        tc->setDisplayName(key.displayName);
         tc->setProject(project);
         result << tc;
     }
@@ -244,7 +238,6 @@ QList<TestConfiguration *> GTestTreeItem::getSelectedTestConfigurations() const
         tc->setTestCases(it.value().filters);
         tc->setTestCaseCount(tc->testCaseCount() + it.value().additionalTestCaseCount);
         tc->setProjectFile(proFileWithDisplayName.proFile);
-        tc->setDisplayName(proFileWithDisplayName.displayName);
         tc->setProject(project);
         result << tc;
     }

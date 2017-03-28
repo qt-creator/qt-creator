@@ -304,7 +304,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     clearAbortedPosition();
     m_proposal.reset(proposalCandidate.take());
 
-    if (m_proposal->isCorrective())
+    if (m_proposal->isCorrective(m_editorWidget))
         m_proposal->makeCorrection(m_editorWidget);
 
     m_editorWidget->keepAutoCompletionHighlight(true);

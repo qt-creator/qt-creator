@@ -278,7 +278,7 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
                 }
             } else if (qmlObjectNode.modelNode().metaInfo().propertyTypeName(name) == "qreal") {
                 bool ok;
-                qreal realValue = value->expression().toFloat(&ok);
+                qreal realValue = value->expression().toDouble(&ok);
                 if (ok) {
                     qmlObjectNode.setVariantProperty(name, realValue);
                     transaction.commit(); //committing in the try block

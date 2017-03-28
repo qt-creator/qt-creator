@@ -36,6 +36,7 @@ class PyValue
 public:
     PyValue() = default;
     PyValue(unsigned long index, CIDebugSymbolGroup *symbolGroup);
+    PyValue(const PyValue &other);
     ~PyValue();
 
     std::string name() const;

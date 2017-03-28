@@ -191,7 +191,6 @@ static QList<QmakeProject *> s_projects;
   */
 
 QmakeProject::QmakeProject(const FileName &fileName) :
-    m_projectFiles(new QmakeProjectFiles),
     m_qmakeVfs(new QMakeVfs),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
@@ -230,7 +229,6 @@ QmakeProject::~QmakeProject()
     setRootProjectNode(nullptr);
     m_rootProFile.reset();
 
-    delete m_projectFiles;
     m_cancelEvaluate = true;
     Q_ASSERT(m_qmakeGlobalsRefCnt == 0);
     delete m_qmakeVfs;
@@ -239,32 +237,6 @@ QmakeProject::~QmakeProject()
 QmakeProFile *QmakeProject::rootProFile() const
 {
     return m_rootProFile.get();
-}
-
-void QmakeProject::updateFileList()
-{
-    QmakeProjectFiles files;
-    rootProjectNode()->forEachNode([&](FileNode *fileNode) {
-        const int type = static_cast<int>(fileNode->fileType());
-        QStringList &targetList = fileNode->isGenerated() ? files.generatedFiles[type] : files.files[type];
-        targetList.push_back(fileNode->filePath().toString());
-    }, [&](FolderNode *folderNode) {
-        if (ProjectNode *projectNode = folderNode->asProjectNode())
-            files.proFiles.append(projectNode->filePath().toString());
-        if (dynamic_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
-            files.files[static_cast<int>(FileType::Resource)].push_back(folderNode->filePath().toString());
-    });
-
-    for (QStringList &f : files.files)
-        f.removeDuplicates();
-    for (QStringList &f : files.generatedFiles)
-        f.removeDuplicates();
-    files.proFiles.removeDuplicates();
-
-    if (files != *m_projectFiles) {
-        *m_projectFiles = files;
-        emit fileListChanged();
-    }
 }
 
 Project::RestoreResult QmakeProject::fromMap(const QVariantMap &map, QString *errorMessage)
@@ -576,7 +548,6 @@ void QmakeProject::decrementPendingEvaluateFutures()
             setAllBuildConfigurationsEnabled(true);
 
             m_asyncUpdateState = Base;
-            updateFileList();
             updateCodeModels();
             updateBuildSystemData();
             if (activeTarget())
@@ -637,21 +608,6 @@ bool QmakeProject::supportsKit(Kit *k, QString *errorMessage) const
 QString QmakeProject::displayName() const
 {
     return projectFilePath().toFileInfo().completeBaseName();
-}
-
-QStringList QmakeProject::files(FilesMode fileMode) const
-{
-    QStringList files;
-    for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
-        if (fileMode & SourceFiles)
-            files += m_projectFiles->files[i];
-        if (fileMode & GeneratedFiles)
-            files += m_projectFiles->generatedFiles[i];
-    }
-
-    files.removeDuplicates();
-
-    return files;
 }
 
 // Find the folder that contains a file with a certain name (recurse down)
@@ -1086,10 +1042,8 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
         m_recursiveWatchedFolders += tmp;
     }
 
-    if (newOrRemovedFiles) {
-        m_project->updateFileList();
+    if (newOrRemovedFiles)
         m_project->updateCodeModels();
-    }
 }
 
 bool QmakeProject::needsConfiguration() const
@@ -1346,7 +1300,16 @@ void QmakeProject::testToolChain(ToolChain *tc, const Utils::FileName &path) con
         return;
 
     const Utils::FileName expected = tc->compilerCommand();
-    if (expected != path) {
+
+    Environment env = Environment::systemEnvironment();
+    if (Target *t = activeTarget()) {
+        if (BuildConfiguration *bc = t->activeBuildConfiguration())
+            env = bc->environment();
+        else
+            t->kit()->addToEnvironment(env);
+    }
+
+    if (env.isSameExecutable(path.toString(), expected.toString())) {
         const QPair<Utils::FileName, Utils::FileName> pair = qMakePair(expected, path);
         if (!m_toolChainWarnings.contains(pair)) {
             TaskHub::addTask(Task(Task::Warning,

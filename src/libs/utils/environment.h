@@ -106,6 +106,8 @@ public:
     QStringList path() const;
     QStringList appendExeExtensions(const QString &executable) const;
 
+    bool isSameExecutable(const QString &exe1, const QString &exe2) const;
+
     QString expandVariables(const QString &input) const;
     QStringList expandVariables(const QStringList &input) const;
 

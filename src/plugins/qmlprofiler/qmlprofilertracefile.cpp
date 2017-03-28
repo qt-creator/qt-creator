@@ -416,10 +416,77 @@ void QmlProfilerFileReader::loadEventTypes(QXmlStreamReader &stream)
     }
 }
 
+class EventList
+{
+public:
+    void addEvent(const QmlEvent &event);
+    void addRange(const QmlEvent &start, const QmlEvent &end);
+
+    QVector<QmlEvent> finalize();
+
+private:
+    struct QmlRange {
+        QmlEvent begin;
+        QmlEvent end;
+    };
+
+    QList<QmlRange> ranges; // We are going to do a lot of takeFirst() on this.
+};
+
+void EventList::addEvent(const QmlEvent &event)
+{
+    ranges.append({event, QmlEvent()});
+}
+
+void EventList::addRange(const QmlEvent &start, const QmlEvent &end)
+{
+    ranges.append({start, end});
+}
+
+QVector<QmlEvent> EventList::finalize()
+{
+    std::sort(ranges.begin(), ranges.end(), [](const QmlRange &a, const QmlRange &b) {
+        if (a.begin.timestamp() < b.begin.timestamp())
+            return true;
+        if (a.begin.timestamp() > b.begin.timestamp())
+            return false;
+
+        // If the start times are equal. Sort the one with the greater end time first, so that
+        // the nesting is retained.
+        return (a.end.timestamp() > b.end.timestamp());
+    });
+
+    QList<QmlEvent> ends;
+    QVector<QmlEvent> result;
+    while (!ranges.isEmpty()) {
+        // This is more expensive than just iterating, but we don't want to double the already
+        // high memory footprint.
+        QmlRange range = ranges.takeFirst();
+        while (!ends.isEmpty() && ends.last().timestamp() <= range.begin.timestamp())
+            result.append(ends.takeLast());
+
+        result.append(range.begin);
+        if (range.end.isValid()) {
+            auto it = ends.end();
+            for (auto begin = ends.begin(); it != begin;) {
+                if ((--it)->timestamp() >= range.end.timestamp()) {
+                    ++it;
+                    break;
+                }
+            }
+            ends.insert(it, range.end);
+        }
+    }
+    while (!ends.isEmpty())
+        result.append(ends.takeLast());
+
+    return result;
+}
+
 void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
 {
     QTC_ASSERT(stream.name() == _("profilerDataModel"), return);
-    QVector<QmlEvent> events;
+    EventList events;
 
     while (!stream.atEnd() && !stream.hasError() && !isCanceled()) {
 
@@ -444,12 +511,11 @@ void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
 
                 if (attributes.hasAttribute(_("duration"))) {
                     event.setRangeStage(RangeStart);
-                    events.append(event);
                     QmlEvent rangeEnd(event);
                     rangeEnd.setRangeStage(RangeEnd);
                     rangeEnd.setTimestamp(event.timestamp()
                                           + attributes.value(_("duration")).toLongLong());
-                    events.append(rangeEnd);
+                    events.addRange(event, rangeEnd);
                 } else {
                     // attributes for special events
                     if (attributes.hasAttribute(_("framerate")))
@@ -485,7 +551,7 @@ void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
                     if (attributes.hasAttribute(_("text")))
                         event.setString(attributes.value(_("text")).toString());
 
-                    events.append(event);
+                    events.addEvent(event);
                 }
             }
             break;
@@ -493,10 +559,7 @@ void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
         case QXmlStreamReader::EndElement: {
             if (elementName == _("profilerDataModel")) {
                 // done reading profilerDataModel
-                std::sort(events.begin(), events.end(), [](const QmlEvent &a, const QmlEvent &b) {
-                    return a.timestamp() < b.timestamp();
-                });
-                emit qmlEventsLoaded(events);
+                emit qmlEventsLoaded(events.finalize());
                 return;
             }
             break;

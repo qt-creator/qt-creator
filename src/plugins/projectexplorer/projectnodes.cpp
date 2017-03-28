@@ -25,6 +25,7 @@
 
 #include "projectnodes.h"
 
+#include "project.h"
 #include "projectexplorerconstants.h"
 #include "projecttree.h"
 
@@ -77,6 +78,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
             directoryWithoutPrefix = directory.relativeChildPath(path);
         } else {
             isRelative = false;
+            path.clear();
             directoryWithoutPrefix = directory;
         }
     }
@@ -170,8 +172,9 @@ FolderNode *Node::parentFolderNode() const
 
 ProjectNode *Node::managingProject()
 {
-    if (!m_parentFolderNode)
-        return nullptr;
+    if (asContainerNode())
+        return asContainerNode()->rootProjectNode();
+    QTC_ASSERT(m_parentFolderNode, return nullptr);
     ProjectNode *pn = parentProjectNode();
     return pn ? pn : asProjectNode(); // projects manage themselves...
 }
@@ -499,8 +502,7 @@ void FolderNode::addNestedNode(FileNode *fileNode, const Utils::FileName &overri
                                const FolderNodeFactory &factory)
 {
     // Get relative path to rootNode
-    QString parentDir = fileNode->filePath().toFileInfo().absolutePath();
-    FolderNode *folder = recursiveFindOrCreateFolderNode(this, Utils::FileName::fromString(parentDir),
+    FolderNode *folder = recursiveFindOrCreateFolderNode(this, fileNode->filePath().parentDir(),
                                                          overrideBaseDir, factory);
     folder->addNode(fileNode);
 
@@ -521,6 +523,8 @@ void FolderNode::compress()
 {
     QList<Node *> children = nodes();
     if (auto subFolder = children.count() == 1 ? children.at(0)->asFolderNode() : nullptr) {
+        if (subFolder->nodeType() != nodeType())
+            return;
         // Only one subfolder: Compress!
         setDisplayName(QDir::toNativeSeparators(displayName() + "/" + subFolder->displayName()));
         for (Node *n : subFolder->nodes()) {
@@ -786,6 +790,37 @@ ProjectNode *ProjectNode::projectNode(const Utils::FileName &file) const
 bool FolderNode::isEmpty() const
 {
     return m_nodes.isEmpty();
+}
+
+ContainerNode::ContainerNode(Project *project)
+    : FolderNode(Utils::FileName(), NodeType::Project), m_project(project)
+{}
+
+QString ContainerNode::displayName() const
+{
+    QString name = m_project->displayName();
+
+    const QFileInfo fi = m_project->projectFilePath().toFileInfo();
+    const QString dir = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
+    if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(dir)) {
+        QString vcsTopic = vc->vcsTopic(dir);
+        if (!vcsTopic.isEmpty())
+            name += " [" + vcsTopic + ']';
+    }
+
+    return name;
+}
+
+QList<ProjectAction> ContainerNode::supportedActions(Node *node) const
+{
+    if (Node *rootNode = m_project->rootProjectNode())
+        return rootNode->supportedActions(node);
+    return {};
+}
+
+ProjectNode *ContainerNode::rootProjectNode() const
+{
+    return m_project->rootProjectNode();
 }
 
 } // namespace ProjectExplorer

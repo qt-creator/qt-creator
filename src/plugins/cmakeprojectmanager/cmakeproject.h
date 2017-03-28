@@ -88,7 +88,6 @@ public:
 
     QString displayName() const final;
 
-    QStringList files(FilesMode fileMode) const final;
     QStringList buildTargetTitles(bool runnable = false) const;
     bool hasBuildTarget(const QString &title) const;
 

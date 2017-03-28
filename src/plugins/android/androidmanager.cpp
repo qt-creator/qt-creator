@@ -546,8 +546,8 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
     if (wrapperProps.exists()) {
         GradleProperties wrapperProperties = readGradleProperties(wrapperProps.toString());
         QString distributionUrl = QString::fromLocal8Bit(wrapperProperties["distributionUrl"]);
-        QRegExp re(QLatin1String(".*services.gradle.org/distributions/gradle-2..*.zip"));
-        if (!re.exactMatch(distributionUrl)) {
+        // Update only old gradle distributionUrl
+        if (distributionUrl.endsWith(QLatin1String("distributions/gradle-1.12-all.zip"))) {
             wrapperProperties["distributionUrl"] = "https\\://services.gradle.org/distributions/gradle-2.2.1-all.zip";
             mergeGradleProperties(wrapperProps.toString(), wrapperProperties);
         }

@@ -135,12 +135,14 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
 {
     if (type.message() != MemoryAllocation) {
         if (type.rangeType() != MaximumRangeType) {
+            m_continuation = ContinueNothing;
             if (event.rangeStage() == RangeStart)
                 m_rangeStack.push(RangeStackFrame(event.typeIndex(), event.timestamp()));
-            else if (event.rangeStage() == RangeEnd)
+            else if (event.rangeStage() == RangeEnd) {
+                QTC_ASSERT(!m_rangeStack.isEmpty(), return);
+                QTC_ASSERT(m_rangeStack.top().originTypeIndex == event.typeIndex(), return);
                 m_rangeStack.pop();
-
-            m_continuation = ContinueNothing;
+            }
         }
         return;
     }

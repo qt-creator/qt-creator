@@ -2320,7 +2320,9 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
                     isFatalWinException(exception.exceptionCode) ? Task::Error : Task::Warning;
             const FileName fileName = exception.file.isEmpty()
                     ? FileName() : FileName::fromUserInput(exception.file);
-            TaskHub::addTask(type, exception.toString(false).trimmed(),
+            const QString taskEntry = tr("Debugger encountered an exception: %1").arg(
+                        exception.toString(false).trimmed());
+            TaskHub::addTask(type, taskEntry,
                              Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME,
                              fileName, exception.lineNumber);
         }

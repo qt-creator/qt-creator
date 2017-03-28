@@ -147,12 +147,17 @@ WidgetInfo TextEditorView::widgetInfo()
 
 QString TextEditorView::contextHelpId() const
 {
+    return AbstractView::contextHelpId();
+}
+
+QString TextEditorView::qmlJSEditorHelpId() const
+{
     if (m_widget->textEditor()) {
         QString contextHelpId = m_widget->textEditor()->contextHelpId();
         if (!contextHelpId.isEmpty())
             return m_widget->textEditor()->contextHelpId();
     }
-    return AbstractView::contextHelpId();
+    return QString();
 }
 
 void TextEditorView::nodeIdChanged(const ModelNode& /*node*/, const QString &/*newId*/, const QString &/*oldId*/)

@@ -85,7 +85,6 @@ public:
     void showInternalTextEditor();
 
     void restoreDefaultView();
-    void toggleSidebars();
     void toggleLeftSidebar();
     void toggleRightSidebar();
 

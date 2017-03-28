@@ -348,9 +348,11 @@ Abi::Abi(const Architecture &a, const OS &o,
     case Abi::VxWorks:
         if (m_osFlavor != VxWorksFlavor)
             m_osFlavor = VxWorksFlavor;
+        break;
     case Abi::QnxOS:
         if (m_osFlavor != GenericQnxFlavor)
             m_osFlavor = UnknownFlavor;
+        break;
     }
 }
 

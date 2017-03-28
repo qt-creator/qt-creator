@@ -54,30 +54,6 @@ TestConfiguration::~TestConfiguration()
     m_testCases.clear();
 }
 
-void completeBasicProjectInformation(Project *project, const QString &proFile, QString *displayName,
-                             Project **targetProject)
-{
-    CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
-    QVector<CppTools::ProjectPart::Ptr> projParts = cppMM->projectInfo(project).projectParts();
-
-    if (displayName->isEmpty()) {
-        foreach (const CppTools::ProjectPart::Ptr &part, projParts) {
-            if (part->projectFile == proFile) {
-                *displayName = part->displayName;
-                *targetProject = part->project;
-                return;
-            }
-        }
-    } else { // for CMake based projects we've got the displayname already
-        foreach (const CppTools::ProjectPart::Ptr &part, projParts) {
-            if (part->displayName == *displayName) {
-                *targetProject = part->project;
-                return;
-            }
-        }
-    }
-}
-
 static bool isLocal(RunConfiguration *runConfiguration)
 {
     Target *target = runConfiguration ? runConfiguration->target() : 0;
@@ -93,106 +69,80 @@ void TestConfiguration::completeTestInformation(int runMode)
     if (!project)
         return;
 
-    QString executable;
-    QString targetName;
-    QString workDir;
-    QString displayName = m_displayName;
-    QString buildDir;
-    Project *targetProject = 0;
-    Utils::Environment env;
-    Target *runConfigTarget = 0;
-    bool hasDesktopTarget = false;
-    bool guessedRunConfiguration = false;
-    setProject(0);
-
-    completeBasicProjectInformation(project, m_projectFile, &displayName, &targetProject);
-
     Target *target = project->activeTarget();
     if (!target)
         return;
 
-    BuildTargetInfoList appTargets = target->applicationTargets();
-    if (m_displayName.isEmpty()) {
-        foreach (const BuildTargetInfo &bti, appTargets.list) {
-            // some project manager store line/column information as well inside ProjectPart
-            if (bti.isValid() && m_projectFile.startsWith(bti.projectFilePath.toString())) {
-                executable = bti.targetFilePath.toString();
-                if (Utils::HostOsInfo::isWindowsHost() && !executable.toLower().endsWith(".exe"))
-                    executable = Utils::HostOsInfo::withExecutableSuffix(executable);
-                targetName = bti.targetName;
-                break;
-            }
-        }
-    } else { // CMake based projects have no specific pro file, but target name matches displayname
-        foreach (const BuildTargetInfo &bti, appTargets.list) {
-            if (bti.isValid() && m_displayName == bti.targetName) {
-                // for CMake base projects targetFilePath has executable suffix already
-                executable = bti.targetFilePath.toString();
-                targetName = m_displayName;
-                break;
-            }
-        }
-    }
+    const auto cppMM = CppTools::CppModelManager::instance();
+    const QVector<CppTools::ProjectPart::Ptr> projectParts = cppMM->projectInfo(project).projectParts();
+    const QVector<CppTools::ProjectPart::Ptr> relevantParts
+            = Utils::filtered(projectParts, [this] (const CppTools::ProjectPart::Ptr &part) {
+        return part->selectedForBuilding && part->projectFile == m_projectFile;
+    });
+    const QSet<QString> buildSystemTargets
+            = Utils::transform<QSet>(relevantParts, [] (const CppTools::ProjectPart::Ptr &part) {
+        return part->buildSystemTarget;
+    });
 
-    if (targetProject) {
-        if (auto buildConfig = target->activeBuildConfiguration()) {
-            const QString buildBase = buildConfig->buildDirectory().toString();
-            const QString projBase = targetProject->projectDirectory().toString();
-            if (m_projectFile.startsWith(projBase))
-                buildDir = QFileInfo(buildBase + m_projectFile.mid(projBase.length())).absolutePath();
-        }
-    }
+    const BuildTargetInfo targetInfo
+            = Utils::findOrDefault(target->applicationTargets().list, [&buildSystemTargets] (const BuildTargetInfo &bti) {
+        return buildSystemTargets.contains(bti.targetName);
+    });
+    const Utils::FileName executable = targetInfo.targetFilePath; // empty if BTI is default created
+    for (RunConfiguration *runConfig : target->runConfigurations()) {
+        if (!isLocal(runConfig)) // TODO add device support
+            continue;
 
-    QList<RunConfiguration *> rcs = target->runConfigurations();
-    foreach (RunConfiguration *rc, rcs) {
-        Runnable runnable = rc->runnable();
-        if (isLocal(rc) && runnable.is<StandardRunnable>()) {
+        if (buildSystemTargets.contains(runConfig->buildSystemTarget())) {
+            Runnable runnable = runConfig->runnable();
+            if (!runnable.is<StandardRunnable>())
+                continue;
             StandardRunnable stdRunnable = runnable.as<StandardRunnable>();
-            // we might have an executable that gets installed - in such a case the
-            // runnable's executable and executable won't match - but the (unique) display name
-            // of the run configuration should match targetName
-            if (stdRunnable.executable == executable
-                    || (!targetName.isEmpty() && rc->displayName() == targetName)) {
-                executable = stdRunnable.executable;
-                workDir = Utils::FileUtils::normalizePathName(stdRunnable.workingDirectory);
-                env = stdRunnable.environment;
-                hasDesktopTarget = true;
-                runConfigTarget = rc->target();
-                break;
-            }
+            // TODO this might pick up the wrong executable
+            m_executableFile = stdRunnable.executable;
+            m_displayName = runConfig->displayName();
+            m_workingDir = Utils::FileUtils::normalizePathName(stdRunnable.workingDirectory);
+            m_environment = stdRunnable.environment;
+            m_project = project;
+            if (runMode == TestRunner::Debug)
+                m_runConfig = new TestRunConfiguration(runConfig->target(), this);
+            break;
         }
     }
-
-    // if we could not figure out the run configuration
-    // try to use the run configuration of the parent project
-    if (!hasDesktopTarget && targetProject && !executable.isEmpty()) {
+    // RunConfiguration for this target could be explicitly removed or not created at all
+    if (m_displayName.isEmpty() && !executable.isEmpty()) {
+        // we failed to find a valid runconfiguration - but we've got the executable already
         if (auto rc = target->activeRunConfiguration()) {
-            Runnable runnable = rc->runnable();
-            if (isLocal(rc) && runnable.is<StandardRunnable>()) {
-                StandardRunnable stdRunnable = runnable.as<StandardRunnable>();
-                workDir = Utils::FileUtils::normalizePathName(stdRunnable.workingDirectory);
-                env = stdRunnable.environment;
-                hasDesktopTarget = true;
-                guessedRunConfiguration = true;
-                runConfigTarget = rc->target();
+            if (isLocal(rc)) { // FIXME for now only Desktop support
+                Runnable runnable = rc->runnable();
+                if (runnable.is<StandardRunnable>()) {
+                    StandardRunnable stdRunnable = runnable.as<StandardRunnable>();
+                    m_environment = stdRunnable.environment;
+                    // when guessing we might have no extension
+                    const QString &exeString = executable.toString();
+                    if (Utils::HostOsInfo::isWindowsHost() && !exeString.toLower().endsWith(".exe"))
+                        m_executableFile = Utils::HostOsInfo::withExecutableSuffix(exeString);
+                    else
+                        m_executableFile = exeString;
+                    m_project = project;
+                    m_guessedConfiguration = true;
+                    if (runMode == TestRunner::Debug)
+                        m_runConfig = new TestRunConfiguration(rc->target(), this);
+                }
             }
         }
     }
 
-    setDisplayName(displayName);
-
-    if (hasDesktopTarget) {
-        setExecutableFile(executable);
-        setWorkingDirectory(workDir);
-        setBuildDirectory(buildDir);
-        setEnvironment(env);
-        setProject(project);
-        setGuessedConfiguration(guessedRunConfiguration);
-        if (runMode == TestRunner::Debug)
-            m_runConfig = new TestRunConfiguration(runConfigTarget, this);
+    if (auto buildConfig = target->activeBuildConfiguration()) {
+        const QString buildBase = buildConfig->buildDirectory().toString();
+        const QString projBase = project->projectDirectory().toString();
+        if (m_projectFile.startsWith(projBase))
+            m_buildDir = QFileInfo(buildBase + m_projectFile.mid(projBase.length())).absolutePath();
     }
-}
 
+    if (m_displayName.isEmpty()) // happens e.g. when guessing the TestConfiguration or error
+        m_displayName = buildSystemTargets.isEmpty() ? "unknown" : *buildSystemTargets.begin();
+}
 
 /**
  * @brief sets the test cases for this test configuration.

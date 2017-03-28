@@ -4188,22 +4188,19 @@
          x="473"
          style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none" />
       <path
-         style="fill:#000000"
-         d="m 475,580 h 13 v 1 h -13 z"
-         id="path5905"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="ccccc" />
-      <path
          sodipodi:nodetypes="ccccccccc"
          inkscape:connector-curvature="0"
          d="m 475.5,576 3,3 3,-3 z m 2.5,0 v -4 h 1 v 4 z"
          style="fill:#000000"
          id="path4774-4" />
       <path
-         id="path5907-4-74"
+         id="path5700"
+         style="fill:#000000;fill-opacity:1"
+         d="m 485,582 h 3 v 1 h -3 z m 0,-4 h 3 v 1 h -3 z m 0,-4 h 3 v 1 h -3 z m 0,2 h 3 v 1 h -3 z m 0,-4 h 3 v 1 h -3 z m -10,8 h 13 v 1 h -13 z" />
+      <path
          style="fill:#707070"
-         d="m 483,572 h 5 v 1 h -5 z m 0,4 h 5 v 1 h -5 z m 0,-2 h 5 v 1 h -5 z m 0,4 h 5 v 1 h -5 z m 0,4 h 5 v 1 h -5 z m -8,-12 h 13 v 1 h -13 z"
-         inkscape:connector-curvature="0" />
+         d="m 475,570 h 13 v 1 h -13 z"
+         id="path5907-4-74" />
     </g>
     <use
        x="0"
@@ -7457,6 +7454,42 @@
          inkscape:connector-curvature="0"
          d="m 636.00003,403 4.99997,0 0,-4.67861 -4.99997,0.67433 z M 642,398.18129 642,403 l 6.00003,0 0,-5.6287 z m 0,10.72061 6.00003,0.81345 0,-5.71535 L 642,404 Z M 636.00003,408.09093 641,408.7667 641,404 l -4.99997,0 z"
          id="path5333" />
+    </g>
+    <g
+       id="src/plugins/qmldesigner/components/resources/images/spliteditorvertically"
+       transform="translate(12)">
+      <rect
+         transform="rotate(90)"
+         id="rect5154-0-3-5-8-1-6-8"
+         height="8"
+         width="16"
+         y="-858"
+         x="584"
+         style="fill:#ffffff" />
+      <path
+         id="formEditorSplit_"
+         style="fill:none;stroke:#000000"
+         d="m 852,592.5 h 5 m -5.5,-3 h 6 v 6 h -6 z"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       id="src/plugins/qmldesigner/components/resources/images/spliteditorhorizontally">
+      <rect
+         style="fill:#ffffff"
+         x="584"
+         y="-878"
+         width="16"
+         height="8"
+         id="rect5704"
+         transform="rotate(90)" />
+      <use
+         height="100%"
+         width="100%"
+         transform="rotate(90,864.5,602.5)"
+         id="use5730"
+         xlink:href="#formEditorSplit_"
+         y="0"
+         x="0" />
     </g>
   </g>
 </svg>

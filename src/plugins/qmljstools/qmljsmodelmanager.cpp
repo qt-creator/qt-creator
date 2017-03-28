@@ -38,6 +38,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -59,6 +60,8 @@
 #include <QTextStream>
 #include <QTimer>
 #include <QRegExp>
+#include <QSet>
+#include <QString>
 #include <QLibraryInfo>
 #include <qglobal.h>
 
@@ -74,20 +77,18 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
         Project *project) const
 {
     ModelManagerInterface::ProjectInfo projectInfo(project);
-    Target *activeTarget = 0;
+    Target *activeTarget = nullptr;
     if (project) {
-        QSet<QString> qmlTypeNames;
-        qmlTypeNames << QLatin1String(Constants::QML_MIMETYPE)
-                     << QLatin1String(Constants::QBS_MIMETYPE)
-                     << QLatin1String(Constants::QMLPROJECT_MIMETYPE)
-                     << QLatin1String(Constants::QMLTYPES_MIMETYPE)
-                     << QLatin1String(Constants::QMLUI_MIMETYPE);
-        foreach (const QString &filePath, project->files(Project::SourceFiles)) {
-            if (qmlTypeNames.contains(Utils::mimeTypeForFile(
-                                          filePath, MimeMatchMode::MatchExtension).name())) {
-                projectInfo.sourceFiles << filePath;
-            }
-        }
+        const QSet<QString> qmlTypeNames = { Constants::QML_MIMETYPE ,Constants::QBS_MIMETYPE,
+                                             Constants::QMLPROJECT_MIMETYPE,
+                                             Constants::QMLTYPES_MIMETYPE,
+                                             Constants::QMLUI_MIMETYPE };
+        projectInfo.sourceFiles = project->files(Project::SourceFiles,
+                                                 [&qmlTypeNames](const FileNode *fn) {
+            return fn->fileType() == FileType::QML
+                    && qmlTypeNames.contains(Utils::mimeTypeForFile(fn->filePath().toString(),
+                                                                    MimeMatchMode::MatchExtension).name());
+        });
         activeTarget = project->activeTarget();
     }
     Kit *activeKit = activeTarget ? activeTarget->kit() : KitManager::defaultKit();

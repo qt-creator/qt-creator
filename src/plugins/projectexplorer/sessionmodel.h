@@ -32,12 +32,21 @@
 namespace ProjectExplorer {
 namespace Internal {
 
+const char SESSION_BASE_ID[] = "Welcome.OpenSession";
+
 class SessionModel : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    enum { DefaultSessionRole = Qt::UserRole+1, LastSessionRole, ActiveSessionRole, ProjectsPathRole, ProjectsDisplayRole };
+    enum {
+        DefaultSessionRole = Qt::UserRole+1,
+        LastSessionRole,
+        ActiveSessionRole,
+        ProjectsPathRole,
+        ProjectsDisplayRole,
+        ShortcutRole
+    };
 
     explicit SessionModel(QObject *parent = nullptr);
 

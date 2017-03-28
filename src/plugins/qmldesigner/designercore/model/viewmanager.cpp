@@ -411,6 +411,11 @@ void ViewManager::toggleStatesViewExpanded()
     d->statesEditorView.toggleStatesViewExpanded();
 }
 
+QString ViewManager::qmlJSEditorHelpId() const
+{
+    return d->textEditorView.qmlJSEditorHelpId();
+}
+
 Model *ViewManager::currentModel() const
 {
     return currentDesignDocument()->currentModel();

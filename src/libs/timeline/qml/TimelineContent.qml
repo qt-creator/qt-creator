@@ -80,43 +80,43 @@ ScrollView {
 
         property bool recursionGuard: false
 
-        // Update the zoom control on srolling.
-        onContentXChanged: {
+        function guarded(operation) {
             if (recursionGuard)
                 return;
-
             recursionGuard = true;
-
-            var newStartTime = contentX * zoomer.rangeDuration / scroller.width +
-                    zoomer.windowStart;
-            if (isFinite(newStartTime) && Math.abs(newStartTime - zoomer.rangeStart) >= 1) {
-                var newEndTime = (contentX + scroller.width) * zoomer.rangeDuration /
-                        scroller.width + zoomer.windowStart;
-                if (isFinite(newEndTime))
-                    zoomer.setRange(newStartTime, newEndTime);
-            }
+            operation();
             recursionGuard = false;
         }
 
+        onWidthChanged: scroll()
+
+        // Update the zoom control on scrolling.
+        onContentXChanged: guarded(function() {
+            var newStartTime = contentX * zoomer.rangeDuration / width + zoomer.windowStart;
+            if (isFinite(newStartTime) && Math.abs(newStartTime - zoomer.rangeStart) >= 1) {
+                var newEndTime = (contentX + width) * zoomer.rangeDuration / width
+                        + zoomer.windowStart;
+                if (isFinite(newEndTime))
+                    zoomer.setRange(newStartTime, newEndTime);
+            }
+        });
+
         // Scroll when the zoom control is updated
         function scroll() {
-            if (recursionGuard)
-                return;
-            recursionGuard = true;
-            if (zoomer.rangeDuration <= 0) {
-                contentWidth = 0;
-                contentX = 0;
-            } else {
-                var newWidth = zoomer.windowDuration * scroller.width / zoomer.rangeDuration;
-                if (isFinite(newWidth) && Math.abs(newWidth - contentWidth) >= 1)
-                    contentWidth = newWidth;
-                var newStartX = (zoomer.rangeStart - zoomer.windowStart) * scroller.width /
-                        zoomer.rangeDuration;
-                if (isFinite(newStartX) && Math.abs(newStartX - contentX) >= 1)
-                    contentX = newStartX;
-            }
-
-            recursionGuard = false;
+            guarded(function() {
+                if (zoomer.rangeDuration <= 0) {
+                    contentWidth = 0;
+                    contentX = 0;
+                } else {
+                    var newWidth = zoomer.windowDuration * width / zoomer.rangeDuration;
+                    if (isFinite(newWidth) && Math.abs(newWidth - contentWidth) >= 1)
+                        contentWidth = newWidth;
+                    var newStartX = (zoomer.rangeStart - zoomer.windowStart) * width /
+                            zoomer.rangeDuration;
+                    if (isFinite(newStartX) && Math.abs(newStartX - contentX) >= 1)
+                        contentX = newStartX;
+                }
+            });
         }
 
         Column {

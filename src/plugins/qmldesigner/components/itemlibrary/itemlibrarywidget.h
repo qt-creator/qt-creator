@@ -84,7 +84,7 @@ public:
 
     void setModel(Model *model);
 
-    Q_INVOKABLE void startDragAndDrop(QVariant itemLibId);
+    Q_INVOKABLE void startDragAndDrop(QQuickItem *mouseArea, QVariant itemLibId);
 
 protected:
     void removeImport(const QString &name);

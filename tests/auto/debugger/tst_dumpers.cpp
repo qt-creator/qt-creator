@@ -1307,10 +1307,16 @@ void tst_Dumpers::dumper()
             "\n\n" + data.includes +
             "\n\n" + (data.useQHash ?
                 "\n#include <QByteArray>"
-                "\n#if QT_VERSION >= 0x050000"
+                "\n#if QT_VERSION >= 0x050900"
+                "\n#include <QHash>"
+                "\nvoid initHashSeed() { qSetGlobalQHashSeed(0); }"
+                "\n#elif QT_VERSION >= 0x050000"
                 "\nQT_BEGIN_NAMESPACE"
                 "\nQ_CORE_EXPORT extern QBasicAtomicInt qt_qhash_seed; // from qhash.cpp"
                 "\nQT_END_NAMESPACE"
+                "\nvoid initHashSeed() { qt_qhash_seed.store(0); }"
+                "\n#else"
+                "\nvoid initHashSeed() {}"
                 "\n#endif" : "") +
             "\n\nint main(int argc, char *argv[])"
             "\n{"
@@ -1332,10 +1338,7 @@ void tst_Dumpers::dumper()
             "\n#else"
             "\n    int boostversion = 0; unused(&boostversion);"
             "\n#endif"
-            "\n" + (data.useQHash ?
-                "\n#if QT_VERSION >= 0x050000"
-                "\nqt_qhash_seed.store(0);"
-                "\n#endif\n" : "") +
+            "\n" + (data.useQHash ? "initHashSeed();" : "") +
             "\n" + data.code +
             "\n    BREAK;"
             "\n    return 0;"
@@ -2677,12 +2680,14 @@ void tst_Dumpers::dumper_data()
                + Check("s", "\"HelloWorld\"", "@QString")
                + Check("test", "\"Name\"", "Bar::TestObject")
                + Check("test.[properties]", "<6 items>", "")
+#ifndef Q_OS_WIN
                + Check("test.[properties].myProp1",
-                    "\"Hello\"", "@QVariant (QString)") % NoCdbEngine
+                    "\"Hello\"", "@QVariant (QString)")
                + Check("test.[properties].myProp2",
-                    "\"World\"", "@QVariant (QByteArray)") % NoCdbEngine
-               + Check("test.[properties].myProp3", "54", "@QVariant (long)") % NoCdbEngine
-               + Check("test.[properties].myProp4", "44", "@QVariant (int)") % NoCdbEngine
+                    "\"World\"", "@QVariant (QByteArray)")
+               + Check("test.[properties].myProp3", "54", "@QVariant (long)")
+               + Check("test.[properties].myProp4", "44", "@QVariant (int)")
+#endif
                + Check("test.[properties].4", "\"New\"",
                     "\"Stuff\"", "@QVariant (QByteArray)")
                + Check("test.[properties].5", "\"Old\"",

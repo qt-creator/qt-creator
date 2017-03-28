@@ -64,7 +64,6 @@ private:
     void copySelected();
     void paste();
     void selectAll();
-    void toggleSidebars();
     void toggleLeftSidebar();
     void toggleRightSidebar();
     void undoAvailable(bool isAvailable);
@@ -86,7 +85,6 @@ private:
     Utils::ParameterAction m_copyAction;
     Utils::ParameterAction m_pasteAction;
     Utils::ParameterAction m_selectAllAction;
-    QAction m_hideSidebarsAction;
     QAction m_collapseExpandStatesAction;
     QAction m_restoreDefaultViewAction;
     QAction m_toggleLeftSidebarAction;

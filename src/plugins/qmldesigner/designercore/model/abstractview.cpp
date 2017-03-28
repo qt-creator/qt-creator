@@ -31,6 +31,11 @@
 #include "nodeinstanceview.h"
 #include <qmlstate.h>
 
+#ifndef QMLDESIGNER_TEST
+#include <qmldesignerplugin.h>
+#include <viewmanager.h>
+#endif
+
 #include <coreplugin/helpmanager.h>
 #include <utils/qtcassert.h>
 
@@ -554,21 +559,9 @@ QString AbstractView::contextHelpId() const
 {
     QString helpId;
 
-    if (hasSelectedModelNodes()) {
-        QString className = firstSelectedModelNode().simplifiedTypeName();
-        helpId = QStringLiteral("QML.") + className;
-        if (Core::HelpManager::linksForIdentifier(helpId).isEmpty() && firstSelectedModelNode().metaInfo().isValid()) {
-
-            foreach (className, firstSelectedModelNode().metaInfo().superClassNames()) {
-                helpId = QStringLiteral("QML.") + className;
-                if (Core::HelpManager::linksForIdentifier(helpId).isEmpty())
-                    helpId = QString();
-                else
-                    break;
-            }
-        }
-    }
-
+#ifndef QMLDESIGNER_TEST
+    helpId = QmlDesignerPlugin::instance()->viewManager().qmlJSEditorHelpId();
+#endif
     return helpId;
 }
 

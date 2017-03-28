@@ -782,7 +782,7 @@ TEST_F(HighlightingMarks, DISABLED_SecondArgumentInMacroExpansionIsField)
 }
 
 
-TEST_F(HighlightingMarks, DISABLED_EnumerationType)
+TEST_F(HighlightingMarks, EnumerationType)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(316, 30));
 
@@ -1090,7 +1090,7 @@ TEST_F(HighlightingMarks, DISABLED_NonConstReferenceMemberInitialization)
                 HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
 }
 
-TEST_F(HighlightingMarks, DISABLED_EnumerationTypeDef)
+TEST_F(HighlightingMarks, EnumerationTypeDef)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(424, 41));
 

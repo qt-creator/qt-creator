@@ -326,9 +326,6 @@ void GenericProject::parseProject(RefreshOptions options)
         // TODO: Possibly load some configuration from the project file
         //QSettings projectInfo(m_fileName, QSettings::IniFormat);
     }
-
-    if (options & Files)
-        emit fileListChanged();
 }
 
 void GenericProject::refresh(RefreshOptions options)
@@ -469,20 +466,9 @@ void GenericProject::activeBuildConfigurationWasChanged()
     refresh(Everything);
 }
 
-QStringList GenericProject::files() const
-{
-    return m_files;
-}
-
 QString GenericProject::displayName() const
 {
     return projectFilePath().toFileInfo().completeBaseName();
-}
-
-QStringList GenericProject::files(FilesMode fileMode) const
-{
-    Q_UNUSED(fileMode);
-    return m_files;
 }
 
 QStringList GenericProject::buildTargets() const

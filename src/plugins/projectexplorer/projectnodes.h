@@ -39,6 +39,8 @@
 namespace Utils { class MimeType; }
 
 namespace ProjectExplorer {
+
+class Project;
 class RunConfiguration;
 
 enum class NodeType : quint16 {
@@ -92,6 +94,7 @@ enum ProjectAction {
 class FileNode;
 class FolderNode;
 class ProjectNode;
+class ContainerNode;
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT Node : public QObject
@@ -115,8 +118,9 @@ public:
     FolderNode *parentFolderNode() const; // parent folder or project
 
     ProjectNode *managingProject();  // project managing this node.
-                                     // result is nullptr if node is the SessionNode
-                                     // or node if node is a ProjectNode directly below SessionNode
+                                     // result is the container's rootProject node if this is a project container node
+                                     // (i.e. possibly null)
+                                     // or node if node is a top-level ProjectNode directly below a container
                                      // or node->parentProjectNode() for all other cases.
     const ProjectNode *managingProject() const; // see above.
 
@@ -137,6 +141,8 @@ public:
     virtual const FolderNode *asFolderNode() const { return nullptr; }
     virtual ProjectNode *asProjectNode() { return nullptr; }
     virtual const ProjectNode *asProjectNode() const { return nullptr; }
+    virtual ContainerNode *asContainerNode() { return nullptr; }
+    virtual const ContainerNode *asContainerNode() const { return nullptr; }
 
     static bool sortByPath(const Node *a, const Node *b);
     void setParentFolderNode(FolderNode *parentFolder);
@@ -295,6 +301,24 @@ public:
 
 protected:
     explicit ProjectNode(const Utils::FileName &projectFilePath);
+};
+
+class PROJECTEXPLORER_EXPORT ContainerNode : public FolderNode
+{
+public:
+    ContainerNode(Project *project);
+
+    QString displayName() const final;
+    QList<ProjectAction> supportedActions(Node *node) const final;
+
+    ContainerNode *asContainerNode() final { return this; }
+    const ContainerNode *asContainerNode() const final { return this; }
+
+    ProjectNode *rootProjectNode() const;
+
+private:
+    Project *m_project;
+    QList<Node *> m_nodes;
 };
 
 } // namespace ProjectExplorer

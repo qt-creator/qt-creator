@@ -96,9 +96,6 @@ public:
 
     QString displayName() const override;
 
-    QStringList files(FilesMode) const override { return m_files; }
-    QStringList files() const { return m_files; }
-
     bool addFiles(const QStringList &filePaths);
     bool removeFiles(const QStringList &filePaths);
     bool setFiles(const QStringList &filePaths);
@@ -356,7 +353,7 @@ public:
 
         PythonProject *project = static_cast<PythonProject *>(parent->project());
         QList<Core::Id> allIds;
-        foreach (const QString &file, project->files())
+        foreach (const QString &file, project->files(ProjectExplorer::Project::AllFiles))
             allIds.append(idFromScript(file));
         return allIds;
     }
@@ -371,7 +368,7 @@ public:
         if (!canHandle(parent))
             return false;
         PythonProject *project = static_cast<PythonProject *>(parent->project());
-        return project->files().contains(scriptFromId(id));
+        return project->files(ProjectExplorer::Project::AllFiles).contains(scriptFromId(id));
     }
 
     bool canRestore(Target *parent, const QVariantMap &map) const override
@@ -533,7 +530,6 @@ void PythonProject::parseProject()
     m_rawFileList = readLines(projectFilePath().toString());
     m_rawFileList << projectFilePath().fileName();
     m_files = processEntries(m_rawFileList, &m_rawListEntries);
-    emit fileListChanged();
 }
 
 /**

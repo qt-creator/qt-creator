@@ -268,6 +268,19 @@ QStringList Environment::appendExeExtensions(const QString &executable) const
     return execs;
 }
 
+bool Environment::isSameExecutable(const QString &exe1, const QString &exe2) const
+{
+    const QStringList exe1List = appendExeExtensions(exe1);
+    const QStringList exe2List = appendExeExtensions(exe2);
+    for (const QString &i1 : exe1List) {
+        for (const QString &i2 : exe2List) {
+            if (Utils::FileName::fromString(i1) == Utils::FileName::fromString(i2))
+                return true;
+        }
+    }
+    return false;
+}
+
 FileName Environment::searchInPath(const QString &executable,
                                    const QStringList &additionalDirs,
                                    bool (*func)(const QString &name)) const

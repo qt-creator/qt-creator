@@ -31,17 +31,15 @@
 namespace Timeline {
 
 class TimelineRenderer::TimelineRendererPrivate :
-        TimelineAbstractRenderer::TimelineAbstractRendererPrivate {
+        public TimelineAbstractRenderer::TimelineAbstractRendererPrivate {
 public:
-    TimelineRendererPrivate(TimelineRenderer *q);
+    TimelineRendererPrivate();
     ~TimelineRendererPrivate();
 
     void clear();
 
     int rowFromPosition(int y) const;
-
-    void manageClicked();
-    void manageHovered(int mouseX, int mouseY);
+    void findCurrentSelection(int mouseX, int mouseY, int width);
 
     static const int SafeFloatMax = 1 << 12;
 
@@ -58,10 +56,6 @@ public:
 
     QVector<QHash<qint64, TimelineRenderState *> > renderStates;
     TimelineRenderState *lastState;
-
-private:
-    TimelineRenderer *q_ptr;
-    Q_DECLARE_PUBLIC(TimelineRenderer)
 };
 
 } // namespace Timeline

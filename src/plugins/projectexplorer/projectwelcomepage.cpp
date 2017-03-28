@@ -56,6 +56,7 @@ using namespace Core;
 using namespace Utils;
 
 const int LINK_HEIGHT = 35;
+const char PROJECT_BASE_ID[] = "Welcome.OpenRecentProject";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -84,6 +85,12 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
         return data.first;
     case PrettyFilePathRole:
         return Utils::withTildeHomePath(data.first);
+    case ShortcutRole: {
+        const Id projectBase = PROJECT_BASE_ID;
+        if (Command *cmd = ActionManager::command(projectBase.withSuffix(index.row() + 1)))
+            return cmd->keySequence().toString(QKeySequence::NativeText);
+        return QVariant();
+    }
     default:
         return QVariant();
     }
@@ -108,6 +115,26 @@ void ProjectModel::resetProjects()
 
 ///////////////////
 
+ProjectWelcomePage::ProjectWelcomePage()
+{
+    const int actionsCount = 9;
+    Context welcomeContext(Core::Constants::C_WELCOME_MODE);
+
+    const Id projectBase = PROJECT_BASE_ID;
+    const Id sessionBase = SESSION_BASE_ID;
+    for (int i = 1; i <= actionsCount; ++i) {
+        auto act = new QAction(tr("Open Session #%1").arg(i), this);
+        Command *cmd = ActionManager::registerAction(act, sessionBase.withSuffix(i), welcomeContext);
+        cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? tr("Ctrl+Meta+%1") : tr("Ctrl+Alt+%1")).arg(i)));
+        connect(act, &QAction::triggered, this, [this, i] { openSessionAt(i - 1); });
+
+        act = new QAction(tr("Open Recent Project #%1").arg(i), this);
+        cmd = ActionManager::registerAction(act, projectBase.withSuffix(i), welcomeContext);
+        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+%1").arg(i)));
+        connect(act, &QAction::triggered, this, [this, i] { openProjectAt(i - 1); });
+    }
+}
+
 Core::Id ProjectWelcomePage::id() const
 {
     return "Develop";
@@ -128,7 +155,21 @@ void ProjectWelcomePage::newProject()
 
 void ProjectWelcomePage::openProject()
 {
-     ProjectExplorerPlugin::openOpenProjectDialog();
+    ProjectExplorerPlugin::openOpenProjectDialog();
+}
+
+void ProjectWelcomePage::openSessionAt(int index)
+{
+    QTC_ASSERT(m_sessionModel, return);
+    m_sessionModel->switchToSession(m_sessionModel->sessionAt(index));
+}
+
+void ProjectWelcomePage::openProjectAt(int index)
+{
+    QTC_ASSERT(m_projectModel, return);
+    const QString projectFile = m_projectModel->data(m_projectModel->index(index, 0),
+                                                     ProjectModel::FilePathRole).toString();
+    ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
 }
 
 ///////////////////
@@ -160,6 +201,7 @@ protected:
     {
         return itemRect;
     }
+    virtual int shortcutRole() const = 0;
 
     bool helpEvent(QHelpEvent *ev, QAbstractItemView *view,
                    const QStyleOptionViewItem &option, const QModelIndex &idx) final
@@ -169,9 +211,7 @@ protected:
             return false;
         }
 
-        QString shortcut;
-        if (idx.row() < m_shortcuts.size())
-            shortcut = m_shortcuts.at(idx.row());
+        QString shortcut = idx.data(shortcutRole()).toString();
 
         QString name = idx.data(Qt::DisplayRole).toString();
         QString tooltipText;
@@ -187,8 +227,6 @@ protected:
         QToolTip::showText(ev->globalPos(), tooltipText, view);
         return true;
     }
-
-    QStringList m_shortcuts;
 };
 
 class SessionDelegate : public BaseDelegate
@@ -202,31 +240,11 @@ protected:
         const bool expanded = m_expandedSessions.contains(idx.data(Qt::DisplayRole).toString());
         return expanded ? itemRect.adjusted(0, 0, 0, -LINK_HEIGHT) : itemRect;
     }
+    int shortcutRole() const override { return SessionModel::ShortcutRole; }
 
 public:
-    SessionDelegate() {
-        const int actionsCount = 9;
-        Context welcomeContext(Core::Constants::C_WELCOME_MODE);
-
-        const Id sessionBase = "Welcome.OpenSession";
-        for (int i = 1; i <= actionsCount; ++i) {
-            auto act = new QAction(tr("Open Session #%1").arg(i), this);
-            Command *cmd = ActionManager::registerAction(act, sessionBase.withSuffix(i), welcomeContext);
-            cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? tr("Ctrl+Meta+%1") : tr("Ctrl+Alt+%1")).arg(i)));
-            m_shortcuts.append(cmd->keySequence().toString(QKeySequence::NativeText));
-
-//            connect(act, &QAction::triggered, this, [this, i] { openSessionTriggered(i-1); });
-            connect(cmd, &Command::keySequenceChanged, this, [this, i, cmd] {
-                m_shortcuts[i-1] = cmd->keySequence().toString(QKeySequence::NativeText);
-//                emit sessionsShortcutsChanged(m_sessionShortcuts);
-            });
-        }
-    }
-
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &idx) const final
     {
-        static const QPixmap arrowUp = pixmap("expandarrow",Theme::Welcome_ForegroundSecondaryColor);
-        static const QPixmap arrowDown = QPixmap::fromImage(arrowUp.toImage().mirrored(false, true));
         static const QPixmap sessionIcon = pixmap("session", Theme::Welcome_ForegroundSecondaryColor);
 
         const QRect rc = option.rect;
@@ -236,17 +254,27 @@ public:
         //const bool hovered = option.state & QStyle::State_MouseOver;
         const bool hovered = option.rect.contains(mousePos);
         const bool expanded = m_expandedSessions.contains(sessionName);
-        painter->fillRect(rc, hovered || expanded ? hoverColor : backgroundColor);
+        if (hovered)
+            painter->fillRect(expanded ? rc : rc.adjusted(0, 0, -24, 0), hoverColor);
 
         const int x = rc.x();
         const int x1 = x + 36;
         const int y = rc.y();
         const int firstBase = y + 18;
 
-        painter->drawPixmap(x + 11, y + 5, sessionIcon);
+        painter->drawPixmap(x + 11, y + 6, sessionIcon);
 
-        if (hovered || expanded)
-            painter->drawPixmap(rc.right() - 16, y + 5, expanded ? arrowDown : arrowUp);
+        if (hovered && !expanded) {
+            const QRect arrowRect = rc.adjusted(rc.width() - 24, 0, 0, 0);
+            if (arrowRect.contains(mousePos))
+                painter->fillRect(arrowRect, hoverColor);
+        }
+
+        if (hovered || expanded) {
+            static const QPixmap arrowUp = pixmap("expandarrow",Theme::Welcome_ForegroundSecondaryColor);
+            static const QPixmap arrowDown = QPixmap::fromImage(arrowUp.toImage().mirrored(false, true));
+            painter->drawPixmap(rc.right() - 20, y + 7, expanded ? arrowDown : arrowUp);
+        }
 
         if (idx.row() < 9) {
             painter->setPen(foregroundColor2);
@@ -264,10 +292,10 @@ public:
         if (isActiveSession && !isDefaultVirgin)
             fullSessionName = ProjectWelcomePage::tr("%1 (current session)").arg(fullSessionName);
 
-        const QRect switchRect = QRect(x, y, rc.width() - 20, firstBase + 3 - y);
+        const QRect switchRect = QRect(x, y, rc.width() - 24, firstBase + 3 - y);
         const bool switchActive = switchRect.contains(mousePos);
         painter->setPen(linkColor);
-        painter->setFont(sizedFont(12, option.widget, switchActive));
+        painter->setFont(sizedFont(13, option.widget, switchActive));
         painter->drawText(x1, firstBase, fullSessionName);
         if (switchActive)
             m_activeSwitchToRect = switchRect;
@@ -336,7 +364,7 @@ public:
     {
         if (ev->type() == QEvent::MouseButtonRelease) {
             const QPoint pos = static_cast<QMouseEvent *>(ev)->pos();
-            const QRect rc(option.rect.right() - 20, option.rect.top(), 20, 30);
+            const QRect rc(option.rect.right() - 24, option.rect.top(), 24, 30);
             const QString sessionName = idx.data(Qt::DisplayRole).toString();
             if (rc.contains(pos)) {
                 // The expand/collapse "button".
@@ -385,41 +413,24 @@ private:
 class ProjectDelegate : public BaseDelegate
 {
     QString entryType() override { return tr("project", "Appears in \"Open project <name>\""); }
+    int shortcutRole() const override { return ProjectModel::ShortcutRole; }
 
 public:
-    ProjectDelegate()
-    {
-        const int actionsCount = 9;
-        Context welcomeContext(Core::Constants::C_WELCOME_MODE);
-
-        const Id projectBase = "Welcome.OpenRecentProject";
-        for (int i = 1; i <= actionsCount; ++i) {
-            auto act = new QAction(tr("Open Recent Project #%1").arg(i), this);
-            Command *cmd = ActionManager::registerAction(act, projectBase.withSuffix(i), welcomeContext);
-            cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+%1").arg(i)));
-            m_shortcuts.append(cmd->keySequence().toString(QKeySequence::NativeText));
-
-//            connect(act, &QAction::triggered, this, [this, i] { openRecentProjectTriggered(i-1); });
-            connect(cmd, &Command::keySequenceChanged, this, [this, i, cmd] {
-                m_shortcuts[i - 1] = cmd->keySequence().toString(QKeySequence::NativeText);
-            });
-        }
-    }
-
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &idx) const final
     {
         QRect rc = option.rect;
 
         const bool hovered = option.widget->isActiveWindow() && option.state & QStyle::State_MouseOver;
-        QColor color = themeColor(hovered ? Theme::Welcome_HoverColor : Theme::Welcome_BackgroundColor);
-        painter->fillRect(rc, color);
+        if (hovered)
+            painter->fillRect(rc, themeColor(Theme::Welcome_HoverColor));
 
         const int x = rc.x();
         const int y = rc.y();
-        const int firstBase = y + 15;
-        const int secondBase = firstBase + 15;
+        const int firstBase = y + 18;
+        const int secondBase = firstBase + 19;
 
-        painter->drawPixmap(x + 11, y + 3, pixmap("project", Theme::Welcome_ForegroundSecondaryColor));
+        static const QPixmap projectIcon = pixmap("project", Theme::Welcome_ForegroundSecondaryColor);
+        painter->drawPixmap(x + 11, y + 6, projectIcon);
 
         QString projectName = idx.data(Qt::DisplayRole).toString();
         QString projectPath = idx.data(ProjectModel::FilePathRole).toString();
@@ -431,11 +442,11 @@ public:
             painter->drawText(x + 3, firstBase, QString::number(idx.row() + 1));
 
         painter->setPen(themeColor(Theme::Welcome_LinkColor));
-        painter->setFont(sizedFont(12, option.widget, hovered));
+        painter->setFont(sizedFont(13, option.widget, hovered));
         painter->drawText(x + 36, firstBase, projectName);
 
         painter->setPen(themeColor(Theme::Welcome_ForegroundPrimaryColor));
-        painter->setFont(sizedFont(12, option.widget));
+        painter->setFont(sizedFont(13, option.widget));
         QString pathWithTilde = Utils::withTildeHomePath(QDir::toNativeSeparators(projectPath));
         painter->drawText(x + 36, secondBase, pathWithTilde);
     }
@@ -511,11 +522,11 @@ public:
         openButton->setOnClicked([] { ProjectExplorerPlugin::openOpenProjectDialog(); });
 
         auto sessionsLabel = new QLabel(this);
-        sessionsLabel->setFont(sizedFont(15, this));
+        sessionsLabel->setFont(sizedFont(16, this));
         sessionsLabel->setText(ProjectWelcomePage::tr("Sessions"));
 
         auto recentProjectsLabel = new QLabel(this);
-        recentProjectsLabel->setFont(sizedFont(15, this));
+        recentProjectsLabel->setFont(sizedFont(16, this));
         recentProjectsLabel->setText(ProjectWelcomePage::tr("Recent Projects"));
 
         auto sessionsList = new TreeView(this);
@@ -529,8 +540,6 @@ public:
         projectsList->setModel(projectWelcomePage->m_projectModel);
         projectsList->setItemDelegate(&m_projectDelegate);
         projectsList->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
-        const int d = IWelcomePage::screenDependHeightDistance();
 
         auto hbox11 = new QHBoxLayout;
         hbox11->setContentsMargins(0, 0, 0, 0);
@@ -546,23 +555,23 @@ public:
         vbox1->setContentsMargins(0, 0, 0, 0);
         vbox1->addStrut(200);
         vbox1->addItem(hbox11);
-        vbox1->addSpacing(d);
+        vbox1->addSpacing(16);
         vbox1->addWidget(sessionsLabel);
-        vbox1->addSpacing(d + 5);
+        vbox1->addSpacing(21);
         vbox1->addWidget(sessionsList);
 
         auto vbox2 = new QVBoxLayout;
         vbox2->setContentsMargins(0, 0, 0, 0);
         vbox2->addItem(hbox21);
-        vbox2->addSpacing(d);
+        vbox2->addSpacing(16);
         vbox2->addWidget(recentProjectsLabel);
-        vbox2->addSpacing(d + 5);
+        vbox2->addSpacing(21);
         vbox2->addWidget(projectsList);
 
         auto hbox = new QHBoxLayout(this);
         hbox->setContentsMargins(30, 27, 0, 27);
         hbox->addItem(vbox1);
-        hbox->addSpacing(d);
+        hbox->addSpacing(16);
         hbox->addItem(vbox2);
         hbox->setStretchFactor(vbox2, 2);
     }

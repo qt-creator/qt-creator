@@ -56,7 +56,7 @@ public:
     bool isEnabled() const override;
     QString disabledReason() const override;
 
-    QString buildSystemTarget() const final { return m_buildTarget; }
+    QString buildSystemTarget() const final { return m_buildSystemTarget; }
 
 protected:
     CMakeRunConfiguration(ProjectExplorer::Target *parent, CMakeRunConfiguration *source);
@@ -67,7 +67,8 @@ private:
     QString baseWorkingDirectory() const;
     void ctor();
 
-    QString m_buildTarget;
+    const QString m_buildSystemTarget;
+    QString m_executable;
     QString m_title;
     bool m_enabled = true;
 };

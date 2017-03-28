@@ -238,13 +238,8 @@ ExpandData FlatModel::expandDataForNode(const Node *node) const
 
 void FlatModel::handleProjectAdded(Project *project)
 {
-    Node *node = project->rootProjectNode();
+    Node *node = project->containerNode();
     m_toExpand.insert(expandDataForNode(node));
-    if (WrapperNode *wrapper = wrapperForNode(node)) {
-        wrapper->forFirstLevelChildren([this](WrapperNode *child) {
-            m_toExpand.insert(expandDataForNode(child->m_node));
-        });
-    }
     update();
 }
 
@@ -266,7 +261,8 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
 {
     for (Node *node : folderNode->nodes()) {
         if (FolderNode *subFolderNode = node->asFolderNode()) {
-            if (!filter(subFolderNode) && !seen->contains(subFolderNode)) {
+            const bool isHidden = m_filterProjects && !subFolderNode->showInSimpleTree();
+            if (!isHidden && !seen->contains(subFolderNode)) {
                 seen->insert(subFolderNode);
                 auto node = new WrapperNode(subFolderNode);
                 parent->appendChild(node);
@@ -275,11 +271,9 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
             } else {
                 addFolderNode(parent, subFolderNode, seen);
             }
-        }
-    }
-    for (Node *node : folderNode->nodes()) {
-        if (FileNode *fileNode = node->asFileNode()) {
-            if (!filter(fileNode) && !seen->contains(fileNode)) {
+        } else if (FileNode *fileNode = node->asFileNode()) {
+            const bool isHidden = m_filterProjects && fileNode->isGenerated();
+            if (!isHidden && !seen->contains(fileNode)) {
                 seen->insert(fileNode);
                 parent->appendChild(new WrapperNode(fileNode));
             }
@@ -351,19 +345,6 @@ Node *FlatModel::nodeForIndex(const QModelIndex &index) const
 {
     WrapperNode *flatNode = itemForIndex(index);
     return flatNode ? flatNode->m_node : nullptr;
-}
-
-bool FlatModel::filter(Node *node) const
-{
-    bool isHidden = false;
-    if (FolderNode *folderNode = node->asFolderNode()) {
-        if (m_filterProjects)
-            isHidden = !folderNode->showInSimpleTree();
-    } else if (FileNode *fileNode = node->asFileNode()) {
-        if (m_filterGeneratedFiles)
-            isHidden = fileNode->isGenerated();
-    }
-    return isHidden;
 }
 
 const QLoggingCategory &FlatModel::logger()

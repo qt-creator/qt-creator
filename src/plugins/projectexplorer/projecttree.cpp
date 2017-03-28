@@ -322,12 +322,14 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
         contextMenu = Core::ActionManager::actionContainer(Constants::M_SESSIONCONTEXT)->menu();
     } else {
         switch (node->nodeType()) {
-        case NodeType::Project:
-            if (node->parentFolderNode())
+        case NodeType::Project: {
+            if ((node->parentFolderNode() && node->parentFolderNode()->asContainerNode())
+                    || node->asContainerNode())
                 contextMenu = Core::ActionManager::actionContainer(Constants::M_PROJECTCONTEXT)->menu();
             else
                 contextMenu = Core::ActionManager::actionContainer(Constants::M_SUBPROJECTCONTEXT)->menu();
             break;
+        }
         case NodeType::VirtualFolder:
         case NodeType::Folder:
             contextMenu = Core::ActionManager::actionContainer(Constants::M_FOLDERCONTEXT)->menu();

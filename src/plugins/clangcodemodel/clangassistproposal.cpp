@@ -35,12 +35,13 @@ ClangAssistProposal::ClangAssistProposal(int cursorPos, TextEditor::GenericPropo
 {
 }
 
-bool ClangAssistProposal::isCorrective() const
+bool ClangAssistProposal::isCorrective(TextEditor::TextEditorWidget *editorWidget) const
 {
     auto clangAssistProposalModel = static_cast<ClangAssistProposalModel*>(model());
 
     return clangAssistProposalModel->neededCorrection()
-        == ClangBackEnd::CompletionCorrection::DotToArrowCorrection;
+                == ClangBackEnd::CompletionCorrection::DotToArrowCorrection
+        && editorWidget->textAt(basePosition() - 1, 1) == ".";
 }
 
 void ClangAssistProposal::makeCorrection(TextEditor::TextEditorWidget *editorWidget)

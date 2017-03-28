@@ -62,7 +62,8 @@ const char TITLE_KEY[] = "CMakeProjectManager.CMakeRunConfiguation.Title";
 CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, Core::Id id, const QString &target,
                                              const Utils::FileName &workingDirectory, const QString &title) :
     RunConfiguration(parent, id),
-    m_buildTarget(target),
+    m_buildSystemTarget(target),
+    m_executable(target),
     m_title(title)
 {
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
@@ -78,7 +79,8 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, Core::Id id, const 
 
 CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, CMakeRunConfiguration *source) :
     RunConfiguration(parent, source),
-    m_buildTarget(source->m_buildTarget),
+    m_buildSystemTarget(source->m_buildSystemTarget),
+    m_executable(source->m_executable),
     m_title(source->m_title),
     m_enabled(source->m_enabled)
 {
@@ -93,7 +95,7 @@ void CMakeRunConfiguration::ctor()
 Runnable CMakeRunConfiguration::runnable() const
 {
     StandardRunnable r;
-    r.executable = m_buildTarget;
+    r.executable = m_executable;
     r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
     r.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
     r.environment = extraAspect<LocalEnvironmentAspect>()->environment();
@@ -103,9 +105,9 @@ Runnable CMakeRunConfiguration::runnable() const
 
 QString CMakeRunConfiguration::baseWorkingDirectory() const
 {
-    const QString exe = m_buildTarget;
+    const QString exe = m_executable;
     if (!exe.isEmpty())
-        return QFileInfo(m_buildTarget).absolutePath();
+        return QFileInfo(m_executable).absolutePath();
     return QString();
 }
 
@@ -116,7 +118,7 @@ QString CMakeRunConfiguration::title() const
 
 void CMakeRunConfiguration::setExecutable(const QString &executable)
 {
-    m_buildTarget = executable;
+    m_executable = executable;
 }
 
 void CMakeRunConfiguration::setBaseWorkingDirectory(const Utils::FileName &wd)

@@ -187,11 +187,14 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
         QTextStream proStr(&contents);
         QtProjectParameters::writeProFileHeader(proStr);
         projectParams.writeProFile(proStr);
-        proStr << "\n\nSOURCES += " << Utils::FileName::fromString(mainSourceFileName).fileName()
-               << "\\\n        " << Utils::FileName::fromString(formSource.path()).fileName()
-               << "\n\nHEADERS  += " << Utils::FileName::fromString(formHeader.path()).fileName();
+        proStr << "\n\nSOURCES +="
+               << " \\\n        " << Utils::FileName::fromString(mainSourceFileName).fileName()
+               << " \\\n        " << Utils::FileName::fromString(formSource.path()).fileName()
+               << "\n\nHEADERS +="
+               << " \\\n        " << Utils::FileName::fromString(formHeader.path()).fileName();
         if (params.designerForm)
-            proStr << "\n\nFORMS    += " << Utils::FileName::fromString(form->path()).fileName();
+            proStr << "\n\nFORMS +="
+                   << " \\\n        " << Utils::FileName::fromString(form->path()).fileName();
         if (params.isMobileApplication) {
             proStr << "\n\nCONFIG += mobility"
                    << "\nMOBILITY = "

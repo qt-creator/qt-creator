@@ -55,13 +55,12 @@ class BranchNode
 {
 public:
     BranchNode() :
-        parent(0),
         name("<ROOT>")
     { }
 
     BranchNode(const QString &n, const QString &s = QString(), const QString &t = QString(),
                const QDateTime &dt = QDateTime()) :
-        parent(0), name(n), sha(s), tracking(t), dateTime(dt)
+        name(n), sha(s), tracking(t), dateTime(dt)
     { }
 
     ~BranchNode()
@@ -120,7 +119,7 @@ public:
             if (children.at(i)->name == name)
                 return children.at(i);
         }
-        return 0;
+        return nullptr;
     }
 
     QStringList fullName(bool includePrefix = false) const
@@ -182,7 +181,7 @@ public:
         return children.indexOf(node);
     }
 
-    BranchNode *parent;
+    BranchNode *parent = nullptr;
     QList<BranchNode *> children;
 
     QString name;
@@ -273,7 +272,7 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
         return res;
     }
     case Qt::EditRole:
-        return index.column() == 0 ? node->name : QVariant();
+        return index.column() == 0 ? node->fullName().join('/') : QVariant();
     case Qt::ToolTipRole:
         if (!node->isLeaf())
             return QVariant();
@@ -308,24 +307,11 @@ bool BranchModel::setData(const QModelIndex &index, const QVariant &value, int r
     if (newName.isEmpty())
         return false;
 
-    if (node->name == newName)
-        return true;
-
-    QStringList oldFullName = node->fullName();
-    node->name = newName;
-    QStringList newFullName = node->fullName();
-
-    QString output;
-    QString errorMessage;
-    if (!m_client->synchronousBranchCmd(m_workingDirectory,
-                                        {"-m", oldFullName.last(), newFullName.last()},
-                                        &output, &errorMessage)) {
-        node->name = oldFullName.last();
-        VcsOutputWindow::appendError(errorMessage);
+    const QString oldName = node->fullName().join('/');
+    if (oldName == newName)
         return false;
-    }
 
-    emit dataChanged(index, index);
+    renameBranch(oldName, newName);
     return true;
 }
 
@@ -349,7 +335,7 @@ void BranchModel::clear()
     if (hasTags())
         m_rootNode->children.takeLast();
 
-    m_currentBranch = 0;
+    m_currentBranch = nullptr;
     m_obsoleteLocalBranches.clear();
 }
 
@@ -375,8 +361,8 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
         parseOutputLine(l);
 
     if (m_currentBranch) {
-        if (m_currentBranch->parent == m_rootNode->children.at(LocalBranches))
-            m_currentBranch = 0;
+        if (m_currentBranch->isLocal())
+            m_currentBranch = nullptr;
         setCurrentBranch();
     }
 
@@ -392,11 +378,13 @@ void BranchModel::setCurrentBranch()
         return;
 
     BranchNode *local = m_rootNode->children.at(LocalBranches);
-    int pos = 0;
-    for (pos = 0; pos < local->count(); ++pos) {
-        if (local->children.at(pos)->name == currentBranch)
-            m_currentBranch = local->children[pos];
+    const QStringList branchParts = currentBranch.split('/');
+    for (const QString &branchPart : branchParts) {
+        local = local->childOfName(branchPart);
+        if (!local)
+            return;
     }
+    m_currentBranch = local;
 }
 
 void BranchModel::renameBranch(const QString &oldName, const QString &newName)
@@ -448,8 +436,7 @@ QString BranchModel::fullName(const QModelIndex &idx, bool includePrefix) const
     BranchNode *node = indexToNode(idx);
     if (!node || !node->isLeaf())
         return QString();
-    QStringList path = node->fullName(includePrefix);
-    return path.join('/');
+    return node->fullName(includePrefix).join('/');
 }
 
 QStringList BranchModel::localBranchNames() const
@@ -623,7 +610,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     if (slash != -1) {
         const QString nodeName = name.left(slash);
         int pos = positionForName(local, nodeName);
-        BranchNode *child = (pos == local->count()) ? 0 : local->children.at(pos);
+        BranchNode *child = (pos == local->count()) ? nullptr : local->children.at(pos);
         if (!child || child->name != nodeName) {
             child = new BranchNode(nodeName);
             beginInsertRows(nodeToIndex(local, 0), pos, pos);
@@ -697,7 +684,7 @@ void BranchModel::parseOutputLine(const QString &line)
     QStringList nameParts = fullName.split('/');
     nameParts.removeFirst(); // remove refs...
 
-    BranchNode *root = 0;
+    BranchNode *root = nullptr;
     if (nameParts.first() == "heads") {
         root = m_rootNode->children.at(LocalBranches);
     } else if (nameParts.first() == "remotes") {
@@ -731,7 +718,7 @@ void BranchModel::parseOutputLine(const QString &line)
 BranchNode *BranchModel::indexToNode(const QModelIndex &index) const
 {
     if (index.column() > 1)
-        return 0;
+        return nullptr;
     if (!index.isValid())
         return m_rootNode;
     return static_cast<BranchNode *>(index.internalPointer());

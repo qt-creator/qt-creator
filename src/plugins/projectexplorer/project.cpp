@@ -84,38 +84,6 @@ const char PLUGIN_SETTINGS_KEY[] = "ProjectExplorer.Project.PluginSettings";
 
 namespace ProjectExplorer {
 
-class ContainerNode : public ProjectNode
-{
-public:
-    ContainerNode(Project *project)
-        : ProjectNode(Utils::FileName()),
-          m_project(project)
-    {}
-
-    QString displayName() const final
-    {
-        QString name = m_project->displayName();
-
-        const QFileInfo fi = m_project->projectFilePath().toFileInfo();
-        const QString dir = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-        if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(dir)) {
-            QString vcsTopic = vc->vcsTopic(dir);
-            if (!vcsTopic.isEmpty())
-                name += " [" + vcsTopic + ']';
-        }
-
-        return name;
-    }
-
-    QList<ProjectAction> supportedActions(Node *) const final
-    {
-        return {};
-    }
-
-private:
-    Project *m_project;
-};
-
 // -------------------------------------------------------------------------
 // Project
 // -------------------------------------------------------------------------
@@ -461,6 +429,14 @@ void Project::setRootProjectNode(ProjectNode *root)
     if (d->m_rootProjectNode == root)
         return;
 
+    if (root && root->nodes().isEmpty()) {
+        // Something went wrong with parsing: At least the project file needs to be
+        // shown so that the user can fix the breakage.
+        // Do not leak root and use default project tree in this case.
+        delete root;
+        root = nullptr;
+    }
+
     ProjectTree::applyTreeManager(root);
 
     ProjectNode *oldNode = d->m_rootProjectNode;
@@ -468,6 +444,7 @@ void Project::setRootProjectNode(ProjectNode *root)
     if (root)
         root->setParentFolderNode(&d->m_containerNode);
     ProjectTree::emitSubtreeChanged(root);
+    emit fileListChanged();
 
     delete oldNode;
 }
@@ -513,6 +490,25 @@ Project::RestoreResult Project::restoreSettings(QString *errorMessage)
     RestoreResult result = fromMap(map, errorMessage);
     if (result == RestoreResult::Ok)
         emit settingsLoaded();
+    return result;
+}
+
+QStringList Project::files(Project::FilesMode fileMode,
+                           const std::function<bool (const FileNode *)> &filter) const
+{
+    QStringList result;
+
+    if (!rootProjectNode())
+        return result;
+
+    rootProjectNode()->forEachNode([&](const FileNode *fn) {
+        if (filter && !filter(fn))
+            return;
+        if ((fileMode == AllFiles)
+                || (fileMode == SourceFiles && !fn->isGenerated())
+                || (fileMode == GeneratedFiles && fn->isGenerated()))
+            result.append(fn->filePath().toString());
+    });
     return result;
 }
 
@@ -573,7 +569,7 @@ ProjectNode *Project::rootProjectNode() const
     return d->m_rootProjectNode;
 }
 
-ProjectNode *Project::containerNode() const
+ContainerNode *Project::containerNode() const
 {
     return &d->m_containerNode;
 }

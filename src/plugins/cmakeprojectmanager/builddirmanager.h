@@ -86,6 +86,7 @@ signals:
 
 private:
     void emitDataAvailable();
+    void emitErrorOccured(const QString &message) const;
     void checkConfiguration();
 
     const Utils::FileName workDirectory() const;
@@ -109,6 +110,7 @@ private:
     std::unique_ptr<BuildDirReader> m_reader;
 
     mutable QList<CMakeBuildTarget> m_buildTargets;
+    mutable bool m_isHandlingError = false;
 };
 
 } // namespace Internal

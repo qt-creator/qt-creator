@@ -42,7 +42,6 @@ public:
     explicit NimProject(const Utils::FileName &fileName);
 
     QString displayName() const override;
-    QStringList files(FilesMode) const override;
     bool needsConfiguration() const override;
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
     Utils::FileNameList nimFiles() const;

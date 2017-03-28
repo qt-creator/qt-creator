@@ -73,7 +73,6 @@ public:
     bool validParse(const Utils::FileName &proFilePath) const;
     bool parseInProgress(const Utils::FileName &proFilePath) const;
 
-    virtual QStringList files(FilesMode fileMode) const final;
     virtual QStringList filesGeneratedFrom(const QString &file) const final;
 
     enum Parsing {ExactParse, ExactAndCumulativeParse };
@@ -109,8 +108,6 @@ public:
     /// \internal
     bool wasEvaluateCanceled();
 
-    // For QmakeProFileNode after a on disk change
-    void updateFileList();
     void updateCodeModels();
 
     void watchFolders(const QStringList &l, QmakePriFile *file);
@@ -187,9 +184,6 @@ private:
     QString m_oldQtLibsPath;
 
     std::unique_ptr<QmakeProFile> m_rootProFile;
-
-    // cached lists of all of files
-    Internal::QmakeProjectFiles *m_projectFiles = nullptr;
 
     QMakeVfs *m_qmakeVfs = nullptr;
 

@@ -175,58 +175,6 @@ void QbsProject::projectLoaded()
     m_parsingDelay.start(0);
 }
 
-static void collectFilesForProject(const qbs::ProjectData &project, Project::FilesMode mode,
-                                   QSet<QString> &result)
-{
-    if (mode & Project::SourceFiles)
-        result.insert(project.location().filePath());
-
-    foreach (const qbs::ProductData &prd, project.products()) {
-        if (mode & Project::SourceFiles) {
-            foreach (const qbs::GroupData &grp, prd.groups()) {
-                foreach (const QString &file, grp.allFilePaths())
-                    result.insert(file);
-                result.insert(grp.location().filePath());
-            }
-            result.insert(prd.location().filePath());
-        }
-        if (mode & Project::GeneratedFiles) {
-            foreach (const qbs::ProductData &prd, project.products()) {
-                foreach (const qbs::ArtifactData &artifact, prd.generatedArtifacts()) {
-                    // A list of human-readable file types that we can reasonably expect
-                    // to get generated during a build. Extend as needed.
-                    static const QSet<QString> sourceTags = {
-                        QLatin1String("c"), QLatin1String("cpp"), QLatin1String("hpp"),
-                        QLatin1String("objc"), QLatin1String("objcpp"),
-                        QLatin1String("c_pch_src"), QLatin1String("cpp_pch_src"),
-                        QLatin1String("objc_pch_src"), QLatin1String("objcpp_pch_src"),
-                        QLatin1String("asm"), QLatin1String("asm_cpp"),
-                        QLatin1String("linkerscript"),
-                        QLatin1String("qrc"), QLatin1String("java.java")
-                    };
-                    if (artifact.fileTags().toSet().intersects(sourceTags))
-                        result.insert(artifact.filePath());
-                }
-            }
-        }
-    }
-
-    foreach (const qbs::ProjectData &subProject, project.subProjects())
-        collectFilesForProject(subProject, mode, result);
-}
-
-QStringList QbsProject::files(Project::FilesMode fileMode) const
-{
-    qCDebug(qbsPmLog) << Q_FUNC_INFO << fileMode << m_qbsProject.isValid() << isParsing();
-    if (!m_qbsProject.isValid() || isParsing())
-        return QStringList();
-    QSet<QString> result;
-    collectFilesForProject(m_projectData, fileMode, result);
-    result.unite(m_qbsProject.buildSystemFiles());
-    qCDebug(qbsPmLog) << "file count:" << result.count();
-    return result.toList();
-}
-
 QStringList QbsProject::filesGeneratedFrom(const QString &sourceFile) const
 {
     QStringList generated;
@@ -312,7 +260,6 @@ bool QbsProject::addFilesToProduct(const QStringList &filePaths,
     if (notAdded->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
         setRootProjectNode(Internal::QbsNodeTreeBuilder::buildTree(this));
-        emit fileListChanged();
     }
     return notAdded->isEmpty();
 }

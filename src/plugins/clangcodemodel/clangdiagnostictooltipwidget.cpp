@@ -112,10 +112,16 @@ private:
         label->setTextFormat(Qt::RichText);
         label->setText(text);
         label->setTextInteractionFlags(Qt::TextBrowserInteraction);
-        // Using "setWordWrap(true)" alone will wrap the text already for small
-        // widths, so do not require word wrapping until we hit limits.
-        if (m_displayHints.limitWidth && label->sizeHint().width() > widthLimit()) {
-            label->setMaximumWidth(widthLimit());
+
+        if (m_displayHints.limitWidth) {
+            const int limit = widthLimit();
+            // Using "setWordWrap(true)" alone will wrap the text already for small
+            // widths, so do not require word wrapping until we hit limits.
+            if (label->sizeHint().width() > limit) {
+                label->setMaximumWidth(limit);
+                label->setWordWrap(true);
+            }
+        } else {
             label->setWordWrap(true);
         }
 
@@ -141,7 +147,7 @@ private:
     QString htmlText(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics)
     {
         // For debugging, add: style='border-width:1px;border-color:black'
-        QString text = "<table cellspacing='0' cellpadding='0'>";
+        QString text = "<table cellspacing='0' cellpadding='0' width='100%'>";
 
         foreach (const ClangBackEnd::DiagnosticContainer &diagnostic, diagnostics)
             text.append(tableRows(diagnostic));
@@ -173,7 +179,7 @@ private:
         const QString text = QString::fromLatin1(
             "  <tr>"
             "    <td align='left'><b>%1</b></td>"
-            "    <td align='right'><font color='gray'>%2</font></td>"
+            "    <td align='right'>&nbsp;<font color='gray'>%2</font></td>"
             "  </tr>")
             .arg(diagnostic.category(), diagnostic.enableOption());
 
@@ -185,15 +191,7 @@ private:
         const bool hasFixit = m_displayHints.enableClickableFixits
                 && !diagnostic.fixIts().isEmpty();
         const QString diagnosticText = diagnostic.text().toString().toHtmlEscaped();
-
-        // For debugging, add to <table>: style='border-width:1px;border-color:red'
-        const QString text = QString::fromLatin1(
-            "<table cellspacing='0' cellpadding='0'>"
-            "  <tr>"
-            "    <td>%1:&nbsp;</td>"
-            "    <td width='100%'>%2</td>"
-            "  </tr>"
-            "</table>")
+        const QString text = QString::fromLatin1("%1: %2")
             .arg(clickableLocation(diagnostic, m_mainFilePath),
                  clickableFixIt(diagnostic, diagnosticText, hasFixit));
 

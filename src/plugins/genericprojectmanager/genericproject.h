@@ -44,8 +44,6 @@ public:
 
     QString displayName() const override;
 
-    QStringList files(FilesMode fileMode) const override;
-
     QStringList buildTargets() const;
 
     bool addFiles(const QStringList &filePaths);
@@ -60,8 +58,6 @@ public:
     };
 
     void refresh(RefreshOptions options);
-
-    QStringList files() const;
 
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
