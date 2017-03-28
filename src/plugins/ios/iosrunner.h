@@ -30,10 +30,12 @@
 #include "iossimulator.h"
 
 #include <debugger/debuggerconstants.h>
+
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/runconfiguration.h>
+
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
-#include <QObject>
 #include <QTimer>
 #include <QThread>
 #include <QProcess>
@@ -42,14 +44,13 @@
 namespace Ios {
 namespace Internal {
 
-class IosRunConfiguration;
-
 class IosRunner : public QObject
 {
     Q_OBJECT
 
 public:
-    IosRunner(QObject *parent, IosRunConfiguration *runConfig, bool cppDebug,
+    IosRunner(QObject *parent, ProjectExplorer::RunControl *runControl,
+              bool cppDebug,
               QmlDebug::QmlDebugServicesPreset qmlDebugServices);
     ~IosRunner();
 
@@ -85,7 +86,7 @@ private:
     void handleToolExited(Ios::IosToolHandler *handler, int code);
     void handleFinished(Ios::IosToolHandler *handler);
 
-    IosToolHandler *m_toolHandler;
+    IosToolHandler *m_toolHandler = nullptr;
     QString m_bundleDir;
     QStringList m_arguments;
     ProjectExplorer::IDevice::ConstPtr m_device;
@@ -93,9 +94,9 @@ private:
     bool m_cppDebug;
     QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
 
-    bool m_cleanExit;
+    bool m_cleanExit = false;
     Utils::Port m_qmlPort;
-    qint64 m_pid;
+    qint64 m_pid = 0;
 };
 
 } // namespace Internal

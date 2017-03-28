@@ -199,7 +199,7 @@ RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
         runControl->setRunnable(runnable);
         runControl->setConnection(connection);
         runControl->setDisplayName(iosRunConfig->applicationName());
-        (void) new IosAnalyzeSupport(iosRunConfig, runControl, false, true);
+        (void) new IosAnalyzeSupport(runControl, false, true);
         return runControl;
     }
     else

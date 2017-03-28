@@ -60,7 +60,7 @@ using namespace ProjectExplorer;
 namespace Ios {
 namespace Internal {
 
-RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfig,
+RunControl *IosDebugSupport::createDebugRunControl(RunConfiguration *runConfig,
                                                    QString *errorMessage)
 {
     Target *target = runConfig->target();
@@ -104,7 +104,9 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
         params.startMode = AttachExternal;
         params.platform = QLatin1String("ios-simulator");
     }
-    params.displayName = runConfig->applicationName();
+
+    auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runConfig);
+    params.displayName = iosRunConfig->applicationName();
     params.remoteSetupNeeded = true;
     params.continueAfterAttach = true;
 
@@ -112,7 +114,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     bool cppDebug = aspect->useCppDebugger();
     bool qmlDebug = aspect->useQmlDebugger();
     if (cppDebug) {
-        params.inferior.executable = runConfig->localExecutable().toString();
+        params.inferior.executable = iosRunConfig->localExecutable().toString();
         params.remoteChannel = QLatin1String("connect://localhost:0");
 
         Utils::FileName xcodeInfo = IosConfigurations::developerPath().parentDir()
@@ -125,7 +127,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
             if (version.value(0).toInt() == 5 && version.value(1, QString::number(1)).toInt() == 0)
                 buggyLldb = true;
         }
-        QString bundlePath = runConfig->bundleDirectory().toString();
+        QString bundlePath = iosRunConfig->bundleDirectory().toString();
         bundlePath.chop(4);
         Utils::FileName dsymPath = Utils::FileName::fromString(
                     bundlePath.append(QLatin1String(".dSYM")));
@@ -136,7 +138,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
                                     "To create one, add a dsymutil deploystep."),
                                  ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
         } else if (dsymPath.toFileInfo().lastModified()
-                   < QFileInfo(runConfig->localExecutable().toUserOutput()).lastModified()) {
+                   < QFileInfo(iosRunConfig->localExecutable().toUserOutput()).lastModified()) {
             TaskHub::addTask(Task::Warning,
                              tr("The dSYM %1 seems to be outdated, it might confuse the debugger.")
                              .arg(dsymPath.toUserOutput()),
@@ -153,38 +155,33 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
             params.startMode = AttachToRemoteServer;
     }
 
-    DebuggerRunControl *debuggerRunControl = createDebuggerRunControl(params, runConfig, errorMessage);
-    if (debuggerRunControl)
-        new IosDebugSupport(runConfig, debuggerRunControl, cppDebug, qmlDebug);
-    return debuggerRunControl;
+    RunControl *runControl = createDebuggerRunControl(params, runConfig, errorMessage);
+    if (runControl)
+        new IosDebugSupport(runControl, cppDebug, qmlDebug);
+    return runControl;
 }
 
-IosDebugSupport::IosDebugSupport(IosRunConfiguration *runConfig,
-    DebuggerRunControl *runControl, bool cppDebug, bool qmlDebug)
-    : QObject(runControl), m_runControl(runControl),
-      m_runner(new IosRunner(this, runConfig, cppDebug, qmlDebug ? QmlDebug::QmlDebuggerServices :
-                                                                   QmlDebug::NoQmlDebugServices))
+IosDebugSupport::IosDebugSupport(RunControl *runControl, bool cppDebug, bool qmlDebug)
+    : ToolRunner(runControl),
+      m_runner(new IosRunner(this, runControl, cppDebug,
+                             qmlDebug ? QmlDebug::QmlDebuggerServices : QmlDebug::NoQmlDebugServices))
 {
-    connect(m_runControl, &DebuggerRunControl::requestRemoteSetup,
+    connect(this->runControl(), &DebuggerRunControl::requestRemoteSetup,
             m_runner, &IosRunner::start);
-    connect(m_runControl, &RunControl::finished,
+    connect(runControl, &RunControl::finished,
             m_runner, &IosRunner::stop);
 
     connect(m_runner, &IosRunner::gotServerPorts,
-        this, &IosDebugSupport::handleServerPorts);
+            this, &IosDebugSupport::handleServerPorts);
     connect(m_runner, &IosRunner::gotInferiorPid,
-        this, &IosDebugSupport::handleGotInferiorPid);
+            this, &IosDebugSupport::handleGotInferiorPid);
     connect(m_runner, &IosRunner::finished,
-        this, &IosDebugSupport::handleRemoteProcessFinished);
+            this, &IosDebugSupport::handleRemoteProcessFinished);
 
     connect(m_runner, &IosRunner::errorMsg,
-        this, &IosDebugSupport::handleRemoteErrorOutput);
+            this, &IosDebugSupport::handleRemoteErrorOutput);
     connect(m_runner, &IosRunner::appOutput,
-        this, &IosDebugSupport::handleRemoteOutput);
-}
-
-IosDebugSupport::~IosDebugSupport()
-{
+            this, &IosDebugSupport::handleRemoteOutput);
 }
 
 void IosDebugSupport::handleServerPorts(Utils::Port gdbServerPort, Utils::Port qmlPort)
@@ -196,7 +193,7 @@ void IosDebugSupport::handleServerPorts(Utils::Port gdbServerPort, Utils::Port q
             || (m_runner && !m_runner->cppDebug() && qmlPort.isValid());
     if (!result.success)
         result.reason =  tr("Could not get debug server file descriptor.");
-    m_runControl->notifyEngineRemoteSetupFinished(result);
+    runControl()->notifyEngineRemoteSetupFinished(result);
 }
 
 void IosDebugSupport::handleGotInferiorPid(qint64 pid, Utils::Port qmlPort)
@@ -207,30 +204,31 @@ void IosDebugSupport::handleGotInferiorPid(qint64 pid, Utils::Port qmlPort)
     result.success = pid > 0;
     if (!result.success)
         result.reason =  tr("Got an invalid process id.");
-    m_runControl->notifyEngineRemoteSetupFinished(result);
+    runControl()->notifyEngineRemoteSetupFinished(result);
 }
 
 void IosDebugSupport::handleRemoteProcessFinished(bool cleanEnd)
 {
-    if (m_runControl) {
-        if (!cleanEnd)
-            m_runControl->appendMessage(tr("Run ended with error."), Utils::DebugFormat);
-        else
-            m_runControl->appendMessage(tr("Run ended."), Utils::DebugFormat);
-        m_runControl->abortDebugger();
-    }
+    if (!cleanEnd)
+        appendMessage(tr("Run ended with error."), Utils::DebugFormat);
+    else
+        appendMessage(tr("Run ended."), Utils::DebugFormat);
+    runControl()->abortDebugger();
 }
 
 void IosDebugSupport::handleRemoteOutput(const QString &output)
 {
-    if (m_runControl)
-        m_runControl->showMessage(output, AppOutput);
+    runControl()->showMessage(output, AppOutput);
 }
 
 void IosDebugSupport::handleRemoteErrorOutput(const QString &output)
 {
-    if (m_runControl)
-        m_runControl->showMessage(output, AppError);
+    runControl()->showMessage(output, AppError);
+}
+
+DebuggerRunControl *IosDebugSupport::runControl()
+{
+    return qobject_cast<DebuggerRunControl *>(ToolRunner::runControl())    ;
 }
 
 } // namespace Internal

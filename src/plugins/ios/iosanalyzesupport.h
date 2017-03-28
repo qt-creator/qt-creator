@@ -26,9 +26,10 @@
 #pragma once
 
 #include <qmldebug/qmloutputparser.h>
-#include <utils/port.h>
 
-#include <QObject>
+#include <projectexplorer/runconfiguration.h>
+
+#include <utils/port.h>
 
 namespace Debugger { class AnalyzerRunControl; }
 
@@ -38,14 +39,12 @@ namespace Internal {
 class IosRunConfiguration;
 class IosRunner;
 
-class IosAnalyzeSupport : public QObject
+class IosAnalyzeSupport : public ProjectExplorer::ToolRunner
 {
     Q_OBJECT
 
 public:
-    IosAnalyzeSupport(IosRunConfiguration *runConfig,
-                      Debugger::AnalyzerRunControl *runControl, bool cppDebug, bool qmlDebug);
-    ~IosAnalyzeSupport();
+    IosAnalyzeSupport(ProjectExplorer::RunControl *runControl, bool cppDebug, bool qmlDebug);
 
 private:
     void qmlServerReady();
@@ -56,7 +55,7 @@ private:
     void handleRemoteOutput(const QString &output);
     void handleRemoteErrorOutput(const QString &output);
 
-    Debugger::AnalyzerRunControl *m_runControl;
+    Debugger::AnalyzerRunControl *runControl();
     IosRunner * const m_runner;
     QmlDebug::QmlOutputParser m_outputParser;
     Utils::Port m_qmlPort;

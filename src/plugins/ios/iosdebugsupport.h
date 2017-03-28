@@ -26,7 +26,8 @@
 #pragma once
 
 #include "iosrunconfiguration.h"
-#include <QProcess>
+
+#include <projectexplorer/runconfiguration.h>
 
 namespace Debugger { class DebuggerRunControl; }
 namespace ProjectExplorer { class RunControl; }
@@ -37,17 +38,15 @@ namespace Internal {
 class IosRunConfiguration;
 class IosRunner;
 
-class IosDebugSupport : public QObject
+class IosDebugSupport : public ProjectExplorer::ToolRunner
 {
     Q_OBJECT
 
 public:
-    static ProjectExplorer::RunControl *createDebugRunControl(IosRunConfiguration *runConfig,
+    static ProjectExplorer::RunControl *createDebugRunControl(ProjectExplorer::RunConfiguration *runConfig,
                                                               QString *errorMessage);
 
-    IosDebugSupport(IosRunConfiguration *runConfig,
-        Debugger::DebuggerRunControl *runControl, bool cppDebug, bool qmlDebug);
-    ~IosDebugSupport();
+    IosDebugSupport(ProjectExplorer::RunControl *runControl, bool cppDebug, bool qmlDebug);
 
 private:
     void handleServerPorts(Utils::Port gdbServerPort, Utils::Port qmlPort);
@@ -57,7 +56,8 @@ private:
     void handleRemoteOutput(const QString &output);
     void handleRemoteErrorOutput(const QString &output);
 
-    Debugger::DebuggerRunControl *m_runControl;
+    Debugger::DebuggerRunControl *runControl();
+
     IosRunner * const m_runner;
     const QString m_dumperLib;
 };
