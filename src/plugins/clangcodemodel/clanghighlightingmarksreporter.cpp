@@ -72,7 +72,7 @@ TextEditor::TextStyle toTextStyle(ClangBackEnd::HighlightingType type)
 TextEditor::TextStyles toTextStyles(ClangBackEnd::HighlightingTypes types)
 {
     TextEditor::TextStyles textStyles;
-    textStyles.mixinStyles.fillWithZero();
+    textStyles.mixinStyles.initializeElements();
 
     textStyles.mainStyle = toTextStyle(types.mainHighlightingType);
 
