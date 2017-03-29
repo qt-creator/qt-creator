@@ -74,15 +74,6 @@ using namespace Utils;
 namespace QmakeProjectManager {
 namespace Internal {
 
-class QmakeProjectFile : public Core::IDocument
-{
-public:
-    explicit QmakeProjectFile(const FileName &fileName);
-
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
-};
-
 /// Watches folders for QmakePriFile nodes
 /// use one file system watcher to watch all folders
 /// such minimizing system ressouce usage
@@ -156,30 +147,6 @@ QDebug operator<<(QDebug d, const  QmakeProjectFiles &f)
     return d;
 }
 
-// ----------- QmakeProjectFile
-
-QmakeProjectFile::QmakeProjectFile(const FileName &fileName)
-{
-    setId("Qmake.ProFile");
-    setMimeType(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
-    setFilePath(fileName);
-}
-
-Core::IDocument::ReloadBehavior QmakeProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
-{
-    Q_UNUSED(state)
-    Q_UNUSED(type)
-    return BehaviorSilent;
-}
-
-bool QmakeProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
-{
-    Q_UNUSED(errorString)
-    Q_UNUSED(flag)
-    Q_UNUSED(type)
-    return true;
-}
-
 static QList<QmakeProject *> s_projects;
 
 } // namespace Internal
@@ -196,7 +163,7 @@ QmakeProject::QmakeProject(const FileName &fileName) :
 {
     s_projects.append(this);
     setId(Constants::QMAKEPROJECT_ID);
-    setDocument(new QmakeProjectFile(fileName));
+    setDocument(new ProjectDocument(QmakeProjectManager::Constants::PROFILE_MIMETYPE, fileName));
     setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setRequiredKitPredicate(QtSupport::QtKitInformation::qtVersionPredicate());

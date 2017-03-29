@@ -37,6 +37,7 @@
 #include "settingsaccessor.h"
 
 #include <coreplugin/idocument.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
@@ -83,6 +84,41 @@ const char PLUGIN_SETTINGS_KEY[] = "ProjectExplorer.Project.PluginSettings";
 } // namespace
 
 namespace ProjectExplorer {
+
+// --------------------------------------------------------------------
+// ProjectDocument:
+// --------------------------------------------------------------------
+
+ProjectDocument::ProjectDocument(const QString &mimeType, const Utils::FileName &fileName,
+                                 const ProjectDocument::ProjectCallback &callback) :
+    m_callback(callback)
+{
+    setFilePath(fileName);
+    setMimeType(mimeType);
+    if (m_callback)
+        Core::DocumentManager::addDocument(this);
+}
+
+Core::IDocument::ReloadBehavior
+ProjectDocument::reloadBehavior(Core::IDocument::ChangeTrigger state,
+                                Core::IDocument::ChangeType type) const
+{
+    Q_UNUSED(state);
+    Q_UNUSED(type);
+    return BehaviorSilent;
+}
+
+bool ProjectDocument::reload(QString *errorString, Core::IDocument::ReloadFlag flag,
+                             Core::IDocument::ChangeType type)
+{
+    Q_UNUSED(errorString);
+    Q_UNUSED(flag);
+    Q_UNUSED(type);
+
+    if (m_callback)
+        m_callback();
+    return true;
+}
 
 // -------------------------------------------------------------------------
 // Project

@@ -9,7 +9,6 @@ HEADERS += qmlproject.h \
     qmlprojectplugin.h \
     qmlprojectconstants.h \
     qmlprojectnodes.h \
-    qmlprojectfile.h \
     qmlprojectrunconfiguration.h \
     qmlprojectrunconfigurationfactory.h \
     qmlprojectmanager_global.h \
@@ -20,7 +19,6 @@ SOURCES += qmlproject.cpp \
     qmlprojectenvironmentaspect.cpp \
     qmlprojectplugin.cpp \
     qmlprojectnodes.cpp \
-    qmlprojectfile.cpp \
     qmlprojectrunconfiguration.cpp \
     qmlprojectrunconfigurationfactory.cpp \
     qmlprojectrunconfigurationwidget.cpp

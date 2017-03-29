@@ -69,7 +69,8 @@ GenericProject::GenericProject(const Utils::FileName &fileName)
     : m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(Constants::GENERICPROJECT_ID);
-    setDocument(new GenericProjectFile(this, fileName, GenericProject::Everything));
+    setDocument(new ProjectDocument(Constants::GENERICMIMETYPE, fileName,
+                                    [this]() { refresh(Everything); }));
     setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
@@ -82,14 +83,15 @@ GenericProject::GenericProject(const Utils::FileName &fileName)
     m_includesFileName = QFileInfo(dir, projectName + ".includes").absoluteFilePath();
     m_configFileName   = QFileInfo(dir, projectName + ".config").absoluteFilePath();
 
-    m_filesIDocument    = new GenericProjectFile(this, FileName::fromString(m_filesFileName), GenericProject::Files);
-    m_includesIDocument = new GenericProjectFile(this, FileName::fromString(m_includesFileName), GenericProject::Configuration);
-    m_configIDocument   = new GenericProjectFile(this, FileName::fromString(m_configFileName), GenericProject::Configuration);
-
-    DocumentManager::addDocument(document());
-    DocumentManager::addDocument(m_filesIDocument);
-    DocumentManager::addDocument(m_includesIDocument);
-    DocumentManager::addDocument(m_configIDocument);
+    m_filesIDocument
+            = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_filesFileName),
+                                  [this]() { refresh(Files); });
+    m_includesIDocument
+            = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_includesFileName),
+                                  [this]() { refresh(Configuration); });
+    m_configIDocument
+            = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_configFileName),
+                                  [this]() { refresh(Configuration); });
 }
 
 GenericProject::~GenericProject()
@@ -439,39 +441,6 @@ Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *
             this, &GenericProject::activeTargetWasChanged);
     refresh(Everything);
     return RestoreResult::Ok;
-}
-
-////////////////////////////////////////////////////////////////////////////////////
-//
-// GenericProjectFile
-//
-////////////////////////////////////////////////////////////////////////////////////
-
-GenericProjectFile::GenericProjectFile(GenericProject *parent, const Utils::FileName &fileName,
-                                       GenericProject::RefreshOptions options) :
-      m_project(parent),
-      m_options(options)
-{
-    setId("Generic.ProjectFile");
-    setMimeType(Constants::GENERICMIMETYPE);
-    setFilePath(fileName);
-}
-
-IDocument::ReloadBehavior GenericProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
-{
-    Q_UNUSED(state);
-    Q_UNUSED(type);
-    return BehaviorSilent;
-}
-
-bool GenericProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
-{
-    Q_UNUSED(errorString);
-    Q_UNUSED(flag);
-    if (type == TypePermissions)
-        return true;
-    m_project->refresh(m_options);
-    return true;
 }
 
 } // namespace Internal

@@ -57,9 +57,7 @@ const int MIN_TIME_BETWEEN_PROJECT_SCANS = 4500;
 NimProject::NimProject(const FileName &fileName)
 {
     setId(Constants::C_NIMPROJECT_ID);
-    auto doc = new TextEditor::TextDocument;
-    doc->setFilePath(fileName);
-    setDocument(doc);
+    setDocument(new ProjectDocument(Constants::C_NIM_MIMETYPE, fileName));
 
     m_projectScanTimer.setSingleShot(true);
     connect(&m_projectScanTimer, &QTimer::timeout, this, &NimProject::collectProjectFiles);

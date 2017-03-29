@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "qmlproject.h"
-#include "qmlprojectfile.h"
 #include "fileformat/qmlprojectfileformat.h"
 #include "fileformat/qmlprojectitem.h"
 #include "qmlprojectrunconfiguration.h"
@@ -59,8 +58,8 @@ QmlProject::QmlProject(const Utils::FileName &fileName) :
     m_defaultImport(UnknownImport)
 {
     setId("QmlProjectManager.QmlProject");
-    setDocument(new Internal::QmlProjectFile(this, fileName));
-    DocumentManager::addDocument(document(), true);
+    setDocument(new ProjectDocument(QString::fromLatin1(Constants::QMLPROJECT_MIMETYPE), fileName,
+                                    [this]() { refreshProjectFile(); }));
 
     setProjectContext(Context(QmlProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID));

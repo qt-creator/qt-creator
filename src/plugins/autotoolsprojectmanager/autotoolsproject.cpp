@@ -29,7 +29,6 @@
 #include "autotoolsbuildconfiguration.h"
 #include "autotoolsprojectconstants.h"
 #include "autotoolsprojectnode.h"
-#include "autotoolsprojectfile.h"
 #include "autotoolsopenprojectwizard.h"
 #include "makestep.h"
 #include "makefileparserthread.h"
@@ -73,7 +72,7 @@ AutotoolsProject::AutotoolsProject(const Utils::FileName &fileName) :
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(Constants::AUTOTOOLS_PROJECT_ID);
-    setDocument(new AutotoolsProjectFile(fileName));
+    setDocument(new ProjectExplorer::ProjectDocument(Constants::MAKEFILE_MIMETYPE, fileName));
     setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 }

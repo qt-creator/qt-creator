@@ -2,7 +2,6 @@ include(../../qtcreatorplugin.pri)
 
 HEADERS = autotoolsprojectplugin.h\
           autotoolsopenprojectwizard.h\
-          autotoolsprojectfile.h\
           autotoolsprojectnode.h\
           autotoolsproject.h\
           autotoolsbuildsettingswidget.h\
@@ -16,7 +15,6 @@ HEADERS = autotoolsprojectplugin.h\
           makefileparser.h
 SOURCES = autotoolsprojectplugin.cpp\
           autotoolsopenprojectwizard.cpp\
-          autotoolsprojectfile.cpp\
           autotoolsprojectnode.cpp\
           autotoolsproject.cpp\
           autotoolsbuildsettingswidget.cpp\

@@ -116,37 +116,6 @@ private:
     QHash<QString, QString> m_rawListEntries;
 };
 
-class PythonProjectFile : public Core::IDocument
-{
-public:
-    PythonProjectFile(PythonProject *parent, const FileName &fileName) : m_project(parent)
-    {
-        setId("Generic.ProjectFile");
-        setMimeType(PythonMimeType);
-        setFilePath(fileName);
-    }
-
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override
-    {
-        Q_UNUSED(state)
-        Q_UNUSED(type)
-        return BehaviorSilent;
-    }
-
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override
-    {
-        Q_UNUSED(errorString)
-        Q_UNUSED(flag)
-        if (type == TypePermissions)
-            return true;
-        m_project->refresh();
-        return true;
-    }
-
-private:
-    PythonProject *m_project;
-};
-
 class PythonProjectNode : public ProjectNode
 {
 public:
@@ -409,8 +378,7 @@ private:
 PythonProject::PythonProject(const FileName &fileName)
 {
     setId(PythonProjectId);
-    setDocument(new PythonProjectFile(this, fileName));
-    DocumentManager::addDocument(document());
+    setDocument(new ProjectDocument(Constants::C_PY_MIMETYPE, fileName, [this]() { refresh(); }));
 
     setProjectContext(Context(PythonProjectContext));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));

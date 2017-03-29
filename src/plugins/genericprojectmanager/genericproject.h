@@ -41,8 +41,6 @@ namespace CppTools { class CppProjectUpdater; }
 namespace GenericProjectManager {
 namespace Internal {
 
-class GenericProjectFile;
-
 class GenericProject : public ProjectExplorer::Project
 {
     Q_OBJECT
@@ -91,9 +89,9 @@ private:
     QString m_filesFileName;
     QString m_includesFileName;
     QString m_configFileName;
-    GenericProjectFile *m_filesIDocument;
-    GenericProjectFile *m_includesIDocument;
-    GenericProjectFile *m_configIDocument;
+    ProjectExplorer::ProjectDocument *m_filesIDocument;
+    ProjectExplorer::ProjectDocument *m_includesIDocument;
+    ProjectExplorer::ProjectDocument *m_configIDocument;
     QStringList m_rawFileList;
     QStringList m_files;
     QHash<QString, QString> m_rawListEntries;
@@ -103,20 +101,6 @@ private:
     CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 
     ProjectExplorer::Target *m_activeTarget = nullptr;
-};
-
-class GenericProjectFile : public Core::IDocument
-{
-public:
-    GenericProjectFile(GenericProject *parent, const Utils::FileName &fileName,
-                       GenericProject::RefreshOptions options);
-
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
-
-private:
-    GenericProject *m_project;
-    GenericProject::RefreshOptions m_options;
 };
 
 } // namespace Internal

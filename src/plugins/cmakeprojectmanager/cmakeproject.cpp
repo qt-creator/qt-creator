@@ -77,9 +77,7 @@ CMakeProject::CMakeProject(const FileName &fileName)
     : m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
-    auto doc = new TextEditor::TextDocument;
-    doc->setFilePath(fileName);
-    setDocument(doc);
+    setDocument(new ProjectDocument(CMakeProjectManager::Constants::CMAKEMIMETYPE, fileName));
 
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
