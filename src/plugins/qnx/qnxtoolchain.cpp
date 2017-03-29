@@ -42,6 +42,7 @@ namespace Qnx {
 namespace Internal {
 
 static const char CompilerSdpPath[] = "Qnx.QnxToolChain.NDKPath";
+static const char CpuDirKey[] = "Qnx.QnxToolChain.CpuDir";
 
 static QList<Abi> detectTargetAbis(const FileName &sdpPath)
 {
@@ -146,6 +147,7 @@ QVariantMap QnxToolChain::toMap() const
 {
     QVariantMap data = GccToolChain::toMap();
     data.insert(QLatin1String(CompilerSdpPath), m_sdpPath);
+    data.insert(QLatin1String(CpuDirKey), m_cpuDir);
     return data;
 }
 
@@ -155,6 +157,7 @@ bool QnxToolChain::fromMap(const QVariantMap &data)
         return false;
 
     m_sdpPath = data.value(QLatin1String(CompilerSdpPath)).toString();
+    m_cpuDir = data.value(QLatin1String(CpuDirKey)).toString();
 
     // Make the ABIs QNX specific (if they aren't already).
     setSupportedAbis(QnxUtils::convertAbis(supportedAbis()));
@@ -176,9 +179,32 @@ void QnxToolChain::setSdpPath(const QString &sdpPath)
     toolChainUpdated();
 }
 
+QString QnxToolChain::cpuDir() const
+{
+    return m_cpuDir;
+}
+
+void QnxToolChain::setCpuDir(const QString &cpuDir)
+{
+    if (m_cpuDir == cpuDir)
+        return;
+    m_cpuDir = cpuDir;
+    toolChainUpdated();
+}
+
 GccToolChain::DetectedAbisResult QnxToolChain::detectSupportedAbis() const
 {
     return detectTargetAbis(FileName::fromString(m_sdpPath));
+}
+
+bool QnxToolChain::operator ==(const ToolChain &other) const
+{
+    if (!GccToolChain::operator ==(other))
+        return false;
+
+    auto qnxTc = static_cast<const QnxToolChain *>(&other);
+
+    return m_sdpPath == qnxTc->m_sdpPath && m_cpuDir == qnxTc->m_cpuDir;
 }
 
 // --------------------------------------------------------------------------
