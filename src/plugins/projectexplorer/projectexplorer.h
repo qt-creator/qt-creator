@@ -162,8 +162,6 @@ public:
 
 signals:
     void finishedInitialization();
-    void runControlStarted(ProjectExplorer::RunControl *rc);
-    void runControlFinished(ProjectExplorer::RunControl *rc);
 
     // Is emitted when a project has been added/removed,
     // or the file list of a specific project has changed.

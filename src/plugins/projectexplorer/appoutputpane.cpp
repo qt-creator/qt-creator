@@ -399,7 +399,7 @@ void AppOutputPane::updateBehaviorSettings()
 
 void AppOutputPane::createNewOutputWindow(RunControl *rc)
 {
-    connect(rc, &RunControl::started,
+    connect(rc, &RunControl::aboutToStart,
             this, &AppOutputPane::slotRunControlStarted);
     connect(rc, &RunControl::finished,
             this, &AppOutputPane::slotRunControlFinished);
@@ -703,7 +703,6 @@ void AppOutputPane::slotRunControlStarted()
 
     if (current && current == sender())
         enableButtons(current, true); // RunControl::isRunning() cannot be trusted in signal handler.
-    emit runControlStarted(current);
 }
 
 void AppOutputPane::slotRunControlFinished()
@@ -734,7 +733,7 @@ void AppOutputPane::slotRunControlFinished2(RunControl *sender)
 
     m_runControlTabs.at(senderIndex).window->setFormatter(nullptr); // Reset formater for this RC
 
-    emit runControlFinished(sender);
+    ProjectExplorerPlugin::instance()->updateRunActions();
 
     if (!isRunning())
         emit allRunControlsFinished();

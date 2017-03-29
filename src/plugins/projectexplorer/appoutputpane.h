@@ -93,8 +93,6 @@ public:
 
 signals:
      void allRunControlsFinished();
-     void runControlStarted(ProjectExplorer::RunControl *rc);
-     void runControlFinished(ProjectExplorer::RunControl *rc);
 
 public:
     // ApplicationOutput specifics

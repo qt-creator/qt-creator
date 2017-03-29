@@ -613,13 +613,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
             dd->m_outputPane, &AppOutputPane::projectRemoved);
 
-    connect(dd->m_outputPane, &AppOutputPane::runControlStarted,
-            this, &ProjectExplorerPlugin::runControlStarted);
-    connect(dd->m_outputPane, &AppOutputPane::runControlFinished,
-            this, &ProjectExplorerPlugin::runControlFinished);
-    connect(dd->m_outputPane, &AppOutputPane::runControlFinished,
-            this, &ProjectExplorerPlugin::updateRunActions);
-
     addAutoReleasedObject(new AllProjectsFilter);
     addAutoReleasedObject(new CurrentProjectFilter);
 

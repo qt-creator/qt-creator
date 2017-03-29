@@ -363,15 +363,6 @@ class PROJECTEXPLORER_EXPORT RunControl : public QObject
     Q_OBJECT
 
 public:
-    enum class State {
-        Initialized,
-        Starting,
-        Running,
-        Stopping,
-        Stopped
-    };
-    Q_ENUM(State)
-
     RunControl(RunConfiguration *runConfiguration, Core::Id mode);
     ~RunControl() override;
 
@@ -416,20 +407,21 @@ public:
     virtual void appendMessage(const QString &msg, Utils::OutputFormat format);
     virtual void bringApplicationToForeground();
 
-    void reportApplicationStart(); // Call this when the application starts to run
-    void reportApplicationStop(); // Call this when the application has stopped for any reason
-
 signals:
     void appendMessageRequested(ProjectExplorer::RunControl *runControl,
                                 const QString &msg, Utils::OutputFormat format);
+    void aboutToStart();
     void starting();
-    void started(QPrivateSignal); // Use reportApplicationStart!
-    void finished(QPrivateSignal); // Use reportApplicationStop!
+    void started(); // Use reportApplicationStart!
+    void finished(); // Use reportApplicationStop!
     void applicationProcessHandleChanged(QPrivateSignal); // Use setApplicationProcessHandle
 
 protected:
     virtual void start();
     virtual void stop();
+
+    void reportApplicationStart(); // Call this when the application starts to run
+    void reportApplicationStop(); // Call this when the application has stopped for any reason
 
     bool showPromptToStopDialog(const QString &title, const QString &text,
                                 const QString &stopButtonText = QString(),
@@ -437,7 +429,10 @@ protected:
                                 bool *prompt = nullptr) const;
 
 private:
-    void setState(State state);
+    friend class Internal::RunControlPrivate;
+    friend class TargetRunner;
+    friend class ToolRunner;
+
     void bringApplicationToForegroundInternal();
     Internal::RunControlPrivate *d;
 };
@@ -448,14 +443,23 @@ private:
 
 class PROJECTEXPLORER_EXPORT TargetRunner : public QObject
 {
+    Q_OBJECT
+
 public:
     explicit TargetRunner(RunControl *runControl);
 
     RunControl *runControl() const;
     void appendMessage(const QString &msg, Utils::OutputFormat format);
 
-    virtual void start() {}
-    virtual void stop() {}
+    virtual void prepare() { emit prepared(); }
+    virtual void start() { emit started(); }
+    virtual void stop() { emit stopped(); }
+
+signals:
+    void prepared();
+    void started();
+    void stopped();
+    void failed(const QString &msg = QString());
 
 private:
     QPointer<RunControl> m_runControl;
@@ -467,11 +471,23 @@ private:
 
 class PROJECTEXPLORER_EXPORT ToolRunner : public QObject
 {
+    Q_OBJECT
+
 public:
     explicit ToolRunner(RunControl *runControl);
 
     RunControl *runControl() const;
     void appendMessage(const QString &msg, Utils::OutputFormat format);
+
+    virtual void prepare() { emit prepared(); }
+    virtual void start() { emit started(); }
+    virtual void stop() { emit stopped(); }
+
+signals:
+    void prepared();
+    void started();
+    void stopped();
+    void failed(const QString &msg = QString());
 
 private:
     QPointer<RunControl> m_runControl;
@@ -487,14 +503,12 @@ class PROJECTEXPLORER_EXPORT SimpleTargetRunner : public TargetRunner
 public:
     explicit SimpleTargetRunner(RunControl *runControl);
 
+private:
     void start() override;
     void stop() override;
 
-    virtual void onProcessStarted();
-    virtual void onProcessFinished(int exitCode, QProcess::ExitStatus status);
-
-private:
-    void setFinished();
+    void onProcessStarted();
+    void onProcessFinished(int exitCode, QProcess::ExitStatus status);
 
     ApplicationLauncher m_launcher;
 };
