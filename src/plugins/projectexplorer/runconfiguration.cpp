@@ -519,6 +519,7 @@ public:
 
     ~RunControlPrivate()
     {
+        delete targetRunner;
         delete toolRunner;
         delete outputFormatter;
     }
@@ -531,6 +532,7 @@ public:
     Utils::Icon icon;
     const QPointer<RunConfiguration> runConfiguration; // Not owned.
     QPointer<Project> project; // Not owned.
+    QPointer<TargetRunner> targetRunner; // Owned. QPointer as "extra safety" for now.
     QPointer<ToolRunner> toolRunner; // Owned. QPointer as "extra safety" for now.
     Utils::OutputFormatter *outputFormatter = nullptr;
 
@@ -627,6 +629,16 @@ ToolRunner *RunControl::toolRunner() const
 void RunControl::setToolRunner(ToolRunner *tool)
 {
     d->toolRunner = tool;
+}
+
+TargetRunner *RunControl::targetRunner() const
+{
+    return d->targetRunner;
+}
+
+void RunControl::setTargetRunner(TargetRunner *runner)
+{
+    d->targetRunner = runner;
 }
 
 QString RunControl::displayName() const
@@ -801,6 +813,18 @@ void RunControl::bringApplicationToForeground()
 #endif
 }
 
+void RunControl::start()
+{
+    QTC_ASSERT(d->targetRunner, return);
+    d->targetRunner->start();
+}
+
+void RunControl::stop()
+{
+    QTC_ASSERT(d->targetRunner, return);
+    d->targetRunner->stop();
+}
+
 void RunControl::reportApplicationStart()
 {
     setState(State::Running);
@@ -846,18 +870,6 @@ bool Runnable::canReUseOutputPane(const Runnable &other) const
 }
 
 
-// SimpleRunControlPrivate
-
-namespace Internal {
-
-class SimpleRunControlPrivate
-{
-public:
-    ApplicationLauncher m_launcher;
-};
-
-} // Internal
-
 // FIXME: Remove once ApplicationLauncher signalling does not depend on device.
 static bool isSynchronousLauncher(RunControl *runControl)
 {
@@ -868,112 +880,117 @@ static bool isSynchronousLauncher(RunControl *runControl)
     return !deviceId.isValid() || deviceId == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
-SimpleRunControl::SimpleRunControl(RunConfiguration *runConfiguration, Core::Id mode)
-    : RunControl(runConfiguration, mode), d(new Internal::SimpleRunControlPrivate)
+SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
+    : TargetRunner(runControl)
 {
-    setRunnable(runConfiguration->runnable());
-    setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
 }
 
-SimpleRunControl::~SimpleRunControl()
+void SimpleTargetRunner::start()
 {
-    delete d;
-}
+    runControl()->reportApplicationStart();
+    m_launcher.disconnect(this);
 
-ApplicationLauncher &SimpleRunControl::applicationLauncher()
-{
-    return d->m_launcher;
-}
+    Runnable r = runControl()->runnable();
 
-void SimpleRunControl::start()
-{
-    reportApplicationStart();
-    d->m_launcher.disconnect(this);
+    if (isSynchronousLauncher(runControl())) {
 
-    Runnable r = runnable();
-
-    if (isSynchronousLauncher(this)) {
-
-        connect(&d->m_launcher, &ApplicationLauncher::appendMessage,
-                this, static_cast<void(RunControl::*)(const QString &, OutputFormat)>(&RunControl::appendMessage));
-        connect(&d->m_launcher, &ApplicationLauncher::processStarted,
-                this, &SimpleRunControl::onProcessStarted);
-        connect(&d->m_launcher, &ApplicationLauncher::processExited,
-                this, &SimpleRunControl::onProcessFinished);
+        connect(&m_launcher, &ApplicationLauncher::appendMessage,
+                this, &TargetRunner::appendMessage);
+        connect(&m_launcher, &ApplicationLauncher::processStarted,
+                this, &SimpleTargetRunner::onProcessStarted);
+        connect(&m_launcher, &ApplicationLauncher::processExited,
+                this, &SimpleTargetRunner::onProcessFinished);
 
         QTC_ASSERT(r.is<StandardRunnable>(), return);
         const QString executable = r.as<StandardRunnable>().executable;
         if (executable.isEmpty()) {
             appendMessage(RunControl::tr("No executable specified.") + '\n',
                           Utils::ErrorMessageFormat);
-            reportApplicationStop();
+            runControl()->reportApplicationStop();
         }  else if (!QFileInfo::exists(executable)) {
             appendMessage(RunControl::tr("Executable %1 does not exist.")
                           .arg(QDir::toNativeSeparators(executable)) + '\n',
                           Utils::ErrorMessageFormat);
-            reportApplicationStop();
+            runControl()->reportApplicationStop();
         } else {
             QString msg = RunControl::tr("Starting %1...").arg(QDir::toNativeSeparators(executable)) + '\n';
             appendMessage(msg, Utils::NormalMessageFormat);
-            d->m_launcher.start(r);
-            setApplicationProcessHandle(d->m_launcher.applicationPID());
+            m_launcher.start(r);
+            runControl()->setApplicationProcessHandle(m_launcher.applicationPID());
         }
 
     } else {
 
-        connect(&d->m_launcher, &ApplicationLauncher::reportError,
+        connect(&m_launcher, &ApplicationLauncher::reportError,
                 this, [this](const QString &error) {
                     appendMessage(error, Utils::ErrorMessageFormat);
                 });
 
-        connect(&d->m_launcher, &ApplicationLauncher::remoteStderr,
+        connect(&m_launcher, &ApplicationLauncher::remoteStderr,
                 this, [this](const QByteArray &output) {
                     appendMessage(QString::fromUtf8(output), Utils::StdErrFormatSameLine);
                 });
 
-        connect(&d->m_launcher, &ApplicationLauncher::remoteStdout,
+        connect(&m_launcher, &ApplicationLauncher::remoteStdout,
                 this, [this](const QByteArray &output) {
                     appendMessage(QString::fromUtf8(output), Utils::StdOutFormatSameLine);
                 });
 
-        connect(&d->m_launcher, &ApplicationLauncher::finished,
+        connect(&m_launcher, &ApplicationLauncher::finished,
                 this, [this] {
-                    d->m_launcher.disconnect(this);
-                    reportApplicationStop();
+                    m_launcher.disconnect(this);
+                    runControl()->reportApplicationStop();
                 });
 
-        connect(&d->m_launcher, &ApplicationLauncher::reportProgress,
+        connect(&m_launcher, &ApplicationLauncher::reportProgress,
                 this, [this](const QString &progressString) {
                     appendMessage(progressString + '\n', Utils::NormalMessageFormat);
                 });
 
-        d->m_launcher.start(r, device());
-
+        m_launcher.start(r, runControl()->device());
     }
 }
 
-void SimpleRunControl::stop()
+void SimpleTargetRunner::stop()
 {
-    d->m_launcher.stop();
+    m_launcher.stop();
 }
 
-void SimpleRunControl::onProcessStarted()
+void SimpleTargetRunner::onProcessStarted()
 {
     // Console processes only know their pid after being started
-    setApplicationProcessHandle(d->m_launcher.applicationPID());
-    bringApplicationToForeground();
+    runControl()->setApplicationProcessHandle(m_launcher.applicationPID());
+    runControl()->bringApplicationToForeground();
 }
 
-void SimpleRunControl::onProcessFinished(int exitCode, QProcess::ExitStatus status)
+void SimpleTargetRunner::onProcessFinished(int exitCode, QProcess::ExitStatus status)
 {
     QString msg;
-    QString exe = runnable().as<StandardRunnable>().executable;
+    QString exe = runControl()->runnable().as<StandardRunnable>().executable;
     if (status == QProcess::CrashExit)
         msg = tr("%1 crashed.").arg(QDir::toNativeSeparators(exe));
     else
         msg = tr("%1 exited with code %2").arg(QDir::toNativeSeparators(exe)).arg(exitCode);
-    appendMessage(msg + QLatin1Char('\n'), Utils::NormalMessageFormat);
-    reportApplicationStop();
+    appendMessage(msg + '\n', Utils::NormalMessageFormat);
+    runControl()->reportApplicationStop();
+}
+
+// TargetRunner
+
+TargetRunner::TargetRunner(RunControl *runControl)
+    : m_runControl(runControl)
+{
+    runControl->setTargetRunner(this);
+}
+
+RunControl *TargetRunner::runControl() const
+{
+    return m_runControl;
+}
+
+void TargetRunner::appendMessage(const QString &msg, OutputFormat format)
+{
+    m_runControl->appendMessage(msg, format);
 }
 
 // ToolRunner
@@ -992,6 +1009,16 @@ RunControl *ToolRunner::runControl() const
 void ToolRunner::appendMessage(const QString &msg, OutputFormat format)
 {
     m_runControl->appendMessage(msg, format);
+}
+
+// SimpleRunControl
+
+SimpleRunControl::SimpleRunControl(RunConfiguration *runConfiguration, Core::Id mode)
+    : RunControl(runConfiguration, mode)
+{
+    setRunnable(runConfiguration->runnable());
+    setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
+    (void) new SimpleTargetRunner(this);
 }
 
 } // namespace ProjectExplorer

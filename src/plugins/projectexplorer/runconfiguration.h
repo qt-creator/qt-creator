@@ -49,8 +49,9 @@ class IRunConfigurationAspect;
 class RunConfiguration;
 class RunConfigWidget;
 class RunControl;
-class ToolRunner;
 class Target;
+class TargetRunner;
+class ToolRunner;
 
 namespace Internal {
 class RunControlPrivate;
@@ -349,6 +350,14 @@ signals:
     void displayNameChanged(const QString &);
 };
 
+/**
+ * A RunControl controls the running of an application or tool
+ * on a target device. It controls start and stop, and handles
+ * application output.
+ *
+ * RunControls are created by RunControlFactories.
+ */
+
 class PROJECTEXPLORER_EXPORT RunControl : public QObject
 {
     Q_OBJECT
@@ -401,8 +410,14 @@ public:
     ToolRunner *toolRunner() const;
     void setToolRunner(ToolRunner *tool);
 
+    TargetRunner *targetRunner() const;
+    void setTargetRunner(TargetRunner *tool);
+
     virtual void appendMessage(const QString &msg, Utils::OutputFormat format);
     virtual void bringApplicationToForeground();
+
+    void reportApplicationStart(); // Call this when the application starts to run
+    void reportApplicationStop(); // Call this when the application has stopped for any reason
 
 signals:
     void appendMessageRequested(ProjectExplorer::RunControl *runControl,
@@ -413,11 +428,8 @@ signals:
     void applicationProcessHandleChanged(QPrivateSignal); // Use setApplicationProcessHandle
 
 protected:
-    virtual void start() = 0;
-    virtual void stop() = 0;
-
-    void reportApplicationStart(); // Call this when the application starts to run
-    void reportApplicationStop(); // Call this when the application has stopped for any reason
+    virtual void start();
+    virtual void stop();
 
     bool showPromptToStopDialog(const QString &title, const QString &text,
                                 const QString &stopButtonText = QString(),
@@ -430,27 +442,27 @@ private:
     Internal::RunControlPrivate *d;
 };
 
-class PROJECTEXPLORER_EXPORT SimpleRunControl : public RunControl
+/**
+ * A base for target-specific additions to the RunControl.
+ */
+
+class PROJECTEXPLORER_EXPORT TargetRunner : public QObject
 {
 public:
-    SimpleRunControl(RunConfiguration *runConfiguration, Core::Id mode);
-    ~SimpleRunControl();
+    explicit TargetRunner(RunControl *runControl);
 
-    ApplicationLauncher &applicationLauncher();
-    void start() override;
-    void stop() override;
+    RunControl *runControl() const;
+    void appendMessage(const QString &msg, Utils::OutputFormat format);
 
-    virtual void onProcessStarted();
-    virtual void onProcessFinished(int exitCode, QProcess::ExitStatus status);
+    virtual void start() {}
+    virtual void stop() {}
 
 private:
-    void setFinished();
-
-    Internal::SimpleRunControlPrivate * const d;
+    QPointer<RunControl> m_runControl;
 };
 
 /**
- * A base for tool-specific additions to target-specific RunControl.
+ * A base for tool-specific additions to RunControl.
  */
 
 class PROJECTEXPLORER_EXPORT ToolRunner : public QObject
@@ -463,6 +475,36 @@ public:
 
 private:
     QPointer<RunControl> m_runControl;
+};
+
+/**
+ * A simple TargetRunner for cases where a plain ApplicationLauncher is
+ * sufficient for running purposes.
+ */
+
+class PROJECTEXPLORER_EXPORT SimpleTargetRunner : public TargetRunner
+{
+public:
+    explicit SimpleTargetRunner(RunControl *runControl);
+
+    void start() override;
+    void stop() override;
+
+    virtual void onProcessStarted();
+    virtual void onProcessFinished(int exitCode, QProcess::ExitStatus status);
+
+private:
+    void setFinished();
+
+    ApplicationLauncher m_launcher;
+};
+
+// A RunControl with a SimpleTargetRunner and no Tool.
+// FIXME: Do not use. Will be dissolved.
+class PROJECTEXPLORER_EXPORT SimpleRunControl : public RunControl
+{
+public:
+    SimpleRunControl(RunConfiguration *runConfiguration, Core::Id mode);
 };
 
 } // namespace ProjectExplorer
