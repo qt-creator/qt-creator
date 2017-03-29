@@ -158,12 +158,12 @@ static QList<QmakeProject *> s_projects;
   */
 
 QmakeProject::QmakeProject(const FileName &fileName) :
+    Project(QmakeProjectManager::Constants::PROFILE_MIMETYPE, fileName),
     m_qmakeVfs(new QMakeVfs),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     s_projects.append(this);
     setId(Constants::QMAKEPROJECT_ID);
-    setDocument(new ProjectDocument(QmakeProjectManager::Constants::PROFILE_MIMETYPE, fileName));
     setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setRequiredKitPredicate(QtSupport::QtKitInformation::qtVersionPredicate());

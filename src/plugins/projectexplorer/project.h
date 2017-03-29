@@ -88,7 +88,8 @@ public:
         EnabledRole
     };
 
-    Project();
+    Project(const QString &mimeType, const Utils::FileName &fileName,
+            const ProjectDocument::ProjectCallback &callback = {});
     ~Project() override;
 
     virtual QString displayName() const = 0;
@@ -193,7 +194,6 @@ protected:
     void setPreferredKitPredicate(const Kit::Predicate &predicate);
 
     void setId(Core::Id id);
-    void setDocument(Core::IDocument *doc); // takes ownership!
     void setRootProjectNode(ProjectNode *root); // takes ownership!
     void setProjectContext(Core::Context context);
     void setProjectLanguages(Core::Context language);

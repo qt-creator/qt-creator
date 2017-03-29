@@ -68,11 +68,11 @@ using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
 AutotoolsProject::AutotoolsProject(const Utils::FileName &fileName) :
+    Project(Constants::MAKEFILE_MIMETYPE, fileName),
     m_fileWatcher(new Utils::FileSystemWatcher(this)),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(Constants::AUTOTOOLS_PROJECT_ID);
-    setDocument(new ProjectExplorer::ProjectDocument(Constants::MAKEFILE_MIMETYPE, fileName));
     setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 }

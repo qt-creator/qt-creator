@@ -73,12 +73,10 @@ using namespace Internal;
 /*!
   \class CMakeProject
 */
-CMakeProject::CMakeProject(const FileName &fileName)
-    : m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
+CMakeProject::CMakeProject(const FileName &fileName) : Project(Constants::CMAKEMIMETYPE, fileName),
+    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
-    setDocument(new ProjectDocument(CMakeProjectManager::Constants::CMAKEMIMETYPE, fileName));
-
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 

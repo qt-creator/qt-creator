@@ -65,12 +65,11 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-GenericProject::GenericProject(const Utils::FileName &fileName)
-    : m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
+GenericProject::GenericProject(const Utils::FileName &fileName) :
+    Project(Constants::GENERICMIMETYPE, fileName, [this]() { refresh(Everything); }),
+    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(Constants::GENERICPROJECT_ID);
-    setDocument(new ProjectDocument(Constants::GENERICMIMETYPE, fileName,
-                                    [this]() { refresh(Everything); }));
     setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 

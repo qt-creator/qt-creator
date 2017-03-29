@@ -126,7 +126,9 @@ bool ProjectDocument::reload(QString *errorString, Core::IDocument::ReloadFlag f
 class ProjectPrivate
 {
 public:
-    ProjectPrivate(Project *owner) : m_containerNode(owner) {}
+    ProjectPrivate(Project *owner, Core::IDocument *document) :
+        m_document(document), m_containerNode(owner)
+    { }
     ~ProjectPrivate();
 
     Core::Id m_id;
@@ -158,7 +160,9 @@ ProjectPrivate::~ProjectPrivate()
     delete m_accessor;
 }
 
-Project::Project() : d(new ProjectPrivate(this))
+Project::Project(const QString &mimeType, const Utils::FileName &fileName,
+                 const ProjectDocument::ProjectCallback &callback) :
+    d(new ProjectPrivate(this, new ProjectDocument(mimeType, fileName, callback)))
 {
     d->m_macroExpander.setDisplayName(tr("Project"));
     d->m_macroExpander.registerVariable("Project:Name", tr("Project Name"),
@@ -451,13 +455,6 @@ bool Project::setupTarget(Target *t)
 void Project::setId(Core::Id id)
 {
     d->m_id = id;
-}
-
-void Project::setDocument(Core::IDocument *doc)
-{
-    QTC_ASSERT(doc, return);
-    QTC_ASSERT(!d->m_document, return);
-    d->m_document = doc;
 }
 
 void Project::setRootProjectNode(ProjectNode *root)

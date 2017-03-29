@@ -116,6 +116,7 @@ private:
 // --------------------------------------------------------------------
 
 QbsProject::QbsProject(const FileName &fileName) :
+    Project(Constants::MIME_TYPE, fileName, [this]() { delayParsing(); }),
     m_qbsProjectParser(0),
     m_qbsUpdateFutureInterface(0),
     m_parsingScheduled(false),
@@ -127,7 +128,6 @@ QbsProject::QbsProject(const FileName &fileName) :
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
 
     setId(Constants::PROJECT_ID);
-    setDocument(new ProjectDocument(Constants::MIME_TYPE, fileName, [this]() { delayParsing(); }));
 
     setProjectContext(Context(Constants::PROJECT_ID));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));

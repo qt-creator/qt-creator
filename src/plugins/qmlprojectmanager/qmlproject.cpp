@@ -55,12 +55,10 @@ using namespace ProjectExplorer;
 namespace QmlProjectManager {
 
 QmlProject::QmlProject(const Utils::FileName &fileName) :
+    Project(QString::fromLatin1(Constants::QMLPROJECT_MIMETYPE), fileName, [this]() { refreshProjectFile(); }),
     m_defaultImport(UnknownImport)
 {
     setId("QmlProjectManager.QmlProject");
-    setDocument(new ProjectDocument(QString::fromLatin1(Constants::QMLPROJECT_MIMETYPE), fileName,
-                                    [this]() { refreshProjectFile(); }));
-
     setProjectContext(Context(QmlProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID));
 }

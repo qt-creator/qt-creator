@@ -375,11 +375,10 @@ private:
     }
 };
 
-PythonProject::PythonProject(const FileName &fileName)
+PythonProject::PythonProject(const FileName &fileName) :
+    Project(Constants::C_PY_MIMETYPE, fileName, [this]() { refresh(); })
 {
     setId(PythonProjectId);
-    setDocument(new ProjectDocument(Constants::C_PY_MIMETYPE, fileName, [this]() { refresh(); }));
-
     setProjectContext(Context(PythonProjectContext));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 }
