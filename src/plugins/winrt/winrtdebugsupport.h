@@ -35,7 +35,7 @@ namespace Internal {
 class WinRtRunConfiguration;
 class WinRtRunnerHelper;
 
-class WinRtDebugSupport : public QObject
+class WinRtDebugSupport : public ProjectExplorer::ToolRunner
 {
     Q_OBJECT
 public:
@@ -49,10 +49,9 @@ private:
 
     void finish();
 
-    static bool useQmlDebugging(WinRtRunConfiguration *runConfig);
+    static bool useQmlDebugging(ProjectExplorer::RunConfiguration *runConfig);
     static bool getFreePort(Utils::Port &qmlDebuggerPort, QString *errorMessage);
 
-    ProjectExplorer::RunControl *m_debugRunControl;
     WinRtRunnerHelper *m_runner;
 };
 

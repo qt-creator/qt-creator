@@ -49,14 +49,13 @@ namespace Internal {
 using namespace ProjectExplorer;
 
 WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl, WinRtRunnerHelper *runner)
-    : QObject(runControl)
-    , m_debugRunControl(runControl)
+    : ToolRunner(runControl)
     , m_runner(runner)
 {
-    connect(m_debugRunControl, &RunControl::finished, this, &WinRtDebugSupport::finish);
+    connect(runControl, &RunControl::finished, this, &WinRtDebugSupport::finish);
 }
 
-bool WinRtDebugSupport::useQmlDebugging(WinRtRunConfiguration *runConfig)
+bool WinRtDebugSupport::useQmlDebugging(RunConfiguration *runConfig)
 {
     Debugger::DebuggerRunConfigurationAspect *extraAspect =
             runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
