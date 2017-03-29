@@ -68,6 +68,7 @@ ScrollView {
     // switch to non-interactive ourselves, though.
     property bool stayInteractive: true
     onStayInteractiveChanged: flick.interactive = stayInteractive
+    onWidthChanged: scroll()
 
     Flickable {
         id: flick
@@ -88,13 +89,12 @@ ScrollView {
             recursionGuard = false;
         }
 
-        onWidthChanged: scroll()
-
         // Update the zoom control on scrolling.
         onContentXChanged: guarded(function() {
-            var newStartTime = contentX * zoomer.rangeDuration / width + zoomer.windowStart;
+            var newStartTime = contentX * zoomer.rangeDuration / scroller.width
+                    + zoomer.windowStart;
             if (isFinite(newStartTime) && Math.abs(newStartTime - zoomer.rangeStart) >= 1) {
-                var newEndTime = (contentX + width) * zoomer.rangeDuration / width
+                var newEndTime = (contentX + scroller.width) * zoomer.rangeDuration / scroller.width
                         + zoomer.windowStart;
                 if (isFinite(newEndTime))
                     zoomer.setRange(newStartTime, newEndTime);
@@ -108,10 +108,10 @@ ScrollView {
                     contentWidth = 0;
                     contentX = 0;
                 } else {
-                    var newWidth = zoomer.windowDuration * width / zoomer.rangeDuration;
+                    var newWidth = zoomer.windowDuration * scroller.width / zoomer.rangeDuration;
                     if (isFinite(newWidth) && Math.abs(newWidth - contentWidth) >= 1)
                         contentWidth = newWidth;
-                    var newStartX = (zoomer.rangeStart - zoomer.windowStart) * width /
+                    var newStartX = (zoomer.rangeStart - zoomer.windowStart) * scroller.width /
                             zoomer.rangeDuration;
                     if (isFinite(newStartX) && Math.abs(newStartX - contentX) >= 1)
                         contentX = newStartX;
