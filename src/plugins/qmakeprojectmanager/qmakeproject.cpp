@@ -1312,9 +1312,9 @@ QString QmakeProject::executableFor(const QmakeProFile *file)
     TargetInformation ti = file->targetInformation();
     QString target;
 
-    if (tc->targetAbi().os() == Abi::DarwinOS) {
-        if (file->variableValue(Variable::Config).contains(QLatin1String("app_bundle")))
-            target = ti.target + QLatin1String(".app/Contents/MacOS/") + ti.target;
+    if (tc->targetAbi().os() == Abi::DarwinOS
+            && file->variableValue(Variable::Config).contains("app_bundle")) {
+        target = ti.target + ".app/Contents/MacOS/" + ti.target;
     } else {
         QString extension = file->singleVariableValue(Variable::TargetExt);
         target = ti.target + extension;
