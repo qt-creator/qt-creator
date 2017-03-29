@@ -108,6 +108,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
         case QmlProfilerModelManager::Empty:
             d->m_modelProxy->setModels(d->m_suspendedModels);
             d->m_suspendedModels.clear();
+            d->m_modelManager->notesModel()->loadData();
             break;
         case QmlProfilerModelManager::ProcessingData:
             break;

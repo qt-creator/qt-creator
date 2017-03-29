@@ -511,7 +511,6 @@ void QmlProfilerModelManager::processingDone()
         ++d->numFinishedFinalizers;
     }
 
-    d->notesModel->loadData();
     setState(Done);
 }
 
