@@ -642,10 +642,10 @@ def qdump__QFiniteStack(d, value):
 def qdump__QFlags(d, value):
     i = value.split('{int}')[0]
     enumType = value.type[0]
-    if d.isLldb:
-        d.putValue(i.cast(enumType.name).display())
-    else:
+    if d.isGdb:
         d.putValue(i.cast('enum ' + enumType.name).display())
+    else:
+        d.putValue(i.cast(enumType.name).display())
     d.putNumChild(0)
 
 

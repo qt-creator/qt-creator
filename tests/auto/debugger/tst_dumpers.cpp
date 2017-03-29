@@ -1895,6 +1895,17 @@ void tst_Dumpers::dumper_data()
                + Check("c", "120", "@QChar");
 
 
+    QTest::newRow("QFlags")
+            << Data("#include <QFlags>\n"
+                    "enum Foo { a = 0x1, b = 0x2 };\n"
+                    "Q_DECLARE_FLAGS(FooFlags, Foo)\n"
+                    "Q_DECLARE_OPERATORS_FOR_FLAGS(FooFlags)\n",
+                    "FooFlags f1(a);\n"
+                    "FooFlags f2(a | b);\n")
+               + CoreProfile()
+               + Check("f1", "a (1)", TypeDef("QFlags<enum Foo>", "FooFlags"))
+               + Check("f2", "(a | b) (3)", "FooFlags") % GdbEngine;
+
     QTest::newRow("QDateTime")
             << Data("#include <QDateTime>\n",
 
