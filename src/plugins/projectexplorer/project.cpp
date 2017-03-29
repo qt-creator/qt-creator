@@ -126,15 +126,13 @@ bool ProjectDocument::reload(QString *errorString, Core::IDocument::ReloadFlag f
 class ProjectPrivate
 {
 public:
-    ProjectPrivate(Project *owner, Core::IDocument *document) :
-        m_document(document), m_containerNode(owner)
-    { }
+    ProjectPrivate(Core::IDocument *document) : m_document(document) { }
     ~ProjectPrivate();
 
     Core::Id m_id;
     Core::IDocument *m_document = nullptr;
     ProjectNode *m_rootProjectNode = nullptr;
-    ContainerNode m_containerNode;
+    ContainerNode *m_containerNode = nullptr;
     QList<Target *> m_targets;
     Target *m_activeTarget = nullptr;
     EditorConfiguration m_editorConfiguration;
@@ -156,17 +154,22 @@ ProjectPrivate::~ProjectPrivate()
     m_rootProjectNode = nullptr;
     delete oldNode;
 
+    delete m_containerNode;
+
     delete m_document;
     delete m_accessor;
 }
 
 Project::Project(const QString &mimeType, const Utils::FileName &fileName,
                  const ProjectDocument::ProjectCallback &callback) :
-    d(new ProjectPrivate(this, new ProjectDocument(mimeType, fileName, callback)))
+    d(new ProjectPrivate(new ProjectDocument(mimeType, fileName, callback)))
 {
     d->m_macroExpander.setDisplayName(tr("Project"));
     d->m_macroExpander.registerVariable("Project:Name", tr("Project Name"),
             [this] { return displayName(); });
+
+    // Only set up containernode after d is set so that it will find the project directory!
+    d->m_containerNode = new ContainerNode(this);
 }
 
 Project::~Project()
@@ -475,7 +478,7 @@ void Project::setRootProjectNode(ProjectNode *root)
     ProjectNode *oldNode = d->m_rootProjectNode;
     d->m_rootProjectNode = root;
     if (root)
-        root->setParentFolderNode(&d->m_containerNode);
+        root->setParentFolderNode(d->m_containerNode);
     ProjectTree::emitSubtreeChanged(root);
     emit fileListChanged();
 
@@ -604,7 +607,7 @@ ProjectNode *Project::rootProjectNode() const
 
 ContainerNode *Project::containerNode() const
 {
-    return &d->m_containerNode;
+    return d->m_containerNode;
 }
 
 Project::RestoreResult Project::fromMap(const QVariantMap &map, QString *errorMessage)
