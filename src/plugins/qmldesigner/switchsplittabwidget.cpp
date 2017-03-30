@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #include "switchsplittabwidget.h"
+#include <theme.h>
 
 #include <utils/utilsicons.h>
+#include <utils/fileutils.h>
 
 #include <QVector>
 #include <QBoxLayout>
@@ -47,6 +49,9 @@ SwitchSplitTabWidget::SwitchSplitTabWidget(QWidget *parent)
     setObjectName("backgroundWidget");
     m_splitter->setObjectName("centralTabWidget");
     m_splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/centerwidget.css"));
+    m_tabBarBackground->setStyleSheet(Theme::replaceCssColors(sheet));
 
     m_tabBar->setObjectName("centralTabBar");
     m_tabBar->setShape(QTabBar::RoundedEast);
