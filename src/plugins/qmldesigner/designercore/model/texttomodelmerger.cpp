@@ -928,6 +928,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     const QUrl url = m_rewriterView->model()->fileUrl();
 
     setActive(true);
+    m_rewriterView->setIncompleteTypeInformation(false);
 
     try {
         Snapshot snapshot = m_rewriterView->textModifier()->qmljsSnapshot();
@@ -1953,6 +1954,9 @@ void TextToModelMerger::setupComponent(const ModelNode &node)
 void TextToModelMerger::collectLinkErrors(QList<DocumentMessage> *errors, const ReadingContext &ctxt)
 {
     foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, ctxt.diagnosticLinkMessages()) {
+        if (diagnosticMessage.kind == QmlJS::Severity::ReadingTypeInfoWarning)
+            m_rewriterView->setIncompleteTypeInformation(true);
+
         errors->append(DocumentMessage(diagnosticMessage, QUrl::fromLocalFile(m_document->fileName())));
     }
 }
