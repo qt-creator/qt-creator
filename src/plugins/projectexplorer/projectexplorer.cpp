@@ -3184,7 +3184,7 @@ void ProjectExplorerPluginPrivate::removeFile()
 
         // remove from project
         FolderNode *folderNode = fileNode->parentFolderNode();
-        Q_ASSERT(folderNode);
+        QTC_ASSERT(folderNode, return);
 
         if (!folderNode->removeFiles(QStringList(filePath))) {
             QMessageBox::warning(ICore::mainWindow(), tr("Removing File Failed"),
@@ -3223,7 +3223,7 @@ void ProjectExplorerPluginPrivate::duplicateFile()
 
     // Create a copy and add the file to the parent folder node.
     FolderNode *folderNode = fileNode->parentFolderNode();
-    Q_ASSERT(folderNode);
+    QTC_ASSERT(folderNode, return);
     if (!(QFile::copy(filePath, newFilePath) && folderNode->addFiles(QStringList(newFilePath)))) {
         QMessageBox::warning(ICore::mainWindow(), tr("Duplicating File Failed"),
                              tr("Could not duplicate the file %1.")
