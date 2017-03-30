@@ -74,6 +74,8 @@ using namespace Utils;
 namespace QmakeProjectManager {
 namespace Internal {
 
+const int UPDATE_INTERVAL = 3000;
+
 /// Watches folders for QmakePriFile nodes
 /// use one file system watcher to watch all folders
 /// such minimizing system ressouce usage
@@ -172,7 +174,7 @@ QmakeProject::QmakeProject(const FileName &fileName) :
     m_qmakeVfs->setTextCodec(codec);
 
     m_asyncUpdateTimer.setSingleShot(true);
-    m_asyncUpdateTimer.setInterval(3000);
+    m_asyncUpdateTimer.setInterval(UPDATE_INTERVAL);
     connect(&m_asyncUpdateTimer, &QTimer::timeout, this, &QmakeProject::asyncUpdate);
 
     m_rootProFile = std::make_unique<QmakeProFile>(this, projectFilePath());
@@ -480,7 +482,8 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFile::AsyncUpdateDelay delay)
 void QmakeProject::startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay)
 {
     m_asyncUpdateTimer.stop();
-    m_asyncUpdateTimer.setInterval(qMin(m_asyncUpdateTimer.interval(), delay == QmakeProFile::ParseLater ? 3000 : 0));
+    m_asyncUpdateTimer.setInterval(qMin(m_asyncUpdateTimer.interval(),
+                                        delay == QmakeProFile::ParseLater ? UPDATE_INTERVAL : 0));
     m_asyncUpdateTimer.start();
 }
 
@@ -533,7 +536,7 @@ bool QmakeProject::wasEvaluateCanceled()
 
 void QmakeProject::asyncUpdate()
 {
-    m_asyncUpdateTimer.setInterval(3000);
+    m_asyncUpdateTimer.setInterval(UPDATE_INTERVAL);
 
     m_qmakeVfs->invalidateCache();
 
