@@ -51,10 +51,9 @@ namespace Internal {
 class RemoteLinuxAnalyzeSupportPrivate
 {
 public:
-    RemoteLinuxAnalyzeSupportPrivate(RunControl *runControl, Core::Id runMode)
-        : runMode(runMode)
+    RemoteLinuxAnalyzeSupportPrivate(RunControl *runControl)
     {
-        if (runMode != ProjectExplorer::Constants::PERFPROFILER_RUN_MODE)
+        if (runControl->runMode() != ProjectExplorer::Constants::PERFPROFILER_RUN_MODE)
             return;
         RunConfiguration *runConfiguration = runControl->runConfiguration();
         QTC_ASSERT(runConfiguration, return);
@@ -66,7 +65,6 @@ public:
                 .join(' ');
     }
 
-    Core::Id runMode;
     Utils::Port qmlPort;
     QString remoteFifo;
     QString perfRecordArguments;
@@ -79,9 +77,9 @@ public:
 
 using namespace Internal;
 
-RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(RunControl *runControl, Core::Id runMode)
+RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(RunControl *runControl, Core::Id)
     : AbstractRemoteLinuxRunSupport(runControl),
-      d(new RemoteLinuxAnalyzeSupportPrivate(runControl, runMode))
+      d(new RemoteLinuxAnalyzeSupportPrivate(runControl))
 {
     connect(runControl, &RunControl::starting,
             this, &RemoteLinuxAnalyzeSupport::handleRemoteSetupRequested);
@@ -107,11 +105,12 @@ void RemoteLinuxAnalyzeSupport::handleRemoteSetupRequested()
 {
     QTC_ASSERT(state() == Inactive, return);
 
-    if (d->runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
+    const Core::Id runMode = runControl()->runMode();
+    if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         showMessage(tr("Checking available ports...") + QLatin1Char('\n'),
                     Utils::NormalMessageFormat);
         startPortsGathering();
-    } else if (d->runMode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
+    } else if (runMode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
         showMessage(tr("Creating remote socket...") + QLatin1Char('\n'),
                     Utils::NormalMessageFormat);
         createRemoteFifo();
@@ -122,13 +121,14 @@ void RemoteLinuxAnalyzeSupport::startExecution()
 {
     QTC_ASSERT(state() == GatheringResources, return);
 
-    if (d->runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
+    const Core::Id runMode = runControl()->runMode();
+    if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         d->qmlPort = findPort();
         if (!d->qmlPort.isValid()) {
             handleAdapterSetupFailed(tr("Not enough free ports on device for profiling."));
             return;
         }
-    } else if (d->runMode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
+    } else if (runMode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
         d->remoteFifo = fifo();
         if (d->remoteFifo.isEmpty()) {
             handleAdapterSetupFailed(tr("FIFO for profiling data could not be created."));
@@ -154,12 +154,12 @@ void RemoteLinuxAnalyzeSupport::startExecution()
 
     auto r = runnable();
 
-    if (d->runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
+    if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         if (!r.commandLineArguments.isEmpty())
             r.commandLineArguments.append(QLatin1Char(' '));
         r.commandLineArguments += QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices,
                                                                  d->qmlPort);
-    } else if (d->runMode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
+    } else if (runMode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
         r.commandLineArguments = QLatin1String("-c 'perf record -o - ") + d->perfRecordArguments
                 + QLatin1String(" -- ") + r.executable + QLatin1String(" ")
                 + r.commandLineArguments + QLatin1String(" > ") + d->remoteFifo

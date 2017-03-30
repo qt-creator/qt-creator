@@ -149,7 +149,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
             DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
         connection.analyzerHost = connection.connParams.host;
         runControl->setConnection(connection);
-        (void) new RemoteLinuxAnalyzeSupport(runControl, mode);
+        (void) new RemoteLinuxAnalyzeSupport(runControl);
         return runControl;
     }
 
