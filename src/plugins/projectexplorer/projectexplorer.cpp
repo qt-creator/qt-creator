@@ -115,7 +115,10 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/removefiledialog.h>
+#include <coreplugin/diffservice.h>
 #include <texteditor/findinfiles.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditorconstants.h>
 #include <ssh/sshconnection.h>
 
 #include <utils/algorithm.h>
@@ -211,6 +214,7 @@ const char REMOVEFILE[]           = "ProjectExplorer.RemoveFile";
 const char DUPLICATEFILE[]        = "ProjectExplorer.DuplicateFile";
 const char DELETEFILE[]           = "ProjectExplorer.DeleteFile";
 const char RENAMEFILE[]           = "ProjectExplorer.RenameFile";
+const char DIFFFILE[]             = "ProjectExplorer.DiffFile";
 const char SETSTARTUP[]           = "ProjectExplorer.SetStartup";
 const char PROJECTTREE_COLLAPSE_ALL[] = "ProjectExplorer.CollapseAll";
 
@@ -253,6 +257,17 @@ static Kit *currentKit()
 {
     Target *target = activeTarget();
     return target ? target->kit() : nullptr;
+}
+
+static bool isTextFile(const QString &fileName)
+{
+    return Utils::mimeTypeForFile(fileName).inherits(
+                TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT);
+}
+
+static bool isDiffServiceAvailable()
+{
+    return ExtensionSystem::PluginManager::getObject<DiffService>();
 }
 
 class ProjectExplorerPluginPrivate : public QObject
@@ -303,6 +318,7 @@ public:
     void duplicateFile();
     void deleteFile();
     void handleRenameFile();
+    void handleDiffFile();
     void handleSetStartupProject();
     void setStartupProject(ProjectExplorer::Project *project);
 
@@ -375,6 +391,7 @@ public:
     QAction *m_removeProjectAction;
     QAction *m_deleteFileAction;
     QAction *m_renameFileAction;
+    QAction *m_diffFileAction;
     QAction *m_openFileAction;
     QAction *m_projectTreeCollapseAllAction;
     QAction *m_searchOnFileSystem;
@@ -1063,6 +1080,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = ActionManager::registerAction(dd->m_renameFileAction, Constants::RENAMEFILE,
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
+
+    // diff file action
+    dd->m_diffFileAction = new QAction(tr("Diff Against Current File"), this);
+    cmd = ActionManager::registerAction(dd->m_diffFileAction, Constants::DIFFFILE, projecTreeContext);
+    mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
+
     // Not yet used by anyone, so hide for now
 //    mfolder->addAction(cmd, Constants::G_FOLDER_FILES);
 //    msubProject->addAction(cmd, Constants::G_FOLDER_FILES);
@@ -1302,6 +1325,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::deleteFile);
     connect(dd->m_renameFileAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::handleRenameFile);
+    connect(dd->m_diffFileAction, &QAction::triggered,
+            dd, &ProjectExplorerPluginPrivate::handleDiffFile);
     connect(dd->m_setStartupProjectAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::handleSetStartupProject);
     connect(dd->m_projectTreeCollapseAllAction, &QAction::triggered,
@@ -2097,7 +2122,7 @@ static QString pathOrDirectoryFor(Node *node, bool dir)
         while ((!fi.exists() || !fi.isDir()) && !fi.isRoot())
             fi.setFile(fi.absolutePath());
         location = fi.absoluteFilePath();
-    } else {
+    } else if (!path.isEmpty()) {
         QFileInfo fi = path.toFileInfo();
         // remove any /suffixes, which e.g. ResourceNode uses
         // Note this should be removed again by making node->path() a true path again
@@ -2884,6 +2909,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
     m_duplicateFileAction->setEnabled(false);
     m_deleteFileAction->setEnabled(false);
     m_renameFileAction->setEnabled(false);
+    m_diffFileAction->setEnabled(false);
 
     m_addExistingFilesAction->setVisible(true);
     m_addExistingDirectoryAction->setVisible(true);
@@ -2894,6 +2920,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
     m_duplicateFileAction->setVisible(false);
     m_deleteFileAction->setVisible(true);
     m_runActionContextMenu->setVisible(false);
+    m_diffFileAction->setVisible(isDiffServiceAvailable());
 
     m_openTerminalHere->setVisible(true);
     m_showInGraphicalShell->setVisible(true);
@@ -2961,6 +2988,10 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
 
             m_removeFileAction->setVisible(!enableDelete || enableRemove);
             m_renameFileAction->setEnabled(actions.contains(Rename));
+            const bool currentNodeIsTextFile = isTextFile(
+                        ProjectTree::currentNode()->filePath().toString());
+            m_diffFileAction->setEnabled(isDiffServiceAvailable()
+                        && currentNodeIsTextFile && TextEditor::TextDocument::currentTextDocument());
 
             m_duplicateFileAction->setVisible(actions.contains(DuplicateFile));
             m_duplicateFileAction->setEnabled(actions.contains(DuplicateFile));
@@ -3242,6 +3273,39 @@ void ProjectExplorerPluginPrivate::handleRenameFile()
         }
         focusWidget = focusWidget->parentWidget();
     }
+}
+
+void ProjectExplorerPluginPrivate::handleDiffFile()
+{
+    // current editor's file
+    auto textDocument = TextEditor::TextDocument::currentTextDocument();
+
+    if (!textDocument)
+        return;
+
+    const QString leftFileName = textDocument->filePath().toString();
+
+    if (leftFileName.isEmpty())
+        return;
+
+    // current item's file
+    Node *currentNode = ProjectTree::currentNode();
+    QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
+
+    FileNode *fileNode = currentNode->asFileNode();
+
+    if (!fileNode)
+        return;
+
+    const QString rightFileName = currentNode->filePath().toString();
+    if (rightFileName.isEmpty())
+        return;
+
+    if (!isTextFile(rightFileName))
+        return;
+
+    if (auto diffService = ExtensionSystem::PluginManager::getObject<DiffService>())
+        diffService->diffFiles(leftFileName, rightFileName);
 }
 
 void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)

@@ -30,6 +30,7 @@
 #include "kit.h"
 
 #include <coreplugin/id.h>
+#include <coreplugin/idocument.h>
 
 #include <utils/fileutils.h>
 
@@ -38,11 +39,7 @@
 
 #include <functional>
 
-namespace Core {
-class IDocument;
-class Context;
-}
-
+namespace Core { class Context; }
 namespace Utils { class MacroExpander; }
 
 namespace ProjectExplorer {
@@ -57,6 +54,24 @@ class ProjectNode;
 class ProjectPrivate;
 class Session;
 class Target;
+
+// Auto-registers with the DocumentManager if a callback is set!
+class PROJECTEXPLORER_EXPORT ProjectDocument : public Core::IDocument
+{
+public:
+    using ProjectCallback = std::function<void()>;
+
+    ProjectDocument(const QString &mimeType, const Utils::FileName &fileName,
+                    const ProjectCallback &callback = {});
+
+    Core::IDocument::ReloadBehavior reloadBehavior(Core::IDocument::ChangeTrigger state,
+                                                   Core::IDocument::ChangeType type) const final;
+    bool reload(QString *errorString, Core::IDocument::ReloadFlag flag,
+                Core::IDocument::ChangeType type) final;
+
+private:
+    ProjectCallback m_callback;
+};
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT Project : public QObject
@@ -73,7 +88,8 @@ public:
         EnabledRole
     };
 
-    Project();
+    Project(const QString &mimeType, const Utils::FileName &fileName,
+            const ProjectDocument::ProjectCallback &callback = {});
     ~Project() override;
 
     virtual QString displayName() const = 0;
@@ -116,8 +132,8 @@ public:
         GeneratedFiles = 0x2,
         AllFiles       = SourceFiles | GeneratedFiles
     };
-    virtual QStringList files(FilesMode fileMode,
-                              const std::function<bool(const FileNode *)> &filter = {}) const;
+    QStringList files(FilesMode fileMode,
+                      const std::function<bool(const FileNode *)> &filter = {}) const;
     virtual QStringList filesGeneratedFrom(const QString &sourceFile) const;
 
     static QString makeUnique(const QString &preferredName, const QStringList &usedNames);
@@ -178,7 +194,6 @@ protected:
     void setPreferredKitPredicate(const Kit::Predicate &predicate);
 
     void setId(Core::Id id);
-    void setDocument(Core::IDocument *doc); // takes ownership!
     void setRootProjectNode(ProjectNode *root); // takes ownership!
     void setProjectContext(Core::Context context);
     void setProjectLanguages(Core::Context language);

@@ -108,9 +108,9 @@ public:
         return m_size == 0;
     }
 
-    void fillWithZero()
+    void initializeElements()
     {
-        std::array<T, MaxSize>::fill(T(0));
+        std::array<T, MaxSize>::fill(T{});
     }
 
 private:

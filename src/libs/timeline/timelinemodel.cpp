@@ -322,12 +322,14 @@ int TimelineModel::firstIndex(qint64 startTime) const
 int TimelineModel::TimelineModelPrivate::firstIndexNoParents(qint64 startTime) const
 {
     // in the "endtime" list, find the first event that ends after startTime
-    if (endTimes.isEmpty())
+
+    // lowerBound() cannot deal with empty lists, and it never finds the last element.
+    if (endTimes.isEmpty() || endTimes.last().end <= startTime)
         return -1;
-    if (endTimes.count() == 1 || endTimes.first().end > startTime)
+
+    // lowerBound() never returns "invalid", so handle this manually.
+    if (endTimes.first().end > startTime)
         return endTimes.first().startIndex;
-    if (endTimes.last().end <= startTime)
-        return -1;
 
     return endTimes[lowerBound(endTimes, startTime) + 1].startIndex;
 }
@@ -340,14 +342,53 @@ int TimelineModel::lastIndex(qint64 endTime) const
 {
     Q_D(const TimelineModel);
     // in the "starttime" list, find the last event that starts before endtime
+
+    // lowerBound() never returns "invalid", so handle this manually.
     if (d->ranges.isEmpty() || d->ranges.first().start >= endTime)
         return -1;
-    if (d->ranges.count() == 1)
-        return 0;
+
+    // lowerBound() never finds the last element.
     if (d->ranges.last().start < endTime)
         return d->ranges.count() - 1;
 
     return d->lowerBound(d->ranges, endTime);
+}
+
+/*!
+    Looks up a range between the last one that starts before, and the first one that ends after the
+    given timestamp. This might not be a range that covers the timestamp, even if one exists.
+    However, it's likely that the range is close to the given timestamp.
+ */
+int TimelineModel::bestIndex(qint64 timestamp) const
+{
+    Q_D(const TimelineModel);
+
+    if (d->ranges.isEmpty())
+        return -1;
+
+    // Last range that starts before timestamp (without parents)
+    const int start = d->ranges.last().start < timestamp
+            ? d->ranges.count() - 1 : d->lowerBound(d->ranges, timestamp);
+
+    int endTimeIndex;
+    if (d->endTimes.first().end >= timestamp)
+        endTimeIndex = 0;
+    else if (d->endTimes.last().end < timestamp)
+        endTimeIndex = d->endTimes.count() - 1;
+    else
+        endTimeIndex = d->lowerBound(d->endTimes, timestamp) + 1;
+
+    // First range that ends after
+    const int end = d->endTimes[endTimeIndex].startIndex;
+
+    // Best is probably between those
+    return (start + end) / 2;
+}
+
+int TimelineModel::parentIndex(int index) const
+{
+    Q_D(const TimelineModel);
+    return d->ranges[index].parent;
 }
 
 QVariantMap TimelineModel::location(int index) const

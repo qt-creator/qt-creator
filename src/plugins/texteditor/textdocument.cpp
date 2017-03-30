@@ -291,6 +291,11 @@ QMap<QString, QTextCodec *> TextDocument::openedTextDocumentEncodings()
     return workingCopy;
 }
 
+TextDocument *TextDocument::currentTextDocument()
+{
+    return qobject_cast<TextDocument *>(EditorManager::currentDocument());
+}
+
 QString TextDocument::plainText() const
 {
     return document()->toPlainText();

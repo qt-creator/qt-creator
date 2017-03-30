@@ -28,7 +28,6 @@
 #include "qbsbuildconfiguration.h"
 #include "qbslogsink.h"
 #include "qbspmlogging.h"
-#include "qbsprojectfile.h"
 #include "qbsprojectparser.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsnodes.h"
@@ -117,6 +116,7 @@ private:
 // --------------------------------------------------------------------
 
 QbsProject::QbsProject(const FileName &fileName) :
+    Project(Constants::MIME_TYPE, fileName, [this]() { delayParsing(); }),
     m_qbsProjectParser(0),
     m_qbsUpdateFutureInterface(0),
     m_parsingScheduled(false),
@@ -128,8 +128,6 @@ QbsProject::QbsProject(const FileName &fileName) :
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
 
     setId(Constants::PROJECT_ID);
-    setDocument(new QbsProjectFile(this, fileName));
-    DocumentManager::addDocument(document());
 
     setProjectContext(Context(Constants::PROJECT_ID));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
@@ -710,9 +708,9 @@ void QbsProject::updateDocuments(const QSet<QString> &files)
     }
     QSet<IDocument *> toAdd;
     foreach (const QString &f, filesToAdd)
-        toAdd.insert(new QbsProjectFile(this, FileName::fromString(f)));
+        toAdd.insert(new ProjectDocument(Constants::MIME_TYPE, FileName::fromString(f),
+                                         [this]() { delayParsing(); }));
 
-    DocumentManager::addDocuments(toAdd.toList());
     m_qbsDocuments.unite(toAdd);
 }
 

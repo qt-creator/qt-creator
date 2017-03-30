@@ -95,6 +95,8 @@ signals:
     void enabledChanged();
 
 private:
+    void ctor();
+
     bool m_enabled;
 };
 

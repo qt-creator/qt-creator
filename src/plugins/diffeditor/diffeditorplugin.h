@@ -44,6 +44,7 @@ class DiffEditorServiceImpl : public QObject, public Core::DiffService
 public:
     explicit DiffEditorServiceImpl(QObject *parent = nullptr);
 
+    void diffFiles(const QString &leftFileName, const QString &rightFileName) override;
     void diffModifiedFiles(const QStringList &fileNames) override;
 };
 

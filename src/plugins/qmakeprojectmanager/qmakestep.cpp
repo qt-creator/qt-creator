@@ -43,6 +43,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/variablechooser.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -634,6 +635,9 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     connect(step->target(), &Target::kitChanged, this, &QMakeStepConfigWidget::qtVersionChanged);
     connect(QtVersionManager::instance(), &QtVersionManager::dumpUpdatedFor,
             this, &QMakeStepConfigWidget::qtVersionChanged);
+    auto chooser = new Core::VariableChooser(m_ui->qmakeAdditonalArgumentsLineEdit);
+    chooser->addMacroExpanderProvider([step] { return step->macroExpander(); });
+    chooser->addSupportedWidget(m_ui->qmakeAdditonalArgumentsLineEdit);
 }
 
 QMakeStepConfigWidget::~QMakeStepConfigWidget()

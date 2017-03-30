@@ -124,6 +124,7 @@ class Dumper(DumperBase):
                     # read raw memory in case the integerString can not be interpreted
                     pass
         val.isBaseClass = val.name == val.type.name
+        val.nativeValue = nativeValue
         val.lIsInScope = True
         val.laddress = nativeValue.address()
         return val
@@ -459,7 +460,37 @@ class Dumper(DumperBase):
         return cdbext.parseAndEvaluate(exp)
 
     def nativeDynamicTypeName(self, address, baseType):
-        return None # FIXME: Seems sufficient, no idea why.
+        return None # Does not work with cdb
+
+    def nativeValueDereferenceReference(self, value):
+        return self.nativeValueDereferencePointer(value)
+
+    def nativeValueDereferencePointer(self, value):
+        def nativeVtCastValue(nativeValue):
+            # If we have a pointer to a derived instance of the pointer type cdb adds a
+            # synthetic '__vtcast_<derived type name>' member as the first child
+            if nativeValue.hasChildren():
+                vtcastCandidate = nativeValue.childFromIndex(0)
+                vtcastCandidateName = vtcastCandidate.name()
+                if vtcastCandidateName.startswith('__vtcast_'):
+                    # found a __vtcast member
+                    # make sure that it is not an actual field
+                    for field in nativeValue.type().fields():
+                        if field.name() == vtcastCandidateName:
+                            return None
+                    return vtcastCandidate
+            return None
+
+        nativeValue = value.nativeValue
+        castVal = nativeVtCastValue(nativeValue)
+        if castVal is not None:
+            val = self.fromNativeValue(castVal)
+        else:
+            val = self.Value(self)
+            val.laddress = value.pointer()
+            val.type = value.type.dereference()
+
+        return val
 
     def callHelper(self, rettype, value, function, args):
         raise Exception("cdb does not support calling functions")

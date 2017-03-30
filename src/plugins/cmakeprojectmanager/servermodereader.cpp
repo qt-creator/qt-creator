@@ -285,7 +285,10 @@ void ServerModeReader::generateProjectTree(CMakeProjectNode *root,
                        cmakeFilesSource, cmakeFilesBuild, cmakeFilesOther);
 
     QHash<Utils::FileName, ProjectNode *> cmakeListsNodes = addCMakeLists(root, cmakeLists);
-    addProjects(cmakeListsNodes, m_projects, allFiles);
+    QList<FileNode *> knownHeaders;
+    addProjects(cmakeListsNodes, m_projects, knownHeaders);
+
+    addHeaderNodes(root, knownHeaders, allFiles);
 }
 
 void ServerModeReader::updateCodeModel(CppTools::RawProjectParts &rpps)
@@ -575,19 +578,12 @@ static ProjectNode *createProjectNode(const QHash<Utils::FileName, ProjectNode *
 
 void ServerModeReader::addProjects(const QHash<Utils::FileName, ProjectNode *> &cmakeListsNodes,
                                    const QList<Project *> &projects,
-                                   const QList<const FileNode *> &allFiles)
+                                   QList<FileNode *> &knownHeaderNodes)
 {
-    QHash<Utils::FileName, QList<const FileNode *>> includeFiles;
-    for (const FileNode *f : allFiles) {
-        if (f->fileType() != FileType::Header)
-            continue;
-        includeFiles[f->filePath().parentDir()].append(f);
-    }
-
     for (const Project *p : projects) {
         ProjectNode *pNode = createProjectNode(cmakeListsNodes, p->sourceDirectory, p->name);
         QTC_ASSERT(pNode, qDebug() << p->sourceDirectory.toUserOutput() ; continue);
-        addTargets(cmakeListsNodes, p->targets, includeFiles);
+        addTargets(cmakeListsNodes, p->targets, knownHeaderNodes);
     }
 }
 
@@ -609,15 +605,15 @@ static CMakeTargetNode *createTargetNode(const QHash<Utils::FileName, ProjectNod
     return tn;
 }
 
-void ServerModeReader::addTargets(const QHash<Utils::FileName, ProjectNode *> &cmakeListsNodes,
-                                  const QList<ServerModeReader::Target *> &targets,
-                                  const QHash<FileName, QList<const FileNode *>> &headers)
+void ServerModeReader::addTargets(const QHash<Utils::FileName, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
+                                  const QList<Target *> &targets,
+                                  QList<ProjectExplorer::FileNode *> &knownHeaderNodes)
 {
     for (const Target *t : targets) {
         CMakeTargetNode *tNode = createTargetNode(cmakeListsNodes, t->sourceDirectory, t->name);
-        QTC_ASSERT(tNode, qDebug() << "No target node for" << t->sourceDirectory << t->name; return);
+        QTC_ASSERT(tNode, qDebug() << "No target node for" << t->sourceDirectory << t->name; continue);
         tNode->setTargetInformation(t->artifacts, t->type);
-        addFileGroups(tNode, t->sourceDirectory, t->buildDirectory, t->fileGroups, headers);
+        addFileGroups(tNode, t->sourceDirectory, t->buildDirectory, t->fileGroups, knownHeaderNodes);
     }
 }
 
@@ -625,7 +621,7 @@ void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
                                      const Utils::FileName &sourceDirectory,
                                      const Utils::FileName &buildDirectory,
                                      const QList<ServerModeReader::FileGroup *> &fileGroups,
-                                     const QHash<FileName, QList<const FileNode *>> &headers)
+                                     QList<FileNode *> &knownHeaderNodes)
 {
     QList<FileNode *> toList;
     QSet<Utils::FileName> alreadyListed;
@@ -635,30 +631,14 @@ void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
             alreadyListed.insert(fn);
             return count != alreadyListed.count();
         });
-        const QList<FileNode *> newFileNodes = Utils::transform(newSources, [f](const Utils::FileName &fn) {
-            return new FileNode(fn, Node::fileTypeForFileName(fn), f->isGenerated);
+        const QList<FileNode *> newFileNodes
+                = Utils::transform(newSources, [f, &knownHeaderNodes](const Utils::FileName &fn) {
+            auto node = new FileNode(fn, Node::fileTypeForFileName(fn), f->isGenerated);
+            if (node->fileType() == FileType::Header)
+                knownHeaderNodes.append(node);
+            return node;
         });
         toList.append(newFileNodes);
-
-        // Add scanned header files:
-        const FileNameList headerPaths = headers.keys();
-        for (const IncludePath *i : f->includePaths) {
-            for (const FileName &hp : headerPaths) {
-                if (hp != i->path && hp != sourceDirectory && !hp.isChildOf(i->path))
-                    continue;
-                const QList<const FileNode *> &headerFiles = headers.value(hp);
-                const QList<const FileNode *> unseenHeaders = Utils::filtered(headerFiles, [&alreadyListed](const FileNode *fn) {
-                    const int count = alreadyListed.count();
-                    alreadyListed.insert(fn->filePath());
-                    return count != alreadyListed.count();
-                });
-                toList.append(Utils::transform(unseenHeaders, [](const FileNode *fn) {
-                                  auto copy = new FileNode(fn->filePath(), fn->fileType(), fn->isGenerated());
-                                  copy->setEnabled(false);
-                                  return copy;
-                              }));
-            }
-        }
     }
 
     // Split up files in groups (based on location):
@@ -677,6 +657,30 @@ void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
     addCMakeVFolder(targetRoot, sourceDirectory, 1000, tr("<Source Directory>"), sourceFileNodes);
     addCMakeVFolder(targetRoot, buildDirectory, 100, tr("<Build Directory>"), buildFileNodes);
     addCMakeVFolder(targetRoot, Utils::FileName(), 10, tr("<Other Locations>"), otherFileNodes);
+}
+
+void ServerModeReader::addHeaderNodes(ProjectNode *root, const QList<FileNode *> knownHeaders,
+                                      const QList<const FileNode *> &allFiles)
+{
+    auto headerNode = new VirtualFolderNode(root->filePath(), Node::DefaultPriority - 5);
+    headerNode->setDisplayName(tr("<Headers>"));
+    root->addNode(headerNode);
+
+    // knownHeaders are already listed in their targets:
+    QSet<Utils::FileName> seenHeaders = Utils::transform<QSet>(knownHeaders, &FileNode::filePath);
+
+    // Add scanned headers:
+    for (const FileNode *fn : allFiles) {
+        if (fn->fileType() != FileType::Header || !fn->filePath().isChildOf(root->filePath()))
+            continue;
+        const int count = seenHeaders.count();
+        seenHeaders.insert(fn->filePath());
+        if (seenHeaders.count() != count) {
+            auto node = new FileNode(*fn);
+            node->setEnabled(false);
+            headerNode->addNestedNode(node);
+        }
+    }
 }
 
 } // namespace Internal

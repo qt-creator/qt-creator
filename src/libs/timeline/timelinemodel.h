@@ -76,6 +76,8 @@ public:
 
     int firstIndex(qint64 startTime) const;
     int lastIndex(qint64 endTime) const;
+    int bestIndex(qint64 timestamp) const;
+    int parentIndex(int index) const;
 
     bool expanded() const;
     bool hidden() const;

@@ -102,9 +102,13 @@ static PyObject *cdbext_parseAndEvaluate(PyObject *, PyObject *args) // -> Value
     if (debugPyCdbextModule)
         DebugPrint() << "evaluate expression: " << expr;
     CIDebugControl *control = ExtensionCommandContext::instance()->control();
+    ULONG oldExpressionSyntax;
+    control->GetExpressionSyntax(&oldExpressionSyntax);
     control->SetExpressionSyntax(DEBUG_EXPR_CPLUSPLUS);
     DEBUG_VALUE value;
-    if (FAILED(control->Evaluate(expr, DEBUG_VALUE_INT64, &value, NULL)))
+    HRESULT hr = control->Evaluate(expr, DEBUG_VALUE_INT64, &value, NULL);
+    control->SetExpressionSyntax(oldExpressionSyntax);
+    if (FAILED(hr))
         Py_RETURN_NONE;
     return Py_BuildValue("K", value.I64);
 }

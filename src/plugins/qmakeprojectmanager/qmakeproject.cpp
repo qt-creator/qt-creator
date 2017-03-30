@@ -74,15 +74,6 @@ using namespace Utils;
 namespace QmakeProjectManager {
 namespace Internal {
 
-class QmakeProjectFile : public Core::IDocument
-{
-public:
-    explicit QmakeProjectFile(const FileName &fileName);
-
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
-};
-
 /// Watches folders for QmakePriFile nodes
 /// use one file system watcher to watch all folders
 /// such minimizing system ressouce usage
@@ -156,30 +147,6 @@ QDebug operator<<(QDebug d, const  QmakeProjectFiles &f)
     return d;
 }
 
-// ----------- QmakeProjectFile
-
-QmakeProjectFile::QmakeProjectFile(const FileName &fileName)
-{
-    setId("Qmake.ProFile");
-    setMimeType(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
-    setFilePath(fileName);
-}
-
-Core::IDocument::ReloadBehavior QmakeProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
-{
-    Q_UNUSED(state)
-    Q_UNUSED(type)
-    return BehaviorSilent;
-}
-
-bool QmakeProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
-{
-    Q_UNUSED(errorString)
-    Q_UNUSED(flag)
-    Q_UNUSED(type)
-    return true;
-}
-
 static QList<QmakeProject *> s_projects;
 
 } // namespace Internal
@@ -191,12 +158,12 @@ static QList<QmakeProject *> s_projects;
   */
 
 QmakeProject::QmakeProject(const FileName &fileName) :
+    Project(QmakeProjectManager::Constants::PROFILE_MIMETYPE, fileName),
     m_qmakeVfs(new QMakeVfs),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     s_projects.append(this);
     setId(Constants::QMAKEPROJECT_ID);
-    setDocument(new QmakeProjectFile(fileName));
     setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setRequiredKitPredicate(QtSupport::QtKitInformation::qtVersionPredicate());
@@ -1309,7 +1276,7 @@ void QmakeProject::testToolChain(ToolChain *tc, const Utils::FileName &path) con
             t->kit()->addToEnvironment(env);
     }
 
-    if (env.isSameExecutable(path.toString(), expected.toString())) {
+    if (!env.isSameExecutable(path.toString(), expected.toString())) {
         const QPair<Utils::FileName, Utils::FileName> pair = qMakePair(expected, path);
         if (!m_toolChainWarnings.contains(pair)) {
             TaskHub::addTask(Task(Task::Warning,
@@ -1345,9 +1312,9 @@ QString QmakeProject::executableFor(const QmakeProFile *file)
     TargetInformation ti = file->targetInformation();
     QString target;
 
-    if (tc->targetAbi().os() == Abi::DarwinOS) {
-        if (file->variableValue(Variable::Config).contains(QLatin1String("app_bundle")))
-            target = ti.target + QLatin1String(".app/Contents/MacOS/") + ti.target;
+    if (tc->targetAbi().os() == Abi::DarwinOS
+            && file->variableValue(Variable::Config).contains("app_bundle")) {
+        target = ti.target + ".app/Contents/MacOS/" + ti.target;
     } else {
         QString extension = file->singleVariableValue(Variable::TargetExt);
         target = ti.target + extension;

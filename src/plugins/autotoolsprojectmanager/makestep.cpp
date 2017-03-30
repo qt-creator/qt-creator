@@ -262,7 +262,7 @@ void MakeStepConfigWidget::updateDetails()
         Utils::QtcProcess::addArgs(&arguments, m_makeStep->additionalArguments());
 
         ProcessParameters param;
-        param.setMacroExpander(bc->macroExpander());
+        param.setMacroExpander(m_makeStep->macroExpander());
         param.setEnvironment(bc->environment());
         param.setWorkingDirectory(bc->buildDirectory().toString());
         param.setCommand(tcList.at(0)->makeCommand(bc->environment()));

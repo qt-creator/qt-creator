@@ -138,11 +138,6 @@ static bool warningsForQmlFilesInsteadOfUiQmlEnabled()
     return DesignerSettings::getValue(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool();
 }
 
-static bool showWarningsForFeaturesInDesigner()
-{
-    return DesignerSettings::getValue(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool();
-}
-
 QmlDesignerPlugin::QmlDesignerPlugin()
 {
     m_instance = this;
@@ -329,13 +324,7 @@ void QmlDesignerPlugin::showDesigner()
 
 void QmlDesignerPlugin::hideDesigner()
 {
-    if (currentDesignDocument() && currentModel()) {
-        // the message box handle the cursor jump itself
-    }
-
     if (d->documentManager.hasCurrentDesignDocument()) {
-        if (currentModel() && !mainWidget()->gotoCodeWasClicked())
-            jumpTextCursorToSelectedModelNode();
         deactivateAutoSynchronization();
         d->mainWidget->saveSettings();
     }
@@ -417,8 +406,6 @@ void QmlDesignerPlugin::activateAutoSynchronization()
     selectModelNodeUnderTextCursor();
 
     d->mainWidget->setupNavigatorHistory(currentDesignDocument()->textEditor());
-    if (showWarningsForFeaturesInDesigner() && currentDesignDocument()->hasQmlParseWarnings())
-        d->mainWidget->showWarningMessageBox(currentDesignDocument()->qmlParseWarnings());
 
     currentDesignDocument()->updateSubcomponentManager();
 }

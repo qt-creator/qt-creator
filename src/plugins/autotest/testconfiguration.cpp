@@ -84,9 +84,13 @@ void TestConfiguration::completeTestInformation(int runMode)
         return part->buildSystemTarget;
     });
 
+    const Utils::FileName fn = Utils::FileName::fromString(m_projectFile);
     const BuildTargetInfo targetInfo
-            = Utils::findOrDefault(target->applicationTargets().list, [&buildSystemTargets] (const BuildTargetInfo &bti) {
-        return buildSystemTargets.contains(bti.targetName);
+            = Utils::findOrDefault(target->applicationTargets().list,
+                                   [&buildSystemTargets, &fn] (const BuildTargetInfo &bti) {
+        return Utils::anyOf(buildSystemTargets, [&fn, &bti](const QString &b) {
+            return b == bti.targetName || (b.contains(bti.targetName) && bti.projectFilePath == fn);
+        });
     });
     const Utils::FileName executable = targetInfo.targetFilePath; // empty if BTI is default created
     for (RunConfiguration *runConfig : target->runConfigurations()) {

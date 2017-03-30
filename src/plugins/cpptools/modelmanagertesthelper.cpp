@@ -36,7 +36,9 @@
 using namespace CppTools::Internal;
 using namespace CppTools::Tests;
 
-TestProject::TestProject(const QString &name, QObject *parent) : m_name (name)
+TestProject::TestProject(const QString &name, QObject *parent) :
+    ProjectExplorer::Project("x-binary/foo", Utils::FileName()),
+    m_name(name)
 {
     setParent(parent);
     setId(Core::Id::fromString(name));

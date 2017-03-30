@@ -140,8 +140,7 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
         QString commandFilePath = testConfiguration->executableFilePath();
         if (commandFilePath.isEmpty()) {
             futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
-                TestRunner::tr("Could not find command \"%1\". (%2)")
-                                                   .arg(testConfiguration->executableFilePath())
+                TestRunner::tr("Executable path is empty. (%1)")
                                                    .arg(testConfiguration->displayName()))));
             continue;
         }

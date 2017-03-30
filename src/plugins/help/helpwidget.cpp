@@ -52,9 +52,6 @@
 
 #include <QCoreApplication>
 #include <QHBoxLayout>
-#include <QHelpEngine>
-#include <QHelpSearchEngine>
-#include <QHelpSearchQuery>
 #include <QMenu>
 #include <QPrinter>
 #include <QPrintDialog>

@@ -266,7 +266,8 @@ FileType Node::fileTypeForMimeType(const Utils::MimeType &mt)
 
 FileType Node::fileTypeForFileName(const Utils::FileName &file)
 {
-    return fileTypeForMimeType(Utils::mimeTypeForFile(file.toString()));
+    return fileTypeForMimeType(Utils::mimeTypeForFile(file.toString(),
+                                                      Utils::MimeMatchMode::MatchExtension));
 }
 
 /*!
@@ -793,7 +794,7 @@ bool FolderNode::isEmpty() const
 }
 
 ContainerNode::ContainerNode(Project *project)
-    : FolderNode(Utils::FileName(), NodeType::Project), m_project(project)
+    : FolderNode(project->projectDirectory(), NodeType::Project), m_project(project)
 {}
 
 QString ContainerNode::displayName() const

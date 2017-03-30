@@ -54,12 +54,9 @@ namespace Nim {
 
 const int MIN_TIME_BETWEEN_PROJECT_SCANS = 4500;
 
-NimProject::NimProject(const FileName &fileName)
+NimProject::NimProject(const FileName &fileName) : Project(Constants::C_NIM_MIMETYPE, fileName)
 {
     setId(Constants::C_NIMPROJECT_ID);
-    auto doc = new TextEditor::TextDocument;
-    doc->setFilePath(fileName);
-    setDocument(doc);
 
     m_projectScanTimer.setSingleShot(true);
     connect(&m_projectScanTimer, &QTimer::timeout, this, &NimProject::collectProjectFiles);
