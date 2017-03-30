@@ -33,12 +33,16 @@
 #include <QAbstractTableModel>
 #include <QFutureWatcher>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class Ui_AndroidSettingsWidget;
 QT_END_NAMESPACE
 
 namespace Android {
 namespace Internal {
+
+class AndroidToolManager;
 
 class AvdModel: public QAbstractTableModel
 {
@@ -112,6 +116,7 @@ private:
 
     Ui_AndroidSettingsWidget *m_ui;
     AndroidConfig m_androidConfig;
+    std::unique_ptr<AndroidToolManager> m_androidToolManager;
     AvdModel m_AVDModel;
     QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcher;
     QFutureWatcher<QPair<QStringList, bool>> m_checkGdbWatcher;

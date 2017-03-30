@@ -423,7 +423,8 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, Andro
     m_ui(new Ui::AndroidDeviceDialog),
     m_apiLevel(apiLevel),
     m_abi(abi),
-    m_defaultDevice(serialNumber)
+    m_defaultDevice(serialNumber),
+    m_androidToolManager(new AndroidToolManager(AndroidConfigurations::currentConfig()))
 {
     m_ui->setupUi(this);
     m_ui->deviceView->setModel(m_model);
@@ -515,7 +516,7 @@ void AndroidDeviceDialog::refreshDeviceList()
     m_ui->refreshDevicesButton->setEnabled(false);
     m_progressIndicator->show();
     m_connectedDevices = AndroidConfig::connectedDevices(AndroidConfigurations::currentConfig().adbToolPath().toString());
-    m_futureWatcherRefreshDevices.setFuture(AndroidConfigurations::currentConfig().androidVirtualDevicesFuture());
+    m_futureWatcherRefreshDevices.setFuture(m_androidToolManager->androidVirtualDevicesFuture());
 }
 
 void AndroidDeviceDialog::devicesRefreshed()
@@ -588,7 +589,7 @@ void AndroidDeviceDialog::createAvd()
         return;
     }
 
-    m_futureWatcherAddDevice.setFuture(AndroidConfigurations::currentConfig().createAVD(info));
+    m_futureWatcherAddDevice.setFuture(m_androidToolManager->createAvd(info));
 }
 
 void AndroidDeviceDialog::avdAdded()

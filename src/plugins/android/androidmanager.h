@@ -89,6 +89,7 @@ public:
     static AndroidQtSupport *androidQtSupport(ProjectExplorer::Target *target);
     static bool useGradle(ProjectExplorer::Target *target);
     static bool updateGradleProperties(ProjectExplorer::Target *target);
+    static int findApiLevel(const Utils::FileName &platformPath);
 };
 
 } // namespace Android

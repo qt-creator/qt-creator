@@ -66,6 +66,7 @@ namespace {
     const QLatin1String AndroidManifestName("AndroidManifest.xml");
     const QLatin1String AndroidDefaultPropertiesName("project.properties");
     const QLatin1String AndroidDeviceSn("AndroidDeviceSerialNumber");
+    const QLatin1String ApiLevelKey("AndroidVersion.ApiLevel");
 
 } // anonymous namespace
 
@@ -578,6 +579,21 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
         gradleProperties["androidBuildToolsVersion"] = maxVersion.toString().toLocal8Bit();
     }
     return mergeGradleProperties(gradlePropertiesPath, gradleProperties);
+}
+
+int AndroidManager::findApiLevel(const Utils::FileName &platformPath)
+{
+    int apiLevel = -1;
+    Utils::FileName propertiesPath = platformPath;
+    propertiesPath.appendPath("/source.properties");
+    if (propertiesPath.exists()) {
+        QSettings sdkProperties(propertiesPath.toString(), QSettings::IniFormat);
+        bool validInt = false;
+        apiLevel = sdkProperties.value(ApiLevelKey).toInt(&validInt);
+        if (!validInt)
+            apiLevel = -1;
+    }
+    return apiLevel;
 }
 
 } // namespace Android

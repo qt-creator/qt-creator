@@ -26,11 +26,14 @@
 #pragma once
 
 #include "androidconfigurations.h"
+#include "androidtoolmanager.h"
 
 #include <QVector>
 #include <QDialog>
 #include <QFutureWatcher>
 #include <QTime>
+
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
@@ -74,6 +77,7 @@ private:
     QString m_abi;
     QString m_avdNameFromAdd;
     QString m_defaultDevice;
+    std::unique_ptr<AndroidToolManager> m_androidToolManager;
     QVector<AndroidDeviceInfo> m_connectedDevices;
     QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcherAddDevice;
     QFutureWatcher<QVector<AndroidDeviceInfo>> m_futureWatcherRefreshDevices;

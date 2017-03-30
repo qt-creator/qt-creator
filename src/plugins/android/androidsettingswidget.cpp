@@ -30,6 +30,7 @@
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidtoolchain.h"
+#include "androidtoolmanager.h"
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -128,7 +129,8 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
       m_ndkState(NotSet),
       m_javaState(NotSet),
       m_ui(new Ui_AndroidSettingsWidget),
-      m_androidConfig(AndroidConfigurations::currentConfig())
+      m_androidConfig(AndroidConfigurations::currentConfig()),
+      m_androidToolManager(new AndroidToolManager(m_androidConfig))
 {
     m_ui->setupUi(this);
 
@@ -463,7 +465,7 @@ void AndroidSettingsWidget::enableAvdControls()
 void AndroidSettingsWidget::startUpdateAvd()
 {
     disableAvdControls();
-    m_virtualDevicesWatcher.setFuture(m_androidConfig.androidVirtualDevicesFuture());
+    m_virtualDevicesWatcher.setFuture(m_androidToolManager->androidVirtualDevicesFuture());
 }
 
 void AndroidSettingsWidget::updateAvds()
@@ -592,7 +594,7 @@ void AndroidSettingsWidget::addAVD()
         return;
     }
 
-    m_futureWatcher.setFuture(m_androidConfig.createAVD(info));
+    m_futureWatcher.setFuture(m_androidToolManager->createAvd(info));
 }
 
 void AndroidSettingsWidget::avdAdded()
@@ -620,7 +622,7 @@ void AndroidSettingsWidget::removeAVD()
         return;
     }
 
-    m_androidConfig.removeAVD(avdName);
+    m_androidToolManager->removeAvd(avdName);
     startUpdateAvd();
 }
 
@@ -671,16 +673,7 @@ void AndroidSettingsWidget::showGdbWarningDialog()
 
 void AndroidSettingsWidget::manageAVD()
 {
-    QProcess *avdProcess = new QProcess();
-    connect(this, &QObject::destroyed, avdProcess, &QObject::deleteLater);
-    connect(avdProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
-            avdProcess, &QObject::deleteLater);
-
-    avdProcess->setProcessEnvironment(m_androidConfig.androidToolEnvironment().toProcessEnvironment());
-    QString executable = m_androidConfig.androidToolPath().toString();
-    QStringList arguments = QStringList("avd");
-
-    avdProcess->start(executable, arguments);
+    m_androidToolManager->launchAvdManager();
 }
 
 
