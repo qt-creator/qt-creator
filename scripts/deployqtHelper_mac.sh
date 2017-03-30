@@ -118,14 +118,9 @@ if [ $LLVM_INSTALL_DIR ]; then
             cp -Rf "$(dirname "$clangsource")/$clanglinktarget" "$resource_path/clang/bin/$clanglinktarget" || exit 1
         fi
     fi
-    _CLANG_CODEMODEL_LIB="$app_path/Contents/PlugIns/libClangCodeModel_debug.dylib"
-    if [ ! -f "$_CLANG_CODEMODEL_LIB" ]; then
-        _CLANG_CODEMODEL_LIB="$app_path/Contents/PlugIns/libClangCodeModel.dylib"
-    fi
-    # this will just fail when run a second time on libClangCodeModel
-    xcrun install_name_tool -delete_rpath "$LLVM_INSTALL_DIR/lib" "$_CLANG_CODEMODEL_LIB" || true
-    xcrun install_name_tool -add_rpath "@loader_path/../Frameworks" "$_CLANG_CODEMODEL_LIB" || true
     clangbackendArgument="-executable=$resource_path/clangbackend"
+    clangpchmanagerArgument="-executable=$resource_path/clangpchmanagerbackend"
+    clangrefactoringArgument="-executable=$resource_path/clangrefactoringbackend"
 fi
 
 #### macdeployqt
@@ -157,6 +152,7 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
         "-executable=$qbsapp-setup-qt" \
         "-executable=$qbsapp-setup-toolchains" \
         "-executable=$qbsapp-create-project" \
-        "$qml2puppetArgument" "$clangbackendArgument" || exit 1
+        "$qml2puppetArgument" \
+        "$clangbackendArgument" "$clangpchmanagerArgument" "$clangrefactoringArgument" || exit 1
 
 fi
