@@ -36,6 +36,7 @@
 #include <QHash>
 #include <QMap>
 #include <QFutureInterface>
+#include <QVersionNumber>
 
 #include <utils/fileutils.h>
 
@@ -79,6 +80,8 @@ public:
     bool isValid() const { return (apiLevel != -1) && !abiName.isEmpty(); }
     int apiLevel = -1;
     QString abiName;
+    QString package;
+    Utils::FileName installedLocation;
 };
 using SystemImageList = QList<SystemImage>;
 
@@ -86,8 +89,10 @@ using SystemImageList = QList<SystemImage>;
 class SdkPlatform
 {
 public:
+    bool operator <(const SdkPlatform &other) const;
     int apiLevel = -1;
     QString name;
+    QString package;
     Utils::FileName installedLocation;
     SystemImageList systemImages;
 };
@@ -105,6 +110,7 @@ public:
 
     Utils::FileName sdkLocation() const;
     void setSdkLocation(const Utils::FileName &sdkLocation);
+    QVersionNumber sdkToolsVersion() const;
 
     Utils::FileName ndkLocation() const;
     void setNdkLocation(const Utils::FileName &ndkLocation);
@@ -134,6 +140,7 @@ public:
     Utils::FileName androidToolPath() const;
     Utils::FileName antToolPath() const;
     Utils::FileName emulatorToolPath() const;
+    Utils::FileName sdkManagerToolPath() const;
 
     Utils::FileName gccPath(const ProjectExplorer::Abi &abi, Core::Id lang,
                             const QString &ndkToolChainVersion) const;
@@ -205,7 +212,6 @@ private:
     //caches
     mutable bool m_availableSdkPlatformsUpToDate = false;
     mutable SdkPlatformList m_availableSdkPlatforms;
-    static bool sortSdkPlatformByApiLevel(const SdkPlatform &a, const SdkPlatform &b);
 
     mutable bool m_NdkInformationUpToDate = false;
     mutable QString m_toolchainHost;

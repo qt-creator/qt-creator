@@ -339,6 +339,8 @@ void AndroidToolOutputParser::parseTargetListing(const QString &output,
         addSystemImage(abiList, platform);
         *platformList << platform;
     }
+
+    Utils::sort(*platformList);
 }
 
 } // namespace Internal

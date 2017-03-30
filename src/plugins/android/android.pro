@@ -48,7 +48,8 @@ HEADERS += \
     androidbuildapkstep.h \
     androidbuildapkwidget.h \
     androidrunnable.h \
-    androidtoolmanager.h
+    androidtoolmanager.h \
+    androidsdkmanager.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -90,7 +91,8 @@ SOURCES += \
     androidbuildapkwidget.cpp \
     androidqtsupport.cpp \
     androidrunnable.cpp \
-    androidtoolmanager.cpp
+    androidtoolmanager.cpp \
+    androidsdkmanager.cpp
 
 FORMS += \
     androidsettingswidget.ui \

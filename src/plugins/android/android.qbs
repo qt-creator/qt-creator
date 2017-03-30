@@ -84,6 +84,8 @@ Project {
             "androidrunnable.h",
             "androidrunner.cpp",
             "androidrunner.h",
+            "androidsdkmanager.cpp",
+            "androidsdkmanager.h",
             "androidsettingspage.cpp",
             "androidsettingspage.h",
             "androidsettingswidget.cpp",

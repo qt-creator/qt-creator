@@ -31,6 +31,7 @@
 #include "androidmanager.h"
 #include "androidqtversion.h"
 #include "androiddevicedialog.h"
+#include "androidsdkmanager.h"
 #include "androidtoolmanager.h"
 #include "avddialog.h"
 
@@ -108,6 +109,8 @@ namespace {
     const QLatin1String Unknown("unknown");
     const QLatin1String keytoolName("keytool");
     const QLatin1String changeTimeStamp("ChangeTimeStamp");
+
+    const QLatin1String sdkToolsVersionKey("Pkg.Revision");
 
     static QString sdkSettingsFileName()
     {
@@ -315,24 +318,14 @@ void AndroidConfig::updateNdkInformation() const
     m_NdkInformationUpToDate = true;
 }
 
-bool AndroidConfig::sortSdkPlatformByApiLevel(const SdkPlatform &a, const SdkPlatform &b)
-{
-    if (a.apiLevel != b.apiLevel)
-        return a.apiLevel > b.apiLevel;
-    if (a.name != b.name)
-        return a.name < b.name;
-    return false;
-}
-
 void AndroidConfig::updateAvailableSdkPlatforms() const
 {
     if (m_availableSdkPlatformsUpToDate)
         return;
 
     m_availableSdkPlatforms.clear();
-    AndroidToolManager toolManager(*this);
-    m_availableSdkPlatforms = toolManager.availableSdkPlatforms();
-    Utils::sort(m_availableSdkPlatforms, sortSdkPlatformByApiLevel);
+    AndroidSdkManager sdkManager(*this);
+    m_availableSdkPlatforms = sdkManager.availableSdkPlatforms();
     m_availableSdkPlatformsUpToDate = true;
 }
 
@@ -404,6 +397,16 @@ FileName AndroidConfig::toolPath(const Abi &abi, const QString &ndkToolChainVers
             .arg(ndkToolChainVersion)
             .arg(toolchainHost())
             .arg(toolsPrefix(abi)));
+}
+
+FileName AndroidConfig::sdkManagerToolPath() const
+{
+    FileName sdkPath = m_sdkLocation;
+    QString toolPath = "tools/bin/sdkmanager";
+    if (HostOsInfo::isWindowsHost())
+        toolPath += ANDROID_BAT_SUFFIX;
+    sdkPath = sdkPath.appendPath(toolPath);
+    return sdkPath;
 }
 
 FileName AndroidConfig::gccPath(const Abi &abi, Core::Id lang,
@@ -807,6 +810,19 @@ void AndroidConfig::setSdkLocation(const FileName &sdkLocation)
 {
     m_sdkLocation = sdkLocation;
     m_availableSdkPlatformsUpToDate = false;
+}
+
+QVersionNumber AndroidConfig::sdkToolsVersion() const
+{
+    QVersionNumber version;
+    if (m_sdkLocation.exists()) {
+        Utils::FileName sdkToolsPropertiesPath(m_sdkLocation);
+        sdkToolsPropertiesPath.appendPath("tools/source.properties");
+        QSettings settings(sdkToolsPropertiesPath.toString(), QSettings::IniFormat);
+        auto versionStr = settings.value(sdkToolsVersionKey).toString();
+        version = QVersionNumber::fromString(versionStr);
+    }
+    return version;
 }
 
 FileName AndroidConfig::ndkLocation() const
@@ -1263,5 +1279,14 @@ void AndroidConfigurations::updateAndroidDevice()
 }
 
 AndroidConfigurations *AndroidConfigurations::m_instance = 0;
+
+bool SdkPlatform::operator <(const SdkPlatform &other) const
+{
+    if (apiLevel != other.apiLevel)
+        return apiLevel > other.apiLevel;
+    if (name != other.name)
+        return name < other.name;
+    return false;
+}
 
 } // namespace Android
