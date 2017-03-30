@@ -453,8 +453,9 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
                 }
             }
             if (errorLoc.isValid()) {
-                warning(doc, errorLoc,
-                        Link::tr("QML module contains C++ plugins, currently reading type information..."));
+                appendDiagnostic(doc, DiagnosticMessage(Severity::ReadingTypeInfoWarning,
+                                                        errorLoc,
+                                                        Link::tr("QML module contains C++ plugins, currently reading type information...")));
                 import->valid = false;
             }
         } else if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpError

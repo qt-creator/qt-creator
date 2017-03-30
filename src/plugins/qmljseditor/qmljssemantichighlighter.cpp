@@ -436,7 +436,9 @@ protected:
             const TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
 
             QTextCharFormat format;
-            if (d.severity == Severity::Warning || d.severity == Severity::MaybeWarning) {
+            if (d.severity == Severity::Warning
+                    || d.severity == Severity::MaybeWarning
+                    || d.severity == Severity::ReadingTypeInfoWarning) {
                 format = fontSettings.toTextCharFormat(TextEditor::C_WARNING);
             } else if (d.severity == Severity::Error || d.severity == Severity::MaybeError) {
                 format = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
