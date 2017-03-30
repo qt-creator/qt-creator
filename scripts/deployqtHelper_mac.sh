@@ -141,12 +141,13 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
     echo "- Running macdeployqt ($(which macdeployqt))"
 
     macdeployqt "$app_path" \
+        "-executable=$app_path/Contents/MacOS/qtdiag" \
         "-executable=$app_path/Contents/Resources/qtpromaker" \
         "-executable=$app_path/Contents/Resources/sdktool" \
         "-executable=$app_path/Contents/Resources/ios/iostool" \
         "-executable=$app_path/Contents/Resources/buildoutputparser" \
         "-executable=$app_path/Contents/Resources/cpaster" \
-        "-executable=$app_path/Contents/MacOS/qtdiag" \
+        "-executable=$app_path/Contents/Resources/qbs_processlauncher" \
         "-executable=$qbsapp" \
         "-executable=$qbsapp-config" \
         "-executable=$qbsapp-config-ui" \
@@ -154,6 +155,7 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
         "-executable=$qbsapp-setup-android" \
         "-executable=$qbsapp-setup-qt" \
         "-executable=$qbsapp-setup-toolchains" \
+        "-executable=$qbsapp-create-project" \
         "$qml2puppetArgument" "$clangbackendArgument" || exit 1
 
 fi
