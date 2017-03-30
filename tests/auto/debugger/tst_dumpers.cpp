@@ -5244,6 +5244,18 @@ void tst_Dumpers::dumper_data()
                + Check("s32s", "-2147483648", TypeDef("int", "@qint32"));
 
 
+    QTest::newRow("Float")
+            << Data("#include <QFloat16>\n",
+                    "qfloat16 f1 = 45.3f; unused(&f1);\n"
+                    "qfloat16 f2 = 45.1f; unused(&f2);\n")
+               + CoreProfile()
+               + QtVersion(0x50900)
+               // Using numpy:
+               // + Check("f1", "45.281", "@qfloat16")
+               // + Check("f2", "45.094", "@qfloat16");
+               + Check("f1", "45.28125", "@qfloat16")
+               + Check("f2", "45.09375", "@qfloat16");
+
 
     QTest::newRow("Enum")
             << Data("\n"

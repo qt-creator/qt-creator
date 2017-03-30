@@ -2758,3 +2758,25 @@ def qdump__QSqlField(d, value):
     qdump__QVariant(d, val)
     d.putBetterType(d.currentType.value.replace('QVariant', 'QSqlField'))
     d.putPlainChildren(value)
+
+
+def qdump__qfloat16(d, value):
+    h = value.split('H')[0]
+    # Stole^H^H^HHeavily inspired by J.F. Sebastian at
+    # http://math.stackexchange.com/questions/1128204/how-to-convert-
+    # from-floating-point-binary-to-decimal-in-half-precision16-bits
+    sign = h >> 15
+    exp = (h >> 10) & 0b011111
+    fraction = h & (2**10 - 1)
+    if exp == 0:
+        if fraction == 0:
+            res = -0.0 if sign else 0.0
+        else:
+            res = (-1)**sign * fraction / 2**10 * 2**(-14)  # subnormal
+    elif exp == 0b11111:
+        res = ('-inf' if sign else 'inf') if fraction == 0 else 'nan'
+    else:
+        res = (-1)**sign * (1 + fraction / 2**10) * 2**(exp - 15)
+    d.putValue(res)
+    d.putNumChild(1)
+    d.putPlainChildren(value)
