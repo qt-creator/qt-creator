@@ -317,6 +317,8 @@ class DumperBase:
         self.nativeMixed = int(args.get('nativemixed', '0'))
         self.autoDerefPointers = int(args.get('autoderef', '0'))
         self.partialVariable = args.get('partialvar', '')
+        self.uninitialized = args.get('uninitialized', [])
+        self.uninitialized = list(map(lambda x: self.hexdecode(x), self.uninitialized))
         self.partialUpdate = int(args.get('partial', '0'))
         self.fallbackQtVersion = 0x50200
         #warn('NAMESPACE: "%s"' % self.qtNamespace())

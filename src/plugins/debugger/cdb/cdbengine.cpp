@@ -1238,6 +1238,13 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         cmd.arg("stringcutoff", action(MaximalStringLength)->value().toString());
         cmd.arg("displaystringlimit", action(DisplayStringLimit)->value().toString());
 
+        if (boolSetting(UseCodeModel)) {
+            QStringList uninitializedVariables;
+            getUninitializedVariables(Internal::cppCodeModelSnapshot(),
+                                      frame.function, frame.file, frame.line, &uninitializedVariables);
+            cmd.arg("uninitialized", uninitializedVariables);
+        }
+
         cmd.callback = [this](const DebuggerResponse &response) {
             if (response.resultClass == ResultDone) {
                 showMessage(response.data.toString(), LogMisc);
