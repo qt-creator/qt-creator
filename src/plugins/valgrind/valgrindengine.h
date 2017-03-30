@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <debugger/analyzer/analyzerruncontrol.h>
+#include <projectexplorer/runconfiguration.h>
 #include <utils/environment.h>
 #include <valgrind/valgrindrunner.h>
 #include <valgrind/valgrindsettings.h>
@@ -37,7 +37,7 @@
 namespace Valgrind {
 namespace Internal {
 
-class ValgrindRunControl : public Debugger::AnalyzerRunControl
+class ValgrindRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 

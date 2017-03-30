@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <debugger/analyzer/analyzerruncontrol.h>
+#include <projectexplorer/runconfiguration.h>
 #include <cpptools/projectinfo.h>
 #include <utils/environment.h>
 

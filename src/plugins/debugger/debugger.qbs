@@ -239,8 +239,6 @@ Project {
                 "analyzermanager.h",
                 "analyzerrunconfigwidget.cpp",
                 "analyzerrunconfigwidget.h",
-                "analyzerruncontrol.cpp",
-                "analyzerruncontrol.h",
                 "analyzerstartparameters.h",
                 "analyzerutils.cpp",
                 "analyzerutils.h",

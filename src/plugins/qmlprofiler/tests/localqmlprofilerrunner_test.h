@@ -52,7 +52,7 @@ private:
 
     bool running = false;
     int runCount = 0;
-    Debugger::AnalyzerRunControl *rc = nullptr;
+    ProjectExplorer::RunControl *rc = nullptr;
     Debugger::AnalyzerConnection connection;
     LocalQmlProfilerRunner::Configuration configuration;
 };

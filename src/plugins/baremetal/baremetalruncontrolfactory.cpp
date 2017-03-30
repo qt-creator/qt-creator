@@ -36,15 +36,17 @@
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerkitinformation.h>
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/buildconfiguration.h>
 #include <debugger/analyzer/analyzerstartparameters.h>
 #include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerruncontrol.h>
+
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
+
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 

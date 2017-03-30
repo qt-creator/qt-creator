@@ -44,11 +44,7 @@ class QDockWidget;
 class QAction;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class RunConfiguration; }
-
 namespace Debugger {
-
-class AnalyzerRunControl;
 
 /**
  * The mode in which this tool should preferably be run
@@ -93,8 +89,8 @@ public:
 
     /// Returns a new engine for the given start parameters.
     /// Called each time the tool is launched.
-    typedef std::function<AnalyzerRunControl *(ProjectExplorer::RunConfiguration *runConfiguration,
-                                               Core::Id runMode)> RunControlCreator;
+    typedef std::function<ProjectExplorer::RunControl *(ProjectExplorer::RunConfiguration *runConfiguration,
+                                                        Core::Id runMode)> RunControlCreator;
     RunControlCreator runControlCreator() const { return m_runControlCreator; }
     void setRunControlCreator(const RunControlCreator &creator) { m_runControlCreator = creator; }
 
@@ -146,7 +142,7 @@ DEBUGGER_EXPORT void showPermanentStatusMessage(const QString &message);
 DEBUGGER_EXPORT QAction *createStartAction();
 DEBUGGER_EXPORT QAction *createStopAction();
 
-DEBUGGER_EXPORT AnalyzerRunControl *createAnalyzerRunControl(
+DEBUGGER_EXPORT ProjectExplorer::RunControl *createAnalyzerRunControl(
     ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
 
 } // namespace Debugger

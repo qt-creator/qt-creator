@@ -31,8 +31,6 @@
 
 #include <qmldebug/qmloutputparser.h>
 
-namespace Debugger { class AnalyzerRunControl; }
-
 namespace Android {
 namespace Internal {
 

@@ -31,8 +31,6 @@
 #include <utils/outputformat.h>
 #include <qmldebug/qmloutputparser.h>
 
-namespace Debugger { class AnalyzerRunControl; }
-
 namespace Qnx {
 namespace Internal {
 
@@ -58,7 +56,6 @@ private:
 
     void remoteIsRunning();
     void startExecution() override;
-    Debugger::AnalyzerRunControl *runControl();
 
     ProjectExplorer::StandardRunnable m_runnable;
     QmlDebug::QmlOutputParser m_outputParser;

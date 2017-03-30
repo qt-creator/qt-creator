@@ -39,7 +39,6 @@
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/analyzer/analyzermanager.h>
 #include <debugger/analyzer/analyzerstartparameters.h>
-#include <debugger/analyzer/analyzerruncontrol.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
@@ -141,7 +140,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, Core::Id m
         const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
         if (device.isNull())
             return 0;
-        AnalyzerRunControl *runControl = Debugger::createAnalyzerRunControl(runConfig, mode);
+        RunControl *runControl = Debugger::createAnalyzerRunControl(runConfig, mode);
         QTC_ASSERT(runControl, return 0);
         runControl->setRunnable(runConfig->runnable());
         AnalyzerConnection connection;

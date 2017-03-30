@@ -32,8 +32,6 @@
 
 #include <utils/outputformat.h>
 
-namespace Debugger { class AnalyzerRunControl; }
-
 namespace RemoteLinux {
 
 namespace Internal { class RemoteLinuxAnalyzeSupportPrivate; }

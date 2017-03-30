@@ -27,14 +27,14 @@
 
 #include "qmlprofilerstatemanager.h"
 
-#include <debugger/analyzer/analyzerruncontrol.h>
+#include <projectexplorer/runconfiguration.h>
 #include <utils/outputformat.h>
 
 namespace QmlProfiler {
 
 namespace Internal { class QmlProfilerTool; }
 
-class QmlProfilerRunControl : public Debugger::AnalyzerRunControl
+class QmlProfilerRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 

@@ -66,7 +66,6 @@
 
 #include "analyzer/analyzerconstants.h"
 #include "analyzer/analyzermanager.h"
-#include "analyzer/analyzerruncontrol.h"
 #include "analyzer/analyzerstartparameters.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -3634,7 +3633,7 @@ void showPermanentStatusMessage(const QString &message)
     dd->m_mainWindow->showStatusMessage(message, -1);
 }
 
-AnalyzerRunControl *createAnalyzerRunControl(RunConfiguration *runConfiguration, Id runMode)
+RunControl *createAnalyzerRunControl(RunConfiguration *runConfiguration, Id runMode)
 {
     foreach (const ActionDescription &action, dd->m_descriptions) {
         if (action.runMode() == runMode)

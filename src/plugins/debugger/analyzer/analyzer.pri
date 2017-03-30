@@ -4,7 +4,6 @@ QT += network
 # AnalyzerBase files
 
 SOURCES += \
-    $$PWD/analyzerruncontrol.cpp \
     $$PWD/analyzerrunconfigwidget.cpp \
     $$PWD/analyzerutils.cpp \
     $$PWD/detailederrorview.cpp \
@@ -13,7 +12,6 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/analyzerconstants.h \
-    $$PWD/analyzerruncontrol.h \
     $$PWD/analyzermanager.h \
     $$PWD/analyzerstartparameters.h \
     $$PWD/analyzerrunconfigwidget.h \

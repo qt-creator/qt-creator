@@ -40,7 +40,6 @@
 
 #include <debugger/debuggericons.h>
 #include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerruncontrol.h>
 #include <debugger/analyzer/analyzerstartparameters.h>
 
 #include <utils/fancymainwindow.h>
@@ -318,7 +317,7 @@ void QmlProfilerTool::updateRunActions()
     }
 }
 
-AnalyzerRunControl *QmlProfilerTool::createRunControl(RunConfiguration *runConfiguration)
+RunControl *QmlProfilerTool::createRunControl(RunConfiguration *runConfiguration)
 {
     d->m_toolBusy = true;
     if (runConfiguration) {

@@ -29,7 +29,6 @@
 #include "qnxrunconfiguration.h"
 #include "slog2inforunner.h"
 
-#include <debugger/analyzer/analyzerruncontrol.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 
@@ -109,11 +108,6 @@ void QnxAnalyzeSupport::startExecution()
     r.commandLineArguments += QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices,
                                                              m_qmlPort);
     appRunner()->start(r, device());
-}
-
-Debugger::AnalyzerRunControl *QnxAnalyzeSupport::runControl()
-{
-    return qobject_cast<Debugger::AnalyzerRunControl *>(QnxAbstractRunSupport::runControl());
 }
 
 void QnxAnalyzeSupport::handleRemoteProcessFinished(bool success)

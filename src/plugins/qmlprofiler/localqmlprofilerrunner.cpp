@@ -31,8 +31,8 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
+
 #include <qmldebug/qmldebugcommandlinearguments.h>
-#include <debugger/analyzer/analyzerruncontrol.h>
 
 #include <utils/temporaryfile.h>
 
@@ -67,24 +67,24 @@ Utils::Port LocalQmlProfilerRunner::findFreePort(QString &host)
 }
 
 LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuration,
-                                               Debugger::AnalyzerRunControl *runControl) :
+                                               RunControl *runControl) :
     QObject(runControl),
     m_configuration(configuration)
 {
     connect(&m_launcher, &ApplicationLauncher::appendMessage,
             this, &LocalQmlProfilerRunner::appendMessage);
     connect(this, &LocalQmlProfilerRunner::stopped,
-            runControl, &Debugger::AnalyzerRunControl::notifyRemoteFinished);
+            runControl, &RunControl::notifyRemoteFinished);
     connect(this, &LocalQmlProfilerRunner::appendMessage,
-            runControl, &Debugger::AnalyzerRunControl::appendMessage);
-    connect(runControl, &Debugger::AnalyzerRunControl::starting,
+            runControl, &RunControl::appendMessage);
+    connect(runControl, &RunControl::starting,
             this, &LocalQmlProfilerRunner::start);
     connect(runControl, &RunControl::finished,
             this, &LocalQmlProfilerRunner::stop);
 
     m_outputParser.setNoOutputText(ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput());
 
-    connect(runControl, &Debugger::AnalyzerRunControl::appendMessageRequested,
+    connect(runControl, &RunControl::appendMessageRequested,
             this, [this](RunControl *runControl, const QString &msg, Utils::OutputFormat format) {
         Q_UNUSED(runControl);
         Q_UNUSED(format);

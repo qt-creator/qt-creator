@@ -78,7 +78,7 @@ public:
 
 QmlProfilerRunControl::QmlProfilerRunControl(RunConfiguration *runConfiguration,
                                              Internal::QmlProfilerTool *tool)
-    : AnalyzerRunControl(runConfiguration, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
+    : RunControl(runConfiguration, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
     , d(new QmlProfilerRunControlPrivate)
 {
     setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);

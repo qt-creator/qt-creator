@@ -27,8 +27,6 @@
 
 #include "remotelinuxrunconfiguration.h"
 
-#include <debugger/analyzer/analyzerruncontrol.h>
-
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -44,7 +42,6 @@
 #include <QPointer>
 
 using namespace QSsh;
-using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -198,9 +195,7 @@ void RemoteLinuxAnalyzeSupport::handleAppRunnerFinished(bool success)
     reset();
     if (!success)
         showMessage(tr("Failure running remote process."), Utils::NormalMessageFormat);
-    auto rc = qobject_cast<AnalyzerRunControl *>(runControl());
-    QTC_ASSERT(rc, return);
-    rc->notifyRemoteFinished();
+    runControl()->notifyRemoteFinished();
 }
 
 void RemoteLinuxAnalyzeSupport::handleProfilingFinished()
@@ -210,9 +205,7 @@ void RemoteLinuxAnalyzeSupport::handleProfilingFinished()
 
 void RemoteLinuxAnalyzeSupport::remoteIsRunning()
 {
-    auto rc = qobject_cast<AnalyzerRunControl *>(runControl());
-    QTC_ASSERT(rc, return);
-    rc->notifyRemoteSetupDone(d->qmlPort);
+    runControl()->notifyRemoteSetupDone(d->qmlPort);
 }
 
 void RemoteLinuxAnalyzeSupport::handleRemoteOutput(const QByteArray &output)

@@ -26,9 +26,6 @@
 #include "iosanalyzesupport.h"
 #include "iosrunner.h"
 
-#include <debugger/analyzer/analyzerruncontrol.h>
-
-using namespace Debugger;
 using namespace ProjectExplorer;
 
 namespace Ios {
@@ -79,7 +76,7 @@ void IosAnalyzeSupport::handleGotInferiorPid(qint64 pid, Utils::Port qmlPort)
 void IosAnalyzeSupport::handleRemoteProcessFinished(bool cleanEnd)
 {
     if (!cleanEnd)
-        runControl()->appendMessage(tr("Run ended with error."), Utils::ErrorMessageFormat);
+        appendMessage(tr("Run ended with error."), Utils::ErrorMessageFormat);
     else
         appendMessage(tr("Run ended."), Utils::NormalMessageFormat);
     runControl()->notifyRemoteFinished();
@@ -95,11 +92,6 @@ void IosAnalyzeSupport::handleRemoteErrorOutput(const QString &output)
 {
     appendMessage(output, Utils::StdErrFormat);
     m_outputParser.processOutput(output);
-}
-
-AnalyzerRunControl *IosAnalyzeSupport::runControl()
-{
-    return qobject_cast<AnalyzerRunControl *>(ToolRunner::runControl());
 }
 
 } // namespace Internal

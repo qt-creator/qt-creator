@@ -30,6 +30,7 @@
 #include "applicationlauncher.h"
 #include "devicesupport/idevice.h"
 
+#include <utils/port.h>
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
 #include <utils/icon.h>
@@ -406,6 +407,10 @@ public:
 
     virtual void appendMessage(const QString &msg, Utils::OutputFormat format);
     virtual void bringApplicationToForeground();
+
+    virtual void notifyRemoteSetupDone(Utils::Port) {}  // FIXME: Replace by ToolRunner functionality
+    virtual void notifyRemoteSetupFailed(const QString &) {} // Same.
+    virtual void notifyRemoteFinished() {} // Same.
 
 signals:
     void appendMessageRequested(ProjectExplorer::RunControl *runControl,

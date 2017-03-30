@@ -748,7 +748,7 @@ ValgrindRunControl *CallgrindTool::createRunControl(RunConfiguration *runConfigu
     auto runControl = new CallgrindRunControl(runConfiguration, runMode);
 
     connect(runControl, &CallgrindRunControl::parserDataReady, this, &CallgrindTool::takeParserDataFromRunControl);
-    connect(runControl, &AnalyzerRunControl::starting, this, &CallgrindTool::engineStarting);
+    connect(runControl, &RunControl::starting, this, &CallgrindTool::engineStarting);
     connect(runControl, &RunControl::finished, this, &CallgrindTool::engineFinished);
 
     connect(this, &CallgrindTool::dumpRequested, runControl, &CallgrindRunControl::dump);

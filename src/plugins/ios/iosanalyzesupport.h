@@ -29,14 +29,9 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <utils/port.h>
-
-namespace Debugger { class AnalyzerRunControl; }
-
 namespace Ios {
 namespace Internal {
 
-class IosRunConfiguration;
 class IosRunner;
 
 class IosAnalyzeSupport : public ProjectExplorer::ToolRunner
@@ -55,7 +50,6 @@ private:
     void handleRemoteOutput(const QString &output);
     void handleRemoteErrorOutput(const QString &output);
 
-    Debugger::AnalyzerRunControl *runControl();
     IosRunner * const m_runner;
     QmlDebug::QmlOutputParser m_outputParser;
     Utils::Port m_qmlPort;

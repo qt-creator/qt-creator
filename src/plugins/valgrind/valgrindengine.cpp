@@ -54,7 +54,7 @@ namespace Valgrind {
 namespace Internal {
 
 ValgrindRunControl::ValgrindRunControl(RunConfiguration *runConfiguration, Core::Id runMode)
-    : AnalyzerRunControl(runConfiguration, runMode)
+    : RunControl(runConfiguration, runMode)
 {
     setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     QTC_ASSERT(runConfiguration, return);

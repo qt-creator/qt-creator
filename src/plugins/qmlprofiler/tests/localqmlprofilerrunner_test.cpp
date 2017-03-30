@@ -25,7 +25,6 @@
 
 #include "localqmlprofilerrunner_test.h"
 #include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerruncontrol.h>
 #include <debugger/analyzer/analyzerstartparameters.h>
 #include <QtTest>
 #include <QTcpServer>
