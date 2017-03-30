@@ -3174,29 +3174,33 @@ void ProjectExplorerPluginPrivate::removeFile()
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
 
-    FileNode *fileNode = currentNode->asFileNode();
-
-    QString filePath = currentNode->filePath().toString();
-    RemoveFileDialog removeFileDialog(filePath, ICore::mainWindow());
+    const Utils::FileName filePath = currentNode->filePath();
+    RemoveFileDialog removeFileDialog(filePath.toString(), ICore::mainWindow());
 
     if (removeFileDialog.exec() == QDialog::Accepted) {
         const bool deleteFile = removeFileDialog.isDeleteFileChecked();
 
+        // Re-read the current node, in case the project is re-parsed while the dialog is open
+        if (currentNode != ProjectTree::currentNode()) {
+            currentNode = ProjectTreeWidget::nodeForFile(filePath);
+            QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
+        }
+
         // remove from project
-        FolderNode *folderNode = fileNode->parentFolderNode();
+        FolderNode *folderNode = currentNode->asFileNode()->parentFolderNode();
         QTC_ASSERT(folderNode, return);
 
-        if (!folderNode->removeFiles(QStringList(filePath))) {
+        if (!folderNode->removeFiles(QStringList(filePath.toString()))) {
             QMessageBox::warning(ICore::mainWindow(), tr("Removing File Failed"),
                                  tr("Could not remove file %1 from project %2.")
-                                 .arg(QDir::toNativeSeparators(filePath))
+                                 .arg(filePath.toUserOutput())
                                  .arg(folderNode->managingProject()->displayName()));
             if (!deleteFile)
                 return;
         }
 
-        FileChangeBlocker changeGuard(filePath);
-        FileUtils::removeFile(filePath, deleteFile);
+        FileChangeBlocker changeGuard(filePath.toString());
+        FileUtils::removeFile(filePath.toString(), deleteFile);
     }
 }
 
