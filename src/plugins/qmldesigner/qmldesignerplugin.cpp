@@ -415,6 +415,7 @@ void QmlDesignerPlugin::deactivateAutoSynchronization()
     viewManager().detachViewsExceptRewriterAndComponetView();
     viewManager().detachComponentView();
     viewManager().detachRewriterView();
+    emitCurrentTextEditorChanged(documentManager().currentDesignDocument()->textEditor());
     documentManager().currentDesignDocument()->resetToDocumentModel();
 }
 
