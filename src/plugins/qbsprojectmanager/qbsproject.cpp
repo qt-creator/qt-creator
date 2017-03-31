@@ -411,12 +411,20 @@ bool QbsProject::checkCancelStatus()
     return true;
 }
 
+static QSet<QString> toQStringSet(const std::set<QString> &src)
+{
+    QSet<QString> result;
+    result.reserve(src.size());
+    std::copy(src.begin(), src.end(), Utils::inserter(result));
+    return result;
+}
+
 void QbsProject::updateAfterParse()
 {
     qCDebug(qbsPmLog) << "Updating data after parse";
     OpTimer opTimer("updateAfterParse");
     updateProjectNodes();
-    updateDocuments(m_qbsProject.buildSystemFiles());
+    updateDocuments(toQStringSet(m_qbsProject.buildSystemFiles()));
     updateBuildTargetData();
     updateCppCodeModel();
     updateQmlJsCodeModel();

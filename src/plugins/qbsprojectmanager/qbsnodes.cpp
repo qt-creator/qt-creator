@@ -232,8 +232,14 @@ static QList<ProjectExplorer::ProjectAction> supportedNodeActions(ProjectExplore
         return actions;
     if (managesFiles)
         actions << ProjectExplorer::AddNewFile << ProjectExplorer::AddExistingFile;
+
+    auto equalsNodeFilePath = [node](const QString &str)
+    {
+        return str == node->filePath().toString();
+    };
+
     if (node->nodeType() == ProjectExplorer::NodeType::File
-            && !project->qbsProject().buildSystemFiles().contains(node->filePath().toString())) {
+            && !Utils::contains(project->qbsProject().buildSystemFiles(), equalsNodeFilePath)) {
         actions << ProjectExplorer::RemoveFile << ProjectExplorer::Rename;
     }
     return actions;
