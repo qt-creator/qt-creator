@@ -31,6 +31,10 @@
 
 #include <QSortFilterProxyModel>
 
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
+
 namespace Core { class IEditor; }
 
 namespace QmlJS { class Editor; }
