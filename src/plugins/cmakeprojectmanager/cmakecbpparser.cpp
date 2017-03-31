@@ -180,15 +180,6 @@ bool CMakeCbpParser::parseCbpFile(CMakeTool::PathMapper mapper, const FileName &
 
         fi.close();
 
-        // There is always a clean target:
-        CMakeBuildTarget cleanTarget;
-        cleanTarget.title = "clean";
-        cleanTarget.targetType = UtilityType;
-        cleanTarget.workingDirectory = m_buildDirectory;
-        cleanTarget.sourceDirectory = m_sourceDirectory;
-
-        m_buildTargets.append(cleanTarget);
-
         return true;
     }
     return false;

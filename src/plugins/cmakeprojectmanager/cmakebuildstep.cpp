@@ -444,19 +444,26 @@ QString CMakeBuildStepConfigWidget::displayName() const
     return tr("Build", "CMakeProjectManager::CMakeBuildStepConfigWidget display name.");
 }
 
+static void createSpecialItem(const QString &text, const QString &data, QListWidget *parent)
+{
+    auto item = new QListWidgetItem(text, parent);
+
+    item->setData(Qt::UserRole, data);
+    QFont f;
+    f.setItalic(true);
+    item->setFont(f);
+}
+
 void CMakeBuildStepConfigWidget::buildTargetsChanged()
 {
     const bool wasBlocked = m_buildTargetsList->blockSignals(true);
     m_buildTargetsList->clear();
 
-    auto item = new QListWidgetItem(tr(ADD_RUNCONFIGURATION_TEXT), m_buildTargetsList);
+    createSpecialItem(tr(ADD_RUNCONFIGURATION_TEXT), ADD_RUNCONFIGURATION_TEXT, m_buildTargetsList);
+    createSpecialItem(tr("all"), "all", m_buildTargetsList);
+    createSpecialItem(tr("clean"), "clean", m_buildTargetsList);
 
-    item->setData(Qt::UserRole, QString::fromLatin1(ADD_RUNCONFIGURATION_TEXT));
-    QFont f;
-    f.setItalic(true);
-    item->setFont(f);
-
-    CMakeProject *pro = static_cast<CMakeProject *>(m_buildStep->project());
+    auto pro = static_cast<CMakeProject *>(m_buildStep->project());
     QStringList targetList = pro->buildTargetTitles();
     targetList.sort();
 
