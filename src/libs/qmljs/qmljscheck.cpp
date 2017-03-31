@@ -556,8 +556,7 @@ public:
                                                       "Scale",
                                                       "Translate",
                                                       "Package",
-                                                      "Particles",
-                                                      "Dialog"})
+                                                      "Particles"})
     {
 
     }
