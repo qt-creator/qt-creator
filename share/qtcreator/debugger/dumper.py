@@ -1497,7 +1497,10 @@ class DumperBase:
         def getJumpAddress_x86(dumper, address):
             relativeJumpCode = 0xe9
             jumpCode = 0xff
-            data = dumper.readRawMemory(address, 6)
+            try:
+                data = dumper.readRawMemory(address, 6)
+            except:
+                return 0
             primaryOpcode = data[0]
             if primaryOpcode == relativeJumpCode:
                 # relative jump on 32 and 64 bit with a 32bit offset
