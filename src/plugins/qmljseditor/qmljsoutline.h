@@ -70,10 +70,10 @@ public:
     void setEditor(QmlJSEditorWidget *editor);
 
     // IOutlineWidget
-    virtual QList<QAction*> filterMenuActions() const;
-    virtual void setCursorSynchronization(bool syncWithCursor);
-    virtual void restoreSettings(const QVariantMap &map);
-    virtual QVariantMap settings() const;
+    virtual QList<QAction*> filterMenuActions() const override;
+    virtual void setCursorSynchronization(bool syncWithCursor) override;
+    virtual void restoreSettings(const QVariantMap &map) override;
+    virtual QVariantMap settings() const override;
 
 private:
     void modelUpdated();
