@@ -23,11 +23,10 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.4
-import QtQml.Models 2.2
+import QtQuick 2.8
 
 Rectangle {
-    ObjectModel {
+    VisualItemModel {
         id: itemModel
         Rectangle { height: 30; width: 80; color: "red" }
         Rectangle { height: 30; width: 80; color: "green" }
