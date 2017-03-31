@@ -85,14 +85,14 @@ private:
     bool syncCursor();
 
 private:
-    QmlJSOutlineTreeView *m_treeView;
-    QmlJSOutlineFilterModel *m_filterModel;
-    QmlJSEditorWidget *m_editor;
+    QmlJSOutlineTreeView *m_treeView = nullptr;
+    QmlJSOutlineFilterModel *m_filterModel = nullptr;
+    QmlJSEditorWidget *m_editor = nullptr;
 
-    QAction *m_showBindingsAction;
+    QAction *m_showBindingsAction = nullptr;
 
-    bool m_enableCursorSync;
-    bool m_blockCursorSync;
+    bool m_enableCursorSync = true;
+    bool m_blockCursorSync = false;
 };
 
 class QmlJSOutlineWidgetFactory : public TextEditor::IOutlineWidgetFactory

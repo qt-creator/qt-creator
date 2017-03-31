@@ -105,10 +105,7 @@ namespace Internal {
 
 QmlJSEditorWidget::QmlJSEditorWidget()
 {
-    m_outlineCombo = 0;
-    m_contextPane = 0;
     m_findReferences = new FindReferences(this);
-
     setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
 }
 
@@ -142,7 +139,6 @@ void QmlJSEditorWidget::finalizeInitialization()
                 &m_contextPaneTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
         connect(m_contextPane, &IContextPane::closed, this, &QmlJSEditorWidget::showTextMarker);
     }
-    m_oldCursorPosition = -1;
 
     connect(this->document(), &QTextDocument::modificationChanged,
             this, &QmlJSEditorWidget::modificationChanged);

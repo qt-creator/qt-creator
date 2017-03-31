@@ -94,13 +94,10 @@ void QmlJSOutlineFilterModel::setFilterBindings(bool filterBindings)
     invalidateFilter();
 }
 
-QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
-    TextEditor::IOutlineWidget(parent),
-    m_treeView(new QmlJSOutlineTreeView(this)),
-    m_filterModel(new QmlJSOutlineFilterModel(this)),
-    m_editor(0),
-    m_enableCursorSync(true),
-    m_blockCursorSync(false)
+QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent)
+    : TextEditor::IOutlineWidget(parent)
+    , m_treeView(new QmlJSOutlineTreeView(this))
+    , m_filterModel(new QmlJSOutlineFilterModel(this))
 {
     m_filterModel->setFilterBindings(false);
 
