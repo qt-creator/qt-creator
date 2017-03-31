@@ -34,6 +34,7 @@
 #ifdef WITH_PYTHON
 #include <Python.h>
 #include "pystdoutredirect.h"
+#include "pycdbextmodule.h"
 #endif
 
 #include <cstdio>
@@ -588,7 +589,7 @@ extern "C" HRESULT CALLBACK script(CIDebugClient *client, PCSTR argsIn)
     const char result = (PyRun_SimpleString(command.str().c_str()) == 0) ? 'R' : 'N';
     if (PyErr_Occurred())
         PyErr_Print();
-    ExtensionContext::instance().reportLong(result, token, "script", getPyStdout().c_str());
+    ExtensionContext::instance().reportLong(result, token, "script", collectOutput().c_str());
     endCapturePyStdout();
     PyErr_Restore(ptype, pvalue, ptraceback);
 #else

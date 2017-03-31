@@ -40,6 +40,7 @@
 #include <iterator>
 
 static CurrentSymbolGroup currentSymbolGroup;
+static std::string results;
 
 CurrentSymbolGroup::~CurrentSymbolGroup()
 {
@@ -338,6 +339,16 @@ static PyObject *cdbext_call(PyObject *, PyObject *args)
     return createPythonObject(PyValue(index, symbolGroup));
 }
 
+static PyObject *cdbext_reportResult(PyObject *, PyObject *args)
+{
+    char *result;
+    if (!PyArg_ParseTuple(args, "s", &result))
+        Py_RETURN_NONE;
+
+    results += result;
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef cdbextMethods[] = {
     {"parseAndEvaluate",    cdbext_parseAndEvaluate,    METH_VARARGS,
      "Returns value of expression or None if the expression can not be resolved"},
@@ -361,6 +372,8 @@ static PyMethodDef cdbextMethods[] = {
      "Creates a value with the given type at the given address"},
     {"call",                cdbext_call,                METH_VARARGS,
      "Call a function and return a cdbext.Value representing the return value of that function."},
+    {"reportResult",        cdbext_reportResult,        METH_VARARGS,
+     "Adds a result"},
     {NULL,                  NULL,               0,
      NULL}        /* Sentinel */
 };
@@ -419,4 +432,26 @@ void initCdbextPythonModule()
 int pointerSize()
 {
     return ExtensionCommandContext::instance()->control()->IsPointer64Bit() == S_OK ? 8 : 4;
+}
+
+std::string collectOutput()
+{
+    // construct a gdbmi output string with two children: messages and result
+    std::stringstream ret;
+    ret << "output=[msg=[";
+    std::istringstream pyStdout(getPyStdout());
+    std::string line;
+    // Add a child to messages for every line.
+    while (std::getline(pyStdout, line)) {
+        // there are two kinds of messages we want to handle here:
+        if (line.find("bridgemessage=") == 0) { // preformatted gdmi bridgemessages from warn()
+            ret << line << ',';
+        } else { // and a line of "normal" python output
+            replace(line, '"', '$'); // otherwise creators gdbmi parser would fail
+            ret << "line=\"" << line << "\",";
+        }
+    }
+    ret << "]," << results << "]";
+    results.clear();
+    return ret.str();
 }

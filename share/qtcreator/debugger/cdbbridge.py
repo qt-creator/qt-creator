@@ -404,7 +404,7 @@ class Dumper(DumperBase):
         return cdbext.lookupType(name, module)
 
     def reportResult(self, result, args):
-        self.report('result={%s}' % (result))
+        cdbext.reportResult('result={%s}' % result)
 
     def readRawMemory(self, address, size):
         mem = cdbext.readRawMemory(address, size)

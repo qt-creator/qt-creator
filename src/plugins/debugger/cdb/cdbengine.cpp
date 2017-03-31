@@ -1247,8 +1247,9 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
 
         cmd.callback = [this](const DebuggerResponse &response) {
             if (response.resultClass == ResultDone) {
-                showMessage(response.data.toString(), LogMisc);
-                updateLocalsView(response.data);
+                const GdbMi &result = response.data["result"];
+                showMessage(result.toString(), LogMisc);
+                updateLocalsView(result);
             } else {
                 showMessage(response.data["msg"].data(), LogError);
             }
@@ -1432,6 +1433,21 @@ void CdbEngine::postResolveSymbol(const QString &module, const QString &function
     } else {
         showMessage(QString("Using cached addresses for %1.").arg(symbol), LogMisc);
         handleResolveSymbolHelper(addresses, agent);
+    }
+}
+
+void CdbEngine::showScriptMessages(const QString &message) const
+{
+    GdbMi gdmiMessage;
+    gdmiMessage.fromString(message);
+    if (!gdmiMessage.isValid())
+        showMessage(message, LogMisc);
+    const GdbMi &messages = gdmiMessage["msg"];
+    for (const GdbMi &msg : messages.children()) {
+        if (msg.name() == "bridgemessage")
+            showMessage(msg["msg"].data(), LogMisc);
+        else
+            showMessage(msg.data(), LogMisc);
     }
 }
 
@@ -2235,7 +2251,7 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
     // Is there a reply expected, some command queued?
     if (t == 'R' || t == 'N') {
         if (token == -1) { // Default token, user typed in extension command
-            showMessage(message, LogMisc);
+            showScriptMessages(message);
             return;
         }
         // Did the command finish? Take off queue and complete, invoke CB
@@ -2246,7 +2262,7 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
 
         if (!command.callback) {
             if (!message.isEmpty()) // log unhandled output
-                showMessage(message, LogMisc);
+                showScriptMessages(message);
             return;
         }
         DebuggerResponse response;
@@ -2257,6 +2273,8 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
             if (!response.data.isValid()) {
                 response.data.m_data = message;
                 response.data.m_type = GdbMi::Tuple;
+            } else {
+                showScriptMessages(message);
             }
         } else {
             response.resultClass = ResultError;
@@ -2906,14 +2924,19 @@ void CdbEngine::handleAdditionalQmlStack(const DebuggerResponse &response)
 
 void CdbEngine::setupScripting(const DebuggerResponse &response)
 {
-    GdbMi data = response.data;
+    GdbMi data = response.data["msg"];
     if (response.resultClass != ResultDone) {
         showMessage(data["msg"].data(), LogMisc);
         return;
     }
-    const QString &verOutput = data.data();
+    if (data.childCount() == 0) {
+        showMessage(QString("No output from sys.version"), LogWarning);
+        return;
+    }
+
+    const QString &verOutput = data.childAt(0).data();
     const QString firstToken = verOutput.split(QLatin1Char(' ')).constFirst();
-    const QVector<QStringRef> pythonVersion =firstToken.splitRef(QLatin1Char('.'));
+    const QVector<QStringRef> pythonVersion = firstToken.splitRef(QLatin1Char('.'));
 
     bool ok = false;
     if (pythonVersion.size() == 3) {
@@ -2941,7 +2964,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
     runCommand({"theDumper = Dumper()", ScriptCommand});
     runCommand({"theDumper.loadDumpers(None)", ScriptCommand,
                 [this](const DebuggerResponse &response) {
-                    watchHandler()->addDumpers(response.data["dumpers"]);
+                    watchHandler()->addDumpers(response.data["result"]["dumpers"]);
     }});
 }
 

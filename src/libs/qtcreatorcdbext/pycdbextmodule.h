@@ -27,11 +27,13 @@
 
 #include <Python.h>
 #include <vector>
+#include <string>
 
 #include "dbgeng.h"
 
 void initCdbextPythonModule();
 int pointerSize();
+std::string collectOutput();
 
 constexpr bool debugPyCdbextModule = false;
 using Bytes = std::vector<char>;
