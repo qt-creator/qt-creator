@@ -25,6 +25,7 @@ DISTFILES += \
     samples/test_GridLayout.qml \
     samples/test_ListModel.qml \
     samples/test_ListView.qml \
+    samples/test_ListViewDelegate.qml \
     samples/test_LocalStorage.qml \
     samples/test_Material.qml \
     samples/test_MessageDialog.qml \
