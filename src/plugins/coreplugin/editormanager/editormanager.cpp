@@ -204,6 +204,7 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     m_gotoPreviousDocHistoryAction(new QAction(EditorManager::tr("Previous Open Document in History"), this)),
     m_goBackAction(new QAction(Utils::Icons::PREV.icon(), EditorManager::tr("Go Back"), this)),
     m_goForwardAction(new QAction(Utils::Icons::NEXT.icon(), EditorManager::tr("Go Forward"), this)),
+    m_gotoLastEditAction(new QAction(EditorManager::tr("Go to Last Edit"), this)),
     m_copyFilePathContextAction(new QAction(EditorManager::tr("Copy Full Path"), this)),
     m_copyLocationContextAction(new QAction(EditorManager::tr("Copy Path and Line Number"), this)),
     m_copyFileNameContextAction(new QAction(EditorManager::tr("Copy File Name"), this)),
@@ -382,6 +383,12 @@ void EditorManagerPrivate::init()
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(m_goForwardAction, &QAction::triggered,
             m_instance, &EditorManager::goForwardInNavigationHistory);
+
+    // Go to last edit
+    cmd = ActionManager::registerAction(m_gotoLastEditAction, Constants::GOTOLASTEDIT, editDesignContext);
+    mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
+    connect(m_gotoLastEditAction, &QAction::triggered,
+            this, &EditorManagerPrivate::gotoLastEditLocation);
 
     m_splitAction = new QAction(Utils::Icons::SPLIT_HORIZONTAL.icon(), tr("Split"), this);
     cmd = ActionManager::registerAction(m_splitAction, Constants::SPLIT, editManagerContext);
@@ -1915,6 +1922,11 @@ void EditorManagerPrivate::gotoPreviousDocHistory()
     }
 }
 
+void EditorManagerPrivate::gotoLastEditLocation()
+{
+    currentEditorView()->goToEditLocation(d->m_globalLastEditLocation);
+}
+
 void EditorManagerPrivate::gotoNextSplit()
 {
     EditorView *view = currentEditorView();
@@ -2943,6 +2955,22 @@ void EditorManager::addCurrentPositionToNavigationHistory(const QByteArray &save
 {
     EditorManagerPrivate::currentEditorView()->addCurrentPositionToNavigationHistory(saveState);
     EditorManagerPrivate::updateActions();
+}
+
+void EditorManager::setLastEditLocation(const IEditor* editor)
+{
+    IDocument *document = editor->document();
+    if (!document)
+        return;
+
+    const QByteArray &state = editor->saveState();
+    EditLocation location;
+    location.document = document;
+    location.fileName = document->filePath().toString();
+    location.id = document->id();
+    location.state = QVariant(state);
+
+    d->m_globalLastEditLocation = location;
 }
 
 void EditorManager::cutForwardNavigationHistory()

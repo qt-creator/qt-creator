@@ -131,6 +131,7 @@ public:
     static bool closeAllDocuments();
 
     static void addCurrentPositionToNavigationHistory(const QByteArray &saveState = QByteArray());
+    static void setLastEditLocation(const IEditor *editor);
     static void cutForwardNavigationHistory();
 
     static bool saveDocument(IDocument *document);

@@ -162,6 +162,8 @@ private:
     static void gotoNextDocHistory();
     static void gotoPreviousDocHistory();
 
+    static void gotoLastEditLocation();
+
     static void autoSave();
     static void handleContextChange(const QList<Core::IContext *> &context);
 
@@ -213,6 +215,7 @@ private:
     ~EditorManagerPrivate() override;
     void init();
 
+    EditLocation m_globalLastEditLocation;
     QList<EditLocation> m_globalHistory;
     QList<EditorArea *> m_editorAreas;
     QPointer<IEditor> m_currentEditor;
@@ -232,6 +235,7 @@ private:
     QAction *m_gotoPreviousDocHistoryAction;
     QAction *m_goBackAction;
     QAction *m_goForwardAction;
+    QAction *m_gotoLastEditAction;
     QAction *m_splitAction;
     QAction *m_splitSideBySideAction;
     QAction *m_splitNewWindowAction;

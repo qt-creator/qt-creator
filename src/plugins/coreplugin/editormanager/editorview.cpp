@@ -610,6 +610,28 @@ void EditorView::goForwardInNavigationHistory()
     updateNavigatorActions();
 }
 
+void EditorView::goToEditLocation(const EditLocation &location)
+{
+    IEditor *editor = nullptr;
+
+    if (location.document) {
+        editor = EditorManagerPrivate::activateEditorForDocument(this, location.document,
+                                                                 EditorManager::IgnoreNavigationHistory);
+    }
+
+    if (!editor) {
+        if (fileNameWasRemoved(location.fileName))
+            return;
+
+        editor = EditorManagerPrivate::openEditor(this, location.fileName, location.id,
+                                                  EditorManager::IgnoreNavigationHistory);
+    }
+
+    if (editor) {
+        editor->restoreState(location.state.toByteArray());
+    }
+}
+
 
 SplitterOrView::SplitterOrView(IEditor *editor)
 {

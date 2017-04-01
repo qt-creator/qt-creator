@@ -131,6 +131,7 @@ const char GOTONEXTINHISTORY[]     = "QtCreator.GotoNextInHistory";
 const char GOTOPREVINHISTORY[]     = "QtCreator.GotoPreviousInHistory";
 const char GO_BACK[]               = "QtCreator.GoBack";
 const char GO_FORWARD[]            = "QtCreator.GoForward";
+const char GOTOLASTEDIT[]          = "QtCreator.GotoLastEdit";
 const char ABOUT_QTCREATOR[]       = "QtCreator.AboutQtCreator";
 const char ABOUT_PLUGINS[]         = "QtCreator.AboutPlugins";
 const char S_RETURNTOEDITOR[]      = "QtCreator.ReturnToEditor";

@@ -5270,6 +5270,8 @@ void TextEditorWidget::slotCursorPositionChanged()
         d->m_lastCursorChangeWasInteresting = false;
     } else if (d->m_contentsChanged) {
         d->saveCurrentCursorPositionForNavigation();
+        if (EditorManager::currentEditor() && EditorManager::currentEditor()->widget() == this)
+            EditorManager::setLastEditLocation(EditorManager::currentEditor());
     }
 
     d->updateHighlights();

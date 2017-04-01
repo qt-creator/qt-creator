@@ -154,6 +154,8 @@ public slots:
     void goForwardInNavigationHistory();
 
 public:
+    void goToEditLocation(const EditLocation &location);
+
     void addCurrentPositionToNavigationHistory(const QByteArray &saveState = QByteArray());
     void cutForwardNavigationHistory();
 
