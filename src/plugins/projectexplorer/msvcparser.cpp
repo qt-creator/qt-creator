@@ -31,7 +31,7 @@
 #include <utils/fileutils.h>
 
 // As of MSVC 2015: "foo.cpp(42) :" -> "foo.cpp(42):"
-static const char FILE_POS_PATTERN[] = "(?:\\d+>)?(cl|LINK|.+[^ ]) ?: ";
+static const char FILE_POS_PATTERN[] = "^(?:\\d+>)?(cl|LINK|.+[^ ]) ?: ";
 static const char ERROR_PATTERN[] = "[A-Z]+\\d\\d\\d\\d ?:";
 
 static QPair<Utils::FileName, int> parseFileName(const QString &input)
@@ -97,7 +97,7 @@ static Task::TaskType taskType(const QString &category)
 MsvcParser::MsvcParser()
 {
     setObjectName(QLatin1String("MsvcParser"));
-    m_compileRegExp.setPattern(QString::fromLatin1("^") + QLatin1String(FILE_POS_PATTERN)
+    m_compileRegExp.setPattern(QLatin1String(FILE_POS_PATTERN)
                                + QLatin1String("(Command line |fatal )?(warning|error) (")
                                + QLatin1String(ERROR_PATTERN) + QLatin1String(".*)$"));
     QTC_CHECK(m_compileRegExp.isValid());
@@ -204,7 +204,7 @@ void MsvcParser::doFlush()
 // ".\qwindowsgdinativeinterface.cpp(48,3) :  error: unknown type name 'errr'"
 static inline QString clangClCompilePattern()
 {
-    return QLatin1Char('^') + QLatin1String(FILE_POS_PATTERN)
+    return QLatin1String(FILE_POS_PATTERN)
         + QLatin1String(" (warning|error): (")
         + QLatin1String(".*)$");
 }
