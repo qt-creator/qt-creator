@@ -32,7 +32,6 @@
 
 // As of MSVC 2015: "foo.cpp(42) :" -> "foo.cpp(42):"
 static const char FILE_POS_PATTERN[] = "^(?:\\d+>)?(cl|LINK|.+[^ ]) ?: ";
-static const char ERROR_PATTERN[] = "[A-Z]+\\d\\d\\d\\d ?:";
 
 static QPair<Utils::FileName, int> parseFileName(const QString &input)
 {
@@ -97,9 +96,9 @@ static Task::TaskType taskType(const QString &category)
 MsvcParser::MsvcParser()
 {
     setObjectName(QLatin1String("MsvcParser"));
-    m_compileRegExp.setPattern(QLatin1String(FILE_POS_PATTERN)
-                               + QLatin1String("(Command line |fatal )?(warning|error) (")
-                               + QLatin1String(ERROR_PATTERN) + QLatin1String(".*)$"));
+    m_compileRegExp.setPattern(QString(FILE_POS_PATTERN)
+                               + "(?:Command line |fatal )?(?:(warning|error) "
+                                 "([A-Z]+\\d{4} ?: )|note: )(.*)$");
     QTC_CHECK(m_compileRegExp.isValid());
     m_additionalInfoRegExp.setPattern(QString::fromLatin1("^        (?:(could be |or )\\s*')?(.*)\\((\\d+)\\) : (.*)$"));
     QTC_CHECK(m_additionalInfoRegExp.isValid());
@@ -175,8 +174,8 @@ bool MsvcParser::processCompileLine(const QString &line)
     QRegularExpressionMatch match = m_compileRegExp.match(line);
     if (match.hasMatch()) {
         QPair<Utils::FileName, int> position = parseFileName(match.captured(1));
-        m_lastTask = Task(taskType(match.captured(3)),
-                          match.captured(4).trimmed() /* description */,
+        m_lastTask = Task(taskType(match.captured(2)),
+                          match.captured(3) + match.captured(4).trimmed(), // description
                           position.first, position.second,
                           Constants::TASK_CATEGORY_COMPILE);
         m_lines = 1;
@@ -546,6 +545,22 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
             << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.\n")
             << (QList<ProjectExplorer::Task>())
+            << QString();
+
+    QTest::newRow("error with note")
+            << "main.cpp(7): error C2733: 'func': second C linkage of overloaded function not allowed\n"
+               "main.cpp(6): note: see declaration of 'func'"
+            << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Error,
+                        "C2733: 'func': second C linkage of overloaded function not allowed",
+                        Utils::FileName::fromUserInput("main.cpp"), 7,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Unknown,
+                        "see declaration of 'func'",
+                        Utils::FileName::fromUserInput("main.cpp"), 6,
+                        Constants::TASK_CATEGORY_COMPILE))
             << QString();
 }
 
