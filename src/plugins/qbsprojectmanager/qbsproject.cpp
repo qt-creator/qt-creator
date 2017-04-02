@@ -414,7 +414,7 @@ bool QbsProject::checkCancelStatus()
 static QSet<QString> toQStringSet(const std::set<QString> &src)
 {
     QSet<QString> result;
-    result.reserve(src.size());
+    result.reserve(int(src.size()));
     std::copy(src.begin(), src.end(), Utils::inserter(result));
     return result;
 }
