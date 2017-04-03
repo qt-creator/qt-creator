@@ -55,6 +55,8 @@ public:
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
 
     void addToMacroExpander(ProjectExplorer::Kit *k, Utils::MacroExpander *expander) const final;
+
+    QSet<Core::Id> availableFeatures(const ProjectExplorer::Kit *k) const final;
 };
 
 class CMAKE_EXPORT CMakeGeneratorKitInformation : public ProjectExplorer::KitInformation

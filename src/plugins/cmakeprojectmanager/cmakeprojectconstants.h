@@ -64,5 +64,8 @@ const char BUILD_TARGET_CONTEXTMENU[] = "CMake.BuildTargetContextMenu";
 // Build Step
 const char CMAKE_BUILD_STEP_ID[] = "CMakeProjectManager.MakeStep";
 
+// Features
+const char CMAKE_FEATURE_ID[] = "CMakeProjectManager.Wizard.FeatureCMake";
+
 } // namespace Constants
 } // namespace CMakeProjectManager
