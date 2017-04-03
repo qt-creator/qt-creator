@@ -44,6 +44,7 @@ def main():
     aut = currentApplicationContext()
     # make sure General Messages is open
     openGeneralMessages()
+    clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     for protocol in protocolsToTest:
         invokeMenuItem("File", "Open File or Project...")
         selectFromFileDialog(sourceFile)
