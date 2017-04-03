@@ -146,6 +146,11 @@ static bool isMostlyHarmlessMessage(const QStringRef &msg)
                   "Invalid argument\\n";
 }
 
+static QString mainFunction(const DebuggerRunParameters &rp)
+{
+    return QLatin1String(rp.toolChainAbi.os() == Abi::WindowsOS && !rp.useTerminal ? "qMain" : "main");
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // Debuginfo Taskhandler
@@ -2371,10 +2376,8 @@ QString GdbEngine::breakpointLocation(const BreakpointParameters &data)
         return QLatin1String("__cxa_throw");
     if (data.type == BreakpointAtCatch)
         return QLatin1String("__cxa_begin_catch");
-    if (data.type == BreakpointAtMain) {
-        const Abi abi = runParameters().toolChainAbi;
-        return QLatin1String(abi.os() == Abi::WindowsOS ? "qMain" : "main");
-    }
+    if (data.type == BreakpointAtMain)
+        return mainFunction(runParameters());
     if (data.type == BreakpointByFunction)
         return '"' + data.functionName + '"';
     if (data.type == BreakpointByAddress)
@@ -4150,11 +4153,8 @@ void GdbEngine::handleInferiorPrepared()
     }
 
     //runCommand("set follow-exec-mode new");
-    if (rp.breakOnMain) {
-        QString cmd = "tbreak ";
-        cmd += QLatin1String(rp.toolChainAbi.os() == Abi::WindowsOS ? "qMain" : "main");
-        runCommand({cmd});
-    }
+    if (rp.breakOnMain)
+        runCommand({"tbreak " + mainFunction(rp)});
 
     // Initial attempt to set breakpoints.
     if (rp.startMode != AttachCore) {
