@@ -133,7 +133,7 @@ bool AndroidToolManager::removeAvd(const QString &name) const
     return response.result == SynchronousProcessResponse::Finished && response.exitCode == 0;
 }
 
-QFuture<QVector<AndroidDeviceInfo>> AndroidToolManager::androidVirtualDevicesFuture() const
+QFuture<AndroidDeviceInfoList> AndroidToolManager::androidVirtualDevicesFuture() const
 {
     return Utils::runAsync(&AndroidToolManager::androidVirtualDevices,
                            m_config.androidToolPath(), m_config.sdkLocation(),
@@ -161,7 +161,7 @@ AndroidConfig::CreateAvdInfo AndroidToolManager::createAvdImpl(AndroidConfig::Cr
     proc.setProcessEnvironment(env.toProcessEnvironment());
     QStringList arguments;
     arguments << QLatin1String("create") << QLatin1String("avd")
-              << QLatin1String("-t") << info.target
+              << QLatin1String("-t") << info.target.name
               << QLatin1String("-n") << info.name
               << QLatin1String("-b") << info.abi;
     if (info.sdcardSize > 0)
@@ -206,12 +206,11 @@ AndroidConfig::CreateAvdInfo AndroidToolManager::createAvdImpl(AndroidConfig::Cr
     return info;
 }
 
-QVector<AndroidDeviceInfo>
-AndroidToolManager::androidVirtualDevices(const Utils::FileName &androidTool,
-                                          const FileName &sdkLocationPath,
-                                          const Environment &environment)
+AndroidDeviceInfoList AndroidToolManager::androidVirtualDevices(const Utils::FileName &androidTool,
+                                                                const FileName &sdkLocationPath,
+                                                                const Environment &environment)
 {
-    QVector<AndroidDeviceInfo> devices;
+    AndroidDeviceInfoList devices;
     QString output;
     if (!androidToolCommand(androidTool, QStringList({"list", "avd"}), environment, &output))
         return devices;

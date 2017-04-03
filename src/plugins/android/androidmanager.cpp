@@ -34,6 +34,7 @@
 #include "androidqtsupport.h"
 #include "androidqtversion.h"
 #include "androidbuildapkstep.h"
+#include "androidavdmanager.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/messagemanager.h>
@@ -345,7 +346,7 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
     QString deviceSerialNumber = info.serialNumber;
 
     if (info.type == AndroidDeviceInfo::Emulator) {
-        deviceSerialNumber = AndroidConfigurations::currentConfig().startAVD(info.avdname);
+        deviceSerialNumber = AndroidAvdManager().startAvd(info.avdname);
         if (deviceSerialNumber.isEmpty())
             Core::MessageManager::write(tr("Starting Android virtual device failed."));
     }
@@ -374,7 +375,7 @@ void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const Q
 
     QString deviceSerialNumber = info.serialNumber;
     if (info.type == AndroidDeviceInfo::Emulator) {
-        deviceSerialNumber = AndroidConfigurations::currentConfig().startAVD(info.avdname);
+        deviceSerialNumber = AndroidAvdManager().startAvd(info.avdname);
         if (deviceSerialNumber.isEmpty())
             Core::MessageManager::write(tr("Starting Android virtual device failed."));
     }

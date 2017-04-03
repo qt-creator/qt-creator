@@ -22,6 +22,8 @@ Project {
             "android.qrc",
             "androidanalyzesupport.cpp",
             "androidanalyzesupport.h",
+            "androidavdmanager.cpp",
+            "androidavdmanager.h",
             "androidconfigurations.cpp",
             "androidconfigurations.h",
             "androidconstants.h",

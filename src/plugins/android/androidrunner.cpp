@@ -31,6 +31,7 @@
 #include "androidglobal.h"
 #include "androidrunconfiguration.h"
 #include "androidmanager.h"
+#include "androidavdmanager.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/projectexplorer.h>
@@ -791,8 +792,9 @@ void AndroidRunner::launchAVD()
     emit adbParametersChanged(m_androidRunnable.packageName,
                               AndroidDeviceInfo::adbSelector(info.serialNumber));
     if (info.isValid()) {
-        if (AndroidConfigurations::currentConfig().findAvd(info.avdname).isEmpty()) {
-            bool launched = AndroidConfigurations::currentConfig().startAVDAsync(info.avdname);
+        AndroidAvdManager avdManager;
+        if (avdManager.findAvd(info.avdname).isEmpty()) {
+            bool launched = avdManager.startAvdAsync(info.avdname);
             m_launchedAVDName = launched ? info.avdname:"";
         } else {
             m_launchedAVDName.clear();
@@ -803,11 +805,12 @@ void AndroidRunner::launchAVD()
 void AndroidRunner::checkAVD()
 {
     const AndroidConfig &config = AndroidConfigurations::currentConfig();
-    QString serialNumber = config.findAvd(m_launchedAVDName);
+    AndroidAvdManager avdManager(config);
+    QString serialNumber = avdManager.findAvd(m_launchedAVDName);
     if (!serialNumber.isEmpty())
         return; // try again on next timer hit
 
-    if (config.hasFinishedBooting(serialNumber)) {
+    if (avdManager.isAvdBooted(serialNumber)) {
         m_checkAVDTimer.stop();
         AndroidManager::setDeviceSerialNumber(m_runConfig->target(), serialNumber);
         emit asyncStart(m_androidRunnable.intentName, m_androidRunnable.beforeStartADBCommands);

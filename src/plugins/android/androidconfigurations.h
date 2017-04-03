@@ -72,6 +72,7 @@ public:
     bool isValid() const { return !serialNumber.isEmpty() || !avdname.isEmpty(); }
     bool operator<(const AndroidDeviceInfo &other) const;
 };
+using AndroidDeviceInfoList = QList<AndroidDeviceInfo>;
 
 //!  Defines an Android system image.
 class SystemImage
@@ -89,6 +90,7 @@ using SystemImageList = QList<SystemImage>;
 class SdkPlatform
 {
 public:
+    bool isValid() const { return !name.isEmpty() && apiLevel != -1; }
     bool operator <(const SdkPlatform &other) const;
     int apiLevel = -1;
     QString name;
@@ -141,6 +143,7 @@ public:
     Utils::FileName antToolPath() const;
     Utils::FileName emulatorToolPath() const;
     Utils::FileName sdkManagerToolPath() const;
+    Utils::FileName avdManagerToolPath() const;
 
     Utils::FileName gccPath(const ProjectExplorer::Abi &abi, Core::Id lang,
                             const QString &ndkToolChainVersion) const;
@@ -152,7 +155,8 @@ public:
     class CreateAvdInfo
     {
     public:
-        QString target;
+        bool isValid() const { return target.isValid() && !name.isEmpty(); }
+        SdkPlatform target;
         QString name;
         QString abi;
         int sdcardSize = 0;
@@ -164,10 +168,6 @@ public:
     QVector<AndroidDeviceInfo> connectedDevices(QString *error = 0) const;
     static QVector<AndroidDeviceInfo> connectedDevices(const QString &adbToolPath, QString *error = 0);
 
-    QString startAVD(const QString &name) const;
-    bool startAVDAsync(const QString &avdName) const;
-    QString findAvd(const QString &avdName) const;
-    QString waitForAvd(const QString &avdName, const QFutureInterface<bool> &fi = QFutureInterface<bool>()) const;
     QString bestNdkPlatformMatch(int target) const;
 
     static ProjectExplorer::Abi abiForToolChainPrefix(const QString &toolchainPrefix);
@@ -178,8 +178,6 @@ public:
     QString getProductModel(const QString &device) const;
     enum class OpenGl { Enabled, Disabled, Unknown };
     OpenGl getOpenGLEnabled(const QString &emulator) const;
-    bool hasFinishedBooting(const QString &device) const;
-    bool waitForBooted(const QString &serialNumber, const QFutureInterface<bool> &fi) const;
     bool isConnected(const QString &serialNumber) const;
 
     SdkPlatform highestAndroidSdk() const;
@@ -257,3 +255,5 @@ private:
 };
 
 } // namespace Android
+Q_DECLARE_METATYPE(Android::SdkPlatform)
+

@@ -22,66 +22,45 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
 #include "androidconfigurations.h"
 
-#include <QVector>
-#include <QDialog>
-#include <QFutureWatcher>
-#include <QTime>
-
 #include <memory>
-
-QT_BEGIN_NAMESPACE
-class QModelIndex;
-QT_END_NAMESPACE
-
-namespace Utils { class ProgressIndicator; }
 
 namespace Android {
 namespace Internal {
 
-class AndroidAvdManager;
-class AndroidDeviceModel;
-namespace Ui { class AndroidDeviceDialog; }
+class AndroidToolManager;
+class AvdManagerOutputParser;
 
-class AndroidDeviceDialog : public QDialog
+class AndroidAvdManager
 {
-    Q_OBJECT
-
 public:
-    explicit AndroidDeviceDialog(int apiLevel, const QString &abi, AndroidConfigurations::Options opts,
-                                 const QString &serialNumber, QWidget *parent = 0);
-    ~AndroidDeviceDialog();
+    AndroidAvdManager(const AndroidConfig& config = AndroidConfigurations::currentConfig());
+    ~AndroidAvdManager();
 
-    AndroidDeviceInfo device();
+    bool avdManagerUiToolAvailable() const;
+    void launchAvdManagerUiTool() const;
+    QFuture<AndroidConfig::CreateAvdInfo> createAvd(AndroidConfig::CreateAvdInfo info) const;
+    bool removeAvd(const QString &name) const;
+    QFuture<AndroidDeviceInfoList> avdList() const;
 
-    bool saveDeviceSelection() const;
+    QString startAvd(const QString &name) const;
+    bool startAvdAsync(const QString &avdName) const;
+    QString findAvd(const QString &avdName) const;
+    QString waitForAvd(const QString &avdName,
+                       const QFutureInterface<bool> &fi = QFutureInterface<bool>()) const;
+    bool isAvdBooted(const QString &device) const;
 
 private:
-    void refreshDeviceList();
-    void createAvd();
-    void clickedOnView(const QModelIndex &idx);
-    void showHelp();
-    void avdAdded();
-    void devicesRefreshed();
-    void enableOkayButton();
-    void defaultDeviceClear();
+    bool waitForBooted(const QString &serialNumber, const QFutureInterface<bool> &fi) const;
 
-    AndroidDeviceModel *m_model;
-    Ui::AndroidDeviceDialog *m_ui;
-    Utils::ProgressIndicator *m_progressIndicator;
-    int m_apiLevel;
-    QString m_abi;
-    QString m_avdNameFromAdd;
-    QString m_defaultDevice;
-    std::unique_ptr<AndroidAvdManager> m_avdManager;
-    QVector<AndroidDeviceInfo> m_connectedDevices;
-    QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcherAddDevice;
-    QFutureWatcher<AndroidDeviceInfoList> m_futureWatcherRefreshDevices;
+private:
+    const AndroidConfig &m_config;
+    std::unique_ptr<AndroidToolManager> m_androidTool;
+    std::unique_ptr<AvdManagerOutputParser> m_parser;
 };
 
-}
-}
+} // namespace Internal
+} // namespace Android

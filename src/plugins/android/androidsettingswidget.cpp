@@ -30,7 +30,7 @@
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidtoolchain.h"
-#include "androidtoolmanager.h"
+#include "androidavdmanager.h"
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -59,7 +59,7 @@
 namespace Android {
 namespace Internal {
 
-void AvdModel::setAvdList(const QVector<AndroidDeviceInfo> &list)
+void AvdModel::setAvdList(const AndroidDeviceInfoList &list)
 {
     beginResetModel();
     m_list = list;
@@ -130,7 +130,7 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
       m_javaState(NotSet),
       m_ui(new Ui_AndroidSettingsWidget),
       m_androidConfig(AndroidConfigurations::currentConfig()),
-      m_androidToolManager(new AndroidToolManager(m_androidConfig))
+      m_avdManager(new AndroidAvdManager(m_androidConfig))
 {
     m_ui->setupUi(this);
 
@@ -465,7 +465,7 @@ void AndroidSettingsWidget::enableAvdControls()
 void AndroidSettingsWidget::startUpdateAvd()
 {
     disableAvdControls();
-    m_virtualDevicesWatcher.setFuture(m_androidToolManager->androidVirtualDevicesFuture());
+    m_virtualDevicesWatcher.setFuture(m_avdManager->avdList());
 }
 
 void AndroidSettingsWidget::updateAvds()
@@ -589,12 +589,12 @@ void AndroidSettingsWidget::addAVD()
     disableAvdControls();
     AndroidConfig::CreateAvdInfo info = m_androidConfig.gatherCreateAVDInfo(this);
 
-    if (info.target.isEmpty()) {
+    if (!info.target.isValid()) {
         enableAvdControls();
         return;
     }
 
-    m_futureWatcher.setFuture(m_androidToolManager->createAvd(info));
+    m_futureWatcher.setFuture(m_avdManager->createAvd(info));
 }
 
 void AndroidSettingsWidget::avdAdded()
@@ -622,13 +622,13 @@ void AndroidSettingsWidget::removeAVD()
         return;
     }
 
-    m_androidToolManager->removeAvd(avdName);
+    m_avdManager->removeAvd(avdName);
     startUpdateAvd();
 }
 
 void AndroidSettingsWidget::startAVD()
 {
-    m_androidConfig.startAVDAsync(m_AVDModel.avdName(m_ui->AVDTableView->currentIndex()));
+    m_avdManager->startAvdAsync(m_AVDModel.avdName(m_ui->AVDTableView->currentIndex()));
 }
 
 void AndroidSettingsWidget::avdActivated(const QModelIndex &index)
@@ -673,7 +673,15 @@ void AndroidSettingsWidget::showGdbWarningDialog()
 
 void AndroidSettingsWidget::manageAVD()
 {
-    m_androidToolManager->launchAvdManager();
+    if (m_avdManager->avdManagerUiToolAvailable()) {
+        m_avdManager->launchAvdManagerUiTool();
+    } else {
+        QMessageBox::warning(this, tr("AVD Manager Not Available"),
+                             tr("AVD manager UI tool is not available in the installed SDK tools"
+                                "(version %1). Use the command line tool \"avdmanager\" for "
+                                "advanced AVD management.")
+                             .arg(m_androidConfig.sdkToolsVersion().toString()));
+    }
 }
 
 

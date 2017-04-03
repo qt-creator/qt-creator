@@ -53,14 +53,14 @@ public:
 
     QFuture<AndroidConfig::CreateAvdInfo> createAvd(AndroidConfig::CreateAvdInfo info) const;
     bool removeAvd(const QString &name) const;
-    QFuture<QVector<AndroidDeviceInfo> > androidVirtualDevicesFuture() const;
+    QFuture<AndroidDeviceInfoList> androidVirtualDevicesFuture() const;
 
 // Helper methods
 private:
     Utils::Environment androidToolEnvironment() const;
     static AndroidConfig::CreateAvdInfo createAvdImpl(AndroidConfig::CreateAvdInfo info,
                                        Utils::FileName androidToolPath, Utils::Environment env);
-    static QVector<AndroidDeviceInfo> androidVirtualDevices(const Utils::FileName &androidTool,
+    static AndroidDeviceInfoList androidVirtualDevices(const Utils::FileName &androidTool,
                                                             const Utils::FileName &sdkLlocationPath,
                                                             const Utils::Environment &environment);
 private:

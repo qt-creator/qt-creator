@@ -386,7 +386,10 @@ FileName AndroidConfig::antToolPath() const
 FileName AndroidConfig::emulatorToolPath() const
 {
     FileName path = m_sdkLocation;
-    return path.appendPath(QLatin1String("tools/emulator" QTC_HOST_EXE_SUFFIX));
+    QString relativePath = "emulator/emulator";
+    if (sdkToolsVersion() < QVersionNumber(25, 3, 0))
+        relativePath = "tools/emulator";
+    return path.appendPath(relativePath + QTC_HOST_EXE_SUFFIX);
 }
 
 FileName AndroidConfig::toolPath(const Abi &abi, const QString &ndkToolChainVersion) const
@@ -407,6 +410,16 @@ FileName AndroidConfig::sdkManagerToolPath() const
         toolPath += ANDROID_BAT_SUFFIX;
     sdkPath = sdkPath.appendPath(toolPath);
     return sdkPath;
+}
+
+FileName AndroidConfig::avdManagerToolPath() const
+{
+    FileName avdManagerPath = m_sdkLocation;
+    QString toolPath = "tools/bin/avdmanager";
+    if (HostOsInfo::isWindowsHost())
+        toolPath += ANDROID_BAT_SUFFIX;
+    avdManagerPath = avdManagerPath.appendPath(toolPath);
+    return avdManagerPath;
 }
 
 FileName AndroidConfig::gccPath(const Abi &abi, Core::Id lang,
@@ -515,46 +528,6 @@ AndroidConfig::CreateAvdInfo AndroidConfig::gatherCreateAVDInfo(QWidget *parent,
     return result;
 }
 
-QString AndroidConfig::startAVD(const QString &name) const
-{
-    if (!findAvd(name).isEmpty() || startAVDAsync(name))
-        return waitForAvd(name);
-    return QString();
-}
-
-bool AndroidConfig::startAVDAsync(const QString &avdName) const
-{
-    QProcess *avdProcess = new QProcess();
-    QObject::connect(avdProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
-                     avdProcess, &QObject::deleteLater);
-
-    // start the emulator
-    QStringList arguments;
-    if (AndroidConfigurations::force32bitEmulator())
-        arguments << QLatin1String("-force-32bit");
-
-    arguments << QLatin1String("-partition-size") << QString::number(partitionSize())
-              << QLatin1String("-avd") << avdName;
-    avdProcess->start(emulatorToolPath().toString(), arguments);
-    if (!avdProcess->waitForStarted(-1)) {
-        delete avdProcess;
-        return false;
-    }
-    return true;
-}
-
-QString AndroidConfig::findAvd(const QString &avdName) const
-{
-    QVector<AndroidDeviceInfo> devices = connectedDevices();
-    foreach (AndroidDeviceInfo device, devices) {
-        if (device.type != AndroidDeviceInfo::Emulator)
-            continue;
-        if (device.avdname == avdName)
-            return device.serialNumber;
-    }
-    return QString();
-}
-
 bool AndroidConfig::isConnected(const QString &serialNumber) const
 {
     QVector<AndroidDeviceInfo> devices = connectedDevices();
@@ -563,39 +536,6 @@ bool AndroidConfig::isConnected(const QString &serialNumber) const
             return true;
     }
     return false;
-}
-
-bool AndroidConfig::waitForBooted(const QString &serialNumber, const QFutureInterface<bool> &fi) const
-{
-    // found a serial number, now wait until it's done booting...
-    for (int i = 0; i < 60; ++i) {
-        if (fi.isCanceled())
-            return false;
-        if (hasFinishedBooting(serialNumber)) {
-            return true;
-        } else {
-            QThread::sleep(2);
-            if (!isConnected(serialNumber)) // device was disconnected
-                return false;
-        }
-    }
-    return false;
-}
-
-QString AndroidConfig::waitForAvd(const QString &avdName, const QFutureInterface<bool> &fi) const
-{
-    // we cannot use adb -e wait-for-device, since that doesn't work if a emulator is already running
-    // 60 rounds of 2s sleeping, two minutes for the avd to start
-    QString serialNumber;
-    for (int i = 0; i < 60; ++i) {
-        if (fi.isCanceled())
-            return QString();
-        serialNumber = findAvd(avdName);
-        if (!serialNumber.isEmpty())
-            return waitForBooted(serialNumber, fi) ?  serialNumber : QString();
-        QThread::sleep(2);
-    }
-    return QString();
 }
 
 bool AndroidConfig::isBootToQt(const QString &device) const
@@ -718,21 +658,6 @@ QString AndroidConfig::getProductModel(const QString &device) const
     if (!device.startsWith(QLatin1String("????")))
         m_serialNumberToDeviceName.insert(device, model);
     return model;
-}
-
-bool AndroidConfig::hasFinishedBooting(const QString &device) const
-{
-    QStringList arguments = AndroidDeviceInfo::adbSelector(device);
-    arguments << QLatin1String("shell") << QLatin1String("getprop")
-              << QLatin1String("init.svc.bootanim");
-
-    SynchronousProcess adbProc;
-    adbProc.setTimeoutS(10);
-    SynchronousProcessResponse response = adbProc.runBlocking(adbToolPath().toString(), arguments);
-    if (response.result != SynchronousProcessResponse::Finished)
-        return false;
-    QString value = response.allOutput().trimmed();
-    return value == QLatin1String("stopped");
 }
 
 QStringList AndroidConfig::getAbis(const QString &device) const

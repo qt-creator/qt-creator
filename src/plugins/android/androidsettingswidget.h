@@ -42,13 +42,13 @@ QT_END_NAMESPACE
 namespace Android {
 namespace Internal {
 
-class AndroidToolManager;
+class AndroidAvdManager;
 
 class AvdModel: public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    void setAvdList(const QVector<AndroidDeviceInfo> &list);
+    void setAvdList(const AndroidDeviceInfoList &list);
     QString avdName(const QModelIndex &index) const;
     QModelIndex indexForAvdName(const QString &avdName) const;
 
@@ -59,7 +59,7 @@ protected:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
 private:
-    QVector<AndroidDeviceInfo> m_list;
+    AndroidDeviceInfoList m_list;
 };
 
 class AndroidSettingsWidget : public QWidget
@@ -116,14 +116,14 @@ private:
 
     Ui_AndroidSettingsWidget *m_ui;
     AndroidConfig m_androidConfig;
-    std::unique_ptr<AndroidToolManager> m_androidToolManager;
     AvdModel m_AVDModel;
     QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcher;
     QFutureWatcher<QPair<QStringList, bool>> m_checkGdbWatcher;
     QStringList m_gdbCheckPaths;
 
-    QFutureWatcher<QVector<AndroidDeviceInfo>> m_virtualDevicesWatcher;
+    QFutureWatcher<AndroidDeviceInfoList> m_virtualDevicesWatcher;
     QString m_lastAddedAvd;
+    std::unique_ptr<AndroidAvdManager> m_avdManager;
 };
 
 } // namespace Internal
