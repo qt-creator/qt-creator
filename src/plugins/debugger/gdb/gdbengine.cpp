@@ -1186,7 +1186,7 @@ void GdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
     if (!(languages & CppLanguage))
         return;
     QTC_CHECK(acceptsDebuggerCommands());
-    runCommand({command});
+    runCommand({command, NativeCommand});
 }
 
 // This is triggered when switching snapshots.
