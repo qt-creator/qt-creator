@@ -66,7 +66,7 @@ public:
 
     using const_iterator = QVector<TreeItem *>::const_iterator;
     using value_type = TreeItem *;
-    int childCount() const { return end() - begin(); }
+    int childCount() const { return m_children.size(); }
     int indexInParent() const;
     TreeItem *childAt(int index) const;
     int indexOf(const TreeItem *item) const;

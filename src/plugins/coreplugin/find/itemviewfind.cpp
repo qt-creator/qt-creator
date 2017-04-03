@@ -249,12 +249,13 @@ QModelIndex ItemViewFind::nextIndex(const QModelIndex &idx, bool *wrapped) const
         return model->index(0, 0);
 
     // same parent has more columns, go to next column
-    if (idx.column() + 1 < model->columnCount(idx.parent()))
-        return model->index(idx.row(), idx.column() + 1, idx.parent());
+    const QModelIndex parentIdx = idx.parent();
+    if (idx.column() + 1 < model->columnCount(parentIdx))
+        return model->index(idx.row(), idx.column() + 1, parentIdx);
 
     // tree views have their children attached to first column
     // make sure we are at first column
-    QModelIndex current = model->index(idx.row(), 0, idx.parent());
+    QModelIndex current = model->index(idx.row(), 0, parentIdx);
 
     // check for children
     if (d->m_option == FetchMoreWhileSearching && model->canFetchMore(current))

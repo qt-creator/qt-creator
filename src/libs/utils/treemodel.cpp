@@ -919,11 +919,9 @@ QModelIndex BaseTreeModel::parent(const QModelIndex &idx) const
     if (!grandparent)
         return QModelIndex();
 
-    for (int i = 0, n = grandparent->childCount(); i < n; ++i)
-        if (grandparent->childAt(i) == parent)
-            return createIndex(i, 0, static_cast<void*>(parent));
-
-    return QModelIndex();
+    // This is on the performance-critical path for ItemViewFind.
+    const int i = grandparent->m_children.indexOf(parent);
+    return createIndex(i, 0, static_cast<void*>(parent));
 }
 
 int BaseTreeModel::rowCount(const QModelIndex &idx) const
