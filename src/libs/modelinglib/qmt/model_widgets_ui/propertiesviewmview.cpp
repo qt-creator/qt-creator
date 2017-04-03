@@ -768,7 +768,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
                 this, &PropertiesView::MView::onAssociationEndBKindChanged);
     }
     if (isSingleSelection) {
-        if ((!isValidAssociationKindIndex(m_endAKind->currentIndex())
+        if ((!isValidAssociationKindIndex(m_endBKind->currentIndex())
              || association->endB().kind() != translateIndexToAssociationKind(m_endBKind->currentIndex()))
                 && !m_endBKind->hasFocus()) {
             m_endBKind->setCurrentIndex(translateAssociationKindToIndex(association->endB().kind()));

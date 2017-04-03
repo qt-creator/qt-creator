@@ -147,7 +147,7 @@ void StereotypeDisplayVisitor::visitDItem(const DItem *item)
     m_stereotypeSmartDisplay = DObject::StereotypeIcon;
     visitDObject(item);
     if (m_stereotypeIconId.isEmpty() && !item->shape().isEmpty())
-        m_shapeIconId = m_stereotypeController->findStereotypeIconId(StereotypeIcon::ElementItem, QStringList(item->shape()));
+        m_stereotypeIconId = m_stereotypeController->findStereotypeIconId(StereotypeIcon::ElementItem, QStringList(item->shape()));
     if (m_shapeIconId.isEmpty() && !item->variety().isEmpty())
         m_shapeIconId = m_stereotypeController->findStereotypeIconId(StereotypeIcon::ElementItem, QStringList(item->variety()));
 }
