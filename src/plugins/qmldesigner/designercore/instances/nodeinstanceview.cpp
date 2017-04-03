@@ -199,6 +199,10 @@ void NodeInstanceView::handleCrash()
 
 void NodeInstanceView::restartProcess()
 {
+    if (rootNodeInstance().isValid())
+        rootNodeInstance().setError({});
+    emitInstanceErrorChange({});
+
     if (m_restartProcessTimerId)
         killTimer(m_restartProcessTimerId);
 

@@ -380,6 +380,7 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &modelNode, ItemRow items
             items.idItem->setToolTip(QString::fromUtf8(modelNode.type()));
         else
             items.idItem->setToolTip(msgUnknownItem(QString::fromUtf8(modelNode.type())));
+        items.idItem->setIcon(getTypeIcon(modelNode));
     }
 
     blockItemChangedSignal(blockSignal);
