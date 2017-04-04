@@ -966,6 +966,18 @@ QModelIndex BaseTreeModel::parent(const QModelIndex &idx) const
     return createIndex(i, 0, static_cast<void*>(parent));
 }
 
+QModelIndex BaseTreeModel::sibling(int row, int column, const QModelIndex &idx) const
+{
+    const TreeItem *item = itemForIndex(idx);
+    QTC_ASSERT(item, return QModelIndex());
+    QModelIndex result;
+    if (TreeItem *parent = item->parent()) {
+        if (TreeItem *sibl = parent->childAt(row))
+            result = createIndex(row, column, static_cast<void*>(sibl));
+    }
+    return result;
+}
+
 int BaseTreeModel::rowCount(const QModelIndex &idx) const
 {
     CHECK_INDEX(idx);

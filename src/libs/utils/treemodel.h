@@ -188,6 +188,7 @@ protected:
     QVariant data(const QModelIndex &idx, int role) const override;
     QModelIndex index(int, int, const QModelIndex &idx = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &idx) const override;
+    QModelIndex sibling(int row, int column, const QModelIndex &idx) const override;
     Qt::ItemFlags flags(const QModelIndex &idx) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     bool hasChildren(const QModelIndex &idx) const override;
