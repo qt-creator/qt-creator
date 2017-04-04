@@ -500,18 +500,6 @@ QString QmlJSEditorWidget::wordUnderCursor() const
     return word;
 }
 
-bool QmlJSEditorWidget::isClosingBrace(const QList<Token> &tokens) const
-{
-
-    if (tokens.size() == 1) {
-        const Token firstToken = tokens.first();
-
-        return firstToken.is(Token::RightBrace) || firstToken.is(Token::RightBracket);
-    }
-
-    return false;
-}
-
 void QmlJSEditorWidget::createToolBar()
 {
     m_outlineCombo = new QComboBox;

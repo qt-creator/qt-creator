@@ -109,8 +109,6 @@ protected:
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) override;
 
 private:
-    bool isClosingBrace(const QList<QmlJS::Token> &tokens) const;
-
     void setSelectedElements();
     QString wordUnderCursor() const;
 
