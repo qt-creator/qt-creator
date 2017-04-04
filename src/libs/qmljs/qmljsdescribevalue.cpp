@@ -325,20 +325,18 @@ void DescribeValueVisitor::visit(const ObjectValue *value)
         basicDump("ObjectValue", value, printDetail);
     }
     if (printDetail) {
-        if (value) {
-            dumpNewline();
-            dump("className:");
-            dump(value->className());
-            dumpNewline();
-            dump("members:");
-            openContext("[");
-            PrintMembers printMembers(*this);
-            value->processMembers(&printMembers);
-            closeContext("]");
-            dumpNewline();
-            dump("prototype:");
-            (*this)(value->prototype());
-        }
+        dumpNewline();
+        dump("className:");
+        dump(value->className());
+        dumpNewline();
+        dump("members:");
+        openContext("[");
+        PrintMembers printMembers(*this);
+        value->processMembers(&printMembers);
+        closeContext("]");
+        dumpNewline();
+        dump("prototype:");
+        (*this)(value->prototype());
         closeContext();
     }
     --m_depth;
