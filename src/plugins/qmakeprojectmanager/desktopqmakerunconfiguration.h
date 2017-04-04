@@ -98,12 +98,12 @@ protected:
     bool fromMap(const QVariantMap &map) override;
 
 private:
-    QPair<QString, QString> extractWorkingDirAndExecutable(const QmakeProFileNode *node) const;
+    QPair<QString, QString> extractWorkingDirAndExecutable(const QmakeProFile *proFile) const;
     QString baseWorkingDirectory() const;
     QString defaultDisplayName();
     bool isConsoleApplication() const;
     QmakeProject *qmakeProject() const;
-    QmakeProFileNode *projectNode() const;
+    QmakeProFile *proFile() const;
 
     void ctor();
 

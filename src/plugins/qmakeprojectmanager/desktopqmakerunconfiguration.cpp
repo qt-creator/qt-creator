@@ -344,8 +344,8 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
 
 QString DesktopQmakeRunConfiguration::executable() const
 {
-    if (QmakeProFileNode *node = projectNode())
-        return extractWorkingDirAndExecutable(node).second;
+    if (QmakeProFile *pro = proFile())
+        return extractWorkingDirAndExecutable(pro).second;
     return QString();
 }
 
@@ -377,18 +377,18 @@ void DesktopQmakeRunConfiguration::setUsingLibrarySearchPath(bool state)
 
 QString DesktopQmakeRunConfiguration::baseWorkingDirectory() const
 {
-    if (QmakeProFileNode *node = projectNode())
-        return extractWorkingDirAndExecutable(node).first;
+    if (QmakeProFile *pro = proFile())
+        return extractWorkingDirAndExecutable(pro).first;
     return QString();
 }
 
 bool DesktopQmakeRunConfiguration::isConsoleApplication() const
 {
-    if (QmakeProFileNode *node = projectNode()) {
-        const QStringList config = node->variableValue(Variable::Config);
+    if (QmakeProFile *pro = proFile()) {
+        const QStringList config = pro->variableValue(Variable::Config);
         if (!config.contains("console") || config.contains("testcase"))
             return false;
-        const QStringList qt = node->variableValue(Variable::Qt);
+        const QStringList qt = pro->variableValue(Variable::Qt);
         return !qt.contains("testlib") && !qt.contains("qmltest");
     }
     return false;
@@ -402,11 +402,11 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
     // The user could be linking to a library found via a -L/some/dir switch
     // to find those libraries while actually running we explicitly prepend those
     // dirs to the library search path
-    const QmakeProFileNode *node = projectNode();
-    if (m_isUsingLibrarySearchPath && node) {
-        const QStringList libDirectories = node->variableValue(Variable::LibDirectories);
+    const QmakeProFile *pro = proFile();
+    if (m_isUsingLibrarySearchPath && pro) {
+        const QStringList libDirectories = pro->variableValue(Variable::LibDirectories);
         if (!libDirectories.isEmpty()) {
-            const QString proDirectory = node->buildDir();
+            const QString proDirectory = pro->buildDir().toString();
             foreach (QString dir, libDirectories) {
                 // Fix up relative entries like "LIBS+=-L.."
                 const QFileInfo fi(dir);
@@ -415,7 +415,7 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
                 env.prependOrSetLibrarySearchPath(dir);
             } // foreach
         } // libDirectories
-    } // node
+    } // pro
 
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (qtVersion && m_isUsingLibrarySearchPath)
@@ -437,20 +437,18 @@ QmakeProject *DesktopQmakeRunConfiguration::qmakeProject() const
     return static_cast<QmakeProject *>(target()->project());
 }
 
-QmakeProFileNode *DesktopQmakeRunConfiguration::projectNode() const
+QmakeProFile *DesktopQmakeRunConfiguration::proFile() const
 {
     QmakeProject *project = qmakeProject();
     QTC_ASSERT(project, return nullptr);
-    QmakeProFileNode *rootNode = project->rootProjectNode();
-    if (!rootNode)
-        return nullptr;
-    return rootNode->findProFileFor(m_proFilePath);
+    QmakeProFile *rootProFile = project->rootProFile();
+    return rootProFile ? rootProFile->findProFile(m_proFilePath) : nullptr;
 }
 
 QString DesktopQmakeRunConfiguration::defaultDisplayName()
 {
-    if (QmakeProFileNode *node = projectNode())
-        return node->displayName();
+    if (QmakeProFile *pro = proFile())
+        return pro->displayName();
 
     QString defaultName;
     if (!m_proFilePath.isEmpty())
@@ -465,19 +463,16 @@ OutputFormatter *DesktopQmakeRunConfiguration::createOutputFormatter() const
     return new QtSupport::QtOutputFormatter(target()->project());
 }
 
-QPair<QString, QString> DesktopQmakeRunConfiguration::extractWorkingDirAndExecutable(const QmakeProFileNode *node) const
+QPair<QString, QString> DesktopQmakeRunConfiguration::extractWorkingDirAndExecutable(const QmakeProFile *proFile) const
 {
-    if (!node)
-        return { };
+    if (!proFile)
+        return {};
 
-    QmakeProFile *pro = node->proFile();
-    QTC_ASSERT(pro, return { });
-
-    TargetInformation ti = pro->targetInformation();
+    TargetInformation ti = proFile->targetInformation();
     if (!ti.valid)
         return qMakePair(QString(), QString());
 
-    const QStringList &config = pro->variableValue(Variable::Config);
+    const QStringList &config = proFile->variableValue(Variable::Config);
 
     QString destDir = ti.destDir.toString();
     QString workingDir;
