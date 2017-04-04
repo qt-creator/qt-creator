@@ -79,15 +79,16 @@ exists(src/shared/qbs/qbs.pro) {
     }
 
     # Create qbs documentation targets.
-    QBS_DOCS_BUILD_DIR=$$IDE_DOC_PATH
-    QBS_HTML_DOC_PATH=$$OUT_PWD/doc/html-qbs
-    QBS_DOCS_INSTALL_DIR=$$INSTALL_DOC_PATH
-    QDOC_BIN = $$QDOC
-    HELPGENERATOR = $$QHELPGENERATOR
-    include(src/shared/qbs/qbs_version.pri)
+    DOC_FILES =
+    DOC_TARGET_PREFIX = qbs_
+    include(src/shared/qbs/doc/doc_shared.pri)
     include(src/shared/qbs/doc/doc_targets.pri)
     docs.depends += qbs_docs
-    install_docs.depends += install_inst_qbs_qch_docs
+    !build_online_docs {
+        install_docs.depends += install_qbs_docs
+    }
+    unset(DOC_FILES)
+    unset(DOC_TARGET_PREFIX)
 }
 
 contains(QT_ARCH, i386): ARCHITECTURE = x86
