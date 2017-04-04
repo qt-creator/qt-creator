@@ -95,6 +95,7 @@ int IAssistProposal::basePosition() const
 
 bool IAssistProposal::isCorrective(TextEditorWidget *editorWidget) const
 {
+    Q_UNUSED(editorWidget);
     return false;
 }
 
