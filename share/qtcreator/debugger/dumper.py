@@ -3470,27 +3470,6 @@ class DumperBase:
         def target(self):
             return self.typeData().ltarget
 
-
-        def field(self, value, name, bitoffset = 0):
-            #warn('GETTING FIELD %s FOR: %s' % (name, self.name))
-            for f in self.fields(value):
-                #warn('EXAMINING MEMBER %s' % f.name)
-                if f.name == name:
-                    ff = copy.copy(f)
-                    if ff.lbitpos is None:
-                        ff.lbitpos = bitoffset
-                    else:
-                        ff.lbitpos += bitoffset
-                    #warn('FOUND: %s' % ff)
-                    return ff
-                if f.isBaseClass:
-                    #warn('EXAMINING BASE %s' % f.type)
-                    res = f.type.field(name, bitoffset + f.bitpos())
-                    if res is not None:
-                        return res
-            #warn('FIELD %s NOT FOUND IN %s' % (name, self))
-            return None
-
         def stripTypedefs(self):
             if isinstance(self, self.dumper.Type) and self.code != TypeCodeTypedef:
                 #warn('NO TYPEDEF: %s' % self)
