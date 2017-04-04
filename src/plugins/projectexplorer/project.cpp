@@ -477,10 +477,13 @@ void Project::setRootProjectNode(ProjectNode *root)
 
     ProjectNode *oldNode = d->m_rootProjectNode;
     d->m_rootProjectNode = root;
-    if (root)
+    if (root) {
         root->setParentFolderNode(d->m_containerNode);
-    ProjectTree::emitSubtreeChanged(root);
-    emit fileListChanged();
+        // Only announce non-null root, null is only used when project is destroyed.
+        // In that case SessionManager::projectRemoved() triggers the update.
+        ProjectTree::emitSubtreeChanged(root);
+        emit fileListChanged();
+    }
 
     delete oldNode;
 }

@@ -318,6 +318,7 @@ public:
     const ContainerNode *asContainerNode() const final { return this; }
 
     ProjectNode *rootProjectNode() const;
+    Project *project() const { return m_project; }
 
 private:
     Project *m_project;
