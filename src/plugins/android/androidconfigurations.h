@@ -72,13 +72,24 @@ public:
     bool operator<(const AndroidDeviceInfo &other) const;
 };
 
+//!  Defines an Android system image.
+class SystemImage
+{
+public:
+    bool isValid() const { return (apiLevel != -1) && !abiName.isEmpty(); }
+    int apiLevel = -1;
+    QString abiName;
+};
+using SystemImageList = QList<SystemImage>;
+
+
 class SdkPlatform
 {
 public:
     int apiLevel = -1;
     QString name;
     Utils::FileName installedLocation;
-    QStringList abis;
+    SystemImageList systemImages;
 };
 using SdkPlatformList = QList<SdkPlatform>;
 

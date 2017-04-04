@@ -26,6 +26,7 @@
 #include "avddialog.h"
 #include "androidconfigurations.h"
 
+#include <utils/algorithm.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
 
@@ -94,10 +95,15 @@ void AvdDialog::updateApiLevelComboBox()
 {
     QList<SdkPlatform> filteredList;
     QList<SdkPlatform> platforms = m_config->sdkTargets(m_minApiLevel);
-    foreach (const SdkPlatform &platform, platforms) {
-        if (platform.abis.contains(abi()))
-            filteredList << platform;
-    }
+
+    QString selectedAbi = abi();
+    auto hasAbi = [selectedAbi](const SystemImage &image) {
+        return image.isValid() && (image.abiName == selectedAbi);
+    };
+
+    filteredList = Utils::filtered(platforms, [hasAbi](const SdkPlatform &platform) {
+        return Utils::anyOf(platform.systemImages,hasAbi);
+    });
 
     m_avdDialog.targetComboBox->clear();
     m_avdDialog.targetComboBox->addItems(AndroidConfig::apiLevelNamesFor(filteredList));

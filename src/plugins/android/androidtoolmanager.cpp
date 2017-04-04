@@ -293,7 +293,17 @@ void AndroidToolOutputParser::parseTargetListing(const QString &output,
     if (!platformList)
         return;
 
+    auto addSystemImage = [](const QStringList& abiList, SdkPlatform &platform) {
+        foreach (auto imageAbi, abiList) {
+            SystemImage image;
+            image.abiName = imageAbi;
+            image.apiLevel = platform.apiLevel;
+            platform.systemImages.append(image);
+        }
+    };
+
     SdkPlatform platform;
+    QStringList abiList;
     foreach (const QString &l, output.split('\n')) {
         const QString line = l.trimmed();
         if (line.startsWith(QLatin1String("id:")) && line.contains(QLatin1String("android-"))) {
@@ -309,20 +319,26 @@ void AndroidToolOutputParser::parseTargetListing(const QString &output,
         } else if (line.startsWith(QLatin1String("Name:"))) {
             platform.name = line.mid(6);
         } else if (line.startsWith(QLatin1String("Tag/ABIs :"))) {
-            platform.abis = cleanAndroidABIs(line.mid(10).trimmed().split(QLatin1String(", ")));
+            abiList = cleanAndroidABIs(line.mid(10).trimmed().split(QLatin1String(", ")));
         } else if (line.startsWith(QLatin1String("ABIs"))) {
-            platform.abis = cleanAndroidABIs(line.mid(6).trimmed().split(QLatin1String(", ")));
+            abiList = cleanAndroidABIs(line.mid(6).trimmed().split(QLatin1String(", ")));
         } else if (line.startsWith(QLatin1String("---")) || line.startsWith(QLatin1String("==="))) {
             if (platform.apiLevel == -1)
                 continue;
+
+            addSystemImage(abiList, platform);
             *platformList << platform;
+
             platform = SdkPlatform();
+            abiList.clear();
         }
     }
 
     // The last parsed Platform.
-    if (platform.apiLevel != -1)
+    if (platform.apiLevel != -1) {
+        addSystemImage(abiList, platform);
         *platformList << platform;
+    }
 }
 
 } // namespace Internal
