@@ -363,19 +363,19 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
 
     // Match BreakpointType (omitting unknown type).
     const QStringList types = {
-        tr("File name and line number"),
-        tr("Function name"),
-        tr("Break on memory address"),
-        tr("Break when C++ exception is thrown"),
-        tr("Break when C++ exception is caught"),
-        tr("Break when function \"main\" starts"),
-        tr("Break when a new process is forked"),
-        tr("Break when a new process is executed"),
-        tr("Break when a system call is executed"),
-        tr("Break on data access at fixed address"),
-        tr("Break on data access at address given by expression"),
-        tr("Break on QML signal emit"),
-        tr("Break when JavaScript exception is thrown")
+        tr("File Name and Line Number"),
+        tr("Function Name"),
+        tr("Break on Memory Address"),
+        tr("Break When C++ Exception Is Thrown"),
+        tr("Break When C++ Exception Is Caught"),
+        tr("Break When Function \"main\" Starts"),
+        tr("Break When a New Process Is Forked"),
+        tr("Break When a New Process Is Executed"),
+        tr("Break When a System Call Is Executed"),
+        tr("Break on Data Access at Fixed Address"),
+        tr("Break on Data Access at Address Given by Expression"),
+        tr("Break on QML Signal Emit"),
+        tr("Break When JavaScript Exception Is Thrown")
     };
     // We don't list UnknownBreakpointType, so 1 less:
     QTC_CHECK(types.size() + 1 == LastBreakpointType);
