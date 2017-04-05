@@ -101,7 +101,7 @@ public:
     CPlusPlus::Overview overview;
 
     //! timer
-    QPointer<QTimer> timer;
+    QTimer timer;
 
     // documents
     //! Documents read write lock
@@ -161,16 +161,14 @@ Parser::Parser(QObject *parent)
     : QObject(parent),
     d(new ParserPrivate())
 {
-    d->timer = new QTimer(this);
-    d->timer->setObjectName(QLatin1String("ClassViewParser::timer"));
-    d->timer->setSingleShot(true);
+    d->timer.setSingleShot(true);
 
     // connect signal/slots
     // internal data reset
     connect(this, &Parser::resetDataDone, this, &Parser::onResetDataDone, Qt::QueuedConnection);
 
     // timer for emitting changes
-    connect(d->timer.data(), &QTimer::timeout, this, &Parser::requestCurrentState, Qt::QueuedConnection);
+    connect(&d->timer, &QTimer::timeout, this, &Parser::requestCurrentState, Qt::QueuedConnection);
 }
 
 /*!
@@ -542,10 +540,8 @@ void Parser::parseDocument(const CPlusPlus::Document::Ptr &doc)
 
     getParseDocumentTree(doc);
 
-    QTC_ASSERT(d->timer, return);
-
-    if (!d->timer->isActive())
-        d->timer->start(400); //! Delay in msecs before an update
+    if (!d->timer.isActive())
+        d->timer.start(400); //! Delay in msecs before an update
     return;
 }
 
@@ -688,7 +684,7 @@ void Parser::requestCurrentState()
 void Parser::emitCurrentTree()
 {
     // stop timer if it is active right now
-    d->timer->stop();
+    d->timer.stop();
 
     d->rootItemLocker.lockForWrite();
     d->rootItem = parse();
