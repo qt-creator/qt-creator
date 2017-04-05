@@ -159,12 +159,12 @@ bool NimProject::supportsKit(Kit *k, QString *errorMessage) const
     auto tc = dynamic_cast<NimToolChain*>(ToolChainKitInformation::toolChain(k, Constants::C_NIMLANGUAGE_ID));
     if (!tc) {
         if (errorMessage)
-            *errorMessage = tr("No nim compiler set.");
+            *errorMessage = tr("No Nim compiler set.");
         return false;
     }
     if (!tc->compilerCommand().exists()) {
         if (errorMessage)
-            *errorMessage = tr("Nim compiler doesn't exist");
+            *errorMessage = tr("Nim compiler does not exist");
         return false;
     }
     return true;
