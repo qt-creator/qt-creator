@@ -664,7 +664,6 @@ void ServerModeReader::addHeaderNodes(ProjectNode *root, const QList<FileNode *>
 {
     auto headerNode = new VirtualFolderNode(root->filePath(), Node::DefaultPriority - 5);
     headerNode->setDisplayName(tr("<Headers>"));
-    root->addNode(headerNode);
 
     // knownHeaders are already listed in their targets:
     QSet<Utils::FileName> seenHeaders = Utils::transform<QSet>(knownHeaders, &FileNode::filePath);
@@ -681,6 +680,11 @@ void ServerModeReader::addHeaderNodes(ProjectNode *root, const QList<FileNode *>
             headerNode->addNestedNode(node);
         }
     }
+
+    if (headerNode->nodes().isEmpty())
+        delete headerNode; // No Headers, do not show this Folder.
+    else
+        root->addNode(headerNode);
 }
 
 } // namespace Internal
