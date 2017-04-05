@@ -359,7 +359,7 @@ DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters 
 static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *runConfig,
                                     const Kit *kit, Core::Id runMode, QStringList *errors)
 {
-    QTC_ASSERT(kit, return 0);
+    QTC_ASSERT(kit, return nullptr);
 
     // Extract as much as possible from available RunConfiguration.
     if (runConfig && runConfig->runnable().is<StandardRunnable>()) {
@@ -470,7 +470,7 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
                 errors->append(t.description);
             }
             if (!errors->isEmpty())
-                return 0;
+                return nullptr;
         }
     }
 
@@ -482,7 +482,7 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
                         || server.listen(QHostAddress::LocalHostIPv6);
                 if (!canListen) {
                     errors->append(DebuggerPlugin::tr("Not enough free ports for QML debugging.") + ' ');
-                    return 0;
+                    return nullptr;
                 }
                 TcpServerConnection conn;
                 conn.host = server.serverAddress().toString();
@@ -554,16 +554,10 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
     if (!engine) {
         errors->append(DebuggerPlugin::tr("Unable to create a debugger engine of the type \"%1\"").
                         arg(engineTypeName(rp.masterEngineType)));
-        rp.startMode = NoStartMode;
-        return 0;
+        return nullptr;
     }
 
-    DebuggerRunControl *runControl = createHelper(runConfig, engine);
-
-    if (!runControl)
-        rp.startMode = NoStartMode;
-
-    return runControl;
+    return createHelper(runConfig, engine);
 }
 
 ////////////////////////////////////////////////////////////////////////
