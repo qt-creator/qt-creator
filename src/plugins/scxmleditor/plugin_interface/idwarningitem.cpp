@@ -33,7 +33,7 @@ IdWarningItem::IdWarningItem(QGraphicsItem *parent)
 {
     setSeverity(OutputPane::Warning::ErrorType);
     setTypeName(tr("State"));
-    setDescription(tr("Each State has to be unique ID."));
+    setDescription(tr("Each state must have a unique ID."));
     setReason(tr("Missing ID"));
     setX(-boundingRect().width());
 }

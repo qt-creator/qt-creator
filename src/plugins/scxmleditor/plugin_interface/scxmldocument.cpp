@@ -262,16 +262,16 @@ void ScxmlDocument::initErrorMessage(const QXmlStreamReader &xml, QIODevice *io)
     QString errorString;
     switch (xml.error()) {
     case QXmlStreamReader::Error::UnexpectedElementError:
-        errorString = tr("Unexpected element");
+        errorString = tr("Unexpected element.");
         break;
     case QXmlStreamReader::Error::NotWellFormedError:
-        errorString = tr("Not well formed");
+        errorString = tr("Not well formed.");
         break;
     case QXmlStreamReader::Error::PrematureEndOfDocumentError:
-        errorString = tr("Premature end of document");
+        errorString = tr("Premature end of document.");
         break;
     case QXmlStreamReader::Error::CustomError:
-        errorString = tr("Custom error");
+        errorString = tr("Custom error.");
         break;
     default:
         break;
@@ -299,7 +299,7 @@ bool ScxmlDocument::pasteData(const QByteArray &data, const QPointF &minPos, con
 
     if (!m_currentTag) {
         m_hasError = true;
-        m_lastError = tr("Current tag not selected");
+        m_lastError = tr("Current tag is not selected.");
         return false;
     }
 
@@ -310,7 +310,7 @@ bool ScxmlDocument::pasteData(const QByteArray &data, const QPointF &minPos, con
     }
 
     bool ok = true;
-    m_undoStack->beginMacro(tr("Paste item(s)"));
+    m_undoStack->beginMacro(tr("Paste items"));
 
     QByteArray d(data);
     QBuffer buffer(&d);
@@ -458,7 +458,7 @@ bool ScxmlDocument::save(const QString &fileName)
         }
         file.close();
         if (!ok)
-            m_lastError = tr("Cannot save xml to the file %1.").arg(fileName);
+            m_lastError = tr("Cannot save XML to the file %1.").arg(fileName);
     } else {
         ok = false;
         m_lastError = tr("Cannot open file %1.").arg(fileName);
