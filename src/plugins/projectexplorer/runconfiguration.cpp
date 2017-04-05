@@ -1187,6 +1187,11 @@ void ToolRunner::appendMessage(const QString &msg, OutputFormat format)
     m_runControl->appendMessage(msg, format);
 }
 
+IDevice::ConstPtr ToolRunner::device() const
+{
+    return m_runControl->device();
+}
+
 
 // SimpleRunControl
 

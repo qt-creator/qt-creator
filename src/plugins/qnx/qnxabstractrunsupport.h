@@ -66,7 +66,6 @@ protected:
     void setState(State state);
 
     ProjectExplorer::ApplicationLauncher *appRunner() const;
-    const ProjectExplorer::IDevice::ConstPtr device() const;
 
 public slots:
     virtual void handleAdapterSetupRequested();

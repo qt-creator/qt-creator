@@ -483,6 +483,7 @@ public:
 
     RunControl *runControl() const;
     void appendMessage(const QString &msg, Utils::OutputFormat format);
+    IDevice::ConstPtr device() const;
 
     virtual void prepare() { emit prepared(); }
     virtual void start() { emit started(); }

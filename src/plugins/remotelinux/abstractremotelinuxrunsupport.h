@@ -78,7 +78,6 @@ protected:
     void createRemoteFifo();
     QString fifo() const;
 
-    const ProjectExplorer::IDevice::ConstPtr device() const;
     const ProjectExplorer::StandardRunnable &runnable() const;
 
     void reset();
