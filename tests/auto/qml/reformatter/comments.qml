@@ -13,4 +13,14 @@ Item {
     /*
       Indented multiline comment.
       */
+
+    // Comment over a signal.
+    signal foo
+
+    function test() {
+        for (var i = model.count - 1; i >= 0; --i) // in-line comment
+        {
+            console.log("test")
+        }
+    }
 }
