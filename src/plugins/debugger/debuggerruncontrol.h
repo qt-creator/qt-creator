@@ -63,6 +63,9 @@ class DEBUGGER_EXPORT DebuggerRunControl : public ProjectExplorer::RunControl
     Q_OBJECT
 
 public:
+    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
+                       Internal::DebuggerEngine *engine);
+
     ~DebuggerRunControl() override;
 
     // ProjectExplorer::RunControl
@@ -95,12 +98,6 @@ signals:
 
 private:
     void handleFinished();
-
-    friend DebuggerRunControl *createHelper(ProjectExplorer::RunConfiguration *runConfig,
-                                            Internal::DebuggerEngine *engine);
-
-    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
-                       Internal::DebuggerEngine *engine);
 
     Internal::DebuggerEngine *m_engine;
     OutputProcessor *m_outputProcessor = 0;

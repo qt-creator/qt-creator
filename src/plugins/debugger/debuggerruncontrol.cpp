@@ -105,11 +105,6 @@ static QLatin1String engineTypeName(DebuggerEngineType et)
     return QLatin1String("No engine");
 }
 
-DebuggerRunControl *createHelper(RunConfiguration *runConfig, Internal::DebuggerEngine *engine)
-{
-    return new DebuggerRunControl(runConfig, engine);
-}
-
 DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfig, DebuggerEngine *engine)
     : RunControl(runConfig, DebugRunMode),
       m_engine(engine)
@@ -356,8 +351,8 @@ DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters 
     return 0;
 }
 
-static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *runConfig,
-                                    const Kit *kit, Core::Id runMode, QStringList *errors)
+static DebuggerEngine *doCreate(DebuggerRunParameters rp, RunConfiguration *const runConfig,
+                                const Kit *kit, Core::Id runMode, QStringList *errors)
 {
     QTC_ASSERT(kit, return nullptr);
 
@@ -557,7 +552,7 @@ static DebuggerRunControl *doCreate(DebuggerRunParameters rp, RunConfiguration *
         return nullptr;
     }
 
-    return createHelper(runConfig, engine);
+    return engine;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -588,8 +583,9 @@ public:
         // We cover only local setup here. Remote setups are handled by the
         // RunControl factories in the target specific plugins.
         QStringList errors;
-        DebuggerRunControl *runControl = doCreate(DebuggerRunParameters(), runConfig,
-                                                  runConfig->target()->kit(), mode, &errors);
+        DebuggerEngine *engine = doCreate(DebuggerRunParameters(), runConfig,
+                                          runConfig->target()->kit(), mode, &errors);
+        auto runControl = new DebuggerRunControl(runConfig, engine);
         if (errorMessage)
             *errorMessage = errors.join('\n');
         return runControl;
@@ -636,8 +632,9 @@ DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp, const 
 {
     QTC_ASSERT(kit, return 0); // Caller needs to look for a suitable kit.
     QStringList errors;
-    DebuggerRunControl *runControl = doCreate(rp, 0, kit, DebugRunMode, &errors);
-    if (!runControl) {
+    DebuggerEngine *engine = doCreate(rp, nullptr, kit, DebugRunMode, &errors);
+    auto runControl = new DebuggerRunControl(nullptr, engine);
+    if (!engine) {
         ProjectExplorerPlugin::showRunErrorMessage(errors.join('\n'));
         return 0;
     }
@@ -658,7 +655,8 @@ DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
 {
     QTC_ASSERT(runConfig, return 0);
     QStringList errors;
-    DebuggerRunControl *runControl = doCreate(sp, runConfig, runConfig->target()->kit(), runMode, &errors);
+    DebuggerEngine *engine = doCreate(sp, runConfig, runConfig->target()->kit(), runMode, &errors);
+    auto runControl = new DebuggerRunControl(runConfig, engine);
     QString msg = errors.join('\n');
     if (errorMessage)
         *errorMessage = msg;
