@@ -544,7 +544,7 @@ public:
 
         QString dir = project->projectDirectory().toString();
         QString importDir = QFileDialog::getExistingDirectory(ICore::mainWindow(),
-                                                              ProjectWindow::tr("Import directory"),
+                                                              ProjectWindow::tr("Import Directory"),
                                                               dir);
         FileName path = FileName::fromString(importDir);
 
