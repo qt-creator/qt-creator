@@ -67,6 +67,7 @@ public:
 
     QModelIndex outlineModelIndex();
     void updateOutlineIndexNow();
+    bool isOutlineCursorChangesBlocked();
 
     TextEditor::AssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
                            TextEditor::AssistReason reason) const override;
@@ -121,6 +122,7 @@ private:
     QTimer m_contextPaneTimer;
     QComboBox *m_outlineCombo;
     QModelIndex m_outlineModelIndex;
+    bool m_blockOutLineCursorChanges = false;
     QmlJS::ModelManagerInterface *m_modelManager = nullptr;
 
     QmlJS::IContextPane *m_contextPane = nullptr;
