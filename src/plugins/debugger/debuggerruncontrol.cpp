@@ -311,31 +311,40 @@ namespace Internal {
 // Re-used for Combined C++/QML engine.
 DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters &rp, QStringList *errors)
 {
+    DebuggerEngine *engine = nullptr;
     switch (et) {
     case GdbEngineType:
-        return createGdbEngine(rp);
+        engine = createGdbEngine(rp);
+        break;
     case CdbEngineType:
-        return createCdbEngine(rp, errors);
+        engine = createCdbEngine(rp, errors);
+        break;
     case PdbEngineType:
-        return createPdbEngine(rp);
+        engine = createPdbEngine(rp);
+        break;
     case QmlEngineType:
-        return createQmlEngine(rp);
+        engine = createQmlEngine(rp);
+        break;
     case LldbEngineType:
-        return createLldbEngine(rp);
+        engine = createLldbEngine(rp);
+        break;
     case QmlCppEngineType:
-        return createQmlCppEngine(rp, errors);
+        engine = createQmlCppEngine(rp, errors);
+        break;
     default:
-        if (errors)
-            errors->append(DebuggerPlugin::tr("Unknown debugger type \"%1\"")
-                           .arg(engineTypeName(et)));
+        errors->append(DebuggerPlugin::tr("Unknown debugger type \"%1\"")
+                       .arg(engineTypeName(et)));
     }
-    return 0;
+    if (!engine)
+        errors->append(DebuggerPlugin::tr("Unable to create a debugger engine of the type \"%1\"").
+                       arg(engineTypeName(rp.masterEngineType)));
+    return engine;
 }
 
-static DebuggerEngine *doCreate(DebuggerRunParameters rp, RunConfiguration *const runConfig,
-                                const Kit *kit, Core::Id runMode, QStringList *errors)
+static bool fixup(DebuggerRunParameters &rp, RunConfiguration *const runConfig,
+                  const Kit *kit, Core::Id runMode, QStringList *errors)
 {
-    QTC_ASSERT(kit, return nullptr);
+    QTC_ASSERT(kit, return false);
 
     // Extract as much as possible from available RunConfiguration.
     if (runConfig && runConfig->runnable().is<StandardRunnable>()) {
@@ -446,7 +455,7 @@ static DebuggerEngine *doCreate(DebuggerRunParameters rp, RunConfiguration *cons
                 errors->append(t.description);
             }
             if (!errors->isEmpty())
-                return nullptr;
+                return false;
         }
     }
 
@@ -458,7 +467,7 @@ static DebuggerEngine *doCreate(DebuggerRunParameters rp, RunConfiguration *cons
                         || server.listen(QHostAddress::LocalHostIPv6);
                 if (!canListen) {
                     errors->append(DebuggerPlugin::tr("Not enough free ports for QML debugging.") + ' ');
-                    return nullptr;
+                    return false;
                 }
                 TcpServerConnection conn;
                 conn.host = server.serverAddress().toString();
@@ -526,14 +535,7 @@ static DebuggerEngine *doCreate(DebuggerRunParameters rp, RunConfiguration *cons
     if (runMode == DebugRunModeWithBreakOnMain)
         rp.breakOnMain = true;
 
-    DebuggerEngine *engine = createEngine(rp.masterEngineType, rp, errors);
-    if (!engine) {
-        errors->append(DebuggerPlugin::tr("Unable to create a debugger engine of the type \"%1\"").
-                        arg(engineTypeName(rp.masterEngineType)));
-        return nullptr;
-    }
-
-    return engine;
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -564,12 +566,16 @@ public:
         // We cover only local setup here. Remote setups are handled by the
         // RunControl factories in the target specific plugins.
         QStringList errors;
-        DebuggerEngine *engine = doCreate(DebuggerRunParameters(), runConfig,
-                                          runConfig->target()->kit(), mode, &errors);
-        auto runControl = new DebuggerRunControl(runConfig, engine);
+        DebuggerRunParameters rp;
+        if (fixup(rp, runConfig, runConfig->target()->kit(), mode, &errors)) {
+            if (DebuggerEngine *engine = createEngine(rp.masterEngineType, rp, &errors)) {
+                if (auto runControl = new DebuggerRunControl(runConfig, engine))
+                    return runControl;
+            }
+        }
         if (errorMessage)
             *errorMessage = errors.join('\n');
-        return runControl;
+        return nullptr;
     }
 
     bool canRun(RunConfiguration *runConfig, Core::Id mode) const override
@@ -609,19 +615,22 @@ QObject *createDebuggerRunControlFactory(QObject *parent)
 /**
  * Used for direct "special" starts from actions in the debugger plugin.
  */
-DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp, const Kit *kit)
+DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp0, const Kit *kit)
 {
-    QTC_ASSERT(kit, return 0); // Caller needs to look for a suitable kit.
+    QTC_ASSERT(kit, return nullptr); // Caller needs to look for a suitable kit.
     QStringList errors;
-    DebuggerEngine *engine = doCreate(rp, nullptr, kit, DebugRunMode, &errors);
-    auto runControl = new DebuggerRunControl(nullptr, engine);
-    if (!engine) {
-        ProjectExplorerPlugin::showRunErrorMessage(errors.join('\n'));
-        return 0;
+    DebuggerRunParameters rp = rp0;
+    if (fixup(rp, nullptr, kit, DebugRunMode, &errors)) {
+        if (DebuggerEngine *engine = createEngine(rp.masterEngineType, rp, &errors)) {
+            if (auto runControl = new DebuggerRunControl(nullptr, engine)) {
+                Internal::showMessage(rp.startMessage, 0);
+                ProjectExplorerPlugin::startRunControl(runControl, DebugRunMode);
+                return runControl; // Only used for tests.
+            }
+        }
     }
-    Internal::showMessage(rp.startMessage, 0);
-    ProjectExplorerPlugin::startRunControl(runControl, DebugRunMode);
-    return runControl; // Only used for tests.
+    ProjectExplorerPlugin::showRunErrorMessage(errors.join('\n'));
+    return nullptr;
 }
 
 } // namespace Internal
@@ -636,16 +645,18 @@ DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
 {
     QTC_ASSERT(runConfig, return 0);
     QStringList errors;
-    DebuggerEngine *engine = doCreate(sp, runConfig, runConfig->target()->kit(), runMode, &errors);
-    auto runControl = new DebuggerRunControl(runConfig, engine);
+    DebuggerRunParameters rp = sp;
+    if (fixup(rp, runConfig, runConfig->target()->kit(), runMode, &errors)) {
+        if (DebuggerEngine *engine = createEngine(rp.masterEngineType, rp, &errors)) {
+            if (auto runControl = new DebuggerRunControl(runConfig, engine))
+                return runControl;
+        }
+    }
     QString msg = errors.join('\n');
     if (errorMessage)
         *errorMessage = msg;
-    if (!runControl) {
-        Core::ICore::showWarningWithOptions(DebuggerRunControl::tr("Debugger"), msg);
-        return 0;
-    }
-    return runControl;
+    Core::ICore::showWarningWithOptions(DebuggerRunControl::tr("Debugger"), msg);
+    return nullptr;
 }
 
 } // namespace Debugger
