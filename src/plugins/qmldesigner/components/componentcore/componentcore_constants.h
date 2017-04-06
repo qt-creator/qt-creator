@@ -70,7 +70,7 @@ const char moveToComponentCommandId[] = "MoveToComponent";
 const char addItemToStackedContainerCommandId[] = "AddItemToStackedContainer";
 const char addTabBarToStackedContainerCommandId[] = "AddTabBarToStackedContainer";
 const char increaseIndexOfStackedContainerCommandId[] = "IncreaseIndexOfStackedContainer";
-const char decreaseIndexOfStackedContainerCommandId[] = "decreaseIndexOfStackedContainer";
+const char decreaseIndexOfStackedContainerCommandId[] = "DecreaseIndexOfStackedContainer";
 
 const char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Selection");
 const char stackCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Stack (z)");
