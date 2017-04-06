@@ -41,6 +41,7 @@
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/target.h>
 
+#include <utils/outputformat.h>
 #include <utils/runextensions.h>
 
 #include <QFuture>
@@ -246,10 +247,11 @@ void TestRunner::runTests()
 }
 
 static void processOutput(TestOutputReader *outputreader, const QString &msg,
-                          Debugger::OutputProcessor::OutputChannel channel)
+                          Utils::OutputFormat format)
 {
-    switch (channel) {
-    case Debugger::OutputProcessor::StandardOut: {
+    switch (format) {
+    case Utils::OutputFormat::StdOutFormatSameLine:
+    case Utils::OutputFormat::DebugFormat: {
         static const QString gdbSpecialOut = "Qt: gdb: -nograb added to command-line options.\n"
                                              "\t Use the -dograb option to enforce grabbing.";
         int start = msg.startsWith(gdbSpecialOut) ? gdbSpecialOut.length() + 1 : 0;
@@ -264,11 +266,11 @@ static void processOutput(TestOutputReader *outputreader, const QString &msg,
             outputreader->processOutput(line.toUtf8() + '\n');
         break;
     }
-    case Debugger::OutputProcessor::StandardError:
+    case Utils::OutputFormat::StdErrFormatSameLine:
         outputreader->processStdError(msg.toUtf8());
         break;
     default:
-        QTC_CHECK(false); // unexpected channel
+        break; // channels we're not caring about
     }
 }
 
@@ -332,13 +334,12 @@ void TestRunner::debugTests()
     if (useOutputProcessor) {
         TestOutputReader *outputreader = config->outputReader(*futureInterface, 0);
 
-        Debugger::OutputProcessor *processor = new Debugger::OutputProcessor;
-        processor->logToAppOutputPane = false;
-        processor->process = [outputreader] (const QString &msg,
-                                             Debugger::OutputProcessor::OutputChannel channel) {
-            processOutput(outputreader, msg, channel);
-        };
-        runControl->setOutputProcessor(processor);
+        connect(runControl, &Debugger::DebuggerRunControl::appendMessageRequested,
+                this, [this, outputreader]
+                (ProjectExplorer::RunControl *, const QString &msg, Utils::OutputFormat format) {
+            processOutput(outputreader, msg, format);
+        });
+
         connect(runControl, &Debugger::DebuggerRunControl::finished,
                 outputreader, &QObject::deleteLater);
     }

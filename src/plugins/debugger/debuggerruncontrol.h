@@ -45,19 +45,6 @@ DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStart
                                                              QString *errorMessage,
                                                              Core::Id runMode = ProjectExplorer::Constants::DEBUG_RUN_MODE);
 
-
-struct OutputProcessor
-{
-    enum OutputChannel
-    {
-        StandardOut,
-        StandardError
-    };
-
-    std::function<void(const QString &msg, OutputChannel channel)> process;
-    bool logToAppOutputPane = true;
-};
-
 class DEBUGGER_EXPORT DebuggerRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
@@ -89,8 +76,6 @@ public:
 
     DebuggerStartParameters &startParameters();
 
-    void setOutputProcessor(OutputProcessor *processor);
-
 signals:
     void requestRemoteSetup();
     void aboutToNotifyInferiorSetupOk();
@@ -100,7 +85,6 @@ private:
     void handleFinished();
 
     Internal::DebuggerEngine *m_engine;
-    OutputProcessor *m_outputProcessor = 0;
 };
 
 } // namespace Debugger

@@ -123,10 +123,6 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfig, DebuggerEngi
 DebuggerRunControl::~DebuggerRunControl()
 {
     disconnect();
-    if (m_outputProcessor) {
-        delete m_outputProcessor;
-        m_outputProcessor = 0;
-    }
     if (m_engine) {
         DebuggerEngine *engine = m_engine;
         m_engine = 0;
@@ -161,16 +157,7 @@ void DebuggerRunControl::handleApplicationOutput(const QString &msg, int channel
 {
     OutputFormat format = outputFormatForChannelType(channel);
     QTC_ASSERT(format != NumberOfFormats, return);
-    if (m_outputProcessor) {
-        if (m_outputProcessor->logToAppOutputPane)
-            appendMessage(msg, format);
-        if (m_outputProcessor->process) {
-            m_outputProcessor->process(msg, channel == AppError ? OutputProcessor::StandardError
-                                                                : OutputProcessor::StandardOut);
-        }
-    } else {
-        appendMessage(msg, format);
-    }
+    appendMessage(msg, format);
 }
 
 void DebuggerRunControl::start()
@@ -290,12 +277,6 @@ void DebuggerRunControl::showMessage(const QString &msg, int channel)
 DebuggerStartParameters &DebuggerRunControl::startParameters()
 {
     return m_engine->runParameters();
-}
-
-void DebuggerRunControl::setOutputProcessor(OutputProcessor *processor)
-{
-    delete m_outputProcessor;
-    m_outputProcessor = processor;
 }
 
 void DebuggerRunControl::notifyInferiorIll()
