@@ -34,13 +34,6 @@
 
 #include <QObject>
 
-namespace ProjectExplorer {
-class ApplicationLauncher;
-class RunConfiguration;
-class Runnable;
-class StandardRunnable;
-}
-
 namespace RemoteLinux {
 
 namespace Internal { class AbstractRemoteLinuxRunSupportPrivate; }
@@ -77,8 +70,6 @@ protected:
 
     void createRemoteFifo();
     QString fifo() const;
-
-    const ProjectExplorer::StandardRunnable &runnable() const;
 
     void reset();
 

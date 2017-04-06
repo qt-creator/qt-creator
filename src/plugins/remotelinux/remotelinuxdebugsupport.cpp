@@ -159,7 +159,7 @@ void LinuxDeviceDebugSupport::startExecution()
 
 Runnable LinuxDeviceDebugSupport::realRunnable() const
 {
-    StandardRunnable r = runnable();
+    StandardRunnable r = runControl()->runnable().as<StandardRunnable>();
     QStringList args = QtcProcess::splitArgs(r.commandLineArguments, OsTypeLinux);
     QString command;
 

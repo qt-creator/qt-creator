@@ -152,7 +152,7 @@ void RemoteLinuxAnalyzeSupport::startExecution()
     connect(runner, &ApplicationLauncher::reportError,
             this, &RemoteLinuxAnalyzeSupport::handleAppRunnerError);
 
-    auto r = runnable();
+    auto r = runControl()->runnable().as<StandardRunnable>();
 
     if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         if (!r.commandLineArguments.isEmpty())

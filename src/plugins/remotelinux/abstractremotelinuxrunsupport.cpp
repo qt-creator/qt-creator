@@ -41,14 +41,7 @@ namespace Internal {
 class AbstractRemoteLinuxRunSupportPrivate
 {
 public:
-    AbstractRemoteLinuxRunSupportPrivate(const RunConfiguration *runConfig)
-        : state(AbstractRemoteLinuxRunSupport::Inactive),
-          runnable(runConfig->runnable().as<StandardRunnable>())
-    {
-    }
-
-    AbstractRemoteLinuxRunSupport::State state;
-    StandardRunnable runnable;
+    AbstractRemoteLinuxRunSupport::State state = AbstractRemoteLinuxRunSupport::Inactive;
     ApplicationLauncher appLauncher;
     DeviceUsedPortsGatherer portsGatherer;
     ApplicationLauncher fifoCreator;
@@ -62,7 +55,7 @@ using namespace Internal;
 
 AbstractRemoteLinuxRunSupport::AbstractRemoteLinuxRunSupport(RunControl *runControl)
     : ToolRunner(runControl),
-      d(new AbstractRemoteLinuxRunSupportPrivate(runControl->runConfiguration()))
+      d(new AbstractRemoteLinuxRunSupportPrivate)
 {
 }
 
@@ -172,11 +165,6 @@ void AbstractRemoteLinuxRunSupport::createRemoteFifo()
     });
 
     d->fifoCreator.start(r, device());
-}
-
-const StandardRunnable &AbstractRemoteLinuxRunSupport::runnable() const
-{
-    return d->runnable;
 }
 
 void AbstractRemoteLinuxRunSupport::reset()

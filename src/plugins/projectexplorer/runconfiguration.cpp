@@ -603,6 +603,7 @@ using namespace Internal;
 RunControl::RunControl(RunConfiguration *runConfiguration, Core::Id mode) :
     d(new RunControlPrivate(this, runConfiguration, mode))
 {
+    d->runnable = runConfiguration->runnable();
 #ifdef WITH_JOURNALD
     JournaldWatcher::instance()->subscribe(this, [this](const JournaldWatcher::LogEntry &entry) {
         if (entry.value("_MACHINE_ID") != JournaldWatcher::instance()->machineId())

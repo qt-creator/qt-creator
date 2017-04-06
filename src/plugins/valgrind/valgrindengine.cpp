@@ -57,8 +57,6 @@ ValgrindRunControl::ValgrindRunControl(RunConfiguration *runConfiguration, Core:
     : RunControl(runConfiguration, runMode)
 {
     setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
-    QTC_ASSERT(runConfiguration, return);
-    setRunnable(runConfiguration->runnable());
 
     if (runConfiguration)
         if (IRunConfigurationAspect *aspect = runConfiguration->extraAspect(ANALYZER_VALGRIND_SETTINGS))

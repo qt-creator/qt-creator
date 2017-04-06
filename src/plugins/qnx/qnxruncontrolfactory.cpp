@@ -142,7 +142,6 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, Core::Id m
             return 0;
         RunControl *runControl = Debugger::createAnalyzerRunControl(runConfig, mode);
         QTC_ASSERT(runControl, return 0);
-        runControl->setRunnable(runConfig->runnable());
         AnalyzerConnection connection;
         connection.connParams = device->sshParameters();
         connection.analyzerHost = connection.connParams.host;
