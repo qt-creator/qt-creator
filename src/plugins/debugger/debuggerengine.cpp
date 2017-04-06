@@ -2125,7 +2125,7 @@ void DebuggerEngine::checkState(DebuggerState state, const char *file, int line)
         return;
 
     QString msg = QString("UNEXPECTED STATE: %1  WANTED: %2 IN %3:%4")
-                .arg(current).arg(state).arg(QLatin1String(file)).arg(line);
+                .arg(stateName(current)).arg(stateName(state)).arg(QLatin1String(file)).arg(line);
 
     showMessage(msg, LogError);
     qDebug("%s", qPrintable(msg));
