@@ -782,7 +782,8 @@ static bool findNewQmlLibraryInPath(const QString &path,
     }
 
     // found a new library!
-    qmldirFile.open(QFile::ReadOnly);
+    if (!qmldirFile.open(QFile::ReadOnly))
+        return false;
     QString qmldirData = QString::fromUtf8(qmldirFile.readAll());
 
     QmlDirParser qmldirParser;
