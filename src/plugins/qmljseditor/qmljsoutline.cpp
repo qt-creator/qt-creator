@@ -124,7 +124,7 @@ void QmlJSOutlineWidget::setEditor(QmlJSEditorWidget *editor)
     m_editor = editor;
 
     m_filterModel->setSourceModel(m_editor->qmlJsEditorDocument()->outlineModel());
-    modelUpdated();
+    m_treeView->expandAll();
 
     connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &QmlJSOutlineWidget::updateSelectionInText);
@@ -134,8 +134,9 @@ void QmlJSOutlineWidget::setEditor(QmlJSEditorWidget *editor)
 
     connect(m_editor, &QmlJSEditorWidget::outlineModelIndexChanged,
             this, &QmlJSOutlineWidget::updateSelectionInTree);
-    connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QmlOutlineModel::updated,
-            this, &QmlJSOutlineWidget::modelUpdated);
+    connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QmlOutlineModel::updated, [this] () {
+        m_treeView->expandAll();
+    });
 }
 
 QList<QAction*> QmlJSOutlineWidget::filterMenuActions() const
@@ -159,11 +160,6 @@ void QmlJSOutlineWidget::restoreSettings(const QVariantMap &map)
 QVariantMap QmlJSOutlineWidget::settings() const
 {
     return {{QLatin1String("QmlJSOutline.ShowBindings"), m_showBindingsAction->isChecked()}};
-}
-
-void QmlJSOutlineWidget::modelUpdated()
-{
-    m_treeView->expandAll();
 }
 
 void QmlJSOutlineWidget::updateSelectionInTree(const QModelIndex &index)
@@ -230,7 +226,7 @@ void QmlJSOutlineWidget::focusEditor()
 void QmlJSOutlineWidget::setShowBindings(bool showBindings)
 {
     m_filterModel->setFilterBindings(!showBindings);
-    modelUpdated();
+    m_treeView->expandAll();
     updateSelectionInTree(m_editor->outlineModelIndex());
 }
 

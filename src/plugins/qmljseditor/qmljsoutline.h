@@ -76,7 +76,6 @@ public:
     virtual QVariantMap settings() const override;
 
 private:
-    void modelUpdated();
     void updateSelectionInTree(const QModelIndex &index);
     void updateSelectionInText(const QItemSelection &selection);
     void updateTextCursor(const QModelIndex &index);
