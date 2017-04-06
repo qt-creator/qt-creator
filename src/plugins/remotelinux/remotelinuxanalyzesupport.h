@@ -40,7 +40,7 @@ class REMOTELINUX_EXPORT RemoteLinuxAnalyzeSupport : public AbstractRemoteLinuxR
 {
     Q_OBJECT
 public:
-    RemoteLinuxAnalyzeSupport(ProjectExplorer::RunControl *runControl, Core::Id = Core::Id());
+    RemoteLinuxAnalyzeSupport(ProjectExplorer::RunControl *runControl);
     ~RemoteLinuxAnalyzeSupport() override;
 
 protected:

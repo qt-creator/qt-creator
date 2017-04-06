@@ -77,7 +77,7 @@ public:
 
 using namespace Internal;
 
-RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(RunControl *runControl, Core::Id)
+RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(RunControl *runControl)
     : AbstractRemoteLinuxRunSupport(runControl),
       d(new RemoteLinuxAnalyzeSupportPrivate(runControl))
 {
