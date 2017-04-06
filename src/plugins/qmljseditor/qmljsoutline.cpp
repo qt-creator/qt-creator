@@ -140,9 +140,7 @@ void QmlJSOutlineWidget::setEditor(QmlJSEditorWidget *editor)
 
 QList<QAction*> QmlJSOutlineWidget::filterMenuActions() const
 {
-    QList<QAction*> list;
-    list.append(m_showBindingsAction);
-    return list;
+    return {m_showBindingsAction};
 }
 
 void QmlJSOutlineWidget::setCursorSynchronization(bool syncWithCursor)
@@ -160,9 +158,7 @@ void QmlJSOutlineWidget::restoreSettings(const QVariantMap &map)
 
 QVariantMap QmlJSOutlineWidget::settings() const
 {
-    QVariantMap map;
-    map.insert(QLatin1String("QmlJSOutline.ShowBindings"), m_showBindingsAction->isChecked());
-    return map;
+    return {{QLatin1String("QmlJSOutline.ShowBindings"), m_showBindingsAction->isChecked()}};
 }
 
 void QmlJSOutlineWidget::modelUpdated()
