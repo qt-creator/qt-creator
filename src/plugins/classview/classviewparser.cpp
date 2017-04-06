@@ -314,7 +314,7 @@ ParserTreeItem::ConstPtr Parser::parse()
 */
 
 void Parser::addProject(const ParserTreeItem::Ptr &item, const QStringList &fileList,
-                                 const QString &projectId)
+                        const QString &projectId)
 {
     // recalculate cache tree if needed
     ParserTreeItem::Ptr prj(getCachedOrParseProjectTree(fileList, projectId));
