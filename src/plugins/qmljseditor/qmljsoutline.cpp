@@ -136,6 +136,7 @@ void QmlJSOutlineWidget::setEditor(QmlJSEditorWidget *editor)
             this, &QmlJSOutlineWidget::updateSelectionInTree);
     connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QmlOutlineModel::updated, [this] () {
         m_treeView->expandAll();
+        m_editor->updateOutlineIndexNow();
     });
 }
 
@@ -147,8 +148,7 @@ QList<QAction*> QmlJSOutlineWidget::filterMenuActions() const
 void QmlJSOutlineWidget::setCursorSynchronization(bool syncWithCursor)
 {
     m_enableCursorSync = syncWithCursor;
-    if (m_enableCursorSync)
-        updateSelectionInTree(m_editor->outlineModelIndex());
+    m_editor->updateOutlineIndexNow();
 }
 
 void QmlJSOutlineWidget::restoreSettings(const QVariantMap &map)
@@ -227,7 +227,7 @@ void QmlJSOutlineWidget::setShowBindings(bool showBindings)
 {
     m_filterModel->setFilterBindings(!showBindings);
     m_treeView->expandAll();
-    updateSelectionInTree(m_editor->outlineModelIndex());
+    m_editor->updateOutlineIndexNow();
 }
 
 bool QmlJSOutlineWidget::syncCursor()

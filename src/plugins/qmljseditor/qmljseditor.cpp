@@ -157,7 +157,6 @@ QModelIndex QmlJSEditorWidget::outlineModelIndex()
 {
     if (!m_outlineModelIndex.isValid()) {
         m_outlineModelIndex = indexForPosition(position());
-        emit outlineModelIndexChanged(m_outlineModelIndex);
     }
     return m_outlineModelIndex;
 }
@@ -249,6 +248,7 @@ void QmlJSEditorWidget::updateOutlineIndexNow()
 
     m_outlineModelIndex = QModelIndex(); // invalidate
     QModelIndex comboIndex = outlineModelIndex();
+    emit outlineModelIndexChanged(m_outlineModelIndex);
 
     if (comboIndex.isValid()) {
         bool blocked = m_outlineCombo->blockSignals(true);
@@ -530,8 +530,6 @@ void QmlJSEditorWidget::createToolBar()
             this, &QmlJSEditorWidget::jumpToOutlineElement);
     connect(m_qmlJsEditorDocument->outlineModel(), &QmlOutlineModel::updated,
             static_cast<QTreeView *>(m_outlineCombo->view()), &QTreeView::expandAll);
-    connect(m_qmlJsEditorDocument->outlineModel(), &QmlOutlineModel::updated,
-            this, &QmlJSEditorWidget::updateOutlineIndexNow);
 
     connect(this, &QmlJSEditorWidget::cursorPositionChanged,
             &m_updateOutlineIndexTimer, static_cast<void (QTimer::*)()>(&QTimer::start));

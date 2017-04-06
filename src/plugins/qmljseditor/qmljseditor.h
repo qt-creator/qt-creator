@@ -66,6 +66,7 @@ public:
     QmlJSEditorDocument *qmlJsEditorDocument() const;
 
     QModelIndex outlineModelIndex();
+    void updateOutlineIndexNow();
 
     TextEditor::AssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
                            TextEditor::AssistReason reason) const override;
@@ -84,7 +85,6 @@ private:
     void modificationChanged(bool);
 
     void jumpToOutlineElement(int index);
-    void updateOutlineIndexNow();
     void updateContextPane();
     void showTextMarker();
 
