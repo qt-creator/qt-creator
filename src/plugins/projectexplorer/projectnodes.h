@@ -291,6 +291,7 @@ public:
     bool deleteFiles(const QStringList &filePaths) override;
     bool canRenameFile(const QString &filePath, const QString &newFilePath) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
+    bool supportsAction(ProjectAction action, Node *node) const override;
 
     // by default returns false
     virtual bool deploysFolder(const QString &folder) const;

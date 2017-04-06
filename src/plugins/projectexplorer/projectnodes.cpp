@@ -773,6 +773,11 @@ bool ProjectNode::renameFile(const QString &filePath, const QString &newFilePath
     return false;
 }
 
+bool ProjectNode::supportsAction(ProjectAction, Node *) const
+{
+    return false;
+}
+
 bool ProjectNode::deploysFolder(const QString &folder) const
 {
     Q_UNUSED(folder);
