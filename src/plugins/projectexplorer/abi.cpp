@@ -789,6 +789,28 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
     return result;
 }
 
+Abi::OSFlavor Abi::flavorForMsvcVersion(int version)
+{
+    if (version >= 1910)
+        return WindowsMsvc2017Flavor;
+    switch (version) {
+    case 1900:
+        return WindowsMsvc2015Flavor;
+    case 1800:
+        return WindowsMsvc2013Flavor;
+    case 1700:
+        return WindowsMsvc2012Flavor;
+    case 1600:
+        return WindowsMsvc2010Flavor;
+    case 1500:
+        return WindowsMsvc2008Flavor;
+    case 1400:
+        return WindowsMsvc2005Flavor;
+    default:
+        return WindowsMSysFlavor;
+    }
+}
+
 Abi Abi::hostAbi()
 {
     Architecture arch = QTC_CPU; // define set by qmake
@@ -798,20 +820,8 @@ Abi Abi::hostAbi()
 
 #if defined (Q_OS_WIN)
     os = WindowsOS;
-#if _MSC_VER >= 1910
-    subos = WindowsMsvc2017Flavor;
-#elif _MSC_VER == 1900
-    subos = WindowsMsvc2015Flavor;
-#elif _MSC_VER == 1800
-    subos = WindowsMsvc2013Flavor;
-#elif _MSC_VER == 1700
-    subos = WindowsMsvc2012Flavor;
-#elif _MSC_VER == 1600
-    subos = WindowsMsvc2010Flavor;
-#elif _MSC_VER == 1500
-    subos = WindowsMsvc2008Flavor;
-#elif _MSC_VER == 1400
-    subos = WindowsMsvc2005Flavor;
+#ifdef _MSC_VER
+    subos = flavorForMsvcVersion(_MSC_VER);
 #elif defined (Q_CC_MINGW)
     subos = WindowsMSysFlavor;
 #endif
