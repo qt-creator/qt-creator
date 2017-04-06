@@ -32,6 +32,8 @@
 
 #include <utils/environment.h>
 
+#include <QUrl>
+
 namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT StandardRunnable
@@ -59,6 +61,21 @@ public:
 
 private:
     QString m_host;
+};
+
+class PROJECTEXPLORER_EXPORT UrlConnection : public QUrl
+{
+public:
+    UrlConnection() {}
+    explicit UrlConnection(const QUrl &url) : QUrl(url) {}
+
+    static UrlConnection fromHost(const QString &host) {
+        UrlConnection connection;
+        connection.setHost(host);
+        return connection;
+    }
+
+    static void *staticTypeId;
 };
 
 } // namespace ProjectExplorer

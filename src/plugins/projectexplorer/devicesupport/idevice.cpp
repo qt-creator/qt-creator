@@ -465,4 +465,6 @@ DeviceEnvironmentFetcher::DeviceEnvironmentFetcher()
 
 void *HostName::staticTypeId = &HostName::staticTypeId;
 
+void *UrlConnection::staticTypeId = &UrlConnection::staticTypeId;
+
 } // namespace ProjectExplorer
