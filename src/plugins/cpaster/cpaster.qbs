@@ -45,6 +45,8 @@ QtcPlugin {
         "settingspage.ui",
         "urlopenprotocol.cpp",
         "urlopenprotocol.h",
+        "authenticationdialog.cpp",
+        "authenticationdialog.h"
     ]
 
     Group {

@@ -70,14 +70,33 @@ private:
 
 class KdePasteProtocol : public StickyNotesPasteProtocol
 {
+    Q_OBJECT
 public:
-    KdePasteProtocol()
-    {
-        setHostUrl(QLatin1String("https://pastebin.kde.org/"));
-    }
+    KdePasteProtocol();
+
+    void paste(const QString &text, ContentType ct = Text, int expiryDays = 1,
+               const QString &username = QString(),
+               const QString &comment = QString() ,
+               const QString &description = QString()) override;
 
     QString name() const override { return protocolName(); }
     static QString protocolName();
+signals:
+    void authenticationFailed();
+private:
+    void authenticate(const QString &user, const QString &passwd);
+    void onPreAuthFinished(const QString &user, const QString &passwd);
+    void onAuthFinished();
+    QString redirectUrl(const QString &redirect, const QString &oldRedirect) const;
+
+    QNetworkReply *m_authReply = nullptr;
+    QString m_text;
+    ContentType m_contentType = Text;
+    int m_expiryDays = 1;
+    bool m_loginFailed = false;
+    QString m_description;
+    QString m_redirectUrl;
+
 };
 
 } // namespace CodePaster

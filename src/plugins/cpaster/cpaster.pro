@@ -14,7 +14,8 @@ HEADERS += cpasterplugin.h \
     fileshareprotocolsettingspage.h \
     kdepasteprotocol.h \
     urlopenprotocol.h \
-    codepasterservice.h
+    codepasterservice.h \
+    authenticationdialog.h
 
 SOURCES += cpasterplugin.cpp \
     settingspage.cpp \
@@ -28,7 +29,8 @@ SOURCES += cpasterplugin.cpp \
     fileshareprotocol.cpp \
     fileshareprotocolsettingspage.cpp \
     kdepasteprotocol.cpp \
-    urlopenprotocol.cpp
+    urlopenprotocol.cpp \
+    authenticationdialog.cpp
 
 FORMS += settingspage.ui \
     pasteselect.ui \
@@ -39,3 +41,5 @@ include(../../shared/cpaster/cpaster.pri)
 
 RESOURCES += \
     cpaster.qrc
+
+DEFINES *= CPASTER_PLUGIN_GUI
