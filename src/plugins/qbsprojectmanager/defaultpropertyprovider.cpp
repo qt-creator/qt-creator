@@ -40,7 +40,6 @@
 #include <qbs.h>
 
 #include <ios/iosconstants.h>
-#include <qnx/qnxconstants.h>
 #include <winrt/winrtconstants.h>
 
 #include <QDir>
@@ -54,7 +53,6 @@ using namespace Constants;
 namespace Internal {
 using namespace ProjectExplorer::Constants;
 using namespace Ios::Constants;
-using namespace Qnx::Constants;
 using namespace WinRt::Internal::Constants;
 
 static QString extractToolchainPrefix(QString *compilerName)
@@ -119,10 +117,11 @@ static QStringList targetOSList(const ProjectExplorer::Abi &abi, const ProjectEx
         }
         os << QLatin1String("bsd") << QLatin1String("unix");
         break;
+    case ProjectExplorer::Abi::QnxOS:
+        os << QLatin1String("qnx") << QLatin1String("unix");
+        break;
     case ProjectExplorer::Abi::UnixOS:
-        if (device == QNX_QNX_OS_TYPE)
-            os << QLatin1String("qnx");
-        else if (abi.osFlavor() == ProjectExplorer::Abi::SolarisUnixFlavor)
+        if (abi.osFlavor() == ProjectExplorer::Abi::SolarisUnixFlavor)
             os << QLatin1String("solaris");
         os << QLatin1String("unix");
         break;
