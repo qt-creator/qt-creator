@@ -1043,8 +1043,7 @@ void DebuggerToolTipManager::loadSessionData()
     closeAllToolTips();
     const QString data = sessionValue(sessionSettingsKeyC).toString();
     QXmlStreamReader r(data);
-    r.readNextStartElement();
-    if (r.tokenType() == QXmlStreamReader::StartElement && r.name() == QLatin1String(sessionDocumentC)) {
+    if (r.readNextStartElement() && r.name() == QLatin1String(sessionDocumentC)) {
         while (!r.atEnd()) {
             if (readStartElement(r, toolTipElementC)) {
                 const QXmlStreamAttributes attributes = r.attributes();
