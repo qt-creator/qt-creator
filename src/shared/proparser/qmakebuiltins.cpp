@@ -1448,12 +1448,12 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         }
         if (args.count() == 1)
             return returnBool(isActiveConfig(args.at(0).toQStringRef()));
-        const QStringList &mutuals = args.at(1).toQString(m_tmp2).split(QLatin1Char('|'));
+        const auto mutuals = args.at(1).toQStringRef().split(QLatin1Char('|'));
         const ProStringList &configs = values(statics.strCONFIG);
 
         for (int i = configs.size() - 1; i >= 0; i--) {
             for (int mut = 0; mut < mutuals.count(); mut++) {
-                if (configs[i] == mutuals[mut].trimmed())
+                if (configs[i].toQStringRef() == mutuals[mut].trimmed())
                     return returnBool(configs[i] == args[0]);
             }
         }
@@ -1482,11 +1482,11 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                 t ^= 1;
             }
         } else {
-            const QStringList &mutuals = args.at(2).toQString(m_tmp3).split(QLatin1Char('|'));
+            const auto mutuals = args.at(2).toQStringRef().split(QLatin1Char('|'));
             for (int i = l.size() - 1; i >= 0; i--) {
                 const ProString val = l[i];
                 for (int mut = 0; mut < mutuals.count(); mut++) {
-                    if (val == mutuals[mut].trimmed()) {
+                    if (val.toQStringRef() == mutuals[mut].trimmed()) {
                         return returnBool((!regx.isEmpty()
                                            && regx.exactMatch(val.toQString(m_tmp2)))
                                           || val == qry);
