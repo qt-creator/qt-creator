@@ -79,6 +79,7 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
 {
     setDisplayName(tr("Clang Static Analyzer"));
     setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
+    setSupportsReRunning(false);
 
     Target *target = runConfiguration->target();
     BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();

@@ -371,7 +371,9 @@ public:
     void initiateStop(); // Calls stop() asynchronously.
 
     virtual bool promptToStop(bool *optionalPrompt = nullptr) const;
-    virtual bool supportsReRunning() const { return true; }
+
+    virtual bool supportsReRunning() const;
+    void setSupportsReRunning(bool reRunningSupported);
 
     virtual QString displayName() const;
     void setDisplayName(const QString &displayName);

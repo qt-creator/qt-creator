@@ -589,6 +589,7 @@ public:
     Utils::ProcessHandle applicationProcessHandle;
 
     State state = State::Initialized;
+    bool supportsReRunning = true;
 
 #ifdef Q_OS_OSX
     // This is used to bring apps in the foreground on Mac
@@ -890,6 +891,16 @@ bool RunControl::promptToStop(bool *optionalPrompt) const
     return showPromptToStopDialog(tr("Application Still Running"), msg,
                                   tr("Force &Quit"), tr("&Keep Running"),
                                   optionalPrompt);
+}
+
+bool RunControl::supportsReRunning() const
+{
+    return d->supportsReRunning;
+}
+
+void RunControl::setSupportsReRunning(bool reRunningSupported)
+{
+    d->supportsReRunning = reRunningSupported;
 }
 
 bool RunControl::isRunning() const

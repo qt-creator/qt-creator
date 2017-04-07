@@ -47,7 +47,6 @@ public:
 
     void start() override;
     void stop() override;
-    bool supportsReRunning() const override { return false; }
 
     QString executable() const;
 

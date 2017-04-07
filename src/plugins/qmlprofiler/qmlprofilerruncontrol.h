@@ -51,7 +51,6 @@ public:
     void stop() override;
     void cancelProcess();
     void notifyRemoteFinished() override;
-    bool supportsReRunning() const override { return false; }
 
 signals:
     void processRunning(Utils::Port port);
