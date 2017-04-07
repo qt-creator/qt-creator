@@ -109,10 +109,12 @@ protected:
 
 private:
     void ctor();
+
+    enum ForceEnabledChanged : quint8 { False, True };
+    void clearError(ForceEnabledChanged fec = ForceEnabledChanged::False);
     QList<ConfigModel::DataItem> completeCMakeConfiguration() const;
     void setCurrentCMakeConfiguration(const QList<ConfigModel::DataItem> &items);
 
-    void clearError();
     void setError(const QString &message);
     void setWarning(const QString &message);
 
