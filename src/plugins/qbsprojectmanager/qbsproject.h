@@ -77,7 +77,8 @@ public:
             const qbs::GroupData &groupData);
 
     qbs::BuildJob *build(const qbs::BuildOptions &opts, QStringList products, QString &error);
-    qbs::CleanJob *clean(const qbs::CleanOptions &opts);
+    qbs::CleanJob *clean(const qbs::CleanOptions &opts, const QStringList &productNames,
+                         QString &error);
     qbs::InstallJob *install(const qbs::InstallOptions &opts);
 
     static ProjectExplorer::FileType fileTypeFor(const QSet<QString> &tags);
@@ -139,6 +140,9 @@ private:
     void projectLoaded() override;
 
     static bool ensureWriteableQbsFile(const QString &file);
+
+    template<typename Options> qbs::AbstractJob *buildOrClean(const Options &opts,
+            const QStringList &productNames, QString &error);
 
     QHash<ProjectExplorer::Target *, qbs::Project> m_qbsProjects;
     qbs::Project m_qbsProject;

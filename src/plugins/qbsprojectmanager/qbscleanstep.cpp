@@ -87,6 +87,7 @@ bool QbsCleanStep::init(QList<const BuildStep *> &earlierSteps)
     if (!bc)
         return false;
 
+    m_products = bc->products();
     return true;
 }
 
@@ -97,9 +98,10 @@ void QbsCleanStep::run(QFutureInterface<bool> &fi)
     QbsProject *pro = static_cast<QbsProject *>(project());
     qbs::CleanOptions options(m_qbsCleanOptions);
 
-    m_job = pro->clean(options);
-
+    QString error;
+    m_job = pro->clean(options, m_products, error);
     if (!m_job) {
+        emit addOutput(error, OutputFormat::ErrorMessage);
         reportRunResult(*m_fi, false);
         return;
     }

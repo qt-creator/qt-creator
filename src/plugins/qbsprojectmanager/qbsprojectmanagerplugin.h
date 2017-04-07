@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <coreplugin/id.h>
 #include <extensionsystem/iplugin.h>
 #include <utils/parameteraction.h>
 
@@ -52,9 +53,21 @@ private:
     void buildFileContextMenu();
     void buildFile();
     void buildProductContextMenu();
+    void cleanProductContextMenu();
+    void rebuildProductContextMenu();
+    void runStepsForProductContextMenu(const QList<Core::Id> &stepTypes);
     void buildProduct();
+    void cleanProduct();
+    void rebuildProduct();
+    void runStepsForProduct(const QList<Core::Id> &stepTypes);
     void buildSubprojectContextMenu();
+    void cleanSubprojectContextMenu();
+    void rebuildSubprojectContextMenu();
+    void runStepsForSubprojectContextMenu(const QList<Core::Id> &stepTypes);
     void buildSubproject();
+    void cleanSubproject();
+    void rebuildSubproject();
+    void runStepsForSubproject(const QList<Core::Id> &stepTypes);
 
     void reparseSelectedProject();
     void reparseCurrentProject();
@@ -67,16 +80,26 @@ private:
     void buildFiles(QbsProject *project, const QStringList &files,
                     const QStringList &activeFileTags);
     void buildSingleFile(QbsProject *project, const QString &file);
-    void buildProducts(QbsProject *project, const QStringList &products);
+
+    void runStepsForProducts(QbsProject *project, const QStringList &products,
+                                  const QList<Core::Id> &stepTypes);
 
     QAction *m_reparseQbs = nullptr;
     QAction *m_reparseQbsCtx = nullptr;
     QAction *m_buildFileCtx = nullptr;
     QAction *m_buildProductCtx = nullptr;
+    QAction *m_cleanProductCtx = nullptr;
+    QAction *m_rebuildProductCtx = nullptr;
     QAction *m_buildSubprojectCtx = nullptr;
+    QAction *m_cleanSubprojectCtx = nullptr;
+    QAction *m_rebuildSubprojectCtx = nullptr;
     Utils::ParameterAction *m_buildFile = nullptr;
     Utils::ParameterAction *m_buildProduct = nullptr;
+    Utils::ParameterAction *m_cleanProduct = nullptr;
+    Utils::ParameterAction *m_rebuildProduct = nullptr;
     Utils::ParameterAction *m_buildSubproject = nullptr;
+    Utils::ParameterAction *m_cleanSubproject = nullptr;
+    Utils::ParameterAction *m_rebuildSubproject = nullptr;
 };
 
 } // namespace Internal

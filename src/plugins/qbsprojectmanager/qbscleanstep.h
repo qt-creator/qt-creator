@@ -78,6 +78,7 @@ private:
     void setMaxJobs(int jobcount);
 
     qbs::CleanOptions m_qbsCleanOptions;
+    QStringList m_products;
 
     QFutureInterface<bool> *m_fi;
     qbs::CleanJob *m_job;

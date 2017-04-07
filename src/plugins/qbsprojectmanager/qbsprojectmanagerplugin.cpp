@@ -167,6 +167,40 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_buildProduct, &QAction::triggered, this, &QbsProjectManagerPlugin::buildProduct);
 
+    m_cleanProductCtx = new QAction(tr("Clean"), this);
+    command = Core::ActionManager::registerAction(
+                m_cleanProductCtx, Constants::ACTION_CLEAN_PRODUCT_CONTEXT, projectContext);
+    command->setAttribute(Core::Command::CA_Hide);
+    msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    connect(m_cleanProductCtx, &QAction::triggered,
+            this, &QbsProjectManagerPlugin::cleanProductContextMenu);
+
+    m_cleanProduct = new Utils::ParameterAction(tr("Clean Product"), tr("Clean Product \"%1\""),
+                                                Utils::ParameterAction::AlwaysEnabled, this);
+    command = Core::ActionManager::registerAction(m_cleanProduct, Constants::ACTION_CLEAN_PRODUCT);
+    command->setAttribute(Core::Command::CA_Hide);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_CLEAN);
+    connect(m_cleanProduct, &QAction::triggered, this, &QbsProjectManagerPlugin::cleanProduct);
+
+    m_rebuildProductCtx = new QAction(tr("Rebuild"), this);
+    command = Core::ActionManager::registerAction(
+                m_rebuildProductCtx, Constants::ACTION_REBUILD_PRODUCT_CONTEXT, projectContext);
+    command->setAttribute(Core::Command::CA_Hide);
+    msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    connect(m_rebuildProductCtx, &QAction::triggered,
+            this, &QbsProjectManagerPlugin::rebuildProductContextMenu);
+
+    m_rebuildProduct = new Utils::ParameterAction(
+                tr("Rebuild Product"), tr("Rebuild Product \"%1\""),
+                Utils::ParameterAction::AlwaysEnabled, this);
+    command = Core::ActionManager::registerAction(m_rebuildProduct,
+                                                  Constants::ACTION_REBUILD_PRODUCT);
+    command->setAttribute(Core::Command::CA_Hide);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_REBUILD);
+    connect(m_rebuildProduct, &QAction::triggered, this, &QbsProjectManagerPlugin::rebuildProduct);
+
     m_buildSubprojectCtx = new QAction(tr("Build"), this);
     command = Core::ActionManager::registerAction(m_buildSubprojectCtx, Constants::ACTION_BUILD_SUBPROJECT_CONTEXT, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
@@ -183,6 +217,46 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+B")));
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_buildSubproject, &QAction::triggered, this, &QbsProjectManagerPlugin::buildSubproject);
+
+    m_cleanSubprojectCtx = new QAction(tr("Clean"), this);
+    command = Core::ActionManager::registerAction(
+                m_cleanSubprojectCtx, Constants::ACTION_CLEAN_SUBPROJECT_CONTEXT, projectContext);
+    command->setAttribute(Core::Command::CA_Hide);
+    msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    connect(m_cleanSubprojectCtx, &QAction::triggered,
+            this, &QbsProjectManagerPlugin::cleanSubprojectContextMenu);
+
+    m_cleanSubproject = new Utils::ParameterAction(
+                tr("Clean Subproject"), tr("Clean Subproject \"%1\""),
+                Utils::ParameterAction::AlwaysEnabled, this);
+    command = Core::ActionManager::registerAction(m_cleanSubproject,
+                                                  Constants::ACTION_CLEAN_SUBPROJECT);
+    command->setAttribute(Core::Command::CA_Hide);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_CLEAN);
+    connect(m_cleanSubproject, &QAction::triggered, this,
+            &QbsProjectManagerPlugin::cleanSubproject);
+
+    m_rebuildSubprojectCtx = new QAction(tr("Rebuild"), this);
+    command = Core::ActionManager::registerAction(
+                m_rebuildSubprojectCtx, Constants::ACTION_REBUILD_SUBPROJECT_CONTEXT,
+                projectContext);
+    command->setAttribute(Core::Command::CA_Hide);
+    msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    connect(m_rebuildSubprojectCtx, &QAction::triggered,
+            this, &QbsProjectManagerPlugin::rebuildSubprojectContextMenu);
+
+    m_rebuildSubproject = new Utils::ParameterAction(
+                tr("Rebuild Subproject"), tr("Rebuild Subproject \"%1\""),
+                Utils::ParameterAction::AlwaysEnabled, this);
+    command = Core::ActionManager::registerAction(m_rebuildSubproject,
+                                                  Constants::ACTION_REBUILD_SUBPROJECT);
+    command->setAttribute(Core::Command::CA_Hide);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_REBUILD);
+    connect(m_rebuildSubproject, &QAction::triggered, this,
+            &QbsProjectManagerPlugin::rebuildSubproject);
+
 
     // Connect
     connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
@@ -241,7 +315,11 @@ void QbsProjectManagerPlugin::updateContextActions()
     m_reparseQbsCtx->setEnabled(isEnabled);
     m_buildFileCtx->setEnabled(isEnabled && isFile);
     m_buildProductCtx->setVisible(isEnabled && isProduct);
+    m_cleanProductCtx->setVisible(isEnabled && isProduct);
+    m_rebuildProductCtx->setVisible(isEnabled && isProduct);
     m_buildSubprojectCtx->setVisible(isEnabled && isSubproject);
+    m_cleanSubprojectCtx->setVisible(isEnabled && isSubproject);
+    m_rebuildSubprojectCtx->setVisible(isEnabled && isSubproject);
 }
 
 void QbsProjectManagerPlugin::updateReparseQbsAction()
@@ -293,10 +371,22 @@ void QbsProjectManagerPlugin::updateBuildActions()
     m_buildProduct->setEnabled(enabled);
     m_buildProduct->setVisible(productVisible);
     m_buildProduct->setParameter(productName);
+    m_cleanProduct->setEnabled(enabled);
+    m_cleanProduct->setVisible(productVisible);
+    m_cleanProduct->setParameter(productName);
+    m_rebuildProduct->setEnabled(enabled);
+    m_rebuildProduct->setVisible(productVisible);
+    m_rebuildProduct->setParameter(productName);
 
     m_buildSubproject->setEnabled(enabled);
     m_buildSubproject->setVisible(subprojectVisible);
     m_buildSubproject->setParameter(subprojectName);
+    m_cleanSubproject->setEnabled(enabled);
+    m_cleanSubproject->setVisible(subprojectVisible);
+    m_cleanSubproject->setParameter(subprojectName);
+    m_rebuildSubproject->setEnabled(enabled);
+    m_rebuildSubproject->setVisible(subprojectVisible);
+    m_rebuildSubproject->setParameter(subprojectName);
 }
 
 void QbsProjectManagerPlugin::projectChanged()
@@ -334,6 +424,24 @@ void QbsProjectManagerPlugin::buildFile()
 
 void QbsProjectManagerPlugin::buildProductContextMenu()
 {
+    runStepsForProductContextMenu({Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)});
+}
+
+void QbsProjectManagerPlugin::cleanProductContextMenu()
+{
+    runStepsForProductContextMenu({Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)});
+}
+
+void QbsProjectManagerPlugin::rebuildProductContextMenu()
+{
+    runStepsForProductContextMenu({
+        Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN),
+        Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+    });
+}
+
+void QbsProjectManagerPlugin::runStepsForProductContextMenu(const QList<Core::Id> &stepTypes)
+{
     Node *node = ProjectTree::currentNode();
     QTC_ASSERT(node, return);
     QbsProject *project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
@@ -342,27 +450,62 @@ void QbsProjectManagerPlugin::buildProductContextMenu()
     const QbsProductNode * const productNode = dynamic_cast<QbsProductNode *>(node);
     QTC_ASSERT(productNode, return);
 
-    buildProducts(project, {QbsProject::uniqueProductName(productNode->qbsProductData())});
+    runStepsForProducts(project, {QbsProject::uniqueProductName(productNode->qbsProductData())},
+                        {stepTypes});
 }
 
 void QbsProjectManagerPlugin::buildProduct()
 {
+    runStepsForProduct({Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)});
+}
+
+void QbsProjectManagerPlugin::cleanProduct()
+{
+    runStepsForProduct({Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)});
+}
+
+void QbsProjectManagerPlugin::rebuildProduct()
+{
+    runStepsForProduct({
+        Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN),
+        Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD),
+    });
+}
+
+void QbsProjectManagerPlugin::runStepsForProduct(const QList<Core::Id> &stepTypes)
+{
     Node *node = currentEditorNode();
     if (!node)
         return;
-
     QbsProductNode *product = dynamic_cast<QbsProductNode *>(node->parentProjectNode());
     if (!product)
         return;
-
     QbsProject *project = currentEditorProject();
     if (!project)
         return;
-
-    buildProducts(project, {QbsProject::uniqueProductName(product->qbsProductData())});
+    runStepsForProducts(project, {QbsProject::uniqueProductName(product->qbsProductData())},
+                        {stepTypes});
 }
 
 void QbsProjectManagerPlugin::buildSubprojectContextMenu()
+{
+    runStepsForSubprojectContextMenu({Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)});
+}
+
+void QbsProjectManagerPlugin::cleanSubprojectContextMenu()
+{
+    runStepsForSubprojectContextMenu({Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)});
+}
+
+void QbsProjectManagerPlugin::rebuildSubprojectContextMenu()
+{
+    runStepsForSubprojectContextMenu({
+        Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN),
+        Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+    });
+}
+
+void QbsProjectManagerPlugin::runStepsForSubprojectContextMenu(const QList<Core::Id> &stepTypes)
 {
     Node *node = ProjectTree::currentNode();
     QTC_ASSERT(node, return);
@@ -376,10 +519,28 @@ void QbsProjectManagerPlugin::buildSubprojectContextMenu()
     foreach (const qbs::ProductData &data, subProject->qbsProjectData().allProducts())
         toBuild << QbsProject::uniqueProductName(data);
 
-    buildProducts(project, toBuild);
+    runStepsForProducts(project, toBuild, {stepTypes});
 }
 
 void QbsProjectManagerPlugin::buildSubproject()
+{
+    runStepsForSubproject({Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)});
+}
+
+void QbsProjectManagerPlugin::cleanSubproject()
+{
+    runStepsForSubproject({Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)});
+}
+
+void QbsProjectManagerPlugin::rebuildSubproject()
+{
+    runStepsForSubproject({
+        Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN),
+        Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+    });
+}
+
+void QbsProjectManagerPlugin::runStepsForSubproject(const QList<Core::Id> &stepTypes)
 {
     Node *editorNode = currentEditorNode();
     QbsProject *editorProject = currentEditorProject();
@@ -404,7 +565,7 @@ void QbsProjectManagerPlugin::buildSubproject()
     foreach (const qbs::ProductData &data, subproject->qbsProjectData().allProducts())
         toBuild << QbsProject::uniqueProductName(data);
 
-    buildProducts(editorProject, toBuild);
+    runStepsForProducts(editorProject, toBuild, {stepTypes});
 }
 
 void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList &files,
@@ -441,7 +602,8 @@ void QbsProjectManagerPlugin::buildSingleFile(QbsProject *project, const QString
     buildFiles(project, QStringList(file), QStringList({"obj", "hpp"}));
 }
 
-void QbsProjectManagerPlugin::buildProducts(QbsProject *project, const QStringList &products)
+void QbsProjectManagerPlugin::runStepsForProducts(QbsProject *project,
+        const QStringList &products, const QList<Core::Id> &stepTypes)
 {
     QTC_ASSERT(project, return);
     QTC_ASSERT(!products.isEmpty(), return);
@@ -453,17 +615,20 @@ void QbsProjectManagerPlugin::buildProducts(QbsProject *project, const QStringLi
     if (!bc)
         return;
 
-    if (!ProjectExplorerPlugin::saveModifiedFiles())
+    if (stepTypes.contains(ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+            && !ProjectExplorerPlugin::saveModifiedFiles()) {
         return;
+    }
 
     bc->setChangedFiles(QStringList());
     bc->setProducts(products);
-
-    const Core::Id buildStep = ProjectExplorer::Constants::BUILDSTEPS_BUILD;
-
-    const QString name = ProjectExplorerPlugin::displayNameForStepId(buildStep);
-    BuildManager::buildList(bc->stepList(buildStep), name);
-
+    QList<ProjectExplorer::BuildStepList *> stepLists;
+    QStringList stepListNames;
+    for (const Core::Id &stepType : stepTypes) {
+        stepLists << bc->stepList(stepType);
+        stepListNames <<ProjectExplorerPlugin::displayNameForStepId(stepType);
+    }
+    BuildManager::buildLists(stepLists, stepListNames);
     bc->setProducts(QStringList());
 }
 

@@ -72,6 +72,7 @@
 #include <QVariantMap>
 
 #include <algorithm>
+#include <type_traits>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -326,14 +327,30 @@ void QbsProject::invalidate()
     prepareForParsing();
 }
 
-qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts, QStringList productNames,
-                                 QString &error)
+static qbs::AbstractJob *doBuildOrClean(const qbs::Project &project,
+                                        const QList<qbs::ProductData> &products,
+                                        const qbs::BuildOptions &options)
+{
+    if (products.isEmpty())
+        return project.buildAllProducts(options);
+    return project.buildSomeProducts(products, options);
+}
+
+static qbs::AbstractJob *doBuildOrClean(const qbs::Project &project,
+                                        const QList<qbs::ProductData> &products,
+                                        const qbs::CleanOptions &options)
+{
+    if (products.isEmpty())
+        return project.cleanAllProducts(options);
+    return project.cleanSomeProducts(products, options);
+}
+
+template<typename Options>
+qbs::AbstractJob *QbsProject::buildOrClean(const Options &opts, const QStringList &productNames,
+                                           QString &error)
 {
     QTC_ASSERT(qbsProject().isValid(), return 0);
     QTC_ASSERT(!isParsing(), return 0);
-
-    if (productNames.isEmpty())
-        return qbsProject().buildAllProducts(opts);
 
     QList<qbs::ProductData> products;
     foreach (const QString &productName, productNames) {
@@ -346,19 +363,25 @@ qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts, QStringList prod
             }
         }
         if (!found) {
-            error = tr("Cannot build: Selected products do not exist anymore.");
-            return 0;
+            const bool cleaningRequested = std::is_same<Options, qbs::CleanOptions>::value;
+            error = tr("%1: Selected products do not exist anymore.")
+                    .arg(cleaningRequested ? tr("Cannot clean") : tr("Cannot build"));
+            return nullptr;
         }
     }
-
-    return qbsProject().buildSomeProducts(products, opts);
+    return doBuildOrClean(qbsProject(), products, opts);
 }
 
-qbs::CleanJob *QbsProject::clean(const qbs::CleanOptions &opts)
+qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts, QStringList productNames,
+                                 QString &error)
 {
-    if (!qbsProject().isValid())
-        return 0;
-    return qbsProject().cleanAllProducts(opts);
+    return static_cast<qbs::BuildJob *>(buildOrClean(opts, productNames, error));
+}
+
+qbs::CleanJob *QbsProject::clean(const qbs::CleanOptions &opts, const QStringList &productNames,
+                                 QString &error)
+{
+    return static_cast<qbs::CleanJob *>(buildOrClean(opts, productNames, error));
 }
 
 qbs::InstallJob *QbsProject::install(const qbs::InstallOptions &opts)
