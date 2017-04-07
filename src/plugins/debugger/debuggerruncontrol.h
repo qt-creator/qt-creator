@@ -30,15 +30,11 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <functional>
-
 namespace Debugger {
 
 class RemoteSetupResult;
 class DebuggerStartParameters;
 class DebuggerRunControl;
-
-namespace Internal { class DebuggerEngine; }
 
 DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
                                                              ProjectExplorer::RunConfiguration *runConfig,
@@ -50,17 +46,13 @@ class DEBUGGER_EXPORT DebuggerRunControl : public ProjectExplorer::RunControl
     Q_OBJECT
 
 public:
-    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
-                       Internal::DebuggerEngine *engine);
-
+    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig, Core::Id runMode);
     ~DebuggerRunControl() override;
 
     // ProjectExplorer::RunControl
     void start() override;
     bool promptToStop(bool *prompt = 0) const override;
     void stop() override; // Called from SnapshotWindow.
-    QString displayName() const override;
-    bool supportsReRunning() const override;
     void handleApplicationOutput(const QString &msg, int channel);
 
     void startFailed();
@@ -74,17 +66,12 @@ public:
 
     void showMessage(const QString &msg, int channel = LogDebug);
 
-    DebuggerStartParameters &startParameters();
+    DebuggerStartParameters &startParameters(); // Used in Boot2Qt.
 
 signals:
     void requestRemoteSetup();
     void aboutToNotifyInferiorSetupOk();
     void stateChanged(Debugger::DebuggerState state);
-
-private:
-    void handleFinished();
-
-    Internal::DebuggerEngine *m_engine;
 };
 
 } // namespace Debugger
