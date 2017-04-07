@@ -57,14 +57,19 @@ Theme *proxyTheme()
     return new Theme(m_creatorTheme);
 }
 
+void setThemeApplicationPalette()
+{
+    if (m_creatorTheme && m_creatorTheme->flag(Theme::ApplyThemePaletteGlobally))
+        QApplication::setPalette(m_creatorTheme->palette());
+}
+
 void setCreatorTheme(Theme *theme)
 {
     if (m_creatorTheme == theme)
         return;
     delete m_creatorTheme;
     m_creatorTheme = theme;
-    if (theme && theme->flag(Theme::ApplyThemePaletteGlobally))
-        QApplication::setPalette(theme->palette());
+    setThemeApplicationPalette();
 }
 
 Theme::Theme(const QString &id, QObject *parent)
