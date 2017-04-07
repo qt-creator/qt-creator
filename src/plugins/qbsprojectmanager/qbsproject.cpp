@@ -132,6 +132,8 @@ QbsProject::QbsProject(const FileName &fileName) :
     setProjectContext(Context(Constants::PROJECT_ID));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
+    setDisplayName(fileName.toFileInfo().completeBaseName());
+
     connect(this, &Project::activeTargetChanged, this, &QbsProject::changeActiveTarget);
     connect(this, &Project::addedTarget, this, &QbsProject::targetWasAdded);
     connect(this, &Project::removedTarget, this, &QbsProject::targetWasRemoved);
@@ -156,11 +158,6 @@ QbsProject::~QbsProject()
         m_qbsUpdateFutureInterface = 0;
     }
     qDeleteAll(m_extraCompilers);
-}
-
-QString QbsProject::displayName() const
-{
-    return projectFilePath().toFileInfo().completeBaseName();
 }
 
 QbsRootProjectNode *QbsProject::rootProjectNode() const

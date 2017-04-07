@@ -92,7 +92,7 @@ public:
             const ProjectDocument::ProjectCallback &callback = {});
     ~Project() override;
 
-    virtual QString displayName() const = 0;
+    QString displayName() const;
     Core::Id id() const;
 
     Core::IDocument *document() const;
@@ -164,6 +164,7 @@ public:
     Utils::MacroExpander *macroExpander() const;
 
 signals:
+    void displayNameChanged();
     void fileListChanged();
 
     // Note: activeTarget can be 0 (if no targets are defined).
@@ -190,6 +191,7 @@ protected:
     virtual RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
     virtual bool setupTarget(Target *t);
 
+    void setDisplayName(const QString &name);
     void setRequiredKitPredicate(const Kit::Predicate &predicate);
     void setPreferredKitPredicate(const Kit::Predicate &predicate);
 

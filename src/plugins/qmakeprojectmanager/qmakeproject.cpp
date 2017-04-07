@@ -169,6 +169,7 @@ QmakeProject::QmakeProject(const FileName &fileName) :
     setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setRequiredKitPredicate(QtSupport::QtKitInformation::qtVersionPredicate());
+    setDisplayName(fileName.toFileInfo().completeBaseName());
 
     const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
     m_qmakeVfs->setTextCodec(codec);
@@ -573,11 +574,6 @@ bool QmakeProject::supportsKit(Kit *k, QString *errorMessage) const
     if (!version && errorMessage)
         *errorMessage = tr("No Qt version set in kit.");
     return version;
-}
-
-QString QmakeProject::displayName() const
-{
-    return projectFilePath().toFileInfo().completeBaseName();
 }
 
 // Find the folder that contains a file with a certain name (recurse down)

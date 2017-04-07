@@ -79,6 +79,7 @@ CMakeProject::CMakeProject(const FileName &fileName) : Project(Constants::CMAKEM
     setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+    setDisplayName(projectDirectory().fileName());
 
     connect(this, &CMakeProject::activeTargetChanged, this, &CMakeProject::handleActiveTargetChanged);
     connect(&m_treeScanner, &TreeScanner::finished, this, &CMakeProject::handleTreeScanningFinished);
@@ -145,8 +146,10 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
     Kit *k = t->kit();
 
     auto newRoot = bc->generateProjectTree(m_allFiles);
-    if (newRoot)
+    if (newRoot) {
         setRootProjectNode(newRoot);
+        setDisplayName(newRoot->displayName());
+    }
 
     updateApplicationAndDeploymentTargets();
     updateTargetRunConfigurations(t);
@@ -294,12 +297,6 @@ QStringList CMakeProject::buildTargetTitles(bool runnable) const
 bool CMakeProject::hasBuildTarget(const QString &title) const
 {
     return anyOf(buildTargets(), [title](const CMakeBuildTarget &ct) { return ct.title == title; });
-}
-
-QString CMakeProject::displayName() const
-{
-    auto root = dynamic_cast<CMakeProjectNode *>(rootProjectNode());
-    return root ? root->displayName() : projectDirectory().fileName();
 }
 
 Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *errorMessage)

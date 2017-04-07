@@ -72,6 +72,7 @@ GenericProject::GenericProject(const Utils::FileName &fileName) :
     setId(Constants::GENERICPROJECT_ID);
     setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+    setDisplayName(fileName.toFileInfo().completeBaseName());
 
     const QFileInfo fileInfo = projectFilePath().toFileInfo();
     const QDir dir = fileInfo.dir();
@@ -393,11 +394,6 @@ void GenericProject::activeBuildConfigurationWasChanged()
 QStringList GenericProject::projectIncludePaths() const
 {
     return m_projectIncludePaths;
-}
-
-QString GenericProject::displayName() const
-{
-    return projectFilePath().toFileInfo().completeBaseName();
 }
 
 QStringList GenericProject::buildTargets() const

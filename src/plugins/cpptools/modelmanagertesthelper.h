@@ -41,9 +41,6 @@ class CPPTOOLS_EXPORT TestProject: public ProjectExplorer::Project
 
 public:
     TestProject(const QString &name, QObject *parent);
-    ~TestProject() override;
-
-    QString displayName() const override { return m_name; }
 
 private:
     QString m_name;

@@ -94,8 +94,6 @@ class PythonProject : public Project
 public:
     explicit PythonProject(const Utils::FileName &filename);
 
-    QString displayName() const override;
-
     bool addFiles(const QStringList &filePaths);
     bool removeFiles(const QStringList &filePaths);
     bool setFiles(const QStringList &filePaths);
@@ -377,11 +375,7 @@ PythonProject::PythonProject(const FileName &fileName) :
     setId(PythonProjectId);
     setProjectContext(Context(PythonProjectContext));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-}
-
-QString PythonProject::displayName() const
-{
-    return projectFilePath().toFileInfo().completeBaseName();
+    setDisplayName(fileName.toFileInfo().completeBaseName());
 }
 
 static QStringList readLines(const QString &absoluteFileName)

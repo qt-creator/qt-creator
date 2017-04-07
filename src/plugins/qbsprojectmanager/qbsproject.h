@@ -61,7 +61,6 @@ public:
     explicit QbsProject(const Utils::FileName &filename);
     ~QbsProject() override;
 
-    QString displayName() const override;
     QbsRootProjectNode *rootProjectNode() const override;
 
     QStringList filesGeneratedFrom(const QString &sourceFile) const override;

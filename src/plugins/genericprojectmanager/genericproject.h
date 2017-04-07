@@ -53,8 +53,6 @@ public:
     QString includesFileName() const;
     QString configFileName() const;
 
-    QString displayName() const override;
-
     QStringList buildTargets() const;
 
     bool addFiles(const QStringList &filePaths);
