@@ -1214,14 +1214,15 @@ void QmakeProject::collectLibraryData(const QmakeProFile *file, DeploymentData &
                 QString version = file->singleVariableValue(Variable::Version);
                 if (version.isEmpty())
                     version = QLatin1String("1.0.0");
+                QStringList versionComponents = version.split('.');
+                while (versionComponents.size() < 3)
+                    versionComponents << QLatin1String("0");
                 targetFileName += QLatin1Char('.');
-                while (true) {
+                while (!versionComponents.isEmpty()) {
+                    const QString versionString = versionComponents.join(QLatin1Char('.'));
                     deploymentData.addFile(destDirFor(ti).toString() + '/'
-                            + targetFileName + version, targetPath);
-                    const QString tmpVersion = version.left(version.lastIndexOf(QLatin1Char('.')));
-                    if (tmpVersion == version)
-                        break;
-                    version = tmpVersion;
+                            + targetFileName + versionString, targetPath);
+                    versionComponents.removeLast();
                 }
             }
         }
