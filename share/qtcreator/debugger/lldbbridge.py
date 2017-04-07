@@ -811,7 +811,10 @@ class Dumper(DumperBase):
         self.nativeMixed = int(args.get('nativemixed', 0))
         self.workingDirectory_ = args.get('workingdirectory', '')
         if self.workingDirectory_ == '':
-            self.workingDirectory_ = os.getcwd()
+            try:
+                self.workingDirectory_ = os.getcwd()
+            except: # Could have been deleted in the mean time.
+                pass
 
         self.ignoreStops = 0
         self.silentStops = 0
