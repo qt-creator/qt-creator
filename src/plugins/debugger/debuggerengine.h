@@ -62,6 +62,7 @@ namespace Internal {
 
 class DebuggerEnginePrivate;
 class DebuggerPluginPrivate;
+class DebuggerRunTool;
 class DisassemblerAgent;
 class MemoryAgent;
 class WatchItem;
@@ -199,6 +200,7 @@ public:
 
     const DebuggerRunParameters &runParameters() const;
     DebuggerRunParameters &runParameters();
+    DebuggerRunTool *runTool() const;
 
     enum {
         // Remove need to qualify each use.
@@ -469,6 +471,21 @@ private:
     friend class DebuggerEnginePrivate;
     friend class LocationMark;
     DebuggerEnginePrivate *d;
+};
+
+class DebuggerRunTool : public ProjectExplorer::ToolRunner
+{
+public:
+    DebuggerRunTool(DebuggerRunControl *runControl, DebuggerEngine *engine);
+    ~DebuggerRunTool();
+
+    void showMessage(const QString &msg, int channel, int timeout = -1);
+
+    void handleFinished();
+    DebuggerEngine *engine() const { return m_engine; }
+
+private:
+    DebuggerEngine *m_engine; // Master engine
 };
 
 class LocationMark : public TextEditor::TextMark

@@ -53,7 +53,6 @@ public:
     void start() override;
     bool promptToStop(bool *prompt = 0) const override;
     void stop() override; // Called from SnapshotWindow.
-    void handleApplicationOutput(const QString &msg, int channel);
 
     void startFailed();
     void notifyEngineRemoteServerRunning(const QByteArray &msg, int pid);

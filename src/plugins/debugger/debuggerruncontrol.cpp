@@ -26,6 +26,7 @@
 #include "debuggerruncontrol.h"
 
 #include "analyzer/analyzermanager.h"
+#include "console/console.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
@@ -118,23 +119,6 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfig, Core::Id run
 
 DebuggerRunControl::~DebuggerRunControl()
 {
-}
-
-static OutputFormat outputFormatForChannelType(int channel)
-{
-    switch (channel) {
-    case AppOutput: return StdOutFormatSameLine;
-    case AppError: return StdErrFormatSameLine;
-    case AppStuff: return DebugFormat;
-    default: return NumberOfFormats;
-    }
-}
-
-void DebuggerRunControl::handleApplicationOutput(const QString &msg, int channel)
-{
-    OutputFormat format = outputFormatForChannelType(channel);
-    QTC_ASSERT(format != NumberOfFormats, return);
-    appendMessage(msg, format);
 }
 
 void DebuggerRunControl::start()
@@ -242,7 +226,7 @@ void DebuggerRunControl::debuggingFinished()
 void DebuggerRunControl::showMessage(const QString &msg, int channel)
 {
     QTC_ASSERT(engine(this), return);
-    engine(this)->showMessage(msg, channel);
+    engine(this)->runTool()->showMessage(msg, channel);
 }
 
 DebuggerStartParameters &DebuggerRunControl::startParameters()
@@ -526,51 +510,66 @@ static bool isDebuggableScript(RunConfiguration *runConfig)
 
 /// DebuggerRunTool
 
-class DebuggerRunTool : public ToolRunner
+DebuggerRunTool::DebuggerRunTool(DebuggerRunControl *runControl, DebuggerEngine *engine)
+    : ToolRunner(runControl), m_engine(engine)
 {
-public:
-    DebuggerRunTool(DebuggerRunControl *runControl, DebuggerEngine *engine)
-        : ToolRunner(runControl), m_engine(engine)
-    {
-        connect(runControl, &RunControl::finished,
-                this, &DebuggerRunTool::handleFinished);
-        connect(engine, &DebuggerEngine::requestRemoteSetup,
-                runControl, &DebuggerRunControl::requestRemoteSetup);
-        connect(engine, &DebuggerEngine::stateChanged,
-                runControl, &DebuggerRunControl::stateChanged);
-        connect(engine, &DebuggerEngine::aboutToNotifyInferiorSetupOk,
-                runControl, &DebuggerRunControl::aboutToNotifyInferiorSetupOk);
+    connect(runControl, &RunControl::finished,
+            this, &DebuggerRunTool::handleFinished);
+    connect(engine, &DebuggerEngine::requestRemoteSetup,
+            runControl, &DebuggerRunControl::requestRemoteSetup);
+    connect(engine, &DebuggerEngine::stateChanged,
+            runControl, &DebuggerRunControl::stateChanged);
+    connect(engine, &DebuggerEngine::aboutToNotifyInferiorSetupOk,
+            runControl, &DebuggerRunControl::aboutToNotifyInferiorSetupOk);
 
-        runControl->setDisplayName(engine->runParameters().displayName);
-        // QML and/or mixed are not prepared for it.
-        runControl->setSupportsReRunning(engine->runParameters().languages & QmlLanguage);
+    runControl->setDisplayName(engine->runParameters().displayName);
+    // QML and/or mixed are not prepared for it.
+    runControl->setSupportsReRunning(engine->runParameters().languages & QmlLanguage);
+}
+
+DebuggerRunTool::~DebuggerRunTool()
+{
+    disconnect();
+    if (m_engine) {
+        DebuggerEngine *engine = m_engine;
+        m_engine = 0;
+        engine->disconnect();
+        delete engine;
     }
+}
 
-    ~DebuggerRunTool()
-    {
-        disconnect();
-        if (m_engine) {
-            DebuggerEngine *engine = m_engine;
-            m_engine = 0;
-            engine->disconnect();
-            delete engine;
-        }
+void DebuggerRunTool::handleFinished()
+{
+    appendMessage(tr("Debugging has finished") + '\n', NormalMessageFormat);
+    if (m_engine)
+        m_engine->handleFinished();
+    runControlFinished(m_engine);
+}
+
+void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
+{
+    if (channel == ConsoleOutput)
+        debuggerConsole()->printItem(ConsoleItem::DefaultType, msg);
+
+    Internal::showMessage(msg, channel, timeout);
+    switch (channel) {
+    case AppOutput:
+        appendMessage(msg, StdOutFormatSameLine);
+        break;
+    case AppError:
+        appendMessage(msg, StdErrFormatSameLine);
+        break;
+    case AppStuff:
+        appendMessage(msg, DebugFormat);
+        break;
+    default:
+        break;
     }
-
-    void handleFinished()
-    {
-        appendMessage(tr("Debugging has finished") + '\n', NormalMessageFormat);
-        if (m_engine)
-            m_engine->handleFinished();
-        runControlFinished(m_engine);
-    }
-
-    DebuggerEngine *m_engine; // Master engine
-};
+}
 
 DebuggerEngine *engine(const DebuggerRunControl *runControl)
 {
-    return static_cast<DebuggerRunTool *>(runControl->toolRunner())->m_engine;
+    return static_cast<DebuggerRunTool *>(runControl->toolRunner())->engine();
 }
 
 
