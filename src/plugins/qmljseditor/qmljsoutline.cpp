@@ -134,7 +134,7 @@ void QmlJSOutlineWidget::setEditor(QmlJSEditorWidget *editor)
 
     connect(m_editor, &QmlJSEditorWidget::outlineModelIndexChanged,
             this, &QmlJSOutlineWidget::updateSelectionInTree);
-    connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QmlOutlineModel::updated, [this] () {
+    connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QmlOutlineModel::updated, this, [this] () {
         m_treeView->expandAll();
         m_editor->updateOutlineIndexNow();
     });
