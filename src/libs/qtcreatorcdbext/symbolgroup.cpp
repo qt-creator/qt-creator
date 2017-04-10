@@ -465,8 +465,11 @@ bool SymbolGroup::assign(const std::string &nodeName,
         return false;
     }
 
-    return (node->dumperType() & KT_Editable) ? // Edit complex types
-        assignType(node, valueEncoding, value, ctx, errorMessage) :
+    int kt = node->dumperType();
+    if (kt < 0)
+        kt = knownType(node->type(), KnownTypeAutoStripPointer | KnownTypeHasClassPrefix);
+    return (kt & KT_Editable) ? // Edit complex types
+        assignType(node, kt, valueEncoding, value, ctx, errorMessage) :
         node->assign(value, errorMessage);
 }
 
