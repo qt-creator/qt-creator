@@ -27,6 +27,7 @@
 
 #include "utils_global.h"
 #include "qtcassert.h"
+#include <limits>
 #include <QMetaType>
 
 namespace Utils {
