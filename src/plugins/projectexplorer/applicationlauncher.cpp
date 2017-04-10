@@ -26,7 +26,7 @@
 #include "applicationlauncher.h"
 #ifdef Q_OS_WIN
 #include "windebuginterface.h"
-#include <windows.h>
+#include <qt_windows.h>
 #endif
 
 #include <coreplugin/icore.h>
