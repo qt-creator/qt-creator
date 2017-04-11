@@ -1546,6 +1546,7 @@ void tst_Dumpers::dumper()
 
     Context context(m_debuggerEngine);
     QByteArray contents;
+    GdbMi actual;
     if (m_debuggerEngine == GdbEngine) {
         int posDataStart = output.indexOf("data=");
         if (posDataStart == -1) {
@@ -1555,9 +1556,9 @@ void tst_Dumpers::dumper()
         contents = output.mid(posDataStart);
         contents.replace("\\\"", "\"");
 
-        GdbMi actualx;
-        actualx.fromStringMultiple(contents);
-        context.nameSpace = actualx["qtnamespace"].data();
+        actual.fromStringMultiple(contents);
+        context.nameSpace = actual["qtnamespace"].data();
+        actual = actual["data"];
         //qDebug() << "FOUND NS: " << context.nameSpace;
 
     } else if (m_debuggerEngine == LldbEngine) {
@@ -1579,6 +1580,7 @@ void tst_Dumpers::dumper()
         if (context.nameSpace == "::")
             context.nameSpace.clear();
         contents.replace("\\\"", "\"");
+        actual.fromString(contents);
     } else {
         QByteArray localsAnswerStart("<qtcreatorcdbext>|R|42|");
         QByteArray locals("|script|");
@@ -1594,14 +1596,9 @@ void tst_Dumpers::dumper()
             if (localsBeginPos != -1)
                 localsBeginPos = output.indexOf(locals, localsBeginPos);
         } while (localsBeginPos != -1);
-        GdbMi result;
-        result.fromString(contents);
-        if (result.childCount() != 0)
-            contents = result.childAt(0).toString().toLocal8Bit();
+        actual.fromString(contents);
+        actual = actual["result"]["data"];
     }
-
-    GdbMi actual;
-    actual.fromString(contents);
 
     WatchItem local;
     local.iname = "local";
