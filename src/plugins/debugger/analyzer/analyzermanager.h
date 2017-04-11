@@ -85,7 +85,6 @@ public:
 
     Core::Id runMode() const { return m_runMode; }
     void setRunMode(Core::Id mode) { m_runMode = mode; }
-    bool isRunnable(QString *reason = 0) const;
 
     /// Returns a new engine for the given start parameters.
     /// Called each time the tool is launched.

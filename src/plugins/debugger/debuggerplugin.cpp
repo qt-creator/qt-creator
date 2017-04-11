@@ -3416,14 +3416,6 @@ void saveModeToRestore()
 
 } // namespace Internal
 
-bool ActionDescription::isRunnable(QString *reason) const
-{
-    if (m_customToolStarter) // Something special. Pretend we can always run it.
-        return true;
-
-    return ProjectExplorerPlugin::canRunStartupProject(m_runMode, reason);
-}
-
 static bool buildTypeAccepted(QFlags<ToolMode> toolMode, BuildConfiguration::BuildType buildType)
 {
     if (buildType == BuildConfiguration::Unknown)
