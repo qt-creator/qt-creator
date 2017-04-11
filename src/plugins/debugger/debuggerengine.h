@@ -477,6 +477,8 @@ private:
 
 class DebuggerRunTool : public ProjectExplorer::ToolRunner
 {
+    Q_OBJECT
+
 public:
     DebuggerRunTool(ProjectExplorer::RunControl *runControl,
                     const DebuggerRunParameters &rp,

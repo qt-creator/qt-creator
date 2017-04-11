@@ -47,8 +47,6 @@ public:
                        DebuggerEngine *masterEngine = nullptr);
     ~QmlEngine() override;
 
-    void filterApplicationMessage(const QString &msg, int channel) const;
-
     void logServiceStateChange(const QString &service, float version,
                                QmlDebug::QmlDebugClient::State newState);
     void logServiceActivity(const QString &service, const QString &logMessage);
@@ -71,8 +69,6 @@ private:
     void notifyEngineRemoteServerRunning(const QString &, int pid) override;
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
 
-    void showMessage(const QString &msg, int channel = LogDebug,
-                     int timeout = -1) const override;
     void gotoLocation(const Internal::Location &location) override;
     void insertBreakpoint(Breakpoint bp) override;
 

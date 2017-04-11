@@ -135,7 +135,7 @@ struct LookupData
 
 typedef QHash<int, LookupData> LookupItems; // id -> (iname, exp)
 
-class QmlEnginePrivate : QmlDebugClient
+class QmlEnginePrivate : public QmlDebugClient
 {
 public:
     QmlEnginePrivate(QmlEngine *engine_, QmlDebugConnection *connection_)
@@ -188,6 +188,17 @@ public:
     void checkForFinishedUpdate();
     ConsoleItem *constructLogItemTree(const QmlV8ObjectData &objectData);
 
+    void filterApplicationMessage(ProjectExplorer::RunControl *runControl,
+                                  const QString &msg, Utils::OutputFormat format)
+    {
+        if (runControl != engine->runControl())
+            return;
+        if (format == StdErrFormatSameLine
+                || format == StdOutFormatSameLine
+                || format == DebugFormat)
+            outputParser.processOutput(msg);
+    }
+
 public:
     QHash<int, QmlV8ObjectData> refVals; // The mapping of target object handles to retrieved values.
     int sequence = -1;
@@ -225,6 +236,8 @@ public:
     QmlDebug::QDebugMessageClient *msgClient = 0;
 
     QHash<int, QmlCallback> callbackForToken;
+    QMetaObject::Connection startupMessageFilterConnection;
+
 private:
     ConsoleItem *constructLogItemTree(const QmlV8ObjectData &objectData, QList<int> &seenHandles);
     void constructChildLogItems(ConsoleItem *item, const QmlV8ObjectData &objectData,
@@ -322,6 +335,10 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
 
     connect(d->msgClient, &QDebugMessageClient::message,
             this, &appendDebugOutput);
+
+    d->startupMessageFilterConnection = connect(
+                runControl(), &RunControl::appendMessageRequested,
+                d, &QmlEnginePrivate::filterApplicationMessage);
 }
 
 QmlEngine::~QmlEngine()
@@ -493,18 +510,6 @@ void QmlEngine::errorMessageBoxFinished(int result)
     }
 }
 
-void QmlEngine::filterApplicationMessage(const QString &output, int /*channel*/) const
-{
-    d->outputParser.processOutput(output);
-}
-
-void QmlEngine::showMessage(const QString &msg, int channel, int timeout) const
-{
-    if (channel == AppOutput || channel == AppError)
-        filterApplicationMessage(msg, channel);
-    DebuggerEngine::showMessage(msg, channel, timeout);
-}
-
 void QmlEngine::gotoLocation(const Location &location)
 {
     const QString fileName = location.fileName();
@@ -582,6 +587,7 @@ void QmlEngine::stopApplicationLauncher()
 
 void QmlEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
 {
+    QObject::disconnect(d->startupMessageFilterConnection);
     DebuggerEngine::notifyEngineRemoteSetupFinished(result);
 
     if (result.success) {

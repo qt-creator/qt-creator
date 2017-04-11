@@ -82,11 +82,7 @@ public:
     DebuggerEngine *qmlEngine() const;
 
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
-
-    void showMessage(const QString &msg, int channel = LogDebug,
-        int timeout = -1) const override;
     void resetLocation() override;
-
     void notifyInferiorIll() override;
 
 protected:

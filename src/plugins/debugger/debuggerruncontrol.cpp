@@ -582,7 +582,8 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
 
 DebuggerEngine *engine(const DebuggerRunControl *runControl)
 {
-    return static_cast<DebuggerRunTool *>(runControl->toolRunner())->engine();
+    QTC_ASSERT(runControl, return nullptr);
+    return qobject_cast<DebuggerRunTool *>(runControl->toolRunner())->engine();
 }
 
 

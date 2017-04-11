@@ -743,15 +743,6 @@ void QmlCppEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &resu
     qmlEngine()->notifyEngineRemoteSetupFinished(result);
 }
 
-void QmlCppEngine::showMessage(const QString &msg, int channel, int timeout) const
-{
-    if (channel == AppOutput || channel == AppError || channel == AppStuff) {
-        // message is from CppEngine, allow qml engine to process
-        m_qmlEngine->filterApplicationMessage(msg, channel);
-    }
-    DebuggerEngine::showMessage(msg, channel, timeout);
-}
-
 void QmlCppEngine::resetLocation()
 {
     if (m_qmlEngine)
