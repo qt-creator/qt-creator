@@ -476,16 +476,22 @@ private:
 class DebuggerRunTool : public ProjectExplorer::ToolRunner
 {
 public:
-    DebuggerRunTool(DebuggerRunControl *runControl, DebuggerEngine *engine);
+    DebuggerRunTool(ProjectExplorer::RunControl *runControl, const DebuggerRunParameters &rp);
     ~DebuggerRunTool();
+
+    DebuggerEngine *engine() const { return m_engine; }
+    DebuggerRunControl *runControl() const;
+
+    QStringList errors() const { return m_errors; }
 
     void showMessage(const QString &msg, int channel, int timeout = -1);
 
     void handleFinished();
-    DebuggerEngine *engine() const { return m_engine; }
 
 private:
-    DebuggerEngine *m_engine; // Master engine
+    DebuggerRunParameters m_rp;
+    DebuggerEngine *m_engine = nullptr; // Master engine
+    QStringList m_errors;
 };
 
 class LocationMark : public TextEditor::TextMark
