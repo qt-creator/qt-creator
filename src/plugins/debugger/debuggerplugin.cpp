@@ -2127,7 +2127,7 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     if (RunConfiguration *runConfig = rc->runConfiguration()) {
         auto runControl = new DebuggerRunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
         (void) new DebuggerRunTool(runControl, rp);
-        ProjectExplorerPlugin::startRunControl(runControl, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        ProjectExplorerPlugin::startRunControl(runControl);
     } else {
         createAndScheduleRun(rp, guessKitFromParameters(rp));
     }
@@ -3712,7 +3712,7 @@ void DebuggerUnitTests::testStateMachine()
 
     auto runControl = new DebuggerRunControl(rc, ProjectExplorer::Constants::DEBUG_RUN_MODE);
     (void) new DebuggerRunTool(runControl, rp);
-    ProjectExplorerPlugin::startRunControl(runControl, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    ProjectExplorerPlugin::startRunControl(runControl);
 
     connect(runControl, &RunControl::finished, this, [this] {
         QTestEventLoop::instance().exitLoop();

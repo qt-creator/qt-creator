@@ -429,7 +429,7 @@ MemcheckTool::MemcheckTool(QObject *parent)
         connection.connParams = dlg.sshParams();
         rc->setConnection(connection);
         rc->setDisplayName(runnable.executable);
-        ProjectExplorerPlugin::startRunControl(rc, MEMCHECK_RUN_MODE);
+        ProjectExplorerPlugin::startRunControl(rc);
     });
     desc.setMenuGroup(Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
     Debugger::registerAction("Memcheck.Remote", desc);

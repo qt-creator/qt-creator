@@ -3330,7 +3330,7 @@ void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response, const QStri
         rp.isSnapshot = true;
         auto rc = new DebuggerRunControl(runControl()->runConfiguration(), ProjectExplorer::Constants::DEBUG_RUN_MODE);
         (void) new DebuggerRunTool(rc, rp);
-        ProjectExplorerPlugin::startRunControl(rc, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        ProjectExplorerPlugin::startRunControl(rc);
     } else {
         QString msg = response.data["msg"].data();
         AsynchronousMessageBox::critical(tr("Snapshot Creation Error"),

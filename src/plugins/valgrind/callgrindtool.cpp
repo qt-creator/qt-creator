@@ -281,7 +281,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
         connection.connParams = dlg.sshParams();
         rc->setConnection(connection);
         rc->setDisplayName(runnable.executable);
-        ProjectExplorerPlugin::startRunControl(rc, CALLGRIND_RUN_MODE);
+        ProjectExplorerPlugin::startRunControl(rc);
     });
     desc.setMenuGroup(Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
     Debugger::registerAction(CallgrindRemoteActionId, desc);

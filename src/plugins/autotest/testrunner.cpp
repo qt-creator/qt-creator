@@ -346,9 +346,7 @@ void TestRunner::debugTests()
 
     connect(this, &TestRunner::requestStopTestRun, runControl, &Debugger::DebuggerRunControl::stop);
     connect(runControl, &Debugger::DebuggerRunControl::finished, this, &TestRunner::onFinished);
-    ProjectExplorer::ProjectExplorerPlugin::startRunControl(
-                runControl, ProjectExplorer::Constants::DEBUG_RUN_MODE);
-
+    ProjectExplorer::ProjectExplorerPlugin::startRunControl(runControl);
 }
 
 void TestRunner::runOrDebugTests()

@@ -674,7 +674,7 @@ RunControl *createAndScheduleRun(const DebuggerRunParameters &rp, Kit *kit)
     auto runControl = new DebuggerRunControl(runConfig, DebugRunMode);
     (void) new DebuggerRunTool(runControl, rp);
     QTC_ASSERT(runControl, return nullptr);
-    ProjectExplorerPlugin::startRunControl(runControl, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    ProjectExplorerPlugin::startRunControl(runControl);
     return runControl;
 }
 

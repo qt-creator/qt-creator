@@ -283,7 +283,7 @@ public:
     QPair<bool, QString> buildSettingsEnabled(const Project *pro);
 
     void addToRecentProjects(const QString &fileName, const QString &displayName);
-    void startRunControl(RunControl *runControl, Core::Id runMode);
+    void startRunControl(RunControl *runControl);
 
     void updateActions();
     void updateContext();
@@ -2005,7 +2005,7 @@ void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *run
             m_instance->showRunErrorMessage(errorMessage);
             return;
         }
-        startRunControl(control, runMode);
+        startRunControl(control);
     }
 }
 
@@ -2017,16 +2017,17 @@ void ProjectExplorerPlugin::showRunErrorMessage(const QString &errorMessage)
         QMessageBox::critical(ICore::mainWindow(), errorMessage.isNull() ? tr("Unknown error") : tr("Could Not Run"), errorMessage);
 }
 
-void ProjectExplorerPlugin::startRunControl(RunControl *runControl, Core::Id runMode)
+void ProjectExplorerPlugin::startRunControl(RunControl *runControl)
 {
-    dd->startRunControl(runControl, runMode);
+    dd->startRunControl(runControl);
 }
 
-void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl, Core::Id runMode)
+void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
 {
     m_outputPane->createNewOutputWindow(runControl);
     m_outputPane->flash(); // one flash for starting
     m_outputPane->showTabFor(runControl);
+    Core::Id runMode = runControl->runMode();
     bool popup = (runMode == Constants::NORMAL_RUN_MODE && dd->m_projectExplorerSettings.showRunOutput)
             || ((runMode == Constants::DEBUG_RUN_MODE || runMode == Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN)
                 && m_projectExplorerSettings.showDebugOutput);
