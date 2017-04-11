@@ -63,6 +63,7 @@
 
 #include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/itaskhandler.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
@@ -3327,7 +3328,9 @@ void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response, const QStri
         }
         rp.displayName = function + ": " + QDateTime::currentDateTime().toString();
         rp.isSnapshot = true;
-        createAndScheduleRun(rp, 0);
+        auto rc = new DebuggerRunControl(runControl()->runConfiguration(), ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        (void) new DebuggerRunTool(rc, rp);
+        ProjectExplorerPlugin::startRunControl(rc, ProjectExplorer::Constants::DEBUG_RUN_MODE);
     } else {
         QString msg = response.data["msg"].data();
         AsynchronousMessageBox::critical(tr("Snapshot Creation Error"),

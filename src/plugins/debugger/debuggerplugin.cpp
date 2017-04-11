@@ -661,7 +661,7 @@ public:
         m_threadBox->blockSignals(state);
     }
 
-    DebuggerRunControl *attachToRunningProcess(Kit *kit, DeviceProcessItem process, bool contAfterAttach);
+    RunControl *attachToRunningProcess(Kit *kit, DeviceProcessItem process, bool contAfterAttach);
 
     void writeSettings()
     {
@@ -2067,9 +2067,9 @@ void DebuggerPluginPrivate::attachToUnstartedApplicationDialog()
 
     connect(dlg, &QDialog::finished, dlg, &QObject::deleteLater);
     connect(dlg, &UnstartedAppWatcherDialog::processFound, this, [this, dlg] {
-        DebuggerRunControl *rc = attachToRunningProcess(dlg->currentKit(),
-                                                        dlg->currentProcess(),
-                                                        dlg->continueOnAttach());
+        RunControl *rc = attachToRunningProcess(dlg->currentKit(),
+                                                dlg->currentProcess(),
+                                                dlg->continueOnAttach());
         if (!rc)
             return;
 
@@ -2080,7 +2080,7 @@ void DebuggerPluginPrivate::attachToUnstartedApplicationDialog()
     dlg->show();
 }
 
-DebuggerRunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
+RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     DeviceProcessItem process, bool contAfterAttach)
 {
     QTC_ASSERT(kit, return 0);
@@ -2124,13 +2124,13 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     rp.startMode = AttachExternal;
     rp.closeMode = DetachAtClose;
     rp.toolChainAbi = rc->abi();
-    Kit *kit = 0;
-    if (const RunConfiguration *runConfiguration = rc->runConfiguration())
-        if (const Target *target = runConfiguration->target())
-            kit = target->kit();
-    if (!kit)
-        kit = guessKitFromParameters(rp);
-    createAndScheduleRun(rp, kit);
+    if (RunConfiguration *runConfig = rc->runConfiguration()) {
+        auto runControl = new DebuggerRunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        (void) new DebuggerRunTool(runControl, rp);
+        ProjectExplorerPlugin::startRunControl(runControl, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    } else {
+        createAndScheduleRun(rp, guessKitFromParameters(rp));
+    }
 }
 
 void DebuggerPlugin::getEnginesState(QByteArray *json) const
@@ -2223,8 +2223,8 @@ void DebuggerPluginPrivate::enableReverseDebuggingTriggered(const QVariant &valu
 
 void DebuggerPluginPrivate::runScheduled()
 {
-    for (int i = 0, n = m_scheduledStarts.size(); i != n; ++i)
-        createAndScheduleRun(m_scheduledStarts.at(i).first, m_scheduledStarts.at(i).second);
+    for (const QPair<DebuggerRunParameters, Kit *> pair : m_scheduledStarts)
+        createAndScheduleRun(pair.first, pair.second);
 }
 
 void DebuggerPluginPrivate::editorOpened(IEditor *editor)
@@ -3705,13 +3705,14 @@ void DebuggerUnitTests::testStateMachine()
     DebuggerRunParameters rp;
     Target *t = SessionManager::startupProject()->activeTarget();
     QVERIFY(t);
-    Kit *kit = t->kit();
-    QVERIFY(kit);
     RunConfiguration *rc = t->activeRunConfiguration();
     QVERIFY(rc);
     rp.inferior = rc->runnable().as<StandardRunnable>();
     rp.testCase = TestNoBoundsOfCurrentFunction;
-    DebuggerRunControl *runControl = createAndScheduleRun(rp, kit);
+
+    auto runControl = new DebuggerRunControl(rc, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    (void) new DebuggerRunTool(runControl, rp);
+    ProjectExplorerPlugin::startRunControl(runControl, ProjectExplorer::Constants::DEBUG_RUN_MODE);
 
     connect(runControl, &RunControl::finished, this, [this] {
         QTestEventLoop::instance().exitLoop();

@@ -476,19 +476,21 @@ private:
 class DebuggerRunTool : public ProjectExplorer::ToolRunner
 {
 public:
-    DebuggerRunTool(ProjectExplorer::RunControl *runControl, const DebuggerRunParameters &rp);
+    DebuggerRunTool(ProjectExplorer::RunControl *runControl,
+                    const DebuggerRunParameters &rp,
+                    QString *errorMessage = nullptr);
     ~DebuggerRunTool();
 
     DebuggerEngine *engine() const { return m_engine; }
     DebuggerRunControl *runControl() const;
-
-    QStringList errors() const { return m_errors; }
 
     void showMessage(const QString &msg, int channel, int timeout = -1);
 
     void handleFinished();
 
 private:
+    bool fixup();
+
     DebuggerRunParameters m_rp;
     DebuggerEngine *m_engine = nullptr; // Master engine
     QStringList m_errors;
@@ -508,8 +510,7 @@ private:
 };
 
 DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters &rp, QStringList *errors);
-
-DebuggerRunControl *createAndScheduleRun(const DebuggerRunParameters &rp, const ProjectExplorer::Kit *kit);
+ProjectExplorer::RunControl *createAndScheduleRun(const DebuggerRunParameters &rp, ProjectExplorer::Kit *kit);
 
 } // namespace Internal
 } // namespace Debugger
