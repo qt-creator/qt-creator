@@ -115,6 +115,17 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfig, Core::Id run
     : RunControl(runConfig, runMode)
 {
     setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
+    setPromptToStop([&](bool *optionalPrompt) {
+        const QString question = tr("A debugging session is still in progress. "
+                                    "Terminating the session in the current"
+                                    " state can leave the target in an inconsistent state."
+                                    " Would you still like to terminate it?");
+        bool result = showPromptToStopDialog(tr("Close Debugging Session"), question,
+                                             QString(), QString(), optionalPrompt);
+        if (result)
+            disconnect(this);
+        return result;
+    });
 }
 
 DebuggerRunControl::~DebuggerRunControl()
@@ -192,24 +203,6 @@ void DebuggerRunControl::notifyEngineRemoteServerRunning(const QByteArray &msg, 
 void DebuggerRunControl::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
 {
     engine(this)->notifyEngineRemoteSetupFinished(result);
-}
-
-bool DebuggerRunControl::promptToStop(bool *optionalPrompt) const
-{
-    QTC_ASSERT(isRunning(), return true);
-
-    if (optionalPrompt && !*optionalPrompt)
-        return true;
-
-    const QString question = tr("A debugging session is still in progress. "
-            "Terminating the session in the current"
-            " state can leave the target in an inconsistent state."
-            " Would you still like to terminate it?");
-    bool result = showPromptToStopDialog(tr("Close Debugging Session"), question,
-                                         QString(), QString(), optionalPrompt);
-    if (result)
-        disconnect(this);
-    return result;
 }
 
 void DebuggerRunControl::stop()

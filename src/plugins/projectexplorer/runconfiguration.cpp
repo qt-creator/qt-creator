@@ -585,6 +585,7 @@ public:
     QPointer<TargetRunner> targetRunner; // Owned. QPointer as "extra safety" for now.
     QPointer<ToolRunner> toolRunner; // Owned. QPointer as "extra safety" for now.
     Utils::OutputFormatter *outputFormatter = nullptr;
+    std::function<bool(bool*)> promptToStop;
 
     // A handle to the actual application process.
     Utils::ProcessHandle applicationProcessHandle;
@@ -882,15 +883,23 @@ void RunControl::setApplicationProcessHandle(const ProcessHandle &handle)
 bool RunControl::promptToStop(bool *optionalPrompt) const
 {
     QTC_ASSERT(isRunning(), return true);
-
     if (optionalPrompt && !*optionalPrompt)
         return true;
+
+    // Overridden.
+    if (d->promptToStop)
+        return d->promptToStop(optionalPrompt);
 
     const QString msg = tr("<html><head/><body><center><i>%1</i> is still running.<center/>"
                            "<center>Force it to quit?</center></body></html>").arg(displayName());
     return showPromptToStopDialog(tr("Application Still Running"), msg,
                                   tr("Force &Quit"), tr("&Keep Running"),
                                   optionalPrompt);
+}
+
+void RunControl::setPromptToStop(const std::function<bool (bool *)> &promptToStop)
+{
+    d->promptToStop = promptToStop;
 }
 
 bool RunControl::supportsReRunning() const

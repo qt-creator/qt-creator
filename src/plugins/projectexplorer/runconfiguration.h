@@ -370,7 +370,8 @@ public:
     void initiateStart(); // Calls start() asynchronously.
     void initiateStop(); // Calls stop() asynchronously.
 
-    virtual bool promptToStop(bool *optionalPrompt = nullptr) const;
+    bool promptToStop(bool *optionalPrompt = nullptr) const;
+    void setPromptToStop(const std::function<bool(bool *)> &promptToStop);
 
     virtual bool supportsReRunning() const;
     void setSupportsReRunning(bool reRunningSupported);
