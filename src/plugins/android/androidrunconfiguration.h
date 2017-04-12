@@ -32,7 +32,10 @@
 
 #include <QMenu>
 
+QT_BEGIN_NAMESPACE
 class QToolButton;
+QT_END_NAMESPACE
+
 namespace Android {
 
 class AndroidOutputFormatter : public QtSupport::QtOutputFormatter
