@@ -133,6 +133,10 @@ buildProductNodeTree(const qbs::Project &project, const qbs::ProductData &prd)
 void setupProjectNode(QbsProjectManager::Internal::QbsProjectNode *node, const qbs::ProjectData &prjData,
                       const qbs::Project &qbsProject)
 {
+    using namespace QbsProjectManager::Internal;
+    node->addNode(new QbsFileNode(Utils::FileName::fromString(prjData.location().filePath()),
+                                  ProjectExplorer::FileType::Project, false,
+                                  prjData.location().line()));
     foreach (const qbs::ProjectData &subData, prjData.subProjects()) {
         auto subProject =
                 new QbsProjectManager::Internal::QbsProjectNode(
@@ -189,9 +193,7 @@ namespace Internal {
 QbsRootProjectNode *QbsNodeTreeBuilder::buildTree(QbsProject *project)
 {
     auto root = new QbsRootProjectNode(project);
-    root->addNode(new ProjectExplorer::FileNode(project->projectFilePath(),
-                                                ProjectExplorer::FileType::Project, false));
-
+    setupProjectNode(root, project->qbsProjectData(), project->qbsProject());
     auto buildSystemFiles
             = new ProjectExplorer::FolderNode(project->projectDirectory(),
                                               ProjectExplorer::NodeType::Folder,
@@ -206,7 +208,6 @@ QbsRootProjectNode *QbsNodeTreeBuilder::buildTree(QbsProject *project)
     buildSystemFiles->compress();
     root->addNode(buildSystemFiles);
 
-    setupProjectNode(root, project->qbsProjectData(), project->qbsProject());
     return root;
 }
 
