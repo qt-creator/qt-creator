@@ -135,6 +135,8 @@ public:
     bool automaticKitCreation() const;
     void setAutomaticKitCreation(bool b);
 
+    bool antScriptsAvailable() const;
+
     bool useGrandle() const;
     void setUseGradle(bool b);
 
@@ -205,7 +207,7 @@ private:
     QStringList m_makeExtraSearchDirectories;
     unsigned m_partitionSize = 1024;
     bool m_automaticKitCreation = true;
-    bool m_useGradle = false;
+    bool m_useGradle = true; // Ant builds are deprecated.
 
     //caches
     mutable bool m_availableSdkPlatformsUpToDate = false;

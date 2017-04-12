@@ -134,6 +134,8 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
 {
     m_ui->setupUi(this);
 
+    m_ui->deprecatedInfoIconLabel->setPixmap(Utils::Icons::INFO.pixmap());
+
     connect(&m_checkGdbWatcher, &QFutureWatcherBase::finished,
             this, &AndroidSettingsWidget::checkGdbFinished);
 
@@ -160,7 +162,8 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     m_ui->AntLocationPathChooser->setPromptDialogTitle(tr("Select ant Script"));
     m_ui->AntLocationPathChooser->setInitialBrowsePathBackup(dir);
     m_ui->AntLocationPathChooser->setPromptDialogFilter(filter);
-    m_ui->UseGradleCheckBox->setChecked(m_androidConfig.useGrandle());
+
+    updateGradleBuildUi();
 
     m_ui->OpenJDKLocationPathChooser->setFileName(m_androidConfig.openJDKLocation());
     m_ui->OpenJDKLocationPathChooser->setPromptDialogTitle(tr("Select JDK Path"));
@@ -478,6 +481,13 @@ void AndroidSettingsWidget::updateAvds()
     enableAvdControls();
 }
 
+void AndroidSettingsWidget::updateGradleBuildUi()
+{
+    m_ui->UseGradleCheckBox->setEnabled(m_androidConfig.antScriptsAvailable());
+    m_ui->UseGradleCheckBox->setChecked(!m_androidConfig.antScriptsAvailable() ||
+                                        m_androidConfig.useGrandle());
+}
+
 bool AndroidSettingsWidget::sdkLocationIsValid() const
 {
     Utils::FileName androidExe = m_androidConfig.sdkLocation();
@@ -507,6 +517,7 @@ void AndroidSettingsWidget::saveSettings()
 void AndroidSettingsWidget::sdkLocationEditingFinished()
 {
     m_androidConfig.setSdkLocation(Utils::FileName::fromUserInput(m_ui->SDKLocationPathChooser->rawPath()));
+    updateGradleBuildUi();
 
     check(Sdk);
 

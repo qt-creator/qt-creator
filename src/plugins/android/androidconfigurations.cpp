@@ -76,6 +76,9 @@ namespace Android {
 using namespace Internal;
 
 namespace {
+
+    const QVersionNumber sdkToolsAntMissingVersion(25, 3, 0);
+
     const QLatin1String SettingsGroup("AndroidConfigurations");
     const QLatin1String SDKLocationKey("SDKLocation");
     const QLatin1String NDKLocationKey("NDKLocation");
@@ -823,9 +826,18 @@ void AndroidConfig::setAutomaticKitCreation(bool b)
     m_automaticKitCreation = b;
 }
 
+bool AndroidConfig::antScriptsAvailable() const
+{
+    return sdkToolsVersion() < sdkToolsAntMissingVersion;
+}
+
 bool AndroidConfig::useGrandle() const
 {
-    return m_useGradle;
+    if (antScriptsAvailable()) {
+        return m_useGradle;
+    }
+    // Force gradle builds.
+    return true;
 }
 
 void AndroidConfig::setUseGradle(bool b)
