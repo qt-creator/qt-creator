@@ -53,6 +53,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runnables.h>
+#include <projectexplorer/taskhub.h>
 #include <texteditor/texteditor.h>
 
 #include <coreplugin/coreconstants.h>
@@ -162,7 +163,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     Command *command = 0;
 
     ActionContainer *menu = ActionManager::actionContainer(M_DEBUG_ANALYZER);
-    ActionContainer *options = ActionManager::createMenu(M_DEBUG_ANALYZER_QML_OPTIONS);
+    ActionContainer *options = ActionManager::createMenu("Analyzer.Menu.QMLOptions");
     options->menu()->setTitle(tr("QML Profiler Options"));
     menu->addMenu(options, G_ANALYZER_OPTIONS);
     options->menu()->setEnabled(true);
@@ -253,25 +254,28 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_startAction = Debugger::createStartAction();
     d->m_stopAction = Debugger::createStopAction();
 
-    ActionDescription desc;
-    desc.setText(tr("QML Profiler"));
-    desc.setToolTip(description);
-    desc.setPerspectiveId(Constants::QmlProfilerPerspectiveId);
-    desc.setRunControlCreator(runControlCreator);
-    desc.setToolPreparer([this] { return prepareTool(); });
-    desc.setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    desc.setMenuGroup(Debugger::Constants::G_ANALYZER_TOOLS);
-    Debugger::registerAction(Constants::QmlProfilerLocalActionId, desc, d->m_startAction);
+    Debugger::registerAction(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, runControlCreator);
+    act = new QAction(tr("QML Profiler"), this);
+    act->setToolTip(description);
+    menu->addAction(ActionManager::registerAction(act, "QmlProfiler.Local"),
+                    Debugger::Constants::G_ANALYZER_TOOLS);
+    QObject::connect(act, &QAction::triggered, this, [this] {
+         if (!prepareTool())
+             return;
+        Debugger::selectPerspective(Constants::QmlProfilerPerspectiveId);
+        ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    });
+    QObject::connect(d->m_startAction, &QAction::triggered, act, &QAction::triggered);
+    QObject::connect(d->m_startAction, &QAction::changed, act, [act, this] {
+        act->setEnabled(d->m_startAction->isEnabled());
+    });
 
-    desc.setText(tr("QML Profiler (External)"));
-    desc.setToolTip(description);
-    desc.setPerspectiveId(Constants::QmlProfilerPerspectiveId);
-    desc.setRunControlCreator(runControlCreator);
-    desc.setCustomToolStarter([this](RunConfiguration *rc) { startRemoteTool(rc); });
-    desc.setToolPreparer([this] { return prepareTool(); });
-    desc.setRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    desc.setMenuGroup(Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
-    Debugger::registerAction(Constants::QmlProfilerRemoteActionId, desc);
+    Debugger::registerAction(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, runControlCreator);
+    act = new QAction(tr("QML Profiler (External)"), this);
+    act->setToolTip(description);
+    menu->addAction(ActionManager::registerAction(act, "QmlProfiler.Remote"),
+                    Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
+    QObject::connect(act, &QAction::triggered, this, &QmlProfilerTool::startRemoteTool);
 
     Utils::ToolbarDescription toolbar;
     toolbar.addAction(d->m_startAction);
@@ -556,8 +560,11 @@ bool QmlProfilerTool::prepareTool()
     return true;
 }
 
-void QmlProfilerTool::startRemoteTool(ProjectExplorer::RunConfiguration *rc)
+void QmlProfilerTool::startRemoteTool()
 {
+    if (!prepareTool())
+        return;
+
     Id kitId;
     quint16 port;
     Kit *kit = 0;
@@ -594,6 +601,9 @@ void QmlProfilerTool::startRemoteTool(ProjectExplorer::RunConfiguration *rc)
     }
     connection.analyzerPort = Utils::Port(port);
 
+    Debugger::selectPerspective(Constants::QmlProfilerPerspectiveId);
+
+    RunConfiguration *rc = Debugger::startupRunConfiguration();
     auto runControl = qobject_cast<QmlProfilerRunControl *>(createRunControl(rc));
     runControl->setConnection(connection);
 

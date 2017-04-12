@@ -251,28 +251,47 @@ CallgrindTool::CallgrindTool(QObject *parent)
     m_startAction = Debugger::createStartAction();
     m_stopAction = Debugger::createStopAction();
 
-    ActionDescription desc;
-    desc.setToolTip(tr("Valgrind Function Profiler uses the "
-        "Callgrind tool to record function calls when a program runs."));
+    ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
+    QString toolTip = tr("Valgrind Function Profiler uses the "
+        "Callgrind tool to record function calls when a program runs.");
+
+    auto rcc = [this](RunConfiguration *runConfiguration, Id mode) {
+        return createRunControl(runConfiguration, mode);
+    };
 
     if (!Utils::HostOsInfo::isWindowsHost()) {
-        desc.setText(tr("Valgrind Function Profiler"));
-        desc.setPerspectiveId(CallgrindPerspectiveId);
-        desc.setRunControlCreator([this](RunConfiguration *runConfiguration, Id) {
-            return createRunControl(runConfiguration, CALLGRIND_RUN_MODE);
+        Debugger::registerAction(CALLGRIND_RUN_MODE, rcc);
+        auto action = new QAction(tr("Valgrind Function Profiler"), this);
+        action->setToolTip(toolTip);
+        menu->addAction(ActionManager::registerAction(action, CallgrindLocalActionId),
+                        Debugger::Constants::G_ANALYZER_TOOLS);
+        QObject::connect(action, &QAction::triggered, this, [action] {
+            if (!Debugger::wantRunTool(OptimizedMode, action->text()))
+                return;
+            Debugger::selectPerspective(CallgrindPerspectiveId);
+            ProjectExplorerPlugin::runStartupProject(CALLGRIND_RUN_MODE);
         });
-        desc.setToolMode(OptimizedMode);
-        desc.setRunMode(CALLGRIND_RUN_MODE);
-        desc.setMenuGroup(Debugger::Constants::G_ANALYZER_TOOLS);
-        Debugger::registerAction(CallgrindLocalActionId, desc, m_startAction);
+        QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
+        QObject::connect(m_startAction, &QAction::changed, action, [action, this] {
+            action->setEnabled(m_startAction->isEnabled());
+        });
     }
 
-    desc.setText(tr("Valgrind Function Profiler (External Application)"));
-    desc.setPerspectiveId(CallgrindPerspectiveId);
-    desc.setCustomToolStarter([this](RunConfiguration *runConfig) {
+    Debugger::registerAction(CALLGRIND_RUN_MODE, rcc);
+    auto action = new QAction(tr("Valgrind Function Profiler (External Application)"), this);
+    action->setToolTip(toolTip);
+    menu->addAction(ActionManager::registerAction(action, CallgrindRemoteActionId),
+                    Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
+    QObject::connect(action, &QAction::triggered, this, [this, action] {
+        RunConfiguration *runConfig = startupRunConfiguration();
+        if (!runConfig) {
+            showCannotStartDialog(action->text());
+            return;
+        }
         StartRemoteDialog dlg;
         if (dlg.exec() != QDialog::Accepted)
             return;
+        Debugger::selectPerspective(CallgrindPerspectiveId);
         ValgrindRunControl *rc = createRunControl(runConfig, CALLGRIND_RUN_MODE);
         QTC_ASSERT(rc, return);
         const auto runnable = dlg.runnable();
@@ -283,8 +302,6 @@ CallgrindTool::CallgrindTool(QObject *parent)
         rc->setDisplayName(runnable.executable);
         ProjectExplorerPlugin::startRunControl(rc);
     });
-    desc.setMenuGroup(Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
-    Debugger::registerAction(CallgrindRemoteActionId, desc);
 
     // If there is a CppEditor context menu add our own context menu actions.
     if (ActionContainer *editorContextMenu =
@@ -360,7 +377,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     //
 
     // load external log file
-    auto action = m_loadExternalLogFile = new QAction(this);
+    action = m_loadExternalLogFile = new QAction(this);
     action->setIcon(Utils::Icons::OPENFILE.icon());
     action->setToolTip(tr("Load External Log File"));
     connect(action, &QAction::triggered, this, &CallgrindTool::loadExternalLogFile);

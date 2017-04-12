@@ -40,7 +40,6 @@ class Diagnostic;
 class DummyRunConfiguration;
 
 const char ClangStaticAnalyzerPerspectiveId[] = "ClangStaticAnalyzer.Perspective";
-const char ClangStaticAnalyzerActionId[]      = "ClangStaticAnalyzer.Action";
 const char ClangStaticAnalyzerDockId[]        = "ClangStaticAnalyzer.Dock";
 
 class ClangStaticAnalyzerTool : public QObject

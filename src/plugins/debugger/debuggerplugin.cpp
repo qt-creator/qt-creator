@@ -973,7 +973,7 @@ public:
     QPointer<QWidget> m_modeWindow;
     QPointer<DebugMode> m_mode;
 
-    QHash<Id, ActionDescription> m_descriptions;
+    QHash<Id, RunControlCreator> m_runControlCreators;
     ActionContainer *m_menu = 0;
 
 //    DockWidgetEventFilter m_resizeEventFilter;
@@ -3430,85 +3430,80 @@ static bool buildTypeAccepted(QFlags<ToolMode> toolMode, BuildConfiguration::Bui
     return false;
 }
 
-void ActionDescription::startTool() const
+RunConfiguration *startupRunConfiguration()
 {
-    TaskHub::clearTasks(Constants::ANALYZERTASK_ID);
-    Debugger::selectPerspective(m_perspectiveId);
+    if (Project *pro = SessionManager::startupProject()) {
+        if (const Target *target = pro->activeTarget())
+            return target->activeRunConfiguration();
+    }
+    return nullptr;
+}
 
-    if (m_toolPreparer && !m_toolPreparer())
-        return;
-
-    // ### not sure if we're supposed to check if the RunConFiguration isEnabled
-    Project *pro = SessionManager::startupProject();
-    RunConfiguration *rc = 0;
+static BuildConfiguration::BuildType startupBuildType()
+{
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
-    if (pro) {
-        if (const Target *target = pro->activeTarget()) {
-            // Build configuration is 0 for QML projects.
-            if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
-                buildType = buildConfig->buildType();
-            rc = target->activeRunConfiguration();
-        }
+    if (RunConfiguration *runConfig = startupRunConfiguration()) {
+        if (const BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
+            buildType = buildConfig->buildType();
     }
+    return buildType;
+}
 
-    // Custom start.
-    if (m_customToolStarter) {
-        if (rc) {
-            m_customToolStarter(rc);
-        } else {
-            QMessageBox *errorDialog = new QMessageBox(ICore::mainWindow());
-            errorDialog->setIcon(QMessageBox::Warning);
-            errorDialog->setWindowTitle(m_text);
-            errorDialog->setText(tr("Cannot start %1 without a project. Please open the project "
-                                    "and try again.").arg(m_text));
-            errorDialog->setStandardButtons(QMessageBox::Ok);
-            errorDialog->setDefaultButton(QMessageBox::Ok);
-            errorDialog->show();
-        }
-        return;
-    }
+void showCannotStartDialog(const QString &text)
+{
+    QMessageBox *errorDialog = new QMessageBox(ICore::mainWindow());
+    errorDialog->setIcon(QMessageBox::Warning);
+    errorDialog->setWindowTitle(text);
+    errorDialog->setText(DebuggerPlugin::tr("Cannot start %1 without a project. Please open the project "
+                                               "and try again.").arg(text));
+    errorDialog->setStandardButtons(QMessageBox::Ok);
+    errorDialog->setDefaultButton(QMessageBox::Ok);
+    errorDialog->show();
+}
 
+bool wantRunTool(ToolMode toolMode, const QString &toolName)
+{
     // Check the project for whether the build config is in the correct mode
     // if not, notify the user and urge him to use the correct mode.
-    if (!buildTypeAccepted(m_toolMode, buildType)) {
+    BuildConfiguration::BuildType buildType = startupBuildType();
+    if (!buildTypeAccepted(toolMode, buildType)) {
         QString currentMode;
         switch (buildType) {
             case BuildConfiguration::Debug:
-                currentMode = tr("Debug");
+                currentMode = DebuggerPlugin::tr("Debug");
                 break;
             case BuildConfiguration::Profile:
-                currentMode = tr("Profile");
+                currentMode = DebuggerPlugin::tr("Profile");
                 break;
             case BuildConfiguration::Release:
-                currentMode = tr("Release");
+                currentMode = DebuggerPlugin::tr("Release");
                 break;
             default:
                 QTC_CHECK(false);
         }
 
         QString toolModeString;
-        switch (m_toolMode) {
+        switch (toolMode) {
             case DebugMode:
-                toolModeString = tr("in Debug mode");
+                toolModeString = DebuggerPlugin::tr("in Debug mode");
                 break;
             case ProfileMode:
-                toolModeString = tr("in Profile mode");
+                toolModeString = DebuggerPlugin::tr("in Profile mode");
                 break;
             case ReleaseMode:
-                toolModeString = tr("in Release mode");
+                toolModeString = DebuggerPlugin::tr("in Release mode");
                 break;
             case SymbolsMode:
-                toolModeString = tr("with debug symbols (Debug or Profile mode)");
+                toolModeString = DebuggerPlugin::tr("with debug symbols (Debug or Profile mode)");
                 break;
             case OptimizedMode:
-                toolModeString = tr("on optimized code (Profile or Release mode)");
+                toolModeString = DebuggerPlugin::tr("on optimized code (Profile or Release mode)");
                 break;
             default:
                 QTC_CHECK(false);
         }
-        const QString toolName = m_text; // The action text is always the name of the tool
-        const QString title = tr("Run %1 in %2 Mode?").arg(toolName).arg(currentMode);
-        const QString message = tr("<html><head/><body><p>You are trying "
+        const QString title = DebuggerPlugin::tr("Run %1 in %2 Mode?").arg(toolName).arg(currentMode);
+        const QString message = DebuggerPlugin::tr("<html><head/><body><p>You are trying "
             "to run the tool \"%1\" on an application in %2 mode. "
             "The tool is designed to be used %3.</p><p>"
             "Run-time characteristics differ significantly between "
@@ -3523,34 +3518,15 @@ void ActionDescription::startTool() const
         if (Utils::CheckableMessageBox::doNotAskAgainQuestion(ICore::mainWindow(),
                 title, message, ICore::settings(), QLatin1String("AnalyzerCorrectModeWarning"))
                     != QDialogButtonBox::Yes)
-            return;
+            return false;
     }
 
-    ProjectExplorerPlugin::runStartupProject(m_runMode);
+    return true;
 }
 
-void registerAction(Id actionId, const ActionDescription &desc, QAction *startAction)
+void registerAction(Id runMode, const RunControlCreator &runControlCreator)
 {
-    auto action = new QAction(dd);
-    action->setText(desc.text());
-    action->setToolTip(desc.toolTip());
-    dd->m_descriptions.insert(actionId, desc);
-
-    Id menuGroup = desc.menuGroup();
-    if (menuGroup.isValid()) {
-        Command *command = ActionManager::registerAction(action, actionId);
-        dd->m_menu->addAction(command, menuGroup);
-    }
-
-    QObject::connect(action, &QAction::triggered, dd, [desc] { desc.startTool(); });
-
-    if (startAction) {
-        QObject::connect(startAction, &QAction::triggered, action, &QAction::triggered);
-
-        QObject::connect(startAction, &QAction::changed, action, [action, startAction] {
-            action->setEnabled(startAction->isEnabled());
-        });
-    }
+    dd->m_runControlCreators.insert(runMode, runControlCreator);
 }
 
 void registerToolbar(const QByteArray &perspectiveId, const ToolbarDescription &desc)
@@ -3628,11 +3604,10 @@ void showPermanentStatusMessage(const QString &message)
 
 RunControl *createAnalyzerRunControl(RunConfiguration *runConfiguration, Id runMode)
 {
-    foreach (const ActionDescription &action, dd->m_descriptions) {
-        if (action.runMode() == runMode)
-            return action.runControlCreator()(runConfiguration, runMode);
-    }
-    return 0;
+    RunControlCreator rcc = dd->m_runControlCreators.value(runMode);
+    if (rcc)
+        return rcc(runConfiguration, runMode);
+    return nullptr;
 }
 
 namespace Internal {

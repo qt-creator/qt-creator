@@ -44,8 +44,6 @@ const char QtdFileExtension[] = ".qtd";
 const char QztFileExtension[] = ".qzt";
 
 const char QmlProfilerPerspectiveId[]  = "QmlProfiler.Perspective";
-const char QmlProfilerLocalActionId[]  = "QmlProfiler.Local";
-const char QmlProfilerRemoteActionId[] = "QmlProfiler.Remote";
 
 const char QmlProfilerLoadActionId[] =
         "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.LoadQMLTrace";

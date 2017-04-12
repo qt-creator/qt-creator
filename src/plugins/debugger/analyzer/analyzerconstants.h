@@ -33,7 +33,6 @@ namespace Constants {
 
 // Menu.
 const char M_DEBUG_ANALYZER[] = "Analyzer.Menu.StartAnalyzer";
-const char M_DEBUG_ANALYZER_QML_OPTIONS[] = "Analyzer.Menu.QMLOptions";
 
 const char G_ANALYZER_CONTROL[] = "Menu.Group.Analyzer.Control";
 const char G_ANALYZER_TOOLS[] = "Menu.Group.Analyzer.Tools";

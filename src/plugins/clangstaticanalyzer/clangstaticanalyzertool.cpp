@@ -31,10 +31,15 @@
 #include "clangstaticanalyzerdiagnosticview.h"
 #include "clangstaticanalyzerruncontrol.h"
 
-#include <debugger/analyzer/analyzermanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+
 #include <cpptools/cppmodelmanager.h>
+
+#include <debugger/analyzer/analyzermanager.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -52,6 +57,7 @@
 #include <QSortFilterProxyModel>
 #include <QToolButton>
 
+using namespace Core;
 using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -134,6 +140,7 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goNext);
     m_goNext = action;
 
+    ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     const QString toolTip = tr("Clang Static Analyzer uses the analyzer from the Clang project "
                                "to find bugs.");
 
@@ -142,17 +149,16 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
         {{ClangStaticAnalyzerDockId, m_diagnosticView, {}, Perspective::SplitVertical}}
     ));
 
-    ActionDescription desc;
-    desc.setText(tr("Clang Static Analyzer"));
-    desc.setToolTip(toolTip);
-    desc.setRunMode(Constants::CLANGSTATICANALYZER_RUN_MODE);
-    desc.setPerspectiveId(ClangStaticAnalyzerPerspectiveId);
-    desc.setCustomToolStarter([this](RunConfiguration *runConfiguration) {
-        Q_UNUSED(runConfiguration);
-        startTool();
+    Debugger::registerAction(Constants::CLANGSTATICANALYZER_RUN_MODE, {});
+    action = new QAction(tr("Clang Static Analyzer"), this);
+    action->setToolTip(toolTip);
+    menu->addAction(ActionManager::registerAction(action, "ClangStaticAnalyzer.Action"),
+                    Debugger::Constants::G_ANALYZER_TOOLS);
+    QObject::connect(action, &QAction::triggered, this, &ClangStaticAnalyzerTool::startTool);
+    QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
+    QObject::connect(m_startAction, &QAction::changed, action, [action, this] {
+        action->setEnabled(m_startAction->isEnabled());
     });
-    desc.setMenuGroup(Debugger::Constants::G_ANALYZER_TOOLS);
-    Debugger::registerAction(ClangStaticAnalyzerActionId, desc, m_startAction);
 
     ToolbarDescription toolbar;
     toolbar.addAction(m_startAction);
@@ -240,6 +246,7 @@ void ClangStaticAnalyzerTool::startTool()
     if (dontStartAfterHintForDebugMode(project))
         return;
 
+    Debugger::selectPerspective(ClangStaticAnalyzerPerspectiveId);
     m_diagnosticModel->clear();
     setBusyCursor(true);
     m_diagnosticFilterModel->setProject(project);

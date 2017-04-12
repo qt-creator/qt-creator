@@ -53,7 +53,7 @@ public:
     void finalizeRunControl(QmlProfilerRunControl *runControl);
 
     bool prepareTool();
-    void startRemoteTool(ProjectExplorer::RunConfiguration *rc);
+    void startRemoteTool();
 
     QString summary(const QVector<int> &typeIds) const;
     QStringList details(int typeId) const;
