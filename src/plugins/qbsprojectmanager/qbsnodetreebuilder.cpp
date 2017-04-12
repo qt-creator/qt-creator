@@ -178,10 +178,10 @@ QStringList unreferencedBuildSystemFiles(const qbs::Project &p)
         return result;
 
     const std::set<QString> &available = p.buildSystemFiles();
-    const QSet<QString> &referenced = referencedBuildSystemFiles(p.projectData());
+    QList<QString> referenced = referencedBuildSystemFiles(p.projectData()).toList();
+    Utils::sort(referenced);
     std::set_difference(available.begin(), available.end(), referenced.begin(), referenced.end(),
                         std::back_inserter(result));
-
     return result;
 }
 
