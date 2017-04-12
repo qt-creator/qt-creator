@@ -201,7 +201,7 @@ QbsRootProjectNode *QbsNodeTreeBuilder::buildTree(QbsProject *project)
     for (const QString &f : unreferencedBuildSystemFiles(project->qbsProject())) {
         const Utils::FileName filePath = Utils::FileName::fromString(f);
         if (filePath.isChildOf(base))
-            root->addNestedNode(new ProjectExplorer::FileNode(filePath, ProjectExplorer::FileType::Project, false));
+            buildSystemFiles->addNestedNode(new ProjectExplorer::FileNode(filePath, ProjectExplorer::FileType::Project, false));
     }
     buildSystemFiles->compress();
     root->addNode(buildSystemFiles);
