@@ -45,6 +45,8 @@ Column {
 
     property alias gradientPropertyName: gradientLine.gradientPropertyName
 
+    property alias transparent: transparentButton.checked
+
     function isNotInGradientMode() {
          return (buttonRow.checkedIndex !== 1)
     }
@@ -154,6 +156,7 @@ Column {
         SecondColumnLayout {
 
             LineEdit {
+                enabled: !colorEditor.transparent
                 id: textField
 
                 writeValueManually: true
@@ -208,6 +211,7 @@ Column {
                     tooltip: qsTr("Gradient")
                 }
                 ButtonRowButton {
+                    id: transparentButton
                     iconSource: "images/icon_color_none.png"
                     onClicked: {
                         colorEditor.color = "#00000000"
@@ -229,7 +233,7 @@ Column {
                 colorButton.color = colorButton.bindedColor
             }
 
-            enabled: buttonRow.checkedIndex !== 2
+            enabled: !colorEditor.transparent
             opacity: checkButton.checked ? 1 : 0
             id: colorButton
             width: 116
