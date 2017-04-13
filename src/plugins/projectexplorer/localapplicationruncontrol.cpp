@@ -61,7 +61,9 @@ bool LocalApplicationRunControlFactory::canRun(RunConfiguration *runConfiguratio
 RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    return new SimpleRunControl(runConfiguration, mode);
+    auto runControl = new RunControl(runConfiguration, mode);
+    (void) new SimpleTargetRunner(runControl);
+    return runControl;
 }
 
 } // namespace Internal

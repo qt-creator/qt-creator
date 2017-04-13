@@ -522,6 +522,7 @@ public:
     RunControlPrivate(RunControl *parent, RunConfiguration *runConfiguration, Core::Id mode)
         : q(parent), runMode(mode), runConfiguration(runConfiguration)
     {
+        icon = Icons::RUN_SMALL_TOOLBAR;
         if (runConfiguration) {
             runnable = runConfiguration->runnable();
             displayName  = runConfiguration->displayName();
@@ -1211,17 +1212,6 @@ void ToolRunner::appendMessage(const QString &msg, OutputFormat format)
 IDevice::ConstPtr ToolRunner::device() const
 {
     return m_runControl->device();
-}
-
-
-// SimpleRunControl
-
-SimpleRunControl::SimpleRunControl(RunConfiguration *runConfiguration, Core::Id mode)
-    : RunControl(runConfiguration, mode)
-{
-    setRunnable(runConfiguration->runnable());
-    setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
-    (void) new SimpleTargetRunner(this);
 }
 
 } // namespace ProjectExplorer

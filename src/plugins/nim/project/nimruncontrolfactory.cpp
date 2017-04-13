@@ -26,6 +26,8 @@
 #include "nimruncontrolfactory.h"
 #include "nimrunconfiguration.h"
 
+using namespace ProjectExplorer;
+
 namespace Nim {
 
 bool NimRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id mode) const
@@ -34,12 +36,14 @@ bool NimRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfigur
     return dynamic_cast<NimRunConfiguration *>(runConfiguration);
 }
 
-ProjectExplorer::RunControl *NimRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
+RunControl *NimRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-    return new ProjectExplorer::SimpleRunControl(runConfiguration, mode);
+    auto runControl = new RunControl(runConfiguration, mode);
+    (void) new SimpleTargetRunner(runControl);
+    return runControl;
 }
 
-}
+} // Nim
 

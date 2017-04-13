@@ -79,8 +79,11 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
 {
     QTC_ASSERT(canRun(runConfig, mode), return 0);
 
-    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
-        return new SimpleRunControl(runConfig, mode);
+    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE) {
+        auto runControl = new RunControl(runConfig, mode);
+        (void) new SimpleTargetRunner(runControl);
+        return runControl;
+    }
 
     const auto rcRunnable = runConfig->runnable();
     QTC_ASSERT(rcRunnable.is<StandardRunnable>(), return 0);

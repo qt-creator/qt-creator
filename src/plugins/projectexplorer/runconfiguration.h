@@ -522,12 +522,4 @@ private:
     ApplicationLauncher m_launcher;
 };
 
-// A RunControl with a SimpleTargetRunner and no Tool.
-// FIXME: Do not use. Will be dissolved.
-class PROJECTEXPLORER_EXPORT SimpleRunControl : public RunControl
-{
-public:
-    SimpleRunControl(RunConfiguration *runConfiguration, Core::Id mode);
-};
-
 } // namespace ProjectExplorer

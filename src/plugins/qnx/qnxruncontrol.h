@@ -32,7 +32,7 @@ namespace Internal {
 
 class Slog2InfoRunner;
 
-class QnxRunControl : public ProjectExplorer::SimpleRunControl
+class QnxRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 public:

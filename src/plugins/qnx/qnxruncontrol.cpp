@@ -39,7 +39,7 @@ namespace Qnx {
 namespace Internal {
 
 QnxRunControl::QnxRunControl(RunConfiguration *runConfig)
-    : SimpleRunControl(runConfig, ProjectExplorer::Constants::NORMAL_RUN_MODE)
+    : RunControl(runConfig, ProjectExplorer::Constants::NORMAL_RUN_MODE)
     , m_slog2Info(0)
 {
     IDevice::ConstPtr dev = DeviceKitInformation::device(runConfig->target()->kit());
@@ -60,7 +60,7 @@ QnxRunControl::QnxRunControl(RunConfiguration *runConfig)
 void QnxRunControl::stop()
 {
     m_slog2Info->stop();
-    SimpleRunControl::stop();
+    RunControl::stop();
 }
 
 void QnxRunControl::printMissingWarning()

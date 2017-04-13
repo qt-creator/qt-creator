@@ -674,7 +674,9 @@ RunControl *PythonRunControlFactory::create(RunConfiguration *runConfiguration, 
 {
     Q_UNUSED(errorMessage)
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-    return new SimpleRunControl(runConfiguration, mode);
+    auto runControl = new RunControl(runConfiguration, mode);
+    (void) new SimpleTargetRunner(runControl);
+    return runControl;
 }
 
 // PythonRunConfigurationWidget
