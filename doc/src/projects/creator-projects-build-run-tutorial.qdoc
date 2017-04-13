@@ -58,10 +58,13 @@
 
             \image qtcreator-gs-build-example-open.png "Selecting an example"
 
+            If no examples are listed, check that a \l{Adding Qt Versions}
+            {Qt version} is installed and configured.
+
         \li Select an example in the list of examples.
 
             You can also search for examples. Enter the \uicontrol android or
-            \uicontrol iOS keyword in the search field (2) to list all the
+            \uicontrol ios keyword in the search field (2) to list all the
             examples tested for Android or iOS. To list examples that you can
             run on embedded devices, enter the \uicontrol Boot2Qt keyword in the
             search field (commercial only).
@@ -83,8 +86,8 @@
         \li To see the compilation progress, press \key{Alt+4} to open the
             \uicontrol {Compile Output} pane.
 
-            If build errors occur, check that a \l{Adding Qt Versions}
-            {Qt version} and \l{Adding Compilers}{compiler} are installed and
+            If build errors occur, check that a Qt version and
+            \l{Adding Compilers}{compiler} are installed and
             configured and that the necessary kits are configured. If you are
             building for an \l{Connecting Android Devices}{Android device} or
             \l{Connecting iOS Devices}{iOS device}, check that the development
