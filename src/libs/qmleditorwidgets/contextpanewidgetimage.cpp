@@ -482,7 +482,7 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
 
     if (m_borderImage) {
         QString localFileName(fileName);
-        if (QFile(fileName).exists()) {
+        if (QFileInfo::exists(fileName)) {
             if (fileName.endsWith(QLatin1String("sci"))) {
                 QString pixmapFileName;
                 int left = 0;
@@ -527,7 +527,7 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
         }
         uiBorderImage->label->setPixmap(pix);
     } else {
-        if (QFile(fileName).exists()) {
+        if (QFileInfo::exists(fileName)) {
             QPixmap source(fileName);
             previewDialog()->setPixmap(source, 1);
             ui->sizeLabel->setText(QString::number(source.width()) + QLatin1Char('x') + QString::number(source.height()));

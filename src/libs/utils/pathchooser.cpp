@@ -56,7 +56,7 @@ static QString appBundleExpandedPath(const QString &path)
         QFileInfo info(path);
         if (info.isDir()) {
             QString exePath = path + QLatin1String("/Contents/MacOS/") + info.completeBaseName();
-            if (QFileInfo(exePath).exists())
+            if (QFileInfo::exists(exePath))
                 return exePath;
         }
     }

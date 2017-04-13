@@ -547,7 +547,7 @@ void EditorView::updateCurrentPositionInNavigationHistory()
 namespace {
 static inline bool fileNameWasRemoved(const QString &fileName)
 {
-    return !fileName.isEmpty() && !QFileInfo(fileName).exists();
+    return !fileName.isEmpty() && !QFileInfo::exists(fileName);
 }
 } // End of anonymous namespace
 

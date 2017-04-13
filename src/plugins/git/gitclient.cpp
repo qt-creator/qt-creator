@@ -2187,7 +2187,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
     if (HostOsInfo::isWindowsHost()) {
         // If git/bin is in path, use 'wish' shell to run. Otherwise (git/cmd), directly run gitk
         QString wish = gitBinDirectory + "/wish";
-        if (QFileInfo(wish + ".exe").exists()) {
+        if (QFileInfo::exists(wish + ".exe")) {
             arguments << binary;
             binary = wish;
         }

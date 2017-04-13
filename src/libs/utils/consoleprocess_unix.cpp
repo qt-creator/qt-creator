@@ -31,6 +31,7 @@
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
+#include <QFileInfo>
 #include <QSettings>
 #include <QTimer>
 
@@ -359,7 +360,7 @@ QString ConsoleProcess::defaultTerminalEmulator()
 {
     if (HostOsInfo::isMacHost()) {
         QString termCmd = QCoreApplication::applicationDirPath() + QLatin1String("/../Resources/scripts/openTerminal.command");
-        if (QFile(termCmd).exists())
+        if (QFileInfo::exists(termCmd))
             return termCmd.replace(QLatin1Char(' '), QLatin1String("\\ "));
         return QLatin1String("/usr/X11/bin/xterm");
     }

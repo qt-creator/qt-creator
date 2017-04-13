@@ -420,7 +420,7 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
     if (oldValue.type() == QVariant::Url) {
         QUrl url = oldValue.toUrl();
         QString path = url.toLocalFile();
-        if (QFileInfo(path).exists() && nodeInstanceServer() && !path.isEmpty())
+        if (QFileInfo::exists(path) && nodeInstanceServer() && !path.isEmpty())
             nodeInstanceServer()->removeFilePropertyFromFileSystemWatcher(object(), name, path);
     }
 
@@ -437,7 +437,7 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
     if (newValue.type() == QVariant::Url) {
         QUrl url = newValue.toUrl();
         QString path = url.toLocalFile();
-        if (QFileInfo(path).exists() && nodeInstanceServer() && !path.isEmpty())
+        if (QFileInfo::exists(path) && nodeInstanceServer() && !path.isEmpty())
             nodeInstanceServer()->addFilePropertyToFileSystemWatcher(object(), name, path);
     }
 }
@@ -678,7 +678,7 @@ static inline QString fixComponentPathForIncompatibleQt(const QString &component
         const QString relativeImportPath = componentPath.right(componentPath.length() - index);
         QString fixedComponentPath = QLibraryInfo::location(QLibraryInfo::ImportsPath) + relativeImportPath;
         fixedComponentPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
-        if (QFileInfo(fixedComponentPath).exists())
+        if (QFileInfo::exists(fixedComponentPath))
             return fixedComponentPath;
         QString fixedPath = QFileInfo(fixedComponentPath).path();
         if (fixedPath.endsWith(QLatin1String(".1.0"))) {

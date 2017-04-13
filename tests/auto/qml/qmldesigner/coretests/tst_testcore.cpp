@@ -205,7 +205,7 @@ void tst_TestCore::initTestCase()
 #endif
 
     qDebug() << pluginPath;
-    Q_ASSERT(QFileInfo(pluginPath).exists());
+    Q_ASSERT(QFileInfo::exists(pluginPath));
     MetaInfo::setPluginPaths(QStringList() << pluginPath);
 
     QFileInfo builtins(resourcePath() + "/qml-type-descriptions/builtins.qmltypes");

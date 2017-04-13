@@ -357,7 +357,7 @@ DeviceManager::DeviceManager(bool isInstance) : d(new DeviceManagerPrivate)
         m_instance = this;
         d->hostKeyDatabase = QSsh::SshHostKeyDatabasePtr::create();
         const QString keyFilePath = hostKeysFilePath();
-        if (QFileInfo(keyFilePath).exists()) {
+        if (QFileInfo::exists(keyFilePath)) {
             QString error;
             if (!d->hostKeyDatabase->load(keyFilePath, &error))
                 Core::MessageManager::write(error);
