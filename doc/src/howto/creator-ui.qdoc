@@ -436,7 +436,7 @@
     \section2 Search Results
 
     In the \uicontrol{Search Results} pane, you can search through projects, files on
-    a file system or the currently open file:
+    a file system or the currently open files:
 
     \image qtcreator-search-results.png "Search Results output pane"
 
@@ -444,9 +444,12 @@
     select earlier searches.
 
     The figure below shows an example search result for all
-    occurrences of \c textfinder within the \c "/TextFinder" directory.
+    occurrences of the search string in the specified directory.
 
     \image qtcreator-search-pane.png
+
+    For more information about the different search options, see
+    \l {Finding and Replacing}.
 
     \section2 Application Output
 
