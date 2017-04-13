@@ -92,7 +92,7 @@
           <item>
            <widget class="QCheckBox" name="usePythonDumper">
             <property name="text">
-             <string>Use Python dumper when available</string>
+             <string>Use Python dumper</string>
             </property>
            </widget>
           </item>
