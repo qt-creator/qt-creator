@@ -407,7 +407,7 @@ QString ConsoleProcess::terminalEmulator(const QSettings *settings, bool nonEmpt
 
 void ConsoleProcess::setTerminalEmulator(QSettings *settings, const QString &term)
 {
-    return settings->setValue(QLatin1String("General/TerminalEmulator"), term);
+    settings->setValue(QLatin1String("General/TerminalEmulator"), term);
 }
 
 bool ConsoleProcess::startTerminalEmulator(QSettings *settings, const QString &workingDir)

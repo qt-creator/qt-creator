@@ -703,8 +703,10 @@ static inline bool rangeCheck(int target, int pos)
 
 void PreviewLabel::mousePressEvent(QMouseEvent * event)
 {
-    if (!m_borderImage)
-        return QLabel::mouseMoveEvent(event);
+    if (!m_borderImage) {
+        QLabel::mouseMoveEvent(event);
+        return;
+    }
 
     bool bottom = false;
 
@@ -790,8 +792,10 @@ static inline int limitPositive(int i)
 
 void PreviewLabel::mouseMoveEvent(QMouseEvent * event)
 {
-    if (!m_borderImage)
-        return QLabel::mouseMoveEvent(event);
+    if (!m_borderImage) {
+        QLabel::mouseMoveEvent(event);
+        return;
+    }
 
     QPoint p = event->pos();
     bool bottom = false;
