@@ -35,6 +35,7 @@
 #include "toolchainmanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/asconst.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
@@ -123,7 +124,7 @@ ToolChain::PredefinedMacrosRunner CustomToolChain::createPredefinedMacrosRunner(
     return [theMacros](const QStringList &cxxflags){
         QByteArray result;
         QStringList macros = theMacros;
-        foreach (const QString &cxxFlag, cxxflags) {
+        for (const QString &cxxFlag : cxxflags) {
             if (cxxFlag.startsWith(QLatin1String("-D"))) {
                 macros << cxxFlag.mid(2).trimmed();
             } else if (cxxFlag.startsWith(QLatin1String("-U"))) {
@@ -135,7 +136,7 @@ ToolChain::PredefinedMacrosRunner CustomToolChain::createPredefinedMacrosRunner(
                 }
             }
         }
-        foreach (const QString &str, macros) {
+        for (const QString &str : Utils::asConst(macros)) {
             QByteArray ba = str.toUtf8();
             int equals = ba.indexOf('=');
             if (equals == -1) {
@@ -156,7 +157,7 @@ QByteArray CustomToolChain::predefinedMacros(const QStringList &cxxflags) const
 
 ToolChain::CompilerFlags CustomToolChain::compilerFlags(const QStringList &cxxflags) const
 {
-    foreach (const QString &cxx11Flag, m_cxx11Flags)
+    for (const QString &cxx11Flag : m_cxx11Flags)
         if (cxxflags.contains(cxx11Flag))
             return StandardCxx11;
     return NoFlags;
@@ -188,7 +189,7 @@ ToolChain::SystemHeaderPathsRunner CustomToolChain::createSystemHeaderPathsRunne
     // This runner must be thread-safe!
     return [systemHeaderPaths](const QStringList &cxxFlags, const QString &) {
         QList<HeaderPath> flagHeaderPaths;
-        foreach (const QString &cxxFlag, cxxFlags) {
+        for (const QString &cxxFlag : cxxFlags) {
             if (cxxFlag.startsWith(QLatin1String("-I")))
                 flagHeaderPaths << HeaderPath(cxxFlag.mid(2).trimmed(), HeaderPath::GlobalHeaderPath);
         }
@@ -304,7 +305,7 @@ void CustomToolChain::setMkspecs(const QString &specs)
 QString CustomToolChain::mkspecs() const
 {
     QString list;
-    foreach (const FileName &spec, m_mkspecs)
+    for (const FileName &spec : m_mkspecs)
         list.append(spec.toString() + QLatin1Char(','));
     list.chop(1);
     return list;
