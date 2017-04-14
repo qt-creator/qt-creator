@@ -78,7 +78,7 @@ public:
     StoredHostValidity loadSettings();
     void saveSettings(StoredHostValidity validity) const;
     int testConnection();
-    static QStringList curlArguments();
+    QStringList curlArguments() const;
 
     QString host;
     GerritUser user;
@@ -86,6 +86,7 @@ public:
     unsigned short port = 0;
     HostType type = Ssh;
     bool authenticated = true;
+    bool validateCert = true;
 
 private:
     QString curlBinary;

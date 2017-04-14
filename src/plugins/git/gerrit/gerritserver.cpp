@@ -35,6 +35,7 @@
 
 #include <QFile>
 #include <QJsonDocument>
+#include <QMessageBox>
 #include <QRegularExpression>
 #include <QSettings>
 
@@ -51,9 +52,11 @@ static const char rootPathKey[] = "RootPath";
 static const char userNameKey[] = "UserName";
 static const char fullNameKey[] = "FullName";
 static const char isAuthenticatedKey[] = "IsAuthenticated";
+static const char validateCertKey[] = "ValidateCert";
 
 enum ErrorCodes
 {
+    CertificateError = 60,
     Success = 200,
     UnknownError = 400,
     AuthenticationFailure = 401,
@@ -182,6 +185,7 @@ GerritServer::StoredHostValidity GerritServer::loadSettings()
         user.userName = settings->value(userNameKey).toString();
         user.fullName = settings->value(fullNameKey).toString();
         authenticated = settings->value(isAuthenticatedKey).toBool();
+        validateCert = settings->value(validateCertKey, true).toBool();
         validity = Valid;
     }
     settings->endGroup();
@@ -201,6 +205,7 @@ void GerritServer::saveSettings(StoredHostValidity validity) const
         settings->setValue(userNameKey, user.userName);
         settings->setValue(fullNameKey, user.fullName);
         settings->setValue(isAuthenticatedKey, authenticated);
+        settings->setValue(validateCertKey, validateCert);
         break;
     case Invalid:
         settings->clear();
@@ -210,14 +215,16 @@ void GerritServer::saveSettings(StoredHostValidity validity) const
     settings->endGroup();
 }
 
-QStringList GerritServer::curlArguments()
+QStringList GerritServer::curlArguments() const
 {
-    // -k - insecure - do not validate certificate
     // -f - fail silently on server error
     // -n - use credentials from ~/.netrc (or ~/_netrc on Windows)
     // -sS - silent, except server error (no progress)
     // --basic, --digest - try both authentication types
-    return {"-kfnsS", "--basic", "--digest"};
+    QStringList res = {"-fnsS", "--basic", "--digest"};
+    if (!validateCert)
+        res << "-k"; // -k - insecure - do not validate certificate
+    return res;
 }
 
 int GerritServer::testConnection()
@@ -240,6 +247,8 @@ int GerritServer::testConnection()
         }
         return Success;
     }
+    if (resp.exitCode == CertificateError)
+        return CertificateError;
     const QRegularExpression errorRegexp("returned error: (\\d+)");
     QRegularExpressionMatch match = errorRegexp.match(resp.stdErr());
     if (match.hasMatch())
@@ -274,6 +283,23 @@ bool GerritServer::resolveRoot()
             saveSettings(Valid);
             return true;
         case AuthenticationFailure:
+        case CertificateError:
+            if (QMessageBox::question(
+                        Core::ICore::mainWindow(),
+                        QCoreApplication::translate(
+                            "Gerrit::Internal::GerritDialog", "Certificate Error"),
+                        QCoreApplication::translate(
+                            "Gerrit::Internal::GerritDialog",
+                            "Server certificate for %1 cannot be authenticated.\n"
+                            "Do you want to disable SSL verification for this server?\n"
+                            "Note: This can expose you to man-in-the-middle attack.")
+                        .arg(host))
+                    == QMessageBox::Yes) {
+                validateCert = false;
+            } else {
+                return false;
+            }
+            break;
             return setupAuthentication();
         case PageNotFound:
             if (!ascendPath()) {

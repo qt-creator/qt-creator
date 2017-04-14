@@ -275,7 +275,7 @@ QueryContext::QueryContext(const QString &query,
         const QString url = server.url(GerritServer::RestUrl) + "/changes/?q="
                 + QString::fromUtf8(QUrl::toPercentEncoding(query))
                 + "&o=CURRENT_REVISION&o=DETAILED_LABELS&o=DETAILED_ACCOUNTS";
-        m_arguments = GerritServer::curlArguments() << url;
+        m_arguments = server.curlArguments() << url;
     }
     connect(&m_process, &QProcess::readyReadStandardError, this, [this] {
         const QString text = QString::fromLocal8Bit(m_process.readAllStandardError());
