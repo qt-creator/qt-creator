@@ -89,6 +89,7 @@ static QList<Diff> decode(const QList<Diff> &diffList,
                                   const QStringList &lines)
 {
     QList<Diff> newDiffList;
+    newDiffList.reserve(diffList.count());
     for (int i = 0; i < diffList.count(); i++) {
         Diff diff = diffList.at(i);
         QString text;

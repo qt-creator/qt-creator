@@ -193,6 +193,7 @@ void BaseEngineDebugClient::messageReceived(const QByteArray &data)
         int count;
         ds >> count;
         QList<EngineReference> engines;
+        engines.reserve(count);
         for (int ii = 0; ii < count; ++ii) {
             EngineReference eng;
             ds >> eng.m_name;

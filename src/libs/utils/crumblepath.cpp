@@ -365,6 +365,7 @@ void CrumblePath::resizeButtons()
         // compute relative sizes
         QList<int> sizes;
         int totalSize = 0;
+        sizes.reserve(m_buttons.length());
         for (int i = 0; i < m_buttons.length() ; ++i) {
             CrumblePathButton *button = m_buttons.at(i);
 
