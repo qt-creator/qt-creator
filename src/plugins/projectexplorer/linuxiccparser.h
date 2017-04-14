@@ -41,6 +41,8 @@ public:
 
     void stdError(const QString &line) override;
 
+    static Core::Id id();
+
 private:
     void doFlush() override;
 

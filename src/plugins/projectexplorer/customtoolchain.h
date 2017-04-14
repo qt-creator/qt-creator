@@ -59,16 +59,10 @@ class PROJECTEXPLORER_EXPORT CustomToolChain : public ToolChain
     Q_DECLARE_TR_FUNCTIONS(CustomToolChain)
 
 public:
-    enum OutputParser
-    {
-        Gcc = 0,
-        Clang = 1,
-        LinuxIcc = 2,
-#if defined(Q_OS_WIN)
-        Msvc = 3,
-#endif
-        Custom,
-        OutputParserCount
+    class Parser {
+    public:
+        Core::Id parserId;   ///< A unique id identifying a parser
+        QString displayName; ///< A translateable name to show in the user interface
     };
 
     QString typeDisplayName() const override;
@@ -113,11 +107,11 @@ public:
 
     ToolChain *clone() const override;
 
-    OutputParser outputParserType() const;
-    void setOutputParserType(OutputParser parser);
+    Core::Id outputParserId() const;
+    void setOutputParserId(Core::Id parserId);
     CustomParserSettings customParserSettings() const;
     void setCustomParserSettings(const CustomParserSettings &settings);
-    static QString parserName(OutputParser parser);
+    static QList<CustomToolChain::Parser> parsers();
 
 protected:
     CustomToolChain(const CustomToolChain &) = default;
@@ -135,7 +129,7 @@ private:
     QStringList m_cxx11Flags;
     Utils::FileNameList m_mkspecs;
 
-    OutputParser m_outputParser;
+    Core::Id m_outputParserId;
     CustomParserSettings m_customParserSettings;
 
     friend class Internal::CustomToolChainFactory;
@@ -175,7 +169,7 @@ public:
 
 private:
     void updateSummaries();
-    void errorParserChanged(int index);
+    void errorParserChanged(int index = -1);
     void openCustomParserSettingsDialog();
 
 protected:

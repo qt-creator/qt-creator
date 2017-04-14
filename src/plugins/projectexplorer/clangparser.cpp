@@ -122,6 +122,11 @@ void ClangParser::stdError(const QString &line)
     IOutputParser::stdError(line);
 }
 
+Core::Id ClangParser::id()
+{
+    return Core::Id("ProjectExplorer.OutputParser.Clang");
+}
+
 // Unit tests:
 
 #ifdef WITH_TESTS

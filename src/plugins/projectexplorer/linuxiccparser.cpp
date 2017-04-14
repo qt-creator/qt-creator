@@ -116,6 +116,11 @@ void LinuxIccParser::stdError(const QString &line)
     }
 }
 
+Core::Id LinuxIccParser::id()
+{
+    return Core::Id("ProjectExplorer.OutputParser.Icc");
+}
+
 void LinuxIccParser::doFlush()
 {
     if (m_temporary.isNull())

@@ -40,6 +40,8 @@ public:
     ClangParser();
     void stdError(const QString &line);
 
+    static Core::Id id();
+
 private:
     QRegularExpression m_commandRegExp;
     QRegularExpression m_inLineRegExp;

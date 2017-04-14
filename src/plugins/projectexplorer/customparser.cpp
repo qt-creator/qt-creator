@@ -140,6 +140,11 @@ void CustomParser::setSettings(const CustomParserSettings &settings)
     m_warning = settings.warning;
 }
 
+Core::Id CustomParser::id()
+{
+    return Core::Id("ProjectExplorer.OutputParser.Custom");
+}
+
 bool CustomParser::hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
                             const CustomParserExpression &expression, Task::TaskType taskType)
 {

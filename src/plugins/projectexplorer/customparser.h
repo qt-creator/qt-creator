@@ -91,6 +91,8 @@ public:
 
     void setSettings(const CustomParserSettings &settings);
 
+    static Core::Id id();
+
 private:
     bool hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
                   const CustomParserExpression &expression, Task::TaskType taskType);

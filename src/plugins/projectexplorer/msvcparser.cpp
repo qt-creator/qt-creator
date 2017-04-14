@@ -168,6 +168,11 @@ void MsvcParser::stdError(const QString &line)
     IOutputParser::stdError(line);
 }
 
+Core::Id MsvcParser::id()
+{
+    return Core::Id("ProjectExplorer.OutputParser.Msvc");
+}
+
 bool MsvcParser::processCompileLine(const QString &line)
 {
     doFlush();

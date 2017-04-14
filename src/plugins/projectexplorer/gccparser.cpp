@@ -144,6 +144,11 @@ void GccParser::stdOutput(const QString &line)
     IOutputParser::stdOutput(line);
 }
 
+Core::Id GccParser::id()
+{
+    return Core::Id("ProjectExplorer.OutputParser.Gcc");
+}
+
 void GccParser::newTask(const Task &task)
 {
     doFlush();
