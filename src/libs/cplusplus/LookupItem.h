@@ -73,9 +73,3 @@ private:
 uint qHash(const CPlusPlus::LookupItem &result);
 
 } // namespace CPlusPlus
-
-#if defined(Q_CC_MSVC) && _MSC_VER <= 1300
-//this ensures that code outside QmlJS can use the hash function
-//it also a workaround for some compilers
-inline uint qHash(const CPlusPlus::LookupItem &item) { return CPlusPlus::qHash(item); }
-#endif

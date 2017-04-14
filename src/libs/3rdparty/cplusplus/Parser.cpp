@@ -33,9 +33,7 @@
 #include <string>
 #include <cstdio> // for putchar
 
-#if defined(_MSC_VER) && (_MSC_VER < 1800)
-#    define va_copy(dst, src) ((dst) = (src))
-#elif defined(__INTEL_COMPILER) && !defined(va_copy)
+#if defined(__INTEL_COMPILER) && !defined(va_copy)
 #    define va_copy __va_copy
 #endif
 
