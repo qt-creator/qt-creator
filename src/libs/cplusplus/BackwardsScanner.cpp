@@ -27,6 +27,8 @@
 
 #include <cplusplus/Token.h>
 
+#include <utils/algorithm.h>
+
 #include <QTextCursor>
 #include <QTextDocument>
 
@@ -75,12 +77,11 @@ const Token &BackwardsScanner::fetchToken(int tokenIndex)
             _text.prepend(QLatin1Char('\n'));
             _text.prepend(blockText);
 
-            Tokens adaptedTokens;
-            for (int i = 0; i < _tokens.size(); ++i) {
-                Token t = _tokens.at(i);
-                t.utf16charOffset += blockText.length() + 1;
-                adaptedTokens.append(t);
-            }
+            const int offset = blockText.length() + 1;
+            const Tokens adaptedTokens = Utils::transform(_tokens, [offset](Token token) {
+                token.utf16charOffset += unsigned(offset);
+                return token;
+            });
 
             _tokens = _tokenize(blockText, previousBlockState(_block));
             _offset += _tokens.size();
