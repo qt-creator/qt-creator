@@ -246,7 +246,7 @@ QString SideDiffEditorWidget::plainTextFromSelection(const QTextCursor &cursor) 
                 if (textInserted)
                     text += QLatin1Char('\n');
                 if (block == endBlock)
-                    text += block.text().left(endPosition - block.position());
+                    text += block.text().leftRef(endPosition - block.position());
                 else
                     text += block.text();
             }

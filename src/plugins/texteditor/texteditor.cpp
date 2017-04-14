@@ -3280,7 +3280,7 @@ QString TextEditorWidgetPrivate::copyBlockSelection()
                     selection += QString(-startOffset, QLatin1Char(' '));
                 if (endOffset < 0)
                     --endPos;
-                selection += text.mid(startPos, endPos - startPos);
+                selection += text.midRef(startPos, endPos - startPos);
                 if (endOffset < 0)
                     selection += QString(ts.m_tabSize + endOffset, QLatin1Char(' '));
                 else if (endOffset > 0)
@@ -4187,10 +4187,10 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                         if (right.endsWith(QLatin1Char(';'))) {
                             right.chop(1);
                             right = right.trimmed();
-                            replacement.append(right.right(right.endsWith(QLatin1Char('/')) ? 2 : 1));
+                            replacement.append(right.rightRef(right.endsWith('/') ? 2 : 1));
                             replacement.append(QLatin1Char(';'));
                         } else {
-                            replacement.append(right.right(right.endsWith(QLatin1Char('/')) ? 2 : 1));
+                            replacement.append(right.rightRef(right.endsWith('/') ? 2 : 1));
                         }
                     }
                 }

@@ -83,8 +83,7 @@ QColor QmlJS::toQColor(const QString &qmlColorString)
         bool ok;
         const int alpha = qmlColorString.midRef(1, 2).toInt(&ok, 16);
         if (ok) {
-            QString name(qmlColorString.at(0));
-            name.append(qmlColorString.right(6));
+            const QString name = qmlColorString.at(0) + qmlColorString.rightRef(6);
             if (QColor::isValidColor(name)) {
                 color.setNamedColor(name);
                 color.setAlpha(alpha);

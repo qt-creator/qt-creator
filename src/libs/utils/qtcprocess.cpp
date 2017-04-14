@@ -348,7 +348,7 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                         goto quoteerr;
                     c = args.unicode()[pos++];
                 } while (c != QLatin1Char('\''));
-                cret += args.mid(spos, pos-spos-1);
+                cret += args.midRef(spos, pos - spos - 1);
                 hadWord = true;
             } else if (c == QLatin1Char('"')) {
                 for (;;) {

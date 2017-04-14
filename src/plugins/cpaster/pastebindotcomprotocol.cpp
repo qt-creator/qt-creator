@@ -144,7 +144,7 @@ void PasteBinDotComProtocol::fetch(const QString &id)
     QString link = QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_RAW);
 
     if (id.startsWith(QLatin1String("http://")))
-        link.append(id.mid(id.lastIndexOf(QLatin1Char('/')) + 1));
+        link.append(id.midRef(id.lastIndexOf(QLatin1Char('/')) + 1));
     else
         link.append(id);
 

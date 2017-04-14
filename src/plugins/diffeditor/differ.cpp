@@ -306,7 +306,7 @@ QList<Diff> Differ::moveWhitespaceIntoEqualities(const QList<Diff> &input)
                     }
                     if (j > 0) {
                         // diff starts with j whitespaces, move them to the previous diff
-                        previousDiff.text.append(diff.text.left(j));
+                        previousDiff.text.append(diff.text.leftRef(j));
                         diff.text = diff.text.mid(j);
                     }
                 }
