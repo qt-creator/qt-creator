@@ -31,7 +31,7 @@ namespace Utils {
 
 void writeAssertLocation(const char *msg)
 {
-    static bool goBoom = !qgetenv("QTC_FATAL_ASSERTS").isEmpty();
+    static bool goBoom = qEnvironmentVariableIsSet("QTC_FATAL_ASSERTS");
     if (goBoom)
         qFatal("SOFT ASSERT made fatal: %s", msg);
     else

@@ -139,7 +139,7 @@ QVariant fixResourcePaths(const QVariant &value)
 
 void fixResourcePathsForObject(QObject *object)
 {
-    if (qgetenv("QMLDESIGNER_RC_PATHS").isEmpty())
+    if (qEnvironmentVariableIsEmpty("QMLDESIGNER_RC_PATHS"))
         return;
 
     PropertyNameList propertyNameList = propertyNameListForWritableProperties(object);

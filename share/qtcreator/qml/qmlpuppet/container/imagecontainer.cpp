@@ -152,7 +152,7 @@ static void writeStream(QDataStream &out, const QImage &image)
 QDataStream &operator<<(QDataStream &out, const ImageContainer &container)
 {
     const int extraDataSize =  20;
-    static const bool dontUseSharedMemory = !qgetenv("DESIGNER_DONT_USE_SHARED_MEMORY").isEmpty();
+    static const bool dontUseSharedMemory = qEnvironmentVariableIsSet("DESIGNER_DONT_USE_SHARED_MEMORY");
 
     out << container.instanceId();
     out << container.keyNumber();

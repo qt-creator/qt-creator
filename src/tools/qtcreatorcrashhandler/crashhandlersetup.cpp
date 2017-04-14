@@ -95,7 +95,7 @@ CrashHandlerSetup::CrashHandlerSetup(const QString &appName,
                                      const QString &executableDirPath)
 {
 #ifdef BUILD_CRASH_HANDLER
-    if (qgetenv("QTC_USE_CRASH_HANDLER").isEmpty())
+    if (qEnvironmentVariableIsEmpty("QTC_USE_CRASH_HANDLER"))
         return;
 
     appNameC = qstrdup(qPrintable(appName));
