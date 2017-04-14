@@ -448,12 +448,10 @@ static QString compilerString()
 #elif defined(Q_CC_MSVC)
     if (_MSC_VER > 1999)
         return QLatin1String("MSVC <unknown>");
-    if (_MSC_VER >= 1900) // 1900: MSVC 2015
+    if (_MSC_VER >= 1910)
+        return QLatin1String("MSVC 2017");
+    if (_MSC_VER >= 1900)
         return QLatin1String("MSVC 2015");
-    if (_MSC_VER >= 1800) // 1800: MSVC 2013 (yearly release cycle)
-        return QLatin1String("MSVC ") + QString::number(2008 + ((_MSC_VER / 100) - 13));
-    if (_MSC_VER >= 1500) // 1500: MSVC 2008, 1600: MSVC 2010, ... (2-year release cycle)
-        return QLatin1String("MSVC ") + QString::number(2008 + 2 * ((_MSC_VER / 100) - 15));
 #endif
     return QLatin1String("<unknown compiler>");
 }
