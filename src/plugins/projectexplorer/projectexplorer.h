@@ -72,7 +72,7 @@ public:
     class OpenProjectResult
     {
     public:
-        OpenProjectResult(QList<Project *> projects, QList<Project *> alreadyOpen,
+        OpenProjectResult(const QList<Project *> &projects, const QList<Project *> &alreadyOpen,
                           const QString &errorMessage)
             : m_projects(projects), m_alreadyOpen(alreadyOpen),
               m_errorMessage(errorMessage)

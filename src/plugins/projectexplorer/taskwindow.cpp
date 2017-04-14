@@ -209,7 +209,7 @@ public:
     QList<QAction *> m_actions;
 };
 
-static QToolButton *createFilterButton(QIcon icon, const QString &toolTip,
+static QToolButton *createFilterButton(const QIcon &icon, const QString &toolTip,
                                        QObject *receiver, std::function<void(bool)> lambda)
 {
     auto button = new QToolButton;

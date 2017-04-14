@@ -312,7 +312,7 @@ QString TabSettings::indentationString(int startColumn, int targetColumn, int pa
     return s;
 }
 
-void TabSettings::indentLine(QTextBlock block, int newIndent, int padding) const
+void TabSettings::indentLine(const QTextBlock &block, int newIndent, int padding) const
 {
     const QString text = block.text();
     const int oldBlockLength = text.size();

@@ -74,12 +74,12 @@ private:
 
 private slots:
     void on_playButton_clicked();
-    void on_overshootSpinBox_valueChanged(double );
-    void on_periodSpinBox_valueChanged(double );
-    void on_amplitudeSpinBox_valueChanged(double );
-    void on_easingExtremesComboBox_currentIndexChanged(QString );
-    void on_easingShapeComboBox_currentIndexChanged(QString );
-    void on_durationSpinBox_valueChanged(int );
+    void on_overshootSpinBox_valueChanged(double);
+    void on_periodSpinBox_valueChanged(double);
+    void on_amplitudeSpinBox_valueChanged(double);
+    void on_easingExtremesComboBox_currentIndexChanged(const QString &);
+    void on_easingShapeComboBox_currentIndexChanged(const QString &);
+    void on_durationSpinBox_valueChanged(int);
 
     void switchToGraph();
 };

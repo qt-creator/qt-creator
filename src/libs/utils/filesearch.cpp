@@ -85,7 +85,7 @@ class FileSearch
 {
 public:
     FileSearch(const QString &searchTerm, QTextDocument::FindFlags flags,
-               QMap<QString, QString> fileToContentsMap);
+               const QMap<QString, QString> &fileToContentsMap);
     void operator()(QFutureInterface<FileSearchResultList> &futureInterface,
                     const FileIterator::Item &item) const;
 
@@ -105,7 +105,7 @@ class FileSearchRegExp
 {
 public:
     FileSearchRegExp(const QString &searchTerm, QTextDocument::FindFlags flags,
-                     QMap<QString, QString> fileToContentsMap);
+                     const QMap<QString, QString> &fileToContentsMap);
     FileSearchRegExp(const FileSearchRegExp &other);
     void operator()(QFutureInterface<FileSearchResultList> &futureInterface,
                     const FileIterator::Item &item) const;
@@ -119,7 +119,7 @@ private:
 };
 
 FileSearch::FileSearch(const QString &searchTerm, QTextDocument::FindFlags flags,
-                       QMap<QString, QString> fileToContentsMap)
+                       const QMap<QString, QString> &fileToContentsMap)
 {
     this->fileToContentsMap = fileToContentsMap;
     caseSensitive = (flags & QTextDocument::FindCaseSensitively);
@@ -225,7 +225,7 @@ void FileSearch::operator()(QFutureInterface<FileSearchResultList> &futureInterf
 }
 
 FileSearchRegExp::FileSearchRegExp(const QString &searchTerm, QTextDocument::FindFlags flags,
-                                   QMap<QString, QString> fileToContentsMap)
+                                   const QMap<QString, QString> &fileToContentsMap)
 {
     this->fileToContentsMap = fileToContentsMap;
     QString term = searchTerm;
@@ -360,7 +360,7 @@ void cleanUpFileSearch(QFutureInterface<FileSearchResultList> &futureInterface,
 } // namespace
 
 QFuture<FileSearchResultList> Utils::findInFiles(const QString &searchTerm, FileIterator *files,
-    QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap)
+    QTextDocument::FindFlags flags, const QMap<QString, QString> &fileToContentsMap)
 {
     return mapReduce(files->begin(), files->end(),
                      [searchTerm, files](QFutureInterface<FileSearchResultList> &futureInterface) {
@@ -372,7 +372,7 @@ QFuture<FileSearchResultList> Utils::findInFiles(const QString &searchTerm, File
 }
 
 QFuture<FileSearchResultList> Utils::findInFilesRegExp(const QString &searchTerm, FileIterator *files,
-    QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap)
+    QTextDocument::FindFlags flags, const QMap<QString, QString> &fileToContentsMap)
 {
     return mapReduce(files->begin(), files->end(),
                      [searchTerm, files](QFutureInterface<FileSearchResultList> &futureInterface) {
@@ -585,7 +585,7 @@ FileIterator::const_iterator FileIterator::end() const
 
 // #pragma mark -- FileListIterator
 
-QTextCodec *encodingAt(const QList<QTextCodec *> encodings, int index)
+QTextCodec *encodingAt(const QList<QTextCodec *> &encodings, int index)
 {
     if (index >= 0 && index < encodings.size())
         return encodings.at(index);

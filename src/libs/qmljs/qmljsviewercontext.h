@@ -44,7 +44,7 @@ public:
     };
 
     ViewerContext();
-    ViewerContext(QStringList selectors, QStringList paths,
+    ViewerContext(const QStringList &selectors, const QStringList &paths,
                   Dialect language = Dialect::Qml,
                   Flags flags = AddAllPaths);
 

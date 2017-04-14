@@ -170,9 +170,9 @@ class QTCREATOR_UTILS_EXPORT FileSearchResult
 {
 public:
     FileSearchResult() {}
-    FileSearchResult(QString fileName, int lineNumber, QString matchingLine,
+    FileSearchResult(const QString &fileName, int lineNumber, const QString &matchingLine,
                      int matchStart, int matchLength,
-                     QStringList regexpCapturedTexts)
+                     const QStringList &regexpCapturedTexts)
             : fileName(fileName),
             lineNumber(lineNumber),
             matchingLine(matchingLine),
@@ -192,10 +192,10 @@ public:
 typedef QList<FileSearchResult> FileSearchResultList;
 
 QTCREATOR_UTILS_EXPORT QFuture<FileSearchResultList> findInFiles(const QString &searchTerm, FileIterator *files,
-    QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap = QMap<QString, QString>());
+    QTextDocument::FindFlags flags, const QMap<QString, QString> &fileToContentsMap = QMap<QString, QString>());
 
 QTCREATOR_UTILS_EXPORT QFuture<FileSearchResultList> findInFilesRegExp(const QString &searchTerm, FileIterator *files,
-    QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap = QMap<QString, QString>());
+    QTextDocument::FindFlags flags, const QMap<QString, QString> &fileToContentsMap = QMap<QString, QString>());
 
 QTCREATOR_UTILS_EXPORT QString expandRegExpReplacement(const QString &replaceText, const QStringList &capturedTexts);
 QTCREATOR_UTILS_EXPORT QString matchCaseReplacement(const QString &originalText, const QString &replaceText);

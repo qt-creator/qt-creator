@@ -474,7 +474,7 @@ QIcon Target::overlayIcon() const
     return d->m_overlayIcon;
 }
 
-void Target::setOverlayIcon(QIcon icon)
+void Target::setOverlayIcon(const QIcon &icon)
 {
     d->m_overlayIcon = icon;
     emit overlayIconChanged();

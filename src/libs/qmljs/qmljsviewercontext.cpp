@@ -39,7 +39,7 @@ ViewerContext::ViewerContext()
     : language(Dialect::Qml), flags(AddAllPaths)
 { }
 
-ViewerContext::ViewerContext(QStringList selectors, QStringList paths,
+ViewerContext::ViewerContext(const QStringList &selectors, const QStringList &paths,
                                     QmlJS::Dialect language,
                                     QmlJS::ViewerContext::Flags flags)
     : selectors(selectors), paths(paths), language(language),

@@ -58,7 +58,7 @@ ImportKind::Enum toImportKind(ImportType::Enum type)
     return ImportKind::Invalid;
 }
 
-ImportMatchStrength::ImportMatchStrength(QList<int> match)
+ImportMatchStrength::ImportMatchStrength(const QList<int> &match)
     : m_match(match)
 { }
 
@@ -482,7 +482,7 @@ Export::Export()
     : intrinsic(false)
 { }
 
-Export::Export(ImportKey exportName, QString pathRequired, bool intrinsic, const QString &typeName)
+Export::Export(ImportKey exportName, const QString &pathRequired, bool intrinsic, const QString &typeName)
     : exportName(exportName), pathRequired(pathRequired), typeName(typeName), intrinsic(intrinsic)
 { }
 

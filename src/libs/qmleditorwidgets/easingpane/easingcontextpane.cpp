@@ -87,7 +87,7 @@ public:
             m_sequential->resume();
         }
     }
-    void animate(int duration, QEasingCurve curve) {
+    void animate(int duration, const QEasingCurve &curve) {
         reset();
         m_sequential = new QSequentialAnimationGroup;
         connect(m_sequential,&QAbstractAnimation::finished,this,&EasingSimulation::finished);
@@ -288,7 +288,7 @@ void QmlEditorWidgets::EasingContextPane::on_durationSpinBox_valueChanged(int ne
     emit propertyChanged(QLatin1String("duration"), newValue);
 }
 
-void QmlEditorWidgets::EasingContextPane::on_easingShapeComboBox_currentIndexChanged(QString newShape)
+void QmlEditorWidgets::EasingContextPane::on_easingShapeComboBox_currentIndexChanged(const QString &newShape)
 {
     if (newShape==QLatin1String("Linear"))
         setLinear();
@@ -312,7 +312,7 @@ void QmlEditorWidgets::EasingContextPane::on_easingShapeComboBox_currentIndexCha
     }
 }
 
-void QmlEditorWidgets::EasingContextPane::on_easingExtremesComboBox_currentIndexChanged(QString newExtremes)
+void QmlEditorWidgets::EasingContextPane::on_easingExtremesComboBox_currentIndexChanged(const QString &newExtremes)
 {
     if (m_easingGraph->easingExtremes() != newExtremes) {
         m_easingGraph->setEasingExtremes(newExtremes);

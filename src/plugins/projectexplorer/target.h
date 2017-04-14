@@ -97,7 +97,7 @@ public:
 
     QIcon icon() const;
     QIcon overlayIcon() const;
-    void setOverlayIcon(QIcon icon);
+    void setOverlayIcon(const QIcon &icon);
     QString overlayIconToolTip();
 
     QVariantMap toMap() const override;

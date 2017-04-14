@@ -159,7 +159,7 @@ QWidget *s_currentWizard = nullptr;
 class NewItemDialogData
 {
 public:
-    void setData(const QString t, const QList<IWizardFactory *> f,
+    void setData(const QString &t, const QList<IWizardFactory *> &f,
                  const QString &dl, const QVariantMap &ev)
     {
         QTC_ASSERT(!hasData(), return);

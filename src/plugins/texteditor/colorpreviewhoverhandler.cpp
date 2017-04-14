@@ -44,7 +44,7 @@ namespace TextEditor {
  * Qt::GlobalColor types (although there cannot be any spaces such as
  * "Qt:: yellow")
  */
-static QString extractColorString(const QString s, int pos)
+static QString extractColorString(const QString &s, int pos)
 {
     if (s.length() < 3 || pos < 0 || pos >= s.length())
         return QString();

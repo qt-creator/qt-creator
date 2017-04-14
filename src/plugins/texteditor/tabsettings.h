@@ -74,7 +74,7 @@ public:
     int indentationColumn(const QString &text) const;
     static int maximumPadding(const QString &text);
 
-    void indentLine(QTextBlock block, int newIndent, int padding = 0) const;
+    void indentLine(const QTextBlock &block, int newIndent, int padding = 0) const;
     void reindentLine(QTextBlock block, int delta) const;
 
     bool isIndentationClean(const QTextBlock &block, const int indent) const;

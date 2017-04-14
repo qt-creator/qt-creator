@@ -107,7 +107,7 @@ static bool insertQuote(const QChar ch, const BackwardsScanner &tk)
             && stringLiteralPrefixes.contains(tk.text(index));
 }
 
-static int countSkippedChars(const QString blockText, const QString &textToProcess)
+static int countSkippedChars(const QString &blockText, const QString &textToProcess)
 {
     int skippedChars = 0;
     const int length = qMin(blockText.length(), textToProcess.length());

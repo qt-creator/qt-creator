@@ -462,7 +462,7 @@ void BuildManager::nextStep()
     }
 }
 
-bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, QStringList names, const QStringList &preambleMessage)
+bool BuildManager::buildQueueAppend(const QList<BuildStep *> &steps, QStringList names, const QStringList &preambleMessage)
 {
     if (!d->m_running) {
         d->m_outputWindow->clearContents();

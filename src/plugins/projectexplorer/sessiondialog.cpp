@@ -38,14 +38,14 @@ namespace Internal {
 class SessionValidator : public QValidator
 {
 public:
-    SessionValidator(QObject *parent, QStringList sessions);
+    SessionValidator(QObject *parent, const QStringList &sessions);
     void fixup(QString & input) const;
     QValidator::State validate(QString & input, int & pos) const;
 private:
     QStringList m_sessions;
 };
 
-SessionValidator::SessionValidator(QObject *parent, QStringList sessions)
+SessionValidator::SessionValidator(QObject *parent, const QStringList &sessions)
     : QValidator(parent), m_sessions(sessions)
 {
 }

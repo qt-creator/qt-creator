@@ -128,7 +128,7 @@ void HighlightScrollBar::setPriority(Id category, HighlightScrollBar::Priority p
     m_overlay->scheduleUpdate();
 }
 
-void HighlightScrollBar::addHighlights(Id category, QSet<int> highlights)
+void HighlightScrollBar::addHighlights(Id category, const QSet<int> &highlights)
 {
     if (!m_overlay)
         return;

@@ -139,7 +139,7 @@ public:
 private:
     struct TargetDescription
     {
-        TargetDescription(QString tid, QString dn) :
+        TargetDescription(const QString &tid, const QString &dn) :
             id(tid),
             displayName(dn)
         {

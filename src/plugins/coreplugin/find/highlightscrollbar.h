@@ -59,7 +59,7 @@ public:
 
     void setPriority(Id category, Priority prio);
     void addHighlight(Id category, int highlight);
-    void addHighlights(Id category, QSet<int> highlights);
+    void addHighlights(Id category, const QSet<int> &highlights);
 
     void removeHighlights(Id id);
     void removeAllHighlights();
