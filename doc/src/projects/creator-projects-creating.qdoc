@@ -320,7 +320,7 @@
 
         \list
 
-            \li Text files
+            \li Empty files
 
             \li Scratch buffers that use temporary files. You can create this
                 type of files for temporarily storing information that you do
