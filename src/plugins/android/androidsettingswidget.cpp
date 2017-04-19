@@ -30,6 +30,7 @@
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidtoolchain.h"
+#include "androidavdmanager.h"
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -58,7 +59,7 @@
 namespace Android {
 namespace Internal {
 
-void AvdModel::setAvdList(const QVector<AndroidDeviceInfo> &list)
+void AvdModel::setAvdList(const AndroidDeviceInfoList &list)
 {
     beginResetModel();
     m_list = list;
@@ -128,9 +129,12 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
       m_ndkState(NotSet),
       m_javaState(NotSet),
       m_ui(new Ui_AndroidSettingsWidget),
-      m_androidConfig(AndroidConfigurations::currentConfig())
+      m_androidConfig(AndroidConfigurations::currentConfig()),
+      m_avdManager(new AndroidAvdManager(m_androidConfig))
 {
     m_ui->setupUi(this);
+
+    m_ui->deprecatedInfoIconLabel->setPixmap(Utils::Icons::INFO.pixmap());
 
     connect(&m_checkGdbWatcher, &QFutureWatcherBase::finished,
             this, &AndroidSettingsWidget::checkGdbFinished);
@@ -158,7 +162,8 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     m_ui->AntLocationPathChooser->setPromptDialogTitle(tr("Select ant Script"));
     m_ui->AntLocationPathChooser->setInitialBrowsePathBackup(dir);
     m_ui->AntLocationPathChooser->setPromptDialogFilter(filter);
-    m_ui->UseGradleCheckBox->setChecked(m_androidConfig.useGrandle());
+
+    updateGradleBuildUi();
 
     m_ui->OpenJDKLocationPathChooser->setFileName(m_androidConfig.openJDKLocation());
     m_ui->OpenJDKLocationPathChooser->setPromptDialogTitle(tr("Select JDK Path"));
@@ -463,7 +468,7 @@ void AndroidSettingsWidget::enableAvdControls()
 void AndroidSettingsWidget::startUpdateAvd()
 {
     disableAvdControls();
-    m_virtualDevicesWatcher.setFuture(m_androidConfig.androidVirtualDevicesFuture());
+    m_virtualDevicesWatcher.setFuture(m_avdManager->avdList());
 }
 
 void AndroidSettingsWidget::updateAvds()
@@ -474,6 +479,13 @@ void AndroidSettingsWidget::updateAvds()
         m_lastAddedAvd.clear();
     }
     enableAvdControls();
+}
+
+void AndroidSettingsWidget::updateGradleBuildUi()
+{
+    m_ui->UseGradleCheckBox->setEnabled(m_androidConfig.antScriptsAvailable());
+    m_ui->UseGradleCheckBox->setChecked(!m_androidConfig.antScriptsAvailable() ||
+                                        m_androidConfig.useGrandle());
 }
 
 bool AndroidSettingsWidget::sdkLocationIsValid() const
@@ -505,6 +517,7 @@ void AndroidSettingsWidget::saveSettings()
 void AndroidSettingsWidget::sdkLocationEditingFinished()
 {
     m_androidConfig.setSdkLocation(Utils::FileName::fromUserInput(m_ui->SDKLocationPathChooser->rawPath()));
+    updateGradleBuildUi();
 
     check(Sdk);
 
@@ -587,12 +600,12 @@ void AndroidSettingsWidget::addAVD()
     disableAvdControls();
     AndroidConfig::CreateAvdInfo info = m_androidConfig.gatherCreateAVDInfo(this);
 
-    if (info.target.isEmpty()) {
+    if (!info.target.isValid()) {
         enableAvdControls();
         return;
     }
 
-    m_futureWatcher.setFuture(m_androidConfig.createAVD(info));
+    m_futureWatcher.setFuture(m_avdManager->createAvd(info));
 }
 
 void AndroidSettingsWidget::avdAdded()
@@ -620,13 +633,13 @@ void AndroidSettingsWidget::removeAVD()
         return;
     }
 
-    m_androidConfig.removeAVD(avdName);
+    m_avdManager->removeAvd(avdName);
     startUpdateAvd();
 }
 
 void AndroidSettingsWidget::startAVD()
 {
-    m_androidConfig.startAVDAsync(m_AVDModel.avdName(m_ui->AVDTableView->currentIndex()));
+    m_avdManager->startAvdAsync(m_AVDModel.avdName(m_ui->AVDTableView->currentIndex()));
 }
 
 void AndroidSettingsWidget::avdActivated(const QModelIndex &index)
@@ -671,16 +684,15 @@ void AndroidSettingsWidget::showGdbWarningDialog()
 
 void AndroidSettingsWidget::manageAVD()
 {
-    QProcess *avdProcess = new QProcess();
-    connect(this, &QObject::destroyed, avdProcess, &QObject::deleteLater);
-    connect(avdProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
-            avdProcess, &QObject::deleteLater);
-
-    avdProcess->setProcessEnvironment(m_androidConfig.androidToolEnvironment().toProcessEnvironment());
-    QString executable = m_androidConfig.androidToolPath().toString();
-    QStringList arguments = QStringList("avd");
-
-    avdProcess->start(executable, arguments);
+    if (m_avdManager->avdManagerUiToolAvailable()) {
+        m_avdManager->launchAvdManagerUiTool();
+    } else {
+        QMessageBox::warning(this, tr("AVD Manager Not Available"),
+                             tr("AVD manager UI tool is not available in the installed SDK tools"
+                                "(version %1). Use the command line tool \"avdmanager\" for "
+                                "advanced AVD management.")
+                             .arg(m_androidConfig.sdkToolsVersion().toString()));
+    }
 }
 
 

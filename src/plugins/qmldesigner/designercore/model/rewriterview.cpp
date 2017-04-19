@@ -86,6 +86,11 @@ void RewriterView::modelAttached(Model *model)
 
     if (!(m_errors.isEmpty() && m_warnings.isEmpty()))
         notifyErrorsAndWarnings(m_errors);
+
+    if (hasIncompleteTypeInformation())
+        QTimer::singleShot(1000, this, [this, model](){
+            modelAttached(model);
+        });
 }
 
 void RewriterView::modelAboutToBeDetached(Model * /*model*/)
@@ -463,6 +468,16 @@ void RewriterView::setWarnings(const QList<DocumentMessage> &warnings)
 {
     m_warnings = warnings;
     notifyErrorsAndWarnings(m_errors);
+}
+
+void RewriterView::setIncompleteTypeInformation(bool b)
+{
+    m_hasIncompleteTypeInformation = b;
+}
+
+bool RewriterView::hasIncompleteTypeInformation() const
+{
+    return m_hasIncompleteTypeInformation;
 }
 
 void RewriterView::setErrors(const QList<DocumentMessage> &errors)

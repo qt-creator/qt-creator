@@ -32,6 +32,8 @@
 #include <QFutureWatcher>
 #include <QTime>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QModelIndex;
 QT_END_NAMESPACE
@@ -41,6 +43,7 @@ namespace Utils { class ProgressIndicator; }
 namespace Android {
 namespace Internal {
 
+class AndroidAvdManager;
 class AndroidDeviceModel;
 namespace Ui { class AndroidDeviceDialog; }
 
@@ -74,9 +77,10 @@ private:
     QString m_abi;
     QString m_avdNameFromAdd;
     QString m_defaultDevice;
+    std::unique_ptr<AndroidAvdManager> m_avdManager;
     QVector<AndroidDeviceInfo> m_connectedDevices;
     QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcherAddDevice;
-    QFutureWatcher<QVector<AndroidDeviceInfo>> m_futureWatcherRefreshDevices;
+    QFutureWatcher<AndroidDeviceInfoList> m_futureWatcherRefreshDevices;
 };
 
 }

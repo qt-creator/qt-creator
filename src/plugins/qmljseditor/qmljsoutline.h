@@ -31,6 +31,10 @@
 
 #include <QSortFilterProxyModel>
 
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
+
 namespace Core { class IEditor; }
 
 namespace QmlJS { class Editor; }
@@ -66,13 +70,12 @@ public:
     void setEditor(QmlJSEditorWidget *editor);
 
     // IOutlineWidget
-    virtual QList<QAction*> filterMenuActions() const;
-    virtual void setCursorSynchronization(bool syncWithCursor);
-    virtual void restoreSettings(const QVariantMap &map);
-    virtual QVariantMap settings() const;
+    virtual QList<QAction*> filterMenuActions() const override;
+    virtual void setCursorSynchronization(bool syncWithCursor) override;
+    virtual void restoreSettings(const QVariantMap &map) override;
+    virtual QVariantMap settings() const override;
 
 private:
-    void modelUpdated();
     void updateSelectionInTree(const QModelIndex &index);
     void updateSelectionInText(const QItemSelection &selection);
     void updateTextCursor(const QModelIndex &index);
@@ -81,14 +84,14 @@ private:
     bool syncCursor();
 
 private:
-    QmlJSOutlineTreeView *m_treeView;
-    QmlJSOutlineFilterModel *m_filterModel;
-    QmlJSEditorWidget *m_editor;
+    QmlJSOutlineTreeView *m_treeView = nullptr;
+    QmlJSOutlineFilterModel *m_filterModel = nullptr;
+    QmlJSEditorWidget *m_editor = nullptr;
 
-    QAction *m_showBindingsAction;
+    QAction *m_showBindingsAction = nullptr;
 
-    bool m_enableCursorSync;
-    bool m_blockCursorSync;
+    bool m_enableCursorSync = true;
+    bool m_blockCursorSync = false;
 };
 
 class QmlJSOutlineWidgetFactory : public TextEditor::IOutlineWidgetFactory

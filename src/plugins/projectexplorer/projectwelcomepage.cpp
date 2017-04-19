@@ -56,6 +56,7 @@ using namespace Core;
 using namespace Utils;
 
 const int LINK_HEIGHT = 35;
+const int SESSION_LINE_HEIGHT = 30;
 const char PROJECT_BASE_ID[] = "Welcome.OpenRecentProject";
 
 namespace ProjectExplorer {
@@ -292,7 +293,7 @@ public:
         if (isActiveSession && !isDefaultVirgin)
             fullSessionName = ProjectWelcomePage::tr("%1 (current session)").arg(fullSessionName);
 
-        const QRect switchRect = QRect(x, y, rc.width() - 24, firstBase + 3 - y);
+        const QRect switchRect = QRect(x, y, rc.width() - 24, SESSION_LINE_HEIGHT);
         const bool switchActive = switchRect.contains(mousePos);
         painter->setPen(linkColor);
         painter->setFont(sizedFont(13, option.widget, switchActive));
@@ -350,7 +351,7 @@ public:
 
     QSize sizeHint(const QStyleOptionViewItem &, const QModelIndex &idx) const final
     {
-        int h = 30;
+        int h = SESSION_LINE_HEIGHT;
         QString sessionName = idx.data(Qt::DisplayRole).toString();
         if (m_expandedSessions.contains(sessionName)) {
             QStringList projects = SessionManager::projectsForSessionName(sessionName);
@@ -364,7 +365,7 @@ public:
     {
         if (ev->type() == QEvent::MouseButtonRelease) {
             const QPoint pos = static_cast<QMouseEvent *>(ev)->pos();
-            const QRect rc(option.rect.right() - 24, option.rect.top(), 24, 30);
+            const QRect rc(option.rect.right() - 24, option.rect.top(), 24, SESSION_LINE_HEIGHT);
             const QString sessionName = idx.data(Qt::DisplayRole).toString();
             if (rc.contains(pos)) {
                 // The expand/collapse "button".

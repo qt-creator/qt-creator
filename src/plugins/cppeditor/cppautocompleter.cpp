@@ -131,7 +131,7 @@ static QString fileContent(int fileContent, QChar charToInsert)
         case ']':               return QLatin1String("[[|]");
         default:                return QString();
         }
-    default:                    return QString();
+    default:                    break;
     }
     return QString();
 }

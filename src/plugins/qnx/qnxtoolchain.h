@@ -49,12 +49,17 @@ public:
 
     QString sdpPath() const;
     void setSdpPath(const QString &sdpPath);
+    QString cpuDir() const;
+    void setCpuDir(const QString &cpuDir);
+
+    bool operator ==(const ToolChain &) const override;
 
 protected:
     virtual DetectedAbisResult detectSupportedAbis() const override;
 
 private:
     QString m_sdpPath;
+    QString m_cpuDir;
 };
 
 // --------------------------------------------------------------------------

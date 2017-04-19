@@ -75,6 +75,7 @@ AutotoolsProject::AutotoolsProject(const Utils::FileName &fileName) :
     setId(Constants::AUTOTOOLS_PROJECT_ID);
     setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+    setDisplayName(projectDirectory().fileName());
 }
 
 AutotoolsProject::~AutotoolsProject()
@@ -88,11 +89,6 @@ AutotoolsProject::~AutotoolsProject()
         delete m_makefileParserThread;
         m_makefileParserThread = nullptr;
     }
-}
-
-QString AutotoolsProject::displayName() const
-{
-    return projectFilePath().toFileInfo().absoluteDir().dirName();
 }
 
 QString AutotoolsProject::defaultBuildDirectory(const QString &projectPath)

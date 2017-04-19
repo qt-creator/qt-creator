@@ -125,7 +125,6 @@ class Dumper(DumperBase):
                     pass
         val.isBaseClass = val.name == val.type.name
         val.nativeValue = nativeValue
-        val.lIsInScope = True
         val.laddress = nativeValue.address()
         return val
 
@@ -405,12 +404,12 @@ class Dumper(DumperBase):
         return cdbext.lookupType(name, module)
 
     def reportResult(self, result, args):
-        self.report('result={%s}' % (result))
+        cdbext.reportResult('result={%s}' % result)
 
     def readRawMemory(self, address, size):
         mem = cdbext.readRawMemory(address, size)
         if len(mem) != size:
-            raise Exception("Invalid memory request")
+            raise Exception("Invalid memory request: %d bytes from 0x%x" % (size, address))
         return mem
 
     def findStaticMetaObject(self, type):
@@ -440,7 +439,9 @@ class Dumper(DumperBase):
 
         variables = []
         for val in cdbext.listOfLocals(self.partialVariable):
-            variables.append(self.fromNativeValue(val))
+            dumperVal = self.fromNativeValue(val)
+            dumperVal.lIsInScope = not dumperVal.name in self.uninitialized
+            variables.append(dumperVal)
 
         self.handleLocals(variables)
         self.handleWatches(args)

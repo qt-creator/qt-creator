@@ -66,6 +66,8 @@ public:
     QmlJSEditorDocument *qmlJsEditorDocument() const;
 
     QModelIndex outlineModelIndex();
+    void updateOutlineIndexNow();
+    bool isOutlineCursorChangesBlocked();
 
     TextEditor::AssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
                            TextEditor::AssistReason reason) const override;
@@ -84,7 +86,6 @@ private:
     void modificationChanged(bool);
 
     void jumpToOutlineElement(int index);
-    void updateOutlineIndexNow();
     void updateContextPane();
     void showTextMarker();
 
@@ -109,24 +110,23 @@ protected:
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) override;
 
 private:
-    bool isClosingBrace(const QList<QmlJS::Token> &tokens) const;
-
     void setSelectedElements();
     QString wordUnderCursor() const;
 
     QModelIndex indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex = QModelIndex()) const;
     bool hideContextPane();
 
-    QmlJSEditorDocument *m_qmlJsEditorDocument;
+    QmlJSEditorDocument *m_qmlJsEditorDocument = nullptr;
     QTimer m_updateUsesTimer; // to wait for multiple text cursor position changes
     QTimer m_updateOutlineIndexTimer;
     QTimer m_contextPaneTimer;
     QComboBox *m_outlineCombo;
     QModelIndex m_outlineModelIndex;
-    QmlJS::ModelManagerInterface *m_modelManager;
+    bool m_blockOutLineCursorChanges = false;
+    QmlJS::ModelManagerInterface *m_modelManager = nullptr;
 
-    QmlJS::IContextPane *m_contextPane;
-    int m_oldCursorPosition;
+    QmlJS::IContextPane *m_contextPane = nullptr;
+    int m_oldCursorPosition = -1;
 
     FindReferences *m_findReferences;
 };

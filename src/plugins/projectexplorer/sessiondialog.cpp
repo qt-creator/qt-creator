@@ -121,6 +121,7 @@ bool SessionNameInputDialog::isSwitchToRequested() const
 SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
 {
     m_ui.setupUi(this);
+    m_ui.sessionView->setActivationMode(Utils::DoubleClickActivation);
 
     connect(m_ui.btCreateNew, &QAbstractButton::clicked,
         m_ui.sessionView, &SessionView::createNewSession);

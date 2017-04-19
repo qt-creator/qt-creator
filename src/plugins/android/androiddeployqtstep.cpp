@@ -33,6 +33,7 @@
 #include "androidmanager.h"
 #include "androidconstants.h"
 #include "androidglobal.h"
+#include "androidavdmanager.h"
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
@@ -262,8 +263,9 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
 
     m_adbPath = AndroidConfigurations::currentConfig().adbToolPath().toString();
 
-    if (AndroidConfigurations::currentConfig().findAvd(m_avdName).isEmpty())
-        AndroidConfigurations::currentConfig().startAVDAsync(m_avdName);
+    AndroidAvdManager avdManager;
+    if (avdManager.findAvd(m_avdName).isEmpty())
+        avdManager.startAvdAsync(m_avdName);
     return true;
 }
 
@@ -414,7 +416,7 @@ void AndroidDeployQtStep::slotSetSerialNumber(const QString &serialNumber)
 void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
 {
     if (!m_avdName.isEmpty()) {
-        QString serialNumber = AndroidConfigurations::currentConfig().waitForAvd(m_avdName, fi);
+        QString serialNumber = AndroidAvdManager().waitForAvd(m_avdName, fi);
         if (serialNumber.isEmpty()) {
             reportRunResult(fi, false);
             return;

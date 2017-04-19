@@ -215,14 +215,9 @@ bool Node::isEnabled() const
     return parent ? parent->isEnabled() : true;
 }
 
-QList<ProjectAction> Node::supportedActions(Node *node) const
+bool Node::supportsAction(ProjectAction, Node *) const
 {
-    if (FolderNode *folder = parentFolderNode()) {
-        QList<ProjectAction> list = folder->supportedActions(node);
-        list.append(InheritedFromParent);
-        return list;
-    }
-    return {};
+    return false;
 }
 
 void Node::setEnabled(bool enabled)
@@ -362,6 +357,14 @@ QList<FileNode *> FileNode::scanForFiles(const Utils::FileName &directory,
     if (future)
         future->setProgressRange(0, 1000000);
     return scanForFilesRecursively(directory, factory, visited, future, 0.0, 1000000.0);
+}
+
+bool FileNode::supportsAction(ProjectAction action, Node *node) const
+{
+    if (action == InheritedFromParent)
+        return true;
+    FolderNode *parentFolder = parentFolderNode();
+    return parentFolder && parentFolder->supportsAction(action, node);
 }
 
 /*!
@@ -593,6 +596,14 @@ QString FolderNode::addFileFilter() const
     return parentFolderNode()->addFileFilter();
 }
 
+bool FolderNode::supportsAction(ProjectAction action, Node *node) const
+{
+    if (action == InheritedFromParent)
+        return true;
+    FolderNode *parentFolder = parentFolderNode();
+    return parentFolder && parentFolder->supportsAction(action, node);
+}
+
 bool FolderNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
 {
     ProjectNode *pn = managingProject();
@@ -762,6 +773,11 @@ bool ProjectNode::renameFile(const QString &filePath, const QString &newFilePath
     return false;
 }
 
+bool ProjectNode::supportsAction(ProjectAction, Node *) const
+{
+    return false;
+}
+
 bool ProjectNode::deploysFolder(const QString &folder) const
 {
     Q_UNUSED(folder);
@@ -812,11 +828,10 @@ QString ContainerNode::displayName() const
     return name;
 }
 
-QList<ProjectAction> ContainerNode::supportedActions(Node *node) const
+bool ContainerNode::supportsAction(ProjectAction action, Node *node) const
 {
-    if (Node *rootNode = m_project->rootProjectNode())
-        return rootNode->supportedActions(node);
-    return {};
+    Node *rootNode = m_project->rootProjectNode();
+    return rootNode && rootNode->supportsAction(action, node);
 }
 
 ProjectNode *ContainerNode::rootProjectNode() const

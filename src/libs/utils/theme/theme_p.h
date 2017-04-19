@@ -51,5 +51,6 @@ public:
 };
 
 QTCREATOR_UTILS_EXPORT void setCreatorTheme(Theme *theme);
+QTCREATOR_UTILS_EXPORT void setThemeApplicationPalette();
 
 } // namespace Utils

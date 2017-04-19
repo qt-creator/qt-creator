@@ -133,6 +133,10 @@ buildProductNodeTree(const qbs::Project &project, const qbs::ProductData &prd)
 void setupProjectNode(QbsProjectManager::Internal::QbsProjectNode *node, const qbs::ProjectData &prjData,
                       const qbs::Project &qbsProject)
 {
+    using namespace QbsProjectManager::Internal;
+    node->addNode(new QbsFileNode(Utils::FileName::fromString(prjData.location().filePath()),
+                                  ProjectExplorer::FileType::Project, false,
+                                  prjData.location().line()));
     foreach (const qbs::ProjectData &subData, prjData.subProjects()) {
         auto subProject =
                 new QbsProjectManager::Internal::QbsProjectNode(
@@ -169,9 +173,16 @@ QSet<QString> referencedBuildSystemFiles(const qbs::ProjectData &data)
 
 QStringList unreferencedBuildSystemFiles(const qbs::Project &p)
 {
-    return p.isValid()
-            ? p.buildSystemFiles().subtract(referencedBuildSystemFiles(p.projectData())).toList()
-            : QStringList();
+    QStringList result;
+    if (!p.isValid())
+        return result;
+
+    const std::set<QString> &available = p.buildSystemFiles();
+    QList<QString> referenced = referencedBuildSystemFiles(p.projectData()).toList();
+    Utils::sort(referenced);
+    std::set_difference(available.begin(), available.end(), referenced.begin(), referenced.end(),
+                        std::back_inserter(result));
+    return result;
 }
 
 } // namespace
@@ -182,9 +193,7 @@ namespace Internal {
 QbsRootProjectNode *QbsNodeTreeBuilder::buildTree(QbsProject *project)
 {
     auto root = new QbsRootProjectNode(project);
-    root->addNode(new ProjectExplorer::FileNode(project->projectFilePath(),
-                                                ProjectExplorer::FileType::Project, false));
-
+    setupProjectNode(root, project->qbsProjectData(), project->qbsProject());
     auto buildSystemFiles
             = new ProjectExplorer::FolderNode(project->projectDirectory(),
                                               ProjectExplorer::NodeType::Folder,
@@ -194,12 +203,11 @@ QbsRootProjectNode *QbsNodeTreeBuilder::buildTree(QbsProject *project)
     for (const QString &f : unreferencedBuildSystemFiles(project->qbsProject())) {
         const Utils::FileName filePath = Utils::FileName::fromString(f);
         if (filePath.isChildOf(base))
-            root->addNestedNode(new ProjectExplorer::FileNode(filePath, ProjectExplorer::FileType::Project, false));
+            buildSystemFiles->addNestedNode(new ProjectExplorer::FileNode(filePath, ProjectExplorer::FileType::Project, false));
     }
     buildSystemFiles->compress();
     root->addNode(buildSystemFiles);
 
-    setupProjectNode(root, project->qbsProjectData(), project->qbsProject());
     return root;
 }
 

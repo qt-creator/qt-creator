@@ -181,6 +181,7 @@ QVariant OverviewModel::data(const QModelIndex &index, int role) const
         if (Template *t = symbol->asTemplate())
             if (Symbol *templateDeclaration = t->declaration()) {
                 QStringList parameters;
+                parameters.reserve(t->templateParameterCount());
                 for (unsigned i = 0; i < t->templateParameterCount(); ++i)
                     parameters.append(_overview.prettyName(t->templateParameterAt(i)->name()));
                 name += QLatin1Char('<') + parameters.join(QLatin1String(", ")) + QLatin1Char('>');

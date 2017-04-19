@@ -40,6 +40,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QEvent>
+#include <QScrollBar>
 #include <QVBoxLayout>
 
 #include <vector>
@@ -61,7 +62,6 @@ TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView)
     m_updateSelectionTimer.setInterval(200);
 
     connect(&m_updateSelectionTimer, &QTimer::timeout, this, &TextEditorWidget::updateSelectionByCursorPosition);
-    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 }
 
 void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
@@ -85,6 +85,9 @@ void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
         });
 
         textEditor->editorWidget()->installEventFilter(this);
+        static QString styleSheet = Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css"))));
+        textEditor->editorWidget()->verticalScrollBar()->setStyleSheet(styleSheet);
+        textEditor->editorWidget()->horizontalScrollBar()->setStyleSheet(styleSheet);
     }
 
     if (oldEditor)

@@ -57,6 +57,7 @@ const int MIN_TIME_BETWEEN_PROJECT_SCANS = 4500;
 NimProject::NimProject(const FileName &fileName) : Project(Constants::C_NIM_MIMETYPE, fileName)
 {
     setId(Constants::C_NIMPROJECT_ID);
+    setDisplayName(fileName.toFileInfo().completeBaseName());
 
     m_projectScanTimer.setSingleShot(true);
     connect(&m_projectScanTimer, &QTimer::timeout, this, &NimProject::collectProjectFiles);
@@ -64,11 +65,6 @@ NimProject::NimProject(const FileName &fileName) : Project(Constants::C_NIM_MIME
     connect(&m_futureWatcher, &QFutureWatcher<QList<FileNode *>>::finished, this, &NimProject::updateProject);
 
     collectProjectFiles();
-}
-
-QString NimProject::displayName() const
-{
-    return projectFilePath().toFileInfo().completeBaseName();
 }
 
 bool NimProject::needsConfiguration() const
@@ -159,12 +155,12 @@ bool NimProject::supportsKit(Kit *k, QString *errorMessage) const
     auto tc = dynamic_cast<NimToolChain*>(ToolChainKitInformation::toolChain(k, Constants::C_NIMLANGUAGE_ID));
     if (!tc) {
         if (errorMessage)
-            *errorMessage = tr("No nim compiler set.");
+            *errorMessage = tr("No Nim compiler set.");
         return false;
     }
     if (!tc->compilerCommand().exists()) {
         if (errorMessage)
-            *errorMessage = tr("Nim compiler doesn't exist");
+            *errorMessage = tr("Nim compiler does not exist");
         return false;
     }
     return true;

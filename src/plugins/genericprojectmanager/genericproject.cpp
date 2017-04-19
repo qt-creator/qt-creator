@@ -126,9 +126,13 @@ public:
 
     bool showInSimpleTree() const override { return true; }
 
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *) const override
+    bool supportsAction(ProjectAction action, Node *) const override
     {
-        return {AddNewFile, AddExistingFile, AddExistingDirectory, RemoveFile, Rename};
+        return action == AddNewFile
+                || action == AddExistingFile
+                || action == AddExistingDirectory
+                || action == RemoveFile
+                || action == Rename;
     }
 
     bool addFiles(const QStringList &filePaths, QStringList * = 0) override
@@ -164,6 +168,7 @@ GenericProject::GenericProject(const Utils::FileName &fileName) :
     setId(Constants::GENERICPROJECT_ID);
     setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+    setDisplayName(fileName.toFileInfo().completeBaseName());
 
     const QFileInfo fileInfo = projectFilePath().toFileInfo();
     const QDir dir = fileInfo.dir();
@@ -465,11 +470,6 @@ void GenericProject::activeTargetWasChanged()
 void GenericProject::activeBuildConfigurationWasChanged()
 {
     refresh(Everything);
-}
-
-QString GenericProject::displayName() const
-{
-    return projectFilePath().toFileInfo().completeBaseName();
 }
 
 QStringList GenericProject::buildTargets() const

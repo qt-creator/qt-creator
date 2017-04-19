@@ -35,6 +35,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QNetworkCookie>
+#include <QNetworkCookieJar>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 
@@ -173,17 +175,30 @@ bool Protocol::showConfigurationError(const Protocol *p,
 
 // --------- NetworkProtocol
 
-QNetworkReply *NetworkProtocol::httpGet(const QString &link)
+static void addCookies(QNetworkRequest &request)
+{
+    auto accessMgr = Utils::NetworkAccessManager::instance();
+    const QList<QNetworkCookie> cookies = accessMgr->cookieJar()->cookiesForUrl(request.url());
+    for (const QNetworkCookie &cookie : cookies)
+        request.setHeader(QNetworkRequest::CookieHeader, QVariant::fromValue(cookie));
+}
+
+QNetworkReply *NetworkProtocol::httpGet(const QString &link, bool handleCookies)
 {
     QUrl url(link);
     QNetworkRequest r(url);
+    if (handleCookies)
+        addCookies(r);
     return Utils::NetworkAccessManager::instance()->get(r);
 }
 
-QNetworkReply *NetworkProtocol::httpPost(const QString &link, const QByteArray &data)
+QNetworkReply *NetworkProtocol::httpPost(const QString &link, const QByteArray &data,
+                                         bool handleCookies)
 {
     QUrl url(link);
     QNetworkRequest r(url);
+    if (handleCookies)
+        addCookies(r);
     r.setHeader(QNetworkRequest::ContentTypeHeader,
                 QVariant(QByteArray("application/x-www-form-urlencoded")));
     return Utils::NetworkAccessManager::instance()->post(r, data);

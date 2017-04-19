@@ -133,6 +133,8 @@ QbsProject::QbsProject(const FileName &fileName) :
     setProjectContext(Context(Constants::PROJECT_ID));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
+    setDisplayName(fileName.toFileInfo().completeBaseName());
+
     connect(this, &Project::activeTargetChanged, this, &QbsProject::changeActiveTarget);
     connect(this, &Project::addedTarget, this, &QbsProject::targetWasAdded);
     connect(this, &Project::removedTarget, this, &QbsProject::targetWasRemoved);
@@ -157,11 +159,6 @@ QbsProject::~QbsProject()
         m_qbsUpdateFutureInterface = 0;
     }
     qDeleteAll(m_extraCompilers);
-}
-
-QString QbsProject::displayName() const
-{
-    return projectFilePath().toFileInfo().completeBaseName();
 }
 
 QbsRootProjectNode *QbsProject::rootProjectNode() const
@@ -434,12 +431,20 @@ bool QbsProject::checkCancelStatus()
     return true;
 }
 
+static QSet<QString> toQStringSet(const std::set<QString> &src)
+{
+    QSet<QString> result;
+    result.reserve(int(src.size()));
+    std::copy(src.begin(), src.end(), Utils::inserter(result));
+    return result;
+}
+
 void QbsProject::updateAfterParse()
 {
     qCDebug(qbsPmLog) << "Updating data after parse";
     OpTimer opTimer("updateAfterParse");
     updateProjectNodes();
-    updateDocuments(m_qbsProject.buildSystemFiles());
+    updateDocuments(toQStringSet(m_qbsProject.buildSystemFiles()));
     updateBuildTargetData();
     updateCppCodeModel();
     updateQmlJsCodeModel();

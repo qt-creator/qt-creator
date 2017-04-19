@@ -61,7 +61,7 @@ PluginDialog::PluginDialog(QWidget *parent)
             m_view, &ExtensionSystem::PluginView::setFilter);
     filterLayout->addWidget(filterEdit);
     m_view->setShowHidden(false);
-    auto showHidden = new QCheckBox(tr("Show All"));
+    auto showHidden = new QCheckBox(tr("Show all"));
     showHidden->setToolTip(tr("Show all installed plugins, including base plugins "
                               "and plugins that are not available on this platform."));
     showHidden->setChecked(m_view->isShowingHidden());

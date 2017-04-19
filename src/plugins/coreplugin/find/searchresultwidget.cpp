@@ -166,7 +166,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     connect(m_cancelButton, &QAbstractButton::clicked, this, &SearchResultWidget::cancel);
     m_searchAgainButton = new QToolButton(topFindWidget);
     m_searchAgainButton->setToolTip(tr("Repeat the search with same parameters."));
-    m_searchAgainButton->setText(tr("&Search again"));
+    m_searchAgainButton->setText(tr("&Search Again"));
     m_searchAgainButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     m_searchAgainButton->setVisible(false);
     connect(m_searchAgainButton, &QAbstractButton::clicked, this, &SearchResultWidget::searchAgain);

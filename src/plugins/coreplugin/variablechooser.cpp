@@ -499,7 +499,7 @@ void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
     m_textEdit = 0;
     m_plainTextEdit = 0;
     QWidget *chooser = widget->property(kVariableSupportProperty).value<QWidget *>();
-    m_currentVariableName = widget->property(kVariableNameProperty).value<QByteArray>();
+    m_currentVariableName = widget->property(kVariableNameProperty).toByteArray();
     bool supportsVariables = chooser == q;
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget))
         m_lineEdit = (supportsVariables ? lineEdit : 0);

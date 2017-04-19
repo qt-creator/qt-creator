@@ -157,5 +157,5 @@ void NonResizingSplitter::resizeEvent(QResizeEvent *ev)
     int leftSplitWidth = qMin(sizes().at(0), ev->size().width());
     int rightSplitWidth = qMax(0, ev->size().width() - leftSplitWidth);
     setSizes(QList<int>() << leftSplitWidth << rightSplitWidth);
-    return QWidget::resizeEvent(ev);
+    QWidget::resizeEvent(ev);
 }

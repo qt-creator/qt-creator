@@ -34,6 +34,7 @@
 #ifdef WITH_PYTHON
 #include <Python.h>
 #include "pystdoutredirect.h"
+#include "pycdbextmodule.h"
 #endif
 
 #include <cstdio>
@@ -588,7 +589,7 @@ extern "C" HRESULT CALLBACK script(CIDebugClient *client, PCSTR argsIn)
     const char result = (PyRun_SimpleString(command.str().c_str()) == 0) ? 'R' : 'N';
     if (PyErr_Occurred())
         PyErr_Print();
-    ExtensionContext::instance().reportLong(result, token, "script", getPyStdout().c_str());
+    ExtensionContext::instance().reportLong(result, token, "script", collectOutput().c_str());
     endCapturePyStdout();
     PyErr_Restore(ptype, pvalue, ptraceback);
 #else
@@ -849,10 +850,15 @@ extern "C" HRESULT CALLBACK assign(CIDebugClient *client, PCSTR argsIn)
         const std::string iname = tokens.front().substr(0, equalsPos);
         const std::string value = tokens.front().substr(equalsPos + 1, tokens.front().size() - equalsPos - 1);
         // get the symbolgroup
-        const int currentFrame = ExtensionContext::instance().symbolGroupFrame();
+        int currentFrame = ExtensionContext::instance().symbolGroupFrame();
         if (currentFrame < 0) {
-            errorMessage = "No current frame.";
-            break;
+            CIDebugControl *control = ExtensionCommandContext::instance()->control();
+            DEBUG_STACK_FRAME frame;
+            if (FAILED(control->GetStackTrace(0, 0, 0, &frame, 1, NULL))) {
+                errorMessage = "No current frame.";
+                break;
+            }
+            currentFrame = frame.FrameNumber;
         }
         SymbolGroup *symGroup = ExtensionContext::instance().symbolGroup(exc.symbols(), exc.threadId(), currentFrame, &errorMessage);
         if (!symGroup)

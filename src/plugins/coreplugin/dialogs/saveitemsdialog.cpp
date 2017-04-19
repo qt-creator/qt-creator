@@ -60,7 +60,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
         connect(m_diffButton, &QAbstractButton::clicked, this, &SaveItemsDialog::collectFilesToDiff);
     }
 
-    QPushButton *discardButton = m_ui.buttonBox->addButton(tr("Do &not Save"), discardButtonRole);
+    QPushButton *discardButton = m_ui.buttonBox->addButton(tr("Do &Not Save"), discardButtonRole);
     m_ui.buttonBox->button(QDialogButtonBox::Save)->setDefault(true);
     m_ui.treeWidget->setFocus();
 

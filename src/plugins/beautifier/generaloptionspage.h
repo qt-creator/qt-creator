@@ -28,6 +28,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QPointer>
+#include <QSharedPointer>
 #include <QWidget>
 
 namespace Beautifier {
@@ -42,15 +43,15 @@ class GeneralOptionsPageWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit GeneralOptionsPageWidget(GeneralSettings *settings, const QStringList &toolIds,
-                                      QWidget *parent = nullptr);
+    explicit GeneralOptionsPageWidget(const QSharedPointer<GeneralSettings> &settings,
+                                      const QStringList &toolIds, QWidget *parent = nullptr);
     virtual ~GeneralOptionsPageWidget();
     void restore();
     void apply(bool *autoFormatChanged);
 
 private:
     Ui::GeneralOptionsPage *ui;
-    GeneralSettings *m_settings;
+    QSharedPointer<GeneralSettings> m_settings;
 };
 
 class GeneralOptionsPage : public Core::IOptionsPage
@@ -58,8 +59,8 @@ class GeneralOptionsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit GeneralOptionsPage(GeneralSettings *settings, const QStringList &toolIds,
-                                QObject *parent = nullptr);
+    explicit GeneralOptionsPage(const QSharedPointer<GeneralSettings> &settings,
+                                const QStringList &toolIds, QObject *parent = nullptr);
     QWidget *widget() override;
     void apply() override;
     void finish() override;
@@ -69,7 +70,7 @@ signals:
 
 private:
     QPointer<GeneralOptionsPageWidget> m_widget;
-    GeneralSettings *m_settings;
+    QSharedPointer<GeneralSettings> m_settings;
     QStringList m_toolIds;
 };
 

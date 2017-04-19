@@ -215,7 +215,7 @@ void BeautifierPlugin::extensionsInitialized()
             addAutoReleasedObject(object);
     }
 
-    m_generalSettings = new GeneralSettings;
+    m_generalSettings.reset(new GeneralSettings);
     auto settingsPage = new GeneralOptionsPage(m_generalSettings, toolIds, this);
     addAutoReleasedObject(settingsPage);
 

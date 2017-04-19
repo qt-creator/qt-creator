@@ -258,6 +258,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     updateFromKit();
     connect(m_buildConfiguration->target(), &ProjectExplorer::Target::kitChanged,
             this, &CMakeBuildSettingsWidget::updateFromKit);
+    connect(m_buildConfiguration, &CMakeBuildConfiguration::enabledChanged,
+            this, [this]() { setError(m_buildConfiguration->disabledReason()); });
 }
 
 void CMakeBuildSettingsWidget::setError(const QString &message)

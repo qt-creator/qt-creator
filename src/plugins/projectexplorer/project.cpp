@@ -141,6 +141,8 @@ public:
     QVariantMap m_pluginSettings;
     Internal::UserFileAccessor *m_accessor = nullptr;
 
+    QString m_displayName;
+
     Kit::Predicate m_requiredKitPredicate;
     Kit::Predicate m_preferredKitPredicate;
 
@@ -176,6 +178,11 @@ Project::~Project()
 {
     qDeleteAll(d->m_targets);
     delete d;
+}
+
+QString Project::displayName() const
+{
+    return d->m_displayName;
 }
 
 Core::Id Project::id() const
@@ -455,6 +462,14 @@ bool Project::setupTarget(Target *t)
     return true;
 }
 
+void Project::setDisplayName(const QString &name)
+{
+    if (name == d->m_displayName)
+        return;
+    d->m_displayName = name;
+    emit displayNameChanged();
+}
+
 void Project::setId(Core::Id id)
 {
     d->m_id = id;
@@ -477,10 +492,13 @@ void Project::setRootProjectNode(ProjectNode *root)
 
     ProjectNode *oldNode = d->m_rootProjectNode;
     d->m_rootProjectNode = root;
-    if (root)
+    if (root) {
         root->setParentFolderNode(d->m_containerNode);
-    ProjectTree::emitSubtreeChanged(root);
-    emit fileListChanged();
+        // Only announce non-null root, null is only used when project is destroyed.
+        // In that case SessionManager::projectRemoved() triggers the update.
+        ProjectTree::emitSubtreeChanged(root);
+        emit fileListChanged();
+    }
 
     delete oldNode;
 }

@@ -898,7 +898,7 @@ void static setIndexProperty(const AbstractProperty &property, const QVariant &v
 
     const QString propertyName = QString::fromUtf8(property.name());
 
-    QString title = QCoreApplication::translate("ModelNodeOperations", "Cannot set property %1.").arg(propertyName);
+    QString title = QCoreApplication::translate("ModelNodeOperations", "Cannot Set Property %1").arg(propertyName);
     QString description = QCoreApplication::translate("ModelNodeOperations", "The property %1 is bound to an expression.").arg(propertyName);
     Core::AsynchronousMessageBox::warning(title, description);
 }

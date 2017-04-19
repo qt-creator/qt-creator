@@ -327,7 +327,7 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
     bool openedSomething = false;
     foreach (const JsonWizard::GeneratorFile &f, files) {
         const Core::GeneratedFile &file = f.file;
-        if (!QFileInfo(file.path()).exists()) {
+        if (!QFileInfo::exists(file.path())) {
             errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
                                                        "\"%1\" does not exist in the file system.")
                     .arg(QDir::toNativeSeparators(file.path()));

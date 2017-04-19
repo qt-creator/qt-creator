@@ -121,14 +121,17 @@ bool DataProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_
 
     const Function *func = source_index.data(DataModel::FunctionRole).value<const Function *>();
 
+    if (!func)
+        return false;
+
     // check if func is located in the specific base directory, if any
-    if (func && !m_baseDir.isEmpty()) {
+    if (!m_baseDir.isEmpty()) {
         if (!func->location().startsWith(m_baseDir))
             return false;
     }
 
     // check if the function from this index is a child of (called by) the filter function
-    if (func && m_function) {
+    if (m_function) {
         bool isValid = false;
         foreach (const FunctionCall *call, func->incomingCalls()) {
             if (call->caller() == m_function) {

@@ -231,12 +231,12 @@ QPalette ManhattanStyle::standardPalette() const
 
 void ManhattanStyle::polish(QApplication *app)
 {
-    return QProxyStyle::polish(app);
+    QProxyStyle::polish(app);
 }
 
 void ManhattanStyle::unpolish(QApplication *app)
 {
-    return QProxyStyle::unpolish(app);
+    QProxyStyle::unpolish(app);
 }
 
 QPalette panelPalette(const QPalette &oldPalette, bool lightColored = false)
@@ -381,8 +381,10 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
 void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option,
                                    QPainter *painter, const QWidget *widget) const
 {
-    if (!panelWidget(widget))
-        return QProxyStyle::drawPrimitive(element, option, painter, widget);
+    if (!panelWidget(widget)) {
+        QProxyStyle::drawPrimitive(element, option, painter, widget);
+        return;
+    }
 
     bool animating = (option->state & State_Animating);
     int state = option->state;
@@ -614,8 +616,10 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
 void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *option,
                                  QPainter *painter, const QWidget *widget) const
 {
-    if (!panelWidget(widget) && !qobject_cast<const QMenu *>(widget))
-        return QProxyStyle::drawControl(element, option, painter, widget);
+    if (!panelWidget(widget) && !qobject_cast<const QMenu *>(widget)) {
+        QProxyStyle::drawControl(element, option, painter, widget);
+        return;
+    }
 
     switch (element) {
     case CE_MenuItem:

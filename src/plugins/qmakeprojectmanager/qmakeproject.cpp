@@ -74,6 +74,8 @@ using namespace Utils;
 namespace QmakeProjectManager {
 namespace Internal {
 
+const int UPDATE_INTERVAL = 3000;
+
 /// Watches folders for QmakePriFile nodes
 /// use one file system watcher to watch all folders
 /// such minimizing system ressouce usage
@@ -167,12 +169,13 @@ QmakeProject::QmakeProject(const FileName &fileName) :
     setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setRequiredKitPredicate(QtSupport::QtKitInformation::qtVersionPredicate());
+    setDisplayName(fileName.toFileInfo().completeBaseName());
 
     const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
     m_qmakeVfs->setTextCodec(codec);
 
     m_asyncUpdateTimer.setSingleShot(true);
-    m_asyncUpdateTimer.setInterval(3000);
+    m_asyncUpdateTimer.setInterval(UPDATE_INTERVAL);
     connect(&m_asyncUpdateTimer, &QTimer::timeout, this, &QmakeProject::asyncUpdate);
 
     m_rootProFile = std::make_unique<QmakeProFile>(this, projectFilePath());
@@ -480,7 +483,8 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFile::AsyncUpdateDelay delay)
 void QmakeProject::startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay)
 {
     m_asyncUpdateTimer.stop();
-    m_asyncUpdateTimer.setInterval(qMin(m_asyncUpdateTimer.interval(), delay == QmakeProFile::ParseLater ? 3000 : 0));
+    m_asyncUpdateTimer.setInterval(qMin(m_asyncUpdateTimer.interval(),
+                                        delay == QmakeProFile::ParseLater ? UPDATE_INTERVAL : 0));
     m_asyncUpdateTimer.start();
 }
 
@@ -533,7 +537,7 @@ bool QmakeProject::wasEvaluateCanceled()
 
 void QmakeProject::asyncUpdate()
 {
-    m_asyncUpdateTimer.setInterval(3000);
+    m_asyncUpdateTimer.setInterval(UPDATE_INTERVAL);
 
     m_qmakeVfs->invalidateCache();
 
@@ -570,11 +574,6 @@ bool QmakeProject::supportsKit(Kit *k, QString *errorMessage) const
     if (!version && errorMessage)
         *errorMessage = tr("No Qt version set in kit.");
     return version;
-}
-
-QString QmakeProject::displayName() const
-{
-    return projectFilePath().toFileInfo().completeBaseName();
 }
 
 // Find the folder that contains a file with a certain name (recurse down)
@@ -1215,14 +1214,15 @@ void QmakeProject::collectLibraryData(const QmakeProFile *file, DeploymentData &
                 QString version = file->singleVariableValue(Variable::Version);
                 if (version.isEmpty())
                     version = QLatin1String("1.0.0");
+                QStringList versionComponents = version.split('.');
+                while (versionComponents.size() < 3)
+                    versionComponents << QLatin1String("0");
                 targetFileName += QLatin1Char('.');
-                while (true) {
+                while (!versionComponents.isEmpty()) {
+                    const QString versionString = versionComponents.join(QLatin1Char('.'));
                     deploymentData.addFile(destDirFor(ti).toString() + '/'
-                            + targetFileName + version, targetPath);
-                    const QString tmpVersion = version.left(version.lastIndexOf(QLatin1Char('.')));
-                    if (tmpVersion == version)
-                        break;
-                    version = tmpVersion;
+                            + targetFileName + versionString, targetPath);
+                    versionComponents.removeLast();
                 }
             }
         }

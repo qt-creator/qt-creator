@@ -57,7 +57,6 @@ public:
     explicit AutotoolsProject(const Utils::FileName &fileName);
     ~AutotoolsProject() override;
 
-    QString displayName() const override;
     static QString defaultBuildDirectory(const QString &projectPath);
     QStringList buildTargets() const;
 

@@ -329,7 +329,7 @@ void StateItem::selectedMenuAction(const QAction *action)
         case TagUtils::SetAsInitial: {
             ScxmlTag *parentTag = tag->parentTag();
             if (parentTag) {
-                document->undoStack()->beginMacro(tr("Change initial-state"));
+                document->undoStack()->beginMacro(tr("Change initial state"));
 
                 ScxmlTag *initialTag = parentTag->child("initial");
                 if (initialTag) {

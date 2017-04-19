@@ -43,6 +43,7 @@
 
 #include <utils/outputformat.h>
 #include <utils/runextensions.h>
+#include <utils/hostosinfo.h>
 
 #include <QFuture>
 #include <QFutureInterface>
@@ -96,6 +97,28 @@ void TestRunner::setSelectedTests(const QList<TestConfiguration *> &selected)
      m_selectedTests = selected;
 }
 
+static QString processInformation(const QProcess &proc)
+{
+    QString information("\nCommand line: " + proc.program() + ' ' + proc.arguments().join(' '));
+    QStringList important = { "PATH" };
+    if (Utils::HostOsInfo::isLinuxHost())
+        important.append("LD_LIBRARY_PATH");
+    else if (Utils::HostOsInfo::isMacHost())
+        important.append({ "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH" });
+    const QProcessEnvironment &environment = proc.processEnvironment();
+    for (const QString &var : important)
+        information.append('\n' + var + ": " + environment.value(var));
+    return information;
+}
+
+static QString rcInfo(const TestConfiguration * const config)
+{
+    QString info = '\n' + TestRunner::tr("Run configuration:") + ' ';
+    if (config->isGuessed())
+        info += TestRunner::tr("guessed from");
+    return info + " \"" + config->runConfigDisplayName() + '"';
+}
+
 static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
                            const QList<TestConfiguration *> selectedTests,
                            const TestSettings &settings)
@@ -108,11 +131,14 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
         config->completeTestInformation(TestRunner::Run);
         if (config->project()) {
             testCaseCount += config->testCaseCount();
-            if (!omitRunConfigWarnings && config->guessedConfiguration()) {
-                futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
-                    TestRunner::tr("Project's run configuration was guessed for \"%1\".\n"
-                                   "This might cause trouble during execution."
-                                   ).arg(config->displayName()))));
+            if (!omitRunConfigWarnings && config->isGuessed()) {
+                QString message = TestRunner::tr(
+                            "Project's run configuration was guessed for \"%1\".\n"
+                            "This might cause trouble during execution.\n"
+                            "(guessed from \"%2\")");
+                message = message.arg(config->displayName()).arg(config->runConfigDisplayName());
+                futureInterface.reportResult(
+                            TestResultPtr(new FaultyTestResult(Result::MessageWarn, message)));
             }
         } else {
             futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
@@ -173,11 +199,15 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
             }
         } else {
             futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
-                TestRunner::tr("Failed to start test for project \"%1\".").arg(testConfiguration->displayName()))));
+                TestRunner::tr("Failed to start test for project \"%1\".")
+                    .arg(testConfiguration->displayName()) + processInformation(testProcess)
+                                                           + rcInfo(testConfiguration))));
         }
         if (testProcess.exitStatus() == QProcess::CrashExit) {
             futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
-                TestRunner::tr("Test for project \"%1\" crashed.").arg(testConfiguration->displayName()))));
+                TestRunner::tr("Test for project \"%1\" crashed.")
+                    .arg(testConfiguration->displayName()) + processInformation(testProcess)
+                                                           + rcInfo(testConfiguration))));
         }
 
         if (canceledByTimeout) {

@@ -54,9 +54,12 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
 {
     m_ui->setupUi(this);
 
+    m_ui->deprecatedInfoIconLabel->setPixmap(Utils::Icons::INFO.pixmap());
+
     // Target sdk combobox
     int minApiLevel = 9;
-    QStringList targets = AndroidConfig::apiLevelNamesFor(AndroidConfigurations::currentConfig().sdkTargets(minApiLevel));
+    const AndroidConfig &config = AndroidConfigurations::currentConfig();
+    QStringList targets = AndroidConfig::apiLevelNamesFor(config.sdkTargets(minApiLevel));
     targets.removeDuplicates();
     m_ui->targetSDKComboBox->addItems(targets);
     m_ui->targetSDKComboBox->setCurrentIndex(targets.indexOf(AndroidManager::buildTargetSDK(step->target())));
@@ -91,9 +94,12 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     m_ui->signingDebugDeployErrorIcon->setPixmap(Utils::Icons::CRITICAL.pixmap());
     signPackageCheckBoxToggled(m_step->signPackage());
 
-    m_ui->useGradleCheckBox->setChecked(m_step->useGradle());
+    m_ui->useGradleCheckBox->setEnabled(config.antScriptsAvailable());
+    m_ui->useGradleCheckBox->setChecked(!config.antScriptsAvailable() ||
+                                        m_step->useGradle());
     m_ui->verboseOutputCheckBox->setChecked(m_step->verboseOutput());
     m_ui->openPackageLocationCheckBox->setChecked(m_step->openPackageLocation());
+    m_ui->addDebuggerCheckBox->setChecked(m_step->addDebugger());
 
     // target sdk
     connect(m_ui->targetSDKComboBox,
@@ -120,6 +126,8 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
             this, &AndroidBuildApkWidget::openPackageLocationCheckBoxToggled);
     connect(m_ui->verboseOutputCheckBox, &QAbstractButton::toggled,
             this, &AndroidBuildApkWidget::verboseOutputCheckBoxToggled);
+    connect(m_ui->addDebuggerCheckBox, &QAbstractButton::toggled,
+            m_step, &AndroidBuildApkStep::setAddDebugger);
 
     //signing
     connect(m_ui->signPackageCheckBox, &QAbstractButton::toggled,
@@ -185,6 +193,7 @@ void AndroidBuildApkWidget::signPackageCheckBoxToggled(bool checked)
 {
     m_ui->certificatesAliasComboBox->setEnabled(checked);
     m_step->setSignPackage(checked);
+    m_ui->addDebuggerCheckBox->setChecked(!checked);
     updateSigningWarning();
     if (!checked)
         return;

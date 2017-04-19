@@ -3552,17 +3552,17 @@ static inline bool assignStdString(SymbolGroupNode  *n,
     return true;
 }
 
-bool assignType(SymbolGroupNode  *n, int valueEncoding, const std::string &value,
+bool assignType(SymbolGroupNode *n, int knownType, int valueEncoding, const std::string &value,
                 const SymbolGroupValueContext &ctx, std::string *errorMessage)
 {
-    switch (n->dumperType()) {
+    switch (knownType) {
     case KT_QString:
         return assignQString(n, valueEncoding, value, ctx, errorMessage);
     case KT_QByteArray:
         return assignQByteArray(n, valueEncoding, value, ctx, errorMessage);
     case KT_StdString:
     case KT_StdWString:
-        return assignStdString(n, n->dumperType(), valueEncoding, value, ctx, errorMessage);
+        return assignStdString(n, knownType, valueEncoding, value, ctx, errorMessage);
     default:
         break;
     }

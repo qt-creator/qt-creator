@@ -94,8 +94,6 @@ class PythonProject : public Project
 public:
     explicit PythonProject(const Utils::FileName &filename);
 
-    QString displayName() const override;
-
     bool addFiles(const QStringList &filePaths);
     bool removeFiles(const QStringList &filePaths);
     bool setFiles(const QStringList &filePaths);
@@ -122,11 +120,7 @@ public:
     PythonProjectNode(PythonProject *project);
 
     bool showInSimpleTree() const override;
-
-    QList<ProjectAction> supportedActions(Node *node) const override;
-
     QString addFileFilter() const override;
-
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
 private:
@@ -381,11 +375,7 @@ PythonProject::PythonProject(const FileName &fileName) :
     setId(PythonProjectId);
     setProjectContext(Context(PythonProjectContext));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-}
-
-QString PythonProject::displayName() const
-{
-    return projectFilePath().toFileInfo().completeBaseName();
+    setDisplayName(fileName.toFileInfo().completeBaseName());
 }
 
 static QStringList readLines(const QString &absoluteFileName)
@@ -653,13 +643,6 @@ QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<Q
 bool PythonProjectNode::showInSimpleTree() const
 {
     return true;
-}
-
-QList<ProjectAction> PythonProjectNode::supportedActions(Node *node) const
-{
-    Q_UNUSED(node);
-    //return { AddNewFile, AddExistingFile, AddExistingDirectory, RemoveFile, Rename };
-    return {};
 }
 
 QString PythonProjectNode::addFileFilter() const

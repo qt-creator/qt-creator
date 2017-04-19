@@ -257,7 +257,7 @@ FileStatus::Status ClearCasePlugin::getFileStatus(const QString &fileName) const
         const QString absFile =
                 viewRootDir.absoluteFilePath(
                     QDir::fromNativeSeparators(buffer.left(atatpos)));
-        QTC_CHECK(QFile(absFile).exists());
+        QTC_CHECK(QFileInfo::exists(absFile));
         QTC_CHECK(!absFile.isEmpty());
 
         // "cleartool ls" of a derived object looks like this:
@@ -274,7 +274,7 @@ FileStatus::Status ClearCasePlugin::getFileStatus(const QString &fileName) const
         else
             return FileStatus::CheckedIn;
     } else {
-        QTC_CHECK(QFile(fileName).exists());
+        QTC_CHECK(QFileInfo::exists(fileName));
         QTC_CHECK(!fileName.isEmpty());
         return FileStatus::NotManaged;
     }

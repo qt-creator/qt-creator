@@ -86,8 +86,6 @@ public:
     explicit CMakeProject(const Utils::FileName &filename);
     ~CMakeProject() final;
 
-    QString displayName() const final;
-
     QStringList buildTargetTitles(bool runnable = false) const;
     bool hasBuildTarget(const QString &title) const;
 

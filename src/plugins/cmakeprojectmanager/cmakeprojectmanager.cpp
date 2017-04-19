@@ -57,7 +57,7 @@ CMakeManager::CMakeManager() :
     m_runCMakeAction(new QAction(QIcon(), tr("Run CMake"), this)),
     m_clearCMakeCacheAction(new QAction(QIcon(), tr("Clear CMake Configuration"), this)),
     m_runCMakeActionContextMenu(new QAction(QIcon(), tr("Run CMake"), this)),
-    m_rescanProjectAction(new QAction(QIcon(), tr("Rescan project"), this))
+    m_rescanProjectAction(new QAction(QIcon(), tr("Rescan Project"), this))
 {
     Core::ActionContainer *mbuild =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);

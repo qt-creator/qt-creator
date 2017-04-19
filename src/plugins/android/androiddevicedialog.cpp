@@ -25,6 +25,7 @@
 
 #include "androiddevicedialog.h"
 #include "androidmanager.h"
+#include "androidavdmanager.h"
 #include "ui_androiddevicedialog.h"
 
 #include <utils/environment.h>
@@ -423,7 +424,8 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, Andro
     m_ui(new Ui::AndroidDeviceDialog),
     m_apiLevel(apiLevel),
     m_abi(abi),
-    m_defaultDevice(serialNumber)
+    m_defaultDevice(serialNumber),
+    m_avdManager(new AndroidAvdManager)
 {
     m_ui->setupUi(this);
     m_ui->deviceView->setModel(m_model);
@@ -515,7 +517,7 @@ void AndroidDeviceDialog::refreshDeviceList()
     m_ui->refreshDevicesButton->setEnabled(false);
     m_progressIndicator->show();
     m_connectedDevices = AndroidConfig::connectedDevices(AndroidConfigurations::currentConfig().adbToolPath().toString());
-    m_futureWatcherRefreshDevices.setFuture(AndroidConfigurations::currentConfig().androidVirtualDevicesFuture());
+    m_futureWatcherRefreshDevices.setFuture(m_avdManager->avdList());
 }
 
 void AndroidDeviceDialog::devicesRefreshed()
@@ -530,7 +532,7 @@ void AndroidDeviceDialog::devicesRefreshed()
         serialNumber = deviceType == AndroidDeviceInfo::Hardware ? info.serialNumber : info.avdname;
     }
 
-    QVector<AndroidDeviceInfo> devices = m_futureWatcherRefreshDevices.result();
+    AndroidDeviceInfoList devices = m_futureWatcherRefreshDevices.result();
     QSet<QString> startedAvds = Utils::transform<QSet>(m_connectedDevices,
                                                        [] (const AndroidDeviceInfo &info) {
                                                            return info.avdname;
@@ -583,12 +585,12 @@ void AndroidDeviceDialog::createAvd()
     m_ui->createAVDButton->setEnabled(false);
     AndroidConfig::CreateAvdInfo info = AndroidConfigurations::currentConfig().gatherCreateAVDInfo(this, m_apiLevel, m_abi);
 
-    if (info.target.isEmpty()) {
+    if (!info.target.isValid()) {
         m_ui->createAVDButton->setEnabled(true);
         return;
     }
 
-    m_futureWatcherAddDevice.setFuture(AndroidConfigurations::currentConfig().createAVD(info));
+    m_futureWatcherAddDevice.setFuture(m_avdManager->createAvd(info));
 }
 
 void AndroidDeviceDialog::avdAdded()

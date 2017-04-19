@@ -155,6 +155,10 @@ int FlameGraph::buildNode(const QModelIndex &parentIndex, QObject *parentObject,
         }
     }
 
+    // Root object: attribute all remaining width to "others"
+    if (!parentIndex.isValid())
+        skipped = parentSize - position;
+
     if (skipped > 0) {
         appendChild(parentObject, parentItem, context, QModelIndex(), position / parentSize,
                     skipped / parentSize);

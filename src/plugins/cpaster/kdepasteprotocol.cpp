@@ -24,7 +24,11 @@
 ****************************************************************************/
 
 #include "kdepasteprotocol.h"
+#ifdef CPASTER_PLUGIN_GUI
+#include "authenticationdialog.h"
+#endif
 
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -33,7 +37,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
-
+#include <QRegularExpression>
 #include <QNetworkReply>
 
 #include <algorithm>
@@ -118,7 +122,7 @@ void StickyNotesPasteProtocol::paste(const QString &text,
         pasteData += QUrl::toPercentEncoding(description.left(maxDescriptionLength));
     }
 
-    m_pasteReply = httpPost(m_hostUrl + QLatin1String("api/json/create"), pasteData);
+    m_pasteReply = httpPost(m_hostUrl + QLatin1String("api/json/create"), pasteData, true);
     connect(m_pasteReply, &QNetworkReply::finished, this, &StickyNotesPasteProtocol::pasteFinished);
     if (debug)
         qDebug() << "paste: sending " << m_pasteReply << pasteData;
@@ -262,9 +266,127 @@ void StickyNotesPasteProtocol::listFinished()
     m_listReply = nullptr;
 }
 
+KdePasteProtocol::KdePasteProtocol()
+{
+    setHostUrl(QLatin1String("https://pastebin.kde.org/"));
+    connect(this, &KdePasteProtocol::authenticationFailed, this, [this] () {
+        m_loginFailed = true;
+        paste(m_text, m_contentType, m_expiryDays, QString(), QString(), m_description);
+    });
+}
+
+void KdePasteProtocol::paste(const QString &text, Protocol::ContentType ct, int expiryDays,
+                             const QString &username, const QString &comment,
+                             const QString &description)
+{
+    Q_UNUSED(username);
+    Q_UNUSED(comment);
+    // KDE paster needs authentication nowadays
+#ifdef CPASTER_PLUGIN_GUI
+    QString details = tr("Pasting to KDE paster needs authentication.<br/>"
+                         "Enter your KDE Identity credentials to continue.");
+    if (m_loginFailed)
+        details.prepend(tr("<span style='background-color:LightYellow;color:red'>Login failed</span><br/><br/>"));
+
+    AuthenticationDialog authDialog(details, Core::ICore::dialogParent());
+    authDialog.setWindowTitle("Authenticate for KDE paster");
+    if (authDialog.exec() != QDialog::Accepted) {
+        m_loginFailed = false;
+        return;
+    }
+    const QString user = authDialog.userName();
+    const QString passwd = authDialog.password();
+#else
+    // FIXME get the credentials for the cmdline cpaster somehow
+    const QString user;
+    const QString passwd;
+    qDebug() << "KDE needs credentials for pasting";
+    return;
+#endif
+    // store input data as members to be able to use them after the authentication succeeded
+    m_text = text;
+    m_contentType = ct;
+    m_expiryDays = expiryDays;
+    m_description = description;
+    authenticate(user, passwd);
+}
+
 QString KdePasteProtocol::protocolName()
 {
     return QLatin1String("Paste.KDE.Org");
+}
+
+void KdePasteProtocol::authenticate(const QString &user, const QString &passwd)
+{
+    QTC_ASSERT(!m_authReply, return);
+
+    // first we need to obtain the hidden form token for logging in
+    m_authReply = httpGet(hostUrl() + "user/login");
+    connect(m_authReply, &QNetworkReply::finished, this, [this, user, passwd] () {
+        onPreAuthFinished(user, passwd);
+    });
+}
+
+void KdePasteProtocol::onPreAuthFinished(const QString &user, const QString &passwd)
+{
+    if (m_authReply->error() != QNetworkReply::NoError) {
+        m_authReply->deleteLater();
+        m_authReply = nullptr;
+        return;
+    }
+    const QByteArray page = m_authReply->readAll();
+    m_authReply->deleteLater();
+    const QRegularExpression regex("name=\"_token\"\\s+type=\"hidden\"\\s+value=\"(.*?)\">");
+    const QRegularExpressionMatch match = regex.match(QLatin1String(page));
+    if (!match.hasMatch()) {
+        m_authReply = nullptr;
+        return;
+    }
+    const QString token = match.captured(1);
+
+    QByteArray data("username=" + QUrl::toPercentEncoding(user)
+                    + "&password=" + QUrl::toPercentEncoding(passwd)
+                    + "&_token=" + QUrl::toPercentEncoding(token));
+    m_authReply = httpPost(hostUrl() + "user/login", data, true);
+    connect(m_authReply, &QNetworkReply::finished, this, &KdePasteProtocol::onAuthFinished);
+}
+
+void KdePasteProtocol::onAuthFinished()
+{
+    if (m_authReply->error() != QNetworkReply::NoError) {
+        m_authReply->deleteLater();
+        m_authReply = nullptr;
+        return;
+    }
+    const QVariant attribute = m_authReply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+    m_redirectUrl = redirectUrl(attribute.toUrl().toString(), m_redirectUrl);
+    if (!m_redirectUrl.isEmpty()) { // we need to perform a redirect
+        QUrl url(m_redirectUrl);
+        if (url.path().isEmpty())
+            url.setPath("/");   // avoid issue inside cookiesForUrl()
+        m_authReply->deleteLater();
+        m_authReply = httpGet(url.url(), true);
+        connect(m_authReply, &QNetworkReply::finished, this, &KdePasteProtocol::onAuthFinished);
+    } else { // auth should be done now
+        const QByteArray page = m_authReply->readAll();
+        m_authReply->deleteLater();
+        m_authReply = nullptr;
+        if (page.contains("https://identity.kde.org")) // we're back on the login page
+            emit authenticationFailed();
+        else {
+            m_loginFailed = false;
+            StickyNotesPasteProtocol::paste(m_text, m_contentType, m_expiryDays, QString(),
+                                            QString(), m_description);
+        }
+    }
+}
+
+QString KdePasteProtocol::redirectUrl(const QString &redirect, const QString &oldRedirect) const
+{
+    QString redirectUrl;
+    if (!redirect.isEmpty() && redirect != oldRedirect)
+        redirectUrl = redirect;
+    return redirectUrl;
 }
 
 } // namespace CodePaster

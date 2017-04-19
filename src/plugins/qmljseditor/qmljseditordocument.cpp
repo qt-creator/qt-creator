@@ -455,12 +455,9 @@ namespace QmlJSEditor {
 namespace Internal {
 
 QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *parent)
-    : q(parent),
-      m_semanticInfoDocRevision(-1),
-      m_semanticHighlighter(new SemanticHighlighter(parent)),
-      m_semanticHighlightingNecessary(false),
-      m_outlineModelNeedsUpdate(false),
-      m_outlineModel(new QmlOutlineModel(parent))
+    : q(parent)
+    , m_semanticHighlighter(new SemanticHighlighter(parent))
+    , m_outlineModel(new QmlOutlineModel(parent))
 {
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 

@@ -134,9 +134,9 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
 
     qbsapp="$app_path/Contents/MacOS/qbs"
 
-    echo "- Running macdeployqt ($(which macdeployqt))"
+    echo "- Running macdeployqt ($bin_src/macdeployqt)"
 
-    macdeployqt "$app_path" \
+    "$bin_src/macdeployqt" "$app_path" \
         "-executable=$app_path/Contents/MacOS/qtdiag" \
         "-executable=$resource_path/qtpromaker" \
         "-executable=$resource_path/sdktool" \

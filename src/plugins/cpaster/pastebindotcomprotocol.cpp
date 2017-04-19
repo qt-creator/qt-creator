@@ -37,7 +37,7 @@
 
 enum { debug = 0 };
 
-static const char PASTEBIN_BASE[]="http://pastebin.com/";
+static const char PASTEBIN_BASE[]="https://pastebin.com/";
 static const char PASTEBIN_API[]="api/api_post.php";
 static const char PASTEBIN_RAW[]="raw/";
 static const char PASTEBIN_ARCHIVE[]="archive";

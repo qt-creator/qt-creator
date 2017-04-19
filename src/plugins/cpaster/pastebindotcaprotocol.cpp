@@ -28,9 +28,11 @@
 #include <utils/qtcassert.h>
 
 #include <QNetworkReply>
-#include <QXmlStreamReader>
-#include <QXmlStreamAttributes>
 #include <QStringList>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonValue>
+#include <QJsonObject>
 
 static const char urlC[] = "http://pastebin.ca/";
 static const char internalUrlC[] = "http://pbin.ca/";
@@ -180,58 +182,39 @@ bool PasteBinDotCaProtocol::checkConfiguration(QString *errorMessage)
     return ok;
 }
 
-/* Quick & dirty: Parse the <div>-elements with the "Recent Posts" listing
- * out of the page.
+/* Quick & dirty: Parse page does no more work due to internal javascript/websocket magic - so,
+ * search for _initial_ json array containing the last added pastes.
 \code
-<div class="menutitle"><h2>Recent Posts</h2></div>
-    <div class="items" id="idmenurecent-collapse">
-        <div class='recentlink'>
-            <a href="/[id]" class="rjt" rel="/preview.php?id=[id]">[nameTitle]</a>
-            <div class='recentdetail'>[time spec]</div>
-        </div>
- ...<h2>Create a New Pastebin Post</h2>
+<script type="text/javascript">var pHistoryInitial = [{"id":3791300,"ts":1491288268,"name":"try",
+"expires":1491374668},
 \endcode */
 
 static inline QStringList parseLists(QIODevice *io)
 {
-    enum State { OutsideRecentLink, InsideRecentLink };
-
     QStringList rc;
 
-    const QString classAttribute = QLatin1String("class");
-    const QString divElement = QLatin1String("div");
-    const QString anchorElement = QLatin1String("a");
-
-    // Start parsing at the 'recent posts' entry as the HTML above is not well-formed
-    // as of 8.4.2010. This will then terminate with an error.
     QByteArray data = io->readAll();
-    const QByteArray recentPosts("<h2>Recent Posts</h2></div>");
-    const int recentPostsPos = data.indexOf(recentPosts);
-    if (recentPostsPos == -1)
+    const QByteArray history("<script type=\"text/javascript\">var pHistoryInitial = ");
+    int pos = data.indexOf(history);
+    if (pos == -1)
         return rc;
-    data.remove(0, recentPostsPos + recentPosts.size());
-    QXmlStreamReader reader(data);
-    State state = OutsideRecentLink;
-    while (!reader.atEnd()) {
-        switch (reader.readNext()) {
-        case QXmlStreamReader::StartElement:
-            // Inside a <div> of an entry: Anchor or description
-            if (state == InsideRecentLink && reader.name() == anchorElement) { // Anchor
-                // Strip host from link
-                QString link = reader.attributes().value(QLatin1String("href")).toString();
-                if (link.startsWith(QLatin1Char('/')))
-                    link.remove(0, 1);
-                const QString nameTitle = reader.readElementText();
-                rc.push_back(link + QLatin1Char(' ') + nameTitle);
-            } else if (state == OutsideRecentLink && reader.name() == divElement) { // "<div>" state switching
-                if (reader.attributes().value(classAttribute) == QLatin1String("recentlink"))
-                    state = InsideRecentLink;
-            } // divElement
-            break;
-       default:
-            break;
-        } // switch reader
-    } // while reader.atEnd()
+    data.remove(0, pos + history.size());
+    pos = data.indexOf(";</script>");
+    if (pos == -1)
+        return rc;
+    data.truncate(pos);
+    QJsonParseError error;
+    const QJsonDocument doc = QJsonDocument::fromJson(data, &error);
+    if (error.error != QJsonParseError::NoError)
+        return rc;
+    QJsonArray array = doc.array();
+    for (const QJsonValue &val : array) {
+        const QJsonObject obj = val.toObject();
+        const QJsonValue id = obj.value("id");
+        const QJsonValue name = obj.value("name");
+        if (!id.isUndefined())
+            rc.append(QString::number(id.toInt()) + ' ' + name.toString());
+    }
     return rc;
 }
 

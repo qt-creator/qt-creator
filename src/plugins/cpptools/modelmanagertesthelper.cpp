@@ -42,11 +42,8 @@ TestProject::TestProject(const QString &name, QObject *parent) :
 {
     setParent(parent);
     setId(Core::Id::fromString(name));
+    setDisplayName(name);
     qRegisterMetaType<QSet<QString> >();
-}
-
-TestProject::~TestProject()
-{
 }
 
 ModelManagerTestHelper::ModelManagerTestHelper(QObject *parent,

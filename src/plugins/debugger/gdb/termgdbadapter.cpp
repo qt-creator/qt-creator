@@ -186,6 +186,7 @@ void GdbTermEngine::interruptInferior2()
 void GdbTermEngine::stubError(const QString &msg)
 {
     Core::AsynchronousMessageBox::critical(tr("Debugger Error"), msg);
+    notifyEngineIll();
 }
 
 void GdbTermEngine::stubExited()

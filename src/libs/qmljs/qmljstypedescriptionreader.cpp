@@ -641,7 +641,9 @@ void TypeDescriptionReader::readMetaObjectRevisions(UiScriptBinding *ast, FakeMe
 
 void TypeDescriptionReader::readEnumValues(AST::UiScriptBinding *ast, LanguageUtils::FakeMetaEnum *fme)
 {
-    if (!ast || !ast->statement) {
+    if (!ast)
+        return;
+    if (!ast->statement) {
         addError(ast->colonToken, tr("Expected object literal after colon."));
         return;
     }

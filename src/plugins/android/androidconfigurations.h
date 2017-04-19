@@ -36,6 +36,7 @@
 #include <QHash>
 #include <QMap>
 #include <QFutureInterface>
+#include <QVersionNumber>
 
 #include <utils/fileutils.h>
 
@@ -68,19 +69,36 @@ public:
 
     static QStringList adbSelector(const QString &serialNumber);
 
-    bool isValid() { return !serialNumber.isEmpty() || !avdname.isEmpty(); }
+    bool isValid() const { return !serialNumber.isEmpty() || !avdname.isEmpty(); }
+    bool operator<(const AndroidDeviceInfo &other) const;
 };
+using AndroidDeviceInfoList = QList<AndroidDeviceInfo>;
+
+//!  Defines an Android system image.
+class SystemImage
+{
+public:
+    bool isValid() const { return (apiLevel != -1) && !abiName.isEmpty(); }
+    int apiLevel = -1;
+    QString abiName;
+    QString package;
+    Utils::FileName installedLocation;
+};
+using SystemImageList = QList<SystemImage>;
+
 
 class SdkPlatform
 {
 public:
-    SdkPlatform()
-        : apiLevel(-1)
-    {}
-    int apiLevel;
+    bool isValid() const { return !name.isEmpty() && apiLevel != -1; }
+    bool operator <(const SdkPlatform &other) const;
+    int apiLevel = -1;
     QString name;
-    QStringList abis;
+    QString package;
+    Utils::FileName installedLocation;
+    SystemImageList systemImages;
 };
+using SdkPlatformList = QList<SdkPlatform>;
 
 class ANDROID_EXPORT AndroidConfig
 {
@@ -94,6 +112,7 @@ public:
 
     Utils::FileName sdkLocation() const;
     void setSdkLocation(const Utils::FileName &sdkLocation);
+    QVersionNumber sdkToolsVersion() const;
 
     Utils::FileName ndkLocation() const;
     void setNdkLocation(const Utils::FileName &ndkLocation);
@@ -116,18 +135,21 @@ public:
     bool automaticKitCreation() const;
     void setAutomaticKitCreation(bool b);
 
+    bool antScriptsAvailable() const;
+
     bool useGrandle() const;
     void setUseGradle(bool b);
 
     Utils::FileName adbToolPath() const;
     Utils::FileName androidToolPath() const;
-    Utils::Environment androidToolEnvironment() const;
     Utils::FileName antToolPath() const;
     Utils::FileName emulatorToolPath() const;
-
+    Utils::FileName sdkManagerToolPath() const;
+    Utils::FileName avdManagerToolPath() const;
 
     Utils::FileName gccPath(const ProjectExplorer::Abi &abi, Core::Id lang,
                             const QString &ndkToolChainVersion) const;
+
     Utils::FileName gdbPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
 
     Utils::FileName keytoolPath() const;
@@ -135,7 +157,8 @@ public:
     class CreateAvdInfo
     {
     public:
-        QString target;
+        bool isValid() const { return target.isValid() && !name.isEmpty(); }
+        SdkPlatform target;
         QString name;
         QString abi;
         int sdcardSize = 0;
@@ -143,19 +166,10 @@ public:
     };
 
     CreateAvdInfo gatherCreateAVDInfo(QWidget *parent, int minApiLevel = 0, QString targetArch = QString()) const;
-    QFuture<CreateAvdInfo> createAVD(CreateAvdInfo info) const;
-    bool removeAVD(const QString &name) const;
 
     QVector<AndroidDeviceInfo> connectedDevices(QString *error = 0) const;
     static QVector<AndroidDeviceInfo> connectedDevices(const QString &adbToolPath, QString *error = 0);
 
-    QFuture<QVector<AndroidDeviceInfo> > androidVirtualDevicesFuture() const;
-    static QVector<AndroidDeviceInfo> androidVirtualDevices(const QString &androidTool, const Utils::Environment &environment);
-
-    QString startAVD(const QString &name) const;
-    bool startAVDAsync(const QString &avdName) const;
-    QString findAvd(const QString &avdName) const;
-    QString waitForAvd(const QString &avdName, const QFutureInterface<bool> &fi = QFutureInterface<bool>()) const;
     QString bestNdkPlatformMatch(int target) const;
 
     static ProjectExplorer::Abi abiForToolChainPrefix(const QString &toolchainPrefix);
@@ -166,13 +180,10 @@ public:
     QString getProductModel(const QString &device) const;
     enum class OpenGl { Enabled, Disabled, Unknown };
     OpenGl getOpenGLEnabled(const QString &emulator) const;
-    bool hasFinishedBooting(const QString &device) const;
-    bool waitForBooted(const QString &serialNumber, const QFutureInterface<bool> &fi) const;
     bool isConnected(const QString &serialNumber) const;
 
     SdkPlatform highestAndroidSdk() const;
 private:
-    static CreateAvdInfo createAVDImpl(CreateAvdInfo info, Utils::FileName androidToolPath, Utils::Environment env);
     static QString getDeviceProperty(const QString &adbToolPath, const QString &device, const QString &property);
 
     Utils::FileName toolPath(const ProjectExplorer::Abi &abi, const QString &ndkToolChainVersion) const;
@@ -196,12 +207,11 @@ private:
     QStringList m_makeExtraSearchDirectories;
     unsigned m_partitionSize = 1024;
     bool m_automaticKitCreation = true;
-    bool m_useGradle = false;
+    bool m_useGradle = true; // Ant builds are deprecated.
 
     //caches
     mutable bool m_availableSdkPlatformsUpToDate = false;
-    mutable QVector<SdkPlatform> m_availableSdkPlatforms;
-    static bool sortSdkPlatformByApiLevel(const SdkPlatform &a, const SdkPlatform &b);
+    mutable SdkPlatformList m_availableSdkPlatforms;
 
     mutable bool m_NdkInformationUpToDate = false;
     mutable QString m_toolchainHost;
@@ -247,3 +257,5 @@ private:
 };
 
 } // namespace Android
+Q_DECLARE_METATYPE(Android::SdkPlatform)
+

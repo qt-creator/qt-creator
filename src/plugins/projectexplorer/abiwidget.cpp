@@ -190,6 +190,7 @@ void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &current)
 QList<Abi> AbiWidget::supportedAbis() const
 {
     QList<Abi> result;
+    result.reserve(d->m_abi->count());
     for (int i = 1; i < d->m_abi->count(); ++i)
         result << Abi(d->m_abi->itemData(i).toString());
     return result;

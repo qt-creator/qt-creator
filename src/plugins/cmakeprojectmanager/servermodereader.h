@@ -107,8 +107,8 @@ private:
 
     void extractCodeModelData(const QVariantMap &data);
     void extractConfigurationData(const QVariantMap &data);
-    Project *extractProjectData(const QVariantMap &data);
-    Target *extractTargetData(const QVariantMap &data, Project *p);
+    Project *extractProjectData(const QVariantMap &data, QSet<QString> &knownTargets);
+    Target *extractTargetData(const QVariantMap &data, Project *p, QSet<QString> &knownTargets);
     FileGroup *extractFileGroupData(const QVariantMap &data, const QDir &srcDir, Target *t);
     void extractCMakeInputsData(const QVariantMap &data);
     void extractCacheData(const QVariantMap &data);

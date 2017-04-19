@@ -32,6 +32,7 @@
 
 namespace Android {
 class AndroidConfig;
+class SdkPlatform;
 
 namespace Internal {
 
@@ -42,7 +43,7 @@ public:
     explicit AvdDialog(int minApiLevel, const QString &targetArch,
                        const AndroidConfig *config, QWidget *parent = 0);
 
-    QString target() const;
+    Android::SdkPlatform target() const;
     QString name() const;
     QString abi() const;
     int sdcardSize() const;

@@ -60,6 +60,8 @@
 namespace Android {
 using namespace Internal;
 
+const QVersionNumber gradleScriptRevokedSdkVersion(25, 3, 0);
+const QVersionNumber gradleScriptsContainedQtVersion(5, 9, 0);
 const QLatin1String DeployActionKey("Qt4ProjectManager.AndroidDeployQtStep.DeployQtAction");
 const QLatin1String KeystoreLocationKey("KeystoreLocation");
 const QLatin1String BuildTargetSdkKey("BuildTargetSdk");
@@ -139,6 +141,15 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (!version)
         return false;
+
+    if (AndroidConfigurations::currentConfig().sdkToolsVersion() >= gradleScriptRevokedSdkVersion &&
+            QVersionNumber::fromString(version->qtVersionString()) < gradleScriptsContainedQtVersion) {
+        emit addOutput(tr("The installed SDK tools version (%1) does not include Gradle scripts. The "
+                          "minimum Qt version required for Gradle build to work is %2")
+                       .arg(gradleScriptRevokedSdkVersion.toString())
+                       .arg(gradleScriptsContainedQtVersion.toString()), OutputFormat::Stderr);
+        return false;
+    }
 
     int minSDKForKit = AndroidManager::minimumSDK(target()->kit());
     if (AndroidManager::minimumSDK(target()) < minSDKForKit) {
@@ -340,6 +351,16 @@ void AndroidBuildApkStep::setUseGradle(bool b)
             AndroidManager::updateGradleProperties(target());
         emit useGradleChanged();
     }
+}
+
+bool AndroidBuildApkStep::addDebugger() const
+{
+    return m_addDebugger;
+}
+
+void AndroidBuildApkStep::setAddDebugger(bool debug)
+{
+    m_addDebugger = debug;
 }
 
 bool AndroidBuildApkStep::verboseOutput() const

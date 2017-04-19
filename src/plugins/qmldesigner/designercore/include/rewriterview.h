@@ -116,6 +116,8 @@ public:
     void clearErrorAndWarnings();
     void setErrors(const QList<DocumentMessage> &errors);
     void setWarnings(const QList<DocumentMessage> &warnings);
+    void setIncompleteTypeInformation(bool b);
+    bool hasIncompleteTypeInformation() const;
     void addError(const DocumentMessage &error);
 
     void enterErrorState(const QString &errorMessage);
@@ -195,6 +197,7 @@ private: //variables
     QTimer m_amendTimer;
     bool m_instantQmlTextUpdate = false;
     std::function<void(bool)> m_setWidgetStatusCallback;
+    bool m_hasIncompleteTypeInformation = false;
 };
 
 } //QmlDesigner

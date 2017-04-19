@@ -34,6 +34,7 @@
 #include "androidqtsupport.h"
 #include "androidqtversion.h"
 #include "androidbuildapkstep.h"
+#include "androidavdmanager.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/messagemanager.h>
@@ -60,11 +61,13 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QDomDocument>
+#include <QVersionNumber>
 
 namespace {
     const QLatin1String AndroidManifestName("AndroidManifest.xml");
     const QLatin1String AndroidDefaultPropertiesName("project.properties");
     const QLatin1String AndroidDeviceSn("AndroidDeviceSerialNumber");
+    const QLatin1String ApiLevelKey("AndroidVersion.ApiLevel");
 
 } // anonymous namespace
 
@@ -343,7 +346,7 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
     QString deviceSerialNumber = info.serialNumber;
 
     if (info.type == AndroidDeviceInfo::Emulator) {
-        deviceSerialNumber = AndroidConfigurations::currentConfig().startAVD(info.avdname);
+        deviceSerialNumber = AndroidAvdManager().startAvd(info.avdname);
         if (deviceSerialNumber.isEmpty())
             Core::MessageManager::write(tr("Starting Android virtual device failed."));
     }
@@ -372,7 +375,7 @@ void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const Q
 
     QString deviceSerialNumber = info.serialNumber;
     if (info.type == AndroidDeviceInfo::Emulator) {
-        deviceSerialNumber = AndroidConfigurations::currentConfig().startAVD(info.avdname);
+        deviceSerialNumber = AndroidAvdManager().startAvd(info.avdname);
         if (deviceSerialNumber.isEmpty())
             Core::MessageManager::write(tr("Starting Android virtual device failed."));
     }
@@ -565,18 +568,33 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
     gradleProperties["buildDir"] = ".build";
     gradleProperties["androidCompileSdkVersion"] = buildTargetSDK(target).split(QLatin1Char('-')).last().toLocal8Bit();
     if (gradleProperties["androidBuildToolsVersion"].isEmpty()) {
-        QString maxVersion;
+        QVersionNumber maxVersion;
         QDir buildToolsDir(AndroidConfigurations::currentConfig().sdkLocation().appendPath(QLatin1String("build-tools")).toString());
         foreach (const QFileInfo &file, buildToolsDir.entryList(QDir::Dirs|QDir::NoDotAndDotDot)) {
-            QString ver(file.fileName());
+            QVersionNumber ver = QVersionNumber::fromString(file.fileName());
             if (maxVersion < ver)
                 maxVersion = ver;
         }
-        if (maxVersion.isEmpty())
+        if (maxVersion.isNull())
             return false;
-        gradleProperties["androidBuildToolsVersion"] = maxVersion.toLocal8Bit();
+        gradleProperties["androidBuildToolsVersion"] = maxVersion.toString().toLocal8Bit();
     }
     return mergeGradleProperties(gradlePropertiesPath, gradleProperties);
+}
+
+int AndroidManager::findApiLevel(const Utils::FileName &platformPath)
+{
+    int apiLevel = -1;
+    Utils::FileName propertiesPath = platformPath;
+    propertiesPath.appendPath("/source.properties");
+    if (propertiesPath.exists()) {
+        QSettings sdkProperties(propertiesPath.toString(), QSettings::IniFormat);
+        bool validInt = false;
+        apiLevel = sdkProperties.value(ApiLevelKey).toInt(&validInt);
+        if (!validInt)
+            apiLevel = -1;
+    }
+    return apiLevel;
 }
 
 } // namespace Android

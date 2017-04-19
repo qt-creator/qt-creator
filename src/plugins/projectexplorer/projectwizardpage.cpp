@@ -240,8 +240,7 @@ static inline AddNewTree *buildAddProjectTree(ProjectNode *root, const QString &
         }
     }
 
-    const QList<ProjectAction> &list = root->supportedActions(root);
-    if (list.contains(AddSubProject) && !list.contains(InheritedFromParent)) {
+    if (root->supportsAction(AddSubProject, root) && !root->supportsAction(InheritedFromParent, root)) {
         if (projectPath.isEmpty() || root->canAddSubProject(projectPath)) {
             FolderNode::AddNewInformation info = root->addNewInformation(QStringList() << projectPath, contextNode);
             auto item = new AddNewTree(root, children, info);
@@ -265,8 +264,7 @@ static inline AddNewTree *buildAddFilesTree(FolderNode *root, const QStringList 
             children.append(child);
     }
 
-    const QList<ProjectAction> &list = root->supportedActions(root);
-    if (list.contains(AddNewFile) && !list.contains(InheritedFromParent)) {
+    if (root->supportsAction(AddNewFile, root) && !root->supportsAction(InheritedFromParent, root)) {
         FolderNode::AddNewInformation info = root->addNewInformation(files, contextNode);
         auto item = new AddNewTree(root, children, info);
         selector->inspect(item, root == contextNode);

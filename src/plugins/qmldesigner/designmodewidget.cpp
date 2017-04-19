@@ -454,10 +454,6 @@ static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widget
 
     SwitchSplitTabWidget *switchSplitTabWidget = new SwitchSplitTabWidget();
 
-    QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/centerwidget.css"));
-    switchSplitTabWidget->setStyleSheet(Theme::replaceCssColors(sheet));
-
-
     foreach (const WidgetInfo &widgetInfo, widgetInfos) {
         if (widgetInfo.placementHint == widgetInfo.CentralPane)
             switchSplitTabWidget->addTab(widgetInfo.widget, widgetInfo.tabName);

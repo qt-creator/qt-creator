@@ -276,6 +276,7 @@ QnxToolChain *QnxConfiguration::createToolChain(const Target &target)
                 .arg(displayName())
                 .arg(target.shortDescription()));
     toolChain->setSdpPath(sdpPath().toString());
+    toolChain->setCpuDir(target.cpuDir());
     toolChain->resetToolChain(qccCompilerPath());
     ToolChainManager::registerToolChain(toolChain);
     return toolChain;

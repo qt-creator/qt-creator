@@ -57,15 +57,17 @@ bool QmlProjectNode::showInSimpleTree() const
     return true;
 }
 
-QList<ProjectAction> QmlProjectNode::supportedActions(Node *node) const
+bool QmlProjectNode::supportsAction(ProjectAction action, Node *node) const
 {
-    QList<ProjectAction> actions = {AddNewFile, EraseFile};
-    if (node->nodeType() == NodeType::File) {
+    if (action == AddNewFile || action == EraseFile)
+        return true;
+
+    if (action == Rename && node->nodeType() == NodeType::File) {
         FileNode *fileNode = static_cast<FileNode *>(node);
-        if (fileNode->fileType() != FileType::Project)
-            actions.append(Rename);
+        return fileNode->fileType() != FileType::Project;
     }
-    return actions;
+
+    return false;
 }
 
 bool QmlProjectNode::addFiles(const QStringList &filePaths, QStringList * /*notAdded*/)

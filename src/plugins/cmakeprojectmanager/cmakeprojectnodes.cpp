@@ -56,12 +56,6 @@ bool CMakeInputsNode::showInSimpleTree() const
     return false;
 }
 
-QList<ProjectExplorer::ProjectAction> CMakeInputsNode::supportedActions(ProjectExplorer::Node *node) const
-{
-    Q_UNUSED(node);
-    return QList<ProjectExplorer::ProjectAction>();
-}
-
 CMakeListsNode::CMakeListsNode(const Utils::FileName &cmakeListPath) :
     ProjectExplorer::ProjectNode(cmakeListPath)
 {
@@ -78,12 +72,6 @@ CMakeListsNode::CMakeListsNode(const Utils::FileName &cmakeListPath) :
 bool CMakeListsNode::showInSimpleTree() const
 {
     return false;
-}
-
-QList<ProjectExplorer::ProjectAction> CMakeListsNode::supportedActions(ProjectExplorer::Node *node) const
-{
-    Q_UNUSED(node);
-    return QList<ProjectExplorer::ProjectAction>();
 }
 
 CMakeProjectNode::CMakeProjectNode(const Utils::FileName &directory) :
@@ -103,12 +91,6 @@ QString CMakeProjectNode::tooltip() const
     return QString();
 }
 
-QList<ProjectExplorer::ProjectAction> CMakeProjectNode::supportedActions(ProjectExplorer::Node *node) const
-{
-    Q_UNUSED(node);
-    return QList<ProjectExplorer::ProjectAction>();
-}
-
 CMakeTargetNode::CMakeTargetNode(const Utils::FileName &directory) :
     ProjectExplorer::ProjectNode(directory)
 {
@@ -124,12 +106,6 @@ bool CMakeTargetNode::showInSimpleTree() const
 QString CMakeTargetNode::tooltip() const
 {
     return m_tooltip;
-}
-
-QList<ProjectExplorer::ProjectAction> CMakeTargetNode::supportedActions(ProjectExplorer::Node *node) const
-{
-    Q_UNUSED(node);
-    return QList<ProjectExplorer::ProjectAction>();
 }
 
 void CMakeTargetNode::setTargetInformation(const QList<Utils::FileName> &artifacts,

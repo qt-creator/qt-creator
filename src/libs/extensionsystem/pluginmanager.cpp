@@ -361,7 +361,7 @@ QReadWriteLock *PluginManager::listLock()
 */
 void PluginManager::loadPlugins()
 {
-    return d->loadPlugins();
+    d->loadPlugins();
 }
 
 /*!

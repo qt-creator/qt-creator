@@ -73,6 +73,9 @@ public:
     bool useGradle() const;
     void setUseGradle(bool b);
 
+    bool addDebugger() const;
+    void setAddDebugger(bool debug);
+
     QString buildTargetSdk() const;
     void setBuildTargetSdk(const QString &sdk);
 
@@ -99,9 +102,10 @@ protected:
     AndroidDeployAction m_deployAction = BundleLibrariesDeployment;
     bool m_signPackage = false;
     bool m_verbose = false;
-    bool m_useGradle = false;
+    bool m_useGradle = true; // Ant builds are deprecated.
     bool m_openPackageLocation = false;
     bool m_openPackageLocationForRun = false;
+    bool m_addDebugger = true;
     QString m_buildTargetSdk;
 
     Utils::FileName m_keystorePath;

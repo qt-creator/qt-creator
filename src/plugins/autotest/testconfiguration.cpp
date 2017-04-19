@@ -130,6 +130,7 @@ void TestConfiguration::completeTestInformation(int runMode)
                         m_executableFile = exeString;
                     m_project = project;
                     m_guessedConfiguration = true;
+                    m_guessedFrom = rc->displayName();
                     if (runMode == TestRunner::Debug)
                         m_runConfig = new TestRunConfiguration(rc->target(), this);
                 }
@@ -201,11 +202,6 @@ void TestConfiguration::setEnvironment(const Utils::Environment &env)
 void TestConfiguration::setProject(Project *project)
 {
     m_project = project;
-}
-
-void TestConfiguration::setGuessedConfiguration(bool guessed)
-{
-    m_guessedConfiguration = guessed;
 }
 
 QString TestConfiguration::executableFilePath() const

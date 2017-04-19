@@ -130,7 +130,7 @@ public:
     virtual QString tooltip() const;
     bool isEnabled() const;
 
-    virtual QList<ProjectAction> supportedActions(Node *node) const;
+    virtual bool supportsAction(ProjectAction action, Node *node) const;
 
     void setEnabled(bool enabled);
     void setAbsoluteFilePathAndLine(const Utils::FileName &filePath, int line);
@@ -179,6 +179,7 @@ public:
     static QList<FileNode *> scanForFiles(const Utils::FileName &directory,
                                           const std::function<FileNode *(const Utils::FileName &fileName)> factory,
                                           QFutureInterface<QList<FileNode *>> *future = nullptr);
+    bool supportsAction(ProjectAction action, Node *node) const override;
 
 private:
     FileType m_fileType;
@@ -224,6 +225,8 @@ public:
     void setIcon(const QIcon &icon);
 
     virtual QString addFileFilter() const;
+
+    bool supportsAction(ProjectAction action, Node *node) const override;
 
     virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
     virtual bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
@@ -288,6 +291,7 @@ public:
     bool deleteFiles(const QStringList &filePaths) override;
     bool canRenameFile(const QString &filePath, const QString &newFilePath) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
+    bool supportsAction(ProjectAction action, Node *node) const override;
 
     // by default returns false
     virtual bool deploysFolder(const QString &folder) const;
@@ -309,12 +313,13 @@ public:
     ContainerNode(Project *project);
 
     QString displayName() const final;
-    QList<ProjectAction> supportedActions(Node *node) const final;
+    bool supportsAction(ProjectAction action, Node *node) const final;
 
     ContainerNode *asContainerNode() final { return this; }
     const ContainerNode *asContainerNode() const final { return this; }
 
     ProjectNode *rootProjectNode() const;
+    Project *project() const { return m_project; }
 
 private:
     Project *m_project;

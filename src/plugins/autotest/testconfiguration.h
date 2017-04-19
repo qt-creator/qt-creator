@@ -66,7 +66,6 @@ public:
     void setDisplayName(const QString &displayName);
     void setEnvironment(const Utils::Environment &env);
     void setProject(ProjectExplorer::Project *project);
-    void setGuessedConfiguration(bool guessed);
 
     QStringList testCases() const { return m_testCases; }
     int testCaseCount() const { return m_testCaseCount; }
@@ -77,7 +76,9 @@ public:
     Utils::Environment environment() const { return m_environment; }
     ProjectExplorer::Project *project() const { return m_project.data(); }
     TestRunConfiguration *runConfiguration() const { return m_runConfig; }
-    bool guessedConfiguration() const { return m_guessedConfiguration; }
+    bool isGuessed() const { return m_guessedConfiguration; }
+    QString runConfigDisplayName() const { return m_guessedConfiguration ? m_guessedFrom
+                                                                         : m_displayName; }
 
     virtual TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
                                            QProcess *app) const = 0;
@@ -91,6 +92,7 @@ private:
     QString m_workingDir;
     QString m_buildDir;
     QString m_displayName;
+    QString m_guessedFrom;
     Utils::Environment m_environment;
     QPointer<ProjectExplorer::Project> m_project;
     bool m_guessedConfiguration = false;

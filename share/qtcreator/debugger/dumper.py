@@ -317,6 +317,8 @@ class DumperBase:
         self.nativeMixed = int(args.get('nativemixed', '0'))
         self.autoDerefPointers = int(args.get('autoderef', '0'))
         self.partialVariable = args.get('partialvar', '')
+        self.uninitialized = args.get('uninitialized', [])
+        self.uninitialized = list(map(lambda x: self.hexdecode(x), self.uninitialized))
         self.partialUpdate = int(args.get('partial', '0'))
         self.fallbackQtVersion = 0x50200
         #warn('NAMESPACE: "%s"' % self.qtNamespace())
@@ -1497,7 +1499,10 @@ class DumperBase:
         def getJumpAddress_x86(dumper, address):
             relativeJumpCode = 0xe9
             jumpCode = 0xff
-            data = dumper.readRawMemory(address, 6)
+            try:
+                data = dumper.readRawMemory(address, 6)
+            except:
+                return 0
             primaryOpcode = data[0]
             if primaryOpcode == relativeJumpCode:
                 # relative jump on 32 and 64 bit with a 32bit offset
@@ -3466,27 +3471,6 @@ class DumperBase:
 
         def target(self):
             return self.typeData().ltarget
-
-
-        def field(self, value, name, bitoffset = 0):
-            #warn('GETTING FIELD %s FOR: %s' % (name, self.name))
-            for f in self.fields(value):
-                #warn('EXAMINING MEMBER %s' % f.name)
-                if f.name == name:
-                    ff = copy.copy(f)
-                    if ff.lbitpos is None:
-                        ff.lbitpos = bitoffset
-                    else:
-                        ff.lbitpos += bitoffset
-                    #warn('FOUND: %s' % ff)
-                    return ff
-                if f.isBaseClass:
-                    #warn('EXAMINING BASE %s' % f.type)
-                    res = f.type.field(name, bitoffset + f.bitpos())
-                    if res is not None:
-                        return res
-            #warn('FIELD %s NOT FOUND IN %s' % (name, self))
-            return None
 
         def stripTypedefs(self):
             if isinstance(self, self.dumper.Type) and self.code != TypeCodeTypedef:

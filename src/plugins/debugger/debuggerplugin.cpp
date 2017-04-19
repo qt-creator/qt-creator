@@ -1913,12 +1913,13 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     for (int i = 0, n = m_snapshotHandler->size(); i != n; ++i) {
         // Run controls might be deleted during exit.
         if (DebuggerEngine *engine = m_snapshotHandler->at(i)) {
-            DebuggerRunControl *runControl = engine->runControl();
-            RunConfiguration *rc = runControl->runConfiguration();
-            if (rc == activeRc) {
-                m_snapshotHandler->setCurrentIndex(i);
-                updateState(engine);
-                return;
+            if (DebuggerRunControl *runControl = engine->runControl()) {
+                RunConfiguration *rc = runControl->runConfiguration();
+                if (rc == activeRc) {
+                    m_snapshotHandler->setCurrentIndex(i);
+                    updateState(engine);
+                    return;
+                }
             }
         }
     }

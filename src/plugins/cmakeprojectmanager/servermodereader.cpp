@@ -414,14 +414,16 @@ void ServerModeReader::extractConfigurationData(const QVariantMap &data)
 {
     const QString name = data.value(NAME_KEY).toString();
     Q_UNUSED(name);
+    QSet<QString> knownTargets; // To filter duplicate target names:-/
     const QVariantList projects = data.value("projects").toList();
     for (const QVariant &p : projects) {
         const QVariantMap pData = p.toMap();
-        m_projects.append(extractProjectData(pData));
+        m_projects.append(extractProjectData(pData, knownTargets));
     }
 }
 
-ServerModeReader::Project *ServerModeReader::extractProjectData(const QVariantMap &data)
+ServerModeReader::Project *ServerModeReader::extractProjectData(const QVariantMap &data,
+                                                                QSet<QString> &knownTargets)
 {
     auto project = new Project;
     project->name = data.value(NAME_KEY).toString();
@@ -430,16 +432,28 @@ ServerModeReader::Project *ServerModeReader::extractProjectData(const QVariantMa
     const QVariantList targets = data.value("targets").toList();
     for (const QVariant &t : targets) {
         const QVariantMap tData = t.toMap();
-        project->targets.append(extractTargetData(tData, project));
+        Target *tp = extractTargetData(tData, project, knownTargets);
+        if (tp)
+            project->targets.append(tp);
     }
     return project;
 }
 
-ServerModeReader::Target *ServerModeReader::extractTargetData(const QVariantMap &data, Project *p)
+ServerModeReader::Target *ServerModeReader::extractTargetData(const QVariantMap &data, Project *p,
+                                                              QSet<QString> &knownTargets)
 {
+    const QString targetName = data.value(NAME_KEY).toString();
+
+    // Remove duplicate targets: CMake unfortunately does duplicate targets for all projects that
+    // contain them. Keep at least till cmake 3.9 is deprecated.
+    const int count = knownTargets.count();
+    knownTargets.insert(targetName);
+    if (knownTargets.count() == count)
+        return nullptr;
+
     auto target = new Target;
     target->project = p;
-    target->name = data.value(NAME_KEY).toString();
+    target->name = targetName;
     target->sourceDirectory = FileName::fromString(data.value(SOURCE_DIRECTORY_KEY).toString());
     target->buildDirectory = FileName::fromString(data.value("buildDirectory").toString());
 
@@ -664,7 +678,6 @@ void ServerModeReader::addHeaderNodes(ProjectNode *root, const QList<FileNode *>
 {
     auto headerNode = new VirtualFolderNode(root->filePath(), Node::DefaultPriority - 5);
     headerNode->setDisplayName(tr("<Headers>"));
-    root->addNode(headerNode);
 
     // knownHeaders are already listed in their targets:
     QSet<Utils::FileName> seenHeaders = Utils::transform<QSet>(knownHeaders, &FileNode::filePath);
@@ -681,6 +694,11 @@ void ServerModeReader::addHeaderNodes(ProjectNode *root, const QList<FileNode *>
             headerNode->addNestedNode(node);
         }
     }
+
+    if (headerNode->nodes().isEmpty())
+        delete headerNode; // No Headers, do not show this Folder.
+    else
+        root->addNode(headerNode);
 }
 
 } // namespace Internal

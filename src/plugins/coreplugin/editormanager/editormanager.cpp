@@ -931,6 +931,7 @@ Id EditorManagerPrivate::getOpenWithEditorId(const QString &fileName, bool *isEx
     // Built-in
     const EditorManager::EditorFactoryList editors = EditorManager::editorFactories(mt, false);
     const int size = editors.size();
+    allEditorDisplayNames.reserve(size);
     for (int i = 0; i < size; i++) {
         allEditorIds.push_back(editors.at(i)->id());
         allEditorDisplayNames.push_back(editors.at(i)->displayName());

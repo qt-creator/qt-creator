@@ -47,7 +47,7 @@ QString UnixUtils::fileBrowser(const QSettings *settings)
 
 void UnixUtils::setFileBrowser(QSettings *settings, const QString &term)
 {
-    return settings->setValue(QLatin1String("General/FileBrowser"), term);
+    settings->setValue(QLatin1String("General/FileBrowser"), term);
 }
 
 

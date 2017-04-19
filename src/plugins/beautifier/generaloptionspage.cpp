@@ -36,7 +36,7 @@
 namespace Beautifier {
 namespace Internal {
 
-GeneralOptionsPageWidget::GeneralOptionsPageWidget(GeneralSettings *settings,
+GeneralOptionsPageWidget::GeneralOptionsPageWidget(const QSharedPointer<GeneralSettings> &settings,
                                                    const QStringList &toolIds, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::GeneralOptionsPage),
@@ -73,8 +73,8 @@ void GeneralOptionsPageWidget::apply(bool *autoFormatChanged)
     m_settings->save();
 }
 
-GeneralOptionsPage::GeneralOptionsPage(GeneralSettings *settings, const QStringList &toolIds,
-                                       QObject *parent) :
+GeneralOptionsPage::GeneralOptionsPage(const QSharedPointer<GeneralSettings> &settings,
+                                       const QStringList &toolIds, QObject *parent) :
     IOptionsPage(parent),
     m_settings(settings),
     m_toolIds(toolIds)

@@ -110,9 +110,10 @@ public:
     ~NetworkProtocol() override;
 
 protected:
-    QNetworkReply *httpGet(const QString &url);
+    QNetworkReply *httpGet(const QString &url, bool handleCookies = false);
 
-    QNetworkReply *httpPost(const QString &link, const QByteArray &data);
+    QNetworkReply *httpPost(const QString &link, const QByteArray &data,
+                            bool handleCookies = false);
 
     // Check connectivity of host, displaying a message box.
     bool httpStatus(QString url, QString *errorMessage, bool useHttps = false);

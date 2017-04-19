@@ -21,7 +21,8 @@ Editing
 All Projects
 
 * Added support for `.qrc` files in project tree for all projects
-* Added Qt Creator variable `CurrentRun:Runnable:FilePath`
+* Added Qt Creator variable `CurrentRun:Executable` (QTCREATORBUG-12201,
+  QTCREATORBUG-16830)
 * Added choice of build system to most project wizards (QTCREATORBUG-17308)
 
 QMake Projects

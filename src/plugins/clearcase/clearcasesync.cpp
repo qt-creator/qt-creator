@@ -92,7 +92,7 @@ void ClearCaseSync::processCleartoolLsLine(const QDir &viewRootDir, const QStrin
     const QString absFile =
             viewRootDir.absoluteFilePath(
                 QDir::fromNativeSeparators(buffer.left(atatpos)));
-    QTC_CHECK(QFile(absFile).exists());
+    QTC_CHECK(QFileInfo::exists(absFile));
     QTC_CHECK(!absFile.isEmpty());
 
     QString ccState;

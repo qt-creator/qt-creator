@@ -74,15 +74,14 @@ FlatModel::FlatModel(QObject *parent)
     : TreeModel<WrapperNode, WrapperNode>(new WrapperNode(nullptr), parent)
 {
     ProjectTree *tree = ProjectTree::instance();
-    connect(tree, &ProjectTree::subtreeChanged, this, &FlatModel::update);
+    connect(tree, &ProjectTree::subtreeChanged, this, &FlatModel::updateSubtree);
 
     SessionManager *sm = SessionManager::instance();
-    connect(sm, &SessionManager::projectRemoved, this, &FlatModel::update);
-    connect(sm, &SessionManager::sessionLoaded, this, &FlatModel::loadExpandData);
+    connect(sm, &SessionManager::projectRemoved, this, &FlatModel::handleProjectRemoved);
+    connect(sm, &SessionManager::aboutToLoadSession, this, &FlatModel::loadExpandData);
     connect(sm, &SessionManager::aboutToSaveSession, this, &FlatModel::saveExpandData);
     connect(sm, &SessionManager::projectAdded, this, &FlatModel::handleProjectAdded);
     connect(sm, &SessionManager::startupProjectChanged, this, [this] { layoutChanged(); });
-    update();
 }
 
 QVariant FlatModel::data(const QModelIndex &index, int role) const
@@ -145,7 +144,7 @@ Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const
     if (Node *node = nodeForIndex(index)) {
         if (!node->asProjectNode()) {
             // either folder or file node
-            if (node->supportedActions(node).contains(Rename))
+            if (node->supportsAction(Rename, node))
                 f = f | Qt::ItemIsEditable;
         }
     }
@@ -170,42 +169,27 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
     return true;
 }
 
-void FlatModel::update()
+void FlatModel::addOrRebuildProjectModel(Project *project)
 {
-    rebuildModel();
-}
-
-void FlatModel::rebuildModel()
-{
-    QList<Project *> projects = SessionManager::projects();
-
-    Utils::sort(projects, [](Project *p1, Project *p2) {
-        const int displayNameResult = caseFriendlyCompare(p1->displayName(), p2->displayName());
-        if (displayNameResult != 0)
-            return displayNameResult < 0;
-        return p1 < p2; // sort by pointer value
-    });
-
-    QSet<Node *> seen;
-
-    rootItem()->removeChildren();
-    for (Project *project : projects) {
-        WrapperNode *container = new WrapperNode(project->containerNode());
-
-        ProjectNode *projectNode = project->rootProjectNode();
-        if (projectNode) {
-            addFolderNode(container, projectNode, &seen);
-        } else {
-            FileNode *projectFileNode = new FileNode(project->projectFilePath(), FileType::Project, false);
-            seen.insert(projectFileNode);
-            container->appendChild(new WrapperNode(projectFileNode));
-        }
-
-        container->sortChildren(&sortWrapperNodes);
+    WrapperNode *container = nodeForProject(project);
+    if (container) {
+        container->removeChildren();
+    } else {
+        container = new WrapperNode(project->containerNode());
         rootItem()->appendChild(container);
     }
 
-    forAllItems([this](WrapperNode *node) {
+    QSet<Node *> seen;
+
+    if (ProjectNode *projectNode = project->rootProjectNode()) {
+        addFolderNode(container, projectNode, &seen);
+    } else {
+        FileNode *projectFileNode = new FileNode(project->projectFilePath(), FileType::Project, false);
+        seen.insert(projectFileNode);
+        container->appendChild(new WrapperNode(projectFileNode));
+    }
+
+    container->forAllChildren([this](WrapperNode *node) {
         if (node->m_node) {
             const QString path = node->m_node->filePath().toString();
             const QString displayName = node->m_node->displayName();
@@ -216,6 +200,37 @@ void FlatModel::rebuildModel()
             emit requestExpansion(node->index());
         }
     });
+
+    const QString path = container->m_node->filePath().toString();
+    const QString displayName = container->m_node->displayName();
+    ExpandData ed(path, displayName);
+    if (m_toExpand.contains(ed))
+        emit requestExpansion(container->index());
+}
+
+void FlatModel::updateSubtree(FolderNode *node)
+{
+    // FIXME: This is still excessive, should be limited to the affected subtree.
+    while (FolderNode *parent = node->parentFolderNode())
+        node = parent;
+    if (ContainerNode *container = node->asContainerNode())
+        addOrRebuildProjectModel(container->project());
+}
+
+void FlatModel::rebuildModel()
+{
+    QList<Project *> projects = SessionManager::projects();
+    QTC_CHECK(projects.size() == rootItem()->childCount());
+
+    Utils::sort(projects, [](Project *p1, Project *p2) {
+        const int displayNameResult = caseFriendlyCompare(p1->displayName(), p2->displayName());
+        if (displayNameResult != 0)
+            return displayNameResult < 0;
+        return p1 < p2; // sort by pointer value
+    });
+
+    for (Project *project : projects)
+        addOrRebuildProjectModel(project);
 }
 
 void FlatModel::onCollapsed(const QModelIndex &idx)
@@ -238,9 +253,22 @@ ExpandData FlatModel::expandDataForNode(const Node *node) const
 
 void FlatModel::handleProjectAdded(Project *project)
 {
-    Node *node = project->containerNode();
-    m_toExpand.insert(expandDataForNode(node));
-    update();
+    addOrRebuildProjectModel(project);
+}
+
+void FlatModel::handleProjectRemoved(Project *project)
+{
+    destroyItem(nodeForProject(project));
+}
+
+WrapperNode *FlatModel::nodeForProject(Project *project)
+{
+    QTC_ASSERT(project, return nullptr);
+    ContainerNode *containerNode = project->containerNode();
+    QTC_ASSERT(containerNode, return nullptr);
+    return rootItem()->findFirstLevelChild([containerNode](WrapperNode *node) {
+        return node->m_node == containerNode;
+    });
 }
 
 void FlatModel::loadExpandData()

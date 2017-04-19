@@ -110,9 +110,8 @@ phony.c
 /dist/gdb/qtcreator-*/
 /dist/gdb/source/
 /dist/gdb/staging/
-/doc/api/html/
-/doc/html-dev/
-/doc/html/
+/doc/qtcreator/
+/doc/qtcreator-dev/
 /doc/pluginhowto/html/
 /lib/
 /lib64/

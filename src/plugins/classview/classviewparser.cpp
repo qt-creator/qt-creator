@@ -101,7 +101,7 @@ public:
     CPlusPlus::Overview overview;
 
     //! timer
-    QPointer<QTimer> timer;
+    QTimer timer;
 
     // documents
     //! Documents read write lock
@@ -161,16 +161,14 @@ Parser::Parser(QObject *parent)
     : QObject(parent),
     d(new ParserPrivate())
 {
-    d->timer = new QTimer(this);
-    d->timer->setObjectName(QLatin1String("ClassViewParser::timer"));
-    d->timer->setSingleShot(true);
+    d->timer.setSingleShot(true);
 
     // connect signal/slots
     // internal data reset
     connect(this, &Parser::resetDataDone, this, &Parser::onResetDataDone, Qt::QueuedConnection);
 
     // timer for emitting changes
-    connect(d->timer.data(), &QTimer::timeout, this, &Parser::requestCurrentState, Qt::QueuedConnection);
+    connect(&d->timer, &QTimer::timeout, this, &Parser::requestCurrentState, Qt::QueuedConnection);
 }
 
 /*!
@@ -294,11 +292,12 @@ ParserTreeItem::ConstPtr Parser::parse()
         item = ParserTreeItem::Ptr(new ParserTreeItem());
 
         if (d->flatMode)
-            addFlatTree(item, prj->rootProjectNode());
+            addFlatTree(item, prj);
         else
-            addProjectNode(item, prj->rootProjectNode());
+            addProjectTree(item, prj);
 
-        item->setIcon(prj->rootProjectNode()->icon());
+        item->setIcon(prj->containerNode()->icon());
+
         rootItem->appendChild(item, inf);
     }
 
@@ -315,7 +314,7 @@ ParserTreeItem::ConstPtr Parser::parse()
 */
 
 void Parser::addProject(const ParserTreeItem::Ptr &item, const QStringList &fileList,
-                                 const QString &projectId)
+                        const QString &projectId)
 {
     // recalculate cache tree if needed
     ParserTreeItem::Ptr prj(getCachedOrParseProjectTree(fileList, projectId));
@@ -542,10 +541,8 @@ void Parser::parseDocument(const CPlusPlus::Document::Ptr &doc)
 
     getParseDocumentTree(doc);
 
-    QTC_ASSERT(d->timer, return);
-
-    if (!d->timer->isActive())
-        d->timer->start(400); //! Delay in msecs before an update
+    if (!d->timer.isActive())
+        d->timer.start(400); //! Delay in msecs before an update
     return;
 }
 
@@ -688,7 +685,7 @@ void Parser::requestCurrentState()
 void Parser::emitCurrentTree()
 {
     // stop timer if it is active right now
-    d->timer->stop();
+    d->timer.stop();
 
     d->rootItemLocker.lockForWrite();
     d->rootItem = parse();
@@ -703,110 +700,69 @@ void Parser::emitCurrentTree()
 }
 
 /*!
-    Generates a project node file list for the root node \a node.
-*/
-
-QStringList Parser::projectNodeFileList(const FolderNode *folderNode) const
-{
-    QStringList list;
-    folderNode->forEachNode(
-        [&](FileNode *node) {
-            if (!node->isGenerated())
-                list.append(node->filePath().toString());
-        },
-        {},
-        [&](const FolderNode *node) {
-            return node->nodeType() == NodeType::Folder || node->nodeType() == NodeType::VirtualFolder;
-        }
-    );
-    return list;
-}
-
-/*!
     Generates projects like the Project Explorer.
     \a item specifies the item and \a node specifies the root node.
 
     Returns a list of projects which were added to the item.
 */
 
-QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item, const ProjectNode *node)
+QStringList Parser::addProjectTree(const ParserTreeItem::Ptr &item, const Project *project)
 {
     QStringList projectList;
-    if (!node)
+    if (!project)
         return projectList;
 
-    const QString nodePath = node->filePath().toString();
+    const QString projectPath = project->projectFilePath().toString();
 
     // our own files
     QStringList fileList;
 
-    CitCachedPrjFileLists cit = d->cachedPrjFileLists.constFind(nodePath);
+    CitCachedPrjFileLists cit = d->cachedPrjFileLists.constFind(projectPath);
     // try to improve parsing speed by internal cache
     if (cit != d->cachedPrjFileLists.constEnd()) {
         fileList = cit.value();
     } else {
-        fileList = projectNodeFileList(node);
-        d->cachedPrjFileLists[nodePath] = fileList;
+        fileList = project->files(Project::SourceFiles);
+        d->cachedPrjFileLists[projectPath] = fileList;
     }
     if (fileList.count() > 0) {
-        addProject(item, fileList, node->filePath().toString());
-        projectList << node->filePath().toString();
-    }
-
-    // subnodes
-    for (const Node *n : node->nodes()) {
-        if (const ProjectNode *project = n->asProjectNode()) {
-            ParserTreeItem::Ptr itemPrj(new ParserTreeItem());
-            SymbolInformation information(project->displayName(), project->filePath().toString());
-
-            projectList += addProjectNode(itemPrj, project);
-
-            itemPrj->setIcon(project->icon());
-
-            // append child if item is not null and there is at least 1 child
-            if (!item.isNull() && itemPrj->childCount() > 0)
-                item->appendChild(itemPrj, information);
-        }
+        addProject(item, fileList, projectPath);
+        projectList << projectPath;
     }
 
     return projectList;
 }
 
-QStringList Parser::getAllFiles(const ProjectNode *node)
+QStringList Parser::getAllFiles(const Project *project)
 {
     QStringList fileList;
 
-    if (!node)
+    if (!project)
         return fileList;
 
-    const QString nodePath = node->filePath().toString();
+    const QString nodePath = project->projectFilePath().toString();
 
     CitCachedPrjFileLists cit = d->cachedPrjFileLists.constFind(nodePath);
     // try to improve parsing speed by internal cache
     if (cit != d->cachedPrjFileLists.constEnd()) {
         fileList = cit.value();
     } else {
-        fileList = projectNodeFileList(node);
+        fileList = project->files(Project::SourceFiles);
         d->cachedPrjFileLists[nodePath] = fileList;
     }
-    // subnodes
-
-    for (const Node *n : node->nodes())
-        if (const ProjectNode *project = n->asProjectNode())
-            fileList += getAllFiles(project);
     return fileList;
 }
 
-void Parser::addFlatTree(const ParserTreeItem::Ptr &item, const ProjectNode *node)
+void Parser::addFlatTree(const ParserTreeItem::Ptr &item, const Project *project)
 {
-    if (!node)
+    if (!project)
         return;
 
-    QStringList fileList = getAllFiles(node);
+    QStringList fileList = getAllFiles(project);
     fileList.removeDuplicates();
 
     if (fileList.count() > 0) {
-        addProject(item, fileList, node->filePath().toString());
+        addProject(item, fileList, project->projectFilePath().toString());
     }
 }
 

@@ -33,6 +33,8 @@
 #include <QAbstractTableModel>
 #include <QFutureWatcher>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class Ui_AndroidSettingsWidget;
 QT_END_NAMESPACE
@@ -40,11 +42,13 @@ QT_END_NAMESPACE
 namespace Android {
 namespace Internal {
 
+class AndroidAvdManager;
+
 class AvdModel: public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    void setAvdList(const QVector<AndroidDeviceInfo> &list);
+    void setAvdList(const AndroidDeviceInfoList &list);
     QString avdName(const QModelIndex &index) const;
     QModelIndex indexForAvdName(const QString &avdName) const;
 
@@ -55,7 +59,7 @@ protected:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
 private:
-    QVector<AndroidDeviceInfo> m_list;
+    AndroidDeviceInfoList m_list;
 };
 
 class AndroidSettingsWidget : public QWidget
@@ -91,6 +95,7 @@ private:
     void checkGdbFinished();
     void showGdbWarningDialog();
     void updateAvds();
+    void updateGradleBuildUi();
 
 private:
     enum Mode { Sdk = 1, Ndk = 2, Java = 4, All = Sdk | Ndk | Java };
@@ -117,8 +122,9 @@ private:
     QFutureWatcher<QPair<QStringList, bool>> m_checkGdbWatcher;
     QStringList m_gdbCheckPaths;
 
-    QFutureWatcher<QVector<AndroidDeviceInfo>> m_virtualDevicesWatcher;
+    QFutureWatcher<AndroidDeviceInfoList> m_virtualDevicesWatcher;
     QString m_lastAddedAvd;
+    std::unique_ptr<AndroidAvdManager> m_avdManager;
 };
 
 } // namespace Internal

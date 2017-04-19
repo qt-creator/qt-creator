@@ -648,7 +648,6 @@ class DummyProject : public Project
 {
 public:
     DummyProject() : Project(QString(""), FileName::fromString("")) {}
-    QString displayName() const final { return QString(); }
 };
 
 RunConfiguration *dummyRunConfigForKit(ProjectExplorer::Kit *kit)

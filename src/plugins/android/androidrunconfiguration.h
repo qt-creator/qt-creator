@@ -28,8 +28,74 @@
 #include "android_global.h"
 
 #include <projectexplorer/runconfiguration.h>
+#include <qtsupport/qtoutputformatter.h>
+
+#include <QMenu>
+
+QT_BEGIN_NAMESPACE
+class QToolButton;
+QT_END_NAMESPACE
 
 namespace Android {
+
+class AndroidOutputFormatter : public QtSupport::QtOutputFormatter
+{
+    Q_OBJECT
+public:
+    enum LogLevel {
+        None = 0,
+        Verbose = 1,
+        Info = 1 << 1,
+        Debug = 1 << 2,
+        Warning = 1 << 3,
+        Error = 1 << 4,
+        Fatal = 1 << 5,
+        All = Verbose | Info | Debug | Warning | Error | Fatal,
+        SkipFiltering = ~All
+    };
+
+public:
+    explicit AndroidOutputFormatter(ProjectExplorer::Project *project);
+    ~AndroidOutputFormatter();
+
+    // OutputFormatter interface
+    QList<QWidget*> toolbarWidgets() const override;
+    void appendMessage(const QString &text, Utils::OutputFormat format) override;
+    void clear() override;
+
+public slots:
+    void appendPid(qint64 pid, const QString &name);
+    void removePid(qint64 pid);
+
+private:
+    struct CachedLine {
+        qint64 pid;
+        LogLevel level;
+        QString content;
+    };
+
+private:
+    void updateLogMenu(LogLevel set = None, LogLevel reset = None);
+    void filterMessage(const CachedLine &line);
+
+    void applyFilter();
+    void addLogAction(LogLevel level, QMenu *logsMenu, const QString &name) {
+        auto action = logsMenu->addAction(name);
+        m_logLevels.push_back(qMakePair(level, action));
+        action->setCheckable(true);
+        connect(action, &QAction::triggered, this, [level, this](bool checked) {
+            updateLogMenu(checked ? level : None , checked ? None : level);
+        });
+    }
+
+private:
+    int m_logLevelFlags = All;
+    QVector<QPair<LogLevel, QAction*>> m_logLevels;
+    QHash<qint64, QAction*> m_pids;
+    QScopedPointer<QToolButton> m_filtersButton;
+    QMenu *m_appsMenu;
+    QList<CachedLine> m_cachedLines;
+};
 
 class ANDROID_EXPORT AndroidRunConfiguration : public ProjectExplorer::RunConfiguration
 {

@@ -94,13 +94,10 @@ void QmlJSOutlineFilterModel::setFilterBindings(bool filterBindings)
     invalidateFilter();
 }
 
-QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
-    TextEditor::IOutlineWidget(parent),
-    m_treeView(new QmlJSOutlineTreeView(this)),
-    m_filterModel(new QmlJSOutlineFilterModel(this)),
-    m_editor(0),
-    m_enableCursorSync(true),
-    m_blockCursorSync(false)
+QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent)
+    : TextEditor::IOutlineWidget(parent)
+    , m_treeView(new QmlJSOutlineTreeView(this))
+    , m_filterModel(new QmlJSOutlineFilterModel(this))
 {
     m_filterModel->setFilterBindings(false);
 
@@ -127,7 +124,7 @@ void QmlJSOutlineWidget::setEditor(QmlJSEditorWidget *editor)
     m_editor = editor;
 
     m_filterModel->setSourceModel(m_editor->qmlJsEditorDocument()->outlineModel());
-    modelUpdated();
+    m_treeView->expandAll();
 
     connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &QmlJSOutlineWidget::updateSelectionInText);
@@ -137,22 +134,21 @@ void QmlJSOutlineWidget::setEditor(QmlJSEditorWidget *editor)
 
     connect(m_editor, &QmlJSEditorWidget::outlineModelIndexChanged,
             this, &QmlJSOutlineWidget::updateSelectionInTree);
-    connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QmlOutlineModel::updated,
-            this, &QmlJSOutlineWidget::modelUpdated);
+    connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QmlOutlineModel::updated, this, [this] () {
+        m_treeView->expandAll();
+        m_editor->updateOutlineIndexNow();
+    });
 }
 
 QList<QAction*> QmlJSOutlineWidget::filterMenuActions() const
 {
-    QList<QAction*> list;
-    list.append(m_showBindingsAction);
-    return list;
+    return {m_showBindingsAction};
 }
 
 void QmlJSOutlineWidget::setCursorSynchronization(bool syncWithCursor)
 {
     m_enableCursorSync = syncWithCursor;
-    if (m_enableCursorSync)
-        updateSelectionInTree(m_editor->outlineModelIndex());
+    m_editor->updateOutlineIndexNow();
 }
 
 void QmlJSOutlineWidget::restoreSettings(const QVariantMap &map)
@@ -163,14 +159,7 @@ void QmlJSOutlineWidget::restoreSettings(const QVariantMap &map)
 
 QVariantMap QmlJSOutlineWidget::settings() const
 {
-    QVariantMap map;
-    map.insert(QLatin1String("QmlJSOutline.ShowBindings"), m_showBindingsAction->isChecked());
-    return map;
-}
-
-void QmlJSOutlineWidget::modelUpdated()
-{
-    m_treeView->expandAll();
+    return {{QLatin1String("QmlJSOutline.ShowBindings"), m_showBindingsAction->isChecked()}};
 }
 
 void QmlJSOutlineWidget::updateSelectionInTree(const QModelIndex &index)
@@ -206,27 +195,29 @@ void QmlJSOutlineWidget::updateSelectionInText(const QItemSelection &selection)
 
 void QmlJSOutlineWidget::updateTextCursor(const QModelIndex &index)
 {
-    QModelIndex sourceIndex = m_filterModel->mapToSource(index);
-    AST::SourceLocation location
-            = m_editor->qmlJsEditorDocument()->outlineModel()->sourceLocation(sourceIndex);
+    if (!m_editor->isOutlineCursorChangesBlocked()) {
+        QModelIndex sourceIndex = m_filterModel->mapToSource(index);
+        AST::SourceLocation location
+                = m_editor->qmlJsEditorDocument()->outlineModel()->sourceLocation(sourceIndex);
 
-    if (!location.isValid())
-        return;
+        if (!location.isValid())
+            return;
 
-    const QTextBlock lastBlock = m_editor->document()->lastBlock();
-    const uint textLength = lastBlock.position() + lastBlock.length();
-    if (location.offset >= textLength)
-        return;
+        const QTextBlock lastBlock = m_editor->document()->lastBlock();
+        const uint textLength = lastBlock.position() + lastBlock.length();
+        if (location.offset >= textLength)
+            return;
 
-    Core::EditorManager::cutForwardNavigationHistory();
-    Core::EditorManager::addCurrentPositionToNavigationHistory();
+        Core::EditorManager::cutForwardNavigationHistory();
+        Core::EditorManager::addCurrentPositionToNavigationHistory();
 
-    QTextCursor textCursor = m_editor->textCursor();
-    m_blockCursorSync = true;
-    textCursor.setPosition(location.offset);
-    m_editor->setTextCursor(textCursor);
-    m_editor->centerCursor();
-    m_blockCursorSync = false;
+        QTextCursor textCursor = m_editor->textCursor();
+        m_blockCursorSync = true;
+        textCursor.setPosition(location.offset);
+        m_editor->setTextCursor(textCursor);
+        m_editor->centerCursor();
+        m_blockCursorSync = false;
+    }
 }
 
 void QmlJSOutlineWidget::focusEditor()
@@ -237,8 +228,8 @@ void QmlJSOutlineWidget::focusEditor()
 void QmlJSOutlineWidget::setShowBindings(bool showBindings)
 {
     m_filterModel->setFilterBindings(!showBindings);
-    modelUpdated();
-    updateSelectionInTree(m_editor->outlineModelIndex());
+    m_treeView->expandAll();
+    m_editor->updateOutlineIndexNow();
 }
 
 bool QmlJSOutlineWidget::syncCursor()

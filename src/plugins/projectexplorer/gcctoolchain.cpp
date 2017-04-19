@@ -269,11 +269,19 @@ static QList<Abi> guessGccAbi(const QString &m, const QByteArray &macros)
     Abi::OSFlavor flavor = guessed.osFlavor();
     Abi::BinaryFormat format = guessed.binaryFormat();
     int width = guessed.wordWidth();
+    const QByteArray mscVer = "#define _MSC_VER ";
 
     if (macros.contains("#define __SIZEOF_SIZE_T__ 8"))
         width = 64;
     else if (macros.contains("#define __SIZEOF_SIZE_T__ 4"))
         width = 32;
+    int mscVerIndex = macros.indexOf(mscVer);
+    if (mscVerIndex != -1) {
+        mscVerIndex += mscVer.length();
+        const int eol = macros.indexOf('\n', mscVerIndex);
+        const int msvcVersion = macros.mid(mscVerIndex, eol - mscVerIndex).toInt();
+        flavor = Abi::flavorForMsvcVersion(msvcVersion);
+    }
 
     if (os == Abi::DarwinOS) {
         // Apple does PPC and x86!

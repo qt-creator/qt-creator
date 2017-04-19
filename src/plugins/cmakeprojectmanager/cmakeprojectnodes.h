@@ -28,8 +28,6 @@
 #include <projectexplorer/projectnodes.h>
 
 namespace CMakeProjectManager {
-class CMakeProject;
-
 namespace Internal {
 
 class CMakeInputsNode : public ProjectExplorer::ProjectNode
@@ -40,7 +38,6 @@ public:
     static Utils::FileName inputsPathFromCMakeListsPath(const Utils::FileName &cmakeLists);
 
     bool showInSimpleTree() const final;
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const final;
 };
 
 class CMakeListsNode : public ProjectExplorer::ProjectNode
@@ -49,7 +46,6 @@ public:
     CMakeListsNode(const Utils::FileName &cmakeListPath);
 
     bool showInSimpleTree() const final;
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const final;
 };
 
 class CMakeProjectNode : public ProjectExplorer::ProjectNode
@@ -59,7 +55,6 @@ public:
 
     bool showInSimpleTree() const final;
     QString tooltip() const final;
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const final;
 };
 
 class CMakeTargetNode : public ProjectExplorer::ProjectNode
@@ -71,7 +66,6 @@ public:
 
     bool showInSimpleTree() const final;
     QString tooltip() const final;
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const final;
 
 private:
     QString m_tooltip;

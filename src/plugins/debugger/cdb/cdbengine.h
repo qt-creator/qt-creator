@@ -189,6 +189,7 @@ private:
                                  DisassemblerAgent *agent);
     void postResolveSymbol(const QString &module, const QString &function,
                            DisassemblerAgent *agent);
+    void showScriptMessages(const QString &message) const;
     // Builtin commands
     void handleStackTrace(const DebuggerResponse &);
     void handleRegisters(const DebuggerResponse &);

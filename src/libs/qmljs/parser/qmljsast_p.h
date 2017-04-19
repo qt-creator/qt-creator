@@ -223,7 +223,7 @@ public:
     static void accept(Node *node, Visitor *visitor);
 
     inline static void acceptChild(Node *node, Visitor *visitor)
-    { return accept(node, visitor); } // ### remove
+    { accept(node, visitor); } // ### remove
 
     virtual void accept0(Visitor *visitor) = 0;
     virtual SourceLocation firstSourceLocation() const = 0;

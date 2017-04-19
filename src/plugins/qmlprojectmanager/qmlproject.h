@@ -46,8 +46,6 @@ public:
     explicit QmlProject(const Utils::FileName &filename);
     ~QmlProject() override;
 
-    QString displayName() const override;
-
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
 
     Internal::QmlProjectNode *rootProjectNode() const override;

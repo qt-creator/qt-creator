@@ -338,8 +338,8 @@ void ResourceEditorPlugin::updateContextActions()
 
     if (isResourceNode) {
         FolderNode *parent = node ? node->parentFolderNode() : 0;
-        enableRename = parent && parent->supportedActions(node).contains(Rename);
-        enableRemove = parent && parent->supportedActions(node).contains(RemoveFile);
+        enableRename = parent && parent->supportsAction(Rename, node);
+        enableRemove = parent && parent->supportsAction(RemoveFile, node);
     }
 
     m_renameResourceFile->setEnabled(isResourceNode && enableRename);

@@ -1546,6 +1546,7 @@ void tst_Dumpers::dumper()
 
     Context context(m_debuggerEngine);
     QByteArray contents;
+    GdbMi actual;
     if (m_debuggerEngine == GdbEngine) {
         int posDataStart = output.indexOf("data=");
         if (posDataStart == -1) {
@@ -1555,9 +1556,9 @@ void tst_Dumpers::dumper()
         contents = output.mid(posDataStart);
         contents.replace("\\\"", "\"");
 
-        GdbMi actualx;
-        actualx.fromStringMultiple(contents);
-        context.nameSpace = actualx["qtnamespace"].data();
+        actual.fromStringMultiple(contents);
+        context.nameSpace = actual["qtnamespace"].data();
+        actual = actual["data"];
         //qDebug() << "FOUND NS: " << context.nameSpace;
 
     } else if (m_debuggerEngine == LldbEngine) {
@@ -1579,6 +1580,7 @@ void tst_Dumpers::dumper()
         if (context.nameSpace == "::")
             context.nameSpace.clear();
         contents.replace("\\\"", "\"");
+        actual.fromString(contents);
     } else {
         QByteArray localsAnswerStart("<qtcreatorcdbext>|R|42|");
         QByteArray locals("|script|");
@@ -1594,14 +1596,9 @@ void tst_Dumpers::dumper()
             if (localsBeginPos != -1)
                 localsBeginPos = output.indexOf(locals, localsBeginPos);
         } while (localsBeginPos != -1);
-        GdbMi result;
-        result.fromString(contents);
-        if (result.childCount() != 0)
-            contents = result.childAt(0).toString().toLocal8Bit();
+        actual.fromString(contents);
+        actual = actual["result"]["data"];
     }
-
-    GdbMi actual;
-    actual.fromString(contents);
 
     WatchItem local;
     local.iname = "local";
@@ -1894,6 +1891,17 @@ void tst_Dumpers::dumper_data()
 
                + Check("c", "120", "@QChar");
 
+
+    QTest::newRow("QFlags")
+            << Data("#include <QFlags>\n"
+                    "enum Foo { a = 0x1, b = 0x2 };\n"
+                    "Q_DECLARE_FLAGS(FooFlags, Foo)\n"
+                    "Q_DECLARE_OPERATORS_FOR_FLAGS(FooFlags)\n",
+                    "FooFlags f1(a);\n"
+                    "FooFlags f2(a | b);\n")
+               + CoreProfile()
+               + Check("f1", "a (1)", TypeDef("QFlags<enum Foo>", "FooFlags"))
+               + Check("f2", "(a | b) (3)", "FooFlags") % GdbEngine;
 
     QTest::newRow("QDateTime")
             << Data("#include <QDateTime>\n",
@@ -5235,6 +5243,18 @@ void tst_Dumpers::dumper_data()
                + Check("u32s", "0", TypeDef("unsigned int", "@quint32"))
                + Check("s32s", "-2147483648", TypeDef("int", "@qint32"));
 
+
+    QTest::newRow("Float")
+            << Data("#include <QFloat16>\n",
+                    "qfloat16 f1 = 45.3f; unused(&f1);\n"
+                    "qfloat16 f2 = 45.1f; unused(&f2);\n")
+               + CoreProfile()
+               + QtVersion(0x50900)
+               // Using numpy:
+               // + Check("f1", "45.281", "@qfloat16")
+               // + Check("f2", "45.094", "@qfloat16");
+               + Check("f1", "45.28125", "@qfloat16")
+               + Check("f2", "45.09375", "@qfloat16");
 
 
     QTest::newRow("Enum")

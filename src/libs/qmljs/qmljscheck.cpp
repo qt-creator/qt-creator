@@ -124,7 +124,7 @@ public:
                             fileName.prepend(QLatin1Char('/'));
                             fileName.prepend(_doc->path());
                         }
-                        if (!QFileInfo(fileName).exists())
+                        if (!QFileInfo::exists(fileName))
                             setMessage(WarnFileOrDirectoryDoesNotExist);
                     }
                 }
@@ -556,8 +556,7 @@ public:
                                                       "Scale",
                                                       "Translate",
                                                       "Package",
-                                                      "Particles",
-                                                      "Dialog"})
+                                                      "Particles"})
     {
 
     }

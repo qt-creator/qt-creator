@@ -442,7 +442,7 @@ public:
             m_project->removeTarget(t);
         });
 
-        QMenu *copyMenu = menu->addMenu(tr("Copy Steps From Other Kit..."));
+        QMenu *copyMenu = menu->addMenu(tr("Copy Steps From Another Kit..."));
         if (m_kitId.isValid() && m_project->target(m_kitId)) {
             const QList<Kit *> kits = KitManager::kits();
             for (Kit *kit : kits) {
