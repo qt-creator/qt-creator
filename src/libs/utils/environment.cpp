@@ -531,10 +531,7 @@ QString Environment::expandVariables(const QString &input) const
 
 QStringList Environment::expandVariables(const QStringList &variables) const
 {
-    QStringList results;
-    foreach (const QString &i, variables)
-        results << expandVariables(i);
-    return results;
+    return Utils::transform(variables, [this](const QString &i) { return expandVariables(i); });
 }
 
 } // namespace Utils
