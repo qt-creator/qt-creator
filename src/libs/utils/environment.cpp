@@ -65,7 +65,7 @@ void EnvironmentItem::sort(QList<EnvironmentItem> *list)
 QList<EnvironmentItem> EnvironmentItem::fromStringList(const QStringList &list)
 {
     QList<EnvironmentItem> result;
-    foreach (const QString &string, list) {
+    for (const QString &string : list) {
         int pos = string.indexOf('=', 1);
         if (pos == -1) {
             EnvironmentItem item(string, QString());
@@ -82,7 +82,7 @@ QList<EnvironmentItem> EnvironmentItem::fromStringList(const QStringList &list)
 QStringList EnvironmentItem::toStringList(const QList<EnvironmentItem> &list)
 {
     QStringList result;
-    foreach (const EnvironmentItem &item, list) {
+    for (const EnvironmentItem &item : list) {
         if (item.unset)
             result << QString(item.name);
         else
@@ -93,7 +93,7 @@ QStringList EnvironmentItem::toStringList(const QList<EnvironmentItem> &list)
 
 Environment::Environment(const QStringList &env, OsType osType) : m_osType(osType)
 {
-    foreach (const QString &s, env) {
+    for (const QString &s : env) {
         int i = s.indexOf('=', 1);
         if (i >= 0) {
             if (m_osType == OsTypeWindows)
@@ -255,15 +255,15 @@ FileName Environment::searchInDirectory(const QStringList &execs, QString direct
 
 QStringList Environment::appendExeExtensions(const QString &executable) const
 {
-    QFileInfo fi(executable);
     QStringList execs(executable);
+    const QFileInfo fi(executable);
     if (m_osType == OsTypeWindows) {
         // Check all the executable extensions on windows:
         // PATHEXT is only used if the executable has no extension
         if (fi.suffix().isEmpty()) {
-            QStringList extensions = value("PATHEXT").split(';');
+            const QStringList extensions = value("PATHEXT").split(';');
 
-            foreach (const QString &ext, extensions)
+            for (const QString &ext : extensions)
                 execs << executable + ext.toLower();
         }
     }
@@ -370,7 +370,7 @@ int Environment::size() const
 void Environment::modify(const QList<EnvironmentItem> & list)
 {
     Environment resultEnvironment = *this;
-    foreach (const EnvironmentItem &item, list) {
+    for (const EnvironmentItem &item : list) {
         if (item.unset) {
             resultEnvironment.unset(item.name);
         } else {
