@@ -65,6 +65,7 @@ int StatesEditorWidget::currentStateInternalId() const
 
 void StatesEditorWidget::setCurrentStateInternalId(int internalId)
 {
+    Q_ASSERT(rootObject());
     rootObject()->setProperty("currentStateInternalId", internalId);
 }
 
