@@ -38,16 +38,16 @@ public:
         : Environment(QProcessEnvironment::systemEnvironment().toStringList())
     {
         if (Utils::HostOsInfo::isLinuxHost()) {
-            QString ldLibraryPath = value(QLatin1String("LD_LIBRARY_PATH"));
+            QString ldLibraryPath = value("LD_LIBRARY_PATH");
             QDir lib(QCoreApplication::applicationDirPath());
-            lib.cd(QLatin1String("../lib"));
+            lib.cd("../lib");
             QString toReplace = lib.path();
-            lib.cd(QLatin1String("qtcreator"));
-            toReplace.append(QLatin1Char(':'));
+            lib.cd("qtcreator");
+            toReplace.append(':');
             toReplace.append(lib.path());
 
             if (ldLibraryPath.startsWith(toReplace))
-                set(QLatin1String("LD_LIBRARY_PATH"), ldLibraryPath.remove(0, toReplace.length()));
+                set("LD_LIBRARY_PATH", ldLibraryPath.remove(0, toReplace.length()));
         }
     }
 };
@@ -65,7 +65,7 @@ QList<EnvironmentItem> EnvironmentItem::fromStringList(const QStringList &list)
 {
     QList<EnvironmentItem> result;
     foreach (const QString &string, list) {
-        int pos = string.indexOf(QLatin1Char('='), 1);
+        int pos = string.indexOf('=', 1);
         if (pos == -1) {
             EnvironmentItem item(string, QString());
             item.unset = true;
@@ -85,7 +85,7 @@ QStringList EnvironmentItem::toStringList(const QList<EnvironmentItem> &list)
         if (item.unset)
             result << QString(item.name);
         else
-            result << QString(item.name + QLatin1Char('=') + item.value);
+            result << QString(item.name + '=' + item.value);
     }
     return result;
 }
@@ -93,7 +93,7 @@ QStringList EnvironmentItem::toStringList(const QList<EnvironmentItem> &list)
 Environment::Environment(const QStringList &env, OsType osType) : m_osType(osType)
 {
     foreach (const QString &s, env) {
-        int i = s.indexOf(QLatin1Char('='), 1);
+        int i = s.indexOf('=', 1);
         if (i >= 0) {
             if (m_osType == OsTypeWindows)
                 m_values.insert(s.left(i).toUpper(), s.mid(i+1));
@@ -109,7 +109,7 @@ QStringList Environment::toStringList() const
     const QMap<QString, QString>::const_iterator end = m_values.constEnd();
     for (QMap<QString, QString>::const_iterator it = m_values.constBegin(); it != end; ++it) {
         QString entry = it.key();
-        entry += QLatin1Char('=');
+        entry += '=';
         entry += it.value();
         result.push_back(entry);
     }
@@ -165,13 +165,13 @@ void Environment::prependOrSet(const QString&key, const QString &value, const QS
 
 void Environment::appendOrSetPath(const QString &value)
 {
-    appendOrSet(QLatin1String("PATH"), QDir::toNativeSeparators(value),
+    appendOrSet("PATH", QDir::toNativeSeparators(value),
             QString(OsSpecificAspects(m_osType).pathListSeparator()));
 }
 
 void Environment::prependOrSetPath(const QString &value)
 {
-    prependOrSet(QLatin1String("PATH"), QDir::toNativeSeparators(value),
+    prependOrSet("PATH", QDir::toNativeSeparators(value),
             QString(OsSpecificAspects(m_osType).pathListSeparator()));
 }
 
@@ -179,23 +179,21 @@ void Environment::prependOrSetLibrarySearchPath(const QString &value)
 {
     switch (m_osType) {
     case OsTypeWindows: {
-        const QChar sep = QLatin1Char(';');
-        const QLatin1String path("PATH");
-        prependOrSet(path, QDir::toNativeSeparators(value), QString(sep));
+        const QChar sep = ';';
+        prependOrSet("PATH", QDir::toNativeSeparators(value), QString(sep));
         break;
     }
     case OsTypeMac: {
-        const QString sep = QLatin1String(":");
+        const QString sep =  ":";
         const QString nativeValue = QDir::toNativeSeparators(value);
-        prependOrSet(QLatin1String("DYLD_LIBRARY_PATH"), nativeValue, sep);
-        prependOrSet(QLatin1String("DYLD_FRAMEWORK_PATH"), nativeValue, sep);
+        prependOrSet("DYLD_LIBRARY_PATH", nativeValue, sep);
+        prependOrSet("DYLD_FRAMEWORK_PATH", nativeValue, sep);
         break;
     }
     case OsTypeLinux:
     case OsTypeOtherUnix: {
-        const QChar sep = QLatin1Char(':');
-        const QLatin1String path("LD_LIBRARY_PATH");
-        prependOrSet(path, QDir::toNativeSeparators(value), QString(sep));
+        const QChar sep = ':';
+        prependOrSet("LD_LIBRARY_PATH", QDir::toNativeSeparators(value), QString(sep));
         break;
     }
     default:
@@ -213,12 +211,12 @@ const char englishLocale[] = "en_US.utf8";
 
 void Environment::setupEnglishOutput(Environment *environment)
 {
-    environment->set(QLatin1String(lcMessages), QLatin1String(englishLocale));
+    environment->set(lcMessages, englishLocale);
 }
 
 void Environment::setupEnglishOutput(QProcessEnvironment *environment)
 {
-    environment->insert(QLatin1String(lcMessages), QLatin1String(englishLocale));
+    environment->insert(lcMessages, englishLocale);
 }
 
 void Environment::setupEnglishOutput(QStringList *environment)
@@ -235,7 +233,7 @@ void Environment::clear()
 
 FileName Environment::searchInDirectory(const QStringList &execs, QString directory) const
 {
-    const QChar slash = QLatin1Char('/');
+    const QChar slash = '/';
     if (directory.isEmpty())
         return FileName();
     // Avoid turing / into // on windows which triggers windows to check
@@ -259,7 +257,7 @@ QStringList Environment::appendExeExtensions(const QString &executable) const
         // Check all the executable extensions on windows:
         // PATHEXT is only used if the executable has no extension
         if (fi.suffix().isEmpty()) {
-            QStringList extensions = value(QLatin1String("PATHEXT")).split(QLatin1Char(';'));
+            QStringList extensions = value("PATHEXT").split(';');
 
             foreach (const QString &ext, extensions)
                 execs << executable + ext.toLower();
@@ -310,7 +308,7 @@ FileName Environment::searchInPath(const QString &executable,
             return tmp;
     }
 
-    if (executable.indexOf(QLatin1Char('/')) != -1)
+    if (executable.indexOf('/') != -1)
         return FileName();
 
     foreach (const QString &p, path()) {
@@ -326,7 +324,7 @@ FileName Environment::searchInPath(const QString &executable,
 
 QStringList Environment::path() const
 {
-    return m_values.value(QLatin1String("PATH"))
+    return m_values.value("PATH")
             .split(OsSpecificAspects(m_osType).pathListSeparator(), QString::SkipEmptyParts);
 }
 
@@ -379,14 +377,14 @@ void Environment::modify(const QList<EnvironmentItem> & list)
             // TODO use variable expansion
             QString value = item.value;
             for (int i=0; i < value.size(); ++i) {
-                if (value.at(i) == QLatin1Char('$')) {
+                if (value.at(i) == '$') {
                     if ((i + 1) < value.size()) {
                         const QChar &c = value.at(i+1);
                         int end = -1;
-                        if (c == QLatin1Char('('))
-                            end = value.indexOf(QLatin1Char(')'), i);
-                        else if (c == QLatin1Char('{'))
-                            end = value.indexOf(QLatin1Char('}'), i);
+                        if (c == '(')
+                            end = value.indexOf(')', i);
+                        else if (c == '{')
+                            end = value.indexOf('}', i);
                         if (end != -1) {
                             const QString &name = value.mid(i+2, end-i-2);
                             Environment::const_iterator it = constFind(name);
@@ -442,7 +440,7 @@ bool Environment::hasKey(const QString &key) const
 
 QString Environment::userName() const
 {
-    return value(QLatin1String(m_osType == OsTypeWindows ? "USERNAME" : "USER"));
+    return value(QString::fromLatin1(m_osType == OsTypeWindows ? "USERNAME" : "USER"));
 }
 
 bool Environment::operator!=(const Environment &other) const
@@ -468,7 +466,7 @@ QString Environment::expandVariables(const QString &input) const
 
     if (m_osType == OsTypeWindows) {
         for (int vStart = -1, i = 0; i < result.length(); ) {
-            if (result.at(i++) == QLatin1Char('%')) {
+            if (result.at(i++) == '%') {
                 if (vStart > 0) {
                     const_iterator it = m_values.constFind(result.mid(vStart, i - vStart - 1).toUpper());
                     if (it != m_values.constEnd()) {
@@ -490,20 +488,20 @@ QString Environment::expandVariables(const QString &input) const
         for (int i = 0; i < result.length();) {
             QChar c = result.at(i++);
             if (state == BASE) {
-                if (c == QLatin1Char('$'))
+                if (c == '$')
                     state = OPTIONALVARIABLEBRACE;
             } else if (state == OPTIONALVARIABLEBRACE) {
-                if (c == QLatin1Char('{')) {
+                if (c == '{') {
                     state = BRACEDVARIABLE;
                     vStart = i;
-                } else if (c.isLetterOrNumber() || c == QLatin1Char('_')) {
+                } else if (c.isLetterOrNumber() || c == '_') {
                     state = VARIABLE;
                     vStart = i - 1;
                 } else {
                     state = BASE;
                 }
             } else if (state == BRACEDVARIABLE) {
-                if (c == QLatin1Char('}')) {
+                if (c == '}') {
                     const_iterator it = m_values.constFind(result.mid(vStart, i - 1 - vStart));
                     if (it != constEnd()) {
                         result.replace(vStart - 2, i - vStart + 2, *it);
@@ -512,7 +510,7 @@ QString Environment::expandVariables(const QString &input) const
                     state = BASE;
                 }
             } else if (state == VARIABLE) {
-                if (!c.isLetterOrNumber() && c != QLatin1Char('_')) {
+                if (!c.isLetterOrNumber() && c != '_') {
                     const_iterator it = m_values.constFind(result.mid(vStart, i - vStart - 1));
                     if (it != constEnd()) {
                         result.replace(vStart - 1, i - vStart, *it);
