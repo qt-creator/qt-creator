@@ -87,7 +87,6 @@ private:
 
     void setAdditionalInfo(const QString &text);
     void setAddingSubProject(bool addingSubProject);
-    void setModel(Utils::TreeModel<> *model);
     void setBestNode(ProjectExplorer::Internal::AddNewTree *tree);
     void setVersionControls(const QStringList &);
     void setProjectToolTip(const QString &);
