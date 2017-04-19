@@ -456,6 +456,9 @@ void CdbEngine::setupEngine()
     if (debug)
         qDebug(">setupEngine");
 
+    if (!prepareCommand())
+        return;
+
     init();
     if (!m_logTime.elapsed())
         m_logTime.start();
