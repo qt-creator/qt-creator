@@ -118,7 +118,8 @@ public:
     bool operator==(const Environment &other) const;
 
 private:
-    FileName searchInDirectory(const QStringList &execs, QString directory) const;
+    FileName searchInDirectory(const QStringList &execs, QString directory,
+                               QSet<QString> &alreadyChecked) const;
     QMap<QString, QString> m_values;
     OsType m_osType;
 };
