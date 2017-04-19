@@ -163,7 +163,6 @@ private:
     void stubError(const QString &msg);
     void stubExited();
     void stubStarted();
-    bool prepareCommand();
     Utils::ConsoleProcess m_stubProc;
 };
 

@@ -176,25 +176,6 @@ void LldbEngine::abortDebugger()
     }
 }
 
-// FIXME: Merge with GdbEngine/QtcProcess
-bool LldbEngine::prepareCommand()
-{
-    if (HostOsInfo::isWindowsHost()) {
-        DebuggerRunParameters &rp = runParameters();
-        QtcProcess::SplitError perr;
-        rp.inferior.commandLineArguments
-                = QtcProcess::prepareArgs(rp.inferior.commandLineArguments, &perr, HostOsInfo::hostOs(),
-                                          nullptr, &rp.inferior.workingDirectory).toWindowsArgs();
-        if (perr != QtcProcess::SplitOk) {
-            // perr == BadQuoting is never returned on Windows
-            // FIXME? QTCREATORBUG-2809
-            notifyEngineSetupFailed();
-            return false;
-        }
-    }
-    return true;
-}
-
 void LldbEngine::setupEngine()
 {
     // FIXME: We can't handle terminals yet.
@@ -226,10 +207,8 @@ void LldbEngine::setupEngine()
     //    m_stubProc.stop();
     //    m_stubProc.blockSignals(false);
 
-        if (!prepareCommand()) {
-            notifyEngineSetupFailed();
+        if (!prepareCommand())
             return;
-        }
 
         m_stubProc.setWorkingDirectory(runParameters().inferior.workingDirectory);
         // Set environment + dumper preload.

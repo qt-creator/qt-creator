@@ -338,6 +338,8 @@ public:
     QString expand(const QString &string) const;
     QString nativeStartupCommands() const;
 
+    bool prepareCommand();
+
 signals:
     void stateChanged(Debugger::DebuggerState state);
     /*

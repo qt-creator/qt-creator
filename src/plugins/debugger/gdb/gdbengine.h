@@ -418,7 +418,6 @@ protected:
     DebuggerCommand m_lastDebuggableCommand;
 
 protected:
-    bool prepareCommand();
     void interruptLocalInferior(qint64 pid);
 
 protected:

@@ -65,6 +65,7 @@
 #include <utils/macroexpander.h>
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/savedaction.h>
 
 #include <QDebug>
@@ -1358,6 +1359,30 @@ QString DebuggerEngine::nativeStartupCommands() const
 {
     return expand(QStringList({stringSetting(GdbStartupCommands),
                                runParameters().additionalStartupCommands}).join('\n'));
+}
+
+bool DebuggerEngine::prepareCommand()
+{
+    if (HostOsInfo::isWindowsHost()) {
+        DebuggerRunParameters &rp = runParameters();
+        QtcProcess::SplitError perr;
+        rp.inferior.commandLineArguments =
+                QtcProcess::prepareArgs(rp.inferior.commandLineArguments, &perr,
+                                        HostOsInfo::hostOs(), nullptr,
+                                        &rp.inferior.workingDirectory).toWindowsArgs();
+        if (perr != QtcProcess::SplitOk) {
+            // perr == BadQuoting is never returned on Windows
+            // FIXME? QTCREATORBUG-2809
+            showMessage("ADAPTER START FAILED");
+            const QString title = tr("Adapter start failed");
+            const QString msg = tr("Debugging complex command lines "
+                                   "is currently not supported on Windows.");
+            ICore::showWarningWithOptions(title, msg);
+            notifyEngineSetupFailed();
+            return false;
+        }
+    }
+    return true;
 }
 
 void DebuggerEngine::updateBreakpointMarker(const Breakpoint &bp)

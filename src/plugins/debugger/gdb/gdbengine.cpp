@@ -4300,26 +4300,6 @@ void GdbEngine::requestDebugInformation(const DebugInfoTask &task)
     QProcess::startDetached(task.command);
 }
 
-bool GdbEngine::prepareCommand()
-{
-    if (HostOsInfo::isWindowsHost()) {
-        DebuggerRunParameters &rp = runParameters();
-        QtcProcess::SplitError perr;
-        rp.inferior.commandLineArguments =
-                QtcProcess::prepareArgs(rp.inferior.commandLineArguments, &perr,
-                                        HostOsInfo::hostOs(), nullptr,
-                                        &rp.inferior.workingDirectory).toWindowsArgs();
-        if (perr != QtcProcess::SplitOk) {
-            // perr == BadQuoting is never returned on Windows
-            // FIXME? QTCREATORBUG-2809
-            handleAdapterStartFailed(QCoreApplication::translate("DebuggerEngine", // Same message in CdbEngine
-                                                                 "Debugging complex command lines is currently not supported on Windows."), Id());
-            return false;
-        }
-    }
-    return true;
-}
-
 QString GdbEngine::msgGdbStopFailed(const QString &why)
 {
     return tr("The gdb process could not be stopped:\n%1").arg(why);
