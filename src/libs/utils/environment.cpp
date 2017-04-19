@@ -281,7 +281,7 @@ bool Environment::isSameExecutable(const QString &exe1, const QString &exe2) con
 
 FileName Environment::searchInPath(const QString &executable,
                                    const QStringList &additionalDirs,
-                                   bool (*func)(const QString &name)) const
+                                   const PathFilter &func) const
 {
     if (executable.isEmpty())
         return FileName();
