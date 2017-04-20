@@ -36,6 +36,7 @@ const QString FossilSettings::sslIdentityFileKey("sslIdentityFile");
 const QString FossilSettings::diffIgnoreAllWhiteSpaceKey("diffIgnoreAllWhiteSpace");
 const QString FossilSettings::diffStripTrailingCRKey("diffStripTrailingCR");
 const QString FossilSettings::annotateShowCommittersKey("annotateShowCommitters");
+const QString FossilSettings::annotateListVersionsKey("annotateListVersions");
 const QString FossilSettings::timelineWidthKey("timelineWidth");
 const QString FossilSettings::timelineLineageFilterKey("timelineLineageFilter");
 const QString FossilSettings::timelineVerboseKey("timelineVerbose");
@@ -52,6 +53,7 @@ FossilSettings::FossilSettings()
     declareKey(diffIgnoreAllWhiteSpaceKey, false);
     declareKey(diffStripTrailingCRKey, false);
     declareKey(annotateShowCommittersKey, false);
+    declareKey(annotateListVersionsKey, false);
     declareKey(timelineWidthKey, 0);
     declareKey(timelineLineageFilterKey, "");
     declareKey(timelineVerboseKey, false);
