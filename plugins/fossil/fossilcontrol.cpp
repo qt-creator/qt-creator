@@ -41,9 +41,33 @@
 #include <QDir>
 #include <QUrl>
 
-using namespace Fossil::Internal;
+namespace Fossil {
+namespace Internal {
+
+class FossilTopicCache : public Core::IVersionControl::TopicCache
+{
+public:
+    FossilTopicCache(FossilClient *client) :
+        m_client(client)
+    { }
+
+protected:
+    QString trackFile(const QString &repository) final
+    {
+        return repository + "/" + Constants::FOSSILREPO;
+    }
+
+    QString refreshTopic(const QString &repository) final
+    {
+        return m_client->synchronousTopic(repository);
+    }
+
+private:
+    FossilClient *m_client;
+};
 
 FossilControl::FossilControl(FossilClient *client) :
+    Core::IVersionControl(new FossilTopicCache(client)),
     m_client(client)
 { }
 
@@ -154,11 +178,6 @@ bool FossilControl::vcsAnnotate(const QString &file, int line)
     const QFileInfo fi(file);
     m_client->annotate(fi.absolutePath(), fi.fileName(), QString(), line);
     return true;
-}
-
-QString FossilControl::vcsTopic(const QString &directory)
-{
-    return m_client->synchronousTopic(directory);
 }
 
 Core::ShellCommand *FossilControl::createInitialCheckoutCommand(const QString &sourceUrl,
@@ -287,3 +306,6 @@ void FossilControl::changed(const QVariant &v)
         break;
     }
 }
+
+} // namespace Internal
+} // namespace Fossil
