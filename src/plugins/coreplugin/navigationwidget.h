@@ -95,9 +95,6 @@ public:
     bool isShown() const;
     void setShown(bool b);
 
-    bool isSuppressed() const;
-    void setSuppressed(bool b);
-
     static NavigationWidget *instance(Side side);
     static QWidget *activateSubWidget(Id factoryId, Side fallbackSide);
 

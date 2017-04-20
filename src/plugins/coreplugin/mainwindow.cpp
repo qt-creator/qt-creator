@@ -212,15 +212,8 @@ NavigationWidget *MainWindow::navigationWidget(Side side) const
 
 void MainWindow::setSidebarVisible(bool visible, Side side)
 {
-    if (NavigationWidgetPlaceHolder::current(side)) {
-        NavigationWidget *navWidget = navigationWidget(side);
-        if (navWidget->isSuppressed() && visible) {
-            navWidget->setShown(true);
-            navWidget->setSuppressed(false);
-        } else {
-            navWidget->setShown(visible);
-        }
-    }
+    if (NavigationWidgetPlaceHolder::current(side))
+        navigationWidget(side)->setShown(visible);
 }
 
 void MainWindow::setOverrideColor(const QColor &color)
