@@ -58,18 +58,30 @@
     menu (1). Right-click the menu title and select \uicontrol {Copy Full Path}
     to copy the path and name of the current file to the clipboard.
 
+    Code might be interpreted differently in different contexts. A file can be
+    used by different projects or subprojects with different defines, or it can
+    be included in the context of C, C++, Objective-C, or Objective-C++. To
+    change the active parse context, select an available parse context in the
+    \uicontrol {Active Parse Context} menu (3). The menu is visible only when
+    several parse contexts are available. To reset the parse context,
+    right-click on the menu to open a context menu, and then select
+    \uicontrol {Clear Preferred Parse Context}.
+    If the information needed for parsing the project is still incomplete or
+    incorrect, select \uicontrol {Additional Preprocessor Directives} (2) to
+    add preprocessor directives.
+
     To jump to any symbol used in the current file, select it from the
-    \uicontrol Symbols drop-down menu (2). By default, the symbols are displayed
+    \uicontrol Symbols drop-down menu (4). By default, the symbols are displayed
     in the order in which they appear in the file. Right-click the menu title
     and select \uicontrol {Sort Alphabetically} to arrange the symbols in
     alphabetic order.
 
     To jump to a line and column in the current file, select the line and column
-    indicator (3) or press \key {Ctrl+L} (or \key {Cmd+L} on \macos) to open the
+    indicator (5) or press \key {Ctrl+L} (or \key {Cmd+L} on \macos) to open the
     locator. Enter the line number and column number in the locator, separated
     by a colon (:).
 
-    To show the file encoding of the current file on the editor toolbar (4),
+    To show the file encoding of the current file on the editor toolbar (6),
     select \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
     \uicontrol Display > \uicontrol {Display file encoding}. To change the
     encoding, click it on the toolbar and select new encoding in the
