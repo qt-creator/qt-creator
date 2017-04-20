@@ -183,7 +183,7 @@
 :RunSettingsEnvironmentDetails_Utils::DetailsButton	{leftWidget=':RunSettingsUseBuildEnvironment_QLabel' text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :RunSettingsUseBuildEnvironment_QLabel	{text~='Us(e|ing) <b>Build Environment</b>' type='QLabel' unnamed='1' visible='1'}
 :Save Changes.Always save files before build_QCheckBox	{name='saveBeforeBuildCheckBox' text='Always save files before build' type='QCheckBox' visible='1' window=':Save Changes_Core::Internal::SaveItemsDialog'}
-:Save Changes.Do not Save_QPushButton	{text='Do not Save' type='QPushButton' unnamed='1' visible='1' window=':Save Changes_Core::Internal::SaveItemsDialog'}
+:Save Changes.Do not Save_QPushButton	{text='Do Not Save' type='QPushButton' unnamed='1' visible='1' window=':Save Changes_Core::Internal::SaveItemsDialog'}
 :Save Changes.Save All_QPushButton	{text='Save All' type='QPushButton' unnamed='1' visible='1' window=':Save Changes_Core::Internal::SaveItemsDialog'}
 :Save Changes_Core::Internal::SaveItemsDialog	{name='Core__Internal__SaveItemsDialog' type='Core::Internal::SaveItemsDialog' visible='1' windowTitle='Save Changes'}
 :Select a Git Commit.Show_QPushButton	{name='showButton' text='Show' type='QPushButton' visible='1' window=':Select a Git Commit_Git::Internal::ChangeSelectionDialog'}
