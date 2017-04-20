@@ -132,13 +132,19 @@
 
     For more information, see \l{Using Command Line Options}.
 
-    \section1 Showing and Hiding the Sidebar
+    \section1 Showing and Hiding Sidebars
 
-    To toggle the sidebar in the \uicontrol Edit and \uicontrol Debug modes, click
-    \inlineimage sidebaricon.png
-    or press \key Alt+0 (\key Cmd+0 on \macos).
+    You can toggle the left and right sidebar in some \QC modes.
 
-    For more information on using the sidebar, see
+    To toggle the left sidebar, click \inlineimage leftsidebaricon.png
+    (\uicontrol {Hide Left Sidebar/Show Left Sidebar}) or press \key Alt+0
+    (\key Cmd+0 on \macos).
+
+    To toggle the right sidebar, click \inlineimage rightsidebaricon.png
+    (\uicontrol {Hide Right Sidebar/Show Right Sidebar}) or press
+    \key Alt+Shift+0 (\key Cmd+Shift+0 on \macos).
+
+    For more information on using the sidebars, see
     \l {Browsing Project Contents}.
 
     \section1 Moving To Symbols
