@@ -727,14 +727,14 @@ void CdbEngine::runEngine()
         runCommand({breakAtFunctionCommand(wideFunc, module), BuiltinCommand, cb});
         runCommand({breakAtFunctionCommand(QLatin1String(CdbOptionsPage::crtDbgReport), debugModule), BuiltinCommand, cb});
     }
-    if (boolSetting(BreakOnWarning)) {
-        runCommand({"bm /( QtCored4!qWarning", BuiltinCommand}); // 'bm': All overloads.
-        runCommand({"bm /( Qt5Cored!QMessageLogger::warning", BuiltinCommand});
-    }
-    if (boolSetting(BreakOnFatal)) {
-        runCommand({"bm /( QtCored4!qFatal", BuiltinCommand}); // 'bm': All overloads.
-        runCommand({"bm /( Qt5Cored!QMessageLogger::fatal", BuiltinCommand});
-    }
+//    if (boolSetting(BreakOnWarning)) {
+//        runCommand({"bm /( QtCored4!qWarning", BuiltinCommand}); // 'bm': All overloads.
+//        runCommand({"bm /( Qt5Cored!QMessageLogger::warning", BuiltinCommand});
+//    }
+//    if (boolSetting(BreakOnFatal)) {
+//        runCommand({"bm /( QtCored4!qFatal", BuiltinCommand}); // 'bm': All overloads.
+//        runCommand({"bm /( Qt5Cored!QMessageLogger::fatal", BuiltinCommand});
+//    }
     if (runParameters().startMode == AttachCore) {
         QTC_ASSERT(!m_coreStopReason.isNull(), return; );
         notifyEngineRunOkAndInferiorUnrunnable();
