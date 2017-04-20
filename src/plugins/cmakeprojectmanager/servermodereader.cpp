@@ -40,6 +40,7 @@
 #include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
+#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -294,7 +295,7 @@ void ServerModeReader::generateProjectTree(CMakeProjectNode *root,
 void ServerModeReader::updateCodeModel(CppTools::RawProjectParts &rpps)
 {
     int counter = 0;
-    foreach (const FileGroup *fg, m_fileGroups) {
+    for (const FileGroup *fg : Utils::asConst(m_fileGroups)) {
         ++counter;
         const QString defineArg
                 = transform(fg->defines, [](const QString &s) -> QString {
