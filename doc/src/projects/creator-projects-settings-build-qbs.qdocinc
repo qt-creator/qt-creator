@@ -79,6 +79,11 @@
                     contents of the install root directory before the build
                     starts.
 
+                \li Select \uicontrol {Use default location} to install the
+                    artifacts to the default location. Deselect the check box to
+                    specify another location in the
+                    \uicontrol {Installation directory} field.
+
             \endlist
 
     \endlist
