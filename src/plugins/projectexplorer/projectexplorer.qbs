@@ -98,6 +98,7 @@ Project {
                 "localapplicationruncontrol.cpp", "localapplicationruncontrol.h",
                 "localenvironmentaspect.cpp", "localenvironmentaspect.h",
                 "miniprojecttargetselector.cpp", "miniprojecttargetselector.h",
+                "msvcparser.cpp", "msvcparser.h",
                 "namedwidget.cpp", "namedwidget.h",
                 "osparser.cpp", "osparser.h",
                 "panelswidget.cpp", "panelswidget.h",
@@ -236,8 +237,6 @@ Project {
             files: [
                 "abstractmsvctoolchain.cpp",
                 "abstractmsvctoolchain.h",
-                "msvcparser.cpp",
-                "msvcparser.h",
                 "msvctoolchain.cpp",
                 "msvctoolchain.h",
                 "wincetoolchain.cpp",

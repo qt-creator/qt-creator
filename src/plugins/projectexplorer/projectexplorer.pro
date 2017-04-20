@@ -138,6 +138,7 @@ HEADERS += projectexplorer.h \
     customparser.h \
     customparserconfigdialog.h \
     ipotentialkit.h \
+    msvcparser.h \
     selectablefilesmodel.h \
     xcodebuildparser.h \
     panelswidget.h \
@@ -276,6 +277,7 @@ SOURCES += projectexplorer.cpp \
     projectmacroexpander.cpp \
     customparser.cpp \
     customparserconfigdialog.cpp \
+    msvcparser.cpp \
     selectablefilesmodel.cpp \
     xcodebuildparser.cpp \
     panelswidget.cpp \
@@ -305,14 +307,12 @@ FORMS += processstep.ui \
 
 WINSOURCES += \
     windebuginterface.cpp \
-    msvcparser.cpp \
     msvctoolchain.cpp \
     abstractmsvctoolchain.cpp \
     wincetoolchain.cpp
 
 WINHEADERS += \
     windebuginterface.h \
-    msvcparser.h \
     msvctoolchain.h \
     abstractmsvctoolchain.h \
     wincetoolchain.h
