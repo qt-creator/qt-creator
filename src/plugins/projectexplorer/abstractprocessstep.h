@@ -50,7 +50,7 @@ class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
 public:
     bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &) override;
-    bool runInGuiThread() const  final { return true; }
+    bool runInGuiThread() const final { return true; }
 
     ProcessParameters *processParameters() { return &m_param; }
 
