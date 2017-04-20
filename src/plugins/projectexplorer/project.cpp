@@ -555,13 +555,19 @@ QStringList Project::files(Project::FilesMode fileMode,
     if (!rootProjectNode())
         return result;
 
+    QSet<QString> alreadySeen;
     rootProjectNode()->forEachNode([&](const FileNode *fn) {
         if (filter && !filter(fn))
             return;
+        const QString path = fn->filePath().toString();
+        const int count = alreadySeen.count();
+        alreadySeen.insert(path);
+        if (count == alreadySeen.count())
+            return; // skip duplicates
         if ((fileMode == AllFiles)
                 || (fileMode == SourceFiles && !fn->isGenerated())
                 || (fileMode == GeneratedFiles && fn->isGenerated()))
-            result.append(fn->filePath().toString());
+            result.append(path);
     });
     return result;
 }
