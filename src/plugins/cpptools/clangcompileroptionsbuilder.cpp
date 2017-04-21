@@ -38,7 +38,7 @@ namespace CppTools {
 static QString creatorResourcePath()
 {
 #ifndef UNIT_TESTS
-    return Core::ICore::instance()->resourcePath();
+    return Core::ICore::instance()->libexecPath();
 #else
     return QString();
 #endif

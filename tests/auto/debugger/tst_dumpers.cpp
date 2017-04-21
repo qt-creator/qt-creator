@@ -526,7 +526,7 @@ struct Check
 
     const Check &operator%(GccVersion version) const
     {
-        enginesForCheck = GdbEngine;
+        enginesForCheck = NoCdbEngine;
         gccVersionForCheck = version;
         return *this;
     }
@@ -1330,6 +1330,7 @@ void tst_Dumpers::dumper()
             "\n#endif"
             "\n#ifdef __clang__"
             "\n    int clangversion = 10000 * __clang_major__ + 100 * __clang_minor__; unused(&clangversion);"
+            "\n    gccversion = 0;"
             "\n#else"
             "\n    int clangversion = 0; unused(&clangversion);"
             "\n#endif"
@@ -5449,6 +5450,30 @@ void tst_Dumpers::dumper_data()
                 + Check("k", "1000", "ns::verylong")
                 + Check("t1", "0", "myType1")
                 + Check("t2", "0", "myType2");
+
+
+    QTest::newRow("Typedef2")
+            << Data("#include <vector>\n"
+                    "template<typename T> using TVector = std::vector<T>;\n",
+                    "std::vector<bool> b1(10); unused(&b1);\n"
+                    "std::vector<int> b2(10); unused(&b2);\n"
+                    "TVector<bool> b3(10); unused(&b3);\n"
+                    "TVector<int> b4(10); unused(&b4);\n"
+                    "TVector<bool> b5(10); unused(&b5);\n"
+                    "TVector<int> b6(10); unused(&b6);\n")
+
+                + NoCdbEngine
+
+                // The test is for a gcc bug
+                // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80466,
+                // so check for any gcc version vs any other compiler
+                // (identified by gccversion == 0).
+                + Check("b1", "<10 items>", "std::vector<bool>")
+                + Check("b2", "<10 items>", "std::vector<int>")
+                + Check("b3", "<10 items>", "TVector") % GccVersion(1)
+                + Check("b4", "<10 items>", "TVector") % GccVersion(1)
+                + Check("b5", "<10 items>", "TVector<bool>") % GccVersion(0, 0)
+                + Check("b6", "<10 items>", "TVector<int>") % GccVersion(0, 0);
 
 
     QTest::newRow("Struct")

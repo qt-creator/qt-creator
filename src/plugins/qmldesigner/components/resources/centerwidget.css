@@ -34,11 +34,3 @@ QToolButton#centralTabBar {
     height: 16px;
     border: none;
 }
-
-QSplitter::handle:horizontal {
-    width: 0px;
-}
-
-QSplitter::handle:vertical {
-    height: 0px;
-}

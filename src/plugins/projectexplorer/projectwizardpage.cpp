@@ -293,6 +293,8 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent) : WizardPage(parent),
 
     connect(VcsManager::instance(), &VcsManager::configurationChanged,
             this, &ProjectExplorer::Internal::ProjectWizardPage::initializeVersionControls);
+
+    m_ui->projectComboBox->setModel(&m_model);
 }
 
 ProjectWizardPage::~ProjectWizardPage()
@@ -300,16 +302,6 @@ ProjectWizardPage::~ProjectWizardPage()
     disconnect(m_ui->projectComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
                this, &ProjectWizardPage::projectChanged);
     delete m_ui;
-}
-
-void ProjectWizardPage::setModel(Utils::TreeModel<> *model)
-{
-    // TODO see OverViewCombo and OverView for click event filter
-    m_ui->projectComboBox->setModel(model);
-    bool enabled = m_model.rowCount(QModelIndex()) > 1;
-    m_ui->projectComboBox->setEnabled(enabled);
-
-    expandTree(QModelIndex());
 }
 
 bool ProjectWizardPage::expandTree(const QModelIndex &root)
@@ -467,6 +459,8 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const QStringList &
     setAdditionalInfo(selector.deployingProjects());
     setBestNode(selector.bestChoice());
     setAddingSubProject(action == AddSubProject);
+
+    m_ui->projectComboBox->setEnabled(m_model.rowCount(QModelIndex()) > 1);
 }
 
 void ProjectWizardPage::setNoneLabel(const QString &label)

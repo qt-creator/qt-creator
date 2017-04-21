@@ -315,7 +315,8 @@ class Dumper(DumperBase):
             while nativeTargetType.code == gdb.TYPE_CODE_TYPEDEF:
                 nativeTargetType = nativeTargetType.strip_typedefs().unqualified()
             targetType = self.fromNativeType(nativeTargetType)
-            return self.createTypedefedType(targetType, str(nativeType))
+            return self.createTypedefedType(targetType, str(nativeType),
+                                            self.nativeTypeId(nativeType))
 
         if code == gdb.TYPE_CODE_ERROR:
             warn('Type error: %s' % nativeType)
@@ -408,6 +409,8 @@ class Dumper(DumperBase):
         return '%d' % intval
 
     def nativeTypeId(self, nativeType):
+        if nativeType.code == gdb.TYPE_CODE_TYPEDEF:
+            return '%s{%s}' % (nativeType, nativeType.strip_typedefs())
         name = str(nativeType)
         if len(name) == 0:
             c = '0'

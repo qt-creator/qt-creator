@@ -50,7 +50,7 @@
 
 using namespace CPlusPlus;
 
-static const bool debug = ! qgetenv("QTC_LOOKUPCONTEXT_DEBUG").isEmpty();
+static const bool debug = qEnvironmentVariableIsSet("QTC_LOOKUPCONTEXT_DEBUG");
 
 namespace {
 

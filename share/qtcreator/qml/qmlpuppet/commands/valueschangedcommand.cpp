@@ -93,7 +93,7 @@ static SharedMemory *createSharedMemory(qint32 key, int byteCount)
 
 QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)
 {
-    static const bool dontUseSharedMemory = !qgetenv("DESIGNER_DONT_USE_SHARED_MEMORY").isEmpty();
+    static const bool dontUseSharedMemory = qEnvironmentVariableIsSet("DESIGNER_DONT_USE_SHARED_MEMORY");
 
     if (!dontUseSharedMemory && command.valueChanges().count() > 5) {
         static quint32 keyCounter = 0;

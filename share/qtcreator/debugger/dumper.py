@@ -3637,7 +3637,9 @@ class DumperBase:
         self.registerType(typeId, tdata)
         return self.Type(self, typeId)
 
-    def createTypedefedType(self, targetType, typeId):
+    def createTypedefedType(self, targetType, typeName, typeId = None):
+        if typeId is None:
+            typeId = typeName
         if not isinstance(targetType, self.Type):
             error('Expected type in createTypedefType(), got %s'
                 % type(targetType))
@@ -3645,12 +3647,13 @@ class DumperBase:
         if targetType.typeId == typeId:
             return targetType
         tdata = self.TypeData(self)
-        tdata.name = typeId
+        tdata.name = typeName
         tdata.typeId = typeId
         tdata.code = TypeCodeTypedef
         tdata.ltarget = targetType
         tdata.lbitsize = targetType.lbitsize
         #tdata.lfields = targetType.lfields
+        tdata.lbitsize = targetType.lbitsize
         self.registerType(typeId, tdata)
         return self.Type(self, typeId)
 

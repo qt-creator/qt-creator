@@ -72,7 +72,13 @@ RowLayout {
             editText = textValue
         }
 
-        property string textValue: backendValue.valueToString
+        property string textValue: {
+            if (backendValue.isBound)
+                return backendValue.expression
+
+            return backendValue.valueToString
+        }
+
         onTextValueChanged: {
             setCurrentText(textValue)
         }

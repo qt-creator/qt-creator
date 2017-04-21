@@ -3504,17 +3504,20 @@ static inline int assignStdStringI(SymbolGroupNode  *n, int type,
      * or an allocated array is used. */
 
     const SymbolGroupValue v(n, ctx);
-    SymbolGroupValue bx = v[unsigned(0)]["_Bx"];
-    SymbolGroupValue size;
-    int reserved = 0;
-    if (bx) { // MSVC2010
-        size = v[unsigned(0)]["_Mysize"];
-        reserved = v[unsigned(0)]["_Myres"].intValue();
-    } else { // MSVC2008
-        bx = v["_Bx"];
-        size = v["_Mysize"];
-        reserved = v["_Myres"].intValue();
+    SymbolGroupValue base = v;
+    SymbolGroupValue bx = base["_Bx"];
+    if (!bx) {
+        base = base[unsigned(0)];
+        bx = base["_Bx"];
     }
+    if (!bx) {
+        base = base[unsigned(0)][unsigned(1)];
+        bx = base["_Bx"];
+    }
+    if (!bx)
+        return 24;
+    SymbolGroupValue size = base["_Mysize"];
+    int reserved = base["_Myres"].intValue();
     if (reserved < 0 || !size || !bx)
         return 42;
     if (reserved <= (int)data.stringLength)

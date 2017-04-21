@@ -33,20 +33,16 @@ namespace Constants {
 
 #define IDE_VERSION $${QTCREATOR_VERSION}
 #define IDE_VERSION_STR STRINGIFY(IDE_VERSION)
+#define IDE_VERSION_DISPLAY_DEF $${QTCREATOR_DISPLAY_VERSION}
 
 #define IDE_VERSION_MAJOR $$replace(QTCREATOR_VERSION, "^(\\d+)\\.\\d+\\.\\d+(-.*)?$", \\1)
 #define IDE_VERSION_MINOR $$replace(QTCREATOR_VERSION, "^\\d+\\.(\\d+)\\.\\d+(-.*)?$", \\1)
 #define IDE_VERSION_RELEASE $$replace(QTCREATOR_VERSION, "^\\d+\\.\\d+\\.(\\d+)(-.*)?$", \\1)
 
 const char * const IDE_VERSION_LONG      = IDE_VERSION_STR;
+const char * const IDE_VERSION_DISPLAY   = STRINGIFY(IDE_VERSION_DISPLAY_DEF);
 const char * const IDE_AUTHOR            = \"The Qt Company Ltd\";
 const char * const IDE_YEAR              = \"2017\";
-
-#ifdef IDE_VERSION_DESCRIPTION
-const char * const IDE_VERSION_DESCRIPTION_STR = STRINGIFY(IDE_VERSION_DESCRIPTION);
-#else
-const char * const IDE_VERSION_DESCRIPTION_STR = \"\";
-#endif
 
 #ifdef IDE_REVISION
 const char * const IDE_REVISION_STR      = STRINGIFY(IDE_REVISION);
@@ -67,7 +63,7 @@ const char * const IDE_COPY_SETTINGS_FROM_VARIANT_STR = STRINGIFY(IDE_COPY_SETTI
 const char * const IDE_COPY_SETTINGS_FROM_VARIANT_STR = \"Nokia\";
 #endif
 
-
+#undef IDE_VERSION_DISPLAY_DEF
 #undef IDE_VERSION
 #undef IDE_VERSION_STR
 #undef STRINGIFY

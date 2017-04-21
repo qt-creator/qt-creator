@@ -48,7 +48,7 @@ namespace Internal {
 
 static bool debugExamples()
 {
-    static bool isDebugging = !qgetenv("QTC_DEBUG_EXAMPLESMODEL").isEmpty();
+    static bool isDebugging = qEnvironmentVariableIsSet("QTC_DEBUG_EXAMPLESMODEL");
     return isDebugging;
 }
 
