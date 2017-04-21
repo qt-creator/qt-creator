@@ -1003,7 +1003,7 @@ static QByteArray getPackage(const QByteArray &name)
 bool NodeMetaInfoPrivate::cleverCheckType(const TypeName &otherType) const
 {
     if (otherType == qualfiedTypeName())
-            return true;
+        return true;
 
     if (isFileComponent())
         return false;
@@ -1177,8 +1177,8 @@ QString NodeMetaInfoPrivate::lookupName() const
 
 QStringList NodeMetaInfoPrivate::lookupNameComponent() const
 {
-        QString tempString = fullQualifiedImportAliasType();
-        return tempString.split('.');
+    QString tempString = fullQualifiedImportAliasType();
+    return tempString.split('.');
 }
 
 
@@ -1415,7 +1415,6 @@ QStringList NodeMetaInfo::propertyKeysForEnum(const PropertyName &propertyName) 
 
 QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, const QVariant &value) const
 {
-
     const QVariant variant = value;
     QVariant copyVariant = variant;
     if (propertyIsEnumType(propertyName)
@@ -1489,10 +1488,12 @@ TypeName NodeMetaInfo::typeName() const
 {
     return m_privateData->qualfiedTypeName();
 }
+
 int NodeMetaInfo::majorVersion() const
 {
     return m_privateData->majorVersion();
 }
+
 int NodeMetaInfo::minorVersion() const
 {
     return m_privateData->minorVersion();
@@ -1537,8 +1538,7 @@ bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int mino
     if (typeName().isEmpty())
         return false;
 
-    if (typeName() == type
-        && availableInVersion(majorVersion, minorVersion))
+    if (typeName() == type && availableInVersion(majorVersion, minorVersion))
         return true;
 
     if (m_privateData->prototypeCachePositives().contains(Internal::stringIdentifier(type, majorVersion, minorVersion)))
@@ -1549,8 +1549,8 @@ bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int mino
 
     foreach (const NodeMetaInfo &superClass, superClasses()) {
         if (superClass.m_privateData->cleverCheckType(type)
-            && superClass.availableInVersion(majorVersion, minorVersion)) {
-                m_privateData->prototypeCachePositives().insert(Internal::stringIdentifier(type, majorVersion, minorVersion));
+                && superClass.availableInVersion(majorVersion, minorVersion)) {
+            m_privateData->prototypeCachePositives().insert(Internal::stringIdentifier(type, majorVersion, minorVersion));
             return true;
         }
     }
