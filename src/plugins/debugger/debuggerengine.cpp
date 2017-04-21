@@ -341,13 +341,14 @@ public:
     DebuggerState state() const { return m_state; }
     RemoteSetupState remoteSetupState() const { return m_remoteSetupState; }
     bool isMasterEngine() const { return m_engine->isMasterEngine(); }
-    DebuggerRunControl *runControl() const
-        { return m_masterEngine ? m_masterEngine->runControl() : m_runControl; }
+    DebuggerRunTool *runTool() const
+        { return m_masterEngine ? m_masterEngine->runTool() : m_runTool.data(); }
+    DebuggerRunControl *runControl() const { return runTool()->runControl(); }
     void setRemoteSetupState(RemoteSetupState state);
 
     DebuggerEngine *m_engine = nullptr; // Not owned.
     DebuggerEngine *m_masterEngine = nullptr; // Not owned
-    DebuggerRunControl *m_runControl = nullptr;  // Not owned.
+    QPointer<DebuggerRunTool> m_runTool;  // Not owned.
 
     DebuggerRunParameters m_runParameters;
 
@@ -554,10 +555,15 @@ void DebuggerEngine::setRegisterValue(const QString &name, const QString &value)
     Q_UNUSED(value);
 }
 
-void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
+void DebuggerEngine::setRunTool(DebuggerRunTool *runTool)
 {
-    QTC_ASSERT(runControl, notifyEngineSetupFailed(); return);
-    QTC_ASSERT(!d->m_runControl, notifyEngineSetupFailed(); return);
+    QTC_ASSERT(!d->m_runTool, notifyEngineSetupFailed(); return);
+    d->m_runTool = runTool;
+}
+
+void DebuggerEngine::startDebugger()
+{
+    QTC_ASSERT(d->m_runTool, notifyEngineSetupFailed(); return);
 
     d->m_progress.setProgressRange(0, 1000);
     FutureProgress *fp = ProgressManager::addTask(d->m_progress.future(),
@@ -566,12 +572,10 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     d->m_progress.reportStarted();
 
-    d->m_runControl = runControl;
-
     d->m_inferiorPid = d->m_runParameters.attachPID.isValid()
         ? d->m_runParameters.attachPID : ProcessHandle();
     if (d->m_inferiorPid.isValid())
-        d->m_runControl->setApplicationProcessHandle(d->m_inferiorPid);
+        runControl()->setApplicationProcessHandle(d->m_inferiorPid);
 
     if (isNativeMixedActive())
         d->m_runParameters.inferior.environment.set("QV4_FORCE_INTERPRETER", "1");
@@ -586,14 +590,14 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 
     d->m_terminal.setup();
     if (d->m_terminal.isUsable()) {
-        connect(&d->m_terminal, &Terminal::stdOutReady, [this, runControl](const QString &msg) {
-            runControl->appendMessage(msg, Utils::StdOutFormatSameLine);
+        connect(&d->m_terminal, &Terminal::stdOutReady, [this](const QString &msg) {
+            d->m_runTool->appendMessage(msg, Utils::StdOutFormatSameLine);
         });
-        connect(&d->m_terminal, &Terminal::stdErrReady, [this, runControl](const QString &msg) {
-            runControl->appendMessage(msg, Utils::StdErrFormatSameLine);
+        connect(&d->m_terminal, &Terminal::stdErrReady, [this](const QString &msg) {
+            d->m_runTool->appendMessage(msg, Utils::StdErrFormatSameLine);
         });
-        connect(&d->m_terminal, &Terminal::error, [this, runControl](const QString &msg) {
-            runControl->appendMessage(msg, Utils::ErrorMessageFormat);
+        connect(&d->m_terminal, &Terminal::error, [this](const QString &msg) {
+            d->m_runTool->appendMessage(msg, Utils::ErrorMessageFormat);
         });
     }
 
@@ -642,7 +646,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
 void DebuggerEngine::handleStartFailed()
 {
     showMessage("HANDLE RUNCONTROL START FAILED");
-    d->m_runControl = 0;
+    d->m_runTool.clear();
     d->m_progress.setProgressValue(900);
     d->m_progress.reportCanceled();
     d->m_progress.reportFinished();
@@ -652,7 +656,7 @@ void DebuggerEngine::handleStartFailed()
 void DebuggerEngine::handleFinished()
 {
     showMessage("HANDLE RUNCONTROL FINISHED");
-    d->m_runControl = 0;
+    d->m_runTool.clear();
     d->m_progress.setProgressValue(1000);
     d->m_progress.reportFinished();
     modulesHandler()->removeAll();
@@ -784,8 +788,8 @@ void DebuggerEngine::notifyEngineSetupFailed()
 
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupFailed);
-    if (isMasterEngine() && runControl())
-        runControl()->startFailed();
+    if (isMasterEngine() && runTool())
+        runTool()->startFailed();
     setState(DebuggerFinished);
 }
 
@@ -1122,8 +1126,8 @@ void DebuggerEnginePrivate::doFinishDebugger()
 {
     m_engine->showMessage("NOTE: FINISH DEBUGGER");
     QTC_ASSERT(state() == DebuggerFinished, qDebug() << m_engine << state());
-    if (isMasterEngine() && m_runControl)
-        m_runControl->debuggingFinished();
+    if (isMasterEngine() && m_runTool)
+        m_runTool->debuggingFinished();
 }
 
 void DebuggerEnginePrivate::setRemoteSetupState(RemoteSetupState state)
@@ -1521,9 +1525,9 @@ DebuggerRunControl *DebuggerEngine::runControl() const
 
 DebuggerRunTool *DebuggerEngine::runTool() const
 {
-    if (DebuggerRunControl *rc = d->runControl())
-        return qobject_cast<DebuggerRunTool *>(rc->toolRunner());
-    return nullptr;
+//    if (DebuggerRunControl *rc = d->runControl())
+//        return qobject_cast<DebuggerRunTool *>(rc->toolRunner());
+    return d->m_runTool;
 }
 
 Terminal *DebuggerEngine::terminal() const

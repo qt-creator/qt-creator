@@ -82,7 +82,7 @@ void QnxDebugSupport::handleAdapterSetupRequested()
 {
     QTC_ASSERT(state() == Inactive, return);
 
-    runControl()->showMessage(tr("Preparing remote side...") + QLatin1Char('\n'), Debugger::AppStuff);
+    runControl()->toolRunner()->showMessage(tr("Preparing remote side...") + '\n', Debugger::AppStuff);
     QnxAbstractRunSupport::handleAdapterSetupRequested();
 }
 
@@ -124,7 +124,7 @@ void QnxDebugSupport::handleRemoteProcessStarted()
     result.success = true;
     result.gdbServerPort = m_pdebugPort;
     result.qmlServerPort = m_qmlPort;
-    runControl()->notifyEngineRemoteSetupFinished(result);
+    runControl()->toolRunner()->notifyEngineRemoteSetupFinished(result);
 }
 
 void QnxDebugSupport::handleRemoteProcessFinished(bool success)
@@ -134,13 +134,13 @@ void QnxDebugSupport::handleRemoteProcessFinished(bool success)
 
     if (state() == Running) {
         if (!success)
-            runControl()->notifyInferiorIll();
+            runControl()->toolRunner()->notifyInferiorIll();
 
     } else {
         Debugger::RemoteSetupResult result;
         result.success = false;
         result.reason = tr("The %1 process closed unexpectedly.").arg(processExecutable());
-        runControl()->notifyEngineRemoteSetupFinished(result);
+        runControl()->toolRunner()->notifyEngineRemoteSetupFinished(result);
     }
 }
 
@@ -166,38 +166,39 @@ void QnxDebugSupport::killInferiorProcess()
 
 void QnxDebugSupport::handleProgressReport(const QString &progressOutput)
 {
-    runControl()->showMessage(progressOutput + QLatin1Char('\n'), Debugger::AppStuff);
+    runControl()->toolRunner()->showMessage(progressOutput + QLatin1Char('\n'), Debugger::AppStuff);
 }
 
 void QnxDebugSupport::handleRemoteOutput(const QByteArray &output)
 {
     QTC_ASSERT(state() == Inactive || state() == Running, return);
-    runControl()->showMessage(QString::fromUtf8(output), Debugger::AppOutput);
+    runControl()->toolRunner()->showMessage(QString::fromUtf8(output), Debugger::AppOutput);
 }
 
 void QnxDebugSupport::handleError(const QString &error)
 {
     if (state() == Running) {
-        runControl()->showMessage(error, Debugger::AppError);
-        runControl()->notifyInferiorIll();
+        runControl()->toolRunner()->showMessage(error, Debugger::AppError);
+        runControl()->toolRunner()->notifyInferiorIll();
     } else if (state() != Inactive) {
         setFinished();
         Debugger::RemoteSetupResult result;
         result.success = false;
         result.reason = tr("Initial setup failed: %1").arg(error);
-        runControl()->notifyEngineRemoteSetupFinished(result);
+        runControl()->toolRunner()->notifyEngineRemoteSetupFinished(result);
     }
 }
 
 void QnxDebugSupport::printMissingWarning()
 {
-    runControl()->showMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available."), Debugger::AppError);
+    runControl()->toolRunner()->showMessage(tr("Warning: \"slog2info\" is not found "
+       "on the device, debug output not available."), Debugger::AppError);
 }
 
 void QnxDebugSupport::handleApplicationOutput(const QString &msg, Utils::OutputFormat outputFormat)
 {
     Q_UNUSED(outputFormat);
-    runControl()->showMessage(msg, Debugger::AppOutput);
+    runControl()->toolRunner()->showMessage(msg, Debugger::AppOutput);
 }
 
 Debugger::DebuggerRunControl *QnxDebugSupport::runControl()

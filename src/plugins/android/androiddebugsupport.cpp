@@ -159,7 +159,7 @@ AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl)
 
     connect(m_runner, &AndroidRunner::remoteServerRunning,
         [this](const QByteArray &serverChannel, int pid) {
-            this->runControl()->notifyEngineRemoteServerRunning(serverChannel, pid);
+            this->runControl()->toolRunner()->notifyEngineRemoteServerRunning(serverChannel, pid);
         });
 
     connect(m_runner, &AndroidRunner::remoteProcessStarted,
@@ -173,12 +173,12 @@ AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl)
 
     connect(m_runner, &AndroidRunner::remoteErrorOutput,
         [this](const QString &output) {
-            this->runControl()->showMessage(output, AppError);
+            this->runControl()->toolRunner()->showMessage(output, AppError);
         });
 
     connect(m_runner, &AndroidRunner::remoteOutput,
         [this](const QString &output) {
-            this->runControl()->showMessage(output, AppOutput);
+            this->runControl()->toolRunner()->showMessage(output, AppOutput);
         });
 
     QTC_ASSERT(runControl, return);
@@ -200,7 +200,7 @@ void AndroidDebugSupport::handleRemoteProcessStarted(Utils::Port gdbServerPort, 
     result.success = true;
     result.gdbServerPort = gdbServerPort;
     result.qmlServerPort = qmlPort;
-    runControl()->notifyEngineRemoteSetupFinished(result);
+    runControl()->toolRunner()->notifyEngineRemoteSetupFinished(result);
 }
 
 DebuggerRunControl *AndroidDebugSupport::runControl()

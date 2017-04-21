@@ -415,6 +415,17 @@ public:
     virtual void notifyRemoteSetupFailed(const QString &) {} // Same.
     virtual void notifyRemoteFinished() {} // Same.
 
+    void reportApplicationStart(); // Call this when the application starts to run
+    void reportApplicationStop(); // Call this when the application has stopped for any reason
+
+    bool showPromptToStopDialog(const QString &title, const QString &text,
+                                const QString &stopButtonText = QString(),
+                                const QString &cancelButtonText = QString(),
+                                bool *prompt = nullptr) const;
+
+    virtual void start();
+    virtual void stop();
+
 signals:
     void appendMessageRequested(ProjectExplorer::RunControl *runControl,
                                 const QString &msg, Utils::OutputFormat format);
@@ -423,18 +434,6 @@ signals:
     void started(); // Use reportApplicationStart!
     void finished(); // Use reportApplicationStop!
     void applicationProcessHandleChanged(QPrivateSignal); // Use setApplicationProcessHandle
-
-protected:
-    virtual void start();
-    virtual void stop();
-
-    void reportApplicationStart(); // Call this when the application starts to run
-    void reportApplicationStop(); // Call this when the application has stopped for any reason
-
-    bool showPromptToStopDialog(const QString &title, const QString &text,
-                                const QString &stopButtonText = QString(),
-                                const QString &cancelButtonText = QString(),
-                                bool *prompt = nullptr) const;
 
 private:
     friend class Internal::RunControlPrivate;

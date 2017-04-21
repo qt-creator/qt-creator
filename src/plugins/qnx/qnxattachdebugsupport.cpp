@@ -159,19 +159,19 @@ void QnxAttachDebugSupport::handleDebuggerStateChanged(Debugger::DebuggerState s
 void QnxAttachDebugSupport::handleError(const QString &message)
 {
     if (m_runControl)
-        m_runControl->showMessage(message, Debugger::AppError);
+        m_runControl->toolRunner()->showMessage(message, Debugger::AppError);
 }
 
 void QnxAttachDebugSupport::handleProgressReport(const QString &message)
 {
     if (m_runControl)
-        m_runControl->showMessage(message + QLatin1Char('\n'), Debugger::AppStuff);
+        m_runControl->toolRunner()->showMessage(message + QLatin1Char('\n'), Debugger::AppStuff);
 }
 
 void QnxAttachDebugSupport::handleRemoteOutput(const QByteArray &output)
 {
     if (m_runControl)
-        m_runControl->showMessage(QString::fromUtf8(output), Debugger::AppOutput);
+        m_runControl->toolRunner()->showMessage(QString::fromUtf8(output), Debugger::AppOutput);
 }
 
 void QnxAttachDebugSupport::stopPDebug()

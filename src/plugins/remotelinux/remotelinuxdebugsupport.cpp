@@ -101,7 +101,7 @@ bool LinuxDeviceDebugSupport::isQmlDebugging() const
 void LinuxDeviceDebugSupport::showMessage(const QString &msg, int channel)
 {
     if (state() != Inactive)
-        runControl()->showMessage(msg, channel);
+        runControl()->toolRunner()->showMessage(msg, channel);
 }
 
 DebuggerRunControl *LinuxDeviceDebugSupport::runControl() const
@@ -185,7 +185,7 @@ void LinuxDeviceDebugSupport::handleAppRunnerError(const QString &error)
 {
     if (state() == Running) {
         showMessage(error, AppError);
-        runControl()->notifyInferiorIll();
+        runControl()->toolRunner()->notifyInferiorIll();
     } else if (state() != Inactive) {
         handleAdapterSetupFailed(error);
     }
@@ -199,15 +199,15 @@ void LinuxDeviceDebugSupport::handleAppRunnerFinished(bool success)
     if (state() == Running) {
         // The QML engine does not realize on its own that the application has finished.
         if (d->qmlDebugging && !d->cppDebugging)
-            runControl()->quitDebugger();
+            runControl()->toolRunner()->quitDebugger();
         else if (!success)
-            runControl()->notifyInferiorIll();
+            runControl()->toolRunner()->notifyInferiorIll();
 
     } else if (state() == StartingRunner) {
         RemoteSetupResult result;
         result.success = false;
         result.reason = tr("Debugging failed.");
-        runControl()->notifyEngineRemoteSetupFinished(result);
+        runControl()->toolRunner()->notifyEngineRemoteSetupFinished(result);
     }
     reset();
 }
@@ -251,7 +251,7 @@ void LinuxDeviceDebugSupport::handleAdapterSetupFailed(const QString &error)
     RemoteSetupResult result;
     result.success = false;
     result.reason = tr("Initial setup failed: %1").arg(error);
-    runControl()->notifyEngineRemoteSetupFinished(result);
+    runControl()->toolRunner()->notifyEngineRemoteSetupFinished(result);
 }
 
 void LinuxDeviceDebugSupport::handleAdapterSetupDone()
@@ -262,7 +262,7 @@ void LinuxDeviceDebugSupport::handleAdapterSetupDone()
     result.success = true;
     result.gdbServerPort = d->gdbServerPort;
     result.qmlServerPort = d->qmlPort;
-    runControl()->notifyEngineRemoteSetupFinished(result);
+    runControl()->toolRunner()->notifyEngineRemoteSetupFinished(result);
 }
 
 void LinuxDeviceDebugSupport::handleRemoteProcessStarted()

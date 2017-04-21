@@ -148,7 +148,7 @@ bool WinRtRunnerHelper::waitForStarted(int msecs)
 
 void WinRtRunnerHelper::setDebugRunControl(Debugger::DebuggerRunControl *runControl)
 {
-    m_debugMessenger = runControl;
+    m_debugMessenger = runControl->toolRunner();
     m_messenger = runControl;
 }
 

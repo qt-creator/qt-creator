@@ -81,8 +81,6 @@ DebuggerEngine *createQmlEngine(const DebuggerRunParameters &rp);
 DebuggerEngine *createQmlCppEngine(const DebuggerRunParameters &rp, QStringList *error);
 DebuggerEngine *createLldbEngine(const DebuggerRunParameters &rp);
 
-static DebuggerEngine *engine(const DebuggerRunControl *runControl);
-
 } // namespace Internal
 
 
@@ -135,12 +133,17 @@ DebuggerRunControl::~DebuggerRunControl()
 
 void DebuggerRunControl::start()
 {
+    toolRunner()->startIt();
+}
+
+void DebuggerRunTool::startIt()
+{
     Debugger::Internal::saveModeToRestore();
     Debugger::selectPerspective(Debugger::Constants::CppPerspectiveId);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
-    DebuggerEngine *engine = Internal::engine(this);
+    DebuggerEngine *engine = m_engine;
     QTC_ASSERT(engine, return);
     const DebuggerRunParameters &rp = engine->runParameters();
     // User canceled input dialog asking for executable when working on library project.
@@ -148,8 +151,8 @@ void DebuggerRunControl::start()
             && rp.inferior.executable.isEmpty()
             && rp.interpreter.isEmpty()) {
         appendMessage(tr("No executable specified.") + QLatin1Char('\n'), ErrorMessageFormat);
-        reportApplicationStart();
-        reportApplicationStop();
+        runControl()->reportApplicationStart();
+        runControl()->reportApplicationStop();
         return;
     }
 
@@ -182,75 +185,74 @@ void DebuggerRunControl::start()
 
     // We might get a synchronous startFailed() notification on Windows,
     // when launching the process fails. Emit a proper finished() sequence.
-    reportApplicationStart();
+    runControl()->reportApplicationStart();
 
-    engine->startDebugger(this);
+    engine->startDebugger();
 
-    if (isRunning())
+    if (runControl()->isRunning())
         appendMessage(tr("Debugging starts") + QLatin1Char('\n'), NormalMessageFormat);
 }
 
-void DebuggerRunControl::startFailed()
+void DebuggerRunTool::startFailed()
 {
     appendMessage(tr("Debugging has failed") + QLatin1Char('\n'), NormalMessageFormat);
-    engine(this)->handleStartFailed();
+    m_engine->handleStartFailed();
 }
 
-void DebuggerRunControl::notifyEngineRemoteServerRunning(const QByteArray &msg, int pid)
+void DebuggerRunTool::notifyEngineRemoteServerRunning(const QByteArray &msg, int pid)
 {
-    engine(this)->notifyEngineRemoteServerRunning(QString::fromUtf8(msg), pid);
+    m_engine->notifyEngineRemoteServerRunning(QString::fromUtf8(msg), pid);
 }
 
-void DebuggerRunControl::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
+void DebuggerRunTool::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
 {
-    engine(this)->notifyEngineRemoteSetupFinished(result);
+    m_engine->notifyEngineRemoteSetupFinished(result);
 }
 
 void DebuggerRunControl::stop()
 {
-    QTC_ASSERT(engine(this), return);
-    engine(this)->quitDebugger();
+    m_debuggerTool->stopIt();
 }
 
-void DebuggerRunControl::debuggingFinished()
+void DebuggerRunTool::stopIt()
 {
-    reportApplicationStop();
+    m_engine->quitDebugger();
 }
 
-void DebuggerRunControl::showMessage(const QString &msg, int channel)
+DebuggerRunTool *DebuggerRunControl::toolRunner() const
 {
-    QTC_ASSERT(engine(this), return);
-    QTC_ASSERT(engine(this)->runTool(), return);
-    engine(this)->runTool()->showMessage(msg, channel);
+//    return qobject_cast<DebuggerRunTool *>(RunControl::toolRunner());
+    return m_debuggerTool;
 }
 
-DebuggerStartParameters &DebuggerRunControl::startParameters()
+void DebuggerRunTool::debuggingFinished()
 {
-    return engine(this)->runParameters();
+    runControl()->reportApplicationStop();
 }
 
-void DebuggerRunControl::notifyInferiorIll()
+DebuggerStartParameters &DebuggerRunTool::startParameters()
 {
-    QTC_ASSERT(engine(this), return);
-    engine(this)->notifyInferiorIll();
+    return m_engine->runParameters();
 }
 
-void DebuggerRunControl::notifyInferiorExited()
+void DebuggerRunTool::notifyInferiorIll()
 {
-    QTC_ASSERT(engine(this), return);
-    engine(this)->notifyInferiorExited();
+    m_engine->notifyInferiorIll();
 }
 
-void DebuggerRunControl::quitDebugger()
+void DebuggerRunTool::notifyInferiorExited()
 {
-    QTC_ASSERT(engine(this), return);
-    engine(this)->quitDebugger();
+    m_engine->notifyInferiorExited();
 }
 
-void DebuggerRunControl::abortDebugger()
+void DebuggerRunTool::quitDebugger()
 {
-    QTC_ASSERT(engine(this), return);
-    engine(this)->abortDebugger();
+    m_engine->quitDebugger();
+}
+
+void DebuggerRunTool::abortDebugger()
+{
+    m_engine->abortDebugger();
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -517,6 +519,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerStartPara
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParameters &rp, QString *errorMessage)
     : ToolRunner(runControl)
 {
+    this->runControl()->m_debuggerTool = this; // FIXME: Remove.
     DebuggerRunParameters m_rp = rp;
 
     runControl->setDisplayName(m_rp.displayName);
@@ -533,7 +536,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParame
         }
     }
 
-    qobject_cast<DebuggerRunControl *>(runControl)->m_engine = m_engine;
+    m_engine->setRunTool(this);
 
     connect(runControl, &RunControl::finished,
             this, &DebuggerRunTool::handleFinished);
@@ -591,14 +594,6 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
 }
 
 namespace Internal {
-
-DebuggerEngine *engine(const DebuggerRunControl *runControl)
-{
-    QTC_ASSERT(runControl, return nullptr);
-    //return qobject_cast<DebuggerRunTool *>(runControl->toolRunner())->engine();
-    return runControl->m_engine;
-}
-
 
 /// DebuggerRunControlFactory
 

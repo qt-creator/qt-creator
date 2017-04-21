@@ -200,7 +200,9 @@ public:
 
     const DebuggerRunParameters &runParameters() const;
     DebuggerRunParameters &runParameters();
+    void setRunTool(DebuggerRunTool *runTool);
     DebuggerRunTool *runTool() const;
+    void startDebugger();
 
     enum {
         // Remove need to qualify each use.
@@ -224,7 +226,6 @@ public:
     void updateWatchData(const QString &iname); // FIXME: Merge with above.
     virtual void selectWatchData(const QString &iname);
 
-    virtual void startDebugger(DebuggerRunControl *runControl);
     virtual void prepareForRestart() {}
 
     virtual void watchPoint(const QPoint &pnt);

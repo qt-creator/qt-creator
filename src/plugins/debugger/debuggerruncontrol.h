@@ -58,9 +58,23 @@ public:
     Internal::DebuggerEngine *engine() const { return m_engine; }
     DebuggerRunControl *runControl() const;
 
-    void showMessage(const QString &msg, int channel, int timeout = -1);
+    void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
+
+    void startIt();
+    void stopIt();
 
     void handleFinished();
+
+    void startFailed();
+    void notifyEngineRemoteServerRunning(const QByteArray &msg, int pid);
+    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
+    void notifyInferiorIll();
+    Q_SLOT void notifyInferiorExited();
+    void quitDebugger();
+    void abortDebugger();
+    void debuggingFinished();
+
+    DebuggerStartParameters &startParameters(); // Used in Boot2Qt.
 
 private:
     Internal::DebuggerEngine *m_engine = nullptr; // Master engine
@@ -75,22 +89,10 @@ public:
     DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig, Core::Id runMode);
     ~DebuggerRunControl() override;
 
-    // ProjectExplorer::RunControl
     void start() override;
     void stop() override; // Called from SnapshotWindow.
 
-    void startFailed();
-    void notifyEngineRemoteServerRunning(const QByteArray &msg, int pid);
-    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
-    void notifyInferiorIll();
-    Q_SLOT void notifyInferiorExited();
-    void quitDebugger();
-    void abortDebugger();
-    void debuggingFinished();
-
-    void showMessage(const QString &msg, int channel = LogDebug);
-
-    DebuggerStartParameters &startParameters(); // Used in Boot2Qt.
+    DebuggerRunTool *toolRunner() const;
 
 signals:
     void requestRemoteSetup();
@@ -98,7 +100,7 @@ signals:
     void stateChanged(Debugger::DebuggerState state);
 
 public:
-    Internal::DebuggerEngine *m_engine = nullptr; // FIXME: Remove.
+    DebuggerRunTool *m_debuggerTool = nullptr;
 };
 
 } // namespace Debugger

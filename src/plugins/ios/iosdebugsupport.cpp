@@ -193,7 +193,7 @@ void IosDebugSupport::handleServerPorts(Utils::Port gdbServerPort, Utils::Port q
             || (m_runner && !m_runner->cppDebug() && qmlPort.isValid());
     if (!result.success)
         result.reason =  tr("Could not get debug server file descriptor.");
-    runControl()->notifyEngineRemoteSetupFinished(result);
+    runControl()->toolRunner()->notifyEngineRemoteSetupFinished(result);
 }
 
 void IosDebugSupport::handleGotInferiorPid(qint64 pid, Utils::Port qmlPort)
@@ -204,7 +204,7 @@ void IosDebugSupport::handleGotInferiorPid(qint64 pid, Utils::Port qmlPort)
     result.success = pid > 0;
     if (!result.success)
         result.reason =  tr("Got an invalid process id.");
-    runControl()->notifyEngineRemoteSetupFinished(result);
+    runControl()->toolRunner()->notifyEngineRemoteSetupFinished(result);
 }
 
 void IosDebugSupport::handleRemoteProcessFinished(bool cleanEnd)
@@ -213,17 +213,17 @@ void IosDebugSupport::handleRemoteProcessFinished(bool cleanEnd)
         appendMessage(tr("Run ended with error."), Utils::DebugFormat);
     else
         appendMessage(tr("Run ended."), Utils::DebugFormat);
-    runControl()->abortDebugger();
+    runControl()->toolRunner()->abortDebugger();
 }
 
 void IosDebugSupport::handleRemoteOutput(const QString &output)
 {
-    runControl()->showMessage(output, AppOutput);
+    runControl()->toolRunner()->showMessage(output, AppOutput);
 }
 
 void IosDebugSupport::handleRemoteErrorOutput(const QString &output)
 {
-    runControl()->showMessage(output, AppError);
+    runControl()->toolRunner()->showMessage(output, AppError);
 }
 
 DebuggerRunControl *IosDebugSupport::runControl()

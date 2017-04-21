@@ -96,12 +96,12 @@ void BareMetalDebugSupport::appRunnerFinished(bool success)
 
     if (m_state == Running) {
         if (!success)
-            runControl()->notifyInferiorIll();
+            runControl()->toolRunner()->notifyInferiorIll();
     } else if (m_state == StartingRunner) {
         Debugger::RemoteSetupResult result;
         result.success = false;
         result.reason = tr("Debugging failed.");
-        runControl()->notifyEngineRemoteSetupFinished(result);
+        runControl()->toolRunner()->notifyEngineRemoteSetupFinished(result);
     }
 
     reset();
@@ -116,7 +116,7 @@ void BareMetalDebugSupport::appRunnerError(const QString &error)
 {
     if (m_state == Running) {
         showMessage(error, Debugger::AppError);
-        runControl()->notifyInferiorIll();
+        runControl()->toolRunner()->notifyInferiorIll();
     } else if (m_state != Inactive) {
         adapterSetupFailed(error);
     }
@@ -127,7 +127,7 @@ void BareMetalDebugSupport::adapterSetupDone()
     m_state = Running;
     Debugger::RemoteSetupResult result;
     result.success = true;
-    runControl()->notifyEngineRemoteSetupFinished(result);
+    runControl()->toolRunner()->notifyEngineRemoteSetupFinished(result);
 }
 
 void BareMetalDebugSupport::adapterSetupFailed(const QString &error)
@@ -137,7 +137,7 @@ void BareMetalDebugSupport::adapterSetupFailed(const QString &error)
     Debugger::RemoteSetupResult result;
     result.success = false;
     result.reason = tr("Initial setup failed: %1").arg(error);
-    runControl()->notifyEngineRemoteSetupFinished(result);
+    runControl()->toolRunner()->notifyEngineRemoteSetupFinished(result);
 }
 
 void BareMetalDebugSupport::startExecution()
@@ -191,7 +191,7 @@ void BareMetalDebugSupport::reset()
 void BareMetalDebugSupport::showMessage(const QString &msg, int channel)
 {
     if (m_state != Inactive)
-        runControl()->showMessage(msg, channel);
+        runControl()->toolRunner()->showMessage(msg, channel);
 }
 
 Debugger::DebuggerRunControl *BareMetalDebugSupport::runControl()
