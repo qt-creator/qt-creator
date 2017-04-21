@@ -36,29 +36,29 @@ namespace RemoteLinux {
 
 namespace Internal { class RemoteLinuxAnalyzeSupportPrivate; }
 
-class REMOTELINUX_EXPORT RemoteLinuxAnalyzeSupport : public AbstractRemoteLinuxRunSupport
+class REMOTELINUX_EXPORT RemoteLinuxAnalyzeSupport : public ProjectExplorer::ToolRunner
 {
     Q_OBJECT
 public:
     RemoteLinuxAnalyzeSupport(ProjectExplorer::RunControl *runControl);
     ~RemoteLinuxAnalyzeSupport() override;
 
-protected:
-    void startExecution() override;
-    void handleAdapterSetupFailed(const QString &error) override;
-
 private:
-    void handleRemoteSetupRequested() override;
-    void handleAppRunnerError(const QString &error) override;
-    void handleRemoteOutput(const QByteArray &output) override;
-    void handleRemoteErrorOutput(const QByteArray &output) override;
-    void handleAppRunnerFinished(bool success) override;
-    void handleProgressReport(const QString &progressOutput) override;
+    void startExecution();
+    void handleAdapterSetupFailed(const QString &error);
+
+    void handleRemoteSetupRequested();
+    void handleAppRunnerError(const QString &error);
+    void handleRemoteOutput(const QByteArray &output);
+    void handleRemoteErrorOutput(const QByteArray &output);
+    void handleAppRunnerFinished(bool success);
+    void handleProgressReport(const QString &progressOutput);
 
     void handleRemoteProcessStarted();
     void handleProfilingFinished();
 
     void remoteIsRunning();
+    AbstractRemoteLinuxRunSupport *targetRunner() const;
 
     void showMessage(const QString &, Utils::OutputFormat);
 

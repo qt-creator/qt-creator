@@ -457,6 +457,7 @@ public:
 
     RunControl *runControl() const;
     void appendMessage(const QString &msg, Utils::OutputFormat format);
+    IDevice::ConstPtr device() const;
 
     virtual void prepare() { emit prepared(); }
     virtual void start() { emit started(); }
@@ -510,6 +511,8 @@ class PROJECTEXPLORER_EXPORT SimpleTargetRunner : public TargetRunner
 {
 public:
     explicit SimpleTargetRunner(RunControl *runControl);
+
+    ApplicationLauncher *applicationLauncher() { return &m_launcher; }
 
 private:
     void start() override;

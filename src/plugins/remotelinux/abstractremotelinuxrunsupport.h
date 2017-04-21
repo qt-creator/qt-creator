@@ -32,16 +32,15 @@
 
 #include <utils/port.h>
 
-#include <QObject>
-
 namespace RemoteLinux {
 
 namespace Internal { class AbstractRemoteLinuxRunSupportPrivate; }
 
-class REMOTELINUX_EXPORT AbstractRemoteLinuxRunSupport : public ProjectExplorer::ToolRunner
+class REMOTELINUX_EXPORT AbstractRemoteLinuxRunSupport : public ProjectExplorer::SimpleTargetRunner
 {
     Q_OBJECT
-protected:
+
+public:
     enum State
     {
         Inactive,
@@ -49,19 +48,12 @@ protected:
         StartingRunner,
         Running
     };
-public:
+
     explicit AbstractRemoteLinuxRunSupport(ProjectExplorer::RunControl *runControl);
     ~AbstractRemoteLinuxRunSupport();
 
-protected:
     void setState(State state);
     State state() const;
-    ProjectExplorer::ApplicationLauncher *appRunner() const;
-
-    virtual void startExecution() = 0;
-
-    virtual void handleAdapterSetupFailed(const QString &error);
-    virtual void handleAdapterSetupDone();
 
     void setFinished();
 
@@ -73,19 +65,14 @@ protected:
 
     void reset();
 
-protected:
-    virtual void handleRemoteSetupRequested() = 0;
-    virtual void handleAppRunnerError(const QString &error) = 0;
-    virtual void handleRemoteOutput(const QByteArray &output) = 0;
-    virtual void handleRemoteErrorOutput(const QByteArray &output) = 0;
-    virtual void handleAppRunnerFinished(bool success) = 0;
-    virtual void handleProgressReport(const QString &progressOutput) = 0;
+signals:
+    void adapterSetupFailed(const QString &error);
+    void executionStartRequested();
 
 private:
     void handleResourcesError(const QString &message);
     void handleResourcesAvailable();
 
-    friend class Internal::AbstractRemoteLinuxRunSupportPrivate;
     Internal::AbstractRemoteLinuxRunSupportPrivate * const d;
 };
 

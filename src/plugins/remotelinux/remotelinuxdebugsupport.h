@@ -27,42 +27,47 @@
 
 #include "abstractremotelinuxrunsupport.h"
 
-namespace Debugger { class DebuggerRunControl; }
+#include <debugger/debuggerruncontrol.h>
 
 namespace RemoteLinux {
 
 namespace Internal { class LinuxDeviceDebugSupportPrivate; }
 
-class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public AbstractRemoteLinuxRunSupport
+class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public Debugger::DebuggerRunTool
 {
     Q_OBJECT
 
 public:
-    LinuxDeviceDebugSupport(ProjectExplorer::RunControl *runControl);
+    LinuxDeviceDebugSupport(ProjectExplorer::RunControl *runControl,
+                            const Debugger::DebuggerStartParameters &sp,
+                            QString *errorMessage = nullptr);
     ~LinuxDeviceDebugSupport() override;
 
 protected:
     virtual ProjectExplorer::Runnable realRunnable() const;
     bool isCppDebugging() const;
     bool isQmlDebugging() const;
-
-    void startExecution() override;
-    void handleAdapterSetupFailed(const QString &error) override;
-    void handleAdapterSetupDone() override;
+    Debugger::DebuggerRunControl *runControl() const;
 
 private:
-    void handleRemoteSetupRequested() override;
-    void handleAppRunnerError(const QString &error) override;
-    void handleRemoteOutput(const QByteArray &output) override;
-    void handleRemoteErrorOutput(const QByteArray &output) override;
-    void handleAppRunnerFinished(bool success) override;
-    void handleProgressReport(const QString &progressOutput) override;
+    void startExecution();
+    void handleAdapterSetupFailed(const QString &error);
+
+    void handleRemoteSetupRequested();
+    void handleAppRunnerError(const QString &error);
+    void handleRemoteOutput(const QByteArray &output);
+    void handleRemoteErrorOutput(const QByteArray &output);
+    void handleAppRunnerFinished(bool success);
+    void handleProgressReport(const QString &progressOutput);
 
     void handleRemoteProcessStarted();
+    void handleAdapterSetupDone();
     void handleDebuggingFinished();
 
     void showMessage(const QString &msg, int channel);
-    Debugger::DebuggerRunControl *runControl() const;
+
+    AbstractRemoteLinuxRunSupport *targetRunner() const;
+    AbstractRemoteLinuxRunSupport::State state() const;
 
     Internal::LinuxDeviceDebugSupportPrivate * const d;
 };

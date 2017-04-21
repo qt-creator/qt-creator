@@ -42,7 +42,6 @@ class AbstractRemoteLinuxRunSupportPrivate
 {
 public:
     AbstractRemoteLinuxRunSupport::State state = AbstractRemoteLinuxRunSupport::Inactive;
-    ApplicationLauncher appLauncher;
     DeviceUsedPortsGatherer portsGatherer;
     ApplicationLauncher fifoCreator;
     Utils::PortList portList;
@@ -54,7 +53,7 @@ public:
 using namespace Internal;
 
 AbstractRemoteLinuxRunSupport::AbstractRemoteLinuxRunSupport(RunControl *runControl)
-    : ToolRunner(runControl),
+    : SimpleTargetRunner(runControl),
       d(new AbstractRemoteLinuxRunSupportPrivate)
 {
 }
@@ -78,7 +77,9 @@ AbstractRemoteLinuxRunSupport::State AbstractRemoteLinuxRunSupport::state() cons
 void AbstractRemoteLinuxRunSupport::handleResourcesError(const QString &message)
 {
     QTC_ASSERT(d->state == GatheringResources, return);
-    handleAdapterSetupFailed(message);
+    setFinished();
+    reset();
+    emit adapterSetupFailed(message);
 }
 
 void AbstractRemoteLinuxRunSupport::handleResourcesAvailable()
@@ -86,18 +87,7 @@ void AbstractRemoteLinuxRunSupport::handleResourcesAvailable()
     QTC_ASSERT(d->state == GatheringResources, return);
 
     d->portList = device()->freePorts();
-    startExecution();
-}
-
-void AbstractRemoteLinuxRunSupport::handleAdapterSetupFailed(const QString &)
-{
-    setFinished();
-    reset();
-}
-
-void AbstractRemoteLinuxRunSupport::handleAdapterSetupDone()
-{
-    d->state = Running;
+    emit executionStartRequested();
 }
 
 void AbstractRemoteLinuxRunSupport::setFinished()
@@ -105,7 +95,7 @@ void AbstractRemoteLinuxRunSupport::setFinished()
     if (d->state == Inactive)
         return;
     if (d->state == Running)
-        d->appLauncher.stop();
+        applicationLauncher()->stop();
     d->state = Inactive;
 }
 
@@ -170,13 +160,8 @@ void AbstractRemoteLinuxRunSupport::createRemoteFifo()
 void AbstractRemoteLinuxRunSupport::reset()
 {
     d->portsGatherer.disconnect(this);
-    d->appLauncher.disconnect(this);
+    applicationLauncher()->disconnect(this);
     d->state = Inactive;
-}
-
-ApplicationLauncher *AbstractRemoteLinuxRunSupport::appRunner() const
-{
-    return &d->appLauncher;
 }
 
 } // namespace RemoteLinux

@@ -78,7 +78,7 @@ public:
 using namespace Internal;
 
 RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(RunControl *runControl)
-    : AbstractRemoteLinuxRunSupport(runControl),
+    : ToolRunner(runControl),
       d(new RemoteLinuxAnalyzeSupportPrivate(runControl))
 {
     connect(runControl, &RunControl::starting,
@@ -87,6 +87,13 @@ RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(RunControl *runControl)
             this, &RemoteLinuxAnalyzeSupport::remoteIsRunning);
     connect(runControl, &RunControl::finished,
             this, &RemoteLinuxAnalyzeSupport::handleProfilingFinished);
+
+    connect(qobject_cast<AbstractRemoteLinuxRunSupport *>(runControl->targetRunner()),
+            &AbstractRemoteLinuxRunSupport::executionStartRequested,
+            this, &RemoteLinuxAnalyzeSupport::startExecution);
+    connect(qobject_cast<AbstractRemoteLinuxRunSupport *>(runControl->targetRunner()),
+            &AbstractRemoteLinuxRunSupport::adapterSetupFailed,
+            this, &RemoteLinuxAnalyzeSupport::handleAdapterSetupFailed);
 }
 
 RemoteLinuxAnalyzeSupport::~RemoteLinuxAnalyzeSupport()
@@ -96,49 +103,49 @@ RemoteLinuxAnalyzeSupport::~RemoteLinuxAnalyzeSupport()
 
 void RemoteLinuxAnalyzeSupport::showMessage(const QString &msg, Utils::OutputFormat format)
 {
-    if (state() != Inactive)
+    if (targetRunner()->state() != AbstractRemoteLinuxRunSupport::Inactive)
         appendMessage(msg, format);
     d->outputParser.processOutput(msg);
 }
 
 void RemoteLinuxAnalyzeSupport::handleRemoteSetupRequested()
 {
-    QTC_ASSERT(state() == Inactive, return);
+    QTC_ASSERT(targetRunner()->state() == AbstractRemoteLinuxRunSupport::Inactive, return);
 
     const Core::Id runMode = runControl()->runMode();
     if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         showMessage(tr("Checking available ports...") + QLatin1Char('\n'),
                     Utils::NormalMessageFormat);
-        startPortsGathering();
+        targetRunner()->startPortsGathering();
     } else if (runMode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
         showMessage(tr("Creating remote socket...") + QLatin1Char('\n'),
                     Utils::NormalMessageFormat);
-        createRemoteFifo();
+        targetRunner()->createRemoteFifo();
     }
 }
 
 void RemoteLinuxAnalyzeSupport::startExecution()
 {
-    QTC_ASSERT(state() == GatheringResources, return);
+    QTC_ASSERT(targetRunner()->state() == AbstractRemoteLinuxRunSupport::GatheringResources, return);
 
     const Core::Id runMode = runControl()->runMode();
     if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-        d->qmlPort = findPort();
+        d->qmlPort = targetRunner()->findPort();
         if (!d->qmlPort.isValid()) {
             handleAdapterSetupFailed(tr("Not enough free ports on device for profiling."));
             return;
         }
     } else if (runMode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
-        d->remoteFifo = fifo();
+        d->remoteFifo = targetRunner()->fifo();
         if (d->remoteFifo.isEmpty()) {
             handleAdapterSetupFailed(tr("FIFO for profiling data could not be created."));
             return;
         }
     }
 
-    setState(StartingRunner);
+    targetRunner()->setState(AbstractRemoteLinuxRunSupport::StartingRunner);
 
-    ApplicationLauncher *runner = appRunner();
+    ApplicationLauncher *runner = targetRunner()->applicationLauncher();
     connect(runner, &ApplicationLauncher::remoteStderr,
             this, &RemoteLinuxAnalyzeSupport::handleRemoteErrorOutput);
     connect(runner, &ApplicationLauncher::remoteStdout,
@@ -183,16 +190,16 @@ void RemoteLinuxAnalyzeSupport::startExecution()
 
 void RemoteLinuxAnalyzeSupport::handleAppRunnerError(const QString &error)
 {
-    if (state() == Running)
+    if (targetRunner()->state() == AbstractRemoteLinuxRunSupport::Running)
         showMessage(error, Utils::ErrorMessageFormat);
-    else if (state() != Inactive)
+    else if (targetRunner()->state() != AbstractRemoteLinuxRunSupport::Inactive)
         handleAdapterSetupFailed(error);
 }
 
 void RemoteLinuxAnalyzeSupport::handleAppRunnerFinished(bool success)
 {
     // reset needs to be called first to ensure that the correct state is set.
-    reset();
+    targetRunner()->reset();
     if (!success)
         showMessage(tr("Failure running remote process."), Utils::NormalMessageFormat);
     runControl()->notifyRemoteFinished();
@@ -200,7 +207,7 @@ void RemoteLinuxAnalyzeSupport::handleAppRunnerFinished(bool success)
 
 void RemoteLinuxAnalyzeSupport::handleProfilingFinished()
 {
-    setFinished();
+    targetRunner()->setFinished();
 }
 
 void RemoteLinuxAnalyzeSupport::remoteIsRunning()
@@ -208,16 +215,22 @@ void RemoteLinuxAnalyzeSupport::remoteIsRunning()
     runControl()->notifyRemoteSetupDone(d->qmlPort);
 }
 
+AbstractRemoteLinuxRunSupport *RemoteLinuxAnalyzeSupport::targetRunner() const
+{
+    return qobject_cast<AbstractRemoteLinuxRunSupport *>(runControl()->targetRunner());
+}
+
 void RemoteLinuxAnalyzeSupport::handleRemoteOutput(const QByteArray &output)
 {
-    QTC_ASSERT(state() == Inactive || state() == Running, return);
+    QTC_ASSERT(targetRunner()->state() == AbstractRemoteLinuxRunSupport::Inactive
+            || targetRunner()->state() == AbstractRemoteLinuxRunSupport::Running, return);
 
     showMessage(QString::fromUtf8(output), Utils::StdOutFormat);
 }
 
 void RemoteLinuxAnalyzeSupport::handleRemoteErrorOutput(const QByteArray &output)
 {
-    QTC_ASSERT(state() != GatheringResources, return);
+    QTC_ASSERT(targetRunner()->state() != AbstractRemoteLinuxRunSupport::GatheringResources, return);
 
     showMessage(QString::fromUtf8(output), Utils::StdErrFormat);
 }
@@ -229,15 +242,14 @@ void RemoteLinuxAnalyzeSupport::handleProgressReport(const QString &progressOutp
 
 void RemoteLinuxAnalyzeSupport::handleAdapterSetupFailed(const QString &error)
 {
-    AbstractRemoteLinuxRunSupport::handleAdapterSetupFailed(error);
     showMessage(tr("Initial setup failed: %1").arg(error), Utils::NormalMessageFormat);
 }
 
 void RemoteLinuxAnalyzeSupport::handleRemoteProcessStarted()
 {
-    QTC_ASSERT(state() == StartingRunner, return);
+    QTC_ASSERT(targetRunner()->state() == AbstractRemoteLinuxRunSupport::StartingRunner, return);
 
-    handleAdapterSetupDone();
+    targetRunner()->setState(AbstractRemoteLinuxRunSupport::Running);
 }
 
 } // namespace RemoteLinux
