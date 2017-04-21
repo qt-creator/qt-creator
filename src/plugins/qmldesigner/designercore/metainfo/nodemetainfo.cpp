@@ -575,10 +575,10 @@ private:
     void initialiseProperties();
 
     TypeName m_qualfiedTypeName;
-    int m_majorVersion;
-    int m_minorVersion;
-    bool m_isValid;
-    bool m_isFileComponent;
+    int m_majorVersion = -1;
+    int m_minorVersion = -1;
+    bool m_isValid = false;
+    bool m_isFileComponent = false;
     PropertyNameList m_properties;
     PropertyNameList m_signals;
     QList<TypeName> m_propertyTypes;
@@ -673,10 +673,11 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate() : m_isValid(false)
 
 }
 
-NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, int min) :
-                                        m_qualfiedTypeName(type), m_majorVersion(maj),
-                                        m_minorVersion(min), m_isValid(false), m_isFileComponent(false),
-                                        m_model(model)
+NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, int min)
+    : m_qualfiedTypeName(type)
+    , m_majorVersion(maj)
+    , m_minorVersion(min)
+    , m_model(model)
 {
     if (context()) {
         const CppComponentValue *cppObjectValue = getCppComponentValue();
