@@ -220,6 +220,7 @@ void DebuggerRunControl::debuggingFinished()
 void DebuggerRunControl::showMessage(const QString &msg, int channel)
 {
     QTC_ASSERT(engine(this), return);
+    QTC_ASSERT(engine(this)->runTool(), return);
     engine(this)->runTool()->showMessage(msg, channel);
 }
 
