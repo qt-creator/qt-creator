@@ -1522,7 +1522,7 @@ DebuggerRunControl *DebuggerEngine::runControl() const
 DebuggerRunTool *DebuggerEngine::runTool() const
 {
     if (DebuggerRunControl *rc = d->runControl())
-        return static_cast<DebuggerRunTool *>(rc->toolRunner());
+        return qobject_cast<DebuggerRunTool *>(rc->toolRunner());
     return nullptr;
 }
 
