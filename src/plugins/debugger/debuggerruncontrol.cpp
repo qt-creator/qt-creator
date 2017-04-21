@@ -293,11 +293,10 @@ DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters 
     return engine;
 }
 
-bool DebuggerRunTool::fixup()
+static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, QStringList &m_errors)
 {
-    DebuggerRunParameters &rp = m_rp;
-    RunConfiguration *const runConfig = runControl()->runConfiguration();
-    Core::Id runMode = runControl()->runMode();
+    RunConfiguration *runConfig = runControl->runConfiguration();
+    Core::Id runMode = runControl->runMode();
 
     const Kit *kit = runConfig->target()->kit();
     QTC_ASSERT(kit, return false);
@@ -494,6 +493,8 @@ bool DebuggerRunTool::fixup()
     return true;
 }
 
+} // Internal
+
 ////////////////////////////////////////////////////////////////////////
 //
 // DebuggerRunControlFactory
@@ -508,14 +509,20 @@ static bool isDebuggableScript(RunConfiguration *runConfig)
 
 /// DebuggerRunTool
 
+DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerStartParameters &sp, QString *errorMessage)
+    : DebuggerRunTool(runControl, DebuggerRunParameters(sp), errorMessage)
+{}
+
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParameters &rp, QString *errorMessage)
-    : ToolRunner(runControl), m_rp(rp)
+    : ToolRunner(runControl)
 {
+    DebuggerRunParameters m_rp = rp;
+
     runControl->setDisplayName(m_rp.displayName);
     // QML and/or mixed are not prepared for it.
     runControl->setSupportsReRunning(!(m_rp.languages & QmlLanguage));
 
-    if (fixup()) {
+    if (Internal::fixupParameters(m_rp, runControl, m_errors)) {
         m_engine = createEngine(m_rp.masterEngineType, m_rp, &m_errors);
         if (!m_engine) {
             QString msg = m_errors.join('\n');
@@ -581,6 +588,8 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
         break;
     }
 }
+
+namespace Internal {
 
 DebuggerEngine *engine(const DebuggerRunControl *runControl)
 {
@@ -694,7 +703,7 @@ DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
 {
     QTC_ASSERT(runConfig, return nullptr);
     auto runControl = new DebuggerRunControl(runConfig, runMode);
-    (void) new Internal::DebuggerRunTool(runControl, sp, errorMessage);
+    (void) new DebuggerRunTool(runControl, sp, errorMessage);
     return runControl;
 }
 

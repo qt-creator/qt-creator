@@ -27,6 +27,7 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
+#include "debuggerengine.h"
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -36,12 +37,35 @@ class RemoteSetupResult;
 class DebuggerStartParameters;
 class DebuggerRunControl;
 
-namespace Internal { class DebuggerEngine;  }
-
 DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
                                                              ProjectExplorer::RunConfiguration *runConfig,
                                                              QString *errorMessage,
                                                              Core::Id runMode = ProjectExplorer::Constants::DEBUG_RUN_MODE);
+
+class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::ToolRunner
+{
+    Q_OBJECT
+
+public:
+    DebuggerRunTool(ProjectExplorer::RunControl *runControl,
+                    const DebuggerStartParameters &sp,
+                    QString *errorMessage = nullptr); // Use.
+    DebuggerRunTool(ProjectExplorer::RunControl *runControl,
+                    const Internal::DebuggerRunParameters &rp,
+                    QString *errorMessage = nullptr); // FIXME: Don't use.
+    ~DebuggerRunTool();
+
+    Internal::DebuggerEngine *engine() const { return m_engine; }
+    DebuggerRunControl *runControl() const;
+
+    void showMessage(const QString &msg, int channel, int timeout = -1);
+
+    void handleFinished();
+
+private:
+    Internal::DebuggerEngine *m_engine = nullptr; // Master engine
+    QStringList m_errors;
+};
 
 class DEBUGGER_EXPORT DebuggerRunControl : public ProjectExplorer::RunControl
 {

@@ -55,6 +55,7 @@ namespace Debugger {
 
 class DebuggerRunControl;
 class RemoteSetupResult;
+class DebuggerRunTool;
 
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, DebuggerState state);
 
@@ -62,7 +63,6 @@ namespace Internal {
 
 class DebuggerEnginePrivate;
 class DebuggerPluginPrivate;
-class DebuggerRunTool;
 class DisassemblerAgent;
 class MemoryAgent;
 class WatchItem;
@@ -473,31 +473,6 @@ private:
     friend class DebuggerEnginePrivate;
     friend class LocationMark;
     DebuggerEnginePrivate *d;
-};
-
-class DebuggerRunTool : public ProjectExplorer::ToolRunner
-{
-    Q_OBJECT
-
-public:
-    DebuggerRunTool(ProjectExplorer::RunControl *runControl,
-                    const DebuggerRunParameters &rp,
-                    QString *errorMessage = nullptr);
-    ~DebuggerRunTool();
-
-    DebuggerEngine *engine() const { return m_engine; }
-    DebuggerRunControl *runControl() const;
-
-    void showMessage(const QString &msg, int channel, int timeout = -1);
-
-    void handleFinished();
-
-private:
-    bool fixup();
-
-    DebuggerRunParameters m_rp;
-    DebuggerEngine *m_engine = nullptr; // Master engine
-    QStringList m_errors;
 };
 
 class LocationMark : public TextEditor::TextMark
