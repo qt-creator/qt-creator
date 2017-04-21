@@ -540,50 +540,41 @@ QUrl PropertyEditorQmlBackend::getQmlUrlForModelNode(const ModelNode &modelNode,
 
 QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const QString &relativePath)
 {
-    QDir fileSystemDir(PropertyEditorQmlBackend::propertyEditorResourcesPath());
+    static const QDir fileSystemDir(PropertyEditorQmlBackend::propertyEditorResourcesPath());
 
-    static QDir resourcesDir(QStringLiteral(":/propertyEditorQmlSources"));
-    QDir importDir(info.importDirectoryPath() + QLatin1String(Constants::QML_DESIGNER_SUBFOLDER));
-    QDir importDirVersion(info.importDirectoryPath() + QStringLiteral(".") + QString::number(info.majorVersion()) + QLatin1String(Constants::QML_DESIGNER_SUBFOLDER));
+    const QDir resourcesDir(QStringLiteral(":/propertyEditorQmlSources"));
+    const QDir importDir(info.importDirectoryPath() + Constants::QML_DESIGNER_SUBFOLDER);
+    const QDir importDirVersion(info.importDirectoryPath() + QStringLiteral(".") + QString::number(info.majorVersion()) + Constants::QML_DESIGNER_SUBFOLDER);
 
-    const QString versionString = QStringLiteral("_") + QString::number(info.majorVersion())
-            + QStringLiteral("_")
-            + QString::number(info.minorVersion());
-
-    QString relativePathWithoutEnding = relativePath;
-    relativePathWithoutEnding.chop(4);
-    const QString relativePathWithVersion = relativePathWithoutEnding + versionString + QStringLiteral(".qml");
+    const QString relativePathWithoutEnding = relativePath.left(relativePath.count() - 4);
+    const QString relativePathWithVersion = QString("%1_%2_%3.qml").arg(relativePathWithoutEnding
+        ).arg(info.majorVersion()).arg(info.minorVersion());
 
     //Check for qml files with versions first
-    const QString withoutDirWithVersion = relativePathWithVersion.split(QStringLiteral("/")).last();
 
     const QString withoutDir = relativePath.split(QStringLiteral("/")).last();
 
     if (importDirVersion.exists(withoutDir))
         return importDirVersion.absoluteFilePath(withoutDir);
 
+    const QString withoutDirWithVersion = relativePathWithVersion.split(QStringLiteral("/")).last();
 
+    const QStringList possiblePaths = {
+        importDir.absoluteFilePath(relativePathWithVersion),
+        //Since we are in a subfolder of the import we do not require the directory
+        importDir.absoluteFilePath(withoutDirWithVersion),
+        fileSystemDir.absoluteFilePath(relativePathWithVersion),
+        resourcesDir.absoluteFilePath(relativePathWithVersion),
 
-    if (importDir.exists(relativePathWithVersion))
-        return importDir.absoluteFilePath(relativePathWithVersion);
-    if (importDir.exists(withoutDirWithVersion)) //Since we are in a subfolder of the import we do not require the directory
-        return importDir.absoluteFilePath(withoutDirWithVersion);
-    if (fileSystemDir.exists(relativePathWithVersion))
-        return fileSystemDir.absoluteFilePath(relativePathWithVersion);
-    if (resourcesDir.exists(relativePathWithVersion))
-        return resourcesDir.absoluteFilePath(relativePathWithVersion);
-
-
-    if (importDir.exists(relativePath))
-        return importDir.absoluteFilePath(relativePath);
-    if (importDir.exists(withoutDir)) //Since we are in a subfolder of the import we do not require the directory
-        return importDir.absoluteFilePath(withoutDir);
-    if (fileSystemDir.exists(relativePath))
-        return fileSystemDir.absoluteFilePath(relativePath);
-    if (resourcesDir.exists(relativePath))
-        return resourcesDir.absoluteFilePath(relativePath);
-
-    return QString();
+        importDir.absoluteFilePath(relativePath),
+        //Since we are in a subfolder of the import we do not require the directory
+        importDir.absoluteFilePath(withoutDir),
+        fileSystemDir.absoluteFilePath(relativePath),
+        resourcesDir.absoluteFilePath(relativePath)
+    };
+    return Utils::findOrDefault(possiblePaths, [](const QString &possibleFilePath) {
+        return QFile::exists(possibleFilePath);
+    });
 }
 
 
