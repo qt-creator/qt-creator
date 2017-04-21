@@ -36,6 +36,8 @@ class RemoteSetupResult;
 class DebuggerStartParameters;
 class DebuggerRunControl;
 
+namespace Internal { class DebuggerEngine;  }
+
 DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
                                                              ProjectExplorer::RunConfiguration *runConfig,
                                                              QString *errorMessage,
@@ -70,6 +72,9 @@ signals:
     void requestRemoteSetup();
     void aboutToNotifyInferiorSetupOk();
     void stateChanged(Debugger::DebuggerState state);
+
+public:
+    Internal::DebuggerEngine *m_engine = nullptr; // FIXME: Remove.
 };
 
 } // namespace Debugger

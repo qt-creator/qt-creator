@@ -525,6 +525,8 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParame
         }
     }
 
+    qobject_cast<DebuggerRunControl *>(runControl)->m_engine = m_engine;
+
     connect(runControl, &RunControl::finished,
             this, &DebuggerRunTool::handleFinished);
     connect(m_engine, &DebuggerEngine::requestRemoteSetup,
@@ -583,7 +585,8 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
 DebuggerEngine *engine(const DebuggerRunControl *runControl)
 {
     QTC_ASSERT(runControl, return nullptr);
-    return qobject_cast<DebuggerRunTool *>(runControl->toolRunner())->engine();
+    //return qobject_cast<DebuggerRunTool *>(runControl->toolRunner())->engine();
+    return runControl->m_engine;
 }
 
 
