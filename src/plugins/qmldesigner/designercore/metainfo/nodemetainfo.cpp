@@ -41,6 +41,7 @@
 #include <languageutils/fakemetaobject.h>
 
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 namespace QmlDesigner {
 
@@ -1449,32 +1450,24 @@ QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, con
     return Internal::PropertyParser::variantFromString(variant.toString());
 }
 
+QList<NodeMetaInfo> NodeMetaInfo::classHierarchy() const
+{
+    QList<NodeMetaInfo> hierarchy = {*this};
+    hierarchy.append(superClasses());
+    return hierarchy;
+}
+
 QList<NodeMetaInfo> NodeMetaInfo::superClasses() const
 {
-    QList<NodeMetaInfo> list;
-
-    foreach (const Internal::TypeDescription &type,  m_privateData->prototypes()) {
-        list.append(NodeMetaInfo(m_privateData->model(), type.className.toUtf8(), type.majorVersion, type.minorVersion));
-    }
-    return list;
+    Model *model = m_privateData->model();
+    return Utils::transform(m_privateData->prototypes(), [model](const Internal::TypeDescription &type) {
+        return NodeMetaInfo(model, type.className.toUtf8(), type.majorVersion, type.minorVersion);
+    });
 }
 
 NodeMetaInfo NodeMetaInfo::directSuperClass() const
 {
-    QList<NodeMetaInfo> superClassesList = superClasses();
-    if (superClassesList.count() > 1)
-        return superClassesList.at(1);
-    return NodeMetaInfo();
-}
-
-QStringList NodeMetaInfo::superClassNames() const
-{
-    QStringList list;
-
-    foreach (const Internal::TypeDescription &type,  m_privateData->prototypes()) {
-        list.append(type.className);
-    }
-    return list;
+    return superClasses().value(1, NodeMetaInfo());
 }
 
 bool NodeMetaInfo::defaultPropertyIsComponent() const

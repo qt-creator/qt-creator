@@ -527,11 +527,7 @@ void PropertyEditorQmlBackend::setValueforLayoutAttachedProperties(const QmlObje
 QUrl PropertyEditorQmlBackend::getQmlUrlForModelNode(const ModelNode &modelNode, TypeName &className)
 {
     if (modelNode.isValid()) {
-        QList<NodeMetaInfo> hierarchy;
-        hierarchy.append(modelNode.metaInfo());
-        hierarchy.append(modelNode.metaInfo().superClasses());
-
-        foreach (const NodeMetaInfo &info, hierarchy) {
+        foreach (const NodeMetaInfo &info, modelNode.metaInfo().classHierarchy()) {
             QUrl fileUrl = fileToUrl(locateQmlFile(info, QString::fromUtf8(qmlFileName(info))));
             if (fileUrl.isValid()) {
                 className = info.typeName();

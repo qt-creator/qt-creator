@@ -721,12 +721,9 @@ static int getMajorVersionFromImport(const Model *model)
 static int getMajorVersionFromNode(const ModelNode &modelNode)
 {
     if (modelNode.metaInfo().isValid()) {
-        if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
-            return modelNode.majorVersion();
-
-        foreach (const NodeMetaInfo &superClass,  modelNode.metaInfo().superClasses()) {
-            if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
-                return superClass.majorVersion();
+        foreach (const NodeMetaInfo &info,  modelNode.metaInfo().classHierarchy()) {
+            if (info.typeName() == "QtQuick.QtObject" || info.typeName() == "QtQuick.Item")
+                return info.majorVersion();
         }
     }
 
@@ -736,12 +733,9 @@ static int getMajorVersionFromNode(const ModelNode &modelNode)
 static int getMinorVersionFromNode(const ModelNode &modelNode)
 {
     if (modelNode.metaInfo().isValid()) {
-        if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
-            return modelNode.minorVersion();
-
-        foreach (const NodeMetaInfo &superClass,  modelNode.metaInfo().superClasses()) {
-            if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
-                return superClass.minorVersion();
+        foreach (const NodeMetaInfo &info,  modelNode.metaInfo().classHierarchy()) {
+            if (info.typeName() == "QtQuick.QtObject" || info.typeName() == "QtQuick.Item")
+                return info.minorVersion();
         }
     }
 

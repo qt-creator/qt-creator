@@ -434,11 +434,7 @@ void PropertyEditorView::setupQmlBackend()
     TypeName diffClassName;
     if (m_selectedNode.isValid()) {
         diffClassName = m_selectedNode.metaInfo().typeName();
-        QList<NodeMetaInfo> hierarchy;
-        hierarchy << m_selectedNode.metaInfo();
-        hierarchy << m_selectedNode.metaInfo().superClasses();
-
-        foreach (const NodeMetaInfo &metaInfo, hierarchy) {
+        foreach (const NodeMetaInfo &metaInfo, m_selectedNode.metaInfo().classHierarchy()) {
             if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsFile))
                 break;
             qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName() + "Specifics", metaInfo);

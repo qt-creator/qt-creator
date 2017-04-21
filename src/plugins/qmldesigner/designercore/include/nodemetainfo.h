@@ -78,10 +78,9 @@ public:
     QStringList propertyKeysForEnum(const PropertyName &propertyName) const;
     QVariant propertyCastedValue(const PropertyName &propertyName, const QVariant &value) const;
 
+    QList<NodeMetaInfo> classHierarchy() const;
     QList<NodeMetaInfo> superClasses() const;
     NodeMetaInfo directSuperClass() const;
-
-    QStringList superClassNames() const;
 
     bool defaultPropertyIsComponent() const;
 
