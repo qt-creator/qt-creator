@@ -172,6 +172,13 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
         emit addTask(Task::buildConfigurationMissingTask());
         canInit = false;
     }
+    if (!bc->isEnabled()) {
+        emit addTask(Task(Task::Error,
+                          QCoreApplication::translate("CMakeProjectManager::CMakeBuildStep",
+                                                      "The build configuration is currently disabled."),
+                          Utils::FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        canInit = false;
+    }
 
     CMakeTool *tool = CMakeKitInformation::cmakeTool(target()->kit());
     if (!tool || !tool->isValid()) {

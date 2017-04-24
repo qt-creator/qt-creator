@@ -205,6 +205,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
     if (!m_process->waitForStarted()) {
         processStartupFailed();
         m_process.reset();
+        m_outputParserChain.reset();
         reportRunResult(fi, false);
         return;
     }
