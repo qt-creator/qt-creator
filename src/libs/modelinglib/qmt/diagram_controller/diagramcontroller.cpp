@@ -119,7 +119,7 @@ public:
             return false;
         }
         // join other elements into this command
-        foreach (const DElement *otherElement, otherUpdateCommand->m_clonedElements.values()) {
+        foreach (const DElement *otherElement, otherUpdateCommand->m_clonedElements) {
             if (!m_clonedElements.contains(otherElement->uid())) {
                 DCloneVisitor visitor;
                 otherElement->accept(&visitor);
