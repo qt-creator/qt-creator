@@ -596,6 +596,8 @@ BookmarkModel* BookmarkManager::listBookmarkModel() const
 
 void BookmarkManager::saveBookmarks()
 {
+    if (!m_isModelSetup)
+        return;
     QByteArray bookmarks;
     QDataStream stream(&bookmarks, QIODevice::WriteOnly);
 
@@ -708,6 +710,7 @@ void BookmarkManager::itemChanged(QStandardItem *item)
 
 void BookmarkManager::setupBookmarkModels()
 {
+    m_isModelSetup = true;
     treeModel->clear();
     listModel->clear();
 
