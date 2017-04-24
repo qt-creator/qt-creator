@@ -1304,6 +1304,17 @@ class DumperBase:
         self.putFormattedPointerX(value)
         self.ping('formattedPointer')
 
+    def putDerefedPointer(self, value):
+        derefValue = value.dereference()
+        innerType = value.type.target() #.unqualified()
+        self.putType(innerType)
+        savedCurrentChildType = self.currentChildType
+        self.currentChildType = innerType.name
+        derefValue.name = '*'
+        self.putItem(derefValue)
+        self.currentChildType = savedCurrentChildType
+        self.putOriginalAddress(value.pointer())
+
     def putFormattedPointerX(self, value):
         #warn("PUT FORMATTED: %s" % value)
         pointer = value.pointer()
@@ -1326,6 +1337,10 @@ class DumperBase:
             self.putValue('0x%x' % pointer)
             self.putType(typeName)
             self.putNumChild(0)
+            return
+
+        if self.currentIName.endswith('.this'):
+            self.putDerefedPointer(value)
             return
 
         displayFormat = self.currentItemFormat(value.type.name)
@@ -1375,18 +1390,10 @@ class DumperBase:
         #warn('AUTODEREF: %s' % self.autoDerefPointers)
         #warn('INAME: %s' % self.currentIName)
         #warn('INNER: %s' % innerType.name)
-        if self.autoDerefPointers or self.currentIName.endswith('.this'):
-            derefValue = value.dereference()
-            # Never dereference char types.
+        if self.autoDerefPointers:
+            # Generic pointer type with AutomaticFormat, but never dereference char types:
             if innerType.name not in ('char', 'signed char', 'unsigned char', 'wchar_t'):
-                # Generic pointer type with AutomaticFormat.
-                self.putType(innerType)
-                savedCurrentChildType = self.currentChildType
-                self.currentChildType = innerType.name
-                derefValue.name = '*'
-                self.putItem(derefValue)
-                self.currentChildType = savedCurrentChildType
-                self.putOriginalAddress(pointer)
+                self.putDerefedPointer(value)
                 return
 
         #warn('GENERIC PLAIN POINTER: %s' % value.type)
