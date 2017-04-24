@@ -323,7 +323,7 @@ GlslEditorFactory::GlslEditorFactory()
     setEditorWidgetCreator([]() { return new GlslEditorWidget; });
     setIndenterCreator([]() { return new GlslIndenter; });
     setSyntaxHighlighterCreator([]() { return new GlslHighlighter; });
-    setCommentStyle(Utils::CommentDefinition::CppStyle);
+    setCommentDefinition(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider(new GlslCompletionAssistProvider);
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);

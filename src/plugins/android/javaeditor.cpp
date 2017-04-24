@@ -65,7 +65,7 @@ JavaEditorFactory::JavaEditorFactory()
 
     setDocumentCreator(createJavaDocument);
     setUseGenericHighlighter(true);
-    setCommentStyle(Utils::CommentDefinition::CppStyle);
+    setCommentDefinition(Utils::CommentDefinition::CppStyle);
     setEditorActionHandlers(TextEditor::TextEditorActionHandler::UnCommentSelection);
     setCompletionAssistProvider(new JavaCompletionAssistProvider);
     setMarksVisible(true);

@@ -95,7 +95,7 @@ public:
         setEditorWidgetCreator([]() { return new CppEditorWidget; });
         setEditorCreator([]() { return new CppEditor; });
         setAutoCompleterCreator([]() { return new CppAutoCompleter; });
-        setCommentStyle(CommentDefinition::CppStyle);
+        setCommentDefinition(CommentDefinition::CppStyle);
         setCodeFoldingSupported(true);
         setMarksVisible(true);
         setParenthesesMatchingEnabled(true);

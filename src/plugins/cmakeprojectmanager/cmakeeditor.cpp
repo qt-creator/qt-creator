@@ -220,7 +220,7 @@ CMakeEditorFactory::CMakeEditorFactory()
     setDocumentCreator(createCMakeDocument);
     setIndenterCreator([]() { return new CMakeIndenter; });
     setUseGenericHighlighter(true);
-    setCommentStyle(Utils::CommentDefinition::HashStyle);
+    setCommentDefinition(Utils::CommentDefinition::HashStyle);
     setCodeFoldingSupported(true);
 
     setCompletionAssistProvider(new CMakeFileCompletionAssistProvider);

@@ -65,7 +65,7 @@ NimEditorFactory::NimEditorFactory()
     setSyntaxHighlighterCreator([]() {
         return new NimHighlighter;
     });
-    setCommentStyle(CommentDefinition::HashStyle);
+    setCommentDefinition(CommentDefinition::HashStyle);
     setParenthesesMatchingEnabled(true);
     setMarksVisible(false);
     setCodeFoldingSupported(true);

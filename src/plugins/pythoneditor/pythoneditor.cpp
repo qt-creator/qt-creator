@@ -55,7 +55,7 @@ PythonEditorFactory::PythonEditorFactory()
     setDocumentCreator([] { return new TextDocument(Constants::C_PYTHONEDITOR_ID); });
     setIndenterCreator([] { return new PythonIndenter; });
     setSyntaxHighlighterCreator([] { return new PythonHighlighter; });
-    setCommentStyle(Utils::CommentDefinition::HashStyle);
+    setCommentDefinition(Utils::CommentDefinition::HashStyle);
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);

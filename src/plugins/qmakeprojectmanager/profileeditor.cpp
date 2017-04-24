@@ -185,7 +185,7 @@ ProFileEditorFactory::ProFileEditorFactory()
     ProFileCompletionAssistProvider *pcap = new ProFileCompletionAssistProvider;
     setCompletionAssistProvider(pcap);
 
-    setCommentStyle(Utils::CommentDefinition::HashStyle);
+    setCommentDefinition(Utils::CommentDefinition::HashStyle);
     setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
                 | TextEditorActionHandler::JumpToFileUnderCursor);
 

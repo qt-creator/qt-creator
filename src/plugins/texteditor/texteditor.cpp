@@ -7798,7 +7798,6 @@ public:
         q(parent),
         m_widgetCreator([]() { return new TextEditorWidget; }),
         m_editorCreator([]() { return new BaseTextEditor; }),
-        m_commentStyle(CommentDefinition::NoStyle),
         m_completionAssistProvider(0),
         m_useGenericHighlighter(false),
         m_duplicatedSupported(true),
@@ -7823,7 +7822,7 @@ public:
     TextEditorFactory::AutoCompleterCreator m_autoCompleterCreator;
     TextEditorFactory::IndenterCreator m_indenterCreator;
     TextEditorFactory::SyntaxHighLighterCreator m_syntaxHighlighterCreator;
-    CommentDefinition::Style m_commentStyle;
+    CommentDefinition m_commentDefinition;
     QList<BaseHoverHandler *> m_hoverHandlers; // owned
     CompletionAssistProvider * m_completionAssistProvider; // owned
     bool m_useGenericHighlighter;
@@ -7901,9 +7900,9 @@ void TextEditorFactory::setCompletionAssistProvider(CompletionAssistProvider *pr
     d->m_completionAssistProvider = provider;
 }
 
-void TextEditorFactory::setCommentStyle(CommentDefinition::Style style)
+void TextEditorFactory::setCommentDefinition(CommentDefinition definition)
 {
-    d->m_commentStyle = style;
+    d->m_commentDefinition = definition;
 }
 
 void TextEditorFactory::setDuplicatedSupported(bool on)
@@ -7963,7 +7962,7 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
     widget->d->m_hoverHandlers = m_hoverHandlers;
 
     widget->d->m_codeAssistant.configure(widget);
-    widget->d->m_commentDefinition.setStyle(m_commentStyle);
+    widget->d->m_commentDefinition = m_commentDefinition;
 
     QObject::connect(widget, &TextEditorWidget::activateEditor,
                      [editor]() { EditorManager::activateEditor(editor); });
