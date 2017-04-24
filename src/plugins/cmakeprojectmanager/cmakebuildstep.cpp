@@ -232,7 +232,7 @@ void CMakeBuildStep::run(QFutureInterface<bool> &fi)
     // Make sure CMake state was written to disk before trying to build:
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
     if (!bc)
-        bc = qobject_cast<CMakeBuildConfiguration *>(target()->activeBuildConfiguration());
+        bc = targetsActiveBuildConfiguration();
     QTC_ASSERT(bc, return);
 
     bool mustDelay = false;
