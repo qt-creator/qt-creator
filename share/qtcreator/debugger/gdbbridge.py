@@ -264,7 +264,10 @@ class Dumper(DumperBase):
             y = nativeValue.cast(chars.array(0, int(nativeType.sizeof - 1)))
             buf = bytearray(struct.pack('x' * size))
             for i in range(size):
-                buf[i] = int(y[i])
+                try:
+                    buf[i] = int(y[i])
+                except:
+                    pass
             val.ldata = bytes(buf)
 
         val.type = self.fromNativeType(nativeType)
