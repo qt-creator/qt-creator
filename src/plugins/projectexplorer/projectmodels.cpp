@@ -104,10 +104,15 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Qt::DecorationRole: {
-            if (folderNode)
+            if (folderNode) {
                 result = folderNode->icon();
-            else
+                if (ContainerNode *containerNode = folderNode->asContainerNode()) {
+                    if (ProjectNode *projectNode = containerNode->rootProjectNode())
+                        result = projectNode->icon();
+                }
+            } else {
                 result = Core::FileIconProvider::icon(node->filePath().toString());
+            }
             break;
         }
         case Qt::FontRole: {
