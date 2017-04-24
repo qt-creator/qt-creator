@@ -28,8 +28,8 @@
 #include "proitems.h"
 
 #include <QDir>
-#include <QRegExp>
 #include <QPair>
+#include <QRegularExpression>
 
 using namespace QmakeProjectManager::Internal;
 
@@ -354,9 +354,11 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines, const QString
             if (scopeStart < 0) {
                 added = QLatin1Char('\n') + scope + QLatin1String(" {");
             } else {
-                QRegExp rx(QLatin1String("(\\s*") + scope + QLatin1String("\\s*:\\s*)[^\\s{].*"));
-                if (rx.exactMatch(lines->at(scopeStart))) {
-                    (*lines)[scopeStart].replace(0, rx.cap(1).length(),
+                // TODO use anchoredPattern() once Qt 5.12 is mandatory
+                const QRegularExpression rx("\\A(\\s*" + scope + "\\s*:\\s*)[^\\s{].*\\z");
+                const QRegularExpressionMatch match(rx.match(lines->at(scopeStart)));
+                if (match.hasMatch()) {
+                    (*lines)[scopeStart].replace(0, match.captured(1).length(),
                                                  QString(scope + QLatin1String(" {\n")
                                                          + continuationIndent));
                     contInfo = skipContLines(lines, scopeStart, false);
