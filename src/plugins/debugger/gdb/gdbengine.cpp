@@ -3864,7 +3864,7 @@ void GdbEngine::startGdb(const QStringList &args)
         QString msg;
         QString wd = m_gdbProc.workingDirectory();
         if (!QFileInfo(wd).isDir())
-            msg = failedToStartMessage() + ' ' + tr("The working directory \"%s\" is not usable.").arg(wd);
+            msg = failedToStartMessage() + ' ' + tr("The working directory \"%1\" is not usable.").arg(wd);
         else
             msg = errorMessage(QProcess::FailedToStart);
         handleAdapterStartFailed(msg);
