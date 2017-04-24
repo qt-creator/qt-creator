@@ -63,7 +63,6 @@ QtcPlugin {
             "nimcodestylepreferenceswidget.h", "nimcodestylepreferenceswidget.cpp", "nimcodestylepreferenceswidget.ui",
             "nimcodestylesettingspage.h", "nimcodestylesettingspage.cpp",
             "nimsettings.h", "nimsettings.cpp",
-            "nimsnippetprovider.h", "nimsnippetprovider.cpp",
         ]
     }
 

@@ -30,7 +30,7 @@
 #include "qmljsindenter.h"
 #include "qmljsqtstylecodeformatter.h"
 
-#include <texteditor/snippets/isnippetprovider.h>
+#include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/simplecodestylepreferences.h>
 #include <texteditor/displaysettings.h>
@@ -55,14 +55,6 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(QWidget *parent
     m_ui(new Ui::QmlJSCodeStyleSettingsPage)
 {
     m_ui->setupUi(this);
-
-    ISnippetProvider *provider = ExtensionSystem::PluginManager::getObject<ISnippetProvider>(
-        [](ISnippetProvider *provider) {
-            return provider->groupId() == QLatin1String(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
-        });
-
-    if (provider)
-        provider->decorateEditor(m_ui->previewTextEdit);
 
     decorateEditor(TextEditorSettings::fontSettings());
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
@@ -91,8 +83,8 @@ void QmlJSCodeStylePreferencesWidget::setPreferences(ICodeStylePreferences *pref
 
 void QmlJSCodeStylePreferencesWidget::decorateEditor(const FontSettings &fontSettings)
 {
-    const ISnippetProvider *provider = ExtensionSystem::PluginManager::getObject<ISnippetProvider>(
-        [](ISnippetProvider *current) {
+    const SnippetProvider *provider = ExtensionSystem::PluginManager::getObject<SnippetProvider>(
+        [](SnippetProvider *current) {
             return current->groupId() == QLatin1String(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
         });
 

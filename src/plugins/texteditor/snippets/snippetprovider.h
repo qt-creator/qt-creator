@@ -29,22 +29,33 @@
 
 #include <QObject>
 
+#include <functional>
+
 namespace TextEditor {
 
-class SnippetEditorWidget;
+class TextEditorWidget;
 
-class TEXTEDITOR_EXPORT ISnippetProvider : public QObject
+class TEXTEDITOR_EXPORT SnippetProvider : public QObject
 {
     Q_OBJECT
 public:
-    virtual ~ISnippetProvider();
+    using EditorDecorator = std::function<void(TextEditorWidget *)>;
 
-    virtual QString groupId() const = 0;
-    virtual QString displayName() const = 0;
-    virtual void decorateEditor(SnippetEditorWidget *editor) const = 0;
+    static void registerGroup(const QString &groupId, const QString &displayName,
+                              EditorDecorator editorDecorator = EditorDecorator());
 
-protected:
-    ISnippetProvider();
+    QString groupId() const;
+    QString displayName() const;
+    EditorDecorator editorDecorator() const;
+
+    void decorateEditor(TextEditorWidget *editor) const;
+
+private:
+    SnippetProvider() = default;
+
+    QString m_groupId;
+    QString m_displayName;
+    EditorDecorator m_editorDecorator;
 };
 
 } // TextEditor

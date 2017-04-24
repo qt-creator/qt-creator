@@ -37,7 +37,7 @@
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/displaysettings.h>
-#include <texteditor/snippets/isnippetprovider.h>
+#include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <cplusplus/Overview.h>
@@ -493,8 +493,8 @@ void CppCodeStylePreferencesWidget::updatePreview()
 
 void CppCodeStylePreferencesWidget::decorateEditors(const FontSettings &fontSettings)
 {
-    const ISnippetProvider *provider = ExtensionSystem::PluginManager::getObject<ISnippetProvider>(
-        [](ISnippetProvider *current) {
+    const SnippetProvider *provider = ExtensionSystem::PluginManager::getObject<SnippetProvider>(
+        [](SnippetProvider *current) {
             return current->groupId() == QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
         });
 

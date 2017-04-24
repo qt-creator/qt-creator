@@ -34,7 +34,7 @@
 #include "tabsettings.h"
 #include "indenter.h"
 #include "snippets/snippeteditor.h"
-#include "snippets/isnippetprovider.h"
+#include "snippets/snippetprovider.h"
 #include <QVBoxLayout>
 #include <QTextBlock>
 #include <QLabel>
@@ -54,7 +54,7 @@ CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
     DisplaySettings displaySettings = m_preview->displaySettings();
     displaySettings.m_visualizeWhitespace = true;
     m_preview->setDisplaySettings(displaySettings);
-    ISnippetProvider *provider = factory->snippetProvider();
+    SnippetProvider *provider = factory->snippetProvider();
     if (provider)
         provider->decorateEditor(m_preview);
     QLabel *label = new QLabel(

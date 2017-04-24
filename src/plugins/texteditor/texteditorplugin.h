@@ -48,6 +48,8 @@ public:
     TextEditorPlugin();
     virtual ~TextEditorPlugin();
 
+    static TextEditorPlugin *instance();
+
     // ExtensionSystem::IPlugin
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();

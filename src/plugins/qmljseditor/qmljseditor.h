@@ -148,6 +148,8 @@ class QmlJSEditorFactory : public TextEditor::TextEditorFactory
 
 public:
     QmlJSEditorFactory();
+
+    static void decorateEditor(TextEditor::TextEditorWidget *editor);
 };
 
 } // namespace Internal

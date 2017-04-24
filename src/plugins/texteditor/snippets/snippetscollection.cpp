@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "snippetscollection.h"
-#include "isnippetprovider.h"
+#include "snippetprovider.h"
 #include "reuse.h"
 
 #include <coreplugin/icore.h>
@@ -409,9 +409,9 @@ int SnippetsCollection::groupIndex(const QString &groupId) const
 
 void SnippetsCollection::identifyGroups()
 {
-    const QList<ISnippetProvider *> &providers =
-        ExtensionSystem::PluginManager::getObjects<ISnippetProvider>();
-    foreach (ISnippetProvider *provider, providers) {
+    const QList<SnippetProvider *> &providers =
+        ExtensionSystem::PluginManager::getObjects<SnippetProvider>();
+    foreach (SnippetProvider *provider, providers) {
         const int groupIndex = m_groupIndexById.size();
         m_groupIndexById.insert(provider->groupId(), groupIndex);
         m_snippets.resize(groupIndex + 1);

@@ -27,7 +27,6 @@ HEADERS += \
     cppquickfix.h \
     cppquickfixassistant.h \
     cppquickfixes.h \
-    cppsnippetprovider.h \
     cpptypehierarchy.h \
     cppuseselectionsupdater.h \
     cppvirtualfunctionassistprovider.h \
@@ -57,7 +56,6 @@ SOURCES += \
     cppquickfix.cpp \
     cppquickfixassistant.cpp \
     cppquickfixes.cpp \
-    cppsnippetprovider.cpp \
     cpptypehierarchy.cpp \
     cppuseselectionsupdater.cpp \
     cppvirtualfunctionassistprovider.cpp \

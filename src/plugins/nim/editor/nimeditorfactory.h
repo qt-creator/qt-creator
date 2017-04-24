@@ -37,6 +37,7 @@ public:
     NimEditorFactory();
 
     Core::IEditor *createEditor() override;
+    static void decorateEditor(TextEditor::TextEditorWidget *editor);
 };
 
 }

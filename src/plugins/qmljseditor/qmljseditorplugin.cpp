@@ -32,7 +32,6 @@
 #include "qmljsoutline.h"
 #include "qmljspreviewrunner.h"
 #include "qmljsquickfixassist.h"
-#include "qmljssnippetprovider.h"
 #include "qmltaskmanager.h"
 #include "quicktoolbar.h"
 
@@ -53,6 +52,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/json.h>
@@ -101,7 +101,9 @@ QmlJSEditorPlugin::~QmlJSEditorPlugin()
 bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
     m_modelManager = QmlJS::ModelManagerInterface::instance();
-    addAutoReleasedObject(new QmlJSSnippetProvider);
+    TextEditor::SnippetProvider::registerGroup(Constants::QML_SNIPPETS_GROUP_ID,
+                                               tr("QML", "SnippetProvider"),
+                                               &QmlJSEditorFactory::decorateEditor);
 
     // QML task updating manager
     m_qmlTaskManager = new QmlTaskManager;

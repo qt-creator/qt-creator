@@ -22,7 +22,6 @@ HEADERS += \
     qmljscomponentnamedialog.h \
     qmljsfindreferences.h \
     qmljsautocompleter.h \
-    qmljssnippetprovider.h \
     qmljsreuse.h \
     qmljsquickfixassist.h \
     qmljscompletionassist.h \
@@ -51,7 +50,6 @@ SOURCES += \
     qmljscomponentnamedialog.cpp \
     qmljsfindreferences.cpp \
     qmljsautocompleter.cpp \
-    qmljssnippetprovider.cpp \
     qmljsreuse.cpp \
     qmljsquickfixassist.cpp \
     qmljscompletionassist.cpp \

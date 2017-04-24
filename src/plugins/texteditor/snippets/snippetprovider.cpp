@@ -23,7 +23,9 @@
 **
 ****************************************************************************/
 
-#include "isnippetprovider.h"
+#include "snippetprovider.h"
+
+#include "texteditorplugin.h"
 
 using namespace TextEditor;
 
@@ -38,15 +40,14 @@ using namespace TextEditor;
 
     In order to create a new group of snippets two steps are necessary:
     \list
-        \li Implement the TextEditor::ISnippetProvider interface and register it in
-        the extension system.
+        \li Register the group with TextEditor::SnippetProvider::registerGroup
         \li Create an XML configuration file and place it in the
         /share/qtcreator/snippets directory. As an example of the file format
         please take a look at the already available ones. The meaning and consistency rules
         of the fields are described below:
         \list
             \li group - This is the group in which the snippet belongs in the user interface.
-            It must match TextEditor::ISnippetProvider::groupId().
+            It must match TextEditor::SnippetProvider::groupId().
             \li id - A unique string that identifies this snippet among all others available.
             The recommended practice is to prefix it with the group so it is easier to have
             such control on a file level.
@@ -64,36 +65,57 @@ using namespace TextEditor;
 */
 
 /*!
-    \class TextEditor::ISnippetProvider
-    \brief The ISnippetProvider class acts as an interface for providing groups of snippets.
+    \class TextEditor::SnippetProvider
+    \brief The SnippetProvider class acts as an interface for providing groups of snippets.
     \ingroup Snippets
-
-    Known implementors of this interface are the CppSnippetProvider, the QmlJSSnippetProvider,
-    and the PlainTextSnippetProvider.
 */
 
-ISnippetProvider::ISnippetProvider() : QObject()
-{}
-
-ISnippetProvider::~ISnippetProvider()
-{}
-
 /*!
-    \fn QString TextEditor::ISnippetProvider::groupId() const
-
     Returns the unique group id to which this provider is associated.
 */
+QString SnippetProvider::groupId() const
+{
+    return m_groupId;
+}
 
 /*!
-    \fn QString TextEditor::ISnippetProvider::displayName() const
-
     Returns the name to be displayed in the user interface for snippets that belong to the group
     associated with this provider.
 */
+QString SnippetProvider::displayName() const
+{
+    return m_displayName;
+}
 
 /*!
-    \fn void TextEditor::ISnippetProvider::decorateEditor(SnippetEditorWidget *editor) const
-
-    This is a hook which allows you to apply customizations such as highlighting or indentation
-    to the snippet editor.
+    EditorDecorator is a hook which allows you to apply customizations such as highlighting or
+    indentation to the snippet editor.
 */
+SnippetProvider::EditorDecorator SnippetProvider::editorDecorator() const
+{
+    return m_editorDecorator;
+}
+
+/*!
+    Applies customizations such as highlighting or indentation to the snippet editor.
+ */
+void SnippetProvider::decorateEditor(TextEditorWidget *editor) const
+{
+    editorDecorator()(editor);
+}
+
+static void doNotDecorate(TextEditorWidget *) { }
+
+/*!
+    Registers a snippet group with \a groupId, \a displayName and \a editorDecorator.
+ */
+void SnippetProvider::registerGroup(const QString &groupId, const QString &displayName,
+                                     EditorDecorator editorDecorator)
+{
+    auto provider = new SnippetProvider;
+    provider->m_groupId = groupId;
+    provider->m_displayName = displayName;
+    provider->m_editorDecorator = editorDecorator ? editorDecorator : EditorDecorator(doNotDecorate);
+    Internal::TextEditorPlugin::instance()->addAutoReleasedObject(provider);
+}
+

@@ -63,8 +63,7 @@ SOURCES += texteditorplugin.cpp \
     snippets/snippeteditor.cpp \
     snippets/snippetscollection.cpp \
     snippets/snippetssettings.cpp \
-    snippets/isnippetprovider.cpp \
-    snippets/plaintextsnippetprovider.cpp \
+    snippets/snippetprovider.cpp \
     behaviorsettingswidget.cpp \
     extraencodingsettings.cpp \
     codeassist/functionhintproposalwidget.cpp \
@@ -174,8 +173,7 @@ HEADERS += texteditorplugin.h \
     snippets/snippetscollection.h \
     snippets/reuse.h \
     snippets/snippetssettings.h \
-    snippets/isnippetprovider.h \
-    snippets/plaintextsnippetprovider.h \
+    snippets/snippetprovider.h \
     behaviorsettingswidget.h \
     extraencodingsettings.h \
     codeassist/functionhintproposalwidget.h \

@@ -31,7 +31,7 @@
 #include "cppqtstyleindenter.h"
 
 #include <cppeditor/cppeditorconstants.h>
-#include <texteditor/snippets/isnippetprovider.h>
+#include <texteditor/snippets/snippetprovider.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -121,10 +121,10 @@ TextEditor::Indenter *CppCodeStylePreferencesFactory::createIndenter() const
     return new CppQtStyleIndenter();
 }
 
-TextEditor::ISnippetProvider *CppCodeStylePreferencesFactory::snippetProvider() const
+TextEditor::SnippetProvider *CppCodeStylePreferencesFactory::snippetProvider() const
 {
-    return ExtensionSystem::PluginManager::getObject<TextEditor::ISnippetProvider>(
-        [](TextEditor::ISnippetProvider *provider) {
+    return ExtensionSystem::PluginManager::getObject<TextEditor::SnippetProvider>(
+        [](TextEditor::SnippetProvider *provider) {
             return provider->groupId() == QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
         });
 }

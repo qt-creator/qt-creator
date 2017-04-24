@@ -34,7 +34,7 @@
 #include "linenumberfilter.h"
 #include "outlinefactory.h"
 #include "plaintexteditorfactory.h"
-#include "snippets/plaintextsnippetprovider.h"
+#include "snippets/snippetprovider.h"
 #include "texteditoractionhandler.h"
 #include "texteditorsettings.h"
 #include "textmarkregistry.h"
@@ -80,6 +80,11 @@ TextEditorPlugin::~TextEditorPlugin()
     m_instance = 0;
 }
 
+TextEditorPlugin *TextEditorPlugin::instance()
+{
+    return m_instance;
+}
+
 // ExtensionSystem::PluginInterface
 bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
@@ -119,7 +124,8 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(ICore::instance(), &ICore::coreOpened, Manager::instance(), &Manager::registerHighlightingFiles);
 
     // Add text snippet provider.
-    addAutoReleasedObject(new PlainTextSnippetProvider);
+    SnippetProvider::registerGroup(Constants::TEXT_SNIPPET_GROUP_ID,
+                                    tr("Text", "SnippetProvider"));
 
     m_outlineFactory = new OutlineFactory;
     addAutoReleasedObject(m_outlineFactory);

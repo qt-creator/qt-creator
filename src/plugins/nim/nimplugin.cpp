@@ -38,11 +38,11 @@
 #include "settings/nimcodestylepreferencesfactory.h"
 #include "settings/nimcodestylesettingspage.h"
 #include "settings/nimsettings.h"
-#include "settings/nimsnippetprovider.h"
 
 #include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <texteditor/snippets/snippetprovider.h>
 
 #include <QtPlugin>
 
@@ -70,7 +70,6 @@ bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     ProjectExplorer::ToolChainManager::registerLanguage(Constants::C_NIMLANGUAGE_ID, Constants::C_NIMLANGUAGE_NAME);
 
     addAutoReleasedObject(new NimSettings);
-    addAutoReleasedObject(new NimSnippetProvider);
     addAutoReleasedObject(new NimEditorFactory);
     addAutoReleasedObject(new NimBuildConfigurationFactory);
     addAutoReleasedObject(new NimRunConfigurationFactory);
@@ -80,6 +79,9 @@ bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(new NimCodeStyleSettingsPage);
     addAutoReleasedObject(new NimCodeStylePreferencesFactory);
     addAutoReleasedObject(new NimToolChainFactory);
+    TextEditor::SnippetProvider::registerGroup(Constants::C_NIMSNIPPETSGROUP_ID,
+                                               tr("Nim", "SnippetProvider"),
+                                               &NimEditorFactory::decorateEditor);
 
     ProjectExplorer::ProjectManager::registerProjectType<NimProject>(Constants::C_NIM_PROJECT_MIMETYPE);
 

@@ -90,7 +90,6 @@ const char C_NIMCODESTYLESETTINGSPAGE_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("Ni
 const char C_NIMLANGUAGE_NAME[] = QT_TRANSLATE_NOOP("NimCodeStylePreferencesFactory", "Nim");
 const char C_NIMGLOBALCODESTYLE_ID[] = "NimGlobal";
 const QString C_NIMSNIPPETSGROUP_ID = QStringLiteral("Nim.NimSnippetsGroup");
-const char C_NIMSNIPPETPROVIDER_DISPLAY[] = QT_TRANSLATE_NOOP("NimSnippetProvider", "Nim");
 
 const char C_NIMCODESTYLEPREVIEWSNIPPET[] =
         "import os\n"

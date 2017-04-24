@@ -247,10 +247,8 @@ Project {
             name: "Snippets"
             prefix: "snippets/"
             files: [
-                "isnippetprovider.cpp",
-                "isnippetprovider.h",
-                "plaintextsnippetprovider.cpp",
-                "plaintextsnippetprovider.h",
+                "snippetprovider.cpp",
+                "snippetprovider.h",
                 "reuse.h",
                 "snippet.cpp",
                 "snippet.h",

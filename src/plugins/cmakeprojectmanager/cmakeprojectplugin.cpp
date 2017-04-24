@@ -33,7 +33,6 @@
 #include "cmakeprojectnodes.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakerunconfiguration.h"
-#include "cmakesnippetprovider.h"
 #include "cmakeprojectconstants.h"
 #include "cmakelocatorfilter.h"
 #include "cmakesettingspage.h"
@@ -47,6 +46,8 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
+
+#include <texteditor/snippets/snippetprovider.h>
 
 #include <utils/parameteraction.h>
 
@@ -62,7 +63,8 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     Core::FileIconProvider::registerIconOverlayForSuffix(Constants::FILEOVERLAY_CMAKE, "cmake");
     Core::FileIconProvider::registerIconOverlayForFilename(Constants::FILEOVERLAY_CMAKE, "CMakeLists.txt");
 
-    addAutoReleasedObject(new Internal::CMakeSnippetProvider);
+    TextEditor::SnippetProvider::registerGroup(Constants::CMAKE_SNIPPETS_GROUP_ID,
+                                               tr("CMake", "SnippetProvider"));
     addAutoReleasedObject(new CMakeSettingsPage);
     addAutoReleasedObject(new CMakeManager);
 

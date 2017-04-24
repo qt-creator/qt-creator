@@ -36,7 +36,6 @@
 #include "cppoutline.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
-#include "cppsnippetprovider.h"
 #include "cpptypehierarchy.h"
 #include "resourcepreviewhoverhandler.h"
 
@@ -58,6 +57,7 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/colorpreviewhoverhandler.h>
+#include <texteditor/snippets/snippetprovider.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -149,7 +149,8 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     addAutoReleasedObject(new CppOutlineWidgetFactory);
     addAutoReleasedObject(new CppTypeHierarchyFactory);
     addAutoReleasedObject(new CppIncludeHierarchyFactory);
-    addAutoReleasedObject(new CppSnippetProvider);
+    SnippetProvider::registerGroup(Constants::CPP_SNIPPETS_GROUP_ID, tr("C++", "SnippetProvider"),
+                                   &CppEditor::decorateEditor);
 
     m_quickFixProvider = new CppQuickFixAssistProvider(this);
     registerQuickFixes(this);

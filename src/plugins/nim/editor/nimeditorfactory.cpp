@@ -77,4 +77,10 @@ Core::IEditor *NimEditorFactory::createEditor()
     return TextEditorFactory::createEditor();
 }
 
+void NimEditorFactory::decorateEditor(TextEditorWidget *editor)
+{
+    editor->textDocument()->setSyntaxHighlighter(new NimHighlighter());
+    editor->textDocument()->setIndenter(new NimIndenter());
+}
+
 }

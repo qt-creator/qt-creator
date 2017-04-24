@@ -53,6 +53,9 @@ class CppEditor : public TextEditor::BaseTextEditor
 
 public:
     CppEditor();
+
+    static void decorateEditor(TextEditor::TextEditorWidget *editor);
+
 };
 
 class CppEditorWidget : public TextEditor::TextEditorWidget

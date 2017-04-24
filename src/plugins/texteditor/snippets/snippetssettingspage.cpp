@@ -25,7 +25,7 @@
 
 #include "snippetssettingspage.h"
 #include "snippeteditor.h"
-#include "isnippetprovider.h"
+#include "snippetprovider.h"
 #include "snippet.h"
 #include "snippetscollection.h"
 #include "snippetssettings.h"
@@ -328,9 +328,9 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
 {
     m_ui.setupUi(w);
 
-    const QList<ISnippetProvider *> &providers =
-        ExtensionSystem::PluginManager::getObjects<ISnippetProvider>();
-    foreach (ISnippetProvider *provider, providers) {
+    const QList<SnippetProvider *> &providers =
+        ExtensionSystem::PluginManager::getObjects<SnippetProvider>();
+    foreach (SnippetProvider *provider, providers) {
         m_ui.groupCombo->addItem(provider->displayName(), provider->groupId());
         SnippetEditorWidget *snippetEditor = new SnippetEditorWidget(w);
         provider->decorateEditor(snippetEditor);
@@ -537,14 +537,14 @@ void SnippetsSettingsPagePrivate::setSnippetContent()
 
 void SnippetsSettingsPagePrivate::decorateEditors(const TextEditor::FontSettings &fontSettings)
 {
-    const QList<ISnippetProvider *> &providers =
-        ExtensionSystem::PluginManager::getObjects<ISnippetProvider>();
+    const QList<SnippetProvider *> &providers =
+        ExtensionSystem::PluginManager::getObjects<SnippetProvider>();
     for (int i = 0; i < m_ui.groupCombo->count(); ++i) {
         SnippetEditorWidget *snippetEditor = editorAt(i);
         snippetEditor->textDocument()->setFontSettings(fontSettings);
         const QString &id = m_ui.groupCombo->itemData(i).toString();
         // This list should be quite short... Re-iterating over it is ok.
-        foreach (const ISnippetProvider *provider, providers) {
+        foreach (const SnippetProvider *provider, providers) {
             if (provider->groupId() == id)
                 provider->decorateEditor(snippetEditor);
         }

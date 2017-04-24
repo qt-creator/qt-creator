@@ -27,6 +27,7 @@
 #include "ui_nimcodestylepreferenceswidget.h"
 
 #include "../nimconstants.h"
+#include "../editor/nimeditorfactory.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/displaysettings.h>
@@ -36,7 +37,7 @@
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/snippets/isnippetprovider.h>
+#include <texteditor/snippets/snippetprovider.h>
 
 using namespace TextEditor;
 
@@ -50,14 +51,6 @@ NimCodeStylePreferencesWidget::NimCodeStylePreferencesWidget(ICodeStylePreferenc
     m_ui->setupUi(this);
     m_ui->tabPreferencesWidget->setPreferences(preferences);
     m_ui->previewTextEdit->setPlainText(Nim::Constants::C_NIMCODESTYLEPREVIEWSNIPPET);
-
-    ISnippetProvider *provider = ExtensionSystem::PluginManager::getObject<ISnippetProvider>(
-                [](ISnippetProvider *provider) {
-            return provider->groupId() == Nim::Constants::C_NIMSNIPPETSGROUP_ID;
-    });
-
-    if (provider)
-        provider->decorateEditor(m_ui->previewTextEdit);
 
     decorateEditor(TextEditorSettings::fontSettings());
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
@@ -79,14 +72,8 @@ NimCodeStylePreferencesWidget::~NimCodeStylePreferencesWidget()
 
 void NimCodeStylePreferencesWidget::decorateEditor(const FontSettings &fontSettings)
 {
-    const ISnippetProvider *provider = ExtensionSystem::PluginManager::getObject<ISnippetProvider>(
-        [](ISnippetProvider *current) {
-            return current->groupId() == Nim::Constants::C_NIMSNIPPETSGROUP_ID;
-        });
-
     m_ui->previewTextEdit->textDocument()->setFontSettings(fontSettings);
-    if (provider)
-        provider->decorateEditor(m_ui->previewTextEdit);
+    NimEditorFactory::decorateEditor(m_ui->previewTextEdit);
 }
 
 void NimCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)

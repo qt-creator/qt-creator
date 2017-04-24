@@ -70,8 +70,6 @@ QtcPlugin {
         "cppquickfixassistant.h",
         "cppquickfixes.cpp",
         "cppquickfixes.h",
-        "cppsnippetprovider.cpp",
-        "cppsnippetprovider.h",
         "cpptypehierarchy.cpp",
         "cpptypehierarchy.h",
         "cppuseselectionsupdater.cpp",

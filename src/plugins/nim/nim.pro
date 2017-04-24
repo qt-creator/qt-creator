@@ -34,7 +34,6 @@ HEADERS += \
     settings/nimcodestylesettingspage.h \
     settings/nimcodestylepreferencesfactory.h \
     settings/nimsettings.h \
-    settings/nimsnippetprovider.h \
     settings/nimcodestylepreferenceswidget.h \
     project/nimtoolchain.h \
     project/nimtoolchainfactory.h
@@ -63,7 +62,6 @@ SOURCES += \
     settings/nimcodestylesettingspage.cpp \
     settings/nimcodestylepreferencesfactory.cpp \
     settings/nimsettings.cpp \
-    settings/nimsnippetprovider.cpp \
     settings/nimcodestylepreferenceswidget.cpp \
     project/nimtoolchain.cpp \
     project/nimtoolchainfactory.cpp
