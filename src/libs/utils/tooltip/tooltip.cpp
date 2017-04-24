@@ -34,7 +34,7 @@
 
 #include <QString>
 #include <QColor>
-#include <QApplication>
+#include <QGuiApplication>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QWidget>
@@ -296,7 +296,7 @@ void ToolTip::placeTip(const QPoint &pos, QWidget *w)
 bool ToolTip::eventFilter(QObject *o, QEvent *event)
 {
     if (m_tip && event->type() == QEvent::ApplicationStateChange
-            && qApp->applicationState() != Qt::ApplicationActive) {
+            && QGuiApplication::applicationState() != Qt::ApplicationActive) {
         hideTipImmediately();
     }
 
@@ -316,7 +316,7 @@ bool ToolTip::eventFilter(QObject *o, QEvent *event)
         }
         break;
     case QEvent::Leave:
-        if (o == m_tip && !m_tip->isAncestorOf(qApp->focusWidget()))
+        if (o == m_tip && !m_tip->isAncestorOf(QApplication::focusWidget()))
             hideTipWithDelay();
         break;
     case QEvent::Enter:

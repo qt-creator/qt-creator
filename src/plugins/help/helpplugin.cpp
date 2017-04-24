@@ -136,9 +136,9 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         const QString &trFile = QLatin1String("assistant_") + locale;
         const QString &helpTrFile = QLatin1String("qt_help_") + locale;
         if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))
-            qApp->installTranslator(qtr);
+            QCoreApplication::installTranslator(qtr);
         if (qhelptr->load(helpTrFile, qtTrPath) || qhelptr->load(helpTrFile, creatorTrPath))
-            qApp->installTranslator(qhelptr);
+            QCoreApplication::installTranslator(qhelptr);
     }
 
     m_helpManager = new LocalHelpManager(this);
@@ -448,9 +448,9 @@ void HelpPlugin::modeChanged(Core::Id mode, Core::Id old)
 {
     Q_UNUSED(old)
     if (mode == m_mode->id()) {
-        qApp->setOverrideCursor(Qt::WaitCursor);
+        QGuiApplication::setOverrideCursor(Qt::WaitCursor);
         doSetupIfNeeded();
-        qApp->restoreOverrideCursor();
+        QGuiApplication::restoreOverrideCursor();
     }
 }
 

@@ -68,7 +68,7 @@ class FileIconProviderImplementation : public QFileIconProvider
 {
 public:
     FileIconProviderImplementation()
-        : m_unknownFileIcon(qApp->style()->standardIcon(QStyle::SP_FileIcon))
+        : m_unknownFileIcon(QApplication::style()->standardIcon(QStyle::SP_FileIcon))
     {}
 
     QIcon icon(const QFileInfo &info) const override;
@@ -184,7 +184,7 @@ QPixmap overlayIcon(const QPixmap &baseIcon, const QIcon &overlayIcon)
   */
 QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlay, const QSize &size)
 {
-    return overlayIcon(qApp->style()->standardIcon(baseIcon).pixmap(size), overlay);
+    return overlayIcon(QApplication::style()->standardIcon(baseIcon).pixmap(size), overlay);
 }
 
 /*!

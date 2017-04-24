@@ -73,7 +73,7 @@ void LocalQmlProfilerRunnerTest::testRunner1()
     QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
 
     configuration.socket = connection.analyzerSocket = LocalQmlProfilerRunner::findFreeSocket();
-    configuration.debuggee.executable = qApp->applicationFilePath();
+    configuration.debuggee.executable = QCoreApplication::applicationFilePath();
 
     // comma is used to specify a test function. In this case, an invalid one.
     configuration.debuggee.commandLineArguments = QString("-test QmlProfiler,");

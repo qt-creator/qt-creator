@@ -3488,7 +3488,7 @@ void TextEditorWidgetPrivate::disableBlockSelection(BlockSelectionUpdateKind kin
 void TextEditorWidgetPrivate::resetCursorFlashTimer()
 {
     m_cursorVisible = true;
-    const int flashTime = qApp->cursorFlashTime();
+    const int flashTime = QApplication::cursorFlashTime();
     if (flashTime > 0) {
         m_cursorFlashTimer.stop();
         m_cursorFlashTimer.start(flashTime / 2, q);

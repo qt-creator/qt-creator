@@ -62,7 +62,7 @@ CMakeListsNode::CMakeListsNode(const Utils::FileName &cmakeListPath) :
     static QIcon folderIcon;
     if (folderIcon.isNull()) {
         const QIcon overlayIcon(Constants::FILEOVERLAY_CMAKE);
-        QPixmap dirPixmap = qApp->style()->standardIcon(QStyle::SP_DirIcon).pixmap(QSize(16, 16));
+        QPixmap dirPixmap = QApplication::style()->standardIcon(QStyle::SP_DirIcon).pixmap(QSize(16, 16));
 
         folderIcon.addPixmap(Core::FileIconProvider::overlayIcon(dirPixmap, overlayIcon));
     }

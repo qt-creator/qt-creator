@@ -105,7 +105,7 @@ void SftpTest::handleDisconnected()
     else
         std::cout << "No errors encountered.";
     std::cout << std::endl;
-    qApp->exit(m_error ? EXIT_FAILURE : EXIT_SUCCESS);
+    QCoreApplication::exit(m_error ? EXIT_FAILURE : EXIT_SUCCESS);
 }
 
 void SftpTest::handleError()
@@ -114,7 +114,7 @@ void SftpTest::handleError()
         << qPrintable(m_connection->errorString()) << "." << std::endl;
     m_error = true;
     m_state = Disconnecting;
-    qApp->exit(EXIT_FAILURE);
+    QCoreApplication::exit(EXIT_FAILURE);
 }
 
 void SftpTest::handleChannelInitialized()

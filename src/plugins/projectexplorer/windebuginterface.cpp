@@ -28,7 +28,7 @@
 #ifdef Q_OS_WIN
 
 #include <windows.h>
-#include <QApplication>
+#include <QCoreApplication>
 #include <QTime>
 
 /*!
@@ -64,7 +64,7 @@ WinDebugInterface::WinDebugInterface(QObject *parent) :
     QThread(parent)
 {
     m_instance = this;
-    m_creatorPid = qApp->applicationPid();
+    m_creatorPid = QCoreApplication::applicationPid();
     setObjectName(QLatin1String("WinDebugInterfaceThread"));
 }
 

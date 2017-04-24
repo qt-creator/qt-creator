@@ -422,7 +422,7 @@ protected:
 
 void printUsage()
 {
-    std::cout << "Usage: " << qPrintable(QFileInfo(qApp->arguments().at(0)).fileName())
+    std::cout << "Usage: " << qPrintable(QFileInfo(QCoreApplication::arguments().at(0)).fileName())
               << " [-v] [path to AST.h]\n\n"
               << "Print a visitor class based on AST.h to stdout.\n\n";
     const QString defaulPath = QFileInfo(QLatin1String(PATH_AST_H)).canonicalFilePath();

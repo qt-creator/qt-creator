@@ -312,7 +312,7 @@ AssistInterface *GlslEditorWidget::createAssistInterface(
 GlslEditorFactory::GlslEditorFactory()
 {
     setId(Constants::C_GLSLEDITOR_ID);
-    setDisplayName(qApp->translate("OpenWith::Editors", Constants::C_GLSLEDITOR_DISPLAY_NAME));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::C_GLSLEDITOR_DISPLAY_NAME));
     addMimeType(Constants::GLSL_MIMETYPE);
     addMimeType(Constants::GLSL_MIMETYPE_VERT);
     addMimeType(Constants::GLSL_MIMETYPE_FRAG);

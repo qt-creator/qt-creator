@@ -49,7 +49,7 @@
 #include <utils/mimetypes/mimedatabase.h>
 
 #include <QAction>
-#include <QApplication>
+#include <QCoreApplication>
 #include <QDebug>
 #include <QFileInfo>
 #include <QLibraryInfo>
@@ -108,7 +108,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         const QString &trFile = QLatin1String("designer_") + locale;
         if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))
-            qApp->installTranslator(qtr);
+            QCoreApplication::installTranslator(qtr);
     }
     error->clear();
     return true;

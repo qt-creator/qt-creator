@@ -1692,7 +1692,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
 
 void printUsage()
 {
-    const QByteArray executable = QFileInfo(qApp->arguments().first()).fileName().toLatin1();
+    const QByteArray executable = QFileInfo(QCoreApplication::arguments().first()).fileName().toLatin1();
     std::cout << "Usage: " << executable.constData() << "\n"
               << "       " << executable.constData() << " <frontend-dir> <dumpers-file>"
               << "\n\n"

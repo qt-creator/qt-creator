@@ -505,7 +505,7 @@ void SettingsDialog::createGui()
     m_headerLabel->setFont(headerLabelFont);
 
     QHBoxLayout *headerHLayout = new QHBoxLayout;
-    const int leftMargin = qApp->style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
+    const int leftMargin = QApplication::style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
     headerHLayout->addSpacerItem(new QSpacerItem(leftMargin, 0, QSizePolicy::Fixed, QSizePolicy::Ignored));
     headerHLayout->addWidget(m_headerLabel);
 

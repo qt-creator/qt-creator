@@ -114,27 +114,27 @@ private:
     void handleConnected()
     {
         qDebug("Error: Received unexpected connected() signal.");
-        qApp->exit(EXIT_FAILURE);
+        QCoreApplication::exit(EXIT_FAILURE);
     }
 
     void handleDisconnected()
     {
         qDebug("Error: Received unexpected disconnected() signal.");
-        qApp->exit(EXIT_FAILURE);
+        QCoreApplication::exit(EXIT_FAILURE);
     }
 
     void handleDataAvailable(const QString &msg)
     {
         qDebug("Error: Received unexpected dataAvailable() signal. "
             "Message was: '%s'.", qPrintable(msg));
-        qApp->exit(EXIT_FAILURE);
+        QCoreApplication::exit(EXIT_FAILURE);
     }
 
     void handleError(QSsh::SshError error)
     {
         if (m_testSet.isEmpty()) {
             qDebug("Error: Received error %d, but no test was running.", error);
-            qApp->exit(EXIT_FAILURE);
+            QCoreApplication::exit(EXIT_FAILURE);
         }
 
         const TestItem testItem = m_testSet.takeFirst();
@@ -142,13 +142,13 @@ private:
             qDebug("Received error %d, as expected.", error);
             if (m_testSet.isEmpty()) {
                 qDebug("All tests finished successfully.");
-                qApp->quit();
+                QCoreApplication::quit();
             } else {
                 runNextTest();
             }
         } else {
             qDebug("Received unexpected error %d.", error);
-            qApp->exit(EXIT_FAILURE);
+            QCoreApplication::exit(EXIT_FAILURE);
         }
     }
 
@@ -156,7 +156,7 @@ private:
     {
         if (m_testSet.isEmpty()) {
             qDebug("Error: timeout, but no test was running.");
-            qApp->exit(EXIT_FAILURE);
+            QCoreApplication::exit(EXIT_FAILURE);
         }
         const TestItem testItem = m_testSet.takeFirst();
         qDebug("Error: The following test timed out: %s", testItem.description);

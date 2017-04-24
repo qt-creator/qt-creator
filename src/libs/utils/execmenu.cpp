@@ -43,7 +43,7 @@ namespace Utils {
 QAction *execMenuAtWidget(QMenu *menu, QWidget *widget)
 {
     QPoint p;
-    QRect screen = qApp->desktop()->availableGeometry(widget);
+    QRect screen = QApplication::desktop()->availableGeometry(widget);
     QSize sh = menu->sizeHint();
     QRect rect = widget->rect();
     if (widget->isRightToLeft()) {

@@ -29,7 +29,7 @@
 #include "actionhandler.h"
 #include "modeleditor.h"
 
-#include <QApplication>
+#include <QCoreApplication>
 
 namespace ModelEditor {
 namespace Internal {
@@ -46,7 +46,7 @@ ModelEditorFactory::ModelEditorFactory(UiController *uiController, QObject *pare
       d(new ModelEditorFactoryPrivate())
 {
     setId(Constants::MODEL_EDITOR_ID);
-    setDisplayName(qApp->translate("OpenWith::Editors", Constants::MODEL_EDITOR_DISPLAY_NAME));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::MODEL_EDITOR_DISPLAY_NAME));
     addMimeType(Constants::MIME_TYPE_MODEL);
     d->uiController = uiController;
     d->actionHandler = new ActionHandler(Core::Context(Constants::MODEL_EDITOR_ID), this);

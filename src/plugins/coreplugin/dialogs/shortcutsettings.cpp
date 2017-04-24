@@ -200,8 +200,8 @@ void ShortcutButton::handleToggleChange(bool toogleState)
     updateText();
     m_keyNum = m_key[0] = m_key[1] = m_key[2] = m_key[3] = 0;
     if (toogleState) {
-        if (qApp->focusWidget())
-            qApp->focusWidget()->clearFocus(); // funny things happen otherwise
+        if (QApplication::focusWidget())
+            QApplication::focusWidget()->clearFocus(); // funny things happen otherwise
         qApp->installEventFilter(this);
     } else {
         qApp->removeEventFilter(this);

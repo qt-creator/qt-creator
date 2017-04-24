@@ -184,13 +184,13 @@ void SearchWidget::search() const
 
 void SearchWidget::searchingStarted()
 {
-    qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
+    QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 }
 
 void SearchWidget::searchingFinished(int hits)
 {
     Q_UNUSED(hits)
-    qApp->restoreOverrideCursor();
+    QGuiApplication::restoreOverrideCursor();
 }
 
 void SearchWidget::indexingStarted()

@@ -369,7 +369,7 @@ QWidget *SpacerField::createWidget(const QString &displayName, JsonFieldPage *pa
 {
     Q_UNUSED(displayName);
     Q_UNUSED(page);
-    int size = qApp->style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing) * m_factor;
+    int size = QApplication::style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing) * m_factor;
 
     auto w = new QWidget();
     w->setMinimumSize(size, size);

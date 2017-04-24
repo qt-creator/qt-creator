@@ -142,7 +142,7 @@ QPixmap DetailsWidget::createBackground(const QSize &size, int topHeight, QWidge
     QRect topRect(0, 0, size.width(), topHeight);
     QRect fullRect(0, 0, size.width(), size.height());
     if (HostOsInfo::isMacHost())
-        p.fillRect(fullRect, qApp->palette().window().color());
+        p.fillRect(fullRect, QApplication::palette().window().color());
     else
         p.fillRect(fullRect, creatorTheme()->color(Theme::DetailsWidgetBackgroundColor));
 

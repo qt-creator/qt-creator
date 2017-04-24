@@ -25,7 +25,7 @@
 
 #ifdef WITH_TESTS
 
-#include <QApplication>
+#include <QGuiApplication>
 #include <QClipboard>
 #include <QString>
 #include <QtTest/QtTest>
@@ -493,7 +493,7 @@ void Internal::TextEditorPlugin::testBlockSelectionCopy()
         editorWidget->update();
         editorWidget->copy();
 
-        QCOMPARE(qApp->clipboard()->text(), copiedText);
+        QCOMPARE(QGuiApplication::clipboard()->text(), copiedText);
     }
     Core::EditorManager::closeDocument(editor->document(), false);
 }

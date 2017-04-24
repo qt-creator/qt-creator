@@ -165,7 +165,7 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
                                      + Utils::winErrorMessage(GetLastError()));
             break;
         }
-        bool creatorIs64Bit = Utils::is64BitWindowsBinary(qApp->applicationFilePath());
+        bool creatorIs64Bit = Utils::is64BitWindowsBinary(QCoreApplication::applicationFilePath());
         if (!is64BitSystem
                 || si == NoSpecialInterrupt
                 || (si == Win64Interrupt && creatorIs64Bit)

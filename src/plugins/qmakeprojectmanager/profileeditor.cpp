@@ -171,7 +171,7 @@ static TextDocument *createProFileDocument()
 ProFileEditorFactory::ProFileEditorFactory()
 {
     setId(Constants::PROFILE_EDITOR_ID);
-    setDisplayName(qApp->translate("OpenWith::Editors", Constants::PROFILE_EDITOR_DISPLAY_NAME));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::PROFILE_EDITOR_DISPLAY_NAME));
     addMimeType(Constants::PROFILE_MIMETYPE);
     addMimeType(Constants::PROINCLUDEFILE_MIMETYPE);
     addMimeType(Constants::PROFEATUREFILE_MIMETYPE);

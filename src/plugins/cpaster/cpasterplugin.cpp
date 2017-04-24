@@ -241,7 +241,7 @@ void CodepasterPlugin::post(PasteSources pasteSources)
         textFromCurrentEditor(&data, &mimeType);
     if (data.isEmpty() && (pasteSources & PasteClipboard)) {
         QString subType = QStringLiteral("plain");
-        data = qApp->clipboard()->text(subType, QClipboard::Clipboard);
+        data = QGuiApplication::clipboard()->text(subType, QClipboard::Clipboard);
     }
     post(data, mimeType);
 }

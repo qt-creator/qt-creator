@@ -83,7 +83,7 @@ qreal StyleHelper::sidebarFontSize()
 
 QColor StyleHelper::notTooBrightHighlightColor()
 {
-    QColor highlightColor = qApp->palette().highlight().color();
+    QColor highlightColor = QApplication::palette().highlight().color();
     if (0.5 * highlightColor.saturationF() + 0.75 - highlightColor.valueF() < 0)
         highlightColor.setHsvF(highlightColor.hsvHueF(), 0.1 + highlightColor.saturationF() * 2.0, highlightColor.valueF());
     return highlightColor;
@@ -101,7 +101,6 @@ QPalette StyleHelper::sidebarFontPalette(const QPalette &original)
 
 QColor StyleHelper::panelTextColor(bool lightColored)
 {
-    //qApp->palette().highlightedText().color();
     if (!lightColored)
         return Qt::white;
     else

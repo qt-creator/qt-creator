@@ -78,7 +78,7 @@ void CompilerOutputProcessor::start()
             this, &CompilerOutputProcessor::handleTask);
     while (!m_source.atEnd())
         parser.stdError(QString::fromLocal8Bit(m_source.readLine().trimmed()));
-    qApp->quit();
+    QCoreApplication::quit();
 }
 
 void CompilerOutputProcessor::handleTask(const ProjectExplorer::Task &task)

@@ -742,7 +742,7 @@ FindToolBarPlaceHolder *FindToolBar::findToolBarPlaceHolder() const
 
 bool FindToolBar::toolBarHasFocus() const
 {
-    return qApp->focusWidget() == focusWidget();
+    return QApplication::focusWidget() == focusWidget();
 }
 
 bool FindToolBar::canShowAllControls(bool replaceIsVisible) const

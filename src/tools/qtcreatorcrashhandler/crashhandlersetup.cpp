@@ -104,7 +104,7 @@ CrashHandlerSetup::CrashHandlerSetup(const QString &appName,
         disableRestartOptionC = "--disable-restart";
 
     const QString execDirPath = executableDirPath.isEmpty()
-            ? qApp->applicationDirPath()
+            ? QCoreApplication::applicationDirPath()
             : executableDirPath;
     const QString crashHandlerPath = execDirPath + QLatin1String("/qtcreator_crash_handler");
     crashHandlerPathC = qstrdup(qPrintable(crashHandlerPath));

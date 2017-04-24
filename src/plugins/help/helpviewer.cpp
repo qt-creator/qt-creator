@@ -35,7 +35,7 @@
 #include <QFileInfo>
 #include <QUrl>
 
-#include <QApplication>
+#include <QGuiApplication>
 #include <QDesktopServices>
 #include <QMouseEvent>
 
@@ -156,12 +156,12 @@ void HelpViewer::home()
 
 void HelpViewer::slotLoadStarted()
 {
-    qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
+    QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 }
 
 void HelpViewer::slotLoadFinished()
 {
-    qApp->restoreOverrideCursor();
+    QGuiApplication::restoreOverrideCursor();
     emit sourceChanged(source());
     emit loadFinished();
 }

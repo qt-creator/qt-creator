@@ -83,7 +83,7 @@ public:
     CppEditorFactory()
     {
         setId(Constants::CPPEDITOR_ID);
-        setDisplayName(qApp->translate("OpenWith::Editors", Constants::CPPEDITOR_DISPLAY_NAME));
+        setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::CPPEDITOR_DISPLAY_NAME));
         addMimeType(CppTools::Constants::C_SOURCE_MIMETYPE);
         addMimeType(CppTools::Constants::C_HEADER_MIMETYPE);
         addMimeType(CppTools::Constants::CPP_SOURCE_MIMETYPE);

@@ -105,7 +105,7 @@ QmakeStaticData::QmakeStaticData()
     // Overlay the SP_DirIcon with the custom icons
     const QSize desiredSize = QSize(16, 16);
 
-    const QPixmap dirPixmap = qApp->style()->standardIcon(QStyle::SP_DirIcon).pixmap(desiredSize);
+    const QPixmap dirPixmap = QApplication::style()->standardIcon(QStyle::SP_DirIcon).pixmap(desiredSize);
     for (unsigned i = 0 ; i < count; ++i) {
         const QIcon overlayIcon(QLatin1String(fileTypeDataStorage[i].icon));
         QIcon folderIcon;

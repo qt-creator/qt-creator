@@ -131,7 +131,7 @@ void tst_TimelineZoomControl::window()
             verifyWindow(zoomControl);
             zoomControl.setRange(102005, 102010); // make sure it doesn't overrun trace start
         } else if (zoomControl.windowStart() == zoomControl.traceStart()) {
-            qApp->exit();
+            QCoreApplication::exit();
         } else {
             QVERIFY(zoomControl.rangeStart() - zoomControl.windowStart() ==
                     zoomControl.windowEnd() - zoomControl.rangeEnd());
@@ -146,7 +146,7 @@ void tst_TimelineZoomControl::window()
         verifyWindow(zoomControl);
     });
 
-    qApp->exec();
+    QGuiApplication::exec();
 
     disconnect(connection);
 

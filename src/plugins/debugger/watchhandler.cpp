@@ -1269,7 +1269,7 @@ static QString variableToolTip(const QString &name, const QString &type, quint64
 
 void WatchModel::grabWidget()
 {
-   qApp->setOverrideCursor(Qt::CrossCursor);
+   QGuiApplication::setOverrideCursor(Qt::CrossCursor);
    m_grabWidgetTimerId = startTimer(30);
    ICore::mainWindow()->grabMouse();
 }
@@ -1302,7 +1302,7 @@ void WatchModel::timerEvent(QTimerEvent *event)
 void WatchModel::ungrabWidget()
 {
     ICore::mainWindow()->releaseMouse();
-    qApp->restoreOverrideCursor();
+    QGuiApplication::restoreOverrideCursor();
     killTimer(m_grabWidgetTimerId);
     m_grabWidgetTimerId = -1;
 }

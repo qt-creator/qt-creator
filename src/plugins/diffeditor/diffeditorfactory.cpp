@@ -38,7 +38,7 @@ DiffEditorFactory::DiffEditorFactory(QObject *parent)
     : IEditorFactory(parent)
 {
     setId(Constants::DIFF_EDITOR_ID);
-    setDisplayName(qApp->translate("DiffEditorFactory", Constants::DIFF_EDITOR_DISPLAY_NAME));
+    setDisplayName(QCoreApplication::translate("DiffEditorFactory", Constants::DIFF_EDITOR_DISPLAY_NAME));
     addMimeType(Constants::DIFF_EDITOR_MIMETYPE);
 }
 

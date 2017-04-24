@@ -54,7 +54,7 @@ using namespace CPlusPlus;
 
 void printUsage()
 {
-    std::cout << "Usage: " << qPrintable(QFileInfo(qApp->arguments().at(0)).fileName())
+    std::cout << "Usage: " << qPrintable(QFileInfo(QCoreApplication::arguments().at(0)).fileName())
               << " [-v] <file1> <file2> ...\n\n"
               << "Run the parser with the given files.\n";
 }

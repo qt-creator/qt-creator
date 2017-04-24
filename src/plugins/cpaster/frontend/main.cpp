@@ -63,13 +63,13 @@ public:
                 ? file.open(stdin, QIODevice::ReadOnly) : file.open(QIODevice::ReadOnly);
         if (!success) {
             std::cerr << "Error: Failed to open file to paste from." << std::endl;
-            qApp->exit(EXIT_FAILURE);
+            QCoreApplication::exit(EXIT_FAILURE);
             return;
         }
         const QString content = QString::fromLocal8Bit(file.readAll());
         if (content.isEmpty()) {
             std::cerr << "Empty input, aborting." << std::endl;
-            qApp->exit(EXIT_FAILURE);
+            QCoreApplication::exit(EXIT_FAILURE);
             return;
         }
         connect(m_protocol.data(), &Protocol::pasteDone, this, &PasteReceiver::handlePasteDone);
@@ -80,7 +80,7 @@ private:
     void handlePasteDone(const QString &link)
     {
         std::cout << qPrintable(link) << std::endl;
-        qApp->quit();
+        QCoreApplication::quit();
     }
 
     const QString m_filePath;

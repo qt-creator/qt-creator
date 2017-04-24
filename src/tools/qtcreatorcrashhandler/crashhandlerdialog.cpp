@@ -177,5 +177,5 @@ void CrashHandlerDialog::close()
 {
     if (m_ui->restartAppCheckBox->isEnabled() && m_ui->restartAppCheckBox->isChecked())
         m_crashHandler->restartApplication();
-    qApp->quit();
+    QCoreApplication::quit();
 }

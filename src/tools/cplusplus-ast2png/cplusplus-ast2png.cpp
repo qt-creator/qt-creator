@@ -378,7 +378,7 @@ static QString example()
 #else
     QString::fromLatin1("$ echo \"int foo() {}\" | ./%1 && xdg-open %2.ast.png")
 #endif
-    .arg(QFileInfo(qApp->arguments().at(0)).fileName(), QLatin1String(PATH_STDIN_FILE));
+    .arg(QFileInfo(QCoreApplication::arguments().at(0)).fileName(), QLatin1String(PATH_STDIN_FILE));
 }
 
 static QString parseModeToString(Document::ParseMode parseMode)
@@ -474,7 +474,7 @@ static Document::Ptr parse(const QString &fileName, const QByteArray &source,
 
 static void printUsage()
 {
-    std::cout << "Usage: " << qPrintable(QFileInfo(qApp->arguments().at(0)).fileName())
+    std::cout << "Usage: " << qPrintable(QFileInfo(QCoreApplication::arguments().at(0)).fileName())
               << " [-v] [-p ast] <file1> <file2> ...\n\n";
 
     std::cout

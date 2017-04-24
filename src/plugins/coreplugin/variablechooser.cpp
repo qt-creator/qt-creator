@@ -309,7 +309,7 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
             this, &VariableChooserPrivate::handleItemActivated);
     connect(qobject_cast<QApplication *>(qApp), &QApplication::focusChanged,
             this, &VariableChooserPrivate::updateCurrentEditor);
-    updateCurrentEditor(0, qApp->focusWidget());
+    updateCurrentEditor(0, QApplication::focusWidget());
 }
 
 void VariableGroupItem::populateGroup(MacroExpander *expander)

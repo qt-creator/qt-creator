@@ -135,7 +135,7 @@ SimpleProjectWizard::SimpleProjectWizard()
         QPixmap icon(22, 22);
         icon.fill(Qt::transparent);
         QPainter p(&icon);
-        p.drawPixmap(3, 3, 16, 16, qApp->style()->standardIcon(QStyle::SP_DirIcon).pixmap(16));
+        p.drawPixmap(3, 3, 16, 16, QApplication::style()->standardIcon(QStyle::SP_DirIcon).pixmap(16));
         setIcon(icon);
     }
     setDisplayName(tr("Import as qmake Project (Limited Functionality)"));

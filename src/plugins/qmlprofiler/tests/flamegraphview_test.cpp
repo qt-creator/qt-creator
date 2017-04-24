@@ -124,11 +124,11 @@ void FlameGraphViewTest::testContextMenu()
     int menuClicks = 0;
 
     connect(&timer, &QTimer::timeout, this, [&]() {
-        auto activePopup = qApp->activePopupWidget();
+        auto activePopup = QApplication::activePopupWidget();
         if (!activePopup || !activePopup->windowHandle()->isExposed()) {
             QContextMenuEvent *event = new QContextMenuEvent(QContextMenuEvent::Mouse,
                                                              QPoint(250, 250));
-            qApp->postEvent(&view, event);
+            QCoreApplication::postEvent(&view, event);
             return;
         }
 

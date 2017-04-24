@@ -434,7 +434,7 @@ BinEditorFactory::BinEditorFactory(BinEditorPlugin *owner) :
     m_owner(owner)
 {
     setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
-    setDisplayName(qApp->translate("OpenWith::Editors", Constants::C_BINEDITOR_DISPLAY_NAME));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::C_BINEDITOR_DISPLAY_NAME));
     addMimeType(Constants::C_BINEDITOR_MIMETYPE);
 }
 
