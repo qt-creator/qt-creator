@@ -1282,7 +1282,8 @@ void tst_Dumpers::dumper()
             "\n\n#if defined(_MSC_VER)" + (data.useQt ?
                 "\n#include <qt_windows.h>" :
                 "\n#define NOMINMAX\n#include <Windows.h>") +
-                "\n#define BREAK [](){ DebugBreak(); }();"
+                "\nvoid qtcDebugBreakFunction() { return; }"
+                "\n#define BREAK qtcDebugBreakFunction();"
                 "\n\nvoid unused(const void *first,...) { (void) first; }"
             "\n#else"
                 "\n#include <stdint.h>\n";
@@ -1473,20 +1474,18 @@ void tst_Dumpers::dumper()
         cmds += "quit\n";
 
     } else if (m_debuggerEngine == CdbEngine) {
-        QString cdbextPath = m_env.value("_NT_DEBUGGER_EXTENSION_PATH");
-        const int frameNumber = cdbextPath.contains("qtcreatorcdbext64") ? 2 : 1;
         args << QLatin1String("-aqtcreatorcdbext.dll")
              << QLatin1String("-G")
-             << QLatin1String("-xi")
+             << QLatin1String("-xn")
              << QLatin1String("0x4000001f")
              << QLatin1String("-c")
-             << QLatin1String("g")
+             << QLatin1String("bm doit!qtcDebugBreakFunction;g")
              << QLatin1String("debug\\doit.exe");
         cmds += "!qtcreatorcdbext.script sys.path.insert(1, '" + dumperDir + "')\n"
                 "!qtcreatorcdbext.script from cdbbridge import *\n"
                 "!qtcreatorcdbext.script theDumper = Dumper()\n"
                 "!qtcreatorcdbext.script theDumper.setupDumpers()\n"
-                ".frame " + QString::number(frameNumber) + "\n"
+                ".frame 1\n"
                 "!qtcreatorcdbext.pid\n"
                 "!qtcreatorcdbext.script -t 42 theDumper.fetchVariables({"
                 "'token':2,'fancy':1,'forcens':1,"
