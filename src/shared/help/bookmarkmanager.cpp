@@ -719,13 +719,7 @@ void BookmarkManager::setupBookmarkModels()
 
     QByteArray ba;
     QSettings *settings = Core::ICore::settings();
-    if (settings->contains(QLatin1String(kBookmarksKey))) {
-        ba = settings->value(QLatin1String(kBookmarksKey)).toByteArray();
-    } else {
-        // read old settings from help engine
-        // TODO remove some time after Qt Creator 3.5
-        ba = LocalHelpManager::helpEngine().customValue(QLatin1String("Bookmarks")).toByteArray();
-    }
+    ba = settings->value(QLatin1String(kBookmarksKey)).toByteArray();
     QDataStream stream(ba);
     while (!stream.atEnd()) {
         stream >> depth >> name >> type >> expanded;
