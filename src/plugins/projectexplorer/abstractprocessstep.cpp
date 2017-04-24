@@ -158,7 +158,7 @@ void AbstractProcessStep::setIgnoreReturnValue(bool b)
 bool AbstractProcessStep::init(QList<const BuildStep *> &earlierSteps)
 {
     Q_UNUSED(earlierSteps);
-    return true;
+    return !m_process;
 }
 
 /*!
