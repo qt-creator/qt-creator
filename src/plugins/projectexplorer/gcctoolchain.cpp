@@ -980,7 +980,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
                                  requiredAbi.osFlavor(), requiredAbi.binaryFormat(), 32);
     ToolChain *abiTc = Utils::findOrDefault(result, [&requiredAbi, &alternateAbi](const ToolChain *tc) {
         return requiredAbi == tc->targetAbi()
-                || (requiredAbi.wordWidth() != 64 && tc->targetAbi() == alternateAbi);
+                || (requiredAbi.wordWidth() == 64 && tc->targetAbi() == alternateAbi);
     });
     if (!abiTc) {
         qDeleteAll(result);
