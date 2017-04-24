@@ -52,6 +52,14 @@ static const char userNameKey[] = "UserName";
 static const char fullNameKey[] = "FullName";
 static const char isAuthenticatedKey[] = "IsAuthenticated";
 
+enum ErrorCodes
+{
+    Success = 200,
+    UnknownError = 400,
+    AuthenticationFailure = 401,
+    PageNotFound = 404
+};
+
 bool GerritUser::isSameAs(const GerritUser &other) const
 {
     if (!userName.isEmpty() && !other.userName.isEmpty())
@@ -230,13 +238,13 @@ int GerritServer::testConnection()
             if (!userName.isEmpty())
                 user.userName = userName;
         }
-        return 200;
+        return Success;
     }
     const QRegularExpression errorRegexp("returned error: (\\d+)");
     QRegularExpressionMatch match = errorRegexp.match(resp.stdErr());
     if (match.hasMatch())
         return match.captured(1).toInt();
-    return 400;
+    return UnknownError;
 }
 
 bool GerritServer::setupAuthentication()
@@ -262,12 +270,12 @@ bool GerritServer::resolveRoot()
 {
     for (;;) {
         switch (testConnection()) {
-        case 200:
+        case Success:
             saveSettings(Valid);
             return true;
-        case 401:
+        case AuthenticationFailure:
             return setupAuthentication();
-        case 404:
+        case PageNotFound:
             if (!ascendPath()) {
                 saveSettings(NotGerrit);
                 return false;
