@@ -5944,6 +5944,38 @@ void tst_Dumpers::dumper_data()
                + Check("s2.0", "[0]", "\"def\"", "std::string") % BoostVersion(1 * 100000 + 54 * 100)
                + Check("s2.1", "[1]", "\"abc\"", "std::string") % BoostVersion(1 * 100000 + 54 * 100);
 
+#ifdef Q_OS_LINUX
+    QTest::newRow("BoostVariant")
+            << Data("#include <boost/variant/variant.hpp>\n"
+                    "#include <string>\n",
+
+                    "boost::variant<char, short> ch1 = char(1);\n"
+                    "boost::variant<char, short> ch2 = short(2);\n"
+
+                    "boost::variant<int, float> if1 = int(1);\n"
+                    "boost::variant<int, float> if2 = float(2);\n"
+
+                    "boost::variant<int, double> id1 = int(1);\n"
+                    "boost::variant<int, double> id2 = double(2);\n"
+
+                    "boost::variant<int, std::string> is1 = int(1);\n"
+                    "boost::variant<int, std::string> is2 = std::string(\"sss\");\n")
+
+               + BoostProfile()
+
+               + Check("ch1", "1", TypePattern("boost::variant<char, short.*>"))
+               + Check("ch2", "2", TypePattern("boost::variant<char, short.*>"))
+
+               + Check("if1", "1", TypePattern("boost::variant<int, float.*>"))
+               + Check("if2", FloatValue("2"), TypePattern("boost::variant<int, float.*>"))
+
+               + Check("id1", "1", TypePattern("boost::variant<int, double.*>"))
+               + Check("id2", FloatValue("2"), TypePattern("boost::variant<int, double.*>"))
+
+               + Check("is1", "1", TypePattern("boost::variant<int, std::.*>"))
+               + Check("is2", "\"sss\"", TypePattern("boost::variant<int, std::.*>"));
+#endif
+
 
     QTest::newRow("Eigen")
          << Data("#ifdef HAS_EIGEN\n"

@@ -382,7 +382,8 @@ class Dumper(DumperBase):
             else:
                 error('UNKNOWN TEMPLATE PARAMETER')
             pos += 1
-        return targs
+        targs2 = self.listTemplateParametersManually(str(nativeType))
+        return targs if len(targs) >= len(targs2) else targs2
 
     def nativeTypeEnumDisplay(self, nativeType, intval):
         try:
