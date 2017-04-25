@@ -6747,12 +6747,30 @@ void tst_Dumpers::dumper_data()
             + Check("tc.2.bar", "15", "int")
             + Check("tc.3.bar", "15", "int");
 
+
     QTest::newRow("UndefinedStaticMembers")
             << Data("struct Foo { int a = 15; static int b; }; \n",
                     "Foo f; unused(&f);\n")
             + Check("f.a", "15", "int")
             + Check("f.b", "<optimized out>", "") % NoCdbEngine
             + Check("f.b", "", "<Value unavailable error>") % CdbEngine;
+
+
+#ifdef Q_OS_LINUX
+    QTest::newRow("StaticMembersInLib")
+            // We don't seem to have such in the public interface.
+            << Data("#include <private/qlocale_p.h>\n"
+                    "#include <private/qflagpointer_p.h>\n",
+                    "QLocaleData d; unused(&d);\n"
+                    "QFlagPointer<int> p; unused(&p);\n")
+            + CorePrivateProfile()
+            + QmlPrivateProfile()
+            + QtVersion(0x50800)
+            + Check("d.Log10_2_100000", "30103", "int")
+            + Check("p.FlagBit", "<optimized out>", "") % NoCdbEngine
+            + Check("p.FlagBit", "", "<Value unavailable error>", "") % CdbEngine;
+#endif
+
 
     QTest::newRow("ArrayOfFunctionPointers")
             << Data("typedef int (*FP)(int *); \n"

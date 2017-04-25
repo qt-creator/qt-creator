@@ -452,6 +452,12 @@ class Dumper(DumperBase):
 
     def memberFromNativeFieldAndValue(self, nativeField, nativeValue, fieldName, value):
         nativeMember = self.nativeMemberFromField(nativeValue, nativeField)
+        if nativeMember is None:
+            val = self.Value(self)
+            val.name = fieldName
+            val.type = self.fromNativeType(nativeField.type)
+            val.lIsInScope = False
+            return val
         val = self.fromNativeValue(nativeMember)
         nativeFieldType = nativeField.type.unqualified()
         if nativeField.bitsize:
