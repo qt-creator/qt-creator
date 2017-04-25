@@ -987,6 +987,12 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
 
         const int maxValue = container.directSubModelNodes().count();
 
+        QmlItemNode tabBarItem(tabBarNode);
+
+        tabBarItem.anchors().setAnchor(AnchorLineLeft, containerItemNode, AnchorLineLeft);
+        tabBarItem.anchors().setAnchor(AnchorLineRight, containerItemNode, AnchorLineRight);
+        tabBarItem.anchors().setAnchor(AnchorLineBottom, containerItemNode, AnchorLineTop);
+
         for (int i = 0; i < maxValue; ++i) {
             ModelNode tabButtonNode =
                     view->createModelNode("QtQuick.Controls.TabButton",
@@ -996,12 +1002,6 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
             tabButtonNode.variantProperty("text").setValue(QString::fromLatin1("Tab %1").arg(i));
             tabBarNode.defaultNodeListProperty().reparentHere(tabButtonNode);
         }
-
-        QmlItemNode tabBarItem(tabBarNode);
-
-        tabBarItem.anchors().setAnchor(AnchorLineLeft, containerItemNode, AnchorLineLeft);
-        tabBarItem.anchors().setAnchor(AnchorLineRight, containerItemNode, AnchorLineRight);
-        tabBarItem.anchors().setAnchor(AnchorLineBottom, containerItemNode, AnchorLineTop);
 
         const QString id = tabBarNode.validId();
 
