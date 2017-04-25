@@ -195,6 +195,8 @@ void FlatModel::addOrRebuildProjectModel(Project *project)
         container->appendChild(new WrapperNode(projectFileNode));
     }
 
+    container->sortChildren(&sortWrapperNodes);
+
     container->forAllChildren([this](WrapperNode *node) {
         if (node->m_node) {
             const QString path = node->m_node->filePath().toString();
