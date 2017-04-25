@@ -1397,6 +1397,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_snapshotHandler = new SnapshotHandler;
     m_snapshotView = new SnapshotTreeView(m_snapshotHandler);
     m_snapshotView->setSettings(settings, "Debugger.SnapshotView");
+    m_snapshotView->setIconSize(QSize(10, 10));
     m_snapshotView->setModel(m_snapshotHandler->model());
     m_snapshotWindow = addSearch(m_snapshotView, tr("Snapshots"), DOCKWIDGET_SNAPSHOTS);
 

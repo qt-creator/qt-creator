@@ -43,6 +43,7 @@
 #include <QTime>
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 
@@ -85,7 +86,7 @@ void FormEditorScene::resetScene()
 
 FormEditorItem* FormEditorScene::itemForQmlItemNode(const QmlItemNode &qmlItemNode) const
 {
-    Q_ASSERT(qmlItemNode.isValid());
+    QTC_ASSERT(qmlItemNode.isValid(), return 0);
     return m_qmlItemNodeItemHash.value(qmlItemNode);
 }
 

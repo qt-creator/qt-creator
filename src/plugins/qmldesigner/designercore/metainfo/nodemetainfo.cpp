@@ -575,10 +575,10 @@ private:
     void initialiseProperties();
 
     TypeName m_qualfiedTypeName;
-    int m_majorVersion;
-    int m_minorVersion;
-    bool m_isValid;
-    bool m_isFileComponent;
+    int m_majorVersion = -1;
+    int m_minorVersion = -1;
+    bool m_isValid = false;
+    bool m_isFileComponent = false;
     PropertyNameList m_properties;
     PropertyNameList m_signals;
     QList<TypeName> m_propertyTypes;
@@ -673,10 +673,11 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate() : m_isValid(false)
 
 }
 
-NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, int min) :
-                                        m_qualfiedTypeName(type), m_majorVersion(maj),
-                                        m_minorVersion(min), m_isValid(false), m_isFileComponent(false),
-                                        m_model(model)
+NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, int min)
+    : m_qualfiedTypeName(type)
+    , m_majorVersion(maj)
+    , m_minorVersion(min)
+    , m_model(model)
 {
     if (context()) {
         const CppComponentValue *cppObjectValue = getCppComponentValue();
@@ -1003,7 +1004,7 @@ static QByteArray getPackage(const QByteArray &name)
 bool NodeMetaInfoPrivate::cleverCheckType(const TypeName &otherType) const
 {
     if (otherType == qualfiedTypeName())
-            return true;
+        return true;
 
     if (isFileComponent())
         return false;
@@ -1177,8 +1178,8 @@ QString NodeMetaInfoPrivate::lookupName() const
 
 QStringList NodeMetaInfoPrivate::lookupNameComponent() const
 {
-        QString tempString = fullQualifiedImportAliasType();
-        return tempString.split('.');
+    QString tempString = fullQualifiedImportAliasType();
+    return tempString.split('.');
 }
 
 
@@ -1415,7 +1416,6 @@ QStringList NodeMetaInfo::propertyKeysForEnum(const PropertyName &propertyName) 
 
 QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, const QVariant &value) const
 {
-
     const QVariant variant = value;
     QVariant copyVariant = variant;
     if (propertyIsEnumType(propertyName)
@@ -1489,10 +1489,12 @@ TypeName NodeMetaInfo::typeName() const
 {
     return m_privateData->qualfiedTypeName();
 }
+
 int NodeMetaInfo::majorVersion() const
 {
     return m_privateData->majorVersion();
 }
+
 int NodeMetaInfo::minorVersion() const
 {
     return m_privateData->minorVersion();
@@ -1537,8 +1539,7 @@ bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int mino
     if (typeName().isEmpty())
         return false;
 
-    if (typeName() == type
-        && availableInVersion(majorVersion, minorVersion))
+    if (typeName() == type && availableInVersion(majorVersion, minorVersion))
         return true;
 
     if (m_privateData->prototypeCachePositives().contains(Internal::stringIdentifier(type, majorVersion, minorVersion)))
@@ -1549,8 +1550,8 @@ bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int mino
 
     foreach (const NodeMetaInfo &superClass, superClasses()) {
         if (superClass.m_privateData->cleverCheckType(type)
-            && superClass.availableInVersion(majorVersion, minorVersion)) {
-                m_privateData->prototypeCachePositives().insert(Internal::stringIdentifier(type, majorVersion, minorVersion));
+                && superClass.availableInVersion(majorVersion, minorVersion)) {
+            m_privateData->prototypeCachePositives().insert(Internal::stringIdentifier(type, majorVersion, minorVersion));
             return true;
         }
     }

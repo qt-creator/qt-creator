@@ -176,4 +176,5 @@ private:
     BookmarkModel *treeModel;
     BookmarkModel *listModel;
     QStandardItem *renameItem;
+    bool m_isModelSetup = false;
 };

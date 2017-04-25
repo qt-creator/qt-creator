@@ -40,6 +40,7 @@
 #include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
+#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -294,7 +295,7 @@ void ServerModeReader::generateProjectTree(CMakeProjectNode *root,
 void ServerModeReader::updateCodeModel(CppTools::RawProjectParts &rpps)
 {
     int counter = 0;
-    foreach (const FileGroup *fg, m_fileGroups) {
+    for (const FileGroup *fg : Utils::asConst(m_fileGroups)) {
         ++counter;
         const QString defineArg
                 = transform(fg->defines, [](const QString &s) -> QString {
@@ -469,6 +470,8 @@ ServerModeReader::Target *ServerModeReader::extractTargetData(const QVariantMap 
         target->fileGroups.append(extractFileGroupData(fgData, srcDir, target));
     }
 
+    fixTarget(target);
+
     m_targets.append(target);
     return target;
 }
@@ -545,6 +548,49 @@ void ServerModeReader::extractCacheData(const QVariantMap &data)
         config.append(item);
     }
     m_cmakeCache = config;
+}
+
+void ServerModeReader::fixTarget(ServerModeReader::Target *target) const
+{
+    QHash<QString, const FileGroup *> languageFallbacks;
+
+    for (const FileGroup *group : Utils::asConst(target->fileGroups)) {
+        if (group->includePaths.isEmpty() && group->compileFlags.isEmpty()
+                && group->defines.isEmpty())
+            continue;
+
+        const FileGroup *fallback = languageFallbacks.value(group->language);
+        if (!fallback || fallback->sources.count() < group->sources.count())
+            languageFallbacks.insert(group->language, group);
+    }
+
+    if (!languageFallbacks.value(""))
+        return; // No empty language groups found, no need to proceed.
+
+    const FileGroup *fallback = languageFallbacks.value("CXX");
+    if (!fallback)
+        fallback = languageFallbacks.value("C");
+    if (!fallback)
+        fallback = languageFallbacks.value("");
+
+    if (!fallback)
+        return;
+
+    for (auto it = target->fileGroups.begin(); it != target->fileGroups.end(); ++it) {
+        if (!(*it)->language.isEmpty())
+            continue;
+        (*it)->language = fallback->language.isEmpty() ? "CXX" : fallback->language;
+
+        if (*it == fallback
+                || !(*it)->includePaths.isEmpty() || !(*it)->defines.isEmpty()
+                || !(*it)->compileFlags.isEmpty())
+            continue;
+
+        for (const IncludePath *ip : fallback->includePaths)
+            (*it)->includePaths.append(new IncludePath(*ip));
+        (*it)->defines = fallback->defines;
+        (*it)->compileFlags = fallback->compileFlags;
+    }
 }
 
 QHash<Utils::FileName, ProjectNode *>

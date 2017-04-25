@@ -357,6 +357,7 @@ void QmlProject::generateProjectTree()
             fileType = FileType::Project;
         newRoot->addNestedNode(new FileNode(Utils::FileName::fromString(f), fileType, false));
     }
+    newRoot->addNestedNode(new FileNode(projectFilePath(), FileType::Project, false));
 
     setRootProjectNode(newRoot);
 }

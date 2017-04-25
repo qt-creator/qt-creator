@@ -158,7 +158,7 @@ void AbstractProcessStep::setIgnoreReturnValue(bool b)
 bool AbstractProcessStep::init(QList<const BuildStep *> &earlierSteps)
 {
     Q_UNUSED(earlierSteps);
-    return true;
+    return !m_process;
 }
 
 /*!
@@ -205,6 +205,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
     if (!m_process->waitForStarted()) {
         processStartupFailed();
         m_process.reset();
+        m_outputParserChain.reset();
         reportRunResult(fi, false);
         return;
     }

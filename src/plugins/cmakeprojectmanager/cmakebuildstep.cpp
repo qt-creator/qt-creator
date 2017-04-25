@@ -172,6 +172,13 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
         emit addTask(Task::buildConfigurationMissingTask());
         canInit = false;
     }
+    if (!bc->isEnabled()) {
+        emit addTask(Task(Task::Error,
+                          QCoreApplication::translate("CMakeProjectManager::CMakeBuildStep",
+                                                      "The build configuration is currently disabled."),
+                          Utils::FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        canInit = false;
+    }
 
     CMakeTool *tool = CMakeKitInformation::cmakeTool(target()->kit());
     if (!tool || !tool->isValid()) {
@@ -185,7 +192,7 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
     }
 
     CMakeRunConfiguration *rc = targetsActiveRunConfiguration();
-    if (isCurrentExecutableTarget(m_buildTarget) && (!rc || rc->title().isEmpty())) {
+    if (isCurrentExecutableTarget(m_buildTarget) && (!rc || rc->buildSystemTarget().isEmpty())) {
         emit addTask(Task(Task::Error,
                           QCoreApplication::translate("ProjectExplorer::Task",
                                     "You asked to build the current Run Configuration's build target only, "
@@ -232,7 +239,7 @@ void CMakeBuildStep::run(QFutureInterface<bool> &fi)
     // Make sure CMake state was written to disk before trying to build:
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
     if (!bc)
-        bc = qobject_cast<CMakeBuildConfiguration *>(target()->activeBuildConfiguration());
+        bc = targetsActiveBuildConfiguration();
     QTC_ASSERT(bc, return);
 
     bool mustDelay = false;
@@ -348,7 +355,7 @@ QString CMakeBuildStep::allArguments(const CMakeRunConfiguration *rc) const
 
     if (isCurrentExecutableTarget(m_buildTarget)) {
         if (rc)
-            target = rc->title();
+            target = rc->buildSystemTarget();
         else
             target = QLatin1String("<i>&lt;") + tr(ADD_RUNCONFIGURATION_TEXT) + QLatin1String("&gt;</i>");
     } else {

@@ -693,14 +693,14 @@ void Utils::setGlobPatternsForMimeType(const MimeType &mimeType, const QStringLi
 {
     auto d = MimeDatabasePrivate::instance();
     QMutexLocker locker(&d->mutex);
-    return d->provider()->setGlobPatternsForMimeType(mimeType, patterns);
+    d->provider()->setGlobPatternsForMimeType(mimeType, patterns);
 }
 
 void Utils::setMagicRulesForMimeType(const MimeType &mimeType, const QMap<int, QList<MimeMagicRule> > &rules)
 {
     auto d = MimeDatabasePrivate::instance();
     QMutexLocker locker(&d->mutex);
-    return d->provider()->setMagicRulesForMimeType(mimeType, rules);
+    d->provider()->setMagicRulesForMimeType(mimeType, rules);
 }
 
 void Utils::setMimeStartupPhase(MimeStartupPhase phase)

@@ -113,6 +113,8 @@ private:
     void extractCMakeInputsData(const QVariantMap &data);
     void extractCacheData(const QVariantMap &data);
 
+    void fixTarget(Target *target) const;
+
     QHash<Utils::FileName, ProjectExplorer::ProjectNode *>
     addCMakeLists(CMakeProjectNode *root, const QList<ProjectExplorer::FileNode *> &cmakeLists);
     void addProjects(const QHash<Utils::FileName, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
