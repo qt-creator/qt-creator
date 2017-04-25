@@ -6,9 +6,9 @@
 isEmpty(VERSION): error("Include qtcreator.pri before including docs.pri!")
 
 qtcver.name = QTC_VERSION
-qtcver.value = $$VERSION
+qtcver.value = $$QTCREATOR_DISPLAY_VERSION
 qtcvertag.name = QTC_VERSION_TAG
-qtcvertag.value = $$replace(qtcver.value, \.,)
+qtcvertag.value = $$replace(VERSION, \.,)
 qtdocs.name = QT_INSTALL_DOCS
 qtdocs.value = $$[QT_INSTALL_DOCS/src]
 qdocindex.name = QDOC_INDEX_DIR
