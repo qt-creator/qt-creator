@@ -6713,6 +6713,17 @@ void tst_Dumpers::dumper_data()
             + Check("f.b", "<optimized out>", "") % NoCdbEngine
             + Check("f.b", "", "<Value unavailable error>") % CdbEngine;
 
+    QTest::newRow("LongDouble")
+            << Data("",
+                    "long double a = 1;\n"
+                    "long double b = -2;\n"
+                    "long double c = 0;\n"
+                    "long double d = 0.5;\n")
+            + Check("a", FloatValue("1"), TypeDef("double", "long double"))
+            + Check("b", FloatValue("-2"), TypeDef("double", "long double"))
+            + Check("c", FloatValue("0"), TypeDef("double", "long double"))
+            + Check("d", FloatValue("0.5"), TypeDef("double", "long double"));
+
     QTest::newRow("ArrayOfFunctionPointers")
             << Data("typedef int (*FP)(int *); \n"
                     "int func(int *param) { unused(param); return 0; }  \n",

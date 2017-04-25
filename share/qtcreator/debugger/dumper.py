@@ -124,7 +124,7 @@ def isIntegralTypeName(name):
                     'bool')
 
 def isFloatingPointTypeName(name):
-    return name in ('float', 'double')
+    return name in ('float', 'double', 'long double')
 
 
 def arrayForms():
@@ -2899,13 +2899,51 @@ class DumperBase:
             return self.extractInteger(bitsize, unsigned)
 
         def floatingPoint(self):
+            if self.nativeValue is not None and not self.dumper.isCdb:
+                return str(self.nativeValue)
             if self.type.code == TypeCodeTypedef:
                 return self.detypedef().floatingPoint()
             if self.type.size() == 8:
                 return self.extractSomething('d', 64)
             if self.type.size() == 4:
                 return self.extractSomething('f', 32)
-            error('BAD FLOAT DATA: %s SIZE: %s' % (self, self.type.size()))
+            # Fall back in case we don't have a nativeValue at hand.
+            # FIXME: This assumes Intel's 80bit extended floats. Which might
+            # be wrong.
+            l, h = self.split('QQ')
+            if True:  # 80 bit floats
+                sign = (h >> 15) & 1
+                exp = (h & 0x7fff)
+                fraction = l
+                bit63 = (l >> 63) & 1
+                #warn("SIGN: %s  EXP: %s  H: 0x%x L: 0x%x" % (sign, exp, h, l))
+                if exp == 0:
+                    if bit63 == 0:
+                        if l == 0:
+                            res = '-0' if sign else '0'
+                        else:
+                            res = (-1)**sign * l * 2**(-16382)  # subnormal
+                    else:
+                        res = 'pseudodenormal'
+                elif exp == 0x7fff:
+                    res = 'special'
+                else:
+                    res = (-1)**sign * l * 2**(exp - 16383 - 63)
+            else:  # 128 bits
+                sign = h >> 63
+                exp = (h >> 48) & 0x7fff
+                fraction = h & (2**48 - 1)
+                #warn("SIGN: %s  EXP: %s  FRAC: %s  H: 0x%x L: 0x%x" % (sign, exp, fraction, h, l))
+                if exp == 0:
+                    if fraction == 0:
+                        res = -0.0 if sign else 0.0
+                    else:
+                        res = (-1)**sign * fraction / 2**48 * 2**(-62)  # subnormal
+                elif exp == 0x7fff:
+                    res = ('-inf' if sign else 'inf') if fraction == 0 else 'nan'
+                else:
+                    res = (-1)**sign * (1 + fraction / 2**48) * 2**(exp - 63)
+            return res
 
         def value(self):
             if self.type is not None:
