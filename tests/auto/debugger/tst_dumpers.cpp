@@ -6717,7 +6717,8 @@ void tst_Dumpers::dumper_data()
             << Data("typedef int (*FP)(int *); \n"
                     "int func(int *param) { unused(param); return 0; }  \n",
                     "FP fps[5]; fps[0] = func; fps[0](0); unused(&fps);\n")
-            + RequiredMessage("Searching for type int (*)(int *) across all target modules, this could be very slow")
+            + RequiredMessage("Searching for type int (*)(int *) across all target "
+                              "modules, this could be very slow")
             + LldbEngine;
 
     QTest::newRow("Sql")
