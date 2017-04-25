@@ -2760,6 +2760,16 @@ def qdump__QSqlField(d, value):
     d.putPlainChildren(value)
 
 
+def qdump__QLazilyAllocated(d, value):
+    p = value.extractPointer()
+    if p == 0:
+        d.putValue("(null)")
+        d.putNumChild(0)
+    else:
+        d.putItem(d.createValue(p, value.type[0]))
+        d.putBetterType(value.type)
+
+
 def qdump__qfloat16(d, value):
     h = value.split('H')[0]
     # Stole^H^H^HHeavily inspired by J.F. Sebastian at

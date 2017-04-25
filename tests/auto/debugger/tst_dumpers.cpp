@@ -3152,6 +3152,15 @@ void tst_Dumpers::dumper_data()
                + Check("ptr53", "", "@QWeakPointer<Foo>");
 
 
+    QTest::newRow("QLazilyAllocated")
+            << Data("#include <private/qlazilyallocated_p.h>\n"
+                    "#include <QString>\n",
+                    "QLazilyAllocated<QString> l;\n"
+                    "l.value() = \"Hi\";\n")
+               + QmlPrivateProfile()
+               + Check("l", "\"Hi\"", "@QLazilyAllocated<@QString>");
+
+
     QTest::newRow("QFiniteStack")
             << Data("#include <stdlib.h>\n" // Needed on macOS.
                     "#include <private/qfinitestack_p.h>\n" + fooData,
