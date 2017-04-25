@@ -177,7 +177,7 @@ bool TextEditorWidget::eventFilter( QObject *, QEvent *event)
 {
     static std::vector<int> overrideKeys = { Qt::Key_Delete, Qt::Key_Backspace, Qt::Key_Left,
                                              Qt::Key_Right, Qt::Key_Up, Qt::Key_Down, Qt::Key_Insert,
-                                             Qt::Key_Escape, Qt::Key_Home, Qt::Key_End };
+                                             Qt::Key_Escape };
 
     static std::vector<QKeySequence> overrideSequences = { QKeySequence::SelectAll, QKeySequence::Cut,
                                                           QKeySequence::Copy, QKeySequence::Delete,
