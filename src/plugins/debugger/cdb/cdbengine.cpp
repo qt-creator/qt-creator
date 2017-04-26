@@ -520,9 +520,11 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
         m_wow64State = noWow64Stack;
     const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit));
     if (!extensionFi.isFile()) {
-        *errorMessage = QString("Internal error: The extension %1 cannot be found.\n"
-                                "If you build Qt Creator from sources, check out "
-                                "https://code.qt.io/cgit/qt-creator/binary-artifacts.git/.").
+        *errorMessage = tr("Internal error: The extension %1 cannot be found.\n"
+                           "If you build Qt Creator from sources and want to use a cdb executable"
+                           "with another bitness than your Qt Creator build,\n"
+                           "you will need to build a separate cdbextension with the "
+                           "same bitness as the cdb you want to use.").
                 arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath()));
         return false;
     }
