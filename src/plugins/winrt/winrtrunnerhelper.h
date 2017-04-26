@@ -36,7 +36,6 @@
 
 namespace Utils { class QtcProcess; }
 namespace ProjectExplorer { class RunControl; }
-namespace Debugger { class DebuggerRunTool; }
 
 namespace WinRt {
 namespace Internal {
@@ -76,7 +75,6 @@ private:
     void appendMessage(const QString &message, Utils::OutputFormat format);
 
     ProjectExplorer::RunControl *m_messenger;
-    Debugger::DebuggerRunTool *m_debugMessenger;
     WinRtRunConfiguration *m_runConfiguration;
     WinRtDevice::ConstPtr m_device;
     Utils::Environment m_environment;

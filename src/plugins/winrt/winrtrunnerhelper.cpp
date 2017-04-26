@@ -39,7 +39,6 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/qtcprocess.h>
-#include <debugger/debuggerruncontrol.h>
 
 #include <QDir>
 
@@ -49,7 +48,6 @@ using namespace WinRt::Internal;
 WinRtRunnerHelper::WinRtRunnerHelper(WinRtRunConfiguration *runConfiguration, QString *errormessage)
     : QObject()
     , m_messenger(0)
-    , m_debugMessenger(0)
     , m_runConfiguration(runConfiguration)
     , m_process(0)
 {
@@ -59,7 +57,6 @@ WinRtRunnerHelper::WinRtRunnerHelper(WinRtRunConfiguration *runConfiguration, QS
 WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunControl *runControl)
     : QObject(runControl)
     , m_messenger(runControl)
-    , m_debugMessenger(0)
     , m_runConfiguration(0)
     , m_process(0)
 {
@@ -111,13 +108,8 @@ bool WinRtRunnerHelper::init(WinRtRunConfiguration *runConfiguration, QString *e
 
 void WinRtRunnerHelper::appendMessage(const QString &message, Utils::OutputFormat format)
 {
-    if (m_debugMessenger && (format == Utils::StdOutFormat || format == Utils::StdErrFormat)){
-        // We wan to filter out the waiting for connection message from the QML debug server
-        m_debugMessenger->showMessage(message, format == Utils::StdOutFormat ? Debugger::AppOutput
-                                                                             : Debugger::AppError);
-    } else if (m_messenger) {
+    if (m_messenger)
         m_messenger->appendMessage(message, format);
-    }
 }
 
 void WinRtRunnerHelper::debug(const QString &debuggerExecutable, const QString &debuggerArguments)
@@ -148,7 +140,6 @@ bool WinRtRunnerHelper::waitForStarted(int msecs)
 
 void WinRtRunnerHelper::setDebugRunControl(ProjectExplorer::RunControl *runControl)
 {
-    m_debugMessenger = qobject_cast<Debugger::DebuggerRunTool *>(runControl->toolRunner());
     m_messenger = runControl;
 }
 
