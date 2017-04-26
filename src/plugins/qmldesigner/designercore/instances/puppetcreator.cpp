@@ -231,7 +231,7 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
         QObject::connect(puppetProcess, SIGNAL(readyRead()), handlerObject, outputSlot);
     }
     puppetProcess->setWorkingDirectory(workingDirectory);
-    puppetProcess->start(puppetPath, QStringList() << socketToken << puppetMode << QLatin1String("-graphicssystem raster"));
+    puppetProcess->start(puppetPath, {socketToken, puppetMode, "-graphicssystem raster"});
 
 #ifndef QMLDESIGNER_TEST
     QString debugPuppet = m_designerSettings.value(DesignerSettingsKey::
@@ -621,7 +621,7 @@ bool PuppetCreator::checkPuppetVersion(const QString &qmlPuppetPath)
 {
 
     QProcess qmlPuppetVersionProcess;
-    qmlPuppetVersionProcess.start(qmlPuppetPath, QStringList() << QLatin1String("--version"));
+    qmlPuppetVersionProcess.start(qmlPuppetPath, {"--version"});
     qmlPuppetVersionProcess.waitForReadyRead(6000);
 
     QByteArray versionString = qmlPuppetVersionProcess.readAll();

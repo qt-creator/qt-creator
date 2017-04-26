@@ -114,7 +114,7 @@ QString DesignDocumentView::toText() const
     ModelNode rewriterNode(rewriterView->rootModelNode());
 
     //get the text of the root item without imports
-    return rewriterView->extractText(QList<ModelNode>() << rewriterNode).value(rewriterNode);
+    return rewriterView->extractText({rewriterNode}).value(rewriterNode);
 }
 
 void DesignDocumentView::fromText(QString text)

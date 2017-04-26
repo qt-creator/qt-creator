@@ -46,7 +46,7 @@ class ModelNode;
             : idItem(id), lockItem(lock), visibilityItem(visibility), propertyItems(properties) {}
 
         QList<QStandardItem*> toList() const {
-            return QList<QStandardItem*>() << idItem << lockItem << visibilityItem;
+            return {idItem, lockItem, visibilityItem};
         }
 
         QStandardItem *idItem;
@@ -62,7 +62,7 @@ class ModelNode;
             : idItem(id), exportItem(exportI), visibilityItem(visibility), propertyItems(properties) {}
 
         QList<QStandardItem*> toList() const {
-            return QList<QStandardItem*>() << idItem << exportItem << visibilityItem;
+            return {idItem, exportItem, visibilityItem};
         }
 
         QStandardItem *idItem;

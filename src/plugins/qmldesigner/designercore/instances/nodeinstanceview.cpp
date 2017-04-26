@@ -244,9 +244,9 @@ void NodeInstanceView::nodeCreated(const ModelNode &createdNode)
     propertyList.append(createdNode.variantProperty("y"));
     updatePosition(propertyList);
 
-    nodeInstanceServer()->createInstances(createCreateInstancesCommand(QList<NodeInstance>() << instance));
+    nodeInstanceServer()->createInstances(createCreateInstancesCommand({instance}));
     nodeInstanceServer()->changePropertyValues(createChangeValueCommand(createdNode.variantProperties()));
-    nodeInstanceServer()->completeComponent(createComponentCompleteCommand(QList<NodeInstance>() << instance));
+    nodeInstanceServer()->completeComponent(createComponentCompleteCommand({instance}));
 }
 
 /*! Notifies the view that \a removedNode will be removed.
@@ -420,7 +420,7 @@ void NodeInstanceView::nodeIdChanged(const ModelNode& node, const QString& /*new
 {
     if (hasInstanceForModelNode(node)) {
         NodeInstance instance = instanceForModelNode(node);
-        nodeInstanceServer()->changeIds(createChangeIdsCommand(QList<NodeInstance>() << instance));
+        nodeInstanceServer()->changeIds(createChangeIdsCommand({instance}));
     }
 }
 
@@ -459,16 +459,16 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node, const Propert
             QVariant value = data;
             if (value.isValid()) {
                 PropertyValueContainer container(instance.instanceId(), name, value, TypeName());
-                ChangeAuxiliaryCommand changeAuxiliaryCommand(QVector<PropertyValueContainer>() << container);
+                ChangeAuxiliaryCommand changeAuxiliaryCommand({container});
                 nodeInstanceServer()->changeAuxiliaryValues(changeAuxiliaryCommand);
             } else {
                 if (node.hasVariantProperty(name)) {
                     PropertyValueContainer container(instance.instanceId(), name, node.variantProperty(name).value(), TypeName());
-                    ChangeValuesCommand changeValueCommand(QVector<PropertyValueContainer>() << container);
+                    ChangeValuesCommand changeValueCommand({container});
                     nodeInstanceServer()->changePropertyValues(changeValueCommand);
                 } else if (node.hasBindingProperty(name)) {
                     PropertyBindingContainer container(instance.instanceId(), name, node.bindingProperty(name).expression(), TypeName());
-                    ChangeBindingsCommand changeValueCommand(QVector<PropertyBindingContainer>() << container);
+                    ChangeBindingsCommand changeValueCommand({container});
                     nodeInstanceServer()->changePropertyBindings(changeValueCommand);
                 }
             }
@@ -1082,7 +1082,7 @@ RemovePropertiesCommand NodeInstanceView::createRemovePropertiesCommand(const QL
 
 RemoveSharedMemoryCommand NodeInstanceView::createRemoveSharedMemoryCommand(const QString &sharedMemoryTypeName, quint32 keyNumber)
 {
-    return RemoveSharedMemoryCommand(sharedMemoryTypeName, QVector<qint32>() << keyNumber);
+    return RemoveSharedMemoryCommand(sharedMemoryTypeName, {static_cast<qint32>(keyNumber)});
 }
 
 RemoveSharedMemoryCommand NodeInstanceView::createRemoveSharedMemoryCommand(const QString &sharedMemoryTypeName, const QList<ModelNode> &nodeList)

@@ -183,7 +183,7 @@ void BackendModel::deletePropertyByRow(int rowNumber)
 
              try {
                  if (model->hasImport(import))
-                     model->changeImports(QList<Import>(), QList<Import> { import } );
+                     model->changeImports({}, {import});
              } catch (const Exception &e) {
                  e.showException();
              }
@@ -241,7 +241,7 @@ void BackendModel::addNewBackend()
              */
 
             if (!model->hasImport(import))
-                model->changeImports(QList<Import> { import }, QList<Import>());
+                model->changeImports({import}, {});
 
             QString propertyName = m_connectionView->generateNewId(typeName);
 

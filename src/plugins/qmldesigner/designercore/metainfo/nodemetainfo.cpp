@@ -1251,7 +1251,7 @@ void NodeMetaInfoPrivate::setupPrototypes()
             }
             m_prototypes.append(description);
         } else {
-            if (context()->lookupType(document(), QStringList() << ov->className())) {
+            if (context()->lookupType(document(), {ov->className()})) {
                 const Imports *allImports = context()->imports(document());
                 ImportInfo importInfo = allImports->info(description.className, context().data());
 

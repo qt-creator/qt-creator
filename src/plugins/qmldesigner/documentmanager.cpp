@@ -455,7 +455,7 @@ bool DocumentManager::addResourceFileToIsoProject(const QString &resourceFilePro
     if (!projectNode)
         return false;
 
-    if (!projectNode->addFiles(QStringList() << resourceFilePath)) {
+    if (!projectNode->addFiles({resourceFilePath})) {
         qCWarning(documentManagerLog) << "Failed to add resource file to" << projectNode->displayName();
         return false;
     }

@@ -227,7 +227,7 @@ void LayoutInGridLayout::ensureLayoutImport(const SelectionContext &context)
 {
     if (!hasQtQuickLayoutImport(context)) {
         Import layoutImport = Import::createLibraryImport("QtQuick.Layouts", "1.0");
-        context.view()-> model()->changeImports(QList<Import>() << layoutImport, QList<Import>());
+        context.view()-> model()->changeImports({layoutImport}, {});
     }
 }
 

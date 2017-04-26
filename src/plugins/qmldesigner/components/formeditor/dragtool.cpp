@@ -157,7 +157,7 @@ void DragTool::createQmlItemNodeFromImage(const QString &imageName,
 
 FormEditorItem* DragTool::targetContainerOrRootItem(const QList<QGraphicsItem*> &itemList, FormEditorItem * currentItem)
 {
-    FormEditorItem *formEditorItem = containerFormEditorItem(itemList, QList<FormEditorItem*>() << currentItem);
+    FormEditorItem *formEditorItem = containerFormEditorItem(itemList, {currentItem});
 
     if (!formEditorItem)
         formEditorItem = scene()->rootFormEditorItem();

@@ -278,12 +278,12 @@ AnchorLineType QmlAnchors::possibleAnchorLines(AnchorLineType sourceAnchorLineTy
         return AnchorLineInvalid;
 
     if (AnchorLine::isHorizontalAnchorLine(sourceAnchorLineType)) {
-        if (!detectHorizontalCycle(targetQmlItemNode, QList<ModelNode>() << qmlItemNode().modelNode()))
+        if (!detectHorizontalCycle(targetQmlItemNode, {qmlItemNode().modelNode()}))
             return AnchorLineHorizontalMask;
     }
 
     if (AnchorLine::isVerticalAnchorLine(sourceAnchorLineType)) {
-        if (!detectVerticalCycle(targetQmlItemNode, QList<ModelNode>() << qmlItemNode().modelNode()))
+        if (!detectVerticalCycle(targetQmlItemNode, {qmlItemNode().modelNode()}))
             return AnchorLineVerticalMask;
     }
 

@@ -153,11 +153,12 @@ void StatesEditorView::addState()
 
     try {
         if ((rootStateGroup().allStates().count() < 1) && //QtQuick import might be missing
-            (!model()->hasImport(Import::createLibraryImport(QLatin1String("QtQuick"), QLatin1String("1.0")), true, true)))
-            model()->changeImports(QList<Import>() << Import::createLibraryImport(QLatin1String("QtQuick"), QLatin1String("1.0")), QList<Import>());
+                (!model()->hasImport(Import::createLibraryImport("QtQuick", "1.0"), true, true))) {
+            model()->changeImports({Import::createLibraryImport("QtQuick", "1.0")}, {});
+        }
         ModelNode newState = rootStateGroup().addState(newStateName);
         setCurrentState(newState);
-    }  catch (const RewritingException &e) {
+    } catch (const RewritingException &e) {
         e.showException();
     }
 }

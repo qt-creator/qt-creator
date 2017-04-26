@@ -347,7 +347,7 @@ void DesignModeWidget::setup()
 
     // Finishing touches:
     m_mainSplitter->setStretchFactor(1, 1);
-    m_mainSplitter->setSizes(QList<int>() << 150 << 300 << 150);
+    m_mainSplitter->setSizes({150, 300, 150});
 
     QLayout *mainLayout = new QBoxLayout(QBoxLayout::RightToLeft, this);
     mainLayout->setMargin(0);

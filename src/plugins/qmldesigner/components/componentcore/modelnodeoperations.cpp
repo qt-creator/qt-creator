@@ -156,7 +156,7 @@ void goIntoComponent(const ModelNode &modelNode)
 void select(const SelectionContext &selectionState)
 {
     if (selectionState.view())
-        selectionState.view()->setSelectedModelNodes(QList<ModelNode>() << selectionState.targetNode());
+        selectionState.view()->setSelectedModelNodes({selectionState.targetNode()});
 }
 
 void deSelect(const SelectionContext &selectionState)

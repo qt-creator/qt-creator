@@ -331,7 +331,7 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
         }
 
         if (!model()->metaInfo().itemLibraryInfo()->containsEntry(itemLibraryEntry))
-            model()->metaInfo().itemLibraryInfo()->addEntries(QList<ItemLibraryEntry>() << itemLibraryEntry);
+            model()->metaInfo().itemLibraryInfo()->addEntries({itemLibraryEntry});
     }
 }
 

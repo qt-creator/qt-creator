@@ -868,7 +868,7 @@ void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, co
 
 void TextToModelMerger::setupUsedImports()
 {
-     QList<QmlJS::Import> allImports = m_scopeChain->context()->imports(m_document.data())->all();
+     const QList<QmlJS::Import> allImports = m_scopeChain->context()->imports(m_document.data())->all();
 
      QList<Import> usedImports;
 
@@ -1110,7 +1110,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                         || isConnectionsType(typeName)) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
                     if (context->isArrayProperty(propertyType, containingObject, name))
-                        syncArrayProperty(modelProperty, QList<AST::UiObjectMember*>() << member, context, differenceHandler);
+                        syncArrayProperty(modelProperty, {member}, context, differenceHandler);
                     else
                         syncNodeProperty(modelProperty, binding, context, TypeName(), differenceHandler);
                     modelPropertyNames.remove(astPropertyName.toUtf8());
@@ -1710,12 +1710,12 @@ void ModelValidator::idsDiffer(ModelNode &modelNode, const QString &qmlId)
 
 void ModelAmender::modelMissesImport(const QmlDesigner::Import &import)
 {
-    m_merger->view()->model()->changeImports(QList<QmlDesigner::Import>() << import, QList<QmlDesigner::Import>());
+    m_merger->view()->model()->changeImports({import}, {});
 }
 
 void ModelAmender::importAbsentInQMl(const QmlDesigner::Import &import)
 {
-    m_merger->view()->model()->changeImports(QList<Import>(), QList<Import>() << import);
+    m_merger->view()->model()->changeImports({}, {import});
 }
 
 void ModelAmender::bindingExpressionsDiffer(BindingProperty &modelProperty,
@@ -1937,7 +1937,7 @@ void TextToModelMerger::setupComponent(const ModelNode &node)
     if (!node.isValid())
         return;
 
-    QString componentText = m_rewriterView->extractText(QList<ModelNode>() << node).value(node);
+    QString componentText = m_rewriterView->extractText({node}).value(node);
 
     if (componentText.isEmpty())
         return;
@@ -2054,7 +2054,7 @@ void TextToModelMerger::setupCustomParserNode(const ModelNode &node)
     if (!node.isValid())
         return;
 
-    QString modelText = m_rewriterView->extractText(QList<ModelNode>() << node).value(node);
+    QString modelText = m_rewriterView->extractText({node}).value(node);
 
     if (modelText.isEmpty())
         return;
