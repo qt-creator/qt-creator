@@ -36,11 +36,7 @@
 
 namespace Utils { class QtcProcess; }
 namespace ProjectExplorer { class RunControl; }
-
-namespace Debugger {
-class DebuggerRunControl;
-class DebuggerRunTool;
-}
+namespace Debugger { class DebuggerRunTool; }
 
 namespace WinRt {
 namespace Internal {
@@ -60,7 +56,7 @@ public:
     void stop();
 
     bool waitForStarted(int msecs = 10000);
-    void setDebugRunControl(Debugger::DebuggerRunControl *runControl);
+    void setDebugRunControl(ProjectExplorer::RunControl *runControl);
 
 signals:
     void started();

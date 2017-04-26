@@ -53,7 +53,6 @@ class ProcessHandle;
 
 namespace Debugger {
 
-class DebuggerRunControl;
 class RemoteSetupResult;
 class DebuggerRunTool;
 
@@ -433,7 +432,7 @@ protected:
     void setTargetState(DebuggerState state);
     void setMasterEngine(DebuggerEngine *masterEngine);
 
-    DebuggerRunControl *runControl() const;
+    ProjectExplorer::RunControl *runControl() const;
     Terminal *terminal() const;
 
     static QString msgStopped(const QString &reason = QString());

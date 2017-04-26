@@ -47,7 +47,6 @@ protected:
     virtual ProjectExplorer::Runnable realRunnable() const;
     bool isCppDebugging() const;
     bool isQmlDebugging() const;
-    Debugger::DebuggerRunControl *runControl() const;
 
 private:
     void startExecution();

@@ -166,7 +166,7 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl, bool cppDebug, bool qml
       m_runner(new IosRunner(this, runControl, cppDebug,
                              qmlDebug ? QmlDebug::QmlDebuggerServices : QmlDebug::NoQmlDebugServices))
 {
-    connect(this->runControl(), &DebuggerRunControl::requestRemoteSetup,
+    connect(this->runControl()->toolRunner(), &DebuggerRunTool::requestRemoteSetup,
             m_runner, &IosRunner::start);
     connect(runControl, &RunControl::finished,
             m_runner, &IosRunner::stop);

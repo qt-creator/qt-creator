@@ -541,11 +541,11 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParame
     connect(runControl, &RunControl::finished,
             this, &DebuggerRunTool::handleFinished);
     connect(m_engine, &DebuggerEngine::requestRemoteSetup,
-            this->runControl(), &DebuggerRunControl::requestRemoteSetup);
+            this, &DebuggerRunTool::requestRemoteSetup);
     connect(m_engine, &DebuggerEngine::stateChanged,
-            this->runControl(), &DebuggerRunControl::stateChanged);
+            this, &DebuggerRunTool::stateChanged);
     connect(m_engine, &DebuggerEngine::aboutToNotifyInferiorSetupOk,
-            this->runControl(), &DebuggerRunControl::aboutToNotifyInferiorSetupOk);
+            this, &DebuggerRunTool::aboutToNotifyInferiorSetupOk);
 }
 
 DebuggerRunTool::~DebuggerRunTool()
@@ -692,10 +692,10 @@ RunControl *createAndScheduleRun(const DebuggerRunParameters &rp, Kit *kit)
 /**
  * Main entry point for target plugins.
  */
-DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
-                                             RunConfiguration *runConfig,
-                                             QString *errorMessage,
-                                             Core::Id runMode)
+RunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
+                                     RunConfiguration *runConfig,
+                                     QString *errorMessage,
+                                     Core::Id runMode)
 {
     QTC_ASSERT(runConfig, return nullptr);
     auto runControl = new DebuggerRunControl(runConfig, runMode);

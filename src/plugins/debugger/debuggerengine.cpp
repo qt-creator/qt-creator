@@ -343,7 +343,7 @@ public:
     bool isMasterEngine() const { return m_engine->isMasterEngine(); }
     DebuggerRunTool *runTool() const
         { return m_masterEngine ? m_masterEngine->runTool() : m_runTool.data(); }
-    DebuggerRunControl *runControl() const { return runTool()->runControl(); }
+    RunControl *runControl() const { return runTool()->runControl(); }
     void setRemoteSetupState(RemoteSetupState state);
 
     DebuggerEngine *m_engine = nullptr; // Not owned.
@@ -1518,7 +1518,7 @@ void DebuggerEngine::progressPing()
     d->m_progress.setProgressValue(progress);
 }
 
-DebuggerRunControl *DebuggerEngine::runControl() const
+RunControl *DebuggerEngine::runControl() const
 {
     return d->runControl();
 }

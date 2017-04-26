@@ -37,10 +37,11 @@ class RemoteSetupResult;
 class DebuggerStartParameters;
 class DebuggerRunControl;
 
-DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
-                                                             ProjectExplorer::RunConfiguration *runConfig,
-                                                             QString *errorMessage,
-                                                             Core::Id runMode = ProjectExplorer::Constants::DEBUG_RUN_MODE);
+DEBUGGER_EXPORT ProjectExplorer::RunControl *
+createDebuggerRunControl(const DebuggerStartParameters &sp,
+                         ProjectExplorer::RunConfiguration *runConfig,
+                         QString *errorMessage,
+                         Core::Id runMode = ProjectExplorer::Constants::DEBUG_RUN_MODE);
 
 class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::ToolRunner
 {
@@ -76,6 +77,11 @@ public:
 
     DebuggerStartParameters &startParameters(); // Used in Boot2Qt.
 
+signals:
+    void stateChanged(Debugger::DebuggerState state);
+    void aboutToNotifyInferiorSetupOk();
+    void requestRemoteSetup();
+
 private:
     Internal::DebuggerEngine *m_engine = nullptr; // Master engine
     QStringList m_errors;
@@ -93,11 +99,6 @@ public:
     void stop() override; // Called from SnapshotWindow.
 
     DebuggerRunTool *toolRunner() const;
-
-signals:
-    void requestRemoteSetup();
-    void aboutToNotifyInferiorSetupOk();
-    void stateChanged(Debugger::DebuggerState state);
 
 public:
     DebuggerRunTool *m_debuggerTool = nullptr;

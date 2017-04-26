@@ -134,7 +134,7 @@ void QnxAttachDebugSupport::attachToProcess()
         sp.solibSearchPath = QnxUtils::searchPaths(qtVersion);
 
     QString errorMessage;
-    Debugger::DebuggerRunControl *runControl = Debugger::createDebuggerRunControl(sp, 0, &errorMessage);
+    auto runControl = Debugger::createDebuggerRunControl(sp, 0, &errorMessage);
     if (!errorMessage.isEmpty()) {
         handleError(errorMessage);
         stopPDebug();
@@ -145,7 +145,8 @@ void QnxAttachDebugSupport::attachToProcess()
         stopPDebug();
         return;
     }
-    connect(runControl, &Debugger::DebuggerRunControl::stateChanged,
+    connect(qobject_cast<Debugger::DebuggerRunTool *>(runControl->toolRunner()),
+            &Debugger::DebuggerRunTool::stateChanged,
             this, &QnxAttachDebugSupport::handleDebuggerStateChanged);
     ProjectExplorerPlugin::startRunControl(runControl);
 }

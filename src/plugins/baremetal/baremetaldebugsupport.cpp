@@ -46,7 +46,7 @@ BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
     : ToolRunner(runControl)
     , m_appLauncher(new ProjectExplorer::ApplicationLauncher(this))
 {
-    connect(this->runControl(), &Debugger::DebuggerRunControl::requestRemoteSetup,
+    connect(this->runControl()->toolRunner(), &Debugger::DebuggerRunTool::requestRemoteSetup,
             this, &BareMetalDebugSupport::remoteSetupRequested);
     connect(runControl, &RunControl::finished,
             this, &BareMetalDebugSupport::debuggingFinished);

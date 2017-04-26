@@ -61,7 +61,7 @@ QnxDebugSupport::QnxDebugSupport(RunControl *runControl)
     connect(runner, &ApplicationLauncher::remoteStdout, this, &QnxDebugSupport::handleRemoteOutput);
     connect(runner, &ApplicationLauncher::remoteStderr, this, &QnxDebugSupport::handleRemoteOutput);
 
-    connect(this->runControl(), &Debugger::DebuggerRunControl::requestRemoteSetup,
+    connect(this->runControl()->toolRunner(), &Debugger::DebuggerRunTool::requestRemoteSetup,
             this, &QnxDebugSupport::handleAdapterSetupRequested);
     connect(runControl, &RunControl::finished,
             this, &QnxDebugSupport::handleDebuggingFinished);

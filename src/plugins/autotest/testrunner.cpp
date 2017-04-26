@@ -336,8 +336,8 @@ void TestRunner::debugTests()
     sp.displayName = config->displayName();
 
     QString errorMessage;
-    Debugger::DebuggerRunControl *runControl = Debugger::createDebuggerRunControl(
-                sp, config->runConfiguration(), &errorMessage);
+    auto runControl = Debugger::createDebuggerRunControl(sp, config->runConfiguration(),
+                                                         &errorMessage);
 
     if (!runControl) {
         emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
@@ -374,7 +374,7 @@ void TestRunner::debugTests()
                 outputreader, &QObject::deleteLater);
     }
 
-    connect(this, &TestRunner::requestStopTestRun, runControl, &Debugger::DebuggerRunControl::stop);
+    connect(this, &TestRunner::requestStopTestRun, runControl, &ProjectExplorer::RunControl::stop);
     connect(runControl, &Debugger::DebuggerRunControl::finished, this, &TestRunner::onFinished);
     ProjectExplorer::ProjectExplorerPlugin::startRunControl(runControl);
 }

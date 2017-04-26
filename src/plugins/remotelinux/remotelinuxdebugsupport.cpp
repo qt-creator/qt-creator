@@ -79,7 +79,7 @@ LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl,
     : DebuggerRunTool(runControl, sp, errorMessage),
       d(new LinuxDeviceDebugSupportPrivate(runControl->runConfiguration()))
 {
-    connect(this->runControl(), &DebuggerRunControl::requestRemoteSetup,
+    connect(this, &DebuggerRunTool::requestRemoteSetup,
             this, &LinuxDeviceDebugSupport::handleRemoteSetupRequested);
     connect(runControl, &RunControl::finished,
             this, &LinuxDeviceDebugSupport::handleDebuggingFinished);
@@ -111,11 +111,6 @@ void LinuxDeviceDebugSupport::showMessage(const QString &msg, int channel)
 {
     if (state() != AbstractRemoteLinuxRunSupport::Inactive)
         runControl()->toolRunner()->showMessage(msg, channel);
-}
-
-DebuggerRunControl *LinuxDeviceDebugSupport::runControl() const
-{
-    return qobject_cast<DebuggerRunControl *>(ToolRunner::runControl());
 }
 
 AbstractRemoteLinuxRunSupport *LinuxDeviceDebugSupport::targetRunner() const

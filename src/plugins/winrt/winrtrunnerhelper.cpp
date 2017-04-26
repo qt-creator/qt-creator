@@ -146,9 +146,9 @@ bool WinRtRunnerHelper::waitForStarted(int msecs)
     return m_process->waitForStarted(msecs);
 }
 
-void WinRtRunnerHelper::setDebugRunControl(Debugger::DebuggerRunControl *runControl)
+void WinRtRunnerHelper::setDebugRunControl(ProjectExplorer::RunControl *runControl)
 {
-    m_debugMessenger = runControl->toolRunner();
+    m_debugMessenger = qobject_cast<Debugger::DebuggerRunTool *>(runControl->toolRunner());
     m_messenger = runControl;
 }
 

@@ -150,11 +150,11 @@ AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl)
     connect(runControl, &RunControl::finished,
             m_runner, &AndroidRunner::stop);
 
-    connect(this->runControl(), &DebuggerRunControl::requestRemoteSetup,
+    connect(this->runControl()->toolRunner(), &DebuggerRunTool::requestRemoteSetup,
             m_runner, &AndroidRunner::start);
 
     // FIXME: Move signal to base class and generalize handling.
-    connect(this->runControl(), &DebuggerRunControl::aboutToNotifyInferiorSetupOk,
+    connect(this->runControl()->toolRunner(), &DebuggerRunTool::aboutToNotifyInferiorSetupOk,
             m_runner, &AndroidRunner::remoteDebuggerRunning);
 
     connect(m_runner, &AndroidRunner::remoteServerRunning,
