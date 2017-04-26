@@ -259,9 +259,7 @@ QmlModelState QmlModelState::duplicate(const QString &name) const
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
 //    QmlModelState newState(stateGroup().addState(name));
-    PropertyListType propertyList;
-    propertyList.append(qMakePair(PropertyName("name"), QVariant(name)));
-    QmlModelState newState(createQmlState(view(), propertyList));
+    QmlModelState newState(createQmlState(view(), {{PropertyName("name"), QVariant(name)}}));
     foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
         ModelNode newModelNode(view()->createModelNode(childNode.type(), childNode.majorVersion(), childNode.minorVersion()));
         foreach (const BindingProperty &bindingProperty, childNode.bindingProperties())

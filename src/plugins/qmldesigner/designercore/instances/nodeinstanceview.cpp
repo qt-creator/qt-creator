@@ -1107,7 +1107,7 @@ void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
                 instance.setProperty(container.name(), container.value());
-                valuePropertyChangeList.append(qMakePair(instance.modelNode(), container.name()));
+                valuePropertyChangeList.append({instance.modelNode(), container.name()});
             }
         }
     }

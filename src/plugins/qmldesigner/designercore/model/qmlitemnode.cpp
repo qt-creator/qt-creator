@@ -118,15 +118,15 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
         if (itemLibraryEntry.qmlSource().isEmpty()) {
             QList<QPair<PropertyName, QVariant> > propertyPairList;
             if (!position.isNull()) {
-                propertyPairList.append(qMakePair(PropertyName("x"), QVariant(qRound(position.x()))));
-                propertyPairList.append(qMakePair(PropertyName("y"), QVariant(qRound(position.y()))));
+                propertyPairList.append({PropertyName("x"), QVariant(qRound(position.x()))});
+                propertyPairList.append({PropertyName("y"), QVariant(qRound(position.y()))});
             }
 
             foreach (const PropertyContainer &property, itemLibraryEntry.properties()) {
                 if (property.type() == QStringLiteral("binding")) {
                     propertyBindingList.append(PropertyBindingEntry(property.name(), property.value().toString()));
                 } else {
-                    propertyPairList.append(qMakePair(property.name(), property.value()));
+                    propertyPairList.append({property.name(), property.value()});
                 }
             }
 
@@ -182,8 +182,8 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
         if (view->model()->hasNodeMetaInfo("QtQuick.Image")) {
             NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Image");
             QList<QPair<PropertyName, QVariant> > propertyPairList;
-            propertyPairList.append(qMakePair(PropertyName("x"), QVariant(qRound(position.x()))));
-            propertyPairList.append(qMakePair(PropertyName("y"), QVariant(qRound(position.y()))));
+            propertyPairList.append({PropertyName("x"), QVariant(qRound(position.x()))});
+            propertyPairList.append({PropertyName("y"), QVariant(qRound(position.y()))});
 
             QString relativeImageName = imageName;
 
@@ -191,7 +191,7 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
             if (QFileInfo::exists(view->model()->fileUrl().toLocalFile())) {
                 QDir fileDir(QFileInfo(view->model()->fileUrl().toLocalFile()).absolutePath());
                 relativeImageName = fileDir.relativeFilePath(imageName);
-                propertyPairList.append(qMakePair(PropertyName("source"), QVariant(relativeImageName)));
+                propertyPairList.append({PropertyName("source"), QVariant(relativeImageName)});
             }
 
             newQmlItemNode = QmlItemNode(view->createModelNode("QtQuick.Image", metaInfo.majorVersion(), metaInfo.minorVersion(), propertyPairList));
@@ -529,11 +529,8 @@ QmlModelState QmlModelStateGroup::addState(const QString &name)
     if (!modelNode().isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-
-    PropertyListType propertyList;
-    propertyList.append(qMakePair(PropertyName("name"), QVariant(name)));
-
-    ModelNode newState = QmlModelState::createQmlState(modelNode().view(), propertyList);
+    ModelNode newState = QmlModelState::createQmlState(
+        modelNode().view(), {{PropertyName("name"), QVariant(name)}});
     modelNode().nodeListProperty("states").reparentHere(newState);
 
     return newState;

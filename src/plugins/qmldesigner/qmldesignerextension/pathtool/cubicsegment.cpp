@@ -318,7 +318,7 @@ QPair<CubicSegment, CubicSegment> CubicSegment::split(double t)
 
     qDebug() << firstCubicSegment << secondCubicSegment;
 
-    return qMakePair(firstCubicSegment, secondCubicSegment);
+    return {firstCubicSegment, secondCubicSegment};
 }
 
 void CubicSegment::makeStraightLine()

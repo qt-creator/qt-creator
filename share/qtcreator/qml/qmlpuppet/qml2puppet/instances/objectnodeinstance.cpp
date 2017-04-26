@@ -253,7 +253,7 @@ bool ObjectNodeInstance::isAnchoredByChildren() const
 
 QPair<PropertyName, ServerNodeInstance> ObjectNodeInstance::anchor(const PropertyName &/*name*/) const
 {
-    return qMakePair(PropertyName(), ServerNodeInstance());
+    return {PropertyName(), ServerNodeInstance()};
 }
 
 

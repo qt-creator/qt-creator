@@ -2035,7 +2035,7 @@ void TextToModelMerger::populateQrcMapping(const QString &filePath)
         fileSystemPath.remove(fileName);
         if (path.isEmpty())
             path.prepend(QLatin1String("/"));
-        m_qrcMapping.insert(qMakePair(path, fileSystemPath));
+        m_qrcMapping.insert({path, fileSystemPath});
     }
 }
 

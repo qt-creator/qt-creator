@@ -769,7 +769,7 @@ QPair<PropertyName, ServerNodeInstance> QuickItemNodeInstance::anchor(const Prop
 
     while (targetObject) {
         if (nodeInstanceServer()->hasInstanceForObject(targetObject))
-            return qMakePair(targetName, nodeInstanceServer()->instanceForObject(targetObject));
+            return {targetName, nodeInstanceServer()->instanceForObject(targetObject)};
         else
             targetObject = parentObject(targetObject);
     }

@@ -286,13 +286,13 @@ public:
         if (ref) {
             QVector<PropertyInfo> dotProperties;
             const TypeName type = resolveTypeName(ref, m_context, dotProperties);
-            m_properties.append(qMakePair(propertyName, type));
+            m_properties.append({propertyName, type});
             if (!dotProperties.isEmpty()) {
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {
                     PropertyName dotName = propertyInfo.first;
                     TypeName type = propertyInfo.second;
                     dotName = propertyName + '.' + dotName;
-                    m_properties.append(qMakePair(dotName, type));
+                    m_properties.append({dotName, type});
                 }
             }
         } else {
@@ -300,7 +300,7 @@ public:
             if (const CppComponentValue * cppComponentValue = value_cast<CppComponentValue>(value)) {
                 TypeName qualifiedTypeName = qualifiedTypeNameForContext(cppComponentValue,
                     m_context->viewerContext(), *m_context->snapshot().importDependencies()).toUtf8();
-                m_properties.append(qMakePair(propertyName, qualifiedTypeName));
+                m_properties.append({propertyName, qualifiedTypeName});
             } else {
                 TypeId typeId;
                 TypeName typeName = typeId(value).toUtf8();
@@ -311,7 +311,7 @@ public:
                         typeName = "real";
                     }
                 }
-                m_properties.append(qMakePair(propertyName, typeName));
+                m_properties.append({propertyName, typeName});
             }
         }
         return true;
@@ -424,7 +424,7 @@ QVector<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Co
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {
                     const PropertyName dotName = name + '.' + propertyInfo.first;
                     const TypeName type = propertyInfo.second;
-                    propertyList.append(qMakePair(dotName, type));
+                    propertyList.append({dotName, type});
                 }
             }
         }
@@ -435,7 +435,7 @@ QVector<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Co
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {
                     const PropertyName dotName = name + '.' + propertyInfo.first;
                     const TypeName type = propertyInfo.second;
-                    propertyList.append(qMakePair(dotName, type));
+                    propertyList.append({dotName, type});
                 }
             }
         }
@@ -446,7 +446,7 @@ QVector<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Co
         if (type == "unknown" && objectValue->hasProperty(nameAsString))
             type = objectValue->propertyType(nameAsString).toUtf8();
 
-        propertyList.append(qMakePair(name, type));
+        propertyList.append({name, type});
     }
 
     if (!local)

@@ -1491,7 +1491,7 @@ static QList<PropertyPair> toPropertyPairList(const QList<InternalProperty::Poin
     QList<PropertyPair> propertyPairList;
 
     foreach (const InternalProperty::Pointer &property, propertyList)
-        propertyPairList.append(qMakePair(property->propertyOwner(), property->name()));
+        propertyPairList.append({property->propertyOwner(), property->name()});
 
     return propertyPairList;
 
