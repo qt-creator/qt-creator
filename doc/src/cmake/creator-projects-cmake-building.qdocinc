@@ -38,12 +38,17 @@
 
     To view all settings, select the \uicontrol Advanced check box.
 
+    To add build settings, select \uicontrol Add, and then select the type of
+    the setting that you are adding: \uicontrol Boolean, \uicontrol String,
+    \uicontrol Directory, or \uicontrol File.
+
     To modify the value of a build setting, select it, and then select
     \uicontrol Edit. The new value is displayed in italics until you save the
     changes by selecting \uicontrol {Apply Configuration Changes}. Any
     configuration change might trigger a follow-up configuration change, so keep
     saving until no more values are displayed in italics.
 
+    To reset the changes that you made, select \uicontrol Reset.
 
 //! [cmake build configuration]
 
