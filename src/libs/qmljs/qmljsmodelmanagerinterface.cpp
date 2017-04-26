@@ -1232,7 +1232,7 @@ void ModelManagerInterface::queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr
     QPair<CPlusPlus::Document::Ptr, bool> prev = m_queuedCppDocuments.value(doc->fileName());
     if (prev.first && prev.second)
         prev.first->releaseSourceAndAST();
-    m_queuedCppDocuments.insert(doc->fileName(), qMakePair(doc, scan));
+    m_queuedCppDocuments.insert(doc->fileName(), {doc, scan});
     m_updateCppQmlTypesTimer->start();
 }
 

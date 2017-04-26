@@ -107,7 +107,7 @@ public:
         typedef QHash<QString, QPair<QString, int> > Table;
 
         void insert(const QString &fileName, const QString &source, int revision = 0)
-        { _elements.insert(fileName, qMakePair(source, revision)); }
+        { _elements.insert(fileName, {source, revision}); }
 
         bool contains(const QString &fileName) const
         { return _elements.contains(fileName); }

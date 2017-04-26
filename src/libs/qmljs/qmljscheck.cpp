@@ -1397,11 +1397,11 @@ bool Check::visit(CaseBlock *ast)
 {
     QList< QPair<SourceLocation, StatementList *> > clauses;
     for (CaseClauses *it = ast->clauses; it; it = it->next)
-        clauses += qMakePair(it->clause->caseToken, it->clause->statements);
+        clauses += {it->clause->caseToken, it->clause->statements};
     if (ast->defaultClause)
-        clauses += qMakePair(ast->defaultClause->defaultToken, ast->defaultClause->statements);
+        clauses += {ast->defaultClause->defaultToken, ast->defaultClause->statements};
     for (CaseClauses *it = ast->moreClauses; it; it = it->next)
-        clauses += qMakePair(it->clause->caseToken, it->clause->statements);
+        clauses += {it->clause->caseToken, it->clause->statements};
 
     // check all but the last clause for fallthrough
     for (int i = 0; i < clauses.size() - 1; ++i) {
