@@ -542,7 +542,8 @@ void CppEditorWidget::renameSymbolUnderCursorClang()
 {
     using ClangBackEnd::SourceLocationsContainer;
 
-    if (refactoringEngine()->isUsable()) {
+    ProjectPart *theProjectPart = projectPart();
+    if (refactoringEngine()->isUsable() && theProjectPart) {
         d->m_useSelectionsUpdater.abortSchedule();
 
         QPointer<CppEditorWidget> cppEditorWidget = this;
@@ -569,7 +570,7 @@ void CppEditorWidget::renameSymbolUnderCursorClang()
         refactoringEngine()->startLocalRenaming(textCursor(),
                                                 textDocument()->filePath(),
                                                 document()->revision(),
-                                                projectPart(),
+                                                theProjectPart,
                                                 std::move(renameSymbols));
 
         viewport()->setCursor(Qt::BusyCursor);
