@@ -111,23 +111,24 @@ QDateTime PuppetCreator::qtLastModified() const
 
 QDateTime PuppetCreator::puppetSourceLastModified() const
 {
-    QString basePuppetSourcePath = puppetSourceDirectoryPath();
-    QStringList sourceDirectoryPathes;
+    const QString basePuppetSourcePath = puppetSourceDirectoryPath();
+
+    const QStringList sourceDirectoryPaths = {
+        basePuppetSourcePath + "/commands",
+        basePuppetSourcePath + "/container",
+        basePuppetSourcePath + "/instances",
+        basePuppetSourcePath + "/interfaces",
+        basePuppetSourcePath + "/types",
+        basePuppetSourcePath + "/qmlpuppet",
+        basePuppetSourcePath + "/qmlpuppet/instances",
+        basePuppetSourcePath + "/qml2puppet",
+        basePuppetSourcePath + "/qml2puppet/instances"
+    };
+
     QDateTime lastModified;
-
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/commands"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/container"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/instances"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/interfaces"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/types"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qmlpuppet"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qmlpuppet/instances"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qml2puppet"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qml2puppet/instances"));
-
-    foreach (const QString directoryPath, sourceDirectoryPathes) {
+    foreach (const QString directoryPath, sourceDirectoryPaths) {
         foreach (const QFileInfo fileEntry, QDir(directoryPath).entryInfoList()) {
-            QDateTime filePathLastModified = fileEntry.lastModified();
+            const QDateTime filePathLastModified = fileEntry.lastModified();
             if (lastModified < filePathLastModified)
                 lastModified = filePathLastModified;
         }
