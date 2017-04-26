@@ -71,7 +71,7 @@ void ClangQueryProjectsFindFilter::findAll(const QString &queryText, Core::FindF
 
     auto message = createMessage(queryText);
 
-    refactoringClient.setExpectedResultCount(message.sources().size());
+    refactoringClient.setExpectedResultCount(uint(message.sources().size()));
 
     server.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(message));
 }
