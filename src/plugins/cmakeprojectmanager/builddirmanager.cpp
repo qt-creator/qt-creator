@@ -26,6 +26,7 @@
 #include "builddirmanager.h"
 
 #include "cmakebuildconfiguration.h"
+#include "cmakebuildstep.h"
 #include "cmakekitinformation.h"
 #include "cmakeprojectnodes.h"
 #include "cmaketool.h"
@@ -311,14 +312,30 @@ void BuildDirManager::clearCache()
     forceReparse();
 }
 
+static CMakeBuildTarget utilityTarget(const QString &title, const BuildDirManager *bdm)
+{
+    CMakeBuildTarget target;
+
+    target.title = title;
+    target.targetType = UtilityType;
+    target.workingDirectory = bdm->buildConfiguration()->buildDirectory();
+    target.sourceDirectory = bdm->buildConfiguration()->target()->project()->projectDirectory();
+
+    return target;
+}
+
 QList<CMakeBuildTarget> BuildDirManager::buildTargets() const
 {
     QTC_ASSERT(!m_isHandlingError, return {});
 
     if (!m_reader)
         return QList<CMakeBuildTarget>();
-    if (m_buildTargets.isEmpty())
-        m_buildTargets = m_reader->buildTargets();
+    if (m_buildTargets.isEmpty()) {
+        m_buildTargets.append(utilityTarget(CMakeBuildStep::allTarget(), this));
+        m_buildTargets.append(utilityTarget(CMakeBuildStep::cleanTarget(), this));
+        m_buildTargets.append(utilityTarget(CMakeBuildStep::installTarget(), this));
+        m_buildTargets.append(m_reader->buildTargets());
+    }
     return m_buildTargets;
 }
 

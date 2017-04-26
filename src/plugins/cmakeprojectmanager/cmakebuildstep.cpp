@@ -461,28 +461,20 @@ QString CMakeBuildStepConfigWidget::displayName() const
     return tr("Build", "CMakeProjectManager::CMakeBuildStepConfigWidget display name.");
 }
 
-static void createSpecialItem(const QString &text, const QString &data, QListWidget *parent)
-{
-    auto item = new QListWidgetItem(text, parent);
-
-    item->setData(Qt::UserRole, data);
-    QFont f;
-    f.setItalic(true);
-    item->setFont(f);
-}
-
 void CMakeBuildStepConfigWidget::buildTargetsChanged()
 {
     const bool wasBlocked = m_buildTargetsList->blockSignals(true);
     m_buildTargetsList->clear();
 
-    createSpecialItem(tr(ADD_RUNCONFIGURATION_TEXT), ADD_RUNCONFIGURATION_TEXT, m_buildTargetsList);
-    createSpecialItem(tr("all"), "all", m_buildTargetsList);
-    createSpecialItem(tr("clean"), "clean", m_buildTargetsList);
-
     auto pro = static_cast<CMakeProject *>(m_buildStep->project());
     QStringList targetList = pro->buildTargetTitles();
     targetList.sort();
+
+    QFont italics;
+    italics.setItalic(true);
+
+    auto exeItem = new QListWidgetItem(tr(ADD_RUNCONFIGURATION_TEXT), m_buildTargetsList);
+    exeItem->setData(Qt::UserRole, ADD_RUNCONFIGURATION_TEXT);
 
     foreach (const QString &buildTarget, targetList) {
         auto item = new QListWidgetItem(buildTarget, m_buildTargetsList);
@@ -491,9 +483,14 @@ void CMakeBuildStepConfigWidget::buildTargetsChanged()
 
     for (int i = 0; i < m_buildTargetsList->count(); ++i) {
         QListWidgetItem *item = m_buildTargetsList->item(i);
+        const QString title = item->data(Qt::UserRole).toString();
+
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(m_buildStep->buildsBuildTarget(item->data(Qt::UserRole).toString())
-                            ? Qt::Checked : Qt::Unchecked);
+        item->setCheckState(m_buildStep->buildsBuildTarget(title) ? Qt::Checked : Qt::Unchecked);
+
+        // Print utility targets in italics:
+        if (CMakeBuildStep::specialTargets().contains(title) || title == ADD_RUNCONFIGURATION_TEXT)
+            item->setFont(italics);
     }
     m_buildTargetsList->blockSignals(wasBlocked);
     updateSummary();
