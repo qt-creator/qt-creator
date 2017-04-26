@@ -145,8 +145,10 @@ public:
     QAction *m_duplicateSelectionAction = nullptr;
     QAction *m_duplicateSelectionAndCommentAction = nullptr;
     QAction *m_deleteLineAction = nullptr;
+    QAction *m_deleteEndOfLineAction = nullptr;
     QAction *m_deleteEndOfWordAction = nullptr;
     QAction *m_deleteEndOfWordCamelCaseAction = nullptr;
+    QAction *m_deleteStartOfLineAction = nullptr;
     QAction *m_deleteStartOfWordAction = nullptr;
     QAction *m_deleteStartOfWordCamelCaseAction = nullptr;
     QAction *m_selectEncodingAction = nullptr;
@@ -224,10 +226,14 @@ void TextEditorActionHandlerPrivate::createActions()
             [this] (TextEditorWidget *widget) { widget->print(Core::ICore::printer()); });
     m_deleteLineAction = registerAction(DELETE_LINE,
             [this] (TextEditorWidget *w) { w->deleteLine(); }, true, tr("Delete &Line"));
+    m_deleteEndOfLineAction = registerAction(DELETE_END_OF_LINE,
+            [this] (TextEditorWidget *w) { w->deleteEndOfLine(); }, true, tr("Delete Line from Cursor On"));
     m_deleteEndOfWordAction = registerAction(DELETE_END_OF_WORD,
             [this] (TextEditorWidget *w) { w->deleteEndOfWord(); }, true, tr("Delete Word from Cursor On"));
     m_deleteEndOfWordCamelCaseAction = registerAction(DELETE_END_OF_WORD_CAMEL_CASE,
             [this] (TextEditorWidget *w) { w->deleteEndOfWordCamelCase(); }, true, tr("Delete Word Camel Case from Cursor On"));
+    m_deleteStartOfLineAction = registerAction(DELETE_START_OF_LINE,
+            [this] (TextEditorWidget *w) { w->deleteStartOfLine(); }, true, tr("Delete Line up to Cursor"));
     m_deleteStartOfWordAction = registerAction(DELETE_START_OF_WORD,
             [this] (TextEditorWidget *w) { w->deleteStartOfWord(); }, true, tr("Delete Word up to Cursor"));
     m_deleteStartOfWordCamelCaseAction = registerAction(DELETE_START_OF_WORD_CAMEL_CASE,
@@ -463,8 +469,10 @@ void TextEditorActionHandlerPrivate::createActions()
     m_modifyingActions << m_unCommentSelectionAction;
     m_modifyingActions << m_cutLineAction;
     m_modifyingActions << m_deleteLineAction;
+    m_modifyingActions << m_deleteEndOfLineAction;
     m_modifyingActions << m_deleteEndOfWordAction;
     m_modifyingActions << m_deleteEndOfWordCamelCaseAction;
+    m_modifyingActions << m_deleteStartOfLineAction;
     m_modifyingActions << m_deleteStartOfWordAction;
     m_modifyingActions << m_deleteStartOfWordCamelCaseAction;
     m_modifyingActions << m_moveLineUpAction;

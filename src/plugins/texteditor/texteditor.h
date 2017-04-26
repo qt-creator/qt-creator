@@ -359,8 +359,10 @@ public:
     void duplicateSelection();
     void duplicateSelectionAndComment();
     void deleteLine();
+    void deleteEndOfLine();
     void deleteEndOfWord();
     void deleteEndOfWordCamelCase();
+    void deleteStartOfLine();
     void deleteStartOfWord();
     void deleteStartOfWordCamelCase();
     void unfoldAll();

@@ -6264,6 +6264,13 @@ void TextEditorWidget::deleteLine()
     textCursor().removeSelectedText();
 }
 
+void TextEditorWidget::deleteEndOfLine()
+{
+    moveCursor(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+    textCursor().removeSelectedText();
+    setTextCursor(textCursor());
+}
+
 void TextEditorWidget::deleteEndOfWord()
 {
     moveCursor(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
@@ -6277,6 +6284,13 @@ void TextEditorWidget::deleteEndOfWordCamelCase()
     d->camelCaseRight(c, QTextCursor::KeepAnchor);
     c.removeSelectedText();
     setTextCursor(c);
+}
+
+void TextEditorWidget::deleteStartOfLine()
+{
+    moveCursor(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+    textCursor().removeSelectedText();
+    setTextCursor(textCursor());
 }
 
 void TextEditorWidget::deleteStartOfWord()
