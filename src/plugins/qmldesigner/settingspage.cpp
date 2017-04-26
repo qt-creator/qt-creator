@@ -93,6 +93,8 @@ DesignerSettings SettingsPageWidget::settings() const
     settings.insert(DesignerSettingsKey::CONTAINERPADDING, m_ui.spinSnapMargin->value());
     settings.insert(DesignerSettingsKey::CANVASWIDTH, m_ui.spinCanvasWidth->value());
     settings.insert(DesignerSettingsKey::CANVASHEIGHT, m_ui.spinCanvasHeight->value());
+    settings.insert(DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH, m_ui.spinRootItemInitWidth->value());
+    settings.insert(DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT, m_ui.spinRootItemInitHeight->value());
     settings.insert(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER,
                     m_ui.designerWarningsCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES,
@@ -156,6 +158,10 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
         DesignerSettingsKey::CANVASWIDTH).toInt());
     m_ui.spinCanvasHeight->setValue(settings.value(
         DesignerSettingsKey::CANVASHEIGHT).toInt());
+    m_ui.spinRootItemInitWidth->setValue(settings.value(
+        DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH).toInt());
+    m_ui.spinRootItemInitHeight->setValue(settings.value(
+        DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT).toInt());
     m_ui.designerWarningsCheckBox->setChecked(settings.value(
         DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool());
     m_ui.designerWarningsUiQmlfiles->setChecked(settings.value(

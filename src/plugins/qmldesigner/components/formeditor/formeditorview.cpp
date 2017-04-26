@@ -34,6 +34,7 @@
 #include "formeditorscene.h"
 #include "abstractcustomtool.h"
 
+#include <designersettings.h>
 #include <designmodecontext.h>
 #include <modelnode.h>
 #include <model.h>
@@ -452,6 +453,8 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
 void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash)
 {
     QList<FormEditorItem*> changedItems;
+    const int rootElementInitWidth = DesignerSettings::getValue(DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH).toInt();
+    const int rootElementInitHeight = DesignerSettings::getValue(DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT).toInt();
 
     QList<ModelNode> informationChangedNodes = Utils::filtered(informationChangedHash.keys(), [](const ModelNode &node) {
         return QmlItemNode::isValidQmlItemNode(node);
@@ -466,9 +469,9 @@ void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, Inf
                         !(qmlItemNode.propertyAffectedByCurrentState("width")
                           && qmlItemNode.propertyAffectedByCurrentState("height"))) {
                     if (!(rootModelNode().hasAuxiliaryData("width")))
-                        rootModelNode().setAuxiliaryData("width", 640);
+                        rootModelNode().setAuxiliaryData("width", rootElementInitWidth);
                     if (!(rootModelNode().hasAuxiliaryData("height")))
-                        rootModelNode().setAuxiliaryData("height", 480);
+                        rootModelNode().setAuxiliaryData("height", rootElementInitHeight);
                     rootModelNode().setAuxiliaryData("autoSize", true);
                     formEditorWidget()->updateActions();
                 } else {
