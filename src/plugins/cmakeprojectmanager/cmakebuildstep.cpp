@@ -493,7 +493,7 @@ void CMakeBuildStepConfigWidget::buildTargetsChanged()
             item->setFont(italics);
     }
     m_buildTargetsList->blockSignals(wasBlocked);
-    updateSummary();
+    updateDetails();
 }
 
 void CMakeBuildStepConfigWidget::selectedBuildTargetsChanged()
@@ -505,7 +505,7 @@ void CMakeBuildStepConfigWidget::selectedBuildTargetsChanged()
                             ? Qt::Checked : Qt::Unchecked);
     }
     m_buildTargetsList->blockSignals(wasBlocked);
-    updateSummary();
+    updateDetails();
 }
 
 void CMakeBuildStepConfigWidget::updateDetails()
@@ -515,7 +515,7 @@ void CMakeBuildStepConfigWidget::updateDetails()
         bc = m_buildStep->targetsActiveBuildConfiguration();
     if (!bc) {
         m_summaryText = tr("<b>No build configuration found on this kit.</b>");
-        updateSummary();
+        emit updateSummary();
         return;
     }
 
