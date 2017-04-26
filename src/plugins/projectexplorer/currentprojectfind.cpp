@@ -43,6 +43,11 @@ CurrentProjectFind::CurrentProjectFind()
 {
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &CurrentProjectFind::handleProjectChanged);
+    connect(SessionManager::instance(), &SessionManager::projectDisplayNameChanged,
+            this, [this](ProjectExplorer::Project *p) {
+        if (p == ProjectTree::currentProject())
+            emit displayNameChanged();
+    });
 }
 
 QString CurrentProjectFind::id() const
