@@ -38,9 +38,15 @@
 
 #include "sqlite3.h"
 
+#if defined(Q_OS_DARWIN) && defined(Q_CC_GNU)
+#define QTC_THREAD_LOCAL __thread
+#else
+#define QTC_THREAD_LOCAL thread_local
+#endif
+
 #define SIZE_OF_BYTEARRAY_ARRAY(array) sizeof(array)/sizeof(QByteArray)
 
-thread_local SqliteDatabaseBackend *sqliteDatabaseBackend = nullptr;
+QTC_THREAD_LOCAL SqliteDatabaseBackend *sqliteDatabaseBackend = nullptr;
 
 SqliteDatabaseBackend::SqliteDatabaseBackend()
     : databaseHandle(nullptr),
