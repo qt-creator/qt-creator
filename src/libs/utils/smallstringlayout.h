@@ -30,7 +30,7 @@
 #include <cstdint>
 #include <type_traits>
 
-#ifdef Q_CC_MSVC
+#if defined(Q_CC_MSVC) && !defined(_WIN64)
 #   define ALIGNAS_16
 #else
 #   define ALIGNAS_16 alignas(16)
