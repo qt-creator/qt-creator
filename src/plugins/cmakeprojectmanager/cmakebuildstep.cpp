@@ -108,6 +108,16 @@ void CMakeBuildStep::ctor(BuildStepList *bsl)
         bc = qobject_cast<CMakeBuildConfiguration *>(t->activeBuildConfiguration());
     }
 
+    // Set a good default build target:
+    if (m_buildTarget.isEmpty()) {
+        if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
+            setBuildTarget(cleanTarget());
+        else if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
+            setBuildTarget(installTarget());
+        else
+            setBuildTarget(allTarget());
+    }
+
     connect(target(), &Target::kitChanged, this, &CMakeBuildStep::cmakeCommandChanged);
     connect(bc, &CMakeBuildConfiguration::dataAvailable, this, &CMakeBuildStep::handleBuildTargetChanges);
 }
@@ -554,10 +564,7 @@ QList<BuildStepInfo> CMakeBuildStepFactory::availableSteps(BuildStepList *parent
 BuildStep *CMakeBuildStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     Q_UNUSED(id);
-    auto step = new CMakeBuildStep(parent);
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
-        step->setBuildTarget(CMakeBuildStep::cleanTarget());
-    return step;
+    return new CMakeBuildStep(parent);
 }
 
 BuildStep *CMakeBuildStepFactory::clone(BuildStepList *parent, BuildStep *source)
