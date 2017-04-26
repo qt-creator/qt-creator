@@ -89,15 +89,15 @@ signals:
     // Note: These signals might not get emitted for every change!
     void effectiveTargetInformationChanged();
 
-private:
-    void proFileUpdated(QmakeProjectManager::QmakeProFile *pro, bool success, bool parseInProgress);
-    void proFileEvaluated();
-
 protected:
     DesktopQmakeRunConfiguration(ProjectExplorer::Target *parent, DesktopQmakeRunConfiguration *source);
     bool fromMap(const QVariantMap &map) override;
 
 private:
+    void proFileUpdated(QmakeProjectManager::QmakeProFile *pro, bool success, bool parseInProgress);
+    void proFileEvaluated();
+    void updateTargetInformation();
+
     QPair<QString, QString> extractWorkingDirAndExecutable(const QmakeProFile *proFile) const;
     QString baseWorkingDirectory() const;
     QString defaultDisplayName();
