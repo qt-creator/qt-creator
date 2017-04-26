@@ -132,7 +132,7 @@ void CMakeBuildStep::handleBuildTargetChanges()
     if (isCurrentExecutableTarget(m_buildTarget))
         return; // Do not change just because a different set of build targets is there...
     if (!static_cast<CMakeProject *>(project())->buildTargetTitles().contains(m_buildTarget))
-        setBuildTarget(CMakeBuildStep::allTarget());
+        setBuildTarget(allTarget());
     emit buildTargetsChanged();
 }
 
@@ -381,12 +381,22 @@ QString CMakeBuildStep::cmakeCommand() const
 
 QString CMakeBuildStep::cleanTarget()
 {
-    return QLatin1String("clean");
+    return "clean";
 }
 
 QString CMakeBuildStep::allTarget()
 {
-    return QLatin1String("all");
+    return "all";
+}
+
+QString CMakeBuildStep::installTarget()
+{
+    return "install";
+}
+
+QStringList CMakeBuildStep::specialTargets()
+{
+    return { allTarget(), cleanTarget(), installTarget() };
 }
 
 //
