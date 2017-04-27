@@ -31,7 +31,7 @@
 
 #include <utils/outputformat.h>
 
-namespace Debugger { class DebuggerRunControl; }
+namespace Debugger { class DebuggerRunTool; }
 
 namespace Qnx {
 namespace Internal {
@@ -61,7 +61,7 @@ private:
 
     void startExecution() override;
 
-    Debugger::DebuggerRunControl *runControl();
+    Debugger::DebuggerRunTool *toolRunner();
     QString processExecutable() const;
 
     void killInferiorProcess();

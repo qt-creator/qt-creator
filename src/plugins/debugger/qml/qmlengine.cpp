@@ -335,10 +335,6 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
 
     connect(d->msgClient, &QDebugMessageClient::message,
             this, &appendDebugOutput);
-
-    d->startupMessageFilterConnection = connect(
-                runControl(), &RunControl::appendMessageRequested,
-                d, &QmlEnginePrivate::filterApplicationMessage);
 }
 
 QmlEngine::~QmlEngine()
@@ -354,6 +350,15 @@ QmlEngine::~QmlEngine()
     EditorManager::closeDocuments(documentsToClose.toList());
 
     delete d;
+}
+
+void QmlEngine::setRunTool(DebuggerRunTool *runTool)
+{
+    DebuggerEngine::setRunTool(runTool);
+
+    d->startupMessageFilterConnection = connect(
+                runTool->runControl(), &RunControl::appendMessageRequested,
+                d, &QmlEnginePrivate::filterApplicationMessage);
 }
 
 void QmlEngine::setupInferior()

@@ -36,7 +36,7 @@ namespace RemoteLinux {
 
 namespace Internal { class AbstractRemoteLinuxRunSupportPrivate; }
 
-class REMOTELINUX_EXPORT AbstractRemoteLinuxRunSupport : public ProjectExplorer::SimpleTargetRunner
+class REMOTELINUX_EXPORT AbstractRemoteLinuxRunSupport : public ProjectExplorer::TargetRunner
 {
     Q_OBJECT
 
@@ -51,6 +51,8 @@ public:
 
     explicit AbstractRemoteLinuxRunSupport(ProjectExplorer::RunControl *runControl);
     ~AbstractRemoteLinuxRunSupport();
+
+    ProjectExplorer::ApplicationLauncher *applicationLauncher();
 
     void setState(State state);
     State state() const;

@@ -41,6 +41,7 @@ namespace Internal {
 class AbstractRemoteLinuxRunSupportPrivate
 {
 public:
+    ApplicationLauncher launcher;
     AbstractRemoteLinuxRunSupport::State state = AbstractRemoteLinuxRunSupport::Inactive;
     DeviceUsedPortsGatherer portsGatherer;
     ApplicationLauncher fifoCreator;
@@ -53,7 +54,7 @@ public:
 using namespace Internal;
 
 AbstractRemoteLinuxRunSupport::AbstractRemoteLinuxRunSupport(RunControl *runControl)
-    : SimpleTargetRunner(runControl),
+    : TargetRunner(runControl),
       d(new AbstractRemoteLinuxRunSupportPrivate)
 {
 }
@@ -62,6 +63,11 @@ AbstractRemoteLinuxRunSupport::~AbstractRemoteLinuxRunSupport()
 {
     setFinished();
     delete d;
+}
+
+ApplicationLauncher *AbstractRemoteLinuxRunSupport::applicationLauncher()
+{
+    return &d->launcher;
 }
 
 void AbstractRemoteLinuxRunSupport::setState(AbstractRemoteLinuxRunSupport::State state)

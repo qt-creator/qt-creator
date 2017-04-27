@@ -137,7 +137,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
             params.symbolFile = symbolFile;
         }
 
-        auto runControl = new DebuggerRunControl(runConfig, mode);
+        auto runControl = new RunControl(runConfig, mode);
         (void) new AbstractRemoteLinuxRunSupport(runControl);
         (void) new LinuxDeviceDebugSupport(runControl, params, errorMessage);
         return runControl;

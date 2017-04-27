@@ -35,13 +35,6 @@ namespace Debugger {
 
 class RemoteSetupResult;
 class DebuggerStartParameters;
-class DebuggerRunControl;
-
-DEBUGGER_EXPORT ProjectExplorer::RunControl *
-createDebuggerRunControl(const DebuggerStartParameters &sp,
-                         ProjectExplorer::RunConfiguration *runConfig,
-                         QString *errorMessage,
-                         Core::Id runMode = ProjectExplorer::Constants::DEBUG_RUN_MODE);
 
 class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::ToolRunner
 {
@@ -57,12 +50,11 @@ public:
     ~DebuggerRunTool();
 
     Internal::DebuggerEngine *engine() const { return m_engine; }
-    DebuggerRunControl *runControl() const;
 
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
 
-    void startIt();
-    void stopIt();
+    void start() override;
+    void stop() override;
 
     void handleFinished();
 
@@ -85,23 +77,6 @@ signals:
 private:
     Internal::DebuggerEngine *m_engine = nullptr; // Master engine
     QStringList m_errors;
-};
-
-class DEBUGGER_EXPORT DebuggerRunControl : public ProjectExplorer::RunControl
-{
-    Q_OBJECT
-
-public:
-    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig, Core::Id runMode);
-    ~DebuggerRunControl() override;
-
-    void start() override;
-    void stop() override; // Called from SnapshotWindow.
-
-    DebuggerRunTool *toolRunner() const;
-
-public:
-    DebuggerRunTool *m_debuggerTool = nullptr;
 };
 
 } // namespace Debugger

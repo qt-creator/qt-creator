@@ -2127,7 +2127,7 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     rp.closeMode = DetachAtClose;
     rp.toolChainAbi = rc->abi();
     if (RunConfiguration *runConfig = rc->runConfiguration()) {
-        auto runControl = new DebuggerRunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        auto runControl = new RunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
         (void) new DebuggerRunTool(runControl, rp);
         ProjectExplorerPlugin::startRunControl(runControl);
     } else {
@@ -3687,7 +3687,7 @@ void DebuggerUnitTests::testStateMachine()
     rp.inferior = rc->runnable().as<StandardRunnable>();
     rp.testCase = TestNoBoundsOfCurrentFunction;
 
-    auto runControl = new DebuggerRunControl(rc, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    auto runControl = new RunControl(rc, ProjectExplorer::Constants::DEBUG_RUN_MODE);
     (void) new DebuggerRunTool(runControl, rp);
     ProjectExplorerPlugin::startRunControl(runControl);
 

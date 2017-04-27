@@ -132,8 +132,8 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, Core::Id m
 
     if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE) {
         const DebuggerStartParameters params = createDebuggerStartParameters(rc);
-        auto runControl = createDebuggerRunControl(params, runConfig, errorMessage);
-        QTC_ASSERT(runControl, return 0);
+        auto runControl = new RunControl(runConfig, mode);
+        // (void) new DebuggerRunTool(runControl, params, errorMessage);  FIXME
         (void) new QnxDebugSupport(runControl);
         return runControl;
     }

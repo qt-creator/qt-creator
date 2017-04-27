@@ -25,21 +25,20 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
-
-namespace Debugger { class DebuggerRunControl; }
+#include <debugger/debuggerruncontrol.h>
 
 namespace ProjectExplorer { class ApplicationLauncher; }
 
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalDebugSupport : public ProjectExplorer::ToolRunner
+class BareMetalDebugSupport : public Debugger::DebuggerRunTool
 {
     Q_OBJECT
 
 public:
-    explicit BareMetalDebugSupport(ProjectExplorer::RunControl *runControl);
+    BareMetalDebugSupport(ProjectExplorer::RunControl *runControl,
+                          const Debugger::DebuggerStartParameters &sp);
     ~BareMetalDebugSupport();
 
 private:
@@ -60,9 +59,6 @@ private:
     void startExecution();
     void setFinished();
     void reset();
-    void showMessage(const QString &msg, int channel);
-
-    Debugger::DebuggerRunControl *runControl();
 
     ProjectExplorer::ApplicationLauncher *m_appLauncher;
     State m_state = Inactive;

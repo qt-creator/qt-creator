@@ -199,7 +199,7 @@ public:
 
     const DebuggerRunParameters &runParameters() const;
     DebuggerRunParameters &runParameters();
-    void setRunTool(DebuggerRunTool *runTool);
+    virtual void setRunTool(DebuggerRunTool *runTool);
     DebuggerRunTool *runTool() const;
     void startDebugger();
 

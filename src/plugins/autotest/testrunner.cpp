@@ -336,8 +336,9 @@ void TestRunner::debugTests()
     sp.displayName = config->displayName();
 
     QString errorMessage;
-    auto runControl = Debugger::createDebuggerRunControl(sp, config->runConfiguration(),
-                                                         &errorMessage);
+    auto runControl = new ProjectExplorer::RunControl(config->runConfiguration(),
+                                                      ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    (void) new Debugger::DebuggerRunTool(runControl, sp, &errorMessage);
 
     if (!runControl) {
         emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
@@ -364,18 +365,18 @@ void TestRunner::debugTests()
     if (useOutputProcessor) {
         TestOutputReader *outputreader = config->outputReader(*futureInterface, 0);
 
-        connect(runControl, &Debugger::DebuggerRunControl::appendMessageRequested,
+        connect(runControl, &ProjectExplorer::RunControl::appendMessageRequested,
                 this, [this, outputreader]
                 (ProjectExplorer::RunControl *, const QString &msg, Utils::OutputFormat format) {
             processOutput(outputreader, msg, format);
         });
 
-        connect(runControl, &Debugger::DebuggerRunControl::finished,
+        connect(runControl, &ProjectExplorer::RunControl::finished,
                 outputreader, &QObject::deleteLater);
     }
 
     connect(this, &TestRunner::requestStopTestRun, runControl, &ProjectExplorer::RunControl::stop);
-    connect(runControl, &Debugger::DebuggerRunControl::finished, this, &TestRunner::onFinished);
+    connect(runControl, &ProjectExplorer::RunControl::finished, this, &TestRunner::onFinished);
     ProjectExplorer::ProjectExplorerPlugin::startRunControl(runControl);
 }
 

@@ -32,7 +32,7 @@
 
 #include <QObject>
 
-namespace Debugger { class DebuggerRunControl; }
+namespace Debugger { class DebuggerRunTool; }
 
 namespace ProjectExplorer {
 class ApplicationLauncher;
@@ -70,7 +70,7 @@ private:
 
     ProjectExplorer::ApplicationLauncher *m_launcher;
     ProjectExplorer::DeviceUsedPortsGatherer *m_portsGatherer;
-    Debugger::DebuggerRunControl *m_runControl = 0;
+    Debugger::DebuggerRunTool *m_runTool = 0;
 
     Utils::Port m_pdebugPort;
     QString m_projectSourceDirectory;

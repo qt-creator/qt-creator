@@ -138,28 +138,30 @@ RunControl *AndroidDebugSupport::createDebugRunControl(RunConfiguration *runConf
         }
     }
 
-    RunControl *runControl = createDebuggerRunControl(params, runConfig, errorMessage);
-    new AndroidDebugSupport(runControl);
+    auto runControl = new ProjectExplorer::RunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    (void) new AndroidDebugSupport(runControl, params, errorMessage);
     return runControl;
 }
 
-AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl)
-    : ToolRunner(runControl),
+AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl,
+                                         const Debugger::DebuggerStartParameters &sp,
+                                         QString *errorMessage)
+    : DebuggerRunTool(runControl, sp, errorMessage),
       m_runner(new AndroidRunner(this, runControl->runConfiguration(), runControl->runMode()))
 {
     connect(runControl, &RunControl::finished,
             m_runner, &AndroidRunner::stop);
 
-    connect(this->runControl()->toolRunner(), &DebuggerRunTool::requestRemoteSetup,
+    connect(this, &DebuggerRunTool::requestRemoteSetup,
             m_runner, &AndroidRunner::start);
 
     // FIXME: Move signal to base class and generalize handling.
-    connect(this->runControl()->toolRunner(), &DebuggerRunTool::aboutToNotifyInferiorSetupOk,
+    connect(this, &DebuggerRunTool::aboutToNotifyInferiorSetupOk,
             m_runner, &AndroidRunner::remoteDebuggerRunning);
 
     connect(m_runner, &AndroidRunner::remoteServerRunning,
         [this](const QByteArray &serverChannel, int pid) {
-            this->runControl()->toolRunner()->notifyEngineRemoteServerRunning(serverChannel, pid);
+            notifyEngineRemoteServerRunning(serverChannel, pid);
         });
 
     connect(m_runner, &AndroidRunner::remoteProcessStarted,
@@ -173,12 +175,12 @@ AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl)
 
     connect(m_runner, &AndroidRunner::remoteErrorOutput,
         [this](const QString &output) {
-            this->runControl()->toolRunner()->showMessage(output, AppError);
+            showMessage(output, AppError);
         });
 
     connect(m_runner, &AndroidRunner::remoteOutput,
         [this](const QString &output) {
-            this->runControl()->toolRunner()->showMessage(output, AppOutput);
+            showMessage(output, AppOutput);
         });
 
     QTC_ASSERT(runControl, return);
@@ -200,12 +202,7 @@ void AndroidDebugSupport::handleRemoteProcessStarted(Utils::Port gdbServerPort, 
     result.success = true;
     result.gdbServerPort = gdbServerPort;
     result.qmlServerPort = qmlPort;
-    runControl()->toolRunner()->notifyEngineRemoteSetupFinished(result);
-}
-
-DebuggerRunControl *AndroidDebugSupport::runControl()
-{
-    return qobject_cast<DebuggerRunControl *>(ToolRunner::runControl());
+    notifyEngineRemoteSetupFinished(result);
 }
 
 } // namespace Internal

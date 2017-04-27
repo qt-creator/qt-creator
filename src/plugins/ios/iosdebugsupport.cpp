@@ -155,18 +155,18 @@ RunControl *IosDebugSupport::createDebugRunControl(RunConfiguration *runConfig,
             params.startMode = AttachToRemoteServer;
     }
 
-    RunControl *runControl = createDebuggerRunControl(params, runConfig, errorMessage);
-    if (runControl)
-        new IosDebugSupport(runControl, cppDebug, qmlDebug);
+    Q_UNUSED(errorMessage); // FIXME
+    auto runControl = new RunControl(runConfig,  ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    (void) new IosDebugSupport(runControl, params, cppDebug, qmlDebug);
     return runControl;
 }
 
-IosDebugSupport::IosDebugSupport(RunControl *runControl, bool cppDebug, bool qmlDebug)
-    : ToolRunner(runControl),
+IosDebugSupport::IosDebugSupport(RunControl *runControl, const DebuggerStartParameters &sp, bool cppDebug, bool qmlDebug)
+    : Debugger::DebuggerRunTool(runControl, sp),
       m_runner(new IosRunner(this, runControl, cppDebug,
                              qmlDebug ? QmlDebug::QmlDebuggerServices : QmlDebug::NoQmlDebugServices))
 {
-    connect(this->runControl()->toolRunner(), &DebuggerRunTool::requestRemoteSetup,
+    connect(this, &Debugger::DebuggerRunTool::requestRemoteSetup,
             m_runner, &IosRunner::start);
     connect(runControl, &RunControl::finished,
             m_runner, &IosRunner::stop);
@@ -193,7 +193,7 @@ void IosDebugSupport::handleServerPorts(Utils::Port gdbServerPort, Utils::Port q
             || (m_runner && !m_runner->cppDebug() && qmlPort.isValid());
     if (!result.success)
         result.reason =  tr("Could not get debug server file descriptor.");
-    runControl()->toolRunner()->notifyEngineRemoteSetupFinished(result);
+    notifyEngineRemoteSetupFinished(result);
 }
 
 void IosDebugSupport::handleGotInferiorPid(qint64 pid, Utils::Port qmlPort)
@@ -204,7 +204,7 @@ void IosDebugSupport::handleGotInferiorPid(qint64 pid, Utils::Port qmlPort)
     result.success = pid > 0;
     if (!result.success)
         result.reason =  tr("Got an invalid process id.");
-    runControl()->toolRunner()->notifyEngineRemoteSetupFinished(result);
+    notifyEngineRemoteSetupFinished(result);
 }
 
 void IosDebugSupport::handleRemoteProcessFinished(bool cleanEnd)
@@ -213,22 +213,17 @@ void IosDebugSupport::handleRemoteProcessFinished(bool cleanEnd)
         appendMessage(tr("Run ended with error."), Utils::DebugFormat);
     else
         appendMessage(tr("Run ended."), Utils::DebugFormat);
-    runControl()->toolRunner()->abortDebugger();
+    abortDebugger();
 }
 
 void IosDebugSupport::handleRemoteOutput(const QString &output)
 {
-    runControl()->toolRunner()->showMessage(output, AppOutput);
+    showMessage(output, AppOutput);
 }
 
 void IosDebugSupport::handleRemoteErrorOutput(const QString &output)
 {
-    runControl()->toolRunner()->showMessage(output, AppError);
-}
-
-DebuggerRunControl *IosDebugSupport::runControl()
-{
-    return qobject_cast<DebuggerRunControl *>(ToolRunner::runControl())    ;
+    showMessage(output, AppError);
 }
 
 } // namespace Internal

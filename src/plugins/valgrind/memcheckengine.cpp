@@ -159,8 +159,8 @@ void MemcheckWithGdbRunControl::startDebugger()
     sp.expectedSignals.append("SIGTRAP");
 
     QString errorMessage;
-    RunControl *gdbRunControl = Debugger::createDebuggerRunControl(sp, runConfiguration(), &errorMessage);
-    QTC_ASSERT(gdbRunControl, return);
+    auto *gdbRunControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    (void) new Debugger::DebuggerRunTool(gdbRunControl, sp, &errorMessage);
     connect(gdbRunControl, &RunControl::finished,
             gdbRunControl, &RunControl::deleteLater);
     gdbRunControl->initiateStart();

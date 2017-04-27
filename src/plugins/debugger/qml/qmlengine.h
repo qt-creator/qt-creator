@@ -47,6 +47,8 @@ public:
                        DebuggerEngine *masterEngine = nullptr);
     ~QmlEngine() override;
 
+    void setRunTool(DebuggerRunTool *runTool) override;
+
     void logServiceStateChange(const QString &service, float version,
                                QmlDebug::QmlDebugClient::State newState);
     void logServiceActivity(const QString &service, const QString &logMessage);

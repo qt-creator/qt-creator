@@ -63,8 +63,6 @@ private:
     void handleAdapterSetupDone();
     void handleDebuggingFinished();
 
-    void showMessage(const QString &msg, int channel);
-
     AbstractRemoteLinuxRunSupport *targetRunner() const;
     AbstractRemoteLinuxRunSupport::State state() const;
 
