@@ -49,6 +49,16 @@ bool GenericProposal::isFragile() const
     return false;
 }
 
+bool GenericProposal::hasItemsToPropose(const QString &prefix, AssistReason reason) const
+{
+    if (!prefix.isEmpty()) {
+        m_model->filter(prefix);
+        m_model->setPrefilterPrefix(prefix);
+    }
+
+    return m_model->hasItemsToPropose(prefix, reason);
+}
+
 IAssistProposalModel *GenericProposal::model() const
 {
     return m_model;

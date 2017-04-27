@@ -54,47 +54,6 @@ using namespace Utils;
 
 namespace TextEditor {
 
-static QString cleanText(const QString &original)
-{
-    QString clean = original;
-    int ignore = 0;
-    for (int i = clean.length() - 1; i >= 0; --i, ++ignore) {
-        const QChar &c = clean.at(i);
-        if (c.isLetterOrNumber() || c == QLatin1Char('_')
-                || c.isHighSurrogate() || c.isLowSurrogate()) {
-            break;
-        }
-    }
-    if (ignore)
-        clean.chop(ignore);
-    return clean;
-}
-
-static bool isPerfectMatch(const QString &prefix, const GenericProposalModel *model)
-{
-    if (prefix.isEmpty())
-        return false;
-
-    for (int i = 0; i < model->size(); ++i) {
-        const QString &current = cleanText(model->text(i));
-        if (!current.isEmpty()) {
-            CaseSensitivity cs = TextEditorSettings::completionSettings().m_caseSensitivity;
-            if (cs == TextEditor::CaseSensitive) {
-                if (prefix == current)
-                    return true;
-            } else if (cs == TextEditor::CaseInsensitive) {
-                if (prefix.compare(current, Qt::CaseInsensitive) == 0)
-                    return true;
-            } else if (cs == TextEditor::FirstLetterCaseSensitive) {
-                if (prefix.at(0) == current.at(0)
-                        && prefix.midRef(1).compare(current.midRef(1), Qt::CaseInsensitive) == 0)
-                    return true;
-            }
-        }
-    }
-    return false;
-}
-
 // ------------
 // ModelAdapter
 // ------------
@@ -442,12 +401,12 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
                 d->m_model->persistentId(d->m_completionListView->currentIndex().row());
 
     // Filter, sort, etc.
-    d->m_model->reset();
-    if (!prefix.isEmpty())
-        d->m_model->filter(prefix);
-    if (d->m_model->size() == 0
-            || (!d->m_model->keepPerfectMatch(d->m_reason)
-                && isPerfectMatch(prefix, d->m_model))) {
+    if (!d->m_model->isPrefiltered(prefix)) {
+        d->m_model->reset();
+        if (!prefix.isEmpty())
+            d->m_model->filter(prefix);
+    }
+    if (!d->m_model->hasItemsToPropose(prefix, d->m_reason)) {
         d->m_completionListView->reset();
         abort();
         return false;

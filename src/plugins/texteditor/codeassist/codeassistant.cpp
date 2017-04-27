@@ -181,8 +181,7 @@ void CodeAssistantPrivate::process()
             }
         }
 
-        if (!isDisplayingProposal())
-            startAutomaticProposalTimer();
+        startAutomaticProposalTimer();
     } else {
         m_assistKind = TextEditor::Completion;
     }
@@ -288,18 +287,33 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
 
     QScopedPointer<IAssistProposal> proposalCandidate(newProposal);
 
+    bool destroyCurrentContext = false;
     if (isDisplayingProposal()) {
         if (!m_proposal->isFragile())
             return;
-        destroyContext();
+        destroyCurrentContext = true;
     }
 
     int basePosition = proposalCandidate->basePosition();
-    if (m_editorWidget->position() < basePosition)
+    if (m_editorWidget->position() < basePosition) {
+        if (destroyCurrentContext)
+            destroyContext();
+        return;
+    }
+
+    if (m_abortedBasePosition == basePosition && reason != ExplicitlyInvoked) {
+        if (destroyCurrentContext)
+            destroyContext();
+        return;
+    }
+
+    const QString prefix = m_editorWidget->textAt(basePosition,
+                                                  m_editorWidget->position() - basePosition);
+    if (!newProposal->hasItemsToPropose(prefix, reason))
         return;
 
-    if (m_abortedBasePosition == basePosition && reason != ExplicitlyInvoked)
-        return;
+    if (destroyCurrentContext)
+        destroyContext();
 
     clearAbortedPosition();
     m_proposal.reset(proposalCandidate.take());
@@ -325,9 +339,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     m_proposalWidget->setModel(m_proposal->model());
     m_proposalWidget->setDisplayRect(m_editorWidget->cursorRect(basePosition));
     m_proposalWidget->setIsSynchronized(!m_receivedContentWhileWaiting);
-    m_proposalWidget->showProposal(m_editorWidget->textAt(
-                                       basePosition,
-                                       m_editorWidget->position() - basePosition));
+    m_proposalWidget->showProposal(prefix);
 }
 
 void CodeAssistantPrivate::processProposalItem(AssistProposalItemInterface *proposalItem)
@@ -406,6 +418,8 @@ void CodeAssistantPrivate::notifyChange()
             m_proposalWidget->updateProposal(
                 m_editorWidget->textAt(m_proposal->basePosition(),
                                      m_editorWidget->position() - m_proposal->basePosition()));
+            if (m_proposal->isFragile())
+                startAutomaticProposalTimer();
         }
     }
 }
@@ -438,7 +452,7 @@ void CodeAssistantPrivate::startAutomaticProposalTimer()
 
 void CodeAssistantPrivate::automaticProposalTimeout()
 {
-    if (isWaitingForProposal() || isDisplayingProposal())
+    if (isWaitingForProposal() || (isDisplayingProposal() && !m_proposal->isFragile()))
         return;
 
     requestProposal(IdleEditor, Completion);
