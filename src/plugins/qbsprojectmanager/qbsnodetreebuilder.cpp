@@ -192,6 +192,9 @@ namespace Internal {
 
 QbsRootProjectNode *QbsNodeTreeBuilder::buildTree(QbsProject *project)
 {
+    if (!project->qbsProjectData().isValid())
+        return nullptr;
+
     auto root = new QbsRootProjectNode(project);
     setupProjectNode(root, project->qbsProjectData(), project->qbsProject());
     auto buildSystemFiles
