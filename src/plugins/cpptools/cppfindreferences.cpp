@@ -469,7 +469,7 @@ static void displayResults(SearchResult *search, QFutureWatcher<Usage> *watcher,
 {
     for (int index = first; index != last; ++index) {
         Usage result = watcher->future().resultAt(index);
-        search->addResult(result.path,
+        search->addResult(result.path.toString(),
                           result.line,
                           result.lineText,
                           result.col,
@@ -536,7 +536,7 @@ restart_search:
                 if (macro.name() == useMacro.name()) {
                     unsigned column;
                     const QString &lineSource = matchingLine(use.bytesBegin(), source, &column);
-                    usages.append(Usage(fileName.toString(), lineSource, use.beginLine(), column,
+                    usages.append(Usage(fileName, lineSource, use.beginLine(), column,
                                         useMacro.nameToQString().size()));
                 }
             }

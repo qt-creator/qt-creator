@@ -30,6 +30,7 @@
 #include "TypeOfExpression.h"
 
 #include <cplusplus/ASTVisitor.h>
+#include <utils/fileutils.h>
 
 #include <QSet>
 
@@ -39,11 +40,11 @@ class CPLUSPLUS_EXPORT Usage
 {
 public:
     Usage() = default;
-    Usage(const QString &path, const QString &lineText, int line, int col, int len)
+    Usage(const Utils::FileName &path, const QString &lineText, int line, int col, int len)
         : path(path), lineText(lineText), line(line), col(col), len(len) {}
 
 public:
-    QString path;
+    Utils::FileName path;
     QString lineText;
     int line = 0;
     int col = 0;
