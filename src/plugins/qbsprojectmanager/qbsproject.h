@@ -113,6 +113,8 @@ signals:
 private:
     void handleQbsParsingDone(bool success);
 
+    void rebuildProjectTree();
+
     void targetWasAdded(ProjectExplorer::Target *t);
     void targetWasRemoved(ProjectExplorer::Target *t);
     void changeActiveTarget(ProjectExplorer::Target *t);
