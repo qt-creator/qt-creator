@@ -122,7 +122,7 @@ public:
     CallgrindTool(QObject *parent);
     ~CallgrindTool();
 
-    ValgrindRunControl *createRunControl(RunConfiguration *runConfiguration, Id runMode);
+    ValgrindToolRunner *createRunTool(RunControl *runControl);
 
     void setParseData(ParseData *data);
     CostDelegate::CostFormat costFormat() const;
@@ -171,7 +171,7 @@ public:
     void visualisationFunctionSelected(const Function *function);
     void showParserResults(const ParseData *data);
 
-    void takeParserDataFromRunControl(CallgrindRunControl *rc);
+    void takeParserDataFromRunControl(CallgrindToolRunner *rc);
     void takeParserData(ParseData *data);
     void engineStarting();
     void engineFinished();
@@ -256,7 +256,9 @@ CallgrindTool::CallgrindTool(QObject *parent)
         "Callgrind tool to record function calls when a program runs.");
 
     auto rcc = [this](RunConfiguration *runConfiguration, Id mode) {
-        return createRunControl(runConfiguration, mode);
+        auto runControl = new RunControl(runConfiguration, mode);
+        (void) createRunTool(runControl);
+        return runControl;
     };
 
     if (!Utils::HostOsInfo::isWindowsHost()) {
@@ -292,15 +294,15 @@ CallgrindTool::CallgrindTool(QObject *parent)
         if (dlg.exec() != QDialog::Accepted)
             return;
         Debugger::selectPerspective(CallgrindPerspectiveId);
-        ValgrindRunControl *rc = createRunControl(runConfig, CALLGRIND_RUN_MODE);
-        QTC_ASSERT(rc, return);
+        auto runControl = new RunControl(runConfig, CALLGRIND_RUN_MODE);
         const auto runnable = dlg.runnable();
-        rc->setRunnable(runnable);
+        runControl->setRunnable(runnable);
         AnalyzerConnection connection;
         connection.connParams = dlg.sshParams();
-        rc->setConnection(connection);
-        rc->setDisplayName(runnable.executable);
-        ProjectExplorerPlugin::startRunControl(rc);
+        runControl->setConnection(connection);
+        runControl->setDisplayName(runnable.executable);
+        createRunTool(runControl);
+        ProjectExplorerPlugin::startRunControl(runControl);
     });
 
     // If there is a CppEditor context menu add our own context menu actions.
@@ -760,44 +762,42 @@ void CallgrindTool::updateEventCombo()
         m_eventCombo->addItem(ParseData::prettyStringForEvent(event));
 }
 
-ValgrindRunControl *CallgrindTool::createRunControl(RunConfiguration *runConfiguration, Id runMode)
+ValgrindToolRunner *CallgrindTool::createRunTool(RunControl *runControl)
 {
-    auto runControl = new CallgrindRunControl(runConfiguration, runMode);
+    auto toolRunner = new CallgrindToolRunner(runControl);
 
-    connect(runControl, &CallgrindRunControl::parserDataReady, this, &CallgrindTool::takeParserDataFromRunControl);
-    connect(runControl, &RunControl::starting, this, &CallgrindTool::engineStarting);
+    connect(toolRunner, &CallgrindToolRunner::parserDataReady, this, &CallgrindTool::takeParserDataFromRunControl);
+    connect(toolRunner, &CallgrindToolRunner::starting, this, &CallgrindTool::engineStarting);
     connect(runControl, &RunControl::finished, this, &CallgrindTool::engineFinished);
 
-    connect(this, &CallgrindTool::dumpRequested, runControl, &CallgrindRunControl::dump);
-    connect(this, &CallgrindTool::resetRequested, runControl, &CallgrindRunControl::reset);
-    connect(this, &CallgrindTool::pauseToggled, runControl, &CallgrindRunControl::setPaused);
+    connect(this, &CallgrindTool::dumpRequested, toolRunner, &CallgrindToolRunner::dump);
+    connect(this, &CallgrindTool::resetRequested, toolRunner, &CallgrindToolRunner::reset);
+    connect(this, &CallgrindTool::pauseToggled, toolRunner, &CallgrindToolRunner::setPaused);
 
-    connect(m_stopAction, &QAction::triggered, runControl, [runControl] { runControl->stop(); });
+    connect(m_stopAction, &QAction::triggered, toolRunner, [toolRunner] { toolRunner->stop(); });
 
     // initialize run control
-    runControl->setPaused(m_pauseAction->isChecked());
+    toolRunner->setPaused(m_pauseAction->isChecked());
 
     // we may want to toggle collect for one function only in this run
-    runControl->setToggleCollectFunction(m_toggleCollectFunction);
+    toolRunner->setToggleCollectFunction(m_toggleCollectFunction);
     m_toggleCollectFunction.clear();
 
-    QTC_ASSERT(m_visualization, return runControl);
+    QTC_ASSERT(m_visualization, return toolRunner);
 
     // apply project settings
-    if (runConfiguration) {
-        if (IRunConfigurationAspect *analyzerAspect = runConfiguration->extraAspect(ANALYZER_VALGRIND_SETTINGS)) {
-            if (const ValgrindBaseSettings *settings = qobject_cast<ValgrindBaseSettings *>(analyzerAspect->currentSettings())) {
-                m_visualization->setMinimumInclusiveCostRatio(settings->visualisationMinimumInclusiveCostRatio() / 100.0);
-                m_proxyModel.setMinimumInclusiveCostRatio(settings->minimumInclusiveCostRatio() / 100.0);
-                m_dataModel.setVerboseToolTipsEnabled(settings->enableEventToolTips());
-            }
+    if (IRunConfigurationAspect *analyzerAspect = runControl->runConfiguration()->extraAspect(ANALYZER_VALGRIND_SETTINGS)) {
+        if (const ValgrindBaseSettings *settings = qobject_cast<ValgrindBaseSettings *>(analyzerAspect->currentSettings())) {
+            m_visualization->setMinimumInclusiveCostRatio(settings->visualisationMinimumInclusiveCostRatio() / 100.0);
+            m_proxyModel.setMinimumInclusiveCostRatio(settings->minimumInclusiveCostRatio() / 100.0);
+            m_dataModel.setVerboseToolTipsEnabled(settings->enableEventToolTips());
         }
     }
 
     m_toolBusy = true;
     updateRunActions();
 
-    return runControl;
+    return toolRunner;
 }
 
 void CallgrindTool::updateRunActions()
@@ -936,7 +936,7 @@ void CallgrindTool::loadExternalLogFile()
     takeParserData(parser.takeData());
 }
 
-void CallgrindTool::takeParserDataFromRunControl(CallgrindRunControl *rc)
+void CallgrindTool::takeParserDataFromRunControl(CallgrindToolRunner *rc)
 {
     takeParserData(rc->takeParserData());
 }
@@ -1005,7 +1005,9 @@ public:
     RunControl *create(RunConfiguration *runConfiguration, Core::Id runMode, QString *errorMessage) override
     {
         Q_UNUSED(errorMessage);
-        return m_tool->createRunControl(runConfiguration, runMode);
+        auto runControl = new RunControl(runConfiguration, runMode);
+        m_tool->createRunTool(runControl);
+        return runControl;
     }
 
     IRunConfigurationAspect *createRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc) override

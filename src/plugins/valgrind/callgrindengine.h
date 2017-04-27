@@ -33,12 +33,12 @@
 namespace Valgrind {
 namespace Internal {
 
-class CallgrindRunControl : public ValgrindRunControl
+class CallgrindToolRunner : public ValgrindToolRunner
 {
     Q_OBJECT
 
 public:
-    CallgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
+    explicit CallgrindToolRunner(ProjectExplorer::RunControl *runControl);
 
     void start() override;
 
@@ -62,13 +62,13 @@ protected:
     Valgrind::ValgrindRunner *runner() override;
 
 signals:
-    void parserDataReady(CallgrindRunControl *engine);
+    void parserDataReady(CallgrindToolRunner *engine);
 
 private:
     void slotFinished();
 
     Valgrind::Callgrind::CallgrindRunner m_runner;
-    bool m_markAsPaused;
+    bool m_markAsPaused = false;
 
     QString m_argumentForToggleCollect;
 };

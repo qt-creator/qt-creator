@@ -504,18 +504,6 @@ IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect(RunCon
 
 namespace Internal {
 
-ToolRunner *trivialToolRunner()
-{
-    static ToolRunner runner(nullptr);
-    return &runner;
-}
-
-TargetRunner *trivialTargetRunner()
-{
-    static TargetRunner runner(nullptr);
-    return &runner;
-}
-
 class RunControlPrivate : public QObject
 {
 public:
@@ -535,10 +523,8 @@ public:
     ~RunControlPrivate()
     {
         QTC_CHECK(state == State::Stopped);
-        if (targetRunner != trivialTargetRunner())
-            delete targetRunner;
-        if (toolRunner != trivialToolRunner())
-            delete toolRunner;
+        delete targetRunner;
+        delete toolRunner;
         delete outputFormatter;
     }
 
@@ -607,6 +593,8 @@ using namespace Internal;
 RunControl::RunControl(RunConfiguration *runConfiguration, Core::Id mode) :
     d(new RunControlPrivate(this, runConfiguration, mode))
 {
+    (void) new TargetRunner(this);
+    (void) new ToolRunner(this);
 #ifdef WITH_JOURNALD
     JournaldWatcher::instance()->subscribe(this, [this](const JournaldWatcher::LogEntry &entry) {
         if (entry.value("_MACHINE_ID") != JournaldWatcher::instance()->machineId())
@@ -636,10 +624,6 @@ RunControl::~RunControl()
 
 void RunControl::initiateStart()
 {
-    if (!d->targetRunner)
-        setTargetRunner(trivialTargetRunner());
-    if (!d->toolRunner)
-        setToolRunner(trivialToolRunner());
     emit aboutToStart();
     start();
 }
@@ -785,6 +769,7 @@ ToolRunner *RunControl::toolRunner() const
 
 void RunControl::setToolRunner(ToolRunner *tool)
 {
+    delete d->toolRunner;
     d->toolRunner = tool;
     connect(d->toolRunner, &ToolRunner::prepared, d, &RunControlPrivate::onToolPrepared);
     connect(d->toolRunner, &ToolRunner::started, d, &RunControlPrivate::onToolStarted);
@@ -799,6 +784,7 @@ TargetRunner *RunControl::targetRunner() const
 
 void RunControl::setTargetRunner(TargetRunner *runner)
 {
+    delete d->targetRunner;
     d->targetRunner = runner;
     connect(d->targetRunner, &TargetRunner::prepared, d, &RunControlPrivate::onTargetPrepared);
     connect(d->targetRunner, &TargetRunner::started, d, &RunControlPrivate::onTargetStarted);
@@ -1175,8 +1161,7 @@ void SimpleTargetRunner::onProcessFinished(int exitCode, QProcess::ExitStatus st
 TargetRunner::TargetRunner(RunControl *runControl)
     : m_runControl(runControl)
 {
-    if (runControl)
-        runControl->setTargetRunner(this);
+    runControl->setTargetRunner(this);
 }
 
 RunControl *TargetRunner::runControl() const

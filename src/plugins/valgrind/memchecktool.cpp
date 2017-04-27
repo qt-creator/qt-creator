@@ -251,7 +251,7 @@ private:
     void settingsDestroyed(QObject *settings);
     void maybeActiveRunConfigurationChanged();
 
-    void engineStarting(const MemcheckRunControl *engine);
+    void engineStarting(const MemcheckToolRunner *engine);
     void engineFinished();
     void loadingExternalXmlLogFileFinished();
 
@@ -565,18 +565,20 @@ RunControl *MemcheckTool::createRunControl(RunConfiguration *runConfiguration, C
     m_errorModel.setRelevantFrameFinder(makeFrameFinder(runConfiguration
         ? runConfiguration->target()->project()->files(Project::AllFiles) : QStringList()));
 
-    MemcheckRunControl *runControl = 0;
+    auto runControl = new RunControl(runConfiguration, runMode);
+    MemcheckToolRunner *runTool = 0;
     if (runMode == MEMCHECK_RUN_MODE)
-        runControl = new MemcheckRunControl(runConfiguration, runMode);
+        runTool = new MemcheckToolRunner(runControl);
     else
-        runControl = new MemcheckWithGdbRunControl(runConfiguration, runMode);
-    connect(runControl, &MemcheckRunControl::starting,
-            this, [this, runControl]() { engineStarting(runControl); });
-    connect(runControl, &MemcheckRunControl::parserError, this, &MemcheckTool::parserError);
-    connect(runControl, &MemcheckRunControl::internalParserError, this, &MemcheckTool::internalParserError);
-    connect(runControl, &MemcheckRunControl::finished, this, &MemcheckTool::engineFinished);
+        runTool = new MemcheckWithGdbToolRunner(runControl);
 
-    connect(m_stopAction, &QAction::triggered, runControl, [runControl] { runControl->stop(); });
+    connect(runTool, &MemcheckToolRunner::starting,
+            this, [this, runTool] { engineStarting(runTool); });
+    connect(runTool, &MemcheckToolRunner::parserError, this, &MemcheckTool::parserError);
+    connect(runTool, &MemcheckToolRunner::internalParserError, this, &MemcheckTool::internalParserError);
+    connect(runControl, &RunControl::finished, this, &MemcheckTool::engineFinished);
+
+    connect(m_stopAction, &QAction::triggered, runControl, &RunControl::stop);
 
     m_toolBusy = true;
     updateRunActions();
@@ -584,21 +586,21 @@ RunControl *MemcheckTool::createRunControl(RunConfiguration *runConfiguration, C
     return runControl;
 }
 
-void MemcheckTool::engineStarting(const MemcheckRunControl *runControl)
+void MemcheckTool::engineStarting(const MemcheckToolRunner *runTool)
 {
     setBusyCursor(true);
     clearErrorView();
     m_loadExternalLogFile->setDisabled(true);
 
     QString dir;
-    if (RunConfiguration *rc = runControl->runConfiguration())
+    if (RunConfiguration *rc = runTool->runControl()->runConfiguration())
         dir = rc->target()->project()->projectDirectory().toString() + QLatin1Char('/');
 
-    const QString name = Utils::FileName::fromString(runControl->executable()).fileName();
+    const QString name = Utils::FileName::fromString(runTool->executable()).fileName();
 
     m_errorView->setDefaultSuppressionFile(dir + name + QLatin1String(".supp"));
 
-    foreach (const QString &file, runControl->suppressionFiles()) {
+    foreach (const QString &file, runTool->suppressionFiles()) {
         QAction *action = m_filterMenu->addAction(Utils::FileName::fromString(file).fileName());
         action->setToolTip(file);
         connect(action, &QAction::triggered, this, [this, file]() {

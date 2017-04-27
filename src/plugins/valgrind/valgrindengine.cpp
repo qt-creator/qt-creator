@@ -53,30 +53,28 @@ using namespace ProjectExplorer;
 namespace Valgrind {
 namespace Internal {
 
-ValgrindRunControl::ValgrindRunControl(RunConfiguration *runConfiguration, Core::Id runMode)
-    : RunControl(runConfiguration, runMode)
+ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
+    : ToolRunner(runControl)
 {
-    setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
-    setSupportsReRunning(false);
+    runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
+    runControl->setSupportsReRunning(false);
 
-    if (runConfiguration)
-        if (IRunConfigurationAspect *aspect = runConfiguration->extraAspect(ANALYZER_VALGRIND_SETTINGS))
-            m_settings = qobject_cast<ValgrindBaseSettings *>(aspect->currentSettings());
+    if (IRunConfigurationAspect *aspect = runControl->runConfiguration()->extraAspect(ANALYZER_VALGRIND_SETTINGS))
+        m_settings = qobject_cast<ValgrindBaseSettings *>(aspect->currentSettings());
 
     if (!m_settings)
         m_settings = ValgrindPlugin::globalSettings();
 }
 
-void ValgrindRunControl::start()
+void ValgrindToolRunner::start()
 {
-    reportApplicationStart();
     emit starting();
     FutureProgress *fp = ProgressManager::addTimedTask(m_progress, progressTitle(), "valgrind", 100);
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     connect(fp, &FutureProgress::canceled,
-            this, &ValgrindRunControl::handleProgressCanceled);
+            this, &ValgrindToolRunner::handleProgressCanceled);
     connect(fp, &FutureProgress::finished,
-            this, &ValgrindRunControl::handleProgressFinished);
+            this, &ValgrindToolRunner::handleProgressFinished);
     m_progress.reportStarted();
 
 #if VALGRIND_DEBUG_OUTPUT
@@ -88,36 +86,37 @@ void ValgrindRunControl::start()
     ValgrindRunner *run = runner();
     run->setValgrindExecutable(m_settings->valgrindExecutable());
     run->setValgrindArguments(genericToolArguments() + toolArguments());
-    const StandardRunnable r = runnable().as<StandardRunnable>();
-    run->setDevice(r.device ? r.device : device());
-    run->setDebuggee(r);
+    run->setDevice(device());
+    run->setDebuggee(runControl()->runnable().as<StandardRunnable>());
 
     connect(run, &ValgrindRunner::processOutputReceived,
-            this, &ValgrindRunControl::receiveProcessOutput);
+            this, &ValgrindToolRunner::receiveProcessOutput);
     connect(run, &ValgrindRunner::processErrorReceived,
-            this, &ValgrindRunControl::receiveProcessError);
+            this, &ValgrindToolRunner::receiveProcessError);
     connect(run, &ValgrindRunner::finished,
-            this, &ValgrindRunControl::runnerFinished);
+            this, &ValgrindToolRunner::runnerFinished);
 
     if (!run->start()) {
         m_progress.cancel();
-        reportApplicationStop();
+        reportFailure();
         return;
     }
+
+    reportStarted();
 }
 
-void ValgrindRunControl::stop()
+void ValgrindToolRunner::stop()
 {
     m_isStopping = true;
     runner()->stop();
 }
 
-QString ValgrindRunControl::executable() const
+QString ValgrindToolRunner::executable() const
 {
-    return runnable().as<StandardRunnable>().executable;
+    return runControl()->runnable().as<StandardRunnable>().executable;
 }
 
-QStringList ValgrindRunControl::genericToolArguments() const
+QStringList ValgrindToolRunner::genericToolArguments() const
 {
     QTC_ASSERT(m_settings, return QStringList());
     QString smcCheckValue;
@@ -139,36 +138,37 @@ QStringList ValgrindRunControl::genericToolArguments() const
     return QStringList() << QLatin1String("--smc-check=") + smcCheckValue;
 }
 
-void ValgrindRunControl::handleProgressCanceled()
+void ValgrindToolRunner::handleProgressCanceled()
 {
     m_progress.reportCanceled();
     m_progress.reportFinished();
 }
 
-void ValgrindRunControl::handleProgressFinished()
+void ValgrindToolRunner::handleProgressFinished()
 {
     QApplication::alert(ICore::mainWindow(), 3000);
 }
 
-void ValgrindRunControl::runnerFinished()
+void ValgrindToolRunner::runnerFinished()
 {
     appendMessage(tr("Analyzing finished.") + QLatin1Char('\n'), NormalMessageFormat);
-    reportApplicationStop();
 
     m_progress.reportFinished();
 
     disconnect(runner(), &ValgrindRunner::processOutputReceived,
-               this, &ValgrindRunControl::receiveProcessOutput);
+               this, &ValgrindToolRunner::receiveProcessOutput);
     disconnect(runner(), &ValgrindRunner::finished,
-               this, &ValgrindRunControl::runnerFinished);
+               this, &ValgrindToolRunner::runnerFinished);
+
+    reportStopped();
 }
 
-void ValgrindRunControl::receiveProcessOutput(const QString &output, OutputFormat format)
+void ValgrindToolRunner::receiveProcessOutput(const QString &output, OutputFormat format)
 {
     appendMessage(output, format);
 }
 
-void ValgrindRunControl::receiveProcessError(const QString &message, QProcess::ProcessError error)
+void ValgrindToolRunner::receiveProcessError(const QString &message, QProcess::ProcessError error)
 {
     if (error == QProcess::FailedToStart) {
         const QString valgrind = m_settings->valgrindExecutable();

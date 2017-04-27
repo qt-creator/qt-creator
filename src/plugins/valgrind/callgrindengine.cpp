@@ -39,19 +39,18 @@ using namespace Debugger;
 using namespace Valgrind;
 using namespace Valgrind::Internal;
 
-CallgrindRunControl::CallgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode)
-    : ValgrindRunControl(runConfiguration, runMode)
-    , m_markAsPaused(false)
+CallgrindToolRunner::CallgrindToolRunner(ProjectExplorer::RunControl *runControl)
+    : ValgrindToolRunner(runControl)
 {
     connect(&m_runner, &Callgrind::CallgrindRunner::finished,
-            this, &CallgrindRunControl::slotFinished);
+            this, &CallgrindToolRunner::slotFinished);
     connect(m_runner.parser(), &Callgrind::Parser::parserDataReady,
-            this, &CallgrindRunControl::slotFinished);
+            this, &CallgrindToolRunner::slotFinished);
     connect(&m_runner, &Callgrind::CallgrindRunner::statusMessage,
             this, &Debugger::showPermanentStatusMessage);
 }
 
-QStringList CallgrindRunControl::toolArguments() const
+QStringList CallgrindToolRunner::toolArguments() const
 {
     QStringList arguments;
 
@@ -79,28 +78,28 @@ QStringList CallgrindRunControl::toolArguments() const
     return arguments;
 }
 
-QString CallgrindRunControl::progressTitle() const
+QString CallgrindToolRunner::progressTitle() const
 {
     return tr("Profiling");
 }
 
-ValgrindRunner * CallgrindRunControl::runner()
+ValgrindRunner * CallgrindToolRunner::runner()
 {
     return &m_runner;
 }
 
-void CallgrindRunControl::start()
+void CallgrindToolRunner::start()
 {
     appendMessage(tr("Profiling %1").arg(executable()) + QLatin1Char('\n'), Utils::NormalMessageFormat);
-    return ValgrindRunControl::start();
+    return ValgrindToolRunner::start();
 }
 
-void CallgrindRunControl::dump()
+void CallgrindToolRunner::dump()
 {
     m_runner.controller()->run(Callgrind::CallgrindController::Dump);
 }
 
-void CallgrindRunControl::setPaused(bool paused)
+void CallgrindToolRunner::setPaused(bool paused)
 {
     if (m_markAsPaused == paused)
         return;
@@ -116,7 +115,7 @@ void CallgrindRunControl::setPaused(bool paused)
     }
 }
 
-void CallgrindRunControl::setToggleCollectFunction(const QString &toggleCollectFunction)
+void CallgrindToolRunner::setToggleCollectFunction(const QString &toggleCollectFunction)
 {
     if (toggleCollectFunction.isEmpty())
         return;
@@ -124,27 +123,27 @@ void CallgrindRunControl::setToggleCollectFunction(const QString &toggleCollectF
     m_argumentForToggleCollect = QLatin1String("--toggle-collect=") + toggleCollectFunction;
 }
 
-void CallgrindRunControl::reset()
+void CallgrindToolRunner::reset()
 {
     m_runner.controller()->run(Callgrind::CallgrindController::ResetEventCounters);
 }
 
-void CallgrindRunControl::pause()
+void CallgrindToolRunner::pause()
 {
     m_runner.controller()->run(Callgrind::CallgrindController::Pause);
 }
 
-void CallgrindRunControl::unpause()
+void CallgrindToolRunner::unpause()
 {
     m_runner.controller()->run(Callgrind::CallgrindController::UnPause);
 }
 
-Callgrind::ParseData *CallgrindRunControl::takeParserData()
+Callgrind::ParseData *CallgrindToolRunner::takeParserData()
 {
     return m_runner.parser()->takeData();
 }
 
-void CallgrindRunControl::slotFinished()
+void CallgrindToolRunner::slotFinished()
 {
     emit parserDataReady(this);
 }
