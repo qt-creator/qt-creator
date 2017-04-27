@@ -464,7 +464,7 @@ void ServerMode::handleHello(const QVariantMap &data)
     if (m_minorProtocol >= 0)
         version.insert("minor", m_minorProtocol);
     extra.insert("protocolVersion", version);
-    extra.insert("sourceDirectory", m_sourceDirectory.toFileInfo().canonicalFilePath());
+    extra.insert("sourceDirectory", m_sourceDirectory.toString());
     extra.insert("buildDirectory", m_buildDirectory.toString());
     extra.insert("generator", m_generator);
     if (!m_platform.isEmpty())
