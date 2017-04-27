@@ -29,6 +29,7 @@
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerengine.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/watchhandler.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -93,7 +94,7 @@ QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *conn
 
     if (!m_masterEngine->isMasterEngine())
         m_masterEngine = m_masterEngine->masterEngine();
-    connect(m_masterEngine, &DebuggerEngine::stateChanged,
+    connect(m_masterEngine->runTool(), &DebuggerRunTool::stateChanged,
             this, &QmlInspectorAgent::onEngineStateChanged);
 
     auto engineClient1 = new DeclarativeEngineDebugClient(connection);

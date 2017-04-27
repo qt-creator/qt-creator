@@ -561,7 +561,7 @@ void DebuggerEngine::setRunTool(DebuggerRunTool *runTool)
     d->m_runTool = runTool;
 }
 
-void DebuggerEngine::startDebugger()
+void DebuggerEngine::prepare()
 {
     QTC_ASSERT(d->m_runTool, notifyEngineSetupFailed(); return);
 
@@ -602,6 +602,25 @@ void DebuggerEngine::startDebugger()
     }
 
     d->queueSetupEngine();
+}
+
+void DebuggerEngine::start()
+{
+    Internal::runControlStarted(this);
+
+    // We might get a synchronous startFailed() notification on Windows,
+    // when launching the process fails. Emit a proper finished() sequence.
+    //runControl()->reportApplicationStart();
+
+    showMessage("QUEUE: SETUP INFERIOR");
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
+//    if (isMasterEngine())
+     d->queueSetupInferior();
+}
+
+void DebuggerEngine::startDebugger()
+{
+    d->queueRunEngine();
 }
 
 void DebuggerEngine::resetLocation()
@@ -802,9 +821,7 @@ void DebuggerEngine::notifyEngineSetupOk()
 
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupOk);
-    showMessage("QUEUE: SETUP INFERIOR");
-    if (isMasterEngine())
-        d->queueSetupInferior();
+    runTool()->prepared();
 }
 
 void DebuggerEngine::setupSlaveInferior()
@@ -836,7 +853,7 @@ void DebuggerEngine::notifyInferiorSetupOk()
 #ifdef WITH_BENCHMARK
     CALLGRIND_START_INSTRUMENTATION;
 #endif
-    aboutToNotifyInferiorSetupOk();
+    runTool()->aboutToNotifyInferiorSetupOk();
     showMessage("NOTE: INFERIOR SETUP OK");
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << this << state());
     setState(InferiorSetupOk);
@@ -890,7 +907,7 @@ void DebuggerEngine::notifyEngineRequestRemoteSetup()
                << "remoteSetupState" << d->remoteSetupState());
 
     d->setRemoteSetupState(RemoteSetupRequested);
-    emit requestRemoteSetup();
+    runTool()->requestRemoteSetup();
 }
 
 void DebuggerEngine::notifyEngineRemoteServerRunning(const QString &, int /*pid*/)
@@ -1298,7 +1315,7 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
     showMessage(msg, LogDebug);
     updateViews();
 
-    emit stateChanged(d->m_state);
+    runTool()->stateChanged(d->m_state);
 
     if (isSlaveEngine())
         masterEngine()->slaveEngineStateChanged(this, state);

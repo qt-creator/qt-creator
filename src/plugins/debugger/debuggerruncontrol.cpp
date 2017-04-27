@@ -107,13 +107,18 @@ static QLatin1String engineTypeName(DebuggerEngineType et)
     return QLatin1String("No engine");
 }
 
-void DebuggerRunTool::start()
+void DebuggerRunTool::prepare()
 {
     Debugger::Internal::saveModeToRestore();
     Debugger::selectPerspective(Debugger::Constants::CppPerspectiveId);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
+    m_engine->prepare();
+}
+
+void DebuggerRunTool::start()
+{
     DebuggerEngine *engine = m_engine;
     QTC_ASSERT(engine, return);
     const DebuggerRunParameters &rp = engine->runParameters();
@@ -152,16 +157,8 @@ void DebuggerRunTool::start()
         }
     }
 
-    Internal::runControlStarted(engine);
-
-    // We might get a synchronous startFailed() notification on Windows,
-    // when launching the process fails. Emit a proper finished() sequence.
-    runControl()->reportApplicationStart();
-
-    engine->startDebugger();
-
-    if (runControl()->isRunning())
-        appendMessage(tr("Debugging starts") + QLatin1Char('\n'), NormalMessageFormat);
+    appendMessage(tr("Debugging starts") + QLatin1Char('\n'), NormalMessageFormat);
+    engine->start();
 }
 
 void DebuggerRunTool::startFailed()
@@ -512,12 +509,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParame
 
     connect(runControl, &RunControl::finished,
             this, &DebuggerRunTool::handleFinished);
-    connect(m_engine, &DebuggerEngine::requestRemoteSetup,
-            this, &DebuggerRunTool::requestRemoteSetup);
-    connect(m_engine, &DebuggerEngine::stateChanged,
-            this, &DebuggerRunTool::stateChanged);
-    connect(m_engine, &DebuggerEngine::aboutToNotifyInferiorSetupOk,
-            this, &DebuggerRunTool::aboutToNotifyInferiorSetupOk);
 }
 
 DebuggerRunTool::~DebuggerRunTool()

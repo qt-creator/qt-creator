@@ -266,8 +266,6 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
     if (masterEngine)
         setMasterEngine(masterEngine);
 
-    connect(this, &DebuggerEngine::stateChanged,
-            this, &QmlEngine::updateCurrentContext);
     connect(stackHandler(), &StackHandler::stackChanged,
             this, &QmlEngine::updateCurrentContext);
     connect(stackHandler(), &StackHandler::currentIndexChanged,
@@ -359,6 +357,8 @@ void QmlEngine::setRunTool(DebuggerRunTool *runTool)
     d->startupMessageFilterConnection = connect(
                 runTool->runControl(), &RunControl::appendMessageRequested,
                 d, &QmlEnginePrivate::filterApplicationMessage);
+    connect(runTool, &DebuggerRunTool::stateChanged,
+            this, &QmlEngine::updateCurrentContext);
 }
 
 void QmlEngine::setupInferior()

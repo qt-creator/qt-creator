@@ -53,6 +53,7 @@ public:
 
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
 
+    void prepare() override;
     void start() override;
     void stop() override;
 

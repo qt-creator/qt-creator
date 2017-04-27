@@ -201,6 +201,10 @@ public:
     DebuggerRunParameters &runParameters();
     virtual void setRunTool(DebuggerRunTool *runTool);
     DebuggerRunTool *runTool() const;
+
+    void prepare();
+    void start();
+
     void startDebugger();
 
     enum {
@@ -339,19 +343,6 @@ public:
     QString nativeStartupCommands() const;
 
     bool prepareCommand();
-
-signals:
-    void stateChanged(Debugger::DebuggerState state);
-    /*
-     * For "external" clients of a debugger run control that needs to do
-     * further setup before the debugger is started (e.g. RemoteLinux).
-     * Afterwards, notifyEngineRemoteSetupFinished
-     * must be called to continue or abort debugging.
-     * This signal is only emitted if the start parameters indicate that
-     * a server start script should be used, but none is given.
-     */
-    void requestRemoteSetup();
-    void aboutToNotifyInferiorSetupOk();
 
 protected:
     // The base notify*() function implementation should be sufficient
