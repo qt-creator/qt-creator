@@ -459,15 +459,17 @@ public:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
     IDevice::ConstPtr device() const;
 
-    virtual void prepare() { emit prepared(); }
-    virtual void start() { emit started(); }
-    virtual void stop() { emit stopped(); }
+    virtual void prepare() { reportPrepared(); }
+    virtual void start() { reportStarted(); }
+    virtual void stop() { reportStopped(); }
 
-signals:
-    void prepared();
-    void started();
-    void stopped();
-    void failed(const QString &msg = QString());
+    virtual void onStop() {}
+    virtual void onFailure() {}
+
+    void reportPrepared();
+    void reportStarted();
+    void reportStopped();
+    void reportFailure(const QString &msg = QString());
 
 private:
     QPointer<RunControl> m_runControl;
@@ -488,15 +490,17 @@ public:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
     IDevice::ConstPtr device() const;
 
-    virtual void prepare() { emit prepared(); }
-    virtual void start() { emit started(); }
-    virtual void stop() { emit stopped(); }
+    virtual void prepare() { reportPrepared(); }
+    virtual void start() { reportStarted(); }
+    virtual void stop() { reportStopped(); }
 
-signals:
-    void prepared();
-    void started();
-    void stopped();
-    void failed(const QString &msg = QString());
+    virtual void onStop() {}
+    virtual void onFailure() {}
+
+    void reportPrepared();
+    void reportStarted();
+    void reportStopped();
+    void reportFailure(const QString &msg = QString());
 
 private:
     QPointer<RunControl> m_runControl;

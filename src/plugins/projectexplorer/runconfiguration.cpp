@@ -771,10 +771,6 @@ void RunControl::setToolRunner(ToolRunner *tool)
 {
     delete d->toolRunner;
     d->toolRunner = tool;
-    connect(d->toolRunner, &ToolRunner::prepared, d, &RunControlPrivate::onToolPrepared);
-    connect(d->toolRunner, &ToolRunner::started, d, &RunControlPrivate::onToolStarted);
-    connect(d->toolRunner, &ToolRunner::stopped, d, &RunControlPrivate::onToolStopped);
-    connect(d->toolRunner, &ToolRunner::failed, d, &RunControlPrivate::onToolFailed);
 }
 
 TargetRunner *RunControl::targetRunner() const
@@ -786,10 +782,6 @@ void RunControl::setTargetRunner(TargetRunner *runner)
 {
     delete d->targetRunner;
     d->targetRunner = runner;
-    connect(d->targetRunner, &TargetRunner::prepared, d, &RunControlPrivate::onTargetPrepared);
-    connect(d->targetRunner, &TargetRunner::started, d, &RunControlPrivate::onTargetStarted);
-    connect(d->targetRunner, &TargetRunner::stopped, d, &RunControlPrivate::onTargetStopped);
-    connect(d->targetRunner, &TargetRunner::failed, d, &RunControlPrivate::onTargetFailed);
 }
 
 QString RunControl::displayName() const
@@ -1090,10 +1082,10 @@ void SimpleTargetRunner::start()
         QTC_ASSERT(r.is<StandardRunnable>(), return);
         const QString executable = r.as<StandardRunnable>().executable;
         if (executable.isEmpty()) {
-            emit failed(RunControl::tr("No executable specified.") + '\n');
+            reportFailure(RunControl::tr("No executable specified."));
         }  else if (!QFileInfo::exists(executable)) {
-            emit failed(RunControl::tr("Executable %1 does not exist.")
-                        .arg(QDir::toNativeSeparators(executable)) + '\n');
+            reportFailure(RunControl::tr("Executable %1 does not exist.")
+                          .arg(QDir::toNativeSeparators(executable)));
         } else {
             QString msg = RunControl::tr("Starting %1...").arg(QDir::toNativeSeparators(executable)) + '\n';
             appendMessage(msg, Utils::NormalMessageFormat);
@@ -1103,7 +1095,7 @@ void SimpleTargetRunner::start()
     } else {
 
         connect(&m_launcher, &ApplicationLauncher::reportError,
-                this, &TargetRunner::failed);
+                this, &TargetRunner::reportFailure);
 
         connect(&m_launcher, &ApplicationLauncher::remoteStderr,
                 this, [this](const QByteArray &output) {
@@ -1118,7 +1110,7 @@ void SimpleTargetRunner::start()
         connect(&m_launcher, &ApplicationLauncher::finished,
                 this, [this] {
                     m_launcher.disconnect(this);
-                    emit stopped();
+                    reportStopped();
                 });
 
         connect(&m_launcher, &ApplicationLauncher::reportProgress,
@@ -1138,9 +1130,9 @@ void SimpleTargetRunner::stop()
 void SimpleTargetRunner::onProcessStarted()
 {
     // Console processes only know their pid after being started
-    emit started();
     runControl()->setApplicationProcessHandle(m_launcher.applicationPID());
     runControl()->bringApplicationToForeground();
+    reportStarted();
 }
 
 void SimpleTargetRunner::onProcessFinished(int exitCode, QProcess::ExitStatus status)
@@ -1152,7 +1144,7 @@ void SimpleTargetRunner::onProcessFinished(int exitCode, QProcess::ExitStatus st
     else
         msg = tr("%1 exited with code %2").arg(QDir::toNativeSeparators(exe)).arg(exitCode);
     appendMessage(msg + '\n', Utils::NormalMessageFormat);
-    emit stopped();
+    reportStopped();
 }
 
 
@@ -1179,6 +1171,30 @@ IDevice::ConstPtr TargetRunner::device() const
     return m_runControl->device();
 }
 
+void TargetRunner::reportPrepared()
+{
+    QTC_ASSERT(m_runControl, return);
+    m_runControl->d->onTargetPrepared();
+}
+
+void TargetRunner::reportStarted()
+{
+    QTC_ASSERT(m_runControl, return);
+    m_runControl->d->onTargetStarted();
+}
+
+void TargetRunner::reportStopped()
+{
+    QTC_ASSERT(m_runControl, return);
+    onStop();
+    m_runControl->d->onTargetStopped();
+}
+
+void TargetRunner::reportFailure(const QString &msg)
+{
+    m_runControl->d->onTargetFailed(msg);
+}
+
 
 // ToolRunner
 
@@ -1202,6 +1218,27 @@ void ToolRunner::appendMessage(const QString &msg, OutputFormat format)
 IDevice::ConstPtr ToolRunner::device() const
 {
     return m_runControl->device();
+}
+
+void ToolRunner::reportPrepared()
+{
+    m_runControl->d->onToolPrepared();
+}
+
+void ToolRunner::reportStarted()
+{
+    m_runControl->d->onToolStarted();
+}
+
+void ToolRunner::reportStopped()
+{
+    onStop();
+    m_runControl->d->onToolStopped();
+}
+
+void ToolRunner::reportFailure(const QString &msg)
+{
+    m_runControl->d->onToolFailed(msg);
 }
 
 } // namespace ProjectExplorer
