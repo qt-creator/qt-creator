@@ -152,6 +152,9 @@ void CodeCompletionsExtractor::extractCompletionKind()
         case CXCursor_NotImplemented:
             currentCodeCompletion_.setCompletionKind(CodeCompletion::KeywordCompletionKind);
             break;
+        case CXCursor_OverloadCandidate:
+            currentCodeCompletion_.setCompletionKind(CodeCompletion::FunctionOverloadCompletionKind);
+            break;
         default:
             currentCodeCompletion_.setCompletionKind(CodeCompletion::Other);
     }

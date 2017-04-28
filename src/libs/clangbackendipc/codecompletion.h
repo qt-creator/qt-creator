@@ -44,6 +44,7 @@ public:
     enum Kind : quint32 {
         Other = 0,
         FunctionCompletionKind,
+        FunctionOverloadCompletionKind,
         TemplateFunctionCompletionKind,
         ConstructorCompletionKind,
         DestructorCompletionKind,

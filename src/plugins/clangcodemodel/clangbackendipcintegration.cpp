@@ -175,11 +175,8 @@ void IpcReceiver::codeCompleted(const CodeCompletedMessage &message)
     const quint64 ticket = message.ticketNumber();
     QScopedPointer<ClangCompletionAssistProcessor> processor(m_assistProcessorsTable.take(ticket));
     if (processor) {
-        const bool finished = processor->handleAvailableAsyncCompletions(
-                                            message.codeCompletions(),
-                                            message.neededCorrection());
-        if (!finished)
-            processor.take();
+        processor->handleAvailableCompletions(message.codeCompletions(),
+                                              message.neededCorrection());
     }
 }
 

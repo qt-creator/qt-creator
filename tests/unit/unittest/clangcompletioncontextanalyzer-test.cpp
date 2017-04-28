@@ -238,28 +238,28 @@ TEST_F(ClangCompletionContextAnalyzer, ArgumentOneAtCall)
 {
     auto analyzer = runAnalyzer("f(@");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -2, 0, positionInText));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, 0, 0, positionInText));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, ArgumentTwoAtCall)
 {
     auto analyzer = runAnalyzer("f(1,@");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -4, -2, positionInText));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -2, -2, positionInText));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, ArgumentTwoWithSpaceAtCall)
 {
     auto analyzer = runAnalyzer("f(1, @");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -5, -3, positionInText));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -3, -3, positionInText));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, WhitespaceAfterFunctionName)
 {
     auto analyzer = runAnalyzer("foo (@");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -5, 0, positionInText));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, 0, 0, positionInText));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, AfterOpeningParenthesis)

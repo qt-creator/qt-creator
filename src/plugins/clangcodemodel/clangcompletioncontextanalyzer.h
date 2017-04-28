@@ -58,18 +58,10 @@ public:
     int positionForClang() const { return m_positionForClang; }
     int positionEndOfExpression() const { return m_positionEndOfExpression; }
 
-    QString functionName() const { return m_functionName; }
-
 private:
     ClangCompletionContextAnalyzer();
 
-    struct FunctionInfo {
-        bool isValid() const { return functionNamePosition != -1 && !functionName.isEmpty(); }
-
-        int functionNamePosition = -1;
-        QString functionName;
-    };
-    FunctionInfo analyzeFunctionCall(int endOfExpression) const;
+    bool looksLikeAFunctionCall(int endOfExpression) const;
 
     void setActionAndClangPosition(CompletionAction action, int position);
     void setAction(CompletionAction action);
@@ -88,7 +80,6 @@ private:
     int m_positionForProposal = -1;
     int m_positionForClang = -1;
     int m_positionEndOfExpression = -1;
-    QString m_functionName;
 };
 
 } // namespace Internal

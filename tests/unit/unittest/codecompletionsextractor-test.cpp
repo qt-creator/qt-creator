@@ -153,6 +153,7 @@ protected:
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{projects, unsavedFiles};
     Document functionDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"), project, Utf8StringVector(), documents};
+    Document functionOverloadDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_functionoverload.cpp"), project, Utf8StringVector(), documents};
     Document variableDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_variable.cpp"), project, Utf8StringVector(), documents};
     Document classDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_class.cpp"), project, Utf8StringVector(), documents};
     Document namespaceDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_namespace.cpp"), project, Utf8StringVector(), documents};
@@ -676,6 +677,21 @@ TEST_F(CodeCompletionsExtractorSlowTest, BriefComment)
     ::CodeCompletionsExtractor extractor(completeResults.data());
 
     ASSERT_THAT(extractor, HasBriefComment(Utf8StringLiteral("BriefComment"), Utf8StringLiteral("A brief comment")));
+}
+
+TEST_F(CodeCompletionsExtractorSlowTest, OverloadCandidate)
+{
+    ClangCodeCompleteResults completeResults(getResults(functionOverloadDocument, 8, 13));
+
+    ::CodeCompletionsExtractor extractor(completeResults.data());
+
+    ASSERT_THAT(extractor, HasCompletionChunks(Utf8String(),
+                                               CodeCompletionChunks({
+                                                    {CodeCompletionChunk::Text, Utf8StringLiteral("Foo")},
+                                                    {CodeCompletionChunk::LeftParen, Utf8StringLiteral("(")},
+                                                    {CodeCompletionChunk::CurrentParameter, Utf8StringLiteral("const Foo &foo")},
+                                                    {CodeCompletionChunk::RightParen, Utf8StringLiteral(")")},
+                                               })));
 }
 
 ClangCodeCompleteResults CodeCompletionsExtractor::getResults(const Document &document,

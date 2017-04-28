@@ -1,9 +1,10 @@
 int globalVariable;
 
-struct GlobalClassWithCustomConstructor {
-    GlobalClassWithCustomConstructor(int) {}
+struct Foo {
+    Foo(int) {}
+    Foo(int, double) {}
 };
 
 void f() {
-    GlobalClassWithCustomConstructor foo( /* COMPLETE HERE */
+    Foo foo( /* COMPLETE HERE */
 }

@@ -819,13 +819,14 @@ void ClangCodeCompletionTest::testCompleteFunctions()
     QVERIFY(hasItem(t.proposal, "TType&lt;QString&gt; f(bool)"));
 }
 
-void ClangCodeCompletionTest::testCompleteConstructorAndFallbackToGlobalCompletion()
+void ClangCodeCompletionTest::testCompleteConstructor()
 {
     ProjectLessCompletionTest t("constructorCompletion.cpp");
 
-    QVERIFY(hasItem(t.proposal, "globalVariable"));
-    QVERIFY(hasItem(t.proposal, "GlobalClassWithCustomConstructor"));
-    QVERIFY(!hasSnippet(t.proposal, "class"));
+    QVERIFY(!hasItem(t.proposal, "globalVariable"));
+    QVERIFY(!hasItem(t.proposal, "class"));
+    QVERIFY(hasItem(t.proposal, "Foo(int)"));
+    QVERIFY(hasItem(t.proposal, "Foo(int, double)"));
 }
 
 // Explicitly Inserting The Dot

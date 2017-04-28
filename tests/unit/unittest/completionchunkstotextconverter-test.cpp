@@ -53,7 +53,9 @@ protected:
     CodeCompletionChunk semicolon{CodeCompletionChunk::SemiColon, Utf8StringLiteral(";")};
     CodeCompletionChunk colonColonText{CodeCompletionChunk::Text, Utf8StringLiteral("::")};
     CodeCompletionChunk functionArgumentX{CodeCompletionChunk::Placeholder, Utf8StringLiteral("char x")};
+    CodeCompletionChunk functionArgumentXAsCurrentParameter{CodeCompletionChunk::CurrentParameter, Utf8StringLiteral("char x")};
     CodeCompletionChunk functionArgumentY{CodeCompletionChunk::Placeholder, Utf8StringLiteral("int y")};
+    CodeCompletionChunk functionArgumentYAsCurrentParamter{CodeCompletionChunk::CurrentParameter, Utf8StringLiteral("int y")};
     CodeCompletionChunk functionArgumentZ{CodeCompletionChunk::Placeholder, Utf8StringLiteral("int z")};
     CodeCompletionChunk functionArgumentTemplate{CodeCompletionChunk::Placeholder, Utf8StringLiteral("const Foo<int> &foo")};
     CodeCompletionChunk switchName{CodeCompletionChunk::TypedText, Utf8StringLiteral("switch")};
@@ -78,6 +80,7 @@ protected:
     CodeCompletionChunk  optionalEnableIfTType{CodeCompletionChunk::Placeholder, Utf8StringLiteral("_Tp"), true};
     CodeCompletionChunk optionalComma{CodeCompletionChunk::Comma, Utf8StringLiteral(", "), true};
     CodeCompletionChunk optionalFunctionArgumentY{CodeCompletionChunk::Placeholder, Utf8StringLiteral("int y"), true};
+    CodeCompletionChunk optionalFunctionArgumentYAsCurrentParameter{CodeCompletionChunk::CurrentParameter, Utf8StringLiteral("int y"), true};
     CodeCompletionChunk optionalFunctionArgumentZ{CodeCompletionChunk::Placeholder, Utf8StringLiteral("int z"), true};
 };
 
@@ -117,7 +120,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneArgumen
     CodeCompletionChunks completionChunks({integerResultType,
                                            functionName,
                                            leftParen,
-                                            functionArgumentX,
+                                            functionArgumentXAsCurrentParameter,
                                            rightParen});
 
     ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks),
@@ -129,7 +132,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneParamet
     CodeCompletionChunks completionChunks({integerResultType,
                                            functionName,
                                            leftParen,
-                                            functionArgumentX,
+                                            functionArgumentXAsCurrentParameter,
                                            rightParen});
 
     ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, 1),
@@ -143,7 +146,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTwoParamet
                                            leftParen,
                                             functionArgumentX,
                                             comma,
-                                            functionArgumentY,
+                                            functionArgumentYAsCurrentParamter,
                                            rightParen});
 
     ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, 2),
@@ -157,7 +160,7 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTwoParamet
                                            leftParen,
                                             functionArgumentX,
                                             optionalComma,
-                                            optionalFunctionArgumentY,
+                                            optionalFunctionArgumentYAsCurrentParameter,
                                            rightParen});
 
     ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, 2),

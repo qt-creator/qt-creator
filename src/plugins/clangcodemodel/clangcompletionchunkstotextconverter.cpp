@@ -167,7 +167,11 @@ void CompletionChunksToTextConverter::parse(
 
     switch (codeCompletionChunk.kind()) {
         case CodeCompletionChunk::ResultType: parseResultType(codeCompletionChunk.text()); break;
-        case CodeCompletionChunk::Placeholder: parsePlaceHolder(codeCompletionChunk); break;
+        // Do not rely on CurrentParameter because it might be wrong for
+        // invalid code. Instead, handle it as PlaceHolder.
+        case CodeCompletionChunk::CurrentParameter:
+        case CodeCompletionChunk::Placeholder:
+            parsePlaceHolder(codeCompletionChunk); break;
         case CodeCompletionChunk::LeftParen: parseLeftParen(codeCompletionChunk); break;
         case CodeCompletionChunk::LeftBrace: parseLeftBrace(codeCompletionChunk); break;
         default: parseText(codeCompletionChunk.text()); break;

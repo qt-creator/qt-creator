@@ -51,6 +51,7 @@
 
 #include <clangbackendipc/filecontainer.h>
 
+#include <utils/algorithm.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
@@ -106,30 +107,6 @@ QList<AssistProposalItemInterface *> toAssistProposalItems(const CodeCompletions
     return results;
 }
 
-bool isFunctionHintLikeCompletion(CodeCompletion::Kind kind)
-{
-    return kind == CodeCompletion::FunctionCompletionKind
-        || kind == CodeCompletion::ConstructorCompletionKind
-        || kind == CodeCompletion::DestructorCompletionKind
-        || kind == CodeCompletion::SignalCompletionKind
-        || kind == CodeCompletion::SlotCompletionKind;
-}
-
-CodeCompletions matchingFunctionCompletions(const CodeCompletions completions,
-                                            const QString &functionName)
-{
-    CodeCompletions matching;
-
-    foreach (const CodeCompletion &completion, completions) {
-        if (isFunctionHintLikeCompletion(completion.completionKind())
-                && completion.text().toString() == functionName) {
-            matching.append(completion);
-        }
-    }
-
-    return matching;
-}
-
 } // Anonymous
 
 using namespace CPlusPlus;
@@ -157,25 +134,32 @@ IAssistProposal *ClangCompletionAssistProcessor::perform(const AssistInterface *
     return startCompletionHelper(); // == 0 if results are calculated asynchronously
 }
 
-bool ClangCompletionAssistProcessor::handleAvailableAsyncCompletions(
+static CodeCompletions filterFunctionSignatures(const CodeCompletions &completions)
+{
+    return ::Utils::filtered(completions, [](const CodeCompletion &completion) {
+        return completion.completionKind() == CodeCompletion::FunctionOverloadCompletionKind;
+    });
+}
+
+void ClangCompletionAssistProcessor::handleAvailableCompletions(
         const CodeCompletions &completions,
         CompletionCorrection neededCorrection)
 {
-    bool handled = true;
+    QTC_CHECK(m_completions.isEmpty());
 
-    switch (m_sentRequestType) {
-    case CompletionRequestType::NormalCompletion:
-        handleAvailableCompletions(completions, neededCorrection);
-        break;
-    case CompletionRequestType::FunctionHintCompletion:
-        handled = handleAvailableFunctionHintCompletions(completions);
-        break;
-    default:
-        QTC_CHECK(!"Unhandled ClangCompletionAssistProcessor::CompletionRequestType");
-        break;
+    if (m_sentRequestType == NormalCompletion) {
+        m_completions = toAssistProposalItems(completions);
+
+        if (m_addSnippets && !m_completions.isEmpty())
+            addSnippets();
+
+        setAsyncProposalAvailable(createProposal(neededCorrection));
+    } else {
+        const CodeCompletions functionSignatures = filterFunctionSignatures(completions);
+        if (!functionSignatures.isEmpty())
+            setAsyncProposalAvailable(createFunctionHintProposal(functionSignatures));
+        // else: Not a function call, but e.g. a function declaration like "void f("
     }
-
-    return handled;
 }
 
 const TextEditorWidget *ClangCompletionAssistProcessor::textEditorWidget() const
@@ -268,7 +252,6 @@ IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
     }
     case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen: {
         m_sentRequestType = FunctionHintCompletion;
-        m_functionName = analyzer.functionName();
         const bool requestSent = sendCompletionRequest(analyzer.positionForClang(), QByteArray());
         setPerformWasApplicable(requestSent);
         break;
@@ -599,38 +582,12 @@ TextEditor::IAssistProposal *ClangCompletionAssistProcessor::createProposal(
     return new ClangAssistProposal(m_positionForProposal, model);
 }
 
-void ClangCompletionAssistProcessor::handleAvailableCompletions(
-        const CodeCompletions &completions,
-        CompletionCorrection neededCorrection)
+IAssistProposal *ClangCompletionAssistProcessor::createFunctionHintProposal(
+        const ClangBackEnd::CodeCompletions &completions) const
 {
-    QTC_CHECK(m_completions.isEmpty());
-
-    m_completions = toAssistProposalItems(completions);
-    if (m_addSnippets && !m_completions.isEmpty())
-        addSnippets();
-
-    setAsyncProposalAvailable(createProposal(neededCorrection));
-}
-
-bool ClangCompletionAssistProcessor::handleAvailableFunctionHintCompletions(
-        const CodeCompletions &completions)
-{
-    QTC_CHECK(!m_functionName.isEmpty());
-    const auto relevantCompletions = matchingFunctionCompletions(completions, m_functionName);
-
-    if (!relevantCompletions.isEmpty()) {
-        auto *model = new ClangFunctionHintModel(relevantCompletions);
-        auto *proposal = new FunctionHintProposal(m_positionForProposal, model);
-
-        setAsyncProposalAvailable(proposal);
-        return true;
-    } else {
-        m_addSnippets = false;
-        m_functionName.clear();
-        m_sentRequestType = NormalCompletion;
-        sendCompletionRequest(m_interface->position(), QByteArray());
-        return false; // We are not yet finished.
-    }
+    auto *model = new ClangFunctionHintModel(completions);
+    auto *proposal = new FunctionHintProposal(m_positionForProposal, model);
+    return proposal;
 }
 
 } // namespace Internal

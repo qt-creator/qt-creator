@@ -276,6 +276,8 @@ QIcon ClangAssistProposalItem::icon() const
             return snippetIcon;
         case CodeCompletion::Other:
             return Icons::iconForType(Icons::UnknownIconType);
+        default:
+            break;
     }
 
     return QIcon();

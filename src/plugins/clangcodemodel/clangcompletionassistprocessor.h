@@ -50,8 +50,8 @@ public:
 
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
 
-    bool handleAvailableAsyncCompletions(const CodeCompletions &completions,
-                                         CompletionCorrection neededCorrection);
+    void handleAvailableCompletions(const CodeCompletions &completions,
+                                    CompletionCorrection neededCorrection);
 
     const TextEditor::TextEditorWidget *textEditorWidget() const;
 
@@ -63,6 +63,8 @@ private:
 
     TextEditor::IAssistProposal *createProposal(
             CompletionCorrection neededCorrection = CompletionCorrection::NoCorrection) const;
+    TextEditor::IAssistProposal *createFunctionHintProposal(
+            const CodeCompletions &completions) const;
 
     bool completeInclude(const QTextCursor &cursor);
     bool completeInclude(int position);
@@ -82,15 +84,10 @@ private:
     void sendFileContent(const QByteArray &customFileContent);
     bool sendCompletionRequest(int position, const QByteArray &customFileContent);
 
-    void handleAvailableCompletions(const CodeCompletions &completions,
-                                    CompletionCorrection neededCorrection);
-    bool handleAvailableFunctionHintCompletions(const CodeCompletions &completions);
-
 private:
     QScopedPointer<const ClangCompletionAssistInterface> m_interface;
     unsigned m_completionOperator;
     enum CompletionRequestType { NormalCompletion, FunctionHintCompletion } m_sentRequestType;
-    QString m_functionName;     // For type == Type::FunctionHintCompletion
     bool m_addSnippets = false; // For type == Type::NormalCompletion
 };
 
