@@ -398,7 +398,29 @@ void SimulatorControlPrivate::startSimulator(QFutureInterface<SimulatorControl::
 {
     SimulatorControl::ResponseData response(simUdid);
     SimulatorInfo simInfo = deviceInfo(simUdid);
-    if (simInfo.available && simInfo.isShutdown()) {
+
+    if (!simInfo.available) {
+        qCDebug(simulatorLog) << "Simulator device is not available." << simUdid;
+        return;
+    }
+
+    // Shutting down state checks are for the case when simulator start is called within a short
+    // interval of closing the previous interval of the simulator. We wait untill the shutdown
+    // process is complete.
+    auto start = chrono::high_resolution_clock::now();
+    while (simInfo.isShuttingDown() && !checkForTimeout(start, SIMULATOR_START_TIMEOUT)) {
+        // Wait till the simulator shuts down, if doing so.
+        QThread::currentThread()->msleep(100);
+        simInfo = deviceInfo(simUdid);
+    }
+
+    if (simInfo.isShuttingDown()) {
+        qCDebug(simulatorLog) << "Can not start Simulator device. "
+                              << "Previous instance taking too long to shutdown." << simInfo;
+        return;
+    }
+
+    if (simInfo.isShutdown()) {
         const QString cmd = IosConfigurations::developerPath()
                 .appendPath(QStringLiteral("/Applications/Simulator.app/Contents/MacOS/Simulator"))
                 .toString();
@@ -410,7 +432,7 @@ void SimulatorControlPrivate::startSimulator(QFutureInterface<SimulatorControl::
             // At this point the sim device exists, available and was not running.
             // So the simulator is started and we'll wait for it to reach to a state
             // where we can interact with it.
-            auto start = chrono::high_resolution_clock::now();
+            start = chrono::high_resolution_clock::now();
             SimulatorInfo info;
             do {
                 info = deviceInfo(simUdid);
@@ -424,6 +446,9 @@ void SimulatorControlPrivate::startSimulator(QFutureInterface<SimulatorControl::
         } else {
             qCDebug(simulatorLog) << "Error starting simulator.";
         }
+    } else {
+       qCDebug(simulatorLog) << "Can not start Simulator device. Simulator not in shutdown state."
+                             << simInfo;
     }
 
     if (!fi.isCanceled()) {
@@ -539,6 +564,14 @@ void SimulatorControlPrivate::takeSceenshot(QFutureInterface<SimulatorControl::R
                                         &response.commandOutput);
     if (!fi.isCanceled())
         fi.reportResult(response);
+}
+
+QDebug &operator<<(QDebug &stream, const SimulatorInfo &info)
+{
+    stream << "Name: " << info.name << "UDID: " << info.identifier
+           << "Availability: " << info.available << "State: " << info.state
+           << "Runtime: " << info.runtimeName;
+    return stream;
 }
 
 } // namespace Internal
