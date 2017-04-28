@@ -391,17 +391,17 @@ QString CMakeBuildStep::cmakeCommand() const
 
 QString CMakeBuildStep::cleanTarget()
 {
-    return "clean";
+    return QString("clean");
 }
 
 QString CMakeBuildStep::allTarget()
 {
-    return "all";
+    return QString("all");
 }
 
 QString CMakeBuildStep::installTarget()
 {
-    return "install";
+    return QString("install");
 }
 
 QStringList CMakeBuildStep::specialTargets()
