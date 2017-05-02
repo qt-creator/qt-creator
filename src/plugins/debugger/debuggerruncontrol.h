@@ -56,6 +56,7 @@ public:
     void prepare() override;
     void start() override;
     void stop() override;
+    void onTargetFailure() override;
 
     void handleFinished();
 

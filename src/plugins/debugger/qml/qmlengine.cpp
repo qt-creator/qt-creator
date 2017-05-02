@@ -337,6 +337,7 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
 
 QmlEngine::~QmlEngine()
 {
+    QObject::disconnect(d->startupMessageFilterConnection);
     QSet<IDocument *> documentsToClose;
 
     QHash<QString, QWeakPointer<BaseTextEditor> >::iterator iter;
@@ -419,6 +420,8 @@ void QmlEngine::beginConnection(Utils::Port port)
         return;
 
     QTC_ASSERT(state() == EngineRunRequested, return);
+
+    QObject::disconnect(d->startupMessageFilterConnection);
 
     QString host = runParameters().qmlServer.host;
     // Use localhost as default

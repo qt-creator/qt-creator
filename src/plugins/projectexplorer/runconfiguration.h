@@ -459,17 +459,29 @@ public:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
     IDevice::ConstPtr device() const;
 
-    virtual void prepare() { reportPrepared(); }
-    virtual void start() { reportStarted(); }
-    virtual void stop() { reportStopped(); }
-
-    virtual void onStop() {}
-    virtual void onFailure() {}
-
+    // Preparation phase.
+    virtual void prepare(); // Initiate setup. Needs to report result.
+    void reportPrepareFailed(const QString &msg = QString());
     void reportPrepared();
+
+    // Startup phase.
+    virtual void start(); // Initiates start. Needs to report result.
+    void reportStartFailed(const QString &msg = QString());
     void reportStarted();
+
+    // Stopping phase.
+    virtual void stop(); // Initiates stop. Needs to report result.
+    void reportStopFailed(const QString &msg = QString());
     void reportStopped();
+
+    // Generic error in uncertain state.
     void reportFailure(const QString &msg = QString());
+
+    // Customization points. No reporting required nor wanted.
+    virtual void onStop() {}
+    virtual void onToolFailure() {}
+    virtual void onTargetFailure() {}
+    virtual void onFinished() {}
 
 private:
     QPointer<RunControl> m_runControl;
@@ -490,17 +502,28 @@ public:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
     IDevice::ConstPtr device() const;
 
-    virtual void prepare() { reportPrepared(); }
-    virtual void start() { reportStarted(); }
-    virtual void stop() { reportStopped(); }
-
-    virtual void onStop() {}
-    virtual void onFailure() {}
-
+    // Preparation phase.
+    virtual void prepare(); // Initiates preparation, needs to report success or failure.
+    void reportPrepareFailed(const QString &msg = QString());
     void reportPrepared();
+
+    // Start phase.
+    virtual void start();
+    void reportStartFailed(const QString &msg = QString());
     void reportStarted();
+
+    // Stop phase.
+    virtual void stop();
+    void reportStopFailed(const QString &msg = QString());
     void reportStopped();
+
+    // Generic error in uncertain state.
     void reportFailure(const QString &msg = QString());
+
+    // Customization points. No reporting required nor wanted.
+    virtual void onStop() {}
+    virtual void onToolFailure() {}
+    virtual void onTargetFailure() {}
 
 private:
     QPointer<RunControl> m_runControl;

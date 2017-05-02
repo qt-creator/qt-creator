@@ -343,7 +343,7 @@ public:
     bool isMasterEngine() const { return m_engine->isMasterEngine(); }
     DebuggerRunTool *runTool() const
         { return m_masterEngine ? m_masterEngine->runTool() : m_runTool.data(); }
-    RunControl *runControl() const { return runTool()->runControl(); }
+    RunControl *runControl() const;
     void setRemoteSetupState(RemoteSetupState state);
 
     DebuggerEngine *m_engine = nullptr; // Not owned.
@@ -1147,6 +1147,12 @@ void DebuggerEnginePrivate::doFinishDebugger()
         m_runTool->debuggingFinished();
 }
 
+RunControl *DebuggerEnginePrivate::runControl() const
+{
+    DebuggerRunTool *tool = runTool();
+    return tool ? tool->runControl() : nullptr;
+}
+
 void DebuggerEnginePrivate::setRemoteSetupState(RemoteSetupState state)
 {
     bool allowedTransition = false;
@@ -1315,6 +1321,7 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
     showMessage(msg, LogDebug);
     updateViews();
 
+    QTC_ASSERT(runTool(), return);
     runTool()->stateChanged(d->m_state);
 
     if (isSlaveEngine())
@@ -1542,9 +1549,7 @@ RunControl *DebuggerEngine::runControl() const
 
 DebuggerRunTool *DebuggerEngine::runTool() const
 {
-//    if (DebuggerRunControl *rc = d->runControl())
-//        return qobject_cast<DebuggerRunTool *>(rc->toolRunner());
-    return d->m_runTool;
+    return d->m_masterEngine ? d->m_masterEngine->runTool() : d->m_runTool.data();
 }
 
 Terminal *DebuggerEngine::terminal() const

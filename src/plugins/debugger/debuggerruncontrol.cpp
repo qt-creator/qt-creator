@@ -182,6 +182,16 @@ void DebuggerRunTool::stop()
     m_engine->quitDebugger();
 }
 
+void DebuggerRunTool::onTargetFailure()
+{
+    if (m_engine->state() == EngineSetupRequested) {
+        RemoteSetupResult result;
+        result.success = false;
+        result.reason = tr("Initial setup failed.");
+        m_engine->notifyEngineRemoteSetupFinished(result);
+    }
+}
+
 void DebuggerRunTool::debuggingFinished()
 {
     runControl()->reportApplicationStop();
