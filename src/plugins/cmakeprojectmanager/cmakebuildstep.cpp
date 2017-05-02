@@ -182,7 +182,7 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
         emit addTask(Task::buildConfigurationMissingTask());
         canInit = false;
     }
-    if (!bc->isEnabled()) {
+    if (bc && !bc->isEnabled()) {
         emit addTask(Task(Task::Error,
                           QCoreApplication::translate("CMakeProjectManager::CMakeBuildStep",
                                                       "The build configuration is currently disabled."),
