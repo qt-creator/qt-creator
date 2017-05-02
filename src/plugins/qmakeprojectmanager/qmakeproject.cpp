@@ -358,14 +358,15 @@ void QmakeProject::updateQmlJSCodeModel()
         projectInfo.activeResourceFiles.append(exactResources);
         projectInfo.allResourceFiles.append(exactResources);
         projectInfo.allResourceFiles.append(cumulativeResources);
+        QString errorMessage;
         foreach (const QString &rc, exactResources) {
             QString contents;
-            if (m_qmakeVfs->readVirtualFile(rc, QMakeVfs::VfsExact, &contents))
+            if (m_qmakeVfs->readFile(rc, QMakeVfs::VfsExact, &contents, &errorMessage) == QMakeVfs::ReadOk)
                 projectInfo.resourceFileContents[rc] = contents;
         }
         foreach (const QString &rc, cumulativeResources) {
             QString contents;
-            if (m_qmakeVfs->readVirtualFile(rc, QMakeVfs::VfsCumulative, &contents))
+            if (m_qmakeVfs->readFile(rc, QMakeVfs::VfsCumulative, &contents, &errorMessage) == QMakeVfs::ReadOk)
                 projectInfo.resourceFileContents[rc] = contents;
         }
         if (!hasQmlLib) {
