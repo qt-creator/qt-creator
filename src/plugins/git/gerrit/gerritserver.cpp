@@ -283,6 +283,7 @@ bool GerritServer::resolveRoot()
             saveSettings(Valid);
             return true;
         case AuthenticationFailure:
+            return setupAuthentication();
         case CertificateError:
             if (QMessageBox::question(
                         Core::ICore::mainWindow(),
@@ -300,7 +301,6 @@ bool GerritServer::resolveRoot()
                 return false;
             }
             break;
-            return setupAuthentication();
         case PageNotFound:
             if (!ascendPath()) {
                 saveSettings(NotGerrit);
