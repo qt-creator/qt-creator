@@ -821,7 +821,7 @@ void DebuggerEngine::notifyEngineSetupOk()
 
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupOk);
-    runTool()->prepared();
+    runTool()->reportPrepared();
 }
 
 void DebuggerEngine::setupSlaveInferior()
