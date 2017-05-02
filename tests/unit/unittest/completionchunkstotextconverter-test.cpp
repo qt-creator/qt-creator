@@ -37,9 +37,6 @@ using Converter = ClangCodeModel::Internal::CompletionChunksToTextConverter;
 class CompletionChunksToTextConverter : public ::testing::Test
 {
 protected:
-    void setupConverterForKeywords();
-
-protected:
     Converter converter;
     CodeCompletionChunk integerResultType{CodeCompletionChunk::ResultType, Utf8StringLiteral("int")};
     CodeCompletionChunk templateResultType{CodeCompletionChunk::ResultType, Utf8StringLiteral("Foo<int>")};
@@ -120,10 +117,8 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneArgumen
     CodeCompletionChunks completionChunks({integerResultType,
                                            functionName,
                                            leftParen,
-                                           functionArgumentX,
+                                            functionArgumentX,
                                            rightParen});
-
-    using ClangCodeModel::Internal::CompletionChunksToTextConverter;
 
     ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks),
                 QStringLiteral("int Function(char x)"));
@@ -139,18 +134,6 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneParamet
 
     ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, 1),
                 QStringLiteral("int Function(<b>char x</b>)"));
-}
-
-TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneParameterAndInInvalidActiveParameter)
-{
-    CodeCompletionChunks completionChunks({integerResultType,
-                                           functionName,
-                                           leftParen,
-                                            functionArgumentX,
-                                           rightParen});
-
-    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, -1),
-                QStringLiteral("int Function(char x)"));
 }
 
 TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTwoParametersWhereOneIsActive)
@@ -214,11 +197,11 @@ TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithOptionalParameter)
     CodeCompletionChunks completionChunks({integerResultType,
                                            functionName,
                                            leftParen,
-                                           functionArgumentX,
-                                           optionalComma,
-                                           optionalFunctionArgumentY,
-                                           optionalComma,
-                                           optionalFunctionArgumentZ,
+                                            functionArgumentX,
+                                            optionalComma,
+                                            optionalFunctionArgumentY,
+                                            optionalComma,
+                                            optionalFunctionArgumentZ,
                                            rightParen});
 
     ASSERT_THAT(Converter::convertToToolTipWithHtml(completionChunks),
@@ -274,18 +257,18 @@ TEST_F(CompletionChunksToTextConverter, Switch)
 TEST_F(CompletionChunksToTextConverter, For)
 {
     CodeCompletionChunks completionChunks({forName,
-                                                   leftParen,
-                                                   initStatement,
-                                                   semicolon,
-                                                   initExpression,
-                                                   semicolon,
-                                                   condition,
-                                                   rightParen,
-                                                   leftBrace,
-                                                   verticalSpace,
-                                                   statements,
-                                                   verticalSpace,
-                                                   rightBrace});
+                                           leftParen,
+                                           initStatement,
+                                           semicolon,
+                                           initExpression,
+                                           semicolon,
+                                           condition,
+                                           rightParen,
+                                           leftBrace,
+                                           verticalSpace,
+                                           statements,
+                                           verticalSpace,
+                                           rightBrace});
     converter.setupForKeywords();
 
     converter.parseChunks(completionChunks);
@@ -296,10 +279,10 @@ TEST_F(CompletionChunksToTextConverter, For)
 TEST_F(CompletionChunksToTextConverter, const_cast)
 {
     CodeCompletionChunks completionChunks({constCastName,
-                                                   leftAngle,
-                                                   rightAngle,
-                                                   leftParen,
-                                                   rightParen});
+                                           leftAngle,
+                                           rightAngle,
+                                           leftParen,
+                                           rightParen});
     converter.setupForKeywords();
 
     converter.parseChunks(completionChunks);
@@ -319,14 +302,14 @@ TEST_F(CompletionChunksToTextConverter, Throw)
 TEST_F(CompletionChunksToTextConverter, ElseIf)
 {
     CodeCompletionChunks completionChunks({elseName,
-                                                   horizontalSpace,
-                                                   ifName,
-                                                   horizontalSpace,
-                                                   leftBrace,
-                                                   verticalSpace,
-                                                   statements,
-                                                   verticalSpace,
-                                                   rightBrace});
+                                           horizontalSpace,
+                                           ifName,
+                                           horizontalSpace,
+                                           leftBrace,
+                                           verticalSpace,
+                                           statements,
+                                           verticalSpace,
+                                           rightBrace});
     converter.setupForKeywords();
 
     converter.parseChunks(completionChunks);
