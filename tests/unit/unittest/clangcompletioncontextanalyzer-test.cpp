@@ -234,21 +234,21 @@ TEST_F(ClangCompletionContextAnalyzer, AtBeginOfArrowWithSpaceInside)
     ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
 }
 
-TEST_F(ClangCompletionContextAnalyzer, ParameteOneAtCall)
+TEST_F(ClangCompletionContextAnalyzer, ArgumentOneAtCall)
 {
     auto analyzer = runAnalyzer("f(@");
 
     ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -2, 0, positionInText));
 }
 
-TEST_F(ClangCompletionContextAnalyzer, ParameteTwoAtCall)
+TEST_F(ClangCompletionContextAnalyzer, ArgumentTwoAtCall)
 {
     auto analyzer = runAnalyzer("f(1,@");
 
     ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -4, -2, positionInText));
 }
 
-TEST_F(ClangCompletionContextAnalyzer, ParameteTwoWithSpaceAtCall)
+TEST_F(ClangCompletionContextAnalyzer, ArgumentTwoWithSpaceAtCall)
 {
     auto analyzer = runAnalyzer("f(1, @");
 
@@ -269,28 +269,28 @@ TEST_F(ClangCompletionContextAnalyzer, AfterOpeningParenthesis)
     ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
 }
 
-TEST_F(ClangCompletionContextAnalyzer, ParameteOneAtSignal)
+TEST_F(ClangCompletionContextAnalyzer, ArgumentOneAtSignal)
 {
     auto analyzer = runAnalyzer("SIGNAL(@");
 
     ASSERT_THAT(analyzer, HasResult(CCA::CompleteSignal, 0, 0, positionInText));
 }
 
-TEST_F(ClangCompletionContextAnalyzer, ParameteOneWithLettersAtSignal)
+TEST_F(ClangCompletionContextAnalyzer, ArgumentOneWithLettersAtSignal)
 {
     auto analyzer = runAnalyzer("SIGNAL(foo@");
 
     ASSERT_THAT(analyzer, HasResult(CCA::CompleteSignal, -3, -3, positionInText));
 }
 
-TEST_F(ClangCompletionContextAnalyzer, ParameteOneAtSlot)
+TEST_F(ClangCompletionContextAnalyzer, ArgumentOneAtSlot)
 {
     auto analyzer = runAnalyzer("SLOT(@");
 
     ASSERT_THAT(analyzer, HasResult(CCA::CompleteSlot, -0, 0, positionInText));
 }
 
-TEST_F(ClangCompletionContextAnalyzer, ParameteOneWithLettersAtSlot)
+TEST_F(ClangCompletionContextAnalyzer, ArgumentOneWithLettersAtSlot)
 {
     auto analyzer = runAnalyzer("SLOT(foo@");
 
