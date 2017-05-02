@@ -418,10 +418,10 @@ public:
     void reportApplicationStart(); // Call this when the application starts to run
     void reportApplicationStop(); // Call this when the application has stopped for any reason
 
-    bool showPromptToStopDialog(const QString &title, const QString &text,
-                                const QString &stopButtonText = QString(),
-                                const QString &cancelButtonText = QString(),
-                                bool *prompt = nullptr) const;
+    static bool showPromptToStopDialog(const QString &title, const QString &text,
+                                       const QString &stopButtonText = QString(),
+                                       const QString &cancelButtonText = QString(),
+                                       bool *prompt = nullptr);
 
     virtual void start();
     virtual void stop();

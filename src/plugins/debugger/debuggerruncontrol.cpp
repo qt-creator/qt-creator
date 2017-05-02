@@ -483,16 +483,14 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParame
     runControl->setSupportsReRunning(!(m_rp.languages & QmlLanguage));
 
     runControl->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
-    runControl->setPromptToStop([&](bool *optionalPrompt) {
-        const QString question = tr("A debugging session is still in progress. "
-                                    "Terminating the session in the current"
-                                    " state can leave the target in an inconsistent state."
-                                    " Would you still like to terminate it?");
-        bool result = runControl->showPromptToStopDialog(tr("Close Debugging Session"),
-                             question, QString(), QString(), optionalPrompt);
-        if (result)
-            disconnect(this);
-        return result;
+    runControl->setPromptToStop([](bool *optionalPrompt) {
+        return RunControl::showPromptToStopDialog(
+            DebuggerRunTool::tr("Close Debugging Session"),
+            DebuggerRunTool::tr("A debugging session is still in progress. "
+                                "Terminating the session in the current"
+                                " state can leave the target in an inconsistent state."
+                                " Would you still like to terminate it?"),
+                QString(), QString(), optionalPrompt);
     });
 
     if (Internal::fixupParameters(m_rp, runControl, m_errors)) {

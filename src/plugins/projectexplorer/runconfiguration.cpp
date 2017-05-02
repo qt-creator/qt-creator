@@ -905,9 +905,8 @@ bool RunControl::showPromptToStopDialog(const QString &title,
                                         const QString &text,
                                         const QString &stopButtonText,
                                         const QString &cancelButtonText,
-                                        bool *prompt) const
+                                        bool *prompt)
 {
-    QTC_ASSERT(isRunning(), return true);
     // Show a question message box where user can uncheck this
     // question for this class.
     Utils::CheckableMessageBox messageBox(Core::ICore::mainWindow());
