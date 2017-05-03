@@ -155,7 +155,7 @@ Debugger_LogWindow_LogTime=ffbf0303
 
 Debugger_WatchItem_ValueNormal=text
 Debugger_WatchItem_ValueInvalid=textDisabled
-Debugger_WatchItem_ValueChanged=ffbf0303
+Debugger_WatchItem_ValueChanged=ffff6666
 
 Debugger_Breakpoint_TextMarkColor=ffff4040
 
