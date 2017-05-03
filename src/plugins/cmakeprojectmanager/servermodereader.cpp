@@ -735,7 +735,7 @@ void ServerModeReader::addHeaderNodes(ProjectNode *root, const QList<FileNode *>
         const int count = seenHeaders.count();
         seenHeaders.insert(fn->filePath());
         if (seenHeaders.count() != count) {
-            auto node = new FileNode(*fn);
+            auto node = fn->clone();
             node->setEnabled(false);
             headerNode->addNestedNode(node);
         }

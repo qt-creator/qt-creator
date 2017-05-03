@@ -168,7 +168,8 @@ class PROJECTEXPLORER_EXPORT FileNode : public Node
 {
 public:
     FileNode(const Utils::FileName &filePath, const FileType fileType, bool generated, int line = -1);
-    FileNode(const FileNode &other) : FileNode(other.filePath(), other.fileType(), true) {}
+
+    FileNode *clone() const;
 
     FileType fileType() const;
     bool isGenerated() const;

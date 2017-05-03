@@ -287,6 +287,14 @@ FileNode::FileNode(const Utils::FileName &filePath,
         setPriority(DefaultFilePriority);
 }
 
+FileNode *FileNode::clone() const
+{
+    auto fn = new FileNode(filePath(), fileType(), isGenerated(), line());
+    fn->setEnabled(isEnabled());
+    fn->setPriority(priority());
+    return fn;
+}
+
 FileType FileNode::fileType() const
 {
     return m_fileType;
