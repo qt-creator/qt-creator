@@ -219,6 +219,13 @@
 
     \image qmldesigner-element-properties.png
 
+    To change the item type, double-click the \uicontrol Type field in the
+    \uicontrol Properties pane, and enter the name of another QML type in the
+    field. If you have specified properties for the item that are not supported
+    for the new type, the type cannot be changed and an error message is
+    displayed. Remove the properties in the \uicontrol {Text Editor} and try
+    again.
+
     To return an item to its implicit position after moving it, select the
     \inlineimage qtcreator-reset-position-icon.png
     (\uicontrol {Reset Position}) button on the toolbar. To return it to its
