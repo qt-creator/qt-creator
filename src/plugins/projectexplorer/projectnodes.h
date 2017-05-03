@@ -129,6 +129,7 @@ public:
     virtual QString displayName() const;
     virtual QString tooltip() const;
     bool isEnabled() const;
+    bool isGenerated() const;
 
     virtual bool supportsAction(ProjectAction action, Node *node) const;
 
@@ -154,6 +155,7 @@ protected:
     Node(NodeType nodeType, const Utils::FileName &filePath, int line = -1);
 
     void setPriority(int priority);
+    void setIsGenerated(bool g);
 
 private:
     FolderNode *m_parentFolderNode = nullptr;
@@ -164,6 +166,7 @@ private:
     enum NodeFlag : quint16 {
         FlagNone = 0,
         FlagIsEnabled = 1 << 0,
+        FlagIsGenerated = 1 << 1,
     };
     using NodeFlags = QFlags<NodeFlag>;
     NodeFlags m_flags = FlagIsEnabled;
@@ -177,7 +180,6 @@ public:
     FileNode *clone() const;
 
     FileType fileType() const;
-    bool isGenerated() const;
 
     FileNode *asFileNode() final { return this; }
     const FileNode *asFileNode() const final { return this; }
@@ -189,7 +191,6 @@ public:
 
 private:
     FileType m_fileType;
-    bool m_generated;
 };
 
 // Documentation inside.
