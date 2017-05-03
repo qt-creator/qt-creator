@@ -65,6 +65,11 @@ TranslationUnit TranslationUnits::createAndAppend()
     return toTranslationUnit(m_units.last());
 }
 
+void TranslationUnits::removeAll()
+{
+    m_units.clear();
+}
+
 TranslationUnit TranslationUnits::get(PreferredTranslationUnit type)
 {
     if (m_units.isEmpty())

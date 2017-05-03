@@ -322,8 +322,9 @@ TEST_F(Document, SetDirtyIfProjectPartIsOutdated)
     document.parse();
     projects.createOrUpdate({ProjectPartContainer(projectPartId, {Utf8StringLiteral("-DNEW")})});
 
-    document.setDirtyIfProjectPartIsOutdated();
+    const bool wasOutdated = document.setDirtyIfProjectPartIsOutdated();
 
+    ASSERT_TRUE(wasOutdated);
     ASSERT_TRUE(document.isDirty());
 }
 
@@ -331,8 +332,9 @@ TEST_F(DocumentSlowTest, SetNotDirtyIfProjectPartIsNotOutdated)
 {
     document.parse();
 
-    document.setDirtyIfProjectPartIsOutdated();
+    const bool wasOutdated = document.setDirtyIfProjectPartIsOutdated();
 
+    ASSERT_FALSE(wasOutdated);
     ASSERT_FALSE(document.isDirty());
 }
 

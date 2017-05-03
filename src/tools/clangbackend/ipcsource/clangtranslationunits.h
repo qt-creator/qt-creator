@@ -60,6 +60,7 @@ public:
     TranslationUnits(const Utf8String &filePath);
 
     TranslationUnit createAndAppend();
+    void removeAll();
     TranslationUnit get(PreferredTranslationUnit type = PreferredTranslationUnit::RecentlyParsed);
     void updateParseTimePoint(const Utf8String &translationUnitId, TimePoint timePoint);
 

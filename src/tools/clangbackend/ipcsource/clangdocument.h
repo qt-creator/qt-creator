@@ -102,7 +102,7 @@ public:
 
     bool isDirty() const;
     TimePoint isDirtyTimeChangePoint() const;
-    void setDirtyIfProjectPartIsOutdated();
+    bool setDirtyIfProjectPartIsOutdated();
     void setDirtyIfDependencyIsMet(const Utf8String &filePath);
 
     TranslationUnitUpdateInput createUpdateInput() const;

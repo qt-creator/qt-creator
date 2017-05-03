@@ -402,6 +402,29 @@ TEST_F(Documents, IsNotVisibleEditorAfterBeingVisible)
     ASSERT_FALSE(document.isVisibleInEditor());
 }
 
+TEST_F(Documents, SetDocumentsDirtyIfProjectPartChanged)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    const auto createdDocuments = documents.create({fileContainer});
+    ClangBackEnd::FileContainer fileContainerWithOtherProject(filePath, otherProjectPartId, Utf8StringVector(), 74u);
+    documents.create({fileContainerWithOtherProject});
+    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
+
+    const auto notDirtyBefore = documents.setDocumentsDirtyIfProjectPartChanged();
+
+    ASSERT_THAT(notDirtyBefore, createdDocuments);
+}
+
+TEST_F(Documents, SetDocumentsDirtyIfProjectPartChangedReturnsEmpty)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    documents.create({fileContainer});
+
+    const auto notDirtyBefore = documents.setDocumentsDirtyIfProjectPartChanged();
+
+    ASSERT_TRUE(notDirtyBefore.empty());
+}
+
 void Documents::SetUp()
 {
     projects.createOrUpdate({ProjectPartContainer(projectPartId)});

@@ -273,10 +273,14 @@ TimePoint Document::isDirtyTimeChangePoint() const
     return d->isDirtyChangeTimePoint;
 }
 
-void Document::setDirtyIfProjectPartIsOutdated()
+bool Document::setDirtyIfProjectPartIsOutdated()
 {
-    if (isProjectPartOutdated())
+    if (isProjectPartOutdated()) {
         setDirty();
+        return true;
+    }
+
+    return false;
 }
 
 void Document::setDirtyIfDependencyIsMet(const Utf8String &filePath)

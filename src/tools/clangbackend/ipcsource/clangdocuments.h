@@ -68,7 +68,7 @@ public:
 
     void updateDocumentsWithChangedDependency(const Utf8String &filePath);
     void updateDocumentsWithChangedDependencies(const QVector<FileContainer> &fileContainers);
-    void setDocumentsDirtyIfProjectPartChanged();
+    std::vector<Document> setDocumentsDirtyIfProjectPartChanged();
 
     QVector<FileContainer> newerFileContainers(const QVector<FileContainer> &fileContainers) const;
 

@@ -185,10 +185,16 @@ void Documents::updateDocumentsWithChangedDependencies(const QVector<FileContain
         updateDocumentsWithChangedDependency(fileContainer.filePath());
 }
 
-void Documents::setDocumentsDirtyIfProjectPartChanged()
+std::vector<Document> Documents::setDocumentsDirtyIfProjectPartChanged()
 {
-    for (auto &document : documents_)
-        document.setDirtyIfProjectPartIsOutdated();
+    std::vector<Document> notDirtyBefore;
+
+    for (auto &document : documents_) {
+        if (!document.isDirty() && document.setDirtyIfProjectPartIsOutdated())
+            notDirtyBefore.push_back(document);
+    }
+
+    return notDirtyBefore;
 }
 
 QVector<FileContainer> Documents::newerFileContainers(const QVector<FileContainer> &fileContainers) const

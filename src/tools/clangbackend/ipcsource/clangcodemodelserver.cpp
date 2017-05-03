@@ -50,6 +50,7 @@
 #include <updatetranslationunitsforeditormessage.h>
 #include <updatevisibletranslationunitsmessage.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -155,7 +156,16 @@ void ClangCodeModelServer::registerProjectPartsForEditor(const RegisterProjectPa
 
     try {
         projects.createOrUpdate(message.projectContainers());
-        documents.setDocumentsDirtyIfProjectPartChanged();
+        std::vector<Document> affectedDocuments = documents.setDocumentsDirtyIfProjectPartChanged();
+
+        for (Document &document : affectedDocuments) {
+            document.setResponsivenessIncreaseNeeded(document.isResponsivenessIncreased());
+
+            documentProcessors().remove(document);
+            document.translationUnits().removeAll();
+            document.translationUnits().createAndAppend();
+            documentProcessors().create(document);
+        }
 
         processJobsForDirtyAndVisibleDocuments();
     } catch (const std::exception &exception) {
