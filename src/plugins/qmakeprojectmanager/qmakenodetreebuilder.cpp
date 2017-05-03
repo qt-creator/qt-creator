@@ -168,7 +168,8 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node)
                     // If the cumulative evaluation botched the file too much, try the exact one.
                     if (contents.isEmpty())
                         vfs->readVirtualFile(file.toString(), QMakeVfs::VfsExact, &contents);
-                    auto resourceNode = new ResourceEditor::ResourceTopLevelNode(file, contents, vfolder);
+                    auto resourceNode
+                            = new ResourceEditor::ResourceTopLevelNode(file, false, contents, vfolder);
                     vfolder->addNode(resourceNode);
                 }
             } else {

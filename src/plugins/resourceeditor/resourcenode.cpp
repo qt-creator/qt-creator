@@ -70,7 +70,7 @@ public:
     {
         if (type == TypePermissions)
             return true;
-        auto newNode = new ResourceTopLevelNode(m_node->filePath(), m_node->contents(),
+        auto newNode = new ResourceTopLevelNode(m_node->filePath(), false, m_node->contents(),
                                                 m_node->parentFolderNode());
         m_node->parentFolderNode()->replaceSubtree(m_node, newNode);
         return true;
@@ -263,10 +263,11 @@ bool SimpleResourceFolderNode::renameFile(const QString &filePath, const QString
 
 } // Internal
 
-ResourceTopLevelNode::ResourceTopLevelNode(const FileName &filePath, const QString &contents,
-                                           FolderNode *parent)
+ResourceTopLevelNode::ResourceTopLevelNode(const FileName &filePath, bool generated,
+                                           const QString &contents, FolderNode *parent)
     : FolderNode(filePath)
 {
+    setIsGenerated(generated);
     setIcon(FileIconProvider::icon(filePath.toString()));
     if (contents.isEmpty()) {
         m_document = new ResourceFileWatcher(this);
