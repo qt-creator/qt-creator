@@ -108,13 +108,15 @@ TEST_F(Document, DefaultDocumentIsNotIntact)
 
 TEST_F(Document, ThrowExceptionForNonExistingFilePath)
 {
-    ASSERT_THROW(::Document(Utf8StringLiteral("file.cpp"), projectPart, Utf8StringVector(), documents),
+    ASSERT_THROW(::Document(Utf8StringLiteral("file.cpp"), projectPart, Utf8StringVector(),
+                            documents),
                  ClangBackEnd::DocumentFileDoesNotExistException);
 }
 
 TEST_F(Document, ThrowNoExceptionForNonExistingFilePathIfDoNotCheckIfFileExistsIsSet)
 {
-    ASSERT_NO_THROW(::Document(Utf8StringLiteral("file.cpp"), projectPart, Utf8StringVector(), documents, ::Document::DoNotCheckIfFileExists));
+    ASSERT_NO_THROW(::Document(Utf8StringLiteral("file.cpp"), projectPart, Utf8StringVector(),
+                               documents, ::Document::FileExistsCheck::DoNotCheck));
 }
 
 TEST_F(Document, DocumentIsValid)

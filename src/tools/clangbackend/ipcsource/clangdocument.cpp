@@ -107,7 +107,7 @@ Document::Document(const Utf8String &filePath,
                                        fileArguments,
                                        documents))
 {
-    if (fileExistsCheck == CheckIfFileExists)
+    if (fileExistsCheck == FileExistsCheck::Check)
         checkIfFileExists();
 }
 

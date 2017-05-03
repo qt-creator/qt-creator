@@ -54,9 +54,9 @@ class Documents;
 class Document
 {
 public:
-    enum FileExistsCheck {
-        CheckIfFileExists,
-        DoNotCheckIfFileExists
+    enum class FileExistsCheck {
+        Check,
+        DoNotCheck
     };
 
     Document() = default;
@@ -64,7 +64,7 @@ public:
              const ProjectPart &projectPart,
              const Utf8StringVector &fileArguments,
              Documents &documents,
-             FileExistsCheck fileExistsCheck = CheckIfFileExists);
+             FileExistsCheck fileExistsCheck = FileExistsCheck::Check);
     ~Document();
 
     Document(const Document &cxTranslationUnit);

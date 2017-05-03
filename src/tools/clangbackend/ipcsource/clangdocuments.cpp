@@ -218,7 +218,9 @@ const ClangFileSystemWatcher *Documents::clangFileSystemWatcher() const
 
 Document Documents::createDocument(const FileContainer &fileContainer)
 {
-    Document::FileExistsCheck checkIfFileExists = fileContainer.hasUnsavedFileContent() ? Document::DoNotCheckIfFileExists : Document::CheckIfFileExists;
+    const Document::FileExistsCheck checkIfFileExists = fileContainer.hasUnsavedFileContent()
+            ? Document::FileExistsCheck::DoNotCheck
+            : Document::FileExistsCheck::Check;
 
     documents_.emplace_back(fileContainer.filePath(),
                                    projectParts.project(fileContainer.projectPartId()),
