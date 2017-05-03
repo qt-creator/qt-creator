@@ -470,7 +470,7 @@ void FolderNode::forEachGenericNode(const std::function<void(Node *)> &genericTa
     for (Node *n : m_nodes) {
         genericTask(n);
         if (FolderNode *fn = n->asFolderNode())
-            fn->forEachNode(genericTask);
+            fn->forEachGenericNode(genericTask);
     }
 }
 
