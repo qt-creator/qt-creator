@@ -161,7 +161,12 @@ private:
     int m_line = -1;
     int m_priority = DefaultPriority;
     const NodeType m_nodeType;
-    bool m_isEnabled = true;
+    enum NodeFlag : quint16 {
+        FlagNone = 0,
+        FlagIsEnabled = 1 << 0,
+    };
+    using NodeFlags = QFlags<NodeFlag>;
+    NodeFlags m_flags = FlagIsEnabled;
 };
 
 class PROJECTEXPLORER_EXPORT FileNode : public Node

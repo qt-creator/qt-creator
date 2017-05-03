@@ -209,7 +209,7 @@ QString Node::tooltip() const
 
 bool Node::isEnabled() const
 {
-    if (!m_isEnabled)
+    if (!m_flags.testFlag(FlagIsEnabled))
         return false;
     FolderNode *parent = parentFolderNode();
     return parent ? parent->isEnabled() : true;
@@ -222,9 +222,7 @@ bool Node::supportsAction(ProjectAction, Node *) const
 
 void Node::setEnabled(bool enabled)
 {
-    if (m_isEnabled == enabled)
-        return;
-    m_isEnabled = enabled;
+    m_flags.setFlag(FlagIsEnabled, enabled);
 }
 
 bool Node::sortByPath(const Node *a, const Node *b)
