@@ -47,8 +47,8 @@ namespace ProjectExplorer {
 class BuildInfo;
 class ContainerNode;
 class EditorConfiguration;
-class FileNode;
 class NamedWidget;
+class Node;
 class ProjectImporter;
 class ProjectNode;
 class ProjectPrivate;
@@ -133,7 +133,7 @@ public:
         AllFiles       = SourceFiles | GeneratedFiles
     };
     QStringList files(FilesMode fileMode,
-                      const std::function<bool(const FileNode *)> &filter = {}) const;
+                      const std::function<bool(const Node *)> &filter = {}) const;
     virtual QStringList filesGeneratedFrom(const QString &sourceFile) const;
 
     static QString makeUnique(const QString &preferredName, const QStringList &usedNames);

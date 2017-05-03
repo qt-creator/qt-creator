@@ -129,6 +129,7 @@ public:
     virtual QString displayName() const;
     virtual QString tooltip() const;
     bool isEnabled() const;
+    bool listInProject() const;
     bool isGenerated() const;
 
     virtual bool supportsAction(ProjectAction action, Node *node) const;
@@ -155,6 +156,7 @@ protected:
     Node(NodeType nodeType, const Utils::FileName &filePath, int line = -1);
 
     void setPriority(int priority);
+    void setListInProject(bool l);
     void setIsGenerated(bool g);
 
 private:
@@ -167,6 +169,7 @@ private:
         FlagNone = 0,
         FlagIsEnabled = 1 << 0,
         FlagIsGenerated = 1 << 1,
+        FlagListInProject = 1 << 2,
     };
     using NodeFlags = QFlags<NodeFlag>;
     NodeFlags m_flags = FlagIsEnabled;

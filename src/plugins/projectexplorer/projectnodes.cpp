@@ -127,6 +127,11 @@ void Node::setPriority(int p)
     m_priority = p;
 }
 
+void Node::setListInProject(bool l)
+{
+    m_flags.setFlag(FlagListInProject, l);
+}
+
 void Node::setIsGenerated(bool g)
 {
     m_flags.setFlag(FlagIsGenerated, g);
@@ -151,6 +156,14 @@ NodeType Node::nodeType() const
 int Node::priority() const
 {
     return m_priority;
+}
+
+/*!
+  Returns \c true if the Node should be listed as part of the projects file list.
+  */
+bool Node::listInProject() const
+{
+    return m_flags.testFlag(FlagListInProject);
 }
 
 /*!
@@ -291,6 +304,7 @@ FileNode::FileNode(const Utils::FileName &filePath,
                    bool generated, int line) : Node(NodeType::File, filePath, line),
     m_fileType(fileType)
 {
+    setListInProject(true);
     setIsGenerated(generated);
     if (fileType == FileType::Project)
         setPriority(DefaultProjectFilePriority);
@@ -303,6 +317,7 @@ FileNode *FileNode::clone() const
     auto fn = new FileNode(filePath(), fileType(), isGenerated(), line());
     fn->setEnabled(isEnabled());
     fn->setPriority(priority());
+    fn->setListInProject(listInProject());
     return fn;
 }
 
@@ -390,6 +405,7 @@ FolderNode::FolderNode(const Utils::FileName &folderPath, NodeType nodeType, con
     m_displayName(displayName)
 {
     setPriority(DefaultFolderPriority);
+    setListInProject(false);
     setIsGenerated(false);
     if (m_displayName.isEmpty())
         m_displayName = folderPath.toUserOutput();
