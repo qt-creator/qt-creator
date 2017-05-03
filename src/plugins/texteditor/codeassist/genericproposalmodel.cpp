@@ -141,6 +141,7 @@ void GenericProposalModel::loadContent(const QList<AssistProposalItemInterface *
 {
     m_originalItems = items;
     m_currentItems = items;
+    m_duplicatesRemoved = false;
     for (int i = 0; i < m_originalItems.size(); ++i)
         m_idByText.insert(m_originalItems.at(i)->text(), i);
 }
@@ -229,6 +230,9 @@ QString GenericProposalModel::detail(int index) const
 
 void GenericProposalModel::removeDuplicates()
 {
+    if (m_duplicatesRemoved)
+        return;
+
     QHash<QString, quint64> unique;
     auto it = m_originalItems.begin();
     while (it != m_originalItems.end()) {
@@ -242,6 +246,8 @@ void GenericProposalModel::removeDuplicates()
             ++it;
         }
     }
+
+    m_duplicatesRemoved = true;
 }
 
 void GenericProposalModel::filter(const QString &prefix)

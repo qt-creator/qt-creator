@@ -78,5 +78,6 @@ private:
     QHash<QString, int> m_idByText;
     QList<AssistProposalItemInterface *> m_originalItems;
     QString m_prefilterPrefix;
+    bool m_duplicatesRemoved = false;
 };
 } // TextEditor

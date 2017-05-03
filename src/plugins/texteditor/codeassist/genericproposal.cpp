@@ -52,6 +52,8 @@ bool GenericProposal::isFragile() const
 bool GenericProposal::hasItemsToPropose(const QString &prefix, AssistReason reason) const
 {
     if (!prefix.isEmpty()) {
+        if (m_model->containsDuplicates())
+            m_model->removeDuplicates();
         m_model->filter(prefix);
         m_model->setPrefilterPrefix(prefix);
     }
