@@ -27,10 +27,8 @@
 
 #include "remotelinuxrunconfiguration.h"
 
-#include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerkitinformation.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
@@ -56,14 +54,6 @@ namespace Internal {
 class LinuxDeviceDebugSupportPrivate
 {
 public:
-    LinuxDeviceDebugSupportPrivate(const RunConfiguration *runConfig)
-        : qmlDebugging(runConfig->extraAspect<DebuggerRunConfigurationAspect>()->useQmlDebugger()),
-          cppDebugging(runConfig->extraAspect<DebuggerRunConfigurationAspect>()->useCppDebugger())
-    {
-    }
-
-    bool qmlDebugging;
-    bool cppDebugging;
     QByteArray gdbserverOutput;
     Port gdbServerPort;
     Port qmlPort;
@@ -77,7 +67,7 @@ LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl,
                                                  const Debugger::DebuggerStartParameters &sp,
                                                  QString *errorMessage)
     : DebuggerRunTool(runControl, sp, errorMessage),
-      d(new LinuxDeviceDebugSupportPrivate(runControl->runConfiguration()))
+      d(new LinuxDeviceDebugSupportPrivate)
 {
     connect(this, &DebuggerRunTool::requestRemoteSetup,
             this, &LinuxDeviceDebugSupport::handleRemoteSetupRequested);
@@ -95,16 +85,6 @@ LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl,
 LinuxDeviceDebugSupport::~LinuxDeviceDebugSupport()
 {
     delete d;
-}
-
-bool LinuxDeviceDebugSupport::isCppDebugging() const
-{
-    return d->cppDebugging;
-}
-
-bool LinuxDeviceDebugSupport::isQmlDebugging() const
-{
-    return d->qmlDebugging;
 }
 
 AbstractRemoteLinuxRunSupport *LinuxDeviceDebugSupport::targetRunner() const
@@ -130,14 +110,14 @@ void LinuxDeviceDebugSupport::startExecution()
 {
     QTC_ASSERT(state() == AbstractRemoteLinuxRunSupport::GatheringResources, return);
 
-    if (d->cppDebugging) {
+    if (isCppDebugging()) {
         d->gdbServerPort = targetRunner()->findPort();
         if (!d->gdbServerPort.isValid()) {
             handleAdapterSetupFailed(tr("Not enough free ports on device for C++ debugging."));
             return;
         }
     }
-    if (d->qmlDebugging) {
+    if (isQmlDebugging()) {
         d->qmlPort = targetRunner()->findPort();
         if (!d->qmlPort.isValid()) {
             handleAdapterSetupFailed(tr("Not enough free ports on device for QML debugging."));
@@ -159,7 +139,7 @@ void LinuxDeviceDebugSupport::startExecution()
             this, &LinuxDeviceDebugSupport::handleProgressReport);
     connect(launcher, &ApplicationLauncher::reportError,
             this, &LinuxDeviceDebugSupport::handleAppRunnerError);
-    if (d->qmlDebugging && !d->cppDebugging)
+    if (isQmlDebugging() && !isCppDebugging())
         connect(launcher, &ApplicationLauncher::remoteProcessStarted,
                 this, &LinuxDeviceDebugSupport::handleRemoteProcessStarted);
 
@@ -172,10 +152,10 @@ Runnable LinuxDeviceDebugSupport::realRunnable() const
     QStringList args = QtcProcess::splitArgs(r.commandLineArguments, OsTypeLinux);
     QString command;
 
-    if (d->qmlDebugging)
+    if (isQmlDebugging())
         args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices, d->qmlPort));
 
-    if (d->qmlDebugging && !d->cppDebugging) {
+    if (isQmlDebugging() && !isCppDebugging()) {
         command = r.executable;
     } else {
         command = device()->debugServerPath();
@@ -207,7 +187,7 @@ void LinuxDeviceDebugSupport::handleAppRunnerFinished(bool success)
 
     if (state() == AbstractRemoteLinuxRunSupport::Running) {
         // The QML engine does not realize on its own that the application has finished.
-        if (d->qmlDebugging && !d->cppDebugging)
+        if (isQmlDebugging() && !isCppDebugging())
             quitDebugger();
         else if (!success)
             notifyInferiorIll();
@@ -240,7 +220,7 @@ void LinuxDeviceDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
     QTC_ASSERT(state() != AbstractRemoteLinuxRunSupport::GatheringResources, return);
 
     showMessage(QString::fromUtf8(output), AppError);
-    if (state() == AbstractRemoteLinuxRunSupport::StartingRunner && d->cppDebugging) {
+    if (state() == AbstractRemoteLinuxRunSupport::StartingRunner && isCppDebugging()) {
         d->gdbserverOutput += output;
         if (d->gdbserverOutput.contains("Listening on port")) {
             handleAdapterSetupDone();
@@ -275,7 +255,7 @@ void LinuxDeviceDebugSupport::handleAdapterSetupDone()
 
 void LinuxDeviceDebugSupport::handleRemoteProcessStarted()
 {
-    QTC_ASSERT(d->qmlDebugging && !d->cppDebugging, return);
+    QTC_ASSERT(isQmlDebugging() && !isCppDebugging(), return);
     QTC_ASSERT(state() == AbstractRemoteLinuxRunSupport::StartingRunner, return);
 
     handleAdapterSetupDone();

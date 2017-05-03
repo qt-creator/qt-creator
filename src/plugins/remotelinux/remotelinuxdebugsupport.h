@@ -45,8 +45,6 @@ public:
 
 protected:
     virtual ProjectExplorer::Runnable realRunnable() const;
-    bool isCppDebugging() const;
-    bool isQmlDebugging() const;
 
 private:
     void startExecution();

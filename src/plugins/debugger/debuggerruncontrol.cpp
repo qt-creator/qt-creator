@@ -477,23 +477,47 @@ static bool isDebuggableScript(RunConfiguration *runConfig)
     return mainScript.endsWith(".py"); // Only Python for now.
 }
 
+static DebuggerRunConfigurationAspect *debuggerAspect(const RunControl *runControl)
+{
+    return runControl->runConfiguration()->extraAspect<DebuggerRunConfigurationAspect>();
+}
+
 /// DebuggerRunTool
 
+DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
+    : ToolRunner(runControl),
+      m_isCppDebugging(debuggerAspect(runControl)->useCppDebugger()),
+      m_isQmlDebugging(debuggerAspect(runControl)->useQmlDebugger())
+{
+}
+
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerStartParameters &sp, QString *errorMessage)
-    : DebuggerRunTool(runControl, DebuggerRunParameters(sp), errorMessage)
-{}
+    : DebuggerRunTool(runControl)
+{
+    setStartParameters(sp, errorMessage);
+}
 
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParameters &rp, QString *errorMessage)
-    : ToolRunner(runControl)
+    : DebuggerRunTool(runControl)
+{
+    setRunParameters(rp, errorMessage);
+}
+
+void DebuggerRunTool::setStartParameters(const DebuggerStartParameters &sp, QString *errorMessage)
+{
+    setRunParameters(sp, errorMessage);
+}
+
+void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp, QString *errorMessage)
 {
     DebuggerRunParameters m_rp = rp;
 
-    runControl->setDisplayName(m_rp.displayName);
+    runControl()->setDisplayName(m_rp.displayName);
     // QML and/or mixed are not prepared for it.
-    runControl->setSupportsReRunning(!(m_rp.languages & QmlLanguage));
+    runControl()->setSupportsReRunning(!(m_rp.languages & QmlLanguage));
 
-    runControl->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
-    runControl->setPromptToStop([](bool *optionalPrompt) {
+    runControl()->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
+    runControl()->setPromptToStop([](bool *optionalPrompt) {
         return RunControl::showPromptToStopDialog(
             DebuggerRunTool::tr("Close Debugging Session"),
             DebuggerRunTool::tr("A debugging session is still in progress. "
@@ -503,7 +527,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParame
                 QString(), QString(), optionalPrompt);
     });
 
-    if (Internal::fixupParameters(m_rp, runControl, m_errors)) {
+    if (Internal::fixupParameters(m_rp, runControl(), m_errors)) {
         m_engine = createEngine(m_rp.masterEngineType, m_rp, &m_errors);
         if (!m_engine) {
             QString msg = m_errors.join('\n');
@@ -515,7 +539,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParame
 
     m_engine->setRunTool(this);
 
-    connect(runControl, &RunControl::finished,
+    connect(runControl(), &RunControl::finished,
             this, &DebuggerRunTool::handleFinished);
 }
 

@@ -41,13 +41,20 @@ class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::ToolRunner
     Q_OBJECT
 
 public:
+    DebuggerRunTool(ProjectExplorer::RunControl *runControl); // Use.
+
     DebuggerRunTool(ProjectExplorer::RunControl *runControl,
                     const DebuggerStartParameters &sp,
-                    QString *errorMessage = nullptr); // Use.
+                    QString *errorMessage = nullptr); // Use rarely.
     DebuggerRunTool(ProjectExplorer::RunControl *runControl,
                     const Internal::DebuggerRunParameters &rp,
                     QString *errorMessage = nullptr); // FIXME: Don't use.
     ~DebuggerRunTool();
+
+    void setStartParameters(const DebuggerStartParameters &sp,
+                            QString *errorMessage = nullptr); // Use rarely.
+    void setRunParameters(const Internal::DebuggerRunParameters &rp,
+                          QString *errorMessage = nullptr); // FIXME: Don't use.
 
     Internal::DebuggerEngine *engine() const { return m_engine; }
 
@@ -71,6 +78,9 @@ public:
 
     DebuggerStartParameters &startParameters(); // Used in Boot2Qt.
 
+    bool isCppDebugging() const { return m_isCppDebugging; }
+    bool isQmlDebugging() const { return m_isQmlDebugging; }
+
 signals:
     void stateChanged(Debugger::DebuggerState state);
     void aboutToNotifyInferiorSetupOk();
@@ -79,6 +89,8 @@ signals:
 private:
     Internal::DebuggerEngine *m_engine = nullptr; // Master engine
     QStringList m_errors;
+    const bool m_isCppDebugging;
+    const bool m_isQmlDebugging;
 };
 
 } // namespace Debugger
