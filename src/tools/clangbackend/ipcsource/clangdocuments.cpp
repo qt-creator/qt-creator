@@ -157,7 +157,7 @@ const std::vector<Document> Documents::filtered(const IsMatchingDocument &isMatc
 std::vector<Document> Documents::dirtyAndVisibleButNotCurrentDocuments() const
 {
     return filtered([](const Document &document) {
-        return document.isNeedingReparse()
+        return document.isDirty()
             && document.isVisibleInEditor()
             && !document.isUsedByCurrentEditor();
     });

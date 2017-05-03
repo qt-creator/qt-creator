@@ -96,7 +96,8 @@ public:
     bool isVisibleInEditor() const;
     void setIsVisibleInEditor(bool isVisibleInEditor);
 
-    bool isNeedingReparse() const;
+    bool isDirty() const;
+    TimePoint isDirtyTimeChangePoint() const;
     void setDirtyIfProjectPartIsOutdated();
     void setDirtyIfDependencyIsMet(const Utf8String &filePath);
 
@@ -114,7 +115,6 @@ public: // for tests
     void setDependedFilePaths(const QSet<Utf8String> &filePaths);
     TranslationUnitUpdater createUpdater() const;
     void setHasParseOrReparseFailed(bool hasFailed);
-    TimePoint isNeededReparseChangeTimePoint() const;
 
 private:
     void setDirty();

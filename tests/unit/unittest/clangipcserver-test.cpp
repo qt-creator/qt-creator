@@ -60,13 +60,13 @@ MATCHER_P5(HasDirtyDocument,
            filePath,
            projectPartId,
            documentRevision,
-           isNeedingReparse,
+           isDirty,
            hasNewDiagnostics,
            std::string(negation ? "isn't" : "is")
            + " document with file path "+ PrintToString(filePath)
            + " and project " + PrintToString(projectPartId)
            + " and document revision " + PrintToString(documentRevision)
-           + " and isNeedingReparse = " + PrintToString(isNeedingReparse)
+           + " and isDirty = " + PrintToString(isDirty)
            + " and hasNewDiagnostics = " + PrintToString(hasNewDiagnostics)
            )
 {
@@ -75,10 +75,10 @@ MATCHER_P5(HasDirtyDocument,
         auto document = documents.document(filePath, projectPartId);
 
         if (document.documentRevision() == documentRevision) {
-            if (document.isNeedingReparse() && !isNeedingReparse) {
+            if (document.isDirty() && !isDirty) {
                 *result_listener << "isNeedingReparse is true";
                 return false;
-            } else if (!document.isNeedingReparse() && isNeedingReparse) {
+            } else if (!document.isDirty() && isDirty) {
                 *result_listener << "isNeedingReparse is false";
                 return false;
             }

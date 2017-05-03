@@ -70,9 +70,11 @@ public:
     QSet<Utf8String> dependedFilePaths;
 
     uint documentRevision = 0;
-    TimePoint needsToBeReparsedChangeTimePoint;
+
+    TimePoint isDirtyChangeTimePoint;
+    bool isDirty = false;
+
     bool hasParseOrReparseFailed = false;
-    bool needsToBeReparsed = false;
     bool isUsedByCurrentEditor = false;
     bool isVisibleInEditor = false;
 };
@@ -87,7 +89,7 @@ DocumentData::DocumentData(const Utf8String &filePath,
       projectPart(projectPart),
       lastProjectPartChangeTimePoint(Clock::now()),
       translationUnits(filePath),
-      needsToBeReparsedChangeTimePoint(lastProjectPartChangeTimePoint)
+      isDirtyChangeTimePoint(lastProjectPartChangeTimePoint)
 {
     dependedFilePaths.insert(filePath);
     translationUnits.createAndAppend();
@@ -239,18 +241,18 @@ void Document::setIsVisibleInEditor(bool isVisibleInEditor)
     d->isVisibleInEditor = isVisibleInEditor;
 }
 
-TimePoint Document::isNeededReparseChangeTimePoint() const
+bool Document::isDirty() const
 {
     checkIfNull();
 
-    return d->needsToBeReparsedChangeTimePoint;
+    return d->isDirty;
 }
 
-bool Document::isNeedingReparse() const
+TimePoint Document::isDirtyTimeChangePoint() const
 {
     checkIfNull();
 
-    return d->needsToBeReparsed;
+    return d->isDirtyChangeTimePoint;
 }
 
 void Document::setDirtyIfProjectPartIsOutdated()
@@ -269,8 +271,8 @@ TranslationUnitUpdateInput Document::createUpdateInput() const
 {
     TranslationUnitUpdateInput updateInput;
     updateInput.parseNeeded = isProjectPartOutdated();
-    updateInput.reparseNeeded = isNeedingReparse();
-    updateInput.needsToBeReparsedChangeTimePoint = d->needsToBeReparsedChangeTimePoint;
+    updateInput.reparseNeeded = d->isDirty;
+    updateInput.needsToBeReparsedChangeTimePoint = d->isDirtyChangeTimePoint;
     updateInput.filePath = filePath();
     updateInput.fileArguments = fileArguments();
     updateInput.unsavedFiles = d->documents.unsavedFiles();
@@ -302,7 +304,7 @@ void Document::incorporateUpdaterResult(const TranslationUnitUpdateResult &resul
 {
     d->hasParseOrReparseFailed = result.hasParseOrReparseFailed;
     if (d->hasParseOrReparseFailed) {
-        d->needsToBeReparsed = false;
+        d->isDirty = false;
         return;
     }
 
@@ -319,8 +321,8 @@ void Document::incorporateUpdaterResult(const TranslationUnitUpdateResult &resul
     d->documents.addWatchedFiles(d->dependedFilePaths);
 
     if (result.hasReparsed()
-            && result.needsToBeReparsedChangeTimePoint == d->needsToBeReparsedChangeTimePoint) {
-        d->needsToBeReparsed = false;
+            && result.needsToBeReparsedChangeTimePoint == d->isDirtyChangeTimePoint) {
+        d->isDirty = false;
     }
 }
 
@@ -371,8 +373,8 @@ void Document::setDependedFilePaths(const QSet<Utf8String> &filePaths)
 
 void Document::setDirty()
 {
-    d->needsToBeReparsedChangeTimePoint = Clock::now();
-    d->needsToBeReparsed = true;
+    d->isDirtyChangeTimePoint = Clock::now();
+    d->isDirty = true;
 }
 
 void Document::checkIfNull() const

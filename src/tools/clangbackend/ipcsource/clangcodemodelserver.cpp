@@ -283,7 +283,7 @@ void ClangCodeModelServer::processJobsForDirtyAndVisibleDocuments()
 void ClangCodeModelServer::processJobsForDirtyCurrentDocument()
 {
     const auto currentDirtyDocuments = documents.filtered([](const Document &document) {
-        return document.isNeedingReparse() && document.isUsedByCurrentEditor();
+        return document.isDirty() && document.isUsedByCurrentEditor();
     });
     QTC_CHECK(currentDirtyDocuments.size() <= 1);
 

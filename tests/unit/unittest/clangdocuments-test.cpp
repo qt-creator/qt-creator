@@ -133,7 +133,7 @@ TEST_F(Documents, CreateWithUnsavedContentSetsDependenciesDirty)
 
     documents.create({fileContainerWithUnsavedContent});
 
-    ASSERT_TRUE(dependentDocument.isNeedingReparse());
+    ASSERT_TRUE(dependentDocument.isDirty());
 }
 
 TEST_F(Documents, AddAndTestCreatedTranslationUnit)
@@ -212,7 +212,7 @@ TEST_F(DocumentsSlowTest, UpdateUnsavedFileAndCheckForReparse)
 
     documents.update({headerContainerWithUnsavedContent});
 
-    ASSERT_TRUE(documents.document(filePath, projectPartId).isNeedingReparse());
+    ASSERT_TRUE(documents.document(filePath, projectPartId).isDirty());
 }
 
 TEST_F(DocumentsSlowTest, RemoveFileAndCheckForReparse)
@@ -226,7 +226,7 @@ TEST_F(DocumentsSlowTest, RemoveFileAndCheckForReparse)
 
     documents.remove({headerContainerWithUnsavedContent});
 
-    ASSERT_TRUE(documents.document(filePath, projectPartId).isNeedingReparse());
+    ASSERT_TRUE(documents.document(filePath, projectPartId).isDirty());
 }
 
 TEST_F(Documents, DontGetNewerFileContainerIfRevisionIsTheSame)
