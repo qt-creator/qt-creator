@@ -33,6 +33,7 @@
 #include <clang-c/Index.h>
 
 #include <QList>
+#include <QSharedPointer>
 
 namespace ClangBackEnd {
 
@@ -43,9 +44,8 @@ class TranslationUnits
 public:
     class TranslationUnitData {
     public:
-        TranslationUnitData(const Utf8String &id)
-            : id(id)
-        {}
+        TranslationUnitData(const Utf8String &id);
+        ~TranslationUnitData();
 
         Utf8String id;
 
@@ -54,10 +54,10 @@ public:
 
         TimePoint parseTimePoint;
     };
+    using TranslationUnitDataPtr = QSharedPointer<TranslationUnitData>;
 
 public:
     TranslationUnits(const Utf8String &filePath);
-    ~TranslationUnits();
 
     TranslationUnit createAndAppend();
     TranslationUnit get(PreferredTranslationUnit type = PreferredTranslationUnit::RecentlyParsed);
@@ -72,11 +72,11 @@ public: // for tests
 private:
     TranslationUnit getPreferredTranslationUnit(PreferredTranslationUnit type);
     TranslationUnitData &findUnit(const Utf8String &translationUnitId);
-    TranslationUnit toTranslationUnit(TranslationUnitData &unit);
+    TranslationUnit toTranslationUnit(const TranslationUnitDataPtr &unit);
 
 private:
     Utf8String m_filePath;
-    QList<TranslationUnitData> m_tuDatas;
+    QList<TranslationUnitDataPtr> m_units;
 };
 
 } // namespace ClangBackEnd

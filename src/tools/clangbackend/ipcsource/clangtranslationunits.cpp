@@ -35,23 +35,24 @@
 #include <QLoggingCategory>
 #include <QUuid>
 
-#include <algorithm>
-
 Q_LOGGING_CATEGORY(tuLog, "qtc.clangbackend.translationunits");
 
 namespace ClangBackEnd {
 
+TranslationUnits::TranslationUnitData::TranslationUnitData(const Utf8String &id)
+    : id(id)
+{}
+
+TranslationUnits::TranslationUnitData::~TranslationUnitData()
+{
+    qCDebug(tuLog) << "Destroying TranslationUnit" << id;
+    clang_disposeTranslationUnit(cxTranslationUnit);
+    clang_disposeIndex(cxIndex);
+}
+
 TranslationUnits::TranslationUnits(const Utf8String &filePath)
     : m_filePath(filePath)
 {
-}
-
-TranslationUnits::~TranslationUnits()
-{
-    foreach (const TranslationUnitData &unit, m_tuDatas) {
-        clang_disposeTranslationUnit(unit.cxTranslationUnit);
-        clang_disposeIndex(unit.cxIndex);
-    }
 }
 
 TranslationUnit TranslationUnits::createAndAppend()
@@ -59,35 +60,34 @@ TranslationUnit TranslationUnits::createAndAppend()
     const Utf8String id = Utf8String::fromByteArray(QUuid::createUuid().toByteArray());
     qCDebug(tuLog) << "Creating TranslationUnit" << id << "for" << QFileInfo(m_filePath).fileName();
 
-    m_tuDatas.append(TranslationUnitData(id));
-    TranslationUnitData &translationUnitData = m_tuDatas.last();
+    m_units.append(TranslationUnitDataPtr(new TranslationUnitData(id)));
 
-    return toTranslationUnit(translationUnitData);
+    return toTranslationUnit(m_units.last());
 }
 
 TranslationUnit TranslationUnits::get(PreferredTranslationUnit type)
 {
-    if (m_tuDatas.isEmpty())
+    if (m_units.isEmpty())
         throw TranslationUnitDoesNotExist(m_filePath);
 
-    if (m_tuDatas.size() == 1)
-        return toTranslationUnit(m_tuDatas.first());
+    if (m_units.size() == 1)
+        return toTranslationUnit(m_units.first());
 
     if (areAllTranslationUnitsParsed())
         return getPreferredTranslationUnit(type);
-    else if (type == PreferredTranslationUnit::LastUninitialized)
-        return toTranslationUnit(m_tuDatas.last());
 
-    return toTranslationUnit(m_tuDatas.first());
+    if (type == PreferredTranslationUnit::LastUninitialized)
+        return toTranslationUnit(m_units.last());
+
+    return toTranslationUnit(m_units.first());
 }
 
 void TranslationUnits::updateParseTimePoint(const Utf8String &translationUnitId,
                                             TimePoint timePoint)
 {
-    TranslationUnitData &unit = findUnit(translationUnitId);
-
     QTC_CHECK(timePoint != TimePoint());
-    unit.parseTimePoint = timePoint;
+
+    findUnit(translationUnitId).parseTimePoint = timePoint;
 
     qCDebug(tuLog) << "Updated" << translationUnitId << "for" << QFileInfo(m_filePath).fileName()
         << "RecentlyParsed:" << get(PreferredTranslationUnit::RecentlyParsed).id()
@@ -101,50 +101,50 @@ TimePoint TranslationUnits::parseTimePoint(const Utf8String &translationUnitId)
 
 bool TranslationUnits::areAllTranslationUnitsParsed() const
 {
-    return Utils::allOf(m_tuDatas, [](const TranslationUnitData &unit) {
-        return unit.parseTimePoint != TimePoint();
+    return Utils::allOf(m_units, [](const TranslationUnitDataPtr &unit) {
+        return unit->parseTimePoint != TimePoint();
     });
 }
 
 int TranslationUnits::size() const
 {
-    return m_tuDatas.size();
+    return m_units.size();
 }
 
 TranslationUnit TranslationUnits::getPreferredTranslationUnit(PreferredTranslationUnit type)
 {
-    using TuData = TranslationUnitData;
+    using TuDataPtr = TranslationUnitDataPtr;
 
-    const auto lessThan = [](const TuData &a, const TuData &b) {
-        return a.parseTimePoint < b.parseTimePoint;
+    const auto lessThan = [](const TuDataPtr &a, const TuDataPtr &b) {
+        return a->parseTimePoint < b->parseTimePoint;
     };
-    auto translationUnitData = type == PreferredTranslationUnit::RecentlyParsed
-            ? std::max_element(m_tuDatas.begin(), m_tuDatas.end(), lessThan)
-            : std::min_element(m_tuDatas.begin(), m_tuDatas.end(), lessThan);
+    auto it = type == PreferredTranslationUnit::RecentlyParsed
+            ? std::max_element(m_units.begin(), m_units.end(), lessThan)
+            : std::min_element(m_units.begin(), m_units.end(), lessThan);
 
-    if (translationUnitData == m_tuDatas.end())
+    if (it == m_units.end())
         throw TranslationUnitDoesNotExist(m_filePath);
 
-    return toTranslationUnit(*translationUnitData);
+    return toTranslationUnit(*it);
 }
 
 TranslationUnits::TranslationUnitData &TranslationUnits::findUnit(
         const Utf8String &translationUnitId)
 {
-    for (TranslationUnitData &unit : m_tuDatas) {
-        if (translationUnitId == unit.id)
-            return unit;
+    for (TranslationUnitDataPtr &unit : m_units) {
+        if (translationUnitId == unit->id)
+            return *unit;
     }
 
     throw TranslationUnitDoesNotExist(m_filePath);
 }
 
-TranslationUnit TranslationUnits::toTranslationUnit(TranslationUnits::TranslationUnitData &unit)
+TranslationUnit TranslationUnits::toTranslationUnit(const TranslationUnitDataPtr &unit)
 {
-    return TranslationUnit(unit.id,
+    return TranslationUnit(unit->id,
                            m_filePath,
-                           unit.cxIndex,
-                           unit.cxTranslationUnit);
+                           unit->cxIndex,
+                           unit->cxTranslationUnit);
 }
 
 } // namespace ClangBackEnd
