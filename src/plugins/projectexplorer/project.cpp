@@ -557,13 +557,13 @@ QStringList Project::files(Project::FilesMode fileMode,
 
     QSet<QString> alreadySeen;
     rootProjectNode()->forEachNode([&](const FileNode *fn) {
-        if (filter && !filter(fn))
-            return;
         const QString path = fn->filePath().toString();
         const int count = alreadySeen.count();
         alreadySeen.insert(path);
         if (count == alreadySeen.count())
             return; // skip duplicates
+        if (filter && !filter(fn))
+            return;
         if ((fileMode == AllFiles)
                 || (fileMode == SourceFiles && !fn->isGenerated())
                 || (fileMode == GeneratedFiles && fn->isGenerated()))
