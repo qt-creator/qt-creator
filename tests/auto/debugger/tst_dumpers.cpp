@@ -6860,6 +6860,25 @@ void tst_Dumpers::dumper_data()
                + Check("arr.2.baz", "5", "int");
 
 
+    QTest::newRow("StringDisplay")
+            << Data("#include <string.h>\n"
+                    "struct QtcDumperTest_String"
+                    "{\n"
+                    "   char *first;\n"
+                    "   const char *second = \"second\";\n"
+                    "   const char third[6] = \"third\";\n"
+                    "   QtcDumperTest_String()\n"
+                    "   {\n"
+                    "      first = new char[6];\n"
+                    "      strcpy(first, \"first\");\n"
+                    "   }\n"
+                    "   ~QtcDumperTest_String() { delete[] first; }\n"
+                    "};\n\n",
+                    "QtcDumperTest_String str; unused(&str);\n")
+               + Cxx11Profile()
+               + Check("str", "first, second, third", "QtcDumperTest_String");
+
+
     QTest::newRow("UndefinedStaticMembers")
             << Data("struct Foo { int a = 15; static int b; }; \n",
                     "Foo f; unused(&f);\n")
