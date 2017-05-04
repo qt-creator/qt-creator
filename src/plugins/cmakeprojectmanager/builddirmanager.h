@@ -79,6 +79,8 @@ public:
     static CMakeConfig parseConfiguration(const Utils::FileName &cacheFile,
                                           QString *errorMessage);
 
+    CMakeBuildConfiguration *buildConfiguration() const { return m_buildConfiguration; }
+
 signals:
     void configurationStarted() const;
     void dataAvailable() const;

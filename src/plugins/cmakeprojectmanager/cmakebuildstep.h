@@ -79,6 +79,8 @@ public:
 
     static QString cleanTarget();
     static QString allTarget();
+    static QString installTarget();
+    static QStringList specialTargets();
 
 signals:
     void cmakeCommandChanged();

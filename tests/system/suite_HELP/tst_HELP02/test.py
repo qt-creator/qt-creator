@@ -27,7 +27,7 @@ source("../../shared/qtcreator.py")
 
 # test Qt Creator version information from file and dialog
 def getQtCreatorVersionFromDialog():
-    chk = re.search("(?<=Qt Creator)\s\d+.\d+.\d+",
+    chk = re.search("(?<=Qt Creator)\s\d+.\d+.\d+\S*",
                     str(waitForObject("{text?='*Qt Creator*' type='QLabel' unnamed='1' visible='1' "
                                       "window=':About Qt Creator_Core::Internal::VersionDialog'}").text))
     try:
@@ -41,7 +41,7 @@ def getQtCreatorVersionFromFile():
     qtCreatorPriFileName = "../../../../qtcreator.pri"
     # open file <qtCreatorPriFileName> and read version
     fileText = readFile(qtCreatorPriFileName)
-    chk = re.search("(?<=QTCREATOR_VERSION =)\s\d+.\d+.\d+", fileText)
+    chk = re.search("(?<=QTCREATOR_DISPLAY_VERSION =)\s\d+.\d+.\d+\S*", fileText)
     try:
         ver = chk.group(0).strip()
         return ver
@@ -122,9 +122,9 @@ def main():
             invokeMenuItem("Help", "About Qt Creator...")
         waitForObject(":About Qt Creator_Core::Internal::VersionDialog", 5000)
     actualVersion = getQtCreatorVersionFromDialog()
-    test.verify(actualVersion == expectedVersion,
-                "Verifying version. Current version is '%s', expected version is '%s'"
-                % (actualVersion, expectedVersion))
+    test.compare(actualVersion, expectedVersion,
+                 "Verifying version. Current version is '%s', expected version is '%s'"
+                 % (actualVersion, expectedVersion))
     # close and verify about dialog closed
     clickButton(waitForObject("{text='Close' type='QPushButton' unnamed='1' visible='1' "
                               "window=':About Qt Creator_Core::Internal::VersionDialog'}"))

@@ -153,11 +153,14 @@
     stacking value are drawn in the order they are listed, from the last item
     up.
 
-    To change the stacking order of an item, right-click it in the navigator or
-    the \uicontrol {Form Editor} and select \uicontrol {Stack (z)}. You
-    can raise or lower the stack value of an item
-    or move the item to the front or back of all its siblings. To remove the
-    \c z property, select \uicontrol {Reset z Property}.
+    To raise or lower the stack value of an item, select \inlineimage raise.png
+    (\uicontrol Raise) or \inlineimage lower.png
+    (\uicontrol Lower) on the toolbar.
+
+    To move an item to the front or back of all its siblings, right-click it in
+    the navigator or the \uicontrol {Form Editor} and select
+    \uicontrol {Stack (z)}. To remove the \c z property, select
+    \uicontrol {Reset z Property}.
 
     You can also use a \uicontrol StackLayout item (Qt Quick Controls 2) to
     create a stacked view. For more information, see \l {Using Layouts}.
@@ -216,10 +219,20 @@
 
     \image qmldesigner-element-properties.png
 
-    You can use a context-menu to reset some item properties. To reset the
-    position or size property of an item, right-click the item and select
-    \uicontrol {Edit > Reset Position} or \uicontrol {Reset Size} in the context menu. To
-    set the visibility of the item, select \uicontrol {Edit > Visibility}.
+    To change the item type, double-click the \uicontrol Type field in the
+    \uicontrol Properties pane, and enter the name of another QML type in the
+    field. If you have specified properties for the item that are not supported
+    for the new type, the type cannot be changed and an error message is
+    displayed. Remove the properties in the \uicontrol {Text Editor} and try
+    again.
+
+    To return an item to its implicit position after moving it, select the
+    \inlineimage qtcreator-reset-position-icon.png
+    (\uicontrol {Reset Position}) button on the toolbar. To return it to its
+    implicit size, select \inlineimage qtcreator-reset-size-icon.png
+    (\uicontrol {Reset Size}) button.
+
+    To set the visibility of the item, select \uicontrol {Edit > Visibility} in the context menu.
 
     To specify the color of the selected item in the \uicontrol {Select Color}
     dialog, select \uicontrol {Edit Color} in the context menu.

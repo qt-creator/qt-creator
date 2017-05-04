@@ -112,9 +112,14 @@ QbsRunConfiguration::QbsRunConfiguration(Target *parent, Core::Id id) :
     m_uniqueProductName(uniqueProductNameFromId(id)),
     m_currentBuildStepList(0)
 {
-    addExtraAspect(new LocalEnvironmentAspect(this, [](RunConfiguration *rc, Environment &env) {
-                       static_cast<QbsRunConfiguration *>(rc)->addToBaseEnvironment(env);
-                   }));
+    auto * const envAspect = new LocalEnvironmentAspect(this,
+            [](RunConfiguration *rc, Environment &env) {
+                static_cast<QbsRunConfiguration *>(rc)->addToBaseEnvironment(env);
+            }
+    );
+    addExtraAspect(envAspect);
+    connect(static_cast<QbsProject *>(parent->project()), &QbsProject::parsingFinished, this,
+            [envAspect]() { envAspect->buildEnvironmentHasChanged(); });
     addExtraAspect(new ArgumentsAspect(this, QStringLiteral("Qbs.RunConfiguration.CommandLineArguments")));
     addExtraAspect(new WorkingDirectoryAspect(this, QStringLiteral("Qbs.RunConfiguration.WorkingDirectory")));
 

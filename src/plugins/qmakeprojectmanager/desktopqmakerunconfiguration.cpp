@@ -132,17 +132,8 @@ void DesktopQmakeRunConfiguration::proFileUpdated(QmakeProFile *pro, bool succes
     if (enabled != isEnabled() || reason != disabledReason())
         emit enabledChanged();
 
-    if (!parseInProgress) {
-        emit effectiveTargetInformationChanged();
-        setDefaultDisplayName(defaultDisplayName());
-        extraAspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
-
-        extraAspect<WorkingDirectoryAspect>()
-                ->setDefaultWorkingDirectory(FileName::fromString(baseWorkingDirectory()));
-        auto terminalAspect = extraAspect<TerminalAspect>();
-        if (!terminalAspect->isUserSet())
-            terminalAspect->setUseTerminal(isConsoleApplication());
-    }
+    if (!parseInProgress)
+        updateTargetInformation();
 }
 
 void DesktopQmakeRunConfiguration::proFileEvaluated()
@@ -150,6 +141,23 @@ void DesktopQmakeRunConfiguration::proFileEvaluated()
     // We depend on all .pro files for the LD_LIBRARY_PATH so we emit a signal for all .pro files
     // This can be optimized by checking whether LD_LIBRARY_PATH changed
     return extraAspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
+}
+
+void DesktopQmakeRunConfiguration::updateTargetInformation()
+{
+    setDefaultDisplayName(defaultDisplayName());
+    extraAspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
+
+    auto wda = extraAspect<WorkingDirectoryAspect>();
+
+    wda->setDefaultWorkingDirectory(FileName::fromString(baseWorkingDirectory()));
+    if (wda->pathChooser())
+        wda->pathChooser()->setBaseFileName(target()->project()->projectDirectory());
+    auto terminalAspect = extraAspect<TerminalAspect>();
+    if (!terminalAspect->isUserSet())
+        terminalAspect->setUseTerminal(isConsoleApplication());
+
+    emit effectiveTargetInformationChanged();
 }
 
 void DesktopQmakeRunConfiguration::ctor()
@@ -161,6 +169,8 @@ void DesktopQmakeRunConfiguration::ctor()
             this, &DesktopQmakeRunConfiguration::proFileUpdated);
     connect(project, &QmakeProject::proFilesEvaluated,
             this, &DesktopQmakeRunConfiguration::proFileEvaluated);
+
+    updateTargetInformation();
 }
 
 //////
@@ -240,7 +250,6 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     }
 
     runConfigurationEnabledChange();
-    effectiveTargetInformationChanged();
 
     connect(qmakeRunConfiguration, &DesktopQmakeRunConfiguration::usingDyldImageSuffixChanged,
             this, &DesktopQmakeRunConfigurationWidget::usingDyldImageSuffixChanged);
@@ -292,15 +301,6 @@ void DesktopQmakeRunConfigurationWidget::usingLibrarySearchPathChanged(bool stat
 void DesktopQmakeRunConfigurationWidget::effectiveTargetInformationChanged()
 {
     m_executableLineLabel->setText(QDir::toNativeSeparators(m_qmakeRunConfiguration->executable()));
-
-    m_ignoreChange = true;
-    auto aspect = m_qmakeRunConfiguration->extraAspect<WorkingDirectoryAspect>();
-    aspect->setDefaultWorkingDirectory(FileName::fromString(m_qmakeRunConfiguration->baseWorkingDirectory()));
-    aspect->pathChooser()->setBaseFileName(m_qmakeRunConfiguration->target()->project()->projectDirectory());
-    auto terminalAspect = m_qmakeRunConfiguration->extraAspect<TerminalAspect>();
-    if (!terminalAspect->isUserSet())
-        terminalAspect->setUseTerminal(m_qmakeRunConfiguration->isConsoleApplication());
-    m_ignoreChange = false;
 }
 
 QWidget *DesktopQmakeRunConfiguration::createConfigurationWidget()

@@ -145,7 +145,7 @@ unittest_public:
             return size + idPath.paths.size();
         };
 
-        return std::accumulate(idPaths.begin(), idPaths.end(), 0u, sumSize);
+        return std::accumulate(idPaths.begin(), idPaths.end(), std::size_t(0), sumSize);
     }
 
 

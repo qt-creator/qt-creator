@@ -30,6 +30,7 @@
 #include <QMetaObject>
 #include <QFileInfo>
 #include <QStringList>
+#include <QTimer>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -98,6 +99,6 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     CompilerOutputProcessor cop(compilerType, compilerOutputFile);
-    QMetaObject::invokeMethod(&cop, "start", Qt::QueuedConnection);
+    QTimer::singleShot(0, &cop, &CompilerOutputProcessor::start);
     return app.exec();
 }

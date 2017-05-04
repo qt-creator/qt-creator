@@ -47,8 +47,8 @@ public:
     CompilerOutputProcessor(CompilerType compilerType, QIODevice &source);
      ~CompilerOutputProcessor();
 
-private:
     void start();
+private:
     void handleTask(const ProjectExplorer::Task &task);
 
     const CompilerType m_compilerType;

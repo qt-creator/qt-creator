@@ -848,13 +848,12 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
     }
 
     auto onSimulatorStart = [this, extraArgs] (const SimulatorControl::ResponseData &response) {
-        if (isResponseValid(response))
+        if (!isResponseValid(response))
             return;
         if (response.success) {
             launchAppOnSimulator(extraArgs);
         } else {
-            errorMsg(IosToolHandler::tr("Application launch on Simulator failed. Simulator not running.")
-                     .arg(bundlePath));
+            errorMsg(IosToolHandler::tr("Application launch on Simulator failed. Simulator not running."));
             didStartApp(bundlePath, deviceId, Ios::IosToolHandler::Failure);
         }
     };

@@ -172,6 +172,12 @@
 
     \image qmldesigner-anchor-buttons.png "Anchor buttons"
 
+    For convenience, you can click the \inlineimage anchor_fill.png
+    (\uicontrol {Fill to Parent}) toolbar button to apply fill anchors to an
+    item and the \inlineimage qtcreator-anchors-reset-icon.png
+    (\uicontrol {Reset Anchors}) button to reset the anchors to their saved
+    state.
+
     Specifying the baseline anchor in \QMLD is not supported. You can specify it
     in the \uicontrol {Text Editor}.
 
@@ -269,6 +275,12 @@
     \uicontrol {Grid Layout}, or \uicontrol {Stack Layout}, select the items in
     the \uicontrol {Form Editor}, and then select \uicontrol Layout in the
     context menu.
+
+    You can also click the \inlineimage column.png
+    (\uicontrol {Column Layout}), \inlineimage row.png
+    (\uicontrol {Row Layout}), and \inlineimage grid.png
+    (\uicontrol {Grid Layout}) toolbar buttons to apply layouts to the selected
+    items.
 
     To make an item within a layout as wide as possible while respecting the
     given constraints, select the item on the canvas and then select

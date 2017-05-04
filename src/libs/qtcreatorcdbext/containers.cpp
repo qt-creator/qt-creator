@@ -612,8 +612,10 @@ static inline SymbolGroupValueVector
             nodeTree = RedBlackTreeNode::buildMapRecursion(head["_Parent"], headAddress, 0, "_Left", "_Right");
     if (!nodeTree)
         return SymbolGroupValueVector();
-    if (SymbolGroupValue::verbose > 1)
-        nodeTree->debug(DebugPrint(), debugMSVC2010MapNode);
+    if (SymbolGroupValue::verbose > 1) {
+        DebugPrint dp;
+        nodeTree->debug(dp, debugMSVC2010MapNode);
+    }
     SymbolGroupValueVector rc;
     rc.reserve(count);
     int i = 0;
@@ -1004,8 +1006,10 @@ static inline AbstractSymbolGroupNodePtrVector qMap5Nodes(const SymbolGroupValue
         RedBlackTreeNode::buildMapRecursion(root, head.address(), 0, "left", "right");
     if (!nodeTree)
         return AbstractSymbolGroupNodePtrVector();
-    if (SymbolGroupValue::verbose > 1)
-        nodeTree->debug(DebugPrint(), debugQMap5Node);
+    if (SymbolGroupValue::verbose > 1) {
+        DebugPrint dp;
+        nodeTree->debug(dp, debugQMap5Node);
+    }
     VectorIndexType i = 0;
     // Finally convert them into real nodes 'QHashNode<K,V> (potentially expensive)
     AbstractSymbolGroupNodePtrVector result;

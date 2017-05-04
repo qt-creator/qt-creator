@@ -545,14 +545,9 @@ ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(Proj
 
     auto cleanStep = new CMakeBuildStep(cleanSteps);
     cleanSteps->insertStep(0, cleanStep);
-    cleanStep->setBuildTarget(CMakeBuildStep::cleanTarget());
 
     bc->setBuildDirectory(copy.buildDirectory);
     bc->setCMakeConfiguration(copy.configuration);
-
-    // Default to all
-    if (project->hasBuildTarget(CMakeBuildStep::allTarget()))
-        buildStep->setBuildTarget(CMakeBuildStep::allTarget());
 
     return bc;
 }

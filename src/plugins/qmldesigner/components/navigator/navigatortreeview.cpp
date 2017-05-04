@@ -170,6 +170,7 @@ NavigatorTreeView::NavigatorTreeView(QWidget *parent)
     : QTreeView(parent)
 {
     setStyle(new TableViewStyle(this));
+    setMinimumWidth(240);
 }
 
 void NavigatorTreeView::drawSelectionBackground(QPainter *painter, const QStyleOption &option)

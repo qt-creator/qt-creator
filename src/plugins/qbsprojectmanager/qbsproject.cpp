@@ -133,7 +133,7 @@ QbsProject::QbsProject(const FileName &fileName) :
     setProjectContext(Context(Constants::PROJECT_ID));
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
-    setDisplayName(fileName.toFileInfo().completeBaseName());
+    rebuildProjectTree();
 
     connect(this, &Project::activeTargetChanged, this, &QbsProject::changeActiveTarget);
     connect(this, &Project::addedTarget, this, &QbsProject::targetWasAdded);
@@ -255,7 +255,7 @@ bool QbsProject::addFilesToProduct(const QStringList &filePaths,
     }
     if (notAdded->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
-        setRootProjectNode(Internal::QbsNodeTreeBuilder::buildTree(this));
+        rebuildProjectTree();
     }
     return notAdded->isEmpty();
 }
@@ -282,7 +282,7 @@ bool QbsProject::removeFilesFromProduct(const QStringList &filePaths,
     }
     if (notRemoved->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
-        setRootProjectNode(Internal::QbsNodeTreeBuilder::buildTree(this));
+        rebuildProjectTree();
         emit fileListChanged();
     }
     return notRemoved->isEmpty();
@@ -454,7 +454,7 @@ void QbsProject::updateAfterParse()
 void QbsProject::updateProjectNodes()
 {
     OpTimer opTimer("updateProjectNodes");
-    setRootProjectNode(Internal::QbsNodeTreeBuilder::buildTree(this));
+    rebuildProjectTree();
 }
 
 void QbsProject::handleQbsParsingDone(bool success)
@@ -493,6 +493,13 @@ void QbsProject::handleQbsParsingDone(bool success)
         updateAfterParse();
     emit projectParsingDone(success);
     emit parsingFinished();
+}
+
+void QbsProject::rebuildProjectTree()
+{
+    QbsProjectNode *newRoot = Internal::QbsNodeTreeBuilder::buildTree(this);
+    setDisplayName(newRoot ? newRoot->displayName() : projectFilePath().toFileInfo().completeBaseName());
+    setRootProjectNode(newRoot);
 }
 
 void QbsProject::handleRuleExecutionDone()

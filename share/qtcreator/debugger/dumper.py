@@ -522,6 +522,9 @@ class DumperBase:
         return baseType # Override in backends.
 
     def listTemplateParameters(self, typename):
+        return self.listTemplateParametersManually(typename)
+
+    def listTemplateParametersManually(self, typename):
         targs = []
         if not typename.endswith('>'):
             return targs
@@ -573,6 +576,10 @@ class DumperBase:
                 if item.find('.') > -1:
                     res.append(float(item))
                 else:
+                    if item.endswith('l'):
+                        item = item[:-1]
+                    if item.endswith('u'):
+                        item = item[:-1]
                     val = toInteger(item)
                     if val > 0x80000000:
                         val -= 0x100000000

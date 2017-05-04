@@ -65,11 +65,19 @@ public:
 
     void loadContent(const QList<AssistProposalItemInterface *> &items);
 
+    bool isPerfectMatch(const QString &prefix) const;
+    bool hasItemsToPropose(const QString &prefix, AssistReason reason) const;
+
+    bool isPrefiltered(const QString &prefix) const;
+    void setPrefilterPrefix(const QString &prefix);
+
 protected:
     QList<AssistProposalItemInterface *> m_currentItems;
 
 private:
     QHash<QString, int> m_idByText;
     QList<AssistProposalItemInterface *> m_originalItems;
+    QString m_prefilterPrefix;
+    bool m_duplicatesRemoved = false;
 };
 } // TextEditor

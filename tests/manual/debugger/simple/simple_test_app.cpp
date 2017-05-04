@@ -6106,14 +6106,14 @@ namespace qjson {
         };
          QJsonArray arr;
          for (unsigned int i = 0; i < 32; ++i) {
-             arr.append(QJsonValue(qint64(1u << i) - 1));
-             arr.append(QJsonValue(qint64(1u << i)));
-             arr.append(QJsonValue(qint64(1u << i) + 1));
+             arr.append(QJsonValue(qint64(quint64(1) << i) - 1));
+             arr.append(QJsonValue(qint64(quint64(1) << i)));
+             arr.append(QJsonValue(qint64(quint64(1) << i) + 1));
          }
          for (unsigned int i = 0; i < 32; ++i) {
-             arr.append(QJsonValue(-qint64(1u << i) + 1));
-             arr.append(QJsonValue(-qint64(1u << i)));
-             arr.append(QJsonValue(-qint64(1u << i) - 1));
+             arr.append(QJsonValue(-qint64(quint64(1) << i) + 1));
+             arr.append(QJsonValue(-qint64(quint64(1) << i)));
+             arr.append(QJsonValue(-qint64(quint64(1) << i) - 1));
          }
         BREAK_HERE;
         // Check v -1 QJsonValue.

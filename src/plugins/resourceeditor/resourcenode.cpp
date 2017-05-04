@@ -658,7 +658,7 @@ ResourceTopLevelNode *ResourceFolderNode::resourceNode() const
 }
 
 ResourceFileNode::ResourceFileNode(const FileName &filePath, const QString &qrcPath, const QString &displayName)
-    : FileNode(filePath, FileType::Unknown, false)
+    : FileNode(filePath, FileNode::fileTypeForFileName(filePath), false)
     , m_qrcPath(qrcPath)
     , m_displayName(displayName)
 {

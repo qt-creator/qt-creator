@@ -16,6 +16,7 @@ imagedirs = ../images \
             ../../src/plugins/diffeditor/images \
             ../../src/plugins/help/images \
             ../../src/plugins/projectexplorer/images \
+            ../../src/plugins/qmldesigner/components/componentcore/images \
             ../../src/plugins/qmldesigner/components/formeditor \
             ../../src/plugins/qmldesigner/components/navigator \
             ../../src/plugins/scxmleditor/common/images \

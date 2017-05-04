@@ -108,6 +108,16 @@ void CMakeBuildStep::ctor(BuildStepList *bsl)
         bc = qobject_cast<CMakeBuildConfiguration *>(t->activeBuildConfiguration());
     }
 
+    // Set a good default build target:
+    if (m_buildTarget.isEmpty()) {
+        if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
+            setBuildTarget(cleanTarget());
+        else if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
+            setBuildTarget(installTarget());
+        else
+            setBuildTarget(allTarget());
+    }
+
     connect(target(), &Target::kitChanged, this, &CMakeBuildStep::cmakeCommandChanged);
     connect(bc, &CMakeBuildConfiguration::dataAvailable, this, &CMakeBuildStep::handleBuildTargetChanges);
 }
@@ -132,7 +142,7 @@ void CMakeBuildStep::handleBuildTargetChanges()
     if (isCurrentExecutableTarget(m_buildTarget))
         return; // Do not change just because a different set of build targets is there...
     if (!static_cast<CMakeProject *>(project())->buildTargetTitles().contains(m_buildTarget))
-        setBuildTarget(CMakeBuildStep::allTarget());
+        setBuildTarget(allTarget());
     emit buildTargetsChanged();
 }
 
@@ -172,7 +182,7 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
         emit addTask(Task::buildConfigurationMissingTask());
         canInit = false;
     }
-    if (!bc->isEnabled()) {
+    if (bc && !bc->isEnabled()) {
         emit addTask(Task(Task::Error,
                           QCoreApplication::translate("CMakeProjectManager::CMakeBuildStep",
                                                       "The build configuration is currently disabled."),
@@ -381,12 +391,22 @@ QString CMakeBuildStep::cmakeCommand() const
 
 QString CMakeBuildStep::cleanTarget()
 {
-    return QLatin1String("clean");
+    return QString("clean");
 }
 
 QString CMakeBuildStep::allTarget()
 {
-    return QLatin1String("all");
+    return QString("all");
+}
+
+QString CMakeBuildStep::installTarget()
+{
+    return QString("install");
+}
+
+QStringList CMakeBuildStep::specialTargets()
+{
+    return { allTarget(), cleanTarget(), installTarget() };
 }
 
 //
@@ -451,28 +471,20 @@ QString CMakeBuildStepConfigWidget::displayName() const
     return tr("Build", "CMakeProjectManager::CMakeBuildStepConfigWidget display name.");
 }
 
-static void createSpecialItem(const QString &text, const QString &data, QListWidget *parent)
-{
-    auto item = new QListWidgetItem(text, parent);
-
-    item->setData(Qt::UserRole, data);
-    QFont f;
-    f.setItalic(true);
-    item->setFont(f);
-}
-
 void CMakeBuildStepConfigWidget::buildTargetsChanged()
 {
     const bool wasBlocked = m_buildTargetsList->blockSignals(true);
     m_buildTargetsList->clear();
 
-    createSpecialItem(tr(ADD_RUNCONFIGURATION_TEXT), ADD_RUNCONFIGURATION_TEXT, m_buildTargetsList);
-    createSpecialItem(tr("all"), "all", m_buildTargetsList);
-    createSpecialItem(tr("clean"), "clean", m_buildTargetsList);
-
     auto pro = static_cast<CMakeProject *>(m_buildStep->project());
     QStringList targetList = pro->buildTargetTitles();
     targetList.sort();
+
+    QFont italics;
+    italics.setItalic(true);
+
+    auto exeItem = new QListWidgetItem(tr(ADD_RUNCONFIGURATION_TEXT), m_buildTargetsList);
+    exeItem->setData(Qt::UserRole, ADD_RUNCONFIGURATION_TEXT);
 
     foreach (const QString &buildTarget, targetList) {
         auto item = new QListWidgetItem(buildTarget, m_buildTargetsList);
@@ -481,12 +493,17 @@ void CMakeBuildStepConfigWidget::buildTargetsChanged()
 
     for (int i = 0; i < m_buildTargetsList->count(); ++i) {
         QListWidgetItem *item = m_buildTargetsList->item(i);
+        const QString title = item->data(Qt::UserRole).toString();
+
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(m_buildStep->buildsBuildTarget(item->data(Qt::UserRole).toString())
-                            ? Qt::Checked : Qt::Unchecked);
+        item->setCheckState(m_buildStep->buildsBuildTarget(title) ? Qt::Checked : Qt::Unchecked);
+
+        // Print utility targets in italics:
+        if (CMakeBuildStep::specialTargets().contains(title) || title == ADD_RUNCONFIGURATION_TEXT)
+            item->setFont(italics);
     }
     m_buildTargetsList->blockSignals(wasBlocked);
-    updateSummary();
+    updateDetails();
 }
 
 void CMakeBuildStepConfigWidget::selectedBuildTargetsChanged()
@@ -498,7 +515,7 @@ void CMakeBuildStepConfigWidget::selectedBuildTargetsChanged()
                             ? Qt::Checked : Qt::Unchecked);
     }
     m_buildTargetsList->blockSignals(wasBlocked);
-    updateSummary();
+    updateDetails();
 }
 
 void CMakeBuildStepConfigWidget::updateDetails()
@@ -508,7 +525,7 @@ void CMakeBuildStepConfigWidget::updateDetails()
         bc = m_buildStep->targetsActiveBuildConfiguration();
     if (!bc) {
         m_summaryText = tr("<b>No build configuration found on this kit.</b>");
-        updateSummary();
+        emit updateSummary();
         return;
     }
 
@@ -547,10 +564,7 @@ QList<BuildStepInfo> CMakeBuildStepFactory::availableSteps(BuildStepList *parent
 BuildStep *CMakeBuildStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     Q_UNUSED(id);
-    auto step = new CMakeBuildStep(parent);
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
-        step->setBuildTarget(CMakeBuildStep::cleanTarget());
-    return step;
+    return new CMakeBuildStep(parent);
 }
 
 BuildStep *CMakeBuildStepFactory::clone(BuildStepList *parent, BuildStep *source)

@@ -140,3 +140,12 @@ def qdump__boost__unordered__unordered_set(d, value):
                 yield val
     p = d.extractPointer(buckets + bucketCount * d.ptrSize())
     d.putItems(size, children(p), maxNumChild = 10000)
+
+
+def qdump__boost__variant(d, value):
+    allTypes = value.type.templateArguments()
+    realType = allTypes[value.split('i')[0]]
+    alignment = max([t.alignment() for t in allTypes])
+    dummy, val = value.split('%is{%s}' % (max(4, alignment), realType.name))
+    d.putItem(val)
+    d.putBetterType(value.type)

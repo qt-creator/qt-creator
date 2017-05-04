@@ -3152,6 +3152,15 @@ void tst_Dumpers::dumper_data()
                + Check("ptr53", "", "@QWeakPointer<Foo>");
 
 
+    QTest::newRow("QLazilyAllocated")
+            << Data("#include <private/qlazilyallocated_p.h>\n"
+                    "#include <QString>\n",
+                    "QLazilyAllocated<QString> l;\n"
+                    "l.value() = \"Hi\";\n")
+               + QmlPrivateProfile()
+               + Check("l", "\"Hi\"", "@QLazilyAllocated<@QString>");
+
+
     QTest::newRow("QFiniteStack")
             << Data("#include <stdlib.h>\n" // Needed on macOS.
                     "#include <private/qfinitestack_p.h>\n" + fooData,
@@ -5944,6 +5953,38 @@ void tst_Dumpers::dumper_data()
                + Check("s2.0", "[0]", "\"def\"", "std::string") % BoostVersion(1 * 100000 + 54 * 100)
                + Check("s2.1", "[1]", "\"abc\"", "std::string") % BoostVersion(1 * 100000 + 54 * 100);
 
+#ifdef Q_OS_LINUX
+    QTest::newRow("BoostVariant")
+            << Data("#include <boost/variant/variant.hpp>\n"
+                    "#include <string>\n",
+
+                    "boost::variant<char, short> ch1 = char(1);\n"
+                    "boost::variant<char, short> ch2 = short(2);\n"
+
+                    "boost::variant<int, float> if1 = int(1);\n"
+                    "boost::variant<int, float> if2 = float(2);\n"
+
+                    "boost::variant<int, double> id1 = int(1);\n"
+                    "boost::variant<int, double> id2 = double(2);\n"
+
+                    "boost::variant<int, std::string> is1 = int(1);\n"
+                    "boost::variant<int, std::string> is2 = std::string(\"sss\");\n")
+
+               + BoostProfile()
+
+               + Check("ch1", "1", TypePattern("boost::variant<char, short.*>"))
+               + Check("ch2", "2", TypePattern("boost::variant<char, short.*>"))
+
+               + Check("if1", "1", TypePattern("boost::variant<int, float.*>"))
+               + Check("if2", FloatValue("2"), TypePattern("boost::variant<int, float.*>"))
+
+               + Check("id1", "1", TypePattern("boost::variant<int, double.*>"))
+               + Check("id2", FloatValue("2"), TypePattern("boost::variant<int, double.*>"))
+
+               + Check("is1", "1", TypePattern("boost::variant<int, std::.*>"))
+               + Check("is2", "\"sss\"", TypePattern("boost::variant<int, std::.*>"));
+#endif
+
 
     QTest::newRow("Eigen")
          << Data("#ifdef HAS_EIGEN\n"
@@ -6706,6 +6747,7 @@ void tst_Dumpers::dumper_data()
             + Check("tc.2.bar", "15", "int")
             + Check("tc.3.bar", "15", "int");
 
+
     QTest::newRow("UndefinedStaticMembers")
             << Data("struct Foo { int a = 15; static int b; }; \n",
                     "Foo f; unused(&f);\n")
@@ -6723,6 +6765,21 @@ void tst_Dumpers::dumper_data()
             + Check("b", FloatValue("-2"), TypeDef("double", "long double"))
             + Check("c", FloatValue("0"), TypeDef("double", "long double"))
             + Check("d", FloatValue("0.5"), TypeDef("double", "long double"));
+
+#ifdef Q_OS_LINUX
+    QTest::newRow("StaticMembersInLib")
+            // We don't seem to have such in the public interface.
+            << Data("#include <private/qlocale_p.h>\n"
+                    "#include <private/qflagpointer_p.h>\n",
+                    "QLocaleData d; unused(&d);\n"
+                    "QFlagPointer<int> p; unused(&p);\n")
+            + CorePrivateProfile()
+            + QmlPrivateProfile()
+            + QtVersion(0x50800)
+            + Check("d.Log10_2_100000", "30103", "int")
+            + Check("p.FlagBit", "<optimized out>", "") % NoCdbEngine
+            + Check("p.FlagBit", "", "<Value unavailable error>", "") % CdbEngine;
+#endif
 
     QTest::newRow("ArrayOfFunctionPointers")
             << Data("typedef int (*FP)(int *); \n"

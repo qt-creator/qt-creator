@@ -382,7 +382,8 @@ class Dumper(DumperBase):
             else:
                 error('UNKNOWN TEMPLATE PARAMETER')
             pos += 1
-        return targs
+        targs2 = self.listTemplateParametersManually(str(nativeType))
+        return targs if len(targs) >= len(targs2) else targs2
 
     def nativeTypeEnumDisplay(self, nativeType, intval):
         try:
@@ -451,6 +452,12 @@ class Dumper(DumperBase):
 
     def memberFromNativeFieldAndValue(self, nativeField, nativeValue, fieldName, value):
         nativeMember = self.nativeMemberFromField(nativeValue, nativeField)
+        if nativeMember is None:
+            val = self.Value(self)
+            val.name = fieldName
+            val.type = self.fromNativeType(nativeField.type)
+            val.lIsInScope = False
+            return val
         val = self.fromNativeValue(nativeMember)
         nativeFieldType = nativeField.type.unqualified()
         if nativeField.bitsize:
