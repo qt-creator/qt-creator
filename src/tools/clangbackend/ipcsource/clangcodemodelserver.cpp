@@ -115,14 +115,18 @@ void ClangCodeModelServer::updateTranslationUnitsForEditor(const UpdateTranslati
     try {
         const auto newerFileContainers = documents.newerFileContainers(message.fileContainers());
         if (newerFileContainers.size() > 0) {
-            const std::vector<Document> updateDocuments = documents.update(newerFileContainers);
+            std::vector<Document> updateDocuments = documents.update(newerFileContainers);
             unsavedFiles.createOrUpdate(newerFileContainers);
+
+            for (Document &document : updateDocuments) {
+                if (!document.isResponsivenessIncreased())
+                    document.setResponsivenessIncreaseNeeded(true);
+            }
 
             // Start the jobs on the next event loop iteration since otherwise
             // we might block the translation unit for a completion request
             // that comes right after this message.
             updateDocumentAnnotationsTimer.start(0);
-            delayStartInitializingSupportiveTranslationUnits(updateDocuments);
         }
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::updateTranslationUnitsForEditor:" << exception.what();
@@ -279,7 +283,7 @@ void ClangCodeModelServer::processJobsForDirtyAndVisibleDocuments()
 
 void ClangCodeModelServer::processJobsForDirtyCurrentDocument()
 {
-    const auto currentDirtyDocuments = documents.filtered([](const Document &document) {
+    auto currentDirtyDocuments = documents.filtered([](const Document &document) {
         return document.isDirty() && document.isUsedByCurrentEditor();
     });
     QTC_CHECK(currentDirtyDocuments.size() <= 1);
@@ -287,13 +291,23 @@ void ClangCodeModelServer::processJobsForDirtyCurrentDocument()
     addAndRunUpdateJobs(currentDirtyDocuments);
 }
 
-void ClangCodeModelServer::addAndRunUpdateJobs(const std::vector<Document> &documents)
+void ClangCodeModelServer::addAndRunUpdateJobs(std::vector<Document> documents)
 {
-    for (const auto &document : documents) {
+    for (auto &document : documents) {
         DocumentProcessor processor = documentProcessors().processor(document);
+
+        // Run the regular edit-reparse-job
         processor.addJob(JobRequest::Type::UpdateDocumentAnnotations,
                          PreferredTranslationUnit::PreviouslyParsed);
         processor.process();
+
+        // If requested, run jobs to increase the responsiveness of the document
+        if (useSupportiveTranslationUnit() && document.isResponsivenessIncreaseNeeded()) {
+            QTC_CHECK(!document.isResponsivenessIncreased());
+            QTC_CHECK(!processor.hasSupportiveTranslationUnit());
+            document.setResponsivenessIncreaseNeeded(false);
+            processor.startInitializingSupportiveTranslationUnit();
+        }
     }
 }
 
@@ -319,30 +333,6 @@ void ClangCodeModelServer::processInitialJobsForDocuments(const std::vector<Docu
         processor.addJob(JobRequest::Type::UpdateDocumentAnnotations);
         processor.addJob(JobRequest::Type::CreateInitialDocumentPreamble);
         processor.process();
-    }
-}
-
-void ClangCodeModelServer::delayStartInitializingSupportiveTranslationUnits(
-        const std::vector<Document> &documents)
-{
-    if (useSupportiveTranslationUnit()) {
-        QTimer::singleShot(0, [this, documents](){
-            startInitializingSupportiveTranslationUnits(documents);
-        });
-    }
-}
-
-void ClangCodeModelServer::startInitializingSupportiveTranslationUnits(
-        const std::vector<Document> &documents)
-{
-    for (const Document &document : documents) {
-        try {
-            DocumentProcessor processor = documentProcessors().processor(document);
-            if (!processor.hasSupportiveTranslationUnit())
-                processor.startInitializingSupportiveTranslationUnit();
-        } catch (const DocumentProcessorDoesNotExist &) {
-            // OK, document was already closed.
-        }
     }
 }
 

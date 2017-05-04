@@ -77,6 +77,7 @@ public:
     bool hasParseOrReparseFailed = false;
     bool isUsedByCurrentEditor = false;
     bool isVisibleInEditor = false;
+    bool increaseResponsiveness = false;
 };
 
 DocumentData::DocumentData(const Utf8String &filePath,
@@ -211,6 +212,23 @@ void Document::setDocumentRevision(uint revision)
     checkIfNull();
 
     d->documentRevision = revision;
+}
+
+bool Document::isResponsivenessIncreased() const
+{
+    return d->translationUnits.size() > 1;
+}
+
+bool Document::isResponsivenessIncreaseNeeded() const
+{
+    checkIfNull();
+
+    return d->increaseResponsiveness;
+}
+
+void Document::setResponsivenessIncreaseNeeded(bool responsivenessIncreaseNeeded)
+{
+    d->increaseResponsiveness = responsivenessIncreaseNeeded;
 }
 
 bool Document::isUsedByCurrentEditor() const

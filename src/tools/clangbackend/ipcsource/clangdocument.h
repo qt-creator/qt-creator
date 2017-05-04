@@ -90,6 +90,10 @@ public:
     uint documentRevision() const;
     void setDocumentRevision(uint revision);
 
+    bool isResponsivenessIncreased() const;
+    bool isResponsivenessIncreaseNeeded() const;
+    void setResponsivenessIncreaseNeeded(bool responsivenessIncreaseNeeded);
+
     bool isUsedByCurrentEditor() const;
     void setIsUsedByCurrentEditor(bool isUsedByCurrentEditor);
 
