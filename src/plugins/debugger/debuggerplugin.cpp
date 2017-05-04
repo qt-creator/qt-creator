@@ -2957,6 +2957,8 @@ void DebuggerPluginPrivate::runControlStarted(DebuggerEngine *engine)
 
 void DebuggerPluginPrivate::runControlFinished(DebuggerEngine *engine)
 {
+    if (engine)
+        engine->handleFinished();
     if (m_shuttingDown)
         return;
     showStatusMessage(tr("Debugger finished."));

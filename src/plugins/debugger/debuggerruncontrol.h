@@ -64,8 +64,7 @@ public:
     void start() override;
     void stop() override;
     void onTargetFailure() override;
-
-    void handleFinished();
+    void onFinished() override;
 
     void startFailed();
     void notifyEngineRemoteServerRunning(const QByteArray &msg, int pid);

@@ -730,6 +730,7 @@ void RunControlPrivate::initiateStop()
 
 void RunControlPrivate::onToolStopped()
 {
+    toolRunner->onStop();
     checkState(State::ToolStopping);
     setState(State::TargetStopping);
     targetRunner->stop();
@@ -742,6 +743,7 @@ void RunControlPrivate::onTargetStopped()
     QTC_CHECK(applicationProcessHandle.isValid());
     q->setApplicationProcessHandle(Utils::ProcessHandle());
 
+    toolRunner->onFinished();
     targetRunner->onFinished();
 }
 
@@ -1356,7 +1358,6 @@ void ToolRunner::reportStopFailed(const QString &msg)
 
 void ToolRunner::reportStopped()
 {
-    onStop();
     m_runControl->d->onToolStopped();
 }
 

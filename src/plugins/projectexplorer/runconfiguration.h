@@ -528,6 +528,7 @@ public:
     virtual void onStop() {}
     virtual void onToolFailure() {}
     virtual void onTargetFailure() {}
+    virtual void onFinished() {}
 
 private:
     QPointer<RunControl> m_runControl;

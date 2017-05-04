@@ -538,9 +538,6 @@ void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp, QString 
     }
 
     m_engine->setRunTool(this);
-
-    connect(runControl(), &RunControl::finished,
-            this, &DebuggerRunTool::handleFinished);
 }
 
 DebuggerRunTool::~DebuggerRunTool()
@@ -554,11 +551,9 @@ DebuggerRunTool::~DebuggerRunTool()
     }
 }
 
-void DebuggerRunTool::handleFinished()
+void DebuggerRunTool::onFinished()
 {
     appendMessage(tr("Debugging has finished") + '\n', NormalMessageFormat);
-    if (m_engine)
-        m_engine->handleFinished();
     runControlFinished(m_engine);
 }
 
