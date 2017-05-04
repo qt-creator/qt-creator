@@ -27,6 +27,7 @@ HEADERS = \
     qbscleanstep.h \
     qbsdeployconfigurationfactory.h \
     qbsinfopage.h \
+    qbsinstallstep.h \
     qbslogsink.h \
     qbsnodes.h \
     qbsnodetreebuilder.h \
@@ -51,6 +52,7 @@ SOURCES = \
     qbscleanstep.cpp \
     qbsdeployconfigurationfactory.cpp \
     qbsinfopage.cpp \
+    qbsinstallstep.cpp \
     qbslogsink.cpp \
     qbsnodes.cpp \
     qbsnodetreebuilder.cpp \
@@ -69,6 +71,7 @@ FORMS = \
     qbsbuildstepconfigwidget.ui \
     qbscleanstepconfigwidget.ui \
     qbsinfowidget.ui \
+    qbsinstallstepconfigwidget.ui \
     qbsprofilessettingswidget.ui
 
 RESOURCES += \

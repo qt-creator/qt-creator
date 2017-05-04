@@ -28,6 +28,7 @@
 #include "qbsbuildconfigurationwidget.h"
 #include "qbsbuildstep.h"
 #include "qbscleanstep.h"
+#include "qbsinstallstep.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagersettings.h"
@@ -37,6 +38,7 @@
 #include <utils/qtcassert.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -213,24 +215,31 @@ public:
     StepProxy(const BuildStep *buildStep)
         : m_qbsBuildStep(qobject_cast<const QbsBuildStep *>(buildStep))
         , m_qbsCleanStep(qobject_cast<const QbsCleanStep *>(buildStep))
+        , m_qbsInstallStep(qobject_cast<const QbsInstallStep *>(buildStep))
     {
     }
 
     QString command() const {
         if (m_qbsBuildStep)
             return QLatin1String("build");
+        if (m_qbsInstallStep)
+            return QLatin1String("install");
         return QLatin1String("clean");
     }
 
     bool dryRun() const {
         if (m_qbsBuildStep)
             return false;
+        if (m_qbsInstallStep)
+            return m_qbsInstallStep->dryRun();
         return m_qbsCleanStep->dryRun();
     }
 
     bool keepGoing() const {
         if (m_qbsBuildStep)
             return m_qbsBuildStep->keepGoing();
+        if (m_qbsInstallStep)
+            return m_qbsInstallStep->keepGoing();
         return m_qbsCleanStep->keepGoing();
     }
 
@@ -242,9 +251,13 @@ public:
         return m_qbsBuildStep ? !m_qbsBuildStep->install() : false;
     }
 
+    bool noBuild() const { return m_qbsInstallStep; }
+
     bool cleanInstallRoot() const {
         if (m_qbsBuildStep)
             return m_qbsBuildStep->cleanInstallRoot();
+        if (m_qbsInstallStep)
+            return m_qbsInstallStep->removeFirst();
         return false;
     }
 
@@ -253,14 +266,22 @@ public:
     }
 
     Utils::FileName installRoot() const {
-        if (m_qbsBuildStep && m_qbsBuildStep->hasCustomInstallRoot())
-            return m_qbsBuildStep->installRoot();
+        const QbsBuildStep *bs = nullptr;
+        if (m_qbsBuildStep) {
+            bs = m_qbsBuildStep;
+        } else if (m_qbsInstallStep) {
+            bs = static_cast<QbsBuildConfiguration *>(m_qbsInstallStep->deployConfiguration()
+                    ->target()->activeBuildConfiguration())->qbsStep();
+        }
+        if (bs && bs->hasCustomInstallRoot())
+            return bs->installRoot();
         return Utils::FileName();
     }
 
 private:
     const QbsBuildStep * const m_qbsBuildStep;
     const QbsCleanStep * const m_qbsCleanStep;
+    const QbsInstallStep * const m_qbsInstallStep;
 };
 
 QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep) const
@@ -290,6 +311,8 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
                                                               "command-line"}));
     if (stepProxy.noInstall())
         Utils::QtcProcess::addArg(&commandLine, QLatin1String("--no-install"));
+    if (stepProxy.noBuild())
+        Utils::QtcProcess::addArg(&commandLine, QLatin1String("--no-build"));
     if (stepProxy.cleanInstallRoot())
         Utils::QtcProcess::addArg(&commandLine, QLatin1String("--clean-install-root"));
     const int jobCount = stepProxy.jobCount();
@@ -307,6 +330,10 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
     if (!installRoot.isEmpty()) {
         Utils::QtcProcess::addArg(&commandLine, QLatin1String(Constants::QBS_INSTALL_ROOT_KEY)
                                   + QLatin1Char(':') + installRoot.toUserOutput());
+        if (qobject_cast<const QbsInstallStep *>(buildStep)) {
+            Utils::QtcProcess::addArgs(&commandLine, QStringList({ QLatin1String("--installRoot"),
+                                                                   installRoot.toUserOutput() } ));
+        }
     }
     Utils::QtcProcess::addArg(&commandLine, QLatin1String("profile:") + profileName);
 

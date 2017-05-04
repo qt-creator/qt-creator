@@ -25,6 +25,7 @@
 
 #include "qbsdeployconfigurationfactory.h"
 
+#include "qbsinstallstep.h"
 #include "qbsproject.h"
 
 #include <projectexplorer/buildsteplist.h>
