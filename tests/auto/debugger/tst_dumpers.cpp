@@ -6748,6 +6748,32 @@ void tst_Dumpers::dumper_data()
             + Check("tc.3.bar", "15", "int");
 
 
+    QTest::newRow("BufArray")
+            << Data("#include <new>\n"
+                    "static int c = 0;\n"
+                    "struct Foo { int bar = c++; int baz = c++; };\n"
+                    "template<class T>\n"
+                    "struct QtcDumperTest_BufArray {\n"
+                    "   const int objSize = int(sizeof(T));\n"
+                    "   const int count = 10;\n"
+                    "   char *buffer;\n"
+                    "   QtcDumperTest_BufArray() {\n"
+                    "      buffer = new char[count * objSize];\n"
+                    "      for (int i = 0; i < count; ++i)\n"
+                    "         new(buffer + i * objSize) T;\n"
+                    "   }\n"
+                    "   ~QtcDumperTest_BufArray() { delete[] buffer; }\n"
+                    "};\n\n",
+                    "QtcDumperTest_BufArray<Foo> arr; unused(&arr);\n")
+               + Cxx11Profile()
+               + Check("arr.0.bar", "0", "int")
+               + Check("arr.0.baz", "1", "int")
+               + Check("arr.1.bar", "2", "int")
+               + Check("arr.1.baz", "3", "int")
+               + Check("arr.2.bar", "4", "int")
+               + Check("arr.2.baz", "5", "int");
+
+
     QTest::newRow("UndefinedStaticMembers")
             << Data("struct Foo { int a = 15; static int b; }; \n",
                     "Foo f; unused(&f);\n")

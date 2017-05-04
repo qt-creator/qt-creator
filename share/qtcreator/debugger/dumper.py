@@ -3104,7 +3104,7 @@ class DumperBase:
             if self.dumper.isInt(other):
                 stripped = self.type.stripTypedefs()
                 if stripped.code == TypeCodePointer:
-                    address = self.pointer() + stripped.dereference().size()
+                    address = self.pointer() + stripped.dereference().size() * other
                     val = self.dumper.Value(self.dumper)
                     val.laddress = None
                     val.ldata = bytes(struct.pack(self.dumper.packCode + 'Q', address))
