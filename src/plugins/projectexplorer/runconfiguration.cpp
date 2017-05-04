@@ -60,6 +60,8 @@
 using namespace Utils;
 using namespace ProjectExplorer::Internal;
 
+const bool debugStates = false;
+
 namespace ProjectExplorer {
 
 ///////////////////////////////////////////////////////////////////////
@@ -522,7 +524,7 @@ public:
 
     ~RunControlPrivate()
     {
-        QTC_CHECK(state == State::Stopped);
+        QTC_CHECK(state == State::Stopped || state == State::Initialized);
         delete targetRunner;
         delete toolRunner;
         delete outputFormatter;
@@ -544,6 +546,9 @@ public:
     void checkState(State expectedState);
     void setState(State state);
 
+    void debugMessage(const QString &msg);
+    QString stateName(State s) const;
+
     void initiateStart();
 
     void onTargetPrepared();
@@ -560,10 +565,17 @@ public:
 
     void initiateStop();
     void onToolStopped();
+    void onToolStopFailed(const QString &msg);
+
     void onTargetStopped();
+    void onTargetStopFailed(const QString &msg);
 
     void onToolFailed(const QString &msg);
+    void onToolSuccess();
+
     void onTargetFailed(const QString &msg);
+    void onTargetSuccess();
+
     void handleFailure();
 
     void showError(const QString &msg);
@@ -659,14 +671,16 @@ void RunControlPrivate::initiateStart()
 {
     checkState(State::Initialized);
     setState(State::TargetPreparing);
-    targetRunner->prepare();
+    debugMessage("Queue: Prepare target runner");
+    QTimer::singleShot(0, targetRunner, &TargetRunner::prepare);
 }
 
 void RunControlPrivate::onTargetPrepared()
 {
     checkState(State::TargetPreparing);
     setState(State::ToolPreparing);
-    toolRunner->prepare();
+    debugMessage("Queue: Prepare tool runner");
+    QTimer::singleShot(0, toolRunner, &ToolRunner::prepare);
 }
 
 void RunControlPrivate::onTargetPrepareFailed(const QString &msg)
@@ -681,7 +695,8 @@ void RunControlPrivate::onToolPrepared()
 {
     checkState(State::ToolPreparing);
     setState(State::TargetStarting);
-    targetRunner->start();
+    debugMessage("Queue: Start target runner");
+    QTimer::singleShot(0, targetRunner, &TargetRunner::start);
 }
 
 void RunControlPrivate::onToolPrepareFailed(const QString &msg)
@@ -696,7 +711,8 @@ void RunControlPrivate::onTargetStarted()
 {
     checkState(State::TargetStarting);
     setState(State::ToolStarting);
-    toolRunner->start();
+    debugMessage("Queue: Start tool runner");
+    QTimer::singleShot(0, toolRunner, &ToolRunner::start);
 }
 
 void RunControlPrivate::onTargetStartFailed(const QString &msg)
@@ -725,53 +741,108 @@ void RunControlPrivate::initiateStop()
 {
     checkState(State::Running);
     setState(State::ToolStopping);
-    toolRunner->stop();
+    debugMessage("Queue: Stop tool runner");
+    QTimer::singleShot(0, toolRunner, &ToolRunner::stop);
 }
 
 void RunControlPrivate::onToolStopped()
 {
     toolRunner->onStop();
+    debugMessage("Tool stopped");
     checkState(State::ToolStopping);
     setState(State::TargetStopping);
-    targetRunner->stop();
+    debugMessage("Queue: Stop target runner");
+    QTimer::singleShot(0, targetRunner, &TargetRunner::stop);
+}
+
+void RunControlPrivate::onToolStopFailed(const QString &msg)
+{
+    checkState(State::ToolStopping);
+    targetRunner->onToolFailure();
+    debugMessage("Tool stop failed");
+    showError(msg);
+    setState(State::Stopped);
 }
 
 void RunControlPrivate::onTargetStopped()
 {
+    targetRunner->onStop();
+    debugMessage("Target stopped");
     checkState(State::TargetStopping);
     setState(State::Stopped);
-    QTC_CHECK(applicationProcessHandle.isValid());
-    q->setApplicationProcessHandle(Utils::ProcessHandle());
+}
 
-    toolRunner->onFinished();
-    targetRunner->onFinished();
+void RunControlPrivate::onTargetStopFailed(const QString &msg)
+{
+    debugMessage("Target stop failed");
+    checkState(State::TargetStopping);
+    toolRunner->onTargetFailure();
+    showError(msg);
+    setState(State::Stopped);
 }
 
 void RunControlPrivate::onTargetFailed(const QString &msg)
 {
+    debugMessage("Target operation failed");
     if (state == State::TargetPreparing) {
         onTargetPrepareFailed(msg);
     } else if (state == State::TargetStarting) {
         onTargetStartFailed(msg);
+    } else if (state == State::TargetStopping) {
+        onTargetStopFailed(msg);
     } else {
         showError(msg);
-//        showError(RunControl::tr("Unexpected state: %1").arg(int(state)));
+        showError(RunControl::tr("Unexpected state: %1").arg(int(state)));
+        setState(State::Stopped);
+    }
+}
+
+void RunControlPrivate::onTargetSuccess()
+{
+    debugMessage("Target operation successful");
+    if (state == State::TargetPreparing) {
+        onTargetPrepared();
+    } else if (state == State::TargetStarting) {
+        onTargetStarted();
+    } else if (state == State::TargetStopping) {
+        onTargetStopped();
+    } else {
+        showError(RunControl::tr("Unexpected state: %1").arg(int(state)));
         setState(State::Stopped);
     }
 }
 
 void RunControlPrivate::onToolFailed(const QString &msg)
 {
+    debugMessage("Tool operation failed");
     if (state == State::ToolPreparing) {
         onToolPrepareFailed(msg);
     } else if (state == State::ToolStarting) {
         onToolStartFailed(msg);
+    } else if (state == State::ToolStopping) {
+        onToolStartFailed(msg);
     } else {
         showError(msg);
-//        showError(RunControl::tr("Unexpected state: %1").arg(int(state)));
+        showError(RunControl::tr("Unexpected state: %1").arg(int(state)));
         setState(State::Stopped);
     }
 }
+
+void RunControlPrivate::onToolSuccess()
+{
+    debugMessage("Tool operation successful");
+    if (state == State::ToolPreparing) {
+        onToolPrepared();
+    } else if (state == State::ToolStarting) {
+        onToolStarted();
+    } else if (state == State::ToolStopping) {
+        onToolStopped();
+    } else {
+        showError(RunControl::tr("Unexpected state: %1").arg(int(state)));
+        setState(State::Stopped);
+    }
+}
+
 
 void RunControlPrivate::handleFailure()
 {
@@ -1028,6 +1099,24 @@ void RunControlPrivate::checkState(State expectedState)
         qDebug() << "Unexpected state " << expectedState << " have: " << state;
 }
 
+QString RunControlPrivate::stateName(State s) const
+{
+#    define SN(x) case x: return QLatin1String(#x);
+    switch (s) {
+        SN(State::Initialized)
+        SN(State::TargetPreparing)
+        SN(State::ToolPreparing)
+        SN(State::TargetStarting)
+        SN(State::ToolStarting)
+        SN(State::Running)
+        SN(State::ToolStopping)
+        SN(State::TargetStopping)
+        SN(State::Stopped)
+    }
+    return QLatin1String("<unknown>");
+#    undef SN
+}
+
 void RunControlPrivate::setState(State newState)
 {
     if (!isAllowedTransition(state, newState))
@@ -1035,18 +1124,30 @@ void RunControlPrivate::setState(State newState)
 
     state = newState;
 
+    debugMessage("Entering state " + stateName(newState));
+
     // Extra reporting.
     switch (state) {
     case State::Running:
         emit q->started();
         break;
     case State::Stopped:
-        emit q->finished();
+        QTC_CHECK(applicationProcessHandle.isValid());
+        q->setApplicationProcessHandle(Utils::ProcessHandle());
+        toolRunner->onFinished();
+        targetRunner->onFinished();
         state = State::Initialized; // Reset for potential re-running.
+        emit q->finished();
         break;
     default:
         break;
     }
+}
+
+void RunControlPrivate::debugMessage(const QString &msg)
+{
+    if (debugStates)
+        q->appendMessage(msg + '\n', Utils::DebugFormat);
 }
 
 /*!
@@ -1079,8 +1180,7 @@ void RunControl::reportApplicationStop()
         // multiple times. Fix it there and then add a soft assert here.
         return;
     }
-    d->onToolStopped();
-    emit finished();
+    d->onTargetStopped();
 }
 
 void RunControl::bringApplicationToForegroundInternal()
@@ -1145,9 +1245,9 @@ void SimpleTargetRunner::start()
         QTC_ASSERT(r.is<StandardRunnable>(), return);
         const QString executable = r.as<StandardRunnable>().executable;
         if (executable.isEmpty()) {
-            reportStartFailed(RunControl::tr("No executable specified."));
+            reportFailure(RunControl::tr("No executable specified."));
         }  else if (!QFileInfo::exists(executable)) {
-            reportStartFailed(RunControl::tr("Executable %1 does not exist.")
+            reportFailure(RunControl::tr("Executable %1 does not exist.")
                               .arg(QDir::toNativeSeparators(executable)));
         } else {
             QString msg = RunControl::tr("Starting %1...").arg(QDir::toNativeSeparators(executable)) + '\n';
@@ -1173,7 +1273,7 @@ void SimpleTargetRunner::start()
         connect(&m_launcher, &ApplicationLauncher::finished,
                 this, [this] {
                     m_launcher.disconnect(this);
-                    reportStopped();
+                    reportSuccess();
                 });
 
         connect(&m_launcher, &ApplicationLauncher::reportProgress,
@@ -1195,7 +1295,7 @@ void SimpleTargetRunner::onProcessStarted()
     // Console processes only know their pid after being started
     runControl()->setApplicationProcessHandle(m_launcher.applicationPID());
     runControl()->bringApplicationToForeground();
-    reportStarted();
+    reportSuccess();
 }
 
 void SimpleTargetRunner::onProcessFinished(int exitCode, QProcess::ExitStatus status)
@@ -1219,6 +1319,10 @@ TargetRunner::TargetRunner(RunControl *runControl)
     runControl->setTargetRunner(this);
 }
 
+TargetRunner::~TargetRunner()
+{
+}
+
 RunControl *TargetRunner::runControl() const
 {
     return m_runControl;
@@ -1236,46 +1340,27 @@ IDevice::ConstPtr TargetRunner::device() const
 
 void TargetRunner::prepare()
 {
-    reportPrepared(); // By default nothing to do, all is fine.
-}
-
-void TargetRunner::reportPrepareFailed(const QString &msg)
-{
-    m_runControl->d->onTargetPrepareFailed(msg);
-}
-
-void TargetRunner::reportPrepared()
-{
-    QTC_ASSERT(m_runControl, return);
-    m_runControl->d->onTargetPrepared();
+    reportSuccess(); // By default nothing to do, all is fine.
 }
 
 void TargetRunner::start()
 {
-    reportStarted();
-}
-
-void TargetRunner::reportStartFailed(const QString &msg)
-{
-    m_runControl->d->onTargetStartFailed(msg);
+    reportSuccess();
 }
 
 void TargetRunner::stop()
 {
-    reportStopped(); // By default all is fine.
-}
-
-void TargetRunner::reportStarted()
-{
-    QTC_ASSERT(m_runControl, return);
-    m_runControl->d->onTargetStarted();
+    reportSuccess(); // By default all is fine.
 }
 
 void TargetRunner::reportStopped()
 {
-    QTC_ASSERT(m_runControl, return);
-    onStop();
     m_runControl->d->onTargetStopped();
+}
+
+void TargetRunner::reportSuccess()
+{
+    m_runControl->d->onTargetSuccess();
 }
 
 void TargetRunner::reportFailure(const QString &msg)
@@ -1290,6 +1375,10 @@ ToolRunner::ToolRunner(RunControl *runControl)
 {
     if (runControl)
         runControl->setToolRunner(this);
+}
+
+ToolRunner::~ToolRunner()
+{
 }
 
 RunControl *ToolRunner::runControl() const
@@ -1319,46 +1408,27 @@ const Connection &ToolRunner::connection() const
 
 void ToolRunner::prepare()
 {
-    reportPrepared();
-}
-
-void ToolRunner::reportPrepared()
-{
-    m_runControl->d->onToolPrepared();
+    reportSuccess();
 }
 
 void ToolRunner::start()
 {
-    reportStarted();
-}
-
-void ToolRunner::reportStartFailed(const QString &msg)
-{
-    QTC_CHECK(m_runControl->d->state == RunControlPrivate::State::ToolStarting);
-    m_runControl->d->targetRunner->onToolFailure();
-    reportFailure(msg);
-}
-
-void ToolRunner::reportStarted()
-{
-    m_runControl->d->onToolStarted();
+    reportSuccess();
 }
 
 void ToolRunner::stop()
 {
-    reportStopped();
-}
-
-void ToolRunner::reportStopFailed(const QString &msg)
-{
-    QTC_CHECK(m_runControl->d->state == RunControlPrivate::State::ToolStopping);
-    m_runControl->d->targetRunner->onToolFailure();
-    reportFailure(msg);
+    reportSuccess();
 }
 
 void ToolRunner::reportStopped()
 {
     m_runControl->d->onToolStopped();
+}
+
+void ToolRunner::reportSuccess()
+{
+    m_runControl->d->onToolSuccess();
 }
 
 void ToolRunner::reportFailure(const QString &msg)

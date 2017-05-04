@@ -41,39 +41,30 @@ class REMOTELINUX_EXPORT AbstractRemoteLinuxRunSupport : public ProjectExplorer:
     Q_OBJECT
 
 public:
-    enum State
-    {
-        Inactive,
-        GatheringResources,
-        StartingRunner,
-        Running
-    };
-
     explicit AbstractRemoteLinuxRunSupport(ProjectExplorer::RunControl *runControl);
     ~AbstractRemoteLinuxRunSupport();
 
     ProjectExplorer::ApplicationLauncher *applicationLauncher();
 
-    void setState(State state);
-    State state() const;
+    void setUsesFifo(bool on);
 
-    void setFinished();
-
-    void startPortsGathering();
     Utils::Port findPort() const;
-
-    void createRemoteFifo();
     QString fifo() const;
 
-    void reset();
-
-signals:
-    void adapterSetupFailed(const QString &error);
-    void executionStartRequested();
-
 private:
-    void handleResourcesError(const QString &message);
-    void handleResourcesAvailable();
+    void prepare() override;
+    void start() override;
+    void onFinished() override;
+
+    void createRemoteFifo();
+    void startPortsGathering();
+
+    void handleAppRunnerError(const QString &error);
+    void handleRemoteOutput(const QByteArray &output);
+    void handleRemoteErrorOutput(const QByteArray &output);
+    void handleAppRunnerFinished(bool success);
+    void handleProgressReport(const QString &progressOutput);
+    void handleAdapterSetupDone();
 
     Internal::AbstractRemoteLinuxRunSupportPrivate * const d;
 };

@@ -69,6 +69,7 @@ public:
     void startFailed();
     void notifyEngineRemoteServerRunning(const QByteArray &msg, int pid);
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
+    void setRemoteParameters(const RemoteSetupResult &result);
     void notifyInferiorIll();
     Q_SLOT void notifyInferiorExited();
     void quitDebugger();
@@ -79,6 +80,10 @@ public:
 
     bool isCppDebugging() const { return m_isCppDebugging; }
     bool isQmlDebugging() const { return m_isQmlDebugging; }
+    int portsUsedByDebugger() const;
+
+    virtual void doRemoteSetup() { emit requestRemoteSetup(); }
+    void appendSolibSearchPath(const QString &str);
 
 signals:
     void stateChanged(Debugger::DebuggerState state);

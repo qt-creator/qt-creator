@@ -381,6 +381,8 @@ protected:
     void notifyDebuggerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus,
                                        const QString &backendName);
 
+    void setRemoteParameters(const RemoteSetupResult &result);
+
 protected:
     virtual void notifyInferiorShutdownOk();
     virtual void notifyInferiorShutdownFailed();

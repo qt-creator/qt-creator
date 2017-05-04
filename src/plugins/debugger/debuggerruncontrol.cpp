@@ -52,8 +52,10 @@
 
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
+#include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <qmldebug/qmldebugcommandlinearguments.h>
@@ -126,9 +128,7 @@ void DebuggerRunTool::start()
     if (rp.startMode == StartInternal
             && rp.inferior.executable.isEmpty()
             && rp.interpreter.isEmpty()) {
-        appendMessage(tr("No executable specified.") + QLatin1Char('\n'), ErrorMessageFormat);
-        runControl()->reportApplicationStart();
-        runControl()->reportApplicationStop();
+        reportFailure(tr("No executable specified.") + '\n');
         return;
     }
 
@@ -177,6 +177,11 @@ void DebuggerRunTool::notifyEngineRemoteSetupFinished(const RemoteSetupResult &r
     m_engine->notifyEngineRemoteSetupFinished(result);
 }
 
+void DebuggerRunTool::setRemoteParameters(const RemoteSetupResult &result)
+{
+    m_engine->setRemoteParameters(result);
+}
+
 void DebuggerRunTool::stop()
 {
     m_engine->quitDebugger();
@@ -200,6 +205,11 @@ void DebuggerRunTool::debuggingFinished()
 DebuggerStartParameters &DebuggerRunTool::startParameters()
 {
     return m_engine->runParameters();
+}
+
+int DebuggerRunTool::portsUsedByDebugger() const
+{
+    return isCppDebugging() + isQmlDebugging();
 }
 
 void DebuggerRunTool::notifyInferiorIll()
@@ -510,6 +520,12 @@ void DebuggerRunTool::setStartParameters(const DebuggerStartParameters &sp, QStr
 
 void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp, QString *errorMessage)
 {
+    int portsUsed = portsUsedByDebugger();
+    if (portsUsed > device()->freePorts().count()) {
+        *errorMessage = tr("Cannot debug: Not enough free ports available.");
+        return;
+    }
+
     DebuggerRunParameters m_rp = rp;
 
     runControl()->setDisplayName(m_rp.displayName);
@@ -538,6 +554,14 @@ void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp, QString 
     }
 
     m_engine->setRunTool(this);
+}
+
+void DebuggerRunTool::appendSolibSearchPath(const QString &str)
+{
+    QString path = str;
+    DebuggerStartParameters &sp = startParameters();
+    path.replace("%{sysroot}", sp.sysRoot);
+    sp.solibSearchPath.append(path);
 }
 
 DebuggerRunTool::~DebuggerRunTool()

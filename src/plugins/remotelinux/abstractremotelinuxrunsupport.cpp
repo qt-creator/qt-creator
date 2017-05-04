@@ -34,6 +34,7 @@
 #include <utils/portlist.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -42,11 +43,11 @@ class AbstractRemoteLinuxRunSupportPrivate
 {
 public:
     ApplicationLauncher launcher;
-    AbstractRemoteLinuxRunSupport::State state = AbstractRemoteLinuxRunSupport::Inactive;
     DeviceUsedPortsGatherer portsGatherer;
     ApplicationLauncher fifoCreator;
-    Utils::PortList portList;
+    PortList portList;
     QString fifo;
+    bool usesFifo = false;
 };
 
 } // namespace Internal
@@ -61,7 +62,6 @@ AbstractRemoteLinuxRunSupport::AbstractRemoteLinuxRunSupport(RunControl *runCont
 
 AbstractRemoteLinuxRunSupport::~AbstractRemoteLinuxRunSupport()
 {
-    setFinished();
     delete d;
 }
 
@@ -70,42 +70,12 @@ ApplicationLauncher *AbstractRemoteLinuxRunSupport::applicationLauncher()
     return &d->launcher;
 }
 
-void AbstractRemoteLinuxRunSupport::setState(AbstractRemoteLinuxRunSupport::State state)
+void AbstractRemoteLinuxRunSupport::setUsesFifo(bool on)
 {
-    d->state = state;
+    d->usesFifo = on;
 }
 
-AbstractRemoteLinuxRunSupport::State AbstractRemoteLinuxRunSupport::state() const
-{
-    return d->state;
-}
-
-void AbstractRemoteLinuxRunSupport::handleResourcesError(const QString &message)
-{
-    QTC_ASSERT(d->state == GatheringResources, return);
-    setFinished();
-    reset();
-    emit adapterSetupFailed(message);
-}
-
-void AbstractRemoteLinuxRunSupport::handleResourcesAvailable()
-{
-    QTC_ASSERT(d->state == GatheringResources, return);
-
-    d->portList = device()->freePorts();
-    emit executionStartRequested();
-}
-
-void AbstractRemoteLinuxRunSupport::setFinished()
-{
-    if (d->state == Inactive)
-        return;
-    if (d->state == Running)
-        applicationLauncher()->stop();
-    d->state = Inactive;
-}
-
-Utils::Port AbstractRemoteLinuxRunSupport::findPort() const
+Port AbstractRemoteLinuxRunSupport::findPort() const
 {
     return d->portsGatherer.getNextFreePort(&d->portList);
 }
@@ -115,21 +85,31 @@ QString AbstractRemoteLinuxRunSupport::fifo() const
     return d->fifo;
 }
 
+void AbstractRemoteLinuxRunSupport::prepare()
+{
+    if (d->usesFifo)
+        createRemoteFifo();
+    else
+        startPortsGathering();
+}
+
 void AbstractRemoteLinuxRunSupport::startPortsGathering()
 {
-    QTC_ASSERT(d->state == Inactive, return);
-    d->state = GatheringResources;
-    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::error,
-            this, &AbstractRemoteLinuxRunSupport::handleResourcesError);
-    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::portListReady,
-            this, &AbstractRemoteLinuxRunSupport::handleResourcesAvailable);
+    appendMessage(tr("Checking available ports...") + '\n', NormalMessageFormat);
+    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::error, this, [&](const QString &msg) {
+        reportFailure(msg);
+    });
+    connect(&d->portsGatherer, &DeviceUsedPortsGatherer::portListReady, this, [&] {
+        d->portList = device()->freePorts();
+        //appendMessage(tr("Found %1 free ports").arg(d->portList.count()), NormalMessageFormat);
+        reportSuccess();
+    });
     d->portsGatherer.start(device());
 }
 
 void AbstractRemoteLinuxRunSupport::createRemoteFifo()
 {
-    QTC_ASSERT(d->state == Inactive, return);
-    d->state = GatheringResources;
+    appendMessage(tr("Creating remote socket...") + '\n', NormalMessageFormat);
 
     StandardRunnable r;
     r.executable = QLatin1String("/bin/sh");
@@ -143,10 +123,11 @@ void AbstractRemoteLinuxRunSupport::createRemoteFifo()
     connect(&d->fifoCreator, &ApplicationLauncher::finished,
             this, [this, output, errors](bool success) {
         if (!success) {
-            handleResourcesError(QString("Failed to create fifo: %1").arg(QLatin1String(*errors)));
+            reportFailure(QString("Failed to create fifo: %1").arg(QLatin1String(*errors)));
         } else {
             d->fifo = QString::fromLatin1(*output);
-            handleResourcesAvailable();
+            //appendMessage(tr("Created fifo").arg(d->fifo), NormalMessageFormat);
+            reportSuccess();
         }
     });
 
@@ -163,11 +144,53 @@ void AbstractRemoteLinuxRunSupport::createRemoteFifo()
     d->fifoCreator.start(r, device());
 }
 
-void AbstractRemoteLinuxRunSupport::reset()
+void AbstractRemoteLinuxRunSupport::start()
 {
+    connect(&d->launcher, &ApplicationLauncher::remoteStderr,
+            this, &AbstractRemoteLinuxRunSupport::handleRemoteErrorOutput);
+    connect(&d->launcher, &ApplicationLauncher::remoteStdout,
+            this, &AbstractRemoteLinuxRunSupport::handleRemoteOutput);
+    connect(&d->launcher, &ApplicationLauncher::finished,
+            this, &AbstractRemoteLinuxRunSupport::handleAppRunnerFinished);
+    connect(&d->launcher, &ApplicationLauncher::reportProgress,
+            this, &AbstractRemoteLinuxRunSupport::handleProgressReport);
+    connect(&d->launcher, &ApplicationLauncher::reportError,
+            this, &AbstractRemoteLinuxRunSupport::handleAppRunnerError);
+    connect(&d->launcher, &ApplicationLauncher::remoteProcessStarted,
+            this, &TargetRunner::reportSuccess);
+    d->launcher.start(runControl()->runnable(), device());
+}
+
+void AbstractRemoteLinuxRunSupport::onFinished()
+{
+    d->launcher.disconnect(this);
+    d->launcher.stop();
     d->portsGatherer.disconnect(this);
-    applicationLauncher()->disconnect(this);
-    d->state = Inactive;
+}
+
+void AbstractRemoteLinuxRunSupport::handleAppRunnerFinished(bool success)
+{
+    success ? reportStopped() : reportFailure();
+}
+
+void AbstractRemoteLinuxRunSupport::handleAppRunnerError(const QString &error)
+{
+    reportFailure(error);
+}
+
+void AbstractRemoteLinuxRunSupport::handleRemoteOutput(const QByteArray &output)
+{
+    appendMessage(QString::fromUtf8(output), StdOutFormat);
+}
+
+void AbstractRemoteLinuxRunSupport::handleRemoteErrorOutput(const QByteArray &output)
+{
+    appendMessage(QString::fromUtf8(output), StdErrFormat);
+}
+
+void AbstractRemoteLinuxRunSupport::handleProgressReport(const QString &progressOutput)
+{
+    appendMessage(progressOutput + '\n', LogMessageFormat);
 }
 
 } // namespace RemoteLinux

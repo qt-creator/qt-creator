@@ -44,7 +44,7 @@ public:
     ~RemoteLinuxAnalyzeSupport() override;
 
 private:
-    void startExecution();
+    void start() override;
     void handleAdapterSetupFailed(const QString &error);
 
     void handleRemoteSetupRequested();
@@ -55,7 +55,6 @@ private:
     void handleProgressReport(const QString &progressOutput);
 
     void handleRemoteProcessStarted();
-    void handleProfilingFinished();
 
     void remoteIsRunning();
     AbstractRemoteLinuxRunSupport *targetRunner() const;

@@ -454,6 +454,7 @@ class PROJECTEXPLORER_EXPORT TargetRunner : public QObject
 
 public:
     explicit TargetRunner(RunControl *runControl);
+    ~TargetRunner() override;
 
     RunControl *runControl() const;
     void appendMessage(const QString &msg, Utils::OutputFormat format);
@@ -461,20 +462,16 @@ public:
 
     // Preparation phase.
     virtual void prepare(); // Initiate setup. Needs to report result.
-    void reportPrepareFailed(const QString &msg = QString());
-    void reportPrepared();
-
     // Startup phase.
     virtual void start(); // Initiates start. Needs to report result.
-    void reportStartFailed(const QString &msg = QString());
-    void reportStarted();
-
     // Stopping phase.
     virtual void stop(); // Initiates stop. Needs to report result.
-    void reportStopFailed(const QString &msg = QString());
-    void reportStopped();
 
-    // Generic error in uncertain state.
+    //
+    void reportStopped();
+    // Generic success report, proceed to next stage.
+    void reportSuccess();
+    // Generic error, start ramp down.
     void reportFailure(const QString &msg = QString());
 
     // Customization points. No reporting required nor wanted.
@@ -497,6 +494,7 @@ class PROJECTEXPLORER_EXPORT ToolRunner : public QObject
 
 public:
     explicit ToolRunner(RunControl *runControl);
+    ~ToolRunner() override;
 
     RunControl *runControl() const;
 
@@ -508,20 +506,16 @@ public:
 
     // Preparation phase.
     virtual void prepare(); // Initiates preparation, needs to report success or failure.
-    void reportPrepareFailed(const QString &msg = QString());
-    void reportPrepared();
-
     // Start phase.
     virtual void start();
-    void reportStartFailed(const QString &msg = QString());
-    void reportStarted();
-
     // Stop phase.
     virtual void stop();
-    void reportStopFailed(const QString &msg = QString());
-    void reportStopped();
 
-    // Generic error in uncertain state.
+    //
+    void reportStopped();
+    // Generic success report, proceed to next stage.
+    void reportSuccess();
+    // Generic error, start ramp down.
     void reportFailure(const QString &msg = QString());
 
     // Customization points. No reporting required nor wanted.

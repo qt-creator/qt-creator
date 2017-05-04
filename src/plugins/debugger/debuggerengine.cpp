@@ -674,6 +674,7 @@ void DebuggerEngine::handleStartFailed()
 // Called from RunControl.
 void DebuggerEngine::handleFinished()
 {
+    setState(DebuggerFinished);
     showMessage("HANDLE RUNCONTROL FINISHED");
     d->m_runTool.clear();
     d->m_progress.setProgressValue(1000);
@@ -821,7 +822,7 @@ void DebuggerEngine::notifyEngineSetupOk()
 
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupOk);
-    runTool()->reportPrepared();
+    runTool()->reportSuccess();
 }
 
 void DebuggerEngine::setupSlaveInferior()
@@ -907,12 +908,36 @@ void DebuggerEngine::notifyEngineRequestRemoteSetup()
                << "remoteSetupState" << d->remoteSetupState());
 
     d->setRemoteSetupState(RemoteSetupRequested);
-    runTool()->requestRemoteSetup();
+    runTool()->doRemoteSetup();
 }
 
 void DebuggerEngine::notifyEngineRemoteServerRunning(const QString &, int /*pid*/)
 {
     showMessage("NOTE: REMOTE SERVER RUNNING IN MULTIMODE");
+}
+
+void DebuggerEngine::setRemoteParameters(const RemoteSetupResult &result)
+{
+    showMessage(QString("NOTE: REMOTE SETUP DONE: GDB SERVER PORT: %1  QML PORT %2")
+                .arg(result.gdbServerPort.number()).arg(result.qmlServerPort.number()));
+
+    if (result.gdbServerPort.isValid()) {
+        QString &rc = d->m_runParameters.remoteChannel;
+        const int sepIndex = rc.lastIndexOf(':');
+        if (sepIndex != -1) {
+            rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
+                       QString::number(result.gdbServerPort.number()));
+        }
+    } else if (result.inferiorPid != InvalidPid && runParameters().startMode == AttachExternal) {
+        // e.g. iOS Simulator
+        runParameters().attachPID = ProcessHandle(result.inferiorPid);
+    }
+
+    if (result.qmlServerPort.isValid()) {
+        d->m_runParameters.qmlServer.port = result.qmlServerPort;
+        d->m_runParameters.inferior.commandLineArguments.replace("%qml_port%",
+                        QString::number(result.qmlServerPort.number()));
+    }
 }
 
 void DebuggerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
@@ -926,30 +951,9 @@ void DebuggerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &re
                qDebug() << this << "remoteSetupState" << d->remoteSetupState());
 
     if (result.success) {
-        showMessage(QString("NOTE: REMOTE SETUP DONE: GDB SERVER PORT: %1  QML PORT %2")
-                    .arg(result.gdbServerPort.number()).arg(result.qmlServerPort.number()));
-
         if (d->remoteSetupState() != RemoteSetupCancelled)
             d->setRemoteSetupState(RemoteSetupSucceeded);
-
-        if (result.gdbServerPort.isValid()) {
-            QString &rc = d->m_runParameters.remoteChannel;
-            const int sepIndex = rc.lastIndexOf(':');
-            if (sepIndex != -1) {
-                rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
-                           QString::number(result.gdbServerPort.number()));
-            }
-        } else if (result.inferiorPid != InvalidPid && runParameters().startMode == AttachExternal) {
-            // e.g. iOS Simulator
-            runParameters().attachPID = ProcessHandle(result.inferiorPid);
-        }
-
-        if (result.qmlServerPort.isValid()) {
-            d->m_runParameters.qmlServer.port = result.qmlServerPort;
-            d->m_runParameters.inferior.commandLineArguments.replace("%qml_port%",
-                            QString::number(result.qmlServerPort.number()));
-        }
-
+        setRemoteParameters(result);
     } else {
         d->setRemoteSetupState(RemoteSetupFailed);
         showMessage("NOTE: REMOTE SETUP FAILED: " + result.reason);

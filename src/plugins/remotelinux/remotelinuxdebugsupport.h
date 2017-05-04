@@ -31,15 +31,12 @@
 
 namespace RemoteLinux {
 
-namespace Internal { class LinuxDeviceDebugSupportPrivate; }
-
 class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public Debugger::DebuggerRunTool
 {
     Q_OBJECT
 
 public:
     LinuxDeviceDebugSupport(ProjectExplorer::RunControl *runControl,
-                            const Debugger::DebuggerStartParameters &sp,
                             QString *errorMessage = nullptr);
     ~LinuxDeviceDebugSupport() override;
 
@@ -47,24 +44,10 @@ protected:
     virtual ProjectExplorer::Runnable realRunnable() const;
 
 private:
-    void startExecution();
-    void handleAdapterSetupFailed(const QString &error);
+    void prepare() override;
 
-    void handleRemoteSetupRequested();
-    void handleAppRunnerError(const QString &error);
-    void handleRemoteOutput(const QByteArray &output);
-    void handleRemoteErrorOutput(const QByteArray &output);
-    void handleAppRunnerFinished(bool success);
-    void handleProgressReport(const QString &progressOutput);
-
-    void handleRemoteProcessStarted();
-    void handleAdapterSetupDone();
-    void handleDebuggingFinished();
-
-    AbstractRemoteLinuxRunSupport *targetRunner() const;
-    AbstractRemoteLinuxRunSupport::State state() const;
-
-    Internal::LinuxDeviceDebugSupportPrivate * const d;
+    Utils::Port m_gdbServerPort;
+    Utils::Port m_qmlPort;
 };
 
 } // namespace RemoteLinux
