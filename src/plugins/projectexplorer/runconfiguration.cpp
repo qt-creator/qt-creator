@@ -1305,6 +1305,16 @@ IDevice::ConstPtr ToolRunner::device() const
     return m_runControl->device();
 }
 
+const Runnable &ToolRunner::runnable() const
+{
+    return m_runControl->runnable();
+}
+
+const Connection &ToolRunner::connection() const
+{
+    return m_runControl->connection();
+}
+
 void ToolRunner::prepare()
 {
     reportPrepared();

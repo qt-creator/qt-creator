@@ -499,8 +499,12 @@ public:
     explicit ToolRunner(RunControl *runControl);
 
     RunControl *runControl() const;
+
+    // Part of read-only interface of RunControl for convenience.
     void appendMessage(const QString &msg, Utils::OutputFormat format);
     IDevice::ConstPtr device() const;
+    const Runnable &runnable() const;
+    const Connection &connection() const;
 
     // Preparation phase.
     virtual void prepare(); // Initiates preparation, needs to report success or failure.
