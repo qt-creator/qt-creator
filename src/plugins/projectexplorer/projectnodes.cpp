@@ -129,12 +129,18 @@ void Node::setPriority(int p)
 
 void Node::setListInProject(bool l)
 {
-    m_flags.setFlag(FlagListInProject, l);
+    if (l)
+        m_flags |= FlagListInProject;
+    else
+        m_flags &= ~FlagListInProject;
 }
 
 void Node::setIsGenerated(bool g)
 {
-    m_flags.setFlag(FlagIsGenerated, g);
+    if (g)
+        m_flags |= FlagIsGenerated;
+    else
+        m_flags &= ~FlagIsGenerated;
 }
 
 void Node::setAbsoluteFilePathAndLine(const Utils::FileName &path, int line)
@@ -238,7 +244,7 @@ bool Node::isEnabled() const
   */
 bool Node::isGenerated() const
 {
-    return m_flags.testFlag(FlagIsGenerated);
+    return (m_flags & FlagIsGenerated) == FlagIsGenerated;
 }
 
 bool Node::supportsAction(ProjectAction, Node *) const
@@ -248,7 +254,10 @@ bool Node::supportsAction(ProjectAction, Node *) const
 
 void Node::setEnabled(bool enabled)
 {
-    m_flags.setFlag(FlagIsEnabled, enabled);
+    if (enabled)
+        m_flags |= FlagIsEnabled;
+    else
+        m_flags &= ~FlagIsEnabled;
 }
 
 bool Node::sortByPath(const Node *a, const Node *b)
