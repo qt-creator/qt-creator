@@ -54,8 +54,6 @@ protected:
     void SetUp() override;
     void TearDown() override;
 
-    ClangBackEnd::JobRequest createJobRequest(ClangBackEnd::JobRequest::Type type) const;
-
     bool waitUntilAllJobsFinished(int timeOutInMs = 10000) const;
 
 protected:
@@ -149,8 +147,7 @@ TEST_F(DocumentProcessors, ProcessEmpty)
 TEST_F(DocumentProcessorsSlowTest, ProcessSingle)
 {
     DocumentProcessor documentProcessor = documentProcessors.create(document);
-    const JobRequest jobRequest = createJobRequest(JobRequest::Type::UpdateDocumentAnnotations);
-    documentProcessor.addJob(jobRequest);
+    documentProcessor.addJob(JobRequest::Type::UpdateDocumentAnnotations);
 
     const JobRequests jobsStarted = documentProcessors.process();
 
@@ -170,20 +167,6 @@ void DocumentProcessors::SetUp()
 void DocumentProcessors::TearDown()
 {
     ASSERT_TRUE(waitUntilAllJobsFinished()); // QFuture/QFutureWatcher is implemented with events
-}
-
-JobRequest DocumentProcessors::createJobRequest(JobRequest::Type type) const
-{
-    JobRequest jobRequest;
-    jobRequest.type = type;
-    jobRequest.requirements = JobRequest::requirementsForType(type);
-    jobRequest.filePath = filePath;
-    jobRequest.projectPartId = projectPartId;
-    jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
-    jobRequest.documentRevision = document.documentRevision();
-    jobRequest.projectChangeTimePoint = projects.project(projectPartId).lastChangeTimePoint();
-
-    return jobRequest;
 }
 
 bool DocumentProcessors::waitUntilAllJobsFinished(int timeOutInMs) const

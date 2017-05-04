@@ -42,11 +42,6 @@ SupportiveTranslationUnitInitializer::SupportiveTranslationUnitInitializer(
 {
 }
 
-void SupportiveTranslationUnitInitializer::setJobRequestCreator(const JobRequestCreator &creator)
-{
-    m_jobRequestCreator = creator;
-}
-
 void SupportiveTranslationUnitInitializer::setIsDocumentClosedChecker(
         const IsDocumentClosedChecker &isDocumentClosedChecker)
 {
@@ -124,11 +119,8 @@ bool SupportiveTranslationUnitInitializer::abortIfDocumentIsClosed()
 
 void SupportiveTranslationUnitInitializer::addJob(JobRequest::Type jobRequestType)
 {
-    QTC_CHECK(m_jobRequestCreator);
-
-    const JobRequest jobRequest = m_jobRequestCreator(m_document,
-                                                      jobRequestType,
-                                                      PreferredTranslationUnit::LastUninitialized);
+    const JobRequest jobRequest = m_jobs.createJobRequest(
+                m_document, jobRequestType, PreferredTranslationUnit::LastUninitialized);
 
     m_jobs.add(jobRequest);
 }

@@ -59,7 +59,15 @@ public:
          ClangCodeModelClientInterface &client);
     ~Jobs();
 
+    JobRequest createJobRequest(const Document &document, JobRequest::Type type,
+                                PreferredTranslationUnit preferredTranslationUnit
+                                    = PreferredTranslationUnit::RecentlyParsed) const;
+
     void add(const JobRequest &job);
+    void add(const Document &document,
+             JobRequest::Type type,
+             PreferredTranslationUnit preferredTranslationUnit
+                 = PreferredTranslationUnit::RecentlyParsed);
 
     JobRequests process();
 
@@ -79,6 +87,7 @@ private:
 private:
     Documents &m_documents;
     UnsavedFiles &m_unsavedFiles;
+    ProjectParts &m_projectParts;
     ClangCodeModelClientInterface &m_client;
 
     JobQueue m_queue;

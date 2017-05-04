@@ -25,7 +25,9 @@
 
 #include "clangjobs.h"
 
+#include "clangdocument.h"
 #include "clangiasyncjob.h"
+#include "projects.h"
 
 #include <QDebug>
 #include <QFutureSynchronizer>
@@ -42,6 +44,7 @@ Jobs::Jobs(Documents &documents,
            ClangCodeModelClientInterface &client)
     : m_documents(documents)
     , m_unsavedFiles(unsavedFiles)
+    , m_projectParts(projectParts)
     , m_client(client)
     , m_queue(documents, projectParts)
 {
@@ -66,9 +69,35 @@ Jobs::~Jobs()
         delete asyncJob;
 }
 
+JobRequest Jobs::createJobRequest(const Document &document,
+                                  JobRequest::Type type,
+                                  PreferredTranslationUnit preferredTranslationUnit) const
+{
+    JobRequest jobRequest;
+    jobRequest.type = type;
+    jobRequest.requirements = JobRequest::requirementsForType(type);
+    jobRequest.filePath = document.filePath();
+    jobRequest.projectPartId = document.projectPartId();
+    jobRequest.unsavedFilesChangeTimePoint = m_unsavedFiles.lastChangeTimePoint();
+    jobRequest.documentRevision = document.documentRevision();
+    jobRequest.preferredTranslationUnit = preferredTranslationUnit;
+    const ProjectPart &projectPart = m_projectParts.project(document.projectPartId());
+    jobRequest.projectChangeTimePoint = projectPart.lastChangeTimePoint();
+
+    return jobRequest;
+}
+
 void Jobs::add(const JobRequest &job)
 {
     m_queue.add(job);
+}
+
+void Jobs::add(const Document &document,
+               JobRequest::Type type,
+               PreferredTranslationUnit preferredTranslationUnit)
+{
+    const JobRequest jobRequest = createJobRequest(document, type, preferredTranslationUnit);
+    m_queue.add(jobRequest);
 }
 
 JobRequests Jobs::process()

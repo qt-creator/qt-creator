@@ -49,9 +49,15 @@ public:
                       ProjectParts &projects,
                       ClangCodeModelClientInterface &client);
 
-    void setJobRequestCreator(const JobRequestCreator &creator);
+    JobRequest createJobRequest(JobRequest::Type type,
+                                PreferredTranslationUnit preferredTranslationUnit
+                                        = PreferredTranslationUnit::RecentlyParsed) const;
 
     void addJob(const JobRequest &jobRequest);
+    void addJob(JobRequest::Type type,
+                PreferredTranslationUnit preferredTranslationUnit
+                        = PreferredTranslationUnit::RecentlyParsed);
+
     JobRequests process();
 
     Document document() const;

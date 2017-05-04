@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "clangdocument.h"
-#include "clangjobrequest.h"
 #include "clangjobs.h"
 
 #include <functional>
@@ -49,7 +48,6 @@ public:
 public:
     SupportiveTranslationUnitInitializer(const Document &document, Jobs &jobs);
 
-    void setJobRequestCreator(const JobRequestCreator &creator);
     void setIsDocumentClosedChecker(const IsDocumentClosedChecker &isDocumentClosedChecker);
 
     State state() const;
@@ -61,7 +59,6 @@ public: // for tests
     void checkIfReparseJobFinished(const Jobs::RunningJob &job);
 
 private:
-
     bool abortIfDocumentIsClosed();
     void addJob(JobRequest::Type jobRequestType);
 
@@ -70,7 +67,6 @@ private:
     Jobs &m_jobs;
 
     State m_state = State::NotInitialized;
-    JobRequestCreator m_jobRequestCreator;
     IsDocumentClosedChecker m_isDocumentClosedChecker;
 };
 

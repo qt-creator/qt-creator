@@ -82,11 +82,6 @@ private:
 
     void addAndRunUpdateJobs(const std::vector<Document> &documents);
 
-    JobRequest createJobRequest(const Document &document,
-                                JobRequest::Type type,
-                                PreferredTranslationUnit preferredTranslationUnit
-                                    = PreferredTranslationUnit::RecentlyParsed) const;
-
 private:
     ProjectParts projects;
     UnsavedFiles unsavedFiles;

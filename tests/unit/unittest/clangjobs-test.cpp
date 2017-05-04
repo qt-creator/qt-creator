@@ -58,9 +58,6 @@ protected:
     bool waitUntilAllJobsFinished(int timeOutInMs = 10000) const;
     bool waitUntilJobChainFinished(int timeOutInMs = 10000) const;
 
-    JobRequest createJobRequest(const Utf8String &filePath,
-                                JobRequest::Type type) const;
-
 protected:
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
@@ -86,7 +83,7 @@ TEST_F(Jobs, ProcessEmptyQueue)
 
 TEST_F(JobsSlowTest, ProcessQueueWithSingleJob)
 {
-    jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+    jobs.add(document, JobRequest::Type::UpdateDocumentAnnotations);
 
     const JobRequests jobsStarted = jobs.process();
 
@@ -96,9 +93,9 @@ TEST_F(JobsSlowTest, ProcessQueueWithSingleJob)
 
 TEST_F(JobsSlowTest, ProcessQueueUntilEmpty)
 {
-    jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+    jobs.add(document, JobRequest::Type::UpdateDocumentAnnotations);
+    jobs.add(document, JobRequest::Type::UpdateDocumentAnnotations);
+    jobs.add(document, JobRequest::Type::UpdateDocumentAnnotations);
 
     jobs.process();
 
@@ -107,7 +104,7 @@ TEST_F(JobsSlowTest, ProcessQueueUntilEmpty)
 
 TEST_F(JobsSlowTest, IsJobRunning)
 {
-    jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+    jobs.add(document, JobRequest::Type::UpdateDocumentAnnotations);
     jobs.process();
 
     const bool isJobRunning = jobs.isJobRunningForTranslationUnit(document.translationUnit().id());
@@ -144,21 +141,6 @@ bool Jobs::waitUntilJobChainFinished(int timeOutInMs) const
     };
 
     return ProcessEventUtilities::processEventsUntilTrue(noJobsRunningAnymore, timeOutInMs);
-}
-
-JobRequest Jobs::createJobRequest(const Utf8String &filePath,
-                                  JobRequest::Type type) const
-{
-    JobRequest jobRequest;
-    jobRequest.type = type;
-    jobRequest.requirements = JobRequest::requirementsForType(type);
-    jobRequest.filePath = filePath;
-    jobRequest.projectPartId = projectPartId;
-    jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
-    jobRequest.documentRevision = document.documentRevision();
-    jobRequest.projectChangeTimePoint = projects.project(projectPartId).lastChangeTimePoint();
-
-    return jobRequest;
 }
 
 } // anonymous

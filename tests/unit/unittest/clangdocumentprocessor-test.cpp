@@ -44,17 +44,17 @@ using namespace ClangBackEnd;
 
 namespace {
 
-class DocumentProcessor : public ::testing::Test
-{
-protected:
-    void SetUp() override;
-    void TearDown() override;
+struct Data {
+    Data()
+    {
+        projects.createOrUpdate({ProjectPartContainer(projectPartId)});
 
-    ClangBackEnd::JobRequest createJobRequest(ClangBackEnd::JobRequest::Type type) const;
+        const QVector<FileContainer> fileContainer{FileContainer(filePath, projectPartId)};
+        document = documents.create(fileContainer).front();
+        documents.setVisibleInEditors({filePath});
+        documents.setUsedByCurrentEditor(filePath);
+    }
 
-    bool waitUntilAllJobsFinished(int timeOutInMs = 10000) const;
-
-protected:
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{projects, unsavedFiles};
@@ -64,65 +64,60 @@ protected:
 
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp")};
     Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
+};
 
-    ClangBackEnd::DocumentProcessor documentProcessor{document,
-                                                      documents,
-                                                      unsavedFiles,
-                                                      projects,
-                                                      dummyIpcClient};
+class DocumentProcessor : public ::testing::Test
+{
+protected:
+    void SetUp() override;
+    void TearDown() override;
+
+protected:
+    std::unique_ptr<Data> d;
+    std::unique_ptr<ClangBackEnd::DocumentProcessor> documentProcessor;
+
+    bool waitUntilAllJobsFinished(int timeOutInMs = 10000) const;
 };
 
 using DocumentProcessorSlowTest = DocumentProcessor;
 
 TEST_F(DocumentProcessor, ProcessEmpty)
 {
-    const JobRequests jobsStarted = documentProcessor.process();
+    const JobRequests jobsStarted = documentProcessor->process();
 
     ASSERT_THAT(jobsStarted.size(), 0);
 }
 
 TEST_F(DocumentProcessorSlowTest, ProcessSingleJob)
 {
-    const JobRequest jobRequest = createJobRequest(JobRequest::Type::UpdateDocumentAnnotations);
-    documentProcessor.addJob(jobRequest);
+    const JobRequest jobRequest
+            = documentProcessor->createJobRequest(JobRequest::Type::UpdateDocumentAnnotations);
+    documentProcessor->addJob(jobRequest);
 
-    const JobRequests jobsStarted = documentProcessor.process();
+    const JobRequests jobsStarted = documentProcessor->process();
 
     ASSERT_THAT(jobsStarted.size(), 1);
 }
 
 void DocumentProcessor::SetUp()
 {
-    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
-
-    const QVector<FileContainer> fileContainer{FileContainer(filePath, projectPartId)};
-    document = documents.create(fileContainer).front();
-    documents.setVisibleInEditors({filePath});
-    documents.setUsedByCurrentEditor(filePath);
+    d.reset(new Data);
+    documentProcessor.reset(new ClangBackEnd::DocumentProcessor(d->document,
+                                                                d->documents,
+                                                                d->unsavedFiles,
+                                                                d->projects,
+                                                                d->dummyIpcClient));
 }
 
 void DocumentProcessor::TearDown()
 {
     ASSERT_TRUE(waitUntilAllJobsFinished()); // QFuture/QFutureWatcher is implemented with events
-}
-
-JobRequest DocumentProcessor::createJobRequest(JobRequest::Type type) const
-{
-    JobRequest jobRequest;
-    jobRequest.type = type;
-    jobRequest.requirements = JobRequest::requirementsForType(type);
-    jobRequest.filePath = filePath;
-    jobRequest.projectPartId = projectPartId;
-    jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
-    jobRequest.documentRevision = document.documentRevision();
-    jobRequest.projectChangeTimePoint = projects.project(projectPartId).lastChangeTimePoint();
-
-    return jobRequest;
+    d.reset();
 }
 
 bool DocumentProcessor::waitUntilAllJobsFinished(int timeOutInMs) const
 {
-    const auto noJobsRunningAnymore = [this](){ return documentProcessor.runningJobs().isEmpty(); };
+    const auto noJobsRunningAnymore = [this](){ return documentProcessor->runningJobs().isEmpty(); };
 
     return ProcessEventUtilities::processEventsUntilTrue(noJobsRunningAnymore, timeOutInMs);
 }

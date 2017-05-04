@@ -201,14 +201,14 @@ void ClangCodeModelServer::completeCode(const ClangBackEnd::CompleteCodeMessage 
     TIME_SCOPE_DURATION("ClangCodeModelServer::completeCode");
 
     try {
-        auto document = documents.document(message.filePath(), message.projectPartId());
+        Document document = documents.document(message.filePath(), message.projectPartId());
+        DocumentProcessor processor = documentProcessors().processor(document);
 
-        JobRequest jobRequest = createJobRequest(document, JobRequest::Type::CompleteCode);
+        JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::CompleteCode);
         jobRequest.line = message.line();
         jobRequest.column = message.column();
         jobRequest.ticketNumber = message.ticketNumber();
 
-        DocumentProcessor processor = documentProcessors().processor(document);
         processor.addJob(jobRequest);
         processor.process();
     }  catch (const std::exception &exception) {
@@ -224,11 +224,8 @@ void ClangCodeModelServer::requestDocumentAnnotations(const RequestDocumentAnnot
         auto document = documents.document(message.fileContainer().filePath(),
                                            message.fileContainer().projectPartId());
 
-        const JobRequest jobRequest = createJobRequest(document,
-                                                       JobRequest::Type::RequestDocumentAnnotations);
-
         DocumentProcessor processor = documentProcessors().processor(document);
-        processor.addJob(jobRequest);
+        processor.addJob(JobRequest::Type::RequestDocumentAnnotations);
         processor.process();
     }  catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::requestDocumentAnnotations:" << exception.what();
@@ -294,9 +291,8 @@ void ClangCodeModelServer::addAndRunUpdateJobs(const std::vector<Document> &docu
 {
     for (const auto &document : documents) {
         DocumentProcessor processor = documentProcessors().processor(document);
-        processor.addJob(createJobRequest(document,
-                                          JobRequest::Type::UpdateDocumentAnnotations,
-                                          PreferredTranslationUnit::PreviouslyParsed));
+        processor.addJob(JobRequest::Type::UpdateDocumentAnnotations,
+                         PreferredTranslationUnit::PreviouslyParsed);
         processor.process();
     }
 }
@@ -320,15 +316,8 @@ void ClangCodeModelServer::processInitialJobsForDocuments(const std::vector<Docu
 {
     for (const auto &document : documents) {
         DocumentProcessor processor = documentProcessors().create(document);
-        const auto jobRequestCreator = [this](const Document &document,
-                JobRequest::Type jobRequestType,
-                PreferredTranslationUnit preferredTranslationUnit) {
-            return createJobRequest(document, jobRequestType, preferredTranslationUnit);
-        };
-        processor.setJobRequestCreator(jobRequestCreator);
-
-        processor.addJob(createJobRequest(document, JobRequest::Type::UpdateDocumentAnnotations));
-        processor.addJob(createJobRequest(document, JobRequest::Type::CreateInitialDocumentPreamble));
+        processor.addJob(JobRequest::Type::UpdateDocumentAnnotations);
+        processor.addJob(JobRequest::Type::CreateInitialDocumentPreamble);
         processor.process();
     }
 }
@@ -355,25 +344,6 @@ void ClangCodeModelServer::startInitializingSupportiveTranslationUnits(
             // OK, document was already closed.
         }
     }
-}
-
-JobRequest ClangCodeModelServer::createJobRequest(
-        const Document &document,
-        JobRequest::Type type,
-        PreferredTranslationUnit preferredTranslationUnit) const
-{
-    JobRequest jobRequest;
-    jobRequest.type = type;
-    jobRequest.requirements = JobRequest::requirementsForType(type);
-    jobRequest.filePath = document.filePath();
-    jobRequest.projectPartId = document.projectPartId();
-    jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
-    jobRequest.documentRevision = document.documentRevision();
-    jobRequest.preferredTranslationUnit = preferredTranslationUnit;
-    const ProjectPart &projectPart = projects.project(document.projectPartId());
-    jobRequest.projectChangeTimePoint = projectPart.lastChangeTimePoint();
-
-    return jobRequest;
 }
 
 void ClangCodeModelServer::setUpdateDocumentAnnotationsTimeOutInMsForTestsOnly(int value)

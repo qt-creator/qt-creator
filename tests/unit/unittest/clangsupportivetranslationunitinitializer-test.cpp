@@ -65,32 +65,8 @@ public:
                                              const Utf8String &projectPartId) {
             return !documents.hasDocument(filePath, projectPartId);
         };
-        const auto jobRequestCreator = [this](const Document &document,
-                                              JobRequest::Type type,
-                                              PreferredTranslationUnit preferredTranslationUnit) {
-            return createJobRequest(document, type, preferredTranslationUnit);
-        };
         initializer.reset(new ClangBackEnd::SupportiveTranslationUnitInitializer{document, jobs});
         initializer->setIsDocumentClosedChecker(isDocumentClosed);
-        initializer->setJobRequestCreator(jobRequestCreator);
-    }
-
-    JobRequest createJobRequest(const Document &document,
-                                JobRequest::Type type,
-                                PreferredTranslationUnit preferredTranslationUnit) const
-    {
-        JobRequest jobRequest;
-        jobRequest.type = type;
-        jobRequest.requirements = JobRequest::requirementsForType(type);
-        jobRequest.filePath = document.filePath();
-        jobRequest.projectPartId = document.projectPartId();
-        jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
-        jobRequest.documentRevision = document.documentRevision();
-        jobRequest.preferredTranslationUnit = preferredTranslationUnit;
-        const ProjectPart &projectPart = projects.project(document.projectPartId());
-        jobRequest.projectChangeTimePoint = projectPart.lastChangeTimePoint();
-
-        return jobRequest;
     }
 
 public:
@@ -234,9 +210,9 @@ void SupportiveTranslationUnitInitializer::parse()
 
 Jobs::RunningJob SupportiveTranslationUnitInitializer::createRunningJob(JobRequest::Type type) const
 {
-    const JobRequest jobRequest = d.createJobRequest(document,
-                                                     type,
-                                                     PreferredTranslationUnit::LastUninitialized);
+    const JobRequest jobRequest = jobs.createJobRequest(document,
+                                                        type,
+                                                        PreferredTranslationUnit::LastUninitialized);
     return Jobs::RunningJob{jobRequest, Utf8String(), QFuture<void>()};
 }
 

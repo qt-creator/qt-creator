@@ -62,7 +62,6 @@ public:
     Jobs jobs;
 
     SupportiveTranslationUnitInitializer supportiveTranslationUnitInitializer;
-    JobRequestCreator jobRequestCreator;
 };
 
 DocumentProcessor::DocumentProcessor(const Document &document,
@@ -78,14 +77,21 @@ DocumentProcessor::DocumentProcessor(const Document &document,
 {
 }
 
-void DocumentProcessor::setJobRequestCreator(const JobRequestCreator &creator)
+JobRequest DocumentProcessor::createJobRequest(
+        JobRequest::Type type,
+        PreferredTranslationUnit preferredTranslationUnit) const
 {
-    d->supportiveTranslationUnitInitializer.setJobRequestCreator(creator);
+    return d->jobs.createJobRequest(d->document, type, preferredTranslationUnit);
 }
 
 void DocumentProcessor::addJob(const JobRequest &jobRequest)
 {
     d->jobs.add(jobRequest);
+}
+
+void DocumentProcessor::addJob(JobRequest::Type type, PreferredTranslationUnit preferredTranslationUnit)
+{
+    d->jobs.add(d->document, type, preferredTranslationUnit);
 }
 
 JobRequests DocumentProcessor::process()

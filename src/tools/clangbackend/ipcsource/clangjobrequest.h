@@ -93,9 +93,6 @@ public:
 };
 
 using JobRequests = QVector<JobRequest>;
-using JobRequestCreator = std::function<JobRequest(const Document &,
-                                                   JobRequest::Type ,
-                                                   PreferredTranslationUnit)>;
 
 QDebug operator<<(QDebug debug, const JobRequest &jobRequest);
 
