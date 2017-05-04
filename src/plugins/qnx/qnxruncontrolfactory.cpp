@@ -118,7 +118,7 @@ bool QnxRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id m
     return true;
 }
 
-RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, Core::Id mode, QString *errorMessage)
+RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, Core::Id mode, QString *)
 {
     QTC_ASSERT(canRun(runConfig, mode), return 0);
     auto rc = qobject_cast<QnxRunConfiguration *>(runConfig);
