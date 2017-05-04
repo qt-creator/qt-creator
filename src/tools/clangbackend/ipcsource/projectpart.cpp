@@ -95,7 +95,7 @@ void ProjectPart::clear()
     updateLastChangeTimePoint();
 }
 
-Utf8String ProjectPart::projectPartId() const
+Utf8String ProjectPart::id() const
 {
     return d->projectPartId;
 }
@@ -123,7 +123,7 @@ void ProjectPart::updateLastChangeTimePoint()
 
 bool operator==(const ProjectPart &first, const ProjectPart &second)
 {
-    return first.projectPartId() == second.projectPartId();
+    return first.id() == second.id();
 }
 
 } // namespace ClangBackEnd

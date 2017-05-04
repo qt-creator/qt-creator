@@ -47,7 +47,7 @@ TEST(ProjectPart, CreateProjectPart)
 
     ClangBackEnd::ProjectPart project(projectPath);
 
-    ASSERT_THAT(project.projectPartId(), projectPath);
+    ASSERT_THAT(project.id(), projectPath);
 }
 
 TEST(ProjectPart, CreateProjectPartWithProjectPartContainer)
@@ -56,7 +56,7 @@ TEST(ProjectPart, CreateProjectPartWithProjectPartContainer)
 
     ClangBackEnd::ProjectPart project(projectContainer);
 
-    ASSERT_THAT(project.projectPartId(), Utf8StringLiteral("pathToProjectPart.pro"));
+    ASSERT_THAT(project.id(), Utf8StringLiteral("pathToProjectPart.pro"));
     ASSERT_THAT(project.arguments(), Contains(Utf8StringLiteral("-O")));
 }
 
@@ -141,7 +141,7 @@ TEST(ProjectPart, ProjectPartProjectPartIdIsEmptyfterRemoving)
 
     projects.remove({projectContainer.projectPartId()});
 
-    ASSERT_TRUE(project.projectPartId().isEmpty());
+    ASSERT_TRUE(project.id().isEmpty());
 }
 
 TEST(ProjectPart, ThrowsForNotExistingProjectPartButRemovesAllExistingProject)
@@ -167,7 +167,7 @@ TEST(ProjectPart, ProjectPartIsClearedAfterRemove)
 
     projects.remove({projectContainer.projectPartId()});
 
-    ASSERT_THAT(project.projectPartId(), Utf8String());
+    ASSERT_THAT(project.id(), Utf8String());
     ASSERT_THAT(project.arguments().count(), 0);
     ASSERT_THAT(project.lastChangeTimePoint(), Gt(lastChangeTimePoint));
 }

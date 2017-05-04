@@ -27,6 +27,7 @@
 
 #include "clangjobs.h"
 #include "clangtranslationunits.h"
+#include "projectpart.h"
 
 #include <utils/qtcassert.h>
 
@@ -109,7 +110,7 @@ bool SupportiveTranslationUnitInitializer::abortIfDocumentIsClosed()
 {
     QTC_CHECK(m_isDocumentClosedChecker);
 
-    if (m_isDocumentClosedChecker(m_document.filePath(), m_document.projectPartId())) {
+    if (m_isDocumentClosedChecker(m_document.filePath(), m_document.projectPart().id())) {
         m_state = State::Aborted;
         return true;
     }

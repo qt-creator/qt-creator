@@ -41,9 +41,8 @@ class ProjectPartData;
 class ProjectPart
 {
 public:
-    ProjectPart(const Utf8String &projectPartId = Utf8String());
-    ProjectPart(const Utf8String &projectPartId,
-                std::initializer_list<Utf8String> arguments);
+    ProjectPart(const Utf8String &id = Utf8String());
+    ProjectPart(const Utf8String &id, std::initializer_list<Utf8String> arguments);
     ProjectPart(const ProjectPartContainer &projectContainer);
     ~ProjectPart();
 
@@ -55,7 +54,7 @@ public:
 
     void clear();
 
-    Utf8String projectPartId() const;
+    Utf8String id() const;
 
     void setArguments(const Utf8StringVector &arguments_);
     const Utf8StringVector arguments() const;

@@ -43,7 +43,7 @@ void ProjectParts::remove(const Utf8StringVector &projectPartIds)
 
     const auto removeBeginIterator = std::remove_if(projects_.begin(), projects_.end(),
         [&processedProjectPartFilePaths] (ProjectPart &project) {
-            const bool isRemoved = processedProjectPartFilePaths.removeFast(project.projectPartId());
+            const bool isRemoved = processedProjectPartFilePaths.removeFast(project.id());
 
             if (isRemoved)
                 project.clear();
@@ -75,14 +75,14 @@ const ProjectPart &ProjectParts::project(const Utf8String &projectPartId) const
 std::vector<ProjectPart>::const_iterator ProjectParts::findProjectPart(const Utf8String &projectPartId) const
 {
     return std::find_if(projects_.begin(), projects_.end(), [projectPartId] (const ProjectPart &project) {
-        return project.projectPartId() == projectPartId;
+        return project.id() == projectPartId;
     });
 }
 
 std::vector<ProjectPart>::iterator ProjectParts::findProjectPart(const Utf8String &projectPartId)
 {
     return std::find_if(projects_.begin(), projects_.end(), [projectPartId] (const ProjectPart &project) {
-        return project.projectPartId() == projectPartId;
+        return project.id() == projectPartId;
     });
 }
 

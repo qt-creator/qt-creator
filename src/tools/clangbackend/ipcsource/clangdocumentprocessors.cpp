@@ -26,6 +26,7 @@
 #include "clangdocumentprocessors.h"
 #include "clangdocument.h"
 #include "clangexceptions.h"
+#include "projectpart.h"
 
 namespace ClangBackEnd {
 
@@ -48,9 +49,9 @@ static bool operator<(const DocumentId &lhs, const DocumentId &rhs)
 
 DocumentProcessor DocumentProcessors::create(const Document &document)
 {
-    const DocumentId id{document.filePath(), document.projectPartId()};
+    const DocumentId id{document.filePath(), document.projectPart().id()};
     if (m_processors.contains(id))
-        throw DocumentProcessorAlreadyExists(document.filePath(), document.projectPartId());
+        throw DocumentProcessorAlreadyExists(document.filePath(), document.projectPart().id());
 
     const DocumentProcessor element(document, m_documents, m_unsavedFiles, m_projects, m_client);
     m_processors.insert(id, element);
@@ -60,11 +61,11 @@ DocumentProcessor DocumentProcessors::create(const Document &document)
 
 DocumentProcessor DocumentProcessors::processor(const Document &document)
 {
-    const DocumentId id{document.filePath(), document.projectPartId()};
+    const DocumentId id{document.filePath(), document.projectPart().id()};
 
     const auto it = m_processors.find(id);
     if (it == m_processors.end())
-        throw DocumentProcessorDoesNotExist(document.filePath(), document.projectPartId());
+        throw DocumentProcessorDoesNotExist(document.filePath(), document.projectPart().id());
 
     return *it;
 }
@@ -76,11 +77,11 @@ QList<DocumentProcessor> DocumentProcessors::processors() const
 
 void DocumentProcessors::remove(const Document &document)
 {
-    const DocumentId id{document.filePath(), document.projectPartId()};
+    const DocumentId id{document.filePath(), document.projectPart().id()};
 
     const int itemsRemoved = m_processors.remove(id);
     if (itemsRemoved != 1)
-        throw DocumentProcessorDoesNotExist(document.filePath(), document.projectPartId());
+        throw DocumentProcessorDoesNotExist(document.filePath(), document.projectPart().id());
 }
 
 JobRequests DocumentProcessors::process()

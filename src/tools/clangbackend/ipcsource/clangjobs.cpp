@@ -77,11 +77,11 @@ JobRequest Jobs::createJobRequest(const Document &document,
     jobRequest.type = type;
     jobRequest.requirements = JobRequest::requirementsForType(type);
     jobRequest.filePath = document.filePath();
-    jobRequest.projectPartId = document.projectPartId();
+    jobRequest.projectPartId = document.projectPart().id();
     jobRequest.unsavedFilesChangeTimePoint = m_unsavedFiles.lastChangeTimePoint();
     jobRequest.documentRevision = document.documentRevision();
     jobRequest.preferredTranslationUnit = preferredTranslationUnit;
-    const ProjectPart &projectPart = m_projectParts.project(document.projectPartId());
+    const ProjectPart &projectPart = m_projectParts.project(document.projectPart().id());
     jobRequest.projectChangeTimePoint = projectPart.lastChangeTimePoint();
 
     return jobRequest;

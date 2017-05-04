@@ -59,7 +59,7 @@ MATCHER_P3(IsDocument, filePath, projectPartId, documentRevision,
            )
 {
     return arg.filePath() == filePath
-        && arg.projectPartId() == projectPartId
+        && arg.projectPart().id() == projectPartId
         && arg.documentRevision() == documentRevision;
 }
 

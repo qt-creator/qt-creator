@@ -166,17 +166,10 @@ FileContainer Document::fileContainer() const
     checkIfNull();
 
     return FileContainer(d->filePath,
-                         d->projectPart.projectPartId(),
+                         d->projectPart.id(),
                          Utf8String(),
                          false,
                          d->documentRevision);
-}
-
-Utf8String Document::projectPartId() const
-{
-    checkIfNull();
-
-    return d->projectPart.projectPartId();
 }
 
 const ProjectPart &Document::projectPart() const
@@ -298,7 +291,7 @@ TranslationUnitUpdateInput Document::createUpdateInput() const
     updateInput.filePath = filePath();
     updateInput.fileArguments = fileArguments();
     updateInput.unsavedFiles = d->documents.unsavedFiles();
-    updateInput.projectId = projectPart().projectPartId();
+    updateInput.projectId = projectPart().id();
     updateInput.projectArguments = projectPart().arguments();
 
     return updateInput;
@@ -426,14 +419,15 @@ bool Document::isMainFileAndExistsOrIsOtherFile(const Utf8String &filePath) cons
 
 bool operator==(const Document &first, const Document &second)
 {
-    return first.filePath() == second.filePath() && first.projectPartId() == second.projectPartId();
+    return first.filePath() == second.filePath()
+        && first.projectPart().id() == second.projectPart().id();
 }
 
 void PrintTo(const Document &document, ::std::ostream *os)
 {
     *os << "Document("
         << document.filePath().constData() << ", "
-        << document.projectPartId().constData() << ", "
+        << document.projectPart().id().constData() << ", "
         << document.documentRevision() << ")";
 }
 

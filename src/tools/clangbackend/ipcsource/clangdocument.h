@@ -82,7 +82,6 @@ public:
     Utf8StringVector fileArguments() const;
     FileContainer fileContainer() const;
 
-    Utf8String projectPartId() const;
     const ProjectPart &projectPart() const;
     const TimePoint lastProjectPartChangeTimePoint() const;
     bool isProjectPartOutdated() const;

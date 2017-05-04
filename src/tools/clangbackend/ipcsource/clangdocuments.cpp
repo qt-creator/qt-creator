@@ -43,7 +43,8 @@ namespace ClangBackEnd {
 
 bool operator==(const FileContainer &fileContainer, const Document &document)
 {
-    return fileContainer.filePath() == document.filePath() && fileContainer.projectPartId() == document.projectPartId();
+    return fileContainer.filePath() == document.filePath()
+        && fileContainer.projectPartId() == document.projectPart().id();
 }
 
 bool operator==(const Document &document, const FileContainer &fileContainer)
