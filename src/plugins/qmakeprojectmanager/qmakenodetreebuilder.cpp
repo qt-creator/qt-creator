@@ -29,6 +29,9 @@
 
 #include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
 #include <resourceeditor/resourcenode.h>
 
 #include <utils/algorithm.h>
@@ -39,6 +42,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace QtSupport;
 using namespace Utils;
 
 namespace {
@@ -135,7 +139,7 @@ void clearQmakeStaticData()
 
 namespace QmakeProjectManager {
 
-static void createTree(const QmakePriFile *pri, QmakePriFileNode *node)
+static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const FileNameList &toExclude)
 {
     QTC_ASSERT(pri, return);
     QTC_ASSERT(node, return);
@@ -150,7 +154,9 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node)
     const QVector<QmakeStaticData::FileTypeData> &fileTypes = qmakeStaticData()->fileTypeData;
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
-        const QSet<FileName> &newFilePaths = pri->files(type);
+        const QSet<FileName> &newFilePaths = Utils::filtered(pri->files(type), [&toExclude](const Utils::FileName &fn) {
+            return !Utils::contains(toExclude, [&fn](const Utils::FileName &ex) { return fn.isChildOf(ex); });
+        });
 
         if (!newFilePaths.isEmpty()) {
             auto vfolder = new VirtualFolderNode(pri->filePath().parentDir(), Node::DefaultVirtualFolderPriority - i);
@@ -189,15 +195,22 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node)
             newNode = new QmakeProFileNode(c->project(), c->filePath());
         else
             newNode = new QmakePriFileNode(c->project(), node->proFileNode(), c->filePath());
-        createTree(c, newNode);
+        createTree(c, newNode, toExclude);
         node->addNode(newNode);
     }
 }
 
 QmakeProFileNode *QmakeNodeTreeBuilder::buildTree(QmakeProject *project)
 {
+    // Remove qmake implementation details that litter up the project data:
+    Target *t = project->activeTarget();
+    Kit *k = t ? t->kit() : nullptr;
+    BaseQtVersion *qt = k ? QtKitInformation::qtVersion(k) : nullptr;
+
+    const FileNameList toExclude = qt ? qt->directoriesToIgnoreInProjectTree() : FileNameList();
+
     auto root = new QmakeProFileNode(project, project->projectFilePath());
-    createTree(project->rootProFile(), root);
+    createTree(project->rootProFile(), root, toExclude);
 
     return root;
 }
