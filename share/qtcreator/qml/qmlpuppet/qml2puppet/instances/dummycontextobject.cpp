@@ -45,4 +45,9 @@ void DummyContextObject::setParentDummy(QObject *parentDummy)
     }
 }
 
+bool DummyContextObject::runningInDesigner() const
+{
+    return true;
+}
+
 } // namespace QmlDesigner
