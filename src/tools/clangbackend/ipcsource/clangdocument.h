@@ -67,11 +67,11 @@ public:
              FileExistsCheck fileExistsCheck = FileExistsCheck::Check);
     ~Document();
 
-    Document(const Document &cxTranslationUnit);
-    Document &operator=(const Document &cxTranslationUnit);
+    Document(const Document &document);
+    Document &operator=(const Document &document);
 
-    Document(Document &&cxTranslationUnit);
-    Document &operator=(Document &&cxTranslationUnit);
+    Document(Document &&document);
+    Document &operator=(Document &&document);
 
     void reset();
 
