@@ -86,7 +86,7 @@ void SshTcpIpForwardServer::initialize()
             emit stateChanged(Initializing);
             d->m_sendFacility.sendTcpIpForwardPacket(d->m_bindAddress.toUtf8(), d->m_bindPort);
             d->m_timeoutTimer.start(d->ReplyTimeout);
-        } catch (const Botan::Exception &e) {
+        } catch (const std::exception &e) {
             qCWarning(sshLog, "Botan error: %s", e.what());
             d->m_timeoutTimer.stop();
             setClosed();
@@ -105,7 +105,7 @@ void SshTcpIpForwardServer::close()
             d->m_sendFacility.sendCancelTcpIpForwardPacket(d->m_bindAddress.toUtf8(),
                                                            d->m_bindPort);
             d->m_timeoutTimer.start(d->ReplyTimeout);
-        } catch (const Botan::Exception &e) {
+        } catch (const std::exception &e) {
             qCWarning(sshLog, "Botan error: %s", e.what());
             d->m_timeoutTimer.stop();
             setClosed();
