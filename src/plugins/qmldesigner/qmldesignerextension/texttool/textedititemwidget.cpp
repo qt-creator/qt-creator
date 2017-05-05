@@ -46,10 +46,17 @@ TextEditItemWidget::~TextEditItemWidget()
     setWidget(0);
 }
 
-void TextEditItemWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void TextEditItemWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     painter->fillRect(boundingRect(), Qt::white);
-    QGraphicsProxyWidget::paint(painter, option, widget);
+
+    /* Cursor painting is broken.
+     * QGraphicsProxyWidget::paint(painter, option, widget);
+     * We draw manually instead.
+    */
+
+    QPixmap pixmap = widget()->grab();
+    painter->drawPixmap(0, 0, pixmap);
 }
 
 QLineEdit* TextEditItemWidget::lineEdit() const
