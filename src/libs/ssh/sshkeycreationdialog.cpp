@@ -77,6 +77,8 @@ void SshKeyCreationDialog::keyTypeChanged()
         keySizes << QLatin1String("1024") << QLatin1String("2048") << QLatin1String("4096");
     else if (m_ui->ecdsa->isChecked())
         keySizes << QLatin1String("256") << QLatin1String("384") << QLatin1String("521");
+    else if (m_ui->dsa->isChecked())
+        keySizes << QLatin1String("1024");
     m_ui->comboBox->addItems(keySizes);
     if (!keySizes.isEmpty())
         m_ui->comboBox->setCurrentIndex(0);
