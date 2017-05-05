@@ -115,6 +115,7 @@ public:
     QVersionNumber sdkToolsVersion() const;
 
     Utils::FileName ndkLocation() const;
+    QVersionNumber ndkVersion() const;
     void setNdkLocation(const Utils::FileName &ndkLocation);
 
     Utils::FileName antLocation() const;
