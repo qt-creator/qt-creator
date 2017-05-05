@@ -30,6 +30,7 @@
 #include "fontsettings.h"
 
 #include <utils/algorithm.h>
+#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 
 #include <QTextDocument>
@@ -71,7 +72,7 @@ public:
     bool inReformatBlocks;
     TextDocumentLayout::FoldValidator foldValidator;
     QVector<QTextCharFormat> formats;
-    QVector<TextStyle> formatCategories;
+    QVector<std::pair<int,TextStyle>> formatCategories;
 };
 
 static bool adjustRange(QTextLayout::FormatRange &range, int from, int charsRemoved, int charsAdded) {
@@ -727,10 +728,49 @@ void SyntaxHighlighter::setFontSettings(const FontSettings &fontSettings)
     d->updateFormatsForCategories(fontSettings);
 }
 
-void SyntaxHighlighter::setTextFormatCategories(const QVector<TextStyle> &categories)
+/*!
+    Creates text format categories for the text styles themselves, so the highlighter can
+    use \c{formatForCategory(C_COMMENT)} and similar, and avoid creating its own format enum.
+    \sa setTextFormatCategories()
+*/
+void SyntaxHighlighter::setDefaultTextFormatCategories()
+{
+    // map all text styles to themselves
+    setTextFormatCategories(C_LAST_STYLE_SENTINEL, [](int i) { return TextStyle(i); });
+}
+
+/*!
+    Uses the \a formatMapping function to create a mapping from the custom formats (the ints)
+    to text styles. The \a formatMapping must handle all values from 0 to \a count.
+
+    \sa setDefaultTextFormatCategories()
+    \sa setTextFormatCategories()
+*/
+void SyntaxHighlighter::setTextFormatCategories(int count,
+                                                std::function<TextStyle(int)> formatMapping)
+{
+    QVector<std::pair<int, TextStyle>> categories;
+    categories.reserve(count);
+    for (int i = 0; i < count; ++i)
+        categories.append({i, formatMapping(i)});
+    setTextFormatCategories(categories);
+}
+
+/*!
+    Creates a mapping between custom format enum values (the int values in the pairs) to
+    text styles. Afterwards \c{formatForCategory(MyCustomFormatEnumValue)} can be used to
+    efficiently retrieve the text style for a value.
+
+    Note that this creates a vector with a size of the maximum int value in \a categories.
+
+    \sa setDefaultTextFormatCategories()
+*/
+void SyntaxHighlighter::setTextFormatCategories(const QVector<std::pair<int, TextStyle>> &categories)
 {
     Q_D(SyntaxHighlighter);
     d->formatCategories = categories;
+    const int maxCategory = Utils::maxElementOr(categories, {-1, C_TEXT}).first;
+    d->formats = QVector<QTextCharFormat>(maxCategory + 1);
     d->updateFormatsForCategories(TextEditorSettings::fontSettings());
 }
 
@@ -744,7 +784,8 @@ QTextCharFormat SyntaxHighlighter::formatForCategory(int category) const
 
 void SyntaxHighlighterPrivate::updateFormatsForCategories(const FontSettings &fontSettings)
 {
-    formats = fontSettings.toTextCharFormats(formatCategories);
+    for (const auto &pair : Utils::asConst(formatCategories))
+        formats[pair.first] = fontSettings.toTextCharFormat(pair.second);
 }
 
 } // namespace TextEditor

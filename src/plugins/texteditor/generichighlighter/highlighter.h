@@ -91,7 +91,8 @@ public:
         Import,
         Others,
         Identifier,
-        Documentation
+        Documentation,
+        TextFormatIdCount
     };
 
     void setTabSettings(const TabSettings &ts);

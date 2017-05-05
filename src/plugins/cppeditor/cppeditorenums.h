@@ -33,21 +33,5 @@ enum FileType {
     Source
 };
 
-enum CppFormats {
-    CppNumberFormat,
-    CppStringFormat,
-    CppTypeFormat,
-    CppKeywordFormat,
-    CppPrimitiveTypeFormat,
-    CppOperatorFormat,
-    CppPreprocessorFormat,
-    CppLabelFormat,
-    CppCommentFormat,
-    CppDoxygenCommentFormat,
-    CppDoxygenTagFormat,
-    CppVisualWhitespace,
-    NumCppFormats
-};
-
 } // namespace Internal
 } // namespace CppEditor

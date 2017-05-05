@@ -27,6 +27,7 @@
 #include "profilecompletionassist.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
 
 #include <QTextDocument>
 
@@ -35,11 +36,26 @@ using namespace TextEditor;
 namespace QmakeProjectManager {
 namespace Internal {
 
+static TextStyle styleForFormat(int format)
+{
+    const auto f = ProFileHighlighter::ProfileFormats(format);
+    switch (f) {
+    case ProFileHighlighter::ProfileVariableFormat: return C_TYPE;
+    case ProFileHighlighter::ProfileFunctionFormat: return C_KEYWORD;
+    case ProFileHighlighter::ProfileCommentFormat: return C_COMMENT;
+    case ProFileHighlighter::ProfileVisualWhitespaceFormat: return C_VISUAL_WHITESPACE;
+    case ProFileHighlighter::NumProfileFormats:
+        QTC_CHECK(false); // should never get here
+        return C_TEXT;
+    }
+    QTC_CHECK(false); // should never get here
+    return C_TEXT;
+}
+
 ProFileHighlighter::ProFileHighlighter(const Keywords &keywords)
     : m_keywords(keywords)
 {
-    static const QVector<TextStyle> categories({C_TYPE, C_KEYWORD, C_COMMENT, C_VISUAL_WHITESPACE});
-    setTextFormatCategories(categories);
+    setTextFormatCategories(NumProfileFormats, styleForFormat);
 }
 
 void ProFileHighlighter::highlightBlock(const QString &text)

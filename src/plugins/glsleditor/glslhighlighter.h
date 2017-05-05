@@ -35,22 +35,6 @@ class GlslHighlighter : public TextEditor::SyntaxHighlighter
     Q_OBJECT
 
 public:
-    enum Formats {
-        GLSLNumberFormat,
-        GLSLStringFormat,
-        GLSLTypeFormat,
-        GLSLKeywordFormat,
-        GLSLOperatorFormat,
-        GLSLPreprocessorFormat,
-        GLSLLabelFormat,
-        GLSLCommentFormat,
-        GLSLDoxygenCommentFormat,
-        GLSLDoxygenTagFormat,
-        GLSLVisualWhitespace,
-        GLSLReservedKeyword,
-        NumGLSLFormats
-    };
-
     GlslHighlighter();
 
 protected:

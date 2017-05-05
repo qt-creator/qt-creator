@@ -35,18 +35,6 @@ class NimHighlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
 
-    enum Category {
-        TextCategory = 0,
-        KeywordCategory,
-        CommentCategory,
-        DocumentationCategory,
-        TypeCategory,
-        StringCategory,
-        NumberCategory,
-        OperatorCategory,
-        FunctionCategory
-    };
-
 public:
     NimHighlighter();
 
@@ -54,10 +42,8 @@ protected:
     void highlightBlock(const QString &text) override;
 
 private:
-    void initTextFormats();
-
-    Category categoryForToken(const NimLexer::Token &token, const QString &tokenValue);
-    Category categoryForIdentifier(const NimLexer::Token &token, const QString &tokenValue);
+    TextEditor::TextStyle styleForToken(const NimLexer::Token &token, const QString &tokenValue);
+    TextEditor::TextStyle styleForIdentifier(const NimLexer::Token &token, const QString &tokenValue);
 
     int highlightLine(const QString &text, int initialState);
 };

@@ -42,17 +42,6 @@ public:
     QmlJSHighlighter(QTextDocument *parent = 0);
     virtual ~QmlJSHighlighter();
 
-    enum {
-        NumberFormat,
-        StringFormat,
-        TypeFormat,
-        KeywordFormat,
-        FieldFormat,
-        CommentFormat,
-        VisualWhitespace,
-        NumFormats
-    };
-
     bool isQmlEnabled() const;
     void setQmlEnabled(bool duiEnabled);
 

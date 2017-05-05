@@ -41,7 +41,8 @@ enum Format {
     Format_Edit,
     Format_Squash,
     Format_Fixup,
-    Format_Exec
+    Format_Exec,
+    Format_Count
 };
 
 // Highlighter for git submit messages. Make the first line bold, indicates

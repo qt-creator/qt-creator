@@ -42,21 +42,7 @@ using namespace CPlusPlus;
 CppHighlighter::CppHighlighter(QTextDocument *document) :
     SyntaxHighlighter(document)
 {
-    static const QVector<TextStyle> categories({
-        C_NUMBER,
-        C_STRING,
-        C_TYPE,
-        C_KEYWORD,
-        C_PRIMITIVE_TYPE,
-        C_OPERATOR,
-        C_PREPROCESSOR,
-        C_LABEL,
-        C_COMMENT,
-        C_DOXYGEN_COMMENT,
-        C_DOXYGEN_TAG,
-        C_VISUAL_WHITESPACE
-    });
-    setTextFormatCategories(categories);
+    setDefaultTextFormatCategories();
 }
 
 void CppHighlighter::highlightBlock(const QString &text)
@@ -90,11 +76,11 @@ void CppHighlighter::highlightBlock(const QString &text)
         TextDocumentLayout::clearParentheses(currentBlock());
         if (text.length())  {// the empty line can still contain whitespace
             if (initialLexerState == T_COMMENT)
-                highlightLine(text, 0, text.length(), formatForCategory(CppCommentFormat));
+                highlightLine(text, 0, text.length(), formatForCategory(C_COMMENT));
             else if (initialLexerState == T_DOXY_COMMENT)
-                highlightLine(text, 0, text.length(), formatForCategory(CppDoxygenCommentFormat));
+                highlightLine(text, 0, text.length(), formatForCategory(C_DOXYGEN_COMMENT));
             else
-                setFormat(0, text.length(), formatForCategory(CppVisualWhitespace));
+                setFormat(0, text.length(), formatForCategory(C_VISUAL_WHITESPACE));
         }
         TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
         return;
@@ -121,7 +107,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         if (previousTokenEnd != tk.utf16charsBegin()) {
             setFormat(previousTokenEnd,
                       tk.utf16charsBegin() - previousTokenEnd,
-                      formatForCategory(CppVisualWhitespace));
+                      formatForCategory(C_VISUAL_WHITESPACE));
         }
 
         if (tk.is(T_LPAREN) || tk.is(T_LBRACE) || tk.is(T_LBRACKET)) {
@@ -162,12 +148,12 @@ void CppHighlighter::highlightBlock(const QString &text)
 
         if (i == 0 && tk.is(T_POUND)) {
             highlightLine(text, tk.utf16charsBegin(), tk.utf16chars(),
-                          formatForCategory(CppPreprocessorFormat));
+                          formatForCategory(C_PREPROCESSOR));
             expectPreprocessorKeyword = true;
         } else if (highlightCurrentWordAsPreprocessor
                    && (tk.isKeyword() || tk.is(T_IDENTIFIER))
                    && isPPKeyword(text.midRef(tk.utf16charsBegin(), tk.utf16chars()))) {
-            setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(CppPreprocessorFormat));
+            setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_PREPROCESSOR));
             const QStringRef ppKeyword = text.midRef(tk.utf16charsBegin(), tk.utf16chars());
             if (ppKeyword == QLatin1String("error")
                     || ppKeyword == QLatin1String("warning")
@@ -176,14 +162,14 @@ void CppHighlighter::highlightBlock(const QString &text)
             }
 
         } else if (tk.is(T_NUMERIC_LITERAL)) {
-            setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(CppNumberFormat));
+            setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_NUMBER));
         } else if (tk.isStringLiteral() || tk.isCharLiteral()) {
-            highlightLine(text, tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(CppStringFormat));
+            highlightLine(text, tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_STRING));
         } else if (tk.isComment()) {
             const int startPosition = initialLexerState ? previousTokenEnd : tk.utf16charsBegin();
             if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT)) {
                 highlightLine(text, startPosition, tk.utf16charsEnd() - startPosition,
-                              formatForCategory(CppCommentFormat));
+                              formatForCategory(C_COMMENT));
             }
 
             else // a doxygen comment
@@ -211,14 +197,14 @@ void CppHighlighter::highlightBlock(const QString &text)
                    || (m_languageFeatures.qtKeywordsEnabled
                        && CppTools::isQtKeyword(text.midRef(tk.utf16charsBegin(), tk.utf16chars())))
                    || (m_languageFeatures.objCEnabled && tk.isObjCAtKeyword())) {
-            setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(CppKeywordFormat));
+            setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_KEYWORD));
         } else if (tk.isPrimitiveType()) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(),
-                      formatForCategory(CppPrimitiveTypeFormat));
+                      formatForCategory(C_PRIMITIVE_TYPE));
         } else if (tk.isOperator()) {
-            setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(CppOperatorFormat));
+            setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_OPERATOR));
         } else if (i == 0 && tokens.size() > 1 && tk.is(T_IDENTIFIER) && tokens.at(1).is(T_COLON)) {
-            setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(CppLabelFormat));
+            setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_LABEL));
         } else if (tk.is(T_IDENTIFIER)) {
             highlightWord(text.midRef(tk.utf16charsBegin(), tk.utf16chars()), tk.utf16charsBegin(),
                           tk.utf16chars());
@@ -228,7 +214,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     // mark the trailing white spaces
     const int lastTokenEnd = tokens.last().utf16charsEnd();
     if (text.length() > lastTokenEnd)
-        highlightLine(text, lastTokenEnd, text.length() - lastTokenEnd, formatForCategory(CppVisualWhitespace));
+        highlightLine(text, lastTokenEnd, text.length() - lastTokenEnd, formatForCategory(C_VISUAL_WHITESPACE));
 
     if (!initialLexerState && lexerState && !tokens.isEmpty()) {
         const Token &lastToken = tokens.last();
@@ -360,7 +346,7 @@ bool CppHighlighter::isPPKeyword(const QStringRef &text) const
 void CppHighlighter::highlightLine(const QString &text, int position, int length,
                                    const QTextCharFormat &format)
 {
-    QTextCharFormat visualSpaceFormat = formatForCategory(CppVisualWhitespace);
+    QTextCharFormat visualSpaceFormat = formatForCategory(C_VISUAL_WHITESPACE);
     visualSpaceFormat.setBackground(format.background());
 
     const int end = position + length;
@@ -394,7 +380,7 @@ void CppHighlighter::highlightWord(QStringRef word, int position, int length)
                     return;
             }
 
-            setFormat(position, length, formatForCategory(CppTypeFormat));
+            setFormat(position, length, formatForCategory(C_TYPE));
         }
     }
 }
@@ -406,8 +392,8 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
     const QChar *uc = text.unicode();
     const QChar *it = uc + position;
 
-    const QTextCharFormat &format = formatForCategory(CppDoxygenCommentFormat);
-    const QTextCharFormat &kwFormat = formatForCategory(CppDoxygenTagFormat);
+    const QTextCharFormat &format = formatForCategory(C_DOXYGEN_COMMENT);
+    const QTextCharFormat &kwFormat = formatForCategory(C_DOXYGEN_TAG);
 
     while (!it->isNull()) {
         if (it->unicode() == QLatin1Char('\\') ||

@@ -26,9 +26,13 @@
 #pragma once
 
 #include "texteditor_global.h"
+
 #include <texteditor/texteditorconstants.h>
+
 #include <QObject>
 #include <QTextLayout>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
@@ -70,7 +74,8 @@ public slots:
     void rehighlightBlock(const QTextBlock &block);
 
 protected:
-    void setTextFormatCategories(const QVector<TextEditor::TextStyle> &categories);
+    void setDefaultTextFormatCategories();
+    void setTextFormatCategories(int count, std::function<TextStyle(int)> formatMapping);
     QTextCharFormat formatForCategory(int categoryIndex) const;
     virtual void highlightBlock(const QString &text) = 0;
 
@@ -91,6 +96,7 @@ protected:
     QTextBlock currentBlock() const;
 
 private:
+    void setTextFormatCategories(const QVector<std::pair<int, TextStyle>> &categories);
     void reformatBlocks(int from, int charsRemoved, int charsAdded);
     void delayedRehighlight();
 

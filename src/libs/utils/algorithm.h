@@ -153,6 +153,21 @@ decltype(auto) equal(R S::*member, T value)
     return std::bind<bool>(std::equal_to<T>(), value, std::bind(member, std::placeholders::_1));
 }
 
+//////////////////
+// max element
+//////////////////
+
+template<typename T>
+typename T::value_type maxElementOr(const T &container, typename T::value_type other)
+{
+    typename T::const_iterator end = container.end();
+    typename T::const_iterator begin = container.begin();
+
+    typename T::const_iterator it = std::max_element(begin, end);
+    if (it == end)
+        return other;
+    return *it;
+}
 
 //////////////////
 // transform

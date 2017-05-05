@@ -32,6 +32,8 @@
 #include <QSyntaxHighlighter>
 #include <texteditor/texteditorconstants.h>
 
+#include <functional>
+
 namespace TextEditor {
 
 class SyntaxHighlighter : public QSyntaxHighlighter
@@ -43,7 +45,7 @@ public:
 protected:
     void applyFormatToSpaces(const QString &, const QTextCharFormat &)
     {}
-    void setTextFormatCategories(const QVector<TextEditor::TextStyle> &)
+    void setTextFormatCategories(int, std::function<TextStyle(int)>)
     {}
     QTextCharFormat formatForCategory(int categoryIndex) const;
 
