@@ -42,8 +42,7 @@ enum Format {
     Format_Whitespace,
     Format_ImportedModule,
 
-    Format_FormatsAmount,
-    Format_EndOfBlock
+    Format_FormatsAmount
 };
 
 class FormatToken
@@ -55,15 +54,17 @@ public:
         : m_format(format), m_position(position), m_length(length)
     {}
 
+    bool isEndOfBlock() { return m_position == -1; }
+
     Format format() const { return m_format; }
     int begin() const { return m_position; }
     int end() const { return m_position + m_length; }
     int length() const { return m_length; }
 
 private:
-    Format m_format;
-    int m_position;
-    int m_length;
+    Format m_format = Format_FormatsAmount;
+    int m_position = -1;
+    int m_length = -1;
 };
 
 } // namespace Internal

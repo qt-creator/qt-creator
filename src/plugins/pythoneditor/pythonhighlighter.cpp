@@ -117,7 +117,7 @@ int PythonHighlighter::highlightLine(const QString &text, int initialState)
 
     FormatToken tk;
     bool hasOnlyWhitespace = true;
-    while ((tk = scanner.read()).format() != Format_EndOfBlock) {
+    while (!(tk = scanner.read()).isEndOfBlock()) {
         Format format = tk.format();
         if (format == Format_Keyword) {
             QString value = scanner.value(tk);
@@ -141,7 +141,7 @@ int PythonHighlighter::highlightLine(const QString &text, int initialState)
 void PythonHighlighter::highlightImport(Scanner &scanner)
 {
     FormatToken tk;
-    while ((tk = scanner.read()).format() != Format_EndOfBlock) {
+    while (!(tk = scanner.read()).isEndOfBlock()) {
         Format format = tk.format();
         if (tk.format() == Format_Identifier)
             format = Format_ImportedModule;

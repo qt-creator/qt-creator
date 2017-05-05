@@ -50,7 +50,7 @@ FormatToken Scanner::read()
 {
     setAnchor();
     if (isEnd())
-        return FormatToken(Format_EndOfBlock, anchor(), 0);
+        return FormatToken();
 
     State state;
     QChar saved;
