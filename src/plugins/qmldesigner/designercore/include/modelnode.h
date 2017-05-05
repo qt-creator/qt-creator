@@ -93,6 +93,7 @@ public:
     ModelNode& operator=(const ModelNode &other);
     TypeName type() const;
     QString simplifiedTypeName() const;
+    QString displayName() const;
     int minorVersion() const;
     int majorVersion() const;
 

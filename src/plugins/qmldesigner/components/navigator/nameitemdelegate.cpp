@@ -116,18 +116,15 @@ static int drawIcon(QPainter *painter, const QStyleOptionViewItem &styleOption, 
 }
 
 static QRect drawText(QPainter *painter,
-                     const QStyleOptionViewItem &styleOption,
-                     const QModelIndex &modelIndex,
-                     int iconOffset)
+                      const QStyleOptionViewItem &styleOption,
+                      const QModelIndex &modelIndex,
+                      int iconOffset)
 {
     QString displayString = modelIndex.data(Qt::DisplayRole).toString();
     if (displayString.isEmpty())
-        displayString = modelIndex.data(NavigatorTreeModel::SimplifiedTypeNameRole).toString();
+        displayString = modelIndex.data(Qt::DisplayRole).toString();
     QPoint displayStringOffset;
     int width = 0;
-
-    if (modelIndex.data(NavigatorTreeModel::InvisibleRole).toBool())
-        painter->setOpacity(0.5);
 
     // Check text length does not exceed available space
     int extraSpace = 12 + iconOffset;
@@ -171,9 +168,12 @@ void NameItemDelegate::paint(QPainter *painter,
 
     int iconOffset = drawIcon(painter, styleOption, modelIndex);
 
+    if (m_navigatorTreeModel->isNodeVisible(modelIndex))
+        painter->setOpacity(0.5);
+
     QRect textFrame = drawText(painter, styleOption, modelIndex, iconOffset);
 
-    if (modelIndex.data(NavigatorTreeModel::ErrorRole).toBool())
+    if (m_navigatorTreeModel->hasError(modelIndex))
         drawRedWavyUnderLine(painter, styleOption, textFrame);
 
     painter->restore();
@@ -196,7 +196,7 @@ QWidget *NameItemDelegate::createEditor(QWidget *parent,
                                         const QStyleOptionViewItem & /*option*/,
                                         const QModelIndex &index) const
 {
-    if (!m_navigatorTreeModel->hasNodeForIndex(index))
+    if (!m_navigatorTreeModel->hasModelNodeForIndex(index))
         return 0;
 
     return new QLineEdit(parent);
@@ -204,8 +204,8 @@ QWidget *NameItemDelegate::createEditor(QWidget *parent,
 
 void NameItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    ModelNode node = m_navigatorTreeModel->nodeForIndex(index);
-    QString value = node.id();
+    const ModelNode node = m_navigatorTreeModel->modelNodeForIndex(index);
+    const QString value = node.id();
 
     QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
     lineEdit->setText(value);

@@ -38,110 +38,71 @@ class Model;
 class AbstractView;
 class ModelNode;
 
-#ifdef _LOCK_ITEMS_
-    struct ItemRow {
-        ItemRow()
-            : idItem(0), lockItem(0), visibilityItem(0) {}
-        ItemRow(QStandardItem *id, QStandardItem *lock, QStandardItem *visibility, const QMap<QString, QStandardItem *> &properties)
-            : idItem(id), lockItem(lock), visibilityItem(visibility), propertyItems(properties) {}
-
-        QList<QStandardItem*> toList() const {
-            return {idItem, lockItem, visibilityItem};
-        }
-
-        QStandardItem *idItem;
-        QStandardItem *lockItem;
-        QStandardItem *visibilityItem;
-        QMap<QString, QStandardItem *> propertyItems;
-    };
-#else
-    struct ItemRow {
-        ItemRow()
-            : idItem(0), visibilityItem(0) {}
-        ItemRow(QStandardItem *id, QStandardItem *exportI, QStandardItem *visibility, const QMap<QString, QStandardItem *> &properties)
-            : idItem(id), exportItem(exportI), visibilityItem(visibility), propertyItems(properties) {}
-
-        QList<QStandardItem*> toList() const {
-            return {idItem, exportItem, visibilityItem};
-        }
-
-        QStandardItem *idItem;
-        QStandardItem *exportItem;
-        QStandardItem *visibilityItem;
-        QMap<QString, QStandardItem *> propertyItems;
-    };
-#endif
-
-class NavigatorTreeModel : public QStandardItemModel
+class NavigatorTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    enum {
-         InternalIdRole = Qt::UserRole
-        ,InvisibleRole = Qt::UserRole + 1
-        ,SimplifiedTypeNameRole = Qt::UserRole + 2
-        ,ErrorRole = Qt::UserRole + 3
-    };
 
-
-    NavigatorTreeModel(QObject *parent = 0);
+    explicit NavigatorTreeModel(QObject *parent = 0);
     ~NavigatorTreeModel();
 
-    Qt::DropActions supportedDropActions() const;
-    Qt::DropActions supportedDragActions() const;
+    QVariant data(const QModelIndex &index, int role) const override;
 
-    QStringList mimeTypes() const;
-    QMimeData *mimeData(const QModelIndexList &indexes) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
+    QModelIndex index(int row, int column,
+                      const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &index) const override;
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+
+    void setView(AbstractView *view);
+
+    ModelNode modelNodeForIndex(const QModelIndex &index) const;
+    bool hasModelNodeForIndex(const QModelIndex &index) const;
+
+    QStringList mimeTypes() const override;
+    QMimeData *mimeData(const QModelIndexList &indexes) const override;
     bool dropMimeData(const QMimeData *data,
                       Qt::DropAction action,
                       int row,
                       int column,
-                      const QModelIndex &parent);
+                      const QModelIndex &parent) override;
 
-    void setView(AbstractView *view);
-    void clearView();
 
-    QModelIndex indexForNode(const ModelNode &node) const;
-    ModelNode nodeForIndex(const QModelIndex &index) const;
-    bool hasNodeForIndex(const QModelIndex &index) const;
+    QModelIndex indexForModelNode(const ModelNode &node) const;
 
-    bool isInTree(const ModelNode &node) const;
-    bool isNodeInvisible(const QModelIndex &index) const;
-    bool isNodeInvisible(const ModelNode &node) const;
+    QModelIndex createIndexFromModelNode(int row, int column, const ModelNode &modelNode) const;
 
-    void addSubTree(const ModelNode &node);
-    void removeSubTree(const ModelNode &node);
-    void updateItemRow(const ModelNode &node);
+    void setId(const QModelIndex &index, const QString &newId);
+    void openContextMenu(const QPoint &position);
 
-    void setId(const QModelIndex &index, const QString &id);
-    void setExported(const QModelIndex &index, bool exported);
-    void setVisible(const QModelIndex &index, bool visible);
+    Qt::DropActions supportedDropActions() const override;
+    Qt::DropActions supportedDragActions() const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
-    void openContextMenu(const QPoint &p);
-
-    ItemRow itemRowForNode(const ModelNode &node);
-    bool blockItemChangedSignal(bool block);
+    void notifyDataChanged(const ModelNode &modelNode);
+    void notifyModelNodesRemoved(const QList<ModelNode> &modelNodes);
+    void notifyModelNodesInserted(const QList<ModelNode> &modelNodes);
+    void notifyModelNodesMoved(const QList<ModelNode> &modelNodes);
+    bool isNodeVisible(const ModelNode &modelNode) const;
+    bool isNodeVisible(const QModelIndex &index) const;
+    bool hasError(const QModelIndex &index) const;
 
 private:
-    void handleChangedItem(QStandardItem *item);
-
-    ItemRow createItemRow(const ModelNode &node);
-    void updateItemRow(const ModelNode &node, ItemRow row);
-    void handleChangedIdItem(QStandardItem *idItem, ModelNode &modelNode);
-    void handleChangedExportItem(QStandardItem *exportItem, ModelNode &modelNode);
-    void handleChangedVisibilityItem(QStandardItem *visibilityItem, ModelNode &modelNode);
-
+    void handleChangedExport(const ModelNode &modelNode, bool exportItem);
     void moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes, int targetIndex);
     void handleInternalDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
     void handleItemLibraryItemDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
     void handleItemLibraryImageDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
+    QList<QPersistentModelIndex> nodesToPersistentIndex(const QList<ModelNode> &modelNodes);
 
-private:
-    QHash<ModelNode, ItemRow> m_nodeItemHash;
     QPointer<AbstractView> m_view;
-
-    bool m_blockItemChangedSignal;
+    mutable QHash<ModelNode, QModelIndex> m_nodeIndexHash;
 };
 
 } // namespace QmlDesigner

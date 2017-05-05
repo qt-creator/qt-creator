@@ -313,6 +313,13 @@ QString ModelNode::simplifiedTypeName() const
     return QString::fromUtf8(type().split('.').last());
 }
 
+QString ModelNode::displayName() const
+{
+    if (hasId())
+        return id();
+    return simplifiedTypeName();
+}
+
 /*! \brief Returns whether the node is valid
 
 A node is valid if its model still exists, and contains this node.
