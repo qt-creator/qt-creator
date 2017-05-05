@@ -204,7 +204,11 @@ QList<CMakeBuildTarget> ServerModeReader::buildTargets() const
         else
             type = UtilityType;
         ct.targetType = type;
-        ct.workingDirectory = t->buildDirectory;
+        if (t->artifacts.isEmpty()) {
+            ct.workingDirectory = t->buildDirectory;
+        } else {
+            ct.workingDirectory = Utils::FileName::fromString(t->artifacts.at(0).toFileInfo().absolutePath());
+        }
         ct.sourceDirectory = t->sourceDirectory;
         return ct;
     });
