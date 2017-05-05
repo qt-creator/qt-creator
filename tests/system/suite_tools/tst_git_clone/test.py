@@ -33,7 +33,7 @@ def verifyCloneLog(targetDir, canceled):
         summary = "Failed."
     else:
         finish = findObject(":Git Repository Clone.Finish_QPushButton")
-        waitFor("finish.enabled", 30000)
+        waitFor("finish.enabled", 90000)
         cloneLog = str(waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit").plainText)
         if "fatal: " in cloneLog:
             test.warning("Cloning failed outside Creator.")
