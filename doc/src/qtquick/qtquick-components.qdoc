@@ -98,6 +98,9 @@
     the list on the toolbar. This enables you to check how your UI looks when
     using the available styles.
 
+    For an example of defining your own style and using it in \QMLD, see
+    \l {Qt Quick Controls 2 - Flat Style}.
+
     Qt Quick Controls 2 work in conjunction with Qt Quick and Qt Quick Layouts.
 
     The \QC project wizards create Qt Quick applications that use Qt Quick
