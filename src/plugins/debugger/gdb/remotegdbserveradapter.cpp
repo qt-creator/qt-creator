@@ -54,12 +54,9 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerRunParameters &runParameters)
-    : GdbEngine(runParameters), m_startAttempted(false)
+GdbRemoteServerEngine::GdbRemoteServerEngine(bool useTerminal)
+    : GdbEngine(useTerminal)
 {
-    if (HostOsInfo::isWindowsHost())
-        m_gdbProc.setUseCtrlCStub(runParameters.useCtrlCStub); // This is only set for QNX
-
     connect(&m_uploadProc, &QProcess::errorOccurred, this, &GdbRemoteServerEngine::uploadProcError);
     connect(&m_uploadProc, &QProcess::readyReadStandardOutput,
             this, &GdbRemoteServerEngine::readUploadStandardOutput);
@@ -71,6 +68,9 @@ GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerRunParameters &runPar
 
 void GdbRemoteServerEngine::setupEngine()
 {
+    if (HostOsInfo::isWindowsHost())
+        m_gdbProc.setUseCtrlCStub(runParameters().useCtrlCStub); // This is only set for QNX
+
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage("TRYING TO START ADAPTER");
     QString serverStartScript = runParameters().serverStartScript;
@@ -170,8 +170,7 @@ void GdbRemoteServerEngine::setupInferior()
 
     //const QByteArray sysroot = sp.sysroot.toLocal8Bit();
     //const QByteArray remoteArch = sp.remoteArchitecture.toLatin1();
-    const QString args = isMasterEngine() ? runParameters().inferior.commandLineArguments
-                          : masterEngine()->runParameters().inferior.commandLineArguments;
+    const QString args = runParameters().inferior.commandLineArguments;
 
 //    if (!remoteArch.isEmpty())
 //        postCommand("set architecture " + remoteArch);

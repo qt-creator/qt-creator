@@ -44,7 +44,7 @@ class PdbEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    explicit PdbEngine(const DebuggerRunParameters &runParameters);
+    PdbEngine();
 
 private:
     // DebuggerEngine implementation

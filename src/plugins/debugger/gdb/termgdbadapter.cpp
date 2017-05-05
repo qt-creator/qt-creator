@@ -46,8 +46,8 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbTermEngine::GdbTermEngine(const DebuggerRunParameters &startParameters)
-    : GdbEngine(startParameters)
+GdbTermEngine::GdbTermEngine(bool useTerminal)
+    : GdbEngine(useTerminal)
 {
     if (HostOsInfo::isWindowsHost()) {
         // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win

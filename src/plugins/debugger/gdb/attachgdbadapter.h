@@ -41,7 +41,7 @@ class GdbAttachEngine : public GdbEngine
     Q_OBJECT
 
 public:
-    explicit GdbAttachEngine(const DebuggerRunParameters &runParameters);
+    explicit GdbAttachEngine(bool useTerminal);
 
 private:
     void setupEngine() override;

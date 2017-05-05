@@ -40,8 +40,8 @@ namespace Internal {
 
 #define CB(callback) [this](const DebuggerResponse &r) { callback(r); }
 
-GdbPlainEngine::GdbPlainEngine(const DebuggerRunParameters &startParameters)
-    : GdbEngine(startParameters)
+GdbPlainEngine::GdbPlainEngine(bool useTerminal)
+    : GdbEngine(useTerminal)
 {
     // Output
     connect(&m_outputCollector, &OutputCollector::byteDelivery,

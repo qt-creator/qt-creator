@@ -54,9 +54,8 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbCoreEngine::GdbCoreEngine(const DebuggerRunParameters &startParameters)
-    : GdbEngine(startParameters),
-      m_coreUnpackProcess(0)
+GdbCoreEngine::GdbCoreEngine(bool useTerminal)
+    : GdbEngine(useTerminal)
 {}
 
 GdbCoreEngine::~GdbCoreEngine()

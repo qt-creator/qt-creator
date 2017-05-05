@@ -73,15 +73,15 @@ enum { debug = 0 };
 namespace Debugger {
 namespace Internal {
 
-DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp, QStringList *error);
 const auto DebugRunMode = ProjectExplorer::Constants::DEBUG_RUN_MODE;
 const auto DebugRunModeWithBreakOnMain = ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN;
 
-DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp);
-DebuggerEngine *createPdbEngine(const DebuggerRunParameters &rp);
-DebuggerEngine *createQmlEngine(const DebuggerRunParameters &rp);
-DebuggerEngine *createQmlCppEngine(const DebuggerRunParameters &rp, QStringList *error);
-DebuggerEngine *createLldbEngine(const DebuggerRunParameters &rp);
+DebuggerEngine *createCdbEngine(QStringList *error, DebuggerStartMode sm);
+DebuggerEngine *createGdbEngine(bool useTerminal, DebuggerStartMode sm);
+DebuggerEngine *createPdbEngine();
+DebuggerEngine *createQmlEngine(bool useTerminal);
+DebuggerEngine *createQmlCppEngine(DebuggerEngine *cppEngine, bool useTerminal);
+DebuggerEngine *createLldbEngine();
 
 } // namespace Internal
 
@@ -154,6 +154,7 @@ void DebuggerRunTool::start()
     }
 
     appendMessage(tr("Debugging starts") + QLatin1Char('\n'), NormalMessageFormat);
+    Internal::runControlStarted(this);
     engine->start();
 }
 
@@ -175,7 +176,7 @@ void DebuggerRunTool::notifyEngineRemoteSetupFinished(const RemoteSetupResult &r
 
 void DebuggerRunTool::stop()
 {
-    m_engine->quitDebugger();
+    m_engine->exitDebugger();
 }
 
 void DebuggerRunTool::onTargetFailure()
@@ -190,12 +191,19 @@ void DebuggerRunTool::onTargetFailure()
 
 void DebuggerRunTool::debuggingFinished()
 {
+    Internal::runControlFinished(this);
+    appendMessage(tr("Debugging has finished"), NormalMessageFormat);
     reportStopped();
 }
 
-DebuggerStartParameters &DebuggerRunTool::startParameters()
+DebuggerRunParameters &DebuggerRunTool::runParameters()
 {
-    return m_engine->runParameters();
+    return m_runParameters;
+}
+
+const DebuggerRunParameters &DebuggerRunTool::runParameters() const
+{
+    return m_runParameters;
 }
 
 int DebuggerRunTool::portsUsedByDebugger() const
@@ -232,35 +240,46 @@ void DebuggerRunTool::abortDebugger()
 namespace Internal {
 
 // Re-used for Combined C++/QML engine.
-DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters &rp, QStringList *errors)
+DebuggerEngine *createEngine(DebuggerEngineType cppEngineType,
+                             DebuggerEngineType et,
+                             DebuggerStartMode sm,
+                             bool useTerminal,
+                             QStringList *errors)
 {
     DebuggerEngine *engine = nullptr;
     switch (et) {
     case GdbEngineType:
-        engine = createGdbEngine(rp);
+        engine = createGdbEngine(useTerminal, sm);
         break;
     case CdbEngineType:
-        engine = createCdbEngine(rp, errors);
+        engine = createCdbEngine(errors, sm);
         break;
     case PdbEngineType:
-        engine = createPdbEngine(rp);
+        engine = createPdbEngine();
         break;
     case QmlEngineType:
-        engine = createQmlEngine(rp);
+        engine = createQmlEngine(useTerminal);
         break;
     case LldbEngineType:
-        engine = createLldbEngine(rp);
+        engine = createLldbEngine();
         break;
-    case QmlCppEngineType:
-        engine = createQmlCppEngine(rp, errors);
+    case QmlCppEngineType: {
+        DebuggerEngine *cppEngine = createEngine(cppEngineType, cppEngineType, sm, useTerminal, errors);
+        if (cppEngine) {
+            engine = createQmlCppEngine(cppEngine, useTerminal);
+        } else {
+            errors->append(DebuggerPlugin::tr("The slave debugging engine required for combined "
+                              "QML/C++-Debugging could not be created: %1"));
+        }
         break;
+    }
     default:
         errors->append(DebuggerPlugin::tr("Unknown debugger type \"%1\"")
                        .arg(engineTypeName(et)));
     }
     if (!engine)
         errors->append(DebuggerPlugin::tr("Unable to create a debugger engine of the type \"%1\"").
-                       arg(engineTypeName(rp.masterEngineType)));
+                       arg(engineTypeName(et)));
     return engine;
 }
 
@@ -518,11 +537,10 @@ void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp, QString 
         return;
     }
 
-    DebuggerRunParameters m_rp = rp;
+    m_runParameters = rp;
 
-    runControl()->setDisplayName(m_rp.displayName);
     // QML and/or mixed are not prepared for it.
-    runControl()->setSupportsReRunning(!(m_rp.languages & QmlLanguage));
+    runControl()->setSupportsReRunning(!(rp.languages & QmlLanguage));
 
     runControl()->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
     runControl()->setPromptToStop([](bool *optionalPrompt) {
@@ -535,25 +553,40 @@ void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp, QString 
                 QString(), QString(), optionalPrompt);
     });
 
-    if (Internal::fixupParameters(m_rp, runControl(), m_errors)) {
-        m_engine = createEngine(m_rp.masterEngineType, m_rp, &m_errors);
+    if (Internal::fixupParameters(m_runParameters, runControl(), m_errors)) {
+        m_engine = createEngine(m_runParameters.cppEngineType,
+                                m_runParameters.masterEngineType,
+                                m_runParameters.startMode,
+                                m_runParameters.useTerminal,
+                                &m_errors);
         if (!m_engine) {
             QString msg = m_errors.join('\n');
             if (errorMessage)
                 *errorMessage = msg;
             return;
         }
+
+        Utils::globalMacroExpander()->registerFileVariables(
+            "DebuggedExecutable", tr("Debugged executable"),
+            [this] { return m_runParameters.inferior.executable; }
+        );
     }
 
+    runControl()->setDisplayName(m_runParameters.displayName);
+
     m_engine->setRunTool(this);
+}
+
+DebuggerEngine *DebuggerRunTool::activeEngine() const
+{
+    return m_engine ? m_engine->activeEngine() : nullptr;
 }
 
 void DebuggerRunTool::appendSolibSearchPath(const QString &str)
 {
     QString path = str;
-    DebuggerStartParameters &sp = startParameters();
-    path.replace("%{sysroot}", sp.sysRoot);
-    sp.solibSearchPath.append(path);
+    path.replace("%{sysroot}", m_runParameters.sysRoot);
+    m_runParameters.solibSearchPath.append(path);
 }
 
 DebuggerRunTool::~DebuggerRunTool()
@@ -565,12 +598,6 @@ DebuggerRunTool::~DebuggerRunTool()
         engine->disconnect();
         delete engine;
     }
-}
-
-void DebuggerRunTool::onFinished()
-{
-    appendMessage(tr("Debugging has finished"), NormalMessageFormat);
-    runControlFinished(m_engine);
 }
 
 void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
@@ -783,7 +810,7 @@ void GdbServerRunner::start()
     m_gdbServer.start(r, device());
 }
 
-void GdbServerRunner::onFinished()
+void GdbServerRunner::stop()
 {
     m_gdbServer.stop();
 }

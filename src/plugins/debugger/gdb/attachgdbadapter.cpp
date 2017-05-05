@@ -35,8 +35,8 @@
 namespace Debugger {
 namespace Internal {
 
-GdbAttachEngine::GdbAttachEngine(const DebuggerRunParameters &startParameters)
-    : GdbEngine(startParameters)
+GdbAttachEngine::GdbAttachEngine(bool useTerminal)
+    : GdbEngine(useTerminal)
 {
 }
 

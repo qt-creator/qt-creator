@@ -63,10 +63,9 @@ using namespace Core;
 namespace Debugger {
 namespace Internal {
 
-PdbEngine::PdbEngine(const DebuggerRunParameters &startParameters)
-    : DebuggerEngine(startParameters)
+PdbEngine::PdbEngine()
 {
-    setObjectName(QLatin1String("PdbEngine"));
+    setObjectName("PdbEngine");
 }
 
 void PdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
@@ -579,9 +578,9 @@ bool PdbEngine::hasCapability(unsigned cap) const
               | ShowModuleSymbolsCapability);
 }
 
-DebuggerEngine *createPdbEngine(const DebuggerRunParameters &startParameters)
+DebuggerEngine *createPdbEngine()
 {
-    return new PdbEngine(startParameters);
+    return new PdbEngine;
 }
 
 } // namespace Internal

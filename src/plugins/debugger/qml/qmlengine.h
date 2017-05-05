@@ -43,8 +43,7 @@ class QmlEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    explicit QmlEngine(const DebuggerRunParameters &runParameters,
-                       DebuggerEngine *masterEngine = nullptr);
+    explicit QmlEngine(bool useTerminal);
     ~QmlEngine() override;
 
     void setRunTool(DebuggerRunTool *runTool) override;
@@ -66,7 +65,7 @@ private:
     void connectionEstablished();
     void connectionStartupFailed();
     void appStartupFailed(const QString &errorMessage);
-    void appendMessage(const QString &msg, Utils::OutputFormat);
+    void appMessage(const QString &msg, Utils::OutputFormat);
 
     void notifyEngineRemoteServerRunning(const QString &, int pid) override;
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;

@@ -43,7 +43,7 @@ class GdbTermEngine : public GdbEngine
     Q_OBJECT
 
 public:
-    explicit GdbTermEngine(const DebuggerRunParameters &runParameters);
+    explicit GdbTermEngine(bool useTerminal);
     ~GdbTermEngine() override;
 
 private:

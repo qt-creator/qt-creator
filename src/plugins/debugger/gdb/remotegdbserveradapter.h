@@ -35,7 +35,7 @@ class GdbRemoteServerEngine : public GdbEngine
     Q_OBJECT
 
 public:
-    explicit GdbRemoteServerEngine(const DebuggerRunParameters &runParameters);
+    explicit GdbRemoteServerEngine(bool useTerminal);
 
 private:
     void setupEngine() override;
@@ -65,7 +65,7 @@ private:
     void handleExecRun(const DebuggerResponse &response);
 
     QProcess m_uploadProc;
-    bool m_startAttempted;
+    bool m_startAttempted = false;
 };
 
 } // namespace Internal

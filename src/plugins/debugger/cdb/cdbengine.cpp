@@ -200,11 +200,11 @@ static inline bool validMode(DebuggerStartMode sm)
 }
 
 // Accessed by RunControlFactory
-DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp, QStringList *errors)
+DebuggerEngine *createCdbEngine(QStringList *errors, DebuggerStartMode sm)
 {
     if (HostOsInfo::isWindowsHost()) {
-        if (validMode(rp.startMode))
-            return new CdbEngine(rp);
+        if (validMode(sm))
+            return new CdbEngine();
         errors->append(CdbEngine::tr("Internal error: Invalid start parameters passed for the CDB engine."));
     } else {
         errors->append(CdbEngine::tr("Unsupported CDB host system."));
@@ -222,8 +222,7 @@ void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
 
 #define QT_CREATOR_CDB_EXT "qtcreatorcdbext"
 
-CdbEngine::CdbEngine(const DebuggerRunParameters &sp) :
-    DebuggerEngine(sp),
+CdbEngine::CdbEngine() :
     m_tokenPrefix("<token>"),
     m_effectiveStartMode(NoStartMode),
     m_accessible(false),

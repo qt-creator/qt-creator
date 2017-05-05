@@ -257,14 +257,10 @@ static void updateDocument(IDocument *document, const QTextDocument *textDocumen
 //
 ///////////////////////////////////////////////////////////////////////
 
-QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngine *masterEngine)
-  : DebuggerEngine(startParameters),
-    d(new QmlEnginePrivate(this, new QmlDebugConnection(this)))
+QmlEngine::QmlEngine(bool useTerminal)
+  :  d(new QmlEnginePrivate(this, new QmlDebugConnection(this)))
 {
     setObjectName("QmlEngine");
-
-    if (masterEngine)
-        setMasterEngine(masterEngine);
 
     connect(stackHandler(), &StackHandler::stackChanged,
             this, &QmlEngine::updateCurrentContext);
@@ -276,7 +272,7 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
     connect(&d->applicationLauncher, &ApplicationLauncher::processExited,
             this, &QmlEngine::disconnected);
     connect(&d->applicationLauncher, &ApplicationLauncher::appendMessage,
-            this, &QmlEngine::appendMessage);
+            this, &QmlEngine::appMessage);
     connect(&d->applicationLauncher, &ApplicationLauncher::processStarted,
             this, &QmlEngine::handleLauncherStarted);
 
@@ -296,7 +292,7 @@ QmlEngine::QmlEngine(const DebuggerRunParameters &startParameters, DebuggerEngin
             this, [this] { tryToConnect(); });
 
     // we won't get any debug output
-    if (startParameters.useTerminal) {
+    if (useTerminal) {
         d->noDebugOutputTimer.setInterval(0);
         d->retryOnConnectFail = true;
         d->automaticConnect = true;
@@ -380,7 +376,7 @@ void QmlEngine::handleLauncherStarted()
     d->noDebugOutputTimer.start();
 }
 
-void QmlEngine::appendMessage(const QString &msg, Utils::OutputFormat /* format */)
+void QmlEngine::appMessage(const QString &msg, Utils::OutputFormat /* format */)
 {
     showMessage(msg, AppOutput); // FIXME: Redirect to RunControl
 }
@@ -576,10 +572,10 @@ void QmlEngine::startApplicationLauncher()
 {
     if (!d->applicationLauncher.isRunning()) {
         StandardRunnable runnable = runParameters().inferior;
-        appendMessage(tr("Starting %1 %2").arg(
-                          QDir::toNativeSeparators(runnable.executable),
-                          runnable.commandLineArguments) + '\n',
-                      Utils::NormalMessageFormat);
+        runTool()->appendMessage(tr("Starting %1 %2").arg(
+                                     QDir::toNativeSeparators(runnable.executable),
+                                     runnable.commandLineArguments),
+                                 Utils::NormalMessageFormat);
         d->applicationLauncher.start(runnable);
     }
 }
@@ -2579,9 +2575,9 @@ void QmlEnginePrivate::flushSendBuffer()
     sendBuffer.clear();
 }
 
-DebuggerEngine *createQmlEngine(const DebuggerRunParameters &sp)
+DebuggerEngine *createQmlEngine(bool useTerminal)
 {
-    return new QmlEngine(sp);
+    return new QmlEngine(useTerminal);
 }
 
 } // Internal

@@ -28,12 +28,10 @@
 #include "debuggerinternalconstants.h"
 #include "debuggericons.h"
 #include "debuggercore.h"
-#include "debuggerengine.h"
-#include "debuggerstartparameters.h"
+#include "debuggerruncontrol.h"
 
 #include <utils/qtcassert.h>
 
-#include <QIcon>
 #include <QDebug>
 #include <QFile>
 
@@ -126,8 +124,8 @@ SnapshotHandler::SnapshotHandler()
 SnapshotHandler::~SnapshotHandler()
 {
     for (int i = m_snapshots.size(); --i >= 0; ) {
-        if (DebuggerEngine *engine = at(i)) {
-            const DebuggerRunParameters &rp = engine->runParameters();
+        if (DebuggerRunTool *runTool = at(i)) {
+            const DebuggerRunParameters &rp = runTool->runParameters();
             if (rp.isSnapshot && !rp.coreFile.isEmpty())
                 QFile::remove(rp.coreFile);
         }
@@ -150,15 +148,15 @@ QVariant SnapshotHandler::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.row() >= m_snapshots.size())
         return QVariant();
 
-    const DebuggerEngine *engine = at(index.row());
+    const DebuggerRunTool *runTool = at(index.row());
 
     if (role == SnapshotCapabilityRole)
-        return engine && engine->hasCapability(SnapshotCapability);
+        return runTool && runTool->activeEngine()->hasCapability(SnapshotCapability);
 
-    if (!engine)
+    if (!runTool)
         return QLatin1String("<finished>");
 
-    const DebuggerRunParameters &rp = engine->runParameters();
+    const DebuggerRunParameters &rp = runTool->runParameters();
 
     switch (role) {
     case Qt::DisplayRole:
@@ -215,22 +213,22 @@ void SnapshotHandler::activateSnapshot(int index)
 
 void SnapshotHandler::createSnapshot(int index)
 {
-    DebuggerEngine *engine = at(index);
-    QTC_ASSERT(engine, return);
-    engine->createSnapshot();
+    DebuggerRunTool *runTool = at(index);
+    QTC_ASSERT(runTool, return);
+    runTool->engine()->createSnapshot();
 }
 
 void SnapshotHandler::removeSnapshot(int index)
 {
-    DebuggerEngine *engine = at(index);
-    //qDebug() << "REMOVING " << engine;
-    QTC_ASSERT(engine, return);
+    DebuggerRunTool *runTool = at(index);
+    //qDebug() << "REMOVING " << runTool;
+    QTC_ASSERT(runTool, return);
 #if 0
     // See http://sourceware.org/bugzilla/show_bug.cgi?id=11241.
     setState(EngineSetupRequested);
     postCommand("set stack-cache off");
 #endif
-    //QString fileName = engine->startParameters().coreFile;
+    //QString fileName = runTool->startParameters().coreFile;
     //if (!fileName.isEmpty())
     //    QFile::remove(fileName);
     beginResetModel();
@@ -239,7 +237,7 @@ void SnapshotHandler::removeSnapshot(int index)
         m_currentIndex = -1;
     else if (index < m_currentIndex)
         --m_currentIndex;
-    //engine->quitDebugger();
+    //runTool->quitDebugger();
     endResetModel();
 }
 
@@ -252,18 +250,18 @@ void SnapshotHandler::removeAll()
     endResetModel();
 }
 
-void SnapshotHandler::appendSnapshot(DebuggerEngine *engine)
+void SnapshotHandler::appendSnapshot(DebuggerRunTool *runTool)
 {
     beginResetModel();
-    m_snapshots.append(engine);
+    m_snapshots.append(runTool);
     m_currentIndex = size() - 1;
     endResetModel();
 }
 
-void SnapshotHandler::removeSnapshot(DebuggerEngine *engine)
+void SnapshotHandler::removeSnapshot(DebuggerRunTool *runTool)
 {
     // Could be that the run controls died before it was appended.
-    int index = m_snapshots.indexOf(engine);
+    int index = m_snapshots.indexOf(runTool);
     if (index != -1)
         removeSnapshot(index);
 }
@@ -275,7 +273,7 @@ void SnapshotHandler::setCurrentIndex(int index)
     endResetModel();
 }
 
-DebuggerEngine *SnapshotHandler::at(int i) const
+DebuggerRunTool *SnapshotHandler::at(int i) const
 {
     return m_snapshots.at(i).data();
 }

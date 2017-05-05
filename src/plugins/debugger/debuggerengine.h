@@ -194,7 +194,7 @@ class DebuggerEngine : public QObject
     Q_OBJECT
 
 public:
-    explicit DebuggerEngine(const DebuggerRunParameters &sp);
+    explicit DebuggerEngine();
     virtual ~DebuggerEngine();
 
     const DebuggerRunParameters &runParameters() const;
@@ -320,12 +320,14 @@ public:
     virtual void resetLocation();
     virtual void gotoLocation(const Internal::Location &location);
     Q_SLOT virtual void quitDebugger(); // called by DebuggerRunControl
+    virtual void exitDebugger(); // called by DebuggerRunControl
     virtual void abortDebugger(); // called by DebuggerPlugin
 
-    virtual void updateViews();
+    void updateViews();
     bool isSlaveEngine() const;
     bool isMasterEngine() const;
     DebuggerEngine *masterEngine() const;
+    virtual DebuggerEngine *activeEngine() { return this; }
     virtual DebuggerEngine *cppEngine() { return 0; }
 
     virtual bool canDisplayTooltip() const;
@@ -398,7 +400,6 @@ protected:
     virtual void resetInferior() {}
 
     virtual void detachDebugger();
-    virtual void exitDebugger();
     virtual void executeStep();
     virtual void executeStepOut();
     virtual void executeNext();
@@ -436,7 +437,7 @@ protected:
     bool isStateDebugging() const;
     void setStateDebugging(bool on);
 
-    static void validateExecutable(DebuggerRunParameters *sp);
+    void validateExecutable();
 
     virtual void setupSlaveInferior();
     virtual void setupSlaveEngine();
@@ -478,7 +479,6 @@ private:
     QPointer<DebuggerEngine> m_engine;
 };
 
-DebuggerEngine *createEngine(DebuggerEngineType et, const DebuggerRunParameters &rp, QStringList *errors);
 ProjectExplorer::RunControl *createAndScheduleRun(const DebuggerRunParameters &rp, ProjectExplorer::Kit *kit);
 
 } // namespace Internal

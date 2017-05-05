@@ -37,7 +37,7 @@ class GdbCoreEngine : public GdbEngine
     Q_OBJECT
 
 public:
-    explicit GdbCoreEngine(const DebuggerRunParameters &runParameters);
+    explicit GdbCoreEngine(bool useTerminal);
     ~GdbCoreEngine() override;
 
     struct CoreInfo
@@ -70,7 +70,7 @@ private:
     QString m_executable;
     QString m_coreName;
     QString m_tempCoreName;
-    QProcess *m_coreUnpackProcess;
+    QProcess *m_coreUnpackProcess = nullptr;
     QFile m_tempCoreFile;
 };
 

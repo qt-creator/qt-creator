@@ -58,7 +58,7 @@ class LldbEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    explicit LldbEngine(const DebuggerRunParameters &runParameters);
+    LldbEngine();
     ~LldbEngine() override;
 
 signals:
@@ -152,8 +152,8 @@ private:
     Utils::QtcProcess m_lldbProc;
 
     // FIXME: Make generic.
-    int m_lastAgentId;
-    int m_continueAtNextSpontaneousStop;
+    int m_lastAgentId = 0;
+    int m_continueAtNextSpontaneousStop = false;
     QMap<QPointer<DisassemblerAgent>, int> m_disassemblerAgents;
 
     QHash<int, DebuggerCommand> m_commandForToken;

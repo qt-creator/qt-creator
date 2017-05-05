@@ -58,12 +58,12 @@ public:
                           QString *errorMessage = nullptr); // FIXME: Don't use.
 
     Internal::DebuggerEngine *engine() const { return m_engine; }
+    Internal::DebuggerEngine *activeEngine() const;
 
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
 
     void start() override;
     void stop() override;
-    void onFinished() override;
 
     void startFailed();
     void onTargetFailure();
@@ -75,7 +75,8 @@ public:
     void abortDebugger();
     void debuggingFinished();
 
-    DebuggerStartParameters &startParameters(); // Used in Boot2Qt.
+    Internal::DebuggerRunParameters &runParameters();
+    const Internal::DebuggerRunParameters &runParameters() const;
 
     bool isCppDebugging() const { return m_isCppDebugging; }
     bool isQmlDebugging() const { return m_isQmlDebugging; }
@@ -91,6 +92,7 @@ signals:
 
 private:
     Internal::DebuggerEngine *m_engine = nullptr; // Master engine
+    Internal::DebuggerRunParameters m_runParameters;
     QStringList m_errors;
     const bool m_isCppDebugging;
     const bool m_isQmlDebugging;
@@ -132,7 +134,7 @@ public:
 
 private:
     void start() override;
-    void onFinished() override;
+    void stop() override;
 
     ProjectExplorer::ApplicationLauncher m_gdbServer;
 };

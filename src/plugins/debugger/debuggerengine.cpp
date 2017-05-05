@@ -89,9 +89,6 @@ using namespace Utils;
 #include <valgrind/callgrind.h>
 #endif
 
-// VariableManager Prefix
-const char PrefixDebugExecutable[]  = "DebuggedExecutable";
-
 namespace Debugger {
 
 QDebug operator<<(QDebug d, DebuggerState state)
@@ -227,9 +224,8 @@ class DebuggerEnginePrivate : public QObject
     Q_OBJECT
 
 public:
-    DebuggerEnginePrivate(DebuggerEngine *engine, const DebuggerRunParameters &sp)
+    DebuggerEnginePrivate(DebuggerEngine *engine)
       : m_engine(engine),
-        m_runParameters(sp),
         m_modulesHandler(engine),
         m_registerHandler(engine),
         m_sourceFilesHandler(engine),
@@ -243,10 +239,6 @@ public:
                 this, &DebuggerEnginePrivate::resetLocation);
         connect(action(IntelFlavor), &Utils::SavedAction::valueChanged,
                 this, &DebuggerEnginePrivate::reloadDisassembly);
-
-        Utils::globalMacroExpander()->registerFileVariables(PrefixDebugExecutable,
-            tr("Debugged executable"),
-            [this] { return m_runParameters.inferior.executable; });
     }
 
     void doSetupEngine();
@@ -350,8 +342,6 @@ public:
     DebuggerEngine *m_masterEngine = nullptr; // Not owned
     QPointer<DebuggerRunTool> m_runTool;  // Not owned.
 
-    DebuggerRunParameters m_runParameters;
-
     // The current state.
     DebuggerState m_state = DebuggerNotReady;
 
@@ -397,9 +387,10 @@ public:
 //
 //////////////////////////////////////////////////////////////////////
 
-DebuggerEngine::DebuggerEngine(const DebuggerRunParameters &startParameters)
-  : d(new DebuggerEnginePrivate(this, startParameters))
-{}
+DebuggerEngine::DebuggerEngine()
+  : d(new DebuggerEnginePrivate(this))
+{
+}
 
 DebuggerEngine::~DebuggerEngine()
 {
@@ -572,13 +563,13 @@ void DebuggerEngine::start()
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     d->m_progress.reportStarted();
 
-    d->m_inferiorPid = d->m_runParameters.attachPID.isValid()
-        ? d->m_runParameters.attachPID : ProcessHandle();
+    DebuggerRunParameters &rp = runParameters();
+    d->m_inferiorPid = rp.attachPID.isValid() ? rp.attachPID : ProcessHandle();
     if (d->m_inferiorPid.isValid())
         runControl()->setApplicationProcessHandle(d->m_inferiorPid);
 
     if (isNativeMixedActive())
-        d->m_runParameters.inferior.environment.set("QV4_FORCE_INTERPRETER", "1");
+        rp.inferior.environment.set("QV4_FORCE_INTERPRETER", "1");
 
     action(OperateByInstruction)->setEnabled(hasCapability(DisassemblerCapability));
 
@@ -669,12 +660,12 @@ void DebuggerEngine::handleFinished()
 
 const DebuggerRunParameters &DebuggerEngine::runParameters() const
 {
-    return d->m_runParameters;
+    return runTool()->runParameters();
 }
 
 DebuggerRunParameters &DebuggerEngine::runParameters()
 {
-    return d->m_runParameters;
+    return runTool()->runParameters();
 }
 
 DebuggerState DebuggerEngine::state() const
@@ -774,7 +765,7 @@ void DebuggerEnginePrivate::doSetupEngine()
 {
     m_engine->showMessage("CALL: SETUP ENGINE");
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << m_engine << state());
-    m_engine->validateExecutable(&m_runParameters);
+    m_engine->validateExecutable();
     m_engine->setupEngine();
 }
 
@@ -805,7 +796,6 @@ void DebuggerEngine::notifyEngineSetupOk()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupOk);
 
-    Internal::runControlStarted(this);
     d->queueSetupInferior();
 }
 
@@ -838,7 +828,7 @@ void DebuggerEngine::notifyInferiorSetupOk()
 #ifdef WITH_BENCHMARK
     CALLGRIND_START_INSTRUMENTATION;
 #endif
-    runTool()->aboutToNotifyInferiorSetupOk();
+    runTool()->aboutToNotifyInferiorSetupOk(); // FIXME: Remove, only used for Android.
     showMessage("NOTE: INFERIOR SETUP OK");
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << this << state());
     setState(InferiorSetupOk);
@@ -905,21 +895,22 @@ void DebuggerEngine::setRemoteParameters(const RemoteSetupResult &result)
     showMessage(QString("NOTE: REMOTE SETUP DONE: GDB SERVER PORT: %1  QML PORT %2")
                 .arg(result.gdbServerPort.number()).arg(result.qmlServerPort.number()));
 
+    DebuggerRunParameters &rp = runParameters();
     if (result.gdbServerPort.isValid()) {
-        QString &rc = d->m_runParameters.remoteChannel;
+        QString &rc = rp.remoteChannel;
         const int sepIndex = rc.lastIndexOf(':');
         if (sepIndex != -1) {
             rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
                        QString::number(result.gdbServerPort.number()));
         }
-    } else if (result.inferiorPid != InvalidPid && runParameters().startMode == AttachExternal) {
+    } else if (result.inferiorPid != InvalidPid && rp.startMode == AttachExternal) {
         // e.g. iOS Simulator
-        runParameters().attachPID = ProcessHandle(result.inferiorPid);
+        rp.attachPID = ProcessHandle(result.inferiorPid);
     }
 
     if (result.qmlServerPort.isValid()) {
-        d->m_runParameters.qmlServer.port = result.qmlServerPort;
-        d->m_runParameters.inferior.commandLineArguments.replace("%qml_port%",
+        rp.qmlServer.port = result.qmlServerPort;
+        rp.inferior.commandLineArguments.replace("%qml_port%",
                         QString::number(result.qmlServerPort.number()));
     }
 }
@@ -1298,7 +1289,8 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
     }
 
     if (state == InferiorUnrunnable || state == InferiorRunOk) {
-        if (isMasterEngine() && runTool())
+        // FIXME: Called again for combined engine.
+        if (isMasterEngine() && runTool() && !runTool()->runControl()->isRunning())
             runTool()->reportStarted();
     }
 
@@ -1325,8 +1317,7 @@ void DebuggerEngine::updateViews()
 {
     // The slave engines are not entitled to change the view. Their wishes
     // should be coordinated by their master engine.
-    if (isMasterEngine())
-        Internal::updateState(this);
+    Internal::updateState(runTool());
 }
 
 bool DebuggerEngine::isSlaveEngine() const
@@ -1373,7 +1364,7 @@ void DebuggerEngine::removeBreakpointMarker(const Breakpoint &bp)
 
 QString DebuggerEngine::expand(const QString &string) const
 {
-    return d->m_runParameters.macroExpander->expand(string);
+    return runParameters().macroExpander->expand(string);
 }
 
 QString DebuggerEngine::nativeStartupCommands() const
@@ -1456,10 +1447,9 @@ void DebuggerEngine::notifyInferiorPid(const ProcessHandle &pid)
     if (pid.isValid()) {
         runControl()->setApplicationProcessHandle(pid);
         showMessage(tr("Taking notice of pid %1").arg(pid.pid()));
-        if (d->m_runParameters.startMode == StartInternal
-            || d->m_runParameters.startMode == StartExternal
-            || d->m_runParameters.startMode == AttachExternal)
-        QTimer::singleShot(0, d, &DebuggerEnginePrivate::raiseApplication);
+        DebuggerStartMode sm = runParameters().startMode;
+        if (sm == StartInternal || sm == StartExternal || sm == AttachExternal)
+            QTimer::singleShot(0, d, &DebuggerEnginePrivate::raiseApplication);
     }
 }
 
@@ -1542,7 +1532,7 @@ RunControl *DebuggerEngine::runControl() const
 
 DebuggerRunTool *DebuggerEngine::runTool() const
 {
-    return d->m_masterEngine ? d->m_masterEngine->runTool() : d->m_runTool.data();
+    return d->m_runTool.data();
 }
 
 Terminal *DebuggerEngine::terminal() const
@@ -1919,8 +1909,9 @@ void DebuggerEngine::setStateDebugging(bool on)
     d->m_isStateDebugging = on;
 }
 
-void DebuggerEngine::validateExecutable(DebuggerRunParameters *sp)
+void DebuggerEngine::validateExecutable()
 {
+    DebuggerRunParameters *sp = &runParameters();
     if (sp->skipExecutableValidation)
         return;
     if (sp->languages == QmlLanguage)

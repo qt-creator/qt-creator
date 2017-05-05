@@ -26,6 +26,7 @@
 #include "qmlcppengine.h"
 #include "qmlengine.h"
 
+#include <debugger/debuggercore.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/debuggerstartparameters.h>
@@ -48,13 +49,9 @@ enum { debug = 0 };
 
 #define CHECK_STATE(s) do { checkState(s, __FILE__, __LINE__); } while (0)
 
-DebuggerEngine *createQmlCppEngine(const DebuggerRunParameters &sp, QStringList *errors)
+DebuggerEngine *createQmlCppEngine(DebuggerEngine *cppEngine, bool useTerminal)
 {
-    QmlCppEngine *newEngine = new QmlCppEngine(sp, errors);
-    if (newEngine->cppEngine())
-        return newEngine;
-    delete newEngine;
-    return 0;
+    return new QmlCppEngine(cppEngine, useTerminal);
 }
 
 
@@ -64,19 +61,12 @@ DebuggerEngine *createQmlCppEngine(const DebuggerRunParameters &sp, QStringList 
 //
 ////////////////////////////////////////////////////////////////////////
 
-QmlCppEngine::QmlCppEngine(const DebuggerRunParameters &rp, QStringList *errors)
-    : DebuggerEngine(rp)
+QmlCppEngine::QmlCppEngine(DebuggerEngine *cppEngine, bool useTerminal)
 {
-    setObjectName(QLatin1String("QmlCppEngine"));
-    m_qmlEngine = new QmlEngine(rp, this);
-    QStringList innerErrors;
-    m_cppEngine = createEngine(rp.cppEngineType, rp, &innerErrors);
-    if (!m_cppEngine) {
-        errors->append(tr("The slave debugging engine required for combined "
-                          "QML/C++-Debugging could not be created: %1")
-                       .arg(innerErrors.join(QLatin1Char('\n'))));
-        return;
-    }
+    setObjectName("QmlCppEngine");
+    m_qmlEngine = new QmlEngine(useTerminal);
+    m_qmlEngine->setMasterEngine(this);
+    m_cppEngine = cppEngine;
     m_cppEngine->setMasterEngine(this);
     setActiveEngine(m_cppEngine);
 }
@@ -768,6 +758,13 @@ void QmlCppEngine::debugLastCommand()
 DebuggerEngine *QmlCppEngine::qmlEngine() const
 {
     return m_qmlEngine;
+}
+
+void QmlCppEngine::setRunTool(DebuggerRunTool *runTool)
+{
+    DebuggerEngine::setRunTool(runTool);
+    m_qmlEngine->setRunTool(runTool);
+    m_cppEngine->setRunTool(runTool);
 }
 
 void QmlCppEngine::setActiveEngine(DebuggerEngine *engine)

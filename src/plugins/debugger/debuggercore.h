@@ -47,6 +47,9 @@ namespace CPlusPlus { class Snapshot; }
 namespace Utils { class SavedAction; }
 
 namespace Debugger {
+
+class DebuggerRunTool;
+
 namespace Internal {
 
 class BreakHandler;
@@ -63,7 +66,7 @@ enum TestCases
 };
 
 // Some convenience.
-void updateState(DebuggerEngine *engine);
+void updateState(DebuggerRunTool *runTool);
 void updateWatchersWindow(bool showWatch, bool showReturn);
 const CPlusPlus::Snapshot &cppCodeModelSnapshot();
 bool hasSnapshots();
@@ -73,9 +76,9 @@ void openTextEditor(const QString &titlePattern, const QString &contents);
 void showMessage(const QString &msg, int channel, int timeout = -1);
 
 bool isReverseDebugging();
-void runControlStarted(DebuggerEngine *engine);
-void runControlFinished(DebuggerEngine *engine);
-void displayDebugger(DebuggerEngine *engine, bool updateEngine);
+void runControlStarted(DebuggerRunTool *runTool);
+void runControlFinished(DebuggerRunTool *runTool);
+void displayDebugger(DebuggerRunTool *runTool, bool updateEngine);
 void synchronizeBreakpoints();
 
 void saveModeToRestore();
