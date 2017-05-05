@@ -149,6 +149,8 @@ public:
     static bool sortByPath(const Node *a, const Node *b);
     void setParentFolderNode(FolderNode *parentFolder);
 
+    void setListInProject(bool l);
+
     static FileType fileTypeForMimeType(const Utils::MimeType &mt);
     static FileType fileTypeForFileName(const Utils::FileName &file);
 
@@ -156,7 +158,6 @@ protected:
     Node(NodeType nodeType, const Utils::FileName &filePath, int line = -1);
 
     void setPriority(int priority);
-    void setListInProject(bool l);
     void setIsGenerated(bool g);
 
 private:
