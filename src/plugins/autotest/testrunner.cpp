@@ -157,6 +157,8 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
         QScopedPointer<TestOutputReader> outputReader;
         outputReader.reset(testConfiguration->outputReader(futureInterface, &testProcess));
         QTC_ASSERT(outputReader, continue);
+        TestRunner::connect(outputReader.data(), &TestOutputReader::newOutputAvailable,
+                            TestResultsPane::instance(), &TestResultsPane::addOutput);
         if (futureInterface.isCanceled())
             break;
 
@@ -364,7 +366,8 @@ void TestRunner::debugTests()
 
     if (useOutputProcessor) {
         TestOutputReader *outputreader = config->outputReader(*futureInterface, 0);
-
+        connect(outputreader, &TestOutputReader::newOutputAvailable,
+                TestResultsPane::instance(), &TestResultsPane::addOutput);
         connect(runControl, &ProjectExplorer::RunControl::appendMessageRequested,
                 this, [this, outputreader]
                 (ProjectExplorer::RunControl *, const QString &msg, Utils::OutputFormat format) {

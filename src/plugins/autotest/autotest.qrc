@@ -11,5 +11,9 @@
         <file>images/runselected_tickmarks.png</file>
         <file>images/runselected_tickmarks@2x.png</file>
         <file>images/data.png</file>
+        <file>images/text.png</file>
+        <file>images/text@2x.png</file>
+        <file>images/visual.png</file>
+        <file>images/visual@2x.png</file>
     </qresource>
 </RCC>

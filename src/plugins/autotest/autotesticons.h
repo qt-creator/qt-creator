@@ -71,6 +71,8 @@ const Utils::Icon RESULT_MESSAGEWARN({
 const Utils::Icon RESULT_MESSAGEFATAL({
         {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestFatalTextColor}},
         Utils::Icon::Tint);
+const Utils::Icon VISUAL_DISPLAY({{":/images/visual.png", Utils::Theme::IconsBaseColor}});
+const Utils::Icon TEXT_DISPLAY({{":/images/text.png", Utils::Theme::IconsBaseColor}});
 
 } // namespace Icons
 } // namespace Autotest

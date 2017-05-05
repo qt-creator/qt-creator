@@ -50,7 +50,6 @@ private:
     QString m_currentTestName;
     QString m_currentTestSet;
     QString m_description;
-    QByteArray m_unprocessed;
     int m_iteration = 1;
 };
 

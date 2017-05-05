@@ -56,20 +56,7 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
     static QRegExp errorLocation("^(.*)\\((\\d+)\\): error:.*$");
     static QRegExp iterations("^Repeating all tests \\(iteration (\\d+)\\) \\. \\. \\.$");
 
-    QByteArray read = outputLine;
-    if (!m_unprocessed.isEmpty()) {
-        read = m_unprocessed + read;
-        m_unprocessed.clear();
-    }
-    if (!read.endsWith('\n')) {
-        m_unprocessed = read;
-        return;
-    }
-    read.chop(1); // remove the newline from the output
-    if (read.endsWith('\r'))
-        read.chop(1);
-
-    const QString line = QString::fromLatin1(read);
+    const QString line = QString::fromLatin1(outputLine);
     if (line.trimmed().isEmpty())
         return;
 

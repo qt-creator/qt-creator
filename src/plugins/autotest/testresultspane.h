@@ -38,6 +38,8 @@ class QKeyEvent;
 class QLabel;
 class QModelIndex;
 class QMenu;
+class QPlainTextEdit;
+class QStackedWidget;
 class QToolButton;
 QT_END_NAMESPACE
 
@@ -88,6 +90,7 @@ public:
     void goToPrev() override;
 
     void addTestResult(const TestResultPtr &result);
+    void addOutput(const QByteArray &output);
 
 private:
     explicit TestResultsPane(QObject *parent = 0);
@@ -109,9 +112,10 @@ private:
     void onCopyItemTriggered(const QModelIndex &idx);
     void onCopyWholeTriggered();
     void onSaveWholeTriggered();
+    void toggleOutputStyle();
     QString getWholeOutput(const QModelIndex &parent = QModelIndex());
 
-    QWidget *m_outputWidget;
+    QStackedWidget *m_outputWidget;
     QFrame *m_summaryWidget;
     QLabel *m_summaryLabel;
     ResultsTreeView *m_treeView;
@@ -123,6 +127,8 @@ private:
     QToolButton *m_runSelected;
     QToolButton *m_stopTestRun;
     QToolButton *m_filterButton;
+    QToolButton *m_outputToggleButton;
+    QPlainTextEdit *m_textOutput;
     QMenu *m_filterMenu;
     bool m_wasVisibleBefore = false;
     bool m_autoScroll = false;

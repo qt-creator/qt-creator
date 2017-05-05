@@ -45,6 +45,8 @@ public:
     virtual void processOutput(const QByteArray &outputLine) = 0;
     virtual void processStdError(const QByteArray &output);
 
+signals:
+    void newOutputAvailable(const QByteArray &output);
 protected:
     QFutureInterface<TestResultPtr> m_futureInterface;
     QProcess *m_testApplication;  // not owned
