@@ -495,6 +495,39 @@ void SyntaxHighlighter::formatSpaces(const QString &text)
 }
 
 /*!
+    The specified \a format is applied to all non-whitespace characters in the current text block
+    with \a text, from the \a start position for a length of \a count characters.
+    Whitespace characters are formatted with the visual whitespace format, merged with the
+    non-whitespace format.
+
+    \sa setFormat()
+*/
+void SyntaxHighlighter::setFormatWithSpaces(const QString &text, int start, int count,
+                                            const QTextCharFormat &format)
+{
+    Q_D(const SyntaxHighlighter);
+    QTextCharFormat visualSpaceFormat = d->whitespaceFormat;
+    visualSpaceFormat.setBackground(format.background());
+
+    const int end = start + count;
+    int index = start;
+
+    while (index != end) {
+        const bool isSpace = text.at(index).isSpace();
+        const int start = index;
+
+        do { ++index; }
+        while (index != end && text.at(index).isSpace() == isSpace);
+
+        const int tokenLength = index - start;
+        if (isSpace)
+            setFormat(start, tokenLength, visualSpaceFormat);
+        else if (format.isValid())
+            setFormat(start, tokenLength, format);
+    }
+}
+
+/*!
     Returns the format at \a position inside the syntax highlighter's
     current text block.
 */

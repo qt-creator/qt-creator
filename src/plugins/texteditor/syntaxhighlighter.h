@@ -85,6 +85,8 @@ protected:
     QTextCharFormat format(int pos) const;
 
     void formatSpaces(const QString &text);
+    void setFormatWithSpaces(const QString &text, int start, int count,
+                             const QTextCharFormat &format);
 
     int previousBlockState() const;
     int currentBlockState() const;

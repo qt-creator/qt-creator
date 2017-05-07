@@ -76,9 +76,9 @@ void CppHighlighter::highlightBlock(const QString &text)
         TextDocumentLayout::clearParentheses(currentBlock());
         if (text.length())  {// the empty line can still contain whitespace
             if (initialLexerState == T_COMMENT)
-                highlightLine(text, 0, text.length(), formatForCategory(C_COMMENT));
+                setFormatWithSpaces(text, 0, text.length(), formatForCategory(C_COMMENT));
             else if (initialLexerState == T_DOXY_COMMENT)
-                highlightLine(text, 0, text.length(), formatForCategory(C_DOXYGEN_COMMENT));
+                setFormatWithSpaces(text, 0, text.length(), formatForCategory(C_DOXYGEN_COMMENT));
             else
                 setFormat(0, text.length(), formatForCategory(C_VISUAL_WHITESPACE));
         }
@@ -147,7 +147,7 @@ void CppHighlighter::highlightBlock(const QString &text)
             continue;
 
         if (i == 0 && tk.is(T_POUND)) {
-            highlightLine(text, tk.utf16charsBegin(), tk.utf16chars(),
+            setFormatWithSpaces(text, tk.utf16charsBegin(), tk.utf16chars(),
                           formatForCategory(C_PREPROCESSOR));
             expectPreprocessorKeyword = true;
         } else if (highlightCurrentWordAsPreprocessor
@@ -164,11 +164,11 @@ void CppHighlighter::highlightBlock(const QString &text)
         } else if (tk.is(T_NUMERIC_LITERAL)) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_NUMBER));
         } else if (tk.isStringLiteral() || tk.isCharLiteral()) {
-            highlightLine(text, tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_STRING));
+            setFormatWithSpaces(text, tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_STRING));
         } else if (tk.isComment()) {
             const int startPosition = initialLexerState ? previousTokenEnd : tk.utf16charsBegin();
             if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT)) {
-                highlightLine(text, startPosition, tk.utf16charsEnd() - startPosition,
+                setFormatWithSpaces(text, startPosition, tk.utf16charsEnd() - startPosition,
                               formatForCategory(C_COMMENT));
             }
 
@@ -214,7 +214,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     // mark the trailing white spaces
     const int lastTokenEnd = tokens.last().utf16charsEnd();
     if (text.length() > lastTokenEnd)
-        highlightLine(text, lastTokenEnd, text.length() - lastTokenEnd, formatForCategory(C_VISUAL_WHITESPACE));
+        setFormatWithSpaces(text, lastTokenEnd, text.length() - lastTokenEnd, formatForCategory(C_VISUAL_WHITESPACE));
 
     if (!initialLexerState && lexerState && !tokens.isEmpty()) {
         const Token &lastToken = tokens.last();
@@ -343,30 +343,6 @@ bool CppHighlighter::isPPKeyword(const QStringRef &text) const
     return false;
 }
 
-void CppHighlighter::highlightLine(const QString &text, int position, int length,
-                                   const QTextCharFormat &format)
-{
-    QTextCharFormat visualSpaceFormat = formatForCategory(C_VISUAL_WHITESPACE);
-    visualSpaceFormat.setBackground(format.background());
-
-    const int end = position + length;
-    int index = position;
-
-    while (index != end) {
-        const bool isSpace = text.at(index).isSpace();
-        const int start = index;
-
-        do { ++index; }
-        while (index != end && text.at(index).isSpace() == isSpace);
-
-        const int tokenLength = index - start;
-        if (isSpace)
-            setFormat(start, tokenLength, visualSpaceFormat);
-        else if (format.isValid())
-            setFormat(start, tokenLength, format);
-    }
-}
-
 void CppHighlighter::highlightWord(QStringRef word, int position, int length)
 {
     // try to highlight Qt 'identifiers' like QObject and Q_PROPERTY
@@ -406,7 +382,7 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
 
             int k = CppTools::classifyDoxygenTag(start, it - start);
             if (k != CppTools::T_DOXY_IDENTIFIER) {
-                highlightLine(text, initial, start - uc - initial, format);
+                setFormatWithSpaces(text, initial, start - uc - initial, format);
                 setFormat(start - uc - 1, it - start + 1, kwFormat);
                 initial = it - uc;
             }
@@ -414,6 +390,6 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
             ++it;
     }
 
-    highlightLine(text, initial, it - uc - initial, format);
+    setFormatWithSpaces(text, initial, it - uc - initial, format);
 }
 
