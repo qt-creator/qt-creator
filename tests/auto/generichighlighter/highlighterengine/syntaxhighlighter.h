@@ -43,7 +43,7 @@ public:
     virtual ~SyntaxHighlighter() {}
 
 protected:
-    void applyFormatToSpaces(const QString &, const QTextCharFormat &)
+    void formatSpaces(const QString &)
     {}
     void setTextFormatCategories(int, std::function<TextStyle(int)>)
     {}

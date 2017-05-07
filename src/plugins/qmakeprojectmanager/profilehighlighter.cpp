@@ -99,7 +99,7 @@ void ProFileHighlighter::highlightBlock(const QString &text)
             break;
     }
 
-    applyFormatToSpaces(text, formatForCategory(ProfileVisualWhitespaceFormat));
+    formatSpaces(text);
 }
 
 } // namespace Internal

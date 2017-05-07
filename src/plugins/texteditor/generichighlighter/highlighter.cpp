@@ -83,7 +83,6 @@ static TextStyle styleForFormat(int format)
     const auto f = Highlighter::TextFormatId(format);
     switch (f) {
     case Highlighter::Normal: return C_TEXT;
-    case Highlighter::VisualWhitespace: return C_VISUAL_WHITESPACE;
     case Highlighter::Keyword: return C_KEYWORD;
     case Highlighter::DataType: return C_TYPE;
     case Highlighter::Comment: return C_COMMENT;
@@ -250,7 +249,7 @@ void Highlighter::highlightBlock(const QString &text)
         }
     }
 
-    applyFormatToSpaces(text, formatForCategory(VisualWhitespace));
+    formatSpaces(text);
 }
 
 void Highlighter::setupDataForBlock(const QString &text)

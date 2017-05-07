@@ -48,7 +48,9 @@ class SyntaxHighlighterPrivate
 public:
     inline SyntaxHighlighterPrivate()
         : q_ptr(0), rehighlightPending(false), inReformatBlocks(false)
-    {}
+    {
+        updateFormats(TextEditorSettings::fontSettings());
+    }
 
     QPointer<QTextDocument> doc;
 
@@ -64,7 +66,7 @@ public:
     }
 
     void applyFormatChanges(int from, int charsRemoved, int charsAdded);
-    void updateFormatsForCategories(const FontSettings &fontSettings);
+    void updateFormats(const FontSettings &fontSettings);
 
     QVector<QTextCharFormat> formatChanges;
     QTextBlock currentBlock;
@@ -73,6 +75,7 @@ public:
     TextDocumentLayout::FoldValidator foldValidator;
     QVector<QTextCharFormat> formats;
     QVector<std::pair<int,TextStyle>> formatCategories;
+    QTextCharFormat whitespaceFormat;
 };
 
 static bool adjustRange(QTextLayout::FormatRange &range, int from, int charsRemoved, int charsAdded) {
@@ -474,8 +477,9 @@ void SyntaxHighlighter::setFormat(int start, int count, const QFont &font)
     setFormat(start, count, format);
 }
 
-void SyntaxHighlighter::applyFormatToSpaces(const QString &text, const QTextCharFormat &format)
+void SyntaxHighlighter::formatSpaces(const QString &text)
 {
+    Q_D(const SyntaxHighlighter);
     int offset = 0;
     const int length = text.length();
     while (offset < length) {
@@ -483,7 +487,7 @@ void SyntaxHighlighter::applyFormatToSpaces(const QString &text, const QTextChar
             int start = offset++;
             while (offset < length && text.at(offset).isSpace())
                 ++offset;
-            setFormat(start, offset - start, format);
+            setFormat(start, offset - start, d->whitespaceFormat);
         } else {
             ++offset;
         }
@@ -725,7 +729,7 @@ QList<QColor> SyntaxHighlighter::generateColors(int n, const QColor &background)
 void SyntaxHighlighter::setFontSettings(const FontSettings &fontSettings)
 {
     Q_D(SyntaxHighlighter);
-    d->updateFormatsForCategories(fontSettings);
+    d->updateFormats(fontSettings);
 }
 
 /*!
@@ -771,7 +775,7 @@ void SyntaxHighlighter::setTextFormatCategories(const QVector<std::pair<int, Tex
     d->formatCategories = categories;
     const int maxCategory = Utils::maxElementOr(categories, {-1, C_TEXT}).first;
     d->formats = QVector<QTextCharFormat>(maxCategory + 1);
-    d->updateFormatsForCategories(TextEditorSettings::fontSettings());
+    d->updateFormats(TextEditorSettings::fontSettings());
 }
 
 QTextCharFormat SyntaxHighlighter::formatForCategory(int category) const
@@ -782,10 +786,11 @@ QTextCharFormat SyntaxHighlighter::formatForCategory(int category) const
     return d->formats.at(category);
 }
 
-void SyntaxHighlighterPrivate::updateFormatsForCategories(const FontSettings &fontSettings)
+void SyntaxHighlighterPrivate::updateFormats(const FontSettings &fontSettings)
 {
     for (const auto &pair : Utils::asConst(formatCategories))
         formats[pair.first] = fontSettings.toTextCharFormat(pair.second);
+    whitespaceFormat = fontSettings.toTextCharFormat(C_VISUAL_WHITESPACE);
 }
 
 } // namespace TextEditor

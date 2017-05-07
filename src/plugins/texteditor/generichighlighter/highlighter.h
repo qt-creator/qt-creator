@@ -65,7 +65,6 @@ public:
 
     enum TextFormatId {
         Normal,
-        VisualWhitespace,
         Keyword,
         DataType,
         Comment,
