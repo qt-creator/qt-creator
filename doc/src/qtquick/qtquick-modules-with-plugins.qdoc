@@ -135,5 +135,6 @@
     application for example to mockup C++ items, then you can use \c{QML_DESIGNER_IMPORT_PATH}
     in the \c{.pro} file.
     Modules in the import paths defined in \c{QML_DESIGNER_IMPORT_PATH} will be used only in \QMLD.
+    For an example, see \l {Qt Quick Controls 2 - Contact List}.
 
 */
