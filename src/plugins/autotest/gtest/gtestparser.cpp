@@ -27,7 +27,9 @@
 #include "gtesttreeitem.h"
 #include "gtestvisitors.h"
 #include "gtest_utils.h"
-#include "../autotest_utils.h"
+
+#include <cpptools/cppmodelmanager.h>
+#include <cpptools/projectpart.h>
 
 namespace Autotest {
 namespace Internal {

@@ -33,7 +33,6 @@ QtcPlugin {
         "autotest.qrc",
         "autotesticons.h",
         "autotest_global.h",
-        "autotest_utils.h",
         "autotestconstants.h",
         "autotestplugin.cpp",
         "autotestplugin.h",

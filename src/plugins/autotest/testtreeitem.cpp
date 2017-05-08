@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "autotestconstants.h"
-#include "autotest_utils.h"
 #include "itestparser.h"
 #include "testconfiguration.h"
 #include "testtreeitem.h"

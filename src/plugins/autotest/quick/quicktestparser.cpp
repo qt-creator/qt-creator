@@ -27,9 +27,10 @@
 #include "quicktesttreeitem.h"
 #include "quicktestvisitors.h"
 #include "quicktest_utils.h"
-#include "../autotest_utils.h"
 #include "../testcodeparser.h"
 
+#include <cpptools/cppmodelmanager.h>
+#include <cpptools/projectpart.h>
 #include <projectexplorer/session.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsdialect.h>

@@ -26,7 +26,6 @@
 #include "qttesttreeitem.h"
 #include "qttestconfiguration.h"
 #include "qttestparser.h"
-#include "../autotest_utils.h"
 
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>

@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "autotestconstants.h"
-#include "autotest_utils.h"
 #include "autotestplugin.h"
 #include "testcodeparser.h"
 #include "testframeworkmanager.h"

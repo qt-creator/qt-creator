@@ -27,8 +27,9 @@
 #include "qttesttreeitem.h"
 #include "qttestvisitors.h"
 #include "qttest_utils.h"
-#include "../autotest_utils.h"
 
+#include <cpptools/cppmodelmanager.h>
+#include <cpptools/projectpart.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <utils/algorithm.h>
 
