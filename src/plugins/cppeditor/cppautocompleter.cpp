@@ -245,17 +245,17 @@ void CppEditorPlugin::test_autoComplete_data()
             int skippedChar = 0;
 
             // We always expect to get a closing char in an empty file
-            if (fc == EmptyFile && c != QLatin1Char('{') && isOpeningChar(c))
+            if (fc == EmptyFile && isOpeningChar(c))
                 expectedText = closingChar(c);
 
             if (fc == InBetween) {
-                // When we are inside the mathing chars and a closing char is inserted we want
+                // When we are inside the matching chars and a closing char is inserted we want
                 // to skip the already present closing char instead of adding an additional one.
-                if (isClosingChar(c) && c != QLatin1Char('}'))
+                if (isClosingChar(c))
                     ++skippedChar;
                 // If another opening char is inserted we
                 // expect the same behavior as in an empty file
-                else if (isOpeningChar(c) && c != QLatin1Char('{'))
+                else if (isOpeningChar(c))
                     expectedText = closingChar(c);
             }
 
@@ -371,7 +371,7 @@ void CppEditorPlugin::test_autoBackspace_data()
 
         QTest::newRow((QLatin1String("Inside ") + charGroupTestName(c)).toLatin1().data())
                 << fileContent(InBetween, c)
-                << QString("(['\"").contains(c);
+                << QString("({['\"").contains(c);
     }
 }
 

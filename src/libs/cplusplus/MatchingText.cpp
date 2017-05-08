@@ -41,7 +41,7 @@ enum { MAX_NUM_LINES = 20 };
 static bool shouldOverrideChar(QChar ch)
 {
     switch (ch.unicode()) {
-    case ')': case ']': case ';': case '"': case '\'':
+    case ')': case ']': case '}': case ';': case '"': case '\'':
         return true;
 
     default:
@@ -262,13 +262,11 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     if (textToProcess.isEmpty())
         return QString();
 
-    QTextCursor tc = cursor;
     QString text = textToProcess;
 
-    const QString blockText = tc.block().text().mid(tc.positionInBlock());
-    const QString trimmedBlockText = blockText.trimmed();
-
     if (skipChars) {
+        QTextCursor tc = cursor;
+        const QString blockText = tc.block().text().mid(tc.positionInBlock());
         *skippedChars = countSkippedChars(blockText, textToProcess);
         if (*skippedChars != 0) {
             tc.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, *skippedChars);
@@ -280,9 +278,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     foreach (const QChar &ch, text) {
         if      (ch == QLatin1Char('('))  result += QLatin1Char(')');
         else if (ch == QLatin1Char('['))  result += QLatin1Char(']');
-        // Handle '{' appearance within functinon call context
-        else if (ch == QLatin1Char('{') && !trimmedBlockText.isEmpty() && trimmedBlockText.at(0) == QLatin1Char(')'))
-            result += QLatin1Char('}');
+        else if (ch == QLatin1Char('{'))  result += QLatin1Char('}');
     }
 
     return result;

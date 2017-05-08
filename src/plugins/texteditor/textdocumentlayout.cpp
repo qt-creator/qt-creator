@@ -238,8 +238,7 @@ bool TextBlockUserData::findPreviousBlockOpenParenthesis(QTextCursor *cursor, bo
         if (!parenList.isEmpty() && !TextDocumentLayout::ifdefedOut(block)) {
             for (int i = parenList.count()-1; i >= 0; --i) {
                 Parenthesis paren = parenList.at(i);
-                if (paren.chr != QLatin1Char('{') && paren.chr != QLatin1Char('}')
-                    && paren.chr != QLatin1Char('+') && paren.chr != QLatin1Char('-'))
+                if (paren.chr != QLatin1Char('+') && paren.chr != QLatin1Char('-'))
                     continue;
                 if (block == cursor->block()) {
                     if (position - block.position() <= paren.pos + (paren.type == Parenthesis::Closed ? 1 : 0))
@@ -300,8 +299,7 @@ bool TextBlockUserData::findNextBlockClosingParenthesis(QTextCursor *cursor)
         if (!parenList.isEmpty() && !TextDocumentLayout::ifdefedOut(block)) {
             for (int i = 0; i < parenList.count(); ++i) {
                 Parenthesis paren = parenList.at(i);
-                if (paren.chr != QLatin1Char('{') && paren.chr != QLatin1Char('}')
-                    && paren.chr != QLatin1Char('+') && paren.chr != QLatin1Char('-'))
+                if (paren.chr != QLatin1Char('+') && paren.chr != QLatin1Char('-'))
                     continue;
                 if (block == cursor->block() &&
                     (position - block.position() > paren.pos - (paren.type == Parenthesis::Opened ? 1 : 0)))
