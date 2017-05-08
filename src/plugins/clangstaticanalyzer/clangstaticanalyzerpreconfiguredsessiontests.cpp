@@ -96,14 +96,6 @@ private:
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-ClangStaticAnalyzerPreconfiguredSessionTests::ClangStaticAnalyzerPreconfiguredSessionTests(
-        ClangStaticAnalyzerTool *analyzerTool,
-        QObject *parent)
-    : QObject(parent)
-    , m_analyzerTool(*analyzerTool)
-{
-}
-
 void ClangStaticAnalyzerPreconfiguredSessionTests::initTestCase()
 {
     const QString preconfiguredSessionName = QLatin1String("ClangStaticAnalyzerPreconfiguredSession");
@@ -127,13 +119,13 @@ void ClangStaticAnalyzerPreconfiguredSessionTests::testPreconfiguredSession()
 
     QVERIFY(switchToProjectAndTarget(project, target));
 
-    m_analyzerTool.startTool();
-    QSignalSpy waitUntilAnalyzerFinished(&m_analyzerTool, SIGNAL(finished(bool)));
+    ClangStaticAnalyzerTool::instance()->startTool();
+    QSignalSpy waitUntilAnalyzerFinished(ClangStaticAnalyzerTool::instance(), SIGNAL(finished(bool)));
     QVERIFY(waitUntilAnalyzerFinished.wait(30000));
     const QList<QVariant> arguments = waitUntilAnalyzerFinished.takeFirst();
     const bool analyzerFinishedSuccessfully = arguments.first().toBool();
     QVERIFY(analyzerFinishedSuccessfully);
-    QCOMPARE(m_analyzerTool.diagnostics().count(), 0);
+    QCOMPARE(ClangStaticAnalyzerTool::instance()->diagnostics().count(), 0);
 }
 
 static QList<Project *> validProjects(const QList<Project *> projectsOfSession)

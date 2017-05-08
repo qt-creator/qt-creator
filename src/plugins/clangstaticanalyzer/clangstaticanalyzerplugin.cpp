@@ -124,8 +124,8 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     panelFactory->setCreateWidgetFunction([](Project *project) { return new ProjectSettingsWidget(project); });
     ProjectPanelFactory::registerFactory(panelFactory);
 
-    m_analyzerTool = new ClangStaticAnalyzerTool(this);
-    addAutoReleasedObject(new ClangStaticAnalyzerRunControlFactory(m_analyzerTool));
+    addAutoReleasedObject(new ClangStaticAnalyzerTool);
+    addAutoReleasedObject(new ClangStaticAnalyzerRunControlFactory);
     addAutoReleasedObject(new ClangStaticAnalyzerOptionsPage);
 
     return true;
@@ -150,8 +150,8 @@ QList<QObject *> ClangStaticAnalyzerPlugin::createTestObjects() const
 {
     QList<QObject *> tests;
 #ifdef WITH_TESTS
-    tests << new ClangStaticAnalyzerPreconfiguredSessionTests(m_analyzerTool);
-    tests << new ClangStaticAnalyzerUnitTests(m_analyzerTool);
+    tests << new ClangStaticAnalyzerPreconfiguredSessionTests;
+    tests << new ClangStaticAnalyzerUnitTests;
 #endif
     return tests;
 }

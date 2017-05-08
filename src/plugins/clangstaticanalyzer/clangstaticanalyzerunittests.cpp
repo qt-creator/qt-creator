@@ -48,14 +48,6 @@ using namespace Utils;
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-ClangStaticAnalyzerUnitTests::ClangStaticAnalyzerUnitTests(ClangStaticAnalyzerTool *analyzerTool,
-                                                           QObject *parent)
-    : QObject(parent)
-    , m_analyzerTool(analyzerTool)
-    , m_tmpDir(0)
-{
-}
-
 void ClangStaticAnalyzerUnitTests::initTestCase()
 {
     const QList<Kit *> allKits = KitManager::kits();
@@ -87,12 +79,13 @@ void ClangStaticAnalyzerUnitTests::testProject()
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
     QVERIFY(projectInfo.isValid());
-    m_analyzerTool->startTool();
-    QSignalSpy waiter(m_analyzerTool, SIGNAL(finished(bool)));
+    auto tool = ClangStaticAnalyzerTool::instance();
+    tool->startTool();
+    QSignalSpy waiter(tool, SIGNAL(finished(bool)));
     QVERIFY(waiter.wait(30000));
     const QList<QVariant> arguments = waiter.takeFirst();
     QVERIFY(arguments.first().toBool());
-    QCOMPARE(m_analyzerTool->diagnostics().count(), expectedDiagCount);
+    QCOMPARE(tool->diagnostics().count(), expectedDiagCount);
 }
 
 void ClangStaticAnalyzerUnitTests::testProject_data()

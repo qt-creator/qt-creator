@@ -80,16 +80,12 @@ private:
     QWidget *createConfigurationWidget() override { return 0; }
 };
 
-ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
-    : QObject(parent)
-    , m_diagnosticModel(0)
-    , m_diagnosticFilterModel(0)
-    , m_diagnosticView(0)
-    , m_goBack(0)
-    , m_goNext(0)
-    , m_running(false)
+static ClangStaticAnalyzerTool *s_instance;
+
+ClangStaticAnalyzerTool::ClangStaticAnalyzerTool()
 {
-    setObjectName(QLatin1String("ClangStaticAnalyzerTool"));
+    setObjectName("ClangStaticAnalyzerTool");
+    s_instance = this;
 
     //
     // Diagnostic View
@@ -173,37 +169,14 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool(QObject *parent)
             this, &ClangStaticAnalyzerTool::updateRunActions);
 }
 
-RunControl *ClangStaticAnalyzerTool::createRunControl(RunConfiguration *runConfiguration,
-                                                      Core::Id runMode)
+ClangStaticAnalyzerTool::~ClangStaticAnalyzerTool()
 {
-    QTC_ASSERT(runConfiguration, return 0);
-    QTC_ASSERT(m_projectInfoBeforeBuild.isValid(), return 0);
 
-    // Some projects provides CompilerCallData once a build is finished,
-    // so pass on the updated Project Info unless no configuration change
-    // (defines/includes/files) happened.
-    Project *project = runConfiguration->target()->project();
-    QTC_ASSERT(project, return 0);
-    const CppTools::ProjectInfo projectInfoAfterBuild
-            = CppTools::CppModelManager::instance()->projectInfo(project);
-    QTC_ASSERT(!projectInfoAfterBuild.configurationOrFilesChanged(m_projectInfoBeforeBuild),
-               return 0);
-    m_projectInfoBeforeBuild = CppTools::ProjectInfo();
+}
 
-    auto runControl = new ClangStaticAnalyzerRunControl(runConfiguration, runMode,
-                                                        projectInfoAfterBuild);
-    connect(runControl, &ClangStaticAnalyzerRunControl::starting,
-            this, &ClangStaticAnalyzerTool::onEngineIsStarting);
-    connect(runControl, &ClangStaticAnalyzerRunControl::newDiagnosticsAvailable,
-            this, &ClangStaticAnalyzerTool::onNewDiagnosticsAvailable);
-    connect(runControl, &ClangStaticAnalyzerRunControl::finished,
-            this, &ClangStaticAnalyzerTool::onEngineFinished);
-
-    connect(m_stopAction, &QAction::triggered, runControl, [runControl] { runControl->stop(); });
-
-    m_toolBusy = true;
-    updateRunActions();
-    return runControl;
+ClangStaticAnalyzerTool *ClangStaticAnalyzerTool::instance()
+{
+    return s_instance;
 }
 
 static bool dontStartAfterHintForDebugMode(Project *project)
@@ -255,6 +228,9 @@ void ClangStaticAnalyzerTool::startTool()
     m_running = true;
     handleStateUpdate();
 
+    m_toolBusy = true;
+    updateRunActions();
+
     Target * const target = project->activeTarget();
     QTC_ASSERT(target, return);
     DummyRunConfiguration *& rc = m_runConfigs[target];
@@ -299,12 +275,12 @@ void ClangStaticAnalyzerTool::onNewDiagnosticsAvailable(const QList<Diagnostic> 
     m_diagnosticModel->addDiagnostics(diagnostics);
 }
 
-void ClangStaticAnalyzerTool::onEngineFinished()
+void ClangStaticAnalyzerTool::onEngineFinished(bool success)
 {
     resetCursorAndProjectInfoBeforeBuild();
     m_running = false;
     handleStateUpdate();
-    emit finished(static_cast<ClangStaticAnalyzerRunControl *>(sender())->success());
+    emit finished(success);
     m_toolBusy = false;
     updateRunActions();
 }

@@ -30,7 +30,6 @@
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-class ClangStaticAnalyzerTool;
 class ClangStaticAnalyzerSettings;
 
 class ClangStaticAnalyzerPlugin : public ExtensionSystem::IPlugin
@@ -49,8 +48,6 @@ public:
 
 private:
     QList<QObject *> createTestObjects() const;
-
-    ClangStaticAnalyzerTool *m_analyzerTool;
 };
 
 } // namespace Internal

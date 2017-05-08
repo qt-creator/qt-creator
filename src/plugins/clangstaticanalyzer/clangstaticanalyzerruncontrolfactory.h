@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "clangstaticanalyzertool.h"
-
 #include <projectexplorer/runconfiguration.h>
 
 namespace ClangStaticAnalyzer {
@@ -37,17 +35,11 @@ class ClangStaticAnalyzerRunControlFactory : public ProjectExplorer::IRunControl
     Q_OBJECT
 
 public:
-    explicit ClangStaticAnalyzerRunControlFactory(ClangStaticAnalyzerTool *tool,
-                                                  QObject *parent = 0);
-
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
                 Core::Id runMode) const override;
 
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
                                         Core::Id runMode, QString *errorMessage) override;
-
-private:
-    ClangStaticAnalyzerTool *m_tool;
 };
 
 } // namespace Internal
