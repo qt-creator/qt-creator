@@ -122,6 +122,7 @@ public:
 
 public:
     TextEditorActionHandler *q = nullptr;
+    TextEditorActionHandler::TextEditorWidgetResolver m_findTextWidget;
     QAction *m_undoAction = nullptr;
     QAction *m_redoAction = nullptr;
     QAction *m_copyAction = nullptr;
@@ -189,9 +190,15 @@ public:
     Core::Id m_contextId;
 };
 
+static TextEditorWidget *castWidgetToTextEditorWidget(Core::IEditor *editor)
+{
+    return qobject_cast<TextEditorWidget *>(editor->widget());
+}
+
 TextEditorActionHandlerPrivate::TextEditorActionHandlerPrivate
     (TextEditorActionHandler *parent, Core::Id editorId, Core::Id contextId, uint optionalActions)
   : q(parent)
+  , m_findTextWidget(castWidgetToTextEditorWidget)
   , m_optionalActions(optionalActions)
   , m_editorId(editorId)
   , m_contextId(contextId)
@@ -548,7 +555,7 @@ void TextEditorActionHandlerPrivate::updateCurrentEditor(Core::IEditor *editor)
     m_currentEditorWidget = 0;
 
     if (editor && editor->document()->id() == m_editorId) {
-        TextEditorWidget *editorWidget = q->resolveTextEditorWidget(editor);
+        TextEditorWidget *editorWidget = m_findTextWidget(editor);
         QTC_ASSERT(editorWidget, return); // editor has our id, so shouldn't happen
         m_currentEditorWidget = editorWidget;
         connect(editorWidget, &QPlainTextEdit::undoAvailable,
@@ -577,9 +584,9 @@ TextEditorActionHandler::~TextEditorActionHandler()
     delete d;
 }
 
-TextEditorWidget *TextEditorActionHandler::resolveTextEditorWidget(Core::IEditor *editor) const
+void TextEditorActionHandler::setTextEditorWidgetResolver(const TextEditorWidgetResolver &resolver)
 {
-    return qobject_cast<TextEditorWidget *>(editor->widget());
+    d->m_findTextWidget = resolver;
 }
 
 } // namespace TextEditor
