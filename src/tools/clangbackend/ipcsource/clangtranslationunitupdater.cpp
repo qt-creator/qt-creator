@@ -176,7 +176,8 @@ uint TranslationUnitUpdater::defaultParseOptions()
     return CXTranslationUnit_CacheCompletionResults
          | CXTranslationUnit_PrecompiledPreamble
          | CXTranslationUnit_IncludeBriefCommentsInCodeCompletion
-         | CXTranslationUnit_DetailedPreprocessingRecord;
+         | CXTranslationUnit_DetailedPreprocessingRecord
+         | CXTranslationUnit_KeepGoing;
 }
 
 void TranslationUnitUpdater::createIndexIfNeeded()
