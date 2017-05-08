@@ -48,6 +48,10 @@ public:
 
     QString userEnvironmentChangesAsString() const;
 
+protected:
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
+
 private:
     enum BaseEnvironmentBase {
         CleanBaseEnvironment = 0,
