@@ -474,6 +474,8 @@ void TextEditorActionHandlerPrivate::createActions()
     m_modifyingActions << m_deleteStartOfLineAction;
     m_modifyingActions << m_deleteStartOfWordAction;
     m_modifyingActions << m_deleteStartOfWordCamelCaseAction;
+    m_modifyingActions << m_duplicateSelectionAction;
+    m_modifyingActions << m_duplicateSelectionAndCommentAction;
     m_modifyingActions << m_formatAction;
     m_modifyingActions << m_indentAction;
     m_modifyingActions << m_insertLineAboveAction;
