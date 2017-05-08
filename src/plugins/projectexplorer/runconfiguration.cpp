@@ -1132,7 +1132,6 @@ void RunControlPrivate::setState(State newState)
         emit q->started();
         break;
     case State::Stopped:
-        QTC_CHECK(applicationProcessHandle.isValid());
         q->setApplicationProcessHandle(Utils::ProcessHandle());
         toolRunner->onFinished();
         targetRunner->onFinished();
