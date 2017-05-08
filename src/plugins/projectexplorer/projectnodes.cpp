@@ -630,7 +630,8 @@ void FolderNode::setIcon(const QIcon &icon)
 
 QString FolderNode::addFileFilter() const
 {
-    return parentFolderNode()->addFileFilter();
+    FolderNode *fn = parentFolderNode();
+    return fn ? fn->addFileFilter() : QString();
 }
 
 bool FolderNode::supportsAction(ProjectAction action, Node *node) const
