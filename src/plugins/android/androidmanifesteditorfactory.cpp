@@ -39,7 +39,9 @@ class AndroidTextEditorActionHandler : public TextEditor::TextEditorActionHandle
 {
 public:
     explicit AndroidTextEditorActionHandler(QObject *parent)
-        : TextEditorActionHandler(parent, Constants::ANDROID_MANIFEST_EDITOR_CONTEXT)
+        : TextEditorActionHandler(parent,
+                                  Constants::ANDROID_MANIFEST_EDITOR_ID,
+                                  Constants::ANDROID_MANIFEST_EDITOR_CONTEXT)
     {}
 private:
     TextEditor::TextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const

@@ -7896,12 +7896,12 @@ void TextEditorFactory::setAutoCompleterCreator(const AutoCompleterCreator &crea
 
 void TextEditorFactory::setEditorActionHandlers(Id contextId, uint optionalActions)
 {
-    new TextEditorActionHandler(this, contextId, optionalActions);
+    new TextEditorActionHandler(this, id(), contextId, optionalActions);
 }
 
 void TextEditorFactory::setEditorActionHandlers(uint optionalActions)
 {
-    new TextEditorActionHandler(this, id(), optionalActions);
+    new TextEditorActionHandler(this, id(), id(), optionalActions);
 }
 
 void TextEditorFactory::addHoverHandler(BaseHoverHandler *handler)

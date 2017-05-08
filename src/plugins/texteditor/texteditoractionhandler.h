@@ -55,7 +55,8 @@ public:
         JumpToFileUnderCursor = 16
     };
 
-    explicit TextEditorActionHandler(QObject *parent, Core::Id contextId, uint optionalActions = None);
+    explicit TextEditorActionHandler(QObject *parent, Core::Id editorId, Core::Id contextId,
+                                     uint optionalActions = None);
     ~TextEditorActionHandler();
 
 protected:

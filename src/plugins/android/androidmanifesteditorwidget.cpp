@@ -77,7 +77,6 @@ using namespace Android::Internal;
 namespace {
 const QLatin1String packageNameRegExp("^([a-z]{1}[a-z0-9_]+(\\.[a-zA-Z]{1}[a-zA-Z0-9_]*)*)$");
 const char infoBarId[] = "Android.AndroidManifestEditor.InfoBar";
-const char androidManifestEditorGeneralPaneContextId[] = "AndroidManifestEditorWidget.GeneralWidget";
 
 bool checkPackageName(const QString &packageName)
 {
@@ -126,11 +125,6 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 
 void AndroidManifestEditorWidget::initializePage()
 {
-    Core::IContext *myContext = new Core::IContext(this);
-    myContext->setWidget(this);
-    myContext->setContext(Core::Context(androidManifestEditorGeneralPaneContextId)); // where is the context used?
-    Core::ICore::addContextObject(myContext);
-
     QWidget *mainWidget = new QWidget; // different name
 
     QVBoxLayout *topLayout = new QVBoxLayout(mainWidget);
@@ -1405,5 +1399,17 @@ AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifest
     textDocument()->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
     setupGenericHighlighter();
     setMarksVisible(false);
+
+    // this context is used by the TextEditorActionHandler registered for the text editor in
+    // the AndroidManifestEditorFactory
+    m_context = new Core::IContext(this);
+    m_context->setWidget(this);
+    m_context->setContext(Core::Context(Constants::ANDROID_MANIFEST_EDITOR_CONTEXT));
+    Core::ICore::addContextObject(m_context);
+}
+
+AndroidManifestTextEditorWidget::~AndroidManifestTextEditorWidget()
+{
+    Core::ICore::removeContextObject(m_context);
 }
 
