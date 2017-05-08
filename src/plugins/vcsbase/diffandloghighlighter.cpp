@@ -180,11 +180,13 @@ void DiffAndLogHighlighter::highlightBlock(const QString &text)
     if (format == TextEditor::C_ADDED_LINE) {
             // Mark trailing whitespace.
             const int trimmedLen = trimmedLength(text);
-            setFormat(0, trimmedLen, formatForCategory(format));
+            setFormatWithSpaces(text, 0, trimmedLen, formatForCategory(format));
             if (trimmedLen != length)
                 setFormat(trimmedLen, length - trimmedLen, d->m_addedTrailingWhiteSpaceFormat);
     } else if (format != TextEditor::C_TEXT) {
-        setFormat(0, length, formatForCategory(format));
+        setFormatWithSpaces(text, 0, length, formatForCategory(format));
+    } else {
+        formatSpaces(text);
     }
 
     // codefolding:

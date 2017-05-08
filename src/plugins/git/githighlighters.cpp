@@ -137,23 +137,23 @@ void GitRebaseHighlighter::highlightBlock(const QString &text)
             setFormat(changeIndex, changeLen, formatForCategory(Format_Change));
             changeIndex += changeLen;
         }
-        return;
-    }
-
-    for (const RebaseAction &action : Utils::asConst(m_actions)) {
-        if (action.exp.indexIn(text) != -1) {
-            const int len = action.exp.matchedLength();
-            setFormat(0, len, formatForCategory(action.formatCategory));
-            const int changeIndex = m_changeNumberPattern.indexIn(text, len);
-            if (changeIndex != -1) {
-                const int changeLen = m_changeNumberPattern.matchedLength();
-                const int descStart = changeIndex + changeLen + 1;
-                setFormat(changeIndex, changeLen, formatForCategory(Format_Change));
-                setFormat(descStart, text.size() - descStart, formatForCategory(Format_Description));
+    } else {
+        for (const RebaseAction &action : Utils::asConst(m_actions)) {
+            if (action.exp.indexIn(text) != -1) {
+                const int len = action.exp.matchedLength();
+                setFormat(0, len, formatForCategory(action.formatCategory));
+                const int changeIndex = m_changeNumberPattern.indexIn(text, len);
+                if (changeIndex != -1) {
+                    const int changeLen = m_changeNumberPattern.matchedLength();
+                    const int descStart = changeIndex + changeLen + 1;
+                    setFormat(changeIndex, changeLen, formatForCategory(Format_Change));
+                    setFormat(descStart, text.size() - descStart, formatForCategory(Format_Description));
+                }
+                break;
             }
-            break;
         }
     }
+    formatSpaces(text);
 }
 
 } // namespace Internal
