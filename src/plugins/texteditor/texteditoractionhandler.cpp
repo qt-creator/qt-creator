@@ -462,32 +462,32 @@ void TextEditorActionHandlerPrivate::createActions()
 
     // Collect all modifying actions so we can check for them inside a readonly file
     // and disable them
-    m_modifyingActions << m_pasteAction;
-    m_modifyingActions << m_formatAction;
-    m_modifyingActions << m_rewrapParagraphAction;
+    m_modifyingActions << m_circularPasteAction;
     m_modifyingActions << m_cleanWhitespaceAction;
-    m_modifyingActions << m_unCommentSelectionAction;
+    m_modifyingActions << m_copyLineDownAction;
+    m_modifyingActions << m_copyLineUpAction;
     m_modifyingActions << m_cutLineAction;
-    m_modifyingActions << m_deleteLineAction;
     m_modifyingActions << m_deleteEndOfLineAction;
     m_modifyingActions << m_deleteEndOfWordAction;
     m_modifyingActions << m_deleteEndOfWordCamelCaseAction;
+    m_modifyingActions << m_deleteLineAction;
     m_modifyingActions << m_deleteStartOfLineAction;
     m_modifyingActions << m_deleteStartOfWordAction;
     m_modifyingActions << m_deleteStartOfWordCamelCaseAction;
-    m_modifyingActions << m_moveLineUpAction;
-    m_modifyingActions << m_moveLineDownAction;
-    m_modifyingActions << m_copyLineUpAction;
-    m_modifyingActions << m_copyLineDownAction;
-    m_modifyingActions << m_joinLinesAction;
+    m_modifyingActions << m_formatAction;
+    m_modifyingActions << m_indentAction;
     m_modifyingActions << m_insertLineAboveAction;
     m_modifyingActions << m_insertLineBelowAction;
-    m_modifyingActions << m_upperCaseSelectionAction;
+    m_modifyingActions << m_joinLinesAction;
     m_modifyingActions << m_lowerCaseSelectionAction;
-    m_modifyingActions << m_circularPasteAction;
+    m_modifyingActions << m_moveLineDownAction;
+    m_modifyingActions << m_moveLineUpAction;
+    m_modifyingActions << m_pasteAction;
+    m_modifyingActions << m_rewrapParagraphAction;
     m_modifyingActions << m_switchUtf8bomAction;
-    m_modifyingActions << m_indentAction;
+    m_modifyingActions << m_unCommentSelectionAction;
     m_modifyingActions << m_unindentAction;
+    m_modifyingActions << m_upperCaseSelectionAction;
 
     // set enabled state of optional actions
     m_followSymbolAction->setEnabled(m_optionalActions & TextEditorActionHandler::FollowSymbolUnderCursor);
