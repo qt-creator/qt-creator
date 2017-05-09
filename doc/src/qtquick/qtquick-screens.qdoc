@@ -327,7 +327,7 @@
     example, you can use states to create two screens.
 
     To add states, click the empty slot in the \uicontrol States pane. Then modify the
-    new state in the \uicontrol {Form Editor}.
+    new state in the \uicontrol {Form Editor} or the \uicontrol Properties pane.
 
     \image qmldesigner-states.png "States pane"
 
