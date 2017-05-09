@@ -756,6 +756,7 @@ ProjectNode::ProjectNode(const Utils::FileName &projectFilePath) :
     FolderNode(projectFilePath, NodeType::Project)
 {
     setPriority(DefaultProjectPriority);
+    setListInProject(true);
     setDisplayName(projectFilePath.fileName());
 }
 
