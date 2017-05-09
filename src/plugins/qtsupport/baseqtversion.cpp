@@ -570,6 +570,22 @@ FileName BaseQtVersion::mkspecsPath() const
     return result;
 }
 
+FileNameList BaseQtVersion::directoriesToIgnoreInProjectTree() const
+{
+    FileNameList result;
+    const FileName mkspecPathGet = mkspecsPath();
+    result.append(mkspecPathGet);
+
+    FileName mkspecPathSrc = FileName::fromUserInput(qmakeProperty("QT_HOST_DATA", PropertyVariantSrc));
+    if (!mkspecPathSrc.isEmpty()) {
+        mkspecPathSrc.appendPath("mkspecs");
+        if (mkspecPathSrc != mkspecPathGet)
+            result.append(mkspecPathSrc);
+    }
+
+    return result;
+}
+
 QString BaseQtVersion::qtNamespace() const
 {
     ensureMkSpecParsed();

@@ -78,27 +78,39 @@
 
     \endlist
 
-    You can also use ready-made Qt Quick 1 Components (for Qt 4) to create
+    \section1 Using Qt Quick Controls
+
+    In Qt 4, ready-made Qt Quick 1 Components were provided for creating
     screens with a native look and feel for a particular target platform.
-    Since Qt 5.1, Qt Quick Controls, Dialogs, and Layouts are available for
-    creating classic desktop-style user interfaces using Qt Quick 2.1. You can
-    use the Qt Quick Controls Styles to customize Qt Quick Controls.
+    In Qt 5.1, Qt Quick Controls, Dialogs, and Layouts were added for
+    creating classic desktop-style user interfaces using Qt Quick 2.1. The
+    Qt Quick Controls Styles could be used to customize Qt Quick Controls.
 
     Since Qt 5.7, \l {Qt Quick Controls 2} replace Qt Quick Controls 1 and
-    Qt Labs Controls. These Controls provide lightweight QML types for creating
-    performant user interfaces for embedded and mobile devices. These controls
-    achieve improved efficiency by employing a simplified styling architecture
-    when compared to Qt Quick Controls, on which the module is based. These
-    types work in conjunction with Qt Quick and Qt Quick Layouts.
+    Qt Labs Controls. They provide lightweight QML types for creating performant
+    user interfaces for embedded and mobile devices.
+
+    Qt Quick Controls 2 achieve improved efficiency by employing a simplified
+    \l {Styling Qt Quick Controls 2}{styling architecture} when compared to
+    Qt Quick Controls, on which the module is based. \QMLD reads the
+    \c qtquickcontrols2.conf file that specifies the preferred style and some
+    style-specific arguments. To change the style, select another style from
+    the list on the toolbar. This enables you to check how your UI looks when
+    using the available styles.
+
+    For an example of defining your own style and using it in \QMLD, see
+    \l {Qt Quick Controls 2 - Flat Style}.
+
+    Qt Quick Controls 2 work in conjunction with Qt Quick and Qt Quick Layouts.
+
+    The \QC project wizards create Qt Quick applications that use Qt Quick
+    2 types or Qt Quick Controls 2 types.
+
+    Even if you use Qt Quick Controls 2, you can still write cross-platform
+    applications, by using different sets of QML files for each platform.
 
     Some ready-made controls, such as a gauge, dial, status indicator, and
     tumbler, are provided by the \l {Qt Quick Extras} module.
-
-    The \QC project wizards create Qt Quick applications that use Qt Quick
-    Components or Controls.
-
-    Even if you use the Qt Quick Components, you can still write cross-platform
-    applications, by using different sets of QML files for each platform.
 
     \section1 Creating Components in Qt Quick Designer
 

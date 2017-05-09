@@ -212,6 +212,8 @@ public:
     Utils::FileName binPath() const;
     Utils::FileName mkspecsPath() const;
 
+    Utils::FileNameList directoriesToIgnoreInProjectTree() const;
+
     QString qtNamespace() const;
     QString qtLibInfix() const;
     bool isFrameworkBuild() const;

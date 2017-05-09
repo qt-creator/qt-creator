@@ -349,3 +349,16 @@ def qdump__QtcDumperTest_PointerArray(d, value):
             for i in d.childRange():
                 d.putSubItem(i, foos[i])
 
+def qdump__QtcDumperTest_BufArray(d, value):
+    maxItems = 1000
+    buffer = value['buffer']
+    count = int(value['count'])
+    objsize = int(value['objSize'])
+    valueType = value.type.templateArgument(0)
+    d.putItemCount(count, maxItems)
+    d.putNumChild(count)
+    if d.isExpanded():
+        with Children(d, count, maxNumChild=maxItems, childType=valueType):
+            for i in d.childRange():
+                d.putSubItem(i, (buffer + (i * objsize)).dereference().cast(valueType))
+

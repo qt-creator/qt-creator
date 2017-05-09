@@ -35,12 +35,14 @@ class DummyContextObject : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QObject * parent READ parentDummy WRITE setParentDummy NOTIFY parentDummyChanged DESIGNABLE false FINAL)
+    Q_PROPERTY(bool runningInDesigner READ runningInDesigner FINAL)
 
 public:
     explicit DummyContextObject(QObject *parent = 0);
 
     QObject *parentDummy() const;
     void setParentDummy(QObject *parentDummy);
+    bool runningInDesigner() const;
 
 signals:
     void parentDummyChanged();

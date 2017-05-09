@@ -840,8 +840,13 @@ void addItemToStackedContainer(const SelectionContext &selectionContext)
         RewriterTransaction transaction =
                 view->beginRewriterTransaction(QByteArrayLiteral("DesignerActionManager:addItemToStackedContainer"));
 
+        NodeMetaInfo itemMetaInfo = view->model()->metaInfo("QtQuick.Item", -1, -1);
+        QTC_ASSERT(itemMetaInfo.isValid(), return);
+        QTC_ASSERT(itemMetaInfo.majorVersion() == 2, return);
+
         QmlDesigner::ModelNode itemNode =
-                view->createModelNode("QtQuick.Item", view->majorQtQuickVersion(), view->minorQtQuickVersion());
+                view->createModelNode("QtQuick.Item", itemMetaInfo.majorVersion(), itemMetaInfo.minorVersion());
+
         container.defaultNodeListProperty().reparentHere(itemNode);
 
         if (potentialTabBar.isValid()) {// The stacked container is hooked up to a TabBar

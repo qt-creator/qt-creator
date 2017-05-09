@@ -606,24 +606,36 @@ bool Abi::operator == (const Abi &other) const
 
 bool Abi::isCompatibleWith(const Abi &other) const
 {
-    bool isCompat = (architecture() == other.architecture() || other.architecture() == Abi::UnknownArchitecture)
-                     && (os() == other.os() || other.os() == Abi::UnknownOS)
-                     && (osFlavor() == other.osFlavor() || other.osFlavor() == Abi::UnknownFlavor)
-                     && (binaryFormat() == other.binaryFormat() || other.binaryFormat() == Abi::UnknownFormat)
+    // Generic match: If stuff is identical or the other side is unknown, then this is a match.
+    bool isCompat = (architecture() == other.architecture() || other.architecture() == UnknownArchitecture)
+                     && (os() == other.os() || other.os() == UnknownOS)
+                     && (osFlavor() == other.osFlavor() || other.osFlavor() == UnknownFlavor)
+                     && (binaryFormat() == other.binaryFormat() || other.binaryFormat() == UnknownFormat)
                      && ((wordWidth() == other.wordWidth() && wordWidth() != 0) || other.wordWidth() == 0);
+
     // *-linux-generic-* is compatible with *-linux-* (both ways): This is for the benefit of
     // people building Qt themselves using e.g. a meego toolchain.
     //
-    // We leave it to the specific targets to catch filter out the tool chains that do not
+    // We leave it to the specific targets to filter out the tool chains that do not
     // work for them.
-    if (!isCompat && (architecture() == other.architecture() || other.architecture() == Abi::UnknownArchitecture)
+    if (!isCompat && (architecture() == other.architecture() || other.architecture() == UnknownArchitecture)
                   && ((os() == other.os()) && (os() == LinuxOS))
                   && (osFlavor() == GenericLinuxFlavor || other.osFlavor() == GenericLinuxFlavor)
-                  && (binaryFormat() == other.binaryFormat() || other.binaryFormat() == Abi::UnknownFormat)
-                  && ((wordWidth() == other.wordWidth() && wordWidth() != 0) || other.wordWidth() == 0))
+                  && (binaryFormat() == other.binaryFormat() || other.binaryFormat() == UnknownFormat)
+                  && ((wordWidth() == other.wordWidth() && wordWidth() != 0) || other.wordWidth() == 0)) {
         isCompat = true;
-    if (osFlavor() == AndroidLinuxFlavor || other.osFlavor() == AndroidLinuxFlavor)
-        isCompat = (osFlavor() == other.osFlavor() && architecture() == other.architecture());
+    }
+
+    // Make Android matching more strict than the generic Linux matches so far:
+    if (isCompat && (osFlavor() == AndroidLinuxFlavor || other.osFlavor() == AndroidLinuxFlavor))
+        isCompat = (architecture() == other.architecture()) &&  (osFlavor() == other.osFlavor());
+
+    // MSVC2017 is compatible with MSVC2015
+    if (!isCompat
+            && ((osFlavor() == WindowsMsvc2015Flavor && other.osFlavor() == WindowsMsvc2017Flavor)
+                || (osFlavor() == WindowsMsvc2017Flavor && other.osFlavor() == WindowsMsvc2015Flavor))) {
+        isCompat = true;
+    }
     return isCompat;
 }
 

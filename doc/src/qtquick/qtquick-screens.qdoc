@@ -45,19 +45,6 @@
     The QML files in the project folder are displayed in \uicontrol {QML Components}
     in the \uicontrol Library.
 
-    You can also use ready-made Qt Quick 1 Components (for Qt 4) to create
-    screens with a native look and feel for a particular target platform.
-    Since Qt 5.1, Qt Quick Controls, Dialogs, and Layouts are available for
-    creating classic desktop-style user interfaces using Qt Quick 2.1. You can
-    use the Qt Quick Controls Styles to customize Qt Quick Controls.
-
-    Since Qt 5.7, \l {Qt Quick Controls 2} replace Qt Quick Controls 1 and
-    Qt Labs Controls. These controls provide lightweight QML types for creating
-    performant user interfaces for embedded and mobile devices. These controls
-    achieve improved efficiency by employing a simplified styling architecture
-    when compared to Qt Quick Controls, on which the module is based. These
-    types work in conjunction with Qt Quick and Qt Quick Layouts.
-
     \section1 Adding Components to Screens
 
     \list 1
@@ -72,6 +59,8 @@
 
     \endlist
 
+    For more information about the ready-made components available, see
+    \l {Using Qt Quick Controls}.
 
     \section1 Using Data Models
 
@@ -338,7 +327,7 @@
     example, you can use states to create two screens.
 
     To add states, click the empty slot in the \uicontrol States pane. Then modify the
-    new state in the \uicontrol {Form Editor}.
+    new state in the \uicontrol {Form Editor} or the \uicontrol Properties pane.
 
     \image qmldesigner-states.png "States pane"
 
@@ -401,6 +390,18 @@
             \endqml
 
         \endlist
+
+    \section2 Using SCXML State Machines
+
+    To use QML and \QMLD together with an SCXML state machine, add states and
+    bind them to the state machine in the \uicontrol Backends tab, as described
+    in \l {Managing C++ Backend Objects}.
+
+    In the \uicontrol States pane, you can edit the \c when condition of states
+    to map QML states to the states of the SCXML state machine. For an example,
+    see \l {Qt SCXML Traffic Light QML Example (Dynamic)}.
+
+    \image qmldesigner-states-when-condition.png
 
     \section1 Animating Screens
 

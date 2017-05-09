@@ -521,6 +521,10 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
     const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit));
     if (!extensionFi.isFile()) {
         *errorMessage = tr("Internal error: The extension %1 cannot be found.\n"
+                           "If you have updated Qt Creator via Maintenance Tool you may "
+                           "need to rerun the Tool and select \"Add or remove components\""
+                           "and then select the\n"
+                           "Qt > Tools > Qt Creator > Qt Creator CDB Debugger Support component.\n"
                            "If you build Qt Creator from sources and want to use a cdb executable"
                            "with another bitness than your Qt Creator build,\n"
                            "you will need to build a separate cdbextension with the "

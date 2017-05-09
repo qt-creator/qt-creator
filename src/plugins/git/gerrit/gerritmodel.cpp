@@ -799,7 +799,8 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
     } else {
         adaptedOutput = output;
         // Strip first line, which is )]}'
-        adaptedOutput.remove(0, adaptedOutput.indexOf("\n"));
+        if (adaptedOutput.startsWith(')'))
+            adaptedOutput.remove(0, adaptedOutput.indexOf("\n"));
     }
     bool res = true;
 

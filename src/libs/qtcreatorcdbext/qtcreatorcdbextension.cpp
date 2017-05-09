@@ -259,7 +259,7 @@ static inline void splitCommand(PCSTR args, Inserter it)
 template<class StringContainer>
 static inline StringContainer commandTokens(PCSTR args, int *token = 0)
 {
-    typedef StringContainer::iterator ContainerIterator;
+    typedef typename StringContainer::iterator ContainerIterator;
 
     if (token)
         *token = -1; // Handled as 'display' in engine, so that user can type commands

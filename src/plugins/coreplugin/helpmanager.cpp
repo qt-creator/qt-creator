@@ -380,8 +380,6 @@ void HelpManager::setupHelpManager()
 
     // create the help engine
     d->m_helpEngine = new QHelpEngineCore(collectionFilePath(), m_instance);
-    d->m_helpEngine->setAutoSaveFilter(false);
-    d->m_helpEngine->setCurrentFilter(tr("Unfiltered"));
     d->m_helpEngine->setupData();
 
     foreach (const QString &filePath, d->documentationFromInstaller())

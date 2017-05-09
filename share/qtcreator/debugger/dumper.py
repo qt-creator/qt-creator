@@ -1320,9 +1320,10 @@ class DumperBase:
         derefValue.name = '*'
         self.putItem(derefValue)
         self.currentChildType = savedCurrentChildType
-        self.putOriginalAddress(value.pointer())
+        self.putAddress(value.address())
 
     def putFormattedPointerX(self, value):
+        self.putOriginalAddress(value.address())
         #warn("PUT FORMATTED: %s" % value)
         pointer = value.pointer()
         #warn('POINTER: 0x%x' % pointer)
@@ -2671,7 +2672,6 @@ class DumperBase:
         typeName = typeobj.name
 
         self.addToCache(typeobj) # Fill type cache
-        self.putAddress(value.address())
 
         if not value.lIsInScope:
             self.putSpecialValue('optimizedout')
@@ -2685,6 +2685,10 @@ class DumperBase:
 
         # Try on possibly typedefed type first.
         if self.tryPutPrettyItem(typeName, value):
+            if typeobj.code == TypeCodePointer:
+                self.putOriginalAddress(value.address())
+            else:
+                self.putAddress(value.address())
             return
 
         if typeobj.code == TypeCodeTypedef:
@@ -2696,6 +2700,8 @@ class DumperBase:
         if typeobj.code == TypeCodePointer:
             self.putFormattedPointer(value)
             return
+
+        self.putAddress(value.address())
 
         if typeobj.code == TypeCodeFunction:
             #warn('FUNCTION VALUE: %s' % value)
@@ -3142,7 +3148,7 @@ class DumperBase:
             if self.dumper.isInt(other):
                 stripped = self.type.stripTypedefs()
                 if stripped.code == TypeCodePointer:
-                    address = self.pointer() + stripped.dereference().size()
+                    address = self.pointer() + stripped.dereference().size() * other
                     val = self.dumper.Value(self.dumper)
                     val.laddress = None
                     val.ldata = bytes(struct.pack(self.dumper.packCode + 'Q', address))

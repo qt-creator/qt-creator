@@ -61,7 +61,9 @@
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QHostAddress>
+#include <QLoggingCategory>
 #include <QProcess>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QStringList>
 #include <QTcpSocket>
@@ -71,6 +73,10 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+
+namespace {
+Q_LOGGING_CATEGORY(avdConfigLog, "qtc.android.androidconfig")
+}
 
 namespace Android {
 using namespace Internal;
@@ -114,6 +120,7 @@ namespace {
     const QLatin1String changeTimeStamp("ChangeTimeStamp");
 
     const QLatin1String sdkToolsVersionKey("Pkg.Revision");
+    const QLatin1String ndkRevisionKey("Pkg.Revision");
 
     static QString sdkSettingsFileName()
     {
@@ -756,6 +763,53 @@ QVersionNumber AndroidConfig::sdkToolsVersion() const
 FileName AndroidConfig::ndkLocation() const
 {
     return m_ndkLocation;
+}
+
+QVersionNumber AndroidConfig::ndkVersion() const
+{
+    QVersionNumber version;
+    if (!m_ndkLocation.exists()) {
+        qCDebug(avdConfigLog) << "Can not find ndk version. Check NDK path."
+                              << m_ndkLocation.toString();
+        return version;
+    }
+
+    Utils::FileName ndkPropertiesPath(m_ndkLocation);
+    ndkPropertiesPath.appendPath("source.properties");
+    if (ndkPropertiesPath.exists()) {
+        // source.properties files exists in NDK version > 11
+        QSettings settings(ndkPropertiesPath.toString(), QSettings::IniFormat);
+        auto versionStr = settings.value(ndkRevisionKey).toString();
+        version = QVersionNumber::fromString(versionStr);
+    } else {
+        // No source.properties. There should be a file named RELEASE.TXT
+        Utils::FileName ndkReleaseTxtPath(m_ndkLocation);
+        ndkReleaseTxtPath.appendPath("RELEASE.TXT");
+        Utils::FileReader reader;
+        QString errorString;
+        if (reader.fetch(ndkReleaseTxtPath.toString(), &errorString)) {
+            // RELEASE.TXT contains the ndk version in either of the following formats:
+            // r6a
+            // r10e (64 bit)
+            QString content = QString::fromUtf8(reader.data());
+            QRegularExpression re("(r)(?<major>[0-9]{1,2})(?<minor>[a-z]{1,1})");
+            QRegularExpressionMatch match = re.match(content);
+            if (match.hasMatch()) {
+                QString major = match.captured("major");
+                QString minor = match.captured("minor");
+                // Minor version: a = 0, b = 1, c = 2 and so on.
+                // Int equivalent = minorVersionChar - 'a'. i.e. minorVersionChar - 97.
+                version = QVersionNumber::fromString(QString("%1.%2.0").arg(major)
+                                                     .arg((int)minor[0].toLatin1() - 97));
+            } else {
+                qCDebug(avdConfigLog) << "Can not find ndk version. Can not parse RELEASE.TXT."
+                                      << content;
+            }
+        } else {
+            qCDebug(avdConfigLog) << "Can not find ndk version." << errorString;
+        }
+    }
+    return version;
 }
 
 void AndroidConfig::setNdkLocation(const FileName &ndkLocation)

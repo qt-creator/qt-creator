@@ -418,6 +418,10 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         delete tab.runControl;
         handleOldOutput(tab.window);
         tab.runControl = rc;
+
+        // Update the title.
+        m_tabWidget->setTabText(tabIndex, rc->displayName());
+
         tab.window->setFormatter(nullptr);
         tab.window->scrollToBottom();
         if (debug)

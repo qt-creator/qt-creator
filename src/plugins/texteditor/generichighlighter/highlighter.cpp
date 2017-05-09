@@ -45,6 +45,7 @@ namespace {
     static const QLatin1String kPop("#pop");
     static const QLatin1Char kBackSlash('\\');
     static const QLatin1Char kHash('#');
+    static const QLatin1Char kExclamationMark('!');
 }
 
 class HighlighterCodeFormatterData : public CodeFormatterData
@@ -414,8 +415,13 @@ void Highlighter::changeContext(const QString &contextName,
                                 const QSharedPointer<HighlightDefinition> &definition,
                                 const bool assignCurrent)
 {
-    if (contextName.startsWith(kPop)) {
-        const int count = contextName.splitRef(kHash, QString::SkipEmptyParts).size();
+    QString identifier = contextName;
+    if (identifier.startsWith(kPop)) {
+        const QStringList complexOrder = contextName.split(kExclamationMark);
+        const QString orders = complexOrder.first();
+        identifier = complexOrder.size() > 1 ? complexOrder[1] : QString();
+
+        const int count = orders.splitRef(kHash, QString::SkipEmptyParts).size();
         for (int i = 0; i < count; ++i) {
             if (m_contexts.isEmpty()) {
                 throw HighlighterException(
@@ -434,8 +440,9 @@ void Highlighter::changeContext(const QString &contextName,
                 setCurrentBlockState(
                     computeState(m_leadingObservableStates.value(currentSequence)));
         }
-    } else {
-        const QSharedPointer<Context> &context = definition->context(contextName);
+    }
+    if (!identifier.isEmpty()) {
+        const QSharedPointer<Context> &context = definition->context(identifier);
 
         if (context->isDynamic())
             pushDynamicContext(context);

@@ -129,6 +129,8 @@ public:
     virtual QString displayName() const;
     virtual QString tooltip() const;
     bool isEnabled() const;
+    bool listInProject() const;
+    bool isGenerated() const;
 
     virtual bool supportsAction(ProjectAction action, Node *node) const;
 
@@ -147,6 +149,8 @@ public:
     static bool sortByPath(const Node *a, const Node *b);
     void setParentFolderNode(FolderNode *parentFolder);
 
+    void setListInProject(bool l);
+
     static FileType fileTypeForMimeType(const Utils::MimeType &mt);
     static FileType fileTypeForFileName(const Utils::FileName &file);
 
@@ -154,6 +158,7 @@ protected:
     Node(NodeType nodeType, const Utils::FileName &filePath, int line = -1);
 
     void setPriority(int priority);
+    void setIsGenerated(bool g);
 
 private:
     FolderNode *m_parentFolderNode = nullptr;
@@ -161,17 +166,24 @@ private:
     int m_line = -1;
     int m_priority = DefaultPriority;
     const NodeType m_nodeType;
-    bool m_isEnabled = true;
+    enum NodeFlag : quint16 {
+        FlagNone = 0,
+        FlagIsEnabled = 1 << 0,
+        FlagIsGenerated = 1 << 1,
+        FlagListInProject = 1 << 2,
+    };
+    using NodeFlags = QFlags<NodeFlag>;
+    NodeFlags m_flags = FlagIsEnabled;
 };
 
 class PROJECTEXPLORER_EXPORT FileNode : public Node
 {
 public:
     FileNode(const Utils::FileName &filePath, const FileType fileType, bool generated, int line = -1);
-    FileNode(const FileNode &other) : FileNode(other.filePath(), other.fileType(), true) {}
+
+    FileNode *clone() const;
 
     FileType fileType() const;
-    bool isGenerated() const;
 
     FileNode *asFileNode() final { return this; }
     const FileNode *asFileNode() const final { return this; }
@@ -183,7 +195,6 @@ public:
 
 private:
     FileType m_fileType;
-    bool m_generated;
 };
 
 // Documentation inside.

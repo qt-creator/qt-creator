@@ -304,10 +304,8 @@ QHelpEngine &LocalHelpManager::helpEngine()
 {
     if (!m_guiEngine) {
         QMutexLocker _(&m_guiMutex);
-        if (!m_guiEngine) {
+        if (!m_guiEngine)
             m_guiEngine = new QHelpEngine(QString());
-            m_guiEngine->setAutoSaveFilter(false);
-        }
     }
     return *m_guiEngine;
 }

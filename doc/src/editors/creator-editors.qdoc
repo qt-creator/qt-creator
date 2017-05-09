@@ -1608,6 +1608,10 @@
 
                 \li \uicontrol {Open Documents} searches from all open files.
 
+                \li \uicontrol {Clang Query Project} explores the Clang abstract
+                     syntax tree (AST) using AST matcher expressions. For more
+                     information, see \l{Exploring Clang AST}.
+
             \endlist
 
         \li In the \uicontrol {File pattern} field, specify file patterns to
@@ -1672,6 +1676,34 @@
             \uicontrol {Search engine} field.
 
     \endlist
+
+    \section1 Exploring Clang AST
+
+    You can use the experimental Clang Refactoring plugin to explore the Clang
+    AST using AST matcher expressions. For more information about constructing
+    matcher expressions, see
+    \l {http://clang.llvm.org/docs/LibASTMatchersReference.html}
+    {AST Matcher Reference}.
+
+    To explore the AST:
+
+    \list 1
+
+        \li Select \uicontrol Help > \uicontrol {About Plugins} > \uicontrol C++
+            > \uicontrol {ClangRefactoring} to enable the plugin.
+
+        \li Restart \QC to be able to use the plugin.
+
+        \li When searching, select \uicontrol {Clang Query Project} in the
+            \uicontrol {Scope} field.
+
+        \li Enter an AST matcher expression in the \uicontrol {Search for}
+            field.
+
+    \endlist
+
+    You can view the results of the query as links to code positions in the
+    \uicontrol {Search Results} output pane.
 */
 
 
@@ -2473,8 +2505,14 @@
 
         \row
             \li Move Component into Separate File
-            \li Moves a QML type into a separate file
-            \li QML type name
+            \li Moves a QML type into a separate file. Give the new component a
+                name and select whether properties are set for the new component
+                or for the original one.
+
+                \image qtcreator-move-component-into-separate-file.png
+
+            \li QML type name. This action is also available in the
+                \uicontrol {Form Editor} in \QMLD.
         \row
             \li Split Initializer
             \li Reformats a one-line type into a multi-line type. For example,

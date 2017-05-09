@@ -548,7 +548,7 @@ Project::RestoreResult Project::restoreSettings(QString *errorMessage)
 }
 
 QStringList Project::files(Project::FilesMode fileMode,
-                           const std::function<bool (const FileNode *)> &filter) const
+                           const std::function<bool(const Node *)> &filter) const
 {
     QStringList result;
 
@@ -556,17 +556,19 @@ QStringList Project::files(Project::FilesMode fileMode,
         return result;
 
     QSet<QString> alreadySeen;
-    rootProjectNode()->forEachNode([&](const FileNode *fn) {
-        if (filter && !filter(fn))
-            return;
-        const QString path = fn->filePath().toString();
+    rootProjectNode()->forEachGenericNode([&](const Node *n) {
+        const QString path = n->filePath().toString();
         const int count = alreadySeen.count();
         alreadySeen.insert(path);
         if (count == alreadySeen.count())
             return; // skip duplicates
+        if (!n->listInProject())
+            return;
+        if (filter && !filter(n))
+            return;
         if ((fileMode == AllFiles)
-                || (fileMode == SourceFiles && !fn->isGenerated())
-                || (fileMode == GeneratedFiles && fn->isGenerated()))
+                || (fileMode == SourceFiles && !n->isGenerated())
+                || (fileMode == GeneratedFiles && n->isGenerated()))
             result.append(path);
     });
     return result;

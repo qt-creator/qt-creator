@@ -104,8 +104,10 @@ RunControl *AndroidDebugSupport::createDebugRunControl(RunConfiguration *runConf
     params.displayName = AndroidManager::packageName(target);
     params.remoteSetupNeeded = true;
     params.useContinueInsteadOfRun = true;
-    if (!Utils::HostOsInfo::isWindowsHost()) // Workaround for NDK 11c(b?)
+    if (!Utils::HostOsInfo::isWindowsHost() &&
+            AndroidConfigurations::currentConfig().ndkVersion() >= QVersionNumber(11, 0, 0)) {
         params.useTargetAsync = true;
+    }
 
     auto aspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
 

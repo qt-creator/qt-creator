@@ -123,11 +123,10 @@
 
     \list 1
 
-        \li Select \uicontrol {Text Editor} to open Page1Form.ui.qml in the
-            text editor tab.
-
-        \li Right-click \uicontrol Image and select \uicontrol Refactoring >
+        \li Right-click the image and select
             \uicontrol {Move Component into Separate File}.
+
+            \image qtcreator-move-component-into-separate-file.png
 
         \li In the \uicontrol {Component name} field, enter \e Bubble.
 
