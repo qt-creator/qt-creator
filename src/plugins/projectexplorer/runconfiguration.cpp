@@ -672,7 +672,7 @@ void RunControlPrivate::initiateStart()
     checkState(State::Initialized);
     setState(State::TargetPreparing);
     debugMessage("Queue: Prepare target runner");
-    QTimer::singleShot(0, targetRunner, &TargetRunner::prepare);
+    QTimer::singleShot(0, targetRunner, [this](){ targetRunner->prepare(); });
 }
 
 void RunControlPrivate::onTargetPrepared()
@@ -680,7 +680,7 @@ void RunControlPrivate::onTargetPrepared()
     checkState(State::TargetPreparing);
     setState(State::ToolPreparing);
     debugMessage("Queue: Prepare tool runner");
-    QTimer::singleShot(0, toolRunner, &ToolRunner::prepare);
+    QTimer::singleShot(0, toolRunner, [this](){ toolRunner->prepare(); });
 }
 
 void RunControlPrivate::onTargetPrepareFailed(const QString &msg)
@@ -696,7 +696,7 @@ void RunControlPrivate::onToolPrepared()
     checkState(State::ToolPreparing);
     setState(State::TargetStarting);
     debugMessage("Queue: Start target runner");
-    QTimer::singleShot(0, targetRunner, &TargetRunner::start);
+    QTimer::singleShot(0, targetRunner, [this](){ targetRunner->start(); });
 }
 
 void RunControlPrivate::onToolPrepareFailed(const QString &msg)
@@ -712,7 +712,7 @@ void RunControlPrivate::onTargetStarted()
     checkState(State::TargetStarting);
     setState(State::ToolStarting);
     debugMessage("Queue: Start tool runner");
-    QTimer::singleShot(0, toolRunner, &ToolRunner::start);
+    QTimer::singleShot(0, toolRunner, [this](){ toolRunner->start(); });
 }
 
 void RunControlPrivate::onTargetStartFailed(const QString &msg)
@@ -742,7 +742,7 @@ void RunControlPrivate::initiateStop()
     checkState(State::Running);
     setState(State::ToolStopping);
     debugMessage("Queue: Stop tool runner");
-    QTimer::singleShot(0, toolRunner, &ToolRunner::stop);
+    QTimer::singleShot(0, toolRunner, [this](){ toolRunner->stop(); });
 }
 
 void RunControlPrivate::onToolStopped()
@@ -752,7 +752,7 @@ void RunControlPrivate::onToolStopped()
     checkState(State::ToolStopping);
     setState(State::TargetStopping);
     debugMessage("Queue: Stop target runner");
-    QTimer::singleShot(0, targetRunner, &TargetRunner::stop);
+    QTimer::singleShot(0, targetRunner, [this](){ targetRunner->stop(); });
 }
 
 void RunControlPrivate::onToolStopFailed(const QString &msg)
