@@ -84,9 +84,11 @@ bool QmakePriFileNode::supportsAction(ProjectAction action, Node *node) const
 
     const FolderNode *folderNode = this;
     const QmakeProFileNode *proFileNode;
-    while (!(proFileNode = dynamic_cast<const QmakeProFileNode*>(folderNode)))
+    while (!(proFileNode = dynamic_cast<const QmakeProFileNode*>(folderNode))) {
         folderNode = folderNode->parentFolderNode();
-    Q_ASSERT(proFileNode);
+        QTC_ASSERT(folderNode, return false);
+    }
+    QTC_ASSERT(proFileNode, return false);
     const QmakeProFile *pro = proFileNode->proFile();
 
     switch (pro ? pro->projectType() : ProjectType::Invalid) {
