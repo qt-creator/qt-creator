@@ -25,6 +25,7 @@
 
 #include "sidebysidediffeditorwidget.h"
 #include "selectabletexteditorwidget.h"
+#include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include "diffutils.h"
 
@@ -40,6 +41,7 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/displaysettings.h>
 
+#include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 
 #include <utils/tooltip/tooltip.h>
@@ -556,6 +558,31 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     l->setMargin(0);
     l->addWidget(m_splitter);
     setFocusProxy(m_rightEditor);
+
+    m_leftContext = new IContext(this);
+    m_leftContext->setWidget(m_leftEditor);
+    m_leftContext->setContext(Core::Context(Core::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(1)));
+    Core::ICore::addContextObject(m_leftContext);
+    m_rightContext = new IContext(this);
+    m_rightContext->setWidget(m_rightEditor);
+    m_rightContext->setContext(Core::Context(Core::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(2)));
+    Core::ICore::addContextObject(m_rightContext);
+}
+
+SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget()
+{
+    Core::ICore::removeContextObject(m_leftContext);
+    Core::ICore::removeContextObject(m_rightContext);
+}
+
+TextEditorWidget *SideBySideDiffEditorWidget::leftEditorWidget() const
+{
+    return m_leftEditor;
+}
+
+TextEditorWidget *SideBySideDiffEditorWidget::rightEditorWidget() const
+{
+    return m_rightEditor;
 }
 
 void SideBySideDiffEditorWidget::setDocument(DiffEditorDocument *document)

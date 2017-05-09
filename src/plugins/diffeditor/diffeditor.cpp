@@ -74,6 +74,8 @@ class DescriptionEditorWidget : public TextEditorWidget
     Q_OBJECT
 public:
     DescriptionEditorWidget(QWidget *parent = 0);
+    ~DescriptionEditorWidget();
+
     virtual QSize sizeHint() const override;
 
 signals:
@@ -92,6 +94,7 @@ protected:
 
 private:
     QTextCursor m_currentCursor;
+    Core::IContext *m_context;
 };
 
 DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
@@ -112,6 +115,16 @@ DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
     setFrameStyle(QFrame::NoFrame);
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+    m_context = new Core::IContext(this);
+    m_context->setWidget(this);
+    m_context->setContext(Core::Context(Constants::C_DIFF_EDITOR_DESCRIPTION));
+    Core::ICore::addContextObject(m_context);
+}
+
+DescriptionEditorWidget::~DescriptionEditorWidget()
+{
+    Core::ICore::removeContextObject(m_context);
 }
 
 QSize DescriptionEditorWidget::sizeHint() const
@@ -226,8 +239,11 @@ DiffEditor::DiffEditor()
     m_stackedWidget = new QStackedWidget(splitter);
     splitter->addWidget(m_stackedWidget);
 
-    addView(new SideBySideView);
-    addView(new UnifiedView);
+    m_unifiedView = new UnifiedView;
+    m_sideBySideView = new SideBySideView;
+
+    addView(m_sideBySideView);
+    addView(m_unifiedView);
 
     setWidget(splitter);
 
@@ -349,6 +365,26 @@ QWidget *DiffEditor::toolBar()
 {
     QTC_ASSERT(m_toolBar, return 0);
     return m_toolBar;
+}
+
+TextEditorWidget *DiffEditor::descriptionWidget() const
+{
+    return m_descriptionWidget;
+}
+
+TextEditorWidget *DiffEditor::unifiedEditorWidget() const
+{
+    return m_unifiedView->textEditorWidget();
+}
+
+TextEditorWidget *DiffEditor::leftEditorWidget() const
+{
+    return m_sideBySideView->leftEditorWidget();
+}
+
+TextEditorWidget *DiffEditor::rightEditorWidget() const
+{
+    return m_sideBySideView->rightEditorWidget();
 }
 
 void DiffEditor::documentHasChanged()

@@ -28,6 +28,8 @@
 #include "selectabletexteditorwidget.h"
 #include "diffeditorwidgetcontroller.h"
 
+namespace Core { class IContext; }
+
 namespace TextEditor {
 class DisplaySettings;
 class FontSettings;
@@ -52,6 +54,7 @@ class UnifiedDiffEditorWidget : public SelectableTextEditorWidget
     Q_OBJECT
 public:
     UnifiedDiffEditorWidget(QWidget *parent = 0);
+    ~UnifiedDiffEditorWidget();
 
     void setDocument(DiffEditorDocument *document);
     DiffEditorDocument *diffDocument() const;
@@ -114,6 +117,7 @@ private:
     QMap<int, QPair<int, int> > m_chunkInfo;
 
     QByteArray m_state;
+    Core::IContext *m_context;
 };
 
 } // namespace Internal

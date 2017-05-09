@@ -35,6 +35,10 @@ const char DIFF_EDITOR_PLUGIN[] = "DiffEditorPlugin";
 const char DIFF_EDITOR_ID[] = "Diff Editor";
 const char DIFF_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("DiffEditor", "Diff Editor");
 const char DIFF_EDITOR_MIMETYPE[] = "text/x-patch";
+const char C_DIFF_EDITOR_DESCRIPTION[] = "DiffEditor.Description";
+const char SIDE_BY_SIDE_VIEW_ID[] = "DiffEditor.SideBySide";
+const char UNIFIED_VIEW_ID[] = "DiffEditor.Unified";
+
 const char G_TOOLS_DIFF[] = "QtCreator.Group.Tools.Options";
 
 const char EXPAND_BRANCHES[] = "Branches: <Expand>";

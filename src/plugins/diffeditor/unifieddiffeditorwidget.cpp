@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "unifieddiffeditorwidget.h"
+
+#include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include "diffutils.h"
 
@@ -31,6 +33,8 @@
 #include <QPainter>
 #include <QScrollBar>
 #include <QTextBlock>
+
+#include <coreplugin/icore.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
@@ -73,6 +77,16 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
 
     connect(this, &QPlainTextEdit::cursorPositionChanged,
             this, &UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor);
+
+    m_context = new Core::IContext(this);
+    m_context->setWidget(this);
+    m_context->setContext(Core::Context(Constants::UNIFIED_VIEW_ID));
+    Core::ICore::addContextObject(m_context);
+}
+
+UnifiedDiffEditorWidget::~UnifiedDiffEditorWidget()
+{
+    Core::ICore::removeContextObject(m_context);
 }
 
 void UnifiedDiffEditorWidget::setDocument(DiffEditorDocument *document)

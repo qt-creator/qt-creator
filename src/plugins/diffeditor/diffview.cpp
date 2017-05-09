@@ -25,6 +25,7 @@
 
 #include "diffview.h"
 
+#include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include "diffeditoricons.h"
 #include "unifieddiffeditorwidget.h"
@@ -90,14 +91,19 @@ void IDiffView::setSyncToolTip(const QString &text)
     m_syncToolTip = text;
 }
 
-UnifiedView::UnifiedView() : m_widget(0)
+UnifiedView::UnifiedView()
 {
-    setId(UNIFIED_VIEW_ID);
+    setId(Constants::UNIFIED_VIEW_ID);
     setIcon(Icons::UNIFIED_DIFF.icon());
     setToolTip(QCoreApplication::translate("DiffEditor::UnifiedView", "Switch to Unified Diff Editor"));
 }
 
 QWidget *UnifiedView::widget()
+{
+    return textEditorWidget();
+}
+
+TextEditor::TextEditorWidget *UnifiedView::textEditorWidget()
 {
     if (!m_widget) {
         m_widget = new UnifiedDiffEditorWidget;
@@ -152,7 +158,7 @@ void UnifiedView::setSync(bool sync)
 
 SideBySideView::SideBySideView() : m_widget(0)
 {
-    setId(SIDE_BY_SIDE_VIEW_ID);
+    setId(Constants::SIDE_BY_SIDE_VIEW_ID);
     setIcon(Icons::SIDEBYSIDE_DIFF.icon());
     setToolTip(QCoreApplication::translate("DiffEditor::SideBySideView",
                                            "Switch to Side By Side Diff Editor"));
@@ -168,6 +174,18 @@ QWidget *SideBySideView::widget()
                 this, &SideBySideView::currentDiffFileIndexChanged);
     }
     return m_widget;
+}
+
+TextEditor::TextEditorWidget *SideBySideView::leftEditorWidget()
+{
+    widget(); // ensure widget creation
+    return m_widget->leftEditorWidget();
+}
+
+TextEditor::TextEditorWidget *SideBySideView::rightEditorWidget()
+{
+    widget(); // ensure widget creation
+    return m_widget->rightEditorWidget();
 }
 
 void SideBySideView::setDocument(DiffEditorDocument *document)
