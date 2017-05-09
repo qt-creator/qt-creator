@@ -49,6 +49,8 @@ public:
     explicit QmlProfilerTool(QObject *parent);
     ~QmlProfilerTool();
 
+    static QmlProfilerTool *instance();
+
     ProjectExplorer::RunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration = 0);
     void finalizeRunControl(QmlProfilerRunControl *runControl);
 

@@ -202,10 +202,7 @@ public:
     virtual void setRunTool(DebuggerRunTool *runTool);
     DebuggerRunTool *runTool() const;
 
-    void prepare();
     void start();
-
-    void startDebugger();
 
     enum {
         // Remove need to qualify each use.

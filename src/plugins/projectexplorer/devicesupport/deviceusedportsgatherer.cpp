@@ -190,4 +190,40 @@ void DeviceUsedPortsGatherer::handleRemoteStdErr()
         d->remoteStderr += d->process->readAllStandardError();
 }
 
+// PortGatherer
+
+PortsGatherer::PortsGatherer(RunControl *runControl)
+   : RunWorker(runControl)
+{
+    setDisplayName("PortGatherer");
+}
+
+PortsGatherer::~PortsGatherer()
+{
+}
+
+void PortsGatherer::start()
+{
+    appendMessage(tr("Checking available ports...") + '\n', NormalMessageFormat);
+    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::error, this, [this](const QString &msg) {
+        reportFailure(msg);
+    });
+    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::portListReady, this, [this] {
+        m_portList = device()->freePorts();
+        appendMessage(tr("Found %1 free ports").arg(m_portList.count()) + '\n', NormalMessageFormat);
+        reportStarted();
+    });
+    m_portsGatherer.start(device());
+}
+
+Port PortsGatherer::findPort()
+{
+    return m_portsGatherer.getNextFreePort(&m_portList);
+}
+
+void PortsGatherer::stop()
+{
+    m_portsGatherer.stop();
+}
+
 } // namespace ProjectExplorer

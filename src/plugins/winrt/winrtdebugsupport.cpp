@@ -49,7 +49,7 @@ namespace Internal {
 using namespace ProjectExplorer;
 
 WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl, WinRtRunnerHelper *runner)
-    : ToolRunner(runControl)
+    : RunWorker(runControl)
     , m_runner(runner)
 {
     connect(runControl, &RunControl::finished, this, &WinRtDebugSupport::finish);

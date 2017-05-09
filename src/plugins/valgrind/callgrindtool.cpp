@@ -255,14 +255,11 @@ CallgrindTool::CallgrindTool(QObject *parent)
     QString toolTip = tr("Valgrind Function Profiler uses the "
         "Callgrind tool to record function calls when a program runs.");
 
-    auto rcc = [this](RunConfiguration *runConfiguration, Id mode) {
-        auto runControl = new RunControl(runConfiguration, mode);
-        (void) createRunTool(runControl);
-        return runControl;
-    };
+    RunControl::registerWorkerCreator(CALLGRIND_RUN_MODE, [this](RunControl *runControl) {
+        return createRunTool(runControl);
+    });
 
     if (!Utils::HostOsInfo::isWindowsHost()) {
-        Debugger::registerAction(CALLGRIND_RUN_MODE, rcc);
         auto action = new QAction(tr("Valgrind Function Profiler"), this);
         action->setToolTip(toolTip);
         menu->addAction(ActionManager::registerAction(action, CallgrindLocalActionId),
@@ -279,7 +276,6 @@ CallgrindTool::CallgrindTool(QObject *parent)
         });
     }
 
-    Debugger::registerAction(CALLGRIND_RUN_MODE, rcc);
     auto action = new QAction(tr("Valgrind Function Profiler (External Application)"), this);
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, CallgrindRemoteActionId),

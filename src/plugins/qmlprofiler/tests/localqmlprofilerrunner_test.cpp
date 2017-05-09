@@ -24,6 +24,9 @@
 ****************************************************************************/
 
 #include "localqmlprofilerrunner_test.h"
+
+#include "../qmlprofilerruncontrol.h"
+
 #include <debugger/analyzer/analyzermanager.h>
 #include <debugger/analyzer/analyzerstartparameters.h>
 #include <QtTest>
@@ -57,8 +60,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     // should not be used anywhere but cannot be empty
     configuration.socket = connection.analyzerSocket = QString("invalid");
 
-    rc = Debugger::createAnalyzerRunControl(
-                nullptr, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    rc = new QmlProfilerRunControl(nullptr);
     rc->setConnection(connection);
     auto runner = new LocalQmlProfilerRunner(configuration, rc);
     connectRunner(runner);
@@ -79,8 +81,7 @@ void LocalQmlProfilerRunnerTest::testRunner1()
     configuration.debuggee.commandLineArguments = QString("-test QmlProfiler,");
 
     delete rc;
-    rc = Debugger::createAnalyzerRunControl(
-                nullptr, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    rc = new QmlProfilerRunControl(nullptr);
     rc->setConnection(connection);
     auto runner = new LocalQmlProfilerRunner(configuration, rc);
     connectRunner(runner);
@@ -100,8 +101,7 @@ void LocalQmlProfilerRunnerTest::testRunner2()
     connection.analyzerSocket.clear();
     configuration.port = connection.analyzerPort =
             LocalQmlProfilerRunner::findFreePort(connection.analyzerHost);
-    rc = Debugger::createAnalyzerRunControl(
-                nullptr, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    rc = new QmlProfilerRunControl(nullptr);
     rc->setConnection(connection);
     auto runner = new LocalQmlProfilerRunner(configuration, rc);
     connectRunner(runner);

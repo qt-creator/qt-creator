@@ -25,7 +25,9 @@
 
 #include "slog2inforunner.h"
 
+#include "qnxdevice.h"
 #include "qnxdeviceprocess.h"
+#include "qnxrunconfiguration.h"
 
 #include <projectexplorer/runnables.h>
 #include <utils/qtcassert.h>
@@ -33,28 +35,33 @@
 #include <QRegExp>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Qnx {
 namespace Internal {
 
-Slog2InfoRunner::Slog2InfoRunner(const QString &applicationId,
-                                 const RemoteLinux::LinuxDevice::ConstPtr &device, QObject *parent)
-    : QObject(parent)
-    , m_applicationId(applicationId)
-    , m_found(false)
-    , m_currentLogs(false)
+Slog2InfoRunner::Slog2InfoRunner(RunControl *runControl)
+    : RunWorker(runControl)
 {
+    auto qnxRunConfig = qobject_cast<QnxRunConfiguration *>(runControl->runConfiguration());
+    QTC_ASSERT(qnxRunConfig, return);
+    m_applicationId = FileName::fromString(qnxRunConfig->remoteExecutableFilePath()).fileName();
+}
+
+void Slog2InfoRunner::printMissingWarning()
+{
+    appendMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available."), ErrorMessageFormat);
     // See QTCREATORBUG-10712 for details.
     // We need to limit length of ApplicationId to 63 otherwise it would not match one in slog2info.
     m_applicationId.truncate(63);
 
-    m_testProcess = new QnxDeviceProcess(device, this);
+    m_testProcess = new QnxDeviceProcess(device(), this);
     connect(m_testProcess, &DeviceProcess::finished, this, &Slog2InfoRunner::handleTestProcessCompleted);
 
-    m_launchDateTimeProcess = new SshDeviceProcess(device, this);
+    m_launchDateTimeProcess = new SshDeviceProcess(device(), this);
     connect(m_launchDateTimeProcess, &DeviceProcess::finished, this, &Slog2InfoRunner::launchSlog2Info);
 
-    m_logProcess = new QnxDeviceProcess(device, this);
+    m_logProcess = new QnxDeviceProcess(device(), this);
     connect(m_logProcess, &DeviceProcess::readyReadStandardOutput, this, &Slog2InfoRunner::readLogStandardOutput);
     connect(m_logProcess, &DeviceProcess::readyReadStandardError, this, &Slog2InfoRunner::readLogStandardError);
     connect(m_logProcess, &DeviceProcess::error, this, &Slog2InfoRunner::handleLogError);
@@ -88,10 +95,14 @@ bool Slog2InfoRunner::commandFound() const
 void Slog2InfoRunner::handleTestProcessCompleted()
 {
     m_found = (m_testProcess->exitCode() == 0);
-    if (m_found)
+    if (m_found) {
         readLaunchTime();
-    else
-        emit commandMissing();
+    } else {
+        QnxDevice::ConstPtr qnxDevice = device().dynamicCast<const QnxDevice>();
+        if (qnxDevice->qnxVersion() > 0x060500) {
+            printMissingWarning();
+        }
+    }
 }
 
 void Slog2InfoRunner::readLaunchTime()
@@ -174,18 +185,18 @@ void Slog2InfoRunner::processLogLine(const QString &line)
     if (bufferName == QLatin1String("default") && bufferId == 8900)
         return;
 
-    emit output(regexp.cap(6).trimmed() + QLatin1Char('\n'), Utils::StdOutFormat);
+    appendMessage(regexp.cap(6).trimmed() + '\n', Utils::StdOutFormat);
 }
 
 void Slog2InfoRunner::readLogStandardError()
 {
-    const QString message = QString::fromLatin1(m_logProcess->readAllStandardError());
-    emit output(message, Utils::StdErrFormat);
+    appendMessage(QString::fromLatin1(m_logProcess->readAllStandardError()), Utils::StdErrFormat);
 }
 
 void Slog2InfoRunner::handleLogError()
 {
-    emit output(tr("Cannot show slog2info output. Error: %1").arg(m_logProcess->errorString()), Utils::StdErrFormat);
+    appendMessage(tr("Cannot show slog2info output. Error: %1")
+                  .arg(m_logProcess->errorString()), Utils::StdErrFormat);
 }
 
 } // namespace Internal

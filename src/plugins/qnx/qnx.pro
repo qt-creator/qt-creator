@@ -9,13 +9,11 @@ SOURCES += qnxplugin.cpp \
     qnxdevicewizard.cpp \
     qnxrunconfiguration.cpp \
     qnxruncontrolfactory.cpp \
-    qnxabstractrunsupport.cpp \
     qnxanalyzesupport.cpp \
     qnxdebugsupport.cpp \
     qnxdeploystepfactory.cpp \
     qnxdeployconfigurationfactory.cpp \
     qnxrunconfigurationfactory.cpp \
-    qnxruncontrol.cpp \
     qnxqtversionfactory.cpp \
     qnxqtversion.cpp \
     qnxdeployconfiguration.cpp \
@@ -44,13 +42,11 @@ HEADERS += qnxplugin.h\
     qnxdevicewizard.h \
     qnxrunconfiguration.h \
     qnxruncontrolfactory.h \
-    qnxabstractrunsupport.h \
     qnxanalyzesupport.h \
     qnxdebugsupport.h \
     qnxdeploystepfactory.h \
     qnxdeployconfigurationfactory.h \
     qnxrunconfigurationfactory.h \
-    qnxruncontrol.h \
     qnxqtversionfactory.h \
     qnxqtversion.h \
     qnxdeployconfiguration.h \

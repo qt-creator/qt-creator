@@ -244,7 +244,7 @@ class MemcheckTool : public QObject
 public:
     MemcheckTool(QObject *parent);
 
-    RunControl *createRunControl(RunConfiguration *runConfiguration, Core::Id runMode);
+    RunWorker *createRunWorker(RunControl *runControl);
 
 private:
     void updateRunActions();
@@ -395,8 +395,10 @@ MemcheckTool::MemcheckTool(QObject *parent)
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     QString toolTip = tr("Valgrind Analyze Memory uses the Memcheck tool to find memory leaks.");
 
+    RunControl::registerWorkerCreator(MEMCHECK_RUN_MODE, std::bind(&MemcheckTool::createRunWorker, this, _1));
+    RunControl::registerWorkerCreator(MEMCHECK_WITH_GDB_RUN_MODE, std::bind(&MemcheckTool::createRunWorker, this, _1));
+
     if (!Utils::HostOsInfo::isWindowsHost()) {
-        Debugger::registerAction(MEMCHECK_RUN_MODE, std::bind(&MemcheckTool::createRunControl, this, _1, _2));
         action = new QAction(this);
         action->setText(tr("Valgrind Memory Analyzer"));
         action->setToolTip(toolTip);
@@ -414,7 +416,6 @@ MemcheckTool::MemcheckTool(QObject *parent)
             action->setEnabled(m_startAction->isEnabled());
         });
 
-        Debugger::registerAction(MEMCHECK_WITH_GDB_RUN_MODE, std::bind(&MemcheckTool::createRunControl, this, _1, _2));
         action = new QAction(this);
         action->setText(tr("Valgrind Memory Analyzer with GDB"));
         action->setToolTip(tr("Valgrind Analyze Memory with GDB uses the "
@@ -435,7 +436,6 @@ MemcheckTool::MemcheckTool(QObject *parent)
         });
     }
 
-    Debugger::registerAction(MEMCHECK_RUN_MODE, std::bind(&MemcheckTool::createRunControl, this, _1, _2));
     action = new QAction(this);
     action->setText(tr("Valgrind Memory Analyzer (External Application)"));
     action->setToolTip(toolTip);
@@ -452,8 +452,8 @@ MemcheckTool::MemcheckTool(QObject *parent)
             return;
         TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
         Debugger::selectPerspective(MemcheckPerspectiveId);
-        RunControl *rc = createRunControl(runConfig, MEMCHECK_RUN_MODE);
-        QTC_ASSERT(rc, return);
+        RunControl *rc = new RunControl(runConfig, MEMCHECK_RUN_MODE);
+        rc->createWorker(MEMCHECK_RUN_MODE);
         const auto runnable = dlg.runnable();
         rc->setRunnable(runnable);
         AnalyzerConnection connection;
@@ -560,14 +560,14 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     updateFromSettings();
 }
 
-RunControl *MemcheckTool::createRunControl(RunConfiguration *runConfiguration, Core::Id runMode)
+RunWorker *MemcheckTool::createRunWorker(RunControl *runControl)
 {
-    m_errorModel.setRelevantFrameFinder(makeFrameFinder(runConfiguration
-        ? runConfiguration->target()->project()->files(Project::AllFiles) : QStringList()));
+    RunConfiguration *runConfig = runControl->runConfiguration();
+    m_errorModel.setRelevantFrameFinder(makeFrameFinder(runConfig
+        ? runConfig->target()->project()->files(Project::AllFiles) : QStringList()));
 
-    auto runControl = new RunControl(runConfiguration, runMode);
     MemcheckToolRunner *runTool = 0;
-    if (runMode == MEMCHECK_RUN_MODE)
+    if (runControl->runMode() == MEMCHECK_RUN_MODE)
         runTool = new MemcheckToolRunner(runControl);
     else
         runTool = new MemcheckWithGdbToolRunner(runControl);
@@ -583,7 +583,7 @@ RunControl *MemcheckTool::createRunControl(RunConfiguration *runConfiguration, C
     m_toolBusy = true;
     updateRunActions();
 
-    return runControl;
+    return runTool;
 }
 
 void MemcheckTool::engineStarting(const MemcheckToolRunner *runTool)
@@ -739,7 +739,9 @@ public:
     RunControl *create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage) override
     {
         Q_UNUSED(errorMessage);
-        return m_tool->createRunControl(runConfiguration, mode);
+        auto runControl = new RunControl(runConfiguration, mode);
+        runControl->createWorker(mode);
+        return runControl;
     }
 
     // Do not create an aspect, let the Callgrind tool create one and use that, too.

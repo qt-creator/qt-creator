@@ -71,8 +71,9 @@ namespace Internal {
 
 ClangStaticAnalyzerToolRunner::ClangStaticAnalyzerToolRunner(RunControl *runControl,
                                                              QString *errorMessage)
-    : ToolRunner(runControl)
+    : RunWorker(runControl)
 {
+    setDisplayName("ClangStaticAnalyzerRunner");
     runControl->setDisplayName(tr("Clang Static Analyzer"));
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     runControl->setSupportsReRunning(false);
@@ -585,7 +586,7 @@ void ClangStaticAnalyzerToolRunner::start()
         return;
     }
 
-    reportSuccess();
+    reportStarted();
 
     while (m_runners.size() < parallelRuns && !m_unitsToProcess.isEmpty())
         analyzeNextFile();

@@ -32,15 +32,12 @@
 
 namespace QmlProfiler {
 
-namespace Internal { class QmlProfilerTool; }
-
 class QmlProfilerRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 
 public:
-    QmlProfilerRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
-                          Internal::QmlProfilerTool *tool);
+    QmlProfilerRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
     ~QmlProfilerRunControl() override;
 
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );

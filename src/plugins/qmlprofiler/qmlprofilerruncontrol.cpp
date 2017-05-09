@@ -67,7 +67,6 @@ namespace QmlProfiler {
 class QmlProfilerRunControl::QmlProfilerRunControlPrivate
 {
 public:
-    Internal::QmlProfilerTool *m_tool = 0;
     QmlProfilerStateManager *m_profilerState = 0;
     QTimer m_noDebugOutputTimer;
 };
@@ -76,15 +75,13 @@ public:
 // QmlProfilerRunControl
 //
 
-QmlProfilerRunControl::QmlProfilerRunControl(RunConfiguration *runConfiguration,
-                                             Internal::QmlProfilerTool *tool)
+QmlProfilerRunControl::QmlProfilerRunControl(RunConfiguration *runConfiguration)
     : RunControl(runConfiguration, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
     , d(new QmlProfilerRunControlPrivate)
 {
     setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     setSupportsReRunning(false);
 
-    d->m_tool = tool;
     // Only wait 4 seconds for the 'Waiting for connection' on application output, then just try to connect
     // (application output might be redirected / blocked)
     d->m_noDebugOutputTimer.setSingleShot(true);
@@ -104,7 +101,7 @@ QmlProfilerRunControl::~QmlProfilerRunControl()
 void QmlProfilerRunControl::start()
 {
     reportApplicationStart();
-    d->m_tool->finalizeRunControl(this);
+    Internal::QmlProfilerTool::instance()->finalizeRunControl(this);
     QTC_ASSERT(d->m_profilerState, reportApplicationStop(); return);
 
     QTC_ASSERT(connection().is<AnalyzerConnection>(), reportApplicationStop(); return);

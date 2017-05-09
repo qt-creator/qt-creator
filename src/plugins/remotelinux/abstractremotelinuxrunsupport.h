@@ -27,46 +27,28 @@
 
 #include "remotelinux_export.h"
 
-#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runconfiguration.h>
-
-#include <utils/port.h>
 
 namespace RemoteLinux {
 
-namespace Internal { class AbstractRemoteLinuxRunSupportPrivate; }
-
-class REMOTELINUX_EXPORT AbstractRemoteLinuxRunSupport : public ProjectExplorer::TargetRunner
+class REMOTELINUX_EXPORT FifoGatherer : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 
 public:
-    explicit AbstractRemoteLinuxRunSupport(ProjectExplorer::RunControl *runControl);
-    ~AbstractRemoteLinuxRunSupport();
+    explicit FifoGatherer(ProjectExplorer::RunControl *runControl);
+    ~FifoGatherer();
 
-    ProjectExplorer::ApplicationLauncher *applicationLauncher();
-
-    void setUsesFifo(bool on);
-
-    Utils::Port findPort() const;
-    QString fifo() const;
+    QString fifo() const { return m_fifo; }
 
 private:
-    void prepare() override;
     void start() override;
     void onFinished() override;
 
     void createRemoteFifo();
-    void startPortsGathering();
 
-    void handleAppRunnerError(const QString &error);
-    void handleRemoteOutput(const QByteArray &output);
-    void handleRemoteErrorOutput(const QByteArray &output);
-    void handleAppRunnerFinished(bool success);
-    void handleProgressReport(const QString &progressOutput);
-    void handleAdapterSetupDone();
-
-    Internal::AbstractRemoteLinuxRunSupportPrivate * const d;
+    ProjectExplorer::ApplicationLauncher m_fifoCreator;
+    QString m_fifo;
 };
 
 } // namespace RemoteLinux

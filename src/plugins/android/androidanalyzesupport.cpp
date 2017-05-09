@@ -48,7 +48,8 @@ namespace Internal {
 
 RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(RunConfiguration *runConfig, Core::Id runMode)
 {
-    RunControl *runControl = Debugger::createAnalyzerRunControl(runConfig, runMode);
+    auto runControl = new RunControl(runConfig, runMode);
+    runControl->createWorker(runMode);
     QTC_ASSERT(runControl, return 0);
     AnalyzerConnection connection;
     if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
@@ -64,7 +65,7 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(RunConfiguration *run
 }
 
 AndroidAnalyzeSupport::AndroidAnalyzeSupport(RunControl *runControl)
-    : ToolRunner(runControl)
+    : RunWorker(runControl)
 {
     auto runner = new AndroidRunner(this, runControl->runConfiguration(), runControl->runMode());
 

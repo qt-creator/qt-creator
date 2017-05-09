@@ -184,11 +184,8 @@ RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
     if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
         res = new Ios::Internal::IosRunControl(rc);
     else if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-        RunControl *runControl = Debugger::createAnalyzerRunControl(runConfig, mode);
-        QTC_ASSERT(runControl, return 0);
-        IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
-        if (device.isNull())
-            return 0;
+        auto runControl = new RunControl(runConfig, mode);
+        runControl->createWorker(mode);
         auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runConfig);
         StandardRunnable runnable;
         runnable.executable = iosRunConfig->localExecutable().toUserOutput();

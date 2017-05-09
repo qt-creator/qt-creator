@@ -127,9 +127,12 @@ public:
     bool m_toolBusy = false;
 };
 
+static QmlProfilerTool *s_instance;
+
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
     : QObject(parent), d(new QmlProfilerToolPrivate)
 {
+    s_instance = this;
     setObjectName(QLatin1String("QmlProfilerTool"));
 
     d->m_profilerState = new QmlProfilerStateManager(this);
@@ -244,8 +247,9 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     // is available, then we can populate the file finder
     d->m_profilerModelManager->populateFileFinder();
 
-    auto runControlCreator = [this](RunConfiguration *runConfiguration, Core::Id) {
-        return createRunControl(runConfiguration);
+    auto runWorkerCreator = [this](RunControl *runControl) {
+//        return createRunControl(runConfiguration);
+        return nullptr; // FIXME
     };
 
     QString description = tr("The QML Profiler can be used to find performance "
@@ -254,7 +258,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_startAction = Debugger::createStartAction();
     d->m_stopAction = Debugger::createStopAction();
 
-    Debugger::registerAction(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, runControlCreator);
+    RunControl::registerWorkerCreator(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, runWorkerCreator);
     act = new QAction(tr("QML Profiler"), this);
     act->setToolTip(description);
     menu->addAction(ActionManager::registerAction(act, "QmlProfiler.Local"),
@@ -270,7 +274,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
         act->setEnabled(d->m_startAction->isEnabled());
     });
 
-    Debugger::registerAction(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, runControlCreator);
     act = new QAction(tr("QML Profiler (External)"), this);
     act->setToolTip(description);
     menu->addAction(ActionManager::registerAction(act, "QmlProfiler.Remote"),
@@ -305,6 +308,11 @@ QmlProfilerTool::~QmlProfilerTool()
     delete d;
 }
 
+QmlProfilerTool *QmlProfilerTool::instance()
+{
+    return s_instance;
+}
+
 void QmlProfilerTool::updateRunActions()
 {
     if (d->m_toolBusy) {
@@ -336,11 +344,11 @@ RunControl *QmlProfilerTool::createRunControl(RunConfiguration *runConfiguration
         }
     }
 
-    auto runControl = new QmlProfilerRunControl(runConfiguration, this);
+    auto runControl = new QmlProfilerRunControl(runConfiguration);
     connect(runControl, &RunControl::finished, this, [this, runControl] {
         d->m_toolBusy = false;
         updateRunActions();
-        disconnect(d->m_stopAction, &QAction::triggered, runControl, &QmlProfilerRunControl::stop);
+        disconnect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::stop);
     });
 
     connect(d->m_stopAction, &QAction::triggered, runControl, &QmlProfilerRunControl::stop);

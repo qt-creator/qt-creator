@@ -36,18 +36,11 @@ class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public Debugger::DebuggerRunT
     Q_OBJECT
 
 public:
-    LinuxDeviceDebugSupport(ProjectExplorer::RunControl *runControl,
-                            QString *errorMessage = nullptr);
+    LinuxDeviceDebugSupport(ProjectExplorer::RunControl *runControl);
     ~LinuxDeviceDebugSupport() override;
 
-protected:
-    virtual ProjectExplorer::Runnable realRunnable() const;
-
 private:
-    void prepare() override;
-
-    Utils::Port m_gdbServerPort;
-    Utils::Port m_qmlPort;
+    void start() override;
 };
 
 } // namespace RemoteLinux

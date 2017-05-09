@@ -973,7 +973,6 @@ public:
     QPointer<QWidget> m_modeWindow;
     QPointer<DebugMode> m_mode;
 
-    QHash<Id, RunControlCreator> m_runControlCreators;
     ActionContainer *m_menu = 0;
 
 //    DockWidgetEventFilter m_resizeEventFilter;
@@ -3527,11 +3526,6 @@ bool wantRunTool(ToolMode toolMode, const QString &toolName)
     return true;
 }
 
-void registerAction(Id runMode, const RunControlCreator &runControlCreator)
-{
-    dd->m_runControlCreators.insert(runMode, runControlCreator);
-}
-
 void registerToolbar(const QByteArray &perspectiveId, const ToolbarDescription &desc)
 {
     auto toolbar = new QWidget;
@@ -3603,14 +3597,6 @@ void showStatusMessage(const QString &message, int timeoutMS)
 void showPermanentStatusMessage(const QString &message)
 {
     dd->m_mainWindow->showStatusMessage(message, -1);
-}
-
-RunControl *createAnalyzerRunControl(RunConfiguration *runConfiguration, Id runMode)
-{
-    RunControlCreator rcc = dd->m_runControlCreators.value(runMode);
-    if (rcc)
-        return rcc(runConfiguration, runMode);
-    return nullptr;
 }
 
 namespace Internal {

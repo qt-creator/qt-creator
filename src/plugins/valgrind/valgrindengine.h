@@ -37,7 +37,7 @@
 namespace Valgrind {
 namespace Internal {
 
-class ValgrindToolRunner : public ProjectExplorer::ToolRunner
+class ValgrindToolRunner : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 

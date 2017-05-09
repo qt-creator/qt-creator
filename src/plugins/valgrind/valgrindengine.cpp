@@ -54,7 +54,7 @@ namespace Valgrind {
 namespace Internal {
 
 ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
-    : ToolRunner(runControl)
+    : RunWorker(runControl)
 {
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     runControl->setSupportsReRunning(false);
@@ -102,7 +102,7 @@ void ValgrindToolRunner::start()
         return;
     }
 
-    reportSuccess();
+    reportStarted();
 }
 
 void ValgrindToolRunner::stop()
@@ -160,7 +160,7 @@ void ValgrindToolRunner::runnerFinished()
     disconnect(runner(), &ValgrindRunner::finished,
                this, &ValgrindToolRunner::runnerFinished);
 
-    reportSuccess();
+    reportStarted();
 }
 
 void ValgrindToolRunner::receiveProcessOutput(const QString &output, OutputFormat format)

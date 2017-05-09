@@ -59,16 +59,12 @@ enum ToolMode {
     //AnyMode       = DebugMode   | ProfileMode | ReleaseMode
 };
 
-using RunControlCreator = std::function<ProjectExplorer::RunControl *
-                                        (ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode)>;
-
 // FIXME: Merge with something sensible.
 DEBUGGER_EXPORT bool wantRunTool(ToolMode toolMode, const QString &toolName);
 DEBUGGER_EXPORT void showCannotStartDialog(const QString &toolName);
 DEBUGGER_EXPORT ProjectExplorer::RunConfiguration *startupRunConfiguration();
 
 // Register a tool for a given start mode.
-DEBUGGER_EXPORT void registerAction(Core::Id runMode, const RunControlCreator &runControlCreator);
 DEBUGGER_EXPORT void registerPerspective(const QByteArray &perspectiveId, const Utils::Perspective *perspective);
 DEBUGGER_EXPORT void registerToolbar(const QByteArray &perspectiveId, const Utils::ToolbarDescription &desc);
 
@@ -84,8 +80,5 @@ DEBUGGER_EXPORT void showPermanentStatusMessage(const QString &message);
 
 DEBUGGER_EXPORT QAction *createStartAction();
 DEBUGGER_EXPORT QAction *createStopAction();
-
-DEBUGGER_EXPORT ProjectExplorer::RunControl *createAnalyzerRunControl(
-    ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
 
 } // namespace Debugger

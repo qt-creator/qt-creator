@@ -109,19 +109,15 @@ static QLatin1String engineTypeName(DebuggerEngineType et)
     return QLatin1String("No engine");
 }
 
-void DebuggerRunTool::prepare()
+void DebuggerRunTool::start()
 {
     Debugger::Internal::saveModeToRestore();
     Debugger::selectPerspective(Debugger::Constants::CppPerspectiveId);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
-    m_engine->prepare();
-}
-
-void DebuggerRunTool::start()
-{
     DebuggerEngine *engine = m_engine;
+
     QTC_ASSERT(engine, return);
     const DebuggerRunParameters &rp = engine->runParameters();
     // User canceled input dialog asking for executable when working on library project.
@@ -177,11 +173,6 @@ void DebuggerRunTool::notifyEngineRemoteSetupFinished(const RemoteSetupResult &r
     m_engine->notifyEngineRemoteSetupFinished(result);
 }
 
-void DebuggerRunTool::setRemoteParameters(const RemoteSetupResult &result)
-{
-    m_engine->setRemoteParameters(result);
-}
-
 void DebuggerRunTool::stop()
 {
     m_engine->quitDebugger();
@@ -199,7 +190,7 @@ void DebuggerRunTool::onTargetFailure()
 
 void DebuggerRunTool::debuggingFinished()
 {
-    runControl()->reportApplicationStop();
+    reportStopped();
 }
 
 DebuggerStartParameters &DebuggerRunTool::startParameters()
@@ -495,10 +486,11 @@ static DebuggerRunConfigurationAspect *debuggerAspect(const RunControl *runContr
 /// DebuggerRunTool
 
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
-    : ToolRunner(runControl),
+    : RunWorker(runControl),
       m_isCppDebugging(debuggerAspect(runControl)->useCppDebugger()),
       m_isQmlDebugging(debuggerAspect(runControl)->useQmlDebugger())
 {
+    setDisplayName("DebuggerRunTool");
 }
 
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerStartParameters &sp, QString *errorMessage)
@@ -577,7 +569,7 @@ DebuggerRunTool::~DebuggerRunTool()
 
 void DebuggerRunTool::onFinished()
 {
-    appendMessage(tr("Debugging has finished") + '\n', NormalMessageFormat);
+    appendMessage(tr("Debugging has finished"), NormalMessageFormat);
     runControlFinished(m_engine);
 }
 
@@ -619,8 +611,9 @@ public:
         QTC_ASSERT(runConfig, return 0);
         QTC_ASSERT(mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain, return 0);
 
+        DebuggerStartParameters sp;
         auto runControl = new RunControl(runConfig, mode);
-        (void) new DebuggerRunTool(runControl, DebuggerStartParameters(), errorMessage);
+        (void) new DebuggerRunTool(runControl, sp, errorMessage);
         return runControl;
     }
 
@@ -690,10 +683,109 @@ RunControl *createAndScheduleRun(const DebuggerRunParameters &rp, Kit *kit)
     QTC_ASSERT(runConfig, return nullptr);
     auto runControl = new RunControl(runConfig, DebugRunMode);
     (void) new DebuggerRunTool(runControl, rp);
-    QTC_ASSERT(runControl, return nullptr);
     ProjectExplorerPlugin::startRunControl(runControl);
     return runControl;
 }
 
 } // Internal
+
+// GdbServerPortGatherer
+
+GdbServerPortsGatherer::GdbServerPortsGatherer(RunControl *runControl)
+    : RunWorker(runControl)
+{
+}
+
+GdbServerPortsGatherer::~GdbServerPortsGatherer()
+{
+}
+
+void GdbServerPortsGatherer::start()
+{
+    appendMessage(tr("Checking available ports..."), NormalMessageFormat);
+    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::error, this, [this](const QString &msg) {
+        reportFailure(msg);
+    });
+    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::portListReady, this, [this] {
+        Utils::PortList portList = device()->freePorts();
+        appendMessage(tr("Found %1 free ports").arg(portList.count()), NormalMessageFormat);
+        if (m_useGdbServer) {
+            m_gdbServerPort = m_portsGatherer.getNextFreePort(&portList);
+            if (!m_gdbServerPort.isValid()) {
+                reportFailure(tr("Not enough free ports on device for C++ debugging."));
+                return;
+            }
+        }
+        if (m_useQmlServer) {
+            m_qmlServerPort = m_portsGatherer.getNextFreePort(&portList);
+            if (!m_qmlServerPort.isValid()) {
+                reportFailure(tr("Not enough free ports on device for QML debugging."));
+                return;
+            }
+        }
+        reportStarted();
+    });
+    m_portsGatherer.start(device());
+}
+
+
+// GdbServerRunner
+
+GdbServerRunner::GdbServerRunner(RunControl *runControl)
+   : RunWorker(runControl)
+{
+    setDisplayName("GdbServerRunner");
+}
+
+GdbServerRunner::~GdbServerRunner()
+{
+}
+
+void GdbServerRunner::start()
+{
+    auto portsGatherer = runControl()->worker<GdbServerPortsGatherer>();
+    QTC_ASSERT(portsGatherer, reportFailure(); return);
+
+    StandardRunnable r = runnable().as<StandardRunnable>();
+    QStringList args = QtcProcess::splitArgs(r.commandLineArguments, OsTypeLinux);
+    QString command;
+
+    const bool isQmlDebugging = portsGatherer->useQmlServer();
+    const bool isCppDebugging = portsGatherer->useGdbServer();
+
+    if (isQmlDebugging) {
+        args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
+                                                    portsGatherer->qmlServerPort()));
+    }
+
+    if (isQmlDebugging && !isCppDebugging) {
+        command = r.executable;
+    } else {
+        command = device()->debugServerPath();
+        if (command.isEmpty())
+            command = "gdbserver";
+        args.clear();
+        args.append(QString("--multi"));
+        args.append(QString(":%1").arg(portsGatherer->gdbServerPort().number()));
+    }
+    r.executable = command;
+    r.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);
+
+    connect(&m_gdbServer, &ApplicationLauncher::error, this, [this] {
+        reportFailure(tr("GDBserver start failed"));
+    });
+    connect(&m_gdbServer, &ApplicationLauncher::remoteProcessStarted, this, [this] {
+        appendMessage(tr("GDBserver started") + '\n', NormalMessageFormat);
+        reportStarted();
+    });
+
+    appendMessage(tr("Starting GDBserver...") + '\n', NormalMessageFormat);
+    m_gdbServer.start(r, device());
+}
+
+void GdbServerRunner::onFinished()
+{
+    m_gdbServer.stop();
+}
+
 } // namespace Debugger

@@ -30,17 +30,11 @@
 #include "remotelinuxcustomrunconfiguration.h"
 #include "remotelinuxrunconfiguration.h"
 
-#include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerstartparameters.h>
-
 #include <debugger/debuggerruncontrol.h>
-#include <debugger/debuggerrunconfigurationaspect.h>
-#include <debugger/debuggerstartparameters.h>
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
-
 
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -62,7 +56,8 @@ bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Co
             && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE
             && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN
             && mode != ProjectExplorer::Constants::QML_PROFILER_RUN_MODE
-            && mode != ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
+//            && mode != ProjectExplorer::Constants::PERFPROFILER_RUN_MODE
+            ) {
         return false;
     }
 
@@ -73,34 +68,37 @@ bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Co
 }
 
 RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Core::Id mode,
-                                                 QString *errorMessage)
+                                                 QString *)
 {
     QTC_ASSERT(canRun(runConfig, mode), return 0);
 
     if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE) {
         auto runControl = new RunControl(runConfig, mode);
-        (void) new AbstractRemoteLinuxRunSupport(runControl);
+        (void) new SimpleTargetRunner(runControl);
         return runControl;
     }
 
     if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE
             || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN) {
         auto runControl = new RunControl(runConfig, mode);
-        (void) new AbstractRemoteLinuxRunSupport(runControl);
-        (void) new LinuxDeviceDebugSupport(runControl, errorMessage);
+        (void) new LinuxDeviceDebugSupport(runControl);
         return runControl;
     }
 
-    if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE ||
-            mode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
-        auto runControl = Debugger::createAnalyzerRunControl(runConfig, mode);
-        AnalyzerConnection connection;
-        connection.connParams =
-            DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
-        connection.analyzerHost = connection.connParams.host;
-        runControl->setConnection(connection);
-        (void) new AbstractRemoteLinuxRunSupport(runControl);
-        (void) new RemoteLinuxAnalyzeSupport(runControl);
+    if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE
+//            || mode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE
+            ) {
+        auto runControl = new RunControl(runConfig, mode);
+        runControl->createWorker(mode);
+//        AnalyzerConnection connection;
+//        connection.connParams =
+//            DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
+//        connection.analyzerHost = connection.connParams.host;
+//        runControl->setConnection(connection);
+//        (void) new SimpleTargetRunner(runControl);
+//        (void) new PortsGatherer(runControl);
+//        (void) new FifoGatherer(runControl);
+//        (void) new RemoteLinuxAnalyzeSupport(runControl);
         return runControl;
     }
 

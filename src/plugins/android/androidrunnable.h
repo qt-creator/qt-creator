@@ -40,6 +40,7 @@ struct ANDROID_EXPORT AndroidRunnable
     QVector<QStringList> afterFinishADBCommands;
     QString deviceSerialNumber;
 
+    QString displayName() const { return packageName; }
     static void *staticTypeId;
 };
 

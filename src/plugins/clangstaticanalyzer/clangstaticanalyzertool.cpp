@@ -145,7 +145,7 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool()
         {{ClangStaticAnalyzerDockId, m_diagnosticView, {}, Perspective::SplitVertical}}
     ));
 
-    Debugger::registerAction(Constants::CLANGSTATICANALYZER_RUN_MODE, {});
+    //Debugger::registerAction(Constants::CLANGSTATICANALYZER_RUN_MODE, {});
     action = new QAction(tr("Clang Static Analyzer"), this);
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, "ClangStaticAnalyzer.Action"),

@@ -561,7 +561,7 @@ void DebuggerEngine::setRunTool(DebuggerRunTool *runTool)
     d->m_runTool = runTool;
 }
 
-void DebuggerEngine::prepare()
+void DebuggerEngine::start()
 {
     QTC_ASSERT(d->m_runTool, notifyEngineSetupFailed(); return);
 
@@ -602,25 +602,7 @@ void DebuggerEngine::prepare()
     }
 
     d->queueSetupEngine();
-}
-
-void DebuggerEngine::start()
-{
-    Internal::runControlStarted(this);
-
-    // We might get a synchronous startFailed() notification on Windows,
-    // when launching the process fails. Emit a proper finished() sequence.
-    //runControl()->reportApplicationStart();
-
-    showMessage("QUEUE: SETUP INFERIOR");
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
-//    if (isMasterEngine())
-     d->queueSetupInferior();
-}
-
-void DebuggerEngine::startDebugger()
-{
-    d->queueRunEngine();
 }
 
 void DebuggerEngine::resetLocation()
@@ -822,7 +804,9 @@ void DebuggerEngine::notifyEngineSetupOk()
 
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupOk);
-    runTool()->reportSuccess();
+
+    Internal::runControlStarted(this);
+    d->queueSetupInferior();
 }
 
 void DebuggerEngine::setupSlaveInferior()
@@ -1311,6 +1295,11 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
 
     if (state == EngineRunRequested) {
         DebuggerToolTipManager::registerEngine(this);
+    }
+
+    if (state == InferiorUnrunnable || state == InferiorRunOk) {
+        if (isMasterEngine() && runTool())
+            runTool()->reportStarted();
     }
 
     if (state == DebuggerFinished) {

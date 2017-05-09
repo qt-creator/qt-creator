@@ -27,10 +27,9 @@
 
 #include "idevice.h"
 
-namespace Utils {
-class Port;
-class PortList;
-} // namespace Utils
+#include <projectexplorer/runconfiguration.h>
+
+#include <utils/portlist.h>
 
 namespace ProjectExplorer {
 namespace Internal { class DeviceUsedPortsGathererPrivate; }
@@ -62,6 +61,25 @@ private:
     void setupUsedPorts();
 
     Internal::DeviceUsedPortsGathererPrivate * const d;
+};
+
+class PROJECTEXPLORER_EXPORT PortsGatherer : public RunWorker
+{
+    Q_OBJECT
+
+public:
+    explicit PortsGatherer(RunControl *runControl);
+    ~PortsGatherer() override;
+
+    Utils::Port findPort();
+
+protected:
+    void start() override;
+    void stop() override;
+
+private:
+    DeviceUsedPortsGatherer m_portsGatherer;
+    Utils::PortList m_portList;
 };
 
 } // namespace ProjectExplorer

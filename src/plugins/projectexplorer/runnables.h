@@ -32,6 +32,7 @@
 
 #include <utils/environment.h>
 
+#include <QDir>
 #include <QUrl>
 
 namespace ProjectExplorer {
@@ -46,6 +47,7 @@ public:
     ApplicationLauncher::Mode runMode = ApplicationLauncher::Gui;
     IDevice::ConstPtr device; // Override the kit's device. Keep unset by default.
 
+    QString displayName() const { return QDir::toNativeSeparators(executable); }
     static void *staticTypeId;
 };
 

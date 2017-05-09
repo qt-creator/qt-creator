@@ -35,7 +35,7 @@ namespace Internal {
 class WinRtRunConfiguration;
 class WinRtRunnerHelper;
 
-class WinRtDebugSupport : public ProjectExplorer::ToolRunner
+class WinRtDebugSupport : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 public:

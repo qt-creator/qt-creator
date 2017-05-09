@@ -34,7 +34,7 @@ namespace Internal {
 
 class IosRunner;
 
-class IosAnalyzeSupport : public ProjectExplorer::ToolRunner
+class IosAnalyzeSupport : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 

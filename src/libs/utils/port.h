@@ -27,8 +27,11 @@
 
 #include "utils_global.h"
 #include "qtcassert.h"
-#include <limits>
+
 #include <QMetaType>
+#include <QString>
+
+#include <limits>
 
 namespace Utils {
 
@@ -49,6 +52,8 @@ public:
 
     quint16 number() const { QTC_ASSERT(isValid(), return 0); return quint16(m_port); }
     bool isValid() const { return m_port != -1; }
+
+    QString toString() const { return QString::number(m_port); }
 
 private:
     int m_port;

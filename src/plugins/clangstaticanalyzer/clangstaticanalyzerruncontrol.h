@@ -47,7 +47,7 @@ struct AnalyzeUnit {
 };
 typedef QList<AnalyzeUnit> AnalyzeUnits;
 
-class ClangStaticAnalyzerToolRunner : public ProjectExplorer::ToolRunner
+class ClangStaticAnalyzerToolRunner : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 

@@ -34,7 +34,7 @@
 namespace Android {
 namespace Internal {
 
-class AndroidAnalyzeSupport : public ProjectExplorer::ToolRunner
+class AndroidAnalyzeSupport : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 

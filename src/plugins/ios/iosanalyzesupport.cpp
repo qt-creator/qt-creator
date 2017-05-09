@@ -32,7 +32,7 @@ namespace Ios {
 namespace Internal {
 
 IosAnalyzeSupport::IosAnalyzeSupport(RunControl *runControl, bool cppDebug, bool qmlDebug)
-    : ToolRunner(runControl),
+    : RunWorker(runControl),
       m_runner(new IosRunner(this, runControl, cppDebug, qmlDebug ? QmlDebug::QmlProfilerServices :
                                                                    QmlDebug::NoQmlDebugServices))
 {

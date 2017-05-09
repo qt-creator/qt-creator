@@ -30,13 +30,14 @@
 #include "debuggerengine.h"
 
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 
 namespace Debugger {
 
 class RemoteSetupResult;
 class DebuggerStartParameters;
 
-class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::ToolRunner
+class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 
@@ -60,16 +61,14 @@ public:
 
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
 
-    void prepare() override;
     void start() override;
     void stop() override;
-    void onTargetFailure() override;
     void onFinished() override;
 
     void startFailed();
+    void onTargetFailure();
     void notifyEngineRemoteServerRunning(const QByteArray &msg, int pid);
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
-    void setRemoteParameters(const RemoteSetupResult &result);
     void notifyInferiorIll();
     Q_SLOT void notifyInferiorExited();
     void quitDebugger();
@@ -96,5 +95,49 @@ private:
     const bool m_isCppDebugging;
     const bool m_isQmlDebugging;
 };
+
+class DEBUGGER_EXPORT GdbServerPortsGatherer : public ProjectExplorer::RunWorker
+{
+    Q_OBJECT
+
+public:
+    explicit GdbServerPortsGatherer(ProjectExplorer::RunControl *runControl);
+    ~GdbServerPortsGatherer();
+
+    void setUseGdbServer(bool useIt) { m_useGdbServer = useIt; }
+    bool useGdbServer() const { return m_useGdbServer; }
+    Utils::Port gdbServerPort() const { return m_gdbServerPort; }
+
+    void setUseQmlServer(bool useIt) { m_useQmlServer = useIt; }
+    bool useQmlServer() const { return m_useQmlServer; }
+    Utils::Port qmlServerPort() const { return m_qmlServerPort; }
+
+private:
+    void start();
+
+    ProjectExplorer::DeviceUsedPortsGatherer m_portsGatherer;
+    bool m_useGdbServer = false;
+    bool m_useQmlServer = false;
+    Utils::Port m_gdbServerPort;
+    Utils::Port m_qmlServerPort;
+};
+
+class DEBUGGER_EXPORT GdbServerRunner : public ProjectExplorer::RunWorker
+{
+    Q_OBJECT
+
+public:
+    explicit GdbServerRunner(ProjectExplorer::RunControl *runControl);
+    ~GdbServerRunner();
+
+private:
+    void start() override;
+    void onFinished() override;
+
+    ProjectExplorer::ApplicationLauncher m_gdbServer;
+};
+
+extern DEBUGGER_EXPORT const char GdbServerRunnerWorkerId[];
+extern DEBUGGER_EXPORT const char GdbServerPortGathererWorkerId[];
 
 } // namespace Debugger

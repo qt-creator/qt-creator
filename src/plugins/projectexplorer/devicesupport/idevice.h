@@ -35,6 +35,8 @@
 #include <QSharedPointer>
 #include <QVariantMap>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
@@ -54,6 +56,8 @@ class Connection;
 class DeviceProcess;
 class DeviceProcessList;
 class Kit;
+class RunControl;
+class RunWorker;
 
 namespace Internal { class IDevicePrivate; }
 
@@ -161,6 +165,8 @@ public:
     virtual DeviceProcess *createProcess(QObject *parent) const;
     virtual DeviceProcessSignalOperation::Ptr signalOperation() const = 0;
     virtual DeviceEnvironmentFetcher::Ptr environmentFetcher() const;
+
+    virtual std::function<RunWorker *(RunControl *)> workerCreator(Core::Id) const { return {}; }
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
     DeviceState deviceState() const;
