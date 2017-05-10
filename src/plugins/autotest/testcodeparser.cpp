@@ -206,7 +206,7 @@ void TestCodeParser::onDocumentUpdated(const QString &fileName)
     Project *project = SessionManager::startupProject();
     if (!project)
         return;
-    if (!project->files(Project::SourceFiles).contains(fileName))
+    if (!SessionManager::projectContainsFile(project, Utils::FileName::fromString(fileName)))
         return;
 
     scanForTests(QStringList(fileName));
