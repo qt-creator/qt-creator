@@ -131,16 +131,16 @@ int PythonHighlighter::highlightLine(const QString &text, int initialState)
     bool hasOnlyWhitespace = true;
     while (!(tk = scanner.read()).isEndOfBlock()) {
         Format format = tk.format();
-        if (format == Format_Keyword) {
-            QString value = scanner.value(tk);
-            if (isImportKeyword(value) && hasOnlyWhitespace) {
-                setFormat(tk.begin(), tk.length(), formatForCategory(format));
-                highlightImport(scanner);
-                break;
-            }
+        if (format == Format_Keyword && isImportKeyword(scanner.value(tk)) && hasOnlyWhitespace) {
+            setFormat(tk.begin(), tk.length(), formatForCategory(format));
+            highlightImport(scanner);
+        } else if (format == Format_Comment
+                   || format == Format_String
+                   || format == Format_Doxygen) {
+            setFormatWithSpaces(text, tk.begin(), tk.length(), formatForCategory(format));
+        } else {
+            setFormat(tk.begin(), tk.length(), formatForCategory(format));
         }
-
-        setFormat(tk.begin(), tk.length(), formatForCategory(format));
         if (format != Format_Whitespace)
             hasOnlyWhitespace = false;
     }
