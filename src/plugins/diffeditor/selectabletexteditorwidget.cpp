@@ -100,25 +100,7 @@ void SelectableTextEditorWidget::setSelections(const QMap<int, QList<DiffSelecti
             }
             workingList.append(diffSelection);
         }
-        const int blockNumber = itBlock.key();
-        QVector<QTextLayout::FormatRange> selList;
-        for (int i = 0; i < workingList.count(); i++) {
-            const DiffSelection &diffSelection = workingList.at(i);
-            if (diffSelection.format) {
-                QTextLayout::FormatRange formatRange;
-                formatRange.start = diffSelection.start;
-                if (formatRange.start < 0)
-                    formatRange.start = 0;
-                formatRange.length = diffSelection.end < 0
-                        ? INT_MAX
-                        : diffSelection.end - diffSelection.start;
-                formatRange.format = *diffSelection.format;
-                if (diffSelection.end < 0)
-                    formatRange.format.setProperty(QTextFormat::FullWidthSelection, true);
-                selList.append(formatRange);
-            }
-        }
-        m_diffSelections.insert(blockNumber, workingList);
+        m_diffSelections.insert(itBlock.key(), workingList);
     }
 }
 
