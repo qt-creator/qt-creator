@@ -122,7 +122,7 @@ void FlameGraphViewTest::testContextMenu()
     QSignalSpy spy(&view, SIGNAL(showFullRange()));
 
     QTimer timer;
-    timer.setInterval(50);
+    timer.setInterval(500);
     int menuClicks = 0;
 
     connect(&timer, &QTimer::timeout, this, [&]() {
