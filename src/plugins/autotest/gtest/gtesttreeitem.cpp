@@ -239,7 +239,7 @@ bool GTestTreeItem::modify(const TestParseResult *result)
 
 bool GTestTreeItem::modifyTestSetContent(const GTestParseResult *result)
 {
-    bool hasBeenModified = modifyLineAndColumn(result->line, result->column);
+    bool hasBeenModified = modifyLineAndColumn(result);
     GTestTreeItem::TestStates states = result->disabled ? GTestTreeItem::Disabled
                                                         : GTestTreeItem::Enabled;
     if (m_state != states) {

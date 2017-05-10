@@ -115,39 +115,37 @@ Qt::ItemFlags TestTreeItem::flags(int /*column*/) const
     }
 }
 
-bool TestTreeItem::modifyTestCaseContent(const QString &name, unsigned line, unsigned column)
+bool TestTreeItem::modifyTestCaseContent(const TestParseResult *result)
 {
-    bool hasBeenModified = modifyName(name);
-    hasBeenModified |= modifyLineAndColumn(line, column);
+    bool hasBeenModified = modifyName(result->name);
+    hasBeenModified |= modifyLineAndColumn(result);
     return hasBeenModified;
 }
 
 bool TestTreeItem::modifyTestFunctionContent(const TestParseResult *result)
 {
     bool hasBeenModified = modifyFilePath(result->fileName);
-    hasBeenModified |= modifyLineAndColumn(result->line, result->column);
+    hasBeenModified |= modifyLineAndColumn(result);
     return hasBeenModified;
 }
 
-// TODO pass TestParseResult * to all modifyXYZ() OR remove completely if possible
-bool TestTreeItem::modifyDataTagContent(const QString &name, const QString &fileName,
-                                        unsigned line, unsigned column)
+bool TestTreeItem::modifyDataTagContent(const TestParseResult *result)
 {
-    bool hasBeenModified = modifyFilePath(fileName);
-    hasBeenModified |= modifyName(name);
-    hasBeenModified |= modifyLineAndColumn(line, column);
+
+    bool hasBeenModified = modifyTestFunctionContent(result);
+    hasBeenModified |= modifyName(result->name);
     return hasBeenModified;
 }
 
-bool TestTreeItem::modifyLineAndColumn(unsigned line, unsigned column)
+bool TestTreeItem::modifyLineAndColumn(const TestParseResult *result)
 {
     bool hasBeenModified = false;
-    if (m_line != line) {
-        m_line = line;
+    if (m_line != result->line) {
+        m_line = result->line;
         hasBeenModified = true;
     }
-    if (m_column != column) {
-        m_column = column;
+    if (m_column != result->column) {
+        m_column = result->column;
         hasBeenModified = true;
     }
     return hasBeenModified;

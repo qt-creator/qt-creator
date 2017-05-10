@@ -62,13 +62,13 @@ public:
     void setStates(TestStates states) { m_state = states; }
     void setState(TestState state) { m_state |= state; }
     TestStates state() const { return m_state; }
-    bool modifyTestSetContent(const GTestParseResult *result);
     TestTreeItem *findChildByNameStateAndFile(const QString &name,
                                               GTestTreeItem::TestStates state,
                                               const QString &proFile) const;
     QString nameSuffix() const;
 
 private:
+    bool modifyTestSetContent(const GTestParseResult *result);
     GTestTreeItem::TestStates m_state;
 };
 

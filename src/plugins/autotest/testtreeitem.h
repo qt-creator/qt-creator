@@ -70,11 +70,10 @@ public:
     virtual QVariant data(int column, int role) const override;
     virtual bool setData(int column, const QVariant &data, int role) override;
     virtual Qt::ItemFlags flags(int column) const override;
-    bool modifyTestCaseContent(const QString &name, unsigned line, unsigned column);
+    bool modifyTestCaseContent(const TestParseResult *result);
     bool modifyTestFunctionContent(const TestParseResult *result);
-    bool modifyDataTagContent(const QString &name, const QString &fileName, unsigned line,
-                              unsigned column);
-    bool modifyLineAndColumn(unsigned line, unsigned column);
+    bool modifyDataTagContent(const TestParseResult *result);
+    bool modifyLineAndColumn(const TestParseResult *result);
 
     const QString name() const { return m_name; }
     void setName(const QString &name) { m_name = name; }
@@ -112,12 +111,12 @@ public:
     virtual bool modify(const TestParseResult *result) = 0;
 
 protected:
-    bool modifyFilePath(const QString &filePath);
     typedef std::function<bool(const TestTreeItem *)> CompareFunction;
     TestTreeItem *findChildBy(CompareFunction compare) const;
 
 private:
     void revalidateCheckState();
+    bool modifyFilePath(const QString &filePath);
     bool modifyName(const QString &name);
 
     enum Status
