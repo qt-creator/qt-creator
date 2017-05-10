@@ -204,7 +204,7 @@ QmakeProFileNode *QmakeNodeTreeBuilder::buildTree(QmakeProject *project)
 {
     // Remove qmake implementation details that litter up the project data:
     Target *t = project->activeTarget();
-    Kit *k = t ? t->kit() : nullptr;
+    Kit *k = t ? t->kit() : KitManager::defaultKit();
     BaseQtVersion *qt = k ? QtKitInformation::qtVersion(k) : nullptr;
 
     const FileNameList toExclude = qt ? qt->directoriesToIgnoreInProjectTree() : FileNameList();
