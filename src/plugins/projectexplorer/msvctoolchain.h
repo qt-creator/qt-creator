@@ -86,6 +86,10 @@ protected:
                                     const Utils::Environment &env) const override;
 
 private:
+    QList<Utils::EnvironmentItem> environmentModifications() const;
+
+    mutable QList<Utils::EnvironmentItem> m_environmentModifications;
+
     QString m_varsBatArg; // Argument
 };
 
