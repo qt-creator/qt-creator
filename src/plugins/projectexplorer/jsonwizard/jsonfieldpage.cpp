@@ -689,7 +689,7 @@ void CheckBoxField::setup(JsonFieldPage *page, const QString &name)
     auto w = static_cast<TextFieldCheckBox *>(widget());
     QObject::connect(w, &TextFieldCheckBox::clicked,
                      page, [this, page]() { m_isModified = true; page->completeChanged();});
-    page->registerFieldWithName(name, w, "text", SIGNAL(textChanged(QString)));
+    page->registerFieldWithName(name, w, "compareText", SIGNAL(textChanged(QString)));
 }
 
 bool CheckBoxField::validate(MacroExpander *expander, QString *message)
@@ -822,7 +822,7 @@ QWidget *ComboBoxField::createWidget(const QString &displayName, JsonFieldPage *
 void ComboBoxField::setup(JsonFieldPage *page, const QString &name)
 {
     auto w = static_cast<TextFieldComboBox *>(widget());
-    page->registerFieldWithName(name, w, "text", SIGNAL(text4Changed(QString)));
+    page->registerFieldWithName(name, w, "indexText", SIGNAL(text4Changed(QString)));
     QObject::connect(w, &TextFieldComboBox::text4Changed,
                      page, [page](QString) { page->completeChanged(); });
 }
