@@ -1320,12 +1320,12 @@ class DumperBase:
         derefValue.name = '*'
         self.putItem(derefValue)
         self.currentChildType = savedCurrentChildType
-        self.putAddress(value.address())
 
     def putFormattedPointerX(self, value):
         self.putOriginalAddress(value.address())
         #warn("PUT FORMATTED: %s" % value)
         pointer = value.pointer()
+        self.putAddress(pointer)
         #warn('POINTER: 0x%x' % pointer)
         if pointer == 0:
             #warn('NULL POINTER')
