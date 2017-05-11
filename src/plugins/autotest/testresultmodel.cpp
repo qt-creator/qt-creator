@@ -225,8 +225,9 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
 void TestResultModel::removeCurrentTestMessage()
 {
     std::vector<Utils::TreeItem *> topLevelItems(rootItem()->begin(), rootItem()->end());
-    for (int row = topLevelItems.size() - 1; row >= 0; --row) {
-        TestResultItem *current = static_cast<TestResultItem *>(topLevelItems[row]);
+    auto end = topLevelItems.rend();
+    for (auto it = topLevelItems.rbegin(); it != end; ++it) {
+        TestResultItem *current = static_cast<TestResultItem *>(*it);
         if (current->testResult()->result() == Result::MessageCurrentTest) {
             destroyItem(current);
             break;
