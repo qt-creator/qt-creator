@@ -42,7 +42,8 @@ class NavigatorTreeModel;
 
 enum NavigatorRoles {
     ItemIsVisibleRole = Qt::UserRole,
-    RowIsPropertyRole = Qt::UserRole +1
+    RowIsPropertyRole = Qt::UserRole + 1,
+    ModelNodeRole = Qt::UserRole + 2
 };
 
 class NavigatorView : public AbstractView

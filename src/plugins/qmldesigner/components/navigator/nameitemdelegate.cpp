@@ -145,9 +145,14 @@ static QRect drawText(QPainter *painter,
     return textFrame;
 }
 
-static bool isVisible(const QAbstractItemModel *model, const QModelIndex &modelIndex)
+static bool isVisible(const QModelIndex &modelIndex)
 {
-    return model->data(modelIndex, ItemIsVisibleRole).toBool();
+    return modelIndex.model()->data(modelIndex, ItemIsVisibleRole).toBool();
+}
+
+static ModelNode getModelNode(const QModelIndex &modelIndex)
+{
+    return modelIndex.model()->data(modelIndex, ModelNodeRole).value<ModelNode>();
 }
 
 static void drawRedWavyUnderLine(QPainter *painter,
@@ -175,7 +180,7 @@ void NameItemDelegate::paint(QPainter *painter,
 
     int iconOffset = drawIcon(painter, styleOption, modelIndex);
 
-    if (!isVisible(modelIndex.model(), modelIndex))
+    if (!isVisible(modelIndex))
         painter->setOpacity(0.5);
 
     QRect textFrame = drawText(painter, styleOption, modelIndex, iconOffset);
@@ -203,7 +208,7 @@ QWidget *NameItemDelegate::createEditor(QWidget *parent,
                                         const QStyleOptionViewItem & /*option*/,
                                         const QModelIndex &index) const
 {
-    if (!m_navigatorTreeModel->hasModelNodeForIndex(index))
+    if (!getModelNode(index).isValid())
         return 0;
 
     return new QLineEdit(parent);
@@ -211,7 +216,7 @@ QWidget *NameItemDelegate::createEditor(QWidget *parent,
 
 void NameItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    const ModelNode node = m_navigatorTreeModel->modelNodeForIndex(index);
+    const ModelNode node = getModelNode(index);
     const QString value = node.id();
 
     QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);

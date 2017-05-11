@@ -216,25 +216,28 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
     if (index.column() == 0) {
         if (role == Qt::DisplayRole) {
             return modelNode.displayName();
-        } else if (role == Qt::DecorationRole)
-
+        } else if (role == Qt::DecorationRole) {
             if (currentQmlObjectNode.hasError())
                 return Utils::Icons::WARNING.icon();
 
-        return modelNode.typeIcon();
-    } else if (role == Qt::ToolTipRole) {
-        if (currentQmlObjectNode.hasError()) {
-            QString errorString = currentQmlObjectNode.error();
-            if (currentQmlObjectNode.isRootNode())
-                errorString.append(QString("\n%1").arg(tr("Changing the setting \"%1\" might solve the issue.").arg(
-                                                           tr("Use QML emulation layer that is built with the selected Qt"))));
+            return modelNode.typeIcon();
 
-            return errorString;
+        } else if (role == Qt::ToolTipRole) {
+            if (currentQmlObjectNode.hasError()) {
+                QString errorString = currentQmlObjectNode.error();
+                if (currentQmlObjectNode.isRootNode())
+                    errorString.append(QString("\n%1").arg(tr("Changing the setting \"%1\" might solve the issue.").arg(
+                                                               tr("Use QML emulation layer that is built with the selected Qt"))));
+
+                return errorString;
+            }
+            if (modelNode.metaInfo().isValid())
+                return modelNode.type();
+            else
+                return msgUnknownItem(QString::fromUtf8(modelNode.type()));
+        } else if (role == ModelNodeRole) {
+            return QVariant::fromValue<ModelNode>(modelNode);
         }
-        if (modelNode.metaInfo().isValid())
-            return modelNode.type();
-        else
-            return msgUnknownItem(QString::fromUtf8(modelNode.type()));
     } else if (index.column() == 1) { //export
         if (role == Qt::CheckStateRole)
             return currentQmlObjectNode.isAliasExported()  ? Qt::Checked : Qt::Unchecked;
