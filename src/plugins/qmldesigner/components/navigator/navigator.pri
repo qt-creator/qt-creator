@@ -12,6 +12,7 @@ HEADERS += navigatorview.h \
     navigatorwidget.h \
     nameitemdelegate.h \
     iconcheckboxitemdelegate.h \
-    navigatortreeview.h
+    navigatortreeview.h \
+    navigatormodelinterface.h
 
 RESOURCES += navigator.qrc

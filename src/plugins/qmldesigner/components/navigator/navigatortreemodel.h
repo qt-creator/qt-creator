@@ -25,11 +25,12 @@
 
 #pragma once
 
+#include "navigatormodelinterface.h"
+
 #include <modelnode.h>
 #include <nodemetainfo.h>
 
-#include <QStandardItem>
-#include <QStandardItemModel>
+#include <QAbstractItemModel>
 #include <QPointer>
 
 namespace QmlDesigner {
@@ -38,7 +39,7 @@ class Model;
 class NavigatorView;
 class ModelNode;
 
-class NavigatorTreeModel : public QAbstractItemModel
+class NavigatorTreeModel : public QAbstractItemModel, public NavigatorModelInterface
 {
     Q_OBJECT
 
@@ -74,7 +75,7 @@ public:
                       const QModelIndex &parent) override;
 
 
-    QModelIndex indexForModelNode(const ModelNode &node) const;
+    QModelIndex indexForModelNode(const ModelNode &node) const override;
 
     QModelIndex createIndexFromModelNode(int row, int column, const ModelNode &modelNode) const;
 
@@ -82,10 +83,10 @@ public:
     Qt::DropActions supportedDragActions() const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
-    void notifyDataChanged(const ModelNode &modelNode);
-    void notifyModelNodesRemoved(const QList<ModelNode> &modelNodes);
-    void notifyModelNodesInserted(const QList<ModelNode> &modelNodes);
-    void notifyModelNodesMoved(const QList<ModelNode> &modelNodes);
+    void notifyDataChanged(const ModelNode &modelNode) override;
+    void notifyModelNodesRemoved(const QList<ModelNode> &modelNodes) override;
+    void notifyModelNodesInserted(const QList<ModelNode> &modelNodes) override;
+    void notifyModelNodesMoved(const QList<ModelNode> &modelNodes) override;
 
 private:
     void moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes, int targetIndex);

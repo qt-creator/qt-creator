@@ -80,6 +80,7 @@ NavigatorView::NavigatorView(QObject* parent) :
 
     m_treeModel->setView(this);
     m_widget->setTreeModel(m_treeModel.data());
+    m_currentModelInterface = m_treeModel;
 
     connect(treeWidget()->selectionModel(), &QItemSelectionModel::selectionChanged, this, &NavigatorView::changeSelection);
 
@@ -171,7 +172,7 @@ void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & prop
          */
 
         if (bindingProperty.isAliasExport())
-            m_treeModel->notifyDataChanged(modelNodeForId(bindingProperty.expression()));
+            m_currentModelInterface->notifyDataChanged(modelNodeForId(bindingProperty.expression()));
     }
 }
 
@@ -214,7 +215,7 @@ void NavigatorView::nodeRemoved(const ModelNode &removedNode,
                                 const NodeAbstractProperty & /*parentProperty*/,
                                 AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
-    m_treeModel->notifyModelNodesRemoved({removedNode});
+    m_currentModelInterface->notifyModelNodesRemoved({removedNode});
 }
 
 void NavigatorView::nodeReparented(const ModelNode &modelNode,
@@ -223,15 +224,15 @@ void NavigatorView::nodeReparented(const ModelNode &modelNode,
                                    AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
     if (!oldPropertyParent.isValid())
-        m_treeModel->notifyModelNodesInserted({modelNode});
+        m_currentModelInterface->notifyModelNodesInserted({modelNode});
     else
-        m_treeModel->notifyModelNodesMoved({modelNode});
-    treeWidget()->expand(m_treeModel->indexForModelNode(modelNode));
+        m_currentModelInterface->notifyModelNodesMoved({modelNode});
+    treeWidget()->expand(indexForModelNode(modelNode));
 }
 
 void NavigatorView::nodeIdChanged(const ModelNode& modelNode, const QString & /*newId*/, const QString & /*oldId*/)
 {
-    m_treeModel->notifyDataChanged(modelNode);
+    m_currentModelInterface->notifyDataChanged(modelNode);
 }
 
 void NavigatorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& /*propertyList*/)
@@ -248,30 +249,30 @@ void NavigatorView::propertiesRemoved(const QList<AbstractProperty> &propertyLis
         }
     }
 
-    m_treeModel->notifyModelNodesRemoved(modelNodes);
+    m_currentModelInterface->notifyModelNodesRemoved(modelNodes);
 }
 
 void NavigatorView::rootNodeTypeChanged(const QString & /*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
-    m_treeModel->notifyDataChanged(rootModelNode());
+    m_currentModelInterface->notifyDataChanged(rootModelNode());
 }
 
 void NavigatorView::nodeTypeChanged(const ModelNode &modelNode, const TypeName &, int , int)
 {
-    m_treeModel->notifyDataChanged(modelNode);
+    m_currentModelInterface->notifyDataChanged(modelNode);
 }
 
 void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode,
                                          const PropertyName & /*name*/,
                                          const QVariant & /*data*/)
 {
-    m_treeModel->notifyDataChanged(modelNode);
+    m_currentModelInterface->notifyDataChanged(modelNode);
 }
 
 void NavigatorView::instanceErrorChanged(const QVector<ModelNode> &errorNodeList)
 {
     foreach (const ModelNode &modelNode, errorNodeList)
-        m_treeModel->notifyDataChanged(modelNode);
+        m_currentModelInterface->notifyDataChanged(modelNode);
 }
 
 void NavigatorView::nodeOrderChanged(const NodeListProperty & listProperty,
@@ -280,7 +281,7 @@ void NavigatorView::nodeOrderChanged(const NodeListProperty & listProperty,
 {
     bool blocked = blockSelectionChangedSignal(true);
 
-    m_treeModel->notifyModelNodesMoved(listProperty.directSubNodes());
+    m_currentModelInterface->notifyModelNodesMoved(listProperty.directSubNodes());
 
     // make sure selection is in sync again
     updateItemSelection();
@@ -290,12 +291,22 @@ void NavigatorView::nodeOrderChanged(const NodeListProperty & listProperty,
 
 void NavigatorView::changeToComponent(const QModelIndex &index)
 {
-    if (index.isValid() && m_treeModel->data(index, Qt::UserRole).isValid()) {
+    if (index.isValid() && currentModel()->data(index, Qt::UserRole).isValid()) {
         const ModelNode doubleClickNode = modelNodeForIndex(index);
         if (doubleClickNode.metaInfo().isFileComponent())
             Core::EditorManager::openEditor(doubleClickNode.metaInfo().componentFileName(),
                                             Core::Id(), Core::EditorManager::DoNotMakeVisible);
     }
+}
+
+QModelIndex NavigatorView::indexForModelNode(const ModelNode &modelNode) const
+{
+    return m_currentModelInterface->indexForModelNode(modelNode);
+}
+
+QAbstractItemModel *NavigatorView::currentModel() const
+{
+    return treeWidget()->model();
 }
 
 void NavigatorView::leftButtonClicked()
@@ -415,10 +426,10 @@ void NavigatorView::updateItemSelection()
 {
     QItemSelection itemSelection;
     foreach (const ModelNode &node, selectedModelNodes()) {
-        const QModelIndex index = m_treeModel->indexForModelNode(node);
+        const QModelIndex index = indexForModelNode(node);
         if (index.isValid()) {
-            const QModelIndex beginIndex(m_treeModel->index(index.row(), 0, index.parent()));
-            const QModelIndex endIndex(m_treeModel->index(index.row(), m_treeModel->columnCount(index.parent()) - 1, index.parent()));
+            const QModelIndex beginIndex(currentModel()->index(index.row(), 0, index.parent()));
+            const QModelIndex endIndex(currentModel()->index(index.row(), currentModel()->columnCount(index.parent()) - 1, index.parent()));
             if (beginIndex.isValid() && endIndex.isValid())
                 itemSelection.select(beginIndex, endIndex);
         }
@@ -429,7 +440,7 @@ void NavigatorView::updateItemSelection()
     blockSelectionChangedSignal(blocked);
 
     if (!selectedModelNodes().isEmpty())
-        treeWidget()->scrollTo(m_treeModel->indexForModelNode(selectedModelNodes().first()));
+        treeWidget()->scrollTo(indexForModelNode(selectedModelNodes().first()));
 
     // make sure selected nodes a visible
     foreach (const QModelIndex &selectedIndex, itemSelection.indexes()) {
@@ -438,7 +449,7 @@ void NavigatorView::updateItemSelection()
     }
 }
 
-QTreeView *NavigatorView::treeWidget()
+QTreeView *NavigatorView::treeWidget() const
 {
     if (m_widget)
         return m_widget->treeView();

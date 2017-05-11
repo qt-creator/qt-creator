@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "navigatormodelinterface.h"
+
 #include <abstractview.h>
 
 #include <QPointer>
@@ -33,6 +35,7 @@ QT_BEGIN_NAMESPACE
 class QTreeView;
 class QItemSelection;
 class QModelIndex;
+class QAbstractItemModel;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -89,6 +92,8 @@ private:
     void changeSelection(const QItemSelection &selected, const QItemSelection &deselected);
     void updateItemSelection();
     void changeToComponent(const QModelIndex &index);
+    QModelIndex indexForModelNode(const ModelNode &modelNode) const;
+    QAbstractItemModel *currentModel() const;
 
     void leftButtonClicked();
     void rightButtonClicked();
@@ -96,7 +101,7 @@ private:
     void downButtonClicked();
 
 protected: //functions
-    QTreeView *treeWidget();
+    QTreeView *treeWidget() const;
     NavigatorTreeModel *treeModel();
     bool blockSelectionChangedSignal(bool block);
     void expandRecursively(const QModelIndex &index);
@@ -106,6 +111,8 @@ private:
 
     QPointer<NavigatorWidget> m_widget;
     QPointer<NavigatorTreeModel> m_treeModel;
+
+    NavigatorModelInterface *m_currentModelInterface = nullptr;
 
     friend class TestNavigator;
 };
