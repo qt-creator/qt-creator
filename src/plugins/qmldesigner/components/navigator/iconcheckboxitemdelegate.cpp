@@ -57,9 +57,14 @@ QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem & /*option*/
     return QSize(15, 20);
 }
 
-static bool isChecked(NavigatorTreeModel *navigatorTreeModel, const QModelIndex &modelIndex)
+static bool isChecked(const QAbstractItemModel *model, const QModelIndex &modelIndex)
 {
-    return navigatorTreeModel->data(modelIndex, Qt::CheckStateRole) == Qt::Checked;
+    return model->data(modelIndex, Qt::CheckStateRole) == Qt::Checked;
+}
+
+static bool isVisible(const QAbstractItemModel *model, const QModelIndex &modelIndex)
+{
+    return model->data(modelIndex, ItemIsVisibleRole).toBool();
 }
 
 void IconCheckboxItemDelegate::paint(QPainter *painter,
@@ -76,10 +81,10 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
 
     if (!m_navigatorTreeModel->modelNodeForIndex(modelIndex).isRootNode()) {
 
-        if (m_navigatorTreeModel->isNodeVisible(modelIndex))
+        if (!isVisible(modelIndex.model(), modelIndex))
             painter->setOpacity(0.5);
 
-        const bool checked = isChecked(m_navigatorTreeModel, modelIndex);
+        const bool checked = isChecked(modelIndex.model(), modelIndex);
         painter->drawPixmap(styleOption.rect.x() + xOffset, styleOption.rect.y() + yOffset,
                             checked ? m_checkedPixmap : m_uncheckedPixmap);
     }

@@ -251,6 +251,10 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
 
     if (!modelNode.isValid())
         return QVariant();
+
+    if (role == ItemIsVisibleRole) //independent of column
+        return m_view->isNodeVisible(modelNode) ? Qt::Unchecked : Qt::Checked;
+
     if (index.column() == 0) {
         if (role == Qt::DisplayRole) {
             return modelNode.displayName();

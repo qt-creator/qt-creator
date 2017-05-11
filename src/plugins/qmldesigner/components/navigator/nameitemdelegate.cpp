@@ -143,6 +143,11 @@ static QRect drawText(QPainter *painter,
     return textFrame;
 }
 
+static bool isVisible(const QAbstractItemModel *model, const QModelIndex &modelIndex)
+{
+    return model->data(modelIndex, ItemIsVisibleRole).toBool();
+}
+
 static void drawRedWavyUnderLine(QPainter *painter,
                                  const QStyleOptionViewItem &styleOption,
                                  const QRect &textFrame)
@@ -168,7 +173,7 @@ void NameItemDelegate::paint(QPainter *painter,
 
     int iconOffset = drawIcon(painter, styleOption, modelIndex);
 
-    if (m_navigatorTreeModel->isNodeVisible(modelIndex))
+    if (!isVisible(modelIndex.model(), modelIndex))
         painter->setOpacity(0.5);
 
     QRect textFrame = drawText(painter, styleOption, modelIndex, iconOffset);

@@ -40,6 +40,11 @@ namespace QmlDesigner {
 class NavigatorWidget;
 class NavigatorTreeModel;
 
+enum NavigatorRoles {
+    ItemIsVisibleRole = Qt::UserRole,
+    RowIsPropertyRole = Qt::UserRole +1
+};
+
 class NavigatorView : public AbstractView
 {
     Q_OBJECT
