@@ -78,9 +78,6 @@ public:
 
     QModelIndex createIndexFromModelNode(int row, int column, const ModelNode &modelNode) const;
 
-    void setId(const QModelIndex &index, const QString &newId);
-    void openContextMenu(const QPoint &position);
-
     Qt::DropActions supportedDropActions() const override;
     Qt::DropActions supportedDragActions() const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
@@ -89,8 +86,6 @@ public:
     void notifyModelNodesRemoved(const QList<ModelNode> &modelNodes);
     void notifyModelNodesInserted(const QList<ModelNode> &modelNodes);
     void notifyModelNodesMoved(const QList<ModelNode> &modelNodes);
-    bool isNodeVisible(const QModelIndex &index) const;
-    bool hasError(const QModelIndex &index) const;
 
 private:
     void moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes, int targetIndex);

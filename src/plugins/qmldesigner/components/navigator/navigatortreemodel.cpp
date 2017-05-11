@@ -36,7 +36,6 @@
 #include <abstractview.h>
 #include <invalididexception.h>
 #include <rewritingexception.h>
-#include <modelnodecontextmenu.h>
 #include <qmlitemnode.h>
 
 #include <coreplugin/icore.h>
@@ -411,33 +410,6 @@ QModelIndex NavigatorTreeModel::createIndexFromModelNode(int row, int column, co
     return index;
 }
 
-void NavigatorTreeModel::setId(const QModelIndex &index, const QString &newId)
-{
-    ModelNode modelNode = modelNodeForIndex(index);
-
-    if (!modelNode.isValid())
-        return;
-
-    if (modelNode.id() == newId)
-        return;
-
-    if (!modelNode.isValidId(newId)) {
-        Core::AsynchronousMessageBox::warning(tr("Invalid Id"), tr("%1 is an invalid id.").arg(newId));
-    } else if (modelNode.view()->hasId(newId)) {
-        Core::AsynchronousMessageBox::warning(tr("Invalid Id"), tr("%1 already exists.").arg(newId));
-    } else  {
-        modelNode.setIdWithRefactoring(newId);
-    }
-}
-
-void NavigatorTreeModel::openContextMenu(const QPoint &position)
-{
-    QTC_ASSERT(m_view, return);
-#ifndef QMLDESIGNER_TEST
-    ModelNodeContextMenu::showContextMenu(m_view.data(), position, QPoint(), false);
-#endif
-}
-
 bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
                                       Qt::DropAction action,
                                       int rowNumber,
@@ -669,16 +641,5 @@ void NavigatorTreeModel::notifyModelNodesMoved(const QList<ModelNode> &modelNode
     layoutAboutToBeChanged(indexes);
     layoutChanged(indexes);
 }
-
-bool NavigatorTreeModel::isNodeVisible(const QModelIndex &index) const
-{
-    return m_view->isNodeVisible(modelNodeForIndex(index));
-}
-
-bool NavigatorTreeModel::hasError(const QModelIndex &index) const
-{
-    return QmlObjectNode(modelNodeForIndex(index)).hasError();
-}
-
 
 } // QmlDesigner
