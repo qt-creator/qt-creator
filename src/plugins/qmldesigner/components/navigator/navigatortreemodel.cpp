@@ -132,22 +132,6 @@ static inline QString msgUnknownItem(const QString &t)
     return NavigatorTreeModel::tr("Unknown item: %1").arg(t);
 }
 
-static QIcon getTypeIcon(const ModelNode &modelNode)
-{
-    if (modelNode.isValid()) {
-        // if node has no own icon, search for it in the itemlibrary
-        const ItemLibraryInfo *libraryInfo = modelNode.model()->metaInfo().itemLibraryInfo();
-        QList <ItemLibraryEntry> itemLibraryEntryList = libraryInfo->entriesForType(
-                    modelNode.type(), modelNode.majorVersion(), modelNode.minorVersion());
-        if (!itemLibraryEntryList.isEmpty())
-            return itemLibraryEntryList.first().typeIcon();
-        else if (modelNode.metaInfo().isValid())
-            return QIcon(QStringLiteral(":/ItemLibrary/images/item-default-icon.png"));
-    }
-
-    return QIcon(QStringLiteral(":/ItemLibrary/images/item-invalid-icon.png"));
-}
-
 static bool isRootNodeOrAcceptedChild(const ModelNode &modelNode)
 {
     return modelNode.isRootNode() || acceptedModelNodeChildren(modelNode.parentProperty().parentModelNode()).contains(modelNode);
@@ -272,7 +256,7 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
             if (currentQmlObjectNode.hasError())
                 return Utils::Icons::WARNING.icon();
 
-        return getTypeIcon(modelNode);
+        return modelNode.typeIcon();
     } else if (role == Qt::ToolTipRole) {
         if (currentQmlObjectNode.hasError()) {
             QString errorString = currentQmlObjectNode.error();

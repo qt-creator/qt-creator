@@ -1178,4 +1178,20 @@ bool ModelNode::isSubclassOf(const TypeName &typeName, int majorVersion, int min
     return false;
 }
 
+QIcon ModelNode::typeIcon() const
+{
+    if (isValid()) {
+        // if node has no own icon, search for it in the itemlibrary
+        const ItemLibraryInfo *libraryInfo = model()->metaInfo().itemLibraryInfo();
+        QList <ItemLibraryEntry> itemLibraryEntryList = libraryInfo->entriesForType(
+                    type(), majorVersion(), minorVersion());
+        if (!itemLibraryEntryList.isEmpty())
+            return itemLibraryEntryList.first().typeIcon();
+        else if (metaInfo().isValid())
+            return QIcon(QStringLiteral(":/ItemLibrary/images/item-default-icon.png"));
+    }
+
+    return QIcon(QStringLiteral(":/ItemLibrary/images/item-invalid-icon.png"));
+}
+
 }

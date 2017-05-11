@@ -191,6 +191,7 @@ public:
 
     bool isComponent() const;
     bool isSubclassOf(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
+    QIcon typeIcon() const;
 
 private: // functions
     Internal::InternalNodePointer internalNode() const;
