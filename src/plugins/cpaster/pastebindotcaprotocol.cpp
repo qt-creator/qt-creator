@@ -34,8 +34,8 @@
 #include <QJsonValue>
 #include <QJsonObject>
 
-static const char urlC[] = "http://pastebin.ca/";
-static const char internalUrlC[] = "http://pbin.ca/";
+static const char urlC[] = "https://pastebin.ca/";
+static const char internalUrlC[] = "https://pbin.ca/";
 static const char protocolNameC[] = "Pastebin.Ca";
 
 static inline QByteArray expiryValue(int expiryDays)
