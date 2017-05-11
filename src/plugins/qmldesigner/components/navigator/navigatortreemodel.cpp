@@ -210,7 +210,7 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if (role == ItemIsVisibleRole) //independent of column
-        return m_view->isNodeVisible(modelNode) ? Qt::Unchecked : Qt::Checked;
+        return m_view->isNodeInvisible(modelNode) ? Qt::Unchecked : Qt::Checked;
 
     if (index.column() == 0) {
         if (role == Qt::DisplayRole) {
@@ -245,7 +245,7 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
                       "This is independent of the visibility property in QML.");
     } else if (index.column() == 2) { //visible
         if (role == Qt::CheckStateRole)
-            return m_view->isNodeVisible(modelNode) ? Qt::Unchecked : Qt::Checked;
+            return m_view->isNodeInvisible(modelNode) ? Qt::Unchecked : Qt::Checked;
         else if (role == Qt::ToolTipRole)
             return tr("Toggles whether this item is exported as an "
                       "alias property of the root item.");

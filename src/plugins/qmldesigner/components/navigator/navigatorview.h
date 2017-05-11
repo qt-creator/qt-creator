@@ -85,7 +85,7 @@ public:
     void bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags) override;
 
     void handleChangedExport(const ModelNode &modelNode, bool exported);
-    bool isNodeVisible(const ModelNode &modelNode) const;
+    bool isNodeInvisible(const ModelNode &modelNode) const;
 
 private:
     ModelNode modelNodeForIndex(const QModelIndex &modelIndex) const;
