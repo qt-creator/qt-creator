@@ -69,12 +69,25 @@
             \endlist
 
         \li A tool chain for building applications for Android devices provided
-            by the
-            \l{http://developer.android.com/sdk/index.html}{Android SDK} and
-            \l{http://developer.android.com/tools/sdk/ndk/index.html}
+            by the \l{http://developer.android.com/tools/sdk/ndk/index.html}
             {Android NDK} from Google.
 
-            \note Android Studio is currently not supported by \QC.
+        \li \l{http://developer.android.com/sdk/index.html}{Android SDK Tools}
+
+            After installing the Tools, update the Android SDK to get the API
+            and tools packages required for development. You can use the
+            \l{http://developer.android.com/tools/help/android.html}{android}
+            tool that comes with the SDK Tools package. For example, on Ubuntu
+            the following command starts the SDK update:
+
+            \code
+            ./android update sdk
+            \endcode
+
+            \note The android tool is deprecated since SDK tools version 25.3.0.
+            Consider using
+            \l{https://developer.android.com/studio/command-line/sdkmanager.html}
+            {sdkmanager} instead.
 
         \li On Windows, you also need the following:
 
@@ -95,18 +108,6 @@
 
         \endlist
 
-        After installing these tools, update the Android SDK to get the API
-        and tools packages required for development. You can use the
-        \l{http://developer.android.com/tools/help/android.html}{android} tool
-        that comes with the SDK Tools package. For example, on Ubuntu the
-        following command starts the
-        \l{http://developer.android.com/sdk/installing/adding-packages.html}
-        {Android SDK Manager}, where you can select the packages to install:
-
-        \code
-        ./android update sdk
-        \endcode
-
     \section1 Selecting the APK Build Tool
 
     On Android, applications are distributed in specially structured type of ZIP
@@ -117,13 +118,17 @@
 
         \li It is 25 to 50 percent faster than Ant when rebuilding packages.
 
-        \li It is integrated with Android Studio.
+        \li It is delivered with Qt 5.9.
 
         \li It supports easily adding Android Extras libraries, such as
             Google Play services or Android extension files (.obb) to your
             project.
 
     \endlist
+
+    \note Android SDK tools version 25.3.0 onwards do not contain Ant scripts
+    anymore. Therefore, Gradle builds are forced and you must use Qt 5.9 or
+    later when using these tools versions.
 
     \section1 Setting Up the Development Environment
 
