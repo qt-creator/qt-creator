@@ -93,14 +93,12 @@ NavigatorView::NavigatorView(QObject* parent) :
     IconCheckboxItemDelegate *showDelegate =
             new IconCheckboxItemDelegate(this,
                                          Utils::Icons::EYE_OPEN_TOOLBAR.pixmap(),
-                                         Utils::Icons::EYE_CLOSED_TOOLBAR.pixmap(),
-                                         m_treeModel.data());
+                                         Utils::Icons::EYE_CLOSED_TOOLBAR.pixmap());
 
     IconCheckboxItemDelegate *exportDelegate =
             new IconCheckboxItemDelegate(this,
                                          Icons::EXPORT_CHECKED.pixmap(),
-                                         Icons::EXPORT_UNCHECKED.pixmap(),
-                                         m_treeModel.data());
+                                         Icons::EXPORT_UNCHECKED.pixmap());
 
 #ifdef _LOCK_ITEMS_
     IconCheckboxItemDelegate *lockDelegate = new IconCheckboxItemDelegate(this,":/qmldesigner/images/lock.png",

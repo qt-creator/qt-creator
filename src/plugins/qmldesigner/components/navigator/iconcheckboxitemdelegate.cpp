@@ -43,12 +43,10 @@ namespace QmlDesigner {
 
 IconCheckboxItemDelegate::IconCheckboxItemDelegate(QObject *parent,
                                                    const QPixmap &checkedPixmap,
-                                                   const QPixmap &uncheckedPixmap,
-                                                   NavigatorTreeModel *treeModel)
+                                                   const QPixmap &uncheckedPixmap)
     : QStyledItemDelegate(parent),
       m_checkedPixmap(checkedPixmap),
-      m_uncheckedPixmap(uncheckedPixmap),
-      m_navigatorTreeModel(treeModel)
+      m_uncheckedPixmap(uncheckedPixmap)
 {}
 
 QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem & /*option*/,
@@ -57,14 +55,19 @@ QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem & /*option*/
     return QSize(15, 20);
 }
 
-static bool isChecked(const QAbstractItemModel *model, const QModelIndex &modelIndex)
+static bool isChecked(const QModelIndex &modelIndex)
 {
-    return model->data(modelIndex, Qt::CheckStateRole) == Qt::Checked;
+    return modelIndex.model()->data(modelIndex, Qt::CheckStateRole) == Qt::Checked;
 }
 
-static bool isVisible(const QAbstractItemModel *model, const QModelIndex &modelIndex)
+static bool isVisible(const QModelIndex &modelIndex)
 {
-    return model->data(modelIndex, ItemIsVisibleRole).toBool();
+    return modelIndex.model()->data(modelIndex, ItemIsVisibleRole).toBool();
+}
+
+static ModelNode getModelNode(const QModelIndex &modelIndex)
+{
+    return modelIndex.model()->data(modelIndex, ModelNodeRole).value<ModelNode>();
 }
 
 static bool rowIsPropertyRole(const QAbstractItemModel *model, const QModelIndex &modelIndex)
@@ -87,12 +90,12 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
     if (styleOption.state & QStyle::State_Selected)
         NavigatorTreeView::drawSelectionBackground(painter, styleOption);
 
-    if (!m_navigatorTreeModel->modelNodeForIndex(modelIndex).isRootNode()) {
+    if (!getModelNode(modelIndex).isRootNode()) {
 
-        if (!isVisible(modelIndex.model(), modelIndex))
+        if (!isVisible(modelIndex))
             painter->setOpacity(0.5);
 
-        const bool checked = isChecked(modelIndex.model(), modelIndex);
+        const bool checked = isChecked(modelIndex);
         painter->drawPixmap(styleOption.rect.x() + xOffset, styleOption.rect.y() + yOffset,
                             checked ? m_checkedPixmap : m_uncheckedPixmap);
     }
