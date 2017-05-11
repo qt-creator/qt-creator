@@ -366,7 +366,7 @@ void NavigatorTreeModel::setView(NavigatorView *view)
 
 QStringList NavigatorTreeModel::mimeTypes() const
 {
-    QStringList types({"application/vnd.modelnode.list",
+    const static QStringList types({"application/vnd.modelnode.list",
                        "application/vnd.bauhaus.itemlibraryinfo",
                        "application/vnd.bauhaus.libraryresource"});
 
@@ -502,7 +502,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
 
     if (foundTarget) {
         const ItemLibraryEntry itemLibraryEntry =
-                createItemLibraryEntryFromMimeData(mimeData->data(QLatin1String("application/vnd.bauhaus.itemlibraryinfo")));
+                createItemLibraryEntryFromMimeData(mimeData->data("application/vnd.bauhaus.itemlibraryinfo"));
 
         if (!NodeHints::fromItemLibraryEntry(itemLibraryEntry).canBeDroppedInNavigator())
             return;
