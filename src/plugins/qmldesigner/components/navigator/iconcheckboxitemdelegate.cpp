@@ -67,10 +67,18 @@ static bool isVisible(const QAbstractItemModel *model, const QModelIndex &modelI
     return model->data(modelIndex, ItemIsVisibleRole).toBool();
 }
 
+static bool rowIsPropertyRole(const QAbstractItemModel *model, const QModelIndex &modelIndex)
+{
+    return model->data(modelIndex, RowIsPropertyRole).toBool();
+}
+
 void IconCheckboxItemDelegate::paint(QPainter *painter,
                                      const QStyleOptionViewItem &styleOption,
                                      const QModelIndex &modelIndex) const
 {
+    if (rowIsPropertyRole(modelIndex.model(), modelIndex))
+        return; //Do not paint icons for property rows
+
     const int yOffset = (styleOption.rect.height()
                          - (m_checkedPixmap.height() / painter->device()->devicePixelRatio())) / 2;
     const int xOffset = 2;
