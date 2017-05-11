@@ -74,7 +74,8 @@ void QmakeKitInformation::setup(Kit *k)
     if (!version)
         return;
 
-    if (version->type() == "Boot2Qt.QtVersionType") // HACK: Ignore boot2Qt kits!
+    // HACK: Ignore Boot2Qt kits!
+    if (version->type() == "Boot2Qt.QtVersionType" || version->type() == "Qdb.EmbeddedLinuxQt")
         return;
 
     FileName spec = QmakeKitInformation::mkspec(k);
