@@ -106,11 +106,6 @@ static bool isRootNodeOrAcceptedChild(const ModelNode &modelNode)
     return modelNode.isRootNode() || acceptedModelNodeChildren(modelNode.parentProperty().parentModelNode()).contains(modelNode);
 }
 
-static bool nodeCanBeHandled(const ModelNode &modelNode)
-{
-    return modelNode.metaInfo().isGraphicalItem() && isRootNodeOrAcceptedChild(modelNode);
-}
-
 static void removePosition(const ModelNode &node)
 {
     ModelNode modelNode = node;
