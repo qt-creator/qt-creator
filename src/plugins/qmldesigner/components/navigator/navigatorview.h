@@ -85,6 +85,7 @@ public:
     bool isNodeVisible(const ModelNode &modelNode) const;
 
 private:
+    ModelNode modelNodeForIndex(const QModelIndex &modelIndex) const;
     void changeSelection(const QItemSelection &selected, const QItemSelection &deselected);
     void updateItemSelection();
     void changeToComponent(const QModelIndex &index);

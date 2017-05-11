@@ -198,7 +198,12 @@ void NavigatorView::handleChangedExport(const ModelNode &modelNode, bool exporte
 
 bool NavigatorView::isNodeVisible(const ModelNode &modelNode) const
 {
-     return modelNode.auxiliaryData("invisible").toBool();
+    return modelNode.auxiliaryData("invisible").toBool();
+}
+
+ModelNode NavigatorView::modelNodeForIndex(const QModelIndex &modelIndex) const
+{
+    return modelIndex.model()->data(modelIndex, ModelNodeRole).value<ModelNode>();
 }
 
 void NavigatorView::nodeAboutToBeRemoved(const ModelNode & /*removedNode*/)
@@ -286,7 +291,7 @@ void NavigatorView::nodeOrderChanged(const NodeListProperty & listProperty,
 void NavigatorView::changeToComponent(const QModelIndex &index)
 {
     if (index.isValid() && m_treeModel->data(index, Qt::UserRole).isValid()) {
-        const ModelNode doubleClickNode = m_treeModel->modelNodeForIndex(index);
+        const ModelNode doubleClickNode = modelNodeForIndex(index);
         if (doubleClickNode.metaInfo().isFileComponent())
             Core::EditorManager::openEditor(doubleClickNode.metaInfo().componentFileName(),
                                             Core::Id(), Core::EditorManager::DoNotMakeVisible);
@@ -389,8 +394,12 @@ void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, con
 
     QSet<ModelNode> nodeSet;
 
-    foreach (const QModelIndex &index, treeWidget()->selectionModel()->selectedIndexes())
-        nodeSet.insert(m_treeModel->modelNodeForIndex(index));
+    for (const QModelIndex &index : treeWidget()->selectionModel()->selectedIndexes()) {
+
+        const ModelNode modelNode = modelNodeForIndex(index);
+        if (modelNode.isValid())
+            nodeSet.insert(modelNode);
+    }
 
     bool blocked = blockSelectionChangedSignal(true);
     setSelectedModelNodes(nodeSet.toList());
