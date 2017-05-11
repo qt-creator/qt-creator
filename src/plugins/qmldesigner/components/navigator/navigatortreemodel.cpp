@@ -101,11 +101,6 @@ static inline QString msgUnknownItem(const QString &t)
     return NavigatorTreeModel::tr("Unknown item: %1").arg(t);
 }
 
-static bool isRootNodeOrAcceptedChild(const ModelNode &modelNode)
-{
-    return modelNode.isRootNode() || acceptedModelNodeChildren(modelNode.parentProperty().parentModelNode()).contains(modelNode);
-}
-
 static void removePosition(const ModelNode &node)
 {
     ModelNode modelNode = node;
