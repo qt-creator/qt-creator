@@ -107,9 +107,11 @@ NameItemDelegate::NameItemDelegate(QObject *parent, NavigatorTreeModel *treeMode
 static int drawIcon(QPainter *painter, const QStyleOptionViewItem &styleOption, const QModelIndex &modelIndex)
 {
     QIcon icon = modelIndex.data(Qt::DecorationRole).value<QIcon>();
-    int pixmapSize = 16;
+
+    const int pixmapSize = icon.isNull() ? 4 : 16;
 
     QPixmap pixmap = icon.pixmap(pixmapSize, pixmapSize);
+
     painter->drawPixmap(styleOption.rect.x() + 1 , styleOption.rect.y() + 2, pixmap);
 
     return pixmapSize;
