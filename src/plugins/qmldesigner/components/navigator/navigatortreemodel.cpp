@@ -54,35 +54,7 @@
 
 #include <QtDebug>
 
-#define DISABLE_VISIBLE_PROPERTIES
-
 namespace QmlDesigner {
-
-#ifndef DISABLE_VISIBLE_PROPERTIES
-static PropertyNameList visibleProperties(const ModelNode &node)
-{
-    PropertyNameList propertyList;
-
-    foreach (const PropertyName &propertyName, node.metaInfo().propertyNames()) {
-        if (!propertyName.contains('.') //do not show any dot properties, since they are tricky and unlikely to make sense
-                && node.metaInfo().propertyIsWritable(propertyName)
-                && propertyName != "parent"
-                && node.metaInfo().propertyTypeName(propertyName) != TypeName("Component")
-                && !node.metaInfo().propertyIsEnumType(propertyName) //Some enums have the same name as Qml types (e. g. Flow)
-                && !node.metaInfo().propertyIsPrivate(propertyName) //Do not show private properties
-                && propertyName != node.metaInfo().defaultPropertyName()) { // TODO: ask the node instances
-
-            TypeName qmlType = node.metaInfo().propertyTypeName(propertyName);
-            if (node.model()->metaInfo(qmlType).isValid() &&
-                    node.model()->metaInfo(qmlType).isSubclassOf("QtQuick.Item", -1, -1)) {
-                propertyList.append(propertyName);
-            }
-        }
-    }
-
-    return propertyList;
-}
-#endif
 
 static QList<ModelNode> acceptedModelNodeChildren(const ModelNode &parentNode)
 {
@@ -91,10 +63,6 @@ static QList<ModelNode> acceptedModelNodeChildren(const ModelNode &parentNode)
 
     if (parentNode.metaInfo().hasDefaultProperty())
         properties.append(parentNode.metaInfo().defaultPropertyName());
-
-#ifndef DISABLE_VISIBLE_PROPERTIES
-    properties.append(visibleProperties(parentNode));
-#endif
 
     foreach (const PropertyName &propertyName, properties) {
         AbstractProperty property(parentNode.property(propertyName));
