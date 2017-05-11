@@ -89,7 +89,7 @@ NavigatorView::NavigatorView(QObject* parent) :
     connect(m_widget.data(), &NavigatorWidget::upButtonClicked, this, &NavigatorView::upButtonClicked);
 
 #ifndef QMLDESIGNER_TEST
-    NameItemDelegate *idDelegate = new NameItemDelegate(this,  m_treeModel.data());
+    NameItemDelegate *idDelegate = new NameItemDelegate(this);
     IconCheckboxItemDelegate *showDelegate =
             new IconCheckboxItemDelegate(this,
                                          Utils::Icons::EYE_OPEN_TOOLBAR.pixmap(),

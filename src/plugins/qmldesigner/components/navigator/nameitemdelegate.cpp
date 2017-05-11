@@ -29,10 +29,15 @@
 
 #include "navigatorview.h"
 #include "navigatortreeview.h"
-#include "navigatortreemodel.h"
 #include "qproxystyle.h"
 
-#include "metainfo.h"
+#include <metainfo.h>
+#include <modelnodecontextmenu.h>
+#include <qmlobjectnode.h>
+
+#include <coreplugin/messagebox.h>
+#include <utils/qtcassert.h>
+
 #include <QLineEdit>
 #include <QPen>
 #include <QPixmapCache>
@@ -98,9 +103,8 @@ static QPixmap getWavyPixmap(qreal maxRadius, const QPen &pen)
     return pixmap;
 }
 
-NameItemDelegate::NameItemDelegate(QObject *parent, NavigatorTreeModel *treeModel)
-    : QStyledItemDelegate(parent),
-      m_navigatorTreeModel(treeModel)
+NameItemDelegate::NameItemDelegate(QObject *parent)
+    : QStyledItemDelegate(parent)
 {
 }
 
@@ -185,18 +189,25 @@ void NameItemDelegate::paint(QPainter *painter,
 
     QRect textFrame = drawText(painter, styleOption, modelIndex, iconOffset);
 
-    if (m_navigatorTreeModel->hasError(modelIndex))
+    if (QmlObjectNode(getModelNode(modelIndex)).hasError())
         drawRedWavyUnderLine(painter, styleOption, textFrame);
 
     painter->restore();
 }
 
-bool NameItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *, const QStyleOptionViewItem &, const QModelIndex &)
+static void openContextMenu(const QModelIndex &index, const QPoint &pos)
+{
+    const ModelNode modelNode = getModelNode(index);
+    QTC_ASSERT(modelNode.isValid(), return);
+    ModelNodeContextMenu::showContextMenu(modelNode.view(), pos, QPoint(), false);
+}
+
+bool NameItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *, const QStyleOptionViewItem &, const QModelIndex &index)
 {
     if (event->type() == QEvent::MouseButtonRelease) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->button() == Qt::RightButton) {
-            m_navigatorTreeModel->openContextMenu(mouseEvent->globalPos());
+            openContextMenu(index, mouseEvent->globalPos());
             mouseEvent->accept();
             return true;
         }
@@ -223,11 +234,33 @@ void NameItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) 
     lineEdit->setText(value);
 }
 
+static void setId(const QModelIndex &index, const QString &newId)
+{
+    ModelNode modelNode = getModelNode(index);
+
+    if (!modelNode.isValid())
+        return;
+
+    if (modelNode.id() == newId)
+        return;
+
+    if (!modelNode.isValidId(newId)) {
+        Core::AsynchronousMessageBox::warning(NavigatorTreeView::tr("Invalid Id"),
+                                              NavigatorTreeView::tr("%1 is an invalid id.").arg(newId));
+    } else if (modelNode.view()->hasId(newId)) {
+        Core::AsynchronousMessageBox::warning(NavigatorTreeView::tr("Invalid Id"),
+                                              NavigatorTreeView::tr("%1 already exists.").arg(newId));
+    } else  {
+        modelNode.setIdWithRefactoring(newId);
+    }
+}
+
+
 void NameItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
     Q_UNUSED(model);
     QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
-    m_navigatorTreeModel->setId(index,lineEdit->text());
+    setId(index,lineEdit->text());
     lineEdit->clearFocus();
 }
 

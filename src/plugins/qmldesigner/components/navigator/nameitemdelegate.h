@@ -34,7 +34,7 @@ class NavigatorTreeModel;
 class NameItemDelegate : public QStyledItemDelegate
 {
 public:
-    explicit NameItemDelegate(QObject *parent, NavigatorTreeModel *treeModel);
+    explicit NameItemDelegate(QObject *parent);
 
     void paint(QPainter *painter, const QStyleOptionViewItem &styleOption,
         const QModelIndex &index) const;
@@ -46,9 +46,6 @@ public:
 protected:
     bool editorEvent ( QEvent * event, QAbstractItemModel * model, const QStyleOptionViewItem & option, const QModelIndex & index );
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-
-private:
-    NavigatorTreeModel *m_navigatorTreeModel;
 };
 
 } // namespace QmlDesigner
