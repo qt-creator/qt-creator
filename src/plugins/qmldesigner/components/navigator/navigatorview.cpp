@@ -198,6 +198,11 @@ void NavigatorView::handleChangedExport(const ModelNode &modelNode, bool exporte
     }
 }
 
+bool NavigatorView::isNodeVisible(const ModelNode &modelNode) const
+{
+     return modelNode.auxiliaryData("invisible").toBool();
+}
+
 void NavigatorView::nodeAboutToBeRemoved(const ModelNode & /*removedNode*/)
 {
 }

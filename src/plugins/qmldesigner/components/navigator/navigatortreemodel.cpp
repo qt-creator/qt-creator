@@ -247,6 +247,8 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
     const ModelNode modelNode = modelNodeForIndex(index);
     const QmlObjectNode currentQmlObjectNode(modelNode);
 
+    QTC_ASSERT(m_view, return QVariant());
+
     if (!modelNode.isValid())
         return QVariant();
     if (index.column() == 0) {
@@ -279,7 +281,7 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
                       "This is independent of the visibility property in QML.");
     } else if (index.column() == 2) { //visible
         if (role == Qt::CheckStateRole)
-            return isNodeVisible(modelNode) ? Qt::Unchecked : Qt::Checked;
+            return m_view->isNodeVisible(modelNode) ? Qt::Unchecked : Qt::Checked;
         else if (role == Qt::ToolTipRole)
             return tr("Toggles whether this item is exported as an "
                       "alias property of the root item.");
@@ -703,14 +705,9 @@ void NavigatorTreeModel::notifyModelNodesMoved(const QList<ModelNode> &modelNode
     layoutChanged(indexes);
 }
 
-bool NavigatorTreeModel::isNodeVisible(const ModelNode &modelNode) const
-{
-    return modelNode.auxiliaryData("invisible").toBool();
-}
-
 bool NavigatorTreeModel::isNodeVisible(const QModelIndex &index) const
 {
-    return isNodeVisible(modelNodeForIndex(index));
+    return m_view->isNodeVisible(modelNodeForIndex(index));
 }
 
 bool NavigatorTreeModel::hasError(const QModelIndex &index) const

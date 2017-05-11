@@ -89,7 +89,6 @@ public:
     void notifyModelNodesRemoved(const QList<ModelNode> &modelNodes);
     void notifyModelNodesInserted(const QList<ModelNode> &modelNodes);
     void notifyModelNodesMoved(const QList<ModelNode> &modelNodes);
-    bool isNodeVisible(const ModelNode &modelNode) const;
     bool isNodeVisible(const QModelIndex &index) const;
     bool hasError(const QModelIndex &index) const;
 
