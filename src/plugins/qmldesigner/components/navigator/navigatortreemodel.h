@@ -35,7 +35,7 @@
 namespace QmlDesigner {
 
 class Model;
-class AbstractView;
+class NavigatorView;
 class ModelNode;
 
 class NavigatorTreeModel : public QAbstractItemModel
@@ -60,7 +60,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
-    void setView(AbstractView *view);
+    void setView(NavigatorView *view);
 
     ModelNode modelNodeForIndex(const QModelIndex &index) const;
     bool hasModelNodeForIndex(const QModelIndex &index) const;
@@ -94,14 +94,13 @@ public:
     bool hasError(const QModelIndex &index) const;
 
 private:
-    void handleChangedExport(const ModelNode &modelNode, bool exportItem);
     void moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes, int targetIndex);
     void handleInternalDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
     void handleItemLibraryItemDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
     void handleItemLibraryImageDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
     QList<QPersistentModelIndex> nodesToPersistentIndex(const QList<ModelNode> &modelNodes);
 
-    QPointer<AbstractView> m_view;
+    QPointer<NavigatorView> m_view;
     mutable QHash<ModelNode, QModelIndex> m_nodeIndexHash;
 };
 

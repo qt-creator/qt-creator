@@ -38,6 +38,7 @@
 #include <nodelistproperty.h>
 #include <variantproperty.h>
 #include <qmlitemnode.h>
+#include <rewritingexception.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -173,6 +174,27 @@ void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & prop
 
         if (bindingProperty.isAliasExport())
             m_treeModel->notifyDataChanged(modelNodeForId(bindingProperty.expression()));
+    }
+}
+
+void NavigatorView::handleChangedExport(const ModelNode &modelNode, bool exported)
+{
+    const ModelNode rootNode = rootModelNode();
+    Q_ASSERT(rootNode.isValid());
+    const PropertyName modelNodeId = modelNode.id().toUtf8();
+    if (rootNode.hasProperty(modelNodeId))
+        rootNode.removeProperty(modelNodeId);
+    if (exported) {
+        try {
+            RewriterTransaction transaction =
+                    beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel:exportItem"));
+
+            QmlObjectNode qmlObjectNode(modelNode);
+            qmlObjectNode.ensureAliasExport();
+            transaction.commit();
+        }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
+            exception.showException();
+        }
     }
 }
 

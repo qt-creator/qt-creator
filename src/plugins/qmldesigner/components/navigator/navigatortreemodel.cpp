@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "navigatortreemodel.h"
+#include "navigatorview.h"
 
 #include <bindingproperty.h>
 #include <nodeabstractproperty.h>
@@ -392,7 +393,7 @@ bool NavigatorTreeModel::hasModelNodeForIndex(const QModelIndex &index) const
     return m_view->modelNodeForInternalId(index.internalId()).isValid();
 }
 
-void NavigatorTreeModel::setView(AbstractView *view)
+void NavigatorTreeModel::setView(NavigatorView *view)
 {
     m_view = view;
 }
@@ -639,32 +640,12 @@ Qt::DropActions NavigatorTreeModel::supportedDragActions() const
     return Qt::LinkAction;
 }
 
-void NavigatorTreeModel::handleChangedExport(const ModelNode &modelNode, bool exported)
-{
-    QTC_ASSERT(m_view, return);
-    const ModelNode rootModelNode = m_view->rootModelNode();
-    Q_ASSERT(rootModelNode.isValid());
-    const PropertyName modelNodeId = modelNode.id().toUtf8();
-    if (rootModelNode.hasProperty(modelNodeId))
-        rootModelNode.removeProperty(modelNodeId);
-    if (exported) {
-        try {
-            RewriterTransaction transaction =
-                    m_view->beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel:exportItem"));
-
-            QmlObjectNode qmlObjectNode(modelNode);
-            qmlObjectNode.ensureAliasExport();
-        }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
-            exception.showException();
-        }
-    }
-}
-
 bool NavigatorTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     ModelNode modelNode = modelNodeForIndex(index);
     if (index.column() == 1 && role == Qt::CheckStateRole) {
-        handleChangedExport(modelNode, value.toInt() != 0);
+        QTC_ASSERT(m_view, return false);
+        m_view->handleChangedExport(modelNode, value.toInt() != 0);
     } else if (index.column() == 2 && role == Qt::CheckStateRole) {
         if (value.toInt() == 0)
             modelNode.setAuxiliaryData("invisible", true);

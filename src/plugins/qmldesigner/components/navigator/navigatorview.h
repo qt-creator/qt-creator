@@ -75,6 +75,8 @@ public:
 
     void bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags) override;
 
+    void handleChangedExport(const ModelNode &modelNode, bool exported);
+
 private:
     void changeSelection(const QItemSelection &selected, const QItemSelection &deselected);
     void updateItemSelection();
