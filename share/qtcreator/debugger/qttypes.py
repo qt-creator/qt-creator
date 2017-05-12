@@ -1106,6 +1106,10 @@ def qdump__QObjectPrivate__ConnectionList(d, value):
         d.putSpecialValue('minimumitemcount', 0)
 
 
+def qdump__QProcEnvKey(d, value):
+    d.putByteArrayValue(value)
+    d.putPlainChildren(value)
+
 def qdump__QPixmap(d, value):
     if d.qtVersion() < 0x050000:
         (vtbl, painters, dataPtr) = value.split('ppp');
