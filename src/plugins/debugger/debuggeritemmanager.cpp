@@ -197,8 +197,9 @@ public:
     void updateDebugger(const DebuggerItem &item);
     void apply();
     void cancel();
+    DebuggerTreeItem *currentTreeItem();
 
-    DebuggerTreeItem *m_currentTreeItem = nullptr;
+    QPersistentModelIndex m_currentIndex;
 };
 
 template <class Predicate>
@@ -287,8 +288,13 @@ void DebuggerItemModel::cancel()
 
 void DebuggerItemModel::setCurrentIndex(const QModelIndex &index)
 {
-    TreeItem *treeItem = itemForIndex(index);
-    m_currentTreeItem = treeItem && treeItem->level() == 2 ? static_cast<DebuggerTreeItem *>(treeItem) : 0;
+    m_currentIndex = index;
+}
+
+DebuggerTreeItem *DebuggerItemModel::currentTreeItem()
+{
+    TreeItem *treeItem = itemForIndex(m_currentIndex);
+    return treeItem && treeItem->level() == 2 ? static_cast<DebuggerTreeItem *>(treeItem) : nullptr;
 }
 
 DebuggerItemConfigWidget::DebuggerItemConfigWidget()
@@ -514,10 +520,11 @@ public:
 
 void DebuggerConfigWidget::cloneDebugger()
 {
-    if (!d->m_model->m_currentTreeItem)
+    DebuggerTreeItem *treeItem = d->m_model->currentTreeItem();
+    if (!treeItem)
         return;
 
-    DebuggerItem *item = &d->m_model->m_currentTreeItem->m_item;
+    DebuggerItem *item = &treeItem->m_item;
     DebuggerItem newItem;
     newItem.createId();
     newItem.setCommand(item->command());
@@ -542,9 +549,10 @@ void DebuggerConfigWidget::addDebugger()
 
 void DebuggerConfigWidget::removeDebugger()
 {
-    QTC_ASSERT(d->m_model->m_currentTreeItem, return);
-    d->m_model->m_currentTreeItem->m_removed = !d->m_model->m_currentTreeItem->m_removed;
-    d->m_model->m_currentTreeItem->update();
+    DebuggerTreeItem *treeItem = d->m_model->currentTreeItem();
+    QTC_ASSERT(treeItem, return);
+    treeItem->m_removed = !treeItem->m_removed;
+    treeItem->update();
     updateButtons();
 }
 
@@ -556,7 +564,7 @@ void DebuggerConfigWidget::currentDebuggerChanged(const QModelIndex &newCurrent)
 
 void DebuggerConfigWidget::updateButtons()
 {
-    DebuggerTreeItem *titem = d->m_model->m_currentTreeItem;
+    DebuggerTreeItem *titem = d->m_model->currentTreeItem();
     DebuggerItem *item = titem ? &titem->m_item : nullptr;
 
     m_itemConfigWidget->load(item);
