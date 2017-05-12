@@ -702,14 +702,15 @@ void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
     }
 
     // Split up files in groups (based on location):
+    const bool inSourceBuild = (m_parameters.buildDirectory == m_parameters.sourceDirectory);
     QList<FileNode *> sourceFileNodes;
     QList<FileNode *> buildFileNodes;
     QList<FileNode *> otherFileNodes;
     foreach (FileNode *fn, toList) {
-        if (fn->filePath().isChildOf(m_parameters.sourceDirectory))
-            sourceFileNodes.append(fn);
-        else if (fn->filePath().isChildOf(m_parameters.buildDirectory))
+        if (fn->filePath().isChildOf(m_parameters.buildDirectory) && !inSourceBuild)
             buildFileNodes.append(fn);
+        else if (fn->filePath().isChildOf(m_parameters.sourceDirectory))
+            sourceFileNodes.append(fn);
         else
             otherFileNodes.append(fn);
     }
