@@ -84,6 +84,7 @@ static void addConfigForAlmostEveryWarning(ClangDiagnosticConfigsModel &model)
         QStringLiteral("-Wno-documentation"),
         QStringLiteral("-Wno-shadow"),
         QStringLiteral("-Wno-missing-prototypes"), // Not optimal for C projects.
+        QStringLiteral("-Wno-used-but-marked-unused"), // e.g. QTest::qWait
     } + commonOptions());
 
     model.appendOrUpdate(config);
