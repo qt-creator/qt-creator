@@ -55,23 +55,6 @@
 
 namespace QmlDesigner {
 
-static QList<ModelNode> acceptedModelNodeChildren(const ModelNode &parentNode)
-{
-    QList<ModelNode> children;
-    PropertyNameList properties;
-
-    if (parentNode.metaInfo().hasDefaultProperty())
-        properties.append(parentNode.metaInfo().defaultPropertyName());
-
-    foreach (const PropertyName &propertyName, properties) {
-        AbstractProperty property(parentNode.property(propertyName));
-        if (property.isNodeAbstractProperty())
-            children.append(property.toNodeAbstractProperty().directSubNodes());
-    }
-
-    return children;
-}
-
 static QList<ModelNode> modelNodesFromMimeData(const QMimeData *mineData, AbstractView *view)
 {
     QByteArray encodedModelNodeData = mineData->data(QLatin1String("application/vnd.modelnode.list"));
