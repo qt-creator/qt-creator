@@ -97,15 +97,15 @@ def main():
             test.fatal("Could not get id of paste to %s" % protocol)
             continue
         invokeMenuItem("Tools", "Code Pasting", "Fetch Snippet...")
-        selectFromCombo(":CodePaster__Internal__PasteSelectDialog.protocolBox_QComboBox", protocol)
-        pasteModel = waitForObject(":CodePaster__Internal__PasteSelectDialog.listWidget_QListWidget").model()
+        selectFromCombo(":PasteSelectDialog.protocolBox_QComboBox", protocol)
+        pasteModel = waitForObject(":PasteSelectDialog.listWidget_QListWidget").model()
         waitFor("pasteModel.rowCount() > 1", 20000)
         if (pasteId not in dumpItems(pasteModel)):
             test.warning("Fetching too fast for server of %s - waiting 3s and trying to refresh."
                          % protocol)
             snooze(3)
             clickButton("{text='Refresh' type='QPushButton' unnamed='1' visible='1' "
-                        "window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}")
+                        "window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}")
             waitFor("pasteModel.rowCount() == 1", 1000)
             waitFor("pasteModel.rowCount() > 1", 20000)
         if protocol == 'Pastebin.Ca':
@@ -116,21 +116,21 @@ def main():
                 pasteId = pasteLine.split(" ", 1)[0]
             except:
                 test.fail("Could not find description line in list of pastes from %s" % protocol)
-                clickButton(waitForObject(":CodePaster__Internal__PasteSelectDialog.Cancel_QPushButton"))
+                clickButton(waitForObject(":PasteSelectDialog.Cancel_QPushButton"))
                 continue
         else:
             try:
                 pasteLine = filter(lambda str: pasteId in str, dumpItems(pasteModel))[0]
             except:
                 test.fail("Could not find id '%s' in list of pastes from %s" % (pasteId, protocol))
-                clickButton(waitForObject(":CodePaster__Internal__PasteSelectDialog.Cancel_QPushButton"))
+                clickButton(waitForObject(":PasteSelectDialog.Cancel_QPushButton"))
                 continue
             if protocol.startswith("Pastebin."):
                 test.verify(description in pasteLine, "Verify that line in list of pastes contains the description")
         pasteLine = pasteLine.replace(".", "\\.")
-        waitForObjectItem(":CodePaster__Internal__PasteSelectDialog.listWidget_QListWidget", pasteLine)
-        clickItem(":CodePaster__Internal__PasteSelectDialog.listWidget_QListWidget", pasteLine, 5, 5, 0, Qt.LeftButton)
-        clickButton(waitForObject(":CodePaster__Internal__PasteSelectDialog.OK_QPushButton"))
+        waitForObjectItem(":PasteSelectDialog.listWidget_QListWidget", pasteLine)
+        clickItem(":PasteSelectDialog.listWidget_QListWidget", pasteLine, 5, 5, 0, Qt.LeftButton)
+        clickButton(waitForObject(":PasteSelectDialog.OK_QPushButton"))
         filenameCombo = waitForObject(":Qt Creator_FilenameQComboBox")
         waitFor("not filenameCombo.currentText.isEmpty()", 20000)
         editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")

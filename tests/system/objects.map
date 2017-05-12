@@ -39,11 +39,6 @@
 :Cannot Open Project_QTextEdit	{type='QTextEdit' unnamed='1' visible='1' window=':Cannot Open Project_QMessageBox'}
 :Close Debugging Session.Yes_QPushButton	{text='Yes' type='QPushButton' unnamed='1' visible='1' window=':Close Debugging Session_Utils::CheckableMessageBox'}
 :Close Debugging Session_Utils::CheckableMessageBox	{type='Utils::CheckableMessageBox' unnamed='1' visible='1' windowTitle='Close Debugging Session'}
-:CodePaster__Internal__PasteSelectDialog.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
-:CodePaster__Internal__PasteSelectDialog.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
-:CodePaster__Internal__PasteSelectDialog.listWidget_QListWidget	{name='listWidget' type='QListWidget' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
-:CodePaster__Internal__PasteSelectDialog.protocolBox_QComboBox	{name='protocolBox' type='QComboBox' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
-:CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog	{name='CodePaster__Internal__PasteSelectDialog' type='CodePaster::PasteSelectDialog' visible='1'}
 :Core__Internal__GeneralSettings.User Interface_QGroupBox	{container=':qt_tabwidget_stackedwidget.Core__Internal__GeneralSettings_QWidget' name='interfaceBox' title='User Interface' type='QGroupBox' visible='1'}
 :CppCompiler:_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' leftWidget=':CppCompiler:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :CppCompiler:_QLabel	{container=':qt_tabwidget_stackedwidget_QWidget' text='C++:' type='QLabel' unnamed='1' visible='1'}
@@ -112,6 +107,11 @@
 :Options.qt_tabwidget_tabbar_QTabBar	{name='qt_tabwidget_tabbar' type='QTabBar' visible='1' window=':Options_Core::Internal::SettingsDialog'}
 :Options_Core::Internal::SettingsDialog	{type='Core::Internal::SettingsDialog' unnamed='1' visible='1' windowTitle~='(Options|Preferences)'}
 :Options_QListView	{type='QListView' unnamed='1' visible='1' window=':Options_Core::Internal::SettingsDialog'}
+:PasteSelectDialog.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}
+:PasteSelectDialog.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}
+:PasteSelectDialog.listWidget_QListWidget	{name='listWidget' type='QListWidget' visible='1' window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}
+:PasteSelectDialog.protocolBox_QComboBox	{name='protocolBox' type='QComboBox' visible='1' window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}
+:PasteSelectDialog_CodePaster::PasteSelectDialog	{name='CodePaster__Internal__PasteSelectDialog' type='CodePaster::PasteSelectDialog' visible='1'}
 :Path.Utils_BaseValidatingLineEdit	{container=':qt_tabwidget_stackedwidget_QWidget' name='LineEdit' type='Utils::FancyLineEdit' visible='1'}
 :Projects.ProjectNavigationTreeView	{container=':*Qt Creator.ProjectSelectorDockWidget_QDockWidget' name='ProjectNavigation' type='Utils::BaseTreeView' visible='1'}
 :QML Debugging.No_QPushButton	{text='No' type='QPushButton' unnamed='1' visible='1' window=':QML Debugging_QMessageBox'}
