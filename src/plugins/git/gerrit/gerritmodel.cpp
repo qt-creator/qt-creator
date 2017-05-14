@@ -653,7 +653,7 @@ static GerritChangePtr parseSshOutput(const QJsonObject &object)
           {
             "value": 0,
             "_account_id": 1000528,
-            "name": "André Hartmann",
+            "name": "Andre Hartmann",
             "email": "aha_1980@gmx.de"
           },
           {
@@ -682,7 +682,7 @@ static GerritChangePtr parseSshOutput(const QJsonObject &object)
           {
             "value": 0,
             "_account_id": 1000528,
-            "name": "André Hartmann",
+            "name": "Andre Hartmann",
             "email": "aha_1980@gmx.de"
           },
           {
