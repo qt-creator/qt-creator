@@ -38,6 +38,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/detailswidget.h>
+#include <utils/fancylineedit.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/pathchooser.h>
 #include <utils/itemviews.h>
@@ -63,7 +64,8 @@ namespace Internal {
 CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) :
     m_buildConfiguration(bc),
     m_configModel(new ConfigModel(this)),
-    m_configFilterModel(new QSortFilterProxyModel)
+    m_configFilterModel(new QSortFilterProxyModel),
+    m_configTextFilterModel(new QSortFilterProxyModel)
 {
     QTC_CHECK(bc);
 
@@ -127,6 +129,12 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     mainLayout->addItem(new QSpacerItem(20, 10), row, 0);
 
     ++row;
+    m_filterEdit = new Utils::FancyLineEdit;
+    m_filterEdit->setPlaceholderText(tr("Filter"));
+    m_filterEdit->setFiltering(true);
+    mainLayout->addWidget(m_filterEdit, row, 0, 1, 2);
+
+    ++row;
     auto tree = new Utils::TreeView;
     connect(tree, &Utils::TreeView::activated,
             tree, [tree](const QModelIndex &idx) { tree->edit(idx); });
@@ -134,7 +142,10 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configFilterModel->setSourceModel(m_configModel);
     m_configFilterModel->setFilterKeyColumn(2);
     m_configFilterModel->setFilterFixedString(QLatin1String("0"));
-    m_configView->setModel(m_configFilterModel);
+    m_configTextFilterModel->setSourceModel(m_configFilterModel);
+    m_configTextFilterModel->setFilterKeyColumn(-1);
+    m_configTextFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_configView->setModel(m_configTextFilterModel);
     m_configView->setMinimumHeight(300);
     m_configView->setRootIsDecorated(false);
     m_configView->setUniformRowHeights(true);
@@ -226,6 +237,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     connect(m_showAdvancedCheckBox, &QCheckBox::stateChanged,
             this, &CMakeBuildSettingsWidget::updateAdvancedCheckBox);
 
+    connect(m_filterEdit, &QLineEdit::textChanged,
+            m_configTextFilterModel, &QSortFilterProxyModel::setFilterFixedString);
+
     connect(m_resetButton, &QPushButton::clicked, m_configModel, &ConfigModel::resetAllChanges);
     connect(m_reconfigureButton, &QPushButton::clicked, this, [this]() {
         m_buildConfiguration->setCurrentCMakeConfiguration(m_configModel->configurationChanges());
@@ -274,6 +288,7 @@ void CMakeBuildSettingsWidget::setError(const QString &message)
     m_editButton->setEnabled(!showError);
     m_resetButton->setEnabled(!showError);
     m_showAdvancedCheckBox->setEnabled(!showError);
+    m_filterEdit->setEnabled(!showError);
 }
 
 void CMakeBuildSettingsWidget::setWarning(const QString &message)
