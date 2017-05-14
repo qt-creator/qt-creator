@@ -230,6 +230,7 @@ public:
 
     ~QueryContext();
     void start();
+    void terminate();
 
 signals:
     void resultRetrieved(const QByteArray &);
@@ -242,7 +243,6 @@ private:
     void timeout();
 
     void errorTermination(const QString &msg);
-    void terminate();
 
     QProcess m_process;
     QTimer m_timer;
@@ -498,10 +498,8 @@ QStandardItem *GerritModel::itemForNumber(int number) const
 
 void GerritModel::refresh(const QSharedPointer<GerritServer> &server, const QString &query)
 {
-    if (m_query) {
-        qWarning("%s: Another query is still running", Q_FUNC_INFO);
-        return;
-    }
+    if (m_query)
+        m_query->terminate();
     clearData();
     m_server = server;
 
