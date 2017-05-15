@@ -117,6 +117,7 @@ class Dumper(DumperBase):
         nativeValue.SetPreferSyntheticValue(False)
         nativeType = nativeValue.GetType()
         code = nativeType.GetTypeClass()
+
         if code == lldb.eTypeClassReference:
             nativeTargetType = nativeType.GetDereferencedType()
             if not nativeTargetType.IsPointerType():
@@ -125,8 +126,7 @@ class Dumper(DumperBase):
             val = self.createReferenceValue(nativeValue.GetValueAsUnsigned(), targetType)
             val.laddress = nativeValue.AddressOf().GetValueAsUnsigned()
             #warn('CREATED REF: %s' % val)
-            return val
-        if code == lldb.eTypeClassPointer:
+        elif code == lldb.eTypeClassPointer:
             nativeTargetType = nativeType.GetPointeeType()
             if not nativeTargetType.IsPointerType():
                 nativeTargetType = nativeTargetType.GetUnqualifiedType()
@@ -135,66 +135,57 @@ class Dumper(DumperBase):
             #warn('CREATED PTR 1: %s' % val)
             val.laddress = nativeValue.AddressOf().GetValueAsUnsigned()
             #warn('CREATED PTR 2: %s' % val)
-            return val
-        if code == lldb.eTypeClassTypedef:
+        elif code == lldb.eTypeClassTypedef:
             nativeTargetType = nativeType.GetUnqualifiedType()
             if hasattr(nativeTargetType, 'GetCanonicalType'):
                  nativeTargetType = nativeTargetType.GetCanonicalType()
             val = self.fromNativeValue(nativeValue.Cast(nativeTargetType))
             val.type = self.fromNativeType(nativeType)
             #warn('CREATED TYPEDEF: %s' % val)
-            return val
+        else:
+            val = self.Value(self)
+            address = nativeValue.GetLoadAddress()
+            if not address is None:
+                val.laddress = address
+            if True:
+                data = nativeValue.GetData()
+                error = lldb.SBError()
+                size = nativeValue.GetType().GetByteSize()
+                if size > 1:
+                    # 0 happens regularly e.g. for cross-shared-object types.
+                    # 1 happens on Linux e.g. for QObject uses outside of QtCore.
+                    try:
+                        val.ldata = data.ReadRawData(error, 0, size)
+                    except:
+                        pass
 
-        val = self.Value(self)
-        address = nativeValue.GetLoadAddress()
-        if not address is None:
-            val.laddress = address
-        if True:
-            data = nativeValue.GetData()
-            error = lldb.SBError()
-            size = nativeValue.GetType().GetByteSize()
-            if size > 1:
-                # 0 happens regularly e.g. for cross-shared-object types.
-                # 1 happens on Linux e.g. for QObject uses outside of QtCore.
-                try:
-                    val.ldata = data.ReadRawData(error, 0, size)
-                except:
-                    pass
+            val.type = self.fromNativeType(nativeType)
 
-        val.type = self.fromNativeType(nativeType)
+            if code == lldb.eTypeClassEnumeration:
+                intval = nativeValue.GetValueAsSigned()
+                if hasattr(nativeType, 'get_enum_members_array'):
+                    for enumMember in nativeType.get_enum_members_array():
+                        # Even when asking for signed we get unsigned with LLDB 3.8.
+                        diff = enumMember.GetValueAsSigned() - intval
+                        mask = (1 << nativeType.GetByteSize() * 8) - 1
+                        if diff & mask == 0:
+                            path = nativeType.GetName().split('::')
+                            path[-1] = enumMember.GetName()
+                            val.ldisplay = '%s (%d)' % ('::'.join(path), intval)
+                val.ldisplay = '%d' % intval
+            elif code in (lldb.eTypeClassComplexInteger, lldb.eTypeClassComplexFloat):
+                val.ldisplay = str(nativeValue.GetValue())
+            #elif code == lldb.eTypeClassArray:
+            #    if hasattr(nativeType, 'GetArrayElementType'): # New in 3.8(?) / 350.x
+            #        val.type.ltarget = self.fromNativeType(nativeType.GetArrayElementType())
+            #    else:
+            #        fields = nativeType.get_fields_array()
+            #        if len(fields):
+            #            val.type.ltarget = self.fromNativeType(fields[0])
+            #elif code == lldb.eTypeClassVector:
+            #    val.type.ltarget = self.fromNativeType(nativeType.GetVectorElementType())
+
         val.lIsInScope = nativeValue.IsInScope()
-
-        if code == lldb.eTypeClassEnumeration:
-            intval = nativeValue.GetValueAsSigned()
-            if hasattr(nativeType, 'get_enum_members_array'):
-                for enumMember in nativeType.get_enum_members_array():
-                    # Even when asking for signed we get unsigned with LLDB 3.8.
-                    diff = enumMember.GetValueAsSigned() - intval
-                    mask = (1 << nativeType.GetByteSize() * 8) - 1
-                    if diff & mask == 0:
-                        path = nativeType.GetName().split('::')
-                        path[-1] = enumMember.GetName()
-                        val.ldisplay = '%s (%d)' % ('::'.join(path), intval)
-            val.ldisplay = '%d' % intval
-        elif code in (lldb.eTypeClassComplexInteger, lldb.eTypeClassComplexFloat):
-            val.ldisplay = str(nativeValue.GetValue())
-        elif code == lldb.eTypeClassReference:
-            derefNativeValue = nativeValue.Dereference()
-            derefNativeValue = derefNativeValue.Cast(derefNativeValue.GetType().GetUnqualifiedType())
-            val1 = self.Value(self)
-            val1.type = val.type
-            val1.targetValue = self.fromNativeValue(derefNativeValue)
-            return val1
-        #elif code == lldb.eTypeClassArray:
-        #    if hasattr(nativeType, 'GetArrayElementType'): # New in 3.8(?) / 350.x
-        #        val.type.ltarget = self.fromNativeType(nativeType.GetArrayElementType())
-        #    else:
-        #        fields = nativeType.get_fields_array()
-        #        if len(fields):
-        #            val.type.ltarget = self.fromNativeType(fields[0])
-        #elif code == lldb.eTypeClassVector:
-        #    val.type.ltarget = self.fromNativeType(nativeType.GetVectorElementType())
-
         val.name = nativeValue.GetName()
         return val
 
@@ -1145,7 +1136,6 @@ class Dumper(DumperBase):
                 # default values:  void foo(int = 0)
                 continue
             value = self.fromNativeFrameValue(val)
-            value.name = name
             variables.append(value)
 
         self.handleLocals(variables)
