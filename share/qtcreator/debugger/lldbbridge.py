@@ -43,12 +43,6 @@ from dumper import *
 
 qqWatchpointOffset = 10000
 
-def showException(msg, exType, exValue, exTraceback):
-    warn('**** CAUGHT EXCEPTION: %s ****' % msg)
-    import traceback
-    lines = [line for line in traceback.format_exception(exType, exValue, exTraceback)]
-    warn('\n'.join(lines))
-
 def fileNameAsString(file):
     return str(file) if file.IsValid() else ''
 
