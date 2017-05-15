@@ -45,6 +45,7 @@
 #include <QDir>
 #include <QIcon>
 #include <QStyle>
+#include <QTimer>
 
 #include <memory>
 
@@ -610,7 +611,7 @@ bool FolderNode::replaceSubtree(Node *oldNode, Node *newNode)
         } else {
             removeNode(oldNode); // Happens e.g. when project is shutting down
         }
-        delete oldNode;
+        QTimer::singleShot(0, [oldNode]() { delete oldNode; });
     }
     ProjectTree::emitSubtreeChanged(this);
     return true;
