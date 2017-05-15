@@ -125,7 +125,6 @@ void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, in
     QTextCharFormat emptyFormat;
 
     QTextLayout::FormatRange r;
-    r.start = -1;
 
     QVector<QTextLayout::FormatRange> new_ranges;
     int i = 0;
@@ -143,17 +142,7 @@ void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, in
         while (i < formatChanges.count() && formatChanges.at(i) == r.format)
             ++i;
 
-        if (i >= formatChanges.count())
-            break;
-
         r.length = i - r.start;
-
-        new_ranges << r;
-        r.start = -1;
-    }
-
-    if (r.start != -1) {
-        r.length = formatChanges.count() - r.start;
 
         new_ranges << r;
     }
