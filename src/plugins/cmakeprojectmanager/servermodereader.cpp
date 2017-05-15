@@ -397,7 +397,8 @@ void ServerModeReader::handleProgress(int min, int cur, int max, const QString &
 void ServerModeReader::handleSignal(const QString &signal, const QVariantMap &data)
 {
     Q_UNUSED(data);
-    if (signal == "dirty")
+    // CMake on Windows sends false dirty signals on each edit (QTCREATORBUG-17944)
+    if (!HostOsInfo::isWindowsHost() && signal == "dirty")
         emit dirty();
 }
 
