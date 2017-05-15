@@ -74,7 +74,6 @@ namespace ProjectExplorer {
 class SessionManagerPrivate
 {
 public:
-    bool projectContainsFile(Project *p, const FileName &fileName) const;
     void restoreValues(const PersistentSettingsReader &reader);
     void restoreDependencies(const PersistentSettingsReader &reader);
     void restoreStartupProject(const PersistentSettingsReader &reader);
@@ -658,19 +657,19 @@ Project *SessionManager::projectForFile(const Utils::FileName &fileName)
 {
     const QList<Project *> &projectList = projects();
     foreach (Project *p, projectList) {
-        if (d->projectContainsFile(p, fileName))
+        if (projectContainsFile(p, fileName))
             return p;
     }
 
     return nullptr;
 }
 
-bool SessionManagerPrivate::projectContainsFile(Project *p, const Utils::FileName &fileName) const
+bool SessionManager::projectContainsFile(Project *p, const Utils::FileName &fileName)
 {
-    if (!m_projectFileCache.contains(p))
-        m_projectFileCache.insert(p, p->files(Project::AllFiles));
+    if (!d->m_projectFileCache.contains(p))
+        d->m_projectFileCache.insert(p, p->files(Project::AllFiles));
 
-    return m_projectFileCache.value(p).contains(fileName.toString());
+    return d->m_projectFileCache.value(p).contains(fileName.toString());
 }
 
 void SessionManager::configureEditor(IEditor *editor, const QString &fileName)
@@ -686,7 +685,7 @@ void SessionManager::configureEditor(IEditor *editor, const QString &fileName)
 void SessionManager::configureEditors(Project *project)
 {
     foreach (IDocument *document, DocumentModel::openedDocuments()) {
-        if (d->projectContainsFile(project, document->filePath())) {
+        if (projectContainsFile(project, document->filePath())) {
             foreach (IEditor *editor, DocumentModel::editorsForDocument(document)) {
                 if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
                         project->editorConfiguration()->configureEditor(textEditor);

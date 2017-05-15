@@ -115,6 +115,7 @@ public:
     static Project *projectForNode(Node *node);
     static Node *nodeForFile(const Utils::FileName &fileName);
     static Project *projectForFile(const Utils::FileName &fileName);
+    static bool projectContainsFile(Project *p, const Utils::FileName &fileName);
 
     static QStringList projectsForSessionName(const QString &session);
 

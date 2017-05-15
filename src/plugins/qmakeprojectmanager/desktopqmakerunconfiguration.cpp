@@ -262,6 +262,7 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
             this, &DesktopQmakeRunConfigurationWidget::runConfigurationEnabledChange);
 
     Core::VariableChooser::addSupportForChildWidgets(this, m_qmakeRunConfiguration->macroExpander());
+    effectiveTargetInformationChanged();
 }
 
 void DesktopQmakeRunConfigurationWidget::runConfigurationEnabledChange()

@@ -42,8 +42,8 @@ def main():
     if not testRenameMacroAfterSourceModification():
         return
     headerName = "anothertestfile.h"
-    addCPlusPlusFileToCurrentProject(headerName, "C++ Header File",
-                                     expectedHeaderName=headerName)
+    addCPlusPlusFile(headerName, "C++ Header File", "testfiles.pro",
+                     expectedHeaderName=headerName)
     if not testRenameMacroAfterSourceMoving():
         return
     invokeMenuItem("File", "Save All")

@@ -147,8 +147,14 @@ ScrollView {
                 }
 
                 onMouseExited: {
-                    if (tooltip.hoveredNode === flamegraphItem)
+                    if (tooltip.hoveredNode === flamegraphItem) {
+                        // Keep the window around until something else is hovered or selected.
+                        if (tooltip.selectedNode === null
+                                || tooltip.selectedNode.typeId !== root.selectedTypeId) {
+                            tooltip.selectedNode = flamegraphItem;
+                        }
                         tooltip.hoveredNode = null;
+                    }
                 }
 
                 onClicked: {

@@ -3312,6 +3312,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
 {
     const QString oldFilePath = node->filePath().toFileInfo().absoluteFilePath();
     FolderNode *folderNode = node->parentFolderNode();
+    QTC_ASSERT(folderNode, return);
     const QString projectFileName = folderNode->managingProject()->filePath().fileName();
 
     if (oldFilePath == newFilePath)

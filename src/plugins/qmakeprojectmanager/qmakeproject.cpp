@@ -611,6 +611,7 @@ QStringList QmakeProject::filesGeneratedFrom(const QString &input) const
 
     if (const FileNode *file = fileNodeOf(rootProjectNode(), FileName::fromString(input))) {
         const QmakeProFileNode *pro = static_cast<QmakeProFileNode *>(file->parentFolderNode());
+        QTC_ASSERT(pro, return {});
         if (const QmakeProFile *proFile = pro->proFile())
             return Utils::transform(proFile->generatedFiles(FileName::fromString(pro->buildDir()),
                                                             file->filePath(), file->fileType()),

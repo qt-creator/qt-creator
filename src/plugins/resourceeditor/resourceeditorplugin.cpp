@@ -287,6 +287,7 @@ void ResourceEditorPlugin::removeFileContextMenu()
     QTC_ASSERT(rfn, return);
     QString path = rfn->filePath().toString();
     FolderNode *parent = rfn->parentFolderNode();
+    QTC_ASSERT(parent, return);
     if (!parent->removeFiles(QStringList() << path))
         QMessageBox::warning(Core::ICore::mainWindow(),
                              tr("File Removal Failed"),

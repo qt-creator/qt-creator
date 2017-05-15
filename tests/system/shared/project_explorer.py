@@ -100,7 +100,9 @@ def switchToBuildOrRunSettingsFor(targetCount, currentTarget, projectSettings):
     if not test.verify(not str(findObject(currentTargetIndex).toolTip).startswith(clickToActivate),
                        "Verifying target '%s' is enabled." % targets[currentTarget]):
         return False
-    mouseClick(waitForObject(currentTargetIndex))
+    index = waitForObject(currentTargetIndex)
+    treeView.scrollTo(index)
+    mouseClick(index)
 
     if projectSettings == ProjectSettings.BUILD:
         settingsIndex = getQModelIndexStr("text='Build'", currentTargetIndex)
