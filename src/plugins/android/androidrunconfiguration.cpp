@@ -27,6 +27,7 @@
 #include "androidglobal.h"
 #include "androidtoolchain.h"
 #include "androidmanager.h"
+#include "androidrunconfigurationwidget.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
@@ -38,6 +39,8 @@
 using namespace ProjectExplorer;
 
 namespace Android {
+using namespace Internal;
+const char amStartArgsKey[] = "Android.AmStartArgsKey";
 
 AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, Core::Id id)
     : RunConfiguration(parent, id)
@@ -49,9 +52,18 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, AndroidRunConfi
 {
 }
 
+void AndroidRunConfiguration::setAmStartExtraArgs(const QStringList &args)
+{
+    m_amStartExtraArgs = args;
+}
+
 QWidget *AndroidRunConfiguration::createConfigurationWidget()
 {
-    return 0;// no special running configurations
+    auto configWidget = new AndroidRunConfigurationWidget();
+    configWidget->setAmStartArgs(m_amStartExtraArgs);
+    connect(configWidget, &AndroidRunConfigurationWidget::amStartArgsChanged,
+            this, &AndroidRunConfiguration::setAmStartExtraArgs);
+    return configWidget;
 }
 
 Utils::OutputFormatter *AndroidRunConfiguration::createOutputFormatter() const
@@ -59,4 +71,21 @@ Utils::OutputFormatter *AndroidRunConfiguration::createOutputFormatter() const
     return new QtSupport::QtOutputFormatter(target()->project());
 }
 
+bool AndroidRunConfiguration::fromMap(const QVariantMap &map)
+{
+    m_amStartExtraArgs = map.value(amStartArgsKey).toStringList();
+    return RunConfiguration::fromMap(map);
+}
+
+QVariantMap AndroidRunConfiguration::toMap() const
+{
+    QVariantMap res = RunConfiguration::toMap();
+    res[amStartArgsKey] = m_amStartExtraArgs;
+    return res;
+}
+
+const QStringList &AndroidRunConfiguration::amStartExtraArgs() const
+{
+    return m_amStartExtraArgs;
+}
 } // namespace Android

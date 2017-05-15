@@ -70,7 +70,9 @@ bool QmakeAndroidRunConfigurationFactory::canCreate(Target *parent, Core::Id id)
 
 bool QmakeAndroidRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
+    if (!canHandle(parent))
+        return false;
+    return ProjectExplorer::idFromMap(map).name().startsWith(ANDROID_RC_ID_PREFIX);
 }
 
 bool QmakeAndroidRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const

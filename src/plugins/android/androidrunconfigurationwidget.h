@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,41 +22,37 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
-#include "android_global.h"
+#include "androidrunconfiguration.h"
 
-#include <projectexplorer/runconfiguration.h>
+#include "projectexplorer/runconfiguration.h"
+#include "utils/detailswidget.h"
 
-QT_BEGIN_NAMESPACE
-class QToolButton;
-QT_END_NAMESPACE
 
 namespace Android {
+namespace Internal {
 
-class ANDROID_EXPORT AndroidRunConfiguration : public ProjectExplorer::RunConfiguration
+namespace Ui {
+    class AndroidRunConfigurationWidget;
+}
+
+class AndroidRunConfigurationWidget : public Utils::DetailsWidget
 {
     Q_OBJECT
 public:
-    AndroidRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    AndroidRunConfigurationWidget(QWidget *parent = nullptr);
+    ~AndroidRunConfigurationWidget();
 
-    QWidget *createConfigurationWidget() override;
-    Utils::OutputFormatter *createOutputFormatter() const override;
+    void setAmStartArgs(const QStringList &args);
 
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-
-    const QStringList &amStartExtraArgs() const;
-
-protected:
-    AndroidRunConfiguration(ProjectExplorer::Target *parent, AndroidRunConfiguration *source);
+signals:
+    void amStartArgsChanged(QStringList args);
 
 private:
-    void setAmStartExtraArgs(const QStringList &args);
-
-private:
-    QStringList m_amStartExtraArgs;
+    std::unique_ptr<Ui::AndroidRunConfigurationWidget> m_ui;
 };
 
+} // namespace Internal
 } // namespace Android
+

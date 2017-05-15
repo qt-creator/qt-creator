@@ -66,8 +66,8 @@ public:
     virtual void remoteErrorOutput(const QString &output);
 
 signals:
-    void asyncStart(const QString &intentName, const QVector<QStringList> &adbCommands);
-    void asyncStop(const QVector<QStringList> &adbCommands);
+    void asyncStart(const AndroidRunnable &runnable);
+    void asyncStop(const AndroidRunnable &runnable);
     void remoteDebuggerRunning();
 
     void adbParametersChanged(const QString &packageName, const QStringList &selector);

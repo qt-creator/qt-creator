@@ -50,7 +50,8 @@ HEADERS += \
     androidrunnable.h \
     androidtoolmanager.h \
     androidsdkmanager.h \
-    androidavdmanager.h
+    androidavdmanager.h \
+    androidrunconfigurationwidget.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -94,7 +95,8 @@ SOURCES += \
     androidrunnable.cpp \
     androidtoolmanager.cpp \
     androidsdkmanager.cpp \
-    androidavdmanager.cpp
+    androidavdmanager.cpp \
+    androidrunconfigurationwidget.cpp
 
 FORMS += \
     androidsettingswidget.ui \
@@ -102,7 +104,8 @@ FORMS += \
     androidcreatekeystorecertificate.ui \
     androiddevicedialog.ui \
     androiddeployqtwidget.ui \
-    androidbuildapkwidget.ui
+    androidbuildapkwidget.ui \
+    androidrunconfigurationwidget.ui
 
 RESOURCES = android.qrc
 

@@ -29,4 +29,9 @@ namespace Android {
 
 void *AndroidRunnable::staticTypeId = &AndroidRunnable::staticTypeId;
 
+AndroidRunnable::AndroidRunnable()
+{
+    qRegisterMetaType<AndroidRunnable>("AndroidRunnable");
+}
+
 } // namespace Android

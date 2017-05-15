@@ -143,15 +143,18 @@ Utils::FileName QmakeAndroidSupport::manifestSourcePath(const ProjectExplorer::T
 {
     ProjectExplorer::RunConfiguration *rc = target->activeRunConfiguration();
     if (auto qrc = qobject_cast<QmakeAndroidRunConfiguration *>(rc)) {
-        Utils::FileName proFilePath = qrc->proFilePath();
         const auto project = static_cast<QmakeProjectManager::QmakeProject *>(target->project());
-        const QmakeProFileNode *node = project->rootProjectNode()->findProFileFor(proFilePath);
-        if (node) {
-            QString packageSource = node->singleVariableValue(Variable::AndroidPackageSourceDir);
-            if (!packageSource.isEmpty()) {
-                Utils::FileName manifest = Utils::FileName::fromUserInput(packageSource + QLatin1String("/AndroidManifest.xml"));
-                if (manifest.exists())
-                    return manifest;
+        if (project->rootProjectNode()) {
+            const QmakeProFileNode *node =
+                    project->rootProjectNode()->findProFileFor(qrc->proFilePath());
+            if (node) {
+                QString packageSource = node->singleVariableValue(Variable::AndroidPackageSourceDir);
+                if (!packageSource.isEmpty()) {
+                    const auto manifest = Utils::FileName::fromUserInput(packageSource +
+                                                                         "/AndroidManifest.xml");
+                    if (manifest.exists())
+                        return manifest;
+                }
             }
         }
     }
