@@ -35,16 +35,13 @@ namespace RemoteLinux {
 
 RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(ProjectExplorer::RunConfiguration *rc) :
     ProjectExplorer::EnvironmentAspect(rc)
-{ }
+{
+    setRunConfigWidgetCreator([this] { return new RemoteLinuxEnvironmentAspectWidget(this); });
+}
 
 RemoteLinuxEnvironmentAspect *RemoteLinuxEnvironmentAspect::create(ProjectExplorer::RunConfiguration *parent) const
 {
     return new RemoteLinuxEnvironmentAspect(parent);
-}
-
-ProjectExplorer::RunConfigWidget *RemoteLinuxEnvironmentAspect::createConfigurationWidget()
-{
-    return new RemoteLinuxEnvironmentAspectWidget(this);
 }
 
 QList<int> RemoteLinuxEnvironmentAspect::possibleBaseEnvironments() const
