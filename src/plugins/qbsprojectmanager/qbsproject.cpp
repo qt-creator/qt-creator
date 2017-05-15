@@ -738,7 +738,7 @@ void QbsProject::updateDocuments(const QSet<QString> &files)
     foreach (IDocument *doc, currentDocuments) {
         if (filesToRemove.contains(doc->filePath().toString())) {
             m_qbsDocuments.remove(doc);
-            delete doc;
+            doc->deleteLater();
         }
     }
     QSet<IDocument *> toAdd;

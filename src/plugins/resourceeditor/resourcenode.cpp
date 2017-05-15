@@ -70,8 +70,9 @@ public:
     {
         if (type == TypePermissions)
             return true;
-        auto newNode = new ResourceTopLevelNode(m_node->filePath(), false, m_node->contents(),
-                                                m_node->parentFolderNode());
+        FolderNode *parent = m_node->parentFolderNode();
+        QTC_ASSERT(parent, return false);
+        auto newNode = new ResourceTopLevelNode(m_node->filePath(), false, m_node->contents(), parent);
         m_node->parentFolderNode()->replaceSubtree(m_node, newNode);
         return true;
     }

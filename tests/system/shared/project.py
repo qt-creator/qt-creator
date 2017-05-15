@@ -749,13 +749,14 @@ def compareProjectTree(rootObject, dataset):
 # creates C++ file(s) and adds them to the current project if one is open
 # name                  name of the created object: filename for files, classname for classes
 # template              "C++ Class", "C++ Header File" or "C++ Source File"
+# projectName           None or name of open project that the files will be added to
 # forceOverwrite        bool: force overwriting existing files?
 # addToVCS              name of VCS to add the file(s) to
 # newBasePath           path to create the file(s) at
 # expectedSourceName    expected name of created source file
 # expectedHeaderName    expected name of created header file
-def addCPlusPlusFileToCurrentProject(name, template, forceOverwrite=False, addToVCS="<None>",
-                                     newBasePath=None, expectedSourceName=None, expectedHeaderName=None):
+def addCPlusPlusFile(name, template, projectName, forceOverwrite=False, addToVCS="<None>",
+                     newBasePath=None, expectedSourceName=None, expectedHeaderName=None):
     if name == None:
         test.fatal("File must have a name - got None.")
         return
@@ -785,6 +786,14 @@ def addCPlusPlusFileToCurrentProject(name, template, forceOverwrite=False, addTo
             test.compare(str(waitForObject("{name='HdrFileName' type='QLineEdit' visible='1'}").text),
                          expectedHeaderName)
     clickButton(waitForObject(":Next_QPushButton"))
+    projectComboBox = waitForObjectExists(":projectComboBox_Utils::TreeViewComboBox")
+    test.compare(projectComboBox.enabled, projectName != None,
+                 "Project combo box must be enabled when a project is open")
+    projectNameToDisplay = "<None>"
+    if projectName:
+        projectNameToDisplay = projectName
+    test.compare(str(projectComboBox.currentText), projectNameToDisplay,
+                 "The right project must be selected")
     fileExistedBefore = False
     if template == "C++ Class":
         fileExistedBefore = (os.path.exists(os.path.join(basePath, name.lower() + ".cpp"))

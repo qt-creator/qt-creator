@@ -175,7 +175,7 @@ class PROJECTEXPLORER_EXPORT Runnable
 
 public:
     Runnable() = default;
-    Runnable(const Runnable &other) : d(other.d->clone()) { }
+    Runnable(const Runnable &other) : d(other.d ? other.d->clone() : nullptr) { }
     Runnable(Runnable &&other) : d(std::move(other.d)) {}
     template <class T> Runnable(const T &data) : d(new Model<T>(data)) {}
 
@@ -215,7 +215,7 @@ class PROJECTEXPLORER_EXPORT Connection
 
 public:
     Connection() = default;
-    Connection(const Connection &other) : d(other.d->clone()) { }
+    Connection(const Connection &other) : d(other.d ? other.d->clone() : nullptr) { }
     Connection(Connection &&other) /* MSVC 2013 doesn't want = default */ : d(std::move(other.d)) {}
     template <class T> Connection(const T &data) : d(new Model<T>(data)) {}
 

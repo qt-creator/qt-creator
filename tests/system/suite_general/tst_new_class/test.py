@@ -34,9 +34,9 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    addCPlusPlusFileToCurrentProject(newClassName, "C++ Class", newBasePath=basePath,
-                                     expectedSourceName=sourceFileName,
-                                     expectedHeaderName=headerFileName)
+    addCPlusPlusFile(newClassName, "C++ Class", None, newBasePath=basePath,
+                     expectedSourceName=sourceFileName,
+                     expectedHeaderName=headerFileName)
 
     mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
     if test.verify(waitFor("sourceFileName in str(mainWindow.windowTitle)", 1000),
@@ -77,17 +77,17 @@ def main():
     def overwritten(filename):
         return notOverwrittenComment not in readFile(os.path.join(basePath, filename))
 
-    addCPlusPlusFileToCurrentProject(newClassName, "C++ Class", False, newBasePath=basePath,
-                                     expectedSourceName=sourceFileName,
-                                     expectedHeaderName=headerFileName)
+    addCPlusPlusFile(newClassName, "C++ Class", None, False,
+                     newBasePath=basePath, expectedSourceName=sourceFileName,
+                     expectedHeaderName=headerFileName)
     test.verify(not waitFor("overwritten(sourceFileName)", 2000),
                 "Source file should not be overwritten.")
     test.verify(not waitFor("overwritten(headerFileName)", 500),
                 "Header file should not be overwritten.")
 
-    addCPlusPlusFileToCurrentProject(newClassName, "C++ Class", True, newBasePath=basePath,
-                                     expectedSourceName=sourceFileName,
-                                     expectedHeaderName=headerFileName)
+    addCPlusPlusFile(newClassName, "C++ Class", None, True,
+                     newBasePath=basePath, expectedSourceName=sourceFileName,
+                     expectedHeaderName=headerFileName)
     test.verify(waitFor("overwritten(sourceFileName)", 2000),
                 "Source file should be overwritten.")
     test.verify(waitFor("overwritten(headerFileName)", 500),

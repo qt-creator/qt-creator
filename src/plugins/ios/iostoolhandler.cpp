@@ -248,6 +248,7 @@ class IosDeviceToolHandlerPrivate : public IosToolHandlerPrivate
 {
 public:
     explicit IosDeviceToolHandlerPrivate(const IosDeviceType &devType, IosToolHandler *q);
+    ~IosDeviceToolHandlerPrivate();
 
 // IosToolHandlerPrivate overrides
 public:
@@ -656,8 +657,11 @@ IosDeviceToolHandlerPrivate::IosDeviceToolHandlerPrivate(const IosDeviceType &de
     : IosToolHandlerPrivate(devType, q)
 {
     auto deleter = [](QProcess *p) {
-        p->kill();
-        p->waitForFinished(10000);
+        if (p->state() != QProcess::NotRunning) {
+            p->kill();
+            if (!p->waitForFinished(2000))
+                p->terminate();
+        }
         delete p;
     };
     process = std::shared_ptr<QProcess>(new QProcess, deleter);
@@ -694,6 +698,20 @@ IosDeviceToolHandlerPrivate::IosDeviceToolHandlerPrivate(const IosDeviceType &de
                      std::bind(&IosDeviceToolHandlerPrivate::subprocessError, this, _1));
 
     QObject::connect(&killTimer, &QTimer::timeout, std::bind(&IosDeviceToolHandlerPrivate::killProcess, this));
+}
+
+IosDeviceToolHandlerPrivate::~IosDeviceToolHandlerPrivate()
+{
+    if (isRunning()) {
+        // Disconnect the signals to avoid notifications while destructing.
+        // QTCREATORBUG-18147
+        process->disconnect();
+        // Quit ios-tool gracefully before kill is executed.
+        process->write("k\n\r");
+        process->closeWriteChannel();
+        // Give some time to ios-tool to finish.
+        process->waitForFinished(2000);
+    }
 }
 
 void IosDeviceToolHandlerPrivate::requestTransferApp(const QString &bundlePath,

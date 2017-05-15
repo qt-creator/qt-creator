@@ -280,6 +280,9 @@ void loadFonts()
 
 int main(int argc, char **argv)
 {
+    if (Utils::HostOsInfo::isLinuxHost())
+        QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
+
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/QtCreator-XXXXXX");
 
     const char *highDpiEnvironmentVariable = setHighDpiEnvironmentVariable();

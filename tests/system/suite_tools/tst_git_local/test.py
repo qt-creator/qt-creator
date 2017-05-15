@@ -175,8 +175,8 @@ def main():
     commitMessages = [commit("Initial Commit", "Committed 5 file(s).")]
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     headerName = "pointless_header.h"
-    addCPlusPlusFileToCurrentProject(headerName, "C++ Header File", addToVCS="Git",
-                                     expectedHeaderName=headerName)
+    addCPlusPlusFile(headerName, "C++ Header File", projectName + ".pro",
+                     addToVCS="Git", expectedHeaderName=headerName)
     commitMessages.insert(0, commit("Added pointless header file", "Committed 2 file(s)."))
     readmeName = "README.txt"
     addEmptyFileOutsideProject(readmeName)

@@ -504,20 +504,32 @@
     \section2 To-Do Entries
 
     The \uicontrol {To-Do Entries} pane lists the BUG, FIXME, NOTE, TODO, and
-    WARNING keywords from the current file or from all project files. The
-    keywords are organized into information, warning, and error categories.
+    WARNING keywords from the current file, from all project files, or from a
+    subproject. Click the icons on the toolbar to show only the selected
+    keywords.
 
     \image qtcreator-todo-pane.png
 
     To add keywords, select \uicontrol Tools > \uicontrol Options >
-    \uicontrol {To-Do} > \uicontrol Add.
-    Set an icon and a line background color for the keyword. To change the icons
-    and colors set for an existing keyword, select \uicontrol Edit.
+    \uicontrol {To-Do} > \uicontrol Add. Set an icon and a line background color
+    for the keyword.
 
-    To determine whether the keywords in the whole project or in the current
-    file are displayed by default, select \uicontrol {Scanning scope}.
+    \image qtcreator-todo-options.png
 
-    To exclude files from scanning, select \uicontrol {To-Do} in the
+    To change the icon and line background color of the selected keyword, select
+    \uicontrol Edit.
+
+    To remove the selected keyword, select \uicontrol Remove.
+
+    To reset the list to predefined keywords, select \uicontrol Reset. All your
+    changes will be permanently lost.
+
+    To determine whether the keywords in the whole project, in the current file,
+    or in a subproject are displayed by default, select the appropriate option
+    in the \uicontrol {Scanning scope} group.
+
+    To exclude files from scanning, select \uicontrol {Project Settings} >
+    \uicontrol {To-Do} in the
     \uicontrol Projects mode. Select \uicontrol Add and enter a regular
     expression that matches the path to files to exclude. Use a forward slash
     (/) as a separator in the path also on Windows.

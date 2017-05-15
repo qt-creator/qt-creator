@@ -25,13 +25,19 @@
 
 #include "temporarydirectory.h"
 
-#include "qtcassert.h"
+#include <QtCore/QCoreApplication>
 
-#include <memory>
+#include "qtcassert.h"
 
 namespace Utils {
 
-static std::unique_ptr<QTemporaryDir> m_masterTemporaryDir;
+static QTemporaryDir* m_masterTemporaryDir = nullptr;
+
+static void cleanupMasterTemporaryDir()
+{
+    delete m_masterTemporaryDir;
+    m_masterTemporaryDir = nullptr;
+}
 
 TemporaryDirectory::TemporaryDirectory(const QString &pattern) :
     QTemporaryDir(m_masterTemporaryDir->path() + '/' + pattern)
@@ -41,12 +47,16 @@ TemporaryDirectory::TemporaryDirectory(const QString &pattern) :
 
 QTemporaryDir *TemporaryDirectory::masterTemporaryDirectory()
 {
-    return m_masterTemporaryDir.get();
+    return m_masterTemporaryDir;
 }
 
 void TemporaryDirectory::setMasterTemporaryDirectory(const QString &pattern)
 {
-    m_masterTemporaryDir = std::make_unique<QTemporaryDir>(pattern);
+    if (m_masterTemporaryDir)
+        cleanupMasterTemporaryDir();
+    else
+        qAddPostRoutine(cleanupMasterTemporaryDir);
+    m_masterTemporaryDir = new QTemporaryDir(pattern);
 }
 
 QString TemporaryDirectory::masterDirectoryPath()
