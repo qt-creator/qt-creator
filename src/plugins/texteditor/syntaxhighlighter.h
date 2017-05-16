@@ -33,6 +33,7 @@
 #include <QTextLayout>
 
 #include <functional>
+#include <limits.h>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
@@ -84,7 +85,7 @@ protected:
     void setFormat(int start, int count, const QFont &font);
     QTextCharFormat format(int pos) const;
 
-    void formatSpaces(const QString &text);
+    void formatSpaces(const QString &text, int start = 0, int count = INT_MAX);
     void setFormatWithSpaces(const QString &text, int start, int count,
                              const QTextCharFormat &format);
 

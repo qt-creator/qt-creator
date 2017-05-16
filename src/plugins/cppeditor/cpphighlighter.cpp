@@ -214,7 +214,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     // mark the trailing white spaces
     const int lastTokenEnd = tokens.last().utf16charsEnd();
     if (text.length() > lastTokenEnd)
-        setFormatWithSpaces(text, lastTokenEnd, text.length() - lastTokenEnd, formatForCategory(C_VISUAL_WHITESPACE));
+        formatSpaces(text, lastTokenEnd, text.length() - lastTokenEnd);
 
     if (!initialLexerState && lexerState && !tokens.isEmpty()) {
         const Token &lastToken = tokens.last();

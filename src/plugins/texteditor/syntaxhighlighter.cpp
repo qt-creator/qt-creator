@@ -477,15 +477,15 @@ void SyntaxHighlighter::setFormat(int start, int count, const QFont &font)
     setFormat(start, count, format);
 }
 
-void SyntaxHighlighter::formatSpaces(const QString &text)
+void SyntaxHighlighter::formatSpaces(const QString &text, int start, int count)
 {
     Q_D(const SyntaxHighlighter);
-    int offset = 0;
-    const int length = text.length();
-    while (offset < length) {
+    int offset = start;
+    const int end = std::min(start + count, text.length());
+    while (offset < end) {
         if (text.at(offset).isSpace()) {
             int start = offset++;
-            while (offset < length && text.at(offset).isSpace())
+            while (offset < end && text.at(offset).isSpace())
                 ++offset;
             setFormat(start, offset - start, d->whitespaceFormat);
         } else {
