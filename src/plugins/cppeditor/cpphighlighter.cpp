@@ -210,7 +210,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         } else if (tk.isKeyword()
                    || (m_languageFeatures.qtKeywordsEnabled
                        && CppTools::isQtKeyword(text.midRef(tk.utf16charsBegin(), tk.utf16chars())))
-                   || tk.isObjCAtKeyword()) {
+                   || (m_languageFeatures.objCEnabled && tk.isObjCAtKeyword())) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(CppKeywordFormat));
         } else if (tk.isPrimitiveType()) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(),
