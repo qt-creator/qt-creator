@@ -54,6 +54,7 @@ namespace Internal {
 MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
     : ValgrindToolRunner(runControl)
 {
+    setDisplayName("MemcheckToolRunner");
     connect(&m_parser, &XmlProtocol::ThreadedParser::error,
             this, &MemcheckToolRunner::parserError);
     connect(&m_parser, &XmlProtocol::ThreadedParser::suppressionCount,

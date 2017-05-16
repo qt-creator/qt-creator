@@ -160,7 +160,7 @@ void ValgrindToolRunner::runnerFinished()
     disconnect(runner(), &ValgrindRunner::finished,
                this, &ValgrindToolRunner::runnerFinished);
 
-    reportStarted();
+    reportStopped();
 }
 
 void ValgrindToolRunner::receiveProcessOutput(const QString &output, OutputFormat format)

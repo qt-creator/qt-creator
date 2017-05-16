@@ -42,6 +42,7 @@ using namespace Valgrind::Internal;
 CallgrindToolRunner::CallgrindToolRunner(ProjectExplorer::RunControl *runControl)
     : ValgrindToolRunner(runControl)
 {
+    setDisplayName("CallgrindToolRunner");
     connect(&m_runner, &Callgrind::CallgrindRunner::finished,
             this, &CallgrindToolRunner::slotFinished);
     connect(m_runner.parser(), &Callgrind::Parser::parserDataReady,

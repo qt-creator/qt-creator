@@ -576,7 +576,7 @@ RunWorker *MemcheckTool::createRunWorker(RunControl *runControl)
             this, [this, runTool] { engineStarting(runTool); });
     connect(runTool, &MemcheckToolRunner::parserError, this, &MemcheckTool::parserError);
     connect(runTool, &MemcheckToolRunner::internalParserError, this, &MemcheckTool::internalParserError);
-    connect(runControl, &RunControl::finished, this, &MemcheckTool::engineFinished);
+    connect(runTool, &MemcheckToolRunner::stopped, this, &MemcheckTool::engineFinished);
 
     connect(m_stopAction, &QAction::triggered, runControl, &RunControl::stop);
 
