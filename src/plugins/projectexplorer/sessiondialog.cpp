@@ -146,7 +146,7 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
 
 void SessionDialog::setAutoLoadSession(bool check)
 {
-    m_ui.autoLoadCheckBox->setChecked(check ? Qt::Checked : Qt::Unchecked);
+    m_ui.autoLoadCheckBox->setChecked(check);
 }
 
 bool SessionDialog::autoLoadSession() const
