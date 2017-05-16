@@ -174,6 +174,11 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
         tf.setForeground(f.foreground());
     if (f.background().isValid() && (category == C_TEXT || f.background() != m_scheme.formatFor(C_TEXT).background()))
         tf.setBackground(f.background());
+
+    // underline does not need to fill without having background color
+    if (f.underlineStyle() != QTextCharFormat::NoUnderline && !f.background().isValid())
+        tf.setBackground(QBrush(Qt::BrushStyle::NoBrush));
+
     tf.setFontWeight(f.bold() ? QFont::Bold : QFont::Normal);
     tf.setFontItalic(f.italic());
 
