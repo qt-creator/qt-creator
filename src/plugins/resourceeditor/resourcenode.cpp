@@ -270,12 +270,14 @@ ResourceTopLevelNode::ResourceTopLevelNode(const FileName &filePath, bool genera
 {
     setIsGenerated(generated);
     setIcon(FileIconProvider::icon(filePath.toString()));
-    if (contents.isEmpty()) {
-        m_document = new ResourceFileWatcher(this);
-        DocumentManager::addDocument(m_document);
+    if (!filePath.isEmpty()) {
+        QFileInfo fi = filePath.toFileInfo();
+        if (fi.isFile() && fi.isReadable()) {
+            m_document = new ResourceFileWatcher(this);
+            DocumentManager::addDocument(m_document);
+        }
     } else {
         m_contents = contents;
-        m_document = nullptr;
     }
 
     FileName base = parent->filePath();

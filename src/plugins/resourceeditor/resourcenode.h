@@ -56,7 +56,7 @@ public:
     QString contents() const { return m_contents; }
 
 private:
-    Internal::ResourceFileWatcher *m_document;
+    Internal::ResourceFileWatcher *m_document = nullptr;
     QString m_contents;
 };
 
