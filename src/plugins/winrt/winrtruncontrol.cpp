@@ -50,24 +50,32 @@ using ProjectExplorer::Target;
 namespace WinRt {
 namespace Internal {
 
-WinRtRunControl::WinRtRunControl(WinRtRunConfiguration *runConfiguration, Core::Id mode)
-    : RunControl(runConfiguration, mode)
-    , m_runConfiguration(runConfiguration)
+WinRtRunner::WinRtRunner(RunControl *runControl)
+    : RunWorker(runControl)
 {
-    setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
+    runControl->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
 }
 
-void WinRtRunControl::start()
+void WinRtRunner::start()
 {
     if (m_state != StoppedState)
         return;
-    if (!startWinRtRunner())
-        m_state = StoppedState;
-    else
-        reportApplicationStart();
+
+    QTC_ASSERT(!m_runner, m_state = StoppedState; reportFailure(); return);
+    QString errorMessage;
+    m_runner = new WinRtRunnerHelper(this, &errorMessage);
+    if (!errorMessage.isEmpty()) {
+        reportFailure(errorMessage);
+        return;
+    }
+    connect(m_runner, &WinRtRunnerHelper::started, this, &WinRtRunner::onProcessStarted);
+    connect(m_runner, &WinRtRunnerHelper::finished, this, &WinRtRunner::onProcessFinished);
+    connect(m_runner, &WinRtRunnerHelper::error, this, &WinRtRunner::onProcessError);
+    m_state = StartingState;
+    m_runner->start();
 }
 
-void WinRtRunControl::stop()
+void WinRtRunner::stop()
 {
     if (m_state == StoppedState)
         return;
@@ -75,38 +83,27 @@ void WinRtRunControl::stop()
     m_runner->stop();
 }
 
-void WinRtRunControl::onProcessStarted()
+void WinRtRunner::onProcessStarted()
 {
     QTC_CHECK(m_state == StartingState);
     m_state = StartedState;
+    reportStarted();
 }
 
-void WinRtRunControl::onProcessFinished()
+void WinRtRunner::onProcessFinished()
 {
     QTC_CHECK(m_state == StartedState);
     onProcessError();
 }
 
-void WinRtRunControl::onProcessError()
+void WinRtRunner::onProcessError()
 {
     QTC_ASSERT(m_runner, return);
     m_runner->disconnect();
     m_runner->deleteLater();
     m_runner = 0;
     m_state = StoppedState;
-    reportApplicationStop();
-}
-
-bool WinRtRunControl::startWinRtRunner()
-{
-    QTC_ASSERT(!m_runner, return false);
-    m_runner = new WinRtRunnerHelper(this);
-    connect(m_runner, &WinRtRunnerHelper::started, this, &WinRtRunControl::onProcessStarted);
-    connect(m_runner, &WinRtRunnerHelper::finished, this, &WinRtRunControl::onProcessFinished);
-    connect(m_runner, &WinRtRunnerHelper::error, this, &WinRtRunControl::onProcessError);
-    m_state = StartingState;
-    m_runner->start();
-    return true;
+    reportStopped();
 }
 
 } // namespace Internal

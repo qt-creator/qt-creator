@@ -535,7 +535,8 @@ void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp, QString 
 {
     int portsUsed = portsUsedByDebugger();
     if (portsUsed > device()->freePorts().count()) {
-        *errorMessage = tr("Cannot debug: Not enough free ports available.");
+        if (errorMessage)
+            *errorMessage = tr("Cannot debug: Not enough free ports available.");
         return;
     }
 

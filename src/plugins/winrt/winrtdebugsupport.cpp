@@ -27,10 +27,6 @@
 #include "winrtrunconfiguration.h"
 #include "winrtrunnerhelper.h"
 
-#include <debugger/debuggerkitinformation.h>
-#include <debugger/debuggerrunconfigurationaspect.h>
-#include <debugger/debuggerruncontrol.h>
-#include <debugger/debuggerstartparameters.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -43,23 +39,80 @@
 
 #include <utils/qtcprocess.h>
 
+using namespace Debugger;
+using namespace ProjectExplorer;
+
 namespace WinRt {
 namespace Internal {
 
-using namespace ProjectExplorer;
-
-WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl, WinRtRunnerHelper *runner)
-    : RunWorker(runControl)
-    , m_runner(runner)
+WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl, QString *errorMessage)
+    : DebuggerRunTool(runControl)
 {
-    connect(runControl, &RunControl::finished, this, &WinRtDebugSupport::finish);
-}
+    // FIXME: This is just working for local debugging;
+    DebuggerStartParameters params;
+    params.startMode = AttachExternal;
+    // The first Thread needs to be resumed manually.
+    params.commandsAfterConnect = "~0 m";
 
-bool WinRtDebugSupport::useQmlDebugging(RunConfiguration *runConfig)
-{
-    Debugger::DebuggerRunConfigurationAspect *extraAspect =
-            runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    return extraAspect && extraAspect->useQmlDebugger();
+    QFileInfo debuggerHelper(QCoreApplication::applicationDirPath()
+                             + QLatin1String("/winrtdebughelper.exe"));
+    if (!debuggerHelper.isExecutable()) {
+        *errorMessage = tr("The WinRT debugging helper is missing from your Qt Creator "
+                           "installation. It was assumed to be located at %1").arg(
+                    debuggerHelper.absoluteFilePath());
+        return;
+    }
+
+    if (isQmlDebugging()) {
+        Utils::Port qmlDebugPort;
+        if (!getFreePort(qmlDebugPort, errorMessage))
+            return;
+        params.qmlServer.host = QHostAddress(QHostAddress::LocalHost).toString();
+        params.qmlServer.port = qmlDebugPort;
+    }
+
+    m_runner = new WinRtRunnerHelper(this, errorMessage);
+    if (!errorMessage->isEmpty())
+        return;
+
+    QLocalServer server;
+    server.listen(QLatin1String("QtCreatorWinRtDebugPIDPipe"));
+
+    m_runner->debug(debuggerHelper.absoluteFilePath());
+    if (!m_runner->waitForStarted()) {
+        *errorMessage = tr("Cannot start the WinRT Runner Tool.");
+        return;
+    }
+
+    if (!server.waitForNewConnection(10000)) {
+        *errorMessage = tr("Cannot establish connection to the WinRT debugging helper.");
+        return;
+    }
+
+    while (server.hasPendingConnections()) {
+        QLocalSocket *connection = server.nextPendingConnection();
+        if (connection->waitForReadyRead(1000)) {
+            const QByteArray &output = connection->readAll();
+            QList<QByteArray> arg = output.split(':');
+            if (arg.first() == "PID") {
+                bool ok =false;
+                params.attachPID = Utils::ProcessHandle(arg.last().toInt(&ok));
+                if (!ok) {
+                    *errorMessage = tr("Cannot extract the PID from the WinRT debugging helper. "
+                                       "(output: %1)").arg(QString::fromLocal8Bit(output));
+                    return;
+                }
+                server.close();
+                setStartParameters(params, errorMessage);
+                return;
+            }
+        }
+    }
+
+    server.close();
+
+    *errorMessage = tr("Cannot create an appropriate run control for "
+                       "the current run configuration.");
 }
 
 bool WinRtDebugSupport::getFreePort(Utils::Port &qmlDebuggerPort, QString *errorMessage)
@@ -77,88 +130,6 @@ bool WinRtDebugSupport::getFreePort(Utils::Port &qmlDebuggerPort, QString *error
 WinRtDebugSupport::~WinRtDebugSupport()
 {
     delete m_runner;
-}
-
-void WinRtDebugSupport::finish()
-{
-    m_runner->stop();
-}
-
-RunControl *WinRtDebugSupport::createDebugRunControl(WinRtRunConfiguration *runConfig,
-                                                     Core::Id mode,
-                                                     QString *errorMessage)
-{
-    // FIXME: This is just working for local debugging;
-    using namespace Debugger;
-    DebuggerStartParameters params;
-    params.startMode = AttachExternal;
-    // The first Thread needs to be resumed manually.
-    params.commandsAfterConnect = "~0 m";
-
-    QFileInfo debuggerHelper(QCoreApplication::applicationDirPath()
-                             + QLatin1String("/winrtdebughelper.exe"));
-    if (!debuggerHelper.isExecutable()) {
-        *errorMessage = tr("The WinRT debugging helper is missing from your Qt Creator "
-                           "installation. It was assumed to be located at %1").arg(
-                    debuggerHelper.absoluteFilePath());
-        return 0;
-    }
-
-    if (useQmlDebugging(runConfig)) {
-        Utils::Port qmlDebugPort;
-        if (!getFreePort(qmlDebugPort, errorMessage))
-            return 0;
-        params.qmlServer.host = QHostAddress(QHostAddress::LocalHost).toString();
-        params.qmlServer.port = qmlDebugPort;
-    }
-
-    WinRtRunnerHelper *runner = new WinRtRunnerHelper(runConfig, errorMessage);
-    if (!errorMessage->isEmpty())
-        return 0;
-
-    QLocalServer server;
-    server.listen(QLatin1String("QtCreatorWinRtDebugPIDPipe"));
-
-    runner->debug(debuggerHelper.absoluteFilePath());
-    if (!runner->waitForStarted()) {
-        *errorMessage = tr("Cannot start the WinRT Runner Tool.");
-        return 0;
-    }
-
-    if (!server.waitForNewConnection(10000)) {
-        *errorMessage = tr("Cannot establish connection to the WinRT debugging helper.");
-        return 0;
-    }
-
-    while (server.hasPendingConnections()) {
-        QLocalSocket *connection = server.nextPendingConnection();
-        if (connection->waitForReadyRead(1000)) {
-            const QByteArray &output = connection->readAll();
-            QList<QByteArray> arg = output.split(':');
-            if (arg.first() == "PID") {
-                bool ok =false;
-                params.attachPID = Utils::ProcessHandle(arg.last().toInt(&ok));
-                if (!ok) {
-                    *errorMessage = tr("Cannot extract the PID from the WinRT debugging helper. "
-                                       "(output: %1)").arg(QString::fromLocal8Bit(output));
-                    return 0;
-                }
-                server.close();
-                auto debugRunControl = new RunControl(runConfig, mode);
-                (void) new Debugger::DebuggerRunTool(debugRunControl, params, errorMessage);
-                runner->setDebugRunControl(debugRunControl);
-                new WinRtDebugSupport(debugRunControl, runner);
-                return debugRunControl;
-            }
-        }
-    }
-
-    server.close();
-
-    *errorMessage = tr("Cannot create an appropriate run control for "
-                       "the current run configuration.");
-
-    return 0;
 }
 
 } // namespace Internal

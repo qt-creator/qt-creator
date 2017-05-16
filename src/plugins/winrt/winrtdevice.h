@@ -56,6 +56,9 @@ protected:
     WinRtDevice(const WinRtDevice &other);
 
 private:
+    void initFreePorts();
+
+private:
     int m_deviceId;
 };
 

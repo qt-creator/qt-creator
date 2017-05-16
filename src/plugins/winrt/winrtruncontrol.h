@@ -30,25 +30,16 @@
 #include <projectexplorer/runconfiguration.h>
 #include <utils/qtcprocess.h>
 
-namespace QtSupport {
-class BaseQtVersion;
-} // namespace QtSupport
-
-namespace ProjectExplorer {
-class Target;
-} // namespace ProjectExplorer
-
 namespace WinRt {
 namespace Internal {
 
-class WinRtRunConfiguration;
 class WinRtRunnerHelper;
 
-class WinRtRunControl : public ProjectExplorer::RunControl
+class WinRtRunner : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 public:
-    explicit WinRtRunControl(WinRtRunConfiguration *runConfiguration, Core::Id mode);
+    explicit WinRtRunner(ProjectExplorer::RunControl *runControl);
 
     void start() override;
     void stop() override;
@@ -59,9 +50,7 @@ private:
     void onProcessStarted();
     void onProcessFinished();
     void onProcessError();
-    bool startWinRtRunner();
 
-    WinRtRunConfiguration *m_runConfiguration;
     State m_state = StoppedState;
     Utils::QtcProcess *m_process = nullptr;
     WinRtRunnerHelper *m_runner = nullptr;

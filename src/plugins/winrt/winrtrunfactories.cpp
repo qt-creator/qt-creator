@@ -153,17 +153,24 @@ bool WinRtRunControlFactory::canRun(RunConfiguration *runConfiguration,
 RunControl *WinRtRunControlFactory::create(
         RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
 {
-    WinRtRunConfiguration *rc = qobject_cast<WinRtRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(rc, return 0);
+    RunControl *runControl = nullptr;
+    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE) {
+        runControl = new RunControl(runConfiguration, mode);
+        (void) new WinRtRunner(runControl);
+        return runControl;
+    } else if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE
+            || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN) {
+        runControl = new RunControl(runConfiguration, mode);
+        (void) new WinRtDebugSupport(runControl, errorMessage);
+    } else {
+        *errorMessage = tr("Unsupported run mode %1.").arg(mode.toString());
+    }
 
-    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
-        return new WinRtRunControl(rc, mode);
+    if (errorMessage->isEmpty())
+        return runControl;
 
-    if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN)
-        return WinRtDebugSupport::createDebugRunControl(rc, mode, errorMessage);
-
-    *errorMessage = tr("Unsupported run mode %1.").arg(mode.toString());
-    return 0;
+    delete runControl;
+    return nullptr;
 }
 
 QString WinRtRunControlFactory::displayName() const
