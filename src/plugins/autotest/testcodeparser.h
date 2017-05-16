@@ -38,6 +38,10 @@ namespace Core {
 class Id;
 }
 
+QT_BEGIN_NAMESPACE
+class QThreadPool;
+QT_END_NAMESPACE
+
 namespace Autotest {
 namespace Internal {
 
@@ -106,6 +110,7 @@ private:
     QVector<ITestParser *> m_testCodeParsers; // ptrs are still owned by TestFrameworkManager
     QTimer m_reparseTimer;
     ITestParser *m_updateParser = nullptr;
+    QThreadPool *m_threadPool = nullptr;
 };
 
 } // namespace Internal

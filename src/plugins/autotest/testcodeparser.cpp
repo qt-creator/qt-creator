@@ -59,7 +59,8 @@ using namespace ProjectExplorer;
 
 TestCodeParser::TestCodeParser(TestTreeModel *parent)
     : QObject(parent),
-      m_model(parent)
+      m_model(parent),
+      m_threadPool(new QThreadPool(this))
 {
     // connect to ProgressManager to postpone test parsing when CppModelManager is parsing
     auto progressManager = qobject_cast<Core::ProgressManager *>(Core::ProgressManager::instance());
@@ -78,6 +79,7 @@ TestCodeParser::TestCodeParser(TestTreeModel *parent)
     connect(this, &TestCodeParser::parsingFinished, this, &TestCodeParser::releaseParserInternals);
     m_reparseTimer.setSingleShot(true);
     connect(&m_reparseTimer, &QTimer::timeout, this, &TestCodeParser::parsePostponedFiles);
+    m_threadPool->setMaxThreadCount(std::max(QThread::idealThreadCount()/4, 1));
 }
 
 TestCodeParser::~TestCodeParser()
@@ -404,6 +406,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList, ITestParser *pars
             parseFileForTests(codeParsers, fi, file);
         },
         Utils::MapReduceOption::Unordered,
+        m_threadPool,
         QThread::LowestPriority);
     m_futureWatcher.setFuture(future);
     if (list.size() > 5) {
