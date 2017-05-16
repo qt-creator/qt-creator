@@ -111,7 +111,7 @@ ExampleSetModel::ExampleSetModel()
     }
 }
 
-void ExampleSetModel::recreateModel()
+void ExampleSetModel::recreateModel(const QList<BaseQtVersion *> &qtVersions)
 {
     beginResetModel();
     clear();
@@ -129,7 +129,7 @@ void ExampleSetModel::recreateModel()
         extraManifestDirs.insert(set.manifestPath);
     }
 
-    foreach (BaseQtVersion *version, QtVersionManager::versions()) {
+    foreach (BaseQtVersion *version, qtVersions) {
         // sanitize away qt versions that have already been added through extra sets
         if (extraManifestDirs.contains(version->documentationPath())) {
             if (debugExamples()) {
@@ -484,7 +484,7 @@ void ExampleSetModel::updateQtVersionList()
     if (defaultVersion && versions.contains(defaultVersion))
         versions.move(versions.indexOf(defaultVersion), 0);
 
-    recreateModel();
+    recreateModel(versions);
 
     int currentIndex = m_selectedExampleSetIndex;
     if (currentIndex < 0) // reset from settings
@@ -494,7 +494,7 @@ void ExampleSetModel::updateQtVersionList()
 
     if (currentType == ExampleSetModel::InvalidExampleSet) {
         // select examples corresponding to 'highest' Qt version
-        BaseQtVersion *highestQt = findHighestQtVersion();
+        BaseQtVersion *highestQt = findHighestQtVersion(versions);
         currentIndex = indexForQtVersion(highestQt);
     } else if (currentType == ExampleSetModel::QtExampleSet) {
         // try to select the previously selected Qt version, or
@@ -502,17 +502,16 @@ void ExampleSetModel::updateQtVersionList()
         int currentQtId = getQtId(currentIndex);
         BaseQtVersion *newQtVersion = QtVersionManager::version(currentQtId);
         if (!newQtVersion)
-            newQtVersion = findHighestQtVersion();
+            newQtVersion = findHighestQtVersion(versions);
         currentIndex = indexForQtVersion(newQtVersion);
     } // nothing to do for extra example sets
     selectExampleSet(currentIndex);
     emit selectedExampleSetChanged(currentIndex);
 }
 
-BaseQtVersion *ExampleSetModel::findHighestQtVersion() const
+BaseQtVersion *ExampleSetModel::findHighestQtVersion(const QList<BaseQtVersion *> &versions) const
 {
     BaseQtVersion *newVersion = nullptr;
-    const QList<BaseQtVersion *> versions = QtVersionManager::versions();
     for (BaseQtVersion *version : versions) {
         if (!newVersion) {
             newVersion = version;
