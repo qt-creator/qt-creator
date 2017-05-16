@@ -6,7 +6,7 @@
     "trDescription": "Creates a new unit test project. Unit tests allow you to verify that the code is fit for use and that there are no regressions.",
     "trDisplayName": "Auto Test Project",
     "trDisplayCategory": "Other Project",
-    "icon": "autotest_24.png",
+    "icon": "autotest.png",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt", "QtSupport.Wizards.FeatureDesktop" ],
     "enabled": "%{JS: [ %{Plugins} ].indexOf('AutoTest') >= 0}",
 

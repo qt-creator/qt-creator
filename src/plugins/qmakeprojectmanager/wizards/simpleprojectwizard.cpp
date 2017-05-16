@@ -130,14 +130,7 @@ void FilesSelectionWizardPage::initializePage()
 SimpleProjectWizard::SimpleProjectWizard()
 {
     setSupportedProjectTypes({Constants::PROJECT_ID});
-    // TODO do something about the ugliness of standard icons in sizes different than 16, 32, 64, 128
-    {
-        QPixmap icon(22, 22);
-        icon.fill(Qt::transparent);
-        QPainter p(&icon);
-        p.drawPixmap(3, 3, 16, 16, QApplication::style()->standardIcon(QStyle::SP_DirIcon).pixmap(16));
-        setIcon(icon);
-    }
+    setIcon(QIcon(QLatin1String(":/qmakeprojectmanager/images/qmakeprojectmanager.png")));
     setDisplayName(tr("Import as qmake Project (Limited Functionality)"));
     setId("Z.DummyProFile");
     setDescription(tr("Imports existing projects that do not use qmake, CMake or Autotools.<p>"

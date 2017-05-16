@@ -111,14 +111,7 @@ QString GenericProjectWizardDialog::projectName() const
 GenericProjectWizard::GenericProjectWizard()
 {
     setSupportedProjectTypes({Constants::GENERICPROJECT_ID});
-    // TODO do something about the ugliness of standard icons in sizes different than 16, 32, 64, 128
-    {
-        QPixmap icon(22, 22);
-        icon.fill(Qt::transparent);
-        QPainter p(&icon);
-        p.drawPixmap(3, 3, 16, 16, QApplication::style()->standardIcon(QStyle::SP_DirIcon).pixmap(16));
-        setIcon(icon);
-    }
+    setIcon(QIcon(QLatin1String(":/genericprojectmanager/images/genericprojectmanager.png")));
     setDisplayName(tr("Import Existing Project"));
     setId("Z.Makefile");
     setDescription(tr("Imports existing projects that do not use qmake, CMake or Autotools. "

@@ -47,7 +47,7 @@ Q_DECLARE_METATYPE(Core::IWizardFactory*)
 
 namespace {
 
-const int ICON_SIZE = 22;
+const int ICON_SIZE = 92;
 const char LAST_CATEGORY_KEY[] = "Core/NewDialog/LastCategory";
 const char LAST_PLATFORM_KEY[] = "Core/NewDialog/LastPlatform";
 
@@ -267,7 +267,7 @@ void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
     parentItem->appendRow(filesKindItem);
 
     if (m_dummyIcon.isNull())
-        m_dummyIcon = Utils::Icons::NEWFILE.icon();
+        m_dummyIcon = QIcon(":/utils/images/wizardicon-file.png");
 
     QSet<Id> availablePlatforms = IWizardFactory::allAvailablePlatforms();
     m_ui->comboBox->addItem(tr("All Templates"), Id().toSetting());

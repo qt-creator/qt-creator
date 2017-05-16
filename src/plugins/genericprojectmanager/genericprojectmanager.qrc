@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/genericprojectmanager">
+        <file>images/genericprojectmanager.png</file>
+        <file>images/genericprojectmanager@2x.png</file>
+    </qresource>
+</RCC>
