@@ -179,8 +179,13 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
                     vfolder->addNode(resourceNode);
                 }
             } else {
-                for (const FileName &fn : newFilePaths)
+                for (const FileName &fn : newFilePaths) {
+                    // Qmake will flag everything in SOURCES as source, even when the
+                    // qt quick compiler moves qrc files into it:-/ Get better data based on
+                    // the filename.
+                    type = FileNode::fileTypeForFileName(fn);
                     vfolder->addNestedNode(new FileNode(fn, type, false));
+                }
                 for (FolderNode *fn : vfolder->folderNodes())
                     fn->compress();
             }
