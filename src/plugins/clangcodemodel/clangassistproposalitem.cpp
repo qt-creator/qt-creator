@@ -63,7 +63,7 @@ bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedCharacter) co
 
 bool ClangAssistProposalItem::implicitlyApplies() const
 {
-    return false;
+    return true;
 }
 
 void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
@@ -174,20 +174,13 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
     }
 
     // Avoid inserting characters that are already there
-    const int endsPosition = manipulator.positionAt(TextEditor::EndOfLinePosition);
-    const QString existingText = manipulator.textAt(manipulator.currentPosition(), endsPosition - manipulator.currentPosition());
-    int existLength = 0;
-    if (!existingText.isEmpty() && ccr.completionKind() != CodeCompletion::KeywordCompletionKind) {
-        // Calculate the exist length in front of the extra chars
-        existLength = textToBeInserted.length() - (manipulator.currentPosition() - basePosition);
-        while (!existingText.startsWith(textToBeInserted.right(existLength))) {
-            if (--existLength == 0)
-                break;
-        }
-    }
+    QTextCursor cursor = manipulator.textCursorAt(basePosition);
+    cursor.movePosition(QTextCursor::EndOfWord);
+    const int currentPosition = cursor.position();
+
     for (int i = 0; i < extraCharacters.length(); ++i) {
         const QChar a = extraCharacters.at(i);
-        const QChar b = manipulator.characterAt(manipulator.currentPosition() + i + existLength);
+        const QChar b = manipulator.characterAt(currentPosition + i);
         if (a == b)
             ++extraLength;
         else
@@ -196,9 +189,10 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
 
     textToBeInserted += extraCharacters;
 
-    const int length = manipulator.currentPosition() - basePosition + existLength + extraLength;
+    const int length = currentPosition - basePosition + extraLength;
 
     const bool isReplaced = manipulator.replace(basePosition, length, textToBeInserted);
+    manipulator.setCursorPosition(basePosition + textToBeInserted.length());
     if (isReplaced) {
         if (cursorOffset)
             manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);

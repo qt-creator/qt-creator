@@ -354,9 +354,13 @@ void CodeAssistantPrivate::processProposalItem(AssistProposalItemInterface *prop
 void CodeAssistantPrivate::handlePrefixExpansion(const QString &newPrefix)
 {
     QTC_ASSERT(m_proposal, return);
-    const int currentPosition = m_editorWidget->position();
+
+    QTextCursor cursor(m_editorWidget->document());
+    cursor.setPosition(m_proposal->basePosition());
+    cursor.movePosition(QTextCursor::EndOfWord);
+
     m_editorWidget->setCursorPosition(m_proposal->basePosition());
-    m_editorWidget->replace(currentPosition - m_proposal->basePosition(), newPrefix);
+    m_editorWidget->replace(cursor.position() - m_proposal->basePosition(), newPrefix);
     notifyChange();
 }
 

@@ -46,7 +46,7 @@ bool ClangPreprocessorAssistProposalItem::prematurelyApplies(const QChar &typedC
 
 bool ClangPreprocessorAssistProposalItem::implicitlyApplies() const
 {
-    return false;
+    return true;
 }
 
 void ClangPreprocessorAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
