@@ -495,6 +495,24 @@ DebuggerSettings::DebuggerSettings()
     insertItem(IntelFlavor, item);
 
     item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("ShowMixed"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    insertItem(ShowMixed, item);
+
+    item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("ShowOpcode"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    insertItem(ShowOpcode, item);
+
+    item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("ShowOffset"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    insertItem(ShowOffset, item);
+
+    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("IdentifyDebugInfoPackages"));
     item->setCheckable(true);
     item->setDefaultValue(false);

@@ -152,6 +152,25 @@ GdbOptionsPageWidget::GdbOptionsPageWidget()
         "<html><head/><body>GDB shows by default AT&&T style disassembly."
         "</body></html>"));
 
+    auto checkBoxShowMixed = new QCheckBox(groupBoxGeneral);
+    checkBoxShowMixed->setText(GdbOptionsPage::tr("Show mixed C and assembly"));
+    checkBoxShowMixed->setToolTip(GdbOptionsPage::tr(
+        "<html><head/><body>Check to show mixed C and assembly."
+        "</body></html>"));
+
+
+    auto checkBoxShowOpcode = new QCheckBox(groupBoxGeneral);
+    checkBoxShowOpcode->setText(GdbOptionsPage::tr("Show opcodes for disassembly"));
+    checkBoxShowOpcode->setToolTip(GdbOptionsPage::tr(
+        "<html><head/><body>Check to show opcodes for disassembly."
+        "</body></html>"));
+
+    auto checkBoxShowOffset = new QCheckBox(groupBoxGeneral);
+    checkBoxShowOffset->setText(GdbOptionsPage::tr("Show offset for disassembly"));
+    checkBoxShowOffset->setToolTip(GdbOptionsPage::tr(
+        "<html><head/><body>Check to show offset for disassembly."
+        "</body></html>"));
+
     auto checkBoxIdentifyDebugInfoPackages = new QCheckBox(groupBoxGeneral);
     checkBoxIdentifyDebugInfoPackages->setText(GdbOptionsPage::tr("Create tasks from missing packages"));
     checkBoxIdentifyDebugInfoPackages->setToolTip(GdbOptionsPage::tr(
@@ -232,6 +251,9 @@ GdbOptionsPageWidget::GdbOptionsPageWidget()
     formLayout->addRow(checkBoxLoadGdbInit);
     formLayout->addRow(checkBoxLoadGdbDumpers);
     formLayout->addRow(checkBoxIntelFlavor);
+    formLayout->addRow(checkBoxShowMixed);
+    formLayout->addRow(checkBoxShowOpcode);
+    formLayout->addRow(checkBoxShowOffset);
     formLayout->addRow(checkBoxIdentifyDebugInfoPackages);
 
     auto startLayout = new QGridLayout(groupBoxStartupCommands);
@@ -254,6 +276,9 @@ GdbOptionsPageWidget::GdbOptionsPageWidget()
     group.insert(action(AdjustBreakpointLocations), checkBoxAdjustBreakpointLocations);
     group.insert(action(GdbWatchdogTimeout), spinBoxGdbWatchdogTimeout);
     group.insert(action(IntelFlavor), checkBoxIntelFlavor);
+    group.insert(action(ShowMixed), checkBoxShowMixed);
+    group.insert(action(ShowOpcode), checkBoxShowOpcode);
+    group.insert(action(ShowOffset), checkBoxShowOffset);
     group.insert(action(IdentifyDebugInfoPackages), checkBoxIdentifyDebugInfoPackages);
     group.insert(action(UseMessageBoxForSignals), checkBoxUseMessageBoxForSignals);
     group.insert(action(SkipKnownFrames), checkBoxSkipKnownFrames);

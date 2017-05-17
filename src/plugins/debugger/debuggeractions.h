@@ -131,6 +131,9 @@ enum DebuggerActionCode
     WarnOnReleaseBuilds,
     MultiInferior,
     IntelFlavor,
+    ShowMixed,
+    ShowOpcode,
+    ShowOffset,
     IdentifyDebugInfoPackages,
 
     // Stack
