@@ -2974,6 +2974,18 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
                 [this](const DebuggerResponse &response) {
                     watchHandler()->addDumpers(response.data["result"]["dumpers"]);
     }});
+
+    const QString path = stringSetting(ExtraDumperFile);
+    if (!path.isEmpty() && QFileInfo(path).isReadable()) {
+        DebuggerCommand cmd("addDumperModule", ScriptCommand);
+        cmd.arg("path", path);
+        runCommand(cmd);
+    }
+    const QString commands = stringSetting(ExtraDumperCommands);
+    if (!commands.isEmpty()) {
+        for (auto command : commands.split('\n', QString::SkipEmptyParts))
+            runCommand({command, ScriptCommand});
+    }
 }
 
 void CdbEngine::mergeStartParametersSourcePathMap()
