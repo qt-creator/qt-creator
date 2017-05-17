@@ -54,7 +54,7 @@ HighlightingMark::HighlightingMark(const CXCursor &cxCursor,
     column = start.column();
     offset = start.offset();
     length = end.offset() - start.offset();
-    collectKinds(cxToken, originalCursor);
+    collectKinds(cxTranslationUnit, cxToken, originalCursor);
 }
 
 HighlightingMark::HighlightingMark(uint line, uint column, uint length, HighlightingTypes types)
@@ -369,14 +369,39 @@ HighlightingType HighlightingMark::punctuationKind(const Cursor &cursor)
     }
 }
 
-void HighlightingMark::collectKinds(CXToken *cxToken, const Cursor &cursor)
+static HighlightingType highlightingTypeForKeyword(CXTranslationUnit cxTranslationUnit,
+                                                   CXToken *cxToken)
+{
+    const ClangString spelling = clang_getTokenSpelling(cxTranslationUnit, *cxToken);
+    const char *c = spelling.cString();
+    if (std::strcmp(c, "bool") == 0
+            || std::strcmp(c, "char") == 0
+            || std::strcmp(c, "char16_t") == 0
+            || std::strcmp(c, "char32_t") == 0
+            || std::strcmp(c, "double") == 0
+            || std::strcmp(c, "float") == 0
+            || std::strcmp(c, "int") == 0
+            || std::strcmp(c, "long") == 0
+            || std::strcmp(c, "short") == 0
+            || std::strcmp(c, "signed") == 0
+            || std::strcmp(c, "unsigned") == 0
+            || std::strcmp(c, "void") == 0
+            || std::strcmp(c, "wchar_t") == 0) {
+        return HighlightingType::PrimitiveType;
+    }
+
+    return HighlightingType::Keyword;
+}
+
+void HighlightingMark::collectKinds(CXTranslationUnit cxTranslationUnit,
+                                    CXToken *cxToken, const Cursor &cursor)
 {
     auto cxTokenKind = clang_getTokenKind(*cxToken);
 
     types = HighlightingTypes();
 
     switch (cxTokenKind) {
-        case CXToken_Keyword:     types.mainHighlightingType = HighlightingType::Keyword; break;
+        case CXToken_Keyword:     types.mainHighlightingType = highlightingTypeForKeyword(cxTranslationUnit, cxToken); break;
         case CXToken_Punctuation: types.mainHighlightingType = punctuationKind(cursor); break;
         case CXToken_Identifier:  identifierKind(cursor, Recursion::FirstPass); break;
         case CXToken_Comment:     types.mainHighlightingType = HighlightingType::Comment; break;

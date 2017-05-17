@@ -69,7 +69,7 @@ private:
     void functionKind(const Cursor &cursor, Recursion recursion);
     void memberReferenceKind(const Cursor &cursor);
     HighlightingType punctuationKind(const Cursor &cursor);
-    void collectKinds(CXToken *cxToken, const Cursor &cursor);
+    void collectKinds(CXTranslationUnit cxTranslationUnit, CXToken *cxToken, const Cursor &cursor);
     bool isRealDynamicCall(const Cursor &cursor) const;
     void addExtraTypeIfFirstPass(HighlightingType type, Recursion recursion);
     bool isOutputArgument() const;

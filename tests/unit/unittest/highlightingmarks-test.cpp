@@ -281,7 +281,7 @@ TEST_F(HighlightingMarks, InbuiltTypeConversionFunction)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(69, 20));
 
-    ASSERT_THAT(infos[1], IsHighlightingMark(69u, 14u, 3u, HighlightingType::Keyword));
+    ASSERT_THAT(infos[1], IsHighlightingMark(69u, 14u, 3u, HighlightingType::PrimitiveType));
 }
 
 TEST_F(HighlightingMarks, TypeReference)
@@ -757,7 +757,7 @@ TEST_F(HighlightingMarks, ArgumentInMacroExpansionIsKeyword)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(302, 36));
 
-    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Keyword));
+    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::PrimitiveType));
 }
 
 TEST_F(HighlightingMarks, DISABLED_FirstArgumentInMacroExpansionIsLocalVariable)

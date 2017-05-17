@@ -74,6 +74,7 @@ enum class HighlightingType : quint8
     Function,
     VirtualFunction,
     Type,
+    PrimitiveType,
     LocalVariable,
     Field,
     GlobalVariable,

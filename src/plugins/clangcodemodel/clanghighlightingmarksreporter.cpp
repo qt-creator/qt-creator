@@ -44,6 +44,8 @@ TextEditor::TextStyle toTextStyle(ClangBackEnd::HighlightingType type)
             return TextEditor::C_VIRTUAL_METHOD;
         case HighlightingType::Type:
             return TextEditor::C_TYPE;
+        case HighlightingType::PrimitiveType:
+            return TextEditor::C_PRIMITIVE_TYPE;
         case HighlightingType::LocalVariable:
             return TextEditor::C_LOCAL;
         case HighlightingType::Field:
