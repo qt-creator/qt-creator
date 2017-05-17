@@ -90,8 +90,7 @@ static QList<QStandardItem *> createFileRow(const QString &repositoryRoot,
     // Note: for "overlaid" icons in Core::FileIconProvider a valid file path is not required
     const QFileInfo fi(repositoryRoot + QLatin1Char('/') + fileName);
     fileItem->setIcon(Core::FileIconProvider::icon(fi));
-    QList<QStandardItem *> row;
-    row << statusItem << fileItem;
+    const QList<QStandardItem *> row{statusItem, fileItem};
     if (statusHint != SubmitFileModel::FileStatusUnknown) {
         const QBrush textForeground = fileStatusTextForeground(statusHint);
         foreach (QStandardItem *item, row)
@@ -117,9 +116,7 @@ SubmitFileModel::SubmitFileModel(QObject *parent) :
     QStandardItemModel(0, 2, parent)
 {
     // setColumnCount(2);
-    QStringList headerLabels;
-    headerLabels << tr("State") << tr("File");
-    setHorizontalHeaderLabels(headerLabels);
+    setHorizontalHeaderLabels({tr("State"), tr("File")});
 }
 
 const QString &SubmitFileModel::repositoryRoot() const
