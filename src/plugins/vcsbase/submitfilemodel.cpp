@@ -84,7 +84,7 @@ static QList<QStandardItem *> createFileRow(const QString &repositoryRoot,
     statusItem->setFlags(flags);
     statusItem->setData(v);
     auto fileItem = new QStandardItem(fileName);
-    fileItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+    fileItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     // For some reason, Windows (at least) requires a valid (existing) file path to the icon, so
     // the repository root is needed here.
     // Note: for "overlaid" icons in Core::FileIconProvider a valid file path is not required
