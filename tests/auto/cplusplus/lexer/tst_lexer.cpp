@@ -766,6 +766,22 @@ void tst_SimpleLexer::incremental_data()
             << _("bar\";")
             << (TokenKindList() << T_STRING_LITERAL << T_SEMICOLON);
 
+    QTest::newRow("multiline_raw_string_literal_1")
+            << _("R\"delim(foo")
+            << (TokenKindList() << T_RAW_STRING_LITERAL);
+
+    QTest::newRow("multiline_raw_string_literal_2")
+            << _("bar)delim\"")
+            << (TokenKindList() << T_RAW_STRING_LITERAL);
+
+    QTest::newRow("token_after_raw_string_literal_1")
+            << _("R\"delim( )delim\"")
+            << (TokenKindList() << T_RAW_STRING_LITERAL);
+
+    QTest::newRow("token_after_raw_string_literal_2")
+            << _(";")
+            << (TokenKindList() << T_SEMICOLON);
+
     QTest::newRow("simple_cpp_comment")
             << _("//foo")
             << (TokenKindList() << T_CPP_COMMENT);

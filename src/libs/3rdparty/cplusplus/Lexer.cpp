@@ -748,6 +748,7 @@ void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
 
     int delimLength = -1;
     const char *closingDelimCandidate = 0;
+    bool closed = false;
     while (_yychar) {
         if (_yychar == '(' && delimLength == -1) {
             delimLength = _currentChar - yytext;
@@ -769,6 +770,7 @@ void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
                     if (_yychar == '"') {
                         if (delimLength == _currentChar - closingDelimCandidate) {
                             // Got a matching closing delimiter.
+                            closed = true;
                             break;
                         }
                     }
@@ -802,7 +804,7 @@ void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
     else
         tok->f.kind = T_RAW_STRING_LITERAL;
 
-    if (!_yychar)
+    if (!closed)
         s._tokenKind = tok->f.kind;
 }
 
