@@ -93,7 +93,7 @@ static QList<QStandardItem *> createFileRow(const QString &repositoryRoot,
     const QList<QStandardItem *> row{statusItem, fileItem};
     if (statusHint != SubmitFileModel::FileStatusUnknown) {
         const QBrush textForeground = fileStatusTextForeground(statusHint);
-        foreach (QStandardItem *item, row)
+        for (QStandardItem *item : row)
             item->setForeground(textForeground);
     }
     return row;
