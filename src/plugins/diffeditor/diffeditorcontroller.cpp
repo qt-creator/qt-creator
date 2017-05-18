@@ -106,11 +106,8 @@ void DiffEditorController::setDescription(const QString &description)
     m_document->setDescription(description);
 }
 
-void DiffEditorController::informationForCommitReceived(const QString &output)
+void DiffEditorController::branchesReceived(const QString &branches)
 {
-    // TODO: Git specific code...
-    const QString branches = prepareBranchesForCommit(output);
-
     QString tmp = m_document->description();
     tmp.replace(QLatin1String(Constants::EXPAND_BRANCHES), branches);
     m_document->setDescription(tmp);
@@ -121,35 +118,6 @@ void DiffEditorController::requestMoreInformation()
     const QString rev = revisionFromDescription();
     if (!rev.isEmpty())
         emit requestInformationForCommit(rev);
-}
-
-QString DiffEditorController::prepareBranchesForCommit(const QString &output)
-{
-    // TODO: More git-specific code...
-    QString moreBranches;
-    QString branches;
-    QStringList res;
-    foreach (const QString &branch, output.split(QLatin1Char('\n'))) {
-        const QString b = branch.mid(2).trimmed();
-        if (!b.isEmpty())
-            res << b;
-    }
-    const int branchCount = res.count();
-    // If there are more than 20 branches, list first 10 followed by a hint
-    if (branchCount > 20) {
-        const int leave = 10;
-        //: Displayed after the untranslated message "Branches: branch1, branch2 'and %n more'"
-        //  in git show.
-        moreBranches = QLatin1Char(' ') + tr("and %n more", 0, branchCount - leave);
-        res.erase(res.begin() + leave, res.end());
-    }
-    branches = QLatin1String("Branches: ");
-    if (res.isEmpty())
-        branches += tr("<None>");
-    else
-        branches += res.join(QLatin1String(", ")) + moreBranches;
-
-    return branches;
 }
 
 /**

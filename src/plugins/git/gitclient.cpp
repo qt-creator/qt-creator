@@ -1425,8 +1425,31 @@ void GitClient::branchesForCommit(const QString &revision)
     VcsCommand *command = vcsExec(
                 workingDirectory, {"branch", noColorOption, "-a", "--contains", revision}, nullptr,
                 false, 0, workingDirectory);
-    connect(command, &VcsCommand::stdOutText, controller,
-            &DiffEditorController::informationForCommitReceived);
+    connect(command, &VcsCommand::stdOutText, controller, [controller](const QString &text) {
+        QString moreBranches;
+        QStringList res;
+        for (const QString &branch : text.split('\n')) {
+            const QString b = branch.mid(2).trimmed();
+            if (!b.isEmpty())
+                res << b;
+        }
+        const int branchCount = res.count();
+        // If there are more than 20 branches, list first 10 followed by a hint
+        if (branchCount > 20) {
+            const int leave = 10;
+            //: Displayed after the untranslated message "Branches: branch1, branch2 'and %n more'"
+            //  in git show.
+            moreBranches = ' ' + tr("and %n more", 0, branchCount - leave);
+            res.erase(res.begin() + leave, res.end());
+        }
+        QString branches = "Branches: ";
+        if (res.isEmpty())
+            branches += tr("<None>");
+        else
+            branches += res.join(", ") + moreBranches;
+
+        controller->branchesReceived(branches);
+    });
 }
 
 bool GitClient::isRemoteCommit(const QString &workingDirectory, const QString &commit)

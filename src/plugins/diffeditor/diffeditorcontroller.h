@@ -59,7 +59,7 @@ public:
                                                  const QString &displayName);
     static DiffEditorController *controller(Core::IDocument *document);
 
-    void informationForCommitReceived(const QString &output);
+    void branchesReceived(const QString &branches);
 
 signals:
     void chunkActionsRequested(QMenu *menu, bool isValid);
@@ -82,8 +82,6 @@ protected:
 private:
     void requestMoreInformation();
     void requestChunkActions(QMenu *menu, int diffFileIndex, int chunkIndex);
-
-    QString prepareBranchesForCommit(const QString &output);
 
     Internal::DiffEditorDocument *const m_document;
 
