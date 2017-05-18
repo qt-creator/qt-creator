@@ -294,8 +294,7 @@ FileName PathChooser::baseFileName() const
 
 void PathChooser::setBaseFileName(const FileName &base)
 {
-    d->m_baseDirectory = base.toString();
-    triggerChanged();
+    setBaseDirectory(base.toString());
 }
 
 void PathChooser::setEnvironment(const Environment &env)
