@@ -65,11 +65,11 @@
     on the remote device. Additional files can be deployed by adding them to
     further targets and adding those to \c INSTALLS as well.
 
-    \section1 Deploying on Embedded Linux
+    \section1 Generic Deployment Steps
 
     \image qtcreator-embedded-linux-deployment-details.png "Deploy to embedded Linux"
 
-    When you run the application on the \uicontrol {Embedded Linux} device, \QC
+    When you run the application on the device, \QC
     deploys the application as specified by the deploy steps. By default, \QC
     copies the application files to the device by using the SSH file transfer
     protocol (SFTP), as specified by the \uicontrol {Upload files via SFTP}
@@ -100,6 +100,45 @@
     enabled in its SSH daemon. Some versions of Dropbear that come without SFTP
     support will crash when an SFTP upload is being attempted. This is not a bug
     in \QC.
+
+    \section1 Qt for Device Creation Deployment Steps
+
+    The deployment steps depend on the Qt for Device Creation version specified
+    in the kit.
+
+    \section2 Developing with Qt 5.8 or Earlier
+
+    The generic deployment steps are not available when developing with Qt for
+    Device Creation version 5.8 or earlier.
+
+    \image qtcreator-deployment-steps-b2qt-58.png
+
+    By default, \QC pushes the files to the device incrementally over an ADB
+    connection. When developing on Windows, executable permissions are set for
+    executable files after they are deployed to the device.
+
+    To execute custom commands, select \uicontrol {Add Deploy Step} >
+    \uicontrol {Custom Remote Command (via adb shell)} and enter the command to
+    execute.
+
+    \note You can add custom commands also as \l{Build Steps}{build steps}, to
+    have them executed when the application is built.
+
+    To have your application launch on boot, select \uicontrol {Add Deploy Step}
+    > \uicontrol {Make this application the default one}.
+
+    \section2 Developing with Qt 5.9 or Later
+
+    When developing with Qt for Device Creation version 5.9 or later, you can
+    specify the deployment steps described in this section in addition to the
+    generic deployment steps.
+
+    To execute custom commands when the application is deployed to the device,
+    select \uicontrol {Add Deploy Step} > \uicontrol {Run Custom Remote Command}
+    and enter the command to execute.
+
+    To have your application launch on boot, select \uicontrol {Add Deploy Step}
+    > \uicontrol {Change Default Application}.
 
     \include creator-projects-cmake-deploying.qdocinc cmake deploying embedded
 
