@@ -115,7 +115,6 @@ static QList<QStandardItem *> createFileRow(const QString &repositoryRoot,
 SubmitFileModel::SubmitFileModel(QObject *parent) :
     QStandardItemModel(0, 2, parent)
 {
-    // setColumnCount(2);
     setHorizontalHeaderLabels({tr("State"), tr("File")});
 }
 
