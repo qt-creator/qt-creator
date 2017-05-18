@@ -39,7 +39,7 @@ namespace VcsBase {
 // Helpers:
 // --------------------------------------------------------------------------
 
-enum { stateColumn = 0, fileColumn = 1 };
+enum { StateColumn = 0, FileColumn = 1 };
 
 static QBrush fileStatusTextForeground(SubmitFileModel::FileStatusHint statusHint)
 {
@@ -151,7 +151,7 @@ QString SubmitFileModel::file(int row) const
 {
     if (row < 0 || row >= rowCount())
         return QString();
-    return item(row, fileColumn)->text();
+    return item(row, FileColumn)->text();
 }
 
 bool SubmitFileModel::isCheckable(int row) const
@@ -246,7 +246,7 @@ void SubmitFileModel::setFileStatusQualifier(FileStatusQualifier &&func)
     const int topLevelRowCount = rowCount();
     const int topLevelColCount = columnCount();
     for (int row = 0; row < topLevelRowCount; ++row) {
-        const QStandardItem *statusItem = item(row, stateColumn);
+        const QStandardItem *statusItem = item(row, StateColumn);
         const FileStatusHint statusHint =
                 func ? func(statusItem->text(), statusItem->data()) : FileStatusUnknown;
         const QBrush textForeground = fileStatusTextForeground(statusHint);
