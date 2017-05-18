@@ -231,6 +231,11 @@ void FindInFiles::setDirectory(const FileName &directory)
     m_directory->setFileName(directory);
 }
 
+void FindInFiles::setBaseDirectory(const FileName &directory)
+{
+    m_directory->setBaseFileName(directory);
+}
+
 FileName FindInFiles::directory() const
 {
     return m_directory->fileName();

@@ -577,6 +577,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::updateContextMenuActions);
     connect(tree, &ProjectTree::currentProjectChanged,
             dd, &ProjectExplorerPluginPrivate::updateActions);
+    connect(tree, &ProjectTree::currentProjectChanged, this, [](Project *project) {
+        TextEditor::FindInFiles::instance()->setBaseDirectory(project ? project->projectDirectory()
+                                                                      : Utils::FileName());
+    });
 
     addAutoReleasedObject(new CustomWizardMetaFactory<CustomProjectWizard>(IWizardFactory::ProjectWizard));
     addAutoReleasedObject(new CustomWizardMetaFactory<CustomWizard>(IWizardFactory::FileWizard));
