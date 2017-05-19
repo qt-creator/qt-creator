@@ -322,6 +322,14 @@ private:
         return result;
     }
 
+    Result findStep(const QString &txt, FindFlags findFlags) override
+    {
+        m_model->setSearching(true);
+        Result result = ItemViewFind::findStep(txt, findFlags);
+        m_model->setSearching(false);
+        return result;
+    }
+
     CppIncludeHierarchyModel *m_model; // Not owned.
 };
 
