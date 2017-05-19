@@ -86,7 +86,6 @@ ShortCutManager::ShortCutManager()
     m_restoreDefaultViewAction(tr("&Restore Default View"), 0),
     m_toggleLeftSidebarAction(tr("Toggle &Left Sidebar"), 0),
     m_toggleRightSidebarAction(tr("Toggle &Right Sidebar"), 0),
-    m_goIntoComponentAction(tr("&Go into Component"), 0),
     m_switchTextFormAction(tr("Switch Text/Design"), 0),
     m_escapeAction(this)
 {
@@ -187,11 +186,6 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     designerActionManager.addCreatorCommand(command, ComponentCoreConstants::editCategory, 310, Utils::Icons::UNDO_TOOLBAR.icon());
     command = Core::ActionManager::registerAction(&m_redoAction, Core::Constants::REDO, qmlDesignerMainContext);
     designerActionManager.addCreatorCommand(command, ComponentCoreConstants::editCategory, 300, Utils::Icons::REDO_TOOLBAR.icon());
-
-    //GoIntoComponent
-    command = Core::ActionManager::registerAction(&m_goIntoComponentAction,
-                                                  Constants::GO_INTO_COMPONENT, qmlDesignerMainContext);
-    command->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
 
     //Edit Menu
 

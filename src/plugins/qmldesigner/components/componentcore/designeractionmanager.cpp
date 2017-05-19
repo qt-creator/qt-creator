@@ -932,7 +932,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           goIntoComponentCommandId,
                           goIntoComponentDisplayName,
                           rootCategory,
-                          QKeySequence(),
+                          QKeySequence(Qt::Key_F2),
                           priorityGoIntoComponent,
                           &goIntoComponentOperation,
                           &selectionIsComponent));
