@@ -26,11 +26,9 @@
 #include "iosrunfactories.h"
 
 #include "iosconstants.h"
-#include "iosdebugsupport.h"
 #include "iosrunconfiguration.h"
-#include "iosruncontrol.h"
+#include "iosrunner.h"
 #include "iosmanager.h"
-#include "iosanalyzesupport.h"
 
 #include <debugger/analyzer/analyzermanager.h>
 #include <debugger/analyzer/analyzerstartparameters.h>
@@ -45,7 +43,6 @@
 
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeproject.h>
-#include <coreplugin/id.h>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
@@ -168,12 +165,13 @@ bool IosRunControlFactory::canRun(RunConfiguration *runConfiguration,
 RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
                                         Core::Id mode, QString *errorMessage)
 {
+    Q_UNUSED(errorMessage);
     Q_ASSERT(canRun(runConfig, mode));
     IosRunConfiguration *rc = qobject_cast<IosRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
     Target *target = runConfig->target();
     QTC_ASSERT(target, return 0);
-    RunControl *res = 0;
+
     Core::Id devId = DeviceKitInformation::deviceId(rc->target()->kit());
     // The device can only run an application at a time, if an app is running stop it.
     if (m_activeRunControls.contains(devId)) {
@@ -181,28 +179,19 @@ RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
             activeRunControl->initiateStop();
         m_activeRunControls.remove(devId);
     }
-    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
-        res = new Ios::Internal::IosRunControl(rc);
-    else if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-        auto runControl = new RunControl(runConfig, mode);
+    auto runControl = new RunControl(runConfig, mode);
+    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE) {
+        (void) new Ios::Internal::IosRunSupport(runControl);
+    } else if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         runControl->createWorker(mode);
-        auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runConfig);
-        StandardRunnable runnable;
-        runnable.executable = iosRunConfig->localExecutable().toUserOutput();
-        runnable.commandLineArguments = iosRunConfig->commandLineArguments();
-        AnalyzerConnection connection;
-        connection.analyzerHost = QLatin1String("localhost");
-        runControl->setRunnable(runnable);
-        runControl->setConnection(connection);
-        runControl->setDisplayName(iosRunConfig->applicationName());
-        (void) new IosAnalyzeSupport(runControl, false, true);
-        return runControl;
+        (void) new IosAnalyzeSupport(runControl);
+    } else {
+        (void) new IosDebugSupport(runControl);
     }
-    else
-        res = IosDebugSupport::createDebugRunControl(rc, errorMessage);
+
     if (devId.isValid())
-        m_activeRunControls[devId] = res;
-    return res;
+        m_activeRunControls[devId] = runControl;
+    return runControl;
 }
 
 } // namespace Internal

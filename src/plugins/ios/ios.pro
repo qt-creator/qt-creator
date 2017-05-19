@@ -12,12 +12,10 @@ HEADERS += \
     iosconfigurations.h \
     iosmanager.h \
     iosrunconfiguration.h \
-    iosruncontrol.h \
     iosrunfactories.h \
     iossettingspage.h \
     iossettingswidget.h \
     iosrunner.h \
-    iosdebugsupport.h \
     iosdsymbuildstep.h \
     iosqtversionfactory.h \
     iosqtversion.h \
@@ -33,7 +31,6 @@ HEADERS += \
     iosdeploystep.h \
     iosdeploystepfactory.h \
     iosdeploystepwidget.h \
-    iosanalyzesupport.h \
     simulatorcontrol.h \
     iosbuildconfiguration.h \
     iosbuildsettingswidget.h
@@ -43,12 +40,10 @@ SOURCES += \
     iosconfigurations.cpp \
     iosmanager.cpp \
     iosrunconfiguration.cpp \
-    iosruncontrol.cpp \
     iosrunfactories.cpp \
     iossettingspage.cpp \
     iossettingswidget.cpp \
     iosrunner.cpp \
-    iosdebugsupport.cpp \
     iosdsymbuildstep.cpp \
     iosqtversionfactory.cpp \
     iosqtversion.cpp \
@@ -64,7 +59,6 @@ SOURCES += \
     iosdeploystep.cpp \
     iosdeploystepfactory.cpp \
     iosdeploystepwidget.cpp \
-    iosanalyzesupport.cpp \
     simulatorcontrol.cpp \
     iosbuildconfiguration.cpp \
     iosbuildsettingswidget.cpp

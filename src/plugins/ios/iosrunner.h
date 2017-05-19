@@ -30,31 +30,27 @@
 #include "iossimulator.h"
 
 #include <debugger/debuggerconstants.h>
+#include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runconfiguration.h>
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
-
-#include <QTimer>
-#include <QThread>
-#include <QProcess>
-#include <QMutex>
+#include <qmldebug/qmloutputparser.h>
 
 namespace Ios {
 namespace Internal {
 
-class IosRunner : public QObject
+class IosRunner : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 
 public:
-    IosRunner(QObject *parent, ProjectExplorer::RunControl *runControl,
-              bool cppDebug,
-              QmlDebug::QmlDebugServicesPreset qmlDebugServices);
+    IosRunner(ProjectExplorer::RunControl *runControl);
     ~IosRunner();
 
-    QString displayName() const;
+    void setCppDebugging(bool cppDebug);
+    void setQmlDebugging(QmlDebug::QmlDebugServicesPreset qmlDebugServices);
 
     QString bundlePath();
     QStringList extraArgs();
@@ -63,16 +59,16 @@ public:
     bool cppDebug() const;
     QmlDebug::QmlDebugServicesPreset qmlDebugServices() const;
 
-    void start();
-    void stop();
+    void start() override;
+    void stop() override;
 
-signals:
-    void didStartApp(Ios::IosToolHandler::OpStatus status);
-    void gotServerPorts(Utils::Port gdbPort, Utils::Port qmlPort);
-    void gotInferiorPid(qint64 pid, Utils::Port qmlPort);
-    void appOutput(const QString &output);
-    void errorMsg(const QString &msg);
-    void finished(bool cleanExit);
+    virtual void appOutput(const QString &/*output*/) {}
+    virtual void errorMsg(const QString &/*msg*/) {}
+
+    Utils::Port qmlServerPort() const;
+    Utils::Port gdbServerPort() const;
+    qint64 pid() const;
+    bool isAppRunning() const;
 
 private:
     void handleDidStartApp(Ios::IosToolHandler *handler, const QString &bundlePath,
@@ -91,12 +87,63 @@ private:
     QStringList m_arguments;
     ProjectExplorer::IDevice::ConstPtr m_device;
     IosDeviceType m_deviceType;
-    bool m_cppDebug;
-    QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
+    bool m_cppDebug = false;
+    QmlDebug::QmlDebugServicesPreset m_qmlDebugServices = QmlDebug::NoQmlDebugServices;
 
     bool m_cleanExit = false;
-    Utils::Port m_qmlPort;
+    Utils::Port m_qmlServerPort;
+    Utils::Port m_gdbServerPort;
     qint64 m_pid = 0;
+};
+
+
+class IosRunSupport : public IosRunner
+{
+    Q_OBJECT
+
+public:
+    explicit IosRunSupport(ProjectExplorer::RunControl *runControl);
+    ~IosRunSupport() override;
+
+    void didStartApp(IosToolHandler::OpStatus status);
+private:
+    void start() override;
+    void stop() override;
+};
+
+
+class IosAnalyzeSupport : public IosRunner
+{
+    Q_OBJECT
+
+public:
+    IosAnalyzeSupport(ProjectExplorer::RunControl *runControl);
+
+private:
+    void start() override;
+
+    void qmlServerReady();
+    void appOutput(const QString &output) override;
+    void errorMsg(const QString &output) override;
+
+    QmlDebug::QmlOutputParser m_outputParser;
+    IosRunner *m_runner;
+};
+
+
+class IosDebugSupport : public Debugger::DebuggerRunTool
+{
+    Q_OBJECT
+
+public:
+    IosDebugSupport(ProjectExplorer::RunControl *runControl);
+
+private:
+    void start() override;
+    void onFinished() override;
+
+    const QString m_dumperLib;
+    IosRunner *m_runner;
 };
 
 } // namespace Internal

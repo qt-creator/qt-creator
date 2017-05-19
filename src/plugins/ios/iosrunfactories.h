@@ -78,8 +78,7 @@ public:
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
                 Core::Id mode) const override;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                       Core::Id mode,
-                       QString *errorMessage) override;
+                       Core::Id mode, QString *) override;
 private:
     mutable QMap<Core::Id, QPointer<ProjectExplorer::RunControl> > m_activeRunControls;
 };

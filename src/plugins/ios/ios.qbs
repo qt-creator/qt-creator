@@ -15,8 +15,6 @@ QtcPlugin {
 
     files: [
         "ios.qrc",
-        "iosanalyzesupport.cpp",
-        "iosanalyzesupport.h",
         "iosbuildconfiguration.cpp",
         "iosbuildconfiguration.h",
         "iosbuildsettingswidget.cpp",
@@ -28,8 +26,6 @@ QtcPlugin {
         "iosconfigurations.cpp",
         "iosconfigurations.h",
         "iosconstants.h",
-        "iosdebugsupport.cpp",
-        "iosdebugsupport.h",
         "iosdeployconfiguration.cpp",
         "iosdeployconfiguration.h",
         "iosdeploystep.cpp",
@@ -58,8 +54,6 @@ QtcPlugin {
         "iosqtversionfactory.h",
         "iosrunconfiguration.cpp",
         "iosrunconfiguration.h",
-        "iosruncontrol.cpp",
-        "iosruncontrol.h",
         "iosrunfactories.cpp",
         "iosrunfactories.h",
         "iosrunner.cpp",
