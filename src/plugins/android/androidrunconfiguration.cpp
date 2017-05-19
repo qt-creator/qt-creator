@@ -59,9 +59,4 @@ Utils::OutputFormatter *AndroidRunConfiguration::createOutputFormatter() const
     return new QtSupport::QtOutputFormatter(target()->project());
 }
 
-const QString AndroidRunConfiguration::remoteChannel() const
-{
-    return QLatin1String(":5039");
-}
-
 } // namespace Android

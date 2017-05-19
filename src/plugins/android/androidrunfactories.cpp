@@ -55,16 +55,27 @@ bool AndroidRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::
     return qobject_cast<AndroidRunConfiguration *>(runConfiguration);
 }
 
-RunControl *AndroidRunControlFactory::create(RunConfiguration *runConfig,
-                                             Core::Id mode, QString *errorMessage)
+RunControl *AndroidRunControlFactory::create(RunConfiguration *runConfig, Core::Id mode, QString *)
 {
     Q_ASSERT(canRun(runConfig, mode));
-    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE)
-        return new AndroidRunControl(runConfig);
-    if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN)
-        return AndroidDebugSupport::createDebugRunControl(runConfig, errorMessage);
-    if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
-        return AndroidAnalyzeSupport::createAnalyzeRunControl(runConfig, mode);
+    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE) {
+        auto runControl = new RunControl(runConfig, mode);
+        (void) new AndroidRunSupport(runControl);
+        return runControl;
+    }
+    if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE
+            || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN) {
+        auto runControl = new RunControl(runConfig, mode);
+        (void) new AndroidDebugSupport(runControl);
+        return runControl;
+    }
+    if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
+        auto runControl = new RunControl(runConfig, mode);
+        auto profiler = runControl->createWorker(mode);
+        auto profilee = new AndroidAnalyzeSupport(runControl);
+        profiler->addDependency(profilee);
+        return runControl;
+    }
     QTC_CHECK(false); // The other run modes are not supported
     return 0;
 }

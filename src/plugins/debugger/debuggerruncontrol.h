@@ -70,7 +70,7 @@ public:
     void notifyEngineRemoteServerRunning(const QByteArray &msg, int pid);
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
     void notifyInferiorIll();
-    Q_SLOT void notifyInferiorExited();
+    Q_SLOT void notifyInferiorExited(); // Called from Android.
     void quitDebugger();
     void abortDebugger();
     void debuggingFinished();

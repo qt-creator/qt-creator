@@ -41,9 +41,6 @@ class AndroidAnalyzeSupport : public ProjectExplorer::RunWorker
 public:
     explicit AndroidAnalyzeSupport(ProjectExplorer::RunControl *runControl);
 
-    static ProjectExplorer::RunControl *createAnalyzeRunControl(ProjectExplorer::RunConfiguration *runConfig,
-                                                                Core::Id runMode);
-
 private:
     QmlDebug::QmlOutputParser m_outputParser;
     Utils::Port m_qmlPort;

@@ -38,60 +38,25 @@ using namespace ProjectExplorer;
 namespace Android {
 namespace Internal {
 
-AndroidRunControl::AndroidRunControl(RunConfiguration *rc)
-    : RunControl(rc, ProjectExplorer::Constants::NORMAL_RUN_MODE)
-    , m_runner(new AndroidRunner(this, rc, ProjectExplorer::Constants::NORMAL_RUN_MODE))
+AndroidRunSupport::AndroidRunSupport(RunControl *runControl)
+    : AndroidRunner(runControl)
 {
-    setRunnable(m_runner->runnable());
-    setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
+    runControl->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
 }
 
-AndroidRunControl::~AndroidRunControl()
+AndroidRunSupport::~AndroidRunSupport()
 {
     stop();
 }
 
-void AndroidRunControl::start()
+void AndroidRunSupport::start()
 {
-    reportApplicationStart();
-    disconnect(m_runner, 0, this, 0);
-
-    connect(m_runner, &AndroidRunner::remoteErrorOutput,
-        this, &AndroidRunControl::handleRemoteErrorOutput);
-    connect(m_runner, &AndroidRunner::remoteOutput,
-        this, &AndroidRunControl::handleRemoteOutput);
-    connect(m_runner, &AndroidRunner::remoteProcessFinished,
-        this, &AndroidRunControl::handleRemoteProcessFinished);
-    appendMessage(tr("Starting remote process."), Utils::NormalMessageFormat);
-    m_runner->setRunnable(runnable().as<AndroidRunnable>());
-    m_runner->start();
+    AndroidRunner::start();
 }
 
-void AndroidRunControl::stop()
+void AndroidRunSupport::stop()
 {
-    m_runner->stop();
-}
-
-void AndroidRunControl::handleRemoteProcessFinished(const QString &error)
-{
-    appendMessage(error, Utils::ErrorMessageFormat);
-    disconnect(m_runner, 0, this, 0);
-    reportApplicationStop();
-}
-
-void AndroidRunControl::handleRemoteOutput(const QString &output)
-{
-    appendMessage(output, Utils::StdOutFormatSameLine);
-}
-
-void AndroidRunControl::handleRemoteErrorOutput(const QString &output)
-{
-    appendMessage(output, Utils::StdErrFormatSameLine);
-}
-
-QString AndroidRunControl::displayName() const
-{
-    return m_runner->displayName();
+    AndroidRunner::stop();
 }
 
 } // namespace Internal

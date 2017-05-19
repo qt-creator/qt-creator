@@ -40,51 +40,54 @@
 #include <QMutex>
 
 namespace Android {
-class AndroidRunConfiguration;
-
 namespace Internal {
 
 class AndroidRunnerWorker;
-class AndroidRunner : public QObject
+
+class AndroidRunner : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 
 public:
-    AndroidRunner(QObject *parent, ProjectExplorer::RunConfiguration *runConfig, Core::Id runMode);
-    ~AndroidRunner();
+    explicit AndroidRunner(ProjectExplorer::RunControl *runControl);
+    ~AndroidRunner() override;
 
-    QString displayName() const;
     void setRunnable(const AndroidRunnable &runnable);
     const AndroidRunnable &runnable() const { return m_androidRunnable; }
 
-    void start();
-    void stop();
+    Utils::Port gdbServerPort() const { return m_gdbServerPort; }
+    Utils::Port qmlServerPort() const { return m_qmlServerPort; }
+    Utils::ProcessHandle pid() const { return m_pid; }
+
+    void start() override;
+    void stop() override;
+
+    virtual void remoteOutput(const QString &output);
+    virtual void remoteErrorOutput(const QString &output);
 
 signals:
-    void remoteServerRunning(const QByteArray &serverChannel, int pid);
-    void remoteProcessStarted(Utils::Port gdbServerPort, Utils::Port qmlPort);
-    void remoteProcessFinished(const QString &errString = QString());
-    void remoteDebuggerRunning();
-
-    void remoteOutput(const QString &output);
-    void remoteErrorOutput(const QString &output);
-
     void asyncStart(const QString &intentName, const QVector<QStringList> &adbCommands);
     void asyncStop(const QVector<QStringList> &adbCommands);
+    void remoteDebuggerRunning();
 
     void adbParametersChanged(const QString &packageName, const QStringList &selector);
     void avdDetected();
 
 private:
+    void handleRemoteProcessStarted(Utils::Port gdbServerPort, Utils::Port qmlServerPort, int pid);
+    void handleRemoteProcessFinished(const QString &errString = QString());
     void checkAVD();
     void launchAVD();
 
     AndroidRunnable m_androidRunnable;
-    AndroidRunConfiguration *m_runConfig;
     QString m_launchedAVDName;
     QThread m_thread;
     QTimer m_checkAVDTimer;
     QScopedPointer<AndroidRunnerWorker> m_worker;
+    QPointer<ProjectExplorer::Target> m_target;
+    Utils::Port m_gdbServerPort;
+    Utils::Port m_qmlServerPort;
+    Utils::ProcessHandle m_pid;
 };
 
 } // namespace Internal

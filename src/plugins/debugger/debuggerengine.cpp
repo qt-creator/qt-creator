@@ -815,7 +815,8 @@ void DebuggerEngine::notifyInferiorSetupOk()
 #ifdef WITH_BENCHMARK
     CALLGRIND_START_INSTRUMENTATION;
 #endif
-    runTool()->aboutToNotifyInferiorSetupOk(); // FIXME: Remove, only used for Android.
+    if (isMasterEngine())
+        runTool()->aboutToNotifyInferiorSetupOk(); // FIXME: Remove, only used for Android.
     showMessage("NOTE: INFERIOR SETUP OK");
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << this << state());
     setState(InferiorSetupOk);

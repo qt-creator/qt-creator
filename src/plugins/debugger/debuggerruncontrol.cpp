@@ -177,6 +177,7 @@ void DebuggerRunTool::notifyEngineRemoteSetupFinished(const RemoteSetupResult &r
 void DebuggerRunTool::stop()
 {
     m_isDying = true;
+    QTC_ASSERT(m_engine, reportStopped(); return);
     m_engine->quitDebugger();
 }
 
@@ -524,12 +525,13 @@ void DebuggerRunTool::setStartParameters(const DebuggerStartParameters &sp, QStr
 
 void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp, QString *errorMessage)
 {
-    int portsUsed = portsUsedByDebugger();
-    if (portsUsed > device()->freePorts().count()) {
-        if (errorMessage)
-            *errorMessage = tr("Cannot debug: Not enough free ports available.");
-        return;
-    }
+    // FIXME: Disabled due to Android. Make Android device report available ports instead.
+//    int portsUsed = portsUsedByDebugger();
+//    if (portsUsed > device()->freePorts().count()) {
+//        if (errorMessage)
+//            *errorMessage = tr("Cannot debug: Not enough free ports available.");
+//        return;
+//    }
 
     m_runParameters = rp;
 

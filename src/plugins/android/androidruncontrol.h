@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "androidrunner.h"
+
 #include <projectexplorer/runconfiguration.h>
 
 namespace Android {
@@ -32,24 +34,16 @@ namespace Internal {
 
 class AndroidRunner;
 
-class AndroidRunControl : public ProjectExplorer::RunControl
+class AndroidRunSupport : public AndroidRunner
 {
     Q_OBJECT
 
 public:
-    explicit AndroidRunControl(ProjectExplorer::RunConfiguration *runConfig);
-    ~AndroidRunControl() override;
+    explicit AndroidRunSupport(ProjectExplorer::RunControl *runControl);
+    ~AndroidRunSupport() override;
 
     void start() override;
     void stop() override;
-    QString displayName() const override;
-
-private:
-    void handleRemoteProcessFinished(const QString &error);
-    void handleRemoteOutput(const QString &output);
-    void handleRemoteErrorOutput(const QString &output);
-
-    AndroidRunner *const m_runner;
 };
 
 } // namespace Internal

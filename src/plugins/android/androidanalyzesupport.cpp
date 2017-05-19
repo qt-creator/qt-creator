@@ -46,28 +46,23 @@ using namespace ProjectExplorer;
 namespace Android {
 namespace Internal {
 
-RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(RunConfiguration *runConfig, Core::Id runMode)
-{
-    auto runControl = new RunControl(runConfig, runMode);
-    runControl->createWorker(runMode);
-    QTC_ASSERT(runControl, return 0);
-    AnalyzerConnection connection;
-    if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-        QTcpServer server;
-        QTC_ASSERT(server.listen(QHostAddress::LocalHost)
-                   || server.listen(QHostAddress::LocalHostIPv6), return 0);
-        connection.analyzerHost = server.serverAddress().toString();
-    }
-    runControl->setDisplayName(AndroidManager::packageName(runConfig->target()));
-    runControl->setConnection(connection);
-    (void) new AndroidAnalyzeSupport(runControl);
-    return runControl;
-}
-
 AndroidAnalyzeSupport::AndroidAnalyzeSupport(RunControl *runControl)
     : RunWorker(runControl)
 {
-    auto runner = new AndroidRunner(this, runControl->runConfiguration(), runControl->runMode());
+    setDisplayName("AndroidAnalyzeSupport");
+
+    AnalyzerConnection connection;
+    if (runMode() == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
+        QTcpServer server;
+        QTC_ASSERT(server.listen(QHostAddress::LocalHost)
+                   || server.listen(QHostAddress::LocalHostIPv6), return);
+        connection.analyzerHost = server.serverAddress().toString();
+    }
+    RunConfiguration *runConfig = runControl->runConfiguration();
+    runControl->setDisplayName(AndroidManager::packageName(runConfig->target()));
+    runControl->setConnection(connection);
+
+    auto runner = new AndroidRunner(runControl);
 
     connect(runControl, &RunControl::finished, runner, [runner] { runner->stop(); });
 
@@ -78,16 +73,16 @@ AndroidAnalyzeSupport::AndroidAnalyzeSupport(RunControl *runControl)
             runControl->notifyRemoteSetupDone(m_qmlPort);
         });
 
-    connect(runner, &AndroidRunner::remoteProcessStarted, this,
-        [this](Utils::Port, Utils::Port qmlPort) {
-            m_qmlPort = qmlPort;
-        });
+//    connect(runner, &AndroidRunner::handleRemoteProcessStarted, this,
+//        [this](Utils::Port, Utils::Port qmlPort) {
+//            m_qmlPort = qmlPort;
+//        });
 
-    connect(runner, &AndroidRunner::remoteProcessFinished, this,
-        [this, runControl](const QString &errorMsg)  {
-            runControl->notifyRemoteFinished();
-            appendMessage(errorMsg, Utils::NormalMessageFormat);
-        });
+//    connect(runner, &AndroidRunner::handleRemoteProcessFinished, this,
+//        [this, runControl](const QString &errorMsg)  {
+//            runControl->notifyRemoteFinished();
+//            appendMessage(errorMsg, Utils::NormalMessageFormat);
+//        });
 
     connect(runner, &AndroidRunner::remoteErrorOutput, this,
         [this, runControl](const QString &msg) {
