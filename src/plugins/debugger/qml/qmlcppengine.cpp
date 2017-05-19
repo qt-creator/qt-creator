@@ -467,7 +467,7 @@ void QmlCppEngine::slaveEngineStateChanged
     (DebuggerEngine *slaveEngine, const DebuggerState newState)
 {
     DebuggerEngine *otherEngine = (slaveEngine == m_cppEngine)
-         ? m_qmlEngine : m_cppEngine;
+         ? m_qmlEngine.data() : m_cppEngine.data();
 
     QTC_ASSERT(otherEngine, return);
     QTC_CHECK(otherEngine != slaveEngine);
