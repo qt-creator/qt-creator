@@ -1001,9 +1001,16 @@ void AndroidConfigurations::removeOldToolChains()
 
 void AndroidConfigurations::updateAutomaticKitList()
 {
-    const QList<Kit *> existingKits = Utils::filtered(KitManager::kits(), [](const Kit *k) {
-        return k->isAutoDetected() && !k->isSdkProvided()
-                && DeviceTypeKitInformation::deviceTypeId(k) == Core::Id(Constants::ANDROID_DEVICE_TYPE);
+    const QList<Kit *> existingKits = Utils::filtered(KitManager::kits(), [](Kit *k) {
+        Core::Id deviceTypeId = DeviceTypeKitInformation::deviceTypeId(k);
+        if (k->isAutoDetected() && !k->isSdkProvided()
+                && deviceTypeId == Core::Id(Constants::ANDROID_DEVICE_TYPE)) {
+            if (!QtSupport::QtKitInformation::qtVersion(k))
+                KitManager::deregisterKit(k); // Remove autoDetected kits without Qt.
+            else
+                return true;
+        }
+        return false;
     });
 
     // Update code for 3.0 beta, which shipped with a bug for the debugger settings
