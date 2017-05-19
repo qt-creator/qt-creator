@@ -37,11 +37,11 @@ class REMOTELINUX_EXPORT RemoteLinuxEnvironmentAspect : public ProjectExplorer::
 
 public:
     RemoteLinuxEnvironmentAspect(ProjectExplorer::RunConfiguration *rc);
-    RemoteLinuxEnvironmentAspect *create(ProjectExplorer::RunConfiguration *parent) const;
+    RemoteLinuxEnvironmentAspect *create(ProjectExplorer::RunConfiguration *parent) const override;
 
-    QList<int> possibleBaseEnvironments() const;
-    QString baseEnvironmentDisplayName(int base) const;
-    Utils::Environment baseEnvironment() const;
+    QList<int> possibleBaseEnvironments() const override;
+    QString baseEnvironmentDisplayName(int base) const override;
+    Utils::Environment baseEnvironment() const override;
 
     Utils::Environment remoteEnvironment() const;
     void setRemoteEnvironment(const Utils::Environment &env);
