@@ -229,7 +229,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     command = Core::ActionManager::registerAction(&m_collapseExpandStatesAction,  Constants::TOGGLE_STATES_EDITOR, qmlDesignerMainContext);
     command->setAttribute(Core::Command::CA_Hide);
-    command->setDefaultKeySequence(QKeySequence("Ctrl+Shift+s"));
+    command->setDefaultKeySequence(QKeySequence("Ctrl+Alt+s"));
     viewsMenu->addAction(command);
 
     command = Core::ActionManager::registerAction(&m_restoreDefaultViewAction,  Constants::RESTORE_DEFAULT_VIEW, qmlDesignerMainContext);

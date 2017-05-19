@@ -703,7 +703,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
                           resetSizeToolTip,
                           editCategory,
-                          QKeySequence("Ctrl+f"),
+                          QKeySequence("shift+s"),
                           180,
                           &resetSize,
                           &selectionNotEmptyAndHasWidthOrHeightProperty));
@@ -731,7 +731,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           Utils::Icon({{":/qmldesigner/images/anchor_fill.png", Utils::Theme::IconsBaseColor}}).icon(),
                           anchorsFillToolTip,
                           anchorsCategory,
-                          QKeySequence(QKeySequence("Ctrl+f")),
+                          QKeySequence(QKeySequence("shift+f")),
                           200,
                           &anchorsFill,
                           &singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot));
@@ -743,7 +743,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                        {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
                           anchorsResetToolTip,
                           anchorsCategory,
-                          QKeySequence(QKeySequence("Ctrl+Shift+f")),
+                          QKeySequence(QKeySequence("Ctrl+Shift+r")),
                           180,
                           &anchorsReset,
                           &singleSelectionItemIsAnchored));
@@ -824,7 +824,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           removeLayoutCommandId,
                           removeLayoutDisplayName,
                           layoutCategory,
-                          QKeySequence("Ctrl+Shift+u"),
+                          QKeySequence(),
                           110,
                           &removeLayout,
                           &isLayout,
@@ -904,7 +904,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           Utils::Icon({{":/qmldesigner/icon/designeractions/images/grid.png", Utils::Theme::IconsBaseColor}}).icon(),
                           layoutGridLayoutToolTip,
                           layoutCategory,
-                          QKeySequence("Ctrl+h"),
+                          QKeySequence("shift+g"),
                           60,
                           &layoutGridLayout,
                           &selectionCanBeLayoutedAndQtQuickLayoutPossible));
