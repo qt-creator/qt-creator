@@ -67,6 +67,8 @@ private:
     void appStartupFailed(const QString &errorMessage);
     void appMessage(const QString &msg, Utils::OutputFormat);
 
+    void setState(DebuggerState state, bool forced) override;
+
     void notifyEngineRemoteServerRunning(const QString &, int pid) override;
     void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
 

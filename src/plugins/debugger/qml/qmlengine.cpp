@@ -347,6 +347,12 @@ QmlEngine::~QmlEngine()
     delete d;
 }
 
+void QmlEngine::setState(DebuggerState state, bool forced)
+{
+    DebuggerEngine::setState(state, forced);
+    updateCurrentContext();
+}
+
 void QmlEngine::setRunTool(DebuggerRunTool *runTool)
 {
     DebuggerEngine::setRunTool(runTool);
@@ -354,8 +360,6 @@ void QmlEngine::setRunTool(DebuggerRunTool *runTool)
     d->startupMessageFilterConnection = connect(
                 runTool->runControl(), &RunControl::appendMessageRequested,
                 d, &QmlEnginePrivate::filterApplicationMessage);
-    connect(runTool, &DebuggerRunTool::stateChanged,
-            this, &QmlEngine::updateCurrentContext);
 }
 
 void QmlEngine::setupInferior()
@@ -1142,6 +1146,8 @@ void QmlEngine::disconnected()
 
 void QmlEngine::updateCurrentContext()
 {
+    d->inspectorAgent.enableTools(state() == InferiorRunOk);
+
     QString context;
     switch (state()) {
     case InferiorStopOk:

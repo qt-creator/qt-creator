@@ -88,7 +88,6 @@ public:
     void appendSolibSearchPath(const QString &str);
 
 signals:
-    void stateChanged(Debugger::DebuggerState state);
     void aboutToNotifyInferiorSetupOk();
     void requestRemoteSetup();
 

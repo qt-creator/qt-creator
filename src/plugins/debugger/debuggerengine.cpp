@@ -1287,9 +1287,6 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
     showMessage(msg, LogDebug);
     updateViews();
 
-    QTC_ASSERT(runTool(), return);
-    runTool()->stateChanged(d->m_state);
-
     if (isSlaveEngine())
         masterEngine()->slaveEngineStateChanged(this, state);
 }

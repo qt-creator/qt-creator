@@ -381,6 +381,8 @@ protected:
     void setRemoteParameters(const RemoteSetupResult &result);
 
 protected:
+    virtual void setState(DebuggerState state, bool forced = false);
+
     virtual void notifyInferiorShutdownOk();
     virtual void notifyInferiorShutdownFailed();
 
@@ -456,8 +458,6 @@ private:
     friend class QmlCppEngine;
     friend class DebuggerPluginPrivate;
     friend class QmlAdapter;
-
-    virtual void setState(DebuggerState state, bool forced = false);
 
     friend class DebuggerEnginePrivate;
     friend class LocationMark;
