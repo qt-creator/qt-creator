@@ -118,6 +118,7 @@ HeaderPathsCache::Cache HeaderPathsCache::cache() const
 }
 
 MacroCache::MacroCache(const MacroCache &other)
+    : MacroCache()
 {
     QMutexLocker locker(&m_mutex);
     m_cache = other.cache();
