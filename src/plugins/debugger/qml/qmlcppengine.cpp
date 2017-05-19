@@ -68,7 +68,7 @@ QmlCppEngine::QmlCppEngine(DebuggerEngine *cppEngine, bool useTerminal)
     m_qmlEngine->setMasterEngine(this);
     m_cppEngine = cppEngine;
     m_cppEngine->setMasterEngine(this);
-    setActiveEngine(m_cppEngine);
+    m_activeEngine = m_cppEngine;
 }
 
 QmlCppEngine::~QmlCppEngine()
@@ -271,11 +271,6 @@ void QmlCppEngine::assignValueInDebugger(WatchItem *item,
 
 void QmlCppEngine::notifyInferiorIll()
 {
-    //This will eventually shutdown the engine
-    //Set final state to avoid quitDebugger() being called
-    //after this call
-    setTargetState(DebuggerFinished);
-
     //Call notifyInferiorIll of cpp engine
     //as qml engine will follow state transitions
     //of cpp engine
@@ -378,7 +373,7 @@ void QmlCppEngine::executeDebuggerCommand(const QString &command, DebuggerLangua
 void QmlCppEngine::setupEngine()
 {
     EDEBUG("\nMASTER SETUP ENGINE");
-    setActiveEngine(m_cppEngine);
+    m_activeEngine = m_cppEngine;
     m_qmlEngine->setupSlaveEngine();
     m_cppEngine->setupSlaveEngine();
 
@@ -474,6 +469,7 @@ void QmlCppEngine::slaveEngineStateChanged
     DebuggerEngine *otherEngine = (slaveEngine == m_cppEngine)
          ? m_qmlEngine : m_cppEngine;
 
+    QTC_ASSERT(otherEngine, return);
     QTC_CHECK(otherEngine != slaveEngine);
 
     if (debug) {
@@ -584,9 +580,11 @@ void QmlCppEngine::slaveEngineStateChanged
                 if (state() == InferiorRunOk) {
                     setState(InferiorStopRequested);
                 } else if (state() == InferiorStopOk) {
-                    notifyInferiorRunRequested();
-                    notifyInferiorRunOk();
-                    setState(InferiorStopRequested);
+                    if (!isDying()) {
+                        notifyInferiorRunRequested();
+                        notifyInferiorRunOk();
+                        setState(InferiorStopRequested);
+                    }
                 } else if (state() == InferiorRunRequested) {
                     notifyInferiorRunOk();
                     setState(InferiorStopRequested);
@@ -606,7 +604,7 @@ void QmlCppEngine::slaveEngineStateChanged
                            || state() == InferiorStopOk, qDebug() << state());
 
                 // Just to make sure, we're shutting down anyway ...
-                setActiveEngine(m_cppEngine);
+                m_activeEngine = m_cppEngine;
 
                 if (state() == InferiorStopRequested)
                     setState(InferiorStopOk);

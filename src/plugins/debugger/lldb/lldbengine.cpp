@@ -163,7 +163,7 @@ void LldbEngine::shutdownEngine()
 
 void LldbEngine::abortDebugger()
 {
-    if (targetState() == DebuggerFinished) {
+    if (isDying()) {
         // We already tried. Try harder.
         showMessage("ABORTING DEBUGGER. SECOND TIME.");
         m_lldbProc.kill();

@@ -132,9 +132,9 @@ private:
     void setActiveEngine(DebuggerEngine *engine);
 
 private:
-    QmlEngine *m_qmlEngine;
-    DebuggerEngine *m_cppEngine;
-    DebuggerEngine *m_activeEngine;
+    QPointer<QmlEngine> m_qmlEngine;
+    QPointer<DebuggerEngine> m_cppEngine;
+    QPointer<DebuggerEngine> m_activeEngine;
 };
 
 } // namespace Internal

@@ -176,7 +176,8 @@ void DebuggerRunTool::notifyEngineRemoteSetupFinished(const RemoteSetupResult &r
 
 void DebuggerRunTool::stop()
 {
-    m_engine->exitDebugger();
+    m_isDying = true;
+    m_engine->quitDebugger();
 }
 
 void DebuggerRunTool::onTargetFailure()
@@ -223,6 +224,7 @@ void DebuggerRunTool::notifyInferiorExited()
 
 void DebuggerRunTool::quitDebugger()
 {
+    m_isDying = true;
     m_engine->quitDebugger();
 }
 

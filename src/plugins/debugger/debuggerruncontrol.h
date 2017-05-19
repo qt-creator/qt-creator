@@ -78,6 +78,8 @@ public:
     Internal::DebuggerRunParameters &runParameters();
     const Internal::DebuggerRunParameters &runParameters() const;
 
+    void startDying() { m_isDying = true; }
+    bool isDying() const { return m_isDying; }
     bool isCppDebugging() const { return m_isCppDebugging; }
     bool isQmlDebugging() const { return m_isQmlDebugging; }
     int portsUsedByDebugger() const;
@@ -94,6 +96,7 @@ private:
     Internal::DebuggerEngine *m_engine = nullptr; // Master engine
     Internal::DebuggerRunParameters m_runParameters;
     QStringList m_errors;
+    bool m_isDying = false;
     const bool m_isCppDebugging;
     const bool m_isQmlDebugging;
 };

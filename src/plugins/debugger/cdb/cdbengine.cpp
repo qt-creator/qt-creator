@@ -838,7 +838,7 @@ void CdbEngine::shutdownEngine()
 
 void CdbEngine::abortDebugger()
 {
-    if (targetState() == DebuggerFinished) {
+    if (isDying()) {
         // We already tried. Try harder.
         showMessage("ABORTING DEBUGGER. SECOND TIME.");
         m_process.kill();
@@ -1834,7 +1834,7 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
 {
     // Report stop reason (GDBMI)
     unsigned rc  = 0;
-    if (targetState() == DebuggerFinished)
+    if (isDying())
         rc |= StopShutdownInProgress;
     if (debug)
         qDebug("%s", qPrintable(stopReason.toString(true, 4)));

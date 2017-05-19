@@ -930,11 +930,10 @@ public:
         currentEngine()->watchHandler()->watchVariable(exp);
     }
 
-    void handleExecExit()
+    void stopDebugger()
     {
         QTC_ASSERT(dd->m_currentRunTool, return);
-        return dd->m_currentRunTool->runControl()->initiateStop();
-        //currentEngine()->exitDebugger();
+        dd->m_currentRunTool->runControl()->initiateStop();
     }
 
     void handleFrameDown()
@@ -1416,7 +1415,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     act = m_exitAction = new QAction(tr("Stop Debugger"), this);
     act->setIcon(Icons::DEBUG_EXIT_SMALL.icon());
-    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::handleExecExit);
+    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::stopDebugger);
 
     act = m_interruptAction = new QAction(tr("Interrupt"), this);
     act->setIcon(visibleStartIcon(Id(Constants::INTERRUPT), false));
@@ -2828,10 +2827,8 @@ void DebuggerPluginPrivate::coreShutdown()
 {
     m_shuttingDown = true;
     if (currentEngine()) {
-        if (currentEngine()->state() != Debugger::DebuggerNotReady) {
-            currentEngine()->setTargetState(Debugger::DebuggerFinished);
+        if (currentEngine()->state() != Debugger::DebuggerNotReady)
             currentEngine()->abortDebugger();
-        }
     }
 }
 
@@ -3044,8 +3041,9 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
 DebuggerEngine *currentEngine()
 {
-    QTC_ASSERT(dd->m_currentRunTool, return dd->dummyEngine());
-    DebuggerEngine *engine = dd->m_currentRunTool->activeEngine();
+    DebuggerEngine *engine = nullptr;
+    if (dd->m_currentRunTool)
+        engine = dd->m_currentRunTool->activeEngine();
     return engine ? engine : dd->dummyEngine();
 }
 
@@ -3369,7 +3367,8 @@ void DebuggerPluginPrivate::updateUiForTarget(Target *target)
 
 void DebuggerPluginPrivate::updateActiveLanguages()
 {
-    QTC_ASSERT(dd->m_currentRunTool, return);
+    if (!dd->m_currentRunTool)
+        return;
     const DebuggerLanguages languages = dd->m_currentRunTool->runParameters().languages;
 //    Id perspective = (languages & QmlLanguage) && !(languages & CppLanguage)
 //            ? QmlPerspectiveId : CppPerspectiveId;

@@ -272,7 +272,7 @@ QString GdbEngine::errorMessage(QProcess::ProcessError error)
                 "permissions to invoke the program.\n%2")
                 .arg(runParameters().debugger.executable, m_gdbProc.errorString());
         case QProcess::Crashed:
-            if (targetState() == DebuggerFinished)
+            if (isDying())
                 return tr("The gdb process crashed some time after starting "
                     "successfully.");
             else
@@ -4085,7 +4085,7 @@ void GdbEngine::handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus)
 
 void GdbEngine::abortDebugger()
 {
-    if (targetState() == DebuggerFinished) {
+    if (isDying()) {
         // We already tried. Try harder.
         showMessage("ABORTING DEBUGGER. SECOND TIME.");
         m_gdbProc.kill();

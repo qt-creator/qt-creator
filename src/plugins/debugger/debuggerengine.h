@@ -302,7 +302,6 @@ public:
 
     DebuggerState state() const;
     DebuggerState lastGoodState() const;
-    DebuggerState targetState() const;
     bool isDying() const;
 
     static QString stateName(int s);
@@ -319,9 +318,8 @@ public:
 
     virtual void resetLocation();
     virtual void gotoLocation(const Internal::Location &location);
-    Q_SLOT virtual void quitDebugger(); // called by DebuggerRunControl
-    virtual void exitDebugger(); // called by DebuggerRunControl
-    virtual void abortDebugger(); // called by DebuggerPlugin
+    virtual void quitDebugger(); // called when pressing the stop button
+    virtual void abortDebugger(); // called from the debug menu action
 
     void updateViews();
     bool isSlaveEngine() const;
