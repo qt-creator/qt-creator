@@ -26,6 +26,7 @@
 #include "clangdiagnosticfilter.h"
 #include "clangdiagnosticmanager.h"
 #include "clangisdiagnosticrelatedtolocation.h"
+#include "clangutils.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -60,9 +61,11 @@ QTextEdit::ExtraSelection createExtraSelections(const QTextCharFormat &mainforma
 int positionInText(QTextDocument *textDocument,
                    const ClangBackEnd::SourceLocationContainer &sourceLocationContainer)
 {
-    auto textBlock = textDocument->findBlockByNumber(int(sourceLocationContainer.line()) - 1);
-
-    return textBlock.position() + int(sourceLocationContainer.column()) - 1;
+    auto textBlock = textDocument->findBlockByNumber(
+                static_cast<int>(sourceLocationContainer.line()) - 1);
+    int column = static_cast<int>(sourceLocationContainer.column()) - 1;
+    column -= ClangCodeModel::Utils::extraUtf8CharsShift(textBlock.text(), column);
+    return textBlock.position() + column;
 }
 
 void addRangeSelections(const ClangBackEnd::DiagnosticContainer &diagnostic,

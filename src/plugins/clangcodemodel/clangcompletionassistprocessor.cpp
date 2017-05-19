@@ -552,7 +552,8 @@ bool ClangCompletionAssistProcessor::sendCompletionRequest(int position,
 {
     int line, column;
     TextEditor::Convenience::convertPosition(m_interface->textDocument(), position, &line, &column);
-    ++column;
+    const QTextBlock block = m_interface->textDocument()->findBlock(position);
+    column += ClangCodeModel::Utils::extraUtf8CharsShift(block.text(), column) + 1;
 
     const QString filePath = m_interface->fileName();
 

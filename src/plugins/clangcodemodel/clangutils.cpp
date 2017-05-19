@@ -169,5 +169,29 @@ void setLastSentDocumentRevision(const QString &filePath, uint revision)
         document->sendTracker().setLastSentRevision(int(revision));
 }
 
+int extraUtf8CharsShift(const QString &str, int column)
+{
+    int shift = 0;
+    const QByteArray byteArray = str.toUtf8();
+    for (int i = 0; i < qMin(str.length(), column); ++i) {
+        const uchar firstByte = static_cast<uchar>(byteArray.at(i));
+        // Skip different amount of bytes depending on value
+        if (firstByte < 0xC0) {
+            continue;
+        } else if (firstByte < 0xE0) {
+            ++shift;
+            ++i;
+        } else if (firstByte < 0xF0) {
+            shift += 2;
+            i += 2;
+        } else {
+            shift += 3;
+            i += 3;
+        }
+    }
+    return shift;
+}
+
+
 } // namespace Utils
 } // namespace Clang
