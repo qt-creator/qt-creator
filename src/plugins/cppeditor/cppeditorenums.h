@@ -43,6 +43,7 @@ enum CppFormats {
     CppPreprocessorFormat,
     CppLabelFormat,
     CppCommentFormat,
+    CppTodoCommentFormat,
     CppDoxygenCommentFormat,
     CppDoxygenTagFormat,
     CppVisualWhitespace,
