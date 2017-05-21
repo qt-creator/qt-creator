@@ -363,13 +363,10 @@ static QList<FileNode *> scanForFilesRecursively(const Utils::FileName &director
 
         const Utils::FileName entryName = Utils::FileName::fromString(entry.absoluteFilePath());
         if (!vcsControl || !vcsControl->isVcsFileOrDirectory(entryName)) {
-            if (entry.isDir()) {
+            if (entry.isDir())
                 result.append(scanForFilesRecursively(entryName, factory, visited, future, progress, progressIncrement));
-            } else {
-                FileNode *node = factory(entryName);
-                if (node)
-                    result.append(node);
-            }
+            else if (FileNode *node = factory(entryName))
+                result.append(node);
         }
         if (future) {
             progress += progressIncrement;
