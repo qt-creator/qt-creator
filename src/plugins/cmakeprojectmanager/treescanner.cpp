@@ -151,12 +151,9 @@ void TreeScanner::scanForFiles(FutureInterface *fi, const Utils::FileName& direc
 
     Result nodes = FileNode::scanForFiles(directory,
                                           [&filter, &factory](const Utils::FileName &fn) -> FileNode * {
-        QTC_ASSERT(!fn.isEmpty(), return nullptr);
-
         const Utils::MimeType mimeType = Utils::mimeTypeForFile(fn.toString());
 
         // Skip some files during scan.
-        // Filter out nullptr records after.
         if (filter && filter(mimeType, fn))
             return nullptr;
 
@@ -169,16 +166,10 @@ void TreeScanner::scanForFiles(FutureInterface *fi, const Utils::FileName& direc
     },
     fip.get());
 
-    // Clean up nodes and keep it sorted
-    Result tmp = Utils::filtered(nodes, [](const FileNode *fn) -> bool {
-        // Simple skip null entries
-        // TODO: fix Node::scanForFiles() to skip null factory results
-        return fn;
-    });
-    Utils::sort(tmp, ProjectExplorer::Node::sortByPath);
+    Utils::sort(nodes, ProjectExplorer::Node::sortByPath);
 
     fip->setProgressValue(fip->progressMaximum());
-    fip->reportResult(tmp);
+    fip->reportResult(nodes);
     fip->reportFinished();
 }
 
