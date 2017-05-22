@@ -118,8 +118,6 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
             QmlDesignerPlugin::instance()->mainWidget(),
             &Internal::DesignModeWidget::restoreDefaultView);
 
-    connect(&m_goIntoComponentAction, &QAction::triggered, this, &ShortCutManager::goIntoComponent);
-
     connect(&m_toggleLeftSidebarAction,
             &QAction::triggered,
             QmlDesignerPlugin::instance()->mainWidget(),
