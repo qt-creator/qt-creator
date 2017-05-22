@@ -111,13 +111,18 @@ void DesignerActionManager::polishActions() const
                                                         [](ActionInterface *action) { return action->type() != ActionInterface::ContextMenu; });
 
     Core::Context qmlDesignerFormEditorContext(Constants::C_QMLFORMEDITOR);
+    Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
+
+    Core::Context qmlDesignerUIContext;
+    qmlDesignerUIContext.add(qmlDesignerFormEditorContext);
+    qmlDesignerUIContext.add(qmlDesignerNavigatorContext);
 
     for (auto *action : actions) {
         if (!action->menuId().isEmpty()) {
             const QString id =
                     QString("QmlDesigner.%1").arg(QString::fromLatin1(action->menuId()));
 
-            Core::Command *cmd = Core::ActionManager::registerAction(action->action(), id.toLatin1().constData(), qmlDesignerFormEditorContext);
+            Core::Command *cmd = Core::ActionManager::registerAction(action->action(), id.toLatin1().constData(), qmlDesignerUIContext);
 
             cmd->setDefaultKeySequence(action->action()->shortcut());
             cmd->setDescription(action->action()->toolTip());
