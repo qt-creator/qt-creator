@@ -46,25 +46,6 @@ static const char groupPostfix[] = "DisplaySettings";
 
 namespace TextEditor {
 
-DisplaySettings::DisplaySettings() :
-    m_displayLineNumbers(true),
-    m_textWrapping(false),
-    m_visualizeWhitespace(false),
-    m_displayFoldingMarkers(true),
-    m_highlightCurrentLine(false),
-    m_highlightBlocks(false),
-    m_animateMatchingParentheses(true),
-    m_highlightMatchingParentheses(true),
-    m_markTextChanges(true),
-    m_autoFoldFirstComment(true),
-    m_centerCursorOnScroll(false),
-    m_openLinksInNextSplit(false),
-    m_forceOpenLinksInNextSplit(false),
-    m_displayFileEncoding(false),
-    m_scrollBarHighlights(true)
-{
-}
-
 void DisplaySettings::toSettings(const QString &category, QSettings *s) const
 {
     QString group = QLatin1String(groupPostfix);

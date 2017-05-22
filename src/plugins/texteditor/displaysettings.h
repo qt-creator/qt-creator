@@ -36,26 +36,26 @@ namespace TextEditor {
 class TEXTEDITOR_EXPORT DisplaySettings
 {
 public:
-    DisplaySettings();
+    DisplaySettings() = default;
 
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, const QSettings *s);
 
-    bool m_displayLineNumbers;
-    bool m_textWrapping;
-    bool m_visualizeWhitespace;
-    bool m_displayFoldingMarkers;
-    bool m_highlightCurrentLine;
-    bool m_highlightBlocks;
-    bool m_animateMatchingParentheses;
-    bool m_highlightMatchingParentheses;
-    bool m_markTextChanges;
-    bool m_autoFoldFirstComment;
-    bool m_centerCursorOnScroll;
-    bool m_openLinksInNextSplit;
-    bool m_forceOpenLinksInNextSplit;
-    bool m_displayFileEncoding;
-    bool m_scrollBarHighlights;
+    bool m_displayLineNumbers = true;
+    bool m_textWrapping = false;
+    bool m_visualizeWhitespace = false;
+    bool m_displayFoldingMarkers = true;
+    bool m_highlightCurrentLine = false;
+    bool m_highlightBlocks = false;
+    bool m_animateMatchingParentheses = true;
+    bool m_highlightMatchingParentheses = true;
+    bool m_markTextChanges = true ;
+    bool m_autoFoldFirstComment = true;
+    bool m_centerCursorOnScroll = false;
+    bool m_openLinksInNextSplit = false;
+    bool m_forceOpenLinksInNextSplit = false;
+    bool m_displayFileEncoding = false;
+    bool m_scrollBarHighlights = true;
 
     bool equals(const DisplaySettings &ds) const;
 };
