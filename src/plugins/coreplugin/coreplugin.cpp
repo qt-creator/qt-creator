@@ -193,6 +193,8 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                []() { return QVariant(Utils::HostOsInfo::isLinuxHost()).toString(); });
     expander->registerVariable("HostOs:isUnix", tr("Is Qt Creator running on any unix-based platform?"),
                                []() { return QVariant(Utils::HostOsInfo::isAnyUnixHost()).toString(); });
+    expander->registerVariable("IDE:ResourcePath", tr("The directory where Qt Creator finds its pre-installed resources."),
+                               []() { return ICore::resourcePath(); });
     expander->registerPrefix("CurrentDate:", tr("The current date (QDate formatstring)."),
                              [](const QString &fmt) { return QDate::currentDate().toString(fmt); });
     expander->registerPrefix("CurrentTime:", tr("The current time (QTime formatstring)."),
