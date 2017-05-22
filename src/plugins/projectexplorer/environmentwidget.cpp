@@ -180,7 +180,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     auto buttonLayout = new QVBoxLayout();
 
     d->m_editButton = new QPushButton(this);
-    d->m_editButton->setText(tr("&Edit"));
+    d->m_editButton->setText(tr("Ed&it"));
     buttonLayout->addWidget(d->m_editButton);
 
     d->m_addButton = new QPushButton(this);
