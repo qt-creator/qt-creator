@@ -569,7 +569,6 @@ public:
                                              "ShaderEffect",
                                              "ShaderEffectSource",
                                              "Component",
-                                             "Loader",
                                              "Transition",
                                              "PropertyAnimation",
                                              "SequentialAnimation",
