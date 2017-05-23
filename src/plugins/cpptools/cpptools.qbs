@@ -51,6 +51,8 @@ Project {
             "clangdiagnosticconfigswidget.ui",
             "compileroptionsbuilder.cpp",
             "compileroptionsbuilder.h",
+            "cppcanonicalsymbol.cpp",
+            "cppcanonicalsymbol.h",
             "cppchecksymbols.cpp",
             "cppchecksymbols.h",
             "cppclassesfilter.cpp",

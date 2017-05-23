@@ -26,7 +26,6 @@
 #include "cppeditor.h"
 
 #include "cppautocompleter.h"
-#include "cppcanonicalsymbol.h"
 #include "cppdocumentationcommenthelper.h"
 #include "cppeditorconstants.h"
 #include "cppeditordocument.h"
@@ -47,6 +46,7 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/infobar.h>
 
+#include <cpptools/cppcanonicalsymbol.h>
 #include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppcodeformatter.h>
 #include <cpptools/cppcompletionassistprovider.h>

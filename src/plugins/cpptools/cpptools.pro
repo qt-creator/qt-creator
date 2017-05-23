@@ -12,6 +12,7 @@ HEADERS += \
     clangdiagnosticconfig.h \
     clangdiagnosticconfigsmodel.h \
     clangdiagnosticconfigswidget.h \
+    cppcanonicalsymbol.h \
     cppchecksymbols.h \
     cppclassesfilter.h \
     cppcodeformatter.h \
@@ -95,6 +96,7 @@ SOURCES += \
     clangdiagnosticconfig.cpp \
     clangdiagnosticconfigsmodel.cpp \
     clangdiagnosticconfigswidget.cpp \
+    cppcanonicalsymbol.cpp \
     cppchecksymbols.cpp \
     cppclassesfilter.cpp \
     cppcodeformatter.cpp \

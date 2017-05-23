@@ -22,8 +22,6 @@ QtcPlugin {
     files: [
         "cppautocompleter.cpp",
         "cppautocompleter.h",
-        "cppcanonicalsymbol.cpp",
-        "cppcanonicalsymbol.h",
         "cppcodemodelinspectordialog.cpp",
         "cppcodemodelinspectordialog.h",
         "cppcodemodelinspectordialog.ui",

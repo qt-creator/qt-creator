@@ -25,9 +25,9 @@
 
 #include "cppuseselectionsupdater.h"
 
-#include "cppcanonicalsymbol.h"
 #include "cppeditor.h"
 
+#include <cpptools/cppcanonicalsymbol.h>
 #include <cpptools/cpplocalsymbols.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
@@ -125,7 +125,7 @@ public:
     {
         TextEditor::Convenience::convertPosition(textCursor.document(), textCursor.position(),
                                                  &line, &column);
-        CppEditor::Internal::CanonicalSymbol canonicalSymbol(document, snapshot);
+        CppTools::CanonicalSymbol canonicalSymbol(document, snapshot);
         scope = canonicalSymbol.getScopeAndExpression(textCursor, &expression);
     }
 
@@ -199,7 +199,7 @@ QList<int> findReferences(const Params &p)
     typeOfExpression.init(p.document, snapshot);
     typeOfExpression.setExpandTemplates(true);
 
-    using CppEditor::Internal::CanonicalSymbol;
+    using CppTools::CanonicalSymbol;
     if (Symbol *s = CanonicalSymbol::canonicalSymbol(p.scope, p.expression, typeOfExpression)) {
         CppTools::CppModelManager *mmi = CppTools::CppModelManager::instance();
         result = mmi->references(s, typeOfExpression.context());
