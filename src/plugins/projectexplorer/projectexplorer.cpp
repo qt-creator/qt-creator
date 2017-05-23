@@ -173,7 +173,6 @@ namespace Constants {
 const int  P_MODE_SESSION         = 85;
 
 // Actions
-const char NEWSESSION[]           = "ProjectExplorer.NewSession";
 const char NEWPROJECT[]           = "ProjectExplorer.NewProject";
 const char LOAD[]                 = "ProjectExplorer.Load";
 const char UNLOAD[]               = "ProjectExplorer.Unload";
