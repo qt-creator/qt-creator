@@ -469,10 +469,6 @@ public:
     virtual void notifyRemoteSetupFailed(const QString &) {} // Same.
     virtual void notifyRemoteFinished() {} // Same.
 
-    void reportApplicationStart(); // FIXME: Don't use
-    void reportApplicationStop(); // FIXME: Don't use
-    void reportFailure(const QString &msg = QString());
-
     static bool showPromptToStopDialog(const QString &title, const QString &text,
                                        const QString &stopButtonText = QString(),
                                        const QString &cancelButtonText = QString(),
@@ -505,8 +501,8 @@ signals:
                                 const QString &msg, Utils::OutputFormat format);
     void aboutToStart();
     void starting();
-    void started(); // Use reportApplicationStart!
-    void finished(); // Use reportApplicationStop!
+    void started();
+    void finished();
     void applicationProcessHandleChanged(QPrivateSignal); // Use setApplicationProcessHandle
 
 private:

@@ -1150,16 +1150,6 @@ void RunControl::bringApplicationToForeground()
 #endif
 }
 
-void RunControl::reportApplicationStart()
-{
-    QTC_CHECK(false);//  FIXME: Legacy
-}
-
-void RunControl::reportApplicationStop()
-{
-    QTC_CHECK(false);//  FIXME: Legacy
-}
-
 void RunControl::bringApplicationToForegroundInternal()
 {
 #ifdef Q_OS_OSX
@@ -1313,12 +1303,6 @@ void SimpleTargetRunner::onProcessError(QProcess::ProcessError)
     QString msg = tr("%1 finished.");
     appendMessage(msg.arg(runnable().displayName()), Utils::NormalMessageFormat);
     reportStopped();
-}
-
-void RunControl::reportFailure(const QString &msg)
-{
-    d->showError(msg);
-    d->setState(RunControlState::Stopped);
 }
 
 // RunWorkerPrivate
