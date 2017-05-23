@@ -56,6 +56,8 @@ public:
     bool m_forceOpenLinksInNextSplit = false;
     bool m_displayFileEncoding = false;
     bool m_scrollBarHighlights = true;
+    bool m_animateNavigationWithinFile = false;
+    int m_animateWithinFileTimeMax = 333; // read only setting
 
     bool equals(const DisplaySettings &ds) const;
 };

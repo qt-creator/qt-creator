@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>501</width>
-    <height>331</height>
+    <height>339</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
@@ -171,6 +171,13 @@
        <widget class="QCheckBox" name="scrollBarHighlights">
         <property name="text">
          <string>Highlight search results on the scrollbar</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QCheckBox" name="animateNavigationWithinFile">
+        <property name="text">
+         <string>Animate navigation within file</string>
         </property>
        </widget>
       </item>

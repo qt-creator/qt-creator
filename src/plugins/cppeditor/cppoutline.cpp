@@ -173,7 +173,7 @@ void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
         Core::EditorManager::addCurrentPositionToNavigationHistory();
 
         // line has to be 1 based, column 0 based!
-        m_editor->gotoLine(symbol->line(), symbol->column() - 1);
+        m_editor->gotoLine(symbol->line(), symbol->column() - 1, true, true);
         m_blockCursorSync = false;
     }
 }

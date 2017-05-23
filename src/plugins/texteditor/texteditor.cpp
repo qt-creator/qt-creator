@@ -99,7 +99,9 @@
 #include <QPainter>
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QPropertyAnimation>
 #include <QDrag>
+#include <QSequentialAnimationGroup>
 #include <QScrollBar>
 #include <QShortcut>
 #include <QStyle>
@@ -456,6 +458,8 @@ public:
     CodeAssistant m_codeAssistant;
     bool m_assistRelevantContentAdded = false;
     QList<BaseHoverHandler *> m_hoverHandlers; // Not owned
+
+    QPointer<QSequentialAnimationGroup> m_navigationAnimation;
 
     QPointer<TextEditorAnimator> m_bracketsAnimator;
 
@@ -2515,7 +2519,7 @@ void TextEditorWidget::doSetTextCursor(const QTextCursor &cursor)
     doSetTextCursor(cursor, false);
 }
 
-void TextEditorWidget::gotoLine(int line, int column, bool centerLine)
+void TextEditorWidget::gotoLine(int line, int column, bool centerLine, bool animate)
 {
     d->m_lastCursorChangeWasInteresting = false; // avoid adding the previous position to history
     const int blockNumber = qMin(line, document()->blockCount()) - 1;
@@ -2531,12 +2535,61 @@ void TextEditorWidget::gotoLine(int line, int column, bool centerLine)
             }
             cursor.setPosition(pos);
         }
-        setTextCursor(cursor);
 
-        if (centerLine)
-            centerCursor();
-        else
-            ensureCursorVisible();
+        const DisplaySettings &ds = d->m_displaySettings;
+        if (animate && ds.m_animateNavigationWithinFile) {
+            const QScrollBar *scrollBar = verticalScrollBar();
+            const int start = scrollBar->value();
+
+            setTextCursor(cursor);
+            ensureBlockIsUnfolded(block);
+
+            const int visibleLines = lastVisibleLine() - firstVisibleLine();
+
+            int end = 0;
+            auto it = document()->firstBlock();
+            while (it.isValid() && it != block) {
+                if (it.isVisible())
+                    ++end;
+                it = it.next();
+            }
+
+            if (centerLine)
+                end = qMin(scrollBar->maximum(), qMax(scrollBar->minimum(), end - visibleLines / 2));
+
+            const int delta = end - start;
+            // limit the number of steps for the animation otherwise you wont be able to tell
+            // the direction of the animantion for large delta values
+            const int steps = qMax(-ds.m_animateWithinFileTimeMax,
+                                   qMin(ds.m_animateWithinFileTimeMax, delta));
+            // limit the duration of the animation to at least 4 pictures on a 60Hz Monitor and
+            // at most to the number of absolute steps
+            const int durationMinimum = int (4 // number of pictures
+                                             * float(1) / 60 // on a 60 Hz Monitor
+                                             * 1000); // milliseconds
+            const int duration = qMax(durationMinimum, qAbs(steps));
+
+            d->m_navigationAnimation = new QSequentialAnimationGroup(this);
+            auto startAnimation = new QPropertyAnimation(verticalScrollBar(), "value");
+            startAnimation->setEasingCurve(QEasingCurve::InExpo);
+            startAnimation->setStartValue(start);
+            startAnimation->setEndValue(start + steps / 2);
+            startAnimation->setDuration(duration / 2);
+            d->m_navigationAnimation->addAnimation(startAnimation);
+            auto endAnimation = new QPropertyAnimation(verticalScrollBar(), "value");
+            endAnimation->setEasingCurve(QEasingCurve::OutExpo);
+            endAnimation->setStartValue(end - steps / 2);
+            endAnimation->setEndValue(end);
+            endAnimation->setDuration(duration / 2);
+            d->m_navigationAnimation->addAnimation(endAnimation);
+            d->m_navigationAnimation->start(QAbstractAnimation::DeleteWhenStopped);
+        } else {
+            setTextCursor(cursor);
+            if (centerLine)
+                centerCursor();
+            else
+                ensureCursorVisible();
+        }
     }
     d->saveCurrentCursorPositionForNavigation();
 }
@@ -5224,7 +5277,12 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
 
 void TextEditorWidget::ensureCursorVisible()
 {
-    QTextBlock block = textCursor().block();
+    ensureBlockIsUnfolded(textCursor().block());
+    QPlainTextEdit::ensureCursorVisible();
+}
+
+void TextEditorWidget::ensureBlockIsUnfolded(QTextBlock block)
+{
     if (!block.isVisible()) {
         TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout());
         QTC_ASSERT(documentLayout, return);
@@ -5246,7 +5304,6 @@ void TextEditorWidget::ensureCursorVisible()
         documentLayout->requestUpdate();
         documentLayout->emitDocumentSizeChanged();
     }
-    QPlainTextEdit::ensureCursorVisible();
 }
 
 void TextEditorWidgetPrivate::toggleBlockVisible(const QTextBlock &block)
@@ -5493,7 +5550,7 @@ bool TextEditorWidget::openLink(const Link &link, bool inNextSplit)
 
     if (!inNextSplit && textDocument()->filePath().toString() == link.targetFileName) {
         EditorManager::addCurrentPositionToNavigationHistory();
-        gotoLine(link.targetLine, link.targetColumn);
+        gotoLine(link.targetLine, link.targetColumn, true, true);
         setFocus();
         return true;
     }

@@ -252,7 +252,7 @@ void CppEditorOutline::gotoSymbolInEditor()
 
     Core::EditorManager::cutForwardNavigationHistory();
     Core::EditorManager::addCurrentPositionToNavigationHistory();
-    m_editorWidget->gotoLine(link.targetLine, link.targetColumn);
+    m_editorWidget->gotoLine(link.targetLine, link.targetColumn, true, true);
     m_editorWidget->activateEditor();
 }
 

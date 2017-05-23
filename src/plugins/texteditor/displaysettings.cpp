@@ -42,6 +42,8 @@ static const char centerCursorOnScrollKey[] = "CenterCursorOnScroll";
 static const char openLinksInNextSplitKey[] = "OpenLinksInNextSplitKey";
 static const char displayFileEncodingKey[] = "DisplayFileEncoding";
 static const char scrollBarHighlightsKey[] = "ScrollBarHighlights";
+static const char animateNavigationWithinFileKey[] = "AnimateNavigationWithinFile";
+static const char animateWithinFileTimeMaxKey[] = "AnimateWithinFileTimeMax";
 static const char groupPostfix[] = "DisplaySettings";
 
 namespace TextEditor {
@@ -66,6 +68,7 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(openLinksInNextSplitKey), m_openLinksInNextSplit);
     s->setValue(QLatin1String(displayFileEncodingKey), m_displayFileEncoding);
     s->setValue(QLatin1String(scrollBarHighlightsKey), m_scrollBarHighlights);
+    s->setValue(QLatin1String(animateNavigationWithinFileKey), m_animateNavigationWithinFile);
     s->endGroup();
 }
 
@@ -92,6 +95,8 @@ void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
     m_openLinksInNextSplit = s->value(group + QLatin1String(openLinksInNextSplitKey), m_openLinksInNextSplit).toBool();
     m_displayFileEncoding = s->value(group + QLatin1String(displayFileEncodingKey), m_displayFileEncoding).toBool();
     m_scrollBarHighlights = s->value(group + QLatin1String(scrollBarHighlightsKey), m_scrollBarHighlights).toBool();
+    m_animateNavigationWithinFile = s->value(group + QLatin1String(animateNavigationWithinFileKey), m_animateNavigationWithinFile).toBool();
+    m_animateWithinFileTimeMax = s->value(group + QLatin1String(animateWithinFileTimeMaxKey), m_animateWithinFileTimeMax).toInt();
 }
 
 bool DisplaySettings::equals(const DisplaySettings &ds) const
@@ -111,6 +116,8 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
         && m_forceOpenLinksInNextSplit == ds.m_forceOpenLinksInNextSplit
         && m_displayFileEncoding == ds.m_displayFileEncoding
         && m_scrollBarHighlights == ds.m_scrollBarHighlights
+        && m_animateNavigationWithinFile == ds.m_animateNavigationWithinFile
+        && m_animateWithinFileTimeMax == ds.m_animateWithinFileTimeMax
         ;
 }
 

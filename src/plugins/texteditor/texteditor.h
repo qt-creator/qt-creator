@@ -183,7 +183,7 @@ public:
     // IEditor
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
-    void gotoLine(int line, int column = 0, bool centerLine = true);
+    void gotoLine(int line, int column = 0, bool centerLine = true, bool animate = false);
     int position(TextPositionOperation posOp = CurrentPosition,
          int at = -1) const;
     void convertPosition(int pos, int *line, int *column) const;
@@ -297,6 +297,7 @@ public:
     const BehaviorSettings &behaviorSettings() const;
 
     void ensureCursorVisible();
+    void ensureBlockIsUnfolded(QTextBlock block);
 
     static Core::Id FakeVimSelection;
     static Core::Id SnippetPlaceholderSelection;
