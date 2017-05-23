@@ -26,6 +26,7 @@
 #include "clanghighlightingmarksreporter.h"
 
 #include <texteditor/textstyles.h>
+#include <utils/qtcassert.h>
 
 #include <QFuture>
 
@@ -36,36 +37,45 @@ TextEditor::TextStyle toTextStyle(ClangBackEnd::HighlightingType type)
     using ClangBackEnd::HighlightingType;
 
     switch (type) {
-        case HighlightingType::Keyword:
-            return TextEditor::C_KEYWORD;
-        case HighlightingType::Function:
-            return TextEditor::C_FUNCTION;
-        case HighlightingType::VirtualFunction:
-            return TextEditor::C_VIRTUAL_METHOD;
-        case HighlightingType::Type:
-            return TextEditor::C_TYPE;
-        case HighlightingType::PrimitiveType:
-            return TextEditor::C_PRIMITIVE_TYPE;
-        case HighlightingType::LocalVariable:
-            return TextEditor::C_LOCAL;
-        case HighlightingType::Field:
-            return TextEditor::C_FIELD;
-        case HighlightingType::GlobalVariable:
-            return TextEditor::C_GLOBAL;
-        case HighlightingType::Enumeration:
-            return TextEditor::C_ENUMERATION;
-        case HighlightingType::Label:
-            return TextEditor::C_LABEL;
-        case HighlightingType::Preprocessor:
-        case HighlightingType::PreprocessorDefinition:
-        case HighlightingType::PreprocessorExpansion:
-            return TextEditor::C_PREPROCESSOR;
-        case HighlightingType::Declaration:
-            return TextEditor::C_DECLARATION;
-        case HighlightingType::OutputArgument:
-            return TextEditor::C_OUTPUT_ARGUMENT;
-        default:
-            return TextEditor::C_TEXT; // never called
+    case HighlightingType::Keyword:
+        return TextEditor::C_KEYWORD;
+    case HighlightingType::Function:
+        return TextEditor::C_FUNCTION;
+    case HighlightingType::VirtualFunction:
+        return TextEditor::C_VIRTUAL_METHOD;
+    case HighlightingType::Type:
+        return TextEditor::C_TYPE;
+    case HighlightingType::PrimitiveType:
+        return TextEditor::C_PRIMITIVE_TYPE;
+    case HighlightingType::LocalVariable:
+        return TextEditor::C_LOCAL;
+    case HighlightingType::Field:
+        return TextEditor::C_FIELD;
+    case HighlightingType::GlobalVariable:
+        return TextEditor::C_GLOBAL;
+    case HighlightingType::Enumeration:
+        return TextEditor::C_ENUMERATION;
+    case HighlightingType::Label:
+        return TextEditor::C_LABEL;
+    case HighlightingType::Preprocessor:
+    case HighlightingType::PreprocessorDefinition:
+    case HighlightingType::PreprocessorExpansion:
+        return TextEditor::C_PREPROCESSOR;
+    case HighlightingType::Declaration:
+        return TextEditor::C_DECLARATION;
+    case HighlightingType::OutputArgument:
+        return TextEditor::C_OUTPUT_ARGUMENT;
+    case HighlightingType::Operator:
+        return TextEditor::C_OPERATOR;
+    case HighlightingType::Comment:
+        return TextEditor::C_COMMENT;
+    case HighlightingType::StringLiteral:
+        return TextEditor::C_STRING;
+    case HighlightingType::NumberLiteral:
+        return TextEditor::C_NUMBER;
+    case HighlightingType::Invalid:
+        QTC_CHECK(false); // never called
+        return TextEditor::C_TEXT;
     }
 
     Q_UNREACHABLE();
