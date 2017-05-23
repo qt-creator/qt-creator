@@ -111,13 +111,18 @@ void DesignerActionManager::polishActions() const
                                                         [](ActionInterface *action) { return action->type() != ActionInterface::ContextMenu; });
 
     Core::Context qmlDesignerFormEditorContext(Constants::C_QMLFORMEDITOR);
+    Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
+
+    Core::Context qmlDesignerUIContext;
+    qmlDesignerUIContext.add(qmlDesignerFormEditorContext);
+    qmlDesignerUIContext.add(qmlDesignerNavigatorContext);
 
     for (auto *action : actions) {
         if (!action->menuId().isEmpty()) {
             const QString id =
                     QString("QmlDesigner.%1").arg(QString::fromLatin1(action->menuId()));
 
-            Core::Command *cmd = Core::ActionManager::registerAction(action->action(), id.toLatin1().constData(), qmlDesignerFormEditorContext);
+            Core::Command *cmd = Core::ActionManager::registerAction(action->action(), id.toLatin1().constData(), qmlDesignerUIContext);
 
             cmd->setDefaultKeySequence(action->action()->shortcut());
             cmd->setDescription(action->action()->toolTip());
@@ -698,7 +703,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
                           resetSizeToolTip,
                           editCategory,
-                          QKeySequence("Ctrl+f"),
+                          QKeySequence("shift+s"),
                           180,
                           &resetSize,
                           &selectionNotEmptyAndHasWidthOrHeightProperty));
@@ -726,7 +731,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           Utils::Icon({{":/qmldesigner/images/anchor_fill.png", Utils::Theme::IconsBaseColor}}).icon(),
                           anchorsFillToolTip,
                           anchorsCategory,
-                          QKeySequence(QKeySequence("Ctrl+f")),
+                          QKeySequence(QKeySequence("shift+f")),
                           200,
                           &anchorsFill,
                           &singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot));
@@ -738,7 +743,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                        {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
                           anchorsResetToolTip,
                           anchorsCategory,
-                          QKeySequence(QKeySequence("Ctrl+Shift+f")),
+                          QKeySequence(QKeySequence("Ctrl+Shift+r")),
                           180,
                           &anchorsReset,
                           &singleSelectionItemIsAnchored));
@@ -819,7 +824,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           removeLayoutCommandId,
                           removeLayoutDisplayName,
                           layoutCategory,
-                          QKeySequence("Ctrl+Shift+u"),
+                          QKeySequence(),
                           110,
                           &removeLayout,
                           &isLayout,
@@ -899,7 +904,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           Utils::Icon({{":/qmldesigner/icon/designeractions/images/grid.png", Utils::Theme::IconsBaseColor}}).icon(),
                           layoutGridLayoutToolTip,
                           layoutCategory,
-                          QKeySequence("Ctrl+h"),
+                          QKeySequence("shift+g"),
                           60,
                           &layoutGridLayout,
                           &selectionCanBeLayoutedAndQtQuickLayoutPossible));
@@ -932,7 +937,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           goIntoComponentCommandId,
                           goIntoComponentDisplayName,
                           rootCategory,
-                          QKeySequence(),
+                          QKeySequence(Qt::Key_F2),
                           priorityGoIntoComponent,
                           &goIntoComponentOperation,
                           &selectionIsComponent));

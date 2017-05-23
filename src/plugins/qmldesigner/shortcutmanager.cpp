@@ -86,7 +86,6 @@ ShortCutManager::ShortCutManager()
     m_restoreDefaultViewAction(tr("&Restore Default View"), 0),
     m_toggleLeftSidebarAction(tr("Toggle &Left Sidebar"), 0),
     m_toggleRightSidebarAction(tr("Toggle &Right Sidebar"), 0),
-    m_goIntoComponentAction(tr("&Go into Component"), 0),
     m_switchTextFormAction(tr("Switch Text/Design"), 0),
     m_escapeAction(this)
 {
@@ -118,8 +117,6 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
             &QAction::triggered,
             QmlDesignerPlugin::instance()->mainWidget(),
             &Internal::DesignModeWidget::restoreDefaultView);
-
-    connect(&m_goIntoComponentAction, &QAction::triggered, this, &ShortCutManager::goIntoComponent);
 
     connect(&m_toggleLeftSidebarAction,
             &QAction::triggered,
@@ -188,11 +185,6 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     command = Core::ActionManager::registerAction(&m_redoAction, Core::Constants::REDO, qmlDesignerMainContext);
     designerActionManager.addCreatorCommand(command, ComponentCoreConstants::editCategory, 300, Utils::Icons::REDO_TOOLBAR.icon());
 
-    //GoIntoComponent
-    command = Core::ActionManager::registerAction(&m_goIntoComponentAction,
-                                                  Constants::GO_INTO_COMPONENT, qmlDesignerMainContext);
-    command->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
-
     //Edit Menu
 
     m_deleteAction.setIcon(QIcon::fromTheme(QLatin1String("edit-cut"), Utils::Icons::EDIT_CLEAR_TOOLBAR.icon()));
@@ -235,7 +227,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     command = Core::ActionManager::registerAction(&m_collapseExpandStatesAction,  Constants::TOGGLE_STATES_EDITOR, qmlDesignerMainContext);
     command->setAttribute(Core::Command::CA_Hide);
-    command->setDefaultKeySequence(QKeySequence("Ctrl+Shift+s"));
+    command->setDefaultKeySequence(QKeySequence("Ctrl+Alt+s"));
     viewsMenu->addAction(command);
 
     command = Core::ActionManager::registerAction(&m_restoreDefaultViewAction,  Constants::RESTORE_DEFAULT_VIEW, qmlDesignerMainContext);

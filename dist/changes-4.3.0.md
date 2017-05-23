@@ -13,10 +13,19 @@ General
   (experimental `SilverSearcher` plugin)
 * Added exclusion patterns to `Advanced Find` and custom locator filters
 * Added navigation pane on right side of edit mode
+* Fixed wrong UI colors after suspend (QTCREATORBUG-14929)
+* Fixed crash with invalid themes (QTCREATORBUG-17517)
+
+Help
+
+* Fixed that help bookmarks got lost (QTCREATORBUG-17537)
 
 Editing
 
 * Added optional shortcut for duplicating current selection
+* Adapted to changes of code pasting services
+  (QTCREATORBUG-17942, QTCREATORBUG-18192)
+* Fixed freeze when highlighting `Kconfig` file (QTCREATORBUG-14611)
 
 All Projects
 
@@ -29,6 +38,7 @@ QMake Projects
 
 * Fixed wrong warning when specifying absolute path to mkspec
   (QTCREATORBUG-17237)
+* Fixed deployment of symlinks for versioned shared libraries
 
 CMake Projects
 
@@ -39,6 +49,7 @@ CMake Projects
 * Added header files to project tree, even if not listed explicitly in
   project files
 * Added import of configuration of existing builds
+* Fixed `Build > Clean`
 
 Generic Projects
 
@@ -62,6 +73,9 @@ QML Support
 * Added option to automatically format QML files on save
 * Added menu item for adding expression evaluators from QML code editor
   (QTCREATORBUG-17754)
+* Fixed reformatting of signals (QTCREATORBUG-17886)
+* Fixed issues with jumping text cursor while editing
+  (QTCREATORBUG-15680, QTCREATORBUG-17413)
 
 Nim Support
 
@@ -72,11 +86,15 @@ Nim Support
 
 Debugging
 
-* Added pretty printing of `unordered_multi(set|map)`
+* Added pretty printing of `unordered_multi(set|map)`, `boost::variant` and
+  `QLazilyAllocated`
 * Fixed that expression evaluators were not evaluated when added
   (QTCREATORBUG-17763)
 * QML
     * Fixed accessing items by `id` in `Debugger Console` (QTCREATORBUG-17177)
+* GDB
+    * Fixed issue with templated types that are pretty printed differently
+      depending on argument type (`std::vector<bool>` versus `std::vector<t>`)
 * CDB
     * Changed to Python based pretty printing backend, resulting in faster
       startup and more, faster, and unified pretty printers
@@ -88,6 +106,7 @@ QML Profiler
 * Improved error and progress reporting for loading and saving trace files
 * Fixed pixmap cache size information when loading profile
   (QTCREATORBUG-17424)
+* Fixed UI issues (QTCREATORBUG-17939, QTCREATORBUG-17937)
 
 Qt Quick Designer
 
@@ -98,8 +117,13 @@ Qt Quick Designer
 * Added support for `qsTranslate` (QTCREATORBUG-17714)
 * Added actions for adding items, selecting visible item, and adding tab bar
   to stacked containers
+* Fixed that `Dialog` was not allowed in `.ui.qml` files
 * Fixed that error messages could be shown twice
 * Fixed handling of escaped unicode characters (QTCREATORBUG-12616)
+* Fixed that document needed to be manually re-opened after type information
+  became available
+* Fixed crash when root item is layout
+* Fixed that expressions were not shown in URL input field (QTCREATORBUG-13328)
 
 Version Control Systems
 
@@ -138,16 +162,28 @@ Windows
 
 * Fixed that it was not possible to save files with arbitrary extension
   (QTCREATORBUG-15862)
+* Fixed ABI detection for Clang
+* Fixed that ABI of MSVC2017 was considered different from ABI of MSVC2015
+  (QTCREATORBUG-17740)
+
+Linux
+
+* Worked around issue that Unity menu bar vanished after editing main window in
+  Design mode (QTCREATORBUG-17519)
 
 Android
 
 * Improved package signing (QTCREATORBUG-17545, QTCREATORBUG-17304)
+* Fixed issues with new Android SDK (25.3.1)
+  (QTCREATORBUG-17814, QTCREATORBUG-18013)
+* Fixed debugging of release builds
 
 iOS
 
 * Added option to select developer team and provisioning profile used for
   signing (QTCREATORBUG-16936)
 * Fixed that starting simulator blocked Qt Creator
+* Fixed `Run Without Deployment` on Simulator (QTCREATORBUG-18107)
 
 Remote Linux
 

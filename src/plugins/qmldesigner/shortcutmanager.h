@@ -89,7 +89,6 @@ private:
     QAction m_restoreDefaultViewAction;
     QAction m_toggleLeftSidebarAction;
     QAction m_toggleRightSidebarAction;
-    QAction m_goIntoComponentAction;
     QAction m_switchTextFormAction;
     QAction m_escapeAction;
 };

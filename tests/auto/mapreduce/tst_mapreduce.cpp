@@ -26,6 +26,7 @@
 #include <utils/algorithm.h>
 #include <utils/mapreduce.h>
 
+#include <QThreadPool>
 #include <QtTest>
 
 #if !defined(Q_CC_MSVC) || _MSC_VER >= 1900 // MSVC2015
@@ -58,6 +59,7 @@ static void returnxxThroughFutureInterface(QFutureInterface<int> &fi, int x)
 
 void tst_MapReduce::mapReduce()
 {
+    QThreadPool pool;
     const auto initWithFutureInterface = [](QFutureInterface<double> &fi) -> double {
         fi.reportResult(0.);
         return 0.;
@@ -103,6 +105,16 @@ void tst_MapReduce::mapReduce()
         QCOMPARE(results, QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
     }
     {
+        // reduce with threadpool
+        QList<double> results = Utils::mapReduce(QList<int>({1, 2, 3, 4, 5}),
+                                                 initWithFutureInterface, returnxx,
+                                                 reduceWithReturn, cleanupWithFutureInterface,
+                                                 Utils::MapReduceOption::Unordered, &pool)
+                .results();
+        Utils::sort(results); // mapping order is undefined
+        QCOMPARE(results, QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
+    }
+    {
         // lvalue ref container
         QList<int> container({1, 2, 3, 4, 5});
         QList<double> results = Utils::mapReduce(container,
@@ -119,6 +131,15 @@ void tst_MapReduce::mapReduce()
                                   initWithFutureInterface, returnxx,
                                   reduceWithReturn, cleanupWithFutureInterface,
                                   Utils::MapReduceOption::Ordered).results(),
+                 QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
+    }
+    {
+        // std::cref with threadpool
+        QList<int> container({1, 2, 3, 4, 5});
+        QCOMPARE(Utils::mapReduce(std::cref(container),
+                                  initWithFutureInterface, returnxx,
+                                  reduceWithReturn, cleanupWithFutureInterface,
+                                  Utils::MapReduceOption::Ordered, &pool).results(),
                  QList<double>({0., 1., 4., 9., 16., 25., 27.5}));
     }
     {
@@ -152,6 +173,17 @@ void tst_MapReduce::mapReduce()
                  1.5);
     }
     {
+        // simplified map reduce without init and cleanup with threadpool
+        QCOMPARE(Utils::mapReduce(QList<QString>({QLatin1String("blubb"), QLatin1String("foo"), QLatin1String("blah")}),
+                                  [](const QString &val) { return val.size(); },
+                                  90.,
+                                  [](double &state, int val) {
+                                      state /= double(val);
+                                  },
+                                  Utils::MapReduceOption::Ordered, &pool).result(),
+                 1.5);
+    }
+    {
         // simplified map reduce
         // std::cref
         QList<int> container({1, 2, 3});
@@ -161,7 +193,16 @@ void tst_MapReduce::mapReduce()
     }
     {
         // simplified map reduce
-        // std::cref
+        // std::cref with threadpool
+        QList<int> container({1, 2, 3});
+        QCOMPARE(Utils::mapReduce(std::cref(container), [](int val) { return 2*val; }, 10,
+                                  [](int &state, int val) { state += val; },
+                                  Utils::MapReduceOption::Unordered, &pool).result(),
+                 22);
+    }
+    {
+        // simplified map reduce
+        // std::ref
         QList<int> container({1, 2, 3});
         QCOMPARE(Utils::mapReduce(std::ref(container), [](int &val) { return 2*val; }, 10,
                                   [](int &state, int val) { state += val; }).result(),
@@ -171,6 +212,14 @@ void tst_MapReduce::mapReduce()
         // blocking mapReduce = mappedReduced
         QCOMPARE(Utils::mappedReduced(QList<int>({1, 2, 3}), [](int &val) { return 2*val; }, 10,
                                       [](int &state, int val) { state += val; }),
+                 22);
+    }
+    {
+        // blocking mapReduce = mappedReduced
+        // with threadpool
+        QCOMPARE(Utils::mappedReduced(QList<int>({1, 2, 3}), [](int &val) { return 2*val; }, 10,
+                                      [](int &state, int val) { state += val; },
+                                      Utils::MapReduceOption::Unordered, &pool),
                  22);
     }
 }
@@ -214,7 +263,8 @@ void tst_MapReduce::map()
         QCOMPARE(container, QList<int>({4, 10, 2}));
 
         Utils::map(container.begin(), container.end(), [](int &x) { x *= 2; },
-            Utils::MapReduceOption::Unordered, QThread::InheritPriority, 3).waitForFinished();
+            Utils::MapReduceOption::Unordered,
+            nullptr, QThread::InheritPriority, 3).waitForFinished();
         QCOMPARE(container, QList<int>({8, 20, 4}));
     }
 

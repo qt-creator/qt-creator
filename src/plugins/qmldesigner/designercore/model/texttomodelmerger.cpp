@@ -922,10 +922,11 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     // maybe the project environment (kit, ...) changed, so we need to clean old caches
     NodeMetaInfo::clearCache();
 
-    m_qrcMapping.clear();
-    m_rewriterView->clearErrorAndWarnings();
-
     const QUrl url = m_rewriterView->model()->fileUrl();
+
+    m_qrcMapping.clear();
+    addIsoIconQrcMapping(url);
+    m_rewriterView->clearErrorAndWarnings();
 
     setActive(true);
     m_rewriterView->setIncompleteTypeInformation(false);
@@ -2037,6 +2038,17 @@ void TextToModelMerger::populateQrcMapping(const QString &filePath)
             path.prepend(QLatin1String("/"));
         m_qrcMapping.insert({path, fileSystemPath});
     }
+}
+
+void TextToModelMerger::addIsoIconQrcMapping(const QUrl &fileUrl)
+{
+    QDir dir(fileUrl.toLocalFile());
+    do {
+        if (!dir.entryList({"*.pro"}, QDir::Files).isEmpty()) {
+            m_qrcMapping.insert({"/iso-icons", dir.absolutePath() + "/iso-icons"});
+            return;
+        }
+    } while (dir.cdUp());
 }
 
 void TextToModelMerger::setupComponentDelayed(const ModelNode &node, bool synchron)

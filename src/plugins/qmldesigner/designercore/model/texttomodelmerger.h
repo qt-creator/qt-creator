@@ -141,6 +141,7 @@ private:
     void collectSemanticErrorsAndWarnings(QList<DocumentMessage> *errors,
                                           QList<DocumentMessage> *warnings);
     void populateQrcMapping(const QString &filePath);
+    void addIsoIconQrcMapping(const QUrl &fileUrl);
 
     static QString textAt(const QmlJS::Document::Ptr &doc,
                           const QmlJS::AST::SourceLocation &location);

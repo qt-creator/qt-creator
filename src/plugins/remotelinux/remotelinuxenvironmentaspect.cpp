@@ -26,6 +26,22 @@
 #include "remotelinuxenvironmentaspect.h"
 
 #include "remotelinuxenvironmentaspectwidget.h"
+#include "utils/algorithm.h"
+
+static const char DISPLAY_KEY[] = "DISPLAY";
+static const char VERSION_KEY[] = "RemoteLinux.EnvironmentAspect.Version";
+static const int ENVIRONMENTASPECT_VERSION = 1; // Version was introduced in 4.3 with the value 1
+
+namespace {
+
+bool displayAlreadySet(const QList<Utils::EnvironmentItem> &changes)
+{
+    return Utils::contains(changes, [](const Utils::EnvironmentItem &item) {
+        return item.name == DISPLAY_KEY;
+    });
+}
+
+} // anonymous namespace
 
 namespace RemoteLinux {
 
@@ -35,16 +51,13 @@ namespace RemoteLinux {
 
 RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(ProjectExplorer::RunConfiguration *rc) :
     ProjectExplorer::EnvironmentAspect(rc)
-{ }
+{
+    setRunConfigWidgetCreator([this] { return new RemoteLinuxEnvironmentAspectWidget(this); });
+}
 
 RemoteLinuxEnvironmentAspect *RemoteLinuxEnvironmentAspect::create(ProjectExplorer::RunConfiguration *parent) const
 {
     return new RemoteLinuxEnvironmentAspect(parent);
-}
-
-ProjectExplorer::RunConfigWidget *RemoteLinuxEnvironmentAspect::createConfigurationWidget()
-{
-    return new RemoteLinuxEnvironmentAspectWidget(this);
 }
 
 QList<int> RemoteLinuxEnvironmentAspect::possibleBaseEnvironments() const
@@ -67,9 +80,6 @@ Utils::Environment RemoteLinuxEnvironmentAspect::baseEnvironment() const
     Utils::Environment env;
     if (baseEnvironmentBase() == static_cast<int>(RemoteBaseEnvironment))
         env = m_remoteEnvironment;
-    const QString displayKey = QLatin1String("DISPLAY");
-    if (!env.hasKey(displayKey))
-        env.appendOrSet(displayKey, QLatin1String(":0.0"));
     return env;
 }
 
@@ -94,6 +104,30 @@ QString RemoteLinuxEnvironmentAspect::userEnvironmentChangesAsString() const
     foreach (const Utils::EnvironmentItem &item, userEnvironmentChanges())
         env.append(placeHolder.arg(item.name, item.value));
     return env.mid(0, env.size() - 1);
+}
+
+void RemoteLinuxEnvironmentAspect::fromMap(const QVariantMap &map)
+{
+    ProjectExplorer::EnvironmentAspect::fromMap(map);
+
+    const auto version = map.value(QLatin1String(VERSION_KEY), 0).toInt();
+    if (version == 0) {
+        // In Qt Creator versions prior to 4.3 RemoteLinux included DISPLAY=:0.0 in the base
+        // environment, if DISPLAY was not set. In order to keep existing projects expecting
+        // that working, add the DISPLAY setting to user changes in them. New projects will
+        // have version 1 and will not get DISPLAY set.
+        auto changes = userEnvironmentChanges();
+        if (!displayAlreadySet(changes)) {
+            changes.append(Utils::EnvironmentItem(QLatin1String(DISPLAY_KEY), QLatin1String(":0.0")));
+            setUserEnvironmentChanges(changes);
+        }
+    }
+}
+
+void RemoteLinuxEnvironmentAspect::toMap(QVariantMap &map) const
+{
+    ProjectExplorer::EnvironmentAspect::toMap(map);
+    map.insert(QLatin1String(VERSION_KEY), ENVIRONMENTASPECT_VERSION);
 }
 
 } // namespace RemoteLinux

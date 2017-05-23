@@ -32,6 +32,7 @@
 #include <coreplugin/outputwindow.h>
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
+#include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 
 #include <QPlainTextEdit>
@@ -434,12 +435,12 @@ static inline QString formatArguments(const QStringList &args)
         if (i)
             str << ' ';
         if (arg.startsWith(QString::fromLatin1(passwordOptionC) + QLatin1Char('='))) {
-            str << "--password=********";
+            str << Utils::QtcProcess::quoteArg("--password=********");
             continue;
         }
-        str << arg;
+        str << Utils::QtcProcess::quoteArg(arg);
         if (arg == QLatin1String(passwordOptionC)) {
-            str << " ********";
+            str << ' ' << Utils::QtcProcess::quoteArg("********");
             i++;
         }
     }
@@ -451,7 +452,7 @@ QString VcsOutputWindow::msgExecutionLogEntry(const QString &workingDir,
                                                   const QStringList &arguments)
 {
     const QString args = formatArguments(arguments);
-    const QString nativeExecutable = executable.toUserOutput();
+    const QString nativeExecutable = Utils::QtcProcess::quoteArg(executable.toUserOutput());
     if (workingDir.isEmpty())
         return tr("Running: %1 %2").arg(nativeExecutable, args) + QLatin1Char('\n');
     return tr("Running in %1: %2 %3").

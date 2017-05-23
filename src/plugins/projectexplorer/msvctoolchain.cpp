@@ -499,30 +499,60 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
     return in;
 }
 
-Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environment& env) const
+QList<Utils::EnvironmentItem> MsvcToolChain::environmentModifications() const
 {
-    Utils::Environment result;
+    const Utils::Environment inEnv = Utils::Environment::systemEnvironment();
+    Utils::Environment outEnv;
     QMap<QString, QString> envPairs;
-    if (!generateEnvironmentSettings(env, m_vcvarsBat, m_varsBatArg, envPairs))
-        return env;
+    if (!generateEnvironmentSettings(inEnv, m_vcvarsBat, m_varsBatArg, envPairs))
+        return QList<Utils::EnvironmentItem>();
 
     // Now loop through and process them
-    QMap<QString,QString>::const_iterator envIter;
-    for (envIter = envPairs.constBegin(); envIter!=envPairs.constEnd(); ++envIter) {
-        const QString expandedValue = winExpandDelayedEnvReferences(envIter.value(), env);
+    for (auto envIter = envPairs.cbegin(), eend = envPairs.cend(); envIter != eend; ++envIter) {
+        const QString expandedValue = winExpandDelayedEnvReferences(envIter.value(), inEnv);
         if (!expandedValue.isEmpty())
-            result.set(envIter.key(), expandedValue);
+            outEnv.set(envIter.key(), expandedValue);
     }
 
     if (debug) {
-        const QStringList newVars = result.toStringList();
-        const QStringList oldVars = env.toStringList();
+        const QStringList newVars = outEnv.toStringList();
+        const QStringList oldVars = inEnv.toStringList();
         QDebug nsp = qDebug().nospace();
         foreach (const QString &n, newVars) {
             if (!oldVars.contains(n))
                 nsp << n << '\n';
         }
     }
+
+    QList<Utils::EnvironmentItem> diff = inEnv.diff(outEnv);
+    for (int i = diff.size() - 1; i >= 0; --i) {
+        if (diff.at(i).name.startsWith(QLatin1Char('='))) { // Exclude "=C:", "=EXITCODE"
+            diff.removeAt(i);
+        } else {
+            // Fix the append/prepend cases to "FOO=${FOO};newValue" (see Environment::modify)
+            Utils::EnvironmentItem &e = diff[i];
+            if (!e.unset) {
+                const auto oldIt = inEnv.constFind(e.name);
+                if (oldIt != inEnv.constEnd()) {
+                    const int index = e.value.indexOf(oldIt.value());
+                    if (index != -1) {
+                        e.value.replace(index, oldIt.value().size(),
+                                        QStringLiteral("${") + e.name + QLatin1Char('}'));
+                    }
+                }
+            }
+        }
+    }
+
+    return diff;
+}
+
+Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environment& env) const
+{
+    if (m_environmentModifications.isEmpty())
+        m_environmentModifications = environmentModifications();
+    Utils::Environment result = env;
+    result.modify(m_environmentModifications);
     return result;
 }
 

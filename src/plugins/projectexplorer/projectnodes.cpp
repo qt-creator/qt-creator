@@ -45,6 +45,7 @@
 #include <QDir>
 #include <QIcon>
 #include <QStyle>
+#include <QTimer>
 
 #include <memory>
 
@@ -362,13 +363,10 @@ static QList<FileNode *> scanForFilesRecursively(const Utils::FileName &director
 
         const Utils::FileName entryName = Utils::FileName::fromString(entry.absoluteFilePath());
         if (!vcsControl || !vcsControl->isVcsFileOrDirectory(entryName)) {
-            if (entry.isDir()) {
+            if (entry.isDir())
                 result.append(scanForFilesRecursively(entryName, factory, visited, future, progress, progressIncrement));
-            } else {
-                FileNode *node = factory(entryName);
-                if (node)
-                    result.append(node);
-            }
+            else if (FileNode *node = factory(entryName))
+                result.append(node);
         }
         if (future) {
             progress += progressIncrement;
@@ -610,7 +608,7 @@ bool FolderNode::replaceSubtree(Node *oldNode, Node *newNode)
         } else {
             removeNode(oldNode); // Happens e.g. when project is shutting down
         }
-        delete oldNode;
+        QTimer::singleShot(0, [oldNode]() { delete oldNode; });
     }
     ProjectTree::emitSubtreeChanged(this);
     return true;

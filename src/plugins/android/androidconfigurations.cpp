@@ -1001,9 +1001,16 @@ void AndroidConfigurations::removeOldToolChains()
 
 void AndroidConfigurations::updateAutomaticKitList()
 {
-    const QList<Kit *> existingKits = Utils::filtered(KitManager::kits(), [](const Kit *k) {
-        return k->isAutoDetected() && !k->isSdkProvided()
-                && DeviceTypeKitInformation::deviceTypeId(k) == Core::Id(Constants::ANDROID_DEVICE_TYPE);
+    const QList<Kit *> existingKits = Utils::filtered(KitManager::kits(), [](Kit *k) {
+        Core::Id deviceTypeId = DeviceTypeKitInformation::deviceTypeId(k);
+        if (k->isAutoDetected() && !k->isSdkProvided()
+                && deviceTypeId == Core::Id(Constants::ANDROID_DEVICE_TYPE)) {
+            if (!QtSupport::QtKitInformation::qtVersion(k))
+                KitManager::deregisterKit(k); // Remove autoDetected kits without Qt.
+            else
+                return true;
+        }
+        return false;
     });
 
     // Update code for 3.0 beta, which shipped with a bug for the debugger settings
@@ -1044,7 +1051,6 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     // register new kits
-    QList<Kit *> newKits;
     const QList<ToolChain *> tmp = ToolChainManager::toolChains([](const ToolChain *tc) {
         return tc->isAutoDetected()
             && tc->isValid()
@@ -1061,19 +1067,27 @@ void AndroidConfigurations::updateAutomaticKitList()
                                                                        [tc](AndroidToolChain *otherTc) {
             return tc->targetAbi() == otherTc->targetAbi();
         });
+
+        auto initBasicKitData = [allLanguages, device](Kit *k, const QtSupport::BaseQtVersion *qt) {
+            k->setAutoDetected(true);
+            k->setAutoDetectionSource("AndroidConfiguration");
+            DeviceTypeKitInformation::setDeviceTypeId(k, Core::Id(Constants::ANDROID_DEVICE_TYPE));
+            for (AndroidToolChain *tc : allLanguages)
+                ToolChainKitInformation::setToolChain(k, tc);
+            QtSupport::QtKitInformation::setQtVersion(k, qt);
+            DeviceKitInformation::setDevice(k, device);
+        };
+
         for (const QtSupport::BaseQtVersion *qt : qtVersionsForArch.value(tc->targetAbi())) {
             Kit *newKit = new Kit;
-            newKit->setAutoDetected(true);
-            newKit->setAutoDetectionSource("AndroidConfiguration");
-            DeviceTypeKitInformation::setDeviceTypeId(newKit, Core::Id(Constants::ANDROID_DEVICE_TYPE));
-            for (AndroidToolChain *tc : allLanguages)
-                ToolChainKitInformation::setToolChain(newKit, tc);
-            QtSupport::QtKitInformation::setQtVersion(newKit, qt);
-            DeviceKitInformation::setDevice(newKit, device);
-
-            auto findExistingKit = [newKit](const Kit *k) { return matchKits(newKit, k); };
-            Kit *existingKit = Utils::findOrDefault(existingKits, findExistingKit);
+            initBasicKitData(newKit, qt);
+            Kit *existingKit = Utils::findOrDefault(existingKits, [newKit](const Kit *k) {
+                return matchKits(newKit, k);
+            });
             if (existingKit) {
+                // Existing kit found.
+                // Update the existing kit with new data.
+                initBasicKitData(existingKit, qt);
                 KitManager::deleteKit(newKit);
                 newKit = existingKit;
             }

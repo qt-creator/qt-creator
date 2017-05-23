@@ -370,7 +370,7 @@ void AbstractProcessStep::taskAdded(const Task &task, int linkedOutputLines, int
 
     Task editable(task);
     QString filePath = task.file.toString();
-    if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {
+    if (!filePath.isEmpty() && !filePath.startsWith('<') && !QDir::isAbsolutePath(filePath)) {
         // We have no save way to decide which file in which subfolder
         // is meant. Therefore we apply following heuristics:
         // 1. Check if file is unique in whole project

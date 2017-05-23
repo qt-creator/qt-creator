@@ -220,6 +220,25 @@ static inline QStringList getPluginPaths()
     return rc;
 }
 
+static void setupInstallSettings()
+{
+    // Check if the default install settings contain a setting for the actual install settings.
+    // This can be an absolute path, or a path relative to applicationDirPath().
+    // The result is interpreted like -settingspath, but for SystemScope
+    static const char kInstallSettingsKey[] = "Settings/InstallSettings";
+    QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope,
+                       QCoreApplication::applicationDirPath() + '/' + RELATIVE_DATA_PATH);
+    QSettings installSettings(QSettings::IniFormat, QSettings::UserScope,
+                              QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
+                              QLatin1String("QtCreator"));
+    if (installSettings.contains(kInstallSettingsKey)) {
+        QString installSettingsPath = installSettings.value(kInstallSettingsKey).toString();
+        if (QDir::isRelativePath(installSettingsPath))
+            installSettingsPath = QCoreApplication::applicationDirPath() + '/' + installSettingsPath;
+        QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, installSettingsPath);
+    }
+}
+
 static QSettings *createUserSettings()
 {
     return new QSettings(QSettings::IniFormat, QSettings::UserScope,
@@ -363,9 +382,8 @@ int main(int argc, char **argv)
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsPath);
 
     // Must be done before any QSettings class is created
-    QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope,
-                       QCoreApplication::applicationDirPath() + '/' + RELATIVE_DATA_PATH);
     QSettings::setDefaultFormat(QSettings::IniFormat);
+    setupInstallSettings();
     // plugin manager takes control of this settings object
     QSettings *settings = userSettings();
 

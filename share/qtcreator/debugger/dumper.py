@@ -1390,7 +1390,7 @@ class DumperBase:
             n = (10, 100, 1000, 10000)[displayFormat - Array10Format]
             self.putType(typeName)
             self.putItemCount(n)
-            self.putArrayData(value.address(), n, innerType)
+            self.putArrayData(value.pointer(), n, innerType)
             return
 
         if innerType.code == TypeCodeFunction:
