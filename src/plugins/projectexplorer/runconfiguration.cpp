@@ -515,20 +515,20 @@ enum class RunWorkerState
     Initialized, Starting, Running, Stopping, Done, Failed
 };
 
-//static QString stateName(RunWorkerState s)
-//{
-//#    define SN(x) case x: return QLatin1String(#x);
-//    switch (s) {
-//        SN(RunWorkerState::Initialized)
-//        SN(RunWorkerState::Starting)
-//        SN(RunWorkerState::Running)
-//        SN(RunWorkerState::Stopping)
-//        SN(RunWorkerState::Done)
-//        SN(RunWorkerState::Failed)
-//    }
-//    return QLatin1String("<unknown>");
-//#    undef SN
-//}
+static QString stateName(RunWorkerState s)
+{
+#    define SN(x) case x: return QLatin1String(#x);
+    switch (s) {
+        SN(RunWorkerState::Initialized)
+        SN(RunWorkerState::Starting)
+        SN(RunWorkerState::Running)
+        SN(RunWorkerState::Stopping)
+        SN(RunWorkerState::Done)
+        SN(RunWorkerState::Failed)
+    }
+    return QLatin1String("<unknown>");
+#    undef SN
+}
 
 class RunWorkerPrivate : public QObject
 {
@@ -864,7 +864,22 @@ void RunControlPrivate::onWorkerFailed(RunWorker *worker, const QString &msg)
 
 void RunControlPrivate::onWorkerStopped(RunWorker *worker)
 {
-    debugMessage(worker->displayName() + " stopped.");
+    switch (worker->d->state) {
+    case RunWorkerState::Running:
+        // That was a spontaneous stop.
+        worker->d->state = RunWorkerState::Done;
+        debugMessage(worker->displayName() + " stopped spontaneously.");
+        break;
+    case RunWorkerState::Stopping:
+        worker->d->state = RunWorkerState::Done;
+        debugMessage(worker->displayName() + " stopped expectedly.");
+        break;
+    default:
+        debugMessage(worker->displayName() + " stopped unexpectedly in state"
+                     + stateName(worker->d->state));
+        worker->d->state = RunWorkerState::Failed;
+        break;
+    }
     continueStop();
 }
 
@@ -1206,6 +1221,8 @@ void SimpleTargetRunner::start()
                 this, &SimpleTargetRunner::onProcessStarted);
         connect(&m_launcher, &ApplicationLauncher::processExited,
                 this, &SimpleTargetRunner::onProcessFinished);
+        connect(&m_launcher, &ApplicationLauncher::error,
+                this, &SimpleTargetRunner::onProcessError);
 
         QTC_ASSERT(r.is<StandardRunnable>(), return);
         const QString executable = r.as<StandardRunnable>().executable;
@@ -1287,6 +1304,13 @@ void SimpleTargetRunner::onProcessFinished(int exitCode, QProcess::ExitStatus st
         msg = tr("%1 crashed.");
     else
         msg = tr("%2 exited with code %1").arg(exitCode);
+    appendMessage(msg.arg(runnable().displayName()), Utils::NormalMessageFormat);
+    reportStopped();
+}
+
+void SimpleTargetRunner::onProcessError(QProcess::ProcessError)
+{
+    QString msg = tr("%1 finished.");
     appendMessage(msg.arg(runnable().displayName()), Utils::NormalMessageFormat);
     reportStopped();
 }

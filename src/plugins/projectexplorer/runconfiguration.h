@@ -535,6 +535,7 @@ protected:
 private:
     void onProcessStarted();
     void onProcessFinished(int exitCode, QProcess::ExitStatus status);
+    void onProcessError(QProcess::ProcessError error);
 
     ApplicationLauncher m_launcher;
 };

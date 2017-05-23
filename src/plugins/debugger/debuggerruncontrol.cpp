@@ -153,14 +153,14 @@ void DebuggerRunTool::start()
         }
     }
 
-    appendMessage(tr("Debugging starts") + QLatin1Char('\n'), NormalMessageFormat);
+    appendMessage(tr("Debugging starts"), NormalMessageFormat);
     Internal::runControlStarted(this);
     engine->start();
 }
 
 void DebuggerRunTool::startFailed()
 {
-    appendMessage(tr("Debugging has failed") + QLatin1Char('\n'), NormalMessageFormat);
+    appendMessage(tr("Debugging has failed"), NormalMessageFormat);
     m_engine->handleStartFailed();
 }
 
@@ -192,8 +192,8 @@ void DebuggerRunTool::onTargetFailure()
 
 void DebuggerRunTool::debuggingFinished()
 {
-    Internal::runControlFinished(this);
     appendMessage(tr("Debugging has finished"), NormalMessageFormat);
+    Internal::runControlFinished(this);
     reportStopped();
 }
 
