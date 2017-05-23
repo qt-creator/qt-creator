@@ -352,7 +352,6 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
     rp.cppEngineType = DebuggerKitInformation::engineType(kit);
     if (rp.sysRoot.isEmpty())
         rp.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
-    rp.device = DeviceKitInformation::device(kit);
 
     if (rp.displayName.isEmpty() && runConfig)
         rp.displayName = runConfig->displayName();
@@ -406,8 +405,9 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
         }
     }
 
+    IDevice::ConstPtr device = runControl->device();
     if (rp.languages & QmlLanguage) {
-        if (rp.device && rp.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
             if (rp.qmlServer.host.isEmpty() || !rp.qmlServer.port.isValid()) {
                 QTcpServer server;
                 const bool canListen = server.listen(QHostAddress::LocalHost)
@@ -468,8 +468,8 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
     if (rp.masterEngineType == NoEngineType)
         rp.masterEngineType = rp.cppEngineType;
 
-    if (rp.device && rp.connParams.port == 0)
-        rp.connParams = rp.device->sshParameters();
+    if (device && rp.connParams.port == 0)
+        rp.connParams = device->sshParameters();
 
     // Could have been set from command line.
     if (rp.remoteChannel.isEmpty())

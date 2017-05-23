@@ -101,7 +101,6 @@ public:
     QString debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"
     QString serverStartScript;
-    ProjectExplorer::IDevice::ConstPtr device;
     bool isSnapshot = false; // Set if created internally.
     ProjectExplorer::Abi toolChainAbi;
 

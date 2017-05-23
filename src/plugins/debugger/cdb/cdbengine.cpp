@@ -35,7 +35,7 @@
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggermainwindow.h>
-#include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/disassembleragent.h>
 #include <debugger/disassemblerlines.h>
@@ -978,7 +978,7 @@ void CdbEngine::doInterruptInferior(SpecialStopMode sm)
     showMessage(QString("Interrupting process %1...").arg(inferiorPid()), LogMisc);
 
     QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed();  return;);
-    m_signalOperation = runParameters().device->signalOperation();
+    m_signalOperation = runTool()->device()->signalOperation();
     m_specialStopMode = sm;
     QTC_ASSERT(m_signalOperation, notifyInferiorStopFailed(); return;);
     connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,

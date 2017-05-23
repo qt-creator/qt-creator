@@ -829,7 +829,7 @@ void GdbEngine::interruptInferior()
         if (HostOsInfo::isWindowsHost() && !m_isQnxGdb) {
             QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); notifyInferiorStopFailed());
             QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed());
-            m_signalOperation = runParameters().device->signalOperation();
+            m_signalOperation = runTool()->device()->signalOperation();
             QTC_ASSERT(m_signalOperation, notifyInferiorStopFailed());
             connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
                     this, &GdbEngine::handleInterruptDeviceInferior);
