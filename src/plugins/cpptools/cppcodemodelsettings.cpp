@@ -52,7 +52,7 @@ static QString clangDiagnosticConfigsArrayIdKey()
 static QString clangDiagnosticConfigsArrayDisplayNameKey()
 { return QLatin1String("displayName"); }
 
-static QString clangDiagnosticConfigsArrayOptionsKey()
+static QString clangDiagnosticConfigsArrayWarningsKey()
 { return QLatin1String("diagnosticOptions"); }
 
 static QString pchUsageKey()
@@ -78,7 +78,7 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
         ClangDiagnosticConfig config;
         config.setId(Core::Id::fromSetting(s->value(clangDiagnosticConfigsArrayIdKey())));
         config.setDisplayName(s->value(clangDiagnosticConfigsArrayDisplayNameKey()).toString());
-        config.setCommandLineOptions(s->value(clangDiagnosticConfigsArrayOptionsKey()).toStringList());
+        config.setCommandLineWarnings(s->value(clangDiagnosticConfigsArrayWarningsKey()).toStringList());
         m_clangCustomDiagnosticConfigs.append(config);
     }
     s->endArray();
@@ -117,7 +117,7 @@ void CppCodeModelSettings::toSettings(QSettings *s)
         s->setArrayIndex(i);
         s->setValue(clangDiagnosticConfigsArrayIdKey(), config.id().toSetting());
         s->setValue(clangDiagnosticConfigsArrayDisplayNameKey(), config.displayName());
-        s->setValue(clangDiagnosticConfigsArrayOptionsKey(), config.commandLineOptions());
+        s->setValue(clangDiagnosticConfigsArrayWarningsKey(), config.commandLineWarnings());
     }
     s->endArray();
 

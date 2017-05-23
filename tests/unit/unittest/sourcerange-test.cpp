@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "testenvironment.h"
 
 #include <clangtranslationunit.h>
 #include <diagnostic.h>
@@ -93,7 +94,8 @@ struct Data {
         d.reset(new SourceRangeData(document));
     }
 
-    ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-pedantic")}};
+    ProjectPart projectPart{Utf8StringLiteral("projectPartId"),
+                            TestEnvironment::addPlatformArguments({Utf8StringLiteral("-pedantic")})};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{projects, unsavedFiles};

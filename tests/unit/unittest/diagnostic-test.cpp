@@ -25,6 +25,7 @@
 
 #include "googletest.h"
 #include "diagnosticcontainer-matcher.h"
+#include "testenvironment.h"
 
 #include <diagnostic.h>
 #include <diagnosticcontainer.h>
@@ -95,7 +96,8 @@ struct Data {
         d.reset(new DiagnosticData(document));
     }
 
-    ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-std=c++11")}};
+    ProjectPart projectPart{Utf8StringLiteral("projectPartId"),
+                            TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++11")})};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{projects, unsavedFiles};

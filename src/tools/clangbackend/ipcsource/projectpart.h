@@ -42,7 +42,7 @@ class ProjectPart
 {
 public:
     ProjectPart(const Utf8String &id = Utf8String());
-    ProjectPart(const Utf8String &id, std::initializer_list<Utf8String> arguments);
+    ProjectPart(const Utf8String &id, const Utf8StringVector &arguments);
     ProjectPart(const ProjectPartContainer &projectContainer);
     ~ProjectPart();
 

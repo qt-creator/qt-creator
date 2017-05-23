@@ -43,8 +43,8 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &displayName);
 
-    QStringList commandLineOptions() const;
-    void setCommandLineOptions(const QStringList &commandLineOptions);
+    QStringList commandLineWarnings() const;
+    void setCommandLineWarnings(const QStringList &commandLineWarnings);
 
     bool isReadOnly() const;
     void setIsReadOnly(bool isReadOnly);
@@ -54,7 +54,7 @@ public:
 private:
     Core::Id m_id;
     QString m_displayName;
-    QStringList m_commandLineOptions;
+    QStringList m_commandLineWarnings;
     bool m_isReadOnly = false;
 };
 

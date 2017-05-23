@@ -26,6 +26,7 @@
 #include "googletest.h"
 
 #include "clangcompareoperators.h"
+#include "testenvironment.h"
 
 #include <clangdocument.h>
 #include <clangdocuments.h>
@@ -66,7 +67,7 @@ struct Data {
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/cursor.cpp")};
     Document document{filePath,
                       ProjectPart(Utf8StringLiteral("projectPartId"),
-                                 {Utf8StringLiteral("-std=c++11")}),
+                                  TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++11")})),
                       {},
                       documents};
     TranslationUnit translationUnit{filePath,
@@ -395,7 +396,7 @@ TEST_F(Cursor, IsLocalVariableInStaticFunction)
     ASSERT_TRUE(cursor.isLocalVariable());
 }
 
-TEST_F(Cursor, DISABLED_ON_WINDOWS(IsLocalVariableInTemplateFunction))
+TEST_F(Cursor, IsLocalVariableInTemplateFunction)
 {
     auto cursor = translationUnit.cursorAt(52, 7);
 

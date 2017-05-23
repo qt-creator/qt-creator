@@ -27,7 +27,11 @@
 
 #include <environment.h>
 
+#include <utf8string.h>
+#include <utils/hostosinfo.h>
+
 #include <QTemporaryDir>
+#include <QVector>
 
 class TestEnvironment final : public ClangBackEnd::Environment
 {
@@ -48,6 +52,14 @@ public:
     uint hardwareConcurrency() const
     {
         return 2;
+    }
+
+    static QVector<Utf8String> addPlatformArguments(std::initializer_list<Utf8String> arguments = {})
+    {
+        QVector<Utf8String> result{arguments};
+        if (Utils::HostOsInfo::isWindowsHost())
+            result.append(Utf8StringLiteral("-fno-delayed-template-parsing"));
+        return result;
     }
 
 private:

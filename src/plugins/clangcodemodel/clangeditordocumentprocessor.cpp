@@ -419,16 +419,24 @@ static QStringList warningOptions(CppTools::ProjectPart *projectPart)
 {
     if (projectPart && projectPart->project) {
         ClangProjectSettings projectSettings(projectPart->project);
-        if (!projectSettings.useGlobalWarningConfig()) {
+        if (!projectSettings.useGlobalConfig()) {
             const Core::Id warningConfigId = projectSettings.warningConfigId();
             const CppTools::ClangDiagnosticConfigsModel configsModel(
                         CppTools::codeModelSettings()->clangCustomDiagnosticConfigs());
             if (configsModel.hasConfigWithId(warningConfigId))
-                return configsModel.configWithId(warningConfigId).commandLineOptions();
+                return configsModel.configWithId(warningConfigId).commandLineWarnings();
         }
     }
 
-    return CppTools::codeModelSettings()->clangDiagnosticConfig().commandLineOptions();
+    return CppTools::codeModelSettings()->clangDiagnosticConfig().commandLineWarnings();
+}
+
+static QStringList commandLineOptions(CppTools::ProjectPart *projectPart)
+{
+    if (!projectPart || !projectPart->project)
+        return ClangProjectSettings::globalCommandLineOptions();
+
+    return ClangProjectSettings{projectPart->project}.commandLineOptions();
 }
 
 static QStringList precompiledHeaderOptions(
@@ -454,6 +462,7 @@ static QStringList fileArguments(const QString &filePath, CppTools::ProjectPart 
 {
     return languageOptions(filePath, projectPart)
             + warningOptions(projectPart)
+            + commandLineOptions(projectPart)
             + precompiledHeaderOptions(filePath, projectPart);
 }
 

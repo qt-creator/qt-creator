@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "testenvironment.h"
 
 #include <cursor.h>
 #include <clangdocument.h>
@@ -94,8 +95,8 @@ struct Data {
     Utf8String filePath = Utf8StringLiteral(TESTDATA_DIR"/skippedsourceranges.cpp");
     Document document{filePath,
                       ProjectPart(Utf8StringLiteral("projectPartId"),
-                                 {Utf8StringLiteral("-std=c++11"),
-                                  Utf8StringLiteral("-DBLAH")}),
+                                 TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++11"),
+                                                                        Utf8StringLiteral("-DBLAH")})),
                       {},
                       documents};
     TranslationUnit translationUnit{filePath,

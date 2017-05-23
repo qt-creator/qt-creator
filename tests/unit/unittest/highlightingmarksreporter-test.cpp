@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "testenvironment.h"
 
 #include <chunksreportedmonitor.h>
 #include <clangdocument.h>
@@ -55,7 +56,7 @@ struct Data {
     Documents documents{projects, unsavedFiles};
     Document document{Utf8StringLiteral(TESTDATA_DIR"/highlightingmarks.cpp"),
                       ProjectPart(Utf8StringLiteral("projectPartId"),
-                                  {Utf8StringLiteral("-std=c++14")}),
+                                  TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++14")})),
                       {},
                       documents};
 };

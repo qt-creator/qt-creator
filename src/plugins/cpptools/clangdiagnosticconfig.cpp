@@ -47,14 +47,14 @@ void ClangDiagnosticConfig::setDisplayName(const QString &displayName)
     m_displayName = displayName;
 }
 
-QStringList ClangDiagnosticConfig::commandLineOptions() const
+QStringList ClangDiagnosticConfig::commandLineWarnings() const
 {
-    return m_commandLineOptions;
+    return m_commandLineWarnings;
 }
 
-void ClangDiagnosticConfig::setCommandLineOptions(const QStringList &options)
+void ClangDiagnosticConfig::setCommandLineWarnings(const QStringList &warnings)
 {
-    m_commandLineOptions = options;
+    m_commandLineWarnings = warnings;
 }
 
 bool ClangDiagnosticConfig::isReadOnly() const
@@ -71,7 +71,7 @@ bool ClangDiagnosticConfig::operator==(const ClangDiagnosticConfig &other) const
 {
     return m_id == other.m_id
         && m_displayName == other.m_displayName
-        && m_commandLineOptions == other.m_commandLineOptions
+        && m_commandLineWarnings == other.m_commandLineWarnings
         && m_isReadOnly == other.m_isReadOnly;
 }
 

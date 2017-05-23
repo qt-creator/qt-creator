@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "testenvironment.h"
 
 #include <clangdocument.h>
 #include <clangdocuments.h>
@@ -107,7 +108,8 @@ struct Data {
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/highlightingmarks.cpp")};
     Document document{filePath,
                       ProjectPart(Utf8StringLiteral("projectPartId"),
-                                  {Utf8StringLiteral("-std=c++14"), Utf8StringLiteral("-I" TESTDATA_DIR)}),
+                                  TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++14"),
+                                                                         Utf8StringLiteral("-I" TESTDATA_DIR)})),
                       {},
                       documents};
     TranslationUnit translationUnit{filePath,
@@ -676,49 +678,49 @@ TEST_F(HighlightingMarks, TemplateFunctionDeclaration)
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Function));
 }
 
-TEST_F(HighlightingMarks, DISABLED_ON_WINDOWS(TemplateTypeParameterReference))
+TEST_F(HighlightingMarks, TemplateTypeParameterReference)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(268, 58));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(HighlightingMarks, DISABLED_ON_WINDOWS(TemplateTypeParameterDeclarationReference))
+TEST_F(HighlightingMarks, TemplateTypeParameterDeclarationReference)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(268, 58));
 
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(HighlightingMarks, DISABLED_ON_WINDOWS(NonTypeTemplateParameterReference))
+TEST_F(HighlightingMarks, NonTypeTemplateParameterReference)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(269, 71));
 
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(HighlightingMarks, DISABLED_ON_WINDOWS(NonTypeTemplateParameterReferenceReference))
+TEST_F(HighlightingMarks, NonTypeTemplateParameterReferenceReference)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(269, 71));
 
     ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::LocalVariable));
 }
 
-TEST_F(HighlightingMarks, DISABLED_ON_WINDOWS(TemplateTemplateParameterReference))
+TEST_F(HighlightingMarks, TemplateTemplateParameterReference)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(270, 89));
 
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(HighlightingMarks, DISABLED_ON_WINDOWS(TemplateTemplateContainerParameterReference))
+TEST_F(HighlightingMarks, TemplateTemplateContainerParameterReference)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(270, 89));
 
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(HighlightingMarks, DISABLED_ON_WINDOWS(TemplateTemplateParameterReferenceVariable))
+TEST_F(HighlightingMarks, TemplateTemplateParameterReferenceVariable)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(270, 89));
 

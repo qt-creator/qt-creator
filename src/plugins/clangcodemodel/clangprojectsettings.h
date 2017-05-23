@@ -39,21 +39,32 @@ class ClangProjectSettings: public QObject
     Q_OBJECT
 
 public:
+    constexpr static const char* DelayedTemplateParsing = "-fdelayed-template-parsing";
+    constexpr static const char* NoDelayedTemplateParsing = "-fno-delayed-template-parsing";
+    constexpr static const char* GlobalWindowsCmdOptions = NoDelayedTemplateParsing;
+
     ClangProjectSettings(ProjectExplorer::Project *project);
 
-    bool useGlobalWarningConfig() const;
-    void setUseGlobalWarningConfig(bool useGlobalWarningConfig);
+    bool useGlobalConfig() const;
+    void setUseGlobalConfig(bool useGlobalConfig);
 
     Core::Id warningConfigId() const;
     void setWarningConfigId(const Core::Id &warningConfigId);
 
+    QStringList commandLineOptions() const;
+    void setCommandLineOptions(const QStringList &options);
+
     void load();
     void store();
 
+    static QStringList globalCommandLineOptions();
+
 private:
     ProjectExplorer::Project *m_project;
-    bool m_useGlobalWarningConfig = true;
+    bool m_useGlobalConfig = true;
     Core::Id m_warningConfigId;
+
+    QStringList m_customCommandLineOptions;
 };
 
 } // namespace Internal

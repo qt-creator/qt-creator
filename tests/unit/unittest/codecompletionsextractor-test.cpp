@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "testenvironment.h"
 
 #include <clangcodecompleteresults.h>
 #include <clangdocument.h>
@@ -148,7 +149,7 @@ protected:
                                         bool needsReparse = false);
 
 protected:
-    ClangBackEnd::ProjectPart project{Utf8StringLiteral("/path/to/projectfile")};
+    ClangBackEnd::ProjectPart project{Utf8StringLiteral("/path/to/projectfile"), TestEnvironment::addPlatformArguments()};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{projects, unsavedFiles};
@@ -197,7 +198,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, Variable)
                                          CodeCompletion::Available));
 }
 
-TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(NonTypeTemplateParameter))
+TEST_F(CodeCompletionsExtractorSlowTest, NonTypeTemplateParameter)
 {
     ClangCodeCompleteResults completeResults(getResults(variableDocument, 25, 19));
 
@@ -242,7 +243,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, Field)
                                          CodeCompletion::Available));
 }
 
-TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(Class))
+TEST_F(CodeCompletionsExtractorSlowTest, Class)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
@@ -253,7 +254,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(Class))
                                          CodeCompletion::Available));
 }
 
-TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(Struct))
+TEST_F(CodeCompletionsExtractorSlowTest, Struct)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
@@ -264,7 +265,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(Struct))
                                          CodeCompletion::Available));
 }
 
-TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(Union))
+TEST_F(CodeCompletionsExtractorSlowTest, Union)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
@@ -275,7 +276,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(Union))
                                          CodeCompletion::Available));
 }
 
-TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(Typedef))
+TEST_F(CodeCompletionsExtractorSlowTest, Typedef)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
@@ -286,7 +287,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(Typedef))
                                          CodeCompletion::Available));
 }
 
-TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(UsingAsTypeAlias))
+TEST_F(CodeCompletionsExtractorSlowTest, UsingAsTypeAlias)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
@@ -297,7 +298,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(UsingAsTypeAlias))
                                          CodeCompletion::Available));
 }
 
-TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(TemplateTypeParameter))
+TEST_F(CodeCompletionsExtractorSlowTest, TemplateTypeParameter)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
@@ -308,7 +309,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(TemplateTypeParamet
                                          CodeCompletion::Available));
 }
 
-TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(TemplateClass))
+TEST_F(CodeCompletionsExtractorSlowTest, TemplateClass)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
@@ -319,7 +320,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(TemplateClass))
                                          CodeCompletion::Available));
 }
 
-TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(TemplateTemplateParameter))
+TEST_F(CodeCompletionsExtractorSlowTest, TemplateTemplateParameter)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
@@ -330,7 +331,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(TemplateTemplatePar
                                          CodeCompletion::Available));
 }
 
-TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(ClassTemplatePartialSpecialization))
+TEST_F(CodeCompletionsExtractorSlowTest, ClassTemplatePartialSpecialization)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
@@ -659,7 +660,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, CompletionChunksEnumeration)
                                                CodeCompletionChunks({{CodeCompletionChunk::TypedText, Utf8StringLiteral("Enumeration")}})));
 }
 
-TEST_F(CodeCompletionsExtractorSlowTest, DISABLED_ON_WINDOWS(CompletionChunksClass))
+TEST_F(CodeCompletionsExtractorSlowTest, CompletionChunksClass)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 

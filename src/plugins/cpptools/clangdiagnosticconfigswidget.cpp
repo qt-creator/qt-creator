@@ -115,7 +115,7 @@ void ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited()
             = diagnosticOptions.trimmed().split(QLatin1Char(' '), QString::SkipEmptyParts);
 
     ClangDiagnosticConfig updatedConfig = currentConfig();
-    updatedConfig.setCommandLineOptions(updatedCommandLine);
+    updatedConfig.setCommandLineWarnings(updatedCommandLine);
 
     m_diagnosticConfigsModel.appendOrUpdate(updatedConfig);
     emit customConfigsChanged(customConfigs());
@@ -125,15 +125,6 @@ void ClangDiagnosticConfigsWidget::syncWidgetsToModel(const Core::Id &configToSe
 {
     syncConfigChooserToModel(configToSelect);
     syncOtherWidgetsToComboBox();
-}
-
-static QString displayNameWithBuiltinIndication(const ClangDiagnosticConfig &config,
-                                                const Core::Id &exceptionalConfig)
-{
-    if (exceptionalConfig == config.id())
-        return config.displayName();
-
-    return ClangDiagnosticConfigsModel::displayNameWithBuiltinIndication(config);
 }
 
 void ClangDiagnosticConfigsWidget::syncConfigChooserToModel(const Core::Id &configToSelect)
@@ -148,7 +139,7 @@ void ClangDiagnosticConfigsWidget::syncConfigChooserToModel(const Core::Id &conf
     for (int i = 0; i < size; ++i) {
         const ClangDiagnosticConfig &config = m_diagnosticConfigsModel.at(i);
         const QString displayName
-                = displayNameWithBuiltinIndication(config, m_configWithUndecoratedDisplayName);
+                = ClangDiagnosticConfigsModel::displayNameWithBuiltinIndication(config);
         m_ui->configChooserComboBox->addItem(displayName, config.id().toSetting());
 
         if (configToSelect == config.id())
@@ -176,8 +167,8 @@ void ClangDiagnosticConfigsWidget::syncOtherWidgetsToComboBox()
     m_ui->removeButton->setEnabled(!config.isReadOnly());
 
     // Update child widgets
-    const QString commandLineOptions = config.commandLineOptions().join(QLatin1Char(' '));
-    setDiagnosticOptions(commandLineOptions);
+    const QString commandLineWarnings = config.commandLineWarnings().join(QLatin1Char(' '));
+    setDiagnosticOptions(commandLineWarnings);
     m_ui->diagnosticOptionsTextEdit->setReadOnly(config.isReadOnly());
 }
 
@@ -226,11 +217,6 @@ void ClangDiagnosticConfigsWidget::disconnectDiagnosticOptionsChanged()
 {
     disconnect(m_ui->diagnosticOptionsTextEdit->document(), &QTextDocument::contentsChanged,
                this, &ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited);
-}
-
-void ClangDiagnosticConfigsWidget::setConfigWithUndecoratedDisplayName(const Core::Id &id)
-{
-    m_configWithUndecoratedDisplayName = id;
 }
 
 Core::Id ClangDiagnosticConfigsWidget::currentConfigId() const

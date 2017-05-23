@@ -50,7 +50,6 @@ public:
     Core::Id currentConfigId() const;
     ClangDiagnosticConfigs customConfigs() const;
 
-    void setConfigWithUndecoratedDisplayName(const Core::Id &id);
     void refresh(const ClangDiagnosticConfigsModel &diagnosticConfigsModel,
                  const Core::Id &configToSelect);
 
@@ -82,7 +81,6 @@ private:
 private:
     Ui::ClangDiagnosticConfigsWidget *m_ui;
     ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
-    Core::Id m_configWithUndecoratedDisplayName;
 };
 
 } // CppTools namespace

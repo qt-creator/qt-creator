@@ -15,6 +15,52 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QComboBox" name="clangSettings">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <item>
+      <property name="text">
+       <string>Global</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Custom</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="generalConfigurationGroupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>General</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QCheckBox" name="delayedTemplateParse">
+        <property name="toolTip">
+         <string>Parse templates in a MSVC-compliant way. This helps to parse headers for example from Active Template Library (ATL) or Windows Runtime Library (WRL).
+However, using the relaxed and extended rules means also that no highlighting/completion can be provided within template functions.</string>
+        </property>
+        <property name="text">
+         <string>Enable MSVC-compliant template parsing</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="diagnosticConfigurationGroupBox">
      <property name="title">
       <string>Warnings</string>
