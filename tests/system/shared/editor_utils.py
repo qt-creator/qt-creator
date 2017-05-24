@@ -214,10 +214,10 @@ def __handleColorTips__(colTip, expectedColor, alternativeColor):
         return value
 
     cmp = QColor()
-    cmp.setNamedColor(expectedColor)
+    cmp.setNamedColor(QString(expectedColor))
     if alternativeColor:
         alt = QColor()
-        alt.setNamedColor(alternativeColor)
+        alt.setNamedColor(QString(alternativeColor))
     if cmp.alpha() != 255 or alternativeColor and alt.alpha() != 255:
         test.warning("Cannot handle transparent colors - cancelling this verification")
         return
