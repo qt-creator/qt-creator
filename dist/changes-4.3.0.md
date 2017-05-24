@@ -13,6 +13,8 @@ General
   (experimental `SilverSearcher` plugin)
 * Added exclusion patterns to `Advanced Find` and custom locator filters
 * Added navigation pane on right side of edit mode
+* Removed dependency of Welcome mode on OpenGL, improving experience in
+  virtual machine environments and certain setups (QTCREATORBUG-15727)
 * Fixed wrong UI colors after suspend (QTCREATORBUG-14929)
 * Fixed crash with invalid themes (QTCREATORBUG-17517)
 
