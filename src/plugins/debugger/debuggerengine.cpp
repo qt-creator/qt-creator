@@ -1900,11 +1900,12 @@ void DebuggerEngine::validateExecutable()
     switch (sp->toolChainAbi.binaryFormat()) {
     case Abi::PEFormat: {
         if (sp->masterEngineType != CdbEngineType) {
+            warnOnInappropriateDebugger = true;
             detailedWarning = tr(
                         "The inferior is in the Portable Executable format.\n"
                         "Selecting CDB as debugger would improve the debugging "
                         "experience for this binary format.");
-            return;
+            break;
         } else if (warnOnRelease) {
             if (!symbolFile.endsWith(".exe", Qt::CaseInsensitive))
                 symbolFile.append(".exe");
@@ -1923,11 +1924,12 @@ void DebuggerEngine::validateExecutable()
     }
     case Abi::ElfFormat: {
         if (sp->masterEngineType == CdbEngineType) {
+            warnOnInappropriateDebugger = true;
             detailedWarning = tr(
                         "The inferior is in the ELF format.\n"
                         "Selecting GDB or LLDB as debugger would improve the debugging "
                         "experience for this binary format.");
-            return;
+            break;
         }
 
         Utils::ElfReader reader(symbolFile);
