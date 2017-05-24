@@ -66,6 +66,8 @@ public:
     const MinimizableInfoBars &minimizableInfoBars() const;
     ParseContextModel &parseContextModel();
 
+    QFuture<CppTools::CursorInfo> cursorInfo(const CppTools::CursorInfoParams &params);
+
 signals:
     void codeWarningsUpdated(unsigned contentsRevision,
                              const QList<QTextEdit::ExtraSelection> selections,

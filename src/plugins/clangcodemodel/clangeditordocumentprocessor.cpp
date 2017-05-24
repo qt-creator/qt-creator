@@ -287,6 +287,12 @@ void ClangEditorDocumentProcessor::setParserConfig(
     m_builtinProcessor.parser()->setConfiguration(config);
 }
 
+QFuture<CppTools::CursorInfo>
+ClangEditorDocumentProcessor::cursorInfo(const CppTools::CursorInfoParams &params)
+{
+    return m_builtinProcessor.cursorInfo(params);
+}
+
 ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithArguments() const
 {
     return fileContainerWithArguments(m_projectPart.data());

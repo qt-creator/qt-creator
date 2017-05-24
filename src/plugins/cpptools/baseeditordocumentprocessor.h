@@ -26,6 +26,7 @@
 #pragma once
 
 #include "baseeditordocumentparser.h"
+#include "cppcursorinfo.h"
 #include "cppsemanticinfo.h"
 #include "cpptools_global.h"
 
@@ -71,6 +72,8 @@ public:
     virtual void editorDocumentTimerRestarted();
 
     virtual void setParserConfig(const BaseEditorDocumentParser::Configuration config);
+
+    virtual QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params) = 0;
 
 public:
     using HeaderErrorDiagnosticWidgetCreator = std::function<QWidget*()>;

@@ -370,6 +370,12 @@ ParseContextModel &CppEditorDocument::parseContextModel()
     return m_parseContextModel;
 }
 
+QFuture<CppTools::CursorInfo>
+CppEditorDocument::cursorInfo(const CppTools::CursorInfoParams &params)
+{
+    return processor()->cursorInfo(params);
+}
+
 const MinimizableInfoBars &CppEditorDocument::minimizableInfoBars() const
 {
     return m_minimizableInfoBars;

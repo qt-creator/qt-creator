@@ -25,6 +25,7 @@
 
 #include "builtineditordocumentprocessor.h"
 
+#include "builtincursorinfo.h"
 #include "cppchecksymbols.h"
 #include "cppcodemodelsettings.h"
 #include "cppmodelmanager.h"
@@ -251,6 +252,12 @@ SemanticInfo BuiltinEditorDocumentProcessor::recalculateSemanticInfo()
 bool BuiltinEditorDocumentProcessor::isParserRunning() const
 {
     return m_parserFuture.isRunning();
+}
+
+QFuture<CursorInfo>
+BuiltinEditorDocumentProcessor::cursorInfo(const CursorInfoParams &params)
+{
+    return Internal::BuiltinCursorInfo::run(params);
 }
 
 void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr document,
