@@ -49,6 +49,11 @@ class QWidget;
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Utils::FileName &c);
 
+// for withNTFSPermissions
+#ifdef Q_OS_WIN
+extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
+#endif
+
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -120,6 +125,28 @@ public:
     static bool isAbsolutePath(const QString &fileName) { return !isRelativePath(fileName); }
     static QString resolvePath(const QString &baseDir, const QString &fileName);
 };
+
+// for actually finding out if e.g. directories are writable on Windows
+#ifdef Q_OS_WIN
+
+template <typename T>
+static T withNTFSPermissions(const std::function<T()> &task)
+{
+    qt_ntfs_permission_lookup++;
+    T result = task();
+    qt_ntfs_permission_lookup--;
+    return result;
+}
+
+#else // Q_OS_WIN
+
+template <typename T>
+static T withNTFSPermissions(const std::function<T()> &task)
+{
+    return task();
+}
+
+#endif // Q_OS_WIN
 
 class QTCREATOR_UTILS_EXPORT FileReader
 {

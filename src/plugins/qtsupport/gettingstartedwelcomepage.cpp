@@ -28,6 +28,7 @@
 #include "exampleslistmodel.h"
 #include "screenshotcropper.h"
 
+#include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/winutils.h>
 
@@ -199,13 +200,16 @@ void ExamplesWelcomePage::openProject(const ExampleItem &item)
     if (!proFileInfo.exists())
         return;
 
-    QFileInfo pathInfo(proFileInfo.path());
     // If the Qt is a distro Qt on Linux, it will not be writable, hence compilation will fail
-    if (!proFileInfo.isWritable()
-            || !pathInfo.isWritable() /* path of .pro file */
-            || !QFileInfo(pathInfo.path()).isWritable() /* shadow build directory */) {
+    // Same if it is installed in non-writable location for other reasons
+    const bool needsCopy = withNTFSPermissions<bool>([proFileInfo] {
+        QFileInfo pathInfo(proFileInfo.path());
+        return !proFileInfo.isWritable()
+                || !pathInfo.isWritable() /* path of .pro file */
+                || !QFileInfo(pathInfo.path()).isWritable() /* shadow build directory */;
+    });
+    if (needsCopy)
         proFile = copyToAlternativeLocation(proFileInfo, filesToOpen, item.dependencies);
-    }
 
     // don't try to load help and files if loading the help request is being cancelled
     if (proFile.isEmpty())
