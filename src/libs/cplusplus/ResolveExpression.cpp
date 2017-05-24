@@ -950,9 +950,8 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
                 foreach (const LookupItem &r, b->find(arrayAccessOp)) {
                     Symbol *overload = r.declaration();
                     if (Function *funTy = overload->type()->asFunctionType()) {
-                        if (Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType())
-                            // ### TODO: check the actual arguments
-                            addResult(proto->returnType().simplified(), scope);
+                        // ### TODO: check the actual arguments
+                        addResult(funTy->returnType().simplified(), scope, b);
                     }
                 }
 

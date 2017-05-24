@@ -18,13 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include "Symbols.h"
-#include "Names.h"
-#include "TypeVisitor.h"
-#include "SymbolVisitor.h"
+#include "Control.h"
+#include "CoreTypes.h"
+#include "Literals.h"
 #include "Matcher.h"
+#include "Names.h"
 #include "Scope.h"
+#include "Symbols.h"
+#include "SymbolVisitor.h"
 #include "Templates.h"
+#include "TypeVisitor.h"
+
+#include <cstring>
 
 using namespace CPlusPlus;
 
@@ -99,7 +104,98 @@ Declaration::Declaration(Clone *clone, Subst *subst, Declaration *original)
     : Symbol(clone, subst, original)
     , _type(clone->type(original->_type, subst))
     , _initializer(clone->stringLiteral(original->_initializer))
-{ }
+{
+    const char* nameId = nullptr;
+    if (const Identifier* identifier = name()->identifier())
+        nameId = identifier->chars();
+    else
+        return;
+
+    Class *enClass = original->enclosingClass();
+    const char* enClassNameId = nullptr;
+    if (enClass && enClass->name() && enClass->name()->identifier()) {
+        enClassNameId = enClass->name()->identifier()->chars();
+    } else {
+        return;
+    }
+
+    if (!enClassNameId)
+        return;
+
+    Template *templSpec  = enClass->enclosingTemplate();
+    const char* enNamespaceNameId = nullptr;
+    if (templSpec) {
+        if (Namespace* ns = templSpec->enclosingNamespace()) {
+            if (ns->isInline())
+                ns = ns->enclosingNamespace();
+
+            if (ns->name() && ns->name()->identifier())
+                enNamespaceNameId =ns->name()->identifier()->chars();
+        }
+    }
+
+    if (!enNamespaceNameId || templSpec->templateParameterCount() < 1)
+        return;
+
+    const Name *firstTemplParamName = nullptr;
+    if (const TypenameArgument *templParam =
+            templSpec->templateParameterAt(0)->asTypenameArgument()) {
+        firstTemplParamName = templParam->name();
+    }
+
+    if (!firstTemplParamName)
+        return;
+
+    FullySpecifiedType newType;
+    if (std::strcmp(enNamespaceNameId, "std") == 0 ||
+        std::strcmp(enNamespaceNameId, "__cxx11") == 0) {
+        if (std::strcmp(enClassNameId, "unique_ptr") == 0) {
+            if (std::strcmp(nameId, "pointer") == 0) {
+                newType = clone->type(subst->apply(firstTemplParamName), 0);
+                newType = FullySpecifiedType(clone->control()->pointerType(newType));
+            }
+        } else if (std::strcmp(enClassNameId, "list") == 0 ||
+                   std::strcmp(enClassNameId, "forward_list") == 0 ||
+                   std::strcmp(enClassNameId, "vector") == 0 ||
+                   std::strcmp(enClassNameId, "queue") == 0 ||
+                   std::strcmp(enClassNameId, "deque") == 0 ||
+                   std::strcmp(enClassNameId, "set") == 0 ||
+                   std::strcmp(enClassNameId, "unordered_set") == 0 ||
+                   std::strcmp(enClassNameId, "multiset") == 0 ||
+                   std::strcmp(enClassNameId, "array") == 0) {
+            if (std::strcmp(nameId, "reference") == 0 ||
+                std::strcmp(nameId, "const_reference") == 0) {
+                newType = clone->type(subst->apply(firstTemplParamName), 0);
+            } else if (std::strcmp(nameId, "iterator") == 0 ||
+                       std::strcmp(nameId, "reverse_iterator") == 0 ||
+                       std::strcmp(nameId, "const_reverse_iterator") == 0 ||
+                       std::strcmp(nameId, "const_iterator") == 0) {
+                newType = clone->type(subst->apply(firstTemplParamName), 0);
+                newType = FullySpecifiedType(clone->control()->pointerType(newType));
+            }
+        } else if (std::strcmp(enClassNameId, "_Hash") == 0 ||
+                   std::strcmp(enClassNameId, "_Tree") == 0 ) {
+            if (std::strcmp(nameId, "iterator") == 0 ||
+                std::strcmp(nameId, "reverse_iterator") == 0 ||
+                std::strcmp(nameId, "const_reverse_iterator") == 0 ||
+                std::strcmp(nameId, "const_iterator") == 0) {
+                FullySpecifiedType clonedType = clone->type(subst->apply(firstTemplParamName), 0);
+                if (NamedType *namedType = clonedType.type()->asNamedType()) {
+                    if (const TemplateNameId * templateNameId =
+                            namedType->name()->asTemplateNameId()) {
+                        if (templateNameId->templateArgumentCount()) {
+                            newType = clone->type(templateNameId->templateArgumentAt(0), 0);
+                            newType = FullySpecifiedType(clone->control()->pointerType(newType));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (newType.isValid())
+        _type = newType;
+}
 
 Declaration::~Declaration()
 { }
