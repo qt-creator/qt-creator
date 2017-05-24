@@ -77,7 +77,7 @@ private:
     QString m_debuggerExecutable;
     QString m_debuggerArguments;
     QString m_arguments;
-    bool m_uninstallAfterStop;
+    bool m_uninstallAfterStop = false;
     Utils::QtcProcess *m_process = nullptr;
 };
 
