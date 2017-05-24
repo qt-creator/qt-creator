@@ -44,7 +44,7 @@ public:
 private:
     static bool getFreePort(Utils::Port &qmlDebuggerPort, QString *errorMessage);
 
-    WinRtRunnerHelper *m_runner;
+    WinRtRunnerHelper *m_runner = nullptr;
 };
 
 } // namespace Internal
