@@ -87,6 +87,11 @@ void DebugViewWidget::addLogInstanceMessage(const QString &topic, const QString 
     }
 }
 
+void DebugViewWidget::setPuppetStatus(const QString &text)
+{
+    m_ui.instanceStatus->setPlainText(text);
+}
+
 void DebugViewWidget::setDebugViewEnabled(bool b)
 {
     if (m_ui.enabledCheckBox->isChecked() != b)

@@ -32,6 +32,7 @@
 #include <qmldesignerplugin.h>
 #endif
 
+#include <nodeinstanceview.h>
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
@@ -461,6 +462,9 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     if (!m_qrcMapping.isEmpty()) {
         environment.set(QLatin1String("QMLDESIGNER_RC_PATHS"), m_qrcMapping);
     }
+#ifndef QMLDESIGNER_TEST
+    QmlDesignerPlugin::instance()->viewManager().nodeInstanceView()->emitCustomNotification("PuppetStatus", {}, {QVariant(m_qrcMapping)});
+#endif
 
     QStringList importPaths = m_model->importPaths();
 

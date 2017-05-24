@@ -29,7 +29,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="instanceLog_2">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -130,7 +130,7 @@
        <property name="spacing">
         <number>2</number>
        </property>
-       <item row="1" column="0">
+       <item row="2" column="0">
         <widget class="QPlainTextEdit" name="instanceLog">
          <property name="readOnly">
           <bool>true</bool>
@@ -185,6 +185,22 @@
            </spacer>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPlainTextEdit" name="instanceStatus">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>42</height>
+          </size>
+         </property>
         </widget>
        </item>
       </layout>

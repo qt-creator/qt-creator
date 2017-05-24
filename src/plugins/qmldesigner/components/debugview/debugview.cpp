@@ -395,7 +395,10 @@ void DebugView::instancesChildrenChanged(const QVector<ModelNode> & nodeList)
 
 void DebugView::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
-    if (isDebugViewEnabled()) {
+    if (identifier == "PuppetStatus" && data.count() == 1) {
+        m_debugViewWidget->setPuppetStatus(data.first().toString());
+
+    } else if (isDebugViewEnabled()) {
         QTextStream message;
         QString string;
         message.setString(&string);
