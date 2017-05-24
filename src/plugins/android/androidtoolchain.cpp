@@ -311,7 +311,7 @@ QList<AndroidToolChainFactory::AndroidToolChainInformation> AndroidToolChainFact
             ati.version = fileName.mid(idx + 1);
             QString platform = fileName.left(idx);
             ati.abi = AndroidConfig::abiForToolChainPrefix(platform);
-            if (ati.abi.architecture() == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
+            if (ati.abi.architecture() == Abi::UnknownArchitecture)
                 continue;
             ati.compilerCommand = AndroidConfigurations::currentConfig().gccPath(ati.abi, lang, ati.version);
             result.append(ati);
@@ -399,7 +399,7 @@ AndroidToolChainFactory::autodetectToolChainsForNdk(const FileName &ndkPath,
         QString version = fileName.mid(idx + 1);
         QString platform = fileName.left(idx);
         Abi abi = AndroidConfig::abiForToolChainPrefix(platform);
-        if (abi.architecture() == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
+        if (abi.architecture() == Abi::UnknownArchitecture)
             continue;
         QList<AndroidToolChain *> toolChainBundle;
         for (Core::Id lang : {ProjectExplorer::Constants::CXX_LANGUAGE_ID, ProjectExplorer::Constants::C_LANGUAGE_ID}) {
@@ -447,7 +447,7 @@ QList<int> AndroidToolChainFactory::newestToolChainVersionForArch(const Abi &abi
             QList<int> version = versionNumberFromString(fileName.mid(idx + 1));
             QString platform = fileName.left(idx);
             Abi abi = AndroidConfig::abiForToolChainPrefix(platform);
-            if (abi.architecture() == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
+            if (abi.architecture() == Abi::UnknownArchitecture)
                 continue;
             QHash<Abi, QList<int> >::const_iterator it
                     = m_newestVersionForAbi.constFind(abi);
