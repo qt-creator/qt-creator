@@ -134,15 +134,6 @@ unsigned SemanticHighlighter::documentRevision() const
     return m_baseTextDocument->document()->revision();
 }
 
-static TextStyles mixinStyle(TextStyle main, TextStyle mixin)
-{
-    TextStyles res;
-    res.mainStyle = main;
-    res.mixinStyles.initializeElements();
-    res.mixinStyles.push_back(mixin);
-    return res;
-}
-
 void SemanticHighlighter::updateFormatMapFromFontSettings()
 {
     QTC_ASSERT(m_baseTextDocument, return);
@@ -158,9 +149,9 @@ void SemanticHighlighter::updateFormatMapFromFontSettings()
     m_formatMap[MacroUse] = fs.toTextCharFormat(C_PREPROCESSOR);
     m_formatMap[FunctionUse] = fs.toTextCharFormat(C_FUNCTION);
     m_formatMap[FunctionDeclarationUse] =
-            fs.toTextCharFormat(mixinStyle(C_FUNCTION, C_DECLARATION));
+            fs.toTextCharFormat(TextStyles::mixinStyle(C_FUNCTION, C_DECLARATION));
     m_formatMap[VirtualFunctionDeclarationUse] =
-            fs.toTextCharFormat(mixinStyle(C_VIRTUAL_METHOD, C_DECLARATION));
+            fs.toTextCharFormat(TextStyles::mixinStyle(C_VIRTUAL_METHOD, C_DECLARATION));
     m_formatMap[PseudoKeywordUse] = fs.toTextCharFormat(C_KEYWORD);
     m_formatMap[StringUse] = fs.toTextCharFormat(C_STRING);
 }

@@ -35,6 +35,15 @@ using MixinTextStyles = Utils::SizedArray<TextStyle, 6>;
 struct TextStyles {
     TextStyle mainStyle;
     MixinTextStyles mixinStyles;
+
+    static TextStyles mixinStyle(TextStyle main, TextStyle mixin)
+    {
+        TextStyles res;
+        res.mainStyle = main;
+        res.mixinStyles.initializeElements();
+        res.mixinStyles.push_back(mixin);
+        return res;
+    }
 };
 
 } // namespace TextEditor
