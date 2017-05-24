@@ -314,7 +314,7 @@ public:
     {}
 
 private:
-    Result findIncremental(const QString &txt, FindFlags findFlags)
+    Result findIncremental(const QString &txt, FindFlags findFlags) override
     {
         m_model->setSearching(true);
         Result result = ItemViewFind::findIncremental(txt, findFlags);
