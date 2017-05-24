@@ -439,6 +439,8 @@ public:
     void updatePanel()
     {
         ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0);
+        if (!projectItem)
+            return;
         setPanel(projectItem->data(0, PanelWidgetRole).value<QWidget *>());
 
         QModelIndex activeIndex = projectItem->activeIndex();
