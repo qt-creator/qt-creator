@@ -2,6 +2,7 @@
     \"Name\" : \"ClearCase\",
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
+    \"DisabledByDefault\" : true,
     \"Platform\" : \"(Linux.*)|(Windows.*)\",
     \"Vendor\" : \"AudioCodes\",
     \"Copyright\" : \"(C) 2016 AudioCodes Ltd.\",
