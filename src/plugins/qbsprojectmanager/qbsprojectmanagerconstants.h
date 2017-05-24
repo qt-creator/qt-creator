@@ -77,7 +77,7 @@ static const char QBS_PRODUCT_OVERLAY_ICON[] = ":/qbsprojectmanager/images/produ
 // Toolchain related settings:
 const char QBS_TARGETOS[] = "qbs.targetOS";
 const char QBS_SYSROOT[] = "qbs.sysroot";
-const char QBS_ARCHITECTURE[] = "qbs.architecture";
+const char QBS_ARCHITECTURES[] = "qbs.architectures";
 const char QBS_TOOLCHAIN[] = "qbs.toolchain";
 const char CPP_TOOLCHAINPATH[] = "cpp.toolchainInstallPath";
 const char CPP_TOOLCHAINPREFIX[] = "cpp.toolchainPrefix";
