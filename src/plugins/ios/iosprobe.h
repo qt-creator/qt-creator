@@ -32,53 +32,54 @@
 
 namespace Ios {
 
-class Platform
+class XcodePlatform
 {
 public:
-    enum PlatformKind {
-        BasePlatform = 1 << 0,
-        Cxx11Support = 1 << 1
+    class SDK
+    {
+    public:
+        QString directoryName;
+        Utils::FileName path;
+        QStringList architectures;
     };
+    class ToolchainTarget
+    {
+    public:
+        QString name;
+        QString architecture;
+        QStringList backendFlags;
 
-    enum CompilerType {
-        CLang,
-        GCC
+        bool operator==(const ToolchainTarget &other) const;
     };
-
-    quint32 platformKind;
-    CompilerType type;
-    QString name;
     Utils::FileName developerPath;
-    Utils::FileName platformPath;
-    Utils::FileName sdkPath;
-    Utils::FileName defaultToolchainPath;
     Utils::FileName cxxCompilerPath;
     Utils::FileName cCompilerPath;
-    QString architecture;
-    QStringList backendFlags;
+    std::vector<ToolchainTarget> targets;
+    std::vector<SDK> sdks;
 
     // ignores anything besides name
-    bool operator==(const Platform &other) const;
+    bool operator==(const XcodePlatform &other) const;
 };
 
-uint qHash(const Platform &platform);
-QDebug operator<<(QDebug debug, const Platform &platform);
+uint qHash(const XcodePlatform &platform);
+uint qHash(const XcodePlatform::ToolchainTarget &target);
 
-class IosProbe
+class XcodeProbe
 {
 public:
-    static QMap<QString, Platform> detectPlatforms(const QString &devPath = QString());
-    IosProbe()
+    static Utils::FileName sdkPath(const QString &devPath, const QString &platformName);
+    static QMap<QString, XcodePlatform> detectPlatforms(const QString &devPath = QString());
+    XcodeProbe()
     { }
 
 private:
     void addDeveloperPath(const QString &path);
     void detectDeveloperPaths();
-    void setupDefaultToolchains(const QString &devPath, const QString &xcodeName);
+    void setupDefaultToolchains(const QString &devPath);
     void detectFirst();
-    QMap<QString, Platform> detectedPlatforms();
+    QMap<QString, XcodePlatform> detectedPlatforms();
 private:
-    QMap<QString, Platform> m_platforms;
+    QMap<QString, XcodePlatform> m_platforms;
     QStringList m_developerPaths;
 };
 } // namespace Ios
