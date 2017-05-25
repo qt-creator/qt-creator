@@ -258,7 +258,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &QmakeProjectManagerPlugin::updateBuildFileAction);
 
-    updateRunQMakeAction();
+    updateActions();
 
     return true;
 }
@@ -277,9 +277,12 @@ void QmakeProjectManagerPlugin::projectChanged()
     else
         m_previousStartupProject = qobject_cast<QmakeProject *>(SessionManager::startupProject());
 
-    if (m_previousStartupProject)
+    if (m_previousStartupProject) {
         connect(m_previousStartupProject, &Project::activeTargetChanged,
                            this, &QmakeProjectManagerPlugin::activeTargetChanged);
+        connect(m_previousStartupProject, &QmakeProject::parsingFinished,
+                this, &QmakeProjectManagerPlugin::updateActions);
+    }
 
     activeTargetChanged();
 }
@@ -299,6 +302,12 @@ void QmakeProjectManagerPlugin::activeTargetChanged()
     updateRunQMakeAction();
 }
 
+void QmakeProjectManagerPlugin::updateActions()
+{
+    updateRunQMakeAction();
+    updateContextActions();
+}
+
 void QmakeProjectManagerPlugin::updateRunQMakeAction()
 {
     bool enable = true;
@@ -307,6 +316,7 @@ void QmakeProjectManagerPlugin::updateRunQMakeAction()
     auto pro = qobject_cast<QmakeProject *>(m_previousStartupProject);
     m_runQMakeAction->setVisible(pro);
     if (!pro
+            || !pro->rootProjectNode()
             || !pro->activeTarget()
             || !pro->activeTarget()->activeBuildConfiguration())
         enable = false;
@@ -334,7 +344,11 @@ void QmakeProjectManagerPlugin::updateContextActions()
     FileNode *fileNode = node ? node->asFileNode() : nullptr;
 
     bool buildFilePossible = subProjectNode && fileNode && (fileNode->fileType() == FileType::Source);
-    bool subProjectActionsVisible = qmakeProject && subProjectNode && (subProjectNode != qmakeProject->rootProjectNode());
+    bool subProjectActionsVisible = false;
+    if (qmakeProject && subProjectNode) {
+        if (QmakeProFileNode *rootNode = qmakeProject->rootProjectNode())
+            subProjectActionsVisible = subProjectNode != rootNode;
+    }
 
     QString subProjectName;
     if (subProjectActionsVisible)
