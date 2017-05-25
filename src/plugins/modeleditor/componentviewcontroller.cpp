@@ -423,6 +423,9 @@ void ComponentViewController::createComponentModel(const ProjectExplorer::Folder
 
     foreach (const ProjectExplorer::FolderNode *subNode, folderNode->folderNodes())
         createComponentModel(subNode, diagram, anchorFolder);
+    auto containerNode = dynamic_cast<const ProjectExplorer::ContainerNode *>(folderNode);
+    if (containerNode)
+        createComponentModel(containerNode->rootProjectNode(), diagram, anchorFolder);
 }
 
 void ComponentViewController::updateIncludeDependencies(qmt::MPackage *rootPackage)
