@@ -135,8 +135,8 @@ Version Control Systems
     * Added option to sign-off commits
     * Fixed handling of already merged files in merge tool
 * Gerrit
-    * Added detection of Gerrit remotes (SSH only)
-    * Added support for accessing Gerrit via HTTP(S)
+    * Added detection of Gerrit remotes
+    * Added support for accessing Gerrit via REST API over HTTP(S)
 
 Test Integration
 
