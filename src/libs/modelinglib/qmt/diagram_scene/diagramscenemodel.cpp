@@ -851,16 +851,16 @@ void DiagramSceneModel::onSelectionChanged()
 
 void DiagramSceneModel::clearGraphicsScene()
 {
-    // save extra items from being deleted
-    removeExtraSceneItems();
-    m_graphicsScene->clear();
-    addExtraSceneItems();
     m_graphicsItems.clear();
     m_itemToElementMap.clear();
     m_elementToItemMap.clear();
     m_selectedItems.clear();
     m_secondarySelectedItems.clear();
     m_focusItem = 0;
+    // save extra items from being deleted
+    removeExtraSceneItems();
+    m_graphicsScene->clear();
+    addExtraSceneItems();
 }
 
 void DiagramSceneModel::removeExtraSceneItems()
