@@ -116,6 +116,7 @@ class UpdateIncludeDependenciesVisitor :
 
 public:
     void setModelController(qmt::ModelController *modelController);
+    void updateFilePaths();
     void visitMComponent(qmt::MComponent *component);
 
 private:
@@ -130,11 +131,22 @@ private:
 
 private:
     qmt::ModelController *m_modelController = 0;
+    QMultiHash<QString, Node> m_filePaths;
 };
 
 void UpdateIncludeDependenciesVisitor::setModelController(qmt::ModelController *modelController)
 {
     m_modelController = modelController;
+}
+
+void UpdateIncludeDependenciesVisitor::updateFilePaths()
+{
+    m_filePaths.clear();
+    for (const ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects()) {
+        ProjectExplorer::ProjectNode *projectNode = project->rootProjectNode();
+        if (projectNode)
+            collectElementPaths(projectNode, &m_filePaths);
+    }
 }
 
 void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *component)
@@ -254,12 +266,6 @@ bool UpdateIncludeDependenciesVisitor::haveMatchingStereotypes(const qmt::MObjec
 
 QStringList UpdateIncludeDependenciesVisitor::findFilePathOfComponent(const qmt::MComponent *component)
 {
-    QMultiHash<QString, Node> filePaths;
-    for (const ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects()) {
-        ProjectExplorer::ProjectNode *projectNode = project->rootProjectNode();
-        if (projectNode)
-            collectElementPaths(projectNode, &filePaths);
-    }
     QStringList elementPath;
     const qmt::MObject *ancestor = component->owner();
     while (ancestor) {
@@ -268,7 +274,7 @@ QStringList UpdateIncludeDependenciesVisitor::findFilePathOfComponent(const qmt:
     }
     QStringList bestFilePaths;
     int maxPathLength = 1;
-    foreach (const Node &node, filePaths.values(component->name())) {
+    foreach (const Node &node, m_filePaths.values(component->name())) {
         int i = elementPath.size() - 1;
         int j = node.m_elementPath.size() - 1;
         while (i >= 0 && j >= 0 && elementPath.at(i) == node.m_elementPath.at(j)) {
@@ -379,6 +385,23 @@ void ComponentViewController::createComponentModel(const ProjectExplorer::Folder
                                                    qmt::MDiagram *diagram,
                                                    const QString anchorFolder)
 {
+    d->diagramSceneController->modelController()->startResetModel();
+    doCreateComponentModel(folderNode, diagram, anchorFolder);
+    d->diagramSceneController->modelController()->finishResetModel(true);
+}
+
+void ComponentViewController::updateIncludeDependencies(qmt::MPackage *rootPackage)
+{
+    d->diagramSceneController->modelController()->startResetModel();
+    UpdateIncludeDependenciesVisitor visitor;
+    visitor.setModelController(d->diagramSceneController->modelController());
+    visitor.updateFilePaths();
+    rootPackage->accept(&visitor);
+    d->diagramSceneController->modelController()->finishResetModel(true);
+}
+
+void ComponentViewController::doCreateComponentModel(const ProjectExplorer::FolderNode *folderNode, qmt::MDiagram *diagram, const QString anchorFolder)
+{
     foreach (const ProjectExplorer::FileNode *fileNode, folderNode->fileNodes()) {
         QString componentName = qmt::NameController::convertFileNameToElementName(fileNode->filePath().toString());
         qmt::MComponent *component = 0;
@@ -422,17 +445,10 @@ void ComponentViewController::createComponentModel(const ProjectExplorer::Folder
     }
 
     foreach (const ProjectExplorer::FolderNode *subNode, folderNode->folderNodes())
-        createComponentModel(subNode, diagram, anchorFolder);
+        doCreateComponentModel(subNode, diagram, anchorFolder);
     auto containerNode = dynamic_cast<const ProjectExplorer::ContainerNode *>(folderNode);
     if (containerNode)
-        createComponentModel(containerNode->rootProjectNode(), diagram, anchorFolder);
-}
-
-void ComponentViewController::updateIncludeDependencies(qmt::MPackage *rootPackage)
-{
-    UpdateIncludeDependenciesVisitor visitor;
-    visitor.setModelController(d->diagramSceneController->modelController());
-    rootPackage->accept(&visitor);
+        doCreateComponentModel(containerNode->rootProjectNode(), diagram, anchorFolder);
 }
 
 } // namespace Internal

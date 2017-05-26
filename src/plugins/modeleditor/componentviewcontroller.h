@@ -58,6 +58,9 @@ public:
     void updateIncludeDependencies(qmt::MPackage *rootPackage);
 
 private:
+    void doCreateComponentModel(const ProjectExplorer::FolderNode *folderNode,
+                                qmt::MDiagram *diagram, const QString anchorFolder);
+
     ComponentViewControllerPrivate *d;
 };
 
