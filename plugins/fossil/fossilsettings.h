@@ -38,6 +38,7 @@ public:
     static const QString diffIgnoreAllWhiteSpaceKey;
     static const QString diffStripTrailingCRKey;
     static const QString annotateShowCommittersKey;
+    static const QString annotateListVersionsKey;
     static const QString timelineWidthKey;
     static const QString timelineLineageFilterKey;
     static const QString timelineVerboseKey;

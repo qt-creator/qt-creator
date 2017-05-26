@@ -27,10 +27,10 @@
 
 #include <vcsbase/vcsbaseeditor.h>
 
-#include <QRegularExpression>
-
 namespace Fossil {
 namespace Internal {
+
+class FossilEditorWidgetPrivate;
 
 class FossilEditorWidget : public VcsBase::VcsBaseEditorWidget
 {
@@ -38,15 +38,17 @@ class FossilEditorWidget : public VcsBase::VcsBaseEditorWidget
 
 public:
     FossilEditorWidget();
+    ~FossilEditorWidget() final;
+
+    bool setConfigurationWidget(VcsBase::VcsBaseEditorConfig *w);
+    VcsBase::VcsBaseEditorConfig *configurationWidget() const;
 
 private:
     QSet<QString> annotationChanges() const final;
     QString changeUnderCursor(const QTextCursor &cursor) const final;
     VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const final;
 
-    const QRegularExpression m_exactChangesetId;
-    const QRegularExpression m_firstChangesetId;
-    const QRegularExpression m_nextChangesetId;
+    FossilEditorWidgetPrivate *d;
 };
 
 } // namespace Internal

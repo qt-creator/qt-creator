@@ -59,7 +59,6 @@ public:
     bool vcsMove(const QString &from, const QString &to) final;
     bool vcsCreateRepository(const QString &directory) final;
     bool vcsAnnotate(const QString &file, int line) final;
-    QString vcsTopic(const QString &directory) final;
     Core::ShellCommand *createInitialCheckoutCommand(const QString &sourceUrl,
                                                      const Utils::FileName &baseDirectory,
                                                      const QString &localName,
