@@ -63,6 +63,9 @@ SessionView::SessionView(QWidget *parent)
 
     setModel(&m_sessionModel);
 
+    // Ensure that the full session name is visible.
+    header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+
     QItemSelection firstRow(m_sessionModel.index(0,0), m_sessionModel.index(
         0, m_sessionModel.columnCount() - 1));
     selectionModel()->select(firstRow, QItemSelectionModel::QItemSelectionModel::
