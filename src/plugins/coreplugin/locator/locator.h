@@ -75,9 +75,6 @@ private:
     void loadSettings();
     void updateEditorManagerPlaceholderText();
 
-    template <typename S>
-    void loadSettingsHelper(S *settings);
-
     LocatorWidget *m_locatorWidget;
     LocatorSettingsPage *m_settingsPage;
 
@@ -92,35 +89,6 @@ private:
     CorePlugin *m_corePlugin = nullptr;
     ExternalToolsFilter *m_externalToolsFilter;
 };
-
-template <typename S>
-void Locator::loadSettingsHelper(S *settings)
-{
-    settings->beginGroup(QLatin1String("QuickOpen"));
-    m_refreshTimer.setInterval(settings->value(QLatin1String("RefreshInterval"), 60).toInt() * 60000);
-
-    foreach (ILocatorFilter *filter, m_filters) {
-        if (settings->contains(filter->id().toString())) {
-            const QByteArray state = settings->value(filter->id().toString()).toByteArray();
-            if (!state.isEmpty())
-                filter->restoreState(state);
-        }
-    }
-    settings->beginGroup(QLatin1String("CustomFilters"));
-    QList<ILocatorFilter *> customFilters;
-    const QStringList keys = settings->childKeys();
-    int count = 0;
-    Id baseId(Constants::CUSTOM_FILTER_BASEID);
-    foreach (const QString &key, keys) {
-        ILocatorFilter *filter = new DirectoryFilter(baseId.withSuffix(++count));
-        filter->restoreState(settings->value(key).toByteArray());
-        m_filters.append(filter);
-        customFilters.append(filter);
-    }
-    setCustomFilters(customFilters);
-    settings->endGroup();
-    settings->endGroup();
-}
 
 } // namespace Internal
 } // namespace Core
