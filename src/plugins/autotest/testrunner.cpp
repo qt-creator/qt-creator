@@ -338,14 +338,14 @@ void TestRunner::debugTests()
     QString errorMessage;
     auto runControl = new ProjectExplorer::RunControl(config->runConfiguration(),
                                                       ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    (void) new Debugger::DebuggerRunTool(runControl, sp, &errorMessage);
-
     if (!runControl) {
         emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
             TestRunner::tr("Failed to create run configuration.\n%1").arg(errorMessage))));
         onFinished();
         return;
     }
+
+    (void) new Debugger::DebuggerRunTool(runControl, sp, &errorMessage);
 
     bool useOutputProcessor = true;
     if (ProjectExplorer::Target *targ = config->project()->activeTarget()) {
