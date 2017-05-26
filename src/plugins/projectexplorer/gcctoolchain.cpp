@@ -972,8 +972,13 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
                                                return tc->typeId() == requiredTypeId
                                                    && tc->compilerCommand() == compilerPath;
                                            });
-    if (!result.isEmpty())
+    if (!result.isEmpty()) {
+        for (ToolChain *tc : result) {
+            if (tc->isAutoDetected())
+                tc->setLanguage(language);
+        }
         return result;
+    }
 
     result = autoDetectToolChain(compilerPath, language, requiredAbi);
 
