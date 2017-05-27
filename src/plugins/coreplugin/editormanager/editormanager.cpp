@@ -741,7 +741,14 @@ IEditor *EditorManagerPrivate::openEditorAt(EditorView *view, const QString &fil
     EditorManager::cutForwardNavigationHistory();
     EditorManager::addCurrentPositionToNavigationHistory();
     EditorManager::OpenEditorFlags tempFlags = flags | EditorManager::IgnoreNavigationHistory;
+	
+	if (flags & EditorManager::OpenInNewWindow){//TODO: OPEN_IN_NEW_WINDOW verify this is how to do it.
+		splitNewWindow(view);
+		view=currentEditorView();
+	}
+
     IEditor *editor = openEditor(view, fileName, editorId, tempFlags, newEditor);
+	
     if (editor && line != -1)
         editor->gotoLine(line, column);
     return editor;
@@ -1940,7 +1947,7 @@ static int min_centre_max(int sel,int min, int size){
 	return min+size;//>0
 }
 
-void EditorManagerPrivate::windmove(int dx,int dy){
+void EditorManagerPrivate::windmove(int dx,int dy, bool swap){
     printf("DEBUG_QtCreator: windmove %d %d\n",dx,dy);
 	EditorView *view = currentEditorView();
     if (!view)
@@ -1948,14 +1955,32 @@ void EditorManagerPrivate::windmove(int dx,int dy){
 
 	QRect rc=view->frameRect();
 	printf("DEBUG_QRect{%d %d %d %d}\n",rc.x(),rc.y(),rc.width(),rc.height());
+	// TODO: take into account Cursor position here.
 	int step=32;// must be less than minimum view size, we're guessing here
+	
 	int sx=min_centre_max(dx, rc.x(),rc.width()) + dx*step;
 	int sy=min_centre_max(dy, rc.y(),rc.height()) + dy*step;
 	printf("DEBUG_windmove search from %d,%d",sx,sy);
 	EditorView* found_view = view->findViewAt(sx,sy);
 	
-    if (QTC_GUARD(found_view))
+    if (QTC_GUARD(found_view)) {
+		// TODO if 'swap' set, actually swap instead of moving
+		if (swap) qDebug()<<"TODO:windmove_swap";
         activateView(found_view);
+	}
+	else{
+        QMessageBox::StandardButton reply;
+		QString str;
+		if (dx!=0) str="create new horizontal split?"; else str="create new vertical split?";
+        reply = QMessageBox::question(view, "No split there", str,
+                                QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            qDebug() << "Yes was clicked";
+            split(dx!=0?Qt::Horizontal:Qt::Vertical);
+        } else {
+            qDebug() << "Yes was *not* clicked";
+        }
+    }
 }
 
 

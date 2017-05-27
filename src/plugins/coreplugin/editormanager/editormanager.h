@@ -98,7 +98,8 @@ public:
         CanContainLineAndColumnNumber = 8,
         OpenInOtherSplit = 16,
         DoNotSwitchToDesignMode = 32,
-        DoNotSwitchToEditMode = 64
+        DoNotSwitchToEditMode = 64,
+        OpenInNewWindow = 128,
     };
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 

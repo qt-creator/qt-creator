@@ -2386,6 +2386,8 @@ int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> ste
 
 void ProjectExplorerPlugin::buildProject(Project *p)
 {
+	ModeManager::activateMode(Core::Constants::MODE_EDIT);
+	printf("DEBUG_build command issued\n");
     dd->queue(SessionManager::projectOrder(p), { Id(Constants::BUILDSTEPS_BUILD) });
 }
 

@@ -149,7 +149,7 @@ public slots:
     static void windmoveDown();
     static void windmoveLeft();
     static void windmoveRight();
-    static void windmove(int dx,int dy);
+    static void windmove(int dx,int dy, bool swap=false);
 
     void handleDocumentStateChange();
     void editorAreaDestroyed(QObject *area);
