@@ -46,7 +46,8 @@
 
 #include <QFileInfo>
 
-// TODO this class is experimental and not finished. Code needs fixes and to be cleaned up!
+// TODO implement removing include dependencies that are not longer used
+// TODO refactor add/remove relations between ancestor packages into extra controller class
 
 namespace ModelEditor {
 namespace Internal {
@@ -209,6 +210,7 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                                     if (!haveDependency(componentAncestors.at(index1), includeComponentAncestors.at(index2))) {
                                         auto dependency = new qmt::MDependency;
                                         dependency->setFlags(qmt::MElement::ReverseEngineered);
+                                        // TODO set stereotype for testing purpose
                                         dependency->setStereotypes(QStringList() << QStringLiteral("same stereotype"));
                                         dependency->setDirection(qmt::MDependency::AToB);
                                         dependency->setSource(componentAncestors.at(index1)->uid());
@@ -229,6 +231,7 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                         if (!haveDependency(componentAncestors.at(componentHighestAncestorIndex), includeComponentAncestors)) {
                             auto dependency = new qmt::MDependency;
                             dependency->setFlags(qmt::MElement::ReverseEngineered);
+                            // TODO set stereotype for testing purpose
                             dependency->setStereotypes(QStringList() << QStringLiteral("ancestor"));
                             dependency->setDirection(qmt::MDependency::AToB);
                             dependency->setSource(componentAncestors.at(componentHighestAncestorIndex)->uid());
@@ -243,6 +246,7 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                             if (!haveDependency(componentAncestors.at(0), includeComponentAncestors)) {
                                 auto dependency = new qmt::MDependency;
                                 dependency->setFlags(qmt::MElement::ReverseEngineered);
+                                // TODO set stereotype for testing purpose
                                 dependency->setStereotypes(QStringList() << QStringLiteral("parents"));
                                 dependency->setDirection(qmt::MDependency::AToB);
                                 dependency->setSource(componentAncestors.at(0)->uid());

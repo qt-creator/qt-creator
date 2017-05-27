@@ -697,9 +697,9 @@ bool ObjectItem::extendContextMenu(QMenu *menu)
     return false;
 }
 
-bool ObjectItem::handleSelectedContextMenuAction(QAction *action)
+bool ObjectItem::handleSelectedContextMenuAction(const QString &id)
 {
-    Q_UNUSED(action);
+    Q_UNUSED(id);
 
     return false;
 }
@@ -736,16 +736,19 @@ void ObjectItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
     QMenu menu;
+    IElementTasks *element_tasks = diagramSceneModel()->diagramSceneController()->elementTasks();
 
     bool addSeparator = false;
-    if (diagramSceneModel()->diagramSceneController()->elementTasks()->hasDiagram(m_object, m_diagramSceneModel->diagram())) {
+    if (element_tasks->hasDiagram(m_object, m_diagramSceneModel->diagram())) {
         menu.addAction(new ContextMenuAction(tr("Open Diagram"), QStringLiteral("openDiagram"), &menu));
         addSeparator = true;
-    } else if (diagramSceneModel()->diagramSceneController()->elementTasks()->mayCreateDiagram(m_object, m_diagramSceneModel->diagram())) {
+    } else if (element_tasks->mayCreateDiagram(m_object, m_diagramSceneModel->diagram())) {
         menu.addAction(new ContextMenuAction(tr("Create Diagram"), QStringLiteral("createDiagram"), &menu));
         addSeparator = true;
     }
     if (extendContextMenu(&menu))
+        addSeparator = true;
+    if (element_tasks->extendContextMenu(object(), diagramSceneModel()->diagram(), &menu))
         addSeparator = true;
     if (addSeparator)
         menu.addSeparator();
@@ -774,9 +777,11 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
     QAction *selectedAction = menu.exec(event->screenPos());
     if (selectedAction) {
-        if (!handleSelectedContextMenuAction(selectedAction)) {
-            auto action = dynamic_cast<ContextMenuAction *>(selectedAction);
-            QMT_CHECK(action);
+        auto action = dynamic_cast<ContextMenuAction *>(selectedAction);
+        QMT_CHECK(action);
+        bool handled = handleSelectedContextMenuAction(action->id());
+        handled |= element_tasks->handleContextMenuAction(object(), diagramSceneModel()->diagram(), action->id());
+        if (!handled) {
             if (action->id() == QStringLiteral("openDiagram")) {
                 m_diagramSceneModel->diagramSceneController()->elementTasks()->openDiagram(m_object, m_diagramSceneModel->diagram());
             } else if (action->id() == QStringLiteral("createDiagram")) {

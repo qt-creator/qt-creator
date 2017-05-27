@@ -304,14 +304,11 @@ bool ClassItem::extendContextMenu(QMenu *menu)
     return extended;
 }
 
-bool ClassItem::handleSelectedContextMenuAction(QAction *action)
+bool ClassItem::handleSelectedContextMenuAction(const QString &id)
 {
-    auto klassAction = dynamic_cast<ContextMenuAction *>(action);
-    if (klassAction) {
-        if (klassAction->id() == QStringLiteral("showDefinition")) {
-            diagramSceneModel()->diagramSceneController()->elementTasks()->openClassDefinition(object(), diagramSceneModel()->diagram());
-            return true;
-        }
+    if (id == QStringLiteral("showDefinition")) {
+        diagramSceneModel()->diagramSceneController()->elementTasks()->openClassDefinition(object(), diagramSceneModel()->diagram());
+        return true;
     }
     return false;
 }

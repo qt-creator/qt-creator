@@ -147,7 +147,7 @@ protected:
     bool showContext() const;
 
     virtual bool extendContextMenu(QMenu *menu);
-    virtual bool handleSelectedContextMenuAction(QAction *action);
+    virtual bool handleSelectedContextMenuAction(const QString &id);
 
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;

@@ -67,7 +67,7 @@ public:
 
 protected:
     bool extendContextMenu(QMenu *menu) override;
-    bool handleSelectedContextMenuAction(QAction *action) override;
+    bool handleSelectedContextMenuAction(const QString &id) override;
     QString buildDisplayName() const override;
     void setFromDisplayName(const QString &displayName) override;
 

@@ -113,6 +113,11 @@ PxNodeController::~PxNodeController()
     delete d;
 }
 
+ComponentViewController *PxNodeController::componentViewController() const
+{
+    return d->componentViewController;
+}
+
 void PxNodeController::setDiagramSceneController(
         qmt::DiagramSceneController *diagramSceneController)
 {

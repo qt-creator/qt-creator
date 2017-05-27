@@ -28,9 +28,12 @@
 #include "modelsmanager.h"
 #include "openelementvisitor.h"
 #include "modeleditor_plugin.h"
+#include "componentviewcontroller.h"
 
 #include "qmt/diagram/delement.h"
+#include "qmt/diagram/dpackage.h"
 #include "qmt/document_controller/documentcontroller.h"
+#include "qmt/infrastructure/contextmenuaction.h"
 #include "qmt/model/melement.h"
 #include "qmt/model/mclass.h"
 #include "qmt/model/mdiagram.h"
@@ -49,16 +52,20 @@
 #include <coreplugin/locator/ilocatorfilter.h>
 #include <utils/qtcassert.h>
 
+#include <QMenu>
+
 namespace ModelEditor {
 namespace Internal {
 
 class ElementTasks::ElementTasksPrivate {
 public:
     qmt::DocumentController *documentController = 0;
+    ComponentViewController *componentViewController = 0;
 };
 
-ElementTasks::ElementTasks()
-    : d(new ElementTasksPrivate)
+ElementTasks::ElementTasks(QObject *parent)
+    : QObject(parent),
+      d(new ElementTasksPrivate)
 {
 }
 
@@ -70,6 +77,11 @@ ElementTasks::~ElementTasks()
 void ElementTasks::setDocumentController(qmt::DocumentController *documentController)
 {
     d->documentController = documentController;
+}
+
+void ElementTasks::setComponentViewController(ComponentViewController *componentViewController)
+{
+    d->componentViewController = componentViewController;
 }
 
 void ElementTasks::openElement(const qmt::MElement *element)
@@ -406,6 +418,27 @@ void ElementTasks::createAndOpenDiagram(const qmt::DElement *element, const qmt:
     if (!melement)
         return;
     createAndOpenDiagram(melement);
+}
+
+bool ElementTasks::extendContextMenu(const qmt::DElement *delement, const qmt::MDiagram *, QMenu *menu)
+{
+    bool extended = false;
+    if (dynamic_cast<const qmt::DPackage *>(delement)) {
+        menu->addAction(new qmt::ContextMenuAction(tr("Update Include Dependencies"), QStringLiteral("updateIncludeDependencies"), menu));
+        extended = true;
+    }
+    return extended;
+}
+
+bool ElementTasks::handleContextMenuAction(const qmt::DElement *element, const qmt::MDiagram *, const QString &id)
+{
+    if (id == "updateIncludeDependencies") {
+        qmt::MPackage *mpackage = d->documentController->modelController()->findElement<qmt::MPackage>(element->modelUid());
+        if (mpackage)
+            d->componentViewController->updateIncludeDependencies(mpackage);
+        return true;
+    }
+    return false;
 }
 
 } // namespace Internal

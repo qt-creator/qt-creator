@@ -25,11 +25,12 @@
 
 #pragma once
 
+#include "qmt_global.h"
 #include <QAction>
 
 namespace qmt {
 
-class ContextMenuAction : public QAction
+class QMT_EXPORT ContextMenuAction : public QAction
 {
 public:
     ContextMenuAction(const QString &label, const QString &id, QObject *parent = 0);

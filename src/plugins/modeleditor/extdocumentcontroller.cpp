@@ -46,9 +46,10 @@ ExtDocumentController::ExtDocumentController(QObject *parent)
     : qmt::DocumentController(parent),
       d(new ExtDocumentControllerPrivate)
 {
-    d->elementTasks = new ElementTasks;
+    d->elementTasks = new ElementTasks(this);
     d->pxNodeController = new PxNodeController(this);
     d->elementTasks->setDocumentController(this);
+    d->elementTasks->setComponentViewController(d->pxNodeController->componentViewController());
     diagramSceneController()->setElementTasks(d->elementTasks);
 
     d->pxNodeController->setDiagramSceneController(diagramSceneController());
@@ -59,7 +60,6 @@ ExtDocumentController::ExtDocumentController(QObject *parent)
 
 ExtDocumentController::~ExtDocumentController()
 {
-    delete d->elementTasks;
     delete d;
 }
 
