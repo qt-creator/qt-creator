@@ -162,11 +162,14 @@ SplitterOrView *EditorView::parentSplitterOrView() const
     return m_parentSplitterOrView;
 }
 
-SplitterOrView *EditorView::findRootSplitterOrView() const {
+SplitterOrView *EditorView::findRootSplitterOrView(QPoint* offset) const {
 	printf("DEBUG_findRootSplitterOrView\n");
 	if (!this) return (SplitterOrView*)0;
 	SplitterOrView* sov=parentSplitterOrView();
+	printf("DEBUG_findRootSplitterOrView %x\n",sov);
+	
 	while (sov) {
+		*offset=QPoint( offset->x()-sov->pos().x(), offset->y()-sov->pos().y());
 		SplitterOrView* parent=sov->findParentSplitter();
 		if (!parent) return sov;
 		else sov=parent;
@@ -199,26 +202,36 @@ EditorView *EditorView::findNextView()
 }
 
 EditorView *EditorView::findViewAt(int x,int y){
+	printf("DEBUG_findViewAt %d %d\n",x,y);
 	EditorView* ret=(EditorView*)0;
-    findViewAtSub(0,this->findRootSplitterOrView(), &ret, x,y);
+	QPoint ofs(0,0);
+	SplitterOrView* root=this->findRootSplitterOrView(&ofs);
+	printf("DEBUG_findViewAt %x %x\n",this, root);
+	printf("DEBUG_ parent offset= %d %d\n",ofs.x(),ofs.y());
+    findViewAtSub(0, QRect(0,0,root->width(),root->height()), root, &ret, x-ofs.x(),y-ofs.y());
 	return ret;
 }
 
 QRect EditorView::frameRect() const{
-	printf("TODO_is_it_geometryOrFrameGeometry??\n");
+	printf("DEBUG_TODO_is_it_geometryOrFrameGeometry??\n");
 	return this->geometry();
 //	QList<IEditor*>::iterator it;
 //	for (it=m_editors.begin();it!=m_editors.end(); ++it){		
 //	}
 }
 
-void EditorView::findViewAtSub(int depth,SplitterOrView* sov, EditorView** ppv,int x,int y){
+void EditorView::findViewAtSub(int depth,QRect parent,SplitterOrView* sov, EditorView** ppv,int x,int y){
 	// TODO - inquire if there is a neat existing way of visiting a hierachy of QObjects?
 	// 
     printf("DEBUG_findViewAtSub\n");
-	QRect rc=	sov->frameRect();
+//	QRect rc=	sov->frameRect();
+	QRect rc(parent.x()+sov->pos().x(),
+			parent.y()+sov->pos().y(),
+			sov->width(),
+			sov->height());
 	printf("QRect{%d,%d, %d,%d}\n",rc.x(),rc.y(),rc.width(),rc.height());
-	if (rc.contains(x,y) ){
+	//TODO: slight hack, we search for 2 points displaced, because this fails when we look for an exact 50:50 split
+	if (rc.contains(x-3,y-3)|| rc.contains(x+3,y+3)){
 		printf("..DEBUG_found\n");
 		if (sov->view()){
 			*ppv=sov->view();
@@ -227,12 +240,18 @@ void EditorView::findViewAtSub(int depth,SplitterOrView* sov, EditorView** ppv,i
 		}
 	}
 
-	QList<SplitterOrView*> children= sov->findChildren<SplitterOrView*>(QString(),Qt::FindDirectChildrenOnly);
-	QList<SplitterOrView*>::iterator it;
-	for (it = children.begin(); it != children.end(); ++it){
-		SplitterOrView* child=*it;
-		findViewAtSub(depth+1, child,ppv,x,y);
-	}
+	QSplitter* splitter=sov->splitter();
+	if (splitter) {
+		for (int i=0; i<splitter->count(); i++) {
+			QWidget* w=splitter->widget(i);
+			SplitterOrView* sovsub=qobject_cast<SplitterOrView*>(w);
+			if (sovsub) {
+			    findViewAtSub(depth+1, rc,sovsub,ppv,x,y);
+			} else {
+				printf("DEBUG_not a splitter or view?!\n");
+			}
+	    }
+    }
 }
 
 
@@ -438,6 +457,13 @@ void EditorView::splitVertically()
 {
     if (m_parentSplitterOrView)
         m_parentSplitterOrView->split(Qt::Horizontal);
+    EditorManagerPrivate::updateActions();
+}
+void EditorView::splitSmart()
+{
+    if (m_parentSplitterOrView) {
+        m_parentSplitterOrView->split((this->width()>this->height())?Qt::Horizontal:Qt::Vertical);
+	}
     EditorManagerPrivate::updateActions();
 }
 
@@ -767,6 +793,10 @@ EditorView *SplitterOrView::takeView()
     return oldView;
 }
 
+void SplitterOrView::splitSmart(){
+    this->split((this->width()>this->height())?Qt::Horizontal:Qt::Vertical);
+}
+
 void SplitterOrView::split(Qt::Orientation orientation)
 {
     Q_ASSERT(m_view && m_splitter == 0);
@@ -801,6 +831,8 @@ void SplitterOrView::split(Qt::Orientation orientation)
     EditorManagerPrivate::activateView(otherView->view());
     emit splitStateChanged();
 }
+
+
 
 void SplitterOrView::unsplitAll()
 {

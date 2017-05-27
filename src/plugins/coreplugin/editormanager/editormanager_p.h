@@ -141,6 +141,7 @@ public slots:
     static bool saveDocumentAs(Core::IDocument *document);
 
     static void split(Qt::Orientation orientation);
+    static void splitSmart();
     static void removeAllSplits();
     static void gotoPreviousSplit();
     static void gotoNextSplit();
@@ -230,6 +231,7 @@ private:
     QAction *m_goForwardAction;
     QAction *m_splitAction;
     QAction *m_splitSideBySideAction;
+    QAction *m_splitSmartAction;
     QAction *m_splitNewWindowAction;
     QAction *m_removeCurrentSplitAction;
     QAction *m_removeAllSplitsAction;

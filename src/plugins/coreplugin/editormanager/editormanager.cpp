@@ -392,6 +392,14 @@ void EditorManagerPrivate::init()
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_splitSideBySideAction, &QAction::triggered, m_instance, &EditorManager::splitSideBySide);
 
+    m_splitSmartAction = new QAction(Utils::Icons::SPLIT_HORIZONTAL.icon(),
+                                          tr("Split Smart"), this);
+    cmd = ActionManager::registerAction(m_splitSmartAction, Constants::SPLIT_SMART, editManagerContext);
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,5") : tr("Ctrl+E,5")));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(m_splitSmartAction, &QAction::triggered, m_instance, &EditorManager::splitSmart);
+
+
     m_splitNewWindowAction = new QAction(tr("Open in New Window"), this);
     cmd = ActionManager::registerAction(m_splitNewWindowAction, Constants::SPLIT_NEW_WINDOW, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,4") : tr("Ctrl+E,4")));
@@ -426,12 +434,33 @@ void EditorManagerPrivate::init()
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_gotoNextSplitAction, &QAction::triggered, this, &EditorManagerPrivate::gotoNextSplit);
 
-	// emacs windmove commands
+	// emacs windmove commands{
 	m_windmoveUpAction = new QAction(tr("Wind Move Up"), this);
     cmd = ActionManager::registerAction(m_windmoveUpAction, Constants::WIND_MOVE_UP, editManagerContext);
-    cmd->setDefaultKeySequence(PORTABLE_KEYSEQUENCE("Meta+E,Up","Ctrl+E,Up"));
+    cmd->setDefaultKeySequence(PORTABLE_KEYSEQUENCE("Meta+E,K","Ctrl+E,K"));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_windmoveUpAction, &QAction::triggered, this, &EditorManagerPrivate::windmoveUp);
+
+	m_windmoveDownAction = new QAction(tr("Wind Move Down"), this);
+    cmd = ActionManager::registerAction(m_windmoveDownAction, Constants::WIND_MOVE_DOWN, editManagerContext);
+    cmd->setDefaultKeySequence(PORTABLE_KEYSEQUENCE("Meta+E,Down","Ctrl+E,Down"));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(m_windmoveDownAction, &QAction::triggered, this, &EditorManagerPrivate::windmoveDown);
+
+	m_windmoveLeftAction = new QAction(tr("Wind Move Left"), this);
+    cmd = ActionManager::registerAction(m_windmoveLeftAction, Constants::WIND_MOVE_LEFT, editManagerContext);
+    cmd->setDefaultKeySequence(PORTABLE_KEYSEQUENCE("Meta+E,H","Ctrl+E,H"));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(m_windmoveLeftAction, &QAction::triggered, this, &EditorManagerPrivate::windmoveLeft);
+
+	m_windmoveRightAction = new QAction(tr("Wind Move Right"), this);
+    cmd = ActionManager::registerAction(m_windmoveRightAction, Constants::WIND_MOVE_RIGHT, editManagerContext);
+    cmd->setDefaultKeySequence(PORTABLE_KEYSEQUENCE("Meta+E,L","Ctrl+E,L"));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(m_windmoveRightAction, &QAction::triggered, this, &EditorManagerPrivate::windmoveRight);
+
+
+	// emacs windmove commands}
 
 
     ActionContainer *medit = ActionManager::actionContainer(Constants::M_EDIT);
@@ -1912,13 +1941,13 @@ static int min_centre_max(int sel,int min, int size){
 }
 
 void EditorManagerPrivate::windmove(int dx,int dy){
-    printf("QtCreator: windmove %d %d\n",dx,dy);
+    printf("DEBUG_QtCreator: windmove %d %d\n",dx,dy);
 	EditorView *view = currentEditorView();
     if (!view)
         return;
 
 	QRect rc=view->frameRect();
-	printf("QRect{%d %d %d %d}\n",rc.x(),rc.y(),rc.width(),rc.height());
+	printf("DEBUG_QRect{%d %d %d %d}\n",rc.x(),rc.y(),rc.width(),rc.height());
 	int step=32;// must be less than minimum view size, we're guessing here
 	int sx=min_centre_max(dx, rc.x(),rc.width()) + dx*step;
 	int sy=min_centre_max(dy, rc.y(),rc.height()) + dy*step;
@@ -2294,6 +2323,17 @@ void EditorManagerPrivate::split(Qt::Orientation orientation)
 
     updateActions();
 }
+
+void EditorManagerPrivate::splitSmart()
+{
+    EditorView *view = currentEditorView();
+
+    if (view)
+        view->parentSplitterOrView()->splitSmart();
+
+    updateActions();
+}
+
 
 void EditorManagerPrivate::removeCurrentSplit()
 {
@@ -3067,6 +3107,10 @@ QTextCodec *EditorManager::defaultTextCodec()
 void EditorManager::splitSideBySide()
 {
     EditorManagerPrivate::split(Qt::Horizontal);
+}
+void EditorManager::splitSmart()
+{
+    EditorManagerPrivate::splitSmart();
 }
 
 /*!

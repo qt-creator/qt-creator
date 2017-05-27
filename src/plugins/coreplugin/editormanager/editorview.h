@@ -83,9 +83,8 @@ public:
     EditorView *findNextView();
     EditorView *findPreviousView();
 	EditorView* findViewAt(int x, int y);
-	void findViewAtSub(int depth, SplitterOrView* sov,EditorView** ppv, int x, int y);
-	SplitterOrView* findRootSplitterOrView() const;
-
+	void findViewAtSub(int depth,QRect parent, SplitterOrView* sov,EditorView** ppv, int x, int y);
+	SplitterOrView* findRootSplitterOrView(QPoint* offset) const;
 
     int editorCount() const;
     void addEditor(IEditor *editor);
@@ -123,6 +122,7 @@ private:
     void listSelectionActivated(int index);
     void splitHorizontally();
     void splitVertically();
+    void splitSmart();
     void splitNewWindow();
     void closeSplit();
     void openDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
@@ -181,6 +181,7 @@ public:
     ~SplitterOrView();
 
     void split(Qt::Orientation orientation);
+	void splitSmart();
     void unsplit();
 
     inline bool isView() const { return m_view != 0; }

@@ -201,6 +201,7 @@ public slots:
     static void slotCloseCurrentEditorOrDocument();
     static void closeOtherDocuments();
     static void splitSideBySide();
+    static void splitSmart();
     static void gotoOtherSplit();
     static void goBackInNavigationHistory();
     static void goForwardInNavigationHistory();
