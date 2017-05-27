@@ -144,6 +144,11 @@ public slots:
     static void removeAllSplits();
     static void gotoPreviousSplit();
     static void gotoNextSplit();
+    static void windmoveUp();
+    static void windmoveDown();
+    static void windmoveLeft();
+    static void windmoveRight();
+    static void windmove(int dx,int dy);
 
     void handleDocumentStateChange();
     void editorAreaDestroyed(QObject *area);
@@ -230,6 +235,10 @@ private:
     QAction *m_removeAllSplitsAction;
     QAction *m_gotoPreviousSplitAction;
     QAction *m_gotoNextSplitAction;
+    QAction *m_windmoveUpAction;
+    QAction *m_windmoveDownAction;
+    QAction *m_windmoveLeftAction;
+    QAction *m_windmoveRightAction;
 
     QAction *m_copyFilePathContextAction;
     QAction *m_copyLocationContextAction; // Copy path and line number.

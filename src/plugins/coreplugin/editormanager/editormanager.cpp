@@ -243,8 +243,11 @@ EditorManagerPrivate::~EditorManagerPrivate()
     d = 0;
 }
 
+#define PORTABLE_KEYSEQUENCE(MAC,OTHER) QKeySequence(UseMacShortcuts ? tr(MAC) : tr(OTHER))
+
 void EditorManagerPrivate::init()
 {
+	
     DocumentModel::init();
     connect(ICore::instance(), &ICore::contextAboutToChange,
             this, &EditorManagerPrivate::handleContextChange);
@@ -422,6 +425,14 @@ void EditorManagerPrivate::init()
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,o") : tr("Ctrl+E,o")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_gotoNextSplitAction, &QAction::triggered, this, &EditorManagerPrivate::gotoNextSplit);
+
+	// emacs windmove commands
+	m_windmoveUpAction = new QAction(tr("Wind Move Up"), this);
+    cmd = ActionManager::registerAction(m_windmoveUpAction, Constants::WIND_MOVE_UP, editManagerContext);
+    cmd->setDefaultKeySequence(PORTABLE_KEYSEQUENCE("Meta+E,Up","Ctrl+E,Up"));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(m_windmoveUpAction, &QAction::triggered, this, &EditorManagerPrivate::windmoveUp);
+
 
     ActionContainer *medit = ActionManager::actionContainer(Constants::M_EDIT);
     ActionContainer *advancedMenu = ActionManager::createMenu(Constants::M_EDIT_ADVANCED);
@@ -1836,6 +1847,7 @@ void EditorManagerPrivate::gotoPreviousDocHistory()
 
 void EditorManagerPrivate::gotoNextSplit()
 {
+	printf("DEBUG_gotoNextSplit\n");
     EditorView *view = currentEditorView();
     if (!view)
         return;
@@ -1879,6 +1891,44 @@ void EditorManagerPrivate::gotoPreviousSplit()
     if (QTC_GUARD(prevView))
         activateView(prevView);
 }
+
+void EditorManagerPrivate::windmoveUp(){
+    windmove(0,-1);
+}
+void EditorManagerPrivate::windmoveDown(){
+    windmove(0,1);
+}
+void EditorManagerPrivate::windmoveLeft(){
+    windmove(-1,0);
+}
+void EditorManagerPrivate::windmoveRight(){
+    windmove(1,0);
+}
+
+static int min_centre_max(int sel,int min, int size){
+    if (sel<0) return min;
+	if (sel==0) return (min*2+size)/2;
+	return min+size;//>0
+}
+
+void EditorManagerPrivate::windmove(int dx,int dy){
+    printf("QtCreator: windmove %d %d\n",dx,dy);
+	EditorView *view = currentEditorView();
+    if (!view)
+        return;
+
+	QRect rc=view->frameRect();
+	printf("QRect{%d %d %d %d}\n",rc.x(),rc.y(),rc.width(),rc.height());
+	int step=32;// must be less than minimum view size, we're guessing here
+	int sx=min_centre_max(dx, rc.x(),rc.width()) + dx*step;
+	int sy=min_centre_max(dy, rc.y(),rc.height()) + dy*step;
+	printf("DEBUG_windmove search from %d,%d",sx,sy);
+	EditorView* found_view = view->findViewAt(sx,sy);
+	
+    if (QTC_GUARD(found_view))
+        activateView(found_view);
+}
+
 
 void EditorManagerPrivate::makeCurrentEditorWritable()
 {

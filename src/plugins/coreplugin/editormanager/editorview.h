@@ -82,6 +82,10 @@ public:
     SplitterOrView *parentSplitterOrView() const;
     EditorView *findNextView();
     EditorView *findPreviousView();
+	EditorView* findViewAt(int x, int y);
+	void findViewAtSub(int depth, SplitterOrView* sov,EditorView** ppv, int x, int y);
+	SplitterOrView* findRootSplitterOrView() const;
+
 
     int editorCount() const;
     void addEditor(IEditor *editor);
@@ -165,6 +169,7 @@ public:
 
     void copyNavigationHistoryFrom(EditorView* other);
     void updateEditorHistory(IEditor *editor);
+	QRect frameRect() const;
 };
 
 class SplitterOrView  : public QWidget
@@ -189,6 +194,7 @@ public:
     inline QSplitter *splitter() const { return m_splitter; }
     QSplitter *takeSplitter();
     EditorView *takeView();
+	QRect frameRect()const;
 
     QByteArray saveState() const;
     void restoreState(const QByteArray &);

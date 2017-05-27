@@ -162,6 +162,19 @@ SplitterOrView *EditorView::parentSplitterOrView() const
     return m_parentSplitterOrView;
 }
 
+SplitterOrView *EditorView::findRootSplitterOrView() const {
+	printf("DEBUG_findRootSplitterOrView\n");
+	if (!this) return (SplitterOrView*)0;
+	SplitterOrView* sov=parentSplitterOrView();
+	while (sov) {
+		SplitterOrView* parent=sov->findParentSplitter();
+		if (!parent) return sov;
+		else sov=parent;
+	}
+	return (SplitterOrView*)0;
+	
+}
+
 EditorView *EditorView::findNextView()
 {
     SplitterOrView *current = parentSplitterOrView();
@@ -184,6 +197,44 @@ EditorView *EditorView::findNextView()
     // current has no parent, so we are at the top and there is no "next" view
     return 0;
 }
+
+EditorView *EditorView::findViewAt(int x,int y){
+	EditorView* ret=(EditorView*)0;
+    findViewAtSub(0,this->findRootSplitterOrView(), &ret, x,y);
+	return ret;
+}
+
+QRect EditorView::frameRect() const{
+	printf("TODO_is_it_geometryOrFrameGeometry??\n");
+	return this->geometry();
+//	QList<IEditor*>::iterator it;
+//	for (it=m_editors.begin();it!=m_editors.end(); ++it){		
+//	}
+}
+
+void EditorView::findViewAtSub(int depth,SplitterOrView* sov, EditorView** ppv,int x,int y){
+	// TODO - inquire if there is a neat existing way of visiting a hierachy of QObjects?
+	// 
+    printf("DEBUG_findViewAtSub\n");
+	QRect rc=	sov->frameRect();
+	printf("QRect{%d,%d, %d,%d}\n",rc.x(),rc.y(),rc.width(),rc.height());
+	if (rc.contains(x,y) ){
+		printf("..DEBUG_found\n");
+		if (sov->view()){
+			*ppv=sov->view();
+		} else {
+			printf("..DEBUG_not a 'view'\n");
+		}
+	}
+
+	QList<SplitterOrView*> children= sov->findChildren<SplitterOrView*>(QString(),Qt::FindDirectChildrenOnly);
+	QList<SplitterOrView*>::iterator it;
+	for (it = children.begin(); it != children.end(); ++it){
+		SplitterOrView* child=*it;
+		findViewAtSub(depth+1, child,ppv,x,y);
+	}
+}
+
 
 EditorView *EditorView::findPreviousView()
 {
@@ -934,4 +985,12 @@ void SplitterOrView::restoreState(const QByteArray &state)
                 EditorManagerPrivate::setCurrentEditor(e);
         }
     }
+}
+
+QRect SplitterOrView::frameRect() const
+{
+	    // todo - assert either is set? it's an Either<Splitter,EditorView>??
+    if (m_view) return m_view->frameRect();
+    else if (m_splitter) return m_splitter->frameRect();
+	else return QRect(0,0,0,0);
 }
