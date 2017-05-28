@@ -190,6 +190,7 @@ QString GitPlugin::invalidBranchAndRemoteNamePattern()
         "|//"     // no double slash
         "|^[/-]"  // no leading slash or dash
         "|\""     // no quotes
+        "|\\*"    // no asterisk
     );
 }
 
