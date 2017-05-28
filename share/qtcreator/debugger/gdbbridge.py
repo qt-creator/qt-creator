@@ -413,7 +413,7 @@ class Dumper(DumperBase):
         return '%d' % intval
 
     def nativeTypeId(self, nativeType):
-        if nativeType.code == gdb.TYPE_CODE_TYPEDEF:
+        if nativeType and (nativeType.code == gdb.TYPE_CODE_TYPEDEF):
             return '%s{%s}' % (nativeType, nativeType.strip_typedefs())
         name = str(nativeType)
         if len(name) == 0:
