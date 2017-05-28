@@ -638,7 +638,6 @@ void DebuggerEngine::handleStartFailed()
 // Called from RunControl.
 void DebuggerEngine::handleFinished()
 {
-    setState(DebuggerFinished);
     showMessage("HANDLE RUNCONTROL FINISHED");
     d->m_runTool.clear();
     d->m_progress.setProgressValue(1000);
