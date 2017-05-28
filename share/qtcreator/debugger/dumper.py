@@ -2891,7 +2891,7 @@ class DumperBase:
 
         def display(self):
             if self.type.code == TypeCodeEnum:
-                intval = self.extractInteger(self.type.bitsize(), False)
+                intval = self.integer()
                 return self.type.typeData().enumDisplay(intval, self.laddress)
             simple = self.value()
             if simple is not None:
