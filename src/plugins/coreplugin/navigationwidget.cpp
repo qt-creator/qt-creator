@@ -46,6 +46,9 @@
 #include <QResizeEvent>
 #include <QStandardItemModel>
 
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+
 Q_DECLARE_METATYPE(Core::INavigationWidgetFactory *)
 
 namespace Core {
@@ -241,6 +244,7 @@ QWidget *NavigationWidget::activateSubWidget(Id factoryId, Side fallbackSide)
     return navigationWidget;
 }
 
+namespace Internal{extern ActionContainer* g_viewmenu;}	//TODO, eliminate this global
 void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &factories)
 {
     Context navicontext(Constants::C_NAVIGATION_PANE);
@@ -257,6 +261,13 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &fac
             Command *cmd = ActionManager::registerAction(action, actionId, navicontext);
             cmd->setDefaultKeySequence(factory->activationSequence());
             d->m_commandMap.insert(id, cmd);
+
+			// add to VIEW menu
+			if (Internal::g_viewmenu){
+				Internal::g_viewmenu->addAction(cmd,Constants::G_VIEW_VIEWS);
+			} else {
+				qDebug()<<"warning g_viewmenu not setup?!";
+			}
         }
 
         QStandardItem *newRow = new QStandardItem(factory->displayName());

@@ -220,6 +220,15 @@ QRect EditorView::frameRect() const{
 //	}
 }
 
+void EditorView::debugDumpEditors() const{
+	qDebug()<<"view{";
+	for (int i=0; i<m_editors.size(); i++) {
+		IDocument* doc=m_editors[i]->document();
+		qDebug()<<doc<<"="<<((doc)?doc->displayName():"null");
+	}
+	qDebug()<<"}";
+}
+
 void EditorView::findViewAtSub(int depth,QRect parent,SplitterOrView* sov, EditorView** ppv,int x,int y){
 	// TODO - inquire if there is a neat existing way of visiting a hierachy of QObjects?
 	// 

@@ -183,7 +183,7 @@ void DebuggerMainWindow::finalizeSetup()
 
     Context debugcontext(Debugger::Constants::C_DEBUGMODE);
 
-    ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS);
+    ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
     Command *cmd = ActionManager::registerAction(showCentralWidgetAction(),
         "Debugger.Views.ShowCentralWidget", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
@@ -316,7 +316,7 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
                 Context(Id::fromName(m_currentPerspectiveId)));
             cmd->setAttribute(Command::CA_Hide);
 
-            ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS)->addAction(cmd);
+            ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS)->addAction(cmd);
         }
         // Restore parent/child relation, so that the widget hierarchy is clear.
         dock->setParent(this);

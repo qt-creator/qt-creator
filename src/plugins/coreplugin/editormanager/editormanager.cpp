@@ -435,6 +435,7 @@ void EditorManagerPrivate::init()
     connect(m_gotoNextSplitAction, &QAction::triggered, this, &EditorManagerPrivate::gotoNextSplit);
 
 	// emacs windmove commands{
+	// TODO - clean up this cut-paste mess.
 	m_windmoveUpAction = new QAction(tr("Wind Move Up"), this);
     cmd = ActionManager::registerAction(m_windmoveUpAction, Constants::WIND_MOVE_UP, editManagerContext);
     cmd->setDefaultKeySequence(PORTABLE_KEYSEQUENCE("Meta+E,K","Ctrl+E,K"));
@@ -443,7 +444,7 @@ void EditorManagerPrivate::init()
 
 	m_windmoveDownAction = new QAction(tr("Wind Move Down"), this);
     cmd = ActionManager::registerAction(m_windmoveDownAction, Constants::WIND_MOVE_DOWN, editManagerContext);
-    cmd->setDefaultKeySequence(PORTABLE_KEYSEQUENCE("Meta+E,Down","Ctrl+E,Down"));
+    cmd->setDefaultKeySequence(PORTABLE_KEYSEQUENCE("Meta+E,J","Ctrl+E,J"));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_windmoveDownAction, &QAction::triggered, this, &EditorManagerPrivate::windmoveDown);
 
@@ -459,6 +460,29 @@ void EditorManagerPrivate::init()
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_windmoveRightAction, &QAction::triggered, this, &EditorManagerPrivate::windmoveRight);
 
+	m_windmoveSwapUpAction = new QAction(tr("Wind Move Swap Up"), this);
+    cmd = ActionManager::registerAction(m_windmoveSwapUpAction, Constants::WIND_MOVE_SWAP_UP, editManagerContext);
+    cmd->setDefaultKeySequence(PORTABLE_KEYSEQUENCE("Meta+E,Meta+K","Ctrl+E,Ctrl+K"));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(m_windmoveSwapUpAction, &QAction::triggered, this, &EditorManagerPrivate::windmoveSwapUp);
+
+	m_windmoveSwapDownAction = new QAction(tr("Wind Move Swap Down"), this);
+    cmd = ActionManager::registerAction(m_windmoveSwapDownAction, Constants::WIND_MOVE_SWAP_DOWN, editManagerContext);
+    cmd->setDefaultKeySequence(PORTABLE_KEYSEQUENCE("Meta+E,Meta+J","Ctrl+E,Ctrl+J"));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(m_windmoveSwapDownAction, &QAction::triggered, this, &EditorManagerPrivate::windmoveSwapDown);
+
+	m_windmoveSwapLeftAction = new QAction(tr("Wind Move Swap Left"), this);
+    cmd = ActionManager::registerAction(m_windmoveSwapLeftAction, Constants::WIND_MOVE_SWAP_LEFT, editManagerContext);
+    cmd->setDefaultKeySequence(PORTABLE_KEYSEQUENCE("Meta+E,Meta+H","Ctrl+E,Ctrl+H"));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(m_windmoveSwapLeftAction, &QAction::triggered, this, &EditorManagerPrivate::windmoveSwapLeft);
+
+	m_windmoveSwapRightAction = new QAction(tr("Wind Move Swap Right"), this);
+    cmd = ActionManager::registerAction(m_windmoveSwapRightAction, Constants::WIND_MOVE_SWAP_RIGHT, editManagerContext);
+    cmd->setDefaultKeySequence(PORTABLE_KEYSEQUENCE("Meta+E,Meta+L","Ctrl+E,Ctrl+L"));
+    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
+    connect(m_windmoveSwapRightAction, &QAction::triggered, this, &EditorManagerPrivate::windmoveSwapRight);
 
 	// emacs windmove commands}
 
@@ -820,6 +844,7 @@ EditorView *EditorManagerPrivate::viewForEditor(IEditor *editor)
     }
     return 0;
 }
+
 
 MakeWritableResult EditorManagerPrivate::makeFileWritable(IDocument *document)
 {
@@ -1271,6 +1296,35 @@ IEditor *EditorManagerPrivate::placeEditor(EditorView *view, IEditor *editor)
     view->addEditor(editor);
     return editor;
 }
+
+void EditorManagerPrivate::swapViews(EditorView* view1, EditorView* view2){
+	// TODO - could this be generalized to swap view contents whatever it is?
+	qDebug()<<"swap Views before{count1="<<view1->editorCount()<<",count2="<<view2->editorCount()<<"};";
+	view1->debugDumpEditors();
+	view2->debugDumpEditors();
+	IEditor* curr1=view1->currentEditor();
+	IEditor* curr2=view2->currentEditor();
+	QList<IEditor*> tmp;
+	while (view1->editorCount()>0){
+		tmp.push_back(view1->popLastEditor());
+	}
+	while (view2->editorCount()>0){
+		view1->addEditor(view2->popLastEditor());
+	}
+	while (!tmp.isEmpty()){
+		view2->addEditor(tmp.takeLast());
+	}
+	qDebug()<<" swap Views after{count1="<<view1->editorCount()<<",count2="<<view2->editorCount()<<"};";
+	//swap current editors.
+	view1->setCurrentEditor(curr2);
+	view2->setCurrentEditor(curr1);
+	view1->debugDumpEditors();
+	view2->debugDumpEditors();
+	
+	qDebug()<<"Done\n";
+
+}
+
 
 IEditor *EditorManagerPrivate::duplicateEditor(IEditor *editor)
 {
@@ -1940,6 +1994,18 @@ void EditorManagerPrivate::windmoveLeft(){
 void EditorManagerPrivate::windmoveRight(){
     windmove(1,0);
 }
+void EditorManagerPrivate::windmoveSwapUp(){
+    windmove(0,-1, true);
+}
+void EditorManagerPrivate::windmoveSwapDown(){
+    windmove(0,1, true);
+}
+void EditorManagerPrivate::windmoveSwapLeft(){
+    windmove(-1,0, true);
+}
+void EditorManagerPrivate::windmoveSwapRight(){
+    windmove(1,0, true);
+}
 
 static int min_centre_max(int sel,int min, int size){
     if (sel<0) return min;
@@ -1965,20 +2031,28 @@ void EditorManagerPrivate::windmove(int dx,int dy, bool swap){
 	
     if (QTC_GUARD(found_view)) {
 		// TODO if 'swap' set, actually swap instead of moving
-		if (swap) qDebug()<<"TODO:windmove_swap";
+		if (swap) {
+		    qDebug()<<"windmove(..,swap):-";
+			swapViews(found_view,view);
+        }
         activateView(found_view);
 	}
 	else{
+		static volatile bool s_active;
         QMessageBox::StandardButton reply;
-		QString str;
-		if (dx!=0) str="create new horizontal split?"; else str="create new vertical split?";
-        reply = QMessageBox::question(view, "No split there", str,
-                                QMessageBox::Yes|QMessageBox::No);
-        if (reply == QMessageBox::Yes) {
-            qDebug() << "Yes was clicked";
-            split(dx!=0?Qt::Horizontal:Qt::Vertical);
-        } else {
-            qDebug() << "Yes was *not* clicked";
+		if (!s_active) {
+		    s_active=true;
+		    QString str;
+		    if (dx!=0) str="create new horizontal split?"; else str="create new vertical split?";
+		    reply = QMessageBox::question(view, "No split there", str,
+		                            QMessageBox::Yes|QMessageBox::No);
+		    if (reply == QMessageBox::Yes) {
+                qDebug() << "Yes was clicked";
+                split(dx!=0?Qt::Horizontal:Qt::Vertical);
+            } else {
+                qDebug() << "Yes was *not* clicked";
+			}
+			s_active=false;
         }
     }
 }

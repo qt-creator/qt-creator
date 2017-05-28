@@ -220,7 +220,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     command->setDefaultKeySequence(QKeySequence::SelectAll);
     editMenu->addAction(command, Core::Constants::G_EDIT_SELECTALL);
 
-    Core::ActionContainer *viewsMenu = Core::ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS);
+    Core::ActionContainer *viewsMenu = Core::ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
 
     Core::ActionManager::registerAction(&m_toggleLeftSidebarAction, Core::Constants::TOGGLE_LEFT_SIDEBAR, qmlDesignerMainContext);
     Core::ActionManager::registerAction(&m_toggleRightSidebarAction, Core::Constants::TOGGLE_RIGHT_SIDEBAR, qmlDesignerMainContext);

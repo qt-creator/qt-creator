@@ -91,6 +91,7 @@ public:
     void removeEditor(IEditor *editor);
     IEditor *currentEditor() const;
     void setCurrentEditor(IEditor *editor);
+	void debugDumpEditors() const;
 
     bool hasEditor(IEditor *editor) const;
 
@@ -106,7 +107,8 @@ public:
     void setCloseSplitIcon(const QIcon &icon);
 
     static void updateEditorHistory(IEditor *editor, QList<EditLocation> &history);
-
+	IEditor* popFirstEditor(){ if (m_editors.isEmpty()) return (IEditor*)0; return m_editors.takeFirst(); }
+	IEditor* popLastEditor(){ if (m_editors.isEmpty()) return (IEditor*)0; return m_editors.takeLast(); }
 signals:
     void currentEditorChanged(Core::IEditor *editor);
 
