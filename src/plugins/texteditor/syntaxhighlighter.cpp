@@ -509,7 +509,7 @@ void SyntaxHighlighter::setFormatWithSpaces(const QString &text, int start, int 
     QTextCharFormat visualSpaceFormat = d->whitespaceFormat;
     visualSpaceFormat.setBackground(format.background());
 
-    const int end = start + count;
+    const int end = std::min(start + count, text.length());
     int index = start;
 
     while (index != end) {
