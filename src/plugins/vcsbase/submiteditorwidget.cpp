@@ -369,6 +369,7 @@ void SubmitEditorWidget::setLineWrap(bool v)
     } else {
         d->m_ui.description->setLineWrapMode(QTextEdit::NoWrap);
     }
+    descriptionTextChanged();
 }
 
 int SubmitEditorWidget::lineWrapWidth() const
@@ -385,6 +386,7 @@ void SubmitEditorWidget::setLineWrapWidth(int v)
     d->m_lineWidth = v;
     if (lineWrap())
         d->m_ui.description->setLineWrapColumnOrWidth(v);
+    descriptionTextChanged();
 }
 
 bool SubmitEditorWidget::isDescriptionMandatory() const
