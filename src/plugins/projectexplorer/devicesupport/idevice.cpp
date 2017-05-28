@@ -340,8 +340,10 @@ void IDevice::fromMap(const QVariantMap &map)
     if (optionsVariant.isValid())  // false for QtC < 3.4
         d->sshParameters.options = QSsh::SshConnectionOptions(optionsVariant.toInt());
 
-    d->freePorts = Utils::PortList::fromString(map.value(QLatin1String(PortsSpecKey),
-        QLatin1String("10000-10100")).toString());
+    QString portsSpec = map.value(PortsSpecKey).toString();
+    if (portsSpec.isEmpty())
+        portsSpec = "10000-10100";
+    d->freePorts = Utils::PortList::fromString(portsSpec);
     d->machineType = static_cast<MachineType>(map.value(QLatin1String(MachineTypeKey), DefaultMachineType).toInt());
     d->version = map.value(QLatin1String(VersionKey), 0).toInt();
 
