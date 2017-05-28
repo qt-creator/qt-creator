@@ -461,7 +461,7 @@ class Dumper(DumperBase):
         val = self.fromNativeValue(nativeMember)
         nativeFieldType = nativeField.type.unqualified()
         if nativeField.bitsize:
-            val.lvalue = str(int(nativeMember))
+            val.lvalue = int(nativeMember)
             val.laddress = None
             val.type = self.createBitfieldType(str(nativeFieldType), nativeField.bitsize)
         val.isBaseClass = nativeField.is_base_class
