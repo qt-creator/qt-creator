@@ -34,6 +34,8 @@ namespace Internal {
 
 const char SESSION_BASE_ID[] = "Welcome.OpenSession";
 
+class SessionNameInputDialog;
+
 class SessionModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -75,7 +77,7 @@ public slots:
     void switchToSession(const QString &session);
 
 private:
-    void runNewSessionDialog(const QString &suggestedName, std::function<void(const QString &)> createSession);
+    void runSessionNameInputDialog(ProjectExplorer::Internal::SessionNameInputDialog *sessionInputDialog, std::function<void(const QString &)> createSession);
 };
 
 } // namespace Internal

@@ -61,6 +61,7 @@ class SessionNameInputDialog : public QDialog
 public:
     explicit SessionNameInputDialog(QWidget *parent = nullptr);
 
+    void setActionText(const QString &actionText, const QString &openActionText);
     void setValue(const QString &value);
     QString value() const;
     bool isSwitchToRequested() const;
@@ -68,6 +69,7 @@ public:
 private:
     QLineEdit *m_newSessionLineEdit = nullptr;
     QPushButton *m_switchToButton = nullptr;
+    QPushButton *m_okButton = nullptr;
     bool m_usedSwitchTo = false;
 };
 
