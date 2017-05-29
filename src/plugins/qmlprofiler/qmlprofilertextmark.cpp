@@ -25,8 +25,9 @@
 #include "qmlprofilertextmark.h"
 #include "qmlprofilerconstants.h"
 
-#include <QPainter>
+#include <QLabel>
 #include <QLayout>
+#include <QPainter>
 
 namespace QmlProfiler {
 namespace Internal {

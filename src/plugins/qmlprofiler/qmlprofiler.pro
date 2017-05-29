@@ -9,7 +9,6 @@ SOURCES += \
     flamegraphmodel.cpp \
     flamegraphview.cpp \
     inputeventsmodel.cpp \
-    localqmlprofilerrunner.cpp \
     memoryusagemodel.cpp \
     pixmapcachemodel.cpp \
     qmlevent.cpp \
@@ -50,7 +49,6 @@ HEADERS += \
     flamegraphmodel.h \
     flamegraphview.h \
     inputeventsmodel.h \
-    localqmlprofilerrunner.h \
     memoryusagemodel.h \
     pixmapcachemodel.h \
     qmlevent.h \

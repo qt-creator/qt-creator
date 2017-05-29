@@ -23,9 +23,10 @@
 **
 ****************************************************************************/
 
+#include "qmlprofilerclientmanager.h"
 #include "qmlprofilerruncontrol.h"
-#include "localqmlprofilerrunner.h"
 #include "qmlprofilertool.h"
+#include "qmlprofilerplugin.h"
 
 #include <debugger/analyzer/analyzermanager.h>
 #include <debugger/analyzer/analyzerstartparameters.h>
@@ -33,30 +34,38 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/localapplicationruncontrol.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtsupportconstants.h>
+
 #include <qmldebug/qmloutputparser.h>
+#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <utils/qtcassert.h>
+#include <utils/temporaryfile.h>
 
+#include <QApplication>
 #include <QMainWindow>
 #include <QMessageBox>
-#include <QTimer>
-#include <QTcpServer>
-#include <QApplication>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QTcpServer>
+#include <QTemporaryFile>
+#include <QTimer>
 
 using namespace Debugger;
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace QmlProfiler::Internal;
 
 namespace QmlProfiler {
 
@@ -69,6 +78,10 @@ class QmlProfilerRunner::QmlProfilerRunnerPrivate
 public:
     QmlProfilerStateManager *m_profilerState = 0;
     QTimer m_noDebugOutputTimer;
+    bool m_isLocal = false;
+    QmlProfilerRunner::Configuration m_configuration;
+    ProjectExplorer::ApplicationLauncher m_launcher;
+    QmlDebug::QmlOutputParser m_outputParser;
 };
 
 //
@@ -100,20 +113,48 @@ QmlProfilerRunner::~QmlProfilerRunner()
 
 void QmlProfilerRunner::start()
 {
-    runControl()->reportApplicationStart();
     Internal::QmlProfilerTool::instance()->finalizeRunControl(this);
-    QTC_ASSERT(d->m_profilerState, runControl()->reportApplicationStop(); return);
+    QTC_ASSERT(d->m_profilerState, return);
 
-    QTC_ASSERT(connection().is<AnalyzerConnection>(), runControl()->reportApplicationStop(); return);
+    QTC_ASSERT(connection().is<AnalyzerConnection>(), return);
     auto conn = connection().as<AnalyzerConnection>();
 
-    if (conn.analyzerPort.isValid())
-        emit processRunning(conn.analyzerPort);
+    if (conn.analyzerPort.isValid()) {
+        auto clientManager = Internal::QmlProfilerTool::clientManager();
+        clientManager->setTcpConnection(conn.analyzerHost, conn.analyzerPort);
+        clientManager->connectToTcpServer();
+    }
     else if (conn.analyzerSocket.isEmpty())
         d->m_noDebugOutputTimer.start();
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
-    emit runControl()->starting();
+
+    if (d->m_isLocal) {
+        QTC_ASSERT(!d->m_configuration.socket.isEmpty() || d->m_configuration.port.isValid(), return);
+
+        StandardRunnable debuggee = runnable().as<StandardRunnable>();
+        QString arguments = d->m_configuration.socket.isEmpty() ?
+                    QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices,
+                                                   d->m_configuration.port) :
+                    QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlProfilerServices,
+                                                     d->m_configuration.socket);
+
+
+        if (!debuggee.commandLineArguments.isEmpty())
+            arguments += ' ' + debuggee.commandLineArguments;
+
+        debuggee.commandLineArguments = arguments;
+        debuggee.runMode = ApplicationLauncher::Gui;
+
+        // queue this, as the process can already die in the call to start().
+        // We want the started() signal to be emitted before the stopped() signal.
+        connect(&d->m_launcher, &ApplicationLauncher::processExited,
+                this, &QmlProfilerRunner::spontaneousStop,
+                Qt::QueuedConnection);
+        d->m_launcher.start(debuggee);
+
+        emit localRunnerStarted();
+    }
 }
 
 void QmlProfilerRunner::stop()
@@ -148,7 +189,6 @@ void QmlProfilerRunner::notifyRemoteFinished()
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppRunning:
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
-        runControl()->reportApplicationStop();
         break;
     case QmlProfilerStateManager::Idle:
         break;
@@ -177,7 +217,7 @@ void QmlProfilerRunner::cancelProcess()
         return;
     }
     }
-    runControl()->reportApplicationStop();
+    runControl()->initiateStop();
 }
 
 void QmlProfilerRunner::notifyRemoteSetupFailed(const QString &errorMessage)
@@ -200,7 +240,6 @@ void QmlProfilerRunner::notifyRemoteSetupFailed(const QString &errorMessage)
     // KILL
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
     d->m_noDebugOutputTimer.stop();
-    runControl()->reportApplicationStop();
 }
 
 void QmlProfilerRunner::wrongSetupMessageBoxFinished(int button)
@@ -219,8 +258,11 @@ void QmlProfilerRunner::notifyRemoteSetupDone(Utils::Port port)
         QTC_ASSERT(connection().is<AnalyzerConnection>(), return);
         port = connection().as<AnalyzerConnection>().analyzerPort;
     }
-    if (port.isValid())
-        emit processRunning(port);
+    if (port.isValid()) {
+        auto clientManager = Internal::QmlProfilerTool::clientManager();
+        clientManager->setTcpConnection(connection().as<AnalyzerConnection>().analyzerHost, port);
+        clientManager->connectToTcpServer();
+    }
 }
 
 void QmlProfilerRunner::registerProfilerStateManager( QmlProfilerStateManager *profilerState )
@@ -242,12 +284,89 @@ void QmlProfilerRunner::profilerStateChanged()
 {
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::Idle:
-        runControl()->reportApplicationStop();
         d->m_noDebugOutputTimer.stop();
         break;
     default:
         break;
     }
+}
+
+QString QmlProfilerRunner::findFreeSocket()
+{
+    Utils::TemporaryFile file("qmlprofiler-freesocket");
+    if (file.open()) {
+        return file.fileName();
+    } else {
+        qWarning() << "Could not open a temporary file to find a debug socket.";
+        return QString();
+    }
+}
+
+Utils::Port QmlProfilerRunner::findFreePort(QString &host)
+{
+    QTcpServer server;
+    if (!server.listen(QHostAddress::LocalHost)
+            && !server.listen(QHostAddress::LocalHostIPv6)) {
+        qWarning() << "Cannot open port on host for QML profiling.";
+        return Utils::Port();
+    }
+    host = server.serverAddress().toString();
+    return Utils::Port(server.serverPort());
+}
+
+void QmlProfilerRunner::setLocalConfiguration(const Configuration &configuration)
+{
+    d->m_isLocal = true;
+    d->m_configuration = configuration;
+    connect(&d->m_launcher, &ApplicationLauncher::appendMessage,
+            this, &QmlProfilerRunner::appendMessage);
+    connect(this, &QmlProfilerRunner::localRunnerStopped,
+            this, &QmlProfilerRunner::notifyRemoteFinished);
+    connect(runControl(), &RunControl::finished,
+            this, &QmlProfilerRunner::stopLocalRunner);
+
+    d->m_outputParser.setNoOutputText(ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput());
+
+    connect(runControl(), &RunControl::appendMessageRequested,
+            this, [this](RunControl *, const QString &msg, Utils::OutputFormat) {
+        d->m_outputParser.processOutput(msg);
+    });
+
+    connect(&d->m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
+            this, [this](Utils::Port port) {
+        notifyRemoteSetupDone(port);
+    });
+
+    connect(&d->m_outputParser, &QmlDebug::QmlOutputParser::noOutputMessage,
+            this, [this] {
+        notifyRemoteSetupDone(Utils::Port());
+    });
+
+    connect(&d->m_outputParser, &QmlDebug::QmlOutputParser::connectingToSocketMessage,
+            this, [this] {
+        notifyRemoteSetupDone(Utils::Port());
+    });
+
+    connect(&d->m_outputParser, &QmlDebug::QmlOutputParser::errorMessage,
+            this, [this](const QString &message) {
+        notifyRemoteSetupFailed(message);
+    });
+}
+
+void QmlProfilerRunner::spontaneousStop(int exitCode, QProcess::ExitStatus status)
+{
+    Q_UNUSED(exitCode);
+    Q_UNUSED(status);
+    disconnect(&d->m_launcher, &ApplicationLauncher::processExited,
+               this, &QmlProfilerRunner::spontaneousStop);
+
+    emit localRunnerStopped();
+}
+
+void QmlProfilerRunner::stopLocalRunner()
+{
+    if (d->m_launcher.isRunning())
+        d->m_launcher.stop();
 }
 
 } // namespace QmlProfiler

@@ -29,17 +29,16 @@
 #include "qmlprofilerconstants.h"
 #include "qmlprofilereventtypes.h"
 
-#include <debugger/analyzer/analyzermanager.h>
-
-QT_BEGIN_NAMESPACE
-class QMessageBox;
-QT_END_NAMESPACE
+#include <QAction>
+#include <QObject>
 
 namespace QmlProfiler {
 
 class QmlProfilerRunner;
 
 namespace Internal {
+
+class QmlProfilerClientManager;
 
 class QMLPROFILER_EXPORT QmlProfilerTool : public QObject
 {
@@ -51,8 +50,6 @@ public:
 
     static QmlProfilerTool *instance();
 
-    ProjectExplorer::RunWorker *createRunner(ProjectExplorer::RunControl *runControl,
-                                         ProjectExplorer::RunConfiguration *runConfiguration = 0);
     void finalizeRunControl(QmlProfilerRunner *runWorker);
 
     bool prepareTool();
@@ -67,6 +64,8 @@ public:
     static void logState(const QString &msg);
     static void logError(const QString &msg);
     static void showNonmodalWarning(const QString &warningMsg);
+
+    static QmlProfilerClientManager *clientManager();
 
 public slots:
     void profilerStateChanged();

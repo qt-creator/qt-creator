@@ -24,7 +24,6 @@ QtcPlugin {
             "flamegraphmodel.cpp", "flamegraphmodel.h",
             "flamegraphview.cpp", "flamegraphview.h",
             "inputeventsmodel.cpp", "inputeventsmodel.h",
-            "localqmlprofilerrunner.cpp", "localqmlprofilerrunner.h",
             "memoryusagemodel.cpp", "memoryusagemodel.h",
             "pixmapcachemodel.cpp", "pixmapcachemodel.h",
             "qmlevent.cpp", "qmlevent.h",

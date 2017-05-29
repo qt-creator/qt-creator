@@ -247,17 +247,12 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     // is available, then we can populate the file finder
     d->m_profilerModelManager->populateFileFinder();
 
-    auto runWorkerCreator = [this](RunControl *runControl) {
-       return createRunner(runControl, Debugger::startupRunConfiguration());
-    };
-
     QString description = tr("The QML Profiler can be used to find performance "
                              "bottlenecks in applications using QML.");
 
     d->m_startAction = Debugger::createStartAction();
     d->m_stopAction = Debugger::createStopAction();
 
-    RunControl::registerWorkerCreator(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, runWorkerCreator);
     act = new QAction(tr("QML Profiler"), this);
     act->setToolTip(description);
     menu->addAction(ActionManager::registerAction(act, "QmlProfiler.Local"),
@@ -328,11 +323,13 @@ void QmlProfilerTool::updateRunActions()
     }
 }
 
-RunWorker *QmlProfilerTool::createRunner(RunControl *runControl, RunConfiguration *runConfiguration)
+void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
 {
     d->m_toolBusy = true;
+    auto runControl = runWorker->runControl();
+    auto runConfiguration = runControl->runConfiguration();
     if (runConfiguration) {
-        QmlProfilerRunConfigurationAspect *aspect = static_cast<QmlProfilerRunConfigurationAspect *>(
+        auto aspect = static_cast<QmlProfilerRunConfigurationAspect *>(
                     runConfiguration->extraAspect(Constants::SETTINGS));
         if (aspect) {
             if (QmlProfilerSettings *settings = static_cast<QmlProfilerSettings *>(aspect->currentSettings())) {
@@ -343,7 +340,6 @@ RunWorker *QmlProfilerTool::createRunner(RunControl *runControl, RunConfiguratio
         }
     }
 
-    auto runWorker = new QmlProfilerRunner(runControl);
     connect(runControl, &RunControl::finished, this, [this, runControl] {
         d->m_toolBusy = false;
         updateRunActions();
@@ -353,11 +349,6 @@ RunWorker *QmlProfilerTool::createRunner(RunControl *runControl, RunConfiguratio
     connect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::stop);
 
     updateRunActions();
-    return runWorker;
-}
-
-void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
-{
     runWorker->registerProfilerStateManager(d->m_profilerState);
     QmlProfilerClientManager *clientManager = d->m_profilerConnections;
 
@@ -376,20 +367,10 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
     // Initialize m_projectFinder
     //
 
-    auto runControl = runWorker->runControl();
-    RunConfiguration *runConfiguration = runControl->runConfiguration();
     if (runConfiguration) {
         d->m_profilerModelManager->populateFileFinder(runConfiguration);
     }
 
-    if (connection.analyzerSocket.isEmpty()) {
-        QString host = connection.analyzerHost;
-        connect(runWorker, &QmlProfilerRunner::processRunning,
-                clientManager, [clientManager, host](Utils::Port port) {
-            clientManager->setTcpConnection(host, port);
-            clientManager->connectToTcpServer();
-        });
-    }
     connect(clientManager, &QmlProfilerClientManager::connectionFailed,
             runWorker, [this, clientManager, runWorker]() {
         QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
@@ -871,6 +852,11 @@ void QmlProfilerTool::showNonmodalWarning(const QString &warningMsg)
     noExecWarning->setDefaultButton(QMessageBox::Ok);
     noExecWarning->setModal(false);
     noExecWarning->show();
+}
+
+QmlProfilerClientManager *QmlProfilerTool::clientManager()
+{
+    return s_instance->d->m_profilerConnections;
 }
 
 void QmlProfilerTool::profilerStateChanged()

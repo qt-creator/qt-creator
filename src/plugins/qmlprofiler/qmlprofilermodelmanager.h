@@ -37,6 +37,8 @@
 #include <QObject>
 #include <functional>
 
+namespace ProjectExplorer { class RunConfiguration; }
+
 namespace QmlProfiler {
 class QmlProfilerModelManager;
 class QmlProfilerNotesModel;

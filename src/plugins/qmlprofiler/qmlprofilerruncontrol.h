@@ -28,7 +28,12 @@
 #include "qmlprofilerstatemanager.h"
 
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runnables.h>
+
 #include <utils/outputformat.h>
+#include <utils/port.h>
+
+#include <qmldebug/qmloutputparser.h>
 
 namespace QmlProfiler {
 
@@ -40,21 +45,36 @@ public:
     QmlProfilerRunner(ProjectExplorer::RunControl *runControl);
     ~QmlProfilerRunner() override;
 
+    struct Configuration {
+        Utils::Port port;
+        QString socket;
+    };
+    void setLocalConfiguration(const Configuration &conf);
+
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
 
     void notifyRemoteSetupDone(Utils::Port port);
     void notifyRemoteSetupFailed(const QString &errorMessage);
-    void start() override;
-    void stop() override;
     void cancelProcess();
     void notifyRemoteFinished();
 
+    static Utils::Port findFreePort(QString &host);
+    static QString findFreeSocket();
+
 signals:
-    void processRunning(Utils::Port port);
+    void localRunnerStarted();
+    void localRunnerStopped();
 
 private:
+    void start() override;
+    void stop() override;
+
     void wrongSetupMessageBoxFinished(int);
     void profilerStateChanged();
+
+    void spontaneousStop(int exitCode, QProcess::ExitStatus status);
+    void startLocalRunner();
+    void stopLocalRunner();
 
     class QmlProfilerRunnerPrivate;
     QmlProfilerRunnerPrivate *d;
