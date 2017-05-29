@@ -47,7 +47,7 @@ public:
     void accept(Core::LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
     QByteArray saveState() const;
-    bool restoreState(const QByteArray &state);
+    void restoreState(const QByteArray &state);
     bool openConfigDialog(QWidget *parent, bool &needsRefresh);
 
     QStringList remoteUrls() const;

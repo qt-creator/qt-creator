@@ -48,7 +48,7 @@ public:
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry);
     void accept(LocatorFilterEntry selection) const;
     QByteArray saveState() const;
-    bool restoreState(const QByteArray &state);
+    void restoreState(const QByteArray &state);
     bool openConfigDialog(QWidget *parent, bool &needsRefresh);
     void refresh(QFutureInterface<void> &) {}
 

@@ -166,7 +166,7 @@ QByteArray RemoteHelpFilter::saveState() const
     return value;
 }
 
-bool RemoteHelpFilter::restoreState(const QByteArray &state)
+void RemoteHelpFilter::restoreState(const QByteArray &state)
 {
     QDataStream in(state);
 
@@ -181,8 +181,6 @@ bool RemoteHelpFilter::restoreState(const QByteArray &state)
     bool defaultFilter;
     in >> defaultFilter;
     setIncludedByDefault(defaultFilter);
-
-    return true;
 }
 
 bool RemoteHelpFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)

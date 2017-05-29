@@ -202,7 +202,7 @@ QByteArray FileSystemFilter::saveState() const
     return value;
 }
 
-bool FileSystemFilter::restoreState(const QByteArray &state)
+void FileSystemFilter::restoreState(const QByteArray &state)
 {
     QDataStream in(state);
     in >> m_includeHidden;
@@ -216,6 +216,4 @@ bool FileSystemFilter::restoreState(const QByteArray &state)
         setShortcutString(shortcut);
         setIncludedByDefault(defaultFilter);
     }
-
-    return true;
 }

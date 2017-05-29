@@ -136,7 +136,7 @@ public:
     virtual QByteArray saveState() const;
 
     /* Used to restore the filter at start up. */
-    virtual bool restoreState(const QByteArray &state);
+    virtual void restoreState(const QByteArray &state);
 
     /* User wants to configure this filter (if supported). Use it to pop up a dialog.
      * needsRefresh is used as a hint to indicate that refresh should be called.

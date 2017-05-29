@@ -59,7 +59,7 @@ QByteArray DirectoryFilter::saveState() const
     return value;
 }
 
-bool DirectoryFilter::restoreState(const QByteArray &state)
+void DirectoryFilter::restoreState(const QByteArray &state)
 {
     QMutexLocker locker(&m_lock);
 
@@ -84,7 +84,6 @@ bool DirectoryFilter::restoreState(const QByteArray &state)
     setIncludedByDefault(defaultFilter);
 
     updateFileIterator();
-    return true;
 }
 
 bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)

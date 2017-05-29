@@ -66,7 +66,7 @@ QByteArray ILocatorFilter::saveState() const
     return value;
 }
 
-bool ILocatorFilter::restoreState(const QByteArray &state)
+void ILocatorFilter::restoreState(const QByteArray &state)
 {
     QString shortcut;
     bool defaultFilter;
@@ -77,7 +77,6 @@ bool ILocatorFilter::restoreState(const QByteArray &state)
 
     setShortcutString(shortcut);
     setIncludedByDefault(defaultFilter);
-    return true;
 }
 
 bool ILocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)

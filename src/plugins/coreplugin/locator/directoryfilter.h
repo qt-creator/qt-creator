@@ -43,7 +43,7 @@ class DirectoryFilter : public BaseFileFilter
 public:
     DirectoryFilter(Id id);
     QByteArray saveState() const;
-    bool restoreState(const QByteArray &state);
+    void restoreState(const QByteArray &state);
     bool openConfigDialog(QWidget *parent, bool &needsRefresh);
     void refresh(QFutureInterface<void> &future);
 
