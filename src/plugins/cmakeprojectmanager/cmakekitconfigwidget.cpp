@@ -279,11 +279,20 @@ QString CMakeGeneratorKitConfigWidget::toolTip() const
 void CMakeGeneratorKitConfigWidget::changeGenerator()
 {
     QPointer<QDialog> changeDialog = new QDialog(m_changeButton);
+
+    // Disable help button in titlebar on windows:
+    Qt::WindowFlags flags = changeDialog->windowFlags();
+    flags.setFlag(Qt::WindowContextHelpButtonHint, false);
+    flags.setFlag(Qt::MSWindowsFixedSizeDialogHint, true);
+    changeDialog->setWindowFlags(flags);
+
     changeDialog->setWindowTitle(tr("CMake Generator"));
 
     auto *layout = new QGridLayout(changeDialog);
+    layout->setSizeConstraint(QLayout::SetFixedSize);
 
     auto *cmakeLabel = new QLabel;
+    cmakeLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     auto *generatorCombo = new QComboBox;
     auto *extraGeneratorCombo = new QComboBox;
