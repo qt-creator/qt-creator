@@ -25,11 +25,13 @@
 
 #include "localqmlprofilerrunner.h"
 #include "qmlprofilerplugin.h"
+#include "qmlprofilerruncontrol.h"
 
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
@@ -67,14 +69,16 @@ Utils::Port LocalQmlProfilerRunner::findFreePort(QString &host)
 }
 
 LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuration,
-                                               RunControl *runControl) :
-    QObject(runControl),
+                                               QmlProfilerRunner *runner) :
+    QObject(runner->runControl()),
+    m_runControl(runner->runControl()),
     m_configuration(configuration)
 {
+    auto runControl = runner->runControl();
     connect(&m_launcher, &ApplicationLauncher::appendMessage,
             this, &LocalQmlProfilerRunner::appendMessage);
     connect(this, &LocalQmlProfilerRunner::stopped,
-            runControl, &RunControl::notifyRemoteFinished);
+            runner, &QmlProfilerRunner::notifyRemoteFinished);
     connect(this, &LocalQmlProfilerRunner::appendMessage,
             runControl, &RunControl::appendMessage);
     connect(runControl, &RunControl::starting,
@@ -92,23 +96,27 @@ LocalQmlProfilerRunner::LocalQmlProfilerRunner(const Configuration &configuratio
     });
 
     connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
-            runControl, [this, runControl](Utils::Port port) {
+            runControl, [this, runControl, runner](Utils::Port port) {
         runControl->notifyRemoteSetupDone(port);
+        runner->notifyRemoteSetupDone(port);
     });
 
     connect(&m_outputParser, &QmlDebug::QmlOutputParser::noOutputMessage,
-            runControl, [this, runControl]() {
+            runControl, [this, runControl, runner]() {
         runControl->notifyRemoteSetupDone(Utils::Port());
+        runner->notifyRemoteSetupDone(Utils::Port());
     });
 
     connect(&m_outputParser, &QmlDebug::QmlOutputParser::connectingToSocketMessage,
-            runControl, [this, runControl]() {
+            runControl, [this, runControl, runner]() {
         runControl->notifyRemoteSetupDone(Utils::Port());
+        runner->notifyRemoteSetupDone(Utils::Port());
     });
 
     connect(&m_outputParser, &QmlDebug::QmlOutputParser::errorMessage,
-            runControl, [this, runControl](const QString &message) {
+            runControl, [this, runControl, runner](const QString &message) {
         runControl->notifyRemoteSetupFailed(message);
+        runner->notifyRemoteSetupFailed(message);
     });
 }
 

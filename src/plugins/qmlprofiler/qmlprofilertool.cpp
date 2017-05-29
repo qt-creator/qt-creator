@@ -248,8 +248,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_profilerModelManager->populateFileFinder();
 
     auto runWorkerCreator = [this](RunControl *runControl) {
-//        return createRunControl(runConfiguration);
-        return nullptr; // FIXME
+       return createRunner(runControl, Debugger::startupRunConfiguration());
     };
 
     QString description = tr("The QML Profiler can be used to find performance "
@@ -329,7 +328,7 @@ void QmlProfilerTool::updateRunActions()
     }
 }
 
-RunControl *QmlProfilerTool::createRunControl(RunConfiguration *runConfiguration)
+RunWorker *QmlProfilerTool::createRunner(RunControl *runControl, RunConfiguration *runConfiguration)
 {
     d->m_toolBusy = true;
     if (runConfiguration) {
@@ -344,27 +343,27 @@ RunControl *QmlProfilerTool::createRunControl(RunConfiguration *runConfiguration
         }
     }
 
-    auto runControl = new QmlProfilerRunControl(runConfiguration);
+    auto runWorker = new QmlProfilerRunner(runControl);
     connect(runControl, &RunControl::finished, this, [this, runControl] {
         d->m_toolBusy = false;
         updateRunActions();
         disconnect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::stop);
     });
 
-    connect(d->m_stopAction, &QAction::triggered, runControl, &QmlProfilerRunControl::stop);
+    connect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::stop);
 
     updateRunActions();
-    return runControl;
+    return runWorker;
 }
 
-void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
+void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
 {
-    runControl->registerProfilerStateManager(d->m_profilerState);
+    runWorker->registerProfilerStateManager(d->m_profilerState);
     QmlProfilerClientManager *clientManager = d->m_profilerConnections;
 
-    QTC_ASSERT(runControl->connection().is<AnalyzerConnection>(), return);
+    QTC_ASSERT(runWorker->connection().is<AnalyzerConnection>(), return);
     // FIXME: Check that there's something sensible in sp.connParams
-    auto connection = runControl->connection().as<AnalyzerConnection>();
+    auto connection = runWorker->connection().as<AnalyzerConnection>();
     if (!connection.analyzerSocket.isEmpty()) {
         clientManager->setLocalSocket(connection.analyzerSocket);
         // We open the server and the application connects to it, so let's do that right away.
@@ -377,6 +376,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
     // Initialize m_projectFinder
     //
 
+    auto runControl = runWorker->runControl();
     RunConfiguration *runConfiguration = runControl->runConfiguration();
     if (runConfiguration) {
         d->m_profilerModelManager->populateFileFinder(runConfiguration);
@@ -384,14 +384,14 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
 
     if (connection.analyzerSocket.isEmpty()) {
         QString host = connection.analyzerHost;
-        connect(runControl, &QmlProfilerRunControl::processRunning,
+        connect(runWorker, &QmlProfilerRunner::processRunning,
                 clientManager, [clientManager, host](Utils::Port port) {
             clientManager->setTcpConnection(host, port);
             clientManager->connectToTcpServer();
         });
     }
     connect(clientManager, &QmlProfilerClientManager::connectionFailed,
-            runControl, [this, clientManager, runControl]() {
+            runWorker, [this, clientManager, runWorker]() {
         QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
         infoBox->setIcon(QMessageBox::Critical);
         infoBox->setWindowTitle(tr("Qt Creator"));
@@ -401,7 +401,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
         infoBox->setDefaultButton(QMessageBox::Retry);
         infoBox->setModal(true);
 
-        connect(infoBox, &QDialog::finished, runControl, [clientManager, runControl](int result) {
+        connect(infoBox, &QDialog::finished, runWorker, [clientManager, runWorker](int result) {
             switch (result) {
             case QMessageBox::Retry:
                 clientManager->retryConnect();
@@ -412,7 +412,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunControl *runControl)
             case QMessageBox::Cancel:
                 // The actual error message has already been logged.
                 logState(tr("Failed to connect."));
-                runControl->cancelProcess();
+                runWorker->cancelProcess();
                 break;
             }
         });
@@ -612,7 +612,8 @@ void QmlProfilerTool::startRemoteTool()
     Debugger::selectPerspective(Constants::QmlProfilerPerspectiveId);
 
     RunConfiguration *rc = Debugger::startupRunConfiguration();
-    auto runControl = qobject_cast<QmlProfilerRunControl *>(createRunControl(rc));
+    auto runControl = new RunControl(rc, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setConnection(connection);
 
     ProjectExplorerPlugin::startRunControl(runControl);

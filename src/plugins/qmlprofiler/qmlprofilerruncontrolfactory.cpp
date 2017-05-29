@@ -92,7 +92,8 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
         connection.analyzerPort = LocalQmlProfilerRunner::findFreePort(connection.analyzerHost);
     }
 
-    auto runControl = new QmlProfilerRunControl(runConfiguration);
+    auto runControl = new RunControl(runConfiguration, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    auto runWorker = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setRunnable(runnable);
     runControl->setConnection(connection);
 
@@ -103,7 +104,7 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     conf.socket = connection.analyzerSocket;
     conf.port = connection.analyzerPort;
 
-    (void) new LocalQmlProfilerRunner(conf, runControl);
+    (void) new LocalQmlProfilerRunner(conf, qobject_cast<QmlProfilerRunner *>(runWorker));
     return runControl;
 }
 

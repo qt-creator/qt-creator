@@ -60,9 +60,10 @@ void LocalQmlProfilerRunnerTest::testRunner()
     // should not be used anywhere but cannot be empty
     configuration.socket = connection.analyzerSocket = QString("invalid");
 
-    rc = new QmlProfilerRunControl(nullptr);
+    rc = new ProjectExplorer::RunControl(nullptr, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    auto worker = new QmlProfilerRunner(rc);
     rc->setConnection(connection);
-    auto runner = new LocalQmlProfilerRunner(configuration, rc);
+    auto runner = new LocalQmlProfilerRunner(configuration, worker);
     connectRunner(runner);
 
     rc->initiateStart();
@@ -81,9 +82,10 @@ void LocalQmlProfilerRunnerTest::testRunner1()
     configuration.debuggee.commandLineArguments = QString("-test QmlProfiler,");
 
     delete rc;
-    rc = new QmlProfilerRunControl(nullptr);
+    rc = new ProjectExplorer::RunControl(nullptr, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    auto worker = new QmlProfilerRunner(rc);
     rc->setConnection(connection);
-    auto runner = new LocalQmlProfilerRunner(configuration, rc);
+    auto runner = new LocalQmlProfilerRunner(configuration, worker);
     connectRunner(runner);
     rc->initiateStart();
     QTimer::singleShot(0, this, &LocalQmlProfilerRunnerTest::testRunner2);
@@ -101,9 +103,10 @@ void LocalQmlProfilerRunnerTest::testRunner2()
     connection.analyzerSocket.clear();
     configuration.port = connection.analyzerPort =
             LocalQmlProfilerRunner::findFreePort(connection.analyzerHost);
-    rc = new QmlProfilerRunControl(nullptr);
+    rc = new ProjectExplorer::RunControl(nullptr, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    auto worker = new QmlProfilerRunner(rc);
     rc->setConnection(connection);
-    auto runner = new LocalQmlProfilerRunner(configuration, rc);
+    auto runner = new LocalQmlProfilerRunner(configuration, worker);
     connectRunner(runner);
     rc->initiateStart();
 

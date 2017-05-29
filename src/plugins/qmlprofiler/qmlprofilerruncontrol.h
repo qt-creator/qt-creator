@@ -32,22 +32,22 @@
 
 namespace QmlProfiler {
 
-class QmlProfilerRunControl : public ProjectExplorer::RunControl
+class QmlProfilerRunner : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 
 public:
-    QmlProfilerRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
-    ~QmlProfilerRunControl() override;
+    QmlProfilerRunner(ProjectExplorer::RunControl *runControl);
+    ~QmlProfilerRunner() override;
 
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
 
-    void notifyRemoteSetupDone(Utils::Port port) override;
-    void notifyRemoteSetupFailed(const QString &errorMessage) override;
+    void notifyRemoteSetupDone(Utils::Port port);
+    void notifyRemoteSetupFailed(const QString &errorMessage);
     void start() override;
     void stop() override;
     void cancelProcess();
-    void notifyRemoteFinished() override;
+    void notifyRemoteFinished();
 
 signals:
     void processRunning(Utils::Port port);
@@ -56,8 +56,8 @@ private:
     void wrongSetupMessageBoxFinished(int);
     void profilerStateChanged();
 
-    class QmlProfilerRunControlPrivate;
-    QmlProfilerRunControlPrivate *d;
+    class QmlProfilerRunnerPrivate;
+    QmlProfilerRunnerPrivate *d;
 };
 
 } // namespace QmlProfiler

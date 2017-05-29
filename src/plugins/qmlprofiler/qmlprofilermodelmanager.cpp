@@ -251,6 +251,8 @@ void QmlProfilerModelManager::addEvents(const QVector<QmlEvent> &events)
 void QmlProfilerModelManager::addEvent(const QmlEvent &event)
 {
     d->eventStream << event;
+    QTC_ASSERT(event.typeIndex() < d->eventTypes.size(),
+               d->eventTypes.resize(event.typeIndex() + 1));
     d->dispatch(event, d->eventTypes.at(event.typeIndex()));
 }
 

@@ -37,7 +37,7 @@ QT_END_NAMESPACE
 
 namespace QmlProfiler {
 
-class QmlProfilerRunControl;
+class QmlProfilerRunner;
 
 namespace Internal {
 
@@ -51,8 +51,9 @@ public:
 
     static QmlProfilerTool *instance();
 
-    ProjectExplorer::RunControl *createRunControl(ProjectExplorer::RunConfiguration *runConfiguration = 0);
-    void finalizeRunControl(QmlProfilerRunControl *runControl);
+    ProjectExplorer::RunWorker *createRunner(ProjectExplorer::RunControl *runControl,
+                                         ProjectExplorer::RunConfiguration *runConfiguration = 0);
+    void finalizeRunControl(QmlProfilerRunner *runWorker);
 
     bool prepareTool();
     void startRemoteTool();
