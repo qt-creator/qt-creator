@@ -59,18 +59,16 @@ class SessionNameInputDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SessionNameInputDialog(const QStringList &sessions, QWidget *parent = nullptr);
+    explicit SessionNameInputDialog(QWidget *parent = nullptr);
 
     void setValue(const QString &value);
     QString value() const;
     bool isSwitchToRequested() const;
 
 private:
-    void clicked(QAbstractButton *button);
-
-    QLineEdit *m_newSessionLineEdit;
-    QPushButton *m_switchToButton;
-    bool m_usedSwitchTo;
+    QLineEdit *m_newSessionLineEdit = nullptr;
+    QPushButton *m_switchToButton = nullptr;
+    bool m_usedSwitchTo = false;
 };
 
 } // namespace Internal

@@ -78,21 +78,23 @@ void SessionValidator::fixup(QString &input) const
     input = copy;
 }
 
-SessionNameInputDialog::SessionNameInputDialog(const QStringList &sessions, QWidget *parent)
-    : QDialog(parent), m_usedSwitchTo(false)
+SessionNameInputDialog::SessionNameInputDialog(QWidget *parent)
+    : QDialog(parent)
 {
     auto hlayout = new QVBoxLayout(this);
     auto label = new QLabel(tr("Enter the name of the session:"), this);
     hlayout->addWidget(label);
     m_newSessionLineEdit = new QLineEdit(this);
-    m_newSessionLineEdit->setValidator(new SessionValidator(this, sessions));
+    m_newSessionLineEdit->setValidator(new SessionValidator(this, SessionManager::sessions()));
     hlayout->addWidget(m_newSessionLineEdit);
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
     buttons->button(QDialogButtonBox::Ok)->setText(tr("&Create"));
     m_switchToButton = buttons->addButton(tr("Create and &Open"), QDialogButtonBox::AcceptRole);
+    connect(m_switchToButton, &QPushButton::clicked, [this]() {
+        m_usedSwitchTo = true;
+    });
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    connect(buttons, &QDialogButtonBox::clicked, this, &SessionNameInputDialog::clicked);
     hlayout->addWidget(buttons);
     setLayout(hlayout);
 }
@@ -105,12 +107,6 @@ void SessionNameInputDialog::setValue(const QString &value)
 QString SessionNameInputDialog::value() const
 {
     return m_newSessionLineEdit->text();
-}
-
-void SessionNameInputDialog::clicked(QAbstractButton *button)
-{
-    if (button == m_switchToButton)
-        m_usedSwitchTo = true;
 }
 
 bool SessionNameInputDialog::isSwitchToRequested() const

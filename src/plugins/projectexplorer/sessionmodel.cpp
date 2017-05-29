@@ -224,7 +224,7 @@ void SessionModel::switchToSession(const QString &session)
 
 void SessionModel::runNewSessionDialog(const QString &suggestedName, std::function<void(const QString &)> createSession)
 {
-    SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), nullptr);
+    SessionNameInputDialog newSessionInputDialog;
     newSessionInputDialog.setWindowTitle(tr("New Session Name"));
     newSessionInputDialog.setValue(suggestedName);
 
