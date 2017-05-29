@@ -89,9 +89,13 @@ void ValgrindRunControl::start()
     ValgrindRunner *run = runner();
     run->setValgrindExecutable(m_settings->valgrindExecutable());
     run->setValgrindArguments(genericToolArguments() + toolArguments());
-    const StandardRunnable r = runnable().as<StandardRunnable>();
-    run->setDevice(r.device ? r.device : device());
-    run->setDebuggee(r);
+    if (runnable().is<StandardRunnable>()) {
+        const StandardRunnable r = runnable().as<StandardRunnable>();
+        run->setDevice(r.device ? r.device : device());
+        run->setDebuggee(r);
+    } else {
+        run->setDevice(device());
+    }
 
     connect(run, &ValgrindRunner::processOutputReceived,
             this, &ValgrindRunControl::receiveProcessOutput);
@@ -116,7 +120,8 @@ RunControl::StopResult ValgrindRunControl::stop()
 
 QString ValgrindRunControl::executable() const
 {
-    return runnable().as<StandardRunnable>().executable;
+    return runnable().is<StandardRunnable>() ?
+                runnable().as<StandardRunnable>().executable : QString();
 }
 
 QStringList ValgrindRunControl::genericToolArguments() const
