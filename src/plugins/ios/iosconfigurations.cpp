@@ -446,10 +446,8 @@ void IosConfigurations::initializeProvisioningData()
 {
     // Initialize provisioning data only on demand. i.e. when first call to a provisioing data API
     // is made.
-    static bool initialized = false;
-    if (initialized)
+    if (m_provisioningDataWatcher)
         return;
-    initialized = true;
 
     m_instance->loadProvisioningData(false);
 

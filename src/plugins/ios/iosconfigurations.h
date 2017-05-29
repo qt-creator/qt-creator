@@ -137,7 +137,7 @@ private:
     Utils::FileName m_developerPath;
     QVersionNumber m_xcodeVersion;
     bool m_ignoreAllDevices;
-    QFileSystemWatcher *m_provisioningDataWatcher;
+    QFileSystemWatcher *m_provisioningDataWatcher = nullptr;
     ProvisioningProfiles m_provisioningProfiles;
     DevelopmentTeams m_developerTeams;
 };
