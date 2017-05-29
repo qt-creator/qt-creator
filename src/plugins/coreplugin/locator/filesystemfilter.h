@@ -36,25 +36,23 @@
 namespace Core {
 namespace Internal {
 
-class LocatorWidget;
-
 class FileSystemFilter : public ILocatorFilter
 {
     Q_OBJECT
 
 public:
-    explicit FileSystemFilter(LocatorWidget *locatorWidget);
+    explicit FileSystemFilter();
     void prepareSearch(const QString &entry) override;
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                          const QString &entry) override;
-    void accept(LocatorFilterEntry selection) const override;
+    void accept(LocatorFilterEntry selection,
+                QString *newText, int *selectionStart, int *selectionLength) const override;
     QByteArray saveState() const override;
     void restoreState(const QByteArray &state) override;
     bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;
     void refresh(QFutureInterface<void> &) override {}
 
 private:
-    LocatorWidget *m_locatorWidget;
     bool m_includeHidden = true;
     QString m_currentDocumentDirectory;
 };

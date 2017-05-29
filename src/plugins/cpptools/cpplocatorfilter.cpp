@@ -121,8 +121,12 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
     return betterEntries;
 }
 
-void CppLocatorFilter::accept(Core::LocatorFilterEntry selection) const
+void CppLocatorFilter::accept(Core::LocatorFilterEntry selection,
+                              QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(selection.internalData);
     Core::EditorManager::openEditorAt(info->fileName(), info->line(), info->column());
 }

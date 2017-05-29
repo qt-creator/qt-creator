@@ -33,7 +33,6 @@ namespace Core {
 namespace Internal {
 
 class Locator;
-class LocatorWidget;
 
 /*!
   This filter provides the user with the list of available Locator filters.
@@ -44,19 +43,18 @@ class LocatorFiltersFilter : public ILocatorFilter
     Q_OBJECT
 
 public:
-    LocatorFiltersFilter(Locator *plugin,
-                         LocatorWidget *locatorWidget);
+    LocatorFiltersFilter(Locator *plugin);
 
     // ILocatorFilter
     void prepareSearch(const QString &entry) override;
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                          const QString &entry) override;
-    void accept(LocatorFilterEntry selection) const override;
+    void accept(LocatorFilterEntry selection,
+                QString *newText, int *selectionStart, int *selectionLength) const override;
     void refresh(QFutureInterface<void> &future) override;
 
 private:
     Locator *m_plugin;
-    LocatorWidget *m_locatorWidget;
     QStringList m_filterShortcutStrings;
     QStringList m_filterDisplayNames;
     QIcon m_icon;

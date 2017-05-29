@@ -180,8 +180,12 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
     return betterEntries;
 }
 
-void BaseFileFilter::accept(LocatorFilterEntry selection) const
+void BaseFileFilter::accept(LocatorFilterEntry selection,
+                            QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     EditorManager::openEditor(selection.internalData.toString(), Id(),
                               EditorManager::CanContainLineAndColumnNumber);
 }

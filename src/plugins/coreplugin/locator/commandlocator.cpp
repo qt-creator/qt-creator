@@ -95,8 +95,12 @@ QList<LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<LocatorFil
     return betterEntries;
 }
 
-void CommandLocator::accept(LocatorFilterEntry entry) const
+void CommandLocator::accept(LocatorFilterEntry entry,
+                            QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     // Retrieve action via index.
     const int index = entry.internalData.toInt();
     QTC_ASSERT(index >= 0 && index < d->commands.size(), return);

@@ -104,8 +104,12 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
     return betterEntries;
 }
 
-void FunctionFilter::accept(Core::LocatorFilterEntry selection) const
+void FunctionFilter::accept(Core::LocatorFilterEntry selection,
+                            QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     const LocatorData::Entry entry = qvariant_cast<LocatorData::Entry>(selection.internalData);
     Core::EditorManager::openEditorAt(entry.fileName, entry.line, entry.column);
 }

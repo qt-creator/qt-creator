@@ -86,8 +86,12 @@ QList<Core::LocatorFilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<
     return betterEntries;
 }
 
-void MacroLocatorFilter::accept(Core::LocatorFilterEntry selection) const
+void MacroLocatorFilter::accept(Core::LocatorFilterEntry selection,
+                                QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     // Give the focus back to the editor
     Core::IEditor *editor = Core::EditorManager::currentEditor();
     if (editor)

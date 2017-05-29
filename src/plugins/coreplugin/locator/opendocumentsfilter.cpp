@@ -114,8 +114,12 @@ void OpenDocumentsFilter::refresh(QFutureInterface<void> &future)
     QMetaObject::invokeMethod(this, "refreshInternally", Qt::BlockingQueuedConnection);
 }
 
-void OpenDocumentsFilter::accept(LocatorFilterEntry selection) const
+void OpenDocumentsFilter::accept(LocatorFilterEntry selection,
+                                 QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     EditorManager::openEditor(selection.internalData.toString(), Id(),
                               EditorManager::CanContainLineAndColumnNumber);
 }

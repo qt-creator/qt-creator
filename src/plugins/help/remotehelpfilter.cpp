@@ -143,8 +143,12 @@ QList<Core::LocatorFilterEntry> RemoteHelpFilter::matchesFor(QFutureInterface<Co
     return entries;
 }
 
-void RemoteHelpFilter::accept(Core::LocatorFilterEntry selection) const
+void RemoteHelpFilter::accept(Core::LocatorFilterEntry selection,
+                              QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     const QString &url = selection.displayName;
     if (!url.isEmpty())
         emit linkActivated(url);

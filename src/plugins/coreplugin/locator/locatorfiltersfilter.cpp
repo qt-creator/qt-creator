@@ -35,10 +35,8 @@ using namespace Core::Internal;
 
 Q_DECLARE_METATYPE(ILocatorFilter*)
 
-LocatorFiltersFilter::LocatorFiltersFilter(Locator *plugin,
-                                               LocatorWidget *locatorWidget):
+LocatorFiltersFilter::LocatorFiltersFilter(Locator *plugin):
     m_plugin(plugin),
-    m_locatorWidget(locatorWidget),
     m_icon(Utils::Icons::NEXT.icon())
 {
     setId("FiltersFilter");
@@ -87,15 +85,18 @@ QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Loca
     return entries;
 }
 
-void LocatorFiltersFilter::accept(LocatorFilterEntry selection) const
+void LocatorFiltersFilter::accept(LocatorFilterEntry selection,
+                                  QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(selectionLength)
     bool ok;
     int index = selection.internalData.toInt(&ok);
     QTC_ASSERT(ok && index >= 0 && index < m_filterShortcutStrings.size(), return);
     const QString shortcutString = m_filterShortcutStrings.at(index);
-    if (!shortcutString.isEmpty())
-        m_locatorWidget->show(shortcutString + QLatin1Char(' '),
-                              shortcutString.length() + 1);
+    if (!shortcutString.isEmpty()) {
+        *newText = shortcutString + QLatin1Char(' ');
+        *selectionStart = shortcutString.length() + 1;
+    }
 }
 
 void LocatorFiltersFilter::refresh(QFutureInterface<void> &future)

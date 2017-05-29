@@ -88,8 +88,12 @@ QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<LocatorF
     return value;
 }
 
-void LineNumberFilter::accept(LocatorFilterEntry selection) const
+void LineNumberFilter::accept(LocatorFilterEntry selection,
+                              QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     IEditor *editor = EditorManager::currentEditor();
     if (editor) {
         EditorManager::addCurrentPositionToNavigationHistory();

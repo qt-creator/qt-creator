@@ -47,8 +47,12 @@ QList<LocatorFilterEntry> ExternalToolsFilter::matchesFor(QFutureInterface<Locat
     return m_results;
 }
 
-void ExternalToolsFilter::accept(LocatorFilterEntry selection) const
+void ExternalToolsFilter::accept(LocatorFilterEntry selection,
+                                 QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     auto tool = selection.internalData.value<ExternalTool *>();
     QTC_ASSERT(tool, return);
 

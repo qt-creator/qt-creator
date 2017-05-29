@@ -283,7 +283,6 @@ LocatorWidget::LocatorWidget(Locator *qop) :
 
     setAttribute(Qt::WA_Hover);
     setFocusProxy(m_fileLineEdit);
-    setWindowTitle(tr("Locate..."));
     resize(200, 90);
     QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     sizePolicy.setHorizontalStretch(0);
@@ -296,7 +295,6 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     layout->setMargin(0);
     layout->addWidget(m_fileLineEdit);
 
-    setWindowIcon(Utils::Icons::ZOOM.icon());
     const QPixmap pixmap = Utils::Icons::MAGNIFIER.pixmap();
     m_fileLineEdit->setFiltering(true);
     m_fileLineEdit->setButtonPixmap(Utils::FancyLineEdit::Left, pixmap);
@@ -345,11 +343,27 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     m_showProgressTimer.setSingleShot(true);
     m_showProgressTimer.setInterval(50); // don't show progress for < 50ms tasks
     connect(&m_showProgressTimer, &QTimer::timeout, [this]() { setProgressIndicatorVisible(true);});
+
+    Command *locateCmd = ActionManager::command(Constants::LOCATE);
+    if (QTC_GUARD(locateCmd)) {
+        connect(locateCmd, &Command::keySequenceChanged, this, [this,locateCmd] {
+            updatePlaceholderText(locateCmd);
+        });
+        updatePlaceholderText(locateCmd);
+    }
+
+    connect(m_locatorPlugin, &Locator::filtersChanged, this, &LocatorWidget::updateFilterList);
+    updateFilterList();
 }
 
-void LocatorWidget::setPlaceholderText(const QString &text)
+void LocatorWidget::updatePlaceholderText(Command *command)
 {
-    m_fileLineEdit->setPlaceholderText(text);
+    QTC_ASSERT(command, return);
+    if (command->keySequence().isEmpty())
+        m_fileLineEdit->setPlaceholderText(tr("Type to locate"));
+    else
+        m_fileLineEdit->setPlaceholderText(tr("Type to locate (%1)").arg(
+                                        command->keySequence().toString(QKeySequence::NativeText)));
 }
 
 void LocatorWidget::updateFilterList()
@@ -658,10 +672,17 @@ void LocatorWidget::acceptCurrentEntry()
     if (!index.isValid())
         return;
     const LocatorFilterEntry entry = m_locatorModel->data(index, ItemDataRoles::ResultItemRole).value<LocatorFilterEntry>();
-    m_completionList->hide();
-    m_fileLineEdit->clearFocus();
     Q_ASSERT(entry.filter != nullptr);
-    entry.filter->accept(entry);
+    QString newText;
+    int selectionStart = -1;
+    int selectionLength = 0;
+    entry.filter->accept(entry, &newText, &selectionStart, &selectionLength);
+    if (newText.isEmpty()) {
+        m_completionList->hide();
+        m_fileLineEdit->clearFocus();
+    } else {
+        show(newText, selectionStart, selectionLength);
+    }
 }
 
 void LocatorWidget::show(const QString &text, int selectionStart, int selectionLength)

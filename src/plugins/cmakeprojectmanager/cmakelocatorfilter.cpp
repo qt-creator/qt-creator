@@ -83,8 +83,12 @@ QList<Core::LocatorFilterEntry> CMakeLocatorFilter::matchesFor(QFutureInterface<
     return m_result;
 }
 
-void CMakeLocatorFilter::accept(Core::LocatorFilterEntry selection) const
+void CMakeLocatorFilter::accept(Core::LocatorFilterEntry selection,
+                                QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     // Get the project containing the target selected
     const auto cmakeProject = qobject_cast<CMakeProject *>(
                 Utils::findOrDefault(SessionManager::projects(), [selection](Project *p) {

@@ -79,8 +79,12 @@ QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilt
     return value;
 }
 
-void ExecuteFilter::accept(LocatorFilterEntry selection) const
+void ExecuteFilter::accept(LocatorFilterEntry selection,
+                           QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     ExecuteFilter *p = const_cast<ExecuteFilter *>(this);
 
     const QString value = selection.displayName.trimmed();

@@ -58,7 +58,7 @@ public:
 
     void show(const QString &text, int selectionStart = -1, int selectionLength = 0);
 
-    void setPlaceholderText(const QString &text);
+    void updatePlaceholderText(Command *command);
 
 private:
     void showPopup();
