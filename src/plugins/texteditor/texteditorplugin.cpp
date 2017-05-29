@@ -37,7 +37,6 @@
 #include "snippets/snippetprovider.h"
 #include "texteditoractionhandler.h"
 #include "texteditorsettings.h"
-#include "textmarkregistry.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -130,8 +129,6 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     m_outlineFactory = new OutlineFactory;
     addAutoReleasedObject(m_outlineFactory);
 
-    m_baseTextMarkRegistry = new TextMarkRegistry(this);
-
     addAutoReleasedObject(new FindInFiles);
     addAutoReleasedObject(new FindInCurrentFile);
     addAutoReleasedObject(new FindInOpenFiles);
@@ -209,11 +206,6 @@ void TextEditorPlugin::extensionsInitialized()
 LineNumberFilter *TextEditorPlugin::lineNumberFilter()
 {
     return m_instance->m_lineNumberFilter;
-}
-
-TextMarkRegistry *TextEditorPlugin::baseTextMarkRegistry()
-{
-    return m_instance->m_baseTextMarkRegistry;
 }
 
 void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)

@@ -214,7 +214,6 @@ HEADERS += texteditorplugin.h \
     circularclipboardassist.h \
     textmark.h \
     codeassist/keywordscompletionassist.h \
-    textmarkregistry.h \
     marginsettings.h \
     blockrange.h \
     completionsettingspage.h \

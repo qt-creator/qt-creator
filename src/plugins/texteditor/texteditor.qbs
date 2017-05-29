@@ -143,7 +143,6 @@ Project {
             "texteditorsettings.h",
             "textmark.cpp",
             "textmark.h",
-            "textmarkregistry.h",
             "textstyles.h",
             "typingsettings.cpp",
             "typingsettings.h",

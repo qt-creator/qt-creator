@@ -25,7 +25,6 @@
 
 #include "textmark.h"
 #include "textdocument.h"
-#include "textmarkregistry.h"
 #include "texteditor.h"
 #include "texteditorplugin.h"
 
@@ -41,6 +40,32 @@ using namespace TextEditor::Internal;
 
 namespace TextEditor {
 
+class TextMarkRegistry : public QObject
+{
+    Q_OBJECT
+public:
+    static void add(TextMark *mark);
+    static bool remove(TextMark *mark);
+    static Utils::Theme::Color categoryColor(Core::Id category);
+    static bool categoryHasColor(Core::Id category);
+    static void setCategoryColor(Core::Id category, Utils::Theme::Color color);
+    static QString defaultToolTip(Core::Id category);
+    static void setDefaultToolTip(Core::Id category, const QString &toolTip);
+
+private:
+    TextMarkRegistry(QObject *parent);
+    static TextMarkRegistry* instance();
+    void editorOpened(Core::IEditor *editor);
+    void documentRenamed(Core::IDocument *document, const QString &oldName, const QString &newName);
+    void allDocumentsRenamed(const QString &oldName, const QString &newName);
+
+    QHash<Utils::FileName, QSet<TextMark *> > m_marks;
+    QHash<Core::Id, Utils::Theme::Color> m_colors;
+    QHash<Core::Id, QString> m_defaultToolTips;
+};
+
+TextMarkRegistry *m_instance = nullptr;
+
 TextMark::TextMark(const QString &fileName, int lineNumber, Id category, double widthFactor)
     : m_baseTextDocument(0),
       m_fileName(fileName),
@@ -51,12 +76,12 @@ TextMark::TextMark(const QString &fileName, int lineNumber, Id category, double 
       m_widthFactor(widthFactor)
 {
     if (!m_fileName.isEmpty())
-        TextEditorPlugin::baseTextMarkRegistry()->add(this);
+        TextMarkRegistry::add(this);
 }
 
 TextMark::~TextMark()
 {
-    TextEditorPlugin::baseTextMarkRegistry()->remove(this);
+    TextMarkRegistry::remove(this);
     if (m_baseTextDocument)
         m_baseTextDocument->removeMark(this);
     m_baseTextDocument = 0;
@@ -72,10 +97,10 @@ void TextMark::updateFileName(const QString &fileName)
     if (fileName == m_fileName)
         return;
     if (!m_fileName.isEmpty())
-        TextEditorPlugin::baseTextMarkRegistry()->remove(this);
+        TextMarkRegistry::remove(this);
     m_fileName = fileName;
     if (!m_fileName.isEmpty())
-        TextEditorPlugin::baseTextMarkRegistry()->add(this);
+        TextMarkRegistry::add(this);
 }
 
 int TextMark::lineNumber() const
@@ -121,22 +146,22 @@ const QIcon &TextMark::icon() const
 
 Theme::Color TextMark::categoryColor(Id category)
 {
-    return TextEditorPlugin::baseTextMarkRegistry()->categoryColor(category);
+    return TextMarkRegistry::categoryColor(category);
 }
 
 bool TextMark::categoryHasColor(Id category)
 {
-    return TextEditorPlugin::baseTextMarkRegistry()->categoryHasColor(category);
+    return TextMarkRegistry::categoryHasColor(category);
 }
 
 void TextMark::setCategoryColor(Id category, Theme::Color color)
 {
-    TextEditorPlugin::baseTextMarkRegistry()->setCategoryColor(category, color);
+    TextMarkRegistry::setCategoryColor(category, color);
 }
 
 void TextMark::setDefaultToolTip(Id category, const QString &toolTip)
 {
-    TextEditorPlugin::baseTextMarkRegistry()->setDefaultToolTip(category, toolTip);
+    TextMarkRegistry::setDefaultToolTip(category, toolTip);
 }
 
 void TextMark::updateMarker()
@@ -219,7 +244,7 @@ bool TextMark::addToolTipContent(QLayout *target)
 {
     QString text = m_toolTip;
     if (text.isEmpty()) {
-        text = TextEditorPlugin::baseTextMarkRegistry()->defaultToolTip(m_category);
+        text = TextMarkRegistry::defaultToolTip(m_category);
         if (text.isEmpty())
             return false;
     }
@@ -267,7 +292,7 @@ TextMarkRegistry::TextMarkRegistry(QObject *parent)
 
 void TextMarkRegistry::add(TextMark *mark)
 {
-    m_marks[FileName::fromString(mark->fileName())].insert(mark);
+    instance()->m_marks[FileName::fromString(mark->fileName())].insert(mark);
     auto document = qobject_cast<TextDocument*>(DocumentModel::documentForFilePath(mark->fileName()));
     if (!document)
         return;
@@ -276,38 +301,45 @@ void TextMarkRegistry::add(TextMark *mark)
 
 bool TextMarkRegistry::remove(TextMark *mark)
 {
-    return m_marks[FileName::fromString(mark->fileName())].remove(mark);
+    return instance()->m_marks[FileName::fromString(mark->fileName())].remove(mark);
 }
 
 Theme::Color TextMarkRegistry::categoryColor(Id category)
 {
-    return m_colors.value(category, Theme::ProjectExplorer_TaskWarn_TextMarkColor);
+    return instance()->m_colors.value(category, Theme::ProjectExplorer_TaskWarn_TextMarkColor);
 }
 
 bool TextMarkRegistry::categoryHasColor(Id category)
 {
-    return m_colors.contains(category);
+    return instance()->m_colors.contains(category);
 }
 
 void TextMarkRegistry::setCategoryColor(Id category, Theme::Color newColor)
 {
-    Theme::Color &color = m_colors[category];
+    Theme::Color &color = instance()->m_colors[category];
     if (color == newColor)
         return;
     color = newColor;
 }
 
-QString TextMarkRegistry::defaultToolTip(Id category) const
+QString TextMarkRegistry::defaultToolTip(Id category)
 {
-    return m_defaultToolTips[category];
+    return instance()->m_defaultToolTips[category];
 }
 
 void TextMarkRegistry::setDefaultToolTip(Id category, const QString &toolTip)
 {
-    QString &defaultToolTip = m_defaultToolTips[category];
+    QString &defaultToolTip = instance()->m_defaultToolTips[category];
     if (defaultToolTip == toolTip)
         return;
     defaultToolTip = toolTip;
+}
+
+TextMarkRegistry *TextMarkRegistry::instance()
+{
+    if (!m_instance)
+        m_instance = new TextMarkRegistry(TextEditorPlugin::instance());
+    return m_instance;
 }
 
 void TextMarkRegistry::editorOpened(IEditor *editor)
@@ -361,3 +393,5 @@ void TextMarkRegistry::allDocumentsRenamed(const QString &oldName, const QString
 }
 
 } // namespace TextEditor
+
+#include "textmark.moc"

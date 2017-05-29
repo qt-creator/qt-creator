@@ -45,8 +45,6 @@ namespace TextEditor {
 class BaseTextEditor;
 class TextDocument;
 
-namespace Internal { class TextMarkRegistry; }
-
 class TEXTEDITOR_EXPORT TextMark
 {
 public:
@@ -102,7 +100,6 @@ public:
 
 private:
     Q_DISABLE_COPY(TextMark)
-    friend class Internal::TextMarkRegistry;
 
     TextDocument *m_baseTextDocument;
     QString m_fileName;

@@ -37,7 +37,6 @@ namespace Internal {
 
 class LineNumberFilter;
 class OutlineFactory;
-class TextMarkRegistry;
 
 class TextEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -55,7 +54,6 @@ public:
     void extensionsInitialized();
 
     static LineNumberFilter *lineNumberFilter();
-    static TextMarkRegistry *baseTextMarkRegistry();
 
 private:
     void updateSearchResultsFont(const TextEditor::FontSettings &);
@@ -65,7 +63,6 @@ private:
     TextEditorSettings *m_settings = nullptr;
     LineNumberFilter *m_lineNumberFilter = nullptr;
     OutlineFactory *m_outlineFactory = nullptr;
-    TextMarkRegistry *m_baseTextMarkRegistry = nullptr;
 
 #ifdef WITH_TESTS
 private slots:
