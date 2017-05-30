@@ -291,6 +291,9 @@ int PyType::code() const
         if (FAILED(ExtensionCommandContext::instance()->symbols()->CreateSymbolGroup2(&sg)))
             return TypeCodeStruct;
 
+        if (knownType(name(), 0) != KT_Unknown)
+            return TypeCodeStruct;
+
         const std::string helperValueName = SymbolGroupValue::pointedToSymbolName(0, name(true));
         ULONG index = DEBUG_ANY_ID;
         if (SUCCEEDED(sg->AddSymbol(helperValueName.c_str(), &index)))
