@@ -5514,6 +5514,14 @@ void tst_Dumpers::dumper_data()
                 + Check("b6", "<10 items>", "TVector<int>") % GccVersion(0, 0);
 
 
+    QTest::newRow("Typedef3")
+            << Data("typedef enum { Value } Unnamed;\n"
+                    "struct Foo { Unnamed u = Value; };\n",
+                    "Foo foo;")
+               + Cxx11Profile()
+               + Check("foo.u", "Value (0)", "Unnamed");
+
+
     QTest::newRow("Struct")
             << Data(fooData,
 
