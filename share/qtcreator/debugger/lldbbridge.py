@@ -502,9 +502,6 @@ class Dumper(DumperBase):
 
     def nativeTypeId(self, nativeType):
         name = self.typeName(nativeType)
-
-    def nativeTypeId(self, nativeType):
-        name = self.typeName(nativeType)
         if name is None or len(name) == 0:
             c = '0'
         elif name == '(anonymous struct)' and nativeType.GetTypeClass() == lldb.eTypeClassStruct:
