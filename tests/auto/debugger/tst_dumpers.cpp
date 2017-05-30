@@ -1505,7 +1505,7 @@ void tst_Dumpers::dumper()
                 "!qtcreatorcdbext.script theDumper.setupDumpers()\n"
                 ".frame 1\n"
                 "!qtcreatorcdbext.pid\n"
-                "!qtcreatorcdbext.script -t 42 theDumper.fetchVariables({"
+                "!qtcreatorcdbext.script -t 42 theDumper.fetchVariables({" + dumperOptions +
                 "'token':2,'fancy':1,'forcens':1,"
                 "'autoderef':1,'dyntype':1,'passexceptions':0,"
                 "'testing':1,'qobjectnames':1,"
