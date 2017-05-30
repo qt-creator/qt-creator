@@ -5390,12 +5390,14 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("Bitfields")
             << Data("",
+                    "enum E { V1, V2 };"
                     "struct S\n"
                     "{\n"
-                    "    S() : x(2), y(3), z(39), c(1), b(0), f(5), d(6), i(7) {}\n"
+                    "    S() : x(2), y(3), z(39), e(V2), c(1), b(0), f(5), d(6), i(7) {}\n"
                     "    unsigned int x : 3;\n"
                     "    unsigned int y : 4;\n"
                     "    unsigned int z : 18;\n"
+                    "    E e : 3;\n"
                     "    bool c : 1;\n"
                     "    bool b;\n"
                     "    float f;\n"
@@ -5414,9 +5416,11 @@ void tst_Dumpers::dumper_data()
                + Check("s.x", "2", "unsigned int : 3") % NoCdbEngine
                + Check("s.y", "3", "unsigned int : 4") % NoCdbEngine
                + Check("s.z", "39", "unsigned int : 18") % NoCdbEngine
+               + Check("s.e", "1", "E : 3") % NoCdbEngine
                + Check("s.x", "2", "unsigned int") % CdbEngine
                + Check("s.y", "3", "unsigned int") % CdbEngine
-               + Check("s.z", "39", "unsigned int") % CdbEngine;
+               + Check("s.z", "39", "unsigned int") % CdbEngine
+               + Check("s.e", "V2 (1)", TypePattern("main::[a-zA-Z_]*::E")) % CdbEngine;
 
 
     QTest::newRow("Function")
