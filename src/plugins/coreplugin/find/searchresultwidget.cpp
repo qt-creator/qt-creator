@@ -157,6 +157,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_label = new QLabel(m_descriptionContainer);
     m_label->setVisible(false);
     m_searchTerm = new QLabel(m_descriptionContainer);
+    m_searchTerm->setTextFormat(Qt::PlainText);
     m_searchTerm->setVisible(false);
     descriptionLayout->addWidget(m_label);
     descriptionLayout->addWidget(m_searchTerm);
