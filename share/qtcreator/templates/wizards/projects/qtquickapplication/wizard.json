@@ -24,7 +24,7 @@
         { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" },
         { "key": "UiSupport", "value": "%{JS: '%{QtQuickVersion}' !== '2.3' }" },
         { "key": "IsUiFileInUse", "value": "%{JS: %{UiSupport} && %{QmlUiSplit} }" },
-        { "key": "UseVirtualKeyboard", "value": "%{JS: [ %{Plugins} ].indexOf('Boot2Qt') >= 0}" }
+        { "key": "UseVirtualKeyboard", "value": "%{JS: [ %{Plugins} ].indexOf('Boot2Qt') >= 0 || [ %{Plugins} ].indexOf('Boot2QtQdb') >= 0}" }
     ],
 
     "pages":
