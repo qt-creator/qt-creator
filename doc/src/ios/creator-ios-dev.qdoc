@@ -89,6 +89,13 @@
 
                 \image qtcreator-ios-add-kit.png "Build & Run Settings"
 
+            \li In \uicontrol {iOS Settings}, select the development team to use
+                for signing and provisioning applications. You must configure
+                development teams and provisioning profiles in Xcode using an
+                Apple developer account.
+
+                \image qtcreator-build-settings-ios.png "iOS build settings"
+
         \endlist
 
         \li Select \uicontrol Run to specify run settings.
