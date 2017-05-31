@@ -304,14 +304,14 @@ void QbsProjectManagerPlugin::projectWasAdded(Project *project)
 void QbsProjectManagerPlugin::updateContextActions()
 {
     QbsProject *project = qobject_cast<Internal::QbsProject *>(ProjectTree::currentProject());
-    Node *node = ProjectTree::currentNode();
+    const Node *node = ProjectTree::findCurrentNode();
     bool isEnabled = !BuildManager::isBuilding(project)
             && project && !project->isParsing()
             && node && node->isEnabled();
 
     bool isFile = project && node && (node->nodeType() == NodeType::File);
-    bool isProduct = project && node && dynamic_cast<QbsProductNode *>(node);
-    QbsProjectNode *subproject = dynamic_cast<QbsProjectNode *>(node);
+    const bool isProduct = project && node && dynamic_cast<const QbsProductNode *>(node);
+    const QbsProjectNode *subproject = dynamic_cast<const QbsProjectNode *>(node);
     bool isSubproject = project && subproject && subproject != project->rootProjectNode();
 
     m_reparseQbsCtx->setEnabled(isEnabled);
@@ -407,7 +407,7 @@ void QbsProjectManagerPlugin::projectChanged()
 
 void QbsProjectManagerPlugin::buildFileContextMenu()
 {
-    Node *node = ProjectTree::currentNode();
+    const Node *node = ProjectTree::findCurrentNode();
     QTC_ASSERT(node, return);
     QbsProject *project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
     QTC_ASSERT(project, return);
@@ -444,12 +444,12 @@ void QbsProjectManagerPlugin::rebuildProductContextMenu()
 
 void QbsProjectManagerPlugin::runStepsForProductContextMenu(const QList<Core::Id> &stepTypes)
 {
-    Node *node = ProjectTree::currentNode();
+    const Node *node = ProjectTree::findCurrentNode();
     QTC_ASSERT(node, return);
     QbsProject *project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
     QTC_ASSERT(project, return);
 
-    const QbsProductNode * const productNode = dynamic_cast<QbsProductNode *>(node);
+    const QbsProductNode * const productNode = dynamic_cast<const QbsProductNode *>(node);
     QTC_ASSERT(productNode, return);
 
     runStepsForProducts(project, {QbsProject::uniqueProductName(productNode->qbsProductData())},
@@ -509,12 +509,12 @@ void QbsProjectManagerPlugin::rebuildSubprojectContextMenu()
 
 void QbsProjectManagerPlugin::runStepsForSubprojectContextMenu(const QList<Core::Id> &stepTypes)
 {
-    Node *node = ProjectTree::currentNode();
+    const Node *node = ProjectTree::findCurrentNode();
     QTC_ASSERT(node, return);
     QbsProject *project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
     QTC_ASSERT(project, return);
 
-    QbsProjectNode *subProject = dynamic_cast<QbsProjectNode *>(node);
+    const QbsProjectNode *subProject = dynamic_cast<const QbsProjectNode *>(node);
     QTC_ASSERT(subProject, return);
 
     QStringList toBuild;

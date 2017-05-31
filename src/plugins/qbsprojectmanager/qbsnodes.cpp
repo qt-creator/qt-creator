@@ -67,20 +67,20 @@ static QIcon generateIcon(const QString &overlay)
 namespace QbsProjectManager {
 namespace Internal {
 
-static QbsProjectNode *parentQbsProjectNode(ProjectExplorer::Node *node)
+static const QbsProjectNode *parentQbsProjectNode(const ProjectExplorer::Node *node)
 {
-    for (ProjectExplorer::FolderNode *pn = node->managingProject(); pn; pn = pn->parentProjectNode()) {
-        QbsProjectNode *prjNode = dynamic_cast<QbsProjectNode *>(pn);
+    for (const ProjectExplorer::FolderNode *pn = node->managingProject(); pn; pn = pn->parentProjectNode()) {
+        const QbsProjectNode *prjNode = dynamic_cast<const QbsProjectNode *>(pn);
         if (prjNode)
             return prjNode;
     }
     return 0;
 }
 
-static QbsProductNode *parentQbsProductNode(ProjectExplorer::Node *node)
+static const QbsProductNode *parentQbsProductNode(const ProjectExplorer::Node *node)
 {
     for (; node; node = node->parentFolderNode()) {
-        QbsProductNode *prdNode = dynamic_cast<QbsProductNode *>(node);
+        const QbsProductNode *prdNode = dynamic_cast<const QbsProductNode *>(node);
         if (prdNode)
             return prdNode;
     }
@@ -225,7 +225,7 @@ public:
 };
 
 
-static bool supportsNodeAction(ProjectAction action, Node *node)
+static bool supportsNodeAction(ProjectAction action, const Node *node)
 {
     const QbsProject * const project = parentQbsProjectNode(node)->project();
     if (!project->isProjectEditable())
@@ -270,7 +270,7 @@ QbsFolderNode::QbsFolderNode(const Utils::FileName &folderPath, ProjectExplorer:
 {
 }
 
-bool QbsFolderNode::supportsAction(ProjectAction action, Node *node) const
+bool QbsFolderNode::supportsAction(ProjectAction action, const Node *node) const
 {
     return supportsNodeAction(action, node);
 }
@@ -302,7 +302,7 @@ QbsGroupNode::QbsGroupNode(const qbs::GroupData &grp, const QString &productPath
     m_qbsGroupData = grp;
 }
 
-bool QbsGroupNode::supportsAction(ProjectAction action, Node *node) const
+bool QbsGroupNode::supportsAction(ProjectAction action, const Node *node) const
 {
     if (action == AddNewFile || action == AddExistingFile)
         return true;
@@ -316,13 +316,13 @@ bool QbsGroupNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
     if (!notAdded)
         notAdded = &notAddedDummy;
 
-    QbsProjectNode *prjNode = parentQbsProjectNode(this);
+    const QbsProjectNode *prjNode = parentQbsProjectNode(this);
     if (!prjNode || !prjNode->qbsProject().isValid()) {
         *notAdded += filePaths;
         return false;
     }
 
-    QbsProductNode *prdNode = parentQbsProductNode(this);
+    const QbsProductNode *prdNode = parentQbsProductNode(this);
     if (!prdNode || !prdNode->qbsProductData().isValid()) {
         *notAdded += filePaths;
         return false;
@@ -338,13 +338,13 @@ bool QbsGroupNode::removeFiles(const QStringList &filePaths, QStringList *notRem
     if (!notRemoved)
         notRemoved = &notRemovedDummy;
 
-    QbsProjectNode *prjNode = parentQbsProjectNode(this);
+    const QbsProjectNode *prjNode = parentQbsProjectNode(this);
     if (!prjNode || !prjNode->qbsProject().isValid()) {
         *notRemoved += filePaths;
         return false;
     }
 
-    QbsProductNode *prdNode = parentQbsProductNode(this);
+    const QbsProductNode *prdNode = parentQbsProductNode(this);
     if (!prdNode || !prdNode->qbsProductData().isValid()) {
         *notRemoved += filePaths;
         return false;
@@ -356,10 +356,10 @@ bool QbsGroupNode::removeFiles(const QStringList &filePaths, QStringList *notRem
 
 bool QbsGroupNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
-    QbsProjectNode * const prjNode = parentQbsProjectNode(this);
+    const QbsProjectNode *prjNode = parentQbsProjectNode(this);
     if (!prjNode || !prjNode->qbsProject().isValid())
         return false;
-    QbsProductNode * const prdNode = parentQbsProductNode(this);
+    const QbsProductNode *prdNode = parentQbsProductNode(this);
     if (!prdNode || !prdNode->qbsProductData().isValid())
         return false;
 
@@ -384,7 +384,7 @@ bool QbsProductNode::showInSimpleTree() const
     return true;
 }
 
-bool QbsProductNode::supportsAction(ProjectAction action, Node *node) const
+bool QbsProductNode::supportsAction(ProjectAction action, const Node *node) const
 {
     if (action == AddNewFile || action == AddExistingFile)
         return true;
@@ -398,7 +398,7 @@ bool QbsProductNode::addFiles(const QStringList &filePaths, QStringList *notAdde
     if (!notAdded)
         notAdded = &notAddedDummy;
 
-    QbsProjectNode *prjNode = parentQbsProjectNode(this);
+    const QbsProjectNode *prjNode = parentQbsProjectNode(this);
     if (!prjNode || !prjNode->qbsProject().isValid()) {
         *notAdded += filePaths;
         return false;
@@ -418,7 +418,7 @@ bool QbsProductNode::removeFiles(const QStringList &filePaths, QStringList *notR
     if (!notRemoved)
         notRemoved = &notRemovedDummy;
 
-    QbsProjectNode *prjNode = parentQbsProjectNode(this);
+    const QbsProjectNode *prjNode = parentQbsProjectNode(this);
     if (!prjNode || !prjNode->qbsProject().isValid()) {
         *notRemoved += filePaths;
         return false;
@@ -435,7 +435,7 @@ bool QbsProductNode::removeFiles(const QStringList &filePaths, QStringList *notR
 
 bool QbsProductNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
-    QbsProjectNode * const prjNode = parentQbsProjectNode(this);
+    const QbsProjectNode * prjNode = parentQbsProjectNode(this);
     if (!prjNode || !prjNode->qbsProject().isValid())
         return false;
     const qbs::GroupData grp = findMainQbsGroup(m_qbsProductData);

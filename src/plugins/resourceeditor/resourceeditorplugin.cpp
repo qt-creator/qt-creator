@@ -245,7 +245,7 @@ void ResourceEditorPlugin::onRefresh()
 
 void ResourceEditorPlugin::addPrefixContextMenu()
 {
-    auto topLevel = dynamic_cast<ResourceTopLevelNode *>(ProjectTree::currentNode());
+    auto topLevel = dynamic_cast<ResourceTopLevelNode *>(ProjectTree::findCurrentNode());
     QTC_ASSERT(topLevel, return);
     PrefixLangDialog dialog(tr("Add Prefix"), QString(), QString(), Core::ICore::mainWindow());
     if (dialog.exec() != QDialog::Accepted)
@@ -258,7 +258,7 @@ void ResourceEditorPlugin::addPrefixContextMenu()
 
 void ResourceEditorPlugin::removePrefixContextMenu()
 {
-    auto rfn = dynamic_cast<ResourceFolderNode *>(ProjectTree::currentNode());
+    auto rfn = dynamic_cast<ResourceFolderNode *>(ProjectTree::findCurrentNode());
     QTC_ASSERT(rfn, return);
     if (QMessageBox::question(Core::ICore::mainWindow(),
                               tr("Remove Prefix"),
@@ -271,7 +271,7 @@ void ResourceEditorPlugin::removePrefixContextMenu()
 
 void ResourceEditorPlugin::removeNonExisting()
 {
-    auto topLevel = dynamic_cast<ResourceTopLevelNode *>(ProjectTree::currentNode());
+    auto topLevel = dynamic_cast<ResourceTopLevelNode *>(ProjectTree::findCurrentNode());
     QTC_ASSERT(topLevel, return);
     topLevel->removeNonExistingFiles();
 }
@@ -283,7 +283,7 @@ void ResourceEditorPlugin::renameFileContextMenu()
 
 void ResourceEditorPlugin::removeFileContextMenu()
 {
-    auto rfn = dynamic_cast<ResourceFolderNode *>(ProjectTree::currentNode());
+    auto rfn = dynamic_cast<ResourceFolderNode *>(ProjectTree::findCurrentNode());
     QTC_ASSERT(rfn, return);
     QString path = rfn->filePath().toString();
     FolderNode *parent = rfn->parentFolderNode();
@@ -296,26 +296,26 @@ void ResourceEditorPlugin::removeFileContextMenu()
 
 void ResourceEditorPlugin::openEditorContextMenu()
 {
-    Core::EditorManager::openEditor(ProjectTree::currentNode()->filePath().toString());
+    Core::EditorManager::openEditor(ProjectTree::findCurrentNode()->filePath().toString());
 }
 
 void ResourceEditorPlugin::copyPathContextMenu()
 {
-    auto node = dynamic_cast<ResourceFileNode *>(ProjectTree::currentNode());
+    auto node = dynamic_cast<ResourceFileNode *>(ProjectTree::findCurrentNode());
     QTC_ASSERT(node, return);
     QApplication::clipboard()->setText(QLatin1String(resourcePrefix) + node->qrcPath());
 }
 
 void ResourceEditorPlugin::copyUrlContextMenu()
 {
-    auto node = dynamic_cast<ResourceFileNode *>(ProjectTree::currentNode());
+    auto node = dynamic_cast<ResourceFileNode *>(ProjectTree::findCurrentNode());
     QTC_ASSERT(node, return);
     QApplication::clipboard()->setText(QLatin1String(urlPrefix) + node->qrcPath());
 }
 
 void ResourceEditorPlugin::renamePrefixContextMenu()
 {
-    auto node = dynamic_cast<ResourceFolderNode *>(ProjectTree::currentNode());
+    auto node = dynamic_cast<ResourceFolderNode *>(ProjectTree::findCurrentNode());
     QTC_ASSERT(node, return);
 
     PrefixLangDialog dialog(tr("Rename Prefix"), node->prefix(), node->lang(), Core::ICore::mainWindow());
@@ -330,8 +330,8 @@ void ResourceEditorPlugin::renamePrefixContextMenu()
 
 void ResourceEditorPlugin::updateContextActions()
 {
-    Node *node = ProjectTree::currentNode();
-    bool isResourceNode = dynamic_cast<ResourceTopLevelNode *>(node);
+    const Node *node = ProjectTree::findCurrentNode();
+    const bool isResourceNode = dynamic_cast<const ResourceTopLevelNode *>(node);
     m_addPrefix->setEnabled(isResourceNode);
     m_addPrefix->setVisible(isResourceNode);
 
@@ -352,7 +352,7 @@ void ResourceEditorPlugin::updateContextActions()
     m_openInEditor->setEnabled(isResourceNode);
     m_openInEditor->setVisible(isResourceNode);
 
-    bool isResourceFolder = dynamic_cast<ResourceFolderNode *>(node);
+    const bool isResourceFolder = dynamic_cast<const ResourceFolderNode *>(node);
     m_removePrefix->setEnabled(isResourceFolder);
     m_removePrefix->setVisible(isResourceFolder);
 
@@ -368,13 +368,13 @@ void ResourceEditorPlugin::updateContextActions()
         m_openWithMenu->clear();
     m_openWithMenu->menuAction()->setVisible(!m_openWithMenu->actions().isEmpty());
 
-    bool isResourceFile = dynamic_cast<ResourceFileNode *>(node);
+    const bool isResourceFile = dynamic_cast<const ResourceFileNode *>(node);
     m_copyPath->setEnabled(isResourceFile);
     m_copyPath->setVisible(isResourceFile);
     m_copyUrl->setEnabled(isResourceFile);
     m_copyUrl->setVisible(isResourceFile);
     if (isResourceFile) {
-        auto fileNode = dynamic_cast<ResourceFileNode *>(node);
+        auto fileNode = dynamic_cast<const ResourceFileNode *>(node);
         QTC_ASSERT(fileNode, return);
         QString qrcPath = fileNode->qrcPath();
         m_copyPath->setParameter(QLatin1String(resourcePrefix) + qrcPath);

@@ -47,7 +47,7 @@ public:
     QmakePriFile *priFile() const;
 
     // ProjectNode interface
-    bool supportsAction(ProjectExplorer::ProjectAction action, Node *node) const override;
+    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
 
     bool showInSimpleTree() const override { return false; }
 

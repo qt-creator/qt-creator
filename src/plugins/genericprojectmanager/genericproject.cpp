@@ -126,7 +126,7 @@ public:
 
     bool showInSimpleTree() const override { return true; }
 
-    bool supportsAction(ProjectAction action, Node *) const override
+    bool supportsAction(ProjectAction action, const Node *) const override
     {
         return action == AddNewFile
                 || action == AddExistingFile

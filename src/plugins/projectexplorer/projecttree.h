@@ -51,7 +51,7 @@ public:
     static ProjectTree *instance();
 
     static Project *currentProject();
-    static Node *currentNode();
+    static Node *findCurrentNode();
 
     // Integration with ProjectTreeWidget
     static void registerWidget(Internal::ProjectTreeWidget *widget);
@@ -102,7 +102,7 @@ private:
     static ProjectTree *s_instance;
     QList<QPointer<Internal::ProjectTreeWidget>> m_projectTreeWidgets;
     QVector<TreeManagerFunction> m_treeManagers;
-    QPointer<Node> m_currentNode;
+    Node *m_currentNode = nullptr;
     Project *m_currentProject = nullptr;
     Internal::ProjectTreeWidget *m_focusForContextMenu = nullptr;
     Core::Context m_lastProjectContext;

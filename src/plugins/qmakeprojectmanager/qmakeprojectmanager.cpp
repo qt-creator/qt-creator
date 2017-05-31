@@ -55,7 +55,7 @@ namespace QmakeProjectManager {
 
 Node *QmakeManager::contextNode()
 {
-    return ProjectTree::currentNode();
+    return ProjectTree::findCurrentNode();
 }
 
 Project *QmakeManager::contextProject()

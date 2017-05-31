@@ -103,8 +103,9 @@ Project *ProjectTree::currentProject()
     return s_instance->m_currentProject;
 }
 
-Node *ProjectTree::currentNode()
+Node *ProjectTree::findCurrentNode()
 {
+    s_instance->update();
     return s_instance->m_currentNode;
 }
 

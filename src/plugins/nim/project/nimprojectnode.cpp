@@ -37,7 +37,7 @@ NimProjectNode::NimProjectNode(NimProject &project,
     , m_project(project)
 {}
 
-bool NimProjectNode::supportsAction(ProjectAction action, Node *node) const
+bool NimProjectNode::supportsAction(ProjectAction action, const Node *node) const
 {
     switch (node->nodeType()) {
     case NodeType::File:

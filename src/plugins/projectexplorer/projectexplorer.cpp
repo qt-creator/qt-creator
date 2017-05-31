@@ -2154,11 +2154,11 @@ QList<QPair<QString, QString> > ProjectExplorerPluginPrivate::recentProjects() c
     });
 }
 
-static QString pathOrDirectoryFor(Node *node, bool dir)
+static QString pathOrDirectoryFor(const Node *node, bool dir)
 {
     Utils::FileName path = node->filePath();
     QString location;
-    FolderNode *folder = node->asFolderNode();
+    const FolderNode *folder = node->asFolderNode();
     if (node->nodeType() == NodeType::VirtualFolder && folder) {
         // Virtual Folder case
         // If there are files directly below or no subfolders, take the folder path
@@ -2192,12 +2192,12 @@ static QString pathOrDirectoryFor(Node *node, bool dir)
     return location;
 }
 
-static QString pathFor(Node *node)
+static QString pathFor(const Node *node)
 {
     return pathOrDirectoryFor(node, false);
 }
 
-static QString directoryFor(Node *node)
+static QString directoryFor(const Node *node)
 {
     return pathOrDirectoryFor(node, true);
 }
@@ -2448,8 +2448,8 @@ void ProjectExplorerPlugin::buildProject(Project *p)
 
 void ProjectExplorerPluginPrivate::runProjectContextMenu()
 {
-    Node *node = ProjectTree::currentNode();
-    ProjectNode *projectNode = node ? node->asProjectNode() : nullptr;
+    const Node *node = ProjectTree::findCurrentNode();
+    const ProjectNode *projectNode = node ? node->asProjectNode() : nullptr;
     if (projectNode == ProjectTree::currentProject()->rootProjectNode() || !projectNode) {
         m_instance->runProject(ProjectTree::currentProject(), Constants::NORMAL_RUN_MODE);
     } else {
@@ -2985,14 +2985,14 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
     runMenu->menu()->clear();
     runMenu->menu()->menuAction()->setVisible(false);
 
-    Node *currentNode = ProjectTree::currentNode();
+    const Node *currentNode = ProjectTree::findCurrentNode();
 
     if (currentNode && currentNode->managingProject()) {
         ProjectNode *pn;
-        if (ContainerNode *cn = currentNode->asContainerNode())
+        if (const ContainerNode *cn = currentNode->asContainerNode())
             pn = cn->rootProjectNode();
         else
-            pn = currentNode->asProjectNode();
+            pn = const_cast<ProjectNode*>(currentNode->asProjectNode());
 
         if (pn) {
             if (ProjectTree::currentProject() && pn == ProjectTree::currentProject()->rootProjectNode()) {
@@ -3047,7 +3047,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             m_removeFileAction->setVisible(!enableDelete || enableRemove);
             m_renameFileAction->setEnabled(supports(Rename));
             const bool currentNodeIsTextFile = isTextFile(
-                        ProjectTree::currentNode()->filePath().toString());
+                        currentNode->filePath().toString());
             m_diffFileAction->setEnabled(isDiffServiceAvailable()
                         && currentNodeIsTextFile && TextEditor::TextDocument::currentTextDocument());
 
@@ -3055,7 +3055,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             m_duplicateFileAction->setEnabled(supports(DuplicateFile));
 
             EditorManager::populateOpenWithMenu(m_openWithMenu,
-                                                ProjectTree::currentNode()->filePath().toString());
+                                                currentNode->filePath().toString());
         }
 
         if (supports(HidePathActions)) {
@@ -3096,7 +3096,7 @@ void ProjectExplorerPluginPrivate::updateLocationSubMenus()
     QTC_CHECK(folderMenu->actions().isEmpty());
 
     const FolderNode *const fn
-            = ProjectTree::currentNode() ? ProjectTree::currentNode()->asFolderNode() : nullptr;
+            = ProjectTree::findCurrentNode() ? ProjectTree::findCurrentNode()->asFolderNode() : nullptr;
     const QList<FolderNode::LocationInfo> locations
             = fn ? fn->locationInfo() : QList<FolderNode::LocationInfo>();
 
@@ -3124,11 +3124,12 @@ void ProjectExplorerPluginPrivate::updateLocationSubMenus()
 
 void ProjectExplorerPluginPrivate::addNewFile()
 {
-    QTC_ASSERT(ProjectTree::currentNode(), return);
-    QString location = directoryFor(ProjectTree::currentNode());
+    Node* currentNode = ProjectTree::findCurrentNode();
+    QTC_ASSERT(currentNode, return);
+    QString location = directoryFor(currentNode);
 
     QVariantMap map;
-    map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(ProjectTree::currentNode()));
+    map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(currentNode));
     if (ProjectTree::currentProject()) {
         QList<Id> profileIds = Utils::transform(ProjectTree::currentProject()->targets(), &Target::id);
         map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), QVariant::fromValue(profileIds));
@@ -3143,8 +3144,8 @@ void ProjectExplorerPluginPrivate::addNewFile()
 
 void ProjectExplorerPluginPrivate::addNewSubproject()
 {
-    QTC_ASSERT(ProjectTree::currentNode(), return);
-    Node *currentNode = ProjectTree::currentNode();
+    Node* currentNode = ProjectTree::findCurrentNode();
+    QTC_ASSERT(currentNode, return);
     QString location = directoryFor(currentNode);
 
     if (currentNode->nodeType() == NodeType::Project
@@ -3170,13 +3171,13 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
 
 void ProjectExplorerPluginPrivate::handleAddExistingFiles()
 {
-    Node *node = ProjectTree::currentNode();
+    Node *node = ProjectTree::findCurrentNode();
     FolderNode *folderNode = node ? node->asFolderNode() : nullptr;
 
     QTC_ASSERT(folderNode, return);
 
     QStringList fileNames = QFileDialog::getOpenFileNames(ICore::mainWindow(),
-        tr("Add Existing Files"), directoryFor(ProjectTree::currentNode()));
+        tr("Add Existing Files"), directoryFor(node));
     if (fileNames.isEmpty())
         return;
 
@@ -3185,12 +3186,12 @@ void ProjectExplorerPluginPrivate::handleAddExistingFiles()
 
 void ProjectExplorerPluginPrivate::addExistingDirectory()
 {
-    Node *node = ProjectTree::currentNode();
+    Node *node = ProjectTree::findCurrentNode();
     FolderNode *folderNode = node ? node->asFolderNode() : nullptr;
 
     QTC_ASSERT(folderNode, return);
 
-    SelectableFilesDialogAddDirectory dialog(Utils::FileName::fromString(directoryFor(ProjectTree::currentNode())),
+    SelectableFilesDialogAddDirectory dialog(Utils::FileName::fromString(directoryFor(node)),
                                              Utils::FileNameList(), ICore::mainWindow());
     dialog.setAddFileFilter(folderNode->addFileFilter());
 
@@ -3225,7 +3226,7 @@ void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const QStri
 
 void ProjectExplorerPluginPrivate::removeProject()
 {
-    Node *node = ProjectTree::currentNode();
+    Node *node = ProjectTree::findCurrentNode();
     if (!node)
         return;
     ProjectNode *subProjectNode = node->managingProject();
@@ -3242,31 +3243,35 @@ void ProjectExplorerPluginPrivate::removeProject()
 
 void ProjectExplorerPluginPrivate::openFile()
 {
-    QTC_ASSERT(ProjectTree::currentNode(), return);
-    EditorManager::openEditor(ProjectTree::currentNode()->filePath().toString());
+    const Node *currentNode = ProjectTree::findCurrentNode();
+    QTC_ASSERT(currentNode, return);
+    EditorManager::openEditor(currentNode->filePath().toString());
 }
 
 void ProjectExplorerPluginPrivate::searchOnFileSystem()
 {
-    QTC_ASSERT(ProjectTree::currentNode(), return);
-    TextEditor::FindInFiles::findOnFileSystem(pathFor(ProjectTree::currentNode()));
+    const Node *currentNode = ProjectTree::findCurrentNode();
+    QTC_ASSERT(currentNode, return);
+    TextEditor::FindInFiles::findOnFileSystem(pathFor(currentNode));
 }
 
 void ProjectExplorerPluginPrivate::showInGraphicalShell()
 {
-    QTC_ASSERT(ProjectTree::currentNode(), return);
-    FileUtils::showInGraphicalShell(ICore::mainWindow(), pathFor(ProjectTree::currentNode()));
+    Node *currentNode = ProjectTree::findCurrentNode();
+    QTC_ASSERT(currentNode, return);
+    FileUtils::showInGraphicalShell(ICore::mainWindow(), pathFor(currentNode));
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHere()
 {
-    QTC_ASSERT(ProjectTree::currentNode(), return);
-    FileUtils::openTerminal(directoryFor(ProjectTree::currentNode()));
+    const Node *currentNode = ProjectTree::findCurrentNode();
+    QTC_ASSERT(currentNode, return);
+    FileUtils::openTerminal(directoryFor(currentNode));
 }
 
 void ProjectExplorerPluginPrivate::removeFile()
 {
-    Node *currentNode = ProjectTree::currentNode();
+    const Node *currentNode = ProjectTree::findCurrentNode();
     QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
 
     const Utils::FileName filePath = currentNode->filePath();
@@ -3276,7 +3281,7 @@ void ProjectExplorerPluginPrivate::removeFile()
         const bool deleteFile = removeFileDialog.isDeleteFileChecked();
 
         // Re-read the current node, in case the project is re-parsed while the dialog is open
-        if (currentNode != ProjectTree::currentNode()) {
+        if (currentNode != ProjectTree::findCurrentNode()) {
             currentNode = ProjectTreeWidget::nodeForFile(filePath);
             QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
         }
@@ -3301,7 +3306,7 @@ void ProjectExplorerPluginPrivate::removeFile()
 
 void ProjectExplorerPluginPrivate::duplicateFile()
 {
-    Node *currentNode = ProjectTree::currentNode();
+    Node *currentNode = ProjectTree::findCurrentNode();
     QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
 
     FileNode *fileNode = currentNode->asFileNode();
@@ -3332,7 +3337,7 @@ void ProjectExplorerPluginPrivate::duplicateFile()
 
 void ProjectExplorerPluginPrivate::deleteFile()
 {
-    Node *currentNode = ProjectTree::currentNode();
+    Node *currentNode = ProjectTree::findCurrentNode();
     QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
 
     FileNode *fileNode = currentNode->asFileNode();
@@ -3393,7 +3398,7 @@ void ProjectExplorerPluginPrivate::handleDiffFile()
         return;
 
     // current item's file
-    Node *currentNode = ProjectTree::currentNode();
+    Node *currentNode = ProjectTree::findCurrentNode();
     QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
 
     FileNode *fileNode = currentNode->asFileNode();

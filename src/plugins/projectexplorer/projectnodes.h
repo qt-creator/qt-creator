@@ -29,7 +29,6 @@
 
 #include <QFutureInterface>
 #include <QIcon>
-#include <QObject>
 #include <QStringList>
 
 #include <utils/fileutils.h>
@@ -98,9 +97,8 @@ class ProjectNode;
 class ContainerNode;
 
 // Documentation inside.
-class PROJECTEXPLORER_EXPORT Node : public QObject
+class PROJECTEXPLORER_EXPORT Node
 {
-    Q_OBJECT
 public:
     enum PriorityLevel {
         DefaultPriority = 0,
@@ -133,7 +131,7 @@ public:
     bool listInProject() const;
     bool isGenerated() const;
 
-    virtual bool supportsAction(ProjectAction action, Node *node) const;
+    virtual bool supportsAction(ProjectAction action, const Node *node) const;
 
     void setEnabled(bool enabled);
     void setAbsoluteFilePathAndLine(const Utils::FileName &filePath, int line);
@@ -199,7 +197,7 @@ public:
                                     const std::function<FileNode *(const Utils::FileName &fileName)> factory,
                                     const QList<Core::IVersionControl *> &versionControls,
                                     QFutureInterface<QList<FileNode *>> *future = nullptr);
-    bool supportsAction(ProjectAction action, Node *node) const override;
+    bool supportsAction(ProjectAction action, const Node *node) const override;
 
 private:
     FileType m_fileType;
@@ -257,7 +255,7 @@ public:
 
     virtual QString addFileFilter() const;
 
-    bool supportsAction(ProjectAction action, Node *node) const override;
+    bool supportsAction(ProjectAction action, const Node *node) const override;
 
     virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
     virtual bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
@@ -323,7 +321,7 @@ public:
     bool deleteFiles(const QStringList &filePaths) override;
     bool canRenameFile(const QString &filePath, const QString &newFilePath) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
-    bool supportsAction(ProjectAction action, Node *node) const override;
+    bool supportsAction(ProjectAction action, const Node *node) const override;
 
     // by default returns false
     virtual bool deploysFolder(const QString &folder) const;
@@ -345,7 +343,7 @@ public:
     ContainerNode(Project *project);
 
     QString displayName() const final;
-    bool supportsAction(ProjectAction action, Node *node) const final;
+    bool supportsAction(ProjectAction action, const Node *node) const final;
 
     ContainerNode *asContainerNode() final { return this; }
     const ContainerNode *asContainerNode() const final { return this; }
