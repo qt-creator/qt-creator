@@ -503,7 +503,7 @@ protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
 
 private:
-    bool _isVariadic;
+    bool _isVariadic = false;
     bool _isVirtual;
     FullySpecifiedType _type;
 };
