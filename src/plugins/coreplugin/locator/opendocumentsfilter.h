@@ -43,9 +43,10 @@ class OpenDocumentsFilter : public ILocatorFilter
 
 public:
     OpenDocumentsFilter();
-    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry);
-    void accept(LocatorFilterEntry selection) const;
-    void refresh(QFutureInterface<void> &future);
+    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
+                                         const QString &entry) override;
+    void accept(LocatorFilterEntry selection) const override;
+    void refresh(QFutureInterface<void> &future) override;
 
 public slots:
     void refreshInternally();

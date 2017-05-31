@@ -42,8 +42,8 @@ public:
         setShortcutString(QLatin1String("md"));
     }
 
-    void prepareSearch(const QString &entry);
-    void refresh(QFutureInterface<void> &future);
+    void prepareSearch(const QString &entry) override;
+    void refresh(QFutureInterface<void> &future) override;
 };
 
 } // Internal

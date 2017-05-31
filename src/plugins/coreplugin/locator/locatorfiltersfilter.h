@@ -48,10 +48,11 @@ public:
                          LocatorWidget *locatorWidget);
 
     // ILocatorFilter
-    void prepareSearch(const QString &entry);
-    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry);
-    void accept(LocatorFilterEntry selection) const;
-    void refresh(QFutureInterface<void> &future);
+    void prepareSearch(const QString &entry) override;
+    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
+                                         const QString &entry) override;
+    void accept(LocatorFilterEntry selection) const override;
+    void refresh(QFutureInterface<void> &future) override;
 
 private:
     Locator *m_plugin;

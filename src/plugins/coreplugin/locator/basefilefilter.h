@@ -69,9 +69,10 @@ public:
 
     BaseFileFilter();
     ~BaseFileFilter();
-    void prepareSearch(const QString &entry);
-    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry);
-    void accept(LocatorFilterEntry selection) const;
+    void prepareSearch(const QString &entry) override;
+    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
+                                         const QString &entry) override;
+    void accept(LocatorFilterEntry selection) const override;
 
 protected:
     void setFileIterator(Iterator *iterator);

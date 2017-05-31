@@ -44,13 +44,14 @@ class FileSystemFilter : public ILocatorFilter
 
 public:
     explicit FileSystemFilter(LocatorWidget *locatorWidget);
-    void prepareSearch(const QString &entry);
-    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry);
-    void accept(LocatorFilterEntry selection) const;
-    QByteArray saveState() const;
-    void restoreState(const QByteArray &state);
-    bool openConfigDialog(QWidget *parent, bool &needsRefresh);
-    void refresh(QFutureInterface<void> &) {}
+    void prepareSearch(const QString &entry) override;
+    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
+                                         const QString &entry) override;
+    void accept(LocatorFilterEntry selection) const override;
+    QByteArray saveState() const override;
+    void restoreState(const QByteArray &state) override;
+    bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;
+    void refresh(QFutureInterface<void> &) override {}
 
 private:
     LocatorWidget *m_locatorWidget;

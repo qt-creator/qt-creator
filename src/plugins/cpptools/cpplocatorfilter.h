@@ -42,9 +42,9 @@ public:
     ~CppLocatorFilter();
 
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry);
-    void accept(Core::LocatorFilterEntry selection) const;
-    void refresh(QFutureInterface<void> &future);
+                                               const QString &entry) override;
+    void accept(Core::LocatorFilterEntry selection) const override;
+    void refresh(QFutureInterface<void> &future) override;
 
 protected:
     virtual IndexItem::ItemType matchTypes() const { return IndexItem::All; }

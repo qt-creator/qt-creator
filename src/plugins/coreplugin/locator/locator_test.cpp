@@ -49,7 +49,7 @@ public:
         setFileIterator(new BaseFileFilter::ListIterator(theFiles));
     }
 
-    void refresh(QFutureInterface<void> &) {}
+    void refresh(QFutureInterface<void> &) override {}
 };
 
 inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }

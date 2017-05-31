@@ -42,10 +42,10 @@ class DirectoryFilter : public BaseFileFilter
 
 public:
     DirectoryFilter(Id id);
-    QByteArray saveState() const;
-    void restoreState(const QByteArray &state);
-    bool openConfigDialog(QWidget *parent, bool &needsRefresh);
-    void refresh(QFutureInterface<void> &future);
+    QByteArray saveState() const override;
+    void restoreState(const QByteArray &state) override;
+    bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;
+    void refresh(QFutureInterface<void> &future) override;
 
 private:
     void addDirectory();

@@ -39,8 +39,8 @@ public:
 
     // ILocatorFilter interface
 public:
-    void prepareSearch(const QString &entry);
-    void refresh(QFutureInterface<void> &future);
+    void prepareSearch(const QString &entry) override;
+    void refresh(QFutureInterface<void> &future) override;
 
 private:
     void markOutdated();

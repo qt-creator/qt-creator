@@ -40,9 +40,10 @@ public:
     explicit FunctionFilter(LocatorData *data, QObject *parent = 0);
     ~FunctionFilter();
 
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
-    void accept(Core::LocatorFilterEntry selection) const;
-    void refresh(QFutureInterface<void> &future);
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
+                                               const QString &entry) override;
+    void accept(Core::LocatorFilterEntry selection) const override;
+    void refresh(QFutureInterface<void> &future) override;
 
 private:
     LocatorData *m_data;

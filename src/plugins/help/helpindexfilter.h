@@ -42,11 +42,11 @@ public:
     ~HelpIndexFilter();
 
     // ILocatorFilter
-    void prepareSearch(const QString &entry);
+    void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry);
-    void accept(Core::LocatorFilterEntry selection) const;
-    void refresh(QFutureInterface<void> &future);
+                                               const QString &entry) override;
+    void accept(Core::LocatorFilterEntry selection) const override;
+    void refresh(QFutureInterface<void> &future) override;
 
     Q_INVOKABLE QSet<QString> searchMatches(const QString &databaseFilePath,
                                           const QString &term, int limit);
