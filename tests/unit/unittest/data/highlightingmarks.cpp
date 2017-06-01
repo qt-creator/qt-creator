@@ -548,3 +548,6 @@ struct NonConstReferenceMemberInitialization
 
     int &foo;
 };
+
+template<class T> class Coo;
+template<class T> class Coo<T*>;

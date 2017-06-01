@@ -1105,6 +1105,13 @@ TEST_F(HighlightingMarks, DISABLED_ArgumentToUserDefinedIndexOperator)
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::LocalVariable));
 }
 
+TEST_F(HighlightingMarks, ClassTemplateParticalSpecialization)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(553, 33));
+
+    ASSERT_THAT(infos[6], HasOnlyType(HighlightingType::Type));
+}
+
 Data *HighlightingMarks::d;
 
 void HighlightingMarks::SetUpTestCase()

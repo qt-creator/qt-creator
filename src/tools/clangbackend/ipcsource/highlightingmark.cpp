@@ -293,6 +293,7 @@ void HighlightingMark::identifierKind(const Cursor &cursor, Recursion recursion)
         case CXCursor_ObjCDynamicDecl:           types.mainHighlightingType = HighlightingType::Field; break;
         case CXCursor_TypeRef:                   referencedTypeKind(cursor); break;
         case CXCursor_ClassDecl:
+        case CXCursor_ClassTemplatePartialSpecialization:
         case CXCursor_TemplateTypeParameter:
         case CXCursor_TemplateTemplateParameter:
         case CXCursor_UnionDecl:
