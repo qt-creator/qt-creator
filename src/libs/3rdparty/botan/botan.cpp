@@ -3541,7 +3541,7 @@ void Pooling_Allocator::deallocate(void* ptr, size_t n)
    const size_t BITMAP_SIZE = Memory_Block::bitmap_size();
    const size_t BLOCK_SIZE = Memory_Block::block_size();
 
-   if(ptr == 0 && n == 0)
+   if(ptr == 0 || n == 0)
       return;
 
    Mutex_Holder lock(mutex);
@@ -15672,6 +15672,8 @@ Extensions& Extensions::operator=(const Extensions& other)
          std::make_pair(other.extensions[i].first->copy(),
                         other.extensions[i].second));
 
+   should_throw = other.should_throw;
+
    return (*this);
    }
 
@@ -17569,6 +17571,7 @@ X509_Store::X509_Store(const X509_Store& other)
    for(size_t j = 0; j != other.stores.size(); ++j)
       stores[j] = other.stores[j]->clone();
    time_slack = other.time_slack;
+   validation_cache_timeout = other.validation_cache_timeout;
    }
 
 /*
@@ -21453,7 +21456,7 @@ Close the device, if open
 */
 void Device_EntropySource::Device_Reader::close()
    {
-   if(fd > 0) { ::close(fd); fd = -1; }
+   if(fd >= 0) { ::close(fd); fd = -1; }
    }
 
 /**
@@ -21518,7 +21521,7 @@ Device_EntropySource::Device_EntropySource(
    for(size_t i = 0; i != fsnames.size(); ++i)
       {
       Device_Reader::fd_type fd = Device_Reader::open(fsnames[i]);
-      if(fd > 0)
+      if(fd >= 0)
          devices.push_back(Device_Reader(fd));
       }
    }
@@ -21602,7 +21605,7 @@ int EGD_EntropySource::EGD_Socket::open_socket(const std::string& path)
       std::memset(&addr, 0, sizeof(addr));
       addr.sun_family = PF_LOCAL;
 
-      if(sizeof(addr.sun_path) < path.length() + 1)
+      if(path.length() >= sizeof(addr.sun_path))
          throw std::invalid_argument("EGD socket path is too long");
 
       std::strncpy(addr.sun_path, path.c_str(), sizeof(addr.sun_path));
@@ -21939,7 +21942,7 @@ int Directory_Walker::next_fd()
          {
          int fd = ::open(full_path.c_str(), O_RDONLY | O_NOCTTY);
 
-         if(fd > 0)
+         if(fd >= 0)
             return fd;
          }
       }
@@ -22072,8 +22075,8 @@ void Unix_EntropySource::poll(Entropy_Accumulator& accum)
       {
       struct stat statbuf;
       clear_mem(&statbuf, 1);
-      ::stat(stat_targets[i], &statbuf);
-      accum.add(&statbuf, sizeof(statbuf), .005);
+      if(::stat(stat_targets[i], &statbuf) == 0)
+         accum.add(&statbuf, sizeof(statbuf), .005);
       }
 
    accum.add(::getpid(),  0);
@@ -37521,6 +37524,7 @@ Power_Mod::Power_Mod(const BigInt& n, Usage_Hints hints)
    {
    core = 0;
    set_modulus(n, hints);
+   hints = NO_HINTS;
    }
 
 /*
@@ -37530,6 +37534,7 @@ Power_Mod::Power_Mod(const Power_Mod& other)
    {
    Q_UNUSED(hints);
    core = 0;
+   hints = other.hints;
    if(other.core)
       core = other.core->copy();
    }
@@ -37900,6 +37905,7 @@ Montgomery_Exponentiator::Montgomery_Exponentiator(const BigInt& mod,
    window_bits = 0;
    this->hints = hints;
    modulus = mod;
+   exp_bits = 0;
 
    mod_words = modulus.sig_words();
 
@@ -39307,7 +39313,7 @@ void PBE_PKCS5v15::set_key(const std::string& passphrase)
 */
 void PBE_PKCS5v15::new_params(RandomNumberGenerator& rng)
    {
-   iterations = 10000;
+   iterations = 50000;
    salt = rng.random_vec(8);
    }
 
@@ -39378,7 +39384,7 @@ std::string PBE_PKCS5v15::name() const
 PBE_PKCS5v15::PBE_PKCS5v15(BlockCipher* cipher,
                            HashFunction* hash,
                            Cipher_Dir dir) :
-   direction(dir), block_cipher(cipher), hash_function(hash)
+   direction(dir), block_cipher(cipher), hash_function(hash), iterations(0)
    {
    if(cipher->name() != "DES" && cipher->name() != "RC2")
       {
@@ -39484,7 +39490,7 @@ void PBE_PKCS5v20::set_key(const std::string& passphrase)
 */
 void PBE_PKCS5v20::new_params(RandomNumberGenerator& rng)
    {
-   iterations = 10000;
+   iterations = 50000;
    key_length = block_cipher->maximum_keylength();
 
    salt = rng.random_vec(12);
@@ -39602,7 +39608,11 @@ std::string PBE_PKCS5v20::name() const
 */
 PBE_PKCS5v20::PBE_PKCS5v20(BlockCipher* cipher,
                            HashFunction* digest) :
-   direction(ENCRYPTION), block_cipher(cipher), hash_function(digest)
+   direction(ENCRYPTION),
+   block_cipher(cipher),
+   hash_function(digest),
+   iterations(0),
+   key_length(0)
    {
    if(!known_cipher(block_cipher->name()))
       throw Invalid_Argument("PBE-PKCS5 v2.0: Invalid cipher " + cipher->name());
@@ -43060,6 +43070,8 @@ PK_Encryptor_EME::PK_Encryptor_EME(const Public_Key& key,
    {
    Algorithm_Factory::Engine_Iterator i(global_state().algorithm_factory());
 
+   op = 0;
+
    while(const Engine* engine = i.next())
       {
       op = engine->get_encryption_op(key);
@@ -43119,6 +43131,8 @@ PK_Decryptor_EME::PK_Decryptor_EME(const Private_Key& key,
                                    const std::string& eme_name)
    {
    Algorithm_Factory::Engine_Iterator i(global_state().algorithm_factory());
+
+   op = 0;
 
    while(const Engine* engine = i.next())
       {
@@ -43283,6 +43297,8 @@ PK_Verifier::PK_Verifier(const Public_Key& key,
    {
    Algorithm_Factory::Engine_Iterator i(global_state().algorithm_factory());
 
+   op = 0;
+
    while(const Engine* engine = i.next())
       {
       op = engine->get_verify_op(key);
@@ -43391,6 +43407,8 @@ PK_Key_Agreement::PK_Key_Agreement(const PK_Key_Agreement_Key& key,
                                    const std::string& kdf_name)
    {
    Algorithm_Factory::Engine_Iterator i(global_state().algorithm_factory());
+
+   op = 0;
 
    while(const Engine* engine = i.next())
       {
