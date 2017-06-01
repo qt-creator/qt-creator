@@ -32,8 +32,6 @@
 class AddDebuggerOperation : public Operation
 {
 public:
-    AddDebuggerOperation();
-
     QString name() const;
     QString helpText() const;
     QString argumentsHelpText() const;
@@ -56,7 +54,7 @@ public:
 private:
     QString m_id;
     QString m_displayName;
-    quint32 m_engine;
+    quint32 m_engine = 0;
     QString m_binary;
     QStringList m_abis;
     KeyValuePairList m_extra;

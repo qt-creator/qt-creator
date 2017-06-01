@@ -71,11 +71,6 @@ const char CMAKE_ID[] = "CMakeProjectManager.CMakeKitInformation";
 const char CMAKE_GENERATOR[] = "CMake.GeneratorKitInformation";
 const char CMAKE_CONFIGURATION[] = "CMake.ConfigurationKitInformation";
 
-AddKitOperation::AddKitOperation()
-    : m_debuggerEngine(0)
-{
-}
-
 QString AddKitOperation::name() const
 {
     return QString("addKit");
@@ -113,8 +108,6 @@ QString AddKitOperation::argumentsHelpText() const
 
 bool AddKitOperation::setArguments(const QStringList &args)
 {
-    m_debuggerEngine = 0;
-
     for (int i = 0; i < args.count(); ++i) {
         const QString current = args.at(i);
         const QString next = ((i + 1) < args.count()) ? args.at(i + 1) : QString();

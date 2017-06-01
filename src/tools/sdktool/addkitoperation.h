@@ -33,8 +33,6 @@
 class AddKitOperation : public Operation
 {
 public:
-    AddKitOperation();
-
     QString name() const;
     QString helpText() const;
     QString argumentsHelpText() const;
@@ -77,7 +75,7 @@ private:
     QString m_displayName;
     QString m_icon;
     QString m_debuggerId;
-    quint32 m_debuggerEngine;
+    quint32 m_debuggerEngine = 0;
     QString m_debugger;
     QString m_deviceType;
     QString m_device;
