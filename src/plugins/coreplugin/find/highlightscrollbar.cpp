@@ -25,6 +25,7 @@
 
 #include "highlightscrollbar.h"
 
+#include <utils/asconst.h>
 #include <utils/qtcassert.h>
 
 #include <QPainter>
@@ -53,12 +54,10 @@ public:
 
     float m_visibleRange;
     float m_offset;
-    QHash<Id, QSet<int> > m_highlights;
-    QHash<Id, Utils::Theme::Color> m_colors;
-    QHash<Id, HighlightScrollBar::Priority> m_priorities;
+    QHash<Id, QVector<Highlight> > m_highlights;
 
     bool m_cacheUpdateScheduled;
-    QMap<int, Id> m_cache;
+    QMap<int, Highlight> m_cache;
 
 protected:
     void paintEvent(QPaintEvent *paintEvent) override;
@@ -101,13 +100,6 @@ void HighlightScrollBar::setRangeOffset(float offset)
     m_overlay->m_offset = offset;
 }
 
-void HighlightScrollBar::setColor(Id category, Theme::Color color)
-{
-    if (!m_overlay)
-        return;
-    m_overlay->m_colors[category] = color;
-}
-
 QRect HighlightScrollBar::overlayRect()
 {
     QStyleOptionSlider opt;
@@ -120,27 +112,11 @@ void HighlightScrollBar::overlayDestroyed()
     m_overlay = 0;
 }
 
-void HighlightScrollBar::setPriority(Id category, HighlightScrollBar::Priority prio)
+void HighlightScrollBar::addHighlight(Highlight highlight)
 {
     if (!m_overlay)
         return;
-    m_overlay->m_priorities[category] = prio;
-    m_overlay->scheduleUpdate();
-}
-
-void HighlightScrollBar::addHighlights(Id category, const QSet<int> &highlights)
-{
-    if (!m_overlay)
-        return;
-    m_overlay->m_highlights[category].unite(highlights);
-    m_overlay->scheduleUpdate();
-}
-
-void HighlightScrollBar::addHighlight(Id category, int highlight)
-{
-    if (!m_overlay)
-        return;
-    m_overlay->m_highlights[category] << highlight;
+    m_overlay->m_highlights[highlight.category] << highlight;
     m_overlay->scheduleUpdate();
 }
 
@@ -237,12 +213,12 @@ void HighlightScrollBarOverlay::updateCache()
         return;
 
     m_cache.clear();
-    foreach (const Id &category, m_highlights.keys()) {
-        foreach (const int &highlight, m_highlights[category]) {
-            Id highlightCategory = m_cache[highlight];
-            if (highlightCategory.isValid() && (m_priorities[highlightCategory] >= m_priorities[category]))
-                continue;
-            m_cache[highlight] = category;
+    const QList<Id> &categories = m_highlights.keys();
+    for (const Id &category : categories) {
+        for (const Highlight &highlight : Utils::asConst(m_highlights[category])) {
+            Highlight oldHighlight = m_cache[highlight.position];
+            if (highlight.priority > oldHighlight.priority)
+                m_cache[highlight.position] = highlight;
         }
     }
     m_cacheUpdateScheduled = false;
@@ -264,7 +240,8 @@ void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)
 
     const QRect &rect = m_scrollBar->overlayRect();
 
-    Id previousCategory;
+    Utils::Theme::Color previousColor = Utils::Theme::TextColorNormal;
+    Highlight::Priority previousPriority = Highlight::LowPriority;
     QRect *previousRect = 0;
 
     const int scrollbarRange = m_scrollBar->maximum() + m_scrollBar->pageStep();
@@ -276,27 +253,24 @@ void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)
     const int verticalMargin = ((rect.height() / range) - resultHeight) / 2;
     int previousBottom = -1;
 
-    QHash<Id, QVector<QRect> > highlights;
-    QMapIterator<int, Id> it(m_cache);
-    while (it.hasNext()) {
-        const Id currentCategory = it.next().value();
-
-        // Calculate start and end
-        int top = rect.top() + offset + verticalMargin + float(it.key()) / range * rect.height();
+    QHash<Utils::Theme::Color, QVector<QRect> > highlights;
+    for (Highlight currentHighlight : Utils::asConst(m_cache)) {
+        // Calculate top and bottom
+        int top = rect.top() + offset + verticalMargin
+                + float(currentHighlight.position) / range * rect.height();
         const int bottom = top + resultHeight;
 
-        if (previousCategory == currentCategory && previousBottom + 1 >= top) {
-            // If the previous highlight has the same category and is directly prior to this highlight
+        if (previousRect && previousColor == currentHighlight.color && previousBottom + 1 >= top) {
+            // If the previous highlight has the same color and is directly prior to this highlight
             // we just extend the previous highlight.
-            if (QTC_GUARD(previousRect))
-                previousRect->setBottom(bottom - 1);
+            previousRect->setBottom(bottom - 1);
 
         } else { // create a new highlight
             if (previousRect && previousBottom >= top) {
                 // make sure that highlights with higher priority are drawn on top of other highlights
                 // when rectangles are overlapping
 
-                if (m_priorities[previousCategory] > m_priorities[currentCategory]) {
+                if (previousPriority > currentHighlight.priority) {
                     // Moving the top of the current highlight when the previous
                     // highlight has a higher priority
                     top = previousBottom + 1;
@@ -305,26 +279,36 @@ void HighlightScrollBarOverlay::paintEvent(QPaintEvent *paintEvent)
                 } else {
                     previousRect->setBottom(top - 1); // move the end of the last highlight
                     if (previousRect->height() == 0) // if the result is an empty rect, remove it.
-                        highlights[previousCategory].removeLast();
+                        highlights[previousColor].removeLast();
                 }
             }
-            highlights[currentCategory] << QRect(rect.left() + horizontalMargin, top,
-                                                  resultWidth, bottom - top);
-            previousRect = &highlights[currentCategory].last();
-            previousCategory = currentCategory;
+            highlights[currentHighlight.color] << QRect(rect.left() + horizontalMargin, top,
+                                                        resultWidth, bottom - top);
+            previousRect = &highlights[currentHighlight.color].last();
+            previousColor = currentHighlight.color;
+            previousPriority = currentHighlight.priority;
         }
         previousBottom = previousRect->bottom();
     }
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, false);
-    foreach (Id category, highlights.keys()) {
-        const QColor &color = creatorTheme()->color(m_colors[category]);
-        for (int i = 0, total = highlights[category].size(); i < total; ++i) {
-            const QRect rect = highlights[category][i];
+    foreach (Utils::Theme::Color themeColor, highlights.keys()) {
+        const QColor &color = creatorTheme()->color(themeColor);
+        for (int i = 0, total = highlights[themeColor].size(); i < total; ++i) {
+            const QRect rect = highlights[themeColor][i];
             painter.fillRect(rect, color);
         }
     }
+}
+
+Highlight::Highlight(Id category_, int position_,
+                     Theme::Color color_, Highlight::Priority priority_)
+    : category(category_)
+    , position(position_)
+    , color(color_)
+    , priority(priority_)
+{
 }
 
 } // namespace Core

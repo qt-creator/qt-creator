@@ -35,6 +35,25 @@
 
 namespace Core {
 
+struct CORE_EXPORT Highlight
+{
+    enum Priority {
+        Invalid = -1,
+        LowPriority = 0,
+        NormalPriority = 1,
+        HighPriority = 2,
+        HighestPriority = 3
+    };
+
+    Highlight(Id category, int position, Utils::Theme::Color color, Priority priority);
+    Highlight() = default;
+
+    Id category;
+    int position = -1;
+    Utils::Theme::Color color = Utils::Theme::TextColorNormal;
+    Priority priority = Invalid;
+};
+
 class HighlightScrollBarOverlay;
 
 class CORE_EXPORT HighlightScrollBar : public QScrollBar
@@ -47,19 +66,8 @@ public:
 
     void setVisibleRange(float visibleRange);
     void setRangeOffset(float offset);
-    void setColor(Id category, Utils::Theme::Color color);
 
-    enum Priority
-    {
-        LowPriority = 0,
-        NormalPriority = 1,
-        HighPriority = 2,
-        HighestPriority = 3
-    };
-
-    void setPriority(Id category, Priority prio);
-    void addHighlight(Id category, int highlight);
-    void addHighlights(Id category, const QSet<int> &highlights);
+    void addHighlight(Highlight highlight);
 
     void removeHighlights(Id id);
     void removeAllHighlights();

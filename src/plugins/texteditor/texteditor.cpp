@@ -635,14 +635,6 @@ void TextEditorWidgetPrivate::setupScrollBar()
         if (m_highlightScrollBar)
             return;
         m_highlightScrollBar = new HighlightScrollBar(Qt::Vertical, q);
-        m_highlightScrollBar->setColor(Constants::SCROLL_BAR_SEARCH_RESULT,
-                                       Theme::TextEditor_SearchResult_ScrollBarColor);
-        m_highlightScrollBar->setColor(Constants::SCROLL_BAR_CURRENT_LINE,
-                                       Theme::TextEditor_CurrentLine_ScrollBarColor);
-        m_highlightScrollBar->setPriority(
-                    Constants::SCROLL_BAR_SEARCH_RESULT, HighlightScrollBar::HighPriority);
-        m_highlightScrollBar->setPriority(
-                    Constants::SCROLL_BAR_CURRENT_LINE, HighlightScrollBar::HighestPriority);
         q->setVerticalScrollBar(m_highlightScrollBar);
         highlightSearchResultsInScrollBar();
         scheduleUpdateHighlightScrollBar();
@@ -4767,11 +4759,11 @@ void TextEditorWidgetPrivate::updateCurrentLineInScrollbar()
         if (m_highlightScrollBar->maximum() > 0) {
             const QTextCursor &tc = q->textCursor();
             if (QTextLayout *layout = tc.block().layout()) {
-                const int lineNumberInBlock =
+                const int pos = q->textCursor().block().firstLineNumber() +
                         layout->lineForTextPosition(tc.positionInBlock()).lineNumber();
-                m_highlightScrollBar->addHighlight(
-                            Constants::SCROLL_BAR_CURRENT_LINE,
-                            q->textCursor().block().firstLineNumber() + lineNumberInBlock);
+                m_highlightScrollBar->addHighlight({Constants::SCROLL_BAR_CURRENT_LINE, pos,
+                                                    Theme::TextEditor_CurrentLine_ScrollBarColor,
+                                                    Highlight::HighestPriority});
             }
         }
     }
@@ -5745,40 +5737,47 @@ void TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar()
     QTimer::singleShot(0, this, &TextEditorWidgetPrivate::updateHighlightScrollBarNow);
 }
 
-HighlightScrollBar::Priority textMarkPrioToScrollBarPrio(const TextMark::Priority &prio)
+Highlight::Priority textMarkPrioToScrollBarPrio(const TextMark::Priority &prio)
 {
     switch (prio) {
     case TextMark::LowPriority:
-        return HighlightScrollBar::LowPriority;
+        return Highlight::LowPriority;
     case TextMark::NormalPriority:
-        return HighlightScrollBar::NormalPriority;
+        return Highlight::NormalPriority;
     case TextMark::HighPriority:
-        return HighlightScrollBar::HighPriority;
+        return Highlight::HighPriority;
     default:
-        return HighlightScrollBar::NormalPriority;
+        return Highlight::NormalPriority;
     }
 }
 
 void TextEditorWidgetPrivate::addSearchResultsToScrollBar(QVector<SearchResult> results)
 {
-    QSet<int> searchResults;
+    if (!m_highlightScrollBar)
+        return;
     foreach (SearchResult result, results) {
         const QTextBlock &block = q->document()->findBlock(result.start);
         if (block.isValid() && block.isVisible()) {
             const int firstLine = block.layout()->lineForTextPosition(result.start - block.position()).lineNumber();
             const int lastLine = block.layout()->lineForTextPosition(result.start - block.position() + result.length).lineNumber();
-            for (int line = firstLine; line <= lastLine; ++line)
-                searchResults << block.firstLineNumber() + line;
+            for (int line = firstLine; line <= lastLine; ++line) {
+                m_highlightScrollBar->addHighlight(
+                    {Constants::SCROLL_BAR_SEARCH_RESULT, block.firstLineNumber() + line,
+                            Theme::TextEditor_SearchResult_ScrollBarColor, Highlight::HighPriority});
+            }
         }
     }
-    if (m_highlightScrollBar)
-        m_highlightScrollBar->addHighlights(Constants::SCROLL_BAR_SEARCH_RESULT, searchResults);
+}
+
+Highlight markToHighlight(TextMark *mark, int lineNumber)
+{
+    return Highlight(mark->category(), lineNumber,
+                     TextMark::categoryColor(mark->category()),
+                     textMarkPrioToScrollBarPrio(mark->priority()));
 }
 
 void TextEditorWidgetPrivate::updateHighlightScrollBarNow()
 {
-    typedef QSet<int> IntSet;
-
     m_scrollBarUpdateScheduled = false;
     if (!m_highlightScrollBar)
         return;
@@ -5791,21 +5790,13 @@ void TextEditorWidgetPrivate::updateHighlightScrollBarNow()
     addSearchResultsToScrollBar(m_searchResults);
 
     // update text marks
-    QHash<Id, IntSet> marks;
     foreach (TextMark *mark, m_document->marks()) {
         Id category = mark->category();
         if (!mark->isVisible() || !TextMark::categoryHasColor(category))
             continue;
-        m_highlightScrollBar->setPriority(category, textMarkPrioToScrollBarPrio(mark->priority()));
         const QTextBlock &block = q->document()->findBlockByNumber(mark->lineNumber() - 1);
         if (block.isVisible())
-            marks[category] << block.firstLineNumber();
-    }
-    QHashIterator<Id, IntSet> it(marks);
-    while (it.hasNext()) {
-        it.next();
-        m_highlightScrollBar->setColor(it.key(), TextMark::categoryColor(it.key()));
-        m_highlightScrollBar->addHighlights(it.key(), it.value());
+            m_highlightScrollBar->addHighlight(markToHighlight(mark, block.firstLineNumber()));
     }
 }
 
