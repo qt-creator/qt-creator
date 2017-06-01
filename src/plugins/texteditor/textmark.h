@@ -49,6 +49,7 @@ class TEXTEDITOR_EXPORT TextMark
 {
 public:
     TextMark(const QString &fileName, int lineNumber, Core::Id category, double widthFactor = 1.0);
+    TextMark() = delete;
     virtual ~TextMark();
 
     // determine order on markers on the same line.
@@ -76,41 +77,46 @@ public:
     void addToToolTipLayout(QGridLayout *target);
     virtual bool addToolTipContent(QLayout *target);
 
-    static Utils::Theme::Color categoryColor(Core::Id category);
-    static bool categoryHasColor(Core::Id category);
-    static void setCategoryColor(Core::Id category, Utils::Theme::Color color);
-    static void setDefaultToolTip(Core::Id category, const QString &toolTip);
-    void setIcon(const QIcon &icon);
-    const QIcon &icon() const;
+    void setIcon(const QIcon &icon) { m_icon = icon; }
+    const QIcon &icon() const { return m_icon; }
     // call this if the icon has changed.
     void updateMarker();
-    Priority priority() const;
-    void setPriority(Priority prioriy);
+    Priority priority() const { return m_priority;}
+    void setPriority(Priority prioriy) { m_priority = prioriy; }
     bool isVisible() const;
     void setVisible(bool isVisible);
-    Core::Id category() const;
+    Core::Id category() const { return m_category; }
     double widthFactor() const;
     void setWidthFactor(double factor);
 
-    TextDocument *baseTextDocument() const;
-    void setBaseTextDocument(TextDocument *baseTextDocument);
+    Utils::Theme::Color color() const;
+    void setColor(const Utils::Theme::Color &color);
+    bool hasColor() const { return m_hasColor; }
 
-    QString toolTip() const;
-    void setToolTip(const QString &toolTip);
+    QString defaultToolTip() const { return m_defaultToolTip; }
+    void setDefaultToolTip(const QString &toolTip) { m_defaultToolTip = toolTip; }
+
+    TextDocument *baseTextDocument() const { return m_baseTextDocument; }
+    void setBaseTextDocument(TextDocument *baseTextDocument) { m_baseTextDocument = baseTextDocument; }
+
+    QString toolTip() const { return m_toolTip; }
+    void setToolTip(const QString &toolTip) { m_toolTip = toolTip; }
 
 private:
     Q_DISABLE_COPY(TextMark)
 
-    TextDocument *m_baseTextDocument;
+    TextDocument *m_baseTextDocument = nullptr;
     QString m_fileName;
-    int m_lineNumber;
-    Priority m_priority;
-    bool m_visible;
+    int m_lineNumber = 0;
+    Priority m_priority = LowPriority;
+    bool m_visible = false;
     QIcon m_icon;
-    QColor m_color;
+    Utils::Theme::Color m_color;
+    bool m_hasColor = false;
     Core::Id m_category;
-    double m_widthFactor;
+    double m_widthFactor = 1.0;
     QString m_toolTip;
+    QString m_defaultToolTip;
 };
 
 } // namespace TextEditor

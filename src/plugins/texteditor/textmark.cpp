@@ -46,11 +46,6 @@ class TextMarkRegistry : public QObject
 public:
     static void add(TextMark *mark);
     static bool remove(TextMark *mark);
-    static Utils::Theme::Color categoryColor(Core::Id category);
-    static bool categoryHasColor(Core::Id category);
-    static void setCategoryColor(Core::Id category, Utils::Theme::Color color);
-    static QString defaultToolTip(Core::Id category);
-    static void setDefaultToolTip(Core::Id category, const QString &toolTip);
 
 private:
     TextMarkRegistry(QObject *parent);
@@ -60,20 +55,16 @@ private:
     void allDocumentsRenamed(const QString &oldName, const QString &newName);
 
     QHash<Utils::FileName, QSet<TextMark *> > m_marks;
-    QHash<Core::Id, Utils::Theme::Color> m_colors;
-    QHash<Core::Id, QString> m_defaultToolTips;
 };
 
 TextMarkRegistry *m_instance = nullptr;
 
 TextMark::TextMark(const QString &fileName, int lineNumber, Id category, double widthFactor)
-    : m_baseTextDocument(0),
-      m_fileName(fileName),
-      m_lineNumber(lineNumber),
-      m_priority(NormalPriority),
-      m_visible(true),
-      m_category(category),
-      m_widthFactor(widthFactor)
+    : m_fileName(fileName)
+    , m_lineNumber(lineNumber)
+    , m_visible(true)
+    , m_category(category)
+    , m_widthFactor(widthFactor)
 {
     if (!m_fileName.isEmpty())
         TextMarkRegistry::add(this);
@@ -134,50 +125,10 @@ void TextMark::updateBlock(const QTextBlock &)
 void TextMark::removedFromEditor()
 {}
 
-void TextMark::setIcon(const QIcon &icon)
-{
-    m_icon = icon;
-}
-
-const QIcon &TextMark::icon() const
-{
-    return m_icon;
-}
-
-Theme::Color TextMark::categoryColor(Id category)
-{
-    return TextMarkRegistry::categoryColor(category);
-}
-
-bool TextMark::categoryHasColor(Id category)
-{
-    return TextMarkRegistry::categoryHasColor(category);
-}
-
-void TextMark::setCategoryColor(Id category, Theme::Color color)
-{
-    TextMarkRegistry::setCategoryColor(category, color);
-}
-
-void TextMark::setDefaultToolTip(Id category, const QString &toolTip)
-{
-    TextMarkRegistry::setDefaultToolTip(category, toolTip);
-}
-
 void TextMark::updateMarker()
 {
     if (m_baseTextDocument)
         m_baseTextDocument->updateMark(this);
-}
-
-void TextMark::setPriority(Priority priority)
-{
-    m_priority = priority;
-}
-
-TextMark::Priority TextMark::priority() const
-{
-    return m_priority;
 }
 
 bool TextMark::isVisible() const
@@ -190,11 +141,6 @@ void TextMark::setVisible(bool visible)
     m_visible = visible;
     if (m_baseTextDocument)
         m_baseTextDocument->updateMark(this);
-}
-
-Id TextMark::category() const
-{
-    return m_category;
 }
 
 double TextMark::widthFactor() const
@@ -244,7 +190,7 @@ bool TextMark::addToolTipContent(QLayout *target)
 {
     QString text = m_toolTip;
     if (text.isEmpty()) {
-        text = TextMarkRegistry::defaultToolTip(m_category);
+        text = m_defaultToolTip;
         if (text.isEmpty())
             return false;
     }
@@ -258,24 +204,16 @@ bool TextMark::addToolTipContent(QLayout *target)
     return true;
 }
 
-TextDocument *TextMark::baseTextDocument() const
+Theme::Color TextMark::color() const
 {
-    return m_baseTextDocument;
+    QTC_CHECK(m_hasColor);
+    return m_color;
 }
 
-void TextMark::setBaseTextDocument(TextDocument *baseTextDocument)
+void TextMark::setColor(const Theme::Color &color)
 {
-    m_baseTextDocument = baseTextDocument;
-}
-
-QString TextMark::toolTip() const
-{
-    return m_toolTip;
-}
-
-void TextMark::setToolTip(const QString &toolTip)
-{
-    m_toolTip = toolTip;
+    m_hasColor = true;
+    m_color = color;
 }
 
 TextMarkRegistry::TextMarkRegistry(QObject *parent)
@@ -302,37 +240,6 @@ void TextMarkRegistry::add(TextMark *mark)
 bool TextMarkRegistry::remove(TextMark *mark)
 {
     return instance()->m_marks[FileName::fromString(mark->fileName())].remove(mark);
-}
-
-Theme::Color TextMarkRegistry::categoryColor(Id category)
-{
-    return instance()->m_colors.value(category, Theme::ProjectExplorer_TaskWarn_TextMarkColor);
-}
-
-bool TextMarkRegistry::categoryHasColor(Id category)
-{
-    return instance()->m_colors.contains(category);
-}
-
-void TextMarkRegistry::setCategoryColor(Id category, Theme::Color newColor)
-{
-    Theme::Color &color = instance()->m_colors[category];
-    if (color == newColor)
-        return;
-    color = newColor;
-}
-
-QString TextMarkRegistry::defaultToolTip(Id category)
-{
-    return instance()->m_defaultToolTips[category];
-}
-
-void TextMarkRegistry::setDefaultToolTip(Id category, const QString &toolTip)
-{
-    QString &defaultToolTip = instance()->m_defaultToolTips[category];
-    if (defaultToolTip == toolTip)
-        return;
-    defaultToolTip = toolTip;
 }
 
 TextMarkRegistry *TextMarkRegistry::instance()

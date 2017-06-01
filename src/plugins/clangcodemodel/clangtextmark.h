@@ -45,7 +45,6 @@ public:
 
 private:
     void setIcon(ClangBackEnd::DiagnosticSeverity severity);
-
     bool addToolTipContent(QLayout *target) override;
     void removedFromEditor() override;
 

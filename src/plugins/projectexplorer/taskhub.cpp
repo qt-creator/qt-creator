@@ -30,6 +30,9 @@
 #include <coreplugin/ioutputpane.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
+
+#include <QApplication>
 
 namespace ProjectExplorer {
 
@@ -60,6 +63,12 @@ public:
         TextMark(fileName, lineNumber, categoryForType(type)),
         m_id(id)
     {
+        setColor(type == Task::Error ? Utils::Theme::ProjectExplorer_TaskError_TextMarkColor
+                                     : Utils::Theme::ProjectExplorer_TaskWarn_TextMarkColor);
+        setDefaultToolTip(type == Task::Error ? QApplication::translate("TaskHub", "Error")
+                                              : QApplication::translate("TaskHub", "Warning"));
+        setPriority(type == Task::Error ? TextEditor::TextMark::NormalPriority
+                                        : TextEditor::TextMark::LowPriority);
         setVisible(visible);
     }
 
@@ -105,12 +114,6 @@ TaskHub::TaskHub()
     m_instance = this;
     qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");
     qRegisterMetaType<QList<ProjectExplorer::Task> >("QList<ProjectExplorer::Task>");
-    TaskMark::setCategoryColor(TASK_MARK_ERROR,
-                               Utils::Theme::ProjectExplorer_TaskError_TextMarkColor);
-    TaskMark::setCategoryColor(TASK_MARK_WARNING,
-                               Utils::Theme::ProjectExplorer_TaskWarn_TextMarkColor);
-    TaskMark::setDefaultToolTip(TASK_MARK_ERROR, tr("Error"));
-    TaskMark::setDefaultToolTip(TASK_MARK_WARNING, tr("Warning"));
 }
 
 TaskHub::~TaskHub()
@@ -149,9 +152,8 @@ void TaskHub::addTask(Task task)
 
     if (task.line != -1) {
         auto mark = new TaskMark(task.taskId, task.file.toString(), task.line, task.type, !task.icon.isNull());
-        mark->setIcon(task.icon);
-        mark->setPriority(TextEditor::TextMark::LowPriority);
         mark->setToolTip(task.description);
+        mark->setIcon(task.icon);
         task.setMark(mark);
     }
     emit m_instance->taskAdded(task);

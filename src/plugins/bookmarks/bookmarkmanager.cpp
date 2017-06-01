@@ -320,7 +320,6 @@ void BookmarkView::gotoBookmark(const QModelIndex &index)
 ////
 
 BookmarkManager::BookmarkManager() :
-    m_bookmarkIcon(Utils::Icons::BOOKMARK_TEXTEDITOR.pixmap()),
     m_selectionModel(new QItemSelectionModel(this, this))
 {
     connect(ICore::instance(), &ICore::contextChanged,
@@ -330,9 +329,6 @@ BookmarkManager::BookmarkManager() :
             this, &BookmarkManager::loadBookmarks);
 
     updateActionStatus();
-    Bookmark::setCategoryColor(Constants::BOOKMARKS_TEXT_MARK_CATEGORY,
-                               Theme::Bookmarks_TextMarkColor);
-    Bookmark::setDefaultToolTip(Constants::BOOKMARKS_TEXT_MARK_CATEGORY, tr("Bookmark"));
 }
 
 BookmarkManager::~BookmarkManager()

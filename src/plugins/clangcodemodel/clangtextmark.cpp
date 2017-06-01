@@ -32,6 +32,7 @@
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
+#include <QApplication>
 #include <QLayout>
 #include <QString>
 
@@ -70,7 +71,13 @@ ClangTextMark::ClangTextMark(const QString &fileName,
     , m_diagnostic(diagnostic)
     , m_removedFromEditorHandler(removedHandler)
 {
-    setPriority(TextEditor::TextMark::HighPriority);
+    const bool warning = isWarningOrNote(diagnostic.severity());
+    setColor(warning ? Utils::Theme::ClangCodeModel_Warning_TextMarkColor
+                     : Utils::Theme::ClangCodeModel_Error_TextMarkColor);
+    setDefaultToolTip(warning ? QApplication::translate("Clang Code Model Marks", "Code Model Warning")
+                              : QApplication::translate("Clang Code Model Marks", "Code Model Error"));
+    setPriority(warning ? TextEditor::TextMark::NormalPriority
+                        : TextEditor::TextMark::HighPriority);
     setIcon(diagnostic.severity());
 }
 

@@ -5771,8 +5771,7 @@ void TextEditorWidgetPrivate::addSearchResultsToScrollBar(QVector<SearchResult> 
 
 Highlight markToHighlight(TextMark *mark, int lineNumber)
 {
-    return Highlight(mark->category(), lineNumber,
-                     TextMark::categoryColor(mark->category()),
+    return Highlight(mark->category(), lineNumber, mark->color(),
                      textMarkPrioToScrollBarPrio(mark->priority()));
 }
 
@@ -5791,8 +5790,7 @@ void TextEditorWidgetPrivate::updateHighlightScrollBarNow()
 
     // update text marks
     foreach (TextMark *mark, m_document->marks()) {
-        Id category = mark->category();
-        if (!mark->isVisible() || !TextMark::categoryHasColor(category))
+        if (!mark->isVisible() || !mark->hasColor())
             continue;
         const QTextBlock &block = q->document()->findBlockByNumber(mark->lineNumber() - 1);
         if (block.isVisible())

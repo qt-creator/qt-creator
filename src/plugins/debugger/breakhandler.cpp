@@ -55,6 +55,7 @@
 #include <modeltest.h>
 #endif
 
+#include <QApplication>
 #include <QTimerEvent>
 #include <QDir>
 #include <QDebug>
@@ -156,8 +157,10 @@ public:
     BreakpointMarker(BreakpointItem *b, const QString &fileName, int lineNumber)
         : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_bp(b)
     {
-        setIcon(b->icon());
+        setColor(Theme::Debugger_Breakpoint_TextMarkColor);
+        setDefaultToolTip(QApplication::translate("BreakHandler", "Breakpoint"));
         setPriority(TextEditor::TextMark::NormalPriority);
+        setIcon(b->icon());
     }
 
     void removedFromEditor()
@@ -894,10 +897,6 @@ BreakHandler::BreakHandler()
   : m_syncTimerId(-1)
 {
     qRegisterMetaType<BreakpointModelId>();
-    TextEditor::TextMark::setCategoryColor(Constants::TEXT_MARK_CATEGORY_BREAKPOINT,
-                                           Theme::Debugger_Breakpoint_TextMarkColor);
-    TextEditor::TextMark::setDefaultToolTip(Constants::TEXT_MARK_CATEGORY_BREAKPOINT,
-                                            tr("Breakpoint"));
 
 #if USE_BREAK_MODEL_TEST
     new ModelTest(this, 0);

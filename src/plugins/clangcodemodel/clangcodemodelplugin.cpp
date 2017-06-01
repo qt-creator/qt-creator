@@ -46,20 +46,6 @@ namespace Internal {
 
 namespace {
 
-void initializeTextMarks()
-{
-    TextEditor::TextMark::setCategoryColor(Core::Id(Constants::CLANG_WARNING),
-                                           Utils::Theme::ClangCodeModel_Warning_TextMarkColor);
-    TextEditor::TextMark::setCategoryColor(Core::Id(Constants::CLANG_ERROR),
-                                           Utils::Theme::ClangCodeModel_Error_TextMarkColor);
-    TextEditor::TextMark::setDefaultToolTip(Core::Id(Constants::CLANG_WARNING),
-                                            QApplication::translate("Clang Code Model Marks",
-                                                                    "Code Model Warning"));
-    TextEditor::TextMark::setDefaultToolTip(Core::Id(Constants::CLANG_ERROR),
-                                            QApplication::translate("Clang Code Model Marks",
-                                                                    "Code Model Error"));
-}
-
 void addProjectPanelWidget()
 {
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
@@ -85,7 +71,6 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
 
     CppTools::CppModelManager::instance()->activateClangCodeModel(&m_modelManagerSupportProvider);
 
-    initializeTextMarks();
     addProjectPanelWidget();
 
     return true;
