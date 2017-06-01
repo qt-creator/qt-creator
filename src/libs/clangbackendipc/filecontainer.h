@@ -142,7 +142,7 @@ private:
     Utf8String projectPartId_;
     Utf8StringVector fileArguments_;
     Utf8String unsavedFileContent_;
-    quint32 documentRevision_;
+    quint32 documentRevision_ = 0;
     bool hasUnsavedFileContent_ = false;
 };
 

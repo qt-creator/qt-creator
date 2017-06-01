@@ -109,9 +109,9 @@ public:
     }
 
 private:
-    uint line_;
-    uint column_;
-    uint length_;
+    uint line_ = 0;
+    uint column_ = 0;
+    uint length_ = 0;
     HighlightingTypes types_;
 };
 

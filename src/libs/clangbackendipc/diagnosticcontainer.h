@@ -158,7 +158,7 @@ private:
     Utf8String disableOption_;
     QVector<DiagnosticContainer> children_;
     QVector<FixItContainer> fixIts_;
-    DiagnosticSeverity severity_;
+    DiagnosticSeverity severity_ = DiagnosticSeverity::Ignored;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DiagnosticContainer &container);

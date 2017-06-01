@@ -113,7 +113,7 @@ private:
     Utf8String filePath_;
     Utf8String projectPartId_;
     static CMBIPC_EXPORT quint64 ticketCounter;
-    quint64 ticketNumber_;
+    quint64 ticketNumber_ = 0;
     quint32 line_ = 0;
     quint32 column_ = 0;
 };

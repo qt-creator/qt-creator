@@ -49,8 +49,8 @@ public:
 
 private:
     Utf8String filePath_;
-    uint line_;
-    uint column_;
+    uint line_ = 0;
+    uint column_ = 0;
 };
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const SourceLocationContainer &container);

@@ -101,7 +101,7 @@ public:
 
 private:
     V2::SourceRangeContainer sourceRange_;
-    ClangQueryDiagnosticContextType contextType_;
+    ClangQueryDiagnosticContextType contextType_ = ClangQueryDiagnosticContextType::MatcherArg;
     Utils::SmallStringVector arguments_;
 };
 
