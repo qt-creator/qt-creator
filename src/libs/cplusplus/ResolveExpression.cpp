@@ -192,7 +192,7 @@ private:
 
     const LookupContext &_context;
     // binding has to be remembered in case of resolving typedefs for templates
-    ClassOrNamespace *_binding;
+    ClassOrNamespace *_binding = nullptr;
 };
 
 static int evaluateFunctionArgument(const FullySpecifiedType &actualTy,
