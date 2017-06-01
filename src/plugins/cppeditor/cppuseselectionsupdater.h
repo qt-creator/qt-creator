@@ -104,8 +104,8 @@ private:
     CPlusPlus::Document::Ptr m_document;
 
     QScopedPointer<QFutureWatcher<UseSelectionsResult>> m_findUsesWatcher;
-    int m_findUsesRevision;
-    int m_findUsesCursorPosition;
+    int m_findUsesRevision = -1;
+    int m_findUsesCursorPosition = -1;
 };
 
 } // namespace Internal

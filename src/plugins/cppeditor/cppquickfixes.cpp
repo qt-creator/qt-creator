@@ -824,9 +824,9 @@ public:
 
     ASTMatcher matcher;
     ASTPatternBuilder mk;
-    ConditionAST *condition;
-    IfStatementAST *pattern;
-    CoreDeclaratorAST *core;
+    ConditionAST *condition = nullptr;
+    IfStatementAST *pattern = nullptr;
+    CoreDeclaratorAST *core = nullptr;
 };
 
 } // anonymous namespace
@@ -901,9 +901,9 @@ public:
 
     ASTMatcher matcher;
     ASTPatternBuilder mk;
-    ConditionAST *condition;
-    WhileStatementAST *pattern;
-    CoreDeclaratorAST *core;
+    ConditionAST *condition = nullptr;
+    WhileStatementAST *pattern = nullptr;
+    CoreDeclaratorAST *core = nullptr;
 };
 
 } // anonymous namespace
@@ -2235,7 +2235,7 @@ public:
     }
 
     Overview prettyPrint;
-    bool foundCaseStatementLevel;
+    bool foundCaseStatementLevel = false;
     QStringList values;
     TypeOfExpression typeOfExpression;
     Document::Ptr document;

@@ -260,17 +260,6 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     m_watcher->setFuture(Utils::runAsync(findLinkHelper, result, refactoringChanges));
 }
 
-FunctionDeclDefLink::FunctionDeclDefLink()
-{
-    hasMarker = false;
-    targetLine = 0;
-    targetColumn = 0;
-    sourceFunction = 0;
-    targetFunction = 0;
-    targetDeclaration = 0;
-    targetFunctionDeclarator = 0;
-}
-
 bool FunctionDeclDefLink::isValid() const
 {
     return !linkSelection.isNull();

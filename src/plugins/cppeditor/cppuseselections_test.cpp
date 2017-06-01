@@ -74,7 +74,7 @@ private:
     SelectionList waitForUseSelections(bool *hasTimedOut) const;
 
 private:
-    CppEditorWidget *m_editorWidget;
+    CppEditorWidget *m_editorWidget = nullptr;
 };
 
 UseSelectionsTestCase::UseSelectionsTestCase(TestDocument &testFile,

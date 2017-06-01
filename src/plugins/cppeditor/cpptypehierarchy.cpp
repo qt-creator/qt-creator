@@ -87,11 +87,7 @@ namespace Internal {
 
 // CppTypeHierarchyWidget
 CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
-    QWidget(0),
-    m_treeView(0),
-    m_model(0),
-    m_delegate(0),
-    m_noTypeHierarchyAvailableLabel(0)
+    QWidget(0)
 {
     m_inspectedClass = new TextEditor::TextEditorLinkLabel(this);
     m_inspectedClass->setMargin(5);
