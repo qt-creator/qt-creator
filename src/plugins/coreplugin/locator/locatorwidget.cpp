@@ -278,7 +278,6 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     m_configureAction(new QAction(ICore::msgShowOptionsDialog(), this)),
     m_fileLineEdit(new Utils::FancyLineEdit)
 {
-    m_mainWindow = ICore::mainWindow();
     // Explicitly hide the completion list popup.
     m_completionList->hide();
 
@@ -310,7 +309,6 @@ LocatorWidget::LocatorWidget(Locator *qop) :
 
     m_fileLineEdit->installEventFilter(this);
     this->installEventFilter(this);
-    m_mainWindow->installEventFilter(this);
 
     m_completionList->setModel(m_locatorModel);
     m_completionList->resize();
@@ -491,8 +489,16 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
         QFocusEvent *fev = static_cast<QFocusEvent *>(event);
         if (fev->reason() != Qt::ActiveWindowFocusReason)
             showPopupNow();
-    } else if (obj == m_mainWindow && event->type() == QEvent::Resize) {
+    } else if (obj == m_window && event->type() == QEvent::Resize) {
         m_completionList->resize();
+    } else if (obj == this && event->type() == QEvent::ParentChange) {
+        if (m_window != window()) {
+            if (m_window)
+                m_window->removeEventFilter(this);
+            m_window = window();
+            if (m_window)
+                m_window->installEventFilter(this);
+        }
     } else if (obj == this && event->type() == QEvent::ShortcutOverride) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         switch (ke->key()) {
@@ -664,7 +670,7 @@ void LocatorWidget::show(const QString &text, int selectionStart, int selectionL
         m_fileLineEdit->setText(text);
     m_fileLineEdit->setFocus();
     showPopupNow();
-    ICore::raiseWindow(m_mainWindow);
+    ICore::raiseWindow(m_window);
 
     if (selectionStart >= 0) {
         m_fileLineEdit->setSelection(selectionStart, selectionLength);

@@ -27,6 +27,7 @@
 
 #include "locator.h"
 
+#include <QPointer>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -94,7 +95,7 @@ private:
     bool m_acceptRequested = false;
     bool m_possibleToolTipRequest = false;
     QWidget *m_progressIndicator;
-    QWidget *m_mainWindow;
+    QPointer<QWidget> m_window;
     QTimer m_showProgressTimer;
 };
 
