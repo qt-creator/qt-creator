@@ -111,42 +111,47 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
             // in which case it would be annoying if we put the cursor after the already automatically
             // inserted closing parenthesis.
             const bool skipClosingParenthesis = m_typedCharacter != QLatin1Char('(');
+            QTextCursor cursor = manipulator.textCursorAt(basePosition);
+            cursor.movePosition(QTextCursor::PreviousWord);
+            while (manipulator.characterAt(cursor.position()) == ':')
+                cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::MoveAnchor, 2);
+            if (manipulator.characterAt(cursor.position()) != '&') {
+                if (completionSettings.m_spaceAfterFunctionName)
+                    extraCharacters += QLatin1Char(' ');
+                extraCharacters += QLatin1Char('(');
+                if (m_typedCharacter == QLatin1Char('('))
+                    m_typedCharacter = QChar();
 
-            if (completionSettings.m_spaceAfterFunctionName)
-                extraCharacters += QLatin1Char(' ');
-            extraCharacters += QLatin1Char('(');
-            if (m_typedCharacter == QLatin1Char('('))
-                m_typedCharacter = QChar();
+                // If the function doesn't return anything, automatically place the semicolon,
+                // unless we're doing a scope completion (then it might be function definition).
+                const QChar characterAtCursor = manipulator.characterAt(manipulator.currentPosition());
+                bool endWithSemicolon = m_typedCharacter == QLatin1Char(';')/*
+                                                || (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON)*/; //###
+                const QChar semicolon = m_typedCharacter.isNull() ? QLatin1Char(';') : m_typedCharacter;
 
-            // If the function doesn't return anything, automatically place the semicolon,
-            // unless we're doing a scope completion (then it might be function definition).
-            const QChar characterAtCursor = manipulator.characterAt(manipulator.currentPosition());
-            bool endWithSemicolon = m_typedCharacter == QLatin1Char(';')/*
-                                            || (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON)*/; //###
-            const QChar semicolon = m_typedCharacter.isNull() ? QLatin1Char(';') : m_typedCharacter;
-
-            if (endWithSemicolon && characterAtCursor == semicolon) {
-                endWithSemicolon = false;
-                m_typedCharacter = QChar();
-            }
-
-            // If the function takes no arguments, automatically place the closing parenthesis
-            if (!isOverloaded() && !ccr.hasParameters() && skipClosingParenthesis) {
-                extraCharacters += QLatin1Char(')');
-                if (endWithSemicolon) {
-                    extraCharacters += semicolon;
+                if (endWithSemicolon && characterAtCursor == semicolon) {
+                    endWithSemicolon = false;
                     m_typedCharacter = QChar();
                 }
-            } else if (autoParenthesesEnabled) {
-                const QChar lookAhead = manipulator.characterAt(manipulator.currentPosition() + 1);
-                if (MatchingText::shouldInsertMatchingText(lookAhead)) {
+
+                // If the function takes no arguments, automatically place the closing parenthesis
+                if (!isOverloaded() && !ccr.hasParameters() && skipClosingParenthesis) {
                     extraCharacters += QLatin1Char(')');
-                    --cursorOffset;
-                    setAutoCompleteSkipPos = true;
                     if (endWithSemicolon) {
                         extraCharacters += semicolon;
-                        --cursorOffset;
                         m_typedCharacter = QChar();
+                    }
+                } else if (autoParenthesesEnabled) {
+                    const QChar lookAhead = manipulator.characterAt(manipulator.currentPosition() + 1);
+                    if (MatchingText::shouldInsertMatchingText(lookAhead)) {
+                        extraCharacters += QLatin1Char(')');
+                        --cursorOffset;
+                        setAutoCompleteSkipPos = true;
+                        if (endWithSemicolon) {
+                            extraCharacters += semicolon;
+                            --cursorOffset;
+                            m_typedCharacter = QChar();
+                        }
                     }
                 }
             }
