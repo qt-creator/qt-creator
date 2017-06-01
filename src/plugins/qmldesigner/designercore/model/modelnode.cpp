@@ -730,11 +730,6 @@ void ModelNode::destroy()
   */
 bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode)
 {
-    if (firstNode.m_internalNode.isNull() || secondNode.m_internalNode.isNull()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
-
     return firstNode.internalId() == secondNode.internalId();
 }
 
@@ -743,21 +738,11 @@ bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode)
   */
 bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode)
 {
-    if (firstNode.m_internalNode.isNull() || secondNode.m_internalNode.isNull()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
-
     return firstNode.internalId() != secondNode.internalId();
 }
 
 bool operator <(const ModelNode &firstNode, const ModelNode &secondNode)
 {
-    if (firstNode.m_internalNode.isNull() || secondNode.m_internalNode.isNull()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
-
     return firstNode.internalId() < secondNode.internalId();
 }
 
