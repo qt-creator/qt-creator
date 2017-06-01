@@ -141,7 +141,7 @@ private:
     Extensions m_extensions;
     QString m_outputFileName;
     QStringList m_subdirs;
-    int m_treeLevel;
+    int m_treeLevel = 0;
 };
 
 class ProMaker
