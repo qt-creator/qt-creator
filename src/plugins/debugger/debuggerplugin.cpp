@@ -612,15 +612,6 @@ static Kit *findUniversalCdbKit()
 
 static DebuggerPluginPrivate *dd = 0;
 
-//class DockWidgetEventFilter : public QObject
-//{
-//public:
-//    DockWidgetEventFilter() {}
-
-//private:
-//    bool eventFilter(QObject *obj, QEvent *event) override;
-//};
-
 /*!
     \class Debugger::Internal::DebuggerCore
 
@@ -978,8 +969,6 @@ public:
     QPointer<DebugMode> m_mode;
 
     ActionContainer *m_menu = 0;
-
-//    DockWidgetEventFilter m_resizeEventFilter;
 
     QHash<DebuggerLanguage, Core::Context> m_contextsForLanguage;
 
@@ -3382,19 +3371,6 @@ void DebuggerPluginPrivate::updateActiveLanguages()
     }
 }
 
-//bool DockWidgetEventFilter::eventFilter(QObject *obj, QEvent *event)
-//{
-//    switch (event->type()) {
-//    case QEvent::Resize:
-//    case QEvent::ZOrderChange:
-//        dd->updateDockWidgetSettings();
-//        break;
-//    default:
-//        break;
-//    }
-//    return QObject::eventFilter(obj, event);
-//}
-
 void DebuggerPluginPrivate::onModeChanged(Id mode)
 {
     // FIXME: This one gets always called, even if switching between modes
@@ -3406,20 +3382,6 @@ void DebuggerPluginPrivate::onModeChanged(Id mode)
             editor->widget()->setFocus();
 
         m_toolTipManager.debugModeEntered();
-
-//        static bool firstTime = true;
-//        if (firstTime) {
-
-//            // Dock widgets
-//            connect(m_mainWindow->dockWidget(DOCKWIDGET_MODULES)->toggleViewAction(), &QAction::toggled,
-//                    this, &DebuggerPluginPrivate::modulesDockToggled, Qt::QueuedConnection);
-//            connect(m_mainWindow->dockWidget(DOCKWIDGET_OUTPUT)->toggleViewAction(), &QAction::toggled,
-//                    this, &DebuggerPluginPrivate::registerDockToggled, Qt::QueuedConnection);
-//            connect(m_mainWindow->dockWidget(DOCKWIDGET_SOURCE_FILES)->toggleViewAction(), &QAction::toggled,
-//                    this, &DebuggerPluginPrivate::sourceFilesDockToggled, Qt::QueuedConnection);
-
-//            firstTime = false;
-//        }
         updateActiveLanguages();
     } else {
         m_toolTipManager.leavingDebugMode();
