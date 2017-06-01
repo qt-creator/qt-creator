@@ -48,7 +48,6 @@ class CPPTOOLS_EXPORT CodeFormatter
 {
     Q_GADGET
 public:
-    CodeFormatter();
     virtual ~CodeFormatter();
 
     // updates all states up until block if necessary
@@ -73,13 +72,11 @@ protected:
     class BlockData
     {
     public:
-        BlockData();
-
         QStack<State> m_beginState;
         QStack<State> m_endState;
-        int m_indentDepth;
-        int m_paddingDepth;
-        int m_blockRevision;
+        int m_indentDepth = 0;
+        int m_paddingDepth = 0;
+        int m_blockRevision = -1;
     };
 
     virtual void saveBlockData(QTextBlock *block, const BlockData &data) const = 0;
@@ -242,12 +239,12 @@ private:
     CPlusPlus::Tokens m_tokens;
     QString m_currentLine;
     CPlusPlus::Token m_currentToken;
-    int m_tokenIndex;
+    int m_tokenIndex = 0;
 
-    int m_indentDepth;
-    int m_paddingDepth;
+    int m_indentDepth = 0;
+    int m_paddingDepth = 0;
 
-    int m_tabSize;
+    int m_tabSize = 4;
 
     friend class Internal::CppCodeFormatterData;
 };

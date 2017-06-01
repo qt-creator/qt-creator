@@ -354,7 +354,7 @@ public:
 class FindMethodDefinitionInsertPoint : protected ASTVisitor
 {
     QList<const Identifier *> _namespaceNames;
-    int _currentDepth;
+    int _currentDepth = 0;
     HighestValue<int, unsigned> _bestToken;
 
 public:

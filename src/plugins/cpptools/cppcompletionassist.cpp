@@ -83,9 +83,6 @@ struct CompleteFunctionDeclaration
 class CppAssistProposalItem final : public AssistProposalItem
 {
 public:
-    CppAssistProposalItem() :
-        m_isOverloaded(false) {}
-
     ~CppAssistProposalItem() Q_DECL_NOEXCEPT {}
     bool prematurelyApplies(const QChar &c) const override;
     void applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const override;
@@ -101,9 +98,9 @@ public:
 
 private:
     QSharedPointer<TypeOfExpression> m_typeOfExpression;
-    unsigned m_completionOperator;
+    unsigned m_completionOperator = T_EOF_SYMBOL;
     mutable QChar m_typedChar;
-    bool m_isOverloaded;
+    bool m_isOverloaded = false;
 };
 
 } // Internal

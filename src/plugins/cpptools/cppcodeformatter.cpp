@@ -40,18 +40,6 @@ using namespace CppTools;
 using namespace TextEditor;
 using namespace CppTools::Internal;
 
-CodeFormatter::BlockData::BlockData()
-    : m_blockRevision(-1)
-{
-}
-
-CodeFormatter::CodeFormatter()
-    : m_indentDepth(0)
-    , m_paddingDepth(0)
-    , m_tabSize(4)
-{
-}
-
 CodeFormatter::~CodeFormatter()
 {
 }
