@@ -54,20 +54,23 @@ public:
         RequestDocumentAnnotations,
     };
 
-    enum Requirement {
-        None                    = 1 << 0,
+    enum ExpirationReason {
+        Never                   = 1 << 0,
 
-        DocumentValid           = 1 << 1,
-        CurrentDocumentRevision = 1 << 3, // Only effective if DocumentValid is also set
-        CurrentUnsavedFiles     = 1 << 2,
-        CurrentProject          = 1 << 4,
+        DocumentClosed          = 1 << 1,
+        DocumentRevisionChanged = 1 << 2, // Only effective if DocumentIsClosed is also set
+        UnsavedFilesChanged     = 1 << 3,
+        ProjectChanged          = 1 << 4,
 
-        All = DocumentValid | CurrentUnsavedFiles | CurrentDocumentRevision | CurrentProject
+        AnythingChanged = DocumentClosed
+                        | DocumentRevisionChanged
+                        | UnsavedFilesChanged
+                        | ProjectChanged,
     };
-    Q_DECLARE_FLAGS(Requirements, Requirement)
+    Q_DECLARE_FLAGS(ExpirationReasons, ExpirationReason)
 
 public:
-    static Requirements requirementsForType(Type type);
+    static ExpirationReasons expirationReasonsForType(Type type);
 
     JobRequest();
 
@@ -76,7 +79,7 @@ public:
 public:
     quint64 id = 0;
     Type type;
-    Requirements requirements;
+    ExpirationReasons expirationReasons;
 
     // General
     Utf8String filePath;

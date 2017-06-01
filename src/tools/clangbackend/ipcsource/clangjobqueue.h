@@ -60,8 +60,8 @@ private:
     bool isJobRunningForTranslationUnit(const Utf8String &translationUnitId);
     bool isJobRunningForJobRequest(const JobRequest &jobRequest);
     JobRequests takeJobRequestsToRunNow();
-    void removeOutDatedRequests();
-    bool isJobRequestOutDated(const JobRequest &jobRequest) const;
+    void removeExpiredRequests();
+    bool isJobRequestExpired(const JobRequest &jobRequest) const;
 
 private:
     Documents &m_documents;
