@@ -5420,7 +5420,7 @@ void tst_Dumpers::dumper_data()
                + Check("s.x", "2", "unsigned int") % CdbEngine
                + Check("s.y", "3", "unsigned int") % CdbEngine
                + Check("s.z", "39", "unsigned int") % CdbEngine
-               + Check("s.e", "V2 (1)", TypePattern("main::[a-zA-Z_]*::E")) % CdbEngine;
+               + Check("s.e", "V2 (1)", TypePattern("main::[a-zA-Z0-9_]*::E")) % CdbEngine;
 
 
     QTest::newRow("Function")
