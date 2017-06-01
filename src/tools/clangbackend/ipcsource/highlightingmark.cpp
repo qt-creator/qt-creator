@@ -157,6 +157,18 @@ void HighlightingMark::referencedTypeKind(const Cursor &cursor)
     }
 }
 
+void HighlightingMark::overloadedDeclRefKind(const Cursor &cursor)
+{
+    types.mainHighlightingType = HighlightingType::Function;
+
+    // Workaround https://bugs.llvm.org//show_bug.cgi?id=33256 - SomeType in
+    // "using N::SomeType" is mistakenly considered as a CXCursor_OverloadedDeclRef.
+    if (cursor.overloadedDeclarationsCount() >= 1
+            && cursor.overloadedDeclaration(0).kind() != CXCursor_FunctionDecl) {
+        types.mainHighlightingType = HighlightingType::Type;
+    }
+}
+
 void HighlightingMark::variableKind(const Cursor &cursor)
 {
     if (cursor.isLocalVariable())
@@ -298,7 +310,6 @@ void HighlightingMark::identifierKind(const Cursor &cursor, Recursion recursion)
         case CXCursor_TemplateTemplateParameter:
         case CXCursor_UnionDecl:
         case CXCursor_StructDecl:
-        case CXCursor_OverloadedDeclRef:
         case CXCursor_TemplateRef:
         case CXCursor_Namespace:
         case CXCursor_NamespaceRef:
@@ -317,6 +328,7 @@ void HighlightingMark::identifierKind(const Cursor &cursor, Recursion recursion)
         case CXCursor_ObjCProtocolRef:
         case CXCursor_ObjCClassRef:
         case CXCursor_ObjCSuperClassRef:         types.mainHighlightingType = HighlightingType::Type; break;
+        case CXCursor_OverloadedDeclRef:         overloadedDeclRefKind(cursor); break;
         case CXCursor_FunctionTemplate:          types.mainHighlightingType = HighlightingType::Function; break;
         case CXCursor_EnumConstantDecl:          types.mainHighlightingType = HighlightingType::Enumeration; break;
         case CXCursor_PreprocessingDirective:    types.mainHighlightingType = HighlightingType::Preprocessor; break;

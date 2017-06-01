@@ -63,6 +63,7 @@ public:
 private:
     void identifierKind(const Cursor &cursor, Recursion recursion);
     void referencedTypeKind(const Cursor &cursor);
+    void overloadedDeclRefKind(const Cursor &cursor);
     void variableKind(const Cursor &cursor);
     void fieldKind(const Cursor &cursor);
     bool isVirtualMethodDeclarationOrDefinition(const Cursor &cursor) const;

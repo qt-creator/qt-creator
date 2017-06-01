@@ -296,6 +296,16 @@ Cursor Cursor::argument(int index) const
     return clang_Cursor_getArgument(cxCursor, index);
 }
 
+unsigned Cursor::overloadedDeclarationsCount() const
+{
+    return clang_getNumOverloadedDecls(cxCursor);
+}
+
+Cursor Cursor::overloadedDeclaration(unsigned index) const
+{
+    return clang_getOverloadedDecl(cxCursor, index);
+}
+
 namespace {
 
 bool isNotUnexposedLValueReference(const Cursor &argument, const Type &argumentType)

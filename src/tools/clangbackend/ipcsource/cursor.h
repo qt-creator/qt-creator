@@ -93,6 +93,9 @@ public:
     Cursor functionBaseDeclaration() const;
     Cursor functionBase() const;
     Cursor argument(int index) const;
+    unsigned overloadedDeclarationsCount() const;
+    Cursor overloadedDeclaration(unsigned index) const;
+
     void collectOutputArgumentRangesTo(
             std::vector<CXSourceRange> &outputArgumentRanges) const;
     std::vector<CXSourceRange> outputArgumentRanges() const;
