@@ -401,6 +401,8 @@ public:
     virtual bool selectBlockDown();
     void selectWordUnderCursor();
 
+    void showContextMenu();
+
     void moveLineUp();
     void moveLineDown();
 
