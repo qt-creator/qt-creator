@@ -56,6 +56,22 @@ CodeCompletions toCodeCompletions(const ClangCodeCompleteResults &results)
     return codeCompletions;
 }
 
+void filterUnknownContextResults(ClangCodeCompleteResults &results,
+                                 const UnsavedFile &theUnsavedFile,
+                                 uint line,
+                                 uint column)
+{
+    if (results.hasUnknownContext()) {
+        bool positionIsOk = false;
+        const uint position = theUnsavedFile.toUtf8Position(line, column - 1, &positionIsOk);
+        if (positionIsOk && (theUnsavedFile.hasCharacterAt(position, '.')
+                             || (theUnsavedFile.hasCharacterAt(position - 1, '-')
+                                 && theUnsavedFile.hasCharacterAt(position, '>')))) {
+            results = {};
+        }
+    }
+}
+
 } // anonymous namespace
 
 CodeCompleter::CodeCompleter(const TranslationUnit &translationUnit,
@@ -70,7 +86,7 @@ CodeCompletions CodeCompleter::complete(uint line, uint column)
     neededCorrection_ = CompletionCorrection::NoCorrection;
 
     ClangCodeCompleteResults results = completeHelper(line, column);
-
+    filterUnknownContextResults(results, unsavedFile(), line, column);
     tryDotArrowCorrectionIfNoResults(results, line, column);
 
     return toCodeCompletions(results);
@@ -139,6 +155,7 @@ ClangCodeCompleteResults CodeCompleter::completeWithArrowInsteadOfDot(uint line,
         results = completeHelper(line, column + 1);
         if (results.hasResults())
             neededCorrection_ = CompletionCorrection::DotToArrowCorrection;
+        filterUnknownContextResults(results, unsavedFile(), line, column+1);
     }
 
     return results;

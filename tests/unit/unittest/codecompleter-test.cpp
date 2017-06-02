@@ -176,6 +176,18 @@ protected:
         readFileContent(QStringLiteral("/complete_withNoDotArrowCorrectionForColonColon.cpp")),
         true
     };
+    ClangBackEnd::FileContainer dotArrowCorrectionForForwardDeclaredClassPointer{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_withDotArrowCorrectionForForwardDeclaredClassPointer.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_withDotArrowCorrectionForForwardDeclaredClassPointer.cpp")),
+        true
+    };
+    ClangBackEnd::FileContainer globalCompletionAfterForwardDeclaredClassPointer{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_withGlobalCompletionAfterForwardDeclaredClassPointer.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_withGlobalCompletionAfterForwardDeclaredClassPointer.cpp")),
+        true
+    };
 };
 
 using CodeCompleterSlowTest = CodeCompleter;
@@ -425,10 +437,18 @@ TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForOnlyDot)
 
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 6);
 
+    ASSERT_TRUE(completions.isEmpty());
+    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
+}
+
+TEST_F(CodeCompleterSlowTest, GlobalCompletionForSpaceAfterOnlyDot)
+{
+    auto myCompleter = setupCompleter(noDotArrowCorrectionForOnlyDotFileContainer);
+
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 7);
     ASSERT_THAT(completions,
                 Contains(IsCodeCompletion(Utf8StringLiteral("Foo"),
                                           CodeCompletion::ClassCompletionKind)));
-    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
 TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForColonColon)
@@ -436,6 +456,33 @@ TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForColonColon)
     auto myCompleter = setupCompleter(noDotArrowCorrectionForColonColonFileContainer);
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(1, 7);
 
+    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
+}
+
+TEST_F(CodeCompleterSlowTest, DotArrowCorrectionForForwardDeclaredClassPointer)
+{
+    auto myCompleter = setupCompleter(dotArrowCorrectionForForwardDeclaredClassPointer);
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 9);
+
+    ASSERT_TRUE(completions.isEmpty());
+    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::DotToArrowCorrection);
+}
+
+TEST_F(CodeCompleterSlowTest, NoGlobalCompletionAfterForwardDeclaredClassPointer)
+{
+    auto myCompleter = setupCompleter(globalCompletionAfterForwardDeclaredClassPointer);
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 10);
+
+    ASSERT_TRUE(completions.isEmpty());
+    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
+}
+
+TEST_F(CodeCompleterSlowTest, GlobalCompletionAfterForwardDeclaredClassPointer)
+{
+    auto myCompleter = setupCompleter(globalCompletionAfterForwardDeclaredClassPointer);
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(6, 4);
+
+    ASSERT_TRUE(!completions.isEmpty());
     ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 

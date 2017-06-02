@@ -61,6 +61,12 @@ bool ClangCodeCompleteResults::hasNoResultsForDotCompletion() const
     return !hasResults() && isDotCompletion();
 }
 
+bool ClangCodeCompleteResults::hasUnknownContext() const
+{
+    const unsigned long long contexts = clang_codeCompleteGetContexts(cxCodeCompleteResults);
+    return contexts == CXCompletionContext_Unknown;
+}
+
 bool ClangCodeCompleteResults::isDotCompletion() const
 {
     const unsigned long long contexts = clang_codeCompleteGetContexts(cxCodeCompleteResults);
