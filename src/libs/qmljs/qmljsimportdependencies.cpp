@@ -249,6 +249,7 @@ ImportMatchStrength ImportKey::matchImport(const ImportKey &o, const ViewerConte
     case ImportType::QrcFile:
         if (type != ImportType::QrcFile)
             return ImportMatchStrength();
+        break;
     case ImportType::UnknownFile:
     case ImportType::File:
         switch (type) {
