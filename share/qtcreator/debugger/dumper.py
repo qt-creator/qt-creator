@@ -2730,7 +2730,10 @@ class DumperBase:
         if typeobj.code == TypeCodeBitfield:
             #warn('BITFIELD VALUE: %s %s' % (value.name, value))
             self.putNumChild(0)
-            self.putValue(value.lvalue)
+            if typeobj.ltarget and typeobj.ltarget.code == TypeCodeEnum:
+                self.putValue(typeobj.ltarget.typeData().enumDisplay(value.lvalue, value.laddress))
+            else:
+                self.putValue(value.lvalue)
             self.putType(typeName)
             return
 
@@ -3695,15 +3698,16 @@ class DumperBase:
         self.registerType(typeId, tdata)
         return self.Type(self, typeId)
 
-    def createBitfieldType(self, targetTypeId, bitsize):
-        if not isinstance(targetTypeId, str):
+    def createBitfieldType(self, targetType, bitsize):
+        if not isinstance(targetType, self.Type):
             error('Expected type in createBitfieldType(), got %s'
                 % type(targetType))
-        typeId = '%s:%d' % (targetTypeId, bitsize)
+        typeId = '%s:%d' % (targetType.typeId, bitsize)
         tdata = self.TypeData(self)
-        tdata.name = '%s : %d' % (targetTypeId, bitsize)
+        tdata.name = '%s : %d' % (targetType.typeId, bitsize)
         tdata.typeId = typeId
         tdata.code = TypeCodeBitfield
+        tdata.ltarget = targetType
         tdata.lbitsize = bitsize
         self.registerType(typeId, tdata)
         return self.Type(self, typeId)

@@ -463,7 +463,8 @@ class Dumper(DumperBase):
         if nativeField.bitsize:
             val.lvalue = int(nativeMember)
             val.laddress = None
-            val.type = self.createBitfieldType(str(nativeFieldType), nativeField.bitsize)
+            fieldType = self.fromNativeType(nativeFieldType)
+            val.type = self.createBitfieldType(fieldType, nativeField.bitsize)
         val.isBaseClass = nativeField.is_base_class
         val.name = fieldName
         return val
@@ -522,10 +523,11 @@ class Dumper(DumperBase):
         else:
             bitsize = 8 * nativeFieldType.sizeof
 
+        fieldType = self.fromNativeType(nativeFieldType)
         if bitsize != nativeFieldType.sizeof * 8:
-            fieldType = self.createBitfieldType(str(nativeFieldType), bitsize)
+            fieldType = self.createBitfieldType(fieldType, bitsize)
         else:
-            fieldType = self.fromNativeType(nativeFieldType)
+            fieldType = fieldType
 
         if nativeValue is None:
             extractor = None

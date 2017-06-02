@@ -255,7 +255,8 @@ class Dumper(DumperBase):
                 isBitfield = False
 
             if isBitfield: # Bit fields
-                fieldType = self.createBitfieldType(self.typeName(nativeFieldType), fieldBitsize)
+                fieldType = self.createBitfieldType(
+                    self.createType(self.typeName(nativeFieldType)), fieldBitsize)
                 yield self.Field(self, name=fieldName, type=fieldType,
                                  bitsize=fieldBitsize, bitpos=fieldBitpos)
 
