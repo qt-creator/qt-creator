@@ -467,7 +467,7 @@ QList<ProjectPart::Ptr> fetchProjectParts(CppTools::CppModelManager *modelManage
 
     if (projectParts.isEmpty())
         projectParts = modelManager->projectPartFromDependencies(filePath);
-    else if (projectParts.isEmpty())
+    if (projectParts.isEmpty())
         projectParts.append(modelManager->fallbackProjectPart());
 
     return projectParts;
