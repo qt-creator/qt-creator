@@ -65,6 +65,7 @@ private slots:
 private:
     void projectChanged();
     void activeTargetChanged();
+    void updateActions();
     void updateRunQMakeAction();
     void updateContextActions();
     void buildStateChanged(ProjectExplorer::Project *pro);

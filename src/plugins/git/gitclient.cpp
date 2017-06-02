@@ -86,7 +86,7 @@ const char stashNamePrefix[] = "stash@{";
 const char noColorOption[] = "--no-color";
 const char decorateOption[] = "--decorate";
 const char showFormatC[] =
-        "--pretty=format:commit %H%n"
+        "--pretty=format:commit %H%d%n"
         "Author: %an <%ae>, %ad (%ar)%n"
         "Committer: %cn <%ce>, %cd (%cr)%n"
         "%n"
@@ -359,7 +359,7 @@ private:
 
 void ShowController::reload()
 {
-    const QStringList args = {"show", "-s", noColorOption, decorateOption, showFormatC, m_id};
+    const QStringList args = {"show", "-s", noColorOption, showFormatC, m_id};
     m_state = GettingDescription;
     runCommand(QList<QStringList>() << args, GitPlugin::client()->encoding(m_directory, "i18n.commitEncoding"));
 }

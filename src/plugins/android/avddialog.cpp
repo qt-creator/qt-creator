@@ -45,10 +45,12 @@ AvdDialog::AvdDialog(int minApiLevel, const QString &targetArch, const AndroidCo
     m_hideTipTimer.setInterval(2000);
     m_hideTipTimer.setSingleShot(true);
 
-    if (targetArch.isEmpty())
-        m_avdDialog.abiComboBox->addItems(QStringList({"armeabi-v7a", "armeabi", "x86", "mips"}));
-    else
+    if (targetArch.isEmpty()) {
+        m_avdDialog.abiComboBox->addItems(QStringList({"armeabi-v7a", "armeabi", "x86", "mips",
+                                                       "arm64-v8a", "x86_64", "mips64"}));
+    } else {
         m_avdDialog.abiComboBox->addItems(QStringList(targetArch));
+    }
 
     QRegExpValidator *v = new QRegExpValidator(m_allowedNameChars, this);
     m_avdDialog.nameLineEdit->setValidator(v);

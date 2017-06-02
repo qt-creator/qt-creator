@@ -133,7 +133,7 @@ ToolChain::ToolChain(const ToolChain &other) :
 
 void ToolChain::setLanguage(Core::Id language)
 {
-    QTC_ASSERT(!d->m_language.isValid(), return);
+    QTC_ASSERT(!d->m_language.isValid() || isAutoDetected(), return);
     QTC_ASSERT(language.isValid(), return);
     QTC_ASSERT(ToolChainManager::isLanguageSupported(language), return);
 

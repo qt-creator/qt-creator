@@ -13,6 +13,8 @@ General
   (experimental `SilverSearcher` plugin)
 * Added exclusion patterns to `Advanced Find` and custom locator filters
 * Added navigation pane on right side of edit mode
+* Removed dependency of Welcome mode on OpenGL, improving experience in
+  virtual machine environments and certain setups (QTCREATORBUG-15727)
 * Fixed wrong UI colors after suspend (QTCREATORBUG-14929)
 * Fixed crash with invalid themes (QTCREATORBUG-17517)
 
@@ -133,8 +135,8 @@ Version Control Systems
     * Added option to sign-off commits
     * Fixed handling of already merged files in merge tool
 * Gerrit
-    * Added detection of Gerrit remotes (SSH only)
-    * Added support for accessing Gerrit via HTTP(S)
+    * Added detection of Gerrit remotes
+    * Added support for accessing Gerrit via REST API over HTTP(S)
 
 Test Integration
 

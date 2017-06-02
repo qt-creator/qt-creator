@@ -972,8 +972,13 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
                                                return tc->typeId() == requiredTypeId
                                                    && tc->compilerCommand() == compilerPath;
                                            });
-    if (!result.isEmpty())
+    if (!result.isEmpty()) {
+        for (ToolChain *tc : result) {
+            if (tc->isAutoDetected())
+                tc->setLanguage(language);
+        }
         return result;
+    }
 
     result = autoDetectToolChain(compilerPath, language, requiredAbi);
 
@@ -1632,6 +1637,10 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
                 << QString::fromLatin1("powerpc64-suse-linux")
                 << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
                 << QStringList({"ppc-linux-generic-elf-64bit"});
+    QTest::newRow("Linux 11 (64bit mips)")
+            << QString::fromLatin1("mips64el-linux-uclibc")
+            << QByteArray("#define __SIZEOF_SIZE_T__ 8")
+            << QStringList({"mips-linux-generic-elf-64bit"});
 
     QTest::newRow("Mingw 1 (32bit)")
             << QString::fromLatin1("i686-w64-mingw32")

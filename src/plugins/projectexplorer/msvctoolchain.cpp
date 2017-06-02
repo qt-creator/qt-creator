@@ -624,7 +624,10 @@ Utils::FileNameList MsvcToolChain::suggestedMkspecList() const
             << Utils::FileName::fromLatin1("winrt-x64-msvc2015");
         break;
     case Abi::WindowsMsvc2017Flavor:
-        result << Utils::FileName::fromLatin1("win32-msvc2017");
+        result << Utils::FileName::fromLatin1("win32-msvc2017")
+               << Utils::FileName::fromLatin1("winrt-arm-msvc2017")
+               << Utils::FileName::fromLatin1("winrt-x86-msvc2017")
+               << Utils::FileName::fromLatin1("winrt-x64-msvc2017");
         break;
     default:
         result.clear();

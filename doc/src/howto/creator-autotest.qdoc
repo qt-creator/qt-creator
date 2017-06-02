@@ -49,7 +49,7 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Other Project} > \uicontrol {Auto Test} >
+            \uicontrol {Other Project} > \uicontrol {Auto Test Project} >
             \uicontrol Choose to create a project with boilerplate code for a
             Qt test.
 
@@ -76,10 +76,9 @@
                     executed by the testing framework to initialize and clean
                     up the test.
 
-                \li In the \uicontrol {Build auto tests} field, select
-                    \uicontrol Always to always build the test when building
-                    the project or \uicontrol {Debug Only} to only build it
-                    during debug builds.
+                \li In the \uicontrol {Build system} field, select the build
+                    system to use for building the project: qmake, CMake, or
+                    Qbs.
 
             \endlist
 
@@ -95,7 +94,7 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Other Project} > \uicontrol {Auto Test} >
+            \uicontrol {Other Project} > \uicontrol {Auto Test Project} >
             \uicontrol Choose to create a project with boilerplate code for a
             Google test.
 
@@ -116,17 +115,16 @@
                 \li Select the \uicontrol {Enable C++ 11} check box to
                     support C++ 11 features in the test.
 
-                \li In the \uicontrol {Build auto tests} field, select
-                    \uicontrol Always to always build the test when building
-                    the project or \uicontrol {Debug Only} to only build it
-                    during debug builds.
-
                 \li In the \uicontrol {Google test repository} field, select
                     a directory that contains a clone of the googletest
                     repository.
 
                     To use an installed Google C++ Testing framework instead,
                     see \l{Setting Up the Google C++ Testing Framework}.
+
+                \li In the \uicontrol {Build system} field, select the build
+                    system to use for building the project: qmake, CMake, or
+                    Qbs.
 
             \endlist
 

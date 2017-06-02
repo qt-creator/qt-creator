@@ -546,7 +546,9 @@ static GerritUser parseGerritUser(const QJsonObject &object)
 
 static int numberValue(const QJsonObject &object)
 {
-    return object.value("number").toString().toInt();
+    const QJsonValue number = object.value("number");
+    // Since Gerrit 2.14 (commits fa92467dc and b0cfe1401) the change and patch set numbers are int
+    return number.isString() ? number.toString().toInt() : number.toInt();
 }
 
 /* Parse gerrit query Json output.

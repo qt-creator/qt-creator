@@ -3161,6 +3161,14 @@ class DumperBase:
                     return val
             error('BAD DATA TO ADD TO: %s %s' % (self.type, other))
 
+        def __sub__(self, other):
+            self.check()
+            if self.type.name == other.type.name:
+                stripped = self.type.stripTypedefs()
+                if stripped.code == TypeCodePointer:
+                    return (self.pointer() - other.pointer()) // stripped.dereference().size()
+            error('BAD DATA TO SUB TO: %s %s' % (self.type, other))
+
         def dereference(self):
             self.check()
             if self.type.code == TypeCodeTypedef:

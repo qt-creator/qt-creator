@@ -138,6 +138,8 @@ exists($$PYTHON_INSTALL_DIR) {
     CONFIG(release, debug|release): deploy_python.recurse = Release
     CONFIG(debug, debug|release): deploy_python.recurse = Debug
     QMAKE_EXTRA_TARGETS += deploy_python
+} else {
+    message("Set PYTHON_INSTALL_DIR pointing to Python 3.5 or greater to enable the python dumpers for cdb.")
 }
 
 target.path = $$QTC_PREFIX/lib/$${DIRNAME} # TODO this should go to INSTALL_LIBRARY_PATH/$${DIRNAME}

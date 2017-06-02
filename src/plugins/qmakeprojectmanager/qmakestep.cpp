@@ -256,6 +256,7 @@ bool QMakeStep::init(QList<const BuildStep *> &earlierSteps)
     QmakeProFileNode *node = static_cast<QmakeProject *>(qmakeBc->target()->project())->rootProjectNode();
     if (qmakeBc->subNodeBuild())
         node = qmakeBc->subNodeBuild();
+    QTC_ASSERT(node, return false);
     QString proFile = node->filePath().toString();
 
     QList<ProjectExplorer::Task> tasks = qtVersion->reportIssues(proFile, workingDirectory);
