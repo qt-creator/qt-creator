@@ -37,26 +37,73 @@
 
 using namespace Core;
 
+/*!
+    \class Core::ILocatorFilter
+    \inmodule Qt Creator
+
+    \brief The ILocatorFilter class adds a locator filter.
+
+    The filter is added to \uicontrol Tools > \uicontrol Locate.
+*/
+
+/*!
+    Constructs a locator filter with \a parent. Call from subclasses.
+*/
 ILocatorFilter::ILocatorFilter(QObject *parent):
     QObject(parent)
 {
 }
 
+/*!
+    Specifies a shortcut string that can be used to explicitly choose this
+    filter in the locator input field by preceding the search term with the
+    shortcut string and a whitespace.
+
+    The default value is an empty string.
+
+    \sa setShortcutString()
+*/
 QString ILocatorFilter::shortcutString() const
 {
     return m_shortcut;
 }
 
+/*!
+    Performs actions that need to be done in the main thread before actually
+    running the search for \a entry.
+
+    Called on the main thread before matchesFor() is called in a separate
+    thread.
+
+    The default implementation does nothing.
+
+    \sa matchesFor()
+*/
 void ILocatorFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
 }
 
+/*!
+    Sets the \a shortcut string that can be used to explicitly choose this
+    filter in the locator input field. Call from the constructor of subclasses
+    to set the default setting.
+
+    \sa shortcutString()
+*/
 void ILocatorFilter::setShortcutString(const QString &shortcut)
 {
     m_shortcut = shortcut;
 }
 
+/*!
+    Returns data that can be used to restore the settings for this filter
+    (for example at startup).
+    By default, adds the base settings (shortcut string, included by default)
+    with a data stream.
+
+    \sa restoreState()
+*/
 QByteArray ILocatorFilter::saveState() const
 {
     QByteArray value;
@@ -66,6 +113,12 @@ QByteArray ILocatorFilter::saveState() const
     return value;
 }
 
+/*!
+    Restores the \a state of the filter from data previously created by
+    saveState().
+
+    \sa saveState()
+*/
 void ILocatorFilter::restoreState(const QByteArray &state)
 {
     QString shortcut;
@@ -79,6 +132,19 @@ void ILocatorFilter::restoreState(const QByteArray &state)
     setIncludedByDefault(defaultFilter);
 }
 
+/*!
+    Opens a dialog for the \a parent widget that allows the user to configure
+    various aspects of the filter. Called when the user requests to configure
+    the filter.
+
+    Set \a needsRefresh to \c true, if a refresh() should be done after
+    closing the dialog. Return \c false if the user canceled the dialog.
+
+    The default implementation allows changing the shortcut and whether the
+    filter is included by default.
+
+    \sa refresh()
+*/
 bool ILocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 {
     Q_UNUSED(needsRefresh)
@@ -117,107 +183,269 @@ bool ILocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     return false;
 }
 
+/*!
+    Returns whether a case sensitive or case insensitive search should be
+    performed for the search term \a str.
+*/
 Qt::CaseSensitivity ILocatorFilter::caseSensitivity(const QString &str)
 {
     return str == str.toLower() ? Qt::CaseInsensitive : Qt::CaseSensitive;
 }
 
+/*!
+    Returns whether the search term \a str contains wildcard characters.
+    Can be used for choosing an optimal matching strategy.
+*/
 bool ILocatorFilter::containsWildcard(const QString &str)
 {
     return str.contains(QLatin1Char('*')) || str.contains(QLatin1Char('?'));
 }
 
+/*!
+    Specifies a title for configuration dialogs.
+*/
 QString ILocatorFilter::msgConfigureDialogTitle()
 {
     return tr("Filter Configuration");
 }
 
+/*!
+    Specifies a label for the prefix input field in configuration dialogs.
+*/
 QString ILocatorFilter::msgPrefixLabel()
 {
     return tr("Prefix:");
 }
 
+/*!
+    Specifies a tooltip for the  prefix input field in configuration dialogs.
+*/
 QString ILocatorFilter::msgPrefixToolTip()
 {
     return tr("Type the prefix followed by a space and search term to restrict search to the filter.");
 }
 
+/*!
+    Specifies a label for the include by default input field in configuration
+    dialogs.
+*/
 QString ILocatorFilter::msgIncludeByDefault()
 {
     return tr("Include by default");
 }
 
+/*!
+    Specifies a tooltip for the include by default input field in configuration
+    dialogs.
+*/
 QString ILocatorFilter::msgIncludeByDefaultToolTip()
 {
     return tr("Include the filter when not using a prefix for searches.");
 }
 
+/*!
+    Returns whether a configuration dialog is available for this filter.
+
+    The default is \c true.
+
+    \sa setConfigurable()
+*/
 bool ILocatorFilter::isConfigurable() const
 {
     return m_isConfigurable;
 }
 
+/*!
+    Returns whether using the shortcut string is required to use this filter.
+    The default is \c false.
+
+    \sa shortcutString()
+    \sa setIncludedByDefault()
+*/
 bool ILocatorFilter::isIncludedByDefault() const
 {
     return m_includedByDefault;
 }
 
+/*!
+    Sets whether using the shortcut string is required to use this filter.
+    Call from the constructor of subclasses to change the default.
+
+    \sa isIncludedByDefault()
+*/
 void ILocatorFilter::setIncludedByDefault(bool includedByDefault)
 {
     m_includedByDefault = includedByDefault;
 }
 
+/*!
+    Returns whether the filter should be hidden in the
+    \uicontrol {Locator filters} filter, menus, and locator settings.
+
+    The default is \c false.
+
+    \sa setHidden()
+*/
 bool ILocatorFilter::isHidden() const
 {
     return m_hidden;
 }
 
+/*!
+    Hides the filter in the \uicontrol {Locator filters} filter,
+    menus, and locator settings. Call in the constructor of subclasses.
+*/
 void ILocatorFilter::setHidden(bool hidden)
 {
     m_hidden = hidden;
 }
 
+/*!
+    Returns whether the filter is currently available. Disabled filters are
+    neither visible in menus nor included in searches, even when the search is
+    prefixed with their shortcut string.
+
+    The default is \c true.
+
+    \sa setEnabled()
+*/
 bool ILocatorFilter::isEnabled() const
 {
     return m_enabled;
 }
 
+/*!
+    Returns the filter's unique ID.
+
+    \sa setId()
+*/
 Id ILocatorFilter::id() const
 {
     return m_id;
 }
 
+/*!
+    Returns the filter's translated display name.
+
+    \sa setDisplayName()
+*/
 QString ILocatorFilter::displayName() const
 {
     return m_displayName;
 }
 
+/*!
+    Returns the priority that is used for ordering the results when multiple
+    filters are used.
+
+    The default is ILocatorFilter::Medium.
+
+    \sa setPriority()
+*/
 ILocatorFilter::Priority ILocatorFilter::priority() const
 {
     return m_priority;
 }
 
+/*!
+    Sets whether the filter is currently available.
+
+    \sa isEnabled()
+*/
 void ILocatorFilter::setEnabled(bool enabled)
 {
     m_enabled = enabled;
 }
 
+/*!
+    Sets the filter's unique ID.
+    Subclasses must set the ID in their constructor.
+
+    \sa id()
+*/
 void ILocatorFilter::setId(Id id)
 {
     m_id = id;
 }
 
+/*!
+    Sets the priority of results of this filter in the result list.
+
+    \sa priority()
+*/
 void ILocatorFilter::setPriority(Priority priority)
 {
     m_priority = priority;
 }
 
+/*!
+    Sets the translated display name of this filter.
+
+    Subclasses must set the display name in their constructor.
+
+    \sa displayName()
+*/
 void ILocatorFilter::setDisplayName(const QString &displayString)
 {
     m_displayName = displayString;
 }
 
+/*!
+    Sets whether the filter provides a configuration dialog.
+    Most filters should at least provide the default dialog.
+
+    \sa isConfigurable()
+*/
 void ILocatorFilter::setConfigurable(bool configurable)
 {
     m_isConfigurable = configurable;
 }
+
+/*!
+    \fn QList<LocatorFilterEntry> ILocatorFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
+
+    Returns the list of results of this filter for the search term \a entry.
+    This is run in a separate thread, but is guaranteed to only run in a single
+    thread at any given time. Quickly running preparations can be done in the
+    GUI thread in prepareSearch().
+
+    Implementations should do a case sensitive or case insensitive search
+    depending on caseSensitivity(). If \a future is \c canceled, the search
+    should be aborted.
+
+    \sa prepareSearch()
+    \sa caseSensitivity()
+    \sa containsWildcard()
+*/
+
+/*!
+    \fn void ILocatorFilter::accept(LocatorFilterEntry selection) const
+
+    Called with the entry specified by \a selection when the user activates it
+    in the result list.
+*/
+
+/*!
+    \fn void ILocatorFilter::refresh(QFutureInterface<void> &future)
+
+    Refreshes cached data asynchronously.
+
+    If \a future is \c canceled, the refresh should be aborted.
+*/
+
+/*!
+    \enum ILocatorFilter::Priority
+
+    This enum value holds the priority that is used for ordering the results
+    when multiple filters are used.
+
+    \value  Highest
+            The results for this filter are placed above the results for filters
+            that have other priorities.
+    \value  High
+    \value  Medium
+            The default value.
+    \value  Low
+            The results for this filter are placed below the results for filters
+            that have other priorities.
+*/
