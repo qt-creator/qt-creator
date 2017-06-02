@@ -24,29 +24,13 @@
 ****************************************************************************/
 
 #include "autotestconstants.h"
-#include "testcodeparser.h"
-#include "testrunner.h"
 #include "testtreeitem.h"
-#include "testtreeitemdelegate.h"
 #include "testtreemodel.h"
 #include "testtreeview.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-
-#include <coreplugin/find/itemviewfind.h>
-
-#include <cpptools/cppmodelmanager.h>
-
-#include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
-
-#include <qmljstools/qmljsmodelmanager.h>
-
-#include <texteditor/texteditor.h>
-
-#include <QToolButton>
-#include <QVBoxLayout>
 
 namespace Autotest {
 namespace Internal {
