@@ -526,6 +526,7 @@ QVariant RegisterItem::data(int column, int role) const
                     return m_reg.value.toString(m_reg.kind, m_reg.size, m_format);
                 }
             }
+            break;
 
         case Qt::ToolTipRole:
             return QString("Current Value: %1\nPreviousValue: %2")
@@ -577,6 +578,7 @@ QVariant RegisterSubItem::data(int column, int role) const
                     return ba;
                 }
             }
+            break;
 
         case Qt::ToolTipRole:
             if (m_subKind == IntegerRegister) {
@@ -773,6 +775,7 @@ QVariant RegisterEditItem::data(int column, int role) const
                             .toString(m_subKind, m_subSize, m_subFormat, role == Qt::EditRole);
                 }
             }
+            break;
         case Qt::ToolTipRole: {
                 RegisterItem *registerItem = parent()->parent();
                 return RegisterHandler::tr("Edit bits %1...%2 of register %3")

@@ -660,6 +660,7 @@ QString decodeData(const QString &ba, const QString &encoding)
                 union { char c[8]; double d; } u = {{s[7], s[6], s[5], s[4], s[3], s[2], s[1], s[0]}};
                 return QString::number(u.d);
             }
+            break;
         }
         case DebuggerEncoding::IPv6AddressAndHexScopeId: { // 16 hex-encoded bytes, "%" and the string-encoded scope
             const int p = ba.indexOf('%');

@@ -630,6 +630,7 @@ void QmlCppEngine::slaveEngineStateChanged
                 case InferiorRunRequested:
                     // can happen if qml engine was active
                     notifyInferiorRunFailed();
+                    break;
                 default:
                     CHECK_STATE(InferiorStopOk);
                     break;
