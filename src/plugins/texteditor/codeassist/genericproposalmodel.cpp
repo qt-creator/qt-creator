@@ -45,8 +45,8 @@ uint qHash(const AssistProposalItem &item)
 
 namespace {
 
-const int kMaxSort = 1000;
-const int kMaxPrefixFilter = 100;
+constexpr int kMaxSort = 1000;
+constexpr int kMaxPrefixFilter = 100;
 
 struct ContentLessThan
 {
@@ -309,9 +309,20 @@ void GenericProposalModel::filter(const QString &prefix)
     QRegExp regExp(keyRegExp);
 
     m_currentItems.clear();
+    const QString lowerPrefix = prefix.toLower();
     foreach (const auto &item, m_originalItems) {
-        if (regExp.indexIn(item->text()) == 0)
+        const QString &text = item->text();
+        if (regExp.indexIn(text) == 0) {
             m_currentItems.append(item);
+            if (text.startsWith(prefix)) {
+                // Direct match
+                item->setPrefixMatch(AssistProposalItemInterface::PrefixMatch::Exact);
+                continue;
+            }
+
+            if (text.startsWith(lowerPrefix, Qt::CaseInsensitive))
+                item->setPrefixMatch(AssistProposalItemInterface::PrefixMatch::Lower);
+        }
     }
 }
 

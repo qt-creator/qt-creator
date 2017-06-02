@@ -44,6 +44,14 @@ class TextEditorWidget;
 class TEXTEDITOR_EXPORT AssistProposalItemInterface
 {
 public:
+    // We compare proposals by enum values, be careful changing their values
+    enum class PrefixMatch
+    {
+        Exact = 0,
+        Lower = 1,
+        None = 2
+    };
+
     AssistProposalItemInterface() = default;
     virtual ~AssistProposalItemInterface() Q_DECL_NOEXCEPT = default;
 
@@ -59,11 +67,14 @@ public:
     virtual bool isValid() const = 0;
     virtual quint64 hash() const = 0; // it is only for removing duplicates
 
-    int order() const { return m_order; }
-    void setOrder(int order) { m_order = order; }
+    inline int order() const { return m_order; }
+    inline void setOrder(int order) { m_order = order; }
+    inline PrefixMatch prefixMatch() { return m_prefixMatch; }
+    inline void setPrefixMatch(PrefixMatch match) { m_prefixMatch = match; }
 
 private:
     int m_order = 0;
+    PrefixMatch m_prefixMatch = PrefixMatch::None;
 };
 
 } // namespace TextEditor
