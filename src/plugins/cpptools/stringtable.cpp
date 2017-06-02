@@ -56,7 +56,7 @@ QString StringTable::insert(const QString &string)
     if (string.isEmpty())
         return string;
 
-#if QT_SUPPORTS(UNSHARABLE_CONTAINERS)
+#ifndef QT_NO_UNSHARABLE_CONTAINERS
     QTC_ASSERT(const_cast<QString&>(string).data_ptr()->ref.isSharable(), return string);
 #endif
 
