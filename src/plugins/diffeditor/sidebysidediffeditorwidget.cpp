@@ -64,8 +64,8 @@ public:
 
     void setLineNumber(int blockNumber, int lineNumber);
     void setFileInfo(int blockNumber, const DiffFileInfo &fileInfo);
-    void setSkippedLines(int blockNumber, int skippedLines) {
-        m_skippedLines[blockNumber] = skippedLines;
+    void setSkippedLines(int blockNumber, int skippedLines, const QString &contextInfo = QString()) {
+        m_skippedLines[blockNumber] = qMakePair(skippedLines, contextInfo);
         setSeparator(blockNumber, true);
     }
     void setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex);
@@ -126,8 +126,8 @@ private:
     int m_lineNumberDigits = 1;
     // block number, fileInfo. Set for file lines only.
     QMap<int, DiffFileInfo> m_fileInfo;
-    // block number, skipped lines. Set for chunk lines only.
-    QMap<int, int> m_skippedLines;
+    // block number, skipped lines and context info. Set for chunk lines only.
+    QMap<int, QPair<int, QString> > m_skippedLines;
     // start block number, block count of a chunk, chunk index inside a file.
     QMap<int, QPair<int, int> > m_chunkInfo;
     // block number, separator. Set for file, chunk or span line.
@@ -465,9 +465,11 @@ void SideDiffEditorWidget::paintEvent(QPaintEvent *e)
             if (bottom >= e->rect().top()) {
                 const int blockNumber = currentBlock.blockNumber();
 
-                const int skippedBefore = m_skippedLines.value(blockNumber);
-                if (skippedBefore) {
-                    const QString skippedRowsText = skippedText(skippedBefore);
+                auto it = m_skippedLines.constFind(blockNumber);
+                if (it != m_skippedLines.constEnd()) {
+                    QString skippedRowsText = '[' + skippedText(it->first) + ']';
+                    if (!it->second.isEmpty())
+                        skippedRowsText += ' ' + it->second;
                     paintSeparator(painter, m_chunkLineForeground,
                                    skippedRowsText, currentBlock, top);
                 }
@@ -718,8 +720,8 @@ void SideBySideDiffEditorWidget::showDiff()
                     if (skippedLines > 0) {
                         leftFormats[blockNumber].append(DiffSelection(&m_controller.m_chunkLineFormat));
                         rightFormats[blockNumber].append(DiffSelection(&m_controller.m_chunkLineFormat));
-                        m_leftEditor->setSkippedLines(blockNumber, skippedLines);
-                        m_rightEditor->setSkippedLines(blockNumber, skippedLines);
+                        m_leftEditor->setSkippedLines(blockNumber, skippedLines, chunkData.contextInfo);
+                        m_rightEditor->setSkippedLines(blockNumber, skippedLines, chunkData.contextInfo);
                         leftText += separator;
                         rightText += separator;
                         blockNumber++;
