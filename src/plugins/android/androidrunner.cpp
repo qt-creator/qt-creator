@@ -777,9 +777,6 @@ void AndroidRunner::setRunnable(const AndroidRunnable &runnable)
 
 void AndroidRunner::launchAVD()
 {
-    if (!m_runConfig->target() && !m_runConfig->target()->project())
-        return;
-
     int deviceAPILevel = AndroidManager::minimumSDK(m_runConfig->target());
     QString targetArch = AndroidManager::targetArch(m_runConfig->target());
 
