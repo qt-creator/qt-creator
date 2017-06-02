@@ -35,8 +35,7 @@ using namespace Core::Internal;
 
 Q_DECLARE_METATYPE(ILocatorFilter*)
 
-LocatorFiltersFilter::LocatorFiltersFilter(Locator *plugin):
-    m_plugin(plugin),
+LocatorFiltersFilter::LocatorFiltersFilter():
     m_icon(Utils::Icons::NEXT.icon())
 {
     setId("FiltersFilter");
@@ -55,7 +54,7 @@ void LocatorFiltersFilter::prepareSearch(const QString &entry)
         return;
 
     QMap<QString, ILocatorFilter *> uniqueFilters;
-    foreach (ILocatorFilter *filter, m_plugin->filters()) {
+    foreach (ILocatorFilter *filter, Locator::filters()) {
         const QString filterId = filter->shortcutString() + QLatin1Char(',') + filter->displayName();
         uniqueFilters.insert(filterId, filter);
     }

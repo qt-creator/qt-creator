@@ -324,6 +324,11 @@ Id ILocatorFilter::id() const
     return m_id;
 }
 
+Id ILocatorFilter::actionId() const
+{
+    return m_id.withPrefix("Locator.");
+}
+
 /*!
     Returns the filter's translated display name.
 

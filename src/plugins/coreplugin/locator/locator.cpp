@@ -62,8 +62,11 @@
 namespace Core {
 namespace Internal {
 
+static Locator *m_instance = nullptr;
+
 Locator::Locator()
 {
+    m_instance = this;
     m_refreshTimer.setSingleShot(false);
     connect(&m_refreshTimer, &QTimer::timeout, this, [this]() { refresh(); });
 }
@@ -121,7 +124,7 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
     m_externalToolsFilter = new ExternalToolsFilter;
     m_corePlugin->addObject(m_externalToolsFilter);
 
-    m_corePlugin->addAutoReleasedObject(new LocatorFiltersFilter(this));
+    m_corePlugin->addAutoReleasedObject(new LocatorFiltersFilter);
 #ifdef Q_OS_OSX
     m_corePlugin->addAutoReleasedObject(new SpotlightLocatorFilter);
 #endif
@@ -175,7 +178,6 @@ void Locator::loadSettings()
     foreach (const QString &key, keys) {
         ILocatorFilter *filter = new DirectoryFilter(baseId.withSuffix(++count));
         filter->restoreState(settings->value(key).toByteArray());
-        m_filters.append(filter);
         customFilters.append(filter);
     }
     setCustomFilters(customFilters);
@@ -185,7 +187,41 @@ void Locator::loadSettings()
     if (m_refreshTimer.interval() > 0)
         m_refreshTimer.start();
     m_settingsInitialized = true;
-    emit filtersChanged();
+    setFilters(m_filters + customFilters);
+}
+
+void Locator::updateFilterActions()
+{
+    QMap<Id, QAction *> actionCopy = m_filterActionMap;
+    m_filterActionMap.clear();
+    // register new actions, update existent
+    for (ILocatorFilter *filter : m_filters) {
+        if (filter->shortcutString().isEmpty() || filter->isHidden())
+            continue;
+        Id filterId = filter->id();
+        Id actionId = filter->actionId();
+        QAction *action = 0;
+        if (!actionCopy.contains(filterId)) {
+            // register new action
+            action = new QAction(filter->displayName(), this);
+            Command *cmd = ActionManager::registerAction(action, actionId);
+            cmd->setAttribute(Command::CA_UpdateText);
+            connect(action, &QAction::triggered, this, [filter] {
+                LocatorManager::showFilter(filter);
+            });
+        } else {
+            action = actionCopy.take(filterId);
+            action->setText(filter->displayName());
+        }
+        m_filterActionMap.insert(filterId, action);
+    }
+
+    // unregister actions that are deleted now
+    const auto end = actionCopy.end();
+    for (auto it = actionCopy.begin(); it != end; ++it) {
+        ActionManager::unregisterAction(it.value(), it.key().withPrefix("Locator."));
+        delete it.value();
+    }
 }
 
 void Locator::updateEditorManagerPlaceholderText()
@@ -263,7 +299,7 @@ void Locator::saveSettings()
 */
 QList<ILocatorFilter *> Locator::filters()
 {
-    return m_filters;
+    return m_instance->m_filters;
 }
 
 /*!
@@ -278,6 +314,7 @@ QList<ILocatorFilter *> Locator::customFilters()
 void Locator::setFilters(QList<ILocatorFilter *> f)
 {
     m_filters = f;
+    updateFilterActions();
     updateEditorManagerPlaceholderText(); // possibly some shortcut changed
     emit filtersChanged();
 }

@@ -105,6 +105,7 @@ public:
     virtual ~ILocatorFilter() {}
 
     Id id() const;
+    Id actionId() const;
 
     QString displayName() const;
 

@@ -31,6 +31,8 @@
 
 namespace Core {
 
+class ILocatorFilter;
+
 namespace Internal { class LocatorWidget; }
 
 class CORE_EXPORT LocatorManager : public QObject
@@ -40,6 +42,7 @@ class CORE_EXPORT LocatorManager : public QObject
 public:
     LocatorManager(Internal::LocatorWidget *locatorWidget);
 
+    static void showFilter(ILocatorFilter *filter);
     static void show(const QString &text, int selectionStart = -1, int selectionLength = 0);
 };
 

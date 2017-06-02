@@ -43,7 +43,7 @@ class LocatorFiltersFilter : public ILocatorFilter
     Q_OBJECT
 
 public:
-    LocatorFiltersFilter(Locator *plugin);
+    LocatorFiltersFilter();
 
     // ILocatorFilter
     void prepareSearch(const QString &entry) override;
@@ -54,7 +54,6 @@ public:
     void refresh(QFutureInterface<void> &future) override;
 
 private:
-    Locator *m_plugin;
     QStringList m_filterShortcutStrings;
     QStringList m_filterDisplayNames;
     QIcon m_icon;

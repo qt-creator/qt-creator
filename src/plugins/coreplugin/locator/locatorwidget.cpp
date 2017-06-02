@@ -39,6 +39,7 @@
 #include <coreplugin/mainwindow.h>
 #include <utils/algorithm.h>
 #include <utils/appmainwindow.h>
+#include <utils/asconst.h>
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/progressindicator.h>
@@ -61,7 +62,6 @@
 #include <QTreeView>
 #include <QToolTip>
 
-Q_DECLARE_METATYPE(Core::ILocatorFilter*)
 Q_DECLARE_METATYPE(Core::LocatorFilterEntry)
 
 namespace Core {
@@ -269,8 +269,7 @@ void CompletionList::resizeHeaders()
 
 // =========== LocatorWidget ===========
 
-LocatorWidget::LocatorWidget(Locator *qop) :
-    m_locatorPlugin(qop),
+LocatorWidget::LocatorWidget(Locator *locator) :
     m_locatorModel(new LocatorModel(this)),
     m_completionList(new CompletionList(this)),
     m_filterMenu(new QMenu(this)),
@@ -319,7 +318,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     m_fileLineEdit->setButtonMenu(Utils::FancyLineEdit::Left, m_filterMenu);
 
     connect(m_refreshAction, &QAction::triggered,
-            m_locatorPlugin, [this]() { m_locatorPlugin->refresh(); });
+            locator, [locator]() { locator->refresh(); });
     connect(m_configureAction, &QAction::triggered, this, &LocatorWidget::showConfigureDialog);
     connect(m_fileLineEdit, &QLineEdit::textChanged,
         this, &LocatorWidget::showPopup);
@@ -352,7 +351,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
         updatePlaceholderText(locateCmd);
     }
 
-    connect(m_locatorPlugin, &Locator::filtersChanged, this, &LocatorWidget::updateFilterList);
+    connect(locator, &Locator::filtersChanged, this, &LocatorWidget::updateFilterList);
     updateFilterList();
 }
 
@@ -368,44 +367,13 @@ void LocatorWidget::updatePlaceholderText(Command *command)
 
 void LocatorWidget::updateFilterList()
 {
-    typedef QMap<Id, QAction *> IdActionMap;
-
     m_filterMenu->clear();
-
-    // update actions and menu
-    IdActionMap actionCopy = m_filterActionMap;
-    m_filterActionMap.clear();
-    // register new actions, update existent
-    foreach (ILocatorFilter *filter, m_locatorPlugin->filters()) {
-        if (filter->shortcutString().isEmpty() || filter->isHidden())
-            continue;
-        Id filterId = filter->id();
-        Id locatorId = filterId.withPrefix("Locator.");
-        QAction *action = 0;
-        Command *cmd = 0;
-        if (!actionCopy.contains(filterId)) {
-            // register new action
-            action = new QAction(filter->displayName(), this);
-            cmd = ActionManager::registerAction(action, locatorId);
-            cmd->setAttribute(Command::CA_UpdateText);
-            connect(action, &QAction::triggered, this, &LocatorWidget::filterSelected);
-            action->setData(qVariantFromValue(filter));
-        } else {
-            action = actionCopy.take(filterId);
-            action->setText(filter->displayName());
-            cmd = ActionManager::command(locatorId);
-        }
-        m_filterActionMap.insert(filterId, action);
-        m_filterMenu->addAction(cmd->action());
+    const QList<ILocatorFilter *> filters = Locator::filters();
+    for (ILocatorFilter *filter : filters) {
+        Command *cmd = ActionManager::command(filter->actionId());
+        if (cmd)
+            m_filterMenu->addAction(cmd->action());
     }
-
-    // unregister actions that are deleted now
-    const IdActionMap::Iterator end = actionCopy.end();
-    for (IdActionMap::Iterator it = actionCopy.begin(); it != end; ++it) {
-        ActionManager::unregisterAction(it.value(), it.key().withPrefix("Locator."));
-        delete it.value();
-    }
-
     m_filterMenu->addSeparator();
     m_filterMenu->addAction(m_refreshAction);
     m_filterMenu->addAction(m_configureAction);
@@ -572,7 +540,7 @@ QList<ILocatorFilter *> LocatorWidget::filtersFor(const QString &text, QString &
             break;
     }
     const int whiteSpace = text.indexOf(QChar::Space, firstNonSpace);
-    const QList<ILocatorFilter *> filters = m_locatorPlugin->filters();
+    const QList<ILocatorFilter *> filters = Locator::filters();
     if (whiteSpace >= 0) {
         const QString prefix = text.mid(firstNonSpace, whiteSpace - firstNonSpace).toLower();
         QList<ILocatorFilter *> prefixFilters;
@@ -702,29 +670,9 @@ void LocatorWidget::show(const QString &text, int selectionStart, int selectionL
     }
 }
 
-void LocatorWidget::filterSelected()
+QString LocatorWidget::currentText() const
 {
-    QString searchText = tr("<type here>");
-    QAction *action = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(action, return);
-    ILocatorFilter *filter = action->data().value<ILocatorFilter *>();
-    QTC_ASSERT(filter, return);
-    QString currentText = m_fileLineEdit->text().trimmed();
-    // add shortcut string at front or replace existing shortcut string
-    if (!currentText.isEmpty()) {
-        searchText = currentText;
-        foreach (ILocatorFilter *otherfilter, m_locatorPlugin->filters()) {
-            if (currentText.startsWith(otherfilter->shortcutString() + QLatin1Char(' '))) {
-                searchText = currentText.mid(otherfilter->shortcutString().length() + 1);
-                break;
-            }
-        }
-    }
-    show(filter->shortcutString() + QLatin1Char(' ') + searchText,
-         filter->shortcutString().length() + 1,
-         searchText.length());
-    updateCompletionList(m_fileLineEdit->text());
-    m_fileLineEdit->setFocus();
+    return m_fileLineEdit->text();
 }
 
 void LocatorWidget::showConfigureDialog()

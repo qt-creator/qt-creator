@@ -52,11 +52,12 @@ class LocatorWidget
     Q_OBJECT
 
 public:
-    explicit LocatorWidget(Locator *qop);
+    explicit LocatorWidget(Locator *locator);
 
     void updateFilterList();
 
     void show(const QString &text, int selectionStart = -1, int selectionLength = 0);
+    QString currentText() const;
 
     void updatePlaceholderText(Command *command);
 
@@ -64,7 +65,6 @@ private:
     void showPopup();
     void showPopupNow();
     void acceptCurrentEntry();
-    void filterSelected();
     void showConfigureDialog();
     void addSearchResults(int firstIndex, int endIndex);
     void handleSearchFinished();
@@ -78,7 +78,6 @@ private:
     QList<ILocatorFilter*> filtersFor(const QString &text, QString &searchText);
     void setProgressIndicatorVisible(bool visible);
 
-    Locator *m_locatorPlugin;
     LocatorModel *m_locatorModel;
 
     CompletionList *m_completionList;
@@ -88,7 +87,6 @@ private:
     Utils::FancyLineEdit *m_fileLineEdit;
     QTimer m_showPopupTimer;
     QFutureWatcher<LocatorFilterEntry> *m_entriesWatcher;
-    QMap<Id, QAction *> m_filterActionMap;
     QString m_requestedCompletionText;
     bool m_needsClearResult = true;
     bool m_updateRequested = false;

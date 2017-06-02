@@ -24,6 +24,9 @@
 ****************************************************************************/
 
 #include "locatormanager.h"
+
+#include "ilocatorfilter.h"
+#include "locator.h"
 #include "locatorwidget.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -37,6 +40,27 @@ LocatorManager::LocatorManager(Internal::LocatorWidget *locatorWidget)
   : QObject(locatorWidget)
 {
     m_locatorWidget = locatorWidget;
+}
+
+void LocatorManager::showFilter(ILocatorFilter *filter)
+{
+    QTC_ASSERT(filter, return);
+    QTC_ASSERT(m_locatorWidget, return);
+    QString searchText = tr("<type here>");
+    const QString currentText = m_locatorWidget->currentText().trimmed();
+    // add shortcut string at front or replace existing shortcut string
+    if (!currentText.isEmpty()) {
+        searchText = currentText;
+        foreach (ILocatorFilter *otherfilter, Internal::Locator::filters()) {
+            if (currentText.startsWith(otherfilter->shortcutString() + QLatin1Char(' '))) {
+                searchText = currentText.mid(otherfilter->shortcutString().length() + 1);
+                break;
+            }
+        }
+    }
+    show(filter->shortcutString() + QLatin1Char(' ') + searchText,
+         filter->shortcutString().length() + 1,
+         searchText.length());
 }
 
 void LocatorManager::show(const QString &text,

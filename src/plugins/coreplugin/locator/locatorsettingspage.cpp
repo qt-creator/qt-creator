@@ -173,7 +173,7 @@ LocatorSettingsPage::LocatorSettingsPage(Locator *plugin)
 QWidget *LocatorSettingsPage::widget()
 {
     if (!m_widget) {
-        m_filters = m_plugin->filters();
+        m_filters = Locator::filters();
         m_customFilters = m_plugin->customFilters();
 
         m_widget = new QWidget;
