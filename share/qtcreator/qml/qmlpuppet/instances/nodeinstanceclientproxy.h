@@ -116,7 +116,6 @@ private:
     QIODevice *m_inputIoDevice;
     QIODevice *m_outputIoDevice;
     NodeInstanceServerInterface *m_nodeInstanceServer;
-    quint32 m_blockSize;
     quint32 m_writeCommandCounter;
     int m_synchronizeId;
 };
