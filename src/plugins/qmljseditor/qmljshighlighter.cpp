@@ -200,8 +200,6 @@ bool QmlJSHighlighter::maybeQmlKeyword(const QStringRef &text) const
         return true;
     else if (ch == QLatin1Char('s') && text == QLatin1String("signal"))
         return true;
-    else if (ch == QLatin1Char('p') && text == QLatin1String("property"))
-        return true;
     else if (ch == QLatin1Char('r') && text == QLatin1String("readonly"))
         return true;
     else if (ch == QLatin1Char('i') && text == QLatin1String("import"))
