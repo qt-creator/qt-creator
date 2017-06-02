@@ -82,7 +82,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_ui->filterLineEdit->setFiltering(true);
     connect(m_ui->filterLineEdit, &Utils::FancyLineEdit::filterChanged,
             m_filterModel, &QSortFilterProxyModel::setFilterFixedString);
-    connect(m_ui->queryLineEdit, &QLineEdit::returnPressed, this, &GerritDialog::slotRefresh);
+    connect(m_ui->queryLineEdit, &QLineEdit::returnPressed, this, &GerritDialog::refresh);
     connect(m_model, &GerritModel::stateChanged, m_ui->queryLineEdit, &Utils::FancyLineEdit::validate);
     connect(m_ui->remoteComboBox, &QComboBox::currentTextChanged,
             this, &GerritDialog::remoteChanged);
@@ -118,7 +118,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_displayButton = addActionButton(tr("&Show"), [this]() { slotFetchDisplay(); });
     m_cherryPickButton = addActionButton(tr("Cherry &Pick"), [this]() { slotFetchCherryPick(); });
     m_checkoutButton = addActionButton(tr("C&heckout"), [this]() { slotFetchCheckout(); });
-    m_refreshButton = addActionButton(tr("&Refresh"), [this]() { slotRefresh(); });
+    m_refreshButton = addActionButton(tr("&Refresh"), [this]() { refresh(); });
 
     connect(m_model, &GerritModel::refreshStateChanged,
             m_refreshButton, &QWidget::setDisabled);
@@ -214,7 +214,7 @@ void GerritDialog::slotFetchCheckout()
         emit fetchCheckout(m_model->change(index));
 }
 
-void GerritDialog::slotRefresh()
+void GerritDialog::refresh()
 {
     const QString &query = m_ui->queryLineEdit->text().trimmed();
     updateCompletions(query);
@@ -232,7 +232,7 @@ void GerritDialog::remoteChanged()
            return;
     }
     *m_server = server;
-    slotRefresh();
+    refresh();
 }
 
 void GerritDialog::updateRemotes(bool forceReload)

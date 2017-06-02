@@ -377,6 +377,7 @@ void GerritPlugin::openView()
         m_dialog->setWindowState(state & ~Qt::WindowMinimized);
     m_dialog->show();
     m_dialog->raise();
+    m_dialog->refresh();
 }
 
 void GerritPlugin::push()

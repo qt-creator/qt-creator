@@ -61,6 +61,7 @@ public:
     void setCurrentPath(const QString &path);
     void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void fetchFinished();
+    void refresh();
 
 signals:
     void fetchDisplay(const QSharedPointer<Gerrit::Internal::GerritChange> &);
@@ -74,7 +75,6 @@ private:
     void slotFetchDisplay();
     void slotFetchCherryPick();
     void slotFetchCheckout();
-    void slotRefresh();
     void remoteChanged();
     void updateRemotes(bool forceReload = false);
     void addRemote(const GerritServer &server, const QString &name);
