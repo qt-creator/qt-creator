@@ -107,7 +107,7 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
     view->setPosition(StatusBarWidget::First);
     m_corePlugin->addAutoReleasedObject(view);
 
-    m_corePlugin->addObject(new LocatorManager(locatorWidget));
+    new LocatorManager(locatorWidget);
 
     m_openDocumentsFilter = new OpenDocumentsFilter;
     m_corePlugin->addObject(m_openDocumentsFilter);

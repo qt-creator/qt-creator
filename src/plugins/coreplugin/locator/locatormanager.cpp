@@ -39,11 +39,6 @@ LocatorManager::LocatorManager(Internal::LocatorWidget *locatorWidget)
     m_locatorWidget = locatorWidget;
 }
 
-LocatorManager::~LocatorManager()
-{
-    ExtensionSystem::PluginManager::removeObject(this);
-}
-
 void LocatorManager::show(const QString &text,
                           int selectionStart, int selectionLength)
 {

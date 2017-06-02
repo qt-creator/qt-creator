@@ -39,7 +39,6 @@ class CORE_EXPORT LocatorManager : public QObject
 
 public:
     LocatorManager(Internal::LocatorWidget *locatorWidget);
-    ~LocatorManager();
 
     static void show(const QString &text, int selectionStart = -1, int selectionLength = 0);
 };
