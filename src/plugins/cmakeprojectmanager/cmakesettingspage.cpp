@@ -124,8 +124,10 @@ public:
                     name += tr(" (Default)");
                 return name;
             }
-            case 1: return m_executable.toUserOutput();
+            case 1:
+                return m_executable.toUserOutput();
             }
+            break;
 
         case Qt::FontRole: {
             QFont font;
