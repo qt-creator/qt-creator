@@ -282,8 +282,8 @@ void CMakeGeneratorKitConfigWidget::changeGenerator()
 
     // Disable help button in titlebar on windows:
     Qt::WindowFlags flags = changeDialog->windowFlags();
-    flags.setFlag(Qt::WindowContextHelpButtonHint, false);
-    flags.setFlag(Qt::MSWindowsFixedSizeDialogHint, true);
+    flags &= ~Qt::WindowContextHelpButtonHint;
+    flags |= Qt::MSWindowsFixedSizeDialogHint;
     changeDialog->setWindowFlags(flags);
 
     changeDialog->setWindowTitle(tr("CMake Generator"));
