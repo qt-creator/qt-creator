@@ -404,9 +404,14 @@ QString CMakeBuildStep::installTarget()
     return QString("install");
 }
 
+QString CMakeBuildStep::testTarget()
+{
+    return QString("test");
+}
+
 QStringList CMakeBuildStep::specialTargets()
 {
-    return { allTarget(), cleanTarget(), installTarget() };
+    return { allTarget(), cleanTarget(), installTarget(), testTarget() };
 }
 
 //
