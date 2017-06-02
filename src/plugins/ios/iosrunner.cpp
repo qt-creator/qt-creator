@@ -159,13 +159,8 @@ void IosRunner::start()
 
 void IosRunner::stop()
 {
-    if (m_toolHandler) {
-#ifdef Q_OS_UNIX
-        if (m_pid > 0)
-            kill(m_pid, SIGKILL);
-#endif
+    if (m_toolHandler && m_toolHandler->isRunning())
         m_toolHandler->stop();
-    }
 }
 
 void IosRunner::handleDidStartApp(IosToolHandler *handler, const QString &bundlePath,

@@ -184,20 +184,6 @@ struct ParserState {
 class IosToolHandlerPrivate
 {
 public:
-    enum State {
-        NonStarted,
-        Starting,
-        StartedInferior,
-        XmlEndProcessed,
-        Stopped
-    };
-    enum Op {
-        OpNone,
-        OpAppTransfer,
-        OpDeviceInfo,
-        OpAppRun
-    };
-
     explicit IosToolHandlerPrivate(const IosDeviceType &devType, IosToolHandler *q);
     virtual ~IosToolHandlerPrivate();
     virtual void requestTransferApp(const QString &bundlePath, const QString &deviceId,
@@ -206,8 +192,7 @@ public:
                                IosToolHandler::RunKind runKind,
                                const QString &deviceId, int timeout = 1000) = 0;
     virtual void requestDeviceInfo(const QString &deviceId, int timeout = 1000) = 0;
-    bool isRunning();
-    void start(const QString &exe, const QStringList &args);
+    virtual bool isRunning() const = 0;
     virtual void stop(int errorCode) = 0;
 
     // signals
@@ -226,26 +211,28 @@ public:
     void toolExited(int code);
 
 protected:
-    void killProcess();
-
-protected:
     IosToolHandler *q;
-    std::shared_ptr<QProcess> process;
-    QTimer killTimer;
-    QXmlStreamReader outputParser;
-    QString deviceId;
-    QString bundlePath;
-    IosToolHandler::RunKind runKind;
-    State state;
-    Op op;
-    IosDeviceType devType;
-    static const int lookaheadSize = 67;
-    int iBegin, iEnd, gdbSocket;
-    QList<ParserState> stack;
+    QString m_deviceId;
+    QString m_bundlePath;
+    IosToolHandler::RunKind m_runKind;
+    IosDeviceType m_devType;
 };
 
 class IosDeviceToolHandlerPrivate : public IosToolHandlerPrivate
 {
+    enum State {
+        NonStarted,
+        Starting,
+        StartedInferior,
+        XmlEndProcessed,
+        Stopped
+    };
+    enum Op {
+        OpNone,
+        OpAppTransfer,
+        OpDeviceInfo,
+        OpAppRun
+    };
 public:
     explicit IosDeviceToolHandlerPrivate(const IosDeviceType &devType, IosToolHandler *q);
     ~IosDeviceToolHandlerPrivate();
@@ -258,6 +245,8 @@ public:
                        IosToolHandler::RunKind runKind,
                        const QString &deviceId, int timeout = 1000) override;
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000) override;
+    bool isRunning() const override;
+    void start(const QString &exe, const QStringList &args);
     void stop(int errorCode) override;
 
 private:
@@ -265,6 +254,14 @@ private:
     void subprocessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void subprocessHasData();
     void processXml();
+    void killProcess();
+
+    QTimer killTimer;
+    std::shared_ptr<QProcess> process;
+    State state = NonStarted;
+    Op op = OpNone;
+    QXmlStreamReader outputParser;
+    QList<ParserState> stack;
 };
 
 /****************************************************************************
@@ -317,6 +314,7 @@ public:
                        IosToolHandler::RunKind runKind,
                        const QString &deviceIdentifier, int timeout = 1000) override;
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000) override;
+    bool isRunning() const override;
     void stop(int errorCode) override;
 
 private:
@@ -325,6 +323,7 @@ private:
     bool isResponseValid(const SimulatorControl::ResponseData &responseData);
 
 private:
+    qint64 m_pid = -1;
     SimulatorControl *simCtl;
     LogTailFiles outputLogger;
     QList<QFuture<void>> futureList;
@@ -333,33 +332,12 @@ private:
 IosToolHandlerPrivate::IosToolHandlerPrivate(const IosDeviceType &devType,
                                              Ios::IosToolHandler *q) :
     q(q),
-    process(nullptr),
-    state(NonStarted),
-    devType(devType),
-    iBegin(0),
-    iEnd(0),
-    gdbSocket(-1)
+    m_devType(devType)
 {
-    killTimer.setSingleShot(true);
 }
 
 IosToolHandlerPrivate::~IosToolHandlerPrivate()
 {
-}
-
-bool IosToolHandlerPrivate::isRunning()
-{
-    return process && (process->state() != QProcess::NotRunning);
-}
-
-void IosToolHandlerPrivate::start(const QString &exe, const QStringList &args)
-{
-    Q_ASSERT(process);
-    QTC_CHECK(state == NonStarted);
-    state = Starting;
-    qCDebug(toolHandlerLog) << "running " << exe << args;
-    process->start(exe, args);
-    state = StartedInferior;
 }
 
 // signals
@@ -502,7 +480,7 @@ void IosDeviceToolHandlerPrivate::processXml()
                     status = Ios::IosToolHandler::Success;
                 else if (statusStr.compare(QLatin1String("failure"), Qt::CaseInsensitive) == 0)
                     status = Ios::IosToolHandler::Failure;
-                didStartApp(bundlePath, deviceId, status);
+                didStartApp(m_bundlePath, m_deviceId, status);
             } else if (elName == QLatin1String("app_transfer")) {
                 stack.append(ParserState(ParserState::AppTransfer));
                 QXmlStreamAttributes attributes = outputParser.attributes();
@@ -512,7 +490,7 @@ void IosDeviceToolHandlerPrivate::processXml()
                     status = Ios::IosToolHandler::Success;
                 else if (statusStr.compare(QLatin1String("failure"), Qt::CaseInsensitive) == 0)
                     status = Ios::IosToolHandler::Failure;
-                emit didTransferApp(bundlePath, deviceId, status);
+                emit didTransferApp(m_bundlePath, m_deviceId, status);
             } else if (elName == QLatin1String("device_info") || elName == QLatin1String("deviceinfo")) {
                 stack.append(ParserState(ParserState::DeviceInfo));
             } else if (elName == QLatin1String("inferior_pid")) {
@@ -524,7 +502,7 @@ void IosDeviceToolHandlerPrivate::processXml()
                             attributes.value(QLatin1String("gdb_server")).toString().toInt());
                 Utils::Port qmlServerPort(
                             attributes.value(QLatin1String("qml_server")).toString().toInt());
-                gotServerPorts(bundlePath, deviceId, gdbServerPort, qmlServerPort);
+                gotServerPorts(m_bundlePath, m_deviceId, gdbServerPort, qmlServerPort);
             } else {
                 qCWarning(toolHandlerLog) << "unexpected element " << elName;
             }
@@ -540,10 +518,10 @@ void IosDeviceToolHandlerPrivate::processXml()
                 errorMsg(p.chars);
                 break;
             case ParserState::DeviceId:
-                if (deviceId.isEmpty())
-                    deviceId = p.chars;
+                if (m_deviceId.isEmpty())
+                    m_deviceId = p.chars;
                 else
-                    QTC_CHECK(deviceId.compare(p.chars, Qt::CaseInsensitive) == 0);
+                    QTC_CHECK(m_deviceId.compare(p.chars, Qt::CaseInsensitive) == 0);
                 break;
             case ParserState::Key:
                 stack.last().key = p.chars;
@@ -552,7 +530,7 @@ void IosDeviceToolHandlerPrivate::processXml()
                 stack.last().value = p.chars;
                 break;
             case ParserState::Status:
-                isTransferringApp(bundlePath, deviceId, p.progress, p.maxProgress, p.chars);
+                isTransferringApp(m_bundlePath, m_deviceId, p.progress, p.maxProgress, p.chars);
                 break;
             case ParserState::QueryResult:
                 state = XmlEndProcessed;
@@ -571,12 +549,12 @@ void IosDeviceToolHandlerPrivate::processXml()
                 stack.last().info.insert(p.key, p.value);
                 break;
             case ParserState::DeviceInfo:
-                deviceInfo(deviceId, p.info);
+                deviceInfo(m_deviceId, p.info);
                 break;
             case ParserState::Exit:
                 break;
             case ParserState::InferiorPid:
-                gotInferiorPid(bundlePath, deviceId, p.chars.toLongLong());
+                gotInferiorPid(m_bundlePath, m_deviceId, p.chars.toLongLong());
                 break;
             case ParserState::ServerPorts:
                 break;
@@ -613,6 +591,12 @@ void IosDeviceToolHandlerPrivate::processXml()
         qCWarning(toolHandlerLog) << "error parsing iosTool output:" << outputParser.errorString();
         stop(-1);
     }
+}
+
+void IosDeviceToolHandlerPrivate::killProcess()
+{
+    if (isRunning())
+        process->kill();
 }
 
 void IosDeviceToolHandlerPrivate::subprocessHasData()
@@ -656,6 +640,8 @@ IosDeviceToolHandlerPrivate::IosDeviceToolHandlerPrivate(const IosDeviceType &de
                                                          IosToolHandler *q)
     : IosToolHandlerPrivate(devType, q)
 {
+    killTimer.setSingleShot(true);
+
     auto deleter = [](QProcess *p) {
         if (p->state() != QProcess::NotRunning) {
             p->kill();
@@ -717,8 +703,8 @@ IosDeviceToolHandlerPrivate::~IosDeviceToolHandlerPrivate()
 void IosDeviceToolHandlerPrivate::requestTransferApp(const QString &bundlePath,
                                                      const QString &deviceId, int timeout)
 {
-    this->bundlePath = bundlePath;
-    this->deviceId = deviceId;
+    m_bundlePath = bundlePath;
+    m_deviceId = deviceId;
     QStringList args;
     args << QLatin1String("--id") << deviceId << QLatin1String("--bundle")
          << bundlePath << QLatin1String("--timeout") << QString::number(timeout)
@@ -731,9 +717,9 @@ void IosDeviceToolHandlerPrivate::requestRunApp(const QString &bundlePath,
                                                 IosToolHandler::RunKind runType,
                                                 const QString &deviceId, int timeout)
 {
-    this->bundlePath = bundlePath;
-    this->deviceId = deviceId;
-    this->runKind = runType;
+    m_bundlePath = bundlePath;
+    m_deviceId = deviceId;
+    m_runKind = runType;
     QStringList args;
     args << QLatin1String("--id") << deviceId << QLatin1String("--bundle")
          << bundlePath << QLatin1String("--timeout") << QString::number(timeout);
@@ -752,12 +738,27 @@ void IosDeviceToolHandlerPrivate::requestRunApp(const QString &bundlePath,
 
 void IosDeviceToolHandlerPrivate::requestDeviceInfo(const QString &deviceId, int timeout)
 {
-    this->deviceId = deviceId;
+    m_deviceId = deviceId;
     QStringList args;
-    args << QLatin1String("--id") << deviceId << QLatin1String("--device-info")
+    args << QLatin1String("--id") << m_deviceId << QLatin1String("--device-info")
          << QLatin1String("--timeout") << QString::number(timeout);
     op = OpDeviceInfo;
     start(IosToolHandler::iosDeviceToolPath(), args);
+}
+
+bool IosDeviceToolHandlerPrivate::isRunning() const
+{
+    return process && (process->state() != QProcess::NotRunning);
+}
+
+void IosDeviceToolHandlerPrivate::start(const QString &exe, const QStringList &args)
+{
+    Q_ASSERT(process);
+    QTC_CHECK(state == NonStarted);
+    state = Starting;
+    qCDebug(toolHandlerLog) << "running " << exe << args;
+    process->start(exe, args);
+    state = StartedInferior;
 }
 
 
@@ -776,10 +777,10 @@ void IosDeviceToolHandlerPrivate::stop(int errorCode)
             qCWarning(toolHandlerLog) << "IosToolHandler::stop() when op was OpNone";
             break;
         case OpAppTransfer:
-            didTransferApp(bundlePath, deviceId, IosToolHandler::Failure);
+            didTransferApp(m_bundlePath, m_deviceId, IosToolHandler::Failure);
             break;
         case OpAppRun:
-            didStartApp(bundlePath, deviceId, IosToolHandler::Failure);
+            didStartApp(m_bundlePath, m_deviceId, IosToolHandler::Failure);
             break;
         case OpDeviceInfo:
             break;
@@ -823,9 +824,9 @@ void IosSimulatorToolHandlerPrivate::requestTransferApp(const QString &appBundle
                                                         const QString &deviceIdentifier, int timeout)
 {
     Q_UNUSED(timeout);
-    bundlePath = appBundlePath;
-    deviceId = deviceIdentifier;
-    isTransferringApp(bundlePath, deviceId, 0, 100, "");
+    m_bundlePath = appBundlePath;
+    m_deviceId = deviceIdentifier;
+    isTransferringApp(m_bundlePath, m_deviceId, 0, 100, "");
 
     auto onSimulatorStart = [this](const SimulatorControl::ResponseData &response) {
         if (!isResponseValid(response))
@@ -835,15 +836,15 @@ void IosSimulatorToolHandlerPrivate::requestTransferApp(const QString &appBundle
             installAppOnSimulator();
         } else {
             errorMsg(IosToolHandler::tr("Application install on Simulator failed. Simulator not running."));
-            didTransferApp(bundlePath, deviceId, IosToolHandler::Failure);
+            didTransferApp(m_bundlePath, m_deviceId, IosToolHandler::Failure);
             emit q->finished(q);
         }
     };
 
-    if (SimulatorControl::isSimulatorRunning(deviceId))
+    if (SimulatorControl::isSimulatorRunning(m_deviceId))
         installAppOnSimulator();
     else
-        futureList << Utils::onResultReady(simCtl->startSimulator(deviceId), onSimulatorStart);
+        futureList << Utils::onResultReady(simCtl->startSimulator(m_deviceId), onSimulatorStart);
 }
 
 void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
@@ -853,15 +854,15 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
 {
     Q_UNUSED(timeout);
     Q_UNUSED(deviceIdentifier);
-    bundlePath = appBundlePath;
-    deviceId = devType.identifier;
-    runKind = runType;
+    m_bundlePath = appBundlePath;
+    m_deviceId = m_devType.identifier;
+    m_runKind = runType;
 
-    Utils::FileName appBundle = Utils::FileName::fromString(bundlePath);
+    Utils::FileName appBundle = Utils::FileName::fromString(m_bundlePath);
     if (!appBundle.exists()) {
         errorMsg(IosToolHandler::tr("Application launch on Simulator failed. Invalid Bundle path %1")
-                 .arg(bundlePath));
-        didStartApp(bundlePath, deviceId, Ios::IosToolHandler::Failure);
+                 .arg(m_bundlePath));
+        didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Failure);
         return;
     }
 
@@ -872,14 +873,14 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
             launchAppOnSimulator(extraArgs);
         } else {
             errorMsg(IosToolHandler::tr("Application launch on Simulator failed. Simulator not running."));
-            didStartApp(bundlePath, deviceId, Ios::IosToolHandler::Failure);
+            didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Failure);
         }
     };
 
-    if (SimulatorControl::isSimulatorRunning(deviceId))
+    if (SimulatorControl::isSimulatorRunning(m_deviceId))
         launchAppOnSimulator(extraArgs);
     else
-        futureList << Utils::onResultReady(simCtl->startSimulator(deviceId), onSimulatorStart);
+        futureList << Utils::onResultReady(simCtl->startSimulator(m_deviceId), onSimulatorStart);
 }
 
 void IosSimulatorToolHandlerPrivate::requestDeviceInfo(const QString &deviceId, int timeout)
@@ -888,8 +889,22 @@ void IosSimulatorToolHandlerPrivate::requestDeviceInfo(const QString &deviceId, 
     Q_UNUSED(deviceId);
 }
 
+bool IosSimulatorToolHandlerPrivate::isRunning() const
+{
+#ifdef Q_OS_UNIX
+    return m_pid > 0 && (kill(m_pid, 0) == 0);
+#elif
+    return false;
+#endif
+}
+
 void IosSimulatorToolHandlerPrivate::stop(int errorCode)
 {
+#ifdef Q_OS_UNIX
+    if (m_pid > 0)
+        kill(m_pid, SIGKILL);
+#endif
+    m_pid = -1;
     foreach (auto f, futureList) {
         if (!f.isFinished())
             f.cancel();
@@ -906,32 +921,32 @@ void IosSimulatorToolHandlerPrivate::installAppOnSimulator()
             return;
 
         if (response.success) {
-            isTransferringApp(bundlePath, deviceId, 100, 100, "");
-            didTransferApp(bundlePath, deviceId, IosToolHandler::Success);
+            isTransferringApp(m_bundlePath, m_deviceId, 100, 100, "");
+            didTransferApp(m_bundlePath, m_deviceId, IosToolHandler::Success);
         } else {
             errorMsg(IosToolHandler::tr("Application install on Simulator failed. %1")
                      .arg(QString::fromLocal8Bit(response.commandOutput)));
-            didTransferApp(bundlePath, deviceId, IosToolHandler::Failure);
+            didTransferApp(m_bundlePath, m_deviceId, IosToolHandler::Failure);
         }
         emit q->finished(q);
     };
 
-    isTransferringApp(bundlePath, deviceId, 20, 100, "");
-    futureList << Utils::onResultReady(simCtl->installApp(deviceId, Utils::FileName::fromString(bundlePath)),
-                         onResponseAppInstall);
+    isTransferringApp(m_bundlePath, m_deviceId, 20, 100, "");
+    auto installFuture = simCtl->installApp(m_deviceId, Utils::FileName::fromString(m_bundlePath));
+    futureList << Utils::onResultReady(installFuture, onResponseAppInstall);
 }
 
 void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &extraArgs)
 {
-    const Utils::FileName appBundle = Utils::FileName::fromString(bundlePath);
+    const Utils::FileName appBundle = Utils::FileName::fromString(m_bundlePath);
     const QString bundleId = SimulatorControl::bundleIdentifier(appBundle);
-    const bool debugRun = runKind == IosToolHandler::DebugRun;
+    const bool debugRun = m_runKind == IosToolHandler::DebugRun;
     bool captureConsole = IosConfigurations::xcodeVersion() >= QVersionNumber(8);
     std::shared_ptr<QTemporaryFile> stdoutFile;
     std::shared_ptr<QTemporaryFile> stderrFile;
 
     if (captureConsole) {
-        const QString fileTemplate = CONSOLE_PATH_TEMPLATE.arg(deviceId).arg(bundleId);
+        const QString fileTemplate = CONSOLE_PATH_TEMPLATE.arg(m_deviceId).arg(bundleId);
         stdoutFile.reset(new QTemporaryFile(fileTemplate + ".stdout"));
         stderrFile.reset(new QTemporaryFile(fileTemplate + ".stderr"));
 
@@ -963,24 +978,26 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
         if (!isResponseValid(response))
             return;
         if (response.success) {
-            gotInferiorPid(bundlePath, deviceId, response.pID);
-            didStartApp(bundlePath, deviceId, Ios::IosToolHandler::Success);
+            m_pid = response.pID;
+            gotInferiorPid(m_bundlePath, m_deviceId, response.pID);
+            didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Success);
             // Start monitoring app's life signs.
             futureList << Utils::runAsync(monitorPid, response.pID);
             if (captureConsole)
                 futureList << Utils::runAsync(&LogTailFiles::exec, &outputLogger, stdoutFile,
                                               stderrFile);
         } else {
+            m_pid = -1;
             errorMsg(IosToolHandler::tr("Application launch on Simulator failed. %1")
                      .arg(QString::fromLocal8Bit(response.commandOutput)));
-            didStartApp(bundlePath, deviceId, Ios::IosToolHandler::Failure);
+            didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Failure);
             stop(-1);
             q->finished(q);
         }
     };
 
     futureList << Utils::onResultReady(
-                      simCtl->launchApp(deviceId, bundleId, debugRun, extraArgs,
+                      simCtl->launchApp(m_deviceId, bundleId, debugRun, extraArgs,
                                         captureConsole ? stdoutFile->fileName() : QString(),
                                         captureConsole ? stderrFile->fileName() : QString()),
                       onResponseAppLaunch);
@@ -988,21 +1005,15 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
 
 bool IosSimulatorToolHandlerPrivate::isResponseValid(const SimulatorControl::ResponseData &responseData)
 {
-    if (responseData.simUdid.compare(deviceId) != 0) {
+    if (responseData.simUdid.compare(m_deviceId) != 0) {
         errorMsg(IosToolHandler::tr("Invalid simulator response. Device Id mismatch. "
                                     "Device Id = %1 Response Id = %2")
                  .arg(responseData.simUdid)
-                 .arg(deviceId));
+                 .arg(m_deviceId));
         emit q->finished(q);
         return false;
     }
     return true;
-}
-
-void IosToolHandlerPrivate::killProcess()
-{
-    if (isRunning())
-        process->kill();
 }
 
 } // namespace Internal
@@ -1049,7 +1060,7 @@ void IosToolHandler::requestDeviceInfo(const QString &deviceId, int timeout)
     d->requestDeviceInfo(deviceId, timeout);
 }
 
-bool IosToolHandler::isRunning()
+bool IosToolHandler::isRunning() const
 {
     return d->isRunning();
 }
