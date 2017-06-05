@@ -515,7 +515,7 @@ class Dumper(DumperBase):
         if hasattr(nativeField, 'bitpos'):
             bitpos = nativeField.bitpos
         else:
-            bitpos = None
+            bitpos = 0
 
         if hasattr(nativeField, 'bitsize') and nativeField.bitsize != 0:
             bitsize = nativeField.bitsize
