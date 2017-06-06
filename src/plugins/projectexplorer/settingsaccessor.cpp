@@ -1623,43 +1623,41 @@ QVariantMap UserFileVersion7Upgrader::upgrade(const QVariantMap &map)
 
 static const char * const argListKeys[] = {
     "ProjectExplorer.Project.Target.",
-        "ProjectExplorer.Target.BuildConfiguration."
-        "|ProjectExplorer.Target.DeployConfiguration.",
-            "ProjectExplorer.BuildConfiguration.BuildStepList.",
-                "ProjectExplorer.BuildStepList.Step.",
-                    "GenericProjectManager.GenericMakeStep.MakeArguments",
-                    "QtProjectManager.QMakeBuildStep.QMakeArguments",
-                    "Qt4ProjectManager.MakeStep.MakeArguments",
-                    "CMakeProjectManager.MakeStep.AdditionalArguments",
-                    0,
-                0,
-            0,
-        "ProjectExplorer.Target.RunConfiguration.",
-            "ProjectExplorer.CustomExecutableRunConfiguration.Arguments",
-            "Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments",
-            "CMakeProjectManager.CMakeRunConfiguration.Arguments",
-            0,
-        0,
-    0
+    "ProjectExplorer.Target.BuildConfiguration.|ProjectExplorer.Target.DeployConfiguration.",
+    "ProjectExplorer.BuildConfiguration.BuildStepList.",
+    "ProjectExplorer.BuildStepList.Step.",
+    "GenericProjectManager.GenericMakeStep.MakeArguments",
+    "QtProjectManager.QMakeBuildStep.QMakeArguments",
+    "Qt4ProjectManager.MakeStep.MakeArguments",
+    "CMakeProjectManager.MakeStep.AdditionalArguments",
+    nullptr,
+    nullptr,
+    nullptr,
+    "ProjectExplorer.Target.RunConfiguration.",
+    "ProjectExplorer.CustomExecutableRunConfiguration.Arguments",
+    "Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments",
+    "CMakeProjectManager.CMakeRunConfiguration.Arguments",
+    nullptr,
+    nullptr,
+    nullptr
 };
 
 static const char * const lameArgListKeys[] = {
     "ProjectExplorer.Project.Target.",
-        "ProjectExplorer.Target.BuildConfiguration."
-        "|ProjectExplorer.Target.DeployConfiguration.",
-            "ProjectExplorer.BuildConfiguration.BuildStepList.",
-                "ProjectExplorer.BuildStepList.Step.",
-                    "ProjectExplorer.ProcessStep.Arguments",
-                    0,
-                0,
-            0,
-        "ProjectExplorer.Target.RunConfiguration.",
-            "Qt4ProjectManager.MaemoRunConfiguration.Arguments",
-            "Qt4ProjectManager.S60DeviceRunConfiguration.CommandLineArguments",
-            "QmlProjectManager.QmlRunConfiguration.QDeclarativeViewerArguments",
-            0,
-        0,
-    0
+    "ProjectExplorer.Target.BuildConfiguration.|ProjectExplorer.Target.DeployConfiguration.",
+    "ProjectExplorer.BuildConfiguration.BuildStepList.",
+    "ProjectExplorer.BuildStepList.Step.",
+    "ProjectExplorer.ProcessStep.Arguments",
+    nullptr,
+    nullptr,
+    nullptr,
+    "ProjectExplorer.Target.RunConfiguration.",
+    "Qt4ProjectManager.MaemoRunConfiguration.Arguments",
+    "Qt4ProjectManager.S60DeviceRunConfiguration.CommandLineArguments",
+    "QmlProjectManager.QmlRunConfiguration.QDeclarativeViewerArguments",
+    nullptr,
+    nullptr,
+    nullptr
 };
 
 inline static bool isSpecialChar(ushort c)
