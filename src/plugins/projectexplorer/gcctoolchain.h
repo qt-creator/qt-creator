@@ -178,7 +178,7 @@ protected:
     private:
         QByteArray m_flagUtf8;
         WarningFlags &m_flags;
-        bool m_doesEnable;
+        bool m_doesEnable = false;
         bool m_triggered = false;
     };
 
