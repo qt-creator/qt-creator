@@ -518,7 +518,7 @@ private:
         token(other.token)
     {}
 
-    bool m_valid;
+    bool m_valid = false;
 
     static QList<TTC *> m_toolChains;
 
