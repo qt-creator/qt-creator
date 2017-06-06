@@ -68,15 +68,15 @@ private:
     void deleteConfiguration(BuildConfiguration *toDelete);
     QString uniqueName(const QString &name);
 
-    Target *m_target;
+    Target *m_target = nullptr;
     BuildConfiguration *m_buildConfiguration = nullptr;
 
-    QPushButton *m_addButton;
-    QPushButton *m_removeButton;
-    QPushButton *m_renameButton;
-    QPushButton *m_makeActiveButton;
-    QComboBox *m_buildConfigurationComboBox;
-    QMenu *m_addButtonMenu;
+    QPushButton *m_addButton = nullptr;
+    QPushButton *m_removeButton = nullptr;
+    QPushButton *m_renameButton = nullptr;
+    QPushButton *m_makeActiveButton = nullptr;
+    QComboBox *m_buildConfigurationComboBox = nullptr;
+    QMenu *m_addButtonMenu = nullptr;
 
     QList<NamedWidget *> m_subWidgets;
     QList<QLabel *> m_labels;
