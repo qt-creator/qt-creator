@@ -94,7 +94,6 @@ public:
     ObjectValue *_globalObject;
     ObjectValue *_mathObject;
     ObjectValue *_qtObject;
-    ObjectValue *_qmlKeysObject;
     ObjectValue *_qmlFontObject;
     ObjectValue *_qmlPointObject;
     ObjectValue *_qmlSizeObject;
@@ -888,11 +887,6 @@ Function *ValueOwner::addFunction(ObjectValue *object, const QString &name, int 
     function->setOptionalNamedArgumentCount(optionalCount);
     object->setMember(name, function);
     return function;
-}
-
-const ObjectValue *ValueOwner::qmlKeysObject()
-{
-    return _shared->_qmlKeysObject;
 }
 
 const ObjectValue *ValueOwner::qmlFontObject()
