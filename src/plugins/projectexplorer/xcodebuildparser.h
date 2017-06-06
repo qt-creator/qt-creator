@@ -73,7 +73,7 @@ public:
     explicit XcodebuildParserTester(XcodebuildParser *parser, QObject *parent = nullptr);
 
     XcodebuildParser *parser;
-    XcodebuildParser::XcodebuildStatus expectedFinalState;
+    XcodebuildParser::XcodebuildStatus expectedFinalState = XcodebuildParser::OutsideXcodebuild;
 
 public slots:
     void onAboutToDeleteParser();
