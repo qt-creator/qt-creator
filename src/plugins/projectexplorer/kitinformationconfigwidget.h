@@ -100,8 +100,8 @@ private:
 
     int indexOf(QComboBox *cb, const ToolChain *tc);
 
-    QWidget *m_mainWidget;
-    QPushButton *m_manageButton;
+    QWidget *m_mainWidget = nullptr;
+    QPushButton *m_manageButton = nullptr;
     QHash<Core::Id, QComboBox *> m_languageComboboxMap;
     bool m_ignoreChanges = false;
     bool m_isReadOnly = false;
