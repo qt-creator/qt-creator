@@ -104,7 +104,7 @@ protected:
 
 private:
     Core::Id m_id;
-    int m_priority; // The higher the closer to the top.
+    int m_priority = 0; // The higher the closer to the top.
 };
 
 class PROJECTEXPLORER_EXPORT KitManager : public QObject
