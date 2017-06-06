@@ -25,6 +25,7 @@
 
 #include "algorithm.h"
 #include "environment.h"
+#include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QProcessEnvironment>
@@ -378,6 +379,7 @@ void Environment::modify(const QList<EnvironmentItem> & list)
         } else {
             // TODO use variable expansion
             QString value = item.value;
+            int replaceCount = 0;
             for (int i=0; i < value.size(); ++i) {
                 if (value.at(i) == QLatin1Char('$')) {
                     if ((i + 1) < value.size()) {
@@ -392,6 +394,8 @@ void Environment::modify(const QList<EnvironmentItem> & list)
                             Environment::const_iterator it = constFind(name);
                             if (it != constEnd())
                                 value.replace(i, end-i+1, it.value());
+                            ++replaceCount;
+                            QTC_ASSERT(replaceCount < 100, break);
                         }
                     }
                 }
