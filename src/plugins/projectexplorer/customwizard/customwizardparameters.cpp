@@ -198,11 +198,6 @@ bool CustomWizardValidationRule::validate(QJSEngine &engine, const QMap<QString,
     return valid;
 }
 
-CustomWizardParameters::CustomWizardParameters() :
-        firstPageId(-1)
-{
-}
-
 void CustomWizardParameters::clear()
 {
     directory.clear();

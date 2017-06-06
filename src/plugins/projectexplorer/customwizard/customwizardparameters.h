@@ -103,7 +103,7 @@ class CustomWizardParameters
 public:
     enum ParseResult { ParseOk, ParseDisabled, ParseFailed };
 
-    CustomWizardParameters();
+    CustomWizardParameters() = default;
     void clear();
     ParseResult parse(QIODevice &device, const QString &configFileFullPath,
                       QString *errorMessage);
@@ -120,10 +120,10 @@ public:
     QString fieldPageTitle;
     QList<CustomWizardField> fields;
     QList<CustomWizardValidationRule> rules;
-    int firstPageId;
+    int firstPageId = -1;
 
     // Wizard Factory data:
-    Core::IWizardFactory::WizardKind kind;
+    Core::IWizardFactory::WizardKind kind = Core::IWizardFactory::FileWizard;
     QIcon icon;
     QString description;
     QString displayName;
