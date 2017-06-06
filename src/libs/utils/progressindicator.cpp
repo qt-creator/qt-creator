@@ -25,6 +25,7 @@
 
 #include "progressindicator.h"
 
+#include "icon.h"
 #include "qtcassert.h"
 #include "stylehelper.h"
 
@@ -62,8 +63,8 @@ void ProgressIndicator::setIndicatorSize(ProgressIndicator::IndicatorSize size)
     m_size = size;
     m_rotationStep = size == Small ? 45 : 30;
     m_timer.setInterval(size == Small ? 100 : 80);
-    m_pixmap.load(StyleHelper::dpiSpecificImageFile(
-                      imageFileNameForIndicatorSize(size)));
+    m_pixmap = Icon({{imageFileNameForIndicatorSize(size),
+                      Theme::PanelTextColorMid}}, Icon::Tint).pixmap();
     updateGeometry();
 }
 

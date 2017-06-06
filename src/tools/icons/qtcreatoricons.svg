@@ -709,6 +709,14 @@
        id="src/libs/utils/images/progressindicator_small"
        clip-path="url(#clipPath4556)"
        transform="matrix(-1,0,0,1,578,0)">
+      <rect
+         style="fill:#ffffff"
+         id="rect5935"
+         width="16"
+         height="16"
+         x="-297"
+         y="584"
+         transform="scale(-1,1)" />
       <g
          id="g4504">
         <rect
@@ -719,7 +727,7 @@
            y="584"
            style="fill:none" />
         <rect
-           style="fill:#9d9d9d;fill-opacity:1;stroke:none"
+           style="fill:#303030"
            id="rect3698"
            width="2"
            height="5"
@@ -794,6 +802,14 @@
        transform="matrix(-0.5,0,0,0.5,589.5,200)"
        clip-path="url(#clipPath3536)"
        id="src/libs/utils/images/progressindicator_medium">
+      <rect
+         style="fill:#ffffff"
+         id="rect5933"
+         width="64"
+         height="64"
+         x="-393"
+         y="536"
+         transform="scale(-1,1)" />
       <g
          id="g3383">
         <rect
@@ -809,7 +825,7 @@
            height="18"
            width="4"
            id="rect3387"
-           style="fill:#6d6d6d;fill-opacity:1;stroke:none" />
+           style="fill:#303030" />
       </g>
       <use
          x="0"
@@ -915,6 +931,14 @@
        id="src/libs/utils/images/progressindicator_big"
        clip-path="url(#clipPath3536)"
        transform="matrix(-1,0,0,1,722,-100)">
+      <rect
+         style="fill:#ffffff"
+         id="rect5931"
+         width="64"
+         height="64"
+         x="-393"
+         y="536"
+         transform="scale(-1,1)" />
       <g
          id="g3369">
         <rect
@@ -926,7 +950,7 @@
            style="opacity:0.41699997;fill:none;stroke:none" />
         <rect
            rx="2"
-           style="fill:#6d6d6d;fill-opacity:1;stroke:none"
+           style="fill:#303030"
            id="rect3367"
            width="4"
            height="17"
