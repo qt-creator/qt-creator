@@ -893,7 +893,7 @@ bool IosSimulatorToolHandlerPrivate::isRunning() const
 {
 #ifdef Q_OS_UNIX
     return m_pid > 0 && (kill(m_pid, 0) == 0);
-#elif
+#else
     return false;
 #endif
 }
