@@ -449,11 +449,13 @@ void IosConfigurations::initializeProvisioningData()
     if (m_provisioningDataWatcher)
         return;
 
+    // Instantiate m_provisioningDataWatcher to mark initialized before calling loadProvisioningData.
+    m_provisioningDataWatcher = new QFileSystemWatcher(this);
+
     m_instance->loadProvisioningData(false);
 
     // Watch the provisioing profiles folder and xcode plist for changes and
     // update the content accordingly.
-    m_provisioningDataWatcher = new QFileSystemWatcher(this);
     m_provisioningDataWatcher->addPath(xcodePlistPath);
     m_provisioningDataWatcher->addPath(provisioningProfileDirPath);
     connect(m_provisioningDataWatcher, &QFileSystemWatcher::directoryChanged,
