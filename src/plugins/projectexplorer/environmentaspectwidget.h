@@ -50,7 +50,7 @@ class PROJECTEXPLORER_EXPORT EnvironmentAspectWidget : public RunConfigWidget
     Q_OBJECT
 
 public:
-    explicit EnvironmentAspectWidget(EnvironmentAspect *aspect, QWidget *additionalWidget = 0);
+    explicit EnvironmentAspectWidget(EnvironmentAspect *aspect, QWidget *additionalWidget = nullptr);
 
     QString displayName() const override;
     virtual EnvironmentAspect *aspect() const;
@@ -65,12 +65,11 @@ private:
     void environmentChanged();
 
     EnvironmentAspect *m_aspect;
-    bool m_ignoreChange;
+    bool m_ignoreChange = false;
 
-    QWidget *m_additionalWidget;
-    QComboBox *m_baseEnvironmentComboBox;
-    Utils::DetailsWidget *m_detailsContainer;
-    EnvironmentWidget *m_environmentWidget;
+    QWidget *m_additionalWidget = nullptr;
+    QComboBox *m_baseEnvironmentComboBox = nullptr;
+    EnvironmentWidget *m_environmentWidget = nullptr;
 };
 
 } // namespace ProjectExplorer
