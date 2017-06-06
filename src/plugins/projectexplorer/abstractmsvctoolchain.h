@@ -77,10 +77,10 @@ public:
 protected:
     class WarningFlagAdder
     {
-        int m_warningCode;
+        int m_warningCode = 0;
         WarningFlags &m_flags;
-        bool m_doesEnable;
-        bool m_triggered;
+        bool m_doesEnable = false;
+        bool m_triggered = false;
     public:
         WarningFlagAdder(const QString &flag, WarningFlags &flags);
         void operator ()(int warningCode, WarningFlags flagsSet);
