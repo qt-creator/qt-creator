@@ -355,11 +355,7 @@ Environment::const_iterator Environment::constEnd() const
 
 Environment::const_iterator Environment::constFind(const QString &name) const
 {
-    QMap<QString, QString>::const_iterator it = m_values.constFind(name);
-    if (it == m_values.constEnd())
-        return constEnd();
-    else
-        return it;
+    return m_values.constFind(name);
 }
 
 int Environment::size() const
