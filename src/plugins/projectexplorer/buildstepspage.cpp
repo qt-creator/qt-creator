@@ -193,11 +193,8 @@ BuildStepsWidgetData::~BuildStepsWidgetData()
 }
 
 BuildStepListWidget::BuildStepListWidget(QWidget *parent) :
-    NamedWidget(parent),
-    m_buildStepList(0),
-    m_addButton(0)
-{
-}
+    NamedWidget(parent)
+{ }
 
 BuildStepListWidget::~BuildStepListWidget()
 {
