@@ -302,7 +302,7 @@ void GerritPlugin::updateActions(const VcsBase::VcsBasePluginState &state)
     const bool hasTopLevel = state.hasTopLevel();
     m_gerritCommand->action()->setEnabled(hasTopLevel);
     m_pushToGerritCommand->action()->setEnabled(hasTopLevel);
-    if (m_dialog)
+    if (m_dialog && m_dialog->isVisible())
         m_dialog->setCurrentPath(state.topLevel());
 }
 
