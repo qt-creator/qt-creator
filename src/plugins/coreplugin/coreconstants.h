@@ -49,8 +49,9 @@ const char M_EDIT_ADVANCED[]       = "QtCreator.Menu.Edit.Advanced";
 const char M_TOOLS[]               = "QtCreator.Menu.Tools";
 const char M_TOOLS_EXTERNAL[]      = "QtCreator.Menu.Tools.External";
 const char M_WINDOW[]              = "QtCreator.Menu.Window";
-const char M_WINDOW_PANES[]        = "QtCreator.Menu.Window.Panes";
-const char M_WINDOW_VIEWS[]        = "QtCreator.Menu.Window.Views";
+const char M_VIEW[]              = "QtCreator.Menu.View";
+const char M_VIEW_PANES[]        = "QtCreator.Menu.View.Panes";
+const char M_VIEW_VIEWS[]        = "QtCreator.Menu.View.Views";
 const char M_HELP[]                = "QtCreator.Menu.Help";
 
 // Contexts
@@ -106,12 +107,22 @@ const char ZOOM_WINDOW[]           = "QtCreator.ZoomWindow";
 const char CLOSE_WINDOW[]           = "QtCreator.CloseWindow";
 
 const char SPLIT[]                 = "QtCreator.Split";
+const char SPLIT_SMART[]                 = "QtCreator.SplitSmart";
 const char SPLIT_SIDE_BY_SIDE[]    = "QtCreator.SplitSideBySide";
 const char SPLIT_NEW_WINDOW[]      = "QtCreator.SplitNewWindow";
 const char REMOVE_CURRENT_SPLIT[]  = "QtCreator.RemoveCurrentSplit";
 const char REMOVE_ALL_SPLITS[]     = "QtCreator.RemoveAllSplits";
 const char GOTO_PREV_SPLIT[]       = "QtCreator.GoToPreviousSplit";
 const char GOTO_NEXT_SPLIT[]       = "QtCreator.GoToNextSplit";
+const char WIND_MOVE_UP[]       = "QtCreator.WindMoveUp";
+const char WIND_MOVE_DOWN[]       = "QtCreator.WindMoveDown";
+const char WIND_MOVE_LEFT[]       = "QtCreator.WindMoveLeft";
+const char WIND_MOVE_RIGHT[]       = "QtCreator.WindMoveRight";
+const char WIND_MOVE_SWAP_UP[]       = "QtCreator.WindMoveSwapUp";
+const char WIND_MOVE_SWAP_DOWN[]       = "QtCreator.WindMoveSwapDown";
+const char WIND_MOVE_SWAP_LEFT[]       = "QtCreator.WindMoveSwapLeft";
+const char WIND_MOVE_SWAP_RIGHT[]       = "QtCreator.WindMoveSwapRight";
+
 const char CLOSE[]                 = "QtCreator.Close";
 const char CLOSE_ALTERNATIVE[]     = "QtCreator.Close_Alternative"; // temporary, see QTCREATORBUG-72
 const char CLOSEALL[]              = "QtCreator.CloseAll";
@@ -168,10 +179,16 @@ const char G_EDIT_EDITOR[]         = "QtCreator.Group.Edit.Editor";
 
 const char G_TOOLS_OPTIONS[]       = "QtCreator.Group.Tools.Options";
 
+// View menu, some parts formerly in 'window'
+
+const char G_VIEW_PANES[]        = "QtCreator.Group.View.Panes";
+const char G_VIEW_VIEWS[]        = "QtCreator.Group.View.Views";
+//const char G_VIEW_TOGGLELEFTSIDEBAR[]        = "QtCreator.Group.View.ToggleLeftSidebar";
+//const char G_VIEW_TOGGLERIGHTSIDEBAR[]        = "QtCreator.Group.View.ToggleRightSidebar";
+//const char G_VIEW_TOGGLEMODESELECTOR[]        = "QtCreator.Group.View.ToggleModeSelector";
+
 // Window menu groups
 const char G_WINDOW_SIZE[]         = "QtCreator.Group.Window.Size";
-const char G_WINDOW_PANES[]        = "QtCreator.Group.Window.Panes";
-const char G_WINDOW_VIEWS[]        = "QtCreator.Group.Window.Views";
 const char G_WINDOW_SPLIT[]        = "QtCreator.Group.Window.Split";
 const char G_WINDOW_NAVIGATE[]     = "QtCreator.Group.Window.Navigate";
 const char G_WINDOW_LIST[]         = "QtCreator.Group.Window.List";

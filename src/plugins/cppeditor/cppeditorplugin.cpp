@@ -187,6 +187,9 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 
     cmd = ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT);
     cppToolsMenu->addAction(cmd);
+	
+    cmd = ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEW_WINDOW);
+    cppToolsMenu->addAction(cmd);
 
     QAction *openDeclarationDefinitionInNextSplit =
             new QAction(tr("Open Function Declaration/Definition in Next Split"), this);

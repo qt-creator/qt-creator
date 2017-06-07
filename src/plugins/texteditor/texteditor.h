@@ -430,6 +430,7 @@ public:
 
     void openLinkUnderCursor();
     void openLinkUnderCursorInNextSplit();
+    void openLinkUnderCursorInNewWindow();
 
     /// Abort code assistant if it is running.
     void abortAssist();
@@ -565,7 +566,7 @@ protected:
     /*!
        Returns whether the link was opened successfully.
      */
-    bool openLink(const Link &link, bool inNextSplit = false);
+    bool openLink(const Link &link, bool inNextSplit = false,bool inNewWindow=false);
 
     /*!
       Reimplement this function to change the default replacement text.

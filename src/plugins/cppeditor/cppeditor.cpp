@@ -138,7 +138,7 @@ public:
     QSharedPointer<FunctionDeclDefLink> m_declDefLink;
 
     QScopedPointer<FollowSymbolUnderCursor> m_followSymbolUnderCursor;
-
+	
     QAction *m_parseContextAction = nullptr;
     ParseContextWidget *m_parseContextWidget = nullptr;
     QToolButton *m_preprocessorButton = nullptr;

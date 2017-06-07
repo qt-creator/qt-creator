@@ -162,6 +162,22 @@ SplitterOrView *EditorView::parentSplitterOrView() const
     return m_parentSplitterOrView;
 }
 
+SplitterOrView *EditorView::findRootSplitterOrView(QPoint* offset) const {
+	printf("DEBUG_findRootSplitterOrView\n");
+	if (!this) return (SplitterOrView*)0;
+	SplitterOrView* sov=parentSplitterOrView();
+	printf("DEBUG_findRootSplitterOrView %x\n",sov);
+	
+	while (sov) {
+		*offset=QPoint( offset->x()-sov->pos().x(), offset->y()-sov->pos().y());
+		SplitterOrView* parent=sov->findParentSplitter();
+		if (!parent) return sov;
+		else sov=parent;
+	}
+	return (SplitterOrView*)0;
+	
+}
+
 EditorView *EditorView::findNextView()
 {
     SplitterOrView *current = parentSplitterOrView();
@@ -184,6 +200,69 @@ EditorView *EditorView::findNextView()
     // current has no parent, so we are at the top and there is no "next" view
     return 0;
 }
+
+EditorView *EditorView::findViewAt(int x,int y){
+	printf("DEBUG_findViewAt %d %d\n",x,y);
+	EditorView* ret=(EditorView*)0;
+	QPoint ofs(0,0);
+	SplitterOrView* root=this->findRootSplitterOrView(&ofs);
+	printf("DEBUG_findViewAt %x %x\n",this, root);
+	printf("DEBUG_ parent offset= %d %d\n",ofs.x(),ofs.y());
+    findViewAtSub(0, QRect(0,0,root->width(),root->height()), root, &ret, x-ofs.x(),y-ofs.y());
+	return ret;
+}
+
+QRect EditorView::frameRect() const{
+	printf("DEBUG_TODO_is_it_geometryOrFrameGeometry??\n");
+	return this->geometry();
+//	QList<IEditor*>::iterator it;
+//	for (it=m_editors.begin();it!=m_editors.end(); ++it){		
+//	}
+}
+
+void EditorView::debugDumpEditors() const{
+	qDebug()<<"view{";
+	for (int i=0; i<m_editors.size(); i++) {
+		IDocument* doc=m_editors[i]->document();
+		qDebug()<<doc<<"="<<((doc)?doc->displayName():"null");
+	}
+	qDebug()<<"}";
+}
+
+void EditorView::findViewAtSub(int depth,QRect parent,SplitterOrView* sov, EditorView** ppv,int x,int y){
+	// TODO - inquire if there is a neat existing way of visiting a hierachy of QObjects?
+	// 
+    printf("DEBUG_findViewAtSub\n");
+//	QRect rc=	sov->frameRect();
+	QRect rc(parent.x()+sov->pos().x(),
+			parent.y()+sov->pos().y(),
+			sov->width(),
+			sov->height());
+	printf("QRect{%d,%d, %d,%d}\n",rc.x(),rc.y(),rc.width(),rc.height());
+	//TODO: slight hack, we search for 2 points displaced, because this fails when we look for an exact 50:50 split
+	if (rc.contains(x-3,y-3)|| rc.contains(x+3,y+3)){
+		printf("..DEBUG_found\n");
+		if (sov->view()){
+			*ppv=sov->view();
+		} else {
+			printf("..DEBUG_not a 'view'\n");
+		}
+	}
+
+	QSplitter* splitter=sov->splitter();
+	if (splitter) {
+		for (int i=0; i<splitter->count(); i++) {
+			QWidget* w=splitter->widget(i);
+			SplitterOrView* sovsub=qobject_cast<SplitterOrView*>(w);
+			if (sovsub) {
+			    findViewAtSub(depth+1, rc,sovsub,ppv,x,y);
+			} else {
+				printf("DEBUG_not a splitter or view?!\n");
+			}
+	    }
+    }
+}
+
 
 EditorView *EditorView::findPreviousView()
 {
@@ -387,6 +466,13 @@ void EditorView::splitVertically()
 {
     if (m_parentSplitterOrView)
         m_parentSplitterOrView->split(Qt::Horizontal);
+    EditorManagerPrivate::updateActions();
+}
+void EditorView::splitSmart()
+{
+    if (m_parentSplitterOrView) {
+        m_parentSplitterOrView->split((this->width()>this->height())?Qt::Horizontal:Qt::Vertical);
+	}
     EditorManagerPrivate::updateActions();
 }
 
@@ -716,6 +802,10 @@ EditorView *SplitterOrView::takeView()
     return oldView;
 }
 
+void SplitterOrView::splitSmart(){
+    this->split((this->width()>this->height())?Qt::Horizontal:Qt::Vertical);
+}
+
 void SplitterOrView::split(Qt::Orientation orientation)
 {
     Q_ASSERT(m_view && m_splitter == 0);
@@ -750,6 +840,8 @@ void SplitterOrView::split(Qt::Orientation orientation)
     EditorManagerPrivate::activateView(otherView->view());
     emit splitStateChanged();
 }
+
+
 
 void SplitterOrView::unsplitAll()
 {
@@ -934,4 +1026,12 @@ void SplitterOrView::restoreState(const QByteArray &state)
                 EditorManagerPrivate::setCurrentEditor(e);
         }
     }
+}
+
+QRect SplitterOrView::frameRect() const
+{
+	    // todo - assert either is set? it's an Either<Splitter,EditorView>??
+    if (m_view) return m_view->frameRect();
+    else if (m_splitter) return m_splitter->frameRect();
+	else return QRect(0,0,0,0);
 }

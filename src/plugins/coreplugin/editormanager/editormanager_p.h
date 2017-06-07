@@ -99,6 +99,8 @@ public:
     static bool closeEditors(const QList<IEditor *> &editors, CloseFlag flag);
 
     static EditorView *viewForEditor(IEditor *editor);
+	static IEditor* viewGetEditor(EditorView* editor);
+	static IEditor* viewPopEditor(EditorView* editor);
     static void setCurrentView(EditorView *view);
     static void activateView(EditorView *view);
 
@@ -141,9 +143,19 @@ public slots:
     static bool saveDocumentAs(Core::IDocument *document);
 
     static void split(Qt::Orientation orientation);
+    static void splitSmart();
     static void removeAllSplits();
     static void gotoPreviousSplit();
     static void gotoNextSplit();
+    static void windmoveUp();		//wrappers for 'windmove(dx,dy,swap)' 
+    static void windmoveDown();
+    static void windmoveLeft();
+    static void windmoveRight();
+    static void windmoveSwapUp();
+    static void windmoveSwapDown();
+    static void windmoveSwapLeft();
+    static void windmoveSwapRight();
+    static void windmove(int dx,int dy, bool swap=false);
 
     void handleDocumentStateChange();
     void editorAreaDestroyed(QObject *area);
@@ -188,6 +200,7 @@ private:
     static void removeEditor(IEditor *editor, bool removeSusependedEntry);
     static IEditor *placeEditor(EditorView *view, IEditor *editor);
     static void restoreEditorState(IEditor *editor);
+	static void swapViews(EditorView* view1,EditorView* view2);
     static int visibleDocumentsCount();
     static EditorArea *findEditorArea(const EditorView *view, int *areaIndex = 0);
     static IEditor *pickUnusedEditor(Internal::EditorView **foundView = 0);
@@ -225,11 +238,22 @@ private:
     QAction *m_goForwardAction;
     QAction *m_splitAction;
     QAction *m_splitSideBySideAction;
+    QAction *m_splitSmartAction;
     QAction *m_splitNewWindowAction;
     QAction *m_removeCurrentSplitAction;
     QAction *m_removeAllSplitsAction;
     QAction *m_gotoPreviousSplitAction;
     QAction *m_gotoNextSplitAction;
+
+    QAction *m_windmoveUpAction;
+    QAction *m_windmoveDownAction;
+    QAction *m_windmoveLeftAction;
+    QAction *m_windmoveRightAction;
+    QAction *m_windmoveSwapUpAction;
+    QAction *m_windmoveSwapDownAction;
+    QAction *m_windmoveSwapLeftAction;
+    QAction *m_windmoveSwapRightAction;
+
 
     QAction *m_copyFilePathContextAction;
     QAction *m_copyLocationContextAction; // Copy path and line number.

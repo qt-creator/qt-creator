@@ -82,12 +82,16 @@ public:
     SplitterOrView *parentSplitterOrView() const;
     EditorView *findNextView();
     EditorView *findPreviousView();
+	EditorView* findViewAt(int x, int y);
+	void findViewAtSub(int depth,QRect parent, SplitterOrView* sov,EditorView** ppv, int x, int y);
+	SplitterOrView* findRootSplitterOrView(QPoint* offset) const;
 
     int editorCount() const;
     void addEditor(IEditor *editor);
     void removeEditor(IEditor *editor);
     IEditor *currentEditor() const;
     void setCurrentEditor(IEditor *editor);
+	void debugDumpEditors() const;
 
     bool hasEditor(IEditor *editor) const;
 
@@ -103,7 +107,8 @@ public:
     void setCloseSplitIcon(const QIcon &icon);
 
     static void updateEditorHistory(IEditor *editor, QList<EditLocation> &history);
-
+	IEditor* popFirstEditor(){ if (m_editors.isEmpty()) return (IEditor*)0; return m_editors.takeFirst(); }
+	IEditor* popLastEditor(){ if (m_editors.isEmpty()) return (IEditor*)0; return m_editors.takeLast(); }
 signals:
     void currentEditorChanged(Core::IEditor *editor);
 
@@ -119,6 +124,7 @@ private:
     void listSelectionActivated(int index);
     void splitHorizontally();
     void splitVertically();
+    void splitSmart();
     void splitNewWindow();
     void closeSplit();
     void openDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
@@ -165,6 +171,7 @@ public:
 
     void copyNavigationHistoryFrom(EditorView* other);
     void updateEditorHistory(IEditor *editor);
+	QRect frameRect() const;
 };
 
 class SplitterOrView  : public QWidget
@@ -176,6 +183,7 @@ public:
     ~SplitterOrView();
 
     void split(Qt::Orientation orientation);
+	void splitSmart();
     void unsplit();
 
     inline bool isView() const { return m_view != 0; }
@@ -189,6 +197,7 @@ public:
     inline QSplitter *splitter() const { return m_splitter; }
     QSplitter *takeSplitter();
     EditorView *takeView();
+	QRect frameRect()const;
 
     QByteArray saveState() const;
     void restoreState(const QByteArray &);

@@ -399,7 +399,7 @@ QStatusBar *MainWindow::statusBar() const
 {
     return m_modeStack->statusBar();
 }
-
+ActionContainer* g_viewmenu;// TODO- eliminate this global
 void MainWindow::registerDefaultContainers()
 {
     ActionContainer *menubar = ActionManager::createMenuBar(Constants::MENU_BAR);
@@ -448,12 +448,21 @@ void MainWindow::registerDefaultContainers()
     menubar->addMenu(mwindow, Constants::G_WINDOW);
     mwindow->menu()->setTitle(tr("&Window"));
     mwindow->appendGroup(Constants::G_WINDOW_SIZE);
-    mwindow->appendGroup(Constants::G_WINDOW_VIEWS);
-    mwindow->appendGroup(Constants::G_WINDOW_PANES);
+//    mwindow->appendGroup(Constants::G_WINDOW_VIEWS);
+ //   mwindow->appendGroup(Constants::G_WINDOW_PANES);
     mwindow->appendGroup(Constants::G_WINDOW_SPLIT);
     mwindow->appendGroup(Constants::G_WINDOW_NAVIGATE);
     mwindow->appendGroup(Constants::G_WINDOW_LIST);
     mwindow->appendGroup(Constants::G_WINDOW_OTHER);
+
+	// View Menu
+    ActionContainer *mview = ActionManager::createMenu(Constants::M_VIEW);
+	g_viewmenu=mview;
+    menubar->addMenu(mview, Constants::G_VIEW);
+    mview->menu()->setTitle(tr("&View"));
+    mview->appendGroup(Constants::G_VIEW_VIEWS);
+    mview->appendGroup(Constants::G_VIEW_PANES);
+
 
     // Help Menu
     ac = ActionManager::createMenu(Constants::M_HELP);
@@ -471,6 +480,7 @@ void MainWindow::registerDefaultActions()
     ActionContainer *medit = ActionManager::actionContainer(Constants::M_EDIT);
     ActionContainer *mtools = ActionManager::actionContainer(Constants::M_TOOLS);
     ActionContainer *mwindow = ActionManager::actionContainer(Constants::M_WINDOW);
+    ActionContainer *mview = ActionManager::actionContainer(Constants::M_VIEW);
     ActionContainer *mhelp = ActionManager::actionContainer(Constants::M_HELP);
 
     // File menu separators
@@ -666,7 +676,7 @@ void MainWindow::registerDefaultActions()
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Meta+F") : tr("Ctrl+Shift+F11")));
     if (HostOsInfo::isMacHost())
         cmd->setAttribute(Command::CA_UpdateText);
-    mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+    mview->addAction(cmd, Constants::G_WINDOW_SIZE);
 
     if (UseMacShortcuts) {
         mwindow->addSeparator(Constants::G_WINDOW_SIZE);
@@ -693,7 +703,7 @@ void MainWindow::registerDefaultActions()
     ProxyAction *toggleLeftSideBarProxyAction =
             ProxyAction::proxyActionWithIcon(cmd->action(), Utils::Icons::TOGGLE_LEFT_SIDEBAR_TOOLBAR.icon());
     m_toggleLeftSideBarButton->setDefaultAction(toggleLeftSideBarProxyAction);
-    mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
+    mview->addAction(cmd, Constants::G_VIEW_VIEWS); //was G_VIEW, but that doesn't work,
     m_toggleLeftSideBarAction->setEnabled(false);
 
     // Show Right Sidebar Action
@@ -709,7 +719,7 @@ void MainWindow::registerDefaultActions()
     ProxyAction *toggleRightSideBarProxyAction =
             ProxyAction::proxyActionWithIcon(cmd->action(), Utils::Icons::TOGGLE_RIGHT_SIDEBAR_TOOLBAR.icon());
     m_toggleRightSideBarButton->setDefaultAction(toggleRightSideBarProxyAction);
-    mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
+    mview->addAction(cmd, Constants::G_VIEW_VIEWS);	// TODO - is this just cut-pasted, should this be here?
     m_toggleRightSideBarButton->setEnabled(false);
 
     // Show Mode Selector Action
@@ -718,11 +728,11 @@ void MainWindow::registerDefaultActions()
     cmd = ActionManager::registerAction(m_toggleModeSelectorAction, Constants::TOGGLE_MODE_SELECTOR);
     connect(m_toggleModeSelectorAction, &QAction::triggered,
             ModeManager::instance(), &ModeManager::setModeSelectorVisible);
-    mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
+    mview->addAction(cmd, Constants::G_VIEW_VIEWS);
 
-    // Window->Views
-    ActionContainer *mviews = ActionManager::createMenu(Constants::M_WINDOW_VIEWS);
-    mwindow->addMenu(mviews, Constants::G_WINDOW_VIEWS);
+    // VIew->Views
+    ActionContainer *mviews = ActionManager::createMenu(Constants::M_VIEW_VIEWS);
+    mview->addMenu(mviews, Constants::G_VIEW_VIEWS);
     mviews->menu()->setTitle(tr("&Views"));
 
     // "Help" separators

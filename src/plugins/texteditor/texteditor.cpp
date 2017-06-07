@@ -1518,6 +1518,14 @@ void TextEditorWidget::openLinkUnderCursorInNextSplit()
     openLink(symbolLink, openInNextSplit);
 }
 
+void TextEditorWidget::openLinkUnderCursorInNewWindow()
+{
+    const bool openInNextSplit = !alwaysOpenLinksInNextSplit();
+    Link symbolLink = findLinkAt(textCursor(), true, openInNextSplit);
+    openLink(symbolLink, false,true);
+}
+
+
 void TextEditorWidget::abortAssist()
 {
     d->m_codeAssistant.destroyContext();
@@ -5479,12 +5487,12 @@ TextEditorWidget::Link TextEditorWidget::findLinkAt(const QTextCursor &, bool, b
     return Link();
 }
 
-bool TextEditorWidget::openLink(const Link &link, bool inNextSplit)
+bool TextEditorWidget::openLink(const Link &link, bool inNextSplit, bool inNewWindow)
 {
     if (!link.hasValidTarget())
         return false;
 
-    if (!inNextSplit && textDocument()->filePath().toString() == link.targetFileName) {
+    if (!inNextSplit && !inNewWindow && textDocument()->filePath().toString() == link.targetFileName) {
         EditorManager::addCurrentPositionToNavigationHistory();
         gotoLine(link.targetLine, link.targetColumn);
         setFocus();
@@ -5493,6 +5501,8 @@ bool TextEditorWidget::openLink(const Link &link, bool inNextSplit)
     EditorManager::OpenEditorFlags flags;
     if (inNextSplit)
         flags |= EditorManager::OpenInOtherSplit;
+    if (inNewWindow)
+        flags |= EditorManager::OpenInNewWindow;
 
     return EditorManager::openEditorAt(link.targetFileName, link.targetLine, link.targetColumn,
                                        Id(), flags);

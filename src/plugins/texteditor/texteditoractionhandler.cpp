@@ -180,6 +180,7 @@ public:
     QAction *m_unindentAction = nullptr;
     QAction *m_followSymbolAction = nullptr;
     QAction *m_followSymbolInNextSplitAction = nullptr;
+    QAction *m_followSymbolInNewWindowAction = nullptr;
     QAction *m_jumpToFileAction = nullptr;
     QAction *m_jumpToFileInNextSplitAction = nullptr;
     QList<QAction *> m_modifyingActions;
@@ -287,6 +288,9 @@ void TextEditorActionHandlerPrivate::createActions()
     m_followSymbolInNextSplitAction = registerAction(FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT,
             [this] (TextEditorWidget *w) { w->openLinkUnderCursorInNextSplit(); }, true, tr("Follow Symbol Under Cursor in Next Split"),
             QKeySequence(Utils::HostOsInfo::isMacHost() ? tr("Meta+E, F2") : tr("Ctrl+E, F2")));
+    m_followSymbolInNewWindowAction = registerAction(FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEW_WINDOW,
+            [this] (TextEditorWidget *w) { w->openLinkUnderCursorInNewWindow(); }, true, tr("Follow Symbol Under Cursor in New Window"),
+            QKeySequence(Utils::HostOsInfo::isMacHost() ? tr("Meta+E, Meta+F2") : tr("Ctrl+E, Ctrl-F2")));
     m_jumpToFileAction = registerAction(JUMP_TO_FILE_UNDER_CURSOR,
             [this] (TextEditorWidget *w) { w->openLinkUnderCursor(); }, true, tr("Jump to File Under Cursor"),
             QKeySequence(Qt::Key_F2));
