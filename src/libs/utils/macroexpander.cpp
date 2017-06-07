@@ -53,16 +53,22 @@ public:
         : m_accumulating(false), m_aborted(false), m_lockDepth(0)
     {}
 
-    bool resolveMacro(const QString &name, QString *ret)
+    bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander *> &seen)
     {
+        // Prevent loops:
+        const int count = seen.count();
+        seen.insert(this);
+        if (seen.count() == count)
+            return false;
+
         bool found;
         *ret = value(name.toUtf8(), &found);
         if (found)
             return true;
 
-        found = Utils::anyOf(m_subProviders, [name, ret] (const MacroExpanderProvider &p) -> bool {
+        found = Utils::anyOf(m_subProviders, [name, ret, &seen] (const MacroExpanderProvider &p) -> bool {
             MacroExpander *expander = p ? p() : 0;
-            return expander && expander->resolveMacro(name, ret);
+            return expander && expander->d->resolveMacro(name, ret, seen);
         });
 
         if (found)
@@ -75,7 +81,7 @@ public:
         if (found)
             return true;
 
-        return this == globalMacroExpander()->d ? false : globalMacroExpander()->d->resolveMacro(name, ret);
+        return this == globalMacroExpander()->d ? false : globalMacroExpander()->d->resolveMacro(name, ret, seen);
     }
 
     QString value(const QByteArray &variable, bool *found)
@@ -243,7 +249,8 @@ MacroExpander::~MacroExpander()
  */
 bool MacroExpander::resolveMacro(const QString &name, QString *ret) const
 {
-    return d->resolveMacro(name, ret);
+    QSet<AbstractMacroExpander*> seen;
+    return d->resolveMacro(name, ret, seen);
 }
 
 /*!
