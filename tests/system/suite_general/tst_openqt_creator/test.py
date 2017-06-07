@@ -66,7 +66,7 @@ def main():
     generalMessages = str(waitForObject(":Qt Creator_Core::OutputWindow").plainText)
     test.compare(generalMessages.count("Project MESSAGE: Cannot build Qt Creator with Qt version 5.3.1."), 1,
                  "Warning about outdated Qt shown?")
-    test.compare(generalMessages.count("Project ERROR: Use at least Qt 5.5.0."), 1,
+    test.compare(generalMessages.count("Project ERROR: Use at least Qt 5.6.0."), 1,
                  "Minimum Qt version shown?")
 
     # Verify that qmljs.g is in the project even when we don't know where (QTCREATORBUG-17609)
