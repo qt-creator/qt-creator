@@ -63,28 +63,32 @@ public:
         detailsContainer->setWidget(detailsWidget);
 
         auto exeLabel = new QLabel(tr("Executable:"));
-        auto executableChooser = new PathChooser;
-        executableChooser->setExpectedKind(PathChooser::File);
-        executableChooser->setPath(m_runConfig->localExecutableFilePath());
+        m_executableChooser = new PathChooser(this);
+        m_executableChooser->setExpectedKind(PathChooser::File);
+        m_executableChooser->setPath(m_runConfig->localExecutableFilePath());
 
         auto wdirLabel = new QLabel(tr("Work directory:"));
-        auto workdirChooser = new PathChooser;
-        workdirChooser->setExpectedKind(PathChooser::Directory);
-        workdirChooser->setPath(m_runConfig->workingDirectory());
+        m_workingDirectory = new PathChooser(this);
+        m_workingDirectory->setExpectedKind(PathChooser::Directory);
+        m_workingDirectory->setPath(m_runConfig->workingDirectory());
 
         auto clayout = new QFormLayout(this);
         detailsWidget->setLayout(clayout);
 
-        clayout->addRow(exeLabel, executableChooser);
+        clayout->addRow(exeLabel, m_executableChooser);
         runConfig->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, clayout);
-        clayout->addRow(wdirLabel, workdirChooser);
+        clayout->addRow(wdirLabel, m_workingDirectory);
 
-        connect(executableChooser, &PathChooser::pathChanged,
+        connect(m_executableChooser, &PathChooser::pathChanged,
                 this, &BareMetalCustomRunConfigWidget::handleLocalExecutableChanged);
-        connect(workdirChooser, &PathChooser::pathChanged,
+        connect(m_workingDirectory, &PathChooser::pathChanged,
                 this, &BareMetalCustomRunConfigWidget::handleWorkingDirChanged);
         connect(this, &BareMetalCustomRunConfigWidget::setWorkdir,
-                workdirChooser, &PathChooser::setPath);
+                m_workingDirectory, &PathChooser::setPath);
+        auto enviromentAspect = runConfig->extraAspect<EnvironmentAspect>();
+        connect(enviromentAspect, &EnvironmentAspect::environmentChanged,
+                this, &BareMetalCustomRunConfigWidget::environmentWasChanged);
+        handleEnvironmentWasChanged();
     }
 
 signals:
@@ -104,6 +108,14 @@ private:
     void handleWorkingDirChanged(const QString &wd)
     {
         m_runConfig->setWorkingDirectory(wd.trimmed());
+    }
+
+    void handleEnvironmentWasChanged(){
+    {
+        auto aspect = m_runConfig->extraAspect<EnvironmentAspect>();
+        QTC_ASSERT(aspect, return);
+        m_workingDirectory->setEnvironment(aspect->environment());
+        m_executableChooser->setEnvironment(aspect->environment());
     }
 
 private:

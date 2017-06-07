@@ -58,6 +58,8 @@ public:
 
 private:
     QString m_localExecutable;
+    Utils::PathChooser *m_executableChooser = 0;
+    Utils::PathChooser *m_workingDirectory = 0;
 };
 
 } // namespace Internal
