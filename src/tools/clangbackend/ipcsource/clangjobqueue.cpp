@@ -124,7 +124,7 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest) const
         }
 
         if (expirationReasons.testFlag(JobRequest::DocumentRevisionChanged)) {
-            if (document.documentRevision() != jobRequest.documentRevision) {
+            if (document.documentRevision() > jobRequest.documentRevision) {
                 qCDebug(jobsLog) << "Removing due to changed document revision:" << jobRequest;
                 return true;
             }
