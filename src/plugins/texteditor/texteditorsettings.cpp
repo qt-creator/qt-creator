@@ -157,14 +157,17 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                              tr("Name of a primitive data type."), Qt::darkYellow);
     formatDescr.emplace_back(C_TYPE, tr("Type"), tr("Name of a type."),
                              Qt::darkMagenta);
-    formatDescr.emplace_back(C_LOCAL, tr("Local"), tr("Local variables."));
+    formatDescr.emplace_back(C_LOCAL, tr("Local"),
+                             tr("Local variables."), QColor(9, 46, 100));
     formatDescr.emplace_back(C_FIELD, tr("Field"),
                              tr("Class' data members."), Qt::darkRed);
-    formatDescr.emplace_back(C_GLOBAL, tr("Global"), tr("Global variables."));
+    formatDescr.emplace_back(C_GLOBAL, tr("Global"),
+                             tr("Global variables."), QColor(206, 92, 0));
     formatDescr.emplace_back(C_ENUMERATION, tr("Enumeration"),
                              tr("Applied to enumeration items."), Qt::darkMagenta);
 
     Format functionFormat;
+    functionFormat.setForeground(QColor(0, 103, 124));
     formatDescr.emplace_back(C_FUNCTION, tr("Function"), tr("Name of a function."),
                              functionFormat);
     functionFormat.setItalic(true);
@@ -309,13 +312,19 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                              QColor(255, 190, 0),
                              QTextCharFormat::DotLine,
                              FormatDescription::ShowUnderlineControl);
+    Format declarationFormat;
+    declarationFormat.setBold(true);
     formatDescr.emplace_back(C_DECLARATION,
                              tr("Declaration"),
                              tr("Declaration of a function, variable, and so on."),
+                             declarationFormat,
                              FormatDescription::ShowFontUnderlineAndRelativeControls);
+    Format outputArgumentFormat;
+    outputArgumentFormat.setItalic(true);
     formatDescr.emplace_back(C_OUTPUT_ARGUMENT,
                              tr("Output Argument"),
                              tr("Writable arguments of a function call."),
+                             outputArgumentFormat,
                              FormatDescription::ShowFontUnderlineAndRelativeControls);
 
     d->m_fontSettingsPage = new FontSettingsPage(formatDescr,
