@@ -41,4 +41,9 @@ fi
 # Add Qt Creator library path
 LD_LIBRARY_PATH=$libdir:$libdir/qtcreator$qtlibpath${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH
+
+# Become DPI-aware
+QT_AUTO_SCREEN_SCALE_FACTOR=1
+export QT_AUTO_SCREEN_SCALE_FACTOR
+
 exec "$bindir/qtcreator" ${1+"$@"}
