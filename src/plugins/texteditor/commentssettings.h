@@ -46,6 +46,7 @@ public:
     bool m_enableDoxygen;
     bool m_generateBrief;
     bool m_leadingAsterisks;
+    bool m_extraStartEndLines;
 };
 
 inline bool operator==(const CommentsSettings &a, const CommentsSettings &b)

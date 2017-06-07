@@ -303,6 +303,7 @@ bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
 
             DoxygenGenerator doxygen;
             doxygen.setStyle(style);
+            doxygen.setAddExtraStartEndLines(settings.m_extraStartEndLines);
             doxygen.setAddLeadingAsterisks(settings.m_leadingAsterisks);
             doxygen.setGenerateBrief(settings.m_generateBrief);
             doxygen.setStartComment(false);

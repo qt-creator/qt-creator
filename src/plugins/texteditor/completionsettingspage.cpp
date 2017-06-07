@@ -110,6 +110,7 @@ QWidget *CompletionSettingsPage::widget()
         m_page->enableDoxygenCheckBox->setChecked(m_commentsSettings.m_enableDoxygen);
         m_page->generateBriefCheckBox->setChecked(m_commentsSettings.m_generateBrief);
         m_page->leadingAsterisksCheckBox->setChecked(m_commentsSettings.m_leadingAsterisks);
+        m_page->extraStartEndLines->setChecked(m_commentsSettings.m_extraStartEndLines);
 
         m_page->generateBriefCheckBox->setEnabled(m_page->enableDoxygenCheckBox->isChecked());
         m_page->skipAutoComplete->setEnabled(m_page->highlightAutoComplete->isChecked());
@@ -189,6 +190,7 @@ void CompletionSettingsPage::settingsFromUi(CompletionSettings &completion, Comm
     comment.m_enableDoxygen = m_page->enableDoxygenCheckBox->isChecked();
     comment.m_generateBrief = m_page->generateBriefCheckBox->isChecked();
     comment.m_leadingAsterisks = m_page->leadingAsterisksCheckBox->isChecked();
+    comment.m_extraStartEndLines = m_page->extraStartEndLines->isChecked();
 }
 
 void CompletionSettingsPage::onCompletionTriggerChanged()

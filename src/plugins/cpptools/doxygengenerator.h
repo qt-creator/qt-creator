@@ -53,6 +53,7 @@ public:
     void setStartComment(bool start);
     void setGenerateBrief(bool gen);
     void setAddLeadingAsterisks(bool add);
+    void setAddExtraStartEndLines(bool add);
 
     QString generate(QTextCursor cursor,
                      const CPlusPlus::Snapshot &snapshot,
@@ -85,6 +86,7 @@ private:
     void assignCommentOffset(QTextCursor cursor);
     QString offsetString() const;
 
+    bool m_addExtraStartEndLines;
     bool m_addLeadingAsterisks;
     bool m_generateBrief;
     bool m_startComment;
