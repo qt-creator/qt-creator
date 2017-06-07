@@ -36,6 +36,7 @@ HEADERS = \
     qbspmlogging.h \
     qbsprofilessettingspage.h \
     qbsproject.h \
+    qbsprojectimporter.h \
     qbsprojectmanager.h \
     qbsprojectmanager_global.h \
     qbsprojectmanagerconstants.h \
@@ -62,6 +63,7 @@ SOURCES = \
     qbspmlogging.cpp \
     qbsprofilessettingspage.cpp \
     qbsproject.cpp \
+    qbsprojectimporter.cpp \
     qbsprojectmanager.cpp \
     qbsprojectmanagerplugin.cpp \
     qbsprojectmanagersettings.cpp \

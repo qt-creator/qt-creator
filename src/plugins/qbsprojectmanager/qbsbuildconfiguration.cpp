@@ -480,7 +480,8 @@ BuildConfiguration *QbsBuildConfigurationFactory::create(Target *parent, const B
     QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
     QTC_ASSERT(!info->displayName.isEmpty(), return 0);
 
-    QVariantMap configData;
+    const QbsBuildInfo * const bi = static_cast<const QbsBuildInfo *>(info);
+    QVariantMap configData = bi->config;
     configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
                       (info->buildType == BuildConfiguration::Debug)
                           ? QLatin1String(Constants::QBS_VARIANT_DEBUG)

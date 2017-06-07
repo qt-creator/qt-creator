@@ -122,8 +122,6 @@ private:
     void buildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc);
     void startParsing();
 
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
-
     void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir,
                const QString &configName);
 
@@ -139,7 +137,11 @@ private:
     bool checkCancelStatus();
     void updateAfterParse();
     void updateProjectNodes();
+
     void projectLoaded() override;
+    ProjectExplorer::ProjectImporter *projectImporter() const override;
+    bool needsConfiguration() const override { return targets().isEmpty(); }
+    bool requiresTargetPanel() const override { return !targets().isEmpty(); }
 
     static bool ensureWriteableQbsFile(const QString &file);
 
@@ -166,6 +168,7 @@ private:
     CppTools::ProjectInfo m_cppCodeModelProjectInfo;
 
     QbsBuildConfiguration *m_currentBc;
+    mutable ProjectExplorer::ProjectImporter *m_importer = nullptr;
 
     QTimer m_parsingDelay;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;

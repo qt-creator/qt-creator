@@ -99,6 +99,8 @@ QtcPlugin {
         "qbsprofilessettingswidget.ui",
         "qbsproject.cpp",
         "qbsproject.h",
+        "qbsprojectimporter.cpp",
+        "qbsprojectimporter.h",
         "qbsprojectmanager.cpp",
         "qbsprojectmanager.h",
         "qbsprojectmanager.qrc",

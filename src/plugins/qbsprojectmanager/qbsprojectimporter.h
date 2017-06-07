@@ -23,29 +23,29 @@
 **
 ****************************************************************************/
 
-#ifndef QBSBUILDINFO_H
-#define QBSBUILDINFO_H
+#pragma once
 
-#include <projectexplorer/buildinfo.h>
-
-#include <QVariantMap>
+#include <qtsupport/qtprojectimporter.h>
 
 namespace QbsProjectManager {
 namespace Internal {
 
-class QbsBuildInfo final : public ProjectExplorer::BuildInfo
+class QbsProjectImporter final : public QtSupport::QtProjectImporter
 {
-public:
-    QbsBuildInfo(const ProjectExplorer::IBuildConfigurationFactory *f);
+    Q_OBJECT
 
-    QVariantMap config;
+public:
+    QbsProjectImporter(const Utils::FileName &path);
 
 private:
-    QList<ProjectExplorer::Task> reportIssues(const QString &projectPath,
-                                              const QString &buildDir) const override;
+    QStringList importCandidates() override;
+    QList<void *> examineDirectory(const Utils::FileName &importPath) const override;
+    bool matchKit(void *directoryData, const ProjectExplorer::Kit *k) const override;
+    ProjectExplorer::Kit *createKit(void *directoryData) const override;
+    QList<ProjectExplorer::BuildInfo *> buildInfoListForKit(const ProjectExplorer::Kit *k,
+                                                            void *directoryData) const override;
+    void deleteDirectoryData(void *directoryData) const override;
 };
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // QBSBUILDINFO_H

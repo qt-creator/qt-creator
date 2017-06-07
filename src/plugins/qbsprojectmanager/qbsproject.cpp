@@ -28,6 +28,7 @@
 #include "qbsbuildconfiguration.h"
 #include "qbslogsink.h"
 #include "qbspmlogging.h"
+#include "qbsprojectimporter.h"
 #include "qbsprojectparser.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsnodes.h"
@@ -152,6 +153,7 @@ QbsProject::~QbsProject()
 {
     delete m_cppCodeModelUpdater;
     delete m_qbsProjectParser;
+    delete m_importer;
     if (m_qbsUpdateFutureInterface) {
         m_qbsUpdateFutureInterface->reportCanceled();
         m_qbsUpdateFutureInterface->reportFinished();
@@ -169,6 +171,13 @@ QbsRootProjectNode *QbsProject::rootProjectNode() const
 void QbsProject::projectLoaded()
 {
     m_parsingDelay.start(0);
+}
+
+ProjectImporter *QbsProject::projectImporter() const
+{
+    if (!m_importer)
+        m_importer = new QbsProjectImporter(projectFilePath());
+    return m_importer;
 }
 
 QStringList QbsProject::filesGeneratedFrom(const QString &sourceFile) const
@@ -652,19 +661,6 @@ void QbsProject::registerQbsProjectParser(QbsProjectParser *p)
         connect(m_qbsProjectParser, &QbsProjectParser::done,
                 this, &QbsProject::handleQbsParsingDone);
     }
-}
-
-Project::RestoreResult QbsProject::fromMap(const QVariantMap &map, QString *errorMessage)
-{
-    RestoreResult result = Project::fromMap(map, errorMessage);
-    if (result != RestoreResult::Ok)
-        return result;
-
-    Kit *defaultKit = KitManager::defaultKit();
-    if (!activeTarget() && defaultKit)
-        addTarget(createTarget(defaultKit));
-
-    return RestoreResult::Ok;
 }
 
 void QbsProject::generateErrors(const qbs::ErrorInfo &e)
