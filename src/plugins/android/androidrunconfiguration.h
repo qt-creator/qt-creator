@@ -48,15 +48,21 @@ public:
     QVariantMap toMap() const override;
 
     const QStringList &amStartExtraArgs() const;
+    const QStringList &preStartShellCommands() const;
+    const QStringList &postFinishShellCommands() const;
 
 protected:
     AndroidRunConfiguration(ProjectExplorer::Target *parent, AndroidRunConfiguration *source);
 
 private:
+    void setPreStartShellCommands(const QStringList &cmdList);
+    void setPostFinishShellCommands(const QStringList &cmdList);
     void setAmStartExtraArgs(const QStringList &args);
 
 private:
     QStringList m_amStartExtraArgs;
+    QStringList m_preStartShellCommands;
+    QStringList m_postFinishShellCommands;
 };
 
 } // namespace Android

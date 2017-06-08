@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 #include "androidrunconfigurationwidget.h"
+#include "adbcommandswidget.h"
 #include "ui_androidrunconfigurationwidget.h"
 
 #include "utils/utilsicons.h"
@@ -39,6 +40,26 @@ AndroidRunConfigurationWidget::AndroidRunConfigurationWidget(QWidget *parent):
     m_ui->setupUi(detailsWidget);
     m_ui->m_warningIconLabel->setPixmap(Utils::Icons::WARNING.pixmap());
 
+    m_preStartCmdsWidget = new AdbCommandsWidget(detailsWidget);
+    connect(m_preStartCmdsWidget, &AdbCommandsWidget::commandsChanged, [this]() {
+            emit preStartCmdsChanged(m_preStartCmdsWidget->commandsList());
+    });
+    m_preStartCmdsWidget->setTitleText(tr("Shell commands to run on Android device before"
+                                          " application launch."));
+
+    m_postEndCmdsWidget = new AdbCommandsWidget(detailsWidget);
+    connect(m_postEndCmdsWidget, &AdbCommandsWidget::commandsChanged, [this]() {
+            emit postFinishCmdsChanged(m_postEndCmdsWidget->commandsList());
+    });
+    m_postEndCmdsWidget->setTitleText(tr("Shell commands to run on Android device after application"
+                                         " quits."));
+
+    auto mainLayout = static_cast<QGridLayout*>(detailsWidget->layout());
+    mainLayout->addWidget(m_preStartCmdsWidget->widget(), mainLayout->rowCount(),
+                          0, mainLayout->columnCount() - 1, 0);
+    mainLayout->addWidget(m_postEndCmdsWidget->widget(), mainLayout->rowCount(),
+                          0, mainLayout->columnCount() - 1, 0);
+
     setWidget(detailsWidget);
     setSummaryText(tr("Android run settings"));
 
@@ -54,8 +75,17 @@ AndroidRunConfigurationWidget::~AndroidRunConfigurationWidget()
 
 void AndroidRunConfigurationWidget::setAmStartArgs(const QStringList &args)
 {
-    if (m_ui->m_amStartArgsEdit && !args.isEmpty())
-        m_ui->m_amStartArgsEdit->setText(Utils::QtcProcess::joinArgs(args, Utils::OsTypeLinux));
+    m_ui->m_amStartArgsEdit->setText(Utils::QtcProcess::joinArgs(args, Utils::OsTypeLinux));
+}
+
+void AndroidRunConfigurationWidget::setPreStartShellCommands(const QStringList &cmdList)
+{
+    m_preStartCmdsWidget->setCommandList(cmdList);
+}
+
+void AndroidRunConfigurationWidget::setPostFinishShellCommands(const QStringList &cmdList)
+{
+    m_postEndCmdsWidget->setCommandList(cmdList);
 }
 
 } // namespace Internal

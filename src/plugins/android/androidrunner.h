@@ -64,12 +64,11 @@ public:
     void stop() override;
 
 signals:
-    void asyncStart(const AndroidRunnable &runnable);
-    void asyncStop(const AndroidRunnable &runnable);
+    void asyncStart();
+    void asyncStop();
     void remoteDebuggerRunning();
     void qmlServerReady(const QUrl &serverUrl);
-
-    void adbParametersChanged(const QString &packageName, const QStringList &selector);
+    void androidRunnableChanged(const AndroidRunnable &runnable);
     void avdDetected();
 
 private:

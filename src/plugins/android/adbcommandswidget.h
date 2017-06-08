@@ -22,51 +22,43 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #pragma once
 
-#include "androidrunconfiguration.h"
-
-#include "projectexplorer/runconfiguration.h"
-#include "utils/detailswidget.h"
-
-#include <QStringListModel>
+#include <QObject>
+#include <QStringList>
 
 #include <memory>
+
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
 
 namespace Android {
 namespace Internal {
 
-class AdbCommandsWidget;
-namespace Ui {
-    class AndroidRunConfigurationWidget;
-}
+class AdbCommandsWidgetPrivate;
 
-class AndroidRunConfigurationWidget : public Utils::DetailsWidget
+class AdbCommandsWidget : public QObject
 {
     Q_OBJECT
 public:
-    AndroidRunConfigurationWidget(QWidget *parent = nullptr);
-    ~AndroidRunConfigurationWidget();
+    explicit AdbCommandsWidget(QWidget *parent);
+    ~AdbCommandsWidget();
 
-    void setAmStartArgs(const QStringList &args);
-    void setPreStartShellCommands(const QStringList &cmdList);
-    void setPostFinishShellCommands(const QStringList &cmdList);
+    QStringList commandsList() const;
+    void setCommandList(const QStringList &commands);
+
+    QWidget *widget() const;
+
+    void setTitleText(const QString &title);
 
 signals:
-    void amStartArgsChanged(QStringList args);
-    void preStartCmdsChanged(const QStringList &cmdList);
-    void postFinishCmdsChanged(const QStringList &cmdList);
+    void commandsChanged();
 
 private:
-    void addPreStartCommand(const QString &command);
-    void addPostFinishCommand(const QString &command);
-
-private:
-    std::unique_ptr<Ui::AndroidRunConfigurationWidget> m_ui;
-    AdbCommandsWidget *m_preStartCmdsWidget = nullptr;
-    AdbCommandsWidget *m_postEndCmdsWidget = nullptr;
+    std::unique_ptr<AdbCommandsWidgetPrivate> d;
 };
 
-} // namespace Internal
-} // namespace Android
-
+} // Internal
+} // Android

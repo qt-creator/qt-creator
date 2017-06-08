@@ -18,8 +18,11 @@ Project {
 
         files: [
             "android_global.h",
-            "addnewavddialog.ui",
             "android.qrc",
+            "adbcommandswidget.cpp",
+            "adbcommandswidget.h",
+            "adbcommandswidget.ui",
+            "addnewavddialog.ui",
             "androidanalyzesupport.cpp",
             "androidanalyzesupport.h",
             "androidavdmanager.cpp",
