@@ -1,5 +1,6 @@
 import qbs 1.0
 import qbs.FileInfo
+import qbs.Utilities
 import QtcFunctions
 
 Product {
@@ -19,9 +20,13 @@ Product {
     Depends { name: "qtc" }
     Depends { name: product.name + " dev headers"; required: false }
 
+    Properties {
+        condition: Utilities.versionCompare(Qt.core.version, "5.7") < 0
+        cpp.minimumMacosVersion: "10.8"
+    }
+
     cpp.cxxLanguageVersion: "c++14"
     cpp.defines: qtc.generalDefines
-    cpp.minimumOsxVersion: "10.7"
     cpp.minimumWindowsVersion: qbs.architecture === "x86" ? "5.1" : "5.2"
     cpp.useCxxPrecompiledHeader: useNonGuiPchFile || useGuiPchFile
     cpp.visibility: "minimal"

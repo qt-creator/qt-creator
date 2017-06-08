@@ -253,6 +253,6 @@
 	<key>CFBundleShortVersionString</key>
 	<string>@SHORT_VERSION@</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.7.0</string>
+	<string>10.8</string>
 </dict>
 </plist>

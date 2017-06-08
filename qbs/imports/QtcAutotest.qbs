@@ -15,7 +15,6 @@ QtcProduct {
         project.buildDirectory + '/' + qtc.ide_library_path,
         project.buildDirectory + '/' + qtc.ide_plugin_path
     ]
-    cpp.minimumOsxVersion: "10.7"
     cpp.defines: base.filter(function(d) { return d != "QT_RESTRICTED_CAST_FROM_ASCII"; })
 
     Group {
