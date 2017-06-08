@@ -311,8 +311,11 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
 
     const QString prefix = m_editorWidget->textAt(basePosition,
                                                   m_editorWidget->position() - basePosition);
-    if (!newProposal->hasItemsToPropose(prefix, reason))
+    if (!newProposal->hasItemsToPropose(prefix, reason)) {
+        if (newProposal->isCorrective(m_editorWidget))
+            newProposal->makeCorrection(m_editorWidget);
         return;
+    }
 
     if (destroyCurrentContext)
         destroyContext();
