@@ -95,13 +95,22 @@ void QmakeManager::addLibrary()
 
 void QmakeManager::addLibraryContextMenu()
 {
+    QString projectPath;
+
     Node *node = contextNode();
-    if (dynamic_cast<QmakeProFileNode *>(node))
-        addLibraryImpl(node->filePath().toString(), nullptr);
+    if (ContainerNode *cn = node->asContainerNode())
+        projectPath = cn->project()->projectFilePath().toString();
+    else if (dynamic_cast<QmakeProFileNode *>(node))
+        projectPath = node->filePath().toString();
+
+    addLibraryImpl(projectPath, nullptr);
 }
 
 void QmakeManager::addLibraryImpl(const QString &fileName, BaseTextEditor *editor)
 {
+    if (fileName.isEmpty())
+        return;
+
     Internal::AddLibraryWizard wizard(fileName, Core::ICore::dialogParent());
     if (wizard.exec() != QDialog::Accepted)
         return;
