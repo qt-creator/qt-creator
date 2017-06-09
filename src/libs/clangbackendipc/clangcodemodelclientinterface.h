@@ -44,6 +44,8 @@ class RegisterUnsavedFilesForEditorMessage;
 class UnregisterUnsavedFilesForEditorMessage;
 class UpdateVisibleTranslationUnitsMessage;
 class RequestDocumentAnnotationsMessage;
+class RequestReferencesMessage;
+class ReferencesMessage;
 class DocumentAnnotationsChangedMessage;
 
 class CMBIPC_EXPORT ClangCodeModelClientInterface : public IpcClientInterface
@@ -57,6 +59,7 @@ public:
     virtual void translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message) = 0;
     virtual void projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message) = 0;
     virtual void documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message) = 0;
+    virtual void references(const ReferencesMessage &message) = 0;
 };
 
 } // namespace ClangBackEnd

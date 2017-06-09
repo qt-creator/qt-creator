@@ -36,6 +36,8 @@
 #include <highlightingmarkcontainer.h>
 #include <messageenvelop.h>
 #include <requestdocumentannotations.h>
+#include <requestreferencesmessage.h>
+#include <referencesmessage.h>
 #include <readmessageblock.h>
 #include <registerunsavedfilesforeditormessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
@@ -204,6 +206,21 @@ TEST_F(ReadAndWriteMessageBlock, CompareUnregisterUnsavedFilesForEditorMessage)
 TEST_F(ReadAndWriteMessageBlock, CompareRequestDocumentAnnotations)
 {
     CompareMessage(ClangBackEnd::RequestDocumentAnnotationsMessage(fileContainer));
+}
+
+TEST_F(ReadAndWriteMessageBlock, CompareRequestReferences)
+{
+    CompareMessage(ClangBackEnd::RequestReferencesMessage{fileContainer, 13, 37});
+}
+
+TEST_F(ReadAndWriteMessageBlock, CompareReferences)
+{
+    const QVector<ClangBackEnd::SourceRangeContainer> references{
+        true,
+        {{fileContainer.filePath(), 12, 34},
+         {fileContainer.filePath(), 56, 78}}
+    };
+    CompareMessage(ClangBackEnd::ReferencesMessage(fileContainer, references, true, 1));
 }
 
 TEST_F(ReadAndWriteMessageBlock, GetInvalidMessageForAPartialBuffer)

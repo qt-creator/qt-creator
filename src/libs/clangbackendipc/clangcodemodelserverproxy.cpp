@@ -36,6 +36,7 @@
 #include <messageenvelop.h>
 #include <registerunsavedfilesforeditormessage.h>
 #include <requestdocumentannotations.h>
+#include <requestreferencesmessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
 #include <updatetranslationunitsforeditormessage.h>
 #include <updatevisibletranslationunitsmessage.h>
@@ -112,6 +113,11 @@ void ClangCodeModelServerProxy::completeCode(const CompleteCodeMessage &message)
 }
 
 void ClangCodeModelServerProxy::requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message)
+{
+    m_writeMessageBlock.write(message);
+}
+
+void ClangCodeModelServerProxy::requestReferences(const RequestReferencesMessage &message)
 {
     m_writeMessageBlock.write(message);
 }

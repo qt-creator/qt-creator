@@ -34,6 +34,11 @@
 
 namespace ClangBackEnd {
 
+bool Type::isValid() const
+{
+    return cxType.kind != CXType_Invalid;
+}
+
 bool Type::isConstant() const
 {
     return clang_isConstQualifiedType(cxType);
@@ -72,6 +77,11 @@ bool Type::isReferencingConstant() const
 bool Type::isOutputArgument() const
 {
     return (isPointer() || isLValueReference()) && !pointeeType().isConstant();
+}
+
+bool Type::isBuiltinType() const
+{
+    return cxType.kind >= CXType_FirstBuiltin && cxType.kind <= CXType_LastBuiltin;
 }
 
 Utf8String Type::utf8Spelling() const

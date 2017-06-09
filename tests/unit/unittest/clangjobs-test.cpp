@@ -56,7 +56,7 @@ protected:
     void TearDown() override;
 
     bool waitUntilAllJobsFinished(int timeOutInMs = 10000) const;
-    bool waitUntilJobChainFinished(int timeOutInMs = 10000) const;
+    bool waitUntilJobChainFinished(int timeOutInMs = 10000);
 
 protected:
     ClangBackEnd::ProjectParts projects;
@@ -134,7 +134,7 @@ bool Jobs::waitUntilAllJobsFinished(int timeOutInMs) const
     return ProcessEventUtilities::processEventsUntilTrue(noJobsRunningAnymore, timeOutInMs);
 }
 
-bool Jobs::waitUntilJobChainFinished(int timeOutInMs) const
+bool Jobs::waitUntilJobChainFinished(int timeOutInMs)
 {
     const auto noJobsRunningAnymore = [this]() {
         return jobs.runningJobs().isEmpty() && jobs.queue().isEmpty();

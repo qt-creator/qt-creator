@@ -58,6 +58,7 @@ public:
     void completeCode(const CompleteCodeMessage &message) override;
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
     void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message) override;
+    void requestReferences(const RequestReferencesMessage &message) override;
 
 public: // for tests
     const Documents &documentsForTestOnly() const;

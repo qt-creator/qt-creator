@@ -325,6 +325,10 @@ QString toString(const RequestDocumentAnnotationsMessage &)
     return QStringLiteral("RequestDocumentAnnotationsMessage\n");
 }
 
+QString toString(const RequestReferencesMessage &)
+{
+    return QStringLiteral("RequestReferencesMessage\n");
+}
 
 QString toString(const UpdateVisibleTranslationUnitsMessage &)
 {
@@ -362,6 +366,9 @@ public:
     { senderLog.append(toString(message)); }
 
     void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message) override
+    { senderLog.append(toString(message)); }
+
+    void requestReferences(const RequestReferencesMessage &message) override
     { senderLog.append(toString(message)); }
 
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override

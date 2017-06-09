@@ -49,6 +49,8 @@ public:
     SourceLocation start() const;
     SourceLocation end() const;
 
+    bool contains(unsigned line, unsigned column) const;
+
     SourceRangeContainer toSourceRangeContainer() const;
 
     operator CXSourceRange() const;

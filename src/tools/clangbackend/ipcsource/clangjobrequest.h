@@ -52,7 +52,14 @@ public:
 
         CompleteCode,
         RequestDocumentAnnotations,
+        RequestReferences,
     };
+
+    enum class Condition {
+        NoCondition,
+        CurrentDocumentRevision,
+    };
+    Q_DECLARE_FLAGS(Conditions, Condition)
 
     enum ExpirationReason {
         Never                   = 1 << 0,
@@ -71,6 +78,7 @@ public:
 
 public:
     static ExpirationReasons expirationReasonsForType(Type type);
+    static Conditions conditionsForType(Type type);
 
     JobRequest();
 
@@ -80,6 +88,7 @@ public:
     quint64 id = 0;
     Type type;
     ExpirationReasons expirationReasons;
+    Conditions conditions;
 
     // General
     Utf8String filePath;
@@ -89,7 +98,7 @@ public:
     uint documentRevision = 0;
     PreferredTranslationUnit preferredTranslationUnit = PreferredTranslationUnit::RecentlyParsed;
 
-    // For code completion
+    // Specific to some jobs
     quint32 line = 0;
     quint32 column = 0;
     quint64 ticketNumber = 0;

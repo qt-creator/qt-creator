@@ -57,6 +57,7 @@ public:
     void translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message) override;
     void projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message) override;
     void documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message) override;
+    void references(const ReferencesMessage &message) override;
 
     void readMessages();
 

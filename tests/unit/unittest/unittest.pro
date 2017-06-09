@@ -85,6 +85,8 @@ SOURCES += \
     clangjobqueue-test.cpp \
     clangjobs-test.cpp \
     clangrequestdocumentannotationsjob-test.cpp \
+    clangrequestreferencesjob-test.cpp \
+    clangreferencescollector-test.cpp \
     clangstring-test.cpp \
     clangtranslationunit-test.cpp \
     clangtranslationunits-test.cpp \

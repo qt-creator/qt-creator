@@ -32,6 +32,7 @@
 #include "clangdocument.h"
 #include "clangtranslationunits.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 namespace ClangBackEnd {
@@ -119,6 +120,11 @@ bool DocumentProcessor::isSupportiveTranslationUnitInitialized() const
 {
     return d->supportiveTranslationUnitInitializer.state()
         == SupportiveTranslationUnitInitializer::State::Initialized;
+}
+
+JobRequests &DocumentProcessor::queue()
+{
+    return d->jobs.queue();
 }
 
 QList<Jobs::RunningJob> DocumentProcessor::runningJobs() const

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,58 +25,25 @@
 
 #pragma once
 
-#include <clang-c/Index.h>
+#include "clangasyncjob.h"
+#include "clangreferencescollector.h"
+#include "clangdocument.h"
 
-#include <iosfwd>
-
-class Utf8String;
+#include <clangbackendipc/sourcerangecontainer.h>
 
 namespace ClangBackEnd {
 
-class Cursor;
-class ClangString;
-
-class Type
+class RequestReferencesJob : public AsyncJob<ReferencesResult>
 {
-    friend class Cursor;
-    friend bool operator==(Type first, Type second);
-
 public:
-    bool isValid() const;
+    using AsyncResult = ReferencesResult;
 
-    bool isConstant() const;
-    bool isConstantReference();
-    bool isPointer() const;
-    bool isPointerToConstant() const;
-    bool isConstantPointer() const;
-    bool isLValueReference() const;
-    bool isReferencingConstant() const;
-    bool isOutputArgument() const;
-    bool isBuiltinType() const;
-
-    Utf8String utf8Spelling() const;
-    ClangString spelling() const;
-    int argumentCount() const;
-
-    Type alias() const;
-    Type canonical() const;
-    Type classType() const;
-    Type pointeeType() const;
-    Type argument(int index) const;
-
-    Cursor declaration() const;
-
-    CXTypeKind kind() const;
+    AsyncPrepareResult prepareAsyncRun() override;
+    void finalizeAsyncRun() override;
 
 private:
-    Type(CXType cxType);
-
-private:
-    CXType cxType;
+    Document m_pinnedDocument;
+    FileContainer m_pinnedFileContainer;
 };
 
-bool operator==(Type first, Type second);
-
-void PrintTo(CXTypeKind typeKind, ::std::ostream* os);
-void PrintTo(const Type &type, ::std::ostream* os);
 } // namespace ClangBackEnd

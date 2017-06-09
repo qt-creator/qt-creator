@@ -32,8 +32,10 @@
 #include <clangbackendipc/clangcodemodelclientinterface.h>
 #include <clangbackendipc/projectpartcontainer.h>
 
+#include <QFuture>
 #include <QObject>
 #include <QSharedPointer>
+#include <QTextDocument>
 #include <QVector>
 
 #include <functional>
@@ -41,6 +43,10 @@
 namespace Core {
 class IEditor;
 class IDocument;
+}
+
+namespace CppTools {
+class CursorInfo;
 }
 
 namespace ClangBackEnd {
@@ -72,6 +78,9 @@ public:
     void deleteAndClearWaitingAssistProcessors();
     void deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *textEditorWidget);
 
+    QFuture<CppTools::CursorInfo> addExpectedReferencesMessage(quint64 ticket,
+                                                               QTextDocument *textDocument);
+
     bool isExpectingCodeCompletedMessage() const;
 
 private:
@@ -80,6 +89,7 @@ private:
     void codeCompleted(const ClangBackEnd::CodeCompletedMessage &message) override;
 
     void documentAnnotationsChanged(const ClangBackEnd::DocumentAnnotationsChangedMessage &message) override;
+    void references(const ClangBackEnd::ReferencesMessage &message) override;
 
     void translationUnitDoesNotExist(const ClangBackEnd::TranslationUnitDoesNotExistMessage &) override {}
     void projectPartsDoNotExist(const ClangBackEnd::ProjectPartsDoNotExistMessage &) override {}
@@ -87,6 +97,12 @@ private:
 private:
     AliveHandler m_aliveHandler;
     QHash<quint64, ClangCompletionAssistProcessor *> m_assistProcessorsTable;
+
+    struct ReferencesEntry {
+        QFutureInterface<CppTools::CursorInfo> futureInterface;
+        QTextDocument *textDocument = nullptr;
+    };
+    QHash<quint64, ReferencesEntry> m_referencesTable;
     const bool m_printAliveMessage = false;
 };
 
@@ -105,6 +121,7 @@ public:
     virtual void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message) = 0;
     virtual void completeCode(const ClangBackEnd::CompleteCodeMessage &message) = 0;
     virtual void requestDocumentAnnotations(const ClangBackEnd::RequestDocumentAnnotationsMessage &message) = 0;
+    virtual void requestReferences(const ClangBackEnd::RequestReferencesMessage &message) = 0;
     virtual void updateVisibleTranslationUnits(const ClangBackEnd::UpdateVisibleTranslationUnitsMessage &message) = 0;
 };
 
@@ -114,6 +131,7 @@ class IpcCommunicator : public QObject
 
 public:
     using Ptr = QSharedPointer<IpcCommunicator>;
+    using FileContainer = ClangBackEnd::FileContainer;
     using FileContainers = QVector<ClangBackEnd::FileContainer>;
     using ProjectPartContainers = QVector<ClangBackEnd::ProjectPartContainer>;
 
@@ -129,6 +147,9 @@ public:
     void registerUnsavedFilesForEditor(const FileContainers &fileContainers);
     void unregisterUnsavedFilesForEditor(const FileContainers &fileContainers);
     void requestDocumentAnnotations(const ClangBackEnd::FileContainer &fileContainer);
+    QFuture<CppTools::CursorInfo> requestReferences(const FileContainer &fileContainer,
+                                                    quint32 line,
+                                                    quint32 column, QTextDocument *textDocument);
     void completeCode(ClangCompletionAssistProcessor *assistProcessor, const QString &filePath,
                       quint32 line,
                       quint32 column,

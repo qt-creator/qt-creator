@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "clangtranslationunit.h"
+
+#include "clangreferencescollector.h"
 #include "clangtranslationunitupdater.h"
 
 #include <codecompleter.h>
@@ -120,6 +122,11 @@ void TranslationUnit::extractDocumentAnnotations(
     extractDiagnostics(firstHeaderErrorDiagnostic, mainFileDiagnostics);
     highlightingMarks = this->highlightingMarks().toHighlightingMarksContainers();
     skippedSourceRanges = this->skippedSourceRanges().toSourceRangeContainers();
+}
+
+ReferencesResult TranslationUnit::references(uint line, uint column) const
+{
+    return collectReferences(m_cxTranslationUnit, line, column);
 }
 
 DiagnosticSet TranslationUnit::diagnostics() const

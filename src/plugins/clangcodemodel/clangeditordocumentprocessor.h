@@ -101,12 +101,14 @@ private:
     void requestDocumentAnnotations(const QString &projectpartId);
     HeaderErrorDiagnosticWidgetCreator creatorForHeaderErrorDiagnosticWidget(
             const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic);
+    ClangBackEnd::FileContainer simpleFileContainer() const;
     ClangBackEnd::FileContainer fileContainerWithArguments(CppTools::ProjectPart *projectPart) const;
     ClangBackEnd::FileContainer fileContainerWithArgumentsAndDocumentContent(
             CppTools::ProjectPart *projectPart) const;
     ClangBackEnd::FileContainer fileContainerWithDocumentContent(const QString &projectpartId) const;
 
 private:
+    TextEditor::TextDocument &m_document;
     ClangDiagnosticManager m_diagnosticManager;
     IpcCommunicator &m_ipcCommunicator;
     QSharedPointer<ClangEditorDocumentParser> m_parser;

@@ -40,6 +40,7 @@ class DiagnosticContainer;
 class DiagnosticSet;
 class HighlightingMarkContainer;
 class HighlightingMarks;
+class ReferencesResult;
 class SkippedSourceRanges;
 class SourceLocation;
 class SourceRange;
@@ -83,6 +84,8 @@ public:
                                     QVector<HighlightingMarkContainer> &highlightingMarks,
                                     QVector<SourceRangeContainer> &skippedSourceRanges) const;
 
+
+    ReferencesResult references(uint line, uint column) const;
     DiagnosticSet diagnostics() const;
 
     SourceLocation sourceLocationAt(uint line, uint column) const;

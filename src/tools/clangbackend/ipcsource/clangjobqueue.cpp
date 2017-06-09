@@ -197,6 +197,20 @@ JobRequests JobQueue::takeJobRequestsToRunNow()
             if (isJobRunningForTranslationUnit(id))
                 continue;
 
+            if (request.conditions.testFlag(JobRequest::Condition::CurrentDocumentRevision)) {
+                if (document.isDirty()) {
+                    // TODO: If the document is dirty due to a project update,
+                    // references are processes later than ideal.
+                    qWarning() << "Not choosing due to dirty document:" << request;
+                    continue;
+                }
+
+                if (request.documentRevision != document.documentRevision()) {
+                    qWarning() << "Not choosing due to revision mismatch:" << request;
+                    continue;
+                }
+            }
+
             translationUnitsScheduledForThisRun.insert(id);
             jobsToRun += request;
             i.remove();
@@ -237,7 +251,7 @@ void JobQueue::setIsJobRunningForJobRequestHandler(
     m_isJobRunningForJobRequestHandler = isJobRunningHandler;
 }
 
-JobRequests JobQueue::queue() const
+JobRequests &JobQueue::queue()
 {
     return m_queue;
 }

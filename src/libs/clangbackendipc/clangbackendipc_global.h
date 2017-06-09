@@ -113,6 +113,9 @@ enum class MessageType : quint8 {
     RequestDocumentAnnotationsMessage,
     DocumentAnnotationsChangedMessage,
 
+    RequestReferencesMessage,
+    ReferencesMessage,
+
     UpdateVisibleTranslationUnitsMessage,
 
     CompleteCodeMessage,

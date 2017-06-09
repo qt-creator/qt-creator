@@ -48,6 +48,7 @@ public:
     virtual void unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message) = 0;
     virtual void completeCode(const CompleteCodeMessage &message) = 0;
     virtual void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message) = 0;
+    virtual void requestReferences(const RequestReferencesMessage &message) = 0;
     virtual void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) = 0;
 };
 

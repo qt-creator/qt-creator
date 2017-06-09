@@ -41,6 +41,9 @@
 #include <cmbregistertranslationunitsforeditormessage.h>
 #include <cmbunregisterprojectsforeditormessage.h>
 #include <cmbunregistertranslationunitsforeditormessage.h>
+#include <requestreferencesmessage.h>
+
+#include <utils/algorithm.h>
 
 #include <QCoreApplication>
 #include <QFile>
@@ -128,6 +131,7 @@ protected:
     void updateVisibilty(const Utf8String &currentEditor, const Utf8String &additionalVisibleEditor);
 
     void requestDocumentAnnotations(const Utf8String &filePath);
+    void requestReferences(quint32 documentRevision = 0);
 
     void completeCode(const Utf8String &filePath, uint line = 1, uint column = 1,
                       const Utf8String &projectPartId = Utf8String());
@@ -136,6 +140,8 @@ protected:
 
     bool isSupportiveTranslationUnitInitialized(const Utf8String &filePath);
 
+    DocumentProcessor documentProcessorForFile(const Utf8String &filePath);
+
     void expectDocumentAnnotationsChanged(int count);
     void expectCompletion(const CodeCompletion &completion);
     void expectCompletionFromFileA();
@@ -143,6 +149,7 @@ protected:
     void expectCompletionFromFileAUnsavedMethodVersion1();
     void expectCompletionFromFileAUnsavedMethodVersion2();
     void expectNoCompletionWithUnsavedMethod();
+    void expectReferences();
     void expectDocumentAnnotationsChangedForFileBWithSpecificHighlightingMark();
 
     static const Utf8String unsavedContent(const QString &unsavedFilePath);
@@ -160,6 +167,7 @@ protected:
         = QStringLiteral(TESTDATA_DIR) + QStringLiteral("/complete_extractor_function_unsaved_2.cpp");
 
     const Utf8String filePathB = Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_variable.cpp");
+    const Utf8String filePathC = Utf8StringLiteral(TESTDATA_DIR"/references.cpp");
 
     const Utf8String aFilePath = Utf8StringLiteral("afile.cpp");
     const Utf8String anExistingFilePath
@@ -183,6 +191,25 @@ TEST_F(ClangCodeModelServerSlowTest, RequestDocumentAnnotations)
 
     expectDocumentAnnotationsChangedForFileBWithSpecificHighlightingMark();
     requestDocumentAnnotations(filePathB);
+}
+
+TEST_F(ClangCodeModelServerSlowTest, RequestReferencesForCurrentDocumentRevision)
+{
+    registerProjectAndFileAndWaitForFinished(filePathC);
+
+    expectReferences();
+    requestReferences();
+}
+
+TEST_F(ClangCodeModelServerSlowTest, RequestReferencesTakesRevisionFromMessage)
+{
+    registerProjectAndFileAndWaitForFinished(filePathC);
+
+    requestReferences(/*documentRevision=*/ 99);
+
+    JobRequests &queue = documentProcessorForFile(filePathC).queue();
+    Utils::anyOf(queue, [](const JobRequest &request) { return request.documentRevision == 99; });
+    queue.clear(); // Avoid blocking
 }
 
 TEST_F(ClangCodeModelServerSlowTest, NoInitialDocumentAnnotationsForClosedDocument)
@@ -462,7 +489,15 @@ bool ClangCodeModelServer::isSupportiveTranslationUnitInitialized(const Utf8Stri
 
     return document.translationUnits().size() == 2
         && documentProcessor.hasSupportiveTranslationUnit()
-        && documentProcessor.isSupportiveTranslationUnitInitialized();
+            && documentProcessor.isSupportiveTranslationUnitInitialized();
+}
+
+DocumentProcessor ClangCodeModelServer::documentProcessorForFile(const Utf8String &filePath)
+{
+    Document document = clangServer.documentsForTestOnly().document(filePath, projectPartId);
+    DocumentProcessor documentProcessor = clangServer.documentProcessors().processor(document);
+
+    return documentProcessor;
 }
 
 void ClangCodeModelServer::expectCompletion(const CodeCompletion &completion)
@@ -512,6 +547,20 @@ void ClangCodeModelServer::expectNoCompletionWithUnsavedMethod()
             .Times(1);
 }
 
+void ClangCodeModelServer::expectReferences()
+{
+    const QVector<ClangBackEnd::SourceRangeContainer> references{{
+         {filePathC, 3, 9},
+         {filePathC, 3, 12}
+     }};
+
+    EXPECT_CALL(mockClangCodeModelClient,
+                references(
+                    Property(&ReferencesMessage::references,
+                             Eq(references))))
+        .Times(1);
+}
+
 void ClangCodeModelServer::expectCompletionFromFileA()
 {
     const CodeCompletion completion(Utf8StringLiteral("Function"),
@@ -526,6 +575,15 @@ void ClangCodeModelServer::requestDocumentAnnotations(const Utf8String &filePath
     const RequestDocumentAnnotationsMessage message({filePath, projectPartId});
 
     clangServer.requestDocumentAnnotations(message);
+}
+
+void ClangCodeModelServer::requestReferences(quint32 documentRevision)
+{
+    const FileContainer fileContainer{filePathC, projectPartId, Utf8StringVector(),
+                                      documentRevision};
+    const RequestReferencesMessage message{fileContainer, 3, 9};
+
+    clangServer.requestReferences(message);
 }
 
 void ClangCodeModelServer::expectDocumentAnnotationsChangedForFileBWithSpecificHighlightingMark()

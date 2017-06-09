@@ -54,6 +54,8 @@ public:
                  void(const ClangBackEnd::CompleteCodeMessage &message));
     MOCK_METHOD1(requestDocumentAnnotations,
                  void(const ClangBackEnd::RequestDocumentAnnotationsMessage &message));
+    MOCK_METHOD1(requestReferences,
+                 void(const ClangBackEnd::RequestReferencesMessage &message));
     MOCK_METHOD1(updateVisibleTranslationUnits,
                  void(const ClangBackEnd::UpdateVisibleTranslationUnitsMessage &message));
 };

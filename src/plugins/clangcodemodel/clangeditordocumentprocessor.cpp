@@ -68,6 +68,7 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
         IpcCommunicator &ipcCommunicator,
         TextEditor::TextDocument *document)
     : BaseEditorDocumentProcessor(document->document(), document->filePath().toString())
+    , m_document(*document)
     , m_diagnosticManager(document)
     , m_ipcCommunicator(ipcCommunicator)
     , m_parser(new ClangEditorDocumentParser(document->filePath().toString()))
@@ -287,10 +288,48 @@ void ClangEditorDocumentProcessor::setParserConfig(
     m_builtinProcessor.parser()->setConfiguration(config);
 }
 
+static bool isCursorOnIdentifier(const QTextCursor &textCursor)
+{
+    QTextDocument *document = textCursor.document();
+    return CppTools::isValidIdentifierChar(document->characterAt(textCursor.position()));
+}
+
+static QFuture<CppTools::CursorInfo> defaultCursorInfoFuture()
+{
+    QFutureInterface<CppTools::CursorInfo> futureInterface;
+    futureInterface.reportResult(CppTools::CursorInfo());
+    futureInterface.reportFinished();
+
+    return futureInterface.future();
+}
+
+static bool convertPosition(const QTextCursor &textCursor, int *line, int *column)
+{
+    const bool converted = TextEditor::Convenience::convertPosition(textCursor.document(),
+                                                                    textCursor.position(),
+                                                                    line,
+                                                                    column);
+    QTC_CHECK(converted);
+    return converted;
+}
+
 QFuture<CppTools::CursorInfo>
 ClangEditorDocumentProcessor::cursorInfo(const CppTools::CursorInfoParams &params)
 {
-    return m_builtinProcessor.cursorInfo(params);
+    int line, column;
+    convertPosition(params.textCursor, &line, &column);
+    ++column; // for 1-based columns
+
+    if (!isCursorOnIdentifier(params.textCursor))
+        return defaultCursorInfoFuture();
+
+    const QTextBlock block = params.textCursor.document()->findBlockByNumber(line - 1);
+    column += ClangCodeModel::Utils::extraUtf8CharsShift(block.text(), column);
+
+    return m_ipcCommunicator.requestReferences(simpleFileContainer(),
+                                               static_cast<quint32>(line),
+                                               static_cast<quint32>(column),
+                                               textDocument());
 }
 
 ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithArguments() const
@@ -394,6 +433,15 @@ ClangEditorDocumentProcessor::creatorForHeaderErrorDiagnosticWidget(
 
         return widget;
     };
+}
+
+ClangBackEnd::FileContainer ClangEditorDocumentProcessor::simpleFileContainer() const
+{
+    Utf8String projectPartId;
+    if (m_projectPart)
+        projectPartId = m_projectPart->id();
+
+    return ClangBackEnd::FileContainer(filePath(), projectPartId, Utf8String(), false, revision());
 }
 
 static CppTools::ProjectPart projectPartForLanguageOption(CppTools::ProjectPart *projectPart)

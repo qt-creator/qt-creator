@@ -65,6 +65,9 @@ protected:
                                 JobRequest::Type type,
                                 PreferredTranslationUnit preferredTranslationUnit
                                     = PreferredTranslationUnit::RecentlyParsed) const;
+    JobRequest createJobRequestWithConditions(const Utf8String &filePath,
+                                              JobRequest::Type type,
+                                              JobRequest::Conditions conditions) const;
 
     void updateDocumentRevision();
     void updateUnsavedFiles();
@@ -410,6 +413,30 @@ TEST_F(JobQueue, RequestCompleteCodeOutdatableByDocumentRevisionChange)
     ASSERT_THAT(jobsToStart.size(), Eq(0));
 }
 
+TEST_F(JobQueue, RequestReferencesRunsForCurrentDocumentRevision)
+{
+    jobQueue.add( createJobRequestWithConditions(filePath1,
+                                                 JobRequest::Type::RequestReferences,
+                                                 JobRequest::Condition::CurrentDocumentRevision));
+
+    const JobRequests jobsToStart = jobQueue.processQueue();
+
+    ASSERT_THAT(jobsToStart.size(), Eq(1));
+}
+
+TEST_F(JobQueue, RequestReferencesOutdatableByDocumentClose)
+{
+    jobQueue.add(createJobRequestWithConditions(filePath1,
+                                                JobRequest::Type::RequestReferences,
+                                                JobRequest::Condition::CurrentDocumentRevision));
+    removeDocument();
+
+    const JobRequests jobsToStart = jobQueue.processQueue();
+
+    ASSERT_THAT(jobsToStart.size(), Eq(0));
+    ASSERT_THAT(jobQueue.size(), Eq(0));
+}
+
 void JobQueue::SetUp()
 {
     projects.createOrUpdate({ProjectPartContainer(projectPartId)});
@@ -456,6 +483,18 @@ JobRequest JobQueue::createJobRequest(
     jobRequest.documentRevision = document.documentRevision();
     jobRequest.preferredTranslationUnit = preferredTranslationUnit;
     jobRequest.projectChangeTimePoint = projects.project(projectPartId).lastChangeTimePoint();
+
+    return jobRequest;
+}
+
+JobRequest JobQueue::createJobRequestWithConditions(const Utf8String &filePath,
+                                                    JobRequest::Type type,
+                                                    JobRequest::Conditions conditions) const
+{
+    JobRequest jobRequest = createJobRequest(filePath,
+                                             type,
+                                             PreferredTranslationUnit::RecentlyParsed);
+    jobRequest.conditions = conditions;
 
     return jobRequest;
 }

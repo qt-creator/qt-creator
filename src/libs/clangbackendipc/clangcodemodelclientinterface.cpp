@@ -28,6 +28,7 @@
 #include "cmbcodecompletedmessage.h"
 #include "cmbechomessage.h"
 #include "documentannotationschangedmessage.h"
+#include "referencesmessage.h"
 #include "messageenvelop.h"
 #include "projectpartsdonotexistmessage.h"
 #include "translationunitdoesnotexistmessage.h"
@@ -57,6 +58,9 @@ void ClangCodeModelClientInterface::dispatch(const MessageEnvelop &messageEnvelo
             break;
         case MessageType::DocumentAnnotationsChangedMessage:
             documentAnnotationsChanged(messageEnvelop.message<DocumentAnnotationsChangedMessage>());
+            break;
+        case MessageType::ReferencesMessage:
+            references(messageEnvelop.message<ReferencesMessage>());
             break;
         default:
             qWarning() << "Unknown ClangCodeModelClientMessage";

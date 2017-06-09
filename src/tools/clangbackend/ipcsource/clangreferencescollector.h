@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,58 +25,28 @@
 
 #pragma once
 
+#include <clangbackendipc/sourcerangecontainer.h>
+
+#include <QVector>
+
 #include <clang-c/Index.h>
-
-#include <iosfwd>
-
-class Utf8String;
 
 namespace ClangBackEnd {
 
-class Cursor;
-class ClangString;
+struct ReferencesResult {
+    bool isLocalVariable = false;
+    QVector<SourceRangeContainer> references;
 
-class Type
-{
-    friend class Cursor;
-    friend bool operator==(Type first, Type second);
-
-public:
-    bool isValid() const;
-
-    bool isConstant() const;
-    bool isConstantReference();
-    bool isPointer() const;
-    bool isPointerToConstant() const;
-    bool isConstantPointer() const;
-    bool isLValueReference() const;
-    bool isReferencingConstant() const;
-    bool isOutputArgument() const;
-    bool isBuiltinType() const;
-
-    Utf8String utf8Spelling() const;
-    ClangString spelling() const;
-    int argumentCount() const;
-
-    Type alias() const;
-    Type canonical() const;
-    Type classType() const;
-    Type pointeeType() const;
-    Type argument(int index) const;
-
-    Cursor declaration() const;
-
-    CXTypeKind kind() const;
-
-private:
-    Type(CXType cxType);
-
-private:
-    CXType cxType;
+    bool operator==(const ReferencesResult &other) const
+    {
+        return isLocalVariable == other.isLocalVariable
+            && references == other.references;
+    }
 };
 
-bool operator==(Type first, Type second);
+ReferencesResult collectReferences(CXTranslationUnit cxTranslationUnit,
+                                   uint line,
+                                   uint column);
 
-void PrintTo(CXTypeKind typeKind, ::std::ostream* os);
-void PrintTo(const Type &type, ::std::ostream* os);
 } // namespace ClangBackEnd
+

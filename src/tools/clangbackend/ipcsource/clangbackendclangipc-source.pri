@@ -50,6 +50,8 @@ HEADERS += $$PWD/clangcodemodelserver.h \
     $$PWD/clangsupportivetranslationunitinitializer.h \
     $$PWD/clangparsesupportivetranslationunitjob.h \
     $$PWD/clangreparsesupportivetranslationunitjob.h \
+    $$PWD/clangrequestreferencesjob.h \
+    $$PWD/clangreferencescollector.h
 
 SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/codecompleter.cpp \
@@ -95,3 +97,5 @@ SOURCES += $$PWD/clangcodemodelserver.cpp \
     $$PWD/clangsupportivetranslationunitinitializer.cpp \
     $$PWD/clangparsesupportivetranslationunitjob.cpp \
     $$PWD/clangreparsesupportivetranslationunitjob.cpp \
+    $$PWD/clangrequestreferencesjob.cpp \
+    $$PWD/clangreferencescollector.cpp

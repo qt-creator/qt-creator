@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,60 +23,40 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "requestreferencesmessage.h"
 
-#include <clang-c/Index.h>
+#include <QDebug>
 
-#include <iosfwd>
-
-class Utf8String;
+#include <ostream>
 
 namespace ClangBackEnd {
 
-class Cursor;
-class ClangString;
+quint64 RequestReferencesMessage::ticketCounter = 0;
 
-class Type
+QDebug operator<<(QDebug debug, const RequestReferencesMessage &message)
 {
-    friend class Cursor;
-    friend bool operator==(Type first, Type second);
+    debug.nospace() << "RequestReferencesMessage(";
 
-public:
-    bool isValid() const;
+    debug.nospace() << message.m_fileContainer << ", ";
+    debug.nospace() << message.m_ticketNumber << ", ";
+    debug.nospace() << message.m_line << ", ";
+    debug.nospace() << message.m_column << ", ";
 
-    bool isConstant() const;
-    bool isConstantReference();
-    bool isPointer() const;
-    bool isPointerToConstant() const;
-    bool isConstantPointer() const;
-    bool isLValueReference() const;
-    bool isReferencingConstant() const;
-    bool isOutputArgument() const;
-    bool isBuiltinType() const;
+    debug.nospace() << ")";
 
-    Utf8String utf8Spelling() const;
-    ClangString spelling() const;
-    int argumentCount() const;
+    return debug;
+}
 
-    Type alias() const;
-    Type canonical() const;
-    Type classType() const;
-    Type pointeeType() const;
-    Type argument(int index) const;
+std::ostream &operator<<(std::ostream &os, const RequestReferencesMessage &message)
+{
+    os << "("
+       << message.m_fileContainer << ", "
+       << message.m_ticketNumber << ", "
+       << message.m_line << ", "
+       << message.m_column << ", "
+       << ")";
 
-    Cursor declaration() const;
+     return os;
+}
 
-    CXTypeKind kind() const;
-
-private:
-    Type(CXType cxType);
-
-private:
-    CXType cxType;
-};
-
-bool operator==(Type first, Type second);
-
-void PrintTo(CXTypeKind typeKind, ::std::ostream* os);
-void PrintTo(const Type &type, ::std::ostream* os);
 } // namespace ClangBackEnd

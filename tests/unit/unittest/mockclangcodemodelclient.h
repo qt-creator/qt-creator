@@ -31,6 +31,7 @@
 #include <clangbackendipc/cmbcodecompletedmessage.h>
 #include <clangbackendipc/cmbechomessage.h>
 #include <clangbackendipc/documentannotationschangedmessage.h>
+#include <clangbackendipc/referencesmessage.h>
 #include <clangbackendipc/projectpartsdonotexistmessage.h>
 #include <clangbackendipc/translationunitdoesnotexistmessage.h>
 #include <clangbackendipc/updatetranslationunitsforeditormessage.h>
@@ -51,4 +52,6 @@ public:
                  void(const ClangBackEnd::ProjectPartsDoNotExistMessage &message));
     MOCK_METHOD1(documentAnnotationsChanged,
                  void(const ClangBackEnd::DocumentAnnotationsChangedMessage &message));
+    MOCK_METHOD1(references,
+                 void(const ClangBackEnd::ReferencesMessage &message));
 };

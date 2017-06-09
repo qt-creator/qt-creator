@@ -118,6 +118,46 @@ bool Cursor::isLocalVariable() const
     }
 }
 
+bool Cursor::isReference() const
+{
+    return clang_isReference(kind());
+}
+
+bool Cursor::isExpression() const
+{
+    return clang_isExpression(kind());
+}
+
+bool Cursor::isFunctionLike() const
+{
+    const CXCursorKind k = kind();
+    return k == CXCursor_FunctionDecl
+        || k == CXCursor_CXXMethod
+        || k == CXCursor_FunctionTemplate;
+}
+
+bool Cursor::isConstructorOrDestructor() const
+{
+    const CXCursorKind k = kind();
+    return k == CXCursor_Constructor
+        || k == CXCursor_Destructor;
+}
+
+bool Cursor::isTemplateLike() const
+{
+    switch (kind()) {
+    case CXCursor_ClassTemplate:
+    case CXCursor_ClassTemplatePartialSpecialization:
+        return  true;
+    case CXCursor_ClassDecl:
+        return specializedCursorTemplate().isValid();
+    default:
+        return false;
+    }
+
+    Q_UNREACHABLE();
+}
+
 bool Cursor::hasFinalFunctionAttribute() const
 {
     bool hasFinal = false;
@@ -206,6 +246,11 @@ Type Cursor::nonPointerTupe() const
         typeResult = typeResult.pointeeType();
 
     return typeResult;
+}
+
+Cursor Cursor::specializedCursorTemplate() const
+{
+    return clang_getSpecializedCursorTemplate(cxCursor);
 }
 
 SourceLocation Cursor::sourceLocation() const

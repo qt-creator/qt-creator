@@ -76,6 +76,7 @@ JobRequest Jobs::createJobRequest(const Document &document,
     JobRequest jobRequest;
     jobRequest.type = type;
     jobRequest.expirationReasons = JobRequest::expirationReasonsForType(type);
+    jobRequest.conditions = JobRequest::conditionsForType(type);
     jobRequest.filePath = document.filePath();
     jobRequest.projectPartId = document.projectPart().id();
     jobRequest.unsavedFilesChangeTimePoint = m_unsavedFiles.lastChangeTimePoint();
@@ -173,7 +174,7 @@ QList<Jobs::RunningJob> Jobs::runningJobs() const
     return m_running.values();
 }
 
-JobRequests Jobs::queue() const
+JobRequests &Jobs::queue()
 {
     return m_queue.queue();
 }

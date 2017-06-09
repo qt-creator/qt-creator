@@ -45,6 +45,7 @@
 #include <readmessageblock.h>
 #include <registerunsavedfilesforeditormessage.h>
 #include <requestdocumentannotations.h>
+#include <requestreferencesmessage.h>
 #include <translationunitdoesnotexistmessage.h>
 #include <unregisterunsavedfilesforeditormessage.h>
 #include <updatetranslationunitsforeditormessage.h>

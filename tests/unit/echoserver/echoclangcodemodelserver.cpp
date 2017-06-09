@@ -35,7 +35,8 @@
 #include <clangbackendipc/cmbunregistertranslationunitsforeditormessage.h>
 #include <clangbackendipc/connectionserver.h>
 #include <clangbackendipc/registerunsavedfilesforeditormessage.h>
-#include <requestdocumentannotations.h>
+#include <clangbackendipc/requestdocumentannotations.h>
+#include <clangbackendipc/requestreferencesmessage.h>
 #include <clangbackendipc/unregisterunsavedfilesforeditormessage.h>
 #include <clangbackendipc/updatetranslationunitsforeditormessage.h>
 #include <clangbackendipc/updatevisibletranslationunitsmessage.h>
@@ -98,6 +99,11 @@ void EchoClangCodeModelServer::completeCode(const CompleteCodeMessage &message)
 }
 
 void EchoClangCodeModelServer::requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message)
+{
+    echoMessage(message);
+}
+
+void EchoClangCodeModelServer::requestReferences(const RequestReferencesMessage &message)
 {
     echoMessage(message);
 }

@@ -30,6 +30,7 @@
 #include "cmbechomessage.h"
 #include "cmbregistertranslationunitsforeditormessage.h"
 #include "documentannotationschangedmessage.h"
+#include "referencesmessage.h"
 #include "clangcodemodelserverinterface.h"
 #include "ipcserverinterface.h"
 #include "messageenvelop.h"
@@ -97,6 +98,11 @@ void ClangCodeModelClientProxy::projectPartsDoNotExist(const ProjectPartsDoNotEx
 }
 
 void ClangCodeModelClientProxy::documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message)
+{
+    m_writeMessageBlock.write(message);
+}
+
+void ClangCodeModelClientProxy::references(const ReferencesMessage &message)
 {
     m_writeMessageBlock.write(message);
 }

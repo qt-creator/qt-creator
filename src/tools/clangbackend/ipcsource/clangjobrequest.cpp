@@ -39,6 +39,7 @@ static const char *JobRequestTypeToText(JobRequest::Type type)
         RETURN_TEXT_FOR_CASE(CreateInitialDocumentPreamble);
         RETURN_TEXT_FOR_CASE(CompleteCode);
         RETURN_TEXT_FOR_CASE(RequestDocumentAnnotations);
+        RETURN_TEXT_FOR_CASE(RequestReferences);
     }
 
     return "UnhandledJobRequestType";
@@ -90,6 +91,7 @@ bool JobRequest::operator==(const JobRequest &other) const
 {
     return type == other.type
         && expirationReasons == other.expirationReasons
+        && conditions == other.conditions
 
         && filePath == other.filePath
         && projectPartId == other.projectPartId
@@ -108,6 +110,7 @@ JobRequest::ExpirationReasons JobRequest::expirationReasonsForType(Type type)
     switch (type) {
     case JobRequest::Type::UpdateDocumentAnnotations:
         return JobRequest::ExpirationReasons(JobRequest::AnythingChanged);
+    case JobRequest::Type::RequestReferences:
     case JobRequest::Type::RequestDocumentAnnotations:
         return JobRequest::ExpirationReasons(JobRequest::DocumentClosed
                                             |JobRequest::DocumentRevisionChanged);
@@ -119,6 +122,14 @@ JobRequest::ExpirationReasons JobRequest::expirationReasonsForType(Type type)
     }
 
     return JobRequest::ExpirationReasons(JobRequest::DocumentClosed);
+}
+
+JobRequest::Conditions JobRequest::conditionsForType(JobRequest::Type type)
+{
+    if (type == JobRequest::Type::RequestReferences)
+        return JobRequest::Conditions(JobRequest::Condition::CurrentDocumentRevision);
+
+    return JobRequest::Conditions(JobRequest::Condition::NoCondition);
 }
 
 } // namespace ClangBackEnd

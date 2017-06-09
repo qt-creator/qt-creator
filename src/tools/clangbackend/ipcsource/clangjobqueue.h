@@ -52,7 +52,7 @@ public:
             const IsJobRunningForJobRequestHandler &isJobRunningHandler);
 
 public: // for tests
-    JobRequests queue() const;
+    JobRequests &queue();
     int size() const;
     void prioritizeRequests();
 

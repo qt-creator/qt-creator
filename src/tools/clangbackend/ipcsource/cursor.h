@@ -62,6 +62,11 @@ public:
     bool isCompoundType() const;
     bool isDeclaration() const;
     bool isLocalVariable() const;
+    bool isReference() const;
+    bool isExpression() const;
+    bool isFunctionLike() const;
+    bool isConstructorOrDestructor() const;
+    bool isTemplateLike() const;
     bool hasFinalFunctionAttribute() const;
     bool hasFinalClassAttribute() const;
     bool isUnexposed() const;
@@ -95,6 +100,7 @@ public:
     Cursor argument(int index) const;
     unsigned overloadedDeclarationsCount() const;
     Cursor overloadedDeclaration(unsigned index) const;
+    Cursor specializedCursorTemplate() const;
 
     void collectOutputArgumentRangesTo(
             std::vector<CXSourceRange> &outputArgumentRanges) const;

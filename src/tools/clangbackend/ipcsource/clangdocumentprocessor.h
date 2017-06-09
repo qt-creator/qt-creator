@@ -67,6 +67,7 @@ public:
 
 public: // for tests
     bool isSupportiveTranslationUnitInitialized() const;
+    JobRequests &queue();
     QList<Jobs::RunningJob> runningJobs() const;
     int queueSize() const;
 

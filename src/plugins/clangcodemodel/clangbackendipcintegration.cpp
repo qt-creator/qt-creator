@@ -58,8 +58,11 @@
 #include <clangbackendipc/cmbunregistertranslationunitsforeditormessage.h>
 #include <clangbackendipc/cmbunregisterprojectsforeditormessage.h>
 #include <clangbackendipc/documentannotationschangedmessage.h>
+#include <clangbackendipc/referencesmessage.h>
+#include <clangbackendipc/requestreferencesmessage.h>
 #include <clangbackendipc/registerunsavedfilesforeditormessage.h>
 #include <clangbackendipc/requestdocumentannotations.h>
+#include <clangbackendipc/requestreferencesmessage.h>
 #include <clangbackendipc/filecontainer.h>
 #include <clangbackendipc/projectpartsdonotexistmessage.h>
 #include <clangbackendipc/translationunitdoesnotexistmessage.h>
@@ -74,6 +77,7 @@
 #include <QElapsedTimer>
 #include <QLoggingCategory>
 #include <QProcess>
+#include <QTextBlock>
 
 static Q_LOGGING_CATEGORY(log, "qtc.clangcodemodel.ipc")
 
@@ -150,6 +154,21 @@ void IpcReceiver::deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *t
     }
 }
 
+QFuture<CppTools::CursorInfo> IpcReceiver::addExpectedReferencesMessage(quint64 ticket,
+                                                                        QTextDocument *textDocument)
+{
+    QTC_CHECK(textDocument);
+    QTC_CHECK(!m_referencesTable.contains(ticket));
+
+    QFutureInterface<CppTools::CursorInfo> futureInterface;
+    futureInterface.reportStarted();
+
+    const ReferencesEntry entry{futureInterface, textDocument};
+    m_referencesTable.insert(ticket, entry);
+
+    return futureInterface.future();
+}
+
 bool IpcReceiver::isExpectingCodeCompletedMessage() const
 {
     return !m_assistProcessorsTable.isEmpty();
@@ -205,6 +224,56 @@ void IpcReceiver::documentAnnotationsChanged(const DocumentAnnotationsChangedMes
     }
 }
 
+static
+CppTools::CursorInfo::Range toCursorInfoRange(const QTextDocument &textDocument,
+                                              const SourceRangeContainer &sourceRange)
+{
+    const SourceLocationContainer start = sourceRange.start();
+    const SourceLocationContainer end = sourceRange.end();
+    const unsigned length = end.column() - start.column();
+
+    const QTextBlock block = textDocument.findBlockByNumber(static_cast<int>(start.line()) - 1);
+    const int shift = ClangCodeModel::Utils::extraUtf8CharsShift(block.text(),
+                                                                 static_cast<int>(start.column()));
+    const uint column = start.column() - static_cast<uint>(shift);
+
+    return CppTools::CursorInfo::Range(start.line(), column, length);
+}
+
+static
+CppTools::CursorInfo toCursorInfo(const QTextDocument &textDocument,
+                                  const ReferencesMessage &message)
+{
+    CppTools::CursorInfo result;
+    const QVector<SourceRangeContainer> references = message.references();
+
+    result.areUseRangesForLocalVariable = message.isLocalVariable();
+    for (const SourceRangeContainer &reference : references)
+        result.useRanges.append(toCursorInfoRange(textDocument, reference));
+
+    result.useRanges.reserve(references.size());
+
+    return result;
+}
+
+void IpcReceiver::references(const ReferencesMessage &message)
+{
+    qCDebug(log) << "<<< ReferencesMessage with"
+                 << message.references().size() << "references";
+
+    const quint64 ticket = message.ticketNumber();
+    const ReferencesEntry entry = m_referencesTable.take(ticket);
+    QFutureInterface<CppTools::CursorInfo> futureInterface = entry.futureInterface;
+    QTC_CHECK(futureInterface != QFutureInterface<CppTools::CursorInfo>());
+
+    if (futureInterface.isCanceled())
+        return; // A new request was issued making this one outdated.
+
+    QTC_CHECK(entry.textDocument);
+    futureInterface.reportResult(toCursorInfo(*entry.textDocument, message));
+    futureInterface.reportFinished();
+}
+
 class IpcSender : public IpcSenderInterface
 {
 public:
@@ -222,6 +291,7 @@ public:
     void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message) override;
     void completeCode(const ClangBackEnd::CompleteCodeMessage &message) override;
     void requestDocumentAnnotations(const ClangBackEnd::RequestDocumentAnnotationsMessage &message) override;
+    void requestReferences(const ClangBackEnd::RequestReferencesMessage &message) override;
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
 
 private:
@@ -298,6 +368,13 @@ void IpcSender::requestDocumentAnnotations(const RequestDocumentAnnotationsMessa
     m_connection.serverProxy().requestDocumentAnnotations(message);
 }
 
+void IpcSender::requestReferences(const RequestReferencesMessage &message)
+{
+    QTC_CHECK(m_connection.isConnected());
+    qCDebug(log) << ">>>" << message;
+    m_connection.serverProxy().requestReferences(message);
+}
+
 void IpcSender::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
 {
     QTC_CHECK(m_connection.isConnected());
@@ -318,6 +395,7 @@ public:
     void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &) override {}
     void completeCode(const ClangBackEnd::CompleteCodeMessage &) override {}
     void requestDocumentAnnotations(const ClangBackEnd::RequestDocumentAnnotationsMessage &) override {}
+    void requestReferences(const ClangBackEnd::RequestReferencesMessage &) override {}
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &) override {}
 };
 
@@ -601,6 +679,18 @@ void IpcCommunicator::requestDocumentAnnotations(const FileContainer &fileContai
 {
     const RequestDocumentAnnotationsMessage message(fileContainer);
     m_ipcSender->requestDocumentAnnotations(message);
+}
+
+QFuture<CppTools::CursorInfo> IpcCommunicator::requestReferences(
+        const FileContainer &fileContainer,
+        quint32 line,
+        quint32 column,
+        QTextDocument *textDocument)
+{
+    const RequestReferencesMessage message(fileContainer, line, column);
+    m_ipcSender->requestReferences(message);
+
+    return m_ipcReceiver.addExpectedReferencesMessage(message.ticketNumber(), textDocument);
 }
 
 void IpcCommunicator::updateTranslationUnitWithRevisionCheck(Core::IDocument *document)
