@@ -111,6 +111,7 @@ public:
     virtual TestTreeItem *find(const TestParseResult *result) = 0;
     virtual bool modify(const TestParseResult *result) = 0;
 
+    virtual QSet<QString> internalTargets() const;
 protected:
     bool modifyFilePath(const QString &filePath);
     typedef std::function<bool(const TestTreeItem *)> CompareFunction;

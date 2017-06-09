@@ -64,6 +64,7 @@ static bool isLocal(RunConfiguration *runConfiguration)
 void TestConfiguration::completeTestInformation(int runMode)
 {
     QTC_ASSERT(!m_projectFile.isEmpty(), return);
+    QTC_ASSERT(!m_buildTargets.isEmpty(), return);
 
     Project *project = SessionManager::startupProject();
     if (!project)
@@ -73,23 +74,16 @@ void TestConfiguration::completeTestInformation(int runMode)
     if (!target)
         return;
 
-    const auto cppMM = CppTools::CppModelManager::instance();
-    const QVector<CppTools::ProjectPart::Ptr> projectParts = cppMM->projectInfo(project).projectParts();
-    const QVector<CppTools::ProjectPart::Ptr> relevantParts
-            = Utils::filtered(projectParts, [this] (const CppTools::ProjectPart::Ptr &part) {
-        return part->selectedForBuilding && part->projectFile == m_projectFile;
-    });
-    const QSet<QString> buildSystemTargets
-            = Utils::transform<QSet>(relevantParts, [] (const CppTools::ProjectPart::Ptr &part) {
-        return part->buildSystemTarget;
-    });
-
-    const Utils::FileName fn = Utils::FileName::fromString(m_projectFile);
+    const QSet<QString> buildSystemTargets = m_buildTargets;
     const BuildTargetInfo targetInfo
             = Utils::findOrDefault(target->applicationTargets().list,
-                                   [&buildSystemTargets, &fn] (const BuildTargetInfo &bti) {
-        return Utils::anyOf(buildSystemTargets, [&fn, &bti](const QString &b) {
-            return b == bti.targetName || (b.contains(bti.targetName) && bti.projectFilePath == fn);
+                                   [&buildSystemTargets] (const BuildTargetInfo &bti) {
+        return Utils::anyOf(buildSystemTargets, [&bti](const QString &b) {
+            const QStringList targWithProjectFile = b.split('|');
+            if (targWithProjectFile.size() != 2) // some build targets might miss the project file
+                return false;
+            return targWithProjectFile.at(0) == bti.targetName
+                    && targWithProjectFile.at(1).startsWith(bti.projectFilePath.toString());
         });
     });
     const Utils::FileName executable = targetInfo.targetFilePath; // empty if BTI is default created
@@ -97,7 +91,8 @@ void TestConfiguration::completeTestInformation(int runMode)
         if (!isLocal(runConfig)) // TODO add device support
             continue;
 
-        if (buildSystemTargets.contains(runConfig->buildSystemTarget())) {
+        const QString bst = runConfig->buildSystemTarget() + '|' + m_projectFile;
+        if (buildSystemTargets.contains(bst)) {
             Runnable runnable = runConfig->runnable();
             if (!runnable.is<StandardRunnable>())
                 continue;
@@ -146,7 +141,7 @@ void TestConfiguration::completeTestInformation(int runMode)
     }
 
     if (m_displayName.isEmpty()) // happens e.g. when guessing the TestConfiguration or error
-        m_displayName = buildSystemTargets.isEmpty() ? "unknown" : *buildSystemTargets.begin();
+        m_displayName = buildSystemTargets.isEmpty() ? "unknown" : (*buildSystemTargets.begin()).split('|').first();
 }
 
 /**
@@ -202,6 +197,11 @@ void TestConfiguration::setEnvironment(const Utils::Environment &env)
 void TestConfiguration::setProject(Project *project)
 {
     m_project = project;
+}
+
+void TestConfiguration::setInternalTargets(const QSet<QString> &targets)
+{
+    m_buildTargets = targets;
 }
 
 QString TestConfiguration::executableFilePath() const

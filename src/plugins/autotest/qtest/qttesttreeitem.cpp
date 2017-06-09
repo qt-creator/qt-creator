@@ -135,6 +135,8 @@ TestConfiguration *QtTestTreeItem::testConfiguration() const
     default:
         return nullptr;
     }
+    if (config)
+        config->setInternalTargets(internalTargets());
     return config;
 }
 
@@ -161,6 +163,7 @@ QList<TestConfiguration *> QtTestTreeItem::getAllTestConfigurations() const
         tc->setTestCaseCount(child->childCount());
         tc->setProjectFile(child->proFile());
         tc->setProject(project);
+        tc->setInternalTargets(child->internalTargets());
         result << tc;
     }
     return result;
@@ -186,6 +189,7 @@ QList<TestConfiguration *> QtTestTreeItem::getSelectedTestConfigurations() const
             testConfiguration->setTestCaseCount(child->childCount());
             testConfiguration->setProjectFile(child->proFile());
             testConfiguration->setProject(project);
+            testConfiguration->setInternalTargets(child->internalTargets());
             result << testConfiguration;
             continue;
         case Qt::PartiallyChecked:
@@ -211,6 +215,7 @@ QList<TestConfiguration *> QtTestTreeItem::getSelectedTestConfigurations() const
             testConfiguration->setTestCases(testCases);
             testConfiguration->setProjectFile(child->proFile());
             testConfiguration->setProject(project);
+            testConfiguration->setInternalTargets(child->internalTargets());
             result << testConfiguration;
         }
     }

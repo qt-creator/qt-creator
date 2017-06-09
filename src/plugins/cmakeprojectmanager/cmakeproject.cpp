@@ -498,8 +498,10 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
         if (ct.targetType == ExecutableType || ct.targetType == DynamicLibraryType)
             deploymentData.addFile(ct.executable.toString(), deploymentPrefix + buildDir.relativeFilePath(ct.executable.toFileInfo().dir().path()), DeployableFile::TypeExecutable);
         if (ct.targetType == ExecutableType) {
+            FileName srcWithTrailingSlash = FileName::fromString(ct.sourceDirectory.toString());
+            srcWithTrailingSlash.appendString('/');
             // TODO: Put a path to corresponding .cbp file into projectFilePath?
-            appTargetList.list << BuildTargetInfo(ct.title, ct.executable, ct.executable);
+            appTargetList.list << BuildTargetInfo(ct.title, ct.executable, srcWithTrailingSlash);
         }
     }
 
