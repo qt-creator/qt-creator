@@ -1381,7 +1381,7 @@ void TextToModelMerger::syncExpressionProperty(AbstractProperty &modelProperty,
     if (modelProperty.isBindingProperty()) {
         BindingProperty bindingProperty = modelProperty.toBindingProperty();
         if (bindingProperty.expression() != javascript
-                || !astType.isEmpty() != bindingProperty.isDynamic()
+                || astType.isEmpty() == bindingProperty.isDynamic()
                 || astType != bindingProperty.dynamicTypeName()) {
             differenceHandler.bindingExpressionsDiffer(bindingProperty, javascript, astType);
         }
@@ -1450,7 +1450,7 @@ void TextToModelMerger::syncVariantProperty(AbstractProperty &modelProperty,
         VariantProperty modelVariantProperty = modelProperty.toVariantProperty();
 
         if (!equals(modelVariantProperty.value(), astValue)
-                || !astType.isEmpty() != modelVariantProperty.isDynamic()
+                || astType.isEmpty() == modelVariantProperty.isDynamic()
                 || astType != modelVariantProperty.dynamicTypeName()) {
             differenceHandler.variantValuesDiffer(modelVariantProperty,
                                                   astValue,
