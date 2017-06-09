@@ -62,7 +62,11 @@ def main():
         return
     progressBarWait(30000)
     naviTreeView = "{column='0' container=':Qt Creator_Utils::NavigationTreeView' text~='%s' type='QModelIndex'}"
-    compareProjectTree(naviTreeView % "speedcrunch( \[\S+\])?", "projecttree_speedcrunch.tsv")
+    if cmakeSupportsServerMode():
+        treeFile = "projecttree_speedcrunch_server.tsv"
+    else:
+        treeFile = "projecttree_speedcrunch.tsv"
+    compareProjectTree(naviTreeView % "speedcrunch( \[\S+\])?", treeFile)
 
     if not cmakeSupportsServerMode() and JIRA.isBugStillOpen(18290):
         test.xfail("Building with cmake in Tealeafreader mode may fail", "QTCREATORBUG-18290")
