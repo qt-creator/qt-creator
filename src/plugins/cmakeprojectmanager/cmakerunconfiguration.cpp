@@ -247,7 +247,7 @@ RunConfiguration *CMakeRunConfigurationFactory::doCreate(Target *parent, Core::I
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
     const QString title(buildTargetFromId(id));
     const CMakeBuildTarget &ct = project->buildTargetForTitle(title);
-    return new CMakeRunConfiguration(parent, id, ct.executable.toString(), ct.workingDirectory, ct.title);
+    return new CMakeRunConfiguration(parent, id, title, ct.workingDirectory, ct.title);
 }
 
 bool CMakeRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
@@ -274,7 +274,8 @@ bool CMakeRunConfigurationFactory::canRestore(Target *parent, const QVariantMap 
 
 RunConfiguration *CMakeRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
 {
-    return new CMakeRunConfiguration(parent, idFromMap(map), QString(), Utils::FileName(), QString());
+    const Core::Id id = idFromMap(map);
+    return new CMakeRunConfiguration(parent, id, buildTargetFromId(id), Utils::FileName(), QString());
 }
 
 QString CMakeRunConfigurationFactory::buildTargetFromId(Core::Id id)
