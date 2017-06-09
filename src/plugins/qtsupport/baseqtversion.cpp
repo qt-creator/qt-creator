@@ -1572,8 +1572,7 @@ FileName BaseQtVersion::sourcePath(const QHash<ProKey, ProString> &versionInfo)
     const QString installData = qmakeProperty(versionInfo, "QT_INSTALL_PREFIX");
     QString sourcePath = installData;
     QFile qmakeCache(installData + QLatin1String("/.qmake.cache"));
-    if (qmakeCache.exists()) {
-        qmakeCache.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (qmakeCache.exists() && qmakeCache.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream stream(&qmakeCache);
         while (!stream.atEnd()) {
             QString line = stream.readLine().trimmed();
