@@ -47,9 +47,10 @@ public:
     // We compare proposals by enum values, be careful changing their values
     enum class PrefixMatch
     {
-        Exact = 0,
-        Lower = 1,
-        None = 2
+        Full = 0,
+        Exact = 1,
+        Lower = 2,
+        None = 3
     };
 
     AssistProposalItemInterface() = default;

@@ -316,7 +316,9 @@ void GenericProposalModel::filter(const QString &prefix)
             m_currentItems.append(item);
             if (text.startsWith(prefix)) {
                 // Direct match
-                item->setPrefixMatch(AssistProposalItemInterface::PrefixMatch::Exact);
+                item->setPrefixMatch(text.length() == prefix.length()
+                                     ? AssistProposalItemInterface::PrefixMatch::Full
+                                     : AssistProposalItemInterface::PrefixMatch::Exact);
                 continue;
             }
 
