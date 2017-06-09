@@ -28,6 +28,8 @@
 #include "cppeditor.h"
 #include "cppeditordocument.h"
 
+#include <cpptools/cpptoolsreuse.h>
+
 #include <QTextBlock>
 #include <QTextCursor>
 
@@ -57,6 +59,23 @@ void CppUseSelectionsUpdater::abortSchedule()
     m_timer.stop();
 }
 
+static QTextCursor cursorAtWordStart(const QTextCursor &textCursor)
+{
+    const int originalPosition = textCursor.position();
+    QTextCursor cursor(textCursor);
+    cursor.movePosition(QTextCursor::StartOfWord);
+    const int wordStartPosition = cursor.position();
+
+    if (originalPosition == wordStartPosition) {
+        // Cursor is not on an identifier, check whether we are right after one.
+        const QChar c = textCursor.document()->characterAt(originalPosition - 1);
+        if (CppTools::isValidIdentifierChar(c))
+            cursor.movePosition(QTextCursor::PreviousWord);
+    }
+
+    return cursor;
+}
+
 void CppUseSelectionsUpdater::update(CallType callType)
 {
     auto *cppEditorWidget = qobject_cast<CppEditorWidget *>(m_editorWidget);
@@ -67,9 +86,12 @@ void CppUseSelectionsUpdater::update(CallType callType)
 
     CppTools::CursorInfoParams params;
     params.semanticInfo = cppEditorWidget->semanticInfo();
-    params.textCursor = cppEditorWidget->textCursor();
+    params.textCursor = cursorAtWordStart(cppEditorWidget->textCursor());
 
     if (callType == Asynchronous) {
+        if (isSameIdentifierAsBefore(params.textCursor))
+            return;
+
         if (m_runnerWatcher)
             m_runnerWatcher->cancel();
 
@@ -78,7 +100,7 @@ void CppUseSelectionsUpdater::update(CallType callType)
                 this, &CppUseSelectionsUpdater::onFindUsesFinished);
 
         m_runnerRevision = m_editorWidget->document()->revision();
-        m_runnerCursorPosition = m_editorWidget->position();
+        m_runnerWordStartPosition = params.textCursor.position();
 
         m_runnerWatcher->setFuture(cppEditorDocument->cursorInfo(params));
     } else { // synchronous case
@@ -87,6 +109,13 @@ void CppUseSelectionsUpdater::update(CallType callType)
 
         processResults(future.result());
     }
+}
+
+bool CppUseSelectionsUpdater::isSameIdentifierAsBefore(const QTextCursor &cursorAtWordStart) const
+{
+    return m_runnerRevision != -1
+        && m_runnerRevision == m_editorWidget->document()->revision()
+        && m_runnerWordStartPosition == cursorAtWordStart.position();
 }
 
 void CppUseSelectionsUpdater::processResults(const CursorInfo &result)
@@ -111,8 +140,7 @@ void CppUseSelectionsUpdater::onFindUsesFinished()
         return;
     if (m_runnerRevision != m_editorWidget->document()->revision())
         return;
-    // Optimizable: If the cursor is still on the same identifier the results should be valid.
-    if (m_runnerCursorPosition != m_editorWidget->position())
+    if (m_runnerWordStartPosition != cursorAtWordStart(m_editorWidget->textCursor()).position())
         return;
 
     processResults(m_runnerWatcher->result());

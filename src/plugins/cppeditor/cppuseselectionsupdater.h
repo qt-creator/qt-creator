@@ -57,6 +57,7 @@ signals:
 
 private:
     CppUseSelectionsUpdater();
+    bool isSameIdentifierAsBefore(const QTextCursor &cursorAtWordStart) const;
     void processResults(const CppTools::CursorInfo &result);
     void onFindUsesFinished();
 
@@ -75,8 +76,8 @@ private:
     QTimer m_timer;
 
     QScopedPointer<QFutureWatcher<CppTools::CursorInfo>> m_runnerWatcher;
-    int m_runnerRevision;
-    int m_runnerCursorPosition;
+    int m_runnerRevision = -1;
+    int m_runnerWordStartPosition = -1;
 };
 
 } // namespace Internal
