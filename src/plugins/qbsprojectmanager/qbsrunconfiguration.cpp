@@ -278,6 +278,11 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 
 QString QbsRunConfiguration::buildSystemTarget() const
 {
+    return productDisplayNameFromId(id());
+}
+
+QString QbsRunConfiguration::uniqueProductName() const
+{
     return m_uniqueProductName;
 }
 

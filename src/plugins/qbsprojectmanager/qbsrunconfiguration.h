@@ -75,6 +75,7 @@ public:
     void addToBaseEnvironment(Utils::Environment &env) const;
 
     QString buildSystemTarget() const final;
+    QString uniqueProductName() const;
     bool isConsoleApplication() const;
 
 signals:
