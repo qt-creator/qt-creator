@@ -624,6 +624,7 @@ void IosDeviceToolHandlerPrivate::subprocessHasData()
                 outputParser.addData(QByteArray(buf, rRead));
                 processXml();
             }
+            break;
         }
         case XmlEndProcessed:
             stop(0);
