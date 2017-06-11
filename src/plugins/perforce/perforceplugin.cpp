@@ -1275,7 +1275,7 @@ void PerforcePlugin::p4Diff(const PerforceDiffParameters &p)
             this, [this](const PerforceDiffParameters &p) { p4Diff(p); });
     connect(diffEditorWidget, &VcsBaseEditorWidget::diffChunkReverted,
             pw, &PerforceDiffConfig::triggerReRun);
-    diffEditorWidget->setConfigurationAdded();
+    diffEditorWidget->setEditorConfig(pw);
 }
 
 void PerforcePlugin::describe(const QString & source, const QString &n)

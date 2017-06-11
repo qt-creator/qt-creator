@@ -839,14 +839,13 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
     VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, sourceFile,
                                                   codecFor(CodecLogOutput), "logTitle", msgArg);
-    QStringList effectiveArgs = args;
-    if (!editor->configurationAdded()) {
-        auto *argWidget = new GitLogArgumentsWidget(settings(), editor->toolBar());
+    VcsBaseEditorConfig *argWidget = editor->editorConfig();
+    if (!argWidget) {
+        argWidget = new GitLogArgumentsWidget(settings(), editor->toolBar());
         argWidget->setBaseArguments(args);
         connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested,
-                [=]() { this->log(workingDir, fileName, enableAnnotationContextMenu, argWidget->arguments()); });
-        effectiveArgs = argWidget->arguments();
-        editor->setConfigurationAdded();
+                [=]() { this->log(workingDir, fileName, enableAnnotationContextMenu, args); });
+        editor->setEditorConfig(argWidget);
     }
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
     editor->setWorkingDirectory(workingDir);
@@ -856,7 +855,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     if (logCount > 0)
         arguments << "-n" << QString::number(logCount);
 
-    arguments.append(effectiveArgs);
+    arguments << argWidget->arguments();
 
     if (!fileName.isEmpty())
         arguments << "--follow" << "--" << fileName;
@@ -926,22 +925,21 @@ VcsBaseEditorWidget *GitClient::annotate(
     VcsBaseEditorWidget *editor
             = createVcsEditor(editorId, title, sourceFile, codecFor(CodecSource, sourceFile),
                               "blameFileName", id);
-    QStringList effectiveArgs = extraOptions;
-    if (!editor->configurationAdded()) {
-        auto *argWidget = new GitBlameArgumentsWidget(settings(), editor->toolBar());
+    VcsBaseEditorConfig *argWidget = editor->editorConfig();
+    if (!argWidget) {
+        argWidget = new GitBlameArgumentsWidget(settings(), editor->toolBar());
         argWidget->setBaseArguments(extraOptions);
         connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested,
                 [=] {
                     const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
-                    annotate(workingDir, file, revision, line, argWidget->arguments());
+                    annotate(workingDir, file, revision, line, extraOptions);
                 } );
-        effectiveArgs = argWidget->arguments();
-        editor->setConfigurationAdded();
+        editor->setEditorConfig(argWidget);
     }
 
     editor->setWorkingDirectory(workingDir);
     QStringList arguments = {"blame", "--root"};
-    arguments << effectiveArgs << "--" << file;
+    arguments << argWidget->arguments() << "--" << file;
     if (!revision.isEmpty())
         arguments << revision;
     vcsExec(workingDir, arguments, editor, false, 0, lineNumber);

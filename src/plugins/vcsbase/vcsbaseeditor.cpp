@@ -559,7 +559,7 @@ public:
     QString m_annotateRevisionTextFormat;
     QString m_annotatePreviousRevisionTextFormat;
     QString m_copyRevisionTextFormat;
-    bool m_configurationAdded = false;
+    VcsBaseEditorConfig *m_config = nullptr;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
     QPointer<VcsCommand> m_command;
     VcsBaseEditorWidget::DescribeFunc m_describeFunc = nullptr;
@@ -1380,14 +1380,14 @@ QString VcsBaseEditor::getTitleId(const QString &workingDirectory,
     return rc;
 }
 
-void VcsBaseEditorWidget::setConfigurationAdded()
+void VcsBaseEditorWidget::setEditorConfig(VcsBaseEditorConfig *config)
 {
-    d->m_configurationAdded = true;
+    d->m_config = config;
 }
 
-bool VcsBaseEditorWidget::configurationAdded() const
+VcsBaseEditorConfig *VcsBaseEditorWidget::editorConfig() const
 {
-    return d->m_configurationAdded;
+    return d->m_config;
 }
 
 void VcsBaseEditorWidget::setCommand(VcsCommand *command)

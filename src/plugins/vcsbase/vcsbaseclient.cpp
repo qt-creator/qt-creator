@@ -433,21 +433,26 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
                                                   vcsCmdString.toLatin1().constData(), id);
     editor->setWorkingDirectory(workingDir);
 
-    QStringList effectiveArgs = extraOptions;
-    if (!editor->configurationAdded()) {
-        if (VcsBaseEditorConfig *paramWidget = d->createDiffEditor(editor)) {
+    VcsBaseEditorConfig *paramWidget = editor->editorConfig();
+    if (!paramWidget) {
+        paramWidget = d->createDiffEditor(editor);
+        if (paramWidget) {
+            paramWidget->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
             connect(editor, &VcsBaseEditorWidget::diffChunkReverted,
                     paramWidget, &VcsBaseEditorConfig::executeCommand);
             connect(paramWidget, &VcsBaseEditorConfig::commandExecutionRequested,
-                [=] { diff(workingDir, files, extraOptions + paramWidget->arguments()); } );
-            effectiveArgs = paramWidget->arguments();
-            editor->setConfigurationAdded();
+                [=] { diff(workingDir, files, extraOptions); } );
+            editor->setEditorConfig(paramWidget);
         }
     }
 
-    QStringList args;
-    args << vcsCmdString << effectiveArgs << files;
+    QStringList args = {vcsCmdString};
+    if (paramWidget)
+        args << paramWidget->arguments();
+    else
+        args << extraOptions;
+    args << files;
     QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VcsBaseEditor::getCodec(source);
     VcsCommand *command = createCommand(workingDir, editor);
     command->setCodec(codec);
@@ -468,20 +473,24 @@ void VcsBaseClient::log(const QString &workingDir, const QStringList &files,
                                                   vcsCmdString.toLatin1().constData(), id);
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
 
-    QStringList effectiveArgs = extraOptions;
-    if (!editor->configurationAdded()) {
-        if (VcsBaseEditorConfig *paramWidget = d->createLogEditor(editor)) {
+    VcsBaseEditorConfig *paramWidget = editor->editorConfig();
+    if (!paramWidget) {
+        paramWidget = d->createLogEditor(editor);
+        if (paramWidget) {
+            paramWidget->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
             connect(paramWidget, &VcsBaseEditorConfig::commandExecutionRequested,
-                [=]() { this->log(workingDir, files, extraOptions + paramWidget->arguments(),
-                                  enableAnnotationContextMenu); } );
-            effectiveArgs = paramWidget->arguments();
-            editor->setConfigurationAdded();
+                [=] { this->log(workingDir, files, extraOptions, enableAnnotationContextMenu); } );
+            editor->setEditorConfig(paramWidget);
         }
     }
 
-    QStringList args;
-    args << vcsCmdString << effectiveArgs << files;
+    QStringList args = {vcsCmdString};
+    if (paramWidget)
+        args << paramWidget->arguments();
+    else
+        args << extraOptions;
+    args << files;
     enqueueJob(createCommand(workingDir, editor), args);
 }
 

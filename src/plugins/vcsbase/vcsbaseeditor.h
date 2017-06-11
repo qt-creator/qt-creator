@@ -207,8 +207,8 @@ public:
 
     EditorContentType contentType() const;
 
-    void setConfigurationAdded();
-    bool configurationAdded() const;
+    void setEditorConfig(VcsBaseEditorConfig *config);
+    VcsBaseEditorConfig *editorConfig() const;
 
     void setCommand(VcsCommand *command);
 
