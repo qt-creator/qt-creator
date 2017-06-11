@@ -1879,7 +1879,17 @@ void GdbEngine::handleGdbExit(const DebuggerResponse &response)
 void GdbEngine::setLinuxOsAbi()
 {
     // In case GDB has multiple supported targets, the default osabi can be Cygwin.
-    if (HostOsInfo::isWindowsHost() && runParameters().toolChainAbi.binaryFormat() == Abi::ElfFormat)
+    if (!HostOsInfo::isWindowsHost())
+        return;
+    const DebuggerRunParameters &rp = runParameters();
+    bool isElf = (rp.toolChainAbi.binaryFormat() == Abi::ElfFormat);
+    if (!isElf && !rp.inferior.executable.isEmpty()) {
+        isElf = Utils::anyOf(Abi::abisOfBinary(FileName::fromString(rp.inferior.executable)),
+                             [](const Abi &abi) {
+            return abi.binaryFormat() == Abi::ElfFormat;
+        });
+    }
+    if (isElf)
         runCommand({"set osabi GNU/Linux"});
 }
 
