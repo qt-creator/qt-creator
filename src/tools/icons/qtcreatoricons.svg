@@ -6017,6 +6017,55 @@
          id="rect5183-16"
          style="opacity:1;fill:#b3b3b3;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     </g>
+    <g
+       id="src/libs/cplusplus/images/property"
+       transform="translate(292)">
+      <rect
+         y="552"
+         x="133"
+         height="16"
+         width="16"
+         id="rect4853-2"
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1" />
+      <path
+         style="fill:#000000"
+         d="m 143.5,563 c 1,-2 3.5,-2 4.5,0 h -2.5 l -1,1 1,1 h 2.5 c -1,2 -3.5,2 -4.5,0"
+         id="path5959"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccc" />
+      <rect
+         style="fill:#000000"
+         id="rect5867"
+         width="7.5"
+         height="2"
+         x="137"
+         y="563"
+         rx="1" />
+    </g>
+    <g
+       id="src/libs/cplusplus/images/propertybackground">
+      <rect
+         y="552"
+         x="441"
+         height="16"
+         width="16"
+         id="rect4853-7-5"
+         style="fill:#ffffff" />
+      <rect
+         style="fill:#000000"
+         id="rect5979"
+         width="8.5"
+         height="4"
+         x="444"
+         y="562"
+         rx="2" />
+      <circle
+         style="fill:#000000"
+         id="path5981"
+         cx="453.5"
+         cy="564"
+         r="3.5" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"

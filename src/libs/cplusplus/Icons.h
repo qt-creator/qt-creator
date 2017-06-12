@@ -65,6 +65,7 @@ public:
         SlotPrivateIconType,
         KeywordIconType,
         MacroIconType,
+        PropertyIconType,
         UnknownIconType
     };
 
