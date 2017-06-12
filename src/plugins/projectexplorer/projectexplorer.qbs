@@ -43,7 +43,6 @@ Project {
                 "buildsteplist.cpp", "buildsteplist.h",
                 "buildstepspage.cpp", "buildstepspage.h",
                 "buildtargetinfo.h",
-                "cesdkhandler.cpp", "cesdkhandler.h",
                 "clangparser.cpp", "clangparser.h",
                 "codestylesettingspropertiespage.cpp", "codestylesettingspropertiespage.h", "codestylesettingspropertiespage.ui",
                 "compileoutputwindow.cpp", "compileoutputwindow.h",
