@@ -106,9 +106,9 @@ CursorInfo::Ranges toRanges(const QList<int> tokenIndices, TranslationUnit *tran
 
 class FunctionDefinitionUnderCursor: protected ASTVisitor
 {
-    unsigned _line = 0;
-    unsigned _column = 0;
-    DeclarationAST *_functionDefinition = nullptr;
+    unsigned m_line = 0;
+    unsigned m_column = 0;
+    DeclarationAST *m_functionDefinition = nullptr;
 
 public:
     FunctionDefinitionUnderCursor(TranslationUnit *translationUnit)
@@ -117,17 +117,17 @@ public:
 
     DeclarationAST *operator()(AST *ast, unsigned line, unsigned column)
     {
-        _functionDefinition = nullptr;
-        _line = line;
-        _column = column;
+        m_functionDefinition = nullptr;
+        m_line = line;
+        m_column = column;
         accept(ast);
-        return _functionDefinition;
+        return m_functionDefinition;
     }
 
 protected:
     virtual bool preVisit(AST *ast)
     {
-        if (_functionDefinition)
+        if (m_functionDefinition)
             return false;
 
         if (FunctionDefinitionAST *def = ast->asFunctionDefinition())
@@ -149,9 +149,9 @@ private:
         getTokenStartPosition(ast->firstToken(), &startLine, &startColumn);
         getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
 
-        if (_line > startLine || (_line == startLine && _column >= startColumn)) {
-            if (_line < endLine || (_line == endLine && _column < endColumn)) {
-                _functionDefinition = ast;
+        if (m_line > startLine || (m_line == startLine && m_column >= startColumn)) {
+            if (m_line < endLine || (m_line == endLine && m_column < endColumn)) {
+                m_functionDefinition = ast;
                 return false;
             }
         }
@@ -173,12 +173,12 @@ public:
 
 private:
     FindUses(const QTextCursor &textCursor, const Document::Ptr document, const Snapshot &snapshot)
-        : document(document), snapshot(snapshot)
+        : m_document(document), m_snapshot(snapshot)
     {
         TextEditor::Convenience::convertPosition(textCursor.document(), textCursor.position(),
-                                                 &line, &column);
+                                                 &m_line, &m_column);
         CanonicalSymbol canonicalSymbol(document, snapshot);
-        scope = canonicalSymbol.getScopeAndExpression(textCursor, &expression);
+        m_scope = canonicalSymbol.getScopeAndExpression(textCursor, &m_expression);
     }
 
     CursorInfo doFind() const
@@ -201,12 +201,12 @@ private:
 
     CppTools::SemanticInfo::LocalUseMap findLocalUses() const
     {
-        AST *ast = document->translationUnit()->ast();
-        FunctionDefinitionUnderCursor functionDefinitionUnderCursor(document->translationUnit());
+        AST *ast = m_document->translationUnit()->ast();
+        FunctionDefinitionUnderCursor functionDefinitionUnderCursor(m_document->translationUnit());
         DeclarationAST *declaration = functionDefinitionUnderCursor(ast,
-                                                                    static_cast<unsigned>(line),
-                                                                    static_cast<unsigned>(column));
-        return CppTools::LocalSymbols(document, declaration).uses;
+                                                                    static_cast<unsigned>(m_line),
+                                                                    static_cast<unsigned>(m_column));
+        return CppTools::LocalSymbols(m_document, declaration).uses;
     }
 
     void splitLocalUses(const CppTools::SemanticInfo::LocalUseMap &uses,
@@ -216,7 +216,7 @@ private:
         QTC_ASSERT(rangesForLocalVariableUnderCursor, return);
         QTC_ASSERT(rangesForLocalUnusedVariables, return);
 
-        LookupContext context(document, snapshot);
+        LookupContext context(m_document, m_snapshot);
 
         CppTools::SemanticInfo::LocalUseIterator it(uses);
         while (it.hasNext()) {
@@ -225,9 +225,9 @@ private:
 
             bool good = false;
             foreach (const CppTools::SemanticInfo::Use &use, uses) {
-                unsigned l = static_cast<unsigned>(line);
+                unsigned l = static_cast<unsigned>(m_line);
                 // convertCursorPosition() returns a 0-based column number.
-                unsigned c = static_cast<unsigned>(column + 1);
+                unsigned c = static_cast<unsigned>(m_column + 1);
                 if (l == use.line && c >= use.column && c <= (use.column + use.length)) {
                     good = true;
                     break;
@@ -246,19 +246,19 @@ private:
     CursorInfo::Ranges findReferences() const
     {
         CursorInfo::Ranges result;
-        if (!scope || expression.isEmpty())
+        if (!m_scope || m_expression.isEmpty())
             return result;
 
         TypeOfExpression typeOfExpression;
-        Snapshot theSnapshot = snapshot;
-        theSnapshot.insert(document);
-        typeOfExpression.init(document, theSnapshot);
+        Snapshot theSnapshot = m_snapshot;
+        theSnapshot.insert(m_document);
+        typeOfExpression.init(m_document, theSnapshot);
         typeOfExpression.setExpandTemplates(true);
 
-        if (Symbol *s = CanonicalSymbol::canonicalSymbol(scope, expression, typeOfExpression)) {
+        if (Symbol *s = CanonicalSymbol::canonicalSymbol(m_scope, m_expression, typeOfExpression)) {
             CppTools::CppModelManager *mmi = CppTools::CppModelManager::instance();
             const QList<int> tokenIndices = mmi->references(s, typeOfExpression.context());
-            result = toRanges(tokenIndices, document->translationUnit());
+            result = toRanges(tokenIndices, m_document->translationUnit());
         }
 
         return result;
@@ -266,16 +266,16 @@ private:
 
 private:
     // Shared
-    Document::Ptr document;
+    Document::Ptr m_document;
 
     // For local use calculation
-    int line;
-    int column;
+    int m_line;
+    int m_column;
 
     // For references calculation
-    Scope *scope;
-    QString expression;
-    Snapshot snapshot;
+    Scope *m_scope;
+    QString m_expression;
+    Snapshot m_snapshot;
 };
 
 bool isSemanticInfoValidExceptLocalUses(const SemanticInfo &semanticInfo, int revision)
