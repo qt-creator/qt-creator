@@ -6,12 +6,12 @@
   <variable>DebuggerItem.0</variable>
   <valuemap type="QVariantMap">
    <valuelist type="QVariantList" key="Abis">
-    <value type="QString">x86-windows-msvc2015-pe-64bit</value>
+    <value type="QString">x86-windows-msvc2015-pe-SQUISH_DEBUGGER_BITNESSbit</value>
    </valuelist>
    <value type="bool" key="AutoDetected">true</value>
    <value type="QString" key="AutoDetectionSource"></value>
-   <value type="QString" key="Binary">C:/Program Files (x86)/Windows Kits/10/Debuggers/x64/cdb.exe</value>
-   <value type="QString" key="DisplayName">Auto-detected CDB at C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\cdb.exe</value>
+   <value type="QString" key="Binary">C:/Program Files (x86)/Windows Kits/10/Debuggers/SQUISH_DEBUGGER_ARCHITECTURE/cdb.exe</value>
+   <value type="QString" key="DisplayName">Auto-detected CDB at C:\Program Files (x86)\Windows Kits\10\Debuggers\SQUISH_DEBUGGER_ARCHITECTURE\cdb.exe</value>
    <value type="int" key="EngineType">4</value>
    <value type="QString" key="Id">{1b25f20a-d584-4fb7-85b3-74dd15b82f6f}</value>
    <value type="QDateTime" key="LastModified"></value>

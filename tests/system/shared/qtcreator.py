@@ -186,6 +186,30 @@ def substituteDefaultCompiler(settingsDir):
         __substitute__(qtversion, "SQUISH_DEFAULT_COMPILER", compiler)
         test.log("Injected default compiler '%s' to qtversion.xml..." % compiler)
 
+def substituteCdb(settingsDir):
+    def canUse32bitCdb():
+        try:
+            serverIni = readFile(os.path.join(os.getenv("APPDATA"), "froglogic",
+                                              "Squish", "ver1", "server.ini"))
+            autLine = filter(lambda line: "AUT/qtcreator" in line, serverIni.splitlines())[0]
+            autPath = autLine.split("\"")[1]
+            return os.path.exists(os.path.join(autPath, "..", "lib", "qtcreatorcdbext32"))
+        except:
+            test.fatal("Something went wrong when determining debugger bitness",
+                       "Did Squish's file structure change? Guessing 32-bit cdb can be used...")
+            return True
+
+    if canUse32bitCdb():
+        architecture = "x86"
+        bitness = "32"
+    else:
+        architecture = "x64"
+        bitness = "64"
+    debuggers = os.path.join(settingsDir, "QtProject", 'qtcreator', 'debuggers.xml')
+    __substitute__(debuggers, "SQUISH_DEBUGGER_ARCHITECTURE", architecture)
+    __substitute__(debuggers, "SQUISH_DEBUGGER_BITNESS", bitness)
+    test.log("Injected architecture '%s' and bitness '%s' in cdb path..." % (architecture, bitness))
+
 def __guessABI__(supportedABIs, use64Bit):
     if platform.system() == 'Linux':
         supportedABIs = filter(lambda x: 'linux' in x, supportedABIs)
@@ -277,6 +301,8 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
     if platform.system() in ('Linux', 'Darwin'):
         substituteTildeWithinToolchains(tmpSettingsDir)
         substituteDefaultCompiler(tmpSettingsDir)
+    elif platform.system() in ('Windows', 'Microsoft'):
+        substituteCdb(tmpSettingsDir)
     substituteUnchosenTargetABIs(tmpSettingsDir)
     SettingsPath = ' -settingspath "%s"' % tmpSettingsDir
 

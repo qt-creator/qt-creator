@@ -161,7 +161,7 @@ QList<GdbServerProviderFactory *> GdbServerProviderManager::factories()
 
 GdbServerProvider *GdbServerProviderManager::findProvider(const QString &id)
 {
-    if (id.isEmpty())
+    if (id.isEmpty() || !m_instance)
         return 0;
 
     return Utils::findOrDefault(m_instance->m_providers, Utils::equal(&GdbServerProvider::id, id));

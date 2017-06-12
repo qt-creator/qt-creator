@@ -93,6 +93,18 @@
             \uicontrol Application > \uicontrol {Qt Quick Application} >
             \uicontrol Choose.
 
+        \li In the \uicontrol Name field, enter a name for the application.
+
+        \li In the \uicontrol {Create in} field, enter the path for the project
+            files, and then select \uicontrol Next (or \uicontrol Continue on
+            \macos).
+
+        \li In the \uicontrol {Build system} field, select the build system to
+            use for building and running the project: \l qmake,
+            \l {Setting Up CMake}{CMake}, or \l {Setting Up Qbs}{Qbs}.
+
+        \li Select \uicontrol Next.
+
         \li Select the Qt version to
             develop with in the \uicontrol {Minimal required Qt version} field.
             The Qt version determines the Qt Quick imports that are used in the
@@ -104,7 +116,7 @@
             with the UI forms for \QD, it is recommended that you use \QMLD to
             edit the UI forms. For more information, see \l{Qt Quick UI Forms}.
 
-        \li Select \uicontrol Next (or \uicontrol Continue on \macos).
+        \li Select \uicontrol Next.
 
         \li Select \l{glossary-buildandrun-kit}{kits} for running and building
             your project, and then click \uicontrol Next.

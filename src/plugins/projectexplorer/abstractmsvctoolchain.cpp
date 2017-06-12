@@ -251,7 +251,8 @@ Utils::FileName AbstractMsvcToolChain::compilerCommand() const
     Utils::FileName clexe = env.searchInPath(QLatin1String("cl.exe"), QStringList(), [](const QString &name) {
         QDir dir(QDir::cleanPath(QFileInfo(name).absolutePath() + QStringLiteral("/..")));
         do {
-            if (QFile::exists(dir.absoluteFilePath(QStringLiteral("vcvarsall.bat"))))
+            if (QFile::exists(dir.absoluteFilePath(QStringLiteral("vcvarsall.bat")))
+                    || QFile::exists(dir.absolutePath() + "/Auxiliary/Build/vcvarsall.bat"))
                 return true;
         } while (dir.cdUp() && !dir.isRoot());
         return false;

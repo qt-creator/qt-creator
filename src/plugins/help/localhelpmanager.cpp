@@ -266,7 +266,7 @@ QList<float> LocalHelpManager::lastShownPagesZoom()
 void LocalHelpManager::setLastShownPagesZoom(const QList<qreal> &zoom)
 {
     const QStringList stringValues = Utils::transform(zoom,
-                                                      [](float z) { return QString::number(z); });
+                                                      [](qreal z) { return QString::number(z); });
     Core::ICore::settings()->setValue(kLastShownPagesZoomKey,
                                       stringValues.join(Constants::ListSeparator));
 }
