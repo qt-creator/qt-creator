@@ -350,7 +350,8 @@ void CodeAssistantPrivate::processProposalItem(AssistProposalItemInterface *prop
     TextDocumentManipulator manipulator(m_editorWidget);
     proposalItem->apply(manipulator, m_proposal->basePosition());
     destroyContext();
-    process();
+    if (!proposalItem->isSnippet())
+        process();
 }
 
 void CodeAssistantPrivate::handlePrefixExpansion(const QString &newPrefix)
