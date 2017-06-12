@@ -129,22 +129,22 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
         return false;
 
     QString command = version->qmakeProperty("QT_HOST_BINS");
-    if (!command.endsWith(QLatin1Char('/')))
-        command += QLatin1Char('/');
-    command += QLatin1String("androiddeployqt");
+    if (!command.endsWith('/'))
+        command += '/';
+    command += "androiddeployqt";
     if (Utils::HostOsInfo::isWindowsHost())
-        command += QLatin1String(".exe");
+        command += ".exe";
 
     QString deploymentMethod;
     if (m_deployAction == MinistroDeployment)
-        deploymentMethod = QLatin1String("ministro");
+        deploymentMethod = "ministro";
     else if (m_deployAction == DebugDeployment)
-        deploymentMethod = QLatin1String("debug");
+        deploymentMethod = "debug";
     else if (m_deployAction == BundleLibrariesDeployment)
-        deploymentMethod = QLatin1String("bundled");
+        deploymentMethod = "bundled";
 
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
-    QString outputDir = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
+    QString outputDir = bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString();
 
     const auto *pro = static_cast<QmakeProjectManager::QmakeProject *>(project());
     const QmakeProjectManager::QmakeProFileNode *node = pro->rootProjectNode()->findProFileFor(proFilePathForInputFile());
@@ -165,43 +165,31 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
         return false;
     }
 
-    QStringList arguments;
-    arguments << QLatin1String("--input")
-              << inputFile
-              << QLatin1String("--output")
-              << outputDir
-              << QLatin1String("--deployment")
-              << deploymentMethod
-              << QLatin1String("--android-platform")
-              << AndroidManager::buildTargetSDK(target())
-              << QLatin1String("--jdk")
-              << AndroidConfigurations::currentConfig().openJDKLocation().toString();
+    QStringList arguments = {"--input", inputFile,
+                             "--output", outputDir,
+                             "--deployment", deploymentMethod,
+                             "--android-platform", AndroidManager::buildTargetSDK(target()),
+                             "--jdk", AndroidConfigurations::currentConfig().openJDKLocation().toString()};
 
     if (m_verbose)
-        arguments << QLatin1String("--verbose");
+        arguments << "--verbose";
 
     if (m_useGradle)
-        arguments << QLatin1String("--gradle");
+        arguments << "--gradle";
     else
-        arguments << QLatin1String("--ant")
-                  << AndroidConfigurations::currentConfig().antToolPath().toString();
+        arguments << "--ant" << AndroidConfigurations::currentConfig().antToolPath().toString();
 
 
     QStringList argumentsPasswordConcealed = arguments;
 
     if (m_signPackage) {
-        arguments << QLatin1String("--sign")
-                  << m_keystorePath.toString()
-                  << m_certificateAlias
-                  << QLatin1String("--storepass")
-                  << m_keystorePasswd;
-        argumentsPasswordConcealed << QLatin1String("--sign") << QLatin1String("******")
-                                   << QLatin1String("--storepass") << QLatin1String("******");
+        arguments << "--sign" << m_keystorePath.toString() << m_certificateAlias
+                  << "--storepass" << m_keystorePasswd;
+        argumentsPasswordConcealed << "--sign" << "******"
+                                   << "--storepass" << "******";
         if (!m_certificatePasswd.isEmpty()) {
-            arguments << QLatin1String("--keypass")
-                      << m_certificatePasswd;
-            argumentsPasswordConcealed << QLatin1String("--keypass")
-                      << QLatin1String("******");
+            arguments << "--keypass" << m_certificatePasswd;
+            argumentsPasswordConcealed << "--keypass" << "******";
         }
 
     }
@@ -210,9 +198,9 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     // params (e.g. --sign) to choose not to add gdbserver
     if (version->qtVersion() >= QtSupport::QtVersionNumber(5, 6, 0)) {
         if (m_addDebugger || bc->buildType() == ProjectExplorer::BuildConfiguration::Debug)
-            arguments << QLatin1String("--gdbserver");
+            arguments << "--gdbserver";
         else
-            arguments << QLatin1String("--no-gdbserver");
+            arguments << "--no-gdbserver";
     }
 
     ProjectExplorer::ProcessParameters *pp = processParameters();

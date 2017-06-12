@@ -127,10 +127,10 @@ QString MakeStep::effectiveMakeCommand() const
 QVariantMap MakeStep::toMap() const
 {
     QVariantMap map(AbstractProcessStep::toMap());
-    map.insert(QLatin1String(MAKE_ARGUMENTS_KEY), m_userArgs);
-    map.insert(QLatin1String(MAKE_COMMAND_KEY), m_makeCmd);
-    map.insert(QLatin1String(CLEAN_KEY), m_clean);
-    map.insert(QLatin1String(AUTOMATICLY_ADDED_MAKE_ARGUMENTS_KEY), automaticallyAddedArguments());
+    map.insert(MAKE_ARGUMENTS_KEY, m_userArgs);
+    map.insert(MAKE_COMMAND_KEY, m_makeCmd);
+    map.insert(CLEAN_KEY, m_clean);
+    map.insert(AUTOMATICLY_ADDED_MAKE_ARGUMENTS_KEY, automaticallyAddedArguments());
     return map;
 }
 
@@ -139,20 +139,20 @@ QStringList MakeStep::automaticallyAddedArguments() const
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!tc || tc->targetAbi().binaryFormat() == Abi::PEFormat)
         return QStringList();
-    return QStringList() << QLatin1String("-w") << QLatin1String("-r");
+    return QStringList() << "-w" << "-r";
 }
 
 bool MakeStep::fromMap(const QVariantMap &map)
 {
-    m_makeCmd = map.value(QLatin1String(MAKE_COMMAND_KEY)).toString();
-    m_userArgs = map.value(QLatin1String(MAKE_ARGUMENTS_KEY)).toString();
-    m_clean = map.value(QLatin1String(CLEAN_KEY)).toBool();
+    m_makeCmd = map.value(MAKE_COMMAND_KEY).toString();
+    m_userArgs = map.value(MAKE_ARGUMENTS_KEY).toString();
+    m_clean = map.value(CLEAN_KEY).toBool();
     QStringList oldAddedArgs
-            = map.value(QLatin1String(AUTOMATICLY_ADDED_MAKE_ARGUMENTS_KEY)).toStringList();
+            = map.value(AUTOMATICLY_ADDED_MAKE_ARGUMENTS_KEY).toStringList();
     foreach (const QString &newArg, automaticallyAddedArguments()) {
         if (oldAddedArgs.contains(newArg))
             continue;
-        m_userArgs.prepend(newArg + QLatin1Char(' '));
+        m_userArgs.prepend(newArg + ' ');
     }
 
     return AbstractProcessStep::fromMap(map);
@@ -199,28 +199,28 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
     if (subProFile) {
         QString makefile = subProFile->makefile();
         if (makefile.isEmpty())
-            makefile = QLatin1String("Makefile");
+            makefile = "Makefile";
         // Use Makefile.Debug and Makefile.Release
         // for file builds, since the rules for that are
         // only in those files.
         if (subProFile->isDebugAndRelease() && bc->fileNodeBuild()) {
             if (bc->buildType() == QmakeBuildConfiguration::Debug)
-                makefile += QLatin1String(".Debug");
+                makefile += ".Debug";
             else
-                makefile += QLatin1String(".Release");
+                makefile += ".Release";
         }
-        if (makefile != QLatin1String("Makefile")) {
-            Utils::QtcProcess::addArg(&args, QLatin1String("-f"));
+        if (makefile != "Makefile") {
+            Utils::QtcProcess::addArg(&args, "-f");
             Utils::QtcProcess::addArg(&args, makefile);
         }
         m_makeFileToCheck = QDir(workingDirectory).filePath(makefile);
     } else {
         if (!bc->makefile().isEmpty()) {
-            Utils::QtcProcess::addArg(&args, QLatin1String("-f"));
+            Utils::QtcProcess::addArg(&args, "-f");
             Utils::QtcProcess::addArg(&args, bc->makefile());
             m_makeFileToCheck = QDir(workingDirectory).filePath(bc->makefile());
         } else {
-            m_makeFileToCheck = QDir(workingDirectory).filePath(QLatin1String("Makefile"));
+            m_makeFileToCheck = QDir(workingDirectory).filePath("Makefile");
         }
     }
 
@@ -231,16 +231,16 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
             objectsDir = subProFile->buildDir(bc).toString();
             if (subProFile->isDebugAndRelease()) {
                 if (bc->buildType() == QmakeBuildConfiguration::Debug)
-                    objectsDir += QLatin1String("/debug");
+                    objectsDir += "/debug";
                 else
-                    objectsDir += QLatin1String("/release");
+                    objectsDir += "/release";
             }
         }
         QString relObjectsDir = QDir(pp->workingDirectory()).relativeFilePath(objectsDir);
-        if (relObjectsDir == QLatin1String("."))
+        if (relObjectsDir == ".")
             relObjectsDir.clear();
         if (!relObjectsDir.isEmpty())
-            relObjectsDir += QLatin1Char('/');
+            relObjectsDir += '/';
         QString objectFile = relObjectsDir +
                 bc->fileNodeBuild()->filePath().toFileInfo().baseName() +
                 subProFile->objectExtension();
@@ -252,8 +252,8 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
     if (tc && makeCommand().isEmpty()) {
         if (tc->targetAbi().os() == Abi::WindowsOS
                 && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
-            const QString makeFlags = QLatin1String("MAKEFLAGS");
-            env.set(makeFlags, QLatin1Char('L') + env.value(makeFlags));
+            const QString makeFlags = "MAKEFLAGS";
+            env.set(makeFlags, 'L' + env.value(makeFlags));
         }
     }
 
@@ -322,7 +322,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     m_ui->makePathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui->makePathChooser->setBaseDirectory(Utils::PathChooser::homePath());
-    m_ui->makePathChooser->setHistoryCompleter(QLatin1String("PE.MakeCommand.History"));
+    m_ui->makePathChooser->setHistoryCompleter("PE.MakeCommand.History");
 
     const QString &makeCmd = m_makeStep->makeCommand();
     m_ui->makePathChooser->setPath(makeCmd);
@@ -434,8 +434,8 @@ void MakeStepConfigWidget::updateDetails()
     if (tc && m_makeStep->makeCommand().isEmpty()) {
         if (tc->targetAbi().os() == Abi::WindowsOS
                 && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
-            const QString makeFlags = QLatin1String("MAKEFLAGS");
-            env.set(makeFlags, QLatin1Char('L') + env.value(makeFlags));
+            const QString makeFlags = "MAKEFLAGS";
+            env.set(makeFlags, 'L' + env.value(makeFlags));
         }
     }
     param.setArguments(args);
@@ -502,7 +502,7 @@ BuildStep *MakeStepFactory::create(BuildStepList *parent, Core::Id id)
     MakeStep *step = new MakeStep(parent);
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
         step->setClean(true);
-        step->setUserArguments(QLatin1String("clean"));
+        step->setUserArguments("clean");
     }
     return step;
 }

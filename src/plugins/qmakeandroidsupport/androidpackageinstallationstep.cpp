@@ -59,9 +59,9 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::
 bool AndroidPackageInstallationStep::init(QList<const BuildStep *> &earlierSteps)
 {
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
-    QString dirPath = bc->buildDirectory().appendPath(QLatin1String(Android::Constants::ANDROID_BUILDDIRECTORY)).toString();
+    QString dirPath = bc->buildDirectory().appendPath(Android::Constants::ANDROID_BUILDDIRECTORY).toString();
     if (Utils::HostOsInfo::isWindowsHost())
-        if (bc->environment().searchInPath(QLatin1String("sh.exe")).isEmpty())
+        if (bc->environment().searchInPath("sh.exe").isEmpty())
             dirPath = QDir::toNativeSeparators(dirPath);
 
     ProjectExplorer::ToolChain *tc
@@ -88,9 +88,9 @@ bool AndroidPackageInstallationStep::init(QList<const BuildStep *> &earlierSteps
 
     m_androidDirsToClean.clear();
     // don't remove gradle's cache, it takes ages to rebuild it.
-    if (!QFile::exists(dirPath + QLatin1String("/build.xml")) && Android::AndroidManager::useGradle(target())) {
-        m_androidDirsToClean << dirPath + QLatin1String("/assets");
-        m_androidDirsToClean << dirPath + QLatin1String("/libs");
+    if (!QFile::exists(dirPath + "/build.xml") && Android::AndroidManager::useGradle(target())) {
+        m_androidDirsToClean << dirPath + "/assets";
+        m_androidDirsToClean << dirPath + "/libs";
     } else {
         m_androidDirsToClean << dirPath;
     }

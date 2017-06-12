@@ -136,14 +136,14 @@ void BuildStep::ctor()
 
 bool BuildStep::fromMap(const QVariantMap &map)
 {
-    m_enabled = map.value(QLatin1String(buildStepEnabledKey), true).toBool();
+    m_enabled = map.value(buildStepEnabledKey, true).toBool();
     return ProjectConfiguration::fromMap(map);
 }
 
 QVariantMap BuildStep::toMap() const
 {
     QVariantMap map = ProjectConfiguration::toMap();
-    map.insert(QLatin1String(buildStepEnabledKey), m_enabled);
+    map.insert(buildStepEnabledKey, m_enabled);
     return map;
 }
 

@@ -58,9 +58,9 @@ static QString projectDirRelativeToBuildDir(BuildConfiguration *bc) {
     QString projDirToBuildDir = buildDir.relativeFilePath(
                 bc->target()->project()->projectDirectory().toString());
     if (projDirToBuildDir.isEmpty())
-        return QLatin1String("./");
-    if (!projDirToBuildDir.endsWith(QLatin1Char('/')))
-        projDirToBuildDir.append(QLatin1Char('/'));
+        return "./";
+    if (!projDirToBuildDir.endsWith('/'))
+        projDirToBuildDir.append('/');
     return projDirToBuildDir;
 }
 
@@ -125,7 +125,7 @@ bool ConfigureStep::init(QList<const BuildStep *> &earlierSteps)
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->buildDirectory().toString());
-    pp->setCommand(projectDirRelativeToBuildDir(bc) + QLatin1String("configure"));
+    pp->setCommand(projectDirRelativeToBuildDir(bc) + "configure");
     pp->setArguments(additionalArguments());
     pp->resolveAll();
 
@@ -138,8 +138,8 @@ void ConfigureStep::run(QFutureInterface<bool>& fi)
 
     //Check whether we need to run configure
     const QString projectDir(bc->target()->project()->projectDirectory().toString());
-    const QFileInfo configureInfo(projectDir + QLatin1String("/configure"));
-    const QFileInfo configStatusInfo(bc->buildDirectory().toString() + QLatin1String("/config.status"));
+    const QFileInfo configureInfo(projectDir + "/configure");
+    const QFileInfo configStatusInfo(bc->buildDirectory().toString() + "/config.status");
 
     if (!configStatusInfo.exists()
         || configStatusInfo.lastModified() < configureInfo.lastModified()) {
@@ -191,13 +191,13 @@ QVariantMap ConfigureStep::toMap() const
 {
     QVariantMap map = AbstractProcessStep::toMap();
 
-    map.insert(QLatin1String(CONFIGURE_ADDITIONAL_ARGUMENTS_KEY), m_additionalArguments);
+    map.insert(CONFIGURE_ADDITIONAL_ARGUMENTS_KEY, m_additionalArguments);
     return map;
 }
 
 bool ConfigureStep::fromMap(const QVariantMap &map)
 {
-    m_additionalArguments = map.value(QLatin1String(CONFIGURE_ADDITIONAL_ARGUMENTS_KEY)).toString();
+    m_additionalArguments = map.value(CONFIGURE_ADDITIONAL_ARGUMENTS_KEY).toString();
 
     return BuildStep::fromMap(map);
 }
@@ -245,7 +245,7 @@ void ConfigureStepConfigWidget::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setEnvironment(bc->environment());
     param.setWorkingDirectory(bc->buildDirectory().toString());
-    param.setCommand(projectDirRelativeToBuildDir(bc) + QLatin1String("configure"));
+    param.setCommand(projectDirRelativeToBuildDir(bc) + "configure");
     param.setArguments(m_configureStep->additionalArguments());
     m_summaryText = param.summaryInWorkdir(displayName());
     emit updateSummary();

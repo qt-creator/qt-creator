@@ -110,7 +110,7 @@ bool AutogenStep::init(QList<const BuildStep *> &earlierSteps)
     pp->setEnvironment(bc->environment());
     const QString projectDir(bc->target()->project()->projectDirectory().toString());
     pp->setWorkingDirectory(projectDir);
-    pp->setCommand(QLatin1String("./autogen.sh"));
+    pp->setCommand("./autogen.sh");
     pp->setArguments(additionalArguments());
     pp->resolveAll();
 
@@ -123,9 +123,9 @@ void AutogenStep::run(QFutureInterface<bool> &fi)
 
     // Check whether we need to run autogen.sh
     const QString projectDir(bc->target()->project()->projectDirectory().toString());
-    const QFileInfo configureInfo(projectDir + QLatin1String("/configure"));
-    const QFileInfo configureAcInfo(projectDir + QLatin1String("/configure.ac"));
-    const QFileInfo makefileAmInfo(projectDir + QLatin1String("/Makefile.am"));
+    const QFileInfo configureInfo(projectDir + "/configure");
+    const QFileInfo configureAcInfo(projectDir + "/configure.ac");
+    const QFileInfo makefileAmInfo(projectDir + "/Makefile.am");
 
     if (!configureInfo.exists()
         || configureInfo.lastModified() < configureAcInfo.lastModified()
@@ -173,13 +173,13 @@ QVariantMap AutogenStep::toMap() const
 {
     QVariantMap map(AbstractProcessStep::toMap());
 
-    map.insert(QLatin1String(AUTOGEN_ADDITIONAL_ARGUMENTS_KEY), m_additionalArguments);
+    map.insert(AUTOGEN_ADDITIONAL_ARGUMENTS_KEY, m_additionalArguments);
     return map;
 }
 
 bool AutogenStep::fromMap(const QVariantMap &map)
 {
-    m_additionalArguments = map.value(QLatin1String(AUTOGEN_ADDITIONAL_ARGUMENTS_KEY)).toString();
+    m_additionalArguments = map.value(AUTOGEN_ADDITIONAL_ARGUMENTS_KEY).toString();
 
     return BuildStep::fromMap(map);
 }
@@ -226,7 +226,7 @@ void AutogenStepConfigWidget::updateDetails()
     param.setEnvironment(bc->environment());
     const QString projectDir(bc->target()->project()->projectDirectory().toString());
     param.setWorkingDirectory(projectDir);
-    param.setCommand(QLatin1String("./autogen.sh"));
+    param.setCommand("./autogen.sh");
     param.setArguments(m_autogenStep->additionalArguments());
     m_summaryText = param.summary(displayName());
     emit updateSummary();

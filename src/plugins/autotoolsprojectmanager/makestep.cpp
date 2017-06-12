@@ -60,7 +60,7 @@ const char MAKE_STEP_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.MakeS
 // MakeStepFactory class
 //////////////////////////
 MakeStepFactory::MakeStepFactory(QObject *parent) : IBuildStepFactory(parent)
-{ setObjectName(QLatin1String("Autotools::MakeStepFactory")); }
+{ setObjectName("Autotools::MakeStepFactory"); }
 
 QList<BuildStepInfo> MakeStepFactory::availableSteps(BuildStepList *parent) const
 {
@@ -198,17 +198,17 @@ QVariantMap MakeStep::toMap() const
 {
     QVariantMap map = AbstractProcessStep::toMap();
 
-    map.insert(QLatin1String(BUILD_TARGETS_KEY), m_buildTargets);
-    map.insert(QLatin1String(MAKE_STEP_ADDITIONAL_ARGUMENTS_KEY), m_additionalArguments);
-    map.insert(QLatin1String(CLEAN_KEY), m_clean);
+    map.insert(BUILD_TARGETS_KEY, m_buildTargets);
+    map.insert(MAKE_STEP_ADDITIONAL_ARGUMENTS_KEY, m_additionalArguments);
+    map.insert(CLEAN_KEY, m_clean);
     return map;
 }
 
 bool MakeStep::fromMap(const QVariantMap &map)
 {
-    m_buildTargets = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
-    m_additionalArguments = map.value(QLatin1String(MAKE_STEP_ADDITIONAL_ARGUMENTS_KEY)).toString();
-    m_clean = map.value(QLatin1String(CLEAN_KEY)).toBool();
+    m_buildTargets = map.value(BUILD_TARGETS_KEY).toStringList();
+    m_additionalArguments = map.value(MAKE_STEP_ADDITIONAL_ARGUMENTS_KEY).toString();
+    m_clean = map.value(CLEAN_KEY).toBool();
 
     return BuildStep::fromMap(map);
 }
@@ -269,7 +269,7 @@ void MakeStepConfigWidget::updateDetails()
         param.setArguments(arguments);
         m_summaryText = param.summary(displayName());
     } else {
-        m_summaryText = QLatin1String("<b>") + ToolChainKitInformation::msgNoToolChainInTarget()  + QLatin1String("</b>");
+        m_summaryText = "<b>" + ToolChainKitInformation::msgNoToolChainInTarget()  + "</b>";
     }
 
     emit updateSummary();

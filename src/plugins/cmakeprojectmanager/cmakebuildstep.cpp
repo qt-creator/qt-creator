@@ -71,7 +71,7 @@ const char ADD_RUNCONFIGURATION_TEXT[] = "Current executable";
 
 static bool isCurrentExecutableTarget(const QString &target)
 {
-    return target == QLatin1String(ADD_RUNCONFIGURATION_TEXT);
+    return target == ADD_RUNCONFIGURATION_TEXT;
 }
 
 CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl) :
@@ -95,9 +95,9 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, CMakeBuildStep *bs) :
 
 void CMakeBuildStep::ctor(BuildStepList *bsl)
 {
-    m_percentProgress = QRegExp(QLatin1String("^\\[\\s*(\\d*)%\\]"));
-    m_ninjaProgress = QRegExp(QLatin1String("^\\[\\s*(\\d*)/\\s*(\\d*)"));
-    m_ninjaProgressString = QLatin1String("[%f/%t "); // ninja: [33/100
+    m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
+    m_ninjaProgress = QRegExp("^\\[\\s*(\\d*)/\\s*(\\d*)");
+    m_ninjaProgressString = "[%f/%t "; // ninja: [33/100
     //: Default display name for the cmake make step.
     setDefaultDisplayName(tr("CMake Build"));
 
@@ -150,23 +150,23 @@ QVariantMap CMakeBuildStep::toMap() const
 {
     QVariantMap map(AbstractProcessStep::toMap());
     // Use QStringList for compatibility with old files
-    map.insert(QLatin1String(BUILD_TARGETS_KEY), QStringList(m_buildTarget));
-    map.insert(QLatin1String(TOOL_ARGUMENTS_KEY), m_toolArguments);
+    map.insert(BUILD_TARGETS_KEY, QStringList(m_buildTarget));
+    map.insert(TOOL_ARGUMENTS_KEY, m_toolArguments);
     return map;
 }
 
 bool CMakeBuildStep::fromMap(const QVariantMap &map)
 {
-    if (map.value(QLatin1String(CLEAN_KEY), false).toBool()) {
+    if (map.value(CLEAN_KEY, false).toBool()) {
         m_buildTarget = CMakeBuildStep::cleanTarget();
     } else {
-        const QStringList targetList = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
+        const QStringList targetList = map.value(BUILD_TARGETS_KEY).toStringList();
         if (!targetList.isEmpty())
             m_buildTarget = targetList.last();
-        m_toolArguments = map.value(QLatin1String(TOOL_ARGUMENTS_KEY)).toString();
+        m_toolArguments = map.value(TOOL_ARGUMENTS_KEY).toString();
     }
-    if (map.value(QLatin1String(ADD_RUNCONFIGURATION_ARGUMENT_KEY), false).toBool())
-        m_buildTarget = QLatin1String(ADD_RUNCONFIGURATION_TEXT);
+    if (map.value(ADD_RUNCONFIGURATION_ARGUMENT_KEY, false).toBool())
+        m_buildTarget = ADD_RUNCONFIGURATION_TEXT;
 
     return BuildStep::fromMap(map);
 }
@@ -241,8 +241,8 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
     pp->setMacroExpander(bc->macroExpander());
     Utils::Environment env = bc->environment();
     Utils::Environment::setupEnglishOutput(&env);
-    if (!env.value(QLatin1String("NINJA_STATUS")).startsWith(m_ninjaProgressString))
-        env.set(QLatin1String("NINJA_STATUS"), m_ninjaProgressString + QLatin1String("%o/sec] "));
+    if (!env.value("NINJA_STATUS").startsWith(m_ninjaProgressString))
+        env.set("NINJA_STATUS", m_ninjaProgressString + "%o/sec] ");
     pp->setEnvironment(env);
     pp->setWorkingDirectory(bc->buildDirectory().toString());
     pp->setCommand(cmakeCommand());
@@ -384,8 +384,8 @@ QString CMakeBuildStep::allArguments(const CMakeRunConfiguration *rc) const
 {
     QString arguments;
 
-    Utils::QtcProcess::addArg(&arguments, QLatin1String("--build"));
-    Utils::QtcProcess::addArg(&arguments, QLatin1String("."));
+    Utils::QtcProcess::addArg(&arguments, "--build");
+    Utils::QtcProcess::addArg(&arguments, ".");
 
     QString target;
 
@@ -393,17 +393,17 @@ QString CMakeBuildStep::allArguments(const CMakeRunConfiguration *rc) const
         if (rc)
             target = rc->buildSystemTarget();
         else
-            target = QLatin1String("<i>&lt;") + tr(ADD_RUNCONFIGURATION_TEXT) + QLatin1String("&gt;</i>");
+            target = "<i>&lt;" + tr(ADD_RUNCONFIGURATION_TEXT) + "&gt;</i>";
     } else {
         target = m_buildTarget;
     }
 
-    Utils::QtcProcess::addArg(&arguments, QLatin1String("--target"));
+    Utils::QtcProcess::addArg(&arguments, "--target");
     Utils::QtcProcess::addArg(&arguments, target);
 
     if (!m_toolArguments.isEmpty()) {
-        Utils::QtcProcess::addArg(&arguments, QLatin1String("--"));
-        arguments += QLatin1Char(' ') + m_toolArguments;
+        Utils::QtcProcess::addArg(&arguments, "--");
+        arguments += ' ' + m_toolArguments;
     }
 
     return arguments;

@@ -130,7 +130,7 @@ BuildStepConfigWidget *NimCompilerBuildStep::createConfigWidget()
 bool NimCompilerBuildStep::fromMap(const QVariantMap &map)
 {
     AbstractProcessStep::fromMap(map);
-    m_userCompilerOptions = map[Constants::C_NIMCOMPILERBUILDSTEP_USERCOMPILEROPTIONS].toString().split(QLatin1Char('|'));
+    m_userCompilerOptions = map[Constants::C_NIMCOMPILERBUILDSTEP_USERCOMPILEROPTIONS].toString().split('|');
     m_defaultOptions = static_cast<DefaultBuildOptions>(map[Constants::C_NIMCOMPILERBUILDSTEP_DEFAULTBUILDOPTIONS].toInt());
     m_targetNimFile = FileName::fromString(map[Constants::C_NIMCOMPILERBUILDSTEP_TARGETNIMFILE].toString());
     updateProcessParameters();
@@ -140,7 +140,7 @@ bool NimCompilerBuildStep::fromMap(const QVariantMap &map)
 QVariantMap NimCompilerBuildStep::toMap() const
 {
     QVariantMap result = AbstractProcessStep::toMap();
-    result[Constants::C_NIMCOMPILERBUILDSTEP_USERCOMPILEROPTIONS] = m_userCompilerOptions.join(QLatin1Char('|'));
+    result[Constants::C_NIMCOMPILERBUILDSTEP_USERCOMPILEROPTIONS] = m_userCompilerOptions.join('|');
     result[Constants::C_NIMCOMPILERBUILDSTEP_DEFAULTBUILDOPTIONS] = m_defaultOptions;
     result[Constants::C_NIMCOMPILERBUILDSTEP_TARGETNIMFILE] = m_targetNimFile.toString();
     return result;
