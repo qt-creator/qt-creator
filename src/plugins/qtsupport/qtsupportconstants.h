@@ -37,7 +37,6 @@ const char CODEGEN_SETTINGS_PAGE_NAME[] = QT_TRANSLATE_NOOP("QtSupport", "Qt Cla
 
 // QtVersions
 const char DESKTOPQT[]   = "Qt4ProjectManager.QtVersion.Desktop";
-const char WINCEQT[]     = "Qt4ProjectManager.QtVersion.WinCE";
 
 // BaseQtVersion settings
 static const char QTVERSIONID[] = "Id";

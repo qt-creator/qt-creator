@@ -238,8 +238,6 @@ Project {
                 "abstractmsvctoolchain.h",
                 "msvctoolchain.cpp",
                 "msvctoolchain.h",
-                "wincetoolchain.cpp",
-                "wincetoolchain.h",
                 "windebuginterface.cpp",
                 "windebuginterface.h",
             ]

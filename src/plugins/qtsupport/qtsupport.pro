@@ -30,8 +30,6 @@ HEADERS += \
     qtconfigwidget.h \
     desktopqtversionfactory.h \
     desktopqtversion.h \
-    winceqtversionfactory.h \
-    winceqtversion.h \
     uicgenerator.h \
     qscxmlcgenerator.h
 
@@ -57,8 +55,6 @@ SOURCES += \
     qtconfigwidget.cpp \
     desktopqtversionfactory.cpp \
     desktopqtversion.cpp \
-    winceqtversionfactory.cpp \
-    winceqtversion.cpp \
     uicgenerator.cpp \
     qscxmlcgenerator.cpp
 

@@ -105,8 +105,6 @@ Project {
             files: [
                 "desktopqtversion.cpp", "desktopqtversion.h",
                 "desktopqtversionfactory.cpp", "desktopqtversionfactory.h",
-                "winceqtversion.cpp", "winceqtversion.h",
-                "winceqtversionfactory.cpp", "winceqtversionfactory.h",
             ]
         }
 

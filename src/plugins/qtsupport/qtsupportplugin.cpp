@@ -32,7 +32,6 @@
 #include "qtkitinformation.h"
 #include "qtoptionspage.h"
 #include "qtversionmanager.h"
-#include "winceqtversionfactory.h"
 #include "uicgenerator.h"
 #include "qscxmlcgenerator.h"
 
@@ -68,7 +67,6 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     addAutoReleasedObject(new QtVersionManager);
     addAutoReleasedObject(new DesktopQtVersionFactory);
-    addAutoReleasedObject(new WinCeQtVersionFactory);
 
     addAutoReleasedObject(new CodeGenSettingsPage);
     addAutoReleasedObject(new QtOptionsPage);
