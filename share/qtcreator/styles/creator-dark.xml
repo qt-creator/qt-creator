@@ -59,5 +59,6 @@
   <style name="WarningContext" underlineColor="#d6c545" underlineStyle="DotLine"/>
   <style name="Error" underlineColor="#d65645" underlineStyle="SingleUnderline"/>
   <style name="ErrorContext" underlineColor="#d65645" underlineStyle="DotLine"/>
-  <style name="Declaration"/>
+  <style name="Declaration" bold="true"/>
+  <style name="OutputArgument" italic="true"/>
 </style-scheme>
