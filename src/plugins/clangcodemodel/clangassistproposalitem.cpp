@@ -279,7 +279,8 @@ QIcon ClangAssistProposalItem::icon() const
 
 QString ClangAssistProposalItem::detail() const
 {
-    QString detail = CompletionChunksToTextConverter::convertToToolTipWithHtml(m_codeCompletion.chunks());
+    QString detail = CompletionChunksToTextConverter::convertToToolTipWithHtml(
+                m_codeCompletion.chunks(), m_codeCompletion.completionKind());
 
     if (!m_codeCompletion.briefComment().isEmpty())
         detail += QStringLiteral("\n\n") + m_codeCompletion.briefComment().toString();

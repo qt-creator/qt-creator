@@ -91,6 +91,11 @@ void CompletionChunksToTextConverter::setPlaceHolderToEmphasize(int placeHolderN
     m_placeHolderPositionToEmphasize = placeHolderNumber;
 }
 
+void CompletionChunksToTextConverter::setCompletionKind(const ClangBackEnd::CodeCompletion::Kind kind)
+{
+    m_codeCompletionKind = kind;
+}
+
 void CompletionChunksToTextConverter::setupForKeywords()
 {
     setAddPlaceHolderPositions(true);
@@ -115,6 +120,7 @@ bool CompletionChunksToTextConverter::hasPlaceholderPositions() const
 
 QString CompletionChunksToTextConverter::convertToFunctionSignatureWithHtml(
         const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks,
+        ClangBackEnd::CodeCompletion::Kind codeCompletionKind,
         int parameterToEmphasize)
 {
     CompletionChunksToTextConverter converter;
@@ -127,6 +133,7 @@ QString CompletionChunksToTextConverter::convertToFunctionSignatureWithHtml(
 
     converter.setAddPlaceHolderPositions(true);
     converter.setPlaceHolderToEmphasize(parameterToEmphasize);
+    converter.setCompletionKind(codeCompletionKind);
 
     converter.parseChunks(codeCompletionChunks);
 
@@ -144,7 +151,8 @@ QString CompletionChunksToTextConverter::convertToName(
 }
 
 QString CompletionChunksToTextConverter::convertToToolTipWithHtml(
-        const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks)
+        const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks,
+        ClangBackEnd::CodeCompletion::Kind codeCompletionKind)
 {
     CompletionChunksToTextConverter converter;
     converter.setAddPlaceHolderText(true);
@@ -154,6 +162,7 @@ QString CompletionChunksToTextConverter::convertToToolTipWithHtml(
     converter.setTextFormat(TextFormat::Html);
     converter.setEmphasizeOptional(true);
     converter.setAddResultType(true);
+    converter.setCompletionKind(codeCompletionKind);
 
     converter.parseChunks(codeCompletionChunks);
 
@@ -233,7 +242,6 @@ void CompletionChunksToTextConverter::parseLeftParen(
 {
     if (canAddSpace())
         m_text += QChar(QChar::Space);
-
     m_text += codeCompletionChunk.text().toString();
 }
 
@@ -330,7 +338,8 @@ bool CompletionChunksToTextConverter::canAddSpace() const
 {
     return m_addSpaces
         && m_previousCodeCompletionChunk.kind() != ClangBackEnd::CodeCompletionChunk::HorizontalSpace
-        && m_previousCodeCompletionChunk.kind() != ClangBackEnd::CodeCompletionChunk::RightAngle;
+        && m_previousCodeCompletionChunk.kind() != ClangBackEnd::CodeCompletionChunk::RightAngle
+        && m_codeCompletionKind != ClangBackEnd::CodeCompletion::FunctionCompletionKind;
 }
 
 bool CompletionChunksToTextConverter::isNotOptionalOrAddOptionals(

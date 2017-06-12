@@ -123,7 +123,9 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneArgumen
                                             functionArgumentXAsCurrentParameter,
                                            rightParen});
 
-    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks),
+    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(
+                    completionChunks,
+                    ClangBackEnd::CodeCompletion::FunctionCompletionKind),
                 QStringLiteral("int Function(char x)"));
 }
 
@@ -135,7 +137,10 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithOneParamet
                                             functionArgumentXAsCurrentParameter,
                                            rightParen});
 
-    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, 1),
+    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(
+                    completionChunks,
+                    ClangBackEnd::CodeCompletion::FunctionCompletionKind,
+                    1),
                 QStringLiteral("int Function(<b>char x</b>)"));
 }
 
@@ -149,7 +154,10 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTwoParamet
                                             functionArgumentYAsCurrentParamter,
                                            rightParen});
 
-    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, 2),
+    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(
+                    completionChunks,
+                    ClangBackEnd::CodeCompletion::FunctionCompletionKind,
+                    2),
                 QStringLiteral("int Function(char x, <b>int y</b>)"));
 }
 
@@ -163,7 +171,10 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTwoParamet
                                             optionalFunctionArgumentYAsCurrentParameter,
                                            rightParen});
 
-    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(completionChunks, 2),
+    ASSERT_THAT(converter.convertToFunctionSignatureWithHtml(
+                    completionChunks,
+                    ClangBackEnd::CodeCompletion::FunctionCompletionKind,
+                    2),
                 QStringLiteral("int Function(char x<i>, <b>int y</b></i>)"));
 }
 
@@ -177,7 +188,9 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTemplateRe
 
     using ClangCodeModel::Internal::CompletionChunksToTextConverter;
 
-    ASSERT_THAT(CompletionChunksToTextConverter::convertToFunctionSignatureWithHtml(completionChunks),
+    ASSERT_THAT(CompletionChunksToTextConverter::convertToFunctionSignatureWithHtml(
+                    completionChunks,
+                    ClangBackEnd::CodeCompletion::FunctionCompletionKind),
                 QStringLiteral("Foo&lt;int&gt; Function(char x)"));
 }
 
@@ -191,7 +204,9 @@ TEST_F(CompletionChunksToTextConverter, ConvertToFunctionSignatureWithTemplateAr
 
     using ClangCodeModel::Internal::CompletionChunksToTextConverter;
 
-    ASSERT_THAT(CompletionChunksToTextConverter::convertToFunctionSignatureWithHtml(completionChunks),
+    ASSERT_THAT(CompletionChunksToTextConverter::convertToFunctionSignatureWithHtml(
+                    completionChunks,
+                    ClangBackEnd::CodeCompletion::FunctionCompletionKind),
                 QStringLiteral("int Function(const Foo&lt;int&gt; &amp;foo)"));
 }
 
@@ -207,8 +222,9 @@ TEST_F(CompletionChunksToTextConverter, ConvertFunctionWithOptionalParameter)
                                             optionalFunctionArgumentZ,
                                            rightParen});
 
-    ASSERT_THAT(Converter::convertToToolTipWithHtml(completionChunks),
-                QStringLiteral("int Function (char x<i>, int y, int z</i>)"));
+    ASSERT_THAT(Converter::convertToToolTipWithHtml(completionChunks,
+                                                    ClangBackEnd::CodeCompletion::FunctionCompletionKind),
+                QStringLiteral("int Function(char x<i>, int y, int z</i>)"));
 }
 
 TEST_F(CompletionChunksToTextConverter, ConvertVariable)
