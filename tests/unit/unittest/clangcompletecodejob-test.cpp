@@ -30,6 +30,8 @@
 using namespace ClangBackEnd;
 
 using testing::_;
+using testing::Eq;
+using testing::Property;
 
 namespace {
 
@@ -64,6 +66,21 @@ TEST_F(CompleteCodeJob, SendAnnotations)
     job.setContext(jobContextWithMockClient);
     job.prepareAsyncRun();
     EXPECT_CALL(mockIpcClient, codeCompleted(_)).Times(1);
+
+    job.runAsync();
+
+    ASSERT_TRUE(waitUntilJobFinished(job));
+}
+
+TEST_F(CompleteCodeJob, ForwardTicketNumber)
+{
+    jobRequest.ticketNumber = static_cast<quint64>(99);
+    jobContextWithMockClient = JobContext(jobRequest, &documents, &unsavedFiles, &mockIpcClient);
+    job.setContext(jobContextWithMockClient);
+    job.prepareAsyncRun();
+    EXPECT_CALL(mockIpcClient,
+                codeCompleted(Property(&CodeCompletedMessage::ticketNumber, Eq(99))))
+                    .Times(1);
 
     job.runAsync();
 

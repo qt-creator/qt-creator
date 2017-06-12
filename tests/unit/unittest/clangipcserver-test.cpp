@@ -142,7 +142,6 @@ protected:
     void expectCompletionFromFileBEnabledByMacro();
     void expectCompletionFromFileAUnsavedMethodVersion1();
     void expectCompletionFromFileAUnsavedMethodVersion2();
-    void expectCompletionWithTicketNumber(quint64 ticketNumber);
     void expectNoCompletionWithUnsavedMethod();
     void expectDocumentAnnotationsChangedForFileBWithSpecificHighlightingMark();
 
@@ -258,15 +257,6 @@ TEST_F(ClangCodeModelServerSlowTest, GetNewCodeCompletionAfterUpdatingUnsavedFil
 
     expectCompletionFromFileAUnsavedMethodVersion2();
     completeCodeInFileA();
-}
-
-TEST_F(ClangCodeModelServerSlowTest, TicketNumberIsForwarded)
-{
-    registerProjectAndFile(filePathA, 1);
-    const CompleteCodeMessage message(filePathA, 20, 1, projectPartId);
-
-    expectCompletionWithTicketNumber(message.ticketNumber());
-    clangServer.completeCode(message);
 }
 
 TEST_F(ClangCodeModelServerSlowTest, TranslationUnitAfterCreationIsNotDirty)
@@ -508,14 +498,6 @@ void ClangCodeModelServer::expectCompletionFromFileAUnsavedMethodVersion2()
                                     CodeCompletion::FunctionCompletionKind);
 
     expectCompletion(completion);
-}
-
-void ClangCodeModelServer::expectCompletionWithTicketNumber(quint64 ticketNumber)
-{
-    EXPECT_CALL(mockClangCodeModelClient,
-                codeCompleted(Property(&CodeCompletedMessage::ticketNumber,
-                                       Eq(ticketNumber))))
-        .Times(1);
 }
 
 void ClangCodeModelServer::expectNoCompletionWithUnsavedMethod()
