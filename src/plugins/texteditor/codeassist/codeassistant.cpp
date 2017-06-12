@@ -285,6 +285,8 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     if (!newProposal)
         return;
 
+    // TODO: The proposal should own the model until someone takes it explicitly away.
+    QScopedPointer<IAssistProposalModel> proposalCandidateModel(newProposal->model());
     QScopedPointer<IAssistProposal> proposalCandidate(newProposal);
 
     bool destroyCurrentContext = false;
@@ -336,7 +338,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     m_proposalWidget->setReason(reason);
     m_proposalWidget->setKind(m_assistKind);
     m_proposalWidget->setUnderlyingWidget(m_editorWidget);
-    m_proposalWidget->setModel(m_proposal->model());
+    m_proposalWidget->setModel(proposalCandidateModel.take());
     m_proposalWidget->setDisplayRect(m_editorWidget->cursorRect(basePosition));
     m_proposalWidget->setIsSynchronized(!m_receivedContentWhileWaiting);
     m_proposalWidget->showProposal(prefix);

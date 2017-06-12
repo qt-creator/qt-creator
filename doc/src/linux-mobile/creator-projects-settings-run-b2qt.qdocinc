@@ -37,14 +37,11 @@
     \l{http://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation}
     documentation.
 
-    When you run the application, \QC copies the files to the connected device.
-
     The run settings display the path to the executable file on the development
     host and on the device.
 
-    To execute custom commands, select \uicontrol {Add Deploy Step} >
-    \uicontrol {Custom Remote Command (via adb shell)} and enter the command to
-    execute.
+    For more information on the deployment steps, see
+    \l{Deploying Applications to Embedded Linux Devices}.
 
 //! [run settings embedded]
 */

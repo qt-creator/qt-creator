@@ -180,6 +180,8 @@ void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectEx
         if (qtEnv.qtConfigItems.contains(buildVariant))
             qtEnv.buildVariant << buildVariant;
     }
+    qtEnv.qmlPath = qt->qmakeProperty("QT_INSTALL_QML");
+    qtEnv.qmlImportPath = qt->qmakeProperty("QT_INSTALL_IMPORTS");
     const qbs::ErrorInfo errorInfo = qbs::setupQtProfile(profileName, settings(), qtEnv);
     if (errorInfo.hasError()) {
         Core::MessageManager::write(tr("Failed to set up kit for Qbs: %1")

@@ -28,6 +28,23 @@ source("../../shared/qtcreator.py")
 SpeedCrunchPath = ""
 BuildPath = tempDir()
 
+def cmakeSupportsServerMode():
+    versionLines = filter(lambda line: "cmake version " in line,
+                          getOutputFromCmdline(["cmake", "--version"]).splitlines())
+    try:
+        test.log("Using " + versionLines[0])
+        matcher = re.match("cmake version (\d+)\.(\d+)\.\d+", versionLines[0])
+        major = __builtin__.int(matcher.group(1))
+        minor = __builtin__.int(matcher.group(2))
+    except:
+        return False
+    if major < 3:
+        return False
+    elif major > 3:
+        return True
+    else:
+        return minor >= 7
+
 def main():
     if (which("cmake") == None):
         test.fatal("cmake not found in PATH - needed to run this test")
@@ -47,13 +64,16 @@ def main():
     naviTreeView = "{column='0' container=':Qt Creator_Utils::NavigationTreeView' text~='%s' type='QModelIndex'}"
     compareProjectTree(naviTreeView % "speedcrunch( \[\S+\])?", "projecttree_speedcrunch.tsv")
 
-    # Invoke a rebuild of the application
-    invokeMenuItem("Build", "Rebuild All")
+    if not cmakeSupportsServerMode() and JIRA.isBugStillOpen(18290):
+        test.xfail("Building with cmake in Tealeafreader mode may fail", "QTCREATORBUG-18290")
+    else:
+        # Invoke a rebuild of the application
+        invokeMenuItem("Build", "Rebuild All")
 
-    # Wait for, and test if the build succeeded
-    waitForCompile(300000)
-    checkCompile()
-    checkLastBuild()
+        # Wait for, and test if the build succeeded
+        waitForCompile(300000)
+        checkCompile()
+        checkLastBuild()
 
     invokeMenuItem("File", "Exit")
 
