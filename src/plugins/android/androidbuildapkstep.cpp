@@ -375,11 +375,8 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
         return nullptr;
 
     CertificatesModel *model = nullptr;
-    QStringList params
-            = {"-list", "-v", "-keystore", m_keystorePath.toUserOutput(), "-storepass"};
-
-    params << m_keystorePasswd;
-    params << "-J-Duser.language=en";
+    const QStringList params = {"-list", "-v", "-keystore", m_keystorePath.toUserOutput(),
+        "-storepass", m_keystorePasswd, "-J-Duser.language=en"};
 
     Utils::SynchronousProcess keytoolProc;
     keytoolProc.setTimeoutS(30);
