@@ -38,39 +38,38 @@ class UnregisterTranslationUnitsForEditorMessage
 public:
     UnregisterTranslationUnitsForEditorMessage() = default;
     UnregisterTranslationUnitsForEditorMessage(const QVector<FileContainer> &fileContainers)
-        : fileContainers_(fileContainers)
+        : m_fileContainers(fileContainers)
     {
     }
 
     const QVector<FileContainer> &fileContainers() const
     {
-        return fileContainers_;
+        return m_fileContainers;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const UnregisterTranslationUnitsForEditorMessage &message)
     {
-        out << message.fileContainers_;
+        out << message.m_fileContainers;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, UnregisterTranslationUnitsForEditorMessage &message)
     {
-        in >> message.fileContainers_;
+        in >> message.m_fileContainers;
 
         return in;
     }
 
     friend bool operator==(const UnregisterTranslationUnitsForEditorMessage &first, const UnregisterTranslationUnitsForEditorMessage &second)
     {
-        return first.fileContainers_ == second.fileContainers_;
+        return first.m_fileContainers == second.m_fileContainers;
     }
 
-#ifdef UNIT_TESTS
-    friend void PrintTo(const UnregisterTranslationUnitsForEditorMessage &message, ::std::ostream* os);
-#endif
+    friend std::ostream &operator<<(std::ostream &os, const UnregisterTranslationUnitsForEditorMessage &message);
+
 private:
-    QVector<FileContainer> fileContainers_;
+    QVector<FileContainer> m_fileContainers;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UnregisterTranslationUnitsForEditorMessage &message);

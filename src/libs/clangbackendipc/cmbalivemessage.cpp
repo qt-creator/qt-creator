@@ -27,11 +27,18 @@
 
 #include <QDebug>
 
+#include <ostream>
+
 namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const AliveMessage &/*message*/)
 {
     return debug.nospace() << "AliveMessage()";
+}
+
+std::ostream &operator<<(std::ostream &os, const AliveMessage &/*message*/)
+{
+    return os << "()";
 }
 
 }

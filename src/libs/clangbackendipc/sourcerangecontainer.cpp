@@ -42,13 +42,14 @@ QDebug operator<<(QDebug debug, const SourceRangeContainer &container)
     return debug;
 }
 
-void PrintTo(const SourceRangeContainer &container, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const SourceRangeContainer &container)
 {
-    *os << "[";
-    PrintTo(container.start(), os);
-    *os << ", ";
-    PrintTo(container.end(), os);
-    *os<< "]";
+    os << "("
+       << container.start() << ", "
+       << container.end()
+       << ")";
+
+    return os;
 }
 
 } // namespace ClangBackEnd

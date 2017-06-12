@@ -81,7 +81,7 @@ private:
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UpdateVisibleTranslationUnitsMessage &message);
-void PrintTo(const UpdateVisibleTranslationUnitsMessage &message, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const UpdateVisibleTranslationUnitsMessage &message);
 
 DECLARE_MESSAGE(UpdateVisibleTranslationUnitsMessage)
 } // namespace ClangBackEnd

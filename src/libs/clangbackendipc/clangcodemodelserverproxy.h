@@ -66,9 +66,9 @@ public:
     void resetCounter();
 
 private:
-    ClangBackEnd::WriteMessageBlock writeMessageBlock;
-    ClangBackEnd::ReadMessageBlock readMessageBlock;
-    ClangCodeModelClientInterface *client;
+    ClangBackEnd::WriteMessageBlock m_writeMessageBlock;
+    ClangBackEnd::ReadMessageBlock m_readMessageBlock;
+    ClangCodeModelClientInterface *m_client;
 };
 
 } // namespace ClangBackEnd

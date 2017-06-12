@@ -44,16 +44,13 @@ QDebug operator<<(QDebug debug, const SourceLocationsContainer &container)
     return debug;
 }
 
-void PrintTo(const SourceLocationsContainer &container, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const SourceLocationsContainer &container)
 {
-    *os << "(";
-    for (const auto &sourceLocation: container.sourceLocationContainers()) {
-        *os << "("
-            << container.filePathForSourceLocation(sourceLocation).name() << ","
-            << sourceLocation.line() << ","
-            << sourceLocation.column() << "), ";
-    }
-    *os << ")";
+    os << "("
+       << container.sourceLocationContainers()
+       << ")";
+
+    return os;
 }
 
 } // namespace ClangBackEnd

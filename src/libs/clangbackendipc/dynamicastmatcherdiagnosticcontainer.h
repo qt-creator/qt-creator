@@ -36,45 +36,45 @@ public:
     DynamicASTMatcherDiagnosticContainer() = default;
     DynamicASTMatcherDiagnosticContainer(std::vector<DynamicASTMatcherDiagnosticMessageContainer> &&messages,
                                          std::vector<DynamicASTMatcherDiagnosticContextContainer> &&contexts)
-        : messages_(std::move(messages)),
-          contexts_(std::move(contexts))
+        : m_messages(std::move(messages)),
+          m_contexts(std::move(contexts))
     {
     }
 
     const std::vector<DynamicASTMatcherDiagnosticMessageContainer> &messages() const
     {
-        return messages_;
+        return m_messages;
     }
 
     const std::vector<DynamicASTMatcherDiagnosticContextContainer> &contexts() const
     {
-        return contexts_;
+        return m_contexts;
     }
 
     void insertMessage(V2::SourceRangeContainer &&sourceRange,
                        ClangQueryDiagnosticErrorType errorType,
                        Utils::SmallStringVector &&arguments) {
-        messages_.emplace_back(std::move(sourceRange), errorType, std::move(arguments));
+        m_messages.emplace_back(std::move(sourceRange), errorType, std::move(arguments));
     }
 
     void insertContext(V2::SourceRangeContainer &&sourceRange,
                        ClangQueryDiagnosticContextType contextType,
                        Utils::SmallStringVector &&arguments) {
-        contexts_.emplace_back(std::move(sourceRange), contextType, std::move(arguments));
+        m_contexts.emplace_back(std::move(sourceRange), contextType, std::move(arguments));
     }
 
     friend QDataStream &operator<<(QDataStream &out, const DynamicASTMatcherDiagnosticContainer &container)
     {
-        out << container.messages_;
-        out << container.contexts_;
+        out << container.m_messages;
+        out << container.m_contexts;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, DynamicASTMatcherDiagnosticContainer &container)
     {
-        in >> container.messages_;
-        in >> container.contexts_;
+        in >> container.m_messages;
+        in >> container.m_contexts;
 
         return in;
     }
@@ -82,22 +82,22 @@ public:
     friend bool operator==(const DynamicASTMatcherDiagnosticContainer &first,
                            const DynamicASTMatcherDiagnosticContainer &second)
     {
-        return first.messages_ == second.messages_
-            && first.contexts_ == second.contexts_;
+        return first.m_messages == second.m_messages
+            && first.m_contexts == second.m_contexts;
     }
 
     DynamicASTMatcherDiagnosticContainer clone() const
     {
-        return DynamicASTMatcherDiagnosticContainer(Utils::clone(messages_),
-                                                    Utils::clone(contexts_));
+        return DynamicASTMatcherDiagnosticContainer(Utils::clone(m_messages),
+                                                    Utils::clone(m_contexts));
     }
 
 private:
-    std::vector<DynamicASTMatcherDiagnosticMessageContainer> messages_;
-    std::vector<DynamicASTMatcherDiagnosticContextContainer> contexts_;
+    std::vector<DynamicASTMatcherDiagnosticMessageContainer> m_messages;
+    std::vector<DynamicASTMatcherDiagnosticContextContainer> m_contexts;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticContainer &container);
-void PrintTo(const DynamicASTMatcherDiagnosticContainer &container, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticContainer &container);
 
 } // namespace ClangBackEnd

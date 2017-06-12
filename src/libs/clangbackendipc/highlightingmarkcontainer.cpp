@@ -70,31 +70,34 @@ QDebug operator<<(QDebug debug, const HighlightingMarkContainer &container)
     return debug;
 }
 
-void PrintTo(HighlightingType highlightingType, std::ostream *os)
+std::ostream &operator<<(std::ostream &os, HighlightingType highlightingType)
 {
-    *os << highlightingTypeToCStringLiteral(highlightingType);
+    return os << highlightingTypeToCStringLiteral(highlightingType);
 }
 
-void PrintTo(const HighlightingTypes &types, std::ostream *os)
+std::ostream &operator<<(std::ostream &os, HighlightingTypes types)
 {
-    PrintTo(types.mainHighlightingType, os);
+    os << "("
+       << types.mainHighlightingType;
 
-    *os << "[";
+    if (!types.mixinHighlightingTypes.empty())
+       os << ", "<< types.mixinHighlightingTypes;
 
-    for (HighlightingType type : types.mixinHighlightingTypes)
-        PrintTo(type, os);
+    os << ")";
 
-     *os << "]";
+    return os;
 }
 
-void PrintTo(const HighlightingMarkContainer& container, ::std::ostream *os)
+std::ostream &operator<<(std::ostream &os, const HighlightingMarkContainer &container)
 {
-    *os << "HighlightingMarkContainer("
-        << container.line() << ", "
-        << container.column() << ", "
-        << container.length() << ", ";
-    PrintTo(container.types(), os);
-    *os << ")";
+    os << "("
+       << container.line() << ", "
+       << container.column() << ", "
+       << container.length() << ", "
+       << container.types()
+       << ")";
+
+    return os;
 }
 
 } // namespace ClangBackEnd

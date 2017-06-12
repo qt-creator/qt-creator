@@ -42,14 +42,14 @@ QDebug operator<<(QDebug debug, const SourceRangeContainer &container)
     return debug;
 }
 
-void PrintTo(const SourceRangeContainer &container, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const SourceRangeContainer &container)
 {
-    *os << "(("
-        << container.start().line() << ", "
-        << container.start().column() << "), ("
-        << container.end().line() << ", "
-        << container.end().column()
-        << "))";
+    os << "("
+       << container.start() << ", "
+       << container.end()
+       << ")";
+
+    return os;
 }
 
 } // namespace V2

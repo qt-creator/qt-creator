@@ -43,11 +43,11 @@ public:
                   const Utf8String &unsavedFileContent = Utf8String(),
                   bool hasUnsavedFileContent = false,
                   quint32 documentRevision = 0)
-        : filePath_(filePath),
-          projectPartId_(projectPartId),
-          unsavedFileContent_(unsavedFileContent),
-          documentRevision_(documentRevision),
-          hasUnsavedFileContent_(hasUnsavedFileContent)
+        : m_filePath(filePath),
+          m_projectPartId(projectPartId),
+          m_unsavedFileContent(unsavedFileContent),
+          m_documentRevision(documentRevision),
+          m_hasUnsavedFileContent(hasUnsavedFileContent)
     {
     }
 
@@ -57,12 +57,12 @@ public:
                   const Utf8String &unsavedFileContent = Utf8String(),
                   bool hasUnsavedFileContent = false,
                   quint32 documentRevision = 0)
-        : filePath_(filePath),
-          projectPartId_(projectPartId),
-          fileArguments_(fileArguments),
-          unsavedFileContent_(unsavedFileContent),
-          documentRevision_(documentRevision),
-          hasUnsavedFileContent_(hasUnsavedFileContent)
+        : m_filePath(filePath),
+          m_projectPartId(projectPartId),
+          m_fileArguments(fileArguments),
+          m_unsavedFileContent(unsavedFileContent),
+          m_documentRevision(documentRevision),
+          m_hasUnsavedFileContent(hasUnsavedFileContent)
     {
     }
 
@@ -70,83 +70,83 @@ public:
                   const Utf8String &projectPartId,
                   const Utf8StringVector &fileArguments,
                   quint32 documentRevision)
-        : filePath_(filePath),
-          projectPartId_(projectPartId),
-          fileArguments_(fileArguments),
-          documentRevision_(documentRevision),
-          hasUnsavedFileContent_(false)
+        : m_filePath(filePath),
+          m_projectPartId(projectPartId),
+          m_fileArguments(fileArguments),
+          m_documentRevision(documentRevision),
+          m_hasUnsavedFileContent(false)
     {
     }
 
     const Utf8String &filePath() const
     {
-        return filePath_;
+        return m_filePath;
     }
 
     const Utf8String &projectPartId() const
     {
-        return projectPartId_;
+        return m_projectPartId;
     }
 
     const Utf8StringVector &fileArguments() const
     {
-        return fileArguments_;
+        return m_fileArguments;
     }
 
     const Utf8String &unsavedFileContent() const
     {
-        return unsavedFileContent_;
+        return m_unsavedFileContent;
     }
 
     bool hasUnsavedFileContent() const
     {
-        return hasUnsavedFileContent_;
+        return m_hasUnsavedFileContent;
     }
 
     quint32 documentRevision() const
     {
-        return documentRevision_;
+        return m_documentRevision;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const FileContainer &container)
     {
-        out << container.filePath_;
-        out << container.projectPartId_;
-        out << container.fileArguments_;
-        out << container.unsavedFileContent_;
-        out << container.documentRevision_;
-        out << container.hasUnsavedFileContent_;
+        out << container.m_filePath;
+        out << container.m_projectPartId;
+        out << container.m_fileArguments;
+        out << container.m_unsavedFileContent;
+        out << container.m_documentRevision;
+        out << container.m_hasUnsavedFileContent;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, FileContainer &container)
     {
-        in >> container.filePath_;
-        in >> container.projectPartId_;
-        in >> container.fileArguments_;
-        in >> container.unsavedFileContent_;
-        in >> container.documentRevision_;
-        in >> container.hasUnsavedFileContent_;
+        in >> container.m_filePath;
+        in >> container.m_projectPartId;
+        in >> container.m_fileArguments;
+        in >> container.m_unsavedFileContent;
+        in >> container.m_documentRevision;
+        in >> container.m_hasUnsavedFileContent;
 
         return in;
     }
 
     friend bool operator==(const FileContainer &first, const FileContainer &second)
     {
-        return first.filePath_ == second.filePath_ && first.projectPartId_ == second.projectPartId_;
+        return first.m_filePath == second.m_filePath && first.m_projectPartId == second.m_projectPartId;
     }
 
 private:
-    Utf8String filePath_;
-    Utf8String projectPartId_;
-    Utf8StringVector fileArguments_;
-    Utf8String unsavedFileContent_;
-    quint32 documentRevision_ = 0;
-    bool hasUnsavedFileContent_ = false;
+    Utf8String m_filePath;
+    Utf8String m_projectPartId;
+    Utf8StringVector m_fileArguments;
+    Utf8String m_unsavedFileContent;
+    quint32 m_documentRevision = 0;
+    bool m_hasUnsavedFileContent = false;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FileContainer &container);
-void PrintTo(const FileContainer &container, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const FileContainer &container);
 
 } // namespace ClangBackEnd

@@ -111,8 +111,3 @@ QDebug operator<<(QDebug debug, const Utf8StringVector &textVector)
 
     return debug;
 }
-
-void PrintTo(const Utf8StringVector &textVector, ::std::ostream* os)
-{
-    *os << "Utf8StringVector(" << textVector.join(Utf8StringLiteral(", ")).constData() << ")";
-}

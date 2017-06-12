@@ -36,9 +36,9 @@ QDebug operator<<(QDebug debug, const EchoMessage &)
     return debug.nospace() << "EchoMessage()";
 }
 
-void PrintTo(const EchoMessage &, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const EchoMessage &/*message*/)
 {
-    *os << "EchoMessage()";
+     return os << "()";
 }
 
 } // namespace ClangBackEnd

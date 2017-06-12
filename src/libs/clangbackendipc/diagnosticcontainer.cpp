@@ -25,6 +25,8 @@
 
 #include "diagnosticcontainer.h"
 
+#include <utf8stringvector.h>
+
 #include <QDebug>
 
 #include <ostream>
@@ -60,26 +62,19 @@ QDebug operator<<(QDebug debug, const DiagnosticContainer &container)
     return debug;
 }
 
-void PrintTo(const DiagnosticContainer &container, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const DiagnosticContainer &container)
 {
-    *os << severityToText(container.severity()) << ": "
-        << container.text().constData() << ", "
-        << container.category().constData() << ", "
-        << container.enableOption().constData() << ", ";
-    PrintTo(container.location(), os);
-    *os   << "[";
-    for (const auto &range : container.ranges())
-        PrintTo(range, os);
-    *os   << "], ";
-    *os   << "[";
-    for (const auto &fixIt : container.fixIts())
-        PrintTo(fixIt, os);
-    *os   << "], ";
-    *os   << "[";
-    for (const auto &child : container.children())
-        PrintTo(child, os);
-    *os   << "], ";
-    *os   << ")";
+    os << "("
+       << severityToText(container.severity()) << ": "
+       << container.text() << ", "
+       << container.category() << ", "
+       << container.enableOption() << ", "
+       << container.location() << ", "
+       << container.ranges() << ", "
+       << container.fixIts() << ", "
+       << container.children() << ")";
+
+    return os;
 }
 
 } // namespace ClangBackEnd

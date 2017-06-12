@@ -42,80 +42,80 @@ public:
                         quint32 line,
                         quint32 column,
                         const Utf8String &projectPartId)
-        : filePath_(filePath),
-          projectPartId_(projectPartId),
-          ticketNumber_(++ticketCounter),
-          line_(line),
-          column_(column)
+        : m_filePath(filePath),
+          m_projectPartId(projectPartId),
+          m_ticketNumber(++ticketCounter),
+          m_line(line),
+          m_column(column)
     {
     }
 
     const Utf8String &filePath() const
     {
-        return filePath_;
+        return m_filePath;
     }
 
     const Utf8String &projectPartId() const
     {
-        return projectPartId_;
+        return m_projectPartId;
     }
 
     quint32 line() const
     {
-        return line_;
+        return m_line;
     }
 
     quint32 column() const
     {
-        return column_;
+        return m_column;
     }
 
     quint64 ticketNumber() const
     {
-        return ticketNumber_;
+        return m_ticketNumber;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const CompleteCodeMessage &message)
     {
-        out << message.filePath_;
-        out << message.projectPartId_;
-        out << message.ticketNumber_;
-        out << message.line_;
-        out << message.column_;
+        out << message.m_filePath;
+        out << message.m_projectPartId;
+        out << message.m_ticketNumber;
+        out << message.m_line;
+        out << message.m_column;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, CompleteCodeMessage &message)
     {
-        in >> message.filePath_;
-        in >> message.projectPartId_;
-        in >> message.ticketNumber_;
-        in >> message.line_;
-        in >> message.column_;
+        in >> message.m_filePath;
+        in >> message.m_projectPartId;
+        in >> message.m_ticketNumber;
+        in >> message.m_line;
+        in >> message.m_column;
 
         return in;
     }
 
     friend bool operator==(const CompleteCodeMessage &first, const CompleteCodeMessage &second)
     {
-        return first.ticketNumber_ == second.ticketNumber_
-                && first.filePath_ == second.filePath_
-                && first.projectPartId_ == second.projectPartId_
-                && first.line_ == second.line_
-                && first.column_ == second.column_;
+        return first.m_ticketNumber == second.m_ticketNumber
+                && first.m_filePath == second.m_filePath
+                && first.m_projectPartId == second.m_projectPartId
+                && first.m_line == second.m_line
+                && first.m_column == second.m_column;
     }
 
     friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CompleteCodeMessage &message);
-    friend void PrintTo(const CompleteCodeMessage &message, ::std::ostream* os);
+    friend std::ostream &operator<<(std::ostream &os, const CompleteCodeMessage &message);
 
 private:
-    Utf8String filePath_;
-    Utf8String projectPartId_;
+    Utf8String m_filePath;
+    Utf8String m_projectPartId;
     static CMBIPC_EXPORT quint64 ticketCounter;
-    quint64 ticketNumber_ = 0;
-    quint32 line_ = 0;
-    quint32 column_ = 0;
+    quint64 m_ticketNumber = 0;
+    quint32 m_line = 0;
+    quint32 m_column = 0;
 };
 
 DECLARE_MESSAGE(CompleteCodeMessage);

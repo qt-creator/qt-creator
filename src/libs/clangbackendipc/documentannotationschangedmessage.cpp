@@ -45,15 +45,17 @@ QDebug operator<<(QDebug debug, const DocumentAnnotationsChangedMessage &message
     return debug;
 }
 
-void PrintTo(const DocumentAnnotationsChangedMessage &message, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const DocumentAnnotationsChangedMessage &message)
 {
-    *os << "DocumentAnnotationsChangedMessage(";
-    PrintTo(message.fileContainer(), os);
-    *os << "," << message.diagnostics().size();
-    *os << "," << !message.firstHeaderErrorDiagnostic().text().isEmpty();
-    *os << "," << message.highlightingMarks().size();
-    *os << "," << message.skippedPreprocessorRanges().size();
-    *os << ")";
+    os << "DocumentAnnotationsChangedMessage("
+       << message.fileContainer()
+       << "," << message.diagnostics().size()
+       << "," << !message.firstHeaderErrorDiagnostic().text().isEmpty()
+       << "," << message.highlightingMarks().size()
+       << "," << message.skippedPreprocessorRanges().size()
+       << ")";
+
+    return os;
 }
 
 } // namespace ClangBackEnd

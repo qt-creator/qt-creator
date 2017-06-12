@@ -35,9 +35,9 @@
 namespace ClangBackEnd {
 
 ReadMessageBlock::ReadMessageBlock(QIODevice *ioDevice)
-    : ioDevice(ioDevice),
-      messageCounter(0),
-      blockSize(0)
+    : m_ioDevice(ioDevice),
+      m_messageCounter(0),
+      m_blockSize(0)
 {
 }
 
@@ -49,19 +49,19 @@ bool ReadMessageBlock::checkIfMessageIsLost(QDataStream &in)
 
     bool messageIsLost = false;
 #ifndef DONT_CHECK_MESSAGE_COUNTER
-    messageIsLost = !((currentMessageCounter == 0 && messageCounter == 0) || (messageCounter + 1 == currentMessageCounter));
+    messageIsLost = !((currentMessageCounter == 0 && m_messageCounter == 0) || (m_messageCounter + 1 == currentMessageCounter));
     if (messageIsLost)
-        qWarning() << "message lost: " << messageCounter <<  currentMessageCounter;
+        qWarning() << "message lost: " << m_messageCounter <<  currentMessageCounter;
 #endif
 
-    messageCounter = currentMessageCounter;
+    m_messageCounter = currentMessageCounter;
 
     return messageIsLost;
 }
 
 MessageEnvelop ReadMessageBlock::read()
 {
-    QDataStream in(ioDevice);
+    QDataStream in(m_ioDevice);
 
     MessageEnvelop message;
 
@@ -94,21 +94,21 @@ QVector<MessageEnvelop> ReadMessageBlock::readAll()
 
 void ReadMessageBlock::resetCounter()
 {
-    messageCounter = 0;
+    m_messageCounter = 0;
 }
 
 bool ReadMessageBlock::isTheWholeMessageReadable(QDataStream &in)
 {
-    if (ioDevice->bytesAvailable() < qint64(sizeof(blockSize)))
+    if (m_ioDevice->bytesAvailable() < qint64(sizeof(m_blockSize)))
         return false;
 
-    if (blockSize == 0)
-        in >> blockSize;
+    if (m_blockSize == 0)
+        in >> m_blockSize;
 
-    if (ioDevice->bytesAvailable() < blockSize)
+    if (m_ioDevice->bytesAvailable() < m_blockSize)
         return false;
 
-    blockSize = 0;
+    m_blockSize = 0;
 
     return true;
 }

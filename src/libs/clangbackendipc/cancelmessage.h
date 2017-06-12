@@ -49,7 +49,7 @@ public:
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CancelMessage &message);
-void PrintTo(const CancelMessage &message, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const CancelMessage &message);
 
 DECLARE_MESSAGE(CancelMessage)
 } // namespace ClangBackEnd

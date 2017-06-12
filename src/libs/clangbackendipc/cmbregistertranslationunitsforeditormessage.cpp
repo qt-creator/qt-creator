@@ -48,20 +48,14 @@ QDebug operator<<(QDebug debug, const RegisterTranslationUnitForEditorMessage &m
     return debug;
 }
 
-void PrintTo(const RegisterTranslationUnitForEditorMessage &message, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const RegisterTranslationUnitForEditorMessage &message)
 {
-    *os << "RegisterTranslationUnitForEditorMessage(";
+    os << "RegisterTranslationUnitForEditorMessage("
+       << message.fileContainers() << ", "
+       << message.currentEditorFilePath() << ", "
+       << message.visibleEditorFilePaths() << ")";
 
-    for (const FileContainer &fileContainer : message.fileContainers())
-        PrintTo(fileContainer, os);
-
-    *os << message.currentEditorFilePath().constData()  << ", ";
-
-    auto visiblePaths = message.visibleEditorFilePaths();
-
-    std::copy(visiblePaths.cbegin(), visiblePaths.cend(), std::ostream_iterator<Utf8String>(*os, ", "));
-
-    *os << ")";
+    return os;
 }
 
 } // namespace ClangBackEnd

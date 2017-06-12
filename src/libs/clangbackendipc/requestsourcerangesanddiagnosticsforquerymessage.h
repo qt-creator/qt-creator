@@ -36,56 +36,56 @@ public:
     RequestSourceRangesAndDiagnosticsForQueryMessage(Utils::SmallString &&query,
                                                      std::vector<V2::FileContainer> &&sources,
                                                      std::vector<V2::FileContainer> &&unsavedContent)
-        : query_(std::move(query)),
-          sources_(std::move(sources)),
-          unsavedContent_(std::move(unsavedContent))
+        : m_query(std::move(query)),
+          m_sources(std::move(sources)),
+          m_unsavedContent(std::move(unsavedContent))
 
     {}
 
     const std::vector<V2::FileContainer> &sources() const
     {
-        return sources_;
+        return m_sources;
     }
 
     std::vector<V2::FileContainer> takeSources()
     {
-        return std::move(sources_);
+        return std::move(m_sources);
     }
 
     const std::vector<V2::FileContainer> &unsavedContent() const
     {
-        return unsavedContent_;
+        return m_unsavedContent;
     }
 
     std::vector<V2::FileContainer> takeUnsavedContent()
     {
-        return std::move(unsavedContent_);
+        return std::move(m_unsavedContent);
     }
 
     const Utils::SmallString &query() const
     {
-        return query_;
+        return m_query;
     }
 
     Utils::SmallString takeQuery()
     {
-        return std::move(query_);
+        return std::move(m_query);
     }
 
     friend QDataStream &operator<<(QDataStream &out, const RequestSourceRangesAndDiagnosticsForQueryMessage &message)
     {
-        out << message.query_;
-        out << message.sources_;
-        out << message.unsavedContent_;
+        out << message.m_query;
+        out << message.m_sources;
+        out << message.m_unsavedContent;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, RequestSourceRangesAndDiagnosticsForQueryMessage &message)
     {
-        in >> message.query_;
-        in >> message.sources_;
-        in >> message.unsavedContent_;
+        in >> message.m_query;
+        in >> message.m_sources;
+        in >> message.m_unsavedContent;
 
         return in;
     }
@@ -93,26 +93,26 @@ public:
     friend bool operator==(const RequestSourceRangesAndDiagnosticsForQueryMessage &first,
                            const RequestSourceRangesAndDiagnosticsForQueryMessage &second)
     {
-        return first.query_ == second.query_
-            && first.sources_ == second.sources_
-            && first.unsavedContent_ == second.unsavedContent_;
+        return first.m_query == second.m_query
+            && first.m_sources == second.m_sources
+            && first.m_unsavedContent == second.m_unsavedContent;
     }
 
     RequestSourceRangesAndDiagnosticsForQueryMessage clone() const
     {
-        return RequestSourceRangesAndDiagnosticsForQueryMessage(query_.clone(),
-                                                                Utils::clone(sources_),
-                                                                Utils::clone(unsavedContent_));
+        return RequestSourceRangesAndDiagnosticsForQueryMessage(m_query.clone(),
+                                                                Utils::clone(m_sources),
+                                                                Utils::clone(m_unsavedContent));
     }
 
 private:
-    Utils::SmallString query_;
-    std::vector<V2::FileContainer> sources_;
-    std::vector<V2::FileContainer> unsavedContent_;
+    Utils::SmallString m_query;
+    std::vector<V2::FileContainer> m_sources;
+    std::vector<V2::FileContainer> m_unsavedContent;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestSourceRangesAndDiagnosticsForQueryMessage &message);
-void PrintTo(const RequestSourceRangesAndDiagnosticsForQueryMessage &message, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const RequestSourceRangesAndDiagnosticsForQueryMessage &message);
 
 DECLARE_MESSAGE(RequestSourceRangesAndDiagnosticsForQueryMessage)
 

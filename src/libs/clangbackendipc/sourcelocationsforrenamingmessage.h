@@ -38,66 +38,66 @@ public:
     SourceLocationsForRenamingMessage(Utils::SmallString &&symbolName,
                                       SourceLocationsContainer &&sourceLocationContainer,
                                       int textDocumentRevision)
-        : symbolName_(std::move(symbolName)),
-          sourceLocationContainer(std::move(sourceLocationContainer)),
-          revision(textDocumentRevision)
+        : m_symbolName(std::move(symbolName)),
+          m_sourceLocationContainer(std::move(sourceLocationContainer)),
+          m_revision(textDocumentRevision)
     {}
 
     const Utils::SmallString &symbolName() const
     {
-        return symbolName_;
+        return m_symbolName;
     }
 
     int textDocumentRevision() const
     {
-        return revision;
+        return m_revision;
     }
 
     const SourceLocationsContainer &sourceLocations() const
     {
-        return sourceLocationContainer;
+        return m_sourceLocationContainer;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const SourceLocationsForRenamingMessage &message)
     {
-        out << message.symbolName_;
-        out << message.sourceLocationContainer;
-        out << message.revision;
+        out << message.m_symbolName;
+        out << message.m_sourceLocationContainer;
+        out << message.m_revision;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, SourceLocationsForRenamingMessage &message)
     {
-        in >> message.symbolName_;
-        in >> message.sourceLocationContainer;
-        in >> message.revision;
+        in >> message.m_symbolName;
+        in >> message.m_sourceLocationContainer;
+        in >> message.m_revision;
 
         return in;
     }
 
     friend bool operator==(const SourceLocationsForRenamingMessage &first, const SourceLocationsForRenamingMessage &second)
     {
-        return first.revision == second.revision
-            && first.symbolName_ == second.symbolName_
-            && first.sourceLocationContainer == second.sourceLocationContainer;
+        return first.m_revision == second.m_revision
+            && first.m_symbolName == second.m_symbolName
+            && first.m_sourceLocationContainer == second.m_sourceLocationContainer;
     }
 
     SourceLocationsForRenamingMessage clone() const
     {
-        return SourceLocationsForRenamingMessage(symbolName_.clone(),
-                                                 sourceLocationContainer.clone(),
-                                                 revision);
+        return SourceLocationsForRenamingMessage(m_symbolName.clone(),
+                                                 m_sourceLocationContainer.clone(),
+                                                 m_revision);
     }
 
 private:
-    Utils::SmallString symbolName_;
-    SourceLocationsContainer sourceLocationContainer;
-    int revision = 0;
+    Utils::SmallString m_symbolName;
+    SourceLocationsContainer m_sourceLocationContainer;
+    int m_revision = 0;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceLocationsForRenamingMessage &message);
-void PrintTo(const SourceLocationsForRenamingMessage &message, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const SourceLocationsForRenamingMessage &message);
 
 DECLARE_MESSAGE(SourceLocationsForRenamingMessage)
 } // namespace ClangBackEnd

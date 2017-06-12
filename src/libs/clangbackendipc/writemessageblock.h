@@ -49,8 +49,8 @@ public:
     void resetCounter();
 
 private:
-    qint64 messageCounter;
-    QIODevice *ioDevice;
+    qint64 m_messageCounter;
+    QIODevice *m_ioDevice;
 };
 
 } // namespace ClangBackEnd

@@ -39,29 +39,29 @@ public:
     SourceRangesContainer(std::unordered_map<uint, FilePath> &&filePathHash,
                           std::vector<SourceRangeWithTextContainer> &&sourceRangeWithTextContainers)
         : SourceFilePathContainerBase(std::move(filePathHash)),
-          sourceRangeWithTextContainers_(std::move(sourceRangeWithTextContainers))
+          m_sourceRangeWithTextContainers(std::move(sourceRangeWithTextContainers))
     {}
 
     const FilePath &filePathForSourceRange(const SourceRangeWithTextContainer &sourceRange) const
     {
-        auto found = filePathHash.find(sourceRange.fileHash());
+        auto found = m_filePathHash.find(sourceRange.fileHash());
 
         return found->second;
     }
 
     const std::vector<SourceRangeWithTextContainer> &sourceRangeWithTextContainers() const
     {
-        return sourceRangeWithTextContainers_;
+        return m_sourceRangeWithTextContainers;
     }
 
     std::vector<SourceRangeWithTextContainer> takeSourceRangeWithTextContainers()
     {
-        return std::move(sourceRangeWithTextContainers_);
+        return std::move(m_sourceRangeWithTextContainers);
     }
 
     bool hasContent() const
     {
-        return !sourceRangeWithTextContainers_.empty();
+        return !m_sourceRangeWithTextContainers.empty();
     }
 
     void insertSourceRange(uint fileId,
@@ -73,53 +73,53 @@ public:
                            uint endOffset,
                            Utils::SmallString &&text)
     {
-        sourceRangeWithTextContainers_.emplace_back(fileId,
-                                                    startLine,
-                                                    startColumn,
-                                                    startOffset,
-                                                    endLine,
-                                                    endColumn,
-                                                    endOffset,
-                                                    std::move(text));
+        m_sourceRangeWithTextContainers.emplace_back(fileId,
+                                                     startLine,
+                                                     startColumn,
+                                                     startOffset,
+                                                     endLine,
+                                                     endColumn,
+                                                     endOffset,
+                                                     std::move(text));
     }
 
     void reserve(std::size_t size)
     {
         SourceFilePathContainerBase::reserve(size);
-        sourceRangeWithTextContainers_.reserve(size);
+        m_sourceRangeWithTextContainers.reserve(size);
     }
 
     friend QDataStream &operator<<(QDataStream &out, const SourceRangesContainer &container)
     {
-        out << container.filePathHash;
-        out << container.sourceRangeWithTextContainers_;
+        out << container.m_filePathHash;
+        out << container.m_sourceRangeWithTextContainers;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, SourceRangesContainer &container)
     {
-        in >> container.filePathHash;
-        in >> container.sourceRangeWithTextContainers_;
+        in >> container.m_filePathHash;
+        in >> container.m_sourceRangeWithTextContainers;
 
         return in;
     }
 
     friend bool operator==(const SourceRangesContainer &first, const SourceRangesContainer &second)
     {
-        return first.sourceRangeWithTextContainers_ == second.sourceRangeWithTextContainers_;
+        return first.m_sourceRangeWithTextContainers == second.m_sourceRangeWithTextContainers;
     }
 
     SourceRangesContainer clone() const
     {
-        return SourceRangesContainer(Utils::clone(filePathHash), Utils::clone(sourceRangeWithTextContainers_));
+        return SourceRangesContainer(Utils::clone(m_filePathHash), Utils::clone(m_sourceRangeWithTextContainers));
     }
 
-    std::vector<SourceRangeWithTextContainer> sourceRangeWithTextContainers_;
+    std::vector<SourceRangeWithTextContainer> m_sourceRangeWithTextContainers;
 };
 
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceRangesContainer &container);
-void PrintTo(const SourceRangesContainer &container, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const SourceRangesContainer &container);
 
 } // namespace ClangBackEnd

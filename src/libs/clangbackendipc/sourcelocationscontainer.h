@@ -39,69 +39,69 @@ public:
     SourceLocationsContainer(std::unordered_map<uint, FilePath> &&filePathHash,
                              std::vector<V2::SourceLocationContainer> &&sourceLocationContainers)
         : SourceFilePathContainerBase(std::move(filePathHash)),
-          sourceLocationContainers_(std::move(sourceLocationContainers))
+          m_sourceLocationContainers(std::move(sourceLocationContainers))
     {}
 
     const FilePath &filePathForSourceLocation(const V2::SourceLocationContainer &sourceLocation) const
     {
-        auto found = filePathHash.find(sourceLocation.fileHash());
+        auto found = m_filePathHash.find(sourceLocation.fileHash());
 
         return found->second;
     }
 
     const std::vector<V2::SourceLocationContainer> &sourceLocationContainers() const
     {
-        return sourceLocationContainers_;
+        return m_sourceLocationContainers;
     }
 
     bool hasContent() const
     {
-        return !sourceLocationContainers_.empty();
+        return !m_sourceLocationContainers.empty();
     }
 
     void insertSourceLocation(uint fileId, uint line, uint column, uint offset)
     {
-        sourceLocationContainers_.emplace_back(fileId, line, column, offset);
+        m_sourceLocationContainers.emplace_back(fileId, line, column, offset);
     }
 
     void reserve(std::size_t size)
     {
         SourceFilePathContainerBase::reserve(size);
-        sourceLocationContainers_.reserve(size);
+        m_sourceLocationContainers.reserve(size);
     }
 
     friend QDataStream &operator<<(QDataStream &out, const SourceLocationsContainer &container)
     {
-        out << container.filePathHash;
-        out << container.sourceLocationContainers_;
+        out << container.m_filePathHash;
+        out << container.m_sourceLocationContainers;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, SourceLocationsContainer &container)
     {
-        in >> container.filePathHash;
-        in >> container.sourceLocationContainers_;
+        in >> container.m_filePathHash;
+        in >> container.m_sourceLocationContainers;
 
         return in;
     }
 
     friend bool operator==(const SourceLocationsContainer &first, const SourceLocationsContainer &second)
     {
-        return first.sourceLocationContainers_ == second.sourceLocationContainers_;
+        return first.m_sourceLocationContainers == second.m_sourceLocationContainers;
     }
 
     SourceLocationsContainer clone() const
     {
-        return SourceLocationsContainer(Utils::clone(filePathHash), Utils::clone(sourceLocationContainers_));
+        return SourceLocationsContainer(Utils::clone(m_filePathHash), Utils::clone(m_sourceLocationContainers));
     }
 
-    std::vector<V2::SourceLocationContainer> sourceLocationContainers_;
+    std::vector<V2::SourceLocationContainer> m_sourceLocationContainers;
 };
 
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceLocationsContainer &container);
-void PrintTo(const SourceLocationsContainer &container, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const SourceLocationsContainer &container);
 
 } // namespace ClangBackEnd
 

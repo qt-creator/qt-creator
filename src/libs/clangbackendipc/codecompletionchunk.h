@@ -69,32 +69,32 @@ public:
     CodeCompletionChunk(Kind kind,
                         const Utf8String &text,
                         bool isOptional = false)
-        : text_(text),
-          kind_(kind),
-          isOptional_(isOptional)
+        : m_text(text),
+          m_kind(kind),
+          m_isOptional(isOptional)
     {
     }
 
     Kind kind() const
     {
-        return kind_;
+        return m_kind;
     }
 
     const Utf8String &text() const
     {
-        return text_;
+        return m_text;
     }
 
     bool isOptional() const
     {
-        return isOptional_;
+        return m_isOptional;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const CodeCompletionChunk &chunk)
     {
-        out << static_cast<quint8>(chunk.kind_);
-        out << chunk.text_;
-        out << chunk.isOptional_;
+        out << static_cast<quint8>(chunk.m_kind);
+        out << chunk.m_text;
+        out << chunk.m_isOptional;
 
         return out;
     }
@@ -104,10 +104,10 @@ public:
         quint8 kind;
 
         in >> kind;
-        in >> chunk.text_;
-        in >> chunk.isOptional_;
+        in >> chunk.m_text;
+        in >> chunk.m_isOptional;
 
-        chunk.kind_ = static_cast<CodeCompletionChunk::Kind>(kind);
+        chunk.m_kind = static_cast<CodeCompletionChunk::Kind>(kind);
 
         return in;
     }
@@ -120,14 +120,14 @@ public:
     }
 
 private:
-    Utf8String text_;
-    Kind kind_ = Invalid;
-    bool isOptional_ = false;
+    Utf8String m_text;
+    Kind m_kind = Invalid;
+    bool m_isOptional = false;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletionChunk &chunk);
 
-void PrintTo(const CodeCompletionChunk &chunk, ::std::ostream* os);
-void PrintTo(const CodeCompletionChunk::Kind &kind, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const CodeCompletionChunk &chunk);
+std::ostream &operator<<(std::ostream &os, const CodeCompletionChunk::Kind &kind);
 
 } // namespace ClangBackEnd

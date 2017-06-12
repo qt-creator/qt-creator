@@ -42,98 +42,98 @@ public:
                                              Utils::SmallString &&unsavedContent,
                                              Utils::SmallStringVector &&commandLine,
                                              int textDocumentRevision)
-        : filePath_(std::move(filePath)),
-          unsavedContent_(std::move(unsavedContent)),
-          commandLine_(std::move(commandLine)),
-          line_(line),
-          column_(column),
-          revision(textDocumentRevision)
+        : m_filePath(std::move(filePath)),
+          m_unsavedContent(std::move(unsavedContent)),
+          m_commandLine(std::move(commandLine)),
+          m_line(line),
+          m_column(column),
+          m_revision(textDocumentRevision)
     {}
 
     const FilePath &filePath() const
     {
-        return filePath_;
+        return m_filePath;
     }
 
     uint line() const
     {
-        return line_;
+        return m_line;
     }
 
     uint column() const
     {
-        return column_;
+        return m_column;
     }
 
     const Utils::SmallString &unsavedContent() const
     {
-        return unsavedContent_;
+        return m_unsavedContent;
     }
 
     const Utils::SmallStringVector &commandLine() const
     {
-        return commandLine_;
+        return m_commandLine;
     }
 
     int textDocumentRevision() const
     {
-        return revision;
+        return m_revision;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const RequestSourceLocationsForRenamingMessage &message)
     {
-        out << message.filePath_;
-        out << message.unsavedContent_;
-        out << message.commandLine_;
-        out << message.line_;
-        out << message.column_;
-        out << message.revision;
+        out << message.m_filePath;
+        out << message.m_unsavedContent;
+        out << message.m_commandLine;
+        out << message.m_line;
+        out << message.m_column;
+        out << message.m_revision;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, RequestSourceLocationsForRenamingMessage &message)
     {
-        in >> message.filePath_;
-        in >> message.unsavedContent_;
-        in >> message.commandLine_;
-        in >> message.line_;
-        in >> message.column_;
-        in >> message.revision;
+        in >> message.m_filePath;
+        in >> message.m_unsavedContent;
+        in >> message.m_commandLine;
+        in >> message.m_line;
+        in >> message.m_column;
+        in >> message.m_revision;
 
         return in;
     }
 
     friend bool operator==(const RequestSourceLocationsForRenamingMessage &first, const RequestSourceLocationsForRenamingMessage &second)
     {
-        return first.filePath_ == second.filePath_
-                && first.line_ == second.line_
-                && first.column_ == second.column_
-                && first.revision == second.revision
-                && first.unsavedContent_ == second.unsavedContent_
-                && first.commandLine_ == second.commandLine_;
+        return first.m_filePath == second.m_filePath
+                && first.m_line == second.m_line
+                && first.m_column == second.m_column
+                && first.m_revision == second.m_revision
+                && first.m_unsavedContent == second.m_unsavedContent
+                && first.m_commandLine == second.m_commandLine;
     }
 
     RequestSourceLocationsForRenamingMessage clone() const
     {
-        return RequestSourceLocationsForRenamingMessage(filePath_.clone(),
-                                                        line_, column_,
-                                                        unsavedContent_.clone(),
-                                                        commandLine_.clone(),
-                                                        revision);
+        return RequestSourceLocationsForRenamingMessage(m_filePath.clone(),
+                                                        m_line, m_column,
+                                                        m_unsavedContent.clone(),
+                                                        m_commandLine.clone(),
+                                                        m_revision);
     }
 
 private:
-    FilePath filePath_;
-    Utils::SmallString unsavedContent_;
-    Utils::SmallStringVector commandLine_;
-    uint line_ = 1;
-    uint column_ = 1;
-    int revision = 1;
+    FilePath m_filePath;
+    Utils::SmallString m_unsavedContent;
+    Utils::SmallStringVector m_commandLine;
+    uint m_line = 1;
+    uint m_column = 1;
+    int m_revision = 1;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestSourceLocationsForRenamingMessage &message);
-void PrintTo(const RequestSourceLocationsForRenamingMessage &message, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const RequestSourceLocationsForRenamingMessage &message);
 
 DECLARE_MESSAGE(RequestSourceLocationsForRenamingMessage)
 } // namespace ClangBackEnd

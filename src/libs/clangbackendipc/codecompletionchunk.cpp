@@ -75,21 +75,23 @@ QDebug operator<<(QDebug debug, const CodeCompletionChunk &chunk)
     return debug;
 }
 
-void PrintTo(const CodeCompletionChunk &chunk, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const CodeCompletionChunk &chunk)
 {
-    *os << "{";
-    *os << completionChunkKindToString(chunk.kind()) << ", ";
-    *os << chunk.text().constData();
+    os << "("
+       << chunk.kind() << ", "
+       << chunk.text();
 
     if (chunk.isOptional())
-        *os << ", optional";
+        os << ", optional";
 
-    *os << "}";
+    os << ")";
+
+    return os;
 }
 
-void PrintTo(const CodeCompletionChunk::Kind &kind, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const CodeCompletionChunk::Kind &kind)
 {
-    *os << completionChunkKindToString(kind);
+    return os << completionChunkKindToString(kind);
 }
 
 } // namespace ClangBackEnd

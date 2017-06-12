@@ -36,16 +36,14 @@ QDebug operator<<(QDebug debug, const RequestSourceRangesAndDiagnosticsForQueryM
     return debug;
 }
 
-void PrintTo(const RequestSourceRangesAndDiagnosticsForQueryMessage &message, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const RequestSourceRangesAndDiagnosticsForQueryMessage &message)
 {
-    Q_UNUSED(message)
-    Q_UNUSED(os)
-#ifdef UNIT_TESTS
-    *os << "RequestSourceRangesAndDiagnosticsForQuery("
-        << message.query() << ", "
-        << message.sources()
-        << ")";
-#endif
+    os << "("
+       << message.query() << ", "
+       << message.sources()
+       << ")";
+
+    return os;
 }
 
 } // namespace ClangBackEnd

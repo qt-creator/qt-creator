@@ -60,13 +60,15 @@ QDebug operator<<(QDebug debug, const ProjectPartContainer &container)
     return debug;
 }
 
-void PrintTo(const ProjectPartContainer &container, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const ProjectPartContainer &container)
 {
-    *os << "ProjectPartContainer("
-        << container.projectPartId().constData()
+    os << "("
+        << container.projectPartId()
         << ","
-        << container.arguments().constData()
+        << container.arguments()
         << ")";
+
+    return os;
 }
 
 

@@ -50,19 +50,19 @@ public:
                                    endLine,
                                    endColumn,
                                    endOffset),
-          text_(std::move(text))
+          m_text(std::move(text))
     {}
 
     SourceRangeWithTextContainer(V2::SourceRangeContainer &&base,
                          Utils::SmallString &&text)
         : V2::SourceRangeContainer(std::move(base)),
-          text_(std::move(text))
+          m_text(std::move(text))
     {
     }
 
     const Utils::SmallString &text() const
     {
-        return text_;
+        return m_text;
     }
 
     using V2::SourceRangeContainer::start;
@@ -72,7 +72,7 @@ public:
     friend QDataStream &operator<<(QDataStream &out, const SourceRangeWithTextContainer &container)
     {
         out << container.base();
-        out << container.text_;
+        out << container.m_text;
 
         return out;
     }
@@ -80,7 +80,7 @@ public:
     friend QDataStream &operator>>(QDataStream &in, SourceRangeWithTextContainer &container)
     {
         in >> container.base();
-        in >> container.text_;
+        in >> container.m_text;
 
         return in;
     }
@@ -88,7 +88,7 @@ public:
     friend bool operator==(const SourceRangeWithTextContainer &first,
                            const SourceRangeWithTextContainer &second)
     {
-        return first.base() == second.base() && first.text_ == second.text_;
+        return first.base() == second.base() && first.m_text == second.m_text;
     }
 
     V2::SourceRangeContainer &base()
@@ -103,13 +103,13 @@ public:
 
     SourceRangeWithTextContainer clone() const
     {
-        return SourceRangeWithTextContainer(base().clone(), text_.clone());
+        return SourceRangeWithTextContainer(base().clone(), m_text.clone());
     }
 
 private:
-    Utils::SmallString text_;
+    Utils::SmallString m_text;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceRangeWithTextContainer &container);
-void PrintTo(const SourceRangeWithTextContainer &container, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const SourceRangeWithTextContainer &container);
 } // namespace ClangBackEnd

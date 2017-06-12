@@ -46,23 +46,25 @@ QDebug operator<<(QDebug debug, const CodeCompletedMessage &message)
 {
     debug.nospace() << "CodeCompletedMessage(";
 
-    debug.nospace() << message.codeCompletions_ << ", "
+    debug.nospace() << message.m_codeCompletions << ", "
                     << completionCorrectionToText(message.neededCorrection()) << ", "
-                    << message.ticketNumber_;
+                    << message.m_ticketNumber;
 
     debug.nospace() << ")";
 
     return debug;
 }
 
-void PrintTo(const CodeCompletedMessage &message, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const CodeCompletedMessage &message)
 {
-    QString output;
-    QDebug debug(&output);
+    os << "("
+       << message.m_codeCompletions << ", "
+       << completionCorrectionToText(message.neededCorrection()) << ", "
+       << message.m_ticketNumber
 
-    debug << message;
+       << ")";
 
-    *os << output.toUtf8().constData();
+    return os;
 }
 
 } // namespace ClangBackEnd

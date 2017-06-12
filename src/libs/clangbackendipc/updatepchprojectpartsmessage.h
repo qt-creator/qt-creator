@@ -36,42 +36,42 @@ public:
     UpdatePchProjectPartsMessage() = default;
     UpdatePchProjectPartsMessage(V2::ProjectPartContainers &&projectsParts,
                                  V2::FileContainers &&generatedFiles)
-        : projectsParts_(std::move(projectsParts)),
-          generatedFiles_(std::move(generatedFiles))
+        : m_projectsParts(std::move(projectsParts)),
+          m_generatedFiles(std::move(generatedFiles))
     {}
 
     const V2::ProjectPartContainers &projectsParts() const
     {
-        return projectsParts_;
+        return m_projectsParts;
     }
 
     V2::ProjectPartContainers takeProjectsParts()
     {
-        return std::move(projectsParts_);
+        return std::move(m_projectsParts);
     }
 
     const V2::FileContainers &generatedFiles() const
     {
-        return generatedFiles_;
+        return m_generatedFiles;
     }
 
     V2::FileContainers takeGeneratedFiles()
     {
-        return std::move(generatedFiles_);
+        return std::move(m_generatedFiles);
     }
 
     friend QDataStream &operator<<(QDataStream &out, const UpdatePchProjectPartsMessage &message)
     {
-        out << message.projectsParts_;
-        out << message.generatedFiles_;
+        out << message.m_projectsParts;
+        out << message.m_generatedFiles;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, UpdatePchProjectPartsMessage &message)
     {
-        in >> message.projectsParts_;
-        in >> message.generatedFiles_;
+        in >> message.m_projectsParts;
+        in >> message.m_generatedFiles;
 
         return in;
     }
@@ -79,19 +79,19 @@ public:
     friend bool operator==(const UpdatePchProjectPartsMessage &first,
                            const UpdatePchProjectPartsMessage &second)
     {
-        return first.projectsParts_ == second.projectsParts_
-            && first.generatedFiles_ == second.generatedFiles_;
+        return first.m_projectsParts == second.m_projectsParts
+            && first.m_generatedFiles == second.m_generatedFiles;
     }
 
     UpdatePchProjectPartsMessage clone() const
     {
-        return UpdatePchProjectPartsMessage(Utils::clone(projectsParts_),
-                                            Utils::clone(generatedFiles_));
+        return UpdatePchProjectPartsMessage(Utils::clone(m_projectsParts),
+                                            Utils::clone(m_generatedFiles));
     }
 
 private:
-    V2::ProjectPartContainers projectsParts_;
-    V2::FileContainers generatedFiles_;
+    V2::ProjectPartContainers m_projectsParts;
+    V2::FileContainers m_generatedFiles;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UpdatePchProjectPartsMessage &message);

@@ -38,40 +38,40 @@ class CMBIPC_EXPORT UnregisterProjectPartsForEditorMessage
 public:
     UnregisterProjectPartsForEditorMessage() = default;
     UnregisterProjectPartsForEditorMessage(const Utf8StringVector &projectPartIds)
-        : projectPartIds_(projectPartIds)
+        : m_projectPartIds(projectPartIds)
     {
     }
 
     const Utf8StringVector &projectPartIds() const
     {
-        return projectPartIds_;
+        return m_projectPartIds;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const UnregisterProjectPartsForEditorMessage &message)
     {
-        out << message.projectPartIds_;
+        out << message.m_projectPartIds;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, UnregisterProjectPartsForEditorMessage &message)
     {
-        in >> message.projectPartIds_;
+        in >> message.m_projectPartIds;
 
         return in;
     }
 
     friend bool operator==(const UnregisterProjectPartsForEditorMessage &first, const UnregisterProjectPartsForEditorMessage &second)
     {
-        return first.projectPartIds_ == second.projectPartIds_;
+        return first.m_projectPartIds == second.m_projectPartIds;
     }
 
 private:
-    Utf8StringVector projectPartIds_;
+    Utf8StringVector m_projectPartIds;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UnregisterProjectPartsForEditorMessage &message);
-void PrintTo(const UnregisterProjectPartsForEditorMessage &message, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const UnregisterProjectPartsForEditorMessage &message);
 
 DECLARE_MESSAGE(UnregisterProjectPartsForEditorMessage);
 } // namespace ClangBackEnd

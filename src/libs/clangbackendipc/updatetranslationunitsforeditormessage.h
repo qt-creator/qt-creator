@@ -36,40 +36,40 @@ class UpdateTranslationUnitsForEditorMessage
 public:
     UpdateTranslationUnitsForEditorMessage() = default;
     UpdateTranslationUnitsForEditorMessage(const QVector<FileContainer> &fileContainers)
-        : fileContainers_(fileContainers)
+        : m_fileContainers(fileContainers)
     {
     }
 
     const QVector<FileContainer> &fileContainers() const
     {
-        return fileContainers_;
+        return m_fileContainers;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const UpdateTranslationUnitsForEditorMessage &message)
     {
-        out << message.fileContainers_;
+        out << message.m_fileContainers;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, UpdateTranslationUnitsForEditorMessage &message)
     {
-        in >> message.fileContainers_;
+        in >> message.m_fileContainers;
 
         return in;
     }
 
     friend bool operator==(const UpdateTranslationUnitsForEditorMessage &first, const UpdateTranslationUnitsForEditorMessage &second)
     {
-        return first.fileContainers_ == second.fileContainers_;
+        return first.m_fileContainers == second.m_fileContainers;
     }
 
 private:
-    QVector<FileContainer> fileContainers_;
+    QVector<FileContainer> m_fileContainers;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UpdateTranslationUnitsForEditorMessage &message);
-void PrintTo(const UpdateTranslationUnitsForEditorMessage &message, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const UpdateTranslationUnitsForEditorMessage &message);
 
 DECLARE_MESSAGE(UpdateTranslationUnitsForEditorMessage)
 } // namespace ClangBackEnd

@@ -35,42 +35,42 @@ namespace ClangBackEnd {
 SourceLocationContainer::SourceLocationContainer(const Utf8String &filePath,
                                                  uint line,
                                                  uint column)
-    : filePath_(filePath),
-      line_(line),
-      column_(column)
+    : m_filePath(filePath),
+      m_line(line),
+      m_column(column)
 {
 }
 
 const Utf8String &SourceLocationContainer::filePath() const
 {
-    return filePath_;
+    return m_filePath;
 }
 
 uint SourceLocationContainer::line() const
 {
-    return line_;
+    return m_line;
 }
 
 
 uint SourceLocationContainer::column() const
 {
-    return column_;
+    return m_column;
 }
 
 QDataStream &operator<<(QDataStream &out, const SourceLocationContainer &container)
 {
-    out << container.filePath_;
-    out << container.line_;
-    out << container.column_;
+    out << container.m_filePath;
+    out << container.m_line;
+    out << container.m_column;
 
     return out;
 }
 
 QDataStream &operator>>(QDataStream &in, SourceLocationContainer &container)
 {
-    in >> container.filePath_;
-    in >> container.line_;
-    in >> container.column_;
+    in >> container.m_filePath;
+    in >> container.m_line;
+    in >> container.m_column;
 
     return in;
 }
@@ -82,9 +82,9 @@ bool operator==(const SourceLocationContainer &first, const SourceLocationContai
 
 bool operator!=(const SourceLocationContainer &first, const SourceLocationContainer &second)
 {
-    return first.line_ != second.line_
-        || first.column_ != second.column_
-        || first.filePath_ != second.filePath_;
+    return first.m_line != second.m_line
+        || first.m_column != second.m_column
+        || first.m_filePath != second.m_filePath;
 }
 
 QDebug operator<<(QDebug debug, const SourceLocationContainer &container)
@@ -97,13 +97,15 @@ QDebug operator<<(QDebug debug, const SourceLocationContainer &container)
     return debug;
 }
 
-void PrintTo(const SourceLocationContainer &container, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container)
 {
-    *os << "["
-        << container.filePath().constData() << ", "
-        << container.line() << ", "
-        << container.column()
-        << "]";
+    os << "("
+       << container.filePath() << ", "
+       << container.line() << ", "
+       << container.column()
+       << ")";
+
+    return os;
 }
 } // namespace ClangBackEnd
 

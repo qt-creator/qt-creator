@@ -43,16 +43,14 @@ QDebug operator<<(QDebug debug, const UnregisterUnsavedFilesForEditorMessage &me
     return debug;
 }
 
-void PrintTo(const UnregisterUnsavedFilesForEditorMessage &message, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const UnregisterUnsavedFilesForEditorMessage &message)
 {
-    *os << "UnregisterUnsavedFilesForEditorMessage(";
+    os << "("
+        << message.fileContainers()
+        << ")";
 
-    for (const FileContainer &fileContainer : message.fileContainers())
-        PrintTo(fileContainer, os);
-
-    *os << ")";
+    return os;
 }
-
 
 } // namespace ClangBackEnd
 

@@ -48,9 +48,9 @@ public:
     uint column() const;
 
 private:
-    Utf8String filePath_;
-    uint line_ = 0;
-    uint column_ = 0;
+    Utf8String m_filePath;
+    uint m_line = 0;
+    uint m_column = 0;
 };
 
 CMBIPC_EXPORT QDataStream &operator<<(QDataStream &out, const SourceLocationContainer &container);
@@ -59,6 +59,6 @@ CMBIPC_EXPORT bool operator==(const SourceLocationContainer &first, const Source
 CMBIPC_EXPORT bool operator!=(const SourceLocationContainer &first, const SourceLocationContainer &second);
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceLocationContainer &container);
-void PrintTo(const SourceLocationContainer &container, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container);
 
 } // namespace ClangBackEnd

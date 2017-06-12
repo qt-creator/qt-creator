@@ -95,15 +95,15 @@ Utf8String debugId(const FileContainer &fileContainer)
 }
 
 VerboseScopeDurationTimer::VerboseScopeDurationTimer(const char *id)
-    : id(id)
+    : m_id(id)
 {
     if (timersLog().isDebugEnabled())
-        timer.start();
+        m_timer.start();
 }
 
 VerboseScopeDurationTimer::~VerboseScopeDurationTimer()
 {
-    qCDebug(timersLog) << id << "needed" << timer.elapsed() << "ms";
+    qCDebug(timersLog) << m_id << "needed" << m_timer.elapsed() << "ms";
 }
 
 } // namespace ClangBackEnd

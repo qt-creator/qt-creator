@@ -39,34 +39,34 @@ public:
     DynamicASTMatcherDiagnosticMessageContainer(V2::SourceRangeContainer &&sourceRange,
                                                 ClangQueryDiagnosticErrorType errorType,
                                                 Utils::SmallStringVector &&arguments)
-        : sourceRange_(sourceRange),
-          errorType_(errorType),
-          arguments_(std::move(arguments))
+        : m_sourceRange(sourceRange),
+          m_errorType(errorType),
+          m_arguments(std::move(arguments))
     {
     }
 
     const V2::SourceRangeContainer &sourceRange() const
     {
-        return sourceRange_;
+        return m_sourceRange;
     }
 
     ClangQueryDiagnosticErrorType errorType() const
     {
-        return errorType_;
+        return m_errorType;
     }
 
     Utils::SmallString errorTypeText() const;
 
     const Utils::SmallStringVector &arguments() const
     {
-        return arguments_;
+        return m_arguments;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const DynamicASTMatcherDiagnosticMessageContainer &container)
     {
-        out << container.sourceRange_;
-        out << quint32(container.errorType_);
-        out << container.arguments_;
+        out << container.m_sourceRange;
+        out << quint32(container.m_errorType);
+        out << container.m_arguments;
 
         return out;
     }
@@ -75,11 +75,11 @@ public:
     {
         quint32 errorType;
 
-        in >> container.sourceRange_;
+        in >> container.m_sourceRange;
         in >> errorType;
-        in >> container.arguments_;
+        in >> container.m_arguments;
 
-        container.errorType_ = static_cast<ClangQueryDiagnosticErrorType>(errorType);
+        container.m_errorType = static_cast<ClangQueryDiagnosticErrorType>(errorType);
 
         return in;
     }
@@ -87,25 +87,25 @@ public:
     friend bool operator==(const DynamicASTMatcherDiagnosticMessageContainer &first,
                            const DynamicASTMatcherDiagnosticMessageContainer &second)
     {
-        return first.errorType_ == second.errorType_
-            && first.sourceRange_ == second.sourceRange_
-            && first.arguments_ == second.arguments_;
+        return first.m_errorType == second.m_errorType
+            && first.m_sourceRange == second.m_sourceRange
+            && first.m_arguments == second.m_arguments;
     }
 
     DynamicASTMatcherDiagnosticMessageContainer clone() const
     {
-        return DynamicASTMatcherDiagnosticMessageContainer(sourceRange_.clone(),
-                                                           errorType_,
-                                                           arguments_.clone());
+        return DynamicASTMatcherDiagnosticMessageContainer(m_sourceRange.clone(),
+                                                           m_errorType,
+                                                           m_arguments.clone());
     }
 
 private:
-    V2::SourceRangeContainer sourceRange_;
-    ClangQueryDiagnosticErrorType errorType_ = ClangQueryDiagnosticErrorType::None;
-    Utils::SmallStringVector arguments_;
+    V2::SourceRangeContainer m_sourceRange;
+    ClangQueryDiagnosticErrorType m_errorType = ClangQueryDiagnosticErrorType::None;
+    Utils::SmallStringVector m_arguments;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticMessageContainer &container);
-void PrintTo(const DynamicASTMatcherDiagnosticMessageContainer &container, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticMessageContainer &container);
 
 } // namespace ClangBackEnd

@@ -131,6 +131,5 @@ private:
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FilePath &filePath);
-void PrintTo(const FilePath &filePath, ::std::ostream* os);
 
 } // namespace ClangBackEnd

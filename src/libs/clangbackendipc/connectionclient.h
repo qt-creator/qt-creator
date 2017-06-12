@@ -121,16 +121,16 @@ private:
     QProcessEnvironment processEnvironment() const;
 
 private:
-    LinePrefixer stdErrPrefixer_;
-    LinePrefixer stdOutPrefixer_;
+    LinePrefixer m_stdErrPrefixer;
+    LinePrefixer m_stdOutPrefixer;
 
-    mutable std::unique_ptr<QProcess> process_;
+    mutable std::unique_ptr<QProcess> m_process;
     QLocalSocket localSocket;
-    std::unique_ptr<Utils::TemporaryDirectory> temporaryDirectory_;
-    QTimer processAliveTimer;
-    QString processPath_;
-    bool isAliveTimerResetted = false;
-    bool processIsStarting = false;
+    std::unique_ptr<Utils::TemporaryDirectory> m_temporaryDirectory;
+    QTimer m_processAliveTimer;
+    QString m_processPath;
+    bool m_isAliveTimerResetted = false;
+    bool m_processIsStarting = false;
 
 };
 

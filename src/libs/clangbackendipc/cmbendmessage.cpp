@@ -36,10 +36,9 @@ QDebug operator<<(QDebug debug, const EndMessage &/*message*/)
     return debug.nospace() << "EndMessage()";
 }
 
-void PrintTo(const EndMessage &/*message*/, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const EndMessage &/*message*/)
 {
-    *os << "EndMessage()";
+    return os << "()";
 }
 
 }
-

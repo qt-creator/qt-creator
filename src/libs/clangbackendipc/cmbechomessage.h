@@ -29,6 +29,8 @@
 
 #include "messageenvelop.h"
 
+#include <iosfwd>
+
 namespace ClangBackEnd {
 
 class EchoMessage
@@ -36,13 +38,13 @@ class EchoMessage
 public:
     EchoMessage() = default;
     explicit EchoMessage(const MessageEnvelop &message)
-        : message_(message)
+        : m_message(message)
     {
     }
 
     const MessageEnvelop &message() const
     {
-        return message_;
+        return m_message;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const EchoMessage &message)
@@ -54,22 +56,22 @@ public:
 
     friend QDataStream &operator>>(QDataStream &in, EchoMessage &message)
     {
-        in >> message.message_;
+        in >> message.m_message;
 
         return in;
     }
 
     friend bool operator==(const EchoMessage &first, const EchoMessage &second)
     {
-        return first.message_ == second.message_;
+        return first.m_message == second.m_message;
     }
 
 private:
-    MessageEnvelop message_;
+    MessageEnvelop m_message;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const EchoMessage &message);
-void PrintTo(const EchoMessage &message, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const EchoMessage &message);
 
 DECLARE_MESSAGE(EchoMessage)
 } // namespace ClangBackEnd

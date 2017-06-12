@@ -43,14 +43,13 @@ QDebug operator<<(QDebug debug, const UnregisterProjectPartsForEditorMessage &me
     return debug;
 }
 
-void PrintTo(const UnregisterProjectPartsForEditorMessage &message, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const UnregisterProjectPartsForEditorMessage &message)
 {
-    *os << "UnregisterProjectPartsForEditorMessage(";
+    os << "("
+       << message.projectPartIds()
+       << ")";
 
-    for (const Utf8String &fileNames_ : message.projectPartIds())
-        *os << fileNames_.constData() << ", ";
-
-    *os << ")";
+    return os;
 }
 
 } // namespace ClangBackEnd

@@ -37,40 +37,40 @@ class RegisterProjectPartsForEditorMessage
 public:
     RegisterProjectPartsForEditorMessage() = default;
     RegisterProjectPartsForEditorMessage(const QVector<ProjectPartContainer> &projectContainers)
-        :projectContainers_(projectContainers)
+        :m_projectContainers(projectContainers)
     {
     }
 
     const QVector<ProjectPartContainer> &projectContainers() const
     {
-        return projectContainers_;
+        return m_projectContainers;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const RegisterProjectPartsForEditorMessage &message)
     {
-        out << message.projectContainers_;
+        out << message.m_projectContainers;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, RegisterProjectPartsForEditorMessage &message)
     {
-        in >> message.projectContainers_;
+        in >> message.m_projectContainers;
 
         return in;
     }
 
     friend bool operator==(const RegisterProjectPartsForEditorMessage &first, const RegisterProjectPartsForEditorMessage &second)
     {
-        return first.projectContainers_ == second.projectContainers_;
+        return first.m_projectContainers == second.m_projectContainers;
     }
 
 private:
-    QVector<ProjectPartContainer> projectContainers_;
+    QVector<ProjectPartContainer> m_projectContainers;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RegisterProjectPartsForEditorMessage &message);
-void PrintTo(const RegisterProjectPartsForEditorMessage &message, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const RegisterProjectPartsForEditorMessage &message);
 
 DECLARE_MESSAGE(RegisterProjectPartsForEditorMessage);
 } // namespace ClangBackEnd

@@ -73,38 +73,38 @@ QDebug operator<<(QDebug debug, const CodeCompletion &message)
 {
     debug.nospace() << "CodeCompletion(";
 
-    debug.nospace() << message.text_ << ", ";
-    debug.nospace() << message.priority_ << ", ";
-    debug.nospace() << completionKindToString(message.completionKind_) << ", ";
-    debug.nospace() << availabilityToString(message.availability_) << ", ";
-    debug.nospace() << message.hasParameters_;
+    debug.nospace() << message.m_text << ", ";
+    debug.nospace() << message.m_priority << ", ";
+    debug.nospace() << completionKindToString(message.m_completionKind) << ", ";
+    debug.nospace() << availabilityToString(message.m_availability) << ", ";
+    debug.nospace() << message.m_hasParameters;
 
     debug.nospace() << ")";
 
     return debug;
 }
 
-void PrintTo(const CodeCompletion &message, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const CodeCompletion &message)
 {
-    *os << "CodeCompletion(";
+    os << "("
+       << message.m_text << ", "
+       << message.m_priority << ", "
+       << message.m_completionKind << ", "
+       << message.m_availability << ", "
+       << message.m_hasParameters
+       << ")";
 
-    *os << message.text_.constData() << ", ";
-    *os << message.priority_ << ", ";
-    *os << completionKindToString(message.completionKind_) << ", ";
-    *os << availabilityToString(message.availability_) << ", ";
-    *os << message.hasParameters_;
-
-    *os << ")";
+    return os;
 }
 
-void PrintTo(CodeCompletion::Kind kind, ::std::ostream *os)
+std::ostream &operator<<(std::ostream &os, const CodeCompletion::Kind kind)
 {
-    *os << completionKindToString(kind);
+    return os << completionKindToString(kind);
 }
 
-void PrintTo(CodeCompletion::Availability availability, std::ostream *os)
+std::ostream &operator<<(std::ostream &os, const CodeCompletion::Availability availability)
 {
-    *os << availabilityToString(availability);
+    return os << availabilityToString(availability);
 }
 
 } // namespace ClangBackEnd

@@ -84,7 +84,7 @@ public:
             && first.visibleEditorFilePaths_ == second.visibleEditorFilePaths_;
     }
 
-    friend void PrintTo(const RegisterTranslationUnitForEditorMessage &message, ::std::ostream* os);
+    friend std::ostream &operator<<(std::ostream &os, const RegisterTranslationUnitForEditorMessage &message);
 private:
     QVector<FileContainer> fileContainers_;
     Utf8String currentEditorFilePath_;

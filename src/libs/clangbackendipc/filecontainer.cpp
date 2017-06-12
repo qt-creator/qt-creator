@@ -54,19 +54,21 @@ QDebug operator<<(QDebug debug, const FileContainer &container)
     return debug;
 }
 
-void PrintTo(const FileContainer &container, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const FileContainer &container)
 {
-    *os << "FileContainer("
-        << container.filePath().constData() << ", "
-        << container.projectPartId().constData() << ", "
-        << container.fileArguments().constData() << ", "
+    os << "("
+        << container.filePath() << ", "
+        << container.projectPartId() << ", "
+        << container.fileArguments() << ", "
         << container.documentRevision();
 
     if (container.hasUnsavedFileContent())
-        *os << ", "
-            << container.unsavedFileContent().constData();
+        os << ", "
+           << container.unsavedFileContent();
 
-    *os << ")";
+    os << ")";
+
+    return os;
 }
 
 } // namespace ClangBackEnd

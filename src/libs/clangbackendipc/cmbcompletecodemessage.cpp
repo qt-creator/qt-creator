@@ -37,28 +37,29 @@ QDebug operator<<(QDebug debug, const CompleteCodeMessage &message)
 {
     debug.nospace() << "CompleteCodeMessage(";
 
-    debug.nospace() << message.filePath_ << ", ";
-    debug.nospace() << message.line_<< ", ";
-    debug.nospace() << message.column_<< ", ";
-    debug.nospace() << message.projectPartId_ << ", ";
-    debug.nospace() << message.ticketNumber_;
+    debug.nospace() << message.m_filePath << ", ";
+    debug.nospace() << message.m_line << ", ";
+    debug.nospace() << message.m_column << ", ";
+    debug.nospace() << message.m_projectPartId << ", ";
+    debug.nospace() << message.m_ticketNumber;
 
     debug.nospace() << ")";
 
     return debug;
 }
 
-void PrintTo(const CompleteCodeMessage &message, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const CompleteCodeMessage &message)
 {
-    *os << "CompleteCodeMessage(";
+    os << "("
+       << message.m_filePath.constData() << ", "
+       << message.m_line << ", "
+       << message.m_column << ", "
+       << message.m_projectPartId.constData() << ", "
+       << message.m_ticketNumber
 
-    *os << message.filePath_.constData() << ", ";
-    *os << message.line_ << ", ";
-    *os << message.column_ << ", ";
-    *os << message.projectPartId_.constData() << ", ";
-    *os << message.ticketNumber_;
+       << ")";
 
-    *os << ")";
+     return os;
 }
 
 } // namespace ClangBackEnd

@@ -40,10 +40,14 @@ QDebug operator<<(QDebug debug, const RequestDocumentAnnotationsMessage &message
     return debug;
 }
 
-void PrintTo(const RequestDocumentAnnotationsMessage &message, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const RequestDocumentAnnotationsMessage &message)
 {
-    *os << message.fileContainer().filePath().constData()
-        << "(" << message.fileContainer().projectPartId().constData() << ")";
+    os << "("
+       << message.fileContainer().filePath() << ","
+       << message.fileContainer().projectPartId()
+       << ")";
+
+    return os;
 }
 
 } // namespace ClangBackEnd

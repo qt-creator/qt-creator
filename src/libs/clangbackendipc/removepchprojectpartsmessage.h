@@ -34,29 +34,29 @@ class RemovePchProjectPartsMessage
 public:
     RemovePchProjectPartsMessage() = default;
     RemovePchProjectPartsMessage(Utils::SmallStringVector &&projectsPartIds)
-        : projectsPartIds_(std::move(projectsPartIds))
+        : m_projectsPartIds(std::move(projectsPartIds))
     {}
 
     const Utils::SmallStringVector &projectsPartIds() const
     {
-        return projectsPartIds_;
+        return m_projectsPartIds;
     }
 
     Utils::SmallStringVector takeProjectsPartIds()
     {
-        return std::move(projectsPartIds_);
+        return std::move(m_projectsPartIds);
     }
 
     friend QDataStream &operator<<(QDataStream &out, const RemovePchProjectPartsMessage &message)
     {
-        out << message.projectsPartIds_;
+        out << message.m_projectsPartIds;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, RemovePchProjectPartsMessage &message)
     {
-        in >> message.projectsPartIds_;
+        in >> message.m_projectsPartIds;
 
         return in;
     }
@@ -64,16 +64,16 @@ public:
     friend bool operator==(const RemovePchProjectPartsMessage &first,
                            const RemovePchProjectPartsMessage &second)
     {
-        return first.projectsPartIds_ == second.projectsPartIds_;
+        return first.m_projectsPartIds == second.m_projectsPartIds;
     }
 
     RemovePchProjectPartsMessage clone() const
     {
-        return RemovePchProjectPartsMessage(projectsPartIds_.clone());
+        return RemovePchProjectPartsMessage(m_projectsPartIds.clone());
     }
 
 private:
-    Utils::SmallStringVector projectsPartIds_;
+    Utils::SmallStringVector m_projectsPartIds;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RemovePchProjectPartsMessage &message);

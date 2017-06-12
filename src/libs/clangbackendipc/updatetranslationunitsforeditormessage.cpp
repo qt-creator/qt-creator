@@ -43,14 +43,13 @@ QDebug operator<<(QDebug debug, const UpdateTranslationUnitsForEditorMessage &me
     return debug;
 }
 
-void PrintTo(const UpdateTranslationUnitsForEditorMessage &message, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const UpdateTranslationUnitsForEditorMessage &message)
 {
-    *os << "UpdateTranslationUnitsForEditorMessage(";
+    os << "UpdateTranslationUnitsForEditorMessage("
+       << message.fileContainers()
+       << ")";
 
-    for (const FileContainer &fileContainer : message.fileContainers())
-        PrintTo(fileContainer, os);
-
-    *os << ")";
+    return os;
 }
 
 } // namespace ClangBackEnd

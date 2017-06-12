@@ -44,72 +44,72 @@
 namespace ClangBackEnd {
 
 ClangCodeModelClientProxy::ClangCodeModelClientProxy(ClangCodeModelServerInterface *server, QIODevice *ioDevice)
-    : writeMessageBlock(ioDevice),
-      readMessageBlock(ioDevice),
-      server(server),
-      ioDevice(ioDevice)
+    : m_writeMessageBlock(ioDevice),
+      m_readMessageBlock(ioDevice),
+      m_server(server),
+      m_ioDevice(ioDevice)
 {
-    QObject::connect(ioDevice, &QIODevice::readyRead, [this] () {ClangCodeModelClientProxy::readMessages();});
+    QObject::connect(m_ioDevice, &QIODevice::readyRead, [this] () {ClangCodeModelClientProxy::readMessages();});
 }
 
 ClangCodeModelClientProxy::ClangCodeModelClientProxy(ClangCodeModelClientProxy &&other)
-    : writeMessageBlock(std::move(other.writeMessageBlock)),
-      readMessageBlock(std::move(other.readMessageBlock)),
-      server(std::move(other.server)),
-      ioDevice(std::move(other.ioDevice))
+    : m_writeMessageBlock(std::move(other.m_writeMessageBlock)),
+      m_readMessageBlock(std::move(other.m_readMessageBlock)),
+      m_server(std::move(other.m_server)),
+      m_ioDevice(std::move(other.m_ioDevice))
 {
 
 }
 
 ClangCodeModelClientProxy &ClangCodeModelClientProxy::operator=(ClangCodeModelClientProxy &&other)
 {
-    writeMessageBlock = std::move(other.writeMessageBlock);
-    readMessageBlock = std::move(other.readMessageBlock);
-    server = std::move(other.server);
-    ioDevice = std::move(other.ioDevice);
+    m_writeMessageBlock = std::move(other.m_writeMessageBlock);
+    m_readMessageBlock = std::move(other.m_readMessageBlock);
+    m_server = std::move(other.m_server);
+    m_ioDevice = std::move(other.m_ioDevice);
 
     return *this;
 }
 
 void ClangCodeModelClientProxy::alive()
 {
-    writeMessageBlock.write(AliveMessage());
+    m_writeMessageBlock.write(AliveMessage());
 }
 
 void ClangCodeModelClientProxy::echo(const EchoMessage &message)
 {
-    writeMessageBlock.write(message);
+    m_writeMessageBlock.write(message);
 }
 
 void ClangCodeModelClientProxy::codeCompleted(const CodeCompletedMessage &message)
 {
-    writeMessageBlock.write(message);
+    m_writeMessageBlock.write(message);
 }
 
 void ClangCodeModelClientProxy::translationUnitDoesNotExist(const TranslationUnitDoesNotExistMessage &message)
 {
-    writeMessageBlock.write(message);
+    m_writeMessageBlock.write(message);
 }
 
 void ClangCodeModelClientProxy::projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message)
 {
-    writeMessageBlock.write(message);
+    m_writeMessageBlock.write(message);
 }
 
 void ClangCodeModelClientProxy::documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message)
 {
-    writeMessageBlock.write(message);
+    m_writeMessageBlock.write(message);
 }
 
 void ClangCodeModelClientProxy::readMessages()
 {
-    for (const MessageEnvelop &message : readMessageBlock.readAll())
-        server->dispatch(message);
+    for (const MessageEnvelop &message : m_readMessageBlock.readAll())
+        m_server->dispatch(message);
 }
 
-bool ClangCodeModelClientProxy::isUsingThatIoDevice(QIODevice *ioDevice) const
+bool ClangCodeModelClientProxy::isUsingThatIoDevice(QIODevice *m_ioDevice) const
 {
-    return this->ioDevice == ioDevice;
+    return this->m_ioDevice == m_ioDevice;
 }
 
 } // namespace ClangBackEnd

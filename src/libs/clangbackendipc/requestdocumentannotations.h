@@ -34,40 +34,40 @@ class RequestDocumentAnnotationsMessage
 public:
     RequestDocumentAnnotationsMessage() = default;
     RequestDocumentAnnotationsMessage(const FileContainer &fileContainer)
-        : fileContainer_(fileContainer)
+        : m_fileContainer(fileContainer)
     {
     }
 
     const FileContainer fileContainer() const
     {
-        return fileContainer_;
+        return m_fileContainer;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const RequestDocumentAnnotationsMessage &message)
     {
-        out << message.fileContainer_;
+        out << message.m_fileContainer;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, RequestDocumentAnnotationsMessage &message)
     {
-        in >> message.fileContainer_;
+        in >> message.m_fileContainer;
 
         return in;
     }
 
     friend bool operator==(const RequestDocumentAnnotationsMessage &first, const RequestDocumentAnnotationsMessage &second)
     {
-        return first.fileContainer_ == second.fileContainer_;
+        return first.m_fileContainer == second.m_fileContainer;
     }
 
 private:
-    FileContainer fileContainer_;
+    FileContainer m_fileContainer;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const RequestDocumentAnnotationsMessage &message);
-void PrintTo(const RequestDocumentAnnotationsMessage &message, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const RequestDocumentAnnotationsMessage &message);
 
 DECLARE_MESSAGE(RequestDocumentAnnotationsMessage);
 } // namespace ClangBackEnd

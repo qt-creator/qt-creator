@@ -41,11 +41,14 @@ QDebug operator<<(QDebug debug, const FixItContainer &container)
     return debug;
 }
 
-void PrintTo(const FixItContainer &container, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const FixItContainer &container)
 {
-    *os << "FixIt(" << container.text().constData() << ", ";
-    *os<< ")";
-    PrintTo(container.range(), os);
+    os << "("
+       << container.text() << ", "
+       << container.range()
+       << ")";
+
+    return os;
 }
 
 } // namespace ClangBackEnd

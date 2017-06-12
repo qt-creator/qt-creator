@@ -43,14 +43,16 @@ QDebug operator<<(QDebug debug, const SourceLocationContainer &container)
     return debug;
 }
 
-void PrintTo(const SourceLocationContainer &container, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container)
 {
-    *os << "("
-        << container.line() << ", "
-        << container.column() << ", "
-        << container.offset() << ", "
-        << container.fileHash()
-        << ")";
+    os << "("
+       << container.line() << ", "
+       << container.column() << ", "
+       << container.offset() << ", "
+       << container.fileHash()
+       << ")";
+
+    return os;
 }
 
 } // namespace V2

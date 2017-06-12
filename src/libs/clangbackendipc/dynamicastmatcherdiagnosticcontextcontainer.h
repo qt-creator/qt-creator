@@ -39,34 +39,34 @@ public:
     DynamicASTMatcherDiagnosticContextContainer(V2::SourceRangeContainer &&sourceRange,
                                                 ClangQueryDiagnosticContextType contextType,
                                                 Utils::SmallStringVector &&arguments)
-        : sourceRange_(sourceRange),
-          contextType_(contextType),
-          arguments_(std::move(arguments))
+        : m_sourceRange(sourceRange),
+          m_contextType(contextType),
+          m_arguments(std::move(arguments))
     {
     }
 
     const V2::SourceRangeContainer &sourceRange() const
     {
-        return sourceRange_;
+        return m_sourceRange;
     }
 
     ClangQueryDiagnosticContextType contextType() const
     {
-        return contextType_;
+        return m_contextType;
     }
 
     Utils::SmallString contextTypeText() const;
 
     const Utils::SmallStringVector &arguments() const
     {
-        return arguments_;
+        return m_arguments;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const DynamicASTMatcherDiagnosticContextContainer &container)
     {
-        out << container.sourceRange_;
-        out << quint32(container.contextType_);
-        out << container.arguments_;
+        out << container.m_sourceRange;
+        out << quint32(container.m_contextType);
+        out << container.m_arguments;
 
         return out;
     }
@@ -75,11 +75,11 @@ public:
     {
         quint32 contextType;
 
-        in >> container.sourceRange_;
+        in >> container.m_sourceRange;
         in >> contextType;
-        in >> container.arguments_;
+        in >> container.m_arguments;
 
-        container.contextType_ = static_cast<ClangQueryDiagnosticContextType>(contextType);
+        container.m_contextType = static_cast<ClangQueryDiagnosticContextType>(contextType);
 
         return in;
     }
@@ -87,25 +87,25 @@ public:
     friend bool operator==(const DynamicASTMatcherDiagnosticContextContainer &first,
                            const DynamicASTMatcherDiagnosticContextContainer &second)
     {
-        return first.contextType_ == second.contextType_
-            && first.sourceRange_ == second.sourceRange_
-            && first.arguments_ == second.arguments_;
+        return first.m_contextType == second.m_contextType
+            && first.m_sourceRange == second.m_sourceRange
+            && first.m_arguments == second.m_arguments;
     }
 
     DynamicASTMatcherDiagnosticContextContainer clone() const
     {
-        return DynamicASTMatcherDiagnosticContextContainer(sourceRange_.clone(),
-                                                           contextType_,
-                                                           arguments_.clone());
+        return DynamicASTMatcherDiagnosticContextContainer(m_sourceRange.clone(),
+                                                           m_contextType,
+                                                           m_arguments.clone());
     }
 
 private:
-    V2::SourceRangeContainer sourceRange_;
-    ClangQueryDiagnosticContextType contextType_ = ClangQueryDiagnosticContextType::MatcherArg;
-    Utils::SmallStringVector arguments_;
+    V2::SourceRangeContainer m_sourceRange;
+    ClangQueryDiagnosticContextType m_contextType = ClangQueryDiagnosticContextType::MatcherArg;
+    Utils::SmallStringVector m_arguments;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticContextContainer &container);
-void PrintTo(const DynamicASTMatcherDiagnosticContextContainer &container, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticContextContainer &container);
 
 } // namespace ClangBackEnd

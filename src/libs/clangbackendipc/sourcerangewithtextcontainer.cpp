@@ -42,20 +42,15 @@ QDebug operator<<(QDebug debug, const SourceRangeWithTextContainer &container)
     return debug;
 }
 
-void PrintTo(const SourceRangeWithTextContainer &container, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const SourceRangeWithTextContainer &container)
 {
-    Q_UNUSED(container)
-    Q_UNUSED(os)
-#ifdef UNIT_TESTS
-    *os << "(("
-        << container.start().line() << ", "
-        << container.start().column() << ", "
-        << container.start().offset() << "), ("
-        << container.end().line() << ", "
-        << container.end().column() << ", "
-        << container.end().offset() << "), "
-        << testing::PrintToString(container.text())
+
+    os << "("
+        << container.start() << ", "
+        << container.end() << ", "
+        << container.text()
         << ")";
-#endif
+
+    return os;
 }
 } // namespace ClangBackEnd

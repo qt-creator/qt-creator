@@ -41,49 +41,49 @@ public:
                             uint line,
                             uint column,
                             uint offset)
-        : fileHash_(fileHash),
-          line_(line),
-          column_(column),
-          offset_(offset)
+        : m_fileHash(fileHash),
+          m_line(line),
+          m_column(column),
+          m_offset(offset)
     {
     }
 
     uint fileHash() const
     {
-        return fileHash_;
+        return m_fileHash;
     }
 
     uint line() const
     {
-        return line_;
+        return m_line;
     }
 
     uint column() const
     {
-        return column_;
+        return m_column;
     }
 
     uint offset() const
     {
-        return offset_;
+        return m_offset;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const SourceLocationContainer &container)
     {
-        out << container.fileHash_;
-        out << container.line_;
-        out << container.column_;
-        out << container.offset_;
+        out << container.m_fileHash;
+        out << container.m_line;
+        out << container.m_column;
+        out << container.m_offset;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, SourceLocationContainer &container)
     {
-        in >> container.fileHash_;
-        in >> container.line_;
-        in >> container.column_;
-        in >> container.offset_;
+        in >> container.m_fileHash;
+        in >> container.m_line;
+        in >> container.m_column;
+        in >> container.m_offset;
 
         return in;
     }
@@ -95,26 +95,26 @@ public:
 
     friend bool operator!=(const SourceLocationContainer &first, const SourceLocationContainer &second)
     {
-        return first.line_ != second.line_
-            || first.column_ != second.column_
-            || first.fileHash_ != second.fileHash_
-            || first.offset_ != second.offset_;
+        return first.m_line != second.m_line
+            || first.m_column != second.m_column
+            || first.m_fileHash != second.m_fileHash
+            || first.m_offset != second.m_offset;
     }
 
     SourceLocationContainer clone() const
     {
-        return SourceLocationContainer(fileHash_, line_, column_, offset_);
+        return SourceLocationContainer(m_fileHash, m_line, m_column, m_offset);
     }
 
 private:
-    uint fileHash_ = 0;
-    uint line_ = 1;
-    uint column_ = 1;
-    uint offset_ = 0;
+    uint m_fileHash = 0;
+    uint m_line = 1;
+    uint m_column = 1;
+    uint m_offset = 0;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceLocationContainer &container);
-void PrintTo(const SourceLocationContainer &container, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container);
 
 } // namespace V2
 } // namespace ClangBackEnd

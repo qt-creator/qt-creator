@@ -29,6 +29,8 @@
 
 #include <QDataStream>
 
+#include <iosfwd>
+
 namespace ClangBackEnd {
 
 class AliveMessage
@@ -51,6 +53,7 @@ public:
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const AliveMessage &message);
+std::ostream &operator<<(std::ostream &os, const AliveMessage &message);
 
 DECLARE_MESSAGE(AliveMessage)
 }

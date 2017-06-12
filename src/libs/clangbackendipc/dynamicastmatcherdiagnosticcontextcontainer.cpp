@@ -40,21 +40,15 @@ QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticContextContaine
     return debug;
 }
 
-void PrintTo(const DynamicASTMatcherDiagnosticContextContainer &container, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticContextContainer &container)
 {
-    *os << "{"
-        << container.contextTypeText() << ": ";
+    os << "("
+       << container.contextTypeText() << ", "
+       << container.sourceRange() << ", "
+       << container.arguments()
+       << ")";
 
-    PrintTo(container.sourceRange(), os);
-
-    *os    << ", [";
-
-    for (const auto &argument : container.arguments()) {
-        PrintTo(argument, os);
-        *os << ", ";
-    }
-
-    *os << "]}";
+    return os;
 }
 
 #define RETURN_CASE(name) \
@@ -62,7 +56,7 @@ void PrintTo(const DynamicASTMatcherDiagnosticContextContainer &container, ::std
 
 Utils::SmallString DynamicASTMatcherDiagnosticContextContainer::contextTypeText() const
 {
-    switch (contextType_) {
+    switch (m_contextType) {
        RETURN_CASE(MatcherArg)
        RETURN_CASE(MatcherConstruct)
     }

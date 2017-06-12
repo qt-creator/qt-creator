@@ -40,18 +40,20 @@ QDebug operator<<(QDebug debug, const FileContainer &container)
     return debug;
 }
 
-void PrintTo(const FileContainer &container, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const FileContainer &container)
 {
-    *os << "("
+    os << "("
         << container.filePath() << ", "
         << container.commandLineArguments() << ", "
         << container.documentRevision();
 
     if (container.unsavedFileContent().hasContent())
-        *os << ", \""
+        os << ", \""
             << container.unsavedFileContent();
 
-    *os << "\")";
+    os << "\")";
+
+    return os;
 }
 
 } // namespace V2

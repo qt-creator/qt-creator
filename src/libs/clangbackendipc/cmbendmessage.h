@@ -53,7 +53,7 @@ public:
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const EndMessage &message);
-void PrintTo(const EndMessage &message, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const EndMessage &message);
 
 DECLARE_MESSAGE(EndMessage)
 }

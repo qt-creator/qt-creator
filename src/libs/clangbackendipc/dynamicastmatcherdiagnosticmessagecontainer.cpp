@@ -41,26 +41,20 @@ QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticMessageContaine
     return debug;
 }
 
-void PrintTo(const DynamicASTMatcherDiagnosticMessageContainer &container, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticMessageContainer &container)
 {
-    *os << "{"
-        << container.errorTypeText() << ": ";
+    os << "("
+       << container.errorTypeText() << ", "
+       << container.sourceRange() << ", "
+       << container.arguments()
+       << ")";
 
-    PrintTo(container.sourceRange(), os);
-
-    *os    << ", [";
-
-    for (const auto &argument : container.arguments()) {
-        PrintTo(argument, os);
-        *os << ", ";
-    }
-
-    *os << "]}";
+    return os;
 }
 
 Utils::SmallString DynamicASTMatcherDiagnosticMessageContainer::errorTypeText() const
 {
-    switch (errorType_) {
+    switch (m_errorType) {
        RETURN_CASE(None)
        RETURN_CASE(RegistryMatcherNotFound)
        RETURN_CASE(RegistryWrongArgCount)

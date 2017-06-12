@@ -44,14 +44,13 @@ QDebug operator<<(QDebug debug, const RegisterProjectPartsForEditorMessage &mess
     return debug;
 }
 
-void PrintTo(const RegisterProjectPartsForEditorMessage &message, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const RegisterProjectPartsForEditorMessage &message)
 {
-    *os << "RegisterProjectPartsForEditorMessage(";
+    os << "("
+       << message.projectContainers()
+       << ")";
 
-    for (const ProjectPartContainer &projectContainer : message.projectContainers())
-        PrintTo(projectContainer, os);
-
-    *os << ")";
+    return os;
 }
 
 } // namespace ClangBackEnd

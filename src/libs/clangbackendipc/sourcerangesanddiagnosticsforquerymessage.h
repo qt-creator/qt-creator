@@ -86,7 +86,7 @@ private:
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceRangesAndDiagnosticsForQueryMessage &message);
-void PrintTo(const SourceRangesAndDiagnosticsForQueryMessage &message, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const SourceRangesAndDiagnosticsForQueryMessage &message);
 
 DECLARE_MESSAGE(SourceRangesAndDiagnosticsForQueryMessage)
 

@@ -37,48 +37,48 @@ public:
     FixItContainer() = default;
     FixItContainer(const Utf8String &text,
                    const SourceRangeContainer &range)
-        : range_(range),
-          text_(text)
+        : m_range(range),
+          m_text(text)
     {
     }
 
     const Utf8String &text() const
     {
-        return text_;
+        return m_text;
     }
 
     const SourceRangeContainer &range() const
     {
-        return range_;
+        return m_range;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const FixItContainer &container)
     {
-        out << container.text_;
-        out << container.range_;
+        out << container.m_text;
+        out << container.m_range;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, FixItContainer &container)
     {
-        in >> container.text_;
-        in >> container.range_;
+        in >> container.m_text;
+        in >> container.m_range;
 
         return in;
     }
 
     friend bool operator==(const FixItContainer &first, const FixItContainer &second)
     {
-        return first.text_ == second.text_ && first.range_ == second.range_;
+        return first.m_text == second.m_text && first.m_range == second.m_range;
     }
 
 private:
-    SourceRangeContainer range_;
-    Utf8String text_;
+    SourceRangeContainer m_range;
+    Utf8String m_text;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FixItContainer &container);
-void PrintTo(const FixItContainer &container, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const FixItContainer &container);
 
 } // namespace ClangBackEnd

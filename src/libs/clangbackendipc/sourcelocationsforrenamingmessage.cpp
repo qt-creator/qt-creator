@@ -36,13 +36,15 @@ QDebug operator<<(QDebug debug, const SourceLocationsForRenamingMessage &message
     return debug;
 }
 
-void PrintTo(const SourceLocationsForRenamingMessage &message, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const SourceLocationsForRenamingMessage &message)
 {
-    *os << "SourceLocationsForRenamingMessage(\""
-        << message.symbolName() << "\", "
-        << message.textDocumentRevision() << ", ";
-    PrintTo(message.sourceLocations(), os);
-    *os << ")";
+    os << "("
+        << message.symbolName() << ", "
+        << message.textDocumentRevision() << ", "
+        << message.sourceLocations()
+        << ")";
+
+    return os;
 }
 
 } // namespace ClangBackEnd

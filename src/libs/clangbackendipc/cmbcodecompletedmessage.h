@@ -27,8 +27,9 @@
 
 #include "codecompletion.h"
 
+#include <utf8stringvector.h>
+
 #include <QDataStream>
-#include <QVector>
 
 namespace ClangBackEnd {
 
@@ -39,32 +40,32 @@ public:
     CodeCompletedMessage(const CodeCompletions &codeCompletions,
                          CompletionCorrection neededCorrection,
                          quint64 ticketNumber)
-        : codeCompletions_(codeCompletions),
-          ticketNumber_(ticketNumber),
-          neededCorrection_(neededCorrection)
+        : m_codeCompletions(codeCompletions),
+          m_ticketNumber(ticketNumber),
+          m_neededCorrection(neededCorrection)
     {
     }
 
     const CodeCompletions &codeCompletions() const
     {
-        return codeCompletions_;
+        return m_codeCompletions;
     }
 
     CompletionCorrection neededCorrection() const
     {
-        return neededCorrection_;
+        return m_neededCorrection;
     }
 
     quint64 ticketNumber() const
     {
-        return ticketNumber_;
+        return m_ticketNumber;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const CodeCompletedMessage &message)
     {
-        out << message.codeCompletions_;
-        out << static_cast<quint32>(message.neededCorrection_);
-        out << message.ticketNumber_;
+        out << message.m_codeCompletions;
+        out << static_cast<quint32>(message.m_neededCorrection);
+        out << message.m_ticketNumber;
 
         return out;
     }
@@ -73,29 +74,29 @@ public:
     {
         quint32 neededCorrection;
 
-        in >> message.codeCompletions_;
+        in >> message.m_codeCompletions;
         in >> neededCorrection;
-        in >> message.ticketNumber_;
+        in >> message.m_ticketNumber;
 
-        message.neededCorrection_ = static_cast<CompletionCorrection>(neededCorrection);
+        message.m_neededCorrection = static_cast<CompletionCorrection>(neededCorrection);
 
         return in;
     }
 
     friend bool operator==(const CodeCompletedMessage &first, const CodeCompletedMessage &second)
     {
-        return first.ticketNumber_ == second.ticketNumber_
-            && first.neededCorrection_ == second.neededCorrection_
-            && first.codeCompletions_ == second.codeCompletions_;
+        return first.m_ticketNumber == second.m_ticketNumber
+            && first.m_neededCorrection == second.m_neededCorrection
+            && first.m_codeCompletions == second.m_codeCompletions;
     }
 
     friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CodeCompletedMessage &message);
-    friend void PrintTo(const CodeCompletedMessage &message, ::std::ostream* os);
+    friend std::ostream &operator<<(std::ostream &os, const CodeCompletedMessage &message);
 
 private:
-    CodeCompletions codeCompletions_;
-    quint64 ticketNumber_ = 0;
-    CompletionCorrection neededCorrection_ = CompletionCorrection::NoCorrection;
+    CodeCompletions m_codeCompletions;
+    quint64 m_ticketNumber = 0;
+    CompletionCorrection m_neededCorrection = CompletionCorrection::NoCorrection;
 };
 
 DECLARE_MESSAGE(CodeCompletedMessage)

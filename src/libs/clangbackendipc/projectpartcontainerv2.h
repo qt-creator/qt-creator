@@ -40,80 +40,80 @@ public:
                          Utils::SmallStringVector &&arguments,
                          Utils::PathStringVector &&headerPaths,
                          Utils::PathStringVector &&sourcePaths)
-        : projectPartId_(std::move(projectPartId)),
-          arguments_(std::move(arguments)),
-          headerPaths_(std::move(headerPaths)),
-          sourcePaths_(std::move(sourcePaths))
+        : m_projectPartId(std::move(projectPartId)),
+          m_arguments(std::move(arguments)),
+          m_headerPaths(std::move(headerPaths)),
+          m_sourcePaths(std::move(sourcePaths))
     {
     }
 
     const Utils::SmallString &projectPartId() const
     {
-        return projectPartId_;
+        return m_projectPartId;
     }
 
     const Utils::SmallStringVector &arguments() const
     {
-        return arguments_;
+        return m_arguments;
     }
 
     const Utils::PathStringVector &sourcePaths() const
     {
-        return sourcePaths_;
+        return m_sourcePaths;
     }
 
     const Utils::PathStringVector &headerPaths() const
     {
-        return headerPaths_;
+        return m_headerPaths;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const ProjectPartContainer &container)
     {
-        out << container.projectPartId_;
-        out << container.arguments_;
-        out << container.headerPaths_;
-        out << container.sourcePaths_;
+        out << container.m_projectPartId;
+        out << container.m_arguments;
+        out << container.m_headerPaths;
+        out << container.m_sourcePaths;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, ProjectPartContainer &container)
     {
-        in >> container.projectPartId_;
-        in >> container.arguments_;
-        in >> container.headerPaths_;
-        in >> container.sourcePaths_;
+        in >> container.m_projectPartId;
+        in >> container.m_arguments;
+        in >> container.m_headerPaths;
+        in >> container.m_sourcePaths;
 
         return in;
     }
 
     friend bool operator==(const ProjectPartContainer &first, const ProjectPartContainer &second)
     {
-        return first.projectPartId_ == second.projectPartId_
-            && first.arguments_ == second.arguments_
-            && first.headerPaths_ == second.headerPaths_
-            && first.sourcePaths_ == second.sourcePaths_;
+        return first.m_projectPartId == second.m_projectPartId
+            && first.m_arguments == second.m_arguments
+            && first.m_headerPaths == second.m_headerPaths
+            && first.m_sourcePaths == second.m_sourcePaths;
     }
 
     friend bool operator<(const ProjectPartContainer &first, const ProjectPartContainer &second)
     {
-        return std::tie(first.projectPartId_, first.arguments_, first.headerPaths_, first.sourcePaths_)
-             < std::tie(second.projectPartId_, second.arguments_, second.headerPaths_, second.sourcePaths_);
+        return std::tie(first.m_projectPartId, first.m_arguments, first.m_headerPaths, first.m_sourcePaths)
+             < std::tie(second.m_projectPartId, second.m_arguments, second.m_headerPaths, second.m_sourcePaths);
     }
 
     ProjectPartContainer clone() const
     {
-        return ProjectPartContainer(projectPartId_.clone(),
-                                    arguments_.clone(),
-                                    headerPaths_.clone(),
-                                    sourcePaths_.clone());
+        return ProjectPartContainer(m_projectPartId.clone(),
+                                    m_arguments.clone(),
+                                    m_headerPaths.clone(),
+                                    m_sourcePaths.clone());
     }
 
 private:
-    Utils::SmallString projectPartId_;
-    Utils::SmallStringVector arguments_;
-    Utils::PathStringVector headerPaths_;
-    Utils::PathStringVector sourcePaths_;
+    Utils::SmallString m_projectPartId;
+    Utils::SmallStringVector m_arguments;
+    Utils::PathStringVector m_headerPaths;
+    Utils::PathStringVector m_sourcePaths;
 };
 
 using ProjectPartContainers = std::vector<ProjectPartContainer>;

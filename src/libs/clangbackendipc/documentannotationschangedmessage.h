@@ -41,60 +41,60 @@ public:
     DocumentAnnotationsChangedMessage() = default;
     DocumentAnnotationsChangedMessage(const FileContainer &fileContainer,
                                       const QVector<DiagnosticContainer> &diagnostics,
-                                      const DiagnosticContainer &firstHeaderErrorDiagnostic_,
+                                      const DiagnosticContainer &firstHeaderErrorDiagnostic,
                                       const QVector<HighlightingMarkContainer> &highlightingMarks,
                                       const QVector<SourceRangeContainer> &skippedPreprocessorRanges)
-        : fileContainer_(fileContainer),
-          diagnostics_(diagnostics),
-          firstHeaderErrorDiagnostic_(firstHeaderErrorDiagnostic_),
-          highlightingMarks_(highlightingMarks),
-          skippedPreprocessorRanges_(skippedPreprocessorRanges)
+        : m_fileContainer(fileContainer),
+          m_diagnostics(diagnostics),
+          m_firstHeaderErrorDiagnostic(firstHeaderErrorDiagnostic),
+          m_highlightingMarks(highlightingMarks),
+          m_skippedPreprocessorRanges(skippedPreprocessorRanges)
     {
     }
 
     const FileContainer &fileContainer() const
     {
-        return fileContainer_;
+        return m_fileContainer;
     }
 
     const QVector<DiagnosticContainer> &diagnostics() const
     {
-        return diagnostics_;
+        return m_diagnostics;
     }
 
     const DiagnosticContainer &firstHeaderErrorDiagnostic() const
     {
-        return firstHeaderErrorDiagnostic_;
+        return m_firstHeaderErrorDiagnostic;
     }
 
     const QVector<HighlightingMarkContainer> &highlightingMarks() const
     {
-        return highlightingMarks_;
+        return m_highlightingMarks;
     }
 
     const QVector<SourceRangeContainer> &skippedPreprocessorRanges() const
     {
-        return skippedPreprocessorRanges_;
+        return m_skippedPreprocessorRanges;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const DocumentAnnotationsChangedMessage &message)
     {
-        out << message.fileContainer_;
-        out << message.diagnostics_;
-        out << message.firstHeaderErrorDiagnostic_;
-        out << message.highlightingMarks_;
-        out << message.skippedPreprocessorRanges_;
+        out << message.m_fileContainer;
+        out << message.m_diagnostics;
+        out << message.m_firstHeaderErrorDiagnostic;
+        out << message.m_highlightingMarks;
+        out << message.m_skippedPreprocessorRanges;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, DocumentAnnotationsChangedMessage &message)
     {
-        in >> message.fileContainer_;
-        in >> message.diagnostics_;
-        in >> message.firstHeaderErrorDiagnostic_;
-        in >> message.highlightingMarks_;
-        in >> message.skippedPreprocessorRanges_;
+        in >> message.m_fileContainer;
+        in >> message.m_diagnostics;
+        in >> message.m_firstHeaderErrorDiagnostic;
+        in >> message.m_highlightingMarks;
+        in >> message.m_skippedPreprocessorRanges;
 
         return in;
     }
@@ -102,23 +102,23 @@ public:
     friend bool operator==(const DocumentAnnotationsChangedMessage &first,
                     const DocumentAnnotationsChangedMessage &second)
     {
-        return first.fileContainer_ == second.fileContainer_
-            && first.diagnostics_ == second.diagnostics_
-            && first.firstHeaderErrorDiagnostic_ == second.firstHeaderErrorDiagnostic_
-            && first.highlightingMarks_ == second.highlightingMarks_
-            && first.skippedPreprocessorRanges_ == second.skippedPreprocessorRanges_;
+        return first.m_fileContainer == second.m_fileContainer
+            && first.m_diagnostics == second.m_diagnostics
+            && first.m_firstHeaderErrorDiagnostic == second.m_firstHeaderErrorDiagnostic
+            && first.m_highlightingMarks == second.m_highlightingMarks
+            && first.m_skippedPreprocessorRanges == second.m_skippedPreprocessorRanges;
     }
 
 private:
-    FileContainer fileContainer_;
-    QVector<DiagnosticContainer> diagnostics_;
-    DiagnosticContainer firstHeaderErrorDiagnostic_;
-    QVector<HighlightingMarkContainer> highlightingMarks_;
-    QVector<SourceRangeContainer> skippedPreprocessorRanges_;
+    FileContainer m_fileContainer;
+    QVector<DiagnosticContainer> m_diagnostics;
+    DiagnosticContainer m_firstHeaderErrorDiagnostic;
+    QVector<HighlightingMarkContainer> m_highlightingMarks;
+    QVector<SourceRangeContainer> m_skippedPreprocessorRanges;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DocumentAnnotationsChangedMessage &message);
-void PrintTo(const DocumentAnnotationsChangedMessage &message, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const DocumentAnnotationsChangedMessage &message);
 
 DECLARE_MESSAGE(DocumentAnnotationsChangedMessage)
 } // namespace ClangBackEnd

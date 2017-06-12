@@ -38,9 +38,9 @@ QDebug operator<<(QDebug debug, const CancelMessage &)
     return debug;
 }
 
-void PrintTo(const CancelMessage &, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const CancelMessage &/*message*/)
 {
-    *os << "CancelMessage()";
+    return os << "()";
 }
 
 } // namespace ClangBackEnd

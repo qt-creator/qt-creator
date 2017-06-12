@@ -25,11 +25,9 @@
 
 #include "cmbunregistertranslationunitsforeditormessage.h"
 
-#ifdef UNIT_TESTS
-#include <gtest/gtest-printers.h>
-#endif
-
 #include <QDebug>
+
+#include <ostream>
 
 namespace ClangBackEnd {
 
@@ -45,18 +43,14 @@ QDebug operator<<(QDebug debug, const UnregisterTranslationUnitsForEditorMessage
     return debug;
 }
 
-#ifdef UNIT_TESTS
-void PrintTo(const UnregisterTranslationUnitsForEditorMessage &message, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const UnregisterTranslationUnitsForEditorMessage &message)
 {
-    *os << "UnregisterTranslationUnitsForEditorMessage(";
+    os << "("
+       << message.fileContainers()
+       << ")";
 
-    for (const FileContainer &fileContainer : message.fileContainers())
-        *os << ::testing::PrintToString(fileContainer) << ", ";
-
-    *os << ")";
+    return os;
 }
-#endif
-
 
 } // namespace ClangBackEnd
 

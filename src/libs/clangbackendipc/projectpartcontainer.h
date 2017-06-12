@@ -39,48 +39,48 @@ public:
     ProjectPartContainer() = default;
     ProjectPartContainer(const Utf8String &projectPartId,
                          const Utf8StringVector &arguments = Utf8StringVector())
-        : projectPartId_(projectPartId),
-          arguments_(arguments)
+        : m_projectPartId(projectPartId),
+          m_arguments(arguments)
     {
     }
 
     const Utf8String &projectPartId() const
     {
-        return projectPartId_;
+        return m_projectPartId;
     }
 
     const Utf8StringVector &arguments() const
     {
-        return arguments_;
+        return m_arguments;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const ProjectPartContainer &container)
     {
-        out << container.projectPartId_;
-        out << container.arguments_;
+        out << container.m_projectPartId;
+        out << container.m_arguments;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, ProjectPartContainer &container)
     {
-        in >> container.projectPartId_;
-        in >> container.arguments_;
+        in >> container.m_projectPartId;
+        in >> container.m_arguments;
 
         return in;
     }
 
     friend bool operator==(const ProjectPartContainer &first, const ProjectPartContainer &second)
     {
-        return first.projectPartId_ == second.projectPartId_;
+        return first.m_projectPartId == second.m_projectPartId;
     }
 
 private:
-    Utf8String projectPartId_;
-    Utf8StringVector arguments_;
+    Utf8String m_projectPartId;
+    Utf8StringVector m_arguments;
 };
 
 QDebug operator<<(QDebug debug, const ProjectPartContainer &container);
-void PrintTo(const ProjectPartContainer &container, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const ProjectPartContainer &container);
 
 } // namespace ClangBackEnd

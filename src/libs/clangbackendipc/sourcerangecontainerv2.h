@@ -36,8 +36,8 @@ public:
     SourceRangeContainer() = default;
     SourceRangeContainer(SourceLocationContainer start,
                          SourceLocationContainer end)
-        : start_(start),
-          end_(end)
+        : m_start(start),
+          m_end(end)
     {
     }
 
@@ -48,58 +48,58 @@ public:
                          uint endLine,
                          uint endColumn,
                          uint endOffset)
-        : start_(fileHash, startLine, startColumn, startOffset),
-          end_(fileHash, endLine, endColumn, endOffset)
+        : m_start(fileHash, startLine, startColumn, startOffset),
+          m_end(fileHash, endLine, endColumn, endOffset)
     {
     }
 
     SourceLocationContainer start() const
     {
-        return start_;
+        return m_start;
     }
 
     SourceLocationContainer end() const
     {
-        return end_;
+        return m_end;
     }
 
     uint fileHash() const
     {
-        return start_.fileHash();
+        return m_start.fileHash();
     }
 
     friend QDataStream &operator<<(QDataStream &out, const SourceRangeContainer &container)
     {
-        out << container.start_;
-        out << container.end_;
+        out << container.m_start;
+        out << container.m_end;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, SourceRangeContainer &container)
     {
-        in >> container.start_;
-        in >> container.end_;
+        in >> container.m_start;
+        in >> container.m_end;
 
         return in;
     }
 
     friend bool operator==(const SourceRangeContainer &first, const SourceRangeContainer &second)
     {
-        return first.start_ == second.start_ && first.end_ == second.end_;
+        return first.m_start == second.m_start && first.m_end == second.m_end;
     }
 
     SourceRangeContainer clone() const
     {
-        return SourceRangeContainer(start_.clone(), end_.clone());
+        return SourceRangeContainer(m_start.clone(), m_end.clone());
     }
 
 private:
-    SourceLocationContainer start_;
-    SourceLocationContainer end_;
+    SourceLocationContainer m_start;
+    SourceLocationContainer m_end;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceRangeContainer &container);
-void PrintTo(const SourceRangeContainer &container, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const SourceRangeContainer &container);
 } // namespace V2
 } // namespace ClangBackEnd

@@ -42,16 +42,14 @@ QDebug operator<<(QDebug debug, const ProjectPartsDoNotExistMessage &message)
     return debug;
 }
 
-void PrintTo(const ProjectPartsDoNotExistMessage &message, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const ProjectPartsDoNotExistMessage &message)
 {
-    QString output;
-    QDebug debug(&output);
+    os << "("
+       << message.projectPartIds()
+       << ")";
 
-    debug << message;
-
-    *os << output.toUtf8().constData();
+    return os;
 }
-
 
 } // namespace ClangBackEnd
 

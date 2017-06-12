@@ -51,9 +51,9 @@ private:
     bool checkIfMessageIsLost(QDataStream &in);
 
 private:
-    QIODevice *ioDevice;
-    qint64 messageCounter;
-    qint32 blockSize;
+    QIODevice *m_ioDevice;
+    qint64 m_messageCounter;
+    qint32 m_blockSize;
 };
 
 } // namespace ClangBackEnd

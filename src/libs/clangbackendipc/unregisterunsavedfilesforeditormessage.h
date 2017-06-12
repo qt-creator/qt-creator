@@ -36,41 +36,41 @@ class UnregisterUnsavedFilesForEditorMessage
 public:
     UnregisterUnsavedFilesForEditorMessage() = default;
     UnregisterUnsavedFilesForEditorMessage(const QVector<FileContainer> &fileContainers)
-        : fileContainers_(fileContainers)
+        : m_fileContainers(fileContainers)
     {
     }
 
     const QVector<FileContainer> &fileContainers() const
     {
-        return fileContainers_;
+        return m_fileContainers;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const UnregisterUnsavedFilesForEditorMessage &message)
     {
-        out << message.fileContainers_;
+        out << message.m_fileContainers;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, UnregisterUnsavedFilesForEditorMessage &message)
     {
-        in >> message.fileContainers_;
+        in >> message.m_fileContainers;
 
         return in;
     }
 
     friend bool operator==(const UnregisterUnsavedFilesForEditorMessage &first, const UnregisterUnsavedFilesForEditorMessage &second)
     {
-        return first.fileContainers_ == second.fileContainers_;
+        return first.m_fileContainers == second.m_fileContainers;
     }
 
 
 private:
-    QVector<FileContainer> fileContainers_;
+    QVector<FileContainer> m_fileContainers;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const UnregisterUnsavedFilesForEditorMessage &message);
-void PrintTo(const UnregisterUnsavedFilesForEditorMessage &message, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const UnregisterUnsavedFilesForEditorMessage &message);
 
 DECLARE_MESSAGE(UnregisterUnsavedFilesForEditorMessage)
 } // namespace ClangBackEnd

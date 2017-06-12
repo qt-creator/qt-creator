@@ -38,14 +38,14 @@ class SourceFilePathContainerBase
 public:
     SourceFilePathContainerBase() = default;
     SourceFilePathContainerBase(std::unordered_map<uint, FilePath> &&filePathHash)
-        : filePathHash(std::move(filePathHash))
+        : m_filePathHash(std::move(filePathHash))
     {
     }
 
     void insertFilePath(uint fileId, Utils::SmallString &&fileDirectory, Utils::SmallString &&fileName)
     {
-        if (filePathHash.find(fileId) == filePathHash.end()) {
-            filePathHash.emplace(std::piecewise_construct,
+        if (m_filePathHash.find(fileId) == m_filePathHash.end()) {
+            m_filePathHash.emplace(std::piecewise_construct,
                                  std::forward_as_tuple(fileId),
                                  std::forward_as_tuple(std::move(fileDirectory), std::move(fileName)));
         }
@@ -53,16 +53,16 @@ public:
 
     void reserve(std::size_t size)
     {
-        filePathHash.reserve(size / 3);
+        m_filePathHash.reserve(size / 3);
     }
 
     const FilePathDict &filePaths() const
     {
-        return filePathHash;
+        return m_filePathHash;
     }
 
 protected:
-    FilePathDict filePathHash;
+    FilePathDict m_filePathHash;
 };
 
 } // namespace ClangBackEnd

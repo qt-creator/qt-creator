@@ -42,14 +42,13 @@ QDebug operator<<(QDebug debug, const TranslationUnitDoesNotExistMessage &messag
     return debug;
 }
 
-void PrintTo(const TranslationUnitDoesNotExistMessage &message, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const TranslationUnitDoesNotExistMessage &message)
 {
-    QString output;
-    QDebug debug(&output);
+    os << "("
+       << message.fileContainer()
+       << ")";
 
-    debug << message;
-
-    *os << output.toUtf8().constData();
+    return os;
 }
 
 } // namespace ClangBackEnd

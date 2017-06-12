@@ -422,13 +422,15 @@ void HighlightingMark::collectKinds(CXTranslationUnit cxTranslationUnit,
     }
 }
 
-void PrintTo(const HighlightingMark &information, ::std::ostream *os)
+std::ostream &operator<<(std::ostream &os, const HighlightingMark& highlightingMark)
 {
-    *os << "type: ";
-    PrintTo(information.types, os);
-    *os << " line: " << information.line
-        << " column: " << information.column
-        << " length: " << information.length;
+    os << "(type: " << highlightingMark.types << ", "
+       << " line: " << highlightingMark.line << ", "
+       << " column: " << highlightingMark.column << ", "
+       << " length: " << highlightingMark.length
+       << ")";
+
+    return  os;
 }
 
 } // namespace ClangBackEnd

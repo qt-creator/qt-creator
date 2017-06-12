@@ -54,14 +54,14 @@ public:
     {
         ConnectionName::connectionName = connectionName;
 
-        aliveTimer.start(5000);
+        m_aliveTimer.start(5000);
 
-        localServer.setMaxPendingConnections(1);
+        m_localServer.setMaxPendingConnections(1);
 
-        QObject::connect(&localServer,
+        QObject::connect(&m_localServer,
                          &QLocalServer::newConnection,
                          [&] { handleNewConnection(); });
-        QObject::connect(&aliveTimer,
+        QObject::connect(&m_aliveTimer,
                          &QTimer::timeout,
                          [&] { sendAliveMessage(); });
 
@@ -80,12 +80,12 @@ public:
     void start()
     {
         QLocalServer::removeServer(ConnectionName::connectionName);
-        localServer.listen(ConnectionName::connectionName);
+        m_localServer.listen(ConnectionName::connectionName);
     }
 
     void setServer(ServerInterface *ipcServer)
     {
-        this->ipcServer = ipcServer;
+        this->m_ipcServer = ipcServer;
 
     }
 
@@ -97,31 +97,31 @@ public:
 private:
     void handleNewConnection()
     {
-        localSocket = nextPendingConnection();
+        m_localSocket = nextPendingConnection();
 
-        ipcClientProxy.reset(new ClientProxy(ipcServer, localSocket));
+        m_ipcClientProxy.reset(new ClientProxy(m_ipcServer, m_localSocket));
 
-        ipcServer->setClient(ipcClientProxy.get());
+        m_ipcServer->setClient(m_ipcClientProxy.get());
     }
 
     void sendAliveMessage()
     {
-        if (ipcClientProxy)
-            ipcClientProxy->alive();
+        if (m_ipcClientProxy)
+            m_ipcClientProxy->alive();
     }
 
     void handleSocketDisconnect()
     {
-        ipcClientProxy.reset();
+        m_ipcClientProxy.reset();
 
-        localSocket = nullptr;
+        m_localSocket = nullptr;
 
         delayedExitApplicationIfNoSockedIsConnected();
     }
 
     QLocalSocket *nextPendingConnection()
     {
-        QLocalSocket *localSocket = localServer.nextPendingConnection();
+        QLocalSocket *localSocket = m_localServer.nextPendingConnection();
 
         QObject::connect(localSocket,
                          &QLocalSocket::disconnected,
@@ -132,22 +132,22 @@ private:
 
     void delayedExitApplicationIfNoSockedIsConnected()
     {
-        if (localSocket == nullptr)
+        if (m_localSocket == nullptr)
             QTimer::singleShot(60000, [&] { exitApplicationIfNoSockedIsConnected(); });
     }
 
     void exitApplicationIfNoSockedIsConnected()
     {
-        if (localSocket == nullptr)
+        if (m_localSocket == nullptr)
             QCoreApplication::exit();
     }
 
 private:
-    std::unique_ptr<ClientProxy> ipcClientProxy;
-    QLocalSocket* localSocket;
-    ServerInterface *ipcServer;
-    QLocalServer localServer;
-    QTimer aliveTimer;
+    std::unique_ptr<ClientProxy> m_ipcClientProxy;
+    QLocalSocket* m_localSocket;
+    ServerInterface *m_ipcServer;
+    QLocalServer m_localServer;
+    QTimer m_aliveTimer;
 };
 
 } // namespace ClangBackEnd

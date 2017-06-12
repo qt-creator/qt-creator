@@ -36,32 +36,32 @@ class ProjectPartPch
 public:
     ProjectPartPch() = default;
     ProjectPartPch(Utils::SmallString &&projectPartId, Utils::SmallString &&pchPath)
-        : projectPartId(std::move(projectPartId)),
-          pchPath(std::move(pchPath))
+        : m_projectPartId(std::move(projectPartId)),
+          m_pchPath(std::move(pchPath))
     {}
 
     const Utils::SmallString &id() const
     {
-        return projectPartId;
+        return m_projectPartId;
     }
 
     const Utils::SmallString &path() const
     {
-        return pchPath;
+        return m_pchPath;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const ProjectPartPch &container)
     {
-        out << container.projectPartId;
-        out << container.pchPath;
+        out << container.m_projectPartId;
+        out << container.m_pchPath;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, ProjectPartPch &container)
     {
-        in >> container.projectPartId;
-        in >> container.pchPath;
+        in >> container.m_projectPartId;
+        in >> container.m_pchPath;
 
         return in;
     }
@@ -69,18 +69,18 @@ public:
     friend bool operator==(const ProjectPartPch &first,
                            const ProjectPartPch &second)
     {
-        return first.projectPartId == second.projectPartId
-            && first.pchPath == second.pchPath;
+        return first.m_projectPartId == second.m_projectPartId
+            && first.m_pchPath == second.m_pchPath;
     }
 
     ProjectPartPch clone() const
     {
-        return ProjectPartPch(projectPartId.clone(), pchPath.clone());
+        return ProjectPartPch(m_projectPartId.clone(), m_pchPath.clone());
     }
 
 private:
-    Utils::SmallString projectPartId;
-    Utils::SmallString pchPath;
+    Utils::SmallString m_projectPartId;
+    Utils::SmallString m_pchPath;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const ProjectPartPch &projectPartPch);

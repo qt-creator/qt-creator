@@ -64,6 +64,34 @@ bool Utf8StringVector::removeFast(const Utf8String &valueToBeRemoved)
     return hasEntry;
 }
 
+namespace std { // it has to be in std namespace for lookup
+
+template <typename T>
+ostream &operator<<(ostream &out, const QVector<T> &vector)
+{
+    out << "[";
+
+    copy(vector.cbegin(), vector.cend(), ostream_iterator<T>(out, ", "));
+
+    out << "]";
+
+    return out;
+}
+
+inline
+ostream &operator<<(ostream &out, const Utf8StringVector &vector)
+{
+    out << "[";
+
+    copy(vector.cbegin(), vector.cend(), ostream_iterator<Utf8String>(out, ", "));
+
+    out << "]";
+
+    return out;
+}
+
+} // namespace std
+
 inline QDataStream &operator<<(QDataStream &s, const Utf8StringVector &v)
 { return s << static_cast<const QVector<Utf8String> &>(v); }
 
@@ -71,6 +99,5 @@ inline QDataStream &operator>>(QDataStream &s, Utf8StringVector &v)
 { return s >> static_cast<QVector<Utf8String> &>(v); }
 
 SQLITE_EXPORT QDebug operator<<(QDebug debug, const Utf8StringVector &textVector);
-SQLITE_EXPORT void PrintTo(const Utf8StringVector &textVector, ::std::ostream* os);
 
 Q_DECLARE_METATYPE(Utf8StringVector)

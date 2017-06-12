@@ -44,18 +44,13 @@ QDebug operator<<(QDebug debug, const SourceRangesContainer &container)
     return debug;
 }
 
-void PrintTo(const SourceRangesContainer &container, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const SourceRangesContainer &container)
 {
-    *os << "SourceRangesContainer(";
-    for (const auto &sourceRangeWithText: container.sourceRangeWithTextContainers()) {
-        *os << "["
-            << container.filePathForSourceRange(sourceRangeWithText).name() << ","
-            << sourceRangeWithText.start().line() << ","
-            << sourceRangeWithText.start().column() << "), ("
-            << sourceRangeWithText.end().line() << ","
-            << sourceRangeWithText.end().column() << ")], ";
-    }
-    *os << ")";
+    os << "("
+       << container.sourceRangeWithTextContainers()
+       << ")";
+
+    return os;
 }
 
 } // namespace ClangBackEnd

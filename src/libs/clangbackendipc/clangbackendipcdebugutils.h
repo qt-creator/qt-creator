@@ -44,8 +44,8 @@ public:
     ~VerboseScopeDurationTimer();
 
 private:
-    const char * const id;
-    QElapsedTimer timer;
+    const char * const m_id;
+    QElapsedTimer m_timer;
 };
 
 } // namespace ClangBackEnd

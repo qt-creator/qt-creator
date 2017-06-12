@@ -34,9 +34,4 @@ QDebug operator<<(QDebug debug, const FilePath &filePath)
     return debug;
 }
 
-void PrintTo(const FilePath &filePath, ::std::ostream* os)
-{
-    *os << filePath.directory() << "/" << filePath.name();
-}
-
 } // namespace ClangBackEnd

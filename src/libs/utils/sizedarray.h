@@ -27,11 +27,8 @@
 
 #include <array>
 #include <cstdint>
-
-#pragma push_macro("constexpr")
-#ifndef __cpp_constexpr
-#define constexpr
-#endif
+#include <ostream>
+#include <iterator>
 
 namespace Utils {
 
@@ -113,10 +110,17 @@ public:
         std::array<T, MaxSize>::fill(T{});
     }
 
+    friend std::ostream &operator<<(std::ostream &out, SizedArray array)
+    {
+        out << "[";
+        copy(array.cbegin(), array.cend(), std::ostream_iterator<T>(out, ", "));
+        out << "]";
+
+        return out;
+    }
+
 private:
     std::uint8_t m_size = 0;
 };
 
 }  // namespace Utils
-
-#pragma pop_macro("constexpr")

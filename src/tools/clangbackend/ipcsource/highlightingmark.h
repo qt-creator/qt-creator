@@ -37,7 +37,6 @@ namespace ClangBackEnd {
 class HighlightingMark
 {
     friend bool operator==(const HighlightingMark &first, const HighlightingMark &second);
-    friend void PrintTo(const HighlightingMark& highlightingMark, ::std::ostream *os);
 
     enum class Recursion {
         FirstPass,
@@ -78,6 +77,8 @@ private:
     void filterOutPreviousOutputArguments();
     bool isArgumentInCurrentOutputArgumentLocations() const;
 
+    friend std::ostream &operator<<(std::ostream &os, const HighlightingMark& highlightingMark);
+
 private:
     std::vector<CXSourceRange> *currentOutputArgumentRanges = nullptr;
     Cursor originalCursor;
@@ -88,7 +89,6 @@ private:
     HighlightingTypes types;
 };
 
-void PrintTo(const HighlightingMark& highlightingMark, ::std::ostream *os);
 
 inline bool operator==(const HighlightingMark &first, const HighlightingMark &second)
 {
