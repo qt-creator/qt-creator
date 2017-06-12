@@ -60,17 +60,13 @@ const char BUILD_ARGUMENTS_KEY[] = "Ios.IosBuildStep.XcodeArguments";
 const char CLEAN_KEY[] = "Ios.IosBuildStep.Clean";
 
 IosBuildStep::IosBuildStep(BuildStepList *parent) :
-    AbstractProcessStep(parent, Id(IOS_BUILD_STEP_ID)),
-    m_useDefaultArguments(true),
-    m_clean(false)
+    AbstractProcessStep(parent, Id(IOS_BUILD_STEP_ID))
 {
     ctor();
 }
 
 IosBuildStep::IosBuildStep(BuildStepList *parent, const Id id) :
-    AbstractProcessStep(parent, id),
-    m_useDefaultArguments(true),
-    m_clean(false)
+    AbstractProcessStep(parent, id)
 {
     ctor();
 }

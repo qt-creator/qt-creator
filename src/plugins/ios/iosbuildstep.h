@@ -74,9 +74,8 @@ private:
 
     QStringList m_baseBuildArguments;
     QStringList m_extraArguments;
-    QString m_buildCommand;
-    bool m_useDefaultArguments;
-    bool m_clean;
+    bool m_useDefaultArguments = true;
+    bool m_clean = false;
 };
 
 class IosBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
