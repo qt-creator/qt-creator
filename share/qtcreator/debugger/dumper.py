@@ -2728,7 +2728,7 @@ class DumperBase:
             return
 
         if typeobj.code == TypeCodeBitfield:
-            #warn('BITFIELD VALUE: %s %s' % (value.name, value))
+            #warn('BITFIELD VALUE: %s %d %s' % (value.name, value.lvalue, typeName))
             self.putNumChild(0)
             if typeobj.ltarget and typeobj.ltarget.code == TypeCodeEnum:
                 self.putValue(typeobj.ltarget.typeData().enumDisplay(value.lvalue, value.laddress))
