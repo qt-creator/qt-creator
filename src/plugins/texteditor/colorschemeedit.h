@@ -87,10 +87,10 @@ private:
 private:
     FormatDescriptions m_descriptions;
     ColorScheme m_scheme;
-    int m_curItem;
+    int m_curItem = -1;
     Ui::ColorSchemeEdit *m_ui;
     FormatsModel *m_formatsModel;
-    bool m_readOnly;
+    bool m_readOnly = false;
 };
 
 

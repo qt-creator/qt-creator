@@ -34,6 +34,10 @@
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
+namespace {
+const int layoutSpacing = 6;
+} // namespace
+
 static inline QString colorButtonStyleSheet(const QColor &bgColor)
 {
     if (bgColor.isValid()) {
@@ -145,11 +149,10 @@ private:
 
 ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     QWidget(parent),
-    m_curItem(-1),
     m_ui(new Ui::ColorSchemeEdit),
-    m_formatsModel(new FormatsModel(this)),
-    m_readOnly(false)
+    m_formatsModel(new FormatsModel(this))
 {
+    setContentsMargins(0, layoutSpacing, 0, 0);
     setPalette(Utils::Theme::initialPalette());
     m_ui->setupUi(this);
     m_ui->itemList->setModel(m_formatsModel);
@@ -219,18 +222,21 @@ void ColorSchemeEdit::setReadOnly(bool readOnly)
     m_ui->backgroundToolButton->setEnabled(enabled);
     m_ui->eraseBackgroundToolButton->setEnabled(enabled);
     m_ui->eraseForegroundToolButton->setEnabled(enabled);
-    m_ui->relativeForegroundLabel->setEnabled(enabled);
+    m_ui->relativeForegroundHeadline->setEnabled(enabled);
     m_ui->foregroundSaturationLabel->setEnabled(enabled);
     m_ui->foregroundLightnessLabel->setEnabled(enabled);
     m_ui->foregroundSaturationSpinBox->setEnabled(enabled);
     m_ui->foregroundLightnessSpinBox->setEnabled(enabled);
-    m_ui->relativeBackgroundLabel->setEnabled(enabled);
+    m_ui->relativeBackgroundHeadline->setEnabled(enabled);
     m_ui->backgroundSaturationLabel->setEnabled(enabled);
     m_ui->backgroundLightnessLabel->setEnabled(enabled);
     m_ui->backgroundSaturationSpinBox->setEnabled(enabled);
     m_ui->backgroundLightnessSpinBox->setEnabled(enabled);
+    m_ui->fontHeadline->setEnabled(enabled);
     m_ui->boldCheckBox->setEnabled(enabled);
     m_ui->italicCheckBox->setEnabled(enabled);
+    m_ui->underlineHeadline->setEnabled(enabled);
+    m_ui->underlineLabel->setEnabled(enabled);
     m_ui->underlineColorToolButton->setEnabled(enabled);
     m_ui->eraseUnderlineColorToolButton->setEnabled(enabled);
     m_ui->underlineComboBox->setEnabled(enabled);
@@ -278,6 +284,7 @@ void ColorSchemeEdit::updateForegroundControls()
     m_ui->foregroundLabel->setVisible(isVisible);
     m_ui->foregroundToolButton->setVisible(isVisible);
     m_ui->eraseForegroundToolButton->setVisible(isVisible);
+    m_ui->foregroundSpacer->setVisible(isVisible);
 
     m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(format.foreground()));
     m_ui->eraseForegroundToolButton->setEnabled(!m_readOnly
@@ -295,6 +302,7 @@ void ColorSchemeEdit::updateBackgroundControls()
     m_ui->backgroundLabel->setVisible(isVisible);
     m_ui->backgroundToolButton->setVisible(isVisible);
     m_ui->eraseBackgroundToolButton->setVisible(isVisible);
+    m_ui->backgroundSpacer->setVisible(isVisible);
 
     m_ui->backgroundToolButton->setStyleSheet(colorButtonStyleSheet(format.background()));
     m_ui->eraseBackgroundToolButton->setEnabled(!m_readOnly
@@ -312,11 +320,14 @@ void ColorSchemeEdit::updateRelativeForegroundControls()
 
     bool isVisible = formatDescription.showControl(FormatDescription::ShowRelativeForegroundControl);
 
-    m_ui->relativeForegroundLabel->setVisible(isVisible);
+    m_ui->relativeForegroundHeadline->setVisible(isVisible);
     m_ui->foregroundSaturationLabel->setVisible(isVisible);
     m_ui->foregroundLightnessLabel->setVisible(isVisible);
     m_ui->foregroundSaturationSpinBox->setVisible(isVisible);
     m_ui->foregroundLightnessSpinBox->setVisible(isVisible);
+    m_ui->relativeForegroundSpacer1->setVisible(isVisible);
+    m_ui->relativeForegroundSpacer2->setVisible(isVisible);
+    m_ui->relativeForegroundSpacer3->setVisible(isVisible);
 
     m_ui->foregroundSaturationSpinBox->setValue(format.relativeForegroundSaturation());
     m_ui->foregroundLightnessSpinBox->setValue(format.relativeForegroundLightness());
@@ -332,11 +343,14 @@ void ColorSchemeEdit::updateRelativeBackgroundControls()
 
     bool isVisible = formatDescription.showControl(FormatDescription::ShowRelativeBackgroundControl);
 
-    m_ui->relativeBackgroundLabel->setVisible(isVisible);
+    m_ui->relativeBackgroundHeadline->setVisible(isVisible);
     m_ui->backgroundSaturationLabel->setVisible(isVisible);
     m_ui->backgroundLightnessLabel->setVisible(isVisible);
     m_ui->backgroundSaturationSpinBox->setVisible(isVisible);
     m_ui->backgroundLightnessSpinBox->setVisible(isVisible);
+    m_ui->relativeBackgroundSpacer1->setVisible(isVisible);
+    m_ui->relativeBackgroundSpacer2->setVisible(isVisible);
+    m_ui->relativeBackgroundSpacer3->setVisible(isVisible);
 
     m_ui->backgroundSaturationSpinBox->setValue(format.relativeBackgroundSaturation());
     m_ui->backgroundLightnessSpinBox->setValue(format.relativeBackgroundLightness());
@@ -352,8 +366,11 @@ void ColorSchemeEdit::updateFontControls()
 
     bool isVisible= formatDescription.showControl(FormatDescription::ShowFontControls);
 
+    m_ui->fontHeadline->setVisible(isVisible);
     m_ui->boldCheckBox->setVisible(isVisible);
     m_ui->italicCheckBox->setVisible(isVisible);
+    m_ui->fontSpacer1->setVisible(isVisible);
+    m_ui->fontSpacer2->setVisible(isVisible);
 
     m_ui->boldCheckBox->setChecked(format.bold());
     m_ui->italicCheckBox->setChecked(format.italic());
@@ -369,10 +386,13 @@ void ColorSchemeEdit::updateUnderlineControls()
 
     bool isVisible= formatDescription.showControl(FormatDescription::ShowUnderlineControl);
 
+    m_ui->underlineHeadline->setVisible(isVisible);
     m_ui->underlineLabel->setVisible(isVisible);
     m_ui->underlineColorToolButton->setVisible(isVisible);
     m_ui->eraseUnderlineColorToolButton->setVisible(isVisible);
     m_ui->underlineComboBox->setVisible(isVisible);
+    m_ui->underlineSpacer1->setVisible(isVisible);
+    m_ui->underlineSpacer2->setVisible(isVisible);
 
     m_ui->underlineColorToolButton->setStyleSheet(colorButtonStyleSheet(format.underlineColor()));
     m_ui->eraseUnderlineColorToolButton->setEnabled(!m_readOnly
