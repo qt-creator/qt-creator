@@ -112,23 +112,23 @@ QVariantMap IosPresetBuildStep::toMap() const
 {
     QVariantMap map(AbstractProcessStep::toMap());
 
-    map.insert(id().withSuffix(QLatin1String(ARGUMENTS_PARTIAL_KEY)).toString(),
+    map.insert(id().withSuffix(ARGUMENTS_PARTIAL_KEY).toString(),
                arguments());
-    map.insert(id().withSuffix(QLatin1String(USE_DEFAULT_ARGS_PARTIAL_KEY)).toString(),
+    map.insert(id().withSuffix(USE_DEFAULT_ARGS_PARTIAL_KEY).toString(),
                isDefault());
-    map.insert(id().withSuffix(QLatin1String(CLEAN_PARTIAL_KEY)).toString(), m_clean);
-    map.insert(id().withSuffix(QLatin1String(COMMAND_PARTIAL_KEY)).toString(), command());
+    map.insert(id().withSuffix(CLEAN_PARTIAL_KEY).toString(), m_clean);
+    map.insert(id().withSuffix(COMMAND_PARTIAL_KEY).toString(), command());
     return map;
 }
 
 bool IosPresetBuildStep::fromMap(const QVariantMap &map)
 {
-    QVariant bArgs = map.value(id().withSuffix(QLatin1String(ARGUMENTS_PARTIAL_KEY)).toString());
+    QVariant bArgs = map.value(id().withSuffix(ARGUMENTS_PARTIAL_KEY).toString());
     m_arguments = bArgs.toStringList();
     bool useDefaultArguments = map.value(
-                id().withSuffix(QLatin1String(USE_DEFAULT_ARGS_PARTIAL_KEY)).toString()).toBool();
-    m_clean = map.value(id().withSuffix(QLatin1String(CLEAN_PARTIAL_KEY)).toString(), m_clean).toBool();
-    m_command = map.value(id().withSuffix(QLatin1String(COMMAND_PARTIAL_KEY)).toString(), m_command)
+                id().withSuffix(USE_DEFAULT_ARGS_PARTIAL_KEY).toString()).toBool();
+    m_clean = map.value(id().withSuffix(CLEAN_PARTIAL_KEY).toString(), m_clean).toBool();
+    m_command = map.value(id().withSuffix(COMMAND_PARTIAL_KEY).toString(), m_command)
             .toString();
     if (useDefaultArguments) {
         m_command = defaultCommand();
@@ -380,7 +380,7 @@ IosPresetBuildStep *IosDsymBuildStepFactory::createPresetStep(BuildStepList *par
 IosDsymBuildStep::IosDsymBuildStep(BuildStepList *parent, const Id id)
     : IosPresetBuildStep(parent, id)
 {
-    setDefaultDisplayName(QLatin1String("dsymutil"));
+    setDefaultDisplayName("dsymutil");
 }
 
 QStringList IosDsymBuildStep::defaultCleanCmdList() const
@@ -390,23 +390,23 @@ QStringList IosDsymBuildStep::defaultCleanCmdList() const
     QTC_ASSERT(runConf, return QStringList("echo"));
     QString dsymPath = runConf->bundleDirectory().toUserOutput();
     dsymPath.chop(4);
-    dsymPath.append(QLatin1String(".dSYM"));
+    dsymPath.append(".dSYM");
     return QStringList({"rm", "-rf", dsymPath});
 }
 
 QStringList IosDsymBuildStep::defaultCmdList() const
 {
-    QString dsymutilCmd = QLatin1String("dsymutil");
+    QString dsymutilCmd = "dsymutil";
     Utils::FileName dsymUtilPath = IosConfigurations::developerPath()
-            .appendPath(QLatin1String("Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil"));
+            .appendPath("Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil");
     if (dsymUtilPath.exists())
         dsymutilCmd = dsymUtilPath.toUserOutput();
     IosRunConfiguration *runConf =
             qobject_cast<IosRunConfiguration *>(target()->activeRunConfiguration());
-    QTC_ASSERT(runConf, return QStringList(QLatin1String("echo")));
+    QTC_ASSERT(runConf, return QStringList("echo"));
     QString dsymPath = runConf->bundleDirectory().toUserOutput();
     dsymPath.chop(4);
-    dsymPath.append(QLatin1String(".dSYM"));
+    dsymPath.append(".dSYM");
     return QStringList({dsymutilCmd, "-o", dsymPath, runConf->localExecutable().toUserOutput()});
 }
 

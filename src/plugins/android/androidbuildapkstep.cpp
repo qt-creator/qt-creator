@@ -62,11 +62,11 @@ using namespace Internal;
 
 const QVersionNumber gradleScriptRevokedSdkVersion(25, 3, 0);
 const QVersionNumber gradleScriptsContainedQtVersion(5, 9, 0);
-const QLatin1String DeployActionKey("Qt4ProjectManager.AndroidDeployQtStep.DeployQtAction");
-const QLatin1String KeystoreLocationKey("KeystoreLocation");
-const QLatin1String BuildTargetSdkKey("BuildTargetSdk");
-const QLatin1String VerboseOutputKey("VerboseOutput");
-const QLatin1String UseGradleKey("UseGradle");
+const char DeployActionKey[] = "Qt4ProjectManager.AndroidDeployQtStep.DeployQtAction";
+const char KeystoreLocationKey[] = "KeystoreLocation";
+const char BuildTargetSdkKey[] = "BuildTargetSdk";
+const char VerboseOutputKey[] = "VerboseOutput";
+const char UseGradleKey[] = "UseGradle";
 
 
 class PasswordInputDialog : public QDialog {
@@ -161,7 +161,7 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     JavaParser *parser = new JavaParser;
     parser->setProjectFileList(target()->project()->files(ProjectExplorer::Project::AllFiles));
     parser->setSourceDirectory(androidPackageSourceDir());
-    parser->setBuildDirectory(Utils::FileName::fromString(bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString()));
+    parser->setBuildDirectory(Utils::FileName::fromString(bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString()));
     setOutputParser(parser);
 
     m_openPackageLocationForRun = m_openPackageLocation;
@@ -376,11 +376,10 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
 
     CertificatesModel *model = nullptr;
     QStringList params
-            = {QLatin1String("-list"), QLatin1String("-v"), QLatin1String("-keystore"),
-               m_keystorePath.toUserOutput(), QLatin1String("-storepass")};
+            = {"-list", "-v", "-keystore", m_keystorePath.toUserOutput(), "-storepass"};
 
     params << m_keystorePasswd;
-    params << QLatin1String("-J-Duser.language=en");
+    params << "-J-Duser.language=en";
 
     Utils::SynchronousProcess keytoolProc;
     keytoolProc.setTimeoutS(30);
