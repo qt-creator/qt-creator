@@ -23,6 +23,7 @@ HEADERS = \
     propertyprovider.h \
     qbsbuildconfiguration.h \
     qbsbuildconfigurationwidget.h \
+    qbsbuildinfo.h \
     qbsbuildstep.h \
     qbscleanstep.h \
     qbsdeployconfigurationfactory.h \
@@ -48,6 +49,7 @@ SOURCES = \
     defaultpropertyprovider.cpp \
     qbsbuildconfiguration.cpp \
     qbsbuildconfigurationwidget.cpp \
+    qbsbuildinfo.cpp \
     qbsbuildstep.cpp \
     qbscleanstep.cpp \
     qbsdeployconfigurationfactory.cpp \

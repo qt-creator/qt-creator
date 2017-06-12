@@ -26,6 +26,7 @@
 #include "qbsbuildconfiguration.h"
 
 #include "qbsbuildconfigurationwidget.h"
+#include "qbsbuildinfo.h"
 #include "qbsbuildstep.h"
 #include "qbscleanstep.h"
 #include "qbsinstallstep.h"
@@ -36,7 +37,6 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
-#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/kit.h>
@@ -380,7 +380,7 @@ bool QbsBuildConfigurationFactory::canHandle(const Target *t) const
 BuildInfo *QbsBuildConfigurationFactory::createBuildInfo(const Kit *k,
                                                          BuildConfiguration::BuildType type) const
 {
-    auto info = new ProjectExplorer::BuildInfo(this);
+    auto info = new QbsBuildInfo(this);
     info->typeName = tr("Build");
     info->kitId = k->id();
     info->buildType = type;
