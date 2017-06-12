@@ -606,7 +606,8 @@ void QbsProject::parseCurrentBuildConfiguration()
         return;
     }
 
-    parse(bc->qbsConfiguration(), bc->environment(), bc->buildDirectory().toString());
+    parse(bc->qbsConfiguration(), bc->environment(), bc->buildDirectory().toString(),
+          bc->configurationName());
 }
 
 void QbsProject::cancelParsing()
@@ -690,7 +691,8 @@ QString QbsProject::uniqueProductName(const qbs::ProductData &product)
     return product.name() + QLatin1Char('.') + product.profile();
 }
 
-void QbsProject::parse(const QVariantMap &config, const Environment &env, const QString &dir)
+void QbsProject::parse(const QVariantMap &config, const Environment &env, const QString &dir,
+                       const QString &configName)
 {
     prepareForParsing();
     QTC_ASSERT(!m_qbsProjectParser, return);
@@ -698,7 +700,7 @@ void QbsProject::parse(const QVariantMap &config, const Environment &env, const 
     registerQbsProjectParser(new QbsProjectParser(this, m_qbsUpdateFutureInterface));
 
     QbsManager::instance()->updateProfileIfNecessary(activeTarget()->kit());
-    m_qbsProjectParser->parse(config, env, dir);
+    m_qbsProjectParser->parse(config, env, dir, configName);
     emit projectParsingStarted();
 }
 

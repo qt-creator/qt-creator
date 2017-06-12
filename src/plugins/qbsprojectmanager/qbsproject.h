@@ -124,7 +124,8 @@ private:
 
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
-    void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir);
+    void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir,
+               const QString &configName);
 
     void prepareForParsing();
     void updateDocuments(const QSet<QString> &files);

@@ -32,6 +32,10 @@ class DetailsWidget;
 class PathChooser;
 } // namespace Utils
 
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+QT_END_NAMESPACE
+
 namespace QbsProjectManager {
 namespace Internal {
 class QbsBuildConfiguration;
@@ -45,6 +49,7 @@ public:
 
 private:
     void buildDirEdited();
+    void configNameEdited();
 
     // Changes triggered from creator
     void buildDirectoryChanged();
@@ -53,6 +58,7 @@ private:
 private:
     Internal::QbsBuildConfiguration *m_buildConfiguration;
     Utils::PathChooser *m_buildDirChooser;
+    QLineEdit *m_configNameEdit;
     bool m_ignoreChange;
 };
 

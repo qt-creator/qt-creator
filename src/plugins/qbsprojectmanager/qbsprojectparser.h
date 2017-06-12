@@ -46,7 +46,8 @@ public:
                      QFutureInterface<bool> *fi);
     ~QbsProjectParser();
 
-    void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir);
+    void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir,
+               const QString &configName);
     void startRuleExecution();
     void cancel();
 
