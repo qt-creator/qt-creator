@@ -258,6 +258,12 @@ static QString generateDisplayName(const QString &name,
     return vcName;
 }
 
+static QByteArray msvcCompilationDefine(const char *def)
+{
+    const QByteArray macro(def);
+    return "#if defined(" + macro + ")\n__PPOUT__(" + macro + ")\n#endif\n";
+}
+
 static QByteArray msvcCompilationFile()
 {
     static const char* macros[] = {
@@ -340,11 +346,8 @@ static QByteArray msvcCompilationFile()
         0
     };
     QByteArray file = "#define __PPOUT__(x) V##x=x\n\n";
-    for (int i = 0; macros[i] != 0; ++i) {
-        const QByteArray macro(macros[i]);
-        file += "#if defined(" + macro + ")\n__PPOUT__("
-                + macro + ")\n#endif\n";
-    }
+    for (int i = 0; macros[i] != 0; ++i)
+        file += msvcCompilationDefine(macros[i]);
     file += "\nvoid main(){}\n\n";
     return file;
 }
@@ -454,6 +457,8 @@ QByteArray MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
         return predefinedMacros;
     }
 
+    if (language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
+        arguments << QLatin1String("/TC");
     arguments << toProcess << QLatin1String("/EP") << QDir::toNativeSeparators(saver.fileName());
     Utils::SynchronousProcessResponse response = cpp.runBlocking(binary.toString(), arguments);
     if (response.result != Utils::SynchronousProcessResponse::Finished ||
