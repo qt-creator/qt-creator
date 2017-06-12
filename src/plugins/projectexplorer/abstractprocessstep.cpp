@@ -390,7 +390,7 @@ void AbstractProcessStep::taskAdded(const Task &task, int linkedOutputLines, int
         } else {
             // More then one filename, so do a better compare
             // Chop of any "../"
-            while (filePath.startsWith(QLatin1String("../")))
+            while (filePath.startsWith("../"))
                 filePath.remove(0, 3);
             int count = 0;
             QString possibleFilePath;
