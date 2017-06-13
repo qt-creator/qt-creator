@@ -440,16 +440,8 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
     if (rp.masterEngineType == NoEngineType)
         rp.masterEngineType = rp.cppEngineType;
 
-    if (device && rp.connParams.port == 0)
-        rp.connParams = device->sshParameters();
-
-    // Could have been set from command line.
-    if (rp.remoteChannel.isEmpty())
-        rp.remoteChannel = rp.connParams.host + ':' + QString::number(rp.connParams.port);
-
     if (rp.startMode == NoStartMode)
         rp.startMode = StartInternal;
-
 
     if (runMode == DebugRunModeWithBreakOnMain)
         rp.breakOnMain = true;

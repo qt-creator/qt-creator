@@ -121,11 +121,8 @@ void QnxAttachDebugSupport::attachToProcess()
     sp.attachPID = Utils::ProcessHandle(m_process.pid);
     sp.startMode = Debugger::AttachToRemoteServer;
     sp.closeMode = Debugger::DetachAtClose;
-    sp.connParams.port = m_pdebugPort.number();
-    sp.remoteChannel = m_device->sshParameters().host + QLatin1Char(':') +
-            QString::number(m_pdebugPort.number());
-    sp.displayName = tr("Remote: \"%1:%2\" - Process %3").arg(sp.connParams.host)
-            .arg(m_pdebugPort.number()).arg(m_process.pid);
+    sp.remoteChannel = QString("%1:%2").arg(m_device->sshParameters().host).arg(m_pdebugPort.number());
+    sp.displayName = tr("Remote: \"%1\" - Process %2").arg(sp.remoteChannel).arg(m_process.pid);
     sp.inferior.executable = m_localExecutablePath;
     sp.useCtrlCStub = true;
 

@@ -2177,7 +2177,8 @@ void DebuggerPluginPrivate::attachToQmlPort()
 
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     if (device) {
-        rp.connParams = device->sshParameters();
+        QSsh::SshConnectionParameters sshParameters = device->sshParameters();
+        rp.remoteChannel = QString("%1:%2").arg(sshParameters.host).arg(sshParameters.port);
         Connection toolControl = device->toolControlChannel(IDevice::QmlControlChannel);
         QTC_ASSERT(toolControl.is<HostName>(), return);
         rp.qmlServer.host = toolControl.as<HostName>().host();

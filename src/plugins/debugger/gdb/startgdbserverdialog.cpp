@@ -209,10 +209,8 @@ void GdbServerStarter::attach(int port)
 
     DebuggerRunParameters rp;
     rp.masterEngineType = GdbEngineType;
-    rp.connParams.host = d->device->sshParameters().host;
-    rp.connParams.port = port;
-    rp.remoteChannel = rp.connParams.host + QLatin1Char(':') + QString::number(rp.connParams.port);
-    rp.displayName = tr("Remote: \"%1:%2\"").arg(rp.connParams.host).arg(port);
+    rp.remoteChannel = QString("%1:%2").arg(d->device->sshParameters().host).arg(port);
+    rp.displayName = tr("Remote: \"%1\"").arg(rp.remoteChannel);
     rp.inferior.executable = localExecutable;
     rp.startMode = AttachToRemoteServer;
     rp.closeMode = KillAtClose;

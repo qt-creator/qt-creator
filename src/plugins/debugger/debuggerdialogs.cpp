@@ -385,6 +385,9 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit
     if (dialog.exec() != QDialog::Accepted)
         return false;
 
+    Kit *k = dialog.d->kitChooser->currentKit();
+    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
+
     const StartApplicationParameters newParameters = dialog.parameters();
     if (newParameters != history.back()) {
         history.append(newParameters);
@@ -405,9 +408,7 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit
     if (!inputAddress.isEmpty())
         rp->remoteChannel = inputAddress;
     else
-        rp->remoteChannel = rp->connParams.host;
-    if (!rp->remoteChannel.isEmpty())
-        rp->remoteChannel += QLatin1Char(':') + QString::number(newParameters.serverPort);
+        rp->remoteChannel = QString("%1:%2").arg(dev->sshParameters().host).arg(newParameters.serverPort);
     rp->displayName = newParameters.displayName();
     rp->inferior.workingDirectory = newParameters.runnable.workingDirectory;
     rp->useTerminal = newParameters.runnable.runMode == ApplicationLauncher::Console;
@@ -417,8 +418,6 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit
     rp->serverStartScript = newParameters.serverStartScript;
     rp->debugInfoLocation = newParameters.debugInfoLocation;
 
-    Kit *k = dialog.d->kitChooser->currentKit();
-    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
     bool isLocal = !dev || (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     if (!attachRemote)
         rp->startMode = isLocal ? StartExternal : StartRemoteProcess;

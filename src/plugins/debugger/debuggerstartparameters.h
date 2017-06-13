@@ -71,7 +71,6 @@ public:
 
     // Used by general remote debugging.
     QString remoteChannel;
-    QSsh::SshConnectionParameters connParams;
     bool useExtendedRemote = false; // Whether to use GDB's target extended-remote or not.
     QString symbolFile;
 
