@@ -928,8 +928,10 @@ QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alr
 QList<ToolChain *> GccToolChainFactory::autoDetect(const FileName &compilerPath, const Core::Id &language)
 {
     const QString fileName = compilerPath.fileName();
-    if ((language == Constants::C_LANGUAGE_ID && fileName.startsWith("gcc"))
-            || (language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("g++")))
+    if ((language == Constants::C_LANGUAGE_ID && (fileName.startsWith("gcc")
+                                                  || fileName.endsWith("gcc")))
+            || (language == Constants::CXX_LANGUAGE_ID && (fileName.startsWith("g++")
+                                                           || fileName.endsWith("g++"))))
         return autoDetectToolChain(compilerPath, language);
     return QList<ToolChain *>();
 }
@@ -1412,8 +1414,10 @@ QList<ToolChain *> MingwToolChainFactory::autoDetect(const FileName &compilerPat
     Abi ha = Abi::hostAbi();
     ha = Abi(ha.architecture(), Abi::WindowsOS, Abi::WindowsMSysFlavor, Abi::PEFormat, ha.wordWidth());
     const QString fileName = compilerPath.fileName();
-    if ((language == Constants::C_LANGUAGE_ID && fileName.startsWith("gcc"))
-            || (language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("g++")))
+    if ((language == Constants::C_LANGUAGE_ID && (fileName.startsWith("gcc")
+                                                  || fileName.endsWith("gcc")))
+            || (language == Constants::CXX_LANGUAGE_ID && (fileName.startsWith("g++")
+                || fileName.endsWith("g++"))))
         return autoDetectToolChain(compilerPath, language, ha);
     return QList<ToolChain *>();
 }
