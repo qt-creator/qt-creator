@@ -158,6 +158,8 @@ QbsProject::~QbsProject()
         m_qbsUpdateFutureInterface = 0;
     }
     qDeleteAll(m_extraCompilers);
+    std::for_each(m_qbsDocuments.cbegin(), m_qbsDocuments.cend(),
+                  [](Core::IDocument *doc) { doc->deleteLater(); });
 }
 
 QbsRootProjectNode *QbsProject::rootProjectNode() const
