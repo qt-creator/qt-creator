@@ -374,12 +374,16 @@ HighlightingType operatorKind(const Cursor &cursor)
 
 HighlightingType HighlightingMark::punctuationKind(const Cursor &cursor)
 {
+    HighlightingType highlightingType = HighlightingType::Invalid;
+
     switch (cursor.kind()) {
-        case CXCursor_DeclRefExpr: return operatorKind(cursor);
+        case CXCursor_DeclRefExpr: highlightingType = operatorKind(cursor); break;
         case CXCursor_Constructor:
-        case CXCursor_CallExpr:    collectOutputArguments(cursor);
-        default:                   return HighlightingType::Invalid;
+        case CXCursor_CallExpr:    collectOutputArguments(cursor); break;
+        default:                   break;
     }
+
+    return highlightingType;
 }
 
 static HighlightingType highlightingTypeForKeyword(CXTranslationUnit cxTranslationUnit,
