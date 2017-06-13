@@ -31,6 +31,8 @@
 
 #include <QVector>
 
+#include <iosfwd>
+
 namespace ClangBackEnd {
 
 class CodeCompletionsExtractor
@@ -78,7 +80,5 @@ private:
     uint cxCodeCompleteResultIndex = -1;
 };
 
-#ifdef CLANGBACKEND_TESTS
-void PrintTo(const CodeCompletionsExtractor &extractor, ::std::ostream* os);
-#endif
+std::ostream &operator<<(std::ostream &os, const CodeCompletionsExtractor &extractor);
 } // namespace ClangBackEnd

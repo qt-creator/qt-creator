@@ -28,10 +28,6 @@
 #include "clangstring.h"
 #include "codecompletionchunkconverter.h"
 
-#ifdef CLANGBACKEND_TESTS
-#include <gtest/gtest.h>
-#endif
-
 #include <QDebug>
 
 namespace ClangBackEnd {
@@ -344,15 +340,15 @@ const CodeCompletion &CodeCompletionsExtractor::currentCodeCompletion() const
     return currentCodeCompletion_;
 }
 
-#ifdef CLANGBACKEND_TESTS
-void PrintTo(const CodeCompletionsExtractor &extractor, std::ostream *os)
+std::ostream &operator<<(std::ostream &os, const CodeCompletionsExtractor &extractor)
 {
-    *os << "name: " << ::testing::PrintToString(extractor.currentCodeCompletion().text())
-        << ", kind: " <<  ::testing::PrintToString(extractor.currentCodeCompletion().completionKind())
-        << ", priority: " <<  extractor.currentCodeCompletion().priority()
-        << ", kind: " <<  ::testing::PrintToString(extractor.currentCodeCompletion().availability());
+    os << "name: " << extractor.currentCodeCompletion().text()
+       << ", kind: " <<  extractor.currentCodeCompletion().completionKind()
+       << ", priority: " <<  extractor.currentCodeCompletion().priority()
+       << ", kind: " <<  extractor.currentCodeCompletion().availability();
+
+    return os;
 }
-#endif
 
 } // namespace ClangBackEnd
 

@@ -72,6 +72,6 @@ private:
 
 bool operator==(const SourceLocation &first, const SourceLocation &second);
 
-void PrintTo(const SourceLocation &sourceLocation, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const SourceLocation &sourceLocation);
 
 } // namespace ClangBackEnd

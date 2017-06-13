@@ -403,29 +403,31 @@ bool operator!=(const Cursor &first, const Cursor &second)
     return !(first == second);
 }
 
-void PrintTo(CXCursorKind cursorKind, ::std::ostream *os)
+std::ostream &operator<<(std::ostream &os, CXCursorKind cursorKind)
 {
     ClangString cursorKindSpelling(clang_getCursorKindSpelling(cursorKind));
-    *os << cursorKindSpelling.cString();
+    return os << cursorKindSpelling.cString();
 }
 
-void PrintTo(const Cursor &cursor, ::std::ostream*os)
+std::ostream &operator<<(std::ostream &os, const Cursor &cursor)
 {
     if (cursor.isValid()) {
         ClangString cursorKindSpelling(clang_getCursorKindSpelling(cursor.kind()));
-        *os << cursorKindSpelling.cString() << " ";
+        os << cursorKindSpelling << " ";
 
         auto identifier = cursor.displayName();
         if (identifier.hasContent()) {
-            *os  << "\""
-                 << identifier
-                 << "\": ";
+            os  << "\""
+                << identifier
+                << "\": ";
         }
 
-        PrintTo(cursor.sourceLocation(), os);
+        os << cursor.sourceLocation();
     } else {
-        *os << "Invalid cursor!";
+        os << "Invalid cursor!";
     }
+
+    return os;
 }
 
 } // namespace ClangBackEnd

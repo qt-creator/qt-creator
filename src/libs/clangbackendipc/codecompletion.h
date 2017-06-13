@@ -208,6 +208,6 @@ private:
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, CodeCompletion::Kind kind);
 
-std::ostream &operator<<(std::ostream &os, const CodeCompletion::Kind kind);
-std::ostream &operator<<(std::ostream &os, const CodeCompletion::Availability availability);
+CMBIPC_EXPORT std::ostream &operator<<(std::ostream &os, const CodeCompletion::Kind kind);
+CMBIPC_EXPORT std::ostream &operator<<(std::ostream &os, const CodeCompletion::Availability availability);
 } // namespace ClangBackEnd

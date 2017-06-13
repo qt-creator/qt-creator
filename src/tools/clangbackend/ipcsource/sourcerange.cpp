@@ -100,13 +100,14 @@ bool operator==(const SourceRange &first, const SourceRange &second)
     return clang_equalRanges(first.cxSourceRange, second.cxSourceRange);
 }
 
-void PrintTo(const SourceRange &sourceRange, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const SourceRange &sourceRange)
 {
-    *os << "[";
-    PrintTo(sourceRange.start(), os);
-    *os << ", ";
-    PrintTo(sourceRange.end(), os);
-    *os << "]";
+    os << "["
+       << sourceRange.start() << ", "
+       << sourceRange.end()
+       << "]";
+
+    return os;
 }
 } // namespace ClangBackEnd
 

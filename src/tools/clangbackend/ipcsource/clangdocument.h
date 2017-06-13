@@ -133,5 +133,5 @@ private:
 };
 
 bool operator==(const Document &first, const Document &second);
-void PrintTo(const Document &document, ::std::ostream *os);
+std::ostream &operator<<(std::ostream &os, const Document &document);
 } // namespace ClangBackEnd

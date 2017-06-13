@@ -130,6 +130,7 @@ void Cursor::visit(VisitorCallback visitorCallback) const
 bool operator==(const Cursor &first, const Cursor &second);
 bool operator!=(const Cursor &first, const Cursor &second);
 
-void PrintTo(CXCursorKind cursorKind, ::std::ostream *os);
-void PrintTo(const Cursor &cursor, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, CXCursorKind cursorKind);
+std::ostream &operator<<(std::ostream &os, const Cursor &cursor);
+
 } // namespace ClangBackEnd

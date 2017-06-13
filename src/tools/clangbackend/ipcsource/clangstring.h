@@ -107,7 +107,6 @@ public:
     {
         return second == first;
     }
-
     template<typename Type,
              typename = typename std::enable_if<std::is_pointer<Type>::value>::type
              >
@@ -124,11 +123,9 @@ public:
         return second == first;
     }
 
-    friend std::ostream &operator<<(std::ostream &out, const ClangString &string)
+    friend std::ostream &operator<<(std::ostream &os, const ClangString &string)
     {
-        out << string.cString();
-
-        return out;
+        return os << string.cString();
     }
 
 private:
