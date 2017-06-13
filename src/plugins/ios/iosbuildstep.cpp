@@ -198,7 +198,7 @@ QStringList IosBuildStep::defaultArguments() const
 
 QString IosBuildStep::buildCommand() const
 {
-    return "xcodebuild"; // add path?
+    return QString("xcodebuild"); // add path?
 }
 
 void IosBuildStep::run(QFutureInterface<bool> &fi)
