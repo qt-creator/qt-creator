@@ -376,9 +376,6 @@ void QmlCppEngine::setupEngine()
     m_activeEngine = m_cppEngine;
     m_qmlEngine->setupSlaveEngine();
     m_cppEngine->setupSlaveEngine();
-
-    if (runParameters().remoteSetupNeeded)
-        notifyEngineRequestRemoteSetup();
 }
 
 void QmlCppEngine::notifyEngineRunAndInferiorRunOk()
@@ -409,11 +406,6 @@ void QmlCppEngine::notifyInferiorSetupOk()
 {
     EDEBUG("\nMASTER INFERIOR SETUP OK");
     DebuggerEngine::notifyInferiorSetupOk();
-}
-
-void QmlCppEngine::notifyEngineRemoteServerRunning(const QString &serverChannel, int pid)
-{
-    m_cppEngine->notifyEngineRemoteServerRunning(serverChannel, pid);
 }
 
 void QmlCppEngine::setupInferior()
@@ -721,15 +713,6 @@ void QmlCppEngine::slaveEngineStateChanged
             }
         }
     }
-}
-
-void QmlCppEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
-{
-    EDEBUG("MASTER REMOTE SETUP FINISHED");
-    DebuggerEngine::notifyEngineRemoteSetupFinished(result);
-
-    cppEngine()->notifyEngineRemoteSetupFinished(result);
-    qmlEngine()->notifyEngineRemoteSetupFinished(result);
 }
 
 void QmlCppEngine::resetLocation()

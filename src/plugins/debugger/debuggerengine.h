@@ -53,7 +53,6 @@ class ProcessHandle;
 
 namespace Debugger {
 
-class RemoteSetupResult;
 class DebuggerRunTool;
 
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, DebuggerState state);
@@ -348,12 +347,6 @@ protected:
     virtual void notifyEngineSetupFailed();
     virtual void notifyEngineRunFailed();
 
-    virtual void notifyEngineRequestRemoteSetup();
-    public:
-    virtual void notifyEngineRemoteServerRunning(const QString &, int pid);
-    virtual void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
-
-    protected:
     virtual void notifyInferiorSetupOk();
     virtual void notifyInferiorSetupFailed();
 
@@ -376,8 +369,6 @@ protected:
     virtual void notifyInferiorExited();
     void notifyDebuggerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus,
                                        const QString &backendName);
-
-    void setRemoteParameters(const RemoteSetupResult &result);
 
 protected:
     virtual void setState(DebuggerState state, bool forced = false);

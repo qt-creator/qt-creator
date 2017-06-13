@@ -46,18 +46,6 @@ namespace Debugger {
 // Note: This is part of the "soft interface" of the debugger plugin.
 // Do not add anything that needs implementation in a .cpp file.
 
-const qint64 InvalidPid = -1;
-
-class DEBUGGER_EXPORT RemoteSetupResult
-{
-public:
-    Utils::Port gdbServerPort;
-    Utils::Port qmlServerPort;
-    qint64 inferiorPid = InvalidPid;
-    bool success = false;
-    QString reason;
-};
-
 class DEBUGGER_EXPORT TcpServerConnection
 {
 public:
@@ -84,7 +72,6 @@ public:
     // Used by general remote debugging.
     QString remoteChannel;
     QSsh::SshConnectionParameters connParams;
-    bool remoteSetupNeeded = false;
     bool useExtendedRemote = false; // Whether to use GDB's target extended-remote or not.
     QString symbolFile;
 
@@ -122,5 +109,4 @@ public:
 
 } // namespace Debugger
 
-Q_DECLARE_METATYPE(Debugger::RemoteSetupResult)
 Q_DECLARE_METATYPE(Debugger::DebuggerStartParameters)

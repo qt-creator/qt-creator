@@ -226,13 +226,10 @@ void LldbEngine::setupEngine()
             return;
         }
 
-    } else {
-        QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-        if (runParameters().remoteSetupNeeded)
-            notifyEngineRequestRemoteSetup();
-        else
-            startLldb();
     }
+
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+    startLldb();
 }
 
 void LldbEngine::startLldb()
@@ -1117,24 +1114,6 @@ bool LldbEngine::hasCapability(unsigned cap) const
 DebuggerEngine *createLldbEngine()
 {
     return new LldbEngine;
-}
-
-void LldbEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
-{
-    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    DebuggerEngine::notifyEngineRemoteSetupFinished(result);
-
-    if (result.success) {
-        startLldb();
-    } else {
-        showMessage("ADAPTER START FAILED");
-        if (!result.reason.isEmpty()) {
-            const QString title = tr("Adapter start failed");
-            ICore::showWarningWithOptions(title, result.reason);
-        }
-        notifyEngineSetupFailed();
-        return;
-    }
 }
 
 void LldbEngine::stubStarted()

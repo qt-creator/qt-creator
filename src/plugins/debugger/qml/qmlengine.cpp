@@ -593,65 +593,38 @@ void QmlEngine::stopApplicationLauncher()
     }
 }
 
-void QmlEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
-{
-    QObject::disconnect(d->startupMessageFilterConnection);
-    DebuggerEngine::notifyEngineRemoteSetupFinished(result);
+// FIXME: Is the timeout raise still needed? Since the RunWorker conversion,
+// the debugger tool only starts when the remote setup has all interesting
+// ports gathered, so much less chance for waiting on longer operations.
+//void QmlEngine::notifyEngineRemoteSetupFinished()
+//{
+//    QObject::disconnect(d->startupMessageFilterConnection);
+//    switch (state()) {
+//    case InferiorSetupOk:
+//        // FIXME: This is not a legal transition, but we need to
+//        // get to EngineSetupOk somehow from InferiorSetupOk.
+//        // fallthrough. QTCREATORBUG-14089.
+//    case EngineSetupRequested:
+//        notifyEngineSetupOk();
+//        break;
+//    case EngineSetupOk:
+//    case EngineRunRequested:
+//        // QTCREATORBUG-17718: On Android while doing debugging in mixed mode, the QML debug engine
+//        // sometimes reports EngineSetupOK after the EngineRunRequested thus overwriting the state
+//        // which eventually results into app to waiting for the QML engine connection.
+//        // Skipping the EngineSetupOK in aforementioned case.
+//        // Nothing to do here. The setup is already done.
+//        break;
+//    default:
+//        QTC_ASSERT(false, qDebug() << "Unexpected state" << state());
+//    }
 
-    if (result.success) {
-        if (result.qmlServerPort.isValid())
-            runParameters().qmlServer.port = result.qmlServerPort;
-
-        switch (state()) {
-        case InferiorSetupOk:
-            // FIXME: This is not a legal transition, but we need to
-            // get to EngineSetupOk somehow from InferiorSetupOk.
-            // fallthrough. QTCREATORBUG-14089.
-        case EngineSetupRequested:
-            notifyEngineSetupOk();
-            break;
-        case EngineSetupOk:
-        case EngineRunRequested:
-            // QTCREATORBUG-17718: On Android while doing debugging in mixed mode, the QML debug engine
-            // sometimes reports EngineSetupOK after the EngineRunRequested thus overwriting the state
-            // which eventually results into app to waiting for the QML engine connection.
-            // Skipping the EngineSetupOK in aforementioned case.
-            // Nothing to do here. The setup is already done.
-            break;
-        default:
-            QTC_ASSERT(false, qDebug() << "Unexpected state" << state());
-        }
-
-        // The remote setup can take while especialy with mixed debugging.
-        // Just waiting for 8 seconds is not enough. Increase the timeout
-        // to 60 s
-        // In case we get an output the d->outputParser will start the connection.
-        d->noDebugOutputTimer.setInterval(60000);
-    } else {
-        if (isMasterEngine())
-            QMessageBox::critical(ICore::dialogParent(), tr("Failed to start application"),
-                                  tr("Application startup failed: %1").arg(result.reason));
-        notifyEngineSetupFailed();
-    }
-}
-
-void QmlEngine::notifyEngineRemoteServerRunning(const QString &serverChannel, int pid)
-{
-    bool ok = false;
-    quint16 qmlPort = serverChannel.toUInt(&ok);
-    if (ok)
-        runParameters().qmlServer.port = Utils::Port(qmlPort);
-    else
-        qWarning() << tr("QML debugging port not set: Unable to convert %1 to unsigned int.").arg(serverChannel);
-
-    DebuggerEngine::notifyEngineRemoteServerRunning(serverChannel, pid);
-    notifyEngineSetupOk();
-
-    // The remote setup can take a while especially with mixed debugging.
-    // Just waiting for 8 seconds is not enough. Increase the timeout to 60 s.
-    // In case we get an output the d->outputParser will start the connection.
-    d->noDebugOutputTimer.setInterval(60000);
-}
+//    // The remote setup can take while especialy with mixed debugging.
+//    // Just waiting for 8 seconds is not enough. Increase the timeout
+//    // to 60 s
+//    // In case we get an output the d->outputParser will start the connection.
+//    d->noDebugOutputTimer.setInterval(60000);
+//}
 
 void QmlEngine::shutdownInferior()
 {
@@ -687,12 +660,7 @@ void QmlEngine::shutdownEngine()
 
 void QmlEngine::setupEngine()
 {
-    if (runParameters().remoteSetupNeeded) {
-        // we need to get the port first
-        notifyEngineRequestRemoteSetup();
-    } else {
-        notifyEngineSetupOk();
-    }
+    notifyEngineSetupOk();
 }
 
 void QmlEngine::continueInferior()

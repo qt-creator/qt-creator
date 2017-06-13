@@ -34,7 +34,6 @@
 
 namespace Debugger {
 
-class RemoteSetupResult;
 class DebuggerStartParameters;
 
 class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
@@ -66,9 +65,7 @@ public:
     void stop() override;
 
     void startFailed();
-    void onTargetFailure();
-    void notifyEngineRemoteServerRunning(const QByteArray &msg, int pid);
-    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
+
     void notifyInferiorIll();
     Q_SLOT void notifyInferiorExited(); // Called from Android.
     void quitDebugger();
@@ -85,7 +82,6 @@ public:
     int portsUsedByDebugger() const;
 
     void appendSolibSearchPath(const QString &str);
-
 signals:
     void aboutToNotifyInferiorSetupOk();
 

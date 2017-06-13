@@ -50,9 +50,6 @@ private:
     void uploadProcFinished();
     void callTargetRemote();
 
-    void notifyEngineRemoteServerRunning(const QString &serverChannel, int inferiorPid) override;
-    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
-
     void handleSetTargetAsync(const DebuggerResponse &response);
     void handleFileExecAndSymbols(const DebuggerResponse &response);
     void handleTargetRemote(const DebuggerResponse &response);
@@ -65,7 +62,6 @@ private:
     void handleExecRun(const DebuggerResponse &response);
 
     QProcess m_uploadProc;
-    bool m_startAttempted = false;
 };
 
 } // namespace Internal

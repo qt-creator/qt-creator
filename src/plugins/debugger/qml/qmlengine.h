@@ -69,9 +69,6 @@ private:
 
     void setState(DebuggerState state, bool forced) override;
 
-    void notifyEngineRemoteServerRunning(const QString &, int pid) override;
-    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
-
     void gotoLocation(const Internal::Location &location) override;
     void insertBreakpoint(Breakpoint bp) override;
 

@@ -90,7 +90,6 @@ void LinuxDeviceDebugSupport::start()
     DebuggerStartParameters params;
     params.startMode = AttachToRemoteServer;
     params.closeMode = KillAndExitMonitorAtClose;
-    params.remoteSetupNeeded = false;
 
     if (isQmlDebugging()) {
         params.qmlServer.host = host;

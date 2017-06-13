@@ -83,7 +83,6 @@ public:
     DebuggerEngine *activeEngine() override { return m_activeEngine; }
     void setRunTool(DebuggerRunTool *runTool) override;
 
-    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
     void resetLocation() override;
     void notifyInferiorIll() override;
 
@@ -121,7 +120,6 @@ protected:
     void notifyInferiorShutdownOk() override;
 
     void notifyInferiorSetupOk() override;
-    void notifyEngineRemoteServerRunning(const QString &, int pid) override;
     void loadAdditionalQmlStack() override;
 
 private:

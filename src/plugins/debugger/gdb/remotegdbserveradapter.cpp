@@ -28,7 +28,7 @@
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerprotocol.h>
-#include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/procinterrupt.h>
 
 #include <coreplugin/messagebox.h>
@@ -84,14 +84,10 @@ void GdbRemoteServerEngine::setupEngine()
 
         m_uploadProc.start(arglist);
         m_uploadProc.waitForStarted();
+        m_uploadProc.waitForFinished();
     }
 
-    if (runParameters().remoteSetupNeeded) {
-        notifyEngineRequestRemoteSetup();
-    } else {
-        m_startAttempted = true;
-        startGdb();
-    }
+    startGdb();
 }
 
 void GdbRemoteServerEngine::uploadProcError(QProcess::ProcessError error)
@@ -147,13 +143,9 @@ void GdbRemoteServerEngine::readUploadStandardError()
 void GdbRemoteServerEngine::uploadProcFinished()
 {
     if (m_uploadProc.exitStatus() == QProcess::NormalExit && m_uploadProc.exitCode() == 0) {
-        if (!m_startAttempted)
-            startGdb();
+        // all good.
     } else {
-        RemoteSetupResult result;
-        result.success = false;
-        result.reason = m_uploadProc.errorString();
-        notifyEngineRemoteSetupFinished(result);
+        runTool()->reportFailure(tr("Upload failed: %1").arg(m_uploadProc.errorString()));
     }
 }
 
@@ -457,31 +449,6 @@ void GdbRemoteServerEngine::handleInterruptInferior(const DebuggerResponse &resp
 void GdbRemoteServerEngine::shutdownEngine()
 {
     notifyAdapterShutdownOk();
-}
-
-void GdbRemoteServerEngine::notifyEngineRemoteServerRunning
-    (const QString &serverChannel, int inferiorPid)
-{
-    // Currently only used by Android support.
-    runParameters().attachPID = Utils::ProcessHandle(inferiorPid);
-    runParameters().remoteChannel = serverChannel;
-    runParameters().useExtendedRemote = true;
-    showMessage("NOTE: REMOTE SERVER RUNNING IN MULTIMODE");
-    m_startAttempted = true;
-    startGdb();
-}
-
-void GdbRemoteServerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
-{
-    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    GdbEngine::notifyEngineRemoteSetupFinished(result);
-
-    if (result.success) {
-        if (!m_startAttempted)
-            startGdb();
-    } else {
-        handleAdapterStartFailed(result.reason);
-    }
 }
 
 } // namespace Internal

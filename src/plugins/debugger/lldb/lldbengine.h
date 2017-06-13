@@ -38,9 +38,7 @@
 
 #include <QPointer>
 #include <QProcess>
-#include <QQueue>
 #include <QMap>
-#include <QStack>
 #include <QVariant>
 
 
@@ -138,8 +136,6 @@ private:
     void doUpdateLocals(const UpdateParameters &params) override;
     void updateBreakpointData(Breakpoint bp, const GdbMi &bkpt, bool added);
     void fetchStack(int limit);
-
-    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
 
     void runCommand(const DebuggerCommand &cmd) override;
     void debugLastCommand() override;

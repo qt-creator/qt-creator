@@ -410,6 +410,11 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
 
 void IosDebugSupport::start()
 {
+    if (!m_runner->isAppRunning()) {
+        reportFailure(tr("Application not running."));
+        return;
+    }
+
     RunConfiguration *runConfig = runControl()->runConfiguration();
 
     DebuggerStartParameters params;
@@ -447,7 +452,6 @@ void IosDebugSupport::start()
 
     auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runConfig);
     params.displayName = iosRunConfig->applicationName();
-    params.remoteSetupNeeded = true;
     params.continueAfterAttach = true;
 
     Utils::Port gdbServerPort = m_runner->gdbServerPort();
@@ -458,10 +462,7 @@ void IosDebugSupport::start()
     const bool qmlDebug = isQmlDebugging();
     if (cppDebug) {
         params.inferior.executable = iosRunConfig->localExecutable().toString();
-        if (gdbServerPort.isValid())
-            params.remoteChannel = "connect://localhost:" + gdbServerPort.toString();
-        else
-            params.remoteChannel = "connect://localhost:0";
+        params.remoteChannel = "connect://localhost:" + gdbServerPort.toString();
 
         FileName xcodeInfo = IosConfigurations::developerPath().parentDir().appendPath("Info.plist");
         bool buggyLldb = false;
@@ -505,20 +506,6 @@ void IosDebugSupport::start()
     }
 
     setStartParameters(params);
-
-    if (!m_runner->isAppRunning()) {
-        reportFailure(tr("Application not running."));
-        return;
-    }
-
-    RemoteSetupResult result;
-    if (m_runner->pid() > 0)
-        result.inferiorPid = m_runner->pid();
-    else
-        result.gdbServerPort = gdbServerPort;
-    result.qmlServerPort = qmlServerPort;
-    result.success = true; // Port validation already checked.
-    notifyEngineRemoteSetupFinished(result);
 
     DebuggerRunTool::start();
 }

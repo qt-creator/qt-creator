@@ -164,31 +164,11 @@ void DebuggerRunTool::startFailed()
     m_engine->handleStartFailed();
 }
 
-void DebuggerRunTool::notifyEngineRemoteServerRunning(const QByteArray &msg, int pid)
-{
-    m_engine->notifyEngineRemoteServerRunning(QString::fromUtf8(msg), pid);
-}
-
-void DebuggerRunTool::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
-{
-    m_engine->notifyEngineRemoteSetupFinished(result);
-}
-
 void DebuggerRunTool::stop()
 {
     m_isDying = true;
     QTC_ASSERT(m_engine, reportStopped(); return);
     m_engine->quitDebugger();
-}
-
-void DebuggerRunTool::onTargetFailure()
-{
-    if (m_engine->state() == EngineSetupRequested) {
-        RemoteSetupResult result;
-        result.success = false;
-        result.reason = tr("Initial setup failed.");
-        m_engine->notifyEngineRemoteSetupFinished(result);
-    }
 }
 
 void DebuggerRunTool::debuggingFinished()
