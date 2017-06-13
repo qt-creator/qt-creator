@@ -1121,6 +1121,21 @@ TEST_F(HighlightingMarks, UsingFunction)
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Function));
 }
 
+TEST_F(HighlightingMarks, PreprocessorIfDirective)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(558, 6));
+
+    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Preprocessor));
+}
+
+TEST_F(HighlightingMarks, PreprocessorInclusionDirectiveWithKeyword)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(561, 15));
+    infos.toHighlightingMarksContainers();
+
+    ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::StringLiteral));
+}
+
 Data *HighlightingMarks::d;
 
 void HighlightingMarks::SetUpTestCase()

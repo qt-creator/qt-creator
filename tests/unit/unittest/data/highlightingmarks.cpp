@@ -554,3 +554,8 @@ template<class T> class Coo<T*>;
 
 namespace N { void goo(); }
 using N::goo;
+
+#if 1
+#endif
+
+#include <new>

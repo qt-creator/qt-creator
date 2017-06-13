@@ -383,8 +383,15 @@ HighlightingType HighlightingMark::punctuationKind(const Cursor &cursor)
 }
 
 static HighlightingType highlightingTypeForKeyword(CXTranslationUnit cxTranslationUnit,
-                                                   CXToken *cxToken)
+                                                   CXToken *cxToken,
+                                                   const Cursor &cursor)
 {
+    switch (cursor.kind()) {
+        case CXCursor_PreprocessingDirective: return HighlightingType::Preprocessor;
+        case CXCursor_InclusionDirective: return HighlightingType::StringLiteral;
+        default: break;
+    }
+
     const ClangString spelling = clang_getTokenSpelling(cxTranslationUnit, *cxToken);
     const char *c = spelling.cString();
     if (std::strcmp(c, "bool") == 0
@@ -414,7 +421,7 @@ void HighlightingMark::collectKinds(CXTranslationUnit cxTranslationUnit,
     types = HighlightingTypes();
 
     switch (cxTokenKind) {
-        case CXToken_Keyword:     types.mainHighlightingType = highlightingTypeForKeyword(cxTranslationUnit, cxToken); break;
+        case CXToken_Keyword:     types.mainHighlightingType = highlightingTypeForKeyword(cxTranslationUnit, cxToken, originalCursor); break;
         case CXToken_Punctuation: types.mainHighlightingType = punctuationKind(cursor); break;
         case CXToken_Identifier:  identifierKind(cursor, Recursion::FirstPass); break;
         case CXToken_Comment:     types.mainHighlightingType = HighlightingType::Comment; break;
