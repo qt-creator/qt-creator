@@ -25,12 +25,12 @@
 
 #pragma once
 
+#include <type_traits>
+
 namespace Utils {
 
-template<class T> struct ConstAdder { typedef const T type; };
-
 template <class T>
-constexpr typename ConstAdder<T>::type &asConst(T &t) noexcept
+constexpr std::add_const_t<T> &asConst(T &&t) noexcept
 {
     return t;
 }
