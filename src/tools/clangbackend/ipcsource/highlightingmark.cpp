@@ -393,20 +393,19 @@ static HighlightingType highlightingTypeForKeyword(CXTranslationUnit cxTranslati
     }
 
     const ClangString spelling = clang_getTokenSpelling(cxTranslationUnit, *cxToken);
-    const char *c = spelling.cString();
-    if (std::strcmp(c, "bool") == 0
-            || std::strcmp(c, "char") == 0
-            || std::strcmp(c, "char16_t") == 0
-            || std::strcmp(c, "char32_t") == 0
-            || std::strcmp(c, "double") == 0
-            || std::strcmp(c, "float") == 0
-            || std::strcmp(c, "int") == 0
-            || std::strcmp(c, "long") == 0
-            || std::strcmp(c, "short") == 0
-            || std::strcmp(c, "signed") == 0
-            || std::strcmp(c, "unsigned") == 0
-            || std::strcmp(c, "void") == 0
-            || std::strcmp(c, "wchar_t") == 0) {
+    if (spelling == "bool"
+            || spelling == "char"
+            || spelling == "char16_t"
+            || spelling == "char32_t"
+            || spelling == "double"
+            || spelling == "float"
+            || spelling == "int"
+            || spelling == "long"
+            || spelling == "short"
+            || spelling == "signed"
+            || spelling == "unsigned"
+            || spelling == "void"
+            || spelling == "wchar_t") {
         return HighlightingType::PrimitiveType;
     }
 
