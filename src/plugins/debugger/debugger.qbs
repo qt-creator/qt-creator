@@ -239,7 +239,6 @@ Project {
                 "analyzermanager.h",
                 "analyzerrunconfigwidget.cpp",
                 "analyzerrunconfigwidget.h",
-                "analyzerstartparameters.h",
                 "analyzerutils.cpp",
                 "analyzerutils.h",
                 "detailederrorview.cpp",

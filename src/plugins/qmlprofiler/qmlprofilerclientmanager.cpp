@@ -65,23 +65,10 @@ void QmlProfilerClientManager::setRetryParams(int interval, int maxAttempts)
     m_maximumRetries = maxAttempts;
 }
 
-void QmlProfilerClientManager::setTcpConnection(QString host, Utils::Port port)
+void QmlProfilerClientManager::setServerUrl(const QUrl &server)
 {
-    if (!m_localSocket.isEmpty() || m_tcpHost != host || m_tcpPort != port) {
-        m_tcpHost = host;
-        m_tcpPort = port;
-        m_localSocket.clear();
-        disconnectClient();
-        stopConnectionTimer();
-    }
-}
-
-void QmlProfilerClientManager::setLocalSocket(QString file)
-{
-    if (m_localSocket != file || !m_tcpHost.isEmpty() || m_tcpPort.isValid()) {
-        m_localSocket = file;
-        m_tcpHost.clear();
-        m_tcpPort = Utils::Port();
+    if (m_server != server) {
+        m_server = server;
         disconnectClient();
         stopConnectionTimer();
     }
@@ -89,9 +76,7 @@ void QmlProfilerClientManager::setLocalSocket(QString file)
 
 void QmlProfilerClientManager::clearConnection()
 {
-    m_localSocket.clear();
-    m_tcpHost.clear();
-    m_tcpPort = Utils::Port();
+    m_server.clear();
     disconnectClient();
     stopConnectionTimer();
 }
@@ -115,7 +100,7 @@ void QmlProfilerClientManager::connectToTcpServer()
             if (m_connection.isNull()) {
                 // If the previous connection failed, recreate it.
                 createConnection();
-                m_connection->connectToHost(m_tcpHost, m_tcpPort.number());
+                m_connection->connectToHost(m_server.host(), m_server.port());
             } else if (m_numRetries < 3
                        && m_connection->socketState() != QAbstractSocket::ConnectedState) {
                 // If we don't get connected in the first retry interval, drop the socket and try
@@ -124,7 +109,7 @@ void QmlProfilerClientManager::connectToTcpServer()
                 // On other operating systems (windows) every connection takes forever to get
                 // established. So, after tearing down and rebuilding the socket twice, just
                 // keep trying with the same one.
-                m_connection->connectToHost(m_tcpHost, m_tcpPort.number());
+                m_connection->connectToHost(m_server.host(), m_server.port());
             } // Else leave it alone and wait for hello.
         } else {
             // On final timeout, clear the connection.
@@ -142,7 +127,7 @@ void QmlProfilerClientManager::connectToTcpServer()
         QTC_ASSERT(m_qmlclientplugin.isNull(), disconnectClient());
         createConnection();
         QTC_ASSERT(m_connection, emit connectionFailed(); return);
-        m_connection->connectToHost(m_tcpHost, m_tcpPort.number());
+        m_connection->connectToHost(m_server.host(), m_server.port());
     }
 }
 
@@ -169,7 +154,7 @@ void QmlProfilerClientManager::startLocalServer()
         QTC_ASSERT(m_qmlclientplugin.isNull(), disconnectClient());
         createConnection();
         QTC_ASSERT(m_connection, emit connectionFailed(); return);
-        m_connection->startLocalServer(m_localSocket);
+        m_connection->startLocalServer(m_server.path());
     }
 }
 
@@ -181,9 +166,9 @@ void QmlProfilerClientManager::stopRecording()
 
 void QmlProfilerClientManager::retryConnect()
 {
-    if (!m_localSocket.isEmpty()) {
+    if (m_server.scheme() == "socket") {
         startLocalServer();
-    } else if (!m_tcpHost.isEmpty() && m_tcpPort.isValid()) {
+    } else if (!m_server.host().isEmpty() && m_server.port() > -1) {
         disconnectClient();
         connectToTcpServer();
     } else {

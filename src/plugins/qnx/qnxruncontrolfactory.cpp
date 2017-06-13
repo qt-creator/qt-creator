@@ -38,7 +38,6 @@
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerstartparameters.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>

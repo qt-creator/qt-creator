@@ -25,8 +25,6 @@
 
 #include "startremotedialog.h"
 
-#include "analyzerstartparameters.h"
-
 #include <coreplugin/icore.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
@@ -130,11 +128,14 @@ void StartRemoteDialog::validate()
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(valid);
 }
 
-QSsh::SshConnectionParameters StartRemoteDialog::sshParams() const
+QUrl StartRemoteDialog::serverUrl() const
 {
+    QUrl url;
     Kit *kit = d->kitChooser->currentKit();
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-    return device->sshParameters();
+    url.setHost(device->sshParameters().host);
+    url.setPort(device->sshParameters().port);
+    return url;
 }
 
 StandardRunnable StartRemoteDialog::runnable() const

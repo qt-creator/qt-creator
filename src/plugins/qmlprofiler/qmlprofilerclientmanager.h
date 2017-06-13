@@ -28,12 +28,10 @@
 #include "qmlprofilertraceclient.h"
 
 #include <qmldebug/qmldebugclient.h>
-#include <utils/port.h>
 
 #include <QPointer>
 #include <QTimer>
-#include <QObject>
-#include <QVector>
+#include <QUrl>
 
 namespace QmlProfiler {
 class QmlProfilerModelManager;
@@ -49,8 +47,7 @@ public:
     ~QmlProfilerClientManager();
 
     void setProfilerStateManager(QmlProfilerStateManager *profilerState);
-    void setTcpConnection(QString host, Utils::Port port);
-    void setLocalSocket(QString file);
+    void setServerUrl(const QUrl &server);
     void clearConnection();
 
     void clearBufferedData();
@@ -79,9 +76,7 @@ private:
 
     QTimer m_connectionTimer;
 
-    QString m_localSocket;
-    QString m_tcpHost;
-    Utils::Port m_tcpPort;
+    QUrl m_server;
     quint32 m_flushInterval = 0;
 
     int m_retryInterval = 200;

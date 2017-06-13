@@ -28,7 +28,6 @@
 #include "qmlprofilerrunconfigurationaspect.h"
 
 #include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerstartparameters.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 
 #include <projectexplorer/environmentaspect.h>
@@ -74,27 +73,23 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
     QTC_ASSERT(runConfiguration->runnable().is<StandardRunnable>(), return 0);
 
     Kit *kit = runConfiguration->target()->kit();
-    AnalyzerConnection connection;
+    QUrl serverUrl;
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
     if (version) {
         if (version->qtVersion() >= QtSupport::QtVersionNumber(5, 6, 0))
-            connection.analyzerSocket = QmlProfilerRunner::findFreeSocket();
+            serverUrl = UrlConnection::localSocket();
         else
-            connection.analyzerPort = QmlProfilerRunner::findFreePort(connection.analyzerHost);
+            serverUrl = UrlConnection::localHostAndFreePort();
     } else {
-        qWarning() << "Running QML profiler on Kit without Qt version??";
-        connection.analyzerPort = QmlProfilerRunner::findFreePort(connection.analyzerHost);
+        qWarning("Running QML profiler on Kit without Qt version?");
+        serverUrl = UrlConnection::localHostAndFreePort();
     }
 
     auto runControl = new RunControl(runConfiguration, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    runControl->setConnection(connection);
-
-    QmlProfilerRunner::Configuration conf;
-    conf.socket = connection.analyzerSocket;
-    conf.port = connection.analyzerPort;
+    runControl->setConnection(UrlConnection(serverUrl));
 
     auto runner = new QmlProfilerRunner(runControl);
-    runner->setLocalConfiguration(conf);
+    runner->setServerUrl(serverUrl);
     return runControl;
 }
 

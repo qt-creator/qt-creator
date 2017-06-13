@@ -45,11 +45,7 @@ public:
     QmlProfilerRunner(ProjectExplorer::RunControl *runControl);
     ~QmlProfilerRunner() override;
 
-    struct Configuration {
-        Utils::Port port;
-        QString socket;
-    };
-    void setLocalConfiguration(const Configuration &conf);
+    void setServerUrl(const QUrl &serverUrl);
 
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
 
@@ -57,9 +53,6 @@ public:
     void notifyRemoteSetupFailed(const QString &errorMessage);
     void cancelProcess();
     void notifyRemoteFinished();
-
-    static Utils::Port findFreePort(QString &host);
-    static QString findFreeSocket();
 
 signals:
     void localRunnerStarted();

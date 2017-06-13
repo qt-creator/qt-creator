@@ -32,7 +32,6 @@
 
 #include <debugger/analyzer/analyzerconstants.h>
 #include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerstartparameters.h>
 #include <debugger/analyzer/analyzerutils.h>
 #include <debugger/analyzer/startremotedialog.h>
 
@@ -456,9 +455,7 @@ MemcheckTool::MemcheckTool(QObject *parent)
         rc->createWorker(MEMCHECK_RUN_MODE);
         const auto runnable = dlg.runnable();
         rc->setRunnable(runnable);
-        AnalyzerConnection connection;
-        connection.connParams = dlg.sshParams();
-        rc->setConnection(connection);
+        rc->setConnection(UrlConnection(dlg.serverUrl()));
         rc->setDisplayName(runnable.executable);
         ProjectExplorerPlugin::startRunControl(rc);
     });

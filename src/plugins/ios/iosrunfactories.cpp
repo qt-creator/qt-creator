@@ -31,7 +31,6 @@
 #include "iosmanager.h"
 
 #include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerstartparameters.h>
 #include <debugger/debuggerconstants.h>
 
 #include <projectexplorer/customexecutablerunconfiguration.h>

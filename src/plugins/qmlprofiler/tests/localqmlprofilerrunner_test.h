@@ -27,7 +27,8 @@
 
 #include <qmlprofiler/qmlprofilermodelmanager.h>
 #include <qmlprofiler/qmlprofilerruncontrol.h>
-#include <debugger/analyzer/analyzerstartparameters.h>
+
+#include <QUrl>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -54,8 +55,7 @@ private:
     int runCount = 0;
     ProjectExplorer::RunControl *rc = nullptr;
     ProjectExplorer::StandardRunnable debuggee;
-    Debugger::AnalyzerConnection connection;
-    QmlProfilerRunner::Configuration configuration;
+    ProjectExplorer::UrlConnection serverUrl;
 };
 
 } // namespace Internal

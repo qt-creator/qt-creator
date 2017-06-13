@@ -40,7 +40,6 @@
 
 #include <debugger/debuggericons.h>
 #include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerstartparameters.h>
 
 #include <utils/fancymainwindow.h>
 #include <utils/fileinprojectfinder.h>
@@ -352,15 +351,14 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
     runWorker->registerProfilerStateManager(d->m_profilerState);
     QmlProfilerClientManager *clientManager = d->m_profilerConnections;
 
-    QTC_ASSERT(runWorker->connection().is<AnalyzerConnection>(), return);
+    QTC_ASSERT(runWorker->connection().is<UrlConnection>(), return);
     // FIXME: Check that there's something sensible in sp.connParams
-    auto connection = runWorker->connection().as<AnalyzerConnection>();
-    if (!connection.analyzerSocket.isEmpty()) {
-        clientManager->setLocalSocket(connection.analyzerSocket);
+    auto serverUrl = runWorker->connection().as<UrlConnection>();
+    clientManager->setServerUrl(serverUrl);
+    if (!serverUrl.path().isEmpty()) {
+        // That's the local socket case.
         // We open the server and the application connects to it, so let's do that right away.
         clientManager->startLocalServer();
-    } else {
-        clientManager->setTcpConnection(connection.analyzerHost, connection.analyzerPort);
     }
 
     //
@@ -579,23 +577,21 @@ void QmlProfilerTool::startRemoteTool()
         settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/port"), port);
     }
 
-    AnalyzerConnection connection;
+    QUrl serverUrl;
 
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-    if (device) {
-        Connection toolControl = device->toolControlChannel(IDevice::QmlControlChannel);
-        QTC_ASSERT(toolControl.is<HostName>(), return);
-        connection.analyzerHost = toolControl.as<HostName>().host();
-        connection.connParams = device->sshParameters();
-    }
-    connection.analyzerPort = Utils::Port(port);
+    QTC_ASSERT(device, return);
+    Connection toolControl = device->toolControlChannel(IDevice::QmlControlChannel);
+    QTC_ASSERT(toolControl.is<HostName>(), return);
+    serverUrl.setHost(toolControl.as<HostName>().host());
+    serverUrl.setPort(port);
 
     Debugger::selectPerspective(Constants::QmlProfilerPerspectiveId);
 
     RunConfiguration *rc = Debugger::startupRunConfiguration();
     auto runControl = new RunControl(rc, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    runControl->setConnection(connection);
+    runControl->setConnection(UrlConnection(serverUrl));
 
     ProjectExplorerPlugin::startRunControl(runControl);
 }

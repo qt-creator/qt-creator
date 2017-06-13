@@ -27,6 +27,7 @@
 
 #include <utils/port.h>
 #include <QString>
+#include <QUrl>
 
 namespace QmlDebug {
 
@@ -82,6 +83,17 @@ static inline QString qmlDebugLocalArguments(QmlDebugServicesPreset services, co
                                              bool block = true)
 {
     return qmlDebugCommandLineArguments(services, QLatin1String("file:") + socket, block);
+}
+
+static inline QString qmlDebugArguments(QmlDebugServicesPreset services, const QUrl &serverUrl,
+                                             bool block = true)
+{
+    if (serverUrl.scheme() == "socket")
+        return qmlDebugCommandLineArguments(services, "file:" + serverUrl.path(), block);
+    else
+        return qmlDebugCommandLineArguments(services, serverUrl.port() != -1 ?
+                                            QString("port:%1").arg(serverUrl.port()) :
+                                            "port:%qml_port%", block);
 }
 
 } // namespace QmlDebug

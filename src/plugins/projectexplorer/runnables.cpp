@@ -25,6 +25,10 @@
 
 #include "runnables.h"
 
+#include <QTcpServer>
+
+#include <utils/temporaryfile.h>
+
 namespace ProjectExplorer {
 
 bool operator==(const StandardRunnable &r1, const StandardRunnable &r2)
@@ -36,5 +40,41 @@ bool operator==(const StandardRunnable &r1, const StandardRunnable &r2)
 }
 
 void *StandardRunnable::staticTypeId = &StandardRunnable::staticTypeId;
+
+UrlConnection UrlConnection::fromHost(const QString &host)
+{
+    UrlConnection connection;
+    connection.setHost(host);
+    return connection;
+}
+
+UrlConnection UrlConnection::localHostWithoutPort()
+{
+    QUrl serverUrl;
+    QTcpServer server;
+    serverUrl.setHost(server.serverAddress().toString());
+    return UrlConnection(serverUrl);
+}
+
+UrlConnection UrlConnection::localHostAndFreePort()
+{
+    QUrl serverUrl;
+    QTcpServer server;
+    if (server.listen(QHostAddress::LocalHost) || server.listen(QHostAddress::LocalHostIPv6)) {
+        serverUrl.setHost(server.serverAddress().toString());
+        serverUrl.setPort(server.serverPort());
+    }
+    return UrlConnection(serverUrl);
+}
+
+UrlConnection UrlConnection::localSocket()
+{
+    QUrl serverUrl;
+    serverUrl.setScheme(socketScheme());
+    Utils::TemporaryFile file("qmlprofiler-freesocket");
+    if (file.open())
+        serverUrl.setPath(file.fileName());
+    return UrlConnection(serverUrl);
+}
 
 } // namespace ProjectExplorer

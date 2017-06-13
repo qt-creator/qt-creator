@@ -29,16 +29,12 @@
 #include "androidmanager.h"
 
 #include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerstartparameters.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
-
-#include <QDir>
-#include <QTcpServer>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
@@ -51,16 +47,9 @@ AndroidAnalyzeSupport::AndroidAnalyzeSupport(RunControl *runControl)
 {
     setDisplayName("AndroidAnalyzeSupport");
 
-    AnalyzerConnection connection;
-    if (runMode() == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-        QTcpServer server;
-        QTC_ASSERT(server.listen(QHostAddress::LocalHost)
-                   || server.listen(QHostAddress::LocalHostIPv6), return);
-        connection.analyzerHost = server.serverAddress().toString();
-    }
     RunConfiguration *runConfig = runControl->runConfiguration();
     runControl->setDisplayName(AndroidManager::packageName(runConfig->target()));
-    runControl->setConnection(connection);
+    runControl->setConnection(UrlConnection::localHostWithoutPort());
 
     auto runner = new AndroidRunner(runControl);
 

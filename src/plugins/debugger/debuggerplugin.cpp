@@ -66,7 +66,6 @@
 
 #include "analyzer/analyzerconstants.h"
 #include "analyzer/analyzermanager.h"
-#include "analyzer/analyzerstartparameters.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -3799,9 +3798,6 @@ QList<QObject *> DebuggerPlugin::createTestObjects() const
 #endif // if  WITH_TESTS
 
 } // namespace Internal
-
-void *AnalyzerConnection::staticTypeId = &AnalyzerConnection::staticTypeId;
-
 } // namespace Debugger
 
 #include "debuggerplugin.moc"

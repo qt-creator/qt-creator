@@ -71,11 +71,12 @@ public:
     UrlConnection() {}
     explicit UrlConnection(const QUrl &url) : QUrl(url) {}
 
-    static UrlConnection fromHost(const QString &host) {
-        UrlConnection connection;
-        connection.setHost(host);
-        return connection;
-    }
+    static UrlConnection fromHost(const QString &host);
+    static UrlConnection localHostAndFreePort();
+    static UrlConnection localHostWithoutPort();
+    static UrlConnection localSocket();
+
+    static QString socketScheme() { return QLatin1String("socket"); }
 
     static void *staticTypeId;
 };

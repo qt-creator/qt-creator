@@ -32,7 +32,6 @@
 #include "iossimulator.h"
 #include "iosconstants.h"
 
-#include <debugger/analyzer/analyzerstartparameters.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
@@ -367,10 +366,8 @@ IosAnalyzeSupport::IosAnalyzeSupport(RunControl *runControl)
     StandardRunnable runnable;
     runnable.executable = iosRunConfig->localExecutable().toUserOutput();
     runnable.commandLineArguments = iosRunConfig->commandLineArguments();
-    Debugger::AnalyzerConnection connection;
-    connection.analyzerHost = "localhost";
     runControl->setRunnable(runnable);
-    runControl->setConnection(connection);
+    runControl->setConnection(UrlConnection::localHostWithoutPort());
     runControl->setDisplayName(iosRunConfig->applicationName());
 
     connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,

@@ -29,7 +29,6 @@
 #include "qmlprofilerplugin.h"
 
 #include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerstartparameters.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
@@ -37,7 +36,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/localapplicationruncontrol.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -51,15 +49,11 @@
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <utils/qtcassert.h>
-#include <utils/temporaryfile.h>
 
 #include <QApplication>
 #include <QMainWindow>
 #include <QMessageBox>
-#include <QMessageBox>
 #include <QPushButton>
-#include <QTcpServer>
-#include <QTemporaryFile>
 #include <QTimer>
 
 using namespace Debugger;
@@ -79,7 +73,7 @@ public:
     QmlProfilerStateManager *m_profilerState = 0;
     QTimer m_noDebugOutputTimer;
     bool m_isLocal = false;
-    QmlProfilerRunner::Configuration m_configuration;
+    QUrl m_serverUrl;
     ProjectExplorer::ApplicationLauncher m_launcher;
     QmlDebug::QmlOutputParser m_outputParser;
 };
@@ -116,29 +110,24 @@ void QmlProfilerRunner::start()
     Internal::QmlProfilerTool::instance()->finalizeRunControl(this);
     QTC_ASSERT(d->m_profilerState, return);
 
-    QTC_ASSERT(connection().is<AnalyzerConnection>(), return);
-    auto conn = connection().as<AnalyzerConnection>();
+    QTC_ASSERT(connection().is<UrlConnection>(), return);
+    QUrl serverUrl = connection().as<UrlConnection>();
 
-    if (conn.analyzerPort.isValid()) {
+    if (serverUrl.port() != -1) {
         auto clientManager = Internal::QmlProfilerTool::clientManager();
-        clientManager->setTcpConnection(conn.analyzerHost, conn.analyzerPort);
+        clientManager->setServerUrl(serverUrl);
         clientManager->connectToTcpServer();
     }
-    else if (conn.analyzerSocket.isEmpty())
+    else if (serverUrl.path().isEmpty())
         d->m_noDebugOutputTimer.start();
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
 
     if (d->m_isLocal) {
-        QTC_ASSERT(!d->m_configuration.socket.isEmpty() || d->m_configuration.port.isValid(), return);
+        QTC_ASSERT(!d->m_serverUrl.path().isEmpty() || d->m_serverUrl.port() != -1, return);
 
         StandardRunnable debuggee = runnable().as<StandardRunnable>();
-        QString arguments = d->m_configuration.socket.isEmpty() ?
-                    QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices,
-                                                   d->m_configuration.port) :
-                    QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlProfilerServices,
-                                                     d->m_configuration.socket);
-
+        QString arguments = QmlDebug::qmlDebugArguments(QmlDebug::QmlProfilerServices, d->m_serverUrl);
 
         if (!debuggee.commandLineArguments.isEmpty())
             arguments += ' ' + debuggee.commandLineArguments;
@@ -254,13 +243,15 @@ void QmlProfilerRunner::notifyRemoteSetupDone(Utils::Port port)
 {
     d->m_noDebugOutputTimer.stop();
 
-    if (!port.isValid()) {
-        QTC_ASSERT(connection().is<AnalyzerConnection>(), return);
-        port = connection().as<AnalyzerConnection>().analyzerPort;
-    }
+    QTC_ASSERT(connection().is<UrlConnection>(), return);
+    QUrl serverUrl = connection().as<UrlConnection>();
+    if (!port.isValid())
+        port = Utils::Port(serverUrl.port());
+
     if (port.isValid()) {
+        serverUrl.setPort(port.number());
         auto clientManager = Internal::QmlProfilerTool::clientManager();
-        clientManager->setTcpConnection(connection().as<AnalyzerConnection>().analyzerHost, port);
+        clientManager->setServerUrl(serverUrl);
         clientManager->connectToTcpServer();
     }
 }
@@ -291,33 +282,10 @@ void QmlProfilerRunner::profilerStateChanged()
     }
 }
 
-QString QmlProfilerRunner::findFreeSocket()
-{
-    Utils::TemporaryFile file("qmlprofiler-freesocket");
-    if (file.open()) {
-        return file.fileName();
-    } else {
-        qWarning() << "Could not open a temporary file to find a debug socket.";
-        return QString();
-    }
-}
-
-Utils::Port QmlProfilerRunner::findFreePort(QString &host)
-{
-    QTcpServer server;
-    if (!server.listen(QHostAddress::LocalHost)
-            && !server.listen(QHostAddress::LocalHostIPv6)) {
-        qWarning() << "Cannot open port on host for QML profiling.";
-        return Utils::Port();
-    }
-    host = server.serverAddress().toString();
-    return Utils::Port(server.serverPort());
-}
-
-void QmlProfilerRunner::setLocalConfiguration(const Configuration &configuration)
+void QmlProfilerRunner::setServerUrl(const QUrl &serverUrl)
 {
     d->m_isLocal = true;
-    d->m_configuration = configuration;
+    d->m_serverUrl = serverUrl;
     connect(&d->m_launcher, &ApplicationLauncher::appendMessage,
             this, &QmlProfilerRunner::appendMessage);
     connect(this, &QmlProfilerRunner::localRunnerStopped,

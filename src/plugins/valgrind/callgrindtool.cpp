@@ -47,7 +47,6 @@
 #include <debugger/debuggerconstants.h>
 #include <debugger/analyzer/analyzerconstants.h>
 #include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerstartparameters.h>
 #include <debugger/analyzer/analyzerutils.h>
 #include <debugger/analyzer/startremotedialog.h>
 
@@ -293,9 +292,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
         auto runControl = new RunControl(runConfig, CALLGRIND_RUN_MODE);
         const auto runnable = dlg.runnable();
         runControl->setRunnable(runnable);
-        AnalyzerConnection connection;
-        connection.connParams = dlg.sshParams();
-        runControl->setConnection(connection);
+        runControl->setConnection(UrlConnection(dlg.serverUrl()));
         runControl->setDisplayName(runnable.executable);
         createRunTool(runControl);
         ProjectExplorerPlugin::startRunControl(runControl);

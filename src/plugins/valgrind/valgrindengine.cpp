@@ -29,7 +29,6 @@
 #include "valgrindplugin.h"
 
 #include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerstartparameters.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/ioutputpane.h>
