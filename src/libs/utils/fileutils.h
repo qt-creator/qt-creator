@@ -27,6 +27,8 @@
 
 #include "utils_global.h"
 
+#include "hostosinfo.h"
+
 #include <QCoreApplication>
 #include <QXmlStreamWriter> // Mac.
 #include <QMetaType>
@@ -232,5 +234,19 @@ private:
 QT_BEGIN_NAMESPACE
 QTCREATOR_UTILS_EXPORT uint qHash(const Utils::FileName &a);
 QT_END_NAMESPACE
+
+namespace std {
+template<> struct hash<Utils::FileName>
+{
+    using argument_type = Utils::FileName;
+    using result_type = size_t;
+    result_type operator()(const argument_type &fn) const
+    {
+        if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
+            return hash<string>()(fn.toString().toUpper().toStdString());
+        return hash<string>()(fn.toString().toStdString());
+    }
+};
+} // namespace std
 
 Q_DECLARE_METATYPE(Utils::FileName)
