@@ -167,4 +167,31 @@ TEST(ClangString, EqualCStringAndClangStringPointer)
     ASSERT_TRUE(textIsEqual);
 }
 
+TEST(ClangString, NullStringHasNoContent)
+{
+    ClangString text(CXString{nullptr, 0});
+
+    bool hasContent = text.hasContent();
+
+    ASSERT_FALSE(hasContent);
+}
+
+TEST(ClangString, EmptyStringHasNoContent)
+{
+    ClangString text(CXString{"", 0});
+
+    bool hasContent = text.hasContent();
+
+    ASSERT_FALSE(hasContent);
+}
+
+TEST(ClangString, StringHasNoContent)
+{
+    ClangString text(CXString{"text", 0});
+
+    bool hasContent = text.hasContent();
+
+    ASSERT_TRUE(hasContent);
+}
+
 }

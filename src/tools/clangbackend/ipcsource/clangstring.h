@@ -30,6 +30,7 @@
 #include <utf8string.h>
 
 #include <cstring>
+#include <ostream>
 
 namespace ClangBackEnd {
 
@@ -85,6 +86,11 @@ public:
         return cxString.data == nullptr;
     }
 
+    bool hasContent() const
+    {
+        return !isNull() && std::strlen(cString()) > 0;
+    }
+
     friend bool operator==(const ClangString &first, const ClangString &second)
     {
         return std::strcmp(first.cString(), second.cString()) == 0;
@@ -116,6 +122,13 @@ public:
     friend bool operator==(Type first, const ClangString &second)
     {
         return second == first;
+    }
+
+    friend std::ostream &operator<<(std::ostream &out, const ClangString &string)
+    {
+        out << string.cString();
+
+        return out;
     }
 
 private:

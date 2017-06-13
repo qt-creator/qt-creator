@@ -198,12 +198,12 @@ bool Cursor::isUnexposed() const
     return clang_isUnexposed(kind());
 }
 
-Utf8String Cursor::unifiedSymbolResolution() const
+ClangString Cursor::unifiedSymbolResolution() const
 {
     return ClangString(clang_getCursorUSR(cxCursor));
 }
 
-Utf8String Cursor::mangling() const
+ClangString Cursor::mangling() const
 {
     return ClangString(clang_Cursor_getMangling(cxCursor));
 }
@@ -213,17 +213,17 @@ ClangString Cursor::spelling() const
     return ClangString(clang_getCursorSpelling(cxCursor));
 }
 
-Utf8String Cursor::displayName() const
+ClangString Cursor::displayName() const
 {
     return ClangString(clang_getCursorDisplayName(cxCursor));
 }
 
-Utf8String Cursor::briefComment() const
+ClangString Cursor::briefComment() const
 {
     return ClangString(clang_Cursor_getBriefCommentText(cxCursor));
 }
 
-Utf8String Cursor::rawComment() const
+ClangString Cursor::rawComment() const
 {
     return ClangString(clang_Cursor_getRawCommentText(cxCursor));
 }
@@ -418,7 +418,7 @@ void PrintTo(const Cursor &cursor, ::std::ostream*os)
         auto identifier = cursor.displayName();
         if (identifier.hasContent()) {
             *os  << "\""
-                 << identifier.constData()
+                 << identifier
                  << "\": ";
         }
 

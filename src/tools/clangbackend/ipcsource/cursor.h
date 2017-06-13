@@ -71,12 +71,12 @@ public:
     bool hasFinalClassAttribute() const;
     bool isUnexposed() const;
 
-    Utf8String unifiedSymbolResolution() const;
-    Utf8String mangling() const;
+    ClangString unifiedSymbolResolution() const;
+    ClangString mangling() const;
     ClangString spelling() const;
-    Utf8String displayName() const;
-    Utf8String briefComment() const;
-    Utf8String rawComment() const;
+    ClangString displayName() const;
+    ClangString briefComment() const;
+    ClangString rawComment() const;
     int argumentCount() const;
 
     Type type() const;

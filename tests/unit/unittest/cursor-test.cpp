@@ -57,6 +57,7 @@ using testing::AllOf;
 using testing::Not;
 using testing::IsEmpty;
 using testing::StrEq;
+using testing::Eq;
 
 namespace {
 
@@ -137,14 +138,14 @@ TEST_F(Cursor, UnifiedSymbolResolution)
 {
      ::Cursor cursor;
 
-     ASSERT_TRUE(cursor.unifiedSymbolResolution().isEmpty());
+     ASSERT_FALSE(cursor.unifiedSymbolResolution().hasContent());
 }
 
 TEST_F(Cursor, GetCursorAtLocation)
 {
     auto cursor = translationUnit.cursorAt(3, 6);
 
-    ASSERT_THAT(cursor.unifiedSymbolResolution(), Utf8StringLiteral("c:@F@function#I#"));
+    ASSERT_THAT(cursor.unifiedSymbolResolution(), Eq("c:@F@function#I#"));
 }
 
 TEST_F(Cursor, GetCursoSourceLocation)
@@ -166,14 +167,12 @@ TEST_F(Cursor, Mangling)
 {
     auto cursor = translationUnit.cursorAt(3, 6);
 
-
-    ASSERT_THAT(cursor.mangling().isEmpty(), false);
+    ASSERT_TRUE(cursor.mangling().hasContent());
 }
 
 TEST_F(Cursor, Spelling)
 {
     auto cursor = translationUnit.cursorAt(3, 6);
-
 
     ASSERT_THAT(cursor.spelling().cString(), StrEq("function"));
 }
@@ -182,24 +181,21 @@ TEST_F(Cursor, DisplayName)
 {
     auto cursor = translationUnit.cursorAt(3, 6);
 
-
-    ASSERT_THAT(cursor.displayName(), Utf8StringLiteral("function(int)"));
+    ASSERT_THAT(cursor.displayName(), Eq("function(int)"));
 }
 
 TEST_F(Cursor, BriefComment)
 {
     auto cursor = translationUnit.cursorAt(Utf8StringLiteral(TESTDATA_DIR"/cursor.h"), 10, 7);
 
-
-    ASSERT_THAT(cursor.briefComment(), Utf8StringLiteral("A brief comment"));
+    ASSERT_THAT(cursor.briefComment(), Eq("A brief comment"));
 }
 
 TEST_F(Cursor, DISABLED_ON_WINDOWS(RawComment))
 {
     auto cursor = translationUnit.cursorAt(Utf8StringLiteral(TESTDATA_DIR"/cursor.h"), 10, 7);
 
-
-    ASSERT_THAT(cursor.rawComment(), Utf8StringLiteral("/**\n * A brief comment\n */"));
+    ASSERT_THAT(cursor.rawComment(), Eq("/**\n * A brief comment\n */"));
 }
 
 TEST_F(Cursor, CommentRange)
