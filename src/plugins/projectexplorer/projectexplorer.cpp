@@ -91,7 +91,6 @@
 
 #include "windebuginterface.h"
 #include "msvctoolchain.h"
-#include "wincetoolchain.h"
 
 #include "projecttree.h"
 #include "projectwelcomepage.h"
@@ -501,7 +500,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     if (Utils::HostOsInfo::isWindowsHost()) {
         addAutoReleasedObject(new WinDebugInterface);
         addAutoReleasedObject(new MsvcToolChainFactory);
-        addAutoReleasedObject(new WinCEToolChainFactory);
     } else {
         addAutoReleasedObject(new LinuxIccToolChainFactory);
     }
