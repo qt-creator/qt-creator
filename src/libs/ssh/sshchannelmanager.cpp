@@ -38,6 +38,8 @@
 #include "sshsendfacility_p.h"
 #include "sshtcpipforwardserver.h"
 #include "sshtcpipforwardserver_p.h"
+#include "sshx11channel_p.h"
+#include "sshx11inforetriever_p.h"
 
 #include <QList>
 
@@ -61,6 +63,10 @@ void SshChannelManager::handleChannelOpen(const SshIncomingPacket &packet)
     const SshChannelOpenGeneric channelOpen = packet.extractChannelOpen();
     if (channelOpen.channelType == SshIncomingPacket::ForwardedTcpIpType) {
         handleChannelOpenForwardedTcpIp(channelOpen);
+        return;
+    }
+    if (channelOpen.channelType == "x11") {
+        handleChannelOpenX11(channelOpen);
         return;
     }
     try {
@@ -195,6 +201,43 @@ QSsh::SshRemoteProcess::Ptr SshChannelManager::createRemoteProcess(const QByteAr
 {
     SshRemoteProcess::Ptr proc(new SshRemoteProcess(command, m_nextLocalChannelId++, m_sendFacility));
     insertChannel(proc->d, proc);
+    connect(proc->d, &SshRemoteProcessPrivate::destroyed, this, [this] {
+        m_x11ForwardingRequests.removeOne(static_cast<SshRemoteProcessPrivate *>(sender()));
+    });
+    connect(proc->d, &SshRemoteProcessPrivate::x11ForwardingRequested, this,
+            [this, proc = proc->d](const QString &displayName) {
+        if (!x11DisplayName().isEmpty()) {
+            if (x11DisplayName() != displayName) {
+                proc->failToStart(tr("Cannot forward to display %1 on SSH connection that is "
+                                     "already forwarding to display %2.")
+                                  .arg(displayName, x11DisplayName()));
+                return;
+            }
+            if (!m_x11DisplayInfo.cookie.isEmpty())
+                proc->startProcess(m_x11DisplayInfo);
+            else
+                m_x11ForwardingRequests << proc;
+            return;
+        }
+        m_x11DisplayInfo.displayName = displayName;
+        m_x11ForwardingRequests << proc;
+        auto * const x11InfoRetriever = new SshX11InfoRetriever(displayName, this);
+        const auto failureHandler = [this](const QString &errorMessage) {
+            for (SshRemoteProcessPrivate * const proc : qAsConst(m_x11ForwardingRequests))
+                proc->failToStart(errorMessage);
+            m_x11ForwardingRequests.clear();
+        };
+        connect(x11InfoRetriever, &SshX11InfoRetriever::failure, this, failureHandler);
+        const auto successHandler = [this](const X11DisplayInfo &displayInfo) {
+            m_x11DisplayInfo = displayInfo;
+            for (SshRemoteProcessPrivate * const proc : qAsConst(m_x11ForwardingRequests))
+                proc->startProcess(displayInfo);
+            m_x11ForwardingRequests.clear();
+        };
+        connect(x11InfoRetriever, &SshX11InfoRetriever::success, this, successHandler);
+        qCDebug(sshLog) << "starting x11 info retriever";
+        x11InfoRetriever->start();
+    });
     return proc;
 }
 
@@ -301,6 +344,25 @@ void SshChannelManager::handleChannelOpenForwardedTcpIp(
     tunnel->open(QIODevice::ReadWrite);
     server->setNewConnection(tunnel);
     insertChannel(tunnel->d, tunnel);
+}
+
+void SshChannelManager::handleChannelOpenX11(const SshChannelOpenGeneric &channelOpenGeneric)
+{
+    qCDebug(sshLog) << "incoming X11 channel open request";
+    const SshChannelOpenX11 channelOpen
+            = SshIncomingPacket::extractChannelOpenX11(channelOpenGeneric);
+    if (m_x11DisplayInfo.cookie.isEmpty()) {
+        throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
+                                   "Server attempted to open an unrequested X11 channel.");
+    }
+    SshX11Channel * const x11Channel = new SshX11Channel(m_x11DisplayInfo,
+                                                         m_nextLocalChannelId++,
+                                                         m_sendFacility);
+    x11Channel->setParent(this);
+    x11Channel->handleOpenSuccess(channelOpen.common.remoteChannel,
+                                  channelOpen.common.remoteWindowSize,
+                                  channelOpen.common.remoteMaxPacketSize);
+    insertChannel(x11Channel, QSharedPointer<QObject>());
 }
 
 int SshChannelManager::closeAllChannels(CloseAllMode mode)

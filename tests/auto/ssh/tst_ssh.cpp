@@ -30,6 +30,9 @@
 #include <ssh/sshpseudoterminal.h>
 #include <ssh/sshremoteprocessrunner.h>
 #include <ssh/sshtcpipforwardserver.h>
+#include <ssh/sshx11displayinfo_p.h>
+#include <ssh/sshx11inforetriever_p.h>
+#include <utils/environment.h>
 
 #include <QDateTime>
 #include <QDir>
@@ -152,6 +155,8 @@ private slots:
     void remoteProcessChannels();
     void remoteProcessInput();
     void sftp();
+    void x11InfoRetriever_data();
+    void x11InfoRetriever();
 
 private:
     bool waitForConnection(SshConnection &connection);
@@ -824,6 +829,62 @@ void tst_Ssh::sftp()
     QVERIFY(!invalidFinishedSignal);
     QVERIFY2(jobError.isEmpty(), qPrintable(jobError));
     QCOMPARE(sftpChannel->state(), SftpChannel::Closed);
+}
+
+void tst_Ssh::x11InfoRetriever_data()
+{
+    QTest::addColumn<QString>("displayName");
+    QTest::addColumn<bool>("successExpected");
+
+    const Utils::FileName xauthCommand
+            = Utils::Environment::systemEnvironment().searchInPath("xauth");
+    const QString displayName = QLatin1String(qgetenv("DISPLAY"));
+    const bool canSucceed = xauthCommand.exists() && !displayName.isEmpty();
+    QTest::newRow(canSucceed ? "suitable host" : "unsuitable host") << displayName << canSucceed;
+    QTest::newRow("invalid display name") << QString("dummy") << false;
+}
+
+void tst_Ssh::x11InfoRetriever()
+{
+    QFETCH(QString, displayName);
+    QFETCH(bool, successExpected);
+    using namespace QSsh::Internal;
+    SshX11InfoRetriever x11InfoRetriever(displayName);
+    QEventLoop loop;
+    bool success;
+    X11DisplayInfo displayInfo;
+    QString errorMessage;
+    const auto successHandler = [&loop, &success, &displayInfo](const X11DisplayInfo &di) {
+        success = true;
+        displayInfo = di;
+        loop.quit();
+    };
+    connect(&x11InfoRetriever, &SshX11InfoRetriever::success, successHandler);
+    const auto failureHandler = [&loop, &success, &errorMessage](const QString &error) {
+        success = false;
+        errorMessage = error;
+        loop.quit();
+    };
+    connect(&x11InfoRetriever, &SshX11InfoRetriever::failure, failureHandler);
+    QTimer timer;
+    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    timer.setSingleShot(true);
+    timer.setInterval(40000);
+    timer.start();
+    x11InfoRetriever.start();
+    loop.exec();
+    QVERIFY(timer.isActive());
+    timer.stop();
+    if (successExpected) {
+        QVERIFY2(success, qPrintable(errorMessage));
+        QVERIFY(!displayInfo.protocol.isEmpty());
+        QVERIFY(!displayInfo.cookie.isEmpty());
+        QCOMPARE(displayInfo.cookie.size(), displayInfo.randomCookie.size());
+        QCOMPARE(displayInfo.displayName, displayName);
+    } else {
+        QVERIFY(!success);
+        QVERIFY(!errorMessage.isEmpty());
+    }
 }
 
 bool tst_Ssh::waitForConnection(SshConnection &connection)

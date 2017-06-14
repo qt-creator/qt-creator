@@ -225,6 +225,14 @@ void SshOutgoingPacket::generateEnvPacket(quint32 remoteChannel,
         .appendBool(false).appendString(var).appendString(value).finalize();
 }
 
+void SshOutgoingPacket::generateX11ForwardingPacket(quint32 remoteChannel,
+        const QByteArray &protocol, const QByteArray &cookie, quint32 screenNumber)
+{
+    init(SSH_MSG_CHANNEL_REQUEST).appendInt(remoteChannel).appendString("x11-req")
+            .appendBool(false).appendBool(false).appendString(protocol)
+            .appendString(cookie).appendInt(screenNumber).finalize();
+}
+
 void SshOutgoingPacket::generatePtyRequestPacket(quint32 remoteChannel,
     const SshPseudoTerminal &terminal)
 {

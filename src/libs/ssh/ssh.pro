@@ -33,7 +33,9 @@ SOURCES = $$PWD/sshsendfacility.cpp \
     $$PWD/sshtcpipforwardserver.cpp \
     $$PWD/sshtcpiptunnel.cpp \
     $$PWD/sshforwardedtcpiptunnel.cpp \
-    $$PWD/sshagent.cpp
+    $$PWD/sshagent.cpp \
+    $$PWD/sshx11channel.cpp \
+    $$PWD/sshx11inforetriever.cpp
 
 HEADERS = $$PWD/sshsendfacility_p.h \
     $$PWD/sshremoteprocess.h \
@@ -76,7 +78,10 @@ HEADERS = $$PWD/sshsendfacility_p.h \
     $$PWD/sshtcpiptunnel_p.h \
     $$PWD/sshforwardedtcpiptunnel.h \
     $$PWD/sshforwardedtcpiptunnel_p.h \
-    $$PWD/sshagent_p.h
+    $$PWD/sshagent_p.h \
+    $$PWD/sshx11channel_p.h \
+    $$PWD/sshx11displayinfo_p.h \
+    $$PWD/sshx11inforetriever_p.h
 
 FORMS = $$PWD/sshkeycreationdialog.ui
 

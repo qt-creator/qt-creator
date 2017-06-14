@@ -30,6 +30,7 @@
 #include "sshincomingpacket_p.h"
 #include "sshlogging_p.h"
 #include "sshsendfacility_p.h"
+#include "sshx11displayinfo_p.h"
 
 #include <QTimer>
 
@@ -186,6 +187,12 @@ void SshRemoteProcess::requestTerminal(const SshPseudoTerminal &terminal)
     d->m_terminal = terminal;
 }
 
+void SshRemoteProcess::requestX11Forwarding(const QString &displayName)
+{
+    QSSH_ASSERT_AND_RETURN(d->channelState() == Internal::SshRemoteProcessPrivate::Inactive);
+    d->m_x11DisplayName = displayName;
+}
+
 void SshRemoteProcess::start()
 {
     if (d->channelState() == Internal::SshRemoteProcessPrivate::Inactive) {
@@ -226,6 +233,14 @@ SshRemoteProcess::Signal SshRemoteProcess::exitSignal() const
 }
 
 namespace Internal {
+
+void SshRemoteProcessPrivate::failToStart(const QString &reason)
+{
+    if (m_procState != NotYetStarted)
+        return;
+    m_proc->setErrorString(reason);
+    setProcState(StartFailed);
+}
 
 SshRemoteProcessPrivate::SshRemoteProcessPrivate(const QByteArray &command,
         quint32 channelId, SshSendFacility &sendFacility, SshRemoteProcess *proc)
@@ -286,26 +301,41 @@ void SshRemoteProcessPrivate::closeHook()
 
 void SshRemoteProcessPrivate::handleOpenSuccessInternal()
 {
-   foreach (const EnvVar &envVar, m_env) {
-       m_sendFacility.sendEnvPacket(remoteChannel(), envVar.first,
-           envVar.second);
-   }
+    if (m_x11DisplayName.isEmpty())
+        startProcess(X11DisplayInfo());
+    else
+        emit x11ForwardingRequested(m_x11DisplayName);
+}
 
-   if (m_useTerminal)
-       m_sendFacility.sendPtyRequestPacket(remoteChannel(), m_terminal);
+void SshRemoteProcessPrivate::startProcess(const X11DisplayInfo &displayInfo)
+{
+    if (m_procState != NotYetStarted)
+        return;
 
-   if (m_isShell)
-       m_sendFacility.sendShellPacket(remoteChannel());
-   else
-       m_sendFacility.sendExecPacket(remoteChannel(), m_command);
-   setProcState(ExecRequested);
-   m_timeoutTimer.start(ReplyTimeout);
+    foreach (const EnvVar &envVar, m_env) {
+        m_sendFacility.sendEnvPacket(remoteChannel(), envVar.first,
+            envVar.second);
+    }
+
+    if (!m_x11DisplayName.isEmpty()) {
+        m_sendFacility.sendX11ForwardingPacket(remoteChannel(), displayInfo.protocol,
+                                               displayInfo.randomCookie.toHex(), 0);
+    }
+
+    if (m_useTerminal)
+        m_sendFacility.sendPtyRequestPacket(remoteChannel(), m_terminal);
+
+    if (m_isShell)
+        m_sendFacility.sendShellPacket(remoteChannel());
+    else
+        m_sendFacility.sendExecPacket(remoteChannel(), m_command);
+    setProcState(ExecRequested);
+    m_timeoutTimer.start(ReplyTimeout);
 }
 
 void SshRemoteProcessPrivate::handleOpenFailureInternal(const QString &reason)
 {
-   setProcState(StartFailed);
-   m_proc->setErrorString(reason);
+    failToStart(reason);
 }
 
 void SshRemoteProcessPrivate::handleChannelSuccess()

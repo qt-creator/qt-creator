@@ -207,6 +207,11 @@ int SshConnection::channelCount() const
     return d->m_channelManager->channelCount();
 }
 
+QString SshConnection::x11DisplayName() const
+{
+    return d->m_channelManager->x11DisplayName();
+}
+
 namespace Internal {
 
 SshConnectionPrivate::SshConnectionPrivate(SshConnection *conn,

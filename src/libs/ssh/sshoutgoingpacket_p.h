@@ -71,6 +71,8 @@ public:
     void generateCancelTcpIpForwardPacket(const QByteArray &bindAddress, quint32 bindPort);
     void generateEnvPacket(quint32 remoteChannel, const QByteArray &var,
         const QByteArray &value);
+    void generateX11ForwardingPacket(quint32 remoteChannel, const QByteArray &protocol,
+                                     const QByteArray &cookie, quint32 screenNumber);
     void generatePtyRequestPacket(quint32 remoteChannel,
         const SshPseudoTerminal &terminal);
     void generateExecPacket(quint32 remoteChannel, const QByteArray &command);

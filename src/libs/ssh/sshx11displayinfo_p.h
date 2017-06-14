@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,21 +25,25 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include "ssh_global.h"
 
-#if defined(QTCSSH_LIBRARY)
-#  define QSSH_EXPORT Q_DECL_EXPORT
-#else
-#  define QSSH_EXPORT Q_DECL_IMPORT
-#endif
+#include <QString>
+#include <QByteArray>
 
-#ifdef WITH_TESTS
-#  define QSSH_AUTOTEST_EXPORT QSSH_EXPORT
-#else
-#  define QSSH_AUTOTEST_EXPORT
-#endif
+namespace QSsh {
+namespace Internal {
 
-#define QSSH_PRINT_WARNING qWarning("Soft assert at %s:%d", __FILE__, __LINE__)
-#define QSSH_ASSERT(cond) do { if (!(cond)) { QSSH_PRINT_WARNING; } } while (false)
-#define QSSH_ASSERT_AND_RETURN(cond) do { if (!(cond)) { QSSH_PRINT_WARNING; return; } } while (false)
-#define QSSH_ASSERT_AND_RETURN_VALUE(cond, value) do { if (!(cond)) { QSSH_PRINT_WARNING; return value; } } while (false)
+class QSSH_AUTOTEST_EXPORT X11DisplayInfo
+{
+public:
+    QString displayName;
+    QString hostName;
+    QByteArray protocol;
+    QByteArray cookie;
+    QByteArray randomCookie;
+    int display = 0;
+    int screen = 0;
+};
+
+} // namespace Internal
+} // namespace QSsh

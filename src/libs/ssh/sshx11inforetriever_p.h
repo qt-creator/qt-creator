@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,21 +25,41 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include "ssh_global.h"
 
-#if defined(QTCSSH_LIBRARY)
-#  define QSSH_EXPORT Q_DECL_EXPORT
-#else
-#  define QSSH_EXPORT Q_DECL_IMPORT
-#endif
+#include <QObject>
+#include <QString>
 
-#ifdef WITH_TESTS
-#  define QSSH_AUTOTEST_EXPORT QSSH_EXPORT
-#else
-#  define QSSH_AUTOTEST_EXPORT
-#endif
+QT_BEGIN_NAMESPACE
+class QByteArray;
+class QProcess;
+class QTemporaryFile;
+QT_END_NAMESPACE
 
-#define QSSH_PRINT_WARNING qWarning("Soft assert at %s:%d", __FILE__, __LINE__)
-#define QSSH_ASSERT(cond) do { if (!(cond)) { QSSH_PRINT_WARNING; } } while (false)
-#define QSSH_ASSERT_AND_RETURN(cond) do { if (!(cond)) { QSSH_PRINT_WARNING; return; } } while (false)
-#define QSSH_ASSERT_AND_RETURN_VALUE(cond, value) do { if (!(cond)) { QSSH_PRINT_WARNING; return value; } } while (false)
+namespace QSsh {
+namespace Internal {
+class X11DisplayInfo;
+
+class QSSH_AUTOTEST_EXPORT SshX11InfoRetriever : public QObject
+{
+    Q_OBJECT
+public:
+    SshX11InfoRetriever(const QString &displayName, QObject *parent = nullptr);
+    void start();
+
+signals:
+    void failure(const QString &message);
+    void success(const X11DisplayInfo &displayInfo);
+
+private:
+    void emitFailure(const QString &reason);
+
+    const QString m_displayName;
+    QProcess * const m_xauthProc;
+    QTemporaryFile * const m_xauthFile;
+
+    enum class State { Inactive, RunningGenerate, RunningList } m_state = State::Inactive;
+};
+
+} // namespace Internal
+} // namespace QSsh

@@ -95,6 +95,11 @@ Project {
             "sshtcpipforwardserver_p.h",
             "sshtcpiptunnel.cpp",
             "sshtcpiptunnel_p.h",
+            "sshx11channel.cpp",
+            "sshx11channel_p.h",
+            "sshx11displayinfo_p.h",
+            "sshx11inforetriever.cpp",
+            "sshx11inforetriever_p.h",
         ]
 
         property var botanIncludes: qtc.useSystemBotan ? ["/usr/include/botan-2"] : []

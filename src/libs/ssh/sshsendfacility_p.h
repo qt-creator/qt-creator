@@ -82,6 +82,8 @@ public:
         const SshPseudoTerminal &terminal);
     void sendEnvPacket(quint32 remoteChannel, const QByteArray &var,
         const QByteArray &value);
+    void sendX11ForwardingPacket(quint32 remoteChannel, const QByteArray &protocol,
+                                 const QByteArray &cookie, quint32 screenNumber);
     void sendExecPacket(quint32 remoteChannel, const QByteArray &command);
     void sendShellPacket(quint32 remoteChannel);
     void sendSftpPacket(quint32 remoteChannel);

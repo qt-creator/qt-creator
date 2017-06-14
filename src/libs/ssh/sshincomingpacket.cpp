@@ -406,6 +406,23 @@ SshChannelOpenForwardedTcpIp SshIncomingPacket::extractChannelOpenForwardedTcpIp
     }
 }
 
+SshChannelOpenX11 SshIncomingPacket::extractChannelOpenX11(const SshChannelOpenGeneric &genericData)
+{
+    try {
+        SshChannelOpenX11 specificData;
+        specificData.common = genericData.commonData;
+        quint32 offset = 0;
+        specificData.originatorAddress = SshPacketParser::asString(genericData.typeSpecificData,
+                                                                   &offset);
+        specificData.originatorPort = SshPacketParser::asUint32(genericData.typeSpecificData,
+                                                                &offset);
+        return specificData;
+    } catch (const SshPacketParseException &) {
+        throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Server sent invalid SSH_MSG_CHANNEL_OPEN packet.");
+    }
+}
+
 SshChannelOpenFailure SshIncomingPacket::extractChannelOpenFailure() const
 {
     Q_ASSERT(isComplete());

@@ -205,6 +205,13 @@ void SshSendFacility::sendEnvPacket(quint32 remoteChannel,
     sendPacket();
 }
 
+void SshSendFacility::sendX11ForwardingPacket(quint32 remoteChannel, const QByteArray &protocol,
+                                              const QByteArray &cookie, quint32 screenNumber)
+{
+    m_outgoingPacket.generateX11ForwardingPacket(remoteChannel, protocol, cookie, screenNumber);
+    sendPacket();
+}
+
 void SshSendFacility::sendExecPacket(quint32 remoteChannel,
     const QByteArray &command)
 {

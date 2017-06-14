@@ -78,6 +78,7 @@ public:
     void clearEnvironment();
 
     void requestTerminal(const SshPseudoTerminal &terminal);
+    void requestX11Forwarding(const QString &displayName);
     void start();
 
     bool isRunning() const;
