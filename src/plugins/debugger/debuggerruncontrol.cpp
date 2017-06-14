@@ -717,6 +717,7 @@ RunControl *createAndScheduleRun(const DebuggerRunParameters &rp, Kit *kit)
 GdbServerPortsGatherer::GdbServerPortsGatherer(RunControl *runControl)
     : RunWorker(runControl)
 {
+    setDisplayName("GdbServerPortsGatherer");
 }
 
 GdbServerPortsGatherer::~GdbServerPortsGatherer()
