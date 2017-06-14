@@ -71,6 +71,7 @@ SOURCES += \
     chunksreportedmonitor.cpp \
     clangasyncjob-base.cpp \
     clangcodecompleteresults-test.cpp \
+    clangcodemodelserver-test.cpp \
     clangcompletecodejob-test.cpp \
     clangcompletioncontextanalyzer-test.cpp \
     clangcreateinitialdocumentpreamblejob-test.cpp \
@@ -80,7 +81,6 @@ SOURCES += \
     clangdocumentprocessor-test.cpp \
     clangdocumentprocessors-test.cpp \
     clangfixitoperation-test.cpp \
-    clangipcserver-test.cpp \
     clangisdiagnosticrelatedtolocation-test.cpp \
     clangjobqueue-test.cpp \
     clangjobs-test.cpp \
