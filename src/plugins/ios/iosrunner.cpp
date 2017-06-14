@@ -357,48 +357,44 @@ void IosRunSupport::stop()
 }
 
 //
-// IosAnalyzeSupport
+// IosQmlProfilerSupport
 //
 
-IosAnalyzeSupport::IosAnalyzeSupport(RunControl *runControl)
-    : IosRunner(runControl)
+IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
+    : RunWorker(runControl)
 {
-    m_runner = new IosRunner(runControl);
-    addDependency(m_runner);
-
     setDisplayName("IosAnalyzeSupport");
-    setQmlDebugging(QmlDebug::QmlProfilerServices);
 
     auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runControl->runConfiguration());
     StandardRunnable runnable;
     runnable.executable = iosRunConfig->localExecutable().toUserOutput();
     runnable.commandLineArguments = iosRunConfig->commandLineArguments();
-    runControl->setRunnable(runnable);
-    runControl->setConnection(UrlConnection::localHostWithoutPort());
     runControl->setDisplayName(iosRunConfig->applicationName());
+    runControl->setRunnable(runnable);
 
-    connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
-            this, &IosAnalyzeSupport::qmlServerReady);
+    m_runner = new IosRunner(runControl);
+    m_runner->setQmlDebugging(QmlDebug::QmlProfilerServices);
+    addDependency(m_runner);
+
+    m_profiler = runControl->createWorker(runControl->runMode());
+    m_profiler->addDependency(this);
 }
 
-void IosAnalyzeSupport::start()
+void IosQmlProfilerSupport::start()
 {
-   // Use m_runner->qmlServerPort() // FIXME
-}
+    UrlConnection serverUrl;
+    QTcpServer server;
+    QTC_ASSERT(server.listen(QHostAddress::LocalHost)
+               || server.listen(QHostAddress::LocalHostIPv6), return);
+    serverUrl.setHost(server.serverAddress().toString());
 
-void IosAnalyzeSupport::qmlServerReady()
-{
-//    runControl()->notifyRemoteSetupDone(m_qmlServerPort);
-}
-
-void IosAnalyzeSupport::appOutput(const QString &output)
-{
-    m_outputParser.processOutput(output);
-}
-
-void IosAnalyzeSupport::errorMsg(const QString &output)
-{
-    m_outputParser.processOutput(output);
+    Port qmlPort = m_runner->qmlServerPort();
+    serverUrl.setPort(qmlPort.number());
+    m_profiler->recordData("QmlServerUrl", serverUrl);
+    if (qmlPort.isValid())
+        reportStarted();
+    else
+        reportFailure(tr("Could not get necessary ports for the profiler connection."));
 }
 
 //

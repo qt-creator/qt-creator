@@ -182,8 +182,7 @@ RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
     if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE) {
         (void) new Ios::Internal::IosRunSupport(runControl);
     } else if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-        runControl->createWorker(mode);
-        (void) new IosAnalyzeSupport(runControl);
+        (void) new IosQmlProfilerSupport(runControl);
     } else {
         (void) new IosDebugSupport(runControl);
     }

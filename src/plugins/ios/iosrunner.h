@@ -65,6 +65,7 @@ public:
 
     virtual void appOutput(const QString &/*output*/) {}
     virtual void errorMsg(const QString &/*msg*/) {}
+    virtual void onStart() { reportStarted(); }
 
     Utils::Port qmlServerPort() const;
     Utils::Port gdbServerPort() const;
@@ -111,22 +112,17 @@ private:
 };
 
 
-class IosAnalyzeSupport : public IosRunner
+class IosQmlProfilerSupport : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 
 public:
-    IosAnalyzeSupport(ProjectExplorer::RunControl *runControl);
+    IosQmlProfilerSupport(ProjectExplorer::RunControl *runControl);
 
 private:
     void start() override;
-
-    void qmlServerReady();
-    void appOutput(const QString &output) override;
-    void errorMsg(const QString &output) override;
-
-    QmlDebug::QmlOutputParser m_outputParser;
-    IosRunner *m_runner;
+    IosRunner *m_runner = nullptr;
+    ProjectExplorer::RunWorker *m_profiler = nullptr;
 };
 
 
