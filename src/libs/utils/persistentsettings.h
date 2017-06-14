@@ -26,6 +26,7 @@
 #pragma once
 
 #include "fileutils.h"
+#include "utils_global.h"
 
 #include <QVariant>
 
