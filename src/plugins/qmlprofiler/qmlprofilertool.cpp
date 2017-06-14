@@ -351,9 +351,8 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
     runWorker->registerProfilerStateManager(d->m_profilerState);
     QmlProfilerClientManager *clientManager = d->m_profilerConnections;
 
-    QTC_ASSERT(runWorker->connection().is<UrlConnection>(), return);
     // FIXME: Check that there's something sensible in sp.connParams
-    auto serverUrl = runWorker->connection().as<UrlConnection>();
+    auto serverUrl = runWorker->serverUrl();
     clientManager->setServerUrl(serverUrl);
     if (!serverUrl.path().isEmpty()) {
         // That's the local socket case.

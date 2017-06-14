@@ -63,6 +63,8 @@ using namespace QmlProfiler::Internal;
 
 namespace QmlProfiler {
 
+static QString QmlServerUrl = "QmlServerUrl";
+
 //
 // QmlProfilerRunControlPrivate
 //
@@ -72,8 +74,7 @@ class QmlProfilerRunner::QmlProfilerRunnerPrivate
 public:
     QmlProfilerStateManager *m_profilerState = 0;
     QTimer m_noDebugOutputTimer;
-    bool m_isLocal = false;
-    QUrl m_serverUrl;
+    bool m_isAutoStart = false;
     ProjectExplorer::ApplicationLauncher m_launcher;
     QmlDebug::QmlOutputParser m_outputParser;
 };
@@ -86,6 +87,7 @@ QmlProfilerRunner::QmlProfilerRunner(RunControl *runControl)
     : RunWorker(runControl)
     , d(new QmlProfilerRunnerPrivate)
 {
+    setDisplayName("QmlProfilerRunner");
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     runControl->setSupportsReRunning(false);
 
@@ -110,8 +112,7 @@ void QmlProfilerRunner::start()
     Internal::QmlProfilerTool::instance()->finalizeRunControl(this);
     QTC_ASSERT(d->m_profilerState, return);
 
-    QTC_ASSERT(connection().is<UrlConnection>(), return);
-    QUrl serverUrl = connection().as<UrlConnection>();
+    QUrl serverUrl = this->serverUrl();
 
     if (serverUrl.port() != -1) {
         auto clientManager = Internal::QmlProfilerTool::clientManager();
@@ -123,11 +124,9 @@ void QmlProfilerRunner::start()
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
 
-    if (d->m_isLocal) {
-        QTC_ASSERT(!d->m_serverUrl.path().isEmpty() || d->m_serverUrl.port() != -1, return);
-
+    if (d->m_isAutoStart) {
         StandardRunnable debuggee = runnable().as<StandardRunnable>();
-        QString arguments = QmlDebug::qmlDebugArguments(QmlDebug::QmlProfilerServices, d->m_serverUrl);
+        QString arguments = QmlDebug::qmlDebugArguments(QmlDebug::QmlProfilerServices, serverUrl);
 
         if (!debuggee.commandLineArguments.isEmpty())
             arguments += ' ' + debuggee.commandLineArguments;
@@ -243,8 +242,7 @@ void QmlProfilerRunner::notifyRemoteSetupDone(Utils::Port port)
 {
     d->m_noDebugOutputTimer.stop();
 
-    QTC_ASSERT(connection().is<UrlConnection>(), return);
-    QUrl serverUrl = connection().as<UrlConnection>();
+    QUrl serverUrl = this->serverUrl();
     if (!port.isValid())
         port = Utils::Port(serverUrl.port());
 
@@ -284,8 +282,21 @@ void QmlProfilerRunner::profilerStateChanged()
 
 void QmlProfilerRunner::setServerUrl(const QUrl &serverUrl)
 {
-    d->m_isLocal = true;
-    d->m_serverUrl = serverUrl;
+    recordData(QmlServerUrl, serverUrl);
+}
+
+QUrl QmlProfilerRunner::serverUrl() const
+{
+    QVariant recordedServer = recordedData(QmlServerUrl);
+    if (recordedServer.isValid())
+        return recordedServer.toUrl();
+    QTC_ASSERT(connection().is<UrlConnection>(), return QUrl());
+    return connection().as<UrlConnection>();
+}
+
+void QmlProfilerRunner::setAutoStart()
+{
+    d->m_isAutoStart = true;
     connect(&d->m_launcher, &ApplicationLauncher::appendMessage,
             this, &QmlProfilerRunner::appendMessage);
     connect(this, &QmlProfilerRunner::localRunnerStopped,

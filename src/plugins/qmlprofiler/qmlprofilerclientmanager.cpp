@@ -168,7 +168,7 @@ void QmlProfilerClientManager::retryConnect()
 {
     if (m_server.scheme() == "socket") {
         startLocalServer();
-    } else if (!m_server.host().isEmpty() && m_server.port() > -1) {
+    } else if (!m_server.host().isEmpty() && m_server.port() > 0) {
         disconnectClient();
         connectToTcpServer();
     } else {

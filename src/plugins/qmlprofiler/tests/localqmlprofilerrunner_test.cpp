@@ -45,6 +45,7 @@ LocalQmlProfilerRunnerTest::LocalQmlProfilerRunnerTest(QObject *parent) : QObjec
 
 void LocalQmlProfilerRunnerTest::connectRunner(QmlProfilerRunner *runner)
 {
+    runner->setAutoStart();
     connect(runner, &QmlProfilerRunner::localRunnerStarted, this, [this] {
         QVERIFY(!running);
         ++runCount;
@@ -66,7 +67,6 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     rc = new ProjectExplorer::RunControl(nullptr, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     rc->setRunnable(debuggee);
-    rc->setConnection(UrlConnection(serverUrl));
     auto runner = new QmlProfilerRunner(rc);
     runner->setServerUrl(serverUrl);
     connectRunner(runner);
@@ -89,7 +89,6 @@ void LocalQmlProfilerRunnerTest::testRunner1()
     delete rc;
     rc = new ProjectExplorer::RunControl(nullptr, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     rc->setRunnable(debuggee);
-    rc->setConnection(serverUrl);
     auto runner = new QmlProfilerRunner(rc);
     runner->setServerUrl(serverUrl);
     connectRunner(runner);
@@ -108,7 +107,6 @@ void LocalQmlProfilerRunnerTest::testRunner2()
     serverUrl = UrlConnection::localHostAndFreePort();
     rc = new ProjectExplorer::RunControl(nullptr, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     rc->setRunnable(debuggee);
-    rc->setConnection(serverUrl);
     auto runner = new QmlProfilerRunner(rc);
     runner->setServerUrl(serverUrl);
     connectRunner(runner);

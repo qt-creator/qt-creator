@@ -90,6 +90,7 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
 
     auto runner = new QmlProfilerRunner(runControl);
     runner->setServerUrl(serverUrl);
+    runner->setAutoStart();
     return runControl;
 }
 

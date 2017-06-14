@@ -46,6 +46,7 @@ public:
     ~QmlProfilerRunner() override;
 
     void setServerUrl(const QUrl &serverUrl);
+    QUrl serverUrl() const;
 
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
 
@@ -53,6 +54,7 @@ public:
     void notifyRemoteSetupFailed(const QString &errorMessage);
     void cancelProcess();
     void notifyRemoteFinished();
+    void setAutoStart();
 
 signals:
     void localRunnerStarted();
