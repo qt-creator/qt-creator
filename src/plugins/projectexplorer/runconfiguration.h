@@ -375,7 +375,7 @@ public:
     void reportData(int channel, const QVariant &data);
 
     void recordData(const QString &channel, const QVariant &data);
-    QVariant recordedData(const QString &channel);
+    QVariant recordedData(const QString &channel) const;
 
     // Part of read-only interface of RunControl for convenience.
     void appendMessage(const QString &msg, Utils::OutputFormat format);
@@ -524,6 +524,8 @@ class PROJECTEXPLORER_EXPORT SimpleTargetRunner : public RunWorker
 public:
     explicit SimpleTargetRunner(RunControl *runControl);
 
+    void setRunnable(const Runnable &runnable);
+
 protected:
     void start() override;
     void stop() override;
@@ -534,6 +536,7 @@ private:
     void onProcessError(QProcess::ProcessError error);
 
     ApplicationLauncher m_launcher;
+    Runnable m_runnable;
 };
 
 } // namespace ProjectExplorer

@@ -1193,14 +1193,14 @@ SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
     : RunWorker(runControl)
 {
     setDisplayName("SimpleTargetRunner");
+    m_runnable = runControl->runnable();
 }
 
 void SimpleTargetRunner::start()
 {
     m_launcher.disconnect(this);
 
-    Runnable r = runControl()->runnable();
-    QString msg = RunControl::tr("Starting %1...").arg(r.displayName());
+    QString msg = RunControl::tr("Starting %1...").arg(m_runnable.displayName());
     appendMessage(msg, Utils::NormalMessageFormat);
 
     if (isSynchronousLauncher(runControl())) {
@@ -1214,15 +1214,15 @@ void SimpleTargetRunner::start()
         connect(&m_launcher, &ApplicationLauncher::error,
                 this, &SimpleTargetRunner::onProcessError);
 
-        QTC_ASSERT(r.is<StandardRunnable>(), return);
-        const QString executable = r.as<StandardRunnable>().executable;
+        QTC_ASSERT(m_runnable.is<StandardRunnable>(), return);
+        const QString executable = m_runnable.as<StandardRunnable>().executable;
         if (executable.isEmpty()) {
             reportFailure(RunControl::tr("No executable specified."));
         }  else if (!QFileInfo::exists(executable)) {
             reportFailure(RunControl::tr("Executable %1 does not exist.")
                               .arg(QDir::toNativeSeparators(executable)));
         } else {
-            m_launcher.start(r);
+            m_launcher.start(m_runnable);
         }
 
     } else {
@@ -1270,7 +1270,7 @@ void SimpleTargetRunner::start()
                     appendMessage(progressString, Utils::NormalMessageFormat);
                 });
 
-        m_launcher.start(r, runControl()->device());
+        m_launcher.start(m_runnable, device());
     }
 }
 
@@ -1294,15 +1294,20 @@ void SimpleTargetRunner::onProcessFinished(int exitCode, QProcess::ExitStatus st
         msg = tr("%1 crashed.");
     else
         msg = tr("%2 exited with code %1").arg(exitCode);
-    appendMessage(msg.arg(runnable().displayName()), Utils::NormalMessageFormat);
+    appendMessage(msg.arg(m_runnable.displayName()), Utils::NormalMessageFormat);
     reportStopped();
 }
 
 void SimpleTargetRunner::onProcessError(QProcess::ProcessError)
 {
     QString msg = tr("%1 finished.");
-    appendMessage(msg.arg(runnable().displayName()), Utils::NormalMessageFormat);
+    appendMessage(msg.arg(m_runnable.displayName()), Utils::NormalMessageFormat);
     reportStopped();
+}
+
+void SimpleTargetRunner::setRunnable(const Runnable &runnable)
+{
+    m_runnable = runnable;
 }
 
 // RunWorkerPrivate
@@ -1456,7 +1461,7 @@ void RunWorker::recordData(const QString &channel, const QVariant &data)
     d->data[channel] = data;
 }
 
-QVariant RunWorker::recordedData(const QString &channel)
+QVariant RunWorker::recordedData(const QString &channel) const
 {
     return d->data[channel];
 }

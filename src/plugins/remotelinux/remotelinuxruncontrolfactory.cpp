@@ -85,23 +85,17 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Co
         return runControl;
     }
 
-    if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE
-//            || mode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE
-            ) {
+    if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         auto runControl = new RunControl(runConfig, mode);
-        runControl->createWorker(mode);
-//        AnalyzerConnection connection;
-//        connection.connParams =
-//            DeviceKitInformation::device(runConfig->target()->kit())->sshParameters();
-//        connection.analyzerHost = connection.connParams.host;
-//        runControl->setConnection(connection);
-//        (void) new SimpleTargetRunner(runControl);
-//        (void) new PortsGatherer(runControl);
-//        (void) new FifoGatherer(runControl);
-//        (void) new RemoteLinuxAnalyzeSupport(runControl);
+        (void) new RemoteLinuxQmlProfilerSupport(runControl);
         return runControl;
     }
 
+    if ( mode == ProjectExplorer::Constants::PERFPROFILER_RUN_MODE) {
+        auto runControl = new RunControl(runConfig, mode);
+        (void) new RemoteLinuxPerfSupport(runControl);
+        return runControl;
+    }
     QTC_CHECK(false);
     return 0;
 }

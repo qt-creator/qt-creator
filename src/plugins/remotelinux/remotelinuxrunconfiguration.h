@@ -31,14 +31,8 @@
 
 #include <QStringList>
 
-namespace Utils {
-class Environment;
-class PortList;
-}
-
 namespace RemoteLinux {
 class RemoteLinuxRunConfigurationWidget;
-class RemoteLinuxDeployConfiguration;
 
 namespace Internal {
 class RemoteLinuxRunConfigurationPrivate;
