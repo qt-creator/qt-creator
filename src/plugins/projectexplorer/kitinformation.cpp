@@ -662,6 +662,11 @@ void DeviceKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander *ex
             const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
             return device ? device->sshParameters().privateKeyFile : QString();
     });
+    expander->registerVariable("Device:Name", tr("Device name"),
+        [this, kit]() -> QString {
+            const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+            return device ? device->displayName() : QString();
+    });
 }
 
 Core::Id DeviceKitInformation::id()
