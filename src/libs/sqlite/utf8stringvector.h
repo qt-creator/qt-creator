@@ -31,6 +31,8 @@
 #include <QDataStream>
 #include <QVector>
 
+#include <ostream>
+
 class SQLITE_EXPORT Utf8StringVector : public QVector<Utf8String>
 {
 public:
