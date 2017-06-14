@@ -308,16 +308,18 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
 
 # current dir is directory holding qtcreator.py
 origSettingsDir = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "settings"))
-sdkPath = os.path.expanduser("~/QtSDK")
+qt4Path = os.path.expanduser("~/Qt4.8.7")
 
 if platform.system() in ('Windows', 'Microsoft'):
-    sdkPath = "C:\\QtSDK"
+    qt4Path = "C:\\Qt\\Qt4.8.7"
     origSettingsDir = os.path.join(origSettingsDir, "windows")
 elif platform.system() == 'Darwin':
     origSettingsDir = os.path.join(origSettingsDir, "mac")
 else:
     origSettingsDir = os.path.join(origSettingsDir, "unix")
-srcPath = os.getenv("SYSTEST_SRCPATH", os.path.join(sdkPath, "src"))
+
+qt4examplePath = os.path.join(qt4Path, "examples")
+srcPath = os.getenv("SYSTEST_SRCPATH", os.path.expanduser(os.path.join("~", "squish-data")))
 
 overrideStartApplication()
 

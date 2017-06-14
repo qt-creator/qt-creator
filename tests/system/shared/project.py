@@ -73,7 +73,7 @@ def openCmakeProject(projectPath, buildDir):
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
     __chooseTargets__([]) # uncheck all
-    __chooseTargets__([Targets.DESKTOP_480_DEFAULT], additionalFunc=additionalFunction)
+    __chooseTargets__([Targets.DESKTOP_487_DEFAULT], additionalFunc=additionalFunction)
     clickButton(waitForObject(":Qt Creator.Configure Project_QPushButton"))
     return True
 
@@ -205,7 +205,7 @@ def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
                 # so the least required version is 4.8, but 4.7.4 will be still listed
                 if not (requiredQtVersion == "480" and found.group(0) == "474"):
                     available.remove(currentItem)
-            if requiredQtVersion > "480":
+            if requiredQtVersion > "487":
                 toBeRemoved = [Targets.EMBEDDED_LINUX]
                 if asStrings:
                     toBeRemoved = Targets.getTargetsAsStrings(toBeRemoved)
@@ -349,7 +349,7 @@ def createEmptyQtProject(workingDir=None, projectName=None, targets=Targets.desk
     __createProjectHandleLastPage__()
     return projectName, checkedTargets
 
-def createNewNonQtProject(workingDir=None, projectName=None, target=[Targets.DESKTOP_474_GCC],
+def createNewNonQtProject(workingDir=None, projectName=None, target=[Targets.DESKTOP_487_DEFAULT],
                           plainC=False, cmake=False, qbs=False):
     if plainC:
         template = "Plain C Application"
@@ -378,7 +378,7 @@ def createNewNonQtProject(workingDir=None, projectName=None, target=[Targets.DES
     return projectName
 
 def createNewCPPLib(projectDir = None, projectName = None, className = None, fromWelcome = False,
-                    target = [Targets.DESKTOP_474_GCC], isStatic = False, modules = ["QtCore"]):
+                    target = [Targets.DESKTOP_487_DEFAULT], isStatic = False, modules = ["QtCore"]):
     available = __createProjectOrFileSelectType__("  Library", "C++ Library", fromWelcome, True)
     if isStatic:
         libType = LibType.STATIC
@@ -396,7 +396,7 @@ def createNewCPPLib(projectDir = None, projectName = None, className = None, fro
     return checkedTargets, projectName, className
 
 def createNewQtPlugin(projectDir=None, projectName=None, className=None, fromWelcome=False,
-                      target=[Targets.DESKTOP_474_GCC], baseClass="QGenericPlugin"):
+                      target=[Targets.DESKTOP_487_DEFAULT], baseClass="QGenericPlugin"):
     available = __createProjectOrFileSelectType__("  Library", "C++ Library", fromWelcome, True)
     if projectDir == None:
         projectDir = tempDir()
@@ -414,7 +414,7 @@ def createNewQtPlugin(projectDir=None, projectName=None, className=None, fromWel
 # parameter additionalFunc function to be executed inside the detailed view of each chosen kit
 #           if present, 'Details' button will be clicked, function will be executed,
 #           'Details' button will be clicked again
-def __chooseTargets__(targets=[Targets.DESKTOP_474_GCC], availableTargets=None, additionalFunc=None):
+def __chooseTargets__(targets=[Targets.DESKTOP_487_DEFAULT], availableTargets=None, additionalFunc=None):
     if availableTargets != None:
         available = availableTargets
     else:
@@ -653,8 +653,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
         result = []
         if 'Desktop' in supports:
             if version == None or version < "5.0":
-                result.append(Targets.DESKTOP_474_GCC)
-                result.append(Targets.DESKTOP_480_DEFAULT)
+                result.append(Targets.DESKTOP_487_DEFAULT)
                 if platform.system() in ("Linux", "Darwin"):
                     result.append(Targets.EMBEDDED_LINUX)
             result.extend([Targets.DESKTOP_531_DEFAULT, Targets.DESKTOP_561_DEFAULT])

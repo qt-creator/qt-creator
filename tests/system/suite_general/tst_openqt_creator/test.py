@@ -36,7 +36,7 @@ def main():
         return
 
     runButton = findObject(':*Qt Creator.Run_Core::Internal::FancyToolButton')
-    openQmakeProject(pathSpeedcrunch, [Targets.DESKTOP_480_DEFAULT])
+    openQmakeProject(pathSpeedcrunch, [Targets.DESKTOP_487_DEFAULT])
     # Wait for parsing to complete
     waitFor("runButton.enabled", 30000)
     # Starting before opening, because this is where Creator froze (QTCREATORBUG-10733)

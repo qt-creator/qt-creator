@@ -6,24 +6,14 @@
   <variable>QtVersion.0</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">2</value>
-   <value type="QString" key="Name">Desktop Qt 4.8 for GCC (Qt SDK)</value>
-   <value type="QString" key="QMakePath">~/QtSDK/Desktop/Qt/4.8.0/gcc/bin/qmake</value>
+   <value type="QString" key="Name">Desktop Qt 4.8 for GCC</value>
+   <value type="QString" key="QMakePath">~/Qt4.8.7/bin/qmake</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
    <value type="bool" key="isAutodetected">false</value>
   </valuemap>
  </data>
  <data>
   <variable>QtVersion.1</variable>
-  <valuemap type="QVariantMap">
-   <value type="int" key="Id">4</value>
-   <value type="QString" key="Name">Desktop Qt 4.7.4 for GCC (Qt SDK)</value>
-   <value type="QString" key="QMakePath">~/QtSDK/Desktop/Qt/474/gcc/bin/qmake</value>
-   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
-   <value type="bool" key="isAutodetected">false</value>
-  </valuemap>
- </data>
- <data>
-  <variable>QtVersion.2</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">9</value>
    <value type="QString" key="Name">Desktop Qt 5.6.1 (SQUISH_DEFAULT_COMPILER)</value>
@@ -33,7 +23,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>QtVersion.3</variable>
+  <variable>QtVersion.2</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">11</value>
    <value type="QString" key="Name">Desktop Qt 5.3.1 (SQUISH_DEFAULT_COMPILER)</value>

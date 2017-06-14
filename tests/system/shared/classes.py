@@ -28,10 +28,9 @@ import operator
 
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
-    ALL_TARGETS = tuple(map(lambda x: 2 ** x , range(6)))
+    ALL_TARGETS = tuple(map(lambda x: 2 ** x , range(5)))
 
-    (DESKTOP_474_GCC,
-     DESKTOP_480_DEFAULT,
+    (DESKTOP_487_DEFAULT,
      EMBEDDED_LINUX,
      DESKTOP_531_DEFAULT,
      DESKTOP_541_GCC,
@@ -55,18 +54,12 @@ class Targets:
 
     @staticmethod
     def qt4Classes():
-        return (Targets.DESKTOP_474_GCC | Targets.DESKTOP_480_DEFAULT
-                | Targets.EMBEDDED_LINUX)
+        return (Targets.DESKTOP_487_DEFAULT | Targets.EMBEDDED_LINUX)
 
     @staticmethod
     def getStringForTarget(target):
-        if target == Targets.DESKTOP_474_GCC:
-            return "Desktop 474 GCC"
-        elif target == Targets.DESKTOP_480_DEFAULT:
-            if platform.system() in ('Windows', 'Microsoft'):
-                return "Desktop 480 MSVC2010"
-            else:
-                return "Desktop 480 GCC"
+        if target == Targets.DESKTOP_487_DEFAULT:
+            return "Desktop 487 default"
         elif target == Targets.EMBEDDED_LINUX:
             return "Embedded Linux"
         elif target == Targets.DESKTOP_531_DEFAULT:

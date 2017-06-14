@@ -28,8 +28,8 @@ source("../../shared/qtcreator.py")
 # entry of test
 def main():
     # prepare example project
-    sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/animation/basics/property-animation")
-    proFile = "propertyanimation.pro"
+    sourceExample = os.path.abspath(qt4examplePath + "/declarative/animation/basics/property-animation")
+    proFile = "property-animation.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
         return
     # copy example project to temp directory
@@ -44,7 +44,7 @@ def main():
         progressBarWait(30000)
         checkCodeModelSettings(useClang)
         # open .cpp file in editor
-        if not openDocument("propertyanimation.Sources.main\\.cpp"):
+        if not openDocument("property-animation.Sources.main\\.cpp"):
             test.fatal("Could not open main.cpp")
             invokeMenuItem("File", "Exit")
             return
@@ -58,12 +58,12 @@ def main():
             return
         # wait until search finished and verify search results
         waitForSearchResults()
-        validateSearchResult(14)
+        validateSearchResult(21)
         result = re.search("QmlApplicationViewer", str(editorWidget.plainText))
         test.verify(result, "Verifying if: The list of all usages of the selected text is displayed in Search Results. "
                     "File with used text is opened.")
         # move cursor to the other word and test Find Usages function by pressing Ctrl+Shift+U.
-        openDocument("propertyanimation.Sources.main\\.cpp")
+        openDocument("property-animation.Sources.main\\.cpp")
         if not placeCursorToLine(editorWidget, "viewer.setOrientation(QmlApplicationViewer::ScreenOrientationAuto);"):
             return
         for i in range(4):

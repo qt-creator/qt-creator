@@ -148,6 +148,3 @@ def checkForSessionFile(sessionName, proFiles):
                 proFile = proFile.replace('\\', '/')
             test.verify(proFile in content, "Verifying whether expected .pro file (%s) is listed "
                         "inside session file." % proFile)
-
-def init():
-    removeQmlDebugFolderIfExists()
