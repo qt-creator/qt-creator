@@ -100,7 +100,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
 
     params.setBuildRoot(dir);
     params.setProjectFilePath(m_projectFilePath);
-    params.setIgnoreDifferentProjectFilePath(false);
+    params.setOverrideBuildGraphData(true);
     params.setEnvironment(env.toProcessEnvironment());
     const qbs::Preferences prefs(QbsManager::settings(), profileName);
     params.setSearchPaths(prefs.searchPaths(resourcesBaseDirectory()));
