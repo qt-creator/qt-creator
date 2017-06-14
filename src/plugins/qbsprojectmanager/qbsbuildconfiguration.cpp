@@ -56,7 +56,7 @@ using namespace ProjectExplorer;
 namespace QbsProjectManager {
 namespace Internal {
 
-static QString configNameKey() { return "Qbs.configName"; }
+static QString configNameKey() { return QStringLiteral("Qbs.configName"); }
 
 const char QBS_BC_ID[] = "Qbs.QbsBuildConfiguration";
 
