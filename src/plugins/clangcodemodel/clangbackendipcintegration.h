@@ -26,6 +26,7 @@
 #pragma once
 
 #include <cpptools/projectpart.h>
+#include <cpptools/cppcursorinfo.h>
 
 #include <clangbackendipc/clangcodemodelconnectionclient.h>
 #include <clangbackendipc/filecontainer.h>
@@ -43,10 +44,6 @@
 namespace Core {
 class IEditor;
 class IDocument;
-}
-
-namespace CppTools {
-class CursorInfo;
 }
 
 namespace ClangBackEnd {
