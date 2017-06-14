@@ -105,7 +105,6 @@ private:
         QTextDocument *textDocument = nullptr;
     };
     QHash<quint64, ReferencesEntry> m_referencesTable;
-    const bool m_printAliveMessage = false;
 };
 
 class IpcSenderInterface

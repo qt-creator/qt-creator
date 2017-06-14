@@ -112,7 +112,6 @@ static bool printAliveMessage()
 }
 
 IpcReceiver::IpcReceiver()
-    : m_printAliveMessage(printAliveMessage())
 {
 }
 
@@ -176,7 +175,7 @@ bool IpcReceiver::isExpectingCodeCompletedMessage() const
 
 void IpcReceiver::alive()
 {
-    if (m_printAliveMessage)
+    if (printAliveMessage())
         qCDebug(log) << "<<< AliveMessage";
     QTC_ASSERT(m_aliveHandler, return);
     m_aliveHandler();
