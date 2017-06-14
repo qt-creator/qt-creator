@@ -71,9 +71,7 @@ RunControl *AndroidRunControlFactory::create(RunConfiguration *runConfig, Core::
     }
     if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         auto runControl = new RunControl(runConfig, mode);
-        auto profiler = runControl->createWorker(mode);
-        auto profilee = new AndroidAnalyzeSupport(runControl);
-        profiler->addDependency(profilee);
+        (void) new AndroidQmlProfilerSupport(runControl);
         return runControl;
     }
     QTC_CHECK(false); // The other run modes are not supported

@@ -34,6 +34,7 @@
 #include "androidavdmanager.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
+#include <coreplugin/messagemanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
@@ -632,7 +633,7 @@ void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
     // Don't write to m_psProc from a different thread
     QTC_ASSERT(QThread::currentThread() == thread(), return);
     m_processPID = pid;
-    if (m_processPID == -1) {
+    if (pid == -1) {
         emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" died.")
                                    .arg(m_packageName));
         // App died/killed. Reset log and monitor processes.
@@ -714,6 +715,9 @@ AndroidRunner::AndroidRunner(RunControl *runControl)
     connect(m_worker.data(), &AndroidRunnerWorker::remoteErrorOutput,
             this, &AndroidRunner::remoteErrorOutput);
 
+    connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
+            this, &AndroidRunner::qmlServerPortReady);
+
     m_thread.start();
 }
 
@@ -749,14 +753,28 @@ void AndroidRunner::stop()
     emit asyncStop(m_androidRunnable);
 }
 
+void AndroidRunner::qmlServerPortReady(Port port)
+{
+    // FIXME: Note that the passed is nonsense, as the port is on the
+    // device side. It only happens to work since we redirect
+    // host port n to target port n via adb.
+    QUrl serverUrl;
+    serverUrl.setPort(port.number());
+    emit qmlServerReady(serverUrl);
+}
+
 void AndroidRunner::remoteOutput(const QString &output)
 {
+    Core::MessageManager::write("LOGCAT: " + output, Core::MessageManager::Silent);
     appendMessage(output, Utils::StdOutFormatSameLine);
+    m_outputParser.processOutput(output);
 }
 
 void AndroidRunner::remoteErrorOutput(const QString &output)
 {
+    Core::MessageManager::write("LOGCAT: " + output, Core::MessageManager::Silent);
     appendMessage(output, Utils::StdErrFormatSameLine);
+    m_outputParser.processOutput(output);
 }
 
 void AndroidRunner::handleRemoteProcessStarted(Utils::Port gdbServerPort, Utils::Port qmlServerPort, int pid)
@@ -770,6 +788,8 @@ void AndroidRunner::handleRemoteProcessStarted(Utils::Port gdbServerPort, Utils:
 void AndroidRunner::handleRemoteProcessFinished(const QString &errString)
 {
     appendMessage(errString, Utils::DebugFormat);
+    if (runControl()->isRunning())
+        runControl()->initiateStop();
     reportStopped();
 }
 

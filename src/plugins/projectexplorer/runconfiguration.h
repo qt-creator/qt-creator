@@ -523,7 +523,6 @@ signals:
     void appendMessageRequested(ProjectExplorer::RunControl *runControl,
                                 const QString &msg, Utils::OutputFormat format);
     void aboutToStart();
-    void starting();
     void started();
     void finished();
     void applicationProcessHandleChanged(QPrivateSignal); // Use setApplicationProcessHandle

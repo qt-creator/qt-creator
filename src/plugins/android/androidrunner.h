@@ -30,6 +30,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 #include <qmldebug/qmldebugcommandlinearguments.h>
+#include <qmldebug/qmloutputparser.h>
 
 #include <QFutureInterface>
 #include <QObject>
@@ -62,18 +63,20 @@ public:
     void start() override;
     void stop() override;
 
-    virtual void remoteOutput(const QString &output);
-    virtual void remoteErrorOutput(const QString &output);
-
 signals:
     void asyncStart(const AndroidRunnable &runnable);
     void asyncStop(const AndroidRunnable &runnable);
     void remoteDebuggerRunning();
+    void qmlServerReady(const QUrl &serverUrl);
 
     void adbParametersChanged(const QString &packageName, const QStringList &selector);
     void avdDetected();
 
 private:
+    void qmlServerPortReady(Utils::Port port);
+    void remoteOutput(const QString &output);
+    void remoteErrorOutput(const QString &output);
+    void gotRemoteOutput(const QString &output);
     void handleRemoteProcessStarted(Utils::Port gdbServerPort, Utils::Port qmlServerPort, int pid);
     void handleRemoteProcessFinished(const QString &errString = QString());
     void checkAVD();
@@ -88,6 +91,7 @@ private:
     Utils::Port m_gdbServerPort;
     Utils::Port m_qmlServerPort;
     Utils::ProcessHandle m_pid;
+    QmlDebug::QmlOutputParser m_outputParser;
 };
 
 } // namespace Internal
