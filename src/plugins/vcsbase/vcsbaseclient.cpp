@@ -441,7 +441,7 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
                     paramWidget, &VcsBaseEditorConfig::executeCommand);
             connect(paramWidget, &VcsBaseEditorConfig::commandExecutionRequested,
                 [=] { diff(workingDir, files, extraOptions + paramWidget->arguments()); } );
-            effectiveArgs = paramWidget->arguments();
+            effectiveArgs += paramWidget->arguments();
             editor->setConfigurationAdded();
         }
     }
@@ -475,7 +475,7 @@ void VcsBaseClient::log(const QString &workingDir, const QStringList &files,
             connect(paramWidget, &VcsBaseEditorConfig::commandExecutionRequested,
                 [=]() { this->log(workingDir, files, extraOptions + paramWidget->arguments(),
                                   enableAnnotationContextMenu); } );
-            effectiveArgs = paramWidget->arguments();
+            effectiveArgs += paramWidget->arguments();
             editor->setConfigurationAdded();
         }
     }
