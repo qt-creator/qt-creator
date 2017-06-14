@@ -224,6 +224,7 @@ Port PortsGatherer::findPort()
 void PortsGatherer::stop()
 {
     m_portsGatherer.stop();
+    reportStopped();
 }
 
 } // namespace ProjectExplorer
