@@ -50,6 +50,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -722,22 +723,10 @@ QIcon VcsBaseSubmitEditor::submitIcon()
 void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const QString &repositoryDirectory,
                                                         QStringList *untrackedFiles)
 {
-    if (untrackedFiles->empty())
-        return;
-
-    ProjectExplorer::Project *vcsProject = VcsProjectCache::projectFor(repositoryDirectory);
-    if (!vcsProject)
-        return;
-
-    const QSet<QString> projectFiles
-            = QSet<QString>::fromList(vcsProject->files(ProjectExplorer::Project::SourceFiles));
-
-    if (projectFiles.empty())
-        return;
     const QDir repoDir(repositoryDirectory);
     for (QStringList::iterator it = untrackedFiles->begin(); it != untrackedFiles->end(); ) {
         const QString path = repoDir.absoluteFilePath(*it);
-        if (projectFiles.contains(path))
+        if (ProjectExplorer::SessionManager::projectForFile(FileName::fromString(path)))
             ++it;
         else
             it = untrackedFiles->erase(it);
