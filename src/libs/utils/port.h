@@ -50,7 +50,7 @@ public:
     {
     }
 
-    quint16 number() const { QTC_ASSERT(isValid(), return 0); return quint16(m_port); }
+    quint16 number() const { QTC_ASSERT(isValid(), return -1); return quint16(m_port); }
     bool isValid() const { return m_port != -1; }
 
     QString toString() const { return QString::number(m_port); }
