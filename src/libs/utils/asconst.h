@@ -30,7 +30,7 @@
 namespace Utils {
 
 template <class T>
-constexpr std::add_const_t<T> &asConst(T &&t) noexcept
+constexpr std::add_const_t<T> &asConst(T &t) noexcept
 {
     return t;
 }
