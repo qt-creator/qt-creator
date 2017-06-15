@@ -33,6 +33,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -67,12 +68,12 @@ QbsProfilesSettingsPage::QbsProfilesSettingsPage(QObject *parent)
     , m_useQtcSettingsDirPersistent(QbsProjectManagerSettings::useCreatorSettingsDirForQbs())
 
 {
-    setId("AA.QbsProfiles");
-    setDisplayName(QCoreApplication::translate("QbsProjectManager", "Profiles"));
-    setCategory(Constants::QBS_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("QbsProjectManager",
-                                                   Constants::QBS_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::QBS_SETTINGS_CATEGORY_ICON));
+    setId("Y.QbsProfiles");
+    setDisplayName(QCoreApplication::translate("QbsProjectManager", "Qbs"));
+    setCategory(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+       ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(Utils::Icon(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *QbsProfilesSettingsPage::widget()
@@ -105,6 +106,7 @@ QbsProfilesSettingsWidget::QbsProfilesSettingsWidget(QWidget *parent)
     m_model.setEditable(false);
     m_ui.setupUi(this);
     m_ui.settingsDirCheckBox->setChecked(QbsProjectManagerSettings::useCreatorSettingsDirForQbs());
+    m_ui.versionValueLabel->setText(qbs::LanguageInfo::qbsVersion());
     connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsChanged,
             this, &QbsProfilesSettingsWidget::refreshKitsList);
     connect(m_ui.settingsDirCheckBox, &QCheckBox::stateChanged, [this]() {
