@@ -67,7 +67,7 @@ void LocatorManager::show(const QString &text,
                           int selectionStart, int selectionLength)
 {
     QTC_ASSERT(m_locatorWidget, return);
-    m_locatorWidget->show(text, selectionStart, selectionLength);
+    m_locatorWidget->showText(text, selectionStart, selectionLength);
 }
 
 } // namespace Internal

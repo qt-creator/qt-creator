@@ -649,11 +649,11 @@ void LocatorWidget::acceptCurrentEntry()
         m_completionList->hide();
         m_fileLineEdit->clearFocus();
     } else {
-        show(newText, selectionStart, selectionLength);
+        showText(newText, selectionStart, selectionLength);
     }
 }
 
-void LocatorWidget::show(const QString &text, int selectionStart, int selectionLength)
+void LocatorWidget::showText(const QString &text, int selectionStart, int selectionLength)
 {
     if (!text.isEmpty())
         m_fileLineEdit->setText(text);

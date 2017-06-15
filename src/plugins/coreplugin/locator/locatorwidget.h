@@ -56,7 +56,7 @@ public:
 
     void updateFilterList();
 
-    void show(const QString &text, int selectionStart = -1, int selectionLength = 0);
+    void showText(const QString &text, int selectionStart = -1, int selectionLength = 0);
     QString currentText() const;
 
     void updatePlaceholderText(Command *command);
