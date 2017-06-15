@@ -33,12 +33,14 @@
 #include "testtreemodel.h"
 #include "testcodeparser.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <texteditor/texteditor.h>
@@ -482,7 +484,9 @@ void TestResultsPane::onTestRunStarted()
     m_testRunning = true;
     m_stopTestRun->setEnabled(true);
     m_runAll->setEnabled(false);
+    Core::ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action()->setEnabled(false);
     m_runSelected->setEnabled(false);
+    Core::ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action()->setEnabled(false);
     m_summaryWidget->setVisible(false);
 }
 
@@ -490,8 +494,14 @@ void TestResultsPane::onTestRunFinished()
 {
     m_testRunning = false;
     m_stopTestRun->setEnabled(false);
-    m_runAll->setEnabled(true);
-    m_runSelected->setEnabled(true);
+
+    const bool runEnabled = !ProjectExplorer::BuildManager::isBuilding()
+            && TestTreeModel::instance()->hasTests()
+            && TestTreeModel::instance()->parser()->state() == TestCodeParser::Idle;
+    m_runAll->setEnabled(runEnabled);  // TODO unify Run* actions
+    Core::ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action()->setEnabled(runEnabled);
+    m_runSelected->setEnabled(runEnabled);
+    Core::ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action()->setEnabled(runEnabled);
     updateSummaryLabel();
     m_summaryWidget->setVisible(true);
     m_model->removeCurrentTestMessage();
@@ -512,6 +522,7 @@ void TestResultsPane::updateRunActions()
     QString whyNot;
     TestTreeModel *model = TestTreeModel::instance();
     const bool enable = !m_testRunning && !model->parser()->isParsing() && model->hasTests()
+            && !ProjectExplorer::BuildManager::isBuilding()
             && ProjectExplorer::ProjectExplorerPlugin::canRunStartupProject(
                 ProjectExplorer::Constants::NORMAL_RUN_MODE, &whyNot);
     m_runAll->setEnabled(enable);
