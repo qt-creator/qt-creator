@@ -870,7 +870,7 @@ void DebuggerEngine::notifyEngineRequestRemoteSetup()
                << "remoteSetupState" << d->remoteSetupState());
 
     d->setRemoteSetupState(RemoteSetupRequested);
-    runTool()->doRemoteSetup();
+    QTC_CHECK(false);
 }
 
 void DebuggerEngine::notifyEngineRemoteServerRunning(const QString &, int /*pid*/)

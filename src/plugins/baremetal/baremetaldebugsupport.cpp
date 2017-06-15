@@ -118,22 +118,38 @@ void BareMetalDebugSupport::start()
     sp.remoteChannel = p->channel();
     sp.useContinueInsteadOfRun = true;
 
-    if (p->startupMode() == GdbServerProvider::StartupOnNetwork)
-        sp.remoteSetupNeeded = true;
     setStartParameters(sp);
 
-    connect(this, &Debugger::DebuggerRunTool::requestRemoteSetup,
-            this, &BareMetalDebugSupport::remoteSetupRequested);
     connect(runControl(), &RunControl::finished,
             this, &BareMetalDebugSupport::debuggingFinished);
 
-    DebuggerRunTool::start();
-}
+    if (p->startupMode() == GdbServerProvider::StartupOnNetwork) {
+        m_state = StartingRunner;
+        showMessage(tr("Starting GDB server...") + '\n', Debugger::LogStatus);
 
-void BareMetalDebugSupport::remoteSetupRequested()
-{
-    QTC_ASSERT(m_state == Inactive, return);
-    startExecution();
+        connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::remoteStderr,
+                this, &BareMetalDebugSupport::remoteErrorOutputMessage);
+        connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::remoteStdout,
+                this, &BareMetalDebugSupport::remoteOutputMessage);
+        connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::remoteProcessStarted,
+                this, &BareMetalDebugSupport::remoteProcessStarted);
+        connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::finished,
+                this, &BareMetalDebugSupport::appRunnerFinished);
+        connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::reportProgress,
+                this, &BareMetalDebugSupport::progressReport);
+        connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::reportError,
+                this, &BareMetalDebugSupport::appRunnerError);
+
+        StandardRunnable r;
+        r.executable = p->executable();
+        // We need to wrap the command arguments depending on a host OS,
+        // as the bare metal's GDB servers are launched on a host,
+        // but not on a target.
+        r.commandLineArguments = Utils::QtcProcess::joinArgs(p->arguments(), Utils::HostOsInfo::hostOs());
+        m_appLauncher->start(r, dev);
+    }
+
+    DebuggerRunTool::start();
 }
 
 void BareMetalDebugSupport::debuggingFinished()
@@ -211,39 +227,6 @@ void BareMetalDebugSupport::adapterSetupFailed(const QString &error)
     result.success = false;
     result.reason = tr("Initial setup failed: %1").arg(error);
     notifyEngineRemoteSetupFinished(result);
-}
-
-void BareMetalDebugSupport::startExecution()
-{
-    auto dev = qSharedPointerCast<const BareMetalDevice>(runControl()->device());
-    QTC_ASSERT(dev, return);
-
-    const GdbServerProvider *p = GdbServerProviderManager::findProvider(dev->gdbServerProviderId());
-    QTC_ASSERT(p, return);
-
-    m_state = StartingRunner;
-    showMessage(tr("Starting GDB server...") + QLatin1Char('\n'), Debugger::LogStatus);
-
-    connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::remoteStderr,
-            this, &BareMetalDebugSupport::remoteErrorOutputMessage);
-    connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::remoteStdout,
-            this, &BareMetalDebugSupport::remoteOutputMessage);
-    connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::remoteProcessStarted,
-            this, &BareMetalDebugSupport::remoteProcessStarted);
-    connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::finished,
-            this, &BareMetalDebugSupport::appRunnerFinished);
-    connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::reportProgress,
-            this, &BareMetalDebugSupport::progressReport);
-    connect(m_appLauncher, &ProjectExplorer::ApplicationLauncher::reportError,
-            this, &BareMetalDebugSupport::appRunnerError);
-
-    StandardRunnable r;
-    r.executable = p->executable();
-    // We need to wrap the command arguments depending on a host OS,
-    // as the bare metal's GDB servers are launched on a host,
-    // but not on a target.
-    r.commandLineArguments = Utils::QtcProcess::joinArgs(p->arguments(), Utils::HostOsInfo::hostOs());
-    m_appLauncher->start(r, dev);
 }
 
 void BareMetalDebugSupport::setFinished()

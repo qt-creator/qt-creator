@@ -42,9 +42,9 @@ public:
 
 private:
     enum State { Inactive, StartingRunner, Running };
+
     void start() override;
 
-    void remoteSetupRequested();
     void debuggingFinished();
     void remoteOutputMessage(const QByteArray &output);
     void remoteErrorOutputMessage(const QByteArray &output);

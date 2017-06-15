@@ -84,12 +84,10 @@ public:
     bool isQmlDebugging() const { return m_isQmlDebugging; }
     int portsUsedByDebugger() const;
 
-    virtual void doRemoteSetup() { emit requestRemoteSetup(); }
     void appendSolibSearchPath(const QString &str);
 
 signals:
     void aboutToNotifyInferiorSetupOk();
-    void requestRemoteSetup();
 
 private:
     Internal::DebuggerEngine *m_engine = nullptr; // Master engine
