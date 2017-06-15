@@ -135,7 +135,6 @@ Project {
             "cpprefactoringchanges.h",
             "cppselectionchanger.cpp",
             "cppselectionchanger.h",
-            "cppsemanticinfo.cpp",
             "cppsemanticinfo.h",
             "cppsemanticinfoupdater.cpp",
             "cppsemanticinfoupdater.h",

@@ -135,7 +135,6 @@ SOURCES += \
     cpprawprojectpart.cpp \
     cpprefactoringchanges.cpp \
     cppselectionchanger.cpp \
-    cppsemanticinfo.cpp \
     cppsemanticinfoupdater.cpp \
     cppsourceprocessor.cpp \
     cpptoolsjsextension.cpp \

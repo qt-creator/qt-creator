@@ -42,11 +42,9 @@ public:
     {
         const QString fileName;
         const QByteArray code;
-        const unsigned revision;
+        const unsigned revision = 0;
         CPlusPlus::Snapshot snapshot;
-        const bool force;
-
-        Source() : revision(0), force(false) {}
+        const bool force = false;
 
         Source(const QString &fileName,
                const QByteArray &code,
@@ -62,20 +60,18 @@ public:
     };
 
 public:
-    typedef TextEditor::HighlightingResult Use;
+    using Use = TextEditor::HighlightingResult;
+    using LocalUseMap = QHash<CPlusPlus::Symbol *, QList<Use>>;
+    using LocalUseIterator = QHashIterator<CPlusPlus::Symbol *, QList<Use>>;
 
-    typedef QHash<CPlusPlus::Symbol *, QList<Use> > LocalUseMap;
-    typedef QHashIterator<CPlusPlus::Symbol *, QList<Use> > LocalUseIterator;
-
-    SemanticInfo();
-
-    unsigned revision;
-    bool complete;
+    // Document specific
+    unsigned revision = 0;
+    bool complete = true;
     CPlusPlus::Snapshot snapshot;
     CPlusPlus::Document::Ptr doc;
 
     // Widget specific (e.g. related to cursor position)
-    bool localUsesUpdated;
+    bool localUsesUpdated = false;
     LocalUseMap localUses;
 };
 
