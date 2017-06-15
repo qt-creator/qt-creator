@@ -1131,7 +1131,6 @@ TEST_F(HighlightingMarks, PreprocessorIfDirective)
 TEST_F(HighlightingMarks, PreprocessorInclusionDirectiveWithKeyword)
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(561, 15));
-    infos.toHighlightingMarksContainers();
 
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::StringLiteral));
 }
