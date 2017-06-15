@@ -154,8 +154,7 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     Context context(Constants::BAZAAR_CONTEXT);
 
     m_client = new BazaarClient;
-    auto vcsCtrl = new BazaarControl(m_client);
-    initializeVcs(vcsCtrl, context);
+    auto vcsCtrl = initializeVcs<BazaarControl>(context, m_client);
     connect(m_client, &VcsBaseClient::changed, vcsCtrl, &BazaarControl::changed);
 
     addAutoReleasedObject(new OptionsPage(vcsCtrl));

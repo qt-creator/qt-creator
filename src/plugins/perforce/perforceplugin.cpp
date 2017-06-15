@@ -183,7 +183,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     Q_UNUSED(errorMessage)
     Context context(PERFORCE_CONTEXT);
 
-    initializeVcs(new PerforceVersionControl(this), context);
+    initializeVcs<PerforceVersionControl>(context, this);
 
     m_instance = this;
 

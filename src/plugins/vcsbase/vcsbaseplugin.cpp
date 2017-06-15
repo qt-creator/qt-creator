@@ -34,9 +34,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/iversioncontrol.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/vcsmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
@@ -552,9 +550,10 @@ VcsBasePlugin::~VcsBasePlugin()
 
 void VcsBasePlugin::initializeVcs(IVersionControl *vc, const Context &context)
 {
+    QTC_ASSERT(vc, return);
+
     d->m_versionControl = vc;
     d->m_context = context;
-    addAutoReleasedObject(vc);
 
     Internal::VcsPlugin *plugin = Internal::VcsPlugin::instance();
     connect(plugin, &Internal::VcsPlugin::submitEditorAboutToClose,

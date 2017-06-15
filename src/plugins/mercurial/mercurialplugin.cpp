@@ -122,12 +122,11 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     Core::Context context(Constants::MERCURIAL_CONTEXT);
 
     m_client = new MercurialClient;
-    initializeVcs(new MercurialControl(m_client), context);
+    auto vc = initializeVcs<MercurialControl>(context, m_client);
 
-    addAutoReleasedObject(new OptionsPage(versionControl()));
+    addAutoReleasedObject(new OptionsPage(vc));
 
-    connect(m_client, &VcsBaseClient::changed,
-            static_cast<MercurialControl *>(versionControl()), &MercurialControl::changed);
+    connect(m_client, &VcsBaseClient::changed, vc, &MercurialControl::changed);
     connect(m_client, &MercurialClient::needUpdate, this, &MercurialPlugin::update);
 
     const auto describeFunc = [this](const QString &source, const QString &id) {

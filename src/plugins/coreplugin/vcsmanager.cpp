@@ -50,8 +50,6 @@
 
 namespace Core {
 
-typedef QList<IVersionControl *> VersionControlList;
-
 #if defined(WITH_TESTS)
 const char TEST_PREFIX[] = "/8E3A9BA0-0B97-40DF-AEC1-2BDF9FC9EDBE/";
 #endif
@@ -158,6 +156,12 @@ VcsManager::~VcsManager()
     delete d;
 }
 
+void VcsManager::addVersionControl(IVersionControl *vc)
+{
+    QTC_ASSERT(!d->m_versionControlList.contains(vc), return);
+    d->m_versionControlList.append(vc);
+}
+
 VcsManager *VcsManager::instance()
 {
     return m_instance;
@@ -176,9 +180,9 @@ void VcsManager::extensionsInitialized()
     }
 }
 
-QList<IVersionControl *> VcsManager::versionControls()
+const QList<IVersionControl *> VcsManager::versionControls()
 {
-    return ExtensionSystem::PluginManager::getObjects<IVersionControl>();
+    return d->m_versionControlList;
 }
 
 IVersionControl *VcsManager::versionControl(Id id)
@@ -460,31 +464,6 @@ const char ID_VCS_B[] = "B";
 
 typedef QHash<QString, QString> FileHash;
 
-template<class T>
-class ObjectPoolGuard
-{
-public:
-    ObjectPoolGuard(T *watch) : m_watched(watch)
-    {
-        ExtensionSystem::PluginManager::addObject(watch);
-    }
-
-    explicit operator bool() { return m_watched; }
-    bool operator !() { return !m_watched; }
-    T &operator*() { return *m_watched; }
-    T *operator->() { return m_watched; }
-    T *value() { return m_watched; }
-
-    ~ObjectPoolGuard()
-    {
-        ExtensionSystem::PluginManager::removeObject(m_watched);
-        delete m_watched;
-    }
-
-private:
-    T *m_watched;
-};
-
 static FileHash makeHash(const QStringList &list)
 {
     FileHash result;
@@ -559,8 +538,11 @@ void CorePlugin::testVcsManager_data()
 void CorePlugin::testVcsManager()
 {
     // setup:
-    ObjectPoolGuard<TestVersionControl> vcsA(new TestVersionControl(ID_VCS_A, QLatin1String("A")));
-    ObjectPoolGuard<TestVersionControl> vcsB(new TestVersionControl(ID_VCS_B, QLatin1String("B")));
+    QList<IVersionControl *> orig = Core::d->m_versionControlList;
+    TestVersionControl *vcsA(new TestVersionControl(ID_VCS_A, QLatin1String("A")));
+    TestVersionControl *vcsB(new TestVersionControl(ID_VCS_B, QLatin1String("B")));
+
+    Core::d->m_versionControlList = {vcsA, vcsB};
 
     // test:
     QFETCH(QStringList, dirsVcsA);
@@ -604,7 +586,8 @@ void CorePlugin::testVcsManager()
     }
 
     // teardown:
-    // handled by guards
+    qDeleteAll(Core::d->m_versionControlList);
+    Core::d->m_versionControlList = orig;
 }
 
 } // namespace Internal

@@ -210,7 +210,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
 
     Context context(SUBVERSION_CONTEXT);
 
-    initializeVcs(new SubversionControl(this), context);
+    initializeVcs<SubversionControl>(context, this);
 
     m_subversionPluginInstance = this;
 

@@ -56,9 +56,17 @@ class CORE_EXPORT VcsManager : public QObject
 public:
     static VcsManager *instance();
 
+    template <typename T, typename... Args>
+    static T *registerVersionControl(Args&&... args)
+    {
+        T *vc = new T(std::forward<Args>(args)...);
+        addVersionControl(vc);
+        return vc;
+    }
+
     static void extensionsInitialized();
 
-    static QList<IVersionControl *> versionControls();
+    static const QList<IVersionControl *> versionControls();
     static IVersionControl *versionControl(Id id);
 
     static void resetVersionControlForDirectory(const QString &inputDirectory);
@@ -101,6 +109,8 @@ signals:
 private:
     explicit VcsManager(QObject *parent = 0);
     ~VcsManager();
+
+    static void addVersionControl(IVersionControl *vc);
 
     void handleConfigurationChanges();
 
