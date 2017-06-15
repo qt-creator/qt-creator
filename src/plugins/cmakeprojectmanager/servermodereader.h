@@ -27,6 +27,7 @@
 
 #include "builddirreader.h"
 #include "servermode.h"
+#include "cmakeparser.h"
 
 #include <memory>
 
@@ -148,6 +149,8 @@ private:
     QList<Project *> m_projects;
     mutable QList<Target *> m_targets;
     QList<FileGroup *> m_fileGroups;
+
+    CMakeParser m_parser;
 };
 
 } // namespace Internal
