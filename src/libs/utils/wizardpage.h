@@ -54,6 +54,8 @@ signals:
     void reportError(const QString &errorMessage);
 
 private:
+    void registerFieldName(const QString &name);
+
     QSet<QString> m_toRegister;
 };
 
