@@ -130,13 +130,13 @@ JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString
     }
 
     QVariantMap tmp = input.toMap();
-    const QString name = tmp.value(QLatin1String(NAME_KEY)).toString();
+    const QString name = tmp.value(NAME_KEY).toString();
     if (name.isEmpty()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                     "Field has no name.");
         return 0;
     }
-    const QString type = tmp.value(QLatin1String(TYPE_KEY)).toString();
+    const QString type = tmp.value(TYPE_KEY).toString();
     if (type.isEmpty()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                     "Field \"%1\" has no type.").arg(name);
@@ -151,17 +151,17 @@ JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString
         return 0;
     }
     data->setTexts(name,
-                   JsonWizardFactory::localizedString(tmp.value(QLatin1String(DISPLAY_NAME_KEY)).toString()),
-                   tmp.value(QLatin1String(TOOLTIP_KEY)).toString());
+                   JsonWizardFactory::localizedString(tmp.value(DISPLAY_NAME_KEY).toString()),
+                   tmp.value(TOOLTIP_KEY).toString());
 
-    data->setVisibleExpression(tmp.value(QLatin1String(VISIBLE_KEY), true));
-    data->setEnabledExpression(tmp.value(QLatin1String(ENABLED_KEY), true));
-    data->setIsMandatory(tmp.value(QLatin1String(MANDATORY_KEY), true).toBool());
-    data->setHasSpan(tmp.value(QLatin1String(SPAN_KEY), false).toBool());
-    data->setIsCompleteExpando(tmp.value(QLatin1String(IS_COMPLETE_KEY), true),
-                               tmp.value(QLatin1String(IS_COMPLETE_MESSAGE_KEY)).toString());
+    data->setVisibleExpression(tmp.value(VISIBLE_KEY, true));
+    data->setEnabledExpression(tmp.value(ENABLED_KEY, true));
+    data->setIsMandatory(tmp.value(MANDATORY_KEY, true).toBool());
+    data->setHasSpan(tmp.value(SPAN_KEY, false).toBool());
+    data->setIsCompleteExpando(tmp.value(IS_COMPLETE_KEY, true),
+                               tmp.value(IS_COMPLETE_MESSAGE_KEY).toString());
 
-    QVariant dataVal = tmp.value(QLatin1String(DATA_KEY));
+    QVariant dataVal = tmp.value(DATA_KEY);
     if (!data->parseData(dataVal, errorMessage)) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                     "When parsing Field \"%1\": %2")
@@ -314,8 +314,8 @@ bool LabelField::parseData(const QVariant &data, QString *errorMessage)
 
     QVariantMap tmp = data.toMap();
 
-    m_wordWrap = tmp.value(QLatin1String("wordWrap"), false).toBool();
-    m_text = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trText")));
+    m_wordWrap = tmp.value("wordWrap", false).toBool();
+    m_text = JsonWizardFactory::localizedString(tmp.value("trText"));
 
     if (m_text.isEmpty()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
@@ -354,7 +354,7 @@ bool SpacerField::parseData(const QVariant &data, QString *errorMessage)
     QVariantMap tmp = data.toMap();
 
     bool ok;
-    m_factor = tmp.value(QLatin1String("factor"), 1).toInt(&ok);
+    m_factor = tmp.value("factor", 1).toInt(&ok);
 
     if (!ok) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
@@ -396,12 +396,12 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
     QVariantMap tmp = data.toMap();
 
     m_isPassword = tmp.value("isPassword", false).toBool();
-    m_defaultText = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trText")).toString());
-    m_disabledText = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trDisabledText")).toString());
-    m_placeholderText = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trPlaceholder")).toString());
-    m_historyId = tmp.value(QLatin1String("historyId")).toString();
-    m_restoreLastHistoryItem = tmp.value(QLatin1String("restoreLastHistoyItem"), false).toBool();
-    QString pattern = tmp.value(QLatin1String("validator")).toString();
+    m_defaultText = JsonWizardFactory::localizedString(tmp.value("trText").toString());
+    m_disabledText = JsonWizardFactory::localizedString(tmp.value("trDisabledText").toString());
+    m_placeholderText = JsonWizardFactory::localizedString(tmp.value("trPlaceholder").toString());
+    m_historyId = tmp.value("historyId").toString();
+    m_restoreLastHistoryItem = tmp.value("restoreLastHistoyItem", false).toBool();
+    QString pattern = tmp.value("validator").toString();
     if (!pattern.isEmpty()) {
         m_validatorRegExp = QRegularExpression(pattern);
         if (!m_validatorRegExp.isValid()) {
@@ -412,7 +412,7 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
             return false;
         }
     }
-    m_fixupExpando = tmp.value(QLatin1String("fixup")).toString();
+    m_fixupExpando = tmp.value("fixup").toString();
 
     return true;
 }
@@ -506,9 +506,9 @@ bool TextEditField::parseData(const QVariant &data, QString *errorMessage)
 
     QVariantMap tmp = data.toMap();
 
-    m_defaultText = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trText")).toString());
-    m_disabledText = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trDisabledText")).toString());
-    m_acceptRichText = tmp.value(QLatin1String("richText"), true).toBool();
+    m_defaultText = JsonWizardFactory::localizedString(tmp.value("trText").toString());
+    m_disabledText = JsonWizardFactory::localizedString(tmp.value("trDisabledText").toString());
+    m_acceptRichText = tmp.value("richText", true).toBool();
 
     return true;
 }
@@ -571,24 +571,24 @@ bool PathChooserField::parseData(const QVariant &data, QString *errorMessage)
 
     QVariantMap tmp = data.toMap();
 
-    m_path = tmp.value(QLatin1String("path")).toString();
-    m_basePath = tmp.value(QLatin1String("basePath")).toString();
-    m_historyId = tmp.value(QLatin1String("historyId")).toString();
+    m_path = tmp.value("path").toString();
+    m_basePath = tmp.value("basePath").toString();
+    m_historyId = tmp.value("historyId").toString();
 
-    QString kindStr = tmp.value(QLatin1String("kind"), QLatin1String("existingDirectory")).toString();
-    if (kindStr == QLatin1String("existingDirectory")) {
+    QString kindStr = tmp.value("kind", "existingDirectory").toString();
+    if (kindStr == "existingDirectory") {
         m_kind = PathChooser::ExistingDirectory;
-    } else if (kindStr == QLatin1String("directory")) {
+    } else if (kindStr == "directory") {
         m_kind = PathChooser::Directory;
-    } else if (kindStr == QLatin1String("file")) {
+    } else if (kindStr == "file") {
         m_kind = PathChooser::File;
-    } else if (kindStr == QLatin1String("saveFile")) {
+    } else if (kindStr == "saveFile") {
         m_kind = PathChooser::SaveFile;
-    } else if (kindStr == QLatin1String("existingCommand")) {
+    } else if (kindStr == "existingCommand") {
         m_kind = PathChooser::ExistingCommand;
-    } else if (kindStr == QLatin1String("command")) {
+    } else if (kindStr == "command") {
         m_kind = PathChooser::Command;
-    } else if (kindStr == QLatin1String("any")) {
+    } else if (kindStr == "any") {
         m_kind = PathChooser::Any;
     } else {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
@@ -666,14 +666,14 @@ bool CheckBoxField::parseData(const QVariant &data, QString *errorMessage)
 
     QVariantMap tmp = data.toMap();
 
-    m_checkedValue = tmp.value(QLatin1String("checkedValue"), true).toString();
-    m_uncheckedValue = tmp.value(QLatin1String("uncheckedValue"), false).toString();
+    m_checkedValue = tmp.value("checkedValue", true).toString();
+    m_uncheckedValue = tmp.value("uncheckedValue", false).toString();
     if (m_checkedValue == m_uncheckedValue) {
         *errorMessage= QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                    "CheckBox values for checked and unchecked state are identical.");
        return false;
     }
-    m_checkedExpression = tmp.value(QLatin1String("checked"), false);
+    m_checkedExpression = tmp.value("checked", false);
 
     return true;
 }
@@ -765,20 +765,20 @@ bool ComboBoxField::parseData(const QVariant &data, QString *errorMessage)
     QVariantMap tmp = data.toMap();
 
     bool ok;
-    m_index = tmp.value(QLatin1String("index"), 0).toInt(&ok);
+    m_index = tmp.value("index", 0).toInt(&ok);
     if (!ok) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                     "ComboBox \"index\" is not an integer value.");
         return false;
     }
-    m_disabledIndex = tmp.value(QLatin1String("disabledIndex"), -1).toInt(&ok);
+    m_disabledIndex = tmp.value("disabledIndex", -1).toInt(&ok);
     if (!ok) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                     "ComboBox \"disabledIndex\" is not an integer value.");
         return false;
     }
 
-    QVariant value = tmp.value(QLatin1String("items"));
+    QVariant value = tmp.value("items");
     if (value.isNull()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                     "ComboBox \"items\" missing.");
