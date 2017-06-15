@@ -161,6 +161,7 @@ void HighlightingMark::overloadedDeclRefKind(const Cursor &cursor)
 {
     types.mainHighlightingType = HighlightingType::Function;
 
+    // CLANG-UPGRADE-CHECK: Workaround still needed?
     // Workaround https://bugs.llvm.org//show_bug.cgi?id=33256 - SomeType in
     // "using N::SomeType" is mistakenly considered as a CXCursor_OverloadedDeclRef.
     if (cursor.overloadedDeclarationsCount() >= 1

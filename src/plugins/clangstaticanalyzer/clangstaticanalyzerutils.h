@@ -45,6 +45,7 @@ QString clangExecutableFromSettings(Core::Id toolchainType, bool *isValid);
 
 QString createFullLocationString(const Debugger::DiagnosticLocation &location);
 
+// CLANG-UPGRADE-CHECK: Adapt minimum version numbers.
 class ClangExecutableVersion : public QVersionNumber {
 public:
     ClangExecutableVersion() : QVersionNumber(-1, -1, -1) {}

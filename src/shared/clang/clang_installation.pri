@@ -110,7 +110,7 @@ isEmpty(QTC_NO_CLANG_LIBTOOLING) {
 }
 
 isEmpty(LLVM_VERSION): error("Cannot determine clang version at $$LLVM_INSTALL_DIR")
-!versionIsAtLeast($$LLVM_VERSION, 3, 9, 0): {
+!versionIsAtLeast($$LLVM_VERSION, 3, 9, 0): { # CLANG-UPGRADE-CHECK: Adapt minimum version numbers.
     error("LLVM/Clang version >= 3.9.0 required, version provided: $$LLVM_VERSION")
 }
 

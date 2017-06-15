@@ -169,6 +169,8 @@ void setLastSentDocumentRevision(const QString &filePath, uint revision)
         document->sendTracker().setLastSentRevision(int(revision));
 }
 
+// CLANG-UPGRADE-CHECK: Workaround still needed?
+// Remove once clang reports correct columns for lines with multi-byte utf8.
 int extraUtf8CharsShift(const QString &str, int column)
 {
     int shift = 0;
