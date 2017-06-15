@@ -1135,6 +1135,14 @@ TEST_F(HighlightingMarks, PreprocessorInclusionDirectiveWithKeyword)
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::StringLiteral));
 }
 
+// This test should pass once https://bugs.llvm.org//show_bug.cgi?id=12972 is resolved.
+TEST_F(HighlightingMarks, DISABLED_VariableInOperatorFunctionCall)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(566, 12));
+
+    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::LocalVariable));
+}
+
 Data *HighlightingMarks::d;
 
 void HighlightingMarks::SetUpTestCase()

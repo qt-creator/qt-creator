@@ -559,3 +559,9 @@ using N::goo;
 #endif
 
 #include <new>
+
+struct OtherOperator { void operator()(int); };
+void g(OtherOperator o, int var)
+{
+    o(var);
+}
