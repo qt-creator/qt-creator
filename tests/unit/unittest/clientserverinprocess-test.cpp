@@ -32,24 +32,9 @@
 #include <clangcodemodelserverproxy.h>
 #include <projectpartsdonotexistmessage.h>
 
-#include <cmbalivemessage.h>
-#include <cmbcodecompletedmessage.h>
-#include <cmbcompletecodemessage.h>
-#include <cmbechomessage.h>
-#include <cmbendmessage.h>
-#include <cmbregisterprojectsforeditormessage.h>
-#include <cmbregistertranslationunitsforeditormessage.h>
-#include <cmbunregisterprojectsforeditormessage.h>
-#include <cmbunregistertranslationunitsforeditormessage.h>
-#include <documentannotationschangedmessage.h>
+#include <clangcodemodelservermessages.h>
+
 #include <readmessageblock.h>
-#include <registerunsavedfilesforeditormessage.h>
-#include <requestdocumentannotations.h>
-#include <requestreferencesmessage.h>
-#include <translationunitdoesnotexistmessage.h>
-#include <unregisterunsavedfilesforeditormessage.h>
-#include <updatetranslationunitsforeditormessage.h>
-#include <updatevisibletranslationunitsmessage.h>
 #include <writemessageblock.h>
 
 #include <QBuffer>

@@ -25,25 +25,8 @@
 
 #include "messageenvelop.h"
 
-#include "cmbcodecompletedmessage.h"
-#include "cmbcompletecodemessage.h"
-#include "cmbechomessage.h"
-#include "cmbregisterprojectsforeditormessage.h"
-#include "cmbregistertranslationunitsforeditormessage.h"
-#include "cmbunregisterprojectsforeditormessage.h"
-#include "cmbunregistertranslationunitsforeditormessage.h"
-#include "documentannotationschangedmessage.h"
-#include "referencesmessage.h"
-#include "messageenvelop.h"
-#include "messageenvelop.h"
-#include "projectpartsdonotexistmessage.h"
-#include "registerunsavedfilesforeditormessage.h"
-#include "requestdocumentannotations.h"
-#include "requestreferencesmessage.h"
-#include "translationunitdoesnotexistmessage.h"
-#include "unregisterunsavedfilesforeditormessage.h"
-#include "updatetranslationunitsforeditormessage.h"
-#include "updatevisibletranslationunitsmessage.h"
+#include "clangcodemodelclientmessages.h"
+#include "clangcodemodelservermessages.h"
 
 namespace ClangBackEnd {
 

@@ -33,15 +33,9 @@
 #include <clangcodemodelclientproxy.h>
 #include <clangcodemodelserverproxy.h>
 #include <clangtranslationunits.h>
-#include <requestdocumentannotations.h>
 #include <clangexceptions.h>
 
-#include <cmbcompletecodemessage.h>
-#include <cmbregisterprojectsforeditormessage.h>
-#include <cmbregistertranslationunitsforeditormessage.h>
-#include <cmbunregisterprojectsforeditormessage.h>
-#include <cmbunregistertranslationunitsforeditormessage.h>
-#include <requestreferencesmessage.h>
+#include <clangcodemodelservermessages.h>
 
 #include <utils/algorithm.h>
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,26 +25,16 @@
 
 #pragma once
 
-#include "googletest.h"
-
-#include <clangbackendipc/clangcodemodelclientinterface.h>
-#include <clangbackendipc/clangcodemodelclientmessages.h>
-
-class MockClangCodeModelClient : public ClangBackEnd::ClangCodeModelClientInterface
-{
-public:
-    MOCK_METHOD0(alive,
-                 void());
-    MOCK_METHOD1(echo,
-                 void(const ClangBackEnd::EchoMessage &message));
-    MOCK_METHOD1(codeCompleted,
-                 void(const ClangBackEnd::CodeCompletedMessage &message));
-    MOCK_METHOD1(translationUnitDoesNotExist,
-                 void(const ClangBackEnd::TranslationUnitDoesNotExistMessage &message));
-    MOCK_METHOD1(projectPartsDoNotExist,
-                 void(const ClangBackEnd::ProjectPartsDoNotExistMessage &message));
-    MOCK_METHOD1(documentAnnotationsChanged,
-                 void(const ClangBackEnd::DocumentAnnotationsChangedMessage &message));
-    MOCK_METHOD1(references,
-                 void(const ClangBackEnd::ReferencesMessage &message));
-};
+#include "cmbechomessage.h"
+#include "cmbcompletecodemessage.h"
+#include "cmbendmessage.h"
+#include "cmbregisterprojectsforeditormessage.h"
+#include "cmbregistertranslationunitsforeditormessage.h"
+#include "cmbunregisterprojectsforeditormessage.h"
+#include "cmbunregistertranslationunitsforeditormessage.h"
+#include "registerunsavedfilesforeditormessage.h"
+#include "requestdocumentannotations.h"
+#include "requestreferencesmessage.h"
+#include "unregisterunsavedfilesforeditormessage.h"
+#include "updatetranslationunitsforeditormessage.h"
+#include "updatevisibletranslationunitsmessage.h"

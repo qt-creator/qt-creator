@@ -26,7 +26,6 @@
 #include "clangdocuments.h"
 
 #include <diagnosticset.h>
-#include <documentannotationschangedmessage.h>
 #include <highlightingmarks.h>
 #include <clangexceptions.h>
 #include <projects.h>

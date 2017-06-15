@@ -24,19 +24,8 @@
 ****************************************************************************/
 
 #include "clangcodemodelserverinterface.h"
-
-#include "cmbcompletecodemessage.h"
-#include "cmbregisterprojectsforeditormessage.h"
-#include "cmbregistertranslationunitsforeditormessage.h"
-#include "cmbunregisterprojectsforeditormessage.h"
-#include "cmbunregistertranslationunitsforeditormessage.h"
+#include "clangcodemodelservermessages.h"
 #include "messageenvelop.h"
-#include "registerunsavedfilesforeditormessage.h"
-#include "requestdocumentannotations.h"
-#include "requestreferencesmessage.h"
-#include "unregisterunsavedfilesforeditormessage.h"
-#include "updatetranslationunitsforeditormessage.h"
-#include "updatevisibletranslationunitsmessage.h"
 
 #include <QDebug>
 #include <QVariant>

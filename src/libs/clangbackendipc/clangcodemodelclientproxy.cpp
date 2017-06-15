@@ -25,17 +25,10 @@
 
 #include "clangcodemodelclientproxy.h"
 
-#include "cmbalivemessage.h"
-#include "cmbcodecompletedmessage.h"
-#include "cmbechomessage.h"
-#include "cmbregistertranslationunitsforeditormessage.h"
-#include "documentannotationschangedmessage.h"
-#include "referencesmessage.h"
+#include "clangcodemodelclientmessages.h"
 #include "clangcodemodelserverinterface.h"
 #include "ipcserverinterface.h"
 #include "messageenvelop.h"
-#include "projectpartsdonotexistmessage.h"
-#include "translationunitdoesnotexistmessage.h"
 
 #include <QDebug>
 #include <QIODevice>

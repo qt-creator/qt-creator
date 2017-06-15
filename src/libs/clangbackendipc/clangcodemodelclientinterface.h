@@ -30,23 +30,24 @@
 namespace ClangBackEnd {
 
 class ClangCodeModelServerInterface;
-class RegisterTranslationUnitForEditorMessage;
-class UpdateTranslationUnitsForEditorMessage;
-class RegisterProjectPartsForEditorMessage;
-class UnregisterTranslationUnitsForEditorMessage;
-class UnregisterProjectPartsForEditorMessage;
-class EchoMessage;
-class CompleteCodeMessage;
+
 class CodeCompletedMessage;
-class TranslationUnitDoesNotExistMessage;
+class CompleteCodeMessage;
+class DocumentAnnotationsChangedMessage;
+class EchoMessage;
 class ProjectPartsDoNotExistMessage;
+class ReferencesMessage;
+class RegisterProjectPartsForEditorMessage;
+class RegisterTranslationUnitForEditorMessage;
 class RegisterUnsavedFilesForEditorMessage;
-class UnregisterUnsavedFilesForEditorMessage;
-class UpdateVisibleTranslationUnitsMessage;
 class RequestDocumentAnnotationsMessage;
 class RequestReferencesMessage;
-class ReferencesMessage;
-class DocumentAnnotationsChangedMessage;
+class TranslationUnitDoesNotExistMessage;
+class UnregisterProjectPartsForEditorMessage;
+class UnregisterTranslationUnitsForEditorMessage;
+class UnregisterUnsavedFilesForEditorMessage;
+class UpdateTranslationUnitsForEditorMessage;
+class UpdateVisibleTranslationUnitsMessage;
 
 class CMBIPC_EXPORT ClangCodeModelClientInterface : public IpcClientInterface
 {

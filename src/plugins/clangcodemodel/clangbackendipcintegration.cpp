@@ -45,30 +45,12 @@
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/texteditor.h>
 
-
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <clangbackendipc/cmbcodecompletedmessage.h>
-#include <clangbackendipc/cmbcompletecodemessage.h>
-#include <clangbackendipc/cmbechomessage.h>
-#include <clangbackendipc/cmbendmessage.h>
-#include <clangbackendipc/cmbregistertranslationunitsforeditormessage.h>
-#include <clangbackendipc/cmbregisterprojectsforeditormessage.h>
-#include <clangbackendipc/cmbunregistertranslationunitsforeditormessage.h>
-#include <clangbackendipc/cmbunregisterprojectsforeditormessage.h>
-#include <clangbackendipc/documentannotationschangedmessage.h>
-#include <clangbackendipc/referencesmessage.h>
-#include <clangbackendipc/requestreferencesmessage.h>
-#include <clangbackendipc/registerunsavedfilesforeditormessage.h>
-#include <clangbackendipc/requestdocumentannotations.h>
-#include <clangbackendipc/requestreferencesmessage.h>
+#include <clangbackendipc/clangcodemodelservermessages.h>
+#include <clangbackendipc/clangcodemodelclientmessages.h>
 #include <clangbackendipc/filecontainer.h>
-#include <clangbackendipc/projectpartsdonotexistmessage.h>
-#include <clangbackendipc/translationunitdoesnotexistmessage.h>
-#include <clangbackendipc/unregisterunsavedfilesforeditormessage.h>
-#include <clangbackendipc/updatetranslationunitsforeditormessage.h>
-#include <clangbackendipc/updatevisibletranslationunitsmessage.h>
 
 #include <cplusplus/Icons.h>
 

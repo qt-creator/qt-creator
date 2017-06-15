@@ -155,6 +155,8 @@ HEADERS += \
     $$PWD/pchmanagerclientproxy.h \
     $$PWD/projectpartpch.h \
     $$PWD/precompiledheadersupdatedmessage.h \
-    $$PWD/removepchprojectpartsmessage.h
+    $$PWD/removepchprojectpartsmessage.h \
+    $$PWD/clangcodemodelclientmessages.h \
+    $$PWD/clangcodemodelservermessages.h \
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

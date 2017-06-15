@@ -25,23 +25,13 @@
 
 #include "googletest.h"
 
-#include <cmbalivemessage.h>
-#include <cmbcodecompletedmessage.h>
-#include <cmbcompletecodemessage.h>
-#include <cmbendmessage.h>
-#include <cmbregistertranslationunitsforeditormessage.h>
-#include <cmbunregistertranslationunitsforeditormessage.h>
+#include <clangcodemodelclientmessages.h>
+#include <clangcodemodelservermessages.h>
+
 #include <diagnosticcontainer.h>
-#include <documentannotationschangedmessage.h>
 #include <highlightingmarkcontainer.h>
 #include <messageenvelop.h>
-#include <requestdocumentannotations.h>
-#include <requestreferencesmessage.h>
-#include <referencesmessage.h>
 #include <readmessageblock.h>
-#include <registerunsavedfilesforeditormessage.h>
-#include <unregisterunsavedfilesforeditormessage.h>
-#include <updatetranslationunitsforeditormessage.h>
 #include <writemessageblock.h>
 
 #include <QBuffer>

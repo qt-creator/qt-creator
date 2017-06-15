@@ -24,14 +24,8 @@
 ****************************************************************************/
 
 #include "clangcodemodelclientinterface.h"
-
-#include "cmbcodecompletedmessage.h"
-#include "cmbechomessage.h"
-#include "documentannotationschangedmessage.h"
-#include "referencesmessage.h"
+#include "clangcodemodelclientmessages.h"
 #include "messageenvelop.h"
-#include "projectpartsdonotexistmessage.h"
-#include "translationunitdoesnotexistmessage.h"
 
 #include <QDebug>
 #include <QVariant>

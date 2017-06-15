@@ -27,20 +27,9 @@
 
 #include "mockclangcodemodelclient.h"
 
-#include <cmbalivemessage.h>
-#include <cmbcodecompletedmessage.h>
-#include <cmbcompletecodemessage.h>
-#include <cmbechomessage.h>
-#include <cmbendmessage.h>
-#include <cmbregisterprojectsforeditormessage.h>
-#include <cmbregistertranslationunitsforeditormessage.h>
-#include <cmbunregisterprojectsforeditormessage.h>
-#include <cmbunregistertranslationunitsforeditormessage.h>
-#include <documentannotationschangedmessage.h>
 #include <clangcodemodelconnectionclient.h>
-#include <projectpartsdonotexistmessage.h>
+#include <clangcodemodelservermessages.h>
 #include <readmessageblock.h>
-#include <translationunitdoesnotexistmessage.h>
 #include <writemessageblock.h>
 
 #include <utils/hostosinfo.h>

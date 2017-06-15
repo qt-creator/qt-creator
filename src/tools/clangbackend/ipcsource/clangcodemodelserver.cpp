@@ -34,22 +34,8 @@
 #include "clangexceptions.h"
 #include "skippedsourceranges.h"
 
-#include <clangbackendipcdebugutils.h>
-#include <cmbcodecompletedmessage.h>
-#include <cmbcompletecodemessage.h>
-#include <cmbregisterprojectsforeditormessage.h>
-#include <cmbregistertranslationunitsforeditormessage.h>
-#include <cmbunregisterprojectsforeditormessage.h>
-#include <cmbunregistertranslationunitsforeditormessage.h>
-#include <documentannotationschangedmessage.h>
-#include <registerunsavedfilesforeditormessage.h>
-#include <requestdocumentannotations.h>
-#include <requestreferencesmessage.h>
-#include <projectpartsdonotexistmessage.h>
-#include <translationunitdoesnotexistmessage.h>
-#include <unregisterunsavedfilesforeditormessage.h>
-#include <updatetranslationunitsforeditormessage.h>
-#include <updatevisibletranslationunitsmessage.h>
+#include <clangbackendipc/clangbackendipcdebugutils.h>
+#include <clangbackendipc/clangcodemodelservermessages.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

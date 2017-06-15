@@ -44,14 +44,8 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <clangbackendipc/cmbcompletecodemessage.h>
-#include <clangbackendipc/cmbendmessage.h>
-#include <clangbackendipc/cmbregisterprojectsforeditormessage.h>
-#include <clangbackendipc/cmbregistertranslationunitsforeditormessage.h>
-#include <clangbackendipc/cmbunregisterprojectsforeditormessage.h>
-#include <clangbackendipc/cmbunregistertranslationunitsforeditormessage.h>
-#include <clangbackendipc/registerunsavedfilesforeditormessage.h>
-#include <clangbackendipc/updatetranslationunitsforeditormessage.h>
+#include <clangbackendipc/clangcodemodelservermessages.h>
+
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
 

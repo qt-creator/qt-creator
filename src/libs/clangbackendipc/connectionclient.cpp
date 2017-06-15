@@ -26,9 +26,6 @@
 #include "connectionclient.h"
 
 #include "clangbackendipcdebugutils.h"
-#include "cmbcompletecodemessage.h"
-#include "cmbregistertranslationunitsforeditormessage.h"
-#include "cmbunregistertranslationunitsforeditormessage.h"
 
 #include <QCoreApplication>
 #include <QMetaMethod>
