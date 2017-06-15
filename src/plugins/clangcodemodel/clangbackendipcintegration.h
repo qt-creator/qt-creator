@@ -96,6 +96,11 @@ private:
     QHash<quint64, ClangCompletionAssistProcessor *> m_assistProcessorsTable;
 
     struct ReferencesEntry {
+        ReferencesEntry() = default;
+        ReferencesEntry(QFutureInterface<CppTools::CursorInfo> futureInterface,
+                        QTextDocument *textDocument)
+            : futureInterface(futureInterface)
+            , textDocument(textDocument) {}
         QFutureInterface<CppTools::CursorInfo> futureInterface;
         QTextDocument *textDocument = nullptr;
     };
