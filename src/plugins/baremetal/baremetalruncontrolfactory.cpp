@@ -25,33 +25,8 @@
 ****************************************************************************/
 
 #include "baremetalruncontrolfactory.h"
-#include "baremetalgdbcommandsdeploystep.h"
-#include "baremetalrunconfiguration.h"
-#include "baremetaldevice.h"
 #include "baremetaldebugsupport.h"
 
-#include "gdbserverprovider.h"
-#include "gdbserverprovidermanager.h"
-
-#include <debugger/debuggerruncontrol.h>
-#include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerkitinformation.h>
-#include <debugger/analyzer/analyzermanager.h>
-
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-
-#include <utils/portlist.h>
-#include <utils/qtcassert.h>
-
-#include <QApplication>
-
-using namespace Debugger;
 using namespace ProjectExplorer;
 
 namespace BareMetal {
@@ -75,68 +50,10 @@ bool BareMetalRunControlFactory::canRun(RunConfiguration *runConfiguration, Core
 }
 
 RunControl *BareMetalRunControlFactory::create(
-        RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
+        RunConfiguration *runConfiguration, Core::Id mode, QString *)
 {
-    QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-
-    const auto rc = qobject_cast<BareMetalRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(rc, return 0);
-
-    const QString bin = rc->localExecutableFilePath();
-    if (bin.isEmpty()) {
-        *errorMessage = tr("Cannot debug: Local executable is not set.");
-        return 0;
-    } else if (!QFile::exists(bin)) {
-        *errorMessage = tr("Cannot debug: Could not find executable for \"%1\".")
-                .arg(bin);
-        return 0;
-    }
-
-    const Target *target = rc->target();
-    QTC_ASSERT(target, return 0);
-
-    const Kit *kit = target->kit();
-    QTC_ASSERT(kit, return 0);
-
-    auto dev = qSharedPointerCast<const BareMetalDevice>(DeviceKitInformation::device(kit));
-    if (!dev) {
-        *errorMessage = tr("Cannot debug: Kit has no device.");
-        return 0;
-    }
-
-    const GdbServerProvider *p = GdbServerProviderManager::findProvider(dev->gdbServerProviderId());
-    if (!p) {
-        *errorMessage = tr("Cannot debug: Device has no GDB server provider configuration.");
-        return 0;
-    }
-
-    DebuggerStartParameters sp;
-
-    if (const BuildConfiguration *bc = target->activeBuildConfiguration()) {
-        if (BuildStepList *bsl = bc->stepList(BareMetalGdbCommandsDeployStep::stepId())) {
-            foreach (const BareMetalGdbCommandsDeployStep *bs, bsl->allOfType<BareMetalGdbCommandsDeployStep>()) {
-                if (!sp.commandsAfterConnect.endsWith("\n"))
-                    sp.commandsAfterConnect.append("\n");
-                sp.commandsAfterConnect.append(bs->gdbCommands());
-            }
-        }
-    }
-
-    sp.inferior.executable = bin;
-    sp.inferior.commandLineArguments = rc->arguments();
-    sp.symbolFile = bin;
-    sp.startMode = AttachToRemoteServer;
-    sp.commandsAfterConnect = p->initCommands();
-    sp.commandsForReset = p->resetCommands();
-    sp.remoteChannel = p->channel();
-    sp.useContinueInsteadOfRun = true;
-
-    if (p->startupMode() == GdbServerProvider::StartupOnNetwork)
-        sp.remoteSetupNeeded = true;
-
-    auto runControl = new RunControl(rc, mode);
-    new BareMetalDebugSupport(runControl, sp);
-
+    auto runControl = new RunControl(runConfiguration, mode);
+    (void) new BareMetalDebugSupport(runControl);
     return runControl;
 }
 

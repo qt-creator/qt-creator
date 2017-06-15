@@ -26,35 +26,108 @@
 #include "baremetaldebugsupport.h"
 #include "baremetalrunconfiguration.h"
 #include "baremetaldevice.h"
+#include "baremetalgdbcommandsdeploystep.h"
 
 #include "gdbserverprovider.h"
 #include "gdbserverprovidermanager.h"
 
 #include <debugger/debuggerruncontrol.h>
-#include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggerkitinformation.h>
+#include <debugger/analyzer/analyzermanager.h>
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 
+#include <utils/portlist.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+using namespace Debugger;
 using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
 
-BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl, const Debugger::DebuggerStartParameters &sp)
-    : Debugger::DebuggerRunTool(runControl, sp)
+BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
+    : Debugger::DebuggerRunTool(runControl)
     , m_appLauncher(new ProjectExplorer::ApplicationLauncher(this))
-{
-    connect(this, &Debugger::DebuggerRunTool::requestRemoteSetup,
-            this, &BareMetalDebugSupport::remoteSetupRequested);
-    connect(runControl, &RunControl::finished,
-            this, &BareMetalDebugSupport::debuggingFinished);
-}
+{}
 
 BareMetalDebugSupport::~BareMetalDebugSupport()
 {
     setFinished();
+}
+
+void BareMetalDebugSupport::start()
+{
+    const auto rc = qobject_cast<BareMetalRunConfiguration *>(runControl()->runConfiguration());
+    QTC_ASSERT(rc, reportFailure(); return);
+
+    const QString bin = rc->localExecutableFilePath();
+    if (bin.isEmpty()) {
+        reportFailure(tr("Cannot debug: Local executable is not set."));
+        return;
+    }
+    if (!QFile::exists(bin)) {
+        reportFailure(tr("Cannot debug: Could not find executable for \"%1\".").arg(bin));
+        return;
+    }
+
+    const Target *target = rc->target();
+    QTC_ASSERT(target, reportFailure(); return);
+
+    const Kit *kit = target->kit();
+    QTC_ASSERT(kit, reportFailure(); return);
+
+    auto dev = qSharedPointerCast<const BareMetalDevice>(DeviceKitInformation::device(kit));
+    if (!dev) {
+        reportFailure(tr("Cannot debug: Kit has no device."));
+        return;
+    }
+
+    const GdbServerProvider *p = GdbServerProviderManager::findProvider(dev->gdbServerProviderId());
+    if (!p) {
+        reportFailure(tr("Cannot debug: Device has no GDB server provider configuration."));
+        return;
+    }
+
+    Debugger::DebuggerStartParameters sp;
+
+    if (const BuildConfiguration *bc = target->activeBuildConfiguration()) {
+        if (BuildStepList *bsl = bc->stepList(BareMetalGdbCommandsDeployStep::stepId())) {
+            foreach (const BareMetalGdbCommandsDeployStep *bs, bsl->allOfType<BareMetalGdbCommandsDeployStep>()) {
+                if (!sp.commandsAfterConnect.endsWith("\n"))
+                    sp.commandsAfterConnect.append("\n");
+                sp.commandsAfterConnect.append(bs->gdbCommands());
+            }
+        }
+    }
+
+    sp.inferior.executable = bin;
+    sp.inferior.commandLineArguments = rc->arguments();
+    sp.symbolFile = bin;
+    sp.startMode = AttachToRemoteServer;
+    sp.commandsAfterConnect = p->initCommands();
+    sp.commandsForReset = p->resetCommands();
+    sp.remoteChannel = p->channel();
+    sp.useContinueInsteadOfRun = true;
+
+    if (p->startupMode() == GdbServerProvider::StartupOnNetwork)
+        sp.remoteSetupNeeded = true;
+    setStartParameters(sp);
+
+    connect(this, &Debugger::DebuggerRunTool::requestRemoteSetup,
+            this, &BareMetalDebugSupport::remoteSetupRequested);
+    connect(runControl(), &RunControl::finished,
+            this, &BareMetalDebugSupport::debuggingFinished);
+
+    DebuggerRunTool::start();
 }
 
 void BareMetalDebugSupport::remoteSetupRequested()

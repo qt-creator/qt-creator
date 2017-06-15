@@ -37,12 +37,12 @@ class BareMetalDebugSupport : public Debugger::DebuggerRunTool
     Q_OBJECT
 
 public:
-    BareMetalDebugSupport(ProjectExplorer::RunControl *runControl,
-                          const Debugger::DebuggerStartParameters &sp);
+    BareMetalDebugSupport(ProjectExplorer::RunControl *runControl);
     ~BareMetalDebugSupport();
 
 private:
     enum State { Inactive, StartingRunner, Running };
+    void start() override;
 
     void remoteSetupRequested();
     void debuggingFinished();
