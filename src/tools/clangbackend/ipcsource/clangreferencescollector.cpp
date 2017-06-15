@@ -155,11 +155,6 @@ ReferencesCollector::~ReferencesCollector()
 
 bool ReferencesCollector::isWithinTokenRange(CXToken token, uint line, uint column) const
 {
-    const CXSourceLocation location = clang_getTokenLocation(m_cxTranslationUnit, token);
-    uint candidateLine = 0;
-    uint candiateColumn = 0;
-    clang_getFileLocation(location, nullptr, &candidateLine, &candiateColumn, nullptr);
-
     const SourceRange range = clang_getTokenExtent(m_cxTranslationUnit, token);
     return range.contains(line, column);
 }
