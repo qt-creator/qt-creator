@@ -77,9 +77,6 @@ public:
         QString topLevel;
     };
 
-    VcsManagerPrivate() : m_unconfiguredVcs(0), m_cachedAdditionalToolsPathsDirty(true)
-    { }
-
     ~VcsManagerPrivate()
     {
         qDeleteAll(m_vcsInfoList);
@@ -87,26 +84,26 @@ public:
 
     VcsInfo *findInCache(const QString &dir)
     {
-        QTC_ASSERT(QDir(dir).isAbsolute(), return 0);
-        QTC_ASSERT(!dir.endsWith(QLatin1Char('/')), return 0);
-        QTC_ASSERT(QDir::fromNativeSeparators(dir) == dir, return 0);
+        QTC_ASSERT(QDir(dir).isAbsolute(), return nullptr);
+        QTC_ASSERT(!dir.endsWith(QLatin1Char('/')), return nullptr);
+        QTC_ASSERT(QDir::fromNativeSeparators(dir) == dir, return nullptr);
 
         const QMap<QString, VcsInfo *>::const_iterator it = m_cachedMatches.constFind(dir);
         if (it != m_cachedMatches.constEnd())
             return it.value();
-        return 0;
+        return nullptr;
     }
 
     VcsInfo *findUpInCache(const QString &directory)
     {
-        VcsInfo *result = 0;
+        VcsInfo *result = nullptr;
         const QChar slash = QLatin1Char('/');
         // Split the path, trying to find the matching repository. We start from the reverse
         // in order to detected nested repositories correctly (say, a git checkout under SVN).
         for (int pos = directory.size() - 1; pos >= 0; pos = directory.lastIndexOf(slash, pos) - 1) {
             const QString directoryPart = directory.left(pos);
             result = findInCache(directoryPart);
-            if (result != 0)
+            if (result)
                 break;
         }
         return result;
@@ -171,14 +168,14 @@ public:
 
     QMap<QString, VcsInfo *> m_cachedMatches;
     QList<VcsInfo *> m_vcsInfoList;
-    IVersionControl *m_unconfiguredVcs;
+    IVersionControl *m_unconfiguredVcs = nullptr;
 
     QStringList m_cachedAdditionalToolsPaths;
-    bool m_cachedAdditionalToolsPathsDirty;
+    bool m_cachedAdditionalToolsPathsDirty = true;
 };
 
-static VcsManagerPrivate *d = 0;
-static VcsManager *m_instance = 0;
+static VcsManagerPrivate *d = nullptr;
+static VcsManager *m_instance = nullptr;
 
 VcsManager::VcsManager(QObject *parent) :
    QObject(parent)
@@ -191,7 +188,7 @@ VcsManager::VcsManager(QObject *parent) :
 
 VcsManager::~VcsManager()
 {
-    m_instance = 0;
+    m_instance = nullptr;
     delete d;
 }
 
@@ -249,7 +246,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     if (inputDirectory.isEmpty()) {
         if (topLevelDirectory)
             topLevelDirectory->clear();
-        return 0;
+        return nullptr;
     }
 
     // Make sure we an absolute path:
@@ -282,12 +279,12 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     });
 
     if (allThatCanManage.isEmpty()) {
-        d->cache(0, QString(), directory); // register that nothing was found!
+        d->cache(nullptr, QString(), directory); // register that nothing was found!
 
         // report result;
         if (topLevelDirectory)
             topLevelDirectory->clear();
-        return 0;
+        return nullptr;
     }
 
     // Register Vcs(s) with the cache
@@ -325,11 +322,11 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
         if (isVcsConfigured) {
             if (curDocument && d->m_unconfiguredVcs == versionControl) {
                 curDocument->infoBar()->removeInfo(vcsWarning);
-                d->m_unconfiguredVcs = 0;
+                d->m_unconfiguredVcs = nullptr;
             }
             return versionControl;
         } else {
-            InfoBar *infoBar = curDocument ? curDocument->infoBar() : 0;
+            InfoBar *infoBar = curDocument ? curDocument->infoBar() : nullptr;
             if (infoBar && infoBar->canInfoBeAdded(vcsWarning)) {
                 InfoBarEntry info(vcsWarning,
                                   tr("%1 repository was detected but %1 is not configured.")
@@ -343,7 +340,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
 
                 infoBar->addInfo(info);
             }
-            return 0;
+            return nullptr;
         }
     }
     return versionControl;
