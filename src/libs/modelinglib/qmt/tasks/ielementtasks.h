@@ -25,8 +25,12 @@
 
 #pragma once
 
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
 class QMenu;
 class QString;
+QT_END_NAMESPACE
 
 namespace qmt {
 
