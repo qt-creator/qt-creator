@@ -40,7 +40,7 @@ class CORE_EXPORT LocatorManager : public QObject
     Q_OBJECT
 
 public:
-    LocatorManager(Internal::LocatorWidget *locatorWidget);
+    LocatorManager(QObject *parent = 0);
 
     static void showFilter(ILocatorFilter *filter);
     static void show(const QString &text, int selectionStart = -1, int selectionLength = 0);

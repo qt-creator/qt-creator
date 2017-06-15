@@ -49,7 +49,9 @@
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
+#include <QApplication>
 #include <QColor>
+#include <QDesktopWidget>
 #include <QFileInfo>
 #include <QTimer>
 #include <QEvent>
@@ -112,6 +114,28 @@ public:
     void showCurrentItemToolTip();
 
     void keyPressEvent(QKeyEvent *event);
+    bool eventFilter(QObject *watched, QEvent *event);
+};
+
+class TopLeftLocatorPopup : public LocatorPopup
+{
+public:
+    TopLeftLocatorPopup(LocatorWidget *locatorWidget)
+        : LocatorPopup(locatorWidget, locatorWidget) {}
+
+protected:
+    void updateGeometry() override;
+    void inputLostFocus() override;
+};
+
+class CenteredLocatorPopup : public LocatorPopup
+{
+public:
+    CenteredLocatorPopup(LocatorWidget *locatorWidget, QWidget *parent)
+        : LocatorPopup(locatorWidget, parent) {}
+
+protected:
+    void updateGeometry() override;
 };
 
 // =========== LocatorModel ===========
@@ -226,6 +250,8 @@ CompletionList::CompletionList(QWidget *parent)
     const QStyleOptionViewItem &option = viewOptions();
     const QSize shint = itemDelegate()->sizeHint(option, QModelIndex());
     setFixedHeight(shint.height() * 17 + frameWidth() * 2);
+
+    installEventFilter(this);
 }
 
 void CompletionList::setModel(QAbstractItemModel *newModel)
@@ -241,20 +267,41 @@ void CompletionList::setModel(QAbstractItemModel *newModel)
     }
 }
 
-void LocatorPopup::resize()
+void LocatorPopup::updateGeometry()
 {
-    static const int MIN_WIDTH = 730;
-    const QSize windowSize = m_window ? m_window->size() : QSize(MIN_WIDTH, 0);
-
-    const int width = qMax(MIN_WIDTH, windowSize.width() * 2 / 3);
-    m_preferredSize = QSize(width, sizeHint().height());
-    QWidget::resize(m_preferredSize);
     m_tree->resizeHeaders();
 }
 
-QSize LocatorPopup::preferredSize() const
+void TopLeftLocatorPopup::updateGeometry()
 {
-    return m_preferredSize;
+    QTC_ASSERT(parentWidget(), return);
+    const QSize size = preferredSize();
+    const QRect rect(parentWidget()->mapToGlobal(QPoint(0, -size.height())), size);
+    setGeometry(rect);
+    LocatorPopup::updateGeometry();
+}
+
+void CenteredLocatorPopup::updateGeometry()
+{
+    QTC_ASSERT(parentWidget(), return);
+    const QSize size = preferredSize();
+    const QSize parentSize = parentWidget()->size();
+    const QPoint pos = parentWidget()->mapToGlobal({(parentSize.width() - size.width()) / 2,
+                                                    parentSize.height() / 2 - size.height()});
+    QRect rect(pos, size);
+    // invisible widget doesn't have the right screen set yet, so use the parent widget to
+    // check for available geometry
+    const QRect available = QApplication::desktop()->availableGeometry(parentWidget());
+    if (rect.right() > available.right())
+        rect.moveRight(available.right());
+    if (rect.bottom() > available.bottom())
+        rect.moveBottom(available.bottom());
+    if (rect.top() < available.top())
+        rect.moveTop(available.top());
+    if (rect.left() < available.left())
+        rect.moveLeft(available.left());
+    setGeometry(rect);
+    LocatorPopup::updateGeometry();
 }
 
 void LocatorPopup::updateWindow()
@@ -271,25 +318,36 @@ void LocatorPopup::updateWindow()
 
 bool LocatorPopup::event(QEvent *event)
 {
-    if (event->type() == QEvent::ParentChange)
+    if (event->type() == QEvent::ParentChange) {
         updateWindow();
+    } else if (event->type() == QEvent::Show)
+        updateGeometry();
     return QWidget::event(event);
 }
 
 bool LocatorPopup::eventFilter(QObject *watched, QEvent *event)
 {
     if (watched == m_window && event->type() == QEvent::Resize)
-        resize();
+        updateGeometry();
     return QWidget::eventFilter(watched, event);
 }
 
-void LocatorPopup::showPopup()
+QSize LocatorPopup::preferredSize()
 {
-    QTC_ASSERT(parentWidget(), return);
-    const QSize size = preferredSize();
-    const QRect rect(parentWidget()->mapToGlobal(QPoint(0, -size.height())), size);
-    setGeometry(rect);
-    show();
+    static const int MIN_WIDTH = 730;
+    const QSize windowSize = m_window ? m_window->size() : QSize(MIN_WIDTH, 0);
+
+    const int width = qMax(MIN_WIDTH, windowSize.width() * 2 / 3);
+    return QSize(width, sizeHint().height());
+}
+
+void TopLeftLocatorPopup::inputLostFocus()
+{
+    hide();
+}
+
+void LocatorPopup::inputLostFocus()
+{
 }
 
 void CompletionList::resizeHeaders()
@@ -300,10 +358,9 @@ void CompletionList::resizeHeaders()
 
 LocatorPopup::LocatorPopup(LocatorWidget *locatorWidget, QWidget *parent)
     : QWidget(parent),
-      m_tree(new CompletionList(this))
+      m_tree(new CompletionList(this)),
+      m_inputWidget(locatorWidget)
 {
-    setWindowFlags(Qt::ToolTip);
-
     m_tree->setFrameStyle(QFrame::NoFrame);
     m_tree->setModel(locatorWidget->model());
 
@@ -315,8 +372,9 @@ LocatorPopup::LocatorPopup(LocatorWidget *locatorWidget, QWidget *parent)
     layout->addWidget(m_tree);
 
     connect(locatorWidget, &LocatorWidget::parentChanged, this, &LocatorPopup::updateWindow);
-    connect(locatorWidget, &LocatorWidget::showPopup, this, &LocatorPopup::showPopup);
-    connect(locatorWidget, &LocatorWidget::hidePopup, this, &LocatorPopup::hide);
+    connect(locatorWidget, &LocatorWidget::showPopup, this, &LocatorPopup::show);
+    connect(locatorWidget, &LocatorWidget::hidePopup, this, &LocatorPopup::close);
+    connect(locatorWidget, &LocatorWidget::lostFocus, this, &LocatorPopup::inputLostFocus);
     connect(locatorWidget, &LocatorWidget::selectRow, m_tree, [this](int row) {
         m_tree->setCurrentIndex(m_tree->model()->index(row, 0));
     });
@@ -331,12 +389,17 @@ LocatorPopup::LocatorPopup(LocatorWidget *locatorWidget, QWidget *parent)
                     locatorWidget->scheduleAcceptEntry(index);
             });
 
-    resize();
+    updateGeometry();
 }
 
 CompletionList *LocatorPopup::completionList() const
 {
     return m_tree;
+}
+
+LocatorWidget *LocatorPopup::inputWidget() const
+{
+    return m_inputWidget;
 }
 
 void LocatorPopup::focusOutEvent(QFocusEvent *event) {
@@ -400,6 +463,22 @@ void CompletionList::keyPressEvent(QKeyEvent *event)
         break;
     }
     Utils::TreeView::keyPressEvent(event);
+}
+
+bool CompletionList::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == this && event->type() == QEvent::ShortcutOverride) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        switch (ke->key()) {
+        case Qt::Key_Escape:
+            if (!ke->modifiers()) {
+                event->accept();
+                return true;
+            }
+            break;
+        }
+    }
+    return Utils::TreeView::eventFilter(watched, event);
 }
 
 // =========== LocatorWidget ===========
@@ -576,7 +655,7 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
             }
         }
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusOut) {
-        emit hidePopup();
+        emit lostFocus();
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusIn) {
         QFocusEvent *fev = static_cast<QFocusEvent *>(event);
         if (fev->reason() != Qt::ActiveWindowFocusReason)
@@ -794,6 +873,24 @@ void LocatorWidget::addSearchResults(int firstIndex, int endIndex)
         if (m_rowRequestedForAccept >= 0)
             m_rowRequestedForAccept = 0;
     }
+}
+
+LocatorWidget *createStaticLocatorWidget(Locator *locator)
+{
+    auto widget = new LocatorWidget(locator);
+    auto popup = new TopLeftLocatorPopup(widget); // owned by widget
+    popup->setWindowFlags(Qt::ToolTip);
+    return widget;
+}
+
+LocatorPopup *createLocatorPopup(Locator *locator, QWidget *parent)
+{
+    auto widget = new LocatorWidget(locator);
+    auto popup = new CenteredLocatorPopup(widget, parent);
+    popup->layout()->addWidget(widget);
+    popup->setWindowFlags(Qt::Popup);
+    popup->setAttribute(Qt::WA_DeleteOnClose);
+    return popup;
 }
 
 } // namespace Internal
