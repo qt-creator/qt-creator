@@ -33,15 +33,23 @@
 
 namespace ClangBackEnd {
 
-struct ReferencesResult {
-    bool isLocalVariable = false;
-    QVector<SourceRangeContainer> references;
+class ReferencesResult
+{
+public:
+    ReferencesResult() = default;
+    ReferencesResult(bool isLocalVariable, const QVector<SourceRangeContainer> &references)
+        : isLocalVariable(isLocalVariable)
+        , references(references)
+    {}
 
     bool operator==(const ReferencesResult &other) const
     {
         return isLocalVariable == other.isLocalVariable
             && references == other.references;
     }
+
+    bool isLocalVariable = false;
+    QVector<SourceRangeContainer> references;
 };
 
 ReferencesResult collectReferences(CXTranslationUnit cxTranslationUnit,
