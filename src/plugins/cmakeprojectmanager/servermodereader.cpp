@@ -107,6 +107,7 @@ void ServerModeReader::setParameters(const BuildDirReader::Parameters &p)
         connect(m_cmakeServer.get(), &ServerMode::disconnected,
                 this, [this]() {
             stop();
+            Core::MessageManager::write(tr("Parsing of CMake project failed: Connection to CMake server lost."));
             m_cmakeServer.reset();
         }, Qt::QueuedConnection); // Delay
     }
@@ -137,6 +138,7 @@ void ServerModeReader::resetData()
 void ServerModeReader::parse(bool force)
 {
     emit configurationStarted();
+    Core::MessageManager::write(tr("Starting to parse CMake project for Qt Creator."));
 
     QTC_ASSERT(m_cmakeServer, return);
     QVariantMap extra;
@@ -375,6 +377,7 @@ void ServerModeReader::handleReply(const QVariantMap &data, const QString &inRep
             m_future.reset();
         }
         m_hasData = true;
+        Core::MessageManager::write(tr("CMake Project was parsed successfully."));
         emit dataAvailable();
     }
 }
@@ -384,6 +387,7 @@ void ServerModeReader::handleError(const QString &message)
     TaskHub::addTask(Task::Error, message, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM,
                      Utils::FileName(), -1);
     stop();
+    Core::MessageManager::write(tr("CMake Project parsing failed."));
     emit errorOccured(message);
 }
 
