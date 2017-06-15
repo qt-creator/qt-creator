@@ -92,12 +92,11 @@ public:
      */
     static QStringList additionalToolsPath();
 
+    static void clearVersionControlCache();
+
 signals:
     void repositoryChanged(const QString &repository);
     void configurationChanged(const IVersionControl *vcs);
-
-public slots:
-    static void clearVersionControlCache();
 
 private:
     explicit VcsManager(QObject *parent = 0);

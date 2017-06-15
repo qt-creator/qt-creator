@@ -2315,7 +2315,7 @@ public:
         m_editor(0)
     {
         ClearCasePlugin::instance()->setFakeCleartool(true);
-        VcsManager::instance()->clearVersionControlCache();
+        VcsManager::clearVersionControlCache();
 
         FileSaver srcSaver(fileName);
         srcSaver.write(QByteArray());
