@@ -563,6 +563,7 @@ class DumperBase:
                 else:
                     push(inner)
                     inner = ''
+                    break
             elif c == ',':
                 #warn('c: %s level: %s' % (c, level))
                 if level == 1:

@@ -6790,6 +6790,36 @@ void tst_Dumpers::dumper_data()
             + Check("tc.3.bar", "15", "int");
 
 
+    QTest::newRow("Internal3")
+        << Data("namespace details\n"
+                "{\n"
+                "    template <int> struct extent_type;\n"
+                "    template <> struct extent_type<-1> { int size_; };\n"
+                "}\n"
+                "\n"
+                "template <class T, int Extent>\n"
+                "struct Span\n"
+                "{\n"
+                "    Span(T *firstElem, int n) : storage_(firstElem, n) {}\n"
+                "\n"
+                "    template <class ExtentType>\n"
+                "    struct Storage : public ExtentType\n"
+                "    {\n"
+                "        template <class OtherExtentType>\n"
+                "        Storage(T *data, OtherExtentType ext)\n"
+                "           : ExtentType{ext}, data_(data)\n"
+                "        {}\n"
+                "\n"
+                "        T *data_;\n"
+                "    };\n"
+                "\n"
+                "    Storage<details::extent_type<Extent>> storage_;\n"
+                "};\n",
+                "int v[4] = { 1, 2, 4, 8 }; \n"
+                "Span<int, -1> s(v, 4); unused(&s); \n")
+        + Check("s.storage_.@1.size_", "4", "int");
+
+
     QTest::newRow("BufArray")
             << Data("#include <new>\n"
                     "static int c = 0;\n"
