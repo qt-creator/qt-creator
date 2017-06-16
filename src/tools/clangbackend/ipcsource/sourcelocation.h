@@ -44,6 +44,10 @@ class SourceLocation
 
 public:
     SourceLocation();
+    SourceLocation(CXTranslationUnit cxTranslationUnit,
+                   const Utf8String &filePath,
+                   uint line,
+                   uint column);
 
     const Utf8String &filePath() const;
     uint line() const;
@@ -54,10 +58,6 @@ public:
 
 private:
     SourceLocation(CXSourceLocation cxSourceLocation);
-    SourceLocation(CXTranslationUnit cxTranslationUnit,
-                   const Utf8String &filePath,
-                   uint line,
-                   uint column);
 
     operator CXSourceLocation() const;
 

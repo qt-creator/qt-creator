@@ -34,10 +34,10 @@
 namespace ClangBackEnd {
 
 SkippedSourceRanges::SkippedSourceRanges(CXTranslationUnit cxTranslationUnit, const char *filePath)
+    : cxTranslationUnit(cxTranslationUnit)
+    , cxSkippedSourceRanges(clang_getSkippedRanges(cxTranslationUnit,
+                                                   clang_getFile(cxTranslationUnit, filePath)))
 {
-    cxSkippedSourceRanges = clang_getSkippedRanges(cxTranslationUnit,
-                                                   clang_getFile(cxTranslationUnit,
-                                                                 filePath));
 }
 
 SkippedSourceRanges::~SkippedSourceRanges()
@@ -48,13 +48,29 @@ SkippedSourceRanges::~SkippedSourceRanges()
 SkippedSourceRanges &SkippedSourceRanges::operator=(SkippedSourceRanges &&other)
 {
     if (this != &other) {
+        cxTranslationUnit = other.cxTranslationUnit;
         cxSkippedSourceRanges = other.cxSkippedSourceRanges;
+        other.cxTranslationUnit = nullptr;
         other.cxSkippedSourceRanges = nullptr;
     }
 
     return *this;
 }
 
+// The source range reported by clang includes the e.g. #endif line, but we do
+// not want to have that grayed out, too. Overwrite the column number with 1 to
+// exclude the line.
+static SourceRange adaptedSourceRange(CXTranslationUnit cxTranslationUnit, const SourceRange &range)
+{
+    const SourceLocation end = range.end();
+
+    return SourceRange {
+        range.start(),
+        SourceLocation(cxTranslationUnit, end.filePath(), end.line(), 1)
+    };
+}
+
+// TODO: This should report a line range.
 std::vector<SourceRange> SkippedSourceRanges::sourceRanges() const
 {
     std::vector<SourceRange> sourceRanges;
@@ -62,9 +78,12 @@ std::vector<SourceRange> SkippedSourceRanges::sourceRanges() const
     auto sourceRangeCount = cxSkippedSourceRanges->count;
     sourceRanges.reserve(sourceRangeCount);
 
-    std::copy(cxSkippedSourceRanges->ranges,
-              cxSkippedSourceRanges->ranges + sourceRangeCount,
-              std::back_inserter(sourceRanges));
+    for (uint i = 0; i < cxSkippedSourceRanges->count; ++i) {
+        const SourceRange range = cxSkippedSourceRanges->ranges[i];
+        const SourceRange adaptedRange = adaptedSourceRange(cxTranslationUnit, range);
+
+        sourceRanges.push_back(adaptedRange);
+    }
 
     return sourceRanges;
 }
@@ -82,14 +101,22 @@ QVector<SourceRangeContainer> SkippedSourceRanges::toSourceRangeContainers() con
     return sourceRangeContainers;
 }
 
+bool SkippedSourceRanges::isNull() const
+{
+
+    return cxTranslationUnit == nullptr || cxSkippedSourceRanges == nullptr;
+}
+
 ClangBackEnd::SkippedSourceRanges::operator QVector<SourceRangeContainer>() const
 {
     return toSourceRangeContainers();
 }
 
 SkippedSourceRanges::SkippedSourceRanges(SkippedSourceRanges &&other)
-    : cxSkippedSourceRanges(other.cxSkippedSourceRanges)
+    : cxTranslationUnit(other.cxTranslationUnit)
+    , cxSkippedSourceRanges(other.cxSkippedSourceRanges)
 {
+    other.cxTranslationUnit = nullptr;
     other.cxSkippedSourceRanges = nullptr;
 }
 

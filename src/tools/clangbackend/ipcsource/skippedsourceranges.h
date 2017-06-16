@@ -47,10 +47,13 @@ public:
 
     QVector<SourceRangeContainer> toSourceRangeContainers() const;
 
+    bool isNull() const;
+
     operator QVector<SourceRangeContainer>() const;
 
 private:
-    CXSourceRangeList *cxSkippedSourceRanges;
+    CXTranslationUnit cxTranslationUnit = nullptr;
+    CXSourceRangeList *cxSkippedSourceRanges = nullptr;
 };
 
 } // namespace ClangBackEnd
