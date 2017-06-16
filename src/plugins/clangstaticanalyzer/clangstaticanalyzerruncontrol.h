@@ -52,7 +52,7 @@ class ClangStaticAnalyzerToolRunner : public ProjectExplorer::RunWorker
     Q_OBJECT
 
 public:
-    ClangStaticAnalyzerToolRunner(ProjectExplorer::RunControl *runControl, QString *errorMessage);
+    explicit ClangStaticAnalyzerToolRunner(ProjectExplorer::RunControl *runControl);
 
     void start() override;
     void stop() override;

@@ -69,8 +69,7 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.clangstaticanalyzer.runcontrol")
 namespace ClangStaticAnalyzer {
 namespace Internal {
 
-ClangStaticAnalyzerToolRunner::ClangStaticAnalyzerToolRunner(RunControl *runControl,
-                                                             QString *errorMessage)
+ClangStaticAnalyzerToolRunner::ClangStaticAnalyzerToolRunner(RunControl *runControl)
     : RunWorker(runControl)
 {
     setDisplayName("ClangStaticAnalyzerRunner");
@@ -102,11 +101,9 @@ ClangStaticAnalyzerToolRunner::ClangStaticAnalyzerToolRunner(RunControl *runCont
         // or even gone, so better stop here.
 
         tool->resetCursorAndProjectInfoBeforeBuild();
-        if (errorMessage) {
-            *errorMessage = tr(
+        reportFailure(tr(
                 "The project configuration changed since the start of the Clang Static Analyzer. "
-                "Please re-run with current configuration.");
-        }
+                "Please re-run with current configuration."));
         return;
     }
 

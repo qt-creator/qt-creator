@@ -11,7 +11,6 @@ SOURCES += \
     clangstaticanalyzerprojectsettingsmanager.cpp \
     clangstaticanalyzerprojectsettingswidget.cpp \
     clangstaticanalyzerruncontrol.cpp \
-    clangstaticanalyzerruncontrolfactory.cpp \
     clangstaticanalyzerrunner.cpp \
     clangstaticanalyzersettings.cpp \
     clangstaticanalyzertool.cpp \
@@ -29,7 +28,6 @@ HEADERS += \
     clangstaticanalyzerprojectsettings.h \
     clangstaticanalyzerprojectsettingsmanager.h \
     clangstaticanalyzerprojectsettingswidget.h \
-    clangstaticanalyzerruncontrolfactory.h \
     clangstaticanalyzerruncontrol.h \
     clangstaticanalyzerrunner.h \
     clangstaticanalyzersettings.h \

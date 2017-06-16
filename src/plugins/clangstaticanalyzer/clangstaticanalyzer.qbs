@@ -42,8 +42,6 @@ QtcPlugin {
         "clangstaticanalyzerprojectsettingswidget.ui",
         "clangstaticanalyzerruncontrol.cpp",
         "clangstaticanalyzerruncontrol.h",
-        "clangstaticanalyzerruncontrolfactory.cpp",
-        "clangstaticanalyzerruncontrolfactory.h",
         "clangstaticanalyzerrunner.cpp",
         "clangstaticanalyzerrunner.h",
         "clangstaticanalyzersettings.cpp",

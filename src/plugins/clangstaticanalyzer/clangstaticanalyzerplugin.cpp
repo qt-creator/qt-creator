@@ -28,7 +28,7 @@
 #include "clangstaticanalyzerconfigwidget.h"
 #include "clangstaticanalyzerconstants.h"
 #include "clangstaticanalyzerprojectsettingswidget.h"
-#include "clangstaticanalyzerruncontrolfactory.h"
+#include "clangstaticanalyzerruncontrol.h"
 #include "clangstaticanalyzertool.h"
 
 #ifdef WITH_TESTS
@@ -36,7 +36,8 @@
 #include "clangstaticanalyzerunittests.h"
 #endif
 
-#include <debugger/analyzer/analyzermanager.h>
+#include <utils/qtcassert.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -44,7 +45,10 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
+
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/target.h>
 
 #include <QAction>
 #include <QDebug>
@@ -54,7 +58,6 @@
 
 #include <QtPlugin>
 
-using namespace Debugger;
 using namespace ProjectExplorer;
 
 namespace ClangStaticAnalyzer {
@@ -125,8 +128,22 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     ProjectPanelFactory::registerFactory(panelFactory);
 
     addAutoReleasedObject(new ClangStaticAnalyzerTool);
-    addAutoReleasedObject(new ClangStaticAnalyzerRunControlFactory);
     addAutoReleasedObject(new ClangStaticAnalyzerOptionsPage);
+
+    auto constraint = [](RunConfiguration *runConfiguration) {
+        Target *target = runConfiguration->target();
+        QTC_ASSERT(target, return false);
+
+        Project *project = target->project();
+        QTC_ASSERT(project, return false);
+
+        const Core::Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
+        return project->projectLanguages().contains(cxx)
+                && ToolChainKitInformation::toolChain(target->kit(), cxx);
+    };
+
+    RunControl::registerWorker<ClangStaticAnalyzerToolRunner>
+            (Constants::CLANGSTATICANALYZER_RUN_MODE, constraint);
 
     return true;
 }
