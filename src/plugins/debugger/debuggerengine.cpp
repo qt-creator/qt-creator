@@ -1084,6 +1084,7 @@ void DebuggerEnginePrivate::doShutdownEngine()
 {
     QTC_ASSERT(isMasterEngine(), qDebug() << m_engine; return);
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << m_engine << state());
+    QTC_ASSERT(runTool(), return);
     runTool()->startDying();
     m_engine->showMessage("CALL: SHUTDOWN ENGINE");
     m_engine->shutdownEngine();
@@ -1142,37 +1143,39 @@ void DebuggerEnginePrivate::setRemoteSetupState(RemoteSetupState state)
 
 void DebuggerEngine::notifyEngineIll()
 {
-#ifdef WITH_BENCHMARK
-    CALLGRIND_STOP_INSTRUMENTATION;
-    CALLGRIND_DUMP_STATS;
-#endif
-    showMessage("NOTE: ENGINE ILL ******");
-    runTool()->startDying();
-    d->m_lastGoodState = d->m_state;
-    switch (state()) {
-        case InferiorRunRequested:
-        case InferiorRunOk:
-            // The engine does not look overly ill right now, so attempt to
-            // properly interrupt at least once. If that fails, we are on the
-            // shutdown path due to d->m_targetState anyways.
-            setState(InferiorStopRequested, true);
-            showMessage("ATTEMPT TO INTERRUPT INFERIOR");
-            interruptInferior();
-            break;
-        case InferiorStopRequested:
-            notifyInferiorStopFailed();
-            break;
-        case InferiorStopOk:
-            showMessage("FORWARDING STATE TO InferiorShutdownFailed");
-            setState(InferiorShutdownFailed, true);
-            if (isMasterEngine())
-                d->queueShutdownEngine();
-            break;
-        default:
-            if (isMasterEngine())
-                d->queueShutdownEngine();
-            break;
-    }
+    runControl()->initiateStop();
+    return;
+//#ifdef WITH_BENCHMARK
+//    CALLGRIND_STOP_INSTRUMENTATION;
+//    CALLGRIND_DUMP_STATS;
+//#endif
+//    showMessage("NOTE: ENGINE ILL ******");
+//    runTool()->startDying();
+//    d->m_lastGoodState = d->m_state;
+//    switch (state()) {
+//        case InferiorRunRequested:
+//        case InferiorRunOk:
+//            // The engine does not look overly ill right now, so attempt to
+//            // properly interrupt at least once. If that fails, we are on the
+//            // shutdown path due to d->m_targetState anyways.
+//            setState(InferiorStopRequested, true);
+//            showMessage("ATTEMPT TO INTERRUPT INFERIOR");
+//            interruptInferior();
+//            break;
+//        case InferiorStopRequested:
+//            notifyInferiorStopFailed();
+//            break;
+//        case InferiorStopOk:
+//            showMessage("FORWARDING STATE TO InferiorShutdownFailed");
+//            setState(InferiorShutdownFailed, true);
+//            if (isMasterEngine())
+//                d->queueShutdownEngine();
+//            break;
+//        default:
+//            if (isMasterEngine())
+//                d->queueShutdownEngine();
+//            break;
+//    }
 }
 
 void DebuggerEngine::notifyEngineSpontaneousShutdown()
