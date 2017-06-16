@@ -361,7 +361,7 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2()
     }
 
     auto checkBoxMultiInferior = new QCheckBox(groupBoxDangerous);
-    checkBoxMultiInferior->setText(GdbOptionsPage::tr("Debug all children"));
+    checkBoxMultiInferior->setText(GdbOptionsPage::tr("Debug all child processes"));
     checkBoxMultiInferior->setToolTip(GdbOptionsPage::tr(
         "<html><head/><body>Keeps debugging all children after a fork."
         "</body></html>"));
