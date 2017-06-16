@@ -94,6 +94,25 @@ def qdump____m512i(d, value):
 
 #######################################################################
 #
+# GSL
+#
+#######################################################################
+
+def qform__std__array():
+    return arrayForms()
+
+def qdump__gsl__span(d, value):
+    size, pointer = value.split('pp')
+    d.putItemCount(size)
+    if d.isExpanded():
+        d.putPlotData(pointer, size, value.type[0])
+
+def qdump__gsl__byte(d, value):
+    d.putNumChild(0)
+    d.putValue(value.integer())
+
+#######################################################################
+#
 # Eigen
 #
 #######################################################################

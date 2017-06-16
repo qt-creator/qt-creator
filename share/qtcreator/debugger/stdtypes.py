@@ -1067,3 +1067,19 @@ def qdump__int8_t(d, value):
     d.putNumChild(0)
     d.putValue(value.integer())
 
+def qdump__std__byte(d, value):
+    d.putNumChild(0)
+    d.putValue(value.integer())
+
+def qdump__std__optional(d, value):
+    innerType = value.type[0]
+    (initialized, pad, payload) = d.split('b@{%s}' % innerType.name, value)
+    if initialized:
+        d.putItem(payload)
+        d.putBetterType(value.type)
+    else:
+        d.putSpecialValue("uninitialized")
+        d.putNumChild(0)
+
+def qdump__std__experimental__optional(d, value):
+    qdump__std__optional(d, value)
