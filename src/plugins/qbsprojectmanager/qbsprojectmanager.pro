@@ -28,6 +28,7 @@ HEADERS = \
     qbscleanstep.h \
     qbsdeployconfigurationfactory.h \
     qbsinfopage.h \
+    qbskitinformation.h \
     qbsinstallstep.h \
     qbslogsink.h \
     qbsnodes.h \
@@ -56,6 +57,7 @@ SOURCES = \
     qbsdeployconfigurationfactory.cpp \
     qbsinfopage.cpp \
     qbsinstallstep.cpp \
+    qbskitinformation.cpp \
     qbslogsink.cpp \
     qbsnodes.cpp \
     qbsnodetreebuilder.cpp \
