@@ -104,6 +104,7 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
     mtools->addAction(cmd);
 
     auto locatorWidget = new LocatorWidget(this);
+    new LocatorPopup(locatorWidget, locatorWidget); // child of locatorWidget
     StatusBarWidget *view = new StatusBarWidget;
     view->setWidget(locatorWidget);
     view->setContext(Context("LocatorWidget"));
