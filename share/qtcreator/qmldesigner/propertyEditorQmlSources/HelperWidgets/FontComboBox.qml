@@ -58,12 +58,28 @@ Controls.ComboBox {
 
     Layout.fillWidth: true
 
-    onCurrentTextChanged: {
+    onAccepted: {
         if (backendValue === undefined)
             return;
 
-        if (backendValue.value !== currentText)
-            backendValue.value = currentText;
+        if (editText === "")
+            return
+
+        if (backendValue.value !== editText)
+            backendValue.value = editText;
+    }
+
+    onActivated: {
+        if (backendValue === undefined)
+            return;
+
+        if (editText === "")
+            return
+
+        var indexText = comboBox.textAt(index)
+
+        if (backendValue.value !== indexText)
+            backendValue.value = indexText;
     }
 
     ExtendedFunctionButton {
@@ -71,6 +87,13 @@ Controls.ComboBox {
         anchors.verticalCenter: parent.verticalCenter
         backendValue: comboBox.backendValue
         visible: comboBox.enabled
+    }
+
+    Connections {
+        target: modelNodeBackend
+        onSelectionChanged: {
+            comboBox.editText = backendValue.value
+        }
     }
 
     Component.onCompleted: {
