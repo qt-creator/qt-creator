@@ -163,22 +163,23 @@ private:
 class FindUses
 {
 public:
-    static CursorInfo find(const QTextCursor &textCursor,
-                                 const Document::Ptr document,
-                                 const Snapshot &snapshot)
+    static CursorInfo find(const Document::Ptr document, const Snapshot &snapshot,
+                           int line, int column, Scope *scope, const QString &expression)
     {
-        const FindUses findUses(textCursor, document, snapshot);
+        FindUses findUses(document, snapshot, line, column, scope, expression);
         return findUses.doFind();
     }
 
 private:
-    FindUses(const QTextCursor &textCursor, const Document::Ptr document, const Snapshot &snapshot)
-        : m_document(document), m_snapshot(snapshot)
+    FindUses(const Document::Ptr document, const Snapshot &snapshot, int line, int column,
+             Scope *scope, const QString &expression)
+        : m_document(document)
+        , m_line(line)
+        , m_column(column)
+        , m_scope(scope)
+        , m_expression(expression)
+        , m_snapshot(snapshot)
     {
-        TextEditor::Convenience::convertPosition(textCursor.document(), textCursor.position(),
-                                                 &m_line, &m_column);
-        CanonicalSymbol canonicalSymbol(document, snapshot);
-        m_scope = canonicalSymbol.getScopeAndExpression(textCursor, &m_expression);
     }
 
     CursorInfo doFind() const
@@ -353,7 +354,15 @@ QFuture<CursorInfo> BuiltinCursorInfo::run(const CursorInfoParams &cursorInfoPar
         return fi.future();
     }
 
-    return Utils::runAsync(&FindUses::find, cursorInfoParams.textCursor, document, snapshot);
+    const QTextCursor &textCursor = cursorInfoParams.textCursor;
+    int line, column;
+    TextEditor::Convenience::convertPosition(textCursor.document(), textCursor.position(),
+                                             &line, &column);
+    CanonicalSymbol canonicalSymbol(document, snapshot);
+    QString expression;
+    Scope *scope = canonicalSymbol.getScopeAndExpression(textCursor, &expression);
+
+    return Utils::runAsync(&FindUses::find, document, snapshot, line, column, scope, expression);
 }
 
 } // namespace Internal
