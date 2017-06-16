@@ -34,7 +34,7 @@ publication by Neil Fraser: http://neil.fraser.name/writing/diff/
 #include "differ.h"
 
 #include <QList>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QStringList>
 #include <QMap>
 #include <QPair>
@@ -204,9 +204,9 @@ static QList<Diff> cleanupOverlaps(const QList<Diff> &diffList)
 
 static int cleanupSemanticsScore(const QString &text1, const QString &text2)
 {
-    const QRegExp blankLineEnd = QRegExp(QLatin1String("\\n\\r?\\n$"));
-    const QRegExp blankLineStart = QRegExp(QLatin1String("^\\r?\\n\\r?\\n"));
-    const QRegExp sentenceEnd = QRegExp(QLatin1String("\\. $"));
+    const QRegularExpression blankLineEnd("\\n\\r?\\n$");
+    const QRegularExpression blankLineStart("^\\r?\\n\\r?\\n");
+    const QRegularExpression sentenceEnd("\\. $");
 
     if (!text1.count() || !text2.count()) // Edges
         return 6;
@@ -219,14 +219,14 @@ static int cleanupSemanticsScore(const QString &text1, const QString &text2)
     const bool whitespace2 = nonAlphaNumeric2 && char2.isSpace();
     const bool lineBreak1 = whitespace1 && char1.category() == QChar::Other_Control;
     const bool lineBreak2 = whitespace2 && char2.category() == QChar::Other_Control;
-    const bool blankLine1 = lineBreak1 && blankLineEnd.indexIn(text1) != -1;
-    const bool blankLine2 = lineBreak2 && blankLineStart.indexIn(text2) != -1;
+    const bool blankLine1 = lineBreak1 && blankLineEnd.match(text1).hasMatch();
+    const bool blankLine2 = lineBreak2 && blankLineStart.match(text2).hasMatch();
 
     if (blankLine1 || blankLine2) // Blank lines
       return 5;
     if (lineBreak1 || lineBreak2) // Line breaks
       return 4;
-    if (sentenceEnd.indexIn(text1) != -1) // End of sentence
+    if (sentenceEnd.match(text1).hasMatch()) // End of sentence
       return 3;
     if (whitespace1 || whitespace2) // Whitespaces
       return 2;

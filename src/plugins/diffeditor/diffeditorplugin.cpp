@@ -1299,6 +1299,53 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
                                      << fileDataList7;
 
     //////////////
+    patch = _("diff --git a/demos/arthurplugin/arthurplugin.pro b/demos/arthurplugin/arthurplugin.pro\n"
+              "new file mode 100644\n"
+              "index 0000000..c5132b4\n"
+              "--- /dev/null\n"
+              "+++ b/demos/arthurplugin/arthurplugin.pro\n"
+              "@@ -0,0 +1 @@\n"
+              "+XXX\n"
+              "diff --git a/demos/arthurplugin/bg1.jpg b/demos/arthurplugin/bg1.jpg\n"
+              "new file mode 100644\n"
+              "index 0000000..dfc7cee\n"
+              "Binary files /dev/null and b/demos/arthurplugin/bg1.jpg differ\n"
+              "diff --git a/demos/arthurplugin/flower.jpg b/demos/arthurplugin/flower.jpg\n"
+              "new file mode 100644\n"
+              "index 0000000..f8e022c\n"
+              "Binary files /dev/null and b/demos/arthurplugin/flower.jpg differ\n"
+              );
+
+    fileData1 = FileData();
+    fileData1.leftFileInfo = DiffFileInfo(_("demos/arthurplugin/arthurplugin.pro"), _("0000000"));
+    fileData1.rightFileInfo = DiffFileInfo(_("demos/arthurplugin/arthurplugin.pro"), _("c5132b4"));
+    fileData1.fileOperation = FileData::NewFile;
+    chunkData1 = ChunkData();
+    chunkData1.leftStartingLineNumber = -1;
+    chunkData1.rightStartingLineNumber = 0;
+    rows1.clear();
+    rows1 << RowData(TextLineData::Separator, _("XXX"));
+    rows1 << RowData(TextLineData::Separator, TextLineData(TextLineData::TextLine));
+    chunkData1.rows = rows1;
+    fileData1.chunks << chunkData1;
+    fileData2 = FileData();
+    fileData2.leftFileInfo = DiffFileInfo(_("demos/arthurplugin/bg1.jpg"), _("0000000"));
+    fileData2.rightFileInfo = DiffFileInfo(_("demos/arthurplugin/bg1.jpg"), _("dfc7cee"));
+    fileData2.fileOperation = FileData::NewFile;
+    fileData2.binaryFiles = true;
+    fileData3 = FileData();
+    fileData3.leftFileInfo = DiffFileInfo(_("demos/arthurplugin/flower.jpg"), _("0000000"));
+    fileData3.rightFileInfo = DiffFileInfo(_("demos/arthurplugin/flower.jpg"), _("f8e022c"));
+    fileData3.fileOperation = FileData::NewFile;
+    fileData3.binaryFiles = true;
+
+    QList<FileData> fileDataList8;
+    fileDataList8 << fileData1 << fileData2 << fileData3;
+
+    QTest::newRow("Binary files") << patch
+                                  << fileDataList8;
+
+    //////////////
 
     // Subversion New
     patch = _("Index: src/plugins/subversion/subversioneditor.cpp\n"
@@ -1313,10 +1360,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     chunkData1.leftStartingLineNumber = -1;
     chunkData1.rightStartingLineNumber = 124;
     fileData1.chunks << chunkData1;
-    QList<FileData> fileDataList8;
-    fileDataList8 << fileData1;
+    QList<FileData> fileDataList9;
+    fileDataList9 << fileData1;
     QTest::newRow("Subversion New") << patch
-                                    << fileDataList8;
+                                    << fileDataList9;
 
     //////////////
 
@@ -1333,10 +1380,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     chunkData1.leftStartingLineNumber = 0;
     chunkData1.rightStartingLineNumber = -1;
     fileData1.chunks << chunkData1;
-    QList<FileData> fileDataList9;
-    fileDataList9 << fileData1;
+    QList<FileData> fileDataList10;
+    fileDataList10 << fileData1;
     QTest::newRow("Subversion Deleted") << patch
-                                        << fileDataList9;
+                                        << fileDataList10;
 
     //////////////
 
@@ -1353,10 +1400,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     chunkData1.leftStartingLineNumber = 119;
     chunkData1.rightStartingLineNumber = 119;
     fileData1.chunks << chunkData1;
-    QList<FileData> fileDataList10;
-    fileDataList10 << fileData1;
+    QList<FileData> fileDataList11;
+    fileDataList11 << fileData1;
     QTest::newRow("Subversion Normal") << patch
-                                       << fileDataList10;
+                                       << fileDataList11;
 }
 
 void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
@@ -1365,10 +1412,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
     QFETCH(QList<FileData>, fileDataList);
 
     bool ok;
-    QList<FileData> result = DiffUtils::readPatch(sourcePatch, &ok);
+    const QList<FileData> &result = DiffUtils::readPatch(sourcePatch, &ok);
 
     QVERIFY(ok);
-    QCOMPARE(fileDataList.count(), result.count());
+    QCOMPARE(result.count(), fileDataList.count());
     for (int i = 0; i < fileDataList.count(); i++) {
         const FileData &origFileData = fileDataList.at(i);
         const FileData &resultFileData = result.at(i);
