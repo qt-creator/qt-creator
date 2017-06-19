@@ -64,11 +64,11 @@ public:
 private:
     void showPopup();
     void showPopupNow();
-    void acceptCurrentEntry();
+    void acceptEntry(int row);
     void showConfigureDialog();
     void addSearchResults(int firstIndex, int endIndex);
     void handleSearchFinished();
-    void scheduleAcceptCurrentEntry();
+    void scheduleAcceptEntry(const QModelIndex &index);
     void setFocusToCurrentMode();
 
     bool eventFilter(QObject *obj, QEvent *event);
@@ -90,8 +90,8 @@ private:
     QString m_requestedCompletionText;
     bool m_needsClearResult = true;
     bool m_updateRequested = false;
-    bool m_acceptRequested = false;
     bool m_possibleToolTipRequest = false;
+    int m_rowRequestedForAccept = -1;
     QWidget *m_progressIndicator;
     QPointer<QWidget> m_window;
     QTimer m_showProgressTimer;

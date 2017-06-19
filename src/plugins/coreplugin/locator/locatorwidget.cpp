@@ -42,6 +42,7 @@
 #include <utils/asconst.h>
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
+#include <utils/itemviews.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
@@ -96,7 +97,7 @@ private:
     QColor mBackgroundColor;
 };
 
-class CompletionList : public QTreeView
+class CompletionList : public Utils::TreeView
 {
 public:
     CompletionList(QWidget *parent = 0);
@@ -229,7 +230,7 @@ void LocatorModel::addEntries(const QList<LocatorFilterEntry> &entries)
 // =========== CompletionList ===========
 
 CompletionList::CompletionList(QWidget *parent)
-    : QTreeView(parent)
+    : Utils::TreeView(parent)
 {
     setItemDelegate(new SearchResultTreeItemDelegate(0, this));
     setRootIsDecorated(false);
@@ -321,7 +322,7 @@ LocatorWidget::LocatorWidget(Locator *locator) :
     connect(m_fileLineEdit, &QLineEdit::textChanged,
         this, &LocatorWidget::showPopup);
     connect(m_completionList, &QAbstractItemView::activated,
-            this, &LocatorWidget::scheduleAcceptCurrentEntry);
+            this, &LocatorWidget::scheduleAcceptEntry);
 
     m_entriesWatcher = new QFutureWatcher<LocatorFilterEntry>(this);
     connect(m_entriesWatcher, &QFutureWatcher<LocatorFilterEntry>::resultsReadyAt,
@@ -415,7 +416,7 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
             break;
         case Qt::Key_Enter:
         case Qt::Key_Return:
-            scheduleAcceptCurrentEntry();
+            QApplication::sendEvent(m_completionList, event);
             return true;
         case Qt::Key_Escape:
             m_completionList->hide();
@@ -599,8 +600,9 @@ void LocatorWidget::handleSearchFinished()
     m_showProgressTimer.stop();
     setProgressIndicatorVisible(false);
     m_updateRequested = false;
-    if (m_acceptRequested) {
-        acceptCurrentEntry();
+    if (m_rowRequestedForAccept >= 0) {
+        acceptEntry(m_rowRequestedForAccept);
+        m_rowRequestedForAccept = -1;
         return;
     }
     if (m_entriesWatcher->future().isCanceled()) {
@@ -616,25 +618,26 @@ void LocatorWidget::handleSearchFinished()
     }
 }
 
-void LocatorWidget::scheduleAcceptCurrentEntry()
+void LocatorWidget::scheduleAcceptEntry(const QModelIndex &index)
 {
     if (m_updateRequested) {
         // don't just accept the selected entry, since the list is not up to date
         // accept will be called after the update finished
-        m_acceptRequested = true;
+        m_rowRequestedForAccept = index.row();
         // do not wait for the rest of the search to finish
         m_entriesWatcher->future().cancel();
     } else {
-        acceptCurrentEntry();
+        acceptEntry(index.row());
     }
 }
 
-void LocatorWidget::acceptCurrentEntry()
+void LocatorWidget::acceptEntry(int row)
 {
-    m_acceptRequested = false;
     if (!m_completionList->isVisible())
         return;
-    const QModelIndex index = m_completionList->currentIndex();
+    if (row >= m_locatorModel->rowCount())
+        return;
+    const QModelIndex index = m_locatorModel->index(row, 0);
     if (!index.isValid())
         return;
     const LocatorFilterEntry entry = m_locatorModel->data(index, ItemDataRoles::ResultItemRole).value<LocatorFilterEntry>();
@@ -689,8 +692,11 @@ void LocatorWidget::addSearchResults(int firstIndex, int endIndex)
     for (int i = firstIndex; i < endIndex; ++i)
         entries.append(m_entriesWatcher->resultAt(i));
     m_locatorModel->addEntries(entries);
-    if (selectFirst)
+    if (selectFirst) {
         m_completionList->setCurrentIndex(m_locatorModel->index(0, 0));
+        if (m_rowRequestedForAccept >= 0)
+            m_rowRequestedForAccept = 0;
+    }
 }
 
 } // namespace Internal
