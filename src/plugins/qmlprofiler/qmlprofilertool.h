@@ -53,7 +53,7 @@ public:
     void finalizeRunControl(QmlProfilerRunner *runWorker);
 
     bool prepareTool();
-    void startRemoteTool();
+    void attachToWaitingApplication();
 
     QString summary(const QVector<int> &typeIds) const;
     QStringList details(int typeId) const;

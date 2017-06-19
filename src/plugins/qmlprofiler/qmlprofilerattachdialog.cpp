@@ -28,10 +28,11 @@
 #include <projectexplorer/kitchooser.h>
 #include <coreplugin/id.h>
 
-#include <QSpinBox>
 #include <QDialogButtonBox>
 #include <QFormLayout>
+#include <QLabel>
 #include <QPushButton>
+#include <QSpinBox>
 
 using namespace ProjectExplorer;
 
@@ -63,11 +64,20 @@ QmlProfilerAttachDialog::QmlProfilerAttachDialog(QWidget *parent) :
     buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
+    QLabel *hint = new QLabel(this);
+    hint->setWordWrap(true);
+    hint->setTextFormat(Qt::RichText);
+    hint->setText(tr("Select an externally started QML-debug enabled application.<p>"
+                     "Commonly used command-line arguments are:")
+                  + "<p><tt>-qmljsdebugger=port:&lt;port&gt;,host:&lt;host&gt;,block,</tt><br>"
+                     "<tt>&nbsp;<tt>&nbsp;services:EngineControl,DebugMessages[,...]</tt><p>");
+
     QFormLayout *formLayout = new QFormLayout();
     formLayout->addRow(tr("Kit:"), d->kitChooser);
     formLayout->addRow(tr("&Port:"), d->portSpinBox);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    verticalLayout->addWidget(hint);
     verticalLayout->addLayout(formLayout);
     verticalLayout->addWidget(buttonBox);
 

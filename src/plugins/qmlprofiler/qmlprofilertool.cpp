@@ -254,7 +254,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
     act = new QAction(tr("QML Profiler"), this);
     act->setToolTip(description);
-    menu->addAction(ActionManager::registerAction(act, "QmlProfiler.Local"),
+    menu->addAction(ActionManager::registerAction(act, "QmlProfiler.Internal"),
                     Debugger::Constants::G_ANALYZER_TOOLS);
     QObject::connect(act, &QAction::triggered, this, [this] {
          if (!prepareTool())
@@ -267,11 +267,11 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
         act->setEnabled(d->m_startAction->isEnabled());
     });
 
-    act = new QAction(tr("QML Profiler (External)"), this);
+    act = new QAction(tr("QML Profiler (Attach to Waiting Application)"), this);
     act->setToolTip(description);
-    menu->addAction(ActionManager::registerAction(act, "QmlProfiler.Remote"),
+    menu->addAction(ActionManager::registerAction(act, "QmlProfiler.AttachToWaitingApplication"),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
-    QObject::connect(act, &QAction::triggered, this, &QmlProfilerTool::startRemoteTool);
+    QObject::connect(act, &QAction::triggered, this, &QmlProfilerTool::attachToWaitingApplication);
 
     Utils::ToolbarDescription toolbar;
     toolbar.addAction(d->m_startAction);
@@ -546,7 +546,7 @@ bool QmlProfilerTool::prepareTool()
     return true;
 }
 
-void QmlProfilerTool::startRemoteTool()
+void QmlProfilerTool::attachToWaitingApplication()
 {
     if (!prepareTool())
         return;
@@ -589,8 +589,8 @@ void QmlProfilerTool::startRemoteTool()
 
     RunConfiguration *rc = Debugger::startupRunConfiguration();
     auto runControl = new RunControl(rc, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    runControl->setConnection(UrlConnection(serverUrl));
+    auto profiler = new QmlProfilerRunner(runControl);
+    profiler->setServerUrl(serverUrl);
 
     ProjectExplorerPlugin::startRunControl(runControl);
 }
