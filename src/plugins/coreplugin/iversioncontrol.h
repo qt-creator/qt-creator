@@ -100,6 +100,8 @@ public:
      *
      * It will return true only for exact matches of the name, not for e.g. files in a
      * directory owned by the version control system (e.g. .git/control).
+     *
+     * This method needs to be thread safe!
      */
     virtual bool isVcsFileOrDirectory(const Utils::FileName &fileName) const = 0;
 

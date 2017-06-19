@@ -36,6 +36,8 @@
 
 #include <functional>
 
+namespace Core { class IVersionControl; }
+
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -86,7 +88,8 @@ signals:
 
 private:
     static void scanForFiles(FutureInterface *fi, const Utils::FileName &directory,
-                             const FileFilter &filter, const FileTypeFactory &factory);
+                             const FileFilter &filter, const FileTypeFactory &factory,
+                             QList<Core::IVersionControl *> &versionControls);
 
 private:
     FileFilter m_filter;
@@ -94,6 +97,7 @@ private:
 
     FutureWatcher m_futureWatcher;
     Future m_scanFuture;
+    QList<Core::IVersionControl *> m_versionControls;
 };
 
 } // namespace Internal
