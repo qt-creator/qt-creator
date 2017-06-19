@@ -3143,7 +3143,7 @@ void TextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
     }
 
     if (highest)
-        highest->showToolTip(q, toolTipPoint, c.position());
+        highest->showToolTip(q, toolTipPoint);
 }
 
 bool TextEditorWidget::viewportEvent(QEvent *event)

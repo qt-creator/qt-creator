@@ -33,11 +33,9 @@ namespace TextEditor {
 BaseHoverHandler::~BaseHoverHandler()
 {}
 
-void BaseHoverHandler::showToolTip(TextEditorWidget *widget, const QPoint &point, int pos)
+void BaseHoverHandler::showToolTip(TextEditorWidget *widget, const QPoint &point)
 {
-    widget->setContextHelpId(QString());
-
-    process(widget, pos);
+    decorateToolTip();
     operateTooltip(widget, point);
 }
 
@@ -101,18 +99,13 @@ const HelpItem &BaseHoverHandler::lastHelpItemIdentified() const
     return m_lastHelpItemIdentified;
 }
 
-void BaseHoverHandler::clear()
+void BaseHoverHandler::process(TextEditorWidget *widget, int pos)
 {
     m_toolTip.clear();
     m_priority = -1;
     m_lastHelpItemIdentified = HelpItem();
-}
 
-void BaseHoverHandler::process(TextEditorWidget *widget, int pos)
-{
-    clear();
     identifyMatch(widget, pos);
-    decorateToolTip();
 }
 
 void BaseHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
