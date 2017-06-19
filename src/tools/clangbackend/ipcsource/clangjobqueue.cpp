@@ -201,12 +201,12 @@ JobRequests JobQueue::takeJobRequestsToRunNow()
                 if (document.isDirty()) {
                     // TODO: If the document is dirty due to a project update,
                     // references are processes later than ideal.
-                    qWarning() << "Not choosing due to dirty document:" << request;
+                    qCDebug(jobsLog) << "Not choosing due to dirty document:" << request;
                     continue;
                 }
 
                 if (request.documentRevision != document.documentRevision()) {
-                    qWarning() << "Not choosing due to revision mismatch:" << request;
+                    qCDebug(jobsLog) << "Not choosing due to revision mismatch:" << request;
                     continue;
                 }
             }

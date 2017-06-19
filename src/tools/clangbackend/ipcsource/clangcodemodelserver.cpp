@@ -250,7 +250,6 @@ void ClangCodeModelServer::requestDocumentAnnotations(const RequestDocumentAnnot
 void ClangCodeModelServer::requestReferences(const RequestReferencesMessage &message)
 {
     TIME_SCOPE_DURATION("ClangCodeModelServer::requestReferences");
-    qWarning() << "ClangCodeModelServer::requestReferences";
 
     try {
         const Document document = documents.document(message.fileContainer().filePath(),
