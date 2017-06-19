@@ -56,7 +56,7 @@ Result::Type TestResult::resultFromString(const QString &resultString)
 {
     if (resultString == "pass")
         return Result::Pass;
-    if (resultString == "fail")
+    if (resultString == "fail" || resultString == "fail!")
         return Result::Fail;
     if (resultString == "xfail")
         return Result::ExpectedFail;
@@ -64,11 +64,13 @@ Result::Type TestResult::resultFromString(const QString &resultString)
         return Result::UnexpectedPass;
     if (resultString == "skip")
         return Result::Skip;
+    if (resultString == "result")
+        return Result::Benchmark;
     if (resultString == "qdebug")
         return Result::MessageDebug;
-    if (resultString == "qinfo")
+    if (resultString == "qinfo" || resultString == "info")
         return Result::MessageInfo;
-    if (resultString == "warn" || resultString == "qwarn")
+    if (resultString == "warn" || resultString == "qwarn" || resultString == "warning")
         return Result::MessageWarn;
     if (resultString == "qfatal")
         return Result::MessageFatal;
