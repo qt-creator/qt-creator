@@ -433,6 +433,8 @@ public:
   // 20.5.4.2, Destructor
   ~optional() = default;
 
+  void reset() noexcept { clear(); }
+
   // 20.5.4.3, assignment
   optional& operator=(nullopt_t) noexcept
   {
