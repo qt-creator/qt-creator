@@ -2210,9 +2210,11 @@ void DebuggerPluginPrivate::attachToQmlPort()
 void DebuggerPluginPrivate::enableReverseDebuggingTriggered(const QVariant &value)
 {
     QTC_ASSERT(m_reverseToolButton, return);
-    m_reverseToolButton->setVisible(value.toBool());
+    const bool enabled = value.toBool();
+    m_reverseToolButton->setVisible(enabled);
     m_reverseDirectionAction->setChecked(false);
-    m_reverseDirectionAction->setEnabled(value.toBool());
+    m_reverseDirectionAction->setCheckable(enabled);
+    m_reverseDirectionAction->setEnabled(enabled);
 }
 
 void DebuggerPluginPrivate::runScheduled()
