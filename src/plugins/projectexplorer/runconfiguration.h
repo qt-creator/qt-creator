@@ -337,8 +337,8 @@ class PROJECTEXPLORER_EXPORT IRunControlFactory : public QObject
 public:
     explicit IRunControlFactory(QObject *parent = nullptr);
 
-    virtual bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const = 0;
-    virtual RunControl *create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage) = 0;
+    virtual bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const;
+    virtual RunControl *create(RunConfiguration *runConfiguration, Core::Id runMode, QString *errorMessage);
 
     virtual IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc);
 };
@@ -492,9 +492,32 @@ public:
         return nullptr;
     }
 
-    using RunWorkerCreator = std::function<RunWorker *(RunControl *)>;
-    static void registerRunWorkerCreator(Core::Id id, const RunWorkerCreator &creator);
     RunWorker *createWorker(Core::Id id);
+
+    using Producer = std::function<RunWorker *(RunControl *)>;
+    using Constraint = std::function<bool(RunConfiguration *)>;
+
+    template <class Worker>
+    static void registerWorker(Core::Id runMode, const Constraint &constraint)
+    {
+        auto producer = [](RunControl *rc) { return new Worker(rc); };
+        addWorkerFactory({runMode, constraint, producer});
+    }
+    template <class Config, class Worker>
+    static void registerWorker(Core::Id runMode)
+    {
+        auto constraint = [](RunConfiguration *runConfig) { return qobject_cast<Config *>(runConfig); };
+        auto producer = [](RunControl *rc) { return new Worker(rc); };
+        addWorkerFactory({runMode, constraint, producer});
+    }
+
+    struct WorkerFactory {
+        Core::Id runMode;
+        Constraint constraint;
+        Producer producer;
+    };
+
+    static Producer producer(RunConfiguration *runConfiguration, Core::Id runMode);
 
 signals:
     void appendMessageRequested(ProjectExplorer::RunControl *runControl,
@@ -508,6 +531,8 @@ signals:
 private:
     friend class RunWorker;
     friend class Internal::RunWorkerPrivate;
+
+    static void addWorkerFactory(const WorkerFactory &workerFactory);
 
     void bringApplicationToForegroundInternal();
     Internal::RunControlPrivate *d;

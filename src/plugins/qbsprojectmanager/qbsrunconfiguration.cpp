@@ -34,7 +34,6 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/localapplicationruncontrol.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>

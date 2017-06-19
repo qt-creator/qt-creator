@@ -655,30 +655,6 @@ bool PythonProjectNode::renameFile(const QString &filePath, const QString &newFi
     return m_project->renameFile(filePath, newFilePath);
 }
 
-// PythonRunControlFactory
-
-class PythonRunControlFactory : public IRunControlFactory
-{
-public:
-    bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const override;
-    RunControl *create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage) override;
-};
-
-bool PythonRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
-{
-    auto rc = dynamic_cast<PythonRunConfiguration *>(runConfiguration);
-    return mode == ProjectExplorer::Constants::NORMAL_RUN_MODE && rc && !rc->interpreter().isEmpty();
-}
-
-RunControl *PythonRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
-{
-    Q_UNUSED(errorMessage)
-    QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-    auto runControl = new RunControl(runConfiguration, mode);
-    (void) new SimpleTargetRunner(runControl);
-    return runControl;
-}
-
 // PythonRunConfigurationWidget
 
 void PythonRunConfigurationWidget::setInterpreter(const QString &interpreter)
@@ -713,7 +689,12 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
 
     addAutoReleasedObject(new PythonEditorFactory);
     addAutoReleasedObject(new PythonRunConfigurationFactory);
-    addAutoReleasedObject(new PythonRunControlFactory);
+
+    auto constraint = [](RunConfiguration *runConfiguration) {
+        auto rc = dynamic_cast<PythonRunConfiguration *>(runConfiguration);
+        return  rc && !rc->interpreter().isEmpty();
+    };
+    RunControl::registerWorker<SimpleTargetRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE, constraint);
 
     return true;
 }

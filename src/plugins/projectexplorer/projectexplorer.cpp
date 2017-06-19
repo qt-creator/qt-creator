@@ -52,7 +52,6 @@
 #include "copytaskhandler.h"
 #include "showineditortaskhandler.h"
 #include "vcsannotatetaskhandler.h"
-#include "localapplicationruncontrol.h"
 #include "allprojectsfilter.h"
 #include "allprojectsfind.h"
 #include "buildmanager.h"
@@ -644,7 +643,19 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new AllProjectsFind);
     addAutoReleasedObject(new CurrentProjectFind);
 
-    addAutoReleasedObject(new LocalApplicationRunControlFactory);
+    auto constraint = [](RunConfiguration *runConfiguration) {
+        const Runnable runnable = runConfiguration->runnable();
+        if (!runnable.is<StandardRunnable>())
+            return false;
+        const IDevice::ConstPtr device = runnable.as<StandardRunnable>().device;
+        if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+            return true;
+        Target *target = runConfiguration ? runConfiguration->target() : nullptr;
+        Kit *kit = target ? target->kit() : nullptr;
+        return DeviceTypeKitInformation::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+    };
+    RunControl::registerWorker<SimpleTargetRunner>(Constants::NORMAL_RUN_MODE, constraint);
+
     addAutoReleasedObject(new CustomExecutableRunConfigurationFactory);
 
     addAutoReleasedObject(new ProjectFileWizardExtension);
@@ -1972,12 +1983,30 @@ void ProjectExplorerPluginPrivate::buildStateChanged(Project * pro)
 }
 
 // NBS TODO implement more than one runner
-static IRunControlFactory *findRunControlFactory(RunConfiguration *config, Core::Id mode)
+using RunControlFactory = std::function<RunControl *(RunConfiguration *, Core::Id, QString *)>;
+
+static RunControlFactory findRunControlFactory(RunConfiguration *config, Core::Id mode)
 {
-    return ExtensionSystem::PluginManager::getObject<IRunControlFactory>(
+    if (auto producer = RunControl::producer(config, mode)) {
+        return [producer, config](RunConfiguration *rc, Id runMode, QString *) {
+            auto runControl = new RunControl(rc, runMode);
+            (void) producer(runControl);
+            return runControl;
+        };
+    }
+
+    IRunControlFactory *runControlFactory = ExtensionSystem::PluginManager::getObject<IRunControlFactory>(
         [&config, &mode](IRunControlFactory *factory) {
             return factory->canRun(config, mode);
         });
+
+    if (runControlFactory) {
+        return [runControlFactory](RunConfiguration *rc, Id runMode, QString *errorMessage) {
+            return runControlFactory->create(rc, runMode, errorMessage);
+        };
+    }
+
+    return {};
 }
 
 void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfiguration, Core::Id runMode)
@@ -1997,11 +2026,11 @@ void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *run
         }
     }
 
-    if (IRunControlFactory *runControlFactory = findRunControlFactory(runConfiguration, runMode)) {
+    if (RunControlFactory runControlFactory = findRunControlFactory(runConfiguration, runMode)) {
         emit m_instance->aboutToExecuteProject(runConfiguration->target()->project(), runMode);
 
         QString errorMessage;
-        RunControl *control = runControlFactory->create(runConfiguration, runMode, &errorMessage);
+        RunControl *control = runControlFactory(runConfiguration, runMode, &errorMessage);
         if (!control) {
             m_instance->showRunErrorMessage(errorMessage);
             return;

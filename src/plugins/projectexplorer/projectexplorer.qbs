@@ -94,7 +94,6 @@ Project {
                 "kitoptionspage.cpp", "kitoptionspage.h",
                 "ldparser.cpp", "ldparser.h",
                 "linuxiccparser.cpp", "linuxiccparser.h",
-                "localapplicationruncontrol.cpp", "localapplicationruncontrol.h",
                 "localenvironmentaspect.cpp", "localenvironmentaspect.h",
                 "miniprojecttargetselector.cpp", "miniprojecttargetselector.h",
                 "msvcparser.cpp", "msvcparser.h",

@@ -479,6 +479,35 @@ IRunControlFactory::IRunControlFactory(QObject *parent)
 {
 }
 
+using WorkerFactories = std::vector<RunControl::WorkerFactory>;
+
+static WorkerFactories &theWorkerFactories()
+{
+    static WorkerFactories factories;
+    return factories;
+}
+
+bool IRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id runMode) const
+{
+    for (const RunControl::WorkerFactory &factory : theWorkerFactories()) {
+        if (factory.runMode == runMode && factory.constraint(runConfiguration))
+            return true;
+    };
+    return false;
+}
+
+RunControl *IRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id runMode, QString *)
+{
+    for (const RunControl::WorkerFactory &factory : theWorkerFactories()) {
+        if (factory.runMode == runMode && factory.constraint(runConfiguration)) {
+            auto runControl = new RunControl(runConfiguration, runMode);
+            factory.producer(runControl);
+            return runControl;
+        }
+    };
+    return nullptr;
+}
+
 /*!
     Returns an IRunConfigurationAspect to carry options for RunControls this
     factory can create.
@@ -628,6 +657,7 @@ public:
     QPointer<Project> project; // Not owned.
     Utils::OutputFormatter *outputFormatter = nullptr;
     std::function<bool(bool*)> promptToStop;
+    std::vector<RunControl::WorkerFactory> m_factories;
 
     // A handle to the actual application process.
     Utils::ProcessHandle applicationProcessHandle;
@@ -724,13 +754,27 @@ RunWorker *RunControl::createWorker(Core::Id id)
 {
     auto keys = theWorkerCreators().keys();
     Q_UNUSED(keys);
-    RunWorkerCreator creator = theWorkerCreators().value(id);
+    Producer creator = theWorkerCreators().value(id);
     if (creator)
         return creator(this);
     creator = device()->workerCreator(id);
     if (creator)
         return creator(this);
     return nullptr;
+}
+
+RunControl::Producer RunControl::producer(RunConfiguration *runConfiguration, Core::Id runMode)
+{
+    for (const auto &factory : theWorkerFactories()) {
+        if (factory.runMode == runMode && factory.constraint(runConfiguration))
+            return factory.producer;
+    }
+    return {};
+}
+
+void RunControl::addWorkerFactory(const RunControl::WorkerFactory &workerFactory)
+{
+    theWorkerFactories().push_back(workerFactory);
 }
 
 void RunControlPrivate::initiateStart()

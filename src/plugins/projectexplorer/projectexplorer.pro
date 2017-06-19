@@ -99,7 +99,6 @@ HEADERS += projectexplorer.h \
     processparameters.h \
     abstractprocessstep.h \
     taskhub.h \
-    localapplicationruncontrol.h \
     headerpath.h \
     gcctoolchainfactories.h \
     appoutputpane.h \
@@ -243,7 +242,6 @@ SOURCES += projectexplorer.cpp \
     buildconfigurationmodel.cpp \
     taskhub.cpp \
     processparameters.cpp \
-    localapplicationruncontrol.cpp \
     appoutputpane.cpp \
     codestylesettingspropertiespage.cpp \
     settingsaccessor.cpp \

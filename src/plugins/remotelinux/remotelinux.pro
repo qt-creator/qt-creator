@@ -16,7 +16,6 @@ HEADERS += \
     genericlinuxdeviceconfigurationfactory.h \
     remotelinuxrunconfigurationwidget.h \
     remotelinuxrunconfigurationfactory.h \
-    remotelinuxruncontrolfactory.h \
     remotelinuxdebugsupport.h \
     genericlinuxdeviceconfigurationwizardpages.h \
     abstractremotelinuxdeploystep.h \
@@ -63,7 +62,6 @@ SOURCES += \
     genericlinuxdeviceconfigurationfactory.cpp \
     remotelinuxrunconfigurationwidget.cpp \
     remotelinuxrunconfigurationfactory.cpp \
-    remotelinuxruncontrolfactory.cpp \
     remotelinuxdebugsupport.cpp \
     genericlinuxdeviceconfigurationwizardpages.cpp \
     abstractremotelinuxdeploystep.cpp \
