@@ -243,6 +243,10 @@ CMakeConfig TeaLeafReader::takeParsedConfiguration()
 {
     FileName cacheFile = m_parameters.buildDirectory;
     cacheFile.appendPath(QLatin1String("CMakeCache.txt"));
+
+    if (!cacheFile.exists())
+        return { };
+
     QString errorMessage;
     CMakeConfig result = BuildDirManager::parseConfiguration(cacheFile, &errorMessage);
 
