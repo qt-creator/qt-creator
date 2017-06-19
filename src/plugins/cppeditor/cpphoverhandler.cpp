@@ -72,7 +72,8 @@ bool editorDocumentProcessorHasDiagnosticAt(TextEditorWidget *editorWidget, int 
 
 void processWithEditorDocumentProcessor(TextEditorWidget *editorWidget,
                                         const QPoint &point,
-                                        int position)
+                                        int position,
+                                        const QString &helpId)
 {
     if (CppTools::BaseEditorDocumentProcessor *processor = editorDocumentProcessor(editorWidget)) {
         int line, column;
@@ -81,7 +82,7 @@ void processWithEditorDocumentProcessor(TextEditorWidget *editorWidget,
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(2);
             processor->addDiagnosticToolTipToLayout(line, column, layout);
-            Utils::ToolTip::show(point, layout, editorWidget);
+            Utils::ToolTip::show(point, layout, editorWidget, helpId);
         }
     }
 }
@@ -174,10 +175,15 @@ void CppHoverHandler::decorateToolTip()
 void CppHoverHandler::operateTooltip(TextEditor::TextEditorWidget *editorWidget,
                                      const QPoint &point)
 {
-    if (m_positionForEditorDocumentProcessor != -1)
-        processWithEditorDocumentProcessor(editorWidget, point, m_positionForEditorDocumentProcessor);
-    else
+    if (m_positionForEditorDocumentProcessor == -1) {
         BaseHoverHandler::operateTooltip(editorWidget, point);
+        return;
+    }
+
+    const HelpItem helpItem = lastHelpItemIdentified();
+    const QString helpId = helpItem.isValid() ? helpItem.helpId() : QString();
+    processWithEditorDocumentProcessor(editorWidget, point, m_positionForEditorDocumentProcessor,
+                                       helpId);
 }
 
 } // namespace Internal
