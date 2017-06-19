@@ -104,6 +104,8 @@ private:
     void ctor(ProjectExplorer::BuildStepList *bsl);
 
     void runImpl(QFutureInterface<bool> &fi);
+    void handleCMakeError(QFutureInterface<bool> &fi, const QString& errorMessage);
+    void disconnectTriggers();
 
     void handleBuildTargetChanges();
     CMakeRunConfiguration *targetsActiveRunConfiguration() const;

@@ -267,7 +267,7 @@ void CMakeBuildStep::run(QFutureInterface<bool> &fi)
         m_runTrigger = connect(bc, &CMakeBuildConfiguration::dataAvailable,
                                this, [this, &fi]() { runImpl(fi); });
         m_errorTrigger = connect(bc, &CMakeBuildConfiguration::errorOccured,
-                                 this, [this, &fi]() { reportRunResult(fi, false); });
+                                 this, [this, &fi](const QString& em) { handleCMakeError(fi, em); });
     } else {
         runImpl(fi);
     }
@@ -276,10 +276,21 @@ void CMakeBuildStep::run(QFutureInterface<bool> &fi)
 void CMakeBuildStep::runImpl(QFutureInterface<bool> &fi)
 {
     // Do the actual build:
+    disconnectTriggers();
+    AbstractProcessStep::run(fi);
+}
+
+void CMakeBuildStep::handleCMakeError(QFutureInterface<bool> &fi, const QString& errorMessage)
+{
+    disconnectTriggers();
+    AbstractProcessStep::stdError(tr("Error parsing CMake: %1\n").arg(errorMessage));
+    reportRunResult(fi, false);
+}
+
+void CMakeBuildStep::disconnectTriggers()
+{
     disconnect(m_runTrigger);
     disconnect(m_errorTrigger);
-
-    AbstractProcessStep::run(fi);
 }
 
 BuildStepConfigWidget *CMakeBuildStep::createConfigWidget()
