@@ -1872,24 +1872,6 @@ QString templateNameAsString(const TemplateNameId *templateName)
     return QString::fromUtf8(id->chars(), id->size());
 }
 
-// For templates, simply the name is returned, without '<...>'.
-QString unqualifiedNameForLocator(const Name *name)
-{
-    QTC_ASSERT(name, return QString());
-
-    const Overview oo;
-    if (const QualifiedNameId *qualifiedName = name->asQualifiedNameId()) {
-        const Name *name = qualifiedName->name();
-        if (const TemplateNameId *templateName = name->asTemplateNameId())
-            return templateNameAsString(templateName);
-        return oo.prettyName(name);
-    } else if (const TemplateNameId *templateName = name->asTemplateNameId()) {
-        return templateNameAsString(templateName);
-    } else {
-        return oo.prettyName(name);
-    }
-}
-
 Snapshot forwardingHeaders(const CppQuickFixInterface &interface)
 {
     Snapshot result;
@@ -1909,6 +1891,44 @@ bool looksLikeAQtClass(const QString &identifier)
         && identifier.at(1).isUpper();
 }
 
+bool matchName(const Name *name, QList<Core::LocatorFilterEntry> *matches, QString *className) {
+    if (!name)
+        return false;
+
+    if (CppClassesFilter *classesFilter
+            = ExtensionSystem::PluginManager::getObject<CppClassesFilter>()) {
+        QFutureInterface<Core::LocatorFilterEntry> dummy;
+
+        const Overview oo;
+        if (const QualifiedNameId *qualifiedName = name->asQualifiedNameId()) {
+            const Name *name = qualifiedName->name();
+            if (const TemplateNameId *templateName = name->asTemplateNameId()) {
+                *className = templateNameAsString(templateName);
+            } else {
+                *className = oo.prettyName(name);
+                *matches = classesFilter->matchesFor(dummy, *className);
+                if (matches->empty()) {
+                    if (const Name *name = qualifiedName->base()) {
+                        if (const TemplateNameId *templateName = name->asTemplateNameId())
+                            *className = templateNameAsString(templateName);
+                        else
+                            *className = oo.prettyName(name);
+                    }
+                }
+            }
+        } else if (const TemplateNameId *templateName = name->asTemplateNameId()) {
+            *className = templateNameAsString(templateName);
+        } else {
+            *className = oo.prettyName(name);
+        }
+
+        if (matches->empty())
+            *matches = classesFilter->matchesFor(dummy, *className);
+    }
+
+    return !matches->empty();
+}
+
 } // anonymous namespace
 
 void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interface,
@@ -1921,20 +1941,14 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     if (canLookupDefinition(interface, nameAst))
         return;
 
-    const QString className = unqualifiedNameForLocator(nameAst->name);
-    if (className.isEmpty())
-        return;
-
+    QString className;
+    QList<Core::LocatorFilterEntry> matches;
     const QString currentDocumentFilePath = interface.semanticInfo().doc->fileName();
     const ProjectPartHeaderPaths headerPaths = relevantHeaderPaths(currentDocumentFilePath);
     bool qtHeaderFileIncludeOffered = false;
 
     // Find an include file through the locator
-    if (CppClassesFilter *classesFilter
-            = ExtensionSystem::PluginManager::getObject<CppClassesFilter>()) {
-        QFutureInterface<Core::LocatorFilterEntry> dummy;
-        const QList<Core::LocatorFilterEntry> matches = classesFilter->matchesFor(dummy, className);
-
+    if (matchName(nameAst->name, &matches, &className)) {
         const Snapshot forwardHeaders = forwardingHeaders(interface);
         foreach (const Core::LocatorFilterEntry &entry, matches) {
             IndexItem::Ptr info = entry.internalData.value<IndexItem::Ptr>();
@@ -1970,6 +1984,9 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
             }
         }
     }
+
+    if (className.isEmpty())
+        return;
 
     // The header file we are looking for might not be (yet) included in any file we have parsed.
     // As such, it will not be findable via locator. At least for Qt classes, check also for
