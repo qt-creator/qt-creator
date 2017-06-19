@@ -53,7 +53,6 @@ private:
     void progressReport(const QString &progressOutput);
     void appRunnerError(const QString &error);
 
-    void adapterSetupDone();
     void adapterSetupFailed(const QString &error);
 
     void startExecution();

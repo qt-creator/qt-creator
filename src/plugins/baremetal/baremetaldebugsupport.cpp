@@ -33,7 +33,6 @@
 
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerkitinformation.h>
-#include <debugger/analyzer/analyzermanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
@@ -175,7 +174,7 @@ void BareMetalDebugSupport::remoteErrorOutputMessage(const QByteArray &output)
 void BareMetalDebugSupport::remoteProcessStarted()
 {
     QTC_ASSERT(m_state == StartingRunner, return);
-    adapterSetupDone();
+    m_state = Running;
 }
 
 void BareMetalDebugSupport::appRunnerFinished(bool success)
@@ -187,10 +186,7 @@ void BareMetalDebugSupport::appRunnerFinished(bool success)
         if (!success)
             notifyInferiorIll();
     } else if (m_state == StartingRunner) {
-        Debugger::RemoteSetupResult result;
-        result.success = false;
-        result.reason = tr("Debugging failed.");
-        notifyEngineRemoteSetupFinished(result);
+        reportFailure(tr("Debugging failed."));
     }
 
     reset();
@@ -211,22 +207,10 @@ void BareMetalDebugSupport::appRunnerError(const QString &error)
     }
 }
 
-void BareMetalDebugSupport::adapterSetupDone()
-{
-    m_state = Running;
-    Debugger::RemoteSetupResult result;
-    result.success = true;
-    notifyEngineRemoteSetupFinished(result);
-}
-
 void BareMetalDebugSupport::adapterSetupFailed(const QString &error)
 {
     debuggingFinished();
-
-    Debugger::RemoteSetupResult result;
-    result.success = false;
-    result.reason = tr("Initial setup failed: %1").arg(error);
-    notifyEngineRemoteSetupFinished(result);
+    reportFailure(tr("Initial setup failed: %1").arg(error));
 }
 
 void BareMetalDebugSupport::setFinished()
