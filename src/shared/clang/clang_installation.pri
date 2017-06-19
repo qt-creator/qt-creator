@@ -114,6 +114,7 @@ isEmpty(LLVM_VERSION): error("Cannot determine clang version at $$LLVM_INSTALL_D
     error("LLVM/Clang version >= 3.9.0 required, version provided: $$LLVM_VERSION")
 }
 
+# Remove unwanted flags. It is a workaround for linking. It is not intended for cross compiler linking.
 LLVM_CXXFLAGS = $$system($$llvm_config --cxxflags, lines)
 LLVM_CXXFLAGS ~= s,-fno-exceptions,
 LLVM_CXXFLAGS ~= s,-std=c++11,
@@ -126,6 +127,7 @@ LLVM_CXXFLAGS ~= s,-Werror=date-time,
 LLVM_CXXFLAGS ~= s,-Wcovered-switch-default,
 LLVM_CXXFLAGS ~= s,-fPIC,
 LLVM_CXXFLAGS ~= s,-pedantic,
+LLVM_CXXFLAGS ~= s,-Wstring-conversion,
 # split-dwarf needs objcopy which does not work via icecc out-of-the-box
 LLVM_CXXFLAGS ~= s,-gsplit-dwarf,
 
