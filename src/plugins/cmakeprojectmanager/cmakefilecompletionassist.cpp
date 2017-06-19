@@ -47,11 +47,6 @@ using namespace ProjectExplorer;
 // CMakeFileCompletionAssistProvider
 // -------------------------------
 
-bool CMakeFileCompletionAssistProvider::supportsEditor(Core::Id editorId) const
-{
-    return editorId == CMakeProjectManager::Constants::CMAKE_EDITOR_ID;
-}
-
 IAssistProcessor *CMakeFileCompletionAssistProvider::createProcessor() const
 {
     return new CMakeFileCompletionAssist;

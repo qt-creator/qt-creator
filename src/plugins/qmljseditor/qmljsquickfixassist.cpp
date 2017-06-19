@@ -78,11 +78,6 @@ IAssistProvider::RunType QmlJSQuickFixAssistProvider::runType() const
     return Synchronous;
 }
 
-bool QmlJSQuickFixAssistProvider::supportsEditor(Core::Id editorId) const
-{
-    return editorId == Constants::C_QMLJSEDITOR_ID;
-}
-
 IAssistProcessor *QmlJSQuickFixAssistProvider::createProcessor() const
 {
     return new QuickFixAssistProcessor(this);

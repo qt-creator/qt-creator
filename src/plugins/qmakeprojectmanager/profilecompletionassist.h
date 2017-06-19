@@ -40,7 +40,6 @@ public:
     void init();
     ~ProFileCompletionAssistProvider();
 
-    bool supportsEditor(Core::Id editorId) const override;
     TextEditor::IAssistProcessor *createProcessor() const override;
     QStringList variables() const;
     QStringList functions() const;

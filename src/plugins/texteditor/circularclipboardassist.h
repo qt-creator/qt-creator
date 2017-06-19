@@ -36,7 +36,6 @@ class ClipboardAssistProvider: public IAssistProvider
 public:
     ClipboardAssistProvider(QObject *parent = 0) : IAssistProvider(parent) {}
     IAssistProvider::RunType runType() const override;
-    bool supportsEditor(Core::Id editorId) const override;
     IAssistProcessor *createProcessor() const override;
 };
 

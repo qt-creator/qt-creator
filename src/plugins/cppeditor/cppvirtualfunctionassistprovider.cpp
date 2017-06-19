@@ -207,11 +207,6 @@ IAssistProvider::RunType VirtualFunctionAssistProvider::runType() const
     return AsynchronousWithThread;
 }
 
-bool VirtualFunctionAssistProvider::supportsEditor(Core::Id editorId) const
-{
-    return editorId == Constants::CPPEDITOR_ID;
-}
-
 IAssistProcessor *VirtualFunctionAssistProvider::createProcessor() const
 {
     return new VirtualFunctionAssistProcessor(m_params);

@@ -84,7 +84,6 @@ class GlslCompletionAssistProvider : public TextEditor::CompletionAssistProvider
     Q_OBJECT
 
 public:
-    bool supportsEditor(Core::Id editorId) const override;
     TextEditor::IAssistProcessor *createProcessor() const override;
 
     int activationCharSequenceLength() const override;

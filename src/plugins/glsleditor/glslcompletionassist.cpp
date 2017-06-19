@@ -194,11 +194,6 @@ static QIcon glslIcon(IconTypes iconType)
 // ----------------------------
 // GlslCompletionAssistProvider
 // ----------------------------
-bool GlslCompletionAssistProvider::supportsEditor(Core::Id editorId) const
-{
-    return editorId == Constants::C_GLSLEDITOR_ID;
-}
-
 IAssistProcessor *GlslCompletionAssistProvider::createProcessor() const
 {
     return new GlslCompletionAssistProcessor;

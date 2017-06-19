@@ -863,11 +863,6 @@ void FakeVimUserCommandsPage::apply()
 class FakeVimCompletionAssistProvider : public CompletionAssistProvider
 {
 public:
-    bool supportsEditor(Id ) const
-    {
-        return false;
-    }
-
     IAssistProcessor *createProcessor() const;
 
     void setActive(const QString &needle, bool forward, FakeVimHandler *handler)
