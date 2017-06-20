@@ -113,7 +113,7 @@ void ServerModeReader::setParameters(const BuildDirReader::Parameters &p)
             const QStringList lines = m.split('\n');
             for (const QString &l : lines) {
                 m_parser.stdError(l);
-                Core::MessageManager::write(l + "\n");
+                Core::MessageManager::write(l);
             }
         });
         connect(m_cmakeServer.get(), &ServerMode::message,
