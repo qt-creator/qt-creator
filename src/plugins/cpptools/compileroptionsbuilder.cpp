@@ -300,6 +300,7 @@ void CompilerOptionsBuilder::addDefineToAvoidIncludingGccOrMinGwIntrinsics()
     if (type == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
             || type == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID) {
         addDefine("#define _X86INTRIN_H_INCLUDED");
+        addDefine("#define BOOST_UUID_NO_SIMD");
     }
 }
 
