@@ -743,8 +743,6 @@ void AppOutputPane::slotRunControlFinished2(RunControl *sender)
     if (current && current == sender)
         enableButtons(current, false); // RunControl::isRunning() cannot be trusted in signal handler.
 
-    m_runControlTabs.at(senderIndex).window->setFormatter(nullptr); // Reset formater for this RC
-
     // Check for asynchronous close. Close the tab.
     if (m_runControlTabs.at(senderIndex).asyncClosing)
         closeTab(tabWidgetIndexOf(senderIndex), CloseTabNoPrompt);
