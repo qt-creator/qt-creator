@@ -161,6 +161,8 @@ QbsProject::~QbsProject()
         m_qbsUpdateFutureInterface = 0;
     }
     qDeleteAll(m_extraCompilers);
+    std::for_each(m_qbsDocuments.cbegin(), m_qbsDocuments.cend(),
+                  [](Core::IDocument *doc) { doc->deleteLater(); });
 }
 
 QbsRootProjectNode *QbsProject::rootProjectNode() const
@@ -974,7 +976,7 @@ void QbsProject::updateCppCodeModel()
             rpp.setDisplayName(grp.name());
             rpp.setProjectFileLocation(grp.location().filePath(),
                                        grp.location().line(), grp.location().column());
-            rpp.setBuildSystemTarget(uniqueProductName(prd));
+            rpp.setBuildSystemTarget(prd.name() + '|' + rpp.projectFile);
 
             QHash<QString, qbs::ArtifactData> filePathToSourceArtifact;
             bool hasCFiles = false;

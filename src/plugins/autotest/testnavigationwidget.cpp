@@ -42,6 +42,7 @@
 #include <utils/progressindicator.h>
 #include <utils/utilsicons.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <projectexplorer/buildmanager.h>
 
 #include <QAction>
 #include <QMenu>
@@ -113,7 +114,8 @@ TestNavigationWidget::~TestNavigationWidget()
 
 void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
 {
-    const bool enabled = !TestRunner::instance()->isTestRunning()
+    const bool enabled = !ProjectExplorer::BuildManager::isBuilding()
+            && !TestRunner::instance()->isTestRunning()
             && m_model->parser()->state() == TestCodeParser::Idle;
     const bool hasTests = m_model->hasTests();
 
@@ -170,8 +172,6 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
     connect(selectAll, &QAction::triggered, m_view, &TestTreeView::selectAll);
     connect(deselectAll, &QAction::triggered, m_view, &TestTreeView::deselectAll);
 
-    runAll->setEnabled(enabled && hasTests);
-    runSelected->setEnabled(enabled && hasTests);
     selectAll->setEnabled(enabled && hasTests);
     deselectAll->setEnabled(enabled && hasTests);
     rescan->setEnabled(enabled);

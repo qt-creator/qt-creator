@@ -119,7 +119,7 @@ Project::RestoreResult AutotoolsProject::fromMap(const QVariantMap &map, QString
 
 void AutotoolsProject::loadProjectTree()
 {
-    if (m_makefileParserThread != 0) {
+    if (m_makefileParserThread) {
         // The thread is still busy parsing a previus configuration.
         // Wait until the thread has been finished and delete it.
         // TODO: Discuss whether blocking is acceptable.
@@ -162,7 +162,7 @@ void AutotoolsProject::makefileParsingFinished()
         // The parsing has been cancelled by the user. Don't show any
         // project data at all.
         m_makefileParserThread->deleteLater();
-        m_makefileParserThread = 0;
+        m_makefileParserThread = nullptr;
         return;
     }
 
@@ -179,7 +179,7 @@ void AutotoolsProject::makefileParsingFinished()
     // Apply sources to m_files, which are returned at AutotoolsProject::files()
     const QFileInfo fileInfo = projectFilePath().toFileInfo();
     const QDir dir = fileInfo.absoluteDir();
-    QStringList files = m_makefileParserThread->sources();
+    const QStringList files = m_makefileParserThread->sources();
     foreach (const QString& file, files)
         m_files.append(dir.absoluteFilePath(file));
 
@@ -187,35 +187,36 @@ void AutotoolsProject::makefileParsingFinished()
     // has been changed, the project tree must be reparsed.
     const QStringList makefiles = m_makefileParserThread->makefiles();
     foreach (const QString &makefile, makefiles) {
-        files.append(makefile);
+        const QString absMakefile = dir.absoluteFilePath(makefile);
 
-        const QString watchedFile = dir.absoluteFilePath(makefile);
-        m_fileWatcher->addFile(watchedFile, Utils::FileSystemWatcher::WatchAllChanges);
-        m_watchedFiles.append(watchedFile);
+        m_files.append(absMakefile);
+
+        m_fileWatcher->addFile(absMakefile, Utils::FileSystemWatcher::WatchAllChanges);
+        m_watchedFiles.append(absMakefile);
     }
 
     // Add configure.ac file to project and watch for changes.
     const QLatin1String configureAc(QLatin1String("configure.ac"));
     const QFile configureAcFile(fileInfo.absolutePath() + QLatin1Char('/') + configureAc);
     if (configureAcFile.exists()) {
-        files.append(configureAc);
-        const QString configureAcFilePath = dir.absoluteFilePath(configureAc);
-        m_fileWatcher->addFile(configureAcFilePath, Utils::FileSystemWatcher::WatchAllChanges);
-        m_watchedFiles.append(configureAcFilePath);
+        const QString absConfigureAc = dir.absoluteFilePath(configureAc);
+        m_files.append(absConfigureAc);
+
+        m_fileWatcher->addFile(absConfigureAc, Utils::FileSystemWatcher::WatchAllChanges);
+        m_watchedFiles.append(absConfigureAc);
     }
 
     auto newRoot = new AutotoolsProjectNode(projectDirectory());
-    for (const QString &f : files) {
-        const Utils::FileName path = Utils::FileName::fromString(dir.absoluteFilePath(f));
-        FileType ft = (f == "Makefile.am" || f == "configure.ac") ? FileType::Project : FileType::Resource;
-        newRoot->addNestedNode(new FileNode(path, ft, false));
+    for (const QString &f : m_files) {
+        const Utils::FileName path = Utils::FileName::fromString(f);
+        newRoot->addNestedNode(new FileNode(path, FileNode::fileTypeForFileName(path), false));
     }
     setRootProjectNode(newRoot);
 
     updateCppCodeModel();
 
     m_makefileParserThread->deleteLater();
-    m_makefileParserThread = 0;
+    m_makefileParserThread = nullptr;
 
     emit parsingFinished();
 }

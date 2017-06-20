@@ -393,7 +393,7 @@ void CompilerOptionsBuilder::addDefineFloat128ForMingw()
     // CLANG-UPGRADE-CHECK: Workaround still needed?
     // https://llvm.org/bugs/show_bug.cgi?id=30685
     if (m_projectPart.toolchainType == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID)
-        addDefine("#define __float128 void");
+        addDefine("#define __float128 short");
 }
 
 QString CompilerOptionsBuilder::includeDirOption() const

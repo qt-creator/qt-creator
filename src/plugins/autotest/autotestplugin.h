@@ -60,7 +60,7 @@ private:
     void updateMenuItemsEnabledState();
     QList<QObject *> createTestObjects() const override;
     const QSharedPointer<TestSettings> m_settings;
-    TestFrameworkManager *m_frameworkManager = 0;
+    TestFrameworkManager *m_frameworkManager = nullptr;
 };
 
 } // namespace Internal

@@ -38,7 +38,7 @@ win32 {
                 --app-icon qtcreator \
                 --output-partial-info-plist $$shell_quote($(TMPDIR)/qtcreator.Info.plist) \
                 --platform macosx \
-                --minimum-deployment-target 10.7 \
+                --minimum-deployment-target $$QMAKE_MACOSX_DEPLOYMENT_TARGET \
                 --compile $$shell_quote($$IDE_DATA_PATH) \
                 $$shell_quote($$PWD/qtcreator.xcassets) > /dev/null
             ASSETCATALOG.input = ASSETCATALOG.files

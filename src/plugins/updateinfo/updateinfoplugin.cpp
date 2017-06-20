@@ -213,6 +213,7 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
     addAutoReleasedObject(new SettingsPage(this));
 
     QAction *checkForUpdatesAction = new QAction(tr("Check for Updates"), this);
+    checkForUpdatesAction->setMenuRole(QAction::ApplicationSpecificRole);
     Core::Command *checkForUpdatesCommand = Core::ActionManager::registerAction(checkForUpdatesAction, "Updates.CheckForUpdates");
     connect(checkForUpdatesAction, &QAction::triggered, this, &UpdateInfoPlugin::startCheckForUpdates);
     ActionContainer *const helpContainer = ActionManager::actionContainer(Core::Constants::M_HELP);

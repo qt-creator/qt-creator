@@ -110,6 +110,7 @@ public:
     virtual TestTreeItem *find(const TestParseResult *result) = 0;
     virtual bool modify(const TestParseResult *result) = 0;
 
+    virtual QSet<QString> internalTargets() const;
 protected:
     typedef std::function<bool(const TestTreeItem *)> CompareFunction;
     TestTreeItem *findChildBy(CompareFunction compare) const;

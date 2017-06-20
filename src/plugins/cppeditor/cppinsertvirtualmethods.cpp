@@ -588,7 +588,8 @@ public:
             for (Scope::iterator it = clazz->memberBegin(); it != clazz->memberEnd(); ++it) {
                 if (const Function *func = (*it)->type()->asFunctionType()) {
                     // Filter virtual destructors
-                    if (func->name()->asDestructorNameId())
+                    const Name *name = func->name();
+                    if (!name || name->asDestructorNameId())
                         continue;
 
                     const Function *firstVirtual = 0;

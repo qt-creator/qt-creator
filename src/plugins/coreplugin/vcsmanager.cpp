@@ -94,21 +94,6 @@ public:
         return nullptr;
     }
 
-    VcsInfo *findUpInCache(const QString &directory)
-    {
-        VcsInfo *result = nullptr;
-        const QChar slash = QLatin1Char('/');
-        // Split the path, trying to find the matching repository. We start from the reverse
-        // in order to detected nested repositories correctly (say, a git checkout under SVN).
-        for (int pos = directory.size() - 1; pos >= 0; pos = directory.lastIndexOf(slash, pos) - 1) {
-            const QString directoryPart = directory.left(pos);
-            result = findInCache(directoryPart);
-            if (result)
-                break;
-        }
-        return result;
-    }
-
     void clearCache()
     {
         m_cachedMatches.clear();

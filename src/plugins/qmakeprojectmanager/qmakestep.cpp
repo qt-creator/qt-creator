@@ -225,19 +225,18 @@ bool QMakeStep::init(QList<const BuildStep *> &earlierSteps)
         m_makeArguments.clear();
     }
 
-    QString makefile = workingDirectory;
+    QString makefile = workingDirectory + '/';
 
     if (qmakeBc->subNodeBuild()) {
         QmakeProFile *pro = qmakeBc->subNodeBuild()->proFile();
         if (pro && !pro->makefile().isEmpty())
             makefile.append(pro->makefile());
         else
-            makefile.append(QLatin1String("/Makefile"));
+            makefile.append("Makefile");
     } else if (!qmakeBc->makefile().isEmpty()) {
-        makefile.append(QLatin1Char('/'));
         makefile.append(qmakeBc->makefile());
     } else {
-        makefile.append(QLatin1String("/Makefile"));
+        makefile.append("Makefile");
     }
 
     // Check whether we need to run qmake
