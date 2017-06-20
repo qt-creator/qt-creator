@@ -77,7 +77,7 @@ private:
     CodeCompletion currentCodeCompletion_;
     CXCompletionResult currentCxCodeCompleteResult;
     CXCodeCompleteResults *cxCodeCompleteResults;
-    uint cxCodeCompleteResultIndex = -1;
+    uint cxCodeCompleteResultIndex = 0;
 };
 
 std::ostream &operator<<(std::ostream &os, const CodeCompletionsExtractor &extractor);

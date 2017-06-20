@@ -42,8 +42,6 @@ bool CodeCompletionsExtractor::next()
 {
     const uint cxCodeCompleteResultCount = cxCodeCompleteResults->NumResults;
 
-    ++cxCodeCompleteResultIndex;
-
     if (cxCodeCompleteResultIndex < cxCodeCompleteResultCount) {
         currentCxCodeCompleteResult = cxCodeCompleteResults->Results[cxCodeCompleteResultIndex];
 
@@ -58,6 +56,8 @@ bool CodeCompletionsExtractor::next()
         extractCompletionChunks();
         adaptPriority();
 
+        ++cxCodeCompleteResultIndex;
+
         return true;
     }
 
@@ -68,7 +68,7 @@ bool CodeCompletionsExtractor::peek(const Utf8String &name)
 {
     const uint cxCodeCompleteResultCount = cxCodeCompleteResults->NumResults;
 
-    uint peekCxCodeCompleteResultIndex = cxCodeCompleteResultIndex + 1;
+    uint peekCxCodeCompleteResultIndex = cxCodeCompleteResultIndex;
 
     while (peekCxCodeCompleteResultIndex < cxCodeCompleteResultCount) {
         if (hasText(name, cxCodeCompleteResults->Results[peekCxCodeCompleteResultIndex].CompletionString))
