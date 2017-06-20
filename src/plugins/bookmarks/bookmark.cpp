@@ -84,6 +84,8 @@ void Bookmark::updateFileName(const QString &fileName)
 void Bookmark::setNote(const QString &note)
 {
     setToolTip(note);
+    setLineAnnotation(note);
+    updateMarker();
 }
 
 void Bookmark::updateNote(const QString &note)

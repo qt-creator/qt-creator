@@ -73,6 +73,7 @@
 #include <coreplugin/manhattanstyle.h>
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/find/highlightscrollbar.h>
+#include <utils/algorithm.h>
 #include <utils/asconst.h>
 #include <utils/linecolumnlabel.h>
 #include <utils/fileutils.h>
@@ -279,6 +280,7 @@ public:
                            bool expanded,
                            bool active,
                            bool hovered) const;
+    void drawLineAnnotation(QPainter &painter, const QTextBlock &block);
 
     void toggleBlockVisible(const QTextBlock &block);
     QRect foldBox();
@@ -297,6 +299,7 @@ public:
     bool camelCaseLeft(QTextCursor &cursor, QTextCursor::MoveMode mode);
 
     void processTooltipRequest(const QTextCursor &c);
+    bool processAnnotaionTooltipRequest(const QTextBlock &block, const QPoint &pos) const;
 
     void transformSelection(TransformationMethod method);
     void transformBlockSelection(TransformationMethod method);
@@ -383,6 +386,13 @@ public:
     TextEditorOverlay *m_searchResultOverlay = nullptr;
     bool snippetCheckCursor(const QTextCursor &cursor);
     void snippetTabOrBacktab(bool forward);
+
+    struct AnnotationRect
+    {
+        QRectF rect;
+        const TextMark *mark;
+    };
+    QMap<int, QList<AnnotationRect>> m_annotationRects;
 
     RefactorOverlay *m_refactorOverlay = nullptr;
     QString m_contextHelpId;
@@ -3165,6 +3175,42 @@ void TextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
         highest->showToolTip(q, toolTipPoint);
 }
 
+bool TextEditorWidgetPrivate::processAnnotaionTooltipRequest(const QTextBlock &block,
+                                                             const QPoint &pos) const
+{
+    TextBlockUserData *blockUserData = TextDocumentLayout::testUserData(block);
+    if (!blockUserData)
+        return false;
+
+    for (const AnnotationRect &annotationRect : m_annotationRects[block.blockNumber()]) {
+        if (annotationRect.rect.contains(pos)) {
+            auto layout = new QGridLayout;
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(2);
+            annotationRect.mark->addToToolTipLayout(layout);
+            TextMarks marks = blockUserData->marks();
+            if (marks.size() > 1) {
+                QFrame* separator = new QFrame();
+                separator->setFrameShape(QFrame::HLine);
+                layout->addWidget(separator, 2, 0, 1, layout->columnCount());
+                layout->addWidget(new QLabel(tr("Other annotations:")), 3, 0, 1,
+                                  layout->columnCount());
+
+                Utils::sort(marks, [](const TextMark* mark1, const TextMark* mark2){
+                    return mark1->priority() > mark2->priority();
+                });
+                for (const TextMark *mark : Utils::asConst(marks)) {
+                    if (mark != annotationRect.mark)
+                        mark->addToToolTipLayout(layout);
+                }
+            }
+            ToolTip::show(q->mapToGlobal(pos), layout, q);
+            return true;
+        }
+    }
+    return false;
+}
+
 bool TextEditorWidget::viewportEvent(QEvent *event)
 {
     d->m_contentsChanged = false;
@@ -3192,10 +3238,14 @@ bool TextEditorWidget::viewportEvent(QEvent *event)
         QTC_CHECK(line.isValid());
         // Only handle tool tip for text cursor if mouse is within the block for the text cursor,
         // and not if the mouse is e.g. in the empty space behind a short line.
-        if (line.isValid()
-                && pos.x() <= blockBoundingGeometry(block).left() + line.naturalTextRect().right()) {
-            d->processTooltipRequest(tc);
-            return true;
+        if (line.isValid()) {
+            if (pos.x() <= blockBoundingGeometry(block).left() + line.naturalTextRect().right()) {
+                d->processTooltipRequest(tc);
+                return true;
+            } else if (d->processAnnotaionTooltipRequest(block, pos)) {
+                return true;
+            }
+            ToolTip::hide();
         }
     }
     return QPlainTextEdit::viewportEvent(event);
@@ -3632,6 +3682,52 @@ static QTextLayout::FormatRange createBlockCursorCharFormatRange(int pos, const 
     return o;
 }
 
+void TextEditorWidgetPrivate::drawLineAnnotation(QPainter &painter, const QTextBlock &block)
+{
+    if (!m_displaySettings.m_displayAnnotations)
+        return;
+
+    TextBlockUserData *blockUserData = TextDocumentLayout::testUserData(block);
+    if (!blockUserData)
+        return;
+
+    TextMarks marks = blockUserData->marks();
+    if (marks.isEmpty())
+        return;
+
+    const QTextLayout *layout = block.layout();
+    const int lineCount = layout->lineCount();
+    if (lineCount < 1)
+        return;
+    const QTextLine line = layout->lineAt(lineCount - 1);
+    const QPointF contentOffset = q->contentOffset();
+    const qreal top = q->blockBoundingGeometry(block).translated(contentOffset).top();
+    const QRectF lineRect =
+            line.naturalTextRect().translated(contentOffset.x(), top).adjusted(0, 0, -1, -1);
+
+    Utils::sort(marks, [](const TextMark* mark1, const TextMark* mark2){
+        return mark1->priority() > mark2->priority();
+    });
+
+    constexpr qreal itemOffset = 10;
+    qreal x = lineRect.right() + itemOffset;
+
+    const RefactorMarkers refactorMarkers = m_refactorOverlay->markers();
+    for (auto refactorMark : refactorMarkers) {
+        if (refactorMark.cursor.block() == block)
+            x = qMax(x, refactorMark.rect.right() + itemOffset);
+    }
+
+    for (const TextMark *mark : marks) {
+        QRectF annotationRect(x, lineRect.top(), q->viewport()->width() - x, lineRect.height());
+        if (annotationRect.width() <= 0)
+            break;
+        mark->paintAnnotation(&painter, &annotationRect, q->fontMetrics());
+        x += annotationRect.width() + itemOffset;
+        m_annotationRects[block.blockNumber()].append({annotationRect, mark});
+    }
+}
+
 void TextEditorWidget::paintEvent(QPaintEvent *e)
 {
     // draw backgrond to the right of the wrap column before everything else
@@ -3757,6 +3853,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
     int cursor_cpos = 0;
     QPen cursor_pen;
 
+    d->m_annotationRects.clear();
     d->m_searchResultOverlay->clear();
     if (!d->m_searchExpr.isEmpty()) { // first pass for the search result overlays
 
@@ -4272,6 +4369,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                 painter.restore();
             }
         }
+        d->drawLineAnnotation(painter, block);
 
         block = nextVisibleBlock;
         top = bottom;
@@ -4557,7 +4655,7 @@ void TextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
                         const int height = fmLineSpacing - 1;
                         const int width = int(.5 + height * mark->widthFactor());
                         const QRect r(xoffset, top, width, height);
-                        mark->paint(&painter, r);
+                        mark->paintIcon(&painter, r);
                         xoffset += 2;
                     }
                 }
@@ -8075,7 +8173,11 @@ IEditor *BaseTextEditor::duplicate()
     return 0;
 }
 
-
 } // namespace TextEditor
+
+uint qHash(const QColor &color)
+{
+    return color.rgba();
+}
 
 #include "texteditor.moc"

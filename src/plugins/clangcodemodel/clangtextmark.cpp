@@ -79,6 +79,7 @@ ClangTextMark::ClangTextMark(const QString &fileName,
     setPriority(warning ? TextEditor::TextMark::NormalPriority
                         : TextEditor::TextMark::HighPriority);
     setIcon(diagnostic.severity());
+    setLineAnnotation(diagnostic.text().toString());
 }
 
 void ClangTextMark::setIcon(ClangBackEnd::DiagnosticSeverity severity)
@@ -96,7 +97,7 @@ void ClangTextMark::setIcon(ClangBackEnd::DiagnosticSeverity severity)
         TextMark::setIcon(errorIcon);
 }
 
-bool ClangTextMark::addToolTipContent(QLayout *target)
+bool ClangTextMark::addToolTipContent(QLayout *target) const
 {
     using Internal::ClangDiagnosticWidget;
 

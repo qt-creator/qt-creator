@@ -63,7 +63,8 @@ public:
     QString fileName() const;
     int lineNumber() const;
 
-    virtual void paint(QPainter *painter, const QRect &rect) const;
+    virtual void paintIcon(QPainter *painter, const QRect &rect) const;
+    virtual void paintAnnotation(QPainter *painter, QRectF *annotationRect, const QFontMetrics &fm) const;
     /// called if the filename of the document changed
     virtual void updateFileName(const QString &fileName);
     virtual void updateLineNumber(int lineNumber);
@@ -74,8 +75,8 @@ public:
     virtual void clicked();
     virtual bool isDraggable() const;
     virtual void dragToLine(int lineNumber);
-    void addToToolTipLayout(QGridLayout *target);
-    virtual bool addToolTipContent(QLayout *target);
+    void addToToolTipLayout(QGridLayout *target) const;
+    virtual bool addToolTipContent(QLayout *target) const;
 
     void setIcon(const QIcon &icon) { m_icon = icon; }
     const QIcon &icon() const { return m_icon; }
@@ -99,6 +100,9 @@ public:
     TextDocument *baseTextDocument() const { return m_baseTextDocument; }
     void setBaseTextDocument(TextDocument *baseTextDocument) { m_baseTextDocument = baseTextDocument; }
 
+    QString lineAnnotation() const { return m_lineAnnotation; }
+    void setLineAnnotation(const QString &lineAnnotation) { m_lineAnnotation = lineAnnotation; }
+
     QString toolTip() const { return m_toolTip; }
     void setToolTip(const QString &toolTip) { m_toolTip = toolTip; }
 
@@ -115,6 +119,7 @@ private:
     bool m_hasColor = false;
     Core::Id m_category;
     double m_widthFactor = 1.0;
+    QString m_lineAnnotation;
     QString m_toolTip;
     QString m_defaultToolTip;
 };

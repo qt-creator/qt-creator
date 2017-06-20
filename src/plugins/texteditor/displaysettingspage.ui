@@ -80,17 +80,10 @@
       <string>Display</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="1" column="0">
-       <widget class="QCheckBox" name="displayFoldingMarkers">
+      <item row="4" column="1">
+       <widget class="QCheckBox" name="highlightMatchingParentheses">
         <property name="text">
-         <string>Display &amp;folding markers</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QCheckBox" name="centerOnScroll">
-        <property name="text">
-         <string>Center &amp;cursor on scroll</string>
+         <string>&amp;Highlight matching parentheses</string>
         </property>
        </widget>
       </item>
@@ -98,20 +91,6 @@
        <widget class="QCheckBox" name="highlightBlocks">
         <property name="text">
          <string>Highlight &amp;blocks</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QCheckBox" name="autoFoldFirstComment">
-        <property name="text">
-         <string>Auto-fold first &amp;comment</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QCheckBox" name="animateMatchingParentheses">
-        <property name="text">
-         <string>&amp;Animate matching parentheses</string>
         </property>
        </widget>
       </item>
@@ -129,6 +108,20 @@
         </property>
        </widget>
       </item>
+      <item row="6" column="0">
+       <widget class="QCheckBox" name="autoFoldFirstComment">
+        <property name="text">
+         <string>Auto-fold first &amp;comment</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QCheckBox" name="animateMatchingParentheses">
+        <property name="text">
+         <string>&amp;Animate matching parentheses</string>
+        </property>
+       </widget>
+      </item>
       <item row="5" column="1">
        <widget class="QCheckBox" name="openLinksInNextSplit">
         <property name="text">
@@ -143,6 +136,13 @@
         </property>
        </widget>
       </item>
+      <item row="5" column="0">
+       <widget class="QCheckBox" name="centerOnScroll">
+        <property name="text">
+         <string>Center &amp;cursor on scroll</string>
+        </property>
+       </widget>
+      </item>
       <item row="4" column="0">
        <widget class="QCheckBox" name="visualizeWhitespace">
         <property name="toolTip">
@@ -153,17 +153,17 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QCheckBox" name="highlightMatchingParentheses">
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="displayFoldingMarkers">
         <property name="text">
-         <string>&amp;Highlight matching parentheses</string>
+         <string>Display &amp;folding markers</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="markTextChanges">
+      <item row="7" column="1">
+       <widget class="QCheckBox" name="animateNavigationWithinFile">
         <property name="text">
-         <string>Mark &amp;text changes</string>
+         <string>Animate navigation within file</string>
         </property>
        </widget>
       </item>
@@ -174,10 +174,17 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="1">
-       <widget class="QCheckBox" name="animateNavigationWithinFile">
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="markTextChanges">
         <property name="text">
-         <string>Animate navigation within file</string>
+         <string>Mark &amp;text changes</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QCheckBox" name="displayAnnotations">
+        <property name="text">
+         <string>Display annotations behind lines</string>
         </property>
        </widget>
       </item>
@@ -197,12 +204,14 @@
   <tabstop>centerOnScroll</tabstop>
   <tabstop>autoFoldFirstComment</tabstop>
   <tabstop>scrollBarHighlights</tabstop>
+  <tabstop>displayAnnotations</tabstop>
   <tabstop>highlightCurrentLine</tabstop>
   <tabstop>highlightBlocks</tabstop>
   <tabstop>animateMatchingParentheses</tabstop>
   <tabstop>highlightMatchingParentheses</tabstop>
   <tabstop>openLinksInNextSplit</tabstop>
   <tabstop>displayFileEncoding</tabstop>
+  <tabstop>animateNavigationWithinFile</tabstop>
  </tabstops>
  <resources/>
  <connections>
