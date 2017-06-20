@@ -170,15 +170,20 @@ std::function<bool (const CMakeConfigItem &a, const CMakeConfigItem &b)> CMakeCo
 
 CMakeConfigItem CMakeConfigItem::fromString(const QString &s)
 {
-    // Strip comments:
+    // Strip comments (only at start of line!):
     int commentStart = s.count();
-    int pos = s.indexOf(QLatin1Char('#'));
-    if (pos >= 0)
-        commentStart = pos;
-    pos = s.indexOf(QLatin1String("//"));
-    if (pos >= 0 && pos < commentStart)
-        commentStart = pos;
-
+    for (int i = 0; i < s.count(); ++i) {
+        const QChar c = s.at(i);
+        if (c == ' ' || c == '\t')
+            continue;
+        else if ((c == '#')
+                 || (c == '/' && i < s.count() - 1 && s.at(i + 1) == '/')) {
+            commentStart = i;
+            break;
+        } else {
+            break;
+        }
+    }
     const QString line = s.mid(0, commentStart);
 
     // Split up line:
