@@ -25,22 +25,26 @@
 
 #include "androidplugin.h"
 
-#include "androidconstants.h"
+#include "androidanalyzesupport.h"
 #include "androidconfigurations.h"
+#include "androidconstants.h"
+#include "androiddebugsupport.h"
+#include "androiddeployconfiguration.h"
 #include "androiddeployqtstep.h"
 #include "androiddevice.h"
 #include "androiddevicefactory.h"
-#include "androidmanager.h"
-#include "androidrunfactories.h"
-#include "androidsettingspage.h"
-#include "androidtoolchain.h"
-#include "androidqtversionfactory.h"
-#include "androiddeployconfiguration.h"
 #include "androidgdbserverkitinformation.h"
+#include "androidmanager.h"
 #include "androidmanifesteditorfactory.h"
 #include "androidpotentialkit.h"
+#include "androidqtversionfactory.h"
+#include "androidrunconfiguration.h"
+#include "androidruncontrol.h"
+#include "androidsettingspage.h"
+#include "androidtoolchain.h"
 #include "javacompletionassistprovider.h"
 #include "javaeditor.h"
+
 #ifdef HAVE_QBS
 #  include "androidqbspropertyprovider.h"
 #endif
@@ -55,6 +59,8 @@
 #include <QtPlugin>
 
 using namespace ProjectExplorer;
+using namespace ProjectExplorer::Constants;
+using namespace Android::Internal;
 
 namespace Android {
 
@@ -66,9 +72,13 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
 
+    RunControl::registerWorker<AndroidRunConfiguration, AndroidRunSupport>(NORMAL_RUN_MODE);
+    RunControl::registerWorker<AndroidRunConfiguration, AndroidDebugSupport>(DEBUG_RUN_MODE);
+    RunControl::registerWorker<AndroidRunConfiguration, AndroidDebugSupport>(DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN);
+    RunControl::registerWorker<AndroidRunConfiguration, AndroidQmlProfilerSupport>(QML_PROFILER_RUN_MODE);
+
     new AndroidConfigurations(this);
 
-    addAutoReleasedObject(new Internal::AndroidRunControlFactory);
     addAutoReleasedObject(new Internal::AndroidDeployQtStepFactory);
     addAutoReleasedObject(new Internal::AndroidSettingsPage);
     addAutoReleasedObject(new Internal::AndroidQtVersionFactory);

@@ -25,13 +25,10 @@
 
 #pragma once
 
-#include <android/androidrunfactories.h>
 #include <projectexplorer/runconfiguration.h>
 #include <qmakeprojectmanager/qmakerunconfigurationfactory.h>
 
 namespace ProjectExplorer {
-class RunControl;
-class RunConfigWidget;
 class Target;
 class Node;
 } // namespace ProjectExplorer
