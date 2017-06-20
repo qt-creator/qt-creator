@@ -45,6 +45,7 @@ public:
 
         QString key;
         Type type = STRING;
+        bool isHidden = false;
         bool isAdvanced = false;
         bool inCMakeCache = false;
         QString value;
