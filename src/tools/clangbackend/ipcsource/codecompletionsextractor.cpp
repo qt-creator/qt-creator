@@ -87,7 +87,7 @@ bool CodeCompletionsExtractor::peek(const Utf8String &name)
 CodeCompletions CodeCompletionsExtractor::extractAll()
 {
     CodeCompletions codeCompletions;
-    codeCompletions.reserve(cxCodeCompleteResults->NumResults);
+    codeCompletions.reserve(int(cxCodeCompleteResults->NumResults));
 
     while (next())
         codeCompletions.append(currentCodeCompletion_);
