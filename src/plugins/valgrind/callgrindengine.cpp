@@ -38,17 +38,34 @@
 using namespace Debugger;
 using namespace Valgrind;
 using namespace Valgrind::Internal;
+using namespace Valgrind::Callgrind;
 
 CallgrindToolRunner::CallgrindToolRunner(ProjectExplorer::RunControl *runControl)
     : ValgrindToolRunner(runControl)
 {
     setDisplayName("CallgrindToolRunner");
-    connect(&m_runner, &Callgrind::CallgrindRunner::finished,
+    m_runner.setToolName("callgrind");
+
+    connect(&m_runner, &ValgrindRunner::finished,
             this, &CallgrindToolRunner::slotFinished);
-    connect(m_runner.parser(), &Callgrind::Parser::parserDataReady,
+    connect(&m_parser, &Callgrind::Parser::parserDataReady,
             this, &CallgrindToolRunner::slotFinished);
-    connect(&m_runner, &Callgrind::CallgrindRunner::statusMessage,
-            this, &Debugger::showPermanentStatusMessage);
+
+    connect(&m_controller, &CallgrindController::finished,
+            this, &CallgrindToolRunner::controllerFinished);
+    connect(&m_controller, &CallgrindController::localParseDataAvailable,
+            this, &CallgrindToolRunner::localParseDataAvailable);
+    connect(&m_controller, &CallgrindController::statusMessage,
+            this, &CallgrindToolRunner::showStatusMessage);
+
+    connect(&m_runner, &ValgrindRunner::extraStart, this, [this] {
+        m_controller.setValgrindProcess(m_runner.valgrindProcess());
+    });
+
+    connect(&m_runner, &ValgrindRunner::extraProcessFinished, this, [this] {
+        triggerParse();
+        m_controller.setValgrindProcess(nullptr);
+    });
 }
 
 QStringList CallgrindToolRunner::toolArguments() const
@@ -97,7 +114,7 @@ void CallgrindToolRunner::start()
 
 void CallgrindToolRunner::dump()
 {
-    m_runner.controller()->run(Callgrind::CallgrindController::Dump);
+    m_controller.run(CallgrindController::Dump);
 }
 
 void CallgrindToolRunner::setPaused(bool paused)
@@ -108,7 +125,7 @@ void CallgrindToolRunner::setPaused(bool paused)
     m_markAsPaused = paused;
 
     // call controller only if it is attached to a valgrind process
-    if (m_runner.controller()->valgrindProcess()) {
+    if (m_controller.valgrindProcess()) {
         if (paused)
             pause();
         else
@@ -126,25 +143,67 @@ void CallgrindToolRunner::setToggleCollectFunction(const QString &toggleCollectF
 
 void CallgrindToolRunner::reset()
 {
-    m_runner.controller()->run(Callgrind::CallgrindController::ResetEventCounters);
+    m_controller.run(Callgrind::CallgrindController::ResetEventCounters);
 }
 
 void CallgrindToolRunner::pause()
 {
-    m_runner.controller()->run(Callgrind::CallgrindController::Pause);
+    m_controller.run(Callgrind::CallgrindController::Pause);
 }
 
 void CallgrindToolRunner::unpause()
 {
-    m_runner.controller()->run(Callgrind::CallgrindController::UnPause);
+    m_controller.run(Callgrind::CallgrindController::UnPause);
 }
 
 Callgrind::ParseData *CallgrindToolRunner::takeParserData()
 {
-    return m_runner.parser()->takeData();
+    return m_parser.takeData();
 }
 
 void CallgrindToolRunner::slotFinished()
 {
     emit parserDataReady(this);
+}
+
+void CallgrindToolRunner::showStatusMessage(const QString &message)
+{
+    Debugger::showPermanentStatusMessage(message);
+}
+
+void CallgrindToolRunner::triggerParse()
+{
+    m_controller.getLocalDataFile();
+}
+
+void CallgrindToolRunner::localParseDataAvailable(const QString &file)
+{
+    // parse the callgrind file
+    QTC_ASSERT(!file.isEmpty(), return);
+    QFile outputFile(file);
+    QTC_ASSERT(outputFile.exists(), return);
+    if (outputFile.open(QIODevice::ReadOnly)) {
+        showStatusMessage(tr("Parsing Profile Data..."));
+        m_parser.parse(&outputFile);
+    } else {
+        qWarning() << "Could not open file for parsing:" << outputFile.fileName();
+    }
+}
+
+void CallgrindToolRunner::controllerFinished(CallgrindController::Option option)
+{
+    switch (option)
+    {
+    case CallgrindController::Pause:
+        m_paused = true;
+        break;
+    case CallgrindController::UnPause:
+        m_paused = false;
+        break;
+    case CallgrindController::Dump:
+        triggerParse();
+        break;
+    default:
+        break; // do nothing
+    }
 }

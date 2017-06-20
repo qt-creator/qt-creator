@@ -45,20 +45,18 @@ public:
     ~MemcheckRunner();
 
     void setParser(XmlProtocol::ThreadedParser *parser);
-    bool start();
+    bool start() override;
     void disableXml();
 
 signals:
     void logMessageReceived(const QByteArray &);
 
 private:
-    void localHostAddressRetrieved(const QHostAddress &localHostAddress);
+    void localHostAddressRetrieved(const QHostAddress &localHostAddress) override;
 
     void xmlSocketConnected();
     void logSocketConnected();
     void readLogSocket();
-
-    QString tool() const;
 
     bool startServers(const QHostAddress &localHostAddress);
     QStringList memcheckLogArguments() const;

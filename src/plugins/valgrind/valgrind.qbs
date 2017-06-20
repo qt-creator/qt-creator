@@ -58,7 +58,6 @@ QtcPlugin {
             "callgrindparsedata.cpp", "callgrindparsedata.h",
             "callgrindparser.cpp", "callgrindparser.h",
             "callgrindproxymodel.cpp", "callgrindproxymodel.h",
-            "callgrindrunner.cpp", "callgrindrunner.h",
             "callgrindstackbrowser.cpp", "callgrindstackbrowser.h"
         ]
     }

@@ -52,6 +52,7 @@ public:
     QStringList valgrindArguments;
     StandardRunnable debuggee;
     IDevice::ConstPtr device;
+    QString tool;
 };
 
 ValgrindRunner::ValgrindRunner(QObject *parent)
@@ -92,7 +93,7 @@ QStringList ValgrindRunner::valgrindArguments() const
 QStringList ValgrindRunner::fullValgrindArguments() const
 {
     QStringList fullArgs = valgrindArguments();
-    fullArgs << QString::fromLatin1("--tool=%1").arg(tool());
+    fullArgs << QString("--tool=%1").arg(d->tool);
     if (Utils::HostOsInfo::isMacHost())
         // May be slower to start but without it we get no filenames for symbols.
         fullArgs << QLatin1String("--dsymutil=yes");
@@ -129,6 +130,11 @@ void ValgrindRunner::waitForFinished() const
     loop.exec();
 }
 
+void ValgrindRunner::setToolName(const QString &toolName)
+{
+    d->tool = toolName;
+}
+
 bool ValgrindRunner::start()
 {
     d->process = new ValgrindProcess(d->device, this);
@@ -151,6 +157,9 @@ bool ValgrindRunner::start()
                      this, &ValgrindRunner::localHostAddressRetrieved);
 
     d->process->run(d->debuggee.runMode);
+
+    emit extraStart();
+
     return true;
 }
 
@@ -168,6 +177,8 @@ void ValgrindRunner::processError(QProcess::ProcessError e)
 
 void ValgrindRunner::processFinished(int ret, QProcess::ExitStatus status)
 {
+    emit extraProcessFinished();
+
     if (d->finished)
         return;
 

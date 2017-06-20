@@ -68,6 +68,7 @@ MemcheckRunner::MemcheckRunner(QObject *parent)
     : ValgrindRunner(parent),
       d(new Private)
 {
+    setToolName("memcheck");
 }
 
 MemcheckRunner::~MemcheckRunner()
@@ -78,11 +79,6 @@ MemcheckRunner::~MemcheckRunner()
     }
     delete d;
     d = 0;
-}
-
-QString MemcheckRunner::tool() const
-{
-    return QLatin1String("memcheck");
 }
 
 void MemcheckRunner::setParser(XmlProtocol::ThreadedParser *parser)

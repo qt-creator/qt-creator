@@ -59,22 +59,25 @@ public:
     ProjectExplorer::IDevice::ConstPtr device() const;
 
     void waitForFinished() const;
+    void setToolName(const QString &toolName);
 
     QString errorString() const;
 
     virtual bool start();
-    virtual void stop();
+    void stop();
 
     ValgrindProcess *valgrindProcess() const;
 
 signals:
+    void extraStart();
+
     void processOutputReceived(const QString &, Utils::OutputFormat);
     void processErrorReceived(const QString &, QProcess::ProcessError);
     void started();
     void finished();
+    void extraProcessFinished();
 
 protected:
-    virtual QString tool() const = 0;
     virtual void processError(QProcess::ProcessError);
     virtual void processFinished(int, QProcess::ExitStatus);
     virtual void localHostAddressRetrieved(const QHostAddress &localHostAddress);
