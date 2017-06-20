@@ -337,10 +337,10 @@ QList<CMakeBuildTarget> BuildDirManager::buildTargets() const
         m_buildTargets.append(utilityTarget(CMakeBuildStep::testTarget(), this));
 
         m_buildTargets.append(Utils::filtered(m_reader->buildTargets(), [](const CMakeBuildTarget &bt) {
-            return bt.title == CMakeBuildStep::allTarget()
-                    || bt.title == CMakeBuildStep::cleanTarget()
-                    || bt.title == CMakeBuildStep::installTarget()
-                    || bt.title == CMakeBuildStep::testTarget();
+            return bt.title != CMakeBuildStep::allTarget()
+                    && bt.title != CMakeBuildStep::cleanTarget()
+                    && bt.title != CMakeBuildStep::installTarget()
+                    && bt.title != CMakeBuildStep::testTarget();
         }));
     }
     return m_buildTargets;
