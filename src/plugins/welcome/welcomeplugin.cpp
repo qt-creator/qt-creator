@@ -48,6 +48,7 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QMouseEvent>
+#include <QOpenGLWidget>
 #include <QPainter>
 #include <QStackedWidget>
 #include <QTimer>
@@ -309,6 +310,12 @@ WelcomeMode::WelcomeMode()
     layout->setSpacing(0);
     layout->addWidget(new StyledBar(m_modeWidget));
     layout->addItem(hbox);
+
+    if (Utils::HostOsInfo::isMacHost()) { // workaround QTBUG-61384
+        auto openglWidget = new QOpenGLWidget;
+        openglWidget->hide();
+        layout->addWidget(openglWidget);
+    }
 
     setWidget(m_modeWidget);
 }

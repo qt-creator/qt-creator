@@ -27,6 +27,7 @@
 #include "quicktestconfiguration.h"
 #include "quicktestparser.h"
 
+#include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 
@@ -138,6 +139,8 @@ TestConfiguration *QuickTestTreeItem::testConfiguration() const
     default:
         return nullptr;
     }
+    if (config)
+        config->setInternalTargets(internalTargets());
     return config;
 }
 
@@ -150,6 +153,7 @@ QList<TestConfiguration *> QuickTestTreeItem::getAllTestConfigurations() const
         return result;
 
     QHash<QString, int> foundProFiles;
+    QHash<QString, QSet<QString> > proFilesWithTargets;
     for (int row = 0, count = childCount(); row < count; ++row) {
         const TestTreeItem *child = childItem(row);
         // unnamed Quick Tests must be handled separately
@@ -158,12 +162,14 @@ QList<TestConfiguration *> QuickTestTreeItem::getAllTestConfigurations() const
                 const TestTreeItem *grandChild = child->childItem(childRow);
                 const QString &proFile = grandChild->proFile();
                 foundProFiles.insert(proFile, foundProFiles[proFile] + 1);
+                proFilesWithTargets.insert(proFile, grandChild->internalTargets());
             }
             continue;
         }
         // named Quick Test
         const QString &proFile = child->proFile();
         foundProFiles.insert(proFile, foundProFiles[proFile] + child->childCount());
+        proFilesWithTargets.insert(proFile, child->internalTargets());
     }
     // create TestConfiguration for each project file
     QHash<QString, int>::ConstIterator it = foundProFiles.begin();
@@ -173,6 +179,7 @@ QList<TestConfiguration *> QuickTestTreeItem::getAllTestConfigurations() const
         tc->setTestCaseCount(it.value());
         tc->setProjectFile(it.key());
         tc->setProject(project);
+        tc->setInternalTargets(proFilesWithTargets[it.key()]);
         result << tc;
     }
     return result;
@@ -203,6 +210,7 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
                 tc->setUnnamedOnly(true);
                 tc->setProjectFile(proFile);
                 tc->setProject(project);
+                tc->setInternalTargets(grandChild->internalTargets());
                 foundProFiles.insert(proFile, tc);
             }
         }
@@ -246,6 +254,7 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
                 tc->setTestCases(testFunctions);
                 tc->setProjectFile(child->proFile());
                 tc->setProject(project);
+                tc->setInternalTargets(child->internalTargets());
                 foundProFiles.insert(child->proFile(), tc);
             }
             break;
@@ -304,6 +313,20 @@ bool QuickTestTreeItem::lessThan(const TestTreeItem *other, TestTreeItem::SortMo
     if (other->name().isEmpty())
         return true;
     return TestTreeItem::lessThan(other, mode);
+}
+
+QSet<QString> QuickTestTreeItem::internalTargets() const
+{
+    QSet<QString> result;
+    const auto cppMM = CppTools::CppModelManager::instance();
+    const auto projectInfo = cppMM->projectInfo(ProjectExplorer::SessionManager::startupProject());
+    for (const CppTools::ProjectPart::Ptr projectPart : projectInfo.projectParts()) {
+        if (projectPart->projectFile == proFile()) {
+            result.insert(projectPart->buildSystemTarget);
+            break;
+        }
+    }
+    return result;
 }
 
 TestTreeItem *QuickTestTreeItem::unnamedQuickTests() const

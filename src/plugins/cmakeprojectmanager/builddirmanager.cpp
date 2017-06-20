@@ -334,6 +334,8 @@ QList<CMakeBuildTarget> BuildDirManager::buildTargets() const
         m_buildTargets.append(utilityTarget(CMakeBuildStep::allTarget(), this));
         m_buildTargets.append(utilityTarget(CMakeBuildStep::cleanTarget(), this));
         m_buildTargets.append(utilityTarget(CMakeBuildStep::installTarget(), this));
+        m_buildTargets.append(utilityTarget(CMakeBuildStep::testTarget(), this));
+
         m_buildTargets.append(m_reader->buildTargets());
     }
     return m_buildTargets;

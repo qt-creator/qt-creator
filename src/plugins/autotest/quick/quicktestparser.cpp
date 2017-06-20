@@ -36,6 +36,7 @@
 #include <qmljs/qmljsdialect.h>
 #include <qmljstools/qmljsmodelmanager.h>
 #include <utils/hostosinfo.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 namespace Autotest {
@@ -238,6 +239,49 @@ bool QuickTestParser::handleQtQuickTest(QFutureInterface<TestParseResultPtr> fut
     return result;
 }
 
+static QMap<QString, QDateTime> qmlFilesWithMTime(const QString &directory)
+{
+    const QFileInfoList &qmlFiles = QDir(directory).entryInfoList({ "*.qml" },
+                                                                  QDir::Files, QDir::Name);
+    QMap<QString, QDateTime> filesAndDates;
+    for (const QFileInfo &info : qmlFiles)
+        filesAndDates.insert(info.fileName(), info.lastModified());
+    return filesAndDates;
+}
+
+void QuickTestParser::handleDirectoryChanged(const QString &directory)
+{
+    const QMap<QString, QDateTime> &filesAndDates = qmlFilesWithMTime(directory);
+    const QMap<QString, QDateTime> &watched = m_watchedFiles.value(directory);
+    const QStringList &keys = watched.keys();
+    if (filesAndDates.keys() != keys) { // removed or added files
+        m_watchedFiles[directory] = filesAndDates;
+        TestTreeModel::instance()->parser()->emitUpdateTestTree(this);
+    } else { // we might still have different timestamps
+        const bool timestampChanged = Utils::anyOf(keys, [&](const QString &file) {
+            return filesAndDates.value(file) != watched.value(file);
+        });
+        if (timestampChanged) {
+            QmlJS::PathsAndLanguages paths;
+            paths.maybeInsert(Utils::FileName::fromString(directory), QmlJS::Dialect::Qml);
+            QFutureInterface<void> future;
+            QmlJS::ModelManagerInterface *qmlJsMM = QmlJS::ModelManagerInterface::instance();
+            QmlJS::ModelManagerInterface::importScan(future, qmlJsMM->workingCopy(), paths, qmlJsMM,
+                                                     true /*emitDocumentChanges*/,
+                                                     false /*onlyTheLib*/,
+                                                     true /*forceRescan*/ );
+        }
+    }
+}
+
+void QuickTestParser::doUpdateWatchPaths(const QStringList &directories)
+{
+    for (const QString &dir : directories) {
+        m_directoryWatcher.addPath(dir);
+        m_watchedFiles[dir] = qmlFilesWithMTime(dir);
+    }
+}
+
 QuickTestParser::QuickTestParser()
     : CppParser()
 {
@@ -246,11 +290,12 @@ QuickTestParser::QuickTestParser()
         const QStringList &dirs = m_directoryWatcher.directories();
         if (!dirs.isEmpty())
             m_directoryWatcher.removePaths(dirs);
+        m_watchedFiles.clear();
     });
     connect(&m_directoryWatcher, &QFileSystemWatcher::directoryChanged,
-                     [this] { TestTreeModel::instance()->parser()->emitUpdateTestTree(this); });
+            this, &QuickTestParser::handleDirectoryChanged);
     connect(this, &QuickTestParser::updateWatchPaths,
-            &m_directoryWatcher, &QFileSystemWatcher::addPaths, Qt::QueuedConnection);
+            this, &QuickTestParser::doUpdateWatchPaths, Qt::QueuedConnection);
 }
 
 QuickTestParser::~QuickTestParser()

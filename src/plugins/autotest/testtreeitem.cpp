@@ -29,6 +29,7 @@
 #include "testtreeitem.h"
 
 #include <cplusplus/Icons.h>
+#include <cpptools/cppmodelmanager.h>
 #include <texteditor/texteditor.h>
 
 #include <QIcon>
@@ -279,6 +280,16 @@ bool TestTreeItem::lessThan(const TestTreeItem *other, SortMode mode) const
     default:
         return true;
     }
+}
+
+QSet<QString> TestTreeItem::internalTargets() const
+{
+    auto cppMM = CppTools::CppModelManager::instance();
+    const QList<CppTools::ProjectPart::Ptr> projectParts = cppMM->projectPart(filePath());
+    QSet<QString> targets;
+    for (const CppTools::ProjectPart::Ptr part : projectParts)
+        targets.insert(part->buildSystemTarget);
+    return targets;
 }
 
 void TestTreeItem::revalidateCheckState()

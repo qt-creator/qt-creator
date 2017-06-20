@@ -57,6 +57,8 @@
 #include <QDir>
 #include <QFile>
 #include <QProcess>
+#include <QRegularExpression>
+#include <QVersionNumber>
 
 #ifdef MOBILE_DEV_DIRECT_LINK
 #include "MobileDevice.h"
@@ -259,6 +261,100 @@ static QString mobileDeviceErrorString(MobileDeviceLib *lib, am_res_t code)
     return s;
 }
 
+qint64 toBuildNumber(const QString &versionStr)
+{
+    QString buildNumber;
+    const QRegularExpression re("\\s\\((\\X+)\\)");
+    const QRegularExpressionMatch m = re.match(versionStr);
+    if (m.hasMatch())
+        buildNumber = m.captured(1);
+    return buildNumber.toLongLong(nullptr, 16);
+}
+
+static bool findXcodePath(QString *xcodePath)
+{
+    if (!xcodePath)
+        return false;
+
+    QProcess process;
+    process.start("/bin/bash", QStringList({"-c", "xcode-select -p"}));
+    if (!process.waitForFinished(3000))
+        return false;
+
+    *xcodePath = QString::fromLatin1(process.readAllStandardOutput()).trimmed();
+    return (process.exitStatus() == QProcess::NormalExit && QFile::exists(*xcodePath));
+}
+
+/*!
+ * \brief Finds the \e DeveloperDiskImage.dmg path corresponding to \a versionStr and \a buildStr.
+ *
+ * The algorithm sorts the \e DeviceSupport directories with decreasing order of their version and
+ * build number to find the appropriate \e DeviceSupport directory corresponding to \a versionStr
+ * and \a buildStr. Directories starting with major build number of \a versionStr are considered
+ * only, rest are filtered out.
+ *
+ * Returns \c true if \e DeveloperDiskImage.dmg is found, otherwise returns \c false. The absolute
+ * path to the \e DeveloperDiskImage.dmg is enumerated in \a path.
+ */
+static bool findDeveloperDiskImage(const QString &versionStr, const QString &buildStr,
+                                   QString *path = nullptr)
+{
+    const QVersionNumber deviceVersion = QVersionNumber::fromString(versionStr);
+    if (deviceVersion.isNull())
+        return false;
+
+    QString xcodePath;
+    if (!findXcodePath(&xcodePath)) {
+        if (debugAll)
+            qDebug() << "Error getting xcode installation path.";
+        return false;
+    }
+
+    // Returns device support directories matching the major version.
+    const auto findDeviceSupportDirs = [xcodePath, deviceVersion](const QString &subFolder) {
+        const QDir rootDir(QString("%1/%2").arg(xcodePath).arg(subFolder));
+        const QStringList filter(QString("%1.*").arg(deviceVersion.majorVersion()));
+        return rootDir.entryInfoList(filter, QDir::Dirs | QDir::NoDotAndDotDot);
+    };
+
+    // Compares version strings(considers build number) and return true if versionStrA > versionStrB.
+    const auto compareVersion = [](const QString &versionStrA, const QString &versionStrB) {
+        const auto versionA = QVersionNumber::fromString(versionStrA);
+        const auto versionB = QVersionNumber::fromString(versionStrB);
+        if (versionA == versionB)
+            return toBuildNumber(versionStrA) > toBuildNumber(versionStrB);
+        return versionA > versionB;
+    };
+
+    // To filter dirs without DeveloperDiskImage.dmg and dirs having higher version.
+    const auto filterDir = [compareVersion, versionStr, buildStr](const QFileInfo d) {
+        const auto devDiskImage = QString("%1/DeveloperDiskImage.dmg").arg(d.absoluteFilePath());
+        if (!QFile::exists(devDiskImage))
+            return true; // Dir's without DeveloperDiskImage.dmg
+        return compareVersion(d.fileName(), QString("%1 (%2)").arg(versionStr).arg(buildStr));
+    };
+
+    QFileInfoList deviceSupportDirs(findDeviceSupportDirs("iOS DeviceSupport"));
+    deviceSupportDirs << findDeviceSupportDirs("Platforms/iPhoneOS.platform/DeviceSupport");
+
+    // Remove dirs without DeveloperDiskImage.dmg and dirs having higher version.
+    auto endItr = std::remove_if(deviceSupportDirs.begin(), deviceSupportDirs.end(), filterDir);
+    deviceSupportDirs.erase(endItr, deviceSupportDirs.end());
+
+    if (deviceSupportDirs.isEmpty())
+        return false;
+
+    // Sort device support directories.
+    std::sort(deviceSupportDirs.begin(), deviceSupportDirs.end(),
+              [compareVersion](const QFileInfo &a, const QFileInfo &b) {
+        return compareVersion(a.fileName(), b.fileName());
+    });
+
+    if (path)
+        *path = QString("%1/DeveloperDiskImage.dmg").arg(deviceSupportDirs[0].absoluteFilePath());
+    return true;
+}
+
 extern "C" {
 typedef void (*DeviceAvailableCallback)(QString deviceId, AMDeviceRef, void *userData);
 }
@@ -309,7 +405,6 @@ public:
 
 private:
     bool developerDiskImagePath(QString *path, QString *signaturePath);
-    bool findDeveloperDiskImage(QString *diskImagePath, QString versionString, QString buildString);
 
 private:
     bool checkRead(qptrdiff nRead, int &maxRetry);
@@ -1232,7 +1327,6 @@ MobileDeviceLib *CommandSession::lib()
 
 bool CommandSession::developerDiskImagePath(QString *path, QString *signaturePath)
 {
-    bool success = false;
     if (device && path && connectDevice()) {
         CFPropertyListRef cfProductVersion = lib()->deviceCopyValue(device, 0, CFSTR("ProductVersion"));
         QString versionString;
@@ -1249,80 +1343,17 @@ bool CommandSession::developerDiskImagePath(QString *path, QString *signaturePat
         CFRelease(cfBuildVersion);
         disconnectDevice();
 
-        if (findDeveloperDiskImage(path, versionString, buildString)) {
-            success = QFile::exists(*path);
-            if (success && debugAll)
+        if (findDeveloperDiskImage(versionString, buildString, path)) {
+            if (debugAll)
                 qDebug() << "Developers disk image found at" << path;
-            if (success && signaturePath) {
+            if (signaturePath) {
                 *signaturePath = QString("%1.%2").arg(*path).arg("signature");
-                success = QFile::exists(*signaturePath);
+                return QFile::exists(*signaturePath);
             }
+            return true;
         }
     }
-    return success;
-}
-
-bool CommandSession::findDeveloperDiskImage(QString *diskImagePath, QString versionString, QString buildString)
-{
-    if (!diskImagePath || versionString.isEmpty())
-        return false;
-
-    *diskImagePath = QString();
-    QProcess process;
-    process.start("/bin/bash", QStringList() << "-c" << "xcode-select -p");
-    if (!process.waitForFinished(3000))
-        addError("Error getting xcode installation path. Command did not finish in time");
-
-    const QString xcodePath = QString::fromLatin1(process.readAllStandardOutput()).trimmed();
-
-    if (process.exitStatus() == QProcess::NormalExit && QFile::exists(xcodePath)) {
-
-        auto imageExists = [xcodePath](QString *foundPath, QString subFolder, QString version, QString build) -> bool {
-            Q_ASSERT(foundPath);
-            const QString subFolderPath = QString("%1/%2").arg(xcodePath).arg(subFolder);
-            if (QFile::exists(subFolderPath)) {
-                *foundPath = QString("%1/%2 (%3)/DeveloperDiskImage.dmg").arg(subFolderPath).arg(version).arg(build);
-                if (QFile::exists(*foundPath)) {
-                    return true;
-                }
-
-                QDir subFolderDir(subFolderPath);
-                QStringList nameFilterList;
-                nameFilterList << QString("%1 (*)").arg(version);
-                QFileInfoList builds = subFolderDir.entryInfoList(nameFilterList, QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name | QDir::Reversed);
-                foreach (QFileInfo buildPathInfo, builds) {
-                    *foundPath = QString("%1/DeveloperDiskImage.dmg").arg(buildPathInfo.absoluteFilePath());
-                    if (QFile::exists(*foundPath)) {
-                        return true;
-                    }
-                }
-
-                *foundPath = QString("%1/%2/DeveloperDiskImage.dmg").arg(subFolderPath).arg(version);
-                if (QFile::exists(*foundPath)) {
-                    return true;
-                }
-
-            }
-            *foundPath = QString();
-            return false;
-        };
-
-        QStringList versionParts = versionString.split(".", QString::SkipEmptyParts);
-        while (versionParts.count() > 0) {
-            if (imageExists(diskImagePath,"iOS DeviceSupport", versionParts.join("."), buildString))
-                break;
-            if (imageExists(diskImagePath,"Platforms/iPhoneOS.platform/DeviceSupport", versionParts.join("."), buildString))
-                break;
-
-            const QString latestImagePath = QString("%1/Platforms/iPhoneOS.platform/DeviceSupport/Latest/DeveloperDiskImage.dmg").arg(xcodePath);
-            if (QFile::exists(latestImagePath)) {
-                *diskImagePath = latestImagePath;
-                break;
-            }
-            versionParts.removeLast();
-        }
-    }
-    return !diskImagePath->isEmpty();
+    return false;
 }
 
 AppOpSession::AppOpSession(const QString &deviceId, const QString &bundlePath,

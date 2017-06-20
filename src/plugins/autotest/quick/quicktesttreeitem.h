@@ -45,7 +45,7 @@ public:
     TestTreeItem *find(const TestParseResult *result) override;
     bool modify(const TestParseResult *result) override;
     bool lessThan(const TestTreeItem *other, SortMode mode) const override;
-
+    QSet<QString> internalTargets() const override;
 private:
     TestTreeItem *unnamedQuickTests() const;
 };

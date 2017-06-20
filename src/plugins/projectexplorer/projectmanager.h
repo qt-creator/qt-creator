@@ -27,6 +27,10 @@
 
 #include "projectexplorer_export.h"
 
+#include <QString>
+
+#include <functional>
+
 namespace Utils {
 class FileName;
 class MimeType;
