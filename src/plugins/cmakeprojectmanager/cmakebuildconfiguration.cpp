@@ -221,6 +221,10 @@ CMakeBuildConfiguration::generateProjectTree(const QList<const FileNode*> &allFi
 
     auto root = new CMakeProjectNode(target()->project()->projectDirectory());
     m_buildDirManager->generateProjectTree(root, allFiles);
+    if (root->isEmpty()) {
+        delete root;
+        return nullptr;
+    }
     return root;
 }
 

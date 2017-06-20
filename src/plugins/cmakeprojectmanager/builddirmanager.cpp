@@ -277,10 +277,6 @@ void BuildDirManager::generateProjectTree(CMakeProjectNode *root, const QList<co
     const Utils::FileName projectFile = m_buildConfiguration->target()->project()->projectFilePath();
 
     m_reader->generateProjectTree(root, allFiles);
-
-    // Make sure the top level CMakeLists.txt is always visible:
-    if (root->isEmpty())
-        root->addNode(new FileNode(projectFile, FileType::Project, false));
 }
 
 void BuildDirManager::updateCodeModel(CppTools::RawProjectParts &rpps)

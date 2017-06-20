@@ -741,6 +741,9 @@ void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
 void ServerModeReader::addHeaderNodes(ProjectNode *root, const QList<FileNode *> knownHeaders,
                                       const QList<const FileNode *> &allFiles)
 {
+    if (root->isEmpty())
+        return;
+
     auto headerNode = new VirtualFolderNode(root->filePath(), Node::DefaultPriority - 5);
     headerNode->setDisplayName(tr("<Headers>"));
 

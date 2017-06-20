@@ -147,8 +147,8 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     auto newRoot = bc->generateProjectTree(m_allFiles);
     if (newRoot) {
-        setRootProjectNode(newRoot);
         setDisplayName(newRoot->displayName());
+        setRootProjectNode(newRoot);
     }
 
     updateApplicationAndDeploymentTargets();
