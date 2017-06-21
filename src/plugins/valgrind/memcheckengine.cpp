@@ -77,11 +77,6 @@ QString MemcheckToolRunner::progressTitle() const
     return tr("Analyzing Memory");
 }
 
-ValgrindRunner *MemcheckToolRunner::runner()
-{
-    return &m_runner;
-}
-
 void MemcheckToolRunner::start()
 {
 //    MemcheckTool::engineStarting(this);
@@ -144,18 +139,18 @@ QStringList MemcheckToolRunner::suppressionFiles() const
 
 void MemcheckToolRunner::startDebugger()
 {
-    const qint64 valgrindPid = runner()->valgrindProcess()->pid();
+    const qint64 valgrindPid = m_runner.valgrindProcess()->pid();
 
     Debugger::DebuggerStartParameters sp;
-    sp.inferior = runControl()->runnable().as<StandardRunnable>();
+    sp.inferior = runnable().as<StandardRunnable>();
     sp.startMode = Debugger::AttachToRemoteServer;
-    sp.displayName = QString::fromLatin1("VGdb %1").arg(valgrindPid);
-    sp.remoteChannel = QString::fromLatin1("| vgdb --pid=%1").arg(valgrindPid);
+    sp.displayName = QString("VGdb %1").arg(valgrindPid);
+    sp.remoteChannel = QString("| vgdb --pid=%1").arg(valgrindPid);
     sp.useContinueInsteadOfRun = true;
     sp.expectedSignals.append("SIGTRAP");
 
     QString errorMessage;
-    auto *gdbRunControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    auto gdbRunControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
     (void) new Debugger::DebuggerRunTool(gdbRunControl, sp, &errorMessage);
     connect(gdbRunControl, &RunControl::finished,
             gdbRunControl, &RunControl::deleteLater);

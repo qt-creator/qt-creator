@@ -40,7 +40,6 @@
 #include <projectexplorer/runconfiguration.h>
 
 #include <QApplication>
-#include <QMainWindow>
 
 #define VALGRIND_DEBUG_OUTPUT 0
 
@@ -82,21 +81,20 @@ void ValgrindToolRunner::start()
     emit outputReceived(tr("Command line arguments: %1").arg(runnable().debuggeeArgs), DebugFormat);
 #endif
 
-    ValgrindRunner *run = runner();
-    run->setValgrindExecutable(m_settings->valgrindExecutable());
-    run->setValgrindArguments(genericToolArguments() + toolArguments());
-    run->setDevice(device());
-    if (runControl()->runnable().is<StandardRunnable>())
-        run->setDebuggee(runControl()->runnable().as<StandardRunnable>());
+    m_runner.setValgrindExecutable(m_settings->valgrindExecutable());
+    m_runner.setValgrindArguments(genericToolArguments() + toolArguments());
+    m_runner.setDevice(device());
+    QTC_ASSERT(runnable().is<StandardRunnable>(), reportFailure());
+    m_runner.setDebuggee(runnable().as<StandardRunnable>());
 
-    connect(run, &ValgrindRunner::processOutputReceived,
+    connect(&m_runner, &ValgrindRunner::processOutputReceived,
             this, &ValgrindToolRunner::receiveProcessOutput);
-    connect(run, &ValgrindRunner::processErrorReceived,
+    connect(&m_runner, &ValgrindRunner::processErrorReceived,
             this, &ValgrindToolRunner::receiveProcessError);
-    connect(run, &ValgrindRunner::finished,
+    connect(&m_runner, &ValgrindRunner::finished,
             this, &ValgrindToolRunner::runnerFinished);
 
-    if (!run->start()) {
+    if (!m_runner.start()) {
         m_progress.cancel();
         reportFailure();
         return;
@@ -108,14 +106,13 @@ void ValgrindToolRunner::start()
 void ValgrindToolRunner::stop()
 {
     m_isStopping = true;
-    runner()->stop();
+    m_runner.stop();
 }
 
 QString ValgrindToolRunner::executable() const
 {
-    const Runnable &runnable = runControl()->runnable();
-    return runnable.is<StandardRunnable>() ?
-                runnable.as<StandardRunnable>().executable : QString();
+    QTC_ASSERT(runnable().is<StandardRunnable>(), return QString());
+    return runnable().as<StandardRunnable>().executable;
 }
 
 QStringList ValgrindToolRunner::genericToolArguments() const
@@ -137,7 +134,7 @@ QStringList ValgrindToolRunner::genericToolArguments() const
         smcCheckValue = QLatin1String("stack");
         break;
     }
-    return QStringList() << QLatin1String("--smc-check=") + smcCheckValue;
+    return {"--smc-check=" + smcCheckValue};
 }
 
 void ValgrindToolRunner::handleProgressCanceled()
@@ -153,13 +150,13 @@ void ValgrindToolRunner::handleProgressFinished()
 
 void ValgrindToolRunner::runnerFinished()
 {
-    appendMessage(tr("Analyzing finished.") + QLatin1Char('\n'), NormalMessageFormat);
+    appendMessage(tr("Analyzing finished."), NormalMessageFormat);
 
     m_progress.reportFinished();
 
-    disconnect(runner(), &ValgrindRunner::processOutputReceived,
+    disconnect(&m_runner, &ValgrindRunner::processOutputReceived,
                this, &ValgrindToolRunner::receiveProcessOutput);
-    disconnect(runner(), &ValgrindRunner::finished,
+    disconnect(&m_runner, &ValgrindRunner::finished,
                this, &ValgrindToolRunner::runnerFinished);
 
     reportStopped();
@@ -175,13 +172,13 @@ void ValgrindToolRunner::receiveProcessError(const QString &message, QProcess::P
     if (error == QProcess::FailedToStart) {
         const QString valgrind = m_settings->valgrindExecutable();
         if (!valgrind.isEmpty())
-            appendMessage(tr("Error: \"%1\" could not be started: %2").arg(valgrind, message) + QLatin1Char('\n'), ErrorMessageFormat);
+            appendMessage(tr("Error: \"%1\" could not be started: %2").arg(valgrind, message), ErrorMessageFormat);
         else
-            appendMessage(tr("Error: no Valgrind executable set.") + QLatin1Char('\n'), ErrorMessageFormat);
+            appendMessage(tr("Error: no Valgrind executable set."), ErrorMessageFormat);
     } else if (m_isStopping && error == QProcess::Crashed) { // process gets killed on stop
-        appendMessage(tr("Process terminated.") + QLatin1Char('\n'), ErrorMessageFormat);
+        appendMessage(tr("Process terminated."), ErrorMessageFormat);
     } else {
-        appendMessage(QString::fromLatin1("** %1 **\n").arg(message), ErrorMessageFormat);
+        appendMessage(QString("** %1 **\n").arg(message), ErrorMessageFormat);
     }
 
     if (m_isStopping)

@@ -61,7 +61,6 @@ public:
 protected:
     QStringList toolArguments() const override;
     QString progressTitle() const override;
-    Valgrind::ValgrindRunner *runner() override;
 
 signals:
     void parserDataReady(CallgrindToolRunner *engine);
@@ -74,7 +73,6 @@ private:
     void localParseDataAvailable(const QString &file);
     void controllerFinished(Callgrind::CallgrindController::Option option);
 
-    ValgrindRunner m_runner;
     bool m_markAsPaused = false;
     Callgrind::CallgrindController m_controller;
     Callgrind::Parser m_parser;

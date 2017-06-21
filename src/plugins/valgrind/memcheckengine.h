@@ -55,12 +55,10 @@ signals:
 private:
     QString progressTitle() const override;
     QStringList toolArguments() const override;
-    ValgrindRunner *runner() override;
 
     void startDebugger();
     void appendLog(const QByteArray &data);
 
-    ValgrindRunner m_runner;
     const bool m_withGdb;
 };
 

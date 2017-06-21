@@ -101,14 +101,9 @@ QString CallgrindToolRunner::progressTitle() const
     return tr("Profiling");
 }
 
-ValgrindRunner * CallgrindToolRunner::runner()
-{
-    return &m_runner;
-}
-
 void CallgrindToolRunner::start()
 {
-    appendMessage(tr("Profiling %1").arg(executable()) + QLatin1Char('\n'), Utils::NormalMessageFormat);
+    appendMessage(tr("Profiling %1").arg(executable()), Utils::NormalMessageFormat);
     return ValgrindToolRunner::start();
 }
 
