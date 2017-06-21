@@ -1,6 +1,5 @@
 include(../../qtcreatorplugin.pri)
 include(callgrind/callgrind.pri)
-include(memcheck/memcheck.pri)
 include(xmlprotocol/xmlprotocol.pri)
 QT *= network
 

@@ -27,6 +27,8 @@
 #include "valgrindrunner.h"
 #include "valgrindprocess.h"
 
+#include "xmlprotocol/threadedparser.h"
+
 #include <projectexplorer/runnables.h>
 
 #include <utils/environment.h>
@@ -37,6 +39,8 @@
 #include <ssh/sshremoteprocess.h>
 
 #include <QEventLoop>
+#include <QTcpServer>
+#include <QTcpSocket>
 
 using namespace ProjectExplorer;
 
@@ -45,7 +49,7 @@ namespace Valgrind {
 class ValgrindRunner::Private
 {
 public:
-    ValgrindProcess *process = 0;
+    ValgrindProcess *process = nullptr;
     QProcess::ProcessChannelMode channelMode = QProcess::SeparateChannels;
     bool finished = false;
     QString valgrindExecutable;
@@ -53,16 +57,27 @@ public:
     StandardRunnable debuggee;
     IDevice::ConstPtr device;
     QString tool;
+
+    QTcpServer xmlServer;
+    XmlProtocol::ThreadedParser *parser = nullptr;
+    QTcpServer logServer;
+    QTcpSocket *logSocket = nullptr;
+    bool disableXml = false;
 };
 
 ValgrindRunner::ValgrindRunner(QObject *parent)
     : QObject(parent), d(new Private)
 {
+    setToolName("memcheck");
 }
 
 ValgrindRunner::~ValgrindRunner()
 {
     if (d->process && d->process->isRunning()) {
+        // make sure we don't delete the thread while it's still running
+        waitForFinished();
+    }
+    if (d->parser->isRunning()) {
         // make sure we don't delete the thread while it's still running
         waitForFinished();
     }
@@ -137,6 +152,14 @@ void ValgrindRunner::setToolName(const QString &toolName)
 
 bool ValgrindRunner::start()
 {
+    // FIXME: Remove hack.
+    if (d->tool == "memcheck"
+            && device()->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        if (!startServers(QHostAddress::LocalHost))
+            return false;
+        setValgrindArguments(memcheckLogArguments() + valgrindArguments());
+    }
+
     d->process = new ValgrindProcess(d->device, this);
     d->process->setProcessChannelMode(d->channelMode);
     // consider appending our options last so they override any interfering user-supplied options
@@ -193,15 +216,15 @@ void ValgrindRunner::processFinished(int ret, QProcess::ExitStatus status)
 
 void ValgrindRunner::localHostAddressRetrieved(const QHostAddress &localHostAddress)
 {
-    Q_UNUSED(localHostAddress);
+    if (startServers(localHostAddress)) {
+        setValgrindArguments(memcheckLogArguments() + valgrindArguments());
+        valgrindProcess()->setValgrindArguments(fullValgrindArguments());
+    }
 }
 
 QString ValgrindRunner::errorString() const
 {
-    if (d->process)
-        return d->process->errorString();
-    else
-        return QString();
+    return d->process ? d->process->errorString() : QString();
 }
 
 void ValgrindRunner::stop()
@@ -213,6 +236,80 @@ void ValgrindRunner::stop()
 ValgrindProcess *ValgrindRunner::valgrindProcess() const
 {
     return d->process;
+}
+
+void ValgrindRunner::setParser(XmlProtocol::ThreadedParser *parser)
+{
+    QTC_ASSERT(!d->parser, qt_noop());
+    d->parser = parser;
+}
+
+
+// Workaround for valgrind bug when running vgdb with xml output
+// https://bugs.kde.org/show_bug.cgi?id=343902
+void ValgrindRunner::disableXml()
+{
+    d->disableXml = true;
+}
+
+void ValgrindRunner::xmlSocketConnected()
+{
+    QTcpSocket *socket = d->xmlServer.nextPendingConnection();
+    QTC_ASSERT(socket, return);
+    d->xmlServer.close();
+    d->parser->parse(socket);
+}
+
+void ValgrindRunner::logSocketConnected()
+{
+    d->logSocket = d->logServer.nextPendingConnection();
+    QTC_ASSERT(d->logSocket, return);
+    connect(d->logSocket, &QIODevice::readyRead,
+            this, &ValgrindRunner::readLogSocket);
+    d->logServer.close();
+}
+
+void ValgrindRunner::readLogSocket()
+{
+    QTC_ASSERT(d->logSocket, return);
+    emit logMessageReceived(d->logSocket->readAll());
+}
+
+bool ValgrindRunner::startServers(const QHostAddress &localHostAddress)
+{
+    bool check = d->xmlServer.listen(localHostAddress);
+    const QString ip = localHostAddress.toString();
+    if (!check) {
+        emit processErrorReceived(tr("XmlServer on %1:").arg(ip) + ' '
+                                  + d->xmlServer.errorString(), QProcess::FailedToStart );
+        return false;
+    }
+    d->xmlServer.setMaxPendingConnections(1);
+    connect(&d->xmlServer, &QTcpServer::newConnection,
+            this, &ValgrindRunner::xmlSocketConnected);
+    check = d->logServer.listen(localHostAddress);
+    if (!check) {
+        emit processErrorReceived(tr("LogServer on %1:").arg(ip) + ' '
+                                  + d->logServer.errorString(), QProcess::FailedToStart );
+        return false;
+    }
+    d->logServer.setMaxPendingConnections(1);
+    connect(&d->logServer, &QTcpServer::newConnection,
+            this, &ValgrindRunner::logSocketConnected);
+    return true;
+}
+
+QStringList ValgrindRunner::memcheckLogArguments() const
+{
+    QStringList arguments;
+    if (!d->disableXml)
+        arguments << QLatin1String("--xml=yes");
+    arguments << QString::fromLatin1("--xml-socket=%1:%2")
+                 .arg(d->xmlServer.serverAddress().toString()).arg(d->xmlServer.serverPort())
+              << QLatin1String("--child-silent-after-fork=yes")
+              << QString::fromLatin1("--log-socket=%1:%2")
+                 .arg(d->logServer.serverAddress().toString()).arg(d->logServer.serverPort());
+    return arguments;
 }
 
 } // namespace Valgrind

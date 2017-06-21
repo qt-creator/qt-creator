@@ -31,7 +31,7 @@
 #include "xmlprotocol/suppression.h"
 #include "xmlprotocol/threadedparser.h"
 #include "xmlprotocol/parser.h"
-#include "memcheck/memcheckrunner.h"
+#include "valgrindrunner.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -45,7 +45,6 @@
 #define HEADER_LENGTH 25
 
 using namespace Valgrind::XmlProtocol;
-using namespace Valgrind::Memcheck;
 
 namespace Valgrind {
 namespace Test {
@@ -131,10 +130,10 @@ void ValgrindTestRunnerTest::init()
     Q_ASSERT(m_logMessages.isEmpty());
 
     Q_ASSERT(!m_runner);
-    m_runner = new MemcheckRunner;
-    m_runner->setValgrindExecutable(QLatin1String("valgrind"));
+    m_runner = new ValgrindRunner;
+    m_runner->setValgrindExecutable("valgrind");
     m_runner->setProcessChannelMode(QProcess::ForwardedChannels);
-    connect(m_runner, &MemcheckRunner::logMessageReceived,
+    connect(m_runner, &ValgrindRunner::logMessageReceived,
             this, &ValgrindTestRunnerTest::logMessageReceived);
     connect(m_runner, &ValgrindRunner::processErrorReceived,
             this, &ValgrindTestRunnerTest::internalError);

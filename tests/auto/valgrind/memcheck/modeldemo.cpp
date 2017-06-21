@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 
     ThreadedParser parser;
 
-    Memcheck::MemcheckRunner runner;
+    ValgrindRunner runner;
     runner.setValgrindExecutable(fakeValgrindExecutable());
     runner.setValgrindArguments(QStringList() << QLatin1String("-i") << dataFile(QLatin1String("memcheck-output-sample1.xml")) );
     runner.setParser(&parser);

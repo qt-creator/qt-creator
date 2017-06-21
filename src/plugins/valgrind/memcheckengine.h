@@ -28,7 +28,7 @@
 
 #include "valgrindengine.h"
 
-#include "memcheck/memcheckrunner.h"
+#include "valgrindrunner.h"
 #include "xmlprotocol/threadedparser.h"
 
 namespace Valgrind {
@@ -61,7 +61,7 @@ private:
     void appendLog(const QByteArray &data);
 
     XmlProtocol::ThreadedParser m_parser;
-    Memcheck::MemcheckRunner m_runner;
+    ValgrindRunner m_runner;
     const bool m_withGdb;
 };
 

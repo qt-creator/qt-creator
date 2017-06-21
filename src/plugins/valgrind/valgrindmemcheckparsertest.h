@@ -36,14 +36,13 @@
 #include "xmlprotocol/status.h"
 #include "xmlprotocol/threadedparser.h"
 #include "xmlprotocol/parser.h"
-#include "memcheck/memcheckrunner.h"
+#include "valgrindrunner.h"
 
 QT_BEGIN_NAMESPACE
 class QTcpServer;
 class QTcpSocket;
 class QProcess;
 QT_END_NAMESPACE
-
 
 namespace Valgrind {
 namespace Test {
@@ -92,19 +91,17 @@ class RunnerDumper : public QObject
     Q_OBJECT
 
 public:
-    explicit RunnerDumper(Valgrind::Memcheck::MemcheckRunner *runner, Valgrind::XmlProtocol::ThreadedParser *parser)
-        : QObject()
-        , m_errorReceived(false)
+    explicit RunnerDumper(ValgrindRunner *runner, XmlProtocol::ThreadedParser *parser)
     {
-        connect(parser, &Valgrind::XmlProtocol::ThreadedParser::error,
+        connect(parser, &XmlProtocol::ThreadedParser::error,
                 this, &RunnerDumper::error);
-        connect(parser, &Valgrind::XmlProtocol::ThreadedParser::internalError,
+        connect(parser, &XmlProtocol::ThreadedParser::internalError,
                 this, &RunnerDumper::internalError);
-        connect(parser, &Valgrind::XmlProtocol::ThreadedParser::status,
+        connect(parser, &XmlProtocol::ThreadedParser::status,
                 this, &RunnerDumper::status);
-        connect(runner, &Valgrind::Memcheck::MemcheckRunner::logMessageReceived,
+        connect(runner, &ValgrindRunner::logMessageReceived,
                 this, &RunnerDumper::logMessageReceived);
-        connect(runner, &Valgrind::ValgrindRunner::processErrorReceived,
+        connect(runner, &ValgrindRunner::processErrorReceived,
                 this, &RunnerDumper::processErrorReceived);
     }
 
@@ -133,15 +130,14 @@ public:
     }
 
 public:
-    bool m_errorReceived;
-
+    bool m_errorReceived = false;
 };
 
 class ValgrindMemcheckParserTest : public QObject
 {
     Q_OBJECT
 
-private Q_SLOTS:
+private slots:
     void initTestCase();
     void cleanup();
 
@@ -162,9 +158,9 @@ private Q_SLOTS:
 private:
     void initTest(const QString &testfile, const QStringList &otherArgs = QStringList());
 
-    QTcpServer *m_server = 0;
-    QProcess *m_process = 0;
-    QTcpSocket *m_socket = 0;
+    QTcpServer *m_server = nullptr;
+    QProcess *m_process = nullptr;
+    QTcpSocket *m_socket = nullptr;
 };
 
 } // namespace Test

@@ -37,6 +37,8 @@
 
 namespace Valgrind {
 
+namespace XmlProtocol { class ThreadedParser; }
+
 class ValgrindProcess;
 
 class ValgrindRunner : public QObject
@@ -63,12 +65,16 @@ public:
 
     QString errorString() const;
 
-    virtual bool start();
+    bool start();
     void stop();
 
     ValgrindProcess *valgrindProcess() const;
 
+    void setParser(XmlProtocol::ThreadedParser *parser);
+    void disableXml();
+
 signals:
+    void logMessageReceived(const QByteArray &);
     void extraStart();
 
     void processOutputReceived(const QString &, Utils::OutputFormat);
@@ -77,12 +83,18 @@ signals:
     void finished();
     void extraProcessFinished();
 
-protected:
-    virtual void processError(QProcess::ProcessError);
-    virtual void processFinished(int, QProcess::ExitStatus);
-    virtual void localHostAddressRetrieved(const QHostAddress &localHostAddress);
-
 private:
+    bool startServers(const QHostAddress &localHostAddress);
+    QStringList memcheckLogArguments() const;
+
+    void processError(QProcess::ProcessError);
+    void processFinished(int, QProcess::ExitStatus);
+
+    void localHostAddressRetrieved(const QHostAddress &localHostAddress);
+    void xmlSocketConnected();
+    void logSocketConnected();
+    void readLogSocket();
+
     class Private;
     Private *d;
 };

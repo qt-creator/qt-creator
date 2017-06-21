@@ -34,13 +34,13 @@
 #include <valgrind/xmlprotocol/error.h>
 #include <valgrind/xmlprotocol/errorlistmodel.h>
 #include <valgrind/xmlprotocol/stackmodel.h>
-#include <valgrind/memcheck/memcheckrunner.h>
+#include <valgrind/valgrindrunner.h>
 
 class ModelDemo : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModelDemo(Valgrind::Memcheck::MemcheckRunner *r, QObject *parent = 0)
+    explicit ModelDemo(Valgrind::ValgrindRunner *r, QObject *parent = 0)
         : QObject(parent)
         , runner(r)
     {
@@ -64,5 +64,5 @@ public Q_SLOTS:
 
 
 private:
-    Valgrind::Memcheck::MemcheckRunner *runner;
+    Valgrind::ValgrindRunner *runner;
 };

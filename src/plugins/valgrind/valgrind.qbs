@@ -63,15 +63,6 @@ QtcPlugin {
     }
 
     Group {
-        name: "Memcheck"
-        prefix: "memcheck/"
-        files: [
-            "memcheckrunner.cpp",
-            "memcheckrunner.h"
-        ]
-    }
-
-    Group {
         name: "XML Protocol"
         prefix: "xmlprotocol/"
         files: [

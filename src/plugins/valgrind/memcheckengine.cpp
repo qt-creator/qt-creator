@@ -61,9 +61,9 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl, bool withGdb)
             this, &MemcheckToolRunner::suppressionCount);
 
     if (withGdb) {
-        connect(&m_runner, &Memcheck::MemcheckRunner::started,
+        connect(&m_runner, &ValgrindRunner::started,
                 this, &MemcheckToolRunner::startDebugger);
-        connect(&m_runner, &Memcheck::MemcheckRunner::logMessageReceived,
+        connect(&m_runner, &ValgrindRunner::logMessageReceived,
                 this, &MemcheckToolRunner::appendLog);
         m_runner.disableXml();
     } else {
