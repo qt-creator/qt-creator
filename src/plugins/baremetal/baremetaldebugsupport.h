@@ -27,8 +27,6 @@
 
 #include <debugger/debuggerruncontrol.h>
 
-namespace ProjectExplorer { class ApplicationLauncher; }
-
 namespace BareMetal {
 namespace Internal {
 
@@ -38,29 +36,11 @@ class BareMetalDebugSupport : public Debugger::DebuggerRunTool
 
 public:
     BareMetalDebugSupport(ProjectExplorer::RunControl *runControl);
-    ~BareMetalDebugSupport();
 
 private:
-    enum State { Inactive, StartingRunner, Running };
-
     void start() override;
 
-    void debuggingFinished();
-    void remoteOutputMessage(const QByteArray &output);
-    void remoteErrorOutputMessage(const QByteArray &output);
-    void remoteProcessStarted();
-    void appRunnerFinished(bool success);
-    void progressReport(const QString &progressOutput);
-    void appRunnerError(const QString &error);
-
-    void adapterSetupFailed(const QString &error);
-
-    void startExecution();
-    void setFinished();
-    void reset();
-
-    ProjectExplorer::ApplicationLauncher *m_appLauncher;
-    State m_state = Inactive;
+    ProjectExplorer::SimpleTargetRunner *m_gdbServer = nullptr;
 };
 
 } // namespace Internal
