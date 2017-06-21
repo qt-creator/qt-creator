@@ -53,14 +53,13 @@ class Recorder : public QObject
 {
     Q_OBJECT
 public:
-    explicit Recorder(Valgrind::XmlProtocol::Parser *parser, QObject *parent = 0)
-    : QObject(parent)
+    explicit Recorder(XmlProtocol::Parser *parser)
     {
-        connect(parser, &Valgrind::XmlProtocol::Parser::error,
+        connect(parser, &XmlProtocol::Parser::error,
                 this, &Recorder::error);
-        connect(parser, &Valgrind::XmlProtocol::Parser::errorCount,
+        connect(parser, &XmlProtocol::Parser::errorCount,
                 this, &Recorder::errorCount);
-        connect(parser, &Valgrind::XmlProtocol::Parser::suppressionCount,
+        connect(parser, &XmlProtocol::Parser::suppressionCount,
                 this, &Recorder::suppressionCount);
     }
 
@@ -91,13 +90,13 @@ class RunnerDumper : public QObject
     Q_OBJECT
 
 public:
-    explicit RunnerDumper(ValgrindRunner *runner, XmlProtocol::ThreadedParser *parser)
+    explicit RunnerDumper(ValgrindRunner *runner)
     {
-        connect(parser, &XmlProtocol::ThreadedParser::error,
+        connect(runner->parser(), &XmlProtocol::ThreadedParser::error,
                 this, &RunnerDumper::error);
-        connect(parser, &XmlProtocol::ThreadedParser::internalError,
+        connect(runner->parser(), &XmlProtocol::ThreadedParser::internalError,
                 this, &RunnerDumper::internalError);
-        connect(parser, &XmlProtocol::ThreadedParser::status,
+        connect(runner->parser(), &XmlProtocol::ThreadedParser::status,
                 this, &RunnerDumper::status);
         connect(runner, &ValgrindRunner::logMessageReceived,
                 this, &RunnerDumper::logMessageReceived);

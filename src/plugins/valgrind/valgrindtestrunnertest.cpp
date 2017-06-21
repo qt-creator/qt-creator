@@ -112,9 +112,6 @@ void ValgrindTestRunnerTest::cleanup()
     Q_ASSERT(m_runner);
     delete m_runner;
     m_runner = 0;
-    Q_ASSERT(m_parser);
-    delete m_parser;
-    m_parser = 0;
 
     m_logMessages.clear();
     m_errors.clear();
@@ -137,14 +134,10 @@ void ValgrindTestRunnerTest::init()
             this, &ValgrindTestRunnerTest::logMessageReceived);
     connect(m_runner, &ValgrindRunner::processErrorReceived,
             this, &ValgrindTestRunnerTest::internalError);
-    Q_ASSERT(!m_parser);
-    m_parser = new ThreadedParser;
-    connect(m_parser, &ThreadedParser::internalError,
+    connect(m_runner->parser(), &ThreadedParser::internalError,
             this, &ValgrindTestRunnerTest::internalError);
-    connect(m_parser, &ThreadedParser::error,
+    connect(m_runner->parser(), &ThreadedParser::error,
             this, &ValgrindTestRunnerTest::error);
-
-    m_runner->setParser(m_parser);
 }
 
 //BEGIN: Actual test cases
@@ -734,7 +727,6 @@ void ValgrindTestRunnerTest::testInvalidjump()
         QCOMPARE(frame.functionName(), QLatin1String("(below main)"));
     }
 }
-
 
 void ValgrindTestRunnerTest::testOverlap()
 {

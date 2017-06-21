@@ -455,10 +455,8 @@ void ValgrindMemcheckParserTest::testValgrindGarbage()
 
 void ValgrindMemcheckParserTest::testParserStop()
 {
-    ThreadedParser parser;
     ValgrindRunner runner;
     runner.setValgrindExecutable(fakeValgrindExecutable());
-    runner.setParser(&parser);
     runner.setValgrindArguments({"-i", dataFile("memcheck-output-sample1.xml"), "--wait", "5" });
     runner.setProcessChannelMode(QProcess::ForwardedChannels);
 
@@ -477,7 +475,6 @@ void ValgrindMemcheckParserTest::testRealValgrind()
         QSKIP("This test needs valgrind in PATH");
     QString executable = QProcessEnvironment::systemEnvironment().value("VALGRIND_TEST_BIN", fakeValgrindExecutable());
     qDebug() << "running exe:" << executable << " HINT: set VALGRIND_TEST_BIN to change this";
-    ThreadedParser parser;
 
     ProjectExplorer::StandardRunnable debuggee;
     debuggee.executable = executable;
@@ -487,8 +484,7 @@ void ValgrindMemcheckParserTest::testRealValgrind()
     runner.setDebuggee(debuggee);
     runner.setDevice(ProjectExplorer::DeviceManager::instance()->defaultDevice(
                          ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE));
-    runner.setParser(&parser);
-    RunnerDumper dumper(&runner, &parser);
+    RunnerDumper dumper(&runner);
     runner.start();
     runner.waitForFinished();
 }
@@ -517,21 +513,18 @@ void ValgrindMemcheckParserTest::testValgrindStartError()
     QFETCH(QString, debuggee);
     QFETCH(QString, debuggeeArgs);
 
-    ThreadedParser parser;
-
     ProjectExplorer::StandardRunnable debuggeeExecutable;
     debuggeeExecutable.executable = debuggee;
     debuggeeExecutable.environment = Utils::Environment::systemEnvironment();
     debuggeeExecutable.commandLineArguments = debuggeeArgs;
 
     ValgrindRunner runner;
-    runner.setParser(&parser);
     runner.setValgrindExecutable(valgrindExe);
     runner.setValgrindArguments(valgrindArgs);
     runner.setDebuggee(debuggeeExecutable);
     runner.setDevice(ProjectExplorer::DeviceManager::instance()->defaultDevice(
                          ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE));
-    RunnerDumper dumper(&runner, &parser);
+    RunnerDumper dumper(&runner);
     runner.start();
     runner.waitForFinished();
     QVERIFY(dumper.m_errorReceived);

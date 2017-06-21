@@ -33,7 +33,6 @@
 
 namespace Valgrind {
 
-namespace XmlProtocol { class ThreadedParser; }
 class ValgrindRunner;
 
 namespace Test {
@@ -72,7 +71,6 @@ private slots:
 private:
     QString runTestBinary(const QString &binary, const QStringList &vArgs = QStringList());
 
-    XmlProtocol::ThreadedParser *m_parser = nullptr;
     ValgrindRunner *m_runner = nullptr;
     QList<QByteArray> m_logMessages;
     QList<XmlProtocol::Error> m_errors;

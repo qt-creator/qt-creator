@@ -70,7 +70,7 @@ public:
 
     ValgrindProcess *valgrindProcess() const;
 
-    void setParser(XmlProtocol::ThreadedParser *parser);
+    XmlProtocol::ThreadedParser *parser() const;
     void disableXml();
 
 signals:

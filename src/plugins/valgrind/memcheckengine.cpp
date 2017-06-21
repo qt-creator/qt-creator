@@ -55,9 +55,9 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl, bool withGdb)
     : ValgrindToolRunner(runControl), m_withGdb(withGdb)
 {
     setDisplayName("MemcheckToolRunner");
-    connect(&m_parser, &XmlProtocol::ThreadedParser::error,
+    connect(m_runner.parser(), &XmlProtocol::ThreadedParser::error,
             this, &MemcheckToolRunner::parserError);
-    connect(&m_parser, &XmlProtocol::ThreadedParser::suppressionCount,
+    connect(m_runner.parser(), &XmlProtocol::ThreadedParser::suppressionCount,
             this, &MemcheckToolRunner::suppressionCount);
 
     if (withGdb) {
@@ -67,7 +67,7 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl, bool withGdb)
                 this, &MemcheckToolRunner::appendLog);
         m_runner.disableXml();
     } else {
-        connect(&m_parser, &XmlProtocol::ThreadedParser::internalError,
+        connect(m_runner.parser(), &XmlProtocol::ThreadedParser::internalError,
                 this, &MemcheckToolRunner::internalParserError);
     }
 }
@@ -86,8 +86,6 @@ void MemcheckToolRunner::start()
 {
 //    MemcheckTool::engineStarting(this);
 
-    m_runner.setParser(&m_parser);
-
     appendMessage(tr("Analyzing memory of %1").arg(executable()) + QLatin1Char('\n'),
                         Utils::NormalMessageFormat);
     ValgrindToolRunner::start();
@@ -95,7 +93,7 @@ void MemcheckToolRunner::start()
 
 void MemcheckToolRunner::stop()
 {
-    disconnect(&m_parser, &ThreadedParser::internalError,
+    disconnect(m_runner.parser(), &ThreadedParser::internalError,
                this, &MemcheckToolRunner::internalParserError);
     ValgrindToolRunner::stop();
 }

@@ -59,7 +59,7 @@ public:
     QString tool;
 
     QTcpServer xmlServer;
-    XmlProtocol::ThreadedParser *parser = nullptr;
+    XmlProtocol::ThreadedParser parser;
     QTcpServer logServer;
     QTcpSocket *logSocket = nullptr;
     bool disableXml = false;
@@ -77,7 +77,7 @@ ValgrindRunner::~ValgrindRunner()
         // make sure we don't delete the thread while it's still running
         waitForFinished();
     }
-    if (d->parser->isRunning()) {
+    if (d->parser.isRunning()) {
         // make sure we don't delete the thread while it's still running
         waitForFinished();
     }
@@ -238,10 +238,9 @@ ValgrindProcess *ValgrindRunner::valgrindProcess() const
     return d->process;
 }
 
-void ValgrindRunner::setParser(XmlProtocol::ThreadedParser *parser)
+XmlProtocol::ThreadedParser *ValgrindRunner::parser() const
 {
-    QTC_ASSERT(!d->parser, qt_noop());
-    d->parser = parser;
+    return &d->parser;
 }
 
 
@@ -257,7 +256,7 @@ void ValgrindRunner::xmlSocketConnected()
     QTcpSocket *socket = d->xmlServer.nextPendingConnection();
     QTC_ASSERT(socket, return);
     d->xmlServer.close();
-    d->parser->parse(socket);
+    d->parser.parse(socket);
 }
 
 void ValgrindRunner::logSocketConnected()

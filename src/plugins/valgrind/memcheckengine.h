@@ -60,7 +60,6 @@ private:
     void startDebugger();
     void appendLog(const QByteArray &data);
 
-    XmlProtocol::ThreadedParser m_parser;
     ValgrindRunner m_runner;
     const bool m_withGdb;
 };
