@@ -563,11 +563,7 @@ RunWorker *MemcheckTool::createRunWorker(RunControl *runControl)
     m_errorModel.setRelevantFrameFinder(makeFrameFinder(runConfig
         ? runConfig->target()->project()->files(Project::AllFiles) : QStringList()));
 
-    MemcheckToolRunner *runTool = 0;
-    if (runControl->runMode() == MEMCHECK_RUN_MODE)
-        runTool = new MemcheckToolRunner(runControl);
-    else
-        runTool = new MemcheckWithGdbToolRunner(runControl);
+    auto runTool = new MemcheckToolRunner(runControl, runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE);
 
     connect(runTool, &MemcheckToolRunner::starting,
             this, [this, runTool] { engineStarting(runTool); });

@@ -51,16 +51,25 @@ using namespace Valgrind::XmlProtocol;
 namespace Valgrind {
 namespace Internal {
 
-MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
-    : ValgrindToolRunner(runControl)
+MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl, bool withGdb)
+    : ValgrindToolRunner(runControl), m_withGdb(withGdb)
 {
     setDisplayName("MemcheckToolRunner");
     connect(&m_parser, &XmlProtocol::ThreadedParser::error,
             this, &MemcheckToolRunner::parserError);
     connect(&m_parser, &XmlProtocol::ThreadedParser::suppressionCount,
             this, &MemcheckToolRunner::suppressionCount);
-    connect(&m_parser, &XmlProtocol::ThreadedParser::internalError,
-            this, &MemcheckToolRunner::internalParserError);
+
+    if (withGdb) {
+        connect(&m_runner, &Memcheck::MemcheckRunner::started,
+                this, &MemcheckToolRunner::startDebugger);
+        connect(&m_runner, &Memcheck::MemcheckRunner::logMessageReceived,
+                this, &MemcheckToolRunner::appendLog);
+        m_runner.disableXml();
+    } else {
+        connect(&m_parser, &XmlProtocol::ThreadedParser::internalError,
+                this, &MemcheckToolRunner::internalParserError);
+    }
 }
 
 QString MemcheckToolRunner::progressTitle() const
@@ -94,35 +103,39 @@ void MemcheckToolRunner::stop()
 QStringList MemcheckToolRunner::toolArguments() const
 {
     QStringList arguments;
-    arguments << QLatin1String("--gen-suppressions=all");
+    arguments << "--gen-suppressions=all";
 
     QTC_ASSERT(m_settings, return arguments);
 
     if (m_settings->trackOrigins())
-        arguments << QLatin1String("--track-origins=yes");
+        arguments << "--track-origins=yes";
 
     if (m_settings->showReachable())
-        arguments << QLatin1String("--show-reachable=yes");
+        arguments << "--show-reachable=yes";
 
     QString leakCheckValue;
     switch (m_settings->leakCheckOnFinish()) {
     case ValgrindBaseSettings::LeakCheckOnFinishNo:
-        leakCheckValue = QLatin1String("no");
+        leakCheckValue = "no";
         break;
     case ValgrindBaseSettings::LeakCheckOnFinishYes:
-        leakCheckValue = QLatin1String("full");
+        leakCheckValue = "full";
         break;
     case ValgrindBaseSettings::LeakCheckOnFinishSummaryOnly:
     default:
-        leakCheckValue = QLatin1String("summary");
+        leakCheckValue = "summary";
         break;
     }
-    arguments << QLatin1String("--leak-check=") + leakCheckValue;
+    arguments << "--leak-check=" + leakCheckValue;
 
     foreach (const QString &file, m_settings->suppressionFiles())
-        arguments << QString::fromLatin1("--suppressions=%1").arg(file);
+        arguments << QString("--suppressions=%1").arg(file);
 
-    arguments << QString::fromLatin1("--num-callers=%1").arg(m_settings->numCallers());
+    arguments << QString("--num-callers=%1").arg(m_settings->numCallers());
+
+    if (m_withGdb)
+        arguments << "--vgdb=yes" << "--vgdb-error=0";
+
     return arguments;
 }
 
@@ -131,25 +144,7 @@ QStringList MemcheckToolRunner::suppressionFiles() const
     return m_settings->suppressionFiles();
 }
 
-MemcheckWithGdbToolRunner::MemcheckWithGdbToolRunner(RunControl *runControl)
-    : MemcheckToolRunner(runControl)
-{
-    connect(&m_runner, &Memcheck::MemcheckRunner::started,
-            this, &MemcheckWithGdbToolRunner::startDebugger);
-    connect(&m_runner, &Memcheck::MemcheckRunner::logMessageReceived,
-            this, &MemcheckWithGdbToolRunner::appendLog);
-    disconnect(&m_parser, &ThreadedParser::internalError,
-               this, &MemcheckToolRunner::internalParserError);
-    m_runner.disableXml();
-}
-
-QStringList MemcheckWithGdbToolRunner::toolArguments() const
-{
-    return MemcheckToolRunner::toolArguments()
-            << QLatin1String("--vgdb=yes") << QLatin1String("--vgdb-error=0");
-}
-
-void MemcheckWithGdbToolRunner::startDebugger()
+void MemcheckToolRunner::startDebugger()
 {
     const qint64 valgrindPid = runner()->valgrindProcess()->pid();
 
@@ -169,7 +164,7 @@ void MemcheckWithGdbToolRunner::startDebugger()
     gdbRunControl->initiateStart();
 }
 
-void MemcheckWithGdbToolRunner::appendLog(const QByteArray &data)
+void MemcheckToolRunner::appendLog(const QByteArray &data)
 {
     appendMessage(QString::fromUtf8(data), Utils::StdOutFormat);
 }
