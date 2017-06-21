@@ -856,25 +856,25 @@ TEST_F(HighlightingMarks, FunctionAlias)
     ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(HighlightingMarks, FriendTypeDeclaration)
+TEST_F(HighlightingMarks, DISABLED_ON_CLANG3(FriendTypeDeclaration))
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(350, 28));
 
-    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Invalid));
+    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(HighlightingMarks, FriendArgumentTypeDeclaration)
+TEST_F(HighlightingMarks, DISABLED_ON_CLANG3(FriendArgumentTypeDeclaration))
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(351, 65));
 
-    ASSERT_THAT(infos[6], HasOnlyType(HighlightingType::Invalid));
+    ASSERT_THAT(infos[6], HasOnlyType(HighlightingType::Type));
 }
 
-TEST_F(HighlightingMarks, FriendArgumentDeclaration)
+TEST_F(HighlightingMarks, DISABLED_ON_CLANG3(FriendArgumentDeclaration))
 {
     const auto infos = translationUnit.highlightingMarksInRange(sourceRange(351, 65));
 
-    ASSERT_THAT(infos[8], HasOnlyType(HighlightingType::Invalid));
+    ASSERT_THAT(infos[8], HasOnlyType(HighlightingType::LocalVariable));
 }
 
 TEST_F(HighlightingMarks, FieldInitialization)
