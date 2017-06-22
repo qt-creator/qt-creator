@@ -43,17 +43,10 @@ static const int CANCELBUTTON_WIDTH = 16;
 static const int SEPARATOR_HEIGHT = 2;
 
 ProgressBar::ProgressBar(QWidget *parent)
-    : QWidget(parent), m_titleVisible(true), m_separatorVisible(true), m_cancelEnabled(true),
-      m_progressHeight(0),
-      m_minimum(1), m_maximum(100), m_value(1), m_cancelButtonFader(0), m_finished(false),
-      m_error(false)
+    : QWidget(parent)
 {
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     setMouseTracking(true);
-}
-
-ProgressBar::~ProgressBar()
-{
 }
 
 bool ProgressBar::event(QEvent *e)
@@ -80,7 +73,6 @@ bool ProgressBar::event(QEvent *e)
     }
     return false;
 }
-
 
 void ProgressBar::reset()
 {
@@ -297,7 +289,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
         p.fillRect(inner, c);
     } else {
         const static QImage bar(StyleHelper::dpiSpecificImageFile(
-                                    QLatin1String(":/utils/images/progressbar.png")));
+                                    ":/utils/images/progressbar.png"));
         StyleHelper::drawCornerImage(bar, &p, rect, 3, 3, 3, 3);
 
         // Draw line and shadow after the gradient fill
