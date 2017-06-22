@@ -344,7 +344,7 @@ QString NodeInstanceServerProxy::qrcMappingString() const
 
             foreach (const StringPair &pair, rewriterView->qrcMapping()) {
                 if (!mappingString.isEmpty())
-                    mappingString.append(QLatin1String(","));
+                    mappingString.append(QLatin1String(";"));
                 mappingString.append(pair.first);
                 mappingString.append(QLatin1String("="));
                 mappingString.append(pair.second);
