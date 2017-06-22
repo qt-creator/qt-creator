@@ -5,6 +5,7 @@ import qbs.FileInfo
 Project {
     name: "Qt Creator"
     minimumQbsVersion: "1.6.0"
+    property string minimumMacosVersion: "10.8"
     property bool withAutotests: qbs.buildVariant === "debug"
     property path ide_source_tree: path
     property pathList additionalPlugins: []

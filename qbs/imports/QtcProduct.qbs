@@ -22,7 +22,7 @@ Product {
 
     Properties {
         condition: Utilities.versionCompare(Qt.core.version, "5.7") < 0
-        cpp.minimumMacosVersion: "10.8"
+        cpp.minimumMacosVersion: project.minimumMacosVersion
     }
 
     cpp.cxxLanguageVersion: "c++14"
