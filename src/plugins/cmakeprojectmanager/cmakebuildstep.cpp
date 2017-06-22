@@ -217,6 +217,22 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
         return false;
     }
 
+    // Warn if doing out-of-source builds with a CMakeCache.txt is the source directory
+    const Utils::FileName projectDirectory = bc->target()->project()->projectDirectory();
+    if (bc->buildDirectory() != projectDirectory) {
+        Utils::FileName cmc = projectDirectory;
+        cmc.appendPath("CMakeCache.txt");
+        if (cmc.exists()) {
+            emit addTask(Task(Task::Warning,
+                              tr("There is a CMakeCache.txt file in \"%1\", which suggest an "
+                                 "in-source build was done before. You are now building in \"%2\", "
+                                 "and the CMakeCache.txt file might confuse CMake.")
+                              .arg(projectDirectory.toUserOutput(), bc->buildDirectory().toUserOutput()),
+                              Utils::FileName(), -1,
+                              ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+    }
+
     QString arguments = allArguments(rc);
 
     setIgnoreReturnValue(m_buildTarget == CMakeBuildStep::cleanTarget());
