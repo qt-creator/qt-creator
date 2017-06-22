@@ -131,8 +131,10 @@ QString BareMetalRunConfiguration::defaultDisplayName()
 
 QString BareMetalRunConfiguration::localExecutableFilePath() const
 {
+    const QString targetName = QFileInfo(m_projectFilePath).completeBaseName();
+
     return target()->applicationTargets()
-            .targetForProject(FileName::fromString(m_projectFilePath)).toString();
+              .targetFilePath(FileName::fromString(targetName).toString()).toString();
 }
 
 QString BareMetalRunConfiguration::arguments() const
@@ -158,9 +160,10 @@ QString BareMetalRunConfiguration::projectFilePath() const
 QString BareMetalRunConfiguration::buildSystemTarget() const
 {
     const BuildTargetInfoList targets = target()->applicationTargets();
-    const Utils::FileName projectFilePath = Utils::FileName::fromString(m_projectFilePath);
+    const Utils::FileName projectFilePath = Utils::FileName::fromString(QFileInfo(m_projectFilePath).path());
+    const QString targetName = QFileInfo(m_projectFilePath).completeBaseName();
     auto bst = std::find_if(targets.list.constBegin(), targets.list.constEnd(),
-                            [&projectFilePath](const BuildTargetInfo &bti) { return bti.projectFilePath == projectFilePath; });
+                            [&projectFilePath,&targetName](const BuildTargetInfo &bti) { return bti.projectFilePath == projectFilePath && bti.targetName == targetName; });
     return (bst == targets.list.constEnd()) ? QString() : bst->targetName;
 }
 

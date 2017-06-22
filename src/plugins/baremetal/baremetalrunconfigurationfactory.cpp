@@ -60,8 +60,9 @@ bool BareMetalRunConfigurationFactory::canCreate(Target *parent, Core::Id id) co
 {
     if (!canHandle(parent))
         return false;
+    const QString targetName = QFileInfo(pathFromId(id)).completeBaseName();
     return id == BareMetalCustomRunConfiguration::runConfigId()
-            || !parent->applicationTargets().targetForProject(pathFromId(id)).isEmpty();
+            || !parent->applicationTargets().targetFilePath(targetName).isEmpty();
 }
 
 bool BareMetalRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
@@ -89,7 +90,7 @@ QList<Core::Id> BareMetalRunConfigurationFactory::availableCreationIds(Target *p
 
     const Core::Id base = Core::Id(BareMetalRunConfiguration::IdPrefix);
     foreach (const BuildTargetInfo &bti, parent->applicationTargets().list)
-        result << base.withSuffix(bti.projectFilePath.toString());
+        result << base.withSuffix(bti.projectFilePath.toString() + QLatin1Char('/') + bti.targetName);
     result << BareMetalCustomRunConfiguration::runConfigId();
     return result;
 }
