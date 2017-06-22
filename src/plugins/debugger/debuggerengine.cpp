@@ -1796,7 +1796,7 @@ void DebuggerEngine::validateExecutable()
     QString detailedWarning;
     switch (sp->toolChainAbi.binaryFormat()) {
     case Abi::PEFormat: {
-        if (sp->masterEngineType != CdbEngineType) {
+        if (sp->cppEngineType != CdbEngineType) {
             warnOnInappropriateDebugger = true;
             detailedWarning = tr(
                         "The inferior is in the Portable Executable format.\n"
@@ -1820,7 +1820,7 @@ void DebuggerEngine::validateExecutable()
         break;
     }
     case Abi::ElfFormat: {
-        if (sp->masterEngineType == CdbEngineType) {
+        if (sp->cppEngineType == CdbEngineType) {
             warnOnInappropriateDebugger = true;
             detailedWarning = tr(
                         "The inferior is in the ELF format.\n"
