@@ -430,6 +430,7 @@ void Wizard::showVariables()
 
     auto label = new QLabel(result);
     label->setWordWrap(true);
+    label->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
     scrollArea->setWidget(label);
 
     layout->addWidget(scrollArea);
