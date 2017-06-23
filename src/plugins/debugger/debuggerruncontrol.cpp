@@ -790,6 +790,7 @@ void GdbServerRunner::start()
 void GdbServerRunner::stop()
 {
     m_gdbServer.stop();
+    reportStopped();
 }
 
 } // namespace Debugger

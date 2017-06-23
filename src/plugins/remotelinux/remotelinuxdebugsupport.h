@@ -37,10 +37,12 @@ class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public Debugger::DebuggerRunT
 
 public:
     LinuxDeviceDebugSupport(ProjectExplorer::RunControl *runControl);
-    ~LinuxDeviceDebugSupport() override;
 
 private:
     void start() override;
+
+protected:
+    QString m_symbolFile;
 };
 
 } // namespace RemoteLinux

@@ -50,7 +50,7 @@ namespace RemoteLinux {
 LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
     : DebuggerRunTool(runControl)
 {
-    setDisplayName("DebugSupport");
+    setDisplayName("LinuxDeviceDebugSupport");
 
     auto portsGatherer = new GdbServerPortsGatherer(runControl);
     portsGatherer->setUseGdbServer(isCppDebugging());
@@ -60,32 +60,27 @@ LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
     gdbServer->addDependency(portsGatherer);
 
     addDependency(gdbServer);
-}
 
-LinuxDeviceDebugSupport::~LinuxDeviceDebugSupport()
-{
+    RunConfiguration *runConfig = runControl->runConfiguration();
+    if (auto rlrc = qobject_cast<RemoteLinuxRunConfiguration *>(runConfig))
+        m_symbolFile = rlrc->localExecutableFilePath();
+    else if (auto rlrc = qobject_cast<Internal::RemoteLinuxCustomRunConfiguration *>(runConfig))
+        m_symbolFile = rlrc->localExecutableFilePath();
 }
 
 void LinuxDeviceDebugSupport::start()
 {
+    if (m_symbolFile.isEmpty()) {
+        reportFailure(tr("Cannot debug: Local executable is not set."));
+        return;
+    }
+
     auto portsGatherer = runControl()->worker<GdbServerPortsGatherer>();
     QTC_ASSERT(portsGatherer, reportFailure(); return);
 
     const QString host = device()->sshParameters().host;
     const Port gdbServerPort = portsGatherer->gdbServerPort();
     const Port qmlServerPort = portsGatherer->qmlServerPort();
-
-    RunConfiguration *runConfig = runControl()->runConfiguration();
-
-    QString symbolFile;
-    if (auto rlrc = qobject_cast<RemoteLinuxRunConfiguration *>(runConfig))
-        symbolFile = rlrc->localExecutableFilePath();
-    if (auto rlrc = qobject_cast<Internal::RemoteLinuxCustomRunConfiguration *>(runConfig))
-        symbolFile = rlrc->localExecutableFilePath();
-    if (symbolFile.isEmpty()) {
-//        *errorMessage = tr("Cannot debug: Local executable is not set.");
-        return;
-    }
 
     DebuggerStartParameters params;
     params.startMode = AttachToRemoteServer;
@@ -111,7 +106,7 @@ void LinuxDeviceDebugSupport::start()
         }
 
         params.remoteChannel = QString("%1:%2").arg(host).arg(gdbServerPort.number());
-        params.symbolFile = symbolFile;
+        params.symbolFile = m_symbolFile;
     }
 
     setStartParameters(params);
