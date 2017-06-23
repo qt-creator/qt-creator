@@ -28,6 +28,7 @@
 #include "algorithm.h"
 #include "qtcassert.h"
 
+#include <QDebug>
 #include <QDir>
 #include <QProcessEnvironment>
 #include <QSet>
@@ -58,6 +59,15 @@ Q_GLOBAL_STATIC(SystemEnvironment, staticSystemEnvironment)
 
 namespace Utils {
 
+enum : char
+{
+#ifdef Q_OS_WIN
+    pathSepC = ';'
+#else
+    pathSepC = ':'
+#endif
+};
+
 void EnvironmentItem::sort(QList<EnvironmentItem> *list)
 {
     Utils::sort(*list, &EnvironmentItem::name);
@@ -68,14 +78,10 @@ QList<EnvironmentItem> EnvironmentItem::fromStringList(const QStringList &list)
     QList<EnvironmentItem> result;
     for (const QString &string : list) {
         int pos = string.indexOf('=', 1);
-        if (pos == -1) {
-            EnvironmentItem item(string, QString());
-            item.unset = true;
-            result.append(item);
-        } else {
-            EnvironmentItem item(string.left(pos), string.mid(pos+1));
-            result.append(item);
-        }
+        if (pos == -1)
+            result.append(EnvironmentItem(string, QString(), EnvironmentItem::Unset));
+        else
+            result.append(EnvironmentItem(string.left(pos), string.mid(pos + 1)));
     }
     return result;
 }
@@ -84,12 +90,116 @@ QStringList EnvironmentItem::toStringList(const QList<EnvironmentItem> &list)
 {
     QStringList result;
     for (const EnvironmentItem &item : list) {
-        if (item.unset)
+        if (item.operation == EnvironmentItem::Unset)
             result << QString(item.name);
         else
             result << QString(item.name + '=' + item.value);
     }
     return result;
+}
+
+static QString expand(const Environment *e, QString value)
+{
+    int replaceCount = 0;
+    for (int i = 0; i < value.size(); ++i) {
+        if (value.at(i) == '$') {
+            if ((i + 1) < value.size()) {
+                const QChar &c = value.at(i+1);
+                int end = -1;
+                if (c == '(')
+                    end = value.indexOf(')', i);
+                else if (c == '{')
+                    end = value.indexOf('}', i);
+                if (end != -1) {
+                    const QString &name = value.mid(i + 2, end - i - 2);
+                    Environment::const_iterator it = e->constFind(name);
+                    if (it != e->constEnd())
+                        value.replace(i, end - i + 1, it.value());
+                    ++replaceCount;
+                    QTC_ASSERT(replaceCount < 100, break);
+                }
+            }
+        }
+    }
+    return value;
+}
+
+QDebug operator<<(QDebug debug, const EnvironmentItem &i)
+{
+    QDebugStateSaver saver(debug);
+    debug.noquote();
+    debug.nospace();
+    debug << "EnvironmentItem(";
+    switch (i.operation) {
+    case Utils::EnvironmentItem::Set:
+        debug << "set \"" << i.name << "\" to \"" << i.value << '"';
+        break;
+    case Utils::EnvironmentItem::Unset:
+        debug << "unset \"" << i.name << '"';
+        break;
+    case Utils::EnvironmentItem::Prepend:
+        debug << "prepend to \"" << i.name << "\":\"" << i.value << '"';
+        break;
+    case Utils::EnvironmentItem::Append:
+        debug << "append to \"" << i.name << "\":\"" << i.value << '"';
+        break;
+    }
+    debug << ')';
+    return debug;
+}
+
+void EnvironmentItem::apply(Environment *e, Operation op) const
+{
+    switch (op) {
+    case Set:
+        e->set(name, expand(e, value));
+        break;
+    case Unset:
+        e->unset(name);
+        break;
+    case Prepend: {
+        const Environment::const_iterator it = e->constFind(name);
+        if (it != e->constEnd()) {
+            QString v = it.value();
+            const QChar pathSep{QLatin1Char(pathSepC)};
+            int sepCount = 0;
+            if (v.startsWith(pathSep))
+                ++sepCount;
+            if (value.endsWith(pathSep))
+                ++sepCount;
+            if (sepCount == 2)
+                v.remove(0, 1);
+            else if (sepCount == 0)
+                v.prepend(pathSep);
+            v.prepend(expand(e, value));
+            e->set(name, v);
+        } else {
+            apply(e, Set);
+        }
+    }
+        break;
+    case Append: {
+        const Environment::const_iterator it = e->constFind(name);
+        if (it != e->constEnd()) {
+            QString v = it.value();
+            const QChar pathSep{QLatin1Char(pathSepC)};
+            int sepCount = 0;
+            if (v.endsWith(pathSep))
+                ++sepCount;
+            if (value.startsWith(pathSep))
+                ++sepCount;
+            if (sepCount == 2)
+                v.chop(1);
+            else if (sepCount == 0)
+                v.append(pathSep);
+            v.append(expand(e, value));
+            e->set(name, v);
+        } else {
+            apply(e, Set);
+        }
+    }
+        break;
+    }
 }
 
 Environment::Environment(const QStringList &env, OsType osType) : m_osType(osType)
@@ -367,40 +477,12 @@ int Environment::size() const
 void Environment::modify(const QList<EnvironmentItem> & list)
 {
     Environment resultEnvironment = *this;
-    for (const EnvironmentItem &item : list) {
-        if (item.unset) {
-            resultEnvironment.unset(item.name);
-        } else {
-            // TODO use variable expansion
-            QString value = item.value;
-            int replaceCount = 0;
-            for (int i=0; i < value.size(); ++i) {
-                if (value.at(i) == '$') {
-                    if ((i + 1) < value.size()) {
-                        const QChar &c = value.at(i+1);
-                        int end = -1;
-                        if (c == '(')
-                            end = value.indexOf(')', i);
-                        else if (c == '{')
-                            end = value.indexOf('}', i);
-                        if (end != -1) {
-                            const QString &name = value.mid(i+2, end-i-2);
-                            Environment::const_iterator it = constFind(name);
-                            if (it != constEnd())
-                                value.replace(i, end-i+1, it.value());
-                            ++replaceCount;
-                            QTC_ASSERT(replaceCount < 100, break);
-                        }
-                    }
-                }
-            }
-            resultEnvironment.set(item.name, value);
-        }
-    }
+    for (const EnvironmentItem &item : list)
+        item.apply(&resultEnvironment);
     *this = resultEnvironment;
 }
 
-QList<EnvironmentItem> Environment::diff(const Environment &other) const
+QList<EnvironmentItem> Environment::diff(const Environment &other, bool checkAppendPrepend) const
 {
     QMap<QString, QString>::const_iterator thisIt = constBegin();
     QMap<QString, QString>::const_iterator otherIt = other.constBegin();
@@ -411,21 +493,34 @@ QList<EnvironmentItem> Environment::diff(const Environment &other) const
             result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
             ++otherIt;
         } else if (otherIt == other.constEnd()) {
-            EnvironmentItem item(thisIt.key(), QString());
-            item.unset = true;
-            result.append(item);
+            result.append(EnvironmentItem(thisIt.key(), QString(), EnvironmentItem::Unset));
             ++thisIt;
         } else if (thisIt.key() < otherIt.key()) {
-            EnvironmentItem item(thisIt.key(), QString());
-            item.unset = true;
-            result.append(item);
+            result.append(EnvironmentItem(thisIt.key(), QString(), EnvironmentItem::Unset));
             ++thisIt;
         } else if (thisIt.key() > otherIt.key()) {
             result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
             ++otherIt;
         } else {
-            if (thisIt.value() != otherIt.value())
-                result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
+            const QString &oldValue = thisIt.value();
+            const QString &newValue = otherIt.value();
+            if (oldValue != newValue) {
+                if (checkAppendPrepend && newValue.startsWith(oldValue)) {
+                    QString appended = newValue.right(newValue.size() - oldValue.size());
+                    if (appended.startsWith(QLatin1Char(pathSepC)))
+                        appended.remove(0, 1);
+                    result.append(EnvironmentItem(otherIt.key(), appended,
+                                                  EnvironmentItem::Append));
+                } else if (checkAppendPrepend && newValue.endsWith(oldValue)) {
+                    QString prepended = newValue.left(newValue.size() - oldValue.size());
+                    if (prepended.endsWith(QLatin1Char(pathSepC)))
+                        prepended.chop(1);
+                    result.append(EnvironmentItem(otherIt.key(), prepended,
+                                                  EnvironmentItem::Prepend));
+                } else {
+                    result.append(EnvironmentItem(otherIt.key(), newValue));
+                }
+            }
             ++otherIt;
             ++thisIt;
         }

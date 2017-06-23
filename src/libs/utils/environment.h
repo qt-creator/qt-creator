@@ -34,30 +34,41 @@
 
 #include <functional>
 
+QT_FORWARD_DECLARE_CLASS(QDebug)
 QT_FORWARD_DECLARE_CLASS(QProcessEnvironment)
 
 namespace Utils {
+class Environment;
 
 class QTCREATOR_UTILS_EXPORT EnvironmentItem
 {
 public:
-    EnvironmentItem(const QString &n, const QString &v)
-            : name(n), value(v), unset(false)
+    enum Operation { Set, Unset, Prepend, Append };
+
+    EnvironmentItem(const QString &n, const QString &v, Operation op = Set)
+            : name(n), value(v), operation(op)
     {}
+
+    void apply(Environment *e) const { apply(e, operation); }
 
     QString name;
     QString value;
-    bool unset;
+    Operation operation;
 
     bool operator==(const EnvironmentItem &other) const
     {
-        return unset == other.unset && name == other.name && value == other.value;
+        return operation == other.operation && name == other.name && value == other.value;
     }
 
     static void sort(QList<EnvironmentItem> *list);
     static QList<EnvironmentItem> fromStringList(const QStringList &list);
     static QStringList toStringList(const QList<EnvironmentItem> &list);
+
+private:
+    void apply(Environment *e, Operation op) const;
 };
+
+QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug debug, const EnvironmentItem &i);
 
 class QTCREATOR_UTILS_EXPORT Environment
 {
@@ -78,7 +89,7 @@ public:
     void unset(const QString &key);
     void modify(const QList<EnvironmentItem> &list);
     /// Return the Environment changes necessary to modify this into the other environment.
-    QList<EnvironmentItem> diff(const Environment &other) const;
+    QList<EnvironmentItem> diff(const Environment &other, bool checkAppendPrepend = false) const;
     bool hasKey(const QString &key) const;
 
     QString userName() const;

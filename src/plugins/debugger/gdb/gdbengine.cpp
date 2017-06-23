@@ -4046,7 +4046,7 @@ void GdbEngine::setEnvironmentVariables()
     Environment sysEnv = Environment::systemEnvironment();
     Environment runEnv = runParameters().inferior.environment;
     foreach (const EnvironmentItem &item, sysEnv.diff(runEnv)) {
-        if (item.unset)
+        if (item.operation == EnvironmentItem::Unset)
             runCommand({"unset environment " + item.name});
         else
             runCommand({"-gdb-set environment " + item.name + '='

@@ -44,7 +44,7 @@ public:
         // Add removed variables again and mark them as "<UNSET>" so
         // that the user can actually see those removals:
         foreach (const EnvironmentItem &item, m_items) {
-            if (item.unset)
+            if (item.operation == EnvironmentItem::Unset)
                 m_resultEnvironment.set(item.name, EnvironmentModel::tr("<UNSET>"));
         }
     }
@@ -230,7 +230,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
             } else {
                 // ... and changed it again
                 d->m_items[changesPos].value = stringValue;
-                d->m_items[changesPos].unset = false;
+                d->m_items[changesPos].operation = EnvironmentItem::Set;
             }
         } else {
             // Add a new change item:
@@ -267,7 +267,7 @@ QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
         Q_ASSERT(changePos >= 0);
         // Do not insert a line here as we listed the variable as <UNSET> before!
         Q_ASSERT(d->m_items.at(changePos).name == item.name);
-        Q_ASSERT(d->m_items.at(changePos).unset);
+        Q_ASSERT(d->m_items.at(changePos).operation == EnvironmentItem::Unset);
         Q_ASSERT(d->m_items.at(changePos).value.isEmpty());
         d->m_items[changePos] = item;
         emit dataChanged(index(insertPos, 0, QModelIndex()), index(insertPos, 1, QModelIndex()));
@@ -320,16 +320,14 @@ void EnvironmentModel::unsetVariable(const QString &name)
     // look in d->m_items for the variable
     int pos = d->findInChanges(name);
     if (pos != -1) {
-        d->m_items[pos].unset = true;
+        d->m_items[pos].operation = EnvironmentItem::Unset;
         d->m_items[pos].value.clear();
         d->updateResultEnvironment();
         emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
         emit userChangesChanged();
         return;
     }
-    EnvironmentItem item(name, QString());
-    item.unset = true;
-    d->m_items.append(item);
+    d->m_items.append(EnvironmentItem(name, QString(), EnvironmentItem::Unset));
     d->updateResultEnvironment();
     emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
     emit userChangesChanged();
@@ -339,7 +337,7 @@ bool EnvironmentModel::canUnset(const QString &name)
 {
     int pos = d->findInChanges(name);
     if (pos != -1)
-        return d->m_items.at(pos).unset;
+        return d->m_items.at(pos).operation == EnvironmentItem::Unset;
     else
         return false;
 }

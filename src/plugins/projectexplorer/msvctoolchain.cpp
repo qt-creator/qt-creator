@@ -529,23 +529,10 @@ QList<Utils::EnvironmentItem> MsvcToolChain::environmentModifications() const
         }
     }
 
-    QList<Utils::EnvironmentItem> diff = inEnv.diff(outEnv);
+    QList<Utils::EnvironmentItem> diff = inEnv.diff(outEnv, true);
     for (int i = diff.size() - 1; i >= 0; --i) {
         if (diff.at(i).name.startsWith(QLatin1Char('='))) { // Exclude "=C:", "=EXITCODE"
             diff.removeAt(i);
-        } else {
-            // Fix the append/prepend cases to "FOO=${FOO};newValue" (see Environment::modify)
-            Utils::EnvironmentItem &e = diff[i];
-            if (!e.unset) {
-                const auto oldIt = inEnv.constFind(e.name);
-                if (oldIt != inEnv.constEnd()) {
-                    const int index = e.value.indexOf(oldIt.value());
-                    if (index != -1) {
-                        e.value.replace(index, oldIt.value().size(),
-                                        QStringLiteral("${") + e.name + QLatin1Char('}'));
-                    }
-                }
-            }
         }
     }
 
