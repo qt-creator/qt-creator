@@ -39,7 +39,6 @@ const QLatin1String GitSettings::ignoreSpaceChangesInDiffKey("SpaceIgnorantDiff"
 const QLatin1String GitSettings::ignoreSpaceChangesInBlameKey("SpaceIgnorantBlame");
 const QLatin1String GitSettings::diffPatienceKey("DiffPatience");
 const QLatin1String GitSettings::winSetHomeEnvironmentKey("WinSetHomeEnvironment");
-const QLatin1String GitSettings::showPrettyFormatKey("DiffPrettyFormat");
 const QLatin1String GitSettings::gitkOptionsKey("GitKOptions");
 const QLatin1String GitSettings::logDiffKey("LogDiff");
 const QLatin1String GitSettings::repositoryBrowserCmd("RepositoryBrowserCmd");
@@ -61,7 +60,6 @@ GitSettings::GitSettings()
     declareKey(diffPatienceKey, true);
     declareKey(winSetHomeEnvironmentKey, true);
     declareKey(gitkOptionsKey, QString());
-    declareKey(showPrettyFormatKey, 2);
     declareKey(logDiffKey, false);
     declareKey(repositoryBrowserCmd, QString());
     declareKey(graphLogKey, false);
