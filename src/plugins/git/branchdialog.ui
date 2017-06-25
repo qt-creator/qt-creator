@@ -108,7 +108,7 @@
           <item>
            <widget class="QPushButton" name="checkoutButton">
             <property name="text">
-             <string>&amp;Checkout</string>
+             <string>C&amp;heckout</string>
             </property>
            </widget>
           </item>
@@ -157,7 +157,7 @@
           <item>
            <widget class="QPushButton" name="resetButton">
             <property name="text">
-             <string>Reset</string>
+             <string>Re&amp;set</string>
             </property>
            </widget>
           </item>
@@ -169,7 +169,7 @@
            <string>Cherry pick top commit from selected branch.</string>
           </property>
           <property name="text">
-           <string>Cherry Pick</string>
+           <string>Cherry &amp;Pick</string>
           </property>
          </widget>
         </item>
