@@ -73,6 +73,7 @@
 #include <coreplugin/manhattanstyle.h>
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/find/highlightscrollbar.h>
+#include <utils/asconst.h>
 #include <utils/linecolumnlabel.h>
 #include <utils/fileutils.h>
 #include <utils/dropsupport.h>
@@ -470,7 +471,8 @@ public:
     bool m_skipAutoCompletedText = true;
     bool m_removeAutoCompletedText = true;
     bool m_keepAutoCompletionHighlight = false;
-    QTextCursor m_autoCompleteHighlightPos;
+    QList<QTextCursor> m_autoCompleteHighlightPos;
+    void updateAutoCompleteHighlight();
 
     int m_cursorBlockNumber = -1;
     int m_blockCount = 0;
@@ -941,6 +943,21 @@ int TextEditorWidgetPrivate::visualIndent(const QTextBlock &block) const
     }
 
     return 0;
+}
+
+void TextEditorWidgetPrivate::updateAutoCompleteHighlight()
+{
+    const QTextCharFormat &matchFormat
+            = q->textDocument()->fontSettings().toTextCharFormat(C_PARENTHESES);
+
+    QList<QTextEdit::ExtraSelection> extraSelections;
+    for (QTextCursor cursor : Utils::asConst(m_autoCompleteHighlightPos)) {
+        QTextEdit::ExtraSelection sel;
+        sel.cursor = cursor;
+        sel.format.setBackground(matchFormat.background());
+        extraSelections.append(sel);
+    }
+    q->setExtraSelections(TextEditorWidget::AutoCompleteSelection, extraSelections);
 }
 
 void TextEditorWidget::selectEncoding()
@@ -2366,8 +2383,10 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         QTextCursor cursor = textCursor();
         QString autoText;
         if (!inOverwriteMode) {
-            autoText = autoCompleter()->autoComplete(cursor, eventText,
-                    d->m_skipAutoCompletedText && cursor == d->m_autoCompleteHighlightPos);
+            const bool skipChar = d->m_skipAutoCompletedText
+                    && !d->m_autoCompleteHighlightPos.isEmpty()
+                    && cursor == d->m_autoCompleteHighlightPos.last();
+            autoText = autoCompleter()->autoComplete(cursor, eventText, skipChar);
         }
         const bool cursorWithinSnippet = d->snippetCheckCursor(cursor);
 
@@ -4732,13 +4751,17 @@ void TextEditorWidgetPrivate::updateHighlights()
         }
     }
 
-    if (m_highlightAutoComplete && !m_autoCompleteHighlightPos.isNull()) {
+    if (m_highlightAutoComplete && !m_autoCompleteHighlightPos.isEmpty()) {
         QTimer::singleShot(0, this, [this](){
-            if ((!m_keepAutoCompletionHighlight && !q->hasFocus())
-                    || m_autoCompleteHighlightPos != q->textCursor()) {
-                q->setExtraSelections(TextEditorWidget::AutoCompleteSelection,
-                                      QList<QTextEdit::ExtraSelection>()); // clear
-                m_autoCompleteHighlightPos = QTextCursor();
+            const QTextCursor &cursor = q->textCursor();
+            auto popAutoCompletion = [&]() {
+                return !m_autoCompleteHighlightPos.isEmpty()
+                        && m_autoCompleteHighlightPos.last() != cursor;
+            };
+            if (!m_keepAutoCompletionHighlight && !q->hasFocus() && popAutoCompletion()) {
+                while (popAutoCompletion())
+                    m_autoCompleteHighlightPos.pop_back();
+                updateAutoCompleteHighlight();
             }
         });
     }
@@ -5405,8 +5428,11 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
     const TabSettings &tabSettings = m_document->tabSettings();
     const TypingSettings &typingSettings = m_document->typingSettings();
 
-    if (typingSettings.m_autoIndent && (m_autoCompleteHighlightPos == cursor)
-            && m_removeAutoCompletedText && m_autoCompleter->autoBackspace(cursor)) {
+    if (typingSettings.m_autoIndent
+            && !m_autoCompleteHighlightPos.isEmpty()
+            && (m_autoCompleteHighlightPos.last() == cursor)
+            && m_removeAutoCompletedText
+            && m_autoCompleter->autoBackspace(cursor)) {
         return;
     }
 
@@ -6082,25 +6108,14 @@ void TextEditorWidgetPrivate::_q_highlightBlocks()
 
 void TextEditorWidgetPrivate::autocompleterHighlight(const QTextCursor &cursor)
 {
-    QList<QTextEdit::ExtraSelection> extraSelections;
     if ((!m_animateAutoComplete && !m_highlightAutoComplete)
             || q->isReadOnly() || !cursor.hasSelection()) {
-        q->setExtraSelections(TextEditorWidget::AutoCompleteSelection, extraSelections); // clear
-        return;
-    }
-
-    const QTextCharFormat &matchFormat
-            = q->textDocument()->fontSettings().toTextCharFormat(C_AUTOCOMPLETE);
-
-    if (m_highlightAutoComplete) {
-        QTextEdit::ExtraSelection sel;
-        sel.cursor = cursor;
-        sel.format.setBackground(matchFormat.background());
-        extraSelections.append(sel);
-        m_autoCompleteHighlightPos = cursor;
-        m_autoCompleteHighlightPos.movePosition(QTextCursor::PreviousCharacter);
-    }
-    if (m_animateAutoComplete) {
+        m_autoCompleteHighlightPos.clear();
+    } else if (m_highlightAutoComplete) {
+        m_autoCompleteHighlightPos.push_back(cursor);
+    } else if (m_animateAutoComplete) {
+        const QTextCharFormat &matchFormat
+                = q->textDocument()->fontSettings().toTextCharFormat(C_AUTOCOMPLETE);
         cancelCurrentAnimations();// one animation is enough
         QPalette pal;
         pal.setBrush(QPalette::Text, matchFormat.foreground());
@@ -6110,7 +6125,7 @@ void TextEditorWidgetPrivate::autocompleterHighlight(const QTextCursor &cursor)
         connect(m_autocompleteAnimator.data(), &TextEditorAnimator::updateRequest,
                 this, &TextEditorWidgetPrivate::_q_animateUpdate);
     }
-    q->setExtraSelections(TextEditorWidget::AutoCompleteSelection, extraSelections);
+    updateAutoCompleteHighlight();
 }
 
 void TextEditorWidgetPrivate::updateAnimator(QPointer<TextEditorAnimator> animator,
