@@ -66,14 +66,19 @@ public:
     QStringList filesGeneratedFrom(const QString &sourceFile) const override;
 
     bool isProjectEditable() const;
-    bool addFilesToProduct(const QStringList &filePaths, const qbs::ProductData &productData,
-                           const qbs::GroupData &groupData, QStringList *notAdded);
+    // qbs::ProductData and qbs::GroupData are held by the nodes in the project tree.
+    // These methods change those trees and invalidate the lot, so pass in copies of
+    // the data we are interested in!
+    // The overhead is not as big as it seems at first glance: These all are handles
+    // for shared data.
+    bool addFilesToProduct(const QStringList &filePaths, const qbs::ProductData productData,
+                           const qbs::GroupData groupData, QStringList *notAdded);
     bool removeFilesFromProduct(const QStringList &filePaths,
-            const qbs::ProductData &productData, const qbs::GroupData &groupData,
+            const qbs::ProductData productData, const qbs::GroupData groupData,
             QStringList *notRemoved);
     bool renameFileInProduct(const QString &oldPath,
-            const QString &newPath, const qbs::ProductData &productData,
-            const qbs::GroupData &groupData);
+            const QString &newPath, const qbs::ProductData productData,
+            const qbs::GroupData groupData);
 
     qbs::BuildJob *build(const qbs::BuildOptions &opts, QStringList products, QString &error);
     qbs::CleanJob *clean(const qbs::CleanOptions &opts);

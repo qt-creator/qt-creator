@@ -43,6 +43,10 @@ CMake Projects
 * Fixed that building application failed first time and after build error
   when using CMake < 3.7 (QTCREATORBUG-18290, QTCREATORBUG-18382)
 
+Qbs Projects
+
+* Fixed crash when renaming files (QTCREATORBUG-18440)
+
 Autotools Projects
 
 * Fixed regressions in project tree (QTCREATORBUG-18371)
