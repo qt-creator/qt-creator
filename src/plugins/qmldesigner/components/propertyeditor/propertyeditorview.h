@@ -92,6 +92,8 @@ public:
     void exportPopertyAsAlias(const QString &name);
     void removeAliasExport(const QString &name);
 
+    bool locked() const;
+
 protected:
     void timerEvent(QTimerEvent *event) override;
     void setupPane(const TypeName &typeName);

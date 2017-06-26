@@ -73,6 +73,17 @@ ServerModeReader::ServerModeReader()
         if (m_cmakeFiles.contains(document->filePath()))
             emit dirty();
     });
+
+    connect(&m_parser, &CMakeParser::addOutput,
+            this, [](const QString &m) { Core::MessageManager::write(m); });
+    connect(&m_parser, &CMakeParser::addTask, this, [this](const Task &t) {
+        Task editable(t);
+        if (!editable.file.isEmpty()) {
+            QDir srcDir(m_parameters.sourceDirectory.toString());
+            editable.file = FileName::fromString(srcDir.absoluteFilePath(editable.file.toString()));
+        }
+        TaskHub::addTask(editable);
+    });
 }
 
 ServerModeReader::~ServerModeReader()
@@ -98,8 +109,13 @@ void ServerModeReader::setParameters(const BuildDirReader::Parameters &p)
                 this, &ServerModeReader::handleProgress);
         connect(m_cmakeServer.get(), &ServerMode::cmakeSignal,
                 this, &ServerModeReader::handleSignal);
-        connect(m_cmakeServer.get(), &ServerMode::cmakeMessage,
-                this, [this](const QString &m) { Core::MessageManager::write(m); });
+        connect(m_cmakeServer.get(), &ServerMode::cmakeMessage, [this](const QString &m) {
+            const QStringList lines = m.split('\n');
+            for (const QString &l : lines) {
+                m_parser.stdError(l);
+                Core::MessageManager::write(l);
+            }
+        });
         connect(m_cmakeServer.get(), &ServerMode::message,
                 this, [](const QString &m) { Core::MessageManager::write(m); });
         connect(m_cmakeServer.get(), &ServerMode::connected,
@@ -170,6 +186,7 @@ void ServerModeReader::stop()
         m_future->reportFinished();
         m_future.reset();
     }
+    m_parser.flush();
 }
 
 bool ServerModeReader::isReady() const
@@ -732,6 +749,9 @@ void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
 void ServerModeReader::addHeaderNodes(ProjectNode *root, const QList<FileNode *> knownHeaders,
                                       const QList<const FileNode *> &allFiles)
 {
+    if (root->isEmpty())
+        return;
+
     auto headerNode = new VirtualFolderNode(root->filePath(), Node::DefaultPriority - 5);
     headerNode->setDisplayName(tr("<Headers>"));
 

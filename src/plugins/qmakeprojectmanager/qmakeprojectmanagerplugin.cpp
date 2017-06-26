@@ -330,7 +330,7 @@ void QmakeProjectManagerPlugin::updateContextActions()
     Project *project = ProjectTree::currentProject();
 
     ContainerNode *containerNode = node ? node->asContainerNode() : nullptr;
-    ProjectNode *proFileNode = containerNode ? containerNode->rootProjectNode() : dynamic_cast<QmakeProFileNode *>(node);
+    QmakeProFileNode *proFileNode = dynamic_cast<QmakeProFileNode *>(containerNode ? containerNode->rootProjectNode() : node);
 
     m_addLibraryActionContextMenu->setEnabled(proFileNode);
     QmakeProject *qmakeProject = qobject_cast<QmakeProject *>(QmakeManager::contextProject());

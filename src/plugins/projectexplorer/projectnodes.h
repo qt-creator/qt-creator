@@ -37,6 +37,7 @@
 #include <functional>
 
 namespace Utils { class MimeType; }
+namespace Core { class IVersionControl; }
 
 namespace ProjectExplorer {
 
@@ -188,9 +189,16 @@ public:
     FileNode *asFileNode() final { return this; }
     const FileNode *asFileNode() const final { return this; }
 
+    // For ABI compatibility, remove in QtC 4.4:
     static QList<FileNode *> scanForFiles(const Utils::FileName &directory,
                                           const std::function<FileNode *(const Utils::FileName &fileName)> factory,
                                           QFutureInterface<QList<FileNode *>> *future = nullptr);
+
+    static QList<FileNode *>
+    scanForFilesWithVersionControls(const Utils::FileName &directory,
+                                    const std::function<FileNode *(const Utils::FileName &fileName)> factory,
+                                    const QList<Core::IVersionControl *> &versionControls,
+                                    QFutureInterface<QList<FileNode *>> *future = nullptr);
     bool supportsAction(ProjectAction action, Node *node) const override;
 
 private:

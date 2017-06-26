@@ -31,6 +31,7 @@
 
 #include <QDir>
 #include <QRegularExpression>
+#include <QSet>
 
 #include <limits.h>
 
@@ -153,7 +154,8 @@ bool AbstractMacroExpander::expandNestedMacros(const QString &str, int *pos, QSt
                 *pos = i;
                 return true;
             }
-            if (resolveMacro(varName, ret)) {
+            QSet<AbstractMacroExpander*> seen;
+            if (resolveMacro(varName, ret, seen)) {
                 *pos = i;
                 if (!pattern.isEmpty() && currArg == &replace) {
                     const QRegularExpression regexp(pattern);

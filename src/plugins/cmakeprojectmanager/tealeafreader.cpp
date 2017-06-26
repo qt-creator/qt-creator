@@ -243,6 +243,10 @@ CMakeConfig TeaLeafReader::takeParsedConfiguration()
 {
     FileName cacheFile = m_parameters.buildDirectory;
     cacheFile.appendPath(QLatin1String("CMakeCache.txt"));
+
+    if (!cacheFile.exists())
+        return { };
+
     QString errorMessage;
     CMakeConfig result = BuildDirManager::parseConfiguration(cacheFile, &errorMessage);
 
@@ -266,6 +270,9 @@ CMakeConfig TeaLeafReader::takeParsedConfiguration()
 
 void TeaLeafReader::generateProjectTree(CMakeProjectNode *root, const QList<const FileNode *> &allFiles)
 {
+    if (m_files.isEmpty())
+        return;
+
     root->setDisplayName(m_projectName);
 
     // Delete no longer necessary file watcher based on m_cmakeFiles:

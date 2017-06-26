@@ -76,11 +76,12 @@ private:
     QString gradientPropertyName() const;
     void setGradientPropertyName(const QString &name);
     bool hasGradient() const;
+    bool locked() const;
 
 private:
     QmlDesigner::QmlItemNode m_itemNode;
     QString m_gradientPropertyName;
-    bool m_lock;
+    bool m_locked;
 
 };
 

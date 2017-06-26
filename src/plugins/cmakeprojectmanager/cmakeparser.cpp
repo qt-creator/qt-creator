@@ -32,7 +32,7 @@
 using namespace CMakeProjectManager;
 using namespace ProjectExplorer;
 
-const char COMMON_ERROR_PATTERN[] = "^CMake Error at (.*):([0-9]*) \\((.*)\\):";
+const char COMMON_ERROR_PATTERN[] = "^CMake Error at (.*):([0-9]*)( \\((.*)\\))?:";
 const char NEXT_SUBERROR_PATTERN[] = "^CMake Error in (.*):";
 const char LOCATION_LINE_PATTERN[] = ":(\\d+):(?:(\\d+))?$";
 
@@ -248,6 +248,20 @@ void Internal::CMakeProjectPlugin::testCMakeParser_data()
                 << Task(Task::Error,
                         QLatin1String("Error required internal CMake variable not set, cmake may be not be built correctly."),
                         Utils::FileName(), -1, categoryBuild))
+            << QString();
+
+    QTest::newRow("cmake error at")
+            << QString::fromLatin1("CMake Error at CMakeLists.txt:4:\n"
+                                   "  Parse error.  Expected \"(\", got newline with text \"\n"
+                                   "\n"
+                                   "  \".\n")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("Parse error.  Expected \"(\", got newline with text \" \"."),
+                        Utils::FileName::fromUserInput(QLatin1String("CMakeLists.txt")), 4,
+                        categoryBuild))
             << QString();
 
     QTest::newRow("cmake warning")

@@ -32,8 +32,14 @@
 class TestMacroExpander : public Utils::AbstractMacroExpander
 {
 public:
-    virtual bool resolveMacro(const QString &name, QString *ret)
+    virtual bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander*> &seen)
     {
+        // loop prevention
+        const int count = seen.count();
+        seen.insert(this);
+        if (seen.count() == count)
+            return false;
+
         if (name == QLatin1String("foo")) {
             *ret = QLatin1String("a");
             return true;
