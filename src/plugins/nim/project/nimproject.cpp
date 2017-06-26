@@ -31,6 +31,8 @@
 #include "../nimconstants.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsmanager.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -113,8 +115,11 @@ void NimProject::collectProjectFiles()
     m_lastProjectScan.start();
     QTC_ASSERT(!m_futureWatcher.future().isRunning(), return);
     FileName prjDir = projectDirectory();
-    QFuture<QList<ProjectExplorer::FileNode *>> future = Utils::runAsync([prjDir] {
-        return FileNode::scanForFiles(prjDir, [](const FileName &fn) { return new FileNode(fn, FileType::Source, false); });
+    const QList<Core::IVersionControl *> versionControls = Core::VcsManager::versionControls();
+    QFuture<QList<ProjectExplorer::FileNode *>> future = Utils::runAsync([prjDir, versionControls] {
+        return FileNode::scanForFilesWithVersionControls(
+                    prjDir, [](const FileName &fn) { return new FileNode(fn, FileType::Source, false); },
+                    versionControls);
     });
     m_futureWatcher.setFuture(future);
     Core::ProgressManager::addTask(future, tr("Scanning for Nim files"), "Nim.Project.Scan");

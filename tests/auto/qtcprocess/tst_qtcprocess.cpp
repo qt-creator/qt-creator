@@ -34,8 +34,14 @@ using namespace Utils;
 
 class MacroMapExpander : public AbstractMacroExpander {
 public:
-    virtual bool resolveMacro(const QString &name, QString *ret)
+    virtual bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander*> &seen)
     {
+        // loop prevention
+        const int count = seen.count();
+        seen.insert(this);
+        if (seen.count() == count)
+            return false;
+
         QHash<QString, QString>::const_iterator it = m_map.constFind(name);
         if (it != m_map.constEnd()) {
             *ret = it.value();

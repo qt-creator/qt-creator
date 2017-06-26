@@ -149,7 +149,10 @@ void TabWidget::slotContextMenuRequested(const QPoint &pos)
 
 AppOutputPane::RunControlTab::RunControlTab(RunControl *rc, Core::OutputWindow *w) :
     runControl(rc), window(w)
-{ }
+{
+    if (rc && w)
+        w->setFormatter(rc->outputFormatter());
+}
 
 AppOutputPane::AppOutputPane() :
     m_mainWidget(new QWidget),
@@ -262,7 +265,7 @@ AppOutputPane::~AppOutputPane()
         qDebug() << "OutputPane::~OutputPane: Entries left" << m_runControlTabs.size();
 
     foreach (const RunControlTab &rt, m_runControlTabs) {
-        rt.window->setFormatter(nullptr);
+        delete rt.window;
         delete rt.runControl;
     }
     delete m_mainWidget;
@@ -416,13 +419,14 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         RunControlTab &tab = m_runControlTabs[tabIndex];
         // Reuse this tab
         delete tab.runControl;
-        handleOldOutput(tab.window);
         tab.runControl = rc;
+        tab.window->setFormatter(rc ? rc->outputFormatter() : nullptr);
+
+        handleOldOutput(tab.window);
 
         // Update the title.
         m_tabWidget->setTabText(tabIndex, rc->displayName());
 
-        tab.window->setFormatter(nullptr);
         tab.window->scrollToBottom();
         if (debug)
             qDebug() << "OutputPane::createNewOutputWindow: Reusing tab" << tabIndex << " for " << rc;
@@ -435,7 +439,6 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     Core::OutputWindow *ow = new Core::OutputWindow(context, m_tabWidget);
     ow->setWindowTitle(tr("Application Output Window"));
     ow->setWindowIcon(Icons::WINDOW.icon());
-    ow->setFormatter(nullptr);
     ow->setWordWrapEnabled(ProjectExplorerPlugin::projectExplorerSettings().wrapAppOutput);
     ow->setMaxLineCount(ProjectExplorerPlugin::projectExplorerSettings().maxAppOutputLines);
     ow->setWheelZoomEnabled(TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming);
@@ -590,9 +593,8 @@ bool AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
     }
 
     m_tabWidget->removeTab(tabIndex);
-    m_runControlTabs[index].window->setFormatter(nullptr);
-    delete m_runControlTabs[index].runControl;
     delete m_runControlTabs[index].window;
+    delete m_runControlTabs[index].runControl;
     m_runControlTabs.removeAt(index);
     updateCloseActions();
 
@@ -706,10 +708,6 @@ void AppOutputPane::contextMenuRequested(const QPoint &pos, int index)
 void AppOutputPane::slotRunControlStarted()
 {
     RunControl *current = currentRunControl();
-    const int rcIndex = indexOf(current);
-    if (rcIndex >= 0 && m_runControlTabs.at(rcIndex).window)
-        m_runControlTabs.at(rcIndex).window->setFormatter(current->outputFormatter());
-
     if (current && current == sender())
         enableButtons(current, true); // RunControl::isRunning() cannot be trusted in signal handler.
 }
@@ -739,8 +737,6 @@ void AppOutputPane::slotRunControlFinished2(RunControl *sender)
 
     if (current && current == sender)
         enableButtons(current, false); // RunControl::isRunning() cannot be trusted in signal handler.
-
-    m_runControlTabs.at(senderIndex).window->setFormatter(nullptr); // Reset formater for this RC
 
     ProjectExplorerPlugin::instance()->updateRunActions();
 

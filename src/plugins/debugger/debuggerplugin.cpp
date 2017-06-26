@@ -2303,26 +2303,32 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
     }
 
     // Run to, jump to line below in stopped state.
-    if (currentEngine()->state() == InferiorStopOk && args.isValid()) {
+    DebuggerEngine *engine = currentEngine();
+    QTC_ASSERT(engine, return);
+    if (engine->state() == InferiorStopOk && args.isValid()) {
         menu->addSeparator();
-        if (currentEngine()->hasCapability(RunToLineCapability)) {
+        if (engine->hasCapability(RunToLineCapability)) {
             auto act = menu->addAction(args.address
                 ? DebuggerEngine::tr("Run to Address 0x%1").arg(args.address, 0, 16)
                 : DebuggerEngine::tr("Run to Line %1").arg(args.lineNumber));
             connect(act, &QAction::triggered, [this, args] {
-                currentEngine()->executeRunToLine(args);
+                DebuggerEngine *engine = currentEngine();
+                QTC_ASSERT(engine, return);
+                engine->executeRunToLine(args);
             });
         }
-        if (currentEngine()->hasCapability(JumpToLineCapability)) {
+        if (engine->hasCapability(JumpToLineCapability)) {
             auto act = menu->addAction(args.address
                 ? DebuggerEngine::tr("Jump to Address 0x%1").arg(args.address, 0, 16)
                 : DebuggerEngine::tr("Jump to Line %1").arg(args.lineNumber));
             connect(act, &QAction::triggered, [this, args] {
-                currentEngine()->executeJumpToLine(args);
+                DebuggerEngine *engine = currentEngine();
+                QTC_ASSERT(engine, return);
+                engine->executeJumpToLine(args);
             });
         }
         // Disassemble current function in stopped state.
-        if (currentEngine()->hasCapability(DisassemblerCapability)) {
+        if (engine->hasCapability(DisassemblerCapability)) {
             StackFrame frame;
             frame.function = cppFunctionAt(args.fileName, lineNumber, 1);
             frame.line = 42; // trick gdb into mixed mode.
@@ -2331,7 +2337,9 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
                     .arg(frame.function);
                 auto act = new QAction(text, menu);
                 connect(act, &QAction::triggered, [this, frame] {
-                    currentEngine()->openDisassemblerView(Location(frame));
+                    DebuggerEngine *engine = currentEngine();
+                    QTC_ASSERT(engine, return);
+                    engine->openDisassemblerView(Location(frame));
                 });
                 menu->addAction(act);
             }

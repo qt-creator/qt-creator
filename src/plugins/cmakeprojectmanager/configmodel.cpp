@@ -257,7 +257,9 @@ void ConfigModel::setConfiguration(const QList<ConfigModel::DataItem> &config)
 
     QList<InternalDataItem> result;
     while (newIt != newEndIt && oldIt != oldEndIt) {
-        if (newIt->key < oldIt->key) {
+        if (newIt->isHidden) {
+            ++newIt;
+        } else if (newIt->key < oldIt->key) {
             // Add new entry:
             result << InternalDataItem(*newIt);
             ++newIt;
@@ -279,8 +281,11 @@ void ConfigModel::setConfiguration(const QList<ConfigModel::DataItem> &config)
     }
 
     // Add remaining new entries:
-    for (; newIt != newEndIt; ++newIt)
+    for (; newIt != newEndIt; ++newIt) {
+        if (newIt->isHidden)
+            continue;
         result << InternalDataItem(*newIt);
+    }
 
     beginResetModel();
     m_configuration = result;

@@ -26,6 +26,7 @@
 #include "gradientmodel.h"
 
 #include "qmlanchorbindingproxy.h"
+#include "propertyeditorview.h"
 
 #include <nodeproperty.h>
 #include <nodelistproperty.h>
@@ -35,7 +36,7 @@
 #include <rewritertransaction.h>
 
 GradientModel::GradientModel(QObject *parent) :
-    QAbstractListModel(parent), m_lock(false)
+    QAbstractListModel(parent), m_locked(false)
 {
 }
 
@@ -93,7 +94,7 @@ QVariant GradientModel::data(const QModelIndex &index, int role) const
 
 int GradientModel::addStop(qreal position, const QColor &color)
 {
-    if (m_lock)
+    if (m_locked)
         return -1;
 
     if (!m_itemNode.isValid() || gradientPropertyName().isEmpty())
@@ -131,7 +132,7 @@ int GradientModel::addStop(qreal position, const QColor &color)
 
 void GradientModel::addGradient()
 {
-    if (m_lock)
+    if (m_locked)
         return;
 
     if (!m_itemNode.isValid() || gradientPropertyName().isEmpty())
@@ -174,7 +175,7 @@ void GradientModel::addGradient()
 
 void GradientModel::setColor(int index, const QColor &color)
 {
-    if (m_lock)
+    if (locked())
         return;
 
     if (!m_itemNode.modelNode().isSelected())
@@ -191,7 +192,7 @@ void GradientModel::setColor(int index, const QColor &color)
 
 void GradientModel::setPosition(int index, qreal positition)
 {
-    if (m_lock)
+    if (locked())
         return;
 
     if (index < rowCount()) {
@@ -266,12 +267,12 @@ void GradientModel::deleteGradient()
 
 void GradientModel::lock()
 {
-    m_lock = true;
+    m_locked = true;
 }
 
 void GradientModel::unlock()
 {
-    m_lock = false;
+    m_locked = false;
 }
 
 void GradientModel::registerDeclarativeType()
@@ -281,11 +282,11 @@ void GradientModel::registerDeclarativeType()
 
 void GradientModel::setupModel()
 {
-    m_lock = true;
+    m_locked = true;
     beginResetModel();
 
     endResetModel();
-    m_lock = false;
+    m_locked = false;
 }
 
 void GradientModel::setAnchorBackend(const QVariant &anchorBackend)
@@ -300,12 +301,12 @@ void GradientModel::setAnchorBackend(const QVariant &anchorBackend)
 
     setupModel();
 
-    m_lock = true;
+    m_locked = true;
 
     emit anchorBackendChanged();
     emit hasGradientChanged();
 
-    m_lock = false;
+    m_locked = false;
 }
 
 QString GradientModel::gradientPropertyName() const
@@ -322,4 +323,17 @@ bool GradientModel::hasGradient() const
 {
     return m_itemNode.isValid()
             && m_itemNode.modelNode().hasProperty(gradientPropertyName().toUtf8());
+}
+
+bool GradientModel::locked() const
+{
+    if (m_locked)
+        return true;
+
+    QmlDesigner::PropertyEditorView *view = qobject_cast<QmlDesigner::PropertyEditorView*>(m_itemNode.view());
+
+    if (view && view->locked())
+        return true;
+
+    return false;
 }

@@ -147,8 +147,8 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     auto newRoot = bc->generateProjectTree(m_allFiles);
     if (newRoot) {
-        setRootProjectNode(newRoot);
         setDisplayName(newRoot->displayName());
+        setRootProjectNode(newRoot);
     }
 
     updateApplicationAndDeploymentTargets();
@@ -495,8 +495,13 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
         if (ct.targetType == UtilityType)
             continue;
 
-        if (ct.targetType == ExecutableType || ct.targetType == DynamicLibraryType)
-            deploymentData.addFile(ct.executable.toString(), deploymentPrefix + buildDir.relativeFilePath(ct.executable.toFileInfo().dir().path()), DeployableFile::TypeExecutable);
+        if (ct.targetType == ExecutableType || ct.targetType == DynamicLibraryType) {
+            if (!ct.executable.isEmpty()) {
+                deploymentData.addFile(ct.executable.toString(),
+                                       deploymentPrefix + buildDir.relativeFilePath(ct.executable.toFileInfo().dir().path()),
+                                       DeployableFile::TypeExecutable);
+            }
+        }
         if (ct.targetType == ExecutableType) {
             FileName srcWithTrailingSlash = FileName::fromString(ct.sourceDirectory.toString());
             srcWithTrailingSlash.appendString('/');
