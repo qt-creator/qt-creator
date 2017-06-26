@@ -748,6 +748,8 @@ public:
 
     QPoint m_markDragStart;
     bool m_markDragging = false;
+    QCursor m_markDragCursor;
+    TextMark* m_dragMark = nullptr;
 
     QScopedPointer<ClipboardAssistProvider> m_clipboardAssistProvider;
 
@@ -5711,16 +5713,24 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             d->extraAreaPreviousMarkTooltipRequestedLine = line;
         }
 
-        if (e->buttons() & Qt::LeftButton && !d->m_markDragStart.isNull()) {
+        if (!d->m_markDragging && e->buttons() & Qt::LeftButton && !d->m_markDragStart.isNull()) {
             int dist = (e->pos() - d->m_markDragStart).manhattanLength();
-            if (dist > QApplication::startDragDistance())
+            if (dist > QApplication::startDragDistance()) {
                 d->m_markDragging = true;
+                const int height = fontMetrics().lineSpacing() - 1;
+                const int width = int(.5 + height * d->m_dragMark->widthFactor());
+                d->m_markDragCursor = QCursor(d->m_dragMark->icon().pixmap({height, width}));
+                d->m_dragMark->setVisible(false);
+                QGuiApplication::setOverrideCursor(d->m_markDragCursor);
+            }
         }
 
-        if (d->m_markDragging)
-            d->m_extraArea->setCursor(inMarkArea ? Qt::DragMoveCursor : Qt::ForbiddenCursor);
-        else if (inMarkArea != (d->m_extraArea->cursor().shape() == Qt::PointingHandCursor))
+        if (d->m_markDragging) {
+            QGuiApplication::changeOverrideCursor(inMarkArea ? d->m_markDragCursor
+                                                             : QCursor(Qt::ForbiddenCursor));
+        } else if (inMarkArea != (d->m_extraArea->cursor().shape() == Qt::PointingHandCursor)) {
             d->m_extraArea->setCursor(inMarkArea ? Qt::PointingHandCursor : Qt::ArrowCursor);
+        }
     }
 
     if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick) {
@@ -5755,6 +5765,7 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
                         TextMark *mark = marks.at(i);
                         if (mark->isDraggable()) {
                             d->m_markDragStart = e->pos();
+                            d->m_dragMark = mark;
                             break;
                         }
                     }
@@ -5794,26 +5805,24 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             d->extraAreaToggleMarkBlockNumber = -1;
             const bool sameLine = cursor.blockNumber() == n;
             const bool wasDragging = d->m_markDragging;
+            TextMark *dragMark = d->m_dragMark;
+            d->m_dragMark = nullptr;
             d->m_markDragging = false;
             d->m_markDragStart = QPoint();
-            QTextBlock block = cursor.document()->findBlockByNumber(n);
-            if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
-                TextMarks marks = data->marks();
-                for (int i = marks.size(); --i >= 0; ) {
-                    TextMark *mark = marks.at(i);
-                    if (sameLine) {
+            if (dragMark)
+                dragMark->setVisible(true);
+            QGuiApplication::restoreOverrideCursor();
+            if (wasDragging && dragMark) {
+                dragMark->dragToLine(cursor.blockNumber() + 1);
+                return;
+            } else if (sameLine) {
+                QTextBlock block = cursor.document()->findBlockByNumber(n);
+                if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
+                    TextMarks marks = data->marks();
+                    for (int i = marks.size(); --i >= 0; ) {
+                        TextMark *mark = marks.at(i);
                         if (mark->isClickable()) {
                             mark->clicked();
-                            return;
-                        }
-                    } else {
-                        if (wasDragging && mark->isDraggable()) {
-                            if (inMarkArea) {
-                                mark->dragToLine(cursor.blockNumber() + 1);
-                                d->m_extraArea->setCursor(Qt::PointingHandCursor);
-                            } else {
-                                d->m_extraArea->setCursor(Qt::ArrowCursor);
-                            }
                             return;
                         }
                     }
@@ -7192,6 +7201,13 @@ void TextEditorWidgetPrivate::applyFontSettingsDelayed()
 
 void TextEditorWidgetPrivate::markRemoved(TextMark *mark)
 {
+    if (m_dragMark == mark) {
+        m_dragMark = nullptr;
+        m_markDragging = false;
+        m_markDragStart = QPoint();
+        QGuiApplication::restoreOverrideCursor();
+    }
+
     auto it = m_annotationRects.find(mark->lineNumber() - 1);
     if (it == m_annotationRects.end())
         return;
