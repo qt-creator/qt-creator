@@ -63,6 +63,7 @@ SOURCES += \
     projectupdater-test.cpp \
     pchmanagerserver-test.cpp \
     pchmanagerclientserverinprocess-test.cpp \
+    clangquerygatherer-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \

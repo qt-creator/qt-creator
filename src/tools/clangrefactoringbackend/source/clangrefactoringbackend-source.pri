@@ -2,6 +2,7 @@ INCLUDEPATH += $$PWD
 
 HEADERS += \
     $$PWD/clangrefactoringbackend_global.h \
+    $$PWD/clangquerygatherer.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
@@ -31,3 +32,6 @@ HEADERS += \
     $$PWD/sourcerangeextractor.h \
     $$PWD/locationsourcefilecallbacks.h
 }
+
+SOURCES += \
+    $$PWD/clangquerygatherer.cpp

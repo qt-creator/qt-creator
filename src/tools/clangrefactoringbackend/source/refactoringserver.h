@@ -25,9 +25,12 @@
 
 #pragma once
 
+#include "clangquerygatherer.h"
+
 #include <refactoringserverinterface.h>
 
-#include <future>
+#include <QTimer>
+
 #include <vector>
 
 namespace ClangBackEnd {
@@ -51,18 +54,19 @@ public:
 
     bool isCancelingJobs() const;
 
-    void supersedePollEventLoop(std::function<void()> &&pollEventLoop);
+    void pollSourceRangesAndDiagnosticsForQueryMessages();
+    void waitThatSourceRangesAndDiagnosticsForQueryMessagesAreFinished();
+
+    bool pollTimerIsActive() const;
 
 private:
-    void gatherSourceRangesAndDiagnosticsForQueryMessage(std::vector<V2::FileContainer> &&sources,
-                                                         std::vector<V2::FileContainer> &&unsaved,
-                                                         Utils::SmallString &&query);
-    std::size_t waitForNewSourceRangesAndDiagnosticsForQueryMessage(std::vector<Future> &futures);
+    void gatherSourceRangesAndDiagnosticsForQueryMessages(std::vector<V2::FileContainer> &&sources,
+                                                          std::vector<V2::FileContainer> &&unsaved,
+                                                          Utils::SmallString &&query);
 
 private:
-    std::function<void()> pollEventLoop;
-    std::atomic_bool cancelWork{false};
-
+    ClangQueryGatherer m_gatherer;
+    QTimer m_pollTimer;
 };
 
 } // namespace ClangBackEnd

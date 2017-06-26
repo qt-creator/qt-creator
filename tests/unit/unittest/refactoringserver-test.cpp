@@ -67,7 +67,9 @@ MATCHER_P2(IsSourceLocation, line, column,
 
 class RefactoringServer : public ::testing::Test
 {
+protected:
     void SetUp() override;
+    void TearDown() override;
 
 protected:
     ClangBackEnd::RefactoringServer refactoringServer;
@@ -99,8 +101,7 @@ TEST_F(RefactoringServerSlowTest, RequestSourceLocationsForRenamingMessage)
                                             AllOf(Contains(IsSourceLocation(1, 5)),
                                                   Contains(IsSourceLocation(3, 9)))),
                                          Property(&SourceLocationsContainer::filePaths,
-                                                  Contains(Pair(_, FilePath(TESTDATA_DIR, "renamevariable.cpp")))))))))
-        .Times(1);
+                                                  Contains(Pair(_, FilePath(TESTDATA_DIR, "renamevariable.cpp")))))))));
 
     refactoringServer.requestSourceLocationsForRenamingMessage(std::move(requestSourceLocationsForRenamingMessage));
 }
@@ -115,8 +116,7 @@ TEST_F(RefactoringServerSlowTest, RequestSingleSourceRangesAndDiagnosticsForQuer
                 sourceRangesAndDiagnosticsForQueryMessage(
                     Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
                              Property(&SourceRangesContainer::sourceRangeWithTextContainers,
-                                      Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent))))))
-            .Times(1);
+                                      Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent))))));
 
     refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
 }
@@ -138,8 +138,7 @@ TEST_F(RefactoringServerSlowTest, RequestSingleSourceRangesAndDiagnosticsWithUns
                 sourceRangesAndDiagnosticsForQueryMessage(
                     Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
                              Property(&SourceRangesContainer::sourceRangeWithTextContainers,
-                                      Contains(IsSourceRangeWithText(1, 1, 1, 9, unsavedContent))))))
-            .Times(1);
+                                      Contains(IsSourceRangeWithText(1, 1, 1, 9, unsavedContent))))));
 
     refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
 }
@@ -182,13 +181,6 @@ TEST_F(RefactoringServerVerySlowTest, RequestManySourceRangesAndDiagnosticsForQu
 
 TEST_F(RefactoringServer, CancelJobs)
 {
-    refactoringServer.cancel();
-
-    ASSERT_TRUE(refactoringServer.isCancelingJobs());
-}
-
-TEST_F(RefactoringServerVerySlowTest, PollEventLoopAsQueryIsRunning)
-{
     std::vector<FileContainer> sources;
     std::fill_n(std::back_inserter(sources),
                 std::thread::hardware_concurrency() + 3,
@@ -196,17 +188,56 @@ TEST_F(RefactoringServerVerySlowTest, PollEventLoopAsQueryIsRunning)
     RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
                                                                                                       std::move(sources),
                                                                                                       {}};
-    bool eventLoopIsPolled = false;
-    refactoringServer.supersedePollEventLoop([&] () { eventLoopIsPolled = true; });
+    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
+
+    refactoringServer.cancel();
+
+    ASSERT_TRUE(refactoringServer.isCancelingJobs());
+}
+
+TEST_F(RefactoringServer, PollTimerIsActiveAfterStart)
+{
+    RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
+                                                                                                      {source},
+                                                                                                      {}};
 
     refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
 
-    ASSERT_TRUE(eventLoopIsPolled);
+    ASSERT_TRUE(refactoringServer.pollTimerIsActive());
+}
+
+TEST_F(RefactoringServer, PollTimerIsNotActiveAfterFinishing)
+{
+    RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
+                                                                                                      {source},
+                                                                                                      {}};
+    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
+
+    refactoringServer.waitThatSourceRangesAndDiagnosticsForQueryMessagesAreFinished();
+
+    ASSERT_FALSE(refactoringServer.pollTimerIsActive());
+}
+
+TEST_F(RefactoringServer, PollTimerNotIsActiveAfterCanceling)
+{
+    RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
+                                                                                                      {source},
+                                                                                                      {}};
+    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
+
+    refactoringServer.cancel();
+
+    ASSERT_FALSE(refactoringServer.pollTimerIsActive());
 }
 
 void RefactoringServer::SetUp()
 {
     refactoringServer.setClient(&mockRefactoringClient);
+}
+
+void RefactoringServer::TearDown()
+{
+    refactoringServer.waitThatSourceRangesAndDiagnosticsForQueryMessagesAreFinished();
 }
 
 }

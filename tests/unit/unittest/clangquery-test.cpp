@@ -89,6 +89,20 @@ TEST_F(ClangQuerySlowTest, SourceRangeInUnsavedFileDeclarationRange)
                 IsSourceRangeWithText(1, 1, 1, 15, "void unsaved();"));
 }
 
+TEST_F(ClangQuerySlowTest, DISABLED_SourceRangeInUnsavedFileDeclarationRangeOverride) // seems not to work in Clang
+{
+    ::ClangQuery query;
+    query.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "void f() {}", {"cc", "query_simplefunction.cpp", "-std=c++14"});
+    query.setQuery("functionDecl()");
+    ClangBackEnd::V2::FileContainer unsavedFile{{TESTDATA_DIR, "query_simplefunction.cpp"}, "void unsaved();", {}};
+    query.addUnsavedFiles({unsavedFile});
+
+    query.findLocations();
+
+    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers().at(0),
+                IsSourceRangeWithText(1, 1, 1, 15, "void unsaved();"));
+}
+
 TEST_F(ClangQuerySlowTest, RootSourceRangeForSimpleFieldDeclarationRange)
 {
     simpleClassQuery.setQuery("fieldDecl(hasType(isInteger()))");

@@ -59,6 +59,7 @@ void QtCreatorSearchHandle::cancel()
 {
     SearchHandle::cancel();
     promise.reportCanceled();
+    promise.reportFinished();
 }
 
 void QtCreatorSearchHandle::finishSearch()
