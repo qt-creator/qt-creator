@@ -82,7 +82,7 @@ public:
     // call this if the icon has changed.
     void updateMarker();
     Priority priority() const { return m_priority;}
-    void setPriority(Priority prioriy) { m_priority = prioriy; }
+    void setPriority(Priority prioriy);
     bool isVisible() const;
     void setVisible(bool isVisible);
     Core::Id category() const { return m_category; }

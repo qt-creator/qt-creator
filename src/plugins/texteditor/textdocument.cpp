@@ -957,7 +957,13 @@ void TextDocument::removeMark(TextMark *mark)
 
 void TextDocument::updateMark(TextMark *mark)
 {
-    Q_UNUSED(mark)
+    QTextBlock block = d->m_document.findBlockByNumber(mark->lineNumber() - 1);
+    if (block.isValid()) {
+        TextBlockUserData *userData = TextDocumentLayout::userData(block);
+        // re-evaluate priority
+        userData->removeMark(mark);
+        userData->addMark(mark);
+    }
     auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     QTC_ASSERT(documentLayout, return);
     documentLayout->requestUpdate();

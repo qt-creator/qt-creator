@@ -131,6 +131,12 @@ void TextMark::updateMarker()
         m_baseTextDocument->updateMark(this);
 }
 
+void TextMark::setPriority(TextMark::Priority prioriy)
+{
+    m_priority = prioriy;
+    updateMarker();
+}
+
 bool TextMark::isVisible() const
 {
     return m_visible;
@@ -139,8 +145,7 @@ bool TextMark::isVisible() const
 void TextMark::setVisible(bool visible)
 {
     m_visible = visible;
-    if (m_baseTextDocument)
-        m_baseTextDocument->updateMark(this);
+    updateMarker();
 }
 
 double TextMark::widthFactor() const
