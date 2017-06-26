@@ -192,7 +192,7 @@ public:
     }
 
     bool canReUseOutputPane(const Runnable &other) const;
-    QString displayName() const { return d->displayName(); }
+    QString displayName() const { return d ? d->displayName() : QString(); }
 
 private:
     std::unique_ptr<Concept> d;

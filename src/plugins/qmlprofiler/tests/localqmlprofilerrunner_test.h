@@ -45,7 +45,7 @@ private slots:
     void testFindFreeSocket();
 
 private:
-    void connectRunner(QmlProfilerRunner *runner);
+    void start();
     void testRunner1();
     void testRunner2();
     void testRunner3();
@@ -53,7 +53,7 @@ private:
 
     bool running = false;
     int runCount = 0;
-    ProjectExplorer::RunControl *rc = nullptr;
+    ProjectExplorer::RunControl *runControl = nullptr;
     ProjectExplorer::StandardRunnable debuggee;
     ProjectExplorer::UrlConnection serverUrl;
 };

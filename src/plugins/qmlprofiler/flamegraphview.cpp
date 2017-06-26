@@ -85,7 +85,8 @@ void FlameGraphView::onVisibleFeaturesChanged(quint64 features)
         if (features & (1ULL << featureFromRangeType(RangeType(rangeType))))
             rangeTypeMask |= (1 << rangeType);
     }
-    m_content->rootObject()->setProperty("visibleRangeTypes", rangeTypeMask);
+    if (m_content->rootObject())
+        m_content->rootObject()->setProperty("visibleRangeTypes", rangeTypeMask);
 }
 
 void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)

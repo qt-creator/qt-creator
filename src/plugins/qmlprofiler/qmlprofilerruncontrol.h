@@ -54,11 +54,6 @@ public:
     void notifyRemoteSetupFailed(const QString &errorMessage);
     void cancelProcess();
     void notifyRemoteFinished();
-    void setAutoStart();
-
-signals:
-    void localRunnerStarted();
-    void localRunnerStopped();
 
 private:
     void start() override;
@@ -67,12 +62,29 @@ private:
     void wrongSetupMessageBoxFinished(int);
     void profilerStateChanged();
 
-    void spontaneousStop(int exitCode, QProcess::ExitStatus status);
-    void startLocalRunner();
-    void stopLocalRunner();
-
     class QmlProfilerRunnerPrivate;
     QmlProfilerRunnerPrivate *d;
+};
+
+class LocalQmlProfilerSupport : public ProjectExplorer::RunWorker
+{
+    Q_OBJECT
+
+public:
+    LocalQmlProfilerSupport(ProjectExplorer::RunControl *runControl);
+    LocalQmlProfilerSupport(ProjectExplorer::RunControl *runControl,
+                            const QUrl &serverUrl);
+
+    void start() override;
+    void stop() override;
+
+signals:
+    void localRunnerStarted();
+    void localRunnerStopped();
+
+private:
+    ProjectExplorer::SimpleTargetRunner *m_profilee;
+    QmlProfilerRunner *m_profiler;
 };
 
 } // namespace QmlProfiler
