@@ -366,8 +366,8 @@ public:
 
     void addDependency(RunWorker *dependency);
 
-    QString displayName() const;
-    void setDisplayName(const QString &displayName);
+    void setDisplayName(const QString &id) { setId(id); } // FIXME: Obsoleted by setId.
+    void setId(const QString &id);
 
     void setStartTimeout(int ms);
     void setStopTimeout(int ms);
