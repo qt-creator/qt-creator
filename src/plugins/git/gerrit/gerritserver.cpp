@@ -236,6 +236,10 @@ int GerritServer::testConnection()
                 Core::ShellCommand::NoOutput);
     if (resp.result == SynchronousProcessResponse::Finished) {
         QString output = resp.stdOut();
+        // Gerrit returns an empty response for /p/qt-creator/a/accounts/self
+        // so consider this as 404.
+        if (output.isEmpty())
+            return PageNotFound;
         output.remove(0, output.indexOf('\n')); // Strip first line
         QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
         if (!doc.isNull()) {
