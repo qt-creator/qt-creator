@@ -429,8 +429,8 @@ public:
     RunControl(RunConfiguration *runConfiguration, Core::Id mode);
     ~RunControl() override;
 
-    void initiateStart(); // Calls start() asynchronously.
-    void initiateStop(); // Calls stop() asynchronously.
+    void initiateStart();
+    void initiateStop();
 
     bool promptToStop(bool *optionalPrompt = nullptr) const;
     void setPromptToStop(const std::function<bool(bool *)> &promptToStop);
@@ -477,9 +477,6 @@ public:
                                        const QString &stopButtonText = QString(),
                                        const QString &cancelButtonText = QString(),
                                        bool *prompt = nullptr);
-
-    virtual void start();
-    virtual void stop();
 
     using WorkerCreator = std::function<RunWorker *(RunControl *)>;
     static void registerWorkerCreator(Core::Id id, const WorkerCreator &workerCreator);

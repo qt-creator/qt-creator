@@ -726,20 +726,10 @@ RunControl::~RunControl()
 void RunControl::initiateStart()
 {
     emit aboutToStart();
-    start();
-}
-
-void RunControl::start()
-{
     d->initiateStart();
 }
 
 void RunControl::initiateStop()
-{
-    stop();
-}
-
-void RunControl::stop()
 {
     d->initiateStop();
 }

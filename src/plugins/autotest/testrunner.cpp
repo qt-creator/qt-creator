@@ -378,7 +378,8 @@ void TestRunner::debugTests()
                 outputreader, &QObject::deleteLater);
     }
 
-    connect(this, &TestRunner::requestStopTestRun, runControl, &ProjectExplorer::RunControl::stop);
+    connect(this, &TestRunner::requestStopTestRun, runControl,
+            &ProjectExplorer::RunControl::initiateStop);
     connect(runControl, &ProjectExplorer::RunControl::finished, this, &TestRunner::onFinished);
     ProjectExplorer::ProjectExplorerPlugin::startRunControl(runControl);
 }
