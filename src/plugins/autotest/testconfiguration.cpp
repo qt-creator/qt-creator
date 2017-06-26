@@ -86,7 +86,12 @@ void TestConfiguration::completeTestInformation(int runMode)
                     && targWithProjectFile.at(1).startsWith(bti.projectFilePath.toString());
         });
     });
-    const Utils::FileName executable = targetInfo.targetFilePath; // empty if BTI is default created
+    QString executable = targetInfo.targetFilePath.toString(); // empty if BTI default created
+    if (Utils::HostOsInfo::isWindowsHost() && !executable.isEmpty()
+            && !executable.toLower().endsWith(".exe")) {
+        executable = Utils::HostOsInfo::withExecutableSuffix(executable);
+    }
+
     for (RunConfiguration *runConfig : target->runConfigurations()) {
         if (!isLocal(runConfig)) // TODO add device support
             continue;
@@ -99,13 +104,18 @@ void TestConfiguration::completeTestInformation(int runMode)
             StandardRunnable stdRunnable = runnable.as<StandardRunnable>();
             // TODO this might pick up the wrong executable
             m_executableFile = stdRunnable.executable;
+            if (Utils::HostOsInfo::isWindowsHost() && !m_executableFile.isEmpty()
+                    && !m_executableFile.toLower().endsWith(".exe")) {
+                m_executableFile = Utils::HostOsInfo::withExecutableSuffix(m_executableFile);
+            }
             m_displayName = runConfig->displayName();
             m_workingDir = Utils::FileUtils::normalizePathName(stdRunnable.workingDirectory);
             m_environment = stdRunnable.environment;
             m_project = project;
             if (runMode == TestRunner::Debug)
                 m_runConfig = new TestRunConfiguration(runConfig->target(), this);
-            break;
+            if (m_executableFile == executable) // we can find a better runConfig if no match
+                break;
         }
     }
     // RunConfiguration for this target could be explicitly removed or not created at all
@@ -117,12 +127,7 @@ void TestConfiguration::completeTestInformation(int runMode)
                 if (runnable.is<StandardRunnable>()) {
                     StandardRunnable stdRunnable = runnable.as<StandardRunnable>();
                     m_environment = stdRunnable.environment;
-                    // when guessing we might have no extension
-                    const QString &exeString = executable.toString();
-                    if (Utils::HostOsInfo::isWindowsHost() && !exeString.toLower().endsWith(".exe"))
-                        m_executableFile = Utils::HostOsInfo::withExecutableSuffix(exeString);
-                    else
-                        m_executableFile = exeString;
+                    m_executableFile = executable;
                     m_project = project;
                     m_guessedConfiguration = true;
                     m_guessedFrom = rc->displayName();
