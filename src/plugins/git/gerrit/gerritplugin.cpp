@@ -371,13 +371,14 @@ void GerritPlugin::openView()
         connect(this, &GerritPlugin::fetchStarted, gd, &GerritDialog::fetchStarted);
         connect(this, &GerritPlugin::fetchFinished, gd, &GerritDialog::fetchFinished);
         m_dialog = gd;
+    } else {
+        m_dialog->refresh();
     }
     const Qt::WindowStates state = m_dialog->windowState();
     if (state & Qt::WindowMinimized)
         m_dialog->setWindowState(state & ~Qt::WindowMinimized);
     m_dialog->show();
     m_dialog->raise();
-    m_dialog->refresh();
 }
 
 void GerritPlugin::push()
