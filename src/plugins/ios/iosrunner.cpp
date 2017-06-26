@@ -132,6 +132,11 @@ bool IosRunner::cppDebug() const
     return m_cppDebug;
 }
 
+bool IosRunner::qmlDebug() const
+{
+    return m_qmlDebugServices != QmlDebug::NoQmlDebugServices;
+}
+
 QmlDebug::QmlDebugServicesPreset IosRunner::qmlDebugServices() const
 {
     return m_qmlDebugServices;
@@ -172,8 +177,6 @@ void IosRunner::start()
     m_toolHandler = new IosToolHandler(m_deviceType, this);
     connect(m_toolHandler, &IosToolHandler::appOutput,
             this, &IosRunner::handleAppOutput);
-    connect(m_toolHandler, &IosToolHandler::didStartApp,
-            this, &IosRunner::handleDidStartApp);
     connect(m_toolHandler, &IosToolHandler::errorMsg,
             this, &IosRunner::handleErrorMsg);
     connect(m_toolHandler, &IosToolHandler::gotServerPorts,
@@ -193,39 +196,34 @@ void IosRunner::stop()
         m_toolHandler->stop();
 }
 
-void IosRunner::handleDidStartApp(IosToolHandler *handler, const QString &bundlePath,
-                                  const QString &deviceId, IosToolHandler::OpStatus status)
-{
-    Q_UNUSED(bundlePath); Q_UNUSED(deviceId);
-    if (m_toolHandler == handler && runType() == IosToolHandler::NormalRun) {
-        // For normal run type the notify reportStarted here for debug type wait for
-        // server ports or PID for device and simulator respectivelly.
-        if (status == IosToolHandler::Success)
-            reportStarted();
-        else
-            reportFailure();
-    }
-}
-
 void IosRunner::handleGotServerPorts(IosToolHandler *handler, const QString &bundlePath,
                                      const QString &deviceId, Port gdbPort,
                                      Port qmlPort)
 {
     // Called when debugging on Device.
     Q_UNUSED(bundlePath); Q_UNUSED(deviceId);
-    if (m_toolHandler == handler && runType() == IosToolHandler::DebugRun) {
-        m_gdbServerPort = gdbPort;
-        m_qmlServerPort = qmlPort;
-        bool portsValid = m_gdbServerPort.isValid() && m_qmlServerPort.isValid();
-        bool qmlDebugging = m_qmlDebugServices != QmlDebug::NoQmlDebugServices;
-        if ( (qmlDebugging && m_cppDebug && portsValid) // Mixed mode debuggin & valid ports
-             || (qmlDebugging && !m_cppDebug && m_qmlServerPort.isValid()) // Qml debugging only
-             || (m_cppDebug && !qmlDebugging && m_gdbServerPort.isValid())) { // C++ debugging only
-            reportStarted();
-        } else {
-            reportFailure(tr("Could not get debug server file descriptor."));
-        }
-    }
+
+    if (m_toolHandler != handler)
+        return;
+
+    m_gdbServerPort = gdbPort;
+    m_qmlServerPort = qmlPort;
+
+    bool prerequisiteOk = false;
+    if (cppDebug() && qmlDebug())
+        prerequisiteOk = m_gdbServerPort.isValid() && m_qmlServerPort.isValid();
+    else if (cppDebug())
+        prerequisiteOk = m_gdbServerPort.isValid();
+    else if (qmlDebug())
+        prerequisiteOk = m_qmlServerPort.isValid();
+    else
+        prerequisiteOk = true; // Not debugging. Ports not required.
+
+
+    if (prerequisiteOk)
+        reportStarted();
+    else
+        reportFailure(tr("Could not get necessary ports for the debugger connection."));
 }
 
 void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bundlePath,
@@ -233,17 +231,26 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bun
 {
     // Called when debugging on Simulator.
     Q_UNUSED(bundlePath); Q_UNUSED(deviceId);
-    m_pid = pid;
-    if (m_pid <= 0)
-        reportFailure(tr("Could not get inferior PID."));
 
-    if (m_toolHandler == handler && runType() == IosToolHandler::DebugRun) {
-        bool qmlDebugging = m_qmlDebugServices != QmlDebug::NoQmlDebugServices;
-        if ((qmlDebugging && m_qmlServerPort.isValid()) || (m_cppDebug && !qmlDebugging))
-            reportStarted();
-        else
-            reportFailure(tr("Could not get debug server file descriptor."));
+    if (m_toolHandler != handler)
+        return;
+
+    m_pid = pid;
+    bool prerequisiteOk = false;
+    if (m_pid > 0) {
+        prerequisiteOk = true;
+    } else {
+        reportFailure(tr("Could not get inferior PID."));
+        return;
     }
+
+    if (qmlDebug())
+        prerequisiteOk = m_qmlServerPort.isValid();
+
+    if (prerequisiteOk)
+        reportStarted();
+    else
+        reportFailure(tr("Could not get necessary ports the debugger connection."));
 }
 
 void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)

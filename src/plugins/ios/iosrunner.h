@@ -57,6 +57,7 @@ public:
     QString deviceId();
     IosToolHandler::RunKind runType();
     bool cppDebug() const;
+    bool qmlDebug() const;
     QmlDebug::QmlDebugServicesPreset qmlDebugServices() const;
 
     void start() override;
@@ -71,8 +72,6 @@ public:
     bool isAppRunning() const;
 
 private:
-    void handleDidStartApp(Ios::IosToolHandler *handler, const QString &bundlePath,
-                           const QString &deviceId, Ios::IosToolHandler::OpStatus status);
     void handleGotServerPorts(Ios::IosToolHandler *handler, const QString &bundlePath,
                               const QString &deviceId, Utils::Port gdbPort, Utils::Port qmlPort);
     void handleGotInferiorPid(Ios::IosToolHandler *handler, const QString &bundlePath,
