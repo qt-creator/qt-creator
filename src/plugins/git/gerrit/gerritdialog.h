@@ -77,7 +77,6 @@ private:
     void slotFetchCheckout();
     void remoteChanged();
     void updateRemotes(bool forceReload = false);
-    void addRemote(const GerritServer &server, const QString &name);
 
     void manageProgressIndicator();
 

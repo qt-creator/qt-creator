@@ -93,6 +93,8 @@ QtcPlugin {
             "gerritparameters.h",
             "gerritplugin.cpp",
             "gerritplugin.h",
+            "gerritremotechooser.cpp",
+            "gerritremotechooser.h",
             "gerritserver.cpp",
             "gerritserver.h",
             "gerritpushdialog.cpp",

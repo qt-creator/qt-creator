@@ -37,7 +37,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
 #include <utils/theme/theme.h>
 
 #include <QCompleter>
@@ -47,8 +46,6 @@
 #include <QSortFilterProxyModel>
 #include <QStringListModel>
 #include <QUrl>
-
-Q_DECLARE_METATYPE(Gerrit::Internal::GerritServer);
 
 namespace Gerrit {
 namespace Internal {
@@ -70,6 +67,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     m_ui->setupUi(this);
+    m_ui->remoteComboBox->setParameters(m_parameters);
     m_queryModel->setStringList(m_parameters->savedQueries);
     QCompleter *completer = new QCompleter(this);
     completer->setModel(m_queryModel);
@@ -84,7 +82,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
             m_filterModel, &QSortFilterProxyModel::setFilterFixedString);
     connect(m_ui->queryLineEdit, &QLineEdit::returnPressed, this, &GerritDialog::refresh);
     connect(m_model, &GerritModel::stateChanged, m_ui->queryLineEdit, &Utils::FancyLineEdit::validate);
-    connect(m_ui->remoteComboBox, &QComboBox::currentTextChanged,
+    connect(m_ui->remoteComboBox, &GerritRemoteChooser::remoteChanged,
             this, &GerritDialog::remoteChanged);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_filterModel->setSourceModel(m_model);
@@ -110,10 +108,6 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
             this, &GerritDialog::slotCurrentChanged);
     connect(m_ui->treeView, &QAbstractItemView::activated,
             this, &GerritDialog::slotActivated);
-
-    m_ui->resetRemoteButton->setIcon(Utils::Icons::RESET_TOOLBAR.icon());
-    connect(m_ui->resetRemoteButton, &QToolButton::clicked,
-            this, [this] { updateRemotes(true); });
 
     m_displayButton = addActionButton(tr("&Show"), [this]() { slotFetchDisplay(); });
     m_cherryPickButton = addActionButton(tr("Cherry &Pick"), [this]() { slotFetchCherryPick(); });
@@ -224,9 +218,7 @@ void GerritDialog::refresh()
 
 void GerritDialog::remoteChanged()
 {
-    if (m_updatingRemotes || m_ui->remoteComboBox->count() == 0)
-        return;
-    const GerritServer server = m_ui->remoteComboBox->currentData().value<GerritServer>();
+    const GerritServer server = m_ui->remoteComboBox->currentServer();
     if (QSharedPointer<GerritServer> modelServer = m_model->server()) {
         if (*modelServer == server)
            return;
@@ -237,38 +229,11 @@ void GerritDialog::remoteChanged()
 
 void GerritDialog::updateRemotes(bool forceReload)
 {
-    m_ui->remoteComboBox->clear();
+    m_ui->remoteComboBox->setRepository(m_repository);
     if (m_repository.isEmpty() || !QFileInfo(m_repository).isDir())
         return;
-    m_updatingRemotes = true;
     *m_server = m_parameters->server;
-    QString errorMessage; // Mute errors. We'll just fallback to the defaults
-    QMap<QString, QString> remotesList =
-            Git::Internal::GitPlugin::client()->synchronousRemotesList(m_repository, &errorMessage);
-    QMapIterator<QString, QString> mapIt(remotesList);
-    while (mapIt.hasNext()) {
-        mapIt.next();
-        GerritServer server;
-        if (!server.fillFromRemote(mapIt.value(), *m_parameters, forceReload))
-            continue;
-        addRemote(server, mapIt.key());
-    }
-    addRemote(m_parameters->server, tr("Fallback"));
-    m_updatingRemotes = false;
-    remoteChanged();
-}
-
-void GerritDialog::addRemote(const GerritServer &server, const QString &name)
-{
-    for (int i = 0, total = m_ui->remoteComboBox->count(); i < total; ++i) {
-        const GerritServer s = m_ui->remoteComboBox->itemData(i).value<GerritServer>();
-        if (s == server)
-            return;
-    }
-    m_ui->remoteComboBox->addItem(server.host + QString(" (%1)").arg(name),
-                                  QVariant::fromValue(server));
-    if (name == "gerrit")
-        m_ui->remoteComboBox->setCurrentIndex(m_ui->remoteComboBox->count() - 1);
+    m_ui->remoteComboBox->updateRemotes(forceReload);
 }
 
 void GerritDialog::manageProgressIndicator()

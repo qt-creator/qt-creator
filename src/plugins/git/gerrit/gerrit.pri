@@ -7,6 +7,7 @@ SOURCES += \
     $$PWD/gerritparameters.cpp \
     $$PWD/gerritplugin.cpp \
     $$PWD/gerritpushdialog.cpp \
+    $$PWD/gerritremotechooser.cpp \
     $$PWD/gerritserver.cpp
 
 HEADERS += \
@@ -18,6 +19,7 @@ HEADERS += \
     $$PWD/gerritparameters.h \
     $$PWD/gerritplugin.h \
     $$PWD/gerritpushdialog.h \
+    $$PWD/gerritremotechooser.h \
     $$PWD/gerritserver.h
 
 FORMS += \

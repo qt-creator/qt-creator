@@ -50,7 +50,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="remoteComboBox">
+      <widget class="Gerrit::Internal::GerritRemoteChooser" name="remoteComboBox" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -62,13 +62,6 @@
          <width>40</width>
          <height>0</height>
         </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="resetRemoteButton">
-       <property name="toolTip">
-        <string>Refresh Remote Servers</string>
        </property>
       </widget>
      </item>
@@ -250,6 +243,12 @@
    <class>Utils::TreeView</class>
    <extends>QTreeView</extends>
    <header location="global">utils/itemviews.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Gerrit::Internal::GerritRemoteChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">git/gerrit/gerritremotechooser.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
