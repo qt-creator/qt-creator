@@ -26,12 +26,18 @@
 #include "basehoverhandler.h"
 #include "texteditor.h"
 
+#include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 
 namespace TextEditor {
 
 BaseHoverHandler::~BaseHoverHandler()
 {}
+
+bool BaseHoverHandler::isAsyncHandler() const
+{
+    return m_isAsyncHandler;
+}
 
 void BaseHoverHandler::showToolTip(TextEditorWidget *widget, const QPoint &point, bool decorate)
 {
@@ -40,13 +46,18 @@ void BaseHoverHandler::showToolTip(TextEditorWidget *widget, const QPoint &point
     operateTooltip(widget, point);
 }
 
-int BaseHoverHandler::checkToolTip(TextEditorWidget *widget, int pos)
+void BaseHoverHandler::checkPriority(TextEditorWidget *widget,
+                                     int pos,
+                                     ReportPriority report)
 {
     widget->setContextHelpId(QString());
 
-    process(widget, pos);
+    process(widget, pos, report);
+}
 
-    return priority();
+void BaseHoverHandler::cancelAsyncCheck()
+{
+    QTC_CHECK(false && "BaseHoverHandler: Implement cancelCheck() in derived class!");
 }
 
 int BaseHoverHandler::priority() const
@@ -73,7 +84,7 @@ QString BaseHoverHandler::contextHelpId(TextEditorWidget *widget, int pos)
     // If the tooltip is visible and there is a help match, this match is used to update
     // the help id. Otherwise, let the identification process happen.
     if (!Utils::ToolTip::isVisible() || !lastHelpItemIdentified().isValid())
-        process(widget, pos);
+        process(widget, pos, ReportPriority()); // TODO
 
     if (lastHelpItemIdentified().isValid())
         return lastHelpItemIdentified().helpId();
@@ -100,13 +111,23 @@ const HelpItem &BaseHoverHandler::lastHelpItemIdentified() const
     return m_lastHelpItemIdentified;
 }
 
-void BaseHoverHandler::process(TextEditorWidget *widget, int pos)
+void BaseHoverHandler::process(TextEditorWidget *widget, int pos, ReportPriority report)
 {
     m_toolTip.clear();
     m_priority = -1;
     m_lastHelpItemIdentified = HelpItem();
 
-    identifyMatch(widget, pos);
+    if (m_isAsyncHandler) {
+        identifyMatchAsync(widget, pos, report);
+    } else {
+        identifyMatch(widget, pos);
+        report(priority());
+    }
+}
+
+void BaseHoverHandler::setIsAsyncHandler(bool isAsyncHandler)
+{
+    m_isAsyncHandler = isAsyncHandler;
 }
 
 void BaseHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
@@ -114,6 +135,11 @@ void BaseHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
     QString tooltip = editorWidget->extraSelectionTooltip(pos);
     if (!tooltip.isEmpty())
         setToolTip(tooltip);
+}
+
+void BaseHoverHandler::identifyMatchAsync(TextEditorWidget *, int, BaseHoverHandler::ReportPriority)
+{
+    QTC_CHECK(false && "BaseHoverHandler: Implement identifyMatchAsync() in derived class!");
 }
 
 void BaseHoverHandler::decorateToolTip()

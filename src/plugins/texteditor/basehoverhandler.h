@@ -28,6 +28,8 @@
 #include "texteditor_global.h"
 #include "helpitem.h"
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QPoint;
 QT_END_NAMESPACE
@@ -41,9 +43,15 @@ class TEXTEDITOR_EXPORT BaseHoverHandler
 public:
     virtual ~BaseHoverHandler();
 
+    bool isAsyncHandler() const;
+    void setIsAsyncHandler(bool isAsyncHandler);
+
     QString contextHelpId(TextEditorWidget *widget, int pos);
 
-    int checkToolTip(TextEditorWidget *widget, int pos);
+    using ReportPriority = std::function<void(int priority)>;
+    void checkPriority(TextEditorWidget *widget, int pos, ReportPriority report);
+    virtual void cancelAsyncCheck();
+
     void showToolTip(TextEditorWidget *widget, const QPoint &point, bool decorate = true);
 
 protected:
@@ -63,11 +71,14 @@ protected:
     const HelpItem &lastHelpItemIdentified() const;
 
     virtual void identifyMatch(TextEditorWidget *editorWidget, int pos);
+    virtual void identifyMatchAsync(TextEditorWidget *editorWidget, int pos, ReportPriority report);
     virtual void decorateToolTip();
     virtual void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point);
 
 private:
-    void process(TextEditorWidget *widget, int pos);
+    void process(TextEditorWidget *widget, int pos, ReportPriority report);
+
+    bool m_isAsyncHandler = false;
 
     QString m_toolTip;
     HelpItem m_lastHelpItemIdentified;
