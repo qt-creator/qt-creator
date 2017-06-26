@@ -501,6 +501,19 @@ IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect(RunCon
     than it needs to be.
 */
 
+
+const char PRIORITY_KEY[] = "RunControlFactoryPriority";
+
+int ProjectExplorer::IRunControlFactory::priority() const
+{
+    return property(PRIORITY_KEY).toInt(); // 0 by default.
+}
+
+void IRunControlFactory::setPriority(int priority)
+{
+    setProperty(PRIORITY_KEY, priority);
+}
+
 namespace Internal {
 
 class RunControlPrivate

@@ -1980,10 +1980,18 @@ void ProjectExplorerPluginPrivate::buildStateChanged(Project * pro)
 // NBS TODO implement more than one runner
 static IRunControlFactory *findRunControlFactory(RunConfiguration *config, Core::Id mode)
 {
-    return ExtensionSystem::PluginManager::getObject<IRunControlFactory>(
+    auto factories = ExtensionSystem::PluginManager::getObjects<IRunControlFactory>(
         [&config, &mode](IRunControlFactory *factory) {
             return factory->canRun(config, mode);
         });
+
+    if (factories.isEmpty())
+        return nullptr;
+    auto it = std::max_element(factories.begin(), factories.end(),
+        [](IRunControlFactory *a, IRunControlFactory *b) {
+            return a->priority() < b->priority();
+         });
+    return *it;
 }
 
 void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfiguration, Core::Id runMode)
