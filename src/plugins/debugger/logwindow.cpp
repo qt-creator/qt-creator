@@ -347,7 +347,7 @@ public:
 LogWindow::LogWindow(QWidget *parent)
   : QWidget(parent)
 {
-    setWindowTitle(tr("Debugger Log"));
+    setWindowTitle(tr("Debugger &Log"));
     setObjectName(QLatin1String("Log"));
 
     m_ignoreNextInputEcho = false;

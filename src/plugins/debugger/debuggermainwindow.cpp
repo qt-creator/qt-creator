@@ -161,7 +161,7 @@ void DebuggerMainWindow::restorePerspective(const QByteArray &perspectiveId)
 void DebuggerMainWindow::finalizeSetup()
 {
     auto viewButton = new QToolButton;
-    viewButton->setText(tr("Views"));
+    viewButton->setText(tr("&Views"));
 
     auto toolbar = new Utils::StyledBar;
     toolbar->setProperty("topBorder", true);
