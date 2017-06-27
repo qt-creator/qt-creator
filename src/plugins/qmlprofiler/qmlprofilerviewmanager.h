@@ -28,12 +28,10 @@
 #include "qmlprofilerstatisticsview.h"
 #include "qmlprofilertraceview.h"
 #include "flamegraphview.h"
+
 #include <QObject>
 
 namespace QmlProfiler {
-class QmlProfilerModelManager;
-class QmlProfilerStateManager;
-
 namespace Internal {
 
 class QmlProfilerTool;
@@ -41,19 +39,16 @@ class QmlProfilerTool;
 class QmlProfilerViewManager : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit QmlProfilerViewManager(QObject *parent,
-                                    QmlProfilerModelManager *modelManager,
-                                    QmlProfilerStateManager *profilerState);
-    ~QmlProfilerViewManager();
+    QmlProfilerViewManager(QObject *parent,
+                           QmlProfilerModelManager *modelManager,
+                           QmlProfilerStateManager *profilerState);
 
-    void createViews();
+    QmlProfilerTraceView *traceView() const { return m_traceView; }
+    QmlProfilerStatisticsView *statisticsView() const { return m_statisticsView; }
+    FlameGraphView *flameGraphView() const { return m_flameGraphView; }
 
-    QmlProfilerTraceView *traceView() const;
-    QmlProfilerStatisticsView *statisticsView() const;
-    FlameGraphView *flameGraphView() const;
-
-public slots:
     void clear();
 
 signals:
@@ -61,8 +56,11 @@ signals:
     void gotoSourceLocation(QString,int,int);
 
 private:
-    class QmlProfilerViewManagerPrivate;
-    QmlProfilerViewManagerPrivate *d;
+    QmlProfilerTraceView *m_traceView = nullptr;
+    QmlProfilerStatisticsView *m_statisticsView = nullptr;
+    FlameGraphView *m_flameGraphView = nullptr;
+    QmlProfilerStateManager *m_profilerState = nullptr;
+    QmlProfilerModelManager *m_profilerModelManager = nullptr;
 };
 
 
