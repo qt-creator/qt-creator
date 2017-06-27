@@ -44,6 +44,7 @@ class CppUseSelectionsUpdater : public QObject
 
 public:
     explicit CppUseSelectionsUpdater(TextEditor::TextEditorWidget *editorWidget);
+    ~CppUseSelectionsUpdater();
 
     void scheduleUpdate();
     void abortSchedule();

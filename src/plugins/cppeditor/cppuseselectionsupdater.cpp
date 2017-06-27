@@ -49,6 +49,12 @@ CppUseSelectionsUpdater::CppUseSelectionsUpdater(TextEditor::TextEditorWidget *e
     connect(&m_timer, &QTimer::timeout, this, [this]() { update(); });
 }
 
+CppUseSelectionsUpdater::~CppUseSelectionsUpdater()
+{
+    if (m_runnerWatcher)
+        m_runnerWatcher->cancel();
+}
+
 void CppUseSelectionsUpdater::scheduleUpdate()
 {
     m_timer.start();

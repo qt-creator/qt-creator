@@ -248,9 +248,9 @@ void IpcReceiver::references(const ReferencesMessage &message)
     QTC_CHECK(futureInterface != QFutureInterface<CppTools::CursorInfo>());
 
     if (futureInterface.isCanceled())
-        return; // A new request was issued making this one outdated.
+        return; // Editor document closed or a new request was issued making this result outdated.
 
-    QTC_CHECK(entry.textDocument);
+    QTC_ASSERT(entry.textDocument, return);
     futureInterface.reportResult(toCursorInfo(*entry.textDocument, message));
     futureInterface.reportFinished();
 }
