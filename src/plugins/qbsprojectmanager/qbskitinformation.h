@@ -45,8 +45,6 @@ private:
     QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *) const override;
     ItemList toUserOutput(const ProjectExplorer::Kit *) const override;
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *) const override;
-
-    ProjectExplorer::KitConfigWidget *m_widget = nullptr;
 };
 
 } // namespace Internal
