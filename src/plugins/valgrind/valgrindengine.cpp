@@ -66,7 +66,6 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
 
 void ValgrindToolRunner::start()
 {
-    emit starting();
     FutureProgress *fp = ProgressManager::addTimedTask(m_progress, progressTitle(), "valgrind", 100);
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     connect(fp, &FutureProgress::canceled,

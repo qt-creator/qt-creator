@@ -49,9 +49,6 @@ public:
 
     QString executable() const;
 
-signals:
-    void starting();
-
 protected:
     virtual QString progressTitle() const = 0;
     virtual QStringList toolArguments() const = 0;

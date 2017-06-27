@@ -135,7 +135,6 @@ signals:
     void pauseToggled(bool checked);
 
 public:
-    void slotClear();
     void slotRequestDump();
     void loadExternalLogFile();
 
@@ -158,7 +157,6 @@ public:
     void handleFilterProjectCosts();
     void handleShowCostsOfFunction();
 
-    void slotGoToOverview();
     void stackBrowserChanged();
 
     /// If \param busy is true, all widgets get a busy cursor when hovered
@@ -172,7 +170,6 @@ public:
 
     void takeParserDataFromRunControl(CallgrindToolRunner *rc);
     void takeParserData(ParseData *data);
-    void engineStarting();
     void engineFinished();
 
     void editorOpened(IEditor *);
@@ -526,16 +523,6 @@ CallgrindTool::~CallgrindTool()
     qDeleteAll(m_textMarks);
 }
 
-void CallgrindTool::slotGoToOverview()
-{
-    selectFunction(0);
-}
-
-void CallgrindTool::slotClear()
-{
-    doClear(true);
-}
-
 void CallgrindTool::doClear(bool clearParseData)
 {
     if (clearParseData) // Crashed when done from destructor.
@@ -760,7 +747,6 @@ ValgrindToolRunner *CallgrindTool::createRunTool(RunControl *runControl)
     auto toolRunner = new CallgrindToolRunner(runControl);
 
     connect(toolRunner, &CallgrindToolRunner::parserDataReady, this, &CallgrindTool::takeParserDataFromRunControl);
-    connect(toolRunner, &CallgrindToolRunner::starting, this, &CallgrindTool::engineStarting);
     connect(runControl, &RunControl::finished, this, &CallgrindTool::engineFinished);
 
     connect(this, &CallgrindTool::dumpRequested, toolRunner, &CallgrindToolRunner::dump);
@@ -790,6 +776,13 @@ ValgrindToolRunner *CallgrindTool::createRunTool(RunControl *runControl)
     m_toolBusy = true;
     updateRunActions();
 
+    // enable/disable actions
+    m_resetAction->setEnabled(true);
+    m_dumpAction->setEnabled(true);
+    m_loadExternalLogFile->setEnabled(false);
+    clearTextMarks();
+    doClear(true);
+
     return toolRunner;
 }
 
@@ -811,16 +804,6 @@ void CallgrindTool::clearTextMarks()
 {
     qDeleteAll(m_textMarks);
     m_textMarks.clear();
-}
-
-void CallgrindTool::engineStarting()
-{
-    // enable/disable actions
-    m_resetAction->setEnabled(true);
-    m_dumpAction->setEnabled(true);
-    m_loadExternalLogFile->setEnabled(false);
-    clearTextMarks();
-    slotClear();
 }
 
 void CallgrindTool::engineFinished()
@@ -943,7 +926,7 @@ void CallgrindTool::takeParserData(ParseData *data)
 
     // clear first
     clearTextMarks();
-    slotClear();
+    doClear(true);
 
     setParseData(data);
     createTextMarks();

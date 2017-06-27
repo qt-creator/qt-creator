@@ -250,7 +250,6 @@ private:
     void settingsDestroyed(QObject *settings);
     void maybeActiveRunConfigurationChanged();
 
-    void engineStarting(const MemcheckToolRunner *engine);
     void engineFinished();
     void loadingExternalXmlLogFileFinished();
 
@@ -565,8 +564,6 @@ RunWorker *MemcheckTool::createRunWorker(RunControl *runControl)
 
     auto runTool = new MemcheckToolRunner(runControl, runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE);
 
-    connect(runTool, &MemcheckToolRunner::starting,
-            this, [this, runTool] { engineStarting(runTool); });
     connect(runTool, &MemcheckToolRunner::parserError, this, &MemcheckTool::parserError);
     connect(runTool, &MemcheckToolRunner::internalParserError, this, &MemcheckTool::internalParserError);
     connect(runTool, &MemcheckToolRunner::stopped, this, &MemcheckTool::engineFinished);
@@ -576,11 +573,6 @@ RunWorker *MemcheckTool::createRunWorker(RunControl *runControl)
     m_toolBusy = true;
     updateRunActions();
 
-    return runTool;
-}
-
-void MemcheckTool::engineStarting(const MemcheckToolRunner *runTool)
-{
     setBusyCursor(true);
     clearErrorView();
     m_loadExternalLogFile->setDisabled(true);
@@ -601,6 +593,8 @@ void MemcheckTool::engineStarting(const MemcheckToolRunner *runTool)
         });
         m_suppressionActions.append(action);
     }
+
+    return runTool;
 }
 
 void MemcheckTool::loadExternalXmlLogFile()
