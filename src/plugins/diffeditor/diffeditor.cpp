@@ -390,16 +390,15 @@ TextEditorWidget *DiffEditor::rightEditorWidget() const
 void DiffEditor::documentHasChanged()
 {
     Utils::GuardLocker guard(m_ignoreChanges);
-    const QList<FileData> diffFileList = m_document->diffFiles();
+    const QList<FileData> &diffFileList = m_document->diffFiles();
 
     updateDescription();
     currentView()->setDiff(diffFileList, m_document->baseDirectory());
 
     m_entriesComboBox->clear();
-    const int count = diffFileList.count();
-    for (int i = 0; i < count; i++) {
-        const DiffFileInfo leftEntry = diffFileList.at(i).leftFileInfo;
-        const DiffFileInfo rightEntry = diffFileList.at(i).rightFileInfo;
+    for (const FileData &diffFile : diffFileList) {
+        const DiffFileInfo &leftEntry = diffFile.leftFileInfo;
+        const DiffFileInfo &rightEntry = diffFile.rightFileInfo;
         const QString leftShortFileName = Utils::FileName::fromString(leftEntry.fileName).fileName();
         const QString rightShortFileName = Utils::FileName::fromString(rightEntry.fileName).fileName();
         QString itemText;
@@ -528,11 +527,12 @@ void DiffEditor::reloadHasFinished(bool success)
 
     int index = -1;
     const QString startupFile = m_document->startupFile();
-    const QList<FileData> diffFileList = m_document->diffFiles();
+    const QList<FileData> &diffFileList = m_document->diffFiles();
     const int count = diffFileList.count();
     for (int i = 0; i < count; i++) {
-        const DiffFileInfo leftEntry = diffFileList.at(i).leftFileInfo;
-        const DiffFileInfo rightEntry = diffFileList.at(i).rightFileInfo;
+        const FileData &diffFile = diffFileList.at(i);
+        const DiffFileInfo &leftEntry = diffFile.leftFileInfo;
+        const DiffFileInfo &rightEntry = diffFile.rightFileInfo;
         if ((m_currentFileChunk.first.isEmpty()
              && m_currentFileChunk.second.isEmpty()
              && startupFile.endsWith(rightEntry.fileName))

@@ -75,15 +75,10 @@ static QList<DiffSelection> subtractSelection(
 void SelectableTextEditorWidget::setSelections(const QMap<int, QList<DiffSelection> > &selections)
 {
     m_diffSelections.clear();
-    QMapIterator<int, QList<DiffSelection> > itBlock(selections);
-    while (itBlock.hasNext()) {
-        itBlock.next();
-
-        const QList<DiffSelection> diffSelections = itBlock.value();
+    for (auto it = selections.cbegin(), end = selections.cend(); it != end; ++it) {
+        const QList<DiffSelection> diffSelections = it.value();
         QList<DiffSelection> workingList;
-        for (int i = 0; i < diffSelections.count(); i++) {
-            const DiffSelection &diffSelection = diffSelections.at(i);
-
+        for (const DiffSelection &diffSelection : diffSelections) {
             if (diffSelection.start == -1 && diffSelection.end == 0)
                 continue;
 
@@ -100,7 +95,7 @@ void SelectableTextEditorWidget::setSelections(const QMap<int, QList<DiffSelecti
             }
             workingList.append(diffSelection);
         }
-        m_diffSelections.insert(itBlock.key(), workingList);
+        m_diffSelections.insert(it.key(), workingList);
     }
 }
 
@@ -114,8 +109,7 @@ void SelectableTextEditorWidget::paintBlock(QPainter *painter,
     QList<DiffSelection> diffs = m_diffSelections.value(blockNumber);
 
     QVector<QTextLayout::FormatRange> newSelections;
-    for (int i = 0; i < diffs.count(); i++) {
-        const DiffSelection &diffSelection = diffs.at(i);
+    for (const DiffSelection &diffSelection : diffs) {
         if (diffSelection.format) {
             QTextLayout::FormatRange formatRange;
             formatRange.start = qMax(0, diffSelection.start);
