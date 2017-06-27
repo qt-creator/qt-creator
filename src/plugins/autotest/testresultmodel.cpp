@@ -295,11 +295,13 @@ TestResultItem *TestResultModel::findParentItemFor(const TestResultItem *item,
     TestResultItem *root = startItem ? const_cast<TestResultItem *>(startItem) : nullptr;
     const TestResult *result = item->testResult();
     const QString &name = result->name();
+    const QString &executable = result->executable();
 
     if (root == nullptr && !name.isEmpty()) {
         for (int row = rootItem()->childCount() - 1; row >= 0; --row) {
             TestResultItem *tmp = static_cast<TestResultItem *>(rootItem()->childAt(row));
-            if (tmp->testResult()->name() == name) {
+            auto tmpTestResult = tmp->testResult();
+            if (tmpTestResult->executable() == executable && tmpTestResult->name() == name) {
                 root = tmp;
                 break;
             }

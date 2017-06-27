@@ -132,6 +132,7 @@ QtTestOutputReader::QtTestOutputReader(const QFutureInterface<TestResultPtr> &fu
                                        QProcess *testApplication, const QString &buildDirectory,
                                        OutputMode mode)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
+    , m_executable(testApplication ? testApplication->program() : QString())
     , m_mode(mode)
 {
 }
@@ -419,7 +420,7 @@ void QtTestOutputReader::processSummaryFinishOutput()
 
 QtTestResult *QtTestOutputReader::createDefaultResult() const
 {
-    QtTestResult *result = new QtTestResult(m_className);
+    QtTestResult *result = new QtTestResult(m_executable, m_className);
     result->setFunctionName(m_testCase);
     result->setDataTag(m_dataTag);
     return result;

@@ -78,6 +78,7 @@ private:
     };
 
     CDATAMode m_cdataMode = None;
+    QString m_executable;
     QString m_className;
     QString m_testCase;
     QString m_formerTestCase;

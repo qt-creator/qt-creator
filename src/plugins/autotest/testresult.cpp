@@ -47,6 +47,12 @@ TestResult::TestResult(const QString &name)
 {
 }
 
+TestResult::TestResult(const QString &executable, const QString &name)
+    : m_executable(executable)
+    , m_name(name)
+{
+}
+
 const QString TestResult::outputString(bool selected) const
 {
     return selected ? m_description : m_description.split('\n').first();
@@ -173,19 +179,21 @@ bool TestResult::isMessageCaseStart(const Result::Type type)
 bool TestResult::isDirectParentOf(const TestResult *other, bool * /*needsIntermediate*/) const
 {
     QTC_ASSERT(other, return false);
-    return m_name == other->m_name;
+    return !m_executable.isEmpty() && m_executable == other->m_executable
+            && m_name == other->m_name;
 }
 
 bool TestResult::isIntermediateFor(const TestResult *other) const
 {
     QTC_ASSERT(other, return false);
-    return m_name == other->m_name;
+    return !m_executable.isEmpty() && m_executable == other->m_executable
+            && m_name == other->m_name;
 }
 
 TestResult *TestResult::createIntermediateResultFor(const TestResult *other)
 {
     QTC_ASSERT(other, return nullptr);
-    TestResult *intermediate = new TestResult(other->m_name);
+    TestResult *intermediate = new TestResult(other->m_executable, other->m_name);
     return intermediate;
 }
 
