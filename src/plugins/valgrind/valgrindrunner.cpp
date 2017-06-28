@@ -51,7 +51,7 @@ class ValgrindRunner::Private
 {
 public:
     QHostAddress localServerAddress;
-    ValgrindProcess *process = nullptr;
+    ValgrindProcess process;
     QProcess::ProcessChannelMode channelMode = QProcess::SeparateChannels;
     bool finished = false;
     QString valgrindExecutable;
@@ -75,7 +75,7 @@ ValgrindRunner::ValgrindRunner(QObject *parent)
 
 ValgrindRunner::~ValgrindRunner()
 {
-    if (d->process && d->process->isRunning()) {
+    if (d->process.isRunning()) {
         // make sure we don't delete the thread while it's still running
         waitForFinished();
     }
@@ -144,7 +144,7 @@ IDevice::ConstPtr ValgrindRunner::device() const
 
 void ValgrindRunner::waitForFinished() const
 {
-    if (d->finished || !d->process)
+    if (d->finished)
         return;
 
     QEventLoop loop;
@@ -165,26 +165,24 @@ bool ValgrindRunner::start()
         setValgrindArguments(memcheckLogArguments() + valgrindArguments());
     }
 
-    d->process = new ValgrindProcess(d->device, this);
-    d->process->setProcessChannelMode(d->channelMode);
+    d->process.setProcessChannelMode(d->channelMode);
+    d->process.setDevice(d->device);
     // consider appending our options last so they override any interfering user-supplied options
     // -q as suggested by valgrind manual
-    d->process->setValgrindExecutable(d->valgrindExecutable);
-    d->process->setValgrindArguments(fullValgrindArguments());
-    d->process->setDebuggee(d->debuggee);
+    d->process.setValgrindExecutable(d->valgrindExecutable);
+    d->process.setValgrindArguments(fullValgrindArguments());
+    d->process.setDebuggee(d->debuggee);
 
-    QObject::connect(d->process, &ValgrindProcess::processOutput,
+    QObject::connect(&d->process, &ValgrindProcess::processOutput,
                      this, &ValgrindRunner::processOutputReceived);
-    QObject::connect(d->process, &ValgrindProcess::started,
-                     this, &ValgrindRunner::started);
-    QObject::connect(d->process, &ValgrindProcess::finished,
+    QObject::connect(&d->process, &ValgrindProcess::valgrindStarted,
+                     this, &ValgrindRunner::onValgrindStarted);
+    QObject::connect(&d->process, &ValgrindProcess::finished,
                      this, &ValgrindRunner::processFinished);
-    QObject::connect(d->process, &ValgrindProcess::error,
+    QObject::connect(&d->process, &ValgrindProcess::error,
                      this, &ValgrindRunner::processError);
 
-    d->process->run(d->debuggee.runMode);
-
-    emit extraStart();
+    d->process.run(d->debuggee.runMode);
 
     return true;
 }
@@ -214,23 +212,22 @@ void ValgrindRunner::processFinished(int ret, QProcess::ExitStatus status)
     emit finished();
 
     if (ret != 0 || status == QProcess::CrashExit)
-        emit processErrorReceived(errorString(), d->process->processError());
+        emit processErrorReceived(errorString(), d->process.processError());
 }
 
 QString ValgrindRunner::errorString() const
 {
-    return d->process ? d->process->errorString() : QString();
+    return d->process.errorString();
 }
 
 void ValgrindRunner::stop()
 {
-    QTC_ASSERT(d->process, finished(); return);
-    d->process->close();
+    d->process.close();
 }
 
 ValgrindProcess *ValgrindRunner::valgrindProcess() const
 {
-    return d->process;
+    return &d->process;
 }
 
 XmlProtocol::ThreadedParser *ValgrindRunner::parser() const
@@ -244,6 +241,11 @@ XmlProtocol::ThreadedParser *ValgrindRunner::parser() const
 void ValgrindRunner::disableXml()
 {
     d->disableXml = true;
+}
+
+void ValgrindRunner::onValgrindStarted(qint64 pid)
+{
+    emit valgrindStarted(pid);
 }
 
 void ValgrindRunner::xmlSocketConnected()

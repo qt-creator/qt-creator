@@ -30,17 +30,21 @@
 
 #include <valgrind/callgrind/callgrindcontroller.h>
 #include <valgrind/callgrind/callgrindparser.h>
+#include <valgrind/valgrindrunner.h>
+#include <valgrind/valgrindprocess.h>
 
 #include <debugger/analyzer/analyzermanager.h>
 
 #include <utils/qtcassert.h>
 
 using namespace Debugger;
-using namespace Valgrind;
-using namespace Valgrind::Internal;
+using namespace ProjectExplorer;
 using namespace Valgrind::Callgrind;
 
-CallgrindToolRunner::CallgrindToolRunner(ProjectExplorer::RunControl *runControl)
+namespace Valgrind {
+namespace Internal {
+
+CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
     : ValgrindToolRunner(runControl)
 {
     setDisplayName("CallgrindToolRunner");
@@ -58,14 +62,14 @@ CallgrindToolRunner::CallgrindToolRunner(ProjectExplorer::RunControl *runControl
     connect(&m_controller, &CallgrindController::statusMessage,
             this, &CallgrindToolRunner::showStatusMessage);
 
-    connect(&m_runner, &ValgrindRunner::extraStart, this, [this] {
-        m_controller.setValgrindProcess(m_runner.valgrindProcess());
-    });
+    connect(m_runner.valgrindProcess(), &ValgrindProcess::valgrindStarted,
+            &m_controller, &CallgrindController::setValgrindPid);
 
     connect(&m_runner, &ValgrindRunner::extraProcessFinished, this, [this] {
         triggerParse();
-        m_controller.setValgrindProcess(nullptr);
     });
+
+    m_controller.setValgrindRunnable(runnable());
 }
 
 QStringList CallgrindToolRunner::toolArguments() const
@@ -120,12 +124,10 @@ void CallgrindToolRunner::setPaused(bool paused)
     m_markAsPaused = paused;
 
     // call controller only if it is attached to a valgrind process
-    if (m_controller.valgrindProcess()) {
-        if (paused)
-            pause();
-        else
-            unpause();
-    }
+    if (paused)
+        pause();
+    else
+        unpause();
 }
 
 void CallgrindToolRunner::setToggleCollectFunction(const QString &toggleCollectFunction)
@@ -202,3 +204,6 @@ void CallgrindToolRunner::controllerFinished(CallgrindController::Option option)
         break; // do nothing
     }
 }
+
+} // Internal
+} // Valgrind

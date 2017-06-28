@@ -86,7 +86,7 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl, bool withGdb)
             this, &MemcheckToolRunner::suppressionCount);
 
     if (withGdb) {
-        connect(&m_runner, &ValgrindRunner::started,
+        connect(&m_runner, &ValgrindRunner::valgrindStarted,
                 this, &MemcheckToolRunner::startDebugger);
         connect(&m_runner, &ValgrindRunner::logMessageReceived,
                 this, &MemcheckToolRunner::appendLog);
@@ -163,10 +163,8 @@ QStringList MemcheckToolRunner::suppressionFiles() const
     return m_settings->suppressionFiles();
 }
 
-void MemcheckToolRunner::startDebugger()
+void MemcheckToolRunner::startDebugger(qint64 valgrindPid)
 {
-    const qint64 valgrindPid = m_runner.valgrindProcess()->pid();
-
     Debugger::DebuggerStartParameters sp;
     sp.inferior = runnable().as<StandardRunnable>();
     sp.startMode = Debugger::AttachToRemoteServer;

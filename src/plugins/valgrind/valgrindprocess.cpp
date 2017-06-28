@@ -39,8 +39,7 @@ using namespace ProjectExplorer;
 
 namespace Valgrind {
 
-ValgrindProcess::ValgrindProcess(const IDevice::ConstPtr &device, QObject *parent)
-    : QObject(parent), m_device(device)
+ValgrindProcess::ValgrindProcess()
 {
 }
 
@@ -129,11 +128,6 @@ QProcess::ProcessError ValgrindProcess::processError() const
     return m_valgrindProcess.processError();
 }
 
-qint64 ValgrindProcess::pid() const
-{
-    return m_pid;
-}
-
 void ValgrindProcess::handleRemoteStderr(const QByteArray &b)
 {
     if (!b.isEmpty())
@@ -153,8 +147,8 @@ bool ValgrindProcess::isLocal() const
 
 void ValgrindProcess::localProcessStarted()
 {
-    m_pid = m_valgrindProcess.applicationPID().pid();
-    emit started();
+    qint64 pid = m_valgrindProcess.applicationPID().pid();
+    emit valgrindStarted(pid);
 }
 
 void ValgrindProcess::remoteProcessStarted()
@@ -196,14 +190,13 @@ void ValgrindProcess::findPIDOutputReceived(const QByteArray &out)
     if (out.isEmpty())
         return;
     bool ok;
-    m_pid = out.trimmed().toLongLong(&ok);
+    qint64 pid = out.trimmed().toLongLong(&ok);
     if (!ok) {
-        m_pid = 0;
 //        m_remote.m_errorString = tr("Could not determine remote PID.");
 //        emit ValgrindProcess::error(QProcess::FailedToStart);
 //        close();
     } else {
-        emit started();
+        emit valgrindStarted(pid);
     }
 }
 
@@ -214,6 +207,11 @@ QString ValgrindProcess::argumentString(Utils::OsType osType) const
         Utils::QtcProcess::addArg(&arguments, m_debuggee.executable, osType);
     Utils::QtcProcess::addArgs(&arguments, m_debuggee.commandLineArguments);
     return arguments;
+}
+
+void ValgrindProcess::setDevice(const ProjectExplorer::IDevice::ConstPtr &device)
+{
+    m_device = device;
 }
 
 void ValgrindProcess::closed(bool success)

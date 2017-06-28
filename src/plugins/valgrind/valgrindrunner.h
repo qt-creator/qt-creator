@@ -76,17 +76,17 @@ public:
 
 signals:
     void logMessageReceived(const QByteArray &);
-    void extraStart();
 
     void processOutputReceived(const QString &, Utils::OutputFormat);
     void processErrorReceived(const QString &, QProcess::ProcessError);
-    void started();
+    void valgrindStarted(qint64 pid);
     void finished();
     void extraProcessFinished();
 
 private:
     bool startServers();
     QStringList memcheckLogArguments() const;
+    void onValgrindStarted(qint64 pid);
 
     void processError(QProcess::ProcessError);
     void processFinished(int, QProcess::ExitStatus);

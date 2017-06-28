@@ -56,7 +56,7 @@ private:
     QString progressTitle() const override;
     QStringList toolArguments() const override;
 
-    void startDebugger();
+    void startDebugger(qint64 valgrindPid);
     void appendLog(const QByteArray &data);
 
     const bool m_withGdb;

@@ -45,7 +45,7 @@ class ValgrindProcess : public QObject
     Q_OBJECT
 
 public:
-    ValgrindProcess(const ProjectExplorer::IDevice::ConstPtr &device, QObject *parent);
+    ValgrindProcess();
     ~ValgrindProcess();
 
     bool isRunning() const;
@@ -64,12 +64,12 @@ public:
     QString workingDirectory() const;
 
     ProjectExplorer::IDevice::ConstPtr device() const { return m_device; }
+    void setDevice(const ProjectExplorer::IDevice::ConstPtr &device);
 
-    qint64 pid() const;
     bool isLocal() const;
 
 signals:
-    void started();
+    void valgrindStarted(qint64 pid);
     void finished(int, QProcess::ExitStatus);
     void error(QProcess::ProcessError);
     void processOutput(const QString &, Utils::OutputFormat format);
@@ -87,7 +87,6 @@ private:
 
     ProjectExplorer::StandardRunnable m_debuggee;
     ProjectExplorer::ApplicationLauncher m_valgrindProcess;
-    qint64 m_pid = 0;
     ProjectExplorer::IDevice::ConstPtr m_device;
 
     ProjectExplorer::ApplicationLauncher m_findPID;
