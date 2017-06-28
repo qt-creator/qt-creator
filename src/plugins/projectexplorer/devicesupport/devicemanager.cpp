@@ -441,6 +441,7 @@ private:
     {
         return DeviceProcessSignalOperation::Ptr();
     }
+    Utils::OsType osType() const override { return Utils::HostOsInfo::hostOs(); }
 };
 
 void ProjectExplorerPlugin::testDeviceManager()

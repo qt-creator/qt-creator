@@ -142,6 +142,11 @@ Connection DesktopDevice::toolControlChannel(const ControlChannelHint &) const
     return HostName("localhost");
 }
 
+Utils::OsType DesktopDevice::osType() const
+{
+    return Utils::HostOsInfo::hostOs();
+}
+
 IDevice::Ptr DesktopDevice::clone() const
 {
     return Ptr(new DesktopDevice(*this));

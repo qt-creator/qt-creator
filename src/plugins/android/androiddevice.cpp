@@ -94,6 +94,11 @@ DeviceProcessSignalOperation::Ptr AndroidDevice::signalOperation() const
     return DeviceProcessSignalOperation::Ptr(new AndroidSignalOperation());
 }
 
+Utils::OsType AndroidDevice::osType() const
+{
+    return Utils::OsTypeOtherUnix;
+}
+
 IDevice::Ptr AndroidDevice::clone() const
 {
     return IDevice::Ptr(new AndroidDevice(*this));

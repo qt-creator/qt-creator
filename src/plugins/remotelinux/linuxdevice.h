@@ -54,6 +54,7 @@ public:
     QList<Core::Id> actionIds() const;
     QString displayNameForActionId(Core::Id actionId) const;
     void executeAction(Core::Id actionId, QWidget *parent);
+    Utils::OsType osType() const override;
     ProjectExplorer::IDevice::Ptr clone() const;
 
     bool canCreateProcess() const { return true; }

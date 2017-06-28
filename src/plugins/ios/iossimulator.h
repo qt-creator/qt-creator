@@ -77,6 +77,7 @@ public:
     QVariantMap toMap() const override;
     Utils::Port nextPort() const;
     bool canAutoDetectPorts() const override;
+    Utils::OsType osType() const override;
 
     ProjectExplorer::IDevice::Ptr clone() const override;
 protected:

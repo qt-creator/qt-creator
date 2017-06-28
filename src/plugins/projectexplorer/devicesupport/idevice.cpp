@@ -278,6 +278,11 @@ DeviceTester *IDevice::createDeviceTester() const
     return 0;
 }
 
+Utils::OsType IDevice::osType() const
+{
+    return Utils::OsTypeOther;
+}
+
 DeviceProcess *IDevice::createProcess(QObject * /* parent */) const
 {
     QTC_CHECK(false);

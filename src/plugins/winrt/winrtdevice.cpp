@@ -119,6 +119,11 @@ QVariantMap WinRtDevice::toMap() const
     return map;
 }
 
+Utils::OsType WinRtDevice::osType() const
+{
+    return Utils::OsTypeWindows;
+}
+
 IDevice::Ptr WinRtDevice::clone() const
 {
     return IDevice::Ptr(new WinRtDevice(*this));
