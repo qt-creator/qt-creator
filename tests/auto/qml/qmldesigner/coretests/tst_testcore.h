@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTCORE_H
-#define TESTCORE_H
+#pragma once
 
 #include <QObject>
 
@@ -231,5 +230,3 @@ private slots:
     void loadGradient();
     void changeGradientId();
 };
-
-#endif // TESTCORE_H

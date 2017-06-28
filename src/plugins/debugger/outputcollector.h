@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef OUTPUT_COLLECTOR_H
-#define OUTPUT_COLLECTOR_H
+#pragma once
 
 #include <QObject>
 
@@ -74,5 +73,3 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // OUTPUT_COLLECTOR_H

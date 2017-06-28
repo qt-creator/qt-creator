@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef AUTHENTICATIONDIALOG_H
-#define AUTHENTICATIONDIALOG_H
+#pragma once
 
 #include <QCoreApplication>
 #include <QDialog>
@@ -63,5 +62,3 @@ private:
 
 } // Internal
 } // Gerrit
-
-#endif // AUTHENTICATIONDIALOG_H

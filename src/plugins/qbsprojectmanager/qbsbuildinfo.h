@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSBUILDINFO_H
-#define QBSBUILDINFO_H
+#pragma once
 
 #include <projectexplorer/buildinfo.h>
 
@@ -47,5 +46,3 @@ private:
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-#endif // QBSBUILDINFO_H

@@ -37,8 +37,7 @@
 **
 ****************************************************************************/
 
-#ifndef JSONVALUE_H
-#define JSONVALUE_H
+#pragma once
 
 #include <cstdint>
 #include <initializer_list>
@@ -585,5 +584,3 @@ private:
 };
 
 } // namespace Json
-
-#endif // JSONVALUE_H

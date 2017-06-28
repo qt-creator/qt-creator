@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef EXPORTDIALOG_H
-#define EXPORTDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -66,5 +65,3 @@ private:
 
 } // namespace Internal
 } // namespace ImageViewer
-
-#endif // EXPORTDIALOG_H
