@@ -37,6 +37,7 @@
 #include <vcsbase/vcsbaseconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
+#include <utils/optional.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -63,35 +64,29 @@ class VcsManagerPrivate
 public:
     class VcsInfo {
     public:
+        VcsInfo() = default;
         VcsInfo(IVersionControl *vc, const QString &tl) :
             versionControl(vc), topLevel(tl)
         { }
+        VcsInfo(const VcsInfo &other) = default;
 
         bool operator == (const VcsInfo &other) const
         {
-            return versionControl == other.versionControl &&
-                    topLevel == other.topLevel;
+            return versionControl == other.versionControl && topLevel == other.topLevel;
         }
 
-        IVersionControl *versionControl;
+        IVersionControl *versionControl = nullptr;
         QString topLevel;
     };
 
-    ~VcsManagerPrivate()
+    Utils::optional<VcsInfo> findInCache(const QString &dir)
     {
-        qDeleteAll(m_vcsInfoList);
-    }
+        QTC_ASSERT(QDir(dir).isAbsolute(), return Utils::nullopt);
+        QTC_ASSERT(!dir.endsWith(QLatin1Char('/')), return Utils::nullopt);
+        QTC_ASSERT(QDir::fromNativeSeparators(dir) == dir, return Utils::nullopt);
 
-    VcsInfo *findInCache(const QString &dir)
-    {
-        QTC_ASSERT(QDir(dir).isAbsolute(), return nullptr);
-        QTC_ASSERT(!dir.endsWith(QLatin1Char('/')), return nullptr);
-        QTC_ASSERT(QDir::fromNativeSeparators(dir) == dir, return nullptr);
-
-        const QMap<QString, VcsInfo *>::const_iterator it = m_cachedMatches.constFind(dir);
-        if (it != m_cachedMatches.constEnd())
-            return it.value();
-        return nullptr;
+        const auto it = m_cachedMatches.constFind(dir);
+        return it == m_cachedMatches.constEnd() ? Utils::nullopt : Utils::make_optional(it.value());
     }
 
     void clearCache()
@@ -121,24 +116,10 @@ public:
                    || topLevel == dir || topLevel.isEmpty(), return);
         QTC_ASSERT((topLevel.isEmpty() && !vc) || (!topLevel.isEmpty() && vc), return);
 
-        VcsInfo *newInfo = new VcsInfo(vc, topLevel);
-        bool createdNewInfo(true);
-        // Do we have a matching VcsInfo already?
-        foreach (VcsInfo *i, m_vcsInfoList) {
-            if (*i == *newInfo) {
-                delete newInfo;
-                newInfo = i;
-                createdNewInfo = false;
-                break;
-            }
-        }
-        if (createdNewInfo)
-            m_vcsInfoList.append(newInfo);
-
         QString tmpDir = dir;
         const QChar slash = QLatin1Char('/');
         while (tmpDir.count() >= topLevel.count() && !tmpDir.isEmpty()) {
-            m_cachedMatches.insert(tmpDir, newInfo);
+            m_cachedMatches.insert(tmpDir, VcsInfo(vc, topLevel));
             // if no vc was found, this might mean we're inside a repo internal directory (.git)
             // Cache only input directory, not parents
             if (!vc)
@@ -151,8 +132,8 @@ public:
         }
     }
 
-    QMap<QString, VcsInfo *> m_cachedMatches;
-    QList<VcsInfo *> m_vcsInfoList;
+    QList<IVersionControl *> m_versionControlList;
+    QMap<QString, VcsInfo> m_cachedMatches;
     IVersionControl *m_unconfiguredVcs = nullptr;
 
     QStringList m_cachedAdditionalToolsPaths;
@@ -240,7 +221,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     if (directory[0].isLetter() && directory.indexOf(QLatin1Char(':') + QLatin1String(TEST_PREFIX)) == 1)
         directory = directory.mid(2);
 #endif
-    VcsManagerPrivate::VcsInfo *cachedData = d->findInCache(directory);
+    auto cachedData = d->findInCache(directory);
     if (cachedData) {
         if (topLevelDirectory)
             *topLevelDirectory = cachedData->topLevel;
@@ -341,9 +322,10 @@ QString VcsManager::findTopLevelForDirectory(const QString &directory)
 QStringList VcsManager::repositories(const IVersionControl *vc)
 {
     QStringList result;
-    foreach (const VcsManagerPrivate::VcsInfo *vi, d->m_vcsInfoList)
-        if (vi->versionControl == vc)
-            result.push_back(vi->topLevel);
+    for (auto it = d->m_cachedMatches.constBegin(); it != d->m_cachedMatches.constEnd(); ++it) {
+        if (it.value().versionControl == vc)
+            result.append(it.value().topLevel);
+    }
     return result;
 }
 
