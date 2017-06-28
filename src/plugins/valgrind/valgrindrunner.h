@@ -56,6 +56,7 @@ public:
     void setValgrindArguments(const QStringList &toolArguments);
     void setDebuggee(const ProjectExplorer::StandardRunnable &debuggee) ;
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
+    void setLocalServerAddress(const QHostAddress &localServerAddress);
 
     void setDevice(const ProjectExplorer::IDevice::ConstPtr &device);
     ProjectExplorer::IDevice::ConstPtr device() const;
@@ -84,7 +85,7 @@ signals:
     void extraProcessFinished();
 
 private:
-    bool startServers(const QHostAddress &localHostAddress);
+    bool startServers();
     QStringList memcheckLogArguments() const;
 
     void processError(QProcess::ProcessError);

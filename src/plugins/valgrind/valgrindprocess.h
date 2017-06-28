@@ -66,7 +66,6 @@ public:
     ProjectExplorer::IDevice::ConstPtr device() const { return m_device; }
 
     qint64 pid() const;
-    QSsh::SshConnection *connection() const;
     bool isLocal() const;
 
 signals:
@@ -74,33 +73,24 @@ signals:
     void finished(int, QProcess::ExitStatus);
     void error(QProcess::ProcessError);
     void processOutput(const QString &, Utils::OutputFormat format);
-    void localHostAddressRetrieved(const QHostAddress &localHostAddress);
 
 private:
-    void handleRemoteStderr();
-    void handleRemoteStdout();
-    void handleError(QSsh::SshError);
+    void handleRemoteStderr(const QByteArray &b);
+    void handleRemoteStdout(const QByteArray &b);
 
-    void closed(int);
-    void connected();
+    void closed(bool success);
     void localProcessStarted();
     void remoteProcessStarted();
-    void findPIDOutputReceived();
+    void findPIDOutputReceived(const QByteArray &out);
 
     QString argumentString(Utils::OsType osType) const;
 
     ProjectExplorer::StandardRunnable m_debuggee;
-    ProjectExplorer::ApplicationLauncher m_localProcess;
-    qint64 m_pid;
+    ProjectExplorer::ApplicationLauncher m_valgrindProcess;
+    qint64 m_pid = 0;
     ProjectExplorer::IDevice::ConstPtr m_device;
 
-    struct Remote {
-        QSsh::SshConnection *m_connection;
-        QSsh::SshRemoteProcess::Ptr m_process;
-        QString m_errorString;
-        QProcess::ProcessError m_error;
-        QSsh::SshRemoteProcess::Ptr m_findPID;
-    } m_remote;
+    ProjectExplorer::ApplicationLauncher m_findPID;
 
     QSsh::SshConnectionParameters m_params;
     QString m_valgrindExecutable;

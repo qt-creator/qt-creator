@@ -192,15 +192,15 @@ void CallgrindController::getLocalDataFile()
     QString fileName = workingDir.isEmpty() ? baseFileName : (workingDir + QLatin1Char('/') + baseFileName);
 
     if (!m_valgrindProc->isLocal()) {
-        ///TODO: error handling
-        emit statusMessage(tr("Downloading remote profile data..."));
-        m_ssh = m_valgrindProc->connection();
-        // if there are files like callgrind.out.PID.NUM, set it to the most recent one of those
-        QString cmd = QString::fromLatin1("ls -t %1* | head -n 1").arg(fileName);
-        m_findRemoteFile = m_ssh->createRemoteProcess(cmd.toUtf8());
-        connect(m_findRemoteFile.data(), &QSsh::SshRemoteProcess::readyReadStandardOutput,
-                this, &CallgrindController::foundRemoteFile);
-        m_findRemoteFile->start();
+//        ///TODO: error handling
+//        emit statusMessage(tr("Downloading remote profile data..."));
+//        m_ssh = m_valgrindProc->connection();
+//        // if there are files like callgrind.out.PID.NUM, set it to the most recent one of those
+//        QString cmd = QString::fromLatin1("ls -t %1* | head -n 1").arg(fileName);
+//        m_findRemoteFile = m_ssh->createRemoteProcess(cmd.toUtf8());
+//        connect(m_findRemoteFile.data(), &QSsh::SshRemoteProcess::readyReadStandardOutput,
+//                this, &CallgrindController::foundRemoteFile);
+//        m_findRemoteFile->start();
     } else {
         QDir dir(workingDir, QString::fromLatin1("%1.*").arg(baseFileName), QDir::Time);
         QStringList outputFiles = dir.entryList();

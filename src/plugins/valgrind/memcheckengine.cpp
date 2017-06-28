@@ -51,8 +51,33 @@ using namespace Valgrind::XmlProtocol;
 namespace Valgrind {
 namespace Internal {
 
+class LocalAddressFinder : public RunWorker
+{
+public:
+    LocalAddressFinder(RunControl *runControl, QHostAddress *localServerAddress)
+        : RunWorker(runControl), connection(device()->sshParameters())
+    {
+        connect(&connection, &QSsh::SshConnection::connected, this, [this, localServerAddress] {
+            *localServerAddress = connection.connectionInfo().localAddress;
+            reportStarted();
+        });
+        connect(&connection, &QSsh::SshConnection::error, this, [this] {
+            reportFailure();
+        });
+    }
+
+    void start() override
+    {
+        connection.connectToHost();
+    }
+
+    QSsh::SshConnection connection;
+};
+
 MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl, bool withGdb)
-    : ValgrindToolRunner(runControl), m_withGdb(withGdb)
+    : ValgrindToolRunner(runControl),
+      m_withGdb(withGdb),
+      m_localServerAddress(QHostAddress::LocalHost)
 {
     setDisplayName("MemcheckToolRunner");
     connect(m_runner.parser(), &XmlProtocol::ThreadedParser::error,
@@ -65,11 +90,15 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl, bool withGdb)
                 this, &MemcheckToolRunner::startDebugger);
         connect(&m_runner, &ValgrindRunner::logMessageReceived,
                 this, &MemcheckToolRunner::appendLog);
-        m_runner.disableXml();
+//        m_runner.disableXml();
     } else {
         connect(m_runner.parser(), &XmlProtocol::ThreadedParser::internalError,
                 this, &MemcheckToolRunner::internalParserError);
     }
+
+    // We need a real address to connect to from the outside.
+    if (device()->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+        addDependency(new LocalAddressFinder(runControl, &m_localServerAddress));
 }
 
 QString MemcheckToolRunner::progressTitle() const
@@ -79,10 +108,7 @@ QString MemcheckToolRunner::progressTitle() const
 
 void MemcheckToolRunner::start()
 {
-//    MemcheckTool::engineStarting(this);
-
-    appendMessage(tr("Analyzing memory of %1").arg(executable()) + QLatin1Char('\n'),
-                        Utils::NormalMessageFormat);
+    m_runner.setLocalServerAddress(m_localServerAddress);
     ValgrindToolRunner::start();
 }
 
@@ -149,12 +175,10 @@ void MemcheckToolRunner::startDebugger()
     sp.useContinueInsteadOfRun = true;
     sp.expectedSignals.append("SIGTRAP");
 
-    QString errorMessage;
-    auto gdbRunControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    (void) new Debugger::DebuggerRunTool(gdbRunControl, sp, &errorMessage);
-    connect(gdbRunControl, &RunControl::finished,
-            gdbRunControl, &RunControl::deleteLater);
-    gdbRunControl->initiateStart();
+    auto gdbWorker = new Debugger::DebuggerRunTool(runControl());
+    gdbWorker->setStartParameters(sp);
+    gdbWorker->initiateStart();
+    connect(runControl(), &RunControl::finished, gdbWorker, &RunControl::deleteLater);
 }
 
 void MemcheckToolRunner::appendLog(const QByteArray &data)

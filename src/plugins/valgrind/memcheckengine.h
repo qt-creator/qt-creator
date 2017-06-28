@@ -60,6 +60,7 @@ private:
     void appendLog(const QByteArray &data);
 
     const bool m_withGdb;
+    QHostAddress m_localServerAddress;
 };
 
 } // namespace Internal

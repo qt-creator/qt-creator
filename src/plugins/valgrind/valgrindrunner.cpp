@@ -39,6 +39,7 @@
 #include <ssh/sshremoteprocess.h>
 
 #include <QEventLoop>
+#include <QNetworkInterface>
 #include <QTcpServer>
 #include <QTcpSocket>
 
@@ -49,6 +50,7 @@ namespace Valgrind {
 class ValgrindRunner::Private
 {
 public:
+    QHostAddress localServerAddress;
     ValgrindProcess *process = nullptr;
     QProcess::ProcessChannelMode channelMode = QProcess::SeparateChannels;
     bool finished = false;
@@ -125,6 +127,11 @@ void ValgrindRunner::setProcessChannelMode(QProcess::ProcessChannelMode mode)
     d->channelMode = mode;
 }
 
+void ValgrindRunner::setLocalServerAddress(const QHostAddress &localServerAddress)
+{
+    d->localServerAddress = localServerAddress;
+}
+
 void ValgrindRunner::setDevice(const IDevice::ConstPtr &device)
 {
     d->device = device;
@@ -152,10 +159,8 @@ void ValgrindRunner::setToolName(const QString &toolName)
 
 bool ValgrindRunner::start()
 {
-    // FIXME: Remove hack.
-    if (d->tool == "memcheck"
-            && device()->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        if (!startServers(QHostAddress::LocalHost))
+    if (!d->localServerAddress.isNull()) {
+        if (!startServers())
             return false;
         setValgrindArguments(memcheckLogArguments() + valgrindArguments());
     }
@@ -176,8 +181,6 @@ bool ValgrindRunner::start()
                      this, &ValgrindRunner::processFinished);
     QObject::connect(d->process, &ValgrindProcess::error,
                      this, &ValgrindRunner::processError);
-    QObject::connect(d->process, &ValgrindProcess::localHostAddressRetrieved,
-                     this, &ValgrindRunner::localHostAddressRetrieved);
 
     d->process->run(d->debuggee.runMode);
 
@@ -212,14 +215,6 @@ void ValgrindRunner::processFinished(int ret, QProcess::ExitStatus status)
 
     if (ret != 0 || status == QProcess::CrashExit)
         emit processErrorReceived(errorString(), d->process->processError());
-}
-
-void ValgrindRunner::localHostAddressRetrieved(const QHostAddress &localHostAddress)
-{
-    if (startServers(localHostAddress)) {
-        setValgrindArguments(memcheckLogArguments() + valgrindArguments());
-        valgrindProcess()->setValgrindArguments(fullValgrindArguments());
-    }
 }
 
 QString ValgrindRunner::errorString() const
@@ -274,10 +269,10 @@ void ValgrindRunner::readLogSocket()
     emit logMessageReceived(d->logSocket->readAll());
 }
 
-bool ValgrindRunner::startServers(const QHostAddress &localHostAddress)
+bool ValgrindRunner::startServers()
 {
-    bool check = d->xmlServer.listen(localHostAddress);
-    const QString ip = localHostAddress.toString();
+    bool check = d->xmlServer.listen(d->localServerAddress);
+    const QString ip = d->localServerAddress.toString();
     if (!check) {
         emit processErrorReceived(tr("XmlServer on %1:").arg(ip) + ' '
                                   + d->xmlServer.errorString(), QProcess::FailedToStart );
@@ -286,7 +281,7 @@ bool ValgrindRunner::startServers(const QHostAddress &localHostAddress)
     d->xmlServer.setMaxPendingConnections(1);
     connect(&d->xmlServer, &QTcpServer::newConnection,
             this, &ValgrindRunner::xmlSocketConnected);
-    check = d->logServer.listen(localHostAddress);
+    check = d->logServer.listen(d->localServerAddress);
     if (!check) {
         emit processErrorReceived(tr("LogServer on %1:").arg(ip) + ' '
                                   + d->logServer.errorString(), QProcess::FailedToStart );
@@ -298,16 +293,33 @@ bool ValgrindRunner::startServers(const QHostAddress &localHostAddress)
     return true;
 }
 
+static void handleSocketParameter(const QString &prefix, const QTcpServer &tcpServer,
+                            bool *useXml, QStringList *arguments)
+{
+    QHostAddress serverAddress = tcpServer.serverAddress();
+    if (serverAddress.protocol() != QAbstractSocket::IPv4Protocol) {
+        // Report will end up in the Application Output pane, i.e. not have
+        // clickable items, but that's better than nothing.
+        qWarning("Need IPv4 for valgrind");
+        *useXml = false;
+    } else {
+        *arguments << QString("%1=%2:%3").arg(prefix).arg(serverAddress.toString())
+                                         .arg(tcpServer.serverPort());
+    }
+}
+
 QStringList ValgrindRunner::memcheckLogArguments() const
 {
-    QStringList arguments;
-    if (!d->disableXml)
-        arguments << QLatin1String("--xml=yes");
-    arguments << QString::fromLatin1("--xml-socket=%1:%2")
-                 .arg(d->xmlServer.serverAddress().toString()).arg(d->xmlServer.serverPort())
-              << QLatin1String("--child-silent-after-fork=yes")
-              << QString::fromLatin1("--log-socket=%1:%2")
-                 .arg(d->logServer.serverAddress().toString()).arg(d->logServer.serverPort());
+    bool enableXml = !d->disableXml;
+
+    QStringList arguments = {"--child-silent-after-fork=yes"};
+
+    handleSocketParameter("--xml-socket", d->xmlServer, &enableXml, &arguments);
+    handleSocketParameter("--log-socket", d->logServer, &enableXml, &arguments);
+
+    if (enableXml)
+        arguments << "--xml=yes";
+
     return arguments;
 }
 
