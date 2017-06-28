@@ -55,9 +55,6 @@ int BaseHoverHandler::priority() const
     if (m_priority >= 0)
         return m_priority;
 
-    if (isDiagnosticTooltip())
-        return Priority_Diagnostic;
-
     if (lastHelpItemIdentified().isValid())
         return Priority_Help;
 
@@ -94,21 +91,6 @@ const QString &BaseHoverHandler::toolTip() const
     return m_toolTip;
 }
 
-void BaseHoverHandler::appendToolTip(const QString &extension)
-{
-    m_toolTip.append(extension);
-}
-
-void BaseHoverHandler::setIsDiagnosticTooltip(bool isDiagnosticTooltip)
-{
-    m_diagnosticTooltip = isDiagnosticTooltip;
-}
-
-bool BaseHoverHandler::isDiagnosticTooltip() const
-{
-    return m_diagnosticTooltip;
-}
-
 void BaseHoverHandler::setLastHelpItemIdentified(const HelpItem &help)
 {
     m_lastHelpItemIdentified = help;
@@ -121,7 +103,6 @@ const HelpItem &BaseHoverHandler::lastHelpItemIdentified() const
 
 void BaseHoverHandler::clear()
 {
-    m_diagnosticTooltip = false;
     m_toolTip.clear();
     m_priority = -1;
     m_lastHelpItemIdentified = HelpItem();
@@ -146,11 +127,11 @@ void BaseHoverHandler::decorateToolTip()
     if (Qt::mightBeRichText(toolTip()))
         setToolTip(toolTip().toHtmlEscaped());
 
-    if (!isDiagnosticTooltip() && lastHelpItemIdentified().isValid()) {
+    if (priority() != Priority_Diagnostic && lastHelpItemIdentified().isValid()) {
         const QString &contents = lastHelpItemIdentified().extractContent(false);
         if (!contents.isEmpty()) {
-            setToolTip(toolTip().toHtmlEscaped());
-            appendToolTip(contents);
+            m_toolTip = toolTip().toHtmlEscaped();
+            m_toolTip.append(contents);
         }
     }
 }

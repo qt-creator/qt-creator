@@ -57,11 +57,7 @@ protected:
     int priority() const;
 
     void setToolTip(const QString &tooltip);
-    void appendToolTip(const QString &extension);
     const QString &toolTip() const;
-
-    void setIsDiagnosticTooltip(bool isDiagnosticTooltip);
-    bool isDiagnosticTooltip() const;
 
     void setLastHelpItemIdentified(const HelpItem &help);
     const HelpItem &lastHelpItemIdentified() const;
@@ -74,7 +70,6 @@ private:
     void clear();
     void process(TextEditorWidget *widget, int pos);
 
-    bool m_diagnosticTooltip = false;
     QString m_toolTip;
     HelpItem m_lastHelpItemIdentified;
     int m_priority = -1;
