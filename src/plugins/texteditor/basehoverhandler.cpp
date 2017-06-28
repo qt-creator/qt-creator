@@ -26,18 +26,9 @@
 #include "basehoverhandler.h"
 #include "texteditor.h"
 
-#include <coreplugin/icore.h>
 #include <utils/tooltip/tooltip.h>
 
-#include <QPoint>
-
-using namespace Core;
-
 namespace TextEditor {
-
-BaseHoverHandler::BaseHoverHandler() : m_diagnosticTooltip(false), m_priority(-1)
-{
-}
 
 BaseHoverHandler::~BaseHoverHandler()
 {}
