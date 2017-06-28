@@ -27,7 +27,6 @@
 #include "glsleditorconstants.h"
 #include "glsleditorplugin.h"
 #include "glslhighlighter.h"
-#include "glslhoverhandler.h"
 #include "glslautocompleter.h"
 #include "glslcompletionassist.h"
 #include "glslindenter.h"
@@ -332,8 +331,6 @@ GlslEditorFactory::GlslEditorFactory()
     setEditorActionHandlers(TextEditorActionHandler::Format
                           | TextEditorActionHandler::UnCommentSelection
                           | TextEditorActionHandler::UnCollapseAll);
-
-    addHoverHandler(new GlslHoverHandler);
 }
 
 } // namespace Internal

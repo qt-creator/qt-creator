@@ -25,8 +25,6 @@ QtcPlugin {
         "glsleditorplugin.h",
         "glslhighlighter.cpp",
         "glslhighlighter.h",
-        "glslhoverhandler.cpp",
-        "glslhoverhandler.h",
         "glslindenter.cpp",
         "glslindenter.h",
     ]
