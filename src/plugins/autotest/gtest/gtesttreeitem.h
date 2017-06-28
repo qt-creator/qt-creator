@@ -66,6 +66,7 @@ public:
                                               GTestTreeItem::TestStates state,
                                               const QString &proFile) const;
     QString nameSuffix() const;
+    QSet<QString> internalTargets() const override;
 
 private:
     bool modifyTestSetContent(const GTestParseResult *result);

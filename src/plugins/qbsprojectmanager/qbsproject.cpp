@@ -247,8 +247,8 @@ bool QbsProject::ensureWriteableQbsFile(const QString &file)
 }
 
 bool QbsProject::addFilesToProduct(const QStringList &filePaths,
-                                   const qbs::ProductData &productData,
-                                   const qbs::GroupData &groupData, QStringList *notAdded)
+                                   const qbs::ProductData productData,
+                                   const qbs::GroupData groupData, QStringList *notAdded)
 {
     QTC_ASSERT(m_qbsProject.isValid(), return false);
     QStringList allPaths = groupData.allFilePaths();
@@ -272,8 +272,8 @@ bool QbsProject::addFilesToProduct(const QStringList &filePaths,
 }
 
 bool QbsProject::removeFilesFromProduct(const QStringList &filePaths,
-                                        const qbs::ProductData &productData,
-                                        const qbs::GroupData &groupData,
+                                        const qbs::ProductData productData,
+                                        const qbs::GroupData groupData,
                                         QStringList *notRemoved)
 {
     QTC_ASSERT(m_qbsProject.isValid(), return false);
@@ -300,8 +300,8 @@ bool QbsProject::removeFilesFromProduct(const QStringList &filePaths,
 }
 
 bool QbsProject::renameFileInProduct(const QString &oldPath, const QString &newPath,
-                                     const qbs::ProductData &productData,
-                                     const qbs::GroupData &groupData)
+                                     const qbs::ProductData productData,
+                                     const qbs::GroupData groupData)
 {
     if (newPath.isEmpty())
         return false;

@@ -260,10 +260,16 @@ void QmlJSEditorPlugin::reformatFile()
             return;
 
         const QString &newText = QmlJS::reformat(document);
-        QTextCursor tc(m_currentDocument->document());
-        tc.movePosition(QTextCursor::Start);
-        tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-        tc.insertText(newText);
+        QmlJSEditorWidget *widget = EditorManager::currentEditor()
+                ? qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget())
+                : nullptr;
+        if (widget) {
+            const int position = widget->position();
+            m_currentDocument->document()->setPlainText(newText);
+            widget->setCursorPosition(position);
+        } else {
+            m_currentDocument->document()->setPlainText(newText);
+        }
     }
 }
 
