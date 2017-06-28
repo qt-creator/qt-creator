@@ -76,6 +76,7 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
     int extraLength = 0;
     int cursorOffset = 0;
     bool setAutoCompleteSkipPos = false;
+    int currentPosition = manipulator.currentPosition();
 
     bool autoParenthesesEnabled = true;
     if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
@@ -124,7 +125,7 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
 
                 // If the function doesn't return anything, automatically place the semicolon,
                 // unless we're doing a scope completion (then it might be function definition).
-                const QChar characterAtCursor = manipulator.characterAt(manipulator.currentPosition());
+                const QChar characterAtCursor = manipulator.characterAt(currentPosition);
                 bool endWithSemicolon = m_typedCharacter == QLatin1Char(';')/*
                                                 || (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON)*/; //###
                 const QChar semicolon = m_typedCharacter.isNull() ? QLatin1Char(';') : m_typedCharacter;
@@ -181,7 +182,13 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
     // Avoid inserting characters that are already there
     QTextCursor cursor = manipulator.textCursorAt(basePosition);
     cursor.movePosition(QTextCursor::EndOfWord);
-    const int currentPosition = cursor.position();
+    const QString textAfterCursor = manipulator.textAt(currentPosition,
+                                                       cursor.position() - currentPosition);
+
+    if (textToBeInserted != textAfterCursor
+            && textToBeInserted.indexOf(textAfterCursor, currentPosition - basePosition) >= 0) {
+        currentPosition = cursor.position();
+    }
 
     for (int i = 0; i < extraCharacters.length(); ++i) {
         const QChar a = extraCharacters.at(i);

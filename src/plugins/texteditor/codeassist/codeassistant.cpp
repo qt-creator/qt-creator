@@ -365,8 +365,21 @@ void CodeAssistantPrivate::handlePrefixExpansion(const QString &newPrefix)
     cursor.setPosition(m_proposal->basePosition());
     cursor.movePosition(QTextCursor::EndOfWord);
 
+    int currentPosition = m_editorWidget->position();
+    const QString textAfterCursor = m_editorWidget->textAt(currentPosition,
+                                                       cursor.position() - currentPosition);
+    if (!textAfterCursor.startsWith(newPrefix)) {
+        if (newPrefix.indexOf(textAfterCursor, currentPosition - m_proposal->basePosition()) >= 0)
+            currentPosition = cursor.position();
+        const QStringRef prefixAddition =
+                newPrefix.midRef(currentPosition - m_proposal->basePosition());
+        // If remaining string starts with the prefix addition
+        if (textAfterCursor.startsWith(prefixAddition))
+            currentPosition += prefixAddition.size();
+    }
+
     m_editorWidget->setCursorPosition(m_proposal->basePosition());
-    m_editorWidget->replace(cursor.position() - m_proposal->basePosition(), newPrefix);
+    m_editorWidget->replace(currentPosition - m_proposal->basePosition(), newPrefix);
     notifyChange();
 }
 
