@@ -27,6 +27,7 @@
 #include "gtestconfiguration.h"
 #include "gtestparser.h"
 
+#include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 
