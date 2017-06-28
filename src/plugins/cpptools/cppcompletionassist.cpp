@@ -309,28 +309,20 @@ void CppAssistProposalItem::applyContextualContent(TextDocumentManipulatorInterf
             --cursorOffset;
     }
 
-    // Determine the length of characters that should just be kept on the editor, but do
-    // not consider content that ends as an identifier (which could be undesired).
-    const int lineEnd = manipulator.positionAt(EndOfLinePosition);
-    const QString inEditor = manipulator.textAt(manipulator.currentPosition(),
-                                                lineEnd - manipulator.currentPosition());
-    int preserveLength = 0;
-    if (!inEditor.isEmpty()) {
-        preserveLength = toInsert.length() - (manipulator.currentPosition() - basePosition);
-        const int inEditorLength = inEditor.length();
-        while (preserveLength > 0) {
-            if (inEditor.startsWith(toInsert.right(preserveLength))
-                    && (inEditorLength == preserveLength
-                        || !CppTools::isValidIdentifierChar(inEditor.at(preserveLength)))) {
-                break;
-            }
-            --preserveLength;
-        }
+    // Avoid inserting characters that are already there
+    int currentPosition = manipulator.currentPosition();
+    QTextCursor cursor = manipulator.textCursorAt(basePosition);
+    cursor.movePosition(QTextCursor::EndOfWord);
+    const QString textAfterCursor = manipulator.textAt(currentPosition,
+                                                       cursor.position() - currentPosition);
+    if (toInsert != textAfterCursor
+            && toInsert.indexOf(textAfterCursor, currentPosition - basePosition) >= 0) {
+        currentPosition = cursor.position();
     }
 
     for (int i = 0; i < extraChars.length(); ++i) {
         const QChar a = extraChars.at(i);
-        const QChar b = manipulator.characterAt(manipulator.currentPosition() + i + preserveLength);
+        const QChar b = manipulator.characterAt(currentPosition + i);
         if (a == b)
             ++extraLength;
         else
@@ -340,8 +332,9 @@ void CppAssistProposalItem::applyContextualContent(TextDocumentManipulatorInterf
     toInsert += extraChars;
 
     // Insert the remainder of the name
-    const int length = manipulator.currentPosition() - basePosition + preserveLength + extraLength;
+    const int length = currentPosition - basePosition + extraLength;
     manipulator.replace(basePosition, length, toInsert);
+    manipulator.setCursorPosition(basePosition + toInsert.length());
     if (cursorOffset)
         manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
     if (setAutoCompleteSkipPos)
