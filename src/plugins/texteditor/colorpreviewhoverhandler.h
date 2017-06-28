@@ -38,9 +38,6 @@ class TextEditorWidget;
 
 class TEXTEDITOR_EXPORT ColorPreviewHoverHandler : public BaseHoverHandler
 {
-    Q_OBJECT
-public:
-
 private:
     void identifyMatch(TextEditorWidget *editorWidget, int pos) override;
     void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point) override;

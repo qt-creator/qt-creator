@@ -28,7 +28,9 @@
 #include "texteditor_global.h"
 #include "helpitem.h"
 
-#include <QObject>
+QT_BEGIN_NAMESPACE
+class QPoint;
+QT_END_NAMESPACE
 
 namespace Core { class IEditor; }
 
@@ -37,13 +39,11 @@ namespace TextEditor {
 class BaseTextEditor;
 class TextEditorWidget;
 
-class TEXTEDITOR_EXPORT BaseHoverHandler : public QObject
+class TEXTEDITOR_EXPORT BaseHoverHandler
 {
-    Q_OBJECT
-
 public:
     BaseHoverHandler();
-    ~BaseHoverHandler();
+    virtual ~BaseHoverHandler();
 
     QString contextHelpId(TextEditorWidget *widget, int pos);
     int checkToolTip(TextEditorWidget *widget, int pos);

@@ -37,8 +37,6 @@ namespace Internal {
 
 class ProFileHoverHandler : public TextEditor::BaseHoverHandler
 {
-    Q_OBJECT
-
 public:
     explicit ProFileHoverHandler(const TextEditor::Keywords &keywords);
 
