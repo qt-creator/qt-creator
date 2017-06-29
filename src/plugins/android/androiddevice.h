@@ -47,7 +47,7 @@ public:
     Utils::OsType osType() const override;
 
     ProjectExplorer::IDevice::Ptr clone() const override;
-    ProjectExplorer::Connection toolControlChannel(const ControlChannelHint &) const override;
+    QUrl toolControlChannel(const ControlChannelHint &) const override;
 
 protected:
     friend class AndroidDeviceFactory;

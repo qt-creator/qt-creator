@@ -189,7 +189,7 @@ public:
     void setSshParameters(const QSsh::SshConnectionParameters &sshParameters);
 
     enum ControlChannelHint { QmlControlChannel };
-    virtual Connection toolControlChannel(const ControlChannelHint &) const;
+    virtual QUrl toolControlChannel(const ControlChannelHint &) const;
 
     Utils::PortList freePorts() const;
     void setFreePorts(const Utils::PortList &freePorts);

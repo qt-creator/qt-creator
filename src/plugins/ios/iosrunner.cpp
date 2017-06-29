@@ -382,7 +382,7 @@ IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
 
 void IosQmlProfilerSupport::start()
 {
-    UrlConnection serverUrl;
+    QUrl serverUrl;
     QTcpServer server;
     QTC_ASSERT(server.listen(QHostAddress::LocalHost)
                || server.listen(QHostAddress::LocalHostIPv6), return);

@@ -271,10 +271,7 @@ void QmlProfilerRunner::setServerUrl(const QUrl &serverUrl)
 QUrl QmlProfilerRunner::serverUrl() const
 {
     QVariant recordedServer = recordedData(QmlServerUrl);
-    if (recordedServer.isValid())
-        return recordedServer.toUrl();
-    QTC_ASSERT(connection().is<UrlConnection>(), return QUrl());
-    return connection().as<UrlConnection>();
+    return recordedServer.toUrl();
 }
 
 //
@@ -289,12 +286,12 @@ static QUrl localServerUrl(RunControl *runControl)
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
     if (version) {
         if (version->qtVersion() >= QtSupport::QtVersionNumber(5, 6, 0))
-            serverUrl = UrlConnection::localSocket();
+            serverUrl = urlFromLocalSocket();
         else
-            serverUrl = UrlConnection::localHostAndFreePort();
+            serverUrl = urlFromLocalHostAndFreePort();
     } else {
         qWarning("Running QML profiler on Kit without Qt version?");
-        serverUrl = UrlConnection::localHostAndFreePort();
+        serverUrl = urlFromLocalHostAndFreePort();
     }
     return serverUrl;
 }

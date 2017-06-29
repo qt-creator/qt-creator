@@ -55,7 +55,7 @@ private:
     int runCount = 0;
     ProjectExplorer::RunControl *runControl = nullptr;
     ProjectExplorer::StandardRunnable debuggee;
-    ProjectExplorer::UrlConnection serverUrl;
+    QUrl serverUrl;
 };
 
 } // namespace Internal

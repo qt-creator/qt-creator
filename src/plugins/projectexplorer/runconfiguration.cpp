@@ -688,7 +688,6 @@ public:
     QString displayName;
     Runnable runnable;
     IDevice::ConstPtr device;
-    Connection connection;
     Core::Id runMode;
     Utils::Icon icon;
     const QPointer<RunConfiguration> runConfiguration; // Not owned.
@@ -983,16 +982,6 @@ const Runnable &RunControl::runnable() const
 void RunControl::setRunnable(const Runnable &runnable)
 {
     d->runnable = runnable;
-}
-
-const Connection &RunControl::connection() const
-{
-    return d->connection;
-}
-
-void RunControl::setConnection(const Connection &connection)
-{
-    d->connection = connection;
 }
 
 QString RunControl::displayName() const
@@ -1490,11 +1479,6 @@ IDevice::ConstPtr RunWorker::device() const
 const Runnable &RunWorker::runnable() const
 {
     return d->runControl->runnable();
-}
-
-const Connection &RunWorker::connection() const
-{
-    return d->runControl->connection();
 }
 
 Core::Id RunWorker::runMode() const

@@ -580,9 +580,8 @@ void QmlProfilerTool::attachToWaitingApplication()
 
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     QTC_ASSERT(device, return);
-    Connection toolControl = device->toolControlChannel(IDevice::QmlControlChannel);
-    QTC_ASSERT(toolControl.is<HostName>(), return);
-    serverUrl.setHost(toolControl.as<HostName>().host());
+    QUrl toolControl = device->toolControlChannel(IDevice::QmlControlChannel);
+    serverUrl.setHost(toolControl.host());
     serverUrl.setPort(port);
 
     Debugger::selectPerspective(Constants::QmlProfilerPerspectiveId);

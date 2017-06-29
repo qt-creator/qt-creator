@@ -198,44 +198,6 @@ private:
     std::unique_ptr<Concept> d;
 };
 
-class PROJECTEXPLORER_EXPORT Connection
-{
-    struct Concept
-    {
-        virtual ~Concept() {}
-        virtual Concept *clone() const = 0;
-        virtual void *typeId() const = 0;
-    };
-
-    template <class T>
-    struct Model : public Concept
-    {
-        Model(const T &data) : m_data(data) { }
-        Concept *clone() const override { return new Model(*this); }
-        void *typeId() const override { return T::staticTypeId; }
-        T m_data;
-    };
-
-public:
-    Connection() = default;
-    Connection(const Connection &other) : d(other.d ? other.d->clone() : nullptr) { }
-    Connection(Connection &&other) /* MSVC 2013 doesn't want = default */ : d(std::move(other.d)) {}
-    template <class T> Connection(const T &data) : d(new Model<T>(data)) {}
-
-    void operator=(Connection other) { d = std::move(other.d); }
-
-    template <class T> bool is() const {
-        return d.get() && (d.get()->typeId() == T::staticTypeId);
-    }
-
-    template <class T> const T &as() const {
-        return static_cast<Model<T> *>(d.get())->m_data;
-    }
-
-private:
-    std::unique_ptr<Concept> d;
-};
-
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
 {
@@ -387,7 +349,6 @@ public:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
     IDevice::ConstPtr device() const;
     const Runnable &runnable() const;
-    const Connection &connection() const;
     Core::Id runMode() const;
 
     // States
@@ -465,9 +426,6 @@ public:
 
     const Runnable &runnable() const;
     void setRunnable(const Runnable &runnable);
-
-    const Connection &connection() const;
-    void setConnection(const Connection &connection);
 
     virtual void appendMessage(const QString &msg, Utils::OutputFormat format);
     virtual void bringApplicationToForeground();
