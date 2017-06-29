@@ -437,8 +437,13 @@ bool FileSaverBase::write(const QByteArray &bytes)
 bool FileSaverBase::setResult(bool ok)
 {
     if (!ok && !m_hasError) {
-        m_errorString = tr("Cannot write file %1. Disk full?").arg(
-                QDir::toNativeSeparators(m_fileName));
+        if (!m_file->errorString().isEmpty()) {
+            m_errorString = tr("Cannot write file %1: %2").arg(
+                        QDir::toNativeSeparators(m_fileName), m_file->errorString());
+        } else {
+            m_errorString = tr("Cannot write file %1. Disk full?").arg(
+                        QDir::toNativeSeparators(m_fileName));
+        }
         m_hasError = true;
     }
     return ok;
