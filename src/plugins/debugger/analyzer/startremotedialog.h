@@ -28,7 +28,6 @@
 #include <debugger/debugger_global.h>
 
 #include <QDialog>
-#include <QUrl>
 
 namespace ProjectExplorer { class StandardRunnable; }
 
@@ -44,7 +43,6 @@ public:
     explicit StartRemoteDialog(QWidget *parent = 0);
     ~StartRemoteDialog() override;
 
-    QUrl serverUrl() const;
     ProjectExplorer::StandardRunnable runnable() const;
 
 private:
