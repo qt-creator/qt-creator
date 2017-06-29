@@ -239,7 +239,7 @@ Warning *WarningModel::getWarning(const QModelIndex &ind)
 
 void WarningModel::warningDestroyed(QObject *ww)
 {
-    auto w = static_cast<Warning*>(ww);
+    auto w = qobject_cast<Warning*>(ww);
     if (m_warnings.contains(w)) {
         int ind = m_warnings.indexOf(w);
         beginRemoveRows(QModelIndex(), ind, ind);
