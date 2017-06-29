@@ -51,6 +51,7 @@ GerritRemoteChooser::GerritRemoteChooser(QWidget *parent) :
     m_remoteComboBox->setMinimumSize(QSize(40, 0));
 
     horizontalLayout->addWidget(m_remoteComboBox);
+    horizontalLayout->setMargin(0);
 
     m_resetRemoteButton = new QToolButton(this);
     m_resetRemoteButton->setToolTip(tr("Refresh Remote Servers"));
@@ -74,6 +75,22 @@ void GerritRemoteChooser::setParameters(QSharedPointer<GerritParameters> paramet
     m_parameters = parameters;
 }
 
+void GerritRemoteChooser::setFallbackEnabled(bool value)
+{
+    m_enableFallback = value;
+}
+
+bool GerritRemoteChooser::setCurrentRemote(const QString &remoteName)
+{
+    for (int i = 0, total = m_remoteComboBox->count(); i < total; ++i) {
+        if (m_remotes[i].first == remoteName) {
+            m_remoteComboBox->setCurrentIndex(i);
+            return true;
+        }
+    }
+    return false;
+}
+
 bool GerritRemoteChooser::updateRemotes(bool forceReload)
 {
     QTC_ASSERT(!m_repository.isEmpty() || !m_parameters, return false);
@@ -91,7 +108,9 @@ bool GerritRemoteChooser::updateRemotes(bool forceReload)
             continue;
         addRemote(server, mapIt.key());
     }
-    addRemote(m_parameters->server, tr("Fallback"));
+    if (m_enableFallback)
+        addRemote(m_parameters->server, tr("Fallback"));
+    m_remoteComboBox->setEnabled(m_remoteComboBox->count() > 1);
     m_updatingRemotes = false;
     handleRemoteChanged();
     return true;
@@ -114,6 +133,18 @@ GerritServer GerritRemoteChooser::currentServer() const
     const int index = m_remoteComboBox->currentIndex();
     QTC_ASSERT(index >= 0 && index < int(m_remotes.size()), return GerritServer());
     return m_remotes[index].second;
+}
+
+QString GerritRemoteChooser::currentRemoteName() const
+{
+    const int index = m_remoteComboBox->currentIndex();
+    QTC_ASSERT(index >= 0 && index < int(m_remotes.size()), return QString());
+    return m_remotes[index].first;
+}
+
+bool GerritRemoteChooser::isEmpty() const
+{
+    return m_remotes.empty();
 }
 
 void GerritRemoteChooser::handleRemoteChanged()

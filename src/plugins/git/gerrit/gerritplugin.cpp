@@ -315,7 +315,7 @@ void GerritPlugin::addToLocator(CommandLocator *locator)
 void GerritPlugin::push(const QString &topLevel)
 {
     // QScopedPointer is required to delete the dialog when leaving the function
-    GerritPushDialog dialog(topLevel, m_reviewers, ICore::mainWindow());
+    GerritPushDialog dialog(topLevel, m_reviewers, m_parameters, ICore::mainWindow());
 
     if (!dialog.isValid()) {
         QMessageBox::warning(ICore::mainWindow(), tr("Initialization Failed"),

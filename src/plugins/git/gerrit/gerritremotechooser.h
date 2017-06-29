@@ -47,9 +47,13 @@ public:
     GerritRemoteChooser(QWidget *parent = nullptr);
     void setRepository(const QString  &repository);
     void setParameters(QSharedPointer<GerritParameters> parameters);
+    void setFallbackEnabled(bool value);
+    bool setCurrentRemote(const QString &remoteName);
 
     bool updateRemotes(bool forceReload);
     GerritServer currentServer() const;
+    QString currentRemoteName() const;
+    bool isEmpty() const;
 
 signals:
     void remoteChanged();
@@ -63,6 +67,7 @@ private:
     QComboBox *m_remoteComboBox = nullptr;
     QToolButton *m_resetRemoteButton = nullptr;
     bool m_updatingRemotes = false;
+    bool m_enableFallback = false;
     using NameAndServer = std::pair<QString, GerritServer>;
     std::vector<NameAndServer> m_remotes;
 };
