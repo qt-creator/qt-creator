@@ -63,7 +63,6 @@ SOURCES += \
     projectupdater-test.cpp \
     pchmanagerserver-test.cpp \
     pchmanagerclientserverinprocess-test.cpp \
-    clangquerygatherer-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -125,6 +124,7 @@ SOURCES += \
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
     clangquery-test.cpp \
+    clangquerygatherer-test.cpp \
     clangqueryprojectfindfilter-test.cpp \
     refactoringclientserverinprocess-test.cpp \
     refactoringclient-test.cpp \

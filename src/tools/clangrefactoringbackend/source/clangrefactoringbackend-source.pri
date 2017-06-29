@@ -1,8 +1,7 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-    $$PWD/clangrefactoringbackend_global.h \
-    $$PWD/clangquerygatherer.h
+    $$PWD/clangrefactoringbackend_global.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
@@ -15,7 +14,8 @@ SOURCES += \
     $$PWD/clangquery.cpp \
     $$PWD/clangtool.cpp \
     $$PWD/sourcerangeextractor.cpp \
-    $$PWD/locationsourcefilecallbacks.cpp
+    $$PWD/locationsourcefilecallbacks.cpp \
+    $$PWD/clangquerygatherer.cpp
 
 HEADERS += \
     $$PWD/refactoringcompilationdatabase.h \
@@ -30,8 +30,6 @@ HEADERS += \
     $$PWD/clangquery.h \
     $$PWD/clangtool.h \
     $$PWD/sourcerangeextractor.h \
-    $$PWD/locationsourcefilecallbacks.h
+    $$PWD/locationsourcefilecallbacks.h \
+    $$PWD/clangquerygatherer.h
 }
-
-SOURCES += \
-    $$PWD/clangquerygatherer.cpp
