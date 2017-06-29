@@ -203,10 +203,18 @@ QString DiffEditorDocument::fallbackSaveAsPath() const
     return QDir::homePath();
 }
 
+bool DiffEditorDocument::isSaveAsAllowed() const
+{
+    return !isReloading();
+}
+
 bool DiffEditorDocument::save(QString *errorString, const QString &fileName, bool autoSave)
 {
     Q_UNUSED(errorString)
     Q_UNUSED(autoSave)
+
+    if (isReloading())
+        return false;
 
     const bool ok = write(fileName, format(), plainText(), errorString);
 
@@ -330,6 +338,7 @@ void DiffEditorDocument::beginReload()
 {
     emit aboutToReload();
     m_isReloading = true;
+    emit changed();
     const bool blocked = blockSignals(true);
     setDiffFiles(QList<FileData>(), QString());
     setDescription(QString());
@@ -339,6 +348,7 @@ void DiffEditorDocument::beginReload()
 void DiffEditorDocument::endReload(bool success)
 {
     m_isReloading = false;
+    emit changed();
     emit reloadFinished(success);
 }
 
