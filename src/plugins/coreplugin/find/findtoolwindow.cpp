@@ -147,6 +147,13 @@ void FindToolWindow::updateButtonStates()
     if (m_configWidget)
         m_configWidget->setEnabled(filterEnabled);
 
+    if (m_currentFilter) {
+        m_ui.searchTerm->setVisible(m_currentFilter->showSearchTermInput());
+        m_ui.searchLabel->setVisible(m_currentFilter->showSearchTermInput());
+        m_ui.optionsWidget->setVisible(m_currentFilter->supportedFindFlags()
+                                       & (FindCaseSensitively | FindWholeWords | FindRegularExpression));
+    }
+
     m_ui.matchCase->setEnabled(filterEnabled
                                && (m_currentFilter->supportedFindFlags() & FindCaseSensitively));
     m_ui.wholeWords->setEnabled(filterEnabled
