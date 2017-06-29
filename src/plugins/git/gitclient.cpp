@@ -43,6 +43,7 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/asconst.h>
@@ -53,6 +54,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 #include <utils/temporaryfile.h>
+#include <utils/runextensions.h>
 
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -110,6 +112,14 @@ const unsigned silentFlags = unsigned(VcsCommand::SuppressCommandLogging
                                       | VcsCommand::SuppressStdErr
                                       | VcsCommand::SuppressFailMessage);
 
+static void readPatch(QFutureInterface<QList<FileData>> &futureInterface,
+                      const QString &patch)
+{
+    bool ok;
+    const QList<FileData> &fileDataList = DiffUtils::readPatch(patch, &ok);
+    futureInterface.reportResult(fileDataList);
+}
+
 /////////////////////////////////////
 
 class BaseController : public DiffEditorController
@@ -119,45 +129,83 @@ class BaseController : public DiffEditorController
 public:
     BaseController(IDocument *document, const QString &dir);
     ~BaseController();
-    void runCommand(const QList<QStringList> &args, QTextCodec *codec = 0);
-
-private:
-    virtual void processOutput(const QString &output);
 
 protected:
-    void processDiff(const QString &output, const QString &startupFile = QString());
+    void runCommand(const QList<QStringList> &args, QTextCodec *codec = 0);
+    virtual void processCommandOutput(const QString &output);
+
     QStringList addConfigurationArguments(const QStringList &args) const;
     QStringList addHeadWhenCommandInProgress() const;
 
-    const QString m_directory;
+    void setStartupFile(const QString &startupFile) { m_startupFile = startupFile; }
+    QString startupFile() const { return m_startupFile; }
+    QString directory() const { return m_directory; }
 
 private:
+    void processDiff(const QString &patch);
+    void storeOutput(const QString &output);
+    void cancelReload();
+    void commandFinished(bool success);
+    void processingFinished();
+
+    const QString m_directory;
+    QString m_startupFile;
+    QString m_output;
     QPointer<VcsCommand> m_command;
+    QFutureWatcher<QList<FileData>> m_processWatcher;
 };
 
 BaseController::BaseController(IDocument *document, const QString &dir) :
     DiffEditorController(document),
     m_directory(dir),
     m_command(0)
-{ }
+{
+    connect(&m_processWatcher, &QFutureWatcher<QList<FileData>>::finished,
+            this, &BaseController::processingFinished);
+}
 
 BaseController::~BaseController()
 {
-    if (m_command)
-        m_command->cancel();
+    cancelReload();
 }
 
-void BaseController::runCommand(const QList<QStringList> &args, QTextCodec *codec)
+void BaseController::cancelReload()
 {
     if (m_command) {
         m_command->disconnect();
         m_command->cancel();
+        m_command.clear();
     }
 
-    m_command = new VcsCommand(m_directory, GitPlugin::client()->processEnvironment());
+    if (m_processWatcher.future().isRunning()) {
+        m_processWatcher.future().cancel();
+        m_processWatcher.setFuture(QFuture<QList<FileData>>());
+    }
+    m_output = QString();
+}
+
+void BaseController::commandFinished(bool success)
+{
+    if (m_command)
+        m_command.clear();
+
+    if (!success) {
+        cancelReload();
+        reloadFinished(success);
+        return;
+    }
+
+    processCommandOutput(m_output);
+}
+
+void BaseController::runCommand(const QList<QStringList> &args, QTextCodec *codec)
+{
+    cancelReload();
+
+    m_command = new VcsCommand(directory(), GitPlugin::client()->processEnvironment());
     m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
-    connect(m_command.data(), &VcsCommand::stdOutText, this, &BaseController::processOutput);
-    connect(m_command.data(), &VcsCommand::finished, this, &BaseController::reloadFinished);
+    connect(m_command.data(), &VcsCommand::stdOutText, this, &BaseController::storeOutput);
+    connect(m_command.data(), &VcsCommand::finished, this, &BaseController::commandFinished);
     m_command->addFlags(diffExecutionFlags());
 
     for (const QStringList &arg : args) {
@@ -169,13 +217,30 @@ void BaseController::runCommand(const QList<QStringList> &args, QTextCodec *code
     m_command->execute();
 }
 
-void BaseController::processDiff(const QString &output, const QString &startupFile)
+void BaseController::storeOutput(const QString &output)
 {
-    m_command.clear();
+    m_output = output;
+}
 
-    bool ok;
-    QList<FileData> fileDataList = DiffUtils::readPatch(output, &ok);
-    setDiffFiles(fileDataList, m_directory, startupFile);
+void BaseController::processCommandOutput(const QString &output)
+{
+    processDiff(output);
+}
+
+void BaseController::processDiff(const QString &patch)
+{
+    m_processWatcher.setFuture(Utils::runAsync(&readPatch, patch));
+
+    Core::ProgressManager::addTask(m_processWatcher.future(),
+                                   tr("Processing diff"), "DiffEditor");
+}
+
+void BaseController::processingFinished()
+{
+    const QList<FileData> fileDataList = m_processWatcher.future().result();
+
+    setDiffFiles(fileDataList, directory(), startupFile());
+    reloadFinished(true);
 }
 
 QStringList BaseController::addConfigurationArguments(const QStringList &args) const
@@ -196,17 +261,12 @@ QStringList BaseController::addConfigurationArguments(const QStringList &args) c
     return realArgs;
 }
 
-void BaseController::processOutput(const QString &output)
-{
-    processDiff(output);
-}
-
 QStringList BaseController::addHeadWhenCommandInProgress() const
 {
     // This is workaround for lack of support for merge commits and resolving conflicts,
     // we compare the current state of working tree to the HEAD of current branch
     // instead of showing unsupported combined diff format.
-    GitClient::CommandInProgress commandInProgress = GitPlugin::client()->checkCommandInProgress(m_directory);
+    GitClient::CommandInProgress commandInProgress = GitPlugin::client()->checkCommandInProgress(directory());
     if (commandInProgress != GitClient::NoCommand)
         return {HEAD};
     return QStringList();
@@ -348,8 +408,7 @@ public:
     { }
 
     void reload() override;
-    void processOutput(const QString &output) override;
-    void reloadFinished(bool success) override;
+    void processCommandOutput(const QString &output) override;
 
 private:
     const QString m_id;
@@ -359,34 +418,27 @@ private:
 
 void ShowController::reload()
 {
-    const QStringList args = {"show", "-s", noColorOption, showFormatC, m_id};
+    // stage 1
     m_state = GettingDescription;
-    runCommand(QList<QStringList>() << args, GitPlugin::client()->encoding(m_directory, "i18n.commitEncoding"));
+    const QStringList args = {"show", "-s", noColorOption, showFormatC, m_id};
+    runCommand(QList<QStringList>() << args, GitPlugin::client()->encoding(directory(), "i18n.commitEncoding"));
+    setStartupFile(VcsBasePlugin::source(document()));
 }
 
-void ShowController::processOutput(const QString &output)
+void ShowController::processCommandOutput(const QString &output)
 {
     QTC_ASSERT(m_state != Idle, return);
-    if (m_state == GettingDescription)
-        setDescription(GitPlugin::client()->extendedShowDescription(m_directory, output));
-    else if (m_state == GettingDiff)
-        processDiff(output, VcsBasePlugin::source(document()));
-}
-
-void ShowController::reloadFinished(bool success)
-{
-    QTC_ASSERT(m_state != Idle, return);
-
-    if (m_state == GettingDescription && success) {
+    if (m_state == GettingDescription) {
+        setDescription(GitPlugin::client()->extendedShowDescription(directory(), output));
+        // stage 2
+        m_state = GettingDiff;
         const QStringList args = {"show", "--format=format:", // omit header, already generated
                                   noColorOption, decorateOption, m_id};
-        m_state = GettingDiff;
         runCommand(QList<QStringList>() << addConfigurationArguments(args));
-        return;
+    } else if (m_state == GettingDiff) {
+        m_state = Idle;
+        BaseController::processCommandOutput(output);
     }
-
-    m_state = Idle;
-    BaseController::reloadFinished(success);
 }
 
 ///////////////////////////////
