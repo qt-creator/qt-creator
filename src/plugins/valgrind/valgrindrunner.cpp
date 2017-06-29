@@ -69,7 +69,6 @@ public:
     QHostAddress localServerAddress;
     QProcess::ProcessChannelMode channelMode = QProcess::SeparateChannels;
     bool m_finished = false;
-    QString m_tool;
 
     QTcpServer xmlServer;
     XmlProtocol::ThreadedParser parser;
@@ -102,7 +101,6 @@ void ValgrindRunner::Private::run()
             this, &ValgrindRunner::Private::remoteProcessStarted);
 
     QStringList fullArgs = m_valgrindArguments;
-    fullArgs << QString("--tool=%1").arg(m_tool);
     if (HostOsInfo::isMacHost())
         // May be slower to start but without it we get no filenames for symbols.
         fullArgs << "--dsymutil=yes";
@@ -212,7 +210,6 @@ void ValgrindRunner::Private::closed(bool success)
 ValgrindRunner::ValgrindRunner(QObject *parent)
     : QObject(parent), d(new Private(this))
 {
-    setToolName("memcheck");
 }
 
 ValgrindRunner::~ValgrindRunner()
@@ -267,11 +264,6 @@ void ValgrindRunner::waitForFinished() const
     QEventLoop loop;
     connect(this, &ValgrindRunner::finished, &loop, &QEventLoop::quit);
     loop.exec();
-}
-
-void ValgrindRunner::setToolName(const QString &toolName)
-{
-    d->m_tool = toolName;
 }
 
 static void handleSocketParameter(const QString &prefix, const QTcpServer &tcpServer,

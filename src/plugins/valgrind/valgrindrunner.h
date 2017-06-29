@@ -26,8 +26,6 @@
 
 #pragma once
 
-#include <debugger/analyzer/analyzerconstants.h>
-
 #include <projectexplorer/runnables.h>
 
 #include <utils/outputformat.h>
@@ -54,7 +52,6 @@ public:
     void setDevice(const ProjectExplorer::IDevice::ConstPtr &device);
 
     void waitForFinished() const;
-    void setToolName(const QString &toolName);
 
     QString errorString() const;
 

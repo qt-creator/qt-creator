@@ -120,8 +120,7 @@ void MemcheckToolRunner::stop()
 
 QStringList MemcheckToolRunner::toolArguments() const
 {
-    QStringList arguments;
-    arguments << "--gen-suppressions=all";
+    QStringList arguments = {"--tool=memcheck", "--gen-suppressions=all"};
 
     QTC_ASSERT(m_settings, return arguments);
 

@@ -36,7 +36,6 @@
 
 #include <utils/qtcassert.h>
 
-using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Valgrind::Callgrind;
 
@@ -47,7 +46,6 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
     : ValgrindToolRunner(runControl)
 {
     setDisplayName("CallgrindToolRunner");
-    m_runner.setToolName("callgrind");
 
     connect(&m_runner, &ValgrindRunner::finished,
             this, &CallgrindToolRunner::slotFinished);
@@ -73,7 +71,7 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
 
 QStringList CallgrindToolRunner::toolArguments() const
 {
-    QStringList arguments;
+    QStringList arguments = {"--tool=callgrind"};
 
     QTC_ASSERT(m_settings, return arguments);
 
