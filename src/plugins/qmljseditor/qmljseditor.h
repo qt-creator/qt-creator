@@ -122,7 +122,6 @@ private:
     QTimer m_contextPaneTimer;
     QComboBox *m_outlineCombo;
     QModelIndex m_outlineModelIndex;
-    bool m_blockOutLineCursorChanges = false;
     QmlJS::ModelManagerInterface *m_modelManager = nullptr;
 
     QmlJS::IContextPane *m_contextPane = nullptr;
