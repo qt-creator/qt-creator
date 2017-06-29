@@ -31,6 +31,8 @@
 #include "valgrindrunner.h"
 #include "xmlprotocol/threadedparser.h"
 
+#include <QHostAddress>
+
 namespace Valgrind {
 namespace Internal {
 

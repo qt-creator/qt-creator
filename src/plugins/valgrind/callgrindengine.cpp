@@ -31,7 +31,6 @@
 #include <valgrind/callgrind/callgrindcontroller.h>
 #include <valgrind/callgrind/callgrindparser.h>
 #include <valgrind/valgrindrunner.h>
-#include <valgrind/valgrindprocess.h>
 
 #include <debugger/analyzer/analyzermanager.h>
 
@@ -62,7 +61,7 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
     connect(&m_controller, &CallgrindController::statusMessage,
             this, &CallgrindToolRunner::showStatusMessage);
 
-    connect(m_runner.valgrindProcess(), &ValgrindProcess::valgrindStarted,
+    connect(&m_runner, &ValgrindRunner::valgrindStarted,
             &m_controller, &CallgrindController::setValgrindPid);
 
     connect(&m_runner, &ValgrindRunner::extraProcessFinished, this, [this] {

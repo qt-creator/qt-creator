@@ -11,7 +11,6 @@ HEADERS += \
     valgrindconfigwidget.h \
     valgrindsettings.h \
     valgrindrunner.h \
-    valgrindprocess.h \
     callgrindcostdelegate.h \
     callgrindcostview.h \
     callgrindhelper.h \
@@ -33,7 +32,6 @@ SOURCES += \
     valgrindconfigwidget.cpp \
     valgrindsettings.cpp \
     valgrindrunner.cpp \
-    valgrindprocess.cpp \
     callgrindcostdelegate.cpp \
     callgrindcostview.cpp \
     callgrindhelper.cpp \

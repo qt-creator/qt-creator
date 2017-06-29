@@ -26,7 +26,6 @@
 
 #include "memcheckengine.h"
 #include "memchecktool.h"
-#include "valgrindprocess.h"
 #include "valgrindsettings.h"
 #include "xmlprotocol/error.h"
 #include "xmlprotocol/status.h"
