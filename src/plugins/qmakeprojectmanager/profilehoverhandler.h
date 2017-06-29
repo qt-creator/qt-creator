@@ -40,9 +40,6 @@ class ProFileHoverHandler : public TextEditor::BaseHoverHandler
 public:
     explicit ProFileHoverHandler(const TextEditor::Keywords &keywords);
 
-signals:
-    void creatorHelpRequested(const QUrl &url);
-
 private:
     void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos) override;
     void identifyQMakeKeyword(const QString &text, int pos);
