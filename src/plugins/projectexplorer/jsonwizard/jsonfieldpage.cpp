@@ -438,7 +438,8 @@ QWidget *LineEditField::createWidget(const QString &displayName, JsonFieldPage *
 
 void LineEditField::setup(JsonFieldPage *page, const QString &name)
 {
-    auto w = static_cast<FancyLineEdit *>(widget());
+    auto w = qobject_cast<FancyLineEdit *>(widget());
+    QTC_ASSERT(w, return);
     page->registerFieldWithName(name, w);
     QObject::connect(w, &FancyLineEdit::textChanged,
                      page, [this, page]() -> void { m_isModified = true; emit page->completeChanged(); });
@@ -454,7 +455,8 @@ bool LineEditField::validate(MacroExpander *expander, QString *message)
 
     m_isValidating = true;
 
-    auto w = static_cast<FancyLineEdit *>(widget());
+    auto w = qobject_cast<FancyLineEdit *>(widget());
+    QTC_ASSERT(w, return false);
 
     if (w->isEnabled()) {
         if (m_isModified) {
@@ -478,9 +480,8 @@ bool LineEditField::validate(MacroExpander *expander, QString *message)
 
 void LineEditField::initializeData(MacroExpander *expander)
 {
-    QTC_ASSERT(widget(), return);
-
-    auto w = static_cast<FancyLineEdit *>(widget());
+    auto w = qobject_cast<FancyLineEdit *>(widget());
+    QTC_ASSERT(w, return);
     m_isValidating = true;
     w->setText(expander->expand(m_defaultText));
     w->setPlaceholderText(m_placeholderText);
@@ -525,7 +526,8 @@ QWidget *TextEditField::createWidget(const QString &displayName, JsonFieldPage *
 
 void TextEditField::setup(JsonFieldPage *page, const QString &name)
 {
-    auto w = static_cast<QTextEdit *>(widget());
+    auto w = qobject_cast<QTextEdit *>(widget());
+    QTC_ASSERT(w, return);
     page->registerFieldWithName(name, w, "plainText", SIGNAL(textChanged()));
     QObject::connect(w, &QTextEdit::textChanged, page, &QWizardPage::completeChanged);
 }
@@ -535,7 +537,8 @@ bool TextEditField::validate(MacroExpander *expander, QString *message)
     if (!JsonFieldPage::Field::validate(expander, message))
         return false;
 
-    auto w = static_cast<QTextEdit *>(widget());
+    auto w = qobject_cast<QTextEdit *>(widget());
+    QTC_ASSERT(w, return false);
 
     if (!w->isEnabled() && !m_disabledText.isNull() && m_currentText.isNull()) {
         m_currentText = w->toHtml();
@@ -550,7 +553,8 @@ bool TextEditField::validate(MacroExpander *expander, QString *message)
 
 void TextEditField::initializeData(MacroExpander *expander)
 {
-    auto w = static_cast<QTextEdit *>(widget());
+    auto w = qobject_cast<QTextEdit *>(widget());
+    QTC_ASSERT(w, return);
     w->setPlainText(expander->expand(m_defaultText));
 }
 
@@ -614,14 +618,15 @@ QWidget *PathChooserField::createWidget(const QString &displayName, JsonFieldPag
 
 void PathChooserField::setEnabled(bool e)
 {
-    QTC_ASSERT(widget(), return);
-    auto w = static_cast<PathChooser *>(widget());
+    auto w = qobject_cast<PathChooser *>(widget());
+    QTC_ASSERT(w, return);
     w->setReadOnly(!e);
 }
 
 void PathChooserField::setup(JsonFieldPage *page, const QString &name)
 {
-    auto w = static_cast<PathChooser *>(widget());
+    auto w = qobject_cast<PathChooser *>(widget());
+    QTC_ASSERT(w, return);
     page->registerFieldWithName(name, w, "path", SIGNAL(rawPathChanged(QString)));
     QObject::connect(w, &PathChooser::rawPathChanged,
                      page, [page](QString) { page->completeChanged(); });
@@ -632,14 +637,15 @@ bool PathChooserField::validate(MacroExpander *expander, QString *message)
     if (!JsonFieldPage::Field::validate(expander, message))
         return false;
 
-    auto w = static_cast<PathChooser *>(widget());
+    auto w = qobject_cast<PathChooser *>(widget());
+    QTC_ASSERT(w, return false);
     return w->isValid();
 }
 
 void PathChooserField::initializeData(MacroExpander *expander)
 {
-    QTC_ASSERT(widget(), return);
-    auto w = static_cast<PathChooser *>(widget());
+    auto w = qobject_cast<PathChooser *>(widget());
+    QTC_ASSERT(w, return);
     w->setBaseDirectory(expander->expand(m_basePath));
     w->setExpectedKind(m_kind);
 
@@ -686,7 +692,8 @@ QWidget *CheckBoxField::createWidget(const QString &displayName, JsonFieldPage *
 
 void CheckBoxField::setup(JsonFieldPage *page, const QString &name)
 {
-    auto w = static_cast<TextFieldCheckBox *>(widget());
+    auto w = qobject_cast<TextFieldCheckBox *>(widget());
+    QTC_ASSERT(w, return);
     QObject::connect(w, &TextFieldCheckBox::clicked,
                      page, [this, page]() { m_isModified = true; page->completeChanged();});
     page->registerFieldWithName(name, w, "compareText", SIGNAL(textChanged(QString)));
@@ -698,7 +705,8 @@ bool CheckBoxField::validate(MacroExpander *expander, QString *message)
         return false;
 
     if (!m_isModified) {
-        auto w = static_cast<TextFieldCheckBox *>(widget());
+        auto w = qobject_cast<TextFieldCheckBox *>(widget());
+        QTC_ASSERT(w, return false);
         w->setChecked(JsonWizard::boolFromVariant(m_checkedExpression, expander));
     }
     return true;
@@ -706,9 +714,8 @@ bool CheckBoxField::validate(MacroExpander *expander, QString *message)
 
 void CheckBoxField::initializeData(MacroExpander *expander)
 {
+    auto w = qobject_cast<TextFieldCheckBox *>(widget());
     QTC_ASSERT(widget(), return);
-
-    auto w = static_cast<TextFieldCheckBox *>(widget());
     w->setTrueText(expander->expand(m_checkedValue));
     w->setFalseText(expander->expand(m_uncheckedValue));
 
@@ -821,7 +828,8 @@ QWidget *ComboBoxField::createWidget(const QString &displayName, JsonFieldPage *
 
 void ComboBoxField::setup(JsonFieldPage *page, const QString &name)
 {
-    auto w = static_cast<TextFieldComboBox *>(widget());
+    auto w = qobject_cast<TextFieldComboBox *>(widget());
+    QTC_ASSERT(w, return);
     page->registerFieldWithName(name, w, "indexText", SIGNAL(text4Changed(QString)));
     QObject::connect(w, &TextFieldComboBox::text4Changed,
                      page, [page](QString) { page->completeChanged(); });
@@ -832,7 +840,8 @@ bool ComboBoxField::validate(MacroExpander *expander, QString *message)
     if (!JsonFieldPage::Field::validate(expander, message))
         return false;
 
-    auto w = static_cast<TextFieldComboBox *>(widget());
+    auto w = qobject_cast<TextFieldComboBox *>(widget());
+    QTC_ASSERT(w, return false);
     if (!w->isEnabled() && m_disabledIndex >= 0 && m_savedIndex < 0) {
         m_savedIndex = w->currentIndex();
         w->setCurrentIndex(m_disabledIndex);
@@ -846,7 +855,8 @@ bool ComboBoxField::validate(MacroExpander *expander, QString *message)
 
 void ComboBoxField::initializeData(MacroExpander *expander)
 {
-    auto w = static_cast<TextFieldComboBox *>(widget());
+    auto w = qobject_cast<TextFieldComboBox *>(widget());
+    QTC_ASSERT(widget(), return);
     QStringList tmpItems
             = Utils::transform(m_itemList,
                                [expander](const QString &i) { return expander->expand(i); });
