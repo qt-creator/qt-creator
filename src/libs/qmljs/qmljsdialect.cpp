@@ -280,11 +280,10 @@ bool PathsAndLanguages::maybeInsert(const PathAndLanguage &pathAndLanguage) {
         if (currentElement.path() == pathAndLanguage.path()) {
             int j = i;
             do {
-                if (pathAndLanguage.language() < currentElement.language()) {
-                    if (currentElement.language() == pathAndLanguage.language())
-                        return false;
+                if (pathAndLanguage.language() < currentElement.language())
                     break;
-                }
+                if (currentElement.language() == pathAndLanguage.language())
+                    return false;
                 ++j;
                 if (j == m_list.length())
                     break;
