@@ -411,10 +411,15 @@ void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model)
 {
     QTC_ASSERT(model, return);
     SubmitFileModel *oldModel = d->m_widget->fileModel();
-    if (oldModel)
+    QList<int> selected;
+    if (oldModel) {
         model->updateSelections(oldModel);
+        selected = d->m_widget->selectedRows();
+    }
     d->m_widget->setFileModel(model);
     delete oldModel;
+    if (!selected.isEmpty())
+        d->m_widget->setSelectedRows(selected);
 
     QSet<QString> uniqueSymbols;
     const CPlusPlus::Snapshot cppSnapShot = CppTools::CppModelManager::instance()->snapshot();

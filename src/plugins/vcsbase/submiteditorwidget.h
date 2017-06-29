@@ -100,6 +100,9 @@ public:
     void setUpdateInProgress(bool value);
     bool updateInProgress() const;
 
+    QList<int> selectedRows() const;
+    void setSelectedRows(const QList<int> &rows);
+
 public slots:
     void updateSubmitAction();
 
