@@ -44,7 +44,7 @@ public:
     QString contextHelpId(TextEditorWidget *widget, int pos);
 
     int checkToolTip(TextEditorWidget *widget, int pos);
-    void showToolTip(TextEditorWidget *widget, const QPoint &point);
+    void showToolTip(TextEditorWidget *widget, const QPoint &point, bool decorate = true);
 
 protected:
     enum {

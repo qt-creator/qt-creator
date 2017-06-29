@@ -468,6 +468,26 @@ public:
 
     CodeAssistant m_codeAssistant;
     bool m_assistRelevantContentAdded = false;
+
+    struct LastHoverHandlerInfo {
+        LastHoverHandlerInfo() = default;
+        LastHoverHandlerInfo(BaseHoverHandler *handler, int documentRevision, int cursorPosition)
+            : handler(handler)
+            , documentRevision(documentRevision)
+            , cursorPosition(cursorPosition)
+        {}
+
+        bool applies(int documentRevision, int cursorPosition) const
+        {
+            return handler
+                && documentRevision == this->documentRevision
+                && cursorPosition == this->cursorPosition;
+        }
+
+        BaseHoverHandler *handler = nullptr;
+        int documentRevision = -1;
+        int cursorPosition = -1;
+    } m_lastHoverHandlerInfo;
     QList<BaseHoverHandler *> m_hoverHandlers; // Not owned
 
     QPointer<QSequentialAnimationGroup> m_navigationAnimation;
@@ -3161,6 +3181,15 @@ void TextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
         return;
     }
 
+    // Does the last handler still applies?
+    const int documentRevision = m_document->document()->revision();
+    const int cursorPosition = Convenience::wordStartCursor(c).position();
+    if (m_lastHoverHandlerInfo.applies(documentRevision, cursorPosition)) {
+        m_lastHoverHandlerInfo.handler->showToolTip(q, toolTipPoint, /*decorate=*/ false);
+        return;
+    }
+
+    // Determine best handler
     int highestPriority = -1;
     BaseHoverHandler *highest = 0;
     foreach (BaseHoverHandler *handler, m_hoverHandlers) {
@@ -3171,8 +3200,11 @@ void TextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
         }
     }
 
-    if (highest)
+    // Let the best handler show the tooltip
+    if (highest) {
+        m_lastHoverHandlerInfo = LastHoverHandlerInfo{highest, documentRevision, cursorPosition};
         highest->showToolTip(q, toolTipPoint);
+    }
 }
 
 bool TextEditorWidgetPrivate::processAnnotaionTooltipRequest(const QTextBlock &block,
