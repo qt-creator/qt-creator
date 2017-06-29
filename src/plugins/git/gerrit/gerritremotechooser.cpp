@@ -35,8 +35,6 @@
 #include <QFileInfo>
 #include <QHBoxLayout>
 
-Q_DECLARE_METATYPE(Gerrit::Internal::GerritServer);
-
 namespace Gerrit {
 namespace Internal {
 
@@ -78,8 +76,9 @@ void GerritRemoteChooser::setParameters(QSharedPointer<GerritParameters> paramet
 
 bool GerritRemoteChooser::updateRemotes(bool forceReload)
 {
-    QTC_ASSERT(!m_repository.isEmpty(), return false);
+    QTC_ASSERT(!m_repository.isEmpty() || !m_parameters, return false);
     m_remoteComboBox->clear();
+    m_remotes.clear();
     m_updatingRemotes = true;
     QString errorMessage; // Mute errors. We'll just fallback to the defaults
     QMap<QString, QString> remotesList =
@@ -100,24 +99,26 @@ bool GerritRemoteChooser::updateRemotes(bool forceReload)
 
 void GerritRemoteChooser::addRemote(const GerritServer &server, const QString &name)
 {
-    for (int i = 0, total = m_remoteComboBox->count(); i < total; ++i) {
-        const GerritServer s = m_remoteComboBox->itemData(i).value<GerritServer>();
-        if (s == server)
+    for (auto remote : m_remotes) {
+        if (remote.second == server)
             return;
     }
-    m_remoteComboBox->addItem(server.host + QString(" (%1)").arg(name), QVariant::fromValue(server));
+    m_remoteComboBox->addItem(server.host + QString(" (%1)").arg(name));
+    m_remotes.push_back({ name, server });
     if (name == "gerrit")
         m_remoteComboBox->setCurrentIndex(m_remoteComboBox->count() - 1);
 }
 
 GerritServer GerritRemoteChooser::currentServer() const
 {
-    return m_remoteComboBox->currentData().value<GerritServer>();
+    const int index = m_remoteComboBox->currentIndex();
+    QTC_ASSERT(index >= 0 && index < int(m_remotes.size()), return GerritServer());
+    return m_remotes[index].second;
 }
 
 void GerritRemoteChooser::handleRemoteChanged()
 {
-    if (m_updatingRemotes || m_remoteComboBox->count() == 0)
+    if (m_updatingRemotes || m_remotes.empty())
         return;
     emit remoteChanged();
 }

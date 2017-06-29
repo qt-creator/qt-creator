@@ -25,15 +25,18 @@
 
 #pragma once
 
+#include "gerritserver.h"
+
 #include <QComboBox>
 #include <QSharedPointer>
 #include <QToolButton>
 #include <QWidget>
 
+#include <vector>
+
 namespace Gerrit {
 namespace Internal {
 
-class GerritServer;
 class GerritParameters;
 
 class GerritRemoteChooser : public QWidget
@@ -60,6 +63,8 @@ private:
     QComboBox *m_remoteComboBox = nullptr;
     QToolButton *m_resetRemoteButton = nullptr;
     bool m_updatingRemotes = false;
+    using NameAndServer = std::pair<QString, GerritServer>;
+    std::vector<NameAndServer> m_remotes;
 };
 
 } // namespace Internal
