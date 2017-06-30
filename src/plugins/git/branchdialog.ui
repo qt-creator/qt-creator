@@ -66,6 +66,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QCheckBox" name="includeTagsCheckBox">
+          <property name="text">
+           <string>Include ta&amp;gs</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QCheckBox" name="includeOldCheckBox">
           <property name="text">
            <string>&amp;Include old entries</string>

@@ -29,6 +29,7 @@
 #include <texteditor/basehoverhandler.h>
 
 #include <QColor>
+#include <QCoreApplication>
 
 QT_BEGIN_NAMESPACE
 template <class> class QList;
@@ -49,7 +50,7 @@ class QmlJSEditorWidget;
 
 class QmlJSHoverHandler : public TextEditor::BaseHoverHandler
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(QmlJSHoverHandler)
 
 public:
     QmlJSHoverHandler();

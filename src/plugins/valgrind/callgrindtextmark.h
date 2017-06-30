@@ -49,7 +49,7 @@ public:
 
     const Valgrind::Callgrind::Function *function() const;
 
-    virtual void paint(QPainter *painter, const QRect &paintRect) const;
+    virtual void paintIcon(QPainter *painter, const QRect &paintRect) const;
 
 private:
     QPersistentModelIndex m_modelIndex;

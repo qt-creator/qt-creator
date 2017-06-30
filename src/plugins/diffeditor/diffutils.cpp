@@ -582,7 +582,7 @@ static QList<RowData> readLines(QStringRef patch,
                 break;
             }
 
-            Diff diffToBeAdded(command, line.mid(1) + newLine);
+            Diff diffToBeAdded(command, line.mid(1).toString() + newLine);
 
             if (!diffList.isEmpty() && diffList.last().command == command)
                 diffList.last().text.append(diffToBeAdded.text);

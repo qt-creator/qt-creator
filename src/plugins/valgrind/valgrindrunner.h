@@ -26,20 +26,15 @@
 
 #pragma once
 
-#include <debugger/analyzer/analyzerconstants.h>
-
 #include <projectexplorer/runnables.h>
 
 #include <utils/outputformat.h>
-#include <ssh/sshconnection.h>
 
 #include <QProcess>
 
 namespace Valgrind {
 
 namespace XmlProtocol { class ThreadedParser; }
-
-class ValgrindProcess;
 
 class ValgrindRunner : public QObject
 {
@@ -49,48 +44,35 @@ public:
     explicit ValgrindRunner(QObject *parent = 0);
     ~ValgrindRunner();
 
-    QString valgrindExecutable() const;
     void setValgrindExecutable(const QString &executable);
-    QStringList valgrindArguments() const;
-    QStringList fullValgrindArguments() const;
     void setValgrindArguments(const QStringList &toolArguments);
-    void setDebuggee(const ProjectExplorer::StandardRunnable &debuggee) ;
+    void setDebuggee(const ProjectExplorer::StandardRunnable &debuggee);
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
-
+    void setLocalServerAddress(const QHostAddress &localServerAddress);
     void setDevice(const ProjectExplorer::IDevice::ConstPtr &device);
-    ProjectExplorer::IDevice::ConstPtr device() const;
 
     void waitForFinished() const;
-    void setToolName(const QString &toolName);
 
     QString errorString() const;
 
     bool start();
     void stop();
 
-    ValgrindProcess *valgrindProcess() const;
-
     XmlProtocol::ThreadedParser *parser() const;
-    void disableXml();
 
 signals:
     void logMessageReceived(const QByteArray &);
-    void extraStart();
-
     void processOutputReceived(const QString &, Utils::OutputFormat);
     void processErrorReceived(const QString &, QProcess::ProcessError);
-    void started();
+    void valgrindStarted(qint64 pid);
     void finished();
     void extraProcessFinished();
 
 private:
-    bool startServers(const QHostAddress &localHostAddress);
-    QStringList memcheckLogArguments() const;
-
+    bool startServers();
     void processError(QProcess::ProcessError);
     void processFinished(int, QProcess::ExitStatus);
 
-    void localHostAddressRetrieved(const QHostAddress &localHostAddress);
     void xmlSocketConnected();
     void logSocketConnected();
     void readLogSocket();

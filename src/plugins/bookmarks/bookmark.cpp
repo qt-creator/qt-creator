@@ -50,6 +50,16 @@ void Bookmark::removedFromEditor()
     m_manager->deleteBookmark(this);
 }
 
+bool Bookmark::isDraggable() const
+{
+    return true;
+}
+
+void Bookmark::dragToLine(int lineNumber)
+{
+    move(lineNumber);
+}
+
 void Bookmark::updateLineNumber(int line)
 {
     if (line != lineNumber()) {
@@ -63,6 +73,7 @@ void Bookmark::move(int line)
     if (line != lineNumber()) {
         TextMark::move(line);
         m_manager->updateBookmark(this);
+        updateMarker();
     }
 }
 
@@ -84,6 +95,8 @@ void Bookmark::updateFileName(const QString &fileName)
 void Bookmark::setNote(const QString &note)
 {
     setToolTip(note);
+    setLineAnnotation(note);
+    updateMarker();
 }
 
 void Bookmark::updateNote(const QString &note)

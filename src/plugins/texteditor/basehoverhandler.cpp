@@ -26,27 +26,17 @@
 #include "basehoverhandler.h"
 #include "texteditor.h"
 
-#include <coreplugin/icore.h>
 #include <utils/tooltip/tooltip.h>
 
-#include <QPoint>
-
-using namespace Core;
-
 namespace TextEditor {
-
-BaseHoverHandler::BaseHoverHandler() : m_diagnosticTooltip(false), m_priority(-1)
-{
-}
 
 BaseHoverHandler::~BaseHoverHandler()
 {}
 
-void BaseHoverHandler::showToolTip(TextEditorWidget *widget, const QPoint &point, int pos)
+void BaseHoverHandler::showToolTip(TextEditorWidget *widget, const QPoint &point, bool decorate)
 {
-    widget->setContextHelpId(QString());
-
-    process(widget, pos);
+    if (decorate)
+        decorateToolTip();
     operateTooltip(widget, point);
 }
 
@@ -63,9 +53,6 @@ int BaseHoverHandler::priority() const
 {
     if (m_priority >= 0)
         return m_priority;
-
-    if (isDiagnosticTooltip())
-        return Priority_Diagnostic;
 
     if (lastHelpItemIdentified().isValid())
         return Priority_Help;
@@ -103,21 +90,6 @@ const QString &BaseHoverHandler::toolTip() const
     return m_toolTip;
 }
 
-void BaseHoverHandler::appendToolTip(const QString &extension)
-{
-    m_toolTip.append(extension);
-}
-
-void BaseHoverHandler::setIsDiagnosticTooltip(bool isDiagnosticTooltip)
-{
-    m_diagnosticTooltip = isDiagnosticTooltip;
-}
-
-bool BaseHoverHandler::isDiagnosticTooltip() const
-{
-    return m_diagnosticTooltip;
-}
-
 void BaseHoverHandler::setLastHelpItemIdentified(const HelpItem &help)
 {
     m_lastHelpItemIdentified = help;
@@ -128,19 +100,13 @@ const HelpItem &BaseHoverHandler::lastHelpItemIdentified() const
     return m_lastHelpItemIdentified;
 }
 
-void BaseHoverHandler::clear()
+void BaseHoverHandler::process(TextEditorWidget *widget, int pos)
 {
-    m_diagnosticTooltip = false;
     m_toolTip.clear();
     m_priority = -1;
     m_lastHelpItemIdentified = HelpItem();
-}
 
-void BaseHoverHandler::process(TextEditorWidget *widget, int pos)
-{
-    clear();
     identifyMatch(widget, pos);
-    decorateToolTip();
 }
 
 void BaseHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
@@ -155,11 +121,11 @@ void BaseHoverHandler::decorateToolTip()
     if (Qt::mightBeRichText(toolTip()))
         setToolTip(toolTip().toHtmlEscaped());
 
-    if (!isDiagnosticTooltip() && lastHelpItemIdentified().isValid()) {
+    if (priority() != Priority_Diagnostic && lastHelpItemIdentified().isValid()) {
         const QString &contents = lastHelpItemIdentified().extractContent(false);
         if (!contents.isEmpty()) {
-            setToolTip(toolTip().toHtmlEscaped());
-            appendToolTip(contents);
+            m_toolTip = toolTip().toHtmlEscaped();
+            m_toolTip.append(contents);
         }
     }
 }

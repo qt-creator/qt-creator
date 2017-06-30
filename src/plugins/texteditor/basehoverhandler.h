@@ -28,43 +28,25 @@
 #include "texteditor_global.h"
 #include "helpitem.h"
 
-#include <QObject>
-
-namespace Core { class IEditor; }
+QT_BEGIN_NAMESPACE
+class QPoint;
+QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class BaseTextEditor;
 class TextEditorWidget;
 
-class TEXTEDITOR_EXPORT BaseHoverHandler : public QObject
+class TEXTEDITOR_EXPORT BaseHoverHandler
 {
-    Q_OBJECT
-
 public:
-    BaseHoverHandler();
-    ~BaseHoverHandler();
+    virtual ~BaseHoverHandler();
 
     QString contextHelpId(TextEditorWidget *widget, int pos);
-    int checkToolTip(TextEditorWidget *widget, int pos);
-    void showToolTip(TextEditorWidget *widget, const QPoint &point, int pos);
 
-    int priority() const;
+    int checkToolTip(TextEditorWidget *widget, int pos);
+    void showToolTip(TextEditorWidget *widget, const QPoint &point, bool decorate = true);
 
 protected:
-    void setToolTip(const QString &tooltip);
-    void appendToolTip(const QString &extension);
-    const QString &toolTip() const;
-
-    void setIsDiagnosticTooltip(bool isDiagnosticTooltip);
-    bool isDiagnosticTooltip() const;
-
-    void setLastHelpItemIdentified(const HelpItem &help);
-    const HelpItem &lastHelpItemIdentified() const;
-
-    virtual void decorateToolTip();
-    virtual void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point);
-
     enum {
         Priority_None = 0,
         Priority_Tooltip = 5,
@@ -72,16 +54,24 @@ protected:
         Priority_Diagnostic = 20
     };
     void setPriority(int priority);
-private:
-    void clear();
-    void process(TextEditorWidget *widget, int pos);
+    int priority() const;
+
+    void setToolTip(const QString &tooltip);
+    const QString &toolTip() const;
+
+    void setLastHelpItemIdentified(const HelpItem &help);
+    const HelpItem &lastHelpItemIdentified() const;
 
     virtual void identifyMatch(TextEditorWidget *editorWidget, int pos);
+    virtual void decorateToolTip();
+    virtual void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point);
 
-    bool m_diagnosticTooltip;
+private:
+    void process(TextEditorWidget *widget, int pos);
+
     QString m_toolTip;
     HelpItem m_lastHelpItemIdentified;
-    int m_priority;
+    int m_priority = -1;
 };
 
 } // namespace TextEditor

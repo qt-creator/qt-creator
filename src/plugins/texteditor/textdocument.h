@@ -154,6 +154,7 @@ private:
     void cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument);
     void ensureFinalNewLine(QTextCursor &cursor);
     void modificationChanged(bool modified);
+    void updateLayout() const;
 
     TextDocumentPrivate *d;
 };

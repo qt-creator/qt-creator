@@ -43,6 +43,9 @@ public:
     void updateFileName(const QString &fileName) override;
     void removedFromEditor() override;
 
+    bool isDraggable() const override;
+    void dragToLine(int lineNumber) override;
+
     void setNote(const QString &note);
     void updateNote(const QString &note);
 

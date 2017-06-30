@@ -213,6 +213,11 @@ bool IosDevice::canAutoDetectPorts() const
     return true;
 }
 
+Utils::OsType IosDevice::osType() const
+{
+    return Utils::OsTypeMac;
+}
+
 
 // IosDeviceManager
 

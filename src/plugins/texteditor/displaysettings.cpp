@@ -44,6 +44,7 @@ static const char displayFileEncodingKey[] = "DisplayFileEncoding";
 static const char scrollBarHighlightsKey[] = "ScrollBarHighlights";
 static const char animateNavigationWithinFileKey[] = "AnimateNavigationWithinFile";
 static const char animateWithinFileTimeMaxKey[] = "AnimateWithinFileTimeMax";
+static const char displayAnnotationsKey[] = "DisplayAnnotations";
 static const char groupPostfix[] = "DisplaySettings";
 
 namespace TextEditor {
@@ -69,6 +70,7 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(displayFileEncodingKey), m_displayFileEncoding);
     s->setValue(QLatin1String(scrollBarHighlightsKey), m_scrollBarHighlights);
     s->setValue(QLatin1String(animateNavigationWithinFileKey), m_animateNavigationWithinFile);
+    s->setValue(QLatin1String(displayAnnotationsKey), m_displayAnnotations);
     s->endGroup();
 }
 
@@ -97,6 +99,7 @@ void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
     m_scrollBarHighlights = s->value(group + QLatin1String(scrollBarHighlightsKey), m_scrollBarHighlights).toBool();
     m_animateNavigationWithinFile = s->value(group + QLatin1String(animateNavigationWithinFileKey), m_animateNavigationWithinFile).toBool();
     m_animateWithinFileTimeMax = s->value(group + QLatin1String(animateWithinFileTimeMaxKey), m_animateWithinFileTimeMax).toInt();
+    m_displayAnnotations = s->value(group + QLatin1String(displayAnnotationsKey), m_displayAnnotations).toBool();
 }
 
 bool DisplaySettings::equals(const DisplaySettings &ds) const
@@ -118,6 +121,7 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
         && m_scrollBarHighlights == ds.m_scrollBarHighlights
         && m_animateNavigationWithinFile == ds.m_animateNavigationWithinFile
         && m_animateWithinFileTimeMax == ds.m_animateWithinFileTimeMax
+        && m_displayAnnotations == ds.m_displayAnnotations
         ;
 }
 

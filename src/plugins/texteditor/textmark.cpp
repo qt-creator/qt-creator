@@ -33,6 +33,7 @@
 #include <utils/qtcassert.h>
 
 #include <QGridLayout>
+#include <QPainter>
 
 using namespace Core;
 using namespace Utils;
@@ -55,6 +56,24 @@ private:
     void allDocumentsRenamed(const QString &oldName, const QString &newName);
 
     QHash<Utils::FileName, QSet<TextMark *> > m_marks;
+};
+
+class AnnotationColors
+{
+public:
+    static AnnotationColors &getAnnotationColors(const QColor &markColor,
+                                                 const QColor &backgroundColor);
+
+public:
+    using SourceColors = QPair<QColor, QColor>;
+    QColor rectColor;
+    QColor textColor;
+
+private:
+    static double clipHsl(double value);
+
+private:
+    static QHash<SourceColors, AnnotationColors> m_colorCache;
 };
 
 TextMarkRegistry *m_instance = nullptr;
@@ -99,9 +118,47 @@ int TextMark::lineNumber() const
     return m_lineNumber;
 }
 
-void TextMark::paint(QPainter *painter, const QRect &rect) const
+void TextMark::paintIcon(QPainter *painter, const QRect &rect) const
 {
     m_icon.paint(painter, rect, Qt::AlignCenter);
+}
+
+void TextMark::paintAnnotation(QPainter *painter,
+                               QRectF *annotationRect,
+                               const QFontMetrics &fm) const
+{
+    QString text = lineAnnotation();
+    if (text.isEmpty())
+        return;
+
+    const bool drawIcon = !m_icon.isNull();
+    int textWidth = fm.width(text);
+    constexpr qreal margin = 1;
+    const qreal iconHeight = annotationRect->height() - 2 * margin;
+    const qreal iconWidth = iconHeight * m_widthFactor + 2 * margin;
+    qreal annotationWidth = (drawIcon ? textWidth + iconWidth : textWidth) + margin;
+    if (annotationRect->left() + annotationWidth > annotationRect->right()) {
+        textWidth = int(annotationRect->width() - (drawIcon ? iconWidth + margin : margin));
+        text = fm.elidedText(text, Qt::ElideRight, textWidth);
+        annotationWidth = annotationRect->width();
+    }
+    const QColor markColor = m_hasColor ? Utils::creatorTheme()->color(m_color).toHsl()
+                                        : painter->pen().color();
+    const AnnotationColors &colors =
+            AnnotationColors::getAnnotationColors(markColor, painter->background().color());
+
+    painter->save();
+    annotationRect->setWidth(annotationWidth);
+    painter->setPen(colors.rectColor);
+    painter->setBrush(colors.rectColor);
+    painter->drawRect(*annotationRect);
+    painter->setPen(colors.textColor);
+    if (drawIcon) {
+        paintIcon(painter, annotationRect->adjusted(
+                      margin, margin, -(textWidth + 2 * margin), -margin).toAlignedRect());
+    }
+    painter->drawText(annotationRect->adjusted(iconWidth, 0, 0, 0), Qt::AlignLeft, text);
+    painter->restore();
 }
 
 void TextMark::updateLineNumber(int lineNumber)
@@ -176,7 +233,7 @@ void TextMark::dragToLine(int lineNumber)
     Q_UNUSED(lineNumber);
 }
 
-void TextMark::addToToolTipLayout(QGridLayout *target)
+void TextMark::addToToolTipLayout(QGridLayout *target) const
 {
     auto *contentLayout = new QVBoxLayout;
     addToolTipContent(contentLayout);
@@ -191,7 +248,7 @@ void TextMark::addToToolTipLayout(QGridLayout *target)
     }
 }
 
-bool TextMark::addToolTipContent(QLayout *target)
+bool TextMark::addToolTipContent(QLayout *target) const
 {
     QString text = m_toolTip;
     if (text.isEmpty()) {
@@ -302,6 +359,33 @@ void TextMarkRegistry::allDocumentsRenamed(const QString &oldName, const QString
 
     foreach (TextMark *mark, oldFileNameMarks)
         mark->updateFileName(newName);
+}
+
+QHash<AnnotationColors::SourceColors, AnnotationColors> AnnotationColors::m_colorCache;
+
+AnnotationColors &AnnotationColors::getAnnotationColors(const QColor &markColor,
+                                                        const QColor &backgroundColor)
+{
+    AnnotationColors &colors = m_colorCache[{markColor, backgroundColor}];
+    if (!colors.rectColor.isValid() || !colors.textColor.isValid()) {
+        const double backgroundSaturation = clipHsl(markColor.hslSaturationF() / 2);
+        const double backgroundLightness = clipHsl(backgroundColor.lightnessF());
+        const double foregroundLightness = clipHsl(backgroundLightness > 0.5
+                                                    ? backgroundLightness - 0.5
+                                                    : backgroundLightness + 0.5);
+        colors.rectColor.setHslF(markColor.hslHueF(),
+                                 backgroundSaturation,
+                                 backgroundLightness);
+        colors.textColor.setHslF(markColor.hslHueF(),
+                                 markColor.hslSaturationF(),
+                                 foregroundLightness);
+    }
+    return colors;
+}
+
+double AnnotationColors::clipHsl(double value)
+{
+    return std::max(0.15, std::min(0.85, value));
 }
 
 } // namespace TextEditor

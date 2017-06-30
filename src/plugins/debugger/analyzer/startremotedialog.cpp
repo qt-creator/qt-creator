@@ -128,19 +128,11 @@ void StartRemoteDialog::validate()
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(valid);
 }
 
-QUrl StartRemoteDialog::serverUrl() const
-{
-    QUrl url;
-    Kit *kit = d->kitChooser->currentKit();
-    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-    url.setHost(device->sshParameters().host);
-    url.setPort(device->sshParameters().port);
-    return url;
-}
-
 StandardRunnable StartRemoteDialog::runnable() const
 {
+    Kit *kit = d->kitChooser->currentKit();
     StandardRunnable r;
+    r.device = DeviceKitInformation::device(kit);
     r.executable = d->executable->text();
     r.commandLineArguments = d->arguments->text();
     r.workingDirectory = d->workingDirectory->text();

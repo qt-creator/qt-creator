@@ -144,17 +144,20 @@ bool operator==(Type first, Type second)
     return clang_equalTypes(first.cxType, second.cxType);
 }
 
-void PrintTo(CXTypeKind typeKind, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, CXTypeKind typeKind)
 {
     ClangString typeKindSpelling(clang_getTypeKindSpelling(typeKind));
-    *os << typeKindSpelling.cString();
+
+    return os << typeKindSpelling.cString();
 }
 
-void PrintTo(const Type &type, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &os, const Type &type)
 {
     ClangString typeKindSpelling(clang_getTypeKindSpelling(type.kind()));
-    *os << typeKindSpelling.cString()
-        << ": \"" << type.spelling().cString() << "\"";
+    os << typeKindSpelling
+       << ": \"" << type.spelling() << "\"";
+
+    return os;
 }
 
 

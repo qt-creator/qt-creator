@@ -97,7 +97,7 @@ void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
     m_positionForEditorDocumentProcessor = -1;
 
     if (editorDocumentProcessorHasDiagnosticAt(editorWidget, pos)) {
-        setIsDiagnosticTooltip(true);
+        setPriority(Priority_Diagnostic);
         m_positionForEditorDocumentProcessor = pos;
     } else if (!editorWidget->extraSelectionTooltip(pos).isEmpty()) {
         setToolTip(editorWidget->extraSelectionTooltip(pos));
@@ -110,12 +110,14 @@ void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
         evaluator.execute();
         if (evaluator.hasDiagnosis()) {
             setToolTip(evaluator.diagnosis());
-            setIsDiagnosticTooltip(true);
+            setPriority(Priority_Diagnostic);
         }
         if (evaluator.identifiedCppElement()) {
             const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
-            if (!isDiagnosticTooltip())
+            if (priority() != Priority_Diagnostic) {
                 setToolTip(cppElement->tooltip);
+                setPriority(cppElement->tooltip.isEmpty() ? Priority_None : Priority_Tooltip);
+            }
             QStringList candidates = cppElement->helpIdCandidates;
             candidates.removeDuplicates();
             foreach (const QString &helpId, candidates) {
@@ -143,7 +145,7 @@ void CppHoverHandler::decorateToolTip()
     if (Qt::mightBeRichText(toolTip()))
         setToolTip(toolTip().toHtmlEscaped());
 
-    if (isDiagnosticTooltip())
+    if (priority() != Priority_Diagnostic)
         return;
 
     const HelpItem &help = lastHelpItemIdentified();

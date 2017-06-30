@@ -66,6 +66,8 @@ BranchDialog::BranchDialog(QWidget *parent) :
     m_ui->includeOldCheckBox->setToolTip(
                 tr("Include branches and tags that have not been active for %n days.", 0,
                    Constants::OBSOLETE_COMMIT_AGE_IN_DAYS));
+    m_ui->includeTagsCheckBox->setChecked(GitPlugin::client()->settings().boolValue(
+                                              GitSettings::showTagsKey));
 
     connect(m_ui->refreshButton, &QAbstractButton::clicked, this, &BranchDialog::refreshCurrentRepository);
     connect(m_ui->addButton, &QAbstractButton::clicked, this, &BranchDialog::add);
@@ -81,6 +83,10 @@ BranchDialog::BranchDialog(QWidget *parent) :
     connect(m_ui->trackButton, &QAbstractButton::clicked, this, &BranchDialog::setRemoteTracking);
     connect(m_ui->includeOldCheckBox, &QCheckBox::toggled, this, [this](bool value) {
         m_model->setOldBranchesIncluded(value);
+        refreshCurrentRepository();
+    });
+    connect(m_ui->includeTagsCheckBox, &QCheckBox::toggled, this, [this](bool value) {
+        GitPlugin::client()->settings().setValue(GitSettings::showTagsKey, value);
         refreshCurrentRepository();
     });
 

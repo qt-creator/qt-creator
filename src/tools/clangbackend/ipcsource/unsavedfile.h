@@ -34,7 +34,7 @@ using uint = unsigned int;
 class UnsavedFile
 {
 public:
-    friend void PrintTo(const UnsavedFile &unsavedFile, std::ostream *os);
+    friend std::ostream &operator<<(std::ostream &os, const UnsavedFile &unsavedFile);
 
     UnsavedFile();
     UnsavedFile(const Utf8String &filePath, const Utf8String &fileContent);

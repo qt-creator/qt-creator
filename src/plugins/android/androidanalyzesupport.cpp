@@ -24,66 +24,37 @@
 ****************************************************************************/
 
 #include "androidanalyzesupport.h"
-
 #include "androidrunner.h"
-#include "androidmanager.h"
 
-#include <debugger/analyzer/analyzermanager.h>
-
-#include <projectexplorer/project.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/target.h>
-
-#include <qtsupport/qtkitinformation.h>
-
-using namespace Debugger;
 using namespace ProjectExplorer;
 
 namespace Android {
 namespace Internal {
 
-AndroidAnalyzeSupport::AndroidAnalyzeSupport(RunControl *runControl)
+AndroidQmlProfilerSupport::AndroidQmlProfilerSupport(RunControl *runControl)
     : RunWorker(runControl)
 {
-    setDisplayName("AndroidAnalyzeSupport");
-
-    RunConfiguration *runConfig = runControl->runConfiguration();
-    runControl->setDisplayName(AndroidManager::packageName(runConfig->target()));
-    runControl->setConnection(UrlConnection::localHostWithoutPort());
+    setDisplayName("AndroidQmlProfilerSupport");
 
     auto runner = new AndroidRunner(runControl);
+    addDependency(runner);
 
-    connect(runControl, &RunControl::finished, runner, [runner] { runner->stop(); });
+    auto profiler = runControl->createWorker(runControl->runMode());
+    profiler->addDependency(this);
 
-    connect(runControl, &RunControl::starting, runner, [runner] { runner->start(); });
+    connect(runner, &AndroidRunner::qmlServerReady, [this, runner, profiler](const QUrl &server) {
+        profiler->recordData("QmlServerUrl", server);
+        reportStarted();
+    });
+}
 
-    connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort, this,
-        [this, runControl](Utils::Port) {
-            runControl->notifyRemoteSetupDone(m_qmlPort);
-        });
+void AndroidQmlProfilerSupport::start()
+{
+}
 
-//    connect(runner, &AndroidRunner::handleRemoteProcessStarted, this,
-//        [this](Utils::Port, Utils::Port qmlPort) {
-//            m_qmlPort = qmlPort;
-//        });
-
-//    connect(runner, &AndroidRunner::handleRemoteProcessFinished, this,
-//        [this, runControl](const QString &errorMsg)  {
-//            runControl->notifyRemoteFinished();
-//            appendMessage(errorMsg, Utils::NormalMessageFormat);
-//        });
-
-    connect(runner, &AndroidRunner::remoteErrorOutput, this,
-        [this, runControl](const QString &msg) {
-            appendMessage(msg, Utils::StdErrFormatSameLine);
-            m_outputParser.processOutput(msg);
-        });
-
-    connect(runner, &AndroidRunner::remoteOutput, this,
-        [this, runControl](const QString &msg) {
-            appendMessage(msg, Utils::StdOutFormatSameLine);
-            m_outputParser.processOutput(msg);
-        });
+void AndroidQmlProfilerSupport::stop()
+{
+    reportStopped();
 }
 
 } // namespace Internal

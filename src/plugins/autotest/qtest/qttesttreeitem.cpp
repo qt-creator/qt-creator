@@ -49,7 +49,6 @@ QVariant QtTestTreeItem::data(int column, int role) const
         return QVariant(name() + nameSuffix());
     case Qt::CheckStateRole:
         switch (type()) {
-        case Root:
         case TestDataFunction:
         case TestSpecialFunction:
             return QVariant();

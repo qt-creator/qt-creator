@@ -37,10 +37,10 @@ public:
     QmlProfilerTextMark(QmlProfilerTool *tool, int typeId, const QString &fileName, int lineNumber);
     void addTypeId(int typeId);
 
-    void paint(QPainter *painter, const QRect &rect) const override;
+    void paintIcon(QPainter *painter, const QRect &rect) const override;
     void clicked() override;
     bool isClickable() const override { return true; }
-    bool addToolTipContent(QLayout *target) override;
+    bool addToolTipContent(QLayout *target) const override;
 
 private:
     QmlProfilerTool *m_tool;

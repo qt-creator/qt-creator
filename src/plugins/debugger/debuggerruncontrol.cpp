@@ -468,12 +468,24 @@ static DebuggerRunConfigurationAspect *debuggerAspect(const RunControl *runContr
     return runControl->runConfiguration()->extraAspect<DebuggerRunConfigurationAspect>();
 }
 
+static bool cppDebugging(const RunControl *runControl)
+{
+    auto aspect = debuggerAspect(runControl);
+    return aspect ? aspect->useCppDebugger() : true; // For cases like valgrind-with-gdb.
+}
+
+static bool qmlDebugging(const RunControl *runControl)
+{
+    auto aspect = debuggerAspect(runControl);
+    return aspect ? aspect->useCppDebugger() : false; // For cases like valgrind-with-gdb.
+}
+
 /// DebuggerRunTool
 
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
     : RunWorker(runControl),
-      m_isCppDebugging(debuggerAspect(runControl)->useCppDebugger()),
-      m_isQmlDebugging(debuggerAspect(runControl)->useQmlDebugger())
+      m_isCppDebugging(cppDebugging(runControl)),
+      m_isQmlDebugging(qmlDebugging(runControl))
 {
     setDisplayName("DebuggerRunTool");
 }

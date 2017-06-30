@@ -86,5 +86,31 @@ QTextCursor flippedCursor(const QTextCursor &cursor)
     return flipped;
 }
 
+static bool isValidIdentifierChar(const QChar &c)
+{
+    return c.isLetter()
+        || c.isNumber()
+        || c == QLatin1Char('_')
+        || c.isHighSurrogate()
+        || c.isLowSurrogate();
+}
+
+QTextCursor wordStartCursor(const QTextCursor &textCursor)
+{
+    const int originalPosition = textCursor.position();
+    QTextCursor cursor(textCursor);
+    cursor.movePosition(QTextCursor::StartOfWord);
+    const int wordStartPosition = cursor.position();
+
+    if (originalPosition == wordStartPosition) {
+        // Cursor is not on an identifier, check whether we are right after one.
+        const QChar c = textCursor.document()->characterAt(originalPosition - 1);
+        if (isValidIdentifierChar(c))
+            cursor.movePosition(QTextCursor::PreviousWord);
+    }
+
+    return cursor;
+}
+
 } // Util
 } // TextEditor

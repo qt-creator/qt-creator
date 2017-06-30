@@ -27,8 +27,7 @@ HEADERS += \
     $$PWD/callgrind/callgrindcycledetection.h \
     $$PWD/callgrind/callgrindproxymodel.h \
     $$PWD/callgrind/callgrindstackbrowser.h \
-    $$PWD/valgrindrunner.h \
-    $$PWD/valgrindprocess.h
+    $$PWD/valgrindrunner.h
 
 SOURCES += $$PWD/xmlprotocol/error.cpp \
     $$PWD/xmlprotocol/frame.cpp \
@@ -53,7 +52,6 @@ SOURCES += $$PWD/xmlprotocol/error.cpp \
     $$PWD/callgrind/callgrindcycledetection.cpp \
     $$PWD/callgrind/callgrindproxymodel.cpp \
     $$PWD/callgrind/callgrindstackbrowser.cpp \
-    $$PWD/valgrindrunner.cpp \
-    $$PWD/valgrindprocess.cpp
+    $$PWD/valgrindrunner.cpp
 
 LIBS += -L$$IDE_PLUGIN_PATH/QtProject

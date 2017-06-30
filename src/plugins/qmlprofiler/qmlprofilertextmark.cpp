@@ -44,7 +44,7 @@ void QmlProfilerTextMark::addTypeId(int typeId)
     m_typeIds.append(typeId);
 }
 
-void QmlProfilerTextMark::paint(QPainter *painter, const QRect &paintRect) const
+void QmlProfilerTextMark::paintIcon(QPainter *painter, const QRect &paintRect) const
 {
     painter->save();
     painter->setPen(Qt::black);
@@ -108,7 +108,7 @@ void QmlProfilerTextMarkModel::createMarks(QmlProfilerTool *tool, const QString 
     }
 }
 
-bool QmlProfilerTextMark::addToolTipContent(QLayout *target)
+bool QmlProfilerTextMark::addToolTipContent(QLayout *target) const
 {
     QGridLayout *layout = new QGridLayout;
     layout->setHorizontalSpacing(10);

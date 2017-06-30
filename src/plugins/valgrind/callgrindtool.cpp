@@ -289,7 +289,6 @@ CallgrindTool::CallgrindTool(QObject *parent)
         auto runControl = new RunControl(runConfig, CALLGRIND_RUN_MODE);
         const auto runnable = dlg.runnable();
         runControl->setRunnable(runnable);
-        runControl->setConnection(UrlConnection(dlg.serverUrl()));
         runControl->setDisplayName(runnable.executable);
         createRunTool(runControl);
         ProjectExplorerPlugin::startRunControl(runControl);

@@ -61,5 +61,5 @@ private:
 };
 
 bool operator==(const SourceRange &first, const SourceRange &second);
-void PrintTo(const SourceRange &sourceRange, ::std::ostream* os);
+std::ostream &operator<<(std::ostream &os, const SourceRange &sourceRange);
 } // namespace ClangBackEnd

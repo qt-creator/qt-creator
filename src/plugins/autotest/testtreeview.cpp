@@ -82,6 +82,10 @@ void TestTreeView::changeCheckStateAll(const Qt::CheckState checkState)
                     item->setChecked(checkState);
             }
         }
+        if (count == 0) {
+            if (auto item = static_cast<TestTreeItem *>(currentRootIndex.internalPointer()))
+                item->setChecked(checkState);
+        }
         emit dataChanged(currentRootIndex, last);
     }
 }

@@ -176,6 +176,11 @@ void BareMetalDevice::executeAction(Core::Id actionId, QWidget *parent)
     Q_UNUSED(parent);
 }
 
+Utils::OsType BareMetalDevice::osType() const
+{
+    return Utils::OsTypeOther;
+}
+
 DeviceProcess *BareMetalDevice::createProcess(QObject *parent) const
 {
     return new GdbServerProviderProcess(sharedFromThis(), parent);

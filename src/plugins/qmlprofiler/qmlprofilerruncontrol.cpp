@@ -114,7 +114,7 @@ void QmlProfilerRunner::start()
     QUrl serverUrl = this->serverUrl();
 
     if (serverUrl.port() != -1) {
-        auto clientManager = Internal::QmlProfilerTool::clientManager();
+        QmlProfilerClientManager *clientManager = Internal::QmlProfilerTool::clientManager();
         clientManager->setServerUrl(serverUrl);
         clientManager->connectToTcpServer();
     }
@@ -149,6 +149,7 @@ void QmlProfilerRunner::stop()
     }
         break;
     }
+    reportStopped();
 }
 
 void QmlProfilerRunner::notifyRemoteFinished()
@@ -232,6 +233,7 @@ void QmlProfilerRunner::notifyRemoteSetupDone(Utils::Port port)
         auto clientManager = Internal::QmlProfilerTool::clientManager();
         clientManager->setServerUrl(serverUrl);
         clientManager->connectToTcpServer();
+        reportStarted();
     }
 }
 

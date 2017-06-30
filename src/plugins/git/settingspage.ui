@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>705</width>
-    <height>427</height>
+    <height>403</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -123,13 +123,6 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="showTagsCheckBox">
-        <property name="text">
-         <string>Show tags in Branches dialog</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -214,7 +207,6 @@
   <tabstop>logCountSpinBox</tabstop>
   <tabstop>timeoutSpinBox</tabstop>
   <tabstop>pullRebaseCheckBox</tabstop>
-  <tabstop>showTagsCheckBox</tabstop>
   <tabstop>gitkOptionsLineEdit</tabstop>
  </tabstops>
  <resources/>

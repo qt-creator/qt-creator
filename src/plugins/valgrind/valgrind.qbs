@@ -34,7 +34,6 @@ QtcPlugin {
             "valgrindconfigwidget.cpp", "valgrindconfigwidget.h", "valgrindconfigwidget.ui",
             "valgrindengine.cpp", "valgrindengine.h",
             "valgrindplugin.cpp", "valgrindplugin.h",
-            "valgrindprocess.cpp", "valgrindprocess.h",
             "valgrindruncontrolfactory.cpp", "valgrindruncontrolfactory.h",
             "valgrindrunner.cpp", "valgrindrunner.h",
             "valgrindsettings.cpp", "valgrindsettings.h",

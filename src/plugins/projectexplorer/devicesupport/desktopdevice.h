@@ -53,6 +53,7 @@ public:
     DeviceProcessSignalOperation::Ptr signalOperation() const override;
     DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
     Connection toolControlChannel(const ControlChannelHint &) const override;
+    Utils::OsType osType() const override;
 
     IDevice::Ptr clone() const override;
 

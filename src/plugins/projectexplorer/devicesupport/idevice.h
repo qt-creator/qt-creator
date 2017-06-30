@@ -28,6 +28,7 @@
 #include "../projectexplorer_export.h"
 
 #include <coreplugin/id.h>
+#include <utils/hostosinfo.h>
 
 #include <QAbstractSocket>
 #include <QList>
@@ -160,6 +161,7 @@ public:
     virtual DeviceProcessList *createProcessListModel(QObject *parent = 0) const;
     virtual bool hasDeviceTester() const { return false; }
     virtual DeviceTester *createDeviceTester() const;
+    virtual Utils::OsType osType() const;
 
     virtual bool canCreateProcess() const { return false; }
     virtual DeviceProcess *createProcess(QObject *parent) const;

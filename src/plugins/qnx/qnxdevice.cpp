@@ -122,6 +122,11 @@ QString QnxDevice::displayType() const
     return tr("QNX");
 }
 
+OsType QnxDevice::osType() const
+{
+    return OsTypeOtherUnix;
+}
+
 int QnxDevice::qnxVersion() const
 {
     if (m_versionNumber == 0)

@@ -423,12 +423,15 @@ bool operator==(const Document &first, const Document &second)
         && first.projectPart().id() == second.projectPart().id();
 }
 
-void PrintTo(const Document &document, ::std::ostream *os)
+std::ostream &operator<<(std::ostream &os, const Document &document)
 {
-    *os << "Document("
-        << document.filePath().constData() << ", "
-        << document.projectPart().id().constData() << ", "
-        << document.documentRevision() << ")";
+    os << "("
+       << document.filePath() << ", "
+       << document.projectPart().id() << ", "
+       << document.documentRevision()
+       << ")";
+
+    return os;
 }
 
 } // namespace ClangBackEnd

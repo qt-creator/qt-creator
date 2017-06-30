@@ -365,7 +365,7 @@ void QmlDebugConnection::connectToHost(const QString &hostName, quint16 port)
     });
     connect(socket, &QAbstractSocket::connected, this, &QmlDebugConnection::socketConnected);
     connect(socket, &QAbstractSocket::disconnected, this, &QmlDebugConnection::socketDisconnected);
-    socket->connectToHost(hostName, port);
+    socket->connectToHost(hostName.isEmpty() ? QString("localhost") : hostName, port);
 }
 
 void QmlDebugConnection::startLocalServer(const QString &fileName)

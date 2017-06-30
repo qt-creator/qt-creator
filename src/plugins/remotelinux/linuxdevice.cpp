@@ -203,6 +203,11 @@ void LinuxDevice::executeAction(Core::Id actionId, QWidget *parent)
     delete d;
 }
 
+Utils::OsType LinuxDevice::osType() const
+{
+    return Utils::OsTypeLinux;
+}
+
 LinuxDevice::LinuxDevice(const QString &name, Core::Id type, MachineType machineType,
         Origin origin, Core::Id id)
     : IDevice(type, origin, machineType, id)

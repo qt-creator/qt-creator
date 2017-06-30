@@ -44,6 +44,7 @@ public:
     void executeAction(Core::Id actionId, QWidget *parent = 0) override;
     bool canAutoDetectPorts() const override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
+    Utils::OsType osType() const override;
 
     ProjectExplorer::IDevice::Ptr clone() const override;
     ProjectExplorer::Connection toolControlChannel(const ControlChannelHint &) const override;

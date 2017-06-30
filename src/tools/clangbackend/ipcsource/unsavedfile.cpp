@@ -97,12 +97,14 @@ bool UnsavedFile::replaceAt(uint position, uint length, const Utf8String &replac
     return false;
 }
 
-void PrintTo(const UnsavedFile &unsavedFile, std::ostream *os)
+std::ostream &operator<<(std::ostream &os, const UnsavedFile &unsavedFile)
 {
-    *os << "UnsavedFile("
-           << unsavedFile.m_filePath.constData() << ", "
-           << unsavedFile.m_fileContent.constData() << ", "
-           << unsavedFile.m_fileContent.byteSize() << ")";
+    os << "UnsavedFile("
+       << unsavedFile.m_filePath << ", "
+       << unsavedFile.m_fileContent << ", "
+       << unsavedFile.m_fileContent << ")";
+
+    return os;
 }
 
 } // namespace ClangBackEnd

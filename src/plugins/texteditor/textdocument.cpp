@@ -845,6 +845,13 @@ void TextDocument::modificationChanged(bool modified)
     emit changed();
 }
 
+void TextDocument::updateLayout() const
+{
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
+    QTC_ASSERT(documentLayout, return);
+    documentLayout->requestUpdate();
+}
+
 TextMarks TextDocument::marks() const
 {
     return d->m_marksCache;
@@ -953,6 +960,7 @@ void TextDocument::removeMark(TextMark *mark)
 
     removeMarkFromMarksCache(mark);
     mark->setBaseTextDocument(0);
+    updateLayout();
 }
 
 void TextDocument::updateMark(TextMark *mark)
@@ -964,9 +972,7 @@ void TextDocument::updateMark(TextMark *mark)
         userData->removeMark(mark);
         userData->addMark(mark);
     }
-    auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
-    QTC_ASSERT(documentLayout, return);
-    documentLayout->requestUpdate();
+    updateLayout();
 }
 
 void TextDocument::moveMark(TextMark *mark, int previousLine)

@@ -114,15 +114,17 @@ SourceLocation::operator CXSourceLocation() const
     return cxSourceLocation;
 }
 
-void PrintTo(const SourceLocation &sourceLocation, std::ostream *os)
+std::ostream &operator<<(std::ostream &os, const SourceLocation &sourceLocation)
 {
     auto filePath = sourceLocation.filePath();
     if (filePath.hasContent())
-        *os << filePath.constData()  << ", ";
+        os << filePath  << ", ";
 
-    *os << "line: " << sourceLocation.line()
-        << ", column: "<< sourceLocation.column()
-        << ", offset: "<< sourceLocation.offset();
+    os << "line: " << sourceLocation.line()
+       << ", column: "<< sourceLocation.column()
+       << ", offset: "<< sourceLocation.offset();
+
+    return os;
 }
 
 } // namespace ClangBackEnd

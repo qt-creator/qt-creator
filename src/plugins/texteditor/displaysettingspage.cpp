@@ -119,6 +119,7 @@ void DisplaySettingsPage::settingsFromUI(DisplaySettings &displaySettings,
     displaySettings.m_displayFileEncoding = d->m_page->displayFileEncoding->isChecked();
     displaySettings.m_scrollBarHighlights = d->m_page->scrollBarHighlights->isChecked();
     displaySettings.m_animateNavigationWithinFile = d->m_page->animateNavigationWithinFile->isChecked();
+    displaySettings.m_displayAnnotations = d->m_page->displayAnnotations->isChecked();
 }
 
 void DisplaySettingsPage::settingsToUI()
@@ -142,6 +143,7 @@ void DisplaySettingsPage::settingsToUI()
     d->m_page->displayFileEncoding->setChecked(displaySettings.m_displayFileEncoding);
     d->m_page->scrollBarHighlights->setChecked(displaySettings.m_scrollBarHighlights);
     d->m_page->animateNavigationWithinFile->setChecked(displaySettings.m_animateNavigationWithinFile);
+    d->m_page->displayAnnotations->setChecked(displaySettings.m_displayAnnotations);
 }
 
 const DisplaySettings &DisplaySettingsPage::displaySettings() const

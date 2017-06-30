@@ -35,6 +35,7 @@
 
 #include <QFuture>
 #include <QObject>
+#include <QPointer>
 #include <QSharedPointer>
 #include <QTextDocument>
 #include <QVector>
@@ -102,7 +103,7 @@ private:
             : futureInterface(futureInterface)
             , textDocument(textDocument) {}
         QFutureInterface<CppTools::CursorInfo> futureInterface;
-        QTextDocument *textDocument = nullptr;
+        QPointer<QTextDocument> textDocument;
     };
     QHash<quint64, ReferencesEntry> m_referencesTable;
 };

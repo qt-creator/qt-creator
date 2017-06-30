@@ -154,6 +154,11 @@ bool IosSimulator::canAutoDetectPorts() const
     return true;
 }
 
+Utils::OsType IosSimulator::osType() const
+{
+    return Utils::OsTypeMac;
+}
+
 IosSimulator::ConstPtr IosKitInformation::simulator(Kit *kit)
 {
     if (!kit)

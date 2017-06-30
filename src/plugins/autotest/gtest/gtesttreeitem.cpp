@@ -57,6 +57,7 @@ QVariant GTestTreeItem::data(int column, int role) const
     }
     case Qt::CheckStateRole:
         switch (type()) {
+        case Root:
         case TestCase:
         case TestFunctionOrSet:
             return checked();

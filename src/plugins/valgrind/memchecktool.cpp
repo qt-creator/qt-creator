@@ -454,7 +454,6 @@ MemcheckTool::MemcheckTool(QObject *parent)
         rc->createWorker(MEMCHECK_RUN_MODE);
         const auto runnable = dlg.runnable();
         rc->setRunnable(runnable);
-        rc->setConnection(UrlConnection(dlg.serverUrl()));
         rc->setDisplayName(runnable.executable);
         ProjectExplorerPlugin::startRunControl(rc);
     });

@@ -47,5 +47,7 @@ TEXTEDITOR_EXPORT QTextCursor selectAt(QTextCursor textCursor, uint line, uint c
 
 TEXTEDITOR_EXPORT QTextCursor flippedCursor(const QTextCursor &cursor);
 
+TEXTEDITOR_EXPORT QTextCursor wordStartCursor(const QTextCursor &cursor);
+
 } // Util
 } // TextEditor
