@@ -411,6 +411,7 @@ void FormEditorView::changeCurrentToolTo(AbstractFormEditorTool *newTool)
     m_currentTool->clear();
     m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(
         selectedModelNodes())));
+    m_currentTool->start();
 }
 
 void FormEditorView::registerTool(AbstractCustomTool *tool)

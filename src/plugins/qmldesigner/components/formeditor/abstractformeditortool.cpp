@@ -131,7 +131,31 @@ bool AbstractFormEditorTool::topSelectedItemIsMovable(const QList<QGraphicsItem*
     }
 
     return false;
+}
 
+bool AbstractFormEditorTool::selectedItemCursorInMovableArea(const QPointF &pos)
+{
+    if (!view()->hasSingleSelectedModelNode())
+        return false;
+
+    const ModelNode selectedNode = view()->singleSelectedModelNode();
+
+    FormEditorItem *item = scene()->itemForQmlItemNode(selectedNode);
+
+    if (!item)
+        return false;
+
+     if (!topSelectedItemIsMovable({item}))
+         return false;
+
+    const QPolygonF boundingRectInSceneSpace(item->mapToScene(item->qmlItemNode().instanceBoundingRect()));
+    QRectF boundingRect = boundingRectInSceneSpace.boundingRect();
+    QRectF innerRect = boundingRect;
+
+    innerRect.adjust(10, 10, -10, -10);
+    boundingRect.adjust(-10, -20, 10, 10);
+
+    return !innerRect.contains(pos) && boundingRect.contains(pos);
 }
 
 bool AbstractFormEditorTool::topItemIsResizeHandle(const QList<QGraphicsItem*> &/*itemList*/)
@@ -327,5 +351,10 @@ FormEditorItem *AbstractFormEditorTool::containerFormEditorItem(const QList<QGra
 void AbstractFormEditorTool::clear()
 {
     m_itemList.clear();
+}
+
+void AbstractFormEditorTool::start()
+{
+
 }
 }
