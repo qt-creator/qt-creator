@@ -32,6 +32,8 @@
 #include <QShortcut>
 #include <QStringListModel>
 
+#include <functional>
+
 namespace Android {
 namespace Internal {
 
