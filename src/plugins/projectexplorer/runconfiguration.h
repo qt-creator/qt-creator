@@ -341,6 +341,10 @@ public:
     virtual RunControl *create(RunConfiguration *runConfiguration, Core::Id runMode, QString *errorMessage);
 
     virtual IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc);
+
+    int priority() const;
+protected:
+    void setPriority(int priority); // Higher values will be preferred.
 };
 
 class PROJECTEXPLORER_EXPORT RunConfigWidget : public QWidget
