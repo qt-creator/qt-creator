@@ -95,9 +95,13 @@ void SingleSelectionManipulator::select(SelectionType selectionType)
         }
         break;
         case InvertSelection: {
-                if (selectedNode.isValid()
-                    && !m_oldSelectionList.contains(selectedNode))
-                    nodeList.append(selectedNode);
+                nodeList.append(m_oldSelectionList);
+                if (selectedNode.isValid()) {
+                    if (!m_oldSelectionList.contains(selectedNode))
+                        nodeList.append(selectedNode);
+                    else
+                        nodeList.removeAll(selectedNode);
+                }
         }
     }
 
