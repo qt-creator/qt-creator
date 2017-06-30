@@ -25,10 +25,13 @@
 
 #include "diffutils.h"
 #include "differ.h"
+
+#include "texteditor/fontsettings.h"
+
+#include <QFutureInterfaceBase>
 #include <QRegularExpression>
 #include <QStringList>
 #include <QTextStream>
-#include "texteditor/fontsettings.h"
 
 namespace DiffEditor {
 
@@ -808,7 +811,8 @@ static FileData readDiffHeaderAndChunks(QStringRef headerAndChunks,
 }
 
 static QList<FileData> readDiffPatch(QStringRef patch,
-                                     bool *ok)
+                                     bool *ok,
+                                     QFutureInterfaceBase *jobController)
 {
     const QRegularExpression diffRegExp("(?:\\n|^)"          // new line of the beginning of a patch
                                         "("                  // either
@@ -835,6 +839,9 @@ static QList<FileData> readDiffPatch(QStringRef patch,
         readOk = true;
         int lastPos = -1;
         do {
+            if (jobController && jobController->isCanceled())
+                return QList<FileData>();
+
             int pos = diffMatch.capturedStart();
             if (lastPos >= 0) {
                 QStringRef headerAndChunks = patch.mid(lastPos,
@@ -1031,7 +1038,8 @@ static FileData readCopyRenameChunks(QStringRef copyRenameChunks,
     return fileData;
 }
 
-static QList<FileData> readGitPatch(QStringRef patch, bool *ok)
+static QList<FileData> readGitPatch(QStringRef patch, bool *ok,
+                                    QFutureInterfaceBase *jobController)
 {
 
     const QRegularExpression simpleGitRegExp(
@@ -1127,6 +1135,9 @@ static QList<FileData> readGitPatch(QStringRef patch, bool *ok)
         };
 
         do {
+            if (jobController && jobController->isCanceled())
+                return QList<FileData>();
+
             collectFileData();
             if (!readOk)
                 break;
@@ -1168,12 +1179,17 @@ static QList<FileData> readGitPatch(QStringRef patch, bool *ok)
     return fileDataList;
 }
 
-QList<FileData> DiffUtils::readPatch(const QString &patch, bool *ok)
+QList<FileData> DiffUtils::readPatch(const QString &patch, bool *ok,
+                                     QFutureInterfaceBase *jobController)
 {
     bool readOk = false;
 
     QList<FileData> fileDataList;
 
+    if (jobController) {
+        jobController->setProgressRange(0, 1);
+        jobController->setProgressValue(0);
+    }
     QStringRef croppedPatch(&patch);
     // Crop e.g. "-- \n2.10.2.windows.1\n\n" at end of file
     const QRegularExpression formatPatchEndingRegExp("(\\n-- \\n\\S*\\n\\n$)");
@@ -1181,9 +1197,9 @@ QList<FileData> DiffUtils::readPatch(const QString &patch, bool *ok)
     if (match.hasMatch())
         croppedPatch = croppedPatch.left(match.capturedStart() + 1);
 
-    fileDataList = readGitPatch(croppedPatch, &readOk);
+    fileDataList = readGitPatch(croppedPatch, &readOk, jobController);
     if (!readOk)
-        fileDataList = readDiffPatch(croppedPatch, &readOk);
+        fileDataList = readDiffPatch(croppedPatch, &readOk, jobController);
 
     if (ok)
         *ok = readOk;

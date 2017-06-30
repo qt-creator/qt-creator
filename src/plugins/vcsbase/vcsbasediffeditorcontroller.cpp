@@ -44,7 +44,7 @@ static void readPatch(QFutureInterface<QList<FileData>> &futureInterface,
                       const QString &patch)
 {
     bool ok;
-    const QList<FileData> &fileDataList = DiffUtils::readPatch(patch, &ok);
+    const QList<FileData> &fileDataList = DiffUtils::readPatch(patch, &ok, &futureInterface);
     futureInterface.reportResult(fileDataList);
 }
 
@@ -88,10 +88,12 @@ VcsBaseDiffEditorControllerPrivate::~VcsBaseDiffEditorControllerPrivate()
 
 void VcsBaseDiffEditorControllerPrivate::processingFinished()
 {
-    const QList<FileData> fileDataList = m_processWatcher.future().result();
+    bool success = !m_processWatcher.future().isCanceled();
+    const QList<FileData> fileDataList = success
+            ? m_processWatcher.future().result() : QList<FileData>();
 
     q->setDiffFiles(fileDataList, q->workingDirectory(), q->startupFile());
-    q->reloadFinished(true);
+    q->reloadFinished(success);
 }
 
 void VcsBaseDiffEditorControllerPrivate::processDiff(const QString &patch)
