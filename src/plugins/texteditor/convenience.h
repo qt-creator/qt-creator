@@ -37,6 +37,7 @@ QT_END_NAMESPACE
 namespace TextEditor {
 namespace Convenience {
 
+// line is 1-based, column is 0-based
 TEXTEDITOR_EXPORT bool convertPosition(const QTextDocument *document,
                                        int pos,
                                        int *line, int *column);
