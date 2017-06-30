@@ -70,7 +70,7 @@ public:
     QString fallbackSaveAsPath() const override;
     QString fallbackSaveAsFileName() const override;
 
-    bool isSaveAsAllowed() const override { return true; }
+    bool isSaveAsAllowed() const override;
     bool save(QString *errorString, const QString &fileName, bool autoSave) override;
     void reload();
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
