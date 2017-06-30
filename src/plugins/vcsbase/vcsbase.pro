@@ -27,7 +27,8 @@ HEADERS += vcsbase_global.h \
     vcsbaseclientsettings.h \
     vcsbaseeditorconfig.h \
     submitfieldwidget.h \
-    submiteditorwidget.h
+    submiteditorwidget.h \
+    vcsbasediffeditorcontroller.h
 
 SOURCES += vcsplugin.cpp \
     vcsbaseplugin.cpp \
@@ -54,7 +55,8 @@ SOURCES += vcsplugin.cpp \
     vcsbaseclientsettings.cpp \
     vcsbaseeditorconfig.cpp \
     submitfieldwidget.cpp \
-    submiteditorwidget.cpp
+    submiteditorwidget.cpp \
+    vcsbasediffeditorcontroller.cpp
 
 RESOURCES += vcsbase.qrc
 

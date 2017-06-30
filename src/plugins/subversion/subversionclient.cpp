@@ -30,6 +30,7 @@
 
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcsbasediffeditorcontroller.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsbaseplugin.h>
@@ -167,46 +168,40 @@ QStringList SubversionClient::escapeFiles(const QStringList &files)
     return Utils::transform(files, &SubversionClient::escapeFile);
 }
 
-class DiffController : public DiffEditorController
+class SubversionDiffEditorController : public VcsBaseDiffEditorController
 {
     Q_OBJECT
 public:
-    DiffController(IDocument *document, const SubversionClient *client, const QString &directory);
+    SubversionDiffEditorController(IDocument *document,
+                                   const QString &workingDirectory);
 
     void setFilesList(const QStringList &filesList);
     void setChangeNumber(int changeNumber);
 
 protected:
     void reload() override;
-
-private slots:
-    void slotTextualDiffOutputReceived(const QString &contents);
+    void processCommandOutput(const QString &output) override;
 
 private:
-    QString getDescription() const;
-    void postCollectTextualDiffOutput();
-    QProcessEnvironment processEnvironment() const;
+    void requestDescription();
+    void requestDiff();
 
-    const SubversionClient *m_client;
-    QString m_workingDirectory;
+    enum State { Idle, GettingDescription, GettingDiff };
+    State m_state;
     QStringList m_filesList;
     int m_changeNumber = 0;
 };
 
-DiffController::DiffController(IDocument *document, const SubversionClient *client, const QString &directory) :
-    DiffEditorController(document),
-    m_client(client),
-    m_workingDirectory(directory)
+SubversionDiffEditorController::SubversionDiffEditorController(
+        IDocument *document,
+        const QString &workingDirectory)
+    : VcsBaseDiffEditorController(document, SubversionPlugin::instance()->client(), workingDirectory)
+    , m_state(Idle)
 {
     forceContextLineCount(3); // SVN can not change that when using internal diff
 }
 
-QProcessEnvironment DiffController::processEnvironment() const
-{
-    return m_client->processEnvironment();
-}
-
-void DiffController::setFilesList(const QStringList &filesList)
+void SubversionDiffEditorController::setFilesList(const QStringList &filesList)
 {
     if (isReloading())
         return;
@@ -214,7 +209,7 @@ void DiffController::setFilesList(const QStringList &filesList)
     m_filesList = SubversionClient::escapeFiles(filesList);
 }
 
-void DiffController::setChangeNumber(int changeNumber)
+void SubversionDiffEditorController::setChangeNumber(int changeNumber)
 {
     if (isReloading())
         return;
@@ -222,33 +217,24 @@ void DiffController::setChangeNumber(int changeNumber)
     m_changeNumber = qMax(changeNumber, 0);
 }
 
-QString DiffController::getDescription() const
+void SubversionDiffEditorController::requestDescription()
 {
+    m_state = GettingDescription;
+
     QStringList args(QLatin1String("log"));
-    args << SubversionClient::addAuthenticationOptions(m_client->settings());
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
     args << QLatin1String("-r");
     args << QString::number(m_changeNumber);
-    const SubversionResponse logResponse =
-            SubversionPlugin::instance()->runSvn(m_workingDirectory, args,
-                                                 m_client->vcsTimeoutS(),
-                                                 VcsCommand::SshPasswordPrompt);
-
-    if (logResponse.error)
-        return QString();
-
-    return logResponse.stdOut;
+    runCommand(QList<QStringList>() << args, VcsCommand::SshPasswordPrompt);
 }
 
-void DiffController::postCollectTextualDiffOutput()
+void SubversionDiffEditorController::requestDiff()
 {
-    auto command = new VcsCommand(m_workingDirectory, processEnvironment());
-    command->setCodec(EditorManager::defaultTextCodec());
-    connect(command, &VcsCommand::stdOutText, this, &DiffController::slotTextualDiffOutputReceived);
-//    command->addFlags(diffExecutionFlags());
+    m_state = GettingDiff;
 
     QStringList args;
     args << QLatin1String("diff");
-    args << m_client->addAuthenticationOptions(m_client->settings());
+    args << SubversionClient::addAuthenticationOptions(client()->settings());
     args << QLatin1String("--internal-diff");
     if (ignoreWhitespace())
         args << QLatin1String("-x") << QLatin1String("-uw");
@@ -258,40 +244,43 @@ void DiffController::postCollectTextualDiffOutput()
     } else {
         args << m_filesList;
     }
-
-    command->addJob(m_client->vcsBinary(), args, m_client->vcsTimeoutS());
-    command->execute();
+    runCommand(QList<QStringList>() << args, 0);
 }
 
-void DiffController::slotTextualDiffOutputReceived(const QString &contents)
+void SubversionDiffEditorController::reload()
 {
-    bool ok;
-    QList<FileData> fileDataList
-            = DiffUtils::readPatch(contents, &ok);
-    setDiffFiles(fileDataList, m_workingDirectory);
-
-    reloadFinished(true);
+    if (m_changeNumber) {
+        requestDescription();
+    } else {
+        requestDiff();
+    }
 }
 
-void DiffController::reload()
+void SubversionDiffEditorController::processCommandOutput(const QString &output)
 {
-    const QString description = m_changeNumber
-            ? getDescription() : QString();
-    postCollectTextualDiffOutput();
-    setDescription(description);
+    QTC_ASSERT(m_state != Idle, return);
+    if (m_state == GettingDescription) {
+        setDescription(output);
+
+        requestDiff();
+    } else if (m_state == GettingDiff) {
+        m_state = Idle;
+        VcsBaseDiffEditorController::processCommandOutput(output);
+    }
 }
 
-DiffController *SubversionClient::findOrCreateDiffEditor(const QString &documentId,
+SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const QString &documentId,
                                                          const QString &source,
                                                          const QString &title,
                                                          const QString &workingDirectory) const
 {
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
-    DiffController *controller = qobject_cast<DiffController *>(
+    SubversionDiffEditorController *controller = qobject_cast<SubversionDiffEditorController *>(
                 DiffEditorController::controller(document));
     if (!controller)
-        controller = new DiffController(document, this, workingDirectory);
+        controller = new SubversionDiffEditorController(document, workingDirectory);
     VcsBasePlugin::setSource(document, source);
+    EditorManager::activateEditorForDocument(document);
     return controller;
 }
 
@@ -304,7 +293,7 @@ void SubversionClient::diff(const QString &workingDirectory, const QStringList &
             + QLatin1String(".Diff.") + VcsBaseEditor::getTitleId(workingDirectory, files);
     const QString title = vcsEditorTitle(vcsCmdString, documentId);
 
-    DiffController *controller = findOrCreateDiffEditor(documentId, workingDirectory, title,
+    SubversionDiffEditorController *controller = findOrCreateDiffEditor(documentId, workingDirectory, title,
                                                         workingDirectory);
     controller->setFilesList(files);
     controller->requestReload();
@@ -335,7 +324,7 @@ void SubversionClient::describe(const QString &workingDirectory, int changeNumbe
                                                         QStringList(),
                                                         QString::number(changeNumber));
 
-    DiffController *controller = findOrCreateDiffEditor(documentId, workingDirectory, title, workingDirectory);
+    SubversionDiffEditorController *controller = findOrCreateDiffEditor(documentId, workingDirectory, title, workingDirectory);
     controller->setChangeNumber(changeNumber);
     controller->requestReload();
 }

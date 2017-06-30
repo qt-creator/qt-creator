@@ -35,7 +35,7 @@ namespace Subversion {
 namespace Internal {
 
 class SubversionSettings;
-class DiffController;
+class SubversionDiffEditorController;
 
 class SubversionClient : public VcsBase::VcsBaseClient
 {
@@ -78,7 +78,7 @@ protected:
     Core::Id vcsEditorKind(VcsCommandTag cmd) const override;
 
 private:
-    DiffController *findOrCreateDiffEditor(const QString &documentId, const QString &source,
+    SubversionDiffEditorController *findOrCreateDiffEditor(const QString &documentId, const QString &source,
                                            const QString &title, const QString &workingDirectory) const;
 
     mutable Utils::FileName m_svnVersionBinary;
