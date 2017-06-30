@@ -281,6 +281,8 @@ public:
 
     void addExtraAspect(IRunConfigurationAspect *aspect);
 
+    static RunConfiguration *startupRunConfiguration();
+
 signals:
     void enabledChanged();
     void requestRunActionsUpdate();

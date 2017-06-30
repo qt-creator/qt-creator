@@ -33,6 +33,7 @@
 #include "environmentaspect.h"
 #include "kitinformation.h"
 #include "runnables.h"
+#include "session.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -241,6 +242,20 @@ void RunConfiguration::ctor()
     expander->registerVariable(Constants::VAR_CURRENTRUN_NAME,
             QCoreApplication::translate("ProjectExplorer", "The currently active run configuration's name."),
             [this] { return displayName(); }, false);
+}
+
+/*!
+ * Returns the RunConfiguration of the currently active target
+ * of the startup project, if such exists, or \c nullptr otherwise.
+ */
+
+RunConfiguration *RunConfiguration::startupRunConfiguration()
+{
+    if (Project *pro = SessionManager::startupProject()) {
+        if (const Target *target = pro->activeTarget())
+            return target->activeRunConfiguration();
+    }
+    return nullptr;
 }
 
 /*!

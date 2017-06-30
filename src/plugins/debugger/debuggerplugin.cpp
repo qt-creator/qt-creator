@@ -3416,19 +3416,10 @@ static bool buildTypeAccepted(QFlags<ToolMode> toolMode, BuildConfiguration::Bui
     return false;
 }
 
-RunConfiguration *startupRunConfiguration()
-{
-    if (Project *pro = SessionManager::startupProject()) {
-        if (const Target *target = pro->activeTarget())
-            return target->activeRunConfiguration();
-    }
-    return nullptr;
-}
-
 static BuildConfiguration::BuildType startupBuildType()
 {
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
-    if (RunConfiguration *runConfig = startupRunConfiguration()) {
+    if (RunConfiguration *runConfig = RunConfiguration::startupRunConfiguration()) {
         if (const BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
             buildType = buildConfig->buildType();
     }
