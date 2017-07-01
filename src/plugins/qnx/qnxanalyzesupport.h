@@ -30,14 +30,12 @@
 namespace Qnx {
 namespace Internal {
 
-class Slog2InfoRunner;
-
-class QnxAnalyzeSupport : public ProjectExplorer::RunWorker
+class QnxQmlProfilerSupport : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 
 public:
-    explicit QnxAnalyzeSupport(ProjectExplorer::RunControl *runControl);
+    explicit QnxQmlProfilerSupport(ProjectExplorer::RunControl *runControl);
 
 private:
     void start() override;

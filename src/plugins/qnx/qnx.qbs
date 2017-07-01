@@ -76,8 +76,6 @@ QtcPlugin {
         "qnxrunconfiguration.h",
         "qnxrunconfigurationfactory.cpp",
         "qnxrunconfigurationfactory.h",
-        "qnxruncontrolfactory.cpp",
-        "qnxruncontrolfactory.h",
         "qnxutils.cpp",
         "qnxutils.h",
         "qnx_export.h",

@@ -40,18 +40,17 @@ class QnxPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Qnx.json")
 
 public:
-    QnxPlugin();
+    QnxPlugin() {}
 
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
-private slots:
+private:
     void updateDebuggerActions();
 
-private:
-    QAction *m_debugSeparator;
-    QAction *m_attachToQnxApplication;
+    QAction *m_debugSeparator = nullptr;
+    QAction *m_attachToQnxApplication = nullptr;
 };
 
 } // namespace Internal

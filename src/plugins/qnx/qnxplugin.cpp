@@ -25,38 +25,49 @@
 
 #include "qnxplugin.h"
 
-#include "qnxconstants.h"
+#include "qnxanalyzesupport.h"
 #include "qnxattachdebugsupport.h"
-#include "qnxdevicefactory.h"
-#include "qnxruncontrolfactory.h"
-#include "qnxdeploystepfactory.h"
-#include "qnxdeployconfigurationfactory.h"
-#include "qnxrunconfigurationfactory.h"
-#include "qnxqtversionfactory.h"
-#include "qnxsettingspage.h"
 #include "qnxconfigurationmanager.h"
+#include "qnxconstants.h"
+#include "qnxdebugsupport.h"
+#include "qnxdeployconfigurationfactory.h"
+#include "qnxdeploystepfactory.h"
+#include "qnxdevice.h"
+#include "qnxdevicefactory.h"
+#include "qnxqtversion.h"
+#include "qnxqtversionfactory.h"
+#include "qnxrunconfiguration.h"
+#include "qnxrunconfigurationfactory.h"
+#include "qnxsettingspage.h"
 #include "qnxtoolchain.h"
-#include "qnxattachdebugsupport.h"
+#include "qnxutils.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
+
+#include <qtsupport/qtkitinformation.h>
 
 #include <QAction>
 #include <QtPlugin>
 
 using namespace ProjectExplorer;
-using namespace Qnx::Internal;
 
-QnxPlugin::QnxPlugin() : m_debugSeparator(0) , m_attachToQnxApplication(0)
-{ }
+namespace Qnx {
+namespace Internal {
 
 bool QnxPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
@@ -67,13 +78,29 @@ bool QnxPlugin::initialize(const QStringList &arguments, QString *errorString)
     addAutoReleasedObject(new QnxConfigurationManager);
     addAutoReleasedObject(new QnxQtVersionFactory);
     addAutoReleasedObject(new QnxDeviceFactory);
-    addAutoReleasedObject(new QnxRunControlFactory);
     addAutoReleasedObject(new QnxDeployStepFactory);
     addAutoReleasedObject(new QnxDeployConfigurationFactory);
     addAutoReleasedObject(new QnxRunConfigurationFactory);
     addAutoReleasedObject(new QnxSettingsPage);
 
-    // Handle Qcc Compiler
+    auto constraint = [](RunConfiguration *runConfig) {
+        if (!runConfig->isEnabled()
+                || !runConfig->id().name().startsWith(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX)) {
+            return false;
+        }
+
+        auto dev = DeviceKitInformation::device(runConfig->target()->kit())
+                .dynamicCast<const QnxDevice>();
+        return !dev.isNull();
+    };
+
+    RunControl::registerWorker<SimpleTargetRunner>
+            (ProjectExplorer::Constants::NORMAL_RUN_MODE, constraint);
+    RunControl::registerWorker<QnxDebugSupport>
+            (ProjectExplorer::Constants::DEBUG_RUN_MODE, constraint);
+    RunControl::registerWorker<QnxQmlProfilerSupport>
+            (ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, constraint);
+
     addAutoReleasedObject(new QnxToolChainFactory);
 
     return true;
@@ -118,3 +145,6 @@ void QnxPlugin::updateDebuggerActions()
     m_attachToQnxApplication->setVisible(false && hasValidQnxKit); // FIXME
     m_debugSeparator->setVisible(false && hasValidQnxKit); // FIXME QTCREATORBUG-16608
 }
+
+} // Internal
+} // Qnx
