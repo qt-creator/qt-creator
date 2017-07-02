@@ -643,7 +643,7 @@ def qdump__QFlags(d, value):
     i = value.split('{int}')[0]
     enumType = value.type[0]
     if d.isGdb:
-        d.putValue(i.cast('enum ' + enumType.name).display())
+        d.putValue(i.cast('enum ' + enumType.name).display(useHex = 1))
     else:
         d.putValue(i.cast(enumType.name).display())
     d.putNumChild(0)

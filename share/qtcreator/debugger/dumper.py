@@ -2734,7 +2734,7 @@ class DumperBase:
             #warn('BITFIELD VALUE: %s %d %s' % (value.name, value.lvalue, typeName))
             self.putNumChild(0)
             if typeobj.ltarget and typeobj.ltarget.code == TypeCodeEnum:
-                self.putValue(typeobj.ltarget.typeData().enumDisplay(value.lvalue, value.laddress))
+                self.putValue(typeobj.ltarget.typeData().enumHexDisplay(value.lvalue, value.laddress))
             else:
                 self.putValue(value.lvalue)
             self.putType(typeName)
@@ -2891,9 +2891,11 @@ class DumperBase:
                     % (self.name, self.type.name, self.lbitsize, self.lbitpos,
                        self.dumper.hexencode(self.ldata), addr)
 
-        def display(self):
+        def display(self, useHex = 1):
             if self.type.code == TypeCodeEnum:
                 intval = self.integer()
+                if useHex:
+                    return self.type.typeData().enumHexDisplay(intval, self.laddress)
                 return self.type.typeData().enumDisplay(intval, self.laddress)
             simple = self.value()
             if simple is not None:
