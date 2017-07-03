@@ -45,7 +45,7 @@ public:
     void insertFilePath(uint fileId, Utils::PathString &&filePath)
     {
         if (m_filePathHash.find(fileId) == m_filePathHash.end())
-            m_filePathHash.emplace(fileId, std::move(filePath));
+            m_filePathHash.emplace(fileId, FilePath(std::move(filePath)));
     }
 
     void reserve(std::size_t size)
