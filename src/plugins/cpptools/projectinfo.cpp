@@ -40,9 +40,7 @@ ToolChainInfo::ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
         isMsvc2015ToolChain
                 = toolChain->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMsvc2015Flavor;
         wordWidth = toolChain->targetAbi().wordWidth();
-        targetTriple = type == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
-            ? QLatin1String("i686-pc-windows-msvc")
-            : toolChain->originalTargetTriple(); // OK, compiler run is already cached.
+        targetTriple = toolChain->originalTargetTriple();
 
         // ...and save the potentially expensive operations for later so that
         // they can be run from a worker thread.

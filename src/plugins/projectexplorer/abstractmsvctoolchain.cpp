@@ -97,6 +97,13 @@ bool AbstractMsvcToolChain::isValid() const
     return fi.isFile() && fi.isExecutable();
 }
 
+QString AbstractMsvcToolChain::originalTargetTriple() const
+{
+    return m_abi.wordWidth() == 64
+            ? QLatin1String("x86_64-pc-windows-msvc")
+            : QLatin1String("i686-pc-windows-msvc");
+}
+
 ToolChain::PredefinedMacrosRunner AbstractMsvcToolChain::createPredefinedMacrosRunner() const
 {
     Utils::Environment env(m_lastEnvironment);
