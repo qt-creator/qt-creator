@@ -100,3 +100,33 @@ MiniSplitter::MiniSplitter(Qt::Orientation orientation, SplitterStyle style)
     setChildrenCollapsible(false);
     setProperty("minisplitter", true);
 }
+
+/*!
+    \class NonResizingSplitter
+    \inmodule Qt Creator
+
+    The NonResizingSplitter class is a MiniSplitter that keeps its first widget's size fixed
+    when it is resized.
+*/
+
+/*!
+    Constructs a non-resizing splitter with \a parent and \a style.
+
+    The default style is MiniSplitter::Light.
+*/
+NonResizingSplitter::NonResizingSplitter(QWidget *parent, SplitterStyle style)
+    : MiniSplitter(parent, style)
+{
+}
+
+/*!
+    \internal
+*/
+void NonResizingSplitter::resizeEvent(QResizeEvent *ev)
+{
+    // bypass QSplitter magic
+    int leftSplitWidth = qMin(sizes().at(0), ev->size().width());
+    int rightSplitWidth = qMax(0, ev->size().width() - leftSplitWidth);
+    setSizes(QList<int>() << leftSplitWidth << rightSplitWidth);
+    QWidget::resizeEvent(ev);
+}

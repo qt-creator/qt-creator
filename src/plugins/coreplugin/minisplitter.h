@@ -51,4 +51,14 @@ private:
     SplitterStyle m_style;
 };
 
+class CORE_EXPORT NonResizingSplitter : public MiniSplitter
+{
+public:
+    explicit NonResizingSplitter(QWidget *parent, SplitterStyle style = Light);
+
+protected:
+    void resizeEvent(QResizeEvent *ev);
+};
+
+
 } // namespace Core

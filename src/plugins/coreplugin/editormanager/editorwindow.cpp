@@ -31,9 +31,8 @@
 #include <aggregation/aggregate.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/locator/locator.h>
-#include <coreplugin/locator/locatorwidget.h>
-#include <coreplugin/statusbarmanager.h>
+#include <coreplugin/locator/locatormanager.h>
+#include <coreplugin/minisplitter.h>
 
 #include <QStatusBar>
 #include <QVBoxLayout>
@@ -56,7 +55,7 @@ EditorWindow::EditorWindow(QWidget *parent) :
     auto splitter = new NonResizingSplitter(statusBar);
     splitter->setChildrenCollapsible(false);
     statusBar->addPermanentWidget(splitter, 10);
-    auto locatorWidget = createStaticLocatorWidget(Locator::instance());
+    auto locatorWidget = LocatorManager::createLocatorInputWidget(this);
     splitter->addWidget(locatorWidget);
     splitter->addWidget(new QWidget);
     setAttribute(Qt::WA_DeleteOnClose);
@@ -74,11 +73,6 @@ EditorWindow::EditorWindow(QWidget *parent) :
         deleteLater();
     });
     updateWindowTitle();
-
-    // register locator widget for this window
-    auto agg = new Aggregation::Aggregate;
-    agg->add(this);
-    agg->add(locatorWidget);
 }
 
 EditorWindow::~EditorWindow()
