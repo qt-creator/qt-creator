@@ -978,7 +978,7 @@ int TextEditorWidgetPrivate::visualIndent(const QTextBlock &block) const
 void TextEditorWidgetPrivate::updateAutoCompleteHighlight()
 {
     const QTextCharFormat &matchFormat
-            = q->textDocument()->fontSettings().toTextCharFormat(C_PARENTHESES);
+            = q->textDocument()->fontSettings().toTextCharFormat(C_AUTOCOMPLETE);
 
     QList<QTextEdit::ExtraSelection> extraSelections;
     for (QTextCursor cursor : Utils::asConst(m_autoCompleteHighlightPos)) {
