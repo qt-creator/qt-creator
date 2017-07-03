@@ -40,7 +40,10 @@ using namespace ProjectExplorer;
 
 namespace Android {
 using namespace Internal;
+
 const char amStartArgsKey[] = "Android.AmStartArgsKey";
+const char preStartShellCmdsKey[] = "Android.PreStartShellCmdListKey";
+const char postFinishShellCmdsKey[] = "Android.PostFinishShellCmdListKey";
 
 AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, Core::Id id)
     : RunConfiguration(parent, id)
@@ -52,6 +55,16 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, AndroidRunConfi
 {
 }
 
+void AndroidRunConfiguration::setPreStartShellCommands(const QStringList &cmdList)
+{
+    m_preStartShellCommands = cmdList;
+}
+
+void AndroidRunConfiguration::setPostFinishShellCommands(const QStringList &cmdList)
+{
+    m_postFinishShellCommands = cmdList;
+}
+
 void AndroidRunConfiguration::setAmStartExtraArgs(const QStringList &args)
 {
     m_amStartExtraArgs = args;
@@ -61,8 +74,14 @@ QWidget *AndroidRunConfiguration::createConfigurationWidget()
 {
     auto configWidget = new AndroidRunConfigurationWidget();
     configWidget->setAmStartArgs(m_amStartExtraArgs);
+    configWidget->setPreStartShellCommands(m_preStartShellCommands);
+    configWidget->setPostFinishShellCommands(m_postFinishShellCommands);
     connect(configWidget, &AndroidRunConfigurationWidget::amStartArgsChanged,
             this, &AndroidRunConfiguration::setAmStartExtraArgs);
+    connect(configWidget, &AndroidRunConfigurationWidget::preStartCmdsChanged,
+            this, &AndroidRunConfiguration::setPreStartShellCommands);
+    connect(configWidget, &AndroidRunConfigurationWidget::postFinishCmdsChanged,
+            this, &AndroidRunConfiguration::setPostFinishShellCommands);
     return configWidget;
 }
 
@@ -73,6 +92,8 @@ Utils::OutputFormatter *AndroidRunConfiguration::createOutputFormatter() const
 
 bool AndroidRunConfiguration::fromMap(const QVariantMap &map)
 {
+    m_preStartShellCommands = map.value(preStartShellCmdsKey).toStringList();
+    m_postFinishShellCommands = map.value(postFinishShellCmdsKey).toStringList();
     m_amStartExtraArgs = map.value(amStartArgsKey).toStringList();
     return RunConfiguration::fromMap(map);
 }
@@ -80,6 +101,8 @@ bool AndroidRunConfiguration::fromMap(const QVariantMap &map)
 QVariantMap AndroidRunConfiguration::toMap() const
 {
     QVariantMap res = RunConfiguration::toMap();
+    res[preStartShellCmdsKey] = m_preStartShellCommands;
+    res[postFinishShellCmdsKey] = m_postFinishShellCommands;
     res[amStartArgsKey] = m_amStartExtraArgs;
     return res;
 }
@@ -88,4 +111,15 @@ const QStringList &AndroidRunConfiguration::amStartExtraArgs() const
 {
     return m_amStartExtraArgs;
 }
+
+const QStringList &AndroidRunConfiguration::preStartShellCommands() const
+{
+    return m_preStartShellCommands;
+}
+
+const QStringList &AndroidRunConfiguration::postFinishShellCommands() const
+{
+    return m_postFinishShellCommands;
+}
+
 } // namespace Android

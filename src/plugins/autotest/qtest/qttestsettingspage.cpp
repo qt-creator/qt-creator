@@ -46,6 +46,7 @@ QtTestSettingsWidget::QtTestSettingsWidget(QWidget *parent)
 void QtTestSettingsWidget::setSettings(const QtTestSettings &settings)
 {
     m_ui.disableCrashhandlerCB->setChecked(settings.noCrashHandler);
+    m_ui.useXMLOutputCB->setChecked(settings.useXMLOutput);
     switch (settings.metrics) {
     case MetricsType::Walltime:
         m_ui.walltimeRB->setChecked(true);
@@ -72,6 +73,7 @@ QtTestSettings QtTestSettingsWidget::settings() const
     QtTestSettings result;
 
     result.noCrashHandler = m_ui.disableCrashhandlerCB->isChecked();
+    result.useXMLOutput = m_ui.useXMLOutputCB->isChecked();
     if (m_ui.walltimeRB->isChecked())
         result.metrics = MetricsType::Walltime;
     else if (m_ui.tickcounterRB->isChecked())

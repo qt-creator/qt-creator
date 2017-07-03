@@ -35,7 +35,16 @@ namespace Internal {
 TestOutputReader *QuickTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
                                                        QProcess *app) const
 {
-    return new QtTestOutputReader(fi, app, buildDirectory());
+    static const Core::Id id
+            = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
+    TestFrameworkManager *manager = TestFrameworkManager::instance();
+    auto qtSettings = qSharedPointerCast<QtTestSettings>(manager->settingsForTestFramework(id));
+    if (qtSettings.isNull())
+        return nullptr;
+    if (qtSettings->useXMLOutput)
+        return new QtTestOutputReader(fi, app, buildDirectory(), QtTestOutputReader::XML);
+    else
+        return new QtTestOutputReader(fi, app, buildDirectory(), QtTestOutputReader::PlainText);
 }
 
 QStringList QuickTestConfiguration::argumentsForTestRunner() const
@@ -43,14 +52,15 @@ QStringList QuickTestConfiguration::argumentsForTestRunner() const
     static const Core::Id id
             = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
 
-    QStringList arguments("-xml");
-    if (testCases().count())
-        arguments << testCases();
-
+    QStringList arguments;
     TestFrameworkManager *manager = TestFrameworkManager::instance();
     auto qtSettings = qSharedPointerCast<QtTestSettings>(manager->settingsForTestFramework(id));
     if (qtSettings.isNull())
         return arguments;
+    if (qtSettings->useXMLOutput)
+        arguments << "-xml";
+    if (testCases().count())
+        arguments << testCases();
 
     const QString &metricsOption = QtTestSettings::metricsTypeToOption(qtSettings->metrics);
     if (!metricsOption.isEmpty())

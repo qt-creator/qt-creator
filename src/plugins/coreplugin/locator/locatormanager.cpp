@@ -29,29 +29,45 @@
 #include "locator.h"
 #include "locatorwidget.h"
 
+#include <aggregation/aggregate.h>
+#include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
+using namespace Core::Internal;
+
 namespace Core {
 
-static Internal::LocatorWidget *m_locatorWidget = 0;
-
-LocatorManager::LocatorManager(Internal::LocatorWidget *locatorWidget)
-  : QObject(locatorWidget)
+LocatorManager::LocatorManager(QObject *parent)
+  : QObject(parent)
 {
-    m_locatorWidget = locatorWidget;
+}
+
+static LocatorWidget *locatorWidget()
+{
+    static QPointer<LocatorPopup> popup;
+    QWidget *window = ICore::dialogParent()->window();
+    if (auto *widget = Aggregation::query<LocatorWidget>(window)) {
+        if (popup)
+            popup->close();
+        return widget;
+    }
+    if (!popup) {
+        popup = createLocatorPopup(Locator::instance(), window);
+        popup->show();
+    }
+    return popup->inputWidget();
 }
 
 void LocatorManager::showFilter(ILocatorFilter *filter)
 {
     QTC_ASSERT(filter, return);
-    QTC_ASSERT(m_locatorWidget, return);
     QString searchText = tr("<type here>");
-    const QString currentText = m_locatorWidget->currentText().trimmed();
+    const QString currentText = locatorWidget()->currentText().trimmed();
     // add shortcut string at front or replace existing shortcut string
     if (!currentText.isEmpty()) {
         searchText = currentText;
-        foreach (ILocatorFilter *otherfilter, Internal::Locator::filters()) {
+        foreach (ILocatorFilter *otherfilter, Locator::filters()) {
             if (currentText.startsWith(otherfilter->shortcutString() + QLatin1Char(' '))) {
                 searchText = currentText.mid(otherfilter->shortcutString().length() + 1);
                 break;
@@ -66,8 +82,7 @@ void LocatorManager::showFilter(ILocatorFilter *filter)
 void LocatorManager::show(const QString &text,
                           int selectionStart, int selectionLength)
 {
-    QTC_ASSERT(m_locatorWidget, return);
-    m_locatorWidget->showText(text, selectionStart, selectionLength);
+    locatorWidget()->showText(text, selectionStart, selectionLength);
 }
 
-} // namespace Internal
+} // namespace Core

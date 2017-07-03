@@ -248,6 +248,119 @@ public:
     TextEditorFactoryPrivate *m_origin;
 };
 
+class HoverHandlerRunner
+{
+public:
+    HoverHandlerRunner(TextEditorWidget *widget, QList<BaseHoverHandler *> &handlers)
+        : m_widget(widget)
+        , m_handlers(handlers)
+    {
+    }
+
+    void startChecking(const QTextCursor &textCursor, const QPoint &point)
+    {
+        if (m_handlers.empty())
+            return;
+
+        // Does the last handler still applies?
+        const int documentRevision = textCursor.document()->revision();
+        const int position = Convenience::wordStartCursor(textCursor).position();
+        if (m_lastHandlerInfo.applies(documentRevision, position)) {
+            m_lastHandlerInfo.handler->showToolTip(m_widget, point, /*decorate=*/ false);
+            return;
+        }
+
+        // Cancel currently running checks
+        for (BaseHoverHandler *handler : m_handlers) {
+            if (handler->isAsyncHandler())
+                handler->cancelAsyncCheck();
+        }
+
+        // Update invocation data
+        m_documentRevision = documentRevision;
+        m_position = position;
+        m_point = point;
+
+        // Re-initialize process data
+        m_currentHandlerIndex = 0;
+        m_bestHandler = nullptr;
+        m_highestHandlerPriority = -1;
+
+        // Start checking
+        checkNext();
+    }
+
+    void checkNext()
+    {
+        QTC_ASSERT(m_currentHandlerIndex < m_handlers.size(), return);
+        BaseHoverHandler *currentHandler = m_handlers[m_currentHandlerIndex];
+
+        currentHandler->checkPriority(m_widget, m_position, [this](int priority) {
+            onHandlerFinished(m_documentRevision, m_position, priority);
+        });
+    }
+
+    void onHandlerFinished(int documentRevision, int position, int priority)
+    {
+        QTC_ASSERT(m_currentHandlerIndex < m_handlers.size(), return);
+        QTC_ASSERT(documentRevision == m_documentRevision, return);
+        QTC_ASSERT(position == m_position, return);
+
+        BaseHoverHandler *currentHandler = m_handlers[m_currentHandlerIndex];
+        if (priority > m_highestHandlerPriority) {
+            m_highestHandlerPriority = priority;
+            m_bestHandler = currentHandler;
+        }
+
+        // There are more, check next
+        ++m_currentHandlerIndex;
+        if (m_currentHandlerIndex < m_handlers.size()) {
+            checkNext();
+            return;
+        }
+
+        // All were queried, run the best
+        if (m_bestHandler) {
+            m_lastHandlerInfo = LastHandlerInfo(m_bestHandler, m_documentRevision, m_position);
+            m_bestHandler->showToolTip(m_widget, m_point);
+        }
+    }
+
+private:
+    TextEditorWidget *m_widget = nullptr;
+    const QList<BaseHoverHandler *> &m_handlers;
+
+    struct LastHandlerInfo {
+        LastHandlerInfo() = default;
+        LastHandlerInfo(BaseHoverHandler *handler, int documentRevision, int cursorPosition)
+            : handler(handler)
+            , documentRevision(documentRevision)
+            , cursorPosition(cursorPosition)
+        {}
+
+        bool applies(int documentRevision, int cursorPosition) const
+        {
+            return handler
+                && documentRevision == this->documentRevision
+                && cursorPosition == this->cursorPosition;
+        }
+
+        BaseHoverHandler *handler = nullptr;
+        int documentRevision = -1;
+        int cursorPosition = -1;
+    } m_lastHandlerInfo;
+
+    // invocation data
+    QPoint m_point;
+    int m_position = -1;
+    int m_documentRevision = -1;
+
+    // processing data
+    int m_currentHandlerIndex = -1;
+    int m_highestHandlerPriority = -1;
+    BaseHoverHandler *m_bestHandler = nullptr;
+};
+
 class TextEditorWidgetPrivate : public QObject
 {
 public:
@@ -469,26 +582,8 @@ public:
     CodeAssistant m_codeAssistant;
     bool m_assistRelevantContentAdded = false;
 
-    struct LastHoverHandlerInfo {
-        LastHoverHandlerInfo() = default;
-        LastHoverHandlerInfo(BaseHoverHandler *handler, int documentRevision, int cursorPosition)
-            : handler(handler)
-            , documentRevision(documentRevision)
-            , cursorPosition(cursorPosition)
-        {}
-
-        bool applies(int documentRevision, int cursorPosition) const
-        {
-            return handler
-                && documentRevision == this->documentRevision
-                && cursorPosition == this->cursorPosition;
-        }
-
-        BaseHoverHandler *handler = nullptr;
-        int documentRevision = -1;
-        int cursorPosition = -1;
-    } m_lastHoverHandlerInfo;
     QList<BaseHoverHandler *> m_hoverHandlers; // Not owned
+    HoverHandlerRunner m_hoverHandlerRunner;
 
     QPointer<QSequentialAnimationGroup> m_navigationAnimation;
 
@@ -535,6 +630,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_requestMarkEnabled(true),
     m_lineSeparatorsAllowed(false),
     m_maybeFakeTooltipEvent(false),
+    m_hoverHandlerRunner(parent, m_hoverHandlers),
     m_clipboardAssistProvider(new ClipboardAssistProvider),
     m_autoCompleter(new AutoCompleter)
 {
@@ -978,7 +1074,7 @@ int TextEditorWidgetPrivate::visualIndent(const QTextBlock &block) const
 void TextEditorWidgetPrivate::updateAutoCompleteHighlight()
 {
     const QTextCharFormat &matchFormat
-            = q->textDocument()->fontSettings().toTextCharFormat(C_PARENTHESES);
+            = q->textDocument()->fontSettings().toTextCharFormat(C_AUTOCOMPLETE);
 
     QList<QTextEdit::ExtraSelection> extraSelections;
     for (QTextCursor cursor : Utils::asConst(m_autoCompleteHighlightPos)) {
@@ -3181,30 +3277,7 @@ void TextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
         return;
     }
 
-    // Does the last handler still applies?
-    const int documentRevision = m_document->document()->revision();
-    const int cursorPosition = Convenience::wordStartCursor(c).position();
-    if (m_lastHoverHandlerInfo.applies(documentRevision, cursorPosition)) {
-        m_lastHoverHandlerInfo.handler->showToolTip(q, toolTipPoint, /*decorate=*/ false);
-        return;
-    }
-
-    // Determine best handler
-    int highestPriority = -1;
-    BaseHoverHandler *highest = 0;
-    foreach (BaseHoverHandler *handler, m_hoverHandlers) {
-        int priority = handler->checkToolTip(q, c.position());
-        if (priority > highestPriority) {
-            highestPriority = priority;
-            highest = handler;
-        }
-    }
-
-    // Let the best handler show the tooltip
-    if (highest) {
-        m_lastHoverHandlerInfo = LastHoverHandlerInfo{highest, documentRevision, cursorPosition};
-        highest->showToolTip(q, toolTipPoint);
-    }
+    m_hoverHandlerRunner.startChecking(c, toolTipPoint);
 }
 
 bool TextEditorWidgetPrivate::processAnnotaionTooltipRequest(const QTextBlock &block,

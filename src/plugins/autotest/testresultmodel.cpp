@@ -313,7 +313,7 @@ TestResultItem *TestResultModel::findParentItemFor(const TestResultItem *item,
         TestResultItem *currentItem = static_cast<TestResultItem *>(it);
         return currentItem->testResult()->isDirectParentOf(result, &needsIntermediate);
     };
-    TestResultItem *parent = static_cast<TestResultItem *>(root->findAnyChild(predicate));
+    TestResultItem *parent = static_cast<TestResultItem *>(root->reverseFindAnyChild(predicate));
     if (parent) {
         if (needsIntermediate) {
             // check if the intermediate is present already

@@ -28,9 +28,14 @@
 #include "editorarea.h"
 #include "editormanager_p.h"
 
+#include <aggregation/aggregate.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/locator/locator.h>
+#include <coreplugin/locator/locatorwidget.h>
+#include <coreplugin/statusbarmanager.h>
 
+#include <QStatusBar>
 #include <QVBoxLayout>
 
 namespace Core {
@@ -46,6 +51,14 @@ EditorWindow::EditorWindow(QWidget *parent) :
     setLayout(layout);
     layout->addWidget(m_area);
     setFocusProxy(m_area);
+    auto statusBar = new QStatusBar;
+    layout->addWidget(statusBar);
+    auto splitter = new NonResizingSplitter(statusBar);
+    splitter->setChildrenCollapsible(false);
+    statusBar->addPermanentWidget(splitter, 10);
+    auto locatorWidget = createStaticLocatorWidget(Locator::instance());
+    splitter->addWidget(locatorWidget);
+    splitter->addWidget(new QWidget);
     setAttribute(Qt::WA_DeleteOnClose);
     setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
     resize(QSize(800, 600));
@@ -61,6 +74,11 @@ EditorWindow::EditorWindow(QWidget *parent) :
         deleteLater();
     });
     updateWindowTitle();
+
+    // register locator widget for this window
+    auto agg = new Aggregation::Aggregate;
+    agg->add(this);
+    agg->add(locatorWidget);
 }
 
 EditorWindow::~EditorWindow()

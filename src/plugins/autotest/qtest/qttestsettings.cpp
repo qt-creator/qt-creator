@@ -30,6 +30,7 @@ namespace Internal {
 
 static const char metricsKey[]           = "Metrics";
 static const char noCrashhandlerKey[]    = "NoCrashhandlerOnDebug";
+static const char useXMLOutputKey[]      = "UseXMLOutput";
 
 static MetricsType intToMetrics(int value)
 {
@@ -58,12 +59,14 @@ void QtTestSettings::fromFrameworkSettings(const QSettings *s)
 {
     metrics = intToMetrics(s->value(metricsKey, Walltime).toInt());
     noCrashHandler = s->value(noCrashhandlerKey, true).toBool();
+    useXMLOutput = s->value(useXMLOutputKey, true).toBool();
 }
 
 void QtTestSettings::toFrameworkSettings(QSettings *s) const
 {
     s->setValue(metricsKey, metrics);
     s->setValue(noCrashhandlerKey, noCrashHandler);
+    s->setValue(useXMLOutputKey, useXMLOutput);
 }
 
 QString QtTestSettings::metricsTypeToOption(const MetricsType type)

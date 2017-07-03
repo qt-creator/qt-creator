@@ -37,8 +37,8 @@ struct ANDROID_EXPORT AndroidRunnable
     QString intentName;
     QStringList amStartExtraArgs;
     Utils::Environment environment;
-    QVector<QStringList> beforeStartADBCommands;
-    QVector<QStringList> afterFinishADBCommands;
+    QStringList beforeStartAdbCommands;
+    QStringList afterFinishAdbCommands;
     QString deviceSerialNumber;
 
     QString displayName() const { return packageName; }
@@ -51,8 +51,8 @@ inline bool operator==(const AndroidRunnable &r1, const AndroidRunnable &r2)
         && r1.intentName == r2.intentName
         && r1.amStartExtraArgs == r2.amStartExtraArgs
         && r1.environment == r2.environment
-        && r1.beforeStartADBCommands == r2.beforeStartADBCommands
-        && r1.afterFinishADBCommands == r2.afterFinishADBCommands
+        && r1.beforeStartAdbCommands == r2.beforeStartAdbCommands
+        && r1.afterFinishAdbCommands == r2.afterFinishAdbCommands
         && r1.deviceSerialNumber == r2.deviceSerialNumber;
 }
 

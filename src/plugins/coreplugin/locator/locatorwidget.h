@@ -64,6 +64,7 @@ public:
 
 signals:
     void showCurrentItemToolTip();
+    void lostFocus();
     void hidePopup();
     void selectRow(int row);
     void handleKey(QKeyEvent *keyEvent); // only use with DirectConnection, event is deleted
@@ -109,21 +110,28 @@ public:
     LocatorPopup(LocatorWidget *locatorWidget, QWidget *parent = 0);
 
     CompletionList *completionList() const;
+    LocatorWidget *inputWidget() const;
 
     void focusOutEvent (QFocusEvent *event) override;
-    void resize();
-    QSize preferredSize() const;
     bool event(QEvent *event) override;
     bool eventFilter(QObject *watched, QEvent *event) override;
 
+protected:
+    QSize preferredSize();
+    virtual void updateGeometry();
+    virtual void inputLostFocus();
+
+    QPointer<QWidget> m_window;
+
 private:
-    void showPopup();
+    void updateWindow();
 
     CompletionList *m_tree;
-    QSize m_preferredSize;
-    QPointer<QWidget> m_window;
-    void updateWindow();
+    LocatorWidget *m_inputWidget;
 };
+
+LocatorWidget *createStaticLocatorWidget(Locator *locator);
+LocatorPopup *createLocatorPopup(Locator *locator, QWidget *parent);
 
 } // namespace Internal
 } // namespace Core

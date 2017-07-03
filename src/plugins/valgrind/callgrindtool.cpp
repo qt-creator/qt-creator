@@ -752,7 +752,7 @@ ValgrindToolRunner *CallgrindTool::createRunTool(RunControl *runControl)
     connect(this, &CallgrindTool::resetRequested, toolRunner, &CallgrindToolRunner::reset);
     connect(this, &CallgrindTool::pauseToggled, toolRunner, &CallgrindToolRunner::setPaused);
 
-    connect(m_stopAction, &QAction::triggered, toolRunner, [runControl] { runControl->stop(); });
+    connect(m_stopAction, &QAction::triggered, toolRunner, [runControl] { runControl->initiateStop(); });
 
     // initialize run control
     toolRunner->setPaused(m_pauseAction->isChecked());

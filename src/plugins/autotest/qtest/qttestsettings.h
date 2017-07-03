@@ -48,6 +48,7 @@ public:
 
     MetricsType metrics = Walltime;
     bool noCrashHandler = true;
+    bool useXMLOutput = true;
 
 protected:
     void fromFrameworkSettings(const QSettings *s) override;

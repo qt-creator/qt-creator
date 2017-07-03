@@ -342,10 +342,10 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
     connect(runControl, &RunControl::finished, this, [this, runControl] {
         d->m_toolBusy = false;
         updateRunActions();
-        disconnect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::stop);
+        disconnect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::initiateStop);
     });
 
-    connect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::stop);
+    connect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::initiateStop);
 
     updateRunActions();
     runWorker->registerProfilerStateManager(d->m_profilerState);
