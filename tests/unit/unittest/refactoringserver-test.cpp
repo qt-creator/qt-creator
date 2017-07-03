@@ -25,6 +25,7 @@
 
 #include "googletest.h"
 
+#include "filesystem-utilities.h"
 #include "mockrefactoringclient.h"
 #include "sourcerangecontainer-matcher.h"
 
@@ -78,7 +79,7 @@ protected:
     Utils::SmallString sourceContent{"void f()\n {}"};
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
                          sourceContent.clone(),
-                         {"cc", TESTDATA_DIR"/query_simplefunction.cpp"}};
+                         {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp")}};
     int processingSlotCount = 2;
 };
 

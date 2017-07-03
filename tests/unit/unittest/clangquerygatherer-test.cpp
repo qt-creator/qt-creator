@@ -25,6 +25,8 @@
 
 #include "googletest.h"
 
+#include "filesystem-utilities.h"
+
 #include "sourcerangecontainer-matcher.h"
 
 #include <filecontainerv2.h>
@@ -77,13 +79,13 @@ protected:
     Utils::SmallString sourceContent{"#include \"query_simplefunction.h\"\nvoid f() {}"};
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
                          sourceContent.clone(),
-                         {"cc", TESTDATA_DIR"/query_simplefunction.cpp", "-I", TESTDATA_DIR}};
+                         {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp"), "-I", TESTDATA_DIR}};
     FileContainer source2{{TESTDATA_DIR, "query_simplefunction2.cpp"},
                           {},
-                          {"cc", TESTDATA_DIR"/query_simplefunction2.cpp", "-I", TESTDATA_DIR}};
+                          {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction2.cpp"), "-I", TESTDATA_DIR}};
     FileContainer source3{{TESTDATA_DIR, "query_simplefunction3.cpp"},
                           {},
-                          {"cc", TESTDATA_DIR"/query_simplefunction3.cpp", "-I", TESTDATA_DIR}};
+                          {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction3.cpp"), "-I", TESTDATA_DIR}};
     Utils::SmallString unsavedContent{"void f();"};
     FileContainer unsaved{{TESTDATA_DIR, "query_simplefunction.h"},
                           unsavedContent.clone(),
