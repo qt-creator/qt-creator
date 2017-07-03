@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "sourcerangefilter.h"
+
 #include <sourcerangesanddiagnosticsforquerymessage.h>
 #include <filecontainerv2.h>
 #include <stringcache.h>
@@ -68,6 +70,7 @@ protected:
 
 private:
     StringCache<Utils::PathString, std::mutex> *m_filePathCache = nullptr;
+    SourceRangeFilter m_sourceRangeFilter;
     std::vector<V2::FileContainer> m_sources;
     std::vector<V2::FileContainer> m_unsaved;
     Utils::SmallString m_query;

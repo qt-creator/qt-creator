@@ -64,7 +64,8 @@ SOURCES += \
     pchmanagerserver-test.cpp \
     pchmanagerclientserverinprocess-test.cpp \
     clangquerygatherer-test.cpp \
-    filepath-test.cpp
+    filepath-test.cpp \
+    sourcerangefilter-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \

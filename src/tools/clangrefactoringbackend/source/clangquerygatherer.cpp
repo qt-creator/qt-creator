@@ -34,6 +34,7 @@ ClangQueryGatherer::ClangQueryGatherer(StringCache<Utils::PathString, std::mutex
                                        std::vector<V2::FileContainer> &&unsaved,
                                        Utils::SmallString &&query)
     : m_filePathCache(filePathCache),
+      m_sourceRangeFilter(sources.size()),
       m_sources(std::move(sources)),
       m_unsaved(std::move(unsaved)),
       m_query(std::move(query))
@@ -125,7 +126,7 @@ std::vector<SourceRangesAndDiagnosticsForQueryMessage> ClangQueryGatherer::allCu
     std::vector<SourceRangesAndDiagnosticsForQueryMessage> messages;
 
     for (Future &future : m_sourceFutures)
-        messages.push_back(future.get());
+        messages.push_back(m_sourceRangeFilter.removeDuplicates(future.get()));
 
     return messages;
 }
@@ -135,7 +136,7 @@ std::vector<SourceRangesAndDiagnosticsForQueryMessage> ClangQueryGatherer::finis
     std::vector<SourceRangesAndDiagnosticsForQueryMessage> messages;
 
     for (auto &&future : finishedFutures())
-        messages.push_back(future.get());
+        messages.push_back(m_sourceRangeFilter.removeDuplicates(future.get()));
 
     return messages;
 }

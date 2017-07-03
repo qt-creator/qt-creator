@@ -115,6 +115,11 @@ bool RefactoringServer::pollTimerIsActive() const
     return m_pollTimer.isActive();
 }
 
+void RefactoringServer::setGathererProcessingSlotCount(uint count)
+{
+    m_gatherer.setProcessingSlotCount(count);
+}
+
 void RefactoringServer::gatherSourceRangesAndDiagnosticsForQueryMessages(
         std::vector<V2::FileContainer> &&sources,
         std::vector<V2::FileContainer> &&unsaved,

@@ -64,6 +64,8 @@ public:
 
     bool pollTimerIsActive() const;
 
+    void setGathererProcessingSlotCount(uint count);
+
 private:
     void gatherSourceRangesAndDiagnosticsForQueryMessages(std::vector<V2::FileContainer> &&sources,
                                                           std::vector<V2::FileContainer> &&unsaved,

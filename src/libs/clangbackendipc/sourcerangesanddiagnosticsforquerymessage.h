@@ -47,6 +47,11 @@ public:
         return sourceRangesContainer;
     }
 
+    SourceRangesContainer &sourceRanges()
+    {
+        return sourceRangesContainer;
+    }
+
     const std::vector<DynamicASTMatcherDiagnosticContainer> &diagnostics() const
     {
         return diagnosticContainers;
