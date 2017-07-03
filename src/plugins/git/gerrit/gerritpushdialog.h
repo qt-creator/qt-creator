@@ -28,6 +28,7 @@
 #include <QDialog>
 #include <QMultiMap>
 #include <QDate>
+#include <QSharedPointer>
 
 namespace Git {
 namespace Internal { class GitClient; }
@@ -36,6 +37,8 @@ namespace Internal { class GitClient; }
 namespace Gerrit {
 namespace Internal {
 
+class GerritParameters;
+
 namespace Ui { class GerritPushDialog; }
 
 class GerritPushDialog : public QDialog
@@ -43,7 +46,8 @@ class GerritPushDialog : public QDialog
     Q_OBJECT
 
 public:
-    GerritPushDialog(const QString &workingDir, const QString &reviewerList, QWidget *parent);
+    GerritPushDialog(const QString &workingDir, const QString &reviewerList,
+                     QSharedPointer<GerritParameters> parameters, QWidget *parent);
     ~GerritPushDialog();
 
     QString selectedCommit() const;
