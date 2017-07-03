@@ -117,15 +117,26 @@ void UnifiedView::setDocument(DiffEditorDocument *document)
 {
     QTC_ASSERT(m_widget, return);
     m_widget->setDocument(document);
-    if (document && document->isReloading())
+    if (!document)
+        return;
+
+    switch (document->state()) {
+    case DiffEditorDocument::Reloading:
         m_widget->clear(tr("Waiting for data..."));
+        break;
+    case DiffEditorDocument::LoadFailed:
+        m_widget->clear(tr("Retrieving data failed."));
+        break;
+    default:
+        break;
+    }
 }
 
 void UnifiedView::beginOperation()
 {
     QTC_ASSERT(m_widget, return);
     DiffEditorDocument *document = m_widget->diffDocument();
-    if (document && !document->isReloading())
+    if (document && document->state() == DiffEditorDocument::LoadOK)
         m_widget->saveState();
     m_widget->clear(tr("Waiting for data..."));
 }
@@ -142,7 +153,7 @@ void UnifiedView::endOperation(bool success)
     if (success)
         m_widget->restoreState();
     else
-        m_widget->clear(tr("Failed"));
+        m_widget->clear(tr("Retrieving data failed."));
 }
 
 void UnifiedView::setCurrentDiffFileIndex(int index)
@@ -192,15 +203,26 @@ void SideBySideView::setDocument(DiffEditorDocument *document)
 {
     QTC_ASSERT(m_widget, return);
     m_widget->setDocument(document);
-    if (document && document->isReloading())
+    if (!document)
+        return;
+
+    switch (document->state()) {
+    case DiffEditorDocument::Reloading:
         m_widget->clear(tr("Waiting for data..."));
+        break;
+    case DiffEditorDocument::LoadFailed:
+        m_widget->clear(tr("Retrieving data failed."));
+        break;
+    default:
+        break;
+    }
 }
 
 void SideBySideView::beginOperation()
 {
     QTC_ASSERT(m_widget, return);
     DiffEditorDocument *document = m_widget->diffDocument();
-    if (document && !document->isReloading())
+    if (document && document->state() == DiffEditorDocument::LoadOK)
         m_widget->saveState();
     m_widget->clear(tr("Waiting for data..."));
 }
@@ -223,7 +245,7 @@ void SideBySideView::endOperation(bool success)
     if (success)
         m_widget->restoreState();
     else
-        m_widget->clear(tr("Failed"));
+        m_widget->clear(tr("Retrieving data failed."));
 }
 
 void SideBySideView::setSync(bool sync)

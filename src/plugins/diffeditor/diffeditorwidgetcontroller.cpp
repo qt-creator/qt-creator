@@ -78,7 +78,7 @@ void DiffEditorWidgetController::setDocument(DiffEditorDocument *document)
         disconnect(m_document, &IDocument::reloadFinished, this, &DiffEditorWidgetController::hideProgress);
     }
 
-    const bool wasRunning = m_document && m_document->isReloading();
+    const bool wasRunning = m_document && m_document->state() == DiffEditorDocument::Reloading;
 
     m_document = document;
 
@@ -87,7 +87,7 @@ void DiffEditorWidgetController::setDocument(DiffEditorDocument *document)
         connect(m_document, &IDocument::reloadFinished, this, &DiffEditorWidgetController::hideProgress);
     }
 
-    const bool isRunning = m_document && m_document->isReloading();
+    const bool isRunning = m_document && m_document->state() == DiffEditorDocument::Reloading;
 
     if (wasRunning == isRunning)
         return;
