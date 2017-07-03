@@ -30,7 +30,12 @@
 #include <refactoringserverinterface.h>
 
 #include <QTimer>
+#include <stringcache.h>
 
+#include <utils/smallstring.h>
+
+#include <future>
+#include <mutex>
 #include <vector>
 
 namespace ClangBackEnd {
@@ -65,6 +70,7 @@ private:
                                                           Utils::SmallString &&query);
 
 private:
+    StringCache<Utils::PathString, std::mutex> m_filePathCache;
     ClangQueryGatherer m_gatherer;
     QTimer m_pollTimer;
 };

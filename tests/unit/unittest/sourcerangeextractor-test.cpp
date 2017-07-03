@@ -28,23 +28,12 @@
 
 #include <sourcerangeextractor.h>
 #include <sourcerangescontainer.h>
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning( disable : 4100 )
-#endif
+#include <stringcache.h>
 
 #include <clang/Basic/SourceManager.h>
 #include <clang/Lex/Lexer.h>
 
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#    pragma warning(pop)
-#endif
+#include <mutex>
 
 using testing::Contains;
 using ::testing::Eq;
@@ -65,7 +54,8 @@ protected:
     TestClangTool clangTool{TESTDATA_DIR, "sourcerangeextractor_location.cpp", "",  {"cc", "sourcerangeextractor_location.cpp"}};
     ClangBackEnd::SourceRangesContainer sourceRangesContainer;
     const clang::SourceManager &sourceManager{clangTool.sourceManager()};
-    ClangBackEnd::SourceRangeExtractor extractor{sourceManager, clangTool.languageOptions(), sourceRangesContainer};
+    ClangBackEnd::StringCache<Utils::PathString, std::mutex> filePathCache;
+    ClangBackEnd::SourceRangeExtractor extractor{sourceManager, clangTool.languageOptions(), filePathCache, sourceRangesContainer};
     clang::SourceLocation startLocation = sourceManager.getLocForStartOfFile(sourceManager.getMainFileID());
     clang::SourceLocation endLocation = sourceManager.getLocForStartOfFile(sourceManager.getMainFileID()).getLocWithOffset(4);
     clang::SourceRange sourceRange{startLocation, endLocation};
@@ -76,7 +66,7 @@ using SourceRangeExtractorSlowTest = SourceRangeExtractor;
 
 TEST_F(SourceRangeExtractorSlowTest, ExtractSourceRangeContainer)
 {
-    SourceRangeWithTextContainer sourceRangeContainer{1, 1, 1, 0, 1, 10, 9, Utils::SmallString("int value;")};
+    SourceRangeWithTextContainer sourceRangeContainer{0, 1, 1, 0, 1, 10, 9, Utils::SmallString("int value;")};
 
     extractor.addSourceRange(sourceRange);
 

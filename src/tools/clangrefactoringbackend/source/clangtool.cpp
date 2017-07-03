@@ -84,23 +84,12 @@ template
 void ClangTool::addFiles<Utils::PathStringVector>(const Utils::PathStringVector &filePaths,
                                                   const Utils::SmallStringVector &arguments);
 
-namespace {
-Utils::SmallString toNativeFilePath(const FilePath &filePath)
-{
-    Utils::SmallString filePathString = filePath.directory().clone();
-    filePathString.append("/");
-    filePathString.append(filePath.name());
-
-    return toNativePath(std::move(filePathString));
-}
-}
-
 void ClangTool::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
 {
     unsavedFileContents.reserve(unsavedFileContents.size() + unsavedFiles.size());
 
     auto convertToUnsavedFileContent = [] (const V2::FileContainer &unsavedFile) {
-        return UnsavedFileContent{toNativeFilePath(unsavedFile.filePath()),
+        return UnsavedFileContent{toNativePath(unsavedFile.filePath().path().clone()),
                                   unsavedFile.unsavedFileContent().clone()};
     };
 
@@ -111,7 +100,8 @@ void ClangTool::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
 }
 
 namespace {
-llvm::StringRef toStringRef(const Utils::SmallString &string)
+template <typename String>
+llvm::StringRef toStringRef(const String &string)
 {
     return llvm::StringRef(string.data(), string.size());
 }

@@ -53,7 +53,7 @@
 namespace ClangBackEnd {
 
 inline
-llvm::SmallString<256> absolutePath(const llvm::StringRef &path)
+llvm::SmallString<256> absolutePath(clang::StringRef path)
 {
     llvm::SmallString<256> absolutePath(path);
 
@@ -64,9 +64,9 @@ llvm::SmallString<256> absolutePath(const llvm::StringRef &path)
 }
 
 template <typename Container>
-Utils::SmallString fromNativePath(Container container)
+Utils::PathString fromNativePath(Container container)
 {
-    Utils::SmallString path(container.data(), container.size());
+    Utils::PathString path(container.data(), container.size());
 
 #ifdef _WIN32
     std::replace(path.begin(), path.end(), '\\', '/');
@@ -89,13 +89,9 @@ void appendSourceLocationsToSourceLocationsContainer(
         const auto fileId = decomposedLoction.first;
         const auto offset = decomposedLoction.second;
         const auto fileEntry = sourceManager.getFileEntryForID(fileId);
-        auto filePath = absolutePath(fileEntry->getName());
-        const auto fileName = llvm::sys::path::filename(filePath);
-        llvm::sys::path::remove_filename(filePath);
 
         sourceLocationsContainer.insertFilePath(fileId.getHashValue(),
-                                                fromNativePath(filePath),
-                                                fromNativePath(fileName));
+                                                fromNativePath(fileEntry->tryGetRealPathName()));
         sourceLocationsContainer.insertSourceLocation(fileId.getHashValue(),
                                                       fullSourceLocation.getSpellingLineNumber(),
                                                       fullSourceLocation.getSpellingColumnNumber(),

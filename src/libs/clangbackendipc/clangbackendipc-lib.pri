@@ -155,6 +155,7 @@ HEADERS += \
     $$PWD/pchmanagerclientproxy.h \
     $$PWD/projectpartpch.h \
     $$PWD/precompiledheadersupdatedmessage.h \
+    $$PWD/stringcache.h \
     $$PWD/removepchprojectpartsmessage.h \
     $$PWD/clangcodemodelclientmessages.h \
     $$PWD/clangcodemodelservermessages.h \

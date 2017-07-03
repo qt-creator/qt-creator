@@ -37,6 +37,7 @@
 #include <QCoreApplication>
 
 #include <functional>
+#include <atomic>
 
 namespace ClangBackEnd {
 
@@ -125,7 +126,7 @@ void RefactoringServer::gatherSourceRangesAndDiagnosticsForQueryMessages(
     uint freeProcessors = std::thread::hardware_concurrency();
 #endif
 
-    m_gatherer = ClangQueryGatherer(std::move(sources), std::move(unsaved), std::move(query));
+    m_gatherer = ClangQueryGatherer(&m_filePathCache, std::move(sources), std::move(unsaved), std::move(query));
     m_gatherer.setProcessingSlotCount(freeProcessors);
 
     m_pollTimer.start();

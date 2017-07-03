@@ -27,6 +27,7 @@
 
 #include <sourcerangesanddiagnosticsforquerymessage.h>
 #include <filecontainerv2.h>
+#include <stringcache.h>
 
 #include <future>
 
@@ -38,16 +39,16 @@ public:
     using Future = std::future<SourceRangesAndDiagnosticsForQueryMessage>;
 
     ClangQueryGatherer() = default;
-    ClangQueryGatherer(std::vector<V2::FileContainer> &&sources,
+    ClangQueryGatherer(StringCache<Utils::PathString, std::mutex> *filePathCache,
+                       std::vector<V2::FileContainer> &&sources,
                        std::vector<V2::FileContainer> &&unsaved,
                        Utils::SmallString &&query);
 
-    static
-    SourceRangesAndDiagnosticsForQueryMessage createSourceRangesAndDiagnosticsForSource(
+    static SourceRangesAndDiagnosticsForQueryMessage createSourceRangesAndDiagnosticsForSource(
+            StringCache<Utils::PathString, std::mutex> *filePathCache,
             V2::FileContainer &&source,
             const std::vector<V2::FileContainer> &unsaved,
             Utils::SmallString &&query);
-
     bool canCreateSourceRangesAndDiagnostics() const;
     SourceRangesAndDiagnosticsForQueryMessage createNextSourceRangesAndDiagnostics();
     Future startCreateNextSourceRangesAndDiagnosticsMessage();
@@ -66,6 +67,7 @@ protected:
     std::vector<Future> finishedFutures();
 
 private:
+    StringCache<Utils::PathString, std::mutex> *m_filePathCache = nullptr;
     std::vector<V2::FileContainer> m_sources;
     std::vector<V2::FileContainer> m_unsaved;
     Utils::SmallString m_query;

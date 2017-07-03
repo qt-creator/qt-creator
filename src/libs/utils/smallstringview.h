@@ -104,6 +104,11 @@ public:
         return const_reverse_iterator(begin() - static_cast<std::size_t>(1));
     }
 
+    operator std::string() const
+    {
+        return std::string(data(), size());
+    }
+
 private:
     const char *m_pointer;
     size_type m_size;

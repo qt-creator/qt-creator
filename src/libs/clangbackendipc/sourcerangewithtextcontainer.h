@@ -110,6 +110,8 @@ private:
     Utils::SmallString m_text;
 };
 
+using SourceRangeWithTextContainers = std::vector<SourceRangeWithTextContainer>;
+
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceRangeWithTextContainer &container);
 std::ostream &operator<<(std::ostream &os, const SourceRangeWithTextContainer &container);
 } // namespace ClangBackEnd

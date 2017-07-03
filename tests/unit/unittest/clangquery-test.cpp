@@ -29,7 +29,10 @@
 
 #include <clangquery.h>
 
+#include <mutex>
+
 using ClangBackEnd::ClangQuery;
+using ClangBackEnd::StringCache;
 
 using testing::IsEmpty;
 using testing::Not;
@@ -43,8 +46,9 @@ protected:
     void SetUp() override;
 
 protected:
-    ::ClangQuery simpleFunctionQuery;
-    ::ClangQuery simpleClassQuery;
+    StringCache<Utils::PathString, std::mutex> filePathCache;
+    ::ClangQuery simpleFunctionQuery{filePathCache};
+    ::ClangQuery simpleClassQuery{filePathCache};
 };
 
 using ClangQuerySlowTest = ClangQuery;
@@ -77,7 +81,7 @@ TEST_F(ClangQuerySlowTest, RootSourceRangeForSimpleFunctionDeclarationRange)
 
 TEST_F(ClangQuerySlowTest, SourceRangeInUnsavedFileDeclarationRange)
 {
-    ::ClangQuery query;
+    ::ClangQuery query(filePathCache);
     query.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "#include \"unsaved.h\"", {"cc", "query_simplefunction.cpp", "-std=c++14"});
     query.setQuery("functionDecl()");
     ClangBackEnd::V2::FileContainer unsavedFile{{TESTDATA_DIR, "unsaved.h"}, "void unsaved();", {}};
@@ -91,7 +95,7 @@ TEST_F(ClangQuerySlowTest, SourceRangeInUnsavedFileDeclarationRange)
 
 TEST_F(ClangQuerySlowTest, DISABLED_SourceRangeInUnsavedFileDeclarationRangeOverride) // seems not to work in Clang
 {
-    ::ClangQuery query;
+    ::ClangQuery query(filePathCache);
     query.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "void f() {}", {"cc", "query_simplefunction.cpp", "-std=c++14"});
     query.setQuery("functionDecl()");
     ClangBackEnd::V2::FileContainer unsavedFile{{TESTDATA_DIR, "query_simplefunction.cpp"}, "void unsaved();", {}};

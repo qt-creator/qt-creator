@@ -51,11 +51,14 @@
 
 namespace ClangBackEnd {
 
-SourceRangeExtractor::SourceRangeExtractor(const clang::SourceManager &sourceManager,
-                                           const clang::LangOptions &languageOptions,
-                                           SourceRangesContainer &sourceRangesContainer)
+SourceRangeExtractor::SourceRangeExtractor(
+        const clang::SourceManager &sourceManager,
+        const clang::LangOptions &languageOptions,
+        ClangBackEnd::StringCache<Utils::PathString, std::mutex> &filePathCache,
+        SourceRangesContainer &sourceRangesContainer)
     : sourceManager(sourceManager),
       languageOptions(languageOptions),
+      filePathCache(filePathCache),
       sourceRangesContainer(sourceRangesContainer)
 {
 }
@@ -123,19 +126,16 @@ const clang::SourceRange SourceRangeExtractor::extendSourceRangeToLastTokenEnd(c
     return {sourceRange.getBegin(), endLocation};
 }
 
-void SourceRangeExtractor::insertSourceRange(uint fileHash,
-                                             Utils::SmallString &&directoryPath,
-                                             Utils::SmallString &&fileName,
+void SourceRangeExtractor::insertSourceRange(uint fileId,
+                                             Utils::PathString &&filePath,
                                              const clang::FullSourceLoc &startLocation,
                                              uint startOffset,
                                              const clang::FullSourceLoc &endLocation,
                                              uint endOffset,
                                              Utils::SmallString &&lineSnippet)
 {
-    sourceRangesContainer.insertFilePath(fileHash,
-                                         std::move(directoryPath),
-                                         std::move(fileName));
-    sourceRangesContainer.insertSourceRange(fileHash,
+    sourceRangesContainer.insertFilePath(fileId, std::move(filePath));
+    sourceRangesContainer.insertSourceRange(fileId,
                                             startLocation.getSpellingLineNumber(),
                                             startLocation.getSpellingColumnNumber(),
                                             startOffset,
@@ -143,6 +143,17 @@ void SourceRangeExtractor::insertSourceRange(uint fileHash,
                                             endLocation.getSpellingColumnNumber(),
                                             endOffset,
                                             std::move(lineSnippet));
+}
+
+uint SourceRangeExtractor::findFileId(clang::FileID fileId, const clang::FileEntry *fileEntry) const
+{
+    auto found = m_fileIdMapping.find(fileId.getHashValue());
+    if (found != m_fileIdMapping.end()) {
+       return found->second;
+    }
+
+    auto filePath = absolutePath(fileEntry->tryGetRealPathName());
+    return filePathCache.stringId(fromNativePath(filePath));
 }
 
 void SourceRangeExtractor::addSourceRange(const clang::SourceRange &sourceRange)
@@ -158,15 +169,13 @@ void SourceRangeExtractor::addSourceRange(const clang::SourceRange &sourceRange)
         const auto startOffset = startDecomposedLoction.second;
         const auto endOffset = endDecomposedLoction.second;
         const auto fileEntry = sourceManager.getFileEntryForID(fileId);
-        auto filePath = absolutePath(fileEntry->getName());
-        const auto fileName = llvm::sys::path::filename(filePath);
-        llvm::sys::path::remove_filename(filePath);
+
         Utils::SmallString lineSnippet = getExpandedText(startSourceLocation.getBufferData(),
                                                          startOffset,
                                                          endOffset);
-        insertSourceRange(fileId.getHashValue(),
-                          fromNativePath(filePath),
-                          {fileName.data(), fileName.size()},
+
+        insertSourceRange(findFileId(fileId, fileEntry),
+                          fromNativePath(fileEntry->tryGetRealPathName()),
                           startSourceLocation,
                           startOffset,
                           endSourceLocation,

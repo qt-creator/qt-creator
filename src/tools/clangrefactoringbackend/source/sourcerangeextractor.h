@@ -25,9 +25,14 @@
 
 #pragma once
 
+#include <stringcache.h>
+
+#include <filepath.h>
+
 #include <utils/smallstringfwd.h>
 
 #include <vector>
+#include <unordered_map>
 
 using uint = unsigned int;
 
@@ -40,6 +45,8 @@ class SourceManager;
 class LangOptions;
 class SourceRange;
 class FullSourceLoc;
+class FileID;
+class FileEntry;
 }
 
 namespace ClangBackEnd {
@@ -52,6 +59,7 @@ class SourceRangeExtractor
 public:
     SourceRangeExtractor(const clang::SourceManager &sourceManager,
                          const clang::LangOptions &languageOptions,
+                         ClangBackEnd::StringCache<Utils::PathString, std::mutex> &filePathCache,
                          SourceRangesContainer &sourceRangesContainer);
 
     void addSourceRange(const clang::SourceRange &sourceRange);
@@ -66,18 +74,21 @@ public:
     const clang::SourceRange extendSourceRangeToLastTokenEnd(const clang::SourceRange sourceRange);
 
 private:
-    void insertSourceRange(uint fileHash,
-                           Utils::SmallString &&directoryPath,
-                           Utils::SmallString &&fileName,
+    void insertSourceRange(uint fileId,
+                           Utils::PathString &&filePath,
                            const clang::FullSourceLoc &startLocation,
                            uint startOffset,
                            const clang::FullSourceLoc &endLocation,
                            uint endOffset,
                            Utils::SmallString &&lineSnippet);
 
+    uint findFileId(clang::FileID fileId, const clang::FileEntry *fileEntry) const;
+
 private:
+    mutable std::unordered_map<uint, uint> m_fileIdMapping;
     const clang::SourceManager &sourceManager;
     const clang::LangOptions &languageOptions;
+    ClangBackEnd::StringCache<Utils::PathString, std::mutex> &filePathCache;
     SourceRangesContainer &sourceRangesContainer;
 };
 

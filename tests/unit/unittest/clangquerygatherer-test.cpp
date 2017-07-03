@@ -71,6 +71,7 @@ protected:
     void SetUp() override;
 
 protected:
+    ClangBackEnd::StringCache<Utils::PathString, std::mutex> filePathCache;
     Utils::SmallString sourceContent{"#include \"query_simplefunction.h\"\nvoid f()\n {}"};
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
                          sourceContent.clone(),
@@ -80,15 +81,16 @@ protected:
                           unsavedContent.clone(),
                           {}};
     Utils::SmallString query{"functionDecl()"};
-    ClangBackEnd::ClangQueryGatherer gatherer{{source.clone()}, {unsaved.clone()}, query.clone()};
-    ClangBackEnd::ClangQueryGatherer manyGatherer{{source.clone(), source.clone(), source.clone()},
+    ClangBackEnd::ClangQueryGatherer gatherer{&filePathCache, {source.clone()}, {unsaved.clone()}, query.clone()};
+    ClangBackEnd::ClangQueryGatherer manyGatherer{&filePathCache,
+                                                  {source.clone(), source.clone(), source.clone()},
                                                   {unsaved.clone()},
                                                   query.clone()};
 };
 
 TEST_F(ClangQueryGatherer, CreateSourceRangesAndDiagnostics)
 {
-    auto sourceRangesAndDiagnostics = gatherer.createSourceRangesAndDiagnosticsForSource(source.clone(), {}, query.clone());
+    auto sourceRangesAndDiagnostics = gatherer.createSourceRangesAndDiagnosticsForSource(&filePathCache, source.clone(), {}, query.clone());
 
     ASSERT_THAT(sourceRangesAndDiagnostics,
                 Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
@@ -98,7 +100,7 @@ TEST_F(ClangQueryGatherer, CreateSourceRangesAndDiagnostics)
 
 TEST_F(ClangQueryGatherer, CreateSourceRangesAndDiagnosticssWithUnsavedContent)
 {
-    auto sourceRangesAndDiagnostics = gatherer.createSourceRangesAndDiagnosticsForSource(source.clone(), {unsaved}, query.clone());
+    auto sourceRangesAndDiagnostics = gatherer.createSourceRangesAndDiagnosticsForSource(&filePathCache, source.clone(), {unsaved}, query.clone());
 
     ASSERT_THAT(sourceRangesAndDiagnostics,
                 Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
@@ -113,7 +115,7 @@ TEST_F(ClangQueryGatherer, CanCreateSourceRangesAndDiagnosticsIfItHasSources)
 
 TEST_F(ClangQueryGatherer, CanNotCreateSourceRangesAndDiagnosticsIfItHasNoSources)
 {
-    ClangBackEnd::ClangQueryGatherer empthyGatherer{{}, {unsaved.clone()}, query.clone()};
+    ClangBackEnd::ClangQueryGatherer empthyGatherer{&filePathCache, {}, {unsaved.clone()}, query.clone()};
 
     ASSERT_FALSE(empthyGatherer.canCreateSourceRangesAndDiagnostics());
 }

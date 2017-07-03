@@ -73,7 +73,7 @@ protected:
     PathString main2Path = TESTDATA_DIR "/includecollector_main2.cpp";
     PathString header1Path = TESTDATA_DIR "/includecollector_header1.h";
     PathString header2Path = TESTDATA_DIR "/includecollector_header2.h";
-    SmallString generatedFileName = "includecollector_generated_file.h";
+    PathString generatedFileName = "includecollector_generated_file.h";
     PathString generatedFilePath = TESTDATA_DIR "/includecollector_generated_file.h";
     ProjectPartContainer projectPart1{"project1",
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},

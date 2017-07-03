@@ -37,66 +37,62 @@ class FilePath
 {
 public:
     FilePath() = default;
-    explicit FilePath(Utils::SmallString &&filePath)
+    explicit FilePath(Utils::PathString &&filePath)
+        : m_path(std::move(filePath))
     {
-        auto foundReverse = std::find(filePath.rbegin(), filePath.rend(), '/');
+        auto foundReverse = std::find(m_path.rbegin(), m_path.rend(), '/');
         auto found = foundReverse.base();
+        --found;
 
-        Utils::SmallString fileName(found, filePath.end());
-        if (foundReverse != filePath.rend())
-            filePath.resize(std::size_t(std::distance(filePath.begin(), --found)));
+        m_slashIndex = std::size_t(std::distance(m_path.begin(), found));
+    }
 
-        directory_ = std::move(filePath);
-        name_ = std::move(fileName);
+    explicit FilePath(const Utils::PathString &filePath)
+        : FilePath(filePath.clone())
+    {
+    }
+
+    explicit FilePath(Utils::PathString &&filePath, std::size_t slashIndex)
+        : m_path(std::move(filePath)),
+          m_slashIndex(slashIndex)
+    {
     }
 
     explicit FilePath(const QString &filePath)
-        : FilePath(Utils::SmallString(filePath))
+        : FilePath(Utils::PathString(filePath))
     {
     }
 
-    FilePath(Utils::SmallString &&directory, Utils::SmallString &&name)
-        : directory_(std::move(directory)),
-          name_(std::move(name))
+    FilePath(const Utils::PathString &directory, const Utils::PathString &name)
+        : m_path({std::move(directory), "/", std::move(name)}),
+          m_slashIndex(directory.size())
     {}
 
-    const Utils::SmallString &directory() const
+    Utils::SmallStringView directory() const
     {
-        return directory_;
+        return m_path.mid(0, m_slashIndex);
     }
 
-    Utils::SmallString takeDirectory()
+    Utils::SmallStringView name() const
     {
-        return std::move(directory_);
+        return m_path.mid(m_slashIndex + 1, m_path.size() - m_slashIndex - 1);
     }
 
-    const Utils::SmallString &name() const
+    const Utils::PathString &path()  const
     {
-        return name_;
-    }
-
-    Utils::SmallString takeName()
-    {
-        return std::move(name_);
-    }
-
-    Utils::PathString path()  const
-    {
-        return {directory_, "/", name_};
+        return m_path;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const FilePath &filePath)
     {
-        out << filePath.directory_;
-        out << filePath.name_;
+        out << filePath.m_path;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, FilePath &filePath)
     {
-        in >> filePath.directory_;
-        in >> filePath.name_;
+        in >> filePath.m_path;
 
         return in;
     }
@@ -110,24 +106,22 @@ public:
 
     friend bool operator==(const FilePath &first, const FilePath &second)
     {
-        return first.name_ == second.name_
-            && first.directory_ == second.directory_;
+        return first.m_path == second.m_path;
     }
 
     friend bool operator<(const FilePath &first, const FilePath &second)
     {
-        return std::tie(first.name_, first.directory_)
-             < std::tie(second.name_, second.directory_);
+        return first.m_path < second.m_path;
     }
 
     FilePath clone() const
     {
-        return FilePath(directory_.clone(), name_.clone());
+        return FilePath(m_path.clone(), m_slashIndex);
     }
 
 private:
-    Utils::SmallString directory_;
-    Utils::SmallString name_;
+    Utils::PathString m_path = "/";
+    std::size_t m_slashIndex = 0;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const FilePath &filePath);
