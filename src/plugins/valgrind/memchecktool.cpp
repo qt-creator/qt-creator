@@ -36,7 +36,6 @@
 #include <debugger/analyzer/startremotedialog.h>
 
 #include <valgrind/valgrindsettings.h>
-#include <valgrind/valgrindruncontrolfactory.h>
 #include <valgrind/xmlprotocol/errorlistmodel.h>
 #include <valgrind/xmlprotocol/stackmodel.h>
 #include <valgrind/xmlprotocol/error.h>
@@ -241,7 +240,7 @@ class MemcheckTool : public QObject
     Q_DECLARE_TR_FUNCTIONS(Valgrind::Internal::MemcheckTool)
 
 public:
-    MemcheckTool(QObject *parent);
+    MemcheckTool();
 
     RunWorker *createRunWorker(RunControl *runControl);
 
@@ -286,8 +285,7 @@ private:
     bool m_toolBusy = false;
 };
 
-MemcheckTool::MemcheckTool(QObject *parent)
-  : QObject(parent)
+MemcheckTool::MemcheckTool()
 {
     m_settings = ValgrindPlugin::globalSettings();
 
@@ -392,9 +390,6 @@ MemcheckTool::MemcheckTool(QObject *parent)
 
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     QString toolTip = tr("Valgrind Analyze Memory uses the Memcheck tool to find memory leaks.");
-
-    RunControl::registerWorkerCreator(MEMCHECK_RUN_MODE, std::bind(&MemcheckTool::createRunWorker, this, _1));
-    RunControl::registerWorkerCreator(MEMCHECK_WITH_GDB_RUN_MODE, std::bind(&MemcheckTool::createRunWorker, this, _1));
 
     if (!Utils::HostOsInfo::isWindowsHost()) {
         action = new QAction(this);
@@ -711,49 +706,21 @@ void MemcheckTool::setBusyCursor(bool busy)
 }
 
 
-class MemcheckRunControlFactory : public IRunControlFactory
-{
-public:
-    MemcheckRunControlFactory() : m_tool(new MemcheckTool(this)) {}
-
-    bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const override
-    {
-        Q_UNUSED(runConfiguration);
-        return mode == MEMCHECK_RUN_MODE || mode == MEMCHECK_WITH_GDB_RUN_MODE;
-    }
-
-    RunControl *create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage) override
-    {
-        Q_UNUSED(errorMessage);
-        auto runControl = new RunControl(runConfiguration, mode);
-        runControl->createWorker(mode);
-        return runControl;
-    }
-
-    // Do not create an aspect, let the Callgrind tool create one and use that, too.
-//    IRunConfigurationAspect *createRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc) override
-//    {
-//        return createValgrindRunConfigurationAspect(rc);
-//    }
-
-public:
-    MemcheckTool *m_tool;
-};
-
-
-static MemcheckRunControlFactory *theMemcheckRunControlFactory;
+static MemcheckTool *theMemcheckTool;
 
 void initMemcheckTool()
 {
-    theMemcheckRunControlFactory = new MemcheckRunControlFactory;
-    ExtensionSystem::PluginManager::addObject(theMemcheckRunControlFactory);
+    theMemcheckTool = new MemcheckTool;
+
+    auto producer = std::bind(&MemcheckTool::createRunWorker, theMemcheckTool, _1);
+    RunControl::registerWorker(MEMCHECK_RUN_MODE, producer);
+    RunControl::registerWorker(MEMCHECK_WITH_GDB_RUN_MODE, producer);
 }
 
 void destroyMemcheckTool()
 {
-    ExtensionSystem::PluginManager::removeObject(theMemcheckRunControlFactory);
-    delete theMemcheckRunControlFactory;
-    theMemcheckRunControlFactory = 0;
+    delete theMemcheckTool;
+    theMemcheckTool = nullptr;
 }
 
 } // namespace Internal

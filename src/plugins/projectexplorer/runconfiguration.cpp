@@ -488,10 +488,19 @@ static WorkerFactories &theWorkerFactories()
     return factories;
 }
 
+bool RunControl::WorkerFactory::canRun(RunConfiguration *runConfiguration, Core::Id runMode) const
+{
+    if (runMode != runMode)
+        return false;
+    if (!constraint)
+        return true;
+    return constraint(runConfiguration);
+}
+
 bool IRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id runMode) const
 {
     for (const RunControl::WorkerFactory &factory : theWorkerFactories()) {
-        if (factory.runMode == runMode && factory.constraint(runConfiguration))
+        if (factory.canRun(runConfiguration, runMode))
             return true;
     };
     return false;
@@ -500,7 +509,7 @@ bool IRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id run
 RunControl *IRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id runMode, QString *)
 {
     for (const RunControl::WorkerFactory &factory : theWorkerFactories()) {
-        if (factory.runMode == runMode && factory.constraint(runConfiguration)) {
+        if (factory.canRun(runConfiguration, runMode)) {
             auto runControl = new RunControl(runConfiguration, runMode);
             factory.producer(runControl);
             return runControl;
@@ -758,7 +767,7 @@ RunWorker *RunControl::createWorker(Core::Id id)
 {
     auto keys = theWorkerCreators().keys();
     Q_UNUSED(keys);
-    Producer creator = theWorkerCreators().value(id);
+    WorkerCreator creator = theWorkerCreators().value(id);
     if (creator)
         return creator(this);
     creator = device()->workerCreator(id);
@@ -767,10 +776,11 @@ RunWorker *RunControl::createWorker(Core::Id id)
     return nullptr;
 }
 
-RunControl::Producer RunControl::producer(RunConfiguration *runConfiguration, Core::Id runMode)
+RunControl::WorkerCreator RunControl::producer(RunConfiguration *runConfiguration, Core::Id runMode)
 {
     for (const auto &factory : theWorkerFactories()) {
-        if (factory.runMode == runMode && factory.constraint(runConfiguration))
+        if (factory.runMode == runMode
+                && (!factory.constraint || factory.constraint(runConfiguration)))
             return factory.producer;
     }
     return {};

@@ -41,7 +41,6 @@
 #include <valgrind/callgrind/callgrindproxymodel.h>
 #include <valgrind/callgrind/callgrindstackbrowser.h>
 #include <valgrind/valgrindplugin.h>
-#include <valgrind/valgrindruncontrolfactory.h>
 #include <valgrind/valgrindsettings.h>
 
 #include <debugger/debuggerconstants.h>
@@ -99,6 +98,7 @@ using namespace Valgrind::Callgrind;
 using namespace TextEditor;
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace std::placeholders;
 
 namespace Valgrind {
 namespace Internal {
@@ -118,7 +118,7 @@ class CallgrindTool : public QObject
     Q_OBJECT
 
 public:
-    CallgrindTool(QObject *parent);
+    CallgrindTool();
     ~CallgrindTool();
 
     ValgrindToolRunner *createRunTool(RunControl *runControl);
@@ -222,8 +222,7 @@ public:
     bool m_toolBusy = false;
 };
 
-CallgrindTool::CallgrindTool(QObject *parent)
-    : QObject(parent)
+CallgrindTool::CallgrindTool()
 {
     setObjectName(QLatin1String("CallgrindTool"));
 
@@ -250,10 +249,6 @@ CallgrindTool::CallgrindTool(QObject *parent)
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     QString toolTip = tr("Valgrind Function Profiler uses the "
         "Callgrind tool to record function calls when a program runs.");
-
-    RunControl::registerWorkerCreator(CALLGRIND_RUN_MODE, [this](RunControl *runControl) {
-        return createRunTool(runControl);
-    });
 
     if (!Utils::HostOsInfo::isWindowsHost()) {
         auto action = new QAction(tr("Valgrind Function Profiler"), this);
@@ -966,48 +961,20 @@ void CallgrindTool::createTextMarks()
 }
 
 
-class CallgrindRunControlFactory : public IRunControlFactory
-{
-public:
-    CallgrindRunControlFactory() : m_tool(new CallgrindTool(this)) {}
-
-    bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const override
-    {
-        Q_UNUSED(runConfiguration);
-        return runMode == CALLGRIND_RUN_MODE;
-    }
-
-    RunControl *create(RunConfiguration *runConfiguration, Core::Id runMode, QString *errorMessage) override
-    {
-        Q_UNUSED(errorMessage);
-        auto runControl = new RunControl(runConfiguration, runMode);
-        m_tool->createRunTool(runControl);
-        return runControl;
-    }
-
-    IRunConfigurationAspect *createRunConfigurationAspect(ProjectExplorer::RunConfiguration *rc) override
-    {
-        return createValgrindRunConfigurationAspect(rc);
-    }
-
-public:
-    CallgrindTool *m_tool;
-};
-
-
-static CallgrindRunControlFactory *theCallgrindRunControlFactory;
+static CallgrindTool *theCallgrindTool;
 
 void initCallgrindTool()
 {
-    theCallgrindRunControlFactory = new CallgrindRunControlFactory;
-    ExtensionSystem::PluginManager::addObject(theCallgrindRunControlFactory);
+    theCallgrindTool = new CallgrindTool;
+
+    auto producer = std::bind(&CallgrindTool::createRunTool, theCallgrindTool, _1);
+    RunControl::registerWorker(CALLGRIND_RUN_MODE, producer);
 }
 
 void destroyCallgrindTool()
 {
-    ExtensionSystem::PluginManager::removeObject(theCallgrindRunControlFactory);
-    delete theCallgrindRunControlFactory;
-    theCallgrindRunControlFactory = 0;
+    delete theCallgrindTool;
+    theCallgrindTool = nullptr;
 }
 
 } // namespace Internal
