@@ -67,6 +67,12 @@ QStringList QtTestConfiguration::argumentsForTestRunner() const
     if (!metricsOption.isEmpty())
         arguments << metricsOption;
 
+    if (qtSettings->verboseBench)
+        arguments << "-vb";
+
+    if (qtSettings->logSignalsSlots)
+        arguments << "-vs";
+
     if (runMode() == DebuggableTestConfiguration::Debug) {
         if (qtSettings->noCrashHandler)
             arguments << "-nocrashhandler";

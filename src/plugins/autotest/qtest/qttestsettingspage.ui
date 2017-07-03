@@ -47,6 +47,23 @@ Warning: Plain text output is missing some information (e.g. duration)</string>
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="verboseBenchmarksCB">
+         <property name="text">
+          <string>Verbose benchmarks</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="logSignalsAndSlotsCB">
+         <property name="toolTip">
+          <string>Log every signal emission and resulting slot invocations.</string>
+         </property>
+         <property name="text">
+          <string>Log signals and slots</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Benchmark Metrics</string>
