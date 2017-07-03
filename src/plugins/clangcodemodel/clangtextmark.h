@@ -43,8 +43,8 @@ public:
                   const ClangBackEnd::DiagnosticContainer &diagnostic,
                   const RemovedFromEditorHandler &removedHandler);
 
+    void updateIcon(bool valid = true);
 private:
-    void setIcon(ClangBackEnd::DiagnosticSeverity severity);
     bool addToolTipContent(QLayout *target) const override;
     void removedFromEditor() override;
 

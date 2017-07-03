@@ -78,23 +78,29 @@ ClangTextMark::ClangTextMark(const QString &fileName,
                               : QApplication::translate("Clang Code Model Marks", "Code Model Error"));
     setPriority(warning ? TextEditor::TextMark::NormalPriority
                         : TextEditor::TextMark::HighPriority);
-    setIcon(diagnostic.severity());
+    updateIcon();
     setLineAnnotation(diagnostic.text().toString());
 }
 
-void ClangTextMark::setIcon(ClangBackEnd::DiagnosticSeverity severity)
+void ClangTextMark::updateIcon(bool valid)
 {
-    static const QIcon errorIcon = Utils::Icon({
-            {QLatin1String(":/clangcodemodel/images/error.png"), Utils::Theme::IconsErrorColor}
-        }, Utils::Icon::Tint).icon();
-    static const QIcon warningIcon = Utils::Icon({
-            {QLatin1String(":/clangcodemodel/images/warning.png"), Utils::Theme::IconsWarningColor}
-        }, Utils::Icon::Tint).icon();
+    static const QIcon errorIcon = Utils::Icon(
+        {{":/clangcodemodel/images/error.png", Utils::Theme::IconsErrorColor}},
+        Utils::Icon::Tint).icon();
+    static const QIcon warningIcon = Utils::Icon(
+        {{":/clangcodemodel/images/warning.png", Utils::Theme::IconsWarningColor}},
+        Utils::Icon::Tint).icon();
+    static const QIcon invalidErrorIcon = Utils::Icon(
+        {{":/clangcodemodel/images/error.png", Utils::Theme::IconsDisabledColor}},
+        Utils::Icon::Tint).icon();
+    static const QIcon invalidWarningIcon = Utils::Icon(
+        {{":/clangcodemodel/images/warning.png", Utils::Theme::IconsDisabledColor}},
+        Utils::Icon::Tint).icon();
 
-    if (isWarningOrNote(severity))
-        TextMark::setIcon(warningIcon);
+    if (isWarningOrNote(m_diagnostic.severity()))
+        setIcon(valid ? warningIcon : invalidWarningIcon);
     else
-        TextMark::setIcon(errorIcon);
+        setIcon(valid ? errorIcon : invalidErrorIcon);
 }
 
 bool ClangTextMark::addToolTipContent(QLayout *target) const

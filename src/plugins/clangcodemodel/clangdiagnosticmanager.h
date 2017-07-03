@@ -58,6 +58,7 @@ public:
     bool hasDiagnosticsAt(uint line, uint column) const;
     QVector<ClangBackEnd::DiagnosticContainer> diagnosticsAt(uint line, uint column) const;
 
+    void invalidateDiagnostics();
     void clearDiagnosticsWithFixIts();
 
 private:
@@ -80,6 +81,7 @@ private:
     QList<QTextEdit::ExtraSelection> m_extraSelections;
     TextEditor::RefactorMarkers m_fixItAvailableMarkers;
     std::vector<ClangTextMark *> m_clangTextMarks;
+    bool m_diagnosticsInvalidated = false;
 };
 
 } // namespace Internal

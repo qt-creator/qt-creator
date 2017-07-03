@@ -281,6 +281,11 @@ void ClangEditorDocumentProcessor::editorDocumentTimerRestarted()
     m_updateTranslationUnitTimer.stop(); // Wait for the next call to run().
 }
 
+void ClangEditorDocumentProcessor::invalidateDiagnostics()
+{
+    m_diagnosticManager.invalidateDiagnostics();
+}
+
 void ClangEditorDocumentProcessor::setParserConfig(
         const CppTools::BaseEditorDocumentParser::Configuration config)
 {
