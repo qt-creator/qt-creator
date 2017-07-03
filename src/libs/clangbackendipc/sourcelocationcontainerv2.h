@@ -97,8 +97,14 @@ public:
     {
         return first.m_line != second.m_line
             || first.m_column != second.m_column
-            || first.m_fileHash != second.m_fileHash
-            || first.m_offset != second.m_offset;
+            || first.m_fileHash != second.m_fileHash;
+    }
+
+    friend bool operator<(const SourceLocationContainer &first,
+                          const SourceLocationContainer &second)
+    {
+        return std::tie(first.m_fileHash, first.m_line, first.m_column)
+             < std::tie(second.m_fileHash, second.m_line, second.m_column);
     }
 
     SourceLocationContainer clone() const

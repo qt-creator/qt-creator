@@ -32,23 +32,25 @@
 #include <clangqueryprojectsfindfilter.h>
 #include <refactoringclient.h>
 
-#include <requestsourcelocationforrenamingmessage.h>
-#include <requestsourcerangesanddiagnosticsforquerymessage.h>
+#include <clangrefactoringservermessages.h>
 
 #include <cpptools/clangcompileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
 
 namespace {
 
-using ::testing::_;
-using ::testing::NiceMock;
-using ::testing::NotNull;
-using ::testing::Return;
-using ::testing::ReturnNew;
-using ::testing::DefaultValue;
-using ::testing::ByMove;
+using testing::_;
+using testing::AllOf;
+using testing::NiceMock;
+using testing::NotNull;
+using testing::Property;
+using testing::Return;
+using testing::ReturnNew;
+using testing::DefaultValue;
+using testing::ByMove;
 
 using CppTools::ClangCompilerOptionsBuilder;
+using ClangBackEnd::V2::FileContainer;
 
 class ClangQueryProjectFindFilter : public ::testing::Test
 {
@@ -105,7 +107,7 @@ TEST_F(ClangQueryProjectFindFilter, ServerIsUsableForUsableFindFilter)
 
 TEST_F(ClangQueryProjectFindFilter, SearchHandleSetIsSetAfterFindAll)
 {
-    findFilter.findAll(findDeclQueryText);
+    findFilter.find(findDeclQueryText);
 
     auto searchHandle = refactoringClient.searchHandle();
 
@@ -115,47 +117,60 @@ TEST_F(ClangQueryProjectFindFilter, SearchHandleSetIsSetAfterFindAll)
 TEST_F(ClangQueryProjectFindFilter, FindAllIsCallingStartNewSearch)
 {
     EXPECT_CALL(mockSearch, startNewSearch(QStringLiteral("Clang Query"),
-                                           findDeclQueryText))
-            .Times(1);
+                                           findDeclQueryText));
 
-    findFilter.findAll(findDeclQueryText);
+    findFilter.find(findDeclQueryText);
 }
 
 TEST_F(ClangQueryProjectFindFilter, FindAllIsSettingExprectedResultCountInTheRefactoringClient)
 {
-    findFilter.findAll(findDeclQueryText);
+    findFilter.find(findDeclQueryText);
 
     ASSERT_THAT(refactoringClient.expectedResultCount(), 3);
 }
 
 TEST_F(ClangQueryProjectFindFilter, FindAllIsCallingRequestSourceRangesAndDiagnosticsForQueryMessage)
 {
-    ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage message(findDeclQueryText,
-                                                                           {{{"/path/to", "file1.h"},
-                                                                             "",
-                                                                             commandLines[0].clone()},
-                                                                            {{"/path/to", "file1.cpp"},
-                                                                             "",
-                                                                             commandLines[1].clone()},
-                                                                            {{"/path/to", "file2.cpp"},
-                                                                             "",
-                                                                             commandLines[2].clone()}},
-                                                                           {unsavedContent.clone()});
+    ClangBackEnd::RequestSourceRangesForQueryMessage message(findDeclQueryText,
+                                                             {{{"/path/to", "file1.h"},
+                                                               "",
+                                                               commandLines[0].clone()},
+                                                              {{"/path/to", "file1.cpp"},
+                                                               "",
+                                                               commandLines[1].clone()},
+                                                              {{"/path/to", "file2.cpp"},
+                                                               "",
+                                                               commandLines[2].clone()}},
+                                                             {unsavedContent.clone()});
 
-    EXPECT_CALL(mockRefactoringServer, requestSourceRangesAndDiagnosticsForQueryMessage(message))
-            .Times(1);
+    EXPECT_CALL(mockRefactoringServer, requestSourceRangesForQueryMessage(message));
 
-    findFilter.findAll(findDeclQueryText);
+    findFilter.find(findDeclQueryText);
 }
 
 TEST_F(ClangQueryProjectFindFilter, CancelSearch)
 {
-    EXPECT_CALL(mockRefactoringServer, cancel())
-            .Times(1);
+    auto searchHandle = findFilter.find(findDeclQueryText);
 
-    findFilter.findAll(findDeclQueryText);
+    EXPECT_CALL(mockRefactoringServer, cancel());
 
-    findFilter.searchHandleForTestOnly()->cancel();
+    searchHandle->cancel();
+}
+
+TEST_F(ClangQueryProjectFindFilter, CallingRequestSourceRangesAndDiagnostics)
+{
+    using Message = ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage;
+    Utils::SmallString queryText = "functionDecl()";
+    Utils::SmallString exampleContent = "void foo();";
+
+    EXPECT_CALL(mockRefactoringServer,
+                requestSourceRangesAndDiagnosticsForQueryMessage(
+                    AllOf(
+                        Property(&Message::source,
+                                Property(&FileContainer::unsavedFileContent, exampleContent)),
+                        Property(&Message::query, queryText))));
+
+    findFilter.requestSourceRangesAndDiagnostics(queryText, exampleContent);
 }
 
 std::vector<CppTools::ProjectPart::Ptr> createProjectParts()

@@ -64,7 +64,9 @@ SOURCES += \
     pchmanagerserver-test.cpp \
     pchmanagerclientserverinprocess-test.cpp \
     filepath-test.cpp \
-    sourcerangefilter-test.cpp
+    sourcerangefilter-test.cpp \
+    clangqueryexamplehighlightmarker-test.cpp \
+    clangqueryhighlightmarker-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -176,7 +178,8 @@ HEADERS += \
     mockpchcreator.h \
     dummyclangipcclient.h \
     mockclangcodemodelclient.h \
-    mockclangcodemodelserver.h
+    mockclangcodemodelserver.h \
+    mocksyntaxhighligher.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

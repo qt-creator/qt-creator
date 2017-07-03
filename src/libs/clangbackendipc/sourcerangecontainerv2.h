@@ -27,6 +27,8 @@
 
 #include "sourcelocationcontainerv2.h"
 
+#include <tuple>
+
 namespace ClangBackEnd {
 namespace V2 {
 
@@ -89,6 +91,12 @@ public:
         return first.m_start == second.m_start && first.m_end == second.m_end;
     }
 
+    friend bool operator<(const SourceRangeContainer &first,
+                          const SourceRangeContainer &second)
+    {
+        return std::tie(first.m_start, first.m_end) < std::tie(second.m_start, second.m_end);
+    }
+
     SourceRangeContainer clone() const
     {
         return SourceRangeContainer(m_start.clone(), m_end.clone());
@@ -98,6 +106,8 @@ private:
     SourceLocationContainer m_start;
     SourceLocationContainer m_end;
 };
+
+using SourceRangeContainers = std::vector<SourceRangeContainer>;
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceRangeContainer &container);
 std::ostream &operator<<(std::ostream &os, const SourceRangeContainer &container);

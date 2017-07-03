@@ -26,6 +26,7 @@
 #include "googletest.h"
 #include "sourcerangecontainer-matcher.h"
 #include "dynamicastmatcherdiagnosticcontainer-matcher.h"
+#include "filesystem-utilities.h"
 
 #include <clangquery.h>
 
@@ -34,9 +35,10 @@
 using ClangBackEnd::ClangQuery;
 using ClangBackEnd::StringCache;
 
+using testing::AllOf;
+using testing::Contains;
 using testing::IsEmpty;
 using testing::Not;
-using testing::AllOf;
 
 namespace {
 
@@ -75,36 +77,48 @@ TEST_F(ClangQuerySlowTest, RootSourceRangeForSimpleFunctionDeclarationRange)
 
     simpleFunctionQuery.findLocations();
 
-    ASSERT_THAT(simpleFunctionQuery.takeSourceRanges().sourceRangeWithTextContainers().at(0),
-                IsSourceRangeWithText(1, 1, 8, 2, "int function(int* pointer, int value)\n{\n  if (pointer == nullptr) {\n    return value + 1;\n  } else {\n    return value - 1;\n  }\n}"));
+    ASSERT_THAT(simpleFunctionQuery.takeSourceRanges().sourceRangeWithTextContainers(),
+                Contains(IsSourceRangeWithText(1, 1, 8, 2, "int function(int* pointer, int value)\n{\n  if (pointer == nullptr) {\n    return value + 1;\n  } else {\n    return value - 1;\n  }\n}")));
 }
 
 TEST_F(ClangQuerySlowTest, SourceRangeInUnsavedFileDeclarationRange)
 {
     ::ClangQuery query(filePathCache);
-    query.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "#include \"unsaved.h\"", {"cc", "query_simplefunction.cpp", "-std=c++14"});
+    query.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "#include \"unsaved.h\"", {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp"), "-std=c++14"});
     query.setQuery("functionDecl()");
     ClangBackEnd::V2::FileContainer unsavedFile{{TESTDATA_DIR, "unsaved.h"}, "void unsaved();", {}};
     query.addUnsavedFiles({unsavedFile});
 
     query.findLocations();
 
-    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers().at(0),
-                IsSourceRangeWithText(1, 1, 1, 15, "void unsaved();"));
+    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers(),
+                Contains(IsSourceRangeWithText(1, 1, 1, 15, "void unsaved();")));
+}
+
+TEST_F(ClangQuerySlowTest, FileIsNotExistingButTheUnsavedDataIsParsed)
+{
+    ::ClangQuery query(filePathCache);
+    query.addFile(TESTDATA_DIR, "foo.cpp", "void f() {}", {"cc", toNativePath(TESTDATA_DIR"/foo.cpp"), "-std=c++14"});
+    query.setQuery("functionDecl()");
+
+    query.findLocations();
+
+    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers(),
+                Contains(IsSourceRangeWithText(1, 1, 1, 12, "void f() {}")));
 }
 
 TEST_F(ClangQuerySlowTest, DISABLED_SourceRangeInUnsavedFileDeclarationRangeOverride) // seems not to work in Clang
 {
     ::ClangQuery query(filePathCache);
-    query.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "void f() {}", {"cc", "query_simplefunction.cpp", "-std=c++14"});
+    query.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "void f() {}", {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp"), "-std=c++14"});
     query.setQuery("functionDecl()");
     ClangBackEnd::V2::FileContainer unsavedFile{{TESTDATA_DIR, "query_simplefunction.cpp"}, "void unsaved();", {}};
     query.addUnsavedFiles({unsavedFile});
 
     query.findLocations();
 
-    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers().at(0),
-                IsSourceRangeWithText(1, 1, 1, 15, "void unsaved();"));
+    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers(),
+                Contains(IsSourceRangeWithText(1, 1, 1, 15, "void unsaved();")));
 }
 
 TEST_F(ClangQuerySlowTest, RootSourceRangeForSimpleFieldDeclarationRange)
@@ -191,7 +205,7 @@ TEST_F(ClangQuerySlowTest, DiagnosticForWrongArgumenType)
 
 void ClangQuery::SetUp()
 {
-    simpleFunctionQuery.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "", {"cc", "query_simplefunction.cpp", "-std=c++14"});
+    simpleFunctionQuery.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "", {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp"), "-std=c++14"});
     simpleClassQuery.addFile(TESTDATA_DIR, "query_simpleclass.cpp", "", {"cc", "query_simpleclass.cpp", "-std=c++14"});
 
 }

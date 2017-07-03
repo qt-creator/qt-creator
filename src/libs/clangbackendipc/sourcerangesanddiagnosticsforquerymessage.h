@@ -38,56 +38,61 @@ public:
     SourceRangesAndDiagnosticsForQueryMessage() = default;
     SourceRangesAndDiagnosticsForQueryMessage(SourceRangesContainer &&sourceRangesContainer,
                                               std::vector<DynamicASTMatcherDiagnosticContainer> &&diagnosticContainers)
-        : sourceRangesContainer(std::move(sourceRangesContainer)),
-          diagnosticContainers(std::move(diagnosticContainers))
+        : m_sourceRangesContainer(std::move(sourceRangesContainer)),
+          m_diagnosticContainers(std::move(diagnosticContainers))
     {}
 
     const SourceRangesContainer &sourceRanges() const
     {
-        return sourceRangesContainer;
+        return m_sourceRangesContainer;
     }
 
     SourceRangesContainer &sourceRanges()
     {
-        return sourceRangesContainer;
+        return m_sourceRangesContainer;
     }
 
-    const std::vector<DynamicASTMatcherDiagnosticContainer> &diagnostics() const
+    SourceRangesContainer takeSourceRanges()
     {
-        return diagnosticContainers;
+        return std::move(m_sourceRangesContainer);
+    }
+
+    const DynamicASTMatcherDiagnosticContainers &diagnostics() const
+    {
+        return m_diagnosticContainers;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const SourceRangesAndDiagnosticsForQueryMessage &message)
     {
-        out << message.sourceRangesContainer;
-        out << message.diagnosticContainers;
+        out << message.m_sourceRangesContainer;
+        out << message.m_diagnosticContainers;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, SourceRangesAndDiagnosticsForQueryMessage &message)
     {
-        in >> message.sourceRangesContainer;
-        in >> message.diagnosticContainers;
+        in >> message.m_sourceRangesContainer;
+        in >> message.m_diagnosticContainers;
 
         return in;
     }
 
     friend bool operator==(const SourceRangesAndDiagnosticsForQueryMessage &first, const SourceRangesAndDiagnosticsForQueryMessage &second)
     {
-        return first.sourceRangesContainer == second.sourceRangesContainer
-            && first.diagnosticContainers == second.diagnosticContainers;
+        return first.m_sourceRangesContainer == second.m_sourceRangesContainer
+            && first.m_diagnosticContainers == second.m_diagnosticContainers;
     }
 
     SourceRangesAndDiagnosticsForQueryMessage clone() const
     {
-        return SourceRangesAndDiagnosticsForQueryMessage(sourceRangesContainer.clone(),
-                                                         Utils::clone(diagnosticContainers));
+        return SourceRangesAndDiagnosticsForQueryMessage(m_sourceRangesContainer.clone(),
+                                                         Utils::clone(m_diagnosticContainers));
     }
 
 private:
-    SourceRangesContainer sourceRangesContainer;
-    std::vector<DynamicASTMatcherDiagnosticContainer> diagnosticContainers;
+    SourceRangesContainer m_sourceRangesContainer;
+    DynamicASTMatcherDiagnosticContainers m_diagnosticContainers;
 };
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceRangesAndDiagnosticsForQueryMessage &message);

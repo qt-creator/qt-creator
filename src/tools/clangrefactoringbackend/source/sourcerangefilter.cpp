@@ -31,29 +31,44 @@ namespace ClangBackEnd {
 
 SourceRangeFilter::SourceRangeFilter(std::size_t sourcesCount)
 {
-    m_collectedSourceRanges.reserve(sourcesCount);
+    m_collectedSourceRanges.reserve(sourcesCount * 100);
 }
 
-SourceRangesAndDiagnosticsForQueryMessage SourceRangeFilter::removeDuplicates(SourceRangesAndDiagnosticsForQueryMessage &&message)
+SourceRangesForQueryMessage SourceRangeFilter::removeDuplicates(SourceRangesForQueryMessage &&message)
 {
-    removeDuplicates(message.sourceRanges().sourceRangeWithTextContainers());
+    auto sourceRanges = removeDuplicates(message.sourceRanges().takeSourceRangeWithTextContainers());
+
+    message.sourceRanges().setSourceRangeWithTextContainers(std::move(sourceRanges));
 
     return std::move(message);
 }
 
-void SourceRangeFilter::removeDuplicates(SourceRangeWithTextContainers &sourceRanges)
+SourceRangeWithTextContainers SourceRangeFilter::removeDuplicates(SourceRangeWithTextContainers &&sourceRanges)
 {
-    auto partitionPoint = std::stable_partition(sourceRanges.begin(),
-                                                sourceRanges.end(),
-                                                [&] (const SourceRangeWithTextContainer &sourceRange) {
-        return m_collectedSourceRanges.find(sourceRange) == m_collectedSourceRanges.end();
-    });
+    SourceRangeWithTextContainers  newSourceRanges;
+    newSourceRanges.reserve(sourceRanges.size());
 
-    sourceRanges.erase(partitionPoint, sourceRanges.end());
+    std::sort(sourceRanges.begin(), sourceRanges.end());
+    auto sourceRangesNewEnd = std::unique(sourceRanges.begin(), sourceRanges.end());
 
-    std::copy(sourceRanges.begin(),
-              sourceRanges.end(),
-              std::inserter(m_collectedSourceRanges, m_collectedSourceRanges.end()));
+    std::set_difference(sourceRanges.begin(),
+                        sourceRangesNewEnd,
+                        m_collectedSourceRanges.begin(),
+                        m_collectedSourceRanges.end(),
+                        std::back_inserter(newSourceRanges));
+
+    V2::SourceRangeContainers collectedSourceRanges;
+    collectedSourceRanges.reserve(m_collectedSourceRanges.size() + newSourceRanges.size());
+
+    std::merge(m_collectedSourceRanges.begin(),
+               m_collectedSourceRanges.end(),
+               newSourceRanges.begin(),
+               newSourceRanges.end(),
+               std::back_inserter(collectedSourceRanges));
+
+    std::swap(m_collectedSourceRanges, collectedSourceRanges);
+
+    return newSourceRanges;
 }
 
 } // namespace ClangBackEnd

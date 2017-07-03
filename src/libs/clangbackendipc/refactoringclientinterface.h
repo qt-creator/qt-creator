@@ -33,6 +33,7 @@ namespace ClangBackEnd {
 
 class SourceLocationsForRenamingMessage;
 class SourceRangesAndDiagnosticsForQueryMessage;
+class SourceRangesForQueryMessage;
 class SourceLocationsContainer;
 
 class CMBIPC_EXPORT RefactoringClientInterface : public IpcClientInterface
@@ -47,6 +48,7 @@ public:
     virtual void alive() = 0;
     virtual void sourceLocationsForRenamingMessage(SourceLocationsForRenamingMessage &&message) = 0;
     virtual void sourceRangesAndDiagnosticsForQueryMessage(SourceRangesAndDiagnosticsForQueryMessage &&message) = 0;
+    virtual void sourceRangesForQueryMessage(SourceRangesForQueryMessage &&message) = 0;
 
     virtual void setLocalRenamingCallback(RenameCallback &&localRenamingCallback) = 0;
 };

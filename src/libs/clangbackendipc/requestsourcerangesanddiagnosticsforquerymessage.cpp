@@ -31,7 +31,7 @@ QDebug operator<<(QDebug debug, const RequestSourceRangesAndDiagnosticsForQueryM
 {
     debug.nospace() << "RequestSourceRangesAndDiagnosticsForQuery("
                     << message.query() << ", "
-                    << message.sources() << ")";
+                    << message.source() << ")";
 
     return debug;
 }
@@ -40,7 +40,7 @@ std::ostream &operator<<(std::ostream &os, const RequestSourceRangesAndDiagnosti
 {
     os << "("
        << message.query() << ", "
-       << message.sources()
+       << message.source()
        << ")";
 
     return os;

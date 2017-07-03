@@ -27,19 +27,38 @@
 
 #include "clangqueryprojectsfindfilter.h"
 
+#include <QPointer>
+
 namespace ClangRefactoring {
+
+class ClangQueryProjectsFindFilterWidget;
 
 class QtCreatorClangQueryFindFilter final : public ClangQueryProjectsFindFilter
 {
 public:
-    QtCreatorClangQueryFindFilter(ClangBackEnd::RefactoringServerInterface &server,
-                                  SearchInterface &searchInterface,
-                                  RefactoringClient &refactoringClient);
+    QtCreatorClangQueryFindFilter(ClangBackEnd::RefactoringServerInterface &m_server,
+                                  SearchInterface &m_searchInterface,
+                                  RefactoringClient &m_refactoringClient);
 
     void findAll(const QString &queryText, Core::FindFlags findFlags = 0) override;
 
+    void handleQueryOrExampleTextChanged();
+
+    QWidget *createConfigWidget() override;
+
+    bool isValid() const override;
+
+
+protected:
+    QWidget *widget() const override;
+    QString queryText() const override;
+    QString queryExampleText() const;
+
 private:
     void prepareFind();
+
+private:
+    QPointer<ClangQueryProjectsFindFilterWidget> m_widget;
 };
 
 } // namespace ClangRefactoring

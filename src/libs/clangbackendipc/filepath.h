@@ -86,13 +86,19 @@ public:
     friend QDataStream &operator<<(QDataStream &out, const FilePath &filePath)
     {
         out << filePath.m_path;
+        out << uint(filePath.m_slashIndex);
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, FilePath &filePath)
     {
+        uint slashIndex;
+
         in >> filePath.m_path;
+        in >> slashIndex;
+
+        filePath.m_slashIndex = slashIndex;
 
         return in;
     }
@@ -116,7 +122,7 @@ public:
 
     FilePath clone() const
     {
-        return FilePath(m_path.clone(), m_slashIndex);
+        return *this;
     }
 
 private:

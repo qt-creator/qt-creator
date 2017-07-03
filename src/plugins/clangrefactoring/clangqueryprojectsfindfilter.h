@@ -34,6 +34,7 @@
 #include <filecontainerv2.h>
 
 #include <utils/smallstringvector.h>
+#include <utils/temporaryfile.h>
 
 #include <memory>
 
@@ -54,35 +55,44 @@ public:
                                 SearchInterface &searchInterface,
                                 RefactoringClient &refactoringClient);
 
-    QString id() const;
-    QString displayName() const;
-    bool isEnabled() const;
-    void findAll(const QString &queryText, Core::FindFlags findFlags = 0);
-    Core::FindFlags supportedFindFlags() const;
+    QString id() const override;
+    QString displayName() const override;
+    bool isEnabled() const override;
+    void requestSourceRangesAndDiagnostics(const QString &queryText, const QString &exampleContent);
+    SearchHandle *find(const QString &queryText);
+    void findAll(const QString &queryText, Core::FindFlags findFlags = 0) override;
+    bool showSearchTermInput() const override;
+    Core::FindFlags supportedFindFlags() const override;
 
-    void setProjectParts(const std::vector<CppTools::ProjectPart::Ptr> &projectParts);
+    void setProjectParts(const std::vector<CppTools::ProjectPart::Ptr> &m_projectParts);
 
     bool isUsable() const;
     void setUsable(bool isUsable);
 
     SearchHandle* searchHandleForTestOnly() const;
 
-    void setUnsavedContent(std::vector<ClangBackEnd::V2::FileContainer> &&unsavedContent);
+    void setUnsavedContent(std::vector<ClangBackEnd::V2::FileContainer> &&m_unsavedContent);
 
     static Utils::SmallStringVector compilerArguments(CppTools::ProjectPart *projectPart,
                                                       CppTools::ProjectFile::Kind fileKind);
 
+protected:
+    virtual QWidget *widget() const;
+    virtual QString queryText() const;
+    RefactoringClient &refactoringClient();
+
 private:
-    ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage createMessage(
+    ClangBackEnd::RequestSourceRangesForQueryMessage createMessage(
             const QString &queryText) const;
 
 private:
-    std::vector<ClangBackEnd::V2::FileContainer> unsavedContent;
-    std::unique_ptr<SearchHandle> searchHandle;
-    std::vector<CppTools::ProjectPart::Ptr> projectParts;
-    ClangBackEnd::RefactoringServerInterface &server;
-    SearchInterface &searchInterface;
-    RefactoringClient &refactoringClient;
+    std::vector<ClangBackEnd::V2::FileContainer> m_unsavedContent;
+    std::unique_ptr<SearchHandle> m_searchHandle;
+    std::vector<CppTools::ProjectPart::Ptr> m_projectParts;
+    Utils::TemporaryFile temporaryFile{"clangQuery-XXXXXX.cpp"};
+    ClangBackEnd::RefactoringServerInterface &m_server;
+    SearchInterface &m_searchInterface;
+    RefactoringClient &m_refactoringClient;
 };
 
 } // namespace ClangRefactoring

@@ -54,7 +54,7 @@ using testing::UnorderedElementsAre;
 using testing::_;
 
 using ClangBackEnd::V2::FileContainer;
-using ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage;
+using ClangBackEnd::SourceRangesForQueryMessage;
 using ClangBackEnd::SourceRangesContainer;
 using ClangBackEnd::SourceRangesContainer;
 
@@ -98,100 +98,100 @@ protected:
                                                   query.clone()};
 };
 
-TEST_F(ClangQueryGatherer, CreateSourceRangesAndDiagnostics)
+TEST_F(ClangQueryGatherer, CreateSourceRanges)
 {
-    auto sourceRangesAndDiagnostics = gatherer.createSourceRangesAndDiagnosticsForSource(&filePathCache, source.clone(), {unsaved}, query.clone());
+    auto sourceRangesAndDiagnostics = gatherer.createSourceRangesForSource(&filePathCache, source.clone(), {unsaved}, query.clone());
 
     ASSERT_THAT(sourceRangesAndDiagnostics,
-                Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                Property(&SourceRangesForQueryMessage::sourceRanges,
                          Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                   Contains(IsSourceRangeWithText(2, 1, 2, 12, "void f() {}")))));
 }
 
-TEST_F(ClangQueryGatherer, CreateSourceRangesAndDiagnosticssWithUnsavedContent)
+TEST_F(ClangQueryGatherer, CreateSourceRangessWithUnsavedContent)
 {
-    auto sourceRangesAndDiagnostics = gatherer.createSourceRangesAndDiagnosticsForSource(&filePathCache, source.clone(), {unsaved}, query.clone());
+    auto sourceRangesAndDiagnostics = gatherer.createSourceRangesForSource(&filePathCache, source.clone(), {unsaved}, query.clone());
 
     ASSERT_THAT(sourceRangesAndDiagnostics,
-                Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                Property(&SourceRangesForQueryMessage::sourceRanges,
                          Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                   Contains(IsSourceRangeWithText(1, 1, 1, 9, "void f();")))));
 }
 
-TEST_F(ClangQueryGatherer, CanCreateSourceRangesAndDiagnosticsIfItHasSources)
+TEST_F(ClangQueryGatherer, CanCreateSourceRangesIfItHasSources)
 {
-    ASSERT_TRUE(gatherer.canCreateSourceRangesAndDiagnostics());
+    ASSERT_TRUE(gatherer.canCreateSourceRanges());
 }
 
-TEST_F(ClangQueryGatherer, CanNotCreateSourceRangesAndDiagnosticsIfItHasNoSources)
+TEST_F(ClangQueryGatherer, CanNotCreateSourceRangesIfItHasNoSources)
 {
     ClangBackEnd::ClangQueryGatherer empthyGatherer{&filePathCache, {}, {unsaved.clone()}, query.clone()};
 
-    ASSERT_FALSE(empthyGatherer.canCreateSourceRangesAndDiagnostics());
+    ASSERT_FALSE(empthyGatherer.canCreateSourceRanges());
 }
 
-TEST_F(ClangQueryGatherer, CreateSourceRangesAndDiagnosticsForNextSource)
+TEST_F(ClangQueryGatherer, CreateSourceRangesForNextSource)
 {
-    auto sourceRangesAndDiagnostics = gatherer.createNextSourceRangesAndDiagnostics();
+    auto sourceRangesAndDiagnostics = gatherer.createNextSourceRanges();
 
     ASSERT_THAT(sourceRangesAndDiagnostics,
-                Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                Property(&SourceRangesForQueryMessage::sourceRanges,
                          Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                   Contains(IsSourceRangeWithText(1, 1, 1, 9, "void f();")))));
 }
 
-TEST_F(ClangQueryGatherer, CreateSourceRangesAndDiagnosticsForNextSourcePopsSource)
+TEST_F(ClangQueryGatherer, CreateSourceRangesForNextSourcePopsSource)
 {
-    manyGatherer.createNextSourceRangesAndDiagnostics();
+    manyGatherer.createNextSourceRanges();
 
     ASSERT_THAT(manyGatherer.sources(), SizeIs(2));
 }
 
-TEST_F(ClangQueryGatherer, StartCreateSourceRangesAndDiagnosticsForNextSource)
+TEST_F(ClangQueryGatherer, StartCreateSourceRangesForNextSource)
 {
-    auto future = gatherer.startCreateNextSourceRangesAndDiagnosticsMessage();
+    auto future = gatherer.startCreateNextSourceRangesMessage();
     future.wait();
 
     ASSERT_THAT(future.get(),
-                Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                Property(&SourceRangesForQueryMessage::sourceRanges,
                          Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                   Contains(IsSourceRangeWithText(1, 1, 1, 9, "void f();")))));
 }
 
-TEST_F(ClangQueryGatherer, StartCreateSourceRangesAndDiagnosticsForNextSourcePopsSource)
+TEST_F(ClangQueryGatherer, StartCreateSourceRangesForNextSourcePopsSource)
 {
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessage();
+    manyGatherer.startCreateNextSourceRangesMessage();
 
     ASSERT_THAT(manyGatherer.sources(), SizeIs(2));
 }
 
-TEST_F(ClangQueryGatherer, AfterStartCreateSourceRangesAndDiagnosticsMessagesFutureCountIsTwos)
+TEST_F(ClangQueryGatherer, AfterStartCreateSourceRangesMessagesFutureCountIsTwos)
 {
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
 
     ASSERT_THAT(manyGatherer.sourceFutures(), SizeIs(2));
 }
 
-TEST_F(ClangQueryGatherer, AfterRestartCreateSourceRangesAndDiagnosticsMessagesFutureCountIsTwos)
+TEST_F(ClangQueryGatherer, AfterRestartCreateSourceRangesMessagesFutureCountIsTwos)
 {
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
 
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
 
     ASSERT_THAT(manyGatherer.sourceFutures(), SizeIs(2));
 }
 
-TEST_F(ClangQueryGatherer, AfterStartCreateSourceRangesAndDiagnosticsMessagesGetCollected)
+TEST_F(ClangQueryGatherer, AfterStartCreateSourceRangesMessagesGetCollected)
 {
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
 
     ASSERT_THAT(manyGatherer.allCurrentProcessedMessages(),
                 UnorderedElementsAre(
-                    Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                    Property(&SourceRangesForQueryMessage::sourceRanges,
                              Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                       UnorderedElementsAre(IsSourceRangeWithText(1, 1, 1, 9, "void f();"),
                                                            IsSourceRangeWithText(2, 1, 2, 12, "void f() {}")))),
-                    Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                    Property(&SourceRangesForQueryMessage::sourceRanges,
                              Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                       UnorderedElementsAre(
                                           IsSourceRangeWithText(1, 1, 1, 13, "int header();"),
@@ -200,7 +200,7 @@ TEST_F(ClangQueryGatherer, AfterStartCreateSourceRangesAndDiagnosticsMessagesGet
 
 TEST_F(ClangQueryGatherer, GetFinishedMessages)
 {
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
     manyGatherer.waitForFinished();
 
     auto messages = manyGatherer.finishedMessages();
@@ -208,12 +208,12 @@ TEST_F(ClangQueryGatherer, GetFinishedMessages)
     ASSERT_THAT(messages,
                 AllOf(SizeIs(2),
                       UnorderedElementsAre(
-                          Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                          Property(&SourceRangesForQueryMessage::sourceRanges,
                                    Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                             UnorderedElementsAre(
                                                 IsSourceRangeWithText(1, 1, 1, 9, "void f();"),
                                                 IsSourceRangeWithText(2, 1, 2, 12, "void f() {}")))),
-                          Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                          Property(&SourceRangesForQueryMessage::sourceRanges,
                                    Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                             UnorderedElementsAre(
                                                 IsSourceRangeWithText(1, 1, 1, 13, "int header();"),
@@ -222,10 +222,10 @@ TEST_F(ClangQueryGatherer, GetFinishedMessages)
 
 TEST_F(ClangQueryGatherer, GetFinishedMessagesAfterSecondPass)
 {
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
     manyGatherer.waitForFinished();
     manyGatherer.finishedMessages();
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
     manyGatherer.waitForFinished();
 
     auto messages = manyGatherer.finishedMessages();
@@ -233,7 +233,7 @@ TEST_F(ClangQueryGatherer, GetFinishedMessagesAfterSecondPass)
     ASSERT_THAT(messages,
                 AllOf(SizeIs(1),
                       ElementsAre(
-                          Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                          Property(&SourceRangesForQueryMessage::sourceRanges,
                                    Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                             UnorderedElementsAre(
                                                 IsSourceRangeWithText(3, 1, 3, 15, "int function();")))))));
@@ -242,7 +242,7 @@ TEST_F(ClangQueryGatherer, GetFinishedMessagesAfterSecondPass)
 TEST_F(ClangQueryGatherer, FilterDuplicates)
 {
     manyGatherer.setProcessingSlotCount(3);
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
     manyGatherer.waitForFinished();
 
     auto messages = manyGatherer.finishedMessages();
@@ -250,17 +250,17 @@ TEST_F(ClangQueryGatherer, FilterDuplicates)
     ASSERT_THAT(messages,
                 AllOf(SizeIs(3),
                       UnorderedElementsAre(
-                          Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                          Property(&SourceRangesForQueryMessage::sourceRanges,
                                    Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                             UnorderedElementsAre(
                                                 IsSourceRangeWithText(1, 1, 1, 9, "void f();"),
                                                 IsSourceRangeWithText(2, 1, 2, 12, "void f() {}")))),
-                          Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                          Property(&SourceRangesForQueryMessage::sourceRanges,
                                    Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                             UnorderedElementsAre(
                                                 IsSourceRangeWithText(1, 1, 1, 13, "int header();"),
                                                 IsSourceRangeWithText(3, 1, 3, 15, "int function();")))),
-                          Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                          Property(&SourceRangesForQueryMessage::sourceRanges,
                                    Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                             UnorderedElementsAre(
                                                 IsSourceRangeWithText(3, 1, 3, 15, "int function();")))))));
@@ -268,7 +268,7 @@ TEST_F(ClangQueryGatherer, FilterDuplicates)
 
 TEST_F(ClangQueryGatherer, AfterGetFinishedMessagesFuturesAreReduced)
 {
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
     manyGatherer.waitForFinished();
 
     manyGatherer.finishedMessages();
@@ -278,21 +278,21 @@ TEST_F(ClangQueryGatherer, AfterGetFinishedMessagesFuturesAreReduced)
 
 TEST_F(ClangQueryGatherer, SourceFutureIsOneInTheSecondRun)
 {
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
     manyGatherer.waitForFinished();
     manyGatherer.finishedMessages();
 
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
 
     ASSERT_THAT(manyGatherer.sourceFutures(), SizeIs(1));
 }
 
 TEST_F(ClangQueryGatherer, GetOneMessageInTheSecondRun)
 {
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
     manyGatherer.waitForFinished();
     manyGatherer.finishedMessages();
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
     manyGatherer.waitForFinished();
 
     auto messages = manyGatherer.finishedMessages();
@@ -302,7 +302,7 @@ TEST_F(ClangQueryGatherer, GetOneMessageInTheSecondRun)
 
 TEST_F(ClangQueryGatherer, IsNotFinishedIfSourcesExists)
 {
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
     manyGatherer.waitForFinished();
     manyGatherer.finishedMessages();
 
@@ -313,10 +313,10 @@ TEST_F(ClangQueryGatherer, IsNotFinishedIfSourcesExists)
 
 TEST_F(ClangQueryGatherer, IsNotFinishedIfSourceFuturesExists)
 {
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
     manyGatherer.waitForFinished();
     manyGatherer.finishedMessages();
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
 
     bool isFinished = manyGatherer.isFinished();
 
@@ -325,10 +325,10 @@ TEST_F(ClangQueryGatherer, IsNotFinishedIfSourceFuturesExists)
 
 TEST_F(ClangQueryGatherer, IsFinishedIfNoSourceAndSourceFuturesExists)
 {
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
     manyGatherer.waitForFinished();
     manyGatherer.finishedMessages();
-    manyGatherer.startCreateNextSourceRangesAndDiagnosticsMessages();
+    manyGatherer.startCreateNextSourceRangesMessages();
     manyGatherer.waitForFinished();
     manyGatherer.finishedMessages();
 

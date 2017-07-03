@@ -30,16 +30,16 @@
 #include "sourcerangecontainer-matcher.h"
 
 #include <refactoringserver.h>
-#include <requestsourcelocationforrenamingmessage.h>
-#include <requestsourcerangesanddiagnosticsforquerymessage.h>
-#include <sourcelocationsforrenamingmessage.h>
-#include <sourcerangesanddiagnosticsforquerymessage.h>
-#include <sourcelocationscontainer.h>
+#include <clangrefactoringmessages.h>
+
+#include <QDir>
+#include <QTemporaryFile>
 
 namespace {
 
 using testing::AllOf;
 using testing::Contains;
+using testing::IsEmpty;
 using testing::NiceMock;
 using testing::Not;
 using testing::Pair;
@@ -50,9 +50,11 @@ using testing::_;
 using ClangBackEnd::FilePath;
 using ClangBackEnd::RequestSourceLocationsForRenamingMessage;
 using ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage;
+using ClangBackEnd::RequestSourceRangesForQueryMessage;
 using ClangBackEnd::SourceLocationsContainer;
 using ClangBackEnd::SourceLocationsForRenamingMessage;
 using ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage;
+using ClangBackEnd::SourceRangesForQueryMessage;
 using ClangBackEnd::SourceRangesContainer;
 using ClangBackEnd::V2::FileContainer;
 
@@ -80,6 +82,7 @@ protected:
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
                          sourceContent.clone(),
                          {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp")}};
+    QTemporaryFile temporaryFile{QDir::tempPath() + "/clangQuery-XXXXXX.cpp"};
     int processingSlotCount = 2;
 };
 
@@ -88,12 +91,12 @@ using RefactoringServerVerySlowTest = RefactoringServer;
 
 TEST_F(RefactoringServerSlowTest, RequestSourceLocationsForRenamingMessage)
 {
-    RequestSourceLocationsForRenamingMessage requestSourceLocationsForRenamingMessage{{TESTDATA_DIR, "renamevariable.cpp"},
-                                                                                      1,
-                                                                                      5,
-                                                                                      "int v;\n\nint x = v + 3;\n",
-                                                                                      {"cc", "renamevariable.cpp"},
-                                                                                      1};
+    RequestSourceLocationsForRenamingMessage message{{TESTDATA_DIR, "renamevariable.cpp"},
+                                                     1,
+                                                     5,
+                                                     "int v;\n\nint x = v + 3;\n",
+                                                     {"cc", "renamevariable.cpp"},
+                                                     1};
 
     EXPECT_CALL(mockRefactoringClient,
                 sourceLocationsForRenamingMessage(
@@ -106,22 +109,22 @@ TEST_F(RefactoringServerSlowTest, RequestSourceLocationsForRenamingMessage)
                                          Property(&SourceLocationsContainer::filePaths,
                                                   Contains(Pair(_, FilePath(TESTDATA_DIR, "renamevariable.cpp")))))))));
 
-    refactoringServer.requestSourceLocationsForRenamingMessage(std::move(requestSourceLocationsForRenamingMessage));
+    refactoringServer.requestSourceLocationsForRenamingMessage(std::move(message));
 }
 
-TEST_F(RefactoringServerSlowTest, RequestSingleSourceRangesAndDiagnosticsForQueryMessage)
+TEST_F(RefactoringServerSlowTest, RequestSingleSourceRangesForQueryMessage)
 {
-    RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
-                                                                                                      {source.clone()},
-                                                                                                      {}};
+    RequestSourceRangesForQueryMessage message{"functionDecl()",
+                                               {source.clone()},
+                                               {}};
 
     EXPECT_CALL(mockRefactoringClient,
-                sourceRangesAndDiagnosticsForQueryMessage(
-                    Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                sourceRangesForQueryMessage(
+                    Property(&SourceRangesForQueryMessage::sourceRanges,
                              Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                       Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent))))));
 
-    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
+    refactoringServer.requestSourceRangesForQueryMessage(std::move(message));
 }
 
 TEST_F(RefactoringServerSlowTest, RequestSingleSourceRangesAndDiagnosticsWithUnsavedContentForQueryMessage)
@@ -133,62 +136,62 @@ TEST_F(RefactoringServerSlowTest, RequestSingleSourceRangesAndDiagnosticsWithUns
     FileContainer unsaved{{TESTDATA_DIR, "query_simplefunction.h"},
                           unsavedContent.clone(),
                           {}};
-    RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
-                                                                                                      {source.clone()},
-                                                                                                      {unsaved.clone()}};
+    RequestSourceRangesForQueryMessage message{"functionDecl()",
+                                               {source.clone()},
+                                               {unsaved.clone()}};
 
     EXPECT_CALL(mockRefactoringClient,
-                sourceRangesAndDiagnosticsForQueryMessage(
-                    Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                sourceRangesForQueryMessage(
+                    Property(&SourceRangesForQueryMessage::sourceRanges,
                              Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                       Contains(IsSourceRangeWithText(1, 1, 1, 9, unsavedContent))))));
 
-    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
+    refactoringServer.requestSourceRangesForQueryMessage(std::move(message));
 }
 
-TEST_F(RefactoringServerSlowTest, RequestTwoSourceRangesAndDiagnosticsForQueryMessage)
+TEST_F(RefactoringServerSlowTest, RequestTwoSourceRangesForQueryMessage)
 {
-    RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
-                                                                                                      {source.clone(), source.clone()},
-                                                                                                      {}};
+    RequestSourceRangesForQueryMessage message{"functionDecl()",
+                                               {source.clone(), source.clone()},
+                                               {}};
 
     EXPECT_CALL(mockRefactoringClient,
-                sourceRangesAndDiagnosticsForQueryMessage(
-                    Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                sourceRangesForQueryMessage(
+                    Property(&SourceRangesForQueryMessage::sourceRanges,
                              Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                       Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent))))));
     EXPECT_CALL(mockRefactoringClient,
-                sourceRangesAndDiagnosticsForQueryMessage(
-                    Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                sourceRangesForQueryMessage(
+                    Property(&SourceRangesForQueryMessage::sourceRanges,
                              Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                       Not(Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent)))))));
 
-    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
+    refactoringServer.requestSourceRangesForQueryMessage(std::move(message));
 }
 
-TEST_F(RefactoringServerVerySlowTest, RequestManySourceRangesAndDiagnosticsForQueryMessage)
+TEST_F(RefactoringServerVerySlowTest, RequestManySourceRangesForQueryMessage)
 {
     std::vector<FileContainer> sources;
     std::fill_n(std::back_inserter(sources),
                 processingSlotCount + 3,
                 source.clone());
-    RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
-                                                                                                      std::move(sources),
-                                                                                                      {}};
+    RequestSourceRangesForQueryMessage message{"functionDecl()",
+                                               std::move(sources),
+                                               {}};
 
     EXPECT_CALL(mockRefactoringClient,
-                sourceRangesAndDiagnosticsForQueryMessage(
-                    Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                sourceRangesForQueryMessage(
+                    Property(&SourceRangesForQueryMessage::sourceRanges,
                              Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                       Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent))))));
     EXPECT_CALL(mockRefactoringClient,
-                sourceRangesAndDiagnosticsForQueryMessage(
-                    Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                sourceRangesForQueryMessage(
+                    Property(&SourceRangesForQueryMessage::sourceRanges,
                              Property(&SourceRangesContainer::sourceRangeWithTextContainers,
                                       Not(Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent)))))))
             .Times(processingSlotCount + 2);
 
-    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
+    refactoringServer.requestSourceRangesForQueryMessage(std::move(message));
 }
 
 TEST_F(RefactoringServer, CancelJobs)
@@ -197,10 +200,10 @@ TEST_F(RefactoringServer, CancelJobs)
     std::fill_n(std::back_inserter(sources),
                 std::thread::hardware_concurrency() + 3,
                 source.clone());
-    RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
-                                                                                                      std::move(sources),
-                                                                                                      {}};
-    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
+    RequestSourceRangesForQueryMessage message{"functionDecl()",
+                                               std::move(sources),
+                                               {}};
+    refactoringServer.requestSourceRangesForQueryMessage(std::move(message));
 
     refactoringServer.cancel();
 
@@ -209,48 +212,87 @@ TEST_F(RefactoringServer, CancelJobs)
 
 TEST_F(RefactoringServer, PollTimerIsActiveAfterStart)
 {
-    RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
-                                                                                                      {source},
-                                                                                                      {}};
+    RequestSourceRangesForQueryMessage message{"functionDecl()",
+                                               {source},
+                                               {}};
 
-    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
+    refactoringServer.requestSourceRangesForQueryMessage(std::move(message));
 
     ASSERT_TRUE(refactoringServer.pollTimerIsActive());
 }
 
 TEST_F(RefactoringServer, PollTimerIsNotActiveAfterFinishing)
 {
-    RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
-                                                                                                      {source},
-                                                                                                      {}};
-    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
+    RequestSourceRangesForQueryMessage message{"functionDecl()",
+                                               {source},
+                                               {}};
+    refactoringServer.requestSourceRangesForQueryMessage(std::move(message));
 
-    refactoringServer.waitThatSourceRangesAndDiagnosticsForQueryMessagesAreFinished();
+    refactoringServer.waitThatSourceRangesForQueryMessagesAreFinished();
 
     ASSERT_FALSE(refactoringServer.pollTimerIsActive());
 }
 
 TEST_F(RefactoringServer, PollTimerNotIsActiveAfterCanceling)
 {
-    RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
-                                                                                                      {source},
-                                                                                                      {}};
-    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
+    RequestSourceRangesForQueryMessage message{"functionDecl()",
+                                               {source},
+                                               {}};
+    refactoringServer.requestSourceRangesForQueryMessage(std::move(message));
 
     refactoringServer.cancel();
 
     ASSERT_FALSE(refactoringServer.pollTimerIsActive());
 }
 
+TEST_F(RefactoringServerSlowTest, ForValidRequestSourceRangesAndDiagnosticsGetSourceRange)
+{
+    RequestSourceRangesAndDiagnosticsForQueryMessage message("functionDecl()",
+                                                             {FilePath(temporaryFile.fileName()),
+                                                              "void f() {}",
+                                                              {"cc", toNativePath(temporaryFile.fileName())}});
+
+    EXPECT_CALL(mockRefactoringClient,
+                sourceRangesAndDiagnosticsForQueryMessage(
+                    AllOf(
+                        Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                                 Property(&SourceRangesContainer::sourceRangeWithTextContainers,
+                                          Contains(IsSourceRangeWithText(1, 1, 1, 12, "void f() {}")))),
+                        Property(&SourceRangesAndDiagnosticsForQueryMessage::diagnostics,
+                                 IsEmpty()))));
+
+    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(message));
+}
+
+TEST_F(RefactoringServerSlowTest, ForInvalidRequestSourceRangesAndDiagnosticsGetDiagnostics)
+{
+    RequestSourceRangesAndDiagnosticsForQueryMessage message("func()",
+                                                             {FilePath(temporaryFile.fileName()),
+                                                              "void f() {}",
+                                                              {"cc", toNativePath(temporaryFile.fileName())}});
+
+    EXPECT_CALL(mockRefactoringClient,
+                sourceRangesAndDiagnosticsForQueryMessage(
+                    AllOf(
+                        Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                                 Property(&SourceRangesContainer::sourceRangeWithTextContainers,
+                                          IsEmpty())),
+                        Property(&SourceRangesAndDiagnosticsForQueryMessage::diagnostics,
+                                 Not(IsEmpty())))));
+
+    refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(message));
+}
+
 void RefactoringServer::SetUp()
 {
+    temporaryFile.open();
     refactoringServer.setClient(&mockRefactoringClient);
 }
 
 void RefactoringServer::TearDown()
 {
     refactoringServer.setGathererProcessingSlotCount(uint(processingSlotCount));
-    refactoringServer.waitThatSourceRangesAndDiagnosticsForQueryMessagesAreFinished();
+    refactoringServer.waitThatSourceRangesForQueryMessagesAreFinished();
 }
 
 }
