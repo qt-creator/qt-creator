@@ -395,6 +395,8 @@ FileSaverBase::FileSaverBase()
 {
 }
 
+FileSaverBase::~FileSaverBase() = default;
+
 bool FileSaverBase::finalize()
 {
     m_file->close();

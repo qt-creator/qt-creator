@@ -175,7 +175,7 @@ class QTCREATOR_UTILS_EXPORT FileSaverBase
     Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     FileSaverBase();
-    virtual ~FileSaverBase() = default;
+    virtual ~FileSaverBase();
 
     QString fileName() const { return m_fileName; }
     bool hasError() const { return m_hasError; }
