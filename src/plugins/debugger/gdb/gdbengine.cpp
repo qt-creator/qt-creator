@@ -475,7 +475,7 @@ void GdbEngine::handleResponse(const QString &buff)
 
         case '@': {
             QString data = GdbMi::parseCString(from, to);
-            QString msg = data.mid(2, data.size() - 4);
+            QString msg = data.left(data.size() - 1);
             showMessage(msg, AppOutput);
             break;
         }
