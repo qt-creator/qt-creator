@@ -1,0 +1,417 @@
+diff --git a/tools/clang/include/clang/Lex/Preprocessor.h b/tools/clang/include/clang/Lex/Preprocessor.h
+index 30cc37f6f8..3d1d9a86e0 100644
+--- a/tools/clang/include/clang/Lex/Preprocessor.h
++++ b/tools/clang/include/clang/Lex/Preprocessor.h
+@@ -277,6 +277,44 @@ class Preprocessor : public RefCountedBase<Preprocessor> {
+   /// This is used when loading a precompiled preamble.
+   std::pair<int, bool> SkipMainFilePreamble;
+ 
++  class PreambleConditionalStackStore {
++    enum State {
++      Off = 0,
++      Recording = 1,
++      Replaying = 2,
++    };
++
++  public:
++    PreambleConditionalStackStore() : ConditionalStackState(Off) {}
++
++    void startRecording() { ConditionalStackState = Recording; }
++    void startReplaying() { ConditionalStackState = Replaying; }
++    bool isRecording() const { return ConditionalStackState == Recording; }
++    bool isReplaying() const { return ConditionalStackState == Replaying; }
++
++    ArrayRef<PPConditionalInfo> getStack() const {
++      return ConditionalStack;
++    }
++
++    void doneReplaying() {
++      ConditionalStack.clear();
++      ConditionalStackState = Off;
++    }
++
++    void setStack(ArrayRef<PPConditionalInfo> s) {
++      if (!isRecording() && !isReplaying())
++        return;
++      ConditionalStack.clear();
++      ConditionalStack.append(s.begin(), s.end());
++    }
++
++    bool hasRecordedPreamble() const { return !ConditionalStack.empty(); }
++
++  private:
++    SmallVector<PPConditionalInfo, 4> ConditionalStack;
++    State ConditionalStackState;
++  } PreambleConditionalStack;
++
+   /// \brief The current top of the stack that we're lexing from if
+   /// not expanding a macro and we are lexing directly from source code.
+   ///
+@@ -1662,6 +1700,11 @@ public:
+   /// \brief Return true if we're in the top-level file, not in a \#include.
+   bool isInPrimaryFile() const;
+ 
++  /// \brief Return true if we're in the main file (specifically, if we are 0
++  /// (zero) levels deep \#include. This is used by the lexer to determine if
++  /// it needs to generate errors about unterminated \#if directives.
++  bool isInMainFile() const;
++
+   /// \brief Handle cases where the \#include name is expanded
+   /// from a macro as multiple tokens, which need to be glued together. 
+   ///
+@@ -1904,6 +1947,27 @@ public:
+   const FileEntry *getModuleHeaderToIncludeForDiagnostics(SourceLocation IncLoc,
+                                                           SourceLocation MLoc);
+ 
++  bool isRecordingPreamble() const {
++    return PreambleConditionalStack.isRecording();
++  }
++
++  bool hasRecordedPreamble() const {
++    return PreambleConditionalStack.hasRecordedPreamble();
++  }
++
++  ArrayRef<PPConditionalInfo> getPreambleConditionalStack() const {
++      return PreambleConditionalStack.getStack();
++  }
++
++  void setRecordedPreambleConditionalStack(ArrayRef<PPConditionalInfo> s) {
++    PreambleConditionalStack.setStack(s);
++  }
++
++  void setReplayablePreambleConditionalStack(ArrayRef<PPConditionalInfo> s) {
++    PreambleConditionalStack.startReplaying();
++    PreambleConditionalStack.setStack(s);
++  }
++
+ private:
+   // Macro handling.
+   void HandleDefineDirective(Token &Tok, bool ImmediatelyAfterTopLevelIfndef);
+diff --git a/tools/clang/include/clang/Lex/PreprocessorLexer.h b/tools/clang/include/clang/Lex/PreprocessorLexer.h
+index 6d6cf05a96..5c2e4d4145 100644
+--- a/tools/clang/include/clang/Lex/PreprocessorLexer.h
++++ b/tools/clang/include/clang/Lex/PreprocessorLexer.h
+@@ -17,6 +17,7 @@
+ 
+ #include "clang/Lex/MultipleIncludeOpt.h"
+ #include "clang/Lex/Token.h"
++#include "llvm/ADT/ArrayRef.h"
+ #include "llvm/ADT/SmallVector.h"
+ 
+ namespace clang {
+@@ -176,6 +177,11 @@ public:
+   conditional_iterator conditional_end() const { 
+     return ConditionalStack.end(); 
+   }
++
++  void setConditionalLevels(ArrayRef<PPConditionalInfo> CL) {
++    ConditionalStack.clear();
++    ConditionalStack.append(CL.begin(), CL.end());
++  }
+ };
+ 
+ }  // end namespace clang
+diff --git a/tools/clang/include/clang/Lex/PreprocessorOptions.h b/tools/clang/include/clang/Lex/PreprocessorOptions.h
+index 963d95d7f1..47673aa730 100644
+--- a/tools/clang/include/clang/Lex/PreprocessorOptions.h
++++ b/tools/clang/include/clang/Lex/PreprocessorOptions.h
+@@ -81,7 +81,14 @@ public:
+   /// The boolean indicates whether the preamble ends at the start of a new
+   /// line.
+   std::pair<unsigned, bool> PrecompiledPreambleBytes;
+-  
++
++  /// \brief True indicates that a preamble is being generated.
++  ///
++  /// When the lexer is done, one of the things that need to be preserved is the
++  /// conditional #if stack, so the ASTWriter/ASTReader can save/restore it when
++  /// processing the rest of the file.
++  bool GeneratePreamble;
++
+   /// The implicit PTH input included at the start of the translation unit, or
+   /// empty.
+   std::string ImplicitPTHInclude;
+@@ -145,6 +152,7 @@ public:
+                           AllowPCHWithCompilerErrors(false),
+                           DumpDeserializedPCHDecls(false),
+                           PrecompiledPreambleBytes(0, true),
++                          GeneratePreamble(false),
+                           RemappedFilesKeepOriginalName(true),
+                           RetainRemappedFileBuffers(false),
+                           ObjCXXARCStandardLibrary(ARCXX_nolib) { }
+diff --git a/tools/clang/include/clang/Serialization/ASTBitCodes.h b/tools/clang/include/clang/Serialization/ASTBitCodes.h
+index 79c6a06222..40c63a4ce5 100644
+--- a/tools/clang/include/clang/Serialization/ASTBitCodes.h
++++ b/tools/clang/include/clang/Serialization/ASTBitCodes.h
+@@ -580,7 +580,10 @@ namespace clang {
+       MSSTRUCT_PRAGMA_OPTIONS = 55,
+ 
+       /// \brief Record code for \#pragma ms_struct options.
+-      POINTERS_TO_MEMBERS_PRAGMA_OPTIONS = 56
++      POINTERS_TO_MEMBERS_PRAGMA_OPTIONS = 56,
++
++      /// \brief The stack of open #ifs/#ifdefs recorded in a preamble.
++      PP_CONDITIONAL_STACK = 57,
+     };
+ 
+     /// \brief Record types used within a source manager block.
+diff --git a/tools/clang/lib/Frontend/ASTUnit.cpp b/tools/clang/lib/Frontend/ASTUnit.cpp
+index c1c2680dcd..b446b53fa4 100644
+--- a/tools/clang/lib/Frontend/ASTUnit.cpp
++++ b/tools/clang/lib/Frontend/ASTUnit.cpp
+@@ -1975,6 +1975,7 @@ ASTUnit *ASTUnit::LoadFromCommandLine(
+   PreprocessorOptions &PPOpts = CI->getPreprocessorOpts();
+   PPOpts.RemappedFilesKeepOriginalName = RemappedFilesKeepOriginalName;
+   PPOpts.AllowPCHWithCompilerErrors = AllowPCHWithCompilerErrors;
++  PPOpts.GeneratePreamble = PrecompilePreambleAfterNParses != 0;
+   
+   // Override the resources path.
+   CI->getHeaderSearchOpts().ResourceDir = ResourceFilesPath;
+diff --git a/tools/clang/lib/Lex/Lexer.cpp b/tools/clang/lib/Lex/Lexer.cpp
+index 9c2a0163ac..72f7011d4f 100644
+--- a/tools/clang/lib/Lex/Lexer.cpp
++++ b/tools/clang/lib/Lex/Lexer.cpp
+@@ -528,8 +528,6 @@ SourceLocation Lexer::GetBeginningOfToken(SourceLocation Loc,
+ namespace {
+   enum PreambleDirectiveKind {
+     PDK_Skipped,
+-    PDK_StartIf,
+-    PDK_EndIf,
+     PDK_Unknown
+   };
+ }
+@@ -551,8 +549,6 @@ std::pair<unsigned, bool> Lexer::ComputePreamble(StringRef Buffer,
+ 
+   bool InPreprocessorDirective = false;
+   Token TheTok;
+-  Token IfStartTok;
+-  unsigned IfCount = 0;
+   SourceLocation ActiveCommentLoc;
+ 
+   unsigned MaxLineOffset = 0;
+@@ -635,33 +631,18 @@ std::pair<unsigned, bool> Lexer::ComputePreamble(StringRef Buffer,
+               .Case("sccs", PDK_Skipped)
+               .Case("assert", PDK_Skipped)
+               .Case("unassert", PDK_Skipped)
+-              .Case("if", PDK_StartIf)
+-              .Case("ifdef", PDK_StartIf)
+-              .Case("ifndef", PDK_StartIf)
++              .Case("if", PDK_Skipped)
++              .Case("ifdef", PDK_Skipped)
++              .Case("ifndef", PDK_Skipped)
+               .Case("elif", PDK_Skipped)
+               .Case("else", PDK_Skipped)
+-              .Case("endif", PDK_EndIf)
++              .Case("endif", PDK_Skipped)
+               .Default(PDK_Unknown);
+ 
+         switch (PDK) {
+         case PDK_Skipped:
+           continue;
+ 
+-        case PDK_StartIf:
+-          if (IfCount == 0)
+-            IfStartTok = HashTok;
+-            
+-          ++IfCount;
+-          continue;
+-            
+-        case PDK_EndIf:
+-          // Mismatched #endif. The preamble ends here.
+-          if (IfCount == 0)
+-            break;
+-
+-          --IfCount;
+-          continue;
+-            
+         case PDK_Unknown:
+           // We don't know what this directive is; stop at the '#'.
+           break;
+@@ -682,16 +663,13 @@ std::pair<unsigned, bool> Lexer::ComputePreamble(StringRef Buffer,
+   } while (true);
+   
+   SourceLocation End;
+-  if (IfCount)
+-    End = IfStartTok.getLocation();
+-  else if (ActiveCommentLoc.isValid())
++  if (ActiveCommentLoc.isValid())
+     End = ActiveCommentLoc; // don't truncate a decl comment.
+   else
+     End = TheTok.getLocation();
+ 
+   return std::make_pair(End.getRawEncoding() - StartLoc.getRawEncoding(),
+-                        IfCount? IfStartTok.isAtStartOfLine()
+-                               : TheTok.isAtStartOfLine());
++                        TheTok.isAtStartOfLine());
+ }
+ 
+ 
+@@ -2528,6 +2506,11 @@ bool Lexer::LexEndOfFile(Token &Result, const char *CurPtr) {
+     return true;
+   }
+   
++  if (PP->isRecordingPreamble() && !PP->isInMainFile()) {
++    PP->setRecordedPreambleConditionalStack(ConditionalStack);
++    ConditionalStack.clear();
++  }
++
+   // Issue diagnostics for unterminated #if and missing newline.
+ 
+   // If we are in a #if directive, emit an error.
+diff --git a/tools/clang/lib/Lex/PPLexerChange.cpp b/tools/clang/lib/Lex/PPLexerChange.cpp
+index e2eceafd98..849a703671 100644
+--- a/tools/clang/lib/Lex/PPLexerChange.cpp
++++ b/tools/clang/lib/Lex/PPLexerChange.cpp
+@@ -46,6 +46,12 @@ bool Preprocessor::isInPrimaryFile() const {
+   return true;
+ }
+ 
++bool Preprocessor::isInMainFile() const {
++  if (IsFileLexer())
++    return IncludeMacroStack.size() == 0;
++  return true;
++}
++
+ /// getCurrentLexer - Return the current file lexer being lexed from.  Note
+ /// that this ignores any potentially active macro expansions and _Pragma
+ /// expansions going on at the time.
+diff --git a/tools/clang/lib/Lex/Preprocessor.cpp b/tools/clang/lib/Lex/Preprocessor.cpp
+index 78179dd798..1da60961a8 100644
+--- a/tools/clang/lib/Lex/Preprocessor.cpp
++++ b/tools/clang/lib/Lex/Preprocessor.cpp
+@@ -140,6 +140,9 @@ Preprocessor::Preprocessor(IntrusiveRefCntPtr<PreprocessorOptions> PPOpts,
+     Ident_GetExceptionInfo = Ident_GetExceptionCode = nullptr;
+     Ident_AbnormalTermination = nullptr;
+   }
++
++  if (this->PPOpts->GeneratePreamble)
++    PreambleConditionalStack.startRecording();
+ }
+ 
+ Preprocessor::~Preprocessor() {
+@@ -528,6 +531,12 @@ void Preprocessor::EnterMainSourceFile() {
+ 
+   // Start parsing the predefines.
+   EnterSourceFile(FID, nullptr, SourceLocation());
++
++  // Restore the conditional stack from the preamble, if there is one.
++  if (PreambleConditionalStack.isReplaying()) {
++    CurPPLexer->setConditionalLevels(PreambleConditionalStack.getStack());
++    PreambleConditionalStack.doneReplaying();
++  }
+ }
+ 
+ void Preprocessor::EndSourceFile() {
+diff --git a/tools/clang/lib/Serialization/ASTReader.cpp b/tools/clang/lib/Serialization/ASTReader.cpp
+index 9d1554a826..861e867341 100644
+--- a/tools/clang/lib/Serialization/ASTReader.cpp
++++ b/tools/clang/lib/Serialization/ASTReader.cpp
+@@ -2799,6 +2799,21 @@ ASTReader::ReadASTBlock(ModuleFile &F, unsigned ClientLoadCapabilities) {
+       }
+       break;
+ 
++    case PP_CONDITIONAL_STACK:
++      if (!Record.empty()) {
++        SmallVector<PPConditionalInfo, 4> ConditionalStack;
++        for (unsigned Idx = 0, N = Record.size() - 1; Idx < N; /* in loop */) {
++          auto Loc = ReadSourceLocation(F, Record, Idx);
++          bool WasSkipping = Record[Idx++];
++          bool FoundNonSkip = Record[Idx++];
++          bool FoundElse = Record[Idx++];
++          ConditionalStack.push_back(
++              {Loc, WasSkipping, FoundNonSkip, FoundElse});
++        }
++        PP.setReplayablePreambleConditionalStack(ConditionalStack);
++      }
++      break;
++
+     case PP_COUNTER_VALUE:
+       if (!Record.empty() && Listener)
+         Listener->ReadCounter(F, Record[0]);
+diff --git a/tools/clang/lib/Serialization/ASTWriter.cpp b/tools/clang/lib/Serialization/ASTWriter.cpp
+index 7589b0c5dd..dc9bb92dea 100644
+--- a/tools/clang/lib/Serialization/ASTWriter.cpp
++++ b/tools/clang/lib/Serialization/ASTWriter.cpp
+@@ -983,6 +983,8 @@ void ASTWriter::WriteBlockInfoBlock() {
+   RECORD(POINTERS_TO_MEMBERS_PRAGMA_OPTIONS);
+   RECORD(UNUSED_LOCAL_TYPEDEF_NAME_CANDIDATES);
+   RECORD(DELETE_EXPRS_TO_ANALYZE);
++  RECORD(PP_CONDITIONAL_STACK);
++
+ 
+   // SourceManager Block.
+   BLOCK(SOURCE_MANAGER_BLOCK);
+@@ -2140,6 +2142,18 @@ void ASTWriter::WritePreprocessor(const Preprocessor &PP, bool IsModule) {
+     Stream.EmitRecord(PP_COUNTER_VALUE, Record);
+   }
+ 
++  if (PP.isRecordingPreamble() && PP.hasRecordedPreamble()) {
++    assert(!IsModule);
++    for (const auto &Cond : PP.getPreambleConditionalStack()) {
++      AddSourceLocation(Cond.IfLoc, Record);
++      Record.push_back(Cond.WasSkipping);
++      Record.push_back(Cond.FoundNonSkip);
++      Record.push_back(Cond.FoundElse);
++    }
++    Stream.EmitRecord(PP_CONDITIONAL_STACK, Record);
++    Record.clear();
++  }
++
+   // Enter the preprocessor block.
+   Stream.EnterSubblock(PREPROCESSOR_BLOCK_ID, 3);
+ 
+diff --git a/tools/clang/test/Lexer/preamble.c b/tools/clang/test/Lexer/preamble.c
+index 5b2739abef..762271f2e3 100644
+--- a/tools/clang/test/Lexer/preamble.c
++++ b/tools/clang/test/Lexer/preamble.c
+@@ -9,15 +9,12 @@
+ #pragma unknown
+ #endif
+ #ifdef WIBBLE
+-#include "honk"
+-#else
+-int foo();
++#include "foo"
++int bar;
+ #endif
+ 
+ // This test checks for detection of the preamble of a file, which
+-// includes all of the starting comments and #includes. Note that any
+-// changes to the preamble part of this file must be mirrored in
+-// Inputs/preamble.txt, since we diff against it.
++// includes all of the starting comments and #includes.
+ 
+ // RUN: %clang_cc1 -print-preamble %s > %t
+ // RUN: echo END. >> %t
+@@ -33,4 +30,6 @@ int foo();
+ // CHECK-NEXT: #endif
+ // CHECK-NEXT: #pragma unknown
+ // CHECK-NEXT: #endif
++// CHECK-NEXT: #ifdef WIBBLE
++// CHECK-NEXT: #include "foo"
+ // CHECK-NEXT: END.
+diff --git a/tools/clang/test/Lexer/preamble2.c b/tools/clang/test/Lexer/preamble2.c
+new file mode 100644
+index 0000000000..499a9a22a5
+--- /dev/null
++++ b/tools/clang/test/Lexer/preamble2.c
+@@ -0,0 +1,19 @@
++// Preamble detection test: header with an include guard.
++#ifndef HEADER_H
++#define HEADER_H
++#include "foo"
++int bar;
++#endif
++
++// This test checks for detection of the preamble of a file, which
++// includes all of the starting comments and #includes.
++
++// RUN: %clang_cc1 -print-preamble %s > %t
++// RUN: echo END. >> %t
++// RUN: FileCheck < %t %s
++
++// CHECK: // Preamble detection test: header with an include guard.
++// CHECK-NEXT: #ifndef HEADER_H
++// CHECK-NEXT: #define HEADER_H
++// CHECK-NEXT: #include "foo"
++// CHECK-NEXT: END.
