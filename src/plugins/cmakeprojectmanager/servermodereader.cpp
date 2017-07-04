@@ -56,7 +56,10 @@ const char CONFIGURE_TYPE[] = "configure";
 const char CMAKE_INPUTS_TYPE[] = "cmakeInputs";
 const char COMPUTE_TYPE[] = "compute";
 
+const char BACKTRACE_KEY[] = "backtrace";
+const char LINE_KEY[] = "line";
 const char NAME_KEY[] = "name";
+const char PATH_KEY[] = "path";
 const char SOURCE_DIRECTORY_KEY[] = "sourceDirectory";
 const char SOURCES_KEY[] = "sources";
 
@@ -484,6 +487,8 @@ ServerModeReader::Target *ServerModeReader::extractTargetData(const QVariantMap 
     target->sourceDirectory = FileName::fromString(data.value(SOURCE_DIRECTORY_KEY).toString());
     target->buildDirectory = FileName::fromString(data.value("buildDirectory").toString());
 
+    target->crossReferences = extractCrossReferences(data.value("crossReferences").toMap());
+
     QDir srcDir(target->sourceDirectory.toString());
 
     target->type = data.value("type").toString();
@@ -526,6 +531,72 @@ ServerModeReader::FileGroup *ServerModeReader::extractFileGroupData(const QVaria
 
     m_fileGroups.append(fileGroup);
     return fileGroup;
+}
+
+QList<ServerModeReader::CrossReference *> ServerModeReader::extractCrossReferences(const QVariantMap &data)
+{
+    QList<CrossReference *> crossReferences;
+
+    if (data.isEmpty())
+        return crossReferences;
+
+    auto cr = std::make_unique<CrossReference>();
+    cr->backtrace = extractBacktrace(data.value(BACKTRACE_KEY, QVariantList()).toList());
+    QTC_ASSERT(!cr->backtrace.isEmpty(), return {});
+    crossReferences.append(cr.release());
+
+    const QVariantList related = data.value("relatedStatements", QVariantList()).toList();
+    for (const QVariant &relatedData : related) {
+        auto cr = std::make_unique<CrossReference>();
+
+        // extract information:
+        const QVariantMap map = relatedData.toMap();
+        const QString typeString = map.value("type", QString()).toString();
+        if (typeString.isEmpty())
+            cr->type = CrossReference::TARGET;
+        else if (typeString == "target_link_libraries")
+            cr->type = CrossReference::LIBRARIES;
+        else if (typeString == "target_compile_defines")
+            cr->type = CrossReference::DEFINES;
+        else if (typeString == "target_include_directories")
+            cr->type = CrossReference::INCLUDES;
+        else
+            cr->type = CrossReference::UNKNOWN;
+        cr->backtrace = extractBacktrace(map.value(BACKTRACE_KEY, QVariantList()).toList());
+
+        // sanity check:
+        if (cr->backtrace.isEmpty())
+            continue;
+
+        // store information:
+        crossReferences.append(cr.release());
+    }
+    return crossReferences;
+}
+
+ServerModeReader::BacktraceItem *ServerModeReader::extractBacktraceItem(const QVariantMap &data)
+{
+    QTC_ASSERT(!data.isEmpty(), return nullptr);
+    auto item = std::make_unique<BacktraceItem>();
+
+    item->line = data.value(LINE_KEY, -1).toInt();
+    item->name = data.value(NAME_KEY, QString()).toString();
+    item->path = data.value(PATH_KEY, QString()).toString();
+
+    QTC_ASSERT(!item->path.isEmpty(), return nullptr);
+    return item.release();
+}
+
+QList<ServerModeReader::BacktraceItem *> ServerModeReader::extractBacktrace(const QVariantList &data)
+{
+    QList<BacktraceItem *> btResult;
+    for (const QVariant &bt : data) {
+        BacktraceItem *btItem = extractBacktraceItem(bt.toMap());
+        QTC_ASSERT(btItem, continue);
+
+        btResult.append(btItem);
+    }
+    return btResult;
 }
 
 void ServerModeReader::extractCMakeInputsData(const QVariantMap &data)
@@ -699,6 +770,36 @@ void ServerModeReader::addTargets(const QHash<Utils::FileName, ProjectExplorer::
         CMakeTargetNode *tNode = createTargetNode(cmakeListsNodes, t->sourceDirectory, t->name);
         QTC_ASSERT(tNode, qDebug() << "No target node for" << t->sourceDirectory << t->name; continue);
         tNode->setTargetInformation(t->artifacts, t->type);
+        QList<FolderNode::LocationInfo> info;
+        // Set up a default target path:
+        FileName targetPath = t->sourceDirectory;
+        targetPath.appendPath("CMakeLists.txt");
+        for (CrossReference *cr : Utils::asConst(t->crossReferences)) {
+            BacktraceItem *bt = cr->backtrace.isEmpty() ? nullptr : cr->backtrace.at(0);
+            if (bt) {
+                const QString btName = bt->name.toLower();
+                const FileName path = Utils::FileName::fromUserInput(bt->path);
+                QString dn;
+                if (cr->type != CrossReference::TARGET) {
+                    if (path == targetPath) {
+                        if (bt->line >= 0)
+                            dn = tr("%1 in line %3").arg(btName).arg(bt->line);
+                        else
+                            dn = tr("%1").arg(btName);
+                    } else {
+                        if (bt->line >= 0)
+                            dn = tr("%1 in %2:%3").arg(btName, path.toUserOutput()).arg(bt->line);
+                        else
+                            dn = tr("%1 in %2").arg(btName, path.toUserOutput());
+                    }
+                } else {
+                    dn = tr("Target Definition");
+                    targetPath = path;
+                }
+                info.append(FolderNode::LocationInfo(dn, path, bt->line));
+            }
+        }
+        tNode->setLocationInfo(info);
         addFileGroups(tNode, t->sourceDirectory, t->buildDirectory, t->fileGroups, knownHeaderNodes);
     }
 }
