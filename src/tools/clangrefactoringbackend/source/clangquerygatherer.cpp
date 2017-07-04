@@ -29,10 +29,13 @@
 
 namespace ClangBackEnd {
 
-ClangQueryGatherer::ClangQueryGatherer(std::vector<V2::FileContainer> &&sources,
+ClangQueryGatherer::ClangQueryGatherer(StringCache<Utils::PathString, std::mutex> *filePathCache,
+                                       std::vector<V2::FileContainer> &&sources,
                                        std::vector<V2::FileContainer> &&unsaved,
                                        Utils::SmallString &&query)
-    : m_sources(std::move(sources)),
+    : m_filePathCache(filePathCache),
+      m_sourceRangeFilter(sources.size()),
+      m_sources(std::move(sources)),
       m_unsaved(std::move(unsaved)),
       m_query(std::move(query))
 {
@@ -40,11 +43,12 @@ ClangQueryGatherer::ClangQueryGatherer(std::vector<V2::FileContainer> &&sources,
 
 SourceRangesAndDiagnosticsForQueryMessage
 ClangQueryGatherer::createSourceRangesAndDiagnosticsForSource(
+        StringCache<Utils::PathString, std::mutex> *filePathCache,
         V2::FileContainer &&source,
         const std::vector<V2::FileContainer> &unsaved,
         Utils::SmallString &&query)
 {
-    ClangQuery clangQuery(std::move(query));
+    ClangQuery clangQuery(*filePathCache, std::move(query));
 
     clangQuery.addFile(source.filePath().directory(),
                        source.filePath().name(),
@@ -65,7 +69,8 @@ bool ClangQueryGatherer::canCreateSourceRangesAndDiagnostics() const
 
 SourceRangesAndDiagnosticsForQueryMessage ClangQueryGatherer::createNextSourceRangesAndDiagnostics()
 {
-    auto message = createSourceRangesAndDiagnosticsForSource(std::move(m_sources.back()),
+    auto message = createSourceRangesAndDiagnosticsForSource(m_filePathCache,
+                                                             std::move(m_sources.back()),
                                                              m_unsaved,
                                                              m_query.clone());
     m_sources.pop_back();
@@ -77,6 +82,7 @@ ClangQueryGatherer::Future ClangQueryGatherer::startCreateNextSourceRangesAndDia
 {
     Future future = std::async(std::launch::async,
                                createSourceRangesAndDiagnosticsForSource,
+                               m_filePathCache,
                                std::move(m_sources.back()),
                                m_unsaved,
                                m_query.clone());
@@ -120,7 +126,7 @@ std::vector<SourceRangesAndDiagnosticsForQueryMessage> ClangQueryGatherer::allCu
     std::vector<SourceRangesAndDiagnosticsForQueryMessage> messages;
 
     for (Future &future : m_sourceFutures)
-        messages.push_back(future.get());
+        messages.push_back(m_sourceRangeFilter.removeDuplicates(future.get()));
 
     return messages;
 }
@@ -130,7 +136,7 @@ std::vector<SourceRangesAndDiagnosticsForQueryMessage> ClangQueryGatherer::finis
     std::vector<SourceRangesAndDiagnosticsForQueryMessage> messages;
 
     for (auto &&future : finishedFutures())
-        messages.push_back(future.get());
+        messages.push_back(m_sourceRangeFilter.removeDuplicates(future.get()));
 
     return messages;
 }

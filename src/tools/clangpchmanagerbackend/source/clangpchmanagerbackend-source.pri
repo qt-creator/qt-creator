@@ -19,7 +19,6 @@ HEADERS += \
     $$PWD/environment.h \
     $$PWD/clangpathwatcher.h \
     $$PWD/projectparts.h \
-    $$PWD/stringcache.h \
     $$PWD/idpaths.h \
     $$PWD/pchcreatorinterface.h \
     $$PWD/clangpathwatcherinterface.h \

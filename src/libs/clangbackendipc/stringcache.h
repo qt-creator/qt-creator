@@ -25,16 +25,26 @@
 
 #pragma once
 
-#include "clangpchmanagerbackend_global.h"
-
 #include <utils/smallstringview.h>
 
 #include <algorithm>
+#include <mutex>
 #include <vector>
 
 namespace ClangBackEnd {
 
-template <typename StringType>
+class NonLockingMutex
+{
+public:
+    constexpr NonLockingMutex() noexcept {}
+    NonLockingMutex(const NonLockingMutex&) = delete;
+    NonLockingMutex& operator=(const NonLockingMutex&) = delete;
+    void lock() {}
+    void unlock() {}
+};
+
+template <typename StringType,
+          typename Mutex = NonLockingMutex>
 class StringCache
 {
     class StringCacheEntry
@@ -79,6 +89,8 @@ public:
 
     uint stringId(Utils::SmallStringView stringView)
     {
+        std::lock_guard<Mutex> lock(m_mutex);
+
         Found found = find(stringView);
 
         if (!found.wasFound)
@@ -89,6 +101,8 @@ public:
 
     std::vector<uint> stringIds(const std::vector<StringType> &strings)
     {
+        std::lock_guard<Mutex> lock(m_mutex);
+
         std::vector<uint> ids;
         ids.reserve(strings.size());
 
@@ -102,11 +116,15 @@ public:
 
     const StringType &string(uint id) const
     {
+        std::lock_guard<Mutex> lock(m_mutex);
+
         return m_strings.at(m_indices.at(id)).string;
     }
 
     std::vector<StringType> strings(const std::vector<uint> &ids) const
     {
+        std::lock_guard<Mutex> lock(m_mutex);
+
         std::vector<StringType> strings;
         strings.reserve(ids.size());
 
@@ -155,6 +173,7 @@ private:
 private:
     StringCacheEntries m_strings;
     std::vector<uint> m_indices;
+    mutable Mutex m_mutex;
 };
 
 } // namespace ClangBackEnd

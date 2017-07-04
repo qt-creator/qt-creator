@@ -35,6 +35,7 @@
 #include <QStringList>
 
 #include <functional>
+#include <memory>
 
 namespace Utils {class FileName; }
 
@@ -190,8 +191,10 @@ public:
     bool setResult(QXmlStreamWriter *stream);
     bool setResult(bool ok);
 
+    QFile *file() { return m_file.get(); }
+
 protected:
-    QFile *m_file;
+    std::unique_ptr<QFile> m_file;
     QString m_fileName;
     QString m_errorString;
     bool m_hasError;
@@ -208,7 +211,6 @@ public:
 
     virtual bool finalize();
     using FileSaverBase::finalize;
-    QFile *file() { return m_file; }
 
 private:
     bool m_isSafe;
@@ -220,8 +222,6 @@ class QTCREATOR_UTILS_EXPORT TempFileSaver : public FileSaverBase
 public:
     explicit TempFileSaver(const QString &templ = QString());
     ~TempFileSaver();
-
-    QTemporaryFile *file() { return reinterpret_cast<QTemporaryFile *>(m_file); }
 
     void setAutoRemove(bool on) { m_autoRemove = on; }
 

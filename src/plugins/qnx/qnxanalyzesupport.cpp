@@ -75,9 +75,11 @@ private:
 
 // QnxDebugSupport
 
-QnxAnalyzeSupport::QnxAnalyzeSupport(RunControl *runControl)
+QnxQmlProfilerSupport::QnxQmlProfilerSupport(RunControl *runControl)
     : RunWorker(runControl)
 {
+    runControl->createWorker(runControl->runMode());
+
     setDisplayName("QnxAnalyzeSupport");
     appendMessage(tr("Preparing remote side..."), Utils::LogMessageFormat);
 
@@ -99,7 +101,7 @@ QnxAnalyzeSupport::QnxAnalyzeSupport(RunControl *runControl)
     //    m_outputParser.processOutput(msg);
 }
 
-void QnxAnalyzeSupport::start()
+void QnxQmlProfilerSupport::start()
 {
     // runControl()->notifyRemoteSetupDone(m_qmlPort);
     reportStarted();

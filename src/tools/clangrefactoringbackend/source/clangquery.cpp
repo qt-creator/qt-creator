@@ -30,26 +30,14 @@
 
 #include <sourcerangescontainer.h>
 
-#include <QTime>
+#include <stringcache.h>
 
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning( disable : 4100 )
-#endif
+#include <QTime>
 
 #include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/ASTMatchers/Dynamic/Diagnostics.h>
 #include <clang/ASTMatchers/Dynamic/Parser.h>
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#    pragma warning(pop)
-#endif
 
 using clang::ast_matchers::dynamic::Diagnostics;
 using clang::ast_matchers::dynamic::Parser;
@@ -66,8 +54,10 @@ struct CollectBoundNodes : MatchFinder::MatchCallback {
   }
 };
 
-ClangQuery::ClangQuery(Utils::SmallString &&query)
-    : query(std::move(query))
+ClangQuery::ClangQuery(StringCache<Utils::PathString, std::mutex> &filePathCache,
+                       Utils::SmallString &&query)
+    : query(std::move(query)),
+      filePathCache(filePathCache)
 {
 }
 
@@ -226,6 +216,7 @@ void ClangQuery::matchLocation(
 
         SourceRangeExtractor extractor(ast->getSourceManager(),
                                        ast->getLangOpts(),
+                                       filePathCache,
                                        sourceRangesContainer);
         extractor.addSourceRanges(sourceRanges);
 

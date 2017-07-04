@@ -1,7 +1,8 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-    $$PWD/clangrefactoringbackend_global.h
+    $$PWD/clangrefactoringbackend_global.h \
+    $$PWD/sourcerangefilter.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
@@ -33,3 +34,6 @@ HEADERS += \
     $$PWD/locationsourcefilecallbacks.h \
     $$PWD/clangquerygatherer.h
 }
+
+SOURCES += \
+    $$PWD/sourcerangefilter.cpp

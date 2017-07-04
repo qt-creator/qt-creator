@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,37 +23,37 @@
 **
 ****************************************************************************/
 
-#include "sourcelocationcontainerv2.h"
+#include "sourcerangefilter.h"
 
-#include <QDebug>
-
-#include <ostream>
+#include <algorithm>
 
 namespace ClangBackEnd {
-namespace V2 {
 
-QDebug operator<<(QDebug debug, const SourceLocationContainer &container)
+SourceRangeFilter::SourceRangeFilter(std::size_t sourcesCount)
 {
-    debug.nospace() << "SourceLocationContainer("
-                    << container.line() << ", "
-                    << container.column() << ", "
-                    << container.offset() << ", "
-                    << container.fileHash()
-                    << ")";
-    return debug;
+    m_collectedSourceRanges.reserve(sourcesCount);
 }
 
-std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container)
+SourceRangesAndDiagnosticsForQueryMessage SourceRangeFilter::removeDuplicates(SourceRangesAndDiagnosticsForQueryMessage &&message)
 {
-    os << "("
-       << container.fileHash() << ", "
-       << container.line() << ", "
-       << container.column() << ", "
-       << container.offset()
-       << ")";
+    removeDuplicates(message.sourceRanges().sourceRangeWithTextContainers());
 
-    return os;
+    return std::move(message);
 }
 
-} // namespace V2
+void SourceRangeFilter::removeDuplicates(SourceRangeWithTextContainers &sourceRanges)
+{
+    auto partitionPoint = std::stable_partition(sourceRanges.begin(),
+                                                sourceRanges.end(),
+                                                [&] (const SourceRangeWithTextContainer &sourceRange) {
+        return m_collectedSourceRanges.find(sourceRange) == m_collectedSourceRanges.end();
+    });
+
+    sourceRanges.erase(partitionPoint, sourceRanges.end());
+
+    std::copy(sourceRanges.begin(),
+              sourceRanges.end(),
+              std::inserter(m_collectedSourceRanges, m_collectedSourceRanges.end()));
+}
+
 } // namespace ClangBackEnd

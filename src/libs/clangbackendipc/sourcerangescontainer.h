@@ -54,6 +54,11 @@ public:
         return m_sourceRangeWithTextContainers;
     }
 
+    std::vector<SourceRangeWithTextContainer> &sourceRangeWithTextContainers()
+    {
+        return m_sourceRangeWithTextContainers;
+    }
+
     std::vector<SourceRangeWithTextContainer> takeSourceRangeWithTextContainers()
     {
         return std::move(m_sourceRangeWithTextContainers);

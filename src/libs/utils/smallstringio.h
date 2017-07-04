@@ -68,12 +68,12 @@ QDataStream &operator>>(QDataStream &in, BasicSmallString<Size> &string)
     return in;
 }
 
-inline
-QDebug &operator<<(QDebug &debug, const SmallString &string)
+template <typename String>
+QDebug &operator<<(QDebug &debug, const String &string)
 {
     using QT_PREPEND_NAMESPACE(operator<<);
 
-    debug.nospace() << "\"" << string.data() << "\"";
+    debug.nospace().quote() << QByteArray::fromRawData(string.data(), int(string.size()));
 
     return debug;
 }

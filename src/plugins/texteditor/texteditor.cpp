@@ -6316,7 +6316,8 @@ void TextEditorWidgetPrivate::autocompleterHighlight(const QTextCursor &cursor)
         m_autoCompleteHighlightPos.clear();
     } else if (m_highlightAutoComplete) {
         m_autoCompleteHighlightPos.push_back(cursor);
-    } else if (m_animateAutoComplete) {
+    }
+    if (m_animateAutoComplete) {
         const QTextCharFormat &matchFormat
                 = q->textDocument()->fontSettings().toTextCharFormat(C_AUTOCOMPLETE);
         cancelCurrentAnimations();// one animation is enough

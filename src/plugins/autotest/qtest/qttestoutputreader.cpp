@@ -319,7 +319,7 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
     static QRegExp finish("^[*]{9} Finished testing of (.*) [*]{9}$");
 
     static QRegExp result("^(PASS   |FAIL!  |XFAIL  |XPASS  |SKIP   |BPASS   |BFAIL   |RESULT "
-                          "|INFO    |QWARN  |WARNING|QDEBUG ): (.*)$");
+                          "|INFO   |QWARN  |WARNING|QDEBUG ): (.*)$");
 
     static QRegExp benchDetails("^\\s+([\\d,.]+ .* per iteration \\(total: [\\d,.]+, iterations: \\d+\\))$");
     static QRegExp locationUnix("^   Loc: \\[(.*)\\]$");

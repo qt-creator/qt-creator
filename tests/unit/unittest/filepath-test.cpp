@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,37 +23,34 @@
 **
 ****************************************************************************/
 
-#include "sourcelocationcontainerv2.h"
+#include "googletest.h"
 
-#include <QDebug>
+#include <filepath.h>
 
-#include <ostream>
+namespace {
 
-namespace ClangBackEnd {
-namespace V2 {
-
-QDebug operator<<(QDebug debug, const SourceLocationContainer &container)
+TEST(FilePath, CreateFromPathString)
 {
-    debug.nospace() << "SourceLocationContainer("
-                    << container.line() << ", "
-                    << container.column() << ", "
-                    << container.offset() << ", "
-                    << container.fileHash()
-                    << ")";
-    return debug;
+    ClangBackEnd::FilePath filePath{Utils::PathString{"/file/pathOne"}};
+
+    ASSERT_THAT(filePath.directory(), "/file");
+    ASSERT_THAT(filePath.name(), "pathOne");
 }
 
-std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &container)
+TEST(FilePath, CreateFromQString)
 {
-    os << "("
-       << container.fileHash() << ", "
-       << container.line() << ", "
-       << container.column() << ", "
-       << container.offset()
-       << ")";
+    ClangBackEnd::FilePath filePath{QString{"/file/pathOne"}};
 
-    return os;
+    ASSERT_THAT(filePath.directory(), "/file");
+    ASSERT_THAT(filePath.name(), "pathOne");
 }
 
-} // namespace V2
-} // namespace ClangBackEnd
+TEST(FilePath, EmptyFilePath)
+{
+    ClangBackEnd::FilePath filePath;
+
+    ASSERT_THAT(filePath.directory(), "");
+    ASSERT_THAT(filePath.name(), "");
+}
+
+}

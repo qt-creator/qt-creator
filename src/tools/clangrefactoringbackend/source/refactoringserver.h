@@ -30,7 +30,12 @@
 #include <refactoringserverinterface.h>
 
 #include <QTimer>
+#include <stringcache.h>
 
+#include <utils/smallstring.h>
+
+#include <future>
+#include <mutex>
 #include <vector>
 
 namespace ClangBackEnd {
@@ -59,12 +64,15 @@ public:
 
     bool pollTimerIsActive() const;
 
+    void setGathererProcessingSlotCount(uint count);
+
 private:
     void gatherSourceRangesAndDiagnosticsForQueryMessages(std::vector<V2::FileContainer> &&sources,
                                                           std::vector<V2::FileContainer> &&unsaved,
                                                           Utils::SmallString &&query);
 
 private:
+    StringCache<Utils::PathString, std::mutex> m_filePathCache;
     ClangQueryGatherer m_gatherer;
     QTimer m_pollTimer;
 };

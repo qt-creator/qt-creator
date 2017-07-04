@@ -395,18 +395,13 @@ FileSaverBase::FileSaverBase()
 {
 }
 
-FileSaverBase::~FileSaverBase()
-{
-    delete m_file;
-}
+FileSaverBase::~FileSaverBase() = default;
 
 bool FileSaverBase::finalize()
 {
     m_file->close();
     setResult(m_file->error() == QFile::NoError);
-    // We delete the object, so it is really closed even if it is a QTemporaryFile.
-    delete m_file;
-    m_file = 0;
+    m_file.reset();
     return !m_hasError;
 }
 
@@ -444,8 +439,13 @@ bool FileSaverBase::write(const QByteArray &bytes)
 bool FileSaverBase::setResult(bool ok)
 {
     if (!ok && !m_hasError) {
-        m_errorString = tr("Cannot write file %1. Disk full?").arg(
-                QDir::toNativeSeparators(m_fileName));
+        if (!m_file->errorString().isEmpty()) {
+            m_errorString = tr("Cannot write file %1: %2").arg(
+                        QDir::toNativeSeparators(m_fileName), m_file->errorString());
+        } else {
+            m_errorString = tr("Cannot write file %1. Disk full?").arg(
+                        QDir::toNativeSeparators(m_fileName));
+        }
         m_hasError = true;
     }
     return ok;
@@ -488,10 +488,10 @@ FileSaver::FileSaver(const QString &filename, QIODevice::OpenMode mode)
         }
     }
     if (mode & (QIODevice::ReadOnly | QIODevice::Append)) {
-        m_file = new QFile(filename);
+        m_file.reset(new QFile{filename});
         m_isSafe = false;
     } else {
-        m_file = new SaveFile(filename);
+        m_file.reset(new SaveFile{filename});
         m_isSafe = true;
     }
     if (!m_file->open(QIODevice::WriteOnly | mode)) {
@@ -507,22 +507,22 @@ bool FileSaver::finalize()
     if (!m_isSafe)
         return FileSaverBase::finalize();
 
-    SaveFile *sf = static_cast<SaveFile *>(m_file);
+    SaveFile *sf = static_cast<SaveFile *>(m_file.get());
     if (m_hasError) {
         if (sf->isOpen())
             sf->rollback();
     } else {
         setResult(sf->commit());
     }
-    delete sf;
-    m_file = 0;
+    m_file.reset();
     return !m_hasError;
 }
 
 TempFileSaver::TempFileSaver(const QString &templ)
     : m_autoRemove(true)
 {
-    QTemporaryFile *tempFile = new QTemporaryFile();
+    m_file.reset(new QTemporaryFile{});
+    QTemporaryFile *tempFile = static_cast<QTemporaryFile *>(m_file.get());
     if (!templ.isEmpty())
         tempFile->setFileTemplate(templ);
     tempFile->setAutoRemove(false);
@@ -532,14 +532,12 @@ TempFileSaver::TempFileSaver(const QString &templ)
                 tempFile->errorString());
         m_hasError = true;
     }
-    m_file = tempFile;
     m_fileName = tempFile->fileName();
 }
 
 TempFileSaver::~TempFileSaver()
 {
-    delete m_file;
-    m_file = 0;
+    m_file.reset();
     if (m_autoRemove)
         QFile::remove(m_fileName);
 }

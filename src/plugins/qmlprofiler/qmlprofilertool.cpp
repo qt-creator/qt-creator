@@ -587,8 +587,8 @@ void QmlProfilerTool::attachToWaitingApplication()
 
     Debugger::selectPerspective(Constants::QmlProfilerPerspectiveId);
 
-    RunConfiguration *rc = Debugger::startupRunConfiguration();
-    auto runControl = new RunControl(rc, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    auto runConfig = RunConfiguration::startupRunConfiguration();
+    auto runControl = new RunControl(runConfig, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     auto profiler = new QmlProfilerRunner(runControl);
     profiler->setServerUrl(serverUrl);
 

@@ -435,7 +435,7 @@ MemcheckTool::MemcheckTool()
     menu->addAction(ActionManager::registerAction(action, "Memcheck.Remote"),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
     QObject::connect(action, &QAction::triggered, this, [this, action] {
-        RunConfiguration *runConfig = startupRunConfiguration();
+        auto runConfig = RunConfiguration::startupRunConfiguration();
         if (!runConfig) {
             showCannotStartDialog(action->text());
             return;

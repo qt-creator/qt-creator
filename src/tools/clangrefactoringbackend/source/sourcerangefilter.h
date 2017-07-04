@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 BlackBerry Limited. All rights reserved.
-** Contact: KDAB (info@kdab.com)
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
 **
@@ -25,23 +25,23 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
+#include <unordered_set>
 
-namespace Qnx {
-namespace Internal {
+#include <sourcerangesanddiagnosticsforquerymessage.h>
 
-class QnxRunControlFactory : public ProjectExplorer::IRunControlFactory
+namespace ClangBackEnd {
+
+class SourceRangeFilter
 {
-    Q_OBJECT
-
 public:
-    explicit QnxRunControlFactory(QObject *parent = 0);
+    SourceRangeFilter(std::size_t sourcesCount = 0);
 
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                Core::Id mode) const override;
-    ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                        Core::Id mode, QString *errorMessage) override;
+    SourceRangesAndDiagnosticsForQueryMessage
+    removeDuplicates(SourceRangesAndDiagnosticsForQueryMessage &&message);
+    void removeDuplicates(SourceRangeWithTextContainers &sourceRanges);
+
+private:
+    std::unordered_set<SourceRangeWithTextContainer> m_collectedSourceRanges;
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // namespace ClangBackEnd

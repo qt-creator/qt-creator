@@ -25,6 +25,7 @@
 
 #include "googletest.h"
 
+#include "filesystem-utilities.h"
 #include "mockrefactoringclient.h"
 #include "sourcerangecontainer-matcher.h"
 
@@ -40,6 +41,7 @@ namespace {
 using testing::AllOf;
 using testing::Contains;
 using testing::NiceMock;
+using testing::Not;
 using testing::Pair;
 using testing::PrintToString;
 using testing::Property;
@@ -77,7 +79,8 @@ protected:
     Utils::SmallString sourceContent{"void f()\n {}"};
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
                          sourceContent.clone(),
-                         {"cc", "query_simplefunction.cpp"}};
+                         {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp")}};
+    int processingSlotCount = 2;
 };
 
 using RefactoringServerSlowTest = RefactoringServer;
@@ -153,8 +156,12 @@ TEST_F(RefactoringServerSlowTest, RequestTwoSourceRangesAndDiagnosticsForQueryMe
                 sourceRangesAndDiagnosticsForQueryMessage(
                     Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
                              Property(&SourceRangesContainer::sourceRangeWithTextContainers,
-                                      Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent))))))
-            .Times(2);
+                                      Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent))))));
+    EXPECT_CALL(mockRefactoringClient,
+                sourceRangesAndDiagnosticsForQueryMessage(
+                    Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                             Property(&SourceRangesContainer::sourceRangeWithTextContainers,
+                                      Not(Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent)))))));
 
     refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
 }
@@ -163,7 +170,7 @@ TEST_F(RefactoringServerVerySlowTest, RequestManySourceRangesAndDiagnosticsForQu
 {
     std::vector<FileContainer> sources;
     std::fill_n(std::back_inserter(sources),
-                std::thread::hardware_concurrency() + 3,
+                processingSlotCount + 3,
                 source.clone());
     RequestSourceRangesAndDiagnosticsForQueryMessage requestSourceRangesAndDiagnosticsForQueryMessage{"functionDecl()",
                                                                                                       std::move(sources),
@@ -173,8 +180,13 @@ TEST_F(RefactoringServerVerySlowTest, RequestManySourceRangesAndDiagnosticsForQu
                 sourceRangesAndDiagnosticsForQueryMessage(
                     Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
                              Property(&SourceRangesContainer::sourceRangeWithTextContainers,
-                                      Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent))))))
-            .Times(std::thread::hardware_concurrency() + 3);
+                                      Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent))))));
+    EXPECT_CALL(mockRefactoringClient,
+                sourceRangesAndDiagnosticsForQueryMessage(
+                    Property(&SourceRangesAndDiagnosticsForQueryMessage::sourceRanges,
+                             Property(&SourceRangesContainer::sourceRangeWithTextContainers,
+                                      Not(Contains(IsSourceRangeWithText(1, 1, 2, 4, sourceContent)))))))
+            .Times(processingSlotCount + 2);
 
     refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(requestSourceRangesAndDiagnosticsForQueryMessage));
 }
@@ -237,6 +249,7 @@ void RefactoringServer::SetUp()
 
 void RefactoringServer::TearDown()
 {
+    refactoringServer.setGathererProcessingSlotCount(uint(processingSlotCount));
     refactoringServer.waitThatSourceRangesAndDiagnosticsForQueryMessagesAreFinished();
 }
 

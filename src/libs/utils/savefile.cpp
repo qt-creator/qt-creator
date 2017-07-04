@@ -113,10 +113,19 @@ bool SaveFile::commit()
     QString finalFileName
             = FileUtils::resolveSymlinks(FileName::fromString(m_finalFileName)).toString();
     QString bakname = finalFileName + QLatin1Char('~');
-    QFile::remove(bakname); // Kill old backup
-    QFile::rename(finalFileName, bakname); // Backup current file
+
+    if (QFile::exists(finalFileName)) {
+        QFile::remove(bakname); // Kill old backup
+        // Try to back up current file
+        if (!QFile::rename(finalFileName, bakname)) {
+            remove();
+            setErrorString(tr("File might be locked."));
+            return false;
+        }
+    }
     if (!rename(finalFileName)) { // Replace current file
         QFile::rename(bakname, finalFileName); // Rollback to current file
+        remove();
         return false;
     }
     if (!m_backup)

@@ -8,7 +8,6 @@ SOURCES += qnxplugin.cpp \
     qnxdevicefactory.cpp \
     qnxdevicewizard.cpp \
     qnxrunconfiguration.cpp \
-    qnxruncontrolfactory.cpp \
     qnxanalyzesupport.cpp \
     qnxdebugsupport.cpp \
     qnxdeploystepfactory.cpp \
@@ -41,7 +40,6 @@ HEADERS += qnxplugin.h\
     qnxdevicefactory.h \
     qnxdevicewizard.h \
     qnxrunconfiguration.h \
-    qnxruncontrolfactory.h \
     qnxanalyzesupport.h \
     qnxdebugsupport.h \
     qnxdeploystepfactory.h \

@@ -56,7 +56,6 @@ public:
     QString id() const;
     QString displayName() const;
     bool isEnabled() const;
-    Core::FindFlags supportedFindFlags() const;
 
     void findAll(const QString &txt, Core::FindFlags findFlags);
 

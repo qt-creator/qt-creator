@@ -63,6 +63,8 @@ SOURCES += \
     projectupdater-test.cpp \
     pchmanagerserver-test.cpp \
     pchmanagerclientserverinprocess-test.cpp \
+    filepath-test.cpp \
+    sourcerangefilter-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \

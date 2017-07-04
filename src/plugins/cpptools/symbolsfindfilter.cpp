@@ -100,11 +100,6 @@ void SymbolsFindFilter::setPaused(bool paused)
         watcher->setPaused(paused);
 }
 
-FindFlags SymbolsFindFilter::supportedFindFlags() const
-{
-    return FindCaseSensitively | FindRegularExpression | FindWholeWords;
-}
-
 void SymbolsFindFilter::findAll(const QString &txt, FindFlags findFlags)
 {
     SearchResultWindow *window = SearchResultWindow::instance();

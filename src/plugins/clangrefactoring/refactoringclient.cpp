@@ -104,19 +104,6 @@ void RefactoringClient::setRefactoringConnectionClient(
     this->connectionClient = connectionClient;
 }
 
-namespace {
-
-Utils::SmallString concatenateFilePath(const ClangBackEnd::FilePath &filePath)
-{
-    Utils::SmallString concatenatedFilePath = filePath.directory().clone();
-    concatenatedFilePath.append("/");
-    concatenatedFilePath.append(filePath.name().clone());
-
-    return concatenatedFilePath;
-}
-
-}
-
 std::unordered_map<uint, QString> RefactoringClient::convertFilePaths(
         const ClangBackEnd::FilePathDict &filePaths)
 {
@@ -126,7 +113,7 @@ std::unordered_map<uint, QString> RefactoringClient::convertFilePaths(
 
     auto convertFilePath = [] (const ClangBackEnd::FilePathDict::value_type &dictonaryEntry) {
         return std::make_pair(dictonaryEntry.first,
-                              concatenateFilePath(dictonaryEntry.second).toQString());
+                              dictonaryEntry.second.path().toQString());
     };
 
     std::transform(filePaths.begin(),
