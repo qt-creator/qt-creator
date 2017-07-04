@@ -284,7 +284,8 @@ void TopLeftLocatorPopup::updateGeometry()
 {
     QTC_ASSERT(parentWidget(), return);
     const QSize size = preferredSize();
-    const QRect rect(parentWidget()->mapToGlobal(QPoint(0, -size.height())), size);
+    const int border = m_tree->frameWidth();
+    const QRect rect(parentWidget()->mapToGlobal(QPoint(-border, -size.height() - border)), size);
     setGeometry(rect);
     LocatorPopup::updateGeometry();
 }
@@ -369,7 +370,8 @@ LocatorPopup::LocatorPopup(LocatorWidget *locatorWidget, QWidget *parent)
       m_tree(new CompletionList(this)),
       m_inputWidget(locatorWidget)
 {
-    m_tree->setFrameStyle(QFrame::NoFrame);
+    if (Utils::HostOsInfo::isMacHost())
+        m_tree->setFrameStyle(QFrame::NoFrame); // tool tip already includes a frame
     m_tree->setModel(locatorWidget->model());
 
     auto layout = new QVBoxLayout;

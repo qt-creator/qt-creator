@@ -122,11 +122,11 @@ protected:
     virtual void inputLostFocus();
 
     QPointer<QWidget> m_window;
+    CompletionList *m_tree;
 
 private:
     void updateWindow();
 
-    CompletionList *m_tree;
     LocatorWidget *m_inputWidget;
 };
 
