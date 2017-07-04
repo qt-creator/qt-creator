@@ -1,8 +1,8 @@
 diff --git a/tools/clang/lib/Basic/FileManager.cpp b/tools/clang/lib/Basic/FileManager.cpp
-index 50050d0..3f79493 100644
+index ce9b7e1bb4..6cfe1f6ebd 100644
 --- a/tools/clang/lib/Basic/FileManager.cpp
 +++ b/tools/clang/lib/Basic/FileManager.cpp
-@@ -386,6 +386,7 @@ FileManager::getVirtualFile(StringRef Filename, off_t Size,
+@@ -383,6 +383,7 @@ FileManager::getVirtualFile(StringRef Filename, off_t Size,
    UFE->ModTime = ModificationTime;
    UFE->Dir     = DirInfo;
    UFE->UID     = NextFileUID++;
