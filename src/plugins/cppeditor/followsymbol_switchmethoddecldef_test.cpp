@@ -941,6 +941,34 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
         "};\n"
     );
 
+    QTest::newRow("matchFunctionSignature_Follow_6") << _(
+        "class Foo {\n"
+        "    void $foo(int);\n"
+        "};\n"
+        "void Foo::@foo(const volatile int) {}\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_Follow_7") << _(
+        "class Foo {\n"
+        "    void $foo(const volatile int);\n"
+        "};\n"
+        "void Foo::@foo(int) {}\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_Follow_8") << _(
+        "class Foo {\n"
+        "    void @$foo(int *);\n"
+        "};\n"
+        "void Foo::foo(const int *) {}\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_Follow_9") << _(
+        "class Foo {\n"
+        "    void @$foo(int&);\n"
+        "};\n"
+        "void Foo::foo(const int&) {}\n"
+    );
+
     QTest::newRow("infiniteLoopLocalTypedef_QTCREATORBUG-11999") << _(
         "template<class MyTree>\n"
         "class TreeConstIterator\n"

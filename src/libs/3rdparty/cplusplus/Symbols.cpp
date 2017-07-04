@@ -337,8 +337,22 @@ bool Function::isSignatureEqualTo(const Function *other, Matcher *matcher) const
     for (unsigned i = 0; i < argc; ++i) {
         Symbol *l = argumentAt(i);
         Symbol *r = other->argumentAt(i);
-        if (! l->type().match(r->type(), matcher))
+        if (! l->type().match(r->type(), matcher)) {
+            if (!l->type()->isReferenceType() && !l->type()->isPointerType()
+                    && !l->type()->isPointerToMemberType()
+                    && !r->type()->isReferenceType() && !r->type()->isPointerType()
+                    && !r->type()->isPointerToMemberType()) {
+                FullySpecifiedType lType = l->type();
+                FullySpecifiedType rType = r->type();
+                lType.setConst(false);
+                lType.setVolatile(false);
+                rType.setConst(false);
+                rType.setVolatile(false);
+                if (lType.match(rType))
+                    continue;
+            }
             return false;
+        }
     }
     return true;
 }
