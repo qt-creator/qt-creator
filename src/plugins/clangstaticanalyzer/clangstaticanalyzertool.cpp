@@ -145,7 +145,6 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool()
         {{ClangStaticAnalyzerDockId, m_diagnosticView, {}, Perspective::SplitVertical}}
     ));
 
-    //Debugger::registerAction(Constants::CLANGSTATICANALYZER_RUN_MODE, {});
     action = new QAction(tr("Clang Static Analyzer"), this);
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, "ClangStaticAnalyzer.Action"),
@@ -211,13 +210,11 @@ static bool dontStartAfterHintForDebugMode(Project *project)
     return false;
 }
 
-void ClangStaticAnalyzerTool::startTool()
+void ClangStaticAnalyzerTool::handleWorkerStart(RunWorker *runWorker)
 {
-    Project *project = SessionManager::startupProject();
+    RunControl *runControl = runWorker->runControl();
+    Project *project = runControl->project();
     QTC_ASSERT(project, emit finished(false); return);
-
-    if (dontStartAfterHintForDebugMode(project))
-        return;
 
     Debugger::selectPerspective(ClangStaticAnalyzerPerspectiveId);
     m_diagnosticModel->clear();
@@ -230,8 +227,13 @@ void ClangStaticAnalyzerTool::startTool()
 
     m_toolBusy = true;
     updateRunActions();
+}
 
-    Target * const target = project->activeTarget();
+void ClangStaticAnalyzerTool::startTool()
+{
+    Project *project = SessionManager::startupProject();
+    QTC_ASSERT(project, return);
+    Target *target = project->activeTarget();
     QTC_ASSERT(target, return);
     DummyRunConfiguration *& rc = m_runConfigs[target];
     if (!rc) {
@@ -245,6 +247,9 @@ void ClangStaticAnalyzerTool::startTool()
         connect(SessionManager::instance(), &SessionManager::aboutToRemoveProject, this,
                 onProjectRemoved, Qt::UniqueConnection);
     }
+    if (dontStartAfterHintForDebugMode(project))
+        return;
+
     ProjectExplorerPlugin::runRunConfiguration(rc, Constants::CLANGSTATICANALYZER_RUN_MODE);
 }
 

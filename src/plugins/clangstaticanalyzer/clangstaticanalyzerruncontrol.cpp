@@ -81,6 +81,7 @@ ClangStaticAnalyzerToolRunner::ClangStaticAnalyzerToolRunner(RunControl *runCont
     auto tool = ClangStaticAnalyzerTool::instance();
     tool->stopAction()->disconnect();
     connect(tool->stopAction(), &QAction::triggered, runControl, &RunControl::initiateStop);
+    tool->handleWorkerStart(this);
 
     ProjectInfo projectInfoBeforeBuild = tool->projectInfoBeforeBuild();
     QTC_ASSERT(projectInfoBeforeBuild.isValid(), return);
