@@ -30,6 +30,8 @@
 
 #include "../debuggermainwindow.h"
 
+#include <projectexplorer/runconfiguration.h>
+
 #include <QWidget>
 
 #include <QCoreApplication>
