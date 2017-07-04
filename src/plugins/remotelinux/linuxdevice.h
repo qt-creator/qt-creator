@@ -49,24 +49,24 @@ public:
     static Ptr create(const QString &name, Core::Id type, MachineType machineType,
                       Origin origin = ManuallyAdded, Core::Id id = Core::Id());
 
-    QString displayType() const;
-    ProjectExplorer::IDeviceWidget *createWidget();
-    QList<Core::Id> actionIds() const;
-    QString displayNameForActionId(Core::Id actionId) const;
-    void executeAction(Core::Id actionId, QWidget *parent);
+    QString displayType() const override;
+    ProjectExplorer::IDeviceWidget *createWidget() override;
+    QList<Core::Id> actionIds() const override;
+    QString displayNameForActionId(Core::Id actionId) const override;
+    void executeAction(Core::Id actionId, QWidget *parent) override;
     Utils::OsType osType() const override;
-    ProjectExplorer::IDevice::Ptr clone() const;
+    ProjectExplorer::IDevice::Ptr clone() const override;
 
-    bool canCreateProcess() const { return true; }
-    ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const;
-    bool canAutoDetectPorts() const;
-    ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const;
-    bool canCreateProcessModel() const { return true; }
-    ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const;
-    bool hasDeviceTester() const { return true; }
-    ProjectExplorer::DeviceTester *createDeviceTester() const;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
-    ProjectExplorer::DeviceEnvironmentFetcher::Ptr environmentFetcher() const;
+    bool canCreateProcess() const override { return true; }
+    ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const override;
+    bool canAutoDetectPorts() const override;
+    ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const override;
+    bool canCreateProcessModel() const override { return true; }
+    ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const override;
+    bool hasDeviceTester() const override { return true; }
+    ProjectExplorer::DeviceTester *createDeviceTester() const override;
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
+    ProjectExplorer::DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
 
 protected:
     LinuxDevice() {}

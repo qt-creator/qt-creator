@@ -59,7 +59,6 @@ public:
     ~QmlJSQuickFixAssistProvider();
 
     IAssistProvider::RunType runType() const override;
-    bool supportsEditor(Core::Id editorId) const override;
     TextEditor::IAssistProcessor *createProcessor() const override;
 
     QList<TextEditor::QuickFixFactory *> quickFixFactories() const override;

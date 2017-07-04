@@ -84,7 +84,7 @@ QString BaseHoverHandler::contextHelpId(TextEditorWidget *widget, int pos)
     // If the tooltip is visible and there is a help match, this match is used to update
     // the help id. Otherwise, let the identification process happen.
     if (!Utils::ToolTip::isVisible() || !lastHelpItemIdentified().isValid())
-        process(widget, pos, ReportPriority()); // TODO
+        process(widget, pos, [](int){});
 
     if (lastHelpItemIdentified().isValid())
         return lastHelpItemIdentified().helpId();

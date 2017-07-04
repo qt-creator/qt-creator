@@ -113,11 +113,6 @@ IAssistProvider::RunType ClipboardAssistProvider::runType() const
     return Synchronous;
 }
 
-bool ClipboardAssistProvider::supportsEditor(Core::Id /*editorId*/) const
-{
-    return true;
-}
-
 IAssistProcessor *ClipboardAssistProvider::createProcessor() const
 {
     return new ClipboardAssistProcessor;

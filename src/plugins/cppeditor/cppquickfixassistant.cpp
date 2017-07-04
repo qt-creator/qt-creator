@@ -51,11 +51,6 @@ IAssistProvider::RunType CppQuickFixAssistProvider::runType() const
     return Synchronous;
 }
 
-bool CppQuickFixAssistProvider::supportsEditor(Core::Id editorId) const
-{
-    return editorId == Constants::CPPEDITOR_ID;
-}
-
 IAssistProcessor *CppQuickFixAssistProvider::createProcessor() const
 {
     return new QuickFixAssistProcessor(this);

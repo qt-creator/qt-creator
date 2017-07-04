@@ -480,9 +480,6 @@ public:
                                        const QString &cancelButtonText = QString(),
                                        bool *prompt = nullptr);
 
-    using WorkerCreator = std::function<RunWorker *(RunControl *)>;
-    static void registerWorkerCreator(Core::Id id, const WorkerCreator &workerCreator);
-    RunWorker *workerById(Core::Id id) const;
     QList<QPointer<RunWorker>> workers() const;
 
     template <class T> T *worker() const {
@@ -497,9 +494,16 @@ public:
 
     RunWorker *createWorker(Core::Id id);
 
-    using Producer = std::function<RunWorker *(RunControl *)>;
+    using WorkerCreator = std::function<RunWorker *(RunControl *)>;
     using Constraint = std::function<bool(RunConfiguration *)>;
 
+    static void registerWorkerCreator(Core::Id id, const WorkerCreator &workerCreator);
+
+    static void registerWorker(Core::Id runMode, const WorkerCreator &producer,
+                               const Constraint &constraint = {})
+    {
+        addWorkerFactory({runMode, constraint, producer});
+    }
     template <class Worker>
     static void registerWorker(Core::Id runMode, const Constraint &constraint)
     {
@@ -517,10 +521,12 @@ public:
     struct WorkerFactory {
         Core::Id runMode;
         Constraint constraint;
-        Producer producer;
+        WorkerCreator producer;
+
+        bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const;
     };
 
-    static Producer producer(RunConfiguration *runConfiguration, Core::Id runMode);
+    static WorkerCreator producer(RunConfiguration *runConfiguration, Core::Id runMode);
 
 signals:
     void appendMessageRequested(ProjectExplorer::RunControl *runControl,
@@ -535,7 +541,6 @@ private:
     friend class Internal::RunWorkerPrivate;
 
     static void addWorkerFactory(const WorkerFactory &workerFactory);
-
     void bringApplicationToForegroundInternal();
     Internal::RunControlPrivate *d;
 };

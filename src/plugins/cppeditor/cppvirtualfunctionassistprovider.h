@@ -58,7 +58,6 @@ public:
     void clearParams() { m_params = Parameters(); }
 
     IAssistProvider::RunType runType() const override;
-    bool supportsEditor(Core::Id editorId) const override;
     TextEditor::IAssistProcessor *createProcessor() const override;
 
 private:

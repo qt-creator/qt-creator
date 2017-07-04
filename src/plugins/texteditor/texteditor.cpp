@@ -4961,7 +4961,7 @@ void TextEditorWidgetPrivate::updateHighlights()
                 return !m_autoCompleteHighlightPos.isEmpty()
                         && m_autoCompleteHighlightPos.last() != cursor;
             };
-            if (!m_keepAutoCompletionHighlight && !q->hasFocus() && popAutoCompletion()) {
+            if ((!m_keepAutoCompletionHighlight && !q->hasFocus()) || popAutoCompletion()) {
                 while (popAutoCompletion())
                     m_autoCompleteHighlightPos.pop_back();
                 updateAutoCompleteHighlight();

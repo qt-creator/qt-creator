@@ -48,7 +48,6 @@ public:
     };
 
     virtual RunType runType() const = 0;
-    virtual bool supportsEditor(Core::Id editorId) const = 0;
     virtual IAssistProcessor *createProcessor() const = 0;
 };
 

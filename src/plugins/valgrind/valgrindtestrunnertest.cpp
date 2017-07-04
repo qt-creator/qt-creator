@@ -37,6 +37,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runnables.h>
 
+#include <utils/algorithm.h>
+
 #include <QDebug>
 #include <QTest>
 #include <QDir>
@@ -79,6 +81,7 @@ QString ValgrindTestRunnerTest::runTestBinary(const QString &binary, const QStri
     const QString &binPath = binPathFileInfo.canonicalFilePath();
     debuggee.executable = binPath;
     debuggee.environment = Utils::Environment::systemEnvironment();
+    m_runner->setLocalServerAddress(QHostAddress::LocalHost);
     m_runner->setValgrindArguments(QStringList() << "--num-callers=50" << "--track-origins=yes" << vArgs);
     m_runner->setDebuggee(debuggee);
     m_runner->setDevice(ProjectExplorer::DeviceManager::instance()->defaultDevice(
@@ -270,11 +273,14 @@ void ValgrindTestRunnerTest::testLeak4()
 
     QVERIFY(m_logMessages.isEmpty());
 
-    QCOMPARE(m_errors.count(), 3);
+    QVERIFY(m_errors.count() >= 3);
     //BEGIN first error
     {
-    const Error error = m_errors.first();
-    QCOMPARE(error.kind(), int(Leak_IndirectlyLost));
+    // depending on the valgrind version the errors can be different - try to find the correct one
+    const Error error = Utils::findOrDefault(m_errors, [](const Error &err) {
+        return err.kind() == Leak_IndirectlyLost;
+    });
+
     QCOMPARE(error.leakedBlocks(), qint64(1));
     QCOMPARE(error.leakedBytes(), quint64(8));
     QCOMPARE(error.stacks().count(), 1);
@@ -309,8 +315,10 @@ void ValgrindTestRunnerTest::testLeak4()
     }
     //BEGIN second error
     {
-    const Error error = m_errors.at(1);
-    QCOMPARE(error.kind(), int(Leak_DefinitelyLost));
+    const Error error = Utils::findOrDefault(m_errors, [](const Error &err) {
+        return err.kind() == Leak_DefinitelyLost;
+    });
+
     QCOMPARE(error.leakedBlocks(), qint64(1));
     if (on64bit())
         QCOMPARE(error.leakedBytes(), quint64(16));
@@ -337,7 +345,6 @@ void ValgrindTestRunnerTest::testLeak4()
         QCOMPARE(QDir::cleanPath(frame.directory()), srcDir);
     }
     }
-    // TODO add third error check
 }
 
 void ValgrindTestRunnerTest::testUninit1()
@@ -595,7 +602,7 @@ void ValgrindTestRunnerTest::testFree1()
     QCOMPARE(m_errors.count(), 1);
     const Error error = m_errors.first();
     QCOMPARE(error.kind(), int(InvalidFree));
-    QCOMPARE(error.stacks().count(), 2);
+    QVERIFY(error.stacks().count() >= 2);
     //BEGIN first stack
     {
     const Stack stack = error.stacks().first();
@@ -618,7 +625,7 @@ void ValgrindTestRunnerTest::testFree1()
     }
     //BEGIN second stack
     {
-    const Stack stack = error.stacks().last();
+    const Stack stack = error.stacks().at(1);
     QCOMPARE(stack.line(), qint64(-1));
     QCOMPARE(stack.frames().count(), 2);
 
