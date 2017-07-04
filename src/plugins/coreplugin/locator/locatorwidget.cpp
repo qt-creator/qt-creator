@@ -255,23 +255,29 @@ CompletionList::CompletionList(QWidget *parent)
         if (verticalScrollBar())
             verticalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
     }
-    const QStyleOptionViewItem &option = viewOptions();
-    const QSize shint = itemDelegate()->sizeHint(option, QModelIndex());
-    setFixedHeight(shint.height() * 17 + frameWidth() * 2);
-
     installEventFilter(this);
 }
 
 void CompletionList::setModel(QAbstractItemModel *newModel)
 {
+    const auto updateSize = [this] {
+        if (model() && model()->rowCount() > 0) {
+            const QStyleOptionViewItem &option = viewOptions();
+            const QSize shint = itemDelegate()->sizeHint(option, model()->index(0, 0));
+            setFixedHeight(shint.height() * 17 + frameWidth() * 2);
+            disconnect(model(), &QAbstractItemModel::rowsInserted, this, 0);
+        }
+    };
+
     if (model()) {
-        disconnect(model(), &QAbstractItemModel::columnsInserted,
-                   this, &CompletionList::resizeHeaders);
+        disconnect(model(), 0, this, 0);
     }
     QTreeView::setModel(newModel);
     if (newModel) {
         connect(newModel, &QAbstractItemModel::columnsInserted,
                 this, &CompletionList::resizeHeaders);
+        connect(newModel, &QAbstractItemModel::rowsInserted,
+                this, updateSize);
     }
 }
 
@@ -327,10 +333,11 @@ void LocatorPopup::updateWindow()
 
 bool LocatorPopup::event(QEvent *event)
 {
-    if (event->type() == QEvent::ParentChange) {
+    if (event->type() == QEvent::ParentChange)
         updateWindow();
-    } else if (event->type() == QEvent::Show)
-        updateGeometry();
+    // completion list resizes after first items are shown --> LayoutRequest
+    else if (event->type() == QEvent::Show || event->type() == QEvent::LayoutRequest)
+        QTimer::singleShot(0, this, &LocatorPopup::updateGeometry);
     return QWidget::event(event);
 }
 
