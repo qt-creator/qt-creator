@@ -489,10 +489,6 @@ class Dumper(DumperBase):
 
         #warn('LISTING FIELDS FOR %s' % nativeType)
         for nativeField in nativeType.fields():
-            #if nativeField.bitpos is None:
-            #    # This could be a static data member. Ignore it
-            #    #warn('   STATIC MEMBER: %s' % nativeMember)
-            #    continue
             fieldName = nativeField.name
             # Something without a name.
             # Anonymous union? We need a dummy name to distinguish
@@ -506,7 +502,12 @@ class Dumper(DumperBase):
                 anonNumber += 1
                 fieldName = '#%s' % anonNumber
             #warn('FIELD: %s' % fieldName)
-            yield self.fromNativeField(nativeField, nativeValue, fieldName)
+            # hasattr(nativeField, 'bitpos') == False indicates a static field,
+            # but if we have access to a nativeValue .fromNativeField will
+            # also succeed. We essentially skip only static members from
+            # artificial values, like array members constructed from address.
+            if hasattr(nativeField, 'bitpos') or nativeValue is not None:
+                yield self.fromNativeField(nativeField, nativeValue, fieldName)
 
     def fromNativeField(self, nativeField, nativeValue, fieldName):
         nativeFieldType = nativeField.type.unqualified()
