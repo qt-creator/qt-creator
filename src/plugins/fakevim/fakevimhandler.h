@@ -157,6 +157,8 @@ signals:
     void fold(FakeVimHandler *self, int depth, bool fold);
     void foldGoTo(FakeVimHandler *self, int count, bool current);
     void jumpToGlobalMark(FakeVimHandler *handler, QChar mark, bool backTickMode, const QString &fileName);
+    void tabNextRequested(FakeVimHandler *self);
+    void tabPreviousRequested(FakeVimHandler *self);
 
 public:
     class Private;

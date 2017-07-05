@@ -2141,6 +2141,8 @@ public:
     bool handleExShiftCommand(const ExCommand &cmd);
     bool handleExSourceCommand(const ExCommand &cmd);
     bool handleExSubstituteCommand(const ExCommand &cmd);
+    bool handleExTabNextCommand(const ExCommand &cmd);
+    bool handleExTabPreviousCommand(const ExCommand &cmd);
     bool handleExWriteCommand(const ExCommand &cmd);
     bool handleExEchoCommand(const ExCommand &cmd);
 
@@ -5561,6 +5563,24 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
     return true;
 }
 
+bool FakeVimHandler::Private::handleExTabNextCommand(const ExCommand &cmd)
+{
+    if (cmd.cmd != "tabnext" && cmd.cmd != "tabn")
+        return false;
+
+    emit q->tabNextRequested(q);
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExTabPreviousCommand(const ExCommand &cmd)
+{
+    if (cmd.cmd != "tabprevious" && cmd.cmd != "tabp")
+        return false;
+
+    emit q->tabPreviousRequested(q);
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
 {
     QByteArray modes;
@@ -6212,6 +6232,8 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExShiftCommand(cmd)
         || handleExSourceCommand(cmd)
         || handleExSubstituteCommand(cmd)
+        || handleExTabNextCommand(cmd)
+        || handleExTabPreviousCommand(cmd)
         || handleExWriteCommand(cmd)
         || handleExEchoCommand(cmd);
 }

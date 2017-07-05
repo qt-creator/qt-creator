@@ -1802,6 +1802,11 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &FakeVimPluginPrivate::writeSettings);
 
+    connect(handler, &FakeVimHandler::tabNextRequested,
+            this, [this] { triggerAction(Core::Constants::GOTONEXTINHISTORY); });
+    connect(handler, &FakeVimHandler::tabPreviousRequested,
+            this, [this] { triggerAction(Core::Constants::GOTOPREVINHISTORY); });
+
     handler->setCurrentFileName(editor->document()->filePath().toString());
     handler->installEventFilter();
 
