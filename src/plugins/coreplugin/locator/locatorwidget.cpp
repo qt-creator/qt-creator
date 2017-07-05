@@ -99,6 +99,14 @@ private:
     QColor mBackgroundColor;
 };
 
+class CompletionDelegate : public SearchResultTreeItemDelegate
+{
+public:
+    CompletionDelegate(QObject *parent);
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+};
+
 class CompletionList : public Utils::TreeView
 {
 public:
@@ -234,7 +242,7 @@ void LocatorModel::addEntries(const QList<LocatorFilterEntry> &entries)
 CompletionList::CompletionList(QWidget *parent)
     : Utils::TreeView(parent)
 {
-    setItemDelegate(new SearchResultTreeItemDelegate(0, this));
+    setItemDelegate(new CompletionDelegate(this));
     setRootIsDecorated(false);
     setUniformRowHeights(true);
     header()->hide();
@@ -891,6 +899,16 @@ LocatorPopup *createLocatorPopup(Locator *locator, QWidget *parent)
     popup->setWindowFlags(Qt::Popup);
     popup->setAttribute(Qt::WA_DeleteOnClose);
     return popup;
+}
+
+CompletionDelegate::CompletionDelegate(QObject *parent)
+    : SearchResultTreeItemDelegate(0, parent)
+{
+}
+
+QSize CompletionDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    return SearchResultTreeItemDelegate::sizeHint(option, index) + QSize(0, 2);
 }
 
 } // namespace Internal
