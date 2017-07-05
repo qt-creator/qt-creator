@@ -221,7 +221,7 @@ void QmlJSEditorWidget::modificationChanged(bool changed)
 
 bool QmlJSEditorWidget::isOutlineCursorChangesBlocked()
 {
-    return hasFocus() || m_blockOutLineCursorChanges;
+    return hasFocus();
 }
 
 void QmlJSEditorWidget::jumpToOutlineElement(int /*index*/)
@@ -814,7 +814,6 @@ void QmlJSEditorWidget::showContextPane()
 
 void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
-    m_blockOutLineCursorChanges = true;
     QPointer<QMenu> menu(new QMenu(this));
 
     QMenu *refactoringMenu = new QMenu(tr("Refactoring"), menu);
@@ -859,7 +858,6 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
     menu->exec(e->globalPos());
     delete menu;
-    m_blockOutLineCursorChanges = false;
 }
 
 bool QmlJSEditorWidget::event(QEvent *e)

@@ -125,6 +125,14 @@ void QmlJSOutlineWidget::setEditor(QmlJSEditorWidget *editor)
 
     m_filterModel->setSourceModel(m_editor->qmlJsEditorDocument()->outlineModel());
     m_treeView->expandAll();
+    connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QAbstractItemModel::modelAboutToBeReset, [this]() {
+        if (m_treeView && m_treeView->selectionModel())
+            m_treeView->selectionModel()->blockSignals(true);
+    });
+    connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QAbstractItemModel::modelReset, [this]() {
+        if (m_treeView && m_treeView->selectionModel())
+            m_treeView->selectionModel()->blockSignals(false);
+    });
 
     connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &QmlJSOutlineWidget::updateSelectionInText);
@@ -195,29 +203,34 @@ void QmlJSOutlineWidget::updateSelectionInText(const QItemSelection &selection)
 
 void QmlJSOutlineWidget::updateTextCursor(const QModelIndex &index)
 {
-    if (!m_editor->isOutlineCursorChangesBlocked()) {
-        QModelIndex sourceIndex = m_filterModel->mapToSource(index);
-        AST::SourceLocation location
-                = m_editor->qmlJsEditorDocument()->outlineModel()->sourceLocation(sourceIndex);
+    const auto update = [this](const QModelIndex &index) {
+        if (!m_editor->isOutlineCursorChangesBlocked()) {
+            QModelIndex sourceIndex = m_filterModel->mapToSource(index);
 
-        if (!location.isValid())
-            return;
+            AST::SourceLocation location
+                    = m_editor->qmlJsEditorDocument()->outlineModel()->sourceLocation(sourceIndex);
 
-        const QTextBlock lastBlock = m_editor->document()->lastBlock();
-        const uint textLength = lastBlock.position() + lastBlock.length();
-        if (location.offset >= textLength)
-            return;
+            if (!location.isValid())
+                return;
 
-        Core::EditorManager::cutForwardNavigationHistory();
-        Core::EditorManager::addCurrentPositionToNavigationHistory();
+            const QTextBlock lastBlock = m_editor->document()->lastBlock();
+            const uint textLength = lastBlock.position() + lastBlock.length();
+            if (location.offset >= textLength)
+                return;
 
-        QTextCursor textCursor = m_editor->textCursor();
-        m_blockCursorSync = true;
-        textCursor.setPosition(location.offset);
-        m_editor->setTextCursor(textCursor);
-        m_editor->centerCursor();
-        m_blockCursorSync = false;
-    }
+            Core::EditorManager::cutForwardNavigationHistory();
+            Core::EditorManager::addCurrentPositionToNavigationHistory();
+
+            QTextCursor textCursor = m_editor->textCursor();
+
+            textCursor.setPosition(location.offset);
+            m_editor->setTextCursor(textCursor);
+            m_editor->centerCursor();
+        }
+    };
+    m_blockCursorSync = true;
+    update(index);
+    m_blockCursorSync = false;
 }
 
 void QmlJSOutlineWidget::focusEditor()
