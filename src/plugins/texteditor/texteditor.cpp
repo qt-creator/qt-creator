@@ -8281,9 +8281,13 @@ IEditor *BaseTextEditor::duplicate()
 
 } // namespace TextEditor
 
+QT_BEGIN_NAMESPACE
+
 uint qHash(const QColor &color)
 {
     return color.rgba();
 }
+
+QT_END_NAMESPACE
 
 #include "texteditor.moc"

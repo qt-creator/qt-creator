@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "testenvironment.h"
 
 #include <clangbackendipc_global.h>
 #include <clangreferencescollector.h>
@@ -78,7 +79,9 @@ struct Data {
         document.parse();
     }
 
-    ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-std=c++14")}};
+    ProjectPart projectPart{
+        Utf8StringLiteral("projectPartId"),
+        TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++14")})};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{projects, unsavedFiles};

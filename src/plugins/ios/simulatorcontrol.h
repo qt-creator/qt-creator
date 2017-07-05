@@ -55,9 +55,11 @@ class SimulatorInfo : public SimulatorEntity
     friend QDebug &operator<<(QDebug &, const SimulatorInfo &info);
 
 public:
-    bool isBooted() const { return state.compare(QStringLiteral("Booted")) == 0; }
-    bool isShutdown() const { return state.compare(QStringLiteral("Shutdown")) == 0; }
+    bool isBooted() const { return state == "Booted"; }
     bool isShuttingDown() const { return state == "Shutting Down"; }
+    bool isShutdown() const { return state == "Shutdown"; }
+    bool operator==(const SimulatorInfo &other) const;
+    bool operator!=(const SimulatorInfo &other) const { return !(*this == other); }
     bool available;
     QString state;
     QString runtimeName;

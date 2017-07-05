@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,32 +25,43 @@
 
 #pragma once
 
-#include <clangbackendipc_global.h>
-#include <clangbackendipc/diagnosticcontainer.h>
+#include <QDialog>
+#include <QFutureSynchronizer>
 
-#include <texteditor/textmark.h>
+namespace Ios {
+namespace Internal {
 
-#include <functional>
+namespace Ui { class CreateSimulatorDialog; }
+class SimulatorControl;
+class RuntimeInfo;
+class DeviceTypeInfo;
 
-namespace ClangCodeModel {
-
-class ClangTextMark : public TextEditor::TextMark
+/*!
+    A dialog to select the iOS Device type and the runtime for a new
+    iOS simulator device.
+ */
+class CreateSimulatorDialog : public QDialog
 {
+    Q_OBJECT
+
 public:
-    using RemovedFromEditorHandler = std::function<void(ClangTextMark *)>;
+    explicit CreateSimulatorDialog(QWidget *parent = nullptr);
+    ~CreateSimulatorDialog();
 
-    ClangTextMark(const QString &fileName,
-                  const ClangBackEnd::DiagnosticContainer &diagnostic,
-                  const RemovedFromEditorHandler &removedHandler);
-
-    void updateIcon(bool valid = true);
-private:
-    bool addToolTipContent(QLayout *target) const override;
-    void removedFromEditor() override;
+    QString name() const;
+    RuntimeInfo runtime() const;
+    DeviceTypeInfo deviceType() const;
 
 private:
-    ClangBackEnd::DiagnosticContainer m_diagnostic;
-    RemovedFromEditorHandler m_removedFromEditorHandler;
+    void populateDeviceTypes(const QList<DeviceTypeInfo> &deviceTypes);
+    void populateRuntimes(const DeviceTypeInfo &deviceType);
+
+private:
+    QFutureSynchronizer<void> m_futureSync;
+    Ui::CreateSimulatorDialog *m_ui = nullptr;
+    SimulatorControl *m_simControl = nullptr;
+    QList<RuntimeInfo> m_runtimes;
 };
 
-} // namespace ClangCodeModel
+} // namespace Internal
+} // namespace Ios

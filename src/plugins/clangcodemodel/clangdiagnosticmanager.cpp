@@ -41,6 +41,7 @@
 #include <utils/fileutils.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QFileInfo>
 #include <QTextBlock>
@@ -347,6 +348,19 @@ ClangDiagnosticManager::diagnosticsAt(uint line, uint column) const
     return diagnostics;
 }
 
+void ClangDiagnosticManager::invalidateDiagnostics()
+{
+    if (m_diagnosticsInvalidated)
+        return;
+
+    m_diagnosticsInvalidated = true;
+    for (ClangTextMark *textMark : m_clangTextMarks) {
+        textMark->setColor(::Utils::Theme::Color::IconsDisabledColor);
+        textMark->updateIcon(/*valid=*/ false);
+        textMark->updateMarker();
+    }
+}
+
 void ClangDiagnosticManager::clearDiagnosticsWithFixIts()
 {
     m_fixItdiagnostics.clear();
@@ -364,6 +378,7 @@ void ClangDiagnosticManager::generateEditorSelections()
 void ClangDiagnosticManager::processNewDiagnostics(
         const QVector<ClangBackEnd::DiagnosticContainer> &allDiagnostics)
 {
+    m_diagnosticsInvalidated = false;
     filterDiagnostics(allDiagnostics);
 
     generateTextMarks();

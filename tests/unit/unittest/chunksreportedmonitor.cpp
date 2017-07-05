@@ -34,9 +34,9 @@ namespace ClangBackEnd {
 ChunksReportedMonitor::ChunksReportedMonitor(const QFuture<TextEditor::HighlightingResult> &future)
     : m_future(future)
 {
-    m_futureWatcher.setFuture(future);
     connect(&m_futureWatcher, &QFutureWatcher<TextEditor::HighlightingResult>::resultsReadyAt,
             this, &ChunksReportedMonitor::onResultsReadyAt);
+    m_futureWatcher.setFuture(future);
 }
 
 bool ChunksReportedMonitor::waitUntilFinished(int timeoutInMs)

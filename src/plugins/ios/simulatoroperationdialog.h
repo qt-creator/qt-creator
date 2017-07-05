@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,32 +25,43 @@
 
 #pragma once
 
-#include <clangbackendipc_global.h>
-#include <clangbackendipc/diagnosticcontainer.h>
+#include "simulatorcontrol.h"
 
-#include <texteditor/textmark.h>
+#include <utils/outputformat.h>
 
-#include <functional>
+#include <QDialog>
+#include <QFuture>
+#include <QList>
 
-namespace ClangCodeModel {
+namespace Utils { class OutputFormatter; }
 
-class ClangTextMark : public TextEditor::TextMark
+namespace Ios {
+namespace Internal {
+
+namespace Ui { class SimulatorOperationDialog; }
+
+class SimulatorOperationDialog : public QDialog
 {
+    Q_OBJECT
 public:
-    using RemovedFromEditorHandler = std::function<void(ClangTextMark *)>;
+    explicit SimulatorOperationDialog(QWidget *parent = nullptr);
+    ~SimulatorOperationDialog();
 
-    ClangTextMark(const QString &fileName,
-                  const ClangBackEnd::DiagnosticContainer &diagnostic,
-                  const RemovedFromEditorHandler &removedHandler);
-
-    void updateIcon(bool valid = true);
-private:
-    bool addToolTipContent(QLayout *target) const override;
-    void removedFromEditor() override;
+public:
+    void addFutures(const QList<QFuture<void> > &futureList);
+    void addMessage(const QString &message, Utils::OutputFormat format);
+    void addMessage(const SimulatorInfo &siminfo, const SimulatorControl::ResponseData &response,
+                    const QString &context);
 
 private:
-    ClangBackEnd::DiagnosticContainer m_diagnostic;
-    RemovedFromEditorHandler m_removedFromEditorHandler;
+    void futureFinished();
+    void updateInputs();
+
+private:
+    Ui::SimulatorOperationDialog *m_ui = nullptr;
+    Utils::OutputFormatter *m_formatter = nullptr;
+    QList<QFutureWatcher<void> *> m_futureWatchList;
 };
 
-} // namespace ClangCodeModel
+} // namespace Internal
+} // namespace Ios

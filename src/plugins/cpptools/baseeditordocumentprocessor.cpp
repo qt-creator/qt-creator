@@ -87,6 +87,10 @@ void BaseEditorDocumentProcessor::editorDocumentTimerRestarted()
 {
 }
 
+void BaseEditorDocumentProcessor::invalidateDiagnostics()
+{
+}
+
 void BaseEditorDocumentProcessor::setParserConfig(
         const BaseEditorDocumentParser::Configuration config)
 {

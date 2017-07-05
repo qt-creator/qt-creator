@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,32 +25,39 @@
 
 #pragma once
 
-#include <clangbackendipc_global.h>
-#include <clangbackendipc/diagnosticcontainer.h>
+#include "simulatorcontrol.h"
 
-#include <texteditor/textmark.h>
+#include <QAbstractListModel>
+#include <QFutureSynchronizer>
 
-#include <functional>
+namespace Ios {
+namespace Internal {
 
-namespace ClangCodeModel {
+using SimulatorInfoList = QList<SimulatorInfo>;
 
-class ClangTextMark : public TextEditor::TextMark
+class SimulatorInfoModel : public QAbstractItemModel
 {
+    Q_OBJECT
+
 public:
-    using RemovedFromEditorHandler = std::function<void(ClangTextMark *)>;
+    SimulatorInfoModel(QObject *parent = nullptr);
 
-    ClangTextMark(const QString &fileName,
-                  const ClangBackEnd::DiagnosticContainer &diagnostic,
-                  const RemovedFromEditorHandler &removedHandler);
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &) const override;
 
-    void updateIcon(bool valid = true);
 private:
-    bool addToolTipContent(QLayout *target) const override;
-    void removedFromEditor() override;
+    void requestSimulatorInfo();
+    void populateSimulators(const SimulatorInfoList &simulatorList);
 
 private:
-    ClangBackEnd::DiagnosticContainer m_diagnostic;
-    RemovedFromEditorHandler m_removedFromEditorHandler;
+    QFutureSynchronizer<void> m_fetchFuture;
+    SimulatorInfoList m_simList;
 };
 
-} // namespace ClangCodeModel
+} // namespace Internal
+} // namespace Ios

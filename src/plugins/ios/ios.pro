@@ -33,7 +33,10 @@ HEADERS += \
     iosdeploystepwidget.h \
     simulatorcontrol.h \
     iosbuildconfiguration.h \
-    iosbuildsettingswidget.h
+    iosbuildsettingswidget.h \
+    createsimulatordialog.h \
+    simulatoroperationdialog.h \
+    simulatorinfomodel.h
 
 
 SOURCES += \
@@ -61,14 +64,19 @@ SOURCES += \
     iosdeploystepwidget.cpp \
     simulatorcontrol.cpp \
     iosbuildconfiguration.cpp \
-    iosbuildsettingswidget.cpp
+    iosbuildsettingswidget.cpp \
+    createsimulatordialog.cpp \
+    simulatoroperationdialog.cpp \
+    simulatorinfomodel.cpp
 
 FORMS += \
     iossettingswidget.ui \
     iosbuildstep.ui \
     iosdeploystepwidget.ui \
     iospresetbuildstep.ui \
-    iosbuildsettingswidget.ui
+    iosbuildsettingswidget.ui \
+    createsimulatordialog.ui \
+    simulatoroperationdialog.ui
 
 DEFINES += IOS_LIBRARY
 

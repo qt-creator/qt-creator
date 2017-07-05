@@ -59,6 +59,8 @@
 #include <QLoggingCategory>
 #include <QProcess>
 #include <QSettings>
+#include <QStringList>
+#include <QStandardPaths>
 #include <QTimer>
 
 using namespace ProjectExplorer;
@@ -75,8 +77,9 @@ using ToolChainPair = std::pair<ClangToolChain *, ClangToolChain *>;
 namespace Ios {
 namespace Internal {
 
-const QLatin1String SettingsGroup("IosConfigurations");
-const QLatin1String ignoreAllDevicesKey("IgnoreAllDevices");
+const char SettingsGroup[] = "IosConfigurations";
+const char ignoreAllDevicesKey[] = "IgnoreAllDevices";
+const char screenshotDirPathKey[] = "ScreeshotDirPath";
 
 const char provisioningTeamsTag[] = "IDEProvisioningTeams";
 const char freeTeamTag[] = "isFreeProvisioningTeam";
@@ -95,9 +98,9 @@ static const QString provisioningProfileDirPath = QDir::homePath() + "/Library/M
 
 static Core::Id deviceId(const QString &sdkName)
 {
-    if (sdkName.toLower().startsWith(QLatin1String("iphoneos")))
+    if (sdkName.startsWith("iphoneos", Qt::CaseInsensitive))
         return Constants::IOS_DEVICE_TYPE;
-    else if (sdkName.toLower().startsWith(QLatin1String("iphonesimulator")))
+    else if (sdkName.startsWith("iphonesimulator", Qt::CaseInsensitive))
         return Constants::IOS_SIMULATOR_TYPE;
     return Core::Id();
 }
@@ -121,8 +124,8 @@ static QList<ClangToolChain *> autoDetectedIosToolChains()
     const QList<ClangToolChain *> toolChains = clangToolChains(ToolChainManager::toolChains());
     return Utils::filtered(toolChains, [](ClangToolChain *toolChain) {
         return toolChain->isAutoDetected()
-               && (toolChain->displayName().startsWith(QLatin1String("iphone"))
-                   || toolChain->displayName().startsWith(QLatin1String("Apple Clang"))); // TODO tool chains should be marked directly
+               && (toolChain->displayName().startsWith("iphone")
+                   || toolChain->displayName().startsWith("Apple Clang")); // TODO tool chains should be marked directly
     });
 }
 
@@ -355,6 +358,19 @@ void IosConfigurations::setIgnoreAllDevices(bool ignoreDevices)
     }
 }
 
+void IosConfigurations::setScreenshotDir(const FileName &path)
+{
+    if (m_instance->m_screenshotDir != path) {
+        m_instance->m_screenshotDir = path;
+        m_instance->save();
+    }
+}
+
+FileName IosConfigurations::screenshotDir()
+{
+    return m_instance->m_screenshotDir;
+}
+
 FileName IosConfigurations::developerPath()
 {
     return m_instance->m_developerPath;
@@ -370,6 +386,7 @@ void IosConfigurations::save()
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
     settings->setValue(ignoreAllDevicesKey, m_ignoreAllDevices);
+    settings->setValue(screenshotDirPathKey, m_screenshotDir.toString());
     settings->endGroup();
 }
 
@@ -384,6 +401,12 @@ void IosConfigurations::load()
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
     m_ignoreAllDevices = settings->value(ignoreAllDevicesKey, false).toBool();
+    m_screenshotDir = FileName::fromString(settings->value(screenshotDirPathKey).toString());
+    if (!m_screenshotDir.exists()) {
+        QString defaultDir = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).first();
+        m_screenshotDir = FileName::fromString(defaultDir);
+    }
+
     settings->endGroup();
 }
 

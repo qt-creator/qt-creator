@@ -53,20 +53,20 @@ Q_LOGGING_CATEGORY(simulatorLog, "qtc.ios.simulator")
 namespace Ios {
 namespace Internal {
 
-static int SIMULATOR_START_TIMEOUT = 60000;
+const int simulatorStartTimeout = 60000;
 
 // simctl Json Tags and tokens.
-static QString DeviceTypeTag = QStringLiteral("devicetypes");
-static QString DevicesTag = QStringLiteral("devices");
-static QString AvailabilityTag = QStringLiteral("availability");
-static QString UnavailabilityToken = QStringLiteral("unavailable");
-static QString IdentifierTag = QStringLiteral("identifier");
-static QString RuntimesTag = QStringLiteral("runtimes");
-static QString NameTag = QStringLiteral("name");
-static QString StateTag = QStringLiteral("state");
-static QString UdidTag = QStringLiteral("udid");
-static QString RuntimeVersionTag = QStringLiteral("version");
-static QString BuildVersionTag = QStringLiteral("buildversion");
+const char deviceTypeTag[] = "devicetypes";
+const char devicesTag[] = "devices";
+const char availabilityTag[] = "availability";
+const char unavailabilityToken[] = "unavailable";
+const char identifierTag[] = "identifier";
+const char runtimesTag[] = "runtimes";
+const char nameTag[] = "name";
+const char stateTag[] = "state";
+const char udidTag[] = "udid";
+const char runtimeVersionTag[] = "version";
+const char buildVersionTag[] = "buildversion";
 
 static bool checkForTimeout(const chrono::high_resolution_clock::time_point &start, int msecs = 10000)
 {
@@ -89,24 +89,24 @@ static bool runCommand(QString command, const QStringList &args, QByteArray *out
 
 static bool runSimCtlCommand(QStringList args, QByteArray *output)
 {
-    args.prepend(QStringLiteral("simctl"));
-    return runCommand(QStringLiteral("xcrun"), args, output);
+    args.prepend("simctl");
+    return runCommand("xcrun", args, output);
 }
 
 static QList<DeviceTypeInfo> getAvailableDeviceTypes()
 {
     QList<DeviceTypeInfo> deviceTypes;
     QByteArray output;
-    runSimCtlCommand({QLatin1String("list"), QLatin1String("-j"), DeviceTypeTag}, &output);
+    runSimCtlCommand({"list", "-j", deviceTypeTag}, &output);
     QJsonDocument doc = QJsonDocument::fromJson(output);
     if (!doc.isNull()) {
-        const QJsonArray runtimesArray = doc.object().value(DeviceTypeTag).toArray();
+        const QJsonArray runtimesArray = doc.object().value(deviceTypeTag).toArray();
         foreach (const QJsonValue deviceTypeValue, runtimesArray) {
             QJsonObject deviceTypeObject = deviceTypeValue.toObject();
-            if (!deviceTypeObject.value(AvailabilityTag).toString().contains(UnavailabilityToken)) {
+            if (!deviceTypeObject.value(availabilityTag).toString().contains(unavailabilityToken)) {
                 DeviceTypeInfo deviceType;
-                deviceType.name = deviceTypeObject.value(NameTag).toString("unknown");
-                deviceType.identifier = deviceTypeObject.value(IdentifierTag).toString("unknown");
+                deviceType.name = deviceTypeObject.value(nameTag).toString("unknown");
+                deviceType.identifier = deviceTypeObject.value(identifierTag).toString("unknown");
                 deviceTypes.append(deviceType);
             }
         }
@@ -121,18 +121,18 @@ static QList<RuntimeInfo> getAvailableRuntimes()
 {
     QList<RuntimeInfo> runtimes;
     QByteArray output;
-    runSimCtlCommand({QLatin1String("list"), QLatin1String("-j"), RuntimesTag}, &output);
+    runSimCtlCommand({"list", "-j", runtimesTag}, &output);
     QJsonDocument doc = QJsonDocument::fromJson(output);
     if (!doc.isNull()) {
-        const QJsonArray runtimesArray = doc.object().value(RuntimesTag).toArray();
+        const QJsonArray runtimesArray = doc.object().value(runtimesTag).toArray();
         foreach (const QJsonValue runtimeValue, runtimesArray) {
             QJsonObject runtimeObject = runtimeValue.toObject();
-            if (!runtimeObject.value(AvailabilityTag).toString().contains(UnavailabilityToken)) {
+            if (!runtimeObject.value(availabilityTag).toString().contains(unavailabilityToken)) {
                 RuntimeInfo runtime;
-                runtime.name = runtimeObject.value(NameTag).toString("unknown");
-                runtime.build = runtimeObject.value(BuildVersionTag).toString("unknown");
-                runtime.identifier = runtimeObject.value(IdentifierTag).toString("unknown");
-                runtime.version = runtimeObject.value(RuntimeVersionTag).toString("unknown");
+                runtime.name = runtimeObject.value(nameTag).toString("unknown");
+                runtime.build = runtimeObject.value(buildVersionTag).toString("unknown");
+                runtime.identifier = runtimeObject.value(identifierTag).toString("unknown");
+                runtime.version = runtimeObject.value(runtimeVersionTag).toString("unknown");
                 runtimes.append(runtime);
             }
         }
@@ -197,21 +197,21 @@ static QList<SimulatorInfo> getAllSimulatorDevices()
 {
     QList<SimulatorInfo> simulatorDevices;
     QByteArray output;
-    runSimCtlCommand({QLatin1String("list"), QLatin1String("-j"), DevicesTag}, &output);
+    runSimCtlCommand({"list", "-j", devicesTag}, &output);
     QJsonDocument doc = QJsonDocument::fromJson(output);
     if (!doc.isNull()) {
-        const QJsonObject runtimeObject = doc.object().value(DevicesTag).toObject();
+        const QJsonObject runtimeObject = doc.object().value(devicesTag).toObject();
         foreach (const QString &runtime, runtimeObject.keys()) {
             const QJsonArray devices = runtimeObject.value(runtime).toArray();
             foreach (const QJsonValue deviceValue, devices) {
                 QJsonObject deviceObject = deviceValue.toObject();
                 SimulatorInfo device;
-                device.identifier = deviceObject.value(UdidTag).toString();
-                device.name = deviceObject.value(NameTag).toString();
+                device.identifier = deviceObject.value(udidTag).toString();
+                device.name = deviceObject.value(nameTag).toString();
                 device.runtimeName = runtime;
-                const QString availableStr = deviceObject.value(AvailabilityTag).toString();
-                device.available = !availableStr.contains(UnavailabilityToken);
-                device.state = deviceObject.value(StateTag).toString();
+                const QString availableStr = deviceObject.value(availabilityTag).toString();
+                device.available = !availableStr.contains(unavailabilityToken);
+                device.state = deviceObject.value(stateTag).toString();
                 simulatorDevices.append(device);
             }
         }
@@ -408,7 +408,7 @@ void SimulatorControlPrivate::startSimulator(QFutureInterface<SimulatorControl::
     // interval of closing the previous interval of the simulator. We wait untill the shutdown
     // process is complete.
     auto start = chrono::high_resolution_clock::now();
-    while (simInfo.isShuttingDown() && !checkForTimeout(start, SIMULATOR_START_TIMEOUT)) {
+    while (simInfo.isShuttingDown() && !checkForTimeout(start, simulatorStartTimeout)) {
         // Wait till the simulator shuts down, if doing so.
         QThread::currentThread()->msleep(100);
         simInfo = deviceInfo(simUdid);
@@ -422,9 +422,9 @@ void SimulatorControlPrivate::startSimulator(QFutureInterface<SimulatorControl::
 
     if (simInfo.isShutdown()) {
         const QString cmd = IosConfigurations::developerPath()
-                .appendPath(QStringLiteral("/Applications/Simulator.app/Contents/MacOS/Simulator"))
+                .appendPath("/Applications/Simulator.app/Contents/MacOS/Simulator")
                 .toString();
-        const QStringList args({QStringLiteral("--args"), QStringLiteral("-CurrentDeviceUDID"), simUdid});
+        const QStringList args({"--args", "-CurrentDeviceUDID", simUdid});
 
         if (QProcess::startDetached(cmd, args)) {
             if (fi.isCanceled())
@@ -439,7 +439,7 @@ void SimulatorControlPrivate::startSimulator(QFutureInterface<SimulatorControl::
                 if (fi.isCanceled())
                     return;
             } while (!info.isBooted()
-                     && !checkForTimeout(start, SIMULATOR_START_TIMEOUT));
+                     && !checkForTimeout(start, simulatorStartTimeout));
             if (info.isBooted()) {
                 response.success = true;
             }
@@ -462,7 +462,7 @@ void SimulatorControlPrivate::installApp(QFutureInterface<SimulatorControl::Resp
     QTC_CHECK(bundlePath.exists());
 
     SimulatorControl::ResponseData response(simUdid);
-    response.success = runSimCtlCommand({QStringLiteral("install"), simUdid, bundlePath.toString()},
+    response.success = runSimCtlCommand({"install", simUdid, bundlePath.toString()},
                                         &response.commandOutput);
     if (!fi.isCanceled())
         fi.reportResult(response);
@@ -475,17 +475,17 @@ void SimulatorControlPrivate::launchApp(QFutureInterface<SimulatorControl::Respo
 {
     SimulatorControl::ResponseData response(simUdid);
     if (!bundleIdentifier.isEmpty() && !fi.isCanceled()) {
-        QStringList args({QStringLiteral("launch"), simUdid, bundleIdentifier});
+        QStringList args({"launch", simUdid, bundleIdentifier});
 
         // simctl usage documentation : Note: Log output is often directed to stderr, not stdout.
         if (!stdoutPath.isEmpty())
-            args.insert(1, QStringLiteral("--stderr=%1").arg(stdoutPath));
+            args.insert(1, QString("--stderr=%1").arg(stdoutPath));
 
         if (!stderrPath.isEmpty())
-            args.insert(1, QStringLiteral("--stdout=%1").arg(stderrPath));
+            args.insert(1, QString("--stdout=%1").arg(stderrPath));
 
         if (waitForDebugger)
-            args.insert(1, QStringLiteral("-w"));
+            args.insert(1, "-w");
 
         foreach (const QString extraArgument, extraArgs) {
             if (!extraArgument.trimmed().isEmpty())
@@ -509,7 +509,7 @@ void SimulatorControlPrivate::deleteSimulator(QFutureInterface<SimulatorControl:
                                               const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
-    response.success = runSimCtlCommand({QStringLiteral("delete"), simUdid}, &response.commandOutput);
+    response.success = runSimCtlCommand({"delete", simUdid}, &response.commandOutput);
 
     if (!fi.isCanceled())
         fi.reportResult(response);
@@ -519,7 +519,7 @@ void SimulatorControlPrivate::resetSimulator(QFutureInterface<SimulatorControl::
                                              const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
-    response.success = runSimCtlCommand({QStringLiteral("erase"), simUdid}, &response.commandOutput);
+    response.success = runSimCtlCommand({"erase", simUdid}, &response.commandOutput);
 
     if (!fi.isCanceled())
         fi.reportResult(response);
@@ -529,7 +529,7 @@ void SimulatorControlPrivate::renameSimulator(QFutureInterface<SimulatorControl:
                                              const QString &simUdid, const QString &newName)
 {
     SimulatorControl::ResponseData response(simUdid);
-    response.success = runSimCtlCommand({QStringLiteral("rename"), simUdid, newName},
+    response.success = runSimCtlCommand({"rename", simUdid, newName},
                                         &response.commandOutput);
 
     if (!fi.isCanceled())
@@ -543,7 +543,7 @@ void SimulatorControlPrivate::createSimulator(QFutureInterface<SimulatorControl:
 {
     SimulatorControl::ResponseData response("Invalid");
     if (!name.isEmpty()) {
-        response.success = runSimCtlCommand({QStringLiteral("create"), name,
+        response.success = runSimCtlCommand({"create", name,
                                              deviceType.identifier,
                                              runtime.identifier},
                                             &response.commandOutput);
@@ -559,8 +559,7 @@ void SimulatorControlPrivate::takeSceenshot(QFutureInterface<SimulatorControl::R
                                             const QString &simUdid, const QString &filePath)
 {
     SimulatorControl::ResponseData response(simUdid);
-    response.success = runSimCtlCommand({QStringLiteral("io"), simUdid, QStringLiteral("screenshot"),
-                                         filePath},
+    response.success = runSimCtlCommand({"io", simUdid, "screenshot", filePath},
                                         &response.commandOutput);
     if (!fi.isCanceled())
         fi.reportResult(response);
@@ -572,6 +571,15 @@ QDebug &operator<<(QDebug &stream, const SimulatorInfo &info)
            << "Availability: " << info.available << "State: " << info.state
            << "Runtime: " << info.runtimeName;
     return stream;
+}
+
+bool SimulatorInfo::operator==(const SimulatorInfo &other) const
+{
+    return identifier == other.identifier
+            && state == other.state
+            && name == other.name
+            && available == other.available
+            && runtimeName == other.runtimeName;
 }
 
 } // namespace Internal

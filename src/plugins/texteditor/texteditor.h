@@ -672,6 +672,10 @@ private:
 
 } // namespace TextEditor
 
+QT_BEGIN_NAMESPACE
+
 uint qHash(const QColor &color);
+
+QT_END_NAMESPACE
 
 Q_DECLARE_METATYPE(TextEditor::TextEditorWidget::Link)

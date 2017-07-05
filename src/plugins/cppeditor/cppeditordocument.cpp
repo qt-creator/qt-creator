@@ -257,6 +257,8 @@ void CppEditorDocument::scheduleProcessDocument()
 
 void CppEditorDocument::processDocument()
 {
+    processor()->invalidateDiagnostics();
+
     if (processor()->isParserRunning() || m_processorRevision != contentsRevision()) {
         m_processorTimer.start();
         processor()->editorDocumentTimerRestarted();
