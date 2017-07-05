@@ -3821,7 +3821,7 @@ void TextEditorWidgetPrivate::drawLineAnnotation(QPainter &painter, const QTextB
         QRectF annotationRect(x, lineRect.top(), q->viewport()->width() - x, lineRect.height());
         if (annotationRect.width() <= 0)
             break;
-        mark->paintAnnotation(&painter, &annotationRect, q->fontMetrics());
+        mark->paintAnnotation(&painter, &annotationRect);
         x += annotationRect.width() + itemOffset;
         m_annotationRects[block.blockNumber()].append({annotationRect, mark});
     }

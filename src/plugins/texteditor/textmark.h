@@ -64,7 +64,15 @@ public:
     int lineNumber() const;
 
     virtual void paintIcon(QPainter *painter, const QRect &rect) const;
-    virtual void paintAnnotation(QPainter *painter, QRectF *annotationRect, const QFontMetrics &fm) const;
+    virtual void paintAnnotation(QPainter *painter, QRectF *annotationRect) const;
+    struct AnnotationRects
+    {
+        QRectF annotationRect;
+        QRectF iconRect;
+        QRectF textRect;
+        QString text;
+    };
+    virtual AnnotationRects annotationRects(const QRectF &boundingRect, const QFontMetrics &fm) const;
     /// called if the filename of the document changed
     virtual void updateFileName(const QString &fileName);
     virtual void updateLineNumber(int lineNumber);
