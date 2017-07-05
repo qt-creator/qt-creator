@@ -359,7 +359,8 @@ QSize LocatorPopup::preferredSize()
 
 void TopLeftLocatorPopup::inputLostFocus()
 {
-    hide();
+    if (!isActiveWindow())
+        hide();
 }
 
 void LocatorPopup::inputLostFocus()
@@ -391,7 +392,8 @@ LocatorPopup::LocatorPopup(LocatorWidget *locatorWidget, QWidget *parent)
     connect(locatorWidget, &LocatorWidget::parentChanged, this, &LocatorPopup::updateWindow);
     connect(locatorWidget, &LocatorWidget::showPopup, this, &LocatorPopup::show);
     connect(locatorWidget, &LocatorWidget::hidePopup, this, &LocatorPopup::close);
-    connect(locatorWidget, &LocatorWidget::lostFocus, this, &LocatorPopup::inputLostFocus);
+    connect(locatorWidget, &LocatorWidget::lostFocus, this, &LocatorPopup::inputLostFocus,
+            Qt::QueuedConnection);
     connect(locatorWidget, &LocatorWidget::selectRow, m_tree, [this](int row) {
         m_tree->setCurrentIndex(m_tree->model()->index(row, 0));
     });
