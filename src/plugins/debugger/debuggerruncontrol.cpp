@@ -278,7 +278,12 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
 
     // Extract as much as possible from available RunConfiguration.
     if (runConfig->runnable().is<StandardRunnable>()) {
+        // FIXME: Needed for core dump which stores the executable in inferior, but not in runConfig
+        // executable.
+        const QString prevExecutable = rp.inferior.executable;
         rp.inferior = runConfig->runnable().as<StandardRunnable>();
+        if (rp.inferior.executable.isEmpty())
+            rp.inferior.executable = prevExecutable;
         rp.useTerminal = rp.inferior.runMode == ApplicationLauncher::Console;
         // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
         rp.inferior.workingDirectory = FileUtils::normalizePathName(rp.inferior.workingDirectory);
@@ -675,6 +680,8 @@ RunConfiguration *dummyRunConfigForKit(ProjectExplorer::Kit *kit)
     Target *target = nullptr;
     if (project) {
         target = project->target(kit);
+        if (!target)
+            target = project->createTarget(kit);
     } else {
         project = new DummyProject;
         target = project->createTarget(kit);
