@@ -50,6 +50,8 @@ public:
 
     bool isValid() const override;
 
+    QString originalTargetTriple() const override;
+
     PredefinedMacrosRunner createPredefinedMacrosRunner() const override;
     QByteArray predefinedMacros(const QStringList &cxxflags) const override;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
