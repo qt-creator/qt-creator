@@ -156,10 +156,12 @@ void DiffFilesController::reload()
 
 void DiffFilesController::reloaded()
 {
-    const QList<FileData> fileDataList = m_futureWatcher.future().results();
+    const bool success = !m_futureWatcher.future().isCanceled();
+    const QList<FileData> fileDataList = success
+            ? m_futureWatcher.future().results() : QList<FileData>();
 
     setDiffFiles(fileDataList);
-    reloadFinished(true);
+    reloadFinished(success);
 }
 
 void DiffFilesController::cancelReload()
