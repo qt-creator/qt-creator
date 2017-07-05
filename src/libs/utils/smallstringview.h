@@ -30,6 +30,7 @@
 #include <QtGlobal>
 
 #include <cstring>
+#include <string>
 
 namespace Utils {
 
