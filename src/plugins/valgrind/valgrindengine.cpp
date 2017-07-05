@@ -55,7 +55,7 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
     : RunWorker(runControl)
 {
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
-    runControl->setSupportsReRunning(false);
+    setSupportsReRunning(false);
 
     if (IRunConfigurationAspect *aspect = runControl->runConfiguration()->extraAspect(ANALYZER_VALGRIND_SETTINGS))
         m_settings = qobject_cast<ValgrindBaseSettings *>(aspect->currentSettings());

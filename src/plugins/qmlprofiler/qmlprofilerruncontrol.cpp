@@ -88,7 +88,7 @@ QmlProfilerRunner::QmlProfilerRunner(RunControl *runControl)
 {
     setDisplayName("QmlProfilerRunner");
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
-    runControl->setSupportsReRunning(false);
+    setSupportsReRunning(false);
 
     // Only wait 4 seconds for the 'Waiting for connection' on application output, then just try to connect
     // (application output might be redirected / blocked)

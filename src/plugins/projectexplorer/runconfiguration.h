@@ -359,6 +359,10 @@ public:
     void reportStopped();
 
     void reportFailure(const QString &msg = QString());
+    void setSupportsReRunning(bool reRunningSupported);
+    bool supportsReRunning() const;
+
+    static QString userMessageForProcessError(QProcess::ProcessError, const QString &programName);
 
 signals:
     void dataReported(int channel, const QVariant &data);
@@ -393,13 +397,13 @@ public:
     ~RunControl() override;
 
     void initiateStart();
+    void initiateReStart();
     void initiateStop();
 
     bool promptToStop(bool *optionalPrompt = nullptr) const;
     void setPromptToStop(const std::function<bool(bool *)> &promptToStop);
 
-    virtual bool supportsReRunning() const;
-    void setSupportsReRunning(bool reRunningSupported);
+    bool supportsReRunning() const;
 
     virtual QString displayName() const;
     void setDisplayName(const QString &displayName);
@@ -512,6 +516,7 @@ private:
 
     ApplicationLauncher m_launcher;
     Runnable m_runnable;
+    bool m_stopReported = false;
 };
 
 } // namespace ProjectExplorer

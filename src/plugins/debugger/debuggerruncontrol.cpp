@@ -116,6 +116,7 @@ void DebuggerRunTool::start()
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
+    setupEngine();
     DebuggerEngine *engine = m_engine;
 
     QTC_ASSERT(engine, return);
@@ -493,6 +494,16 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
       m_isQmlDebugging(qmlDebugging(runControl))
 {
     setDisplayName("DebuggerRunTool");
+    runControl->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
+    runControl->setPromptToStop([](bool *optionalPrompt) {
+        return RunControl::showPromptToStopDialog(
+            DebuggerRunTool::tr("Close Debugging Session"),
+            DebuggerRunTool::tr("A debugging session is still in progress. "
+                                "Terminating the session in the current"
+                                " state can leave the target in an inconsistent state."
+                                " Would you still like to terminate it?"),
+                QString(), QString(), optionalPrompt);
+    });
 }
 
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerStartParameters &sp, QString *errorMessage)
@@ -514,29 +525,21 @@ void DebuggerRunTool::setStartParameters(const DebuggerStartParameters &sp, QStr
 
 void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp, QString *errorMessage)
 {
+    Q_UNUSED(errorMessage);
+    m_runParameters = rp;
+}
+
+void DebuggerRunTool::setupEngine()
+{
+    // QML and/or mixed are not prepared for it.
+    setSupportsReRunning(!(m_runParameters.languages & QmlLanguage));
+
     // FIXME: Disabled due to Android. Make Android device report available ports instead.
 //    int portsUsed = portsUsedByDebugger();
 //    if (portsUsed > device()->freePorts().count()) {
-//        if (errorMessage)
-//            *errorMessage = tr("Cannot debug: Not enough free ports available.");
+//        reportFailure(tr("Cannot debug: Not enough free ports available."));
 //        return;
 //    }
-
-    m_runParameters = rp;
-
-    // QML and/or mixed are not prepared for it.
-    runControl()->setSupportsReRunning(!(rp.languages & QmlLanguage));
-
-    runControl()->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
-    runControl()->setPromptToStop([](bool *optionalPrompt) {
-        return RunControl::showPromptToStopDialog(
-            DebuggerRunTool::tr("Close Debugging Session"),
-            DebuggerRunTool::tr("A debugging session is still in progress. "
-                                "Terminating the session in the current"
-                                " state can leave the target in an inconsistent state."
-                                " Would you still like to terminate it?"),
-                QString(), QString(), optionalPrompt);
-    });
 
     if (Internal::fixupParameters(m_runParameters, runControl(), m_errors)) {
         m_engine = createEngine(m_runParameters.cppEngineType,
@@ -545,9 +548,7 @@ void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp, QString 
                                 m_runParameters.useTerminal,
                                 &m_errors);
         if (!m_engine) {
-            QString msg = m_errors.join('\n');
-            if (errorMessage)
-                *errorMessage = msg;
+            reportFailure(m_errors.join('\n'));
             return;
         }
 

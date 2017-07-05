@@ -82,11 +82,14 @@ public:
     int portsUsedByDebugger() const;
 
     void appendSolibSearchPath(const QString &str);
+
 signals:
     void aboutToNotifyInferiorSetupOk();
 
 private:
-    Internal::DebuggerEngine *m_engine = nullptr; // Master engine
+    void setupEngine();
+
+    QPointer<Internal::DebuggerEngine> m_engine; // Master engine
     Internal::DebuggerRunParameters m_runParameters;
     QStringList m_errors;
     bool m_isDying = false;

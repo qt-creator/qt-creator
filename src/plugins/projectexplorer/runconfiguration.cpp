@@ -615,6 +615,7 @@ public:
     int startWatchdogTimerId = -1;
     int stopWatchdogInterval = 0; // 5000;
     int stopWatchdogTimerId = -1;
+    bool supportsReRunning = true;
 };
 
 enum class RunControlState
@@ -671,6 +672,7 @@ public:
     void debugMessage(const QString &msg);
 
     void initiateStart();
+    void initiateReStart();
     void continueStart();
     void initiateStop();
     void continueStop();
@@ -682,6 +684,7 @@ public:
     void showError(const QString &msg);
 
     static bool isAllowedTransition(RunControlState from, RunControlState to);
+    bool supportsReRunning() const;
 
     RunControl *q;
     QString displayName;
@@ -699,7 +702,6 @@ public:
     Utils::ProcessHandle applicationProcessHandle;
 
     RunControlState state = RunControlState::Initialized;
-    bool supportsReRunning = true;
 
     QList<QPointer<RunWorker>> m_workers;
 
@@ -749,6 +751,12 @@ void RunControl::initiateStart()
 {
     emit aboutToStart();
     d->initiateStart();
+}
+
+void RunControl::initiateReStart()
+{
+    emit aboutToStart();
+    d->initiateReStart();
 }
 
 void RunControl::initiateStop()
@@ -804,6 +812,22 @@ void RunControlPrivate::initiateStart()
     checkState(RunControlState::Initialized);
     setState(RunControlState::Starting);
     debugMessage("Queue: Starting");
+
+    continueStart();
+}
+
+void RunControlPrivate::initiateReStart()
+{
+    checkState(RunControlState::Stopped);
+
+    // Re-set worked on re-runs.
+    for (RunWorker *worker : m_workers) {
+        if (worker->d->state == RunWorkerState::Done)
+            worker->d->state = RunWorkerState::Initialized;
+    }
+
+    setState(RunControlState::Starting);
+    debugMessage("Queue: ReStarting");
 
     continueStart();
 }
@@ -870,6 +894,7 @@ void RunControlPrivate::continueStop()
 {
     debugMessage("Continue Stopping");
     checkState(RunControlState::Stopping);
+    bool allDone = true;
     for (RunWorker *worker : m_workers) {
         if (worker) {
             const QString &workerId = worker->d->id;
@@ -881,15 +906,18 @@ void RunControlPrivate::continueStop()
                     break;
                 case RunWorkerState::Stopping:
                     debugMessage("  " + workerId + " was already Stopping. Keeping it that way");
+                    allDone = false;
                     break;
                 case RunWorkerState::Starting:
                     worker->d->state = RunWorkerState::Stopping;
                     debugMessage("  " + workerId + " was Starting, queuing stop");
+                    allDone = false;
                     QTimer::singleShot(0, worker, &RunWorker::initiateStop);
                     return; // Sic.
                 case RunWorkerState::Running:
                     debugMessage("  " + workerId + " was Running, queuing stop");
                     worker->d->state = RunWorkerState::Stopping;
+                    allDone = false;
                     QTimer::singleShot(0, worker, &RunWorker::initiateStop);
                     return; // Sic.
                 case RunWorkerState::Done:
@@ -903,8 +931,10 @@ void RunControlPrivate::continueStop()
             debugMessage("Found unknown deleted worker");
         }
     }
-    debugMessage("All workers stopped. Set runControl to Stopped");
-    setState(RunControlState::Stopped);
+    if (allDone) {
+        debugMessage("All workers stopped. Set runControl to Stopped");
+        setState(RunControlState::Stopped);
+    }
 }
 
 void RunControlPrivate::onWorkerStarted(RunWorker *worker)
@@ -1077,12 +1107,18 @@ void RunControl::setPromptToStop(const std::function<bool (bool *)> &promptToSto
 
 bool RunControl::supportsReRunning() const
 {
-    return d->supportsReRunning;
+    return d->supportsReRunning();
 }
 
-void RunControl::setSupportsReRunning(bool reRunningSupported)
+bool RunControlPrivate::supportsReRunning() const
 {
-    d->supportsReRunning = reRunningSupported;
+    for (RunWorker *worker : m_workers) {
+        if (!worker->d->supportsReRunning)
+            return false;
+        if (worker->d->state != RunWorkerState::Done)
+            return false;
+    }
+    return true;
 }
 
 bool RunControl::isRunning() const
@@ -1185,7 +1221,6 @@ void RunControlPrivate::setState(RunControlState newState)
         foreach (auto worker, m_workers)
             if (worker)
                 worker->onFinished();
-        //state = RunControlState::Initialized; // Reset for potential re-running.
         emit q->finished();
         break;
     default:
@@ -1261,6 +1296,7 @@ SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
 
 void SimpleTargetRunner::start()
 {
+    m_stopReported = false;
     m_launcher.disconnect(this);
 
     QString msg = RunControl::tr("Starting %1...").arg(m_runnable.displayName());
@@ -1358,14 +1394,22 @@ void SimpleTargetRunner::onProcessFinished(int exitCode, QProcess::ExitStatus st
     else
         msg = tr("%2 exited with code %1").arg(exitCode);
     appendMessage(msg.arg(m_runnable.displayName()), Utils::NormalMessageFormat);
-    reportStopped();
+    if (!m_stopReported) {
+        m_stopReported = true;
+        reportStopped();
+    }
 }
 
-void SimpleTargetRunner::onProcessError(QProcess::ProcessError)
+void SimpleTargetRunner::onProcessError(QProcess::ProcessError error)
 {
-    QString msg = tr("%1 finished.");
-    appendMessage(msg.arg(m_runnable.displayName()), Utils::NormalMessageFormat);
-    reportStopped();
+    if (error == QProcess::Timedout)
+        return; // No actual change on the process side.
+    QString msg = userMessageForProcessError(error, m_runnable.displayName());
+    appendMessage(msg, Utils::NormalMessageFormat);
+    if (!m_stopReported) {
+        m_stopReported = true;
+        reportStopped();
+    }
 }
 
 void SimpleTargetRunner::setRunnable(const Runnable &runnable)
@@ -1517,6 +1561,49 @@ void RunWorker::recordData(const QString &channel, const QVariant &data)
 QVariant RunWorker::recordedData(const QString &channel) const
 {
     return d->data[channel];
+}
+
+void RunWorker::setSupportsReRunning(bool reRunningSupported)
+{
+    d->supportsReRunning = reRunningSupported;
+}
+
+bool RunWorker::supportsReRunning() const
+{
+  return d->supportsReRunning;
+}
+
+QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, const QString &program)
+{
+    QString failedToStart = tr("The process failed to start.");
+    QString msg = tr("An unknown error in the process occurred.");
+    switch (error) {
+        case QProcess::FailedToStart:
+            msg = failedToStart + ' ' + tr("Either the "
+                "invoked program \"%1\" is missing, or you may have insufficient "
+                "permissions to invoke the program.").arg(program);
+            break;
+        case QProcess::Crashed:
+            msg = tr("The process was ended forcefully");
+            break;
+        case QProcess::Timedout:
+            // "The last waitFor...() function timed out. "
+            //   "The state of QProcess is unchanged, and you can try calling "
+            // "waitFor...() again."
+            return QString(); // sic!
+        case QProcess::WriteError:
+            msg = tr("An error occurred when attempting to write "
+                "to the process. For example, the process may not be running, "
+                "or it may have closed its input channel.");
+            break;
+        case QProcess::ReadError:
+            msg = tr("An error occurred when attempting to read from "
+                "the process. For example, the process may not be running.");
+            break;
+        case QProcess::UnknownError:
+            break;
+    }
+    return msg;
 }
 
 void RunWorker::start()

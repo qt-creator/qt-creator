@@ -515,7 +515,7 @@ void AppOutputPane::reRunRunControl()
 
     handleOldOutput(tab.window);
     tab.window->scrollToBottom();
-    tab.runControl->initiateStart();
+    tab.runControl->initiateReStart();
 }
 
 void AppOutputPane::attachToRunControl()

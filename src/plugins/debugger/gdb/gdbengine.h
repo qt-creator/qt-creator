@@ -374,7 +374,6 @@ protected:
     //
     // Convenience Functions
     //
-    QString errorMessage(QProcess::ProcessError error);
     void showExecutionError(const QString &message);
     QString failedToStartMessage();
 
