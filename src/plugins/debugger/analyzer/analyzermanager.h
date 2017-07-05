@@ -58,7 +58,6 @@ enum ToolMode {
 // FIXME: Merge with something sensible.
 DEBUGGER_EXPORT bool wantRunTool(ToolMode toolMode, const QString &toolName);
 DEBUGGER_EXPORT void showCannotStartDialog(const QString &toolName);
-DEBUGGER_EXPORT ProjectExplorer::RunConfiguration *startupRunConfiguration();
 
 // Register a tool for a given start mode.
 DEBUGGER_EXPORT void registerPerspective(const QByteArray &perspectiveId, const Utils::Perspective *perspective);
