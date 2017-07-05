@@ -28,6 +28,21 @@ defineTest(versionIsAtLeast) {
     return(false)
 }
 
+defineTest(versionIsEqual) {
+    actual_major_version = $$extractMajorVersion($$1)
+    actual_minor_version = $$extractMinorVersion($$1)
+    required_min_major_version = $$2
+    required_min_minor_version = $$3
+
+    isEqual(actual_major_version, $$required_min_major_version) {
+        isEqual(actual_minor_version, $$required_min_minor_version) {
+            return(true)
+        }
+    }
+
+    return(false)
+}
+
 defineReplace(findLLVMVersionFromLibDir) {
     libdir = $$1
     version_dirs = $$files($$libdir/clang/*)
@@ -102,9 +117,13 @@ LIBCLANG_LIBS += $${CLANG_LIB}
 
 QTC_NO_CLANG_LIBTOOLING=$$(QTC_NO_CLANG_LIBTOOLING)
 isEmpty(QTC_NO_CLANG_LIBTOOLING) {
-    !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBTOOLING_LIBS = -L$${LLVM_LIBDIR}
-    LIBTOOLING_LIBS += $$CLANGTOOLING_LIBS $$LLVM_STATIC_LIBS
-    contains(QMAKE_DEFAULT_INCDIRS, $$LLVM_INCLUDEPATH): LLVM_INCLUDEPATH =
+    versionIsEqual($$LLVM_VERSION, 3, 9) {
+        !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBTOOLING_LIBS = -L$${LLVM_LIBDIR}
+        LIBTOOLING_LIBS += $$CLANGTOOLING_LIBS $$LLVM_STATIC_LIBS
+        contains(QMAKE_DEFAULT_INCDIRS, $$LLVM_INCLUDEPATH): LLVM_INCLUDEPATH =
+    } else {
+        warning("Clang LibTooling is disabled because only version 3.9 is supported.")
+    }
 } else {
     warning("Clang LibTooling is disabled.")
 }
