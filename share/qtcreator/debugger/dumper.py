@@ -577,6 +577,8 @@ class DumperBase:
         #warn("TARGS: %s %s" % (typename, targs))
         res = []
         for item in targs[::-1]:
+            if len(item) == 0:
+                continue
             c = ord(item[0])
             if c in (45, 46) or (c >= 48 and c < 58): # '-', '.' or digit.
                 if item.find('.') > -1:
