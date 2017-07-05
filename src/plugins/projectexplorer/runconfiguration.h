@@ -446,6 +446,7 @@ public:
     bool isRunning() const;
     bool isStarting() const;
     bool isStopping() const;
+    bool isStopped() const;
 
     void setIcon(const Utils::Icon &icon);
     Utils::Icon icon() const;

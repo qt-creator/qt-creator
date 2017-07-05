@@ -1117,6 +1117,11 @@ bool RunControl::isStopping() const
     return d->state == RunControlState::Stopping;
 }
 
+bool RunControl::isStopped() const
+{
+    return d->state == RunControlState::Stopped;
+}
+
 /*!
     Prompts to terminate the application with the \gui {Do not ask again}
     checkbox.
