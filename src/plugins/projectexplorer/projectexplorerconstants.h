@@ -73,6 +73,7 @@ const char G_PROJECT_FILES[]      = "Project.Group.Files";
 const char G_PROJECT_TREE[]       = "Project.Group.Tree";
 const char G_PROJECT_LAST[]       = "Project.Group.Last";
 
+const char G_FOLDER_LOCATIONS[]   = "ProjectFolder.Group.Locations";
 const char G_FOLDER_FILES[]       = "ProjectFolder.Group.Files";
 const char G_FOLDER_OTHER[]       = "ProjectFolder.Group.Other";
 const char G_FOLDER_CONFIG[]      = "ProjectFolder.Group.Config";

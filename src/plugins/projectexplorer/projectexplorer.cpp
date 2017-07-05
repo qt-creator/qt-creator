@@ -235,6 +235,9 @@ const char G_BUILD_RUN[]          = "ProjectExplorer.Group.Run";
 const char G_BUILD_CANCEL[]       = "ProjectExplorer.Group.BuildCancel";
 
 const char RUNMENUCONTEXTMENU[]   = "Project.RunMenu";
+const char FOLDER_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.F.OpenLocation.CtxMenu";
+const char PROJECT_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.P.OpenLocation.CtxMenu";
+const char SUBPROJECT_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.S.OpenLocation.CtxMenu";
 
 } // namespace Constants
 
@@ -275,6 +278,7 @@ public:
     void deploy(QList<Project *>);
     int queue(QList<Project *>, QList<Id> stepIds);
     void updateContextMenuActions();
+    void updateLocationSubMenus();
     void executeRunConfiguration(RunConfiguration *, Core::Id mode);
     QPair<bool, QString> buildSettingsEnabledForSession();
     QPair<bool, QString> buildSettingsEnabled(const Project *pro);
@@ -686,6 +690,22 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     ActionContainer *menubar =
         ActionManager::actionContainer(Core::Constants::MENU_BAR);
 
+    // context menu sub menus:
+    ActionContainer *folderOpenLocationCtxMenu =
+            ActionManager::createMenu(Constants::FOLDER_OPEN_LOCATIONS_CONTEXT_MENU);
+    folderOpenLocationCtxMenu->menu()->setTitle(tr("Open..."));
+    folderOpenLocationCtxMenu->setOnAllDisabledBehavior(ActionContainer::Show);
+
+    ActionContainer *subProjectOpenLocationCtxMenu =
+            ActionManager::createMenu(Constants::PROJECT_OPEN_LOCATIONS_CONTEXT_MENU);
+    subProjectOpenLocationCtxMenu->menu()->setTitle(tr("Open..."));
+    subProjectOpenLocationCtxMenu->setOnAllDisabledBehavior(ActionContainer::Show);
+
+    ActionContainer *projectOpenLocationCtxMenu =
+            ActionManager::createMenu(Constants::PROJECT_OPEN_LOCATIONS_CONTEXT_MENU);
+    projectOpenLocationCtxMenu->menu()->setTitle(tr("Open..."));
+    projectOpenLocationCtxMenu->setOnAllDisabledBehavior(ActionContainer::Show);
+
     // build menu
     ActionContainer *mbuild =
         ActionManager::createMenu(Constants::M_BUILDPROJECT);
@@ -721,6 +741,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->appendGroup(Constants::G_PROJECT_TREE);
 
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_FIRST);
+    mprojectContextMenu->appendGroup(Constants::G_FOLDER_LOCATIONS);
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_BUILD);
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_RUN);
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_REBUILD);
@@ -728,22 +749,33 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_LAST);
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_TREE);
 
+    mprojectContextMenu->addMenu(projectOpenLocationCtxMenu, Constants::G_FOLDER_LOCATIONS);
+    connect(mprojectContextMenu->menu(), &QMenu::aboutToShow,
+            dd, &ProjectExplorerPluginPrivate::updateLocationSubMenus);
+
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_FIRST);
+    msubProjectContextMenu->appendGroup(Constants::G_FOLDER_LOCATIONS);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_BUILD);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_RUN);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_FILES);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_LAST);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_TREE);
 
+    msubProjectContextMenu->addMenu(subProjectOpenLocationCtxMenu, Constants::G_FOLDER_LOCATIONS);
+    connect(msubProjectContextMenu->menu(), &QMenu::aboutToShow,
+            dd, &ProjectExplorerPluginPrivate::updateLocationSubMenus);
+
     ActionContainer *runMenu = ActionManager::createMenu(Constants::RUNMENUCONTEXTMENU);
     runMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
     const QIcon runSideBarIcon = Utils::Icon::sideBarIcon(Icons::RUN, Icons::RUN_FLAT);
     const QIcon runIcon = Utils::Icon::combinedIcon({Utils::Icons::RUN_SMALL.icon(),
                                                      runSideBarIcon});
+
     runMenu->menu()->setIcon(runIcon);
     runMenu->menu()->setTitle(tr("Run"));
     msubProjectContextMenu->addMenu(runMenu, ProjectExplorer::Constants::G_PROJECT_RUN);
 
+    mfolderContextMenu->appendGroup(Constants::G_FOLDER_LOCATIONS);
     mfolderContextMenu->appendGroup(Constants::G_FOLDER_FILES);
     mfolderContextMenu->appendGroup(Constants::G_FOLDER_OTHER);
     mfolderContextMenu->appendGroup(Constants::G_FOLDER_CONFIG);
@@ -759,6 +791,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     openWith->setOnAllDisabledBehavior(ActionContainer::Show);
     dd->m_openWithMenu = openWith->menu();
     dd->m_openWithMenu->setTitle(tr("Open With"));
+
+    mfolderContextMenu->addMenu(folderOpenLocationCtxMenu, Constants::G_FOLDER_LOCATIONS);
+    connect(mfolderContextMenu->menu(), &QMenu::aboutToShow,
+            dd, &ProjectExplorerPluginPrivate::updateLocationSubMenus);
 
     //
     // Separators
@@ -3040,6 +3076,49 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             m_addExistingFilesAction->setVisible(false);
             m_addExistingDirectoryAction->setVisible(false);
         }
+    }
+}
+
+void ProjectExplorerPluginPrivate::updateLocationSubMenus()
+{
+    static QList<QAction *> actions;
+    qDeleteAll(actions); // This will also remove these actions from the menus!
+    actions.clear();
+
+    ActionContainer *projectMenuContainer
+            = ActionManager::actionContainer(Constants::PROJECT_OPEN_LOCATIONS_CONTEXT_MENU);
+    QMenu *projectMenu = projectMenuContainer->menu();
+    QTC_CHECK(projectMenu->actions().isEmpty());
+
+    ActionContainer *folderMenuContainer
+            = ActionManager::actionContainer(Constants::FOLDER_OPEN_LOCATIONS_CONTEXT_MENU);
+    QMenu *folderMenu = folderMenuContainer->menu();
+    QTC_CHECK(folderMenu->actions().isEmpty());
+
+    const FolderNode *const fn
+            = ProjectTree::currentNode() ? ProjectTree::currentNode()->asFolderNode() : nullptr;
+    const QList<FolderNode::LocationInfo> locations
+            = fn ? fn->locationInfo() : QList<FolderNode::LocationInfo>();
+
+    const bool isVisible = !locations.isEmpty();
+    projectMenu->menuAction()->setVisible(isVisible);
+    folderMenu->menuAction()->setVisible(isVisible);
+
+    if (!isVisible)
+        return;
+
+    for (const FolderNode::LocationInfo &li : locations) {
+        const int line = li.line;
+        const Utils::FileName path = li.path;
+        QAction *action = new QAction(li.displayName);
+        connect(action, &QAction::triggered, this, [line, path]() {
+            Core::EditorManager::openEditorAt(path.toString(), line);
+        });
+
+        projectMenu->addAction(action);
+        folderMenu->addAction(action);
+
+        actions.append(action);
     }
 }
 

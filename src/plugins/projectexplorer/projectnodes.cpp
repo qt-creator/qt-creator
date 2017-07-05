@@ -637,6 +637,16 @@ void FolderNode::setIcon(const QIcon &icon)
     m_icon = icon;
 }
 
+void FolderNode::setLocationInfo(const QList<FolderNode::LocationInfo> &info)
+{
+    m_locations = info;
+}
+
+const QList<FolderNode::LocationInfo> FolderNode::locationInfo() const
+{
+    return m_locations;
+}
+
 QString FolderNode::addFileFilter() const
 {
     FolderNode *fn = parentFolderNode();

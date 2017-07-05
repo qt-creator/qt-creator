@@ -243,6 +243,18 @@ public:
     void setDisplayName(const QString &name);
     void setIcon(const QIcon &icon);
 
+    class LocationInfo {
+    public:
+        LocationInfo(const QString &dn, const Utils::FileName &p, const int l = -1) :
+            path(p), line(l), displayName(dn) { }
+
+        Utils::FileName path;
+        int line = -1;
+        QString displayName;
+    };
+    void setLocationInfo(const QList<LocationInfo> &info);
+    const QList<LocationInfo> locationInfo() const;
+
     virtual QString addFileFilter() const;
 
     bool supportsAction(ProjectAction action, Node *node) const override;
@@ -279,6 +291,7 @@ public:
 
 protected:
     QList<Node *> m_nodes;
+    QList<LocationInfo> m_locations;
 
 private:
     QString m_displayName;
