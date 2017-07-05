@@ -3536,6 +3536,8 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
                 QString chunk = list.at(i);
                 if (chunk.startsWith(' '))
                     chunk.remove(0, 1);
+                if (chunk.startsWith('<') || chunk.startsWith('{')) // <unavailable>, {v4_float=...
+                    continue;
                 if (chunk.startsWith("0x"))
                     chunk.remove(0, 2);
                 QTC_ASSERT(chunk.size() == 8, continue);
