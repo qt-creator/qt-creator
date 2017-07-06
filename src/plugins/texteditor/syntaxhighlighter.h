@@ -78,7 +78,10 @@ protected:
     void setDefaultTextFormatCategories();
     void setTextFormatCategories(int count, std::function<TextStyle(int)> formatMapping);
     QTextCharFormat formatForCategory(int categoryIndex) const;
-    virtual void highlightBlock(const QString &text) = 0;
+
+    // implement in subclasses
+    // default implementation highlights whitespace
+    virtual void highlightBlock(const QString &text);
 
     void setFormat(int start, int count, const QTextCharFormat &format);
     void setFormat(int start, int count, const QColor &color);

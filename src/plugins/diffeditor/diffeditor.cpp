@@ -35,6 +35,8 @@
 
 #include <texteditor/displaysettings.h>
 #include <texteditor/marginsettings.h>
+#include <texteditor/syntaxhighlighter.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -120,6 +122,8 @@ DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
     m_context->setWidget(this);
     m_context->setContext(Core::Context(Constants::C_DIFF_EDITOR_DESCRIPTION));
     Core::ICore::addContextObject(m_context);
+
+    textDocument()->setSyntaxHighlighter(new SyntaxHighlighter);
 }
 
 DescriptionEditorWidget::~DescriptionEditorWidget()

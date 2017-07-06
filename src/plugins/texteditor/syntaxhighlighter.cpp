@@ -819,6 +819,11 @@ QTextCharFormat SyntaxHighlighter::formatForCategory(int category) const
     return d->formats.at(category);
 }
 
+void SyntaxHighlighter::highlightBlock(const QString &text)
+{
+    formatSpaces(text);
+}
+
 void SyntaxHighlighterPrivate::updateFormats(const FontSettings &fontSettings)
 {
     for (const auto &pair : Utils::asConst(formatCategories))
