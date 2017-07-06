@@ -27,6 +27,7 @@
 
 #include "algorithm.h"
 #include "qtcassert.h"
+#include "stringutils.h"
 
 #include <QAbstractButton>
 #include <QApplication>
@@ -532,7 +533,7 @@ void FancyMainWindow::addDockActionsToMenu(QMenu *menu)
     Utils::sort(actions, [](const QAction *action1, const QAction *action2) {
         QTC_ASSERT(action1, return true);
         QTC_ASSERT(action2, return false);
-        return action1->text().toLower() < action2->text().toLower();
+        return stripAccelerator(action1->text()).toLower() < stripAccelerator(action2->text()).toLower();
     });
     foreach (QAction *action, actions)
         menu->addAction(action);
