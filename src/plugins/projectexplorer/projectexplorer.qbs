@@ -15,10 +15,6 @@ Project {
         Depends { name: "TextEditor" }
 
         cpp.defines: base.concat("QTC_CPU=X86Architecture")
-        Properties {
-            condition: qbs.targetOS.contains("macos")
-            cpp.frameworks: base.concat(["Carbon"])
-        }
 
         Group {
             name: "General"

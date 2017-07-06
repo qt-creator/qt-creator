@@ -488,7 +488,6 @@ private:
     friend class Internal::RunWorkerPrivate;
 
     static void addWorkerFactory(const WorkerFactory &workerFactory);
-    void bringApplicationToForegroundInternal();
     Internal::RunControlPrivate *d;
 };
 

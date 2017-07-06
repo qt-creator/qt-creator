@@ -704,11 +704,6 @@ public:
     RunControlState state = RunControlState::Initialized;
 
     QList<QPointer<RunWorker>> m_workers;
-
-#ifdef Q_OS_OSX
-    // This is used to bring apps in the foreground on Mac
-    int foregroundCount;
-#endif
 };
 
 } // Internal
@@ -1242,25 +1237,7 @@ void RunControlPrivate::debugMessage(const QString &msg)
 */
 void RunControl::bringApplicationToForeground()
 {
-#ifdef Q_OS_OSX
-    d->foregroundCount = 0;
-    bringApplicationToForegroundInternal();
-#endif
-}
-
-void RunControl::bringApplicationToForegroundInternal()
-{
-#ifdef Q_OS_OSX
-    ProcessSerialNumber psn;
-    GetProcessForPID(d->applicationProcessHandle.pid(), &psn);
-    if (SetFrontProcess(&psn) == procNotFound && d->foregroundCount < 15) {
-        // somehow the mac/carbon api says
-        // "-600 no eligible process with specified process id"
-        // if we call SetFrontProcess too early
-        ++d->foregroundCount;
-        QTimer::singleShot(200, this, &RunControl::bringApplicationToForegroundInternal);
-    }
-#endif
+    d->applicationProcessHandle.activate();
 }
 
 void RunControl::appendMessage(const QString &msg, Utils::OutputFormat format)

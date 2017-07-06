@@ -252,8 +252,9 @@ osx {
     HEADERS += \
         $$PWD/fileutils_mac.h
     OBJECTIVE_SOURCES += \
-        $$PWD/fileutils_mac.mm
-    LIBS += -framework Foundation
+        $$PWD/fileutils_mac.mm \
+        $$PWD/processhandle_mac.mm
+    LIBS += -framework Foundation -framework AppKit
 }
 
 include(mimetypes/mimetypes.pri)
