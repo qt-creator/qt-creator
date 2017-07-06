@@ -1352,6 +1352,7 @@ void DebuggerEngine::quitDebugger()
     switch (state()) {
     case InferiorStopOk:
     case InferiorStopFailed:
+    case InferiorUnrunnable:
         d->queueShutdownInferior();
         break;
     case InferiorRunOk:
@@ -1368,6 +1369,7 @@ void DebuggerEngine::quitDebugger()
         notifyEngineRunFailed();
         break;
     case EngineShutdownRequested:
+    case InferiorShutdownRequested:
         break;
     case EngineRunFailed:
     case DebuggerFinished:
