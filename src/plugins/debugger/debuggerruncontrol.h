@@ -120,7 +120,7 @@ private:
     Utils::Port m_qmlServerPort;
 };
 
-class DEBUGGER_EXPORT GdbServerRunner : public ProjectExplorer::RunWorker
+class DEBUGGER_EXPORT GdbServerRunner : public ProjectExplorer::SimpleTargetRunner
 {
     Q_OBJECT
 
@@ -131,9 +131,7 @@ public:
 
 private:
     void start() override;
-    void stop() override;
 
-    ProjectExplorer::ApplicationLauncher m_gdbServer;
     GdbServerPortsGatherer *m_portsGatherer;
 };
 

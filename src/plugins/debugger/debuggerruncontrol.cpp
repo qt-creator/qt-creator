@@ -740,7 +740,7 @@ void GdbServerPortsGatherer::start()
 // GdbServerRunner
 
 GdbServerRunner::GdbServerRunner(RunControl *runControl, GdbServerPortsGatherer *portsGatherer)
-   : RunWorker(runControl), m_portsGatherer(portsGatherer)
+   : SimpleTargetRunner(runControl), m_portsGatherer(portsGatherer)
 {
     setDisplayName("GdbServerRunner");
 }
@@ -778,22 +778,11 @@ void GdbServerRunner::start()
     r.executable = command;
     r.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);
 
-    connect(&m_gdbServer, &ApplicationLauncher::error, this, [this] {
-        reportFailure(tr("GDBserver start failed"));
-    });
-    connect(&m_gdbServer, &ApplicationLauncher::remoteProcessStarted, this, [this] {
-        appendMessage(tr("GDBserver started") + '\n', NormalMessageFormat);
-        reportStarted();
-    });
+    setRunnable(r);
 
-    appendMessage(tr("Starting GDBserver...") + '\n', NormalMessageFormat);
-    m_gdbServer.start(r, device());
-}
+    appendMessage(tr("Starting GDBserver..."), NormalMessageFormat);
 
-void GdbServerRunner::stop()
-{
-    m_gdbServer.stop();
-    reportStopped();
+    SimpleTargetRunner::start();
 }
 
 } // namespace Debugger
