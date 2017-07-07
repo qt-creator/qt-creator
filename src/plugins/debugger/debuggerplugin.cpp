@@ -637,6 +637,7 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
     void aboutToShutdown();
+    void doShutdown();
 
     void connectEngine(DebuggerRunTool *runTool);
     void disconnectEngine() { connectEngine(0); }
@@ -762,8 +763,6 @@ public:
     void sessionLoaded();
     void aboutToUnloadSession();
     void aboutToSaveSession();
-
-    void coreShutdown();
 
 public:
     void updateDebugActions();
@@ -1050,6 +1049,7 @@ public:
     DebuggerPlugin *m_plugin = 0;
 
     SnapshotHandler *m_snapshotHandler = 0;
+    QTimer m_shutdownTimer;
     bool m_shuttingDown = false;
     QPointer<DebuggerEngine> m_previouslyActiveEngine;
     QPointer<DebuggerRunTool> m_currentRunTool;
@@ -1318,8 +1318,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     m_debuggerSettings = new DebuggerSettings;
     m_debuggerSettings->readSettings();
-
-    connect(ICore::instance(), &ICore::coreAboutToClose, this, &DebuggerPluginPrivate::coreShutdown);
 
     const Context cppDebuggercontext(C_CPPDEBUGGER);
     const Context qmljsDebuggercontext(C_QMLDEBUGGER);
@@ -2796,13 +2794,23 @@ void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
     m_mainWindow->showStatusMessage(msg, timeout);
 }
 
-void DebuggerPluginPrivate::coreShutdown()
+void DebuggerPluginPrivate::aboutToShutdown()
 {
     m_shuttingDown = true;
-    if (currentEngine()) {
-        if (currentEngine()->state() != Debugger::DebuggerNotReady)
-            currentEngine()->abortDebugger();
+
+    disconnect(SessionManager::instance(), &SessionManager::startupProjectChanged, this, nullptr);
+
+    m_mainWindow->saveCurrentPerspective();
+    m_shutdownTimer.setInterval(0);
+    m_shutdownTimer.setSingleShot(true);
+    connect(&m_shutdownTimer, &QTimer::timeout, this, &DebuggerPluginPrivate::doShutdown);
+    if (DebuggerEngine *engine = currentEngine()) {
+        if (engine->state() != Debugger::DebuggerNotReady) {
+            engine->abortDebugger();
+            m_shutdownTimer.setInterval(3000);
+        }
     }
+    m_shutdownTimer.start();
 }
 
 const CPlusPlus::Snapshot &cppCodeModelSnapshot()
@@ -2938,11 +2946,13 @@ void DebuggerPluginPrivate::runControlFinished(DebuggerRunTool *runTool)
 {
     if (runTool && runTool->engine())
         runTool->engine()->handleFinished();
-    if (m_shuttingDown)
-        return;
     showStatusMessage(tr("Debugger finished."));
     m_snapshotHandler->removeSnapshot(runTool);
     if (m_snapshotHandler->size() == 0) {
+        if (m_shuttingDown) {
+            doShutdown();
+            return;
+        }
         // Last engine quits.
         disconnectEngine();
         if (boolSetting(SwitchModeOnExit))
@@ -3120,11 +3130,9 @@ void showModuleSections(const QString &moduleName, const Sections &sections)
     createNewDock(w);
 }
 
-void DebuggerPluginPrivate::aboutToShutdown()
+void DebuggerPluginPrivate::doShutdown()
 {
-    disconnect(SessionManager::instance(), &SessionManager::startupProjectChanged, this, nullptr);
-
-    m_mainWindow->saveCurrentPerspective();
+    m_shutdownTimer.stop();
     delete m_mainWindow;
     m_mainWindow = 0;
 
@@ -3140,6 +3148,7 @@ void DebuggerPluginPrivate::aboutToShutdown()
 
     delete m_mode;
     m_mode = 0;
+    emit m_plugin->asynchronousShutdownFinished();
 }
 
 void updateState(DebuggerRunTool *runTool)
@@ -3302,7 +3311,7 @@ IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 {
     removeObject(this);
     dd->aboutToShutdown();
-    return SynchronousShutdown;
+    return AsynchronousShutdown;
 }
 
 QObject *DebuggerPlugin::remoteCommand(const QStringList &options,
