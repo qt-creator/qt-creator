@@ -457,18 +457,6 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
 
 } // Internal
 
-////////////////////////////////////////////////////////////////////////
-//
-// DebuggerRunControlFactory
-//
-////////////////////////////////////////////////////////////////////////
-
-static bool isDebuggableScript(RunConfiguration *runConfig)
-{
-    QString mainScript = runConfig->property("mainScript").toString();
-    return mainScript.endsWith(".py"); // Only Python for now.
-}
-
 static DebuggerRunConfigurationAspect *debuggerAspect(const RunControl *runControl)
 {
     return runControl->runConfiguration()->extraAspect<DebuggerRunConfigurationAspect>();
@@ -606,60 +594,13 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
     }
 }
 
-namespace Internal {
-
-/// DebuggerRunControlFactory
-
-class DebuggerRunControlFactory : public IRunControlFactory
-{
-public:
-    explicit DebuggerRunControlFactory(QObject *parent)
-        : IRunControlFactory(parent)
-    {}
-
-    RunControl *create(RunConfiguration *runConfig, Core::Id mode, QString *) override
-    {
-        QTC_ASSERT(runConfig, return 0);
-        QTC_ASSERT(mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain, return 0);
-
-        auto runControl = new RunControl(runConfig, mode);
-        (void) new DebuggerRunTool(runControl);
-        return runControl;
-    }
-
-    bool canRun(RunConfiguration *runConfig, Core::Id mode) const override
-    {
-        if (!(mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain))
-            return false;
-
-        Runnable runnable = runConfig->runnable();
-        if (runnable.is<StandardRunnable>()) {
-            IDevice::ConstPtr device = runnable.as<StandardRunnable>().device;
-            if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-                return true;
-        }
-
-        return DeviceTypeKitInformation::deviceTypeId(runConfig->target()->kit())
-                    == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
-                 || isDebuggableScript(runConfig);
-    }
-
-    IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc) override
-    {
-        return new DebuggerRunConfigurationAspect(rc);
-    }
-};
-
-QObject *createDebuggerRunControlFactory(QObject *parent)
-{
-    return new DebuggerRunControlFactory(parent);
-}
-
 ////////////////////////////////////////////////////////////////////////
 //
 // Externally visible helper.
 //
 ////////////////////////////////////////////////////////////////////////
+
+namespace Internal {
 
 /**
  * Used for direct "special" starts from actions in the debugger plugin.
