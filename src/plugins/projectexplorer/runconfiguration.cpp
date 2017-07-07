@@ -45,7 +45,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/messagemanager.h>
 
 #include <QDir>
 #include <QPushButton>
@@ -1201,7 +1200,6 @@ void RunControlPrivate::setState(RunControlState newState)
 
 void RunControlPrivate::debugMessage(const QString &msg)
 {
-    Core::MessageManager::write(msg, Core::MessageManager::Silent);
     qCDebug(statesLog()) << msg;
 }
 
