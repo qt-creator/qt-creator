@@ -702,6 +702,11 @@ GdbServerPortsGatherer::GdbServerPortsGatherer(RunControl *runControl)
     : RunWorker(runControl)
 {
     setDisplayName("GdbServerPortsGatherer");
+
+    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::error,
+            this, &RunWorker::reportFailure);
+    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::portListReady,
+            this, &GdbServerPortsGatherer::handlePortListReady);
 }
 
 GdbServerPortsGatherer::~GdbServerPortsGatherer()
@@ -711,31 +716,29 @@ GdbServerPortsGatherer::~GdbServerPortsGatherer()
 void GdbServerPortsGatherer::start()
 {
     appendMessage(tr("Checking available ports..."), NormalMessageFormat);
-    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::error, this, [this](const QString &msg) {
-        reportFailure(msg);
-    });
-    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::portListReady, this, [this] {
-        Utils::PortList portList = device()->freePorts();
-        appendMessage(tr("Found %1 free ports").arg(portList.count()), NormalMessageFormat);
-        if (m_useGdbServer) {
-            m_gdbServerPort = m_portsGatherer.getNextFreePort(&portList);
-            if (!m_gdbServerPort.isValid()) {
-                reportFailure(tr("Not enough free ports on device for C++ debugging."));
-                return;
-            }
-        }
-        if (m_useQmlServer) {
-            m_qmlServerPort = m_portsGatherer.getNextFreePort(&portList);
-            if (!m_qmlServerPort.isValid()) {
-                reportFailure(tr("Not enough free ports on device for QML debugging."));
-                return;
-            }
-        }
-        reportStarted();
-    });
     m_portsGatherer.start(device());
 }
 
+void GdbServerPortsGatherer::handlePortListReady()
+{
+    Utils::PortList portList = device()->freePorts();
+    appendMessage(tr("Found %1 free ports").arg(portList.count()), NormalMessageFormat);
+    if (m_useGdbServer) {
+        m_gdbServerPort = m_portsGatherer.getNextFreePort(&portList);
+        if (!m_gdbServerPort.isValid()) {
+            reportFailure(tr("Not enough free ports on device for C++ debugging."));
+            return;
+        }
+    }
+    if (m_useQmlServer) {
+        m_qmlServerPort = m_portsGatherer.getNextFreePort(&portList);
+        if (!m_qmlServerPort.isValid()) {
+            reportFailure(tr("Not enough free ports on device for QML debugging."));
+            return;
+        }
+    }
+    reportStarted();
+}
 
 // GdbServerRunner
 

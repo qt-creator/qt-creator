@@ -111,7 +111,8 @@ public:
     Utils::Port qmlServerPort() const { return m_qmlServerPort; }
 
 private:
-    void start();
+    void start() override;
+    void handlePortListReady();
 
     ProjectExplorer::DeviceUsedPortsGatherer m_portsGatherer;
     bool m_useGdbServer = false;
