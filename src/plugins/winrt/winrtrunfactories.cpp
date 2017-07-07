@@ -151,7 +151,7 @@ bool WinRtRunControlFactory::canRun(RunConfiguration *runConfiguration,
 }
 
 RunControl *WinRtRunControlFactory::create(
-        RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
+        RunConfiguration *runConfiguration, Core::Id mode, QString *)
 {
     RunControl *runControl = nullptr;
     if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE) {
@@ -161,15 +161,10 @@ RunControl *WinRtRunControlFactory::create(
     } else if (mode == ProjectExplorer::Constants::DEBUG_RUN_MODE
             || mode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN) {
         runControl = new RunControl(runConfiguration, mode);
-        (void) new WinRtDebugSupport(runControl, errorMessage);
-    } else {
-        *errorMessage = tr("Unsupported run mode %1.").arg(mode.toString());
+        (void) new WinRtDebugSupport(runControl);
+        return runControl;
     }
 
-    if (errorMessage->isEmpty())
-        return runControl;
-
-    delete runControl;
     return nullptr;
 }
 

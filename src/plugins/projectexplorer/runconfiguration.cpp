@@ -1547,7 +1547,12 @@ void RunWorker::setSupportsReRunning(bool reRunningSupported)
 
 bool RunWorker::supportsReRunning() const
 {
-  return d->supportsReRunning;
+    return d->supportsReRunning;
+}
+
+bool RunWorker::hasFailed() const
+{
+    return d->state == RunWorkerState::Failed;
 }
 
 QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, const QString &program)

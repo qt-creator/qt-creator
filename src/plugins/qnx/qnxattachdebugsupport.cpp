@@ -131,18 +131,7 @@ void QnxAttachDebugSupport::attachToProcess()
         sp.solibSearchPath = QnxUtils::searchPaths(qtVersion);
 
     auto runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    if (!runControl) {
-        handleError(tr("Attaching failed."));
-        stopPDebug();
-        return;
-    }
-    QString errorMessage;
-    (void) new Debugger::DebuggerRunTool(runControl, sp, &errorMessage);
-    if (!errorMessage.isEmpty()) {
-        handleError(errorMessage);
-        stopPDebug();
-        return;
-    }
+    (void) new Debugger::DebuggerRunTool(runControl, sp);
 //    connect(qobject_cast<Debugger::DebuggerRunTool *>(runControl->toolRunner()),
 //            &Debugger::DebuggerRunTool::stateChanged,
 //            this, &QnxAttachDebugSupport::handleDebuggerStateChanged);

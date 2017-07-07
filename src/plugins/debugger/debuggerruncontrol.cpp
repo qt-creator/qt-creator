@@ -506,26 +506,25 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
     });
 }
 
-DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerStartParameters &sp, QString *errorMessage)
+DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerStartParameters &sp)
     : DebuggerRunTool(runControl)
 {
-    setStartParameters(sp, errorMessage);
+    setStartParameters(sp);
 }
 
-DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParameters &rp, QString *errorMessage)
+DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParameters &rp)
     : DebuggerRunTool(runControl)
 {
-    setRunParameters(rp, errorMessage);
+    setRunParameters(rp);
 }
 
-void DebuggerRunTool::setStartParameters(const DebuggerStartParameters &sp, QString *errorMessage)
+void DebuggerRunTool::setStartParameters(const DebuggerStartParameters &sp)
 {
-    setRunParameters(sp, errorMessage);
+    setRunParameters(sp);
 }
 
-void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp, QString *errorMessage)
+void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp)
 {
-    Q_UNUSED(errorMessage);
     m_runParameters = rp;
 }
 
@@ -618,15 +617,13 @@ public:
         : IRunControlFactory(parent)
     {}
 
-    RunControl *create(RunConfiguration *runConfig,
-                       Core::Id mode, QString *errorMessage) override
+    RunControl *create(RunConfiguration *runConfig, Core::Id mode, QString *) override
     {
         QTC_ASSERT(runConfig, return 0);
         QTC_ASSERT(mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain, return 0);
 
-        DebuggerStartParameters sp;
         auto runControl = new RunControl(runConfig, mode);
-        (void) new DebuggerRunTool(runControl, sp, errorMessage);
+        (void) new DebuggerRunTool(runControl);
         return runControl;
     }
 
