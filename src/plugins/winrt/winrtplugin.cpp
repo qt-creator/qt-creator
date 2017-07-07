@@ -24,21 +24,28 @@
 ****************************************************************************/
 
 #include "winrtplugin.h"
+#include "winrtconstants.h"
 #include "winrtrunfactories.h"
 #include "winrtdevice.h"
 #include "winrtdevicefactory.h"
 #include "winrtdeployconfiguration.h"
 #include "winrtqtversionfactory.h"
+#include "winrtrunconfiguration.h"
+#include "winrtruncontrol.h"
+#include "winrtdebugsupport.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/target.h>
 
 #include <QtPlugin>
 #include <QSysInfo>
 
-using ExtensionSystem::PluginManager;
-using ProjectExplorer::DeviceManager;
+using namespace ProjectExplorer;
 
 namespace WinRt {
 namespace Internal {
@@ -54,10 +61,33 @@ bool WinRtPlugin::initialize(const QStringList &arguments, QString *errorMessage
     Q_UNUSED(errorMessage)
 
     addAutoReleasedObject(new Internal::WinRtRunConfigurationFactory);
-    addAutoReleasedObject(new Internal::WinRtRunControlFactory);
     addAutoReleasedObject(new Internal::WinRtQtVersionFactory);
     addAutoReleasedObject(new Internal::WinRtDeployConfigurationFactory);
     addAutoReleasedObject(new Internal::WinRtDeployStepFactory);
+
+    auto runConstraint = [](RunConfiguration *runConfig) {
+        IDevice::ConstPtr device = DeviceKitInformation::device(runConfig->target()->kit());
+        if (!device)
+            return false;
+        return qobject_cast<WinRtRunConfiguration *>(runConfig) != nullptr;
+    };
+
+    auto debugConstraint = [](RunConfiguration *runConfig) {
+        IDevice::ConstPtr device = DeviceKitInformation::device(runConfig->target()->kit());
+        if (!device)
+            return false;
+        if (device->type() != Internal::Constants::WINRT_DEVICE_TYPE_LOCAL)
+            return false;
+        return qobject_cast<WinRtRunConfiguration *>(runConfig) != nullptr;
+    };
+
+    RunControl::registerWorker<WinRtRunner>
+        (ProjectExplorer::Constants::NORMAL_RUN_MODE, runConstraint);
+    RunControl::registerWorker<WinRtDebugSupport>
+        (ProjectExplorer::Constants::DEBUG_RUN_MODE, debugConstraint);
+    RunControl::registerWorker<WinRtDebugSupport>
+        (ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN, debugConstraint);
+
     return true;
 }
 
