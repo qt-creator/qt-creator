@@ -307,7 +307,7 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
     }
     path.closeSubpath();
     path.translate(offset);
-    return path;
+    return path.simplified();
 }
 
 void TextEditorOverlay::paintSelection(QPainter *painter,
