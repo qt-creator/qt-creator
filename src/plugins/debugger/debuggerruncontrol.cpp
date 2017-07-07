@@ -739,8 +739,8 @@ void GdbServerPortsGatherer::start()
 
 // GdbServerRunner
 
-GdbServerRunner::GdbServerRunner(RunControl *runControl)
-   : RunWorker(runControl)
+GdbServerRunner::GdbServerRunner(RunControl *runControl, GdbServerPortsGatherer *portsGatherer)
+   : RunWorker(runControl), m_portsGatherer(portsGatherer)
 {
     setDisplayName("GdbServerRunner");
 }
@@ -751,19 +751,18 @@ GdbServerRunner::~GdbServerRunner()
 
 void GdbServerRunner::start()
 {
-    auto portsGatherer = runControl()->worker<GdbServerPortsGatherer>();
-    QTC_ASSERT(portsGatherer, reportFailure(); return);
+    QTC_ASSERT(m_portsGatherer, reportFailure(); return);
 
     StandardRunnable r = runnable().as<StandardRunnable>();
     QStringList args = QtcProcess::splitArgs(r.commandLineArguments, OsTypeLinux);
     QString command;
 
-    const bool isQmlDebugging = portsGatherer->useQmlServer();
-    const bool isCppDebugging = portsGatherer->useGdbServer();
+    const bool isQmlDebugging = m_portsGatherer->useQmlServer();
+    const bool isCppDebugging = m_portsGatherer->useGdbServer();
 
     if (isQmlDebugging) {
         args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                    portsGatherer->qmlServerPort()));
+                                                    m_portsGatherer->qmlServerPort()));
     }
 
     if (isQmlDebugging && !isCppDebugging) {
@@ -774,7 +773,7 @@ void GdbServerRunner::start()
             command = "gdbserver";
         args.clear();
         args.append(QString("--multi"));
-        args.append(QString(":%1").arg(portsGatherer->gdbServerPort().number()));
+        args.append(QString(":%1").arg(m_portsGatherer->gdbServerPort().number()));
     }
     r.executable = command;
     r.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);

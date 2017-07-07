@@ -439,18 +439,6 @@ public:
                                        const QString &cancelButtonText = QString(),
                                        bool *prompt = nullptr);
 
-    QList<QPointer<RunWorker>> workers() const;
-
-    template <class T> T *worker() const {
-        for (const QPointer<RunWorker> &worker : workers()) {
-            if (worker) {
-                if (auto res = qobject_cast<T *>(worker.data()))
-                    return res;
-            }
-        }
-        return nullptr;
-    }
-
     RunWorker *createWorker(Core::Id id);
 
     using WorkerCreator = std::function<RunWorker *(RunControl *)>;

@@ -125,7 +125,8 @@ class DEBUGGER_EXPORT GdbServerRunner : public ProjectExplorer::RunWorker
     Q_OBJECT
 
 public:
-    explicit GdbServerRunner(ProjectExplorer::RunControl *runControl);
+    explicit GdbServerRunner(ProjectExplorer::RunControl *runControl,
+                             GdbServerPortsGatherer *portsGatherer);
     ~GdbServerRunner();
 
 private:
@@ -133,6 +134,7 @@ private:
     void stop() override;
 
     ProjectExplorer::ApplicationLauncher m_gdbServer;
+    GdbServerPortsGatherer *m_portsGatherer;
 };
 
 extern DEBUGGER_EXPORT const char GdbServerRunnerWorkerId[];

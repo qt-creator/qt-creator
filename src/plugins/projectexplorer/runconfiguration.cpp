@@ -771,11 +771,6 @@ void RunControl::registerWorkerCreator(Core::Id id, const WorkerCreator &workerC
     Q_UNUSED(keys);
 }
 
-QList<QPointer<RunWorker> > RunControl::workers() const
-{
-    return d->m_workers;
-}
-
 RunWorker *RunControl::createWorker(Core::Id id)
 {
     auto keys = theWorkerCreators().keys();
