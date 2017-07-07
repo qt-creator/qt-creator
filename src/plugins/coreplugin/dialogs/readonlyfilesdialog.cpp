@@ -35,6 +35,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/stringutils.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -211,7 +212,7 @@ void ReadOnlyFilesDialogPrivate::promptFailWarning(const QStringList &files, Rea
         switch (type) {
         case ReadOnlyFilesDialog::RO_OpenVCS: {
             if (IVersionControl *vc = versionControls[file]) {
-                const QString openText = vc->vcsOpenText().remove(QLatin1Char('&'));
+                const QString openText = Utils::stripAccelerator(vc->vcsOpenText());
                 title = tr("Failed to %1 File").arg(openText);
                 message = tr("%1 file %2 from version control system %3 failed.")
                         .arg(openText)
@@ -411,9 +412,9 @@ void ReadOnlyFilesDialogPrivate::initDialog(const QStringList &fileNames)
                 && versionControlForFile->openSupportMode(fileName) != IVersionControl::NoOpen;
         if (fileManagedByVCS) {
             const QString vcsOpenTextForFile =
-                    versionControlForFile->vcsOpenText().remove(QLatin1Char('&'));
+                    Utils::stripAccelerator(versionControlForFile->vcsOpenText());
             const QString vcsMakeWritableTextforFile =
-                    versionControlForFile->vcsMakeWritableText().remove(QLatin1Char('&'));
+                    Utils::stripAccelerator(versionControlForFile->vcsMakeWritableText());
             if (!useVCS) {
                 vcsOpenTextForAll = vcsOpenTextForFile;
                 vcsMakeWritableTextForAll = vcsMakeWritableTextforFile;

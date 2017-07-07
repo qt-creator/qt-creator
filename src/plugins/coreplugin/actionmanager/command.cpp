@@ -30,6 +30,7 @@
 #include <coreplugin/id.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/stringutils.h>
 
 #include <QAction>
 #include <QRegExp>
@@ -263,9 +264,8 @@ QString Action::description() const
 {
     if (!m_defaultText.isEmpty())
         return m_defaultText;
-    if (action()) {
-        QString text = action()->text();
-        text.remove(QRegExp(QLatin1String("&(?!&)")));
+    if (QAction *act = action()) {
+        const QString text = Utils::stripAccelerator(act->text());
         if (!text.isEmpty())
             return text;
     }

@@ -50,6 +50,9 @@ QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files);
 // If path is not sub of home path, or when running on Windows, returns the input
 QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path);
 
+// Removes first unescaped ampersand in text
+QTCREATOR_UTILS_EXPORT QString stripAccelerator(const QString &text);
+
 class QTCREATOR_UTILS_EXPORT AbstractMacroExpander
 {
 public:

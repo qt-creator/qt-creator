@@ -28,6 +28,7 @@
 #include <coreplugin/actionmanager/command.h>
 
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QAction>
 
@@ -66,7 +67,6 @@ QList<LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<LocatorFil
     QList<LocatorFilterEntry> betterEntries;
     // Get active, enabled actions matching text, store in list.
     // Reference via index in extraInfo.
-    const QChar ampersand = QLatin1Char('&');
     const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
     const int count = d->commands.size();
     for (int i = 0; i < count; i++) {
@@ -77,8 +77,7 @@ QList<LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<LocatorFil
 
         QAction *action = d->commands.at(i)->action();
         if (action && action->isEnabled()) {
-            QString text = action->text();
-            text.remove(ampersand);
+            const QString text = Utils::stripAccelerator(action->text());
             const int index = text.indexOf(entry, 0, entryCaseSensitivity);
             if (index >= 0) {
                 LocatorFilterEntry filterEntry(this, text, QVariant(i));

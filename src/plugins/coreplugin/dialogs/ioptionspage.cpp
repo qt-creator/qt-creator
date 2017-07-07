@@ -28,6 +28,8 @@
 
 #include "ioptionspage.h"
 
+#include <utils/stringutils.h>
+
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QIcon>
@@ -165,18 +167,14 @@ bool Core::IOptionsPage::matches(const QString &searchKeyWord) const
             return false;
         // find common subwidgets
         foreach (const QLabel *label, widget->findChildren<QLabel *>())
-            m_keywords << label->text();
+            m_keywords << Utils::stripAccelerator(label->text());
         foreach (const QCheckBox *checkbox, widget->findChildren<QCheckBox *>())
-            m_keywords << checkbox->text();
+            m_keywords << Utils::stripAccelerator(checkbox->text());
         foreach (const QPushButton *pushButton, widget->findChildren<QPushButton *>())
-            m_keywords << pushButton->text();
+            m_keywords << Utils::stripAccelerator(pushButton->text());
         foreach (const QGroupBox *groupBox, widget->findChildren<QGroupBox *>())
-            m_keywords << groupBox->title();
+            m_keywords << Utils::stripAccelerator(groupBox->title());
 
-        // clean up accelerators
-        QMutableStringListIterator it(m_keywords);
-        while (it.hasNext())
-            it.next().remove(QLatin1Char('&'));
         m_keywordsInitialized = true;
     }
     foreach (const QString &keyword, m_keywords)

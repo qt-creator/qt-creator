@@ -80,6 +80,8 @@ private slots:
     void testWithTildeHomePath();
     void testMacroExpander_data();
     void testMacroExpander();
+    void testStripAccelerator();
+    void testStripAccelerator_data();
 
 private:
     TestMacroExpander mx;
@@ -174,6 +176,30 @@ void tst_StringUtils::testMacroExpander()
 
     Utils::expandMacros(&in, &mx);
     QCOMPARE(in, out);
+}
+
+void tst_StringUtils::testStripAccelerator()
+{
+    QFETCH(QString, expected);
+
+    QCOMPARE(Utils::stripAccelerator(QTest::currentDataTag()), expected);
+}
+
+void tst_StringUtils::testStripAccelerator_data()
+{
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("Test") << "Test";
+    QTest::newRow("&Test") << "Test";
+    QTest::newRow("&&Test") << "&Test";
+    QTest::newRow("T&est") << "Test";
+    QTest::newRow("&Te&&st") << "Te&st";
+    QTest::newRow("T&e&st") << "Test";
+    QTest::newRow("T&&est") << "T&est";
+    QTest::newRow("T&&e&st") << "T&est";
+    QTest::newRow("T&&&est") << "T&est";
+    QTest::newRow("Tes&t") << "Test";
+    QTest::newRow("Test&") << "Test";
 }
 
 QTEST_MAIN(tst_StringUtils)
