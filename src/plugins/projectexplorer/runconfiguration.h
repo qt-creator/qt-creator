@@ -430,10 +430,6 @@ public:
     virtual void appendMessage(const QString &msg, Utils::OutputFormat format);
     virtual void bringApplicationToForeground();
 
-    virtual void notifyRemoteSetupDone(Utils::Port) {}  // FIXME: Replace by ToolRunner functionality
-    virtual void notifyRemoteSetupFailed(const QString &) {} // Same.
-    virtual void notifyRemoteFinished() {} // Same.
-
     static bool showPromptToStopDialog(const QString &title, const QString &text,
                                        const QString &stopButtonText = QString(),
                                        const QString &cancelButtonText = QString(),
