@@ -27,7 +27,8 @@
 #include "baremetalplugin.h"
 #include "baremetalconstants.h"
 #include "baremetaldeviceconfigurationfactory.h"
-#include "baremetalruncontrolfactory.h"
+#include "baremetaldebugsupport.h"
+#include "baremetalrunconfiguration.h"
 #include "baremetalrunconfigurationfactory.h"
 
 #include "gdbserverproviderssettingspage.h"
@@ -45,6 +46,8 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QtPlugin>
+
+using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
@@ -64,10 +67,21 @@ bool BareMetalPlugin::initialize(const QStringList &arguments, QString *errorStr
    Q_UNUSED(errorString)
 
    addAutoReleasedObject(new BareMetalDeviceConfigurationFactory);
-   addAutoReleasedObject(new BareMetalRunControlFactory);
    addAutoReleasedObject(new BareMetalRunConfigurationFactory);
    addAutoReleasedObject(new GdbServerProvidersSettingsPage);
    addAutoReleasedObject(new GdbServerProviderManager);
+
+   auto constraint = [](RunConfiguration *runConfig) {
+       const QByteArray idStr = runConfig->id().name();
+       return runConfig->isEnabled() && idStr.startsWith(BareMetalRunConfiguration::IdPrefix);
+   };
+
+   RunControl::registerWorker<BareMetalDebugSupport>
+       (ProjectExplorer::Constants::NORMAL_RUN_MODE, constraint);
+   RunControl::registerWorker<BareMetalDebugSupport>
+       (ProjectExplorer::Constants::DEBUG_RUN_MODE, constraint);
+   RunControl::registerWorker<BareMetalDebugSupport>
+       (ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN, constraint);
 
    return true;
 }
