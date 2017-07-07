@@ -80,8 +80,6 @@ bool BareMetalPlugin::initialize(const QStringList &arguments, QString *errorStr
        (ProjectExplorer::Constants::NORMAL_RUN_MODE, constraint);
    RunControl::registerWorker<BareMetalDebugSupport>
        (ProjectExplorer::Constants::DEBUG_RUN_MODE, constraint);
-   RunControl::registerWorker<BareMetalDebugSupport>
-       (ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN, constraint);
 
    return true;
 }

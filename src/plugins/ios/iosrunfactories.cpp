@@ -153,7 +153,6 @@ bool IosRunControlFactory::canRun(RunConfiguration *runConfiguration,
 {
     if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE
             && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE
-            && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN
             && mode != ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
         return false;
     }

@@ -2059,8 +2059,7 @@ void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
     m_outputPane->showTabFor(runControl);
     Core::Id runMode = runControl->runMode();
     bool popup = (runMode == Constants::NORMAL_RUN_MODE && dd->m_projectExplorerSettings.showRunOutput)
-            || ((runMode == Constants::DEBUG_RUN_MODE || runMode == Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN)
-                && m_projectExplorerSettings.showDebugOutput);
+            || (runMode == Constants::DEBUG_RUN_MODE && m_projectExplorerSettings.showDebugOutput);
     m_outputPane->setBehaviorOnOutput(runControl, popup ? AppOutputPane::Popup : AppOutputPane::Flash);
     runControl->initiateStart();
     emit m_instance->updateRunActions();

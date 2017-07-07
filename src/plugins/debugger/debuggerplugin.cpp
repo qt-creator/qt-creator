@@ -813,7 +813,8 @@ public:
     void handleExecStep()
     {
         if (currentEngine()->state() == DebuggerNotReady) {
-            ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN);
+            DebuggerRunTool::setBreakOnMainNextTime();
+            ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         } else {
             currentEngine()->resetLocation();
             if (boolSetting(OperateByInstruction))
@@ -826,7 +827,8 @@ public:
     void handleExecNext()
     {
         if (currentEngine()->state() == DebuggerNotReady) {
-            ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN);
+            DebuggerRunTool::setBreakOnMainNextTime();
+            ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         } else {
             currentEngine()->resetLocation();
             if (boolSetting(OperateByInstruction))
@@ -2742,19 +2744,16 @@ void DebuggerPluginPrivate::updateDebugActions()
 
     // Step into/next: Start and break at 'main' unless a debugger is running.
     if (m_snapshotHandler->currentIndex() < 0) {
-        QString toolTip;
-        const bool canRunAndBreakMain
-                = ProjectExplorerPlugin::canRunStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN, &toolTip);
-        m_stepAction->setEnabled(canRunAndBreakMain);
-        m_nextAction->setEnabled(canRunAndBreakMain);
-        if (canRunAndBreakMain) {
+        m_stepAction->setEnabled(canRun);
+        m_nextAction->setEnabled(canRun);
+        if (canRun) {
             Project *project = SessionManager::startupProject();
             QTC_ASSERT(project, return);
-            toolTip = tr("Start \"%1\" and break at function \"main()\"")
-                      .arg(project->displayName());
+            whyNot = tr("Start \"%1\" and break at function \"main()\"")
+                    .arg(project->displayName());
         }
-        m_stepAction->setToolTip(toolTip);
-        m_nextAction->setToolTip(toolTip);
+        m_stepAction->setToolTip(whyNot);
+        m_nextAction->setToolTip(whyNot);
     }
 }
 
@@ -3064,8 +3063,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     RunControl::registerWorker<DebuggerRunTool>
         (ProjectExplorer::Constants::DEBUG_RUN_MODE, constraint);
-    RunControl::registerWorker<DebuggerRunTool>
-        (ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN, constraint);
 }
 
 DebuggerEngine *currentEngine()

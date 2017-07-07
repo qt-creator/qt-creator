@@ -85,8 +85,6 @@ bool WinRtPlugin::initialize(const QStringList &arguments, QString *errorMessage
         (ProjectExplorer::Constants::NORMAL_RUN_MODE, runConstraint);
     RunControl::registerWorker<WinRtDebugSupport>
         (ProjectExplorer::Constants::DEBUG_RUN_MODE, debugConstraint);
-    RunControl::registerWorker<WinRtDebugSupport>
-        (ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN, debugConstraint);
 
     return true;
 }
