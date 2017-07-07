@@ -65,7 +65,7 @@ private:
         r.commandLineArguments +=
                 QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, port);
 
-        runControl()->setRunnable(r);
+        setRunnable(r);
 
         SimpleTargetRunner::start();
     }
