@@ -51,6 +51,8 @@ PluginDialog::PluginDialog(QWidget *parent)
     : QDialog(parent),
       m_view(new ExtensionSystem::PluginView(this))
 {
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
     QVBoxLayout *vl = new QVBoxLayout(this);
 
     auto filterLayout = new QHBoxLayout;
