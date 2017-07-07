@@ -15,7 +15,7 @@ Module {
             fileTags: ["qt_plugin_metadata"]
             filePath: {
                 var destdir = FileInfo.joinPaths(product.moduleProperty("Qt.core",
-                                                         "generatedFilesDir"), input.fileName);
+                                                         "generatedHeadersDir"), input.fileName);
                 return destdir.replace(/\.[^\.]*$/,'')
             }
         }
