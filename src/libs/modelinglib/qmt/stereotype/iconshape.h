@@ -42,9 +42,11 @@ class QMT_EXPORT IconShape
 public:
     IconShape();
     IconShape(const IconShape &rhs);
+    IconShape(const IconShape &&) = delete;
     ~IconShape();
 
     IconShape &operator=(const IconShape &rhs);
+    IconShape &operator=(const IconShape &&) = delete;
 
     QSizeF size() const;
     void setSize(const QSizeF &size);

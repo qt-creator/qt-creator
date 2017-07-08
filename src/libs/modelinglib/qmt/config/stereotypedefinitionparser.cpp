@@ -117,7 +117,7 @@ StereotypeDefinitionParserError::~StereotypeDefinitionParserError()
 class StereotypeDefinitionParser::StereotypeDefinitionParserPrivate
 {
 public:
-    TextScanner *m_scanner = 0;
+    TextScanner *m_scanner = nullptr;
 
 };
 
@@ -134,8 +134,8 @@ public:
     }
 
     int m_keyword = -1;
-    ShapeValueF::Unit m_unit;
-    ShapeValueF::Origin m_origin;
+    ShapeValueF::Unit m_unit = ShapeValueF::UnitAbsolute;
+    ShapeValueF::Origin m_origin = ShapeValueF::OriginCenter;
 };
 
 StereotypeDefinitionParser::StereotypeDefinitionParser(QObject *parent)

@@ -46,10 +46,6 @@ Token::Token(Token::Type type, int subtype, const QString &text, const SourcePos
 {
 }
 
-Token::~Token()
-{
-}
-
 void Token::setType(Token::Type type)
 {
     m_type = type;

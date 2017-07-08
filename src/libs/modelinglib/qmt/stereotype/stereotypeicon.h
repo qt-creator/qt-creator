@@ -67,9 +67,6 @@ public:
         TextalignNone
     };
 
-    StereotypeIcon();
-    ~StereotypeIcon();
-
     QString id() const { return m_id; }
     void setId(const QString &id);
     QString title() const;
@@ -104,13 +101,13 @@ private:
     QString m_title;
     QSet<Element> m_elements;
     QSet<QString> m_stereotypes;
-    qreal m_width;
-    qreal m_height;
-    qreal m_minWidth;
-    qreal m_minHeight;
-    SizeLock m_sizeLock;
-    Display m_display;
-    TextAlignment m_textAlignment;
+    qreal m_width = 100.0;
+    qreal m_height = 100.0;
+    qreal m_minWidth = -1;
+    qreal m_minHeight = -1;
+    SizeLock m_sizeLock = LockNone;
+    Display m_display = DisplaySmart;
+    TextAlignment m_textAlignment = TextalignBelow;
     QColor m_baseColor;
     IconShape m_iconShape;
 };

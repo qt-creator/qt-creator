@@ -505,9 +505,10 @@ private:
         QMT_CHECK(object);
         MObject *formerOwner = object->owner();
         int formerRow = formerOwner->children().indexOf(object);
+        MObject *newOwner = m_modelController->findObject(m_ownerKey);
+        QMT_CHECK(newOwner);
         emit m_modelController->beginMoveObject(formerRow, formerOwner);
         formerOwner->decontrolChild(object);
-        MObject *newOwner = m_modelController->findObject(m_ownerKey);
         newOwner->insertChild(m_indexOfElement, object);
         int newRow = m_indexOfElement;
         m_ownerKey = formerOwner->uid();
@@ -560,9 +561,10 @@ private:
         QMT_CHECK(relation);
         MObject *formerOwner = relation->owner();
         int formerRow = formerOwner->relations().indexOf(relation);
+        MObject *newOwner = m_modelController->findObject(m_ownerKey);
+        QMT_CHECK(newOwner);
         emit m_modelController->beginMoveRelation(formerRow, formerOwner);
         formerOwner->decontrolRelation(relation);
-        MObject *newOwner = m_modelController->findObject(m_ownerKey);
         newOwner->insertRelation(m_indexOfElement, relation);
         int newRow = m_indexOfElement;
         m_ownerKey = formerOwner->uid();

@@ -33,35 +33,6 @@ MClassMember::MClassMember(MemberType memberType)
 {
 }
 
-MClassMember::MClassMember(const MClassMember &rhs)
-    : m_uid(rhs.m_uid),
-      m_stereotypes(rhs.m_stereotypes),
-      m_group(rhs.m_group),
-      m_declaration(rhs.m_declaration),
-      m_visibility(rhs.m_visibility),
-      m_memberType(rhs.m_memberType),
-      m_properties(rhs.m_properties)
-{
-}
-
-MClassMember::~MClassMember()
-{
-}
-
-MClassMember &MClassMember::operator=(const MClassMember &rhs)
-{
-    if (this != &rhs) {
-        m_uid = rhs.m_uid;
-        m_stereotypes = rhs.m_stereotypes;
-        m_group = rhs.m_group;
-        m_declaration = rhs.m_declaration;
-        m_visibility = rhs.m_visibility;
-        m_memberType = rhs.m_memberType;
-        m_properties = rhs.m_properties;
-    }
-    return *this;
-}
-
 void MClassMember::setUid(const Uid &uid)
 {
     m_uid = uid;

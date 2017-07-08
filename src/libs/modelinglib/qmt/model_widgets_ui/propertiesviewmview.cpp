@@ -639,6 +639,7 @@ void PropertiesView::MView::visitMInheritance(const MInheritance *inheritance)
     QMT_CHECK(derivedClass);
     setEndAName(tr("Derived class: %1").arg(derivedClass->name()));
     MObject *baseClass = m_propertiesView->modelController()->findObject(inheritance->base());
+    QMT_CHECK(baseClass);
     setEndBName(tr("Base class: %1").arg(baseClass->name()));
     visitMRelation(inheritance);
 }

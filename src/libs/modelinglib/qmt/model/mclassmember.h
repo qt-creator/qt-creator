@@ -69,10 +69,6 @@ public:
     Q_DECLARE_FLAGS(Properties, Property)
 
     explicit MClassMember(MemberType memberType = MemberUndefined);
-    MClassMember(const MClassMember &rhs);
-    ~MClassMember();
-
-    MClassMember &operator=(const MClassMember &rhs);
 
     Uid uid() const { return m_uid; }
     void setUid(const Uid &uid);

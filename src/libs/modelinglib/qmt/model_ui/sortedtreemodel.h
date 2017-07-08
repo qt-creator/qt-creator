@@ -55,7 +55,7 @@ private:
 
     void startDelayedSortTimer();
 
-    TreeModel *m_treeModel;
+    TreeModel *m_treeModel = nullptr;
     QTimer m_delayedSortTimer;
 };
 

@@ -52,7 +52,7 @@ public:
 private:
     Uid m_uid;
     QString m_fileName;
-    MPackage *m_rootPackage;
+    MPackage *m_rootPackage = nullptr;
     QString m_configPath;
 };
 

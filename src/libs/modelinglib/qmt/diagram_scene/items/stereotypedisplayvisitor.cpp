@@ -121,7 +121,7 @@ void StereotypeDisplayVisitor::visitDClass(const DClass *klass)
     m_stereotypeIconElement = StereotypeIcon::ElementClass;
     MClass *modelKlass = m_modelController->findObject<MClass>(klass->modelUid());
     bool hasMembers = false;
-    if (!modelKlass->members().isEmpty() && klass->showAllMembers())
+    if (modelKlass && !modelKlass->members().isEmpty() && klass->showAllMembers())
         hasMembers = true;
     m_stereotypeSmartDisplay = hasMembers ? DObject::StereotypeDecoration : DObject::StereotypeIcon;
     visitDObject(klass);

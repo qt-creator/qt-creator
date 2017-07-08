@@ -27,21 +27,6 @@
 
 namespace qmt {
 
-StereotypeIcon::StereotypeIcon()
-    : m_width(100.0),
-      m_height(100.0),
-      m_minWidth(-1),
-      m_minHeight(-1),
-      m_sizeLock(LockNone),
-      m_display(DisplaySmart),
-      m_textAlignment(TextalignBelow)
-{
-}
-
-StereotypeIcon::~StereotypeIcon()
-{
-}
-
 void StereotypeIcon::setId(const QString &id)
 {
     m_id = id;
