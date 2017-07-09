@@ -191,7 +191,7 @@ void RectangularSelectionItem::update()
             visible = m_freedom == FreedomAny || m_freedom == FreedomKeepRatio;
             break;
         case HandleNone:
-            QMT_CHECK(false);
+            Q_UNREACHABLE();
             break;
         }
         m_points[i]->setSecondarySelected(m_isSecondarySelected);
@@ -269,7 +269,7 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
         moveable = m_freedom == FreedomAny || m_freedom == FreedomKeepRatio;
         break;
     case HandleNone:
-        QMT_CHECK(false);
+        Q_UNREACHABLE();
         break;
     }
     if (!moveable)
@@ -328,7 +328,7 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
                 bottomRightDelta = -(v * deltaLength);
             break;
         case HandleNone:
-            QMT_CHECK(false);
+            Q_UNREACHABLE();
             break;
         }
     } else {
@@ -360,7 +360,7 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
             bottomRightDelta = deltaMove;
             break;
         case HandleNone:
-            QMT_CHECK(false);
+            Q_UNREACHABLE();
             break;
         }
     }
@@ -386,7 +386,7 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
             bottomRightDelta.setX(bottomRightDelta.x() + sizeDelta.width());
         break;
     case HandleNone:
-        QMT_CHECK(false);
+        Q_UNREACHABLE();
         break;
     }
 
@@ -408,7 +408,7 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
             bottomRightDelta.setY(bottomRightDelta.y() + sizeDelta.height());
         break;
     case HandleNone:
-        QMT_CHECK(false);
+        Q_UNREACHABLE();
         break;
     }
 
@@ -433,7 +433,7 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
             // nothing
             break;
         case HandleNone:
-            QMT_CHECK(false);
+            Q_UNREACHABLE();
             break;
         }
         switch (handle) {
@@ -452,7 +452,7 @@ void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMov
             // nothing
             break;
         case HandleNone:
-            QMT_CHECK(false);
+            Q_UNREACHABLE();
             break;
         }
         m_itemResizer->alignItemSizeToRaster(horiz, vert, 2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
