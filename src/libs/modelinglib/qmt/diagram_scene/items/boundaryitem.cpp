@@ -62,7 +62,7 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
     {
-        QMT_CHECK(option);
+        QMT_ASSERT(option, return);
 
         QStyleOptionGraphicsItem option2(*option);
         option2.state &= ~(QStyle::State_Selected | QStyle::State_HasFocus);

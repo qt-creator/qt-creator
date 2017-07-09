@@ -86,7 +86,7 @@ public:
     void visitMObject(const MObject *object)
     {
         Q_UNUSED(object);
-        QMT_CHECK(m_item);
+        QMT_ASSERT(m_item, return);
         m_item->setEditable(false);
     }
 
@@ -156,7 +156,7 @@ public:
     void visitMRelation(const MRelation *relation)
     {
         Q_UNUSED(relation);
-        QMT_CHECK(m_item);
+        QMT_ASSERT(m_item, return);
         m_item->setEditable(false);
         m_item->setData(TreeModel::Relation, TreeModel::RoleItemType);
     }
@@ -391,13 +391,13 @@ MElement *TreeModel::element(const QModelIndex &index) const
     if (item) {
         if (item->parent()) {
             auto parentModelItem = dynamic_cast<ModelItem *>(item->parent());
-            QMT_CHECK(parentModelItem);
+            QMT_ASSERT(parentModelItem, return nullptr);
             const MObject *parentObject = m_itemToObjectMap.value(parentModelItem);
-            QMT_CHECK(parentObject);
+            QMT_ASSERT(parentObject, return nullptr);
             if (parentObject) {
                 if (index.row() >= 0 && index.row() < parentObject->children().size()) {
                     element = parentObject->children().at(index.row());
-                    QMT_CHECK(element);
+                    QMT_ASSERT(element, return nullptr);
                 } else if (index.row() >= parentObject->children().size()
                            && index.row() < parentObject->children().size() + parentObject->relations().size()) {
                     element = parentObject->relations().at(index.row() - parentObject->children().size());
@@ -510,7 +510,7 @@ void TreeModel::onEndUpdateObject(int row, const MObject *parent)
         auto object = dynamic_cast<MObject *>(element);
         if (object) {
             auto item = dynamic_cast<ModelItem *>(itemFromIndex(elementIndex));
-            QMT_CHECK(item);
+            QMT_ASSERT(item, return);
             ItemUpdater visitor(this, item);
             element->accept(&visitor);
         }
@@ -531,7 +531,7 @@ void TreeModel::onEndInsertObject(int row, const MObject *parent)
 {
     QMT_CHECK(m_busyState == InsertElement);
     ModelItem *parentItem =m_objectToItemMap.value(parent);
-    QMT_CHECK(parentItem);
+    QMT_ASSERT(parentItem, return);
     MObject *object = parent->children().at(row);
     ModelItem *item = createItem(object);
     parentItem->insertRow(row, item);
@@ -542,13 +542,13 @@ void TreeModel::onEndInsertObject(int row, const MObject *parent)
 void TreeModel::onBeginRemoveObject(int row, const MObject *parent)
 {
     QMT_CHECK(m_busyState == NotBusy);
+    QMT_ASSERT(parent, return);
     m_busyState = RemoveElement;
-    QMT_CHECK(parent);
     MObject *object = parent->children().at(row);
     if (object)
         removeObjectFromItemMap(object);
     ModelItem *parentItem = m_objectToItemMap.value(parent);
-    QMT_CHECK(parentItem);
+    QMT_ASSERT(parentItem, return);
     parentItem->removeRow(row);
 }
 
@@ -563,13 +563,13 @@ void TreeModel::onEndRemoveObject(int row, const MObject *parent)
 void TreeModel::onBeginMoveObject(int formerRow, const MObject *formerOwner)
 {
     QMT_CHECK(m_busyState == NotBusy);
+    QMT_ASSERT(formerOwner, return);
     m_busyState = MoveElement;
-    QMT_CHECK(formerOwner);
     MObject *object = formerOwner->children().at(formerRow);
     if (object)
         removeObjectFromItemMap(object);
     ModelItem *parentItem = m_objectToItemMap.value(formerOwner);
-    QMT_CHECK(parentItem);
+    QMT_ASSERT(parentItem, return);
     parentItem->removeRow(formerRow);
 }
 
@@ -577,7 +577,7 @@ void TreeModel::onEndMoveObject(int row, const MObject *owner)
 {
     QMT_CHECK(m_busyState == MoveElement);
     ModelItem *parentItem =m_objectToItemMap.value(owner);
-    QMT_CHECK(parentItem);
+    QMT_ASSERT(parentItem, return);
     MObject *object = owner->children().at(row);
     ModelItem *item = createItem(object);
     parentItem->insertRow(row, item);
@@ -595,12 +595,12 @@ void TreeModel::onBeginUpdateRelation(int row, const MObject *parent)
 
 void TreeModel::onEndUpdateRelation(int row, const MObject *parent)
 {
-    QMT_CHECK(parent);
+    QMT_ASSERT(parent, return);
     QMT_CHECK(m_busyState == UpdateRelation);
 
     QMT_CHECK(m_objectToItemMap.contains(parent));
     ModelItem *parentItem = m_objectToItemMap.value(parent);
-    QMT_CHECK(parentItem);
+    QMT_ASSERT(parentItem, return);
     QModelIndex parentIndex = indexFromItem(parentItem);
 
     // reflect updated relation in standard item
@@ -611,7 +611,7 @@ void TreeModel::onEndUpdateRelation(int row, const MObject *parent)
         auto relation = dynamic_cast<MRelation *>(element);
         if (relation) {
             auto item = dynamic_cast<ModelItem *>(itemFromIndex(elementIndex));
-            QMT_CHECK(item);
+            QMT_ASSERT(item, return);
             ItemUpdater visitor(this, item);
             element->accept(&visitor);
         }
@@ -630,10 +630,10 @@ void TreeModel::onBeginInsertRelation(int row, const MObject *parent)
 
 void TreeModel::onEndInsertRelation(int row, const MObject *parent)
 {
-    QMT_CHECK(parent);
+    QMT_ASSERT(parent, return);
     QMT_CHECK(m_busyState == InsertRelation);
     ModelItem *parentItem =m_objectToItemMap.value(parent);
-    QMT_CHECK(parentItem);
+    QMT_ASSERT(parentItem, return);
     MRelation *relation = parent->relations().at(row);
     ModelItem *item = createItem(relation);
     parentItem->insertRow(parent->children().size() + row, item);
@@ -642,12 +642,12 @@ void TreeModel::onEndInsertRelation(int row, const MObject *parent)
 
 void TreeModel::onBeginRemoveRelation(int row, const MObject *parent)
 {
-    QMT_CHECK(parent);
+    QMT_ASSERT(parent, return);
     QMT_CHECK(m_busyState == NotBusy);
     m_busyState = RemoveRelation;
     QMT_CHECK(parent->relations().at(row));
     ModelItem *parentItem = m_objectToItemMap.value(parent);
-    QMT_CHECK(parentItem);
+    QMT_ASSERT(parentItem, return);
     parentItem->removeRow(parent->children().size() + row);
 }
 
@@ -662,20 +662,20 @@ void TreeModel::onEndRemoveRelation(int row, const MObject *parent)
 void TreeModel::onBeginMoveRelation(int formerRow, const MObject *formerOwner)
 {
     QMT_CHECK(m_busyState == NotBusy);
+    QMT_ASSERT(formerOwner, return);
     m_busyState = MoveElement;
-    QMT_CHECK(formerOwner);
     QMT_CHECK(formerOwner->relations().at(formerRow));
     ModelItem *parentItem = m_objectToItemMap.value(formerOwner);
-    QMT_CHECK(parentItem);
+    QMT_ASSERT(parentItem, return);
     parentItem->removeRow(formerOwner->children().size() + formerRow);
 }
 
 void TreeModel::onEndMoveRelation(int row, const MObject *owner)
 {
-    QMT_CHECK(owner);
+    QMT_ASSERT(owner, return);
     QMT_CHECK(m_busyState == MoveElement);
     ModelItem *parentItem =m_objectToItemMap.value(owner);
-    QMT_CHECK(parentItem);
+    QMT_ASSERT(parentItem, return);
     MRelation *relation = owner->relations().at(row);
     ModelItem *item = createItem(relation);
     parentItem->insertRow(owner->children().size() + row, item);
@@ -688,10 +688,10 @@ void TreeModel::onRelationEndChanged(MRelation *relation, MObject *endObject)
     QMT_CHECK(m_busyState == NotBusy);
 
     MObject *parent = relation->owner();
-    QMT_CHECK(parent);
+    QMT_ASSERT(parent, return);
     QMT_CHECK(m_objectToItemMap.contains(parent));
     ModelItem *parentItem = m_objectToItemMap.value(parent);
-    QMT_CHECK(parentItem);
+    QMT_ASSERT(parentItem, return);
     QModelIndex parentIndex = indexFromItem(parentItem);
 
     int row = parent->children().size() + relation->owner()->relations().indexOf(relation);
@@ -699,7 +699,7 @@ void TreeModel::onRelationEndChanged(MRelation *relation, MObject *endObject)
     QMT_CHECK(elementIndex.isValid());
 
     auto item = dynamic_cast<ModelItem *>(itemFromIndex(elementIndex));
-    QMT_CHECK(item);
+    QMT_ASSERT(item, return);
 
     QString label = createRelationLabel(relation);
     if (item->text() != label)
@@ -758,10 +758,10 @@ void TreeModel::createChildren(const MObject *parentObject, ModelItem *parentIte
 
 void TreeModel::removeObjectFromItemMap(const MObject *object)
 {
-    QMT_CHECK(object);
+    QMT_ASSERT(object, return);
     QMT_CHECK(m_objectToItemMap.contains(object));
     ModelItem *item = m_objectToItemMap.value(object);
-    QMT_CHECK(item);
+    QMT_ASSERT(item, return);
     QMT_CHECK(m_itemToObjectMap.contains(item));
     m_itemToObjectMap.remove(item);
     m_objectToItemMap.remove(object);
@@ -773,7 +773,7 @@ void TreeModel::removeObjectFromItemMap(const MObject *object)
 
 QString TreeModel::createObjectLabel(const MObject *object)
 {
-    QMT_CHECK(object);
+    QMT_ASSERT(object, return QString());
 
     if (object->name().isEmpty()) {
         if (auto item = dynamic_cast<const MItem *>(object)) {

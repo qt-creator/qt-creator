@@ -510,7 +510,7 @@ QColor DefaultStyleEngine::baseColor(ElementType elementType, ObjectVisuals obje
         };
 
         int index = static_cast<int>(objectVisuals.visualPrimaryRole()) - static_cast<int>(DObject::PrimaryRoleCustom1);
-        QMT_CHECK(index >= 0 && index <= 4);
+        QMT_ASSERT(index >= 0 && index <= 4, return baseColor);
         baseColor = customColors[index];
     }
 

@@ -86,7 +86,7 @@ public:
 bool GeometryUtilities::placeRectAtLine(const QRectF &rect, const QLineF &line, double lineOffset, double distance,
                                         const QLineF &intersectionLine, QPointF *placement, Side *horizontalAlignedSide)
 {
-    QMT_CHECK(placement);
+    QMT_ASSERT(placement, return false);
 
     QList<Candidate> candidates;
     candidates << Candidate(QVector2D(rect.topRight() - rect.topLeft()), QPointF(0.0, 0.0), SideTop)

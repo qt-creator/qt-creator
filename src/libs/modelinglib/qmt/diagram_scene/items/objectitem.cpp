@@ -674,7 +674,7 @@ bool ObjectItem::showContext() const
         // TODO Because of this algorithm adding, moving, removing of one item need to update() all colliding items as well
         QMT_CHECK(object()->modelUid().isValid());
         MObject *mobject = m_diagramSceneModel->diagramController()->modelController()->findObject(object()->modelUid());
-        QMT_CHECK(mobject);
+        QMT_ASSERT(mobject, return false);
         MObject *owner = mobject->owner();
         if (owner) {
             foreach (QGraphicsItem *item, m_diagramSceneModel->collectCollidingObjectItems(this, DiagramSceneModel::CollidingOuterItems)) {
@@ -778,7 +778,7 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     QAction *selectedAction = menu.exec(event->screenPos());
     if (selectedAction) {
         auto action = dynamic_cast<ContextMenuAction *>(selectedAction);
-        QMT_CHECK(action);
+        QMT_ASSERT(action, return);
         bool handled = handleSelectedContextMenuAction(action->id());
         handled |= element_tasks->handleContextMenuAction(object(), diagramSceneModel()->diagram(), action->id());
         if (!handled) {

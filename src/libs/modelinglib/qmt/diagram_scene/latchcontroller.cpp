@@ -73,7 +73,7 @@ void LatchController::setDiagramSceneModel(DiagramSceneModel *diagramSceneModel)
 
 void LatchController::addToGraphicsScene(QGraphicsScene *graphicsScene)
 {
-    QMT_CHECK(graphicsScene);
+    QMT_ASSERT(graphicsScene, return);
     graphicsScene->addItem(m_horizontalAlignLine);
     graphicsScene->addItem(m_verticalAlignLine);
 }

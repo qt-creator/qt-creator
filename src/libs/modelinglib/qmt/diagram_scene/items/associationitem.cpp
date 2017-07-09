@@ -60,7 +60,7 @@ void AssociationItem::update(const Style *style)
     updateEndLabels(m_association->endA(), m_association->endB(), &m_endAName, &m_endACardinality, style);
     updateEndLabels(m_association->endB(), m_association->endA(), &m_endBName, &m_endBCardinality, style);
 
-    QMT_CHECK(m_arrow);
+    QMT_ASSERT(m_arrow, return);
     QGraphicsItem *endAItem = m_diagramSceneModel->graphicsItem(m_association->endAUid());
     if (!endAItem)
         return;

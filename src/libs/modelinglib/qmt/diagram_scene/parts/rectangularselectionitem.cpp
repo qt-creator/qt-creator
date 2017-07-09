@@ -157,7 +157,7 @@ void RectangularSelectionItem::setSecondarySelected(bool secondarySelected)
 
 void RectangularSelectionItem::update()
 {
-    QMT_CHECK(HandleFirst == 0 && HandleLast == 7);
+    QMT_ASSERT(HandleFirst == 0 && HandleLast == 7, return);
     prepareGeometryChange();
 
     for (int i = 0; i <= 7; ++i) {

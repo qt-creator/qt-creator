@@ -72,7 +72,7 @@ void DUpdateVisitor::visitMElement(const MElement *element)
 void DUpdateVisitor::visitMObject(const MObject *object)
 {
     auto dobject = dynamic_cast<DObject *>(m_target);
-    QMT_CHECK(dobject);
+    QMT_ASSERT(dobject, return);
     if (isUpdating(object->stereotypes() != dobject->stereotypes()))
         dobject->setStereotypes(object->stereotypes());
     const MObject *objectOwner = object->owner();
@@ -107,7 +107,7 @@ void DUpdateVisitor::visitMPackage(const MPackage *package)
 void DUpdateVisitor::visitMClass(const MClass *klass)
 {
     auto dclass = dynamic_cast<DClass *>(m_target);
-    QMT_CHECK(dclass);
+    QMT_ASSERT(dclass, return);
     if (isUpdating(klass->umlNamespace() != dclass->umlNamespace()))
         dclass->setUmlNamespace(klass->umlNamespace());
     if (isUpdating(klass->templateParameters() != dclass->templateParameters()))
@@ -135,7 +135,7 @@ void DUpdateVisitor::visitMCanvasDiagram(const MCanvasDiagram *diagram)
 void DUpdateVisitor::visitMItem(const MItem *item)
 {
     auto ditem = dynamic_cast<DItem *>(m_target);
-    QMT_CHECK(ditem);
+    QMT_ASSERT(ditem, return);
     if (isUpdating(item->isShapeEditable() != ditem->isShapeEditable()))
         ditem->setShapeEditable(item->isShapeEditable());
     if (isUpdating(item->variety() != ditem->variety()))
@@ -146,7 +146,7 @@ void DUpdateVisitor::visitMItem(const MItem *item)
 void DUpdateVisitor::visitMRelation(const MRelation *relation)
 {
     auto drelation = dynamic_cast<DRelation *>(m_target);
-    QMT_CHECK(drelation);
+    QMT_ASSERT(drelation, return);
     if (isUpdating(relation->stereotypes() != drelation->stereotypes()))
         drelation->setStereotypes(relation->stereotypes());
     if (isUpdating(relation->name() != drelation->name()))
@@ -190,7 +190,7 @@ void DUpdateVisitor::visitMRelation(const MRelation *relation)
 void DUpdateVisitor::visitMDependency(const MDependency *dependency)
 {
     auto ddependency = dynamic_cast<DDependency *>(m_target);
-    QMT_CHECK(ddependency);
+    QMT_ASSERT(ddependency, return);
     if (isUpdating(dependency->direction() != ddependency->direction()))
         ddependency->setDirection(dependency->direction());
     visitMRelation(dependency);
@@ -204,7 +204,7 @@ void DUpdateVisitor::visitMInheritance(const MInheritance *inheritance)
 void DUpdateVisitor::visitMAssociation(const MAssociation *association)
 {
     auto dassociation = dynamic_cast<DAssociation *>(m_target);
-    QMT_CHECK(dassociation);
+    QMT_ASSERT(dassociation, return);
     DAssociationEnd endA;
     endA.setName(association->endA().name());
     endA.setCardinatlity(association->endA().cardinality());

@@ -363,7 +363,7 @@ void ModelEditor::initDocument()
 
     d->diagramView->setPxNodeController(documentController->pxNodeController());
 
-    QTC_CHECK(!d->diagramsViewManager);
+    QMT_CHECK(!d->diagramsViewManager);
     d->diagramsViewManager = new DiagramsViewManager(this);
     //connect(diagramsViewManager, &DiagramsViewManager::someDiagramOpened,
     //        documentController->diagramsManager(), &qmt::DiagramsManager::someDiagramOpened);
@@ -767,7 +767,7 @@ void ModelEditor::clearProperties()
     if (d->propertiesGroupWidget) {
         QWidget *scrollWidget = d->propertiesScrollArea->takeWidget();
         Q_UNUSED(scrollWidget); // avoid warning in release mode
-        QTC_CHECK(scrollWidget == d->propertiesGroupWidget);
+        QMT_CHECK(scrollWidget == d->propertiesGroupWidget);
         d->propertiesGroupWidget->deleteLater();
         d->propertiesGroupWidget = 0;
     }
@@ -801,8 +801,8 @@ QToolButton *ModelEditor::createToolbarCommandButton(const Core::Id &id, const s
 
 bool ModelEditor::updateButtonIconByTheme(QAbstractButton *button, const QString &name)
 {
-    QTC_ASSERT(button, return false);
-    QTC_ASSERT(!name.isEmpty(), return false);
+    QMT_ASSERT(button, return false);
+    QMT_ASSERT(!name.isEmpty(), return false);
 
     if (QIcon::hasThemeIcon(name)) {
         button->setIcon(QIcon::fromTheme(name));
@@ -1015,7 +1015,7 @@ void ModelEditor::initToolbars()
             toolBars.insert(toolbar.id(), toolBar);
         } else {
             toolBarLayout = toolBar->layout();
-            QTC_ASSERT(toolBarLayout, continue);
+            QMT_ASSERT(toolBarLayout, continue);
         }
         foreach (const qmt::Toolbar::Tool &tool, toolbar.tools()) {
             switch (tool.m_toolType) {
@@ -1115,9 +1115,9 @@ void ModelEditor::initToolbars()
     // add stretch to all layouts and calculate width of tool bar
     int maxWidth = 48;
     foreach (QWidget *toolBar, toolBars) {
-        QTC_ASSERT(toolBar, continue);
+        QMT_ASSERT(toolBar, continue);
         auto layout = qobject_cast<QBoxLayout *>(toolBar->layout());
-        QTC_ASSERT(layout, continue);
+        QMT_ASSERT(layout, continue);
         layout->addStretch(1);
         toolBar->adjustSize();
         if (maxWidth < toolBar->width())

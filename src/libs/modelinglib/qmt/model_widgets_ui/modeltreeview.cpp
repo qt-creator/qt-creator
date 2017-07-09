@@ -113,7 +113,7 @@ void ModelTreeView::startDrag(Qt::DropActions supportedActions)
     Q_UNUSED(supportedActions);
 
     TreeModel *treeModel = m_sortedTreeModel->treeModel();
-    QMT_CHECK(treeModel);
+    QMT_ASSERT(treeModel, return);
 
     QByteArray dragData;
     QDataStream dataStream(&dragData, QIODevice::WriteOnly);
@@ -170,7 +170,7 @@ void ModelTreeView::dragMoveEvent(QDragMoveEvent *event)
     QModelIndex dropSourceModelIndex = m_sortedTreeModel->mapToSource(dropIndex);
     if (dropSourceModelIndex.isValid()) {
         TreeModel *treeModel = m_sortedTreeModel->treeModel();
-        QMT_CHECK(treeModel);
+        QMT_ASSERT(treeModel, return);
         MElement *modelElement = treeModel->element(dropSourceModelIndex);
         if (dynamic_cast<MObject*>(modelElement))
             accept = true;
@@ -202,7 +202,7 @@ void ModelTreeView::dropEvent(QDropEvent *event)
         QModelIndex dropSourceModelIndex = m_sortedTreeModel->mapToSource(dropIndex);
         if (dropSourceModelIndex.isValid()) {
             TreeModel *treeModel = m_sortedTreeModel->treeModel();
-            QMT_CHECK(treeModel);
+            QMT_ASSERT(treeModel, return);
             MElement *targetModelElement = treeModel->element(dropSourceModelIndex);
             if (auto targetModelObject = dynamic_cast<MObject *>(targetModelElement)) {
                 QDataStream dataStream(event->mimeData()->data(QStringLiteral("text/model-elements")));
@@ -245,9 +245,9 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
     QModelIndex sourceModelIndex = m_sortedTreeModel->mapToSource(index);
     if (sourceModelIndex.isValid()) {
         TreeModel *treeModel = m_sortedTreeModel->treeModel();
-        QMT_CHECK(treeModel);
+        QMT_ASSERT(treeModel, return);
         MElement *melement = treeModel->element(sourceModelIndex);
-        QMT_CHECK(melement);
+        QMT_ASSERT(melement, return);
 
         QMenu menu;
         bool addSeparator = false;
@@ -268,7 +268,7 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
         QAction *selectedAction = menu.exec(event->globalPos());
         if (selectedAction) {
             auto action = dynamic_cast<ContextMenuAction *>(selectedAction);
-            QMT_CHECK(action);
+            QMT_ASSERT(action, return);
             if (action->id() == QStringLiteral("showDefinition")) {
                 m_elementTasks->openClassDefinition(melement);
             } else if (action->id() == QStringLiteral("openDiagram")) {

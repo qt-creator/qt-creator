@@ -82,7 +82,7 @@ void ClassItem::update()
     updateStereotypeIconDisplay();
 
     auto diagramClass = dynamic_cast<DClass *>(object());
-    QMT_CHECK(diagramClass);
+    QMT_ASSERT(diagramClass, return);
 
     const Style *style = adaptedStyle(stereotypeIconId());
 
@@ -276,7 +276,7 @@ void ClassItem::relationDrawn(const QString &id, const QPointF &toScenePos, cons
             auto baseClass = dynamic_cast<DClass *>(targetElement);
             if (baseClass) {
                 auto derivedClass = dynamic_cast<DClass *>(object());
-                QMT_CHECK(derivedClass);
+                QMT_ASSERT(derivedClass, return);
                 diagramSceneModel()->diagramSceneController()->createInheritance(derivedClass, baseClass, intermediatePoints, diagramSceneModel()->diagram());
             }
         } else if (id == QLatin1String("dependency")) {
@@ -287,7 +287,7 @@ void ClassItem::relationDrawn(const QString &id, const QPointF &toScenePos, cons
             auto assoziatedClass = dynamic_cast<DClass *>(targetElement);
             if (assoziatedClass) {
                 auto derivedClass = dynamic_cast<DClass *>(object());
-                QMT_CHECK(derivedClass);
+                QMT_ASSERT(derivedClass, return);
                 diagramSceneModel()->diagramSceneController()->createAssociation(derivedClass, assoziatedClass, intermediatePoints, diagramSceneModel()->diagram());
             }
         }
@@ -316,7 +316,7 @@ bool ClassItem::handleSelectedContextMenuAction(const QString &id)
 QString ClassItem::buildDisplayName() const
 {
     auto diagramClass = dynamic_cast<DClass *>(object());
-    QMT_CHECK(diagramClass);
+    QMT_ASSERT(diagramClass, return QString());
 
     QString name;
     if (templateDisplay() == DClass::TemplateName && !diagramClass->templateParameters().isEmpty()) {
@@ -344,7 +344,7 @@ void ClassItem::setFromDisplayName(const QString &displayName)
         // NOTE namespace is ignored because it has its own edit field
         if (NameController::parseClassName(displayName, 0, &name, &templateParameters)) {
             auto diagramClass = dynamic_cast<DClass *>(object());
-            QMT_CHECK(diagramClass);
+            QMT_ASSERT(diagramClass, return);
             ModelController *modelController = diagramSceneModel()->diagramSceneController()->modelController();
             MClass *mklass = modelController->findObject<MClass>(diagramClass->modelUid());
             if (mklass && (name != mklass->name() || templateParameters != mklass->templateParameters())) {
@@ -362,7 +362,7 @@ void ClassItem::setFromDisplayName(const QString &displayName)
 DClass::TemplateDisplay ClassItem::templateDisplay() const
 {
     auto diagramClass = dynamic_cast<DClass *>(object());
-    QMT_CHECK(diagramClass);
+    QMT_ASSERT(diagramClass, return DClass::TemplateSmart);
 
     DClass::TemplateDisplay templateDisplay = diagramClass->templateDisplay();
     if (templateDisplay == DClass::TemplateSmart) {
@@ -560,12 +560,12 @@ void ClassItem::updateMembers(const Style *style)
     QString *text = 0;
 
     auto dclass = dynamic_cast<DClass *>(object());
-    QMT_CHECK(dclass);
+    QMT_ASSERT(dclass, return);
 
     foreach (const MClassMember &member, dclass->members()) {
         switch (member.memberType()) {
         case MClassMember::MemberUndefined:
-            QMT_CHECK(false);
+            QMT_ASSERT(false, return);
             break;
         case MClassMember::MemberAttribute:
             currentVisibility = &attributesVisibility;

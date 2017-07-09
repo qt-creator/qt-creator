@@ -72,7 +72,7 @@ ProjectSerializer::~ProjectSerializer()
 
 void ProjectSerializer::save(const QString &fileName, const Project *project)
 {
-    QMT_CHECK(project);
+    QMT_ASSERT(project, return);
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly))
@@ -108,7 +108,7 @@ QByteArray ProjectSerializer::save(const Project *project)
 
 void ProjectSerializer::load(const QString &fileName, Project *project)
 {
-    QMT_CHECK(project);
+    QMT_ASSERT(project, return);
 
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly))

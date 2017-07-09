@@ -190,7 +190,7 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
 
                     int componentHighestAncestorIndex = componentAncestors.size() - 1;
                     int includeComponentHighestAncestorIndex = includeComponentAncestors.size() - 1;
-                    QTC_ASSERT(componentAncestors.at(componentHighestAncestorIndex) == includeComponentAncestors.at(includeComponentHighestAncestorIndex), return);
+                    QMT_ASSERT(componentAncestors.at(componentHighestAncestorIndex) == includeComponentAncestors.at(includeComponentHighestAncestorIndex), return);
                     while (componentHighestAncestorIndex > 0 && includeComponentHighestAncestorIndex > 0) {
                         if (componentAncestors.at(componentHighestAncestorIndex) != includeComponentAncestors.at(includeComponentHighestAncestorIndex))
                             break;

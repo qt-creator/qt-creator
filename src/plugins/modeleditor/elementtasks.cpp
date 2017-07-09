@@ -401,7 +401,7 @@ void ElementTasks::createAndOpenDiagram(const qmt::MElement *element)
             auto newDiagram = new qmt::MCanvasDiagram();
             newDiagram->setName(package->name());
             qmt::MPackage *parentPackage = d->documentController->modelController()->findObject<qmt::MPackage>(package->uid());
-            QTC_ASSERT(parentPackage, delete newDiagram; return);
+            QMT_ASSERT(parentPackage, delete newDiagram; return);
             d->documentController->modelController()->addObject(parentPackage, newDiagram);
             ModelEditorPlugin::modelsManager()->openDiagram(
                         d->documentController->projectController()->project()->uid(),

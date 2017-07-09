@@ -57,10 +57,10 @@ void StringTextSource::setSourceId(int sourceId)
 
 SourceChar StringTextSource::readNextChar()
 {
-    QMT_CHECK(m_sourceId >= 0);
-    QMT_CHECK(m_index >= 0);
-    QMT_CHECK(m_lineNumber >= 0);
-    QMT_CHECK(m_columnNumber >= 0);
+    QMT_ASSERT(m_sourceId >= 0, return SourceChar());
+    QMT_ASSERT(m_index >= 0, return SourceChar());
+    QMT_ASSERT(m_lineNumber >= 0, return SourceChar());
+    QMT_ASSERT(m_columnNumber >= 0, return SourceChar());
 
     if (m_index >= m_text.length())
         return SourceChar(QChar(), SourcePos(m_sourceId, m_lineNumber, m_columnNumber));

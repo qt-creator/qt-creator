@@ -67,7 +67,7 @@ public:
     void visitDInheritance(const DInheritance *inheritance)
     {
         DObject *baseObject = m_diagramSceneModel->diagramController()->findElement<DObject>(inheritance->base(), m_diagramSceneModel->diagram());
-        QMT_CHECK(baseObject);
+        QMT_ASSERT(baseObject, return);
         bool baseIsInterface = false;
         bool lollipopDisplay = false;
         if (baseObject) {
@@ -289,7 +289,7 @@ QPointF RelationItem::grabHandle(int index)
     } else {
         QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->intermediatePoints();
         --index;
-        QMT_CHECK(index >= 0 && index < intermediatePoints.size());
+        QMT_ASSERT(index >= 0 && index < intermediatePoints.size(), return QPointF());
         return intermediatePoints.at(index).pos();
     }
 }
@@ -337,7 +337,7 @@ void RelationItem::setHandlePos(int index, const QPointF &pos)
     } else {
         QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->intermediatePoints();
         --index;
-        QMT_CHECK(index >= 0 && index < intermediatePoints.size());
+        QMT_ASSERT(index >= 0 && index < intermediatePoints.size(), return);
         intermediatePoints[index].setPos(pos);
 
         m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UpdateMinor);
@@ -361,7 +361,7 @@ void RelationItem::dropHandle(int index, double rasterWidth, double rasterHeight
     } else {
         QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->intermediatePoints();
         --index;
-        QMT_CHECK(index >= 0 && index < intermediatePoints.size());
+        QMT_ASSERT(index >= 0 && index < intermediatePoints.size(), return);
 
         QPointF pos = intermediatePoints.at(index).pos();
         double x = qRound(pos.x() / rasterWidth) * rasterWidth;
@@ -486,7 +486,7 @@ QPointF RelationItem::calcEndPoint(const Uid &end, const Uid &otherEnd, int near
         // otherEndPos will not be used
     } else {
         DObject *endOtherObject = m_diagramSceneModel->diagramController()->findElement<DObject>(otherEnd, m_diagramSceneModel->diagram());
-        QMT_CHECK(endOtherObject);
+        QMT_ASSERT(endOtherObject, return QPointF());
         if (endOtherObject)
             otherEndPos = endOtherObject->pos();
     }
@@ -502,7 +502,7 @@ QPointF RelationItem::calcEndPoint(const Uid &end, const QPointF &otherEndPos, i
     QPointF endPos;
     if (endObjectItem) {
         DObject *endObject = m_diagramSceneModel->diagramController()->findElement<DObject>(end, m_diagramSceneModel->diagram());
-        QMT_CHECK(endObject);
+        QMT_ASSERT(endObject, return QPointF());
         bool preferAxis = false;
         QPointF otherPos;
         if (nearestIntermediatePointIndex >= 0 && nearestIntermediatePointIndex < m_relation->intermediatePoints().size()) {

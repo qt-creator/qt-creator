@@ -123,7 +123,7 @@ ModelsManager::ModelsManager(QObject *parent)
 
 ModelsManager::~ModelsManager()
 {
-    QTC_CHECK(d->managedModels.isEmpty());
+    QMT_CHECK(d->managedModels.isEmpty());
     delete d->modelIndexer;
     delete d;
 }
@@ -150,7 +150,7 @@ void ModelsManager::releaseModel(ExtDocumentController *documentController)
             return;
         }
     }
-    QTC_CHECK(false);
+    QMT_CHECK(false);
 }
 
 void ModelsManager::openDiagram(const qmt::Uid &modelUid, const qmt::Uid &diagramUid)
@@ -158,7 +158,7 @@ void ModelsManager::openDiagram(const qmt::Uid &modelUid, const qmt::Uid &diagra
     foreach (const ManagedModel &managedModel, d->managedModels) {
         if (managedModel.m_documentController->projectController()->project()->uid() == modelUid) {
             qmt::MDiagram *diagram = managedModel.m_documentController->modelController()->findObject<qmt::MDiagram>(diagramUid);
-            QTC_ASSERT(diagram, continue);
+            QMT_ASSERT(diagram, continue);
             openDiagram(managedModel.m_documentController, diagram);
             return;
         }

@@ -84,7 +84,7 @@ MPackage *TreeModelManager::selectedPackage() const
     if (m_modelTreeView->currentSourceModelIndex().isValid())
     {
         MElement *element = m_treeModel->element(m_modelTreeView->currentSourceModelIndex());
-        QMT_CHECK(element);
+        QMT_ASSERT(element, return nullptr);
         if (auto package = dynamic_cast<MPackage *>(element)) {
             return package;
         } else if (auto object = dynamic_cast<MObject *>(element)) {

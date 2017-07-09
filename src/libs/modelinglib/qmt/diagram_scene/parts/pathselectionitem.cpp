@@ -207,7 +207,7 @@ QList<QPointF> PathSelectionItem::points() const
 
 void PathSelectionItem::setPoints(const QList<QPointF> &points)
 {
-    QMT_CHECK(points.size() >= 2);
+    QMT_ASSERT(points.size() >= 2, return);
     prepareGeometryChange();
 
     GraphicsHandleItem *focusEndBItem = 0;

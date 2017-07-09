@@ -54,7 +54,7 @@ void StackedDiagramsView::setDiagramsManager(DiagramsManager *diagramsManager)
 
 void StackedDiagramsView::openDiagram(MDiagram *diagram)
 {
-    QMT_CHECK(diagram);
+    QMT_ASSERT(diagram, return);
     DiagramView *diagramView = m_diagramViews.value(diagram->uid());
     if (!diagramView) {
         DiagramSceneModel *diagramSceneModel = m_diagramsManager->bindDiagramSceneModel(diagram);

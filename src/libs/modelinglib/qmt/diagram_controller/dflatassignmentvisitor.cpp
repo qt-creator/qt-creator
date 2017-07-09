@@ -59,7 +59,7 @@ void DFlatAssignmentVisitor::visitDObject(const DObject *object)
 {
     visitDElement(object);
     auto target = dynamic_cast<DObject *>(m_target);
-    QMT_CHECK(target);
+    QMT_ASSERT(target, return);
     target->setStereotypes(object->stereotypes());
     target->setName(object->name());
     target->setPos(object->pos());
@@ -81,7 +81,7 @@ void DFlatAssignmentVisitor::visitDClass(const DClass *klass)
 {
     visitDObject(klass);
     auto target = dynamic_cast<DClass *>(m_target);
-    QMT_CHECK(target);
+    QMT_ASSERT(target, return);
     target->setUmlNamespace(klass->umlNamespace());
     target->setTemplateParameters(klass->templateParameters());
     target->setTemplateDisplay(klass->templateDisplay());
@@ -94,7 +94,7 @@ void DFlatAssignmentVisitor::visitDComponent(const DComponent *component)
 {
     visitDObject(component);
     auto target = dynamic_cast<DComponent *>(m_target);
-    QMT_CHECK(target);
+    QMT_ASSERT(target, return);
     target->setPlainShape(component->isPlainShape());
 }
 
@@ -107,7 +107,7 @@ void DFlatAssignmentVisitor::visitDItem(const DItem *item)
 {
     visitDObject(item);
     auto target = dynamic_cast<DItem *>(m_target);
-    QMT_CHECK(target);
+    QMT_ASSERT(target, return);
     target->setVariety(target->variety());
     target->setShapeEditable(target->isShapeEditable());
     target->setShape(target->shape());
@@ -117,7 +117,7 @@ void DFlatAssignmentVisitor::visitDRelation(const DRelation *relation)
 {
     visitDElement(relation);
     auto target = dynamic_cast<DRelation *>(m_target);
-    QMT_CHECK(target);
+    QMT_ASSERT(target, return);
     target->setStereotypes(relation->stereotypes());
     target->setIntermediatePoints(relation->intermediatePoints());
 }
@@ -131,7 +131,7 @@ void DFlatAssignmentVisitor::visitDDependency(const DDependency *dependency)
 {
     visitDRelation(dependency);
     auto target = dynamic_cast<DDependency *>(m_target);
-    QMT_CHECK(target);
+    QMT_ASSERT(target, return);
     target->setDirection(dependency->direction());
 }
 
@@ -139,7 +139,7 @@ void DFlatAssignmentVisitor::visitDAssociation(const DAssociation *association)
 {
     visitDRelation(association);
     auto target = dynamic_cast<DAssociation *>(m_target);
-    QMT_CHECK(target);
+    QMT_ASSERT(target, return);
     target->setEndA(association->endA());
     target->setEndB(association->endB());
 }

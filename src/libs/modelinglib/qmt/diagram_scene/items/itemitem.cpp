@@ -71,7 +71,7 @@ void ItemItem::update()
 
     auto diagramItem = dynamic_cast<DItem *>(object());
     Q_UNUSED(diagramItem); // avoid warning about unsed variable
-    QMT_CHECK(diagramItem);
+    QMT_ASSERT(diagramItem, return);
 
     const Style *style = adaptedStyle(shapeIconId());
 

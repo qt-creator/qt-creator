@@ -346,13 +346,13 @@ QPointF ArrowItem::calcPointAtPercent(double percentage) const
 
 QLineF ArrowItem::firstLineSegment() const
 {
-    QTC_ASSERT(m_points.size() > 1, return QLineF());
+    QMT_ASSERT(m_points.size() > 1, return QLineF());
     return QLineF(m_points.at(0), m_points.at(1));
 }
 
 QLineF ArrowItem::lastLineSegment() const
 {
-    QTC_ASSERT(m_points.size() > 1, return QLineF());
+    QMT_ASSERT(m_points.size() > 1, return QLineF());
     return QLineF(m_points.at(m_points.size() - 1), m_points.at(m_points.size() - 2));
 }
 
@@ -380,7 +380,7 @@ void ArrowItem::update(const Style *style)
 
 void ArrowItem::updateShaft(const Style *style)
 {
-    QTC_ASSERT(m_shaftItem, return);
+    QMT_ASSERT(m_shaftItem, return);
 
     QPen pen(style->linePen());
     if (m_shaft == ShaftDashed)
@@ -424,8 +424,8 @@ void ArrowItem::updateHeadGeometry(GraphicsHeadItem **headItem, const QPointF &p
 
 void ArrowItem::updateGeometry()
 {
-    QTC_ASSERT(m_points.size() > 1, return);
-    QTC_ASSERT(m_shaftItem, return);
+    QMT_ASSERT(m_points.size() > 1, return);
+    QMT_ASSERT(m_shaftItem, return);
 
     prepareGeometryChange();
 

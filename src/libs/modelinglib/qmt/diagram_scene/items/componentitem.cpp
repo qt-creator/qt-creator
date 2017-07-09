@@ -237,7 +237,7 @@ void ComponentItem::relationDrawn(const QString &id, const QPointF &toScenePos, 
 bool ComponentItem::hasPlainShape() const
 {
     auto diagramComponent = dynamic_cast<DComponent *>(object());
-    QMT_CHECK(diagramComponent);
+    QMT_ASSERT(diagramComponent, return false);
     return diagramComponent->isPlainShape();
 }
 

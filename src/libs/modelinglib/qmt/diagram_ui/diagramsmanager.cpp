@@ -142,13 +142,13 @@ DiagramSceneModel *DiagramsManager::bindDiagramSceneModel(MDiagram *diagram)
 DiagramSceneModel *DiagramsManager::diagramSceneModel(const MDiagram *diagram) const
 {
     const ManagedDiagram *managedDiagram = m_diagramUidToManagedDiagramMap.value(diagram->uid());
-    QMT_CHECK(managedDiagram);
+    QMT_ASSERT(managedDiagram, return nullptr);
     return managedDiagram->diagramSceneModel();
 }
 
 void DiagramsManager::unbindDiagramSceneModel(const MDiagram *diagram)
 {
-    QMT_CHECK(diagram);
+    QMT_ASSERT(diagram, return);
     ManagedDiagram *managedDiagram = m_diagramUidToManagedDiagramMap.take(diagram->uid());
     QMT_CHECK(managedDiagram);
     delete managedDiagram;

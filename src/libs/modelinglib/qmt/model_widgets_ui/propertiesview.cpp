@@ -172,7 +172,7 @@ void PropertiesView::setSelectedModelElements(const QList<MElement *> &modelElem
 void PropertiesView::setSelectedDiagramElements(const QList<DElement *> &diagramElements, MDiagram *diagram)
 {
     QMT_CHECK(diagramElements.size() > 0);
-    QMT_CHECK(diagram);
+    QMT_ASSERT(diagram, return);
 
     if (m_selectedDiagramElements != diagramElements || m_selectedDiagram != diagram) {
         m_selectedDiagramElements = diagramElements;
@@ -386,7 +386,7 @@ void PropertiesView::onEndRemoveElement(int row, const MDiagram *diagram)
 
 void PropertiesView::beginUpdate(MElement *modelElement)
 {
-    QMT_CHECK(modelElement);
+    QMT_ASSERT(modelElement, return);
 
     if (auto object = dynamic_cast<MObject *>(modelElement)) {
         m_modelController->startUpdateObject(object);
@@ -399,7 +399,7 @@ void PropertiesView::beginUpdate(MElement *modelElement)
 
 void PropertiesView::endUpdate(MElement *modelElement, bool cancelled)
 {
-    QMT_CHECK(modelElement);
+    QMT_ASSERT(modelElement, return);
 
     if (auto object = dynamic_cast<MObject *>(modelElement)) {
         m_modelController->finishUpdateObject(object, cancelled);
@@ -412,18 +412,18 @@ void PropertiesView::endUpdate(MElement *modelElement, bool cancelled)
 
 void PropertiesView::beginUpdate(DElement *diagramElement)
 {
-    QMT_CHECK(diagramElement);
-    QMT_CHECK(m_selectedDiagram != 0);
-    QMT_CHECK(m_diagramController->findElement(diagramElement->uid(), m_selectedDiagram) == diagramElement);
+    QMT_ASSERT(diagramElement, return);
+    QMT_ASSERT(m_selectedDiagram, return);
+    QMT_ASSERT(m_diagramController->findElement(diagramElement->uid(), m_selectedDiagram) == diagramElement, return);
 
     m_diagramController->startUpdateElement(diagramElement, m_selectedDiagram, DiagramController::UpdateMinor);
 }
 
 void PropertiesView::endUpdate(DElement *diagramElement, bool cancelled)
 {
-    QMT_CHECK(diagramElement);
-    QMT_CHECK(m_selectedDiagram != 0);
-    QMT_CHECK(m_diagramController->findElement(diagramElement->uid(), m_selectedDiagram) == diagramElement);
+    QMT_ASSERT(diagramElement, return);
+    QMT_ASSERT(m_selectedDiagram, return);
+    QMT_ASSERT(m_diagramController->findElement(diagramElement->uid(), m_selectedDiagram) == diagramElement, return);
 
     m_diagramController->finishUpdateElement(diagramElement, m_selectedDiagram, cancelled);
 }

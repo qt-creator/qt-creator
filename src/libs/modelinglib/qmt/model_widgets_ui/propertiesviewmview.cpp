@@ -102,7 +102,7 @@ static MDependency::Direction translateIndexToDirection(int index)
     static const MDependency::Direction map[] = {
         MDependency::AToB, MDependency::BToA, MDependency::Bidirectional
     };
-    QMT_CHECK(isValidDirectionIndex(index));
+    QMT_ASSERT(isValidDirectionIndex(index), return MDependency::AToB);
     return map[index];
 }
 
@@ -129,7 +129,7 @@ static MAssociationEnd::Kind translateIndexToAssociationKind(int index)
     static const MAssociationEnd::Kind map[] = {
         MAssociationEnd::Association, MAssociationEnd::Aggregation, MAssociationEnd::Composition
     };
-    QMT_CHECK(isValidAssociationKindIndex(index));
+    QMT_ASSERT(isValidAssociationKindIndex(index), return MAssociationEnd::Association);
     return map[index];
 }
 
@@ -164,7 +164,7 @@ static DObject::VisualPrimaryRole translateIndexToVisualPrimaryRole(int index)
         DObject::PrimaryRoleCustom1, DObject::PrimaryRoleCustom2, DObject::PrimaryRoleCustom3,
         DObject::PrimaryRoleCustom4, DObject::PrimaryRoleCustom5
     };
-    QMT_CHECK(index >= 0 && index <= 5);
+    QMT_ASSERT(index >= 0 && index <= 5, return DObject::PrimaryRoleNormal);
     return map[index];
 }
 
@@ -192,7 +192,7 @@ static DObject::VisualSecondaryRole translateIndexToVisualSecondaryRole(int inde
         DObject::SecondaryRoleLighter, DObject::SecondaryRoleDarker,
         DObject::SecondaryRoleSoften, DObject::SecondaryRoleOutline
     };
-    QMT_CHECK(index >= 0 && index <= 4);
+    QMT_ASSERT(index >= 0 && index <= 4, return DObject::SecondaryRoleNone);
     return map[index];
 }
 
@@ -222,7 +222,7 @@ static DObject::StereotypeDisplay translateIndexToStereotypeDisplay(int index)
         DObject::StereotypeDecoration,
         DObject::StereotypeIcon
     };
-    QMT_CHECK(index >= 0 && index <= 4);
+    QMT_ASSERT(index >= 0 && index <= 4, return DObject::StereotypeSmart);
     return map[index];
 }
 
@@ -246,7 +246,7 @@ static DClass::TemplateDisplay translateIndexToTemplateDisplay(int index)
         DClass::TemplateBox,
         DClass::TemplateName
     };
-    QMT_CHECK(index >= 0 && index <= 2);
+    QMT_ASSERT(index >= 0 && index <= 2, return DClass::TemplateSmart);
     return map[index];
 }
 
@@ -275,7 +275,7 @@ static DAnnotation::VisualRole translateIndexToAnnotationVisualRole(int index)
         DAnnotation::RoleNormal, DAnnotation::RoleTitle, DAnnotation::RoleSubtitle,
         DAnnotation::RoleEmphasized, DAnnotation::RoleSoften, DAnnotation::RoleFootnote
     };
-    QMT_CHECK(index >= 0 && index <= 5);
+    QMT_ASSERT(index >= 0 && index <= 5, return DAnnotation::RoleNormal);
     return map[index];
 }
 
@@ -334,7 +334,7 @@ PropertiesView::MView::~MView()
 
 void PropertiesView::MView::update(QList<MElement *> &modelElements)
 {
-    QMT_CHECK(modelElements.size() > 0);
+    QMT_ASSERT(modelElements.size() > 0, return);
 
     m_modelElements = modelElements;
     m_diagramElements.clear();
@@ -344,8 +344,8 @@ void PropertiesView::MView::update(QList<MElement *> &modelElements)
 
 void PropertiesView::MView::update(QList<DElement *> &diagramElements, MDiagram *diagram)
 {
-    QMT_CHECK(diagramElements.size() > 0);
-    QMT_CHECK(diagram);
+    QMT_ASSERT(diagramElements.size() > 0, return);
+    QMT_ASSERT(diagram, return);
 
     m_diagramElements = diagramElements;
     m_diagram = diagram;
@@ -599,10 +599,10 @@ void PropertiesView::MView::visitMRelation(const MRelation *relation)
     if (m_elementNameLineEdit->isEnabled() != isSingleSelection)
         m_elementNameLineEdit->setEnabled(isSingleSelection);
     MObject *endAObject = m_propertiesView->modelController()->findObject(relation->endAUid());
-    QMT_CHECK(endAObject);
+    QMT_ASSERT(endAObject, return);
     setEndAName(tr("End A: %1").arg(endAObject->name()));
     MObject *endBObject = m_propertiesView->modelController()->findObject(relation->endBUid());
-    QMT_CHECK(endBObject);
+    QMT_ASSERT(endBObject, return);
     setEndBName(tr("End B: %1").arg(endBObject->name()));
 }
 
@@ -636,10 +636,10 @@ void PropertiesView::MView::visitMInheritance(const MInheritance *inheritance)
 {
     setTitle<MInheritance>(m_modelElements, tr("Inheritance"), tr("Inheritances"));
     MObject *derivedClass = m_propertiesView->modelController()->findObject(inheritance->derived());
-    QMT_CHECK(derivedClass);
+    QMT_ASSERT(derivedClass, return);
     setEndAName(tr("Derived class: %1").arg(derivedClass->name()));
     MObject *baseClass = m_propertiesView->modelController()->findObject(inheritance->base());
-    QMT_CHECK(baseClass);
+    QMT_ASSERT(baseClass, return);
     setEndBName(tr("Base class: %1").arg(baseClass->name()));
     visitMRelation(inheritance);
 }

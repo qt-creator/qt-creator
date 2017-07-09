@@ -211,7 +211,7 @@ DSelection DiagramSceneModel::selectedElements() const
     DSelection selection;
     foreach (QGraphicsItem *item, m_graphicsScene->selectedItems()) {
         DElement *element = m_itemToElementMap.value(item);
-        QMT_CHECK(element);
+        QMT_ASSERT(element, return selection);
         selection.append(element->uid(), m_diagram->uid());
     }
     return selection;
@@ -569,8 +569,6 @@ QList<QGraphicsItem *> DiagramSceneModel::collectCollidingObjectItems(const QGra
             }
         }
         break;
-    default:
-        QMT_CHECK(false);
     }
     return collidingItems;
 }
@@ -649,7 +647,7 @@ void DiagramSceneModel::mouseReleaseEventReparenting(QGraphicsSceneMouseEvent *e
         if (newOwner) {
             foreach (QGraphicsItem *item, m_graphicsScene->selectedItems()) {
                 DElement *element = m_itemToElementMap.value(item);
-                QMT_CHECK(element);
+                QMT_ASSERT(element, return);
                 if (element->modelUid().isValid()) {
                     MObject *modelObject = modelController->findObject(element->modelUid());
                     if (modelObject) {
@@ -805,15 +803,15 @@ void DiagramSceneModel::onSelectionChanged()
         auto relation = dynamic_cast<DRelation *>(element);
         if (relation) {
             QGraphicsItem *relationItem = m_elementToItemMap.value(relation);
-            QMT_CHECK(relationItem);
+            QMT_ASSERT(relationItem, return);
             DObject *endAObject = m_diagramController->findElement<DObject>(relation->endAUid(), m_diagram);
-            QMT_CHECK(endAObject);
+            QMT_ASSERT(endAObject, return);
             QGraphicsItem *endAItem = m_elementToItemMap.value(endAObject);
-            QMT_CHECK(endAItem);
+            QMT_ASSERT(endAItem, return);
             DObject *endBObject = m_diagramController->findElement<DObject>(relation->endBUid(), m_diagram);
-            QMT_CHECK(endBObject);
+            QMT_ASSERT(endBObject, return);
             QGraphicsItem *endBItem = m_elementToItemMap.value(endBObject);
-            QMT_CHECK(endBItem);
+            QMT_ASSERT(endBItem, return);
             if (relationItem && !relationItem->isSelected()
                     && (m_selectedItems.contains(endAItem) || newSecondarySelectedItems.contains(endAItem))
                     && (m_selectedItems.contains(endBItem) || newSecondarySelectedItems.contains(endBItem))) {
@@ -826,7 +824,7 @@ void DiagramSceneModel::onSelectionChanged()
     foreach (QGraphicsItem *item, m_secondarySelectedItems) {
         if (!newSecondarySelectedItems.contains(item)) {
             auto selectable = dynamic_cast<ISelectable *>(item);
-            QMT_CHECK(selectable);
+            QMT_ASSERT(selectable, return);
             selectable->setSecondarySelected(false);
             selectionChanged = true;
         }
@@ -834,7 +832,7 @@ void DiagramSceneModel::onSelectionChanged()
     foreach (QGraphicsItem *item, newSecondarySelectedItems) {
         if (!m_secondarySelectedItems.contains(item)) {
             auto selectable = dynamic_cast<ISelectable *>(item);
-            QMT_CHECK(selectable);
+            QMT_ASSERT(selectable, return);
             selectable->setSecondarySelected(true);
             selectionChanged = true;
         }
@@ -877,7 +875,7 @@ void DiagramSceneModel::addExtraSceneItems()
 
 QGraphicsItem *DiagramSceneModel::createGraphicsItem(DElement *element)
 {
-    QMT_CHECK(element);
+    QMT_ASSERT(element, return nullptr);
     QMT_CHECK(!m_elementToItemMap.contains(element));
 
     CreationVisitor visitor(this);
@@ -891,8 +889,8 @@ QGraphicsItem *DiagramSceneModel::createGraphicsItem(DElement *element)
 
 void DiagramSceneModel::updateGraphicsItem(QGraphicsItem *item, DElement *element)
 {
-    QMT_CHECK(item);
-    QMT_CHECK(element);
+    QMT_ASSERT(item, return);
+    QMT_ASSERT(element, return);
 
     UpdateVisitor visitor(item, this);
     element->accept(&visitor);
@@ -945,8 +943,8 @@ void DiagramSceneModel::unsetFocusItem()
 
 bool DiagramSceneModel::isInFrontOf(const QGraphicsItem *frontItem, const QGraphicsItem *backItem)
 {
-    QMT_CHECK(frontItem);
-    QMT_CHECK(backItem);
+    QMT_ASSERT(frontItem, return false);
+    QMT_ASSERT(backItem, return false);
 
     // shortcut for usual case of root items
     if (frontItem->parentItem() == 0 && backItem->parentItem() == 0) {

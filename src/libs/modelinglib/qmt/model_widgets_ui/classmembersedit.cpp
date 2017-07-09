@@ -452,7 +452,7 @@ QString ClassMembersEdit::build(const QList<MClassMember> &members)
 
 QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
 {
-    QMT_CHECK(ok);
+    QMT_ASSERT(ok, return QList<MClassMember>());
 
     *ok = true;
     QList<MClassMember> members;
