@@ -1926,7 +1926,7 @@ void DebuggerEngine::validateExecutable()
     }
     if (warnOnInappropriateDebugger) {
         AsynchronousMessageBox::information(tr("Warning"),
-                tr("The selected debugger may be inappropiate for the inferior.\n"
+                tr("The selected debugger may be inappropriate for the inferior.\n"
                    "Examining symbols and setting breakpoints by file name and line number "
                    "may fail.\n")
                + '\n' + detailedWarning);
