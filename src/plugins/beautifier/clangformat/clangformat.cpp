@@ -73,7 +73,7 @@ QString ClangFormat::id() const
 bool ClangFormat::initialize()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::ClangFormat::MENU_ID);
-    menu->menu()->setTitle(tr(Constants::ClangFormat::DISPLAY_NAME));
+    menu->menu()->setTitle(tr("&ClangFormat"));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     Core::Command *cmd

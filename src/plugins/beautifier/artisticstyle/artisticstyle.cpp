@@ -69,7 +69,7 @@ ArtisticStyle::~ArtisticStyle()
 bool ArtisticStyle::initialize()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::ArtisticStyle::MENU_ID);
-    menu->menu()->setTitle(tr(Constants::ArtisticStyle::DISPLAY_NAME));
+    menu->menu()->setTitle(tr("&Artistic Style"));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     menu->addAction(Core::ActionManager::registerAction(m_formatFile,
