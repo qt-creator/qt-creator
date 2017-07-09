@@ -51,6 +51,7 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
     ui->specificConfigFile->setExpectedKind(Utils::PathChooser::File);
     ui->specificConfigFile->setPromptDialogFilter(tr("AStyle (*.astylerc)"));
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    ui->command->setCommandVersionArguments({"--version"});
     ui->command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
                                           ArtisticStyle::tr(Constants::ArtisticStyle::DISPLAY_NAME)));
     connect(ui->command, &Utils::PathChooser::validChanged, ui->options, &QWidget::setEnabled);
