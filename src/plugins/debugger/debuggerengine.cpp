@@ -1798,14 +1798,23 @@ void DebuggerEngine::validateExecutable()
     QString detailedWarning;
     switch (sp->toolChainAbi.binaryFormat()) {
     case Abi::PEFormat: {
-        if (sp->cppEngineType != CdbEngineType) {
+        QString preferredDebugger;
+        if (sp->toolChainAbi.osFlavor() == Abi::WindowsMSysFlavor) {
+            if (sp->cppEngineType == CdbEngineType)
+                preferredDebugger = "GDB";
+        } else if (sp->cppEngineType != CdbEngineType) {
+            // osFlavor() is MSVC, so the recommended debugger is CDB
+            preferredDebugger = "CDB";
+        }
+        if (!preferredDebugger.isEmpty()) {
             warnOnInappropriateDebugger = true;
             detailedWarning = tr(
                         "The inferior is in the Portable Executable format.\n"
-                        "Selecting CDB as debugger would improve the debugging "
-                        "experience for this binary format.");
+                        "Selecting %1 as debugger would improve the debugging "
+                        "experience for this binary format.").arg(preferredDebugger);
             break;
-        } else if (warnOnRelease) {
+        }
+        if (warnOnRelease && sp->cppEngineType == CdbEngineType) {
             if (!symbolFile.endsWith(".exe", Qt::CaseInsensitive))
                 symbolFile.append(".exe");
             QString errorMessage;
