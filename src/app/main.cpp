@@ -161,7 +161,7 @@ static const char *setHighDpiEnvironmentVariable()
 {
     const char* envVarName = 0;
     static const char ENV_VAR_QT_DEVICE_PIXEL_RATIO[] = "QT_DEVICE_PIXEL_RATIO";
-    if (!Utils::HostOsInfo().isMacHost()
+    if (Utils::HostOsInfo().isWindowsHost()
             && !qEnvironmentVariableIsSet(ENV_VAR_QT_DEVICE_PIXEL_RATIO) // legacy in 5.6, but still functional
             && !qEnvironmentVariableIsSet("QT_AUTO_SCREEN_SCALE_FACTOR")
             && !qEnvironmentVariableIsSet("QT_SCALE_FACTOR")
