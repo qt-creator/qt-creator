@@ -123,6 +123,9 @@ public:
 
     void keyPressEvent(QKeyEvent *event);
     bool eventFilter(QObject *watched, QEvent *event);
+
+private:
+    QMetaObject::Connection m_updateSizeConnection;
 };
 
 class TopLeftLocatorPopup : public LocatorPopup
@@ -265,7 +268,7 @@ void CompletionList::setModel(QAbstractItemModel *newModel)
             const QStyleOptionViewItem &option = viewOptions();
             const QSize shint = itemDelegate()->sizeHint(option, model()->index(0, 0));
             setFixedHeight(shint.height() * 17 + frameWidth() * 2);
-            disconnect(model(), &QAbstractItemModel::rowsInserted, this, 0);
+            disconnect(m_updateSizeConnection);
         }
     };
 
@@ -276,8 +279,8 @@ void CompletionList::setModel(QAbstractItemModel *newModel)
     if (newModel) {
         connect(newModel, &QAbstractItemModel::columnsInserted,
                 this, &CompletionList::resizeHeaders);
-        connect(newModel, &QAbstractItemModel::rowsInserted,
-                this, updateSize);
+        m_updateSizeConnection = connect(newModel, &QAbstractItemModel::rowsInserted,
+                                         this, updateSize);
     }
 }
 
