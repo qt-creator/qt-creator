@@ -376,9 +376,11 @@ void ClangDiagnosticManager::generateEditorSelections()
 }
 
 void ClangDiagnosticManager::processNewDiagnostics(
-        const QVector<ClangBackEnd::DiagnosticContainer> &allDiagnostics)
+        const QVector<ClangBackEnd::DiagnosticContainer> &allDiagnostics,
+        bool showTextMarkAnnotations)
 {
     m_diagnosticsInvalidated = false;
+    m_showTextMarkAnnotations = showTextMarkAnnotations;
     filterDiagnostics(allDiagnostics);
 
     generateTextMarks();
@@ -401,7 +403,8 @@ void ClangDiagnosticManager::addClangTextMarks(
             m_clangTextMarks.erase(it, m_clangTextMarks.end());
             delete mark;
          };
-        auto textMark = new ClangTextMark(filePath(), diagnostic, onMarkRemoved);
+        auto textMark = new ClangTextMark(filePath(), diagnostic, onMarkRemoved,
+                                          m_showTextMarkAnnotations);
         m_clangTextMarks.push_back(textMark);
         m_textDocument->addMark(textMark);
     }

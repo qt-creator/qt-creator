@@ -180,7 +180,7 @@ void ClangEditorDocumentProcessor::updateCodeWarnings(
         uint documentRevision)
 {
     if (documentRevision == revision()) {
-        m_diagnosticManager.processNewDiagnostics(diagnostics);
+        m_diagnosticManager.processNewDiagnostics(diagnostics, m_isProjectFile);
         const auto codeWarnings = m_diagnosticManager.takeExtraSelections();
         const auto fixitAvailableMarkers = m_diagnosticManager.takeFixItAvailableMarkers();
         const auto creator = creatorForHeaderErrorDiagnosticWidget(firstHeaderErrorDiagnostic);
@@ -368,6 +368,8 @@ void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor(
         registerTranslationUnitForEditor(projectPart.data());
 
         m_projectPart = projectPart;
+        m_isProjectFile = m_parser->projectPartInfo().hints
+                & CppTools::ProjectPartInfo::IsFromProjectMatch;
     }
 }
 

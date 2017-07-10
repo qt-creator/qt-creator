@@ -49,7 +49,8 @@ public:
     ClangDiagnosticManager(TextEditor::TextDocument *textDocument);
     ~ClangDiagnosticManager();
 
-    void processNewDiagnostics(const QVector<ClangBackEnd::DiagnosticContainer> &allDiagnostics);
+    void processNewDiagnostics(const QVector<ClangBackEnd::DiagnosticContainer> &allDiagnostics,
+                               bool showTextMarkAnnotations);
 
     const QVector<ClangBackEnd::DiagnosticContainer> &diagnosticsWithFixIts() const;
     QList<QTextEdit::ExtraSelection> takeExtraSelections();
@@ -82,6 +83,7 @@ private:
     TextEditor::RefactorMarkers m_fixItAvailableMarkers;
     std::vector<ClangTextMark *> m_clangTextMarks;
     bool m_diagnosticsInvalidated = false;
+    bool m_showTextMarkAnnotations = false;
 };
 
 } // namespace Internal
