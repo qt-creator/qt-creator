@@ -253,6 +253,6 @@
 	<key>CFBundleShortVersionString</key>
 	<string>@SHORT_VERSION@</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.8</string>
+	<string>@MACOSX_DEPLOYMENT_TARGET@</string>
 </dict>
 </plist>

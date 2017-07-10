@@ -952,7 +952,7 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
                     return this;
             }
 
-            if (ClassOrNamespace *e = nestedType(name, origin))
+            if (ClassOrNamespace *e = nestedType(name, processed, origin))
                 return e;
 
             if (_templateId) {
@@ -1074,7 +1074,9 @@ ClassOrNamespace *ClassOrNamespace::findOrCreateNestedAnonymousType(
     }
 }
 
-ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespace *origin)
+ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
+                                               QSet<ClassOrNamespace *> *processed,
+                                               ClassOrNamespace *origin)
 {
     Q_ASSERT(name != 0);
     Q_ASSERT(name->isNameId() || name->isTemplateNameId() || name->isAnonymousNameId());
@@ -1184,11 +1186,11 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
             instantiation->_name = templId;
         instantiation->_templateId = templId;
 
-        QSet<ClassOrNamespace *> processed;
+        QSet<ClassOrNamespace *> otherProcessed;
         while (!origin->_symbols.isEmpty() && origin->_symbols[0]->isBlock()) {
-            if (processed.contains(origin))
+            if (otherProcessed.contains(origin))
                 break;
-            processed.insert(origin);
+            otherProcessed.insert(origin);
             origin = origin->parent();
         }
 
@@ -1310,7 +1312,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                         // Another template that uses the dependent name.
                         // Ex.: template <class T> class A : public B<T> {};
                         if (baseTemplId->identifier() != templId->identifier())
-                            baseBinding = nestedType(baseName, origin);
+                            baseBinding = nestedType(baseName, processed, origin);
                     } else if (const QualifiedNameId *qBaseName = baseName->asQualifiedNameId()) {
                         // Qualified names in general.
                         // Ex.: template <class T> class A : public B<T>::Type {};
@@ -1361,7 +1363,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         }
 
         if (binding) {
-            ClassOrNamespace * baseBinding = binding->lookupType(baseName);
+            ClassOrNamespace * baseBinding
+                    = binding->lookupType_helper(baseName, processed, true, this);
             if (baseBinding && !knownUsings.contains(baseBinding))
                 reference->addUsing(baseBinding);
         }
@@ -1518,7 +1521,8 @@ ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name, ClassOrNa
         return findOrCreateType(q->base(), origin)->findOrCreateType(q->name(), origin, clazz);
 
     } else if (name->isNameId() || name->isTemplateNameId() || name->isAnonymousNameId()) {
-        ClassOrNamespace *e = nestedType(name, origin);
+        QSet<ClassOrNamespace *> processed;
+        ClassOrNamespace *e = nestedType(name, &processed, origin);
 
         if (! e) {
             e = _factory->allocClassOrNamespace(this);
