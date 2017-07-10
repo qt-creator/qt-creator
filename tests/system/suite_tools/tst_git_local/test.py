@@ -223,7 +223,7 @@ def main():
     mouseClick(gitEditor, rect.x+rect.width/2, rect.y+rect.height/2, 0, Qt.LeftButton)
     changed = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget")
     waitFor('str(changed.plainText) != "Waiting for data..."', 5000)
-    test.compare(str(changed.plainText), "Failed",
+    test.compare(str(changed.plainText), "Retrieving data failed.",
                  "Showing an invalid commit can't succeed but Creator survived.")
 
     invokeMenuItem("File", "Close All Projects and Editors")
