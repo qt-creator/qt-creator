@@ -33,6 +33,7 @@
 
 #include <invalidqmlsourceexception.h>
 
+#include <coreplugin/messagebox.h>
 #include <coreplugin/icore.h>
 
 #include <utils/qtcassert.h>
@@ -57,15 +58,15 @@ namespace QmlDesigner {
 
 int StatesEditorWidget::currentStateInternalId() const
 {
-    Q_ASSERT(rootObject());
-    Q_ASSERT(rootObject()->property("currentStateInternalId").isValid());
+    QTC_ASSERT(rootObject(), return -1);
+    QTC_ASSERT(rootObject()->property("currentStateInternalId").isValid(), return -1);
 
     return rootObject()->property("currentStateInternalId").toInt();
 }
 
 void StatesEditorWidget::setCurrentStateInternalId(int internalId)
 {
-    Q_ASSERT(rootObject());
+    QTC_ASSERT(rootObject(), return);
     rootObject()->setProperty("currentStateInternalId", internalId);
 }
 
@@ -119,6 +120,7 @@ QString StatesEditorWidget::qmlSourcesPath() {
 
 void StatesEditorWidget::toggleStatesViewExpanded()
 {
+    QTC_ASSERT(rootObject(), return);
     bool expanded = rootObject()->property("expanded").toBool();
     rootObject()->setProperty("expanded", !expanded);
 }
@@ -130,7 +132,13 @@ void StatesEditorWidget::reloadQmlSource()
     engine()->clearComponentCache();
     setSource(QUrl::fromLocalFile(statesListQmlFilePath));
 
-    QTC_ASSERT(rootObject(), return);
+    if (!rootObject()) {
+        Core::AsynchronousMessageBox::warning(tr("Cannot create QtQuick View"),
+                                              tr("StatesEditorWidget: %1 cannot be created. "
+                                                 "Most likely QtQuick.Controls 1 are not installed.").arg(qmlSourcesPath()));
+        return;
+    }
+
     connect(rootObject(), SIGNAL(currentStateInternalIdChanged()), m_statesEditorView.data(), SLOT(synchonizeCurrentStateFromWidget()));
     connect(rootObject(), SIGNAL(createNewState()), m_statesEditorView.data(), SLOT(createNewState()));
     connect(rootObject(), SIGNAL(deleteState(int)), m_statesEditorView.data(), SLOT(removeState(int)));
@@ -147,8 +155,9 @@ void StatesEditorWidget::reloadQmlSource()
 
 void StatesEditorWidget::handleExpandedChanged()
 {
-    bool expanded = rootObject()->property("expanded").toBool();
+    QTC_ASSERT(rootObject(), return);
 
+    bool expanded = rootObject()->property("expanded").toBool();
     DesignerSettings::setValue(DesignerSettingsKey::STATESEDITOR_EXPANDED, expanded);
 
     setFixedHeight(rootObject()->height());
