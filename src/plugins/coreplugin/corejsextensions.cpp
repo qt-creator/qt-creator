@@ -144,7 +144,7 @@ QString UtilsJsExtension::mktemp(const QString &pattern) const
 QString UtilsJsExtension::asciify(const QString &input) const
 {
     QString result;
-    for (const QChar c : input) {
+    for (const QChar &c : input) {
         if (c.isPrint() && c.unicode() < 128)
             result.append(c);
         else
