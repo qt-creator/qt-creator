@@ -155,7 +155,7 @@ class JIRA:
                 test.warning("Resolution of bug is '%s' - assuming 'Open' for now." % self._resolution,
                              "Please check the bugreport manually and update this test.")
                 return True
-            return self._resolution != 'Done'
+            return self._resolution not in ('Done', 'Fixed')
 
         # this function tries to fetch the resolution from JIRA for the given bug
         # if this isn't possible or the lookup is disabled it does only check the internal
