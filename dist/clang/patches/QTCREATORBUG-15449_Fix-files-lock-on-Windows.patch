@@ -1,0 +1,16 @@
+diff --git a/lib/Support/MemoryBuffer.cpp b/lib/Support/MemoryBuffer.cpp
+index b935cbf1ae7..3c9a25062f5 100644
+--- a/lib/Support/MemoryBuffer.cpp
++++ b/lib/Support/MemoryBuffer.cpp
+@@ -286,6 +286,11 @@ static bool shouldUseMmap(int FD,
+                           bool RequiresNullTerminator,
+                           int PageSize,
+                           bool IsVolatileSize) {
++#ifdef _WIN32
++    // Do not use mmap on Windows in order to avoid file locking
++    return false;
++#endif
++
+   // mmap may leave the buffer without null terminator if the file size changed
+   // by the time the last page is mapped in, so avoid it if the file size is
+   // likely to change.
