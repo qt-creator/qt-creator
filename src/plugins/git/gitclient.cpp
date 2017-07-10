@@ -55,6 +55,7 @@
 #include <utils/temporaryfile.h>
 
 #include <vcsbase/submitfilemodel.h>
+#include <vcsbase/vcsbasediffeditorcontroller.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsbaseplugin.h>
@@ -110,75 +111,31 @@ const unsigned silentFlags = unsigned(VcsCommand::SuppressCommandLogging
                                       | VcsCommand::SuppressStdErr
                                       | VcsCommand::SuppressFailMessage);
 
-/////////////////////////////////////
-
-class BaseController : public DiffEditorController
+class GitDiffEditorController : public VcsBaseDiffEditorController
 {
     Q_OBJECT
 
 public:
-    BaseController(IDocument *document, const QString &dir);
-    ~BaseController();
-    void runCommand(const QList<QStringList> &args, QTextCodec *codec = 0);
-
-private:
-    virtual void processOutput(const QString &output);
+    GitDiffEditorController(IDocument *document, const QString &workingDirectory);
 
 protected:
-    void processDiff(const QString &output, const QString &startupFile = QString());
+    void runCommand(const QList<QStringList> &args, QTextCodec *codec = nullptr);
+
     QStringList addConfigurationArguments(const QStringList &args) const;
     QStringList addHeadWhenCommandInProgress() const;
-
-    const QString m_directory;
-
-private:
-    QPointer<VcsCommand> m_command;
 };
 
-BaseController::BaseController(IDocument *document, const QString &dir) :
-    DiffEditorController(document),
-    m_directory(dir),
-    m_command(0)
-{ }
-
-BaseController::~BaseController()
+GitDiffEditorController::GitDiffEditorController(IDocument *document, const QString &workingDirectory) :
+    VcsBaseDiffEditorController(document, GitPlugin::client(), workingDirectory)
 {
-    if (m_command)
-        m_command->cancel();
 }
 
-void BaseController::runCommand(const QList<QStringList> &args, QTextCodec *codec)
+void GitDiffEditorController::runCommand(const QList<QStringList> &args, QTextCodec *codec)
 {
-    if (m_command) {
-        m_command->disconnect();
-        m_command->cancel();
-    }
-
-    m_command = new VcsCommand(m_directory, GitPlugin::client()->processEnvironment());
-    m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
-    connect(m_command.data(), &VcsCommand::stdOutText, this, &BaseController::processOutput);
-    connect(m_command.data(), &VcsCommand::finished, this, &BaseController::reloadFinished);
-    m_command->addFlags(diffExecutionFlags());
-
-    for (const QStringList &arg : args) {
-        QTC_ASSERT(!arg.isEmpty(), continue);
-
-        m_command->addJob(GitPlugin::client()->vcsBinary(), arg, GitPlugin::client()->vcsTimeoutS());
-    }
-
-    m_command->execute();
+    VcsBaseDiffEditorController::runCommand(args, diffExecutionFlags(), codec);
 }
 
-void BaseController::processDiff(const QString &output, const QString &startupFile)
-{
-    m_command.clear();
-
-    bool ok;
-    QList<FileData> fileDataList = DiffUtils::readPatch(output, &ok);
-    setDiffFiles(fileDataList, m_directory, startupFile);
-}
-
-QStringList BaseController::addConfigurationArguments(const QStringList &args) const
+QStringList GitDiffEditorController::addConfigurationArguments(const QStringList &args) const
 {
     QTC_ASSERT(!args.isEmpty(), return args);
 
@@ -196,28 +153,23 @@ QStringList BaseController::addConfigurationArguments(const QStringList &args) c
     return realArgs;
 }
 
-void BaseController::processOutput(const QString &output)
-{
-    processDiff(output);
-}
-
-QStringList BaseController::addHeadWhenCommandInProgress() const
+QStringList GitDiffEditorController::addHeadWhenCommandInProgress() const
 {
     // This is workaround for lack of support for merge commits and resolving conflicts,
     // we compare the current state of working tree to the HEAD of current branch
     // instead of showing unsupported combined diff format.
-    GitClient::CommandInProgress commandInProgress = GitPlugin::client()->checkCommandInProgress(m_directory);
+    GitClient::CommandInProgress commandInProgress = GitPlugin::client()->checkCommandInProgress(workingDirectory());
     if (commandInProgress != GitClient::NoCommand)
         return {HEAD};
     return QStringList();
 }
 
-class RepositoryDiffController : public BaseController
+class RepositoryDiffController : public GitDiffEditorController
 {
     Q_OBJECT
 public:
     RepositoryDiffController(IDocument *document, const QString &dir) :
-        BaseController(document, dir)
+        GitDiffEditorController(document, dir)
     { }
 
     void reload() override;
@@ -230,12 +182,12 @@ void RepositoryDiffController::reload()
     runCommand(QList<QStringList>() << addConfigurationArguments(args));
 }
 
-class FileDiffController : public BaseController
+class FileDiffController : public GitDiffEditorController
 {
     Q_OBJECT
 public:
     FileDiffController(IDocument *document, const QString &dir, const QString &fileName) :
-        BaseController(document, dir),
+        GitDiffEditorController(document, dir),
         m_fileName(fileName)
     { }
 
@@ -254,13 +206,13 @@ void FileDiffController::reload()
     runCommand(QList<QStringList>() << addConfigurationArguments(args));
 }
 
-class FileListDiffController : public BaseController
+class FileListDiffController : public GitDiffEditorController
 {
     Q_OBJECT
 public:
     FileListDiffController(IDocument *document, const QString &dir,
                            const QStringList &stagedFiles, const QStringList &unstagedFiles) :
-        BaseController(document, dir),
+        GitDiffEditorController(document, dir),
         m_stagedFiles(stagedFiles),
         m_unstagedFiles(unstagedFiles)
     { }
@@ -291,13 +243,13 @@ void FileListDiffController::reload()
         runCommand(argLists);
 }
 
-class ProjectDiffController : public BaseController
+class ProjectDiffController : public GitDiffEditorController
 {
     Q_OBJECT
 public:
     ProjectDiffController(IDocument *document, const QString &dir,
                           const QStringList &projectPaths) :
-        BaseController(document, dir),
+        GitDiffEditorController(document, dir),
         m_projectPaths(projectPaths)
     { }
 
@@ -314,13 +266,13 @@ void ProjectDiffController::reload()
     runCommand(QList<QStringList>() << addConfigurationArguments(args));
 }
 
-class BranchDiffController : public BaseController
+class BranchDiffController : public GitDiffEditorController
 {
     Q_OBJECT
 public:
     BranchDiffController(IDocument *document, const QString &dir,
                          const QString &branch) :
-        BaseController(document, dir),
+        GitDiffEditorController(document, dir),
         m_branch(branch)
     { }
 
@@ -337,19 +289,18 @@ void BranchDiffController::reload()
     runCommand(QList<QStringList>() << addConfigurationArguments(args));
 }
 
-class ShowController : public BaseController
+class ShowController : public GitDiffEditorController
 {
     Q_OBJECT
 public:
     ShowController(IDocument *document, const QString &dir, const QString &id) :
-        BaseController(document, dir),
+        GitDiffEditorController(document, dir),
         m_id(id),
         m_state(Idle)
     { }
 
     void reload() override;
-    void processOutput(const QString &output) override;
-    void reloadFinished(bool success) override;
+    void processCommandOutput(const QString &output) override;
 
 private:
     const QString m_id;
@@ -359,34 +310,27 @@ private:
 
 void ShowController::reload()
 {
-    const QStringList args = {"show", "-s", noColorOption, showFormatC, m_id};
+    // stage 1
     m_state = GettingDescription;
-    runCommand(QList<QStringList>() << args, GitPlugin::client()->encoding(m_directory, "i18n.commitEncoding"));
+    const QStringList args = {"show", "-s", noColorOption, showFormatC, m_id};
+    runCommand(QList<QStringList>() << args, GitPlugin::client()->encoding(workingDirectory(), "i18n.commitEncoding"));
+    setStartupFile(VcsBasePlugin::source(document()));
 }
 
-void ShowController::processOutput(const QString &output)
+void ShowController::processCommandOutput(const QString &output)
 {
     QTC_ASSERT(m_state != Idle, return);
-    if (m_state == GettingDescription)
-        setDescription(GitPlugin::client()->extendedShowDescription(m_directory, output));
-    else if (m_state == GettingDiff)
-        processDiff(output, VcsBasePlugin::source(document()));
-}
-
-void ShowController::reloadFinished(bool success)
-{
-    QTC_ASSERT(m_state != Idle, return);
-
-    if (m_state == GettingDescription && success) {
+    if (m_state == GettingDescription) {
+        setDescription(GitPlugin::client()->extendedShowDescription(workingDirectory(), output));
+        // stage 2
+        m_state = GettingDiff;
         const QStringList args = {"show", "--format=format:", // omit header, already generated
                                   noColorOption, decorateOption, m_id};
-        m_state = GettingDiff;
         runCommand(QList<QStringList>() << addConfigurationArguments(args));
-        return;
+    } else if (m_state == GettingDiff) {
+        m_state = Idle;
+        GitDiffEditorController::processCommandOutput(output);
     }
-
-    m_state = Idle;
-    BaseController::reloadFinished(success);
 }
 
 ///////////////////////////////

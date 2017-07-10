@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,49 +23,40 @@
 **
 ****************************************************************************/
 
-#include "runnables.h"
+#pragma once
 
-#include <QTcpServer>
+#include "vcsbase_global.h"
+#include <diffeditor/diffeditorcontroller.h>
 
-#include <utils/temporaryfile.h>
+namespace Core { class IDocument; }
 
-namespace ProjectExplorer {
+namespace VcsBase {
 
-bool operator==(const StandardRunnable &r1, const StandardRunnable &r2)
+class VcsBaseClientImpl;
+class VcsBaseDiffEditorControllerPrivate;
+
+class VCSBASE_EXPORT VcsBaseDiffEditorController : public DiffEditor::DiffEditorController
 {
-    return r1.executable == r2.executable
-        && r1.commandLineArguments == r2.commandLineArguments
-        && r1.workingDirectory == r2.workingDirectory
-        && r1.environment == r2.environment;
-}
+    Q_OBJECT
 
-void *StandardRunnable::staticTypeId = &StandardRunnable::staticTypeId;
+public:
+    VcsBaseDiffEditorController(Core::IDocument *document,
+                                VcsBaseClientImpl *client,
+                                const QString &workingDirectory);
+    ~VcsBaseDiffEditorController();
 
+protected:
+    void runCommand(const QList<QStringList> &args, unsigned flags, QTextCodec *codec = nullptr);
+    virtual void processCommandOutput(const QString &output);
 
-QUrl urlFromLocalHostAndFreePort()
-{
-    QUrl serverUrl;
-    QTcpServer server;
-    if (server.listen(QHostAddress::LocalHost) || server.listen(QHostAddress::LocalHostIPv6)) {
-        serverUrl.setHost(server.serverAddress().toString());
-        serverUrl.setPort(server.serverPort());
-    }
-    return serverUrl;
-}
+    VcsBaseClientImpl *client() const;
+    QString workingDirectory() const;
+    void setStartupFile(const QString &startupFile);
+    QString startupFile() const;
 
-QUrl urlFromLocalSocket()
-{
-    QUrl serverUrl;
-    serverUrl.setScheme(urlSocketScheme());
-    Utils::TemporaryFile file("qmlprofiler-freesocket");
-    if (file.open())
-        serverUrl.setPath(file.fileName());
-    return serverUrl;
-}
+private:
+    friend class VcsBaseDiffEditorControllerPrivate;
+    VcsBaseDiffEditorControllerPrivate *d;
+};
 
-QString urlSocketScheme()
-{
-    return QString("socket");
-}
-
-} // namespace ProjectExplorer
+} //namespace VcsBase

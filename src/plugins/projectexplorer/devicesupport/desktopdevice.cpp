@@ -137,9 +137,11 @@ DeviceEnvironmentFetcher::Ptr DesktopDevice::environmentFetcher() const
     return DeviceEnvironmentFetcher::Ptr(new DesktopDeviceEnvironmentFetcher());
 }
 
-Connection DesktopDevice::toolControlChannel(const ControlChannelHint &) const
+QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const
 {
-    return HostName("localhost");
+    QUrl url;
+    url.setHost("localhost");
+    return url;
 }
 
 Utils::OsType DesktopDevice::osType() const

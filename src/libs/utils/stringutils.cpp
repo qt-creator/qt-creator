@@ -238,4 +238,12 @@ QTCREATOR_UTILS_EXPORT QString expandMacros(const QString &str, AbstractMacroExp
     return ret;
 }
 
+QTCREATOR_UTILS_EXPORT QString stripAccelerator(const QString &text)
+{
+    QString res = text;
+    for (int index = res.indexOf('&'); index != -1; index = res.indexOf('&', index + 1))
+        res.remove(index, 1);
+    return res;
+}
+
 } // namespace Utils

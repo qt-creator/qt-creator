@@ -1156,7 +1156,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             SessionManager::save();
     });
     connect(qApp, &QApplication::applicationStateChanged, this, [](Qt::ApplicationState state) {
-        if (state == Qt::ApplicationActive)
+        if (!dd->m_shuttingDown && state == Qt::ApplicationActive)
             dd->updateWelcomePage();
     });
 

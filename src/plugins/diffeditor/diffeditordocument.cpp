@@ -205,7 +205,7 @@ QString DiffEditorDocument::fallbackSaveAsPath() const
 
 bool DiffEditorDocument::isSaveAsAllowed() const
 {
-    return !isReloading();
+    return state() == LoadOK;
 }
 
 bool DiffEditorDocument::save(QString *errorString, const QString &fileName, bool autoSave)
@@ -213,7 +213,7 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
     Q_UNUSED(errorString)
     Q_UNUSED(autoSave)
 
-    if (isReloading())
+    if (state() != LoadOK)
         return false;
 
     const bool ok = write(fileName, format(), plainText(), errorString);
@@ -337,7 +337,7 @@ QString DiffEditorDocument::plainText() const
 void DiffEditorDocument::beginReload()
 {
     emit aboutToReload();
-    m_isReloading = true;
+    m_state = Reloading;
     emit changed();
     const bool blocked = blockSignals(true);
     setDiffFiles(QList<FileData>(), QString());
@@ -347,7 +347,7 @@ void DiffEditorDocument::beginReload()
 
 void DiffEditorDocument::endReload(bool success)
 {
-    m_isReloading = false;
+    m_state = success ? LoadOK : LoadFailed;
     emit changed();
     emit reloadFinished(success);
 }

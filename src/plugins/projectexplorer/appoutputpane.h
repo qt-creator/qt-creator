@@ -107,7 +107,7 @@ private:
     void attachToRunControl();
     void tabChanged(int);
     void contextMenuRequested(const QPoint &pos, int index);
-    void slotRunControlStarted();
+    void slotRunControlChanged();
     void slotRunControlFinished();
     void slotRunControlFinished2(ProjectExplorer::RunControl *sender);
 
@@ -118,7 +118,7 @@ private:
     void zoomIn();
     void zoomOut();
 
-    void enableButtons(const RunControl *rc, bool isRunning);
+    void enableButtons(const RunControl *rc);
 
     class RunControlTab {
     public:

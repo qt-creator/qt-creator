@@ -99,6 +99,14 @@ private:
     QColor mBackgroundColor;
 };
 
+class CompletionDelegate : public SearchResultTreeItemDelegate
+{
+public:
+    CompletionDelegate(QObject *parent);
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+};
+
 class CompletionList : public Utils::TreeView
 {
 public:
@@ -115,6 +123,9 @@ public:
 
     void keyPressEvent(QKeyEvent *event);
     bool eventFilter(QObject *watched, QEvent *event);
+
+private:
+    QMetaObject::Connection m_updateSizeConnection;
 };
 
 class TopLeftLocatorPopup : public LocatorPopup
@@ -234,7 +245,7 @@ void LocatorModel::addEntries(const QList<LocatorFilterEntry> &entries)
 CompletionList::CompletionList(QWidget *parent)
     : Utils::TreeView(parent)
 {
-    setItemDelegate(new SearchResultTreeItemDelegate(0, this));
+    setItemDelegate(new CompletionDelegate(this));
     setRootIsDecorated(false);
     setUniformRowHeights(true);
     header()->hide();
@@ -247,23 +258,29 @@ CompletionList::CompletionList(QWidget *parent)
         if (verticalScrollBar())
             verticalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
     }
-    const QStyleOptionViewItem &option = viewOptions();
-    const QSize shint = itemDelegate()->sizeHint(option, QModelIndex());
-    setFixedHeight(shint.height() * 17 + frameWidth() * 2);
-
     installEventFilter(this);
 }
 
 void CompletionList::setModel(QAbstractItemModel *newModel)
 {
+    const auto updateSize = [this] {
+        if (model() && model()->rowCount() > 0) {
+            const QStyleOptionViewItem &option = viewOptions();
+            const QSize shint = itemDelegate()->sizeHint(option, model()->index(0, 0));
+            setFixedHeight(shint.height() * 17 + frameWidth() * 2);
+            disconnect(m_updateSizeConnection);
+        }
+    };
+
     if (model()) {
-        disconnect(model(), &QAbstractItemModel::columnsInserted,
-                   this, &CompletionList::resizeHeaders);
+        disconnect(model(), 0, this, 0);
     }
     QTreeView::setModel(newModel);
     if (newModel) {
         connect(newModel, &QAbstractItemModel::columnsInserted,
                 this, &CompletionList::resizeHeaders);
+        m_updateSizeConnection = connect(newModel, &QAbstractItemModel::rowsInserted,
+                                         this, updateSize);
     }
 }
 
@@ -276,7 +293,8 @@ void TopLeftLocatorPopup::updateGeometry()
 {
     QTC_ASSERT(parentWidget(), return);
     const QSize size = preferredSize();
-    const QRect rect(parentWidget()->mapToGlobal(QPoint(0, -size.height())), size);
+    const int border = m_tree->frameWidth();
+    const QRect rect(parentWidget()->mapToGlobal(QPoint(-border, -size.height() - border)), size);
     setGeometry(rect);
     LocatorPopup::updateGeometry();
 }
@@ -318,10 +336,11 @@ void LocatorPopup::updateWindow()
 
 bool LocatorPopup::event(QEvent *event)
 {
-    if (event->type() == QEvent::ParentChange) {
+    if (event->type() == QEvent::ParentChange)
         updateWindow();
-    } else if (event->type() == QEvent::Show)
-        updateGeometry();
+    // completion list resizes after first items are shown --> LayoutRequest
+    else if (event->type() == QEvent::Show || event->type() == QEvent::LayoutRequest)
+        QTimer::singleShot(0, this, &LocatorPopup::updateGeometry);
     return QWidget::event(event);
 }
 
@@ -343,7 +362,8 @@ QSize LocatorPopup::preferredSize()
 
 void TopLeftLocatorPopup::inputLostFocus()
 {
-    hide();
+    if (!isActiveWindow())
+        hide();
 }
 
 void LocatorPopup::inputLostFocus()
@@ -361,7 +381,8 @@ LocatorPopup::LocatorPopup(LocatorWidget *locatorWidget, QWidget *parent)
       m_tree(new CompletionList(this)),
       m_inputWidget(locatorWidget)
 {
-    m_tree->setFrameStyle(QFrame::NoFrame);
+    if (Utils::HostOsInfo::isMacHost())
+        m_tree->setFrameStyle(QFrame::NoFrame); // tool tip already includes a frame
     m_tree->setModel(locatorWidget->model());
 
     auto layout = new QVBoxLayout;
@@ -374,7 +395,8 @@ LocatorPopup::LocatorPopup(LocatorWidget *locatorWidget, QWidget *parent)
     connect(locatorWidget, &LocatorWidget::parentChanged, this, &LocatorPopup::updateWindow);
     connect(locatorWidget, &LocatorWidget::showPopup, this, &LocatorPopup::show);
     connect(locatorWidget, &LocatorWidget::hidePopup, this, &LocatorPopup::close);
-    connect(locatorWidget, &LocatorWidget::lostFocus, this, &LocatorPopup::inputLostFocus);
+    connect(locatorWidget, &LocatorWidget::lostFocus, this, &LocatorPopup::inputLostFocus,
+            Qt::QueuedConnection);
     connect(locatorWidget, &LocatorWidget::selectRow, m_tree, [this](int row) {
         m_tree->setCurrentIndex(m_tree->model()->index(row, 0));
     });
@@ -891,6 +913,16 @@ LocatorPopup *createLocatorPopup(Locator *locator, QWidget *parent)
     popup->setWindowFlags(Qt::Popup);
     popup->setAttribute(Qt::WA_DeleteOnClose);
     return popup;
+}
+
+CompletionDelegate::CompletionDelegate(QObject *parent)
+    : SearchResultTreeItemDelegate(0, parent)
+{
+}
+
+QSize CompletionDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    return SearchResultTreeItemDelegate::sizeHint(option, index) + QSize(0, 2);
 }
 
 } // namespace Internal

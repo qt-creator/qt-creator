@@ -56,8 +56,8 @@ namespace Internal {
 class QnxDebuggeeRunner : public ProjectExplorer::SimpleTargetRunner
 {
 public:
-    QnxDebuggeeRunner(ProjectExplorer::RunControl *runControl)
-        : SimpleTargetRunner(runControl)
+    QnxDebuggeeRunner(RunControl *runControl, GdbServerPortsGatherer *portsGatherer)
+        : SimpleTargetRunner(runControl), m_portsGatherer(portsGatherer)
     {
         setDisplayName("QnxDebuggeeRunner");
     }
@@ -65,24 +65,24 @@ public:
 private:
     void start() override
     {
-        auto portsGatherer = runControl()->worker<GdbServerPortsGatherer>();
-
         StandardRunnable r = runnable().as<StandardRunnable>();
         QStringList arguments;
-        if (portsGatherer->useGdbServer()) {
-            Utils::Port pdebugPort = portsGatherer->gdbServerPort();
+        if (m_portsGatherer->useGdbServer()) {
+            Utils::Port pdebugPort = m_portsGatherer->gdbServerPort();
             r.executable = Constants::QNX_DEBUG_EXECUTABLE;
             arguments.append(pdebugPort.toString());
         }
-        if (portsGatherer->useQmlServer()) {
+        if (m_portsGatherer->useQmlServer()) {
             arguments.append(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                            portsGatherer->qmlServerPort()));
+                                                            m_portsGatherer->qmlServerPort()));
         }
         arguments.append(Utils::QtcProcess::splitArgs(r.commandLineArguments));
         r.commandLineArguments = Utils::QtcProcess::joinArgs(arguments);
 
         SimpleTargetRunner::start();
     }
+
+    GdbServerPortsGatherer *m_portsGatherer;
 };
 
 
@@ -94,12 +94,12 @@ QnxDebugSupport::QnxDebugSupport(RunControl *runControl)
     setDisplayName("QnxDebugSupport");
     appendMessage(tr("Preparing remote side..."), Utils::LogMessageFormat);
 
-    auto portsGatherer = new GdbServerPortsGatherer(runControl);
-    portsGatherer->setUseGdbServer(isCppDebugging());
-    portsGatherer->setUseQmlServer(isQmlDebugging());
+    m_portsGatherer = new GdbServerPortsGatherer(runControl);
+    m_portsGatherer->setUseGdbServer(isCppDebugging());
+    m_portsGatherer->setUseQmlServer(isQmlDebugging());
 
-    auto debuggeeRunner = new QnxDebuggeeRunner(runControl);
-    debuggeeRunner->addDependency(portsGatherer);
+    auto debuggeeRunner = new QnxDebuggeeRunner(runControl, m_portsGatherer);
+    debuggeeRunner->addDependency(m_portsGatherer);
 
     auto slog2InfoRunner = new Slog2InfoRunner(runControl);
     slog2InfoRunner->addDependency(debuggeeRunner);
@@ -109,8 +109,7 @@ QnxDebugSupport::QnxDebugSupport(RunControl *runControl)
 
 void QnxDebugSupport::start()
 {
-    auto portsGatherer = runControl()->worker<GdbServerPortsGatherer>();
-    Utils::Port pdebugPort = portsGatherer->gdbServerPort();
+    Utils::Port pdebugPort = m_portsGatherer->gdbServerPort();
 
     auto runConfig = qobject_cast<QnxRunConfiguration *>(runControl()->runConfiguration());
     QTC_ASSERT(runConfig, return);
@@ -128,7 +127,7 @@ void QnxDebugSupport::start()
 
     if (isQmlDebugging()) {
         params.qmlServer.host = device()->sshParameters().host;
-        params.qmlServer.port = portsGatherer->qmlServerPort();
+        params.qmlServer.port = m_portsGatherer->qmlServerPort();
         params.inferior.commandLineArguments.replace("%qml_port%", params.qmlServer.port.toString());
     }
 

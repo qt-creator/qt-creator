@@ -8,6 +8,7 @@ QTC_PLUGIN_DEPENDS += \
     coreplugin \
     texteditor \
     projectexplorer \
-    cpptools
+    cpptools \
+    diffeditor
 QTC_PLUGIN_RECOMMENDS += \
     cpaster

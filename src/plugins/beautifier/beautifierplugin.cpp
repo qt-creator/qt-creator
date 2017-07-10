@@ -201,9 +201,11 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
 
 void BeautifierPlugin::extensionsInitialized()
 {
-    m_tools << new ArtisticStyle::ArtisticStyle(this);
-    m_tools << new ClangFormat::ClangFormat(this);
-    m_tools << new Uncrustify::Uncrustify(this);
+    m_tools = {
+        new ArtisticStyle::ArtisticStyle(this),
+        new ClangFormat::ClangFormat(this),
+        new Uncrustify::Uncrustify(this)
+    };
 
     QStringList toolIds;
     toolIds.reserve(m_tools.count());
@@ -226,11 +228,6 @@ void BeautifierPlugin::extensionsInitialized()
             this, &BeautifierPlugin::updateActions);
     connect(editorManager, &Core::EditorManager::aboutToSave,
             this, &BeautifierPlugin::autoFormatOnSave);
-}
-
-ExtensionSystem::IPlugin::ShutdownFlag BeautifierPlugin::aboutToShutdown()
-{
-    return SynchronousShutdown;
 }
 
 void BeautifierPlugin::updateActions(Core::IEditor *editor)

@@ -34,7 +34,10 @@
 #include <coreplugin/minisplitter.h>
 
 #include <texteditor/displaysettings.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/marginsettings.h>
+#include <texteditor/syntaxhighlighter.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -120,6 +123,8 @@ DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
     m_context->setWidget(this);
     m_context->setContext(Core::Context(Constants::C_DIFF_EDITOR_DESCRIPTION));
     Core::ICore::addContextObject(m_context);
+
+    textDocument()->setSyntaxHighlighter(new SyntaxHighlighter);
 }
 
 DescriptionEditorWidget::~DescriptionEditorWidget()
@@ -194,7 +199,9 @@ void DescriptionEditorWidget::highlightCurrentContents()
     QTextEdit::ExtraSelection sel;
     sel.cursor = m_currentCursor;
     sel.cursor.select(QTextCursor::LineUnderCursor);
-    sel.format.setFontUnderline(true);
+    sel.format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+    const QColor textColor = TextEditorSettings::fontSettings().formatFor(C_TEXT).foreground();
+    sel.format.setUnderlineColor(textColor.isValid() ? textColor : palette().color(QPalette::Foreground));
     setExtraSelections(TextEditorWidget::OtherSelection,
                        QList<QTextEdit::ExtraSelection>() << sel);
 }

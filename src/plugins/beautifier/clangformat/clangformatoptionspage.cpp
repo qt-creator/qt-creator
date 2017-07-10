@@ -49,6 +49,7 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
     ui->predefinedStyle->addItems(m_settings->predefinedStyles());
     ui->fallbackStyle->addItems(m_settings->fallbackStyles());
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    ui->command->setCommandVersionArguments({"--version"});
     ui->command->setPromptDialogTitle(
                 BeautifierPlugin::msgCommandPromptDialogTitle("Clang Format"));
     connect(ui->command, &Utils::PathChooser::validChanged, ui->options, &QWidget::setEnabled);

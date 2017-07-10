@@ -30,6 +30,10 @@
 #include <QString>
 #include <QMap>
 
+QT_BEGIN_NAMESPACE
+class QFutureInterfaceBase;
+QT_END_NAMESPACE
+
 namespace TextEditor { class FontSettings; }
 
 namespace DiffEditor {
@@ -150,7 +154,8 @@ public:
     static QString makePatch(const QList<FileData> &fileDataList,
                              unsigned formatFlags = 0);
     static QList<FileData> readPatch(const QString &patch,
-                                     bool *ok = 0);
+                                     bool *ok = 0,
+                                     QFutureInterfaceBase *jobController = nullptr);
 };
 
 } // namespace DiffEditor

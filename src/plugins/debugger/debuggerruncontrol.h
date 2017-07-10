@@ -111,7 +111,8 @@ public:
     Utils::Port qmlServerPort() const { return m_qmlServerPort; }
 
 private:
-    void start();
+    void start() override;
+    void handlePortListReady();
 
     ProjectExplorer::DeviceUsedPortsGatherer m_portsGatherer;
     bool m_useGdbServer = false;
@@ -120,19 +121,19 @@ private:
     Utils::Port m_qmlServerPort;
 };
 
-class DEBUGGER_EXPORT GdbServerRunner : public ProjectExplorer::RunWorker
+class DEBUGGER_EXPORT GdbServerRunner : public ProjectExplorer::SimpleTargetRunner
 {
     Q_OBJECT
 
 public:
-    explicit GdbServerRunner(ProjectExplorer::RunControl *runControl);
+    explicit GdbServerRunner(ProjectExplorer::RunControl *runControl,
+                             GdbServerPortsGatherer *portsGatherer);
     ~GdbServerRunner();
 
 private:
     void start() override;
-    void stop() override;
 
-    ProjectExplorer::ApplicationLauncher m_gdbServer;
+    GdbServerPortsGatherer *m_portsGatherer;
 };
 
 extern DEBUGGER_EXPORT const char GdbServerRunnerWorkerId[];

@@ -104,9 +104,11 @@ IDevice::Ptr AndroidDevice::clone() const
     return IDevice::Ptr(new AndroidDevice(*this));
 }
 
-Connection AndroidDevice::toolControlChannel(const ControlChannelHint &) const
+QUrl AndroidDevice::toolControlChannel(const ControlChannelHint &) const
 {
-    return HostName("localhost");
+    QUrl url;
+    url.setHost("localhost");
+    return url;
 }
 
 } // namespace Internal

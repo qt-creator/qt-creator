@@ -28,6 +28,8 @@
 
 #include <coreplugin/icontext.h>
 
+#include <utils/stringutils.h>
+
 #include <QDesignerOptionsPageInterface>
 #include <QCoreApplication>
 
@@ -116,7 +118,7 @@ bool SettingsPageProvider::matches(const QString &searchKeyWord) const
     if (m_keywords.isEmpty()) {
         m_keywords.reserve(itemCount);
         for (size_t i = 0; i < itemCount; ++i)
-            m_keywords << QCoreApplication::translate(uitext[i].context, uitext[i].value).remove(QLatin1Char('&'));
+            m_keywords << Utils::stripAccelerator(QCoreApplication::translate(uitext[i].context, uitext[i].value));
     }
     foreach (const QString &key, m_keywords) {
         if (key.contains(searchKeyWord, Qt::CaseInsensitive))

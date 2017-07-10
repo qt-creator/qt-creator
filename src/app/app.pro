@@ -53,7 +53,12 @@ win32 {
             INSTALLS += icns
         }
     }
-    QMAKE_INFO_PLIST = Info.plist
+
+    infoplist = $$cat($$PWD/Info.plist, blob)
+    infoplist = $$replace(infoplist, @MACOSX_DEPLOYMENT_TARGET@, $$QMAKE_MACOSX_DEPLOYMENT_TARGET)
+    write_file($$OUT_PWD/Info.plist, infoplist)
+
+    QMAKE_INFO_PLIST = $$OUT_PWD/Info.plist
 }
 
 target.path = $$INSTALL_APP_PATH

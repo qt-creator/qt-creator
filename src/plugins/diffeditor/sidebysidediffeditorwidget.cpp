@@ -615,7 +615,7 @@ void SideBySideDiffEditorWidget::setDiff(const QList<FileData> &diffFileList,
 
     m_controller.m_contextFileData = diffFileList;
     if (m_controller.m_contextFileData.isEmpty()) {
-        const QString msg = tr("No difference");
+        const QString msg = tr("No difference.");
         m_leftEditor->setPlainText(msg);
         m_rightEditor->setPlainText(msg);
     } else {

@@ -80,7 +80,7 @@ void LocalQmlProfilerRunnerTest::testRunner1()
     QTRY_COMPARE_WITH_TIMEOUT(runCount, 1, 10000);
     QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
 
-    serverUrl = UrlConnection::localSocket();
+    serverUrl = urlFromLocalSocket();
 
     debuggee.executable = QCoreApplication::applicationFilePath();
     // comma is used to specify a test function. In this case, an invalid one.
@@ -97,7 +97,7 @@ void LocalQmlProfilerRunnerTest::testRunner2()
     QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
 
     debuggee.commandLineArguments.clear();
-    serverUrl = UrlConnection::localHostAndFreePort();
+    serverUrl = urlFromLocalHostAndFreePort();
 
     start();
 
@@ -119,7 +119,7 @@ void LocalQmlProfilerRunnerTest::testRunner4()
 
 void LocalQmlProfilerRunnerTest::testFindFreePort()
 {
-    QUrl serverUrl = UrlConnection::localHostAndFreePort();
+    QUrl serverUrl = urlFromLocalHostAndFreePort();
     QVERIFY(serverUrl.port() != -1);
     QVERIFY(!serverUrl.host().isEmpty());
     QTcpServer server;
@@ -128,7 +128,7 @@ void LocalQmlProfilerRunnerTest::testFindFreePort()
 
 void LocalQmlProfilerRunnerTest::testFindFreeSocket()
 {
-    QUrl serverUrl = UrlConnection::localSocket();
+    QUrl serverUrl = urlFromLocalSocket();
     QString socket = serverUrl.path();
     QVERIFY(!socket.isEmpty());
     QVERIFY(!QFile::exists(socket));

@@ -45,7 +45,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/messagemanager.h>
 
 #include <QDir>
 #include <QPushButton>
@@ -688,7 +687,6 @@ public:
     QString displayName;
     Runnable runnable;
     IDevice::ConstPtr device;
-    Connection connection;
     Core::Id runMode;
     Utils::Icon icon;
     const QPointer<RunConfiguration> runConfiguration; // Not owned.
@@ -771,11 +769,6 @@ void RunControl::registerWorkerCreator(Core::Id id, const WorkerCreator &workerC
     theWorkerCreators().insert(id, workerCreator);
     auto keys = theWorkerCreators().keys();
     Q_UNUSED(keys);
-}
-
-QList<QPointer<RunWorker> > RunControl::workers() const
-{
-    return d->m_workers;
 }
 
 RunWorker *RunControl::createWorker(Core::Id id)
@@ -985,16 +978,6 @@ void RunControl::setRunnable(const Runnable &runnable)
     d->runnable = runnable;
 }
 
-const Connection &RunControl::connection() const
-{
-    return d->connection;
-}
-
-void RunControl::setConnection(const Connection &connection)
-{
-    d->connection = connection;
-}
-
 QString RunControl::displayName() const
 {
     return d->displayName;
@@ -1117,6 +1100,11 @@ bool RunControl::isStopping() const
     return d->state == RunControlState::Stopping;
 }
 
+bool RunControl::isStopped() const
+{
+    return d->state == RunControlState::Stopped;
+}
+
 /*!
     Prompts to terminate the application with the \gui {Do not ask again}
     checkbox.
@@ -1207,7 +1195,6 @@ void RunControlPrivate::setState(RunControlState newState)
 
 void RunControlPrivate::debugMessage(const QString &msg)
 {
-    Core::MessageManager::write(msg, Core::MessageManager::Silent);
     qCDebug(statesLog()) << msg;
 }
 
@@ -1485,11 +1472,6 @@ IDevice::ConstPtr RunWorker::device() const
 const Runnable &RunWorker::runnable() const
 {
     return d->runControl->runnable();
-}
-
-const Connection &RunWorker::connection() const
-{
-    return d->runControl->connection();
 }
 
 Core::Id RunWorker::runMode() const

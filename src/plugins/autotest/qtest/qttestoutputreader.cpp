@@ -456,7 +456,7 @@ void QtTestOutputReader::sendFinishMessage(bool isFunction)
 {
     TestResultPtr testResult = TestResultPtr(createDefaultResult());
     testResult->setResult(Result::MessageTestCaseEnd);
-    if (m_duration.isEmpty()) {
+    if (!m_duration.isEmpty()) {
         testResult->setDescription(isFunction ? tr("Execution took %1 ms.").arg(m_duration)
                                               : tr("Test execution took %1 ms.").arg(m_duration));
     } else {

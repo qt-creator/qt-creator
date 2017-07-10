@@ -20,7 +20,9 @@ QtcProduct {
     targetName: qtc.ide_app_target
     version: qtc.qtcreator_version
 
-    installDir: qtc.ide_bin_path
+    installDir: bundle.isBundle ? qtc.ide_app_path : qtc.ide_bin_path
+    installTags: bundle.isBundle ? ["bundle.content"] : base
+    installSourceBase: bundle.isBundle ? buildDirectory : base
     property bool qtcRunnable: true
 
     cpp.rpaths: qbs.targetOS.contains("macos") ? ["@executable_path/../Frameworks"]
@@ -71,12 +73,5 @@ QtcProduct {
         files: [
             "../shared/qtlockedfile/qtlockedfile_win.cpp"
         ]
-    }
-
-    Group {
-        condition: qbs.targetOS.contains("macos")
-        fileTagsFilter: ["aggregate_infoplist", "pkginfo", "compiled_assetcatalog"]
-        qbs.install: true
-        qbs.installSourceBase: product.buildDirectory
     }
 }

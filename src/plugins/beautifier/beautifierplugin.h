@@ -74,7 +74,6 @@ class BeautifierPlugin : public ExtensionSystem::IPlugin
 public:
     bool initialize(const QStringList &arguments, QString *errorString) override;
     void extensionsInitialized() override;
-    ShutdownFlag aboutToShutdown() override;
 
     void formatCurrentFile(const Command &command, int startPos = -1, int endPos = 0);
 

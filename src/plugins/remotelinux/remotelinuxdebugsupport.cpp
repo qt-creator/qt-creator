@@ -52,12 +52,12 @@ LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
 {
     setDisplayName("LinuxDeviceDebugSupport");
 
-    auto portsGatherer = new GdbServerPortsGatherer(runControl);
-    portsGatherer->setUseGdbServer(isCppDebugging());
-    portsGatherer->setUseQmlServer(isQmlDebugging());
+    m_portsGatherer = new GdbServerPortsGatherer(runControl);
+    m_portsGatherer->setUseGdbServer(isCppDebugging());
+    m_portsGatherer->setUseQmlServer(isQmlDebugging());
 
-    auto gdbServer = new GdbServerRunner(runControl);
-    gdbServer->addDependency(portsGatherer);
+    auto gdbServer = new GdbServerRunner(runControl, m_portsGatherer);
+    gdbServer->addDependency(m_portsGatherer);
 
     addDependency(gdbServer);
 
@@ -75,12 +75,9 @@ void LinuxDeviceDebugSupport::start()
         return;
     }
 
-    auto portsGatherer = runControl()->worker<GdbServerPortsGatherer>();
-    QTC_ASSERT(portsGatherer, reportFailure(); return);
-
     const QString host = device()->sshParameters().host;
-    const Port gdbServerPort = portsGatherer->gdbServerPort();
-    const Port qmlServerPort = portsGatherer->qmlServerPort();
+    const Port gdbServerPort = m_portsGatherer->gdbServerPort();
+    const Port qmlServerPort = m_portsGatherer->qmlServerPort();
 
     DebuggerStartParameters params;
     params.startMode = AttachToRemoteServer;

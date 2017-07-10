@@ -411,9 +411,11 @@ void IDevice::setSshParameters(const QSsh::SshConnectionParameters &sshParameter
     d->sshParameters.hostKeyDatabase = DeviceManager::instance()->hostKeyDatabase();
 }
 
-Connection IDevice::toolControlChannel(const ControlChannelHint &) const
+QUrl IDevice::toolControlChannel(const ControlChannelHint &) const
 {
-    return HostName(d->sshParameters.host);
+    QUrl url;
+    url.setHost(d->sshParameters.host);
+    return url;
 }
 
 void IDevice::setFreePorts(const Utils::PortList &freePorts)
@@ -469,9 +471,5 @@ DeviceProcessSignalOperation::DeviceProcessSignalOperation()
 DeviceEnvironmentFetcher::DeviceEnvironmentFetcher()
 {
 }
-
-void *HostName::staticTypeId = &HostName::staticTypeId;
-
-void *UrlConnection::staticTypeId = &UrlConnection::staticTypeId;
 
 } // namespace ProjectExplorer

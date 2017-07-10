@@ -54,6 +54,7 @@ UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *set
     ui->uncrusifyFilePath->setPromptDialogFilter(tr("Uncrustify file (*.cfg)"));
 
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    ui->command->setCommandVersionArguments({"--version"});
     ui->command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
                                           Uncrustify::tr(Constants::Uncrustify::DISPLAY_NAME)));
     connect(ui->command, &Utils::PathChooser::validChanged, ui->options, &QWidget::setEnabled);

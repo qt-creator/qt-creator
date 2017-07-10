@@ -403,7 +403,9 @@ void AppOutputPane::updateBehaviorSettings()
 void AppOutputPane::createNewOutputWindow(RunControl *rc)
 {
     connect(rc, &RunControl::aboutToStart,
-            this, &AppOutputPane::slotRunControlStarted);
+            this, &AppOutputPane::slotRunControlChanged);
+    connect(rc, &RunControl::started,
+            this, &AppOutputPane::slotRunControlChanged);
     connect(rc, &RunControl::finished,
             this, &AppOutputPane::slotRunControlFinished);
     connect(rc, &RunControl::applicationProcessHandleChanged,
@@ -620,9 +622,7 @@ void AppOutputPane::projectRemoved()
 
 void AppOutputPane::enableDefaultButtons()
 {
-    const RunControl *rc = currentRunControl();
-    const bool isRunning = rc && rc->isRunning();
-    enableButtons(rc, isRunning);
+    enableButtons(currentRunControl());
 }
 
 void AppOutputPane::zoomIn()
@@ -643,10 +643,11 @@ void AppOutputPane::zoomOut()
     m_zoom = m_runControlTabs.first().window->fontZoom();
 }
 
-void AppOutputPane::enableButtons(const RunControl *rc, bool isRunning)
+void AppOutputPane::enableButtons(const RunControl *rc)
 {
     if (rc) {
-        m_reRunButton->setEnabled(!isRunning && rc->supportsReRunning());
+        const bool isRunning = rc->isRunning();
+        m_reRunButton->setEnabled(rc->isStopped() && rc->supportsReRunning());
         m_reRunButton->setIcon(rc->icon().icon());
         m_stopAction->setEnabled(isRunning);
         if (isRunning && debuggerPlugin() && rc->applicationProcessHandle().isValid()) {
@@ -681,8 +682,7 @@ void AppOutputPane::tabChanged(int i)
 {
     const int index = indexOf(m_tabWidget->widget(i));
     if (i != -1 && index != -1) {
-        const RunControl *rc = m_runControlTabs.at(index).runControl;
-        enableButtons(rc, rc->isRunning());
+        enableButtons(m_runControlTabs.at(index).runControl);
     } else {
         enableDefaultButtons();
     }
@@ -705,11 +705,11 @@ void AppOutputPane::contextMenuRequested(const QPoint &pos, int index)
     }
 }
 
-void AppOutputPane::slotRunControlStarted()
+void AppOutputPane::slotRunControlChanged()
 {
     RunControl *current = currentRunControl();
     if (current && current == sender())
-        enableButtons(current, true); // RunControl::isRunning() cannot be trusted in signal handler.
+        enableButtons(current); // RunControl::isRunning() cannot be trusted in signal handler.
 }
 
 void AppOutputPane::slotRunControlFinished()
@@ -736,7 +736,7 @@ void AppOutputPane::slotRunControlFinished2(RunControl *sender)
                     << " current " << current << m_runControlTabs.size();
 
     if (current && current == sender)
-        enableButtons(current, false); // RunControl::isRunning() cannot be trusted in signal handler.
+        enableButtons(current);
 
     ProjectExplorerPlugin::instance()->updateRunActions();
 

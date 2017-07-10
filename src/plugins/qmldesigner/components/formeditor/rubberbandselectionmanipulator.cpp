@@ -88,7 +88,7 @@ void RubberBandSelectionManipulator::select(SelectionType selectionType)
     if (!m_beginFormEditorItem)
         return;
 
-    QList<QGraphicsItem*> itemList = m_editorView->scene()->items(m_selectionRectangleElement.rect(), Qt::IntersectsItemShape);
+    QList<QGraphicsItem*> itemList = m_editorView->scene()->items(m_selectionRectangleElement.rect(), Qt::ContainsItemBoundingRect);
     QList<QmlItemNode> newNodeList;
 
     foreach (QGraphicsItem* item, itemList)
@@ -97,7 +97,6 @@ void RubberBandSelectionManipulator::select(SelectionType selectionType)
 
         if (formEditorItem
                 && formEditorItem->qmlItemNode().isValid()
-                && m_beginFormEditorItem->childItems().contains(formEditorItem)
                 && formEditorItem->qmlItemNode().instanceIsMovable()
                 && formEditorItem->qmlItemNode().modelIsMovable()
                 && !formEditorItem->qmlItemNode().instanceIsInLayoutable())

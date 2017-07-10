@@ -53,32 +53,8 @@ public:
 
 PROJECTEXPLORER_EXPORT bool operator==(const StandardRunnable &r1, const StandardRunnable &r2);
 
-class PROJECTEXPLORER_EXPORT HostName
-{
-public:
-    explicit HostName(const QString &host) : m_host(host) {}
-    QString host() const { return m_host; }
-
-    static void *staticTypeId;
-
-private:
-    QString m_host;
-};
-
-class PROJECTEXPLORER_EXPORT UrlConnection : public QUrl
-{
-public:
-    UrlConnection() {}
-    explicit UrlConnection(const QUrl &url) : QUrl(url) {}
-
-    static UrlConnection fromHost(const QString &host);
-    static UrlConnection localHostAndFreePort();
-    static UrlConnection localHostWithoutPort();
-    static UrlConnection localSocket();
-
-    static QString socketScheme() { return QLatin1String("socket"); }
-
-    static void *staticTypeId;
-};
+PROJECTEXPLORER_EXPORT QUrl urlFromLocalHostAndFreePort();
+PROJECTEXPLORER_EXPORT QUrl urlFromLocalSocket();
+PROJECTEXPLORER_EXPORT QString urlSocketScheme();
 
 } // namespace ProjectExplorer

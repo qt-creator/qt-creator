@@ -198,44 +198,6 @@ private:
     std::unique_ptr<Concept> d;
 };
 
-class PROJECTEXPLORER_EXPORT Connection
-{
-    struct Concept
-    {
-        virtual ~Concept() {}
-        virtual Concept *clone() const = 0;
-        virtual void *typeId() const = 0;
-    };
-
-    template <class T>
-    struct Model : public Concept
-    {
-        Model(const T &data) : m_data(data) { }
-        Concept *clone() const override { return new Model(*this); }
-        void *typeId() const override { return T::staticTypeId; }
-        T m_data;
-    };
-
-public:
-    Connection() = default;
-    Connection(const Connection &other) : d(other.d ? other.d->clone() : nullptr) { }
-    Connection(Connection &&other) /* MSVC 2013 doesn't want = default */ : d(std::move(other.d)) {}
-    template <class T> Connection(const T &data) : d(new Model<T>(data)) {}
-
-    void operator=(Connection other) { d = std::move(other.d); }
-
-    template <class T> bool is() const {
-        return d.get() && (d.get()->typeId() == T::staticTypeId);
-    }
-
-    template <class T> const T &as() const {
-        return static_cast<Model<T> *>(d.get())->m_data;
-    }
-
-private:
-    std::unique_ptr<Concept> d;
-};
-
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
 {
@@ -387,7 +349,6 @@ public:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
     IDevice::ConstPtr device() const;
     const Runnable &runnable() const;
-    const Connection &connection() const;
     Core::Id runMode() const;
 
     // States
@@ -446,6 +407,7 @@ public:
     bool isRunning() const;
     bool isStarting() const;
     bool isStopping() const;
+    bool isStopped() const;
 
     void setIcon(const Utils::Icon &icon);
     Utils::Icon icon() const;
@@ -465,32 +427,13 @@ public:
     const Runnable &runnable() const;
     void setRunnable(const Runnable &runnable);
 
-    const Connection &connection() const;
-    void setConnection(const Connection &connection);
-
     virtual void appendMessage(const QString &msg, Utils::OutputFormat format);
     virtual void bringApplicationToForeground();
-
-    virtual void notifyRemoteSetupDone(Utils::Port) {}  // FIXME: Replace by ToolRunner functionality
-    virtual void notifyRemoteSetupFailed(const QString &) {} // Same.
-    virtual void notifyRemoteFinished() {} // Same.
 
     static bool showPromptToStopDialog(const QString &title, const QString &text,
                                        const QString &stopButtonText = QString(),
                                        const QString &cancelButtonText = QString(),
                                        bool *prompt = nullptr);
-
-    QList<QPointer<RunWorker>> workers() const;
-
-    template <class T> T *worker() const {
-        for (const QPointer<RunWorker> &worker : workers()) {
-            if (worker) {
-                if (auto res = qobject_cast<T *>(worker.data()))
-                    return res;
-            }
-        }
-        return nullptr;
-    }
 
     RunWorker *createWorker(Core::Id id);
 
