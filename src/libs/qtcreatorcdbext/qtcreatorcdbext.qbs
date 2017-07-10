@@ -19,8 +19,10 @@ QtcLibrary {
             Environment.getEnv("ProgramW6432") + "/Debugging Tools For Windows 64-bit/sdk",
             Environment.getEnv("ProgramFiles") + "/Windows Kits/8.0/Debuggers",
             Environment.getEnv("ProgramFiles") + "/Windows Kits/8.1/Debuggers",
+            Environment.getEnv("ProgramFiles") + "/Windows Kits/10/Debuggers",
             Environment.getEnv("ProgramFiles(x86)") + "/Windows Kits/8.0/Debuggers/inc",
-            Environment.getEnv("ProgramFiles(x86)") + "/Windows Kits/8.1/Debuggers/inc"
+            Environment.getEnv("ProgramFiles(x86)") + "/Windows Kits/8.1/Debuggers/inc",
+            Environment.getEnv("ProgramFiles(x86)") + "/Windows Kits/10/Debuggers/inc"
         ];
         var c = paths.length;
         for (var i = 0; i < c; ++i) {
