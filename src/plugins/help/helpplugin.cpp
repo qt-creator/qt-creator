@@ -158,8 +158,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
             m_centralWidget, &CentralWidget::updateCloseButton);
     connect(HelpManager::instance(), &HelpManager::helpRequested,
             this, &HelpPlugin::handleHelpRequest);
-    connect(m_searchTaskHandler, &SearchTaskHandler::search, this,
-            &HelpPlugin::showLinkInHelpMode);
+    connect(m_searchTaskHandler, &SearchTaskHandler::search, this, &QDesktopServices::openUrl);
 
     connect(m_filterSettingsPage, &FilterSettingsPage::filtersChanged, this,
         &HelpPlugin::setupHelpEngineIfNeeded);
@@ -244,8 +243,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     RemoteHelpFilter *remoteHelpFilter = new RemoteHelpFilter();
     addAutoReleasedObject(remoteHelpFilter);
-    connect(remoteHelpFilter, &RemoteHelpFilter::linkActivated, this,
-        &HelpPlugin::showLinkInHelpMode);
+    connect(remoteHelpFilter, &RemoteHelpFilter::linkActivated, this, &QDesktopServices::openUrl);
 
     QDesktopServices::setUrlHandler("qthelp", HelpManager::instance(), "handleHelpRequest");
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
