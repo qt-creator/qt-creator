@@ -40,6 +40,10 @@ BasicLocatorFilterTest::BasicLocatorFilterTest(ILocatorFilter *filter) : m_filte
 {
 }
 
+BasicLocatorFilterTest::~BasicLocatorFilterTest()
+{
+}
+
 QList<LocatorFilterEntry> BasicLocatorFilterTest::matchesFor(const QString &searchText)
 {
     doBeforeLocatorRun();
