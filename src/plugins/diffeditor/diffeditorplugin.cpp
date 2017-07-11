@@ -856,7 +856,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch()
     QFETCH(bool, lastChunk);
     QFETCH(QString, patchText);
 
-    QString result = DiffUtils::makePatch(sourceChunk, leftFileName, rightFileName, lastChunk);
+    const QString result = DiffUtils::makePatch(sourceChunk, leftFileName, rightFileName, lastChunk);
 
     QCOMPARE(result, patchText);
 

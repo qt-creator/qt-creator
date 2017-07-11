@@ -486,6 +486,34 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,
     return diffText;
 }
 
+static QString leftFileName(const FileData &fileData, unsigned formatFlags)
+{
+    QString diffText;
+    QTextStream str(&diffText);
+    if (fileData.fileOperation == FileData::NewFile) {
+        str << "/dev/null";
+    } else {
+        if (formatFlags & DiffUtils::AddLevel)
+            str << "a/";
+        str << fileData.leftFileInfo.fileName;
+    }
+    return diffText;
+}
+
+static QString rightFileName(const FileData &fileData, unsigned formatFlags)
+{
+    QString diffText;
+    QTextStream str(&diffText);
+    if (fileData.fileOperation == FileData::DeleteFile) {
+        str << "/dev/null";
+    } else {
+        if (formatFlags & DiffUtils::AddLevel)
+            str << "b/";
+        str << fileData.rightFileInfo.fileName;
+    }
+    return diffText;
+}
+
 QString DiffUtils::makePatch(const QList<FileData> &fileDataList, unsigned formatFlags)
 {
     QString diffText;
@@ -497,26 +525,36 @@ QString DiffUtils::makePatch(const QList<FileData> &fileDataList, unsigned forma
             str << "diff --git a/" << fileData.leftFileInfo.fileName
                 << " b/" << fileData.rightFileInfo.fileName << '\n';
         }
+        if (fileData.fileOperation == FileData::NewFile
+                || fileData.fileOperation == FileData::DeleteFile) { // git only?
+            if (fileData.fileOperation == FileData::NewFile)
+                str << "new";
+            else
+                str << "deleted";
+            str << " file mode 100644\n";
+        }
+        str << "index " << fileData.leftFileInfo.typeInfo << ".." << fileData.rightFileInfo.typeInfo;
+        if (fileData.fileOperation == FileData::ChangeFile)
+            str << " 100644";
+        str << "\n";
+
         if (fileData.binaryFiles) {
             str << "Binary files ";
-            if (formatFlags & AddLevel)
-                str << "a/";
-            str << fileData.leftFileInfo.fileName << " and ";
-            if (formatFlags & AddLevel)
-                str << "b/";
-            str << fileData.rightFileInfo.fileName << " differ\n";
+            str << leftFileName(fileData, formatFlags);
+            str << " and ";
+            str << rightFileName(fileData, formatFlags);
+            str << " differ\n";
         } else {
-            str << "--- ";
-            if (formatFlags & AddLevel)
-                str << "a/";
-            str << fileData.leftFileInfo.fileName << "\n+++ ";
-            if (formatFlags & AddLevel)
-                str << "b/";
-            str << fileData.rightFileInfo.fileName << '\n';
-            for (int j = 0; j < fileData.chunks.count(); j++) {
-                str << makePatch(fileData.chunks.at(j),
-                                      (j == fileData.chunks.count() - 1)
-                                      && fileData.lastChunkAtTheEndOfFile);
+            if (!fileData.chunks.isEmpty()) {
+                str << "--- ";
+                str << leftFileName(fileData, formatFlags) << "\n";
+                str << "+++ ";
+                str << rightFileName(fileData, formatFlags) << "\n";
+                for (int j = 0; j < fileData.chunks.count(); j++) {
+                    str << makePatch(fileData.chunks.at(j),
+                                     (j == fileData.chunks.count() - 1)
+                                     && fileData.lastChunkAtTheEndOfFile);
+                }
             }
         }
     }
