@@ -74,7 +74,6 @@ class SourceFilesHandler;
 class ThreadsHandler;
 class WatchHandler;
 class Breakpoint;
-class QmlAdapter;
 class QmlCppEngine;
 class DebuggerToolTipContext;
 class MemoryViewSetupData;
@@ -410,7 +409,6 @@ protected:
 
     virtual void doUpdateLocals(const UpdateParameters &params);
 
-    void setTargetState(DebuggerState state);
     void setMasterEngine(DebuggerEngine *masterEngine);
 
     ProjectExplorer::RunControl *runControl() const;
@@ -447,7 +445,6 @@ private:
     // Wrapper engine needs access to state of its subengines.
     friend class QmlCppEngine;
     friend class DebuggerPluginPrivate;
-    friend class QmlAdapter;
 
     friend class DebuggerEnginePrivate;
     friend class LocationMark;
