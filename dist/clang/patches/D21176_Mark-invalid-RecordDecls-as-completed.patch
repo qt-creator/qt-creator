@@ -1,0 +1,38 @@
+diff --git a/tools/clang/lib/Sema/SemaDecl.cpp b/tools/clang/lib/Sema/SemaDecl.cpp
+index 41719d4e7b..747a4cc0c5 100644
+--- a/tools/clang/lib/Sema/SemaDecl.cpp
++++ b/tools/clang/lib/Sema/SemaDecl.cpp
+@@ -13112,7 +13112,14 @@ CreateNewDecl:
+   OwnedDecl = true;
+   // In C++, don't return an invalid declaration. We can't recover well from
+   // the cases where we make the type anonymous.
+-  return (Invalid && getLangOpts().CPlusPlus) ? nullptr : New;
++  if (Invalid && getLangOpts().CPlusPlus) {
++    if (New->isBeingDefined())
++      if (auto RD = dyn_cast<RecordDecl>(New))
++        RD->completeDefinition();
++    return nullptr;
++  } else {
++    return New;
++  }
+ }
+ 
+ void Sema::ActOnTagStartDefinition(Scope *S, Decl *TagD) {
+diff --git a/tools/clang/test/SemaCXX/conversion-function.cpp b/tools/clang/test/SemaCXX/conversion-function.cpp
+index 3f494cce8c..c725a0d5b7 100644
+--- a/tools/clang/test/SemaCXX/conversion-function.cpp
++++ b/tools/clang/test/SemaCXX/conversion-function.cpp
+@@ -434,8 +434,12 @@ namespace PR18234 {
+   struct A {
+     operator enum E { e } (); // expected-error {{'PR18234::A::E' cannot be defined in a type specifier}}
+     operator struct S { int n; } (); // expected-error {{'PR18234::A::S' cannot be defined in a type specifier}}
++    // expected-note@-1 {{candidate constructor (the implicit copy constructor) not viable: no known conversion from 'struct A' to 'const PR18234::A::S &' for 1st argument}}
++#if __cplusplus >= 201103L
++  // expected-note@-3 {{candidate constructor (the implicit move constructor) not viable: no known conversion from 'struct A' to 'PR18234::A::S &&' for 1st argument}}
++#endif
+   } a;
+-  A::S s = a;
++  A::S s = a; // expected-error {{no viable conversion from 'struct A' to 'A::S'}}
+   A::E e = a; // expected-note {{here}}
+   bool k1 = e == A::e; // expected-error {{no member named 'e'}}
+   bool k2 = e.n == 0;
