@@ -1525,11 +1525,6 @@ void RunWorker::setStopTimeout(int ms)
     d->stopWatchdogInterval = ms;
 }
 
-void RunWorker::reportData(int channel, const QVariant &data)
-{
-    emit dataReported(channel, data);
-}
-
 void RunWorker::recordData(const QString &channel, const QVariant &data)
 {
     d->data[channel] = data;
