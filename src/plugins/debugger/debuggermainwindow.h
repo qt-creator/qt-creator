@@ -136,6 +136,8 @@ public:
 
     void onModeChanged(Core::Id mode);
 
+    void setPerspectiveEnabled(const QByteArray &perspectiveId, bool enabled);
+
 private:
     QDockWidget *registerDockWidget(const QByteArray &dockId, QWidget *widget);
     void loadPerspectiveHelper(const QByteArray &perspectiveId, bool fromStoredSettings = true);
