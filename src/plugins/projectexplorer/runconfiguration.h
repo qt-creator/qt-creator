@@ -478,7 +478,7 @@ signals:
                                 const QString &msg, Utils::OutputFormat format);
     void aboutToStart();
     void started();
-    void finished();
+    void stopped();
     void applicationProcessHandleChanged(QPrivateSignal); // Use setApplicationProcessHandle
 
 private:

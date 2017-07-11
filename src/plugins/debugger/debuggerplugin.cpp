@@ -2081,7 +2081,7 @@ void DebuggerPluginPrivate::attachToUnstartedApplicationDialog()
             return;
 
         if (dlg->hideOnAttach())
-            connect(rc, &RunControl::finished, dlg, &UnstartedAppWatcherDialog::startWatching);
+            connect(rc, &RunControl::stopped, dlg, &UnstartedAppWatcherDialog::startWatching);
     });
 
     dlg->show();

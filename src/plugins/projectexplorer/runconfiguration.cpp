@@ -1216,7 +1216,7 @@ void RunControlPrivate::setState(RunControlState newState)
         foreach (auto worker, m_workers)
             if (worker)
                 worker->onFinished();
-        emit q->finished();
+        emit q->stopped();
         break;
     default:
         break;
