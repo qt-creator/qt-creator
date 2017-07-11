@@ -45,7 +45,6 @@ QtcPlugin {
             "qmlprofileroptionspage.cpp", "qmlprofileroptionspage.h",
             "qmlprofilerplugin.cpp", "qmlprofilerplugin.h",
             "qmlprofilerrunconfigurationaspect.cpp", "qmlprofilerrunconfigurationaspect.h",
-            "qmlprofilerruncontrolfactory.cpp", "qmlprofilerruncontrolfactory.h",
             "qmlprofilerrangemodel.cpp", "qmlprofilerrangemodel.h",
             "qmlprofilerruncontrol.cpp", "qmlprofilerruncontrol.h",
             "qmlprofilersettings.cpp", "qmlprofilersettings.h",
