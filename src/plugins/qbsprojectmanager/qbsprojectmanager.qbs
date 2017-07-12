@@ -46,6 +46,7 @@ QtcPlugin {
 
     cpp.defines: base.concat([
         'QML_BUILD_STATIC_LIB',
+        'QBS_ENABLE_PROJECT_FILE_UPDATES', // TODO: Take from installed qbscore module
         'QBS_INSTALL_DIR="'
                 + (project.useExternalQbs
                        ? FileInfo.fromWindowsSeparators(project.qbs_install_dir)

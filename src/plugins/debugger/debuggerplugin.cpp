@@ -3569,6 +3569,11 @@ void registerPerspective(const QByteArray &perspectiveId, const Perspective *per
     dd->m_mainWindow->registerPerspective(perspectiveId, perspective);
 }
 
+void setPerspectiveEnabled(const QByteArray &perspectiveId, bool enabled)
+{
+    dd->m_mainWindow->setPerspectiveEnabled(perspectiveId, enabled);
+}
+
 void selectPerspective(const QByteArray &perspectiveId)
 {
     if (dd->m_mainWindow->currentPerspective() == perspectiveId)
