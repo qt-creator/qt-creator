@@ -37,6 +37,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/detailswidget.h>
+#include <utils/fancylineedit.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -177,6 +178,14 @@ QString CMakeRunConfiguration::disabledReason() const
     return QString();
 }
 
+static void updateExecutable(CMakeRunConfiguration *rc, Utils::FancyLineEdit *fle)
+{
+    const Runnable runnable = rc->runnable();
+    fle->setText(runnable.is<StandardRunnable>()
+                 ? Utils::FileName::fromString(runnable.as<StandardRunnable>().executable).toUserOutput()
+                 : QString());
+}
+
 // Configuration widget
 CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent)
     : QWidget(parent)
@@ -184,6 +193,16 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     auto fl = new QFormLayout();
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+
+    auto executableLabel = new QLabel(tr("Executable:"));
+    auto executable = new Utils::FancyLineEdit;
+    executable->setReadOnly(true);
+    executable->setPlaceholderText(tr("<unknown>"));
+    connect(cmakeRunConfiguration, &CMakeRunConfiguration::enabledChanged,
+            this, std::bind(updateExecutable, cmakeRunConfiguration, executable));
+    updateExecutable(cmakeRunConfiguration, executable);
+
+    fl->addRow(executableLabel, executable);
 
     cmakeRunConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, fl);
     cmakeRunConfiguration->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, fl);
