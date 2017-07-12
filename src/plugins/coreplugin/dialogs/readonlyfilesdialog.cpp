@@ -143,6 +143,7 @@ ReadOnlyFilesDialog::ReadOnlyFilesDialog(const QList<QString> &fileNames, QWidge
     : QDialog(parent)
     , d(new ReadOnlyFilesDialogPrivate(this))
 {
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     d->initDialog(fileNames);
 }
 
