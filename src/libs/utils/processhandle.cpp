@@ -68,7 +68,7 @@ bool ProcessHandle::equals(const ProcessHandle &rhs) const
     return m_pid == rhs.m_pid;
 }
 
-#ifndef Q_OS_MACOS
+#ifndef Q_OS_OSX
 bool ProcessHandle::activate()
 {
     return false;
