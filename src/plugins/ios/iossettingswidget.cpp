@@ -38,6 +38,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QPointer>
+#include <QSortFilterProxyModel>
 
 static const int simStartWarnCount = 4;
 
@@ -64,11 +65,12 @@ static void onSimOperation(const SimulatorInfo &simInfo, SimulatorOperationDialo
 IosSettingsWidget::IosSettingsWidget(QWidget *parent)
     : QWidget(parent),
       m_ui(new Ui::IosSettingsWidget),
-      m_simControl(new SimulatorControl(this)),
-      m_simInfoModel( new SimulatorInfoModel(this))
+      m_simControl(new SimulatorControl(this))
 {
     m_ui->setupUi(this);
-    m_ui->deviceView->setModel(m_simInfoModel);
+    auto proxyModel = new QSortFilterProxyModel(this);
+    proxyModel->setSourceModel(new SimulatorInfoModel(this));
+    m_ui->deviceView->setModel(proxyModel);
     m_ui->deviceView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     m_ui->pathWidget->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_ui->pathWidget->lineEdit()->setReadOnly(true);

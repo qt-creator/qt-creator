@@ -43,7 +43,6 @@ class CorePlugin;
 class OpenDocumentsFilter;
 class FileSystemFilter;
 class LocatorSettingsPage;
-class LocatorWidget;
 class ExternalToolsFilter;
 
 class Locator : public QObject
@@ -66,7 +65,6 @@ public:
     void setCustomFilters(QList<ILocatorFilter *> f);
     int refreshInterval();
     void setRefreshInterval(int interval);
-    static LocatorWidget *mainLocatorWidget();
 
 signals:
     void filtersChanged();
@@ -93,7 +91,6 @@ private:
     ExecuteFilter *m_executeFilter;
     CorePlugin *m_corePlugin = nullptr;
     ExternalToolsFilter *m_externalToolsFilter;
-    LocatorWidget *m_locatorWidget;
 };
 
 } // namespace Internal

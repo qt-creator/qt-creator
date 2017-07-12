@@ -347,7 +347,7 @@ void TestRunner::debugTests()
         return;
     }
 
-    (void) new Debugger::DebuggerRunTool(runControl, sp, &errorMessage);
+    (void) new Debugger::DebuggerRunTool(runControl, sp);
 
     bool useOutputProcessor = true;
     if (ProjectExplorer::Target *targ = config->project()->activeTarget()) {

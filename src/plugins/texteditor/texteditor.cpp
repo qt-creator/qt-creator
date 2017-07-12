@@ -3814,14 +3814,8 @@ void TextEditorWidgetPrivate::drawLineAnnotation(QPainter &painter, const QTextB
         return mark1->priority() > mark2->priority();
     });
 
-    constexpr qreal itemOffset = 10;
-    qreal x = lineRect.right() + itemOffset;
-
-    const RefactorMarkers refactorMarkers = m_refactorOverlay->markers();
-    for (auto refactorMark : refactorMarkers) {
-        if (refactorMark.cursor.block() == block)
-            x = qMax(x, refactorMark.rect.right() + itemOffset);
-    }
+    const qreal itemOffset = q->fontMetrics().lineSpacing();
+    qreal x = lineRect.right() + itemOffset * 2;
 
     for (const TextMark *mark : marks) {
         QRectF annotationRect(x, lineRect.top(), q->viewport()->width() - x, lineRect.height());

@@ -37,6 +37,7 @@ class CORE_EXPORT BasicLocatorFilterTest
 {
 public:
     BasicLocatorFilterTest(ILocatorFilter *filter);
+    virtual ~BasicLocatorFilterTest();
 
     QList<LocatorFilterEntry> matchesFor(const QString &searchText = QString());
 

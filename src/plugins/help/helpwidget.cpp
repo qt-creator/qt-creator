@@ -43,8 +43,10 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/locator/locatormanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/sidebar.h>
+#include <coreplugin/minisplitter.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
@@ -56,6 +58,7 @@
 #include <QPrinter>
 #include <QPrintDialog>
 #include <QStackedWidget>
+#include <QStatusBar>
 #include <QToolButton>
 
 static const char kWindowSideBarSettingsKey[] = "Help/WindowSideBar";
@@ -83,9 +86,15 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
 {
     m_viewerStack = new QStackedWidget;
 
-    auto hLayout = new QHBoxLayout(this);
+    auto topLayout = new QVBoxLayout;
+    topLayout->setMargin(0);
+    topLayout->setSpacing(0);
+    setLayout(topLayout);
+
+    auto hLayout = new QHBoxLayout;
     hLayout->setMargin(0);
     hLayout->setSpacing(0);
+    topLayout->addLayout(hLayout, 10);
 
     m_sideBarSplitter = new Core::MiniSplitter(this);
     m_sideBarSplitter->setOpaqueResize(false);
@@ -144,9 +153,23 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         connect(m_sideBar, &Core::SideBar::sideBarClosed, m_toggleSideBarAction, [this]() {
             m_toggleSideBarAction->setChecked(false);
         });
+        if (style == ExternalWindow) {
+            auto statusBar = new QStatusBar;
+            topLayout->addWidget(statusBar);
+            auto splitter = new Core::NonResizingSplitter(statusBar);
+            statusBar->addPermanentWidget(splitter, 10);
+            auto statusBarWidget = new QWidget;
+            auto statusBarWidgetLayout = new QHBoxLayout;
+            statusBarWidgetLayout->setContentsMargins(0, 0, 3, 0);
+            statusBarWidget->setLayout(statusBarWidgetLayout);
+            splitter->addWidget(statusBarWidget);
+            splitter->addWidget(new QWidget);
+            auto locatorWidget = Core::LocatorManager::createLocatorInputWidget(window());
+            statusBarWidgetLayout->addWidget(Core::Command::toolButtonWithAppendedShortcut(
+                                                 m_toggleSideBarAction, cmd));
+            statusBarWidgetLayout->addWidget(locatorWidget);
+        }
     }
-    if (style == ExternalWindow)
-        layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_toggleSideBarAction, cmd));
 
     if (style != ModeWidget) {
         m_switchToHelp = new QAction(tr("Open in Help Mode"), toolBar);

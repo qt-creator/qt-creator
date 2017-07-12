@@ -41,7 +41,8 @@ public:
 
     ClangTextMark(const QString &fileName,
                   const ClangBackEnd::DiagnosticContainer &diagnostic,
-                  const RemovedFromEditorHandler &removedHandler);
+                  const RemovedFromEditorHandler &removedHandler,
+                  bool showLineAnnotations);
 
     void updateIcon(bool valid = true);
 private:

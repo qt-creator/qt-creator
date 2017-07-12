@@ -45,7 +45,7 @@ using namespace ProjectExplorer;
 namespace WinRt {
 namespace Internal {
 
-WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl, QString *errorMessage)
+WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl)
     : DebuggerRunTool(runControl)
 {
     // FIXME: This is just working for local debugging;
@@ -57,35 +57,38 @@ WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl, QString *errorMessa
     QFileInfo debuggerHelper(QCoreApplication::applicationDirPath()
                              + QLatin1String("/winrtdebughelper.exe"));
     if (!debuggerHelper.isExecutable()) {
-        *errorMessage = tr("The WinRT debugging helper is missing from your Qt Creator "
-                           "installation. It was assumed to be located at %1").arg(
-                    debuggerHelper.absoluteFilePath());
+        reportFailure(tr("The WinRT debugging helper is missing from your Qt Creator "
+                         "installation. It was assumed to be located at %1").arg(
+                    debuggerHelper.absoluteFilePath()));
         return;
     }
 
     if (isQmlDebugging()) {
         Utils::Port qmlDebugPort;
-        if (!getFreePort(qmlDebugPort, errorMessage))
+        if (!getFreePort(qmlDebugPort))
             return;
         params.qmlServer.host = QHostAddress(QHostAddress::LocalHost).toString();
         params.qmlServer.port = qmlDebugPort;
     }
 
-    m_runner = new WinRtRunnerHelper(this, errorMessage);
-    if (!errorMessage->isEmpty())
+    QString errorMessage;
+    m_runner = new WinRtRunnerHelper(this, &errorMessage);
+    if (!errorMessage.isEmpty()) {
+        reportFailure(errorMessage);
         return;
+    }
 
     QLocalServer server;
     server.listen(QLatin1String("QtCreatorWinRtDebugPIDPipe"));
 
     m_runner->debug(debuggerHelper.absoluteFilePath());
     if (!m_runner->waitForStarted()) {
-        *errorMessage = tr("Cannot start the WinRT Runner Tool.");
+        reportFailure(tr("Cannot start the WinRT Runner Tool."));
         return;
     }
 
     if (!server.waitForNewConnection(10000)) {
-        *errorMessage = tr("Cannot establish connection to the WinRT debugging helper.");
+        reportFailure(tr("Cannot establish connection to the WinRT debugging helper."));
         return;
     }
 
@@ -98,12 +101,12 @@ WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl, QString *errorMessa
                 bool ok =false;
                 params.attachPID = Utils::ProcessHandle(arg.last().toInt(&ok));
                 if (!ok) {
-                    *errorMessage = tr("Cannot extract the PID from the WinRT debugging helper. "
-                                       "(output: %1)").arg(QString::fromLocal8Bit(output));
+                    reportFailure(tr("Cannot extract the PID from the WinRT debugging helper. "
+                                     "(output: %1)").arg(QString::fromLocal8Bit(output)));
                     return;
                 }
                 server.close();
-                setStartParameters(params, errorMessage);
+                setStartParameters(params);
                 return;
             }
         }
@@ -111,16 +114,16 @@ WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl, QString *errorMessa
 
     server.close();
 
-    *errorMessage = tr("Cannot create an appropriate run control for "
-                       "the current run configuration.");
+    reportFailure(tr("Cannot create an appropriate run control for "
+                     "the current run configuration."));
 }
 
-bool WinRtDebugSupport::getFreePort(Utils::Port &qmlDebuggerPort, QString *errorMessage)
+bool WinRtDebugSupport::getFreePort(Utils::Port &qmlDebuggerPort)
 {
     QTcpServer server;
     if (!server.listen(QHostAddress::LocalHost,
                        qmlDebuggerPort.isValid() ? qmlDebuggerPort.number() : 0)) {
-        *errorMessage = tr("Not enough free ports for QML debugging.");
+        reportFailure(tr("Not enough free ports for QML debugging."));
         return false;
     }
     qmlDebuggerPort = Utils::Port(server.serverPort());

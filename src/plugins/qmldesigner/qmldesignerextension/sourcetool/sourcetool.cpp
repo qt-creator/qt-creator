@@ -179,7 +179,7 @@ void SourceTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QG
 
 void SourceTool::itemsAboutToRemoved(const QList<FormEditorItem*> &removedItemList)
 {
-    if (removedItemList.contains(m_formEditorItem.data()))
+    if (removedItemList.contains(m_formEditorItem))
         view()->changeToSelectionTool();
 }
 
@@ -193,7 +193,7 @@ void SourceTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
 {
     if (!itemList.isEmpty()) {
         m_formEditorItem = itemList.first();
-        m_oldFileName =  m_formEditorItem.data()->qmlItemNode().modelValue("source").toString();
+        m_oldFileName =  m_formEditorItem->qmlItemNode().modelValue("source").toString();
 
         QString openDirectory = baseDirectory(view()->model()->fileUrl());
         if (openDirectory.isEmpty())
@@ -246,7 +246,7 @@ void SourceTool::fileSelected(const QString &fileName)
         QDir modelFileDirectory = QFileInfo(modelFilePath).absoluteDir();
         QString relativeFilePath = modelFileDirectory.relativeFilePath(fileName);
         if (m_oldFileName != relativeFilePath) {
-            m_formEditorItem.data()->qmlItemNode().setVariantProperty("source", relativeFilePath);
+            m_formEditorItem->qmlItemNode().setVariantProperty("source", relativeFilePath);
         }
     }
 

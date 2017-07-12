@@ -116,6 +116,7 @@ void DebuggerRunTool::start()
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
+    setupEngine();
     DebuggerEngine *engine = m_engine;
 
     QTC_ASSERT(engine, return);
@@ -456,18 +457,6 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
 
 } // Internal
 
-////////////////////////////////////////////////////////////////////////
-//
-// DebuggerRunControlFactory
-//
-////////////////////////////////////////////////////////////////////////
-
-static bool isDebuggableScript(RunConfiguration *runConfig)
-{
-    QString mainScript = runConfig->property("mainScript").toString();
-    return mainScript.endsWith(".py"); // Only Python for now.
-}
-
 static DebuggerRunConfigurationAspect *debuggerAspect(const RunControl *runControl)
 {
     return runControl->runConfiguration()->extraAspect<DebuggerRunConfigurationAspect>();
@@ -493,42 +482,8 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
       m_isQmlDebugging(qmlDebugging(runControl))
 {
     setDisplayName("DebuggerRunTool");
-}
-
-DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerStartParameters &sp, QString *errorMessage)
-    : DebuggerRunTool(runControl)
-{
-    setStartParameters(sp, errorMessage);
-}
-
-DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParameters &rp, QString *errorMessage)
-    : DebuggerRunTool(runControl)
-{
-    setRunParameters(rp, errorMessage);
-}
-
-void DebuggerRunTool::setStartParameters(const DebuggerStartParameters &sp, QString *errorMessage)
-{
-    setRunParameters(sp, errorMessage);
-}
-
-void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp, QString *errorMessage)
-{
-    // FIXME: Disabled due to Android. Make Android device report available ports instead.
-//    int portsUsed = portsUsedByDebugger();
-//    if (portsUsed > device()->freePorts().count()) {
-//        if (errorMessage)
-//            *errorMessage = tr("Cannot debug: Not enough free ports available.");
-//        return;
-//    }
-
-    m_runParameters = rp;
-
-    // QML and/or mixed are not prepared for it.
-    runControl()->setSupportsReRunning(!(rp.languages & QmlLanguage));
-
-    runControl()->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
-    runControl()->setPromptToStop([](bool *optionalPrompt) {
+    runControl->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
+    runControl->setPromptToStop([](bool *optionalPrompt) {
         return RunControl::showPromptToStopDialog(
             DebuggerRunTool::tr("Close Debugging Session"),
             DebuggerRunTool::tr("A debugging session is still in progress. "
@@ -537,6 +492,41 @@ void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp, QString 
                                 " Would you still like to terminate it?"),
                 QString(), QString(), optionalPrompt);
     });
+}
+
+DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerStartParameters &sp)
+    : DebuggerRunTool(runControl)
+{
+    setStartParameters(sp);
+}
+
+DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParameters &rp)
+    : DebuggerRunTool(runControl)
+{
+    setRunParameters(rp);
+}
+
+void DebuggerRunTool::setStartParameters(const DebuggerStartParameters &sp)
+{
+    setRunParameters(sp);
+}
+
+void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp)
+{
+    m_runParameters = rp;
+}
+
+void DebuggerRunTool::setupEngine()
+{
+    // QML and/or mixed are not prepared for it.
+    setSupportsReRunning(!(m_runParameters.languages & QmlLanguage));
+
+    // FIXME: Disabled due to Android. Make Android device report available ports instead.
+//    int portsUsed = portsUsedByDebugger();
+//    if (portsUsed > device()->freePorts().count()) {
+//        reportFailure(tr("Cannot debug: Not enough free ports available."));
+//        return;
+//    }
 
     if (Internal::fixupParameters(m_runParameters, runControl(), m_errors)) {
         m_engine = createEngine(m_runParameters.cppEngineType,
@@ -545,9 +535,7 @@ void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp, QString 
                                 m_runParameters.useTerminal,
                                 &m_errors);
         if (!m_engine) {
-            QString msg = m_errors.join('\n');
-            if (errorMessage)
-                *errorMessage = msg;
+            reportFailure(m_errors.join('\n'));
             return;
         }
 
@@ -606,62 +594,13 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
     }
 }
 
-namespace Internal {
-
-/// DebuggerRunControlFactory
-
-class DebuggerRunControlFactory : public IRunControlFactory
-{
-public:
-    explicit DebuggerRunControlFactory(QObject *parent)
-        : IRunControlFactory(parent)
-    {}
-
-    RunControl *create(RunConfiguration *runConfig,
-                       Core::Id mode, QString *errorMessage) override
-    {
-        QTC_ASSERT(runConfig, return 0);
-        QTC_ASSERT(mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain, return 0);
-
-        DebuggerStartParameters sp;
-        auto runControl = new RunControl(runConfig, mode);
-        (void) new DebuggerRunTool(runControl, sp, errorMessage);
-        return runControl;
-    }
-
-    bool canRun(RunConfiguration *runConfig, Core::Id mode) const override
-    {
-        if (!(mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain))
-            return false;
-
-        Runnable runnable = runConfig->runnable();
-        if (runnable.is<StandardRunnable>()) {
-            IDevice::ConstPtr device = runnable.as<StandardRunnable>().device;
-            if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-                return true;
-        }
-
-        return DeviceTypeKitInformation::deviceTypeId(runConfig->target()->kit())
-                    == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
-                 || isDebuggableScript(runConfig);
-    }
-
-    IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc) override
-    {
-        return new DebuggerRunConfigurationAspect(rc);
-    }
-};
-
-QObject *createDebuggerRunControlFactory(QObject *parent)
-{
-    return new DebuggerRunControlFactory(parent);
-}
-
 ////////////////////////////////////////////////////////////////////////
 //
 // Externally visible helper.
 //
 ////////////////////////////////////////////////////////////////////////
+
+namespace Internal {
 
 /**
  * Used for direct "special" starts from actions in the debugger plugin.

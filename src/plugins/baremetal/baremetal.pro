@@ -10,7 +10,6 @@ SOURCES += baremetalplugin.cpp \
     baremetalrunconfiguration.cpp \
     baremetalrunconfigurationwidget.cpp \
     baremetalgdbcommandsdeploystep.cpp \
-    baremetalruncontrolfactory.cpp \
     baremetaldeviceconfigurationwizardpages.cpp \
     baremetaldeviceconfigurationwizard.cpp \
     baremetaldeviceconfigurationwidget.cpp \
@@ -33,7 +32,6 @@ HEADERS += baremetalplugin.h \
     baremetalrunconfiguration.h \
     baremetalrunconfigurationwidget.h \
     baremetalgdbcommandsdeploystep.h \
-    baremetalruncontrolfactory.h \
     baremetaldeviceconfigurationfactory.h \
     baremetaldeviceconfigurationwidget.h \
     baremetaldeviceconfigurationwizard.h \

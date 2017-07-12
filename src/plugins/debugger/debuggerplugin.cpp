@@ -420,7 +420,18 @@ namespace Internal {
 
 void addCdbOptionPages(QList<IOptionsPage*> *opts);
 void addGdbOptionPages(QList<IOptionsPage*> *opts);
-QObject *createDebuggerRunControlFactory(QObject *parent);
+
+/// DebuggerRunControlFactory
+
+class DebuggerRunControlFactory : public IRunControlFactory
+{
+public:
+    IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc) override
+    {
+        return new DebuggerRunConfigurationAspect(rc);
+    }
+};
+
 
 static QIcon visibleStartIcon(Id id, bool toolBarStyle)
 {
@@ -1482,7 +1493,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_localsAndExpressionsWindow->setObjectName(QLatin1String(DOCKWIDGET_WATCHERS));
     m_localsAndExpressionsWindow->setWindowTitle(m_localsWindow->windowTitle());
 
-    m_plugin->addAutoReleasedObject(createDebuggerRunControlFactory(m_plugin));
+    m_plugin->addAutoReleasedObject(new DebuggerRunControlFactory);
 
     // The main "Start Debugging" action.
     act = m_startAction = new QAction(this);
@@ -3033,6 +3044,28 @@ void DebuggerPluginPrivate::extensionsInitialized()
             cmd->setAttribute(Command::CA_NonConfigurable);
         }
     }
+
+    auto constraint = [](RunConfiguration *runConfig) {
+        Runnable runnable = runConfig->runnable();
+        if (runnable.is<StandardRunnable>()) {
+            IDevice::ConstPtr device = runnable.as<StandardRunnable>().device;
+            if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+                return true;
+        }
+
+        if (DeviceTypeKitInformation::deviceTypeId(runConfig->target()->kit())
+                    == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+            return true;
+
+        QString mainScript = runConfig->property("mainScript").toString();
+        const bool isDebuggableScript = mainScript.endsWith(".py"); // Only Python for now.
+        return isDebuggableScript;
+    };
+
+    RunControl::registerWorker<DebuggerRunTool>
+        (ProjectExplorer::Constants::DEBUG_RUN_MODE, constraint);
+    RunControl::registerWorker<DebuggerRunTool>
+        (ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN, constraint);
 }
 
 DebuggerEngine *currentEngine()
@@ -3534,6 +3567,11 @@ QAction *createStopAction()
 void registerPerspective(const QByteArray &perspectiveId, const Perspective *perspective)
 {
     dd->m_mainWindow->registerPerspective(perspectiveId, perspective);
+}
+
+void setPerspectiveEnabled(const QByteArray &perspectiveId, bool enabled)
+{
+    dd->m_mainWindow->setPerspectiveEnabled(perspectiveId, enabled);
 }
 
 void selectPerspective(const QByteArray &perspectiveId)

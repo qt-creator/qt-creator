@@ -64,7 +64,8 @@ Core::Id cartegoryForSeverity(ClangBackEnd::DiagnosticSeverity severity)
 
 ClangTextMark::ClangTextMark(const QString &fileName,
                              const ClangBackEnd::DiagnosticContainer &diagnostic,
-                             const RemovedFromEditorHandler &removedHandler)
+                             const RemovedFromEditorHandler &removedHandler,
+                             bool showLineAnnotations)
     : TextEditor::TextMark(fileName,
                            int(diagnostic.location().line()),
                            cartegoryForSeverity(diagnostic.severity()))
@@ -79,7 +80,8 @@ ClangTextMark::ClangTextMark(const QString &fileName,
     setPriority(warning ? TextEditor::TextMark::NormalPriority
                         : TextEditor::TextMark::HighPriority);
     updateIcon();
-    setLineAnnotation(diagnostic.text().toString());
+    if (showLineAnnotations)
+        setLineAnnotation(diagnostic.text().toString());
 }
 
 void ClangTextMark::updateIcon(bool valid)

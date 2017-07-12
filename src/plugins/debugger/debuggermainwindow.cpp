@@ -50,6 +50,7 @@
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QStackedWidget>
+#include <QStandardItemModel>
 #include <QToolButton>
 
 using namespace Debugger;
@@ -140,6 +141,16 @@ void DebuggerMainWindow::onModeChanged(Core::Id mode)
                 dockWidget->hide();
         }
     }
+}
+
+void DebuggerMainWindow::setPerspectiveEnabled(const QByteArray &perspectiveId, bool enabled)
+{
+    const int index = m_perspectiveChooser->findData(perspectiveId);
+    QTC_ASSERT(index != -1, return);
+    auto model = qobject_cast<QStandardItemModel*>(m_perspectiveChooser->model());
+    QTC_ASSERT(model, return);
+    QStandardItem *item = model->item(index, 0);
+    item->setFlags(enabled ? item->flags() | Qt::ItemIsEnabled : item->flags() & ~Qt::ItemIsEnabled );
 }
 
 void DebuggerMainWindow::resetCurrentPerspective()

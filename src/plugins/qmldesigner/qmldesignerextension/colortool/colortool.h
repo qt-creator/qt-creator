@@ -82,7 +82,7 @@ private:
 
 private:
     QPointer<QColorDialog> m_colorDialog;
-    QPointer<FormEditorItem> m_formEditorItem;
+    FormEditorItem *m_formEditorItem = nullptr;
     QColor m_oldColor;
 };
 

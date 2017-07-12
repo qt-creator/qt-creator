@@ -76,12 +76,8 @@ def checkIncludeCompletion(editor, isClangCodeModel):
         missing, noProposal, specialHandling = args
         inclSnippet = currentLine.split("//#include")[-1].strip().strip('<"')
         propShown = waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 2500)
-        if isClangCodeModel and inclSnippet in noProposal and JIRA.isBugStillOpen(15710):
-            test.xcompare(propShown, False, ("Proposal widget should not be shown for (%s) "
-                          "but because of QTCREATORBUG-15710 it currently is") % inclSnippet)
-        else:
-            test.compare(not propShown, inclSnippet in missing or inclSnippet in noProposal,
-                         "Proposal widget is (not) shown as expected (%s)" % inclSnippet)
+        test.compare(not propShown, inclSnippet in missing or inclSnippet in noProposal,
+                     "Proposal widget is (not) shown as expected (%s)" % inclSnippet)
         if propShown:
             proposalListView = waitForObject(':popupFrame_Proposal_QListView')
             if inclSnippet in specialHandling:
@@ -131,12 +127,8 @@ def checkSymbolCompletion(editor, isClangCodeModel):
         if isClangCodeModel and JIRA.isBugStillOpen(15639):
             timeout = 5000
         propShown = waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", timeout)
-        if isClangCodeModel and symbol in missing and not "(" in symbol and JIRA.isBugStillOpen(15710):
-            test.xcompare(propShown, False, ("Proposal widget should not be shown for (%s) "
-                          "but because of QTCREATORBUG-15710 it currently is") % symbol)
-        else:
-            test.compare(not propShown, symbol in missing,
-                         "Proposal widget is (not) shown as expected (%s)" % symbol)
+        test.compare(not propShown, symbol in missing,
+                     "Proposal widget is (not) shown as expected (%s)" % symbol)
         found = []
         if propShown:
             proposalListView = waitForObject(':popupFrame_Proposal_QListView')

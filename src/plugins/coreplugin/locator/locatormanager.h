@@ -44,6 +44,8 @@ public:
 
     static void showFilter(ILocatorFilter *filter);
     static void show(const QString &text, int selectionStart = -1, int selectionLength = 0);
+
+    static QWidget *createLocatorInputWidget(QWidget *window);
 };
 
 } // namespace Core

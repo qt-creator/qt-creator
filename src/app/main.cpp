@@ -157,18 +157,16 @@ static inline int askMsgSendFailed()
                                  QMessageBox::Retry);
 }
 
-static const char *setHighDpiEnvironmentVariable()
+static void setHighDpiEnvironmentVariable()
 {
-    const char* envVarName = 0;
     static const char ENV_VAR_QT_DEVICE_PIXEL_RATIO[] = "QT_DEVICE_PIXEL_RATIO";
-    if (!Utils::HostOsInfo().isMacHost()
+    if (Utils::HostOsInfo().isWindowsHost()
             && !qEnvironmentVariableIsSet(ENV_VAR_QT_DEVICE_PIXEL_RATIO) // legacy in 5.6, but still functional
             && !qEnvironmentVariableIsSet("QT_AUTO_SCREEN_SCALE_FACTOR")
             && !qEnvironmentVariableIsSet("QT_SCALE_FACTOR")
             && !qEnvironmentVariableIsSet("QT_SCREEN_SCALE_FACTORS")) {
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     }
-    return envVarName;
 }
 
 // taken from utils/fileutils.cpp. We can not use utils here since that depends app_version.h.
@@ -304,7 +302,7 @@ int main(int argc, char **argv)
 
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/QtCreator-XXXXXX");
 
-    const char *highDpiEnvironmentVariable = setHighDpiEnvironmentVariable();
+    setHighDpiEnvironmentVariable();
 
     QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false\nqtc.*.info=false"));
 
@@ -321,9 +319,6 @@ int main(int argc, char **argv)
     SharedTools::QtSingleApplication app((QLatin1String(appNameC)), argc, argv);
 
     loadFonts();
-
-    if (highDpiEnvironmentVariable)
-        qunsetenv(highDpiEnvironmentVariable);
 
     if (Utils::HostOsInfo().isWindowsHost()
             && !qFuzzyCompare(qApp->devicePixelRatio(), 1.0)

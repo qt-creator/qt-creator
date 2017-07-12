@@ -61,7 +61,7 @@ void DragTool::clear()
 {
     m_moveManipulator.clear();
     m_selectionIndicator.clear();
-    m_movingItem.clear();
+    m_movingItem = nullptr;
 }
 
 void DragTool::mousePressEvent(const QList<QGraphicsItem*> &, QGraphicsSceneMouseEvent *)
@@ -117,7 +117,7 @@ void DragTool::beginWithPoint(const QPointF &beginPoint)
 {
     m_movingItem = scene()->itemForQmlItemNode(m_dragNode);
 
-    m_moveManipulator.setItem(m_movingItem.data());
+    m_moveManipulator.setItem(m_movingItem);
     m_moveManipulator.begin(beginPoint);
 }
 
@@ -167,9 +167,9 @@ FormEditorItem* DragTool::targetContainerOrRootItem(const QList<QGraphicsItem*> 
 
 void DragTool::formEditorItemsChanged(const QList<FormEditorItem*> & itemList)
 {
-    if (m_movingItem && itemList.contains(m_movingItem.data())) {
+    if (m_movingItem && itemList.contains(m_movingItem)) {
         QList<FormEditorItem*> updateItemList;
-        updateItemList.append(m_movingItem.data());
+        updateItemList.append(m_movingItem);
         m_selectionIndicator.updateItems(updateItemList);
     }
 }
@@ -373,7 +373,7 @@ void DragTool::end(Snapper::Snapping useSnapping)
 void  DragTool::move(const QPointF &scenePosition, const QList<QGraphicsItem*> &itemList)
 {
     if (m_movingItem) {
-        FormEditorItem *containerItem = targetContainerOrRootItem(itemList, m_movingItem.data());
+        FormEditorItem *containerItem = targetContainerOrRootItem(itemList, m_movingItem);
         if (containerItem && m_movingItem->parentItem() &&
                 containerItem != m_movingItem->parentItem()) {
 

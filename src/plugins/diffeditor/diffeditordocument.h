@@ -83,8 +83,6 @@ public:
     OpenResult open(QString *errorString, const QString &fileName,
                     const QString &realFileName) override;
     State state() const { return m_state; }
-    void beginReload();
-    void endReload(bool success);
 
     QString plainText() const;
 
@@ -96,6 +94,8 @@ signals:
     void requestMoreInformation();
 
 private:
+    void beginReload();
+    void endReload(bool success);
     void setController(DiffEditorController *controller);
 
     DiffEditorController *m_controller;

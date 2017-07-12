@@ -263,36 +263,6 @@ QString GdbEngine::failedToStartMessage()
     return tr("The gdb process failed to start.");
 }
 
-QString GdbEngine::errorMessage(QProcess::ProcessError error)
-{
-    switch (error) {
-        case QProcess::FailedToStart:
-            return failedToStartMessage() + ' ' + tr("Either the "
-                "invoked program \"%1\" is missing, or you may have insufficient "
-                "permissions to invoke the program.\n%2")
-                .arg(runParameters().debugger.executable, m_gdbProc.errorString());
-        case QProcess::Crashed:
-            if (isDying())
-                return tr("The gdb process crashed some time after starting "
-                    "successfully.");
-            else
-                return tr("The gdb process was ended forcefully");
-        case QProcess::Timedout:
-            return tr("The last waitFor...() function timed out. "
-                "The state of QProcess is unchanged, and you can try calling "
-                "waitFor...() again.");
-        case QProcess::WriteError:
-            return tr("An error occurred when attempting to write "
-                "to the gdb process. For example, the process may not be running, "
-                "or it may have closed its input channel.");
-        case QProcess::ReadError:
-            return tr("An error occurred when attempting to read from "
-                "the gdb process. For example, the process may not be running.");
-        default:
-            return tr("An unknown error in the gdb process occurred.");
-    }
-}
-
 #if 0
 static void dump(const char *first, const char *middle, const QString & to)
 {
@@ -3880,7 +3850,7 @@ void GdbEngine::startGdb(const QStringList &args)
         if (!QFileInfo(wd).isDir())
             msg = failedToStartMessage() + ' ' + tr("The working directory \"%1\" is not usable.").arg(wd);
         else
-            msg = errorMessage(QProcess::FailedToStart);
+            msg = RunWorker::userMessageForProcessError(QProcess::FailedToStart, rp.debugger.executable);
         handleAdapterStartFailed(msg);
         return;
     }
@@ -4064,7 +4034,11 @@ void GdbEngine::reloadDebuggingHelpers()
 
 void GdbEngine::handleGdbError(QProcess::ProcessError error)
 {
-    const QString msg = errorMessage(error);
+    QString program = runParameters().debugger.executable;
+    QString msg = RunWorker::userMessageForProcessError(error, program);
+    QString errorString = m_gdbProc.errorString();
+    if (!errorString.isEmpty())
+        msg += '\n' + errorString;
     showMessage("HANDLE GDB ERROR: " + msg);
     // Show a message box for asynchronously reported issues.
     switch (error) {

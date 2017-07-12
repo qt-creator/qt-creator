@@ -26,6 +26,7 @@
 #include "statusbarmanager.h"
 
 #include "mainwindow.h"
+#include "minisplitter.h"
 #include "statusbarwidget.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -144,18 +145,4 @@ void StatusBarManager::restoreSettings()
     foreach (int w, m_splitter->sizes())
         sum += w;
     m_splitter->setSizes(QList<int>() << leftSplitWidth << (sum - leftSplitWidth));
-}
-
-NonResizingSplitter::NonResizingSplitter(QWidget *parent)
-    : MiniSplitter(parent, Light)
-{
-}
-
-void NonResizingSplitter::resizeEvent(QResizeEvent *ev)
-{
-    // bypass QSplitter magic
-    int leftSplitWidth = qMin(sizes().at(0), ev->size().width());
-    int rightSplitWidth = qMax(0, ev->size().width() - leftSplitWidth);
-    setSizes(QList<int>() << leftSplitWidth << rightSplitWidth);
-    QWidget::resizeEvent(ev);
 }

@@ -108,9 +108,9 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
     ActionContainer *mtools = ActionManager::actionContainer(Constants::M_TOOLS);
     mtools->addAction(cmd);
 
-    m_locatorWidget = createStaticLocatorWidget(this);
+    auto locatorWidget = LocatorManager::createLocatorInputWidget(ICore::mainWindow());
     StatusBarWidget *view = new StatusBarWidget;
-    view->setWidget(m_locatorWidget);
+    view->setWidget(locatorWidget);
     view->setContext(Context("LocatorWidget"));
     view->setPosition(StatusBarWidget::First);
     m_corePlugin->addAutoReleasedObject(view);
@@ -139,11 +139,6 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
 
 void Locator::extensionsInitialized()
 {
-    // register locator widget for main window
-    auto agg = new Aggregation::Aggregate;
-    agg->add(ICore::mainWindow());
-    agg->add(m_locatorWidget);
-
     m_filters = ExtensionSystem::PluginManager::getObjects<ILocatorFilter>();
     Utils::sort(m_filters, [](const ILocatorFilter *first, const ILocatorFilter *second) -> bool {
         if (first->priority() != second->priority())
@@ -348,11 +343,6 @@ void Locator::setRefreshInterval(int interval)
     }
     m_refreshTimer.setInterval(interval * 60000);
     m_refreshTimer.start();
-}
-
-LocatorWidget *Locator::mainLocatorWidget()
-{
-    return m_instance->m_locatorWidget;
 }
 
 void Locator::refresh(QList<ILocatorFilter *> filters)

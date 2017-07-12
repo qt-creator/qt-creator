@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Tim Sander <tim@krieglstein.org>
-** Copyright (C) 2016 Denis Shienkov <denis.shienkov@gmail.com>
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,27 +23,17 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "processhandle.h"
+#import <AppKit/AppKit.h>
 
-#include "baremetalrunconfiguration.h"
+namespace Utils {
 
-#include <projectexplorer/runconfiguration.h>
-#include <debugger/debuggerstartparameters.h>
-
-namespace BareMetal {
-namespace Internal {
-
-class BareMetalRunControlFactory : public ProjectExplorer::IRunControlFactory
+bool ProcessHandle::activate()
 {
-    Q_OBJECT
+    NSRunningApplication *app = [NSRunningApplication
+            runningApplicationWithProcessIdentifier:pid()];
+    return app && [app activateWithOptions:static_cast<NSApplicationActivationOptions>(
+            NSApplicationActivateIgnoringOtherApps)];
+}
 
-public:
-    explicit BareMetalRunControlFactory(QObject *parent = 0);
-
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id mode) const override;
-    ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                        Core::Id mode, QString *) override;
-};
-
-} // namespace Internal
-} // namespace BareMetal
+} // Utils

@@ -330,8 +330,6 @@ journald {
     LIBS += -lsystemd
 }
 
-macx:LIBS += -framework Carbon
-
 RESOURCES += projectexplorer.qrc
 
 # Some way to override the architecture used in Abi:

@@ -44,17 +44,13 @@ public:
     DebuggerRunTool(ProjectExplorer::RunControl *runControl); // Use.
 
     DebuggerRunTool(ProjectExplorer::RunControl *runControl,
-                    const DebuggerStartParameters &sp,
-                    QString *errorMessage = nullptr); // Use rarely.
+                    const DebuggerStartParameters &sp); // Use rarely.
     DebuggerRunTool(ProjectExplorer::RunControl *runControl,
-                    const Internal::DebuggerRunParameters &rp,
-                    QString *errorMessage = nullptr); // FIXME: Don't use.
+                    const Internal::DebuggerRunParameters &rp); // FIXME: Don't use.
     ~DebuggerRunTool();
 
-    void setStartParameters(const DebuggerStartParameters &sp,
-                            QString *errorMessage = nullptr); // Use rarely.
-    void setRunParameters(const Internal::DebuggerRunParameters &rp,
-                          QString *errorMessage = nullptr); // FIXME: Don't use.
+    void setStartParameters(const DebuggerStartParameters &sp); // Use rarely.
+    void setRunParameters(const Internal::DebuggerRunParameters &rp); // FIXME: Don't use.
 
     Internal::DebuggerEngine *engine() const { return m_engine; }
     Internal::DebuggerEngine *activeEngine() const;
@@ -82,11 +78,14 @@ public:
     int portsUsedByDebugger() const;
 
     void appendSolibSearchPath(const QString &str);
+
 signals:
     void aboutToNotifyInferiorSetupOk();
 
 private:
-    Internal::DebuggerEngine *m_engine = nullptr; // Master engine
+    void setupEngine();
+
+    QPointer<Internal::DebuggerEngine> m_engine; // Master engine
     Internal::DebuggerRunParameters m_runParameters;
     QStringList m_errors;
     bool m_isDying = false;

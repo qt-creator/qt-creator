@@ -75,7 +75,7 @@ ClangStaticAnalyzerToolRunner::ClangStaticAnalyzerToolRunner(RunControl *runCont
     setDisplayName("ClangStaticAnalyzerRunner");
     runControl->setDisplayName(tr("Clang Static Analyzer"));
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
-    runControl->setSupportsReRunning(false);
+    setSupportsReRunning(false);
 
     RunConfiguration *runConfiguration = runControl->runConfiguration();
     auto tool = ClangStaticAnalyzerTool::instance();

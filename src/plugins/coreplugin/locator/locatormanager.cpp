@@ -85,4 +85,14 @@ void LocatorManager::show(const QString &text,
     locatorWidget()->showText(text, selectionStart, selectionLength);
 }
 
+QWidget *LocatorManager::createLocatorInputWidget(QWidget *window)
+{
+    auto locatorWidget = createStaticLocatorWidget(Locator::instance());
+    // register locator widget for this window
+    auto agg = new Aggregation::Aggregate;
+    agg->add(window);
+    agg->add(locatorWidget);
+    return locatorWidget;
+}
+
 } // namespace Core

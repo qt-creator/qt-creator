@@ -28,6 +28,7 @@
 #include <enumeration.h>
 #include <qmlprivategate.h>
 
+#include <QDebug>
 #include <QEvent>
 #include <QQmlContext>
 #include <QQmlError>

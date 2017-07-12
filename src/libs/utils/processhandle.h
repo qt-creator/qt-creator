@@ -43,6 +43,8 @@ public:
 
     bool equals(const ProcessHandle &) const;
 
+    bool activate();
+
 private:
     qint64 m_pid;
 };

@@ -38,11 +38,11 @@ class WinRtDebugSupport : public Debugger::DebuggerRunTool
     Q_OBJECT
 
 public:
-    WinRtDebugSupport(ProjectExplorer::RunControl *runControl, QString *errorMessage);
+    explicit WinRtDebugSupport(ProjectExplorer::RunControl *runControl);
     ~WinRtDebugSupport();
 
 private:
-    static bool getFreePort(Utils::Port &qmlDebuggerPort, QString *errorMessage);
+    bool getFreePort(Utils::Port &qmlDebuggerPort);
 
     WinRtRunnerHelper *m_runner = nullptr;
 };

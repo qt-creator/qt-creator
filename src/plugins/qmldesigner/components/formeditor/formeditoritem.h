@@ -45,10 +45,8 @@ namespace Internal {
     class MoveController;
 }
 
-class QMLDESIGNERCORE_EXPORT FormEditorItem : public QGraphicsObject
+class QMLDESIGNERCORE_EXPORT FormEditorItem : public QGraphicsItem
 {
-    Q_OBJECT
-
     friend class QmlDesigner::FormEditorScene;
 public:
     ~FormEditorItem();

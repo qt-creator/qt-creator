@@ -52,17 +52,5 @@ private:
     virtual ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent, const QVariantMap &map) override;
 };
 
-class WinRtRunControlFactory : public ProjectExplorer::IRunControlFactory
-{
-    Q_OBJECT
-public:
-    WinRtRunControlFactory();
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                Core::Id mode) const override;
-    ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                       Core::Id mode, QString *errorMessage) override;
-    QString displayName() const;
-};
-
 } // namespace Internal
 } // namespace WinRt

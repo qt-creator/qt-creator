@@ -30,7 +30,7 @@ Project {
 
         Properties {
             condition: qbs.targetOS.contains("macos")
-            cpp.frameworks: ["Foundation"]
+            cpp.frameworks: ["Foundation", "AppKit"]
         }
 
         Depends { name: "Qt"; submodules: ["concurrent", "network", "qml", "widgets"] }
@@ -294,6 +294,14 @@ Project {
             condition: qbs.targetOS.contains("macos")
             files: [
                 "fileutils_mac.h", "fileutils_mac.mm",
+            ]
+        }
+
+        Group {
+            name: "ProcessHandle_macos"
+            condition: qbs.targetOS.contains("macos")
+            files: [
+                "processhandle_mac.mm",
             ]
         }
 
