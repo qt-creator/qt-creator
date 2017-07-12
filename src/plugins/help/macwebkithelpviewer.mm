@@ -530,6 +530,25 @@ void MacWebKitHelpWidget::showToolTip()
 
 // #pragma mark -- MacWebKitHelpViewer
 
+static void responderHack(QWidget *old, QWidget *now)
+{
+    // On focus change, Qt does not make the corresponding QNSView firstResponder.
+    // That breaks when embedding native NSView into a Qt hierarchy. When the focus is changed
+    // by clicking with the mouse into a widget, everything is fine, because Cocoa automatically
+    // adapts firstResponder in that case, but it breaks when setting the Qt focus from code.
+    Q_UNUSED(old)
+    if (!now)
+        return;
+    @autoreleasepool {
+        NSView *view;
+        if (QMacCocoaViewContainer *viewContainer = qobject_cast<QMacCocoaViewContainer *>(now))
+            view = viewContainer->cocoaView();
+        else
+            view = reinterpret_cast<NSView *>(now->effectiveWinId());
+        [view.window makeFirstResponder:view];
+    }
+}
+
 MacWebKitHelpViewer::MacWebKitHelpViewer(QWidget *parent)
     : HelpViewer(parent),
       m_widget(new MacWebKitHelpWidget(this))
@@ -537,7 +556,7 @@ MacWebKitHelpViewer::MacWebKitHelpViewer(QWidget *parent)
     static bool responderHackInstalled = false;
     if (!responderHackInstalled) {
         responderHackInstalled = true;
-        new MacResponderHack(qApp);
+        QObject::connect(qApp, &QApplication::focusChanged, &responderHack);
     }
 
     @autoreleasepool {
@@ -885,34 +904,6 @@ void MacWebKitHelpViewer::goToHistoryItem()
         [m_widget->webView() goToBackForwardItem:item];
         emit forwardAvailable(isForwardAvailable());
         emit backwardAvailable(isBackwardAvailable());
-    }
-}
-
-// #pragma mark -- MacResponderHack
-
-MacResponderHack::MacResponderHack(QObject *parent)
-    : QObject(parent)
-{
-    connect(qApp, &QApplication::focusChanged,
-            this, &MacResponderHack::responderHack);
-}
-
-void MacResponderHack::responderHack(QWidget *old, QWidget *now)
-{
-    // On focus change, Qt does not make the corresponding QNSView firstResponder.
-    // That breaks when embedding native NSView into a Qt hierarchy. When the focus is changed
-    // by clicking with the mouse into a widget, everything is fine, because Cocoa automatically
-    // adapts firstResponder in that case, but it breaks when setting the Qt focus from code.
-    Q_UNUSED(old)
-    if (!now)
-        return;
-    @autoreleasepool {
-        NSView *view;
-        if (QMacCocoaViewContainer *viewContainer = qobject_cast<QMacCocoaViewContainer *>(now))
-            view = viewContainer->cocoaView();
-        else
-            view = (NSView *)now->effectiveWinId();
-        [view.window makeFirstResponder:view];
     }
 }
 
