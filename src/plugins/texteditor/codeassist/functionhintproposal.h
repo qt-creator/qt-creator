@@ -38,7 +38,6 @@ public:
     FunctionHintProposal(int cursorPos, IFunctionHintProposalModel *model);
     ~FunctionHintProposal();
 
-    bool isFragile() const override;
     IAssistProposalModel *model() const override;
     IAssistProposalWidget *createWidget() const override;
 

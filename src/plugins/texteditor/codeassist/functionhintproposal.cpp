@@ -32,15 +32,12 @@ using namespace TextEditor;
 FunctionHintProposal::FunctionHintProposal(int cursorPos, IFunctionHintProposalModel *model)
     : IAssistProposal(cursorPos)
     , m_model(model)
-{}
+{
+    setFragile(true);
+}
 
 FunctionHintProposal::~FunctionHintProposal()
 {}
-
-bool FunctionHintProposal::isFragile() const
-{
-    return true;
-}
 
 IAssistProposalModel *FunctionHintProposal::model() const
 {

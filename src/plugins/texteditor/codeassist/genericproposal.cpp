@@ -44,11 +44,6 @@ GenericProposal::GenericProposal(int cursorPos, const QList<AssistProposalItemIn
 GenericProposal::~GenericProposal()
 {}
 
-bool GenericProposal::isFragile() const
-{
-    return false;
-}
-
 bool GenericProposal::hasItemsToPropose(const QString &prefix, AssistReason reason) const
 {
     if (!prefix.isEmpty()) {

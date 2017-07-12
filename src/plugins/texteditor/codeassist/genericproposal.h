@@ -40,7 +40,6 @@ public:
     GenericProposal(int cursorPos, const QList<AssistProposalItemInterface *> &items);
     ~GenericProposal();
 
-    bool isFragile() const override;
     bool hasItemsToPropose(const QString &prefix, AssistReason reason) const override;
     IAssistProposalModel *model() const override;
     IAssistProposalWidget *createWidget() const override;

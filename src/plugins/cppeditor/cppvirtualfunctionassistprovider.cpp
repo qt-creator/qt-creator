@@ -106,9 +106,9 @@ public:
                             bool openInSplit)
         : GenericProposal(cursorPos, items)
         , m_openInSplit(openInSplit)
-    {}
-
-    bool isFragile() const override { return true; }
+    {
+        setFragile(true);
+    }
 
     IAssistProposalWidget *createWidget() const override
     { return new VirtualFunctionProposalWidget(m_openInSplit); }
