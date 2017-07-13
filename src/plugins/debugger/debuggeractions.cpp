@@ -683,21 +683,20 @@ SavedAction *DebuggerSettings::item(int code) const
 
 QString DebuggerSettings::dump() const
 {
-    QString out;
-    QTextStream ts(&out);
-    ts << "Debugger settings: ";
+    QStringList settings;
     foreach (SavedAction *item, m_items) {
         QString key = item->settingsKey();
         if (!key.isEmpty()) {
             const QString current = item->value().toString();
             const QString default_ = item->defaultValue().toString();
-            ts << '\n' << key << ": " << current
-               << "  (default: " << default_ << ')';
+            QString setting = key + ": " + current + "  (default: " + default_ + ')';
             if (current != default_)
-                ts <<  "  ***";
+                setting +=  "  ***";
+            settings << setting;
         }
     }
-    return out;
+    settings.sort();
+    return "Debugger settings:\n" + settings.join('\n');
 }
 
 } // namespace Internal
