@@ -502,8 +502,8 @@ void ClangStaticAnalyzerToolRunner::start()
 
     QTC_ASSERT(m_projectInfo.isValid(), reportFailure(); return);
     const Utils::FileName projectFile = m_projectInfo.project()->projectFilePath();
-    appendMessage(tr("Running Clang Static Analyzer on %1").arg(projectFile.toUserOutput())
-                  + QLatin1Char('\n'), Utils::NormalMessageFormat);
+    appendMessage(tr("Running Clang Static Analyzer on %1").arg(projectFile.toUserOutput()),
+                  Utils::NormalMessageFormat);
 
     // Check clang executable
     bool isValidClangExecutable;
@@ -512,7 +512,7 @@ void ClangStaticAnalyzerToolRunner::start()
     if (!isValidClangExecutable) {
         const QString errorMessage = tr("Clang Static Analyzer: Invalid executable \"%1\", stop.")
                 .arg(executable);
-        appendMessage(errorMessage + QLatin1Char('\n'), Utils::ErrorMessageFormat);
+        appendMessage(errorMessage, Utils::ErrorMessageFormat);
         TaskHub::addTask(Task::Error, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         reportFailure();
@@ -527,7 +527,7 @@ void ClangStaticAnalyzerToolRunner::start()
             = tr("Clang Static Analyzer: Running with possibly unsupported version, "
                  "could not determine version from executable \"%1\".")
                     .arg(versionCheckExecutable);
-        appendMessage(warningMessage + QLatin1Char('\n'), Utils::StdErrFormat);
+        appendMessage(warningMessage, Utils::StdErrFormat);
         TaskHub::addTask(Task::Warning, warningMessage, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
     } else if (!version.isSupportedVersion()) {
@@ -536,7 +536,7 @@ void ClangStaticAnalyzerToolRunner::start()
                  "supported version is %2.")
                     .arg(version.toString())
                     .arg(ClangExecutableVersion::supportedVersionAsString());
-        appendMessage(warningMessage + QLatin1Char('\n'), Utils::StdErrFormat);
+        appendMessage(warningMessage, Utils::StdErrFormat);
         TaskHub::addTask(Task::Warning, warningMessage, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
     }
@@ -549,7 +549,7 @@ void ClangStaticAnalyzerToolRunner::start()
     if (!temporaryDir.isValid()) {
         const QString errorMessage
                 = tr("Clang Static Analyzer: Failed to create temporary dir, stop.");
-        appendMessage(errorMessage + QLatin1Char('\n'), Utils::ErrorMessageFormat);
+        appendMessage(errorMessage, Utils::ErrorMessageFormat);
         TaskHub::addTask(Task::Error, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         reportFailure(errorMessage);
@@ -604,7 +604,7 @@ void ClangStaticAnalyzerToolRunner::stop()
     }
     m_runners.clear();
     m_unitsToProcess.clear();
-    appendMessage(tr("Clang Static Analyzer stopped by user.") + QLatin1Char('\n'),
+    appendMessage(tr("Clang Static Analyzer stopped by user."),
                   Utils::NormalMessageFormat);
     m_progress.reportFinished();
     ClangStaticAnalyzerTool::instance()->onEngineFinished(m_success);
@@ -630,7 +630,7 @@ void ClangStaticAnalyzerToolRunner::analyzeNextFile()
     QTC_ASSERT(runner->run(unit.file, unit.arguments), return);
 
     appendMessage(tr("Analyzing \"%1\".").arg(
-                      Utils::FileName::fromString(unit.file).toUserOutput()) + QLatin1Char('\n'),
+                      Utils::FileName::fromString(unit.file).toUserOutput()),
                   Utils::StdOutFormat);
 }
 
@@ -659,9 +659,8 @@ void ClangStaticAnalyzerToolRunner::onRunnerFinishedWithSuccess(const QString &l
     if (!errorMessage.isEmpty()) {
         qCDebug(LOG) << "onRunnerFinishedWithSuccess: Error reading log file:" << errorMessage;
         const QString filePath = qobject_cast<ClangStaticAnalyzerRunner *>(sender())->filePath();
-        appendMessage(tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage)
-                        + QLatin1Char('\n')
-                      , Utils::StdErrFormat);
+        appendMessage(tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage),
+                      Utils::StdErrFormat);
     } else {
         ++m_filesAnalyzed;
         if (!diagnostics.isEmpty())
@@ -680,9 +679,8 @@ void ClangStaticAnalyzerToolRunner::onRunnerFinishedWithFailure(const QString &e
     ++m_filesNotAnalyzed;
     m_success = false;
     const QString filePath = qobject_cast<ClangStaticAnalyzerRunner *>(sender())->filePath();
-    appendMessage(tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage)
-                  + QLatin1Char('\n')
-                  , Utils::StdErrFormat);
+    appendMessage(tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage),
+                  Utils::StdErrFormat);
     appendMessage(errorDetails, Utils::StdErrFormat);
     TaskHub::addTask(Task::Warning, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
     TaskHub::addTask(Task::Warning, errorDetails, Debugger::Constants::ANALYZERTASK_ID);
@@ -712,9 +710,7 @@ void ClangStaticAnalyzerToolRunner::finalize()
 {
     appendMessage(tr("Clang Static Analyzer finished: "
                      "Processed %1 files successfully, %2 failed.")
-                        .arg(m_filesAnalyzed)
-                        .arg(m_filesNotAnalyzed)
-                     + QLatin1Char('\n'),
+                        .arg(m_filesAnalyzed).arg(m_filesNotAnalyzed),
                   Utils::NormalMessageFormat);
 
     if (m_filesNotAnalyzed != 0) {
