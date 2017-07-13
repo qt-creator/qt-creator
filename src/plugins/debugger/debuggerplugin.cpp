@@ -2961,7 +2961,7 @@ void DebuggerPluginPrivate::runControlStarted(DebuggerRunTool *runTool)
 {
     activateDebugMode();
     const QString message = tr("Starting debugger \"%1\" for ABI \"%2\"...")
-            .arg(runTool->objectName())
+            .arg(runTool->engine()->objectName())
             .arg(runTool->runParameters().toolChainAbi.toString());
     showStatusMessage(message);
     showMessage(formatStartParameters(runTool->runParameters()), LogDebug);
