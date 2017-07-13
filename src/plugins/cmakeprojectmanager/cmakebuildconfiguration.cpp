@@ -144,12 +144,15 @@ void CMakeBuildConfiguration::ctor()
 
     connect(m_buildDirManager.get(), &BuildDirManager::dataAvailable,
             this, [this, project]() {
-        project->updateProjectData(this);
         clearError();
+        project->updateProjectData(this);
         emit dataAvailable();
     });
     connect(m_buildDirManager.get(), &BuildDirManager::errorOccured,
-            this, &CMakeBuildConfiguration::setError);
+            this, [this, project](const QString &msg) {
+        setError(msg);
+        project->handleParsingError(this);
+    });
     connect(m_buildDirManager.get(), &BuildDirManager::configurationStarted,
             this, [this, project]() {
         project->handleParsingStarted();

@@ -507,6 +507,7 @@ private:
 
 void PythonProject::refresh()
 {
+    emitParsingStarted();
     parseProject();
 
     QDir baseDir(projectDirectory().toString());
@@ -517,7 +518,7 @@ void PythonProject::refresh()
     }
     setRootProjectNode(newRoot);
 
-    emit parsingFinished();
+    emitParsingFinished(true);
 }
 
 /**

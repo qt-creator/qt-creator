@@ -170,6 +170,7 @@ void QmlProject::parseProject(RefreshOptions options)
 
 void QmlProject::refresh(RefreshOptions options)
 {
+    emitParsingStarted();
     parseProject(options);
 
     if (options & Files)
@@ -187,7 +188,7 @@ void QmlProject::refresh(RefreshOptions options)
 
     modelManager->updateProjectInfo(projectInfo, this);
 
-    emit parsingFinished();
+    emitParsingFinished(true);
 }
 
 QString QmlProject::mainFile() const

@@ -286,7 +286,7 @@ QbsInstallStepConfigWidget::QbsInstallStepConfigWidget(QbsInstallStep *step) :
     connect(m_ui->keepGoingCheckBox, &QAbstractButton::toggled,
             this, &QbsInstallStepConfigWidget::changeKeepGoing);
 
-    connect(project, &QbsProject::projectParsingDone,
+    connect(project, &ProjectExplorer::Project::parsingFinished,
             this, &QbsInstallStepConfigWidget::updateState);
 
     updateState();

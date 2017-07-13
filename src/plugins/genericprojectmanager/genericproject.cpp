@@ -336,6 +336,7 @@ void GenericProject::parseProject(RefreshOptions options)
 
 void GenericProject::refresh(RefreshOptions options)
 {
+    emitParsingStarted();
     parseProject(options);
 
     if (options & Files) {
@@ -362,7 +363,7 @@ void GenericProject::refresh(RefreshOptions options)
     }
 
     refreshCppCodeModel();
-    emit parsingFinished();
+    emitParsingFinished(true);
 }
 
 /**

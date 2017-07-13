@@ -108,13 +108,8 @@ public:
                                       const qbs::ProductData &product);
     static QString uniqueProductName(const qbs::ProductData &product);
 
-public:
     void invalidate();
     void delayParsing();
-
-signals:
-    void projectParsingStarted();
-    void projectParsingDone(bool);
 
 private:
     void handleQbsParsingDone(bool success);

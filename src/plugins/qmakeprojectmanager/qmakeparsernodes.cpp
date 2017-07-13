@@ -1473,7 +1473,7 @@ void QmakeProFile::asyncEvaluate(QFutureInterface<QmakeEvalResult *> &fi, QmakeE
 void QmakeProFile::applyAsyncEvaluate()
 {
     applyEvaluate(m_parseFutureWatcher.result());
-    m_project->decrementPendingEvaluateFutures();
+    m_project->decrementPendingEvaluateFutures(validParse());
 }
 
 bool sortByParserNodes(Node *a, Node *b)

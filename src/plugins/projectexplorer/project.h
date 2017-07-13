@@ -163,6 +163,9 @@ public:
     void setup(QList<const BuildInfo *> infoList);
     Utils::MacroExpander *macroExpander() const;
 
+    bool isParsing() const;
+    bool hasParsingData() const;
+
 signals:
     void displayNameChanged();
     void fileListChanged();
@@ -185,11 +188,18 @@ signals:
     void projectContextUpdated();
     void projectLanguagesUpdated();
 
-    void parsingFinished();
+    void parsingStarted();
+    void parsingFinished(bool success);
 
 protected:
     virtual RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
     virtual bool setupTarget(Target *t);
+
+    // Helper methods to manage parsing state and signalling
+    // Call in GUI thread before the actual parsing starts
+    void emitParsingStarted();
+    // Call in GUI thread right after the actual parsing is done
+    void emitParsingFinished(bool success);
 
     void setDisplayName(const QString &name);
     void setRequiredKitPredicate(const Kit::Predicate &predicate);

@@ -295,9 +295,9 @@ void QbsProjectManagerPlugin::projectWasAdded(Project *project)
     if (!qbsProject)
         return;
 
-    connect(qbsProject, &QbsProject::projectParsingStarted,
+    connect(qbsProject, &Project::parsingStarted,
             this, &QbsProjectManagerPlugin::projectChanged);
-    connect(qbsProject, &QbsProject::projectParsingDone,
+    connect(qbsProject, &Project::parsingFinished,
             this, &QbsProjectManagerPlugin::projectChanged);
 }
 

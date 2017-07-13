@@ -119,6 +119,7 @@ Project::RestoreResult AutotoolsProject::fromMap(const QVariantMap &map, QString
 
 void AutotoolsProject::loadProjectTree()
 {
+    emitParsingStarted();
     if (m_makefileParserThread) {
         // The thread is still busy parsing a previus configuration.
         // Wait until the thread has been finished and delete it.
@@ -218,7 +219,7 @@ void AutotoolsProject::makefileParsingFinished()
     m_makefileParserThread->deleteLater();
     m_makefileParserThread = nullptr;
 
-    emit parsingFinished();
+    emitParsingFinished(true);
 }
 
 void AutotoolsProject::onFileChanged(const QString &file)

@@ -188,7 +188,18 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     emit bc->emitBuildTypeChanged();
 
-    emit parsingFinished();
+    emitParsingFinished(true);
+}
+
+void CMakeProject::handleParsingError(CMakeBuildConfiguration *bc)
+{
+    QTC_ASSERT(bc, return);
+
+    Target *t = activeTarget();
+    if (!t || t->activeBuildConfiguration() != bc)
+        return;
+
+    emitParsingFinished(false);
 }
 
 void CMakeProject::updateQmlJSCodeModel()
@@ -369,7 +380,7 @@ void CMakeProject::handleActiveBuildConfigurationChanged()
 void CMakeProject::handleParsingStarted()
 {
     if (activeTarget() && activeTarget()->activeBuildConfiguration() == sender())
-        emit parsingStarted();
+        emitParsingStarted();
 }
 
 void CMakeProject::handleTreeScanningFinished()

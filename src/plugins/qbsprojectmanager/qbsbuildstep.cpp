@@ -346,7 +346,8 @@ void QbsBuildStep::buildingDone(bool success)
 
 void QbsBuildStep::reparsingDone(bool success)
 {
-    disconnect(qbsProject(), &QbsProject::projectParsingDone, this, &QbsBuildStep::reparsingDone);
+    disconnect(qbsProject(), &ProjectExplorer::Project::parsingFinished,
+               this, &QbsBuildStep::reparsingDone);
     m_parsingProject = false;
     if (m_job) { // This was a scheduled reparsing after building.
         finish();
@@ -485,7 +486,8 @@ void QbsBuildStep::setCleanInstallRoot(bool clean)
 void QbsBuildStep::parseProject()
 {
     m_parsingProject = true;
-    connect(qbsProject(), &QbsProject::projectParsingDone, this, &QbsBuildStep::reparsingDone);
+    connect(qbsProject(), &ProjectExplorer::Project::parsingFinished,
+            this, &QbsBuildStep::reparsingDone);
     qbsProject()->parseCurrentBuildConfiguration();
 }
 

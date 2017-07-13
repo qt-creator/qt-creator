@@ -69,8 +69,8 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target) :
     m_isParsing(true),
     m_parsingError(false)
 {
-    connect(project(), &QbsProject::projectParsingStarted, this, &BuildConfiguration::enabledChanged);
-    connect(project(), &QbsProject::projectParsingDone, this, &BuildConfiguration::enabledChanged);
+    connect(project(), &Project::parsingStarted, this, &BuildConfiguration::enabledChanged);
+    connect(project(), &Project::parsingFinished, this, &BuildConfiguration::enabledChanged);
 
     BuildStepList *bsl = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     connect(bsl, &BuildStepList::stepInserted, this, &QbsBuildConfiguration::buildStepInserted);

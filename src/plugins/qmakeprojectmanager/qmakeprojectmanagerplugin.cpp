@@ -279,8 +279,8 @@ void QmakeProjectManagerPlugin::projectChanged()
 
     if (m_previousStartupProject) {
         connect(m_previousStartupProject, &Project::activeTargetChanged,
-                           this, &QmakeProjectManagerPlugin::activeTargetChanged);
-        connect(m_previousStartupProject, &QmakeProject::parsingFinished,
+                this, &QmakeProjectManagerPlugin::activeTargetChanged);
+        connect(m_previousStartupProject, &Project::parsingFinished,
                 this, &QmakeProjectManagerPlugin::updateActions);
     }
 

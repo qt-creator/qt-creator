@@ -119,7 +119,7 @@ QbsRunConfiguration::QbsRunConfiguration(Target *parent, Core::Id id) :
             }
     );
     addExtraAspect(envAspect);
-    connect(static_cast<QbsProject *>(parent->project()), &QbsProject::parsingFinished, this,
+    connect(static_cast<QbsProject *>(parent->project()), &Project::parsingFinished, this,
             [envAspect]() { envAspect->buildEnvironmentHasChanged(); });
     addExtraAspect(new ArgumentsAspect(this, QStringLiteral("Qbs.RunConfiguration.CommandLineArguments")));
     addExtraAspect(new WorkingDirectoryAspect(this, QStringLiteral("Qbs.RunConfiguration.WorkingDirectory")));
@@ -162,8 +162,8 @@ void QbsRunConfiguration::ctor()
     setDefaultDisplayName(defaultDisplayName());
 
     QbsProject *project = static_cast<QbsProject *>(target()->project());
-    connect(project, &QbsProject::projectParsingStarted, this, &RunConfiguration::enabledChanged);
-    connect(project, &QbsProject::projectParsingDone, this, [this](bool success) {
+    connect(project, &Project::parsingStarted, this, &RunConfiguration::enabledChanged);
+    connect(project, &Project::parsingFinished, this, [this](bool success) {
         auto terminalAspect = extraAspect<TerminalAspect>();
         if (success && !terminalAspect->isUserSet())
             terminalAspect->setUseTerminal(isConsoleApplication());

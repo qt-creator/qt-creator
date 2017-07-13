@@ -204,7 +204,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     setError(bc->error());
     setWarning(bc->warning());
 
-    connect(project, &CMakeProject::parsingStarted, this, [this]() {
+    connect(project, &ProjectExplorer::Project::parsingStarted, this, [this]() {
         updateButtonState();
         m_showProgressTimer.start();
     });

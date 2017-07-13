@@ -502,8 +502,7 @@ void QbsProject::handleQbsParsingDone(bool success)
 
     if (dataChanged)
         updateAfterParse();
-    emit projectParsingDone(success);
-    emit parsingFinished();
+    emitParsingFinished(success);
 }
 
 void QbsProject::rebuildProjectTree()
@@ -529,7 +528,7 @@ void QbsProject::handleRuleExecutionDone()
     QTC_ASSERT(m_qbsProject.isValid(), return);
     m_projectData = m_qbsProject.projectData();
     updateAfterParse();
-    emit projectParsingDone(true);
+    // finishParsing(true);
 }
 
 void QbsProject::targetWasAdded(Target *t)
@@ -699,7 +698,7 @@ void QbsProject::parse(const QVariantMap &config, const Environment &env, const 
 
     QbsManager::instance()->updateProfileIfNecessary(activeTarget()->kit());
     m_qbsProjectParser->parse(config, env, dir, configName);
-    emit projectParsingStarted();
+    emitParsingStarted();
 }
 
 void QbsProject::prepareForParsing()

@@ -127,6 +127,7 @@ void NimProject::collectProjectFiles()
 
 void NimProject::updateProject()
 {
+    emitParsingStarted();
     const QStringList oldFiles = m_files;
     m_files.clear();
 
@@ -152,7 +153,7 @@ void NimProject::updateProject()
     newRoot->setDisplayName(displayName());
     newRoot->addNestedNodes(fileNodes);
     setRootProjectNode(newRoot);
-    emit parsingFinished();
+    emitParsingFinished(true);
 }
 
 bool NimProject::supportsKit(Kit *k, QString *errorMessage) const

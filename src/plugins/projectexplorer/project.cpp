@@ -136,6 +136,8 @@ public:
     ~ProjectPrivate();
 
     Core::Id m_id;
+    bool m_isParsing = false;
+    bool m_hasParsingData = false;
     std::unique_ptr<Core::IDocument> m_document;
     ProjectNode *m_rootProjectNode = nullptr;
     std::unique_ptr<ContainerNode> m_containerNode;
@@ -462,6 +464,24 @@ bool Project::setupTarget(Target *t)
     t->updateDefaultDeployConfigurations();
     t->updateDefaultRunConfigurations();
     return true;
+}
+
+void Project::emitParsingStarted()
+{
+    QTC_ASSERT(!d->m_isParsing, return);
+
+    d->m_isParsing = true;
+    d->m_hasParsingData = false;
+    emit parsingStarted();
+}
+
+void Project::emitParsingFinished(bool success)
+{
+    QTC_ASSERT(d->m_isParsing, return);
+
+    d->m_isParsing = false;
+    d->m_hasParsingData = success;
+    emit parsingFinished(success);
 }
 
 void Project::setDisplayName(const QString &name)
@@ -811,6 +831,16 @@ void Project::setup(QList<const BuildInfo *> infoList)
 Utils::MacroExpander *Project::macroExpander() const
 {
     return &d->m_macroExpander;
+}
+
+bool Project::isParsing() const
+{
+    return d->m_isParsing;
+}
+
+bool Project::hasParsingData() const
+{
+    return d->m_hasParsingData;
 }
 
 ProjectImporter *Project::projectImporter() const
