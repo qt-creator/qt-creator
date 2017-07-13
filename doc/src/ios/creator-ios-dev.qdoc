@@ -128,6 +128,26 @@
     If the current device state is \uicontrol Connected, (the traffic light icon is
     orange), you need to configure the device using Xcode.
 
+    \section1 Specifying Supported iOS Versions
+
+    Qt 5 applications can be built for the latest iOS version and deployed to
+    previous versions. For the most part, this works automatically. However,
+    you must take care when you manually set your own target version. If you set
+    it to a value higher than what Qt requires and supply your own \c Info.plist
+    file, you must add an \c LSMinimumSystemVersion entry to the \c Info.plist
+    that matches the value of \c QMAKE_IOS_DEPLOYMENT_TARGET (when using qmake)
+    or \c cpp.minimumIosVersion (when using Qbs), because iOS (and the
+    App Store) will use the \c LSMinimumSystemVersion value as the authoritative
+    one.
+
+    If you specify a deployment target value lower than what Qt requires, your
+    application will almost certainly crash somewhere in the Qt libraries when
+    run on an older version than Qt supports. Therefore, make sure that the
+    actual build system code reflects the minimum iOS version that is actually
+    required.
+
+    For more information, see \l{Expressing Supported iOS Versions}.
+
     \section1 Testing on iOS Simulator
 
     If you do not have an iOS device or you do not want to create an account,
