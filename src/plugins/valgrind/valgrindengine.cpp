@@ -106,7 +106,6 @@ void ValgrindToolRunner::stop()
 {
     m_isStopping = true;
     m_runner.stop();
-    reportStopped(); // FIXME: Restrict to non-running scenarios?
 }
 
 QString ValgrindToolRunner::executable() const
