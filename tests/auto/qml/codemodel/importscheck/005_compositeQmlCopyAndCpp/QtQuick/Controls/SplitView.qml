@@ -157,7 +157,7 @@ Item {
     }
 
     /*!
-        This propery is \c true when the user is resizing any of the items by
+        This property is \c true when the user is resizing any of the items by
         dragging on the splitter handles.
     */
     property bool resizing: false
