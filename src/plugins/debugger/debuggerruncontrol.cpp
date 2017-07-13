@@ -281,11 +281,12 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
     QTC_ASSERT(kit, return false);
 
     // Extract as much as possible from available RunConfiguration.
-    if (runConfig->runnable().is<StandardRunnable>()) {
+    const Runnable runnable = runConfig->runnable();
+    if (runnable.is<StandardRunnable>()) {
         // FIXME: Needed for core dump which stores the executable in inferior, but not in runConfig
         // executable.
         const QString prevExecutable = rp.inferior.executable;
-        rp.inferior = runConfig->runnable().as<StandardRunnable>();
+        rp.inferior = runnable.as<StandardRunnable>();
         if (rp.inferior.executable.isEmpty())
             rp.inferior.executable = prevExecutable;
         rp.useTerminal = rp.inferior.runMode == ApplicationLauncher::Console;
