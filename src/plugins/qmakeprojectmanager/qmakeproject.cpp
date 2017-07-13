@@ -493,7 +493,7 @@ void QmakeProject::incrementPendingEvaluateFutures()
 {
     ++m_pendingEvaluateFuturesCount;
     m_asyncUpdateFutureInterface->setProgressRange(m_asyncUpdateFutureInterface->progressMinimum(),
-                                                  m_asyncUpdateFutureInterface->progressMaximum() + 1);
+                                                   m_asyncUpdateFutureInterface->progressMaximum() + 1);
 }
 
 void QmakeProject::decrementPendingEvaluateFutures()

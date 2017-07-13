@@ -1184,9 +1184,9 @@ void QmakeProFile::asyncUpdate()
     m_parseFutureWatcher.waitForFinished();
     QmakeEvalInput input = evalInput();
     QFuture<QmakeEvalResult *> future = Utils::runAsync(ProjectExplorerPlugin::sharedThreadPool(),
-                                                   QThread::LowestPriority,
-                                                   &QmakeProFile::asyncEvaluate,
-                                                   this, input);
+                                                        QThread::LowestPriority,
+                                                        &QmakeProFile::asyncEvaluate,
+                                                        this, input);
     m_parseFutureWatcher.setFuture(future);
 }
 
