@@ -40196,7 +40196,7 @@ Applied to text, if no other rules matching.</source>
     </message>
     <message>
         <source>Doxygen Comment</source>
-        <translation>Коментарий Doxygen</translation>
+        <translation>Комментарий Doxygen</translation>
     </message>
     <message>
         <source>Doxygen comments.</source>
