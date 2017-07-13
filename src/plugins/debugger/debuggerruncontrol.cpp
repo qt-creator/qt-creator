@@ -477,7 +477,7 @@ static bool cppDebugging(const RunControl *runControl)
 static bool qmlDebugging(const RunControl *runControl)
 {
     auto aspect = debuggerAspect(runControl);
-    return aspect ? aspect->useCppDebugger() : false; // For cases like valgrind-with-gdb.
+    return aspect ? aspect->useQmlDebugger() : false; // For cases like valgrind-with-gdb.
 }
 
 /// DebuggerRunTool
