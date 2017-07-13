@@ -2943,8 +2943,8 @@ static QString formatStartParameters(DebuggerRunParameters &sp)
     if (sp.attachPID.isValid())
         str << "PID: " << sp.attachPID.pid() << ' ' << sp.crashParameter << '\n';
     if (!sp.projectSourceDirectory.isEmpty()) {
-        str << "Project: " << QDir::toNativeSeparators(sp.projectSourceDirectory);
-        str << "Addtional Search Directories:"
+        str << "Project: " << QDir::toNativeSeparators(sp.projectSourceDirectory) << '\n';
+        str << "Additional Search Directories:"
             << sp.additionalSearchDirectories.join(QLatin1Char(' ')) << '\n';
     }
     if (!sp.remoteChannel.isEmpty())
