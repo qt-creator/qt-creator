@@ -74,8 +74,8 @@ signals:
     void processExited(int exitCode, QProcess::ExitStatus);
     void error(QProcess::ProcessError error);
 
-    void remoteStdout(const QByteArray &output);
-    void remoteStderr(const QByteArray &output);
+    void remoteStdout(const QString &output);
+    void remoteStderr(const QString &output);
     void reportProgress(const QString &progressOutput);
     void reportError(const QString &errorOutput);
     void remoteProcessStarted();

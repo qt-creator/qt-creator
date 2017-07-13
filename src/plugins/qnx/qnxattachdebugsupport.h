@@ -59,7 +59,7 @@ private slots:
     void handleDebuggerStateChanged(Debugger::DebuggerState state);
     void handleError(const QString &message);
     void handleProgressReport(const QString &message);
-    void handleRemoteOutput(const QByteArray &output);
+    void handleRemoteOutput(const QString &output);
 
 private:
     void stopPDebug();
