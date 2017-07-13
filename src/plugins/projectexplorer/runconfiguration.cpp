@@ -1348,18 +1348,6 @@ void RunControlPrivate::debugMessage(const QString &msg)
     qCDebug(statesLog()) << msg;
 }
 
-/*!
-    Brings the application determined by this RunControl's \c applicationProcessHandle
-    to the foreground.
-
-    The default implementation raises the application on Mac, and does
-    nothing elsewhere.
-*/
-void RunControl::bringApplicationToForeground()
-{
-    d->applicationProcessHandle.activate();
-}
-
 void RunControl::appendMessage(const QString &msg, Utils::OutputFormat format)
 {
     emit appendMessageRequested(this, msg, format);
@@ -1478,8 +1466,9 @@ void SimpleTargetRunner::stop()
 void SimpleTargetRunner::onProcessStarted()
 {
     // Console processes only know their pid after being started
-    runControl()->setApplicationProcessHandle(m_launcher.applicationPID());
-    runControl()->bringApplicationToForeground();
+    ProcessHandle pid = m_launcher.applicationPID();
+    runControl()->setApplicationProcessHandle(pid);
+    pid.activate();
     reportStarted();
 }
 

@@ -435,7 +435,6 @@ public:
     void setRunnable(const Runnable &runnable);
 
     virtual void appendMessage(const QString &msg, Utils::OutputFormat format);
-    virtual void bringApplicationToForeground();
 
     static bool showPromptToStopDialog(const QString &title, const QString &text,
                                        const QString &stopButtonText = QString(),

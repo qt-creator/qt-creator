@@ -377,7 +377,7 @@ void QmlEngine::handleLauncherStarted()
 {
     // FIXME: The QmlEngine never calls notifyInferiorPid() triggering the
     // raising, so do it here manually for now.
-    runControl()->bringApplicationToForeground();
+    runControl()->applicationProcessHandle().activate();
     d->noDebugOutputTimer.start();
 }
 
