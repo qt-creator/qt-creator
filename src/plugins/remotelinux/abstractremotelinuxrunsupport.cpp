@@ -90,10 +90,10 @@ void FifoGatherer::start()
     m_fifoCreator.start(r, device());
 }
 
-void FifoGatherer::onFinished()
+void FifoGatherer::stop()
 {
     m_fifoCreator.stop();
+    reportStopped();
 }
-
 
 } // namespace RemoteLinux
