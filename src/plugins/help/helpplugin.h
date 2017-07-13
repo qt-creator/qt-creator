@@ -98,8 +98,6 @@ private:
     void highlightSearchTermsInContextHelp();
     void handleHelpRequest(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
 
-    void slotOpenSupportPage();
-    void slotReportBug();
     void slotSystemInformation();
 
     void resetFilter();

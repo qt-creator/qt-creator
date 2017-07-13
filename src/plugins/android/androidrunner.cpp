@@ -280,9 +280,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunControl *runControl, const AndroidRu
     auto runConfig = runControl->runConfiguration();
     auto aspect = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
     Core::Id runMode = runControl->runMode();
-    const bool debuggingMode =
-            (runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE
-             || runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN);
+    const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
     m_useCppDebugger = debuggingMode && aspect->useCppDebugger();
     if (debuggingMode && aspect->useQmlDebugger())
         m_qmlDebugServices = QmlDebug::QmlDebuggerServices;

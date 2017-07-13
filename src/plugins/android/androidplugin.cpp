@@ -74,7 +74,6 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
 
     RunControl::registerWorker<AndroidRunConfiguration, AndroidRunSupport>(NORMAL_RUN_MODE);
     RunControl::registerWorker<AndroidRunConfiguration, AndroidDebugSupport>(DEBUG_RUN_MODE);
-    RunControl::registerWorker<AndroidRunConfiguration, AndroidDebugSupport>(DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN);
     RunControl::registerWorker<AndroidRunConfiguration, AndroidQmlProfilerSupport>(QML_PROFILER_RUN_MODE);
 
     new AndroidConfigurations(this);

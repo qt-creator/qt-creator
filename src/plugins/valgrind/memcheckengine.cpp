@@ -174,7 +174,7 @@ void MemcheckToolRunner::startDebugger(qint64 valgrindPid)
     auto gdbWorker = new Debugger::DebuggerRunTool(runControl());
     gdbWorker->setStartParameters(sp);
     gdbWorker->initiateStart();
-    connect(runControl(), &RunControl::finished, gdbWorker, &RunControl::deleteLater);
+    connect(runControl(), &RunControl::stopped, gdbWorker, &RunControl::deleteLater);
 }
 
 void MemcheckToolRunner::appendLog(const QByteArray &data)

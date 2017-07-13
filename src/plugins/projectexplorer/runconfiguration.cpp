@@ -1216,7 +1216,7 @@ void RunControlPrivate::setState(RunControlState newState)
         foreach (auto worker, m_workers)
             if (worker)
                 worker->onFinished();
-        emit q->finished();
+        emit q->stopped();
         break;
     default:
         break;
@@ -1523,11 +1523,6 @@ void RunWorker::setStartTimeout(int ms)
 void RunWorker::setStopTimeout(int ms)
 {
     d->stopWatchdogInterval = ms;
-}
-
-void RunWorker::reportData(int channel, const QVariant &data)
-{
-    emit dataReported(channel, data);
 }
 
 void RunWorker::recordData(const QString &channel, const QVariant &data)

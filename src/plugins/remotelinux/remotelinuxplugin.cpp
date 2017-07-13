@@ -62,8 +62,6 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
 
     RunControl::registerWorker<SimpleTargetRunner>(NORMAL_RUN_MODE, constraint);
     RunControl::registerWorker<LinuxDeviceDebugSupport>(DEBUG_RUN_MODE, constraint);
-    RunControl::registerWorker<LinuxDeviceDebugSupport>(DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN,
-        constraint);
     RunControl::registerWorker<RemoteLinuxQmlProfilerSupport>(QML_PROFILER_RUN_MODE, constraint);
     //RunControl::registerWorker<RemoteLinuxPerfSupport>(PERFPROFILER_RUN_MODE, constraint);
 

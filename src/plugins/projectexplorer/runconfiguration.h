@@ -340,8 +340,6 @@ public:
     void setStartTimeout(int ms);
     void setStopTimeout(int ms);
 
-    void reportData(int channel, const QVariant &data);
-
     void recordData(const QString &channel, const QVariant &data);
     QVariant recordedData(const QString &channel) const;
 
@@ -366,7 +364,6 @@ public:
     static QString userMessageForProcessError(QProcess::ProcessError, const QString &programName);
 
 signals:
-    void dataReported(int channel, const QVariant &data);
     void started();
     void stopped();
 
@@ -481,7 +478,7 @@ signals:
                                 const QString &msg, Utils::OutputFormat format);
     void aboutToStart();
     void started();
-    void finished();
+    void stopped();
     void applicationProcessHandleChanged(QPrivateSignal); // Use setApplicationProcessHandle
 
 private:

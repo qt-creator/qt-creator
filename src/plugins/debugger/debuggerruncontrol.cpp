@@ -73,9 +73,6 @@ enum { debug = 0 };
 namespace Debugger {
 namespace Internal {
 
-const auto DebugRunMode = ProjectExplorer::Constants::DEBUG_RUN_MODE;
-const auto DebugRunModeWithBreakOnMain = ProjectExplorer::Constants::DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN;
-
 DebuggerEngine *createCdbEngine(QStringList *error, DebuggerStartMode sm);
 DebuggerEngine *createGdbEngine(bool useTerminal, DebuggerStartMode sm);
 DebuggerEngine *createPdbEngine();
@@ -85,6 +82,13 @@ DebuggerEngine *createLldbEngine();
 
 } // namespace Internal
 
+
+static bool breakOnMainNextTime = false;
+
+void DebuggerRunTool::setBreakOnMainNextTime()
+{
+    breakOnMainNextTime = true;
+}
 
 static QLatin1String engineTypeName(DebuggerEngineType et)
 {
@@ -272,7 +276,6 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
     RunConfiguration *runConfig = runControl->runConfiguration();
     if (!runConfig)
         return false;
-    Core::Id runMode = runControl->runMode();
 
     const Kit *kit = runConfig->target()->kit();
     QTC_ASSERT(kit, return false);
@@ -449,8 +452,10 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
     if (rp.startMode == NoStartMode)
         rp.startMode = StartInternal;
 
-    if (runMode == DebugRunModeWithBreakOnMain)
+    if (breakOnMainNextTime) {
         rp.breakOnMain = true;
+        breakOnMainNextTime = false;
+    }
 
     return true;
 }
@@ -634,7 +639,7 @@ RunControl *createAndScheduleRun(const DebuggerRunParameters &rp, Kit *kit)
 {
     RunConfiguration *runConfig = dummyRunConfigForKit(kit);
     QTC_ASSERT(runConfig, return nullptr);
-    auto runControl = new RunControl(runConfig, DebugRunMode);
+    auto runControl = new RunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
     (void) new DebuggerRunTool(runControl, rp);
     ProjectExplorerPlugin::startRunControl(runControl);
     return runControl;

@@ -28,7 +28,6 @@ SOURCES += \
     qmlprofilerrangemodel.cpp \
     qmlprofilerrunconfigurationaspect.cpp \
     qmlprofilerruncontrol.cpp \
-    qmlprofilerruncontrolfactory.cpp \
     qmlprofilersettings.cpp \
     qmlprofilerstatemanager.cpp \
     qmlprofilerstatewidget.cpp \
@@ -72,7 +71,6 @@ HEADERS += \
     qmlprofilerrangemodel.h \
     qmlprofilerrunconfigurationaspect.h \
     qmlprofilerruncontrol.h \
-    qmlprofilerruncontrolfactory.h \
     qmlprofilersettings.h \
     qmlprofilerstatemanager.h \
     qmlprofilerstatewidget.h \

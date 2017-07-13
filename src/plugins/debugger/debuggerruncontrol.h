@@ -79,6 +79,8 @@ public:
 
     void appendSolibSearchPath(const QString &str);
 
+    static void setBreakOnMainNextTime();
+
 signals:
     void aboutToNotifyInferiorSetupOk();
 

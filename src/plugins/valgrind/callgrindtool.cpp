@@ -741,7 +741,7 @@ ValgrindToolRunner *CallgrindTool::createRunTool(RunControl *runControl)
     auto toolRunner = new CallgrindToolRunner(runControl);
 
     connect(toolRunner, &CallgrindToolRunner::parserDataReady, this, &CallgrindTool::takeParserDataFromRunControl);
-    connect(runControl, &RunControl::finished, this, &CallgrindTool::engineFinished);
+    connect(runControl, &RunControl::stopped, this, &CallgrindTool::engineFinished);
 
     connect(this, &CallgrindTool::dumpRequested, toolRunner, &CallgrindToolRunner::dump);
     connect(this, &CallgrindTool::resetRequested, toolRunner, &CallgrindToolRunner::reset);

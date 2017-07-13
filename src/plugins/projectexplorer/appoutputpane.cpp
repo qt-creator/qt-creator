@@ -406,7 +406,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
             this, &AppOutputPane::slotRunControlChanged);
     connect(rc, &RunControl::started,
             this, &AppOutputPane::slotRunControlChanged);
-    connect(rc, &RunControl::finished,
+    connect(rc, &RunControl::stopped,
             this, &AppOutputPane::slotRunControlFinished);
     connect(rc, &RunControl::applicationProcessHandleChanged,
             this, &AppOutputPane::enableDefaultButtons);

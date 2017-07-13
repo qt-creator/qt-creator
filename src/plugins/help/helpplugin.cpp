@@ -200,12 +200,16 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     action = new QAction(tr("Technical Support"), this);
     cmd = ActionManager::registerAction(action, "Help.TechSupport");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
-    connect(action, &QAction::triggered, this, &HelpPlugin::slotOpenSupportPage);
+    connect(action, &QAction::triggered, this, [this] {
+        showLinkInHelpMode(QUrl("qthelp://org.qt-project.qtcreator/doc/technical-support.html"));
+    });
 
     action = new QAction(tr("Report Bug..."), this);
     cmd = ActionManager::registerAction(action, "Help.ReportBug");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
-    connect(action, &QAction::triggered, this, &HelpPlugin::slotReportBug);
+    connect(action, &QAction::triggered, this, [] {
+        QDesktopServices::openUrl(QUrl("https://bugreports.qt.io"));
+    });
 
     action = new QAction(tr("System Information..."), this);
     cmd = ActionManager::registerAction(action, "Help.SystemInformation");
@@ -636,16 +640,6 @@ void HelpPlugin::handleHelpRequest(const QUrl &url, HelpManager::HelpViewerLocat
     QTC_ASSERT(viewer, return);
     viewer->setSource(url);
     ICore::raiseWindow(viewer);
-}
-
-void HelpPlugin::slotOpenSupportPage()
-{
-    showLinkInHelpMode(QUrl("qthelp://org.qt-project.qtcreator/doc/technical-support.html"));
-}
-
-void HelpPlugin::slotReportBug()
-{
-    QDesktopServices::openUrl(QUrl("https://bugreports.qt.io"));
 }
 
 class DialogClosingOnEscape : public QDialog
