@@ -533,10 +533,5 @@ void IosDebugSupport::start()
     DebuggerRunTool::start();
 }
 
-void IosDebugSupport::onFinished()
-{
-    abortDebugger();
-}
-
 } // namespace Internal
 } // namespace Ios
