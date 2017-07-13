@@ -79,6 +79,7 @@ ClangStaticAnalyzerToolRunner::ClangStaticAnalyzerToolRunner(RunControl *runCont
 
     RunConfiguration *runConfiguration = runControl->runConfiguration();
     auto tool = ClangStaticAnalyzerTool::instance();
+    tool->stopAction()->disconnect();
     connect(tool->stopAction(), &QAction::triggered, runControl, &RunControl::initiateStop);
 
     ProjectInfo projectInfoBeforeBuild = tool->projectInfoBeforeBuild();
@@ -495,6 +496,10 @@ void ClangStaticAnalyzerToolRunner::start()
     m_success = false;
     ClangStaticAnalyzerTool::instance()->onEngineIsStarting();
 
+    connect(runControl(), &RunControl::finished, this, [this] {
+            ClangStaticAnalyzerTool::instance()->onEngineFinished(m_success);
+    });
+
     QTC_ASSERT(m_projectInfo.isValid(), reportFailure(); return);
     const Utils::FileName projectFile = m_projectInfo.project()->projectFilePath();
     appendMessage(tr("Running Clang Static Analyzer on %1").arg(projectFile.toUserOutput())
@@ -602,12 +607,8 @@ void ClangStaticAnalyzerToolRunner::stop()
     appendMessage(tr("Clang Static Analyzer stopped by user.") + QLatin1Char('\n'),
                   Utils::NormalMessageFormat);
     m_progress.reportFinished();
-    reportStopped();
-}
-
-void ClangStaticAnalyzerToolRunner::onFinished()
-{
     ClangStaticAnalyzerTool::instance()->onEngineFinished(m_success);
+    reportStopped();
 }
 
 void ClangStaticAnalyzerToolRunner::analyzeNextFile()
@@ -699,7 +700,7 @@ void ClangStaticAnalyzerToolRunner::handleFinished()
 void ClangStaticAnalyzerToolRunner::onProgressCanceled()
 {
     m_progress.reportCanceled();
-    stop();
+    runControl()->initiateStop();
 }
 
 void ClangStaticAnalyzerToolRunner::updateProgressValue()
@@ -723,7 +724,7 @@ void ClangStaticAnalyzerToolRunner::finalize()
     }
 
     m_progress.reportFinished();
-    reportStopped();
+    runControl()->initiateStop();
 }
 
 } // namespace Internal
