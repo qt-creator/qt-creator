@@ -421,18 +421,6 @@ namespace Internal {
 void addCdbOptionPages(QList<IOptionsPage*> *opts);
 void addGdbOptionPages(QList<IOptionsPage*> *opts);
 
-/// DebuggerRunControlFactory
-
-class DebuggerRunControlFactory : public IRunControlFactory
-{
-public:
-    IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc) override
-    {
-        return new DebuggerRunConfigurationAspect(rc);
-    }
-};
-
-
 static QIcon visibleStartIcon(Id id, bool toolBarStyle)
 {
     if (id == Id(Constants::DEBUG)) {
@@ -1495,7 +1483,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_localsAndExpressionsWindow->setObjectName(QLatin1String(DOCKWIDGET_WATCHERS));
     m_localsAndExpressionsWindow->setWindowTitle(m_localsWindow->windowTitle());
 
-    m_plugin->addAutoReleasedObject(new DebuggerRunControlFactory);
+    RunConfiguration::registerAspect<DebuggerRunConfigurationAspect>();
 
     // The main "Start Debugging" action.
     act = m_startAction = new QAction(this);

@@ -183,13 +183,16 @@ void IRunConfigurationAspect::resetProjectToGlobalSettings()
     for a target, but still be runnable via the output tab.
 */
 
+static std::vector<RunConfiguration::AspectFactory> theAspectFactories;
+
 RunConfiguration::RunConfiguration(Target *target, Core::Id id) :
     ProjectConfiguration(target, id)
 {
     Q_ASSERT(target);
     ctor();
 
-    addExtraAspects();
+    for (const AspectFactory &factory : theAspectFactories)
+        addExtraAspect(factory(this));
 }
 
 RunConfiguration::RunConfiguration(Target *target, RunConfiguration *source) :
@@ -209,10 +212,9 @@ RunConfiguration::~RunConfiguration()
     qDeleteAll(m_aspects);
 }
 
-void RunConfiguration::addExtraAspects()
+void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
 {
-    foreach (IRunControlFactory *factory, ExtensionSystem::PluginManager::getObjects<IRunControlFactory>())
-        addExtraAspect(factory->createRunConfigurationAspect(this));
+    theAspectFactories.push_back(aspectFactory);
 }
 
 void RunConfiguration::addExtraAspect(IRunConfigurationAspect *aspect)
@@ -540,22 +542,6 @@ RunControl *IRunControlFactory::create(RunConfiguration *runConfiguration, Core:
     auto runControl = new RunControl(runConfiguration, runMode);
     bestFactory.producer(runControl);
     return runControl;
-}
-
-/*!
-    Returns an IRunConfigurationAspect to carry options for RunControls this
-    factory can create.
-
-    If no extra options are required, it is allowed to return null like the
-    default implementation does. This function is intended to be called from the
-    RunConfiguration constructor, so passing a RunConfiguration pointer makes
-    no sense because that object is under construction at the time.
-*/
-
-IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
-{
-    Q_UNUSED(rc);
-    return nullptr;
 }
 
 /*!

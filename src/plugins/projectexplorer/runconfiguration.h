@@ -245,6 +245,12 @@ public:
 
     static RunConfiguration *startupRunConfiguration();
 
+    using AspectFactory = std::function<IRunConfigurationAspect *(RunConfiguration *)>;
+    template <class T> static void registerAspect()
+    {
+        addAspectFactory([](RunConfiguration *rc) { return new T(rc); });
+    }
+
 signals:
     void enabledChanged();
     void requestRunActionsUpdate();
@@ -260,7 +266,7 @@ protected:
 private:
     void ctor();
 
-    void addExtraAspects();
+    static void addAspectFactory(const AspectFactory &aspectFactory);
 
     QList<IRunConfigurationAspect *> m_aspects;
 };
@@ -303,8 +309,6 @@ public:
 
     virtual bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const;
     virtual RunControl *create(RunConfiguration *runConfiguration, Core::Id runMode, QString *errorMessage);
-
-    virtual IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc);
 
     int priority() const;
 protected:
