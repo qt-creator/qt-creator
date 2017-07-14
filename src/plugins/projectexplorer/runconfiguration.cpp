@@ -522,14 +522,24 @@ bool IRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id run
 
 RunControl *IRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id runMode, QString *)
 {
+    WorkerFactories candidates;
     for (const RunControl::WorkerFactory &factory : theWorkerFactories()) {
-        if (factory.canRun(runConfiguration, runMode)) {
-            auto runControl = new RunControl(runConfiguration, runMode);
-            factory.producer(runControl);
-            return runControl;
-        }
-    };
-    return nullptr;
+        if (factory.canRun(runConfiguration, runMode))
+            candidates.push_back(factory);
+    }
+
+    if (candidates.empty())
+        return nullptr;
+
+    RunControl::WorkerFactory bestFactory = *candidates.begin();
+    for (const RunControl::WorkerFactory &factory : candidates) {
+        if (factory.priority > bestFactory.priority)
+            bestFactory = factory;
+    }
+
+    auto runControl = new RunControl(runConfiguration, runMode);
+    bestFactory.producer(runControl);
+    return runControl;
 }
 
 /*!

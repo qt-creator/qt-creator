@@ -143,7 +143,7 @@ bool ClangStaticAnalyzerPlugin::initialize(const QStringList &arguments, QString
     };
 
     RunControl::registerWorker<ClangStaticAnalyzerToolRunner>
-            (Constants::CLANGSTATICANALYZER_RUN_MODE, constraint);
+            (Constants::CLANGSTATICANALYZER_RUN_MODE, constraint, /*priority*/ -1);
 
     return true;
 }

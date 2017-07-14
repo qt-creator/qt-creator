@@ -450,23 +450,24 @@ public:
         addWorkerFactory({runMode, constraint, producer});
     }
     template <class Worker>
-    static void registerWorker(Core::Id runMode, const Constraint &constraint)
+    static void registerWorker(Core::Id runMode, const Constraint &constraint, int priority = 0)
     {
         auto producer = [](RunControl *rc) { return new Worker(rc); };
-        addWorkerFactory({runMode, constraint, producer});
+        addWorkerFactory({runMode, constraint, producer, priority});
     }
     template <class Config, class Worker>
-    static void registerWorker(Core::Id runMode)
+    static void registerWorker(Core::Id runMode, int priority = 0)
     {
         auto constraint = [](RunConfiguration *runConfig) { return qobject_cast<Config *>(runConfig); };
         auto producer = [](RunControl *rc) { return new Worker(rc); };
-        addWorkerFactory({runMode, constraint, producer});
+        addWorkerFactory({runMode, constraint, producer, priority});
     }
 
     struct WorkerFactory {
         Core::Id runMode;
         Constraint constraint;
         WorkerCreator producer;
+        int priority = 0;
 
         bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const;
     };
