@@ -54,8 +54,6 @@ const char avdInfoAbiKey[] = "abi.type";
 const char avdInfoTargetKey[] = "target";
 const char avdInfoErrorKey[] = "Error:";
 
-const QVersionNumber avdManagerIntroVersion(25, 3 ,0);
-
 const int avdCreateTimeoutMs = 30000;
 
 /*!
@@ -219,14 +217,9 @@ AndroidAvdManager::~AndroidAvdManager()
 
 }
 
-bool AndroidAvdManager::avdManagerUiToolAvailable() const
-{
-    return m_config.sdkToolsVersion() < avdManagerIntroVersion;
-}
-
 void AndroidAvdManager::launchAvdManagerUiTool() const
 {
-    if (avdManagerUiToolAvailable()) {
+    if (m_config.useNativeUiTools()) {
         m_androidTool->launchAvdManager();
      } else {
         qCDebug(avdManagerLog) << "AVD Ui tool launch failed. UI tool not available"
@@ -236,7 +229,7 @@ void AndroidAvdManager::launchAvdManagerUiTool() const
 
 QFuture<CreateAvdInfo> AndroidAvdManager::createAvd(CreateAvdInfo info) const
 {
-    if (m_config.sdkToolsVersion() < avdManagerIntroVersion)
+    if (m_config.useNativeUiTools())
         return m_androidTool->createAvd(info);
 
     return Utils::runAsync(&createAvdCommand, m_config, info);
@@ -244,7 +237,7 @@ QFuture<CreateAvdInfo> AndroidAvdManager::createAvd(CreateAvdInfo info) const
 
 bool AndroidAvdManager::removeAvd(const QString &name) const
 {
-    if (m_config.sdkToolsVersion() < avdManagerIntroVersion)
+    if (m_config.useNativeUiTools())
         return m_androidTool->removeAvd(name);
 
     Utils::SynchronousProcess proc;
@@ -257,7 +250,7 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
 
 QFuture<AndroidDeviceInfoList> AndroidAvdManager::avdList() const
 {
-    if (m_config.sdkToolsVersion() < avdManagerIntroVersion)
+    if (m_config.useNativeUiTools())
         return m_androidTool->androidVirtualDevicesFuture();
 
     return Utils::runAsync(&AvdManagerOutputParser::listVirtualDevices, m_parser.get(), m_config);

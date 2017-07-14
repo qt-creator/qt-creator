@@ -148,6 +148,8 @@ public:
     OpenGl getOpenGLEnabled(const QString &emulator) const;
     bool isConnected(const QString &serialNumber) const;
 
+    bool useNativeUiTools() const;
+
 private:
     static QString getDeviceProperty(const QString &adbToolPath, const QString &device, const QString &property);
 

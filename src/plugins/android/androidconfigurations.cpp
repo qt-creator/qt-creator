@@ -676,6 +676,12 @@ QStringList AndroidConfig::getAbis(const QString &adbToolPath, const QString &de
     return result;
 }
 
+bool AndroidConfig::useNativeUiTools() const
+{
+    const QVersionNumber version = sdkToolsVersion();
+    return !version.isNull() && version <= QVersionNumber(25, 3 ,0);
+}
+
 QString AndroidConfig::bestNdkPlatformMatch(int target) const
 {
     target = std::max(9, target);

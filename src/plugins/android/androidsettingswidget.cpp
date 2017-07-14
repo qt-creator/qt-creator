@@ -535,7 +535,7 @@ void AndroidSettingsWidget::updateUI()
 
 void AndroidSettingsWidget::manageAVD()
 {
-    if (m_avdManager->avdManagerUiToolAvailable()) {
+    if (m_androidConfig.useNativeUiTools()) {
         m_avdManager->launchAvdManagerUiTool();
     } else {
         QMessageBox::warning(this, tr("AVD Manager Not Available"),
