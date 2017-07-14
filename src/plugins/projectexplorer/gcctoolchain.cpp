@@ -42,6 +42,7 @@
 
 #include <QBuffer>
 #include <QCoreApplication>
+#include <QDir>
 #include <QFileInfo>
 
 #include <QLineEdit>
@@ -920,10 +921,29 @@ ToolChain *GccToolChainFactory::create(Core::Id language)
 QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
     QList<ToolChain *> tcs;
+    QList<ToolChain *> known = alreadyKnown;
     tcs.append(autoDetectToolchains("g++", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
                                     Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
     tcs.append(autoDetectToolchains("gcc", Abi::hostAbi(), Constants::C_LANGUAGE_ID,
                                     Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
+    known.append(tcs);
+    if (HostOsInfo::isLinuxHost()) {
+        for (const QString &dir : QStringList({ "/usr/bin", "/usr/local/bin" })) {
+            QDir binDir(dir);
+            for (const QString &entry : binDir.entryList({"*-g++"}, QDir::Files | QDir::Executable)) {
+                tcs.append(autoDetectToolchains(entry, Abi(), Constants::CXX_LANGUAGE_ID,
+                                                Constants::GCC_TOOLCHAIN_TYPEID, known));
+                known.append(tcs);
+            }
+            for (const QString &entry : binDir.entryList({"*-gcc"}, QDir::Files | QDir::Executable)) {
+                if (entry.endsWith("c89-gcc") || entry.endsWith("c99-gcc"))
+                    continue;
+                tcs.append(autoDetectToolchains(entry, Abi(), Constants::C_LANGUAGE_ID,
+                                                Constants::GCC_TOOLCHAIN_TYPEID, known));
+                known.append(tcs);
+            }
+        }
+    }
 
     return tcs;
 }
@@ -972,11 +992,12 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
     const FileName compilerPath = systemEnvironment.searchInPath(compiler);
     if (compilerPath.isEmpty())
         return result;
+    const FileName canonicalPath = FileUtils::canonicalPath(compilerPath);
 
-    result = Utils::filtered(alreadyKnown, [requiredTypeId, compilerPath](ToolChain *tc) {
-                                               return tc->typeId() == requiredTypeId
-                                                   && tc->compilerCommand() == compilerPath;
-                                           });
+    result = Utils::filtered(alreadyKnown, [requiredTypeId, canonicalPath](ToolChain *tc) {
+        return tc->typeId() == requiredTypeId
+                && FileUtils::canonicalPath(tc->compilerCommand()) == canonicalPath;
+    });
     if (!result.isEmpty()) {
         for (ToolChain *tc : result) {
             if (tc->isAutoDetected())
@@ -987,15 +1008,17 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
 
     result = autoDetectToolChain(compilerPath, language, requiredAbi);
 
-    const Abi alternateAbi = Abi(requiredAbi.architecture(), requiredAbi.os(),
-                                 requiredAbi.osFlavor(), requiredAbi.binaryFormat(), 32);
-    ToolChain *abiTc = Utils::findOrDefault(result, [&requiredAbi, &alternateAbi](const ToolChain *tc) {
-        return requiredAbi == tc->targetAbi()
-                || (requiredAbi.wordWidth() == 64 && tc->targetAbi() == alternateAbi);
-    });
-    if (!abiTc) {
-        qDeleteAll(result);
-        result.clear();
+    if (!requiredAbi.isNull()) {
+        const Abi alternateAbi = Abi(requiredAbi.architecture(), requiredAbi.os(),
+                                     requiredAbi.osFlavor(), requiredAbi.binaryFormat(), 32);
+        ToolChain *abiTc = Utils::findOrDefault(result, [&requiredAbi, &alternateAbi](const ToolChain *tc) {
+            return requiredAbi == tc->targetAbi()
+                    || (requiredAbi.wordWidth() == 64 && tc->targetAbi() == alternateAbi);
+        });
+        if (!abiTc) {
+            qDeleteAll(result);
+            result.clear();
+        }
     }
 
     return result;
