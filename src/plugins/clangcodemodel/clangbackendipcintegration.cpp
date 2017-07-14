@@ -99,7 +99,7 @@ IpcReceiver::IpcReceiver()
 
 IpcReceiver::~IpcReceiver()
 {
-    deleteAndClearWaitingAssistProcessors();
+    reset();
 }
 
 void IpcReceiver::setAliveHandler(const IpcReceiver::AliveHandler &handler)
@@ -114,12 +114,6 @@ void IpcReceiver::addExpectedCodeCompletedMessage(
     QTC_ASSERT(processor, return);
     QTC_CHECK(!m_assistProcessorsTable.contains(ticket));
     m_assistProcessorsTable.insert(ticket, processor);
-}
-
-void IpcReceiver::deleteAndClearWaitingAssistProcessors()
-{
-    qDeleteAll(m_assistProcessorsTable.begin(), m_assistProcessorsTable.end());
-    m_assistProcessorsTable.clear();
 }
 
 void IpcReceiver::deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *textEditorWidget)
@@ -153,6 +147,18 @@ QFuture<CppTools::CursorInfo> IpcReceiver::addExpectedReferencesMessage(quint64 
 bool IpcReceiver::isExpectingCodeCompletedMessage() const
 {
     return !m_assistProcessorsTable.isEmpty();
+}
+
+void IpcReceiver::reset()
+{
+    // Clean up waiting assist processors
+    qDeleteAll(m_assistProcessorsTable.begin(), m_assistProcessorsTable.end());
+    m_assistProcessorsTable.clear();
+
+    // Clean up futures for references
+    for (ReferencesEntry &entry : m_referencesTable)
+        entry.futureInterface.cancel();
+    m_referencesTable.clear();
 }
 
 void IpcReceiver::alive()
@@ -719,7 +725,7 @@ void IpcCommunicator::onConnectedToBackend()
     if (m_connectedCount > 1)
         logRestartedDueToUnexpectedFinish();
 
-    m_ipcReceiver.deleteAndClearWaitingAssistProcessors();
+    m_ipcReceiver.reset();
     m_ipcSender.reset(new IpcSender(m_connection));
 
     initializeBackendWithCurrentData();

@@ -73,13 +73,13 @@ public:
     void setAliveHandler(const AliveHandler &handler);
 
     void addExpectedCodeCompletedMessage(quint64 ticket, ClangCompletionAssistProcessor *processor);
-    void deleteAndClearWaitingAssistProcessors();
     void deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *textEditorWidget);
 
     QFuture<CppTools::CursorInfo> addExpectedReferencesMessage(quint64 ticket,
                                                                QTextDocument *textDocument);
-
     bool isExpectingCodeCompletedMessage() const;
+
+    void reset();
 
 private:
     void alive() override;
