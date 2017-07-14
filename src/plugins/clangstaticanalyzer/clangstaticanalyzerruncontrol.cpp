@@ -496,7 +496,7 @@ void ClangStaticAnalyzerToolRunner::start()
     m_success = false;
     ClangStaticAnalyzerTool::instance()->onEngineIsStarting();
 
-    connect(runControl(), &RunControl::finished, this, [this] {
+    connect(runControl(), &RunControl::stopped, this, [this] {
             ClangStaticAnalyzerTool::instance()->onEngineFinished(m_success);
     });
 
