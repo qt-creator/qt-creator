@@ -60,6 +60,7 @@
 #include <utils/treemodel.h>
 #include <utils/basetreeview.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcfallthrough.h>
 
 #include <QDebug>
 #include <QDir>
@@ -505,7 +506,7 @@ void QmlEngine::errorMessageBoxFinished(int result)
     }
     case QMessageBox::Help: {
         HelpManager::handleHelpRequest("qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html");
-        // fall through
+        Q_FALLTHROUGH();
     }
     default:
         if (state() == InferiorRunOk) {

@@ -34,6 +34,7 @@
 #include <coreplugin/messagebox.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/qtcfallthrough.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -367,7 +368,7 @@ void GdbRemoteServerEngine::handleAttach(const DebuggerResponse &response)
             notifyInferiorSetupFailed(msgPtraceError(runParameters().startMode));
             break;
         }
-        // if msg != "ptrace: ..." fall through
+        Q_FALLTHROUGH(); // if msg != "ptrace: ..."
     default:
         notifyInferiorSetupFailed(response.data["msg"].data());
     }

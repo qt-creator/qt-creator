@@ -239,6 +239,7 @@ HEADERS += \
     $$PWD/asconst.h \
     $$PWD/smallstringfwd.h \
     $$PWD/optional.h \
+    $$PWD/qtcfallthrough.h \
     $$PWD/../3rdparty/optional/optional.hpp
 
 FORMS += $$PWD/filewizardpage.ui \

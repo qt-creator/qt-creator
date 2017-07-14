@@ -27,6 +27,8 @@
 #include "ObjectiveCTypeQualifiers.h"
 #include "QtContextKeywords.h"
 
+#include <utils/qtcfallthrough.h>
+
 #include <unordered_map>
 #include <utility>
 
@@ -442,7 +444,7 @@ bool Parser::skipUntilStatement()
             case T_AT_THROW:
                 if (_languageFeatures.objCEnabled)
                     return true;
-
+                Q_FALLTHROUGH();
             default:
                 consumeToken();
         }

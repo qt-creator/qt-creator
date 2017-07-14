@@ -33,6 +33,7 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
+#include <utils/qtcfallthrough.h>
 #include "utils/runextensions.h"
 #include "utils/synchronousprocess.h"
 
@@ -606,7 +607,7 @@ void IosDeviceToolHandlerPrivate::subprocessHasData()
         switch (state) {
         case NonStarted:
             qCWarning(toolHandlerLog) << "IosToolHandler unexpected state in subprocessHasData: NonStarted";
-            // pass
+            Q_FALLTHROUGH();
         case Starting:
         case StartedInferior:
             // read some data
@@ -771,7 +772,7 @@ void IosDeviceToolHandlerPrivate::stop(int errorCode)
     switch (oldState) {
     case NonStarted:
         qCWarning(toolHandlerLog) << "IosToolHandler::stop() when state was NonStarted";
-        // pass
+        Q_FALLTHROUGH();
     case Starting:
         switch (op){
         case OpNone:
@@ -786,7 +787,7 @@ void IosDeviceToolHandlerPrivate::stop(int errorCode)
         case OpDeviceInfo:
             break;
         }
-        // pass
+        Q_FALLTHROUGH();
     case StartedInferior:
     case XmlEndProcessed:
         toolExited(errorCode);
