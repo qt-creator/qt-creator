@@ -1,0 +1,126 @@
+diff --git a/tools/clang/lib/Sema/SemaCodeComplete.cpp b/tools/clang/lib/Sema/SemaCodeComplete.cpp
+index f4b51a19c2..f4b35fd408 100644
+--- a/tools/clang/lib/Sema/SemaCodeComplete.cpp
++++ b/tools/clang/lib/Sema/SemaCodeComplete.cpp
+@@ -4066,7 +4066,10 @@ void Sema::CodeCompleteCall(Scope *S, Expr *Fn, ArrayRef<Expr *> Args) {
+       UME->copyTemplateArgumentsInto(TemplateArgsBuffer);
+       TemplateArgs = &TemplateArgsBuffer;
+     }
+-    SmallVector<Expr *, 12> ArgExprs(1, UME->getBase());
++
++    // Add the base as first argument (use a nullptr if the base is implicit).
++    SmallVector<Expr *, 12> ArgExprs(
++        1, UME->isImplicitAccess() ? nullptr : UME->getBase());
+     ArgExprs.append(Args.begin(), Args.end());
+     UnresolvedSet<8> Decls;
+     Decls.append(UME->decls_begin(), UME->decls_end());
+diff --git a/tools/clang/lib/Sema/SemaOverload.cpp b/tools/clang/lib/Sema/SemaOverload.cpp
+index 40d6e910f1..19547237ac 100644
+--- a/tools/clang/lib/Sema/SemaOverload.cpp
++++ b/tools/clang/lib/Sema/SemaOverload.cpp
+@@ -6051,31 +6051,44 @@ void Sema::AddFunctionCandidates(const UnresolvedSetImpl &Fns,
+   for (UnresolvedSetIterator F = Fns.begin(), E = Fns.end(); F != E; ++F) {
+     NamedDecl *D = F.getDecl()->getUnderlyingDecl();
+     if (FunctionDecl *FD = dyn_cast<FunctionDecl>(D)) {
+-      if (isa<CXXMethodDecl>(FD) && !cast<CXXMethodDecl>(FD)->isStatic())
++      if (isa<CXXMethodDecl>(FD) && !cast<CXXMethodDecl>(FD)->isStatic()) {
++        QualType ObjectType;
++        Expr::Classification ObjectClassification;
++        if (Expr *E = Args[0]) {
++          // Use the explit base to restrict the lookup:
++          ObjectType = E->getType();
++          ObjectClassification = E->Classify(Context);
++        } // .. else there is an implit base.
+         AddMethodCandidate(cast<CXXMethodDecl>(FD), F.getPair(),
+-                           cast<CXXMethodDecl>(FD)->getParent(),
+-                           Args[0]->getType(), Args[0]->Classify(Context),
+-                           Args.slice(1), CandidateSet,
++                           cast<CXXMethodDecl>(FD)->getParent(), ObjectType,
++                           ObjectClassification, Args.slice(1), CandidateSet,
+                            SuppressUserConversions, PartialOverloading);
+-      else
++      } else {
+         AddOverloadCandidate(FD, F.getPair(), Args, CandidateSet,
+                              SuppressUserConversions, PartialOverloading);
++      }
+     } else {
+       FunctionTemplateDecl *FunTmpl = cast<FunctionTemplateDecl>(D);
+       if (isa<CXXMethodDecl>(FunTmpl->getTemplatedDecl()) &&
+-          !cast<CXXMethodDecl>(FunTmpl->getTemplatedDecl())->isStatic())
++          !cast<CXXMethodDecl>(FunTmpl->getTemplatedDecl())->isStatic()) {
++        QualType ObjectType;
++        Expr::Classification ObjectClassification;
++        if (Expr *E = Args[0]) {
++          // Use the explit base to restrict the lookup:
++          ObjectType = E->getType();
++          ObjectClassification = E->Classify(Context);
++        } // .. else there is an implit base.
+         AddMethodTemplateCandidate(FunTmpl, F.getPair(),
+-                              cast<CXXRecordDecl>(FunTmpl->getDeclContext()),
+-                                   ExplicitTemplateArgs,
+-                                   Args[0]->getType(),
+-                                   Args[0]->Classify(Context), Args.slice(1),
+-                                   CandidateSet, SuppressUserConversions,
++                                   cast<CXXRecordDecl>(FunTmpl->getDeclContext()),
++                                   ExplicitTemplateArgs, ObjectType, ObjectClassification,
++                                   Args.slice(1), CandidateSet, SuppressUserConversions,
+                                    PartialOverloading);
+-      else
++      } else {
+         AddTemplateOverloadCandidate(FunTmpl, F.getPair(),
+                                      ExplicitTemplateArgs, Args,
+                                      CandidateSet, SuppressUserConversions,
+                                      PartialOverloading);
++      }
+     }
+   }
+ }
+diff --git a/tools/clang/test/CodeCompletion/member-access.cpp b/tools/clang/test/CodeCompletion/member-access.cpp
+index 8f772c0652..8528e18649 100644
+--- a/tools/clang/test/CodeCompletion/member-access.cpp
++++ b/tools/clang/test/CodeCompletion/member-access.cpp
+@@ -27,16 +27,31 @@ public:
+ 
+ void test(const Proxy &p) {
+   p->
+-  // RUN: %clang_cc1 -fsyntax-only -code-completion-at=%s:29:6 %s -o - | FileCheck -check-prefix=CHECK-CC1 %s
+-  // CHECK-CC1: Base1 : Base1::
+-  // CHECK-CC1: member1 : [#int#][#Base1::#]member1
+-  // CHECK-CC1: member1 : [#int#][#Base2::#]member1
+-  // CHECK-CC1: member2 : [#float#][#Base1::#]member2
+-  // CHECK-CC1: member3
+-  // CHECK-CC1: member4
+-  // CHECK-CC1: memfun1 : [#void#][#Base3::#]memfun1(<#float#>)
+-  // CHECK-CC1: memfun1 : [#void#][#Base3::#]memfun1(<#double#>)[# const#]
+-  // CHECK-CC1: memfun1 (Hidden) : [#void#]Base2::memfun1(<#int#>)
+-  // CHECK-CC1: memfun2 : [#void#][#Base3::#]memfun2(<#int#>)
+-  // CHECK-CC1: memfun3 : [#int#]memfun3(<#int#>)
+-  
++}
++
++struct Foo {
++  void foo() const;
++  static void foo(bool);
++};
++
++struct Bar {
++  void foo(bool param) {
++    Foo::foo(  );// unresolved member expression with an implicit base
++  }
++};
++
++// RUN: %clang_cc1 -fsyntax-only -code-completion-at=%s:29:6 %s -o - | FileCheck -check-prefix=CHECK-CC1 %s
++// CHECK-CC1: Base1 : Base1::
++// CHECK-CC1: member1 : [#int#][#Base1::#]member1
++// CHECK-CC1: member1 : [#int#][#Base2::#]member1
++// CHECK-CC1: member2 : [#float#][#Base1::#]member2
++// CHECK-CC1: member3
++// CHECK-CC1: member4
++// CHECK-CC1: memfun1 : [#void#][#Base3::#]memfun1(<#float#>)
++// CHECK-CC1: memfun1 : [#void#][#Base3::#]memfun1(<#double#>)[# const#]
++// CHECK-CC1: memfun1 (Hidden) : [#void#]Base2::memfun1(<#int#>)
++// CHECK-CC1: memfun2 : [#void#][#Base3::#]memfun2(<#int#>)
++// CHECK-CC1: memfun3 : [#int#]memfun3(<#int#>)
++
++// Make sure this also doesn't crash
++// RUN: %clang_cc1 -fsyntax-only -code-completion-at=%s:39:14 %s

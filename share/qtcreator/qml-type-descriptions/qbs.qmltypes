@@ -8,100 +8,128 @@ Module {
         name: "Artifact"
         exports: [ "qbs/Artifact 1.0" ]
         prototype: "QQuickItem"
+        Property { name: "alwaysUpdated"; type: "bool" }
         Property { name: "condition"; type: "bool" }
         Property { name: "fileName"; type: "string" }
         Property { name: "filePath"; type: "string" }
-        Property { name: "fileTags"; type: "QVariant" }
-        Property { name: "alwaysUpdated"; type: "bool" }
+        Property { name: "fileTags"; type: "string"; isList: true }
     }
     Component {
         name: "Depends"
         exports: [ "qbs/Depends 1.0" ]
         prototype: "QQuickItem"
         Property { name: "condition"; type: "bool" }
-        Property { name: "name"; type: "string" }
-        Property { name: "submodules"; type: "QVariant" }
-        Property { name: "required"; type: "bool" }
-        Property { name: "profiles"; type: "string"; isList: true }
-        Property { name: "productTypes"; type: "string"; isList: true }
         Property { name: "limitToSubProject"; type: "bool" }
+        Property { name: "multiplexConfigurationId"; type: "string" }
+        Property { name: "name"; type: "string" }
+        Property { name: "productTypes"; type: "string"; isList: true }
+        Property { name: "profiles"; type: "string"; isList: true }
+        Property { name: "required"; type: "bool" }
+        Property { name: "submodules"; type: "string"; isList: true }
+        Property { name: "versionAtLeast"; type: "string" }
+        Property { name: "versionBelow"; type: "string" }
     }
     Component {
         name: "Export"
         exports: [ "qbs/Export 1.0" ]
         prototype: "QQuickItem"
+        Property { name: "additionalProductTypes"; type: "string"; isList: true }
+        Property { name: "condition"; type: "bool" }
+        Property { name: "name"; type: "string" }
+        Property { name: "present"; type: "bool" }
+        Property { name: "setupBuildEnvironment"; type: "QVariant" }
+        Property { name: "setupRunEnvironment"; type: "QVariant" }
+        Property { name: "validate"; type: "bool" }
+        Property { name: "version"; type: "string" }
     }
     Component {
         name: "FileTagger"
         exports: [ "qbs/FileTagger 1.0" ]
         prototype: "QQuickItem"
+        Property { name: "condition"; type: "bool" }
+        Property { name: "fileTags"; type: "string"; isList: true }
         Property { name: "patterns"; type: "string"; isList: true }
-        Property { name: "fileTags"; type: "QVariant" }
     }
     Component {
         name: "Group"
         exports: [ "qbs/Group 1.0" ]
         prototype: "QQuickItem"
         Property { name: "condition"; type: "bool" }
+        Property { name: "excludeFiles"; type: "string"; isList: true }
+        Property { name: "fileTags"; type: "string"; isList: true }
+        Property { name: "fileTagsFilter"; type: "string"; isList: true }
+        Property { name: "files"; type: "string"; isList: true }
         Property { name: "name"; type: "string" }
-        Property { name: "files"; type: "QVariant" }
-        Property { name: "fileTagsFilter"; type: "QVariant" }
-        Property { name: "excludeFiles"; type: "QVariant" }
-        Property { name: "fileTags"; type: "QVariant" }
-        Property { name: "prefix"; type: "QVariant" }
         Property { name: "overrideTags"; type: "bool" }
+        Property { name: "prefix"; type: "string" }
     }
     Component {
         name: "Module"
         exports: [ "qbs/Module 1.0" ]
         prototype: "QQuickItem"
-        Property { name: "name"; type: "string" }
+        Property { name: "additionalProductTypes"; type: "string"; isList: true }
         Property { name: "condition"; type: "bool" }
-        Property { name: "setupBuildEnvironment"; type: "string" }
-        Property { name: "setupRunEnvironment"; type: "string" }
-        Property { name: "validate"; type: "QVariant" }
-        Property { name: "additionalProductFileTags"; type: "QVariant" }
+        Property { name: "name"; type: "string" }
         Property { name: "present"; type: "bool" }
+        Property { name: "setupBuildEnvironment"; type: "QVariant" }
+        Property { name: "setupRunEnvironment"; type: "QVariant" }
+        Property { name: "validate"; type: "bool" }
+        Property { name: "version"; type: "string" }
+    }
+    Component {
+        name: "Parameter"
+        exports: [ "qbs/Parameter 1.0" ]
+        prototype: "QQuickItem"
+    }
+    Component {
+        name: "Parameters"
+        exports: [ "qbs/Parameters 1.0" ]
+        prototype: "QQuickItem"
     }
     Component {
         name: "Probe"
         exports: [ "qbs/Probe 1.0" ]
         prototype: "QQuickItem"
         Property { name: "condition"; type: "bool" }
+        Property { name: "configure"; type: "QVariant" }
         Property { name: "found"; type: "bool" }
-        Property { name: "configure"; type: "string" }
     }
     Component {
         name: "Product"
         exports: [ "qbs/Product 1.0" ]
         prototype: "QQuickItem"
-        Property { name: "condition"; type: "bool" }
-        Property { name: "type"; type: "string"; isList: true }
-        Property { name: "name"; type: "string" }
-        Property { name: "builtByDefault"; type: "bool" }
-        Property { name: "profiles"; type: "string"; isList: true }
-        Property { name: "profile"; type: "string" }
+        Property { name: "aggregate"; type: "bool" }
         Property { name: "buildDirectory"; type: "string" }
-        Property { name: "targetName"; type: "string" }
-        Property { name: "destinationDirectory"; type: "string" }
+        Property { name: "builtByDefault"; type: "bool" }
+        Property { name: "condition"; type: "bool" }
         Property { name: "consoleApplication"; type: "bool" }
-        Property { name: "files"; type: "QVariant" }
-        Property { name: "excludeFiles"; type: "QVariant" }
+        Property { name: "destinationDirectory"; type: "string" }
+        Property { name: "excludeFiles"; type: "string"; isList: true }
+        Property { name: "files"; type: "string"; isList: true }
+        Property { name: "multiplexByQbsProperties"; type: "string"; isList: true }
+        Property { name: "multiplexConfigurationId"; type: "string" }
+        Property { name: "multiplexed"; type: "bool" }
+        Property { name: "multiplexedType"; type: "string"; isList: true }
+        Property { name: "name"; type: "string" }
+        Property { name: "profile"; type: "string" }
+        Property { name: "profiles"; type: "string"; isList: true }
         Property { name: "qbsSearchPaths"; type: "string"; isList: true }
+        Property { name: "targetName"; type: "string" }
+        Property { name: "type"; type: "string"; isList: true }
         Property { name: "version"; type: "string" }
     }
     Component {
         name: "Project"
         exports: [ "qbs/Project 1.0" ]
         prototype: "QQuickItem"
-        Property { name: "name"; type: "string" }
-        Property { name: "condition"; type: "bool" }
         Property { name: "buildDirectory"; type: "string" }
+        Property { name: "condition"; type: "bool" }
         Property { name: "minimumQbsVersion"; type: "string" }
-        Property { name: "sourceDirectory"; type: "string" }
+        Property { name: "name"; type: "string" }
         Property { name: "profile"; type: "string" }
-        Property { name: "references"; type: "QVariant" }
         Property { name: "qbsSearchPaths"; type: "string"; isList: true }
+        Property { name: "references"; type: "string"; isList: true }
+        Property { name: "sourceDirectory"; type: "string" }
     }
     Component {
         name: "Properties"
@@ -112,26 +140,29 @@ Module {
         name: "PropertyOptions"
         exports: [ "qbs/PropertyOptions 1.0" ]
         prototype: "QQuickItem"
-        Property { name: "name"; type: "string" }
         Property { name: "allowedValues"; type: "QVariant" }
         Property { name: "description"; type: "string" }
+        Property { name: "name"; type: "string" }
+        Property { name: "removalVersion"; type: "string" }
     }
     Component {
         name: "Rule"
         exports: [ "qbs/Rule 1.0" ]
         prototype: "QQuickItem"
-        Property { name: "condition"; type: "bool" }
-        Property { name: "multiplex"; type: "bool" }
-        Property { name: "name"; type: "string" }
-        Property { name: "inputs"; type: "string"; isList: true }
-        Property { name: "outputFileTags"; type: "string"; isList: true }
-        Property { name: "outputArtifacts"; type: "string" }
-        Property { name: "usings"; type: "string"; isList: true }
-        Property { name: "inputsFromDependencies"; type: "string"; isList: true }
+        Property { name: "alwaysRun"; type: "bool" }
         Property { name: "auxiliaryInputs"; type: "string"; isList: true }
+        Property { name: "condition"; type: "bool" }
         Property { name: "excludedAuxiliaryInputs"; type: "string"; isList: true }
         Property { name: "explicitlyDependsOn"; type: "string"; isList: true }
-        Property { name: "prepare"; type: "string" }
+        Property { name: "inputs"; type: "string"; isList: true }
+        Property { name: "inputsFromDependencies"; type: "string"; isList: true }
+        Property { name: "multiplex"; type: "bool" }
+        Property { name: "name"; type: "string" }
+        Property { name: "outputArtifacts"; type: "QVariant" }
+        Property { name: "outputFileTags"; type: "string"; isList: true }
+        Property { name: "prepare"; type: "QVariant" }
+        Property { name: "requiresInputs"; type: "bool" }
+        Property { name: "usings"; type: "string"; isList: true }
     }
     Component {
         name: "Scanner"
@@ -140,8 +171,8 @@ Module {
         Property { name: "condition"; type: "bool" }
         Property { name: "inputs"; type: "string"; isList: true }
         Property { name: "recursive"; type: "bool" }
-        Property { name: "searchPaths"; type: "string" }
-        Property { name: "scan"; type: "string" }
+        Property { name: "scan"; type: "QVariant" }
+        Property { name: "searchPaths"; type: "string"; isList: true }
     }
     Component {
         name: "SubProject"
@@ -154,9 +185,10 @@ Module {
         name: "Transformer"
         exports: [ "qbs/Transformer 1.0" ]
         prototype: "QQuickItem"
+        Property { name: "alwaysRun"; type: "bool" }
         Property { name: "condition"; type: "bool" }
-        Property { name: "inputs"; type: "QVariant" }
-        Property { name: "prepare"; type: "string" }
         Property { name: "explicitlyDependsOn"; type: "string"; isList: true }
+        Property { name: "inputs"; type: "string"; isList: true }
+        Property { name: "prepare"; type: "QVariant" }
     }
 }

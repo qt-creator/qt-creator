@@ -40,17 +40,6 @@ namespace Internal {
 class MacWebKitHelpViewer;
 class MacWebKitHelpWidgetPrivate;
 
-class MacResponderHack : public QObject
-{
-    Q_OBJECT
-
-public:
-    MacResponderHack(QObject *parent);
-
-private:
-    void responderHack(QWidget *old, QWidget *now);
-};
-
 class MacWebKitHelpWidget : public QMacCocoaViewContainer
 {
     Q_OBJECT

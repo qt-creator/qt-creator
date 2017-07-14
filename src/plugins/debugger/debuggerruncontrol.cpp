@@ -281,11 +281,12 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
     QTC_ASSERT(kit, return false);
 
     // Extract as much as possible from available RunConfiguration.
-    if (runConfig->runnable().is<StandardRunnable>()) {
+    const Runnable runnable = runConfig->runnable();
+    if (runnable.is<StandardRunnable>()) {
         // FIXME: Needed for core dump which stores the executable in inferior, but not in runConfig
         // executable.
         const QString prevExecutable = rp.inferior.executable;
-        rp.inferior = runConfig->runnable().as<StandardRunnable>();
+        rp.inferior = runnable.as<StandardRunnable>();
         if (rp.inferior.executable.isEmpty())
             rp.inferior.executable = prevExecutable;
         rp.useTerminal = rp.inferior.runMode == ApplicationLauncher::Console;
@@ -476,7 +477,7 @@ static bool cppDebugging(const RunControl *runControl)
 static bool qmlDebugging(const RunControl *runControl)
 {
     auto aspect = debuggerAspect(runControl);
-    return aspect ? aspect->useCppDebugger() : false; // For cases like valgrind-with-gdb.
+    return aspect ? aspect->useQmlDebugger() : false; // For cases like valgrind-with-gdb.
 }
 
 /// DebuggerRunTool

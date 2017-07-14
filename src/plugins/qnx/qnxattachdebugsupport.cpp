@@ -156,10 +156,10 @@ void QnxAttachDebugSupport::handleProgressReport(const QString &message)
         m_runTool->showMessage(message + QLatin1Char('\n'), Debugger::AppStuff);
 }
 
-void QnxAttachDebugSupport::handleRemoteOutput(const QByteArray &output)
+void QnxAttachDebugSupport::handleRemoteOutput(const QString &output)
 {
     if (m_runTool)
-        m_runTool->showMessage(QString::fromUtf8(output), Debugger::AppOutput);
+        m_runTool->showMessage(output, Debugger::AppOutput);
 }
 
 void QnxAttachDebugSupport::stopPDebug()

@@ -459,13 +459,15 @@ void ApplicationLauncherPrivate::handleApplicationFinished()
 void ApplicationLauncherPrivate::handleRemoteStdout()
 {
     QTC_ASSERT(m_state == Run, return);
-    emit q->remoteStdout(m_deviceProcess->readAllStandardOutput());
+    const QByteArray output = m_deviceProcess->readAllStandardOutput();
+    emit q->remoteStdout(QString::fromUtf8(output));
 }
 
 void ApplicationLauncherPrivate::handleRemoteStderr()
 {
     QTC_ASSERT(m_state == Run, return);
-    emit q->remoteStderr(m_deviceProcess->readAllStandardError());
+    const QByteArray output = m_deviceProcess->readAllStandardError();
+    emit q->remoteStderr(QString::fromUtf8(output));
 }
 
 void ApplicationLauncherPrivate::doReportError(const QString &message)

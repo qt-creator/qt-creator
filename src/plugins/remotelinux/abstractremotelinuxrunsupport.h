@@ -43,7 +43,7 @@ public:
 
 private:
     void start() override;
-    void onFinished() override;
+    void stop() override;
 
     void createRemoteFifo();
 

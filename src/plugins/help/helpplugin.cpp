@@ -158,8 +158,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
             m_centralWidget, &CentralWidget::updateCloseButton);
     connect(HelpManager::instance(), &HelpManager::helpRequested,
             this, &HelpPlugin::handleHelpRequest);
-    connect(m_searchTaskHandler, &SearchTaskHandler::search, this,
-            &HelpPlugin::showLinkInHelpMode);
+    connect(m_searchTaskHandler, &SearchTaskHandler::search, this, &QDesktopServices::openUrl);
 
     connect(m_filterSettingsPage, &FilterSettingsPage::filtersChanged, this,
         &HelpPlugin::setupHelpEngineIfNeeded);
@@ -244,8 +243,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     RemoteHelpFilter *remoteHelpFilter = new RemoteHelpFilter();
     addAutoReleasedObject(remoteHelpFilter);
-    connect(remoteHelpFilter, &RemoteHelpFilter::linkActivated, this,
-        &HelpPlugin::showLinkInHelpMode);
+    connect(remoteHelpFilter, &RemoteHelpFilter::linkActivated, this, &QDesktopServices::openUrl);
 
     QDesktopServices::setUrlHandler("qthelp", HelpManager::instance(), "handleHelpRequest");
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
@@ -364,7 +362,6 @@ HelpViewer *HelpPlugin::externalHelpViewer()
     else
         m_externalWindow->setGeometry(m_externalWindowState);
     m_externalWindow->show();
-    m_externalWindow->setFocus();
     return m_externalWindow->currentViewer();
 }
 
@@ -430,10 +427,7 @@ void HelpPlugin::activateHelpMode()
 
 void HelpPlugin::showLinkInHelpMode(const QUrl &source)
 {
-    activateHelpMode();
-    ICore::raiseWindow(m_mode->widget());
-    m_centralWidget->setSource(source);
-    m_centralWidget->setFocus();
+    showInHelpViewer(source, helpModeHelpViewer());
 }
 
 void HelpPlugin::showLinksInHelpMode(const QMap<QString, QUrl> &links, const QString &key)
@@ -496,6 +490,15 @@ bool HelpPlugin::canShowHelpSideBySide()
     return true;
 }
 
+HelpViewer *HelpPlugin::helpModeHelpViewer()
+{
+    activateHelpMode(); // should trigger an createPage...
+    HelpViewer *viewer = m_instance->m_centralWidget->currentViewer();
+    if (!viewer)
+        viewer = OpenPagesManager::instance().createPage();
+    return viewer;
+}
+
 HelpViewer *HelpPlugin::viewerForHelpViewerLocation(HelpManager::HelpViewerLocation location)
 {
     HelpManager::HelpViewerLocation actualLocation = location;
@@ -515,11 +518,16 @@ HelpViewer *HelpPlugin::viewerForHelpViewerLocation(HelpManager::HelpViewerLocat
 
     QTC_CHECK(actualLocation == HelpManager::HelpModeAlways);
 
-    activateHelpMode(); // should trigger an createPage...
-    HelpViewer *viewer = m_instance->m_centralWidget->currentViewer();
-    if (!viewer)
-        viewer = OpenPagesManager::instance().createPage();
-    return viewer;
+    return m_instance->helpModeHelpViewer();
+}
+
+void HelpPlugin::showInHelpViewer(const QUrl &url, HelpViewer *viewer)
+{
+    QTC_ASSERT(viewer, return);
+    viewer->setFocus();
+    viewer->stop();
+    viewer->setSource(url);
+    ICore::raiseWindow(viewer);
 }
 
 HelpViewer *HelpPlugin::viewerForContextHelp()
@@ -576,7 +584,7 @@ void HelpPlugin::showContextHelp()
     QUrl source = findBestLink(links, &m_contextHelpHighlightId);
     if (!source.isValid()) {
         // No link found or no context object
-        viewer->setSource(QUrl(Help::Constants::AboutBlank));
+        showInHelpViewer(QUrl(Help::Constants::AboutBlank), viewer);
         viewer->setHtml(tr("<html><head><title>No Documentation</title>"
             "</head><body><br/><center>"
             "<font color=\"%1\"><b>%2</b></font><br/>"
@@ -586,10 +594,7 @@ void HelpPlugin::showContextHelp()
             .arg(contextHelpId)
             .arg(creatorTheme()->color(Theme::TextColorNormal).name()));
     } else {
-        viewer->setFocus();
-        viewer->stop();
-        viewer->setSource(source); // triggers loadFinished which triggers id highlighting
-        ICore::raiseWindow(viewer);
+        showInHelpViewer(source, viewer);  // triggers loadFinished which triggers id highlighting
     }
 }
 
@@ -637,9 +642,7 @@ void HelpPlugin::handleHelpRequest(const QUrl &url, HelpManager::HelpViewerLocat
     }
 
     HelpViewer *viewer = viewerForHelpViewerLocation(location);
-    QTC_ASSERT(viewer, return);
-    viewer->setSource(url);
-    ICore::raiseWindow(viewer);
+    showInHelpViewer(url, viewer);
 }
 
 class DialogClosingOnEscape : public QDialog

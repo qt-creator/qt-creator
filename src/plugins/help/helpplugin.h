@@ -76,6 +76,7 @@ public:
     ShutdownFlag aboutToShutdown();
 
     static HelpViewer *viewerForHelpViewerLocation(Core::HelpManager::HelpViewerLocation location);
+    static void showInHelpViewer(const QUrl &url, HelpViewer *viewer);
 
     static HelpViewer *createHelpViewer(qreal zoom);
 
@@ -107,6 +108,7 @@ private:
     HelpWidget *createHelpWidget(const Core::Context &context, HelpWidget::WidgetStyle style);
     void createRightPaneContextViewer();
     HelpViewer *externalHelpViewer();
+    HelpViewer *helpModeHelpViewer();
 
     void doSetupIfNeeded();
 

@@ -48,13 +48,13 @@ public:
 
     void run();
 
-    void handleRemoteStderr(const QByteArray &b);
-    void handleRemoteStdout(const QByteArray &b);
+    void handleRemoteStderr(const QString &b);
+    void handleRemoteStdout(const QString &b);
 
     void closed(bool success);
     void localProcessStarted();
     void remoteProcessStarted();
-    void findPIDOutputReceived(const QByteArray &out);
+    void findPidOutputReceived(const QString &out);
 
     ValgrindRunner *q;
     StandardRunnable m_debuggee;
@@ -121,16 +121,16 @@ void ValgrindRunner::Private::run()
         m_valgrindProcess.start(valgrind, m_device);
 }
 
-void ValgrindRunner::Private::handleRemoteStderr(const QByteArray &b)
+void ValgrindRunner::Private::handleRemoteStderr(const QString &b)
 {
     if (!b.isEmpty())
-        q->processOutputReceived(QString::fromUtf8(b), Utils::StdErrFormat);
+        q->processOutputReceived(b, Utils::StdErrFormat);
 }
 
-void ValgrindRunner::Private::handleRemoteStdout(const QByteArray &b)
+void ValgrindRunner::Private::handleRemoteStdout(const QString &b)
 {
     if (!b.isEmpty())
-        q->processOutputReceived(QString::fromUtf8(b), Utils::StdOutFormat);
+        q->processOutputReceived(b, Utils::StdOutFormat);
 }
 
 void ValgrindRunner::Private::localProcessStarted()
@@ -169,11 +169,11 @@ void ValgrindRunner::Private::remoteProcessStarted()
     connect(&m_findPID, &ApplicationLauncher::remoteStderr,
             this, &ValgrindRunner::Private::handleRemoteStderr);
     connect(&m_findPID, &ApplicationLauncher::remoteStdout,
-            this, &ValgrindRunner::Private::findPIDOutputReceived);
+            this, &ValgrindRunner::Private::findPidOutputReceived);
     m_findPID.start(findPid, m_device);
 }
 
-void ValgrindRunner::Private::findPIDOutputReceived(const QByteArray &out)
+void ValgrindRunner::Private::findPidOutputReceived(const QString &out)
 {
     if (out.isEmpty())
         return;

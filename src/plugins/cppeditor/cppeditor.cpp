@@ -194,7 +194,6 @@ void CppEditorWidget::finalizeInitialization()
 
     connect(&d->m_useSelectionsUpdater, &CppUseSelectionsUpdater::finished, this,
             [this] (SemanticInfo::LocalUseMap localUses) {
-                QTC_CHECK(isSemanticInfoValidExceptLocalUses());
                 d->m_lastSemanticInfo.localUsesUpdated = true;
                 d->m_lastSemanticInfo.localUses = localUses;
     });

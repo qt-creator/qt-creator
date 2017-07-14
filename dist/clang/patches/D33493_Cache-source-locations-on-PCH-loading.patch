@@ -1,0 +1,51 @@
+diff --git a/tools/clang/include/clang/Frontend/ASTUnit.h b/tools/clang/include/clang/Frontend/ASTUnit.h
+index 04e6dce511..3eaf054139 100644
+--- a/tools/clang/include/clang/Frontend/ASTUnit.h
++++ b/tools/clang/include/clang/Frontend/ASTUnit.h
+@@ -184,6 +184,14 @@ private:
+   /// some number of calls.
+   unsigned PreambleRebuildCounter;
+ 
++  /// \brief Cache pairs "filename - source location"
++  ///
++  /// Cache contains only source locations from preamble so it is
++  /// guaranteed that they stay valid when the SourceManager is recreated.
++  /// This cache is used when loading preambule to increase performance
++  /// of that loading. It must be cleared when preamble is recreated.
++  llvm::StringMap<SourceLocation> PreambleSrcLocCache;
++
+ public:
+   class PreambleData {
+     const FileEntry *File;
+diff --git a/tools/clang/lib/Frontend/ASTUnit.cpp b/tools/clang/lib/Frontend/ASTUnit.cpp
+index 76fd00a132..c1c2680dcd 100644
+--- a/tools/clang/lib/Frontend/ASTUnit.cpp
++++ b/tools/clang/lib/Frontend/ASTUnit.cpp
+@@ -1142,6 +1142,8 @@ bool ASTUnit::Parse(std::shared_ptr<PCHContainerOperations> PCHContainerOps,
+   if (SavedMainFileBuffer)
+     TranslateStoredDiagnostics(getFileManager(), getSourceManager(),
+                                PreambleDiagnostics, StoredDiagnostics);
++  else
++    PreambleSrcLocCache.clear();
+ 
+   if (!Act->Execute())
+     goto error;
+@@ -2544,8 +2546,16 @@ void ASTUnit::TranslateStoredDiagnostics(
+     const FileEntry *FE = FileMgr.getFile(SD.Filename);
+     if (!FE)
+       continue;
+-    FileID FID = SrcMgr.translateFile(FE);
+-    SourceLocation FileLoc = SrcMgr.getLocForStartOfFile(FID);
++    SourceLocation FileLoc;
++    auto ItFileID = PreambleSrcLocCache.find(SD.Filename);
++    if (ItFileID == PreambleSrcLocCache.end()) {
++      FileID FID = SrcMgr.translateFile(FE);
++      FileLoc = SrcMgr.getLocForStartOfFile(FID);
++      PreambleSrcLocCache[SD.Filename] = FileLoc;
++    } else {
++      FileLoc = ItFileID->getValue();
++    }
++
+     if (FileLoc.isInvalid())
+       continue;
+     SourceLocation L = FileLoc.getLocWithOffset(SD.LocOffset);

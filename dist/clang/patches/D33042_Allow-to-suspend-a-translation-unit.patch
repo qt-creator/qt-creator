@@ -1,0 +1,147 @@
+diff --git a/tools/clang/include/clang-c/Index.h b/tools/clang/include/clang-c/Index.h
+index 13db2085ba..eb6a5f14b2 100644
+--- a/tools/clang/include/clang-c/Index.h
++++ b/tools/clang/include/clang-c/Index.h
+@@ -33,6 +33,7 @@
+  */
+ #define CINDEX_VERSION_MAJOR 0
+ #define CINDEX_VERSION_MINOR 35
++#define CINDEX_VERSION_HAS_BACKPORTED_SUSPEND
+ 
+ #define CINDEX_VERSION_ENCODE(major, minor) ( \
+       ((major) * 10000)                       \
+@@ -1404,6 +1405,15 @@ CINDEX_LINKAGE int clang_saveTranslationUnit(CXTranslationUnit TU,
+                                              unsigned options);
+ 
+ /**
++ * \brief Suspend a translation unit in order to free memory associated with it.
++ *
++ * A suspended translation unit uses significantly less memory but on the other
++ * side does not support any other calls than \c clang_reparseTranslationUnit
++ * to resume it or \c clang_disposeTranslationUnit to dispose it completely.
++ */
++CINDEX_LINKAGE unsigned clang_suspendTranslationUnit(CXTranslationUnit);
++
++/**
+  * \brief Destroy the specified CXTranslationUnit object.
+  */
+ CINDEX_LINKAGE void clang_disposeTranslationUnit(CXTranslationUnit);
+diff --git a/tools/clang/include/clang/Frontend/ASTUnit.h b/tools/clang/include/clang/Frontend/ASTUnit.h
+index 3eaf054139..3745ec690e 100644
+--- a/tools/clang/include/clang/Frontend/ASTUnit.h
++++ b/tools/clang/include/clang/Frontend/ASTUnit.h
+@@ -870,6 +870,11 @@ public:
+   bool Reparse(std::shared_ptr<PCHContainerOperations> PCHContainerOps,
+                ArrayRef<RemappedFile> RemappedFiles = None);
+ 
++  /// \brief Free data that will be re-generated on the next parse.
++  ///
++  /// Preamble-related data is not affected.
++  void ResetForParse();
++
+   /// \brief Perform code completion at the given file, line, and
+   /// column within this translation unit.
+   ///
+diff --git a/tools/clang/lib/Frontend/ASTUnit.cpp b/tools/clang/lib/Frontend/ASTUnit.cpp
+index b446b53fa4..96437e15bb 100644
+--- a/tools/clang/lib/Frontend/ASTUnit.cpp
++++ b/tools/clang/lib/Frontend/ASTUnit.cpp
+@@ -1034,8 +1034,6 @@ static void checkAndSanitizeDiags(SmallVectorImpl<StoredDiagnostic> &
+ /// contain any translation-unit information, false otherwise.
+ bool ASTUnit::Parse(std::shared_ptr<PCHContainerOperations> PCHContainerOps,
+                     std::unique_ptr<llvm::MemoryBuffer> OverrideMainBuffer) {
+-  SavedMainFileBuffer.reset();
+-
+   if (!Invocation)
+     return true;
+ 
+@@ -1083,16 +1081,12 @@ bool ASTUnit::Parse(std::shared_ptr<PCHContainerOperations> PCHContainerOps,
+     Clang->createFileManager();
+     FileMgr = &Clang->getFileManager();
+   }
++
++  ResetForParse();
++
+   SourceMgr = new SourceManager(getDiagnostics(), *FileMgr,
+                                 UserFilesAreVolatile);
+-  TheSema.reset();
+-  Ctx = nullptr;
+-  PP = nullptr;
+-  Reader = nullptr;
+ 
+-  // Clear out old caches and data.
+-  TopLevelDecls.clear();
+-  clearFileLevelDecls();
+   CleanTemporaryFiles();
+ 
+   if (!OverrideMainBuffer) {
+@@ -2082,6 +2076,19 @@ bool ASTUnit::Reparse(std::shared_ptr<PCHContainerOperations> PCHContainerOps,
+   return Result;
+ }
+ 
++void ASTUnit::ResetForParse() {
++  SavedMainFileBuffer.reset();
++
++  SourceMgr.reset();
++  TheSema.reset();
++  Ctx.reset();
++  PP.reset();
++  Reader.reset();
++
++  TopLevelDecls.clear();
++  clearFileLevelDecls();
++}
++
+ //----------------------------------------------------------------------------//
+ // Code completion
+ //----------------------------------------------------------------------------//
+diff --git a/tools/clang/tools/c-index-test/c-index-test.c b/tools/clang/tools/c-index-test/c-index-test.c
+index 007af9e252..c40bdb888d 100644
+--- a/tools/clang/tools/c-index-test/c-index-test.c
++++ b/tools/clang/tools/c-index-test/c-index-test.c
+@@ -1664,6 +1664,8 @@ int perform_test_load_source(int argc, const char **argv,
+       return -1;
+ 
+     if (Repeats > 1) {
++      clang_suspendTranslationUnit(TU);
++
+       Err = clang_reparseTranslationUnit(TU, num_unsaved_files, unsaved_files,
+                                          clang_defaultReparseOptions(TU));
+       if (Err != CXError_Success) {
+diff --git a/tools/clang/tools/libclang/CIndex.cpp b/tools/clang/tools/libclang/CIndex.cpp
+index deb4cc551b..81cb5c3778 100644
+--- a/tools/clang/tools/libclang/CIndex.cpp
++++ b/tools/clang/tools/libclang/CIndex.cpp
+@@ -3778,6 +3778,20 @@ void clang_disposeTranslationUnit(CXTranslationUnit CTUnit) {
+   }
+ }
+ 
++unsigned clang_suspendTranslationUnit(CXTranslationUnit CTUnit) {
++  if (CTUnit) {
++    ASTUnit *Unit = cxtu::getASTUnit(CTUnit);
++
++    if (Unit && Unit->isUnsafeToFree())
++      return false;
++
++    Unit->ResetForParse();
++    return true;
++  }
++
++  return false;
++}
++
+ unsigned clang_defaultReparseOptions(CXTranslationUnit TU) {
+   return CXReparse_None;
+ }
+diff --git a/tools/clang/tools/libclang/libclang.exports b/tools/clang/tools/libclang/libclang.exports
+index c8fe0a21d0..7a8f53d394 100644
+--- a/tools/clang/tools/libclang/libclang.exports
++++ b/tools/clang/tools/libclang/libclang.exports
+@@ -298,6 +298,7 @@ clang_remap_getFilenames
+ clang_remap_getNumFiles
+ clang_reparseTranslationUnit
+ clang_saveTranslationUnit
++clang_suspendTranslationUnit
+ clang_sortCodeCompletionResults
+ clang_toggleCrashRecovery
+ clang_tokenize

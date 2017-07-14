@@ -62,27 +62,27 @@ void FifoGatherer::start()
     r.workingDirectory = QLatin1String("/tmp");
     r.runMode = ApplicationLauncher::Console;
 
-    QSharedPointer<QByteArray> output(new QByteArray);
-    QSharedPointer<QByteArray> errors(new QByteArray);
+    QSharedPointer<QString> output(new QString);
+    QSharedPointer<QString> errors(new QString);
 
     connect(&m_fifoCreator, &ApplicationLauncher::finished,
             this, [this, output, errors](bool success) {
         if (!success) {
-            reportFailure(QString("Failed to create fifo: %1").arg(QLatin1String(*errors)));
+            reportFailure(QString("Failed to create fifo: %1").arg(*errors));
         } else {
-            m_fifo = QString::fromLatin1(*output);
+            m_fifo = *output;
             appendMessage(tr("Created fifo: %1").arg(m_fifo), NormalMessageFormat);
             reportStarted();
         }
     });
 
     connect(&m_fifoCreator, &ApplicationLauncher::remoteStdout,
-            this, [output](const QByteArray &data) {
+            this, [output](const QString &data) {
         output->append(data);
     });
 
     connect(&m_fifoCreator, &ApplicationLauncher::remoteStderr,
-            this, [this, errors](const QByteArray &) {
+            this, [this, errors](const QString &) {
             reportFailure();
 //        errors->append(data);
     });
@@ -90,10 +90,10 @@ void FifoGatherer::start()
     m_fifoCreator.start(r, device());
 }
 
-void FifoGatherer::onFinished()
+void FifoGatherer::stop()
 {
     m_fifoCreator.stop();
+    reportStopped();
 }
-
 
 } // namespace RemoteLinux

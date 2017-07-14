@@ -75,6 +75,13 @@
                     location after building them. This option is enabled by
                     default.
 
+                    \note On Windows, the build will fail if the application
+                    is running, because the executable file cannot be
+                    overwritten. To avoid this issue, you can deselect this
+                    check box and add a \uicontrol {Qbs Install} deployment step
+                    in the run settings that will be performed just before
+                    running the application.
+
                 \li Select \uicontrol {Clean install root} to remove the
                     contents of the install root directory before the build
                     starts.

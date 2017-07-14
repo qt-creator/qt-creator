@@ -1309,13 +1309,13 @@ void SimpleTargetRunner::start()
                 });
 
         connect(&m_launcher, &ApplicationLauncher::remoteStderr,
-                this, [this](const QByteArray &output) {
-                    appendMessage(QString::fromUtf8(output), Utils::StdErrFormatSameLine);
+                this, [this](const QString &output) {
+                    appendMessage(output, Utils::StdErrFormatSameLine);
                 });
 
         connect(&m_launcher, &ApplicationLauncher::remoteStdout,
-                this, [this](const QByteArray &output) {
-                    appendMessage(QString::fromUtf8(output), Utils::StdOutFormatSameLine);
+                this, [this](const QString &output) {
+                    appendMessage(output, Utils::StdOutFormatSameLine);
                 });
 
         connect(&m_launcher, &ApplicationLauncher::finished,
