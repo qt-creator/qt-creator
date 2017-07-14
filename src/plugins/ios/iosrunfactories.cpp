@@ -27,7 +27,6 @@
 
 #include "iosconstants.h"
 #include "iosrunconfiguration.h"
-#include "iosrunner.h"
 #include "iosmanager.h"
 
 #include <debugger/analyzer/analyzermanager.h>
@@ -141,54 +140,6 @@ RunConfiguration *IosRunConfigurationFactory::doRestore(Target *parent, const QV
 {
     Core::Id id = ProjectExplorer::idFromMap(map);
     return new IosRunConfiguration(parent, id, pathFromId(id));
-}
-
-IosRunControlFactory::IosRunControlFactory(QObject *parent)
-    : IRunControlFactory(parent)
-{
-}
-
-bool IosRunControlFactory::canRun(RunConfiguration *runConfiguration,
-                Core::Id mode) const
-{
-    if (mode != ProjectExplorer::Constants::NORMAL_RUN_MODE
-            && mode != ProjectExplorer::Constants::DEBUG_RUN_MODE
-            && mode != ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-        return false;
-    }
-
-    return qobject_cast<IosRunConfiguration *>(runConfiguration);
-}
-
-RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
-                                        Core::Id mode, QString *errorMessage)
-{
-    Q_UNUSED(errorMessage);
-    Q_ASSERT(canRun(runConfig, mode));
-    IosRunConfiguration *rc = qobject_cast<IosRunConfiguration *>(runConfig);
-    Q_ASSERT(rc);
-    Target *target = runConfig->target();
-    QTC_ASSERT(target, return 0);
-
-    Core::Id devId = DeviceKitInformation::deviceId(rc->target()->kit());
-    // The device can only run an application at a time, if an app is running stop it.
-    if (m_activeRunControls.contains(devId)) {
-        if (QPointer<RunControl> activeRunControl = m_activeRunControls[devId])
-            activeRunControl->initiateStop();
-        m_activeRunControls.remove(devId);
-    }
-    auto runControl = new RunControl(runConfig, mode);
-    if (mode == ProjectExplorer::Constants::NORMAL_RUN_MODE) {
-        (void) new Ios::Internal::IosRunSupport(runControl);
-    } else if (mode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE) {
-        (void) new IosQmlProfilerSupport(runControl);
-    } else {
-        (void) new IosDebugSupport(runControl);
-    }
-
-    if (devId.isValid())
-        m_activeRunControls[devId] = runControl;
-    return runControl;
 }
 
 } // namespace Internal
