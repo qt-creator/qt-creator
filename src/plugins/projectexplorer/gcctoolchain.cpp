@@ -187,9 +187,11 @@ static QByteArray runGcc(const FileName &gcc, const QStringList &arguments, cons
     return response.allOutput().toUtf8();
 }
 
-static const QStringList gccPredefinedMacrosOptions()
+static const QStringList gccPredefinedMacrosOptions(Core::Id languageId)
 {
-    return QStringList({"-xc++", "-E", "-dM"});
+    const QString langOption = languageId == Constants::CXX_LANGUAGE_ID
+            ? QLatin1String("-xc++") : QLatin1String("-xc");
+    return QStringList({langOption, "-E", "-dM"});
 }
 
 static QByteArray gccPredefinedMacros(const FileName &gcc, const QStringList &args, const QStringList &env)
@@ -445,12 +447,13 @@ ToolChain::PredefinedMacrosRunner GccToolChain::createPredefinedMacrosRunner() c
     OptionsReinterpreter reinterpretOptions = m_optionsReinterpreter;
     QTC_CHECK(reinterpretOptions);
     MacroCache *macroCache = &m_predefinedMacrosCache;
+    Core::Id lang = language();
 
     // This runner must be thread-safe!
-    return [env, compilerCommand, platformCodeGenFlags, reinterpretOptions, macroCache]
+    return [env, compilerCommand, platformCodeGenFlags, reinterpretOptions, macroCache, lang]
             (const QStringList &cxxflags) {
         QStringList allCxxflags = platformCodeGenFlags + cxxflags;  // add only cxxflags is empty?
-        QStringList arguments = gccPredefinedMacrosOptions();
+        QStringList arguments = gccPredefinedMacrosOptions(lang);
         for (int iArg = 0; iArg < allCxxflags.length(); ++iArg) {
             const QString &a = allCxxflags.at(iArg);
             if (a.startsWith("--gcc-toolchain=")) {
@@ -1008,7 +1011,8 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolChain(const FileName &comp
     GccToolChain::addCommandPathToEnvironment(compilerPath, systemEnvironment);
     const FileName localCompilerPath = findLocalCompiler(compilerPath, systemEnvironment);
     QByteArray macros
-            = gccPredefinedMacros(localCompilerPath, gccPredefinedMacrosOptions(), systemEnvironment.toStringList());
+            = gccPredefinedMacros(localCompilerPath, gccPredefinedMacrosOptions(language),
+                                  systemEnvironment.toStringList());
     const GccToolChain::DetectedAbisResult detectedAbis = guessGccAbi(localCompilerPath,
                                                                       systemEnvironment.toStringList(),
                                                                       macros);
@@ -1159,7 +1163,8 @@ void GccToolChainConfigWidget::handleCompilerCommandChange()
     if (haveCompiler) {
         Environment env = Environment::systemEnvironment();
         GccToolChain::addCommandPathToEnvironment(path, env);
-        QStringList args = gccPredefinedMacrosOptions() + splitString(m_platformCodeGenFlagsLineEdit->text());
+        QStringList args = gccPredefinedMacrosOptions(Constants::CXX_LANGUAGE_ID)
+                + splitString(m_platformCodeGenFlagsLineEdit->text());
         const FileName localCompilerPath = findLocalCompiler(path, env);
         m_macros = gccPredefinedMacros(localCompilerPath, args, env.toStringList());
         abiList = guessGccAbi(localCompilerPath, env.toStringList(), m_macros,
