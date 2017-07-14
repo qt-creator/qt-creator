@@ -27,6 +27,7 @@
 
 #include "modeleditor_constants.h"
 
+#include "qmt/infrastructure/exceptions.h"
 #include "qmt/infrastructure/uid.h"
 
 #include "qmt/serializer/projectserializer.h"
@@ -292,7 +293,12 @@ void ModelIndexer::IndexerThread::onFilesQueued()
             // load model file
             qmt::ProjectSerializer projectSerializer;
             qmt::Project project;
-            projectSerializer.load(queuedFile.file(), &project);
+            try {
+                projectSerializer.load(queuedFile.file(), &project);
+            } catch (const qmt::Exception &e) {
+                qWarning() << e.errorMessage();
+                return;
+            }
             locker.relock();
             indexedModel->setModelUid(project.uid());
             // add indexedModel to set of indexedModelsByUid
