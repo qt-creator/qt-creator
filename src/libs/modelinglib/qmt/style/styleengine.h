@@ -40,6 +40,7 @@ class StyledRelation;
 
 class DAnnotation;
 class DBoundary;
+class DSwimlane;
 
 class QMT_EXPORT StyleEngine
 {
@@ -52,7 +53,8 @@ public:
         TypeItem,
         TypeRelation,
         TypeAnnotation,
-        TypeBoundary
+        TypeBoundary,
+        TypeSwimlane
     };
 
     class Parameters
@@ -76,6 +78,8 @@ public:
     virtual const Style *applyAnnotationStyle(const Style *baseStyle, const DAnnotation *,
                                               const Parameters *) = 0;
     virtual const Style *applyBoundaryStyle(const Style *baseStyle, const DBoundary *,
+                                            const Parameters *) = 0;
+    virtual const Style *applySwimlaneStyle(const Style *baseStyle, const DSwimlane *,
                                             const Parameters *) = 0;
 };
 

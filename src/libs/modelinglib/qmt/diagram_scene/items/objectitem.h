@@ -113,6 +113,8 @@ public:
     void setSecondarySelected(bool secondarySelected) override;
     bool isFocusSelected() const override;
     void setFocusSelected(bool focusSelected) override;
+    QRectF getSecondarySelectionBoundary() override;
+    void setBoundarySelected(const QRectF &boundary, bool secondary) override;
 
     Action horizontalLatchAction() const override;
     Action verticalLatchAction() const override;

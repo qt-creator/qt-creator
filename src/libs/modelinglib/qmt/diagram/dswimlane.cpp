@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Jochen Becher
+** Copyright (C) 2017 Jochen Becher
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,23 +23,64 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "dswimlane.h"
 
-#include <QRectF>
+#include "dvisitor.h"
+#include "dconstvisitor.h"
 
 namespace qmt {
 
-class ISelectable
+DSwimlane::DSwimlane()
+    : DElement()
 {
-public:
-    virtual ~ISelectable() { }
+}
 
-    virtual bool isSecondarySelected() const = 0;
-    virtual void setSecondarySelected(bool secondarySelected) = 0;
-    virtual bool isFocusSelected() const = 0;
-    virtual void setFocusSelected(bool focusSelected) = 0;
-    virtual QRectF getSecondarySelectionBoundary() = 0;
-    virtual void setBoundarySelected(const QRectF &boundary, bool secondary) = 0;
-};
+DSwimlane::DSwimlane(const DSwimlane &rhs)
+    : DElement(rhs),
+      m_text(rhs.m_text),
+      m_horizontal(rhs.m_horizontal),
+      m_pos(rhs.m_pos)
+{
+}
 
-} // namespace qmt
+DSwimlane::~DSwimlane()
+{
+}
+
+DSwimlane &DSwimlane::operator=(const DSwimlane &rhs)
+{
+    if (this != &rhs) {
+        DElement::operator=(rhs);
+        m_text = rhs.m_text;
+        m_horizontal = rhs.m_horizontal;
+        m_pos = rhs.m_pos;
+    }
+    return *this;
+}
+
+void DSwimlane::setText(const QString &text)
+{
+    m_text = text;
+}
+
+void DSwimlane::setHorizontal(bool horizontal)
+{
+    m_horizontal = horizontal;
+}
+
+void DSwimlane::setPos(qreal pos)
+{
+    m_pos = pos;
+}
+
+void DSwimlane::accept(DVisitor *visitor)
+{
+    visitor->visitDSwimlane(this);
+}
+
+void DSwimlane::accept(DConstVisitor *visitor) const
+{
+    visitor->visitDSwimlane(this);
+}
+
+} // namespoace qmt

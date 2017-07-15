@@ -52,6 +52,7 @@ public:
     void visitDConnection(DConnection *connection) override;
     void visitDAnnotation(DAnnotation *annotation) override;
     void visitDBoundary(DBoundary *boundary) override;
+    void visitDSwimlane(DSwimlane *swimlane) override;
 
 private:
     DiagramSceneModel *m_diagramSceneModel;
@@ -78,6 +79,7 @@ public:
     void visitDConnection(DConnection *connection) override;
     void visitDAnnotation(DAnnotation *annotation) override;
     void visitDBoundary(DBoundary *boundary) override;
+    void visitDSwimlane(DSwimlane *swimlane) override;
 
 private:
     QGraphicsItem *m_graphicsItem;

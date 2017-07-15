@@ -59,6 +59,7 @@
 #include "qmt/diagram/dconnection.h"
 #include "qmt/diagram/dannotation.h"
 #include "qmt/diagram/dboundary.h"
+#include "qmt/diagram/dswimlane.h"
 
 // TODO move into better place
 #include "qmt/diagram_scene/items/stereotypedisplayvisitor.h"
@@ -1181,6 +1182,12 @@ void PropertiesView::MView::visitDBoundary(const DBoundary *boundary)
 {
     setTitle<DBoundary>(m_diagramElements, tr("Boundary"), tr("Boundaries"));
     visitDElement(boundary);
+}
+
+void PropertiesView::MView::visitDSwimlane(const DSwimlane *swimlane)
+{
+    setTitle<DSwimlane>(m_diagramElements, tr("Swimlane"), tr("Swimlanes"));
+    visitDElement(swimlane);
 }
 
 void PropertiesView::MView::onStereotypesChanged(const QString &stereotypes)

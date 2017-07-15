@@ -39,6 +39,7 @@
 #include "qmt/diagram_controller/diagramcontroller.h"
 #include "qmt/diagram_controller/dselection.h"
 #include "qmt/diagram_scene/items/objectitem.h"
+#include "qmt/diagram_scene/items/swimlaneitem.h"
 #include "qmt/model/mdiagram.h"
 #include "qmt/model/mobject.h"
 #include "qmt/model/mpackage.h"
@@ -47,6 +48,8 @@
 #include "qmt/style/stylecontroller.h"
 #include "qmt/tasks/diagramscenecontroller.h"
 #include "qmt/tasks/ielementtasks.h"
+
+#include "utils/asconst.h"
 
 #include <QSet>
 #include <QGraphicsItem>
@@ -241,7 +244,7 @@ ObjectItem *DiagramSceneModel::findTopmostObjectItem(const QPointF &scenePos) co
 {
     // fetch affected items from scene in correct drawing order to find topmost element
     const QList<QGraphicsItem *> items = m_graphicsScene->items(scenePos);
-    for (QGraphicsItem *item : items) {
+    for (QGraphicsItem *item : Utils::asConst(items)) {
         if (m_graphicsItems.contains(item)) {
             DObject *object = dynamic_cast<DObject *>(m_itemToElementMap.value(item));
             if (object)
@@ -705,6 +708,7 @@ void DiagramSceneModel::onEndResetDiagram(const MDiagram *diagram)
         // update graphics items again so every item gets a correct list of colliding items
         foreach (DElement *element, diagram->diagramElements())
             updateGraphicsItem(m_elementToItemMap.value(element), element);
+        recalcSceneRectSize();
     }
     m_busyState = NotBusy;
 }
@@ -724,6 +728,7 @@ void DiagramSceneModel::onEndUpdateElement(int row, const MDiagram *diagram)
     if (diagram == m_diagram) {
         QGraphicsItem *item = m_graphicsItems.at(row);
         updateGraphicsItem(item, diagram->diagramElements().at(row));
+        recalcSceneRectSize();
     }
     m_busyState = NotBusy;
 }
@@ -747,6 +752,7 @@ void DiagramSceneModel::onEndInsertElement(int row, const MDiagram *diagram)
         updateGraphicsItem(item, element);
         m_graphicsScene->invalidate();
         updateGraphicsItem(item, element);
+        recalcSceneRectSize();
     }
     m_busyState = NotBusy;
 }
@@ -757,6 +763,7 @@ void DiagramSceneModel::onBeginRemoveElement(int row, const MDiagram *diagram)
     if (diagram == m_diagram) {
         QGraphicsItem *item = m_graphicsItems.takeAt(row);
         deleteGraphicsItem(item, diagram->diagramElements().at(row));
+        recalcSceneRectSize();
     }
     m_busyState = RemoveElement;
 }
@@ -806,6 +813,27 @@ void DiagramSceneModel::onSelectionChanged()
             }
         }
     }
+
+    // select more items secondarily
+    for (QGraphicsItem *selectedItem : Utils::asConst(m_selectedItems)) {
+        if (auto selectable = dynamic_cast<ISelectable *>(selectedItem)) {
+            QRectF boundary = selectable->getSecondarySelectionBoundary();
+            if (!boundary.isEmpty()) {
+                for (QGraphicsItem *item : Utils::asConst(m_graphicsItems)) {
+                    if (auto secondarySelectable = dynamic_cast<ISelectable *>(item)) {
+                        if (!item->isSelected() && !secondarySelectable->isSecondarySelected()) {
+                            secondarySelectable->setBoundarySelected(boundary, true);
+                            QMT_CHECK(!m_selectedItems.contains(item));
+                            QMT_CHECK(!m_secondarySelectedItems.contains(item));
+                            if (secondarySelectable->isSecondarySelected())
+                                newSecondarySelectedItems.insert(item);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     // select all relations where both ends are primary or secondary selected
     foreach (DElement *element, m_diagram->diagramElements()) {
@@ -880,6 +908,17 @@ void DiagramSceneModel::addExtraSceneItems()
 {
     m_graphicsScene->addItem(m_originItem);
     m_latchController->addToGraphicsScene(m_graphicsScene);
+}
+
+void DiagramSceneModel::recalcSceneRectSize()
+{
+    QRectF sceneRect = m_originItem->mapRectToScene(m_originItem->boundingRect());
+    for (QGraphicsItem *item : Utils::asConst(m_graphicsItems)) {
+        // TODO use an interface to update sceneRect by item
+        if (!dynamic_cast<SwimlaneItem *>(item))
+            sceneRect |= item->mapRectToScene(item->boundingRect());
+    }
+    emit sceneRectChanged(sceneRect);
 }
 
 QGraphicsItem *DiagramSceneModel::createGraphicsItem(DElement *element)

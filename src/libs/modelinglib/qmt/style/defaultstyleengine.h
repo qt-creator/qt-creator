@@ -42,6 +42,7 @@ class ObjectStyleKey;
 class RelationStyleKey;
 class AnnotationStyleKey;
 class BoundaryStyleKey;
+class SwimlaneStyleKey;
 
 class QMT_EXPORT DefaultStyleEngine : public StyleEngine
 {
@@ -64,11 +65,14 @@ public:
                                       const Parameters *parameters) override;
     const Style *applyBoundaryStyle(const Style *baseStyle, const DBoundary *boundary,
                                     const Parameters *parameters) override;
+    const Style *applySwimlaneStyle(const Style *baseStyle, const DSwimlane *swimlane,
+                                    const Parameters *parameters) override;
 
 private:
     const Style *applyAnnotationStyle(const Style *baseStyle, DAnnotation::VisualRole visualRole,
                                       const Parameters *parameters);
     const Style *applyBoundaryStyle(const Style *baseStyle, const Parameters *parameters);
+    const Style *applySwimlaneStyle(const Style *baseStyle, const Parameters *parameters);
 
     ElementType objectType(const DObject *object);
 
@@ -87,6 +91,7 @@ private:
     QHash<RelationStyleKey, const Style *> m_relationStyleMap;
     QHash<AnnotationStyleKey, const Style *> m_annotationStyleMap;
     QHash<BoundaryStyleKey, const Style *> m_boundaryStyleMap;
+    QHash<SwimlaneStyleKey, const Style *> m_swimlaneStyleMap;
 };
 
 } // namespace qmt

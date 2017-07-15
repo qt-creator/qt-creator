@@ -80,6 +80,7 @@ public:
 signals:
     void diagramSceneActivated(const MDiagram *diagram);
     void selectionHasChanged(const MDiagram *diagram);
+    void sceneRectChanged(const QRectF &sceneRect);
 
 public:
     DiagramController *diagramController() const { return m_diagramController; }
@@ -152,6 +153,7 @@ private:
     void clearGraphicsScene();
     void removeExtraSceneItems();
     void addExtraSceneItems();
+    void recalcSceneRectSize();
     QGraphicsItem *createGraphicsItem(DElement *element);
     void updateGraphicsItem(QGraphicsItem *item, DElement *element);
     void deleteGraphicsItem(QGraphicsItem *item, DElement *element);

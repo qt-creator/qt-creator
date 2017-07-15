@@ -208,6 +208,21 @@ void ObjectItem::setFocusSelected(bool focusSelected)
     }
 }
 
+QRectF ObjectItem::getSecondarySelectionBoundary()
+{
+    return QRectF();
+}
+
+void ObjectItem::setBoundarySelected(const QRectF &boundary, bool secondary)
+{
+    if (boundary.contains(mapRectToScene(boundingRect()))) {
+        if (secondary)
+            setSecondarySelected(true);
+        else
+            setSelected(true);
+    }
+}
+
 ILatchable::Action ObjectItem::horizontalLatchAction() const
 {
     if (!m_selectionMarker)

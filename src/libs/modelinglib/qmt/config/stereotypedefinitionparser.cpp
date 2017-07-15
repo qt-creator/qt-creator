@@ -36,7 +36,6 @@
 #include <QHash>
 #include <QSet>
 #include <QPair>
-#include <QDebug>
 
 namespace qmt {
 
@@ -884,7 +883,8 @@ void StereotypeDefinitionParser::parseToolbarTool(const Toolbar *toolbar, Toolba
                         << QStringLiteral("class")
                         << QStringLiteral("item")
                         << QStringLiteral("annotation")
-                        << QStringLiteral("boundary");
+                        << QStringLiteral("boundary")
+                        << QStringLiteral("swimlane");
                 QString elementName = element.toLower();
                 if (!elementNames.contains(elementName))
                     throw StereotypeDefinitionParserError(QString(QStringLiteral("Unexpected value \"%1\" for element.")).arg(element), token.sourcePos());

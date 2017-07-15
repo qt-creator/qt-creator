@@ -160,6 +160,8 @@ HEADERS += \
     $$PWD/tasks/isceneinspector.h \
     $$PWD/tasks/voidelementtasks.h \
     $$PWD/infrastructure/qmtassert.h \
+    $$PWD/diagram_scene/items/swimlaneitem.h \
+    $$PWD/diagram/dswimlane.h
 
 SOURCES += \
     $$PWD/config/configcontroller.cpp \
@@ -286,6 +288,8 @@ SOURCES += \
     $$PWD/tasks/finddiagramvisitor.cpp \
     $$PWD/tasks/findrootdiagramvisitor.cpp \
     $$PWD/tasks/voidelementtasks.cpp \
+    $$PWD/diagram_scene/items/swimlaneitem.cpp \
+    $$PWD/diagram/dswimlane.cpp
 
 RESOURCES += \
     $$PWD/resources/resources.qrc

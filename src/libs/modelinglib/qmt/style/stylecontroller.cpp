@@ -104,6 +104,12 @@ const Style *StyleController::adaptBoundaryStyle(const DBoundary *boundary)
     return m_defaultStyleEngine->applyBoundaryStyle(m_defaultStyle.data(), boundary, &parameters);
 }
 
+const Style *StyleController::adaptSwimlaneStyle(const DSwimlane *swimlane)
+{
+    Parameters parameters(this);
+    return m_defaultStyleEngine->applySwimlaneStyle(m_defaultStyle.data(), swimlane, &parameters);
+}
+
 const Style *StyleController::relationStarterStyle()
 {
     return m_relationStarterStyle.data();

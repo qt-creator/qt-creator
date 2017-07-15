@@ -264,6 +264,21 @@ void BoundaryItem::setFocusSelected(bool focusSelected)
     }
 }
 
+QRectF BoundaryItem::getSecondarySelectionBoundary()
+{
+    return QRectF();
+}
+
+void BoundaryItem::setBoundarySelected(const QRectF &boundary, bool secondary)
+{
+    if (boundary.contains(mapRectToScene(boundingRect()))) {
+        if (secondary)
+            setSecondarySelected(true);
+        else
+            setSelected(true);
+    }
+}
+
 bool BoundaryItem::isEditable() const
 {
     return true;

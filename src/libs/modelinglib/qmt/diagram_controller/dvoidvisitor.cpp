@@ -39,6 +39,7 @@
 #include "qmt/diagram/dconnection.h"
 #include "qmt/diagram/dannotation.h"
 #include "qmt/diagram/dboundary.h"
+#include "qmt/diagram/dswimlane.h"
 
 namespace qmt {
 
@@ -116,6 +117,11 @@ void DVoidVisitor::visitDBoundary(DBoundary *boundary)
     visitDElement(boundary);
 }
 
+void DVoidVisitor::visitDSwimlane(DSwimlane *swimlane)
+{
+    visitDElement(swimlane);
+}
+
 DConstVoidVisitor::DConstVoidVisitor()
 {
 }
@@ -188,6 +194,11 @@ void DConstVoidVisitor::visitDAnnotation(const DAnnotation *annotation)
 void DConstVoidVisitor::visitDBoundary(const DBoundary *boundary)
 {
     visitDElement(boundary);
+}
+
+void DConstVoidVisitor::visitDSwimlane(const DSwimlane *swimlane)
+{
+    visitDElement(swimlane);
 }
 
 } // namespace qmt

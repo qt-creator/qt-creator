@@ -39,6 +39,7 @@
 #include "qmt/diagram/dconnection.h"
 #include "qmt/diagram/dannotation.h"
 #include "qmt/diagram/dboundary.h"
+#include "qmt/diagram/dswimlane.h"
 #include "qmt/infrastructure/qmtassert.h"
 
 namespace qmt {
@@ -176,6 +177,16 @@ void DFlatAssignmentVisitor::visitDBoundary(const DBoundary *boundary)
     target->setText(boundary->text());
     target->setPos(boundary->pos());
     target->setRect(boundary->rect());
+}
+
+void DFlatAssignmentVisitor::visitDSwimlane(const DSwimlane *swimlane)
+{
+    visitDElement(swimlane);
+    auto target = dynamic_cast<DSwimlane *>(m_target);
+    QMT_ASSERT(target, return);
+    target->setText(swimlane->text());
+    target->setHorizontal(swimlane->isHorizontal());
+    target->setPos(swimlane->pos());
 }
 
 } // namespace qmt

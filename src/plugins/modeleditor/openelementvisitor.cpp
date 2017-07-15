@@ -137,6 +137,11 @@ void OpenDiagramElementVisitor::visitDBoundary(const qmt::DBoundary *boundary)
     Q_UNUSED(boundary);
 }
 
+void OpenDiagramElementVisitor::visitDSwimlane(const qmt::DSwimlane *swimlane)
+{
+    Q_UNUSED(swimlane);
+}
+
 void OpenModelElementVisitor::setElementTasks(ElementTasks *elementTasks)
 {
     m_elementTasks = elementTasks;

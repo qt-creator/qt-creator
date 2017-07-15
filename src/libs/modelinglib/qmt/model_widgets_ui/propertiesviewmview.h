@@ -94,6 +94,7 @@ public:
     void visitDConnection(const DConnection *connection) override;
     void visitDAnnotation(const DAnnotation *annotation) override;
     void visitDBoundary(const DBoundary *boundary) override;
+    void visitDSwimlane(const DSwimlane *swimlane) override;
 
     void update(QList<MElement *> &modelElements);
     void update(QList<DElement *> &diagramElements, MDiagram *diagram);

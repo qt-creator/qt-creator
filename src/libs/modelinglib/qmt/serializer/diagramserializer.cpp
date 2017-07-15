@@ -45,6 +45,7 @@
 
 #include "qmt/diagram/dannotation.h"
 #include "qmt/diagram/dboundary.h"
+#include "qmt/diagram/dswimlane.h"
 
 #include "qark/qxmloutarchive.h"
 #include "qark/qxmlinarchive.h"
@@ -402,5 +403,24 @@ inline void Access<Archive, DBoundary>::serialize(Archive &archive, DBoundary &b
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DBoundary)
+
+// DSwimlane
+
+QARK_REGISTER_TYPE_NAME(DSwimlane, "DSwimlane")
+QARK_REGISTER_DERIVED_CLASS(QXmlInArchive, QXmlOutArchive, DSwimlane, DElement)
+QARK_ACCESS_SERIALIZE(DSwimlane)
+
+template<class Archive>
+inline void Access<Archive, DSwimlane>::serialize(Archive &archive, DSwimlane &swimlane)
+{
+    archive || tag(swimlane)
+            || base<DElement>(swimlane)
+            || attr(QStringLiteral("text"), swimlane, &DSwimlane::text, &DSwimlane::setText)
+            || attr(QStringLiteral("horizontal"), swimlane, &DSwimlane::isHorizontal, &DSwimlane::setHorizontal)
+            || attr(QStringLiteral("pos"), swimlane, &DSwimlane::pos, &DSwimlane::setPos)
+            || end;
+}
+
+QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, DSwimlane)
 
 } // namespace qark

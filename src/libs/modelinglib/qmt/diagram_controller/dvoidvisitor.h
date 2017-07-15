@@ -50,6 +50,7 @@ public:
     void visitDConnection(DConnection *connection) override;
     void visitDAnnotation(DAnnotation *annotation) override;
     void visitDBoundary(DBoundary *boundary) override;
+    void visitDSwimlane(DSwimlane *swimlane) override;
 };
 
 class QMT_EXPORT DConstVoidVisitor : public DConstVisitor
@@ -71,6 +72,7 @@ public:
     void visitDConnection(const DConnection *connection) override;
     void visitDAnnotation(const DAnnotation *annotation) override;
     void visitDBoundary(const DBoundary *boundary) override;
+    void visitDSwimlane(const DSwimlane *swimlane) override;
 };
 
 } // namespace qmt

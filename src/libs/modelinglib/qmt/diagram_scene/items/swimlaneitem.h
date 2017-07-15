@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Jochen Becher
+** Copyright (C) 2017 Jochen Becher
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -27,48 +27,32 @@
 
 #include <QGraphicsItem>
 
-#include "qmt/diagram_scene/capabilities/resizable.h"
 #include "qmt/diagram_scene/capabilities/moveable.h"
 #include "qmt/diagram_scene/capabilities/selectable.h"
-#include "qmt/diagram_scene/capabilities/editable.h"
 
 namespace qmt {
 
-class DAnnotation;
+class DSwimlane;
 class DiagramSceneModel;
-class RectangularSelectionItem;
 class Style;
 
-class AnnotationItem :
+class SwimlaneItem :
         public QGraphicsItem,
-        public IResizable,
         public IMoveable,
-        public ISelectable,
-        public IEditable
+        public ISelectable
 {
-    class AnnotationTextItem;
-
 public:
-    AnnotationItem(DAnnotation *annotation, DiagramSceneModel *diagramSceneModel,
-                   QGraphicsItem *parent = 0);
-    ~AnnotationItem() override;
+    SwimlaneItem(DSwimlane *swimlane, DiagramSceneModel *diagramSceneModel,
+                 QGraphicsItem *parent = nullptr);
+    ~SwimlaneItem() override;
 
-    DAnnotation *annotation() const { return m_annotation; }
+    DSwimlane *swimlane() const { return m_swimlane; }
     DiagramSceneModel *diagramSceneModel() const { return m_diagramSceneModel; }
-    QRectF boundingRect() const override;
 
+    QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
     virtual void update();
-
-    QPointF pos() const override;
-    QRectF rect() const override;
-    QSizeF minimumSize() const override;
-
-    void setPosAndRect(const QPointF &originalPos, const QRectF &originalRect,
-                       const QPointF &topLeftDelta, const QPointF &bottomRightDelta) override;
-    void alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide,
-                               double rasterWidth, double rasterHeight) override;
 
     void moveDelta(const QPointF &delta) override;
     void alignItemPositionToRaster(double rasterWidth, double rasterHeight) override;
@@ -80,35 +64,24 @@ public:
     QRectF getSecondarySelectionBoundary() override;
     void setBoundarySelected(const QRectF &boundary, bool secondary) override;
 
-    bool isEditable() const override;
-    void edit() override;
-
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
     void updateSelectionMarker();
-    void updateSelectionMarkerGeometry(const QRectF &annotationRect);
     const Style *adaptedStyle();
 
-    bool sceneEventFilter(QGraphicsItem *watched, QEvent *event) override;
-
 private:
-    void onContentsChanged();
-
     QSizeF calcMinimumGeometry() const;
     void updateGeometry();
 
-    DAnnotation *m_annotation = 0;
-    DiagramSceneModel *m_diagramSceneModel = 0;
-    bool m_isSecondarySelected = false;
-    bool m_isFocusSelected = false;
-    RectangularSelectionItem *m_selectionMarker = 0;
-    QGraphicsRectItem *m_noTextItem = 0;
-    AnnotationTextItem *m_textItem = 0;
+    DSwimlane *m_swimlane = nullptr;
+    DiagramSceneModel *m_diagramSceneModel = nullptr;
+    QGraphicsLineItem *m_lineItem = nullptr;
+    QGraphicsRectItem *m_selectionMarker = nullptr;
     bool m_isUpdating = false;
-    bool m_isChanged = false;
+    bool m_secondarySelected = false;
 };
 
 } // namespace qmt

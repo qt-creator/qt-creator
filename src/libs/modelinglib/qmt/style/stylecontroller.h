@@ -60,6 +60,7 @@ public:
     const Style *adaptRelationStyle(const StyledRelation &relation);
     const Style *adaptAnnotationStyle(const DAnnotation *annotation);
     const Style *adaptBoundaryStyle(const DBoundary *boundary);
+    const Style *adaptSwimlaneStyle(const DSwimlane *swimlane);
     const Style *relationStarterStyle();
 
 private:

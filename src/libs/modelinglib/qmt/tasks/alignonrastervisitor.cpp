@@ -40,6 +40,7 @@
 #include "qmt/diagram/dobject.h"
 #include "qmt/diagram/dpackage.h"
 #include "qmt/diagram/drelation.h"
+#include "qmt/diagram/dswimlane.h"
 #include "qmt/diagram_scene/capabilities/moveable.h"
 #include "qmt/diagram_scene/capabilities/resizable.h"
 #include "qmt/diagram_scene/diagramsceneconstants.h"
@@ -155,6 +156,13 @@ void AlignOnRasterVisitor::visitDBoundary(DBoundary *boundary)
         resizable->alignItemSizeToRaster(IResizable::SideRightOrBottom, IResizable::SideRightOrBottom,
                                          2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
     IMoveable *moveable = m_sceneInspector->moveable(boundary, m_diagram);
+    if (moveable)
+        moveable->alignItemPositionToRaster(RASTER_WIDTH, RASTER_HEIGHT);
+}
+
+void AlignOnRasterVisitor::visitDSwimlane(DSwimlane *swimlane)
+{
+    IMoveable *moveable = m_sceneInspector->moveable(swimlane, m_diagram);
     if (moveable)
         moveable->alignItemPositionToRaster(RASTER_WIDTH, RASTER_HEIGHT);
 }

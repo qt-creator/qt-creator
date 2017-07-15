@@ -40,7 +40,6 @@
 #include <utils/algorithm.h>
 
 #include <QSet>
-#include <QDebug>
 
 namespace {
 
@@ -158,6 +157,26 @@ bool operator==(const BoundaryStyleKey &lhs, const BoundaryStyleKey &rhs)
     return true;
 }
 
+// TODO remove class if no attributes needed even with future extensions
+class SwimlaneStyleKey
+{
+};
+
+uint qHash(const SwimlaneStyleKey &styleKey)
+{
+    Q_UNUSED(styleKey);
+
+    return 1;
+}
+
+bool operator==(const SwimlaneStyleKey &lhs, const SwimlaneStyleKey &rhs)
+{
+    Q_UNUSED(lhs);
+    Q_UNUSED(rhs);
+
+    return true;
+}
+
 DefaultStyleEngine::DefaultStyleEngine()
 {
 }
@@ -190,6 +209,8 @@ const Style *DefaultStyleEngine::applyStyle(const Style *baseStyle, StyleEngine:
                     parameters);
     case TypeOther:
         break;
+    case TypeSwimlane:
+        return applySwimlaneStyle(baseStyle, parameters);
     }
     return baseStyle;
 }
@@ -371,6 +392,13 @@ const Style *DefaultStyleEngine::applyBoundaryStyle(const Style *baseStyle, cons
     return applyBoundaryStyle(baseStyle, parameters);
 }
 
+const Style *DefaultStyleEngine::applySwimlaneStyle(const Style *baseStyle, const DSwimlane *swimlane, const StyleEngine::Parameters *parameters)
+{
+    Q_UNUSED(swimlane);
+
+    return applySwimlaneStyle(baseStyle, parameters);
+}
+
 const Style *DefaultStyleEngine::applyAnnotationStyle(const Style *baseStyle, DAnnotation::VisualRole visualRole,
                                                       const StyleEngine::Parameters *parameters)
 {
@@ -429,6 +457,22 @@ const Style *DefaultStyleEngine::applyBoundaryStyle(const Style *baseStyle, cons
     return derivedStyle;
 }
 
+const Style *DefaultStyleEngine::applySwimlaneStyle(const Style *baseStyle, const StyleEngine::Parameters *parameters)
+{
+    Q_UNUSED(parameters);
+
+    SwimlaneStyleKey key;
+    const Style *derivedStyle = m_swimlaneStyleMap.value(key);
+    if (!derivedStyle) {
+        auto style = new Style(baseStyle->type());
+        style->setNormalFont(baseStyle->normalFont());
+        style->setTextBrush(baseStyle->textBrush());
+        m_swimlaneStyleMap.insert(key, style);
+        derivedStyle = style;
+    }
+    return derivedStyle;
+}
+
 DefaultStyleEngine::ElementType DefaultStyleEngine::objectType(const DObject *object)
 {
     ElementType elementType;
@@ -459,7 +503,6 @@ bool DefaultStyleEngine::areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryR
         case DObject::SecondaryRoleLighter:
         case DObject::SecondaryRoleDarker:
             return lhsPrimaryRole == rhsPrimaryRole;
-            break;
         case DObject::SecondaryRoleSoften:
         case DObject::SecondaryRoleOutline:
             return false;
@@ -495,7 +538,11 @@ QColor DefaultStyleEngine::baseColor(ElementType elementType, ObjectVisuals obje
             case TypeItem:
                 baseColor = QColor("#B995C6");
                 break;
-            default:
+            case TypeRelation:
+            case TypeAnnotation:
+            case TypeBoundary:
+            case TypeSwimlane:
+            case TypeOther:
                 baseColor = QColor("#BF7D65");
                 break;
             }

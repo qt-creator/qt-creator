@@ -213,6 +213,21 @@ void AnnotationItem::setFocusSelected(bool focusSelected)
     }
 }
 
+QRectF AnnotationItem::getSecondarySelectionBoundary()
+{
+    return QRectF();
+}
+
+void AnnotationItem::setBoundarySelected(const QRectF &boundary, bool secondary)
+{
+    if (boundary.contains(mapRectToScene(boundingRect()))) {
+        if (secondary)
+            setSecondarySelected(true);
+        else
+            setSelected(true);
+    }
+}
+
 bool AnnotationItem::isEditable() const
 {
     return true;

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Jochen Becher
+** Copyright (C) 2017 Jochen Becher
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,44 +25,34 @@
 
 #pragma once
 
+#include "delement.h"
+
 namespace qmt {
 
-class DElement;
-class DObject;
-class DPackage;
-class DClass;
-class DComponent;
-class DDiagram;
-class DItem;
-class DRelation;
-class DInheritance;
-class DDependency;
-class DAssociation;
-class DConnection;
-class DAnnotation;
-class DBoundary;
-class DSwimlane;
-
-class DVisitor
+class QMT_EXPORT DSwimlane : public DElement
 {
 public:
-    virtual ~DVisitor() {}
+    DSwimlane();
+    DSwimlane(const DSwimlane &rhs);
+    ~DSwimlane();
 
-    virtual void visitDElement(DElement *element) = 0;
-    virtual void visitDObject(DObject *object) = 0;
-    virtual void visitDPackage(DPackage *package) = 0;
-    virtual void visitDClass(DClass *klass) = 0;
-    virtual void visitDComponent(DComponent *component) = 0;
-    virtual void visitDDiagram(DDiagram *diagram) = 0;
-    virtual void visitDItem(DItem *item) = 0;
-    virtual void visitDRelation(DRelation *relation) = 0;
-    virtual void visitDInheritance(DInheritance *inheritance) = 0;
-    virtual void visitDDependency(DDependency *dependency) = 0;
-    virtual void visitDAssociation(DAssociation *association) = 0;
-    virtual void visitDConnection(DConnection *connection) = 0;
-    virtual void visitDAnnotation(DAnnotation *annotation) = 0;
-    virtual void visitDBoundary(DBoundary *boundary) = 0;
-    virtual void visitDSwimlane(DSwimlane *swimlane) = 0;
+    DSwimlane &operator=(const DSwimlane &rhs);
+
+    Uid modelUid() const override { return Uid::invalidUid(); }
+    QString text() const { return m_text; }
+    void setText(const QString &text);
+    bool isHorizontal() const { return m_horizontal; }
+    void setHorizontal(bool horizontal);
+    qreal pos() const { return m_pos; }
+    void setPos(qreal pos);
+
+    void accept(DVisitor *visitor) override;
+    void accept(DConstVisitor *visitor) const override;
+
+private:
+    QString m_text;
+    bool m_horizontal = false; // false: vertical, true: horizontal
+    qreal m_pos = 0.0;
 };
 
 } // namespace qmt

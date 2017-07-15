@@ -39,6 +39,7 @@
 #include "qmt/diagram/dconnection.h"
 #include "qmt/diagram/dannotation.h"
 #include "qmt/diagram/dboundary.h"
+#include "qmt/diagram/dswimlane.h"
 #include "qmt/infrastructure/qmtassert.h"
 
 namespace qmt {
@@ -144,6 +145,14 @@ void DCloneVisitor::visitDBoundary(const DBoundary *boundary)
     visitDElement(boundary);
 }
 
+void DCloneVisitor::visitDSwimlane(const DSwimlane *swimlane)
+{
+    if (!m_cloned)
+        m_cloned = new DSwimlane(*swimlane);
+    visitDElement(swimlane);
+}
+
+
 DCloneDeepVisitor::DCloneDeepVisitor()
     : m_cloned(0)
 {
@@ -242,6 +251,13 @@ void DCloneDeepVisitor::visitDBoundary(const DBoundary *boundary)
     if (!m_cloned)
         m_cloned = new DBoundary(*boundary);
     visitDElement(boundary);
+}
+
+void DCloneDeepVisitor::visitDSwimlane(const DSwimlane *swimlane)
+{
+    if (!m_cloned)
+        m_cloned = new DSwimlane(*swimlane);
+    visitDElement(swimlane);
 }
 
 } // namespace qmt

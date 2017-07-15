@@ -97,7 +97,7 @@ public:
     bool isAddingAllowed(const Uid &modelElementKey, MDiagram *diagram);
     void addExistingModelElement(const Uid &modelElementKey, const QPointF &pos, MDiagram *diagram);
     void dropNewElement(const QString &newElementId, const QString &name, const QString &stereotype,
-                        DElement *topMostElementAtPos, const QPointF &pos, MDiagram *diagram);
+                        DElement *topMostElementAtPos, const QPointF &pos, MDiagram *diagram, const QPoint &viewPos, const QSize &viewSize);
     void dropNewModelElement(MObject *modelObject, MPackage *parentPackage, const QPointF &pos,
                              MDiagram *diagram);
 

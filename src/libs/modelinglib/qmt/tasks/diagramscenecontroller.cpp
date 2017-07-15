@@ -38,6 +38,7 @@
 #include "qmt/diagram/drelation.h"
 #include "qmt/diagram/dassociation.h"
 #include "qmt/diagram/dconnection.h"
+#include "qmt/diagram/dswimlane.h"
 #include "qmt/diagram_ui/diagram_mime_types.h"
 #include "qmt/model_controller/modelcontroller.h"
 #include "qmt/model_controller/mselection.h"
@@ -339,7 +340,8 @@ void DiagramSceneController::addExistingModelElement(const Uid &modelElementKey,
 }
 
 void DiagramSceneController::dropNewElement(const QString &newElementId, const QString &name, const QString &stereotype,
-                                            DElement *topMostElementAtPos, const QPointF &pos, MDiagram *diagram)
+                                            DElement *topMostElementAtPos, const QPointF &pos, MDiagram *diagram,
+                                            const QPoint &viewPos, const QSize &viewSize)
 {
     if (newElementId == QLatin1String(ELEMENT_TYPE_ANNOTATION)) {
         auto annotation = new DAnnotation();
@@ -354,6 +356,16 @@ void DiagramSceneController::dropNewElement(const QString &newElementId, const Q
         m_diagramController->addElement(boundary, diagram);
         alignOnRaster(boundary, diagram);
         emit newElementCreated(boundary, diagram);
+    } else if (newElementId == QLatin1String(ELEMENT_TYPE_SWIMLANE)) {
+        auto swimlane = new DSwimlane();
+        qreal x = static_cast<qreal>(viewPos.x()) / viewSize.width();
+        qreal y = static_cast<qreal>(viewPos.y()) / viewSize.height();
+        bool horizontal = (y > x && (1-y) > x) || (y <= x && (1-y) <= x);
+        swimlane->setHorizontal(horizontal);
+        swimlane->setPos(horizontal ? pos.y() : pos.x());
+        m_diagramController->addElement(swimlane, diagram);
+        alignOnRaster(swimlane, diagram);
+        emit newElementCreated(swimlane, diagram);
     } else {
         MPackage *parentPackage = findSuitableParentPackage(topMostElementAtPos, diagram);
         MObject *newObject = 0;

@@ -119,9 +119,18 @@
 // Toolbar {
 //     id: <id>
 //     title: <a Ui title. Defaults to the id of the toolbar>
+//     element: <List of elements the toolbar is assigned to. Each element can be one of package, component,
+//               class, item or any Icon definition. Default to nothing which defines an object toolbar for
+//               diagrams.>
 //     priority: <priority number which decides about the position of toolbar in toolbox. Defaults to 0>
 //     Tools {
-//         Tool { title: <Ui title>; element: <element type>; stereotype: <stereotype, defaults to nothing> }
+//         Tool {
+//             title: <Ui title>;
+//             element: <element type; one of package, class, component, item, annotation, boundary or swimlane
+//                       for object toolbars. One of dependency, inheritance or association for element toolbars.
+//                       Must be given>;
+//             stereotype: <stereotype, defaults to nothing>
+//         }
 //         Separator
 //     }
 // }
@@ -465,6 +474,7 @@ Toolbar {
         Separator
         Tool { title: "Annotation"; element: annotation }
         Tool { title: "Boundary"; element: boundary }
+        Tool { title: "Swimlane"; element: swimlane }
     }
 }
 
@@ -477,6 +487,7 @@ Toolbar {
         Separator
         Tool { title: "Annotation"; element: annotation }
         Tool { title: "Boundary"; element: boundary }
+        Tool { title: "Swimlane"; element: swimlane }
     }
 }
 
@@ -489,6 +500,7 @@ Toolbar {
         Separator
         Tool { title: "Annotation"; element: annotation }
         Tool { title: "Boundary"; element: boundary }
+        Tool { title: "Swimlane"; element: swimlane }
     }
 }
 
@@ -504,5 +516,6 @@ Toolbar {
         Separator
         Tool { title: "Annotation"; element: annotation }
         Tool { title: "Boundary"; element: boundary }
+        Tool { title: "Swimlane"; element: swimlane }
     }
 }

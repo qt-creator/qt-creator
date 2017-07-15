@@ -21,5 +21,6 @@
         <file>48x48/inheritance.png</file>
         <file>48x48/item.png</file>
         <file>48x48/package.png</file>
+        <file>48x48/swimlane.png</file>
     </qresource>
 </RCC>

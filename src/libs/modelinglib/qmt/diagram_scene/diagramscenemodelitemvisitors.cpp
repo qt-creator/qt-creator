@@ -35,6 +35,7 @@
 #include "items/connectionitem.h"
 #include "items/annotationitem.h"
 #include "items/boundaryitem.h"
+#include "items/swimlaneitem.h"
 
 #include "qmt/diagram/delement.h"
 #include "qmt/diagram/dobject.h"
@@ -50,6 +51,7 @@
 #include "qmt/diagram/dconnection.h"
 #include "qmt/diagram/dannotation.h"
 #include "qmt/diagram/dboundary.h"
+#include "qmt/diagram/dswimlane.h"
 #include "qmt/infrastructure/qmtassert.h"
 
 namespace qmt {
@@ -140,6 +142,12 @@ void DiagramSceneModel::CreationVisitor::visitDBoundary(DBoundary *boundary)
 {
     QMT_CHECK(!m_graphicsItem);
     m_graphicsItem = new BoundaryItem(boundary, m_diagramSceneModel);
+}
+
+void DiagramSceneModel::CreationVisitor::visitDSwimlane(DSwimlane *swimlane)
+{
+    QMT_CHECK(!m_graphicsItem);
+    m_graphicsItem = new SwimlaneItem(swimlane, m_diagramSceneModel);
 }
 
 DiagramSceneModel::UpdateVisitor::UpdateVisitor(QGraphicsItem *item, DiagramSceneModel *diagramSceneModel,
@@ -295,6 +303,17 @@ void DiagramSceneModel::UpdateVisitor::visitDBoundary(DBoundary *boundary)
     QMT_ASSERT(boundaryItem, return);
     QMT_CHECK(boundaryItem->boundary() == boundary);
     boundaryItem->update();
+}
+
+void DiagramSceneModel::UpdateVisitor::visitDSwimlane(DSwimlane *swimlane)
+{
+    Q_UNUSED(swimlane); // avoid warning in release mode
+    QMT_ASSERT(m_graphicsItem, return);
+
+    SwimlaneItem *swimlaneItem = qgraphicsitem_cast<SwimlaneItem *>(m_graphicsItem);
+    QMT_ASSERT(swimlaneItem, return);
+    QMT_CHECK(swimlaneItem->swimlane() == swimlane);
+    swimlaneItem->update();
 }
 
 } // namespace qmt

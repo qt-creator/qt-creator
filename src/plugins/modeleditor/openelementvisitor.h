@@ -42,20 +42,21 @@ public:
     void setModelController(qmt::ModelController *modelController);
     void setElementTasks(ElementTasks *elementTasks);
 
-    void visitDElement(const qmt::DElement *element);
-    void visitDObject(const qmt::DObject *object);
-    void visitDPackage(const qmt::DPackage *package);
-    void visitDClass(const qmt::DClass *klass);
-    void visitDComponent(const qmt::DComponent *component);
-    void visitDDiagram(const qmt::DDiagram *diagram);
-    void visitDItem(const qmt::DItem *item);
-    void visitDRelation(const qmt::DRelation *relation);
-    void visitDInheritance(const qmt::DInheritance *inheritance);
-    void visitDDependency(const qmt::DDependency *dependency);
-    void visitDAssociation(const qmt::DAssociation *association);
-    void visitDConnection(const qmt::DConnection *connection);
-    void visitDAnnotation(const qmt::DAnnotation *annotation);
-    void visitDBoundary(const qmt::DBoundary *boundary);
+    void visitDElement(const qmt::DElement *element) override;
+    void visitDObject(const qmt::DObject *object) override;
+    void visitDPackage(const qmt::DPackage *package) override;
+    void visitDClass(const qmt::DClass *klass) override;
+    void visitDComponent(const qmt::DComponent *component) override;
+    void visitDDiagram(const qmt::DDiagram *diagram) override;
+    void visitDItem(const qmt::DItem *item) override;
+    void visitDRelation(const qmt::DRelation *relation) override;
+    void visitDInheritance(const qmt::DInheritance *inheritance) override;
+    void visitDDependency(const qmt::DDependency *dependency) override;
+    void visitDAssociation(const qmt::DAssociation *association) override;
+    void visitDConnection(const qmt::DConnection *connection) override;
+    void visitDAnnotation(const qmt::DAnnotation *annotation) override;
+    void visitDBoundary(const qmt::DBoundary *boundary) override;
+    void visitDSwimlane(const qmt::DSwimlane *swimlane) override;
 
 private:
     qmt::ModelController *m_modelController = 0;

@@ -316,6 +316,18 @@ void RelationItem::setFocusSelected(bool focusSelected)
     }
 }
 
+QRectF RelationItem::getSecondarySelectionBoundary()
+{
+    return QRectF();
+}
+
+void RelationItem::setBoundarySelected(const QRectF &boundary, bool secondary)
+{
+    // TODO make individual intermediate points selectable
+    Q_UNUSED(boundary)
+    Q_UNUSED(secondary)
+}
+
 QPointF RelationItem::grabHandle(int index)
 {
     if (index == 0) {

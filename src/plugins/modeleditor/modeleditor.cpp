@@ -1046,6 +1046,9 @@ void ModelEditor::initToolbars()
                 } else if (tool.m_elementType == QLatin1String(qmt::ELEMENT_TYPE_BOUNDARY)) {
                     iconPath = QStringLiteral(":/modelinglib/48x48/boundary.png");
                     styleEngineElementType = qmt::StyleEngine::TypeBoundary;
+                } else if (tool.m_elementType == QLatin1String(qmt::ELEMENT_TYPE_SWIMLANE)) {
+                    iconPath = QStringLiteral(":/modelinglib/48x48/swimlane.png");
+                    styleEngineElementType = qmt::StyleEngine::TypeSwimlane;
                 }
                 QIcon icon;
                 if (!tool.m_stereotype.isEmpty() && stereotypeIconElement != qmt::StereotypeIcon::ElementAny) {
@@ -1109,6 +1112,10 @@ void ModelEditor::initToolbars()
         toolBarLayout->addWidget(
                     new DragTool(QIcon(QStringLiteral(":/modelinglib/48x48/boundary.png")),
                                  tr("Boundary"), QLatin1String(qmt::ELEMENT_TYPE_BOUNDARY),
+                                 QString(), toolBar));
+        toolBarLayout->addWidget(
+                    new DragTool(QIcon(QStringLiteral(":/modelinglib/48x48/swimlane.png")),
+                                 tr("Swimlane"), QLatin1String(qmt::ELEMENT_TYPE_SWIMLANE),
                                  QString(), toolBar));
     }
 
