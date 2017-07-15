@@ -264,7 +264,7 @@ DElement *DiagramSceneModel::element(QGraphicsItem *item) const
 
 bool DiagramSceneModel::isElementEditable(const DElement *element) const
 {
-   auto editable = dynamic_cast<IEditable *>(m_elementToItemMap.value(element));
+    auto editable = dynamic_cast<IEditable *>(m_elementToItemMap.value(element));
     return editable != 0 && editable->isEditable();
 }
 
