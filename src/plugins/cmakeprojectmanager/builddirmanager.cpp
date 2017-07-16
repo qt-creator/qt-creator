@@ -45,6 +45,7 @@
 #include <utils/qtcassert.h>
 
 #include <QMessageBox>
+#include <QPushButton>
 #include <QSet>
 
 using namespace ProjectExplorer;
@@ -428,11 +429,11 @@ void BuildDirManager::checkConfiguration()
         box->setText(tr("CMake configuration has changed on disk."));
         box->setInformativeText(tr("The CMakeCache.txt file has changed: %1").arg(table));
         auto *defaultButton = box->addButton(tr("Overwrite Changes in CMake"), QMessageBox::RejectRole);
-        box->addButton(tr("Apply Changes to Project"), QMessageBox::AcceptRole);
+        auto *applyButton = box->addButton(tr("Apply Changes to Project"), QMessageBox::ApplyRole);
         box->setDefaultButton(defaultButton);
 
-        int ret = box->exec();
-        if (ret == QMessageBox::Apply)
+        box->exec();
+        if (box->clickedButton() == applyButton)
             m_buildConfiguration->setCMakeConfiguration(newConfig);
     }
 }
