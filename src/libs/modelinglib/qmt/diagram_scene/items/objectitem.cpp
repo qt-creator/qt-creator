@@ -210,6 +210,8 @@ void ObjectItem::setFocusSelected(bool focusSelected)
 
 ILatchable::Action ObjectItem::horizontalLatchAction() const
 {
+    if (!m_selectionMarker)
+        return Move;
     switch (m_selectionMarker->activeHandle()) {
     case RectangularSelectionItem::HandleTopLeft:
     case RectangularSelectionItem::HandleLeft:
@@ -232,6 +234,8 @@ ILatchable::Action ObjectItem::horizontalLatchAction() const
 
 ILatchable::Action ObjectItem::verticalLatchAction() const
 {
+    if (!m_selectionMarker)
+        return Move;
     switch (m_selectionMarker->activeHandle()) {
     case RectangularSelectionItem::HandleTopLeft:
     case RectangularSelectionItem::HandleTop:
