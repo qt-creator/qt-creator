@@ -346,7 +346,7 @@ void CMakeBuildConfiguration::setCurrentCMakeConfiguration(const QList<ConfigMod
     const CMakeConfig config = cmakeConfiguration() + newConfig;
     setCMakeConfiguration(config);
 
-    m_buildDirManager->forceReparse();
+    m_buildDirManager->forceReparseWithoutCheckingForChanges();
 }
 
 void CMakeBuildConfiguration::clearError(ForceEnabledChanged fec)

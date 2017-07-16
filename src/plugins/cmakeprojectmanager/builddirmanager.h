@@ -64,6 +64,7 @@ public:
 
     void clearCache();
     void forceReparse();
+    void forceReparseWithoutCheckingForChanges();
     void maybeForceReparse(); // Only reparse if the configuration has changed...
     void resetData();
     bool updateCMakeStateBeforeBuild();
@@ -96,7 +97,8 @@ private:
     void updateReaderType(std::function<void()> todo);
     void updateReaderData();
 
-    void parseOnceReaderReady(bool force);
+    void forceReparseImpl(bool checkForChanges);
+    void parseOnceReaderReady(bool force, bool checkForChanges = true);
     void maybeForceReparseOnceReaderReady();
 
     void parse();
