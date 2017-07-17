@@ -483,6 +483,16 @@ void CompletionList::keyPressEvent(QKeyEvent *event)
             return;
         }
         break;
+    case Qt::Key_Return:
+    case Qt::Key_Enter:
+        // emit activated even if current index is not valid
+        // if there are no results yet, this allows activating the first entry when it is available
+        // (see LocatorWidget::addSearchResults)
+        if (event->modifiers() == 0) {
+            emit activated(currentIndex());
+            return;
+        }
+        break;
     }
     Utils::TreeView::keyPressEvent(event);
 }
@@ -795,9 +805,9 @@ void LocatorWidget::handleSearchFinished()
     m_showProgressTimer.stop();
     setProgressIndicatorVisible(false);
     m_updateRequested = false;
-    if (m_rowRequestedForAccept >= 0) {
-        acceptEntry(m_rowRequestedForAccept);
-        m_rowRequestedForAccept = -1;
+    if (m_rowRequestedForAccept) {
+        acceptEntry(m_rowRequestedForAccept.value());
+        m_rowRequestedForAccept.reset();
         return;
     }
     if (m_entriesWatcher->future().isCanceled()) {
@@ -892,7 +902,7 @@ void LocatorWidget::addSearchResults(int firstIndex, int endIndex)
     m_locatorModel->addEntries(entries);
     if (selectFirst) {
         emit selectRow(0);
-        if (m_rowRequestedForAccept >= 0)
+        if (m_rowRequestedForAccept)
             m_rowRequestedForAccept = 0;
     }
 }

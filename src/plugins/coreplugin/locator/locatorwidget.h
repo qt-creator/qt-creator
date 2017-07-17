@@ -27,6 +27,8 @@
 
 #include "locator.h"
 
+#include <utils/optional.h>
+
 #include <QPointer>
 #include <QWidget>
 
@@ -99,9 +101,9 @@ private:
     bool m_needsClearResult = true;
     bool m_updateRequested = false;
     bool m_possibleToolTipRequest = false;
-    int m_rowRequestedForAccept = -1;
     QWidget *m_progressIndicator;
     QTimer m_showProgressTimer;
+    Utils::optional<int> m_rowRequestedForAccept;
 };
 
 class LocatorPopup : public QWidget
