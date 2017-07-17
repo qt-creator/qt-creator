@@ -7431,7 +7431,10 @@ void TextEditorWidget::keepAutoCompletionHighlight(bool keepHighlight)
 void TextEditorWidget::setAutoCompleteSkipPosition(const QTextCursor &cursor)
 {
     QTextCursor tc = cursor;
-    tc.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+    // Create a selection of the next character but keep the current position, otherwise
+    // the cursor would be removed from the list of automatically inserted text positions
+    tc.movePosition(QTextCursor::NextCharacter);
+    tc.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
     d->autocompleterHighlight(tc);
 }
 
