@@ -57,7 +57,12 @@ public:
 };
 
 using MT = CPlusPlus::MatchingText;
-class MatchingText : public testing::Test {};
+using IsNextBlockDeeperIndented = MT::IsNextBlockDeeperIndented;
+
+class MatchingText : public testing::Test {
+protected:
+    const IsNextBlockDeeperIndented nextBlockIsIndented = [](const QTextBlock &) { return true; };
+};
 
 TEST_F(MatchingText, ContextAllowsAutoParentheses_ForNoInput)
 {
@@ -87,14 +92,22 @@ TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_AfterFunctionDeclar
     ASSERT_TRUE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
 }
 
-// TODO: Fix!
-//TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_AfterFunctionDeclaratorNewLine)
-//{
-//    const Document document("void g()\n"
-//                            "@");
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_AfterFunctionDeclaratorNewLine)
+{
+    const Document document("void g()\n"
+                            "@");
 
-//    ASSERT_TRUE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
-//}
+    ASSERT_TRUE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_AfterFunctionDeclaratorNewLineAndMore)
+{
+    const Document document("void g()\n"
+                            "@\n"
+                            "1+1;");
+
+    ASSERT_TRUE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
 
 TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_AfterLambdaDeclarator)
 {
@@ -103,12 +116,11 @@ TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_AfterLambdaDeclarat
     ASSERT_TRUE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
 }
 
-// TODO: This does not seem useful, remove.
-TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_BeforeOpeningCurlyBrace)
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeOpeningCurlyBrace)
 {
     const Document document("@{");
 
-    ASSERT_TRUE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
 }
 
 TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_BeforeClosingCurlyBrace)
@@ -160,21 +172,88 @@ TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotInCppDoxygenComm
     ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
 }
 
-// TODO: Fix!
-//TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeIndented)
-//{
-//    const Document document("if (true) @\n"
-//                            "    1+1;");
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeIndented)
+{
+    const Document document("@\n"
+                            "    1+1;");
 
-//    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
-//}
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{", nextBlockIsIndented));
+}
 
-// TODO: Fix!
-//TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeNamespace)
-//{
-//    const Document document("namespace X @");
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeIndentedWithFollowingComment)
+{
+    const Document document("@\n // comment"
+                            "    1+1;");
 
-//    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
-//}
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{", nextBlockIsIndented));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeIndentedWithTextInFront)
+{
+    const Document document("if (true) @\n"
+                            "    1+1;");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{", nextBlockIsIndented));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeIndentedOnEmptyLine1)
+{
+    const Document document("if (true)\n"
+                            "@\n"
+                            "    1+1;");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{", nextBlockIsIndented));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeIndentedOnEmptyLine2)
+{
+    const Document document("if (true)\n"
+                            "    @\n"
+                            "    1+1;");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{", nextBlockIsIndented));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotInTheMiddle)
+{
+    const Document document("if (true) @ true;");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeNamedNamespace)
+{
+    const Document document("namespace X @");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeNamedNamespaceWithAttributeSpecifier)
+{
+    const Document document("namespace [[xyz]] X @");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeUnnamedNamespace)
+{
+    const Document document("namespace @");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeUnnamedNamespaceWithAttributeSpecifier)
+{
+    const Document document("namespace [[xyz]] @");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeNestedNamespace)
+{
+    const Document document("namespace X::Y::Z @");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
 
 } // anonymous

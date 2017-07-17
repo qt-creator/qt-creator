@@ -34,6 +34,8 @@
 #include <QChar>
 #include <QDebug>
 
+#include <utils/algorithm.h>
+
 using namespace CPlusPlus;
 
 enum { MAX_NUM_LINES = 20 };
@@ -135,16 +137,215 @@ static const Token tokenAtPosition(const Tokens &tokens, const unsigned pos)
     return Token();
 }
 
+static int tokenIndexBeforePosition(const Tokens &tokens, unsigned pos)
+{
+    for (int i = tokens.size() - 1; i >= 0; --i) {
+        if (tokens[i].utf16charsBegin() < pos)
+            return i;
+    }
+    return -1;
+}
+
+static bool isCursorAtEndOfLineButMaybeBeforeComment(const Tokens &tokens, int pos)
+{
+    int index = tokenIndexBeforePosition(tokens, uint(pos));
+    if (index == -1 || index >= tokens.size())
+        return false;
+
+    do {
+        ++index;
+    } while (index < tokens.size() && tokens[index].isComment());
+
+    return index >= tokens.size();
+}
+
+// 10.6.1 Attribute syntax and semantics
+// This does not handle alignas() since it is not needed for the namespace case.
+static int skipAttributeSpecifierSequence(const Tokens &tokens, int index)
+{
+    // [[ attribute-using-prefixopt attribute-list ]]
+    if (index >= 1 && tokens[index].is(T_RBRACKET) && tokens[index - 1].is(T_RBRACKET)) {
+        // Skip everything within [[ ]]
+        for (int i = index - 2; i >= 0; --i) {
+            if (i >= 1 && tokens[i].is(T_LBRACKET) && tokens[i - 1].is(T_LBRACKET))
+                return i - 2;
+        }
+
+        return -1;
+    }
+
+    return index;
+}
+
+static int skipNamespaceName(const Tokens &tokens, int index)
+{
+    if (index >= tokens.size())
+        return -1;
+
+    if (!tokens[index].is(T_IDENTIFIER))
+        return index;
+
+    // Accept
+    //  SomeName
+    //  Some::Nested::Name
+    bool expectIdentifier = false;
+    for (int i = index - 1; i >= 0; --i) {
+        if (expectIdentifier) {
+            if (tokens[i].is(T_IDENTIFIER))
+                expectIdentifier = false;
+            else
+                return -1;
+        } else if (tokens[i].is(T_COLON_COLON)) {
+            expectIdentifier = true;
+        } else {
+            return i;
+        }
+    }
+
+    return index;
+}
+
+// 10.3.1 Namespace definition
+static bool isAfterNamespaceDefinition(const Tokens &tokens, int position)
+{
+    int index = tokenIndexBeforePosition(tokens, uint(position));
+    if (index == -1)
+        return false;
+
+    // Handle optional name
+    index = skipNamespaceName(tokens, index);
+    if (index == -1)
+        return false;
+
+    // Handle optional attribute specifier sequence
+    index = skipAttributeSpecifierSequence(tokens, index);
+    if (index == -1)
+        return false;
+
+    return index >= 0 && tokens[index].is(T_NAMESPACE);
+}
+
+static int isEmptyOrWhitespace(const QString &text)
+{
+    return Utils::allOf(text, [](const QChar &c) {return c.isSpace(); });
+}
+
+static QTextBlock previousNonEmptyBlock(const QTextBlock &currentBlock)
+{
+    QTextBlock block = currentBlock.previous();
+    forever {
+        if (!block.isValid() || !isEmptyOrWhitespace(block.text()))
+            return block;
+        block = block.previous();
+    }
+}
+
+static QTextBlock nextNonEmptyBlock(const QTextBlock &currentBlock)
+{
+    QTextBlock block = currentBlock.next();
+    forever {
+        if (!block.isValid() || !isEmptyOrWhitespace(block.text()))
+            return block;
+        block = block.next();
+    }
+}
+
+static bool allowAutoClosingBraceAtEmptyLine(
+        const QTextBlock &block,
+        MatchingText::IsNextBlockDeeperIndented isNextDeeperIndented)
+{
+    QTextBlock previousBlock = previousNonEmptyBlock(block);
+    if (!previousBlock.isValid())
+        return false; // Nothing before
+
+    QTextBlock nextBlock = nextNonEmptyBlock(block);
+    if (!nextBlock.isValid())
+        return true; // Nothing behind
+
+    if (isNextDeeperIndented && isNextDeeperIndented(previousBlock))
+        return false; // Before indented
+
+    const QString trimmedText = previousBlock.text().trimmed();
+    return !trimmedText.endsWith(';')
+        && !trimmedText.endsWith('{')
+        && !trimmedText.endsWith('}');
+}
+
+static Tokens getTokens(const QTextCursor &cursor, int &prevState)
+{
+    LanguageFeatures features;
+    features.qtEnabled = false;
+    features.qtKeywordsEnabled = false;
+    features.qtMocRunEnabled = false;
+    features.cxx11Enabled = true;
+    features.cxxEnabled = true;
+    features.c99Enabled = true;
+    features.objCEnabled = true;
+
+    SimpleLexer tokenize;
+    tokenize.setLanguageFeatures(features);
+
+    prevState = BackwardsScanner::previousBlockState(cursor.block()) & 0xFF;
+    return tokenize(cursor.block().text(), prevState);
+}
+
+static QChar firstNonSpace(const QTextCursor &cursor)
+{
+    int position = cursor.position();
+    QChar ch = cursor.document()->characterAt(position);
+    while (ch.isSpace())
+        ch = cursor.document()->characterAt(++position);
+
+    return ch;
+}
+
+static bool allowAutoClosingBraceByLookahead(const QTextCursor &cursor)
+{
+    const QChar lookAhead = firstNonSpace(cursor);
+    if (lookAhead.isNull())
+        return true;
+
+    switch (lookAhead.unicode()) {
+    case ';': case ',':
+    case ')': case '}': case ']':
+        return true;
+    }
+
+    return false;
+}
+
+static bool allowAutoClosingBrace(const QTextCursor &cursor,
+                                  MatchingText::IsNextBlockDeeperIndented isNextIndented)
+{
+    if (MatchingText::isInCommentHelper(cursor))
+        return false;
+
+    const QTextBlock block = cursor.block();
+    if (isEmptyOrWhitespace(block.text()))
+        return allowAutoClosingBraceAtEmptyLine(cursor.block(), isNextIndented);
+
+    int prevState;
+    const Tokens tokens = getTokens(cursor, prevState);
+    if (isAfterNamespaceDefinition(tokens, cursor.positionInBlock()))
+        return false;
+
+    if (isCursorAtEndOfLineButMaybeBeforeComment(tokens, cursor.positionInBlock()))
+        return !(isNextIndented && isNextIndented(block));
+
+    return allowAutoClosingBraceByLookahead(cursor);
+}
+
 bool MatchingText::contextAllowsAutoParentheses(const QTextCursor &cursor,
-                                                const QString &textToInsert)
+                                                const QString &textToInsert,
+                                                IsNextBlockDeeperIndented isNextIndented)
 {
     QChar ch;
 
     if (!textToInsert.isEmpty())
         ch = textToInsert.at(0);
 
-    if (ch == QLatin1Char('{') && cursor.block().text().trimmed().isEmpty())
-        return false; // User just might want to wrap up some lines.
+    if (ch == QLatin1Char('{'))
+        return allowAutoClosingBrace(cursor, isNextIndented);
 
     if (!shouldInsertMatchingText(cursor) && ch != QLatin1Char('\'') && ch != QLatin1Char('"'))
         return false;
@@ -196,24 +397,6 @@ bool MatchingText::shouldInsertMatchingText(QChar lookAhead)
 
         return false;
     } // switch
-}
-
-static Tokens getTokens(const QTextCursor &cursor, int &prevState)
-{
-    LanguageFeatures features;
-    features.qtEnabled = false;
-    features.qtKeywordsEnabled = false;
-    features.qtMocRunEnabled = false;
-    features.cxx11Enabled = true;
-    features.cxxEnabled = true;
-    features.c99Enabled = true;
-    features.objCEnabled = true;
-
-    SimpleLexer tokenize;
-    tokenize.setLanguageFeatures(features);
-
-    prevState = BackwardsScanner::previousBlockState(cursor.block()) & 0xFF;
-    return tokenize(cursor.block().text(), prevState);
 }
 
 bool MatchingText::isInCommentHelper(const QTextCursor &cursor, Token *retToken)

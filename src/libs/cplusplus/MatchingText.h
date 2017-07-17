@@ -30,7 +30,10 @@
 #include <cplusplus/Token.h>
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 
+#include <functional>
+
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
+QT_FORWARD_DECLARE_CLASS(QTextBlock)
 QT_FORWARD_DECLARE_CLASS(QChar)
 
 namespace CPlusPlus {
@@ -38,8 +41,11 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT MatchingText
 {
 public:
+    using IsNextBlockDeeperIndented = std::function<bool(const QTextBlock &textBlock)>;
     static bool contextAllowsAutoParentheses(const QTextCursor &cursor,
-                                             const QString &textToInsert);
+                                             const QString &textToInsert,
+                                             IsNextBlockDeeperIndented isNextIndented
+                                                = IsNextBlockDeeperIndented());
     static bool contextAllowsAutoQuotes(const QTextCursor &cursor,
                                         const QString &textToInsert);
     static bool contextAllowsElectricCharacters(const QTextCursor &cursor);
