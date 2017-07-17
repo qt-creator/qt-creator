@@ -68,8 +68,6 @@ public:
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMesage) const final;
 
     QmakeProFileNode *rootProjectNode() const final;
-    bool validParse(const Utils::FileName &proFilePath) const;
-    bool parseInProgress(const Utils::FileName &proFilePath) const;
 
     virtual QStringList filesGeneratedFrom(const QString &file) const final;
 

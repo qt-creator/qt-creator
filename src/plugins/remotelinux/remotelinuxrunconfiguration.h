@@ -51,7 +51,6 @@ public:
                                 const QString &targetName);
     ~RemoteLinuxRunConfiguration() override;
 
-    bool isEnabled() const override;
     QWidget *createConfigurationWidget() override;
     Utils::OutputFormatter *createOutputFormatter() const override;
 

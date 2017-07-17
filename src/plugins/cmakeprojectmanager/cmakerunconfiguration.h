@@ -51,9 +51,6 @@ public:
 
     QVariantMap toMap() const override;
 
-    void setEnabled(bool b);
-
-    bool isEnabled() const override;
     QString disabledReason() const override;
 
     QString buildSystemTarget() const final { return m_buildSystemTarget; }
@@ -63,6 +60,8 @@ protected:
     bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;
 
+    void updateEnabledState() final;
+
 private:
     QString baseWorkingDirectory() const;
     void ctor();
@@ -70,7 +69,6 @@ private:
     const QString m_buildSystemTarget;
     QString m_executable;
     QString m_title;
-    bool m_enabled = true;
 };
 
 class CMakeRunConfigurationWidget : public QWidget

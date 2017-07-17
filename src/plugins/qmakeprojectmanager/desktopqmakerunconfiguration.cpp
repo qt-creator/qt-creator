@@ -87,9 +87,6 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Core:
     addExtraAspect(new TerminalAspect(this, QStringLiteral("Qt4ProjectManager.Qt4RunConfiguration.UseTerminal")));
     addExtraAspect(new WorkingDirectoryAspect(this,
                        QStringLiteral("Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory")));
-    QmakeProject *project = qmakeProject();
-    m_parseSuccess = project->validParse(m_proFilePath);
-    m_parseInProgress = project->parseInProgress(m_proFilePath);
 
     ctor();
 }
@@ -98,42 +95,9 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Deskt
     RunConfiguration(parent, source),
     m_proFilePath(source->m_proFilePath),
     m_isUsingDyldImageSuffix(source->m_isUsingDyldImageSuffix),
-    m_isUsingLibrarySearchPath(source->m_isUsingLibrarySearchPath),
-    m_parseSuccess(source->m_parseSuccess),
-    m_parseInProgress(source->m_parseInProgress)
+    m_isUsingLibrarySearchPath(source->m_isUsingLibrarySearchPath)
 {
     ctor();
-}
-
-bool DesktopQmakeRunConfiguration::isEnabled() const
-{
-    return m_parseSuccess && !m_parseInProgress;
-}
-
-QString DesktopQmakeRunConfiguration::disabledReason() const
-{
-    if (m_parseInProgress)
-        return tr("The .pro file \"%1\" is currently being parsed.")
-                .arg(m_proFilePath.fileName());
-
-    if (!m_parseSuccess)
-        return qmakeProject()->disabledReasonForRunConfiguration(m_proFilePath);
-    return QString();
-}
-
-void DesktopQmakeRunConfiguration::proFileUpdated(QmakeProFile *pro, bool success, bool parseInProgress)
-{
-    if (m_proFilePath != pro->filePath())
-        return;
-    const bool enabled = isEnabled();
-    const QString reason = disabledReason();
-    m_parseSuccess = success;
-    m_parseInProgress = parseInProgress;
-    if (enabled != isEnabled() || reason != disabledReason())
-        emit enabledChanged();
-
-    if (!parseInProgress)
-        updateTargetInformation();
 }
 
 void DesktopQmakeRunConfiguration::proFileEvaluated()
@@ -165,8 +129,8 @@ void DesktopQmakeRunConfiguration::ctor()
     setDefaultDisplayName(defaultDisplayName());
 
     QmakeProject *project = qmakeProject();
-    connect(project, &QmakeProject::proFileUpdated,
-            this, &DesktopQmakeRunConfiguration::proFileUpdated);
+    connect(project, &Project::parsingFinished,
+            this, &DesktopQmakeRunConfiguration::updateTargetInformation);
     connect(project, &QmakeProject::proFilesEvaluated,
             this, &DesktopQmakeRunConfiguration::proFileEvaluated);
 
@@ -336,9 +300,6 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
     m_proFilePath = Utils::FileName::fromUserInput(projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString()));
     m_isUsingDyldImageSuffix = map.value(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), false).toBool();
     m_isUsingLibrarySearchPath = map.value(QLatin1String(USE_LIBRARY_SEARCH_PATH), true).toBool();
-
-    m_parseSuccess = qmakeProject()->validParse(m_proFilePath);
-    m_parseInProgress = qmakeProject()->parseInProgress(m_proFilePath);
 
     return RunConfiguration::fromMap(map);
 }

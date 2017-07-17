@@ -53,8 +53,7 @@ const char M_CURRENT_FILE[] = "CurrentFile";
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *parent, Id id) :
     RunConfiguration(parent, id),
-    m_scriptFile(QLatin1String(M_CURRENT_FILE)),
-    m_isEnabled(false)
+    m_scriptFile(QLatin1String(M_CURRENT_FILE))
 {
     addExtraAspect(new QmlProjectEnvironmentAspect(this));
 
@@ -79,22 +78,18 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *parent,
     m_currentFileFilename(source->m_currentFileFilename),
     m_mainScriptFilename(source->m_mainScriptFilename),
     m_scriptFile(source->m_scriptFile),
-    m_qmlViewerArgs(source->m_qmlViewerArgs),
-    m_isEnabled(source->m_isEnabled)
+    m_qmlViewerArgs(source->m_qmlViewerArgs)
 {
     ctor();
 }
 
-bool QmlProjectRunConfiguration::isEnabled() const
-{
-    return m_isEnabled;
-}
-
 QString QmlProjectRunConfiguration::disabledReason() const
 {
-    if (!m_isEnabled)
+    if (mainScript().isEmpty())
+        return tr("No script file to execute.");
+    if (!QFileInfo(executable()).exists())
         return tr("No qmlviewer or qmlscene found.");
-    return QString();
+    return RunConfiguration::disabledReason();
 }
 
 void QmlProjectRunConfiguration::ctor()
@@ -106,13 +101,13 @@ void QmlProjectRunConfiguration::ctor()
             this, [this] { changeCurrentFile(); });
 
     connect(target(), &Target::kitChanged,
-            this, &QmlProjectRunConfiguration::updateEnabled);
+            this, &QmlProjectRunConfiguration::updateEnabledState);
 
     if (id() == Constants::QML_SCENE_RC_ID)
         setDisplayName(tr("QML Scene", "QMLRunConfiguration display name."));
     else
         setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
-    updateEnabled();
+    updateEnabledState();
 }
 
 QString QmlProjectRunConfiguration::executable() const
@@ -215,7 +210,7 @@ void QmlProjectRunConfiguration::setScriptSource(MainScriptSource source,
         m_mainScriptFilename
                 = target()->project()->projectDirectory().toString() + QLatin1Char('/') + m_scriptFile;
     }
-    updateEnabled();
+    updateEnabledState();
 
     emit scriptSourceChanged();
 }
@@ -258,10 +253,10 @@ void QmlProjectRunConfiguration::changeCurrentFile(IEditor *editor)
 
     if (editor)
         m_currentFileFilename = editor->document()->filePath().toString();
-    updateEnabled();
+    updateEnabledState();
 }
 
-void QmlProjectRunConfiguration::updateEnabled()
+void QmlProjectRunConfiguration::updateEnabledState()
 {
     bool qmlFileFound = false;
     if (mainScriptSource() == FileInEditor) {
@@ -293,11 +288,10 @@ void QmlProjectRunConfiguration::updateEnabled()
         qmlFileFound = !mainScript().isEmpty();
     }
 
-    bool newValue = QFileInfo::exists(executable()) && qmlFileFound;
-    m_isEnabled = newValue;
-
-    // Always emit change signal to force reevaluation of run/debug buttons
-    emit enabledChanged();
+    if (QFileInfo::exists(executable()) && qmlFileFound)
+        RunConfiguration::updateEnabledState();
+    else
+        setEnabled(false);
 }
 
 bool QmlProjectRunConfiguration::isValidVersion(QtSupport::BaseQtVersion *version)

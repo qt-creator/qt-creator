@@ -64,8 +64,6 @@ class QbsRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     QbsRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
-    bool isEnabled() const override;
-    QString disabledReason() const override;
     QWidget *createConfigurationWidget() override;
 
     ProjectExplorer::Runnable runnable() const override;

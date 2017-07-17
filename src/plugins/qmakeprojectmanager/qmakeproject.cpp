@@ -733,22 +733,6 @@ QmakeProFileNode *QmakeProject::rootProjectNode() const
     return static_cast<QmakeProFileNode *>(Project::rootProjectNode());
 }
 
-bool QmakeProject::validParse(const FileName &proFilePath) const
-{
-    if (!rootProFile())
-        return false;
-    const QmakeProFile *pro = rootProFile()->findProFile(proFilePath);
-    return pro && pro->validParse();
-}
-
-bool QmakeProject::parseInProgress(const FileName &proFilePath) const
-{
-    if (!rootProFile())
-        return false;
-    const QmakeProFile *pro = rootProFile()->findProFile(proFilePath);
-    return pro && pro->parseInProgress();
-}
-
 QList<QmakeProFile *>
 QmakeProject::collectAllProFiles(QmakeProFile *file, Parsing parse,
                                  const QList<ProjectType> &projectTypes)

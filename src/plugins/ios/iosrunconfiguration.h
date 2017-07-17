@@ -58,7 +58,6 @@ public:
     QString applicationName() const;
     Utils::FileName bundleDirectory() const;
     Utils::FileName localExecutable() const;
-    bool isEnabled() const override;
     QString disabledReason() const override;
     IosDeviceType deviceType() const;
     void setDeviceType(const IosDeviceType &deviceType);
@@ -75,18 +74,13 @@ signals:
     void localExecutableChanged();
 
 private:
-    void proFileUpdated(QmakeProjectManager::QmakeProFile *pro, bool success, bool parseInProgress);
     void deviceChanges();
     void init();
-    void enabledCheck();
     friend class IosRunConfigurationWidget;
     void updateDisplayNames();
+    void updateEnabledState() final;
 
     Utils::FileName m_profilePath;
-    QString m_lastDisabledReason;
-    bool m_lastIsEnabled;
-    bool m_parseInProgress;
-    bool m_parseSuccess;
     IosDeviceType m_deviceType;
 };
 

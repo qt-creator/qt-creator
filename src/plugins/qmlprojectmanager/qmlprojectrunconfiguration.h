@@ -70,7 +70,6 @@ public:
     QString mainScript() const;
 
     // RunConfiguration
-    bool isEnabled() const override;
     QString disabledReason() const override;
     virtual QWidget *createConfigurationWidget() override;
     Utils::OutputFormatter *createOutputFormatter() const override;
@@ -84,13 +83,12 @@ protected:
     QmlProjectRunConfiguration(ProjectExplorer::Target *parent,
                                QmlProjectRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map) override;
-    void setEnabled(bool value);
 
 private:
     void ctor();
 
     void changeCurrentFile(Core::IEditor* = 0);
-    void updateEnabled();
+    void updateEnabledState() final;
 
     QString executable() const;
     QString commandLineArguments() const;
@@ -106,8 +104,6 @@ private:
 
     QString m_scriptFile;
     QString m_qmlViewerArgs;
-
-    bool m_isEnabled;
 };
 
 } // namespace QmlProjectManager

@@ -123,3 +123,26 @@ QString ProjectExplorer::displayNameFromMap(const QVariantMap &map)
 {
     return map.value(QLatin1String(DISPLAY_NAME_KEY), QString()).toString();
 }
+
+bool StatefulProjectConfiguration::isEnabled() const
+{
+    return m_isEnabled;
+}
+
+StatefulProjectConfiguration::StatefulProjectConfiguration(QObject *parent, Core::Id id) :
+    ProjectConfiguration(parent, id)
+{ }
+
+StatefulProjectConfiguration::StatefulProjectConfiguration(QObject *parent,
+                                                           const StatefulProjectConfiguration *source) :
+    ProjectConfiguration(parent, source),
+    m_isEnabled(source->m_isEnabled)
+{ }
+
+void StatefulProjectConfiguration::setEnabled(bool enabled)
+{
+    if (enabled == m_isEnabled)
+        return;
+    m_isEnabled = enabled;
+    emit enabledChanged();
+}

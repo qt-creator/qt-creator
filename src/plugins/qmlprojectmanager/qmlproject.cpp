@@ -101,7 +101,7 @@ void QmlProject::addedRunConfiguration(RunConfiguration *rc)
     // they have been added to a project
     QmlProjectRunConfiguration *qmlrc = qobject_cast<QmlProjectRunConfiguration *>(rc);
     if (qmlrc)
-        qmlrc->updateEnabled();
+        qmlrc->updateEnabledState();
 }
 
 QDir QmlProject::projectDir() const

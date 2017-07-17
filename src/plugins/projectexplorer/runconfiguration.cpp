@@ -172,21 +172,24 @@ void IRunConfigurationAspect::resetProjectToGlobalSettings()
     A run configuration specifies how a target should be run, while a runner
     does the actual running.
 
-    All RunControls and the target hold a shared pointer to the run
-    configuration. That is, the lifetime of the run configuration might exceed
-    the life of the target.
-    The user might still have a RunControl running (or output tab of that RunControl open)
-    and yet unloaded the target.
+    The target owns the RunConfiguraitons and a RunControl will need to copy all
+    necessary data as the RunControl may continue to exist after the RunConfiguration
+    has been destroyed.
 
-    Also, a run configuration might be already removed from the list of run
-    configurations
-    for a target, but still be runnable via the output tab.
+    A RunConfiguration disables itself when the project is parsing or has no parsing
+    data available. The disabledReason() method can be used to get a user-facing string
+    describing why the RunConfiguration considers itself unfit for use.
+
+    Override updateEnabledState() to change the enabled state handling. Override
+    disabledReasons() to provide better/more descriptions to the user.
+
+    Connect signals that may change enabled state of your RunConfiguration to updateEnabledState.
 */
 
 static std::vector<RunConfiguration::AspectFactory> theAspectFactories;
 
 RunConfiguration::RunConfiguration(Target *target, Core::Id id) :
-    ProjectConfiguration(target, id)
+    StatefulProjectConfiguration(target, id)
 {
     Q_ASSERT(target);
     ctor();
@@ -196,7 +199,7 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id) :
 }
 
 RunConfiguration::RunConfiguration(Target *target, RunConfiguration *source) :
-    ProjectConfiguration(target, source)
+    StatefulProjectConfiguration(target, source)
 {
     Q_ASSERT(target);
     ctor();
@@ -212,6 +215,22 @@ RunConfiguration::~RunConfiguration()
     qDeleteAll(m_aspects);
 }
 
+QString RunConfiguration::disabledReason() const
+{
+    if (target()->project()->isParsing())
+        return tr("The Project is currently being parsed.");
+    if (!target()->project()->hasParsingData())
+        return tr("The project could not be fully parsed.");
+    return QString();
+}
+
+void RunConfiguration::updateEnabledState()
+{
+    Project *p = target()->project();
+
+    setEnabled(!p->isParsing() && p->hasParsingData());
+}
+
 void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
 {
     theAspectFactories.push_back(aspectFactory);
@@ -225,6 +244,17 @@ void RunConfiguration::addExtraAspect(IRunConfigurationAspect *aspect)
 
 void RunConfiguration::ctor()
 {
+    connect(target()->project(), &Project::parsingStarted,
+            this, [this]() { updateEnabledState(); });
+    connect(target()->project(), &Project::parsingFinished,
+            this, [this]() { updateEnabledState(); });
+
+    connect(target(), &Target::addedRunConfiguration,
+            this, [this](const RunConfiguration *rc) {
+        if (rc == this)
+            updateEnabledState();
+    });
+
     connect(this, &RunConfiguration::enabledChanged,
             this, &RunConfiguration::requestRunActionsUpdate);
 
@@ -259,20 +289,6 @@ RunConfiguration *RunConfiguration::startupRunConfiguration()
     return nullptr;
 }
 
-/*!
-    Checks whether a run configuration is enabled.
-*/
-
-bool RunConfiguration::isEnabled() const
-{
-    return true;
-}
-
-QString RunConfiguration::disabledReason() const
-{
-    return QString();
-}
-
 bool RunConfiguration::isConfigured() const
 {
     return true;
@@ -286,7 +302,6 @@ RunConfiguration::ConfigurationState RunConfiguration::ensureConfigured(QString 
         *errorMessage = tr("Unknown error.");
     return UnConfigured;
 }
-
 
 BuildConfiguration *RunConfiguration::activeBuildConfiguration() const
 {

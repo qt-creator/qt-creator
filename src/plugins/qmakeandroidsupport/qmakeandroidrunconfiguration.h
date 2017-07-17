@@ -48,7 +48,6 @@ public:
 
     Utils::FileName proFilePath() const;
 
-    bool isEnabled() const override;
     QString disabledReason() const override;
 
     QString buildSystemTarget() const final;
@@ -61,13 +60,10 @@ protected:
     QString defaultDisplayName();
 
 private:
-    void proFileUpdated(QmakeProjectManager::QmakeProFile *pro, bool success, bool parseInProgress);
     QmakeProjectManager::QmakeProject *qmakeProject() const;
-    void init();
+    void ctor();
 
     mutable Utils::FileName m_proFilePath;
-    bool m_parseSuccess;
-    bool m_parseInProgress;
 };
 
 } // namespace Internal

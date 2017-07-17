@@ -156,8 +156,6 @@ public:
     QWidget *createConfigurationWidget() override;
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &map) override;
-    bool isEnabled() const override { return m_enabled; }
-    QString disabledReason() const override;
     Runnable runnable() const override;
 
     bool supportsDebugger() const { return true; }
@@ -165,7 +163,6 @@ public:
     QString arguments() const;
     QString interpreter() const { return m_interpreter; }
     void setInterpreter(const QString &interpreter) { m_interpreter = interpreter; }
-    void setEnabled(bool b);
 
 private:
     friend class PythonRunConfigurationFactory;
@@ -174,15 +171,13 @@ private:
 
     QString m_interpreter;
     QString m_mainScript;
-    bool m_enabled;
 };
 
 ////////////////////////////////////////////////////////////////
 
 PythonRunConfiguration::PythonRunConfiguration(Target *parent, Core::Id id) :
     RunConfiguration(parent, id),
-    m_mainScript(scriptFromId(id)),
-    m_enabled(true)
+    m_mainScript(scriptFromId(id))
 {
     Environment sysEnv = Environment::systemEnvironment();
     const QString exec = sysEnv.searchInPath("python").toString();
@@ -197,8 +192,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *parent, Core::Id id) :
 PythonRunConfiguration::PythonRunConfiguration(Target *parent, PythonRunConfiguration *source) :
     RunConfiguration(parent, source),
     m_interpreter(source->interpreter()),
-    m_mainScript(source->m_mainScript),
-    m_enabled(source->m_enabled)
+    m_mainScript(source->m_mainScript)
 {
     setDefaultDisplayName(defaultDisplayName());
 }
@@ -220,31 +214,12 @@ bool PythonRunConfiguration::fromMap(const QVariantMap &map)
 
 QString PythonRunConfiguration::defaultDisplayName() const
 {
-    QString result = tr("Run %1").arg(m_mainScript);
-    if (!m_enabled)
-        result += ' ' + tr("(disabled)");
-    return result;
+    return tr("Run %1").arg(m_mainScript);
 }
 
 QWidget *PythonRunConfiguration::createConfigurationWidget()
 {
     return new PythonRunConfigurationWidget(this);
-}
-
-void PythonRunConfiguration::setEnabled(bool b)
-{
-    if (m_enabled == b)
-        return;
-    m_enabled = b;
-    emit enabledChanged();
-    setDefaultDisplayName(defaultDisplayName());
-}
-
-QString PythonRunConfiguration::disabledReason() const
-{
-    if (!m_enabled)
-        return tr("The script is currently disabled.");
-    return QString();
 }
 
 Runnable PythonRunConfiguration::runnable() const

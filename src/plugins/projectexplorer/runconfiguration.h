@@ -199,15 +199,15 @@ private:
 };
 
 // Documentation inside.
-class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
+class PROJECTEXPLORER_EXPORT RunConfiguration : public StatefulProjectConfiguration
 {
     Q_OBJECT
 
 public:
     ~RunConfiguration() override;
 
-    virtual bool isEnabled() const;
-    virtual QString disabledReason() const;
+    QString disabledReason() const override;
+
     virtual QWidget *createConfigurationWidget() = 0;
 
     virtual bool isConfigured() const;
@@ -252,7 +252,6 @@ public:
     }
 
 signals:
-    void enabledChanged();
     void requestRunActionsUpdate();
     void configurationFinished();
 
@@ -262,6 +261,8 @@ protected:
 
     /// convenience function to get current build configuration.
     BuildConfiguration *activeBuildConfiguration() const;
+
+    virtual void updateEnabledState();
 
 private:
     void ctor();

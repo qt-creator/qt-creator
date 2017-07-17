@@ -41,7 +41,6 @@ public:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    bool isEnabled() const override { return true; }
     bool isConfigured() const override;
     ConfigurationState ensureConfigured(QString *errorMessage) override;
     QWidget *createConfigurationWidget() override;

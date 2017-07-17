@@ -38,7 +38,6 @@ public:
     explicit WinRtRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
     QWidget *createConfigurationWidget() override;
-    bool isEnabled() const override { return true; } // Always enabled like DLL run control
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &map) override;
 

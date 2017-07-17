@@ -82,8 +82,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, CMakeRunConfigurati
     RunConfiguration(parent, source),
     m_buildSystemTarget(source->m_buildSystemTarget),
     m_executable(source->m_executable),
-    m_title(source->m_title),
-    m_enabled(source->m_enabled)
+    m_title(source->m_title)
 {
     ctor();
 }
@@ -144,12 +143,16 @@ QString CMakeRunConfiguration::defaultDisplayName() const
 {
     if (m_title.isEmpty())
         return tr("Run CMake kit");
-    QString result = m_title;
-    if (!m_enabled) {
-        result += QLatin1Char(' ');
-        result += tr("(disabled)");
-    }
-    return result;
+    return m_title;
+}
+
+void CMakeRunConfiguration::updateEnabledState()
+{
+    auto cp = qobject_cast<CMakeProject *>(target()->project());
+    if (!cp->hasBuildTarget(m_buildSystemTarget))
+        setEnabled(false);
+    else
+        RunConfiguration::updateEnabledState();
 }
 
 QWidget *CMakeRunConfiguration::createConfigurationWidget()
@@ -157,25 +160,14 @@ QWidget *CMakeRunConfiguration::createConfigurationWidget()
     return new CMakeRunConfigurationWidget(this);
 }
 
-void CMakeRunConfiguration::setEnabled(bool b)
-{
-    if (m_enabled == b)
-        return;
-    m_enabled = b;
-    emit enabledChanged();
-    setDefaultDisplayName(defaultDisplayName());
-}
-
-bool CMakeRunConfiguration::isEnabled() const
-{
-    return m_enabled;
-}
-
 QString CMakeRunConfiguration::disabledReason() const
 {
-    if (!m_enabled)
-        return tr("The executable is not built by the current build configuration");
-    return QString();
+    auto cp = qobject_cast<CMakeProject *>(target()->project());
+    QTC_ASSERT(cp, return QString());
+
+    if (cp->hasParsingData() && !cp->hasBuildTarget(m_buildSystemTarget))
+        return tr("The project no longer builds the target associated with this run configuration.");
+    return RunConfiguration::disabledReason();
 }
 
 static void updateExecutable(CMakeRunConfiguration *rc, Utils::FancyLineEdit *fle)

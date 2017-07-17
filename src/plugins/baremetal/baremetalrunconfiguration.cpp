@@ -75,17 +75,6 @@ void BareMetalRunConfiguration::init()
             this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated); // Handles device changes, etc.
 }
 
-bool BareMetalRunConfiguration::isEnabled() const
-{
-    m_disabledReason.clear(); // FIXME: Check this makes sense.
-    return true;
-}
-
-QString BareMetalRunConfiguration::disabledReason() const
-{
-    return m_disabledReason;
-}
-
 QWidget *BareMetalRunConfiguration::createConfigurationWidget()
 {
     return new BareMetalRunConfigurationWidget(this);
@@ -165,11 +154,6 @@ QString BareMetalRunConfiguration::buildSystemTarget() const
     auto bst = std::find_if(targets.list.constBegin(), targets.list.constEnd(),
                             [&projectFilePath,&targetName](const BuildTargetInfo &bti) { return bti.projectFilePath == projectFilePath && bti.targetName == targetName; });
     return (bst == targets.list.constEnd()) ? QString() : bst->targetName;
-}
-
-void BareMetalRunConfiguration::setDisabledReason(const QString &reason) const
-{
-    m_disabledReason = reason;
 }
 
 void BareMetalRunConfiguration::handleBuildSystemDataUpdated()

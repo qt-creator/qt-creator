@@ -40,7 +40,6 @@ public:
     BareMetalCustomRunConfiguration(ProjectExplorer::Target *parent,
                                     BareMetalCustomRunConfiguration *source);
 
-    bool isEnabled() const override { return true; }
     bool isConfigured() const override;
     ConfigurationState ensureConfigured(QString *errorMessage) override;
     QWidget *createConfigurationWidget() override;

@@ -115,11 +115,6 @@ void RemoteLinuxRunConfiguration::init()
             this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
 }
 
-bool RemoteLinuxRunConfiguration::isEnabled() const
-{
-    return true;
-}
-
 QWidget *RemoteLinuxRunConfiguration::createConfigurationWidget()
 {
     return new RemoteLinuxRunConfigurationWidget(this);

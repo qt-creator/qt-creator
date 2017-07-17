@@ -44,11 +44,11 @@
 #include <utils/detailswidget.h>
 #include <utils/stringutils.h>
 #include <utils/persistentsettings.h>
+#include <utils/utilsicons.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/hostosinfo.h>
-#include <utils/utilsicons.h>
 
 #include "api/runenvironment.h"
 
@@ -140,34 +140,15 @@ QbsRunConfiguration::QbsRunConfiguration(Target *parent, QbsRunConfiguration *so
     ctor();
 }
 
-bool QbsRunConfiguration::isEnabled() const
-{
-    QbsProject *project = static_cast<QbsProject *>(target()->project());
-    return !project->isParsing() && project->hasParseResult();
-}
-
-QString QbsRunConfiguration::disabledReason() const
-{
-    QbsProject *project = static_cast<QbsProject *>(target()->project());
-    if (project->isParsing())
-        return tr("The .qbs files are currently being parsed.");
-
-    if (!project->hasParseResult())
-        return tr("Parsing of .qbs files has failed.");
-    return QString();
-}
-
 void QbsRunConfiguration::ctor()
 {
     setDefaultDisplayName(defaultDisplayName());
 
     QbsProject *project = static_cast<QbsProject *>(target()->project());
-    connect(project, &Project::parsingStarted, this, &RunConfiguration::enabledChanged);
     connect(project, &Project::parsingFinished, this, [this](bool success) {
         auto terminalAspect = extraAspect<TerminalAspect>();
         if (success && !terminalAspect->isUserSet())
             terminalAspect->setUseTerminal(isConsoleApplication());
-        emit enabledChanged();
     });
     connect(BuildManager::instance(), &BuildManager::buildStateChanged, this,
             [this, project](Project *p) {
