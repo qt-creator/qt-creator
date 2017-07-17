@@ -2247,9 +2247,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         const TypingSettings &tps = d->m_document->typingSettings();
         cursor.beginEditBlock();
 
-        int extraBlocks =
-            d->m_autoCompleter->paragraphSeparatorAboutToBeInserted(cursor,
-                                                                    d->m_document->tabSettings());
+        int extraBlocks = d->m_autoCompleter->paragraphSeparatorAboutToBeInserted(cursor);
 
         QString previousIndentationString;
         if (tps.m_autoIndent) {
@@ -3160,7 +3158,10 @@ void TextEditorWidgetPrivate::setupDocumentSignals()
                      this, &TextEditorWidgetPrivate::documentReloadFinished);
 
     QObject::connect(m_document.data(), &TextDocument::tabSettingsChanged,
-                     this, &TextEditorWidgetPrivate::updateTabStops);
+                     this, [this](){
+        updateTabStops();
+        m_autoCompleter->setTabSettings(m_document->tabSettings());
+    });
 
     QObject::connect(m_document.data(), &TextDocument::fontSettingsChanged,
                      this, &TextEditorWidgetPrivate::applyFontSettingsDelayed);
@@ -8242,6 +8243,7 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
         widget->setAutoCompleter(m_autoCompleterCreator());
 
     widget->setTextDocument(document);
+    widget->autoCompleter()->setTabSettings(document->tabSettings());
     widget->d->m_hoverHandlers = m_hoverHandlers;
 
     widget->d->m_codeAssistant.configure(widget);

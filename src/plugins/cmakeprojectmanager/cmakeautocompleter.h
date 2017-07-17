@@ -43,7 +43,7 @@ public:
                                 QChar lookAhead, bool skipChars, int *skippedChars) const override;
     QString insertMatchingQuote(const QTextCursor &cursor, const QString &text,
                                 QChar lookAhead, bool skipChars, int *skippedChars) const override;
-    int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor, const TextEditor::TabSettings &tabSettings) override;
+    int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor) override;
     bool contextAllowsAutoBrackets(const QTextCursor &cursor, const QString &textToInsert) const override;
     bool contextAllowsAutoQuotes(const QTextCursor &cursor, const QString &textToInsert) const override;
     bool contextAllowsElectricCharacters(const QTextCursor &cursor) const override;
