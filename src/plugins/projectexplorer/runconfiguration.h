@@ -470,6 +470,9 @@ public:
         WorkerCreator producer;
         int priority = 0;
 
+        WorkerFactory(const Core::Id &mode, Constraint constr, const WorkerCreator &prod,
+                      int prio = 0)
+            : runMode(mode), constraint(constr), producer(prod), priority(prio) {}
         bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const;
     };
 
