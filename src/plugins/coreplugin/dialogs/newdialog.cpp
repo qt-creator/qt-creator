@@ -125,14 +125,14 @@ public:
         return sourceModel()->columnCount(mapToSource(index));
     }
 
-    QModelIndex	mapFromSource (const QModelIndex &index) const
+    QModelIndex mapFromSource (const QModelIndex &index) const
     {
         if (!index.isValid())
             return QModelIndex();
         return createIndex(index.row(), index.column(), index.internalPointer());
     }
 
-    QModelIndex	mapToSource (const QModelIndex &index) const
+    QModelIndex mapToSource (const QModelIndex &index) const
     {
         if (!index.isValid())
             return QModelIndex();
@@ -171,7 +171,6 @@ public:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
         QSize size = QItemDelegate::sizeHint(option, index);
-
 
         size = size.expandedTo(QSize(0, ROW_HEIGHT));
 
