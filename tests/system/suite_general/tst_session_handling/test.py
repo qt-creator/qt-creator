@@ -83,7 +83,7 @@ def prepareTestExamples():
 
 def switchSession(toSession):
     test.log("Switching to session '%s'" % toSession)
-    invokeMenuItem("File", "Session Manager...")
+    invokeMenuItem("File", "Sessions", "Manage...")
     clickItem(waitForObject("{name='sessionView' type='ProjectExplorer::Internal::SessionView' visible='1' "
                             "window=':Session Manager_ProjectExplorer::Internal::SessionDialog'}"),
                             toSession, 5, 5, 0, Qt.LeftButton)
@@ -94,7 +94,7 @@ def createAndSwitchToSession(toSession):
     sessionInputDialog = ("{type='ProjectExplorer::Internal::SessionNameInputDialog' unnamed='1' "
                           "visible='1' windowTitle='New Session Name'}")
     test.log("Switching to session '%s' after creating it." % toSession)
-    invokeMenuItem("File", "Session Manager...")
+    invokeMenuItem("File", "Sessions", "Manage...")
     clickButton(waitForObject("{name='btCreateNew' text='New' type='QPushButton' visible='1' "
                               "window=':Session Manager_ProjectExplorer::Internal::SessionDialog'}"))
     lineEdit = waitForObject("{type='QLineEdit' unnamed='1' visible='1' window=%s}"
