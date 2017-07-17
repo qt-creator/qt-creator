@@ -489,5 +489,5 @@ void ProjectTreeWidgetFactory::restoreSettings(QSettings *settings, int position
     const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
     ptw->setProjectFilter(settings->value(baseKey + QLatin1String(".ProjectFilter"), false).toBool());
     ptw->setGeneratedFilesFilter(settings->value(baseKey + QLatin1String(".GeneratedFilter"), true).toBool());
-    ptw->setAutoSynchronization(settings->value(baseKey +  QLatin1String(".SyncWithEditor")).toBool());
+    ptw->setAutoSynchronization(settings->value(baseKey +  QLatin1String(".SyncWithEditor"), true).toBool());
 }
