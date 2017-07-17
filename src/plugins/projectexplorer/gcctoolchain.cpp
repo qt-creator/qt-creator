@@ -44,9 +44,9 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
-
-#include <QLineEdit>
 #include <QFormLayout>
+#include <QLineEdit>
+#include <QRegularExpression>
 
 #include <memory>
 
@@ -66,6 +66,7 @@ static const char compilerPlatformLinkerFlagsKeyC[] = "ProjectExplorer.GccToolCh
 static const char targetAbiKeyC[] = "ProjectExplorer.GccToolChain.TargetAbi";
 static const char originalTargetTripleKeyC[] = "ProjectExplorer.GccToolChain.OriginalTargetTriple";
 static const char supportedAbisKeyC[] = "ProjectExplorer.GccToolChain.SupportedAbis";
+static const char binaryRegexp[] = "(?:^|-|\\b)(?:gcc|g\\+\\+)(?:-([\\d.]+))?$";
 
 static const int CACHE_SIZE = 16;
 
@@ -363,10 +364,15 @@ void GccToolChain::setOriginalTargetTriple(const QString &targetTriple)
 
 QString GccToolChain::defaultDisplayName() const
 {
+    QString type = typeDisplayName();
+    const QRegularExpression regexp(binaryRegexp);
+    const QRegularExpressionMatch match = regexp.match(m_compilerCommand.fileName());
+    if (match.hasMatch())
+        type += ' ' + match.captured(1);
     if (!m_targetAbi.isValid())
-        return typeDisplayName();
+        return type;
     return QCoreApplication::translate("ProjectExplorer::GccToolChain",
-                                       "%1 (%2, %3 %4 in %5)").arg(typeDisplayName(),
+                                       "%1 (%2, %3 %4 in %5)").arg(type,
                                                                   ToolChainManager::displayNameOfLanguageId(language()),
                                                                   Abi::toString(m_targetAbi.architecture()),
                                                                   Abi::toString(m_targetAbi.wordWidth()),
@@ -928,20 +934,28 @@ QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alr
                                     Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
     known.append(tcs);
     if (HostOsInfo::isLinuxHost()) {
+        const QRegularExpression regexp(binaryRegexp);
         for (const QString &dir : QStringList({ "/usr/bin", "/usr/local/bin" })) {
             QDir binDir(dir);
-            for (const QString &entry : binDir.entryList({"*-g++"}, QDir::Files | QDir::Executable)) {
-                tcs.append(autoDetectToolchains(entry, Abi(), Constants::CXX_LANGUAGE_ID,
-                                                Constants::GCC_TOOLCHAIN_TYPEID, known));
-                known.append(tcs);
-            }
-            for (const QString &entry : binDir.entryList({"*-gcc"}, QDir::Files | QDir::Executable)) {
-                if (entry.endsWith("c89-gcc") || entry.endsWith("c99-gcc"))
-                    continue;
-                tcs.append(autoDetectToolchains(entry, Abi(), Constants::C_LANGUAGE_ID,
-                                                Constants::GCC_TOOLCHAIN_TYPEID, known));
-                known.append(tcs);
-            }
+            auto gccProbe = [&](const QString &name, Core::Id language) {
+                for (const QString &entry : binDir.entryList(
+                     {"*-" + name, name + "-*", "*-" + name + "-*"},
+                         QDir::Files | QDir::Executable)) {
+                    const QString fileName = FileName::fromString(entry).fileName();
+                    if (fileName == "c89-gcc" || fileName == "c99-gcc")
+                        continue;
+                    const QRegularExpressionMatch match = regexp.match(fileName);
+                    if (!match.hasMatch())
+                        continue;
+                    const bool isNative = fileName.startsWith(name);
+                    const Abi abi = isNative ? Abi::hostAbi() : Abi();
+                    tcs.append(autoDetectToolchains(entry, abi, language,
+                                                    Constants::GCC_TOOLCHAIN_TYPEID, known));
+                    known.append(tcs);
+                }
+            };
+            gccProbe("g++", Constants::CXX_LANGUAGE_ID);
+            gccProbe("gcc", Constants::C_LANGUAGE_ID);
         }
     }
 
