@@ -3561,8 +3561,10 @@ void setPerspectiveEnabled(const QByteArray &perspectiveId, bool enabled)
 
 void selectPerspective(const QByteArray &perspectiveId)
 {
-    if (dd->m_mainWindow->currentPerspective() == perspectiveId)
+    if (ModeManager::currentMode() == MODE_DEBUG
+            && dd->m_mainWindow->currentPerspective() == perspectiveId) {
         return;
+    }
 
     // FIXME: Work-around aslong as the GammaRay integration does not use the same setup,
     if (perspectiveId.isEmpty())
