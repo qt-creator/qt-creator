@@ -39,6 +39,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QVariant>
 #include <QAction>
@@ -183,6 +184,16 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_runLayout = new QVBoxLayout(runWidget);
     m_runLayout->setMargin(0);
     m_runLayout->setSpacing(5);
+
+    m_disabledIcon = new QLabel;
+    m_disabledIcon->setPixmap(Utils::Icons::WARNING.pixmap());
+    m_disabledText = new QLabel;
+    auto disabledHBox = new QHBoxLayout;
+    disabledHBox->addWidget(m_disabledIcon);
+    disabledHBox->addWidget(m_disabledText);
+    disabledHBox->addStretch(255);
+
+    m_runLayout->addLayout(disabledHBox);
 
     m_addRunMenu = new QMenu(m_addRunToolButton);
     m_addRunToolButton->setMenu(m_addRunMenu);
@@ -485,9 +496,12 @@ void RunSettingsWidget::setConfigurationWidget(RunConfiguration *rc)
         return;
     m_runConfigurationWidget = rc->createConfigurationWidget();
     m_runConfiguration = rc;
-    if (m_runConfigurationWidget)
+    if (m_runConfigurationWidget) {
         m_runLayout->addWidget(m_runConfigurationWidget);
-
+        updateEnabledState();
+        connect(m_runConfiguration, &RunConfiguration::enabledChanged,
+                m_runConfigurationWidget, [this]() { updateEnabledState(); });
+    }
     addRunControlWidgets();
 }
 
@@ -560,4 +574,16 @@ void RunSettingsWidget::removeSubWidgets()
         delete item.second;
     }
     m_subWidgets.clear();
+}
+
+void RunSettingsWidget::updateEnabledState()
+{
+    const bool enable = m_runConfiguration ? m_runConfiguration->isEnabled() : false;
+    const QString reason = m_runConfiguration ? m_runConfiguration->disabledReason() : QString();
+
+    m_runConfigurationWidget->setEnabled(enable);
+
+    m_disabledIcon->setVisible(!enable && !reason.isEmpty());
+    m_disabledText->setVisible(!enable && !reason.isEmpty());
+    m_disabledText->setText(reason);
 }

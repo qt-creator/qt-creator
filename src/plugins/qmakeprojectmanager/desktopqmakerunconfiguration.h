@@ -120,7 +120,6 @@ public:
     explicit DesktopQmakeRunConfigurationWidget(DesktopQmakeRunConfiguration *qmakeRunConfiguration);
 
 private:
-    void runConfigurationEnabledChange();
     void effectiveTargetInformationChanged();
     void usingDyldImageSuffixToggled(bool);
     void usingDyldImageSuffixChanged(bool);
@@ -130,8 +129,6 @@ private:
 private:
     DesktopQmakeRunConfiguration *m_qmakeRunConfiguration = nullptr;
     bool m_ignoreChange = false;
-    QLabel *m_disabledIcon = nullptr;
-    QLabel *m_disabledReason = nullptr;
     QLabel *m_executableLineLabel = nullptr;
     QCheckBox *m_useQvfbCheck = nullptr;
     QCheckBox *m_usingDyldImageSuffix = nullptr;

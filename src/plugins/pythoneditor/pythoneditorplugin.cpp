@@ -270,8 +270,6 @@ PythonRunConfigurationWidget::PythonRunConfigurationWidget(PythonRunConfiguratio
     auto vbx = new QVBoxLayout(this);
     vbx->setMargin(0);
     vbx->addWidget(m_detailsContainer);
-
-    setEnabled(runConfiguration->isEnabled());
 }
 
 class PythonRunConfigurationFactory : public IRunConfigurationFactory

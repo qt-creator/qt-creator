@@ -313,17 +313,6 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc)
     auto vboxTopLayout = new QVBoxLayout(this);
     vboxTopLayout->setMargin(0);
 
-    auto hl = new QHBoxLayout();
-    hl->addStretch();
-    m_disabledIcon = new QLabel(this);
-    m_disabledIcon->setPixmap(Utils::Icons::WARNING.pixmap());
-    hl->addWidget(m_disabledIcon);
-    m_disabledReason = new QLabel(this);
-    m_disabledReason->setVisible(false);
-    hl->addWidget(m_disabledReason);
-    hl->addStretch();
-    vboxTopLayout->addLayout(hl);
-
     auto detailsContainer = new Utils::DetailsWidget(this);
     detailsContainer->setState(Utils::DetailsWidget::NoSummary);
     vboxTopLayout->addWidget(detailsContainer);
@@ -343,23 +332,11 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc)
 
     m_rc->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
 
-    runConfigurationEnabledChange();
-
     connect(m_rc, &QbsRunConfiguration::targetInformationChanged,
             this, &QbsRunConfigurationWidget::targetInformationHasChanged, Qt::QueuedConnection);
 
     connect(m_rc, &RunConfiguration::enabledChanged,
-            this, &QbsRunConfigurationWidget::runConfigurationEnabledChange);
-}
-
-void QbsRunConfigurationWidget::runConfigurationEnabledChange()
-{
-    bool enabled = m_rc->isEnabled();
-    m_disabledIcon->setVisible(!enabled);
-    m_disabledReason->setVisible(!enabled);
-    m_disabledReason->setText(m_rc->disabledReason());
-
-    targetInformationHasChanged();
+            this, &QbsRunConfigurationWidget::targetInformationHasChanged);
 }
 
 void QbsRunConfigurationWidget::targetInformationHasChanged()

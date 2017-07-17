@@ -49,9 +49,6 @@ public:
 
     void addFormLayoutRow(QWidget *label, QWidget *field);
 
-    void addDisabledLabel(QVBoxLayout *topLayout);
-    void runConfigurationEnabledChange();
-
 private:
     void argumentsEdited(const QString &args);
     void updateTargetInformation();

@@ -46,9 +46,6 @@ public:
     explicit BareMetalRunConfigurationWidget(BareMetalRunConfiguration *runConfiguration,
                                              QWidget *parent = 0);
     ~BareMetalRunConfigurationWidget();
-    void addDisabledLabel(QVBoxLayout *topLayout);
-
-    Q_SLOT void runConfigurationEnabledChange();
 
 private:
     void updateTargetInformation();

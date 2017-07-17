@@ -69,9 +69,7 @@ AndroidRunConfigurationWidget::AndroidRunConfigurationWidget(QWidget *parent):
     });
 }
 
-AndroidRunConfigurationWidget::~AndroidRunConfigurationWidget()
-{
-}
+AndroidRunConfigurationWidget::~AndroidRunConfigurationWidget() = default;
 
 void AndroidRunConfigurationWidget::setAmStartArgs(const QStringList &args)
 {

@@ -58,9 +58,6 @@ public:
     RemoteLinuxRunConfiguration * const runConfiguration;
     bool ignoreChange;
 
-    QWidget topWidget;
-    QLabel disabledIcon;
-    QLabel disabledReason;
     QLineEdit argsLineEdit;
     QLineEdit workingDirLineEdit;
     QLabel localExecutableLabel;
@@ -79,17 +76,9 @@ RemoteLinuxRunConfigurationWidget::RemoteLinuxRunConfigurationWidget(RemoteLinux
         QWidget *parent)
     : QWidget(parent), d(new RemoteLinuxRunConfigurationWidgetPrivate(runConfiguration))
 {
-    QVBoxLayout *topLayout = new QVBoxLayout(this);
-    topLayout->setMargin(0);
-    addDisabledLabel(topLayout);
-    topLayout->addWidget(&d->topWidget);
-    QVBoxLayout *mainLayout = new QVBoxLayout(&d->topWidget);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setMargin(0);
     addGenericWidgets(mainLayout);
-
-    connect(d->runConfiguration, &RemoteLinuxRunConfiguration::enabledChanged,
-            this, &RemoteLinuxRunConfigurationWidget::runConfigurationEnabledChange);
-    runConfigurationEnabledChange();
 }
 
 RemoteLinuxRunConfigurationWidget::~RemoteLinuxRunConfigurationWidget()
@@ -100,27 +89,6 @@ RemoteLinuxRunConfigurationWidget::~RemoteLinuxRunConfigurationWidget()
 void RemoteLinuxRunConfigurationWidget::addFormLayoutRow(QWidget *label, QWidget *field)
 {
     d->genericWidgetsLayout.addRow(label, field);
-}
-
-void RemoteLinuxRunConfigurationWidget::addDisabledLabel(QVBoxLayout *topLayout)
-{
-    QHBoxLayout * const hl = new QHBoxLayout;
-    hl->addStretch();
-    d->disabledIcon.setPixmap(Utils::Icons::WARNING.pixmap());
-    hl->addWidget(&d->disabledIcon);
-    d->disabledReason.setVisible(false);
-    hl->addWidget(&d->disabledReason);
-    hl->addStretch();
-    topLayout->addLayout(hl);
-}
-
-void RemoteLinuxRunConfigurationWidget::runConfigurationEnabledChange()
-{
-    bool enabled = d->runConfiguration->isEnabled();
-    d->topWidget.setEnabled(enabled);
-    d->disabledIcon.setVisible(!enabled);
-    d->disabledReason.setVisible(!enabled);
-    d->disabledReason.setText(d->runConfiguration->disabledReason());
 }
 
 void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)

@@ -49,9 +49,6 @@ public:
     { }
 
     BareMetalRunConfiguration * const runConfiguration;
-    QWidget topWidget;
-    QLabel disabledIcon;
-    QLabel disabledReason;
     QLineEdit workingDirLineEdit;
     QLabel localExecutableLabel;
     QFormLayout genericWidgetsLayout;
@@ -65,11 +62,7 @@ BareMetalRunConfigurationWidget::BareMetalRunConfigurationWidget(BareMetalRunCon
                                                                  QWidget *parent)
     : QWidget(parent), d(new BareMetalRunConfigurationWidgetPrivate(runConfiguration))
 {
-    QVBoxLayout *topLayout = new QVBoxLayout(this);
-    topLayout->setMargin(0);
-    addDisabledLabel(topLayout);
-    topLayout->addWidget(&d->topWidget);
-    QVBoxLayout *mainLayout = new QVBoxLayout(&d->topWidget);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setMargin(0);
 
     Utils::DetailsWidget *detailsContainer = new Utils::DetailsWidget(this);
@@ -97,26 +90,11 @@ BareMetalRunConfigurationWidget::BareMetalRunConfigurationWidget(BareMetalRunCon
             this, &BareMetalRunConfigurationWidget::updateTargetInformation);
     connect(&d->workingDirLineEdit, &QLineEdit::textEdited,
             this, &BareMetalRunConfigurationWidget::handleWorkingDirectoryChanged);
-    connect(d->runConfiguration, &ProjectExplorer::RunConfiguration::enabledChanged,
-            this, &BareMetalRunConfigurationWidget::runConfigurationEnabledChange);
-    runConfigurationEnabledChange();
 }
 
 BareMetalRunConfigurationWidget::~BareMetalRunConfigurationWidget()
 {
     delete d;
-}
-
-void BareMetalRunConfigurationWidget::addDisabledLabel(QVBoxLayout *topLayout)
-{
-    QHBoxLayout * const hl = new QHBoxLayout;
-    hl->addStretch();
-    d->disabledIcon.setPixmap(Utils::Icons::WARNING.pixmap());
-    hl->addWidget(&d->disabledIcon);
-    d->disabledReason.setVisible(false);
-    hl->addWidget(&d->disabledReason);
-    hl->addStretch();
-    topLayout->addLayout(hl);
 }
 
 void BareMetalRunConfigurationWidget::updateTargetInformation()
@@ -136,15 +114,6 @@ void BareMetalRunConfigurationWidget::setLabelText(QLabel &label, const QString 
     const QString errorMessage = QLatin1String("<font color=\"red\">") + errorText
             + QLatin1String("</font>");
     label.setText(regularText.isEmpty() ? errorMessage : regularText);
-}
-
-void BareMetalRunConfigurationWidget::runConfigurationEnabledChange()
-{
-    bool enabled = d->runConfiguration->isEnabled();
-    d->topWidget.setEnabled(enabled);
-    d->disabledIcon.setVisible(!enabled);
-    d->disabledReason.setVisible(!enabled);
-    d->disabledReason.setText(d->runConfiguration->disabledReason());
 }
 
 } // namespace BareMetal

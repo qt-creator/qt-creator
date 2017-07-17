@@ -147,17 +147,6 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     auto vboxTopLayout = new QVBoxLayout(this);
     vboxTopLayout->setMargin(0);
 
-    auto hl = new QHBoxLayout();
-    hl->addStretch();
-    m_disabledIcon = new QLabel(this);
-    m_disabledIcon->setPixmap(Utils::Icons::WARNING.pixmap());
-    hl->addWidget(m_disabledIcon);
-    m_disabledReason = new QLabel(this);
-    m_disabledReason->setVisible(false);
-    hl->addWidget(m_disabledReason);
-    hl->addStretch();
-    vboxTopLayout->addLayout(hl);
-
     auto detailsContainer = new DetailsWidget(this);
     detailsContainer->setState(DetailsWidget::NoSummary);
     vboxTopLayout->addWidget(detailsContainer);
@@ -213,8 +202,6 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
                 this, &DesktopQmakeRunConfigurationWidget::usingLibrarySearchPathToggled);
     }
 
-    runConfigurationEnabledChange();
-
     connect(qmakeRunConfiguration, &DesktopQmakeRunConfiguration::usingDyldImageSuffixChanged,
             this, &DesktopQmakeRunConfigurationWidget::usingDyldImageSuffixChanged);
     connect(qmakeRunConfiguration, &DesktopQmakeRunConfiguration::usingLibrarySearchPathChanged,
@@ -222,19 +209,8 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
     connect(qmakeRunConfiguration, &DesktopQmakeRunConfiguration::effectiveTargetInformationChanged,
             this, &DesktopQmakeRunConfigurationWidget::effectiveTargetInformationChanged, Qt::QueuedConnection);
 
-    connect(qmakeRunConfiguration, &RunConfiguration::enabledChanged,
-            this, &DesktopQmakeRunConfigurationWidget::runConfigurationEnabledChange);
-
     Core::VariableChooser::addSupportForChildWidgets(this, m_qmakeRunConfiguration->macroExpander());
     effectiveTargetInformationChanged();
-}
-
-void DesktopQmakeRunConfigurationWidget::runConfigurationEnabledChange()
-{
-    bool enabled = m_qmakeRunConfiguration->isEnabled();
-    m_disabledIcon->setVisible(!enabled);
-    m_disabledReason->setVisible(!enabled);
-    m_disabledReason->setText(m_qmakeRunConfiguration->disabledReason());
 }
 
 void DesktopQmakeRunConfigurationWidget::usingDyldImageSuffixToggled(bool state)

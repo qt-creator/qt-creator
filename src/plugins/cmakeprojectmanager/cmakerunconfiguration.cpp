@@ -210,8 +210,6 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     auto vbx = new QVBoxLayout(this);
     vbx->setMargin(0);
     vbx->addWidget(detailsContainer);
-
-    setEnabled(cmakeRunConfiguration->isEnabled());
 }
 
 // Factory

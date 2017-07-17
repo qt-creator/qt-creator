@@ -39,9 +39,7 @@ public:
     explicit NimRunConfigurationWidget(NimRunConfiguration *rc, QWidget *parent = 0);
 
 private:
-    void updateUi();
-
     NimRunConfiguration* m_rc;
 };
 
-}
+} // namespace Nim

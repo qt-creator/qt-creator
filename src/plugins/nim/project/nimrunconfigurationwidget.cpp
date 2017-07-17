@@ -45,14 +45,6 @@ NimRunConfigurationWidget::NimRunConfigurationWidget(NimRunConfiguration *rc,
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     rc->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, fl);
     rc->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this,fl);
-    connect(rc, &NimRunConfiguration::enabledChanged, this, &NimRunConfigurationWidget::updateUi);
-    updateUi();
 }
 
-
-void NimRunConfigurationWidget::updateUi()
-{
-    setEnabled(m_rc->isEnabled());
-}
-
-}
+} // namespace Nim

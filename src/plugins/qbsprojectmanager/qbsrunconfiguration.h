@@ -113,10 +113,8 @@ private:
     void setExecutableLineText(const QString &text = QString());
 
     QbsRunConfiguration *m_rc;
-    bool m_ignoreChange = false;
-    QLabel *m_disabledIcon;
-    QLabel *m_disabledReason;
     QLabel *m_executableLineLabel;
+    bool m_ignoreChange = false;
     bool m_isShown = false;
 };
 
