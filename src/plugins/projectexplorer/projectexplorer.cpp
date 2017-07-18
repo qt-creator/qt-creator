@@ -1982,22 +1982,6 @@ void ProjectExplorerPluginPrivate::buildStateChanged(Project * pro)
     updateActions();
 }
 
-// NBS TODO implement more than one runner
-using RunControlFactory = std::function<RunControl *(RunConfiguration *, Core::Id, QString *)>;
-
-static RunControlFactory findRunControlFactory(RunConfiguration *config, Core::Id mode)
-{
-    if (auto producer = RunControl::producer(config, mode)) {
-        return [producer, config](RunConfiguration *rc, Id runMode, QString *) {
-            auto runControl = new RunControl(rc, runMode);
-            (void) producer(runControl);
-            return runControl;
-        };
-    }
-
-    return {};
-}
-
 void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfiguration, Core::Id runMode)
 {
     if (!runConfiguration->isConfigured()) {
@@ -2015,17 +1999,15 @@ void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *run
         }
     }
 
-    if (RunControlFactory runControlFactory = findRunControlFactory(runConfiguration, runMode)) {
-        emit m_instance->aboutToExecuteProject(runConfiguration->target()->project(), runMode);
+    RunControl::WorkerCreator producer = RunControl::producer(runConfiguration, runMode);
 
-        QString errorMessage;
-        RunControl *control = runControlFactory(runConfiguration, runMode, &errorMessage);
-        if (!control) {
-            m_instance->showRunErrorMessage(errorMessage);
-            return;
-        }
-        startRunControl(control);
-    }
+    QTC_ASSERT(producer, return);
+    auto runControl = new RunControl(runConfiguration, runMode);
+    (void) producer(runControl);
+
+    emit m_instance->aboutToExecuteProject(runConfiguration->target()->project(), runMode);
+
+    startRunControl(runControl);
 }
 
 void ProjectExplorerPlugin::showRunErrorMessage(const QString &errorMessage)
@@ -2793,7 +2775,8 @@ bool ProjectExplorerPlugin::canRunStartupProject(Core::Id runMode, QString *whyN
     }
 
     // shouldn't actually be shown to the user...
-    if (!findRunControlFactory(activeRC, runMode)) {
+    RunControl::WorkerCreator producer = RunControl::producer(activeRC, runMode);
+    if (!producer) {
         if (whyNot)
             *whyNot = tr("Cannot run \"%1\".").arg(activeRC->displayName());
         return false;
