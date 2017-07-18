@@ -76,16 +76,6 @@ namespace Internal {
 
 Q_GLOBAL_STATIC(QmlProfilerSettings, qmlProfilerGlobalSettings)
 
-
-class QmlProfilerRunControlFactory : public IRunControlFactory
-{
-public:
-    IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc) override
-    {
-        return new QmlProfilerRunConfigurationAspect(rc);
-    }
-};
-
 bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)
@@ -101,7 +91,8 @@ void QmlProfilerPlugin::extensionsInitialized()
     (void) new QmlProfilerTool(this);
 
     addAutoReleasedObject(new QmlProfilerOptionsPage);
-    addAutoReleasedObject(new QmlProfilerRunControlFactory);
+
+    RunConfiguration::registerAspect<QmlProfilerRunConfigurationAspect>();
 
     auto constraint = [](RunConfiguration *runConfiguration) {
         Target *target = runConfiguration ? runConfiguration->target() : nullptr;

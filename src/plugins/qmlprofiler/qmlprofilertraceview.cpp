@@ -53,6 +53,7 @@
 // Needed for the load&save actions in the context menu
 #include <debugger/analyzer/analyzermanager.h>
 #include <coreplugin/findplaceholder.h>
+#include <utils/qtcfallthrough.h>
 #include <utils/styledbar.h>
 #include <utils/algorithm.h>
 
@@ -103,7 +104,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
             qint64 end = modelManager->traceTime()->endTime();
             d->m_zoomControl->setTrace(start, end);
             d->m_zoomControl->setRange(start, start + (end - start) / 10);
-            // Fall through
+            Q_FALLTHROUGH();
         }
         case QmlProfilerModelManager::Empty:
             d->m_modelProxy->setModels(d->m_suspendedModels);
@@ -116,7 +117,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
             d->m_zoomControl->clear();
             if (!d->m_suspendedModels.isEmpty())
                 break; // Models are suspended already. AcquiringData was aborted.
-            // Fall through
+            Q_FALLTHROUGH();
         case QmlProfilerModelManager::AcquiringData:
             // Temporarily remove the models, while we're changing them
             d->m_suspendedModels = d->m_modelProxy->models();

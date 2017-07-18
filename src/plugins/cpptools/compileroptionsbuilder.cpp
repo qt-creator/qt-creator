@@ -26,6 +26,7 @@
 #include "compileroptionsbuilder.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <utils/qtcfallthrough.h>
 
 #include <QDir>
 #include <QRegularExpression>
@@ -201,7 +202,8 @@ static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objc
         if (!objcExt) {
             opts += QLatin1String("c++-header");
             break;
-        } // else: fall-through!
+        }
+        Q_FALLTHROUGH();
     case ProjectFile::ObjCHeader:
     case ProjectFile::ObjCXXHeader:
         opts += QLatin1String("objective-c++-header");
@@ -211,7 +213,8 @@ static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objc
         if (!objcExt) {
             opts += QLatin1String("c");
             break;
-        } // else: fall-through!
+        }
+        Q_FALLTHROUGH();
     case ProjectFile::ObjCSource:
         opts += QLatin1String("objective-c");
         break;
@@ -220,7 +223,8 @@ static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objc
         if (!objcExt) {
             opts += QLatin1String("c++");
             break;
-        } // else: fall-through!
+        }
+        Q_FALLTHROUGH();
     case ProjectFile::ObjCXXSource:
         opts += QLatin1String("objective-c++");
         break;

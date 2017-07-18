@@ -278,6 +278,8 @@ namespace Internal {
 ClangDiagnosticManager::ClangDiagnosticManager(TextEditor::TextDocument *textDocument)
     : m_textDocument(textDocument)
 {
+    m_textMarkDelay.setInterval(1500);
+    m_textMarkDelay.setSingleShot(true);
 }
 
 ClangDiagnosticManager::~ClangDiagnosticManager()
@@ -295,6 +297,7 @@ void ClangDiagnosticManager::cleanMarks()
 }
 void ClangDiagnosticManager::generateTextMarks()
 {
+    QObject::disconnect(&m_textMarkDelay, &QTimer::timeout, 0, 0);
     cleanMarks();
     m_clangTextMarks.reserve(m_warningDiagnostics.size() + m_errorDiagnostics.size());
     addClangTextMarks(m_warningDiagnostics);
@@ -350,6 +353,7 @@ ClangDiagnosticManager::diagnosticsAt(uint line, uint column) const
 
 void ClangDiagnosticManager::invalidateDiagnostics()
 {
+    m_textMarkDelay.start();
     if (m_diagnosticsInvalidated)
         return;
 
@@ -383,9 +387,18 @@ void ClangDiagnosticManager::processNewDiagnostics(
     m_showTextMarkAnnotations = showTextMarkAnnotations;
     filterDiagnostics(allDiagnostics);
 
-    generateTextMarks();
     generateEditorSelections();
     generateFixItAvailableMarkers();
+    if (m_firstDiagnostics) {
+        m_firstDiagnostics = false;
+        generateTextMarks();
+    } else if (!m_textMarkDelay.isActive()) {
+        generateTextMarks();
+    } else {
+        QObject::connect(&m_textMarkDelay, &QTimer::timeout, [this]() {
+            generateTextMarks();
+        });
+    }
 }
 
 const QVector<ClangBackEnd::DiagnosticContainer> &

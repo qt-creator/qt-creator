@@ -123,42 +123,52 @@ void TextMark::paintIcon(QPainter *painter, const QRect &rect) const
     m_icon.paint(painter, rect, Qt::AlignCenter);
 }
 
-void TextMark::paintAnnotation(QPainter *painter,
-                               QRectF *annotationRect,
-                               const QFontMetrics &fm) const
+void TextMark::paintAnnotation(QPainter *painter, QRectF *annotationRect) const
 {
     QString text = lineAnnotation();
     if (text.isEmpty())
         return;
 
-    const bool drawIcon = !m_icon.isNull();
-    int textWidth = fm.width(text);
-    constexpr qreal margin = 1;
-    const qreal iconHeight = annotationRect->height() - 2 * margin;
-    const qreal iconWidth = iconHeight * m_widthFactor + 2 * margin;
-    qreal annotationWidth = (drawIcon ? textWidth + iconWidth : textWidth) + margin;
-    if (annotationRect->left() + annotationWidth > annotationRect->right()) {
-        textWidth = int(annotationRect->width() - (drawIcon ? iconWidth + margin : margin));
-        text = fm.elidedText(text, Qt::ElideRight, textWidth);
-        annotationWidth = annotationRect->width();
-    }
+    const AnnotationRects &rects = annotationRects(*annotationRect, painter->fontMetrics());
+
     const QColor markColor = m_hasColor ? Utils::creatorTheme()->color(m_color).toHsl()
                                         : painter->pen().color();
     const AnnotationColors &colors =
             AnnotationColors::getAnnotationColors(markColor, painter->background().color());
 
     painter->save();
-    annotationRect->setWidth(annotationWidth);
     painter->setPen(colors.rectColor);
     painter->setBrush(colors.rectColor);
-    painter->drawRect(*annotationRect);
+    painter->drawRect(rects.annotationRect);
     painter->setPen(colors.textColor);
-    if (drawIcon) {
-        paintIcon(painter, annotationRect->adjusted(
-                      margin, margin, -(textWidth + 2 * margin), -margin).toAlignedRect());
-    }
-    painter->drawText(annotationRect->adjusted(iconWidth, 0, 0, 0), Qt::AlignLeft, text);
+    paintIcon(painter, rects.iconRect.toAlignedRect());
+    painter->drawText(rects.textRect, Qt::AlignLeft, rects.text);
     painter->restore();
+    *annotationRect = rects.annotationRect;
+}
+
+TextMark::AnnotationRects TextMark::annotationRects(const QRectF &boundingRect,
+                                                    const QFontMetrics &fm) const
+{
+    AnnotationRects rects;
+    rects.annotationRect = boundingRect;
+    rects.text = lineAnnotation();
+    const bool drawIcon = !m_icon.isNull();
+    constexpr qreal margin = 1;
+    rects.iconRect = QRectF(boundingRect.left() + margin, boundingRect.top() + margin, 0, 0);
+    if (drawIcon) {
+        rects.iconRect.setHeight(boundingRect.height() - 2 * margin);
+        rects.iconRect.setWidth(rects.iconRect.height() * m_widthFactor);
+    }
+    rects.textRect = QRectF(rects.iconRect.right() + margin, boundingRect.top(),
+                            qreal(fm.width(rects.text)), boundingRect.height());
+    rects.annotationRect.setRight(rects.textRect.right() + margin);
+    if (rects.annotationRect.right() > boundingRect.right()) {
+        rects.textRect.setRight(boundingRect.right() - margin);
+        rects.text = fm.elidedText(rects.text, Qt::ElideRight, int(rects.textRect.width()));
+        rects.annotationRect.setRight(boundingRect.right());
+    }
+    return rects;
 }
 
 void TextMark::updateLineNumber(int lineNumber)

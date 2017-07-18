@@ -87,7 +87,7 @@ private:
     QToolButton *m_toggleSync;
 
     QString m_modelId;
-    bool m_autoSync = false;
+    bool m_autoSync = true;
     Utils::FileName m_delayedRename;
 
     static QList<ProjectTreeWidget *> m_projectTreeWidgets;

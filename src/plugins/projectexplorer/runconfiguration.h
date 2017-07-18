@@ -245,6 +245,12 @@ public:
 
     static RunConfiguration *startupRunConfiguration();
 
+    using AspectFactory = std::function<IRunConfigurationAspect *(RunConfiguration *)>;
+    template <class T> static void registerAspect()
+    {
+        addAspectFactory([](RunConfiguration *rc) { return new T(rc); });
+    }
+
 signals:
     void enabledChanged();
     void requestRunActionsUpdate();
@@ -260,7 +266,7 @@ protected:
 private:
     void ctor();
 
-    void addExtraAspects();
+    static void addAspectFactory(const AspectFactory &aspectFactory);
 
     QList<IRunConfigurationAspect *> m_aspects;
 };
@@ -293,22 +299,6 @@ signals:
 private:
     virtual RunConfiguration *doCreate(Target *parent, Core::Id id) = 0;
     virtual RunConfiguration *doRestore(Target *parent, const QVariantMap &map) = 0;
-};
-
-class PROJECTEXPLORER_EXPORT IRunControlFactory : public QObject
-{
-    Q_OBJECT
-public:
-    explicit IRunControlFactory(QObject *parent = nullptr);
-
-    virtual bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const;
-    virtual RunControl *create(RunConfiguration *runConfiguration, Core::Id runMode, QString *errorMessage);
-
-    virtual IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc);
-
-    int priority() const;
-protected:
-    void setPriority(int priority); // Higher values will be preferred.
 };
 
 class PROJECTEXPLORER_EXPORT RunConfigWidget : public QWidget
@@ -397,6 +387,7 @@ public:
     void initiateStart();
     void initiateReStart();
     void initiateStop();
+    void initiateFinish();
 
     bool promptToStop(bool *optionalPrompt = nullptr) const;
     void setPromptToStop(const std::function<bool(bool *)> &promptToStop);
@@ -430,7 +421,6 @@ public:
     void setRunnable(const Runnable &runnable);
 
     virtual void appendMessage(const QString &msg, Utils::OutputFormat format);
-    virtual void bringApplicationToForeground();
 
     static bool showPromptToStopDialog(const QString &title, const QString &text,
                                        const QString &stopButtonText = QString(),
@@ -450,24 +440,28 @@ public:
         addWorkerFactory({runMode, constraint, producer});
     }
     template <class Worker>
-    static void registerWorker(Core::Id runMode, const Constraint &constraint)
+    static void registerWorker(Core::Id runMode, const Constraint &constraint, int priority = 0)
     {
         auto producer = [](RunControl *rc) { return new Worker(rc); };
-        addWorkerFactory({runMode, constraint, producer});
+        addWorkerFactory({runMode, constraint, producer, priority});
     }
     template <class Config, class Worker>
-    static void registerWorker(Core::Id runMode)
+    static void registerWorker(Core::Id runMode, int priority = 0)
     {
         auto constraint = [](RunConfiguration *runConfig) { return qobject_cast<Config *>(runConfig); };
         auto producer = [](RunControl *rc) { return new Worker(rc); };
-        addWorkerFactory({runMode, constraint, producer});
+        addWorkerFactory({runMode, constraint, producer, priority});
     }
 
     struct WorkerFactory {
         Core::Id runMode;
         Constraint constraint;
         WorkerCreator producer;
+        int priority = 0;
 
+        WorkerFactory(const Core::Id &mode, Constraint constr, const WorkerCreator &prod,
+                      int prio = 0)
+            : runMode(mode), constraint(constr), producer(prod), priority(prio) {}
         bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const;
     };
 
@@ -479,6 +473,7 @@ signals:
     void aboutToStart();
     void started();
     void stopped();
+    void finished();
     void applicationProcessHandleChanged(QPrivateSignal); // Use setApplicationProcessHandle
 
 private:

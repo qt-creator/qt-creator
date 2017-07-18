@@ -292,12 +292,6 @@ public:
         }
     }
 
-    void raiseApplication()
-    {
-        QTC_ASSERT(runControl(), return);
-        runControl()->bringApplicationToForeground();
-    }
-
     void scheduleResetLocation()
     {
         m_stackHandler.scheduleResetLocation();
@@ -1323,7 +1317,7 @@ void DebuggerEngine::notifyInferiorPid(const ProcessHandle &pid)
         showMessage(tr("Taking notice of pid %1").arg(pid.pid()));
         DebuggerStartMode sm = runParameters().startMode;
         if (sm == StartInternal || sm == StartExternal || sm == AttachExternal)
-            QTimer::singleShot(0, d, &DebuggerEnginePrivate::raiseApplication);
+            d->m_inferiorPid.activate();
     }
 }
 

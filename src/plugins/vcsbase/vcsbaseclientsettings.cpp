@@ -29,6 +29,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcfallthrough.h>
 
 #include <QSettings>
 #include <QVariant>
@@ -56,6 +57,7 @@ public:
         switch (v.type()) {
         case QVariant::UInt:
             m_type = QVariant::Int;
+            Q_FALLTHROUGH();
         case QVariant::Int:
             m_comp.intValue = v.toInt();
             break;

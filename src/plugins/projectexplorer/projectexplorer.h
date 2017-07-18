@@ -48,7 +48,6 @@ namespace Utils { class ProcessHandle; }
 namespace ProjectExplorer {
 class RunControl;
 class RunConfiguration;
-class IRunControlFactory;
 class Project;
 class Node;
 class FolderNode;

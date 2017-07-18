@@ -36,17 +36,22 @@
 #include "iosdsymbuildstep.h"
 #include "iosqtversionfactory.h"
 #include "iosrunfactories.h"
+#include "iosrunner.h"
 #include "iossettingspage.h"
 #include "iossimulator.h"
 #include "iossimulatorfactory.h"
 #include "iostoolhandler.h"
+#include "iosrunconfiguration.h"
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/runconfiguration.h>
+
 #include <qtsupport/qtversionmanager.h>
 
 #include <QtPlugin>
 
-#include <projectexplorer/devicesupport/devicemanager.h>
+using namespace ProjectExplorer;
 
 namespace Ios {
 namespace Internal {
@@ -67,7 +72,6 @@ bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     addAutoReleasedObject(new Internal::IosBuildConfigurationFactory);
     addAutoReleasedObject(new Internal::IosToolChainFactory);
-    addAutoReleasedObject(new Internal::IosRunControlFactory);
     addAutoReleasedObject(new Internal::IosRunConfigurationFactory);
     addAutoReleasedObject(new Internal::IosSettingsPage);
     addAutoReleasedObject(new Internal::IosQtVersionFactory);
@@ -77,6 +81,17 @@ bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(new Internal::IosDeployStepFactory);
     addAutoReleasedObject(new Internal::IosDsymBuildStepFactory);
     addAutoReleasedObject(new Internal::IosDeployConfigurationFactory);
+
+    auto constraint = [](RunConfiguration *runConfig) {
+        return qobject_cast<Internal::IosRunConfiguration *>(runConfig) != nullptr;
+    };
+
+    RunControl::registerWorker<Internal::IosRunSupport>
+            (ProjectExplorer::Constants::NORMAL_RUN_MODE, constraint);
+    RunControl::registerWorker<Internal::IosDebugSupport>
+            (ProjectExplorer::Constants::DEBUG_RUN_MODE, constraint);
+    RunControl::registerWorker<Internal::IosQmlProfilerSupport>
+            (ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, constraint);
 
     return true;
 }

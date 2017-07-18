@@ -56,7 +56,6 @@ public:
 
     void start() override;
     void stop() override;
-    void onFinished() override;
 
     bool success() const { return m_success; } // For testing.
 

@@ -56,6 +56,7 @@
 
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcfallthrough.h>
 
 #include <QApplication>
 #include <QComboBox>
@@ -4119,7 +4120,7 @@ public:
             break;
         case FromReference:
             removeReferenceOperator(changes);
-            // fallthrough intended
+            Q_FALLTHROUGH();
         case FromVariable:
             convertToPointer(changes);
             break;

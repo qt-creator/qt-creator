@@ -110,15 +110,6 @@ public:
     }
 };
 
-class ValgrindRunControlFactory : public IRunControlFactory
-{
-public:
-    IRunConfigurationAspect *createRunConfigurationAspect(RunConfiguration *rc) override
-    {
-        return new ValgrindRunConfigurationAspect(rc);
-    }
-};
-
 ValgrindPlugin::~ValgrindPlugin()
 {
     delete theGlobalSettings;
@@ -131,7 +122,8 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     theGlobalSettings->readSettings();
 
     addAutoReleasedObject(new ValgrindOptionsPage);
-    addAutoReleasedObject(new ValgrindRunControlFactory);
+
+    RunConfiguration::registerAspect<ValgrindRunConfigurationAspect>();
 
     return true;
 }

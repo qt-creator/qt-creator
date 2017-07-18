@@ -34,6 +34,7 @@
 #include <QList>
 #include <QSet>
 #include <QTextEdit>
+#include <QTimer>
 #include <QVector>
 
 #include <vector>
@@ -82,8 +83,10 @@ private:
     QList<QTextEdit::ExtraSelection> m_extraSelections;
     TextEditor::RefactorMarkers m_fixItAvailableMarkers;
     std::vector<ClangTextMark *> m_clangTextMarks;
+    bool m_firstDiagnostics = true;
     bool m_diagnosticsInvalidated = false;
     bool m_showTextMarkAnnotations = false;
+    QTimer m_textMarkDelay;
 };
 
 } // namespace Internal

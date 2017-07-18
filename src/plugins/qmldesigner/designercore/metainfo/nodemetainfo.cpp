@@ -1029,9 +1029,9 @@ bool NodeMetaInfoPrivate::cleverCheckType(const TypeName &otherType) const
     return typeName == convertedName.toUtf8();
 }
 
-QVariant::Type NodeMetaInfoPrivate::variantTypeId(const PropertyName &properyName) const
+QVariant::Type NodeMetaInfoPrivate::variantTypeId(const PropertyName &propertyName) const
 {
-    TypeName typeName = propertyType(properyName);
+    TypeName typeName = propertyType(propertyName);
     if (typeName == "string")
         return QVariant::String;
 

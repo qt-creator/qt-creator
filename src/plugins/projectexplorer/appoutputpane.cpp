@@ -420,7 +420,8 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     if (tabIndex != -1) {
         RunControlTab &tab = m_runControlTabs[tabIndex];
         // Reuse this tab
-        delete tab.runControl;
+        if (tab.runControl)
+            tab.runControl->initiateFinish();
         tab.runControl = rc;
         tab.window->setFormatter(rc ? rc->outputFormatter() : nullptr);
 
@@ -559,7 +560,7 @@ bool AppOutputPane::closeTabs(CloseTabMode mode)
 QList<RunControl *> AppOutputPane::allRunControls() const
 {
     return Utils::transform<QList>(m_runControlTabs,[](const RunControlTab &tab) {
-        return tab.runControl;
+        return tab.runControl.data();
     });
 }
 
@@ -596,7 +597,8 @@ bool AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
 
     m_tabWidget->removeTab(tabIndex);
     delete m_runControlTabs[index].window;
-    delete m_runControlTabs[index].runControl;
+    m_runControlTabs[index].runControl->initiateFinish(); // Will self-destruct.
+    m_runControlTabs[index].runControl = 0;
     m_runControlTabs.removeAt(index);
     updateCloseActions();
 

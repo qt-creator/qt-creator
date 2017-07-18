@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <QPointer>
 #include <QVector>
 
 #include <coreplugin/ioutputpane.h>
@@ -124,7 +125,7 @@ private:
     public:
         explicit RunControlTab(RunControl *runControl = nullptr,
                                Core::OutputWindow *window = nullptr);
-        RunControl *runControl;
+        QPointer<RunControl> runControl;
         Core::OutputWindow *window;
         BehaviorOnOutput behaviorOnOutput = Flash;
     };

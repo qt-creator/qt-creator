@@ -71,8 +71,8 @@ class StartApplicationDialogPrivate
 public:
     KitChooser *kitChooser;
     QLabel *serverPortLabel;
-    QLabel *serverAddressLabel;
-    QLineEdit *serverAddressEdit;
+    QLabel *channelOverrideLabel;
+    QLineEdit *channelOverrideEdit;
     QSpinBox *serverPortSpinBox;
     PathChooser *localExecutablePathChooser;
     FancyLineEdit *arguments;
@@ -235,8 +235,11 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->serverPortSpinBox = new QSpinBox(this);
     d->serverPortSpinBox->setRange(1, 65535);
 
-    d->serverAddressLabel = new QLabel(tr("Override server address"), this);
-    d->serverAddressEdit = new QLineEdit(this);
+    d->channelOverrideLabel = new QLabel(tr("Override server channel:"), this);
+    d->channelOverrideEdit = new QLineEdit(this);
+    //: "For example, /dev/ttyS0, COM1, 127.0.0.1:1234"
+    d->channelOverrideEdit->setPlaceholderText(
+        tr("For example, %1").arg("/dev/ttyS0, COM1, 127.0.0.1:1234"));
 
     d->localExecutablePathChooser = new PathChooser(this);
     d->localExecutablePathChooser->setExpectedKind(PathChooser::File);
@@ -292,7 +295,6 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(tr("&Kit:"), d->kitChooser);
     formLayout->addRow(d->serverPortLabel, d->serverPortSpinBox);
-    formLayout->addRow(d->serverAddressLabel, d->serverAddressEdit);
     formLayout->addRow(tr("Local &executable:"), d->localExecutablePathChooser);
     formLayout->addRow(tr("Command line &arguments:"), d->arguments);
     formLayout->addRow(tr("&Working directory:"), d->workingDirectory);
@@ -300,6 +302,11 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     formLayout->addRow(tr("Break at \"&main\":"), d->breakAtMainCheckBox);
     formLayout->addRow(d->serverStartScriptLabel, d->serverStartScriptPathChooser);
     formLayout->addRow(tr("Debug &information:"), d->debuginfoPathChooser);
+    formLayout->addRow(new QLabel(tr("Normally, the running server is identified by the IP of the "
+                          "device in the kit and the server port selected above.\n"
+                          "You can choose another communication channel here, such as "
+                          "a serial line or custom ip:port.")));
+    formLayout->addRow(d->channelOverrideLabel, d->channelOverrideEdit);
     formLayout->addRow(line2);
     formLayout->addRow(tr("&Recent:"), d->historyComboBox);
 
@@ -315,6 +322,9 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(d->historyComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &StartApplicationDialog::historyIndexChanged);
+
+    connect(d->channelOverrideEdit, &QLineEdit::textChanged,
+            this, &StartApplicationDialog::onChannelOverrideChanged);
 
     updateState();
 }
@@ -332,6 +342,12 @@ void StartApplicationDialog::setHistory(const QList<StartApplicationParameters> 
         if (!p.runnable.executable.isEmpty())
             d->historyComboBox->addItem(p.displayName(), QVariant::fromValue(p));
     }
+}
+
+void StartApplicationDialog::onChannelOverrideChanged(const QString &channel)
+{
+    d->serverPortSpinBox->setEnabled(channel.isEmpty());
+    d->serverPortLabel->setEnabled(channel.isEmpty());
 }
 
 void StartApplicationDialog::historyIndexChanged(int index)
@@ -379,8 +395,8 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit
         dialog.d->serverStartScriptLabel->setVisible(false);
         dialog.d->serverPortSpinBox->setVisible(false);
         dialog.d->serverPortLabel->setVisible(false);
-        dialog.d->serverAddressLabel->setVisible(false);
-        dialog.d->serverAddressEdit->setVisible(false);
+        dialog.d->channelOverrideLabel->setVisible(false);
+        dialog.d->channelOverrideEdit->setVisible(false);
     }
     if (dialog.exec() != QDialog::Accepted)
         return false;
@@ -404,7 +420,7 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit
     }
 
     rp->inferior.executable = newParameters.runnable.executable;
-    const QString inputAddress = dialog.d->serverAddressEdit->text();
+    const QString inputAddress = dialog.d->channelOverrideEdit->text();
     if (!inputAddress.isEmpty())
         rp->remoteChannel = inputAddress;
     else
@@ -430,7 +446,7 @@ StartApplicationParameters StartApplicationDialog::parameters() const
 {
     StartApplicationParameters result;
     result.serverPort = d->serverPortSpinBox->value();
-    result.serverAddress = d->serverAddressEdit->text();
+    result.serverAddress = d->channelOverrideEdit->text();
     result.runnable.executable = d->localExecutablePathChooser->path();
     result.serverStartScript = d->serverStartScriptPathChooser->path();
     result.kitId = d->kitChooser->currentKitId();
@@ -447,7 +463,7 @@ void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
 {
     d->kitChooser->setCurrentKitId(p.kitId);
     d->serverPortSpinBox->setValue(p.serverPort);
-    d->serverAddressEdit->setText(p.serverAddress);
+    d->channelOverrideEdit->setText(p.serverAddress);
     d->localExecutablePathChooser->setPath(p.runnable.executable);
     d->serverStartScriptPathChooser->setPath(p.serverStartScript);
     d->debuginfoPathChooser->setPath(p.debugInfoLocation);

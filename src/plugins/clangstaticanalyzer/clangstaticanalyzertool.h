@@ -58,8 +58,9 @@ public:
 
     // For testing.
     QList<Diagnostic> diagnostics() const;
-
     void startTool();
+
+    void handleWorkerStart(ProjectExplorer::RunWorker *runWorker);
 
     void onEngineIsStarting();
     void onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics);

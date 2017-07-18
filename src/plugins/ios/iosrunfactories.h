@@ -29,8 +29,6 @@
 #include <qmakeprojectmanager/qmakerunconfigurationfactory.h>
 
 namespace ProjectExplorer {
-class RunControl;
-class RunConfigWidget;
 class Target;
 class Node;
 } // namespace ProjectExplorer
@@ -66,21 +64,6 @@ private:
                                                 Core::Id id) override;
     ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
                                                  const QVariantMap &map) override;
-};
-
-class IosRunControlFactory : public ProjectExplorer::IRunControlFactory
-{
-    Q_OBJECT
-
-public:
-    explicit IosRunControlFactory(QObject *parent = 0);
-
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                Core::Id mode) const override;
-    ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                       Core::Id mode, QString *) override;
-private:
-    mutable QMap<Core::Id, QPointer<ProjectExplorer::RunControl> > m_activeRunControls;
 };
 
 } // namespace Internal

@@ -31,6 +31,7 @@
 #include <debugger/debuggerstartparameters.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcfallthrough.h>
 
 namespace Debugger {
 namespace Internal {
@@ -102,7 +103,7 @@ void GdbAttachEngine::handleAttach(const DebuggerResponse &response)
             notifyEngineIll();
             break;
         }
-        // if msg != "ptrace: ..." fall through
+        Q_FALLTHROUGH(); // if msg != "ptrace: ..."
     default:
         showStatusMessage(tr("Failed to attach to application: %1")
                           .arg(QString(response.data["msg"].data())));

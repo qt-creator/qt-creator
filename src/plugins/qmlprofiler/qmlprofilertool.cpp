@@ -69,6 +69,8 @@
 
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/qtcfallthrough.h>
+
 #include <QApplication>
 #include <QDockWidget>
 #include <QFileDialog>
@@ -387,6 +389,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
             case QMessageBox::Help:
                 HelpManager::handleHelpRequest(
                             "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html");
+                Q_FALLTHROUGH();
             case QMessageBox::Cancel:
                 // The actual error message has already been logged.
                 logState(tr("Failed to connect."));

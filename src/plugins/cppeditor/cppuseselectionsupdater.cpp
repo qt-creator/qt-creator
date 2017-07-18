@@ -98,8 +98,12 @@ void CppUseSelectionsUpdater::update(CallType callType)
 
         // QFuture::waitForFinished seems to block completely, not even
         // allowing to process events from QLocalSocket.
-        while (!future.isFinished())
+        while (!future.isFinished()) {
+            if (future.isCanceled())
+                return;
+
             QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        }
 
         processResults(future.result());
     }

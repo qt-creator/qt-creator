@@ -29,6 +29,8 @@
 #include "watchutils.h"
 #include "watchdata.h"
 
+#include <utils/qtcfallthrough.h>
+
 #include <QDebug>
 
 #include <string.h>
@@ -231,8 +233,10 @@ QString formatToolTipAddress(quint64 a)
         switch (rc.size()) {
         case 16:
             rc.insert(12, colon);
+            Q_FALLTHROUGH();
         case 12:
             rc.insert(8, colon);
+            Q_FALLTHROUGH();
         case 8:
             rc.insert(4, colon);
         }

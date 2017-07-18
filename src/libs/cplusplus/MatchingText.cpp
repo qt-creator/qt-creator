@@ -143,9 +143,13 @@ bool MatchingText::contextAllowsAutoParentheses(const QTextCursor &cursor,
     if (!textToInsert.isEmpty())
         ch = textToInsert.at(0);
 
+    if (ch == QLatin1Char('{') && cursor.block().text().trimmed().isEmpty())
+        return false; // User just might want to wrap up some lines.
+
     if (!shouldInsertMatchingText(cursor) && ch != QLatin1Char('\'') && ch != QLatin1Char('"'))
         return false;
-    else if (isInCommentHelper(cursor))
+
+    if (isInCommentHelper(cursor))
         return false;
 
     return true;
