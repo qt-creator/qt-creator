@@ -245,7 +245,7 @@ class BaseTextEditorPrivate
 public:
     BaseTextEditorPrivate() {}
 
-    TextEditorFactoryPrivate *m_origin;
+    TextEditorFactoryPrivate *m_origin = nullptr;
 };
 
 class HoverHandlerRunner
@@ -561,7 +561,7 @@ public:
     void disableBlockSelection(BlockSelectionUpdateKind kind);
     void resetCursorFlashTimer();
     QBasicTimer m_cursorFlashTimer;
-    bool m_cursorVisible;
+    bool m_cursorVisible = true;
     bool m_moveLineUndoHack = false;
 
     QTextCursor m_findScopeStart;

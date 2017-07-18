@@ -33,10 +33,6 @@ using namespace TextEditor;
 using namespace Internal;
 
 ProcessorRunner::ProcessorRunner()
-    : m_processor(0)
-    , m_interface(0)
-    , m_discardProposal(false)
-    , m_proposal(0)
 {}
 
 ProcessorRunner::~ProcessorRunner()

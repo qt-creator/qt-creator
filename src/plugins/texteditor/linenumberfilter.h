@@ -51,7 +51,7 @@ public:
     void refresh(QFutureInterface<void> &) override {}
 
 private:
-    bool m_hasCurrentEditor;
+    bool m_hasCurrentEditor = false;
 };
 
 } // namespace Internal

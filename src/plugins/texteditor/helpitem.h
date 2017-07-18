@@ -75,7 +75,7 @@ private:
 private:
     QString m_helpId;
     QString m_docMark;
-    Category m_category;
+    Category m_category = Unknown;
     mutable QMap<QString, QUrl> m_helpLinks; // cached help links
 };
 

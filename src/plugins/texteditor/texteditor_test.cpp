@@ -44,10 +44,10 @@ enum TransFormationType { Uppercase, Lowercase };
 
 struct TestBlockSelection
 {
-    int positionBlock;
-    int positionColumn;
-    int anchorBlock;
-    int anchorColumn;
+    int positionBlock = 0;
+    int positionColumn = 0;
+    int anchorBlock = 0;
+    int anchorColumn = 0;
     TestBlockSelection(int positionBlock, int positionColumn, int anchorBlock, int anchorColumn)
         : positionBlock(positionBlock), positionColumn(positionColumn)
         , anchorBlock(anchorBlock), anchorColumn(anchorColumn) {}

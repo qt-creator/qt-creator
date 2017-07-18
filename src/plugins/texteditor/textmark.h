@@ -121,9 +121,9 @@ private:
     QString m_fileName;
     int m_lineNumber = 0;
     Priority m_priority = LowPriority;
-    bool m_visible = false;
     QIcon m_icon;
-    Utils::Theme::Color m_color;
+    Utils::Theme::Color m_color = Utils::Theme::TextColorNormal;
+    bool m_visible = false;
     bool m_hasColor = false;
     Core::Id m_category;
     double m_widthFactor = 1.0;

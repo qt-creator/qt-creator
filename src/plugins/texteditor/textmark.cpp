@@ -94,7 +94,7 @@ TextMark::~TextMark()
     TextMarkRegistry::remove(this);
     if (m_baseTextDocument)
         m_baseTextDocument->removeMark(this);
-    m_baseTextDocument = 0;
+    m_baseTextDocument = nullptr;
 }
 
 QString TextMark::fileName() const

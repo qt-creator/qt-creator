@@ -54,11 +54,11 @@ public:
     IAssistProposal *proposal() const;
 
 private:
-    IAssistProcessor *m_processor;
-    AssistInterface *m_interface;
-    bool m_discardProposal;
-    IAssistProposal *m_proposal;
-    AssistReason m_reason;
+    IAssistProcessor *m_processor = nullptr;
+    AssistInterface *m_interface = nullptr;
+    bool m_discardProposal = false;
+    IAssistProposal *m_proposal = nullptr;
+    AssistReason m_reason = IdleEditor;
 };
 
 } // Internal
