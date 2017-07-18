@@ -2538,9 +2538,6 @@
     <g
        style="display:inline"
        id="src/libs/utils/images/close"
-       inkscape:export-filename="c:\Users\aportale\dev\qt-creator\src\plugins\coreplugin\images\button_close.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90"
        transform="translate(-32,-16)">
       <rect
          y="583.99994"
@@ -6597,10 +6594,7 @@
     </g>
     <g
        id="src/libs/utils/images/panel_button"
-       style="opacity:0.83"
-       inkscape:export-filename="panel_button.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90">
+       style="opacity:0.83">
       <g
          id="g4052">
         <rect
@@ -6653,9 +6647,6 @@
     <g
        id="src/libs/utils/images/panel_button_hover"
        style="opacity:0.82999998"
-       inkscape:export-filename="panel_button.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90"
        transform="translate(-4,0)">
       <use
          height="600"
@@ -6677,9 +6668,6 @@
     <g
        id="src/libs/utils/images/panel_button_checked"
        style="opacity:0.82999998"
-       inkscape:export-filename="panel_button.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90"
        transform="translate(-8,0)">
       <g
          id="g4061">
@@ -6704,9 +6692,6 @@
     <g
        id="src/libs/utils/images/panel_button_checked_hover"
        style="opacity:0.82999998"
-       inkscape:export-filename="panel_button.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90"
        transform="translate(-12,0)">
       <use
          height="600"
@@ -6728,9 +6713,6 @@
     <g
        id="src/libs/utils/images/panel_button_pressed"
        style="opacity:0.82999998"
-       inkscape:export-filename="panel_button.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90"
        transform="translate(-16,0)">
       <rect
          y="501"
@@ -6931,8 +6913,6 @@
     <g
        transform="translate(-262,305)"
        style="display:inline"
-       inkscape:export-ydpi="90"
-       inkscape:export-xdpi="90"
        id="src/plugins/projectexplorer/images/run_mask">
       <rect
          style="fill:#ffffff;fill-opacity:1"
@@ -6949,9 +6929,6 @@
     <g
        transform="translate(-388,305)"
        style="display:inline"
-       inkscape:export-ydpi="90"
-       inkscape:export-xdpi="90"
-       inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
        id="src/plugins/projectexplorer/images/debugger_beetle_mask">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1"
@@ -6984,9 +6961,6 @@
     </g>
     <g
        id="src/plugins/debugger/images/debugger_interrupt_mask"
-       inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90"
        transform="translate(-364,305)"
        style="display:inline">
       <rect
@@ -6995,10 +6969,7 @@
          y="50"
          width="24"
          height="24"
-         id="rect4791"
-         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
-         inkscape:export-xdpi="90"
-         inkscape:export-ydpi="90" />
+         id="rect4791" />
       <rect
          style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          id="rect4608-0"
@@ -7016,9 +6987,6 @@
     </g>
     <g
        id="src/plugins/debugger/images/debugger_continue_1_mask"
-       inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90"
        transform="translate(-340,305)"
        style="display:inline">
       <rect
@@ -7027,10 +6995,7 @@
          y="50"
          width="24"
          height="24"
-         id="rect4791-9"
-         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
-         inkscape:export-xdpi="90"
-         inkscape:export-ydpi="90" />
+         id="rect4791-9" />
       <rect
          style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          id="rect4608-0-4"
@@ -7041,9 +7006,6 @@
     </g>
     <g
        id="src/plugins/debugger/images/debugger_continue_2_mask"
-       inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90"
        transform="translate(-316,305)"
        style="display:inline">
       <rect
@@ -7052,10 +7014,7 @@
          y="50"
          width="24"
          height="24"
-         id="rect4791-9-8"
-         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
-         inkscape:export-xdpi="90"
-         inkscape:export-ydpi="90" />
+         id="rect4791-9-8" />
       <path
          style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          d="m 763,52 9,9 -9,9 z"
@@ -7066,14 +7025,8 @@
     <g
        transform="translate(-392,305)"
        style="display:inline"
-       inkscape:export-ydpi="90"
-       inkscape:export-xdpi="90"
-       inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
        id="src/plugins/projectexplorer/images/build_hammerhandle_mask">
       <rect
-         inkscape:export-ydpi="90"
-         inkscape:export-xdpi="90"
-         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
          style="fill:#ffffff;fill-opacity:1"
          x="850"
          y="50"
@@ -7081,9 +7034,6 @@
          height="24"
          id="rect5759-5" />
       <g
-         inkscape:export-ydpi="90"
-         inkscape:export-xdpi="90"
-         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
          style="fill:#030303;fill-opacity:1"
          id="build-5">
         <rect
@@ -7099,14 +7049,8 @@
     <g
        transform="translate(-368,305)"
        style="display:inline"
-       inkscape:export-ydpi="90"
-       inkscape:export-xdpi="90"
-       inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
        id="src/plugins/projectexplorer/images/build_hammerhead_mask">
       <rect
-         inkscape:export-ydpi="90"
-         inkscape:export-xdpi="90"
-         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
          style="fill:#ffffff;fill-opacity:1"
          x="850"
          y="50"
@@ -7114,9 +7058,6 @@
          height="24"
          id="rect5759-5-9" />
       <g
-         inkscape:export-ydpi="90"
-         inkscape:export-xdpi="90"
-         inkscape:export-filename="c:\Users\aportale\ownprojects\stuff\experiments\iconrecoloring\icon.png"
          style="fill:#030303;fill-opacity:1"
          id="build-5-2">
         <polygon
