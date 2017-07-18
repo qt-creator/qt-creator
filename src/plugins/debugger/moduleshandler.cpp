@@ -327,7 +327,8 @@ void ModulesHandler::endUpdateAll()
         if (!item->updated)
             toDestroy.append(item);
     });
-    qDeleteAll(toDestroy);
+    for (TreeItem *item : toDestroy)
+        m_model->destroyItem(item);
 }
 
 } // namespace Internal
