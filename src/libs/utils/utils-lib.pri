@@ -113,7 +113,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/port.cpp \
     $$PWD/runextensions.cpp \
     $$PWD/utilsicons.cpp \
-    $$PWD/guard.cpp
+    $$PWD/guard.cpp \
+    $$PWD/highlightingitemdelegate.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -239,8 +240,9 @@ HEADERS += \
     $$PWD/asconst.h \
     $$PWD/smallstringfwd.h \
     $$PWD/optional.h \
+    $$PWD/../3rdparty/optional/optional.hpp \
     $$PWD/qtcfallthrough.h \
-    $$PWD/../3rdparty/optional/optional.hpp
+    $$PWD/highlightingitemdelegate.cpp
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
