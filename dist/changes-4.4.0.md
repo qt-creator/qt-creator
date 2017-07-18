@@ -83,6 +83,10 @@ QML Support
 
 Debugging
 
+* Added `Alt+V` + letter shortcuts to open views
+* Added dumper for `qfloat16`
+* Added dumpers for `std::{optional,byte}`, `gsl::{span,byte}`, `boost::variant`
+* Improved display of enum bitfields
 * Fixed support for `long double` (QTCREATORBUG-18023)
 * CDB
     * Added support for extra debugging helpers and debugging helper
