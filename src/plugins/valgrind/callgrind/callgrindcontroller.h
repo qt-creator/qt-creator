@@ -82,7 +82,7 @@ private:
     void controllerProcessError(QProcess::ProcessError);
     void controllerProcessClosed(bool success);
 
-    ProjectExplorer::ApplicationLauncher *m_controllerProcess;
+    ProjectExplorer::ApplicationLauncher *m_controllerProcess = nullptr;
     ProjectExplorer::StandardRunnable m_valgrindRunnable;
     qint64 m_pid = 0;
 
@@ -93,7 +93,7 @@ private:
     QString m_tempDataFile;
     QSsh::SshRemoteProcess::Ptr m_findRemoteFile;
     QSsh::SftpChannel::Ptr m_sftp;
-    QSsh::SftpJobId m_downloadJob;
+    QSsh::SftpJobId m_downloadJob = 0;
     QByteArray m_remoteFile;
 };
 
