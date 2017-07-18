@@ -63,7 +63,7 @@ using namespace Internal;
 
 BareMetalRunConfigurationWidget::BareMetalRunConfigurationWidget(BareMetalRunConfiguration *runConfiguration,
                                                                  QWidget *parent)
-    : QWidget(parent),d(new BareMetalRunConfigurationWidgetPrivate(runConfiguration))
+    : QWidget(parent), d(new BareMetalRunConfigurationWidgetPrivate(runConfiguration))
 {
     QVBoxLayout *topLayout = new QVBoxLayout(this);
     topLayout->setMargin(0);
