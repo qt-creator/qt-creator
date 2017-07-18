@@ -101,6 +101,7 @@ BranchDialog::BranchDialog(QWidget *parent) :
     connect(m_model, &QAbstractItemModel::modelReset, this, &BranchDialog::expandAndResize);
 
     m_ui->branchView->selectionModel()->clear();
+    enableButtons();
 }
 
 BranchDialog::~BranchDialog()
