@@ -119,7 +119,8 @@ void CMakeBuildStep::ctor(BuildStepList *bsl)
     }
 
     connect(target(), &Target::kitChanged, this, &CMakeBuildStep::cmakeCommandChanged);
-    connect(bc, &CMakeBuildConfiguration::dataAvailable, this, &CMakeBuildStep::handleBuildTargetChanges);
+    connect(project(), &Project::parsingFinished,
+            this, &CMakeBuildStep::handleBuildTargetChanges);
 }
 
 CMakeBuildConfiguration *CMakeBuildStep::cmakeBuildConfiguration() const
@@ -279,10 +280,8 @@ void CMakeBuildStep::run(QFutureInterface<bool> &fi)
     }
 
     if (mustDelay) {
-        m_runTrigger = connect(bc, &CMakeBuildConfiguration::dataAvailable,
-                               this, [this, &fi]() { runImpl(fi); });
-        m_errorTrigger = connect(bc, &CMakeBuildConfiguration::errorOccured,
-                                 this, [this, &fi](const QString& em) { handleCMakeError(fi, em); });
+        m_runTrigger = connect(project(), &Project::parsingFinished,
+                               this, [this, &fi](bool success) { handleProjectWasParsed(fi, success); });
     } else {
         runImpl(fi);
     }
@@ -291,21 +290,18 @@ void CMakeBuildStep::run(QFutureInterface<bool> &fi)
 void CMakeBuildStep::runImpl(QFutureInterface<bool> &fi)
 {
     // Do the actual build:
-    disconnectTriggers();
     AbstractProcessStep::run(fi);
 }
 
-void CMakeBuildStep::handleCMakeError(QFutureInterface<bool> &fi, const QString& errorMessage)
-{
-    disconnectTriggers();
-    AbstractProcessStep::stdError(tr("Error parsing CMake: %1\n").arg(errorMessage));
-    reportRunResult(fi, false);
-}
-
-void CMakeBuildStep::disconnectTriggers()
+void CMakeBuildStep::handleProjectWasParsed(QFutureInterface<bool> &fi, bool success)
 {
     disconnect(m_runTrigger);
-    disconnect(m_errorTrigger);
+    if (success) {
+        runImpl(fi);
+    } else {
+        AbstractProcessStep::stdError(tr("Project did not parse successfully, can not build."));
+        reportRunResult(fi, false);
+    }
 }
 
 BuildStepConfigWidget *CMakeBuildStep::createConfigWidget()

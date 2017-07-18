@@ -114,7 +114,7 @@ private:
 
     void handleActiveTargetChanged();
     void handleActiveBuildConfigurationChanged();
-    void handleParsingStarted();
+    void handleParsingStarted(const Internal::CMakeBuildConfiguration *bc);
     void handleTreeScanningFinished();
     void updateProjectData(Internal::CMakeBuildConfiguration *cmakeBc);
     void handleParsingError(Internal::CMakeBuildConfiguration *bc);

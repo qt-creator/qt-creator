@@ -100,9 +100,6 @@ signals:
     void errorOccured(const QString &message);
     void warningOccured(const QString &message);
 
-    void parsingStarted();
-    void dataAvailable();
-
 protected:
     CMakeBuildConfiguration(ProjectExplorer::Target *parent, CMakeBuildConfiguration *source);
     bool fromMap(const QVariantMap &map) override;

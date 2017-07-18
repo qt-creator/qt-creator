@@ -146,7 +146,6 @@ void CMakeBuildConfiguration::ctor()
             this, [this, project]() {
         clearError();
         project->updateProjectData(this);
-        emit dataAvailable();
     });
     connect(m_buildDirManager.get(), &BuildDirManager::errorOccured,
             this, [this, project](const QString &msg) {
@@ -155,9 +154,8 @@ void CMakeBuildConfiguration::ctor()
     });
     connect(m_buildDirManager.get(), &BuildDirManager::configurationStarted,
             this, [this, project]() {
-        project->handleParsingStarted();
+        project->handleParsingStarted(this);
         clearError(ForceEnabledChanged::True);
-        emit parsingStarted();
     });
 
     connect(this, &CMakeBuildConfiguration::environmentChanged,
@@ -411,7 +409,7 @@ CMakeConfig CMakeBuildConfiguration::cmakeConfiguration() const
 
 void CMakeBuildConfiguration::setError(const QString &message)
 {
-    QString oldMessage = m_error;
+    const QString oldMessage = m_error;
     if (m_error != message)
         m_error = message;
     if (oldMessage.isEmpty() && !message.isEmpty())

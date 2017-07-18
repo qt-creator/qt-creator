@@ -214,7 +214,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     else
         m_configModel->setConfiguration(m_buildConfiguration->completeCMakeConfiguration());
 
-    connect(m_buildConfiguration, &CMakeBuildConfiguration::dataAvailable,
+    connect(m_buildConfiguration->target()->project(), &ProjectExplorer::Project::parsingFinished,
             this, [this, buildDirChooser, stretcher]() {
         updateButtonState();
         m_configModel->setConfiguration(m_buildConfiguration->completeCMakeConfiguration());

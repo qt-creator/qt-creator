@@ -377,9 +377,9 @@ void CMakeProject::handleActiveBuildConfigurationChanged()
     }
 }
 
-void CMakeProject::handleParsingStarted()
+void CMakeProject::handleParsingStarted(const CMakeBuildConfiguration *bc)
 {
-    if (activeTarget() && activeTarget()->activeBuildConfiguration() == sender())
+    if (activeTarget() && activeTarget()->activeBuildConfiguration() == bc)
         emitParsingStarted();
 }
 
