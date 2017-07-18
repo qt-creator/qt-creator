@@ -301,20 +301,6 @@ private:
     virtual RunConfiguration *doRestore(Target *parent, const QVariantMap &map) = 0;
 };
 
-class PROJECTEXPLORER_EXPORT IRunControlFactory : public QObject
-{
-    Q_OBJECT
-public:
-    explicit IRunControlFactory(QObject *parent = nullptr);
-
-    virtual bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const;
-    virtual RunControl *create(RunConfiguration *runConfiguration, Core::Id runMode, QString *errorMessage);
-
-    int priority() const;
-protected:
-    void setPriority(int priority); // Higher values will be preferred.
-};
-
 class PROJECTEXPLORER_EXPORT RunConfigWidget : public QWidget
 {
     Q_OBJECT

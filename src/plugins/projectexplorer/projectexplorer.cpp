@@ -1995,17 +1995,6 @@ static RunControlFactory findRunControlFactory(RunConfiguration *config, Core::I
         };
     }
 
-    IRunControlFactory *runControlFactory = ExtensionSystem::PluginManager::getObject<IRunControlFactory>(
-        [&config, &mode](IRunControlFactory *factory) {
-            return factory->canRun(config, mode);
-        });
-
-    if (runControlFactory) {
-        return [runControlFactory](RunConfiguration *rc, Id runMode, QString *errorMessage) {
-            return runControlFactory->create(rc, runMode, errorMessage);
-        };
-    }
-
     return {};
 }
 

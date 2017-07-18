@@ -367,7 +367,7 @@ IRunConfigurationAspect *RunConfiguration::extraAspect(Core::Id id) const
 
     A target specific \l RunConfiguration implementation can specify
     what information it considers necessary to execute a process
-    on the target. Target specific) \n IRunControlFactory implementation
+    on the target. Target specific) \n RunWorker implementation
     can use that information either unmodified or tweak it or ignore
     it when setting up a RunControl.
 
@@ -473,29 +473,6 @@ QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
         });
 }
 
-/*!
-    \class ProjectExplorer::IRunControlFactory
-
-    \brief The IRunControlFactory class creates RunControl objects matching a
-    run configuration.
-*/
-
-/*!
-    \fn RunConfigWidget *ProjectExplorer::IRunConfigurationAspect::createConfigurationWidget()
-
-    Returns a widget used to configure this runner. Ownership is transferred to
-    the caller.
-
-    Returns null if @p \a runConfiguration is not suitable for RunControls from this
-    factory, or no user-accessible
-    configuration is required.
-*/
-
-IRunControlFactory::IRunControlFactory(QObject *parent)
-    : QObject(parent)
-{
-}
-
 using WorkerFactories = std::vector<RunControl::WorkerFactory>;
 
 static WorkerFactories &theWorkerFactories()
@@ -513,37 +490,6 @@ bool RunControl::WorkerFactory::canRun(RunConfiguration *runConfiguration, Core:
     return constraint(runConfiguration);
 }
 
-bool IRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id runMode) const
-{
-    for (const RunControl::WorkerFactory &factory : theWorkerFactories()) {
-        if (factory.canRun(runConfiguration, runMode))
-            return true;
-    };
-    return false;
-}
-
-RunControl *IRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id runMode, QString *)
-{
-    WorkerFactories candidates;
-    for (const RunControl::WorkerFactory &factory : theWorkerFactories()) {
-        if (factory.canRun(runConfiguration, runMode))
-            candidates.push_back(factory);
-    }
-
-    if (candidates.empty())
-        return nullptr;
-
-    RunControl::WorkerFactory bestFactory = *candidates.begin();
-    for (const RunControl::WorkerFactory &factory : candidates) {
-        if (factory.priority > bestFactory.priority)
-            bestFactory = factory;
-    }
-
-    auto runControl = new RunControl(runConfiguration, runMode);
-    bestFactory.producer(runControl);
-    return runControl;
-}
-
 /*!
     \class ProjectExplorer::RunControl
     \brief The RunControl class instances represent one item that is run.
@@ -557,18 +503,6 @@ RunControl *IRunControlFactory::create(RunConfiguration *runConfiguration, Core:
     than it needs to be.
 */
 
-
-const char PRIORITY_KEY[] = "RunControlFactoryPriority";
-
-int ProjectExplorer::IRunControlFactory::priority() const
-{
-    return property(PRIORITY_KEY).toInt(); // 0 by default.
-}
-
-void IRunControlFactory::setPriority(int priority)
-{
-    setProperty(PRIORITY_KEY, priority);
-}
 
 namespace Internal {
 
@@ -797,12 +731,22 @@ RunWorker *RunControl::createWorker(Core::Id id)
 
 RunControl::WorkerCreator RunControl::producer(RunConfiguration *runConfiguration, Core::Id runMode)
 {
-    for (const auto &factory : theWorkerFactories()) {
-        if (factory.runMode == runMode
-                && (!factory.constraint || factory.constraint(runConfiguration)))
-            return factory.producer;
+    WorkerFactories candidates;
+    for (const RunControl::WorkerFactory &factory : theWorkerFactories()) {
+        if (factory.canRun(runConfiguration, runMode))
+            candidates.push_back(factory);
     }
-    return {};
+
+    if (candidates.empty())
+        return {};
+
+    RunControl::WorkerFactory bestFactory = *candidates.begin();
+    for (const RunControl::WorkerFactory &factory : candidates) {
+        if (factory.priority > bestFactory.priority)
+            bestFactory = factory;
+    }
+
+    return bestFactory.producer;
 }
 
 void RunControl::addWorkerFactory(const RunControl::WorkerFactory &workerFactory)
