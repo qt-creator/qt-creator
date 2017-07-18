@@ -483,7 +483,7 @@ static WorkerFactories &theWorkerFactories()
 
 bool RunControl::WorkerFactory::canRun(RunConfiguration *runConfiguration, Core::Id runMode) const
 {
-    if (runMode != runMode)
+    if (runMode != this->runMode)
         return false;
     if (!constraint)
         return true;
