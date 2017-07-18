@@ -482,11 +482,7 @@ public:
     {
         reserve(size());
 
-        auto operation = [=] (char currentCharacter) {
-            return currentCharacter == fromCharacter ? toCharacter : currentCharacter;
-        };
-
-        std::transform(begin(), end(), begin(), operation);
+        std::replace(begin(), end(), fromCharacter, toCharacter);
     }
 
     void replace(size_type position, size_type length, SmallStringView replacementText)
