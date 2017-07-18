@@ -66,7 +66,8 @@ SOURCES += \
     filepath-test.cpp \
     sourcerangefilter-test.cpp \
     clangqueryexamplehighlightmarker-test.cpp \
-    clangqueryhighlightmarker-test.cpp
+    clangqueryhighlightmarker-test.cpp \
+    matchingtext-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
