@@ -140,7 +140,8 @@ bool FindToolWindow::eventFilter(QObject *obj, QEvent *event)
 void FindToolWindow::updateButtonStates()
 {
     bool filterEnabled = m_currentFilter && m_currentFilter->isEnabled();
-    bool enabled = m_ui.searchTerm->isValid() && filterEnabled && m_currentFilter->isValid();
+    bool enabled = filterEnabled && (!m_currentFilter->showSearchTermInput()
+                                     || m_ui.searchTerm->isValid()) && m_currentFilter->isValid();
     m_ui.searchButton->setEnabled(enabled);
     m_ui.replaceButton->setEnabled(m_currentFilter
                                    && m_currentFilter->isReplaceSupported() && enabled);
@@ -268,12 +269,12 @@ void FindToolWindow::acceptAndGetParameters(QString *term, IFindFilter **filter)
     Find::updateFindCompletion(m_ui.searchTerm->text());
     int index = m_ui.filterList->currentIndex();
     QString searchTerm = m_ui.searchTerm->text();
+    if (filter && index >= 0)
+        *filter = m_filters.at(index);
     if (term)
         *term = searchTerm;
-    if (searchTerm.isEmpty() || index < 0)
-        return;
-    if (filter)
-        *filter = m_filters.at(index);
+    if (searchTerm.isEmpty() && *filter && !(*filter)->isValid())
+        *filter = 0;
 }
 
 void FindToolWindow::search()
