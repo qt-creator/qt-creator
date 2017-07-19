@@ -1476,7 +1476,42 @@ void RunWorkerPrivate::timerEvent(QTimerEvent *ev)
     }
 }
 
-// RunWorker
+/*!
+    \class ProjectExplorer::RunWorker
+
+    \brief The RunWorker class encapsulates a task that forms part, or
+    the whole of the operation of a tool for a certain \c RunConfiguration
+    according to some \c RunMode.
+
+    A typical example for a \c RunWorker is a process, either the
+    application process itself, or a helper process, such as a watchdog
+    or a log parser.
+
+    A \c RunWorker has a simple state model covering the \c Initialized,
+    \c Starting, \c Running, \c Stopping, \c Done, and \c Failed states.
+
+    In the course of the operation of tools several \c RunWorkers
+    may co-operate and form a combined state that is presented
+    to the user as \c RunControl, with direct interaction made
+    possible through the buttons in the \uicontrol{Application Output}
+    pane.
+
+    RunWorkers are typically created together with their RunControl.
+    The startup order of RunWorkers under a RunControl can be
+    specified by making a RunWorker dependent on others.
+
+    When a RunControl starts, it calls \c initiateStart() on RunWorkers
+    with fulfilled dependencies until all workers are \c Running, or in case
+    of short-lived helper tasks, \c Done.
+
+    A RunWorker can stop spontaneously, for example when the main application
+    process ends. In this case, it typically calls \c initiateStop()
+    on its RunControl, which in turn passes this to all sibling
+    RunWorkers.
+
+    Pressing the stop button in the \uicontrol{Application Output} pane
+    also calls \c initiateStop on the RunControl.
+*/
 
 RunWorker::RunWorker(RunControl *runControl)
     : d(new RunWorkerPrivate(this, runControl))
@@ -1488,6 +1523,10 @@ RunWorker::~RunWorker()
     delete d;
 }
 
+/*!
+ * This function is called by the RunControl once all dependencies
+ * are fulfilled.
+ */
 void RunWorker::initiateStart()
 {
     if (d->startWatchdogInterval != 0)
@@ -1496,6 +1535,12 @@ void RunWorker::initiateStart()
     start();
 }
 
+/*!
+ * This function has to be called by a RunWorker implementation
+ * to notify its RunControl about the successful start of this RunWorker.
+ *
+ * The RunControl may start other RunWorkers in response.
+ */
 void RunWorker::reportStarted()
 {
     if (d->startWatchdogInterval != 0)
@@ -1504,6 +1549,12 @@ void RunWorker::reportStarted()
     emit started();
 }
 
+/*!
+ * This function is called by the RunControl in its own \c initiateStop
+ * implementation, which is triggered in response to pressing the
+ * stop button in the \uicontrol{Application Output} pane or on direct
+ * request of one of the sibling RunWorkers.
+ */
 void RunWorker::initiateStop()
 {
     if (d->stopWatchdogInterval != 0)
@@ -1513,6 +1564,15 @@ void RunWorker::initiateStop()
     stop();
 }
 
+/*!
+ * This function has to be called by a RunWorker implementation
+ * to notify its RunControl about this RunWorker having stopped.
+ *
+ * The stop can be spontaneous, or in response to an initiateStop()
+ * or an initiateFinish() call.
+ *
+ * The RunControl will adjust its global state in response.
+ */
 void RunWorker::reportStopped()
 {
     if (d->stopWatchdogInterval != 0)
@@ -1521,11 +1581,20 @@ void RunWorker::reportStopped()
     emit stopped();
 }
 
+/*!
+ * This function can be called by a RunWorker implementation to
+ * signal a problem in the operation in this worker. The
+ * RunControl will start to ramp down through initiateStop().
+ */
 void RunWorker::reportFailure(const QString &msg)
 {
     d->runControl->d->onWorkerFailed(this, msg);
 }
 
+/*!
+ * Appends a message in the specified \a format to
+ * the owning RunControl's \uicontrol{Application Output} pane.
+ */
 void RunWorker::appendMessage(const QString &msg, OutputFormat format)
 {
     if (msg.endsWith('\n'))
