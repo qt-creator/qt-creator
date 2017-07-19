@@ -2030,7 +2030,11 @@ void DebuggerEngine::checkState(DebuggerState state, const char *file, int line)
 
 bool DebuggerEngine::isNativeMixedEnabled() const
 {
-    return runParameters().nativeMixedEnabled && (runParameters().languages & QmlLanguage);
+    if (DebuggerRunTool *rt = runTool()) {
+        const DebuggerRunParameters &runParams = rt->runParameters();
+        return runParams.nativeMixedEnabled && (runParams.languages & QmlLanguage);
+    }
+    return false;
 }
 
 bool DebuggerEngine::isNativeMixedActive() const
