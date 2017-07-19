@@ -47,7 +47,7 @@ Q_DECLARE_METATYPE(Core::IWizardFactory*)
 
 namespace {
 
-const int ICON_SIZE = 92;
+const int ICON_SIZE = 48;
 const char LAST_CATEGORY_KEY[] = "Core/NewDialog/LastCategory";
 const char LAST_PLATFORM_KEY[] = "Core/NewDialog/LastPlatform";
 
