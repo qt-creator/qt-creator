@@ -982,17 +982,14 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
             debugMessage("  Examining worker " + workerId);
             switch (worker->d->state) {
                 case RunWorkerState::Initialized:
-                    debugMessage("  " + workerId + " was Initialized, setting to Done");
-                    worker->d->state = RunWorkerState::Done;
+                    debugMessage("  " + workerId + " was Initialized.");
                     break;
                 case RunWorkerState::Starting:
-                    worker->d->state = RunWorkerState::Stopping;
-                    debugMessage("  " + workerId + " was Starting, queuing stop");
+                    debugMessage("  " + workerId + " was Starting, waiting for its response");
                     allDone = false;
                     break;
                 case RunWorkerState::Running:
-                    debugMessage("  " + workerId + " was Running, queuing stop");
-                    worker->d->state = RunWorkerState::Stopping;
+                    debugMessage("  " + workerId + " was Running, waiting for its response");
                     allDone = false;
                     break;
                 case RunWorkerState::Stopping:
