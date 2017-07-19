@@ -101,8 +101,8 @@ isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
 exists($$LLVM_INSTALL_DIR) {
     SUBDIRS += clangcodemodel
 
-    LIBTOOLING_LIBS=$$(LIBTOOLING_LIBS)
-    !isEmpty(LIBTOOLING_LIBS) {
+    QTC_NO_CLANG_LIBTOOLING=$$(QTC_NO_CLANG_LIBTOOLING)
+    isEmpty(QTC_NO_CLANG_LIBTOOLING) {
         SUBDIRS += clangrefactoring
         SUBDIRS += clangpchmanager
     } else {
