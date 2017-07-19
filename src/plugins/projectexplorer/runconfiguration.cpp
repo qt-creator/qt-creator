@@ -947,7 +947,7 @@ void RunControlPrivate::onWorkerFailed(RunWorker *worker, const QString &msg)
     worker->d->state = RunWorkerState::Failed;
 
     showError(msg);
-    setState(RunControlState::Stopped);
+    initiateStop();
 }
 
 void RunControlPrivate::onWorkerStopped(RunWorker *worker)
