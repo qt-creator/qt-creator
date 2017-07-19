@@ -5339,6 +5339,11 @@ void TextEditorWidget::showDefaultContextMenu(QContextMenuEvent *e, Id menuConte
     menu.exec(e->globalPos());
 }
 
+void TextEditorWidget::addHoverHandler(BaseHoverHandler *handler)
+{
+    d->m_hoverHandlers.append(handler);
+}
+
 void TextEditorWidget::extraAreaLeaveEvent(QEvent *)
 {
     d->extraAreaPreviousMarkTooltipRequestedLine = -1;

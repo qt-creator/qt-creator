@@ -55,7 +55,7 @@ public:
         return m_contextType;
     }
 
-    Utils::SmallString contextTypeText() const;
+    CMBIPC_EXPORT Utils::SmallString contextTypeText() const;
 
     const Utils::SmallStringVector &arguments() const
     {

@@ -250,6 +250,85 @@ public:
         return !m_messages.empty() || !m_contexts.empty();
     }
 
+    static
+    bool isAfterStartColumn(const SourceRange &sourceRange, uint line, uint column)
+    {
+        return sourceRange.start().line() == line && sourceRange.start().column() <= column;
+    }
+
+    static
+    bool isBeforeEndColumn(const SourceRange &sourceRange, uint line, uint column)
+    {
+        return sourceRange.end().line() == line && sourceRange.end().column() >= column;
+    }
+
+    static
+    bool isInBetweenLine(const SourceRange &sourceRange, uint line)
+    {
+        return sourceRange.start().line() < line && sourceRange.end().line() > line;
+    }
+
+    static
+    bool isSingleLine(const SourceRange &sourceRange)
+    {
+        return sourceRange.start().line() == sourceRange.end().line();
+    }
+
+    static
+    bool isInsideMultiLine(const SourceRange &sourceRange, uint line, uint column)
+    {
+        return !isSingleLine(sourceRange)
+            && (isAfterStartColumn(sourceRange, line, column)
+             || isInBetweenLine(sourceRange, line)
+             || isBeforeEndColumn(sourceRange, line, column));
+    }
+
+    static
+    bool isInsideSingleLine(const SourceRange &sourceRange, uint line, uint column)
+    {
+        return isSingleLine(sourceRange)
+            && isAfterStartColumn(sourceRange, line, column)
+            && isBeforeEndColumn(sourceRange, line, column);
+    }
+
+    static
+    bool isInsideRange(const SourceRange &sourceRange, uint line, uint column)
+    {
+        return isInsideSingleLine(sourceRange, line, column)
+            || isInsideMultiLine(sourceRange, line, column);
+    }
+
+    Messages messagesForLineAndColumn(uint line, uint column) const
+    {
+        Messages messages;
+
+        auto underPosition = [=] (const Message &message) {
+            return ClangQueryHighlightMarker::isInsideRange(message.sourceRange(), line, column);
+        };
+
+        std::copy_if(m_messages.begin(),
+                     m_messages.end(),
+                     std::back_inserter(messages),
+                     underPosition);
+
+        return messages;
+    }
+
+    Contexts contextsForLineAndColumn(uint line, uint column) const
+    {
+        Contexts contexts;
+
+        auto underPosition = [=] (const Context &context) {
+            return ClangQueryHighlightMarker::isInsideRange(context.sourceRange(), line, column);
+        };
+
+        std::copy_if(m_contexts.begin(),
+                     m_contexts.end(),
+                     std::back_inserter(contexts),
+                     underPosition);
+
+        return contexts;
+    }
 
 private:
     Contexts m_contexts;

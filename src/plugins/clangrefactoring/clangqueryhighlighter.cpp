@@ -72,6 +72,18 @@ bool ClangQueryHighlighter::hasDiagnostics() const
     return m_marker.hasMessagesOrContexts();
 }
 
+ClangBackEnd::DynamicASTMatcherDiagnosticMessageContainers
+ClangQueryHighlighter::messagesForLineAndColumn(uint line, uint column) const
+{
+    return m_marker.messagesForLineAndColumn(line, column);
+}
+
+ClangBackEnd::DynamicASTMatcherDiagnosticContextContainers
+ClangQueryHighlighter::contextsForLineAndColumn(uint line, uint column) const
+{
+    return m_marker.contextsForLineAndColumn(line, column);
+}
+
 void ClangQueryHighlighter::highlightBlock(const QString &text)
 {
     int currentLineNumber = currentBlock().blockNumber() + 1;

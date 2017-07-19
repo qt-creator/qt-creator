@@ -27,9 +27,12 @@
 
 #include "baseclangquerytexteditorwidget.h"
 
+#include <memory>
+
 namespace ClangRefactoring {
 
 class ClangQueryHighlighter;
+class ClangQueryHoverHandler;
 
 class ClangQueryTextEditorWidget : public BaseClangQueryTextEditorWidget
 {
@@ -37,11 +40,13 @@ class ClangQueryTextEditorWidget : public BaseClangQueryTextEditorWidget
 
 public:
     ClangQueryTextEditorWidget(QWidget *parent);
+    ~ClangQueryTextEditorWidget();
 
     ClangQueryHighlighter *syntaxHighlighter() const;
 
 private:
     ClangQueryHighlighter *m_syntaxHighlighter;
+    std::unique_ptr<ClangQueryHoverHandler> m_hoverHandler;
 };
 
 } // namespace ClangRefactoring
