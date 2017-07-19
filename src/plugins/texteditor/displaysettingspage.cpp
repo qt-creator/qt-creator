@@ -120,6 +120,12 @@ void DisplaySettingsPage::settingsFromUI(DisplaySettings &displaySettings,
     displaySettings.m_scrollBarHighlights = d->m_page->scrollBarHighlights->isChecked();
     displaySettings.m_animateNavigationWithinFile = d->m_page->animateNavigationWithinFile->isChecked();
     displaySettings.m_displayAnnotations = d->m_page->displayAnnotations->isChecked();
+    if (d->m_page->leftAligned->isChecked())
+        displaySettings.m_annotationAlignment = AnnotationAlignment::NextToContent;
+    else if (d->m_page->atMargin->isChecked())
+        displaySettings.m_annotationAlignment = AnnotationAlignment::NextToMargin;
+    else if (d->m_page->rightAligned->isChecked())
+        displaySettings.m_annotationAlignment = AnnotationAlignment::RightSide;
 }
 
 void DisplaySettingsPage::settingsToUI()
@@ -144,6 +150,11 @@ void DisplaySettingsPage::settingsToUI()
     d->m_page->scrollBarHighlights->setChecked(displaySettings.m_scrollBarHighlights);
     d->m_page->animateNavigationWithinFile->setChecked(displaySettings.m_animateNavigationWithinFile);
     d->m_page->displayAnnotations->setChecked(displaySettings.m_displayAnnotations);
+    switch (displaySettings.m_annotationAlignment) {
+    case AnnotationAlignment::NextToContent: d->m_page->leftAligned->setChecked(true); break;
+    case AnnotationAlignment::NextToMargin: d->m_page->atMargin->setChecked(true); break;
+    case AnnotationAlignment::RightSide: d->m_page->rightAligned->setChecked(true); break;
+    }
 }
 
 const DisplaySettings &DisplaySettingsPage::displaySettings() const

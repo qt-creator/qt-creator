@@ -27,11 +27,20 @@
 
 #include "texteditor_global.h"
 
+#include "QMetaType"
+
 QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
 namespace TextEditor {
+
+enum class AnnotationAlignment
+{
+    NextToContent,
+    NextToMargin,
+    RightSide
+};
 
 class TEXTEDITOR_EXPORT DisplaySettings
 {
@@ -59,6 +68,8 @@ public:
     bool m_animateNavigationWithinFile = false;
     int m_animateWithinFileTimeMax = 333; // read only setting
     bool m_displayAnnotations = true;
+    AnnotationAlignment m_annotationAlignment = AnnotationAlignment::RightSide;
+    int m_minimalAnnotationContent = 15;
 
     bool equals(const DisplaySettings &ds) const;
 };
@@ -67,3 +78,5 @@ inline bool operator==(const DisplaySettings &t1, const DisplaySettings &t2) { r
 inline bool operator!=(const DisplaySettings &t1, const DisplaySettings &t2) { return !t1.equals(t2); }
 
 } // namespace TextEditor
+
+Q_DECLARE_METATYPE(TextEditor::AnnotationAlignment)
