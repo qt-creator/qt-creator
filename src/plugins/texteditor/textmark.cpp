@@ -70,9 +70,6 @@ public:
     QColor textColor;
 
 private:
-    static double clipHsl(double value);
-
-private:
     static QHash<SourceColors, AnnotationColors> m_colorCache;
 };
 
@@ -376,26 +373,27 @@ QHash<AnnotationColors::SourceColors, AnnotationColors> AnnotationColors::m_colo
 AnnotationColors &AnnotationColors::getAnnotationColors(const QColor &markColor,
                                                         const QColor &backgroundColor)
 {
+    auto highClipHsl = [](qreal value) {
+        return std::max(0.7, std::min(0.9, value));
+    };
+    auto lowClipHsl = [](qreal value) {
+        return std::max(0.1, std::min(0.3, value));
+    };
     AnnotationColors &colors = m_colorCache[{markColor, backgroundColor}];
     if (!colors.rectColor.isValid() || !colors.textColor.isValid()) {
-        const double backgroundSaturation = clipHsl(markColor.hslSaturationF() / 2);
-        const double backgroundLightness = clipHsl(backgroundColor.lightnessF());
-        const double foregroundLightness = clipHsl(backgroundLightness > 0.5
-                                                    ? backgroundLightness - 0.5
-                                                    : backgroundLightness + 0.5);
-        colors.rectColor.setHslF(markColor.hslHueF(),
-                                 backgroundSaturation,
-                                 backgroundLightness);
+        const double backgroundLightness = backgroundColor.lightnessF();
+        const double foregroundLightness = backgroundLightness > 0.5
+                ? lowClipHsl(backgroundLightness - 0.5)
+                : highClipHsl(backgroundLightness + 0.5);
+
+        colors.rectColor = markColor;
+        colors.rectColor.setAlphaF(0.15);
+
         colors.textColor.setHslF(markColor.hslHueF(),
                                  markColor.hslSaturationF(),
                                  foregroundLightness);
     }
     return colors;
-}
-
-double AnnotationColors::clipHsl(double value)
-{
-    return std::max(0.15, std::min(0.85, value));
 }
 
 } // namespace TextEditor
