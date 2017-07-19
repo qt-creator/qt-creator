@@ -523,6 +523,8 @@ int main(int argc, char **argv)
         }
     }
 
+    app.setDesktopFileName("org.qt-project.qtcreator.desktop");
+
     // Make sure we honor the system's proxy settings
     QNetworkProxyFactory::setUseSystemConfiguration(true);
 
