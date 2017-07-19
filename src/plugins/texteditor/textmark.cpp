@@ -88,7 +88,8 @@ TextMark::TextMark(const QString &fileName, int lineNumber, Id category, double 
 
 TextMark::~TextMark()
 {
-    TextMarkRegistry::remove(this);
+    if (!m_fileName.isEmpty())
+        TextMarkRegistry::remove(this);
     if (m_baseTextDocument)
         m_baseTextDocument->removeMark(this);
     m_baseTextDocument = 0;
