@@ -482,12 +482,12 @@ void f25()
     NonConstPointerArgument(x);
 }
 
-void ConstPointerArgument(const int *argument);
-
+void PointerToConstArgument(const int *argument);
+void ConstPointerArgument(int *const argument);
 void f26()
 {
     int *x;
-
+    PointerToConstArgument(x);
     ConstPointerArgument(x);
 }
 

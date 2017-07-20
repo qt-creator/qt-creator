@@ -998,7 +998,17 @@ TEST_F(HighlightingMarks, NonConstPointerArgument)
     infos[1];
 
     ASSERT_THAT(infos[2],
-                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
+                HasOnlyType(HighlightingType::LocalVariable));
+}
+
+TEST_F(HighlightingMarks, PointerToConstArgument)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(490, 31));
+
+    infos[1];
+
+    ASSERT_THAT(infos[2],
+                HasOnlyType(HighlightingType::LocalVariable));
 }
 
 TEST_F(HighlightingMarks, ConstPointerArgument)
@@ -1048,7 +1058,7 @@ TEST_F(HighlightingMarks, NonConstPointerArgumentAsExpression)
     infos[1];
 
     ASSERT_THAT(infos[3],
-                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
+                HasOnlyType(HighlightingType::LocalVariable));
 }
 
 TEST_F(HighlightingMarks, NonConstPointerArgumentAsInstanceWithMember)
