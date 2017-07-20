@@ -74,7 +74,7 @@ public:
 
     void open(const QUrl &url, bool newPage = false);
     void openFromSearch(const QUrl &url, const QStringList &searchTerms, bool newPage = false);
-    void showTopicChooser(const QMap<QString, QUrl> &links, const QString &key,
+    void showLinks(const QMap<QString, QUrl> &links, const QString &key,
                           bool newPage = false);
     void activateSideBarItem(const QString &id);
 

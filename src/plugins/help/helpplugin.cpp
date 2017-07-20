@@ -236,10 +236,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     auto helpIndexFilter = new HelpIndexFilter();
     addAutoReleasedObject(helpIndexFilter);
-    connect(helpIndexFilter, &HelpIndexFilter::linkActivated,
-            this, &HelpPlugin::showLinkInHelpMode);
     connect(helpIndexFilter, &HelpIndexFilter::linksActivated,
-            this, &HelpPlugin::showLinksInHelpMode);
+            this, &HelpPlugin::showLinksInCurrentViewer);
 
     RemoteHelpFilter *remoteHelpFilter = new RemoteHelpFilter();
     addAutoReleasedObject(remoteHelpFilter);
@@ -430,11 +428,12 @@ void HelpPlugin::showLinkInHelpMode(const QUrl &source)
     showInHelpViewer(source, helpModeHelpViewer());
 }
 
-void HelpPlugin::showLinksInHelpMode(const QMap<QString, QUrl> &links, const QString &key)
+void HelpPlugin::showLinksInCurrentViewer(const QMap<QString, QUrl> &links, const QString &key)
 {
-    activateHelpMode();
-    ICore::raiseWindow(m_mode->widget());
-    m_centralWidget->showTopicChooser(links, key);
+    if (links.size() < 1)
+        return;
+    HelpWidget *widget = helpWidgetForWindow(QApplication::activeWindow());
+    widget->showLinks(links, key);
 }
 
 void HelpPlugin::slotHideRightPane()
@@ -497,6 +496,14 @@ HelpViewer *HelpPlugin::helpModeHelpViewer()
     if (!viewer)
         viewer = OpenPagesManager::instance().createPage();
     return viewer;
+}
+
+HelpWidget *HelpPlugin::helpWidgetForWindow(QWidget *window)
+{
+    if (m_externalWindow && m_externalWindow->window() == window->window())
+        return m_externalWindow;
+    activateHelpMode();
+    return m_centralWidget;
 }
 
 HelpViewer *HelpPlugin::viewerForHelpViewerLocation(HelpManager::HelpViewerLocation location)

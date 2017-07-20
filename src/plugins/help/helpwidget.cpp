@@ -354,10 +354,8 @@ void HelpWidget::addSideBar()
     auto indexItem = new Core::SideBarItem(indexWindow, Constants::HELP_INDEX);
     indexWindow->setOpenInNewPageActionVisible(supportsNewPages);
     indexWindow->setWindowTitle(HelpPlugin::tr(Constants::SB_INDEX));
-    connect(indexWindow, &IndexWindow::linkActivated,
-            this, &HelpWidget::open);
     connect(indexWindow, &IndexWindow::linksActivated,
-        this, &HelpWidget::showTopicChooser);
+        this, &HelpWidget::showLinks);
     m_indexAction = new QAction(HelpPlugin::tr(Constants::SB_INDEX), this);
     cmd = Core::ActionManager::registerAction(m_indexAction, Constants::HELP_INDEX, m_context->context());
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+I")
@@ -535,12 +533,18 @@ void HelpWidget::open(const QUrl &url, bool newPage)
         setSource(url);
 }
 
-void HelpWidget::showTopicChooser(const QMap<QString, QUrl> &links,
+void HelpWidget::showLinks(const QMap<QString, QUrl> &links,
     const QString &keyword, bool newPage)
 {
-    TopicChooser tc(this, keyword, links);
-    if (tc.exec() == QDialog::Accepted)
-        open(tc.link(), newPage);
+    if (links.size() < 1)
+        return;
+    if (links.size() == 1) {
+        open(links.first(), newPage);
+    } else {
+        TopicChooser tc(this, keyword, links);
+        if (tc.exec() == QDialog::Accepted)
+            open(tc.link(), newPage);
+    }
 }
 
 void HelpWidget::activateSideBarItem(const QString &id)
