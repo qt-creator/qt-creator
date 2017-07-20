@@ -247,22 +247,22 @@ void HighlightingMark::collectOutputArguments(const Cursor &cursor)
 
 namespace {
 
-uint getStart(CXSourceRange cxSourceRange)
+uint getEnd(CXSourceRange cxSourceRange)
 {
-    CXSourceLocation startSourceLocation = clang_getRangeStart(cxSourceRange);
+    CXSourceLocation startSourceLocation = clang_getRangeEnd(cxSourceRange);
 
-    uint startOffset;
+    uint endOffset;
 
-    clang_getFileLocation(startSourceLocation, nullptr, nullptr, nullptr, &startOffset);
+    clang_getFileLocation(startSourceLocation, nullptr, nullptr, nullptr, &endOffset);
 
-    return startOffset;
+    return endOffset;
 }
 }
 
 void HighlightingMark::filterOutPreviousOutputArguments()
 {
     auto isAfterLocation = [this] (CXSourceRange outputRange) {
-        return getStart(outputRange) > m_offset;
+        return getEnd(outputRange) > m_offset;
     };
 
     auto precedingBegin = std::partition(m_currentOutputArgumentRanges->begin(),
@@ -278,6 +278,9 @@ void HighlightingMark::functionKind(const Cursor &cursor, Recursion recursion)
         m_types.mainHighlightingType = HighlightingType::VirtualFunction;
     else
         m_types.mainHighlightingType = HighlightingType::Function;
+
+    if (isOutputArgument())
+        m_types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
 
     addExtraTypeIfFirstPass(HighlightingType::Declaration, recursion);
 }
@@ -383,6 +386,9 @@ HighlightingType HighlightingMark::punctuationKind(const Cursor &cursor)
         case CXCursor_CallExpr:    collectOutputArguments(cursor); break;
         default:                   break;
     }
+
+    if (isOutputArgument())
+        m_types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
 
     return highlightingType;
 }

@@ -565,3 +565,17 @@ void g(OtherOperator o, int var)
 {
     o(var);
 }
+
+void NonConstPointerArgument(int &argument);
+
+struct PointerGetterClass
+{
+    int &getter();
+};
+
+void f32()
+{
+    PointerGetterClass x;
+
+    NonConstPointerArgument(x.getter());
+}
