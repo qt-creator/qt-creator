@@ -555,7 +555,7 @@ static void searchFinished(SearchResult *search, QFutureWatcher<Usage> *watcher)
 
         auto renameCheckBox = qobject_cast<QCheckBox *>(search->additionalReplaceWidget());
         if (renameCheckBox) {
-            renameCheckBox->setText(CppFindReferences::tr("Re&name %1 files.").arg(filesToRename.size()));
+            renameCheckBox->setText(CppFindReferences::tr("Re&name %1 files").arg(filesToRename.size()));
             renameCheckBox->setToolTip(CppFindReferences::tr("Files:\n%1").arg(filesToRename.join('\n')));
             renameCheckBox->setVisible(true);
         }
