@@ -25,6 +25,7 @@
 
 #include "cppfindreferences.h"
 
+#include "cppfilesettingspage.h"
 #include "cpptoolsconstants.h"
 #include "cppmodelmanager.h"
 #include "cppworkingcopy.h"
@@ -384,6 +385,11 @@ void CppFindReferences::findAll_helper(SearchResult *search, Symbol *symbol,
     connect(progress, &FutureProgress::clicked, search, &SearchResult::popup);
 }
 
+static bool isAllLowerCase(const QString &text)
+{
+    return text.toLower() == text;
+}
+
 void CppFindReferences::onReplaceButtonClicked(const QString &text,
                                                const QList<SearchResultItem> &items,
                                                bool preserveCase)
@@ -405,21 +411,40 @@ void CppFindReferences::onReplaceButtonClicked(const QString &text,
     if (!renameFilesCheckBox || !renameFilesCheckBox->isChecked())
         return;
 
+    CppFileSettings settings;
+    settings.fromSettings(Core::ICore::settings());
+
     const QStringList newPaths =
             Utils::transform<QList>(parameters.filesToRename,
-                                    [&parameters, text](const Node *node) -> QString {
+                                    [&parameters, text, &settings](const Node *node) -> QString {
         const QFileInfo fi = node->filePath().toFileInfo();
-        const QString fileName = fi.fileName();
-        QString newName = fileName;
-        newName.replace(parameters.prettySymbolName, text, Qt::CaseInsensitive);
+        const QString oldSymbolName = parameters.prettySymbolName;
+        const QString oldBaseName = fi.baseName();
+        const QString newSymbolName = text;
+        QString newBaseName = newSymbolName;
 
-        if (newName != fileName) {
-            newName = Utils::matchCaseReplacement(fileName, newName);
+        // 1) new symbol lowercase: new base name lowercase
+        if (isAllLowerCase(newSymbolName)) {
+            newBaseName = newSymbolName;
 
-            return fi.absolutePath() + "/" + newName;
+        // 2) old base name mixed case: new base name is verbatim symbol name
+        } else if (!isAllLowerCase(oldBaseName)) {
+            newBaseName = newSymbolName;
+
+        // 3) old base name lowercase, old symbol mixed case: new base name lowercase
+        } else if (!isAllLowerCase(oldSymbolName)) {
+            newBaseName = newSymbolName.toLower();
+
+        // 4) old base name lowercase, old symbol lowercase, new symbol mixed case:
+        //    use the preferences setting for new base name case
+        } else if (settings.lowerCaseFiles) {
+            newBaseName = newSymbolName.toLower();
         }
 
-        return QString();
+        if (newBaseName == oldBaseName)
+            return QString();
+
+        return fi.absolutePath() + "/" + newBaseName + '.' + fi.completeSuffix();
     });
 
     for (int i = 0; i < parameters.filesToRename.size(); ++i) {
