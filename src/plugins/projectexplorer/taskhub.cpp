@@ -28,6 +28,7 @@
 
 #include <coreplugin/coreicons.h>
 #include <coreplugin/ioutputpane.h>
+#include <texteditor/textmark.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
