@@ -88,14 +88,10 @@ public:
     void setBehaviorOnOutput(RunControl *rc, BehaviorOnOutput mode);
 
     bool aboutToClose() const;
-    bool closeTabs(CloseTabMode mode);
+    void closeTabs(CloseTabMode mode);
 
     QList<RunControl *> allRunControls() const;
 
-signals:
-     void allRunControlsFinished();
-
-public:
     // ApplicationOutput specifics
     void projectRemoved();
 
@@ -126,12 +122,11 @@ private:
         explicit RunControlTab(RunControl *runControl = nullptr,
                                Core::OutputWindow *window = nullptr);
         QPointer<RunControl> runControl;
-        Core::OutputWindow *window;
+        QPointer<Core::OutputWindow> window;
         BehaviorOnOutput behaviorOnOutput = Flash;
     };
 
-    bool isRunning() const;
-    bool closeTab(int index, CloseTabMode cm = CloseTabWithPrompt);
+    void closeTab(int index, CloseTabMode cm = CloseTabWithPrompt);
     bool optionallyPromptToStop(RunControl *runControl);
 
     int indexOf(const RunControl *) const;
@@ -148,6 +143,7 @@ private:
     QWidget *m_mainWidget;
     TabWidget *m_tabWidget;
     QVector<RunControlTab> m_runControlTabs;
+    int m_runControlCount = 0;
     QAction *m_stopAction;
     QAction *m_closeCurrentTabAction;
     QAction *m_closeAllTabsAction;

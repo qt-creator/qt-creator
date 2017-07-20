@@ -674,7 +674,6 @@ RunControl::~RunControl()
 #ifdef WITH_JOURNALD
     JournaldWatcher::instance()->unsubscribe(this);
 #endif
-    disconnect();
     delete d;
     d = nullptr;
 }
@@ -698,7 +697,7 @@ void RunControl::initiateStop()
 
 void RunControl::initiateFinish()
 {
-    d->initiateFinish();
+    QTimer::singleShot(0, d, &RunControlPrivate::initiateFinish);
 }
 
 using WorkerCreators = QHash<Core::Id, RunControl::WorkerCreator>;
@@ -1277,7 +1276,7 @@ void RunControlPrivate::setState(RunControlState newState)
     case RunControlState::Finished:
         emit q->finished();
         debugMessage("All finished. Deleting myself");
-        deleteLater();
+        q->deleteLater();
         break;
     default:
         break;
