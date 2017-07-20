@@ -32,9 +32,16 @@ import sys
 import base64
 import re
 import time
-import json
 import inspect
 import threading
+
+try:
+    # That's only used in native combined debugging right now, so
+    # we do not need to hard fail in cases of partial python installation
+    # that will never use this.
+    import json
+except:
+    pass
 
 if sys.version_info[0] >= 3:
     xrange = range
