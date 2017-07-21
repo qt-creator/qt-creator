@@ -26,6 +26,7 @@
 #pragma once
 
 #include "texteditor_global.h"
+#include "tabsettings.h"
 
 #include <QString>
 
@@ -34,8 +35,6 @@ class QTextCursor;
 QT_END_NAMESPACE
 
 namespace TextEditor {
-
-class TabSettings;
 
 class TEXTEDITOR_EXPORT AutoCompleter
 {
@@ -53,6 +52,9 @@ public:
     void setSurroundWithQuotesEnabled(bool b) { m_surroundWithQuotes = b; }
     bool isSurroundWithQuotesEnabled() const { return m_surroundWithQuotes; }
 
+    void setTabSettings(const TabSettings &tabSettings) { m_tabSettings = tabSettings; }
+    const TabSettings &tabSettings() const { return m_tabSettings; }
+
     // Returns the text to complete at the cursor position, or an empty string
     virtual QString autoComplete(QTextCursor &cursor, const QString &text, bool skipChars) const;
 
@@ -60,8 +62,7 @@ public:
     virtual bool autoBackspace(QTextCursor &cursor);
 
     // Hook to insert special characters on enter. Returns the number of extra blocks inserted.
-    virtual int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor,
-                                                    const TabSettings &tabSettings);
+    virtual int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor);
 
     virtual bool contextAllowsAutoBrackets(const QTextCursor &cursor,
                                               const QString &textToInsert = QString()) const;
@@ -94,6 +95,7 @@ private:
     QString replaceSelection(QTextCursor &cursor, const QString &textToInsert) const;
 
 private:
+    TabSettings m_tabSettings;
     mutable bool m_allowSkippingOfBlockEnd;
     bool m_autoInsertBrackets;
     bool m_surroundWithBrackets;

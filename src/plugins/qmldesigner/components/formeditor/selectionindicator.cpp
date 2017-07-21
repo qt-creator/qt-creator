@@ -109,7 +109,6 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
         pen.setJoinStyle(Qt::MiterJoin);
         pen.setColor(selectionColor);
         newSelectionIndicatorGraphicsItem->setPen(pen);
-        newSelectionIndicatorGraphicsItem->setCursor(m_cursor);
     }
 
     if (checkSingleSelection(itemList)) {

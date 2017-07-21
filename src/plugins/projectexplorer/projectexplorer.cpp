@@ -343,6 +343,9 @@ public:
 
     void runConfigurationConfigurationFinished();
 
+    void checkForShutdown();
+    void timerEvent(QTimerEvent *) override;
+
     QList<QPair<QString, QString> > recentProjects() const;
 
 public:
@@ -405,6 +408,8 @@ public:
 
     QStringList m_profileMimeTypes;
     AppOutputPane *m_outputPane = nullptr;
+    int m_activeRunControlCount = 0;
+    int m_shutdownWatchDogId = -1;
 
     QHash<QString, std::function<Project *(const Utils::FileName &)>> m_projectCreators;
     QList<QPair<QString, QString> > m_recentProjects; // pair of filename, displayname
@@ -1632,10 +1637,12 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     removeObject(dd->m_welcomePage);
     delete dd->m_welcomePage;
     removeObject(this);
-    if (dd->m_outputPane->closeTabs(AppOutputPane::CloseTabNoPrompt /* No prompt any more */))
+
+    if (dd->m_activeRunControlCount == 0)
         return SynchronousShutdown;
-    connect(dd->m_outputPane, &AppOutputPane::allRunControlsFinished,
-            this, &IPlugin::asynchronousShutdownFinished);
+
+    dd->m_outputPane->closeTabs(AppOutputPane::CloseTabNoPrompt /* No prompt any more */);
+    dd->m_shutdownWatchDogId = dd->startTimer(10 * 1000); // Make sure we shutdown *somehow*
     return AsynchronousShutdown;
 }
 
@@ -1982,22 +1989,6 @@ void ProjectExplorerPluginPrivate::buildStateChanged(Project * pro)
     updateActions();
 }
 
-// NBS TODO implement more than one runner
-using RunControlFactory = std::function<RunControl *(RunConfiguration *, Core::Id, QString *)>;
-
-static RunControlFactory findRunControlFactory(RunConfiguration *config, Core::Id mode)
-{
-    if (auto producer = RunControl::producer(config, mode)) {
-        return [producer, config](RunConfiguration *rc, Id runMode, QString *) {
-            auto runControl = new RunControl(rc, runMode);
-            (void) producer(runControl);
-            return runControl;
-        };
-    }
-
-    return {};
-}
-
 void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfiguration, Core::Id runMode)
 {
     if (!runConfiguration->isConfigured()) {
@@ -2015,17 +2006,15 @@ void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *run
         }
     }
 
-    if (RunControlFactory runControlFactory = findRunControlFactory(runConfiguration, runMode)) {
-        emit m_instance->aboutToExecuteProject(runConfiguration->target()->project(), runMode);
+    RunControl::WorkerCreator producer = RunControl::producer(runConfiguration, runMode);
 
-        QString errorMessage;
-        RunControl *control = runControlFactory(runConfiguration, runMode, &errorMessage);
-        if (!control) {
-            m_instance->showRunErrorMessage(errorMessage);
-            return;
-        }
-        startRunControl(control);
-    }
+    QTC_ASSERT(producer, return);
+    auto runControl = new RunControl(runConfiguration, runMode);
+    (void) producer(runControl);
+
+    emit m_instance->aboutToExecuteProject(runConfiguration->target()->project(), runMode);
+
+    startRunControl(runControl);
 }
 
 void ProjectExplorerPlugin::showRunErrorMessage(const QString &errorMessage)
@@ -2050,8 +2039,25 @@ void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
     bool popup = (runMode == Constants::NORMAL_RUN_MODE && dd->m_projectExplorerSettings.showRunOutput)
             || (runMode == Constants::DEBUG_RUN_MODE && m_projectExplorerSettings.showDebugOutput);
     m_outputPane->setBehaviorOnOutput(runControl, popup ? AppOutputPane::Popup : AppOutputPane::Flash);
+    connect(runControl, &QObject::destroyed, this, &ProjectExplorerPluginPrivate::checkForShutdown,
+            Qt::QueuedConnection);
+    ++m_activeRunControlCount;
     runControl->initiateStart();
     emit m_instance->updateRunActions();
+}
+
+void ProjectExplorerPluginPrivate::checkForShutdown()
+{
+    --m_activeRunControlCount;
+    QTC_ASSERT(m_activeRunControlCount >= 0, m_activeRunControlCount = 0);
+    if (m_shuttingDown && m_activeRunControlCount == 0)
+        m_instance->asynchronousShutdownFinished();
+}
+
+void ProjectExplorerPluginPrivate::timerEvent(QTimerEvent *ev)
+{
+    if (m_shutdownWatchDogId == ev->timerId())
+        m_instance->asynchronousShutdownFinished();
 }
 
 void ProjectExplorerPlugin::initiateInlineRenaming()
@@ -2793,7 +2799,8 @@ bool ProjectExplorerPlugin::canRunStartupProject(Core::Id runMode, QString *whyN
     }
 
     // shouldn't actually be shown to the user...
-    if (!findRunControlFactory(activeRC, runMode)) {
+    RunControl::WorkerCreator producer = RunControl::producer(activeRC, runMode);
+    if (!producer) {
         if (whyNot)
             *whyNot = tr("Cannot run \"%1\".").arg(activeRC->displayName());
         return false;

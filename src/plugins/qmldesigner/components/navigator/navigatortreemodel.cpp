@@ -331,7 +331,7 @@ ModelNode NavigatorTreeModel::modelNodeForIndex(const QModelIndex &index) const
     if (!index.isValid())
         return ModelNode();
 
-    if (!m_view->model())
+    if (!m_view || !m_view->model())
         return ModelNode();
 
     return m_view->modelNodeForInternalId(index.internalId());

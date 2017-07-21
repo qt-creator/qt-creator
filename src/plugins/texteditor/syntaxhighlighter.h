@@ -70,6 +70,8 @@ public:
     // Don't call in constructors of derived classes
     virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
+    void setNoAutomaticHighlighting(bool noAutomatic);
+
 public slots:
     void rehighlight();
     void rehighlightBlock(const QTextBlock &block);

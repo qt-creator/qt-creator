@@ -42,6 +42,9 @@ class SourceRangeWithTextContainer;
 
 namespace ClangRefactoring {
 
+class ClangQueryExampleHighlighter;
+class ClangQueryHighlighter;
+
 class RefactoringClient final : public ClangBackEnd::RefactoringClientInterface
 {
 public:
@@ -50,12 +53,16 @@ public:
             ClangBackEnd::SourceLocationsForRenamingMessage &&message) override;
     void sourceRangesAndDiagnosticsForQueryMessage(
             ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage &&message) override;
+    void sourceRangesForQueryMessage(
+            ClangBackEnd::SourceRangesForQueryMessage &&message) override;
 
     void setLocalRenamingCallback(
             CppTools::RefactoringEngineInterface::RenameCallback &&localRenamingCallback) override;
     void setRefactoringEngine(ClangRefactoring::RefactoringEngine *refactoringEngine);
     void setSearchHandle(ClangRefactoring::SearchHandle *searchHandleInterface);
     ClangRefactoring::SearchHandle *searchHandle() const;
+    void setClangQueryExampleHighlighter(ClangQueryExampleHighlighter *highlighter);
+    void setClangQueryHighlighter(ClangQueryHighlighter *highlighter);
 
     bool hasValidLocalRenamingCallback() const;
 
@@ -79,12 +86,14 @@ private:
     void sendSearchIsFinished();
 
 private:
-    CppTools::RefactoringEngineInterface::RenameCallback localRenamingCallback;
-    ClangBackEnd::RefactoringConnectionClient *connectionClient = nullptr;
-    ClangRefactoring::SearchHandle *searchHandle_ = nullptr;
-    ClangRefactoring::RefactoringEngine *refactoringEngine = nullptr;
-    uint expectedResultCount_ = 0;
-    uint resultCounter_ = 0;
+    CppTools::RefactoringEngineInterface::RenameCallback m_localRenamingCallback;
+    ClangBackEnd::RefactoringConnectionClient *m_connectionClient = nullptr;
+    SearchHandle *m_searchHandle = nullptr;
+    RefactoringEngine *m_refactoringEngine = nullptr;
+    ClangQueryExampleHighlighter *m_clangQueryExampleHighlighter = nullptr;
+    ClangQueryHighlighter *m_clangQueryHighlighter = nullptr;
+    uint m_expectedResultCount = 0;
+    uint m_resultCounter = 0;
 };
 
 } // namespace ClangRefactoring

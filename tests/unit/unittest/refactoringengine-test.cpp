@@ -30,10 +30,7 @@
 
 #include <refactoringengine.h>
 
-#include <requestsourcelocationforrenamingmessage.h>
-#include <requestsourcerangesanddiagnosticsforquerymessage.h>
-#include <sourcelocationsforrenamingmessage.h>
-#include <sourcerangesanddiagnosticsforquerymessage.h>
+#include <clangrefactoringmessages.h>
 
 #include <cpptools/clangcompileroptionsbuilder.h>
 #include <cpptools/projectpart.h>

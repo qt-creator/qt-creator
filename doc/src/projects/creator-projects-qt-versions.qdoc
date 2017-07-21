@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -52,7 +52,7 @@
     {kit} for building and running your projects
     in \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Kits.
 
-    \section2 Setting Up New Qt Versions
+    \section1 Setting Up New Qt Versions
 
     To add a Qt version:
 
@@ -78,7 +78,22 @@
 
         \endlist
 
-    \section2 Minimum Requirements
+    \section1 Troubleshooting Qt Installations
+
+    If \QC detects problems in the installation of a Qt version, it displays
+    warnings and errors beside the name of the Qt version in the list. Select
+    the Qt version to see more information about the issue and suggestions for
+    fixing it.
+
+    To determine whether a particular Qt version is installed correctly, \QC
+    calls \c {qmake -query} and checks that the directories referenced in the
+    output exist. When \QC complains about the installation of a self-built Qt
+    version, try running \c {make install} in the build directory to actually
+    install Qt into the configured location. If you installed Qt using the Qt
+    installer, run the Qt maintenance tool to check for updates or to reinstall
+    the Qt version.
+
+    \section1 Minimum Requirements
     If your build of Qt is incomplete but you still want to use QMake as build
     system, you need to ensure the following minimum requirements to be able to use that setup with \QC.
     \list 1

@@ -49,7 +49,8 @@ def main():
     invokeMenuItem("File", "Save All")
     openDocument(project + "." + project + "\\.pro")
     proEditor = waitForObject(":Qt Creator_TextEditor::TextEditorWidget")
-    test.verify("CONFIG += console" in str(proEditor.plainText), "Verifying that program is configured with console")
+    test.verify("CONFIG += c++11 console" in str(proEditor.plainText),
+                "Verifying that program is configured with console")
 
     availableConfigs = iterateBuildConfigs(len(checkedTargets))
     if not availableConfigs:

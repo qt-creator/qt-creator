@@ -50,7 +50,10 @@
         \row
             \li \l{Using ClearCase}{ClearCase}
             \li \l{http://www-01.ibm.com/software/awdtools/clearcase/}
-            \li
+            \li Disabled by default. To enable the plugin, select
+                \uicontrol Help > \uicontrol {About Plugins} >
+                \uicontrol {Version Control} > \uicontrol ClearCase, and then
+                restart \QC.
         \row
             \li \l{Using CVS}{CVS}
             \li \l{http://www.nongnu.org/cvs/}

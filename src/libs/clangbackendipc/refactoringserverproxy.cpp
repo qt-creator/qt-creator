@@ -25,12 +25,9 @@
 
 #include "refactoringserverproxy.h"
 
-#include "cancelmessage.h"
-#include "cmbendmessage.h"
 #include "messageenvelop.h"
 #include "refactoringclientinterface.h"
-#include "requestsourcelocationforrenamingmessage.h"
-#include "requestsourcerangesanddiagnosticsforquerymessage.h"
+#include "clangrefactoringservermessages.h"
 
 #include <QIODevice>
 #include <QVector>
@@ -56,6 +53,11 @@ void RefactoringServerProxy::requestSourceLocationsForRenamingMessage(RequestSou
 }
 
 void RefactoringServerProxy::requestSourceRangesAndDiagnosticsForQueryMessage(RequestSourceRangesAndDiagnosticsForQueryMessage &&message)
+{
+    writeMessageBlock.write(message);
+}
+
+void RefactoringServerProxy::requestSourceRangesForQueryMessage(RequestSourceRangesForQueryMessage &&message)
 {
     writeMessageBlock.write(message);
 }

@@ -192,14 +192,13 @@ void TeaLeafReader::parse(bool force)
 {
     const QString cbpFile = findCbpFile(QDir(m_parameters.buildDirectory.toString()));
     const QFileInfo cbpFileFi = cbpFile.isEmpty() ? QFileInfo() : QFileInfo(cbpFile);
-    if (!cbpFileFi.exists()) {
+    if (!cbpFileFi.exists() || force) {
         // Initial create:
         startCMake(toArguments(m_parameters.configuration, m_parameters.expander));
         return;
     }
 
-    const bool mustUpdate = force
-            || m_cmakeFiles.isEmpty()
+    const bool mustUpdate = m_cmakeFiles.isEmpty()
             || anyOf(m_cmakeFiles, [&cbpFileFi](const FileName &f) {
                    return f.toFileInfo().lastModified() > cbpFileFi.lastModified();
                });
@@ -373,8 +372,8 @@ void TeaLeafReader::updateCodeModel(CppTools::RawProjectParts &rpps)
         }
         includePaths += m_parameters.buildDirectory.toString();
         CppTools::RawProjectPart rpp;
-        rpp.setProjectFileLocation(QString()); // No project file information available!
-        rpp.setBuildSystemTarget(cbt.title + '|');
+        rpp.setProjectFileLocation(cbt.sourceDirectory.toString() + "/CMakeLists.txt");
+        rpp.setBuildSystemTarget(cbt.title + '|' + rpp.projectFile);
         rpp.setIncludePaths(includePaths);
 
         CppTools::RawProjectPartFlags cProjectFlags;

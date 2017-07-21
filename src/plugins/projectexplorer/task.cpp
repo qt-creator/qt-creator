@@ -25,6 +25,7 @@
 
 #include "task.h"
 
+#include <texteditor/textmark.h>
 #include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
 

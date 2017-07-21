@@ -247,11 +247,6 @@ AppOutputPane::AppOutputPane() :
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
             this, &AppOutputPane::updateFromSettings);
 
-#ifdef Q_OS_WIN
-    connect(this, &AppOutputPane::allRunControlsFinished,
-            WinDebugInterface::instance(), &WinDebugInterface::stop);
-#endif
-
     QSettings *settings = Core::ICore::settings();
     m_zoom = settings->value(QLatin1String(SETTINGS_KEY), 0).toFloat();
 
@@ -546,15 +541,10 @@ void AppOutputPane::stopRunControl()
         qDebug() << "OutputPane::stopRunControl " << rc;
 }
 
-bool AppOutputPane::closeTabs(CloseTabMode mode)
+void AppOutputPane::closeTabs(CloseTabMode mode)
 {
-    bool allClosed = true;
     for (int t = m_tabWidget->count() - 1; t >= 0; t--)
-        if (!closeTab(t, mode))
-            allClosed = false;
-    if (debug)
-        qDebug() << "OutputPane::closeTabs() returns " << allClosed;
-    return allClosed;
+        closeTab(t, mode);
 }
 
 QList<RunControl *> AppOutputPane::allRunControls() const
@@ -564,48 +554,37 @@ QList<RunControl *> AppOutputPane::allRunControls() const
     });
 }
 
-bool AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
+void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
 {
     int index = indexOf(m_tabWidget->widget(tabIndex));
-    QTC_ASSERT(index != -1, return true);
+    QTC_ASSERT(index != -1, return);
 
+    RunControl *runControl = m_runControlTabs[index].runControl;
+    Core::OutputWindow *window = m_runControlTabs[index].window;
     if (debug)
-        qDebug() << "OutputPane::closeTab tab " << tabIndex << m_runControlTabs[index].runControl
-                 << m_runControlTabs[index].window;
+        qDebug() << "OutputPane::closeTab tab " << tabIndex << runControl << window;
     // Prompt user to stop
-    if (m_runControlTabs[index].runControl->isRunning()) {
-        switch (closeTabMode) {
-        case CloseTabNoPrompt:
-            break;
-        case CloseTabWithPrompt:
-            QWidget *tabWidget = m_tabWidget->widget(tabIndex);
-            if (!m_runControlTabs[index].runControl->promptToStop())
-                return false;
-            // The event loop has run, thus the ordering might have changed, a tab might
-            // have been closed, so do some strange things...
-            tabIndex = m_tabWidget->indexOf(tabWidget);
-            index = indexOf(tabWidget);
-            if (tabIndex == -1 || index == -1)
-                return false;
-            break;
-        }
-        if (m_runControlTabs[index].runControl->isRunning()) { // yes it might have stopped already, then just close
-            m_runControlTabs[index].runControl->initiateStop();
-            return false;
-        }
+    if (closeTabMode == CloseTabWithPrompt) {
+        QWidget *tabWidget = m_tabWidget->widget(tabIndex);
+        if (!runControl->promptToStop())
+            return;
+        // The event loop has run, thus the ordering might have changed, a tab might
+        // have been closed, so do some strange things...
+        tabIndex = m_tabWidget->indexOf(tabWidget);
+        index = indexOf(tabWidget);
+        if (tabIndex == -1 || index == -1)
+            return;
     }
 
     m_tabWidget->removeTab(tabIndex);
-    delete m_runControlTabs[index].window;
-    m_runControlTabs[index].runControl->initiateFinish(); // Will self-destruct.
-    m_runControlTabs[index].runControl = 0;
+    delete window;
+
+    runControl->initiateFinish(); // Will self-destruct.
     m_runControlTabs.removeAt(index);
     updateCloseActions();
 
     if (m_runControlTabs.isEmpty())
         hide();
-
-    return true;
 }
 
 bool AppOutputPane::optionallyPromptToStop(RunControl *runControl)
@@ -742,15 +721,14 @@ void AppOutputPane::slotRunControlFinished2(RunControl *sender)
 
     ProjectExplorerPlugin::instance()->updateRunActions();
 
-    if (!isRunning())
-        emit allRunControlsFinished();
-}
-
-bool AppOutputPane::isRunning() const
-{
-    return Utils::anyOf(m_runControlTabs, [](const RunControlTab &rt) {
+#ifdef Q_OS_WIN
+    const bool isRunning = Utils::anyOf(m_runControlTabs, [](const RunControlTab &rt) {
         return rt.runControl->isRunning();
     });
+    if (!isRunning)
+        WinDebugInterface::instance()->stop();
+#endif
+
 }
 
 bool AppOutputPane::canNext() const

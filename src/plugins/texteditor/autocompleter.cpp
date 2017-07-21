@@ -273,8 +273,7 @@ bool AutoCompleter::autoBackspace(QTextCursor &cursor)
     return false;
 }
 
-int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor,
-                                                       const TabSettings &tabSettings)
+int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
 {
     if (!m_autoInsertBrackets)
         return 0;
@@ -302,15 +301,15 @@ int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor,
             if (condition) {|
                 statement;
     */
-    int indentation = tabSettings.indentationColumn(block.text());
+    int indentation = m_tabSettings.indentationColumn(block.text());
 
     if (block.next().isValid()) { // not the last block
         block = block.next();
         //skip all empty blocks
-        while (block.isValid() && tabSettings.onlySpace(block.text()))
+        while (block.isValid() && m_tabSettings.onlySpace(block.text()))
             block = block.next();
         if (block.isValid()
-                && tabSettings.indentationColumn(block.text()) > indentation)
+                && m_tabSettings.indentationColumn(block.text()) > indentation)
             return 0;
     }
 

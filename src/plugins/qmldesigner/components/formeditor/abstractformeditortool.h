@@ -67,6 +67,7 @@ public:
 //                        const QVariant &value ) = 0;
 //    virtual void update() = 0;
     virtual void clear();
+    virtual void start();
 
     virtual void formEditorItemsChanged(const QList<FormEditorItem*> &itemList) = 0;
 
@@ -84,6 +85,7 @@ public:
     static FormEditorItem* topMovableFormEditorItem(const QList<QGraphicsItem*> &itemList, bool selectOnlyContentItems);
     bool topItemIsMovable(const QList<QGraphicsItem*> &itemList);
     bool topSelectedItemIsMovable(const QList<QGraphicsItem*> &itemList);
+    bool selectedItemCursorInMovableArea(const QPointF &pos);
     bool topItemIsResizeHandle(const QList<QGraphicsItem*> &itemList);
 
     QList<FormEditorItem*> filterSelectedModelNodes(const QList<FormEditorItem*> &itemList) const;

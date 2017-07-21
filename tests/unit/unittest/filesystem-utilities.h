@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/smallstring.h>
+
 #include <string>
 
 // use std::filesystem::path if it is supported by all compilers
@@ -34,12 +36,25 @@ const char nativeSeperator = '\\';
 const char nativeSeperator = '/';
 #endif
 
-inline
-std::string toNativePath(std::string &&path)
+template <std::size_t Size>
+std::string toNativePath(const char (&text)[Size])
 {
+    std::string path = text;
+
 #ifdef _WIN32
     std::replace(path.begin(), path.end(), '/', '\\');
 #endif
 
-    return std::move(path);
+    return path;
+}
+
+inline
+std::string toNativePath(const QString &qStringPath)
+{
+    auto path = qStringPath.toStdString();
+#ifdef _WIN32
+    std::replace(path.begin(), path.end(), '/', '\\');
+#endif
+
+    return path;
 }

@@ -393,42 +393,6 @@ static NSMenuItem *menuItem(NSURL *url, id target, SEL action, const QString &ti
 
 @end
 
-// #pragma mark -- MyWebView
-@interface MyWebView : WebView
-@end
-
-// work around Qt + WebView issue QTBUG-26593, that Qt does not pass mouseMoved: events up the event chain,
-// but the Web(HTML)View is only handling mouse moved for hovering etc if the event was passed up
-// to the NSWindow (arguably a bug in Web(HTML)View)
-@implementation MyWebView
-
-- (void)updateTrackingAreas
-{
-    [super updateTrackingAreas];
-    if (NSArray *trackingArray = [self trackingAreas]) {
-        NSUInteger size = [trackingArray count];
-        for (NSUInteger i = 0; i < size; ++i) {
-            NSTrackingArea *t = [trackingArray objectAtIndex:i];
-            [self removeTrackingArea:t];
-        }
-    }
-    NSUInteger trackingOptions = NSTrackingActiveInActiveApp | NSTrackingInVisibleRect
-            | NSTrackingMouseMoved;
-    NSTrackingArea *ta = [[[NSTrackingArea alloc] initWithRect:[self frame]
-                                                      options:trackingOptions
-                                                        owner:self
-                                                     userInfo:nil]
-                                                                autorelease];
-    [self addTrackingArea:ta];
-}
-
-- (void)mouseMoved:(NSEvent *)theEvent
-{
-    [self.window mouseMoved:theEvent];
-}
-
-@end
-
 namespace Help {
 namespace Internal {
 
@@ -469,7 +433,7 @@ MacWebKitHelpWidget::MacWebKitHelpWidget(MacWebKitHelpViewer *parent)
     d->m_toolTipTimer.setSingleShot(true);
     connect(&d->m_toolTipTimer, &QTimer::timeout, this, &MacWebKitHelpWidget::showToolTip);
     @autoreleasepool {
-        d->m_webView = [[MyWebView alloc] init];
+        d->m_webView = [[WebView alloc] init];
         // Turn layered rendering on.
         // Otherwise the WebView will render empty after any QQuickWidget was shown.
         d->m_webView.wantsLayer = YES;

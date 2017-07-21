@@ -304,6 +304,8 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl)
 LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const QUrl &serverUrl)
     : RunWorker(runControl)
 {
+    setDisplayName("LocalQmlProfilerSupport");
+
     m_profiler = new QmlProfilerRunner(runControl);
     m_profiler->setServerUrl(serverUrl);
     m_profiler->addDependency(this);

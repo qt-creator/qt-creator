@@ -25,6 +25,9 @@
 
 #include "qtcreatorclangqueryfindfilter.h"
 
+#include "clangqueryprojectsfindfilterwidget.h"
+#include "refactoringclient.h"
+
 #include <cpptools/abstracteditorsupport.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectinfo.h>
@@ -49,13 +52,61 @@ void QtCreatorClangQueryFindFilter::findAll(const QString &queryText, Core::Find
     ClangQueryProjectsFindFilter::findAll(queryText, findFlags);
 }
 
+void QtCreatorClangQueryFindFilter::handleQueryOrExampleTextChanged()
+{
+    const QString queryText = this->queryText();
+    const QString queryExampleText = this->queryExampleText();
+    if (!queryText.isEmpty() && !queryExampleText.isEmpty())
+        requestSourceRangesAndDiagnostics(queryText, queryExampleText);
+}
+
+QWidget *QtCreatorClangQueryFindFilter::createConfigWidget()
+{
+    m_widget = new ClangQueryProjectsFindFilterWidget;
+
+    refactoringClient().setClangQueryExampleHighlighter(m_widget->clangQueryExampleHighlighter());
+    refactoringClient().setClangQueryHighlighter(m_widget->clangQueryHighlighter());
+
+    QObject::connect(m_widget->queryExampleTextEdit(),
+                     &QPlainTextEdit::textChanged,
+                     this,
+                     &QtCreatorClangQueryFindFilter::handleQueryOrExampleTextChanged);
+
+    QObject::connect(m_widget->queryTextEdit(),
+                     &QPlainTextEdit::textChanged,
+                     this,
+                     &QtCreatorClangQueryFindFilter::handleQueryOrExampleTextChanged);
+
+    return m_widget;
+}
+
+bool ClangRefactoring::QtCreatorClangQueryFindFilter::isValid() const
+{
+    return true;
+}
+
+QWidget *QtCreatorClangQueryFindFilter::widget() const
+{
+    return m_widget;
+}
+
+QString QtCreatorClangQueryFindFilter::queryText() const
+{
+    return m_widget->queryTextEdit()->toPlainText();
+}
+
+QString QtCreatorClangQueryFindFilter::queryExampleText() const
+{
+    return m_widget->queryExampleTextEdit()->toPlainText();
+}
+
 namespace {
 
 std::vector<ClangBackEnd::V2::FileContainer> createUnsavedContents()
 {
     auto abstractEditors = CppTools::CppModelManager::instance()->abstractEditorSupports();
     std::vector<ClangBackEnd::V2::FileContainer> unsavedContents;
-    unsavedContents.reserve(abstractEditors.size());
+    unsavedContents.reserve(std::size_t(abstractEditors.size()));
 
     auto toFileContainer = [] (const CppTools::AbstractEditorSupport *abstractEditor) {
         return  ClangBackEnd::V2::FileContainer(ClangBackEnd::FilePath(abstractEditor->fileName()),

@@ -128,7 +128,9 @@ enum class MessageType : quint8 {
     RequestSourceLocationsForRenamingMessage,
 
     RequestSourceRangesAndDiagnosticsForQueryMessage,
+    RequestSourceRangesForQueryMessage,
     SourceRangesAndDiagnosticsForQueryMessage,
+    SourceRangesForQueryMessage,
 
     CancelMessage,
     UpdatePchProjectPartsMessage,

@@ -47,7 +47,7 @@ Q_DECLARE_METATYPE(Core::IWizardFactory*)
 
 namespace {
 
-const int ICON_SIZE = 92;
+const int ICON_SIZE = 48;
 const char LAST_CATEGORY_KEY[] = "Core/NewDialog/LastCategory";
 const char LAST_PLATFORM_KEY[] = "Core/NewDialog/LastPlatform";
 
@@ -91,21 +91,6 @@ public:
 
         return true;
     }
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
-    {
-        if (role == Qt::DecorationRole) {
-            // scale too small icons to have one size for all
-            QIcon icon = qvariant_cast<QIcon>(QSortFilterProxyModel::data(index, role));
-            if (!icon.isNull()) {
-                QPixmap pixmap(icon.pixmap(ICON_SIZE, ICON_SIZE));
-                if (pixmap.size() != QSize(ICON_SIZE, ICON_SIZE))
-                    return pixmap.scaled(ICON_SIZE, ICON_SIZE, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-            }
-        }
-
-        return QSortFilterProxyModel::data(index, role);
-    }
-
 private:
     Core::Id m_platform;
 };

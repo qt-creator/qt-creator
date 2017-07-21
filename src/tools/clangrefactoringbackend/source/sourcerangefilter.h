@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <unordered_set>
+#include <vector>
 
-#include <sourcerangesanddiagnosticsforquerymessage.h>
+#include <sourcerangesforquerymessage.h>
 
 namespace ClangBackEnd {
 
@@ -36,12 +36,12 @@ class SourceRangeFilter
 public:
     SourceRangeFilter(std::size_t sourcesCount = 0);
 
-    SourceRangesAndDiagnosticsForQueryMessage
-    removeDuplicates(SourceRangesAndDiagnosticsForQueryMessage &&message);
-    void removeDuplicates(SourceRangeWithTextContainers &sourceRanges);
+    SourceRangesForQueryMessage
+    removeDuplicates(SourceRangesForQueryMessage &&message);
+    SourceRangeWithTextContainers removeDuplicates(SourceRangeWithTextContainers &&sourceRanges);
 
 private:
-    std::unordered_set<SourceRangeWithTextContainer> m_collectedSourceRanges;
+    V2::SourceRangeContainers m_collectedSourceRanges;
 };
 
 } // namespace ClangBackEnd

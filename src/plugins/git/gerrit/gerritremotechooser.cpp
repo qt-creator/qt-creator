@@ -60,7 +60,7 @@ GerritRemoteChooser::GerritRemoteChooser(QWidget *parent) :
 
     connect(m_remoteComboBox, &QComboBox::currentTextChanged,
             this, &GerritRemoteChooser::handleRemoteChanged);
-    m_resetRemoteButton->setIcon(Utils::Icons::RESET_TOOLBAR.icon());
+    m_resetRemoteButton->setIcon(Utils::Icons::RESET.icon());
     connect(m_resetRemoteButton, &QToolButton::clicked,
             this, [this] { updateRemotes(true); });
 }

@@ -39,29 +39,38 @@
     \title Exporting Designs from Graphics Software
 
     You can export designs from graphics software, such as Adobe Photoshop and
-    GIMP, to QML files. Each scene is converted into a single QML file with an
-    \l [QML]{Image} or a \l [QML]{Text} item for each layer and saved on the
-    development PC. Top-level layer groups are converted into merged QML
-    \l [QML]{Image} types.
+    GIMP, to QML files.
 
-    \note GIMP does not support grouping, and therefore, each layer is exported
-    as an item in GIMP.
+    \section1 Exporting from Adobe Photoshop to QML
+
+    You can use a QML Asset Exporter to export designs from Adobe Photoshop
+    to .ui.qml files. The the QML Asset Exporter provides templates that are
+    based on the \l{http://www.pngexpress.com}{PNG EXPRESS} plugin for
+    Photoshop. They enable you to export PSD files to QML format, so that each
+    PSD file is converted into an .ui.qml file.
+
+    The filename of the generated document is based on the name of the PSD file.
+    Tagged image and text objects are exported with absolute positioning. Text
+    objects are exported with font and alignment information.
+
+    For more information, see the
+    \l {https://github.com/Pelagicore/QmlAssetExporter}{QML Asset Exporter}
+    documentation.
+
+    \section1 Exporting from GIMP to QML
+
+    \image qml-export-gimp.png
+
+    Each scene is converted into a single QML file with an
+    \l [QML]{Image} or a \l [QML]{Text} item for each layer and saved on the
+    development PC. Each layer is exported as an item.
 
     You can open the QML file in \QC for editing. By default, the export scripts
     generate Qt Quick 1 files. To edit the files in \QMLD, change the import
     statements in the export scripts to import Qt Quick 2. Or, you can change
     the import statement in each file after generating the files.
 
-    If you edit the file in Adobe
-    Photoshop and export it to the same directory again, any changes you made in
-    \QC are overwritten. However, you can re-export graphical assets without
-    recreating the QML code.
-
-    If you create vector graphics with other tools that have an Adobe Photoshop
-    export option, such as Adobe Illustrator, you can export them first to
-    Photoshop and then to QML.
-
-    \section1 Conversion Rules
+    \section2 Conversion Rules
 
     The following rules apply to the conversions:
 
@@ -85,24 +94,21 @@
 
     \endlist
 
-    \section1 Preparing Files for Conversion
+    \section2 Preparing Files for Conversion
 
-    To create QML files that are easy to use, prepare the Adobe Photoshop or
+    To create QML files that are easy to use, prepare the
     GIMP designs for exporting, as follows:
 
     \list
 
-        \li To minimize the number of items, minimize the number of layers or
-            use top-level layer groups, because each layer or layer group is
+        \li To minimize the number of items, minimize the number of layers,
+            because each layer or is
             exported as a \l [QML]{Text} or \l [QML]{Image} item.
-
-        \li To make sure that all related items are exported to the same
-            item, use top-level layer groups.
 
         \li To determine that some layers are not exported, hide them, and
             deselect the \uicontrol {Export hidden} check box during exporting.
 
-        \li To make it easier to find the layers and layer groups after
+        \li To make it easier to find the layers after
             exporting them, use descriptive names for them.
 
         \li To make sure that image dimensions are preserved during export,
@@ -118,65 +124,7 @@
 
     \endlist
 
-    \section1 Exporting from Adobe Photoshop to QML
-
-    \image qml-export-photoshop.png
-
-    The script has been tested to work on Adobe Photoshop CS 4 and 5, but it
-    might also work on other versions.
-
-    \list 1
-
-        \li Clone the repository that contains the export script,
-            \e{Export QML.jx}, from
-            \l{https://codereview.qt-project.org/#/admin/projects/qt-labs/photoshop-qmlexporter}
-            {Qt Code Review}.
-
-            \note Read the README.txt file in the repository for latest
-            information about the script.
-
-        \li To generate QML files that you can edit in \QMLD, edit the import
-            statement in \e {Export QML.jx}. For example:
-
-            \code
-            qmlfile.write("import QtQuick 2.5\n");
-            \endcode
-
-        \li Double-click the export script to add the export command to the
-            \uicontrol Scripts menu. You can also copy the script file to the Adobe
-            Photoshop scripts directory (typically, \c{\Presets\Scripts} in the
-            Photoshop installation directory).
-
-        \li In Adobe Photoshop, choose \uicontrol {File > Scripts > Export to QML} to
-            export the scene to a QML file.
-
-        \li In the \uicontrol {Export Document to QML} dialog, enter a name and
-            location for the QML file.
-
-        \li Select the \uicontrol {Rasterize text} check box to export text layers as
-            images, not as \l [QML]{Text} items.
-
-        \li Select the \uicontrol {Group layers} check box to export each top-level
-            group as a merged QML \l [QML]{Image} item.
-
-        \li Select the \uicontrol {Export hidden} check box to export hidden layers
-            and to set their visibility property to hidden.
-
-        \li Deselect the \uicontrol {Export QML} check box if you have modified the
-            QML document in \QC, but still want to re-export graphical assets.
-
-        \li Click \uicontrol Export.
-
-    \endlist
-
-    The QML file is saved to the location that you specified. In \QC, choose
-    \uicontrol {File > Open File or Project} to open the QML file.
-
-    \note Existing files are replaced without warning.
-
-    \section1 Exporting from GIMP to QML
-
-    \image qml-export-gimp.png
+    \section2 Running the Export Script
 
     The script has been tested to work on GIMP 2. You can download GIMP 2 from
     \l{http://www.gimp.org/downloads/}{GIMP Downloads}.

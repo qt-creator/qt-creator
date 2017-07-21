@@ -448,7 +448,7 @@ public:
     template <class Config, class Worker>
     static void registerWorker(Core::Id runMode, int priority = 0)
     {
-        auto constraint = [](RunConfiguration *runConfig) { return qobject_cast<Config *>(runConfig); };
+        auto constraint = [](RunConfiguration *runConfig) { return qobject_cast<Config *>(runConfig) != nullptr; };
         auto producer = [](RunControl *rc) { return new Worker(rc); };
         addWorkerFactory({runMode, constraint, producer, priority});
     }

@@ -674,7 +674,6 @@ RunControl::~RunControl()
 #ifdef WITH_JOURNALD
     JournaldWatcher::instance()->unsubscribe(this);
 #endif
-    disconnect();
     delete d;
     d = nullptr;
 }
@@ -698,7 +697,7 @@ void RunControl::initiateStop()
 
 void RunControl::initiateFinish()
 {
-    d->initiateFinish();
+    QTimer::singleShot(0, d, &RunControlPrivate::initiateFinish);
 }
 
 using WorkerCreators = QHash<Core::Id, RunControl::WorkerCreator>;
@@ -947,7 +946,7 @@ void RunControlPrivate::onWorkerFailed(RunWorker *worker, const QString &msg)
     worker->d->state = RunWorkerState::Failed;
 
     showError(msg);
-    setState(RunControlState::Stopped);
+    initiateStop();
 }
 
 void RunControlPrivate::onWorkerStopped(RunWorker *worker)
@@ -982,17 +981,14 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
             debugMessage("  Examining worker " + workerId);
             switch (worker->d->state) {
                 case RunWorkerState::Initialized:
-                    debugMessage("  " + workerId + " was Initialized, setting to Done");
-                    worker->d->state = RunWorkerState::Done;
+                    debugMessage("  " + workerId + " was Initialized.");
                     break;
                 case RunWorkerState::Starting:
-                    worker->d->state = RunWorkerState::Stopping;
-                    debugMessage("  " + workerId + " was Starting, queuing stop");
+                    debugMessage("  " + workerId + " was Starting, waiting for its response");
                     allDone = false;
                     break;
                 case RunWorkerState::Running:
-                    debugMessage("  " + workerId + " was Running, queuing stop");
-                    worker->d->state = RunWorkerState::Stopping;
+                    debugMessage("  " + workerId + " was Running, waiting for its response");
                     allDone = false;
                     break;
                 case RunWorkerState::Stopping:
@@ -1280,7 +1276,7 @@ void RunControlPrivate::setState(RunControlState newState)
     case RunControlState::Finished:
         emit q->finished();
         debugMessage("All finished. Deleting myself");
-        deleteLater();
+        q->deleteLater();
         break;
     default:
         break;

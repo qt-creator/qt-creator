@@ -64,6 +64,7 @@ public:
     void beginWithPoint(const QPointF &beginPoint);
 
     void clear() override;
+    void start() override;
 
     void formEditorItemsChanged(const QList<FormEditorItem*> &itemList) override;
 

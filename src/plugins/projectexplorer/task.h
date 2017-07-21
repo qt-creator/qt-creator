@@ -28,12 +28,15 @@
 #include "projectexplorer_export.h"
 
 #include <coreplugin/id.h>
-#include <texteditor/textmark.h>
 #include <utils/fileutils.h>
 
 #include <QIcon>
 #include <QMetaType>
 #include <QTextLayout>
+
+namespace TextEditor {
+class TextMark;
+}
 
 namespace ProjectExplorer {
 

@@ -37,7 +37,7 @@ class SourceRangesContainer : public SourceFilePathContainerBase
 public:
     SourceRangesContainer() = default;
     SourceRangesContainer(std::unordered_map<uint, FilePath> &&filePathHash,
-                          std::vector<SourceRangeWithTextContainer> &&sourceRangeWithTextContainers)
+                          SourceRangeWithTextContainers &&sourceRangeWithTextContainers)
         : SourceFilePathContainerBase(std::move(filePathHash)),
           m_sourceRangeWithTextContainers(std::move(sourceRangeWithTextContainers))
     {}
@@ -49,19 +49,19 @@ public:
         return found->second;
     }
 
-    const std::vector<SourceRangeWithTextContainer> &sourceRangeWithTextContainers() const
+    const SourceRangeWithTextContainers &sourceRangeWithTextContainers() const
     {
         return m_sourceRangeWithTextContainers;
     }
 
-    std::vector<SourceRangeWithTextContainer> &sourceRangeWithTextContainers()
-    {
-        return m_sourceRangeWithTextContainers;
-    }
-
-    std::vector<SourceRangeWithTextContainer> takeSourceRangeWithTextContainers()
+    SourceRangeWithTextContainers takeSourceRangeWithTextContainers()
     {
         return std::move(m_sourceRangeWithTextContainers);
+    }
+
+    void setSourceRangeWithTextContainers(SourceRangeWithTextContainers &&sourceRanges)
+    {
+        m_sourceRangeWithTextContainers = std::move(sourceRanges);
     }
 
     bool hasContent() const
@@ -117,10 +117,10 @@ public:
 
     SourceRangesContainer clone() const
     {
-        return SourceRangesContainer(Utils::clone(m_filePathHash), Utils::clone(m_sourceRangeWithTextContainers));
+        return *this;
     }
 
-    std::vector<SourceRangeWithTextContainer> m_sourceRangeWithTextContainers;
+    SourceRangeWithTextContainers m_sourceRangeWithTextContainers;
 };
 
 

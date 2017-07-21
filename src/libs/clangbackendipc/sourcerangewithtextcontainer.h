@@ -31,7 +31,7 @@
 
 namespace ClangBackEnd {
 
-class SourceRangeWithTextContainer : V2::SourceRangeContainer
+class SourceRangeWithTextContainer : public V2::SourceRangeContainer
 {
 public:
     SourceRangeWithTextContainer() = default;
@@ -103,7 +103,7 @@ public:
 
     SourceRangeWithTextContainer clone() const
     {
-        return SourceRangeWithTextContainer(base().clone(), m_text.clone());
+        return *this;
     }
 
 private:
@@ -116,19 +116,3 @@ CMBIPC_EXPORT QDebug operator<<(QDebug debug, const SourceRangeWithTextContainer
 std::ostream &operator<<(std::ostream &os, const SourceRangeWithTextContainer &container);
 } // namespace ClangBackEnd
 
-namespace std
-{
-template<> struct hash<ClangBackEnd::SourceRangeWithTextContainer>
-{
-    using argument_type = ClangBackEnd::SourceRangeWithTextContainer;
-    using result_type = std::size_t;
-    result_type operator()(const argument_type &container) const
-    {
-        const result_type h1{std::hash<uint>{}(container.fileHash())};
-        const result_type h2{std::hash<uint>{}(container.start().offset())};
-        const result_type h3{std::hash<uint>{}(container.end().offset())};
-
-        return h1 ^ (h2 << 8) ^ (h3 << 16);
-    }
-};
-}

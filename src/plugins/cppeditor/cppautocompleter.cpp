@@ -431,8 +431,10 @@ void CppEditorPlugin::test_insertParagraph()
 
     QVERIFY(!tc.isNull());
 
-    const int blockCount = CppAutoCompleter().paragraphSeparatorAboutToBeInserted(
-                tc, TextEditor::TextEditorSettings::codeStyle()->tabSettings());
+    CppAutoCompleter completer = CppAutoCompleter();
+    completer.setTabSettings(TextEditor::TextEditorSettings::codeStyle()->tabSettings());
+
+    const int blockCount = completer.paragraphSeparatorAboutToBeInserted(tc);
 
     QCOMPARE(blockCount, expectedBlockCount);
 }

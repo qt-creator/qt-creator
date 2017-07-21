@@ -40,7 +40,7 @@
 
 namespace ClangBackEnd {
 
-class SourceRangesAndDiagnosticsForQueryMessage;
+class SourceRangesForQueryMessage;
 
 namespace V2 {
 class FileContainer;
@@ -48,26 +48,27 @@ class FileContainer;
 
 class RefactoringServer : public RefactoringServerInterface
 {
-    using Future = std::future<SourceRangesAndDiagnosticsForQueryMessage>;
+    using Future = std::future<SourceRangesForQueryMessage>;
 public:
     RefactoringServer();
 
     void end() override;
     void requestSourceLocationsForRenamingMessage(RequestSourceLocationsForRenamingMessage &&message) override;
     void requestSourceRangesAndDiagnosticsForQueryMessage(RequestSourceRangesAndDiagnosticsForQueryMessage &&message) override;
+    void requestSourceRangesForQueryMessage(RequestSourceRangesForQueryMessage &&message) override;
     void cancel() override;
 
     bool isCancelingJobs() const;
 
-    void pollSourceRangesAndDiagnosticsForQueryMessages();
-    void waitThatSourceRangesAndDiagnosticsForQueryMessagesAreFinished();
+    void pollSourceRangesForQueryMessages();
+    void waitThatSourceRangesForQueryMessagesAreFinished();
 
     bool pollTimerIsActive() const;
 
     void setGathererProcessingSlotCount(uint count);
 
 private:
-    void gatherSourceRangesAndDiagnosticsForQueryMessages(std::vector<V2::FileContainer> &&sources,
+    void gatherSourceRangesForQueryMessages(std::vector<V2::FileContainer> &&sources,
                                                           std::vector<V2::FileContainer> &&unsaved,
                                                           Utils::SmallString &&query);
 

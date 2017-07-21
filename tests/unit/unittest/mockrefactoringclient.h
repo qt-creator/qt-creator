@@ -38,6 +38,8 @@ public:
                  void (const ClangBackEnd::SourceLocationsForRenamingMessage&));
     MOCK_METHOD1(sourceRangesAndDiagnosticsForQueryMessage,
                  void (const ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage&));
+    MOCK_METHOD1(sourceRangesForQueryMessage,
+                 void (const ClangBackEnd::SourceRangesForQueryMessage&));
 
     void sourceLocationsForRenamingMessage(ClangBackEnd::SourceLocationsForRenamingMessage &&message) override
     {
@@ -47,6 +49,11 @@ public:
     void sourceRangesAndDiagnosticsForQueryMessage(ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage &&message) override
     {
         sourceRangesAndDiagnosticsForQueryMessage(message);
+    }
+
+    void sourceRangesForQueryMessage(ClangBackEnd::SourceRangesForQueryMessage &&message) override
+    {
+        sourceRangesForQueryMessage(message);
     }
 
     void setLocalRenamingCallback(RenameCallback &&)

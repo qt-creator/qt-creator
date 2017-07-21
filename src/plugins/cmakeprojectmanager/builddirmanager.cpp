@@ -45,6 +45,7 @@
 #include <utils/qtcassert.h>
 
 #include <QMessageBox>
+#include <QPushButton>
 #include <QSet>
 
 using namespace ProjectExplorer;
@@ -125,13 +126,14 @@ void BuildDirManager::updateReaderData()
     m_reader->setParameters(p);
 }
 
-void BuildDirManager::parseOnceReaderReady(bool force)
+void BuildDirManager::parseOnceReaderReady(bool force, bool checkForChanges)
 {
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
     m_buildTargets.clear();
     m_cmakeCache.clear();
-    checkConfiguration();
+    if (checkForChanges)
+        checkConfiguration();
     m_reader->stop();
     m_reader->parse(force);
 }
@@ -224,6 +226,16 @@ void BuildDirManager::becameDirty()
 
 void BuildDirManager::forceReparse()
 {
+    forceReparseImpl(true);
+}
+
+void BuildDirManager::forceReparseWithoutCheckingForChanges()
+{
+    forceReparseImpl(false);
+}
+
+void BuildDirManager::forceReparseImpl(bool checkForChanges)
+{
     QTC_ASSERT(!m_isHandlingError, return);
 
     if (m_buildConfiguration->target()->activeBuildConfiguration() != m_buildConfiguration)
@@ -233,7 +245,7 @@ void BuildDirManager::forceReparse()
     QTC_ASSERT(tool, return);
 
     m_reader.reset(); // Force reparse by forcing in a new reader
-    updateReaderType([this]() { parseOnceReaderReady(true); });
+    updateReaderType([this, checkForChanges]() { parseOnceReaderReady(true, checkForChanges); });
 }
 
 void BuildDirManager::resetData()
@@ -417,11 +429,11 @@ void BuildDirManager::checkConfiguration()
         box->setText(tr("CMake configuration has changed on disk."));
         box->setInformativeText(tr("The CMakeCache.txt file has changed: %1").arg(table));
         auto *defaultButton = box->addButton(tr("Overwrite Changes in CMake"), QMessageBox::RejectRole);
-        box->addButton(tr("Apply Changes to Project"), QMessageBox::AcceptRole);
+        auto *applyButton = box->addButton(tr("Apply Changes to Project"), QMessageBox::ApplyRole);
         box->setDefaultButton(defaultButton);
 
-        int ret = box->exec();
-        if (ret == QMessageBox::Apply)
+        box->exec();
+        if (box->clickedButton() == applyButton)
             m_buildConfiguration->setCMakeConfiguration(newConfig);
     }
 }

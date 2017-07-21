@@ -27,6 +27,8 @@
 #include "layeritem.h"
 #include "formeditoritem.h"
 #include "formeditorscene.h"
+#include "formeditorwidget.h"
+#include "formeditorgraphicsview.h"
 
 #include <qmlanchors.h>
 #include <nodehints.h>
@@ -129,6 +131,7 @@ void MoveManipulator::setDirectUpdateInNodeInstances(bool directUpdate)
 
 void MoveManipulator::begin(const QPointF &beginPoint)
 {
+    m_view->formEditorWidget()->graphicsView()->viewport()->setCursor(Qt::SizeAllCursor);
     m_isActive = true;
 
     m_snapper.updateSnappingLines(m_itemList);
@@ -377,6 +380,7 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
 
 void MoveManipulator::end()
 {
+    m_view->formEditorWidget()->graphicsView()->viewport()->unsetCursor();
     setDirectUpdateInNodeInstances(false);
     m_isActive = false;
     deleteSnapLines();

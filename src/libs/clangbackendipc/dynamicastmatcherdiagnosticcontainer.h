@@ -34,19 +34,19 @@ class DynamicASTMatcherDiagnosticContainer
 {
 public:
     DynamicASTMatcherDiagnosticContainer() = default;
-    DynamicASTMatcherDiagnosticContainer(std::vector<DynamicASTMatcherDiagnosticMessageContainer> &&messages,
-                                         std::vector<DynamicASTMatcherDiagnosticContextContainer> &&contexts)
+    DynamicASTMatcherDiagnosticContainer(DynamicASTMatcherDiagnosticMessageContainers &&messages,
+                                         DynamicASTMatcherDiagnosticContextContainers &&contexts)
         : m_messages(std::move(messages)),
           m_contexts(std::move(contexts))
     {
     }
 
-    const std::vector<DynamicASTMatcherDiagnosticMessageContainer> &messages() const
+    const DynamicASTMatcherDiagnosticMessageContainers &messages() const
     {
         return m_messages;
     }
 
-    const std::vector<DynamicASTMatcherDiagnosticContextContainer> &contexts() const
+    const DynamicASTMatcherDiagnosticContextContainers &contexts() const
     {
         return m_contexts;
     }
@@ -88,14 +88,15 @@ public:
 
     DynamicASTMatcherDiagnosticContainer clone() const
     {
-        return DynamicASTMatcherDiagnosticContainer(Utils::clone(m_messages),
-                                                    Utils::clone(m_contexts));
+        return *this;
     }
 
 private:
-    std::vector<DynamicASTMatcherDiagnosticMessageContainer> m_messages;
-    std::vector<DynamicASTMatcherDiagnosticContextContainer> m_contexts;
+    DynamicASTMatcherDiagnosticMessageContainers m_messages;
+    DynamicASTMatcherDiagnosticContextContainers m_contexts;
 };
+
+using DynamicASTMatcherDiagnosticContainers = std::vector<DynamicASTMatcherDiagnosticContainer>;
 
 CMBIPC_EXPORT QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticContainer &container);
 std::ostream &operator<<(std::ostream &os, const DynamicASTMatcherDiagnosticContainer &container);

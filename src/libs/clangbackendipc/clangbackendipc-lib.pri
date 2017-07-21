@@ -79,7 +79,9 @@ SOURCES += $$PWD/clangcodemodelserverinterface.cpp \
     $$PWD/pchmanagerclientproxy.cpp \
     $$PWD/projectpartpch.cpp \
     $$PWD/precompiledheadersupdatedmessage.cpp \
-    $$PWD/removepchprojectpartsmessage.cpp
+    $$PWD/removepchprojectpartsmessage.cpp \
+    $$PWD/sourcerangesforquerymessage.cpp \
+    $$PWD/requestsourcerangesforquerymessage.cpp
 
 HEADERS += \
     $$PWD/clangcodemodelserverinterface.h \
@@ -159,5 +161,10 @@ HEADERS += \
     $$PWD/removepchprojectpartsmessage.h \
     $$PWD/clangcodemodelclientmessages.h \
     $$PWD/clangcodemodelservermessages.h \
+    $$PWD/sourcerangesforquerymessage.h \
+    $$PWD/clangrefactoringmessages.h \
+    $$PWD/clangrefactoringclientmessages.h \
+    $$PWD/clangrefactoringservermessages.h \
+    $$PWD/requestsourcerangesforquerymessage.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
