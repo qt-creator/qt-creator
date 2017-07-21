@@ -94,6 +94,8 @@ void CppUseSelectionsUpdater::update(CallType callType)
 
         m_runnerWatcher->setFuture(cppEditorDocument->cursorInfo(params));
     } else { // synchronous case
+        abortSchedule();
+
         const int startRevision = cppEditorDocument->document()->revision();
         QFuture<CursorInfo> future = cppEditorDocument->cursorInfo(params);
 
