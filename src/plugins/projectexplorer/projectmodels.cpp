@@ -32,14 +32,17 @@
 #include "session.h"
 
 #include <coreplugin/fileiconprovider.h>
+#include <utils/utilsicons.h>
 #include <utils/algorithm.h>
 #include <utils/dropsupport.h>
+#include <utils/theme/theme.h>
 
-#include <QDebug>
 #include <QFileInfo>
 #include <QFont>
 #include <QMimeData>
 #include <QLoggingCategory>
+
+#include <functional>
 
 using namespace Utils;
 
@@ -106,10 +109,19 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         }
         case Qt::DecorationRole: {
             if (folderNode) {
-                result = folderNode->icon();
+                static QIcon emptyIcon = Utils::Icons::EMPTY16.icon();
                 if (ContainerNode *containerNode = folderNode->asContainerNode()) {
-                    if (ProjectNode *projectNode = containerNode->rootProjectNode())
-                        result = projectNode->icon();
+                    WrapperNode *wn = wrapperForNode(node);
+                    Project *project = Utils::findOrDefault(SessionManager::projects(), [this, wn](const Project *p) {
+                        return nodeForProject(p) == wn;
+                    });
+                    if (project->isParsing())
+                        result = emptyIcon;
+                    else
+                        result = containerNode->rootProjectNode() ? containerNode->rootProjectNode()->icon() :
+                                                                    folderNode->icon();
+                } else {
+                    result = folderNode->icon();
                 }
             } else {
                 result = Core::FileIconProvider::icon(node->filePath().toString());
@@ -131,6 +143,17 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         }
         case Project::EnabledRole: {
             result = node->isEnabled();
+            break;
+        }
+        case Project::isParsingRole: {
+            const Project *project = nullptr;
+            if (node->asContainerNode()) {
+                WrapperNode *wn = wrapperForNode(node);
+                project = Utils::findOrDefault(SessionManager::projects(), [this, wn](const Project *p) {
+                    return nodeForProject(p) == wn;
+                });
+            }
+            result = project ? project->isParsing() : false;
             break;
         }
         }
@@ -216,6 +239,13 @@ void FlatModel::addOrRebuildProjectModel(Project *project)
         emit requestExpansion(container->index());
 }
 
+void FlatModel::parsingStateChanged(Project *project)
+{
+    const WrapperNode *const node = nodeForProject(project);
+    const QModelIndex nodeIdx = indexForNode(node->m_node);
+    emit dataChanged(nodeIdx, nodeIdx);
+}
+
 void FlatModel::updateSubtree(FolderNode *node)
 {
     // FIXME: This is still excessive, should be limited to the affected subtree.
@@ -261,6 +291,12 @@ ExpandData FlatModel::expandDataForNode(const Node *node) const
 
 void FlatModel::handleProjectAdded(Project *project)
 {
+    QTC_ASSERT(project, return);
+
+    connect(project, &Project::parsingStarted,
+            this, [this, project]() { parsingStateChanged(project); });
+    connect(project, &Project::parsingFinished,
+            this, [this, project]() { parsingStateChanged(project); });
     addOrRebuildProjectModel(project);
 }
 
@@ -269,7 +305,7 @@ void FlatModel::handleProjectRemoved(Project *project)
     destroyItem(nodeForProject(project));
 }
 
-WrapperNode *FlatModel::nodeForProject(Project *project)
+WrapperNode *FlatModel::nodeForProject(const Project *project) const
 {
     QTC_ASSERT(project, return nullptr);
     ContainerNode *containerNode = project->containerNode();

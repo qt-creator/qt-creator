@@ -99,8 +99,10 @@ private:
     void saveExpandData();
     void handleProjectAdded(Project *project);
     void handleProjectRemoved(Project *project);
-    WrapperNode *nodeForProject(Project *project);
+    WrapperNode *nodeForProject(const Project *project) const;
     void addOrRebuildProjectModel(Project *project);
+
+    void parsingStateChanged(Project *project);
 
     QTimer m_timer;
     QSet<ExpandData> m_toExpand;

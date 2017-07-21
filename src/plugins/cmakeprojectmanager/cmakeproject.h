@@ -116,7 +116,7 @@ private:
     void handleActiveBuildConfigurationChanged();
     void handleParsingStarted(const Internal::CMakeBuildConfiguration *bc);
     void handleTreeScanningFinished();
-    void updateProjectData(Internal::CMakeBuildConfiguration *cmakeBc);
+    void updateProjectData(Internal::CMakeBuildConfiguration *bc);
     void handleParsingError(Internal::CMakeBuildConfiguration *bc);
     void updateQmlJSCodeModel();
 
