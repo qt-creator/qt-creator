@@ -71,10 +71,16 @@
     \endlist
 
     You can group elements by surrounding them with a boundary. When you move
-    the boundary, all elements within it are moved together. Similarly, classes
-    that you lay on packages are moved with the packages. You can move
-    individual elements and modify their properties (5) by selecting them. You
-    can also use \e multiselection to group elements temporarily.
+    the boundary, all elements within it are moved together. Similary drag
+    a swimlane to the diagram. When you move the swimlane all elements right
+    to the swimlane (for vertical swimlanes) or below it (for horizontal swimlanes)
+    will be moved together. A vertical swimlane is created when you drop the
+    swimlane icon on the top border of the diagram and a horizontal swimlane
+    is created when you drop the icon near the left border.
+
+    Classes or other objects that you lay on packages are moved with the packages.
+    You can move individual elements and modify their properties (5) by selecting
+    them. You can also use \e multiselection to group elements temporarily.
 
     Drag the mouse over elements to select them and apply actions such as
     changing their \e stereotype or color. A stereotype is a classifier for
@@ -399,7 +405,9 @@
 
     For more information about the available options, see \e standard.def
     in the \e share/qtcreator/modeleditor directory in the \QC installation
-    directory.
+    directory. It describes also how to define custom relation types
+    and templates for existing types (such as a composition relation that
+    can be drawn between classes).
 
     You can add your own definition file and save it with the file extension
     \e .def to add custom colors and icons for stereotypes, elements, or tool
