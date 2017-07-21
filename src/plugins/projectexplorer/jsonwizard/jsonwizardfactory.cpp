@@ -70,6 +70,7 @@ static const char CATEGORY_KEY[] = "category";
 static const char CATEGORY_NAME_KEY[] = "trDisplayCategory";
 static const char DISPLAY_NAME_KEY[] = "trDisplayName";
 static const char ICON_KEY[] = "icon";
+static const char ICON_TEXT_KEY[] = "iconText";
 static const char IMAGE_KEY[] = "image";
 static const char DESCRIPTION_KEY[] = "trDescription";
 static const char REQUIRED_FEATURES_KEY[] = "featuresRequired";
@@ -558,6 +559,10 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
         }
         setIcon(QIcon(strVal));
     }
+
+    strVal = data.value(QLatin1String(ICON_TEXT_KEY)).toString();
+    if (!strVal.isEmpty())
+        setIconText(strVal);
 
     strVal = data.value(QLatin1String(IMAGE_KEY)).toString();
     if (!strVal.isEmpty()) {

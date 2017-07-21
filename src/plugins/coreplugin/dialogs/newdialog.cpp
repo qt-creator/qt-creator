@@ -369,6 +369,26 @@ IWizardFactory *NewDialog::currentWizardFactory() const
     return factoryOfItem(m_model->itemFromIndex(index));
 }
 
+static QIcon iconWithText(const QIcon &icon, const QString &text)
+{
+    if (text.isEmpty())
+        return icon;
+    QIcon iconWithText;
+    for (const QSize &pixmapSize : icon.availableSizes()) {
+        QPixmap pixmap = icon.pixmap(pixmapSize);
+        QFont font;
+        font.setPixelSize(qMin(pixmap.height(), pixmap.width()) / 5);
+        QPainter p(&pixmap);
+        p.setPen(qRgb(0x6b, 0x70, 0x80));
+        p.setFont(font);
+        QTextOption textOption(Qt::AlignHCenter | Qt::AlignBottom);
+        textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+        p.drawText(pixmap.rect().adjusted(9, 10, -9, -10), text, textOption);
+        iconWithText.addPixmap(pixmap);
+    }
+    return iconWithText;
+}
+
 void NewDialog::addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *factory)
 {
     const QString categoryName = factory->category();
@@ -394,7 +414,7 @@ void NewDialog::addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *fac
         wizardIcon = m_dummyIcon;
     else
         wizardIcon = factory->icon();
-    wizardItem->setIcon(wizardIcon);
+    wizardItem->setIcon(iconWithText(wizardIcon, factory->iconText()));
     wizardItem->setData(QVariant::fromValue(WizardFactoryContainer(factory, 0)), Qt::UserRole);
     wizardItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
     categoryItem->appendRow(wizardItem);
