@@ -20,6 +20,12 @@ QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
     include($$QT_BREAKPAD_ROOT_PATH/qtbreakpad.pri)
 }
 win32 {
+    # We need the version in two separate formats for the .rc file
+    #  RC_VERSION=4,3,82,0 (quadruple)
+    #  RC_VERSION_STRING="4.4.0-beta1" (free text)
+    DEFINES += RC_VERSION=$$replace(QTCREATOR_VERSION, "\\.", ","),0 \
+        RC_VERSION_STRING=\\\"$${QTCREATOR_DISPLAY_VERSION}\\\" \
+        RC_COPYRIGHT='"\\\"2008-$${QTCREATOR_COPYRIGHT_YEAR} The Qt Company Ltd\\\""'
     RC_FILE = qtcreator.rc
 } else:macx {
     LIBS += -framework CoreFoundation
