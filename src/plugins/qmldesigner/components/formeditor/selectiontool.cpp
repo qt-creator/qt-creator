@@ -140,9 +140,9 @@ void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
         }
 
         if ((topSelectedItemIsMovable(itemList) && !view()->hasSingleSelectedModelNode())
-                || selectedItemCursorInMovableArea(event->scenePos())
+                || (selectedItemCursorInMovableArea(event->scenePos())
                 && !event->modifiers().testFlag(Qt::ControlModifier)
-                && !event->modifiers().testFlag(Qt::ShiftModifier)) {
+                && !event->modifiers().testFlag(Qt::ShiftModifier))) {
             view()->changeToMoveTool();
             return;
         }
