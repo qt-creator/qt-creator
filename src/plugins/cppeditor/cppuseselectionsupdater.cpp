@@ -94,6 +94,7 @@ void CppUseSelectionsUpdater::update(CallType callType)
 
         m_runnerWatcher->setFuture(cppEditorDocument->cursorInfo(params));
     } else { // synchronous case
+        const int startRevision = cppEditorDocument->document()->revision();
         QFuture<CursorInfo> future = cppEditorDocument->cursorInfo(params);
 
         // QFuture::waitForFinished seems to block completely, not even
@@ -102,6 +103,7 @@ void CppUseSelectionsUpdater::update(CallType callType)
             if (future.isCanceled())
                 return;
 
+            QTC_ASSERT(startRevision == cppEditorDocument->document()->revision(), return);
             QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         }
 
