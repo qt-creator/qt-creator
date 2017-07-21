@@ -47,6 +47,7 @@
 #include <cpptools/editordocumenthandle.h>
 
 #include <texteditor/convenience.h>
+#include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
@@ -274,6 +275,9 @@ void ClangEditorDocumentProcessor::addDiagnosticToolTipToLayout(uint line,
         = m_diagnosticManager.diagnosticsAt(line, column);
 
     target->addWidget(ClangDiagnosticWidget::create(diagnostics, ClangDiagnosticWidget::ToolTip));
+    auto link = TextEditor::DisplaySettings::createAnnotationSettingsLink();
+    target->addWidget(link);
+    target->setAlignment(link, Qt::AlignRight);
 }
 
 void ClangEditorDocumentProcessor::editorDocumentTimerRestarted()

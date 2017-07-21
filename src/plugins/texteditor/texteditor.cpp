@@ -46,6 +46,7 @@
 #include "tabsettings.h"
 #include "textdocument.h"
 #include "textdocumentlayout.h"
+#include "texteditorconstants.h"
 #include "texteditoroverlay.h"
 #include "refactoroverlay.h"
 #include "texteditorsettings.h"
@@ -3291,30 +3292,32 @@ bool TextEditorWidgetPrivate::processAnnotaionTooltipRequest(const QTextBlock &b
         return false;
 
     for (const AnnotationRect &annotationRect : m_annotationRects[block.blockNumber()]) {
-        if (annotationRect.rect.contains(pos)) {
-            auto layout = new QGridLayout;
-            layout->setContentsMargins(0, 0, 0, 0);
-            layout->setSpacing(2);
-            annotationRect.mark->addToToolTipLayout(layout);
-            TextMarks marks = blockUserData->marks();
-            if (marks.size() > 1) {
-                QFrame* separator = new QFrame();
-                separator->setFrameShape(QFrame::HLine);
-                layout->addWidget(separator, 2, 0, 1, layout->columnCount());
-                layout->addWidget(new QLabel(tr("Other annotations:")), 3, 0, 1,
-                                  layout->columnCount());
+        if (!annotationRect.rect.contains(pos))
+            continue;
 
-                Utils::sort(marks, [](const TextMark* mark1, const TextMark* mark2){
-                    return mark1->priority() > mark2->priority();
-                });
-                for (const TextMark *mark : Utils::asConst(marks)) {
-                    if (mark != annotationRect.mark)
-                        mark->addToToolTipLayout(layout);
-                }
+        auto layout = new QGridLayout;
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(2);
+        annotationRect.mark->addToToolTipLayout(layout);
+        TextMarks marks = blockUserData->marks();
+        if (marks.size() > 1) {
+            QFrame* separator = new QFrame();
+            separator->setFrameShape(QFrame::HLine);
+            layout->addWidget(separator, layout->rowCount(), 0, 1, -1);
+            layout->addWidget(new QLabel(tr("Other annotations:")), layout->rowCount(), 0, 1, -1);
+
+            Utils::sort(marks, [](const TextMark* mark1, const TextMark* mark2){
+                return mark1->priority() > mark2->priority();
+            });
+            for (const TextMark *mark : Utils::asConst(marks)) {
+                if (mark != annotationRect.mark)
+                    mark->addToToolTipLayout(layout);
             }
-            ToolTip::show(q->mapToGlobal(pos), layout, q);
-            return true;
         }
+        layout->addWidget(DisplaySettings::createAnnotationSettingsLink(),
+                          layout->rowCount(), 0, 1, -1, Qt::AlignRight);
+        ToolTip::show(q->mapToGlobal(pos), layout, q);
+        return true;
     }
     return false;
 }

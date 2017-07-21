@@ -31,6 +31,7 @@
 
 QT_BEGIN_NAMESPACE
 class QSettings;
+class QLabel;
 QT_END_NAMESPACE
 
 namespace TextEditor {
@@ -72,6 +73,8 @@ public:
     int m_minimalAnnotationContent = 15;
 
     bool equals(const DisplaySettings &ds) const;
+
+    static QLabel *createAnnotationSettingsLink();
 };
 
 inline bool operator==(const DisplaySettings &t1, const DisplaySettings &t2) { return t1.equals(t2); }
