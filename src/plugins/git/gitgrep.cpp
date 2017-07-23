@@ -141,11 +141,11 @@ public:
 
     void exec()
     {
-        QStringList arguments;
-        arguments << "-c" << "color.grep.match=bold red"
-                  << "grep" << "-zn"
-                  << "--no-full-name"
-                  << "--color=always";
+        GitClient *client = GitPlugin::client();
+        QStringList arguments = {
+            "-c", "color.grep.match=bold red",
+            "grep", "-zn", "--no-full-name", "--color=always"
+        };
         if (!(m_parameters.flags & FindCaseSensitively))
             arguments << "-i";
         if (m_parameters.flags & FindWholeWords)
@@ -168,7 +168,7 @@ public:
                     return QString(":!" + filter);
                 });
         arguments << "--" << filterArgs << exclusionArgs;
-        QScopedPointer<VcsCommand> command(GitPlugin::client()->createCommand(m_directory));
+        QScopedPointer<VcsCommand> command(client->createCommand(m_directory));
         command->addFlags(VcsCommand::SilentOutput | VcsCommand::SuppressFailMessage);
         command->setProgressiveOutput(true);
         QFutureWatcher<FileSearchResultList> watcher;
@@ -176,7 +176,7 @@ public:
         connect(&watcher, &QFutureWatcher<FileSearchResultList>::canceled,
                 command.data(), &VcsCommand::cancel);
         connect(command.data(), &VcsCommand::stdOutText, this, &GitGrepRunner::read);
-        SynchronousProcessResponse resp = command->runCommand(GitPlugin::client()->vcsBinary(), arguments, 0);
+        SynchronousProcessResponse resp = command->runCommand(client->vcsBinary(), arguments, 0);
         switch (resp.result) {
         case SynchronousProcessResponse::TerminatedAbnormally:
         case SynchronousProcessResponse::StartFailed:
