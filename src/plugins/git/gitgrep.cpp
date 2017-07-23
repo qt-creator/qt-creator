@@ -144,7 +144,8 @@ public:
         GitClient *client = GitPlugin::client();
         QStringList arguments = {
             "-c", "color.grep.match=bold red",
-            "grep", "-zn", "--no-full-name", "--color=always"
+            "-c", "color.grep=always",
+            "grep", "-zn", "--no-full-name"
         };
         if (!(m_parameters.flags & FindCaseSensitively))
             arguments << "-i";
@@ -154,6 +155,8 @@ public:
             arguments << "-P";
         else
             arguments << "-F";
+        if (client->gitVersion() >= 0x021300)
+            arguments << "--recurse-submodules";
         arguments << "-e" << m_parameters.text;
         GitGrepParameters params = m_parameters.searchEngineParameters.value<GitGrepParameters>();
         if (!params.ref.isEmpty()) {
