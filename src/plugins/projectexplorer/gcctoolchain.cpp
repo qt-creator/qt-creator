@@ -431,7 +431,7 @@ static Utils::FileName findLocalCompiler(const Utils::FileName &compilerPath,
             && !pathEntry.contains("distcc");
     });
 
-    QTC_ASSERT(path != FileName(), return compilerPath);
+    QTC_ASSERT(!path.isEmpty(), return compilerPath);
     return path;
 }
 
