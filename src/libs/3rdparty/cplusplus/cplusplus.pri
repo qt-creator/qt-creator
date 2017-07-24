@@ -40,7 +40,6 @@ SOURCES += \
     $$PWD/ASTMatch0.cpp \
     $$PWD/ASTVisitor.cpp \
     $$PWD/ASTClone.cpp \
-    $$PWD/ASTPatternBuilder.cpp \
     $$PWD/ASTMatcher.cpp \
     $$PWD/Matcher.cpp \
     $$PWD/Control.cpp \

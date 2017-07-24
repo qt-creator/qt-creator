@@ -30,7 +30,6 @@ Project {
                 "ASTMatch0.cpp",
                 "ASTMatcher.cpp",
                 "ASTMatcher.h",
-                "ASTPatternBuilder.cpp",
                 "ASTPatternBuilder.h",
                 "ASTVisit.cpp",
                 "ASTVisitor.cpp",
