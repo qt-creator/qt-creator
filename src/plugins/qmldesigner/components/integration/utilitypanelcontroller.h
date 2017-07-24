@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef UtilityPanelController_h
-#define UtilityPanelController_h
+#pragma once
 
 #include <QObject>
 
@@ -47,5 +46,3 @@ protected:
 };
 
 } // namespace QmlDesigner
-
-#endif // UtilityPanelController_h

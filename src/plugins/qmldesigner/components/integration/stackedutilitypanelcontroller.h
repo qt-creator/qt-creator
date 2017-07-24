@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef StackedUtilityPanelController_h
-#define StackedUtilityPanelController_h
+#pragma once
 
 #include "utilitypanelcontroller.h"
 
@@ -55,5 +54,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // StackedUtilityPanelController_h

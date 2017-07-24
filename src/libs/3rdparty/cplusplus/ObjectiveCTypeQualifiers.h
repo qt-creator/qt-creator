@@ -1,8 +1,6 @@
-#ifndef CPLUSPLUS_OBJC_TYPEQUALIFIERS_H
-#define CPLUSPLUS_OBJC_TYPEQUALIFIERS_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
-
 
 namespace CPlusPlus {
 
@@ -27,6 +25,3 @@ enum {
 CPLUSPLUS_EXPORT int classifyObjectiveCContextKeyword(const char *s, int n);
 
 } // namespace CPlusPlus
-
-
-#endif // CPLUSPLUS_OBJC_TYPEQUALIFIERS_H

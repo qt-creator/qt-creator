@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef CPLUSPLUS_SAFETYPEMATCHER_H
-#define CPLUSPLUS_SAFETYPEMATCHER_H
+#pragma once
 
 #include "Matcher.h"
 
@@ -56,5 +55,3 @@ private:
 };
 
 } // CPlusPlus namespace
-
-#endif // CPLUSPLUS_SAFETYPEMATCHER_H
