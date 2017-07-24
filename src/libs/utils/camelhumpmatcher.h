@@ -29,8 +29,11 @@
 
 #include "utils_global.h"
 
+#include <QVector>
+
 QT_BEGIN_NAMESPACE
 class QRegularExpression;
+class QRegularExpressionMatch;
 class QString;
 QT_END_NAMESPACE
 
@@ -43,6 +46,13 @@ public:
         FirstLetterCaseSensitive
     };
 
+    class HighlightingPositions {
+    public:
+        QVector<int> starts;
+        QVector<int> lengths;
+    };
+
     static QRegularExpression createCamelHumpRegExp(const QString &pattern,
             CaseSensitivity caseSensitivity = CaseSensitivity::CaseInsensitive);
+    static HighlightingPositions highlightingPositions(const QRegularExpressionMatch &match);
 };

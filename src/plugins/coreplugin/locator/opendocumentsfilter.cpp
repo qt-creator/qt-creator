@@ -27,12 +27,13 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <utils/camelhumpmatcher.h>
 #include <utils/fileutils.h>
 
 #include <QAbstractItemModel>
 #include <QFileInfo>
 #include <QMutexLocker>
-#include <QRegExp>
+#include <QRegularExpression>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -60,7 +61,9 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;
     const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
-    QRegExp regexp(fp.filePath, caseSensitivity(fp.filePath), QRegExp::Wildcard);
+    const QRegularExpression regexp = containsWildcard(entry)
+            ? createWildcardRegExp(entry) : CamelHumpMatcher::createCamelHumpRegExp(entry);
+
     if (!regexp.isValid())
         return goodEntries;
 
@@ -71,13 +74,16 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
         if (fileName.isEmpty())
             continue;
         QString displayName = editorEntry.displayName;
-        const int index = regexp.indexIn(displayName);
-        if (index >= 0) {
+        const QRegularExpressionMatch match = regexp.match(displayName);
+        if (match.hasMatch()) {
+            const CamelHumpMatcher::HighlightingPositions positions =
+                    CamelHumpMatcher::highlightingPositions(match);
             LocatorFilterEntry filterEntry(this, displayName, QString(fileName + fp.postfix));
             filterEntry.extraInfo = FileUtils::shortNativePath(FileName::fromString(fileName));
             filterEntry.fileName = fileName;
-            filterEntry.highlightInfo = {index, regexp.matchedLength()};
-            if (index == 0)
+            filterEntry.highlightInfo.starts = positions.starts;
+            filterEntry.highlightInfo.lengths = positions.lengths;
+            if (match.capturedStart() == 0)
                 betterEntries.append(filterEntry);
             else
                 goodEntries.append(filterEntry);

@@ -12,6 +12,10 @@ int myVariable;
 
 int myFunction(bool yesno, int number) {}
 
+void pointOfService() {}
+int getPosition() { return 0; }
+int positiveNumber() { return 2; }
+
 enum MyEnum { V1, V2 };
 
 class MyClass

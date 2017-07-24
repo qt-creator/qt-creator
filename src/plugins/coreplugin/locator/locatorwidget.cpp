@@ -217,7 +217,8 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
                                                                  : ExtraInfoColumn;
         if (highlightColumn == index.column()) {
             const bool startIndexRole = role == int(HighlightingItemRole::StartColumn);
-            return startIndexRole ? entry.highlightInfo.startIndex : entry.highlightInfo.length;
+            return startIndexRole ? QVariant::fromValue(entry.highlightInfo.starts)
+                                  : QVariant::fromValue(entry.highlightInfo.lengths);
         }
         break;
     }

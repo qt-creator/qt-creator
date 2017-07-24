@@ -34,6 +34,7 @@
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QRegularExpression>
 
 using namespace Core;
 
@@ -199,6 +200,25 @@ Qt::CaseSensitivity ILocatorFilter::caseSensitivity(const QString &str)
 bool ILocatorFilter::containsWildcard(const QString &str)
 {
     return str.contains(QLatin1Char('*')) || str.contains(QLatin1Char('?'));
+}
+
+/*!
+ * \brief Returns a simple regular expression to search for \a text.
+ *
+ * \a text may contain the simple '?' and '*' wildcards known from the shell.
+ * '?' matches exactly one character, '*' matches a number of characters
+ * (including none).
+ *
+ * The regular expression contains capture groups to allow highlighting
+ * matched characters after a match.
+ */
+QRegularExpression ILocatorFilter::createWildcardRegExp(const QString &text)
+{
+    QString pattern = '(' + text + ')';
+    pattern.replace('?', ").(");
+    pattern.replace('*', ").*(");
+    pattern.remove("()");
+    return QRegularExpression(pattern, QRegularExpression::CaseInsensitiveOption);
 }
 
 /*!

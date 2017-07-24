@@ -28,9 +28,9 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
+#include <utils/camelhumpmatcher.h>
 
-#include <QRegExp>
-#include <QStringMatcher>
+#include <QRegularExpression>
 
 using namespace QmlJSTools::Internal;
 
@@ -59,12 +59,13 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
 {
     QList<Core::LocatorFilterEntry> goodEntries;
     QList<Core::LocatorFilterEntry> betterEntries;
-    const Qt::CaseSensitivity cs = caseSensitivity(entry);
-    QStringMatcher matcher(entry, cs);
-    QRegExp regexp(entry, cs, QRegExp::Wildcard);
+    QList<Core::LocatorFilterEntry> bestEntries;
+    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
+    const QRegularExpression regexp = containsWildcard(entry)
+            ? createWildcardRegExp(entry) : CamelHumpMatcher::createCamelHumpRegExp(entry);
+
     if (!regexp.isValid())
         return goodEntries;
-    bool hasWildcard = containsWildcard(entry);
 
     QHashIterator<QString, QList<LocatorData::Entry> > it(m_data->entries());
     while (it.hasNext()) {
@@ -78,16 +79,19 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
             if (info.type != LocatorData::Function)
                 continue;
 
-            const int index = hasWildcard ? regexp.indexIn(info.symbolName)
-                                          : matcher.indexIn(info.symbolName);
-            if (index >= 0) {
+            const QRegularExpressionMatch match = regexp.match(info.symbolName);
+            if (match.hasMatch()) {
                 QVariant id = qVariantFromValue(info);
                 Core::LocatorFilterEntry filterEntry(this, info.displayName, id/*, info.icon*/);
+                const CamelHumpMatcher::HighlightingPositions positions =
+                        CamelHumpMatcher::highlightingPositions(match);
                 filterEntry.extraInfo = info.extraInfo;
-                const int length = hasWildcard ? regexp.matchedLength() : entry.length();
-                filterEntry.highlightInfo = {index, length};
+                filterEntry.highlightInfo.starts = positions.starts;
+                filterEntry.highlightInfo.lengths = positions.lengths;
 
-                if (index == 0)
+                if (filterEntry.displayName.startsWith(entry, caseSensitivityForPrefix))
+                    bestEntries.append(filterEntry);
+                else if (filterEntry.displayName.contains(entry, caseSensitivityForPrefix))
                     betterEntries.append(filterEntry);
                 else
                     goodEntries.append(filterEntry);
@@ -99,9 +103,12 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
         Utils::sort(goodEntries, Core::LocatorFilterEntry::compareLexigraphically);
     if (betterEntries.size() < 1000)
         Utils::sort(betterEntries, Core::LocatorFilterEntry::compareLexigraphically);
+    if (bestEntries.size() < 1000)
+        Utils::sort(bestEntries, Core::LocatorFilterEntry::compareLexigraphically);
 
-    betterEntries += goodEntries;
-    return betterEntries;
+    bestEntries += betterEntries;
+    bestEntries += goodEntries;
+    return bestEntries;
 }
 
 void FunctionFilter::accept(Core::LocatorFilterEntry selection,

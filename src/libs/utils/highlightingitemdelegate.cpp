@@ -155,28 +155,37 @@ void HighlightingItemDelegate::drawText(QPainter *painter,
     if (index.model()->hasChildren(index))
         text += " (" + QString::number(index.model()->rowCount(index)) + ')';
 
-    int searchTermStart = index.model()->data(index, int(HighlightingItemRole::StartColumn)).toInt();
-    int searchTermLength = index.model()->data(index, int(HighlightingItemRole::Length)).toInt();
-    if (searchTermStart < 0 || searchTermStart >= text.length() || searchTermLength < 1) {
+    QVector<int> searchTermStarts =
+            index.model()->data(index, int(HighlightingItemRole::StartColumn)).value<QVector<int>>();
+    QVector<int> searchTermLengths =
+            index.model()->data(index, int(HighlightingItemRole::Length)).value<QVector<int>>();
+
+    if (searchTermStarts.isEmpty()) {
         drawDisplay(painter, option, rect, text.replace('\t', m_tabString), {});
         return;
     }
 
     // replace tabs with searchTerm bookkeeping
-    int searchTermEnd = searchTermStart + searchTermLength;
     const int tabDiff = m_tabString.size() - 1;
     for (int i = 0; i < text.length(); i++) {
-        if (text.at(i) == '\t') {
-            text.replace(i, 1, m_tabString);
-            if (i < searchTermStart) {
-                searchTermStart += tabDiff;
-                searchTermEnd += tabDiff;
-            } else if (i < searchTermEnd) {
-                searchTermEnd += tabDiff;
-                searchTermLength += tabDiff;
-            }
-            i += tabDiff;
+        if (text.at(i) != '\t')
+            continue;
+
+        text.replace(i, 1, m_tabString);
+
+        // adjust highlighting length if tab is highlighted
+        for (int j = 0; j < searchTermStarts.size(); ++j) {
+            if (i >= searchTermStarts.at(j) && i < searchTermStarts.at(j) + searchTermLengths.at(j))
+                searchTermLengths[j] += tabDiff;
         }
+
+        // adjust all following highlighting starts
+        for (int j = 0; j < searchTermStarts.size(); ++j) {
+            if (searchTermStarts.at(j) > i)
+                searchTermStarts[j] += tabDiff;
+        }
+
+        i += tabDiff;
     }
 
     const QColor highlightForeground =
@@ -187,7 +196,11 @@ void HighlightingItemDelegate::drawText(QPainter *painter,
     highlightFormat.setForeground(highlightForeground);
     highlightFormat.setBackground(highlightBackground);
 
-    drawDisplay(painter, option, rect, text, {{searchTermStart, searchTermLength, highlightFormat}});
+    QVector<QTextLayout::FormatRange> formats;
+    for (int i = 0, size = searchTermStarts.size(); i < size; ++i)
+        formats.append({searchTermStarts.at(i), searchTermLengths.at(i), highlightFormat});
+
+    drawDisplay(painter, option, rect, text, formats);
 }
 
 // copied from QItemDelegate for drawDisplay

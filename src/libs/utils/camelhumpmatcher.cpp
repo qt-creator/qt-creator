@@ -79,16 +79,19 @@ QRegularExpression CamelHumpMatcher::createCamelHumpRegExp(
             else if (c == asterisk)
                 keyRegExp += ".*";
             else
-                keyRegExp += QRegularExpression::escape(c);
+                keyRegExp += '(' + QRegularExpression::escape(c) + ')';
         } else if (caseSensitivity == CaseSensitivity::CaseInsensitive ||
             (caseSensitivity == CaseSensitivity::FirstLetterCaseSensitive && !first)) {
 
             keyRegExp += "(?:";
             keyRegExp += first ? uppercaseWordFirst : uppercaseWordContinuation;
-            keyRegExp += QRegularExpression::escape(c.toUpper());
-            keyRegExp += '|';
-            keyRegExp += first ? lowercaseWordFirst : lowercaseWordContinuation;
-            keyRegExp += QRegularExpression::escape(c.toLower());
+            keyRegExp += '(' + QRegularExpression::escape(c.toUpper());
+            if (first) {
+                keyRegExp += '|' + lowercaseWordFirst + QRegularExpression::escape(c.toLower()) + ')';
+            } else {
+                keyRegExp += ")|" + lowercaseWordContinuation;
+                keyRegExp += '(' + QRegularExpression::escape(c.toLower()) + ')';
+            }
             keyRegExp += ')';
         } else {
             if (!first) {
@@ -103,4 +106,35 @@ QRegularExpression CamelHumpMatcher::createCamelHumpRegExp(
         first = false;
     }
     return QRegularExpression(keyRegExp);
+}
+
+/*!
+ * \brief Returns a list of matched character positions and their matched lengths for the
+ * given regular expression \a match.
+ *
+ * The list is minimized by combining adjacent highlighting positions to a single position.
+ */
+CamelHumpMatcher::HighlightingPositions CamelHumpMatcher::highlightingPositions(
+        const QRegularExpressionMatch &match)
+{
+    HighlightingPositions result;
+
+    for (int i = 1, size = match.capturedTexts().size(); i < size; ++i) {
+        // skip unused positions, they can appear because upper- and lowercase
+        // checks for one character are done using two capture groups
+        if (match.capturedStart(i) < 0)
+            continue;
+
+        // check for possible highlighting continuation to keep the list minimal
+        if (!result.starts.isEmpty()
+                && (result.starts.last() + result.lengths.last() == match.capturedStart(i))) {
+            result.lengths.last() += match.capturedLength(i);
+        } else {
+            // no continuation, append as different chunk
+            result.starts.append(match.capturedStart(i));
+            result.lengths.append(match.capturedLength(i));
+        }
+    }
+
+    return result;
 }

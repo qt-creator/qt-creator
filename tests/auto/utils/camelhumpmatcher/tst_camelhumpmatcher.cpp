@@ -35,6 +35,8 @@ class tst_CamelHumpMatcher : public QObject
 private slots:
     void camelHumpMatcher();
     void camelHumpMatcher_data();
+    void highlighting();
+    void highlighting_data();
 };
 
 void tst_CamelHumpMatcher::camelHumpMatcher()
@@ -73,6 +75,65 @@ void tst_CamelHumpMatcher::camelHumpMatcher_data()
     QTest::newRow("middle-after-number") << "CH" << "Long1CamelHump" << 5;
     QTest::newRow("middle-after-underscore") << "CH" << "long_camel_hump" << 5;
     QTest::newRow("middle-continued") << "cahu" << "LongCamelHump" << 4;
+}
+
+typedef QVector<int> MatchStart;
+typedef QVector<int> MatchLength;
+
+void tst_CamelHumpMatcher::highlighting()
+{
+    QFETCH(QString, pattern);
+    QFETCH(QString, candidate);
+    QFETCH(MatchStart, matchStart);
+    QFETCH(MatchLength, matchLength);
+
+    const QRegularExpression regExp = CamelHumpMatcher::createCamelHumpRegExp(pattern);
+    const QRegularExpressionMatch match = regExp.match(candidate);
+    const CamelHumpMatcher::HighlightingPositions positions =
+            CamelHumpMatcher::highlightingPositions(match);
+
+    QCOMPARE(positions.starts.size(), matchStart.size());
+    for (int i = 0; i < positions.starts.size(); ++i) {
+        QCOMPARE(positions.starts.at(i), matchStart.at(i));
+        QCOMPARE(positions.lengths.at(i), matchLength.at(i));
+    }
+}
+
+void tst_CamelHumpMatcher::highlighting_data()
+{
+    QTest::addColumn<QString>("pattern");
+    QTest::addColumn<QString>("candidate");
+    QTest::addColumn<MatchStart>("matchStart");
+    QTest::addColumn<MatchLength>("matchLength");
+
+    QTest::newRow("prefix-snake") << "very" << "very_long_camel_hump"
+                                  << MatchStart{0} << MatchLength{4};
+    QTest::newRow("middle-snake") << "long" << "very_long_camel_hump"
+                                  << MatchStart{5} << MatchLength{4};
+    QTest::newRow("suffix-snake") << "hump" << "very_long_camel_hump"
+                                  << MatchStart{16} << MatchLength{4};
+    QTest::newRow("prefix-camel") << "very" << "VeryLongCamelHump"
+                                  << MatchStart{0} << MatchLength{4};
+    QTest::newRow("middle-camel") << "Long" << "VeryLongCamelHump"
+                                  << MatchStart{4} << MatchLength{4};
+    QTest::newRow("suffix-camel") << "Hump" << "VeryLongCamelHump"
+                                  << MatchStart{13} << MatchLength{4};
+    QTest::newRow("humps-camel")  << "vlch" << "VeryLongCamelHump"
+                                  << MatchStart{0, 4, 8, 13} << MatchLength{1, 1, 1, 1};
+    QTest::newRow("humps-camel-lower") << "vlch" << "veryLongCamelHump"
+                                       << MatchStart{0, 4, 8, 13} << MatchLength{1, 1, 1, 1};
+    QTest::newRow("humps-snake") << "vlch" << "very_long_camel_hump"
+                                 << MatchStart{0, 5, 10, 16} << MatchLength{1, 1, 1, 1};
+    QTest::newRow("humps-middle") << "lc" << "VeryLongCamelHump"
+                                  << MatchStart{4, 8} << MatchLength{1, 1};
+    QTest::newRow("humps-last") << "h" << "VeryLongCamelHump"
+                                << MatchStart{13} << MatchLength{1};
+    QTest::newRow("humps-continued") << "LoCa" << "VeryLongCamelHump"
+                                     << MatchStart{4, 8} << MatchLength{2, 2};
+    QTest::newRow("wildcard-asterisk") << "Lo*Hu" << "VeryLongCamelHump"
+                                       << MatchStart{4, 13} << MatchLength{2, 2};
+    QTest::newRow("wildcard-question") << "Lo?g" << "VeryLongCamelHump"
+                                       << MatchStart{4, 7} << MatchLength{2, 1};
 }
 
 QTEST_APPLESS_MAIN(tst_CamelHumpMatcher)

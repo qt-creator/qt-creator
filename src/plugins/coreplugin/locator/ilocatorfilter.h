@@ -46,13 +46,19 @@ struct LocatorFilterEntry
         };
 
         HighlightInfo(int startIndex, int length, DataType type = DataType::DisplayName)
-            : startIndex(startIndex)
-            , length(length)
+            : starts{startIndex}
+            , lengths{length}
             , dataType(type)
         {}
 
-        int startIndex;
-        int length;
+        HighlightInfo(QVector<int> startIndex, QVector<int> length, DataType type = DataType::DisplayName)
+            : starts(startIndex)
+            , lengths(length)
+            , dataType(type)
+        {}
+
+        QVector<int> starts;
+        QVector<int> lengths;
         DataType dataType;
     };
 
@@ -138,6 +144,7 @@ public:
 
     static Qt::CaseSensitivity caseSensitivity(const QString &str);
     static bool containsWildcard(const QString &str);
+    static QRegularExpression createWildcardRegExp(const QString &text);
 
     static QString msgConfigureDialogTitle();
     static QString msgPrefixLabel();
