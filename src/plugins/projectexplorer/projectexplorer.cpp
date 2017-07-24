@@ -3110,7 +3110,7 @@ void ProjectExplorerPluginPrivate::updateLocationSubMenus()
     for (const FolderNode::LocationInfo &li : locations) {
         const int line = li.line;
         const Utils::FileName path = li.path;
-        QAction *action = new QAction(li.displayName);
+        QAction *action = new QAction(li.displayName, nullptr);
         connect(action, &QAction::triggered, this, [line, path]() {
             Core::EditorManager::openEditorAt(path.toString(), line);
         });
