@@ -2,7 +2,14 @@ INCLUDEPATH += $$PWD
 
 HEADERS += \
     $$PWD/clangrefactoringbackend_global.h \
-    $$PWD/sourcerangefilter.h
+    $$PWD/sourcerangefilter.h \
+    $$PWD/symbolscollector.h \
+    $$PWD/symbolentry.h \
+    $$PWD/collectsymbolsconsumer.h \
+    $$PWD/collectsymbolsaction.h \
+    $$PWD/collectmacrossourcefilecallbacks.h \
+    $$PWD/collectsymbolsastvisitor.h \
+    $$PWD/sourcelocationentry.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
@@ -36,4 +43,9 @@ HEADERS += \
 }
 
 SOURCES += \
-    $$PWD/sourcerangefilter.cpp
+    $$PWD/sourcerangefilter.cpp \
+    $$PWD/symbolscollector.cpp \
+    $$PWD/collectsymbolsaction.cpp \
+    $$PWD/collectmacrossourcefilecallbacks.cpp \
+    $$PWD/symbolentry.cpp \
+    $$PWD/sourcelocationentry.cpp

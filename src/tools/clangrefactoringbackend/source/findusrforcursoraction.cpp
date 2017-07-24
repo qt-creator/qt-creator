@@ -27,23 +27,9 @@
 
 #include "findcursorusr.h"
 
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning( disable : 4100 )
-#endif
-
 #include <clang/AST/AST.h>
 #include <clang/AST/ASTConsumer.h>
 #include <clang/AST/ASTContext.h>
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#    pragma warning(pop)
-#endif
 
 #include <algorithm>
 #include <vector>
@@ -54,16 +40,16 @@ namespace {
 
 std::vector<USRName> collectConstructorUnifiedSymbolResolutions(const clang::CXXRecordDecl *declarations)
 {
-  std::vector<USRName> unifiedSymbolResolutions;
+    std::vector<USRName> unifiedSymbolResolutions;
 
-  const auto constructorDeclarations = declarations->getDefinition()->ctors();
+    const auto constructorDeclarations = declarations->getDefinition()->ctors();
 
-  std::transform(constructorDeclarations.begin(),
-                 constructorDeclarations.end(),
-                 std::back_inserter(unifiedSymbolResolutions),
-                 USROfDeclaration);
+    std::transform(constructorDeclarations.begin(),
+                   constructorDeclarations.end(),
+                   std::back_inserter(unifiedSymbolResolutions),
+                   USROfDeclaration);
 
-  return unifiedSymbolResolutions;
+    return unifiedSymbolResolutions;
 }
 
 void addUnifiedSymbolResolutionsForDeclaration(const std::vector<const clang::NamedDecl *> &declarations,
@@ -87,18 +73,18 @@ public:
                              std::vector<USRName> &unifiedSymbolResolutions,
                              uint line,
                              uint column)
-        : symbolName(symbolName),
-          unifiedSymbolResolutions(unifiedSymbolResolutions),
-          line(line),
-          column(column)
+        : m_symbolName(symbolName),
+          m_unifiedSymbolResolutions(unifiedSymbolResolutions),
+          m_line(line),
+          m_column(column)
     {
     }
 
     void HandleTranslationUnit(clang::ASTContext &astContext) override {
         const auto &sourceManager = astContext.getSourceManager();
         const auto cursorSourceLocation = sourceManager.translateLineCol(sourceManager.getMainFileID(),
-                                                                         line,
-                                                                         column);
+                                                                         m_line,
+                                                                         m_column);
 
         if (cursorSourceLocation.isValid())
             collectUnifiedSymbolResoltions(astContext, cursorSourceLocation);
@@ -114,32 +100,29 @@ public:
 
             if (const auto *constructorDecl = clang::dyn_cast<clang::CXXConstructorDecl>(firstFoundDeclaration)) {
                 const clang::CXXRecordDecl *foundDeclarationParent = constructorDecl->getParent();
-                unifiedSymbolResolutions = collectConstructorUnifiedSymbolResolutions(foundDeclarationParent);
+                m_unifiedSymbolResolutions = collectConstructorUnifiedSymbolResolutions(foundDeclarationParent);
             } else if (const auto *destructorDecl = clang::dyn_cast<clang::CXXDestructorDecl>(firstFoundDeclaration)) {
                 const clang::CXXRecordDecl *foundDeclarationParent = destructorDecl->getParent();
-                unifiedSymbolResolutions = collectConstructorUnifiedSymbolResolutions(foundDeclarationParent);
+                m_unifiedSymbolResolutions = collectConstructorUnifiedSymbolResolutions(foundDeclarationParent);
             } else if (const auto *recordDeclaration = clang::dyn_cast<clang::CXXRecordDecl>(firstFoundDeclaration)) {
-                unifiedSymbolResolutions = collectConstructorUnifiedSymbolResolutions(recordDeclaration);
+                m_unifiedSymbolResolutions = collectConstructorUnifiedSymbolResolutions(recordDeclaration);
             }
 
-            addUnifiedSymbolResolutionsForDeclaration(foundDeclarations, unifiedSymbolResolutions);
-            symbolName = firstFoundDeclaration->getNameAsString();
+            addUnifiedSymbolResolutionsForDeclaration(foundDeclarations, m_unifiedSymbolResolutions);
+            m_symbolName = firstFoundDeclaration->getNameAsString();
         }
     }
 
 private:
-    Utils::SmallString &symbolName;
-    std::vector<USRName> &unifiedSymbolResolutions;
-    uint line;
-    uint column;
+    Utils::SmallString &m_symbolName;
+    std::vector<USRName> &m_unifiedSymbolResolutions;
+    uint m_line;
+    uint m_column;
 };
 
 std::unique_ptr<clang::ASTConsumer>
 USRFindingAction::newASTConsumer() {
-  std::unique_ptr<FindDeclarationsConsumer> Consumer(
-      new FindDeclarationsConsumer(symbolName, unifiedSymbolResolutions_, line, column));
-
-  return std::move(Consumer);
+    return std::make_unique<FindDeclarationsConsumer>(m_symbolName, m_unifiedSymbolResolutions, m_line, m_column);
 }
 
 } // namespace ClangBackEnd

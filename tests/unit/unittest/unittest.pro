@@ -68,7 +68,7 @@ SOURCES += \
     spydummy.cpp \
     stringcache-test.cpp \
     unittests-main.cpp \
-    utf8-test.cpp \
+    utf8-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -144,6 +144,7 @@ SOURCES += \
     refactoringengine-test.cpp \
     refactoringserver-test.cpp \
     sourcerangeextractor-test.cpp \
+    symbolscollector-test.cpp \
     symbolfinder-test.cpp \
     testclangtool.cpp \
 }

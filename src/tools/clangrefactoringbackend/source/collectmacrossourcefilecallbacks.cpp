@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,36 +23,13 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include "clangtool.h"
-#include "findusrforcursoraction.h"
-#include "symbollocationfinderaction.h"
-#include "locationsourcefilecallbacks.h"
-
-#include <sourcelocationscontainer.h>
+#include "collectmacrossourcefilecallbacks.h"
 
 namespace ClangBackEnd {
 
-class SymbolFinder : public ClangTool
+CollectMacrosSourceFileCallbacks::CollectMacrosSourceFileCallbacks()
 {
-public:
-    SymbolFinder(uint line, uint column);
 
-    void findSymbol();
-
-    Utils::SmallString takeSymbolName();
-    const std::vector<USRName> &unifiedSymbolResolutions();
-    const SourceLocationsContainer &sourceLocations() const;
-    SourceLocationsContainer takeSourceLocations();
-
-private:
-    Utils::SmallString symbolName;
-    USRFindingAction usrFindingAction;
-    SymbolLocationFinderAction symbolLocationFinderAction;
-    LocationSourceFileCallbacks sourceFileCallbacks;
-
-    ClangBackEnd::SourceLocationsContainer sourceLocations_;
-};
+}
 
 } // namespace ClangBackEnd

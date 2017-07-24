@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,34 +25,32 @@
 
 #pragma once
 
-#include "clangtool.h"
-#include "findusrforcursoraction.h"
-#include "symbollocationfinderaction.h"
-#include "locationsourcefilecallbacks.h"
+#include <utils/smallstring.h>
 
-#include <sourcelocationscontainer.h>
+#include <llvm/ADT/SmallVector.h>
+#include <llvm/ADT/StringRef.h>
+
+#include <limits>
+#include <unordered_map>
+#include <iosfwd>
 
 namespace ClangBackEnd {
 
-class SymbolFinder : public ClangTool
+class SymbolEntry
 {
 public:
-    SymbolFinder(uint line, uint column);
+    SymbolEntry(const llvm::SmallVector<char, 128> &usr,
+                llvm::StringRef name)
+        : usr(usr.data(), usr.size()),
+          symbolName(name.data(), name.size())
+    {}
 
-    void findSymbol();
-
-    Utils::SmallString takeSymbolName();
-    const std::vector<USRName> &unifiedSymbolResolutions();
-    const SourceLocationsContainer &sourceLocations() const;
-    SourceLocationsContainer takeSourceLocations();
-
-private:
+    Utils::PathString usr;
     Utils::SmallString symbolName;
-    USRFindingAction usrFindingAction;
-    SymbolLocationFinderAction symbolLocationFinderAction;
-    LocationSourceFileCallbacks sourceFileCallbacks;
-
-    ClangBackEnd::SourceLocationsContainer sourceLocations_;
 };
+
+using SymbolEntries = std::unordered_map<uint, SymbolEntry>;
+
+std::ostream &operator<<(std::ostream &out, const SymbolEntry &entry);
 
 } // namespace ClangBackEnd

@@ -104,10 +104,10 @@ public:
     clang::tooling::ClangTool createTool() const;
 
 private:
-    RefactoringCompilationDatabase compilationDatabase;
-    std::vector<FileContent> fileContents;
-    std::vector<std::string> sourceFilePaths;
-    std::vector<UnsavedFileContent> unsavedFileContents;
+    RefactoringCompilationDatabase m_compilationDatabase;
+    std::vector<FileContent> m_fileContents;
+    std::vector<std::string> m_sourceFilePaths;
+    std::vector<UnsavedFileContent> m_unsavedFileContents;
 };
 
 } // namespace ClangBackEnd

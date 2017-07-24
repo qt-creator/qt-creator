@@ -47,15 +47,15 @@ void ClangTool::addFile(std::string &&directory,
                            std::string &&content,
                            std::vector<std::string> &&commandLine)
 {
-    fileContents.emplace_back(toNativePath(std::move(directory)),
+    m_fileContents.emplace_back(toNativePath(std::move(directory)),
                               std::move(fileName),
                               std::move(content),
                               std::move(commandLine));
 
-    const auto &fileContent = fileContents.back();
+    const auto &fileContent = m_fileContents.back();
 
-    compilationDatabase.addFile(fileContent.directory, fileContent.fileName, fileContent.commandLine);
-    sourceFilePaths.push_back(fileContent.filePath);
+    m_compilationDatabase.addFile(fileContent.directory, fileContent.fileName, fileContent.commandLine);
+    m_sourceFilePaths.push_back(fileContent.filePath);
 }
 
 template <typename Container>
@@ -86,7 +86,7 @@ void ClangTool::addFiles<Utils::PathStringVector>(const Utils::PathStringVector 
 
 void ClangTool::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
 {
-    unsavedFileContents.reserve(unsavedFileContents.size() + unsavedFiles.size());
+    m_unsavedFileContents.reserve(m_unsavedFileContents.size() + unsavedFiles.size());
 
     auto convertToUnsavedFileContent = [] (const V2::FileContainer &unsavedFile) {
         return UnsavedFileContent{toNativePath(unsavedFile.filePath().path().clone()),
@@ -95,7 +95,7 @@ void ClangTool::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
 
     std::transform(unsavedFiles.begin(),
                    unsavedFiles.end(),
-                   std::back_inserter(unsavedFileContents),
+                   std::back_inserter(m_unsavedFileContents),
                    convertToUnsavedFileContent);
 }
 
@@ -109,14 +109,14 @@ llvm::StringRef toStringRef(const String &string)
 
 clang::tooling::ClangTool ClangTool::createTool() const
 {
-    clang::tooling::ClangTool tool(compilationDatabase, sourceFilePaths);
+    clang::tooling::ClangTool tool(m_compilationDatabase, m_sourceFilePaths);
 
-    for (const auto &fileContent : fileContents) {
+    for (const auto &fileContent : m_fileContents) {
         if (!fileContent.content.empty())
             tool.mapVirtualFile(fileContent.filePath, fileContent.content);
     }
 
-    for (const auto &unsavedFileContent : unsavedFileContents)
+    for (const auto &unsavedFileContent : m_unsavedFileContents)
             tool.mapVirtualFile(toStringRef(unsavedFileContent.filePath),
                                 toStringRef(unsavedFileContent.content));
 

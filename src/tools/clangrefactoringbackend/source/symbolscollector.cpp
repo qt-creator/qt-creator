@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,36 +23,31 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include "clangtool.h"
-#include "findusrforcursoraction.h"
-#include "symbollocationfinderaction.h"
-#include "locationsourcefilecallbacks.h"
-
-#include <sourcelocationscontainer.h>
+#include "symbolscollector.h"
 
 namespace ClangBackEnd {
 
-class SymbolFinder : public ClangTool
+SymbolsCollector::SymbolsCollector(FilePathCache<> &filePathCache)
+    : m_collectSymbolsAction(filePathCache)
 {
-public:
-    SymbolFinder(uint line, uint column);
+}
 
-    void findSymbol();
+void SymbolsCollector::collectSymbols()
+{
+    auto tool = createTool();
 
-    Utils::SmallString takeSymbolName();
-    const std::vector<USRName> &unifiedSymbolResolutions();
-    const SourceLocationsContainer &sourceLocations() const;
-    SourceLocationsContainer takeSourceLocations();
+    tool.run(clang::tooling::newFrontendActionFactory(&m_collectSymbolsAction,
+                                                      &m_collectMacrosSourceFileCallbacks).get());
+}
 
-private:
-    Utils::SmallString symbolName;
-    USRFindingAction usrFindingAction;
-    SymbolLocationFinderAction symbolLocationFinderAction;
-    LocationSourceFileCallbacks sourceFileCallbacks;
+const SymbolEntries &SymbolsCollector::symbols() const
+{
+    return m_collectSymbolsAction.symbols();
+}
 
-    ClangBackEnd::SourceLocationsContainer sourceLocations_;
-};
+const SourceLocationEntries &SymbolsCollector::sourceLocations() const
+{
+    return m_collectSymbolsAction.sourceLocations();
+}
 
 } // namespace ClangBackEnd

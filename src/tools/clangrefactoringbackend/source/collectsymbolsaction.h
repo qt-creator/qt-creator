@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,34 +25,47 @@
 
 #pragma once
 
-#include "clangtool.h"
-#include "findusrforcursoraction.h"
-#include "symbollocationfinderaction.h"
-#include "locationsourcefilecallbacks.h"
+#include "clangrefactoringbackend_global.h"
+#include "sourcelocationentry.h"
+#include "symbolentry.h"
 
-#include <sourcelocationscontainer.h>
+#include <utils/smallstring.h>
+
+#include <stringcachefwd.h>
+
+#include <clang/Frontend/FrontendAction.h>
 
 namespace ClangBackEnd {
 
-class SymbolFinder : public ClangTool
+class CollectSymbolsAction
 {
 public:
-    SymbolFinder(uint line, uint column);
+    CollectSymbolsAction(FilePathCache<> &filePathCache)
+        : m_filePathCache(filePathCache)
+    {}
 
-    void findSymbol();
+    std::unique_ptr<clang::ASTConsumer> newASTConsumer();
 
-    Utils::SmallString takeSymbolName();
-    const std::vector<USRName> &unifiedSymbolResolutions();
-    const SourceLocationsContainer &sourceLocations() const;
-    SourceLocationsContainer takeSourceLocations();
+    SymbolEntries takeSymbols()
+    {
+        return std::move(m_symbolEntries);
+    }
+
+    const SymbolEntries &symbols() const
+    {
+        return m_symbolEntries;
+    }
+
+    const SourceLocationEntries &sourceLocations() const
+    {
+        return m_sourceLocationEntries;
+    }
 
 private:
-    Utils::SmallString symbolName;
-    USRFindingAction usrFindingAction;
-    SymbolLocationFinderAction symbolLocationFinderAction;
-    LocationSourceFileCallbacks sourceFileCallbacks;
+    SymbolEntries m_symbolEntries;
+    SourceLocationEntries m_sourceLocationEntries;
+    FilePathCache<> &m_filePathCache;
 
-    ClangBackEnd::SourceLocationsContainer sourceLocations_;
 };
 
 } // namespace ClangBackEnd

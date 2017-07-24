@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,34 +25,55 @@
 
 #pragma once
 
-#include "clangtool.h"
-#include "findusrforcursoraction.h"
-#include "symbollocationfinderaction.h"
-#include "locationsourcefilecallbacks.h"
+#include <limits>
+#include <vector>
+#include <iosfwd>
 
-#include <sourcelocationscontainer.h>
+using uint = unsigned int;
 
 namespace ClangBackEnd {
 
-class SymbolFinder : public ClangTool
+enum class SymbolType
+{
+    Declaration,
+    DeclarationReference
+};
+
+class LineColumn
 {
 public:
-    SymbolFinder(uint line, uint column);
+    LineColumn(uint line, uint column)
+        : line(line),
+          column(column)
+    {}
 
-    void findSymbol();
-
-    Utils::SmallString takeSymbolName();
-    const std::vector<USRName> &unifiedSymbolResolutions();
-    const SourceLocationsContainer &sourceLocations() const;
-    SourceLocationsContainer takeSourceLocations();
-
-private:
-    Utils::SmallString symbolName;
-    USRFindingAction usrFindingAction;
-    SymbolLocationFinderAction symbolLocationFinderAction;
-    LocationSourceFileCallbacks sourceFileCallbacks;
-
-    ClangBackEnd::SourceLocationsContainer sourceLocations_;
+    uint line =  0;
+    uint column = 0;
 };
+
+class SourceLocationEntry
+{
+public:
+    SourceLocationEntry(uint symbolId,
+                        uint fileId,
+                        LineColumn lineColumn,
+                        SymbolType symbolType)
+        : symbolId(symbolId),
+          fileId(fileId),
+          line(lineColumn.line),
+          column(lineColumn.column),
+          symbolType(symbolType)
+    {}
+
+    uint symbolId = 0;
+    uint fileId = std::numeric_limits<uint>::max();
+    uint line =  0;
+    uint column = 0;
+    SymbolType symbolType;
+};
+
+using SourceLocationEntries = std::vector<SourceLocationEntry>;
+
+std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 
 } // namespace ClangBackEnd

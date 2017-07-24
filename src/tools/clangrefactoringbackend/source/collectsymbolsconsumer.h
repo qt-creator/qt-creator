@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,34 +25,38 @@
 
 #pragma once
 
-#include "clangtool.h"
-#include "findusrforcursoraction.h"
-#include "symbollocationfinderaction.h"
-#include "locationsourcefilecallbacks.h"
+#include "collectsymbolsastvisitor.h"
 
-#include <sourcelocationscontainer.h>
+#include <clang/AST/AST.h>
+#include <clang/AST/ASTConsumer.h>
+#include <clang/AST/ASTContext.h>
+
+#include <stringcachefwd.h>
 
 namespace ClangBackEnd {
 
-class SymbolFinder : public ClangTool
+class CollectSymbolsConsumer : public clang::ASTConsumer
 {
 public:
-    SymbolFinder(uint line, uint column);
+    CollectSymbolsConsumer(SymbolEntries &symbolEntries,
+                           SourceLocationEntries &sourceLocationEntries,
+                           FilePathCache<> &filePathCache)
+        : m_symbolEntries(symbolEntries),
+          m_sourceLocationEntries(sourceLocationEntries),
+          m_filePathCache(filePathCache)
+    {}
 
-    void findSymbol();
-
-    Utils::SmallString takeSymbolName();
-    const std::vector<USRName> &unifiedSymbolResolutions();
-    const SourceLocationsContainer &sourceLocations() const;
-    SourceLocationsContainer takeSourceLocations();
+    void HandleTranslationUnit(clang::ASTContext &astContext) override {
+        CollectSymbolsASTVisitor visitor{m_symbolEntries,
+                                         m_sourceLocationEntries,
+                                         m_filePathCache,
+                                         astContext.getSourceManager()};
+        visitor.TraverseDecl(astContext.getTranslationUnitDecl());
+    }
 
 private:
-    Utils::SmallString symbolName;
-    USRFindingAction usrFindingAction;
-    SymbolLocationFinderAction symbolLocationFinderAction;
-    LocationSourceFileCallbacks sourceFileCallbacks;
-
-    ClangBackEnd::SourceLocationsContainer sourceLocations_;
+    SymbolEntries &m_symbolEntries;
+    SourceLocationEntries &m_sourceLocationEntries;
+    FilePathCache<> &m_filePathCache;
 };
-
-} // namespace ClangBackEnd
+}

@@ -29,21 +29,7 @@
 
 #include <sourcelocationscontainer.h>
 
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning( disable : 4100 )
-#endif
-
 #include <clang/Tooling/Refactoring.h>
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#    pragma warning(pop)
-#endif
 
 namespace clang {
 class ASTConsumer;
@@ -59,22 +45,22 @@ public:
 
   SourceLocationsContainer takeSourceLocations()
   {
-      return std::move(sourceLocations);
+      return std::move(m_sourceLocations);
   }
 
   void setUnifiedSymbolResolutions(std::vector<USRName> &&unifiedSymbolResolutions)
   {
-      unifiedSymbolResolutions_ = std::move(unifiedSymbolResolutions);
+      m_unifiedSymbolResolutions_ = std::move(unifiedSymbolResolutions);
   }
 
   const std::vector<USRName> &unifiedSymbolResolutions() const
   {
-      return unifiedSymbolResolutions_;
+      return m_unifiedSymbolResolutions_;
   }
 
 private:
-  ClangBackEnd::SourceLocationsContainer sourceLocations;
-  std::vector<USRName> unifiedSymbolResolutions_;
+  ClangBackEnd::SourceLocationsContainer m_sourceLocations;
+  std::vector<USRName> m_unifiedSymbolResolutions_;
 };
 
 } // namespace ClangBackEnd
