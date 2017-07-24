@@ -94,7 +94,7 @@ runCodeCompletion()
     if [ -n "${CINDEXTEST_EXEC}" ]; then
         command="${CINDEXTEST_EXEC} -code-completion-at=${FILE}:${LINE}:${COLUMN} ${FILE}"
     else
-        command="${CLANG_EXEC} -cc1 -code-completion-at ${FILE}:${LINE}:${COLUMN} ${FILE}"
+        command="${CLANG_EXEC} -fsyntax-only -Xclang -code-completion-at -Xclang ${FILE}:${LINE}:${COLUMN} ${FILE}"
     fi
     echo "Command: $command"
     eval $command
