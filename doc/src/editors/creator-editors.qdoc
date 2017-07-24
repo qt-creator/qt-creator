@@ -187,10 +187,34 @@
 
     \endlist
 
-    In addition, you can run static checks on the QML and JavaScript code in
-    your project to find common problems.
+    When using the Clang code model, errors and warnings are additionally marked
+    with icons and annotated. If a \l{http://clang.llvm.org/diagnostics.html}
+    {Clang fix-it} is available, you can execute it by clicking the
+    \inlineimage refactormarker.png
+    icon and pressing \key Enter.
+
+    In the following figure, a semicolon is missing at the end of the
+    line.
+
+    \image qtcreator-syntaxerror-clang.png
+
+    In the following figure, the variable is not used.
+
+    \image qtcreator-semanticerror-clang.png
+
+    To specify the position where the annotations are displayed, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol Display > \uicontrol {Annotations next to lines}, and then
+    select whether to display the annotations directly next to the code,
+    aligned to the right of the code, or in the right margin.
+
+    If you hide the annotations by deselecting the check box, you can move the
+    mouse pointer over an icon to view them.
 
     \section1 Checking JSON Data Structure
+
+    You can run static checks on the QML and JavaScript code in
+    your project to find common problems.
 
     \QC validates instances of JSON entities against
     \l{http://tools.ietf.org/html/draft-zyp-json-schema-03}
