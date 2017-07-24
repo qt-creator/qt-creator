@@ -67,6 +67,10 @@ private:
     void handleProgress(int min, int cur, int max, const QString &inReplyTo);
     void handleSignal(const QString &signal, const QVariantMap &data);
 
+    int calculateProgress(const int minRange, const int min,
+                          const int cur,
+                          const int max, const int maxRange);
+
     struct Target;
     struct Project;
 
@@ -151,6 +155,10 @@ private:
     QList<FileGroup *> m_fileGroups;
 
     CMakeParser m_parser;
+
+#if defined(WITH_TESTS)
+    friend class CMakeProjectPlugin;
+#endif
 };
 
 } // namespace Internal
