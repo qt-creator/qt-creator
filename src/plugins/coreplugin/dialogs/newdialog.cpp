@@ -376,14 +376,16 @@ static QIcon iconWithText(const QIcon &icon, const QString &text)
     QIcon iconWithText;
     for (const QSize &pixmapSize : icon.availableSizes()) {
         QPixmap pixmap = icon.pixmap(pixmapSize);
+        const int fontSize = pixmap.height() / 4;
+        const int margin = pixmap.height() / 8;
         QFont font;
-        font.setPixelSize(qMin(pixmap.height(), pixmap.width()) / 5);
+        font.setPixelSize(fontSize);
+        font.setStretch(85);
         QPainter p(&pixmap);
-        p.setPen(qRgb(0x6b, 0x70, 0x80));
         p.setFont(font);
         QTextOption textOption(Qt::AlignHCenter | Qt::AlignBottom);
         textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-        p.drawText(pixmap.rect().adjusted(9, 10, -9, -10), text, textOption);
+        p.drawText(pixmap.rect().adjusted(margin, margin, -margin, -margin), text, textOption);
         iconWithText.addPixmap(pixmap);
     }
     return iconWithText;
