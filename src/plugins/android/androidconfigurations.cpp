@@ -347,8 +347,10 @@ void AndroidConfig::updateAvailableSdkPlatforms() const
 
     m_availableSdkPlatforms.clear();
     AndroidSdkManager sdkManager(*this);
-    m_availableSdkPlatforms = sdkManager.availableSdkPlatforms();
-    m_availableSdkPlatformsUpToDate = true;
+    bool success = false;
+    m_availableSdkPlatforms = sdkManager.availableSdkPlatforms(&success);
+    if (success)
+        m_availableSdkPlatformsUpToDate = true;
 }
 
 QStringList AndroidConfig::apiLevelNamesFor(const QList<SdkPlatform> &platforms)
@@ -358,7 +360,7 @@ QStringList AndroidConfig::apiLevelNamesFor(const QList<SdkPlatform> &platforms)
 
 QString AndroidConfig::apiLevelNameFor(const SdkPlatform &platform)
 {
-    return QLatin1String("android-") + QString::number(platform.apiLevel);
+    return platform.apiLevel > 0 ? QString("android-%1").arg(platform.apiLevel) : "";
 }
 
 QList<SdkPlatform> AndroidConfig::sdkTargets(int minApiLevel) const

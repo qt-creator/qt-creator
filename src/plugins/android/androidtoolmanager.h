@@ -48,7 +48,7 @@ public:
     AndroidToolManager(const AndroidConfig &config);
     ~AndroidToolManager();
 
-    SdkPlatformList availableSdkPlatforms() const;
+    SdkPlatformList availableSdkPlatforms(bool *ok = nullptr) const;
     void launchAvdManager() const;
 
     QFuture<AndroidConfig::CreateAvdInfo> createAvd(AndroidConfig::CreateAvdInfo info) const;

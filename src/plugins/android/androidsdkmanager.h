@@ -40,7 +40,7 @@ public:
     AndroidSdkManager(const AndroidConfig &config);
     ~AndroidSdkManager();
 
-    SdkPlatformList availableSdkPlatforms();
+    SdkPlatformList availableSdkPlatforms(bool *ok = nullptr);
 
 private:
     const AndroidConfig &m_config;

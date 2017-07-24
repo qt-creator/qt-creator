@@ -158,6 +158,13 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
         return true;
     }
 
+    QString buildTargetSdk = AndroidManager::buildTargetSDK(target());
+    if (buildTargetSdk.isEmpty()) {
+        emit addOutput(tr("Android build SDK not defined. Check Android settings."),
+                       OutputFormat::Stderr);
+        return false;
+    }
+
     QStringList arguments;
     arguments << QLatin1String("--input")
               << inputFile

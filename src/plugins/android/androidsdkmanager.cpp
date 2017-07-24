@@ -50,6 +50,8 @@ const char installLocationKey[] = "Installed Location:";
 const char apiLevelPropertyKey[] = "AndroidVersion.ApiLevel";
 const char abiPropertyKey[] = "SystemImage.Abi";
 
+const int sdkManagerCmdTimeoutS = 60;
+
 using namespace Utils;
 
 /*!
@@ -72,11 +74,14 @@ static bool valueForKey(QString key, const QString &line, QString *value = nullp
     \c true if the command is successfully executed. Output is copied into \a output. The function
     blocks the calling thread.
  */
-static bool sdkManagerCommand(const AndroidConfig config, const QStringList &args, QString *output)
+static bool sdkManagerCommand(const AndroidConfig config, const QStringList &args, QString *output,
+                              int timeout = sdkManagerCmdTimeoutS)
 {
     QString sdkManagerToolPath = config.sdkManagerToolPath().toString();
     SynchronousProcess proc;
-    SynchronousProcessResponse response = proc.runBlocking(sdkManagerToolPath, args);
+    proc.setTimeoutS(timeout);
+    proc.setTimeOutMessageBoxEnabled(true);
+    SynchronousProcessResponse response = proc.run(sdkManagerToolPath, args);
     if (response.result == SynchronousProcessResponse::Finished) {
         if (output)
             *output = response.allOutput();
@@ -132,10 +137,6 @@ AndroidSdkManager::AndroidSdkManager(const AndroidConfig &config):
     m_config(config),
     m_parser(new SdkManagerOutputParser)
 {
-    QString packageListing;
-    if (sdkManagerCommand(config, QStringList({"--list", "--verbose"}), &packageListing)) {
-        m_parser->parsePackageListing(packageListing);
-    }
 }
 
 AndroidSdkManager::~AndroidSdkManager()
@@ -143,13 +144,20 @@ AndroidSdkManager::~AndroidSdkManager()
 
 }
 
-SdkPlatformList AndroidSdkManager::availableSdkPlatforms()
+SdkPlatformList AndroidSdkManager::availableSdkPlatforms(bool *ok)
 {
+    bool success = false;
     if (m_config.sdkToolsVersion() < sdkManagerIntroVersion) {
         AndroidToolManager toolManager(m_config);
-        return toolManager.availableSdkPlatforms();
+        return toolManager.availableSdkPlatforms(ok);
     }
 
+    QString packageListing;
+    if (sdkManagerCommand(m_config, QStringList({"--list", "--verbose"}), &packageListing))
+        m_parser->parsePackageListing(packageListing);
+
+    if (ok)
+        *ok = success;
     return m_parser->m_installedPlatforms;
 }
 
