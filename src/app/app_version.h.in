@@ -42,7 +42,7 @@ namespace Constants {
 const char * const IDE_VERSION_LONG      = IDE_VERSION_STR;
 const char * const IDE_VERSION_DISPLAY   = STRINGIFY(IDE_VERSION_DISPLAY_DEF);
 const char * const IDE_AUTHOR            = \"The Qt Company Ltd\";
-const char * const IDE_YEAR              = \"2017\";
+const char * const IDE_YEAR              = \"$${QTCREATOR_COPYRIGHT_YEAR}\";
 
 #ifdef IDE_REVISION
 const char * const IDE_REVISION_STR      = STRINGIFY(IDE_REVISION);
