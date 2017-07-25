@@ -280,6 +280,8 @@ static QList<Abi> guessGccAbi(const QString &m, const QByteArray &macros)
         width = 64;
     else if (macros.contains("#define __SIZEOF_SIZE_T__ 4"))
         width = 32;
+    else if (macros.contains("#define __SIZEOF_SIZE_T__ 2"))
+        width = 16;
     int mscVerIndex = macros.indexOf(mscVer);
     if (mscVerIndex != -1) {
         mscVerIndex += mscVer.length();
