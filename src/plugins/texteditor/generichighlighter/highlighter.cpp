@@ -109,6 +109,11 @@ static TextStyle styleForFormat(int format)
     case Highlighter::Others: return C_TEXT;
     case Highlighter::Identifier: return C_LOCAL;
     case Highlighter::Documentation: return C_DOXYGEN_COMMENT;
+    case Highlighter::ControlFlow: return C_KEYWORD;
+    case Highlighter::Preprocessor: return C_PREPROCESSOR;
+    case Highlighter::VerbatimString: return C_STRING;
+    case Highlighter::SpecialString: return C_STRING;
+    case Highlighter::Constant: return C_KEYWORD;
     case Highlighter::TextFormatIdCount:
         QTC_CHECK(false); // should never get here
         return C_TEXT;
@@ -168,6 +173,11 @@ KateFormatMap::KateFormatMap()
     m_ids.insert(QLatin1String("dsOthers"), Highlighter::Others);
     m_ids.insert(QLatin1String("dsIdentifier"), Highlighter::Identifier);
     m_ids.insert(QLatin1String("dsDocumentation"), Highlighter::Documentation);
+    m_ids.insert(QLatin1String("dsControlFlow"), Highlighter::ControlFlow);
+    m_ids.insert(QLatin1String("dsPreprocessor"), Highlighter::Preprocessor);
+    m_ids.insert(QLatin1String("dsVerbatimString"), Highlighter::VerbatimString);
+    m_ids.insert(QLatin1String("dsSpecialString"), Highlighter::SpecialString);
+    m_ids.insert(QLatin1String("dsConstant"), Highlighter::Constant);
 }
 
 Q_GLOBAL_STATIC(KateFormatMap, kateFormatMap)
