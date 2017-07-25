@@ -756,6 +756,13 @@ void ModelController::moveObject(MPackage *newOwner, MObject *object)
     QMT_CHECK(object);
     QMT_CHECK(object != m_rootPackage);
 
+    // verify that newOwner is not a child of object
+    MObject *newOwnerObject = newOwner;
+    while (newOwnerObject && newOwnerObject != object)
+        newOwnerObject = newOwnerObject->owner();
+    if (newOwnerObject == object)
+        return;
+
     if (newOwner != object->owner()) {
         int formerRow = 0;
         MObject *formerOwner = object->owner();
