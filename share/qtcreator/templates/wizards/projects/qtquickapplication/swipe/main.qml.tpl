@@ -1,43 +1,39 @@
 import QtQuick %{QtQuickVersion}
-import QtQuick.Controls %{QtQuickControls2Version}
-import QtQuick.Layouts %{QtQuickLayoutsVersion}
+import QtQuick.Controls %{QtQuickControlsVersion}
 @if %{UseVirtualKeyboard}
-import QtQuick.VirtualKeyboard %{QtQuickVirtualKeyboardVersion}
+import %{QtQuickVirtualKeyboardImport}
 @endif
 
 ApplicationWindow {
+@if %{UseVirtualKeyboard}
+    id: window
+@endif
     visible: true
     width: 640
     height: 480
-    title: qsTr("Hello World")
-@if %{UseVirtualKeyboard}
-    id: root
-@endif
+    title: qsTr("Tabs")
 
     SwipeView {
         id: swipeView
         anchors.fill: parent
         currentIndex: tabBar.currentIndex
 
-        Page1 {
+        Page1Form {
         }
 
-        Page {
-            Label {
-                text: qsTr("Second page")
-                anchors.centerIn: parent
-            }
+        Page2Form {
         }
     }
 
     footer: TabBar {
         id: tabBar
         currentIndex: swipeView.currentIndex
+
         TabButton {
-            text: qsTr("First")
+            text: qsTr("Page 1")
         }
         TabButton {
-            text: qsTr("Second")
+            text: qsTr("Page 2")
         }
     }
 @if %{UseVirtualKeyboard}
@@ -46,15 +42,15 @@ ApplicationWindow {
         id: inputPanel
         z: 99
         x: 0
-        y: root.height
-        width: root.width
+        y: window.height
+        width: window.width
 
         states: State {
             name: "visible"
             when: inputPanel.active
             PropertyChanges {
                 target: inputPanel
-                y: root.height - inputPanel.height
+                y: window.height - inputPanel.height
             }
         }
         transitions: Transition {
