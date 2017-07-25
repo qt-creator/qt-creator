@@ -6,6 +6,7 @@
     "trDescription": "Creates a C++ source file that you can add to a C++ project.",
     "trDisplayName": "C++ Source File",
     "trDisplayCategory": "C++",
+    "iconText": "cpp",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('CppEditor') >= 0}",
 
     "options": { "key": "FileName", "value": "%{JS: Cpp.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('text/x-c++src')}')}" },

@@ -61,6 +61,8 @@ static QIcon testResultIcon(Result::Type result) {
         Icons::RESULT_MESSAGEWARN.icon(),
         Icons::RESULT_MESSAGEFATAL.icon(),
         Icons::RESULT_MESSAGEFATAL.icon(), // System gets same handling as Fatal for now
+        Icons::RESULT_MESSAGEPASSWARN.icon(),
+        Icons::RESULT_MESSAGEFAILWARN.icon(),
     }; // provide an icon for unknown??
 
     if (result < 0 || result >= Result::MessageInternal) {
@@ -69,8 +71,10 @@ static QIcon testResultIcon(Result::Type result) {
             return icons[Result::Pass];
         case Result::MessageTestCaseFail:
             return icons[Result::Fail];
-        case Result::MessageTestCaseWarn:
-            return icons[Result::MessageWarn];
+        case Result::MessageTestCaseSuccessWarn:
+            return icons[13];
+        case Result::MessageTestCaseFailWarn:
+            return icons[14];
         default:
             return QIcon();
         }
@@ -103,6 +107,7 @@ void TestResultItem::updateResult()
         return;
 
     Result::Type newResult = Result::MessageTestCaseSuccess;
+    bool withWarning = false;
     for (Utils::TreeItem *child : *this) {
         const TestResult *current = static_cast<TestResultItem *>(child)->testResult();
         if (current) {
@@ -111,21 +116,28 @@ void TestResultItem::updateResult()
             case Result::MessageFatal:
             case Result::UnexpectedPass:
             case Result::MessageTestCaseFail:
-                m_testResult->setResult(Result::MessageTestCaseFail);
-                return;
+                newResult = Result::MessageTestCaseFail;
+                break;
             case Result::ExpectedFail:
             case Result::MessageWarn:
             case Result::Skip:
             case Result::BlacklistedFail:
             case Result::BlacklistedPass:
-            case Result::MessageTestCaseWarn:
-                newResult = Result::MessageTestCaseWarn;
+            case Result::MessageTestCaseSuccessWarn:
+            case Result::MessageTestCaseFailWarn:
+                withWarning = true;
                 break;
             default: {}
             }
         }
     }
-    m_testResult->setResult(newResult);
+    if (withWarning) {
+        m_testResult->setResult(newResult == Result::MessageTestCaseSuccess
+                                ? Result::MessageTestCaseSuccessWarn
+                                : Result::MessageTestCaseFailWarn);
+    } else {
+        m_testResult->setResult(newResult);
+    }
 }
 
 void TestResultItem::updateIntermediateChildren()
@@ -295,11 +307,13 @@ TestResultItem *TestResultModel::findParentItemFor(const TestResultItem *item,
     TestResultItem *root = startItem ? const_cast<TestResultItem *>(startItem) : nullptr;
     const TestResult *result = item->testResult();
     const QString &name = result->name();
+    const QString &executable = result->executable();
 
     if (root == nullptr && !name.isEmpty()) {
         for (int row = rootItem()->childCount() - 1; row >= 0; --row) {
             TestResultItem *tmp = static_cast<TestResultItem *>(rootItem()->childAt(row));
-            if (tmp->testResult()->name() == name) {
+            auto tmpTestResult = tmp->testResult();
+            if (tmpTestResult->executable() == executable && tmpTestResult->name() == name) {
                 root = tmp;
                 break;
             }
@@ -344,8 +358,9 @@ void TestResultFilterModel::enableAllResultTypes()
               << Result::MessageFatal << Result::Invalid << Result::BlacklistedPass
               << Result::BlacklistedFail << Result::Benchmark << Result::MessageIntermediate
               << Result::MessageCurrentTest << Result::MessageTestCaseStart
-              << Result::MessageTestCaseSuccess << Result::MessageTestCaseWarn
-              << Result::MessageTestCaseFail << Result::MessageTestCaseEnd
+              << Result::MessageTestCaseSuccess << Result::MessageTestCaseSuccessWarn
+              << Result::MessageTestCaseFail << Result::MessageTestCaseFailWarn
+              << Result::MessageTestCaseEnd
               << Result::MessageInfo << Result::MessageSystem;
     invalidateFilter();
 }
@@ -393,7 +408,8 @@ bool TestResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
     case Result::MessageTestCaseSuccess:
         return m_enabled.contains(Result::Pass);
     case Result::MessageTestCaseFail:
-    case Result::MessageTestCaseWarn:
+    case Result::MessageTestCaseSuccessWarn:
+    case Result::MessageTestCaseFailWarn:
         return acceptTestCaseResult(index);
     default:
         return m_enabled.contains(resultType);
@@ -407,7 +423,8 @@ bool TestResultFilterModel::acceptTestCaseResult(const QModelIndex &srcIndex) co
         Result::Type type = m_sourceModel->testResult(child)->result();
         if (type == Result::MessageTestCaseSuccess)
             type = Result::Pass;
-        if (type == Result::MessageTestCaseFail || type == Result::MessageTestCaseWarn) {
+        if (type == Result::MessageTestCaseFail || type == Result::MessageTestCaseFailWarn
+                || type == Result::MessageTestCaseSuccessWarn) {
             if (acceptTestCaseResult(child))
                 return true;
         } else if (m_enabled.contains(type)) {

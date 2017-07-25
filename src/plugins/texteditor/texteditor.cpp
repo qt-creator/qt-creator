@@ -393,7 +393,7 @@ public:
                            bool expanded,
                            bool active,
                            bool hovered) const;
-    void drawLineAnnotation(QPainter &painter, const QTextBlock &block);
+    void drawLineAnnotation(QPainter &painter, const QTextBlock &block, qreal start);
 
     void toggleBlockVisible(const QTextBlock &block);
     QRect foldBox();
@@ -484,6 +484,7 @@ public:
     Id m_tabSettingsId;
     ICodeStylePreferences *m_codeStylePreferences = nullptr;
     DisplaySettings m_displaySettings;
+    bool m_annotationsrRight = true;
     MarginSettings m_marginSettings;
     // apply when making visible the first time, for the split case
     bool m_fontSettingsNeedsApply = true;
@@ -506,6 +507,7 @@ public:
         const TextMark *mark;
     };
     QMap<int, QList<AnnotationRect>> m_annotationRects;
+    QRectF getLastLineLineRect(const QTextBlock &block);
 
     RefactorOverlay *m_refactorOverlay = nullptr;
     QString m_contextHelpId;
@@ -3788,7 +3790,41 @@ static QTextLayout::FormatRange createBlockCursorCharFormatRange(int pos, const 
     return o;
 }
 
-void TextEditorWidgetPrivate::drawLineAnnotation(QPainter &painter, const QTextBlock &block)
+static TextMarks availableMarks(const TextMarks &marks,
+                                QRectF &boundingRect,
+                                const QFontMetrics &fm,
+                                const qreal itemOffset)
+{
+    TextMarks ret;
+    bool first = true;
+    for (TextMark *mark : marks) {
+        const TextMark::AnnotationRects &rects = mark->annotationRects(
+                    boundingRect, fm, first ? 0 : itemOffset, 0);
+        if (rects.annotationRect.isEmpty())
+            break;
+        boundingRect.setLeft(rects.fadeOutRect.right());
+        ret.append(mark);
+        if (boundingRect.isEmpty())
+            break;
+        first = false;
+    }
+    return ret;
+}
+
+QRectF TextEditorWidgetPrivate::getLastLineLineRect(const QTextBlock &block)
+{
+    const QTextLayout *layout = block.layout();
+    const int lineCount = layout->lineCount();
+    if (lineCount < 1)
+        return QRectF();
+    const QTextLine line = layout->lineAt(lineCount - 1);
+    const QPointF contentOffset = q->contentOffset();
+    const qreal top = q->blockBoundingGeometry(block).translated(contentOffset).top();
+    return line.naturalTextRect().translated(contentOffset.x(), top).adjusted(0, 0, -1, -1);
+}
+
+void TextEditorWidgetPrivate::drawLineAnnotation(
+        QPainter &painter, const QTextBlock &block, qreal rightMargin)
 {
     if (!m_displaySettings.m_displayAnnotations)
         return;
@@ -3801,30 +3837,44 @@ void TextEditorWidgetPrivate::drawLineAnnotation(QPainter &painter, const QTextB
     if (marks.isEmpty())
         return;
 
-    const QTextLayout *layout = block.layout();
-    const int lineCount = layout->lineCount();
-    if (lineCount < 1)
+    const QRectF lineRect = getLastLineLineRect(block);
+    if (lineRect.isNull())
         return;
-    const QTextLine line = layout->lineAt(lineCount - 1);
-    const QPointF contentOffset = q->contentOffset();
-    const qreal top = q->blockBoundingGeometry(block).translated(contentOffset).top();
-    const QRectF lineRect =
-            line.naturalTextRect().translated(contentOffset.x(), top).adjusted(0, 0, -1, -1);
 
     Utils::sort(marks, [](const TextMark* mark1, const TextMark* mark2){
         return mark1->priority() > mark2->priority();
     });
 
     const qreal itemOffset = q->fontMetrics().lineSpacing();
-    qreal x = lineRect.right() + itemOffset * 2;
+    const qreal initialOffset = itemOffset * 2;
+    const qreal minimalContentWidth = q->fontMetrics().width('X')
+            * m_displaySettings.m_minimalAnnotationContent;
+    QRectF boundingRect(lineRect.topLeft().x(), lineRect.topLeft().y(),
+                        q->viewport()->width() - lineRect.right(), lineRect.height());
+    qreal offset = initialOffset;
+    if (marks.isEmpty())
+        return;
+    if (m_displaySettings.m_annotationAlignment == AnnotationAlignment::NextToMargin
+                   && rightMargin > lineRect.right() + offset
+                   && q->viewport()->width() > rightMargin + minimalContentWidth) {
+            offset = rightMargin - lineRect.right();
+    } else if (m_displaySettings.m_annotationAlignment != AnnotationAlignment::NextToContent) {
+        marks = availableMarks(marks, boundingRect, q->fontMetrics(), itemOffset);
+        if (boundingRect.width() > 0)
+            offset = qMax(boundingRect.width(), initialOffset);
+    }
 
+    qreal x = lineRect.right();
     for (const TextMark *mark : marks) {
-        QRectF annotationRect(x, lineRect.top(), q->viewport()->width() - x, lineRect.height());
-        if (annotationRect.width() <= 0)
+        boundingRect = QRectF(x, lineRect.top(), q->viewport()->width() - x, lineRect.height());
+        if (boundingRect.isEmpty())
             break;
-        mark->paintAnnotation(&painter, &annotationRect);
-        x += annotationRect.width() + itemOffset;
-        m_annotationRects[block.blockNumber()].append({annotationRect, mark});
+
+        // paint annotation
+        mark->paintAnnotation(painter, &boundingRect, offset, itemOffset / 2);
+        x = boundingRect.right();
+        offset = itemOffset / 2;
+        m_annotationRects[block.blockNumber()].append({boundingRect, mark});
     }
 }
 
@@ -4469,7 +4519,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                 painter.restore();
             }
         }
-        d->drawLineAnnotation(painter, block);
+        d->drawLineAnnotation(painter, block, lineX < viewportRect.width() ? lineX : 0);
 
         block = nextVisibleBlock;
         top = bottom;
@@ -5287,6 +5337,11 @@ void TextEditorWidget::showDefaultContextMenu(QContextMenuEvent *e, Id menuConte
     appendMenuActionsFromContext(&menu, menuContextId);
     appendStandardContextMenuActions(&menu);
     menu.exec(e->globalPos());
+}
+
+void TextEditorWidget::addHoverHandler(BaseHoverHandler *handler)
+{
+    d->m_hoverHandlers.append(handler);
 }
 
 void TextEditorWidget::extraAreaLeaveEvent(QEvent *)

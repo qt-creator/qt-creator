@@ -23,30 +23,24 @@
 **
 ****************************************************************************/
 
-#include "clangquerytexteditorwidget.h"
+#pragma once
 
-#include "clangqueryhighlighter.h"
-#include "clangqueryhoverhandler.h"
-
-#include <texteditor/textdocument.h>
+#include <texteditor/basehoverhandler.h>
 
 namespace ClangRefactoring {
 
-ClangQueryTextEditorWidget::ClangQueryTextEditorWidget(QWidget *parent)
-    : BaseClangQueryTextEditorWidget(parent),
-      m_syntaxHighlighter(new ClangQueryHighlighter),
-      m_hoverHandler(std::make_unique<ClangQueryHoverHandler>(m_syntaxHighlighter))
+class ClangQueryHighlighter;
+
+class ClangQueryHoverHandler : public TextEditor::BaseHoverHandler
 {
-    textDocument()->setSyntaxHighlighter(m_syntaxHighlighter);
+public:
+    ClangQueryHoverHandler(ClangQueryHighlighter *highligher);
 
-    addHoverHandler(m_hoverHandler.get());
-}
+protected:
+    void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int position) override;
 
-ClangQueryTextEditorWidget::~ClangQueryTextEditorWidget() = default;
-
-ClangQueryHighlighter *ClangQueryTextEditorWidget::syntaxHighlighter() const
-{
-    return m_syntaxHighlighter;
-}
+private:
+    ClangQueryHighlighter *m_highligher;
+};
 
 } // namespace ClangRefactoring

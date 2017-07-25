@@ -60,6 +60,8 @@ using testing::IsNull;
 using testing::NotNull;
 using testing::Gt;
 using testing::Contains;
+using testing::ElementsAre;
+using testing::_;
 using testing::EndsWith;
 using testing::AllOf;
 using testing::Not;
@@ -94,6 +96,14 @@ MATCHER_P2(HasTwoTypes, firstType, secondType,
            )
 {
     return arg.hasMainType(firstType) && arg.hasMixinType(secondType);
+}
+
+MATCHER_P(HasMixin, firstType,
+          std::string(negation ? "isn't " : "is ")
+          + PrintToString(firstType)
+          )
+{
+    return  arg.hasMixinType(firstType);
 }
 
 struct Data {
@@ -998,7 +1008,17 @@ TEST_F(HighlightingMarks, NonConstPointerArgument)
     infos[1];
 
     ASSERT_THAT(infos[2],
-                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
+                HasOnlyType(HighlightingType::LocalVariable));
+}
+
+TEST_F(HighlightingMarks, PointerToConstArgument)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(490, 31));
+
+    infos[1];
+
+    ASSERT_THAT(infos[2],
+                HasOnlyType(HighlightingType::LocalVariable));
 }
 
 TEST_F(HighlightingMarks, ConstPointerArgument)
@@ -1009,6 +1029,23 @@ TEST_F(HighlightingMarks, ConstPointerArgument)
 
     ASSERT_THAT(infos[2],
                 HasOnlyType(HighlightingType::LocalVariable));
+}
+
+TEST_F(HighlightingMarks, NonConstPointerGetterAsArgument)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(580, 41));
+
+    ASSERT_THAT(infos,
+                ElementsAre(_,
+                            _,
+                            HasMixin(HighlightingType::OutputArgument),
+                            HasMixin(HighlightingType::OutputArgument),
+                            HasMixin(HighlightingType::OutputArgument),
+                            HasMixin(HighlightingType::OutputArgument),
+                            HasMixin(HighlightingType::OutputArgument),
+                            _,
+                            _,
+                            _));
 }
 
 TEST_F(HighlightingMarks, NonConstReferenceArgumentCallInsideCall)
@@ -1048,7 +1085,7 @@ TEST_F(HighlightingMarks, NonConstPointerArgumentAsExpression)
     infos[1];
 
     ASSERT_THAT(infos[3],
-                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
+                HasOnlyType(HighlightingType::LocalVariable));
 }
 
 TEST_F(HighlightingMarks, NonConstPointerArgumentAsInstanceWithMember)

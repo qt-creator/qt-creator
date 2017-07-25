@@ -33,8 +33,8 @@ namespace ClangBackEnd {
 QDebug operator<<(QDebug debug, const DynamicASTMatcherDiagnosticMessageContainer &container)
 {
     debug.nospace() << "DynamicASTMatcherDiagnosticMessageContainer("
-                    << container.sourceRange() << ", "
                     << container.errorTypeText() << ", "
+                    << container.sourceRange() << ", "
                     << container.arguments()
                     << ")";
 

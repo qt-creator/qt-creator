@@ -6,6 +6,7 @@
     "trDescription": "Creates a Qt Quick Designer UI form along with a matching QML file for implementation purposes. You can add the form and file to an existing Qt Quick Project.",
     "trDisplayName": "QtQuick UI File",
     "trDisplayCategory": "Qt",
+    "iconText": "ui.qml",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuick.UiFiles" ],
     "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlJSEditor') >= 0}",
 

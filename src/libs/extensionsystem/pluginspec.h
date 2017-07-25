@@ -131,6 +131,8 @@ public:
     bool hasError() const;
     QString errorString() const;
 
+    static bool readMultiLineString(const QJsonValue &value, QString *out);
+
 private:
     PluginSpec();
 

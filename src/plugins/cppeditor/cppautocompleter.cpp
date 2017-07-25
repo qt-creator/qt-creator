@@ -27,15 +27,20 @@
 
 #include <cplusplus/MatchingText.h>
 
+#include <texteditor/tabsettings.h>
+
+#include <QTextBlock>
 #include <QTextCursor>
 
 using namespace CppEditor;
 using namespace Internal;
 
 bool CppAutoCompleter::contextAllowsAutoBrackets(const QTextCursor &cursor,
-                                                    const QString &textToInsert) const
+                                                 const QString &textToInsert) const
 {
-    return CPlusPlus::MatchingText::contextAllowsAutoParentheses(cursor, textToInsert);
+    const CPlusPlus::MatchingText::IsNextBlockDeeperIndented isIndented
+            = [this](const QTextBlock &b) { return isNextBlockIndented(b); };
+    return CPlusPlus::MatchingText::contextAllowsAutoParentheses(cursor, textToInsert, isIndented);
 }
 
 bool CppAutoCompleter::contextAllowsAutoQuotes(const QTextCursor &cursor,

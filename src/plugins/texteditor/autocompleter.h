@@ -31,6 +31,7 @@
 #include <QString>
 
 QT_BEGIN_NAMESPACE
+class QTextBlock;
 class QTextCursor;
 QT_END_NAMESPACE
 
@@ -90,6 +91,7 @@ public:
     virtual QString insertParagraphSeparator(const QTextCursor &cursor) const;
 
     static bool isQuote(const QString &text);
+    bool isNextBlockIndented(const QTextBlock &currentBlock) const;
 
 private:
     QString replaceSelection(QTextCursor &cursor, const QString &textToInsert) const;

@@ -150,6 +150,24 @@ bool AutoCompleter::isQuote(const QString &text)
     return text == QLatin1String("\"") || text == QLatin1String("'");
 }
 
+bool AutoCompleter::isNextBlockIndented(const QTextBlock &currentBlock) const
+{
+    QTextBlock block = currentBlock;
+    int indentation = m_tabSettings.indentationColumn(block.text());
+
+    if (block.next().isValid()) { // not the last block
+        block = block.next();
+        //skip all empty blocks
+        while (block.isValid() && m_tabSettings.onlySpace(block.text()))
+            block = block.next();
+        if (block.isValid()
+                && m_tabSettings.indentationColumn(block.text()) > indentation)
+            return true;
+    }
+
+    return false;
+}
+
 QString AutoCompleter::replaceSelection(QTextCursor &cursor, const QString &textToInsert) const
 {
     if (!cursor.hasSelection())
@@ -301,17 +319,8 @@ int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
             if (condition) {|
                 statement;
     */
-    int indentation = m_tabSettings.indentationColumn(block.text());
-
-    if (block.next().isValid()) { // not the last block
-        block = block.next();
-        //skip all empty blocks
-        while (block.isValid() && m_tabSettings.onlySpace(block.text()))
-            block = block.next();
-        if (block.isValid()
-                && m_tabSettings.indentationColumn(block.text()) > indentation)
-            return 0;
-    }
+    if (isNextBlockIndented(block))
+        return 0;
 
     const QString &textToInsert = insertParagraphSeparator(cursor);
     int pos = cursor.position();

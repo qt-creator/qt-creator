@@ -47,6 +47,7 @@ protected:
 
 private:
     GTestResult *createDefaultResult() const;
+    QString m_executable;
     QString m_currentTestName;
     QString m_currentTestSet;
     QString m_description;

@@ -124,14 +124,17 @@ void MoveTool::mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
 void MoveTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
                         QGraphicsSceneMouseEvent * event)
 {
-    if (itemList.isEmpty()) {
-        view()->changeToSelectionTool();
-        return;
-    }
-
     ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.first());
     if (resizeHandle) {
         view()->changeToResizeTool();
+        return;
+    }
+
+    if (view()->hasSingleSelectedModelNode() && selectedItemCursorInMovableArea(event->scenePos()))
+        return;
+
+    if (itemList.isEmpty()) {
+        view()->changeToSelectionTool();
         return;
     }
 
@@ -140,7 +143,7 @@ void MoveTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
         return;
     }
 
-    if (view()->hasSingleSelectedModelNode() && !selectedItemCursorInMovableArea(event->scenePos())) {
+    if (view()->hasSingleSelectedModelNode()) {
         view()->changeToSelectionTool();
         return;
     }

@@ -121,43 +121,58 @@ void TextMark::paintIcon(QPainter *painter, const QRect &rect) const
     m_icon.paint(painter, rect, Qt::AlignCenter);
 }
 
-void TextMark::paintAnnotation(QPainter *painter, QRectF *annotationRect) const
+void TextMark::paintAnnotation(QPainter &painter, QRectF *annotationRect,
+                               const qreal fadeInOffset, const qreal fadeOutOffset) const
 {
     QString text = lineAnnotation();
     if (text.isEmpty())
         return;
 
-    const AnnotationRects &rects = annotationRects(*annotationRect, painter->fontMetrics());
+    const AnnotationRects &rects = annotationRects(*annotationRect, painter.fontMetrics(),
+                                                   fadeInOffset, fadeOutOffset);
+    const QColor &markColor = m_hasColor ? Utils::creatorTheme()->color(m_color).toHsl()
+                                         : painter.pen().color();
+    const AnnotationColors &colors = AnnotationColors::getAnnotationColors(
+                markColor, painter.background().color());
 
-    const QColor markColor = m_hasColor ? Utils::creatorTheme()->color(m_color).toHsl()
-                                        : painter->pen().color();
-    const AnnotationColors &colors =
-            AnnotationColors::getAnnotationColors(markColor, painter->background().color());
-
-    painter->save();
-    painter->setPen(colors.rectColor);
-    painter->setBrush(colors.rectColor);
-    painter->drawRect(rects.annotationRect);
-    painter->setPen(colors.textColor);
-    paintIcon(painter, rects.iconRect.toAlignedRect());
-    painter->drawText(rects.textRect, Qt::AlignLeft, rects.text);
-    painter->restore();
-    *annotationRect = rects.annotationRect;
+    painter.save();
+    QLinearGradient grad(rects.fadeInRect.topLeft(), rects.fadeInRect.topRight());
+    grad.setColorAt(0.0, Qt::transparent);
+    grad.setColorAt(1.0, colors.rectColor);
+    painter.fillRect(rects.fadeInRect, grad);
+    painter.fillRect(rects.annotationRect, colors.rectColor);
+    painter.setPen(colors.textColor);
+    paintIcon(&painter, rects.iconRect.toAlignedRect());
+    painter.drawText(rects.textRect, Qt::AlignLeft, rects.text);
+    if (rects.fadeOutRect.isValid()) {
+        grad = QLinearGradient(rects.fadeOutRect.topLeft(), rects.fadeOutRect.topRight());
+        grad.setColorAt(0.0, colors.rectColor);
+        grad.setColorAt(1.0, Qt::transparent);
+        painter.fillRect(rects.fadeOutRect, grad);
+    }
+    painter.restore();
+    annotationRect->setRight(rects.fadeOutRect.right());
 }
 
 TextMark::AnnotationRects TextMark::annotationRects(const QRectF &boundingRect,
-                                                    const QFontMetrics &fm) const
+                                                    const QFontMetrics &fm,
+                                                    const qreal fadeInOffset,
+                                                    const qreal fadeOutOffset) const
 {
     AnnotationRects rects;
-    rects.annotationRect = boundingRect;
     rects.text = lineAnnotation();
+    if (rects.text.isEmpty())
+        return rects;
+    rects.fadeInRect = boundingRect;
+    rects.fadeInRect.setWidth(fadeInOffset);
+    rects.annotationRect = boundingRect;
+    rects.annotationRect.setLeft(rects.fadeInRect.right());
     const bool drawIcon = !m_icon.isNull();
     constexpr qreal margin = 1;
-    rects.iconRect = QRectF(boundingRect.left() + margin, boundingRect.top() + margin, 0, 0);
-    if (drawIcon) {
-        rects.iconRect.setHeight(boundingRect.height() - 2 * margin);
+    rects.iconRect = QRectF(rects.annotationRect.left(), boundingRect.top(),
+                            0, boundingRect.height());
+    if (drawIcon)
         rects.iconRect.setWidth(rects.iconRect.height() * m_widthFactor);
-    }
     rects.textRect = QRectF(rects.iconRect.right() + margin, boundingRect.top(),
                             qreal(fm.width(rects.text)), boundingRect.height());
     rects.annotationRect.setRight(rects.textRect.right() + margin);
@@ -165,6 +180,12 @@ TextMark::AnnotationRects TextMark::annotationRects(const QRectF &boundingRect,
         rects.textRect.setRight(boundingRect.right() - margin);
         rects.text = fm.elidedText(rects.text, Qt::ElideRight, int(rects.textRect.width()));
         rects.annotationRect.setRight(boundingRect.right());
+        rects.fadeOutRect = QRectF(rects.annotationRect.topRight(),
+                                   rects.annotationRect.bottomRight());
+    } else {
+        rects.fadeOutRect = boundingRect;
+        rects.fadeOutRect.setLeft(rects.annotationRect.right());
+        rects.fadeOutRect.setWidth(fadeOutOffset);
     }
     return rects;
 }

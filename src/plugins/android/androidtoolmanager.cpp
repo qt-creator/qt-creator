@@ -97,16 +97,22 @@ AndroidToolManager::~AndroidToolManager()
 
 }
 
-SdkPlatformList AndroidToolManager::availableSdkPlatforms() const
+SdkPlatformList AndroidToolManager::availableSdkPlatforms(bool *ok) const
 {
+    bool success = false;
     SdkPlatformList list;
     QString targetListing;
     if (androidToolCommand(m_config.androidToolPath(), QStringList({"list",  "target"}),
                            androidToolEnvironment(), &targetListing)) {
         m_parser->parseTargetListing(targetListing, m_config.sdkLocation(), &list);
+        success = true;
     } else {
         qCDebug(androidToolLog) << "Android tool target listing failed";
     }
+
+    if (ok)
+        *ok = success;
+
     return list;
 }
 

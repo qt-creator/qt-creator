@@ -17,15 +17,15 @@
     \"Url\" : \"http://www.qt.io\",
     $$dependencyList,
 
-    \"Mimetypes\" : \"
-    <?xml version=\'1.0\'?>
-    <mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>
+    \"Mimetypes\" : [
+        \"<?xml version=\'1.0\'?>\",
+        \"<mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>\",
 
-        <mime-type type=\'image/webp\'>
-            <comment>WebP Image file</comment>
-            <glob pattern=\'*.webp\'/>
-        </mime-type>
+        \"    <mime-type type=\'image/webp\'>\",
+        \"        <comment>WebP Image file</comment>\",
+        \"        <glob pattern=\'*.webp\'/>\",
+        \"    </mime-type>\",
 
-    </mime-info>
-    \"
+        \"</mime-info>\"
+    ]
 }

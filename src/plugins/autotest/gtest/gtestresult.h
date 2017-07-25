@@ -34,6 +34,7 @@ class GTestResult : public TestResult
 {
 public:
     explicit GTestResult(const QString &name = QString());
+    GTestResult(const QString &executable, const QString &name);
     const QString outputString(bool selected) const override;
 
     void setTestSetName(const QString &testSetName) { m_testSetName = testSetName; }

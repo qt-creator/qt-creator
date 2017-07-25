@@ -33,6 +33,11 @@ GTestResult::GTestResult(const QString &name)
 {
 }
 
+GTestResult::GTestResult(const QString &executable, const QString &name)
+    : TestResult(executable, name)
+{
+}
+
 const QString GTestResult::outputString(bool selected) const
 {
     const QString &desc = description();

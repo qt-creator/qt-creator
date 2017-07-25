@@ -58,7 +58,7 @@ public:
     void findLocations();
 
     SourceRangesContainer takeSourceRanges();
-    std::vector<DynamicASTMatcherDiagnosticContainer> takeDiagnosticContainers();
+    DynamicASTMatcherDiagnosticContainers takeDiagnosticContainers();
 
 private:
     void parseDiagnostics(const clang::ast_matchers::dynamic::Diagnostics &diagnostics);

@@ -23,30 +23,38 @@
 **
 ****************************************************************************/
 
-#include "clangquerytexteditorwidget.h"
-
-#include "clangqueryhighlighter.h"
 #include "clangqueryhoverhandler.h"
 
-#include <texteditor/textdocument.h>
+#include "clangqueryhighlighter.h"
+
+#include <dynamicastmatcherdiagnosticmessagecontainer.h>
+
+#include <texteditor/texteditor.h>
 
 namespace ClangRefactoring {
 
-ClangQueryTextEditorWidget::ClangQueryTextEditorWidget(QWidget *parent)
-    : BaseClangQueryTextEditorWidget(parent),
-      m_syntaxHighlighter(new ClangQueryHighlighter),
-      m_hoverHandler(std::make_unique<ClangQueryHoverHandler>(m_syntaxHighlighter))
+ClangQueryHoverHandler::ClangQueryHoverHandler(ClangQueryHighlighter *highligher)
+    : m_highligher(highligher)
 {
-    textDocument()->setSyntaxHighlighter(m_syntaxHighlighter);
-
-    addHoverHandler(m_hoverHandler.get());
 }
 
-ClangQueryTextEditorWidget::~ClangQueryTextEditorWidget() = default;
-
-ClangQueryHighlighter *ClangQueryTextEditorWidget::syntaxHighlighter() const
+void ClangQueryHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget, int position)
 {
-    return m_syntaxHighlighter;
+    using Messages = ClangBackEnd::DynamicASTMatcherDiagnosticMessageContainers;
+    using Contexts = ClangBackEnd::DynamicASTMatcherDiagnosticContextContainers;
+
+    QTextCursor textCursor = editorWidget->textCursor();
+    textCursor.setPosition(position);
+    int line = textCursor.blockNumber() + 1;
+    int column = textCursor.columnNumber() + 1;
+
+    Messages messages = m_highligher->messagesForLineAndColumn(uint(line), uint(column));
+    Contexts contexts = m_highligher->contextsForLineAndColumn(uint(line), uint(column));
+
+    if (!messages.empty())
+        setToolTip(QString("%1: %2").arg(messages[0].errorTypeText()).arg(messages[0].arguments().join(", ")));
+    else if (!contexts.empty())
+        setToolTip(QString("%1: %2").arg(contexts[0].contextTypeText()).arg(contexts[0].arguments().join(", ")));
 }
 
 } // namespace ClangRefactoring

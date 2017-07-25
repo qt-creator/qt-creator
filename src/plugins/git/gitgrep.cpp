@@ -141,11 +141,12 @@ public:
 
     void exec()
     {
-        QStringList arguments;
-        arguments << "-c" << "color.grep.match=bold red"
-                  << "grep" << "-zn"
-                  << "--no-full-name"
-                  << "--color=always";
+        GitClient *client = GitPlugin::client();
+        QStringList arguments = {
+            "-c", "color.grep.match=bold red",
+            "-c", "color.grep=always",
+            "grep", "-zn", "--no-full-name"
+        };
         if (!(m_parameters.flags & FindCaseSensitively))
             arguments << "-i";
         if (m_parameters.flags & FindWholeWords)
@@ -154,6 +155,8 @@ public:
             arguments << "-P";
         else
             arguments << "-F";
+        if (client->gitVersion() >= 0x021300)
+            arguments << "--recurse-submodules";
         arguments << "-e" << m_parameters.text;
         GitGrepParameters params = m_parameters.searchEngineParameters.value<GitGrepParameters>();
         if (!params.ref.isEmpty()) {
@@ -168,7 +171,7 @@ public:
                     return QString(":!" + filter);
                 });
         arguments << "--" << filterArgs << exclusionArgs;
-        QScopedPointer<VcsCommand> command(GitPlugin::client()->createCommand(m_directory));
+        QScopedPointer<VcsCommand> command(client->createCommand(m_directory));
         command->addFlags(VcsCommand::SilentOutput | VcsCommand::SuppressFailMessage);
         command->setProgressiveOutput(true);
         QFutureWatcher<FileSearchResultList> watcher;
@@ -176,7 +179,7 @@ public:
         connect(&watcher, &QFutureWatcher<FileSearchResultList>::canceled,
                 command.data(), &VcsCommand::cancel);
         connect(command.data(), &VcsCommand::stdOutText, this, &GitGrepRunner::read);
-        SynchronousProcessResponse resp = command->runCommand(GitPlugin::client()->vcsBinary(), arguments, 0);
+        SynchronousProcessResponse resp = command->runCommand(client->vcsBinary(), arguments, 0);
         switch (resp.result) {
         case SynchronousProcessResponse::TerminatedAbnormally:
         case SynchronousProcessResponse::StartFailed:

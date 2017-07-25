@@ -61,6 +61,9 @@ private slots:
 
     void testCMakeProjectImporterToolChain_data();
     void testCMakeProjectImporterToolChain();
+
+    void testServerModeReaderProgress_data();
+    void testServerModeReaderProgress();
 #endif
 
 private:

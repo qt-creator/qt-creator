@@ -41,8 +41,8 @@ const static int outputLimit = 100000;
 
 static bool isSummaryItem(Result::Type type)
 {
-    return type == Result::MessageTestCaseSuccess || type == Result::MessageTestCaseFail
-            || type == Result::MessageTestCaseWarn;
+    return type == Result::MessageTestCaseSuccess || type == Result::MessageTestCaseSuccessWarn
+            || type == Result::MessageTestCaseFail || type == Result::MessageTestCaseFailWarn;
 }
 
 TestResultDelegate::TestResultDelegate(QObject *parent)

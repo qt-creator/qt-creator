@@ -15,5 +15,6 @@
         <file>images/icons/tutorialicon.png</file>
         <file>images/icons/worldsummit15.png</file>
         <file>images/icons/worldsummit16.png</file>
+        <file>images/icons/videotutorialicon.png</file>
     </qresource>
 </RCC>

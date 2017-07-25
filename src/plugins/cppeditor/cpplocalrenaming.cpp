@@ -70,7 +70,9 @@ CppLocalRenaming::CppLocalRenaming(TextEditor::TextEditorWidget *editorWidget)
 void CppLocalRenaming::updateSelectionsForVariableUnderCursor(
         const QList<QTextEdit::ExtraSelection> &selections)
 {
-    QTC_ASSERT(!isActive(), return);
+    if (isActive())
+        return;
+
     m_selections = selections;
 }
 

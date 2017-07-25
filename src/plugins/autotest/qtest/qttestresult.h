@@ -34,6 +34,7 @@ class QtTestResult : public TestResult
 {
 public:
     explicit QtTestResult(const QString &className = QString());
+    QtTestResult(const QString &executable, const QString &className);
     const QString outputString(bool selected) const override;
 
     void setFunctionName(const QString &functionName) { m_function = functionName; }

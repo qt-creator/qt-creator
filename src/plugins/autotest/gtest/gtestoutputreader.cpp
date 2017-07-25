@@ -41,6 +41,7 @@ static QString constructSourceFilePath(const QString &path, const QString &fileP
 GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                                      QProcess *testApplication, const QString &buildDirectory)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
+    , m_executable(testApplication ? testApplication->program() : QString())
 {
 }
 
@@ -75,7 +76,7 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
             m_futureInterface.reportResult(testResult);
             m_description.clear();
         } else if (disabledTests.exactMatch(line)) {
-            TestResultPtr testResult = TestResultPtr(new GTestResult());
+            TestResultPtr testResult = TestResultPtr(new GTestResult);
             testResult->setResult(Result::MessageDisabledTests);
             int disabled = disabledTests.cap(1).toInt();
             testResult->setDescription(tr("You have %n disabled test(s).", 0, disabled));
@@ -106,7 +107,7 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
         m_futureInterface.reportResult(testResult);
     } else if (newTestSetStarts.exactMatch(line)) {
         m_currentTestSet = newTestSetStarts.cap(1);
-        TestResultPtr testResult = TestResultPtr(new GTestResult());
+        TestResultPtr testResult = TestResultPtr(new GTestResult);
         testResult->setResult(Result::MessageCurrentTest);
         testResult->setDescription(tr("Entering test set %1").arg(m_currentTestSet));
         m_futureInterface.reportResult(testResult);
@@ -156,7 +157,7 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
 
 GTestResult *GTestOutputReader::createDefaultResult() const
 {
-    GTestResult *result = new GTestResult(m_currentTestName);
+    GTestResult *result = new GTestResult(m_executable, m_currentTestName);
     result->setTestSetName(m_currentTestSet);
     result->setIteration(m_iteration);
     return result;

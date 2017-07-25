@@ -47,6 +47,12 @@ TestResult::TestResult(const QString &name)
 {
 }
 
+TestResult::TestResult(const QString &executable, const QString &name)
+    : m_executable(executable)
+    , m_name(name)
+{
+}
+
 const QString TestResult::outputString(bool selected) const
 {
     return selected ? m_description : m_description.split('\n').first();
@@ -97,9 +103,11 @@ QString TestResult::resultToString(const Result::Type type)
     switch (type) {
     case Result::Pass:
     case Result::MessageTestCaseSuccess:
+    case Result::MessageTestCaseSuccessWarn:
         return QString("PASS");
     case Result::Fail:
     case Result::MessageTestCaseFail:
+    case Result::MessageTestCaseFailWarn:
         return QString("FAIL");
     case Result::ExpectedFail:
         return QString("XFAIL");
@@ -114,7 +122,6 @@ QString TestResult::resultToString(const Result::Type type)
     case Result::MessageInfo:
         return QString("INFO");
     case Result::MessageWarn:
-    case Result::MessageTestCaseWarn:
         return QString("WARN");
     case Result::MessageFatal:
         return QString("FATAL");
@@ -166,26 +173,28 @@ QColor TestResult::colorForType(const Result::Type type)
 bool TestResult::isMessageCaseStart(const Result::Type type)
 {
     return type == Result::MessageTestCaseStart || type == Result::MessageTestCaseSuccess
-            || type == Result::MessageTestCaseFail || type == Result::MessageTestCaseWarn
-            || type == Result::MessageIntermediate;
+            || type == Result::MessageTestCaseFail || type == Result::MessageTestCaseSuccessWarn
+            || type == Result::MessageTestCaseFailWarn || type == Result::MessageIntermediate;
 }
 
 bool TestResult::isDirectParentOf(const TestResult *other, bool * /*needsIntermediate*/) const
 {
     QTC_ASSERT(other, return false);
-    return m_name == other->m_name;
+    return !m_executable.isEmpty() && m_executable == other->m_executable
+            && m_name == other->m_name;
 }
 
 bool TestResult::isIntermediateFor(const TestResult *other) const
 {
     QTC_ASSERT(other, return false);
-    return m_name == other->m_name;
+    return !m_executable.isEmpty() && m_executable == other->m_executable
+            && m_name == other->m_name;
 }
 
 TestResult *TestResult::createIntermediateResultFor(const TestResult *other)
 {
     QTC_ASSERT(other, return nullptr);
-    TestResult *intermediate = new TestResult(other->m_name);
+    TestResult *intermediate = new TestResult(other->m_executable, other->m_name);
     return intermediate;
 }
 

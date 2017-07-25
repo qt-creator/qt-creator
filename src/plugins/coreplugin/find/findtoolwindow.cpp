@@ -264,12 +264,12 @@ void FindToolWindow::setCurrentFilter(int index)
 
 void FindToolWindow::acceptAndGetParameters(QString *term, IFindFilter **filter)
 {
-    if (filter)
-        *filter = 0;
+    QTC_ASSERT(filter, return);
+    *filter = 0;
     Find::updateFindCompletion(m_ui.searchTerm->text());
     int index = m_ui.filterList->currentIndex();
     QString searchTerm = m_ui.searchTerm->text();
-    if (filter && index >= 0)
+    if (index >= 0)
         *filter = m_filters.at(index);
     if (term)
         *term = searchTerm;

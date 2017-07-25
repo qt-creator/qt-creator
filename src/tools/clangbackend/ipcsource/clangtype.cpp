@@ -76,7 +76,7 @@ bool Type::isReferencingConstant() const
 
 bool Type::isOutputArgument() const
 {
-    return (isPointer() || isLValueReference()) && !pointeeType().isConstant();
+    return isLValueReference() && !pointeeType().isConstant();
 }
 
 bool Type::isBuiltinType() const

@@ -55,8 +55,9 @@ enum Type {
     MessageDisabledTests,
     MessageTestCaseStart,
     MessageTestCaseSuccess,
-    MessageTestCaseWarn,
+    MessageTestCaseSuccessWarn,
     MessageTestCaseFail,
+    MessageTestCaseFailWarn,
     MessageTestCaseEnd,
     MessageIntermediate,
     MessageCurrentTest, INTERNAL_MESSAGES_END = MessageCurrentTest,
@@ -69,12 +70,14 @@ enum Type {
 class TestResult
 {
 public:
-    explicit TestResult();
+    TestResult();
     explicit TestResult(const QString &name);
+    TestResult(const QString &executable, const QString &name);
     virtual ~TestResult() {}
 
     virtual const QString outputString(bool selected) const;
 
+    QString executable() const { return m_executable; }
     QString name() const { return m_name; }
     Result::Type result() const { return m_result; }
     QString description() const { return m_description; }
@@ -97,6 +100,7 @@ public:
     virtual TestResult *createIntermediateResultFor(const TestResult *other);
 
 private:
+    QString m_executable;
     QString m_name;
     Result::Type m_result = Result::Invalid;
     QString m_description;

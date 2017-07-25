@@ -44,6 +44,12 @@ public:
 
     bool hasDiagnostics() const;
 
+    ClangBackEnd::DynamicASTMatcherDiagnosticMessageContainers
+    messagesForLineAndColumn(uint line, uint column) const;
+
+    ClangBackEnd::DynamicASTMatcherDiagnosticContextContainers
+    contextsForLineAndColumn(uint line, uint column) const;
+
 protected:
     void highlightBlock(const QString &text) override;
 

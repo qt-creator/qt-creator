@@ -92,7 +92,7 @@ SourceRangesContainer ClangQuery::takeSourceRanges()
     return std::move(sourceRangesContainer);
 }
 
-std::vector<DynamicASTMatcherDiagnosticContainer> ClangQuery::takeDiagnosticContainers()
+DynamicASTMatcherDiagnosticContainers ClangQuery::takeDiagnosticContainers()
 {
     return std::move(diagnosticContainers_);
 }

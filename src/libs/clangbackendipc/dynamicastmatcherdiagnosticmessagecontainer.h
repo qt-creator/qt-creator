@@ -55,7 +55,7 @@ public:
         return m_errorType;
     }
 
-    Utils::SmallString errorTypeText() const;
+    CMBIPC_EXPORT Utils::SmallString errorTypeText() const;
 
     const Utils::SmallStringVector &arguments() const
     {

@@ -109,4 +109,16 @@ HighlightingMark HighlightingMarks::operator[](size_t index) const
                             currentOutputArgumentRanges);
 }
 
+std::ostream &operator<<(std::ostream &out, const HighlightingMarks &marks)
+{
+    out << "[";
+
+    for (const HighlightingMark entry : marks)
+        out << entry;
+
+    out << "]";
+
+    return out;
+}
+
 } // namespace ClangBackEnd

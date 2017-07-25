@@ -14,7 +14,8 @@ HEADERS += \
     clangqueryprojectsfindfilterwidget.h \
     clangqueryexampletexteditorwidget.h \
     clangquerytexteditorwidget.h \
-    baseclangquerytexteditorwidget.h
+    baseclangquerytexteditorwidget.h \
+    clangqueryhoverhandler.h
 
 SOURCES += \
     clangrefactoringplugin.cpp \
@@ -24,7 +25,8 @@ SOURCES += \
     clangqueryprojectsfindfilterwidget.cpp \
     clangqueryexampletexteditorwidget.cpp \
     clangquerytexteditorwidget.cpp \
-    baseclangquerytexteditorwidget.cpp
+    baseclangquerytexteditorwidget.cpp \
+    clangqueryhoverhandler.cpp
 
 FORMS += \
     clangqueryprojectsfindfilter.ui

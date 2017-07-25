@@ -91,6 +91,11 @@ public:
         Others,
         Identifier,
         Documentation,
+        ControlFlow,
+        Preprocessor,
+        VerbatimString,
+        SpecialString,
+        Constant,
         TextFormatIdCount
     };
 

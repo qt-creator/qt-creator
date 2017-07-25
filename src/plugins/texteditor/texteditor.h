@@ -512,6 +512,8 @@ protected:
     virtual void finalizeInitializationAfterDuplication(TextEditorWidget *) {}
     static QTextCursor flippedCursor(const QTextCursor &cursor);
 
+    void addHoverHandler(BaseHoverHandler *handler);
+
 public:
     struct Link
     {

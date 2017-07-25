@@ -35,6 +35,11 @@ QtTestResult::QtTestResult(const QString &className)
 {
 }
 
+QtTestResult::QtTestResult(const QString &executable, const QString &className)
+    : TestResult(executable, className)
+{
+}
+
 const QString QtTestResult::outputString(bool selected) const
 {
     const QString &desc = description();
@@ -101,14 +106,14 @@ bool QtTestResult::isIntermediateFor(const TestResult *other) const
     QTC_ASSERT(other, return false);
     const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
     return m_dataTag == qtOther->m_dataTag && m_function == qtOther->m_function
-            && name() == qtOther->name();
+            && name() == qtOther->name() && executable() == qtOther->executable();
 }
 
 TestResult *QtTestResult::createIntermediateResultFor(const TestResult *other)
 {
     QTC_ASSERT(other, return nullptr);
     const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
-    QtTestResult *intermediate = new QtTestResult(qtOther->name());
+    QtTestResult *intermediate = new QtTestResult(qtOther->executable(), qtOther->name());
     intermediate->m_function = qtOther->m_function;
     intermediate->m_dataTag = qtOther->m_dataTag;
     // intermediates will be needed only for data tags

@@ -85,7 +85,7 @@ void ClangQueryProjectsFindFilter::requestSourceRangesAndDiagnostics(const QStri
     ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage message(queryText,
                                                                            {ClangBackEnd::FilePath(filePath),
                                                                             exampleContent,
-                                                                            {"cc", toNative(filePath)}});
+                                                                            {"cc",  "-std=c++1z", toNative(filePath)}});
 
     m_server.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(message));
 }
