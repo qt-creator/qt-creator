@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -141,6 +141,7 @@
             hierarchy of a QML file.
 
         \li \uicontrol Tests lists autotests and Qt Quick tests in the project.
+            For more information, see \l {Running Autotests}.
 
         \li \uicontrol {Type Hierarchy} shows the base classes of a class.
 
@@ -303,28 +304,6 @@
 
     \endlist
 
-    \section2 Viewing Tests
-
-    The \uicontrol Tests view shows the autotests and Qt Quick tests in the
-    current project. Select the test cases to run. If a Qt
-    Quick test case does not have a name, it is marked \uicontrol Unnamed in the
-    list. Unnamed test cases are always executed when the application that
-    contains them is run, and therefore you cannot select or deselect them.
-
-    To show or hide init and cleanup or data functions, select
-    \uicontrol {Filter Test Tree} > \uicontrol {Show Init and Cleanup Functions}
-    or \uicontrol {Show Data Functions}. Double-click a function in the list
-    to open its source code in the code editor.
-
-    The test cases are listed in alphabetic order. To list them in the order in
-    which they are defined in the source code, select \inlineimage leafsort.png
-    (\uicontrol {Sort Naturally}).
-
-    To run tests, select \uicontrol {Run All Tests} or
-    \uicontrol {Run Selected Tests} in the context menu.
-
-    To refresh the view, select \uicontrol {Rescan Tests} in the context menu.
-
     \section2 Viewing Type Hierarchy
 
     To view the base classes of a class, right-click the class and select
@@ -375,8 +354,7 @@
     To open the \uicontrol{General Messages} and \l{Using Version Control Systems}
     {Version Control} panes, select
     \uicontrol {Window > Output Panes}. To display the \uicontrol {To-Do Entries} pane,
-    enable the Todo plugin and to display the \l{Running Autotests}
-    {Test Results} pane, enable the Auto Tests plugin.
+    enable the Todo plugin.
 
     \section2 Issues
 

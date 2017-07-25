@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -131,6 +131,9 @@
     \endlist
 
     \QC creates the test in the specified project directory.
+    For more information about creating Google tests, see the
+    \l{https://github.com/google/googletest/blob/master/googletest/docs/Primer.md}
+    {Google Test Primer}.
 
     \section1 Setting Up the Google C++ Testing Framework
 
@@ -175,6 +178,87 @@
         \li \c {LIBS += -lgmock -L<path_to_gmock_lib>}
     \endlist
 
+    \section1 Building and Running Tests
+
+    To build and run tests:
+
+    \list 1
+
+        \li Open a project that contains tests.
+
+        \li In the \uicontrol Tests view, select the tests to run.
+
+        \li In the \uicontrol {Test Results} output pane, select
+            \inlineimage run_small.png
+            (\uicontrol {Run All Tests}) to run all test or
+            \inlineimage qtcreator-run-selected-tests.png
+            (\uicontrol {Run Selected Tests}) to run the selected tests.
+
+            \note By default, \QC builds a project before deploying and running
+            it.
+
+    \endlist
+
+    If a test takes more than a minute to execute, the default timeout might
+    stop the test execution. To increase the timeout, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Test Settings} > \uicontrol General.
+
+    \section2 Selecting Tests to Run
+
+    The \uicontrol Tests view shows all the tests found for the currently active
+    test frameworks in the current project. Select the test cases to run.
+
+    \image qtcreator-tests-view.png
+
+    If a Qt Quick test case does not have a name, it is marked
+    \uicontrol Unnamed in the list. Unnamed test cases are executed when you
+    select \uicontrol {Run All Tests}. You cannot select or deselect them.
+
+    \QC scans the project for tests when you open the project and updates the
+    test list for the currently active test frameworks when you edit tests.
+    To refresh the view, select \uicontrol {Rescan Tests} in the context menu.
+
+    You can add filters to specify the directories within the current project
+    to scan for tests. Select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Test Settings} > \uicontrol General > \uicontrol Add, and
+    specify paths to the directories to scan for tests. Wildcards are not
+    supported in the filter expressions.
+
+    \image qtcreator-autotests-options.png
+
+    To show or hide init and cleanup or data functions in the \uicontrol Tests
+    view, select \inlineimage filtericon.png
+    (\uicontrol {Filter Test Tree}), and then select \uicontrol {Show Init and
+    Cleanup Functions} or \uicontrol {Show Data Functions}. Double-click a
+    function in the list to open its source code in the code editor.
+
+    The test cases are listed in alphabetic order. To list them in the order in
+    which they are defined in the source code, select \inlineimage leafsort.png
+    (\uicontrol {Sort Naturally}).
+
+    \section2 Specifying Settings for Running Qt Tests
+
+    The code inside a benchmark test is measured, and possibly also repeated
+    several times in order to get an accurate measurement. This depends on the
+    measurement back-end that you can select in the
+    \uicontrol {Benchmark Metrics} group in \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Test Settings} > \uicontrol {Qt Test}:
+    walltime, CPU tick counter, event counter, Valgrind Callgrind, and Linux
+    Perf. For more information, see \l{Creating a Benchmark}.
+
+    \image qtcreator-autotests-options-qt.png
+
+    To receive verbose output when running benchmarks, select the
+    \uicontrol {Verbose benchmarks} check box.
+
+    To allow the debugger to interrupt Qt tests on assertions, select the
+    \uicontrol {Disable crash handler while debugging} check box.
+
+    To record information about signals and slots in the test log, select the
+    \uicontrol {Log signals and slots} check box.
+
+    \section2 Specifying Settings for Running Google Tests
+
     To specify settings for running Google tests, select \uicontrol Tools >
     \uicontrol Options > \uicontrol {Test Settings} > \uicontrol {Google Test}.
 
@@ -193,58 +277,23 @@
     failures into C++ exceptions, select the \uicontrol {Throw on failure} check
     box.
 
-    For more information about creating Google tests, see the
-    \l{https://github.com/google/googletest/blob/master/googletest/docs/Primer.md}
-    {Google Test Primer}.
-
-    \section1 Building and Running Tests
-
-    To build and run tests:
-
-    \list 1
-
-        \li Open a project that contains tests.
-
-        \li In the \uicontrol {Test Results} output pane, select
-            \inlineimage run_small.png
-            (\uicontrol {Run All Tests}) to run all test or
-            \inlineimage qtcreator-run-selected-tests.png
-            (\uicontrol {Run Selected Tests}) to run the selected tests.
-
-            You can select the tests to run in the \uicontrol Tests view in the
-            \uicontrol Projects pane. For more information, see
-            \l{Viewing Tests}.
-
-            \note By default, \QC builds a project before deploying and running
-            it.
-
-    \endlist
-
-    If a test takes more than a minute to execute, the default timeout might
-    stop the test execution. To increase the timeout, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Test Settings} > \uicontrol General.
-
-    \image qtcreator-autotests-options.png
-
-    \QC scans the project for tests when you open the project and updates the
-    test list for the currently active test frameworks when you edit tests.
-
-    The code inside a benchmark test is measured, and possibly also repeated
-    several times in order to get an accurate measurement. This depends on the
-    measurement back-end that you can select in the
-    \uicontrol {Benchmark Metrics} group in \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Test Settings} > \uicontrol {Qt Test}:
-    walltime, CPU tick counter, event counter, Valgrind Callgrind, and Linux
-    Perf. For more information, see \l{Creating a Benchmark}.
-
-    \image qtcreator-autotests-options-qt.png
-
-    To allow the debugger to interrupt Qt tests on assertions, select the
-    \uicontrol {Disable crash handler while debugging} check box.
-
     \section1 Viewing Test Output
 
-    The test results are displayed in the \uicontrol {Test Results} output pane.
+    The test results are displayed in the \uicontrol {Test Results} output pane
+    in XML format. XML can be parsed more easily and reliably than plain text.
+
+    However, if a Qt test crashes, it might not produce complete XML code that
+    can be parsed, which might lead to information loss. The lost information
+    might be retrievable when viewing the results as plain text.
+    To view the results of Qt tests as plain text, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Test Settings} > \uicontrol {Qt Test}, and
+    then deselect the \uicontrol {Use XML output} check box. Then select the
+    \inlineimage text.png
+    (\uicontrol {Switch Between Visual and Text Display}) button in the
+    \uicontrol {Test Results} output pane to switch to the text display.
+
+    The following table lists the messages that the \uicontrol {Test Results}
+    output pane displays:
 
     \table
         \header
@@ -273,6 +322,13 @@
             \li FAIL
             \li Test case failed. Double-click the line for more information.
         \row
+            \li FATAL
+            \li A fatal error occurred that stops the test case from being run,
+                for example.
+        \row
+            \li INFO
+            \li Informative message.
+        \row
             \li INTERNAL
             \li Internal message.
         \row
@@ -281,6 +337,9 @@
         \row
             \li SKIP
             \li Test case was skipped.
+        \row
+            \li SYSTEM
+            \li An error message received from or influenced by the OS.
         \row
             \li XPASS
             \li Test case passed even though it was expected to fail.
@@ -294,7 +353,14 @@
     (\uicontrol {Filter Test Results}), and then select the types of messages to
     show.
 
-    To hide internal messages and run configuration warnings, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol {Test Settings} >
-    \uicontrol General.
+    By default, test result output is limited to 100,000 characters. The output
+    pane is automatically scrolled down when new results are added. To display
+    full results, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Test Settings} > \uicontrol General, and then deselect the
+    \uicontrol {Limit result output} check box. To disable automatic scrolling,
+    deselect the \uicontrol {Automatically scroll results} check box.
+
+    Internal messages and run configuration warnings for guessed configurations
+    are omitted by default. To view them, deselect the \uicontrol {Omit internal
+    messages} and \uicontrol {Omit run configuration warnings} check boxes.
 */
