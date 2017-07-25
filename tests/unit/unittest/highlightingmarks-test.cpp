@@ -1033,19 +1033,16 @@ TEST_F(HighlightingMarks, ConstPointerArgument)
 
 TEST_F(HighlightingMarks, NonConstPointerGetterAsArgument)
 {
-    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(580, 41));
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(580, 42));
 
-    ASSERT_THAT(infos,
-                ElementsAre(_,
-                            _,
-                            HasMixin(HighlightingType::OutputArgument),
-                            HasMixin(HighlightingType::OutputArgument),
-                            HasMixin(HighlightingType::OutputArgument),
-                            HasMixin(HighlightingType::OutputArgument),
-                            HasMixin(HighlightingType::OutputArgument),
-                            _,
-                            _,
-                            _));
+    infos[1];
+
+    ASSERT_THAT(infos[2] ,HasMixin(HighlightingType::OutputArgument));
+    ASSERT_THAT(infos[3], HasMixin(HighlightingType::OutputArgument));
+    ASSERT_THAT(infos[4], HasMixin(HighlightingType::OutputArgument));
+    ASSERT_THAT(infos[5], HasMixin(HighlightingType::OutputArgument));
+    ASSERT_THAT(infos[6], HasMixin(HighlightingType::OutputArgument));
+    ASSERT_THAT(infos[7], Not(HasMixin(HighlightingType::OutputArgument)));
 }
 
 TEST_F(HighlightingMarks, NonConstReferenceArgumentCallInsideCall)
