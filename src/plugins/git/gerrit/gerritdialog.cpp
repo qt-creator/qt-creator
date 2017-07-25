@@ -97,7 +97,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_progressIndicatorTimer.setSingleShot(true);
     m_progressIndicatorTimer.setInterval(50); // don't show progress for < 50ms tasks
 
-    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Large,
+    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Large,
                                                        m_ui->treeView);
     m_progressIndicator->attachToWidget(m_ui->treeView->viewport());
     m_progressIndicator->hide();

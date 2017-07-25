@@ -116,7 +116,7 @@ void SettingsPage::checkRunningChanged(bool running)
 
     if (running) {
         if (!m_progressIndicator) {
-            m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Large);
+            m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Large);
             m_progressIndicator->attachToWidget(m_widget);
         }
         m_progressIndicator->show();

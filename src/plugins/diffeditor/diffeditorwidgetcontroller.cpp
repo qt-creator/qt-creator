@@ -65,7 +65,7 @@ DiffEditorWidgetController::DiffEditorWidgetController(QWidget *diffEditorWidget
 void DiffEditorWidgetController::setDocument(DiffEditorDocument *document)
 {
     if (!m_progressIndicator) {
-        m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Large);
+        m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Large);
         m_progressIndicator->attachToWidget(m_diffEditorWidget);
         m_progressIndicator->hide();
     }

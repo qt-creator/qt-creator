@@ -570,7 +570,7 @@ LocatorWidget::LocatorWidget(Locator *locator) :
     m_showPopupTimer.setSingleShot(true);
     connect(&m_showPopupTimer, &QTimer::timeout, this, &LocatorWidget::showPopupNow);
 
-    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Small,
+    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Small,
                                                        m_fileLineEdit);
     m_progressIndicator->raise();
     m_progressIndicator->hide();

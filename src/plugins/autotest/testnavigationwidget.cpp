@@ -86,7 +86,7 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
 
     connect(m_view, &TestTreeView::activated, this, &TestNavigationWidget::onItemActivated);
 
-    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Medium, this);
+    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Medium, this);
     m_progressIndicator->attachToWidget(m_view);
     m_progressIndicator->hide();
 

@@ -33,49 +33,112 @@
 #include <QPainter>
 #include <QPixmap>
 
-using namespace Utils;
+namespace {
 
-ProgressIndicator::ProgressIndicator(IndicatorSize size, QWidget *parent)
-    : QWidget(parent),
-      m_rotation(0)
-{
-    setAttribute(Qt::WA_TransparentForMouseEvents);
-    m_timer.setSingleShot(false);
-    connect(&m_timer, &QTimer::timeout, this, &ProgressIndicator::step);
-    setIndicatorSize(size);
-}
-
-static QString imageFileNameForIndicatorSize(ProgressIndicator::IndicatorSize size)
+static QString imageFileNameForIndicatorSize(Utils::ProgressIndicatorSize size)
 {
     switch (size) {
-        case ProgressIndicator::Large:
-            return QLatin1String(":/utils/images/progressindicator_big.png");
-        case ProgressIndicator::Medium:
-            return QLatin1String(":/utils/images/progressindicator_medium.png");
-        case ProgressIndicator::Small:
-        default:
+    case Utils::ProgressIndicatorSize::Large:
+        return QLatin1String(":/utils/images/progressindicator_big.png");
+    case Utils::ProgressIndicatorSize::Medium:
+        return QLatin1String(":/utils/images/progressindicator_medium.png");
+    case Utils::ProgressIndicatorSize::Small:
+    default:
             return QLatin1String(":/utils/images/progressindicator_small.png");
     }
 }
 
-void ProgressIndicator::setIndicatorSize(ProgressIndicator::IndicatorSize size)
+} // namespace
+
+namespace Utils {
+
+ProgressIndicatorPainter::ProgressIndicatorPainter(ProgressIndicatorSize size)
 {
-    m_size = size;
-    m_rotationStep = size == Small ? 45 : 30;
-    m_timer.setInterval(size == Small ? 100 : 80);
-    m_pixmap = Icon({{imageFileNameForIndicatorSize(size),
-                      Theme::PanelTextColorMid}}, Icon::Tint).pixmap();
-    updateGeometry();
+    m_timer.setSingleShot(false);
+    QObject::connect(&m_timer, &QTimer::timeout, [this]() {
+        nextAnimationStep();
+        if (m_callback)
+            m_callback();
+    });
+
+    setIndicatorSize(size);
 }
 
-ProgressIndicator::IndicatorSize ProgressIndicator::indicatorSize() const
+void ProgressIndicatorPainter::setIndicatorSize(ProgressIndicatorSize size)
+{
+    m_size = size;
+    m_rotationStep = size == ProgressIndicatorSize::Small ? 45 : 30;
+    m_timer.setInterval(size == ProgressIndicatorSize::Small ? 100 : 80);
+    m_pixmap = Icon({{imageFileNameForIndicatorSize(size),
+                      Theme::PanelTextColorMid}}, Icon::Tint).pixmap();
+}
+
+ProgressIndicatorSize ProgressIndicatorPainter::indicatorSize() const
 {
     return m_size;
 }
 
-QSize ProgressIndicator::sizeHint() const
+void ProgressIndicatorPainter::setUpdateCallback(const UpdateCallback &cb)
+{
+    m_callback = cb;
+}
+
+QSize ProgressIndicatorPainter::size() const
 {
     return m_pixmap.size() / m_pixmap.devicePixelRatio();
+}
+
+// Paint indicator centered on the rect
+void ProgressIndicatorPainter::paint(QPainter &painter, const QRect &rect) const
+{
+    painter.save();
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+    QPoint translate(rect.x() + rect.width() / 2, rect.y() + rect.height() / 2);
+    QTransform t;
+    t.translate(translate.x(), translate.y());
+    t.rotate(m_rotation);
+    t.translate(-translate.x(), -translate.y());
+    painter.setTransform(t);
+    QSize pixmapUserSize(m_pixmap.size() / m_pixmap.devicePixelRatio());
+    painter.drawPixmap(QPoint(rect.x() + ((rect.width() - pixmapUserSize.width()) / 2),
+                              rect.y() + ((rect.height() - pixmapUserSize.height()) / 2)),
+                 m_pixmap);
+    painter.restore();
+}
+
+void ProgressIndicatorPainter::startAnimation()
+{
+    QTC_ASSERT(m_callback, return);
+    m_timer.start();
+}
+
+void ProgressIndicatorPainter::stopAnimation()
+{
+    m_timer.stop();
+}
+
+void Utils::ProgressIndicatorPainter::nextAnimationStep()
+{
+    m_rotation = (m_rotation + m_rotationStep + 360) % 360;
+}
+
+ProgressIndicator::ProgressIndicator(ProgressIndicatorSize size, QWidget *parent)
+    : QWidget(parent), m_paint(size)
+{
+    setAttribute(Qt::WA_TransparentForMouseEvents);
+    m_paint.setUpdateCallback([this]() { update(); });
+    updateGeometry();
+}
+
+void ProgressIndicator::setIndicatorSize(ProgressIndicatorSize size)
+{
+    m_paint.setIndicatorSize(size);
+    updateGeometry();
+}
+
+QSize ProgressIndicator::sizeHint() const
+{
+    return m_paint.size();
 }
 
 void ProgressIndicator::attachToWidget(QWidget *parent)
@@ -91,27 +154,17 @@ void ProgressIndicator::attachToWidget(QWidget *parent)
 void ProgressIndicator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    p.setRenderHint(QPainter::SmoothPixmapTransform);
-    QPoint translate(rect().width() / 2, rect().height() / 2);
-    QTransform t;
-    t.translate(translate.x(), translate.y());
-    t.rotate(m_rotation);
-    t.translate(-translate.x(), -translate.y());
-    p.setTransform(t);
-    QSize pixmapUserSize(m_pixmap.size() / m_pixmap.devicePixelRatio());
-    p.drawPixmap(QPoint((rect().width() - pixmapUserSize.width()) / 2,
-                       (rect().height() - pixmapUserSize.height()) / 2),
-                 m_pixmap);
+    m_paint.paint(p, rect());
 }
 
 void ProgressIndicator::showEvent(QShowEvent *)
 {
-    m_timer.start();
+    m_paint.startAnimation();
 }
 
 void ProgressIndicator::hideEvent(QHideEvent *)
 {
-    m_timer.stop();
+    m_paint.stopAnimation();
 }
 
 bool ProgressIndicator::eventFilter(QObject *obj, QEvent *ev)
@@ -122,15 +175,10 @@ bool ProgressIndicator::eventFilter(QObject *obj, QEvent *ev)
     return QWidget::eventFilter(obj, ev);
 }
 
-void ProgressIndicator::step()
-{
-    m_rotation = (m_rotation + m_rotationStep + 360) % 360;
-    update();
-}
-
 void ProgressIndicator::resizeToParent()
 {
     QTC_ASSERT(parentWidget(), return);
     setGeometry(QRect(QPoint(0, 0), parentWidget()->size()));
 }
 
+} // namespace Utils

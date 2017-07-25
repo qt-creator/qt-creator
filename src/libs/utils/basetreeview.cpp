@@ -355,7 +355,7 @@ void BaseTreeView::showEvent(QShowEvent *ev)
 void BaseTreeView::showProgressIndicator()
 {
     if (!d->m_progressIndicator) {
-        d->m_progressIndicator = new ProgressIndicator(ProgressIndicator::Large);
+        d->m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
         d->m_progressIndicator->attachToWidget(this);
     }
     d->m_progressIndicator->show();

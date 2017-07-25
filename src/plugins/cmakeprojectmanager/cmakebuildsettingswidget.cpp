@@ -158,7 +158,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     QFrame *findWrapper = Core::ItemViewFind::createSearchableWrapper(m_configView, Core::ItemViewFind::LightColored);
     findWrapper->setFrameStyle(QFrame::StyledPanel);
 
-    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Large, findWrapper);
+    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Large, findWrapper);
     m_progressIndicator->attachToWidget(findWrapper);
     m_progressIndicator->raise();
     m_progressIndicator->hide();

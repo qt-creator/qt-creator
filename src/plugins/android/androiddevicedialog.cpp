@@ -462,7 +462,7 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, Andro
 
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Large, this);
+    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Large, this);
     m_progressIndicator->attachToWidget(m_ui->deviceView);
 
     if (serialNumber.isEmpty()) {
