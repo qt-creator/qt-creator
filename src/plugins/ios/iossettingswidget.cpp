@@ -218,6 +218,8 @@ void IosSettingsWidget::onRename()
     const SimulatorInfo &simInfo = simulatorInfoList.at(0);
     const QString newName = QInputDialog::getText(this, tr("Rename %1").arg(simInfo.name),
                                             tr("Enter new name:"));
+    if (newName.isEmpty())
+        return;
 
     QPointer<SimulatorOperationDialog> statusDialog = new SimulatorOperationDialog(this);
     statusDialog->setAttribute(Qt::WA_DeleteOnClose);
