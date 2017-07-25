@@ -8136,13 +8136,7 @@ public:
     TextEditorFactoryPrivate(TextEditorFactory *parent) :
         q(parent),
         m_widgetCreator([]() { return new TextEditorWidget; }),
-        m_editorCreator([]() { return new BaseTextEditor; }),
-        m_completionAssistProvider(0),
-        m_useGenericHighlighter(false),
-        m_duplicatedSupported(true),
-        m_codeFoldingSupported(false),
-        m_paranthesesMatchinEnabled(false),
-        m_marksVisible(false)
+        m_editorCreator([]() { return new BaseTextEditor; })
     {}
 
     BaseTextEditor *duplicateTextEditor(BaseTextEditor *other)
@@ -8163,12 +8157,12 @@ public:
     TextEditorFactory::SyntaxHighLighterCreator m_syntaxHighlighterCreator;
     CommentDefinition m_commentDefinition;
     QList<BaseHoverHandler *> m_hoverHandlers; // owned
-    CompletionAssistProvider * m_completionAssistProvider; // owned
-    bool m_useGenericHighlighter;
-    bool m_duplicatedSupported;
-    bool m_codeFoldingSupported;
-    bool m_paranthesesMatchinEnabled;
-    bool m_marksVisible;
+    CompletionAssistProvider * m_completionAssistProvider = nullptr; // owned
+    bool m_useGenericHighlighter = false;
+    bool m_duplicatedSupported = true;
+    bool m_codeFoldingSupported = false;
+    bool m_paranthesesMatchinEnabled = false;
+    bool m_marksVisible = false;
 };
 
 } /// namespace Internal
