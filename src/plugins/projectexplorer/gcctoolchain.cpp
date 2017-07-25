@@ -367,7 +367,7 @@ QString GccToolChain::defaultDisplayName() const
     QString type = typeDisplayName();
     const QRegularExpression regexp(binaryRegexp);
     const QRegularExpressionMatch match = regexp.match(m_compilerCommand.fileName());
-    if (match.hasMatch())
+    if (match.lastCapturedIndex() >= 1)
         type += ' ' + match.captured(1);
     if (m_targetAbi.architecture() == Abi::UnknownArchitecture || m_targetAbi.wordWidth() == 0)
         return type;
