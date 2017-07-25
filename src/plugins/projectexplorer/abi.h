@@ -48,6 +48,7 @@ public:
         MipsArchitecture,
         PowerPCArchitecture,
         ShArchitecture,
+        AvrArchitecture,
         UnknownArchitecture
     };
 
@@ -59,6 +60,7 @@ public:
         WindowsOS,
         VxWorks,
         QnxOS,
+        BareMetalOS,
         UnknownOS
     };
 
@@ -90,10 +92,10 @@ public:
         WindowsMSysFlavor,
         WindowsCEFlavor,
 
+        // Embedded
         VxWorksFlavor,
-
-        // QNX
         GenericQnxFlavor,
+        GenericBareMetalFlavor,
 
         UnknownFlavor
     };

@@ -353,6 +353,10 @@ Abi::Abi(const Architecture &a, const OS &o,
         if (m_osFlavor != GenericQnxFlavor)
             m_osFlavor = UnknownFlavor;
         break;
+    case BareMetalOS:
+        if (m_osFlavor != GenericBareMetalFlavor)
+            m_osFlavor = GenericBareMetalFlavor;
+        break;
     }
 }
 
@@ -368,6 +372,8 @@ Abi::Abi(const QString &abiString) :
             m_architecture = ArmArchitecture;
         else if (abiParts.at(0) == "aarch64")
             m_architecture = ArmArchitecture;
+        else if (abiParts.at(0) == "avr")
+            m_architecture = AvrArchitecture;
         else if (abiParts.at(0) == "x86")
             m_architecture = X86Architecture;
         else if (abiParts.at(0) == "mips")
@@ -512,6 +518,12 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
         } else if (p.startsWith("aarch64")) {
             arch = ArmArchitecture;
             width = 64;
+        } else if (p == "avr") {
+            arch = AvrArchitecture;
+            os = BareMetalOS;
+            flavor = GenericBareMetalFlavor;
+            format = ElfFormat;
+            width = 16;
         } else if (p.startsWith("mips")) {
             arch = MipsArchitecture;
             width = p.contains("64") ? 64 : 32;
@@ -657,6 +669,8 @@ QString Abi::toString(const Architecture &a)
     switch (a) {
     case ArmArchitecture:
         return QLatin1String("arm");
+    case AvrArchitecture:
+        return QLatin1String("avr");
     case X86Architecture:
         return QLatin1String("x86");
     case MipsArchitecture:
@@ -690,6 +704,8 @@ QString Abi::toString(const OS &o)
         return QLatin1String("vxworks");
     case QnxOS:
         return QLatin1String("qnx");
+    case BareMetalOS:
+        return QLatin1String("baremetal");
     case UnknownOS: // fall through!
     default:
         return QLatin1String("unknown");
@@ -736,6 +752,7 @@ QString Abi::toString(const OSFlavor &of)
     case VxWorksFlavor:
         return QLatin1String("vxworks");
     case GenericQnxFlavor:
+    case GenericBareMetalFlavor:
         return QLatin1String("generic");
     case UnknownFlavor: // fall through!
     default:
@@ -787,6 +804,8 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
         return {VxWorksFlavor, UnknownFlavor};
     case QnxOS:
         return {GenericQnxFlavor, UnknownFlavor};
+    case BareMetalOS:
+        return {GenericBareMetalFlavor};
     case UnknownOS:
         return {UnknownFlavor};
     default:
@@ -1207,6 +1226,11 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet_data()
     QTest::newRow("aarch64-unknown-linux-gnu") << int(Abi::ArmArchitecture)
                                                << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
                                                << int(Abi::ElfFormat) << 64;
+
+    // Yes, that's the entire triplet
+    QTest::newRow("avr") << int(Abi::AvrArchitecture)
+                         << int(Abi::BareMetalOS) << int(Abi::GenericBareMetalFlavor)
+                         << int(Abi::ElfFormat) << 16;
 }
 
 void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet()
