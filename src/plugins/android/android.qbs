@@ -107,8 +107,6 @@ Project {
             "avddialog.h",
             "certificatesmodel.cpp",
             "certificatesmodel.h",
-            "javacompletionassistprovider.cpp",
-            "javacompletionassistprovider.h",
             "javaeditor.cpp",
             "javaeditor.h",
             "javaindenter.cpp",

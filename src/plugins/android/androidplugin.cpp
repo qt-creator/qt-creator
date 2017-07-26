@@ -42,7 +42,6 @@
 #include "androidruncontrol.h"
 #include "androidsettingspage.h"
 #include "androidtoolchain.h"
-#include "javacompletionassistprovider.h"
 #include "javaeditor.h"
 
 #ifdef HAVE_QBS
