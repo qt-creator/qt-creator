@@ -33,6 +33,9 @@
 
 using namespace ::testing;
 
+using Sqlite::SqlStatementBuilder;
+using Sqlite::SqlStatementBuilderException;
+
 TEST(SqlStatementBuilder, Bind)
 {
     SqlStatementBuilder sqlStatementBuilder(Utf8StringLiteral("SELECT $columns FROM $table WHERE $column = 'foo' AND rowid=$row AND rowid IN ($rows)"));

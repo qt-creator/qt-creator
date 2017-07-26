@@ -40,12 +40,14 @@
 struct sqlite3_stmt;
 struct sqlite3;
 
+namespace Sqlite {
+
 class SQLITE_EXPORT SqliteStatement
 {
 protected:
     explicit SqliteStatement(const Utf8String &sqlStatementUtf8);
 
-    static void deleteCompiledStatement(sqlite3_stmt *compiledStatement);
+    static void deleteCompiledStatement(sqlite3_stmt *m_compiledStatement);
 
     bool next() const;
     void step() const;
@@ -120,9 +122,11 @@ protected:
     QString columnName(int column) const;
 
 private:
-    std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt*)> compiledStatement;
-    Utf8StringVector  bindingColumnNames_;
-    int bindingParameterCount;
-    int columnCount_;
-    mutable bool isReadyToFetchValues;
+    std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt*)> m_compiledStatement;
+    Utf8StringVector m_bindingColumnNames;
+    int m_bindingParameterCount;
+    int m_columnCount;
+    mutable bool m_isReadyToFetchValues;
 };
+
+} // namespace Sqlite

@@ -30,11 +30,13 @@
 #include <utility>
 #include <vector>
 
+namespace Sqlite {
+
 class SQLITE_EXPORT SqlStatementBuilder
 {
     using BindingPair = std::pair<Utf8String, Utf8String>;
 public:
-    SqlStatementBuilder(const Utf8String &sqlTemplate);
+    SqlStatementBuilder(const Utf8String &m_sqlTemplate);
 
     void bindEmptyText(const Utf8String &name);
     void bind(const Utf8String &name, const Utf8String &text);
@@ -72,7 +74,9 @@ protected:
     Q_NORETURN static void throwException(const char *whatHasHappened, const char *errorMessage);
 
 private:
-    Utf8String sqlTemplate;
-    mutable Utf8String sqlStatement_;
-    mutable std::vector<BindingPair> bindings;
+    Utf8String m_sqlTemplate;
+    mutable Utf8String m_sqlStatement_;
+    mutable std::vector<BindingPair> m_bindings;
 };
+
+} // namespace Sqlite

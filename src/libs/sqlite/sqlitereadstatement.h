@@ -27,6 +27,8 @@
 
 #include "sqlitestatement.h"
 
+namespace Sqlite {
+
 class SQLITE_EXPORT SqliteReadStatement final : private SqliteStatement
 {
 public:
@@ -49,3 +51,5 @@ public:
 protected:
     void checkIsReadOnlyStatement();
 };
+
+} // namespace Sqlite

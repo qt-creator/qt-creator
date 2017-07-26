@@ -30,27 +30,70 @@
 
 #include <QObject>
 
-class SQLITE_EXPORT SqliteColumn : public QObject
+namespace Sqlite {
+
+class SqliteColumn
 {
-    Q_OBJECT
 public:
-    SqliteColumn();
+    SqliteColumn()
+        : m_type(ColumnType::Numeric),
+          m_isPrimaryKey(false)
+    {
 
-    void clear();
+    }
 
-    void setName(const Utf8String &newName);
-    const Utf8String &name() const;
+    void clear()
+    {
+        m_name.clear();
+        m_type = ColumnType::Numeric;
+        m_isPrimaryKey = false;
+    }
 
-    void setType(ColumnType newType);
-    ColumnType type() const;
+    void setName(const Utf8String &newName)
+    {
+        m_name = newName;
+    }
 
-    void setIsPrimaryKey(bool isPrimaryKey);
-    bool isPrimaryKey() const;
+    const Utf8String &name() const
+    {
+        return m_name;
+    }
 
-    Internal::ColumnDefinition columnDefintion() const;
+    void setType(ColumnType newType)
+    {
+        m_type = newType;
+    }
+
+    ColumnType type() const
+    {
+        return m_type;
+    }
+
+    void setIsPrimaryKey(bool isPrimaryKey)
+    {
+        m_isPrimaryKey = isPrimaryKey;
+    }
+
+    bool isPrimaryKey() const
+    {
+        return m_isPrimaryKey;
+    }
+
+    ColumnDefinition columnDefintion() const
+    {
+        ColumnDefinition columnDefinition;
+
+        columnDefinition.setName(m_name);
+        columnDefinition.setType(m_type);
+        columnDefinition.setIsPrimaryKey(m_isPrimaryKey);
+
+        return columnDefinition;
+    }
 
 private:
-    Utf8String name_;
-    ColumnType type_;
-    bool isPrimaryKey_;
+    Utf8String m_name;
+    ColumnType m_type;
+    bool m_isPrimaryKey;
 };
+
+} // namespace Sqlite

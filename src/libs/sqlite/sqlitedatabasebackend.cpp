@@ -46,11 +46,13 @@
 
 #define SIZE_OF_BYTEARRAY_ARRAY(array) sizeof(array)/sizeof(QByteArray)
 
+namespace Sqlite {
+
 QTC_THREAD_LOCAL SqliteDatabaseBackend *sqliteDatabaseBackend = nullptr;
 
 SqliteDatabaseBackend::SqliteDatabaseBackend()
-    : databaseHandle(nullptr),
-      cachedTextEncoding(Utf8)
+    : m_databaseHandle(nullptr),
+      m_cachedTextEncoding(Utf8)
 {
     sqliteDatabaseBackend = this;
 }
@@ -108,7 +110,7 @@ void SqliteDatabaseBackend::open(const QString &databaseFilePath)
 
     QByteArray databaseUtf8Path = databaseFilePath.toUtf8();
     int resultCode = sqlite3_open_v2(databaseUtf8Path.data(),
-                                      &databaseHandle,
+                                      &m_databaseHandle,
                                       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
                                       NULL);
 
@@ -123,7 +125,7 @@ sqlite3 *SqliteDatabaseBackend::sqliteDatabaseHandle()
 {
     checkDatabaseBackendIsNotNull();
     checkDatabaseHandleIsNotNull();
-    return threadLocalInstance()->databaseHandle;
+    return threadLocalInstance()->m_databaseHandle;
 }
 
 void SqliteDatabaseBackend::setPragmaValue(const Utf8String &pragmaKey, const Utf8String &newPragmaValue)
@@ -157,7 +159,7 @@ void SqliteDatabaseBackend::setTextEncoding(TextEncoding textEncoding)
 
 TextEncoding SqliteDatabaseBackend::textEncoding()
 {
-    return cachedTextEncoding;
+    return m_cachedTextEncoding;
 }
 
 
@@ -181,11 +183,11 @@ void SqliteDatabaseBackend::close()
 {
     checkForOpenDatabaseWhichCanBeClosed();
 
-    int resultCode = sqlite3_close(databaseHandle);
+    int resultCode = sqlite3_close(m_databaseHandle);
 
     checkDatabaseClosing(resultCode);
 
-    databaseHandle = nullptr;
+    m_databaseHandle = nullptr;
 
 }
 
@@ -197,14 +199,14 @@ SqliteDatabaseBackend *SqliteDatabaseBackend::threadLocalInstance()
 
 bool SqliteDatabaseBackend::databaseIsOpen() const
 {
-    return databaseHandle != nullptr;
+    return m_databaseHandle != nullptr;
 }
 
 void SqliteDatabaseBackend::closeWithoutException()
 {
-    if (databaseHandle) {
-        int resultCode = sqlite3_close_v2(databaseHandle);
-        databaseHandle = nullptr;
+    if (m_databaseHandle) {
+        int resultCode = sqlite3_close_v2(m_databaseHandle);
+        m_databaseHandle = nullptr;
         if (resultCode != SQLITE_OK)
             qWarning() << "SqliteDatabaseBackend::closeWithoutException: Unexpected error at closing the database!";
     }
@@ -235,12 +237,12 @@ int SqliteDatabaseBackend::busyHandlerCallback(void *, int counter)
 
 void SqliteDatabaseBackend::cacheTextEncoding()
 {
-    cachedTextEncoding = pragmaToTextEncoding(pragmaValue(Utf8StringLiteral("encoding")));
+    m_cachedTextEncoding = pragmaToTextEncoding(pragmaValue(Utf8StringLiteral("encoding")));
 }
 
 void SqliteDatabaseBackend::checkForOpenDatabaseWhichCanBeClosed()
 {
-    if (databaseHandle == nullptr)
+    if (m_databaseHandle == nullptr)
         throwException("SqliteDatabaseBackend::close: database is not open so it can not be closed.");
 }
 
@@ -280,7 +282,7 @@ void SqliteDatabaseBackend::checkPragmaValue(const Utf8String &databaseValue, co
 
 void SqliteDatabaseBackend::checkDatabaseHandleIsNotNull()
 {
-    if (sqliteDatabaseBackend->databaseHandle == nullptr)
+    if (sqliteDatabaseBackend->m_databaseHandle == nullptr)
         throwException("SqliteDatabaseBackend: database is not open!");
 }
 
@@ -383,8 +385,10 @@ TextEncoding SqliteDatabaseBackend::pragmaToTextEncoding(const Utf8String &pragm
 
 void SqliteDatabaseBackend::throwException(const char *whatHasHappens)
 {
-    if (sqliteDatabaseBackend && sqliteDatabaseBackend->databaseHandle)
-        throw SqliteException(whatHasHappens, sqlite3_errmsg(sqliteDatabaseBackend->databaseHandle));
+    if (sqliteDatabaseBackend && sqliteDatabaseBackend->m_databaseHandle)
+        throw SqliteException(whatHasHappens, sqlite3_errmsg(sqliteDatabaseBackend->m_databaseHandle));
     else
         throw SqliteException(whatHasHappens);
 }
+
+} // namespace Sqlite

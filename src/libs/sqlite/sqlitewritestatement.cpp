@@ -25,6 +25,8 @@
 
 #include "sqlitewritestatement.h"
 
+namespace Sqlite {
+
 SqliteWriteStatement::SqliteWriteStatement(const Utf8String &sqlStatementUtf8)
     : SqliteStatement(sqlStatementUtf8)
 {
@@ -36,3 +38,5 @@ void SqliteWriteStatement::checkIsWritableStatement()
     if (isReadOnlyStatement())
         throwException("SqliteStatement::SqliteWriteStatement: is not a writable statement!");
 }
+
+} // namespace Sqlite

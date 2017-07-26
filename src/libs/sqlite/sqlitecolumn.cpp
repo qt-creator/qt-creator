@@ -25,57 +25,7 @@
 
 #include "sqlitecolumn.h"
 
-SqliteColumn::SqliteColumn()
-    : type_(ColumnType::Numeric),
-      isPrimaryKey_(false)
-{
+namespace Sqlite {
 
-}
 
-void SqliteColumn::clear()
-{
-    name_.clear();
-    type_ = ColumnType::Numeric;
-    isPrimaryKey_ = false;
-}
-
-void SqliteColumn::setName(const Utf8String &newName)
-{
-    name_ = newName;
-}
-
-const Utf8String &SqliteColumn::name() const
-{
-    return name_;
-}
-
-void SqliteColumn::setType(ColumnType newType)
-{
-    type_ = newType;
-}
-
-ColumnType SqliteColumn::type() const
-{
-    return type_;
-}
-
-void SqliteColumn::setIsPrimaryKey(bool isPrimaryKey)
-{
-    isPrimaryKey_ = isPrimaryKey;
-}
-
-bool SqliteColumn::isPrimaryKey() const
-{
-    return isPrimaryKey_;
-}
-
-Internal::ColumnDefinition SqliteColumn::columnDefintion() const
-{
-    Internal::ColumnDefinition columnDefinition;
-
-    columnDefinition.setName(name_);
-    columnDefinition.setType(type_);
-    columnDefinition.setIsPrimaryKey(isPrimaryKey_);
-
-    return columnDefinition;
-}
+} // namespace Sqlite

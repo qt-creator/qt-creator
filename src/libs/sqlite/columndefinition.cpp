@@ -25,49 +25,20 @@
 
 #include "columndefinition.h"
 
-namespace Internal {
+namespace Sqlite {
 
-void ColumnDefinition::setName(const Utf8String &name)
-{
-    name_ = name;
-}
 
-const Utf8String &ColumnDefinition::name() const
-{
-    return name_;
-}
 
-void ColumnDefinition::setType(ColumnType type)
-{
-    type_ = type;
-}
 
-ColumnType ColumnDefinition::type() const
-{
-    return type_;
-}
 
-Utf8String ColumnDefinition::typeString() const
-{
-    switch (type_) {
-        case ColumnType::None: return Utf8String();
-        case ColumnType::Numeric: return Utf8StringLiteral("NUMERIC");
-        case ColumnType::Integer: return Utf8StringLiteral("INTEGER");
-        case ColumnType::Real: return Utf8StringLiteral("REAL");
-        case ColumnType::Text: return Utf8StringLiteral("TEXT");
-    }
 
-    Q_UNREACHABLE();
-}
 
-void ColumnDefinition::setIsPrimaryKey(bool isPrimaryKey)
-{
-    isPrimaryKey_ = isPrimaryKey;
-}
 
-bool ColumnDefinition::isPrimaryKey() const
-{
-    return isPrimaryKey_;
-}
 
-}
+
+
+
+
+
+
+} // namespace Sqlite

@@ -29,12 +29,14 @@
 
 namespace {
 
+using Sqlite::ColumnDefinition;
+
 class SqliteColumn : public ::testing::Test
 {
 protected:
     void SetUp() override;
 
-    ::SqliteColumn column;
+    Sqlite::SqliteColumn column;
 };
 
 TEST_F(SqliteColumn, ChangeName)
@@ -72,7 +74,7 @@ TEST_F(SqliteColumn, GetColumnDefinition)
 {
     column.setName(Utf8StringLiteral("Claudia"));
 
-    Internal::ColumnDefinition columnDefintion = column.columnDefintion();
+    ColumnDefinition columnDefintion = column.columnDefintion();
 
     ASSERT_THAT(columnDefintion.name(), Utf8StringLiteral("Claudia"));
     ASSERT_THAT(columnDefintion.type(), ColumnType::Numeric);

@@ -26,21 +26,19 @@
 #pragma once
 
 #include "sqliteglobal.h"
-#include "tablewriteworkerproxy.h"
+#include "columndefinition.h"
 #include "utf8string.h"
 
 #include <QObject>
 #include <QVector>
 
+namespace Sqlite {
+
 class SqliteColumn;
 class SqliteDatabase;
 
-class SQLITE_EXPORT SqliteTable : public QObject
+class SQLITE_EXPORT SqliteTable
 {
-    Q_OBJECT
-
-    friend class Internal::TableWriteWorkerProxy;
-
 public:
     SqliteTable();
     ~SqliteTable();
@@ -57,20 +55,19 @@ public:
     void setSqliteDatabase(SqliteDatabase *database);
 
     void initialize();
-    void shutdown();
 
-signals:
-    void tableIsReady();
+    bool isReady() const;
 
 private:
-    void handleTableCreated();
-    Internal::CreateTableCommand createTableCommand() const;
-    QVector<Internal::ColumnDefinition> createColumnDefintions() const;
+    QVector<ColumnDefinition> createColumnDefintions() const;
 
 private:
-    Internal::TableWriteWorkerProxy writeWorker;
-    QVector<SqliteColumn*> sqliteColumns;
-    Utf8String tableName;
-    SqliteDatabase *sqliteDatabase;
-    bool withoutRowId;
+    QVector<SqliteColumn*> m_sqliteColumns;
+    Utf8String m_tableName;
+    SqliteDatabase *m_sqliteDatabase;
+    bool m_withoutRowId;
+
+    bool m_isReady = false;
 };
+
+} // namespace Sqlite

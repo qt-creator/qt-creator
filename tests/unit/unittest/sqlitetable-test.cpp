@@ -36,6 +36,9 @@
 
 namespace {
 
+using Sqlite::SqliteColumn;
+using Sqlite::SqliteDatabase;
+
 class SqliteTable : public ::testing::Test
 {
 protected:
@@ -45,8 +48,8 @@ protected:
     SqliteColumn *addColumn(const Utf8String &columnName);
 
     SpyDummy spyDummy;
-    SqliteDatabase *database = nullptr;
-    ::SqliteTable *table = nullptr;
+    SqliteDatabase database;
+    Sqlite::SqliteTable *table = new Sqlite::SqliteTable;
     Utf8String tableName = Utf8StringLiteral("testTable");
 };
 
@@ -74,31 +77,25 @@ TEST_F(SqliteTable, SetUseWithoutRowid)
 
 TEST_F(SqliteTable, TableIsReadyAfterOpenDatabase)
 {
-    QSignalSpy signalSpy(&spyDummy, &SpyDummy::tableIsReady);
     table->setName(tableName);
     addColumn(Utf8StringLiteral("name"));
 
-    database->open();
+    database.open();
 
-    ASSERT_TRUE(signalSpy.wait(100000));
+    ASSERT_TRUE(table->isReady());
 }
 
 void SqliteTable::SetUp()
 {
-    table = new ::SqliteTable;
-    QObject::connect(table, &::SqliteTable::tableIsReady, &spyDummy, &SpyDummy::tableIsReady);
-
-    database = new SqliteDatabase;
-    database->setJournalMode(JournalMode::Memory);
-    database->setDatabaseFilePath( QStringLiteral(":memory:"));
-    database->addTable(table);
+    database.setJournalMode(JournalMode::Memory);
+    database.setDatabaseFilePath( QStringLiteral(":memory:"));
+    database.addTable(table);
 }
 
 void SqliteTable::TearDown()
 {
-    database->close();
-    delete database;
-    database = nullptr;
+    if (database.isOpen())
+        database.close();
     table = nullptr;
 }
 

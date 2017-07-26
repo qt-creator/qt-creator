@@ -33,6 +33,8 @@
 
 struct sqlite3;
 
+namespace Sqlite {
+
 class SQLITE_EXPORT SqliteDatabaseBackend
 {
 public:
@@ -102,7 +104,9 @@ protected:
     Q_NORETURN static void throwException(const char *whatHasHappens);
 
 private:
-    sqlite3 *databaseHandle;
-    TextEncoding cachedTextEncoding;
+    sqlite3 *m_databaseHandle;
+    TextEncoding m_cachedTextEncoding;
 
 };
+
+} // namespace Sqlite

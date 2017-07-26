@@ -25,15 +25,8 @@
 
 #include "sqliteglobal.h"
 
-#include "createtablecommand.h"
 
 namespace Sqlite {
 
-void registerTypes()
-{
-    Internal::CreateTableCommand::registerType();
-
-    qRegisterMetaType<JournalMode>("JournalMode");
-}
 
 }

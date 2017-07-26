@@ -39,6 +39,13 @@
 #include <QVariant>
 
 namespace {
+
+using Sqlite::SqliteException;
+using Sqlite::SqliteDatabaseBackend;
+using Sqlite::SqliteReadStatement;
+using Sqlite::SqliteReadWriteStatement;
+using Sqlite::SqliteWriteStatement;
+
 class SqliteStatement : public ::testing::Test
 {
 protected:

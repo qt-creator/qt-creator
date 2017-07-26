@@ -33,6 +33,9 @@
 
 namespace {
 
+using Sqlite::SqliteException;
+using Sqlite::SqliteWriteStatement;
+
 class SqliteDatabaseBackend : public ::testing::Test
 {
 protected:
@@ -40,7 +43,7 @@ protected:
     void TearDown() override;
 
     QString databaseFilePath = QDir::tempPath() + QStringLiteral("/SqliteDatabaseBackendTest.db");
-    ::SqliteDatabaseBackend databaseBackend;
+    Sqlite::SqliteDatabaseBackend databaseBackend;
 };
 
 using SqliteDatabaseBackendSlowTest = SqliteDatabaseBackend;
@@ -53,6 +56,7 @@ TEST_F(SqliteDatabaseBackend, OpenAlreadyOpenDatabase)
 TEST_F(SqliteDatabaseBackend, CloseAlreadyClosedDatabase)
 {
     databaseBackend.close();
+
     ASSERT_THROW(databaseBackend.close(), SqliteException);
 }
 

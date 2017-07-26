@@ -27,6 +27,8 @@
 
 #include "sqliteglobal.h"
 
+namespace Sqlite {
+
 class SQLITE_EXPORT SqliteAbstractTransaction
 {
 public:
@@ -35,7 +37,7 @@ public:
     void commit();
 
 private:
-    bool isAlreadyCommited = false;
+    bool m_isAlreadyCommited = false;
 };
 
 
@@ -59,3 +61,5 @@ public:
     SqliteExclusiveTransaction();
 
 };
+
+} // namespace Sqlite

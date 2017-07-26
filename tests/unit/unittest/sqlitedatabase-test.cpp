@@ -36,6 +36,10 @@
 
 namespace {
 
+using testing::Contains;
+
+using Sqlite::SqliteTable;
+
 class SqliteDatabase : public ::testing::Test
 {
 protected:
@@ -44,7 +48,7 @@ protected:
 
     SpyDummy spyDummy;
     QString databaseFilePath = QStringLiteral(":memory:");
-    ::SqliteDatabase database;
+    Sqlite::SqliteDatabase database;
 };
 
 TEST_F(SqliteDatabase, SetDatabaseFilePath)
@@ -62,20 +66,16 @@ TEST_F(SqliteDatabase, SetJournalMode)
 TEST_F(SqliteDatabase, OpenDatabase)
 {
     database.close();
-    QSignalSpy signalSpy(&spyDummy, &SpyDummy::databaseIsOpened);
+
     database.open();
 
-    ASSERT_TRUE(signalSpy.wait(100000));
     ASSERT_TRUE(database.isOpen());
 }
 
 TEST_F(SqliteDatabase, CloseDatabase)
 {
-    QSignalSpy signalSpy(&spyDummy, &SpyDummy::databaseIsClosed);
-
     database.close();
 
-    ASSERT_TRUE(signalSpy.wait(100000));
     ASSERT_FALSE(database.isOpen());
 }
 
@@ -85,20 +85,19 @@ TEST_F(SqliteDatabase, AddTable)
 
     database.addTable(sqliteTable);
 
-    ASSERT_THAT(database.tables().first(), sqliteTable);
+    ASSERT_THAT(database.tables(), Contains(sqliteTable));
 }
 
 void SqliteDatabase::SetUp()
 {
-    QObject::connect(&database, &::SqliteDatabase::databaseIsOpened, &spyDummy, &SpyDummy::databaseIsOpened);
-    QObject::connect(&database, &::SqliteDatabase::databaseIsClosed, &spyDummy, &SpyDummy::databaseIsClosed);
-
     database.setJournalMode(JournalMode::Memory);
     database.setDatabaseFilePath(databaseFilePath);
+    database.open();
 }
 
 void SqliteDatabase::TearDown()
 {
-    database.close();
+    if (database.isOpen())
+        database.close();
 }
 }

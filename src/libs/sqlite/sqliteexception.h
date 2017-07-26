@@ -29,14 +29,18 @@
 
 #include <QByteArray>
 
+namespace Sqlite {
+
 class SQLITE_EXPORT SqliteException
 {
 public:
-    SqliteException(const char *whatErrorHasHappen, const char *sqliteErrorMessage = 0);
+    SqliteException(const char *m_whatErrorHasHappen, const char *sqliteErrorMessage = 0);
 
     void printWarning() const;
 
 private:
-    const char *whatErrorHasHappen;
-    QByteArray sqliteErrorMessage_;
+    const char *m_whatErrorHasHappen;
+    QByteArray m_sqliteErrorMessage;
 };
+
+} // namespace Sqlite

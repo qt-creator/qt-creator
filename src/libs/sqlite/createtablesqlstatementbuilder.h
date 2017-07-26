@@ -30,17 +30,17 @@
 
 #include <QVector>
 
-namespace Internal {
+namespace Sqlite {
 
 class SQLITE_EXPORT CreateTableSqlStatementBuilder
 {
 public:
     CreateTableSqlStatementBuilder();
 
-    void setTable(const Utf8String &tableName);
+    void setTable(const Utf8String &m_tableName);
     void addColumnDefinition(const Utf8String &columnName, ColumnType columnType, bool isPrimaryKey = false);
-    void setColumnDefinitions(const QVector<ColumnDefinition> & columnDefinitions);
-    void setUseWithoutRowId(bool useWithoutRowId);
+    void setColumnDefinitions(const QVector<ColumnDefinition> & m_columnDefinitions);
+    void setUseWithoutRowId(bool m_useWithoutRowId);
 
     void clear();
     void clearColumns();
@@ -54,10 +54,10 @@ protected:
     void bindAll() const;
 
 private:
-    mutable SqlStatementBuilder sqlStatementBuilder;
-    Utf8String tableName;
-    QVector<ColumnDefinition> columnDefinitions;
-    bool useWithoutRowId;
+    mutable SqlStatementBuilder m_sqlStatementBuilder;
+    Utf8String m_tableName;
+    QVector<ColumnDefinition> m_columnDefinitions;
+    bool m_useWithoutRowId;
 };
 
-}
+} // namespace Sqlite

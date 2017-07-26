@@ -32,18 +32,21 @@
 
 #include <utf8stringvector.h>
 
+namespace {
+
+using Sqlite::ColumnDefinition;
+using Sqlite::SqlStatementBuilderException;
+
 class CreateTableSqlStatementBuilder : public ::testing::Test
 {
 protected:
-    void SetUp() override;
-
     void bindValues();
-    static const QVector<Internal::ColumnDefinition> createColumnDefintions();
-    static const Internal::ColumnDefinition createColumnDefintion(const Utf8String &name,
-                                                                  ColumnType type,
-                                                                  bool isPrimaryKey = false);
-
-    Internal::CreateTableSqlStatementBuilder builder;
+    static const QVector<ColumnDefinition> createColumnDefintions();
+    static const ColumnDefinition createColumnDefintion(const Utf8String &name,
+                                                        ColumnType type,
+                                                        bool isPrimaryKey = false);
+protected:
+    Sqlite::CreateTableSqlStatementBuilder builder;
 };
 
 TEST_F(CreateTableSqlStatementBuilder, IsNotValidAfterCreation)
@@ -146,11 +149,6 @@ TEST_F(CreateTableSqlStatementBuilder, SetColumnDefinitions)
                 Utf8StringLiteral("CREATE TABLE IF NOT EXISTS test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)"));
 }
 
-void CreateTableSqlStatementBuilder::SetUp()
-{
-    builder = Internal::CreateTableSqlStatementBuilder();
-}
-
 void CreateTableSqlStatementBuilder::bindValues()
 {
     builder.clear();
@@ -160,9 +158,9 @@ void CreateTableSqlStatementBuilder::bindValues()
     builder.addColumnDefinition(Utf8StringLiteral("number"),ColumnType:: Numeric);
 }
 
-const QVector<Internal::ColumnDefinition> CreateTableSqlStatementBuilder::createColumnDefintions()
+const QVector<ColumnDefinition> CreateTableSqlStatementBuilder::createColumnDefintions()
 {
-    QVector<Internal::ColumnDefinition>  columnDefinitions;
+    QVector<ColumnDefinition>  columnDefinitions;
     columnDefinitions.append(createColumnDefintion(Utf8StringLiteral("id"), ColumnType::Integer, true));
     columnDefinitions.append(createColumnDefintion(Utf8StringLiteral("name"), ColumnType::Text));
     columnDefinitions.append(createColumnDefintion(Utf8StringLiteral("number"), ColumnType::Numeric));
@@ -170,13 +168,15 @@ const QVector<Internal::ColumnDefinition> CreateTableSqlStatementBuilder::create
     return columnDefinitions;
 }
 
-const Internal::ColumnDefinition CreateTableSqlStatementBuilder::createColumnDefintion(const Utf8String &name, ColumnType type, bool isPrimaryKey)
+const ColumnDefinition CreateTableSqlStatementBuilder::createColumnDefintion(const Utf8String &name, ColumnType type, bool isPrimaryKey)
 {
-    Internal::ColumnDefinition columnDefinition;
+    ColumnDefinition columnDefinition;
 
     columnDefinition.setName(name);
     columnDefinition.setType(type);
     columnDefinition.setIsPrimaryKey(isPrimaryKey);
 
     return columnDefinition;
+}
+
 }

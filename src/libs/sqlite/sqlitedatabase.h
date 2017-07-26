@@ -25,18 +25,18 @@
 
 #pragma once
 
-#include "sqlitedatabaseconnectionproxy.h"
+#include "sqlitedatabasebackend.h"
 #include "sqliteglobal.h"
 
 #include <QString>
 #include <QVector>
 
+namespace Sqlite {
+
 class SqliteTable;
 
-class SQLITE_EXPORT SqliteDatabase : public QObject
+class SQLITE_EXPORT SqliteDatabase
 {
-    Q_OBJECT
-
 public:
     SqliteDatabase();
     ~SqliteDatabase();
@@ -55,25 +55,16 @@ public:
     void setJournalMode(JournalMode journalMode);
     JournalMode journalMode() const;
 
-    QThread *writeWorkerThread() const;
-    QThread *readWorkerThread() const;
-
-signals:
-    void databaseIsOpened();
-    void databaseIsClosed();
 
 private:
-    void handleReadDatabaseConnectionIsOpened();
-    void handleWriteDatabaseConnectionIsOpened();
-    void handleReadDatabaseConnectionIsClosed();
-    void handleWriteDatabaseConnectionIsClosed();
     void initializeTables();
-    void shutdownTables();
 
 private:
-    SqliteDatabaseConnectionProxy readDatabaseConnection;
-    SqliteDatabaseConnectionProxy writeDatabaseConnection;
-    QVector<SqliteTable*> sqliteTables;
-    QString databaseFilePath_;
-    JournalMode journalMode_;
+    SqliteDatabaseBackend m_sqliteDatabaseBackEnd;
+    QVector<SqliteTable*> m_sqliteTables;
+    QString m_databaseFilePath;
+    JournalMode m_journalMode;
+    bool m_isOpen = false;
 };
+
+} // namespace Sqlite

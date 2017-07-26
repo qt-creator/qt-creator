@@ -39,11 +39,13 @@
 #  pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #endif
 
+namespace Sqlite {
+
 SqliteStatement::SqliteStatement(const Utf8String &sqlStatementUtf8)
-    : compiledStatement(nullptr, deleteCompiledStatement),
-      bindingParameterCount(0),
-      columnCount_(0),
-      isReadyToFetchValues(false)
+    : m_compiledStatement(nullptr, deleteCompiledStatement),
+      m_bindingParameterCount(0),
+      m_columnCount(0),
+      m_isReadyToFetchValues(false)
 {
     prepare(sqlStatementUtf8);
     setBindingParameterCount();
@@ -108,11 +110,11 @@ void SqliteStatement::waitForUnlockNotify() const
 
 void SqliteStatement::reset() const
 {
-    int resultCode = sqlite3_reset(compiledStatement.get());
+    int resultCode = sqlite3_reset(m_compiledStatement.get());
     if (resultCode != SQLITE_OK)
         throwException("SqliteStatement::reset: can't reset statement!");
 
-    isReadyToFetchValues = false;
+    m_isReadyToFetchValues = false;
 }
 
 bool SqliteStatement::next() const
@@ -120,10 +122,10 @@ bool SqliteStatement::next() const
     int resultCode;
 
     do {
-        resultCode = sqlite3_step(compiledStatement.get());
+        resultCode = sqlite3_step(m_compiledStatement.get());
         if (resultCode == SQLITE_LOCKED) {
             waitForUnlockNotify();
-            sqlite3_reset(compiledStatement.get());
+            sqlite3_reset(m_compiledStatement.get());
         }
 
     } while (resultCode == SQLITE_LOCKED);
@@ -154,7 +156,7 @@ void SqliteStatement::writeUnchecked(const RowDictionary &rowDictionary)
 
 int SqliteStatement::columnCount() const
 {
-    return columnCount_;
+    return m_columnCount;
 }
 
 Utf8StringVector SqliteStatement::columnNames() const
@@ -163,28 +165,28 @@ Utf8StringVector SqliteStatement::columnNames() const
     int columnCount = SqliteStatement::columnCount();
     columnNames.reserve(columnCount);
     for (int columnIndex = 0; columnIndex < columnCount; columnIndex++)
-        columnNames.append(Utf8String(sqlite3_column_origin_name(compiledStatement.get(), columnIndex), -1));
+        columnNames.append(Utf8String(sqlite3_column_origin_name(m_compiledStatement.get(), columnIndex), -1));
 
     return columnNames;
 }
 
 void SqliteStatement::bind(int index, int value)
 {
-     int resultCode = sqlite3_bind_int(compiledStatement.get(), index, value);
+     int resultCode = sqlite3_bind_int(m_compiledStatement.get(), index, value);
      if (resultCode != SQLITE_OK)
          throwException("SqliteStatement::bind: cant' bind 32 bit integer!");
 }
 
 void SqliteStatement::bind(int index, qint64 value)
 {
-     int resultCode = sqlite3_bind_int64(compiledStatement.get(), index, value);
+     int resultCode = sqlite3_bind_int64(m_compiledStatement.get(), index, value);
      if (resultCode != SQLITE_OK)
          throwException("SqliteStatement::bind: cant' bind 64 bit integer!");
 }
 
 void SqliteStatement::bind(int index, double value)
 {
-    int resultCode = sqlite3_bind_double(compiledStatement.get(), index, value);
+    int resultCode = sqlite3_bind_double(m_compiledStatement.get(), index, value);
     if (resultCode != SQLITE_OK)
         throwException("SqliteStatement::bind: cant' bind double!");
 }
@@ -194,9 +196,9 @@ void SqliteStatement::bind(int index, const QString &text)
     int resultCode;
     if (databaseTextEncoding() == Utf8) {
         QByteArray textUtf8 = text.toUtf8();
-        resultCode = sqlite3_bind_text(compiledStatement.get(), index, textUtf8.constData(), textUtf8.size(), SQLITE_TRANSIENT);
+        resultCode = sqlite3_bind_text(m_compiledStatement.get(), index, textUtf8.constData(), textUtf8.size(), SQLITE_TRANSIENT);
     } else {
-        resultCode = sqlite3_bind_text16(compiledStatement.get(), index, text.constData(), text.size() * 2, SQLITE_TRANSIENT);
+        resultCode = sqlite3_bind_text16(m_compiledStatement.get(), index, text.constData(), text.size() * 2, SQLITE_TRANSIENT);
     }
 
     if (resultCode != SQLITE_OK)
@@ -205,7 +207,7 @@ void SqliteStatement::bind(int index, const QString &text)
 
 void SqliteStatement::bind(int index, const QByteArray &blob)
 {
-    sqlite3_bind_blob(compiledStatement.get(), index, blob.constData(), blob.size(), SQLITE_TRANSIENT);
+    sqlite3_bind_blob(m_compiledStatement.get(), index, blob.constData(), blob.size(), SQLITE_TRANSIENT);
 }
 
 void SqliteStatement::bind(int index, const QVariant &value)
@@ -232,7 +234,7 @@ void SqliteStatement::bind(int index, const QVariant &value)
             bind(index, value.toByteArray());
             break;
         default:
-            sqlite3_bind_null(compiledStatement.get(), index);
+            sqlite3_bind_null(m_compiledStatement.get(), index);
     }
 }
 
@@ -253,7 +255,7 @@ template SQLITE_EXPORT void SqliteStatement::bind(const Utf8String &name, const 
 
 int SqliteStatement::bindingIndexForName(const Utf8String &name)
 {
-    return  sqlite3_bind_parameter_index(compiledStatement.get(), name.constData());
+    return  sqlite3_bind_parameter_index(m_compiledStatement.get(), name.constData());
 }
 
 void SqliteStatement::bind(const RowDictionary &rowDictionary)
@@ -261,7 +263,7 @@ void SqliteStatement::bind(const RowDictionary &rowDictionary)
     checkBindingValueMapIsEmpty(rowDictionary);
 
     int columnIndex = 1;
-    foreach (const Utf8String &columnName, bindingColumnNames_) {
+    foreach (const Utf8String &columnName, m_bindingColumnNames) {
         checkParameterCanBeBound(rowDictionary, columnName);
         QVariant value = rowDictionary.value(columnName);
         bind(columnIndex, value);
@@ -274,7 +276,7 @@ void SqliteStatement::bindUnchecked(const RowDictionary &rowDictionary)
     checkBindingValueMapIsEmpty(rowDictionary);
 
     int columnIndex = 1;
-    foreach (const Utf8String &columnName, bindingColumnNames_) {
+    foreach (const Utf8String &columnName, m_bindingColumnNames) {
         if (rowDictionary.contains(columnName)) {
             QVariant value = rowDictionary.value(columnName);
             bind(columnIndex, value);
@@ -285,12 +287,12 @@ void SqliteStatement::bindUnchecked(const RowDictionary &rowDictionary)
 
 void SqliteStatement::setBindingColumnNames(const Utf8StringVector &bindingColumnNames)
 {
-    bindingColumnNames_ = bindingColumnNames;
+    m_bindingColumnNames = bindingColumnNames;
 }
 
 const Utf8StringVector &SqliteStatement::bindingColumnNames() const
 {
-    return bindingColumnNames_;
+    return m_bindingColumnNames;
 }
 
 void SqliteStatement::execute(const Utf8String &sqlStatementUtf8)
@@ -306,7 +308,7 @@ void SqliteStatement::prepare(const Utf8String &sqlStatementUtf8)
     do {
         sqlite3_stmt *sqliteStatement = nullptr;
         resultCode = sqlite3_prepare_v2(sqliteDatabaseHandle(), sqlStatementUtf8.constData(), sqlStatementUtf8.byteSize(), &sqliteStatement, nullptr);
-        compiledStatement.reset(sqliteStatement);
+        m_compiledStatement.reset(sqliteStatement);
 
         if (resultCode == SQLITE_LOCKED)
             waitForUnlockNotify();
@@ -362,41 +364,41 @@ void SqliteStatement::checkForPrepareError(int resultCode) const
 void SqliteStatement::setIfIsReadyToFetchValues(int resultCode) const
 {
     if (resultCode == SQLITE_ROW)
-        isReadyToFetchValues = true;
+        m_isReadyToFetchValues = true;
     else
-        isReadyToFetchValues = false;
+        m_isReadyToFetchValues = false;
 
 }
 
 void SqliteStatement::checkIfIsReadyToFetchValues() const
 {
-    if (!isReadyToFetchValues)
+    if (!m_isReadyToFetchValues)
         throwException("SqliteStatement::value: there are no values to fetch!");
 }
 
 void SqliteStatement::checkColumnsAreValid(const QVector<int> &columns) const
 {
     foreach (int column, columns) {
-        if (column < 0 || column >= columnCount_)
+        if (column < 0 || column >= m_columnCount)
             throwException("SqliteStatement::values: column index out of bound!");
     }
 }
 
 void SqliteStatement::checkColumnIsValid(int column) const
 {
-    if (column < 0 || column >= columnCount_)
+    if (column < 0 || column >= m_columnCount)
         throwException("SqliteStatement::values: column index out of bound!");
 }
 
 void SqliteStatement::checkBindingIndex(int index) const
 {
-    if (index <= 0 || index > bindingParameterCount)
+    if (index <= 0 || index > m_bindingParameterCount)
         throwException("SqliteStatement::bind: binding index is out of bound!");
 }
 
 void SqliteStatement::checkBindingName(int index) const
 {
-    if (index <= 0 || index > bindingParameterCount)
+    if (index <= 0 || index > m_bindingParameterCount)
         throwException("SqliteStatement::bind: binding name are not exists in this statement!");
 }
 
@@ -408,7 +410,7 @@ void SqliteStatement::checkParameterCanBeBound(const RowDictionary &rowDictionar
 
 void SqliteStatement::setBindingParameterCount()
 {
-    bindingParameterCount = sqlite3_bind_parameter_count(compiledStatement.get());
+    m_bindingParameterCount = sqlite3_bind_parameter_count(m_compiledStatement.get());
 }
 
 Utf8String chopFirstLetter(const char *rawBindingName)
@@ -421,15 +423,15 @@ Utf8String chopFirstLetter(const char *rawBindingName)
 
 void SqliteStatement::setBindingColumnNamesFromStatement()
 {
-    for (int index = 1; index <= bindingParameterCount; index++) {
-        Utf8String bindingName = chopFirstLetter(sqlite3_bind_parameter_name(compiledStatement.get(), index));
-        bindingColumnNames_.append(bindingName);
+    for (int index = 1; index <= m_bindingParameterCount; index++) {
+        Utf8String bindingName = chopFirstLetter(sqlite3_bind_parameter_name(m_compiledStatement.get(), index));
+        m_bindingColumnNames.append(bindingName);
     }
 }
 
 void SqliteStatement::setColumnCount()
 {
-    columnCount_ = sqlite3_column_count(compiledStatement.get());
+    m_columnCount = sqlite3_column_count(m_compiledStatement.get());
 }
 
 void SqliteStatement::checkBindingValueMapIsEmpty(const RowDictionary &rowDictionary) const
@@ -440,7 +442,7 @@ void SqliteStatement::checkBindingValueMapIsEmpty(const RowDictionary &rowDictio
 
 bool SqliteStatement::isReadOnlyStatement() const
 {
-    return sqlite3_stmt_readonly(compiledStatement.get());
+    return sqlite3_stmt_readonly(m_compiledStatement.get());
 }
 
 void SqliteStatement::throwException(const char *whatHasHappened)
@@ -450,7 +452,7 @@ void SqliteStatement::throwException(const char *whatHasHappened)
 
 QString SqliteStatement::columnName(int column) const
 {
-    return QString::fromUtf8(sqlite3_column_name(compiledStatement.get(), column));
+    return QString::fromUtf8(sqlite3_column_name(m_compiledStatement.get(), column));
 }
 
 static bool columnIsBlob(sqlite3_stmt *sqlStatment, int column)
@@ -521,7 +523,7 @@ int SqliteStatement::value<int>(int column) const
 {
     checkIfIsReadyToFetchValues();
     checkColumnIsValid(column);
-    return sqlite3_column_int(compiledStatement.get(), column);
+    return sqlite3_column_int(m_compiledStatement.get(), column);
 }
 
 template<>
@@ -529,7 +531,7 @@ qint64 SqliteStatement::value<qint64>(int column) const
 {
     checkIfIsReadyToFetchValues();
     checkColumnIsValid(column);
-    return sqlite3_column_int64(compiledStatement.get(), column);
+    return sqlite3_column_int64(m_compiledStatement.get(), column);
 }
 
 template<>
@@ -537,7 +539,7 @@ double SqliteStatement::value<double>(int column) const
 {
     checkIfIsReadyToFetchValues();
     checkColumnIsValid(column);
-    return sqlite3_column_double(compiledStatement.get(), column);
+    return sqlite3_column_double(m_compiledStatement.get(), column);
 }
 
 template<>
@@ -545,7 +547,7 @@ QByteArray SqliteStatement::value<QByteArray>(int column) const
 {
     checkIfIsReadyToFetchValues();
     checkColumnIsValid(column);
-    return byteArrayForColumn(compiledStatement.get(), column);
+    return byteArrayForColumn(m_compiledStatement.get(), column);
 }
 
 template<>
@@ -553,7 +555,7 @@ Utf8String SqliteStatement::value<Utf8String>(int column) const
 {
     checkIfIsReadyToFetchValues();
     checkColumnIsValid(column);
-    return convertedToUtf8StringForColumn(compiledStatement.get(), column);
+    return convertedToUtf8StringForColumn(m_compiledStatement.get(), column);
 }
 
 template<>
@@ -561,7 +563,7 @@ QString SqliteStatement::value<QString>(int column) const
 {
     checkIfIsReadyToFetchValues();
     checkColumnIsValid(column);
-    return textForColumn(compiledStatement.get(), column);
+    return textForColumn(m_compiledStatement.get(), column);
 }
 
 template<>
@@ -569,7 +571,7 @@ QVariant SqliteStatement::value<QVariant>(int column) const
 {
     checkIfIsReadyToFetchValues();
     checkColumnIsValid(column);
-    return variantForColumn(compiledStatement.get(), column);
+    return variantForColumn(m_compiledStatement.get(), column);
 }
 
 template <typename ContainerType>
@@ -592,7 +594,7 @@ QMap<QString, QVariant> SqliteStatement::rowColumnValueMap() const
 
     if (next()) {
         for (int column = 0; column < columnCount(); column++)
-            values.insert(columnName(column), variantForColumn(compiledStatement.get(), column));
+            values.insert(columnName(column), variantForColumn(m_compiledStatement.get(), column));
     }
 
     return values;
@@ -605,7 +607,7 @@ QMap<QString, QVariant> SqliteStatement::twoColumnValueMap() const
     reset();
 
     while (next())
-        values.insert(textForColumn(compiledStatement.get(), 0), variantForColumn(compiledStatement.get(), 1));
+        values.insert(textForColumn(m_compiledStatement.get(), 0), variantForColumn(m_compiledStatement.get(), 1));
 
     return values;
 }
@@ -669,3 +671,4 @@ template SQLITE_EXPORT QByteArray SqliteStatement::toValue<QByteArray>(const Utf
 template SQLITE_EXPORT Utf8String SqliteStatement::toValue<Utf8String>(const Utf8String &sqlStatementUtf8);
 template SQLITE_EXPORT QVariant SqliteStatement::toValue<QVariant>(const Utf8String &sqlStatementUtf8);
 
+} // namespace Sqlite

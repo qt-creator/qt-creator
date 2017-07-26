@@ -44,8 +44,6 @@ int main(int argc, char *argv[])
     qputenv("TMPDIR", Utils::TemporaryDirectory::masterDirectoryPath().toUtf8());
     qputenv("TEMP", Utils::TemporaryDirectory::masterDirectoryPath().toUtf8());
 
-    Sqlite::registerTypes();
-
     QCoreApplication application(argc, argv);
 
     QLoggingCategory::setFilterRules(QStringLiteral("*.info=false\n*.debug=false\n*.warning=true"));

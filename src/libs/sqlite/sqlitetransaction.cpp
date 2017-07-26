@@ -27,16 +27,18 @@
 
 #include "sqlitewritestatement.h"
 
+namespace Sqlite {
+
 SqliteAbstractTransaction::~SqliteAbstractTransaction()
 {
-    if (!isAlreadyCommited)
+    if (!m_isAlreadyCommited)
         SqliteWriteStatement::execute(Utf8StringLiteral("ROLLBACK"));
 }
 
 void SqliteAbstractTransaction::commit()
 {
     SqliteWriteStatement::execute(Utf8StringLiteral("COMMIT"));
-    isAlreadyCommited = true;
+    m_isAlreadyCommited = true;
 }
 
 SqliteTransaction::SqliteTransaction()
@@ -53,3 +55,5 @@ SqliteExclusiveTransaction::SqliteExclusiveTransaction()
 {
     SqliteWriteStatement::execute(Utf8StringLiteral("BEGIN EXCLUSIVE"));
 }
+
+} // namespace Sqlite

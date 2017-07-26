@@ -30,8 +30,10 @@
 
 #include <algorithm>
 
+namespace Sqlite {
+
 SqlStatementBuilder::SqlStatementBuilder(const Utf8String &sqlTemplate)
-    : sqlTemplate(sqlTemplate)
+    : m_sqlTemplate(sqlTemplate)
 {
 }
 
@@ -99,8 +101,8 @@ void SqlStatementBuilder::bindWithUpdateTemplateNames(const Utf8String &name, co
 
 void SqlStatementBuilder::clear()
 {
-    bindings.clear();
-    sqlStatement_.clear();
+    m_bindings.clear();
+    m_sqlStatement_.clear();
 }
 
 const Utf8String SqlStatementBuilder::insertTemplateParameters(const Utf8StringVector &columns)
@@ -130,7 +132,7 @@ const Utf8String SqlStatementBuilder::updateTemplateNames(const Utf8StringVector
 
 void SqlStatementBuilder::sortBindings() const
 {
-    std::sort(bindings.begin(), bindings.end(), [] (const BindingPair &lhs,const BindingPair &rhs)
+    std::sort(m_bindings.begin(), m_bindings.end(), [] (const BindingPair &lhs,const BindingPair &rhs)
     {
         return lhs.first.byteSize() == rhs.first.byteSize() ? lhs.first.toByteArray() < rhs.first.toByteArray() : lhs.first.byteSize() > rhs.first.byteSize();
     });
@@ -141,12 +143,12 @@ Utf8String SqlStatementBuilder::sqlStatement() const
     if (!isBuild())
         generateSqlStatement();
 
-    return sqlStatement_;
+    return m_sqlStatement_;
 }
 
 bool SqlStatementBuilder::isBuild() const
 {
-    return sqlStatement_.hasContent();
+    return m_sqlStatement_.hasContent();
 }
 
 Utf8String SqlStatementBuilder::columnTypeToString(ColumnType columnType)
@@ -164,15 +166,15 @@ Utf8String SqlStatementBuilder::columnTypeToString(ColumnType columnType)
 
 void SqlStatementBuilder::generateSqlStatement() const
 {
-    sqlStatement_ = sqlTemplate;
+    m_sqlStatement_ = m_sqlTemplate;
 
     sortBindings();
 
-    auto bindingIterator = bindings.cbegin();
-    while (bindingIterator != bindings.cend()) {
+    auto bindingIterator = m_bindings.cbegin();
+    while (bindingIterator != m_bindings.cend()) {
         const Utf8String &placeHolderToken = bindingIterator->first;
         const Utf8String &replacementToken = bindingIterator->second;
-        sqlStatement_.replace(placeHolderToken, replacementToken);
+        m_sqlStatement_.replace(placeHolderToken, replacementToken);
         ++bindingIterator;
     }
 
@@ -182,52 +184,54 @@ void SqlStatementBuilder::generateSqlStatement() const
 void SqlStatementBuilder::changeBinding(const Utf8String &name, const Utf8String &text)
 {
 
-    auto findBindingIterator = std::find_if(bindings.begin(), bindings.end(), [name] (const BindingPair &binding) {
+    auto findBindingIterator = std::find_if(m_bindings.begin(), m_bindings.end(), [name] (const BindingPair &binding) {
         return binding.first == name;
     });
 
-    if (findBindingIterator == bindings.end())
-        bindings.push_back(std::make_pair(name, text));
+    if (findBindingIterator == m_bindings.end())
+        m_bindings.push_back(std::make_pair(name, text));
     else
         findBindingIterator->second = text;
 }
 
 void SqlStatementBuilder::clearSqlStatement()
 {
-    sqlStatement_.clear();
+    m_sqlStatement_.clear();
 }
 
 void SqlStatementBuilder::checkIfPlaceHolderExists(const Utf8String &name) const
 {
-    if (name.byteSize() < 2 || !name.startsWith('$') || !sqlTemplate.contains(name))
+    if (name.byteSize() < 2 || !name.startsWith('$') || !m_sqlTemplate.contains(name))
         throwException("SqlStatementBuilder::bind: placeholder name does not exists!", name.constData());
 }
 
 void SqlStatementBuilder::checkIfNoPlaceHoldersAynmoreExists() const
 {
-    if (sqlStatement_.contains('$'))
-        throwException("SqlStatementBuilder::bind: there are still placeholder in the sql statement!", sqlTemplate.constData());
+    if (m_sqlStatement_.contains('$'))
+        throwException("SqlStatementBuilder::bind: there are still placeholder in the sql statement!", m_sqlTemplate.constData());
 }
 
 void SqlStatementBuilder::checkBindingTextIsNotEmpty(const Utf8String &text) const
 {
     if (text.isEmpty())
-        throwException("SqlStatementBuilder::bind: binding text it empty!", sqlTemplate.constData());
+        throwException("SqlStatementBuilder::bind: binding text it empty!", m_sqlTemplate.constData());
 }
 
 void SqlStatementBuilder::checkBindingTextVectorIsNotEmpty(const Utf8StringVector &textVector) const
 {
     if (textVector.isEmpty())
-        throwException("SqlStatementBuilder::bind: binding text vector it empty!", sqlTemplate.constData());
+        throwException("SqlStatementBuilder::bind: binding text vector it empty!", m_sqlTemplate.constData());
 }
 
 void SqlStatementBuilder::checkBindingIntegerVectorIsNotEmpty(const QVector<int> &integerVector) const
 {
     if (integerVector.isEmpty())
-        throwException("SqlStatementBuilder::bind: binding integer vector it empty!", sqlTemplate.constData());
+        throwException("SqlStatementBuilder::bind: binding integer vector it empty!", m_sqlTemplate.constData());
 }
 
 void SqlStatementBuilder::throwException(const char *whatHasHappened, const char *errorMessage)
 {
     throw SqlStatementBuilderException(whatHasHappened, errorMessage);
 }
+
+} // namespace Sqlite

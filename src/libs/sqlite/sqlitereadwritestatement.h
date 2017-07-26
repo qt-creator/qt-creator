@@ -27,6 +27,8 @@
 
 #include "sqlitestatement.h"
 
+namespace Sqlite {
+
 class SQLITE_EXPORT SqliteReadWriteStatement final : private SqliteStatement
 {
 public:
@@ -48,3 +50,5 @@ public:
     using SqliteStatement::toValue;
     using SqliteStatement::execute;
 };
+
+} // namespace Sqlite

@@ -28,25 +28,58 @@
 #include "sqliteglobal.h"
 #include "utf8string.h"
 
-namespace Internal {
+namespace Sqlite {
 
 class ColumnDefinition
 {
 public:
-    void setName(const Utf8String &name);
-    const Utf8String &name() const;
+    void setName(const Utf8String &name)
+    {
+        m_name = name;
+    }
 
-    void setType(ColumnType type);
-    ColumnType type() const;
-    Utf8String typeString() const;
+    const Utf8String &name() const
+    {
+        return m_name;
+    }
 
-    void setIsPrimaryKey(bool isPrimaryKey);
-    bool isPrimaryKey() const;
+    void setType(ColumnType type)
+    {
+        m_type = type;
+    }
+
+    ColumnType type() const
+    {
+        return m_type;
+    }
+
+    Utf8String typeString() const
+    {
+        switch (m_type) {
+            case ColumnType::None: return Utf8String();
+            case ColumnType::Numeric: return Utf8StringLiteral("NUMERIC");
+            case ColumnType::Integer: return Utf8StringLiteral("INTEGER");
+            case ColumnType::Real: return Utf8StringLiteral("REAL");
+            case ColumnType::Text: return Utf8StringLiteral("TEXT");
+        }
+
+        Q_UNREACHABLE();
+    }
+
+    void setIsPrimaryKey(bool isPrimaryKey)
+    {
+        m_isPrimaryKey = isPrimaryKey;
+    }
+
+    bool isPrimaryKey() const
+    {
+        return m_isPrimaryKey;
+    }
 
 private:
-    Utf8String name_;
-    ColumnType type_;
-    bool isPrimaryKey_ = false;
+    Utf8String m_name;
+    ColumnType m_type;
+    bool m_isPrimaryKey = false;
 };
 
-}
+} // namespace Sqlite
