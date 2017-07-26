@@ -31,6 +31,7 @@
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/completionsettings.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
@@ -241,6 +242,24 @@ KeywordsCompletionAssistProcessor::generateProposalList(const QStringList &words
         item->setIcon(icon);
         return item;
     });
+}
+
+KeywordsCompletionAssistProvider::KeywordsCompletionAssistProvider(const Keywords &keyWords,
+                                                                   const QString &snippetGroup)
+    : m_keyWords(keyWords)
+    , m_snippetGroup(snippetGroup)
+{ }
+
+IAssistProvider::RunType KeywordsCompletionAssistProvider::runType() const
+{
+    return Synchronous;
+}
+
+IAssistProcessor *KeywordsCompletionAssistProvider::createProcessor() const
+{
+    auto processor = new KeywordsCompletionAssistProcessor(m_keyWords);
+    processor->setSnippetGroup(m_snippetGroup);
+    return processor;
 }
 
 } // namespace TextEditor

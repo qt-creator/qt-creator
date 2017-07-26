@@ -57,6 +57,7 @@
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/codeassistant.h>
 #include <texteditor/codeassist/completionassistprovider.h>
+#include <texteditor/codeassist/keywordscompletionassist.h>
 #include <texteditor/generichighlighter/context.h>
 #include <texteditor/generichighlighter/highlightdefinition.h>
 #include <texteditor/generichighlighter/highlighter.h>
@@ -8263,6 +8264,7 @@ void TextEditorFactory::setParenthesesMatchingEnabled(bool on)
 
 IEditor *TextEditorFactory::createEditor()
 {
+    static KeywordsCompletionAssistProvider basicSnippetProvider;
     TextDocumentPtr doc(d->m_documentCreator());
 
     if (d->m_indenterCreator)
@@ -8271,7 +8273,8 @@ IEditor *TextEditorFactory::createEditor()
     if (d->m_syntaxHighlighterCreator)
         doc->setSyntaxHighlighter(d->m_syntaxHighlighterCreator());
 
-    doc->setCompletionAssistProvider(d->m_completionAssistProvider);
+    doc->setCompletionAssistProvider(d->m_completionAssistProvider ? d->m_completionAssistProvider
+                                                                   : &basicSnippetProvider);
 
     return d->createEditorHelper(doc);
 }
