@@ -53,7 +53,7 @@ static TextStyle styleForFormat(int format)
 }
 
 ProFileHighlighter::ProFileHighlighter(const Keywords &keywords)
-    : m_keywords(keywords)
+    : m_keywords(qmakeKeywords())
 {
     setTextFormatCategories(NumProfileFormats, styleForFormat);
 }

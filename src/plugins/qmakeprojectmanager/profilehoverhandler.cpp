@@ -39,8 +39,8 @@ using namespace Core;
 namespace QmakeProjectManager {
 namespace Internal {
 
-ProFileHoverHandler::ProFileHoverHandler(const TextEditor::Keywords &keywords)
-    : m_keywords(keywords)
+ProFileHoverHandler::ProFileHoverHandler()
+    : m_keywords(qmakeKeywords())
 {
 }
 

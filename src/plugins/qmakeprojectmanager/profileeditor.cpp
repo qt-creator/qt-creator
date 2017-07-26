@@ -182,16 +182,14 @@ ProFileEditorFactory::ProFileEditorFactory()
     setDocumentCreator(createProFileDocument);
     setEditorWidgetCreator([]() { return new ProFileEditorWidget; });
 
-    ProFileCompletionAssistProvider *pcap = new ProFileCompletionAssistProvider;
-    setCompletionAssistProvider(pcap);
+    setCompletionAssistProvider(new KeywordsCompletionAssistProvider(qmakeKeywords()));
 
     setCommentDefinition(Utils::CommentDefinition::HashStyle);
     setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
                 | TextEditorActionHandler::JumpToFileUnderCursor);
 
-    Keywords keywords(pcap->variables(), pcap->functions(), QMap<QString, QStringList>());
-    addHoverHandler(new ProFileHoverHandler(keywords));
-    setSyntaxHighlighterCreator([keywords]() { return new ProFileHighlighter(keywords); });
+    addHoverHandler(new ProFileHoverHandler);
+    setSyntaxHighlighterCreator([]() { return new ProFileHighlighter; });
 
     const QString defaultOverlay = QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QT);
     Core::FileIconProvider::registerIconOverlayForSuffix(
