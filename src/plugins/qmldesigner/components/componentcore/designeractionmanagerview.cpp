@@ -37,7 +37,6 @@ DesignerActionManagerView::DesignerActionManagerView()
       m_isInRewriterTransaction(false),
       m_setupContextDirty(false)
 {
-    m_designerActionManager.createDefaultDesignerActions();
 }
 
 void DesignerActionManagerView::modelAttached(Model *model)
