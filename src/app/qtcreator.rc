@@ -1,5 +1,8 @@
 #include <windows.h>
 
+#define STRINGIFY1(x) #x
+#define STRINGIFY(x) STRINGIFY1(x)
+
 IDI_ICON1               ICON    DISCARDABLE     "qtcreator.ico"
 IDI_ICON2               ICON    DISCARDABLE     "winicons/c.ico"
 IDI_ICON3               ICON    DISCARDABLE     "winicons/cpp.ico"
@@ -19,10 +22,10 @@ VS_VERSION_INFO VERSIONINFO
        BLOCK "040904E4"
        {
           VALUE "FileDescription", "Qt Creator"
-          VALUE "FileVersion", RC_VERSION_STRING
+          VALUE "FileVersion", STRINGIFY(RC_VERSION_STRING)
           VALUE "ProductName", "Qt Creator"
-          VALUE "ProductVersion", RC_VERSION_STRING
-          VALUE "LegalCopyright", RC_COPYRIGHT
+          VALUE "ProductVersion", STRINGIFY(RC_VERSION_STRING)
+          VALUE "LegalCopyright", STRINGIFY(RC_COPYRIGHT)
         }
     }
     BLOCK "VarFileInfo"
