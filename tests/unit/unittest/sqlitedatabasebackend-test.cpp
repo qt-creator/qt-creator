@@ -135,7 +135,7 @@ TEST_F(SqliteDatabaseBackend, TextEncodingCannotBeChangedAfterTouchingDatabase)
 {
     databaseBackend.setJournalMode(JournalMode::Memory);
 
-    SqliteWriteStatement::execute(Utf8StringLiteral("CREATE TABLE text(name, number)"));
+    databaseBackend.execute(Utf8StringLiteral("CREATE TABLE text(name, number)"));
 
     ASSERT_THROW(databaseBackend.setTextEncoding(Utf16), SqliteException);
 }

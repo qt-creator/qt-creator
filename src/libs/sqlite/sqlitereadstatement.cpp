@@ -29,8 +29,9 @@
 
 namespace Sqlite {
 
-SqliteReadStatement::SqliteReadStatement(const Utf8String &sqlStatementUtf8)
-    : SqliteStatement(sqlStatementUtf8)
+SqliteReadStatement::SqliteReadStatement(const Utf8String &sqlStatementUtf8,
+                                         SqliteDatabase &database)
+    : SqliteStatement(sqlStatementUtf8, database)
 {
     checkIsReadOnlyStatement();
 }

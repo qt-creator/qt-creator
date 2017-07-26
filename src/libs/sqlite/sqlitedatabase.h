@@ -34,14 +34,19 @@
 namespace Sqlite {
 
 class SqliteTable;
+class SqliteDatabaseBackend;
 
 class SQLITE_EXPORT SqliteDatabase
 {
+    friend class SqliteAbstractTransaction;
+    friend class SqliteStatement;
+
 public:
     SqliteDatabase();
     ~SqliteDatabase();
 
     void open();
+    void open(const QString &databaseFilePath);
     void close();
 
     bool isOpen() const;
@@ -55,12 +60,16 @@ public:
     void setJournalMode(JournalMode journalMode);
     JournalMode journalMode() const;
 
+    int changesCount();
+    int totalChangesCount();
 
 private:
     void initializeTables();
+    SqliteDatabaseBackend &backend();
+
 
 private:
-    SqliteDatabaseBackend m_sqliteDatabaseBackEnd;
+    SqliteDatabaseBackend m_databaseBackend;
     QVector<SqliteTable*> m_sqliteTables;
     QString m_databaseFilePath;
     JournalMode m_journalMode;

@@ -42,10 +42,13 @@ struct sqlite3;
 
 namespace Sqlite {
 
+class SqliteDatabase;
+class SqliteDatabaseBackend;
+
 class SQLITE_EXPORT SqliteStatement
 {
 protected:
-    explicit SqliteStatement(const Utf8String &sqlStatementUtf8);
+    explicit SqliteStatement(const Utf8String &sqlStatementUtf8, SqliteDatabase &database);
 
     static void deleteCompiledStatement(sqlite3_stmt *m_compiledStatement);
 
@@ -85,10 +88,8 @@ protected:
     QMap<QString, QVariant> rowColumnValueMap() const;
     QMap<QString, QVariant> twoColumnValueMap() const;
 
-    static void execute(const Utf8String &sqlStatementUtf8);
-
     template <typename Type>
-    static Type toValue(const Utf8String &sqlStatementUtf8);
+    static Type toValue(const Utf8String &sqlStatementUtf8, SqliteDatabase &database);
 
     void prepare(const Utf8String &sqlStatementUtf8);
     void waitForUnlockNotify() const;
@@ -96,8 +97,8 @@ protected:
     void write(const RowDictionary &rowDictionary);
     void writeUnchecked(const RowDictionary &rowDictionary);
 
-    static sqlite3 *sqliteDatabaseHandle();
-    static TextEncoding databaseTextEncoding();
+    sqlite3 *sqliteDatabaseHandle() const;
+    TextEncoding databaseTextEncoding();
 
 
     bool checkForStepError(int resultCode) const;
@@ -114,16 +115,21 @@ protected:
     void setColumnCount();
     void checkBindingValueMapIsEmpty(const RowDictionary &rowDictionary) const;
     bool isReadOnlyStatement() const;
-    Q_NORETURN static void throwException(const char *whatHasHappened);
+    Q_NORETURN void throwException(const char *whatHasHappened) const;
 
     template <typename ContainerType>
     ContainerType columnValues(const QVector<int> &columnIndices) const;
 
     QString columnName(int column) const;
 
+protected:
+    explicit SqliteStatement(const Utf8String &sqlStatementUtf8,
+                             SqliteDatabaseBackend &databaseBackend);
+
 private:
     std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt*)> m_compiledStatement;
     Utf8StringVector m_bindingColumnNames;
+    SqliteDatabaseBackend &m_databaseBackend;
     int m_bindingParameterCount;
     int m_columnCount;
     mutable bool m_isReadyToFetchValues;

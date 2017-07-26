@@ -25,6 +25,8 @@
 
 #include "sqlitetransaction.h"
 
+#include "sqlitedatabase.h"
+#include "sqlitedatabasebackend.h"
 #include "sqlitewritestatement.h"
 
 namespace Sqlite {
@@ -32,28 +34,41 @@ namespace Sqlite {
 SqliteAbstractTransaction::~SqliteAbstractTransaction()
 {
     if (!m_isAlreadyCommited)
-        SqliteWriteStatement::execute(Utf8StringLiteral("ROLLBACK"));
+        m_databaseBackend.execute(Utf8StringLiteral("ROLLBACK"));
 }
 
 void SqliteAbstractTransaction::commit()
 {
-    SqliteWriteStatement::execute(Utf8StringLiteral("COMMIT"));
+    m_databaseBackend.execute(Utf8StringLiteral("COMMIT"));
     m_isAlreadyCommited = true;
 }
 
-SqliteTransaction::SqliteTransaction()
+SqliteAbstractTransaction::SqliteAbstractTransaction(SqliteDatabaseBackend &backend)
+    : m_databaseBackend(backend)
 {
-    SqliteWriteStatement::execute(Utf8StringLiteral("BEGIN"));
 }
 
-SqliteImmediateTransaction::SqliteImmediateTransaction()
+SqliteAbstractTransaction::SqliteAbstractTransaction(SqliteDatabase &database)
+    : SqliteAbstractTransaction(database.backend())
 {
-    SqliteWriteStatement::execute(Utf8StringLiteral("BEGIN IMMEDIATE"));
 }
 
-SqliteExclusiveTransaction::SqliteExclusiveTransaction()
+SqliteTransaction::SqliteTransaction(SqliteDatabase &database)
+    : SqliteAbstractTransaction(database)
 {
-    SqliteWriteStatement::execute(Utf8StringLiteral("BEGIN EXCLUSIVE"));
+    m_databaseBackend.execute(Utf8StringLiteral("BEGIN"));
+}
+
+SqliteImmediateTransaction::SqliteImmediateTransaction(SqliteDatabase &database)
+    : SqliteAbstractTransaction(database)
+{
+    m_databaseBackend.execute(Utf8StringLiteral("BEGIN IMMEDIATE"));
+}
+
+SqliteExclusiveTransaction::SqliteExclusiveTransaction(SqliteDatabase &database)
+    : SqliteAbstractTransaction(database)
+{
+    m_databaseBackend.execute(Utf8StringLiteral("BEGIN EXCLUSIVE"));
 }
 
 } // namespace Sqlite

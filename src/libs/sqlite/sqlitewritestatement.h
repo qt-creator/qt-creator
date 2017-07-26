@@ -32,7 +32,7 @@ namespace Sqlite {
 class SQLITE_EXPORT SqliteWriteStatement : private SqliteStatement
 {
 public:
-    explicit SqliteWriteStatement(const Utf8String &sqlStatementUtf8);
+    explicit SqliteWriteStatement(const Utf8String &sqlStatementUtf8, SqliteDatabase &database);
 
     using SqliteStatement::step;
     using SqliteStatement::reset;
@@ -43,7 +43,6 @@ public:
     using SqliteStatement::bindingColumnNames;
     using SqliteStatement::write;
     using SqliteStatement::writeUnchecked;
-    using SqliteStatement::execute;
 
 protected:
     void checkIsWritableStatement();

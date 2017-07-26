@@ -31,8 +31,10 @@ namespace Sqlite {
 
 class SQLITE_EXPORT SqliteReadWriteStatement final : private SqliteStatement
 {
+    friend class SqliteDatabaseBackend;
+
 public:
-    explicit SqliteReadWriteStatement(const Utf8String &sqlStatementUft8);
+    explicit SqliteReadWriteStatement(const Utf8String &sqlStatementUft8, SqliteDatabase &database);
 
     using SqliteStatement::next;
     using SqliteStatement::step;
@@ -48,7 +50,10 @@ public:
     using SqliteStatement::columnCount;
     using SqliteStatement::columnNames;
     using SqliteStatement::toValue;
-    using SqliteStatement::execute;
+
+private:
+    explicit SqliteReadWriteStatement(const Utf8String &sqlStatementUft8,
+                                      SqliteDatabaseBackend &backend);
 };
 
 } // namespace Sqlite

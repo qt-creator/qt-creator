@@ -88,8 +88,8 @@ void SqliteTable::initialize()
         createTableSqlStatementBuilder.setUseWithoutRowId(m_withoutRowId);
         createTableSqlStatementBuilder.setColumnDefinitions(createColumnDefintions());
 
-        SqliteImmediateTransaction transaction;
-        SqliteWriteStatement::execute(createTableSqlStatementBuilder.sqlStatement());
+        SqliteImmediateTransaction transaction(*m_sqliteDatabase);
+        SqliteWriteStatement(createTableSqlStatementBuilder.sqlStatement(), *m_sqliteDatabase).step();
         transaction.commit();
 
         m_isReady = true;

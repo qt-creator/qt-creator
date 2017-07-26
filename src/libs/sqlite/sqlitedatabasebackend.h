@@ -42,38 +42,42 @@ public:
     SqliteDatabaseBackend();
     ~SqliteDatabaseBackend();
 
-    static void setMmapSize(qint64 defaultSize, qint64 maximumSize);
-    static void activateMultiThreading();
-    static void activateLogging();
-    static void initializeSqliteLibrary();
-    static void shutdownSqliteLibrary();
-    static void checkpointFullWalLog();
+    void setMmapSize(qint64 defaultSize, qint64 maximumSize);
+    void activateMultiThreading();
+    void activateLogging();
+    void initializeSqliteLibrary();
+    void shutdownSqliteLibrary();
+    void checkpointFullWalLog();
 
     void open(const QString &databaseFilePath);
     void close();
     void closeWithoutException();
 
-    static SqliteDatabaseBackend *threadLocalInstance();
-    static sqlite3* sqliteDatabaseHandle();
+    sqlite3* sqliteDatabaseHandle();
 
     void setJournalMode(JournalMode journalMode);
-    JournalMode journalMode() const;
+    JournalMode journalMode();
 
     void setTextEncoding(TextEncoding textEncoding);
     TextEncoding textEncoding();
 
 
 
-    static Utf8StringVector columnNames(const Utf8String &tableName);
+    Utf8StringVector columnNames(const Utf8String &tableName);
 
-    static int changesCount();
-    static int totalChangesCount();
+    int changesCount();
+    int totalChangesCount();
+
+    void execute(const Utf8String &sqlStatementUtf8);
+
+    template <typename Type>
+    Type toValue(const Utf8String &sqlStatementUtf8);
 
 protected:
     bool databaseIsOpen() const;
 
     void setPragmaValue(const Utf8String &pragma, const Utf8String &value);
-    Utf8String pragmaValue(const Utf8String &pragma) const;
+    Utf8String pragmaValue(const Utf8String &pragma);
 
     void registerBusyHandler();
     void registerRankingFunction();
@@ -86,22 +90,22 @@ protected:
     void checkCanOpenDatabase(const QString &databaseFilePath);
     void checkDatabaseCouldBeOpened(int resultCode);
     void checkPragmaValue(const Utf8String &databaseValue, const Utf8String &expectedValue);
-    static void checkDatabaseHandleIsNotNull();
-    static void checkDatabaseBackendIsNotNull();
-    static void checkIfMultithreadingIsActivated(int resultCode);
-    static void checkIfLoogingIsActivated(int resultCode);
-    static void checkMmapSizeIsSet(int resultCode);
-    static void checkInitializeSqliteLibraryWasSuccesful(int resultCode);
-    static void checkShutdownSqliteLibraryWasSuccesful(int resultCode);
-    static void checkIfLogCouldBeCheckpointed(int resultCode);
+    void checkDatabaseHandleIsNotNull();
+    void checkIfMultithreadingIsActivated(int resultCode);
+    void checkIfLoogingIsActivated(int resultCode);
+    void checkMmapSizeIsSet(int resultCode);
+    void checkInitializeSqliteLibraryWasSuccesful(int resultCode);
+    void checkShutdownSqliteLibraryWasSuccesful(int resultCode);
+    void checkIfLogCouldBeCheckpointed(int resultCode);
 
     static int indexOfPragma(const Utf8String pragma, const Utf8String pragmas[], size_t pragmaCount);
     static const Utf8String &journalModeToPragma(JournalMode journalMode);
     static JournalMode pragmaToJournalMode(const Utf8String &pragma);
-    static const Utf8String &textEncodingToPragma(TextEncoding textEncoding);
+    const Utf8String &textEncodingToPragma(TextEncoding textEncoding);
     static TextEncoding pragmaToTextEncoding(const Utf8String &pragma);
 
-    Q_NORETURN static void throwException(const char *whatHasHappens);
+    Q_NORETURN static void throwExceptionStatic(const char *whatHasHappens);
+    Q_NORETURN void throwException(const char *whatHasHappens) const;
 
 private:
     sqlite3 *m_databaseHandle;

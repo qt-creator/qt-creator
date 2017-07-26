@@ -32,7 +32,7 @@ namespace Sqlite {
 class SQLITE_EXPORT SqliteReadStatement final : private SqliteStatement
 {
 public:
-    explicit SqliteReadStatement(const Utf8String &sqlStatementUtf8);
+    explicit SqliteReadStatement(const Utf8String &sqlStatementUtf8, SqliteDatabase &database);
 
     using SqliteStatement::next;
     using SqliteStatement::reset;

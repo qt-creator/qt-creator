@@ -41,16 +41,22 @@ SqliteDatabase::~SqliteDatabase()
 
 void SqliteDatabase::open()
 {
-    m_sqliteDatabaseBackEnd.open(m_databaseFilePath);
-    m_sqliteDatabaseBackEnd.setJournalMode(journalMode());
+    m_databaseBackend.open(m_databaseFilePath);
+    m_databaseBackend.setJournalMode(journalMode());
     initializeTables();
     m_isOpen = true;
+}
+
+void SqliteDatabase::open(const QString &databaseFilePath)
+{
+    setDatabaseFilePath(databaseFilePath);
+    open();
 }
 
 void SqliteDatabase::close()
 {
     m_isOpen = false;
-    m_sqliteDatabaseBackEnd.close();
+    m_databaseBackend.close();
 }
 
 bool SqliteDatabase::isOpen() const
@@ -89,10 +95,25 @@ JournalMode SqliteDatabase::journalMode() const
     return m_journalMode;
 }
 
+int SqliteDatabase::changesCount()
+{
+    return m_databaseBackend.changesCount();
+}
+
+int SqliteDatabase::totalChangesCount()
+{
+    return m_databaseBackend.totalChangesCount();
+}
+
 void SqliteDatabase::initializeTables()
 {
     for (SqliteTable *table: tables())
         table->initialize();
+}
+
+SqliteDatabaseBackend &SqliteDatabase::backend()
+{
+    return m_databaseBackend;
 }
 
 } // namespace Sqlite

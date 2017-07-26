@@ -27,8 +27,9 @@
 
 namespace Sqlite {
 
-SqliteWriteStatement::SqliteWriteStatement(const Utf8String &sqlStatementUtf8)
-    : SqliteStatement(sqlStatementUtf8)
+SqliteWriteStatement::SqliteWriteStatement(const Utf8String &sqlStatementUtf8,
+                                           SqliteDatabase &database)
+    : SqliteStatement(sqlStatementUtf8, database)
 {
     checkIsWritableStatement();
 }

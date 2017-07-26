@@ -25,6 +25,7 @@
 
 #include "sqlitestatement.h"
 
+#include "sqlitedatabase.h"
 #include "sqlitedatabasebackend.h"
 #include "sqliteexception.h"
 
@@ -41,8 +42,15 @@
 
 namespace Sqlite {
 
-SqliteStatement::SqliteStatement(const Utf8String &sqlStatementUtf8)
+SqliteStatement::SqliteStatement(const Utf8String &sqlStatementUtf8, SqliteDatabase &database)
+    : SqliteStatement(sqlStatementUtf8, database.backend())
+{
+
+}
+
+SqliteStatement::SqliteStatement(const Utf8String &sqlStatementUtf8, SqliteDatabaseBackend &databaseBackend)
     : m_compiledStatement(nullptr, deleteCompiledStatement),
+      m_databaseBackend(databaseBackend),
       m_bindingParameterCount(0),
       m_columnCount(0),
       m_isReadyToFetchValues(false)
@@ -295,12 +303,6 @@ const Utf8StringVector &SqliteStatement::bindingColumnNames() const
     return m_bindingColumnNames;
 }
 
-void SqliteStatement::execute(const Utf8String &sqlStatementUtf8)
-{
-    SqliteStatement statement(sqlStatementUtf8);
-    statement.step();
-}
-
 void SqliteStatement::prepare(const Utf8String &sqlStatementUtf8)
 {
     int resultCode;
@@ -318,19 +320,14 @@ void SqliteStatement::prepare(const Utf8String &sqlStatementUtf8)
     checkForPrepareError(resultCode);
 }
 
-sqlite3 *SqliteStatement::sqliteDatabaseHandle()
+sqlite3 *SqliteStatement::sqliteDatabaseHandle() const
 {
-return SqliteDatabaseBackend::sqliteDatabaseHandle();
+    return m_databaseBackend.sqliteDatabaseHandle();
 }
 
 TextEncoding SqliteStatement::databaseTextEncoding()
 {
-    if (SqliteDatabaseBackend::threadLocalInstance())
-        return SqliteDatabaseBackend::threadLocalInstance()->textEncoding();
-
-    throwException("SqliteStatement::databaseTextEncoding: database backend instance is null!");
-
-    Q_UNREACHABLE();
+     return m_databaseBackend.textEncoding();
 }
 
 bool SqliteStatement::checkForStepError(int resultCode) const
@@ -445,7 +442,7 @@ bool SqliteStatement::isReadOnlyStatement() const
     return sqlite3_stmt_readonly(m_compiledStatement.get());
 }
 
-void SqliteStatement::throwException(const char *whatHasHappened)
+void SqliteStatement::throwException(const char *whatHasHappened) const
 {
     throw SqliteException(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
 }
@@ -654,21 +651,21 @@ template SQLITE_EXPORT Utf8StringVector SqliteStatement::values<Utf8StringVector
 template SQLITE_EXPORT QVector<QString> SqliteStatement::values<QVector<QString>>(int column) const;
 
 template <typename Type>
-Type SqliteStatement::toValue(const Utf8String &sqlStatementUtf8)
+Type SqliteStatement::toValue(const Utf8String &sqlStatementUtf8, SqliteDatabase &database)
 {
-    SqliteStatement statement(sqlStatementUtf8);
+    SqliteStatement statement(sqlStatementUtf8, database);
 
     statement.next();
 
     return statement.value<Type>(0);
 }
 
-template SQLITE_EXPORT int SqliteStatement::toValue<int>(const Utf8String &sqlStatementUtf8);
-template SQLITE_EXPORT qint64 SqliteStatement::toValue<qint64>(const Utf8String &sqlStatementUtf8);
-template SQLITE_EXPORT double SqliteStatement::toValue<double>(const Utf8String &sqlStatementUtf8);
-template SQLITE_EXPORT QString SqliteStatement::toValue<QString>(const Utf8String &sqlStatementUtf8);
-template SQLITE_EXPORT QByteArray SqliteStatement::toValue<QByteArray>(const Utf8String &sqlStatementUtf8);
-template SQLITE_EXPORT Utf8String SqliteStatement::toValue<Utf8String>(const Utf8String &sqlStatementUtf8);
-template SQLITE_EXPORT QVariant SqliteStatement::toValue<QVariant>(const Utf8String &sqlStatementUtf8);
+template SQLITE_EXPORT int SqliteStatement::toValue<int>(const Utf8String &sqlStatementUtf8, SqliteDatabase &database);
+template SQLITE_EXPORT qint64 SqliteStatement::toValue<qint64>(const Utf8String &sqlStatementUtf8, SqliteDatabase &database);
+template SQLITE_EXPORT double SqliteStatement::toValue<double>(const Utf8String &sqlStatementUtf8, SqliteDatabase &database);
+template SQLITE_EXPORT QString SqliteStatement::toValue<QString>(const Utf8String &sqlStatementUtf8, SqliteDatabase &database);
+template SQLITE_EXPORT QByteArray SqliteStatement::toValue<QByteArray>(const Utf8String &sqlStatementUtf8, SqliteDatabase &database);
+template SQLITE_EXPORT Utf8String SqliteStatement::toValue<Utf8String>(const Utf8String &sqlStatementUtf8, SqliteDatabase &database);
+template SQLITE_EXPORT QVariant SqliteStatement::toValue<QVariant>(const Utf8String &sqlStatementUtf8, SqliteDatabase &database);
 
 } // namespace Sqlite
