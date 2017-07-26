@@ -52,6 +52,8 @@ Project {
             "bracematcher.h",
             "buildablehelperlibrary.cpp",
             "buildablehelperlibrary.h",
+            "camelhumpmatcher.cpp",
+            "camelhumpmatcher.h",
             "categorysortfiltermodel.cpp",
             "categorysortfiltermodel.h",
             "changeset.cpp",
