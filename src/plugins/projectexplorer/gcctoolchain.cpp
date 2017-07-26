@@ -369,7 +369,7 @@ QString GccToolChain::defaultDisplayName() const
     const QRegularExpressionMatch match = regexp.match(m_compilerCommand.fileName());
     if (match.hasMatch())
         type += ' ' + match.captured(1);
-    if (!m_targetAbi.isValid())
+    if (m_targetAbi.architecture() == Abi::UnknownArchitecture || m_targetAbi.wordWidth() == 0)
         return type;
     return QCoreApplication::translate("ProjectExplorer::GccToolChain",
                                        "%1 (%2, %3 %4 in %5)").arg(type,
