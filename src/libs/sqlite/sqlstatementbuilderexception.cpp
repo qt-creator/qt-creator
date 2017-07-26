@@ -27,9 +27,8 @@
 
 namespace Sqlite {
 
-SqlStatementBuilderException::SqlStatementBuilderException(const char *whatErrorHasHappen, const char *errorMessage)
-    : SqliteException(whatErrorHasHappen, errorMessage)
-{
-}
+
+
+
 
 } // namespace Sqlite

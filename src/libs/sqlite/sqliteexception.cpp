@@ -25,15 +25,11 @@
 
 #include "sqliteexception.h"
 
+#include <utils/smallstringio.h>
+
 #include <QDebug>
 
 namespace Sqlite {
-
-SqliteException::SqliteException(const char *whatErrorHasHappen, const char *sqliteErrorMessage)
-    : m_whatErrorHasHappen(whatErrorHasHappen),
-      m_sqliteErrorMessage(sqliteErrorMessage)
-{
-}
 
 void SqliteException::printWarning() const
 {

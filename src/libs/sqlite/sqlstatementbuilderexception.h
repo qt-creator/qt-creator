@@ -32,7 +32,7 @@ namespace Sqlite {
 class SQLITE_EXPORT SqlStatementBuilderException : public SqliteException
 {
 public:
-    SqlStatementBuilderException(const char *m_whatErrorHasHappen, const char *errorMessage = 0);
+    using SqliteException::SqliteException;
 };
 
 } // namespace Sqlite
