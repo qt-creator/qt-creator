@@ -4034,7 +4034,10 @@ void GdbEngine::reloadDebuggingHelpers()
 
 void GdbEngine::handleGdbError(QProcess::ProcessError error)
 {
-    QString program = runParameters().debugger.executable;
+    QString program;
+    // avoid accessing invalid memory if the process crashed
+    if (runTool())
+        program = runParameters().debugger.executable;
     QString msg = RunWorker::userMessageForProcessError(error, program);
     QString errorString = m_gdbProc.errorString();
     if (!errorString.isEmpty())
