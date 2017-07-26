@@ -623,7 +623,7 @@ RunConfiguration *dummyRunConfigForKit(ProjectExplorer::Kit *kit)
     QTC_ASSERT(kit, return nullptr); // Caller needs to look for a suitable kit.
     Project *project = SessionManager::startupProject();
     Target *target = project ? project->target(kit) : nullptr;
-    if (!target) {
+    if (!target || !target->activeRunConfiguration()) {
         project = new DummyProject;
         target = project->createTarget(kit);
     }
