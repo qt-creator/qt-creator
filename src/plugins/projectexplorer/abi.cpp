@@ -580,13 +580,8 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
 
 QString Abi::toString() const
 {
-    QStringList dn;
-    dn << toString(m_architecture);
-    dn << toString(m_os);
-    dn << toString(m_osFlavor);
-    dn << toString(m_binaryFormat);
-    dn << toString(m_wordWidth);
-
+    const QStringList dn = {toString(m_architecture), toString(m_os), toString(m_osFlavor),
+                            toString(m_binaryFormat), toString(m_wordWidth)};
     return dn.join('-');
 }
 
@@ -777,24 +772,23 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
     QList<OSFlavor> result;
     switch (o) {
     case BsdOS:
-        return result << FreeBsdFlavor << OpenBsdFlavor << NetBsdFlavor << UnknownFlavor;
+        return {FreeBsdFlavor, OpenBsdFlavor, NetBsdFlavor, UnknownFlavor};
     case LinuxOS:
-        return result << GenericLinuxFlavor << AndroidLinuxFlavor << UnknownFlavor;
+        return {GenericLinuxFlavor, AndroidLinuxFlavor, UnknownFlavor};
     case DarwinOS:
-        return result << GenericDarwinFlavor << UnknownFlavor;
+        return {GenericDarwinFlavor, UnknownFlavor};
     case UnixOS:
-        return result << GenericUnixFlavor << SolarisUnixFlavor << UnknownFlavor;
+        return {GenericUnixFlavor, SolarisUnixFlavor, UnknownFlavor};
     case WindowsOS:
-        return result << WindowsMsvc2005Flavor << WindowsMsvc2008Flavor << WindowsMsvc2010Flavor
-                      << WindowsMsvc2012Flavor << WindowsMsvc2013Flavor << WindowsMsvc2015Flavor
-                      << WindowsMsvc2017Flavor
-                      << WindowsMSysFlavor << WindowsCEFlavor << UnknownFlavor;
+        return {WindowsMsvc2005Flavor, WindowsMsvc2008Flavor, WindowsMsvc2010Flavor,
+                WindowsMsvc2012Flavor, WindowsMsvc2013Flavor, WindowsMsvc2015Flavor,
+                WindowsMsvc2017Flavor , WindowsMSysFlavor, WindowsCEFlavor, UnknownFlavor};
     case VxWorks:
-        return result << VxWorksFlavor << UnknownFlavor;
+        return {VxWorksFlavor, UnknownFlavor};
     case QnxOS:
-        return result << GenericQnxFlavor << UnknownFlavor;
+        return {GenericQnxFlavor, UnknownFlavor};
     case UnknownOS:
-        return result << UnknownFlavor;
+        return {UnknownFlavor};
     default:
         break;
     }
@@ -1225,7 +1219,8 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet()
 
     const Abi expectedAbi = Abi(Abi::Architecture(architecture),
                                 Abi::OS(os), Abi::OSFlavor(osFlavor),
-                                Abi::BinaryFormat(binaryFormat), (unsigned char)wordWidth);
+                                Abi::BinaryFormat(binaryFormat),
+                                static_cast<unsigned char>(wordWidth));
 
     QCOMPARE(Abi::abiFromTargetTriplet(QLatin1String(QTest::currentDataTag())), expectedAbi);
 }
