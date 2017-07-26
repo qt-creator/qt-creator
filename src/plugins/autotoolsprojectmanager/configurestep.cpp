@@ -58,7 +58,7 @@ static QString projectDirRelativeToBuildDir(BuildConfiguration *bc) {
     QString projDirToBuildDir = buildDir.relativeFilePath(
                 bc->target()->project()->projectDirectory().toString());
     if (projDirToBuildDir.isEmpty())
-        return "./";
+        return QString("./");
     if (!projDirToBuildDir.endsWith('/'))
         projDirToBuildDir.append('/');
     return projDirToBuildDir;
