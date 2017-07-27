@@ -41,9 +41,9 @@ protected:
 
 TEST_F(SqliteColumn, ChangeName)
 {
-    column.setName(Utf8StringLiteral("Claudia"));
+    column.setName("Claudia");
 
-    ASSERT_THAT(column.name(), Utf8StringLiteral("Claudia"));
+    ASSERT_THAT(column.name(), "Claudia");
 }
 
 TEST_F(SqliteColumn, DefaultType)
@@ -72,11 +72,11 @@ TEST_F(SqliteColumn, SetPrimaryKey)
 
 TEST_F(SqliteColumn, GetColumnDefinition)
 {
-    column.setName(Utf8StringLiteral("Claudia"));
+    column.setName("Claudia");
 
     ColumnDefinition columnDefintion = column.columnDefintion();
 
-    ASSERT_THAT(columnDefintion.name(), Utf8StringLiteral("Claudia"));
+    ASSERT_THAT(columnDefintion.name(), "Claudia");
     ASSERT_THAT(columnDefintion.type(), ColumnType::Numeric);
     ASSERT_FALSE(columnDefintion.isPrimaryKey());
 }

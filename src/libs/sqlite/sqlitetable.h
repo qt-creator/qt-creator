@@ -43,14 +43,14 @@ public:
     SqliteTable();
     ~SqliteTable();
 
-    void setName(const Utf8String &name);
-    const Utf8String &name() const;
+    void setName(Utils::SmallString &&name);
+    Utils::SmallStringView name() const;
 
     void setUseWithoutRowId(bool useWithoutWorId);
     bool useWithoutRowId() const;
 
     void addColumn(SqliteColumn *newColumn);
-    const QVector<SqliteColumn *> &columns() const;
+    const std::vector<SqliteColumn *> &columns() const;
 
     void setSqliteDatabase(SqliteDatabase *database);
 
@@ -59,11 +59,11 @@ public:
     bool isReady() const;
 
 private:
-    QVector<ColumnDefinition> createColumnDefintions() const;
+    ColumnDefinitions createColumnDefintions() const;
 
 private:
-    QVector<SqliteColumn*> m_sqliteColumns;
-    Utf8String m_tableName;
+    std::vector<SqliteColumn*> m_sqliteColumns;
+    Utils::SmallString m_tableName;
     SqliteDatabase *m_sqliteDatabase;
     bool m_withoutRowId;
 

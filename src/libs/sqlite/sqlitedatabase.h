@@ -28,8 +28,9 @@
 #include "sqlitedatabasebackend.h"
 #include "sqliteglobal.h"
 
-#include <QString>
-#include <QVector>
+#include <utils/smallstring.h>
+
+#include <vector>
 
 namespace Sqlite {
 
@@ -46,16 +47,16 @@ public:
     ~SqliteDatabase();
 
     void open();
-    void open(const QString &databaseFilePath);
+    void open(Utils::PathString &&databaseFilePath);
     void close();
 
     bool isOpen() const;
 
     void addTable(SqliteTable *newSqliteTable);
-    const QVector<SqliteTable *> &tables() const;
+    const std::vector<SqliteTable *> &tables() const;
 
-    void setDatabaseFilePath(const QString &databaseFilePath);
-    const QString &databaseFilePath() const;
+    void setDatabaseFilePath(Utils::PathString &&databaseFilePath);
+    const Utils::PathString &databaseFilePath() const;
 
     void setJournalMode(JournalMode journalMode);
     JournalMode journalMode() const;
@@ -70,8 +71,8 @@ private:
 
 private:
     SqliteDatabaseBackend m_databaseBackend;
-    QVector<SqliteTable*> m_sqliteTables;
-    QString m_databaseFilePath;
+    std::vector<SqliteTable*> m_sqliteTables;
+    Utils::PathString m_databaseFilePath;
     JournalMode m_journalMode;
     bool m_isOpen = false;
 };

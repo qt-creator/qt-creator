@@ -29,10 +29,6 @@
 #include <sqlitecolumn.h>
 #include <sqlitedatabase.h>
 #include <sqlitetable.h>
-#include <utf8string.h>
-
-#include <QSignalSpy>
-#include <QVariant>
 
 namespace {
 
@@ -45,12 +41,12 @@ protected:
     void SetUp() override;
     void TearDown() override;
 
-    SqliteColumn *addColumn(const Utf8String &columnName);
+    SqliteColumn *addColumn(Utils::SmallString columnName);
 
     SpyDummy spyDummy;
     SqliteDatabase database;
     Sqlite::SqliteTable *table = new Sqlite::SqliteTable;
-    Utf8String tableName = Utf8StringLiteral("testTable");
+    Utils::SmallString tableName = "testTable";
 };
 
 
@@ -63,7 +59,7 @@ TEST_F(SqliteTable, ColumnIsAddedToTable)
 
 TEST_F(SqliteTable, SetTableName)
 {
-    table->setName(tableName);
+    table->setName(tableName.clone());
 
     ASSERT_THAT(table->name(), tableName);
 }
@@ -77,8 +73,8 @@ TEST_F(SqliteTable, SetUseWithoutRowid)
 
 TEST_F(SqliteTable, TableIsReadyAfterOpenDatabase)
 {
-    table->setName(tableName);
-    addColumn(Utf8StringLiteral("name"));
+    table->setName(tableName.clone());
+    addColumn("name");
 
     database.open();
 
@@ -99,11 +95,11 @@ void SqliteTable::TearDown()
     table = nullptr;
 }
 
-SqliteColumn *SqliteTable::addColumn(const Utf8String &columnName)
+SqliteColumn *SqliteTable::addColumn(Utils::SmallString columnName)
 {
     SqliteColumn *newSqliteColum = new SqliteColumn;
 
-    newSqliteColum->setName(columnName);
+    newSqliteColum->setName(std::move(columnName));
 
     table->addColumn(newSqliteColum);
 

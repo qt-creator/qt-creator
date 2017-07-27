@@ -100,15 +100,14 @@ void SqliteDatabaseBackend::checkpointFullWalLog()
     checkIfLogCouldBeCheckpointed(resultCode);
 }
 
-void SqliteDatabaseBackend::open(const QString &databaseFilePath)
+void SqliteDatabaseBackend::open(Utils::SmallStringView databaseFilePath)
 {
     checkCanOpenDatabase(databaseFilePath);
 
-    QByteArray databaseUtf8Path = databaseFilePath.toUtf8();
-    int resultCode = sqlite3_open_v2(databaseUtf8Path.data(),
-                                      &m_databaseHandle,
-                                      SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-                                      NULL);
+    int resultCode = sqlite3_open_v2(databaseFilePath.data(),
+                                     &m_databaseHandle,
+                                     SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+                                     NULL);
 
     checkDatabaseCouldBeOpened(resultCode);
 
@@ -123,33 +122,33 @@ sqlite3 *SqliteDatabaseBackend::sqliteDatabaseHandle()
     return m_databaseHandle;
 }
 
-void SqliteDatabaseBackend::setPragmaValue(const Utf8String &pragmaKey, const Utf8String &newPragmaValue)
+void SqliteDatabaseBackend::setPragmaValue(Utils::SmallStringView pragmaKey, Utils::SmallStringView newPragmaValue)
 {
-    SqliteReadWriteStatement statement(Utf8StringLiteral("PRAGMA ") + pragmaKey + Utf8StringLiteral("='") + newPragmaValue + Utf8StringLiteral("'"), *this);
+    SqliteReadWriteStatement statement(Utils::SmallString{"PRAGMA ", pragmaKey, "='", newPragmaValue, "'"}, *this);
     statement.step();
-    Utf8String pragmeValueInDatabase = toValue<Utf8String>(Utf8StringLiteral("PRAGMA ") + pragmaKey);
+    Utils::SmallString pragmeValueInDatabase = toValue<Utils::SmallString>("PRAGMA " + pragmaKey);
 
     checkPragmaValue(pragmeValueInDatabase, newPragmaValue);
 }
 
-Utf8String SqliteDatabaseBackend::pragmaValue(const Utf8String &pragma)
+Utils::SmallString SqliteDatabaseBackend::pragmaValue(Utils::SmallStringView pragma)
 {
-    return toValue<Utf8String>(Utf8StringLiteral("PRAGMA ") + pragma);
+    return toValue<Utils::SmallString>("PRAGMA " + pragma);
 }
 
 void SqliteDatabaseBackend::setJournalMode(JournalMode journalMode)
 {
-    setPragmaValue(Utf8StringLiteral("journal_mode"), journalModeToPragma(journalMode));
+    setPragmaValue("journal_mode", journalModeToPragma(journalMode));
 }
 
 JournalMode SqliteDatabaseBackend::journalMode()
 {
-    return pragmaToJournalMode(pragmaValue(Utf8StringLiteral("journal_mode")));
+    return pragmaToJournalMode(pragmaValue("journal_mode"));
 }
 
 void SqliteDatabaseBackend::setTextEncoding(TextEncoding textEncoding)
 {
-    setPragmaValue(Utf8StringLiteral("encoding"), textEncodingToPragma(textEncoding));
+    setPragmaValue("encoding", textEncodingToPragma(textEncoding));
     cacheTextEncoding();
 }
 
@@ -159,9 +158,9 @@ TextEncoding SqliteDatabaseBackend::textEncoding()
 }
 
 
-Utf8StringVector SqliteDatabaseBackend::columnNames(const Utf8String &tableName)
+Utils::SmallStringVector SqliteDatabaseBackend::columnNames(Utils::SmallStringView tableName)
 {
-    SqliteReadWriteStatement statement(Utf8StringLiteral("SELECT * FROM ") + tableName, *this);
+    SqliteReadWriteStatement statement("SELECT * FROM " + tableName, *this);
     return statement.columnNames();
 }
 
@@ -175,9 +174,9 @@ int SqliteDatabaseBackend::totalChangesCount()
     return sqlite3_total_changes(sqliteDatabaseHandle());
 }
 
-void SqliteDatabaseBackend::execute(const Utf8String &sqlStatementUtf8)
+void SqliteDatabaseBackend::execute(Utils::SmallStringView sqlStatement)
 {
-    SqliteReadWriteStatement statement(sqlStatementUtf8, *this);
+    SqliteReadWriteStatement statement(sqlStatement, *this);
     statement.step();
 }
 
@@ -233,7 +232,7 @@ int SqliteDatabaseBackend::busyHandlerCallback(void *, int counter)
 
 void SqliteDatabaseBackend::cacheTextEncoding()
 {
-    m_cachedTextEncoding = pragmaToTextEncoding(pragmaValue(Utf8StringLiteral("encoding")));
+    m_cachedTextEncoding = pragmaToTextEncoding(pragmaValue("encoding"));
 }
 
 void SqliteDatabaseBackend::checkForOpenDatabaseWhichCanBeClosed()
@@ -250,7 +249,7 @@ void SqliteDatabaseBackend::checkDatabaseClosing(int resultCode)
     }
 }
 
-void SqliteDatabaseBackend::checkCanOpenDatabase(const QString &databaseFilePath)
+void SqliteDatabaseBackend::checkCanOpenDatabase(Utils::SmallStringView databaseFilePath)
 {
     if (databaseFilePath.isEmpty())
         throw SqliteException("SqliteDatabaseBackend::SqliteDatabaseBackend: database cannot be opened:", "database file path is empty!");
@@ -270,7 +269,8 @@ void SqliteDatabaseBackend::checkDatabaseCouldBeOpened(int resultCode)
     }
 }
 
-void SqliteDatabaseBackend::checkPragmaValue(const Utf8String &databaseValue, const Utf8String &expectedValue)
+void SqliteDatabaseBackend::checkPragmaValue(Utils::SmallStringView databaseValue,
+                                             Utils::SmallStringView expectedValue)
 {
     if (databaseValue != expectedValue)
         throwException("SqliteDatabaseBackend::setPragmaValue: pragma value is not set!");
@@ -318,33 +318,35 @@ void SqliteDatabaseBackend::checkIfLogCouldBeCheckpointed(int resultCode)
         throwException("SqliteDatabaseBackend::checkpointFullWalLog: WAL log could not be checkpointed!");
 }
 
-int SqliteDatabaseBackend::indexOfPragma(const Utf8String pragma, const Utf8String pragmas[], size_t pragmaCount)
+namespace {
+template<std::size_t Size>
+int indexOfPragma(Utils::SmallStringView pragma, const Utils::SmallStringView (&pragmas)[Size])
 {
-    for (unsigned int index = 0; index < pragmaCount; index++) {
+    for (unsigned int index = 0; index < Size; index++) {
         if (pragma == pragmas[index])
             return int(index);
     }
 
     return -1;
-
+}
 }
 
-static const Utf8String journalModeStrings[] = {
-    Utf8StringLiteral("delete"),
-    Utf8StringLiteral("truncate"),
-    Utf8StringLiteral("persist"),
-    Utf8StringLiteral("memory"),
-    Utf8StringLiteral("wal")
+constexpr const Utils::SmallStringView journalModeStrings[] = {
+    "delete",
+    "truncate",
+    "persist",
+    "memory",
+    "wal"
 };
 
-const Utf8String &SqliteDatabaseBackend::journalModeToPragma(JournalMode journalMode)
+Utils::SmallStringView SqliteDatabaseBackend::journalModeToPragma(JournalMode journalMode)
 {
     return journalModeStrings[int(journalMode)];
 }
 
-JournalMode SqliteDatabaseBackend::pragmaToJournalMode(const Utf8String &pragma)
+JournalMode SqliteDatabaseBackend::pragmaToJournalMode(Utils::SmallStringView pragma)
 {
-    int index = indexOfPragma(pragma, journalModeStrings, SIZE_OF_BYTEARRAY_ARRAY(journalModeStrings));
+    int index = indexOfPragma(pragma, journalModeStrings);
 
     if (index < 0)
         throwExceptionStatic("SqliteDatabaseBackend::pragmaToJournalMode: pragma can't be transformed in a journal mode enumeration!");
@@ -352,20 +354,20 @@ JournalMode SqliteDatabaseBackend::pragmaToJournalMode(const Utf8String &pragma)
     return static_cast<JournalMode>(index);
 }
 
-static const Utf8String textEncodingStrings[] = {
-    Utf8StringLiteral("UTF-8"),
-    Utf8StringLiteral("UTF-16le"),
-    Utf8StringLiteral("UTF-16be")
+constexpr const Utils::SmallStringView textEncodingStrings[] = {
+    "UTF-8",
+    "UTF-16le",
+    "UTF-16be"
 };
 
-const Utf8String &SqliteDatabaseBackend::textEncodingToPragma(TextEncoding textEncoding)
+Utils::SmallStringView SqliteDatabaseBackend::textEncodingToPragma(TextEncoding textEncoding)
 {
     return textEncodingStrings[textEncoding];
 }
 
-TextEncoding SqliteDatabaseBackend::pragmaToTextEncoding(const Utf8String &pragma)
+TextEncoding SqliteDatabaseBackend::pragmaToTextEncoding(Utils::SmallStringView pragma)
 {
-    int index = indexOfPragma(pragma, textEncodingStrings, SIZE_OF_BYTEARRAY_ARRAY(textEncodingStrings));
+    int index = indexOfPragma(pragma, textEncodingStrings);
 
     if (index < 0)
         throwExceptionStatic("SqliteDatabaseBackend::pragmaToTextEncoding: pragma can't be transformed in a text encoding enumeration!");
@@ -387,9 +389,9 @@ void SqliteDatabaseBackend::throwException(const char *whatHasHappens) const
 }
 
 template <typename Type>
-Type SqliteDatabaseBackend::toValue(const Utf8String &sqlStatementUtf8)
+Type SqliteDatabaseBackend::toValue(Utils::SmallStringView sqlStatement)
 {
-    SqliteReadWriteStatement statement(sqlStatementUtf8, *this);
+    SqliteReadWriteStatement statement(sqlStatement, *this);
 
     statement.next();
 

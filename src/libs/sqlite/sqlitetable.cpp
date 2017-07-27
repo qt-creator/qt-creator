@@ -44,12 +44,12 @@ SqliteTable::~SqliteTable()
     qDeleteAll(m_sqliteColumns);
 }
 
-void SqliteTable::setName(const Utf8String &name)
+void SqliteTable::setName(Utils::SmallString &&name)
 {
-    m_tableName = name;
+    m_tableName = std::move(name);
 }
 
-const Utf8String &SqliteTable::name() const
+Utils::SmallStringView SqliteTable::name() const
 {
     return m_tableName;
 }
@@ -66,10 +66,10 @@ bool SqliteTable::useWithoutRowId() const
 
 void SqliteTable::addColumn(SqliteColumn *newColumn)
 {
-    m_sqliteColumns.append(newColumn);
+    m_sqliteColumns.push_back(newColumn);
 }
 
-const QVector<SqliteColumn *> &SqliteTable::columns() const
+const std::vector<SqliteColumn *> &SqliteTable::columns() const
 {
     return m_sqliteColumns;
 }
@@ -84,7 +84,7 @@ void SqliteTable::initialize()
     try {
         CreateTableSqlStatementBuilder createTableSqlStatementBuilder;
 
-        createTableSqlStatementBuilder.setTable(m_tableName);
+        createTableSqlStatementBuilder.setTable(m_tableName.clone());
         createTableSqlStatementBuilder.setUseWithoutRowId(m_withoutRowId);
         createTableSqlStatementBuilder.setColumnDefinitions(createColumnDefintions());
 
@@ -104,12 +104,12 @@ bool SqliteTable::isReady() const
     return m_isReady;
 }
 
-QVector<ColumnDefinition> SqliteTable::createColumnDefintions() const
+ColumnDefinitions SqliteTable::createColumnDefintions() const
 {
-    QVector<ColumnDefinition> columnDefintions;
+    ColumnDefinitions columnDefintions;
 
     for (SqliteColumn *sqliteColumn : m_sqliteColumns)
-        columnDefintions.append(sqliteColumn->columnDefintion());
+        columnDefintions.push_back(sqliteColumn->columnDefintion());
 
     return columnDefintions;
 }

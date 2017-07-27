@@ -27,9 +27,7 @@
 
 #include "sqliteglobal.h"
 
-#include "utf8stringvector.h"
-
-#include <QStringList>
+#include <utils/smallstringvector.h>
 
 struct sqlite3;
 
@@ -49,7 +47,7 @@ public:
     void shutdownSqliteLibrary();
     void checkpointFullWalLog();
 
-    void open(const QString &databaseFilePath);
+    void open(Utils::SmallStringView databaseFilePath);
     void close();
     void closeWithoutException();
 
@@ -63,21 +61,21 @@ public:
 
 
 
-    Utf8StringVector columnNames(const Utf8String &tableName);
+    Utils::SmallStringVector columnNames(Utils::SmallStringView tableName);
 
     int changesCount();
     int totalChangesCount();
 
-    void execute(const Utf8String &sqlStatementUtf8);
+    void execute(Utils::SmallStringView sqlStatement);
 
     template <typename Type>
-    Type toValue(const Utf8String &sqlStatementUtf8);
+    Type toValue(Utils::SmallStringView sqlStatement);
 
 protected:
     bool databaseIsOpen() const;
 
-    void setPragmaValue(const Utf8String &pragma, const Utf8String &value);
-    Utf8String pragmaValue(const Utf8String &pragma);
+    void setPragmaValue(Utils::SmallStringView pragma, Utils::SmallStringView value);
+    Utils::SmallString pragmaValue(Utils::SmallStringView pragma);
 
     void registerBusyHandler();
     void registerRankingFunction();
@@ -87,9 +85,9 @@ protected:
 
     void checkForOpenDatabaseWhichCanBeClosed();
     void checkDatabaseClosing(int resultCode);
-    void checkCanOpenDatabase(const QString &databaseFilePath);
+    void checkCanOpenDatabase(Utils::SmallStringView databaseFilePath);
     void checkDatabaseCouldBeOpened(int resultCode);
-    void checkPragmaValue(const Utf8String &databaseValue, const Utf8String &expectedValue);
+    void checkPragmaValue(Utils::SmallStringView databaseValue, Utils::SmallStringView expectedValue);
     void checkDatabaseHandleIsNotNull();
     void checkIfMultithreadingIsActivated(int resultCode);
     void checkIfLoogingIsActivated(int resultCode);
@@ -98,11 +96,10 @@ protected:
     void checkShutdownSqliteLibraryWasSuccesful(int resultCode);
     void checkIfLogCouldBeCheckpointed(int resultCode);
 
-    static int indexOfPragma(const Utf8String pragma, const Utf8String pragmas[], size_t pragmaCount);
-    static const Utf8String &journalModeToPragma(JournalMode journalMode);
-    static JournalMode pragmaToJournalMode(const Utf8String &pragma);
-    const Utf8String &textEncodingToPragma(TextEncoding textEncoding);
-    static TextEncoding pragmaToTextEncoding(const Utf8String &pragma);
+    static Utils::SmallStringView journalModeToPragma(JournalMode journalMode);
+    static JournalMode pragmaToJournalMode(Utils::SmallStringView pragma);
+    Utils::SmallStringView textEncodingToPragma(TextEncoding textEncoding);
+    static TextEncoding pragmaToTextEncoding(Utils::SmallStringView pragma);
 
     Q_NORETURN static void throwExceptionStatic(const char *whatHasHappens);
     Q_NORETURN void throwException(const char *whatHasHappens) const;

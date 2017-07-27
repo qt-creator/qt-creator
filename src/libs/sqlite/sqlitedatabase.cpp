@@ -47,9 +47,9 @@ void SqliteDatabase::open()
     m_isOpen = true;
 }
 
-void SqliteDatabase::open(const QString &databaseFilePath)
+void SqliteDatabase::open(Utils::PathString &&databaseFilePath)
 {
-    setDatabaseFilePath(databaseFilePath);
+    setDatabaseFilePath(std::move(databaseFilePath));
     open();
 }
 
@@ -67,20 +67,20 @@ bool SqliteDatabase::isOpen() const
 void SqliteDatabase::addTable(SqliteTable *newSqliteTable)
 {
     newSqliteTable->setSqliteDatabase(this);
-    m_sqliteTables.append(newSqliteTable);
+    m_sqliteTables.push_back(newSqliteTable);
 }
 
-const QVector<SqliteTable *> &SqliteDatabase::tables() const
+const std::vector<SqliteTable *> &SqliteDatabase::tables() const
 {
     return m_sqliteTables;
 }
 
-void SqliteDatabase::setDatabaseFilePath(const QString &databaseFilePath)
+void SqliteDatabase::setDatabaseFilePath(Utils::PathString &&databaseFilePath)
 {
-    m_databaseFilePath = databaseFilePath;
+    m_databaseFilePath = std::move(databaseFilePath);
 }
 
-const QString &SqliteDatabase::databaseFilePath() const
+const Utils::PathString &SqliteDatabase::databaseFilePath() const
 {
     return m_databaseFilePath;
 }

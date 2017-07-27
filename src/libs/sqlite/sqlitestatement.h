@@ -28,11 +28,8 @@
 #include "sqliteglobal.h"
 
 #include "sqliteexception.h"
-#include "utf8stringvector.h"
 
-#include <QString>
-#include <QVariant>
-#include <QVector>
+#include <utils/smallstringvector.h>
 
 #include <type_traits>
 #include <memory>
@@ -48,7 +45,7 @@ class SqliteDatabaseBackend;
 class SQLITE_EXPORT SqliteStatement
 {
 protected:
-    explicit SqliteStatement(const Utf8String &sqlStatementUtf8, SqliteDatabase &database);
+    explicit SqliteStatement(Utils::SmallStringView sqlStatement, SqliteDatabase &database);
 
     static void deleteCompiledStatement(sqlite3_stmt *m_compiledStatement);
 
@@ -58,44 +55,34 @@ protected:
 
     template<typename Type>
     Type value(int column) const;
+    Utils::SmallString text(int column) const;
     int columnCount() const;
-    Utf8StringVector columnNames() const;
+    Utils::SmallStringVector columnNames() const;
 
     void bind(int index, int value);
     void bind(int index, qint64 value);
     void bind(int index, double value);
-    void bind(int index, const QString &text);
-    void bind(int index, const QByteArray &blob);
-    void bind(int index, const QVariant &value);
+    void bind(int index, Utils::SmallStringView value);
 
     template <typename Type>
-    void bind(const Utf8String &name, const Type &value);
+    void bind(Utils::SmallStringView name, Type value);
 
-    int bindingIndexForName(const Utf8String &name);
+    int bindingIndexForName(Utils::SmallStringView name);
 
-    void bind(const RowDictionary &rowDictionary);
-    void bindUnchecked(const RowDictionary &rowDictionary);
-
-    void setBindingColumnNames(const Utf8StringVector &bindingColumnNames);
-    const Utf8StringVector &bindingColumnNames() const;
+    void setBindingColumnNames(const Utils::SmallStringVector &bindingColumnNames);
+    const Utils::SmallStringVector &bindingColumnNames() const;
 
     template <typename ContainerType>
-    ContainerType values(const QVector<int> &columns, int size = 0) const;
+    ContainerType values(const std::vector<int> &columns, int size = 0) const;
 
     template <typename ContainerType>
     ContainerType values(int column = 0) const;
 
-    QMap<QString, QVariant> rowColumnValueMap() const;
-    QMap<QString, QVariant> twoColumnValueMap() const;
-
     template <typename Type>
-    static Type toValue(const Utf8String &sqlStatementUtf8, SqliteDatabase &database);
+    static Type toValue(Utils::SmallStringView sqlStatement, SqliteDatabase &database);
 
-    void prepare(const Utf8String &sqlStatementUtf8);
+    void prepare(Utils::SmallStringView sqlStatement);
     void waitForUnlockNotify() const;
-
-    void write(const RowDictionary &rowDictionary);
-    void writeUnchecked(const RowDictionary &rowDictionary);
 
     sqlite3 *sqliteDatabaseHandle() const;
     TextEncoding databaseTextEncoding();
@@ -105,30 +92,28 @@ protected:
     void checkForPrepareError(int resultCode) const;
     void setIfIsReadyToFetchValues(int resultCode) const;
     void checkIfIsReadyToFetchValues() const;
-    void checkColumnsAreValid(const QVector<int> &columns) const;
+    void checkColumnsAreValid(const std::vector<int> &columns) const;
     void checkColumnIsValid(int column) const;
     void checkBindingIndex(int index) const;
     void checkBindingName(int index) const;
-    void checkParameterCanBeBound(const RowDictionary &rowDictionary, const Utf8String &columnName);
     void setBindingParameterCount();
     void setBindingColumnNamesFromStatement();
     void setColumnCount();
-    void checkBindingValueMapIsEmpty(const RowDictionary &rowDictionary) const;
     bool isReadOnlyStatement() const;
     Q_NORETURN void throwException(const char *whatHasHappened) const;
 
     template <typename ContainerType>
-    ContainerType columnValues(const QVector<int> &columnIndices) const;
+    ContainerType columnValues(const std::vector<int> &columnIndices) const;
 
     QString columnName(int column) const;
 
 protected:
-    explicit SqliteStatement(const Utf8String &sqlStatementUtf8,
+    explicit SqliteStatement(Utils::SmallStringView sqlStatement,
                              SqliteDatabaseBackend &databaseBackend);
 
 private:
     std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt*)> m_compiledStatement;
-    Utf8StringVector m_bindingColumnNames;
+    Utils::SmallStringVector m_bindingColumnNames;
     SqliteDatabaseBackend &m_databaseBackend;
     int m_bindingParameterCount;
     int m_columnCount;

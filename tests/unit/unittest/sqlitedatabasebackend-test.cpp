@@ -42,7 +42,7 @@ protected:
     void SetUp() override;
     void TearDown() override;
 
-    QString databaseFilePath = QDir::tempPath() + QStringLiteral("/SqliteDatabaseBackendTest.db");
+    Utils::PathString databaseFilePath = QDir::tempPath() + "/SqliteDatabaseBackendTest.db";
     Sqlite::SqliteDatabaseBackend databaseBackend;
 };
 
@@ -62,7 +62,7 @@ TEST_F(SqliteDatabaseBackend, CloseAlreadyClosedDatabase)
 
 TEST_F(SqliteDatabaseBackend, OpenWithWrongPath)
 {
-    ASSERT_THROW(databaseBackend.open(QStringLiteral("/xxx/SqliteDatabaseBackendTest.db")), SqliteException);
+    ASSERT_THROW(databaseBackend.open("/xxx/SqliteDatabaseBackendTest.db"), SqliteException);
 }
 
 TEST_F(SqliteDatabaseBackend, DefaultJournalMode)
@@ -135,7 +135,7 @@ TEST_F(SqliteDatabaseBackend, TextEncodingCannotBeChangedAfterTouchingDatabase)
 {
     databaseBackend.setJournalMode(JournalMode::Memory);
 
-    databaseBackend.execute(Utf8StringLiteral("CREATE TABLE text(name, number)"));
+    databaseBackend.execute("CREATE TABLE text(name, number)");
 
     ASSERT_THROW(databaseBackend.setTextEncoding(Utf16), SqliteException);
 }

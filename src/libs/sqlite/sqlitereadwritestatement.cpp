@@ -27,15 +27,15 @@
 
 namespace Sqlite {
 
-SqliteReadWriteStatement::SqliteReadWriteStatement(const Utf8String &sqlStatementUft8,
+SqliteReadWriteStatement::SqliteReadWriteStatement(Utils::SmallStringView sqlStatement,
                                                    SqliteDatabase &database)
-    : SqliteStatement(sqlStatementUft8, database)
+    : SqliteStatement(sqlStatement, database)
 {
 }
 
-SqliteReadWriteStatement::SqliteReadWriteStatement(const Utf8String &sqlStatementUft8,
+SqliteReadWriteStatement::SqliteReadWriteStatement(Utils::SmallStringView sqlStatement,
                                                    SqliteDatabaseBackend &backend)
-    : SqliteStatement(sqlStatementUft8, backend)
+    : SqliteStatement(sqlStatement, backend)
 {
 }
 

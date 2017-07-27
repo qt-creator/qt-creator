@@ -26,19 +26,22 @@
 #pragma once
 
 #include "sqliteglobal.h"
-#include "utf8string.h"
+
+#include <utils/smallstring.h>
+
+#include <vector>
 
 namespace Sqlite {
 
 class ColumnDefinition
 {
 public:
-    void setName(const Utf8String &name)
+    void setName(Utils::SmallString &&name)
     {
-        m_name = name;
+        m_name = std::move(name);
     }
 
-    const Utf8String &name() const
+    const Utils::SmallString &name() const
     {
         return m_name;
     }
@@ -53,14 +56,14 @@ public:
         return m_type;
     }
 
-    Utf8String typeString() const
+    Utils::SmallString typeString() const
     {
         switch (m_type) {
-            case ColumnType::None: return Utf8String();
-            case ColumnType::Numeric: return Utf8StringLiteral("NUMERIC");
-            case ColumnType::Integer: return Utf8StringLiteral("INTEGER");
-            case ColumnType::Real: return Utf8StringLiteral("REAL");
-            case ColumnType::Text: return Utf8StringLiteral("TEXT");
+            case ColumnType::None: return {};
+            case ColumnType::Numeric: return "NUMERIC";
+            case ColumnType::Integer: return "INTEGER";
+            case ColumnType::Real: return "REAL";
+            case ColumnType::Text: return "TEXT";
         }
 
         Q_UNREACHABLE();
@@ -77,9 +80,11 @@ public:
     }
 
 private:
-    Utf8String m_name;
+    Utils::SmallString m_name;
     ColumnType m_type;
     bool m_isPrimaryKey = false;
 };
+
+using ColumnDefinitions = std::vector<ColumnDefinition>;
 
 } // namespace Sqlite

@@ -34,12 +34,12 @@ namespace Sqlite {
 SqliteAbstractTransaction::~SqliteAbstractTransaction()
 {
     if (!m_isAlreadyCommited)
-        m_databaseBackend.execute(Utf8StringLiteral("ROLLBACK"));
+        m_databaseBackend.execute("ROLLBACK");
 }
 
 void SqliteAbstractTransaction::commit()
 {
-    m_databaseBackend.execute(Utf8StringLiteral("COMMIT"));
+    m_databaseBackend.execute("COMMIT");
     m_isAlreadyCommited = true;
 }
 
@@ -56,19 +56,19 @@ SqliteAbstractTransaction::SqliteAbstractTransaction(SqliteDatabase &database)
 SqliteTransaction::SqliteTransaction(SqliteDatabase &database)
     : SqliteAbstractTransaction(database)
 {
-    m_databaseBackend.execute(Utf8StringLiteral("BEGIN"));
+    m_databaseBackend.execute("BEGIN");
 }
 
 SqliteImmediateTransaction::SqliteImmediateTransaction(SqliteDatabase &database)
     : SqliteAbstractTransaction(database)
 {
-    m_databaseBackend.execute(Utf8StringLiteral("BEGIN IMMEDIATE"));
+    m_databaseBackend.execute("BEGIN IMMEDIATE");
 }
 
 SqliteExclusiveTransaction::SqliteExclusiveTransaction(SqliteDatabase &database)
     : SqliteAbstractTransaction(database)
 {
-    m_databaseBackend.execute(Utf8StringLiteral("BEGIN EXCLUSIVE"));
+    m_databaseBackend.execute("BEGIN EXCLUSIVE");
 }
 
 } // namespace Sqlite

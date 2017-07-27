@@ -49,12 +49,12 @@ public:
         m_isPrimaryKey = false;
     }
 
-    void setName(const Utf8String &newName)
+    void setName(Utils::SmallString &&newName)
     {
         m_name = newName;
     }
 
-    const Utf8String &name() const
+    const Utils::SmallString &name() const
     {
         return m_name;
     }
@@ -83,7 +83,7 @@ public:
     {
         ColumnDefinition columnDefinition;
 
-        columnDefinition.setName(m_name);
+        columnDefinition.setName(m_name.clone());
         columnDefinition.setType(m_type);
         columnDefinition.setIsPrimaryKey(m_isPrimaryKey);
 
@@ -91,7 +91,7 @@ public:
     }
 
 private:
-    Utf8String m_name;
+    Utils::SmallString m_name;
     ColumnType m_type;
     bool m_isPrimaryKey;
 };
