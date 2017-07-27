@@ -289,7 +289,10 @@ void IosConfigurations::updateAutomaticKitList()
                 continue;
             }
             Core::Id pDeviceType = deviceId(sdk.directoryName);
-            QTC_ASSERT(pDeviceType.isValid(), continue);
+            if (!pDeviceType.isValid()) {
+                qCDebug(kitSetupLog) << "Unsupported/Invalid device type" << sdk.directoryName;
+                continue;
+            }
 
             for (BaseQtVersion *qtVersion : qtVersions) {
                 qCDebug(kitSetupLog) << "  - Qt version:" << qtVersion->displayName();
