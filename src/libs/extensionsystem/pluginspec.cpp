@@ -32,6 +32,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -631,26 +632,6 @@ static inline QString msgInvalidFormat(const char *key, const QString &content)
             .arg(QLatin1String(key), content);
 }
 
-bool PluginSpec::readMultiLineString(const QJsonValue &value, QString *out)
-{
-    QTC_ASSERT(out, return false);
-    if (value.isString()) {
-        *out = value.toString();
-    } else if (value.isArray()) {
-        QJsonArray array = value.toArray();
-        QStringList lines;
-        foreach (const QJsonValue &v, array) {
-            if (!v.isString())
-                return false;
-            lines.append(v.toString());
-        }
-        *out = lines.join(QLatin1Char('\n'));
-    } else {
-        return false;
-    }
-    return true;
-}
-
 /*!
     \internal
 */
@@ -735,7 +716,7 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
     copyright = value.toString();
 
     value = metaData.value(QLatin1String(DESCRIPTION));
-    if (!value.isUndefined() && !PluginSpec::readMultiLineString(value, &description))
+    if (!value.isUndefined() && !Utils::readMultiLineString(value, &description))
         return reportError(msgValueIsNotAString(DESCRIPTION));
 
     value = metaData.value(QLatin1String(URL));
@@ -749,7 +730,7 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
     category = value.toString();
 
     value = metaData.value(QLatin1String(LICENSE));
-    if (!value.isUndefined() && !PluginSpec::readMultiLineString(value, &license))
+    if (!value.isUndefined() && !Utils::readMultiLineString(value, &license))
         return reportError(msgValueIsNotAMultilineString(LICENSE));
 
     value = metaData.value(QLatin1String(PLATFORM));

@@ -132,7 +132,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
         const QJsonObject metaData = plugin->metaData();
         const QJsonValue mimetypes = metaData.value("Mimetypes");
         QString mimetypeString;
-        if (ExtensionSystem::PluginSpec::readMultiLineString(mimetypes, &mimetypeString))
+        if (Utils::readMultiLineString(mimetypes, &mimetypeString))
             Utils::addMimeTypes(plugin->name() + ".mimetypes", mimetypeString.trimmed().toUtf8());
     }
 
