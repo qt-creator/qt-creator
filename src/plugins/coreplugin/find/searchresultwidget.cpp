@@ -295,8 +295,6 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
     }
 }
 
-
-
 int SearchResultWidget::count() const
 {
     return m_count;
@@ -308,7 +306,6 @@ void SearchResultWidget::setSupportsReplace(bool replaceSupported, const QString
     setShowReplaceUI(replaceSupported);
     m_dontAskAgainGroup = group;
 }
-
 
 void SearchResultWidget::setTextToReplace(const QString &textToReplace)
 {
