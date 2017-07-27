@@ -103,6 +103,7 @@ public:
     quint32 line = 0;
     quint32 column = 0;
     quint64 ticketNumber = 0;
+    QVector<Utf8String> dependentFiles;
     bool resolveTarget = true;
 };
 

@@ -23,44 +23,23 @@
 **
 ****************************************************************************/
 
-#include "requestfollowsymbolmessage.h"
+#pragma once
 
-#include <QDebug>
+#include "cpptools_global.h"
 
-#include <ostream>
+#include <QString>
 
-namespace ClangBackEnd {
+namespace CppTools {
 
-quint64 RequestFollowSymbolMessage::ticketCounter = 0;
-
-QDebug operator<<(QDebug debug, const RequestFollowSymbolMessage &message)
+class CPPTOOLS_EXPORT SymbolInfo
 {
-    debug.nospace() << "RequestFollowSymbolMessage(";
+public:
+    int startLine = 0;
+    int startColumn = 0;
+    int endLine = 0;
+    int endColumn = 0;
+    QString fileName;
+    bool failedToFollow = false;
+};
 
-    debug.nospace() << message.m_fileContainer << ", ";
-    debug.nospace() << message.m_dependentFiles << ", ";
-    debug.nospace() << message.m_ticketNumber << ", ";
-    debug.nospace() << message.m_line << ", ";
-    debug.nospace() << message.m_column << ", ";
-    debug.nospace() << message.m_resolveTarget << ", ";
-
-    debug.nospace() << ")";
-
-    return debug;
-}
-
-std::ostream &operator<<(std::ostream &os, const RequestFollowSymbolMessage &message)
-{
-    os << "("
-       << message.m_fileContainer << ", "
-       << message.m_dependentFiles << ", "
-       << message.m_ticketNumber << ", "
-       << message.m_line << ", "
-       << message.m_column << ", "
-       << message.m_resolveTarget << ", "
-       << ")";
-
-     return os;
-}
-
-} // namespace ClangBackEnd
+} // namespace CppTools

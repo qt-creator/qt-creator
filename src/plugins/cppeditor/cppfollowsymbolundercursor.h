@@ -57,6 +57,10 @@ public:
     void setVirtualFunctionAssistProvider(VirtualFunctionAssistProvider *provider);
 
 private:
+    // Try to follow symbol with clang processor
+    // Returns false if it has failed and we want to try again with built-in one
+    bool processorFollowSymbol(uint line, uint column, bool resolveTarget,
+                               Link &result);
     CppEditorWidget *m_widget;
     VirtualFunctionAssistProvider *m_virtualFunctionAssistProvider;
 };

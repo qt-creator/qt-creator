@@ -341,6 +341,55 @@ ClangEditorDocumentProcessor::cursorInfo(const CppTools::CursorInfoParams &param
                                                textDocument());
 }
 
+static QVector<Utf8String> prioritizeByBaseName(const QString &curPath,
+                                                const ::Utils::FileNameList &fileDeps)
+{
+    QList<Utf8String> dependentFiles;
+    dependentFiles.reserve(fileDeps.size());
+    for (const ::Utils::FileName &dep: fileDeps)
+        dependentFiles.push_back(dep.toString());
+
+    const QString curFilename = QFileInfo(curPath).fileName();
+    if (CppTools::ProjectFile::isHeader(CppTools::ProjectFile::classify(curFilename))) {
+        const QString withoutExt = QFileInfo(curFilename).baseName();
+        int posToMove = 0;
+        // Move exact match to the first place and partial matches after it
+        for (int i = 0; i < dependentFiles.size(); ++i) {
+            const QString baseName = QFileInfo(dependentFiles[i]).baseName();
+            if (withoutExt == baseName) {
+                dependentFiles.move(i, 0);
+                posToMove++;
+                continue;
+            }
+            if (baseName.contains(withoutExt))
+                dependentFiles.move(i, posToMove++);
+        }
+    }
+    // Limit the number of scans (don't search for overrides)
+    if (dependentFiles.size() > 5)
+        dependentFiles.erase(dependentFiles.begin() + 5, dependentFiles.end());
+    return QVector<Utf8String>::fromList(dependentFiles);
+}
+
+QFuture<CppTools::SymbolInfo>
+ClangEditorDocumentProcessor::requestFollowSymbol(int line, int column, bool resolveTarget)
+{
+    QVector<Utf8String> dependentFiles;
+    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    if (modelManager && !modelManager->projectPart(filePath()).isEmpty()) {
+        // This might be not so fast - index will change that
+        const ::Utils::FileNameList fileDeps
+                = modelManager->snapshot().filesDependingOn(filePath());
+        dependentFiles = prioritizeByBaseName(filePath(), fileDeps);
+    }
+
+    return m_ipcCommunicator.requestFollowSymbol(simpleFileContainer(),
+                                                 dependentFiles,
+                                                 static_cast<quint32>(line),
+                                                 static_cast<quint32>(column),
+                                                 resolveTarget);
+}
+
 ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithArguments() const
 {
     return fileContainerWithArguments(m_projectPart.data());

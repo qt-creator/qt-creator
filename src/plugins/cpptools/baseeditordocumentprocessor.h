@@ -27,6 +27,7 @@
 
 #include "baseeditordocumentparser.h"
 #include "cppcursorinfo.h"
+#include "cppsymbolinfo.h"
 #include "cppsemanticinfo.h"
 #include "cpptools_global.h"
 
@@ -75,6 +76,7 @@ public:
     virtual void setParserConfig(const BaseEditorDocumentParser::Configuration config);
 
     virtual QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params) = 0;
+    virtual QFuture<SymbolInfo> requestFollowSymbol(int line, int column, bool resolveTarget) = 0;
 
 public:
     using HeaderErrorDiagnosticWidgetCreator = std::function<QWidget*()>;

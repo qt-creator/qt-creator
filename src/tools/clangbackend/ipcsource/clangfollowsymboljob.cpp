@@ -36,6 +36,7 @@ namespace ClangBackEnd {
 static FollowSymbolJob::AsyncResult runAsyncHelperFollow(const TranslationUnit &translationUnit,
                                                          quint32 line,
                                                          quint32 column,
+                                                         const QVector<Utf8String> &dependentFiles,
                                                          bool resolveTarget)
 {
     TIME_SCOPE_DURATION("FollowSymbolJobRunner");
@@ -57,9 +58,10 @@ IAsyncJob::AsyncPrepareResult FollowSymbolJob::prepareAsyncRun()
                 = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
         const quint32 line = jobRequest.line;
         const quint32 column = jobRequest.column;
+        const QVector<Utf8String> &dependentFiles = jobRequest.dependentFiles;
         const bool resolveTarget = jobRequest.resolveTarget;
-        setRunner([translationUnit, line, column, resolveTarget]() {
-            return runAsyncHelperFollow(translationUnit, line, column, resolveTarget);
+        setRunner([translationUnit, line, column, dependentFiles, resolveTarget]() {
+            return runAsyncHelperFollow(translationUnit, line, column, dependentFiles, resolveTarget);
         });
         return AsyncPrepareResult{translationUnit.id()};
 

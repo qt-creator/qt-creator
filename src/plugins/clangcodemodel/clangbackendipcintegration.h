@@ -27,6 +27,7 @@
 
 #include <cpptools/projectpart.h>
 #include <cpptools/cppcursorinfo.h>
+#include <cpptools/cppsymbolinfo.h>
 
 #include <clangbackendipc/clangcodemodelconnectionclient.h>
 #include <clangbackendipc/filecontainer.h>
@@ -77,6 +78,7 @@ public:
 
     QFuture<CppTools::CursorInfo> addExpectedReferencesMessage(quint64 ticket,
                                                                QTextDocument *textDocument);
+    QFuture<CppTools::SymbolInfo> addExpectedRequestFollowSymbolMessage(quint64 ticket);
     bool isExpectingCodeCompletedMessage() const;
 
     void reset();
@@ -107,6 +109,8 @@ private:
         QPointer<QTextDocument> textDocument;
     };
     QHash<quint64, ReferencesEntry> m_referencesTable;
+
+    QHash<quint64, QFutureInterface<CppTools::SymbolInfo>> m_followTable;
 };
 
 class IpcSenderInterface
@@ -154,6 +158,11 @@ public:
     QFuture<CppTools::CursorInfo> requestReferences(const FileContainer &fileContainer,
                                                     quint32 line,
                                                     quint32 column, QTextDocument *textDocument);
+    QFuture<CppTools::SymbolInfo> requestFollowSymbol(const FileContainer &curFileContainer,
+                                                      const QVector<Utf8String> &dependentFiles,
+                                                      quint32 line,
+                                                      quint32 column,
+                                                      bool resolveTarget);
     void completeCode(ClangCompletionAssistProcessor *assistProcessor, const QString &filePath,
                       quint32 line,
                       quint32 column,

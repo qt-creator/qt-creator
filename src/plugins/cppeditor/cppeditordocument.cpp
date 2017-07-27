@@ -386,6 +386,12 @@ CppEditorDocument::cursorInfo(const CppTools::CursorInfoParams &params)
     return processor()->cursorInfo(params);
 }
 
+QFuture<CppTools::SymbolInfo>
+CppEditorDocument::requestFollowSymbol(int line, int column, bool resolveTarget)
+{
+    return processor()->requestFollowSymbol(line, column, resolveTarget);
+}
+
 const MinimizableInfoBars &CppEditorDocument::minimizableInfoBars() const
 {
     return m_minimizableInfoBars;

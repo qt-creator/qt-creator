@@ -25,6 +25,7 @@
 
 #include "cppfollowsymbolundercursor.h"
 #include "cppeditor.h"
+#include "cppeditordocument.h"
 #include "cppvirtualfunctionassistprovider.h"
 
 #include <cplusplus/ASTPath.h>
@@ -38,6 +39,7 @@
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/symbolfinder.h>
 #include <texteditor/textdocumentlayout.h>
+#include <texteditor/convenience.h>
 #include <utils/qtcassert.h>
 
 #include <QList>
@@ -52,6 +54,12 @@ using namespace TextEditor;
 typedef TextEditorWidget::Link Link;
 
 namespace {
+
+static bool useClangFollowSymbol()
+{
+    static bool use = qEnvironmentVariableIntValue("QTC_CLANG_FOLLOW_SYMBOL");
+    return use;
+}
 
 class VirtualFunctionHelper {
 public:
@@ -487,11 +495,55 @@ static int skipMatchingParentheses(const Tokens &tokens, int idx, int initialDep
     return j;
 }
 
+bool FollowSymbolUnderCursor::processorFollowSymbol(uint line, uint column, bool resolveTarget,
+                                                    Link &linkResult)
+{
+    if (!useClangFollowSymbol())
+        return false;
+    CppEditorDocument* editorDocument = m_widget->cppEditorDocument();
+    if (!editorDocument)
+        return false;
+
+    QFuture<CppTools::SymbolInfo> info
+            = editorDocument->requestFollowSymbol(static_cast<int>(line),
+                                                  static_cast<int>(column),
+                                                  resolveTarget);
+    if (info.isCanceled())
+        return false;
+
+    while (!info.isFinished()) {
+        if (info.isCanceled())
+            return false;
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    }
+    CppTools::SymbolInfo result = info.result();
+
+    // Try again with built-in code model (happens with some includes)
+    if (result.failedToFollow)
+        return false;
+
+    // We did not fail but the result is empty
+    if (result.fileName.isEmpty())
+        return true;
+
+    linkResult = Link(result.fileName, result.startLine, result.startColumn - 1);
+
+    return true;
+}
+
 TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &cursor,
     bool resolveTarget, const Snapshot &theSnapshot, const Document::Ptr &documentFromSemanticInfo,
     SymbolFinder *symbolFinder, bool inNextSplit)
 {
     Link link;
+
+    int lineNumber = 0, positionInBlock = 0;
+    m_widget->convertPosition(cursor.position(), &lineNumber, &positionInBlock);
+    const unsigned line = lineNumber;
+    const unsigned column = positionInBlock + 1;
+
+    if (resolveTarget && processorFollowSymbol(line, column, resolveTarget, link))
+        return link;
 
     Snapshot snapshot = theSnapshot;
 
@@ -518,11 +570,6 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
                 return link;
         }
     }
-
-    int lineNumber = 0, positionInBlock = 0;
-    m_widget->convertPosition(cursor.position(), &lineNumber, &positionInBlock);
-    const unsigned line = lineNumber;
-    const unsigned column = positionInBlock + 1;
 
     // Try to find a signal or slot inside SIGNAL() or SLOT()
     int beginOfToken = 0;

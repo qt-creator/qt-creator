@@ -264,7 +264,7 @@ void ClangCodeModelServer::requestReferences(const RequestReferencesMessage &mes
 
 void ClangCodeModelServer::requestFollowSymbol(const RequestFollowSymbolMessage &message)
 {
-    TIME_SCOPE_DURATION("ClangCodeModelServer::followSymbol");
+    TIME_SCOPE_DURATION("ClangCodeModelServer::requestFollowSymbol");
 
     try {
         auto projectPartId = message.fileContainer().projectPartId();
@@ -274,11 +274,12 @@ void ClangCodeModelServer::requestFollowSymbol(const RequestFollowSymbolMessage 
 
         JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::FollowSymbol);
         fillJobRequest(jobRequest, message);
+        jobRequest.dependentFiles = message.dependentFiles();
         jobRequest.resolveTarget = message.resolveTarget();
         processor.addJob(jobRequest);
         processor.process();
     }  catch (const std::exception &exception) {
-        qWarning() << "Error in ClangCodeModelServer::followSymbol:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::requestFollowSymbol:" << exception.what();
     }
 }
 

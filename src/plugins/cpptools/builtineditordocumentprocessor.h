@@ -52,6 +52,8 @@ public:
     bool isParserRunning() const override;
 
     QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params) override;
+    QFuture<SymbolInfo> requestFollowSymbol(int, int, bool) override
+    { return QFuture<SymbolInfo>(); }
 
 private:
     void onParserFinished(CPlusPlus::Document::Ptr document, CPlusPlus::Snapshot snapshot);
