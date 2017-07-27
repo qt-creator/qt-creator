@@ -86,7 +86,7 @@ class TEXTEDITOR_EXPORT KeywordsCompletionAssistProvider : public CompletionAssi
 {
 public:
     KeywordsCompletionAssistProvider(const Keywords &keyWords = Keywords(),
-            const QString &snippetGroup = Constants::TEXT_SNIPPET_GROUP_ID);
+            const QString &snippetGroup = QString(Constants::TEXT_SNIPPET_GROUP_ID));
 
     // IAssistProvider interface
     RunType runType() const override;
