@@ -79,12 +79,7 @@ public:
 };
 
 SearchResultWidget::SearchResultWidget(QWidget *parent) :
-    QWidget(parent),
-    m_count(0),
-    m_preserveCaseSupported(true),
-    m_isShowingReplaceUI(false),
-    m_searchAgainSupported(false),
-    m_replaceSupported(false)
+    QWidget(parent)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
