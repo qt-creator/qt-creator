@@ -150,7 +150,7 @@ void DFlatAssignmentVisitor::visitDConnection(const DConnection *connection)
 {
     visitDRelation(connection);
     auto target = dynamic_cast<DConnection *>(m_target);
-    QMT_CHECK(target);
+    QMT_ASSERT(target, return);
     target->setCustomRelationId(connection->customRelationId());
     target->setEndA(connection->endA());
     target->setEndB(connection->endB());
@@ -160,6 +160,7 @@ void DFlatAssignmentVisitor::visitDAnnotation(const DAnnotation *annotation)
 {
     visitDElement(annotation);
     auto target = dynamic_cast<DAnnotation *>(m_target);
+    QMT_ASSERT(target, return);
     target->setText(annotation->text());
     target->setPos(annotation->pos());
     target->setRect(annotation->rect());
@@ -171,6 +172,7 @@ void DFlatAssignmentVisitor::visitDBoundary(const DBoundary *boundary)
 {
     visitDElement(boundary);
     auto target = dynamic_cast<DBoundary *>(m_target);
+    QMT_ASSERT(target, return);
     target->setText(boundary->text());
     target->setPos(boundary->pos());
     target->setRect(boundary->rect());
