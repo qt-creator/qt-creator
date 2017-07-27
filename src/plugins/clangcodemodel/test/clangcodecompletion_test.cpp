@@ -324,6 +324,11 @@ QString toString(const RequestReferencesMessage &)
     return QStringLiteral("RequestReferencesMessage\n");
 }
 
+QString toString(const RequestFollowSymbolMessage &)
+{
+    return QStringLiteral("RequestFollowSymbolMessage\n");
+}
+
 QString toString(const UpdateVisibleTranslationUnitsMessage &)
 {
     return QStringLiteral("UpdateVisibleTranslationUnitsMessage\n");
@@ -363,6 +368,9 @@ public:
     { senderLog.append(toString(message)); }
 
     void requestReferences(const RequestReferencesMessage &message) override
+    { senderLog.append(toString(message)); }
+
+    void requestFollowSymbol(const RequestFollowSymbolMessage &message) override
     { senderLog.append(toString(message)); }
 
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override

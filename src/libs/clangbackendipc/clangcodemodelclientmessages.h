@@ -31,4 +31,5 @@
 #include "documentannotationschangedmessage.h"
 #include "projectpartsdonotexistmessage.h"
 #include "referencesmessage.h"
+#include "followsymbolmessage.h"
 #include "translationunitdoesnotexistmessage.h"

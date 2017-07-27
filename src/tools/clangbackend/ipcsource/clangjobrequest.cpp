@@ -40,6 +40,7 @@ static const char *JobRequestTypeToText(JobRequest::Type type)
         RETURN_TEXT_FOR_CASE(CompleteCode);
         RETURN_TEXT_FOR_CASE(RequestDocumentAnnotations);
         RETURN_TEXT_FOR_CASE(RequestReferences);
+        RETURN_TEXT_FOR_CASE(FollowSymbol);
     }
 
     return "UnhandledJobRequestType";
@@ -112,6 +113,7 @@ JobRequest::ExpirationReasons JobRequest::expirationReasonsForType(Type type)
         return JobRequest::ExpirationReasons(JobRequest::AnythingChanged);
     case JobRequest::Type::RequestReferences:
     case JobRequest::Type::RequestDocumentAnnotations:
+    case JobRequest::Type::FollowSymbol:
         return JobRequest::ExpirationReasons(JobRequest::DocumentClosed
                                             |JobRequest::DocumentRevisionChanged);
     case JobRequest::Type::CompleteCode:

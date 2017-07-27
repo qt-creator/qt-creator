@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,21 +23,37 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "followsymbolmessage.h"
 
-#include <clangcodemodelclientinterface.h>
+#include <QDebug>
 
-class DummyIpcClient: public ClangBackEnd::ClangCodeModelClientInterface
+#include <ostream>
+
+namespace ClangBackEnd {
+
+QDebug operator<<(QDebug debug, const FollowSymbolMessage &message)
 {
-public:
-    void dispatch(const ClangBackEnd::MessageEnvelop &) override {}
+    debug.nospace() << "FollowSymbolMessage("
+                    << message.m_fileContainer
+                    << ", " << message.m_ticketNumber
+                    << ", " << message.m_sourceRange
+                    << ", " << message.m_failedToFollow;
 
-    void alive() override {}
-    void echo(const ClangBackEnd::EchoMessage &) override {}
-    void codeCompleted(const ClangBackEnd::CodeCompletedMessage &) override {}
-    void translationUnitDoesNotExist(const ClangBackEnd::TranslationUnitDoesNotExistMessage &) override {}
-    void projectPartsDoNotExist(const ClangBackEnd::ProjectPartsDoNotExistMessage &) override {}
-    void documentAnnotationsChanged(const ClangBackEnd::DocumentAnnotationsChangedMessage &) override {}
-    void references(const ClangBackEnd::ReferencesMessage &) override {}
-    void followSymbol(const ClangBackEnd::FollowSymbolMessage &) override {}
-};
+    debug.nospace() << ")";
+
+    return debug;
+}
+
+std::ostream &operator<<(std::ostream &os, const FollowSymbolMessage &message)
+{
+      os << "("
+         << message.m_fileContainer << ", "
+         << message.m_ticketNumber << ", "
+         << message.m_sourceRange << ", "
+         << message.m_failedToFollow << ", "
+         << ")";
+
+    return os;
+}
+
+} // namespace ClangBackEnd

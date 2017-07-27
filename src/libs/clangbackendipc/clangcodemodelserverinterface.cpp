@@ -68,6 +68,9 @@ void ClangCodeModelServerInterface::dispatch(const MessageEnvelop &messageEnvelo
         case MessageType::RequestReferencesMessage:
             requestReferences(messageEnvelop.message<RequestReferencesMessage>());
             break;
+        case MessageType::RequestFollowSymbolMessage:
+            requestFollowSymbol(messageEnvelop.message<RequestFollowSymbolMessage>());
+            break;
         case MessageType::UpdateVisibleTranslationUnitsMessage:
             updateVisibleTranslationUnits(messageEnvelop.message<UpdateVisibleTranslationUnitsMessage>());
             break;

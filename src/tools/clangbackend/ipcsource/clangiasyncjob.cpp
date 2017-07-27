@@ -31,6 +31,7 @@
 #include "clangreparsesupportivetranslationunitjob.h"
 #include "clangrequestdocumentannotationsjob.h"
 #include "clangrequestreferencesjob.h"
+#include "clangfollowsymboljob.h"
 #include "clangupdatedocumentannotationsjob.h"
 
 Q_LOGGING_CATEGORY(jobsLog, "qtc.clangbackend.jobs");
@@ -54,6 +55,8 @@ IAsyncJob *IAsyncJob::create(JobRequest::Type type)
         return new RequestDocumentAnnotationsJob();
     case JobRequest::Type::RequestReferences:
         return new RequestReferencesJob();
+    case JobRequest::Type::FollowSymbol:
+        return new FollowSymbolJob();
     }
 
     return nullptr;

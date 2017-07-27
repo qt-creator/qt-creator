@@ -53,6 +53,7 @@ public:
         CompleteCode,
         RequestDocumentAnnotations,
         RequestReferences,
+        FollowSymbol,
     };
 
     enum class Condition {
@@ -102,6 +103,7 @@ public:
     quint32 line = 0;
     quint32 column = 0;
     quint64 ticketNumber = 0;
+    bool resolveTarget = true;
 };
 
 using JobRequests = QVector<JobRequest>;

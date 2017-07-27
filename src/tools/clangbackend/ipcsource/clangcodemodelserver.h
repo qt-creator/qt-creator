@@ -59,6 +59,7 @@ public:
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
     void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message) override;
     void requestReferences(const RequestReferencesMessage &message) override;
+    void requestFollowSymbol(const RequestFollowSymbolMessage &message) override;
 
 public: // for tests
     const Documents &documentsForTestOnly() const;

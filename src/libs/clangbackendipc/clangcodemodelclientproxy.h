@@ -58,6 +58,7 @@ public:
     void projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message) override;
     void documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message) override;
     void references(const ReferencesMessage &message) override;
+    void followSymbol(const FollowSymbolMessage &message) override;
 
     void readMessages();
 

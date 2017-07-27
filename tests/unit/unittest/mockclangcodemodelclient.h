@@ -47,4 +47,6 @@ public:
                  void(const ClangBackEnd::DocumentAnnotationsChangedMessage &message));
     MOCK_METHOD1(references,
                  void(const ClangBackEnd::ReferencesMessage &message));
+    MOCK_METHOD1(followSymbol,
+                 void(const ClangBackEnd::FollowSymbolMessage &message));
 };

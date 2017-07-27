@@ -56,6 +56,9 @@ void ClangCodeModelClientInterface::dispatch(const MessageEnvelop &messageEnvelo
         case MessageType::ReferencesMessage:
             references(messageEnvelop.message<ReferencesMessage>());
             break;
+        case MessageType::FollowSymbolMessage:
+            followSymbol(messageEnvelop.message<FollowSymbolMessage>());
+            break;
         default:
             qWarning() << "Unknown ClangCodeModelClientMessage";
     }

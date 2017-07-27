@@ -37,11 +37,13 @@ class DocumentAnnotationsChangedMessage;
 class EchoMessage;
 class ProjectPartsDoNotExistMessage;
 class ReferencesMessage;
+class FollowSymbolMessage;
 class RegisterProjectPartsForEditorMessage;
 class RegisterTranslationUnitForEditorMessage;
 class RegisterUnsavedFilesForEditorMessage;
 class RequestDocumentAnnotationsMessage;
 class RequestReferencesMessage;
+class RequestFollowSymbolMessage;
 class TranslationUnitDoesNotExistMessage;
 class UnregisterProjectPartsForEditorMessage;
 class UnregisterTranslationUnitsForEditorMessage;
@@ -61,6 +63,7 @@ public:
     virtual void projectPartsDoNotExist(const ProjectPartsDoNotExistMessage &message) = 0;
     virtual void documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message) = 0;
     virtual void references(const ReferencesMessage &message) = 0;
+    virtual void followSymbol(const FollowSymbolMessage &message) = 0;
 };
 
 } // namespace ClangBackEnd

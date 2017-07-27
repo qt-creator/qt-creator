@@ -38,6 +38,7 @@ SOURCES += \
     $$PWD/filecontainerv2.cpp \
     $$PWD/filepath.cpp \
     $$PWD/fixitcontainer.cpp \
+    $$PWD/followsymbolmessage.cpp \
     $$PWD/highlightingmarkcontainer.cpp \
     $$PWD/ipcclientinterface.cpp \
     $$PWD/ipcinterface.cpp \
@@ -62,6 +63,7 @@ SOURCES += \
     $$PWD/registerunsavedfilesforeditormessage.cpp \
     $$PWD/removepchprojectpartsmessage.cpp \
     $$PWD/requestdocumentannotations.cpp \
+    $$PWD/requestfollowsymbolmessage.cpp \
     $$PWD/requestreferencesmessage.cpp \
     $$PWD/requestsourcelocationforrenamingmessage.cpp \
     $$PWD/requestsourcerangesanddiagnosticsforquerymessage.cpp \
@@ -82,7 +84,7 @@ SOURCES += \
     $$PWD/updatepchprojectpartsmessage.cpp \
     $$PWD/updatetranslationunitsforeditormessage.cpp \
     $$PWD/updatevisibletranslationunitsmessage.cpp \
-    $$PWD/writemessageblock.cpp \
+    $$PWD/writemessageblock.cpp
 
 HEADERS += \
     $$PWD/cancelmessage.h \
@@ -121,6 +123,7 @@ HEADERS += \
     $$PWD/filecontainerv2.h \
     $$PWD/filepath.h \
     $$PWD/fixitcontainer.h \
+    $$PWD/followsymbolmessage.h \
     $$PWD/highlightingmarkcontainer.h \
     $$PWD/ipcclientinterface.h \
     $$PWD/ipcinterface.h \
@@ -145,6 +148,7 @@ HEADERS += \
     $$PWD/registerunsavedfilesforeditormessage.h \
     $$PWD/removepchprojectpartsmessage.h \
     $$PWD/requestdocumentannotations.h \
+    $$PWD/requestfollowsymbolmessage.h \
     $$PWD/requestreferencesmessage.h \
     $$PWD/requestsourcelocationforrenamingmessage.h \
     $$PWD/requestsourcerangesanddiagnosticsforquerymessage.h \
@@ -166,6 +170,6 @@ HEADERS += \
     $$PWD/updatepchprojectpartsmessage.h \
     $$PWD/updatetranslationunitsforeditormessage.h \
     $$PWD/updatevisibletranslationunitsmessage.h \
-    $$PWD/writemessageblock.h \
+    $$PWD/writemessageblock.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

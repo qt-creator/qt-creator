@@ -53,6 +53,7 @@ HEADERS += \
     $$PWD/unsavedfile.h \
     $$PWD/unsavedfiles.h \
     $$PWD/utf8positionfromlinecolumn.h \
+    $$PWD/clangfollowsymboljob.h
 
 SOURCES += \
     $$PWD/clangcodecompleteresults.cpp \
@@ -101,3 +102,4 @@ SOURCES += \
     $$PWD/unsavedfile.cpp \
     $$PWD/unsavedfiles.cpp \
     $$PWD/utf8positionfromlinecolumn.cpp \
+    $$PWD/clangfollowsymboljob.cpp

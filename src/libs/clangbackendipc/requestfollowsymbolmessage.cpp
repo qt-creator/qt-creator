@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,21 +23,42 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "requestfollowsymbolmessage.h"
 
-#include <clangcodemodelclientinterface.h>
+#include <QDebug>
 
-class DummyIpcClient: public ClangBackEnd::ClangCodeModelClientInterface
+#include <ostream>
+
+namespace ClangBackEnd {
+
+quint64 RequestFollowSymbolMessage::ticketCounter = 0;
+
+QDebug operator<<(QDebug debug, const RequestFollowSymbolMessage &message)
 {
-public:
-    void dispatch(const ClangBackEnd::MessageEnvelop &) override {}
+    debug.nospace() << "RequestFollowSymbolMessage(";
 
-    void alive() override {}
-    void echo(const ClangBackEnd::EchoMessage &) override {}
-    void codeCompleted(const ClangBackEnd::CodeCompletedMessage &) override {}
-    void translationUnitDoesNotExist(const ClangBackEnd::TranslationUnitDoesNotExistMessage &) override {}
-    void projectPartsDoNotExist(const ClangBackEnd::ProjectPartsDoNotExistMessage &) override {}
-    void documentAnnotationsChanged(const ClangBackEnd::DocumentAnnotationsChangedMessage &) override {}
-    void references(const ClangBackEnd::ReferencesMessage &) override {}
-    void followSymbol(const ClangBackEnd::FollowSymbolMessage &) override {}
-};
+    debug.nospace() << message.m_fileContainer << ", ";
+    debug.nospace() << message.m_ticketNumber << ", ";
+    debug.nospace() << message.m_line << ", ";
+    debug.nospace() << message.m_column << ", ";
+    debug.nospace() << message.m_resolveTarget << ", ";
+
+    debug.nospace() << ")";
+
+    return debug;
+}
+
+std::ostream &operator<<(std::ostream &os, const RequestFollowSymbolMessage &message)
+{
+    os << "("
+       << message.m_fileContainer << ", "
+       << message.m_ticketNumber << ", "
+       << message.m_line << ", "
+       << message.m_column << ", "
+       << message.m_resolveTarget << ", "
+       << ")";
+
+     return os;
+}
+
+} // namespace ClangBackEnd

@@ -261,6 +261,15 @@ void IpcReceiver::references(const ReferencesMessage &message)
     futureInterface.reportFinished();
 }
 
+void IpcReceiver::followSymbol(const ClangBackEnd::FollowSymbolMessage &message)
+{
+    qCDebug(log) << "<<< FollowSymbolMessage with"
+                 << message.sourceRange() << "range";
+
+    const quint64 ticket = message.ticketNumber();
+    // TODO: add implementation
+}
+
 class IpcSender : public IpcSenderInterface
 {
 public:
@@ -279,6 +288,7 @@ public:
     void completeCode(const ClangBackEnd::CompleteCodeMessage &message) override;
     void requestDocumentAnnotations(const ClangBackEnd::RequestDocumentAnnotationsMessage &message) override;
     void requestReferences(const ClangBackEnd::RequestReferencesMessage &message) override;
+    void requestFollowSymbol(const ClangBackEnd::RequestFollowSymbolMessage &message) override;
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
 
 private:
@@ -362,6 +372,13 @@ void IpcSender::requestReferences(const RequestReferencesMessage &message)
     m_connection.serverProxy().requestReferences(message);
 }
 
+void IpcSender::requestFollowSymbol(const RequestFollowSymbolMessage &message)
+{
+    QTC_CHECK(m_connection.isConnected());
+    qCDebug(log) << ">>>" << message;
+    m_connection.serverProxy().requestFollowSymbol(message);
+}
+
 void IpcSender::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
 {
     QTC_CHECK(m_connection.isConnected());
@@ -383,6 +400,7 @@ public:
     void completeCode(const ClangBackEnd::CompleteCodeMessage &) override {}
     void requestDocumentAnnotations(const ClangBackEnd::RequestDocumentAnnotationsMessage &) override {}
     void requestReferences(const ClangBackEnd::RequestReferencesMessage &) override {}
+    void requestFollowSymbol(const RequestFollowSymbolMessage &) override {}
     void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &) override {}
 };
 

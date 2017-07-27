@@ -110,6 +110,11 @@ void ClangCodeModelServerProxy::requestReferences(const RequestReferencesMessage
     m_writeMessageBlock.write(message);
 }
 
+void ClangCodeModelServerProxy::requestFollowSymbol(const RequestFollowSymbolMessage &message)
+{
+    m_writeMessageBlock.write(message);
+}
+
 void ClangCodeModelServerProxy::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
 {
     m_writeMessageBlock.write(message);

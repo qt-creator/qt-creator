@@ -88,6 +88,7 @@ private:
 
     void documentAnnotationsChanged(const ClangBackEnd::DocumentAnnotationsChangedMessage &message) override;
     void references(const ClangBackEnd::ReferencesMessage &message) override;
+    void followSymbol(const ClangBackEnd::FollowSymbolMessage &message) override;
 
     void translationUnitDoesNotExist(const ClangBackEnd::TranslationUnitDoesNotExistMessage &) override {}
     void projectPartsDoNotExist(const ClangBackEnd::ProjectPartsDoNotExistMessage &) override {}
@@ -124,6 +125,7 @@ public:
     virtual void completeCode(const ClangBackEnd::CompleteCodeMessage &message) = 0;
     virtual void requestDocumentAnnotations(const ClangBackEnd::RequestDocumentAnnotationsMessage &message) = 0;
     virtual void requestReferences(const ClangBackEnd::RequestReferencesMessage &message) = 0;
+    virtual void requestFollowSymbol(const ClangBackEnd::RequestFollowSymbolMessage &message) = 0;
     virtual void updateVisibleTranslationUnits(const ClangBackEnd::UpdateVisibleTranslationUnitsMessage &message) = 0;
 };
 

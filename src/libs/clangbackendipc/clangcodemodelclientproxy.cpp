@@ -100,6 +100,11 @@ void ClangCodeModelClientProxy::references(const ReferencesMessage &message)
     m_writeMessageBlock.write(message);
 }
 
+void ClangCodeModelClientProxy::followSymbol(const FollowSymbolMessage &message)
+{
+    m_writeMessageBlock.write(message);
+}
+
 void ClangCodeModelClientProxy::readMessages()
 {
     for (const MessageEnvelop &message : m_readMessageBlock.readAll())

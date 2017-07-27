@@ -233,6 +233,17 @@ void ClangCodeModelServer::requestDocumentAnnotations(const RequestDocumentAnnot
     }
 }
 
+template <class MessageType>
+static void fillJobRequest(JobRequest &jobRequest, const MessageType &message)
+{
+    jobRequest.line = message.line();
+    jobRequest.column = message.column();
+    jobRequest.ticketNumber = message.ticketNumber();
+    // The unsaved files might get updater later, so take the current
+    // revision for the request.
+    jobRequest.documentRevision = message.fileContainer().documentRevision();
+}
+
 void ClangCodeModelServer::requestReferences(const RequestReferencesMessage &message)
 {
     TIME_SCOPE_DURATION("ClangCodeModelServer::requestReferences");
@@ -243,17 +254,31 @@ void ClangCodeModelServer::requestReferences(const RequestReferencesMessage &mes
         DocumentProcessor processor = documentProcessors().processor(document);
 
         JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::RequestReferences);
-        jobRequest.line = message.line();
-        jobRequest.column = message.column();
-        jobRequest.ticketNumber = message.ticketNumber();
-        // The unsaved files might get updater later, so take the current
-        // revision for the request.
-        jobRequest.documentRevision = message.fileContainer().documentRevision();
-
+        fillJobRequest(jobRequest, message);
         processor.addJob(jobRequest);
         processor.process();
     }  catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::requestReferences:" << exception.what();
+    }
+}
+
+void ClangCodeModelServer::requestFollowSymbol(const RequestFollowSymbolMessage &message)
+{
+    TIME_SCOPE_DURATION("ClangCodeModelServer::followSymbol");
+
+    try {
+        auto projectPartId = message.fileContainer().projectPartId();
+        Document document = documents.document(message.fileContainer().filePath(),
+                                                     projectPartId);
+        DocumentProcessor processor = documentProcessors().processor(document);
+
+        JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::FollowSymbol);
+        fillJobRequest(jobRequest, message);
+        jobRequest.resolveTarget = message.resolveTarget();
+        processor.addJob(jobRequest);
+        processor.process();
+    }  catch (const std::exception &exception) {
+        qWarning() << "Error in ClangCodeModelServer::followSymbol:" << exception.what();
     }
 }
 

@@ -35,6 +35,7 @@
 #include "registerunsavedfilesforeditormessage.h"
 #include "requestdocumentannotations.h"
 #include "requestreferencesmessage.h"
+#include "requestfollowsymbolmessage.h"
 #include "unregisterunsavedfilesforeditormessage.h"
 #include "updatetranslationunitsforeditormessage.h"
 #include "updatevisibletranslationunitsmessage.h"

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,19 +25,36 @@
 
 #pragma once
 
-#include <clangcodemodelclientinterface.h>
+#include "clangasyncjob.h"
+#include "clangdocument.h"
 
-class DummyIpcClient: public ClangBackEnd::ClangCodeModelClientInterface
+#include <clangbackendipc/sourcerangecontainer.h>
+
+namespace ClangBackEnd {
+
+class FollowSymbolResult
 {
 public:
-    void dispatch(const ClangBackEnd::MessageEnvelop &) override {}
+    FollowSymbolResult() = default;
+    FollowSymbolResult(SourceRangeContainer &range, bool failedToFollow = false)
+        : m_range(range)
+        , m_failedToFollow(failedToFollow)
+    {}
 
-    void alive() override {}
-    void echo(const ClangBackEnd::EchoMessage &) override {}
-    void codeCompleted(const ClangBackEnd::CodeCompletedMessage &) override {}
-    void translationUnitDoesNotExist(const ClangBackEnd::TranslationUnitDoesNotExistMessage &) override {}
-    void projectPartsDoNotExist(const ClangBackEnd::ProjectPartsDoNotExistMessage &) override {}
-    void documentAnnotationsChanged(const ClangBackEnd::DocumentAnnotationsChangedMessage &) override {}
-    void references(const ClangBackEnd::ReferencesMessage &) override {}
-    void followSymbol(const ClangBackEnd::FollowSymbolMessage &) override {}
+    SourceRangeContainer m_range;
+    bool m_failedToFollow = false;
 };
+
+class FollowSymbolJob : public AsyncJob<FollowSymbolResult>
+{
+public:
+    using AsyncResult = FollowSymbolResult;
+
+    AsyncPrepareResult prepareAsyncRun() override;
+    void finalizeAsyncRun() override;
+
+private:
+    Document m_pinnedDocument;
+    FileContainer m_pinnedFileContainer;
+};
+} // namespace ClangBackEnd

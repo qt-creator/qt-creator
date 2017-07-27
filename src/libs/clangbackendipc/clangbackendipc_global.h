@@ -116,6 +116,9 @@ enum class MessageType : quint8 {
     RequestReferencesMessage,
     ReferencesMessage,
 
+    RequestFollowSymbolMessage,
+    FollowSymbolMessage,
+
     UpdateVisibleTranslationUnitsMessage,
 
     CompleteCodeMessage,

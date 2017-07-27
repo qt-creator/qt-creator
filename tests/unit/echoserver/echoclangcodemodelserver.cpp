@@ -95,6 +95,11 @@ void EchoClangCodeModelServer::requestReferences(const RequestReferencesMessage 
     echoMessage(message);
 }
 
+void EchoClangCodeModelServer::requestFollowSymbol(const RequestFollowSymbolMessage &message)
+{
+    echoMessage(message);
+}
+
 void EchoClangCodeModelServer::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
 {
     echoMessage(message);
