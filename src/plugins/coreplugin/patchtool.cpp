@@ -88,6 +88,12 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
         return false;
     }
 
+    if (!Utils::FileName::fromString(patch).exists()
+            && !Utils::Environment::systemEnvironment().searchInPath(patch).exists()) {
+        MessageManager::write(QApplication::translate("Core::PatchTool", "The patch-command configured in the general \"Environment\" settings does not exist."));
+        return false;
+    }
+
     QProcess patchProcess;
     if (!workingDirectory.isEmpty())
         patchProcess.setWorkingDirectory(workingDirectory);
