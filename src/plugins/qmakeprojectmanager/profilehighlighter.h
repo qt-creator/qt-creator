@@ -42,7 +42,7 @@ public:
         NumProfileFormats
     };
 
-    explicit ProFileHighlighter(const TextEditor::Keywords &keywords);
+    explicit ProFileHighlighter();
     void highlightBlock(const QString &text);
 
 private:
