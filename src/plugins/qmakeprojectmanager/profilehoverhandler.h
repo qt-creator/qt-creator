@@ -38,7 +38,7 @@ namespace Internal {
 class ProFileHoverHandler : public TextEditor::BaseHoverHandler
 {
 public:
-    explicit ProFileHoverHandler();
+    ProFileHoverHandler();
 
 private:
     void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos) override;
