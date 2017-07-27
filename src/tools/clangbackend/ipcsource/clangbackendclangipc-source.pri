@@ -16,6 +16,8 @@ HEADERS += \
     $$PWD/clangexceptions.h \
     $$PWD/clangfilepath.h \
     $$PWD/clangfilesystemwatcher.h \
+    $$PWD/clangfollowsymboljob.h \
+    $$PWD/clangfollowsymbol.h \
     $$PWD/clangiasyncjob.h \
     $$PWD/clangjobcontext.h \
     $$PWD/clangjobqueue.h \
@@ -55,8 +57,7 @@ HEADERS += \
     $$PWD/sourcerange.h \
     $$PWD/unsavedfile.h \
     $$PWD/unsavedfiles.h \
-    $$PWD/utf8positionfromlinecolumn.h \
-    $$PWD/clangfollowsymboljob.h
+    $$PWD/utf8positionfromlinecolumn.h
 
 SOURCES += \
     $$PWD/clangcodecompleteresults.cpp \
@@ -71,6 +72,8 @@ SOURCES += \
     $$PWD/clangexceptions.cpp \
     $$PWD/clangfilepath.cpp \
     $$PWD/clangfilesystemwatcher.cpp \
+    $$PWD/clangfollowsymboljob.cpp \
+    $$PWD/clangfollowsymbol.cpp \
     $$PWD/clangiasyncjob.cpp \
     $$PWD/clangjobcontext.cpp \
     $$PWD/clangjobqueue.cpp \
@@ -107,5 +110,4 @@ SOURCES += \
     $$PWD/sourcerange.cpp \
     $$PWD/unsavedfile.cpp \
     $$PWD/unsavedfiles.cpp \
-    $$PWD/utf8positionfromlinecolumn.cpp \
-    $$PWD/clangfollowsymboljob.cpp
+    $$PWD/utf8positionfromlinecolumn.cpp

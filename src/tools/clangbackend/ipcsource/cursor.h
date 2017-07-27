@@ -86,6 +86,7 @@ public:
     CXSourceLocation cxSourceLocation() const;
     SourceRange sourceRange() const;
     CXSourceRange cxSourceRange() const;
+    CXTranslationUnit cxTranslationUnit() const;
     SourceRange commentRange() const;
     bool hasSameSourceLocationAs(const Cursor &other) const;
 

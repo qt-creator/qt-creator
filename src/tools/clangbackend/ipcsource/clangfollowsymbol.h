@@ -25,36 +25,27 @@
 
 #pragma once
 
-#include "clangasyncjob.h"
-#include "clangdocument.h"
+#include <QVector>
 
-#include <clangbackendipc/sourcerangecontainer.h>
+#include <clang-c/Index.h>
+
+class Utf8String;
 
 namespace ClangBackEnd {
 
-class FollowSymbolResult
+class Cursor;
+class FollowSymbolResult;
+class CommandLineArguments;
+
+class FollowSymbol
 {
 public:
-    FollowSymbolResult() = default;
-    FollowSymbolResult(const SourceRangeContainer &range, bool failedToFollow = false)
-        : range(range)
-        , failedToFollow(failedToFollow)
-    {}
-
-    SourceRangeContainer range;
-    bool failedToFollow = false;
+    static FollowSymbolResult followSymbol(CXIndex index,
+                                           const Cursor &fullCursor,
+                                           uint line,
+                                           uint column,
+                                           const QVector<Utf8String> &dependentFiles,
+                                           const CommandLineArguments &currentArgs);
 };
 
-class FollowSymbolJob : public AsyncJob<FollowSymbolResult>
-{
-public:
-    using AsyncResult = FollowSymbolResult;
-
-    AsyncPrepareResult prepareAsyncRun() override;
-    void finalizeAsyncRun() override;
-
-private:
-    Document m_pinnedDocument;
-    FileContainer m_pinnedFileContainer;
-};
 } // namespace ClangBackEnd

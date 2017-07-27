@@ -28,6 +28,8 @@
 #include "clangbackend_global.h"
 #include "clangreferencescollector.h"
 #include "clangtranslationunitupdater.h"
+#include "clangfollowsymbol.h"
+#include "clangfollowsymboljob.h"
 
 #include <codecompleter.h>
 #include <cursor.h>
@@ -38,6 +40,7 @@
 #include <skippedsourceranges.h>
 #include <sourcelocation.h>
 #include <sourcerange.h>
+#include <commandlinearguments.h>
 
 #include <utils/qtcassert.h>
 
@@ -234,6 +237,15 @@ void TranslationUnit::extractDiagnostics(DiagnosticContainer &firstHeaderErrorDi
         if (isMainFileDiagnostic(m_filePath, diagnostic))
             mainFileDiagnostics.push_back(diagnostic.toDiagnosticContainer());
     }
+}
+
+FollowSymbolResult TranslationUnit::followSymbol(uint line,
+                                                 uint column,
+                                                 const QVector<Utf8String> &dependentFiles,
+                                                 const CommandLineArguments &currentArgs) const
+{
+    return FollowSymbol::followSymbol(m_cxIndex, cursorAt(line, column), line, column,
+                                      dependentFiles, currentArgs);
 }
 
 } // namespace ClangBackEnd

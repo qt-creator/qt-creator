@@ -37,11 +37,11 @@ static FollowSymbolJob::AsyncResult runAsyncHelperFollow(const TranslationUnit &
                                                          quint32 line,
                                                          quint32 column,
                                                          const QVector<Utf8String> &dependentFiles,
-                                                         bool resolveTarget)
+                                                         const CommandLineArguments &currentArgs)
 {
     TIME_SCOPE_DURATION("FollowSymbolJobRunner");
 
-    return FollowSymbolResult();
+    return translationUnit.followSymbol(line, column, dependentFiles, currentArgs);
 }
 
 IAsyncJob::AsyncPrepareResult FollowSymbolJob::prepareAsyncRun()
@@ -49,6 +49,8 @@ IAsyncJob::AsyncPrepareResult FollowSymbolJob::prepareAsyncRun()
     const JobRequest jobRequest = context().jobRequest;
     QTC_ASSERT(jobRequest.type == JobRequest::Type::FollowSymbol,
                return AsyncPrepareResult());
+    // Is too slow because of IPC timings, no implementation for now
+    QTC_ASSERT(jobRequest.resolveTarget, return AsyncPrepareResult());
 
     try {
         m_pinnedDocument = context().documentForJobRequest();
@@ -56,12 +58,18 @@ IAsyncJob::AsyncPrepareResult FollowSymbolJob::prepareAsyncRun()
 
         const TranslationUnit translationUnit
                 = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
+
+        const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
+        const CommandLineArguments currentArgs(updateInput.filePath.constData(),
+                                               updateInput.projectArguments,
+                                               updateInput.fileArguments,
+                                               false);
+
         const quint32 line = jobRequest.line;
         const quint32 column = jobRequest.column;
         const QVector<Utf8String> &dependentFiles = jobRequest.dependentFiles;
-        const bool resolveTarget = jobRequest.resolveTarget;
-        setRunner([translationUnit, line, column, dependentFiles, resolveTarget]() {
-            return runAsyncHelperFollow(translationUnit, line, column, dependentFiles, resolveTarget);
+        setRunner([translationUnit, line, column, dependentFiles, currentArgs]() {
+            return runAsyncHelperFollow(translationUnit, line, column, dependentFiles, currentArgs);
         });
         return AsyncPrepareResult{translationUnit.id()};
 
@@ -77,8 +85,8 @@ void FollowSymbolJob::finalizeAsyncRun()
         const AsyncResult result = asyncResult();
 
         const FollowSymbolMessage message(m_pinnedFileContainer,
-                                          result.m_range,
-                                          result.m_failedToFollow,
+                                          result.range,
+                                          result.failedToFollow,
                                           context().jobRequest.ticketNumber);
         context().client->followSymbol(message);
     }

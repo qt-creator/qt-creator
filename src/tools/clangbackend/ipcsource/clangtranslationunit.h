@@ -27,11 +27,7 @@
 
 #include <clangbackendipc/codecompletion.h>
 
-#include <utf8string.h>
-
 #include <clang-c/Index.h>
-
-class Utf8String;
 
 namespace ClangBackEnd {
 
@@ -41,6 +37,7 @@ class DiagnosticSet;
 class HighlightingMarkContainer;
 class HighlightingMarks;
 class ReferencesResult;
+class FollowSymbolResult;
 class SkippedSourceRanges;
 class SourceLocation;
 class SourceRange;
@@ -48,6 +45,7 @@ class SourceRangeContainer;
 class TranslationUnitUpdateInput;
 class TranslationUnitUpdateResult;
 class UnsavedFiles;
+class CommandLineArguments;
 
 class TranslationUnit
 {
@@ -102,6 +100,10 @@ public:
     HighlightingMarks highlightingMarksInRange(const SourceRange &range) const;
 
     SkippedSourceRanges skippedSourceRanges() const;
+    FollowSymbolResult followSymbol(uint line,
+                                    uint column,
+                                    const QVector<Utf8String> &dependentFiles,
+                                    const CommandLineArguments &currentArgs) const;
 
 private:
     const Utf8String m_id;

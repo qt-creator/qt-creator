@@ -273,6 +273,11 @@ CXSourceRange Cursor::cxSourceRange() const
     return clang_getCursorExtent(cxCursor);
 }
 
+CXTranslationUnit Cursor::cxTranslationUnit() const
+{
+    return clang_Cursor_getTranslationUnit(cxCursor);
+}
+
 SourceRange Cursor::commentRange() const
 {
     return clang_Cursor_getCommentRange(cxCursor);
