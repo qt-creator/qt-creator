@@ -97,7 +97,8 @@ public:
     void setIsUsedByCurrentEditor(bool isUsedByCurrentEditor);
 
     bool isVisibleInEditor() const;
-    void setIsVisibleInEditor(bool isVisibleInEditor);
+    void setIsVisibleInEditor(bool isVisibleInEditor, const TimePoint &timePoint);
+    TimePoint visibleTimePoint() const;
 
     bool isDirty() const;
     TimePoint isDirtyTimeChangePoint() const;

@@ -117,8 +117,9 @@ void Documents::setUsedByCurrentEditor(const Utf8String &filePath)
 
 void Documents::setVisibleInEditors(const Utf8StringVector &filePaths)
 {
+    const TimePoint timePoint = Clock::now();
     for (Document &document : documents_)
-        document.setIsVisibleInEditor(filePaths.contains(document.filePath()));
+        document.setIsVisibleInEditor(filePaths.contains(document.filePath()), timePoint);
 }
 
 const Document &Documents::document(const Utf8String &filePath, const Utf8String &projectPartId) const

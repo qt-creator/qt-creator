@@ -71,6 +71,8 @@ public:
 
     uint documentRevision = 0;
 
+    TimePoint visibleTimePoint;
+
     TimePoint isDirtyChangeTimePoint;
     bool isDirty = false;
 
@@ -245,11 +247,20 @@ bool Document::isVisibleInEditor() const
     return d->isVisibleInEditor;
 }
 
-void Document::setIsVisibleInEditor(bool isVisibleInEditor)
+void Document::setIsVisibleInEditor(bool isVisibleInEditor, const TimePoint &timePoint)
 {
     checkIfNull();
 
+    if (isVisibleInEditor)
+        d->visibleTimePoint = timePoint;
     d->isVisibleInEditor = isVisibleInEditor;
+}
+
+TimePoint Document::visibleTimePoint() const
+{
+    checkIfNull();
+
+    return d->visibleTimePoint;;
 }
 
 bool Document::isDirty() const
