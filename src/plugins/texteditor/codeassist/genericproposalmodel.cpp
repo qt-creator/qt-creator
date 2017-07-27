@@ -30,7 +30,7 @@
 #include <texteditor/completionsettings.h>
 
 #include <QDebug>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QtAlgorithms>
 #include <QHash>
 
@@ -257,13 +257,13 @@ void GenericProposalModel::filter(const QString &prefix)
 
     const CamelHumpMatcher::CaseSensitivity caseSensitivity =
         convertCaseSensitivity(TextEditorSettings::completionSettings().m_caseSensitivity);
-    const QRegExp regExp = CamelHumpMatcher::createCamelHumpRegExp(prefix, caseSensitivity);
+    const QRegularExpression regExp = CamelHumpMatcher::createCamelHumpRegExp(prefix, caseSensitivity);
 
     m_currentItems.clear();
     const QString lowerPrefix = prefix.toLower();
     foreach (const auto &item, m_originalItems) {
         const QString &text = item->text();
-        if (regExp.indexIn(text) == 0) {
+        if (regExp.match(text).hasMatch()) {
             m_currentItems.append(item);
             if (text.startsWith(prefix)) {
                 // Direct match

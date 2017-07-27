@@ -30,7 +30,7 @@
 #include "utils_global.h"
 
 QT_BEGIN_NAMESPACE
-class QRegExp;
+class QRegularExpression;
 class QString;
 QT_END_NAMESPACE
 
@@ -43,6 +43,6 @@ public:
         FirstLetterCaseSensitive
     };
 
-    static QRegExp createCamelHumpRegExp(const QString &pattern,
+    static QRegularExpression createCamelHumpRegExp(const QString &pattern,
             CaseSensitivity caseSensitivity = CaseSensitivity::CaseInsensitive);
 };

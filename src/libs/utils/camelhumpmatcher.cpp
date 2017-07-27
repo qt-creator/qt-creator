@@ -27,7 +27,7 @@
 
 #include "camelhumpmatcher.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QString>
 
 /**
@@ -39,11 +39,11 @@
  *                        does not affect wildcard style matching
  * \return the regexp
  */
-QRegExp CamelHumpMatcher::createCamelHumpRegExp(const QString &pattern,
-                                                CamelHumpMatcher::CaseSensitivity caseSensitivity)
+QRegularExpression CamelHumpMatcher::createCamelHumpRegExp(
+        const QString &pattern, CamelHumpMatcher::CaseSensitivity caseSensitivity)
 {
     if (pattern.isEmpty())
-        return QRegExp();
+        return QRegularExpression();
 
     /*
      * This code builds a regular expression in order to more intelligently match
@@ -66,30 +66,30 @@ QRegExp CamelHumpMatcher::createCamelHumpRegExp(const QString &pattern,
 
     QString keyRegExp;
     bool first = true;
-    const QChar asterisk = QLatin1Char('*');
-    const QChar question = QLatin1Char('?');
+    const QChar asterisk = '*';
+    const QChar question = '?';
     const QLatin1String uppercaseWordContinuation("[a-z0-9_]*");
     const QLatin1String lowercaseWordContinuation("(?:[a-zA-Z0-9]*_)?");
-    foreach (const QChar &c, pattern) {
+    for (const QChar &c : pattern) {
         if (!c.isLetter()) {
             if (c == question)
-                keyRegExp += QLatin1Char('.');
+                keyRegExp += '.';
             else if (c == asterisk)
-                keyRegExp += QLatin1String(".*");
+                keyRegExp += ".*";
             else
-                keyRegExp += QRegExp::escape(c);
+                keyRegExp += QRegularExpression::escape(c);
         } else if (caseSensitivity == CaseSensitivity::CaseInsensitive ||
             (caseSensitivity == CaseSensitivity::FirstLetterCaseSensitive && !first)) {
 
-            keyRegExp += QLatin1String("(?:");
+            keyRegExp += "(?:";
             if (!first)
                 keyRegExp += uppercaseWordContinuation;
-            keyRegExp += QRegExp::escape(c.toUpper());
-            keyRegExp += QLatin1Char('|');
+            keyRegExp += QRegularExpression::escape(c.toUpper());
+            keyRegExp += '|';
             if (!first)
                 keyRegExp += lowercaseWordContinuation;
-            keyRegExp += QRegExp::escape(c.toLower());
-            keyRegExp += QLatin1Char(')');
+            keyRegExp += QRegularExpression::escape(c.toLower());
+            keyRegExp += ')';
         } else {
             if (!first) {
                 if (c.isUpper())
@@ -97,10 +97,10 @@ QRegExp CamelHumpMatcher::createCamelHumpRegExp(const QString &pattern,
                 else
                     keyRegExp += lowercaseWordContinuation;
             }
-            keyRegExp += QRegExp::escape(c);
+            keyRegExp += QRegularExpression::escape(c);
         }
 
         first = false;
     }
-    return QRegExp(keyRegExp);
+    return QRegularExpression(keyRegExp);
 }

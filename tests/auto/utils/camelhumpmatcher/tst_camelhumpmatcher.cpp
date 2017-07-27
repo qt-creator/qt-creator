@@ -43,7 +43,9 @@ void tst_CamelHumpMatcher::camelHumpMatcher()
     QFETCH(QString, candidate);
     QFETCH(int, expectedIndex);
 
-    QCOMPARE(CamelHumpMatcher::createCamelHumpRegExp(pattern).indexIn(candidate), expectedIndex);
+    const QRegularExpression regExp = CamelHumpMatcher::createCamelHumpRegExp(pattern);
+    const QRegularExpressionMatch match = regExp.match(candidate);
+    QCOMPARE(match.capturedStart(), expectedIndex);
 }
 
 void tst_CamelHumpMatcher::camelHumpMatcher_data()
