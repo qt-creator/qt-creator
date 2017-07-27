@@ -108,6 +108,8 @@ public:
                                       const qbs::ProductData &product);
     static QString uniqueProductName(const qbs::ProductData &product);
 
+    void configureAsExampleProject(const QSet<Core::Id> &platforms) final;
+
 public:
     void invalidate();
     void delayParsing();
