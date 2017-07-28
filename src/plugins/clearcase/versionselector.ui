@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="headerLabel">
      <property name="text">
-      <string>There are multiple versions of '%1' which can be considered for checkout. Please select version to checkout:</string>
+      <string>Multiple versions of "%1" can be checked out. Select the version to check out:</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -32,7 +32,7 @@
      <item row="0" column="0">
       <widget class="QRadioButton" name="loadedRadioButton">
        <property name="text">
-        <string>&amp;Loaded Version</string>
+        <string>&amp;Loaded version</string>
        </property>
        <property name="checked">
         <bool>true</bool>
