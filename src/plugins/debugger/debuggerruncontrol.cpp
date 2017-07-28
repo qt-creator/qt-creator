@@ -256,8 +256,8 @@ DebuggerEngine *createEngine(DebuggerEngineType cppEngineType,
         if (cppEngine) {
             engine = createQmlCppEngine(cppEngine, useTerminal);
         } else {
-            errors->append(DebuggerPlugin::tr("The slave debugging engine required for combined "
-                              "QML/C++-Debugging could not be created: %1"));
+            errors->append(DebuggerPlugin::tr("The debugging engine required for combined "
+                              "QML/C++ debugging could not be created: %1"));
         }
         break;
     }
@@ -266,7 +266,7 @@ DebuggerEngine *createEngine(DebuggerEngineType cppEngineType,
                        .arg(engineTypeName(et)));
     }
     if (!engine)
-        errors->append(DebuggerPlugin::tr("Unable to create a debugger engine of the type \"%1\"").
+        errors->append(DebuggerPlugin::tr("Unable to create a debugging engine of the type \"%1\"").
                        arg(engineTypeName(et)));
     return engine;
 }
@@ -731,7 +731,7 @@ void GdbServerRunner::start()
 
     setRunnable(r);
 
-    appendMessage(tr("Starting GDBserver..."), NormalMessageFormat);
+    appendMessage(tr("Starting gdbserver..."), NormalMessageFormat);
 
     SimpleTargetRunner::start();
 }
