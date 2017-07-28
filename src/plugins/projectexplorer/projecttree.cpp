@@ -131,8 +131,13 @@ void ProjectTree::nodeChanged(ProjectTreeWidget *widget)
 void ProjectTree::update()
 {
     ProjectTreeWidget *focus = m_focusForContextMenu;
-    if (!focus)
+    static QPointer<ProjectTreeWidget> lastFocusedProjectTreeWidget;
+    if (!focus) {
         focus = Utils::findOrDefault(m_projectTreeWidgets, &ProjectTree::hasFocus);
+        lastFocusedProjectTreeWidget = focus;
+    }
+    if (!focus)
+        focus = lastFocusedProjectTreeWidget;
 
     if (focus)
         updateFromProjectTreeWidget(focus);
@@ -150,16 +155,12 @@ void ProjectTree::updateFromProjectTreeWidget(ProjectTreeWidget *widget)
 
 void ProjectTree::updateFromDocumentManager()
 {
-    Core::IDocument *document = Core::EditorManager::currentDocument();
-    const FileName fileName = document ? document->filePath() : FileName();
-
-    Node *currentNode = nullptr;
-    if (m_currentNode && m_currentNode->filePath() == fileName)
-        currentNode = m_currentNode;
-    else
-        currentNode = ProjectTreeWidget::nodeForFile(fileName);
-
-    updateFromNode(currentNode);
+    if (Core::IDocument *document = Core::EditorManager::currentDocument()) {
+        const FileName fileName = document->filePath();
+        updateFromNode(ProjectTreeWidget::nodeForFile(fileName));
+    } else {
+        updateFromNode(nullptr);
+    }
 }
 
 void ProjectTree::updateFromNode(Node *node)
