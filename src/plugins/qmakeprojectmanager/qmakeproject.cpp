@@ -552,8 +552,6 @@ void QmakeProject::asyncUpdate()
 
     m_qmakeVfs->invalidateCache();
 
-    emitParsingStarted();
-
     Q_ASSERT(!m_asyncUpdateFutureInterface);
     m_asyncUpdateFutureInterface = new QFutureInterface<void>();
 
