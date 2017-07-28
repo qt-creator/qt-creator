@@ -936,7 +936,7 @@ void RunControlPrivate::onWorkerStarted(RunWorker *worker)
         continueStart();
         return;
     }
-    showError(tr("Unexpected run control state %1 when worker %2 started")
+    showError(tr("Unexpected run control state %1 when worker %2 started.")
               .arg(stateName(state))
               .arg(worker->d->id));
 }
@@ -1467,11 +1467,11 @@ bool RunWorkerPrivate::canStart() const
 void RunWorkerPrivate::timerEvent(QTimerEvent *ev)
 {
     if (ev->timerId() == startWatchdogTimerId) {
-        q->reportFailure(tr("Worker start timed out"));
+        q->reportFailure(tr("Worker start timed out."));
         return;
     }
     if (ev->timerId() == stopWatchdogTimerId) {
-        q->reportFailure(tr("Worker stop timed out"));
+        q->reportFailure(tr("Worker stop timed out."));
         return;
     }
 }
@@ -1610,7 +1610,7 @@ QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, cons
                 "permissions to invoke the program.").arg(program);
             break;
         case QProcess::Crashed:
-            msg = tr("The process was ended forcefully");
+            msg = tr("The process was ended forcefully.");
             break;
         case QProcess::Timedout:
             // "The last waitFor...() function timed out. "

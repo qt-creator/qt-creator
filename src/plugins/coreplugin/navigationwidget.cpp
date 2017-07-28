@@ -312,6 +312,15 @@ void NavigationWidget::resizeEvent(QResizeEvent *re)
     MiniSplitter::resizeEvent(re);
 }
 
+static QIcon closeIconForSide(Side side, int itemCount)
+{
+    if (itemCount > 1)
+        return Utils::Icons::CLOSE_SPLIT_TOP.icon();
+    return side == Side::Left
+            ? Utils::Icons::CLOSE_SPLIT_LEFT.icon()
+            : Utils::Icons::CLOSE_SPLIT_RIGHT.icon();
+}
+
 Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position, int factoryIndex)
 {
     for (int pos = position + 1; pos < d->m_subWidgets.size(); ++pos) {
@@ -331,9 +340,7 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position, int
     insertWidget(position, nsw);
 
     d->m_subWidgets.insert(position, nsw);
-    d->m_subWidgets.at(0)->setCloseIcon(d->m_subWidgets.size() == 1
-                                        ? Utils::Icons::CLOSE_SPLIT_LEFT.icon()
-                                        : Utils::Icons::CLOSE_SPLIT_TOP.icon());
+    d->m_subWidgets.at(0)->setCloseIcon(closeIconForSide(d->m_side, d->m_subWidgets.size()));
     NavigationWidgetPrivate::updateActivationsMap(nsw->factory()->id(), {d->m_side, position});
     return nsw;
 }
@@ -386,10 +393,8 @@ void NavigationWidget::closeSubWidget()
         subWidget->hide();
         subWidget->deleteLater();
         // update close button of top item
-        if (d->m_subWidgets.size() == 1)
-            d->m_subWidgets.at(0)->setCloseIcon(d->m_subWidgets.size() == 1
-                                                ? Utils::Icons::CLOSE_SPLIT_LEFT.icon()
-                                                : Utils::Icons::CLOSE_SPLIT_TOP.icon());
+        if (!d->m_subWidgets.isEmpty())
+            d->m_subWidgets.at(0)->setCloseIcon(closeIconForSide(d->m_side, d->m_subWidgets.size()));
     } else {
         setShown(false);
     }

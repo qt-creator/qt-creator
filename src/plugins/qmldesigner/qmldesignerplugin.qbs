@@ -397,6 +397,7 @@ Project {
                 "componentcore/selectioncontext.h",
                 "componentcore/qmldesignericonprovider.cpp",
                 "componentcore/qmldesignericonprovider.h",
+                "componentcore/componentcore.qrc",
                 "texteditor/texteditorstatusbar.cpp",
                 "texteditor/texteditorstatusbar.h",
                 "componentcore/changestyleaction.cpp",

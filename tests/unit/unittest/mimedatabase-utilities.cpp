@@ -32,6 +32,7 @@
 #include <QString>
 
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/stringutils.h>
 
 namespace MimeDataBaseUtilities
 {
@@ -47,9 +48,11 @@ bool addCppToolsMimeTypes()
     if (file.open(QIODevice::ReadOnly)) {
         auto doc = QJsonDocument::fromJson(file.readAll());
         QJsonValue mimetypes = doc.object().value("Mimetypes");
-        if (!mimetypes.isString())
+
+        QString mimetypeString;
+        if (!Utils::readMultiLineString(mimetypes, &mimetypeString))
             return false;
-        Utils::addMimeTypes(filePath, mimetypes.toString().trimmed().toUtf8());
+        Utils::addMimeTypes(filePath, mimetypeString.trimmed().toUtf8());
         alreadyAdded = true;
         return true;
     }

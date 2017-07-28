@@ -39,88 +39,88 @@
 
    Enhance tr/// and y/// support.
 -->
-<language name="Perl" version="3" kateversion="2.4" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
+<language name="Perl" version="4" kateversion="2.4" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
   <highlighting>
     <list name="keywords">
-      <item> if </item>
-      <item> unless </item>
-      <item> else </item>
-      <item> elsif </item>
-      <item> while </item>
-      <item> until </item>
-      <item> for </item>
-      <item> each </item>
-      <item> foreach </item>
-      <item> next </item>
-      <item> last </item>
-      <item> break </item>
-      <item> continue </item>
-      <item> return </item>
-      <item> my </item>
-      <item> our </item>
-      <item> local </item>
-      <item> state </item>
-      <item> BEGIN </item>
-      <item> END </item>
-      <item> package </item>
-      <item> sub </item>
-      <item> do </item>
-      <item> given  </item>
-      <item> when  </item>
-      <item> default </item>
-      <item> __END__ </item>
-      <item> __DATA__ </item>
-      <item> __FILE__ </item>
-      <item> __LINE__ </item>
-      <item> __PACKAGE__ </item>
+      <item>if</item>
+      <item>unless</item>
+      <item>else</item>
+      <item>elsif</item>
+      <item>while</item>
+      <item>until</item>
+      <item>for</item>
+      <item>each</item>
+      <item>foreach</item>
+      <item>next</item>
+      <item>last</item>
+      <item>break</item>
+      <item>continue</item>
+      <item>return</item>
+      <item>my</item>
+      <item>our</item>
+      <item>local</item>
+      <item>state</item>
+      <item>BEGIN</item>
+      <item>END</item>
+      <item>package</item>
+      <item>sub</item>
+      <item>do</item>
+      <item>given</item>
+      <item>when</item>
+      <item>default</item>
+      <item>__END__</item>
+      <item>__DATA__</item>
+      <item>__FILE__</item>
+      <item>__LINE__</item>
+      <item>__PACKAGE__</item>
     </list>
     <list name="operators">
-      <item> = </item>
-      <item> != </item>
-      <item> ~= </item>
-      <item> += </item>
-      <item> -= </item>
-      <item> *= </item>
-      <item> /= </item>
-      <item> **= </item>
-      <item> |= </item>
-      <item> ||= </item>
-      <item> //= </item>
-      <item> &amp;= </item>
-      <item> &amp;&amp;= </item>
-      <item> ?= </item>
-      <item> + </item>
-      <item> - </item>
-      <item> * </item>
-     <!-- <item> / </item>//-->
-      <item> % </item>
-      <item> || </item>
-      <item> // </item>
-      <item> &amp;&amp; </item>
-      <item> | </item>
-      <item> &amp; </item>
-      <item> &lt; </item>
-      <item> &lt;&lt; </item>
-      <item> &gt; </item>
-      <item> &gt;&gt; </item>
-      <item> ^ </item>
-      <item> -&gt; </item>
-      <item> =&gt; </item>
-      <item> . </item>
-      <item> , </item>
-      <item> ; </item>
-      <item> :: </item>
-      <item> \ </item>
-      <item> and </item>
-      <item> or </item>
-      <item> not </item>
-      <item> eq </item>
-      <item> ne </item>
-      <item> lt </item>
-      <item> gt </item>
-      <item> le </item>
-      <item> ge </item>
-      <item> cmp </item>
+      <item>=</item>
+      <item>!=</item>
+      <item>~=</item>
+      <item>+=</item>
+      <item>-=</item>
+      <item>*=</item>
+      <item>/=</item>
+      <item>**=</item>
+      <item>|=</item>
+      <item>||=</item>
+      <item>//=</item>
+      <item>&amp;=</item>
+      <item>&amp;&amp;=</item>
+      <item>?=</item>
+      <item>+</item>
+      <item>-</item>
+      <item>*</item>
+     <!-- <item>/</item>//-->
+      <item>%</item>
+      <item>||</item>
+      <item>//</item>
+      <item>&amp;&amp;</item>
+      <item>|</item>
+      <item>&amp;</item>
+      <item>&lt;</item>
+      <item>&lt;&lt;</item>
+      <item>&gt;</item>
+      <item>&gt;&gt;</item>
+      <item>^</item>
+      <item>-&gt;</item>
+      <item>=&gt;</item>
+      <item>.</item>
+      <item>,</item>
+      <item>;</item>
+      <item>::</item>
+      <item>\</item>
+      <item>and</item>
+      <item>or</item>
+      <item>not</item>
+      <item>eq</item>
+      <item>ne</item>
+      <item>lt</item>
+      <item>gt</item>
+      <item>le</item>
+      <item>ge</item>
+      <item>cmp</item>
     </list>
     <list name="functions">
       <item>abs</item>
@@ -744,14 +744,14 @@
         <RegExpr attribute="Keyword" context="here_document_dumb" String="\s*'([^']+)'\s*;?" />
       </context>
       <context name="here_document" attribute="String (interpolated)" lineEndContext="#stay" dynamic="true">
-        <DetectSpaces />
-        <RegExpr attribute="Keyword" context="#pop#pop" String="^%1\b" column="0" dynamic="true" endRegion="HereDocument"/>
+        <RegExpr attribute="Keyword" context="#pop#pop" String="%1\b" column="0" dynamic="true" endRegion="HereDocument"/>
         <RegExpr attribute="Keyword" context="here_document" String="\=\s*&lt;&lt;\s*[&quot;']?([A-Z0-9_\-]+)[&quot;']?" beginRegion="HEREDoc" />
         <IncludeRules context="ipstring_internal" />
+        <DetectSpaces />
       </context>
       <context name="here_document_dumb" attribute="Normal Text" lineEndContext="#stay" dynamic="true">
-        <DetectSpaces />
         <RegExpr attribute="Keyword" context="#pop#pop" String="%1" column="0" dynamic="true" endRegion="HereDocument"/>
+        <DetectSpaces />
         <DetectIdentifier />
       </context>
 

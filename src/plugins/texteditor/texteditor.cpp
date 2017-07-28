@@ -46,6 +46,7 @@
 #include "tabsettings.h"
 #include "textdocument.h"
 #include "textdocumentlayout.h"
+#include "texteditorconstants.h"
 #include "texteditoroverlay.h"
 #include "refactoroverlay.h"
 #include "texteditorsettings.h"
@@ -56,6 +57,7 @@
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/codeassistant.h>
 #include <texteditor/codeassist/completionassistprovider.h>
+#include <texteditor/codeassist/keywordscompletionassist.h>
 #include <texteditor/generichighlighter/context.h>
 #include <texteditor/generichighlighter/highlightdefinition.h>
 #include <texteditor/generichighlighter/highlighter.h>
@@ -3291,30 +3293,32 @@ bool TextEditorWidgetPrivate::processAnnotaionTooltipRequest(const QTextBlock &b
         return false;
 
     for (const AnnotationRect &annotationRect : m_annotationRects[block.blockNumber()]) {
-        if (annotationRect.rect.contains(pos)) {
-            auto layout = new QGridLayout;
-            layout->setContentsMargins(0, 0, 0, 0);
-            layout->setSpacing(2);
-            annotationRect.mark->addToToolTipLayout(layout);
-            TextMarks marks = blockUserData->marks();
-            if (marks.size() > 1) {
-                QFrame* separator = new QFrame();
-                separator->setFrameShape(QFrame::HLine);
-                layout->addWidget(separator, 2, 0, 1, layout->columnCount());
-                layout->addWidget(new QLabel(tr("Other annotations:")), 3, 0, 1,
-                                  layout->columnCount());
+        if (!annotationRect.rect.contains(pos))
+            continue;
 
-                Utils::sort(marks, [](const TextMark* mark1, const TextMark* mark2){
-                    return mark1->priority() > mark2->priority();
-                });
-                for (const TextMark *mark : Utils::asConst(marks)) {
-                    if (mark != annotationRect.mark)
-                        mark->addToToolTipLayout(layout);
-                }
+        auto layout = new QGridLayout;
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(2);
+        annotationRect.mark->addToToolTipLayout(layout);
+        TextMarks marks = blockUserData->marks();
+        if (marks.size() > 1) {
+            QFrame* separator = new QFrame();
+            separator->setFrameShape(QFrame::HLine);
+            layout->addWidget(separator, layout->rowCount(), 0, 1, -1);
+            layout->addWidget(new QLabel(tr("Other annotations:")), layout->rowCount(), 0, 1, -1);
+
+            Utils::sort(marks, [](const TextMark* mark1, const TextMark* mark2){
+                return mark1->priority() > mark2->priority();
+            });
+            for (const TextMark *mark : Utils::asConst(marks)) {
+                if (mark != annotationRect.mark)
+                    mark->addToToolTipLayout(layout);
             }
-            ToolTip::show(q->mapToGlobal(pos), layout, q);
-            return true;
         }
+        layout->addWidget(DisplaySettings::createAnnotationSettingsLink(),
+                          layout->rowCount(), 0, 1, -1, Qt::AlignRight);
+        ToolTip::show(q->mapToGlobal(pos), layout, q);
+        return true;
     }
     return false;
 }
@@ -8136,13 +8140,7 @@ public:
     TextEditorFactoryPrivate(TextEditorFactory *parent) :
         q(parent),
         m_widgetCreator([]() { return new TextEditorWidget; }),
-        m_editorCreator([]() { return new BaseTextEditor; }),
-        m_completionAssistProvider(0),
-        m_useGenericHighlighter(false),
-        m_duplicatedSupported(true),
-        m_codeFoldingSupported(false),
-        m_paranthesesMatchinEnabled(false),
-        m_marksVisible(false)
+        m_editorCreator([]() { return new BaseTextEditor; })
     {}
 
     BaseTextEditor *duplicateTextEditor(BaseTextEditor *other)
@@ -8163,12 +8161,12 @@ public:
     TextEditorFactory::SyntaxHighLighterCreator m_syntaxHighlighterCreator;
     CommentDefinition m_commentDefinition;
     QList<BaseHoverHandler *> m_hoverHandlers; // owned
-    CompletionAssistProvider * m_completionAssistProvider; // owned
-    bool m_useGenericHighlighter;
-    bool m_duplicatedSupported;
-    bool m_codeFoldingSupported;
-    bool m_paranthesesMatchinEnabled;
-    bool m_marksVisible;
+    CompletionAssistProvider * m_completionAssistProvider = nullptr; // owned
+    bool m_useGenericHighlighter = false;
+    bool m_duplicatedSupported = true;
+    bool m_codeFoldingSupported = false;
+    bool m_paranthesesMatchinEnabled = false;
+    bool m_marksVisible = false;
 };
 
 } /// namespace Internal
@@ -8266,6 +8264,7 @@ void TextEditorFactory::setParenthesesMatchingEnabled(bool on)
 
 IEditor *TextEditorFactory::createEditor()
 {
+    static KeywordsCompletionAssistProvider basicSnippetProvider;
     TextDocumentPtr doc(d->m_documentCreator());
 
     if (d->m_indenterCreator)
@@ -8274,7 +8273,8 @@ IEditor *TextEditorFactory::createEditor()
     if (d->m_syntaxHighlighterCreator)
         doc->setSyntaxHighlighter(d->m_syntaxHighlighterCreator());
 
-    doc->setCompletionAssistProvider(d->m_completionAssistProvider);
+    doc->setCompletionAssistProvider(d->m_completionAssistProvider ? d->m_completionAssistProvider
+                                                                   : &basicSnippetProvider);
 
     return d->createEditorHelper(doc);
 }

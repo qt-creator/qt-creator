@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QmlAnchorBindingProxy_h
-#define QmlAnchorBindingProxy_h
+#pragma once
 
 #include <QObject>
 #include <modelnode.h>
@@ -248,6 +247,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-
-#endif //QmlAnchorBindingProxy

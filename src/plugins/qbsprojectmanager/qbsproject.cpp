@@ -46,6 +46,7 @@
 #include <cpptools/cppprojectupdater.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildenvironmentwidget.h>
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
@@ -686,6 +687,30 @@ QString QbsProject::productDisplayName(const qbs::Project &project,
 QString QbsProject::uniqueProductName(const qbs::ProductData &product)
 {
     return product.name() + QLatin1Char('.') + product.profile();
+}
+
+void QbsProject::configureAsExampleProject(const QSet<Id> &platforms)
+{
+    QList<const BuildInfo *> infoList;
+    QList<Kit *> kits = KitManager::kits();
+    const auto qtVersionMatchesPlatform = [platforms](const QtSupport::BaseQtVersion *version) {
+        return platforms.isEmpty() || platforms.intersects(version->targetDeviceTypes());
+    };
+    foreach (Kit *k, kits) {
+        const QtSupport::BaseQtVersion * const qtVersion
+                = QtSupport::QtKitInformation::qtVersion(k);
+        if (!qtVersion || !qtVersionMatchesPlatform(qtVersion))
+            continue;
+        const IBuildConfigurationFactory * const factory
+                = IBuildConfigurationFactory::find(k, projectFilePath().toString());
+        if (!factory)
+            continue;
+        for (BuildInfo * const info : factory->availableSetups(k, projectFilePath().toString()))
+            infoList << info;
+    }
+    setup(infoList);
+    qDeleteAll(infoList);
+    prepareForParsing();
 }
 
 void QbsProject::parse(const QVariantMap &config, const Environment &env, const QString &dir,

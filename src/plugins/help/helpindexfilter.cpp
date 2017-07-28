@@ -145,11 +145,7 @@ void HelpIndexFilter::accept(LocatorFilterEntry selection,
     Q_UNUSED(selectionLength)
     const QString &key = selection.displayName;
     const QMap<QString, QUrl> &links = HelpManager::linksForKeyword(key);
-
-    if (links.size() == 1)
-        emit linkActivated(links.begin().value());
-    else
-        emit linksActivated(links, key);
+    emit linksActivated(links, key);
 }
 
 void HelpIndexFilter::refresh(QFutureInterface<void> &future)

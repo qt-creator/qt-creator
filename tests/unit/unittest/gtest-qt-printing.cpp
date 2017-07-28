@@ -49,6 +49,11 @@ std::ostream &operator<<(std::ostream &out, const QByteArray &byteArray)
     return out;
 }
 
+std::ostream &operator<<(std::ostream &out, const QString &text)
+{
+    return out << text.toUtf8();
+}
+
 std::ostream &operator<<(std::ostream &out, const QVariant &variant)
 {
     QString output;
@@ -57,11 +62,6 @@ std::ostream &operator<<(std::ostream &out, const QVariant &variant)
     debug << variant;
 
     return out << output;
-}
-
-std::ostream &operator<<(std::ostream &out, const QString &text)
-{
-    return out << text.toUtf8();
 }
 
 std::ostream &operator<<(std::ostream &out, const QTextCharFormat &format)

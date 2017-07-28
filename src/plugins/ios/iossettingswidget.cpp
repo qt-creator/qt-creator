@@ -125,7 +125,7 @@ void IosSettingsWidget::onStart()
     QList<QFuture<void>> futureList;
     foreach (const SimulatorInfo &info, simulatorInfoList) {
         if (!info.isShutdown()) {
-            statusDialog->addMessage(tr("Cannot start simulator(%1, %2) in current state: %3")
+            statusDialog->addMessage(tr("Cannot start simulator (%1, %2) in current state: %3")
                                     .arg(info.name).arg(info.runtimeName).arg(info.state),
                                     Utils::StdErrFormat);
         } else {
@@ -151,10 +151,10 @@ void IosSettingsWidget::onCreate()
     const auto onSimulatorCreate = [this, statusDialog](const QString &name,
             const SimulatorControl::ResponseData &response) {
         if (response.success) {
-            statusDialog->addMessage(tr("Simulator device(%1) created.\nUDID: %2")
+            statusDialog->addMessage(tr("Simulator device (%1) created.\nUDID: %2")
                                     .arg(name).arg(response.simUdid), Utils::StdOutFormat);
         } else {
-            statusDialog->addMessage(tr("Simulator device(%1) creation failed.\nError: %2").
+            statusDialog->addMessage(tr("Simulator device (%1) creation failed.\nError: %2").
                                     arg(name).arg(QString::fromUtf8(response.commandOutput)),
                                     Utils::StdErrFormat);
         }
@@ -218,6 +218,8 @@ void IosSettingsWidget::onRename()
     const SimulatorInfo &simInfo = simulatorInfoList.at(0);
     const QString newName = QInputDialog::getText(this, tr("Rename %1").arg(simInfo.name),
                                             tr("Enter new name:"));
+    if (newName.isEmpty())
+        return;
 
     QPointer<SimulatorOperationDialog> statusDialog = new SimulatorOperationDialog(this);
     statusDialog->setAttribute(Qt::WA_DeleteOnClose);

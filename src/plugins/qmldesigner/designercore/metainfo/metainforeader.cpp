@@ -95,7 +95,7 @@ void MetaInfoReader::elementStart(const QString &name)
     case ParsingHints:
     case Finished:
     case Undefined: setParserState(Error);
-        addError(tr("Illegal state while parsing"), currentSourceLocation());
+        addError(tr("Illegal state while parsing."), currentSourceLocation());
     case Error:
     default: return;
     }
@@ -113,7 +113,7 @@ void MetaInfoReader::elementEnd()
     case ParsingDocument:
     case Finished:
     case Undefined: setParserState(Error);
-        addError(tr("Illegal state while parsing"), currentSourceLocation());
+        addError(tr("Illegal state while parsing."), currentSourceLocation());
     case Error:
     default: return;
     }
@@ -126,12 +126,12 @@ void MetaInfoReader::propertyDefinition(const QString &name, const QVariant &val
     case ParsingItemLibrary: readItemLibraryEntryProperty(name, value); break;
     case ParsingProperty: readPropertyProperty(name, value); break;
     case ParsingQmlSource: readQmlSourceProperty(name, value); break;
-    case ParsingMetaInfo: addError(tr("No property definition allowed"), currentSourceLocation()); break;
+    case ParsingMetaInfo: addError(tr("No property definition allowed."), currentSourceLocation()); break;
     case ParsingDocument:
     case ParsingHints: readHint(name, value); break;
     case Finished:
     case Undefined: setParserState(Error);
-        addError(tr("Illegal state while parsing"), currentSourceLocation());
+        addError(tr("Illegal state while parsing."), currentSourceLocation());
     case Error:
     default: return;
     }

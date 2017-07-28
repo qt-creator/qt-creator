@@ -25,6 +25,12 @@
 
 #include "displaysettings.h"
 
+#include "texteditorconstants.h"
+
+#include <coreplugin/icore.h>
+#include <utils/tooltip/tooltip.h>
+
+#include <QLabel>
 #include <QSettings>
 #include <QString>
 
@@ -131,7 +137,17 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
         && m_displayAnnotations == ds.m_displayAnnotations
         && m_annotationAlignment == ds.m_annotationAlignment
         && m_minimalAnnotationContent == ds.m_minimalAnnotationContent
-        ;
+            ;
+}
+
+QLabel *DisplaySettings::createAnnotationSettingsLink()
+{
+    auto *label = new QLabel("<i><a href>Annotation Settings</a></i>", Core::ICore::mainWindow());
+    QObject::connect(label, &QLabel::linkActivated, []() {
+        Utils::ToolTip::hideImmediately();
+        Core::ICore::showOptionsDialog(Constants::TEXT_EDITOR_DISPLAY_SETTINGS);
+    });
+    return label;
 }
 
 } // namespace TextEditor

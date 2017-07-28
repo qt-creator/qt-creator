@@ -25,29 +25,11 @@
 
 #pragma once
 
-#include <texteditor/codeassist/completionassistprovider.h>
-
-#include <QStringList>
-
+namespace TextEditor { class Keywords; }
 namespace QmakeProjectManager {
 namespace Internal {
 
-class ProFileCompletionAssistProvider : public TextEditor::CompletionAssistProvider
-{
-    Q_OBJECT
-
-public:
-    void init();
-    ~ProFileCompletionAssistProvider();
-
-    TextEditor::IAssistProcessor *createProcessor() const override;
-    QStringList variables() const;
-    QStringList functions() const;
-
-private:
-    QStringList m_variables;
-    QStringList m_functions;
-};
+const TextEditor::Keywords &qmakeKeywords();
 
 } // namespace Internal
 } // namespace QmakeProjectManager

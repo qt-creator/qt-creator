@@ -28,8 +28,11 @@
 #include "hostosinfo.h"
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QDir>
+#include <QJsonArray>
+#include <QJsonValue>
 #include <QRegularExpression>
 #include <QSet>
 
@@ -244,6 +247,26 @@ QTCREATOR_UTILS_EXPORT QString stripAccelerator(const QString &text)
     for (int index = res.indexOf('&'); index != -1; index = res.indexOf('&', index + 1))
         res.remove(index, 1);
     return res;
+}
+
+QTCREATOR_UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString *out)
+{
+    QTC_ASSERT(out, return false);
+    if (value.isString()) {
+        *out = value.toString();
+    } else if (value.isArray()) {
+        QJsonArray array = value.toArray();
+        QStringList lines;
+        foreach (const QJsonValue &v, array) {
+            if (!v.isString())
+                return false;
+            lines.append(v.toString());
+        }
+        *out = lines.join(QLatin1Char('\n'));
+    } else {
+        return false;
+    }
+    return true;
 }
 
 } // namespace Utils

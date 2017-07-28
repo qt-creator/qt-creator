@@ -59,18 +59,19 @@ static Core::Id categoryForType(Task::TaskType type)
 class TaskMark : public TextEditor::TextMark
 {
 public:
-    TaskMark(unsigned int id, const QString &fileName, int lineNumber,
-             Task::TaskType type, bool visible) :
-        TextMark(fileName, lineNumber, categoryForType(type)),
-        m_id(id)
+    TaskMark(const Task &task) :
+        TextMark(task.file.toString(), task.line, categoryForType(task.type)),
+        m_id(task.taskId)
     {
-        setColor(type == Task::Error ? Utils::Theme::ProjectExplorer_TaskError_TextMarkColor
-                                     : Utils::Theme::ProjectExplorer_TaskWarn_TextMarkColor);
-        setDefaultToolTip(type == Task::Error ? QApplication::translate("TaskHub", "Error")
-                                              : QApplication::translate("TaskHub", "Warning"));
-        setPriority(type == Task::Error ? TextEditor::TextMark::NormalPriority
-                                        : TextEditor::TextMark::LowPriority);
-        setVisible(visible);
+        setColor(task.type == Task::Error ? Utils::Theme::ProjectExplorer_TaskError_TextMarkColor
+                                          : Utils::Theme::ProjectExplorer_TaskWarn_TextMarkColor);
+        setDefaultToolTip(task.type == Task::Error ? QApplication::translate("TaskHub", "Error")
+                                                   : QApplication::translate("TaskHub", "Warning"));
+        setPriority(task.type == Task::Error ? TextEditor::TextMark::NormalPriority
+                                             : TextEditor::TextMark::LowPriority);
+        setToolTip(task.description);
+        setIcon(task.icon);
+        setVisible(!task.icon.isNull());
     }
 
     bool isClickable() const;
@@ -151,12 +152,8 @@ void TaskHub::addTask(Task task)
         task.line = -1;
     task.movedLine = task.line;
 
-    if (task.line != -1) {
-        auto mark = new TaskMark(task.taskId, task.file.toString(), task.line, task.type, !task.icon.isNull());
-        mark->setToolTip(task.description);
-        mark->setIcon(task.icon);
-        task.setMark(mark);
-    }
+    if (task.line != -1)
+        task.setMark(new TaskMark(task));
     emit m_instance->taskAdded(task);
 }
 

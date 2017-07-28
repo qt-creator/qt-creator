@@ -82,7 +82,7 @@ bool FieldPageFactory::validateData(Core::Id typeId, const QVariant &data, QStri
     QList<QVariant> list = JsonWizardFactory::objectOrList(data, errorMessage);
     if (list.isEmpty()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                    "When parsing fields of page '%1': %2")
+                                                    "When parsing fields of page \"%1\": %2")
                 .arg(typeId.toString()).arg(*errorMessage);
         return false;
     }

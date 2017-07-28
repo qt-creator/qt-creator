@@ -1488,7 +1488,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         });
 
     expander->registerFileVariables("CurrentRun:Executable",
-        tr("The currently active run configuration's executable (if applicable)"),
+        tr("The currently active run configuration's executable (if applicable)."),
         [this]() -> QString {
             if (Target *target = activeTarget()) {
                 if (RunConfiguration *rc = target->activeRunConfiguration()) {
@@ -1847,7 +1847,7 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
             if (ProjectManager::canOpenProjectForMimeType(mt)) {
                 if (!QFileInfo(filePath).isFile()) {
                     appendError(errorString,
-                                tr("Failed opening project \"%1\": Project is not a file").arg(fileName));
+                                tr("Failed opening project \"%1\": Project is not a file.").arg(fileName));
                 } else if (Project *pro = ProjectManager::openProject(mt, Utils::FileName::fromString(filePath))) {
                     QObject::connect(pro, &Project::parsingFinished, [pro]() {
                         emit SessionManager::instance()->projectFinishedParsing(pro);

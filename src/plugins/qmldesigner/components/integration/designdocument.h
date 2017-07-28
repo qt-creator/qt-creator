@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef DesignDocument_h
-#define DesignDocument_h
+#pragma once
 
 #include <model.h>
 #include <rewriterview.h>
@@ -155,6 +154,3 @@ private: // variables
 };
 
 } // namespace QmlDesigner
-
-
-#endif // DesignDocument_h

@@ -210,7 +210,7 @@ void QbsBuildStep::cancel()
 QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) const
 {
     QVariantMap config = m_qbsConfiguration;
-    config.insert(QLatin1String(Constants::QBS_FORCE_PROBES_KEY), m_forceProbes);
+    config.insert(Constants::QBS_FORCE_PROBES_KEY, m_forceProbes);
     if (variableHandling == ExpandVariables) {
         const Utils::MacroExpander *expander = Utils::globalMacroExpander();
         for (auto it = config.begin(), end = config.end(); it != end; ++it) {
@@ -227,9 +227,9 @@ void QbsBuildStep::setQbsConfiguration(const QVariantMap &config)
     QbsProject *pro = static_cast<QbsProject *>(project());
 
     QVariantMap tmp = config;
-    tmp.insert(QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY), pro->profileForTarget(target()));
-    if (!tmp.contains(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)))
-        tmp.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
+    tmp.insert(Constants::QBS_CONFIG_PROFILE_KEY, pro->profileForTarget(target()));
+    if (!tmp.contains(Constants::QBS_CONFIG_VARIANT_KEY))
+        tmp.insert(Constants::QBS_CONFIG_VARIANT_KEY,
                    QString::fromLatin1(Constants::QBS_VARIANT_DEBUG));
 
     if (tmp == m_qbsConfiguration)
@@ -263,13 +263,13 @@ bool QbsBuildStep::cleanInstallRoot() const
 
 bool QbsBuildStep::hasCustomInstallRoot() const
 {
-    return m_qbsConfiguration.contains(QLatin1String(Constants::QBS_INSTALL_ROOT_KEY));
+    return m_qbsConfiguration.contains(Constants::QBS_INSTALL_ROOT_KEY);
 }
 
 Utils::FileName QbsBuildStep::installRoot() const
 {
     Utils::FileName root = Utils::FileName::fromString(m_qbsConfiguration
-            .value(QLatin1String(Constants::QBS_INSTALL_ROOT_KEY)).toString());
+            .value(Constants::QBS_INSTALL_ROOT_KEY).toString());
     if (root.isNull()) {
         const QbsBuildConfiguration * const bc
                 = static_cast<QbsBuildConfiguration *>(buildConfiguration());
@@ -293,15 +293,15 @@ bool QbsBuildStep::fromMap(const QVariantMap &map)
     if (!ProjectExplorer::BuildStep::fromMap(map))
         return false;
 
-    setQbsConfiguration(map.value(QLatin1String(QBS_CONFIG)).toMap());
-    m_qbsBuildOptions.setDryRun(map.value(QLatin1String(QBS_DRY_RUN)).toBool());
-    m_qbsBuildOptions.setKeepGoing(map.value(QLatin1String(QBS_KEEP_GOING)).toBool());
-    m_qbsBuildOptions.setMaxJobCount(map.value(QLatin1String(QBS_MAXJOBCOUNT)).toInt());
-    const bool showCommandLines = map.value(QLatin1String(QBS_SHOWCOMMANDLINES)).toBool();
+    setQbsConfiguration(map.value(QBS_CONFIG).toMap());
+    m_qbsBuildOptions.setDryRun(map.value(QBS_DRY_RUN).toBool());
+    m_qbsBuildOptions.setKeepGoing(map.value(QBS_KEEP_GOING).toBool());
+    m_qbsBuildOptions.setMaxJobCount(map.value(QBS_MAXJOBCOUNT).toInt());
+    const bool showCommandLines = map.value(QBS_SHOWCOMMANDLINES).toBool();
     m_qbsBuildOptions.setEchoMode(showCommandLines ? qbs::CommandEchoModeCommandLine
                                                    : qbs::CommandEchoModeSummary);
-    m_qbsBuildOptions.setInstall(map.value(QLatin1String(QBS_INSTALL), true).toBool());
-    m_qbsBuildOptions.setRemoveExistingInstallation(map.value(QLatin1String(QBS_CLEAN_INSTALL_ROOT))
+    m_qbsBuildOptions.setInstall(map.value(QBS_INSTALL, true).toBool());
+    m_qbsBuildOptions.setRemoveExistingInstallation(map.value(QBS_CLEAN_INSTALL_ROOT)
                                                     .toBool());
     m_forceProbes = map.value(forceProbesKey()).toBool();
     return true;
@@ -310,14 +310,14 @@ bool QbsBuildStep::fromMap(const QVariantMap &map)
 QVariantMap QbsBuildStep::toMap() const
 {
     QVariantMap map = ProjectExplorer::BuildStep::toMap();
-    map.insert(QLatin1String(QBS_CONFIG), m_qbsConfiguration);
-    map.insert(QLatin1String(QBS_DRY_RUN), m_qbsBuildOptions.dryRun());
-    map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsBuildOptions.keepGoing());
-    map.insert(QLatin1String(QBS_MAXJOBCOUNT), m_qbsBuildOptions.maxJobCount());
-    map.insert(QLatin1String(QBS_SHOWCOMMANDLINES),
+    map.insert(QBS_CONFIG, m_qbsConfiguration);
+    map.insert(QBS_DRY_RUN, m_qbsBuildOptions.dryRun());
+    map.insert(QBS_KEEP_GOING, m_qbsBuildOptions.keepGoing());
+    map.insert(QBS_MAXJOBCOUNT, m_qbsBuildOptions.maxJobCount());
+    map.insert(QBS_SHOWCOMMANDLINES,
                m_qbsBuildOptions.echoMode() == qbs::CommandEchoModeCommandLine);
-    map.insert(QLatin1String(QBS_INSTALL), m_qbsBuildOptions.install());
-    map.insert(QLatin1String(QBS_CLEAN_INSTALL_ROOT),
+    map.insert(QBS_INSTALL, m_qbsBuildOptions.install());
+    map.insert(QBS_CLEAN_INSTALL_ROOT,
                m_qbsBuildOptions.removeExistingInstallation());
     map.insert(forceProbesKey(), m_forceProbes);
     return map;
@@ -389,7 +389,7 @@ void QbsBuildStep::handleProcessResultReport(const qbs::ProcessResult &result)
 
     m_parser->setWorkingDirectory(result.workingDirectory());
 
-    QString commandline = result.executableFilePath() + QLatin1Char(' ')
+    QString commandline = result.executableFilePath() + ' '
             + Utils::QtcProcess::joinArgs(result.arguments());
     addOutput(commandline, OutputFormat::Stdout);
 
@@ -422,15 +422,15 @@ QString QbsBuildStep::buildVariant() const
 bool QbsBuildStep::isQmlDebuggingEnabled() const
 {
     QVariantMap data = qbsConfiguration(PreserveVariables);
-    return data.value(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY), false).toBool()
-            || data.value(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY), false).toBool();
+    return data.value(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY, false).toBool()
+            || data.value(Constants::QBS_CONFIG_QUICK_DEBUG_KEY, false).toBool();
 }
 
 void QbsBuildStep::setBuildVariant(const QString &variant)
 {
-    if (m_qbsConfiguration.value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString() == variant)
+    if (m_qbsConfiguration.value(Constants::QBS_CONFIG_VARIANT_KEY).toString() == variant)
         return;
-    m_qbsConfiguration.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY), variant);
+    m_qbsConfiguration.insert(Constants::QBS_CONFIG_VARIANT_KEY, variant);
     emit qbsConfigurationChanged();
     QbsBuildConfiguration *bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
     if (bc)
@@ -629,18 +629,17 @@ void QbsBuildStepConfigWidget::updateState()
     updateQmlDebuggingOption();
 
     const QString buildVariant = m_step->buildVariant();
-    const int idx = (buildVariant == QLatin1String(Constants::QBS_VARIANT_DEBUG)) ? 0 : 1;
+    const int idx = (buildVariant == Constants::QBS_VARIANT_DEBUG) ? 0 : 1;
     m_ui->buildVariantComboBox->setCurrentIndex(idx);
     QString command = static_cast<QbsBuildConfiguration *>(m_step->buildConfiguration())
             ->equivalentCommandLine(m_step);
 
     for (int i = 0; i < m_propertyCache.count(); ++i) {
-        command += QLatin1Char(' ') + m_propertyCache.at(i).name
-                + QLatin1Char(':') + m_propertyCache.at(i).effectiveValue;
+        command += ' ' + m_propertyCache.at(i).name + ':' + m_propertyCache.at(i).effectiveValue;
     }
 
     if (m_step->isQmlDebuggingEnabled())
-        command += QLatin1String(" Qt.declarative.qmlDebugging:true Qt.quick.qmlDebugging:true");
+        command += " Qt.declarative.qmlDebugging:true Qt.quick.qmlDebugging:true";
     m_ui->commandLineTextEdit->setPlainText(command);
 
     QString summary = tr("<b>Qbs:</b> %1").arg(command);
@@ -670,16 +669,16 @@ void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
     QVariantMap editable = data;
 
     // remove data that is edited with special UIs:
-    editable.remove(QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY));
-    editable.remove(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY));
-    editable.remove(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY));
-    editable.remove(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY));
-    editable.remove(QLatin1String(Constants::QBS_FORCE_PROBES_KEY));
-    editable.remove(QLatin1String(Constants::QBS_INSTALL_ROOT_KEY));
+    editable.remove(Constants::QBS_CONFIG_PROFILE_KEY);
+    editable.remove(Constants::QBS_CONFIG_VARIANT_KEY);
+    editable.remove(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY);
+    editable.remove(Constants::QBS_CONFIG_QUICK_DEBUG_KEY);
+    editable.remove(Constants::QBS_FORCE_PROBES_KEY);
+    editable.remove(Constants::QBS_INSTALL_ROOT_KEY);
 
     QStringList propertyList;
     for (QVariantMap::const_iterator i = editable.constBegin(); i != editable.constEnd(); ++i)
-        propertyList.append(i.key() + QLatin1Char(':') + i.value().toString());
+        propertyList.append(i.key() + ':' + i.value().toString());
 
     m_ui->propertyEdit->setText(Utils::QtcProcess::joinArgs(propertyList));
 }
@@ -688,9 +687,9 @@ void QbsBuildStepConfigWidget::changeBuildVariant(int idx)
 {
     QString variant;
     if (idx == 1)
-        variant = QLatin1String(Constants::QBS_VARIANT_RELEASE);
+        variant = Constants::QBS_VARIANT_RELEASE;
     else
-        variant = QLatin1String(Constants::QBS_VARIANT_DEBUG);
+        variant = Constants::QBS_VARIANT_DEBUG;
     m_ignoreChange = true;
     m_step->setBuildVariant(variant);
     m_ignoreChange = false;
@@ -768,16 +767,16 @@ void QbsBuildStepConfigWidget::applyCachedProperties()
     const QVariantMap tmp = m_step->qbsConfiguration(QbsBuildStep::PreserveVariables);
 
     // Insert values set up with special UIs:
-    data.insert(QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY),
-                tmp.value(QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY)));
-    data.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
-                tmp.value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)));
-    if (tmp.contains(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY)))
-        data.insert(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY),
-                    tmp.value(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY)));
-    if (tmp.contains(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY)))
-        data.insert(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY),
-                    tmp.value(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY)));
+    data.insert(Constants::QBS_CONFIG_PROFILE_KEY,
+                tmp.value(Constants::QBS_CONFIG_PROFILE_KEY));
+    data.insert(Constants::QBS_CONFIG_VARIANT_KEY,
+                tmp.value(Constants::QBS_CONFIG_VARIANT_KEY));
+    if (tmp.contains(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY))
+        data.insert(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY,
+                    tmp.value(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY));
+    if (tmp.contains(Constants::QBS_CONFIG_QUICK_DEBUG_KEY))
+        data.insert(Constants::QBS_CONFIG_QUICK_DEBUG_KEY,
+                    tmp.value(Constants::QBS_CONFIG_QUICK_DEBUG_KEY));
 
     for (int i = 0; i < m_propertyCache.count(); ++i) {
         const Property &property = m_propertyCache.at(i);
@@ -793,11 +792,11 @@ void QbsBuildStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
 {
     QVariantMap data = m_step->qbsConfiguration(QbsBuildStep::PreserveVariables);
     if (checked) {
-        data.insert(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY), checked);
-        data.insert(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY), checked);
+        data.insert(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY, checked);
+        data.insert(Constants::QBS_CONFIG_QUICK_DEBUG_KEY, checked);
     } else {
-        data.remove(QLatin1String(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY));
-        data.remove(QLatin1String(Constants::QBS_CONFIG_QUICK_DEBUG_KEY));
+        data.remove(Constants::QBS_CONFIG_DECLARATIVE_DEBUG_KEY);
+        data.remove(Constants::QBS_CONFIG_QUICK_DEBUG_KEY);
     }
 
     m_ignoreChange = true;
@@ -819,7 +818,7 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
     QList<Property> properties;
     const Utils::MacroExpander *expander = Utils::globalMacroExpander();
     foreach (const QString &rawArg, argList) {
-        int pos = rawArg.indexOf(QLatin1Char(':'));
+        int pos = rawArg.indexOf(':');
         if (pos > 0) {
             const QString rawValue = rawArg.mid(pos + 1);
             Property property(rawArg.left(pos), rawValue, expander->expand(rawValue));

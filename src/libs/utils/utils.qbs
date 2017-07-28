@@ -117,6 +117,8 @@ Project {
             "functiontraits.h",
             "guard.cpp",
             "guard.h",
+            "highlightingitemdelegate.cpp",
+            "highlightingitemdelegate.h",
             "historycompleter.cpp",
             "historycompleter.h",
             "hostosinfo.h",

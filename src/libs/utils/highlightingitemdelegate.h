@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,28 +25,37 @@
 
 #pragma once
 
-#include <texteditor/codeassist/completionassistprovider.h>
+#include "utils_global.h"
 
-#include <QStringList>
+#include <QItemDelegate>
+#include <QTextLayout>
 
-namespace Android {
-namespace Internal {
+namespace Utils {
 
-class JavaCompletionAssistProvider : public TextEditor::CompletionAssistProvider
-{
-    Q_OBJECT
-
-public:
-    JavaCompletionAssistProvider();
-    ~JavaCompletionAssistProvider();
-
-    void init() const;
-
-    TextEditor::IAssistProcessor *createProcessor() const;
-
-private:
-    mutable QStringList m_keywords;
+enum class HighlightingItemRole {
+    LineNumber = Qt::UserRole,
+    StartColumn,
+    Length,
+    Foreground,
+    Background,
+    User
 };
 
-} // namespace Internal
-} // namespace Android
+class QTCREATOR_UTILS_EXPORT HighlightingItemDelegate : public QItemDelegate
+{
+public:
+    HighlightingItemDelegate(int tabWidth, QObject *parent = 0);
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void setTabWidth(int width);
+
+private:
+    int drawLineNumber(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect, const QModelIndex &index) const;
+    void drawText(QPainter *painter, const QStyleOptionViewItem &option,
+                  const QRect &rect, const QModelIndex &index) const;
+    using QItemDelegate::drawDisplay;
+    void drawDisplay(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect,
+                     const QString &text, const QVector<QTextLayout::FormatRange> &format) const;
+    QString m_tabString;
+};
+
+} // namespace Utils

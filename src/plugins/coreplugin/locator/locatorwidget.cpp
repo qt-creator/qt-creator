@@ -33,14 +33,13 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/fileiconprovider.h>
-#include <coreplugin/find/searchresulttreeitemdelegate.h>
-#include <coreplugin/find/searchresulttreeitemroles.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/mainwindow.h>
 #include <utils/algorithm.h>
 #include <utils/appmainwindow.h>
 #include <utils/asconst.h>
 #include <utils/fancylineedit.h>
+#include <utils/highlightingitemdelegate.h>
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
 #include <utils/progressindicator.h>
@@ -66,6 +65,10 @@
 #include <QToolTip>
 
 Q_DECLARE_METATYPE(Core::LocatorFilterEntry)
+
+using namespace Utils;
+
+const int LocatorEntryRole = int(HighlightingItemRole::User);
 
 namespace Core {
 namespace Internal {
@@ -99,7 +102,7 @@ private:
     QColor mBackgroundColor;
 };
 
-class CompletionDelegate : public SearchResultTreeItemDelegate
+class CompletionDelegate : public HighlightingItemDelegate
 {
 public:
     CompletionDelegate(QObject *parent);
@@ -193,7 +196,6 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
                             + QLatin1String("\n\n") + mEntries.at(index.row()).extraInfo);
         break;
     case Qt::DecorationRole:
-    case ItemDataRoles::ResultIconRole:
         if (index.column() == DisplayNameColumn) {
             LocatorFilterEntry &entry = mEntries[index.row()];
             if (!entry.displayIcon && !entry.fileName.isEmpty())
@@ -205,21 +207,21 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
         if (index.column() == ExtraInfoColumn)
             return QColor(Qt::darkGray);
         break;
-    case ItemDataRoles::ResultItemRole:
+    case LocatorEntryRole:
         return qVariantFromValue(mEntries.at(index.row()));
-    case ItemDataRoles::ResultBeginColumnNumberRole:
-    case ItemDataRoles::SearchTermLengthRole: {
+    case int(HighlightingItemRole::StartColumn):
+    case int(HighlightingItemRole::Length): {
         LocatorFilterEntry &entry = mEntries[index.row()];
         const int highlightColumn = entry.highlightInfo.dataType == LocatorFilterEntry::HighlightInfo::DisplayName
                                                                  ? DisplayNameColumn
                                                                  : ExtraInfoColumn;
         if (highlightColumn == index.column()) {
-            const bool startIndexRole = role == ItemDataRoles::ResultBeginColumnNumberRole;
+            const bool startIndexRole = role == int(HighlightingItemRole::StartColumn);
             return startIndexRole ? entry.highlightInfo.startIndex : entry.highlightInfo.length;
         }
         break;
     }
-    case ItemDataRoles::ResultHighlightBackgroundColor:
+    case int(HighlightingItemRole::Background):
         return mBackgroundColor;
     }
 
@@ -843,7 +845,7 @@ void LocatorWidget::acceptEntry(int row)
     const QModelIndex index = m_locatorModel->index(row, 0);
     if (!index.isValid())
         return;
-    const LocatorFilterEntry entry = m_locatorModel->data(index, ItemDataRoles::ResultItemRole).value<LocatorFilterEntry>();
+    const LocatorFilterEntry entry = m_locatorModel->data(index, LocatorEntryRole).value<LocatorFilterEntry>();
     Q_ASSERT(entry.filter != nullptr);
     QString newText;
     int selectionStart = -1;
@@ -926,13 +928,13 @@ LocatorPopup *createLocatorPopup(Locator *locator, QWidget *parent)
 }
 
 CompletionDelegate::CompletionDelegate(QObject *parent)
-    : SearchResultTreeItemDelegate(0, parent)
+    : HighlightingItemDelegate(0, parent)
 {
 }
 
 QSize CompletionDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    return SearchResultTreeItemDelegate::sizeHint(option, index) + QSize(0, 2);
+    return HighlightingItemDelegate::sizeHint(option, index) + QSize(0, 2);
 }
 
 } // namespace Internal

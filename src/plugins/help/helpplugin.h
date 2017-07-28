@@ -89,7 +89,7 @@ private:
 
     void saveExternalWindowSettings();
     void showLinkInHelpMode(const QUrl &source);
-    void showLinksInHelpMode(const QMap<QString, QUrl> &links, const QString &key);
+    void showLinksInCurrentViewer(const QMap<QString, QUrl> &links, const QString &key);
     void slotHideRightPane();
 
     void updateSideBarSource(const QUrl &newUrl);
@@ -109,6 +109,7 @@ private:
     void createRightPaneContextViewer();
     HelpViewer *externalHelpViewer();
     HelpViewer *helpModeHelpViewer();
+    HelpWidget *helpWidgetForWindow(QWidget *window);
 
     void doSetupIfNeeded();
 

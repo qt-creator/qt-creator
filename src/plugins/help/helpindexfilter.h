@@ -52,7 +52,6 @@ public:
     Q_INVOKABLE QSet<QString> searchMatches(const QString &databaseFilePath,
                                           const QString &term, int limit);
 signals:
-    void linkActivated(const QUrl &link) const;
     void linksActivated(const QMap<QString, QUrl> &links, const QString &key) const;
 
 private:

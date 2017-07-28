@@ -494,7 +494,7 @@ TEST_F(Cursor, HasOutputValues)
 
     auto outputArgumentLocations = callExpressionCursor.outputArgumentRanges();
 
-    ASSERT_THAT(outputArgumentLocations.size(), 2);
+    ASSERT_THAT(outputArgumentLocations.size(), 1);
     ASSERT_THAT(outputArgumentLocations[0], outputArgumentExpectedSourceLocation);
 }
 
@@ -749,13 +749,13 @@ TEST_F(Cursor, PointerIsNotRefencingConstant)
     ASSERT_FALSE(argument.isReferencingConstant());
 }
 
-TEST_F(Cursor, PointerIsOutputArgument)
+TEST_F(Cursor, PointerIsNotOutputArgument)
 {
     auto callExpressionCursor = translationUnit.cursorAt(127, 13);
 
     auto argument = callExpressionCursor.type().argument(0);
 
-    ASSERT_TRUE(argument.isOutputArgument());
+    ASSERT_FALSE(argument.isOutputArgument());
 }
 
 TEST_F(Cursor, ConstantReferenceIsNotOutputArgument)
@@ -782,7 +782,7 @@ TEST_F(Cursor, ConstantPointerIsNotOutputArgument)
 
     auto argument = callExpressionCursor.type().argument(0);
 
-    ASSERT_TRUE(argument.isOutputArgument());
+    ASSERT_FALSE(argument.isOutputArgument());
 }
 
 TEST_F(Cursor, ReferenceIsOutputArgument)

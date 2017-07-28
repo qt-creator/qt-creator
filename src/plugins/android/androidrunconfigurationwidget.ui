@@ -78,7 +78,7 @@
    <item row="2" column="2">
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>Conflicting "am start" options might result in the app startup failure.</string>
+      <string>If the "am start" options conflict, the application might not start.</string>
      </property>
     </widget>
    </item>
