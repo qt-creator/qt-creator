@@ -133,7 +133,7 @@ void ProjectTree::focusChanged()
     s_instance->updateFromFocus();
 }
 
-void ProjectTree::updateFromFocus(bool invalidCurrentNode)
+void ProjectTree::updateFromFocus()
 {
     ProjectTreeWidget *focus = m_focusForContextMenu;
     if (!focus)
@@ -142,7 +142,7 @@ void ProjectTree::updateFromFocus(bool invalidCurrentNode)
     if (focus)
         updateFromProjectTreeWidget(focus);
     else
-        updateFromDocumentManager(invalidCurrentNode);
+        updateFromDocumentManager();
 }
 
 void ProjectTree::updateFromProjectTreeWidget(ProjectTreeWidget *widget)
@@ -158,13 +158,13 @@ void ProjectTree::documentManagerCurrentFileChanged()
     updateFromFocus();
 }
 
-void ProjectTree::updateFromDocumentManager(bool invalidCurrentNode)
+void ProjectTree::updateFromDocumentManager()
 {
     Core::IDocument *document = Core::EditorManager::currentDocument();
     const FileName fileName = document ? document->filePath() : FileName();
 
     Node *currentNode = nullptr;
-    if (!invalidCurrentNode && m_currentNode && m_currentNode->filePath() == fileName)
+    if (m_currentNode && m_currentNode->filePath() == fileName)
         currentNode = m_currentNode;
     else
         currentNode = ProjectTreeWidget::nodeForFile(fileName);

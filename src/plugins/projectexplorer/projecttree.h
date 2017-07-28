@@ -88,12 +88,12 @@ private:
     void focusChanged();
     void updateFromProjectTreeWidget(Internal::ProjectTreeWidget *widget);
     void documentManagerCurrentFileChanged();
-    void updateFromDocumentManager(bool invalidCurrentNode = false);
+    void updateFromDocumentManager();
     void updateFromNode(Node *node);
     void update(Node *node, Project *project);
     void updateContext();
 
-    void updateFromFocus(bool invalidCurrentNode = false);
+    void updateFromFocus();
 
     void updateExternalFileWarning();
     static bool hasFocus(Internal::ProjectTreeWidget *widget);
