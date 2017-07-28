@@ -122,7 +122,10 @@ QtcLibrary {
         ]
     }
 
-    cpp.defines: ["WITH_PYTHON=1"]
+    Properties {
+        condition: pythonDllProbe.found
+        cpp.defines: ["WITH_PYTHON=1"]
+    }
     cpp.includePaths: {
         var paths = [FileInfo.joinPaths(cdbPath, "inc")];
         if (pythonDllProbe.found)
