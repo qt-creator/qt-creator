@@ -1065,7 +1065,7 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
         if (files.isEmpty()) {
             msgCannotRun(arguments, workingDirectory, resp.stdErr(), errorMessage);
         } else {
-            msgCannotRun(tr("Cannot reset %n file(s) in \"%1\": %2", 0, files.size())
+            msgCannotRun(tr("Cannot reset %n files in \"%1\": %2", 0, files.size())
                          .arg(QDir::toNativeSeparators(workingDirectory), resp.stdErr()),
                          errorMessage);
         }
@@ -2468,9 +2468,9 @@ bool GitClient::getCommitData(const QString &workingDirectory,
 static inline QString msgCommitted(const QString &amendSHA1, int fileCount)
 {
     if (amendSHA1.isEmpty())
-        return GitClient::tr("Committed %n file(s).", 0, fileCount) + '\n';
+        return GitClient::tr("Committed %n files.", 0, fileCount) + '\n';
     if (fileCount)
-        return GitClient::tr("Amended \"%1\" (%n file(s)).", 0, fileCount).arg(amendSHA1) + '\n';
+        return GitClient::tr("Amended \"%1\" (%n files).", 0, fileCount).arg(amendSHA1) + '\n';
     return GitClient::tr("Amended \"%1\".").arg(amendSHA1);
 }
 
@@ -2561,7 +2561,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
         VcsOutputWindow::appendError(stdErr);
         return true;
     } else {
-        VcsOutputWindow::appendError(tr("Cannot commit %n file(s): %1\n", 0, commitCount).arg(stdErr));
+        VcsOutputWindow::appendError(tr("Cannot commit %n files: %1\n", 0, commitCount).arg(stdErr));
         return false;
     }
 }
