@@ -37,6 +37,7 @@ DEFINES += CPPTOOLS_JSON=\"R\\\"xxx($${cpptoolsjson.output})xxx\\\"\"
 
 SOURCES += \
     changedfilepathcompressor-test.cpp \
+    clangfollowsymbol-test.cpp \
     clangpathwatcher-test.cpp \
     clangqueryexamplehighlightmarker-test.cpp \
     clangqueryhighlightmarker-test.cpp \

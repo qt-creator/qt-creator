@@ -126,6 +126,7 @@ protected:
 
     void requestDocumentAnnotations(const Utf8String &filePath);
     void requestReferences(quint32 documentRevision = 0);
+    void requestFollowSymbol(quint32 documentRevision = 0);
 
     void completeCode(const Utf8String &filePath, uint line = 1, uint column = 1,
                       const Utf8String &projectPartId = Utf8String());
@@ -144,6 +145,7 @@ protected:
     void expectCompletionFromFileAUnsavedMethodVersion2();
     void expectNoCompletionWithUnsavedMethod();
     void expectReferences();
+    void expectFollowSymbol();
     void expectDocumentAnnotationsChangedForFileBWithSpecificHighlightingMark();
 
     static const Utf8String unsavedContent(const QString &unsavedFilePath);
@@ -200,6 +202,25 @@ TEST_F(ClangCodeModelServerSlowTest, RequestReferencesTakesRevisionFromMessage)
     registerProjectAndFileAndWaitForFinished(filePathC);
 
     requestReferences(/*documentRevision=*/ 99);
+
+    JobRequests &queue = documentProcessorForFile(filePathC).queue();
+    Utils::anyOf(queue, [](const JobRequest &request) { return request.documentRevision == 99; });
+    queue.clear(); // Avoid blocking
+}
+
+TEST_F(ClangCodeModelServerSlowTest, RequestFollowSymbolForCurrentDocumentRevision)
+{
+    registerProjectAndFileAndWaitForFinished(filePathC);
+
+    expectFollowSymbol();
+    requestFollowSymbol();
+}
+
+TEST_F(ClangCodeModelServerSlowTest, RequestFollowSymbolTakesRevisionFromMessage)
+{
+    registerProjectAndFileAndWaitForFinished(filePathC);
+
+    requestFollowSymbol(/*documentRevision=*/ 99);
 
     JobRequests &queue = documentProcessorForFile(filePathC).queue();
     Utils::anyOf(queue, [](const JobRequest &request) { return request.documentRevision == 99; });
@@ -555,6 +576,20 @@ void ClangCodeModelServer::expectReferences()
         .Times(1);
 }
 
+void ClangCodeModelServer::expectFollowSymbol()
+{
+    const ClangBackEnd::SourceRangeContainer classDefinition{
+         {filePathC, 40, 7},
+         {filePathC, 40, 10}
+     };
+
+    EXPECT_CALL(mockClangCodeModelClient,
+                followSymbol(
+                    Property(&FollowSymbolMessage::sourceRange,
+                             Eq(classDefinition))))
+        .Times(1);
+}
+
 void ClangCodeModelServer::expectCompletionFromFileA()
 {
     const CodeCompletion completion(Utf8StringLiteral("Function"),
@@ -578,6 +613,15 @@ void ClangCodeModelServer::requestReferences(quint32 documentRevision)
     const RequestReferencesMessage message{fileContainer, 3, 9};
 
     clangServer.requestReferences(message);
+}
+
+void ClangCodeModelServer::requestFollowSymbol(quint32 documentRevision)
+{
+    const FileContainer fileContainer{filePathC, projectPartId, Utf8StringVector(),
+                                      documentRevision};
+    const RequestFollowSymbolMessage message{fileContainer, QVector<Utf8String>(), 43, 9};
+
+    clangServer.requestFollowSymbol(message);
 }
 
 void ClangCodeModelServer::expectDocumentAnnotationsChangedForFileBWithSpecificHighlightingMark()

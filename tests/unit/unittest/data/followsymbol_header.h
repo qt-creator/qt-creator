@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,45 +22,38 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
-#include "clangasyncjob.h"
-#include "clangdocument.h"
-
-#include <clangbackendipc/sourcerangecontainer.h>
-
-namespace ClangBackEnd {
-
-class FollowSymbolResult
+#define TEST_DEFINE 1
+namespace Fooish
 {
+float flvalue = 100.f;
+
+class Bar;
+
+class Bar {
 public:
-    FollowSymbolResult() = default;
-    FollowSymbolResult(const SourceRangeContainer &range, bool failedToFollow = false)
-        : range(range)
-        , failedToFollow(failedToFollow)
-    {}
+    Bar();
 
-    friend bool operator==(const FollowSymbolResult &first, const FollowSymbolResult &second)
-    {
-        return first.range == second.range
-                && first.failedToFollow == second.failedToFollow;
-    }
-
-    SourceRangeContainer range;
-    bool failedToFollow = false;
+    volatile int member = 0;
 };
 
-class FollowSymbolJob : public AsyncJob<FollowSymbolResult>
+struct Barish
 {
-public:
-    using AsyncResult = FollowSymbolResult;
-
-    AsyncPrepareResult prepareAsyncRun() override;
-    void finalizeAsyncRun() override;
-
-private:
-    Document m_pinnedDocument;
-    FileContainer m_pinnedFileContainer;
+    int foo(float p, int u);
+    int mem = 10;
 };
-} // namespace ClangBackEnd
+}
+
+class FooClass;
+
+int foo(const float p, int u);
+
+int foo();
+
+int foo(float p, int u)
+{
+    return foo() + p + u;
+}
+
+int foo(int x, float y);

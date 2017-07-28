@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,45 +22,46 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#include "followsymbol_header.h"
+#include "cursor.h"
+Fooish::Bar::Bar() {
 
-#pragma once
+}
 
-#include "clangasyncjob.h"
-#include "clangdocument.h"
+class X;
 
-#include <clangbackendipc/sourcerangecontainer.h>
+using YYY = Fooish::Bar;
 
-namespace ClangBackEnd {
+int foo() {
+    YYY bar;
+    bar.member = 30;
+    Fooish::Barish barish;
+    bar.member++;
+    barish.mem = Fooish::flvalue;
 
-class FollowSymbolResult
+    barish.foo(1.f, 2);
+    foo(1, 2.f);
+    return 1;
+
+    X* x;
+}
+
+int Fooish::Barish::foo(float p, int u)
+{
+    return ::foo() + p + u;
+}
+
+class FooClass
 {
 public:
-    FollowSymbolResult() = default;
-    FollowSymbolResult(const SourceRangeContainer &range, bool failedToFollow = false)
-        : range(range)
-        , failedToFollow(failedToFollow)
-    {}
-
-    friend bool operator==(const FollowSymbolResult &first, const FollowSymbolResult &second)
-    {
-        return first.range == second.range
-                && first.failedToFollow == second.failedToFollow;
-    }
-
-    SourceRangeContainer range;
-    bool failedToFollow = false;
+    FooClass();
+    static int mememember;
 };
 
-class FollowSymbolJob : public AsyncJob<FollowSymbolResult>
-{
-public:
-    using AsyncResult = FollowSymbolResult;
+FooClass::FooClass() {
+    NonFinalStruct nfStruct; nfStruct.function();
+}
 
-    AsyncPrepareResult prepareAsyncRun() override;
-    void finalizeAsyncRun() override;
-
-private:
-    Document m_pinnedDocument;
-    FileContainer m_pinnedFileContainer;
-};
-} // namespace ClangBackEnd
+int main() {
+    return foo() + FooClass::mememember + TEST_DEFINE;
+}
