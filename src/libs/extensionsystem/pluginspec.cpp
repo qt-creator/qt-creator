@@ -780,7 +780,7 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
                 } else if (typeValue.toLower() == QLatin1String(DEPENDENCY_TYPE_TEST)) {
                     dep.type = PluginDependency::Test;
                 } else {
-                    return reportError(tr("Dependency: \"%1\" must be \"%2\" or \"%3\" (is \"%4\")")
+                    return reportError(tr("Dependency: \"%1\" must be \"%2\" or \"%3\" (is \"%4\").")
                                        .arg(QLatin1String(DEPENDENCY_TYPE),
                                             QLatin1String(DEPENDENCY_TYPE_HARD),
                                             QLatin1String(DEPENDENCY_TYPE_SOFT),
