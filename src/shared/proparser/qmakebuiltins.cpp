@@ -1174,9 +1174,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
         if (args.count() > 2) {
             evalError(fL1S("absolute_path(path[, base]) requires one or two arguments."));
         } else {
-            QString rstr = QDir::cleanPath(
-                    QDir(args.count() > 1 ? args.at(1).toQString(m_tmp2) : currentDirectory())
-                    .absoluteFilePath(args.at(0).toQString(m_tmp1)));
+            QString arg = args.at(0).toQString(m_tmp1);
+            QString baseDir = args.count() > 1 ? args.at(1).toQString(m_tmp2) : currentDirectory();
+            QString rstr = arg.isEmpty() ? baseDir : IoUtils::resolvePath(baseDir, arg);
             ret << (rstr.isSharedWith(m_tmp1)
                         ? args.at(0)
                         : args.count() > 1 && rstr.isSharedWith(m_tmp2)
@@ -1188,9 +1188,10 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
         if (args.count() > 2) {
             evalError(fL1S("relative_path(path[, base]) requires one or two arguments."));
         } else {
-            QDir baseDir(args.count() > 1 ? args.at(1).toQString(m_tmp2) : currentDirectory());
-            QString rstr = baseDir.relativeFilePath(baseDir.absoluteFilePath(
-                                args.at(0).toQString(m_tmp1)));
+            QString arg = args.at(0).toQString(m_tmp1);
+            QString baseDir = args.count() > 1 ? args.at(1).toQString(m_tmp2) : currentDirectory();
+            QString absArg = arg.isEmpty() ? baseDir : IoUtils::resolvePath(baseDir, arg);
+            QString rstr = QDir(baseDir).relativeFilePath(absArg);
             ret << (rstr.isSharedWith(m_tmp1) ? args.at(0) : ProString(rstr).setSource(args.at(0)));
         }
         break;
