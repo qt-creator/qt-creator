@@ -37,6 +37,7 @@
 
 #include <QFuture>
 #include <QHash>
+#include <QTimer>
 
 #include <memory>
 
@@ -99,7 +100,7 @@ public:
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage = 0) const final;
 
     void runCMake();
-    void scanProjectTree();
+    void runCMakeAndScanProjectTree();
 
     // Context menu actions:
     void buildCMakeTarget(const QString &buildTarget);
@@ -113,12 +114,15 @@ protected:
 private:
     QList<CMakeBuildTarget> buildTargets() const;
 
-    void handleActiveTargetChanged();
-    void handleActiveBuildConfigurationChanged();
-    void handleParsingStarted(const Internal::CMakeBuildConfiguration *bc);
+    enum DataCollectionAction { PARSE = 1, SCAN = 2 };
+    void startParsingProject(const DataCollectionAction a);
+
+    void handleActiveProjectConfigurationChanged(ProjectExplorer::ProjectConfiguration *pc);
     void handleTreeScanningFinished();
-    void updateProjectData(Internal::CMakeBuildConfiguration *bc);
+    void handleParsingSuccess(Internal::CMakeBuildConfiguration *bc);
     void handleParsingError(Internal::CMakeBuildConfiguration *bc);
+    void combineScanAndParse(Internal::CMakeBuildConfiguration *bc);
+    void updateProjectData(Internal::CMakeBuildConfiguration *bc);
     void updateQmlJSCodeModel();
 
     void createGeneratedCodeModelSupport();
@@ -126,7 +130,7 @@ private:
     void updateTargetRunConfigurations(ProjectExplorer::Target *t);
     void updateApplicationAndDeploymentTargets();
 
-    ProjectExplorer::Target *m_connectedTarget = nullptr;
+    bool mustUpdateCMakeStateBeforeBuild();
 
     // TODO probably need a CMake specific node structure
     QList<CMakeBuildTarget> m_buildTargets;
@@ -134,9 +138,16 @@ private:
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
 
     Internal::TreeScanner m_treeScanner;
+
+    bool m_waitingForScan = false;
+    bool m_waitingForParse = false;
+    bool m_combinedScanAndParseResult = false;
+
     QHash<QString, bool> m_mimeBinaryCache;
     QList<const ProjectExplorer::FileNode *> m_allFiles;
     mutable std::unique_ptr<Internal::CMakeProjectImporter> m_projectImporter;
+
+    QTimer m_delayedParsingTimer;
 
     friend class Internal::CMakeBuildConfiguration;
     friend class Internal::CMakeBuildSettingsWidget;

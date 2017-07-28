@@ -152,6 +152,5 @@ void CMakeManager::rescanProject(Project *project)
     if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;
 
-    cmakeProject->scanProjectTree();
-    cmakeProject->runCMake(); // by my experience: every rescan run requires cmake run too
+    cmakeProject->runCMakeAndScanProjectTree();// by my experience: every rescan run requires cmake run too
 }

@@ -62,10 +62,6 @@ BuildDirManager::BuildDirManager(CMakeBuildConfiguration *bc) :
     m_buildConfiguration(bc)
 {
     QTC_ASSERT(bc, return);
-
-    m_reparseTimer.setSingleShot(true);
-
-    connect(&m_reparseTimer, &QTimer::timeout, this, &BuildDirManager::parse);
 }
 
 BuildDirManager::~BuildDirManager() = default;
@@ -209,7 +205,7 @@ void BuildDirManager::maybeForceReparseOnceReaderReady()
     // The critical keys *must* be set in cmake configuration, so those were already
     // handled above.
     if (mustReparse || kcit != targetConfig.constEnd())
-        parseOnceReaderReady(true);
+        emit requestReparse(true);
 }
 
 bool BuildDirManager::isParsing() const
@@ -232,7 +228,7 @@ void BuildDirManager::becameDirty()
     if (!tool->isAutoRun())
         return;
 
-    m_reparseTimer.start(1000);
+    emit requestReparse(false);
 }
 
 void BuildDirManager::forceReparse()
@@ -270,11 +266,6 @@ void BuildDirManager::resetData()
     m_reader.reset();
 
     m_buildTargets.clear();
-}
-
-bool BuildDirManager::updateCMakeStateBeforeBuild()
-{
-    return m_reparseTimer.isActive();
 }
 
 bool BuildDirManager::persistCMakeState()
@@ -455,7 +446,7 @@ void BuildDirManager::maybeForceReparse()
         return;
 
     if (!m_reader || !m_reader->hasData()) {
-        forceReparse();
+        emit requestReparse(true);
         return;
     }
 
