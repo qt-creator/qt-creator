@@ -61,7 +61,7 @@ public:
     };
     Q_DECLARE_FLAGS(Conditions, Condition)
 
-    enum ExpirationReason {
+    enum class ExpirationReason {
         Never                   = 1 << 0,
 
         DocumentClosed          = 1 << 1,

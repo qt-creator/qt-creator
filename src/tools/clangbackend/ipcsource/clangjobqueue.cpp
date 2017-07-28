@@ -94,8 +94,9 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest) const
 {
     const JobRequest::ExpirationReasons expirationReasons = jobRequest.expirationReasons;
     const UnsavedFiles unsavedFiles = m_documents.unsavedFiles();
+    using ExpirationReason = JobRequest::ExpirationReason;
 
-    if (expirationReasons.testFlag(JobRequest::UnsavedFilesChanged)) {
+    if (expirationReasons.testFlag(ExpirationReason::UnsavedFilesChanged)) {
         if (jobRequest.unsavedFilesChangeTimePoint != unsavedFiles.lastChangeTimePoint()) {
             qCDebug(jobsLog) << "Removing due to outdated unsaved files:" << jobRequest;
             return true;
@@ -104,7 +105,7 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest) const
 
     bool projectCheckedAndItExists = false;
 
-    if (expirationReasons.testFlag(JobRequest::DocumentClosed)) {
+    if (expirationReasons.testFlag(ExpirationReason::DocumentClosed)) {
         if (!m_documents.hasDocument(jobRequest.filePath, jobRequest.projectPartId)) {
             qCDebug(jobsLog) << "Removing due to already closed document:" << jobRequest;
             return true;
@@ -123,7 +124,7 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest) const
             return true;
         }
 
-        if (expirationReasons.testFlag(JobRequest::DocumentRevisionChanged)) {
+        if (expirationReasons.testFlag(ExpirationReason::DocumentRevisionChanged)) {
             if (document.documentRevision() > jobRequest.documentRevision) {
                 qCDebug(jobsLog) << "Removing due to changed document revision:" << jobRequest;
                 return true;
@@ -131,7 +132,7 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest) const
         }
     }
 
-    if (expirationReasons.testFlag(JobRequest::ProjectChanged)) {
+    if (expirationReasons.testFlag(ExpirationReason::ProjectChanged)) {
         if (!projectCheckedAndItExists && !m_projectParts.hasProjectPart(jobRequest.projectPartId)) {
             qCDebug(jobsLog) << "Removing due to already closed project:" << jobRequest;
             return true;
