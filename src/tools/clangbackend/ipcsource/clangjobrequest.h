@@ -56,8 +56,10 @@ public:
     };
 
     enum class Condition {
-        NoCondition,
-        CurrentDocumentRevision,
+        NoCondition             = 1 << 0,
+        DocumentVisible         = 1 << 1,
+        DocumentNotVisible      = 1 << 2,
+        CurrentDocumentRevision = 1 << 3,
     };
     Q_DECLARE_FLAGS(Conditions, Condition)
 

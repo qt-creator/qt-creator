@@ -121,10 +121,11 @@ JobRequest::ExpirationReasons JobRequest::expirationReasonsForType(Type type)
 
 JobRequest::Conditions JobRequest::conditionsForType(JobRequest::Type type)
 {
+    Conditions conditions = Condition::DocumentVisible;
     if (type == Type::RequestReferences)
-        return Conditions(Condition::CurrentDocumentRevision);
+        conditions |= Condition::CurrentDocumentRevision;
 
-    return Conditions(Condition::NoCondition);
+    return conditions;
 }
 
 } // namespace ClangBackEnd

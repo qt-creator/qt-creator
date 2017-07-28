@@ -174,6 +174,38 @@ void JobQueue::prioritizeRequests()
     std::stable_sort(m_queue.begin(), m_queue.end(), lessThan);
 }
 
+static bool passesPreconditions(const JobRequest &request, const Document &document)
+{
+    using Condition = JobRequest::Condition;
+    const JobRequest::Conditions conditions = request.conditions;
+
+    if (conditions.testFlag(Condition::DocumentVisible) && !document.isVisibleInEditor()) {
+        qCDebug(jobsLog) << "Not choosing due to invisble document:" << request;
+        return false;
+    }
+
+    if (conditions.testFlag(Condition::DocumentNotVisible) && document.isVisibleInEditor()) {
+        qCDebug(jobsLog) << "Not choosing due to visble document:" << request;
+        return false;
+    }
+
+    if (conditions.testFlag(Condition::CurrentDocumentRevision)) {
+        if (document.isDirty()) {
+            // TODO: If the document is dirty due to a project update,
+            // references are processes later than ideal.
+            qCDebug(jobsLog) << "Not choosing due to dirty document:" << request;
+            return false;
+        }
+
+        if (request.documentRevision != document.documentRevision()) {
+            qCDebug(jobsLog) << "Not choosing due to revision mismatch:" << request;
+            return false;
+        }
+    }
+
+    return true;
+}
+
 JobRequests JobQueue::takeJobRequestsToRunNow()
 {
     JobRequests jobsToRun;
@@ -188,7 +220,7 @@ JobRequests JobQueue::takeJobRequestsToRunNow()
             const Document &document = m_documents.document(request.filePath,
                                                             request.projectPartId);
 
-            if (!document.isUsedByCurrentEditor() && !document.isVisibleInEditor())
+            if (!passesPreconditions(request, document))
                 continue;
 
             const Utf8String id = document.translationUnit(request.preferredTranslationUnit).id();
@@ -197,20 +229,6 @@ JobRequests JobQueue::takeJobRequestsToRunNow()
 
             if (isJobRunningForTranslationUnit(id))
                 continue;
-
-            if (request.conditions.testFlag(JobRequest::Condition::CurrentDocumentRevision)) {
-                if (document.isDirty()) {
-                    // TODO: If the document is dirty due to a project update,
-                    // references are processes later than ideal.
-                    qCDebug(jobsLog) << "Not choosing due to dirty document:" << request;
-                    continue;
-                }
-
-                if (request.documentRevision != document.documentRevision()) {
-                    qCDebug(jobsLog) << "Not choosing due to revision mismatch:" << request;
-                    continue;
-                }
-            }
 
             translationUnitsScheduledForThisRun.insert(id);
             jobsToRun += request;

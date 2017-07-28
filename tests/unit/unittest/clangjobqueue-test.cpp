@@ -65,9 +65,6 @@ protected:
                                 JobRequest::Type type,
                                 PreferredTranslationUnit preferredTranslationUnit
                                     = PreferredTranslationUnit::RecentlyParsed) const;
-    JobRequest createJobRequestWithConditions(const Utf8String &filePath,
-                                              JobRequest::Type type,
-                                              JobRequest::Conditions conditions) const;
 
     void updateDocumentRevision();
     void updateUnsavedFiles();
@@ -415,9 +412,7 @@ TEST_F(JobQueue, RequestCompleteCodeOutdatableByDocumentRevisionChange)
 
 TEST_F(JobQueue, RequestReferencesRunsForCurrentDocumentRevision)
 {
-    jobQueue.add( createJobRequestWithConditions(filePath1,
-                                                 JobRequest::Type::RequestReferences,
-                                                 JobRequest::Condition::CurrentDocumentRevision));
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::RequestReferences));
 
     const JobRequests jobsToStart = jobQueue.processQueue();
 
@@ -426,9 +421,7 @@ TEST_F(JobQueue, RequestReferencesRunsForCurrentDocumentRevision)
 
 TEST_F(JobQueue, RequestReferencesOutdatableByDocumentClose)
 {
-    jobQueue.add(createJobRequestWithConditions(filePath1,
-                                                JobRequest::Type::RequestReferences,
-                                                JobRequest::Condition::CurrentDocumentRevision));
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::RequestReferences));
     removeDocument();
 
     const JobRequests jobsToStart = jobQueue.processQueue();
@@ -484,18 +477,6 @@ JobRequest JobQueue::createJobRequest(
     jobRequest.documentRevision = document.documentRevision();
     jobRequest.preferredTranslationUnit = preferredTranslationUnit;
     jobRequest.projectChangeTimePoint = projects.project(projectPartId).lastChangeTimePoint();
-
-    return jobRequest;
-}
-
-JobRequest JobQueue::createJobRequestWithConditions(const Utf8String &filePath,
-                                                    JobRequest::Type type,
-                                                    JobRequest::Conditions conditions) const
-{
-    JobRequest jobRequest = createJobRequest(filePath,
-                                             type,
-                                             PreferredTranslationUnit::RecentlyParsed);
-    jobRequest.conditions = conditions;
 
     return jobRequest;
 }
