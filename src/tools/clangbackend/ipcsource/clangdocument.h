@@ -93,6 +93,9 @@ public:
     bool isResponsivenessIncreaseNeeded() const;
     void setResponsivenessIncreaseNeeded(bool responsivenessIncreaseNeeded);
 
+    bool isSuspended() const;
+    void setIsSuspended(bool isSuspended);
+
     bool isUsedByCurrentEditor() const;
     void setIsUsedByCurrentEditor(bool isUsedByCurrentEditor);
 

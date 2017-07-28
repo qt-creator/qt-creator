@@ -26,6 +26,7 @@
 #include "clangcodemodelserver.h"
 
 #include "clangdocuments.h"
+#include "clangdocumentsuspenderresumer.h"
 #include "clangfilesystemwatcher.h"
 #include "clangtranslationunits.h"
 #include "codecompleter.h"
@@ -89,6 +90,7 @@ void ClangCodeModelServer::registerTranslationUnitsForEditor(const ClangBackEnd:
         unsavedFiles.createOrUpdate(message.fileContainers());
         documents.setUsedByCurrentEditor(message.currentEditorFilePath());
         documents.setVisibleInEditors(message.visibleEditorFilePaths());
+        processSuspendResumeJobs(documents.documents());
 
         processInitialJobsForDocuments(createdDocuments);
     } catch (const std::exception &exception) {
@@ -264,6 +266,8 @@ void ClangCodeModelServer::updateVisibleTranslationUnits(const UpdateVisibleTran
     try {
         documents.setUsedByCurrentEditor(message.currentEditorFilePath());
         documents.setVisibleInEditors(message.visibleEditorFilePaths());
+        processSuspendResumeJobs(documents.documents());
+
         updateDocumentAnnotationsTimer.start(0);
     }  catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::updateVisibleTranslationUnits:" << exception.what();
@@ -345,6 +349,16 @@ void ClangCodeModelServer::processTimerForVisibleButNotCurrentDocuments()
 void ClangCodeModelServer::processJobsForDirtyAndVisibleButNotCurrentDocuments()
 {
     addAndRunUpdateJobs(documents.dirtyAndVisibleButNotCurrentDocuments());
+}
+
+void ClangCodeModelServer::processSuspendResumeJobs(const std::vector<Document> &documents)
+{
+    const SuspendResumeJobs suspendResumeJobs = createSuspendResumeJobs(documents);
+    for (const SuspendResumeJobsEntry &entry : suspendResumeJobs) {
+        DocumentProcessor processor = documentProcessors().processor(entry.document);
+        processor.addJob(entry.jobRequestType, entry.preferredTranslationUnit);
+        processor.process();
+    }
 }
 
 void ClangCodeModelServer::processInitialJobsForDocuments(const std::vector<Document> &documents)

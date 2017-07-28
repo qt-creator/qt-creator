@@ -56,8 +56,7 @@ static UpdateDocumentAnnotationsJob::AsyncResult runAsyncHelper(
 IAsyncJob::AsyncPrepareResult UpdateDocumentAnnotationsJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
-    QTC_ASSERT(jobRequest.type == JobRequest::Type::UpdateDocumentAnnotations,
-               return AsyncPrepareResult());
+    QTC_ASSERT(isExpectedJobRequestType(jobRequest), return AsyncPrepareResult());
 
     try {
         m_pinnedDocument = context().documentForJobRequest();
@@ -65,7 +64,7 @@ IAsyncJob::AsyncPrepareResult UpdateDocumentAnnotationsJob::prepareAsyncRun()
 
         const TranslationUnit translationUnit
                 = m_pinnedDocument.translationUnit(jobRequest.preferredTranslationUnit);
-        const TranslationUnitUpdateInput updateInput = m_pinnedDocument.createUpdateInput();
+        const TranslationUnitUpdateInput updateInput = createUpdateInput(m_pinnedDocument);
         setRunner([translationUnit, updateInput]() {
             return runAsyncHelper(translationUnit, updateInput);
         });
@@ -85,6 +84,17 @@ void UpdateDocumentAnnotationsJob::finalizeAsyncRun()
         incorporateUpdaterResult(result);
         sendAnnotations(result);
     }
+}
+
+bool UpdateDocumentAnnotationsJob::isExpectedJobRequestType(const JobRequest &jobRequest) const
+{
+    return jobRequest.type == JobRequest::Type::UpdateDocumentAnnotations;
+}
+
+TranslationUnitUpdateInput
+UpdateDocumentAnnotationsJob::createUpdateInput(const Document &document) const
+{
+    return document.createUpdateInput();
 }
 
 void UpdateDocumentAnnotationsJob::incorporateUpdaterResult(const AsyncResult &result)

@@ -12,6 +12,7 @@ HEADERS += \
     $$PWD/clangdocumentprocessor.h \
     $$PWD/clangdocumentprocessors.h \
     $$PWD/clangdocuments.h \
+    $$PWD/clangdocumentsuspenderresumer.h \
     $$PWD/clangexceptions.h \
     $$PWD/clangfilepath.h \
     $$PWD/clangfilesystemwatcher.h \
@@ -25,8 +26,10 @@ HEADERS += \
     $$PWD/clangreparsesupportivetranslationunitjob.h \
     $$PWD/clangrequestdocumentannotationsjob.h \
     $$PWD/clangrequestreferencesjob.h \
+    $$PWD/clangresumedocumentjob.h \
     $$PWD/clangstring.h \
     $$PWD/clangsupportivetranslationunitinitializer.h \
+    $$PWD/clangsuspenddocumentjob.h \
     $$PWD/clangtranslationunit.h \
     $$PWD/clangtranslationunits.h \
     $$PWD/clangtranslationunitupdater.h \
@@ -63,6 +66,7 @@ SOURCES += \
     $$PWD/clangdocumentprocessor.cpp \
     $$PWD/clangdocumentprocessors.cpp \
     $$PWD/clangdocuments.cpp \
+    $$PWD/clangdocumentsuspenderresumer.cpp \
     $$PWD/clangexceptions.cpp \
     $$PWD/clangfilepath.cpp \
     $$PWD/clangfilesystemwatcher.cpp \
@@ -72,10 +76,12 @@ SOURCES += \
     $$PWD/clangjobrequest.cpp \
     $$PWD/clangjobs.cpp \
     $$PWD/clangparsesupportivetranslationunitjob.cpp \
+    $$PWD/clangresumedocumentjob.cpp \
     $$PWD/clangreferencescollector.cpp \
     $$PWD/clangreparsesupportivetranslationunitjob.cpp \
     $$PWD/clangrequestdocumentannotationsjob.cpp \
     $$PWD/clangrequestreferencesjob.cpp \
+    $$PWD/clangsuspenddocumentjob.cpp  \
     $$PWD/clangsupportivetranslationunitinitializer.cpp \
     $$PWD/clangtranslationunit.cpp \
     $$PWD/clangtranslationunits.cpp \

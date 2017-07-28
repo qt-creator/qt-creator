@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,20 +25,38 @@
 
 #pragma once
 
-#include <clang-c/Index.h>
+#include "clangdocument.h"
+#include "clangjobrequest.h"
+
+#include <vector>
 
 namespace ClangBackEnd {
 
-enum class PreferredTranslationUnit
-{
-    RecentlyParsed,
-    PreviouslyParsed,
-    LastUninitialized,
-};
+class SuspendResumeJobsEntry {
+public:
+    SuspendResumeJobsEntry() = default;
+    SuspendResumeJobsEntry(const Document &document,
+                           JobRequest::Type jobRequestType,
+                           PreferredTranslationUnit preferredTranslationUnit)
+        : document(document)
+        , jobRequestType(jobRequestType)
+        , preferredTranslationUnit(preferredTranslationUnit)
+    {
+    }
 
-// CLANG-UPGRADE-CHECK: Remove IS_SUSPEND_SUPPORTED once we require clang >= 5.0
-#if defined(CINDEX_VERSION_HAS_BACKPORTED_SUSPEND) || CINDEX_VERSION_MINOR >= 41
-#  define IS_SUSPEND_SUPPORTED
-#endif
+    Document document;
+    JobRequest::Type jobRequestType = JobRequest::Type::SuspendDocument;
+    PreferredTranslationUnit preferredTranslationUnit = PreferredTranslationUnit::RecentlyParsed;
+};
+using SuspendResumeJobs = QVector<SuspendResumeJobsEntry>;
+
+SuspendResumeJobs createSuspendResumeJobs(const std::vector<Document> &documents,
+                                          int customHotDocumentCounts = -1);
+
+// for tests
+void categorizeHotColdDocuments(int hotDocumentsSize,
+                                const std::vector<Document> &inDocuments,
+                                std::vector<Document> &hotDocuments,
+                                std::vector<Document> &coldDocuments);
 
 } // namespace ClangBackEnd

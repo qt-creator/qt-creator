@@ -430,6 +430,28 @@ TEST_F(JobQueue, RequestReferencesOutdatableByDocumentClose)
     ASSERT_THAT(jobQueue.size(), Eq(0));
 }
 
+TEST_F(JobQueue, RequestReferencesDoesNotRunOnSuspendedDocument)
+{
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::RequestReferences));
+    document.setIsSuspended(true);
+
+    const JobRequests jobsToStart = jobQueue.processQueue();
+
+    ASSERT_THAT(jobsToStart.size(), Eq(0));
+    ASSERT_THAT(jobQueue.size(), Eq(1));
+}
+
+TEST_F(JobQueue, ResumeDocumentDoesNotRunOnUnsuspended)
+{
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::ResumeDocument));
+    document.setIsSuspended(false);
+
+    const JobRequests jobsToStart = jobQueue.processQueue();
+
+    ASSERT_THAT(jobsToStart.size(), Eq(0));
+    ASSERT_THAT(jobQueue.size(), Eq(1));
+}
+
 void JobQueue::SetUp()
 {
     projects.createOrUpdate({ProjectPartContainer(projectPartId)});

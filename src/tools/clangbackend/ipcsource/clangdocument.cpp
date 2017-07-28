@@ -80,6 +80,7 @@ public:
     bool isUsedByCurrentEditor = false;
     bool isVisibleInEditor = false;
     bool increaseResponsiveness = false;
+    bool isSuspended = false;
 };
 
 DocumentData::DocumentData(const Utf8String &filePath,
@@ -224,6 +225,20 @@ bool Document::isResponsivenessIncreaseNeeded() const
 void Document::setResponsivenessIncreaseNeeded(bool responsivenessIncreaseNeeded)
 {
     d->increaseResponsiveness = responsivenessIncreaseNeeded;
+}
+
+bool Document::isSuspended() const
+{
+    checkIfNull();
+
+    return d->isSuspended;
+}
+
+void Document::setIsSuspended(bool isSuspended)
+{
+    checkIfNull();
+
+    d->isSuspended = isSuspended;
 }
 
 bool Document::isUsedByCurrentEditor() const

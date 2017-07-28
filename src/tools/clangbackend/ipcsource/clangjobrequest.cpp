@@ -40,6 +40,8 @@ static const char *JobRequestTypeToText(JobRequest::Type type)
         RETURN_TEXT_FOR_CASE(CompleteCode);
         RETURN_TEXT_FOR_CASE(RequestDocumentAnnotations);
         RETURN_TEXT_FOR_CASE(RequestReferences);
+        RETURN_TEXT_FOR_CASE(SuspendDocument);
+        RETURN_TEXT_FOR_CASE(ResumeDocument);
     }
 
     return "UnhandledJobRequestType";
@@ -121,7 +123,19 @@ JobRequest::ExpirationReasons JobRequest::expirationReasonsForType(Type type)
 
 JobRequest::Conditions JobRequest::conditionsForType(JobRequest::Type type)
 {
-    Conditions conditions = Condition::DocumentVisible;
+    if (type == Type::SuspendDocument) {
+        return Conditions(Condition::DocumentUnsuspended)
+             | Conditions(Condition::DocumentNotVisible);
+    }
+
+    if (type == Type::ResumeDocument) {
+        return Conditions(Condition::DocumentSuspended)
+             | Conditions(Condition::DocumentVisible);
+    }
+
+    Conditions conditions = Conditions(Condition::DocumentUnsuspended)
+                          | Conditions(Condition::DocumentVisible);
+
     if (type == Type::RequestReferences)
         conditions |= Condition::CurrentDocumentRevision;
 

@@ -179,6 +179,16 @@ static bool passesPreconditions(const JobRequest &request, const Document &docum
     using Condition = JobRequest::Condition;
     const JobRequest::Conditions conditions = request.conditions;
 
+    if (conditions.testFlag(Condition::DocumentSuspended) && !document.isSuspended()) {
+        qCDebug(jobsLog) << "Not choosing due to unsuspended document:" << request;
+        return false;
+    }
+
+    if (conditions.testFlag(Condition::DocumentUnsuspended) && document.isSuspended()) {
+        qCDebug(jobsLog) << "Not choosing due to suspended document:" << request;
+        return false;
+    }
+
     if (conditions.testFlag(Condition::DocumentVisible) && !document.isVisibleInEditor()) {
         qCDebug(jobsLog) << "Not choosing due to invisble document:" << request;
         return false;

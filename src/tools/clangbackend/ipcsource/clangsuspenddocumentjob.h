@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,20 +25,20 @@
 
 #pragma once
 
-#include <clang-c/Index.h>
+#include "clangasyncjob.h"
+#include "clangdocument.h"
 
 namespace ClangBackEnd {
 
-enum class PreferredTranslationUnit
+class SuspendDocumentJob : public AsyncJob<bool>
 {
-    RecentlyParsed,
-    PreviouslyParsed,
-    LastUninitialized,
-};
+public:
+    AsyncPrepareResult prepareAsyncRun() override;
+    void finalizeAsyncRun() override;
 
-// CLANG-UPGRADE-CHECK: Remove IS_SUSPEND_SUPPORTED once we require clang >= 5.0
-#if defined(CINDEX_VERSION_HAS_BACKPORTED_SUSPEND) || CINDEX_VERSION_MINOR >= 41
-#  define IS_SUSPEND_SUPPORTED
-#endif
+private:
+    Document m_pinnedDocument;
+    FileContainer m_pinnedFileContainer;
+};
 
 } // namespace ClangBackEnd

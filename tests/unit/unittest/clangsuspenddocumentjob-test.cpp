@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,22 +23,51 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "clangasyncjob-base.h"
 
-#include <clang-c/Index.h>
+#include <clangsuspenddocumentjob.h>
 
-namespace ClangBackEnd {
+using namespace ClangBackEnd;
 
-enum class PreferredTranslationUnit
+namespace {
+
+class SuspendDocumentJob : public ClangAsyncJobTest
 {
-    RecentlyParsed,
-    PreviouslyParsed,
-    LastUninitialized,
+protected:
+    void SetUp() override { BaseSetUp(JobRequest::Type::SuspendDocument, job); }
+
+protected:
+    ClangBackEnd::SuspendDocumentJob job;
 };
 
-// CLANG-UPGRADE-CHECK: Remove IS_SUSPEND_SUPPORTED once we require clang >= 5.0
-#if defined(CINDEX_VERSION_HAS_BACKPORTED_SUSPEND) || CINDEX_VERSION_MINOR >= 41
-#  define IS_SUSPEND_SUPPORTED
-#endif
+TEST_F(SuspendDocumentJob, PrepareAsyncRun)
+{
+    job.setContext(jobContext);
 
-} // namespace ClangBackEnd
+    ASSERT_TRUE(job.prepareAsyncRun());
+}
+
+TEST_F(SuspendDocumentJob, RunAsync)
+{
+    document.parse();
+    job.setContext(jobContext);
+    job.prepareAsyncRun();
+
+    job.runAsync();
+
+    ASSERT_TRUE(waitUntilJobFinished(job));
+}
+
+TEST_F(SuspendDocumentJob, DocumentIsSuspendedAfterRun)
+{
+    document.parse();
+    job.setContext(jobContext);
+    job.prepareAsyncRun();
+
+    job.runAsync();
+    ASSERT_TRUE(waitUntilJobFinished(job));
+
+    ASSERT_TRUE(document.isSuspended());
+}
+
+} // anonymous

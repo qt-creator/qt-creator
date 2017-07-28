@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,22 +23,32 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "clangresumedocumentjob.h"
 
-#include <clang-c/Index.h>
+#include <utils/qtcassert.h>
 
 namespace ClangBackEnd {
 
-enum class PreferredTranslationUnit
+void ResumeDocumentJob::finalizeAsyncRun()
 {
-    RecentlyParsed,
-    PreviouslyParsed,
-    LastUninitialized,
-};
+    if (context().isDocumentOpen()) {
+        if (QTC_GUARD(asyncResult().updateResult.hasReparsed()))
+            m_pinnedDocument.setIsSuspended(false);
+    }
 
-// CLANG-UPGRADE-CHECK: Remove IS_SUSPEND_SUPPORTED once we require clang >= 5.0
-#if defined(CINDEX_VERSION_HAS_BACKPORTED_SUSPEND) || CINDEX_VERSION_MINOR >= 41
-#  define IS_SUSPEND_SUPPORTED
-#endif
+    UpdateDocumentAnnotationsJob::finalizeAsyncRun();
+}
+
+bool ResumeDocumentJob::isExpectedJobRequestType(const JobRequest &jobRequest) const
+{
+    return jobRequest.type == JobRequest::Type::ResumeDocument;
+}
+
+TranslationUnitUpdateInput ResumeDocumentJob::createUpdateInput(const Document &document) const
+{
+    TranslationUnitUpdateInput input = UpdateDocumentAnnotationsJob::createUpdateInput(document);
+    input.reparseNeeded = true;
+    return input;
+}
 
 } // namespace ClangBackEnd
