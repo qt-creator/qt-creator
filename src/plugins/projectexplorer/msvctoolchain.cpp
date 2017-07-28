@@ -29,6 +29,7 @@
 #include "projectexplorerconstants.h"
 
 #include <utils/algorithm.h>
+#include <utils/qtcfallthrough.h>
 #include <utils/synchronousprocess.h>
 #include <utils/winutils.h>
 #include <utils/qtcassert.h>
@@ -102,7 +103,7 @@ static bool hostSupportsPlatform(MsvcToolChain::Platform platform)
         if (platform == MsvcToolChain::amd64 || platform == MsvcToolChain::amd64_arm
             || platform == MsvcToolChain::amd64_x86)
             return true;
-        // fall through (all x86 toolchains are also working on an amd64 host)
+        Q_FALLTHROUGH(); // all x86 toolchains are also working on an amd64 host
     case Utils::HostOsInfo::HostArchitectureX86:
         return platform == MsvcToolChain::x86 || platform == MsvcToolChain::x86_amd64
                 || platform == MsvcToolChain::x86_ia64 || platform == MsvcToolChain::x86_arm;
