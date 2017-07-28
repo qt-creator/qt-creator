@@ -185,7 +185,7 @@ void IosSettingsWidget::onReset()
 
     const int userInput = QMessageBox::question(this, tr("Reset"),
                                           tr("Do you really want to reset the contents and settings"
-                                             " of the selected devices", "",
+                                             " of the selected devices?", "",
                                              simulatorInfoList.count()));
     if (userInput == QMessageBox::No)
         return;
@@ -243,7 +243,7 @@ void IosSettingsWidget::onDelete()
 
     const int userInput = QMessageBox::question(this, tr("Delete Device"),
                                                 tr("Do you really want to delete the selected "
-                                                   "devices", "", simulatorInfoList.count()));
+                                                   "devices?", "", simulatorInfoList.count()));
     if (userInput == QMessageBox::No)
         return;
 
