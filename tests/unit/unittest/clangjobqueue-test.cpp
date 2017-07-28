@@ -477,6 +477,7 @@ JobRequest JobQueue::createJobRequest(
     JobRequest jobRequest;
     jobRequest.type = type;
     jobRequest.expirationReasons = JobRequest::expirationReasonsForType(type);
+    jobRequest.conditions = JobRequest::conditionsForType(type);
     jobRequest.filePath = filePath;
     jobRequest.projectPartId = projectPartId;
     jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
