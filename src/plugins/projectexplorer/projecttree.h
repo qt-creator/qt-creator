@@ -85,12 +85,11 @@ signals:
 
 private:
     void sessionChanged();
-    void focusChanged();
+    void update();
     void updateFromProjectTreeWidget(Internal::ProjectTreeWidget *widget);
-    void documentManagerCurrentFileChanged();
     void updateFromDocumentManager();
     void updateFromNode(Node *node);
-    void update(Node *node, Project *project);
+    void setCurrent(Node *node, Project *project);
     void updateContext();
 
     void updateFromFocus();

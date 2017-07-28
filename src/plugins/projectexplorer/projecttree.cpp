@@ -65,10 +65,10 @@ ProjectTree::ProjectTree(QObject *parent) : QObject(parent)
     s_instance = this;
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
-            this, &ProjectTree::documentManagerCurrentFileChanged);
+            this, &ProjectTree::update);
 
     connect(qApp, &QApplication::focusChanged,
-            this, &ProjectTree::focusChanged);
+            this, &ProjectTree::update);
 
     connect(SessionManager::instance(), &SessionManager::projectAdded,
             this, &ProjectTree::sessionChanged);
@@ -87,8 +87,8 @@ ProjectTree::~ProjectTree()
 void ProjectTree::aboutToShutDown()
 {
     disconnect(qApp, &QApplication::focusChanged,
-               s_instance, &ProjectTree::focusChanged);
-    s_instance->update(nullptr, nullptr);
+               s_instance, &ProjectTree::update);
+    s_instance->setCurrent(nullptr, nullptr);
     qDeleteAll(s_instance->m_projectTreeWidgets);
     QTC_CHECK(s_instance->m_projectTreeWidgets.isEmpty());
 }
@@ -128,12 +128,7 @@ void ProjectTree::nodeChanged(ProjectTreeWidget *widget)
         s_instance->updateFromProjectTreeWidget(widget);
 }
 
-void ProjectTree::focusChanged()
-{
-    s_instance->updateFromFocus();
-}
-
-void ProjectTree::updateFromFocus()
+void ProjectTree::update()
 {
     ProjectTreeWidget *focus = m_focusForContextMenu;
     if (!focus)
@@ -150,12 +145,7 @@ void ProjectTree::updateFromProjectTreeWidget(ProjectTreeWidget *widget)
     Node *currentNode = widget->currentNode();
     Project *project = SessionManager::projectForNode(currentNode);
 
-    update(currentNode, project);
-}
-
-void ProjectTree::documentManagerCurrentFileChanged()
-{
-    updateFromFocus();
+    setCurrent(currentNode, project);
 }
 
 void ProjectTree::updateFromDocumentManager()
@@ -180,12 +170,12 @@ void ProjectTree::updateFromNode(Node *node)
     else
         project = SessionManager::startupProject();
 
-    update(node, project);
+    setCurrent(node, project);
     foreach (ProjectTreeWidget *widget, m_projectTreeWidgets)
         widget->sync(node);
 }
 
-void ProjectTree::update(Node *node, Project *project)
+void ProjectTree::setCurrent(Node *node, Project *project)
 {
     const bool changedProject = project != m_currentProject;
     if (changedProject) {
@@ -238,7 +228,7 @@ void ProjectTree::sessionChanged()
         Core::DocumentManager::setDefaultLocationForNewFiles(SessionManager::startupProject()->projectDirectory().toString());
     else
         Core::DocumentManager::setDefaultLocationForNewFiles(QString());
-    updateFromFocus();
+    update();
 }
 
 void ProjectTree::updateContext()
