@@ -90,11 +90,11 @@ class Rewriter : protected Visitor
     QList<Split> _possibleSplits;
     QTextDocument _resultDocument;
     SimpleFormatter _formatter;
-    int _indent;
-    int _nextComment;
-    int _lastNewlineOffset;
-    bool _hadEmptyLine;
-    int _binaryExpDepth;
+    int _indent = 0;
+    int _nextComment = 0;
+    int _lastNewlineOffset = -1;
+    bool _hadEmptyLine = false;
+    int _binaryExpDepth = 0;
 
 public:
     Rewriter(Document::Ptr doc)

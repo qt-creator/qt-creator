@@ -324,7 +324,7 @@ protected:
 class MarkUnreachableCode : protected ReachesEndCheck
 {
     QList<Message> _messages;
-    bool _emittedWarning;
+    bool _emittedWarning = false;
 
 public:
     QList<Message> operator()(Node *ast)

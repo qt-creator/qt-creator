@@ -56,7 +56,7 @@ private:
 
     QList<AST::Node *> _result;
     Document::Ptr _doc;
-    quint32 _offset;
+    quint32 _offset = 0;
 };
 
 } // namespace QmlJS

@@ -91,8 +91,8 @@ private:
     QString _errorMessage;
     QString _warningMessage;
     QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr> *_objects;
-    QList<ModuleApiInfo> *_moduleApis;
-    QStringList *_dependencies;
+    QList<ModuleApiInfo> *_moduleApis = nullptr;
+    QStringList *_dependencies = nullptr;
 };
 
 } // namespace QmlJS

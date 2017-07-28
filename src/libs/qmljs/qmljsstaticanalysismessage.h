@@ -160,7 +160,7 @@ public:
     AST::SourceLocation location;
     QString message;
     Type type;
-    Severity::Enum severity;
+    Severity::Enum severity = Severity::Enum::Hint;
 
     static const PrototypeMessageData prototypeForMessageType(Type type);
 };

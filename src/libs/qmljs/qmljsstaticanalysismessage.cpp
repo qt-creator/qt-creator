@@ -254,7 +254,7 @@ QList<Type> Message::allMessageTypes()
 }
 
 Message::Message()
-    : type(UnknownType), severity(Hint)
+    : type(UnknownType)
 {}
 
 Message::Message(Type type,
