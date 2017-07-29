@@ -91,6 +91,7 @@ DocumentController::DocumentController(QObject *parent) :
     // diagram scene controller
     m_diagramSceneController->setModelController(m_modelController);
     m_diagramSceneController->setDiagramController(m_diagramController);
+    m_diagramSceneController->setStereotypeController(m_stereotypeController);
 
     // config controller
     m_configController->setStereotypeController(m_stereotypeController);

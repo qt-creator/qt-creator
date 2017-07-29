@@ -39,6 +39,7 @@ namespace qmt {
 class Uid;
 class ModelController;
 class DiagramController;
+class StereotypeController;
 class MObject;
 class MPackage;
 class MDiagram;
@@ -61,6 +62,11 @@ class QMT_EXPORT DiagramSceneController : public QObject
 
     class AcceptRelationVisitor;
 
+    enum RelationEnd {
+        EndA,
+        EndB
+    };
+
 public:
     explicit DiagramSceneController(QObject *parent = 0);
     ~DiagramSceneController() override;
@@ -74,6 +80,8 @@ public:
     void setModelController(ModelController *modelController);
     DiagramController *diagramController() const { return m_diagramController; }
     void setDiagramController(DiagramController *diagramController);
+    StereotypeController *stereotypeController() const { return m_stereotypeController; }
+    void setStereotypeController(StereotypeController *stereotypeController);
     IElementTasks *elementTasks() const { return m_elementTasks; }
     void setElementTasks(IElementTasks *elementTasks);
     ISceneInspector *sceneInspector() const { return m_sceneInspector; }
@@ -132,13 +140,14 @@ private:
     DObject *addObject(MObject *modelObject, const QPointF &pos, MDiagram *diagram);
     DRelation *addRelation(MRelation *modelRelation, const QList<QPointF> &intermediatePoints,
                            MDiagram *diagram);
-    bool relocateRelationEnd(DRelation *relation, DObject *targetObject, Uid (MRelation::*endUid)() const,
-                             void (MRelation::*setEndUid)(const Uid &));
+    bool relocateRelationEnd(DRelation *relation, DObject *targetObject, RelationEnd relationEnd,
+                             Uid (MRelation::*endUid)() const, void (MRelation::*setEndUid)(const Uid &));
 
-    ModelController *m_modelController;
-    DiagramController *m_diagramController;
-    IElementTasks *m_elementTasks;
-    ISceneInspector *m_sceneInspector;
+    ModelController *m_modelController = nullptr;
+    DiagramController *m_diagramController = nullptr;
+    StereotypeController *m_stereotypeController = nullptr;
+    IElementTasks *m_elementTasks = nullptr;
+    ISceneInspector *m_sceneInspector = nullptr;
 };
 
 } // namespace qmt
