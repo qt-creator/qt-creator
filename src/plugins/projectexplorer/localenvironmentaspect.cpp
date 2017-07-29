@@ -88,7 +88,9 @@ LocalEnvironmentAspect::LocalEnvironmentAspect(RunConfiguration *parent,
                                                const BaseEnvironmentModifier &modifier) :
     EnvironmentAspect(parent), m_baseEnvironmentModifier(modifier)
 {
-    connect(parent->target(), &Target::environmentChanged,
+    parent->target()->subscribeSignal(&BuildConfiguration::environmentChanged,
+                                      this, &LocalEnvironmentAspect::buildEnvironmentHasChanged);
+    connect(parent->target(), &Target::activeBuildConfigurationChanged,
             this, &LocalEnvironmentAspect::buildEnvironmentHasChanged);
 }
 

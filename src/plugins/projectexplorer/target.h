@@ -28,6 +28,8 @@
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
 
+#include "subscription.h"
+
 QT_FORWARD_DECLARE_CLASS(QIcon)
 
 namespace Utils { class Environment; }
@@ -112,6 +114,25 @@ public:
 
     QVariant namedSettings(const QString &name) const;
     void setNamedSettings(const QString &name, const QVariant &value);
+
+    template<typename S, typename R, typename T>
+    void subscribeSignal(void (S::*sig)(), R*recv, T (R::*sl)()) {
+        new Internal::TargetSubscription([sig, recv, sl, this](ProjectConfiguration *pc) {
+            if (S* sender = qobject_cast<S*>(pc))
+                return connect(sender, sig, recv, sl);
+            return QMetaObject::Connection();
+        }, recv, this);
+    }
+
+    template<typename S, typename R, typename T>
+    void subscribeSignal(void (S::*sig)(), R*recv, T sl) {
+        new Internal::TargetSubscription([sig, recv, sl, this](ProjectConfiguration *pc) {
+            if (S* sender = qobject_cast<S*>(pc))
+                return connect(sender, sig, recv, sl);
+            return QMetaObject::Connection();
+        }, recv, this);
+    }
+
 signals:
     void targetEnabled(bool);
     void iconChanged();
@@ -139,10 +160,6 @@ signals:
     void addedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
     void activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc);
 
-    /// convenience signal, emitted if either the active buildconfiguration emits
-    /// environmentChanged() or if the active build configuration changes
-    void environmentChanged();
-
     /// convenience signal, emitted if either the active configuration emits
     /// enabledChanged() or if the active build configuration changes
     void buildConfigurationEnabledChanged();
@@ -166,7 +183,6 @@ private:
     void updateDeviceState();
     void onBuildDirectoryChanged();
 
-    void changeEnvironment();
     void changeBuildConfigurationEnabled();
     void changeDeployConfigurationEnabled();
     void changeRunConfigurationEnabled();

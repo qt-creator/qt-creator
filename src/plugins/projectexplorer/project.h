@@ -28,6 +28,7 @@
 #include "projectexplorer_export.h"
 
 #include "kit.h"
+#include "subscription.h"
 
 #include <coreplugin/id.h>
 #include <coreplugin/idocument.h>
@@ -168,6 +169,24 @@ public:
     bool isParsing() const;
     bool hasParsingData() const;
 
+    template<typename S, typename R, typename T>
+    void subscribeSignal(void (S::*sig)(), R*recv, T (R::*sl)()) {
+        new Internal::ProjectSubscription([sig, recv, sl, this](ProjectConfiguration *pc) {
+            if (S* sender = qobject_cast<S*>(pc))
+                return connect(sender, sig, recv, sl);
+            return QMetaObject::Connection();
+        }, recv, this);
+    }
+
+    template<typename S, typename R, typename T>
+    void subscribeSignal(void (S::*sig)(), R*recv, T sl) {
+        new Internal::ProjectSubscription([sig, recv, sl, this](ProjectConfiguration *pc) {
+            if (S* sender = qobject_cast<S*>(pc))
+                return connect(sender, sig, recv, sl);
+            return QMetaObject::Connection();
+        }, recv, this);
+    }
+
 signals:
     void displayNameChanged();
     void fileListChanged();
@@ -188,7 +207,6 @@ signals:
     void removedTarget(ProjectExplorer::Target *target);
     void addedTarget(ProjectExplorer::Target *target);
 
-    void environmentChanged();
     void buildConfigurationEnabledChanged();
 
     void buildDirectoryChanged();
@@ -226,7 +244,6 @@ protected:
     virtual void projectLoaded(); // Called when the project is fully loaded.
 
 private:
-    void changeEnvironment();
     void changeBuildConfigurationEnabled();
     void onBuildDirectoryChanged();
 

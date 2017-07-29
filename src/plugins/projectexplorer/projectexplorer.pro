@@ -21,6 +21,7 @@ HEADERS += projectexplorer.h \
     projectimporter.h \
     projectwindow.h \
     removetaskhandler.h \
+    subscription.h \
     targetsetuppage.h \
     targetsetupwidget.h \
     kit.h \
@@ -168,6 +169,7 @@ SOURCES += projectexplorer.cpp \
     projectimporter.cpp \
     projectwindow.cpp \
     removetaskhandler.cpp \
+    subscription.cpp \
     targetsetuppage.cpp \
     targetsetupwidget.cpp \
     kit.cpp \

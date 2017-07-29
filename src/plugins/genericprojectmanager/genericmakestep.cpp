@@ -232,7 +232,7 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
 
     m_ui->makeLineEdit->setText(m_makeStep->m_makeCommand);
     m_ui->makeArgumentsLineEdit->setText(m_makeStep->m_makeArguments);
-    updateMakeOverrrideLabel();
+    updateMakeOverrideLabel();
     updateDetails();
 
     connect(m_ui->targetsList, &QListWidget::itemChanged,
@@ -243,17 +243,26 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
             this, &GenericMakeStepConfigWidget::makeArgumentsLineEditTextEdited);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, &GenericMakeStepConfigWidget::updateMakeOverrrideLabel);
+            this, &GenericMakeStepConfigWidget::updateMakeOverrideLabel);
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
             this, &GenericMakeStepConfigWidget::updateDetails);
 
     connect(m_makeStep->target(), &Target::kitChanged,
-            this, &GenericMakeStepConfigWidget::updateMakeOverrrideLabel);
+            this, &GenericMakeStepConfigWidget::updateMakeOverrideLabel);
 
-    connect(pro, &GenericProject::environmentChanged,
-            this, &GenericMakeStepConfigWidget::updateMakeOverrrideLabel);
-    connect(pro, &GenericProject::environmentChanged,
-            this, &GenericMakeStepConfigWidget::updateDetails);
+    pro->subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
+        if (static_cast<BuildConfiguration *>(sender())->isActive()) {
+            updateMakeOverrideLabel();
+            updateDetails();
+        }
+    });
+    connect(pro, &Project::activeProjectConfigurationChanged,
+            this, [this](ProjectConfiguration *pc) {
+        if (pc->isActive()) {
+            updateMakeOverrideLabel();
+            updateDetails();
+        }
+    });
 }
 
 GenericMakeStepConfigWidget::~GenericMakeStepConfigWidget()
@@ -266,7 +275,7 @@ QString GenericMakeStepConfigWidget::displayName() const
     return tr("Make", "GenericMakestep display name.");
 }
 
-void GenericMakeStepConfigWidget::updateMakeOverrrideLabel()
+void GenericMakeStepConfigWidget::updateMakeOverrideLabel()
 {
     BuildConfiguration *bc = m_makeStep->buildConfiguration();
     if (!bc)

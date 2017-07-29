@@ -53,7 +53,7 @@ BuildEnvironmentWidget::BuildEnvironmentWidget(BuildConfiguration *bc) :
 
     m_buildConfiguration = bc;
 
-    connect(m_buildConfiguration->target(), &Target::environmentChanged,
+    connect(m_buildConfiguration, &BuildConfiguration::environmentChanged,
             this, &BuildEnvironmentWidget::environmentChanged);
 
     m_clearSystemEnvironmentCheckBox->setChecked(!m_buildConfiguration->useSystemEnvironment());

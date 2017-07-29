@@ -236,8 +236,15 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep) :
             makeStep, &MakeStep::setAdditionalArguments);
     connect(makeStep, &MakeStep::additionalArgumentsChanged,
             this, &MakeStepConfigWidget::updateDetails);
-    connect(m_makeStep->project(), &Project::environmentChanged,
-            this, &MakeStepConfigWidget::updateDetails);
+    m_makeStep->project()->subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
+        if (static_cast<BuildConfiguration *>(sender())->isActive())
+            updateDetails();
+    });
+    connect(makeStep->project(), &Project::activeProjectConfigurationChanged,
+            this, [this](ProjectConfiguration *pc) {
+        if (pc->isActive())
+            updateDetails();
+    });
 }
 
 QString MakeStepConfigWidget::displayName() const

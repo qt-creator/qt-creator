@@ -153,13 +153,6 @@ Target::~Target()
     delete d;
 }
 
-void Target::changeEnvironment()
-{
-    auto bc = qobject_cast<BuildConfiguration *>(sender());
-    if (bc == activeBuildConfiguration())
-        emit environmentChanged();
-}
-
 void Target::changeBuildConfigurationEnabled()
 {
     auto bc = qobject_cast<BuildConfiguration *>(sender());
@@ -246,8 +239,6 @@ void Target::addBuildConfiguration(BuildConfiguration *bc)
     emit addedProjectConfiguration(bc);
     emit addedBuildConfiguration(bc);
 
-    connect(bc, &BuildConfiguration::environmentChanged,
-            this, &Target::changeEnvironment);
     connect(bc, &BuildConfiguration::enabledChanged,
             this, &Target::changeBuildConfigurationEnabled);
     connect(bc, &BuildConfiguration::buildDirectoryChanged,
@@ -303,7 +294,6 @@ void Target::setActiveBuildConfiguration(BuildConfiguration *bc)
         d->m_activeBuildConfiguration = bc;
         emit activeProjectConfigurationChanged(d->m_activeBuildConfiguration);
         emit activeBuildConfigurationChanged(d->m_activeBuildConfiguration);
-        emit environmentChanged();
         emit buildConfigurationEnabledChanged();
         emit buildDirectoryChanged();
     }

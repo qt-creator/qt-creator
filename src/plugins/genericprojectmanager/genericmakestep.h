@@ -91,7 +91,7 @@ private:
     void itemChanged(QListWidgetItem *item);
     void makeLineEditTextEdited();
     void makeArgumentsLineEditTextEdited();
-    void updateMakeOverrrideLabel();
+    void updateMakeOverrideLabel();
     void updateDetails();
 
     Ui::GenericMakeStep *m_ui;

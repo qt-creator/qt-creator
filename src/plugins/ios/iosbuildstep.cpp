@@ -260,7 +260,15 @@ IosBuildStepConfigWidget::IosBuildStepConfigWidget(IosBuildStep *buildStep)
             this, &IosBuildStepConfigWidget::updateDetails);
     connect(m_buildStep->target(), &Target::kitChanged,
             this, &IosBuildStepConfigWidget::updateDetails);
-    connect(pro, &Project::environmentChanged, this, &IosBuildStepConfigWidget::updateDetails);
+    pro->subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
+        if (static_cast<BuildConfiguration *>(sender())->isActive())
+            updateDetails();
+    });
+    connect(pro, &Project::activeProjectConfigurationChanged,
+            this, [this](ProjectConfiguration *pc) {
+        if (pc->isActive())
+            updateDetails();
+    });
 }
 
 IosBuildStepConfigWidget::~IosBuildStepConfigWidget()

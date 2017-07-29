@@ -140,7 +140,15 @@ QbsProject::QbsProject(const FileName &fileName) :
     connect(this, &Project::activeTargetChanged, this, &QbsProject::changeActiveTarget);
     connect(this, &Project::addedTarget, this, &QbsProject::targetWasAdded);
     connect(this, &Project::removedTarget, this, &QbsProject::targetWasRemoved);
-    connect(this, &Project::environmentChanged, this, &QbsProject::delayParsing);
+    subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
+        if (static_cast<BuildConfiguration *>(sender())->isActive())
+            startParsing();
+    });
+    connect(this, &Project::activeProjectConfigurationChanged,
+            this, [this](ProjectConfiguration *pc) {
+        if (pc->isActive())
+            startParsing();
+    });
 
     connect(&m_parsingDelay, &QTimer::timeout, this, &QbsProject::startParsing);
 

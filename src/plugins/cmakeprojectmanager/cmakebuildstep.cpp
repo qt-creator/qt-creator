@@ -475,8 +475,16 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
 
     connect(m_buildStep, &CMakeBuildStep::buildTargetsChanged, this, &CMakeBuildStepConfigWidget::buildTargetsChanged);
     connect(m_buildStep, &CMakeBuildStep::targetToBuildChanged, this, &CMakeBuildStepConfigWidget::selectedBuildTargetsChanged);
-    connect(static_cast<CMakeProject *>(m_buildStep->project()), &CMakeProject::environmentChanged,
-            this, &CMakeBuildStepConfigWidget::updateDetails);
+    m_buildStep->project()->subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
+        if (static_cast<BuildConfiguration *>(sender())->isActive())
+            updateDetails();
+    });
+    connect(m_buildStep->project(), &Project::activeProjectConfigurationChanged,
+            this, [this](ProjectConfiguration *pc) {
+        if (pc->isActive())
+            updateDetails();
+    });
+
 }
 
 void CMakeBuildStepConfigWidget::toolArgumentsEdited()
