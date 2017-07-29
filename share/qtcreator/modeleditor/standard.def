@@ -467,6 +467,112 @@ Toolbar {
     }
 }
 
+// ***************
+// ** Sequences **
+// ***************
+
+Icon {
+    id: Instance
+    elements: item
+    stereotype: 'instance'
+    display: icon
+    width: 40
+    height: 20
+    baseColor: #81d657
+    Shape {
+        Rect { x: 0; y: 0; width: 40; height: 20 }
+    }
+}
+
+Icon {
+    id: Activation
+    elements: item
+    stereotype: 'activation'
+    display: icon
+    width: 10
+    height: 40
+    minWidth: 10
+    minHeight: 20
+    lockSize: width
+    baseColor: #81d657
+    Shape {
+        Rect { x: 0; y: 0; width: 10; height: 40 }
+    }
+}
+
+Icon {
+    id: Destruction
+    elements: item
+    stereotype: 'destruction'
+    display: icon
+    width: 10
+    height: 10
+    minWidth: 10
+    minHeight: 10
+    lockSize: size
+    baseColor: #000000
+    Shape {
+        Line { x0: 0; y0: 0; x1: 10; y1: 10 }
+        Line { x0: 0; y0: 10; x1: 10; y1: 0 }
+    }
+}
+
+Icon {
+    id: EndLifeline
+    elements: item
+    stereotype: 'endlifeline'
+    display: icon
+    width: 10
+    height: 10
+    minWidth: 10
+    minHeight: 10
+    lockSize: size
+    baseColor: #000000
+    Shape {
+        Circle { x: 5; y: 5; radius: 5 }
+    }
+}
+
+Relation {
+    id: Lifeline
+    pattern: dash
+    color: A
+    End { end: A; elements: Instance, Activation }
+    End { end: B; elements: Activation, EndLifeline, Destruction }
+}
+
+Relation {
+    id: Message
+    pattern: solid
+    color: A
+    End { end: A; elements: Activation }
+    End { end: B; elements: Activation, Destruction; navigable: true; head: filledtriangle }
+}
+
+Toolbar {
+    id: InstanceToolbar
+    element: Instance
+    Tools {
+        Tool { element: Lifeline }
+    }
+}
+
+Toolbar {
+    id: ActivationToolbar
+    element: Activation
+    Tools {
+        Tool { element: Lifeline }
+        Tool { element: Message }
+    }
+}
+
+Toolbar {
+    id: EndToolbar
+    element: Destruction, EndLifeline
+    Tools {
+    }
+}
+
 // **************
 // ** Toolbars **
 // **************
@@ -522,6 +628,20 @@ Toolbar {
         Tool { title: "Horiz. Bar"; element: item; stereotype: "horizontalbar" }
         Tool { title: "Vert. Bar"; element: item; stereotype: "verticalbar" }
         Tool { title: "Termination"; element: item; stereotype: "termination" }
+        Separator
+        Tool { title: "Annotation"; element: annotation }
+        Tool { title: "Boundary"; element: boundary }
+        Tool { title: "Swimlane"; element: swimlane }
+    }
+}
+
+Toolbar {
+    id: Sequences
+    Tools {
+        Tool { title: "Instance"; element: item; stereotype: "instance" }
+        Tool { title: "Activation"; element: item; stereotype: "activation" }
+        Tool { title: "Destruction"; element: item; stereotype: "destruction" }
+        Tool { title: "EndLifeline"; element: item; stereotype: "endlifeline" }
         Separator
         Tool { title: "Annotation"; element: annotation }
         Tool { title: "Boundary"; element: boundary }
