@@ -1351,7 +1351,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     connect(m_registerView, &BaseTreeView::aboutToShow,
             this, &DebuggerPluginPrivate::reloadRegisters,
             Qt::QueuedConnection);
-    m_registerWindow = addSearch(m_registerView, tr("&Registers"), DOCKWIDGET_REGISTER);
+    m_registerWindow = addSearch(m_registerView, tr("Reg&isters"), DOCKWIDGET_REGISTER);
 
     m_stackView = new StackTreeView;
     m_stackView->setSettings(settings, "Debugger.StackView");
