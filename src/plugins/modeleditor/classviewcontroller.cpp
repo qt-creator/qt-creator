@@ -78,7 +78,7 @@ void ClassViewController::appendClassDeclarationsFromSymbol(CPlusPlus::Symbol *s
         QString className = overview.prettyName(
                     CPlusPlus::LookupContext::fullyQualifiedName(symbol));
         // Ignore private class created by Q_OBJECT macro
-        if (!className.endsWith(QStringLiteral("::QPrivateSignal")))
+        if (!className.endsWith("::QPrivateSignal"))
             classNames->insert(className);
     }
 

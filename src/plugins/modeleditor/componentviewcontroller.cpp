@@ -167,7 +167,7 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                     if (!haveDependency(component, includeComponent)) {
                         auto dependency = new qmt::MDependency;
                         dependency->setFlags(qmt::MElement::ReverseEngineered);
-                        dependency->setStereotypes(QStringList() << QStringLiteral("include"));
+                        dependency->setStereotypes(QStringList() << "include");
                         dependency->setDirection(qmt::MDependency::AToB);
                         dependency->setSource(component->uid());
                         dependency->setTarget(includeComponent->uid());
@@ -211,7 +211,7 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                                         auto dependency = new qmt::MDependency;
                                         dependency->setFlags(qmt::MElement::ReverseEngineered);
                                         // TODO set stereotype for testing purpose
-                                        dependency->setStereotypes(QStringList() << QStringLiteral("same stereotype"));
+                                        dependency->setStereotypes(QStringList() << "same stereotype");
                                         dependency->setDirection(qmt::MDependency::AToB);
                                         dependency->setSource(componentAncestors.at(index1)->uid());
                                         dependency->setTarget(includeComponentAncestors.at(index2)->uid());
@@ -232,7 +232,7 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                             auto dependency = new qmt::MDependency;
                             dependency->setFlags(qmt::MElement::ReverseEngineered);
                             // TODO set stereotype for testing purpose
-                            dependency->setStereotypes(QStringList() << QStringLiteral("ancestor"));
+                            dependency->setStereotypes(QStringList() << "ancestor");
                             dependency->setDirection(qmt::MDependency::AToB);
                             dependency->setSource(componentAncestors.at(componentHighestAncestorIndex)->uid());
                             dependency->setTarget(includeComponentAncestors.at(includeComponentHighestAncestorIndex)->uid());
@@ -247,7 +247,7 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                                 auto dependency = new qmt::MDependency;
                                 dependency->setFlags(qmt::MElement::ReverseEngineered);
                                 // TODO set stereotype for testing purpose
-                                dependency->setStereotypes(QStringList() << QStringLiteral("parents"));
+                                dependency->setStereotypes(QStringList() << "parents");
                                 dependency->setDirection(qmt::MDependency::AToB);
                                 dependency->setSource(componentAncestors.at(0)->uid());
                                 dependency->setTarget(includeComponentAncestors.at(0)->uid());

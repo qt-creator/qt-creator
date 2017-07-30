@@ -174,10 +174,10 @@ void PxNodeController::addExplorerNode(const ProjectExplorer::Node *node,
         QString stereotype;
         switch (node->nodeType()) {
         case ProjectExplorer::NodeType::VirtualFolder:
-            stereotype = QStringLiteral("virtual folder");
+            stereotype = "virtual folder";
             break;
         case ProjectExplorer::NodeType::Project:
-            stereotype = QStringLiteral("project");
+            stereotype = "project";
             break;
         default:
             break;

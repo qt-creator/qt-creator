@@ -160,7 +160,7 @@ void ActionHandler::createActions()
     d->removeAction = removeCommand->action();
     Core::Command *deleteCommand = registerCommand(
                 Constants::DELETE_SELECTED_ELEMENTS, [this]() { deleteSelectedElements(); }, d->context, true,
-                tr("&Delete"), QKeySequence(QStringLiteral("Ctrl+D")));
+                tr("&Delete"), QKeySequence("Ctrl+D"));
     medit->addAction(deleteCommand, Core::Constants::G_EDIT_COPYPASTE);
     d->deleteAction = deleteCommand->action();
     d->selectAllAction = registerCommand(Core::Constants::SELECTALL, [this]() { selectAll(); }, d->context)->action();
@@ -180,26 +180,26 @@ void ActionHandler::createActions()
 
     Core::Command *zoomInCommand = registerCommand(
                 Constants::ZOOM_IN, [this]() { zoomIn(); }, d->context, true,
-                tr("Zoom In"), QKeySequence(QStringLiteral("Ctrl++")));
+                tr("Zoom In"), QKeySequence("Ctrl++"));
     menuModelEditor->addAction(zoomInCommand);
     d->zoomInAction = zoomInCommand->action();
 
     Core::Command *zoomOutCommand = registerCommand(
                 Constants::ZOOM_OUT, [this]() { zoomOut(); }, d->context, true,
-                tr("Zoom Out"), QKeySequence(QStringLiteral("Ctrl+-")));
+                tr("Zoom Out"), QKeySequence("Ctrl+-"));
     menuModelEditor->addAction(zoomOutCommand);
     d->zoomOutAction = zoomOutCommand->action();
 
     Core::Command *resetZoomCommand = registerCommand(
                 Constants::RESET_ZOOM, [this]() { resetZoom(); }, d->context, true,
-                tr("Reset Zoom"), QKeySequence(QStringLiteral("Ctrl+0")));
+                tr("Reset Zoom"), QKeySequence("Ctrl+0"));
     menuModelEditor->addAction(resetZoomCommand);
     d->zoomOutAction = resetZoomCommand->action();
 
     d->openParentDiagramAction = registerCommand(
                 Constants::OPEN_PARENT_DIAGRAM, [this]() { openParentDiagram(); }, Core::Context(), true,
-                tr("Open Parent Diagram"), QKeySequence(QStringLiteral("Ctrl+Shift+P")))->action();
-    d->openParentDiagramAction->setIcon(QIcon(QStringLiteral(":/modeleditor/up.png")));
+                tr("Open Parent Diagram"), QKeySequence("Ctrl+Shift+P"))->action();
+    d->openParentDiagramAction->setIcon(QIcon(":/modeleditor/up.png"));
     registerCommand(Constants::ACTION_ADD_PACKAGE, nullptr, Core::Context(), true, tr("Add Package"));
     registerCommand(Constants::ACTION_ADD_COMPONENT, nullptr, Core::Context(), true, tr("Add Component"));
     registerCommand(Constants::ACTION_ADD_CLASS, nullptr, Core::Context(), true, tr("Add Class"));

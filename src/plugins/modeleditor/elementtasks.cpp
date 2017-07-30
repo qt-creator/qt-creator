@@ -106,7 +106,7 @@ bool ElementTasks::hasClassDefinition(const qmt::MElement *element) const
     if (auto klass = dynamic_cast<const qmt::MClass *>(element)) {
         QString qualifiedClassName = klass->umlNamespace().isEmpty()
                 ? klass->name()
-                : klass->umlNamespace() + QStringLiteral("::") + klass->name();
+                : klass->umlNamespace() + "::" + klass->name();
 
         CppTools::CppClassesFilter *classesFilter = ExtensionSystem::PluginManager::getObject<CppTools::CppClassesFilter>();
         if (!classesFilter)
@@ -142,7 +142,7 @@ void ElementTasks::openClassDefinition(const qmt::MElement *element)
     if (auto klass = dynamic_cast<const qmt::MClass *>(element)) {
         QString qualifiedClassName = klass->umlNamespace().isEmpty()
                 ? klass->name()
-                : klass->umlNamespace() + QStringLiteral("::") + klass->name();
+                : klass->umlNamespace() + "::" + klass->name();
 
         CppTools::CppClassesFilter *classesFilter = ExtensionSystem::PluginManager::getObject<CppTools::CppClassesFilter>();
         if (!classesFilter)
@@ -424,7 +424,7 @@ bool ElementTasks::extendContextMenu(const qmt::DElement *delement, const qmt::M
 {
     bool extended = false;
     if (dynamic_cast<const qmt::DPackage *>(delement)) {
-        menu->addAction(new qmt::ContextMenuAction(tr("Update Include Dependencies"), QStringLiteral("updateIncludeDependencies"), menu));
+        menu->addAction(new qmt::ContextMenuAction(tr("Update Include Dependencies"), "updateIncludeDependencies", menu));
         extended = true;
     }
     return extended;
