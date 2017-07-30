@@ -112,6 +112,7 @@ protected:
     QColor replacementPenColor(int blockNumber) const override;
     QString plainTextFromSelection(const QTextCursor &cursor) const override;
     void mouseDoubleClickEvent(QMouseEvent *e) override;
+    void keyPressEvent(QKeyEvent *e) override;
     void contextMenuEvent(QContextMenuEvent *e) override;
     void paintEvent(QPaintEvent *e) override;
     void scrollContentsBy(int dx, int dy) override;
@@ -391,6 +392,16 @@ void SideDiffEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
         return;
     }
     SelectableTextEditorWidget::mouseDoubleClickEvent(e);
+}
+
+void SideDiffEditorWidget::keyPressEvent(QKeyEvent *e)
+{
+    if (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return) {
+        jumpToOriginalFile(textCursor());
+        e->accept();
+        return;
+    }
+    SelectableTextEditorWidget::keyPressEvent(e);
 }
 
 void SideDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)

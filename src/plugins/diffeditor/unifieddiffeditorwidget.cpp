@@ -161,6 +161,16 @@ void UnifiedDiffEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
     SelectableTextEditorWidget::mouseDoubleClickEvent(e);
 }
 
+void UnifiedDiffEditorWidget::keyPressEvent(QKeyEvent *e)
+{
+    if (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return) {
+        jumpToOriginalFile(textCursor());
+        e->accept();
+        return;
+    }
+    SelectableTextEditorWidget::keyPressEvent(e);
+}
+
 void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     QPointer<QMenu> menu = createStandardContextMenu();
