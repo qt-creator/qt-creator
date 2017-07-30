@@ -59,8 +59,8 @@ public:
     void visitDSwimlane(const qmt::DSwimlane *swimlane) override;
 
 private:
-    qmt::ModelController *m_modelController = 0;
-    ElementTasks *m_elementTasks = 0;
+    qmt::ModelController *m_modelController = nullptr;
+    ElementTasks *m_elementTasks = nullptr;
 };
 
 class OpenModelElementVisitor :
@@ -84,7 +84,7 @@ public:
     void visitMConnection(const qmt::MConnection *connection) override;
 
 private:
-    ElementTasks *m_elementTasks = 0;
+    ElementTasks *m_elementTasks = nullptr;
 };
 
 } // namespace Internal

@@ -39,7 +39,7 @@ class EditorDiagramView :
     class EditorDiagramViewPrivate;
 
 public:
-    explicit EditorDiagramView(QWidget *parent = 0);
+    explicit EditorDiagramView(QWidget *parent = nullptr);
     ~EditorDiagramView() override;
 
 signals:

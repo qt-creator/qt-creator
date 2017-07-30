@@ -46,7 +46,7 @@ class DiagramsViewManager :
     Q_OBJECT
 
 public:
-    explicit DiagramsViewManager(QObject *parent = 0);
+    explicit DiagramsViewManager(QObject *parent = nullptr);
     ~DiagramsViewManager() = default;
 
 signals:

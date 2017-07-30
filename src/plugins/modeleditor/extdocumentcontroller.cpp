@@ -38,8 +38,8 @@ namespace Internal {
 
 class ExtDocumentController::ExtDocumentControllerPrivate {
 public:
-    ElementTasks *elementTasks = 0;
-    PxNodeController *pxNodeController = 0;
+    ElementTasks *elementTasks = nullptr;
+    PxNodeController *pxNodeController = nullptr;
 };
 
 ExtDocumentController::ExtDocumentController(QObject *parent)

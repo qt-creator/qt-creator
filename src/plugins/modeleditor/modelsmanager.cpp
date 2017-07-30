@@ -69,8 +69,8 @@ public:
     ManagedModel() = default;
     ManagedModel(ExtDocumentController *m_documentController,ModelDocument *m_modelDocument);
 
-    ExtDocumentController *m_documentController = 0;
-    ModelDocument *m_modelDocument = 0;
+    ExtDocumentController *m_documentController = nullptr;
+    ModelDocument *m_modelDocument = nullptr;
 };
 
 ModelsManager::ManagedModel::ManagedModel(ExtDocumentController *documentController,
@@ -88,11 +88,11 @@ public:
     }
 
     QList<ModelsManager::ManagedModel> managedModels;
-    ModelIndexer *modelIndexer = 0;
+    ModelIndexer *modelIndexer = nullptr;
     QList<Core::IDocument *> documentsToBeClosed;
 
-    QAction *openDiagramContextMenuItem = 0;
-    ProjectExplorer::Node *contextMenuOwnerNode = 0;
+    QAction *openDiagramContextMenuItem = nullptr;
+    ProjectExplorer::Node *contextMenuOwnerNode = nullptr;
 };
 
 ModelsManager::ModelsManager(QObject *parent)
@@ -182,14 +182,14 @@ void ModelsManager::onAboutToShowContextMenu(ProjectExplorer::Project *project,
     if (canOpenDiagram)
         d->contextMenuOwnerNode = node;
     else
-        d->contextMenuOwnerNode = 0;
+        d->contextMenuOwnerNode = nullptr;
     d->openDiagramContextMenuItem->setVisible(canOpenDiagram);
 }
 
 void ModelsManager::onOpenDiagramFromProjectExplorer()
 {
     if (ProjectExplorer::ProjectTree::findCurrentNode() == d->contextMenuOwnerNode) {
-        qmt::MDiagram *diagram = 0;
+        qmt::MDiagram *diagram = nullptr;
         foreach (const ManagedModel &managedModel, d->managedModels) {
             if ((diagram = managedModel.m_documentController->pxNodeController()->findDiagramForExplorerNode(d->contextMenuOwnerNode))) {
                 openDiagram(managedModel.m_documentController, diagram);

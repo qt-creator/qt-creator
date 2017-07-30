@@ -44,7 +44,7 @@ namespace Internal {
 
 class PxNodeUtilities::PxNodeUtilitiesPrivate {
 public:
-    qmt::DiagramSceneController *diagramSceneController = 0;
+    qmt::DiagramSceneController *diagramSceneController = nullptr;
 };
 
 PxNodeUtilities::PxNodeUtilities(QObject *parent)
@@ -100,7 +100,7 @@ qmt::MPackage *PxNodeUtilities::createBestMatchingPackagePath(
 
     int maxChainLength = -1;
     int minChainDepth = -1;
-    qmt::MPackage *bestParentPackage = 0;
+    qmt::MPackage *bestParentPackage = nullptr;
 
     while (!roots.isEmpty()) {
         qmt::MPackage *package = roots.first().first;
@@ -231,7 +231,7 @@ qmt::MObject *PxNodeUtilities::findSameObject(const QStringList &relativeElement
     }
 
     // complete sub-package structure scanned but did not found the desired object
-    return 0;
+    return nullptr;
 }
 
 } // namespace Internal

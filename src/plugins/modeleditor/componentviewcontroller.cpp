@@ -64,7 +64,7 @@ private:
     QString m_elementName;
     QStringList m_elementsPath;
     int m_maxPathLength = 0;
-    qmt::MComponent *m_bestComponent = 0;
+    qmt::MComponent *m_bestComponent = nullptr;
 };
 
 void FindComponentFromFilePath::setFilePath(const QString &filePath)
@@ -131,7 +131,7 @@ private:
     bool haveDependency(const qmt::MObject *source, const QList<qmt::MPackage *> &targets);
 
 private:
-    qmt::ModelController *m_modelController = 0;
+    qmt::ModelController *m_modelController = nullptr;
     QMultiHash<QString, Node> m_filePaths;
 };
 
@@ -360,8 +360,8 @@ bool UpdateIncludeDependenciesVisitor::haveDependency(const qmt::MObject *source
 
 class ComponentViewController::ComponentViewControllerPrivate {
 public:
-    PxNodeUtilities *pxnodeUtilities = 0;
-    qmt::DiagramSceneController *diagramSceneController = 0;
+    PxNodeUtilities *pxnodeUtilities = nullptr;
+    qmt::DiagramSceneController *diagramSceneController = nullptr;
 };
 
 ComponentViewController::ComponentViewController(QObject *parent)
@@ -408,7 +408,7 @@ void ComponentViewController::doCreateComponentModel(const ProjectExplorer::Fold
 {
     foreach (const ProjectExplorer::FileNode *fileNode, folderNode->fileNodes()) {
         QString componentName = qmt::NameController::convertFileNameToElementName(fileNode->filePath().toString());
-        qmt::MComponent *component = 0;
+        qmt::MComponent *component = nullptr;
         bool isSource = false;
         CppTools::ProjectFile::Kind kind = CppTools::ProjectFile::classify(fileNode->filePath().toString());
         switch (kind) {
@@ -441,7 +441,7 @@ void ComponentViewController::doCreateComponentModel(const ProjectExplorer::Fold
             if (d->pxnodeUtilities->findSameObject(relativeElements, component)) {
                 delete component;
             } else {
-                qmt::MPackage *requestedRootPackage = d->diagramSceneController->findSuitableParentPackage(0, diagram);
+                qmt::MPackage *requestedRootPackage = d->diagramSceneController->findSuitableParentPackage(nullptr, diagram);
                 qmt::MPackage *bestParentPackage = d->pxnodeUtilities->createBestMatchingPackagePath(requestedRootPackage, relativeElements);
                 d->diagramSceneController->modelController()->addObject(bestParentPackage, component);
             }

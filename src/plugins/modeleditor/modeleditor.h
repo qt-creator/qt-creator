@@ -65,7 +65,7 @@ class ModelEditor :
 
 public:
     explicit ModelEditor(UiController *uiController, ActionHandler *actionHandler,
-                         QWidget *parent = 0);
+                         QWidget *parent = nullptr);
     ~ModelEditor();
 
     Core::IDocument *document() override;

@@ -46,20 +46,20 @@ namespace Internal {
 class ActionHandler::ActionHandlerPrivate {
 public:
     Core::Context context;
-    QAction *undoAction = 0;
-    QAction *redoAction = 0;
-    QAction *cutAction = 0;
-    QAction *copyAction = 0;
-    QAction *pasteAction = 0;
-    QAction *removeAction = 0;
-    QAction *deleteAction = 0;
-    QAction *selectAllAction = 0;
-    QAction *openParentDiagramAction = 0;
-    QAction *synchronizeBrowserAction = 0;
-    QAction *exportDiagramAction = 0;
-    QAction *zoomInAction = 0;
-    QAction *zoomOutAction = 0;
-    QAction *resetZoomAction = 0;
+    QAction *undoAction = nullptr;
+    QAction *redoAction = nullptr;
+    QAction *cutAction = nullptr;
+    QAction *copyAction = nullptr;
+    QAction *pasteAction = nullptr;
+    QAction *removeAction = nullptr;
+    QAction *deleteAction = nullptr;
+    QAction *selectAllAction = nullptr;
+    QAction *openParentDiagramAction = nullptr;
+    QAction *synchronizeBrowserAction = nullptr;
+    QAction *exportDiagramAction = nullptr;
+    QAction *zoomInAction = nullptr;
+    QAction *zoomOutAction = nullptr;
+    QAction *resetZoomAction = nullptr;
 };
 
 ActionHandler::ActionHandler(const Core::Context &context, QObject *parent)

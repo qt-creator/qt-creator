@@ -39,7 +39,7 @@ class DragTool :
 
 public:
     DragTool(const QIcon &icon, const QString &title, const QString &newElementId,
-             const QString &stereotype, QWidget *parent = 0);
+             const QString &stereotype, QWidget *parent = nullptr);
     ~DragTool();
 
     QSize sizeHint() const override;

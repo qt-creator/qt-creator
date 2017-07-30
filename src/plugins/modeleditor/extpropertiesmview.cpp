@@ -57,7 +57,7 @@ void ExtPropertiesMView::visitMPackage(const qmt::MPackage *package)
     qmt::PropertiesView::MView::visitMPackage(package);
     if (m_modelElements.size() == 1 && !package->owner()) {
         qmt::Project *project = m_projectController->project();
-        if (m_configPath == 0) {
+        if (!m_configPath) {
             m_configPath = new Utils::PathChooser(m_topWidget);
             m_configPath->setPromptDialogTitle(tr("Select Custom Configuration Folder"));
             m_configPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
@@ -78,7 +78,7 @@ void ExtPropertiesMView::visitMPackage(const qmt::MPackage *package)
                 m_configPath->setPath(QFileInfo(projectDir, project->configPath()).canonicalFilePath());
             }
         }
-        if (m_configPathInfo == 0) {
+        if (!m_configPathInfo) {
             m_configPathInfo = new QLabel(m_topWidget);
             addRow(QString(), m_configPathInfo, "configpathinfo");
         }

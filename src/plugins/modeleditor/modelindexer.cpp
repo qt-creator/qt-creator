@@ -89,7 +89,7 @@ public:
 
 private:
     QString m_file;
-    ProjectExplorer::Project *m_project = 0;
+    ProjectExplorer::Project *m_project = nullptr;
     QDateTime m_lastModified;
 };
 
@@ -255,7 +255,7 @@ public:
     QHash<QString, ModelIndexer::IndexedDiagramReference *> indexedDiagramReferences;
     QHash<qmt::Uid, QSet<ModelIndexer::IndexedDiagramReference *> > indexedDiagramReferencesByDiagramUid;
 
-    ModelIndexer::IndexerThread *indexerThread = 0;
+    ModelIndexer::IndexerThread *indexerThread = nullptr;
 };
 
 void ModelIndexer::IndexerThread::onQuitIndexerThread()
@@ -377,7 +377,7 @@ void ModelIndexer::onProjectAdded(ProjectExplorer::Project *project)
 
 void ModelIndexer::onAboutToRemoveProject(ProjectExplorer::Project *project)
 {
-    disconnect(project, &ProjectExplorer::Project::fileListChanged, this, 0);
+    disconnect(project, &ProjectExplorer::Project::fileListChanged, this, nullptr);
     forgetProject(project);
 }
 

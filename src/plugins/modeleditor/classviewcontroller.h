@@ -38,7 +38,7 @@ class ClassViewController :
     Q_OBJECT
 
 public:
-    explicit ClassViewController(QObject *parent = 0);
+    explicit ClassViewController(QObject *parent = nullptr);
     ~ClassViewController() = default;
 
     QSet<QString> findClassDeclarations(const QString &fileName);

@@ -47,7 +47,7 @@ class ComponentViewController :
     class ComponentViewControllerPrivate;
 
 public:
-    explicit ComponentViewController(QObject *parent = 0);
+    explicit ComponentViewController(QObject *parent = nullptr);
     ~ComponentViewController();
 
     void setPxNodeUtilties(PxNodeUtilities *pxnodeUtilities);

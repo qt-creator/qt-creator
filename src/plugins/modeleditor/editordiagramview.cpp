@@ -40,7 +40,7 @@ namespace Internal {
 
 class EditorDiagramView::EditorDiagramViewPrivate {
 public:
-    PxNodeController *pxNodeController = 0;
+    PxNodeController *pxNodeController = nullptr;
 };
 
 EditorDiagramView::EditorDiagramView(QWidget *parent)

@@ -57,15 +57,15 @@
 namespace ModelEditor {
 namespace Internal {
 
-ModelEditorPlugin *pluginInstance = 0;
+ModelEditorPlugin *pluginInstance = nullptr;
 
 class ModelEditorPlugin::ModelEditorPluginPrivate
 {
 public:
-    ModelsManager *modelsManager = 0;
-    UiController *uiController = 0;
-    ModelEditorFactory *modelFactory = 0;
-    SettingsController *settingsController = 0;
+    ModelsManager *modelsManager = nullptr;
+    UiController *uiController = nullptr;
+    ModelEditorFactory *modelFactory = nullptr;
+    SettingsController *settingsController = nullptr;
 };
 
 ModelEditorPlugin::ModelEditorPlugin()

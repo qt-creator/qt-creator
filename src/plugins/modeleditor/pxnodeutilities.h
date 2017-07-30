@@ -45,7 +45,7 @@ class PxNodeUtilities :
     class PxNodeUtilitiesPrivate;
 
 public:
-    explicit PxNodeUtilities(QObject *parent = 0);
+    explicit PxNodeUtilities(QObject *parent = nullptr);
     ~PxNodeUtilities();
 
     void setDiagramSceneController(qmt::DiagramSceneController *diagramSceneController);

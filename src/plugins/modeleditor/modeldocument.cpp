@@ -48,7 +48,7 @@ namespace Internal {
 
 class ModelDocument::ModelDocumentPrivate {
 public:
-    ExtDocumentController *documentController = 0;
+    ExtDocumentController *documentController = nullptr;
 };
 
 ModelDocument::ModelDocument(QObject *parent)

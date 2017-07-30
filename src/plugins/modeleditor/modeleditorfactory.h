@@ -40,7 +40,7 @@ class ModelEditorFactory :
     class ModelEditorFactoryPrivate;
 
 public:
-    explicit ModelEditorFactory(UiController *uiController, QObject *parent = 0);
+    explicit ModelEditorFactory(UiController *uiController, QObject *parent = nullptr);
     ~ModelEditorFactory();
 
     Core::IEditor *createEditor() override;

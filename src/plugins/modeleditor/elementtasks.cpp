@@ -59,8 +59,8 @@ namespace Internal {
 
 class ElementTasks::ElementTasksPrivate {
 public:
-    qmt::DocumentController *documentController = 0;
-    ComponentViewController *componentViewController = 0;
+    qmt::DocumentController *documentController = nullptr;
+    ComponentViewController *componentViewController = nullptr;
 };
 
 ElementTasks::ElementTasks(QObject *parent)
@@ -274,7 +274,7 @@ bool ElementTasks::hasDiagram(const qmt::MElement *element) const
     qmt::FindDiagramVisitor visitor;
     element->accept(&visitor);
     const qmt::MDiagram *diagram = visitor.diagram();
-    return diagram != 0;
+    return diagram != nullptr;
 }
 
 bool ElementTasks::hasDiagram(const qmt::DElement *element, const qmt::MDiagram *diagram) const
@@ -373,7 +373,7 @@ void ElementTasks::openParentDiagram(const qmt::DElement *element, const qmt::ME
 
 bool ElementTasks::mayCreateDiagram(const qmt::MElement *element) const
 {
-    return dynamic_cast<const qmt::MPackage *>(element) != 0;
+    return dynamic_cast<const qmt::MPackage *>(element) != nullptr;
 }
 
 bool ElementTasks::mayCreateDiagram(const qmt::DElement *element,

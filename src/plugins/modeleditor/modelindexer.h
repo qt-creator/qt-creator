@@ -53,7 +53,7 @@ class ModelIndexer :
                            const ModelIndexer::QueuedFile &rhs);
 
 public:
-    ModelIndexer(QObject *parent = 0);
+    ModelIndexer(QObject *parent = nullptr);
     ~ModelIndexer();
 
 signals:

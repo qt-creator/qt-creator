@@ -49,7 +49,7 @@ class PxNodeController :
     class MenuAction;
 
 public:
-    explicit PxNodeController(QObject *parent = 0);
+    explicit PxNodeController(QObject *parent = nullptr);
     ~PxNodeController();
 
     ComponentViewController *componentViewController() const;

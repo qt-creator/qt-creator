@@ -43,7 +43,7 @@ class ElementTasks :
     class ElementTasksPrivate;
 
 public:
-    ElementTasks(QObject *parent = 0);
+    ElementTasks(QObject *parent = nullptr);
     ~ElementTasks();
 
     void setDocumentController(qmt::DocumentController *documentController);

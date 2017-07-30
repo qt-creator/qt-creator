@@ -107,30 +107,30 @@ static const double ZOOM_FACTOR = 1.05;
 class ModelEditor::ModelEditorPrivate
 {
 public:
-    UiController *uiController = 0;
-    ActionHandler *actionHandler = 0;
-    ModelDocument *document = 0;
-    qmt::PropertiesView *propertiesView = 0;
-    Core::MiniSplitter *rightSplitter = 0;
-    QWidget *leftGroup = 0;
-    QHBoxLayout *leftGroupLayout = 0;
-    QToolBox *leftToolBox = 0;
-    QStackedWidget *diagramStack = 0;
-    EditorDiagramView *diagramView = 0;
-    QLabel *noDiagramLabel = 0;
-    DiagramsViewManager *diagramsViewManager = 0;
-    Core::MiniSplitter *rightHorizSplitter = 0;
-    qmt::ModelTreeView *modelTreeView = 0;
-    qmt::TreeModelManager *modelTreeViewServant = 0;
-    QScrollArea *propertiesScrollArea = 0;
-    QWidget *propertiesGroupWidget = 0;
-    QWidget *toolbar = 0;
-    QComboBox *diagramSelector = 0;
+    UiController *uiController = nullptr;
+    ActionHandler *actionHandler = nullptr;
+    ModelDocument *document = nullptr;
+    qmt::PropertiesView *propertiesView = nullptr;
+    Core::MiniSplitter *rightSplitter = nullptr;
+    QWidget *leftGroup = nullptr;
+    QHBoxLayout *leftGroupLayout = nullptr;
+    QToolBox *leftToolBox = nullptr;
+    QStackedWidget *diagramStack = nullptr;
+    EditorDiagramView *diagramView = nullptr;
+    QLabel *noDiagramLabel = nullptr;
+    DiagramsViewManager *diagramsViewManager = nullptr;
+    Core::MiniSplitter *rightHorizSplitter = nullptr;
+    qmt::ModelTreeView *modelTreeView = nullptr;
+    qmt::TreeModelManager *modelTreeViewServant = nullptr;
+    QScrollArea *propertiesScrollArea = nullptr;
+    QWidget *propertiesGroupWidget = nullptr;
+    QWidget *toolbar = nullptr;
+    QComboBox *diagramSelector = nullptr;
     SelectedArea selectedArea = SelectedArea::Nothing;
     QString lastExportDirPath;
-    QAction *syncBrowserWithDiagramAction = 0;
-    QAction *syncDiagramWithBrowserAction = 0;
-    QAction *syncEachOtherAction = 0;
+    QAction *syncBrowserWithDiagramAction = nullptr;
+    QAction *syncDiagramWithBrowserAction = nullptr;
+    QAction *syncEachOtherAction = nullptr;
 };
 
 ModelEditor::ModelEditor(UiController *uiController, ActionHandler *actionHandler, QWidget *parent)
@@ -622,7 +622,7 @@ void ModelEditor::resetZoom()
 
 qmt::MPackage *ModelEditor::guessSelectedPackage() const
 {
-    qmt::MPackage *package = 0;
+    qmt::MPackage *package = nullptr;
     switch (d->selectedArea) {
     case SelectedArea::Nothing:
         package = d->modelTreeViewServant->selectedPackage();
@@ -661,13 +661,13 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
     bool canExportDiagram = false;
     QList<qmt::MElement *> propertiesModelElements;
     QList<qmt::DElement *> propertiesDiagramElements;
-    qmt::MDiagram *propertiesDiagram = 0;
+    qmt::MDiagram *propertiesDiagram = nullptr;
 
     qmt::MDiagram *activeDiagram = currentDiagram();
     switch (d->selectedArea) {
     case SelectedArea::Nothing:
         canSelectAll = activeDiagram && !activeDiagram->diagramElements().isEmpty();
-        canExportDiagram = activeDiagram != 0;
+        canExportDiagram = activeDiagram != nullptr;
         break;
     case SelectedArea::Diagram:
     {
@@ -696,7 +696,7 @@ void ModelEditor::updateSelectedArea(SelectedArea selectedArea)
     }
     case SelectedArea::TreeView:
     {
-        canExportDiagram = activeDiagram != 0;
+        canExportDiagram = activeDiagram != nullptr;
         bool hasSelection = !d->modelTreeViewServant->selectedObjects().isEmpty();
         bool hasSingleSelection = d->modelTreeViewServant->selectedObjects().indices().size() == 1;
         canCutCopyDelete = hasSelection && !d->modelTreeViewServant->isRootPackageSelected();
@@ -769,7 +769,7 @@ void ModelEditor::clearProperties()
         Q_UNUSED(scrollWidget); // avoid warning in release mode
         QMT_CHECK(scrollWidget == d->propertiesGroupWidget);
         d->propertiesGroupWidget->deleteLater();
-        d->propertiesGroupWidget = 0;
+        d->propertiesGroupWidget = nullptr;
     }
 }
 
@@ -1003,7 +1003,7 @@ void ModelEditor::initToolbars()
                      [=](const qmt::Toolbar &lhs, const qmt::Toolbar &rhs) { return lhs.priority() > rhs.priority(); });
     foreach (const qmt::Toolbar &toolbar, toolbars) {
         QWidget *toolBar = toolBars.value(toolbar.id());
-        QLayout *toolBarLayout = 0;
+        QLayout *toolBarLayout = nullptr;
         if (!toolBar) {
             toolBar = new QWidget(d->leftToolBox);
             toolBar->setProperty(PROPERTYNAME_TOOLBARID, toolbar.id());

@@ -37,8 +37,8 @@ namespace Internal {
 class ModelEditorFactory::ModelEditorFactoryPrivate
 {
 public:
-    UiController *uiController = 0;
-    ActionHandler *actionHandler = 0;
+    UiController *uiController = nullptr;
+    ActionHandler *actionHandler = nullptr;
 };
 
 ModelEditorFactory::ModelEditorFactory(UiController *uiController, QObject *parent)

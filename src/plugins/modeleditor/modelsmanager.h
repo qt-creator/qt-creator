@@ -53,7 +53,7 @@ class ModelsManager :
     class ModelsManagerPrivate;
 
 public:
-    explicit ModelsManager(QObject *parent = 0);
+    explicit ModelsManager(QObject *parent = nullptr);
     ~ModelsManager();
 
     ExtDocumentController *createModel(ModelDocument *modelDocument);
