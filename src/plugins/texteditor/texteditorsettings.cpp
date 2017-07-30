@@ -48,6 +48,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -399,6 +400,13 @@ TextEditorSettings::TextEditorSettings()
             this, &TextEditorSettings::completionSettingsChanged);
     connect(d->m_completionSettingsPage, &CompletionSettingsPage::commentsSettingsChanged,
             this, &TextEditorSettings::commentsSettingsChanged);
+
+    auto updateCamelCaseNavigation = [] {
+        Utils::FancyLineEdit::setCamelCaseNavigationEnabled(behaviorSettings().m_camelCaseNavigation);
+    };
+    connect(d->m_behaviorSettingsPage, &BehaviorSettingsPage::behaviorSettingsChanged,
+            this, updateCamelCaseNavigation);
+    updateCamelCaseNavigation();
 }
 
 TextEditorSettings::~TextEditorSettings()

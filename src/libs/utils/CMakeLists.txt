@@ -24,6 +24,7 @@ add_qtc_library(Utils
     basetreeview.cpp basetreeview.h
     benchmarker.cpp benchmarker.h
     buildablehelperlibrary.cpp buildablehelperlibrary.h
+    camelcasecursor.cpp camelcasecursor.h
     categorysortfiltermodel.cpp categorysortfiltermodel.h
     changeset.cpp changeset.h
     checkablemessagebox.cpp checkablemessagebox.h

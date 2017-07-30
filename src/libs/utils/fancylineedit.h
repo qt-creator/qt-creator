@@ -141,9 +141,12 @@ public:
     void validate();
     void onEditingFinished();
 
+    static void setCamelCaseNavigationEnabled(bool enabled);
+
 protected:
     // Custom behaviour can be added here.
     virtual void handleChanged(const QString &) {}
+    void keyPressEvent(QKeyEvent *event);
 
 signals:
     void buttonClicked(Utils::FancyLineEdit::Side side);
@@ -170,6 +173,8 @@ private:
 
     void updateMargins();
     void updateButtonPositions();
+    bool camelCaseBackward(bool mark);
+    bool camelCaseForward(bool mark);
     friend class FancyLineEditPrivate;
 
     FancyLineEditPrivate *d;

@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "camelcasecursor.h"
 #include "execmenu.h"
 #include "fancylineedit.h"
 #include "historycompleter.h"
@@ -79,6 +80,8 @@ enum { margin = 6 };
 #define FADE_TIME 160
 
 namespace Utils {
+
+static bool camelCaseNavigation = false;
 
 // --------- FancyLineEditPrivate
 class FancyLineEditPrivate : public QObject
@@ -326,6 +329,24 @@ void FancyLineEdit::setHistoryCompleter(const QString &historyKey, bool restoreL
 void FancyLineEdit::onEditingFinished()
 {
     d->m_historyCompleter->addEntry(text());
+}
+
+void FancyLineEdit::keyPressEvent(QKeyEvent *event)
+{
+    const QTextCursor::MoveMode mode = (event->modifiers() & Qt::ShiftModifier)
+            ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor;
+
+    if (camelCaseNavigation && event == QKeySequence::MoveToPreviousWord)
+        CamelCaseCursor::left(this, mode);
+    else if (camelCaseNavigation && event == QKeySequence::MoveToNextWord)
+        CamelCaseCursor::right(this, mode);
+    else
+        QLineEdit::keyPressEvent(event);
+}
+
+void FancyLineEdit::setCamelCaseNavigationEnabled(bool enabled)
+{
+    camelCaseNavigation = enabled;
 }
 
 void FancyLineEdit::setSpecialCompleter(QCompleter *completer)

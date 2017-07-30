@@ -71,6 +71,7 @@
 #include <coreplugin/find/highlightscrollbarcontroller.h>
 #include <utils/algorithm.h>
 #include <utils/textutils.h>
+#include <utils/camelcasecursor.h>
 #include <utils/fixedsizeclicklabel.h>
 #include <utils/fileutils.h>
 #include <utils/dropsupport.h>
@@ -559,8 +560,6 @@ public:
     void universalHelper(); // test function for development
 
     bool cursorMoveKeyEvent(QKeyEvent *e);
-    bool camelCaseRight(QTextCursor &cursor, QTextCursor::MoveMode mode);
-    bool camelCaseLeft(QTextCursor &cursor, QTextCursor::MoveMode mode);
 
     void processTooltipRequest(const QTextCursor &c);
     bool processAnnotaionTooltipRequest(const QTextBlock &block, const QPoint &pos) const;
@@ -1628,28 +1627,28 @@ void TextEditorWidget::gotoNextWordWithSelection()
 void TextEditorWidget::gotoPreviousWordCamelCase()
 {
     QTextCursor c = textCursor();
-    d->camelCaseLeft(c, QTextCursor::MoveAnchor);
+    CamelCaseCursor::left(&c, this, QTextCursor::MoveAnchor);
     setTextCursor(c);
 }
 
 void TextEditorWidget::gotoPreviousWordCamelCaseWithSelection()
 {
     QTextCursor c = textCursor();
-    d->camelCaseLeft(c, QTextCursor::KeepAnchor);
+    CamelCaseCursor::left(&c, this, QTextCursor::KeepAnchor);
     setTextCursor(c);
 }
 
 void TextEditorWidget::gotoNextWordCamelCase()
 {
     QTextCursor c = textCursor();
-    d->camelCaseRight(c, QTextCursor::MoveAnchor);
+    CamelCaseCursor::right(&c, this, QTextCursor::MoveAnchor);
     setTextCursor(c);
 }
 
 void TextEditorWidget::gotoNextWordCamelCaseWithSelection()
 {
     QTextCursor c = textCursor();
-    d->camelCaseRight(c, QTextCursor::KeepAnchor);
+    CamelCaseCursor::right(&c, this, QTextCursor::KeepAnchor);
     setTextCursor(c);
 }
 
@@ -2061,232 +2060,6 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
     return layout->lineForTextPosition(relativePos);
 }
 
-bool TextEditorWidgetPrivate::camelCaseLeft(QTextCursor &cursor, QTextCursor::MoveMode mode)
-{
-    int state = 0;
-    enum Input {
-        Input_U,
-        Input_l,
-        Input_underscore,
-        Input_space,
-        Input_other
-    };
-
-    if (!cursor.movePosition(QTextCursor::Left, mode))
-        return false;
-
-    forever {
-        QChar c = q->document()->characterAt(cursor.position());
-        Input input = Input_other;
-        if (c.isUpper())
-            input = Input_U;
-        else if (c.isLower() || c.isDigit())
-            input = Input_l;
-        else if (c == QLatin1Char('_'))
-            input = Input_underscore;
-        else if (c.isSpace() && c != QChar::ParagraphSeparator)
-            input = Input_space;
-        else
-            input = Input_other;
-
-        switch (state) {
-        case 0:
-            switch (input) {
-            case Input_U:
-                state = 1;
-                break;
-            case Input_l:
-                state = 2;
-                break;
-            case Input_underscore:
-                state = 3;
-                break;
-            case Input_space:
-                state = 4;
-                break;
-            default:
-                cursor.movePosition(QTextCursor::Right, mode);
-                return cursor.movePosition(QTextCursor::WordLeft, mode);
-            }
-            break;
-        case 1:
-            switch (input) {
-            case Input_U:
-                break;
-            default:
-                cursor.movePosition(QTextCursor::Right, mode);
-                return true;
-            }
-            break;
-
-        case 2:
-            switch (input) {
-            case Input_U:
-                return true;
-            case Input_l:
-                break;
-            default:
-                cursor.movePosition(QTextCursor::Right, mode);
-                return true;
-            }
-            break;
-        case 3:
-            switch (input) {
-            case Input_underscore:
-                break;
-            case Input_U:
-                state = 1;
-                break;
-            case Input_l:
-                state = 2;
-                break;
-            default:
-                cursor.movePosition(QTextCursor::Right, mode);
-                return true;
-            }
-            break;
-        case 4:
-            switch (input) {
-            case Input_space:
-                break;
-            case Input_U:
-                state = 1;
-                break;
-            case Input_l:
-                state = 2;
-                break;
-            case Input_underscore:
-                state = 3;
-                break;
-            default:
-                cursor.movePosition(QTextCursor::Right, mode);
-                if (cursor.positionInBlock() == 0)
-                    return true;
-                return cursor.movePosition(QTextCursor::WordLeft, mode);
-            }
-        }
-
-        if (!cursor.movePosition(QTextCursor::Left, mode))
-            return true;
-    }
-}
-
-bool TextEditorWidgetPrivate::camelCaseRight(QTextCursor &cursor, QTextCursor::MoveMode mode)
-{
-    int state = 0;
-    enum Input {
-        Input_U,
-        Input_l,
-        Input_underscore,
-        Input_space,
-        Input_other
-    };
-
-    forever {
-        QChar c = q->document()->characterAt(cursor.position());
-        Input input = Input_other;
-        if (c.isUpper())
-            input = Input_U;
-        else if (c.isLower() || c.isDigit())
-            input = Input_l;
-        else if (c == QLatin1Char('_'))
-            input = Input_underscore;
-        else if (c.isSpace() && c != QChar::ParagraphSeparator)
-            input = Input_space;
-        else
-            input = Input_other;
-
-        switch (state) {
-        case 0:
-            switch (input) {
-            case Input_U:
-                state = 4;
-                break;
-            case Input_l:
-                state = 1;
-                break;
-            case Input_underscore:
-                state = 6;
-                break;
-            default:
-                return cursor.movePosition(QTextCursor::WordRight, mode);
-            }
-            break;
-        case 1:
-            switch (input) {
-            case Input_U:
-                return true;
-            case Input_l:
-                break;
-            case Input_underscore:
-                state = 6;
-                break;
-            case Input_space:
-                state = 7;
-                break;
-            default:
-                return true;
-            }
-            break;
-        case 2:
-            switch (input) {
-            case Input_U:
-                break;
-            case Input_l:
-                cursor.movePosition(QTextCursor::Left, mode);
-                return true;
-            case Input_underscore:
-                state = 6;
-                break;
-            case Input_space:
-                state = 7;
-                break;
-            default:
-                return true;
-            }
-            break;
-        case 4:
-            switch (input) {
-            case Input_U:
-                state = 2;
-                break;
-            case Input_l:
-                state = 1;
-                break;
-            case Input_underscore:
-                state = 6;
-                break;
-            case Input_space:
-                state = 7;
-                break;
-            default:
-                return true;
-            }
-            break;
-        case 6:
-            switch (input) {
-            case Input_underscore:
-                break;
-            case Input_space:
-                state = 7;
-                break;
-            default:
-                return true;
-            }
-            break;
-        case 7:
-            switch (input) {
-            case Input_space:
-                break;
-            default:
-                return true;
-            }
-            break;
-        }
-        cursor.movePosition(QTextCursor::Right, mode);
-    }
-}
-
 bool TextEditorWidgetPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 {
     QTextCursor cursor = q->textCursor();
@@ -2381,9 +2154,9 @@ bool TextEditorWidgetPrivate::cursorMoveKeyEvent(QKeyEvent *e)
     cursor.setVisualNavigation(true);
 
     if (q->camelCaseNavigationEnabled() && op == QTextCursor::WordRight)
-        camelCaseRight(cursor, mode);
+        CamelCaseCursor::right(&cursor, q, mode);
     else if (q->camelCaseNavigationEnabled() && op == QTextCursor::WordLeft)
-        camelCaseLeft(cursor, mode);
+        CamelCaseCursor::left(&cursor, q, mode);
     else if (!cursor.movePosition(op, mode) && mode == QTextCursor::MoveAnchor)
         cursor.clearSelection();
     cursor.setVisualNavigation(visualNavigation);
@@ -2586,7 +2359,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         QTextCursor c = textCursor();
         int pos = c.position();
         if (camelCaseNavigationEnabled())
-            d->camelCaseLeft(c, QTextCursor::MoveAnchor);
+            CamelCaseCursor::left(&c, this, QTextCursor::MoveAnchor);
         else
             c.movePosition(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
         int targetpos = c.position();
@@ -2602,7 +2375,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         e->accept();
         QTextCursor c = textCursor();
         if (camelCaseNavigationEnabled())
-            d->camelCaseLeft(c, QTextCursor::KeepAnchor);
+            CamelCaseCursor::left(&c, this, QTextCursor::KeepAnchor);
         else
             c.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
         c.removeSelectedText();
@@ -2611,7 +2384,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         e->accept();
         QTextCursor c = textCursor();
         if (camelCaseNavigationEnabled())
-            d->camelCaseRight(c, QTextCursor::KeepAnchor);
+            CamelCaseCursor::right(&c, this, QTextCursor::KeepAnchor);
         else
             c.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
         c.removeSelectedText();
@@ -7111,7 +6884,7 @@ void TextEditorWidget::deleteEndOfWord()
 void TextEditorWidget::deleteEndOfWordCamelCase()
 {
     QTextCursor c = textCursor();
-    d->camelCaseRight(c, QTextCursor::KeepAnchor);
+    CamelCaseCursor::right(&c, this, QTextCursor::KeepAnchor);
     c.removeSelectedText();
     setTextCursor(c);
 }
@@ -7133,7 +6906,7 @@ void TextEditorWidget::deleteStartOfWord()
 void TextEditorWidget::deleteStartOfWordCamelCase()
 {
     QTextCursor c = textCursor();
-    d->camelCaseLeft(c, QTextCursor::KeepAnchor);
+    CamelCaseCursor::left(&c, this, QTextCursor::KeepAnchor);
     c.removeSelectedText();
     setTextCursor(c);
 }

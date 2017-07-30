@@ -50,6 +50,8 @@ Project {
             "benchmarker.h",
             "buildablehelperlibrary.cpp",
             "buildablehelperlibrary.h",
+            "camelcasecursor.cpp",
+            "camelcasecursor.h",
             "categorysortfiltermodel.cpp",
             "categorysortfiltermodel.h",
             "changeset.cpp",
