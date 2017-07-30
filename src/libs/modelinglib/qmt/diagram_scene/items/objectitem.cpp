@@ -279,18 +279,18 @@ QList<ILatchable::Latch> ObjectItem::horizontalLatches(ILatchable::Action action
     QList<ILatchable::Latch> result;
     switch (action) {
     case ILatchable::Move:
-        result << ILatchable::Latch(ILatchable::Left, rect.left(), rect.top(), rect.bottom(), QStringLiteral("left"))
-               << ILatchable::Latch(ILatchable::Hcenter, rect.center().x(), rect.top(), rect.bottom(), QStringLiteral("center"))
-               << ILatchable::Latch(ILatchable::Right, rect.right(), rect.top(), rect.bottom(), QStringLiteral("right"));
+        result << ILatchable::Latch(ILatchable::Left, rect.left(), rect.top(), rect.bottom(), "left")
+               << ILatchable::Latch(ILatchable::Hcenter, rect.center().x(), rect.top(), rect.bottom(), "center")
+               << ILatchable::Latch(ILatchable::Right, rect.right(), rect.top(), rect.bottom(), "right");
         break;
     case ILatchable::ResizeLeft:
-        result << ILatchable::Latch(ILatchable::Left, rect.left(), rect.top(), rect.bottom(), QStringLiteral("left"));
+        result << ILatchable::Latch(ILatchable::Left, rect.left(), rect.top(), rect.bottom(), "left");
         break;
     case ILatchable::ResizeTop:
         QMT_CHECK(false);
         break;
     case ILatchable::ResizeRight:
-        result << ILatchable::Latch(ILatchable::Right, rect.right(), rect.top(), rect.bottom(), QStringLiteral("right"));
+        result << ILatchable::Latch(ILatchable::Right, rect.right(), rect.top(), rect.bottom(), "right");
         break;
     case ILatchable::ResizeBottom:
         QMT_CHECK(false);
@@ -307,21 +307,21 @@ QList<ILatchable::Latch> ObjectItem::verticalLatches(ILatchable::Action action, 
     QList<ILatchable::Latch> result;
     switch (action) {
     case ILatchable::Move:
-        result << ILatchable::Latch(ILatchable::Top, rect.top(), rect.left(), rect.right(), QStringLiteral("top"))
-               << ILatchable::Latch(ILatchable::Vcenter, rect.center().y(), rect.left(), rect.right(), QStringLiteral("center"))
-               << ILatchable::Latch(ILatchable::Bottom, rect.bottom(), rect.left(), rect.right(), QStringLiteral("bottom"));
+        result << ILatchable::Latch(ILatchable::Top, rect.top(), rect.left(), rect.right(), "top")
+               << ILatchable::Latch(ILatchable::Vcenter, rect.center().y(), rect.left(), rect.right(), "center")
+               << ILatchable::Latch(ILatchable::Bottom, rect.bottom(), rect.left(), rect.right(), "bottom");
         break;
     case ILatchable::ResizeLeft:
         QMT_CHECK(false);
         break;
     case ILatchable::ResizeTop:
-        result << ILatchable::Latch(ILatchable::Top, rect.top(), rect.left(), rect.right(), QStringLiteral("top"));
+        result << ILatchable::Latch(ILatchable::Top, rect.top(), rect.left(), rect.right(), "top");
         break;
     case ILatchable::ResizeRight:
         QMT_CHECK(false);
         break;
     case ILatchable::ResizeBottom:
-        result << ILatchable::Latch(ILatchable::Bottom, rect.bottom(), rect.left(), rect.right(), QStringLiteral("bottom"));
+        result << ILatchable::Latch(ILatchable::Bottom, rect.bottom(), rect.left(), rect.right(), "bottom");
         break;
     }
     return result;
@@ -400,49 +400,49 @@ void ObjectItem::align(IAlignable::AlignType alignType, const QString &identifie
     // but this implementation does not. So assert the names.
     switch (alignType) {
     case IAlignable::AlignLeft:
-        QMT_CHECK(identifier == QStringLiteral("left"));
+        QMT_CHECK(identifier == "left");
         m_diagramSceneModel->diagramSceneController()->alignLeft(m_object, m_diagramSceneModel->selectedElements(),
                                                                  m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignRight:
-        QMT_CHECK(identifier == QStringLiteral("right"));
+        QMT_CHECK(identifier == "right");
         m_diagramSceneModel->diagramSceneController()->alignRight(m_object, m_diagramSceneModel->selectedElements(),
                                                                   m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignTop:
-        QMT_CHECK(identifier == QStringLiteral("top"));
+        QMT_CHECK(identifier == "top");
         m_diagramSceneModel->diagramSceneController()->alignTop(m_object, m_diagramSceneModel->selectedElements(),
                                                                 m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignBottom:
-        QMT_CHECK(identifier == QStringLiteral("bottom"));
+        QMT_CHECK(identifier == "bottom");
         m_diagramSceneModel->diagramSceneController()->alignBottom(m_object, m_diagramSceneModel->selectedElements(),
                                                                    m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignHcenter:
-        QMT_CHECK(identifier == QStringLiteral("center"));
+        QMT_CHECK(identifier == "center");
         m_diagramSceneModel->diagramSceneController()->alignHCenter(m_object, m_diagramSceneModel->selectedElements(),
                                                                     m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignVcenter:
-        QMT_CHECK(identifier == QStringLiteral("center"));
+        QMT_CHECK(identifier == "center");
         m_diagramSceneModel->diagramSceneController()->alignVCenter(m_object, m_diagramSceneModel->selectedElements(),
                                                                     m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignWidth:
-        QMT_CHECK(identifier == QStringLiteral("width"));
+        QMT_CHECK(identifier == "width");
         m_diagramSceneModel->diagramSceneController()->alignWidth(m_object, m_diagramSceneModel->selectedElements(),
                                                                   minimumSize(m_diagramSceneModel->selectedItems()),
                                                                   m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignHeight:
-        QMT_CHECK(identifier == QStringLiteral("height"));
+        QMT_CHECK(identifier == "height");
         m_diagramSceneModel->diagramSceneController()->alignHeight(m_object, m_diagramSceneModel->selectedElements(),
                                                                    minimumSize(m_diagramSceneModel->selectedItems()),
                                                                    m_diagramSceneModel->diagram());
         break;
     case IAlignable::AlignSize:
-        QMT_CHECK(identifier == QStringLiteral("size"));
+        QMT_CHECK(identifier == "size");
         m_diagramSceneModel->diagramSceneController()->alignSize(m_object, m_diagramSceneModel->selectedElements(),
                                                                  minimumSize(m_diagramSceneModel->selectedItems()),
                                                                  m_diagramSceneModel->diagram());
@@ -943,10 +943,10 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
     bool addSeparator = false;
     if (element_tasks->hasDiagram(m_object, m_diagramSceneModel->diagram())) {
-        menu.addAction(new ContextMenuAction(tr("Open Diagram"), QStringLiteral("openDiagram"), &menu));
+        menu.addAction(new ContextMenuAction(tr("Open Diagram"), "openDiagram", &menu));
         addSeparator = true;
     } else if (element_tasks->mayCreateDiagram(m_object, m_diagramSceneModel->diagram())) {
-        menu.addAction(new ContextMenuAction(tr("Create Diagram"), QStringLiteral("createDiagram"), &menu));
+        menu.addAction(new ContextMenuAction(tr("Create Diagram"), "createDiagram", &menu));
         addSeparator = true;
     }
     if (extendContextMenu(&menu))
@@ -955,26 +955,26 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         addSeparator = true;
     if (addSeparator)
         menu.addSeparator();
-    menu.addAction(new ContextMenuAction(tr("Remove"), QStringLiteral("remove"),
+    menu.addAction(new ContextMenuAction(tr("Remove"), "remove",
                                          QKeySequence(QKeySequence::Delete), &menu));
-    menu.addAction(new ContextMenuAction(tr("Delete"), QStringLiteral("delete"),
+    menu.addAction(new ContextMenuAction(tr("Delete"), "delete",
                                          QKeySequence(Qt::CTRL + Qt::Key_D), &menu));
-    //menu.addAction(new ContextMenuAction(tr("Select in Model Tree"), QStringLiteral("selectInModelTree"), &menu));
+    //menu.addAction(new ContextMenuAction(tr("Select in Model Tree"), "selectInModelTree", &menu));
     QMenu alignMenu;
     alignMenu.setTitle(tr("Align Objects"));
-    alignMenu.addAction(new ContextMenuAction(tr("Align Left"), QStringLiteral("alignLeft"), &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Center Vertically"), QStringLiteral("centerVertically"),
+    alignMenu.addAction(new ContextMenuAction(tr("Align Left"), "alignLeft", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(tr("Center Vertically"), "centerVertically",
                                               &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Align Right"), QStringLiteral("alignRight"), &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(tr("Align Right"), "alignRight", &alignMenu));
     alignMenu.addSeparator();
-    alignMenu.addAction(new ContextMenuAction(tr("Align Top"), QStringLiteral("alignTop"), &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Center Horizontally"), QStringLiteral("centerHorizontally"),
+    alignMenu.addAction(new ContextMenuAction(tr("Align Top"), "alignTop", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(tr("Center Horizontally"), "centerHorizontally",
                                               &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Align Bottom"), QStringLiteral("alignBottom"), &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(tr("Align Bottom"), "alignBottom", &alignMenu));
     alignMenu.addSeparator();
-    alignMenu.addAction(new ContextMenuAction(tr("Same Width"), QStringLiteral("sameWidth"), &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Same Height"), QStringLiteral("sameHeight"), &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Same Size"), QStringLiteral("sameSize"), &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(tr("Same Width"), "sameWidth", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(tr("Same Height"), "sameHeight", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(tr("Same Size"), "sameSize", &alignMenu));
     alignMenu.setEnabled(m_diagramSceneModel->hasMultiObjectsSelection());
     menu.addMenu(&alignMenu);
 
@@ -985,40 +985,40 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         bool handled = handleSelectedContextMenuAction(action->id());
         handled |= element_tasks->handleContextMenuAction(object(), diagramSceneModel()->diagram(), action->id());
         if (!handled) {
-            if (action->id() == QStringLiteral("openDiagram")) {
+            if (action->id() == "openDiagram") {
                 m_diagramSceneModel->diagramSceneController()->elementTasks()->openDiagram(m_object, m_diagramSceneModel->diagram());
-            } else if (action->id() == QStringLiteral("createDiagram")) {
+            } else if (action->id() == "createDiagram") {
                 m_diagramSceneModel->diagramSceneController()->elementTasks()->createAndOpenDiagram(m_object, m_diagramSceneModel->diagram());
-            } else if (action->id() == QStringLiteral("remove")) {
+            } else if (action->id() == "remove") {
                 DSelection selection = m_diagramSceneModel->selectedElements();
                 if (selection.isEmpty())
                     selection.append(m_object->uid(), m_diagramSceneModel->diagram()->uid());
                 m_diagramSceneModel->diagramController()->deleteElements(selection, m_diagramSceneModel->diagram());
-            } else if (action->id() == QStringLiteral("delete")) {
+            } else if (action->id() == "delete") {
                 DSelection selection = m_diagramSceneModel->selectedElements();
                 if (selection.isEmpty())
                     selection.append(m_object->uid(), m_diagramSceneModel->diagram()->uid());
                 m_diagramSceneModel->diagramSceneController()->deleteFromDiagram(selection, m_diagramSceneModel->diagram());
-            } else if (action->id() == QStringLiteral("selectInModelTree")) {
+            } else if (action->id() == "selectInModelTree") {
                 // TODO implement
-            } else if (action->id() == QStringLiteral("alignLeft")) {
-                align(IAlignable::AlignLeft, QStringLiteral("left"));
-            } else if (action->id() == QStringLiteral("centerVertically")) {
-                align(IAlignable::AlignVcenter, QStringLiteral("center"));
-            } else if (action->id() == QStringLiteral("alignRight")) {
-                align(IAlignable::AlignRight, QStringLiteral("right"));
-            } else if (action->id() == QStringLiteral("alignTop")) {
-                align(IAlignable::AlignTop, QStringLiteral("top"));
-            } else if (action->id() == QStringLiteral("centerHorizontally")) {
-                align(IAlignable::AlignHcenter, QStringLiteral("center"));
-            } else if (action->id() == QStringLiteral("alignBottom")) {
-                align(IAlignable::AlignBottom, QStringLiteral("bottom"));
-            } else if (action->id() == QStringLiteral("sameWidth")) {
-                align(IAlignable::AlignWidth, QStringLiteral("width"));
-            } else if (action->id() == QStringLiteral("sameHeight")) {
-                align(IAlignable::AlignHeight, QStringLiteral("height"));
-            } else if (action->id() == QStringLiteral("sameSize")) {
-                align(IAlignable::AlignSize, QStringLiteral("size"));
+            } else if (action->id() == "alignLeft") {
+                align(IAlignable::AlignLeft, "left");
+            } else if (action->id() == "centerVertically") {
+                align(IAlignable::AlignVcenter, "center");
+            } else if (action->id() == "alignRight") {
+                align(IAlignable::AlignRight, "right");
+            } else if (action->id() == "alignTop") {
+                align(IAlignable::AlignTop, "top");
+            } else if (action->id() == "centerHorizontally") {
+                align(IAlignable::AlignHcenter, "center");
+            } else if (action->id() == "alignBottom") {
+                align(IAlignable::AlignBottom, "bottom");
+            } else if (action->id() == "sameWidth") {
+                align(IAlignable::AlignWidth, "width");
+            } else if (action->id() == "sameHeight") {
+                align(IAlignable::AlignHeight, "height");
+            } else if (action->id() == "sameSize") {
+                align(IAlignable::AlignSize, "size");
             }
         }
     }

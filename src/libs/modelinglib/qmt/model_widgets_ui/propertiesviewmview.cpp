@@ -509,7 +509,7 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
         layout->addWidget(m_classMembersParseButton);
         layout->setStretch(0, 1);
         layout->setStretch(1, 0);
-        addRow(QStringLiteral(""), layout, "members status");
+        addRow("", layout, "members status");
         connect(m_classMembersParseButton, &QAbstractButton::clicked,
                 this, &PropertiesView::MView::onParseClassMembers);
     }
@@ -655,7 +655,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
     QList<MAssociation *> selection = filter<MAssociation>(m_modelElements);
     bool isSingleSelection = selection.size() == 1;
     if (!m_endALabel) {
-        m_endALabel = new QLabel(QStringLiteral("<b>") + m_endAName + QStringLiteral("</b>"));
+        m_endALabel = new QLabel("<b>" + m_endAName + "</b>");
         addRow(m_endALabel, "end a");
     }
     if (!m_endAEndName) {
@@ -720,7 +720,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         m_endAKind->setEnabled(isSingleSelection);
 
     if (!m_endBLabel) {
-        m_endBLabel = new QLabel(QStringLiteral("<b>") + m_endBName + QStringLiteral("</b>"));
+        m_endBLabel = new QLabel("<b>" + m_endBName + "</b>");
         addRow(m_endBLabel, "end b");
     }
     if (!m_endBEndName) {
@@ -792,7 +792,7 @@ void PropertiesView::MView::visitMConnection(const MConnection *connection)
     QList<MConnection *> selection = filter<MConnection>(m_modelElements);
     const bool isSingleSelection = selection.size() == 1;
     if (!m_endALabel) {
-        m_endALabel = new QLabel(QStringLiteral("<b>") + m_endAName + QStringLiteral("</b>"));
+        m_endALabel = new QLabel("<b>" + m_endAName + "</b>");
         addRow(m_endALabel, "end a");
     }
     if (!m_endAEndName) {
@@ -839,7 +839,7 @@ void PropertiesView::MView::visitMConnection(const MConnection *connection)
         m_endANavigable->setEnabled(isSingleSelection);
 
     if (!m_endBLabel) {
-        m_endBLabel = new QLabel(QStringLiteral("<b>") + m_endBName + QStringLiteral("</b>"));
+        m_endBLabel = new QLabel("<b>" + m_endBName + "</b>");
         addRow(m_endBLabel, "end b");
     }
     if (!m_endBEndName) {
@@ -915,7 +915,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
         m_posRectLabel = new QLabel(m_topWidget);
         addRow(tr("Position and size:"), m_posRectLabel, "position and size");
     }
-    m_posRectLabel->setText(QString(QStringLiteral("(%1,%2):(%3,%4)-(%5,%6)"))
+    m_posRectLabel->setText(QString("(%1,%2):(%3,%4)-(%5,%6)")
                              .arg(object->pos().x())
                              .arg(object->pos().y())
                              .arg(object->rect().left())
@@ -1453,7 +1453,7 @@ void PropertiesView::MView::prepare()
         m_topLayout->addRow(m_classNameLabel);
         m_rowToId.append("title");
     }
-    QString title(QStringLiteral("<b>") + m_propertiesTitle + QStringLiteral("</b>"));
+    QString title("<b>" + m_propertiesTitle + "</b>");
     if (m_classNameLabel->text() != title)
         m_classNameLabel->setText(title);
 }
@@ -1632,7 +1632,7 @@ QString PropertiesView::MView::formatTemplateParameters(const QList<QString> &te
     bool first = true;
     foreach (const QString &parameter, templateParametersList) {
         if (!first)
-            templateParamters += QStringLiteral(", ");
+            templateParamters += ", ";
         templateParamters += parameter;
         first = false;
     }

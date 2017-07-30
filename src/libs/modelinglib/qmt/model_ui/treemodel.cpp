@@ -95,7 +95,7 @@ public:
     {
         QMT_CHECK(!m_item);
 
-        static QIcon icon(QStringLiteral(":/modelinglib/48x48/package.png"));
+        static QIcon icon(":/modelinglib/48x48/package.png");
         m_item = new ModelItem(icon, m_treeModel->createObjectLabel(package));
         m_item->setData(TreeModel::Package, TreeModel::RoleItemType);
         visitMObject(package);
@@ -106,7 +106,7 @@ public:
         QMT_CHECK(!m_item);
 
         QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementClass, StyleEngine::TypeClass, klass->stereotypes(),
-                                             QStringLiteral(":/modelinglib/48x48/class.png"));
+                                             ":/modelinglib/48x48/class.png");
         m_item = new ModelItem(icon, m_treeModel->createObjectLabel(klass));
         m_item->setData(TreeModel::Element, TreeModel::RoleItemType);
         m_item->setStereotypes(klass->stereotypes());
@@ -119,7 +119,7 @@ public:
 
         QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementComponent, StyleEngine::TypeComponent,
                                              component->stereotypes(),
-                                             QStringLiteral(":/modelinglib/48x48/component.png"));
+                                             ":/modelinglib/48x48/component.png");
         m_item = new ModelItem(icon, m_treeModel->createObjectLabel(component));
         m_item->setData(TreeModel::Element, TreeModel::RoleItemType);
         m_item->setStereotypes(component->stereotypes());
@@ -136,7 +136,7 @@ public:
     {
         QMT_CHECK(!m_item);
 
-        static QIcon icon(QStringLiteral(":/modelinglib/48x48/canvas-diagram.png"));
+        static QIcon icon(":/modelinglib/48x48/canvas-diagram.png");
         m_item = new ModelItem(icon, m_treeModel->createObjectLabel(diagram));
         visitMDiagram(diagram);
     }
@@ -147,7 +147,7 @@ public:
 
         QList<QString> stereotypes = item->stereotypes() << item->variety();
         QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementItem, StyleEngine::TypeItem, stereotypes,
-                                             QStringLiteral(":/modelinglib/48x48/item.png"));
+                                             ":/modelinglib/48x48/item.png");
         m_item = new ModelItem(icon, m_treeModel->createObjectLabel(item));
         m_item->setData(TreeModel::Element, TreeModel::RoleItemType);
         m_item->setStereotypes(stereotypes);
@@ -166,7 +166,7 @@ public:
     {
         QMT_CHECK(!m_item);
 
-        static QIcon icon(QStringLiteral(":/modelinglib/48x48/dependency.png"));
+        static QIcon icon(":/modelinglib/48x48/dependency.png");
         m_item = new ModelItem(icon, m_treeModel->createRelationLabel(dependency));
         visitMRelation(dependency);
     }
@@ -175,7 +175,7 @@ public:
     {
         QMT_CHECK(!m_item);
 
-        static QIcon icon(QStringLiteral(":/modelinglib/48x48/inheritance.png"));
+        static QIcon icon(":/modelinglib/48x48/inheritance.png");
         m_item = new ModelItem(icon, m_treeModel->createRelationLabel(inheritance));
         visitMRelation(inheritance);
     }
@@ -184,7 +184,7 @@ public:
     {
         QMT_CHECK(!m_item);
 
-        static QIcon icon(QStringLiteral(":/modelinglib/48x48/association.png"));
+        static QIcon icon(":/modelinglib/48x48/association.png");
         m_item = new ModelItem(icon, m_treeModel->createRelationLabel(association));
         visitMRelation(association);
     }
@@ -193,7 +193,7 @@ public:
     {
         QMT_CHECK(!m_item);
 
-        static QIcon icon(QStringLiteral(":modelinglib/48x48/connection.ong"));
+        static QIcon icon(":modelinglib/48x48/connection.ong");
         m_item = new ModelItem(icon, m_treeModel->createRelationLabel(connection));
         visitMRelation(connection);
     }
@@ -234,7 +234,7 @@ public:
     {
         if (klass->stereotypes() != m_item->stereotypes()) {
             QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementClass, StyleEngine::TypeClass,
-                                                 klass->stereotypes(), QStringLiteral(":/modelinglib/48x48/class.png"));
+                                                 klass->stereotypes(), ":/modelinglib/48x48/class.png");
             m_item->setIcon(icon);
             m_item->setStereotypes(klass->stereotypes());
         }
@@ -246,7 +246,7 @@ public:
         if (component->stereotypes() != m_item->stereotypes()) {
             QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementComponent, StyleEngine::TypeComponent,
                                                  component->stereotypes(),
-                                                 QStringLiteral(":/modelinglib/48x48/component.png"));
+                                                 ":/modelinglib/48x48/component.png");
             m_item->setIcon(icon);
             m_item->setStereotypes(component->stereotypes());
         }
@@ -268,7 +268,7 @@ public:
         QList<QString> stereotypes = item->stereotypes() << item->variety();
         if (stereotypes != m_item->stereotypes()) {
             QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementItem, StyleEngine::TypeItem, stereotypes,
-                                                 QStringLiteral(":/modelinglib/48x48/item.png"));
+                                                 ":/modelinglib/48x48/item.png");
             m_item->setIcon(icon);
             m_item->setStereotypes(stereotypes);
         }
@@ -793,14 +793,14 @@ QString TreeModel::createObjectLabel(const MObject *object)
     if (object->name().isEmpty()) {
         if (auto item = dynamic_cast<const MItem *>(object)) {
             if (!item->variety().isEmpty())
-                return QString(QStringLiteral("[%1]")).arg(item->variety());
+                return QString("[%1]").arg(item->variety());
         }
         return tr("[unnamed]");
     }
 
     if (auto klass = dynamic_cast<const MClass *>(object)) {
         if (!klass->umlNamespace().isEmpty())
-            return QString(QStringLiteral("%1 [%2]")).arg(klass->name()).arg(klass->umlNamespace());
+            return QString("%1 [%2]").arg(klass->name()).arg(klass->umlNamespace());
     }
     return object->name();
 }
@@ -810,11 +810,11 @@ QString TreeModel::createRelationLabel(const MRelation *relation)
     QString name;
     if (!relation->name().isEmpty()) {
         name += relation->name();
-        name += QStringLiteral(": ");
+        name += ": ";
     }
     if (MObject *endA = m_modelController->findObject(relation->endAUid()))
         name += createObjectLabel(endA);
-    name += QStringLiteral(" - ");
+    name += " - ";
     if (MObject *endB = m_modelController->findObject(relation->endBUid()))
         name += createObjectLabel(endB);
     return name;

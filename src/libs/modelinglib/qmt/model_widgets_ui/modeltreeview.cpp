@@ -140,10 +140,10 @@ void ModelTreeView::startDrag(Qt::DropActions supportedActions)
     }
 
     auto mimeData = new QMimeData;
-    mimeData->setData(QStringLiteral("text/model-elements"), dragData);
+    mimeData->setData("text/model-elements", dragData);
 
     if (dragIcon.isNull())
-        dragIcon = QIcon(QStringLiteral(":/modelinglib/48x48/generic.png"));
+        dragIcon = QIcon(":/modelinglib/48x48/generic.png");
 
     QPixmap pixmap(48, 48);
     pixmap = dragIcon.pixmap(48, 48);
@@ -197,7 +197,7 @@ void ModelTreeView::dropEvent(QDropEvent *event)
 {
     bool accept = false;
     event->setDropAction(Qt::MoveAction);
-    if (event->mimeData()->hasFormat(QStringLiteral("text/model-elements"))) {
+    if (event->mimeData()->hasFormat("text/model-elements")) {
         QModelIndex dropIndex = indexAt(event->pos());
         QModelIndex dropSourceModelIndex = m_sortedTreeModel->mapToSource(dropIndex);
         if (dropSourceModelIndex.isValid()) {
@@ -205,7 +205,7 @@ void ModelTreeView::dropEvent(QDropEvent *event)
             QMT_ASSERT(treeModel, return);
             MElement *targetModelElement = treeModel->element(dropSourceModelIndex);
             if (auto targetModelObject = dynamic_cast<MObject *>(targetModelElement)) {
-                QDataStream dataStream(event->mimeData()->data(QStringLiteral("text/model-elements")));
+                QDataStream dataStream(event->mimeData()->data("text/model-elements"));
                 while (dataStream.status() == QDataStream::Ok) {
                     QString key;
                     dataStream >> key;
@@ -252,28 +252,28 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
         QMenu menu;
         bool addSeparator = false;
         if (m_elementTasks->hasClassDefinition(melement)) {
-            menu.addAction(new ContextMenuAction(tr("Show Definition"), QStringLiteral("showDefinition"), &menu));
+            menu.addAction(new ContextMenuAction(tr("Show Definition"), "showDefinition", &menu));
             addSeparator = true;
         }
         if (m_elementTasks->hasDiagram(melement)) {
-            menu.addAction(new ContextMenuAction(tr("Open Diagram"), QStringLiteral("openDiagram"), &menu));
+            menu.addAction(new ContextMenuAction(tr("Open Diagram"), "openDiagram", &menu));
             addSeparator = true;
         }
         if (melement->owner()) {
             if (addSeparator)
                 menu.addSeparator();
-            menu.addAction(new ContextMenuAction(tr("Delete"), QStringLiteral("delete"),
+            menu.addAction(new ContextMenuAction(tr("Delete"), "delete",
                                                  QKeySequence(Qt::CTRL + Qt::Key_D), &menu));
         }
         QAction *selectedAction = menu.exec(event->globalPos());
         if (selectedAction) {
             auto action = dynamic_cast<ContextMenuAction *>(selectedAction);
             QMT_ASSERT(action, return);
-            if (action->id() == QStringLiteral("showDefinition")) {
+            if (action->id() == "showDefinition") {
                 m_elementTasks->openClassDefinition(melement);
-            } else if (action->id() == QStringLiteral("openDiagram")) {
+            } else if (action->id() == "openDiagram") {
                 m_elementTasks->openDiagram(melement);
-            } else if (action->id() == QStringLiteral("delete")) {
+            } else if (action->id() == "delete") {
                 MSelection selection;
                 selection.append(melement->uid(), melement->owner()->uid());
                 m_sortedTreeModel->treeModel()->modelController()->deleteElements(selection);

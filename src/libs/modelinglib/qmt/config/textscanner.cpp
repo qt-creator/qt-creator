@@ -129,7 +129,7 @@ Token TextScanner::read()
     else if (d->m_operatorFirstCharsSet.contains(sourceChar.ch))
         return scanOperator(sourceChar);
     else
-        throw TextScannerError(QStringLiteral("Unexpected character."), sourceChar.pos);
+        throw TextScannerError("Unexpected character.", sourceChar.pos);
 }
 
 void TextScanner::unread(const Token &token)
@@ -201,9 +201,9 @@ Token TextScanner::scanString(const SourceChar &delimiterChar)
             else if (sourceChar.ch == QLatin1Char('\''))
                 text += QLatin1Char('\'');
             else
-                throw TextScannerError(QStringLiteral("Unexpected character after '\\' in string constant."), sourceChar.pos);
+                throw TextScannerError("Unexpected character after '\\' in string constant.", sourceChar.pos);
         } else if (sourceChar.ch == QChar::LineFeed || sourceChar.ch == QChar::CarriageReturn) {
-            throw TextScannerError(QStringLiteral("Unexpected end of line in string constant."), sourceChar.pos);
+            throw TextScannerError("Unexpected end of line in string constant.", sourceChar.pos);
         } else {
             text += sourceChar.ch;
         }

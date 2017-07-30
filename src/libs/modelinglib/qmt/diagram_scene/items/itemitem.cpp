@@ -55,7 +55,7 @@ static const qreal BODY_VERT_BORDER = 4.0;
 static const qreal BODY_HORIZ_BORDER = 4.0;
 
 ItemItem::ItemItem(DItem *item, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
-    : ObjectItem(QStringLiteral("item"), item, diagramSceneModel, parent)
+    : ObjectItem("item", item, diagramSceneModel, parent)
 {
 }
 

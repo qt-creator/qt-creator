@@ -82,7 +82,7 @@ void TemplateParameterBox::updateText()
             if (m_breakLines)
                 templateText += QLatin1Char('\n');
             else
-                templateText += QStringLiteral(", ");
+                templateText += ", ";
         }
         templateText += parameter;
         first = false;

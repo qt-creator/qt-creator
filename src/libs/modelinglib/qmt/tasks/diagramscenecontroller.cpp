@@ -374,7 +374,6 @@ void DiagramSceneController::dropNewElement(const QString &newElementId, const Q
 {
     if (newElementId == QLatin1String(ELEMENT_TYPE_ANNOTATION)) {
         auto annotation = new DAnnotation();
-        annotation->setText(QStringLiteral(""));
         annotation->setPos(pos - QPointF(10.0, 10.0));
         m_diagramController->addElement(annotation, diagram);
         alignOnRaster(annotation, diagram);

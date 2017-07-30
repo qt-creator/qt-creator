@@ -71,7 +71,7 @@ public:
 };
 
 PackageItem::PackageItem(DPackage *package, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
-    : ObjectItem(QStringLiteral("package"), package, diagramSceneModel, parent)
+    : ObjectItem("package", package, diagramSceneModel, parent)
 {
 }
 

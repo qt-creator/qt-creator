@@ -73,7 +73,7 @@ static const qreal BODY_VERT_BORDER = 4.0;
 static const qreal BODY_HORIZ_BORDER = 4.0;
 
 ClassItem::ClassItem(DClass *klass, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
-    : ObjectItem(QStringLiteral("class"), klass, diagramSceneModel, parent)
+    : ObjectItem("class", klass, diagramSceneModel, parent)
 {
 }
 
@@ -336,7 +336,7 @@ bool ClassItem::extendContextMenu(QMenu *menu)
 {
     bool extended = false;
     if (diagramSceneModel()->diagramSceneController()->elementTasks()->hasClassDefinition(object(), diagramSceneModel()->diagram())) {
-        menu->addAction(new ContextMenuAction(tr("Show Definition"), QStringLiteral("showDefinition"), menu));
+        menu->addAction(new ContextMenuAction(tr("Show Definition"), "showDefinition", menu));
         extended = true;
     }
     return extended;
@@ -344,7 +344,7 @@ bool ClassItem::extendContextMenu(QMenu *menu)
 
 bool ClassItem::handleSelectedContextMenuAction(const QString &id)
 {
-    if (id == QStringLiteral("showDefinition")) {
+    if (id == "showDefinition") {
         diagramSceneModel()->diagramSceneController()->elementTasks()->openClassDefinition(object(), diagramSceneModel()->diagram());
         return true;
     }
@@ -675,19 +675,19 @@ void ClassItem::updateMembers(const Style *style)
         }
 
         if (text && !text->isEmpty())
-            *text += QStringLiteral("<br/>");
+            *text += "<br/>";
 
         bool addNewline = false;
         bool addSpace = false;
         if (currentVisibility)
             *currentVisibility = member.visibility();
         if (currentGroup && member.group() != *currentGroup) {
-            *text += QString(QStringLiteral("[%1]")).arg(member.group());
+            *text += QString("[%1]").arg(member.group());
             addNewline = true;
             *currentGroup = member.group();
         }
         if (addNewline)
-            *text += QStringLiteral("<br/>");
+            *text += "<br/>";
 
         bool haveSignal = false;
         bool haveSlot = false;
@@ -697,34 +697,34 @@ void ClassItem::updateMembers(const Style *style)
             case MClassMember::VisibilityUndefined:
                 break;
             case MClassMember::VisibilityPublic:
-                vis = QStringLiteral("+");
+                vis = "+";
                 addSpace = true;
                 break;
             case MClassMember::VisibilityProtected:
-                vis = QStringLiteral("#");
+                vis = "#";
                 addSpace = true;
                 break;
             case MClassMember::VisibilityPrivate:
-                vis = QStringLiteral("-");
+                vis = "-";
                 addSpace = true;
                 break;
             case MClassMember::VisibilitySignals:
-                vis = QStringLiteral("&gt;");
+                vis = "&gt;";
                 haveSignal = true;
                 addSpace = true;
                 break;
             case MClassMember::VisibilityPrivateSlots:
-                vis = QStringLiteral("-$");
+                vis = "-$";
                 haveSlot = true;
                 addSpace = true;
                 break;
             case MClassMember::VisibilityProtectedSlots:
-                vis = QStringLiteral("#$");
+                vis = "#$";
                 haveSlot = true;
                 addSpace = true;
                 break;
             case MClassMember::VisibilityPublicSlots:
-                vis = QStringLiteral("+$");
+                vis = "+$";
                 haveSlot = true;
                 addSpace = true;
                 break;
@@ -733,34 +733,34 @@ void ClassItem::updateMembers(const Style *style)
         }
 
         if (member.properties() & MClassMember::PropertyQsignal && !haveSignal) {
-            *text += QStringLiteral("&gt;");
+            *text += "&gt;";
             addSpace = true;
         }
         if (member.properties() & MClassMember::PropertyQslot && !haveSlot) {
-            *text += QStringLiteral("$");
+            *text += "$";
             addSpace = true;
         }
         if (addSpace)
-            *text += QStringLiteral(" ");
+            *text += " ";
         if (member.properties() & MClassMember::PropertyQinvokable)
-            *text += QStringLiteral("invokable ");
+            *text += "invokable ";
         if (!member.stereotypes().isEmpty()) {
             *text += StereotypesItem::format(member.stereotypes());
-            *text += QStringLiteral(" ");
+            *text += " ";
         }
         if (member.properties() & MClassMember::PropertyStatic)
-            *text += QStringLiteral("static ");
+            *text += "static ";
         if (member.properties() & MClassMember::PropertyVirtual)
-            *text += QStringLiteral("virtual ");
+            *text += "virtual ";
         *text += member.declaration().toHtmlEscaped();
         if (member.properties() & MClassMember::PropertyConst)
-            *text += QStringLiteral(" const");
+            *text += " const";
         if (member.properties() & MClassMember::PropertyOverride)
-            *text += QStringLiteral(" override");
+            *text += " override";
         if (member.properties() & MClassMember::PropertyFinal)
-            *text += QStringLiteral(" final");
+            *text += " final";
         if (member.properties() & MClassMember::PropertyAbstract)
-            *text += QStringLiteral(" = 0");
+            *text += " = 0";
     }
 }
 

@@ -73,7 +73,7 @@ QARK_BASIC_SAVELOAD(QString)
 template<class Archive>
 inline void save(Archive &archive, const QPointF &point, const Parameters &)
 {
-    archive.write(QString(QStringLiteral("x:%1;y:%2")).arg(point.x()).arg(point.y()));
+    archive.write(QString("x:%1;y:%2").arg(point.x()).arg(point.y()));
 }
 
 template<class Archive>
@@ -81,7 +81,7 @@ inline void load(Archive &archive, QPointF &point, const Parameters &)
 {
     QString s;
     archive.read(&s);
-    if (QStringParser(s).parse(QStringLiteral("x:%1;y:%2"))
+    if (QStringParser(s).parse("x:%1;y:%2")
             .arg(point, &QPointF::setX).arg(point, &QPointF::setY).failed()) {
         throw typename Archive::FileFormatException();
     }
@@ -92,7 +92,7 @@ inline void load(Archive &archive, QPointF &point, const Parameters &)
 template<class Archive>
 inline void save(Archive &archive, const QRectF &rect, const Parameters &)
 {
-    archive.write(QString(QStringLiteral("x:%1;y:%2;w:%3;h:%4"))
+    archive.write(QString("x:%1;y:%2;w:%3;h:%4")
                   .arg(rect.x()).arg(rect.y()).arg(rect.width()).arg(rect.height()));
 }
 
@@ -101,7 +101,7 @@ inline void load(Archive &archive, QRectF &point, const Parameters &)
 {
     QString s;
     archive.read(&s);
-    if (QStringParser(s).parse(QStringLiteral("x:%1;y:%2;w:%3;h:%4"))
+    if (QStringParser(s).parse("x:%1;y:%2;w:%3;h:%4")
             .arg(point, &QRectF::setX).arg(point, &QRectF::setY)
             .arg(point, &QRectF::setWidth).arg(point, &QRectF::setHeight).failed()) {
         throw typename Archive::FileFormatException();
