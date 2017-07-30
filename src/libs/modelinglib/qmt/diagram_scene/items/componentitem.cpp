@@ -87,7 +87,7 @@ void ComponentItem::update()
     } else if (m_customIcon) {
         m_customIcon->scene()->removeItem(m_customIcon);
         delete m_customIcon;
-        m_customIcon = 0;
+        m_customIcon = nullptr;
     }
 
     // shape
@@ -117,19 +117,19 @@ void ComponentItem::update()
         if (m_shape) {
             m_shape->scene()->removeItem(m_shape);
             delete m_shape;
-            m_shape = 0;
+            m_shape = nullptr;
         }
     }
     if (deleteRects) {
         if (m_lowerRect) {
             m_lowerRect->scene()->removeItem(m_lowerRect);
             delete m_lowerRect;
-            m_lowerRect = 0;
+            m_lowerRect = nullptr;
         }
         if (m_upperRect) {
             m_upperRect->scene()->removeItem(m_upperRect);
             delete m_upperRect;
-            m_upperRect = 0;
+            m_upperRect = nullptr;
         }
     }
 
@@ -149,7 +149,7 @@ void ComponentItem::update()
     } else if (m_contextLabel) {
         m_contextLabel->scene()->removeItem(m_contextLabel);
         delete m_contextLabel;
-        m_contextLabel = 0;
+        m_contextLabel = nullptr;
     }
 
     updateSelectionMarker(m_customIcon);

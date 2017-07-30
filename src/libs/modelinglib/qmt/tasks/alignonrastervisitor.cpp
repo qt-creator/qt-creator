@@ -49,9 +49,9 @@
 namespace qmt {
 
 AlignOnRasterVisitor::AlignOnRasterVisitor()
-    : m_diagramController(0),
-      m_sceneInspector(0),
-      m_diagram(0)
+    : m_diagramController(nullptr),
+      m_sceneInspector(nullptr),
+      m_diagram(nullptr)
 {
 }
 

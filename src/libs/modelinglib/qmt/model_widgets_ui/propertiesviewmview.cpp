@@ -285,50 +285,50 @@ static DAnnotation::VisualRole translateIndexToAnnotationVisualRole(int index)
 
 PropertiesView::MView::MView(PropertiesView *propertiesView)
     : m_propertiesView(propertiesView),
-      m_diagram(0),
+      m_diagram(nullptr),
       m_stereotypesController(new StereotypesController(this)),
-      m_topWidget(0),
-      m_topLayout(0),
+      m_topWidget(nullptr),
+      m_topLayout(nullptr),
       m_stereotypeElement(StereotypeIcon::ElementAny),
-      m_classNameLabel(0),
-      m_stereotypeComboBox(0),
-      m_reverseEngineeredLabel(0),
-      m_elementNameLineEdit(0),
-      m_childrenLabel(0),
-      m_relationsLabel(0),
-      m_namespaceLineEdit(0),
-      m_templateParametersLineEdit(0),
-      m_classMembersStatusLabel(0),
-      m_classMembersParseButton(0),
-      m_classMembersEdit(0),
-      m_diagramsLabel(0),
-      m_itemVarietyEdit(0),
-      m_endALabel(0),
-      m_endBLabel(0),
-      m_directionSelector(0),
-      m_endAEndName(0),
-      m_endACardinality(0),
-      m_endANavigable(0),
-      m_endAKind(0),
-      m_endBEndName(0),
-      m_endBCardinality(0),
-      m_endBNavigable(0),
-      m_endBKind(0),
-      m_separatorLine(0),
+      m_classNameLabel(nullptr),
+      m_stereotypeComboBox(nullptr),
+      m_reverseEngineeredLabel(nullptr),
+      m_elementNameLineEdit(nullptr),
+      m_childrenLabel(nullptr),
+      m_relationsLabel(nullptr),
+      m_namespaceLineEdit(nullptr),
+      m_templateParametersLineEdit(nullptr),
+      m_classMembersStatusLabel(nullptr),
+      m_classMembersParseButton(nullptr),
+      m_classMembersEdit(nullptr),
+      m_diagramsLabel(nullptr),
+      m_itemVarietyEdit(nullptr),
+      m_endALabel(nullptr),
+      m_endBLabel(nullptr),
+      m_directionSelector(nullptr),
+      m_endAEndName(nullptr),
+      m_endACardinality(nullptr),
+      m_endANavigable(nullptr),
+      m_endAKind(nullptr),
+      m_endBEndName(nullptr),
+      m_endBCardinality(nullptr),
+      m_endBNavigable(nullptr),
+      m_endBKind(nullptr),
+      m_separatorLine(nullptr),
       m_styleElementType(StyleEngine::TypeOther),
-      m_posRectLabel(0),
-      m_autoSizedCheckbox(0),
-      m_visualPrimaryRoleSelector(0),
-      m_visualSecondaryRoleSelector(0),
-      m_visualEmphasizedCheckbox(0),
-      m_stereotypeDisplaySelector(0),
-      m_depthLabel(0),
-      m_templateDisplaySelector(0),
-      m_showAllMembersCheckbox(0),
-      m_plainShapeCheckbox(0),
-      m_itemShapeEdit(0),
-      m_annotationAutoWidthCheckbox(0),
-      m_annotationVisualRoleSelector(0)
+      m_posRectLabel(nullptr),
+      m_autoSizedCheckbox(nullptr),
+      m_visualPrimaryRoleSelector(nullptr),
+      m_visualSecondaryRoleSelector(nullptr),
+      m_visualEmphasizedCheckbox(nullptr),
+      m_stereotypeDisplaySelector(nullptr),
+      m_depthLabel(nullptr),
+      m_templateDisplaySelector(nullptr),
+      m_showAllMembersCheckbox(nullptr),
+      m_plainShapeCheckbox(nullptr),
+      m_itemShapeEdit(nullptr),
+      m_annotationAutoWidthCheckbox(nullptr),
+      m_annotationVisualRoleSelector(nullptr)
 {
 }
 
@@ -342,7 +342,7 @@ void PropertiesView::MView::update(QList<MElement *> &modelElements)
 
     m_modelElements = modelElements;
     m_diagramElements.clear();
-    m_diagram = 0;
+    m_diagram = nullptr;
     modelElements.at(0)->accept(this);
 }
 
@@ -365,7 +365,7 @@ void PropertiesView::MView::update(QList<DElement *> &diagramElements, MDiagram 
         }
         if (!appendedMelement) {
             // ensure that indices within m_diagramElements match indices into m_modelElements
-            m_modelElements.append(0);
+            m_modelElements.append(nullptr);
         }
     }
     diagramElements.at(0)->accept(this);

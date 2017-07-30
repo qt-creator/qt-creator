@@ -49,7 +49,7 @@ class ClassItem : public ObjectItem
     Q_DECLARE_TR_FUNCTIONS(qmt::ClassItem)
 
 public:
-    ClassItem(DClass *klass, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
+    ClassItem(DClass *klass, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = nullptr);
     ~ClassItem() override;
 
     void update() override;
@@ -77,17 +77,17 @@ private:
     void updateGeometry();
     void updateMembers(const Style *style);
 
-    CustomIconItem *m_customIcon = 0;
-    QGraphicsRectItem *m_shape = 0;
-    QGraphicsSimpleTextItem *m_namespace = 0;
-    ContextLabelItem *m_contextLabel = 0;
-    QGraphicsLineItem *m_attributesSeparator = 0;
+    CustomIconItem *m_customIcon = nullptr;
+    QGraphicsRectItem *m_shape = nullptr;
+    QGraphicsSimpleTextItem *m_namespace = nullptr;
+    ContextLabelItem *m_contextLabel = nullptr;
+    QGraphicsLineItem *m_attributesSeparator = nullptr;
     QString m_attributesText;
-    QGraphicsTextItem *m_attributes = 0;
-    QGraphicsLineItem *m_methodsSeparator = 0;
+    QGraphicsTextItem *m_attributes = nullptr;
+    QGraphicsLineItem *m_methodsSeparator = nullptr;
     QString m_methodsText;
-    QGraphicsTextItem *m_methods = 0;
-    TemplateParameterBox *m_templateParameterBox = 0;
+    QGraphicsTextItem *m_methods = nullptr;
+    TemplateParameterBox *m_templateParameterBox = nullptr;
 };
 
 } // namespace qmt

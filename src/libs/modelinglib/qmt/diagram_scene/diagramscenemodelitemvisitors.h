@@ -63,7 +63,7 @@ class QMT_EXPORT DiagramSceneModel::UpdateVisitor : public DVisitor
 {
 public:
     UpdateVisitor(QGraphicsItem *item, DiagramSceneModel *diagramSceneModel,
-                  DElement *relatedElement = 0);
+                  DElement *relatedElement = nullptr);
 
     void visitDElement(DElement *element) override;
     void visitDObject(DObject *object) override;

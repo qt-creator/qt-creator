@@ -45,7 +45,7 @@ class PackageItem : public ObjectItem
     class ShapeGeometry;
 
 public:
-    PackageItem(DPackage *package, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
+    PackageItem(DPackage *package, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = nullptr);
     ~PackageItem() override;
 
     void update() override;
@@ -62,9 +62,9 @@ private:
     ShapeGeometry calcMinimumGeometry() const;
     void updateGeometry();
 
-    CustomIconItem *m_customIcon = 0;
-    QGraphicsPolygonItem *m_shape = 0;
-    ContextLabelItem *m_contextLabel = 0;
+    CustomIconItem *m_customIcon = nullptr;
+    QGraphicsPolygonItem *m_shape = nullptr;
+    ContextLabelItem *m_contextLabel = nullptr;
 };
 
 } // namespace qmt

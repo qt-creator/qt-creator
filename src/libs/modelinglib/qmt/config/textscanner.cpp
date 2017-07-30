@@ -57,7 +57,7 @@ public:
     int m_maxOperatorLength = 0;
     QSet<QChar> m_operatorFirstCharsSet;
     QSet<QChar> m_operatorCharsSet;
-    ITextSource *m_source = 0;
+    ITextSource *m_source = nullptr;
     QStack<SourceChar> m_unreadSourceChars;
     SourcePos m_lastSourcePos;
     QStack<Token> m_unreadTokens;

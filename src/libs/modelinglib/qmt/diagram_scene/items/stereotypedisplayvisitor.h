@@ -56,8 +56,8 @@ public:
     void visitDItem(const DItem *item) override;
 
 private:
-    ModelController *m_modelController = 0;
-    StereotypeController *m_stereotypeController = 0;
+    ModelController *m_modelController = nullptr;
+    StereotypeController *m_stereotypeController = nullptr;
     DObject::StereotypeDisplay m_stereotypeDisplay = DObject::StereotypeNone;
     QString m_stereotypeIconId;
     QString m_shapeIconId;

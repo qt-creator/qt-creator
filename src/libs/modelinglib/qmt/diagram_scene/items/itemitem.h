@@ -44,7 +44,7 @@ class RelationStarter;
 class ItemItem : public ObjectItem
 {
 public:
-    ItemItem(DItem *item, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
+    ItemItem(DItem *item, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = nullptr);
     ~ItemItem() override;
 
     void update() override;
@@ -61,9 +61,9 @@ private:
     QSizeF calcMinimumGeometry() const;
     void updateGeometry();
 
-    CustomIconItem *m_customIcon = 0;
-    QGraphicsRectItem *m_shape = 0;
-    ContextLabelItem *m_contextLabel = 0;
+    CustomIconItem *m_customIcon = nullptr;
+    QGraphicsRectItem *m_shape = nullptr;
+    ContextLabelItem *m_contextLabel = nullptr;
 };
 
 } // namespace qmt

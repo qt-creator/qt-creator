@@ -41,7 +41,7 @@ class QMT_EXPORT ModelTreeView : public QTreeView, public ModelTreeViewInterface
     Q_OBJECT
 
 public:
-    explicit ModelTreeView(QWidget *parent = 0);
+    explicit ModelTreeView(QWidget *parent = nullptr);
     ~ModelTreeView() override;
 
 signals:

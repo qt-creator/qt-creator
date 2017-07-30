@@ -275,7 +275,7 @@ void AnnotationItem::updateSelectionMarker()
         if (m_selectionMarker->scene())
             m_selectionMarker->scene()->removeItem(m_selectionMarker);
         delete m_selectionMarker;
-        m_selectionMarker = 0;
+        m_selectionMarker = nullptr;
     }
 }
 

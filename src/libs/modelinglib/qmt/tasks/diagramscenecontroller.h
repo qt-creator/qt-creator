@@ -68,7 +68,7 @@ class QMT_EXPORT DiagramSceneController : public QObject
     };
 
 public:
-    explicit DiagramSceneController(QObject *parent = 0);
+    explicit DiagramSceneController(QObject *parent = nullptr);
     ~DiagramSceneController() override;
 
 signals:
@@ -95,10 +95,10 @@ public:
                            const QList<QPointF> &intermediatePoints, MDiagram *diagram);
     void createAssociation(DClass *endAClass, DClass *endBClass,
                            const QList<QPointF> &intermediatePoints, MDiagram *diagram,
-                           std::function<void (MAssociation*, DAssociation*)> custom = 0);
+                           std::function<void (MAssociation*, DAssociation*)> custom = nullptr);
     void createConnection(const QString &customRelationId, DObject *endAObject, DObject *endBObject,
                           const QList<QPointF> &intermediatePoints, MDiagram *diagram,
-                          std::function<void (MConnection*, DConnection*)> custom = 0);
+                          std::function<void (MConnection*, DConnection*)> custom = nullptr);
     bool relocateRelationEndA(DRelation *relation, DObject *targetObject);
     bool relocateRelationEndB(DRelation *relation, DObject *targetObject);
 

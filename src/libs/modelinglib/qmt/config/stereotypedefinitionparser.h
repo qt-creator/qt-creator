@@ -74,7 +74,7 @@ class QMT_EXPORT StereotypeDefinitionParser : public QObject
     };
 
 public:
-    explicit StereotypeDefinitionParser(QObject *parent = 0);
+    explicit StereotypeDefinitionParser(QObject *parent = nullptr);
     ~StereotypeDefinitionParser() override;
 
 signals:

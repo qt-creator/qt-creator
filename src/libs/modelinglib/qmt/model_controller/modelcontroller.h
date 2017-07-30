@@ -61,7 +61,7 @@ class QMT_EXPORT ModelController : public QObject
     class MoveRelationCommand;
 
 public:
-    explicit ModelController(QObject *parent = 0);
+    explicit ModelController(QObject *parent = nullptr);
     ~ModelController() override;
 
 signals:

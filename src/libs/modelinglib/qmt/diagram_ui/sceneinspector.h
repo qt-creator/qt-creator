@@ -36,7 +36,7 @@ class DiagramsManager;
 class QMT_EXPORT SceneInspector : public QObject, public ISceneInspector
 {
 public:
-    explicit SceneInspector(QObject *parent = 0);
+    explicit SceneInspector(QObject *parent = nullptr);
     ~SceneInspector() override;
 
     void setDiagramsManager(DiagramsManager *diagramsManager);

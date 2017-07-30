@@ -98,7 +98,7 @@ void PackageItem::update()
     } else if (m_customIcon) {
         m_customIcon->scene()->removeItem(m_customIcon);
         delete m_customIcon;
-        m_customIcon = 0;
+        m_customIcon = nullptr;
     }
 
     // shape
@@ -111,7 +111,7 @@ void PackageItem::update()
     } else if (m_shape) {
         m_shape->scene()->removeItem(m_shape);
         delete m_shape;
-        m_shape = 0;
+        m_shape = nullptr;
     }
 
     // stereotypes
@@ -130,7 +130,7 @@ void PackageItem::update()
     } else if (m_contextLabel) {
         m_contextLabel->scene()->removeItem(m_contextLabel);
         delete m_contextLabel;
-        m_contextLabel = 0;
+        m_contextLabel = nullptr;
     }
 
     updateSelectionMarker(m_customIcon);

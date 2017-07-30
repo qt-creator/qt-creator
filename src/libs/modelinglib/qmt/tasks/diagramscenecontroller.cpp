@@ -144,8 +144,8 @@ void DiagramSceneController::setModelController(ModelController *modelController
     if (m_modelController == modelController)
         return;
     if (m_modelController) {
-        disconnect(m_modelController, 0, this, 0);
-        m_modelController = 0;
+        disconnect(m_modelController, nullptr, this, nullptr);
+        m_modelController = nullptr;
     }
     if (modelController)
         m_modelController = modelController;
@@ -156,8 +156,8 @@ void DiagramSceneController::setDiagramController(DiagramController *diagramCont
     if (m_diagramController == diagramController)
         return;
     if (m_diagramController) {
-        disconnect(m_diagramController, 0, this, 0);
-        m_diagramController = 0;
+        disconnect(m_diagramController, nullptr, this, nullptr);
+        m_diagramController = nullptr;
     }
     if (diagramController)
         m_diagramController = diagramController;
@@ -396,7 +396,7 @@ void DiagramSceneController::dropNewElement(const QString &newElementId, const Q
         emit newElementCreated(swimlane, diagram);
     } else {
         MPackage *parentPackage = findSuitableParentPackage(topMostElementAtPos, diagram);
-        MObject *newObject = 0;
+        MObject *newObject = nullptr;
         QString newName;
         if (newElementId == QLatin1String(ELEMENT_TYPE_PACKAGE)) {
             auto package = new MPackage();
@@ -447,7 +447,7 @@ void DiagramSceneController::dropNewModelElement(MObject *modelObject, MPackage 
 
 MPackage *DiagramSceneController::findSuitableParentPackage(DElement *topmostDiagramElement, MDiagram *diagram)
 {
-    MPackage *parentPackage = 0;
+    MPackage *parentPackage = nullptr;
     if (auto diagramPackage = dynamic_cast<DPackage *>(topmostDiagramElement)) {
         parentPackage = m_modelController->findObject<MPackage>(diagramPackage->modelUid());
     } else if (auto diagramObject = dynamic_cast<DObject *>(topmostDiagramElement)) {
@@ -455,9 +455,9 @@ MPackage *DiagramSceneController::findSuitableParentPackage(DElement *topmostDia
         if (modelObject)
             parentPackage = dynamic_cast<MPackage *>(modelObject->owner());
     }
-    if (parentPackage == 0 && diagram != 0)
+    if (!parentPackage && diagram)
         parentPackage = dynamic_cast<MPackage *>(diagram->owner());
-    if (parentPackage == 0)
+    if (!parentPackage)
         parentPackage = m_modelController->rootPackage();
     return parentPackage;
 }
@@ -473,7 +473,7 @@ MDiagram *DiagramSceneController::findDiagramBySearchId(MPackage *package, const
             }
         }
     }
-    return 0;
+    return nullptr;
 }
 
 namespace {
@@ -671,7 +671,7 @@ void DiagramSceneController::alignOnRaster(DElement *element, MDiagram *diagram)
 
 DElement *DiagramSceneController::addModelElement(const Uid &modelElementKey, const QPointF &pos, MDiagram *diagram)
 {
-    DElement *element = 0;
+    DElement *element = nullptr;
     if (MObject *modelObject = m_modelController->findObject(modelElementKey)) {
         element = addObject(modelObject, pos, diagram);
     } else if (MRelation *modelRelation = m_modelController->findRelation(modelElementKey)) {
@@ -687,7 +687,7 @@ DObject *DiagramSceneController::addObject(MObject *modelObject, const QPointF &
     QMT_ASSERT(modelObject, return nullptr);
 
     if (m_diagramController->hasDelegate(modelObject, diagram))
-        return 0;
+        return nullptr;
 
     m_diagramController->undoController()->beginMergeSequence(tr("Add Element"));
 
@@ -749,7 +749,7 @@ DRelation *DiagramSceneController::addRelation(MRelation *modelRelation, const Q
     QMT_ASSERT(modelRelation, return nullptr);
 
     if (m_diagramController->hasDelegate(modelRelation, diagram))
-        return 0;
+        return nullptr;
 
     DFactory factory;
     modelRelation->accept(&factory);

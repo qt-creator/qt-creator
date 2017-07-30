@@ -38,7 +38,7 @@ class QMT_EXPORT NameController : public QObject
     Q_OBJECT
 
 private:
-    explicit NameController(QObject *parent = 0);
+    explicit NameController(QObject *parent = nullptr);
     ~NameController() override;
 
 public:

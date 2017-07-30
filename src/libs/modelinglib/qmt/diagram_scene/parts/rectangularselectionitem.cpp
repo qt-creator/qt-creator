@@ -86,7 +86,7 @@ protected:
     }
 
 private:
-    RectangularSelectionItem *m_owner = 0;
+    RectangularSelectionItem *m_owner = nullptr;
     RectangularSelectionItem::Handle m_handle = RectangularSelectionItem::HandleNone;
     bool m_isSecondarySelected = false;
     QPointF m_startPos;
@@ -220,7 +220,7 @@ void RectangularSelectionItem::update()
         if (m_borderItem->scene())
             m_borderItem->scene()->removeItem(m_borderItem);
         delete m_borderItem;
-        m_borderItem = 0;
+        m_borderItem = nullptr;
     }
 }
 

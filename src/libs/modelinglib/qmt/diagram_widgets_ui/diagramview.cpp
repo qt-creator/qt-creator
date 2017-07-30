@@ -60,7 +60,7 @@ DiagramSceneModel *DiagramView::diagramSceneModel() const
 
 void DiagramView::setDiagramSceneModel(DiagramSceneModel *diagramSceneModel)
 {
-    setScene(0);
+    setScene(nullptr);
     m_diagramSceneModel = diagramSceneModel;
     if (diagramSceneModel) {
         setScene(m_diagramSceneModel->graphicsScene());

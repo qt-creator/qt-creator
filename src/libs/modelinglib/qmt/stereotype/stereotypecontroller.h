@@ -43,7 +43,7 @@ class QMT_EXPORT StereotypeController : public QObject
     class StereotypeControllerPrivate;
 
 public:
-    explicit StereotypeController(QObject *parent = 0);
+    explicit StereotypeController(QObject *parent = nullptr);
     ~StereotypeController() override;
 
     QList<StereotypeIcon> stereotypeIcons() const;

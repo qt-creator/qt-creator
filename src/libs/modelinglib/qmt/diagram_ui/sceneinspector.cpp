@@ -86,7 +86,7 @@ IMoveable *SceneInspector::moveable(const DElement *element, const MDiagram *dia
         }
     }
     QMT_CHECK(false);
-    return 0;
+    return nullptr;
 }
 
 IResizable *SceneInspector::resizable(const DElement *element, const MDiagram *diagram) const
@@ -102,7 +102,7 @@ IResizable *SceneInspector::resizable(const DElement *element, const MDiagram *d
         }
     }
     QMT_CHECK(false);
-    return 0;
+    return nullptr;
 }
 
 } // namespace qmt

@@ -46,7 +46,7 @@ class QMT_EXPORT DiagramsView : public QTabWidget, public DiagramsViewInterface
     Q_OBJECT
 
 public:
-    explicit DiagramsView(QWidget *parent = 0);
+    explicit DiagramsView(QWidget *parent = nullptr);
     ~DiagramsView() override;
 
 signals:

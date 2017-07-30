@@ -85,8 +85,8 @@ public:
 private:
     IAlignable::AlignType m_alignType = IAlignable::AlignLeft;
     QString m_identifier;
-    IAlignable *m_alignable = 0;
-    QGraphicsPixmapItem *m_pixmapItem = 0;
+    IAlignable *m_alignable = nullptr;
+    QGraphicsPixmapItem *m_pixmapItem = nullptr;
 };
 
 AlignButtonsItem::AlignButtonsItem(IAlignable *alignable, QGraphicsItem *parent)

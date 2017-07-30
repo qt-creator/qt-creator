@@ -70,7 +70,7 @@ bool TreeModelManager::isRootPackageSelected() const
 
 MObject *TreeModelManager::selectedObject() const
 {
-    MObject *object = 0;
+    MObject *object = nullptr;
     if (m_modelTreeView->currentSourceModelIndex().isValid()) {
         MElement *element = m_treeModel->element(m_modelTreeView->currentSourceModelIndex());
         if (element)

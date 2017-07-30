@@ -54,7 +54,7 @@
 namespace qmt {
 
 DFactory::DFactory()
-    : m_product(0)
+    : m_product(nullptr)
 {
 }
 

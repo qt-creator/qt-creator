@@ -56,7 +56,7 @@ class QMT_EXPORT DocumentController : public QObject
 {
     Q_OBJECT
 public:
-    explicit DocumentController(QObject *parent = 0);
+    explicit DocumentController(QObject *parent = nullptr);
     ~DocumentController() override;
 
 signals:

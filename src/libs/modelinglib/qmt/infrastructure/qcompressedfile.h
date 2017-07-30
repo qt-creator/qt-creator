@@ -35,8 +35,8 @@ class QCompressedDevice : public QIODevice
     Q_OBJECT
 
 public:
-    explicit QCompressedDevice(QObject *parent = 0);
-    explicit QCompressedDevice(QIODevice *targetDevice, QObject *parent = 0);
+    explicit QCompressedDevice(QObject *parent = nullptr);
+    explicit QCompressedDevice(QIODevice *targetDevice, QObject *parent = nullptr);
     ~QCompressedDevice() override;
 
     QIODevice *targetDevice() const { return m_targetDevice; }
@@ -52,7 +52,7 @@ public:
     qint64 flush();
 
 private:
-    QIODevice *m_targetDevice = 0;
+    QIODevice *m_targetDevice = nullptr;
     QByteArray m_buffer;
     qint64 m_bytesInBuffer = 0;
     qint64 m_indexInBuffer = 0;

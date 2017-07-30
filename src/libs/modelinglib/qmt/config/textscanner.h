@@ -55,7 +55,7 @@ class QMT_EXPORT TextScanner : public QObject
     class TextScannerPrivate;
 
 public:
-    explicit TextScanner(QObject *parent = 0);
+    explicit TextScanner(QObject *parent = nullptr);
     ~TextScanner() override;
 
     void setKeywords(const QList<QPair<QString, int> > &keywords);

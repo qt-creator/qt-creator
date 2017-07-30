@@ -47,7 +47,7 @@ public:
     }
 
 private:
-    StyleController *m_styleController = 0;
+    StyleController *m_styleController = nullptr;
 };
 
 StyleController::StyleController(QObject *parent)

@@ -71,7 +71,7 @@ DElement *MDiagram::findDiagramElement(const Uid &key) const
         if (element->uid() == key)
             return element;
     }
-    return 0;
+    return nullptr;
 }
 
 void MDiagram::setDiagramElements(const QList<DElement *> &elements)

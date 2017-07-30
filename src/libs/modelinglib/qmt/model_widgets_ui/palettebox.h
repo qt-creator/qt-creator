@@ -38,7 +38,7 @@ class QMT_EXPORT PaletteBox : public QWidget
     Q_OBJECT
 
 public:
-    explicit PaletteBox(QWidget *parent = 0);
+    explicit PaletteBox(QWidget *parent = nullptr);
     ~PaletteBox() override;
 
 signals:

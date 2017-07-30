@@ -38,7 +38,7 @@ class QMT_EXPORT StereotypesController : public QObject
     Q_OBJECT
 
 public:
-    explicit StereotypesController(QObject *parent = 0);
+    explicit StereotypesController(QObject *parent = nullptr);
 
 signals:
     void parseError(const QString &stereotypes);

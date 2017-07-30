@@ -199,8 +199,8 @@ public:
     }
 
 private:
-    TreeModel *m_treeModel = 0;
-    TreeModel::ModelItem *m_item = 0;
+    TreeModel *m_treeModel = nullptr;
+    TreeModel::ModelItem *m_item = nullptr;
 };
 
 class TreeModel::ItemUpdater : public MConstVisitor
@@ -304,8 +304,8 @@ private:
     void updateObjectLabel(const MObject *object);
     void updateRelationLabel(const MRelation *relation);
 
-    TreeModel *m_treeModel = 0;
-    TreeModel::ModelItem *m_item = 0;
+    TreeModel *m_treeModel = nullptr;
+    TreeModel::ModelItem *m_item = nullptr;
 };
 
 void TreeModel::ItemUpdater::updateObjectLabel(const MObject *object)
@@ -339,7 +339,7 @@ void TreeModel::setModelController(ModelController *modelController)
 {
     if (m_modelController != modelController) {
         if (m_modelController)
-            disconnect(m_modelController, 0, this, 0);
+            disconnect(m_modelController, nullptr, this, nullptr);
         m_modelController = modelController;
         if (m_modelController) {
             connect(m_modelController, &ModelController::beginResetModel,
@@ -401,7 +401,7 @@ MElement *TreeModel::element(const QModelIndex &index) const
 {
     QMT_CHECK(index.isValid());
 
-    MElement *element = 0;
+    MElement *element = nullptr;
     QStandardItem *item = itemFromIndex(index);
     if (item) {
         if (item->parent()) {
@@ -736,7 +736,7 @@ void TreeModel::onModelDataChanged(const QModelIndex &topleft, const QModelIndex
 void TreeModel::clear()
 {
     QStandardItemModel::clear();
-    m_rootItem = 0;
+    m_rootItem = nullptr;
     m_objectToItemMap.clear();
     m_itemToObjectMap.clear();
 }

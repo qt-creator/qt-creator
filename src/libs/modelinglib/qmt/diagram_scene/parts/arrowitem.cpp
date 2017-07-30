@@ -192,7 +192,7 @@ public:
         } else if (m_arrowItem) {
             m_arrowItem->scene()->removeItem(m_arrowItem);
             delete m_arrowItem;
-            m_arrowItem = 0;
+            m_arrowItem = nullptr;
         }
 
         if (hasDiamond) {
@@ -217,7 +217,7 @@ public:
         } else if (m_diamondItem) {
             m_diamondItem->scene()->removeItem(m_diamondItem);
             delete m_diamondItem;
-            m_diamondItem = 0;
+            m_diamondItem = nullptr;
         }
     }
 
@@ -225,8 +225,8 @@ private:
     ArrowItem::Head m_head = ArrowItem::HeadNone;
     double m_arrowSize = 10.0;
     double m_diamondSize = 15.0;
-    QGraphicsPathItem *m_arrowItem = 0;
-    QGraphicsPathItem *m_diamondItem = 0;
+    QGraphicsPathItem *m_arrowItem = nullptr;
+    QGraphicsPathItem *m_diamondItem = nullptr;
 };
 
 class ArrowItem::GraphicsShaftItem : public QGraphicsPathItem
@@ -438,7 +438,7 @@ void ArrowItem::deleteHead(QGraphicsItem **headItem)
         if ((*headItem)->scene())
             (*headItem)->scene()->removeItem(*headItem);
         delete *headItem;
-        *headItem = 0;
+        *headItem = nullptr;
     }
 }
 
@@ -449,7 +449,8 @@ void ArrowItem::updateHead(QGraphicsItem **headItem, Head head, const Style *sty
     } else if (head == HeadCustom) {
         // nothing to do
     } else {
-        QTC_ASSERT(*headItem == 0 || dynamic_cast<GraphicsHeadItem *>(*headItem) != 0, return);
+        QTC_ASSERT(headItem, return);
+        QTC_ASSERT(!*headItem || dynamic_cast<GraphicsHeadItem *>(*headItem), return);
         GraphicsHeadItem *item;
         if (!*headItem) {
             item = new GraphicsHeadItem(this);

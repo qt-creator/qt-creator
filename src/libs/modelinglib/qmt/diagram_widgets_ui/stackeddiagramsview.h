@@ -45,7 +45,7 @@ class QMT_EXPORT StackedDiagramsView : public QStackedWidget, public DiagramsVie
     Q_OBJECT
 
 public:
-    explicit StackedDiagramsView(QWidget *parent = 0);
+    explicit StackedDiagramsView(QWidget *parent = nullptr);
     ~StackedDiagramsView() override;
 
 signals:

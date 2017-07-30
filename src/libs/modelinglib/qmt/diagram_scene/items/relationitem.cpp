@@ -210,8 +210,8 @@ public:
     }
 
 private:
-    DiagramSceneModel *m_diagramSceneModel = 0;
-    ArrowItem *m_arrow = 0;
+    DiagramSceneModel *m_diagramSceneModel = nullptr;
+    ArrowItem *m_arrow = nullptr;
     QList<QPointF> m_points;
 };
 
@@ -479,7 +479,7 @@ void RelationItem::update(const Style *style)
     } else if (m_name) {
         m_name->scene()->removeItem(m_name);
         delete m_name;
-        m_name = 0;
+        m_name = nullptr;
     }
 
     if (!m_relation->stereotypes().isEmpty()) {
@@ -492,7 +492,7 @@ void RelationItem::update(const Style *style)
     } else if (m_stereotypes) {
         m_stereotypes->scene()->removeItem(m_stereotypes);
         delete m_stereotypes;
-        m_stereotypes = 0;
+        m_stereotypes = nullptr;
     }
 
     if (isSelected() || isSecondarySelected()) {
@@ -504,7 +504,7 @@ void RelationItem::update(const Style *style)
         if (m_selectionHandles->scene())
             m_selectionHandles->scene()->removeItem(m_selectionHandles);
         delete m_selectionHandles;
-        m_selectionHandles = 0;
+        m_selectionHandles = nullptr;
     }
 
     setZValue((isSelected() || isSecondarySelected()) ? RELATION_ITEMS_ZVALUE_SELECTED : RELATION_ITEMS_ZVALUE);

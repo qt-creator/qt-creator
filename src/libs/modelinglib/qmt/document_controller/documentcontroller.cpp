@@ -273,8 +273,8 @@ MDiagram *DocumentController::findOrCreateRootDiagram()
 void DocumentController::createNewProject(const QString &fileName)
 {
     m_diagramsManager->removeAllDiagrams();
-    m_treeModel->setModelController(0);
-    m_modelController->setRootPackage(0);
+    m_treeModel->setModelController(nullptr);
+    m_modelController->setRootPackage(nullptr);
     m_undoController->reset();
 
     m_projectController->newProject(fileName);
@@ -286,8 +286,8 @@ void DocumentController::createNewProject(const QString &fileName)
 void DocumentController::loadProject(const QString &fileName)
 {
     m_diagramsManager->removeAllDiagrams();
-    m_treeModel->setModelController(0);
-    m_modelController->setRootPackage(0);
+    m_treeModel->setModelController(nullptr);
+    m_modelController->setRootPackage(nullptr);
     m_undoController->reset();
 
     m_projectController->newProject(fileName);

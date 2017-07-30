@@ -40,7 +40,7 @@ class ConnectionItem : public RelationItem
 {
 public:
     ConnectionItem(DConnection *connection, DiagramSceneModel *diagramSceneModel,
-                    QGraphicsItem *parent = 0);
+                    QGraphicsItem *parent = nullptr);
     ~ConnectionItem() override;
 
 protected:
@@ -54,11 +54,11 @@ private:
                         QGraphicsItem *endCardinality,
                         QGraphicsItem *endItem, double headLength);
 
-    DConnection *m_connection = 0;
-    QGraphicsSimpleTextItem *m_endAName = 0;
-    QGraphicsSimpleTextItem *m_endACardinality = 0;
-    QGraphicsSimpleTextItem *m_endBName = 0;
-    QGraphicsSimpleTextItem *m_endBCardinality = 0;
+    DConnection *m_connection = nullptr;
+    QGraphicsSimpleTextItem *m_endAName = nullptr;
+    QGraphicsSimpleTextItem *m_endACardinality = nullptr;
+    QGraphicsSimpleTextItem *m_endBName = nullptr;
+    QGraphicsSimpleTextItem *m_endBCardinality = nullptr;
 };
 
 } // namespace qmt

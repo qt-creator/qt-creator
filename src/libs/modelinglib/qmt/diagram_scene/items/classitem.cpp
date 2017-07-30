@@ -111,7 +111,7 @@ void ClassItem::update()
     } else if (m_customIcon) {
         m_customIcon->scene()->removeItem(m_customIcon);
         delete m_customIcon;
-        m_customIcon = 0;
+        m_customIcon = nullptr;
     }
 
     // shape
@@ -124,7 +124,7 @@ void ClassItem::update()
     } else if (m_shape){
         m_shape->scene()->removeItem(m_shape);
         delete m_shape;
-        m_shape = 0;
+        m_shape = nullptr;
     }
 
     // stereotypes
@@ -140,7 +140,7 @@ void ClassItem::update()
     } else if (m_namespace) {
         m_namespace->scene()->removeItem(m_namespace);
         delete m_namespace;
-        m_namespace = 0;
+        m_namespace = nullptr;
     }
 
     // class name
@@ -156,7 +156,7 @@ void ClassItem::update()
     } else if (m_contextLabel) {
         m_contextLabel->scene()->removeItem(m_contextLabel);
         delete m_contextLabel;
-        m_contextLabel = 0;
+        m_contextLabel = nullptr;
     }
 
     // attributes separator
@@ -168,7 +168,7 @@ void ClassItem::update()
     } else if (m_attributesSeparator) {
         m_attributesSeparator->scene()->removeItem(m_attributesSeparator);
         delete m_attributesSeparator;
-        m_attributesSeparator = 0;
+        m_attributesSeparator = nullptr;
     }
 
     // attributes
@@ -182,7 +182,7 @@ void ClassItem::update()
     } else if (m_attributes) {
         m_attributes->scene()->removeItem(m_attributes);
         delete m_attributes;
-        m_attributes = 0;
+        m_attributes = nullptr;
     }
 
     // methods separator
@@ -194,7 +194,7 @@ void ClassItem::update()
     } else if (m_methodsSeparator) {
         m_methodsSeparator->scene()->removeItem(m_methodsSeparator);
         delete m_methodsSeparator;
-        m_methodsSeparator = 0;
+        m_methodsSeparator = nullptr;
     }
 
     // methods
@@ -208,7 +208,7 @@ void ClassItem::update()
     } else if (m_methods) {
         m_methods->scene()->removeItem(m_methods);
         delete m_methods;
-        m_methods = 0;
+        m_methods = nullptr;
     }
 
     // template parameters
@@ -229,7 +229,7 @@ void ClassItem::update()
     } else if (m_templateParameterBox) {
         m_templateParameterBox->scene()->removeItem(m_templateParameterBox);
         delete m_templateParameterBox;
-        m_templateParameterBox = 0;
+        m_templateParameterBox = nullptr;
     }
 
     updateSelectionMarker(m_customIcon);
@@ -380,7 +380,7 @@ void ClassItem::setFromDisplayName(const QString &displayName)
         QString name;
         QStringList templateParameters;
         // NOTE namespace is ignored because it has its own edit field
-        if (NameController::parseClassName(displayName, 0, &name, &templateParameters)) {
+        if (NameController::parseClassName(displayName, nullptr, &name, &templateParameters)) {
             auto diagramClass = dynamic_cast<DClass *>(object());
             QMT_ASSERT(diagramClass, return);
             ModelController *modelController = diagramSceneModel()->diagramSceneController()->modelController();
@@ -650,9 +650,9 @@ void ClassItem::updateMembers(const Style *style)
     QString attributesGroup;
     QString methodsGroup;
 
-    MClassMember::Visibility *currentVisibility = 0;
-    QString *currentGroup = 0;
-    QString *text = 0;
+    MClassMember::Visibility *currentVisibility = nullptr;
+    QString *currentGroup = nullptr;
+    QString *text = nullptr;
 
     auto dclass = dynamic_cast<DClass *>(object());
     QMT_ASSERT(dclass, return);

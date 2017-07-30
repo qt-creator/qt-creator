@@ -59,8 +59,8 @@ public:
     static MapType &uidToNameMap() { return *typeidUidToNameMap; }
 
 #if !defined(QT_NO_DEBUG)
-    static bool hasNameToUidMap() { return typeidNameToUidMap != 0; }
-    static bool hasUidToNameMap() { return typeidUidToNameMap != 0; }
+    static bool hasNameToUidMap() { return typeidNameToUidMap != nullptr; }
+    static bool hasUidToNameMap() { return typeidUidToNameMap != nullptr; }
 #endif
 
 protected:
@@ -119,8 +119,8 @@ public:
         typedef Archive &(*LoadFuncType)(Archive &, BASE * &p);
 
         explicit TypeInfo()
-            : m_saveFunc(0),
-              m_loadFunc(0)
+            : m_saveFunc(nullptr),
+              m_loadFunc(nullptr)
         {
         }
 
@@ -144,7 +144,7 @@ public:
     static MapType &map() { return *m_map; }
 
 #if !defined(QT_NO_DEBUG)
-    static bool hasMap() { return m_map != 0; }
+    static bool hasMap() { return m_map != nullptr; }
 #endif
 
 protected:

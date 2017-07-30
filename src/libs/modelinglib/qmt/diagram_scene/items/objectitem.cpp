@@ -491,7 +491,7 @@ void ObjectItem::updateStereotypes(const QString &stereotypeIconId, StereotypeIc
     } else if (m_stereotypeIcon) {
         m_stereotypeIcon->scene()->removeItem(m_stereotypeIcon);
         delete m_stereotypeIcon;
-        m_stereotypeIcon = 0;
+        m_stereotypeIcon = nullptr;
     }
     if (stereotypeDisplay != StereotypeIcon::DisplayNone && !stereotypes.isEmpty()) {
         if (!m_stereotypes)
@@ -502,7 +502,7 @@ void ObjectItem::updateStereotypes(const QString &stereotypeIconId, StereotypeIc
     } else if (m_stereotypes) {
         m_stereotypes->scene()->removeItem(m_stereotypes);
         delete m_stereotypes;
-        m_stereotypes = 0;
+        m_stereotypes = nullptr;
     }
 }
 
@@ -650,7 +650,7 @@ void ObjectItem::updateSelectionMarker(ResizeFlags resizeFlags)
         if (m_selectionMarker->scene())
             m_selectionMarker->scene()->removeItem(m_selectionMarker);
         delete m_selectionMarker;
-        m_selectionMarker = 0;
+        m_selectionMarker = nullptr;
     }
 }
 
@@ -694,7 +694,7 @@ void ObjectItem::updateRelationStarter()
     } else if (m_relationStarter) {
         scene()->removeItem(m_relationStarter);
         delete m_relationStarter;
-        m_relationStarter = 0;
+        m_relationStarter = nullptr;
     }
 
 }
@@ -791,13 +791,13 @@ void ObjectItem::updateAlignmentButtons()
             if (m_horizontalAlignButtons->scene())
                 m_horizontalAlignButtons->scene()->removeItem(m_horizontalAlignButtons);
             delete m_horizontalAlignButtons;
-            m_horizontalAlignButtons = 0;
+            m_horizontalAlignButtons = nullptr;
         }
         if (m_verticalAlignButtons) {
             if (m_verticalAlignButtons->scene())
                 m_verticalAlignButtons->scene()->removeItem(m_verticalAlignButtons);
             delete m_verticalAlignButtons;
-            m_verticalAlignButtons = 0;
+            m_verticalAlignButtons = nullptr;
         }
     }
 }

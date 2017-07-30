@@ -37,7 +37,7 @@ public:
         Vertical
     };
 
-    explicit AlignLineItem(Direction direction, QGraphicsItem *parent = 0);
+    explicit AlignLineItem(Direction direction, QGraphicsItem *parent = nullptr);
     ~AlignLineItem() override;
 
     void setLine(qreal pos);
@@ -45,11 +45,11 @@ public:
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-               QWidget *widget = 0) override;
+               QWidget *widget = nullptr) override;
 
     Direction m_direction = Horizontal;
-    QGraphicsLineItem *m_alignLine = 0;
-    QGraphicsLineItem *m_highlightLine = 0;
+    QGraphicsLineItem *m_alignLine = nullptr;
+    QGraphicsLineItem *m_highlightLine = nullptr;
 };
 
 } // namespace qmt

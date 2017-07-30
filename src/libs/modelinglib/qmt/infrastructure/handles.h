@@ -96,7 +96,7 @@ public:
             if (handle.uid() == uid)
                 return handle.target();
         }
-        return 0;
+        return nullptr;
     }
 
     T *at(int index) const

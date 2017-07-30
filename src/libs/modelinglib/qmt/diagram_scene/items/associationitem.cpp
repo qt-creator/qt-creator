@@ -86,7 +86,7 @@ void AssociationItem::updateEndLabels(const DAssociationEnd &end, const DAssocia
     } else if (*endName) {
         (*endName)->scene()->removeItem(*endName);
         delete *endName;
-        *endName = 0;
+        *endName = nullptr;
     }
 
     if (!otherEnd.cardinality().isEmpty()) {
@@ -98,7 +98,7 @@ void AssociationItem::updateEndLabels(const DAssociationEnd &end, const DAssocia
     } else if (*endCardinality) {
         (*endCardinality)->scene()->removeItem(*endCardinality);
         delete *endCardinality;
-        *endCardinality = 0;
+        *endCardinality = nullptr;
     }
 }
 

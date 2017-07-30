@@ -33,7 +33,7 @@ namespace qmt {
 class StereotypesItem : public QGraphicsSimpleTextItem
 {
 public:
-    explicit StereotypesItem(QGraphicsItem *parent = 0);
+    explicit StereotypesItem(QGraphicsItem *parent = nullptr);
     ~StereotypesItem() override;
 
     void setStereotypes(const QList<QString> &stereotypes);

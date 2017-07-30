@@ -321,10 +321,10 @@ void StereotypeDefinitionParser::parse(ITextSource *source)
     try {
         parseFile();
     } catch (...) {
-        d->m_scanner = 0;
+        d->m_scanner = nullptr;
         throw;
     }
-    d->m_scanner = 0;
+    d->m_scanner = nullptr;
 }
 
 void StereotypeDefinitionParser::parseFile()

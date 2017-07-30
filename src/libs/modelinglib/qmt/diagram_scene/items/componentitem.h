@@ -45,7 +45,7 @@ class ComponentItem : public ObjectItem
 {
 public:
     ComponentItem(DComponent *component, DiagramSceneModel *diagramSceneModel,
-                  QGraphicsItem *parent = 0);
+                  QGraphicsItem *parent = nullptr);
     ~ComponentItem() override;
 
     void update() override;
@@ -63,11 +63,11 @@ private:
     QSizeF calcMinimumGeometry() const;
     void updateGeometry();
 
-    CustomIconItem *m_customIcon = 0;
-    QGraphicsRectItem *m_shape = 0;
-    QGraphicsRectItem *m_upperRect = 0;
-    QGraphicsRectItem *m_lowerRect = 0;
-    ContextLabelItem *m_contextLabel = 0;
+    CustomIconItem *m_customIcon = nullptr;
+    QGraphicsRectItem *m_shape = nullptr;
+    QGraphicsRectItem *m_upperRect = nullptr;
+    QGraphicsRectItem *m_lowerRect = nullptr;
+    ContextLabelItem *m_contextLabel = nullptr;
 };
 
 } // namespace qmt

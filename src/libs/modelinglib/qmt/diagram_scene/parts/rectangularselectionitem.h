@@ -75,7 +75,7 @@ public:
         FreedomKeepRatio
     };
 
-    explicit RectangularSelectionItem(IResizable *itemResizer, QGraphicsItem *parent = 0);
+    explicit RectangularSelectionItem(IResizable *itemResizer, QGraphicsItem *parent = nullptr);
     ~RectangularSelectionItem() override;
 
     QRectF boundingRect() const override;
@@ -99,14 +99,14 @@ private:
     void moveHandle(Handle handle, const QPointF &deltaMove, HandleStatus handleStatus,
                     HandleQualifier handleQualifier);
 
-    IResizable *m_itemResizer = 0;
+    IResizable *m_itemResizer = nullptr;
     QRectF m_rect;
     QSizeF m_pointSize;
     QVector<GraphicsHandleItem *> m_points;
     QPointF m_originalResizePos;
     QRectF m_originalResizeRect;
     bool m_showBorder = false;
-    QGraphicsRectItem *m_borderItem = 0;
+    QGraphicsRectItem *m_borderItem = nullptr;
     Freedom m_freedom = FreedomAny;
     bool m_isSecondarySelected = false;
     Handle m_activeHandle = HandleNone;

@@ -65,7 +65,7 @@ private:
     class FindDiagramsVisitor;
 
 public:
-    explicit DiagramController(QObject *parent = 0);
+    explicit DiagramController(QObject *parent = nullptr);
     ~DiagramController() override;
 
 signals:

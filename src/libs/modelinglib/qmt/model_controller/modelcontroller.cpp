@@ -49,7 +49,7 @@ public:
     Uid m_elementKey;
     Uid m_ownerKey;
     int m_indexOfElement = -1;
-    MElement *m_clonedElement = 0;
+    MElement *m_clonedElement = nullptr;
 };
 
 class ModelController::UpdateObjectCommand : public UndoCommand
@@ -121,8 +121,8 @@ private:
         m_modelController->verifyModelIntegrity();
     }
 
-    ModelController *m_modelController = 0;
-    MObject *m_object = 0;
+    ModelController *m_modelController = nullptr;
+    MObject *m_object = nullptr;
 };
 
 class ModelController::UpdateRelationCommand :
@@ -191,8 +191,8 @@ private:
         m_modelController->verifyModelIntegrity();
     }
 
-    ModelController *m_modelController = 0;
-    MRelation *m_relation = 0;
+    ModelController *m_modelController = nullptr;
+    MRelation *m_relation = nullptr;
 };
 
 class ModelController::AddElementsCommand : public UndoCommand
@@ -239,7 +239,7 @@ public:
                     QMT_CHECK(object);
                     m_modelController->mapObject(object);
                     owner->insertChild(clone.m_indexOfElement, object);
-                    clone.m_clonedElement = 0;
+                    clone.m_clonedElement = nullptr;
                     emit m_modelController->endInsertObject(clone.m_indexOfElement, owner);
                     inserted = true;
                     break;
@@ -251,7 +251,7 @@ public:
                     QMT_CHECK(relation);
                     m_modelController->mapRelation(relation);
                     owner->insertRelation(clone.m_indexOfElement, relation);
-                    clone.m_clonedElement = 0;
+                    clone.m_clonedElement = nullptr;
                     emit m_modelController->endInsertRelation(clone.m_indexOfElement, owner);
                     inserted = true;
                     break;
@@ -321,7 +321,7 @@ public:
     }
 
 private:
-    ModelController *m_modelController = 0;
+    ModelController *m_modelController = nullptr;
     QList<ModelController::Clone> m_clonedElements;
 };
 
@@ -435,7 +435,7 @@ public:
                 QMT_CHECK(object);
                 m_modelController->mapObject(object);
                 owner->insertChild(clone.m_indexOfElement, object);
-                clone.m_clonedElement = 0;
+                clone.m_clonedElement = nullptr;
                 emit m_modelController->endInsertObject(clone.m_indexOfElement, owner);
                 inserted = true;
                 break;
@@ -447,7 +447,7 @@ public:
                 QMT_CHECK(relation);
                 m_modelController->mapRelation(relation);
                 owner->insertRelation(clone.m_indexOfElement, relation);
-                clone.m_clonedElement = 0;
+                clone.m_clonedElement = nullptr;
                 emit m_modelController->endInsertRelation(clone.m_indexOfElement, owner);
                 inserted = true;
                 break;
@@ -464,7 +464,7 @@ public:
     }
 
 private:
-    ModelController *m_modelController = 0;
+    ModelController *m_modelController = nullptr;
     QList<ModelController::Clone> m_clonedElements;
 };
 
@@ -518,7 +518,7 @@ private:
         m_modelController->verifyModelIntegrity();
     }
 
-    ModelController *m_modelController = 0;
+    ModelController *m_modelController = nullptr;
     Uid m_objectKey;
     Uid m_ownerKey;
     int m_indexOfElement = -1;
@@ -574,7 +574,7 @@ private:
         m_modelController->verifyModelIntegrity();
     }
 
-    ModelController *m_modelController = 0;
+    ModelController *m_modelController = nullptr;
     Uid m_relationKey;
     Uid m_ownerKey;
     int m_indexOfElement = -1;
@@ -582,8 +582,8 @@ private:
 
 ModelController::ModelController(QObject *parent)
     : QObject(parent),
-      m_rootPackage(0),
-      m_undoController(0),
+      m_rootPackage(nullptr),
+      m_undoController(nullptr),
       m_isResettingModel(false)
 {
 }
@@ -622,7 +622,7 @@ MElement *ModelController::findElement(const Uid &key)
         return object;
     else if (MRelation *relation = findRelation(key))
         return relation;
-    return 0;
+    return nullptr;
 }
 
 void ModelController::startResetModel()

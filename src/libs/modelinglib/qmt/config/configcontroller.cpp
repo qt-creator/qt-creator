@@ -42,7 +42,7 @@ namespace qmt {
 class ConfigController::ConfigControllerPrivate
 {
 public:
-    StereotypeController *m_stereotypeController = 0;
+    StereotypeController *m_stereotypeController = nullptr;
 };
 
 ConfigController::ConfigController(QObject *parent)

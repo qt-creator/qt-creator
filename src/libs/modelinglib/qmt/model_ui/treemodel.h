@@ -68,7 +68,7 @@ public:
         RoleItemType = Qt::UserRole + 1
     };
 
-    explicit TreeModel(QObject *parent = 0);
+    explicit TreeModel(QObject *parent = nullptr);
     ~TreeModel() override;
 
     ModelController *modelController() const { return m_modelController; }

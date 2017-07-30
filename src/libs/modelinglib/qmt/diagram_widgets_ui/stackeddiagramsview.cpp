@@ -117,7 +117,7 @@ MDiagram *StackedDiagramsView::diagram(int tabIndex) const
 MDiagram *StackedDiagramsView::diagram(DiagramView *diagramView) const
 {
     if (!diagramView || !diagramView->diagramSceneModel())
-        return 0;
+        return nullptr;
     return diagramView->diagramSceneModel()->diagram();
 }
 

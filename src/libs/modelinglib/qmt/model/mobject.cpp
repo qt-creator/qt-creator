@@ -83,7 +83,7 @@ void MObject::addChild(const Uid &uid)
 void MObject::addChild(MObject *child)
 {
     QMT_ASSERT(child, return);
-    QMT_ASSERT(child->owner() == 0, return);
+    QMT_ASSERT(!child->owner(), return);
     m_children.add(child);
     child->setOwner(this);
 }
@@ -96,7 +96,7 @@ void MObject::insertChild(int beforeIndex, const Uid &uid)
 void MObject::insertChild(int beforeIndex, MObject *child)
 {
     QMT_ASSERT(child, return);
-    QMT_ASSERT(child->owner() == 0, return);
+    QMT_ASSERT(!child->owner(), return);
     m_children.insert(beforeIndex, child);
     child->setOwner(this);
 }
@@ -106,7 +106,7 @@ void MObject::removeChild(const Uid &uid)
     QMT_ASSERT(m_children.contains(uid), return);
     MObject *child = m_children.find(uid);
     if (child)
-        child->setOwner(0);
+        child->setOwner(nullptr);
     m_children.remove(uid);
 }
 
@@ -114,7 +114,7 @@ void MObject::removeChild(MObject *child)
 {
     QMT_ASSERT(child, return);
     QMT_ASSERT(m_children.contains(child), return);
-    child->setOwner(0);
+    child->setOwner(nullptr);
     m_children.remove(child);
 }
 
@@ -123,7 +123,7 @@ void MObject::decontrolChild(const Uid &uid)
     QMT_ASSERT(m_children.contains(uid), return);
     MObject *child = m_children.find(uid);
     if (child)
-        child->setOwner(0);
+        child->setOwner(nullptr);
     m_children.take(uid);
 }
 
@@ -131,7 +131,7 @@ void MObject::decontrolChild(MObject *child)
 {
     QMT_ASSERT(child, return);
     QMT_ASSERT(m_children.contains(child), return);
-    child->setOwner(0);
+    child->setOwner(nullptr);
     m_children.take(child);
 }
 
@@ -152,7 +152,7 @@ void MObject::addRelation(const Uid &uid)
 void MObject::addRelation(MRelation *relation)
 {
     QMT_ASSERT(relation, return);
-    QMT_ASSERT(relation->owner() == 0, return);
+    QMT_ASSERT(!relation->owner(), return);
     relation->setOwner(this);
     m_relations.add(relation);
 }
@@ -160,7 +160,7 @@ void MObject::addRelation(MRelation *relation)
 void MObject::insertRelation(int beforeIndex, MRelation *relation)
 {
     QMT_ASSERT(relation, return);
-    QMT_ASSERT(relation->owner() == 0, return);
+    QMT_ASSERT(!relation->owner(), return);
     relation->setOwner(this);
     m_relations.insert(beforeIndex, relation);
 }
@@ -168,14 +168,14 @@ void MObject::insertRelation(int beforeIndex, MRelation *relation)
 void MObject::removeRelation(MRelation *relation)
 {
     QMT_ASSERT(relation, return);
-    relation->setOwner(0);
+    relation->setOwner(nullptr);
     m_relations.remove(relation);
 }
 
 void MObject::decontrolRelation(MRelation *relation)
 {
     QMT_ASSERT(relation, return);
-    relation->setOwner(0);
+    relation->setOwner(nullptr);
     m_relations.take(relation);
 }
 

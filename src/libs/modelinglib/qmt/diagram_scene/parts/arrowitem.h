@@ -61,8 +61,8 @@ public:
         HeadFilledDiamondFilledTriangle
     };
 
-    explicit ArrowItem(QGraphicsItem *parent = 0);
-    explicit ArrowItem(const ArrowItem &rhs, QGraphicsItem *parent = 0);
+    explicit ArrowItem(QGraphicsItem *parent = nullptr);
+    explicit ArrowItem(const ArrowItem &rhs, QGraphicsItem *parent = nullptr);
     ~ArrowItem() override;
 
     void setShaft(Shaft shaft);

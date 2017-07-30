@@ -86,7 +86,7 @@ void ConnectionItem::updateEndLabels(const DConnectionEnd &end, const DConnectio
     } else if (*endName) {
         (*endName)->scene()->removeItem(*endName);
         delete *endName;
-        *endName = 0;
+        *endName = nullptr;
     }
 
     if (!otherEnd.cardinality().isEmpty()) {
@@ -98,7 +98,7 @@ void ConnectionItem::updateEndLabels(const DConnectionEnd &end, const DConnectio
     } else if (*endCardinality) {
         (*endCardinality)->scene()->removeItem(*endCardinality);
         delete *endCardinality;
-        *endCardinality = 0;
+        *endCardinality = nullptr;
     }
 }
 

@@ -38,7 +38,7 @@ QList<T *> cloneAll(const QList<T *> &rhs)
 {
     QList<T *> result;
     foreach (T *t, rhs)
-        result.append(t != 0 ? t->clone() : 0);
+        result.append(t ? t->clone() : nullptr);
     return result;
 }
 
@@ -75,10 +75,10 @@ public:
 
 PathShape *IconShape::IconShapePrivate::activePath()
 {
-    PathShape *pathShape = 0;
+    PathShape *pathShape = nullptr;
     if (m_shapes.count() > 0)
         pathShape = dynamic_cast<PathShape *>(m_shapes.last());
-    if (pathShape == 0) {
+    if (!pathShape) {
         pathShape = new PathShape();
         m_shapes.append(pathShape);
     }

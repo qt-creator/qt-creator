@@ -126,7 +126,7 @@ void BoundaryItem::update()
     } else if (m_noTextItem) {
         m_noTextItem->scene()->removeItem(m_noTextItem);
         delete m_noTextItem;
-        m_noTextItem = 0;
+        m_noTextItem = nullptr;
     }
 
     // item shown if annotation has no text and is not selected
@@ -323,7 +323,7 @@ void BoundaryItem::updateSelectionMarker()
         if (m_selectionMarker->scene())
             m_selectionMarker->scene()->removeItem(m_selectionMarker);
         delete m_selectionMarker;
-        m_selectionMarker = 0;
+        m_selectionMarker = nullptr;
     }
 }
 

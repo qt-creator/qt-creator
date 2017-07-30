@@ -128,7 +128,7 @@ void RelationStarter::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                                m_currentPreviewArrowIntermediatePoints);
         m_currentPreviewArrow->scene()->removeItem(m_currentPreviewArrow);
         delete m_currentPreviewArrow;
-        m_currentPreviewArrow = 0;
+        m_currentPreviewArrow = nullptr;
         m_currentPreviewArrowIntermediatePoints.clear();
     }
 }
@@ -157,7 +157,7 @@ void RelationStarter::focusOutEvent(QFocusEvent *event)
     if (m_currentPreviewArrow) {
         m_currentPreviewArrow->scene()->removeItem(m_currentPreviewArrow);
         delete m_currentPreviewArrow;
-        m_currentPreviewArrow = 0;
+        m_currentPreviewArrow = nullptr;
         m_currentPreviewArrowIntermediatePoints.clear();
     }
 }

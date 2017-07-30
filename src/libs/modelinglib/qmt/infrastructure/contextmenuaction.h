@@ -33,9 +33,9 @@ namespace qmt {
 class QMT_EXPORT ContextMenuAction : public QAction
 {
 public:
-    ContextMenuAction(const QString &label, const QString &id, QObject *parent = 0);
+    ContextMenuAction(const QString &label, const QString &id, QObject *parent = nullptr);
     ContextMenuAction(const QString &label, const QString &id, const QKeySequence &shortcut,
-                      QObject *parent = 0);
+                      QObject *parent = nullptr);
     ~ContextMenuAction() override;
 
     QString id() const { return m_id; }

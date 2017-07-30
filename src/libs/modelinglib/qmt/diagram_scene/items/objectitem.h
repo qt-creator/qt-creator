@@ -86,7 +86,7 @@ protected:
     };
 
 public:
-    ObjectItem(const QString &elementType, DObject *object, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
+    ObjectItem(const QString &elementType, DObject *object, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = nullptr);
     ~ObjectItem() override;
 
     QString elementType() const { return m_elementType; }
@@ -179,20 +179,20 @@ private:
     QSizeF minimumSize(const QSet<QGraphicsItem *> &items) const;
 
     QString m_elementType;
-    DObject *m_object = 0;
-    DiagramSceneModel *m_diagramSceneModel = 0;
+    DObject *m_object = nullptr;
+    DiagramSceneModel *m_diagramSceneModel = nullptr;
     bool m_isSecondarySelected = false;
     bool m_isFocusSelected = false;
     QString m_stereotypeIconId;
     QString m_shapeIconId;
     StereotypeIcon::Display m_stereotypeIconDisplay = StereotypeIcon::DisplayLabel;
-    StereotypesItem *m_stereotypes = 0;
-    CustomIconItem *m_stereotypeIcon = 0;
-    EditableTextItem *m_nameItem = 0;
-    RectangularSelectionItem *m_selectionMarker = 0;
-    RelationStarter *m_relationStarter = 0;
-    AlignButtonsItem *m_horizontalAlignButtons = 0;
-    AlignButtonsItem *m_verticalAlignButtons = 0;
+    StereotypesItem *m_stereotypes = nullptr;
+    CustomIconItem *m_stereotypeIcon = nullptr;
+    EditableTextItem *m_nameItem = nullptr;
+    RectangularSelectionItem *m_selectionMarker = nullptr;
+    RelationStarter *m_relationStarter = nullptr;
+    AlignButtonsItem *m_horizontalAlignButtons = nullptr;
+    AlignButtonsItem *m_verticalAlignButtons = nullptr;
 };
 
 } // namespace qmt
