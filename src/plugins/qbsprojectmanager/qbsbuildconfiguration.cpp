@@ -147,7 +147,7 @@ QVariantMap QbsBuildConfiguration::qbsConfiguration() const
 
 Internal::QbsProject *QbsBuildConfiguration::project() const
 {
-    return qobject_cast<Internal::QbsProject *>(target()->project());
+    return qobject_cast<Internal::QbsProject *>(BuildConfiguration::project());
 }
 
 IOutputParser *QbsBuildConfiguration::createOutputParser() const

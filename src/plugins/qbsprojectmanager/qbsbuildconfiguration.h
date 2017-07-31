@@ -27,6 +27,8 @@
 
 #include "qbsprojectmanager_global.h"
 
+#include "qbsproject.h"
+
 #include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 
@@ -56,7 +58,7 @@ public:
     QbsBuildStep *qbsStep() const;
     QVariantMap qbsConfiguration() const;
 
-    Internal::QbsProject *project() const;
+    Internal::QbsProject *project() const override;
 
     ProjectExplorer::IOutputParser *createOutputParser() const;
 

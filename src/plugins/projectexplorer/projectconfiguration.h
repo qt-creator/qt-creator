@@ -65,6 +65,8 @@ public:
     Utils::MacroExpander *macroExpander() { return &m_macroExpander; }
     const Utils::MacroExpander *macroExpander() const { return &m_macroExpander; }
 
+    virtual Project *project() const = 0;
+
 signals:
     void displayNameChanged();
     void toolTipChanged();

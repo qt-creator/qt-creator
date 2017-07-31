@@ -226,6 +226,11 @@ Target *BuildConfiguration::target() const
     return static_cast<Target *>(parent());
 }
 
+Project *BuildConfiguration::project() const
+{
+    return target()->project();
+}
+
 Utils::Environment BuildConfiguration::baseEnvironment() const
 {
     Utils::Environment result;

@@ -141,6 +141,11 @@ Target *DeployConfiguration::target() const
     return static_cast<Target *>(parent());
 }
 
+Project *DeployConfiguration::project() const
+{
+    return target()->project();
+}
+
 void DeployConfiguration::cloneSteps(DeployConfiguration *source)
 {
     if (source == this)

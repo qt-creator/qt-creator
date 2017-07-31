@@ -55,7 +55,7 @@ class PROJECTEXPLORER_EXPORT Target : public ProjectConfiguration
 public:
     ~Target() override;
 
-    Project *project() const;
+    Project *project() const override;
 
     // Kit:
     Kit *kit() const;

@@ -70,7 +70,7 @@ public:
     DeployConfiguration *deployConfiguration() const;
     ProjectConfiguration *projectConfiguration() const;
     Target *target() const;
-    Project *project() const;
+    Project *project() const override;
 
     enum class OutputFormat {
         Stdout, Stderr, // These are for forwarded output from external tools

@@ -217,6 +217,7 @@ public:
     virtual ConfigurationState ensureConfigured(QString *errorMessage = nullptr);
 
     Target *target() const;
+    Project *project() const override;
 
     virtual Utils::OutputFormatter *createOutputFormatter() const;
 

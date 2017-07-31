@@ -198,3 +198,8 @@ Target *BuildStepList::target() const
         return dc->target();
     return 0;
 }
+
+Project *BuildStepList::project() const
+{
+    return target()->project();
+}

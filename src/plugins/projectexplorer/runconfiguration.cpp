@@ -315,6 +315,11 @@ Target *RunConfiguration::target() const
     return static_cast<Target *>(parent());
 }
 
+Project *RunConfiguration::project() const
+{
+    return target()->project();
+}
+
 QVariantMap RunConfiguration::toMap() const
 {
     QVariantMap map = ProjectConfiguration::toMap();
