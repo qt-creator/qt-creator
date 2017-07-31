@@ -532,16 +532,16 @@ public:
     }
 
     static
-    BasicSmallString join(std::initializer_list<BasicSmallString> list)
+    BasicSmallString join(std::initializer_list<SmallStringView> list)
     {
         size_type totalSize = 0;
-        for (const BasicSmallString &string : list)
+        for (SmallStringView string : list)
             totalSize += string.size();
 
         BasicSmallString joinedString;
         joinedString.reserve(totalSize);
 
-        for (const BasicSmallString &string : list)
+        for (SmallStringView string : list)
             joinedString.append(string);
 
         return joinedString;
