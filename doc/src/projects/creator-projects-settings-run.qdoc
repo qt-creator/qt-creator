@@ -65,6 +65,7 @@
     \include projects/creator-projects-settings-run-desktop.qdocinc run settings desktop
     \include projects/creator-projects-settings-run-analyze.qdocinc settings valgrind
     \include projects/creator-projects-settings-run-debug.qdocinc run settings debugger
+    \include android/creator-projects-settings-run-android.qdocinc run settings android
     \include linux-mobile/creator-projects-settings-run-linux.qdocinc run settings linux
     \include qnx/creator-projects-settings-run-qnx.qdocinc run settings qnx
     \include linux-mobile/creator-projects-settings-run-b2qt.qdocinc run settings embedded
