@@ -2628,7 +2628,7 @@ void ProjectExplorerPluginPrivate::projectAdded(Project *pro)
             this, &ProjectExplorerPluginPrivate::updateActions);
 }
 
-void ProjectExplorerPluginPrivate::projectRemoved(Project * pro)
+void ProjectExplorerPluginPrivate::projectRemoved(Project *pro)
 {
     if (m_projectsMode)
         m_projectsMode->setEnabled(SessionManager::hasProjects());
