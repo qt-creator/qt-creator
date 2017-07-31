@@ -484,7 +484,6 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
         if (pc->isActive())
             updateDetails();
     });
-
 }
 
 void CMakeBuildStepConfigWidget::toolArgumentsEdited()

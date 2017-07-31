@@ -242,7 +242,6 @@ void Project::addTarget(Target *t)
     d->m_targets.push_back(t);
     connect(t, &Target::buildConfigurationEnabledChanged,
             this, &Project::changeBuildConfigurationEnabled);
-    connect(t, &Target::buildDirectoryChanged, this, &Project::onBuildDirectoryChanged);
     connect(t, &Target::addedProjectConfiguration, this, &Project::addedProjectConfiguration);
     connect(t, &Target::aboutToRemoveProjectConfiguration, this, &Project::aboutToRemoveProjectConfiguration);
     connect(t, &Target::removedProjectConfiguration, this, &Project::removedProjectConfiguration);
@@ -865,13 +864,6 @@ Kit::Predicate Project::preferredKitPredicate() const
 void Project::setPreferredKitPredicate(const Kit::Predicate &predicate)
 {
     d->m_preferredKitPredicate = predicate;
-}
-
-void Project::onBuildDirectoryChanged()
-{
-    auto target = qobject_cast<Target *>(sender());
-    if (target && target == activeTarget())
-        emit buildDirectoryChanged();
 }
 
 } // namespace ProjectExplorer

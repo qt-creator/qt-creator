@@ -209,8 +209,6 @@ signals:
 
     void buildConfigurationEnabledChanged();
 
-    void buildDirectoryChanged();
-
     void settingsLoaded();
     void aboutToSaveSettings();
 
@@ -245,7 +243,6 @@ protected:
 
 private:
     void changeBuildConfigurationEnabled();
-    void onBuildDirectoryChanged();
 
     void setActiveTarget(Target *target);
     ProjectPrivate *d;

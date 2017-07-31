@@ -174,13 +174,6 @@ void Target::changeRunConfigurationEnabled()
         emit runConfigurationEnabledChanged();
 }
 
-void Target::onBuildDirectoryChanged()
-{
-    auto bc = qobject_cast<BuildConfiguration *>(sender());
-    if (bc && activeBuildConfiguration() == bc)
-        emit buildDirectoryChanged();
-}
-
 void Target::handleKitUpdates(Kit *k)
 {
     if (k != d->m_kit)
@@ -241,8 +234,6 @@ void Target::addBuildConfiguration(BuildConfiguration *bc)
 
     connect(bc, &BuildConfiguration::enabledChanged,
             this, &Target::changeBuildConfigurationEnabled);
-    connect(bc, &BuildConfiguration::buildDirectoryChanged,
-            this, &Target::onBuildDirectoryChanged);
 
     if (!activeBuildConfiguration())
         setActiveBuildConfiguration(bc);
@@ -295,7 +286,6 @@ void Target::setActiveBuildConfiguration(BuildConfiguration *bc)
         emit activeProjectConfigurationChanged(d->m_activeBuildConfiguration);
         emit activeBuildConfigurationChanged(d->m_activeBuildConfiguration);
         emit buildConfigurationEnabledChanged();
-        emit buildDirectoryChanged();
     }
 }
 

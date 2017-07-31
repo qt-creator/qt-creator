@@ -544,7 +544,10 @@ void QbsProject::targetWasAdded(Target *t)
 {
     m_qbsProjects.insert(t, qbs::Project());
     connect(t, &Target::activeBuildConfigurationChanged, this, &QbsProject::delayParsing);
-    connect(t, &Target::buildDirectoryChanged, this, &QbsProject::delayParsing);
+    t->subscribeSignal(&BuildConfiguration::buildDirectoryChanged, this, [this]() {
+        if (static_cast<BuildConfiguration *>(sender())->isActive())
+            delayParsing();
+    });
 }
 
 void QbsProject::targetWasRemoved(Target *t)

@@ -553,8 +553,11 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
             this, &QbsBuildStepConfigWidget::updateState);
     connect(&QbsProjectManagerSettings::instance(), &QbsProjectManagerSettings::settingsBaseChanged,
             this, &QbsBuildStepConfigWidget::updateState);
-    connect(step->buildConfiguration()->target(), &ProjectExplorer::Target::buildDirectoryChanged,
-            this, &QbsBuildStepConfigWidget::updateState);
+    step->target()->subscribeSignal(&ProjectExplorer::BuildConfiguration::buildDirectoryChanged,
+                                    this, [this]() {
+        if (m_step->target()->activeBuildConfiguration() == sender())
+            updateState();
+    });
 
     setContentsMargins(0, 0, 0, 0);
 

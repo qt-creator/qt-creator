@@ -169,11 +169,6 @@ signals:
     void deploymentDataChanged();
     void applicationTargetsChanged();
 
-    // Remove all the signals below, they are stupid
-    /// Emitted whenever the current build configuartion changed or the build directory of the current
-    /// build configuration was changed.
-    void buildDirectoryChanged();
-
 private:
     Target(Project *parent, Kit *k);
     void setEnabled(bool);
@@ -181,7 +176,6 @@ private:
     bool fromMap(const QVariantMap &map) override;
 
     void updateDeviceState();
-    void onBuildDirectoryChanged();
 
     void changeBuildConfigurationEnabled();
     void changeDeployConfigurationEnabled();
