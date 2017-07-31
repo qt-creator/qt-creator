@@ -115,7 +115,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
                     Project *project = Utils::findOrDefault(SessionManager::projects(), [this, wn](const Project *p) {
                         return nodeForProject(p) == wn;
                     });
-                    if (project->isParsing())
+                    if (project && project->isParsing())
                         result = emptyIcon;
                     else
                         result = containerNode->rootProjectNode() ? containerNode->rootProjectNode()->icon() :
