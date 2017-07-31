@@ -35,25 +35,27 @@
 
 namespace Utils {
 
-template<uint SmallStringSize>
-class BasicSmallStringVector : public std::vector<BasicSmallString<SmallStringSize>>
+template<typename String>
+class BasicSmallStringVector : public std::vector<String>
 {
-    using SmallString = BasicSmallString<SmallStringSize>;
-    using Base = std::vector<SmallString>;
+    using Base = std::vector<String>;
+
 public:
     BasicSmallStringVector() = default;
+
+    using Base::Base;
 
     explicit BasicSmallStringVector(const Base &stringVector)
         : Base(stringVector.begin(), stringVector.end())
     {
     }
 
-    BasicSmallStringVector(std::initializer_list<SmallString> list)
+    BasicSmallStringVector(std::initializer_list<String> list)
     {
         Base::reserve(list.size());
 
         for (auto &&entry : list)
-            Base::push_back(entry.clone());
+            Base::push_back(std::move(entry));
     }
 
     explicit BasicSmallStringVector(const QStringList &stringList)
@@ -79,7 +81,7 @@ public:
     BasicSmallStringVector &operator=(BasicSmallStringVector &&)
         noexcept(std::is_nothrow_move_assignable<Base>::value) = default;
 
-    SmallString join(SmallString &&separator) const
+    SmallString join(SmallStringView separator) const
     {
         SmallString joinedString;
 
@@ -110,7 +112,7 @@ public:
         return hasEntry;
     }
 
-    void append(SmallString &&string)
+    void append(String &&string)
     {
         push_back(std::move(string));
     }
@@ -153,6 +155,9 @@ private:
     }
 };
 
-using SmallStringVector = BasicSmallStringVector<31>;
-using PathStringVector = BasicSmallStringVector<190>;
+
+
+using SmallStringVector = BasicSmallStringVector<BasicSmallString<31>>;
+using PathStringVector = BasicSmallStringVector<BasicSmallString<190>>;
+using StringViewVector = BasicSmallStringVector<SmallStringView>;
 } // namespace Utils;

@@ -113,8 +113,8 @@ void PrintTo(const BasicSmallString<Size> &string, ::std::ostream *os)
     *os<< "'";
 }
 
-template <uint Size>
-QDataStream &operator<<(QDataStream &out, const BasicSmallStringVector<Size>  &stringVector)
+template <typename String>
+QDataStream &operator<<(QDataStream &out, const BasicSmallStringVector<String>  &stringVector)
 {
     out << quint64(stringVector.size());
 
@@ -124,8 +124,8 @@ QDataStream &operator<<(QDataStream &out, const BasicSmallStringVector<Size>  &s
     return out;
 }
 
-template <uint Size>
-QDataStream &operator>>(QDataStream &in, BasicSmallStringVector<Size>  &stringVector)
+template <typename String>
+QDataStream &operator>>(QDataStream &in, BasicSmallStringVector<String>  &stringVector)
 {
     stringVector.clear();
 
@@ -136,7 +136,7 @@ QDataStream &operator>>(QDataStream &in, BasicSmallStringVector<Size>  &stringVe
     stringVector.reserve(size);
 
     for (quint64 i = 0; i < size; ++i) {
-        BasicSmallString<Size> string;
+        String string;
 
         in >> string;
 
@@ -146,18 +146,18 @@ QDataStream &operator>>(QDataStream &in, BasicSmallStringVector<Size>  &stringVe
     return in;
 }
 
-template <uint Size>
-QDebug operator<<(QDebug debug, const BasicSmallStringVector<Size> &stringVector)
+template <typename String>
+QDebug operator<<(QDebug debug, const BasicSmallStringVector<String> &stringVector)
 {
-    debug << "StringVector(" << stringVector.join(BasicSmallString<Size>(", ")).constData() << ")";
+    debug << "StringVector(" << stringVector.join(", ").constData() << ")";
 
     return debug;
 }
 
-template <uint Size>
-void PrintTo(const BasicSmallStringVector<Size> &textVector, ::std::ostream* os)
+template <typename String>
+void PrintTo(const BasicSmallStringVector<String> &textVector, ::std::ostream* os)
 {
-    *os << "[" << textVector.join(BasicSmallString<Size>(", ")).constData() << "]";
+    *os << "[" << textVector.join(", ").constData() << "]";
 }
 
 } // namespace Utils
