@@ -547,6 +547,30 @@ public:
         return joinedString;
     }
 
+    static
+    BasicSmallString number(int number)
+    {
+        char buffer[12];
+        std::size_t size = itoa(number, buffer, 10);
+
+        return BasicSmallString(buffer, size);
+    }
+
+    static
+    BasicSmallString number(long long int number)
+    {
+        char buffer[22];
+        std::size_t size = itoa(number, buffer, 10);
+
+        return BasicSmallString(buffer, size);
+    }
+
+    static
+    BasicSmallString number(double number)
+    {
+        return std::to_string(number);
+    }
+
     char &operator[](std::size_t index)
     {
         return *(data() + index);
@@ -847,6 +871,51 @@ private:
             m_data.shortString.shortStringSize = uchar(size);
         else
             m_data.allocated.data.size = size;
+    }
+
+    static
+    std::size_t itoa(long long int number, char* string, uint base)
+    {
+        using llint = long long int;
+        using lluint = long long unsigned int;
+        std::size_t size = 0;
+        bool isNegative = false;
+        lluint unsignedNumber = 0;
+
+        if (number == 0)
+        {
+            string[size] = '0';
+            string[++size] = '\0';
+
+            return size;
+        }
+
+        if (number < 0 && base == 10)
+        {
+            isNegative = true;
+            if (number == std::numeric_limits<llint>::min())
+                unsignedNumber = lluint(std::numeric_limits<llint>::max()) + 1;
+            else
+                unsignedNumber = lluint(-number);
+        } else {
+            unsignedNumber = lluint(number);
+        }
+
+        while (unsignedNumber != 0)
+        {
+            int remainder = int(unsignedNumber % base);
+            string[size++] = (remainder > 9) ? char((remainder - 10) + 'a') : char(remainder + '0');
+            unsignedNumber /= base;
+        }
+
+        if (isNegative)
+            string[size++] = '-';
+
+        string[size] = '\0';
+
+        std::reverse(string, string+size);
+
+        return size;
     }
 
 private:
