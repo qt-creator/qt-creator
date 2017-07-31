@@ -207,8 +207,6 @@ signals:
     void removedTarget(ProjectExplorer::Target *target);
     void addedTarget(ProjectExplorer::Target *target);
 
-    void buildConfigurationEnabledChanged();
-
     void settingsLoaded();
     void aboutToSaveSettings();
 
@@ -242,8 +240,6 @@ protected:
     virtual void projectLoaded(); // Called when the project is fully loaded.
 
 private:
-    void changeBuildConfigurationEnabled();
-
     void setActiveTarget(Target *target);
     ProjectPrivate *d;
 

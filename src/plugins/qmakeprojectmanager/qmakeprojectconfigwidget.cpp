@@ -98,7 +98,7 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
             this, &QmakeProjectConfigWidget::shadowBuildEdited);
 
     QmakeProject *project = static_cast<QmakeProject *>(bc->target()->project());
-    project->subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
+    project->subscribeSignal(&BuildConfiguration::environmentChanged, this, [this, bc]() {
         if (static_cast<BuildConfiguration *>(sender())->isActive())
             environmentChanged();
     });

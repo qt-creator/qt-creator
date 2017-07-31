@@ -2624,17 +2624,17 @@ void ProjectExplorerPluginPrivate::projectAdded(Project *pro)
     if (m_projectsMode)
         m_projectsMode->setEnabled(true);
     // more specific action en and disabling ?
-    connect(pro, &Project::buildConfigurationEnabledChanged,
-            this, &ProjectExplorerPluginPrivate::updateActions);
+    pro->subscribeSignal(&BuildConfiguration::enabledChanged, this, [this]() {
+        if (static_cast<BuildConfiguration *>(sender())->isActive())
+            updateActions();
+    });
 }
 
 void ProjectExplorerPluginPrivate::projectRemoved(Project *pro)
 {
+    Q_UNUSED(pro);
     if (m_projectsMode)
         m_projectsMode->setEnabled(SessionManager::hasProjects());
-    // more specific action en and disabling ?
-    disconnect(pro, &Project::buildConfigurationEnabledChanged,
-               this, &ProjectExplorerPluginPrivate::updateActions);
 }
 
 void ProjectExplorerPluginPrivate::projectDisplayNameChanged(Project *pro)

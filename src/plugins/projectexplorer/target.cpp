@@ -153,27 +153,6 @@ Target::~Target()
     delete d;
 }
 
-void Target::changeBuildConfigurationEnabled()
-{
-    auto bc = qobject_cast<BuildConfiguration *>(sender());
-    if (bc == activeBuildConfiguration())
-        emit buildConfigurationEnabledChanged();
-}
-
-void Target::changeDeployConfigurationEnabled()
-{
-    auto dc = qobject_cast<DeployConfiguration *>(sender());
-    if (dc == activeDeployConfiguration())
-        emit deployConfigurationEnabledChanged();
-}
-
-void Target::changeRunConfigurationEnabled()
-{
-    auto rc = qobject_cast<RunConfiguration *>(sender());
-    if (rc == activeRunConfiguration())
-        emit runConfigurationEnabledChanged();
-}
-
 void Target::handleKitUpdates(Kit *k)
 {
     if (k != d->m_kit)
@@ -232,9 +211,6 @@ void Target::addBuildConfiguration(BuildConfiguration *bc)
     emit addedProjectConfiguration(bc);
     emit addedBuildConfiguration(bc);
 
-    connect(bc, &BuildConfiguration::enabledChanged,
-            this, &Target::changeBuildConfigurationEnabled);
-
     if (!activeBuildConfiguration())
         setActiveBuildConfiguration(bc);
 }
@@ -285,7 +261,6 @@ void Target::setActiveBuildConfiguration(BuildConfiguration *bc)
         d->m_activeBuildConfiguration = bc;
         emit activeProjectConfigurationChanged(d->m_activeBuildConfiguration);
         emit activeBuildConfigurationChanged(d->m_activeBuildConfiguration);
-        emit buildConfigurationEnabledChanged();
     }
 }
 
@@ -305,9 +280,6 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
 
     // add it
     d->m_deployConfigurations.push_back(dc);
-
-    connect(dc, &DeployConfiguration::enabledChanged,
-            this, &Target::changeDeployConfigurationEnabled);
 
     emit addedProjectConfiguration(dc);
     emit addedDeployConfiguration(dc);
@@ -362,7 +334,6 @@ void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
         d->m_activeDeployConfiguration = dc;
         emit activeProjectConfigurationChanged(d->m_activeDeployConfiguration);
         emit activeDeployConfigurationChanged(d->m_activeDeployConfiguration);
-        emit deployConfigurationEnabledChanged();
     }
     updateDeviceState();
 }
@@ -420,9 +391,6 @@ void Target::addRunConfiguration(RunConfiguration *rc)
 
     d->m_runConfigurations.push_back(rc);
 
-    connect(rc, &RunConfiguration::enabledChanged,
-            this, &Target::changeRunConfigurationEnabled);
-
     emit addedProjectConfiguration(rc);
     emit addedRunConfiguration(rc);
 
@@ -463,7 +431,6 @@ void Target::setActiveRunConfiguration(RunConfiguration *rc)
         d->m_activeRunConfiguration = rc;
         emit activeProjectConfigurationChanged(d->m_activeRunConfiguration);
         emit activeRunConfigurationChanged(d->m_activeRunConfiguration);
-        emit runConfigurationEnabledChanged();
     }
     updateDeviceState();
 }

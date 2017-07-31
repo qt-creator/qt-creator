@@ -160,12 +160,6 @@ signals:
     void addedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
     void activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc);
 
-    /// convenience signal, emitted if either the active configuration emits
-    /// enabledChanged() or if the active build configuration changes
-    void buildConfigurationEnabledChanged();
-    void deployConfigurationEnabledChanged();
-    void runConfigurationEnabledChanged();
-
     void deploymentDataChanged();
     void applicationTargetsChanged();
 
@@ -177,7 +171,6 @@ private:
 
     void updateDeviceState();
 
-    void changeBuildConfigurationEnabled();
     void changeDeployConfigurationEnabled();
     void changeRunConfigurationEnabled();
     void handleKitUpdates(ProjectExplorer::Kit *k);

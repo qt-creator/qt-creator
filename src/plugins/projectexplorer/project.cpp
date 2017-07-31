@@ -223,13 +223,6 @@ QString Project::makeUnique(const QString &preferredName, const QStringList &use
     return tryName;
 }
 
-void Project::changeBuildConfigurationEnabled()
-{
-    auto t = qobject_cast<Target *>(sender());
-    if (t == activeTarget())
-        emit buildConfigurationEnabledChanged();
-}
-
 void Project::addTarget(Target *t)
 {
     QTC_ASSERT(t && !d->m_targets.contains(t), return);
@@ -240,8 +233,6 @@ void Project::addTarget(Target *t)
 
     // add it
     d->m_targets.push_back(t);
-    connect(t, &Target::buildConfigurationEnabledChanged,
-            this, &Project::changeBuildConfigurationEnabled);
     connect(t, &Target::addedProjectConfiguration, this, &Project::addedProjectConfiguration);
     connect(t, &Target::aboutToRemoveProjectConfiguration, this, &Project::aboutToRemoveProjectConfiguration);
     connect(t, &Target::removedProjectConfiguration, this, &Project::removedProjectConfiguration);
@@ -297,7 +288,6 @@ void Project::setActiveTarget(Target *target)
         d->m_activeTarget = target;
         emit activeProjectConfigurationChanged(d->m_activeTarget);
         emit activeTargetChanged(d->m_activeTarget);
-        emit buildConfigurationEnabledChanged();
     }
 }
 
