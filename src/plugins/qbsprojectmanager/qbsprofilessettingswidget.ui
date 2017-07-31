@@ -62,6 +62,9 @@
        <property name="text">
         <string/>
        </property>
+       <property name="textInteractionFlags">
+        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+       </property>
       </widget>
      </item>
      <item row="0" column="0">
@@ -75,6 +78,9 @@
       <widget class="QLabel" name="versionValueLabel">
        <property name="text">
         <string>TextLabel</string>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
        </property>
       </widget>
      </item>
