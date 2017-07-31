@@ -48,8 +48,9 @@
 
 namespace Sqlite {
 
-SqliteDatabaseBackend::SqliteDatabaseBackend()
-    : m_databaseHandle(nullptr),
+SqliteDatabaseBackend::SqliteDatabaseBackend(SqliteDatabase &database)
+    : m_database(database),
+      m_databaseHandle(nullptr),
       m_cachedTextEncoding(Utf8)
 {
 }
@@ -124,8 +125,7 @@ sqlite3 *SqliteDatabaseBackend::sqliteDatabaseHandle()
 
 void SqliteDatabaseBackend::setPragmaValue(Utils::SmallStringView pragmaKey, Utils::SmallStringView newPragmaValue)
 {
-    SqliteReadWriteStatement statement(Utils::SmallString{"PRAGMA ", pragmaKey, "='", newPragmaValue, "'"}, *this);
-    statement.step();
+    execute(Utils::SmallString{"PRAGMA ", pragmaKey, "='", newPragmaValue, "'"});
     Utils::SmallString pragmeValueInDatabase = toValue<Utils::SmallString>("PRAGMA " + pragmaKey);
 
     checkPragmaValue(pragmeValueInDatabase, newPragmaValue);
@@ -160,7 +160,7 @@ TextEncoding SqliteDatabaseBackend::textEncoding()
 
 Utils::SmallStringVector SqliteDatabaseBackend::columnNames(Utils::SmallStringView tableName)
 {
-    SqliteReadWriteStatement statement("SELECT * FROM " + tableName, *this);
+    SqliteReadWriteStatement statement("SELECT * FROM " + tableName, m_database);
     return statement.columnNames();
 }
 
@@ -176,7 +176,7 @@ int SqliteDatabaseBackend::totalChangesCount()
 
 void SqliteDatabaseBackend::execute(Utils::SmallStringView sqlStatement)
 {
-    SqliteReadWriteStatement statement(sqlStatement, *this);
+    SqliteReadWriteStatement statement(sqlStatement, m_database);
     statement.step();
 }
 
@@ -391,7 +391,7 @@ void SqliteDatabaseBackend::throwException(const char *whatHasHappens) const
 template <typename Type>
 Type SqliteDatabaseBackend::toValue(Utils::SmallStringView sqlStatement)
 {
-    SqliteReadWriteStatement statement(sqlStatement, *this);
+    SqliteReadWriteStatement statement(sqlStatement, m_database);
 
     statement.next();
 

@@ -33,12 +33,16 @@ struct sqlite3;
 
 namespace Sqlite {
 
+class SqliteDatabase;
+
 class SQLITE_EXPORT SqliteDatabaseBackend
 {
 public:
-
-    SqliteDatabaseBackend();
+    SqliteDatabaseBackend(SqliteDatabase &database);
     ~SqliteDatabaseBackend();
+
+    SqliteDatabaseBackend(const SqliteDatabase &database) = delete;
+    SqliteDatabase &operator=(const SqliteDatabase &database) = delete;
 
     void setMmapSize(qint64 defaultSize, qint64 maximumSize);
     void activateMultiThreading();
@@ -58,8 +62,6 @@ public:
 
     void setTextEncoding(TextEncoding textEncoding);
     TextEncoding textEncoding();
-
-
 
     Utils::SmallStringVector columnNames(Utils::SmallStringView tableName);
 
@@ -105,6 +107,7 @@ protected:
     Q_NORETURN void throwException(const char *whatHasHappens) const;
 
 private:
+    SqliteDatabase &m_database;
     sqlite3 *m_databaseHandle;
     TextEncoding m_cachedTextEncoding;
 

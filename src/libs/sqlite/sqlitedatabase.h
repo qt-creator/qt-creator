@@ -41,6 +41,7 @@ class SQLITE_EXPORT SqliteDatabase
 {
     friend class SqliteAbstractTransaction;
     friend class SqliteStatement;
+    friend class SqliteBackend;
 
 public:
     SqliteDatabase();
@@ -66,9 +67,10 @@ public:
 
     void execute(Utils::SmallStringView sqlStatement);
 
+    SqliteDatabaseBackend &backend();
+
 private:
     void initializeTables();
-    SqliteDatabaseBackend &backend();
 
 
 private:

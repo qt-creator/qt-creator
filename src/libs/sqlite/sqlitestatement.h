@@ -51,6 +51,7 @@ protected:
 
     bool next() const;
     void step() const;
+    void execute() const;
     void reset() const;
 
     template<typename Type>
@@ -64,10 +65,36 @@ protected:
     void bind(int index, double value);
     void bind(int index, Utils::SmallStringView value);
 
+    template<typename ... Values>
+    void bindValues(Values ... values)
+    {
+        bindValuesByIndex(1, values...);
+    }
+
+    template<typename ... Values>
+    void write(Values ... values)
+    {
+        bindValuesByIndex(1, values...);
+        execute();
+    }
+
+    template<typename ... Values>
+    void bindNameValues(Values ... values)
+    {
+        bindValuesByName(values...);
+    }
+
+    template<typename ... Values>
+    void writeNamed(Values ... values)
+    {
+        bindValuesByName(values...);
+        execute();
+    }
+
     template <typename Type>
     void bind(Utils::SmallStringView name, Type value);
 
-    int bindingIndexForName(Utils::SmallStringView name);
+    int bindingIndexForName(Utils::SmallStringView name) const;
 
     void setBindingColumnNames(const Utils::SmallStringVector &bindingColumnNames);
     const Utils::SmallStringVector &bindingColumnNames() const;
@@ -107,14 +134,43 @@ protected:
 
     QString columnName(int column) const;
 
+    SqliteDatabase &database() const;
+
 protected:
     explicit SqliteStatement(Utils::SmallStringView sqlStatement,
                              SqliteDatabaseBackend &databaseBackend);
 
 private:
+    template<typename Type>
+    void bindValuesByIndex(int index, Type value)
+    {
+        bind(index, value);
+    }
+
+    template<typename Type, typename ... Value>
+    void bindValuesByIndex(int index, Type value, Value ... values)
+    {
+        bind(index, value);
+        bindValuesByIndex(index + 1, values...);
+    }
+
+    template<typename Type>
+    void bindValuesByName(Utils::SmallStringView name, Type value)
+    {
+       bind(bindingIndexForName(name), value);
+    }
+
+    template<typename Type, typename ... Values>
+    void bindValuesByName(Utils::SmallStringView name, Type value, Values ... values)
+    {
+       bind(bindingIndexForName(name), value);
+       bindValuesByName(values...);
+    }
+
+private:
     std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt*)> m_compiledStatement;
     Utils::SmallStringVector m_bindingColumnNames;
-    SqliteDatabaseBackend &m_databaseBackend;
+    SqliteDatabase &m_database;
     int m_bindingParameterCount;
     int m_columnCount;
     mutable bool m_isReadyToFetchValues;

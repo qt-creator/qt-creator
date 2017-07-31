@@ -43,14 +43,8 @@
 namespace Sqlite {
 
 SqliteStatement::SqliteStatement(Utils::SmallStringView sqlStatement, SqliteDatabase &database)
-    : SqliteStatement(sqlStatement, database.backend())
-{
-
-}
-
-SqliteStatement::SqliteStatement(Utils::SmallStringView sqlStatement, SqliteDatabaseBackend &databaseBackend)
     : m_compiledStatement(nullptr, deleteCompiledStatement),
-      m_databaseBackend(databaseBackend),
+      m_database(database),
       m_bindingParameterCount(0),
       m_columnCount(0),
       m_isReadyToFetchValues(false)
@@ -146,6 +140,11 @@ void SqliteStatement::step() const
     next();
 }
 
+void SqliteStatement::execute() const
+{
+    next();
+}
+
 int SqliteStatement::columnCount() const
 {
     return m_columnCount;
@@ -203,7 +202,7 @@ template SQLITE_EXPORT void SqliteStatement::bind(Utils::SmallStringView name, q
 template SQLITE_EXPORT void SqliteStatement::bind(Utils::SmallStringView name, double value);
 template SQLITE_EXPORT void SqliteStatement::bind(Utils::SmallStringView name, Utils::SmallStringView text);
 
-int SqliteStatement::bindingIndexForName(Utils::SmallStringView name)
+int SqliteStatement::bindingIndexForName(Utils::SmallStringView name) const
 {
     return  sqlite3_bind_parameter_index(m_compiledStatement.get(), name.data());
 }
@@ -241,12 +240,12 @@ void SqliteStatement::prepare(Utils::SmallStringView sqlStatement)
 
 sqlite3 *SqliteStatement::sqliteDatabaseHandle() const
 {
-    return m_databaseBackend.sqliteDatabaseHandle();
+    return m_database.backend().sqliteDatabaseHandle();
 }
 
 TextEncoding SqliteStatement::databaseTextEncoding()
 {
-     return m_databaseBackend.textEncoding();
+     return m_database.backend().textEncoding();
 }
 
 bool SqliteStatement::checkForStepError(int resultCode) const
@@ -357,6 +356,11 @@ void SqliteStatement::throwException(const char *whatHasHappened) const
 QString SqliteStatement::columnName(int column) const
 {
     return QString::fromUtf8(sqlite3_column_name(m_compiledStatement.get(), column));
+}
+
+SqliteDatabase &SqliteStatement::database() const
+{
+    return m_database;
 }
 
 static Utils::SmallString textForColumn(sqlite3_stmt *sqlStatment, int column)

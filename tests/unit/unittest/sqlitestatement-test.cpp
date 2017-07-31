@@ -35,8 +35,8 @@
 #include <vector>
 
 namespace {
-
 using testing::ElementsAre;
+using testing::PrintToString;
 
 using Sqlite::SqliteException;
 using Sqlite::SqliteDatabase;
@@ -44,12 +44,30 @@ using Sqlite::SqliteReadStatement;
 using Sqlite::SqliteReadWriteStatement;
 using Sqlite::SqliteWriteStatement;
 
+MATCHER_P3(HasValues, value1, value2, rowid,
+           std::string(negation ? "isn't" : "is")
+           + PrintToString(value1)
+           + ", " + PrintToString(value2)
+           + " and " + PrintToString(rowid)
+           )
+{
+    SqliteDatabase &database = arg.database();
+
+    SqliteReadStatement statement("SELECT name, number FROM test WHERE rowid=?", database);
+    statement.bind(1, rowid);
+
+    statement.next();
+
+    return statement.text(0) == value1 && statement.text(1) == value2;
+}
+
 class SqliteStatement : public ::testing::Test
 {
 protected:
      void SetUp() override;
      void TearDown() override;
 
+protected:
     SqliteDatabase database;
 };
 
@@ -248,6 +266,44 @@ TEST_F(SqliteStatement, RequestBindingNamesFromStatement)
     SqliteWriteStatement statement("UPDATE test SET name=@name, number=@number WHERE rowid=@id", database);
 
     ASSERT_THAT(statement.bindingColumnNames(), ElementsAre("name", "number", "id"));
+}
+
+TEST_F(SqliteStatement, BindValues)
+{
+    SqliteWriteStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
+
+    statement.bindValues("see", 7.23, 1);
+    statement.execute();
+
+    ASSERT_THAT(statement, HasValues("see", "7.23", 1));
+}
+
+TEST_F(SqliteStatement, WriteValues)
+{
+    SqliteWriteStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
+
+    statement.write("see", 7.23, 1);
+
+    ASSERT_THAT(statement, HasValues("see", "7.23", 1));
+}
+
+TEST_F(SqliteStatement, BindNamedValues)
+{
+    SqliteWriteStatement statement("UPDATE test SET name=@name, number=@number WHERE rowid=@id", database);
+
+    statement.bindNameValues("@name", "see", "@number", 7.23, "@id", 1);
+    statement.execute();
+
+    ASSERT_THAT(statement, HasValues("see", "7.23", 1));
+}
+
+TEST_F(SqliteStatement, WriteNamedValues)
+{
+    SqliteWriteStatement statement("UPDATE test SET name=@name, number=@number WHERE rowid=@id", database);
+
+    statement.writeNamed("@name", "see", "@number", 7.23, "@id", 1);
+
+    ASSERT_THAT(statement, HasValues("see", "7.23", 1));
 }
 
 TEST_F(SqliteStatement, ClosedDatabase)

@@ -37,9 +37,11 @@ public:
     SqliteReadWriteStatement(Utils::SmallStringView sqlStatement, SqliteDatabase &database);
 
     using SqliteStatement::next;
-    using SqliteStatement::step;
+    using SqliteStatement::execute;
     using SqliteStatement::reset;
     using SqliteStatement::bind;
+    using SqliteStatement::bindValues;
+    using SqliteStatement::bindNameValues;
     using SqliteStatement::bindingIndexForName;
     using SqliteStatement::setBindingColumnNames;
     using SqliteStatement::bindingColumnNames;
@@ -49,10 +51,9 @@ public:
     using SqliteStatement::columnCount;
     using SqliteStatement::columnNames;
     using SqliteStatement::toValue;
-
-private:
-    explicit SqliteReadWriteStatement(Utils::SmallStringView sqlStatement,
-                                      SqliteDatabaseBackend &backend);
+    using SqliteStatement::database;
+    using SqliteStatement::write;
+    using SqliteStatement::writeNamed;
 };
 
 } // namespace Sqlite

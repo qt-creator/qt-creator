@@ -33,10 +33,4 @@ SqliteReadWriteStatement::SqliteReadWriteStatement(Utils::SmallStringView sqlSta
 {
 }
 
-SqliteReadWriteStatement::SqliteReadWriteStatement(Utils::SmallStringView sqlStatement,
-                                                   SqliteDatabaseBackend &backend)
-    : SqliteStatement(sqlStatement, backend)
-{
-}
-
 } // namespace Sqlite

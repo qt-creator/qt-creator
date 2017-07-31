@@ -30,7 +30,8 @@
 namespace Sqlite {
 
 SqliteDatabase::SqliteDatabase()
-    : m_journalMode(JournalMode::Wal)
+    : m_databaseBackend(*this),
+      m_journalMode(JournalMode::Wal)
 {
 }
 

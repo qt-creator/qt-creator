@@ -25,6 +25,7 @@
 
 #include "googletest.h"
 
+#include <sqlitedatabase.h>
 #include <sqlitedatabasebackend.h>
 #include <sqliteexception.h>
 #include <sqlitewritestatement.h>
@@ -43,7 +44,8 @@ protected:
     void TearDown() override;
 
     Utils::PathString databaseFilePath = QDir::tempPath() + "/SqliteDatabaseBackendTest.db";
-    Sqlite::SqliteDatabaseBackend databaseBackend;
+    Sqlite::SqliteDatabase database;
+    Sqlite::SqliteDatabaseBackend &databaseBackend = database.backend();
 };
 
 using SqliteDatabaseBackendSlowTest = SqliteDatabaseBackend;
