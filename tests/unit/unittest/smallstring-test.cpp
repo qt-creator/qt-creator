@@ -1269,3 +1269,21 @@ TEST(SmallString, NumberToString)
     ASSERT_THAT(SmallString::number(1.2), "1.200000");
     ASSERT_THAT(SmallString::number(-1.2), "-1.200000");
 }
+
+TEST(SmallString, StringViewPlusOperator)
+{
+    SmallStringView text = "text";
+
+    auto result = text + " and more text";
+
+    ASSERT_THAT(result, "text and more text");
+}
+
+TEST(SmallString, StringPlusOperator)
+{
+    SmallString text = "text";
+
+    auto result = text + " and more text";
+
+    ASSERT_THAT(result, "text and more text");
+}

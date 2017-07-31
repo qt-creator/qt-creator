@@ -683,6 +683,46 @@ public:
         return comparison < 0;
     }
 
+    friend BasicSmallString operator+(const BasicSmallString &first, const BasicSmallString &second)
+    {
+        BasicSmallString text;
+        text.reserve(first.size() + second.size());
+
+        text.append(first);
+        text.append(second);
+
+        return text;
+    }
+
+    friend BasicSmallString operator+(const BasicSmallString &first, SmallStringView second)
+    {
+        BasicSmallString text;
+        text.reserve(first.size() + second.size());
+
+        text.append(first);
+        text.append(second);
+
+        return text;
+    }
+
+    friend BasicSmallString operator+(SmallStringView first, const BasicSmallString &second)
+    {
+        return operator+(second, first);
+    }
+
+    template<size_type ArraySize>
+    friend BasicSmallString operator+(const BasicSmallString &first, const char(&second)[ArraySize])
+    {
+
+        return operator+(first, SmallStringView(second));
+    }
+
+    template<size_type ArraySize>
+    friend BasicSmallString operator+(const char(&first)[ArraySize], const BasicSmallString &second)
+    {
+        return operator+(SmallStringView(first), second);
+    }
+
 unittest_public:
     bool isShortString() const noexcept
     {
@@ -984,5 +1024,31 @@ std::vector<Type> clone(const std::vector<Type> &vector)
 
 using SmallString = BasicSmallString<31>;
 using PathString = BasicSmallString<190>;
+
+inline
+SmallString operator+(SmallStringView first, SmallStringView second)
+{
+    SmallString text;
+    text.reserve(first.size() + second.size());
+
+    text.append(first);
+    text.append(second);
+
+    return text;
+}
+
+template<std::size_t Size>
+inline
+SmallString operator+(SmallStringView first, const char(&second)[Size])
+{
+    return operator+(first, SmallStringView(second));
+}
+
+template<std::size_t Size>
+inline
+SmallString operator+(const char(&first)[Size], SmallStringView second)
+{
+    return operator+(SmallStringView(first), second);
+}
 
 } // namespace Utils
