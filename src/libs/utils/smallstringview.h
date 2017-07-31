@@ -85,6 +85,12 @@ public:
         return m_size;
     }
 
+    constexpr
+    size_type isEmpty() const
+    {
+        return m_size == 0;
+    }
+
     const_iterator begin() const noexcept
     {
         return data();

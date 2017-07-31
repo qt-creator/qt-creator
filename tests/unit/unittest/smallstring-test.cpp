@@ -731,6 +731,12 @@ TEST(SmallString, IsEmpty)
     ASSERT_TRUE(SmallString().isEmpty());
 }
 
+TEST(SmallString, StringViewIsEmpty)
+{
+    ASSERT_FALSE(SmallStringView("text").isEmpty());
+    ASSERT_TRUE(SmallStringView("").isEmpty());
+}
+
 TEST(SmallString, HasContent)
 {
     ASSERT_TRUE(SmallString("text").hasContent());
