@@ -263,10 +263,10 @@ void SqliteStatement::SetUp()
 {
     database.setJournalMode(JournalMode::Memory);
     database.open(":memory:");
-    SqliteWriteStatement("CREATE TABLE test(name TEXT UNIQUE, number NUMERIC)", database).step();
-    SqliteWriteStatement("INSERT INTO  test VALUES ('bar', 'blah')", database).step();
-    SqliteWriteStatement("INSERT INTO  test VALUES ('foo', 23.3)", database).step();
-    SqliteWriteStatement("INSERT INTO  test VALUES ('poo', 40)", database).step();
+    database.execute("CREATE TABLE test(name TEXT UNIQUE, number NUMERIC)");
+    database.execute("INSERT INTO  test VALUES ('bar', 'blah')");
+    database.execute("INSERT INTO  test VALUES ('foo', 23.3)");
+    database.execute("INSERT INTO  test VALUES ('poo', 40)");
 }
 
 void SqliteStatement::TearDown()

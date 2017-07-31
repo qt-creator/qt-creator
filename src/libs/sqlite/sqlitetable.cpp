@@ -89,7 +89,7 @@ void SqliteTable::initialize()
         createTableSqlStatementBuilder.setColumnDefinitions(createColumnDefintions());
 
         SqliteImmediateTransaction transaction(*m_sqliteDatabase);
-        SqliteWriteStatement(createTableSqlStatementBuilder.sqlStatement(), *m_sqliteDatabase).step();
+        m_sqliteDatabase->execute(createTableSqlStatementBuilder.sqlStatement());
         transaction.commit();
 
         m_isReady = true;

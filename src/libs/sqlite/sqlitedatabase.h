@@ -64,6 +64,8 @@ public:
     int changesCount();
     int totalChangesCount();
 
+    void execute(Utils::SmallStringView sqlStatement);
+
 private:
     void initializeTables();
     SqliteDatabaseBackend &backend();

@@ -105,6 +105,11 @@ int SqliteDatabase::totalChangesCount()
     return m_databaseBackend.totalChangesCount();
 }
 
+void SqliteDatabase::execute(Utils::SmallStringView sqlStatement)
+{
+    m_databaseBackend.execute(sqlStatement);
+}
+
 void SqliteDatabase::initializeTables()
 {
     for (SqliteTable *table: tables())
