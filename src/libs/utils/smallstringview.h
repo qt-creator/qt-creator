@@ -116,6 +116,19 @@ public:
         return std::string(data(), size());
     }
 
+    bool startsWith(SmallStringView subStringToSearch) const noexcept
+    {
+        if (size() >= subStringToSearch.size())
+            return !std::memcmp(m_pointer, subStringToSearch.data(), subStringToSearch.size());
+
+        return false;
+    }
+
+    bool startsWith(char characterToSearch) const noexcept
+    {
+        return m_pointer[0] == characterToSearch;
+    }
+
 private:
     const char *m_pointer;
     size_type m_size;

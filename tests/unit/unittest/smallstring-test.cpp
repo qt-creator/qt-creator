@@ -866,6 +866,19 @@ TEST(SmallString, StartsWith)
 {
     SmallString text("$column");
 
+    ASSERT_FALSE(text.startsWith("$columnxxx"));
+    ASSERT_TRUE(text.startsWith("$column"));
+    ASSERT_TRUE(text.startsWith("$col"));
+    ASSERT_FALSE(text.startsWith("col"));
+    ASSERT_TRUE(text.startsWith('$'));
+    ASSERT_FALSE(text.startsWith('@'));
+}
+
+TEST(SmallString, StartsWithStringView)
+{
+    SmallStringView text("$column");
+
+    ASSERT_FALSE(text.startsWith("$columnxxx"));
     ASSERT_TRUE(text.startsWith("$column"));
     ASSERT_TRUE(text.startsWith("$col"));
     ASSERT_FALSE(text.startsWith("col"));
