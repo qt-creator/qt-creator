@@ -102,7 +102,7 @@ protected:
     void setEnabled(bool enabled);
 
 private:
-    bool m_isEnabled;
+    bool m_isEnabled = false;
 };
 
 // helper functions:
