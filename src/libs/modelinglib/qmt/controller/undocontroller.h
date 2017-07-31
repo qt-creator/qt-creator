@@ -54,8 +54,8 @@ public:
     void doNotMerge();
 
 private:
-    QUndoStack *m_undoStack;
-    bool m_doNotMerge;
+    QUndoStack *m_undoStack = nullptr;
+    bool m_doNotMerge = false;
 };
 
 } // namespace qmt

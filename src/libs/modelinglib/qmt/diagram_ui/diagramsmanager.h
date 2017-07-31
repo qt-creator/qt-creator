@@ -84,11 +84,11 @@ private:
     void onDataChanged(const QModelIndex &topleft, const QModelIndex &bottomright);
 
     QPointer<TreeModel> m_model;
-    DiagramsViewInterface *m_diagramsView;
-    DiagramController *m_diagramController;
-    DiagramSceneController *m_diagramSceneController;
-    StyleController *m_styleController;
-    StereotypeController *m_stereotypeController;
+    DiagramsViewInterface *m_diagramsView = nullptr;
+    DiagramController *m_diagramController = nullptr;
+    DiagramSceneController *m_diagramSceneController = nullptr;
+    StyleController *m_styleController = nullptr;
+    StereotypeController *m_stereotypeController = nullptr;
     QHash<Uid, ManagedDiagram *> m_diagramUidToManagedDiagramMap;
 };
 

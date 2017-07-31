@@ -31,14 +31,6 @@
 namespace qmt {
 
 DObject::DObject()
-    : DElement(),
-      m_modelUid(Uid::invalidUid()),
-      m_depth(0),
-      m_visualPrimaryRole(PrimaryRoleNormal),
-      m_visualSecondaryRole(SecondaryRoleNone),
-      m_stereotypeDisplay(StereotypeSmart),
-      m_isAutoSized(true),
-      m_isVisualEmphasized(false)
 {
 }
 

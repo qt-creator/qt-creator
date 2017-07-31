@@ -37,8 +37,7 @@
 namespace qmt {
 
 DiagramsView::DiagramsView(QWidget *parent)
-    : QTabWidget(parent),
-      m_diagramsManager(nullptr)
+    : QTabWidget(parent)
 {
     setTabsClosable(true);
     setMovable(true);

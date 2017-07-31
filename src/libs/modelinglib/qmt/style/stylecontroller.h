@@ -67,7 +67,7 @@ private:
     QScopedPointer<Style> m_defaultStyle;
     QScopedPointer<Style> m_relationStarterStyle;
     QScopedPointer<StyleEngine> m_defaultStyleEngine;
-    bool m_suppressGradients;
+    bool m_suppressGradients = false;
 };
 
 } // namespace qmt

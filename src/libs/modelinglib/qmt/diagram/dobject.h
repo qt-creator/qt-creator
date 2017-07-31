@@ -104,18 +104,18 @@ public:
     void accept(DConstVisitor *visitor) const override;
 
 private:
-    Uid m_modelUid;
+    Uid m_modelUid = Uid::invalidUid();
     QList<QString> m_stereotypes;
     QString m_context;
     QString m_name;
     QPointF m_pos;
     QRectF m_rect;
-    int m_depth;
-    VisualPrimaryRole m_visualPrimaryRole;
-    VisualSecondaryRole m_visualSecondaryRole;
-    StereotypeDisplay m_stereotypeDisplay;
-    bool m_isAutoSized;
-    bool m_isVisualEmphasized;
+    int m_depth = 0;
+    VisualPrimaryRole m_visualPrimaryRole = PrimaryRoleNormal;
+    VisualSecondaryRole m_visualSecondaryRole = SecondaryRoleNone;
+    StereotypeDisplay m_stereotypeDisplay = StereotypeSmart;
+    bool m_isAutoSized = true;
+    bool m_isVisualEmphasized = false;
 };
 
 } // namespace qmt

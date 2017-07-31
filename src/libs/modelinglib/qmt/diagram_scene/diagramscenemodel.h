@@ -169,21 +169,21 @@ private:
         RemoveElement
     };
 
-    DiagramController *m_diagramController;
-    DiagramSceneController *m_diagramSceneController;
-    StyleController *m_styleController;
-    StereotypeController *m_stereotypeController;
-    MDiagram *m_diagram;
-    DiagramGraphicsScene *m_graphicsScene;
-    LatchController *m_latchController;
+    DiagramController *m_diagramController = nullptr;
+    DiagramSceneController *m_diagramSceneController = nullptr;
+    StyleController *m_styleController = nullptr;
+    StereotypeController *m_stereotypeController = nullptr;
+    MDiagram *m_diagram = nullptr;
+    DiagramGraphicsScene *m_graphicsScene = nullptr;
+    LatchController *m_latchController = nullptr;
     QList<QGraphicsItem *> m_graphicsItems;
     QHash<const QGraphicsItem *, DElement *> m_itemToElementMap;
     QHash<const DElement *, QGraphicsItem *> m_elementToItemMap;
     QSet<QGraphicsItem *> m_selectedItems;
     QSet<QGraphicsItem *> m_secondarySelectedItems;
-    Busy m_busyState;
-    OriginItem *m_originItem;
-    QGraphicsItem *m_focusItem;
+    Busy m_busyState = NotBusy;
+    OriginItem *m_originItem = nullptr;
+    QGraphicsItem *m_focusItem = nullptr;
 };
 
 } // namespace qmt

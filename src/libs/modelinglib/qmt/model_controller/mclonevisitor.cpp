@@ -45,7 +45,6 @@
 namespace qmt {
 
 MCloneVisitor::MCloneVisitor()
-    : m_cloned(nullptr)
 {
 }
 
@@ -145,7 +144,6 @@ void MCloneVisitor::visitMConnection(const MConnection *connection)
 }
 
 MCloneDeepVisitor::MCloneDeepVisitor()
-    : m_cloned(nullptr)
 {
 }
 

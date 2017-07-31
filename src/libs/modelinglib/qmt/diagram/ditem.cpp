@@ -31,8 +31,6 @@
 namespace qmt {
 
 DItem::DItem()
-    : DObject(),
-      m_isShapeEditable(true)
 {
 }
 

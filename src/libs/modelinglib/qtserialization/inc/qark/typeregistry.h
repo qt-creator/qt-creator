@@ -119,8 +119,6 @@ public:
         typedef Archive &(*LoadFuncType)(Archive &, BASE * &p);
 
         explicit TypeInfo()
-            : m_saveFunc(nullptr),
-              m_loadFunc(nullptr)
         {
         }
 
@@ -135,8 +133,8 @@ public:
             return m_saveFunc == rhs.m_saveFunc && m_loadFunc == rhs.m_loadFunc;
         }
 
-        SaveFuncType m_saveFunc;
-        LoadFuncType m_loadFunc;
+        SaveFuncType m_saveFunc = nullptr;
+        LoadFuncType m_loadFunc = nullptr;
     };
 
     typedef QHash<QString, TypeInfo> MapType;

@@ -41,7 +41,7 @@ public:
     void visitMDiagram(const MDiagram *diagram) override;
 
 private:
-    const MDiagram *m_diagram;
+    const MDiagram *m_diagram = nullptr;
 };
 
 } // namespace qmt

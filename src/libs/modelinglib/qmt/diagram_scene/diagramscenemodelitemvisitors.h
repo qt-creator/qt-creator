@@ -55,8 +55,8 @@ public:
     void visitDSwimlane(DSwimlane *swimlane) override;
 
 private:
-    DiagramSceneModel *m_diagramSceneModel;
-    QGraphicsItem *m_graphicsItem;
+    DiagramSceneModel *m_diagramSceneModel = nullptr;
+    QGraphicsItem *m_graphicsItem = nullptr;
 };
 
 class QMT_EXPORT DiagramSceneModel::UpdateVisitor : public DVisitor
@@ -82,9 +82,9 @@ public:
     void visitDSwimlane(DSwimlane *swimlane) override;
 
 private:
-    QGraphicsItem *m_graphicsItem;
-    DiagramSceneModel *m_diagramSceneModel;
-    DElement *m_relatedElement;
+    QGraphicsItem *m_graphicsItem = nullptr;
+    DiagramSceneModel *m_diagramSceneModel = nullptr;
+    DElement *m_relatedElement = nullptr;
 };
 
 } // namespace qmt

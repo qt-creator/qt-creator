@@ -30,8 +30,6 @@
 namespace qmt {
 
 FindRootDiagramVisitor::FindRootDiagramVisitor()
-    : MVoidVisitor(),
-      m_diagram(nullptr)
 {
 }
 

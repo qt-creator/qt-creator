@@ -296,9 +296,7 @@ private:
 
 public:
     explicit QXmlInArchive(QXmlStreamReader &stream)
-        : m_stream(stream),
-          m_endTagWasRead(false),
-          m_currentRefNode(nullptr)
+        : m_stream(stream)
     {
     }
 
@@ -837,10 +835,10 @@ private:
     inline void skipUntilEndOfTag(const XmlTag &xmlTag);
 
     QXmlStreamReader &m_stream;
-    bool m_endTagWasRead;
+    bool m_endTagWasRead = false;
     QStack<Node *> m_nodeStack;
     impl::LoadingRefMap m_loadingRefMap;
-    Node *m_currentRefNode;
+    Node *m_currentRefNode = nullptr;
 };
 
 QXmlInArchive::XmlTag QXmlInArchive::readTag()

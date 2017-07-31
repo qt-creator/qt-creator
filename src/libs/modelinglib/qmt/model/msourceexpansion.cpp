@@ -30,8 +30,6 @@
 namespace qmt {
 
 MSourceExpansion::MSourceExpansion()
-    : MExpansion(),
-      m_isTransient(false)
 {
 }
 

@@ -61,8 +61,8 @@ public:
 private:
     QString m_name;
     QString m_cardinality;
-    Kind m_kind;
-    bool m_isNavigable;
+    Kind m_kind = Association;
+    bool m_isNavigable = false;
 };
 
 bool operator==(const MAssociationEnd &lhs, const MAssociationEnd &rhs);

@@ -64,12 +64,7 @@ DiagramsManager::ManagedDiagram::~ManagedDiagram()
 }
 
 DiagramsManager::DiagramsManager(QObject *parent)
-    : QObject(parent),
-      m_diagramsView(nullptr),
-      m_diagramController(nullptr),
-      m_diagramSceneController(nullptr),
-      m_styleController(nullptr),
-      m_stereotypeController(nullptr)
+    : QObject(parent)
 {
 }
 

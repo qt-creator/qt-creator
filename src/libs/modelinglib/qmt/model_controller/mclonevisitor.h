@@ -54,7 +54,7 @@ public:
     void visitMConnection(const MConnection *connection) override;
 
 private:
-    MElement *m_cloned;
+    MElement *m_cloned = nullptr;
 };
 
 class QMT_EXPORT MCloneDeepVisitor : public MConstVisitor
@@ -79,7 +79,7 @@ public:
     void visitMConnection(const MConnection *connection) override;
 
 private:
-    MElement *m_cloned;
+    MElement *m_cloned = nullptr;
 };
 
 } // namespace qmt

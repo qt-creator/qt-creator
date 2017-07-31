@@ -47,7 +47,7 @@ public:
 
 private:
     QString m_sourceId;
-    bool m_isTransient;
+    bool m_isTransient = false;
 };
 
 } // namespace qmt

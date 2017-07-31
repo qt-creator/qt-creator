@@ -52,8 +52,7 @@ public:
     static const bool outArchive = true;
 
     QXmlOutArchive(QXmlStreamWriter &stream)
-        : m_stream(stream),
-          m_isNextPointerAReference(false)
+        : m_stream(stream)
     {
     }
 
@@ -322,7 +321,7 @@ public:
 private:
     QXmlStreamWriter &m_stream;
     impl::SavingRefMap m_savingRefMap;
-    bool m_isNextPointerAReference;
+    bool m_isNextPointerAReference = false;
 };
 
 } // namespace qark

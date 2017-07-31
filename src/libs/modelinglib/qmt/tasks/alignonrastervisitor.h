@@ -61,9 +61,9 @@ public:
     void visitDSwimlane(DSwimlane *swimlane) override;
 
 private:
-    DiagramController *m_diagramController;
-    ISceneInspector *m_sceneInspector;
-    MDiagram *m_diagram;
+    DiagramController *m_diagramController = nullptr;
+    ISceneInspector *m_sceneInspector = nullptr;
+    MDiagram *m_diagram = nullptr;
 };
 
 } // namespace qmt

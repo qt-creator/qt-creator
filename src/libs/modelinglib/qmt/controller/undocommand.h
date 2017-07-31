@@ -47,8 +47,8 @@ public:
     void redo() override;
 
 private:
-    bool m_canRedo;
-    bool m_doNotMerge;
+    bool m_canRedo = false;
+    bool m_doNotMerge = false;
 };
 
 } // namespace qmt

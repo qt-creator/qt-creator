@@ -190,72 +190,72 @@ protected:
                                     void (T::*setter)(const E &),
                                     V (E::*vGetter)() const, void (E::*vSetter)(V));
 
-    PropertiesView *m_propertiesView;
+    PropertiesView *m_propertiesView = nullptr;
     QList<MElement *> m_modelElements;
     QList<DElement *> m_diagramElements;
-    MDiagram *m_diagram;
-    StereotypesController *m_stereotypesController;
-    QWidget *m_topWidget;
-    QFormLayout *m_topLayout;
+    MDiagram *m_diagram = nullptr;
+    StereotypesController *m_stereotypesController = nullptr;
+    QWidget *m_topWidget = nullptr;
+    QFormLayout *m_topLayout = nullptr;
     QList<const char *> m_rowToId;
     QString m_propertiesTitle;
     // MElement
-    StereotypeIcon::Element m_stereotypeElement;
-    QLabel *m_classNameLabel;
-    QComboBox *m_stereotypeComboBox;
-    QLabel *m_reverseEngineeredLabel;
+    StereotypeIcon::Element m_stereotypeElement = StereotypeIcon::ElementAny;
+    QLabel *m_classNameLabel = nullptr;
+    QComboBox *m_stereotypeComboBox = nullptr;
+    QLabel *m_reverseEngineeredLabel = nullptr;
     // MObject
-    QLineEdit *m_elementNameLineEdit;
-    QLabel *m_childrenLabel;
-    QLabel *m_relationsLabel;
+    QLineEdit *m_elementNameLineEdit = nullptr;
+    QLabel *m_childrenLabel = nullptr;
+    QLabel *m_relationsLabel = nullptr;
     // MClass
-    QLineEdit *m_namespaceLineEdit;
-    QLineEdit *m_templateParametersLineEdit;
-    QLabel *m_classMembersStatusLabel;
-    QPushButton *m_classMembersParseButton;
-    ClassMembersEdit *m_classMembersEdit;
+    QLineEdit *m_namespaceLineEdit = nullptr;
+    QLineEdit *m_templateParametersLineEdit = nullptr;
+    QLabel *m_classMembersStatusLabel = nullptr;
+    QPushButton *m_classMembersParseButton = nullptr;
+    ClassMembersEdit *m_classMembersEdit = nullptr;
     // MDiagram
-    QLabel *m_diagramsLabel;
+    QLabel *m_diagramsLabel = nullptr;
     // MItem
-    QLineEdit *m_itemVarietyEdit;
+    QLineEdit *m_itemVarietyEdit = nullptr;
     // MRelation
     QString m_endAName;
-    QLabel *m_endALabel;
+    QLabel *m_endALabel = nullptr;
     QString m_endBName;
-    QLabel *m_endBLabel;
+    QLabel *m_endBLabel = nullptr;
     // MDependency
-    QComboBox *m_directionSelector;
+    QComboBox *m_directionSelector = nullptr;
     // MAssociation
-    QLineEdit *m_endAEndName;
-    QLineEdit *m_endACardinality;
-    QCheckBox *m_endANavigable;
-    QComboBox *m_endAKind;
-    QLineEdit *m_endBEndName;
-    QLineEdit *m_endBCardinality;
-    QCheckBox *m_endBNavigable;
-    QComboBox *m_endBKind;
+    QLineEdit *m_endAEndName = nullptr;
+    QLineEdit *m_endACardinality = nullptr;
+    QCheckBox *m_endANavigable = nullptr;
+    QComboBox *m_endAKind = nullptr;
+    QLineEdit *m_endBEndName = nullptr;
+    QLineEdit *m_endBCardinality = nullptr;
+    QCheckBox *m_endBNavigable = nullptr;
+    QComboBox *m_endBKind = nullptr;
 
     // DElement
-    QFrame *m_separatorLine;
+    QFrame *m_separatorLine = nullptr;
     // DObject
-    StyleEngine::ElementType m_styleElementType;
-    QLabel *m_posRectLabel;
-    QCheckBox *m_autoSizedCheckbox;
-    PaletteBox *m_visualPrimaryRoleSelector;
-    QComboBox *m_visualSecondaryRoleSelector;
-    QCheckBox *m_visualEmphasizedCheckbox;
-    QComboBox *m_stereotypeDisplaySelector;
-    QLabel *m_depthLabel;
+    StyleEngine::ElementType m_styleElementType = StyleEngine::TypeOther;
+    QLabel *m_posRectLabel = nullptr;
+    QCheckBox *m_autoSizedCheckbox = nullptr;
+    PaletteBox *m_visualPrimaryRoleSelector = nullptr;
+    QComboBox *m_visualSecondaryRoleSelector = nullptr;
+    QCheckBox *m_visualEmphasizedCheckbox = nullptr;
+    QComboBox *m_stereotypeDisplaySelector = nullptr;
+    QLabel *m_depthLabel = nullptr;
     // DClass
-    QComboBox *m_templateDisplaySelector;
-    QCheckBox *m_showAllMembersCheckbox;
+    QComboBox *m_templateDisplaySelector = nullptr;
+    QCheckBox *m_showAllMembersCheckbox = nullptr;
     // DComponent
-    QCheckBox *m_plainShapeCheckbox;
+    QCheckBox *m_plainShapeCheckbox = nullptr;
     // DItem
-    QLineEdit *m_itemShapeEdit;
+    QLineEdit *m_itemShapeEdit = nullptr;
     // DAnnotation
-    QCheckBox *m_annotationAutoWidthCheckbox;
-    QComboBox *m_annotationVisualRoleSelector;
+    QCheckBox *m_annotationAutoWidthCheckbox = nullptr;
+    QComboBox *m_annotationVisualRoleSelector = nullptr;
 };
 
 } // namespace qmt

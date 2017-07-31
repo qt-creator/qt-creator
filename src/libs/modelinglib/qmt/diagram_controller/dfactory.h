@@ -54,7 +54,7 @@ public:
     void visitMConnection(const MConnection *connection) override;
 
 private:
-    DElement *m_product;
+    DElement *m_product = nullptr;
 };
 
 } // namespace qmt

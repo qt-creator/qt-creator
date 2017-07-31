@@ -41,13 +41,8 @@ namespace qmt {
 
 LatchController::LatchController(QObject *parent)
     : QObject(parent),
-      m_diagramSceneModel(nullptr),
       m_horizontalAlignLine(new AlignLineItem(AlignLineItem::Horizontal, 0)),
-      m_verticalAlignLine(new AlignLineItem(AlignLineItem::Vertical, 0)),
-      m_foundHorizontalLatch(false),
-      m_horizontalDist(0.0),
-      m_foundVerticalLatch(false),
-      m_verticalDist(0.0)
+      m_verticalAlignLine(new AlignLineItem(AlignLineItem::Vertical, 0))
 {
     m_horizontalAlignLine->setZValue(LATCH_LINES_ZVALUE);
     m_horizontalAlignLine->setVisible(false);

@@ -57,8 +57,7 @@
 namespace qmt {
 
 DiagramSceneModel::CreationVisitor::CreationVisitor(DiagramSceneModel *diagramSceneModel)
-    : m_diagramSceneModel(diagramSceneModel),
-      m_graphicsItem(nullptr)
+    : m_diagramSceneModel(diagramSceneModel)
 {
 }
 

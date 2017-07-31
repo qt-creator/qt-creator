@@ -39,13 +39,7 @@ namespace qmt {
 
 PropertiesView::PropertiesView(QObject *parent)
     : QObject(parent),
-      m_modelController(nullptr),
-      m_diagramController(nullptr),
-      m_stereotypeController(nullptr),
-      m_styleController(nullptr),
-      m_viewFactory([=](PropertiesView *propertiesView) { return new MView(propertiesView); }),
-      m_selectedDiagram(nullptr),
-      m_widget(nullptr)
+      m_viewFactory([=](PropertiesView *propertiesView) { return new MView(propertiesView); })
 {
 }
 

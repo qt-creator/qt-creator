@@ -54,8 +54,7 @@ StyleController::StyleController(QObject *parent)
     : QObject(parent),
       m_defaultStyle(new DefaultStyle),
       m_relationStarterStyle(new RelationStarterStyle),
-      m_defaultStyleEngine(new DefaultStyleEngine),
-      m_suppressGradients(false)
+      m_defaultStyleEngine(new DefaultStyleEngine)
 {
 }
 

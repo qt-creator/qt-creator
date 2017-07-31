@@ -73,7 +73,7 @@ public:
 
 private:
     QScopedPointer<Project> m_project;
-    bool m_isModified;
+    bool m_isModified = false;
 };
 
 } // namespace qmt

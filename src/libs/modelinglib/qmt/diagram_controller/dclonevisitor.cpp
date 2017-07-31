@@ -45,7 +45,6 @@
 namespace qmt {
 
 DCloneVisitor::DCloneVisitor()
-    : m_cloned(nullptr)
 {
 }
 
@@ -154,7 +153,6 @@ void DCloneVisitor::visitDSwimlane(const DSwimlane *swimlane)
 
 
 DCloneDeepVisitor::DCloneDeepVisitor()
-    : m_cloned(nullptr)
 {
 }
 

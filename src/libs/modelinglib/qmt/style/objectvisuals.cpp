@@ -30,10 +30,6 @@
 namespace qmt {
 
 ObjectVisuals::ObjectVisuals()
-    : m_visualPrimaryRole(DObject::PrimaryRoleNormal),
-      m_visualSecondaryRole(DObject::SecondaryRoleNone),
-      m_isEmphasized(false),
-      m_depth(0)
 {
 }
 

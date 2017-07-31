@@ -42,7 +42,7 @@ public:
     void visitMObject(MObject *object) override;
 
 private:
-    MDiagram *m_diagram;
+    MDiagram *m_diagram = nullptr;
 };
 
 } // namespace qmt

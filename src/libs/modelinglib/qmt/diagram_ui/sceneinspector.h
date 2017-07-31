@@ -47,7 +47,7 @@ public:
     IResizable *resizable(const DElement *element, const MDiagram *diagram) const override;
 
 private:
-    DiagramsManager *m_diagramsManager;
+    DiagramsManager *m_diagramsManager = nullptr;
 };
 
 } // namespace qmt

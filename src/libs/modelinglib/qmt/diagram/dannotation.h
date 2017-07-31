@@ -69,8 +69,8 @@ private:
     QString m_text;
     QPointF m_pos;
     QRectF m_rect;
-    VisualRole m_visualRole;
-    bool m_isAutoSized;
+    VisualRole m_visualRole = RoleNormal;
+    bool m_isAutoSized = true;
 };
 
 } // namespace qmt

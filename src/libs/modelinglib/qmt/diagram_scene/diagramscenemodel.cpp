@@ -96,16 +96,9 @@ public:
 
 DiagramSceneModel::DiagramSceneModel(QObject *parent)
     : QObject(parent),
-      m_diagramController(nullptr),
-      m_diagramSceneController(nullptr),
-      m_styleController(nullptr),
-      m_stereotypeController(nullptr),
-      m_diagram(nullptr),
       m_graphicsScene(new DiagramGraphicsScene(this)),
       m_latchController(new LatchController(this)),
-      m_busyState(NotBusy),
-      m_originItem(new OriginItem()),
-      m_focusItem(nullptr)
+      m_originItem(new OriginItem())
 {
     m_latchController->setDiagramSceneModel(this);
     connect(m_graphicsScene, &QGraphicsScene::selectionChanged,
@@ -115,7 +108,6 @@ DiagramSceneModel::DiagramSceneModel(QObject *parent)
     m_graphicsScene->addItem(m_originItem);
 
     m_latchController->addToGraphicsScene(m_graphicsScene);
-
 }
 
 DiagramSceneModel::~DiagramSceneModel()

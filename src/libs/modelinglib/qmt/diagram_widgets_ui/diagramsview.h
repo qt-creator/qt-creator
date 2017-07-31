@@ -69,7 +69,7 @@ private:
     MDiagram *diagram(int tabIndex) const;
     MDiagram *diagram(DiagramView * diagramView) const;
 
-    DiagramsManager *m_diagramsManager;
+    DiagramsManager *m_diagramsManager = nullptr;
     QHash<Uid, DiagramView *> m_diagramViews;
 };
 

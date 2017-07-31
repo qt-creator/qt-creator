@@ -55,8 +55,8 @@ public:
     MSelection selectedObjects() const;
 
 private:
-    TreeModel *m_treeModel;
-    ModelTreeViewInterface *m_modelTreeView;
+    TreeModel *m_treeModel = nullptr;
+    ModelTreeViewInterface *m_modelTreeView = nullptr;
 };
 
 } // namespace qmt

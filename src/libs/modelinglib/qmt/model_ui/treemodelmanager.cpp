@@ -38,9 +38,7 @@
 namespace qmt {
 
 TreeModelManager::TreeModelManager(QObject *parent) :
-    QObject(parent),
-    m_treeModel(nullptr),
-    m_modelTreeView(nullptr)
+    QObject(parent)
 {
 }
 
