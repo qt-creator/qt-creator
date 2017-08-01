@@ -2501,7 +2501,7 @@
          height="100%" />
     </g>
     <g
-       id="share/qtcreator/templates/wizards/projects/qtcanvas3dapplication/3dapplication"
+       id="share/qtcreator/templates/wizards/projects/qtquickapplication/canvas3d/icon"
        transform="translate(-159,-83)">
       <use
          style="display:inline"
