@@ -40,25 +40,20 @@ void CreateTableSqlStatementBuilder::setTable(Utils::SmallString &&tableName)
     this->m_tableName = std::move(tableName);
 }
 
-void CreateTableSqlStatementBuilder::addColumnDefinition(Utils::SmallString &&columnName,
-                                                         ColumnType columnType,
-                                                         bool isPrimaryKey)
+void CreateTableSqlStatementBuilder::addColumn(Utils::SmallString &&columnName,
+                                               ColumnType columnType,
+                                               IsPrimaryKey isPrimaryKey)
 {
     m_sqlStatementBuilder.clear();
 
-    ColumnDefinition columnDefinition;
-    columnDefinition.setName(std::move(columnName));
-    columnDefinition.setType(columnType);
-    columnDefinition.setIsPrimaryKey(isPrimaryKey);
-
-    m_columnDefinitions.push_back(columnDefinition);
+    m_columns.emplace_back(std::move(columnName), columnType, isPrimaryKey);
 }
 
-void CreateTableSqlStatementBuilder::setColumnDefinitions(ColumnDefinitions &&columnDefinitions)
+void CreateTableSqlStatementBuilder::setColumns(const SqliteColumns &columns)
 {
     m_sqlStatementBuilder.clear();
 
-    m_columnDefinitions = std::move(columnDefinitions);
+    m_columns = std::move(columns);
 }
 
 void CreateTableSqlStatementBuilder::setUseWithoutRowId(bool useWithoutRowId)
@@ -69,7 +64,7 @@ void CreateTableSqlStatementBuilder::setUseWithoutRowId(bool useWithoutRowId)
 void CreateTableSqlStatementBuilder::clear()
 {
     m_sqlStatementBuilder.clear();
-    m_columnDefinitions.clear();
+    m_columns.clear();
     m_tableName.clear();
     m_useWithoutRowId = false;
 }
@@ -77,7 +72,7 @@ void CreateTableSqlStatementBuilder::clear()
 void CreateTableSqlStatementBuilder::clearColumns()
 {
     m_sqlStatementBuilder.clear();
-    m_columnDefinitions.clear();
+    m_columns.clear();
 }
 
 Utils::SmallStringView CreateTableSqlStatementBuilder::sqlStatement() const
@@ -90,17 +85,17 @@ Utils::SmallStringView CreateTableSqlStatementBuilder::sqlStatement() const
 
 bool CreateTableSqlStatementBuilder::isValid() const
 {
-    return m_tableName.hasContent() && !m_columnDefinitions.empty();
+    return m_tableName.hasContent() && !m_columns.empty();
 }
 
 void CreateTableSqlStatementBuilder::bindColumnDefinitions() const
 {
     Utils::SmallStringVector columnDefinitionStrings;
 
-    for (const ColumnDefinition &columnDefinition : m_columnDefinitions) {
-        Utils::SmallString columnDefinitionString = {columnDefinition.name(), " ", columnDefinition.typeString()};
+    for (const SqliteColumn &columns : m_columns) {
+        Utils::SmallString columnDefinitionString = {columns.name(), " ", columns.typeString()};
 
-        if (columnDefinition.isPrimaryKey())
+        if (columns.isPrimaryKey())
             columnDefinitionString.append(" PRIMARY KEY");
 
         columnDefinitionStrings.push_back(columnDefinitionString);

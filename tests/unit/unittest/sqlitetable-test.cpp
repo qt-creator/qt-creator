@@ -41,68 +41,55 @@ protected:
     void SetUp() override;
     void TearDown() override;
 
-    SqliteColumn *addColumn(Utils::SmallString columnName);
-
+protected:
     SpyDummy spyDummy;
     SqliteDatabase database;
-    Sqlite::SqliteTable *table = new Sqlite::SqliteTable;
+    Sqlite::SqliteTable &table = database.addTable();
     Utils::SmallString tableName = "testTable";
 };
 
 
 TEST_F(SqliteTable, ColumnIsAddedToTable)
 {
-    table->setUseWithoutRowId(true);
+    table.setUseWithoutRowId(true);
 
-    ASSERT_TRUE(table->useWithoutRowId());
+    ASSERT_TRUE(table.useWithoutRowId());
 }
 
 TEST_F(SqliteTable, SetTableName)
 {
-    table->setName(tableName.clone());
+    table.setName(tableName.clone());
 
-    ASSERT_THAT(table->name(), tableName);
+    ASSERT_THAT(table.name(), tableName);
 }
 
 TEST_F(SqliteTable, SetUseWithoutRowid)
 {
-    table->setUseWithoutRowId(true);
+    table.setUseWithoutRowId(true);
 
-    ASSERT_TRUE(table->useWithoutRowId());
+    ASSERT_TRUE(table.useWithoutRowId());
 }
 
 TEST_F(SqliteTable, TableIsReadyAfterOpenDatabase)
 {
-    table->setName(tableName.clone());
-    addColumn("name");
+    table.setName(tableName.clone());
+    table.addColumn("name");
 
     database.open();
 
-    ASSERT_TRUE(table->isReady());
+    ASSERT_TRUE(table.isReady());
 }
 
 void SqliteTable::SetUp()
 {
     database.setJournalMode(JournalMode::Memory);
     database.setDatabaseFilePath( QStringLiteral(":memory:"));
-    database.addTable(table);
 }
 
 void SqliteTable::TearDown()
 {
     if (database.isOpen())
         database.close();
-    table = nullptr;
 }
 
-SqliteColumn *SqliteTable::addColumn(Utils::SmallString columnName)
-{
-    SqliteColumn *newSqliteColum = new SqliteColumn;
-
-    newSqliteColum->setName(std::move(columnName));
-
-    table->addColumn(newSqliteColum);
-
-    return newSqliteColum;
-}
 }

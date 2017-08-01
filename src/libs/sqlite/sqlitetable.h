@@ -26,47 +26,75 @@
 #pragma once
 
 #include "sqliteglobal.h"
-#include "columndefinition.h"
-#include "utf8string.h"
-
-#include <QObject>
-#include <QVector>
+#include "sqlitecolumn.h"
 
 namespace Sqlite {
 
-class SqliteColumn;
 class SqliteDatabase;
 
-class SQLITE_EXPORT SqliteTable
+class SqliteTable
 {
 public:
-    SqliteTable();
-    ~SqliteTable();
+    SqliteTable(SqliteDatabase &m_sqliteDatabase)
+        : m_sqliteDatabase(m_sqliteDatabase)
+    {
+    }
 
-    void setName(Utils::SmallString &&name);
-    Utils::SmallStringView name() const;
+    void setName(Utils::SmallString &&name)
+    {
+        m_tableName = std::move(name);
+    }
 
-    void setUseWithoutRowId(bool useWithoutWorId);
-    bool useWithoutRowId() const;
+    Utils::SmallStringView name() const
+    {
+        return m_tableName;
+    }
 
-    void addColumn(SqliteColumn *newColumn);
-    const std::vector<SqliteColumn *> &columns() const;
+    void setUseWithoutRowId(bool useWithoutWorId)
+    {
+        m_withoutRowId = useWithoutWorId;
+    }
 
-    void setSqliteDatabase(SqliteDatabase *database);
+    bool useWithoutRowId() const
+    {
+        return m_withoutRowId;
+    }
+
+    SqliteColumn &addColumn(Utils::SmallString &&name,
+                            ColumnType type = ColumnType::Numeric,
+                            IsPrimaryKey isPrimaryKey = IsPrimaryKey::No)
+    {
+        m_sqliteColumns.emplace_back(std::move(name), type, isPrimaryKey);
+
+        return m_sqliteColumns.back();
+    }
+
+    const SqliteColumns &columns() const
+    {
+        return m_sqliteColumns;
+    }
+
+    bool isReady() const
+    {
+        return m_isReady;
+    }
 
     void initialize();
 
-    bool isReady() const;
+    friend bool operator==(const SqliteTable &first, const SqliteTable &second)
+    {
+        return first.m_tableName == second.m_tableName
+            && &first.m_sqliteDatabase == &second.m_sqliteDatabase
+            && first.m_withoutRowId == second.m_withoutRowId
+            && first.m_isReady == second.m_isReady
+            && first.m_sqliteColumns == second.m_sqliteColumns;
+    }
 
 private:
-    ColumnDefinitions createColumnDefintions() const;
-
-private:
-    std::vector<SqliteColumn*> m_sqliteColumns;
     Utils::SmallString m_tableName;
-    SqliteDatabase *m_sqliteDatabase;
-    bool m_withoutRowId;
-
+    SqliteColumns m_sqliteColumns;
+    SqliteDatabase &m_sqliteDatabase;
+    bool m_withoutRowId = false;
     bool m_isReady = false;
 };
 

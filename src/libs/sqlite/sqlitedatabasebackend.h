@@ -41,8 +41,11 @@ public:
     SqliteDatabaseBackend(SqliteDatabase &database);
     ~SqliteDatabaseBackend();
 
-    SqliteDatabaseBackend(const SqliteDatabase &database) = delete;
-    SqliteDatabase &operator=(const SqliteDatabase &database) = delete;
+    SqliteDatabaseBackend(const SqliteDatabase &) = delete;
+    SqliteDatabase &operator=(const SqliteDatabase &) = delete;
+
+    SqliteDatabaseBackend(SqliteDatabase &&) = delete;
+    SqliteDatabase &operator=(SqliteDatabase &&) = delete;
 
     void setMmapSize(qint64 defaultSize, qint64 maximumSize);
     void activateMultiThreading();

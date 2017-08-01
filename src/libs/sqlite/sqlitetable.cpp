@@ -33,52 +33,6 @@
 
 namespace Sqlite {
 
-SqliteTable::SqliteTable()
-    : m_withoutRowId(false)
-{
-
-}
-
-SqliteTable::~SqliteTable()
-{
-    qDeleteAll(m_sqliteColumns);
-}
-
-void SqliteTable::setName(Utils::SmallString &&name)
-{
-    m_tableName = std::move(name);
-}
-
-Utils::SmallStringView SqliteTable::name() const
-{
-    return m_tableName;
-}
-
-void SqliteTable::setUseWithoutRowId(bool useWithoutWorId)
-{
-    m_withoutRowId = useWithoutWorId;
-}
-
-bool SqliteTable::useWithoutRowId() const
-{
-    return m_withoutRowId;
-}
-
-void SqliteTable::addColumn(SqliteColumn *newColumn)
-{
-    m_sqliteColumns.push_back(newColumn);
-}
-
-const std::vector<SqliteColumn *> &SqliteTable::columns() const
-{
-    return m_sqliteColumns;
-}
-
-void SqliteTable::setSqliteDatabase(SqliteDatabase *database)
-{
-    m_sqliteDatabase = database;
-}
-
 void SqliteTable::initialize()
 {
     try {
@@ -86,10 +40,10 @@ void SqliteTable::initialize()
 
         createTableSqlStatementBuilder.setTable(m_tableName.clone());
         createTableSqlStatementBuilder.setUseWithoutRowId(m_withoutRowId);
-        createTableSqlStatementBuilder.setColumnDefinitions(createColumnDefintions());
+        createTableSqlStatementBuilder.setColumns(m_sqliteColumns);
 
-        SqliteImmediateTransaction transaction(*m_sqliteDatabase);
-        m_sqliteDatabase->execute(createTableSqlStatementBuilder.sqlStatement());
+        SqliteImmediateTransaction transaction(m_sqliteDatabase);
+        m_sqliteDatabase.execute(createTableSqlStatementBuilder.sqlStatement());
         transaction.commit();
 
         m_isReady = true;
@@ -97,21 +51,6 @@ void SqliteTable::initialize()
     } catch (const SqliteException &exception) {
         exception.printWarning();
     }
-}
-
-bool SqliteTable::isReady() const
-{
-    return m_isReady;
-}
-
-ColumnDefinitions SqliteTable::createColumnDefintions() const
-{
-    ColumnDefinitions columnDefintions;
-
-    for (SqliteColumn *sqliteColumn : m_sqliteColumns)
-        columnDefintions.push_back(sqliteColumn->columnDefintion());
-
-    return columnDefintions;
 }
 
 } // namespace Sqlite

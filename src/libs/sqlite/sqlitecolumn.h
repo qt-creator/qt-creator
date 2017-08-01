@@ -25,28 +25,30 @@
 
 #pragma once
 
-#include "columndefinition.h"
-#include "utf8string.h"
+#include "sqliteglobal.h"
 
-#include <QObject>
+#include <utils/smallstring.h>
 
 namespace Sqlite {
 
 class SqliteColumn
 {
 public:
-    SqliteColumn()
-        : m_type(ColumnType::Numeric),
-          m_isPrimaryKey(false)
-    {
+    SqliteColumn() = default;
 
-    }
+    SqliteColumn(Utils::SmallString &&name,
+                 ColumnType type = ColumnType::Numeric,
+                 IsPrimaryKey isPrimaryKey = IsPrimaryKey::No)
+        : m_name(std::move(name)),
+          m_type(type),
+          m_isPrimaryKey(isPrimaryKey)
+    {}
 
     void clear()
     {
         m_name.clear();
         m_type = ColumnType::Numeric;
-        m_isPrimaryKey = false;
+        m_isPrimaryKey = IsPrimaryKey::No;
     }
 
     void setName(Utils::SmallString &&newName)
@@ -69,31 +71,42 @@ public:
         return m_type;
     }
 
-    void setIsPrimaryKey(bool isPrimaryKey)
+    void setIsPrimaryKey(IsPrimaryKey isPrimaryKey)
     {
         m_isPrimaryKey = isPrimaryKey;
     }
 
     bool isPrimaryKey() const
     {
-        return m_isPrimaryKey;
+        return m_isPrimaryKey == IsPrimaryKey::Yes;
     }
 
-    ColumnDefinition columnDefintion() const
+    Utils::SmallString typeString() const
     {
-        ColumnDefinition columnDefinition;
+        switch (m_type) {
+            case ColumnType::None: return {};
+            case ColumnType::Numeric: return "NUMERIC";
+            case ColumnType::Integer: return "INTEGER";
+            case ColumnType::Real: return "REAL";
+            case ColumnType::Text: return "TEXT";
+        }
 
-        columnDefinition.setName(m_name.clone());
-        columnDefinition.setType(m_type);
-        columnDefinition.setIsPrimaryKey(m_isPrimaryKey);
+        Q_UNREACHABLE();
+    }
 
-        return columnDefinition;
+    friend bool operator==(const SqliteColumn &first, const SqliteColumn &second)
+    {
+        return first.m_name == second.m_name
+            && first.m_type == second.m_type
+            && first.m_isPrimaryKey == second.m_isPrimaryKey;
     }
 
 private:
     Utils::SmallString m_name;
-    ColumnType m_type;
-    bool m_isPrimaryKey;
+    ColumnType m_type = ColumnType::Numeric;
+    IsPrimaryKey m_isPrimaryKey = IsPrimaryKey::No;
 };
+
+using SqliteColumns = std::vector<SqliteColumn>;
 
 } // namespace Sqlite

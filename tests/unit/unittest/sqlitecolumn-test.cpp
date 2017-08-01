@@ -29,7 +29,12 @@
 
 namespace {
 
-using Sqlite::ColumnDefinition;
+using testing::AllOf;
+using testing::Contains;
+using testing::Property;
+
+using Column = Sqlite::SqliteColumn;
+using Sqlite::SqliteColumns;
 
 class SqliteColumn : public ::testing::Test
 {
@@ -65,7 +70,7 @@ TEST_F(SqliteColumn, DefaultPrimaryKey)
 
 TEST_F(SqliteColumn, SetPrimaryKey)
 {
-    column.setIsPrimaryKey(true);
+    column.setIsPrimaryKey(IsPrimaryKey::Yes);
 
     ASSERT_TRUE(column.isPrimaryKey());
 }
@@ -74,11 +79,11 @@ TEST_F(SqliteColumn, GetColumnDefinition)
 {
     column.setName("Claudia");
 
-    ColumnDefinition columnDefintion = column.columnDefintion();
-
-    ASSERT_THAT(columnDefintion.name(), "Claudia");
-    ASSERT_THAT(columnDefintion.type(), ColumnType::Numeric);
-    ASSERT_FALSE(columnDefintion.isPrimaryKey());
+    ASSERT_THAT(column,
+                    AllOf(
+                        Property(&Column::name, "Claudia"),
+                        Property(&Column::type, ColumnType::Numeric),
+                        Property(&Column::isPrimaryKey, false)));
 }
 
 void SqliteColumn::SetUp()

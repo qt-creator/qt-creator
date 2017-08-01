@@ -35,11 +35,6 @@ SqliteDatabase::SqliteDatabase()
 {
 }
 
-SqliteDatabase::~SqliteDatabase()
-{
-    qDeleteAll(m_sqliteTables);
-}
-
 void SqliteDatabase::open()
 {
     m_databaseBackend.open(m_databaseFilePath);
@@ -65,13 +60,14 @@ bool SqliteDatabase::isOpen() const
     return m_isOpen;
 }
 
-void SqliteDatabase::addTable(SqliteTable *newSqliteTable)
+SqliteTable &SqliteDatabase::addTable()
 {
-    newSqliteTable->setSqliteDatabase(this);
-    m_sqliteTables.push_back(newSqliteTable);
+    m_sqliteTables.emplace_back(*this);
+
+    return m_sqliteTables.back();
 }
 
-const std::vector<SqliteTable *> &SqliteDatabase::tables() const
+const std::vector<SqliteTable> &SqliteDatabase::tables() const
 {
     return m_sqliteTables;
 }
@@ -113,8 +109,8 @@ void SqliteDatabase::execute(Utils::SmallStringView sqlStatement)
 
 void SqliteDatabase::initializeTables()
 {
-    for (SqliteTable *table: tables())
-        table->initialize();
+    for (SqliteTable &table : m_sqliteTables)
+        table.initialize();
 }
 
 SqliteDatabaseBackend &SqliteDatabase::backend()

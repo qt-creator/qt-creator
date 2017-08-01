@@ -25,10 +25,8 @@
 
 #pragma once
 
-#include "columndefinition.h"
+#include "sqlitecolumn.h"
 #include "sqlstatementbuilder.h"
-
-#include <vector>
 
 namespace Sqlite {
 
@@ -38,8 +36,10 @@ public:
     CreateTableSqlStatementBuilder();
 
     void setTable(Utils::SmallString &&tableName);
-    void addColumnDefinition(Utils::SmallString &&columnName, ColumnType columnType, bool isPrimaryKey = false);
-    void setColumnDefinitions(ColumnDefinitions &&columnDefinitions);
+    void addColumn(Utils::SmallString &&columnName,
+                   ColumnType columnType,
+                   IsPrimaryKey isPrimaryKey = IsPrimaryKey::No);
+    void setColumns(const SqliteColumns &columns);
     void setUseWithoutRowId(bool useWithoutRowId);
 
     void clear();
@@ -56,7 +56,7 @@ protected:
 private:
     mutable SqlStatementBuilder m_sqlStatementBuilder;
     Utils::SmallString m_tableName;
-    ColumnDefinitions m_columnDefinitions;
+    SqliteColumns m_columns;
     bool m_useWithoutRowId;
 };
 

@@ -81,9 +81,7 @@ TEST_F(SqliteDatabase, CloseDatabase)
 
 TEST_F(SqliteDatabase, AddTable)
 {
-    SqliteTable *sqliteTable = new SqliteTable;
-
-    database.addTable(sqliteTable);
+    auto sqliteTable = database.addTable();
 
     ASSERT_THAT(database.tables(), Contains(sqliteTable));
 }

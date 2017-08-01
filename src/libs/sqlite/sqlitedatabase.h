@@ -27,15 +27,13 @@
 
 #include "sqlitedatabasebackend.h"
 #include "sqliteglobal.h"
+#include "sqlitetable.h"
 
 #include <utils/smallstring.h>
 
 #include <vector>
 
 namespace Sqlite {
-
-class SqliteTable;
-class SqliteDatabaseBackend;
 
 class SQLITE_EXPORT SqliteDatabase
 {
@@ -45,7 +43,12 @@ class SQLITE_EXPORT SqliteDatabase
 
 public:
     SqliteDatabase();
-    ~SqliteDatabase();
+
+    SqliteDatabase(const SqliteDatabase &) = delete;
+    bool operator=(const SqliteDatabase &) = delete;
+
+    SqliteDatabase(SqliteDatabase &&) = delete;
+    bool operator=(SqliteDatabase &&) = delete;
 
     void open();
     void open(Utils::PathString &&databaseFilePath);
@@ -53,8 +56,8 @@ public:
 
     bool isOpen() const;
 
-    void addTable(SqliteTable *newSqliteTable);
-    const std::vector<SqliteTable *> &tables() const;
+    SqliteTable &addTable();
+    const std::vector<SqliteTable> &tables() const;
 
     void setDatabaseFilePath(Utils::PathString &&databaseFilePath);
     const Utils::PathString &databaseFilePath() const;
@@ -75,7 +78,7 @@ private:
 
 private:
     SqliteDatabaseBackend m_databaseBackend;
-    std::vector<SqliteTable*> m_sqliteTables;
+    std::vector<SqliteTable> m_sqliteTables;
     Utils::PathString m_databaseFilePath;
     JournalMode m_journalMode;
     bool m_isOpen = false;
