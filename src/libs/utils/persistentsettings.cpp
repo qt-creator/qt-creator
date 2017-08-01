@@ -104,14 +104,14 @@ namespace Utils {
 
 struct Context // Basic context containing element name string constants.
 {
-    const QString qtCreatorElement = "qtcreator";
-    const QString dataElement = "data";
-    const QString variableElement = "variable";
-    const QString typeAttribute = "type";
-    const QString valueElement = "value";
-    const QString valueListElement = "valuelist";
-    const QString valueMapElement = "valuemap";
-    const QString keyAttribute = "key";
+    const QString qtCreatorElement = QString("qtcreator");
+    const QString dataElement = QString("data");
+    const QString variableElement = QString("variable");
+    const QString typeAttribute = QString("type");
+    const QString valueElement = QString("value");
+    const QString valueListElement = QString("valuelist");
+    const QString valueMapElement = QString("valuemap");
+    const QString keyAttribute = QString("key");
 };
 
 struct ParseValueStackEntry
