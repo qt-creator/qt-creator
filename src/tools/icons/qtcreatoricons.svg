@@ -2379,7 +2379,7 @@
          transform="matrix(0,1,1,0,-78,95)" />
     </g>
     <g
-       id="share/qtcreator/templates/wizards/projects/qtquickapplication/icon-scroll"
+       id="share/qtcreator/templates/wizards/projects/qtquickapplication/scroll/icon"
        transform="translate(-125,-83)">
       <use
          style="display:inline"
