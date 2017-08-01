@@ -101,13 +101,13 @@ void SqliteDatabaseBackend::checkpointFullWalLog()
     checkIfLogCouldBeCheckpointed(resultCode);
 }
 
-void SqliteDatabaseBackend::open(Utils::SmallStringView databaseFilePath)
+void SqliteDatabaseBackend::open(Utils::SmallStringView databaseFilePath, OpenMode mode)
 {
     checkCanOpenDatabase(databaseFilePath);
 
     int resultCode = sqlite3_open_v2(databaseFilePath.data(),
                                      &m_databaseHandle,
-                                     SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+                                     openMode(mode),
                                      NULL);
 
     checkDatabaseCouldBeOpened(resultCode);
@@ -373,6 +373,18 @@ TextEncoding SqliteDatabaseBackend::pragmaToTextEncoding(Utils::SmallStringView 
         throwExceptionStatic("SqliteDatabaseBackend::pragmaToTextEncoding: pragma can't be transformed in a text encoding enumeration!");
 
     return static_cast<TextEncoding>(index);
+}
+
+int SqliteDatabaseBackend::openMode(OpenMode mode)
+{
+    int sqliteMode = SQLITE_OPEN_CREATE;
+
+    switch (mode) {
+        case OpenMode::ReadOnly: sqliteMode |= SQLITE_OPEN_READONLY; break;
+        case OpenMode::ReadWrite: sqliteMode |= SQLITE_OPEN_READWRITE; break;
+    }
+
+    return sqliteMode;
 }
 
 void SqliteDatabaseBackend::throwExceptionStatic(const char *whatHasHappens)

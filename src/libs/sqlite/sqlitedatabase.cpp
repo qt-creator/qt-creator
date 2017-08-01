@@ -30,15 +30,14 @@
 namespace Sqlite {
 
 SqliteDatabase::SqliteDatabase()
-    : m_databaseBackend(*this),
-      m_journalMode(JournalMode::Wal)
+    : m_databaseBackend(*this)
 {
 }
 
 void SqliteDatabase::open()
 {
-    m_databaseBackend.open(m_databaseFilePath);
-    m_databaseBackend.setJournalMode(journalMode());
+    m_databaseBackend.open(m_databaseFilePath, m_openMode);
+    m_databaseBackend.setJournalMode(m_journalMode);
     initializeTables();
     m_isOpen = true;
 }
@@ -90,6 +89,16 @@ void SqliteDatabase::setJournalMode(JournalMode journalMode)
 JournalMode SqliteDatabase::journalMode() const
 {
     return m_journalMode;
+}
+
+void SqliteDatabase::setOpenMode(OpenMode openMode)
+{
+    m_openMode = openMode;
+}
+
+OpenMode SqliteDatabase::openMode() const
+{
+    return m_openMode;
 }
 
 int SqliteDatabase::changesCount()

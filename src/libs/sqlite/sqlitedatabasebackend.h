@@ -54,7 +54,7 @@ public:
     void shutdownSqliteLibrary();
     void checkpointFullWalLog();
 
-    void open(Utils::SmallStringView databaseFilePath);
+    void open(Utils::SmallStringView databaseFilePath, OpenMode openMode);
     void close();
     void closeWithoutException();
 
@@ -75,6 +75,8 @@ public:
 
     template <typename Type>
     Type toValue(Utils::SmallStringView sqlStatement);
+
+    static int openMode(OpenMode);
 
 protected:
     bool databaseIsOpen() const;
@@ -106,8 +108,10 @@ protected:
     Utils::SmallStringView textEncodingToPragma(TextEncoding textEncoding);
     static TextEncoding pragmaToTextEncoding(Utils::SmallStringView pragma);
 
+
     Q_NORETURN static void throwExceptionStatic(const char *whatHasHappens);
     Q_NORETURN void throwException(const char *whatHasHappens) const;
+
 
 private:
     SqliteDatabase &m_database;

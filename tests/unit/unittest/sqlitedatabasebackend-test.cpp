@@ -30,9 +30,13 @@
 #include <sqliteexception.h>
 #include <sqlitewritestatement.h>
 
+#include <sqlite3.h>
+
 #include <QDir>
 
 namespace {
+
+using Backend = Sqlite::SqliteDatabaseBackend;
 
 using Sqlite::SqliteException;
 using Sqlite::SqliteWriteStatement;
@@ -52,7 +56,7 @@ using SqliteDatabaseBackendSlowTest = SqliteDatabaseBackend;
 
 TEST_F(SqliteDatabaseBackend, OpenAlreadyOpenDatabase)
 {
-    ASSERT_THROW(databaseBackend.open(databaseFilePath), SqliteException);
+    ASSERT_THROW(databaseBackend.open(databaseFilePath, OpenMode::ReadWrite), SqliteException);
 }
 
 TEST_F(SqliteDatabaseBackend, CloseAlreadyClosedDatabase)
@@ -64,7 +68,7 @@ TEST_F(SqliteDatabaseBackend, CloseAlreadyClosedDatabase)
 
 TEST_F(SqliteDatabaseBackend, OpenWithWrongPath)
 {
-    ASSERT_THROW(databaseBackend.open("/xxx/SqliteDatabaseBackendTest.db"), SqliteException);
+    ASSERT_THROW(databaseBackend.open("/xxx/SqliteDatabaseBackendTest.db", OpenMode::ReadWrite), SqliteException);
 }
 
 TEST_F(SqliteDatabaseBackend, DefaultJournalMode)
@@ -142,10 +146,24 @@ TEST_F(SqliteDatabaseBackend, TextEncodingCannotBeChangedAfterTouchingDatabase)
     ASSERT_THROW(databaseBackend.setTextEncoding(Utf16), SqliteException);
 }
 
+TEST_F(SqliteDatabaseBackend, OpenModeReadOnly)
+{
+    auto mode = Backend::openMode(OpenMode::ReadOnly);
+
+    ASSERT_THAT(mode, SQLITE_OPEN_CREATE | SQLITE_OPEN_READONLY);
+}
+
+TEST_F(SqliteDatabaseBackend, OpenModeReadWrite)
+{
+    auto mode = Backend::openMode(OpenMode::ReadWrite);
+
+    ASSERT_THAT(mode, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE);
+}
+
 void SqliteDatabaseBackend::SetUp()
 {
     QDir::temp().remove(QStringLiteral("SqliteDatabaseBackendTest.db"));
-    databaseBackend.open(databaseFilePath);
+    databaseBackend.open(databaseFilePath, OpenMode::ReadWrite);
 }
 
 void SqliteDatabaseBackend::TearDown()

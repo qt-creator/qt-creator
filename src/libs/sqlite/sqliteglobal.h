@@ -66,6 +66,12 @@ enum class JournalMode : char
     Wal
 };
 
+enum class OpenMode : char
+{
+    ReadOnly,
+    ReadWrite
+};
+
 enum TextEncoding : char
 {
     Utf8,

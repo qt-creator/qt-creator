@@ -65,6 +65,9 @@ public:
     void setJournalMode(JournalMode journalMode);
     JournalMode journalMode() const;
 
+    void setOpenMode(OpenMode openMode);
+    OpenMode openMode() const;
+
     int changesCount();
     int totalChangesCount();
 
@@ -80,7 +83,8 @@ private:
     SqliteDatabaseBackend m_databaseBackend;
     std::vector<SqliteTable> m_sqliteTables;
     Utils::PathString m_databaseFilePath;
-    JournalMode m_journalMode;
+    JournalMode m_journalMode = JournalMode::Wal;
+    OpenMode m_openMode = OpenMode::ReadWrite;
     bool m_isOpen = false;
 };
 

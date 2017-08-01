@@ -63,6 +63,13 @@ TEST_F(SqliteDatabase, SetJournalMode)
     ASSERT_THAT(database.journalMode(), JournalMode::Memory);
 }
 
+TEST_F(SqliteDatabase, SetOpenlMode)
+{
+    database.setOpenMode(OpenMode::ReadOnly);
+
+    ASSERT_THAT(database.openMode(), OpenMode::ReadOnly);
+}
+
 TEST_F(SqliteDatabase, OpenDatabase)
 {
     database.close();
