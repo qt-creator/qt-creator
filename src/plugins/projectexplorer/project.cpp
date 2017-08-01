@@ -304,7 +304,7 @@ void Project::setActiveTarget(Target *target)
     if ((!target && !d->m_targets.isEmpty()) ||
         (target && d->m_targets.contains(target) && d->m_activeTarget != target)) {
         d->m_activeTarget = target;
-        emit activeProjectConfigurationChanged();
+        emit activeProjectConfigurationChanged(d->m_activeTarget);
         emit activeTargetChanged(d->m_activeTarget);
         emit environmentChanged();
         emit buildConfigurationEnabledChanged();

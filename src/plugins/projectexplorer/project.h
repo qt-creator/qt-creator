@@ -182,7 +182,7 @@ signals:
     // *ANY* active project configuration changed somewhere in the tree. This might not be
     // the one that would get started right now, since some part of the tree in between might
     // not be active.
-    void activeProjectConfigurationChanged();
+    void activeProjectConfigurationChanged(ProjectExplorer::ProjectConfiguration *pc);
 
     void aboutToRemoveTarget(ProjectExplorer::Target *target);
     void removedTarget(ProjectExplorer::Target *target);

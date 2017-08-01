@@ -123,7 +123,7 @@ signals:
     void removedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
     void addedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
 
-    void activeProjectConfigurationChanged();
+    void activeProjectConfigurationChanged(ProjectExplorer::ProjectConfiguration *pc);
 
     // TODO clean up signal names
     // might be better to also have aboutToRemove signals
