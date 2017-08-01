@@ -1,9 +1,0 @@
-<!DOCTYPE RCC>
-<RCC version="1.0">
-    <qresource prefix="/">
-        <file>main.qml</file>
-@if %{IsUiFileInUse}
-        <file>MainForm.ui.qml</file>
-@endif
-    </qresource>
-</RCC>
