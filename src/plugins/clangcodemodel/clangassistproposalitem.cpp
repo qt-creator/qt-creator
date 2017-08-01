@@ -66,6 +66,14 @@ bool ClangAssistProposalItem::implicitlyApplies() const
     return true;
 }
 
+static void moveToPrevChar(TextEditor::TextDocumentManipulatorInterface &manipulator,
+                           QTextCursor &cursor)
+{
+    cursor.movePosition(QTextCursor::PreviousCharacter);
+    while (manipulator.characterAt(cursor.position()).isSpace())
+        cursor.movePosition(QTextCursor::PreviousCharacter);
+}
+
 void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
                                     int basePosition) const
 {
@@ -116,7 +124,17 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
             cursor.movePosition(QTextCursor::PreviousWord);
             while (manipulator.characterAt(cursor.position()) == ':')
                 cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::MoveAnchor, 2);
-            if (manipulator.characterAt(cursor.position()) != '&') {
+
+            // Move to the last character in the previous word
+            cursor.movePosition(QTextCursor::NextWord);
+            moveToPrevChar(manipulator, cursor);
+            bool abandonParen = false;
+            if (manipulator.characterAt(cursor.position()) == '&') {
+                moveToPrevChar(manipulator, cursor);
+                const QChar prevChar = manipulator.characterAt(cursor.position());
+                abandonParen = QString("(;,{}").contains(prevChar);
+            }
+            if (!abandonParen) {
                 if (completionSettings.m_spaceAfterFunctionName)
                     extraCharacters += QLatin1Char(' ');
                 extraCharacters += QLatin1Char('(');
