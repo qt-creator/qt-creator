@@ -143,6 +143,7 @@ public:
     }
 
     BasicSmallString(std::initializer_list<Utils::SmallStringView> list)
+        : m_data(Internal::StringDataLayout<Size>())
     {
         std::size_t size = std::accumulate(list.begin(),
                                            list.end(),
