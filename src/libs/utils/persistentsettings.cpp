@@ -104,29 +104,15 @@ namespace Utils {
 
 struct Context // Basic context containing element name string constants.
 {
-    Context();
-
-    const QString qtCreatorElement;
-    const QString dataElement;
-    const QString variableElement;
-    const QString typeAttribute;
-    const QString valueElement;
-    const QString valueListElement;
-    const QString valueMapElement;
-    const QString keyAttribute;
+    const QString qtCreatorElement = "qtcreator";
+    const QString dataElement = "data";
+    const QString variableElement = "variable";
+    const QString typeAttribute = "type";
+    const QString valueElement = "value";
+    const QString valueListElement = "valuelist";
+    const QString valueMapElement = "valuemap";
+    const QString keyAttribute = "key";
 };
-
-Context::Context() :
-    qtCreatorElement(QLatin1String("qtcreator")),
-    dataElement(QLatin1String("data")),
-    variableElement(QLatin1String("variable")),
-    typeAttribute(QLatin1String("type")),
-    valueElement(QLatin1String("value")),
-    valueListElement(QLatin1String("valuelist")),
-    valueMapElement(QLatin1String("valuemap")),
-    keyAttribute(QLatin1String("key"))
-{
-}
 
 struct ParseValueStackEntry
 {
@@ -225,7 +211,6 @@ QVariantMap ParseContext::parse(QFile &file)
             qWarning("Error reading %s:%d: %s", qPrintable(file.fileName()),
                      int(r.lineNumber()), qPrintable(r.errorString()));
             return QVariantMap();
-            break;
         default:
             break;
         } // switch token
