@@ -36,6 +36,7 @@
 #include <QHash>
 #include <QSet>
 #include <QPair>
+#include <QVariant>
 
 namespace qmt {
 
