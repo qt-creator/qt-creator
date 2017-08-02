@@ -80,7 +80,7 @@ public:
                 stereotypeDisplayVisitor.setModelController(m_diagramSceneModel->diagramSceneController()->modelController());
                 stereotypeDisplayVisitor.setStereotypeController(m_diagramSceneModel->stereotypeController());
                 baseObject->accept(&stereotypeDisplayVisitor);
-                lollipopDisplay = stereotypeDisplayVisitor.stereotypeDisplay() == DObject::StereotypeIcon;
+                lollipopDisplay = stereotypeDisplayVisitor.stereotypeIconDisplay() == StereotypeIcon::DisplayIcon;
             }
         }
         if (lollipopDisplay) {

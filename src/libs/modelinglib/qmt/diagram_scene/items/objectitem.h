@@ -136,13 +136,15 @@ protected:
     void updateStereotypeIconDisplay();
     QString stereotypeIconId() const { return m_stereotypeIconId; }
     QString shapeIconId() const { return m_shapeIconId; }
+    StereotypeIcon shapeIcon() const { return m_shapeIcon; }
     StereotypeIcon::Display stereotypeIconDisplay() const { return m_stereotypeIconDisplay; }
     void updateStereotypes(const QString &stereotypeIconId,
                            StereotypeIcon::Display stereotypeDisplay, const Style *style);
-    StereotypesItem *stereotypesItem() const { return m_stereotypes; }
+    StereotypesItem *stereotypesItem() const { return m_stereotypesItem; }
     CustomIconItem *stereotypeIconItem() const { return m_stereotypeIcon; }
     QSizeF stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon, qreal minimumWidth,
                                      qreal minimumHeight) const;
+    bool suppressTextDisplay() const;
     void updateNameItem(const Style *style);
     EditableTextItem *nameItem() const { return m_nameItem; }
     virtual QString buildDisplayName() const;
@@ -185,8 +187,9 @@ private:
     bool m_isFocusSelected = false;
     QString m_stereotypeIconId;
     QString m_shapeIconId;
+    StereotypeIcon m_shapeIcon;
     StereotypeIcon::Display m_stereotypeIconDisplay = StereotypeIcon::DisplayLabel;
-    StereotypesItem *m_stereotypes = nullptr;
+    StereotypesItem *m_stereotypesItem = nullptr;
     CustomIconItem *m_stereotypeIcon = nullptr;
     EditableTextItem *m_nameItem = nullptr;
     RectangularSelectionItem *m_selectionMarker = nullptr;

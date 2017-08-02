@@ -424,7 +424,8 @@ void StereotypeDefinitionParser::parseIcon()
             const static QHash<QString, StereotypeIcon::TextAlignment> alignNames = QHash<QString, StereotypeIcon::TextAlignment>()
                     << qMakePair(QString("below"), StereotypeIcon::TextalignBelow)
                     << qMakePair(QString("center"), StereotypeIcon::TextalignCenter)
-                    << qMakePair(QString("none"), StereotypeIcon::TextalignNone);
+                    << qMakePair(QString("none"), StereotypeIcon::TextalignNone)
+                    << qMakePair(QString("top"), StereotypeIcon::TextalignTop);
             parseEnum<StereotypeIcon::TextAlignment>(
                         parseIdentifierProperty(), alignNames, token.sourcePos(),
                         [&](StereotypeIcon::TextAlignment align) { stereotypeIcon.setTextAlignment(align); });
@@ -435,6 +436,10 @@ void StereotypeDefinitionParser::parseIcon()
             break;
         case KEYWORD_SHAPE:
             stereotypeIcon.setIconShape(parseIconShape());
+            break;
+        case KEYWORD_NAME:
+            stereotypeIcon.setName(parseStringProperty());
+            stereotypeIcon.setHasName(true);
             break;
         default:
             throwUnknownPropertyError(token);

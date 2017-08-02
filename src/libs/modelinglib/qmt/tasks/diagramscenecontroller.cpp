@@ -397,28 +397,23 @@ void DiagramSceneController::dropNewElement(const QString &newElementId, const Q
     } else {
         MPackage *parentPackage = findSuitableParentPackage(topMostElementAtPos, diagram);
         MObject *newObject = nullptr;
-        QString newName;
         if (newElementId == QLatin1String(ELEMENT_TYPE_PACKAGE)) {
             auto package = new MPackage();
-            newName = tr("New Package");
             if (!stereotype.isEmpty())
                 package->setStereotypes({stereotype});
             newObject = package;
         } else if (newElementId == QLatin1String(ELEMENT_TYPE_COMPONENT)) {
             auto component = new MComponent();
-            newName = tr("New Component");
             if (!stereotype.isEmpty())
                 component->setStereotypes({stereotype});
             newObject = component;
         } else if (newElementId == QLatin1String(ELEMENT_TYPE_CLASS)) {
             auto klass = new MClass();
-            newName = tr("New Class");
             if (!stereotype.isEmpty())
                 klass->setStereotypes({stereotype});
             newObject = klass;
         } else if (newElementId == QLatin1String(ELEMENT_TYPE_ITEM)) {
             auto item = new MItem();
-            newName = tr("New Item");
             if (!stereotype.isEmpty()) {
                 item->setVariety(stereotype);
                 item->setVarietyEditable(false);
@@ -426,9 +421,7 @@ void DiagramSceneController::dropNewElement(const QString &newElementId, const Q
             newObject = item;
         }
         if (newObject) {
-            if (!name.isEmpty())
-                newName = tr("New %1").arg(name);
-            newObject->setName(newName);
+            newObject->setName(name);
             dropNewModelElement(newObject, parentPackage, pos, diagram);
         }
     }

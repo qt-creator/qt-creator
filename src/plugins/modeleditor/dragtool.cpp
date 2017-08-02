@@ -41,13 +41,14 @@ public:
     QIcon icon;
     QSize iconSize;
     QString title;
+    QString newElementName;
     QString newElementId;
     QString stereotype;
     bool disableFrame = false;
     bool framePainted = false;
 };
 
-DragTool::DragTool(const QIcon &icon, const QString &title, const QString &newElementId,
+DragTool::DragTool(const QIcon &icon, const QString &title, const QString &newElementName, const QString &newElementId,
                    const QString &stereotype, QWidget *parent)
     : QWidget(parent),
       d(new DragToolPrivate)
@@ -55,6 +56,7 @@ DragTool::DragTool(const QIcon &icon, const QString &title, const QString &newEl
     d->icon = icon;
     d->iconSize = QSize(32, 32);
     d->title = title;
+    d->newElementName = newElementName;
     d->newElementId = newElementId;
     d->stereotype = stereotype;
     QMargins margins = contentsMargins();
@@ -144,7 +146,7 @@ void DragTool::mousePressEvent(QMouseEvent *event)
             auto mimeData = new QMimeData;
             QByteArray data;
             QDataStream dataStream(&data, QIODevice::WriteOnly);
-            dataStream << d->newElementId << d->title << d->stereotype;
+            dataStream << d->newElementId << d->newElementName << d->stereotype;
             mimeData->setData(QLatin1String(qmt::MIME_TYPE_NEW_MODEL_ELEMENTS), data);
             drag->setMimeData(mimeData);
 

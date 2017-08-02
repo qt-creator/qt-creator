@@ -114,6 +114,7 @@ void StereotypeDisplayVisitor::visitDPackage(const DPackage *package)
     m_stereotypeIconElement = StereotypeIcon::ElementPackage;
     m_stereotypeSmartDisplay = DObject::StereotypeDecoration;
     visitDObject(package);
+    updateShapeIcon();
 }
 
 void StereotypeDisplayVisitor::visitDClass(const DClass *klass)
@@ -125,6 +126,7 @@ void StereotypeDisplayVisitor::visitDClass(const DClass *klass)
         hasMembers = true;
     m_stereotypeSmartDisplay = hasMembers ? DObject::StereotypeDecoration : DObject::StereotypeIcon;
     visitDObject(klass);
+    updateShapeIcon();
 }
 
 void StereotypeDisplayVisitor::visitDComponent(const DComponent *component)
@@ -132,6 +134,7 @@ void StereotypeDisplayVisitor::visitDComponent(const DComponent *component)
     m_stereotypeIconElement = StereotypeIcon::ElementComponent;
     m_stereotypeSmartDisplay = DObject::StereotypeIcon;
     visitDObject(component);
+    updateShapeIcon();
 }
 
 void StereotypeDisplayVisitor::visitDDiagram(const DDiagram *diagram)
@@ -139,6 +142,7 @@ void StereotypeDisplayVisitor::visitDDiagram(const DDiagram *diagram)
     m_stereotypeIconElement = StereotypeIcon::ElementDiagram;
     m_stereotypeSmartDisplay = DObject::StereotypeDecoration;
     visitDObject(diagram);
+    updateShapeIcon();
 }
 
 void StereotypeDisplayVisitor::visitDItem(const DItem *item)
@@ -150,6 +154,15 @@ void StereotypeDisplayVisitor::visitDItem(const DItem *item)
         m_stereotypeIconId = m_stereotypeController->findStereotypeIconId(StereotypeIcon::ElementItem, QStringList(item->shape()));
     if (m_shapeIconId.isEmpty() && !item->variety().isEmpty())
         m_shapeIconId = m_stereotypeController->findStereotypeIconId(StereotypeIcon::ElementItem, QStringList(item->variety()));
+    updateShapeIcon();
+}
+
+void StereotypeDisplayVisitor::updateShapeIcon()
+{
+    if (!m_shapeIconId.isEmpty())
+        m_shapeIcon = m_stereotypeController->findStereotypeIcon(m_shapeIconId);
+    else if (!m_stereotypeIconId.isEmpty())
+        m_shapeIcon = m_stereotypeController->findStereotypeIcon(m_stereotypeIconId);
 }
 
 } // namespace qmt

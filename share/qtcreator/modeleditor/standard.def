@@ -15,6 +15,7 @@
 //     display: <default display of element.
 //               One of: none, label, decoration, icon, smart.
 //               Default is smart.>
+//     name: <Name of new element. Defaults to  "New <Toolbar entry title>".>
 //     width: <width of icon in pixels. The width defines the width of the icon as decoration.>
 //     height: <height of icon in pixels. The height defines the height of the icon as decoration.>
 //     minwidth: <minimum width of custom icon in pixels.>
@@ -22,9 +23,9 @@
 //     lockSize: <lock resizing.
 //                One of: none, width, height, size, ratio.
 //                Default is none.>
-//     textAlignment: <alignment of text.
-//                     One of: top, center, below.
-//                     Defaults to center.>
+//     textAlignment: <alignment of text (stereotype label, name and context).
+//                     One of: top, center, below, none.
+//                     Defaults to below. None means no text will be displayed>
 //     baseColor: <color #rrggbb>
 //     Shape {
 //         Line { x1: <x1>; y1: <y1>; x2:<x2>; y2: <y2> }
@@ -345,6 +346,8 @@ Icon {
     elements: item
     stereotype: 'start'
     display: icon
+    name: ""
+    textAlignment: none
     width: 20
     height: 20
     lockSize: ratio
@@ -391,6 +394,8 @@ Icon {
     elements: item
     stereotype: 'horizontalbar'
     display: icon
+    name: ""
+    textAlignment: none
     width: 20
     height: 5
     minWidth: 20
@@ -408,6 +413,8 @@ Icon {
     elements: item
     stereotype: 'verticalbar'
     display: icon
+    name: ""
+    textAlignment: none
     width: 5
     height: 20
     minWidth: 5
@@ -424,6 +431,8 @@ Icon {
     elements: item
     stereotype: 'termination'
     display: icon
+    name: ""
+    textAlignment: none
     width: 20
     height: 20
     lockSize: ratio

@@ -54,6 +54,16 @@ void StereotypeIcon::setStereotypes(const QSet<QString> &stereotypes)
     m_stereotypes = stereotypes;
 }
 
+void StereotypeIcon::setHasName(bool hasName)
+{
+    m_hasName = hasName;
+}
+
+void StereotypeIcon::setName(const QString &name)
+{
+    m_name = name;
+}
+
 void StereotypeIcon::setWidth(qreal width)
 {
     m_width = width;

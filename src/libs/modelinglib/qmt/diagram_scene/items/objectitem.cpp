@@ -470,6 +470,7 @@ void ObjectItem::updateStereotypeIconDisplay()
     m_object->accept(&stereotypeDisplayVisitor);
     m_stereotypeIconId = stereotypeDisplayVisitor.stereotypeIconId();
     m_shapeIconId = stereotypeDisplayVisitor.shapeIconId();
+    m_shapeIcon = stereotypeDisplayVisitor.shapeIcon();
     m_stereotypeIconDisplay = stereotypeDisplayVisitor.stereotypeIconDisplay();
 }
 
@@ -493,16 +494,16 @@ void ObjectItem::updateStereotypes(const QString &stereotypeIconId, StereotypeIc
         delete m_stereotypeIcon;
         m_stereotypeIcon = nullptr;
     }
-    if (stereotypeDisplay != StereotypeIcon::DisplayNone && !stereotypes.isEmpty()) {
-        if (!m_stereotypes)
-            m_stereotypes = new StereotypesItem(this);
-        m_stereotypes->setFont(style->smallFont());
-        m_stereotypes->setBrush(style->textBrush());
-        m_stereotypes->setStereotypes(stereotypes);
-    } else if (m_stereotypes) {
-        m_stereotypes->scene()->removeItem(m_stereotypes);
-        delete m_stereotypes;
-        m_stereotypes = nullptr;
+    if (stereotypeDisplay != StereotypeIcon::DisplayNone && !suppressTextDisplay() && !stereotypes.isEmpty()) {
+        if (!m_stereotypesItem)
+            m_stereotypesItem = new StereotypesItem(this);
+        m_stereotypesItem->setFont(style->smallFont());
+        m_stereotypesItem->setBrush(style->textBrush());
+        m_stereotypesItem->setStereotypes(stereotypes);
+    } else if (m_stereotypesItem) {
+        m_stereotypesItem->scene()->removeItem(m_stereotypesItem);
+        delete m_stereotypesItem;
+        m_stereotypesItem = nullptr;
     }
 }
 
@@ -545,26 +546,37 @@ QSizeF ObjectItem::stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIco
     return QSizeF(width, height);
 }
 
+bool ObjectItem::suppressTextDisplay() const
+{
+    return m_shapeIcon.textAlignment() == StereotypeIcon::TextalignNone;
+}
+
 void ObjectItem::updateNameItem(const Style *style)
 {
-    if (!m_nameItem) {
-        m_nameItem = new EditableTextItem(this);
-        m_nameItem->setShowFocus(true);
-        m_nameItem->setFilterReturnKey(true);
-        m_nameItem->setFilterTabKey(true);
-        QObject::connect(m_nameItem->document(), &QTextDocument::contentsChanged, m_nameItem,
-                         [=]() { this->setFromDisplayName(m_nameItem->toPlainText()); });
-        QObject::connect(m_nameItem, &EditableTextItem::returnKeyPressed, m_nameItem,
-                         [=]() { this->m_nameItem->clearFocus(); });
-    }
-    if (style->headerFont() != m_nameItem->font())
-        m_nameItem->setFont(style->headerFont());
-    if (style->textBrush().color() != m_nameItem->defaultTextColor())
-        m_nameItem->setDefaultTextColor(style->textBrush().color());
-    if (!m_nameItem->hasFocus()) {
-        QString name = buildDisplayName();
-        if (name != m_nameItem->toPlainText())
-            m_nameItem->setPlainText(name);
+    if (!suppressTextDisplay()) {
+        if (!m_nameItem) {
+            m_nameItem = new EditableTextItem(this);
+            m_nameItem->setShowFocus(true);
+            m_nameItem->setFilterReturnKey(true);
+            m_nameItem->setFilterTabKey(true);
+            QObject::connect(m_nameItem->document(), &QTextDocument::contentsChanged, m_nameItem,
+                             [=]() { this->setFromDisplayName(m_nameItem->toPlainText()); });
+            QObject::connect(m_nameItem, &EditableTextItem::returnKeyPressed, m_nameItem,
+                             [=]() { this->m_nameItem->clearFocus(); });
+        }
+        if (style->headerFont() != m_nameItem->font())
+            m_nameItem->setFont(style->headerFont());
+        if (style->textBrush().color() != m_nameItem->defaultTextColor())
+            m_nameItem->setDefaultTextColor(style->textBrush().color());
+        if (!m_nameItem->hasFocus()) {
+            QString name = buildDisplayName();
+            if (name != m_nameItem->toPlainText())
+                m_nameItem->setPlainText(name);
+        }
+    } else if (m_nameItem ){
+        m_nameItem->scene()->removeItem(m_nameItem);
+        delete m_nameItem;
+        m_nameItem = nullptr;
     }
 }
 

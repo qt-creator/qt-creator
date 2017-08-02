@@ -1051,16 +1051,24 @@ void ModelEditor::initToolbars()
                     styleEngineElementType = qmt::StyleEngine::TypeSwimlane;
                 }
                 QIcon icon;
+                QString newElementName = tr("New %1").arg(tool.m_name);
                 if (!tool.m_stereotype.isEmpty() && stereotypeIconElement != qmt::StereotypeIcon::ElementAny) {
                     const qmt::Style *style = documentController->styleController()->adaptStyle(styleEngineElementType);
                     icon = stereotypeController->createIcon(
                                 stereotypeIconElement, QStringList() << tool.m_stereotype,
                                 QString(), style, QSize(48, 48), QMarginsF(3.0, 2.0, 3.0, 4.0));
+                    if (!icon.isNull()) {
+                        QString stereotypeIconId = stereotypeController->findStereotypeIconId(
+                                    stereotypeIconElement, QStringList() << tool.m_stereotype);
+                        qmt::StereotypeIcon stereotypeIcon = stereotypeController->findStereotypeIcon(stereotypeIconId);
+                        if (stereotypeIcon.hasName())
+                            newElementName = stereotypeIcon.name();
+                    }
                 }
                 if (icon.isNull())
                     icon = QIcon(iconPath);
                 if (!icon.isNull()) {
-                    toolBarLayout->addWidget(new DragTool(icon, tool.m_name, tool.m_elementType,
+                    toolBarLayout->addWidget(new DragTool(icon, tool.m_name, newElementName, tool.m_elementType,
                                                           tool.m_stereotype, toolBar));
                 }
                 break;
@@ -1088,34 +1096,34 @@ void ModelEditor::initToolbars()
         toolBars.insert(generalId, toolBar);
         toolBarLayout->addWidget(
                     new DragTool(QIcon(":/modelinglib/48x48/package.png"),
-                                 tr("Package"), QLatin1String(qmt::ELEMENT_TYPE_PACKAGE),
+                                 tr("Package"), tr("New Package"), QLatin1String(qmt::ELEMENT_TYPE_PACKAGE),
                                  QString(), toolBar));
         toolBarLayout->addWidget(
                     new DragTool(QIcon(":/modelinglib/48x48/component.png"),
-                                 tr("Component"), QLatin1String(qmt::ELEMENT_TYPE_COMPONENT),
+                                 tr("Component"), tr("New Component"), QLatin1String(qmt::ELEMENT_TYPE_COMPONENT),
                                  QString(), toolBar));
         toolBarLayout->addWidget(
                     new DragTool(QIcon(":/modelinglib/48x48/class.png"),
-                                 tr("Class"), QLatin1String(qmt::ELEMENT_TYPE_CLASS),
+                                 tr("Class"), tr("New Class"), QLatin1String(qmt::ELEMENT_TYPE_CLASS),
                                  QString(), toolBar));
         toolBarLayout->addWidget(
                     new DragTool(QIcon(":/modelinglib/48x48/item.png"),
-                                 tr("Item"), QLatin1String(qmt::ELEMENT_TYPE_ITEM),
+                                 tr("Item"), tr("New Item"), QLatin1String(qmt::ELEMENT_TYPE_ITEM),
                                  QString(), toolBar));
         auto horizLine1 = new QFrame(d->leftToolBox);
         horizLine1->setFrameShape(QFrame::HLine);
         toolBarLayout->addWidget(horizLine1);
         toolBarLayout->addWidget(
                     new DragTool(QIcon(":/modelinglib/48x48/annotation.png"),
-                                 tr("Annotation"), QLatin1String(qmt::ELEMENT_TYPE_ANNOTATION),
+                                 tr("Annotation"), QString(), QLatin1String(qmt::ELEMENT_TYPE_ANNOTATION),
                                  QString(), toolBar));
         toolBarLayout->addWidget(
                     new DragTool(QIcon(":/modelinglib/48x48/boundary.png"),
-                                 tr("Boundary"), QLatin1String(qmt::ELEMENT_TYPE_BOUNDARY),
+                                 tr("Boundary"), QString(), QLatin1String(qmt::ELEMENT_TYPE_BOUNDARY),
                                  QString(), toolBar));
         toolBarLayout->addWidget(
                     new DragTool(QIcon(":/modelinglib/48x48/swimlane.png"),
-                                 tr("Swimlane"), QLatin1String(qmt::ELEMENT_TYPE_SWIMLANE),
+                                 tr("Swimlane"), QString(), QLatin1String(qmt::ELEMENT_TYPE_SWIMLANE),
                                  QString(), toolBar));
     }
 

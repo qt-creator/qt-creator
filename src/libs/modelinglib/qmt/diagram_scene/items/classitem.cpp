@@ -131,7 +131,7 @@ void ClassItem::update()
     updateStereotypes(stereotypeIconId(), stereotypeIconDisplay(), style);
 
     // namespace
-    if (!diagramClass->umlNamespace().isEmpty()) {
+    if (!suppressTextDisplay() && !diagramClass->umlNamespace().isEmpty()) {
         if (!m_namespace)
             m_namespace = new QGraphicsSimpleTextItem(this);
         m_namespace->setFont(style->smallFont());
@@ -147,7 +147,7 @@ void ClassItem::update()
     updateNameItem(style);
 
     // context
-    if (showContext()) {
+    if (!suppressTextDisplay() && showContext()) {
         if (!m_contextLabel)
             m_contextLabel = new ContextLabelItem(this);
         m_contextLabel->setFont(style->smallFont());
@@ -160,7 +160,7 @@ void ClassItem::update()
     }
 
     // attributes separator
-    if (m_shape || !m_attributesText.isEmpty() || !m_methodsText.isEmpty()) {
+    if (m_shape || (!suppressTextDisplay() && (!m_attributesText.isEmpty() || !m_methodsText.isEmpty()))) {
         if (!m_attributesSeparator)
             m_attributesSeparator = new QGraphicsLineItem(this);
         m_attributesSeparator->setPen(style->innerLinePen());
@@ -172,7 +172,7 @@ void ClassItem::update()
     }
 
     // attributes
-    if (!m_attributesText.isEmpty()) {
+    if (!suppressTextDisplay() && !m_attributesText.isEmpty()) {
         if (!m_attributes)
             m_attributes = new QGraphicsTextItem(this);
         m_attributes->setFont(style->normalFont());
@@ -186,7 +186,7 @@ void ClassItem::update()
     }
 
     // methods separator
-    if (m_shape || !m_attributesText.isEmpty() || !m_methodsText.isEmpty()) {
+    if (m_shape || (!suppressTextDisplay() && (!m_attributesText.isEmpty() || !m_methodsText.isEmpty()))) {
         if (!m_methodsSeparator)
             m_methodsSeparator = new QGraphicsLineItem(this);
         m_methodsSeparator->setPen(style->innerLinePen());
@@ -198,7 +198,7 @@ void ClassItem::update()
     }
 
     // methods
-    if (!m_methodsText.isEmpty()) {
+    if (!suppressTextDisplay() && !m_methodsText.isEmpty()) {
         if (!m_methods)
             m_methods = new QGraphicsTextItem(this);
         m_methods->setFont(style->normalFont());

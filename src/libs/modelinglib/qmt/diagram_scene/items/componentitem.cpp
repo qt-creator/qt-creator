@@ -140,7 +140,7 @@ void ComponentItem::update()
     updateNameItem(style);
 
     // context
-    if (showContext()) {
+    if (!suppressTextDisplay() && showContext()) {
         if (!m_contextLabel)
             m_contextLabel = new ContextLabelItem(this);
         m_contextLabel->setFont(style->smallFont());
