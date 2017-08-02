@@ -761,6 +761,27 @@ unittest_public:
         return cacheLineBlocks * cacheLineSize;
     }
 
+    size_type countOccurrence(SmallStringView text)
+    {
+        auto found = begin();
+
+        size_type count = 0;
+
+        while (true) {
+            found = std::search(found,
+                                end(),
+                                text.begin(),
+                                text.end());
+            if (found == end())
+                break;
+
+            ++count;
+            found += text.size();
+        }
+
+        return count;
+    }
+
 private:
     BasicSmallString(Internal::StringDataLayout<Size> data) noexcept
         : m_data(data)
@@ -883,7 +904,6 @@ private:
             std::memcpy(replacementTextStartPosition.data(), toText.data(), toText.size());
         } else {
             size_type newSize = size() + sizeDifference;
-            reserve(optimalCapacity(newSize));
             setSize(newSize);
             at(newSize) = 0;
         }
@@ -896,7 +916,15 @@ private:
         size_type sizeDifference = 0;
         size_type startIndex = 0;
 
-        replaceLargerSizedRecursive(startIndex, fromText, toText, sizeDifference);
+        size_type replacementTextSizeDifference = toText.size() - fromText.size();
+        size_type occurrences = countOccurrence(fromText);
+        size_type newSize = size() + (replacementTextSizeDifference * occurrences);
+
+        if (occurrences > 0) {
+            reserve(optimalCapacity(newSize));
+
+            replaceLargerSizedRecursive(startIndex, fromText, toText, sizeDifference);
+        }
     }
 
     void setSize(size_type size)

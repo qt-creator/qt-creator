@@ -753,6 +753,42 @@ TEST(SmallString, Clear)
     ASSERT_TRUE(text.isEmpty());
 }
 
+TEST(SmallString, NoOccurrencesForEmptyText)
+{
+    SmallString text;
+
+    auto occurrences = text.countOccurrence("text");
+
+    ASSERT_THAT(occurrences, 0);
+}
+
+TEST(SmallString, NoOccurrencesInText)
+{
+    SmallString text("here is some text, here is some text, here is some text");
+
+    auto occurrences = text.countOccurrence("texts");
+
+    ASSERT_THAT(occurrences, 0);
+}
+
+TEST(SmallString, SomeOccurrences)
+{
+    SmallString text("here is some text, here is some text, here is some text");
+
+    auto occurrences = text.countOccurrence("text");
+
+    ASSERT_THAT(occurrences, 3);
+}
+
+TEST(SmallString, SomeMoreOccurrences)
+{
+    SmallString text("texttexttext");
+
+    auto occurrences = text.countOccurrence("text");
+
+    ASSERT_THAT(occurrences, 3);
+}
+
 TEST(SmallString, ReplaceWithCharacter)
 {
     SmallString text("here is some text, here is some text, here is some text");
