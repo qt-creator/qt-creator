@@ -139,9 +139,7 @@ struct ALIGNAS_16 StringDataLayout {
     constexpr static
     size_type shortStringCapacity() noexcept
     {
-        return MaximumShortStringDataAreaSize < 64
-             ? MaximumShortStringDataAreaSize - 1
-             : MaximumShortStringDataAreaSize - 2;
+        return MaximumShortStringDataAreaSize - 1;
     }
 
     union {

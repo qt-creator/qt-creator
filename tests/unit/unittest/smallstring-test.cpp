@@ -1315,3 +1315,10 @@ TEST(SmallString, StringPlusOperator)
 
     ASSERT_THAT(result, "text and more text");
 }
+
+TEST(SmallString, ShortStringCapacity)
+{
+    ASSERT_THAT(SmallString().shortStringCapacity(), 30);
+    ASSERT_THAT(PathString().shortStringCapacity(), 189);
+}
+
