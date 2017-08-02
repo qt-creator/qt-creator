@@ -70,6 +70,7 @@ public:
 private:
     void setProjectFilter(bool filter);
     void setGeneratedFilesFilter(bool filter);
+    void setTrimEmptyDirectories(bool filter);
 
     void handleCurrentItemChange(const QModelIndex &current);
     void showContextMenu(const QPoint &pos);
@@ -83,8 +84,9 @@ private:
     QTreeView *m_view = nullptr;
     FlatModel *m_model = nullptr;
     QAction *m_filterProjectsAction = nullptr;
-    QAction *m_filterGeneratedFilesAction;
-    QToolButton *m_toggleSync;
+    QAction *m_filterGeneratedFilesAction = nullptr;
+    QAction *m_trimEmptyDirectoriesAction = nullptr;
+    QToolButton *m_toggleSync = nullptr;
 
     QString m_modelId;
     bool m_autoSync = true;

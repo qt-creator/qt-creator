@@ -194,6 +194,12 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
     connect(m_filterGeneratedFilesAction, &QAction::toggled,
             this, &ProjectTreeWidget::setGeneratedFilesFilter);
 
+    m_trimEmptyDirectoriesAction = new QAction(tr("Hide Empty Directories"), this);
+    m_trimEmptyDirectoriesAction->setCheckable(true);
+    m_trimEmptyDirectoriesAction->setChecked(true);
+    connect(m_trimEmptyDirectoriesAction, &QAction::toggled,
+            this, &ProjectTreeWidget::setTrimEmptyDirectories);
+
     // connections
     connect(m_model, &FlatModel::renamed,
             this, &ProjectTreeWidget::renamed);
@@ -433,6 +439,12 @@ void ProjectTreeWidget::setGeneratedFilesFilter(bool filter)
     m_filterGeneratedFilesAction->setChecked(filter);
 }
 
+void ProjectTreeWidget::setTrimEmptyDirectories(bool filter)
+{
+    m_model->setTrimEmptyDirectories(filter);
+    m_trimEmptyDirectoriesAction->setChecked(filter);
+}
+
 bool ProjectTreeWidget::generatedFilesFilter()
 {
     return m_model->generatedFilesFilterEnabled();
@@ -466,6 +478,7 @@ NavigationView ProjectTreeWidgetFactory::createWidget()
     auto filterMenu = new QMenu(filter);
     filterMenu->addAction(ptw->m_filterProjectsAction);
     filterMenu->addAction(ptw->m_filterGeneratedFilesAction);
+    filterMenu->addAction(ptw->m_trimEmptyDirectoriesAction);
     filter->setMenu(filterMenu);
 
     n.dockToolBarWidgets << filter << ptw->toggleSync();

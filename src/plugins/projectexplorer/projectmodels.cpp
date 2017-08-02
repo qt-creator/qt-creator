@@ -189,7 +189,10 @@ void FlatModel::addOrRebuildProjectModel(Project *project)
 
     if (ProjectNode *projectNode = project->rootProjectNode()) {
         addFolderNode(container, projectNode, &seen);
-    } else {
+        if (m_trimEmptyDirectories)
+            trimEmptyDirectories(container);
+    }
+    if (container->childCount() == 0) {
         FileNode *projectFileNode = new FileNode(project->projectFilePath(), FileType::Project, false);
         seen.insert(projectFileNode);
         container->appendChild(new WrapperNode(projectFileNode));
@@ -317,6 +320,18 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
     }
 }
 
+bool FlatModel::trimEmptyDirectories(WrapperNode *parent)
+{
+    if (!parent->m_node->asFolderNode())
+        return false;
+
+    for (int i = parent->childCount() - 1; i >= 0; --i) {
+        if (trimEmptyDirectories(parent->childAt(i)))
+            parent->removeChildAt(i);
+    }
+    return parent->childCount() == 0;
+}
+
 Qt::DropActions FlatModel::supportedDragActions() const
 {
     return Qt::MoveAction;
@@ -363,7 +378,17 @@ void FlatModel::setProjectFilterEnabled(bool filter)
 
 void FlatModel::setGeneratedFilesFilterEnabled(bool filter)
 {
+    if (filter == m_filterGeneratedFiles)
+        return;
     m_filterGeneratedFiles = filter;
+    rebuildModel();
+}
+
+void FlatModel::setTrimEmptyDirectories(bool filter)
+{
+    if (filter == m_trimEmptyDirectories)
+        return;
+    m_trimEmptyDirectories = filter;
     rebuildModel();
 }
 

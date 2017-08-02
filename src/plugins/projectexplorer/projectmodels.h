@@ -76,6 +76,7 @@ public:
     bool generatedFilesFilterEnabled();
     void setProjectFilterEnabled(bool filter);
     void setGeneratedFilesFilterEnabled(bool filter);
+    void setTrimEmptyDirectories(bool filter);
 
     void onExpanded(const QModelIndex &idx);
     void onCollapsed(const QModelIndex &idx);
@@ -87,12 +88,14 @@ signals:
 private:
     bool m_filterProjects = false;
     bool m_filterGeneratedFiles = true;
+    bool m_trimEmptyDirectories = true;
 
     static const QLoggingCategory &logger();
 
     void updateSubtree(FolderNode *node);
     void rebuildModel();
     void addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<Node *> *seen);
+    bool trimEmptyDirectories(WrapperNode *parent);
 
     ExpandData expandDataForNode(const Node *node) const;
     void loadExpandData();

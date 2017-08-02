@@ -689,6 +689,20 @@ void TreeItem::insertChild(int pos, TreeItem *item)
     }
 }
 
+void TreeItem::removeChildAt(int pos)
+{
+    QTC_ASSERT(0 <= pos && pos < m_children.count(), return);
+
+    if (m_model) {
+        QModelIndex idx = index();
+        m_model->beginRemoveRows(idx, pos, pos);
+        removeItemAt(pos);
+        m_model->endRemoveRows();
+    } else {
+        removeItemAt(pos);
+    }
+}
+
 void TreeItem::removeChildren()
 {
     if (childCount() == 0)
@@ -861,6 +875,15 @@ void TreeItem::clear()
         item->m_parent = 0;
         delete item;
     }
+}
+
+void TreeItem::removeItemAt(int pos)
+{
+    TreeItem *item = m_children.at(pos);
+    item->m_model = nullptr;
+    item->m_parent = nullptr;
+    delete item;
+    m_children.removeAt(pos);
 }
 
 void TreeItem::expand()
