@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -107,6 +107,9 @@
             add debuggers to the list. For more information, see
             \l{Adding Debuggers}.
 
+            For Android kits, the \uicontrol {Android GDB server} field will
+            display the path to GDB server executable.
+
         \li In the \uicontrol {Qt version} field, select the Qt version to use for
             building the project. You can add Qt versions to the list if they
             are installed on the development PC, but were not detected
@@ -136,6 +139,10 @@
         \li In the \uicontrol {CMake configuration} field, select
             \uicontrol Change to edit the variables of the CMake configuration
             for the kit.
+
+        \li In the \uicontrol {Additional Qbs profile settings} field, select
+            \uicontrol Change to add settings to Qbs build profiles. For more
+            information, see \l {Editing Build Profiles}.
 
     \endlist
 
