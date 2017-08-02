@@ -91,8 +91,14 @@ def setKeyboardShortcutForAboutQtC():
     expected = 'Ctrl+Alt+A'
     if platform.system() == 'Darwin':
         expected = 'Ctrl+Opt+A'
-    test.verify(waitFor("str(findObject(shortcut).text) == expected", 5000),
-                "Expected key sequence is displayed.")
+
+    shortcutMatches = waitFor("str(findObject(shortcut).text) == expected", 5000)
+    if not shortcutMatches and platform.system() == 'Darwin':
+        test.warning("Squish Issue: shortcut was set to %s - entering it manually now"
+                     % waitForObject(shortcut).text)
+        replaceEditorContent(shortcut, expected)
+    else:
+        test.verify(shortcutMatches, "Expected key sequence is displayed.")
     clickButton(waitForObject(":Options.OK_QPushButton"))
 
 def main():
