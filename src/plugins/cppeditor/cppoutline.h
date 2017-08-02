@@ -26,6 +26,7 @@
 #pragma once
 
 #include "cppeditor.h"
+#include "cppeditorwidget.h"
 
 #include <texteditor/ioutlinewidget.h>
 

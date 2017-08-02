@@ -26,7 +26,8 @@
 #include "cppquickfixassistant.h"
 
 #include "cppeditorconstants.h"
-#include "cppeditor.h"
+#include "cppeditorwidget.h"
+#include "cppquickfixes.h"
 
 #include <cpptools/cppmodelmanager.h>
 #include <texteditor/textdocument.h>

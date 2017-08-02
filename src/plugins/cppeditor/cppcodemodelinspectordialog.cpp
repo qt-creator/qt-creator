@@ -25,7 +25,7 @@
 
 #include "cppcodemodelinspectordialog.h"
 #include "ui_cppcodemodelinspectordialog.h"
-#include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppeditordocument.h"
 
 #include <coreplugin/editormanager/editormanager.h>

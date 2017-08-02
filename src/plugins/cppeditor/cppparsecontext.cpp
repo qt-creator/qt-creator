@@ -25,7 +25,7 @@
 
 #include "cppparsecontext.h"
 
-#include "cppeditor.h"
+#include "cppeditorwidget.h"
 
 #include <QAction>
 #include <QDir>

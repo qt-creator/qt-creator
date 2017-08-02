@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 
+#include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppdoxygen_test.h"
 
 #include "cppeditortestcase.h"

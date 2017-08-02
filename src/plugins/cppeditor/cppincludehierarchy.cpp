@@ -26,6 +26,7 @@
 #include "cppincludehierarchy.h"
 
 #include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
 #include "cppelementevaluator.h"

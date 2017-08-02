@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "cppfollowsymbolundercursor.h"
-#include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppeditordocument.h"
 #include "cppvirtualfunctionassistprovider.h"
 

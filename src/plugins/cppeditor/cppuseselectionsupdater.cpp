@@ -25,7 +25,7 @@
 
 #include "cppuseselectionsupdater.h"
 
-#include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppeditordocument.h"
 
 #include <cpptools/cpptoolsreuse.h>

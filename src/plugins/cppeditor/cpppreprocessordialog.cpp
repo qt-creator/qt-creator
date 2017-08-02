@@ -27,6 +27,7 @@
 #include "ui_cpppreprocessordialog.h"
 
 #include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppeditorconstants.h"
 
 #include <projectexplorer/session.h>

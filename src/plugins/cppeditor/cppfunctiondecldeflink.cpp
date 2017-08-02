@@ -25,7 +25,7 @@
 
 #include "cppfunctiondecldeflink.h"
 
-#include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppquickfixassistant.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>

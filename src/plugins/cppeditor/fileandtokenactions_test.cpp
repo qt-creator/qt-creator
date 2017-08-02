@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
 #include "cppquickfix.h"

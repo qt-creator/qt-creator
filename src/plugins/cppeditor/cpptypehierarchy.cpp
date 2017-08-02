@@ -27,6 +27,7 @@
 
 #include "cppeditorconstants.h"
 #include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppelementevaluator.h"
 #include "cppeditorplugin.h"
 

@@ -28,7 +28,7 @@
 #include "cppautocompleter.h"
 #include "cppcodemodelinspectordialog.h"
 #include "cppeditorconstants.h"
-#include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppeditordocument.h"
 #include "cpphighlighter.h"
 #include "cpphoverhandler.h"

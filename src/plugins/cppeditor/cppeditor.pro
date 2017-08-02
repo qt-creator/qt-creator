@@ -11,6 +11,7 @@ HEADERS += \
     cppeditorconstants.h \
     cppeditorenums.h \
     cppeditorplugin.h \
+    cppeditorwidget.h \
     cppelementevaluator.h \
     cppfollowsymbolundercursor.h \
     cppfunctiondecldeflink.h \
@@ -39,6 +40,7 @@ SOURCES += \
     cppeditor.cpp \
     cppeditordocument.cpp \
     cppeditorplugin.cpp \
+    cppeditorwidget.cpp \
     cppelementevaluator.cpp \
     cppfollowsymbolundercursor.cpp \
     cppfunctiondecldeflink.cpp \

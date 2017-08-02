@@ -86,6 +86,7 @@ QString CppAutoCompleter::insertParagraphSeparator(const QTextCursor &cursor) co
 #ifdef WITH_TESTS
 
 #include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
 

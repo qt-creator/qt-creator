@@ -29,6 +29,8 @@ QtcPlugin {
         "cppdocumentationcommenthelper.h",
         "cppeditor.cpp",
         "cppeditor.h",
+        "cppeditorwidget.cpp",
+        "cppeditorwidget.h",
         "cppeditor.qrc",
         "cppeditor_global.h",
         "cppeditorconstants.h",
