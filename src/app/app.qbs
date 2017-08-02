@@ -20,9 +20,10 @@ QtcProduct {
     targetName: qtc.ide_app_target
     version: qtc.qtcreator_version
 
-    installDir: bundle.isBundle ? qtc.ide_app_path : qtc.ide_bin_path
-    installTags: bundle.isBundle ? ["bundle.content"] : base
-    installSourceBase: bundle.isBundle ? buildDirectory : base
+    property bool isBundle: qbs.targetOS.contains("darwin") && bundle.isBundle
+    installDir: isBundle ? qtc.ide_app_path : qtc.ide_bin_path
+    installTags: isBundle ? ["bundle.content"] : base
+    installSourceBase: isBundle ? buildDirectory : base
     property bool qtcRunnable: true
 
     cpp.rpaths: qbs.targetOS.contains("macos") ? ["@executable_path/../Frameworks"]

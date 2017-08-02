@@ -5,7 +5,7 @@ QtcAutotest {
     Depends { name: "bundle" }
     Depends { name: "qtcjson" }
 
-    bundle.isBundle: false
+    consoleApplication: true
 
     Group {
         name: "test data"
