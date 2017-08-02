@@ -308,7 +308,7 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
                 addFolderNode(parent, subFolderNode, seen);
             }
         } else if (FileNode *fileNode = node->asFileNode()) {
-            const bool isHidden = m_filterProjects && fileNode->isGenerated();
+            const bool isHidden = m_filterGeneratedFiles && fileNode->isGenerated();
             if (!isHidden && !seen->contains(fileNode)) {
                 seen->insert(fileNode);
                 parent->appendChild(new WrapperNode(fileNode));
