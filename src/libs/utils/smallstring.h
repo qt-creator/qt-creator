@@ -207,7 +207,9 @@ public:
         BasicSmallString clonedString(m_data);
 
         if (Q_UNLIKELY(hasAllocatedMemory()))
-            new (&clonedString) BasicSmallString{m_data.allocated.data.pointer, m_data.allocated.data.size};
+            new (&clonedString) BasicSmallString{m_data.allocated.data.pointer,
+                                                 m_data.allocated.data.size,
+                                                 m_data.allocated.data.capacity};
 
         return clonedString;
     }
