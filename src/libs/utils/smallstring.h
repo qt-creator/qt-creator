@@ -258,6 +258,8 @@ public:
                 m_data.allocated.data.pointer = Memory::reallocate(m_data.allocated.data.pointer,
                                                                newCapacity + 1);
                 m_data.allocated.data.capacity = newCapacity;
+            } else if (newCapacity <= shortStringCapacity()) {
+                new (this) BasicSmallString{m_data.allocated.data.pointer, m_data.allocated.data.size};
             } else {
                 const size_type oldSize = size();
                 newCapacity = std::max(newCapacity, oldSize);

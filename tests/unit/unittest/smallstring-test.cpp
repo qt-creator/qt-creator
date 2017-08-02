@@ -914,6 +914,15 @@ TEST(SmallString, ReserveSmallerThanShortStringCapacity)
     ASSERT_THAT(text.capacity(), AnyOf(30, 4));
 }
 
+TEST(SmallString, ReserveSmallerThanShortStringCapacityIsShortString)
+{
+    SmallString text("text");
+
+    text.reserve(2);
+
+    ASSERT_TRUE(text.isShortString());
+}
+
 TEST(SmallString, ReserveSmallerThanReference)
 {
     SmallString text("some very very very very very very very very very very very long string");
