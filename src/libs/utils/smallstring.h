@@ -258,7 +258,7 @@ public:
         if (fitsNotInCapacity(newCapacity)) {
             if (Q_UNLIKELY(hasAllocatedMemory())) {
                 m_data.allocated.data.pointer = Memory::reallocate(m_data.allocated.data.pointer,
-                                                               newCapacity + 1);
+                                                                   newCapacity + 1);
                 m_data.allocated.data.capacity = newCapacity;
             } else if (newCapacity <= shortStringCapacity()) {
                 new (this) BasicSmallString{m_data.allocated.data.pointer, m_data.allocated.data.size};

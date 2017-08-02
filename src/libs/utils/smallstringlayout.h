@@ -92,7 +92,7 @@ struct ShortStringLayout {
 
 template <uint MaximumShortStringDataAreaSize>
 struct ALIGNAS_16 StringDataLayout {
-    static_assert( MaximumShortStringDataAreaSize >= 15, "Size must be greater equal than 15 bytes!");
+    static_assert(MaximumShortStringDataAreaSize >= 15, "Size must be greater equal than 15 bytes!");
     static_assert(MaximumShortStringDataAreaSize < 64
                 ? ((MaximumShortStringDataAreaSize + 1) % 16) == 0
                 : ((MaximumShortStringDataAreaSize + 2) % 16) == 0,
