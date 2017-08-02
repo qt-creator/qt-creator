@@ -206,7 +206,6 @@ void SqlStatementBuilder::generateSqlStatement() const
 
 void SqlStatementBuilder::changeBinding(Utils::SmallString &&name, Utils::SmallString &&text)
 {
-
     auto findBindingIterator = std::find_if(m_bindings.begin(),
                                             m_bindings.end(),
                                             [&] (const BindingPair &binding) {
