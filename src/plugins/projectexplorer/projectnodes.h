@@ -127,6 +127,7 @@ public:
 
     const Utils::FileName &filePath() const;  // file system path
     int line() const;
+    QByteArray id() const;
     virtual QString displayName() const;
     virtual QString tooltip() const;
     bool isEnabled() const;
@@ -156,7 +157,8 @@ public:
     static FileType fileTypeForFileName(const Utils::FileName &file);
 
 protected:
-    Node(NodeType nodeType, const Utils::FileName &filePath, int line = -1);
+    Node(NodeType nodeType, const Utils::FileName &filePath, int line = -1,
+         const QByteArray &id = {});
 
     void setPriority(int priority);
     void setIsGenerated(bool g);
@@ -164,6 +166,7 @@ protected:
 private:
     FolderNode *m_parentFolderNode = nullptr;
     Utils::FileName m_filePath;
+    QByteArray m_nodeId;
     int m_line = -1;
     int m_priority = DefaultPriority;
     const NodeType m_nodeType;
@@ -180,7 +183,8 @@ private:
 class PROJECTEXPLORER_EXPORT FileNode : public Node
 {
 public:
-    FileNode(const Utils::FileName &filePath, const FileType fileType, bool generated, int line = -1);
+    FileNode(const Utils::FileName &filePath, const FileType fileType, bool generated, int line = -1,
+             const QByteArray &id = {});
 
     FileNode *clone() const;
 
@@ -210,7 +214,7 @@ class PROJECTEXPLORER_EXPORT FolderNode : public Node
 {
 public:
     explicit FolderNode(const Utils::FileName &folderPath, NodeType nodeType = NodeType::Folder,
-                        const QString &displayName = QString());
+                        const QString &displayName = QString(), const QByteArray &id = {});
     ~FolderNode() override;
 
     QString displayName() const override;
@@ -288,7 +292,8 @@ private:
 class PROJECTEXPLORER_EXPORT VirtualFolderNode : public FolderNode
 {
 public:
-    explicit VirtualFolderNode(const Utils::FileName &folderPath, int priority);
+    explicit VirtualFolderNode(const Utils::FileName &folderPath, int priority,
+                               const QByteArray &id = {});
 
     void setAddFileFilter(const QString &filter) { m_addFileFilter = filter; }
     QString addFileFilter() const override;
@@ -323,7 +328,7 @@ public:
     const ProjectNode *asProjectNode() const final { return this; }
 
 protected:
-    explicit ProjectNode(const Utils::FileName &projectFilePath);
+    explicit ProjectNode(const Utils::FileName &projectFilePath, const QByteArray &id = {});
 };
 
 class PROJECTEXPLORER_EXPORT ContainerNode : public FolderNode
