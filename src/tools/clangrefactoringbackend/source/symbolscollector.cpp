@@ -32,6 +32,11 @@ SymbolsCollector::SymbolsCollector(FilePathCache<> &filePathCache)
 {
 }
 
+void SymbolsCollector::addFiles(const Utils::PathStringVector &filePaths, const Utils::SmallStringVector &arguments)
+{
+    ClangTool::addFiles(filePaths, arguments);
+}
+
 void SymbolsCollector::collectSymbols()
 {
     auto tool = createTool();

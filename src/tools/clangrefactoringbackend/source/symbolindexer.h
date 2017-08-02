@@ -25,43 +25,24 @@
 
 #pragma once
 
-#include <utils/smallstring.h>
+#include "symbolscollectorinterface.h"
+#include "symbolstorageinterface.h"
 
-#include <llvm/ADT/SmallVector.h>
-#include <llvm/ADT/StringRef.h>
-
-#include <limits>
-#include <unordered_map>
-#include <iosfwd>
+#include <projectpartcontainerv2.h>
 
 namespace ClangBackEnd {
 
-class SymbolEntry
+class SymbolIndexer
 {
 public:
-    SymbolEntry(const llvm::SmallVector<char, 128> &usr,
-                llvm::StringRef name)
-        : usr(usr.data(), usr.size()),
-          symbolName(name.data(), name.size())
-    {}
+    SymbolIndexer(SymbolsCollectorInterface &symbolsCollector,
+                  SymbolStorageInterface &symbolStorage);
 
-    SymbolEntry(Utils::PathString &&usr,
-                Utils::SmallString &&symbolName)
-        : usr(std::move(usr)),
-          symbolName(std::move(symbolName))
-    {}
+    void updateProjectParts(V2::ProjectPartContainers &&projectParts);
 
-    Utils::PathString usr;
-    Utils::SmallString symbolName;
-
-    friend bool operator==(const SymbolEntry &first, const SymbolEntry &second)
-    {
-        return first.usr == second.usr && first.symbolName == second.symbolName;
-    }
+private:
+    SymbolsCollectorInterface &m_symbolsCollector;
+    SymbolStorageInterface &m_symbolStorage;
 };
-
-using SymbolEntries = std::unordered_map<uint, SymbolEntry>;
-
-std::ostream &operator<<(std::ostream &out, const SymbolEntry &entry);
 
 } // namespace ClangBackEnd

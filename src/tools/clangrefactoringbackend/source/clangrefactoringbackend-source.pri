@@ -4,12 +4,15 @@ HEADERS += \
     $$PWD/clangrefactoringbackend_global.h \
     $$PWD/sourcerangefilter.h \
     $$PWD/symbolscollector.h \
+    $$PWD/symbolindexer.h \
     $$PWD/symbolentry.h \
     $$PWD/collectsymbolsconsumer.h \
     $$PWD/collectsymbolsaction.h \
     $$PWD/collectmacrossourcefilecallbacks.h \
     $$PWD/collectsymbolsastvisitor.h \
-    $$PWD/sourcelocationentry.h
+    $$PWD/sourcelocationentry.h \
+    $$PWD/symbolscollectorinterface.h \
+    $$PWD/symbolstorageinterface.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
@@ -45,6 +48,7 @@ HEADERS += \
 SOURCES += \
     $$PWD/sourcerangefilter.cpp \
     $$PWD/symbolscollector.cpp \
+    $$PWD/symbolindexer.cpp \
     $$PWD/collectsymbolsaction.cpp \
     $$PWD/collectmacrossourcefilecallbacks.cpp \
     $$PWD/symbolentry.cpp \

@@ -66,6 +66,7 @@ SOURCES += \
     smallstring-test.cpp \
     sourcerangefilter-test.cpp \
     spydummy.cpp \
+    symbolindexer-test.cpp \
     stringcache-test.cpp \
     unittests-main.cpp \
     utf8-test.cpp
@@ -186,6 +187,8 @@ HEADERS += \
     sourcerangecontainer-matcher.h \
     spydummy.h \
     testenvironment.h \
+    mocksymbolscollector.h \
+    mocksymbolstorage.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

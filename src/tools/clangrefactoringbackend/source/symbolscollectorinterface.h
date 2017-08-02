@@ -25,43 +25,26 @@
 
 #pragma once
 
-#include <utils/smallstring.h>
+#include "symbolentry.h"
+#include "sourcelocationentry.h"
 
-#include <llvm/ADT/SmallVector.h>
-#include <llvm/ADT/StringRef.h>
+#include <utils/smallstringvector.h>
 
-#include <limits>
-#include <unordered_map>
-#include <iosfwd>
+#include <string>
+#include <vector>
 
 namespace ClangBackEnd {
 
-class SymbolEntry
+class SymbolsCollectorInterface
 {
 public:
-    SymbolEntry(const llvm::SmallVector<char, 128> &usr,
-                llvm::StringRef name)
-        : usr(usr.data(), usr.size()),
-          symbolName(name.data(), name.size())
-    {}
+    virtual void addFiles(const Utils::PathStringVector &filePaths,
+                          const Utils::SmallStringVector &arguments) = 0;
 
-    SymbolEntry(Utils::PathString &&usr,
-                Utils::SmallString &&symbolName)
-        : usr(std::move(usr)),
-          symbolName(std::move(symbolName))
-    {}
+    virtual void collectSymbols() = 0;
 
-    Utils::PathString usr;
-    Utils::SmallString symbolName;
-
-    friend bool operator==(const SymbolEntry &first, const SymbolEntry &second)
-    {
-        return first.usr == second.usr && first.symbolName == second.symbolName;
-    }
+    virtual const SymbolEntries &symbols() const = 0;
+    virtual const SourceLocationEntries &sourceLocations() const = 0;
 };
-
-using SymbolEntries = std::unordered_map<uint, SymbolEntry>;
-
-std::ostream &operator<<(std::ostream &out, const SymbolEntry &entry);
 
 } // namespace ClangBackEnd

@@ -25,43 +25,14 @@
 
 #pragma once
 
-#include <utils/smallstring.h>
+#include "googletest.h"
 
-#include <llvm/ADT/SmallVector.h>
-#include <llvm/ADT/StringRef.h>
+#include <symbolstorageinterface.h>
 
-#include <limits>
-#include <unordered_map>
-#include <iosfwd>
-
-namespace ClangBackEnd {
-
-class SymbolEntry
+class MockSymbolStorage : public ClangBackEnd::SymbolStorageInterface
 {
 public:
-    SymbolEntry(const llvm::SmallVector<char, 128> &usr,
-                llvm::StringRef name)
-        : usr(usr.data(), usr.size()),
-          symbolName(name.data(), name.size())
-    {}
-
-    SymbolEntry(Utils::PathString &&usr,
-                Utils::SmallString &&symbolName)
-        : usr(std::move(usr)),
-          symbolName(std::move(symbolName))
-    {}
-
-    Utils::PathString usr;
-    Utils::SmallString symbolName;
-
-    friend bool operator==(const SymbolEntry &first, const SymbolEntry &second)
-    {
-        return first.usr == second.usr && first.symbolName == second.symbolName;
-    }
+   MOCK_METHOD2(addSymbolsAndSourceLocations,
+                void(const ClangBackEnd::SymbolEntries &symbolEentries,
+                     const ClangBackEnd::SourceLocationEntries &sourceLocations));
 };
-
-using SymbolEntries = std::unordered_map<uint, SymbolEntry>;
-
-std::ostream &operator<<(std::ostream &out, const SymbolEntry &entry);
-
-} // namespace ClangBackEnd

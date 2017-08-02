@@ -43,9 +43,9 @@ String toNativePath(String &&path)
 }
 
 void ClangTool::addFile(std::string &&directory,
-                           std::string &&fileName,
-                           std::string &&content,
-                           std::vector<std::string> &&commandLine)
+                        std::string &&fileName,
+                        std::string &&content,
+                        std::vector<std::string> &&commandLine)
 {
     m_fileContents.emplace_back(toNativePath(std::move(directory)),
                               std::move(fileName),

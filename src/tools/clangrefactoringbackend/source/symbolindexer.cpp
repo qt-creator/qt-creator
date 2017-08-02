@@ -23,45 +23,25 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include <utils/smallstring.h>
-
-#include <llvm/ADT/SmallVector.h>
-#include <llvm/ADT/StringRef.h>
-
-#include <limits>
-#include <unordered_map>
-#include <iosfwd>
+#include "symbolindexer.h"
 
 namespace ClangBackEnd {
 
-class SymbolEntry
+SymbolIndexer::SymbolIndexer(SymbolsCollectorInterface &symbolsCollector, SymbolStorageInterface &symbolStorage)
+    : m_symbolsCollector(symbolsCollector),
+      m_symbolStorage(symbolStorage)
 {
-public:
-    SymbolEntry(const llvm::SmallVector<char, 128> &usr,
-                llvm::StringRef name)
-        : usr(usr.data(), usr.size()),
-          symbolName(name.data(), name.size())
-    {}
+}
 
-    SymbolEntry(Utils::PathString &&usr,
-                Utils::SmallString &&symbolName)
-        : usr(std::move(usr)),
-          symbolName(std::move(symbolName))
-    {}
+void SymbolIndexer::updateProjectParts(V2::ProjectPartContainers &&projectParts)
+{
+    for (const V2::ProjectPartContainer &projectPart : projectParts)
+        m_symbolsCollector.addFiles(projectPart.sourcePaths(), projectPart.arguments());
 
-    Utils::PathString usr;
-    Utils::SmallString symbolName;
+    m_symbolsCollector.collectSymbols();
 
-    friend bool operator==(const SymbolEntry &first, const SymbolEntry &second)
-    {
-        return first.usr == second.usr && first.symbolName == second.symbolName;
-    }
-};
-
-using SymbolEntries = std::unordered_map<uint, SymbolEntry>;
-
-std::ostream &operator<<(std::ostream &out, const SymbolEntry &entry);
+    m_symbolStorage.addSymbolsAndSourceLocations(m_symbolsCollector.symbols(),
+                                                 m_symbolsCollector.sourceLocations());
+}
 
 } // namespace ClangBackEnd

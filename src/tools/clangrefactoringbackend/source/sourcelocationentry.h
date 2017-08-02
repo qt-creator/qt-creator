@@ -70,6 +70,15 @@ public:
     uint line =  0;
     uint column = 0;
     SymbolType symbolType;
+
+    friend bool operator==(const SourceLocationEntry &first, const SourceLocationEntry &second)
+    {
+        return first.symbolId == second.symbolId
+            && first.fileId == second.fileId
+            && first.line == second.line
+            && first.column == second.column
+            && first.symbolType == second.symbolType;
+    }
 };
 
 using SourceLocationEntries = std::vector<SourceLocationEntry>;

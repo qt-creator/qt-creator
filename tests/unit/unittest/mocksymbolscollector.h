@@ -25,43 +25,23 @@
 
 #pragma once
 
-#include <utils/smallstring.h>
+#include "googletest.h"
 
-#include <llvm/ADT/SmallVector.h>
-#include <llvm/ADT/StringRef.h>
+#include <symbolscollectorinterface.h>
 
-#include <limits>
-#include <unordered_map>
-#include <iosfwd>
-
-namespace ClangBackEnd {
-
-class SymbolEntry
+class MockSymbolsCollector : public ClangBackEnd::SymbolsCollectorInterface
 {
 public:
-    SymbolEntry(const llvm::SmallVector<char, 128> &usr,
-                llvm::StringRef name)
-        : usr(usr.data(), usr.size()),
-          symbolName(name.data(), name.size())
-    {}
+    MOCK_METHOD0(collectSymbols,
+                 void());
 
-    SymbolEntry(Utils::PathString &&usr,
-                Utils::SmallString &&symbolName)
-        : usr(std::move(usr)),
-          symbolName(std::move(symbolName))
-    {}
+    MOCK_METHOD2(addFiles,
+                 void(const Utils::PathStringVector &filePaths,
+                      const Utils::SmallStringVector &arguments));
 
-    Utils::PathString usr;
-    Utils::SmallString symbolName;
+    MOCK_CONST_METHOD0(symbols,
+                       const ClangBackEnd::SymbolEntries &());
 
-    friend bool operator==(const SymbolEntry &first, const SymbolEntry &second)
-    {
-        return first.usr == second.usr && first.symbolName == second.symbolName;
-    }
+    MOCK_CONST_METHOD0(sourceLocations,
+                       const ClangBackEnd::SourceLocationEntries &());
 };
-
-using SymbolEntries = std::unordered_map<uint, SymbolEntry>;
-
-std::ostream &operator<<(std::ostream &out, const SymbolEntry &entry);
-
-} // namespace ClangBackEnd

@@ -28,20 +28,24 @@
 #include "clangtool.h"
 #include "collectmacrossourcefilecallbacks.h"
 #include "collectsymbolsaction.h"
+#include "symbolscollectorinterface.h"
 #include "symbolentry.h"
 #include "stringcache.h"
 
 namespace ClangBackEnd {
 
-class SymbolsCollector: public ClangTool
+class SymbolsCollector : public ClangTool, public SymbolsCollectorInterface
 {
 public:
     SymbolsCollector(FilePathCache<> &filePathCache);
 
-    void collectSymbols();
+    void addFiles(const Utils::PathStringVector &filePaths,
+                  const Utils::SmallStringVector &arguments) override;
 
-    const SymbolEntries &symbols() const;
-    const SourceLocationEntries &sourceLocations() const;
+    void collectSymbols() override;
+
+    const SymbolEntries &symbols() const override;
+    const SourceLocationEntries &sourceLocations() const override;
 
 private:
     CollectSymbolsAction m_collectSymbolsAction;
