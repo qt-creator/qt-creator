@@ -344,7 +344,10 @@ def validateSearchResult(expectedCount):
 def invokeContextMenuItem(editorArea, command1, command2 = None):
     ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
     snooze(1)
-    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), command1, 2000))
+    item1 = waitForObjectItem(objectMap.realName(ctxtMenu), command1, 2000)
+    if command2 and platform.system() == 'Darwin':
+        mouseMove(item1)
+    activateItem(item1)
     if command2:
         activateItem(waitForObjectItem("{title='%s' type='QMenu' visible='1' window=%s}"
                                        % (command1, objectMap.realName(ctxtMenu)), command2, 2000))
