@@ -81,7 +81,8 @@ TEST_F(CreateTableSqlStatementBuilder, SqlStatement)
     bindValues();
 
     ASSERT_THAT(builder.sqlStatement(),
-                "CREATE TABLE IF NOT EXISTS test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)");}
+                "CREATE TABLE IF NOT EXISTS test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)");
+}
 
 TEST_F(CreateTableSqlStatementBuilder, AddColumnToExistingColumns)
 {
@@ -90,7 +91,8 @@ TEST_F(CreateTableSqlStatementBuilder, AddColumnToExistingColumns)
     builder.addColumn("number2", ColumnType::Real);
 
     ASSERT_THAT(builder.sqlStatement(),
-                "CREATE TABLE IF NOT EXISTS test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC, number2 REAL)");}
+                "CREATE TABLE IF NOT EXISTS test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC, number2 REAL)");
+}
 
 TEST_F(CreateTableSqlStatementBuilder, ChangeTable)
 {
@@ -99,7 +101,8 @@ TEST_F(CreateTableSqlStatementBuilder, ChangeTable)
     builder.setTable("test2");
 
     ASSERT_THAT(builder.sqlStatement(),
-                "CREATE TABLE IF NOT EXISTS test2(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)");
+                "CREATE TABLE IF NOT EXISTS test2(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)"
+                );
 }
 
 TEST_F(CreateTableSqlStatementBuilder, IsInvalidAfterClearColumsOnly)
