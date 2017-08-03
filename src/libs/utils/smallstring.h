@@ -866,32 +866,30 @@ private:
         auto foundIndex = found - begin();
 
         if (found != end()) {
-            startIndex = foundIndex + fromText.size();
+            size_type startNextSearchIndex = foundIndex + fromText.size();
+            size_type newSizeDifference = sizeDifference + (toText.size() - fromText.size());
 
-            size_type newSizeDifference = sizeDifference + toText.size() - fromText.size();
-
-            auto nextFound = replaceLargerSizedRecursive(startIndex,
+            auto nextFound = replaceLargerSizedRecursive(startNextSearchIndex,
                                                          fromText,
                                                          toText,
                                                          newSizeDifference);
 
-            found = begin() + foundIndex;
-            auto start = begin() + startIndex;
+            auto startFound = begin() + foundIndex;
+            auto endOfFound = begin() + startNextSearchIndex;
 
-            auto replacedTextEndPosition = found + fromText.size();
-            auto replacementTextEndPosition = found + fromText.size() + newSizeDifference;
-            auto replacementTextStartPosition = found + sizeDifference;
-
+            auto replacedTextEndPosition = endOfFound;
+            auto replacementTextEndPosition = endOfFound + newSizeDifference;
+            auto replacementTextStartPosition = startFound + sizeDifference;
 
             std::memmove(replacementTextEndPosition.data(),
                          replacedTextEndPosition.data(),
-                         nextFound - start);
+                         std::distance(endOfFound, nextFound));
             std::memcpy(replacementTextStartPosition.data(), toText.data(), toText.size());
         } else {
             size_type newSize = size() + sizeDifference;
             reserve(optimalCapacity(newSize));
             setSize(newSize);
-            *end() = 0;
+            at(newSize) = 0;
         }
 
         return begin() + foundIndex;
