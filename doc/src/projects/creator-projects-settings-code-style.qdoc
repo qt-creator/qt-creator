@@ -58,9 +58,11 @@
 
     \list 1
 
-        \li Select \uicontrol Projects > \uicontrol {Code Style}.
+        \li Select \uicontrol Projects > \uicontrol {Project Settings} >
+            \uicontrol {Code Style}.
 
-        \li In the \uicontrol Language field, select \uicontrol C++ or \uicontrol {Qt Quick}.
+        \li In the \uicontrol Language field, select \uicontrol C++,
+            \uicontrol {Qt Quick}, or \uicontrol Nim.
 
         \li In the \uicontrol {Current settings} field, select the settings to modify
             and click \uicontrol Copy.
