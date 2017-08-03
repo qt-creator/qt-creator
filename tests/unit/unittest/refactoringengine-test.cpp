@@ -86,14 +86,16 @@ TEST_F(RefactoringEngine, SendRequestSourceLocationsForRenamingMessage)
     EXPECT_CALL(mockRefactoringServer, requestSourceLocationsForRenamingMessage(message))
         .Times(1);
 
-    engine.startLocalRenaming(cursor, filePath, textDocument.revision(), projectPart.data(), {});
+    engine.startLocalRenaming(CppTools::CursorInEditor{cursor, filePath},
+                              projectPart.data(), {});
 }
 
 TEST_F(RefactoringEngine, AfterSendRequestSourceLocationsForRenamingMessageIsUnusable)
 {
     EXPECT_CALL(mockRefactoringServer, requestSourceLocationsForRenamingMessage(_));
 
-    engine.startLocalRenaming(cursor, filePath, textDocument.revision(), projectPart.data(), {});
+    engine.startLocalRenaming(CppTools::CursorInEditor{cursor, filePath},
+                              projectPart.data(), {});
 
     ASSERT_FALSE(engine.isUsable());
 }

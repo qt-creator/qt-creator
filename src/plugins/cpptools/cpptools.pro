@@ -87,7 +87,8 @@ HEADERS += \
     cppprojectfilecategorizer.h \
     clangcompileroptionsbuilder.h \
     cppprojectpartchooser.h \
-    cppsymbolinfo.h
+    cppsymbolinfo.h \
+    cursorineditor.h
 
 SOURCES += \
     abstracteditorsupport.cpp \

@@ -159,6 +159,7 @@ Project {
             "cpptoolssettings.h",
             "cppworkingcopy.cpp",
             "cppworkingcopy.h",
+            "cursorineditor.h",
             "doxygengenerator.cpp",
             "doxygengenerator.h",
             "editordocumenthandle.cpp",

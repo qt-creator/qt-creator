@@ -88,6 +88,7 @@ public:
     static void updateWidgetHighlighting(QWidget *widget, bool highlight);
     static bool isWidgetHighlighted(QWidget *widget);
 
+    void updateSemanticInfo();
 protected:
     bool event(QEvent *e) override;
     void contextMenuEvent(QContextMenuEvent *) override;
@@ -131,9 +132,6 @@ private:
     TextEditor::RefactorMarkers refactorMarkersWithoutClangMarkers() const;
 
     CppTools::RefactoringEngineInterface *refactoringEngine() const;
-
-    void renameSymbolUnderCursorClang();
-    void renameSymbolUnderCursorBuiltin();
 
     CppTools::ProjectPart *projectPart() const;
 

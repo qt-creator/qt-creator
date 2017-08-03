@@ -39,9 +39,7 @@ class RefactoringEngine : public CppTools::RefactoringEngineInterface
 public:
     RefactoringEngine(ClangBackEnd::RefactoringServerInterface &server,
                       ClangBackEnd::RefactoringClientInterface &client);
-    void startLocalRenaming(const QTextCursor &textCursor,
-                            const Utils::FileName &filePath,
-                            int revision,
+    void startLocalRenaming(const CppTools::CursorInEditor &data,
                             CppTools::ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) override;
 

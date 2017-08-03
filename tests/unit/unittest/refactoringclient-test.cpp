@@ -125,9 +125,7 @@ TEST_F(RefactoringClient, AfterSourceLocationsForRenamingEngineIsUsableAgain)
 
 TEST_F(RefactoringClient, AfterStartLocalRenameHasValidCallback)
 {
-    engine.startLocalRenaming(cursor,
-                              filePath,
-                              textDocument.revision(),
+    engine.startLocalRenaming(CppTools::CursorInEditor{cursor, filePath},
                               projectPart.data(),
                               [&] (const QString &,
                                    const ClangBackEnd::SourceLocationsContainer &,

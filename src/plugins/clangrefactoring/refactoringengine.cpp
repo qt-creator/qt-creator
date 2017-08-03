@@ -34,6 +34,8 @@
 #include <cpptools/clangcompileroptionsbuilder.h>
 #include <cpptools/cpptoolsreuse.h>
 
+#include <texteditor/textdocument.h>
+
 #include <QTextCursor>
 #include <QTextDocument>
 
@@ -50,9 +52,7 @@ RefactoringEngine::RefactoringEngine(ClangBackEnd::RefactoringServerInterface &s
 {
 }
 
-void RefactoringEngine::startLocalRenaming(const QTextCursor &textCursor,
-                                           const Utils::FileName &filePath,
-                                           int revision,
+void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
                                            CppTools::ProjectPart *projectPart,
                                            RenameCallback &&renameSymbolsCallback)
 {
@@ -62,21 +62,23 @@ void RefactoringEngine::startLocalRenaming(const QTextCursor &textCursor,
 
     client.setLocalRenamingCallback(std::move(renameSymbolsCallback));
 
+    QString filePath = data.filePath().toString();
+    QTextCursor textCursor = data.cursor();
     Utils::SmallStringVector commandLine{ClangCompilerOptionsBuilder::build(
                     projectPart,
-                    fileKindInProjectPart(projectPart, filePath.toString()),
+                    fileKindInProjectPart(projectPart, filePath),
                     CppTools::getPchUsage(),
                     CLANG_VERSION,
                     CLANG_RESOURCE_DIR)};
 
-    commandLine.push_back(filePath.toString());
+    commandLine.push_back(filePath);
 
-    RequestSourceLocationsForRenamingMessage message(ClangBackEnd::FilePath(filePath.toString()),
+    RequestSourceLocationsForRenamingMessage message(ClangBackEnd::FilePath(filePath),
                                                      uint(textCursor.blockNumber() + 1),
                                                      uint(textCursor.positionInBlock() + 1),
                                                      textCursor.document()->toPlainText(),
                                                      std::move(commandLine),
-                                                     revision);
+                                                     textCursor.document()->revision());
 
 
     server.requestSourceLocationsForRenamingMessage(std::move(message));

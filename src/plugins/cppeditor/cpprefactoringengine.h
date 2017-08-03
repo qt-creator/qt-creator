@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,37 +25,22 @@
 
 #pragma once
 
-#include "cursorineditor.h"
-#include <utils/fileutils.h>
+#include <cpptools/refactoringengineinterface.h>
 
-#include <clangsupport/sourcelocationscontainer.h>
-#include <clangsupport/refactoringclientinterface.h>
+namespace CppEditor {
+namespace Internal {
 
-namespace TextEditor {
-class TextEditorWidget;
-} // namespace TextEditor
+class CppEditorWidget;
 
-namespace CppTools {
-
-class ProjectPart;
-
-enum class CallType
-{
-    Synchronous,
-    Asynchronous
-};
-
-// NOTE: This interface is not supposed to be owned as an interface pointer
-class RefactoringEngineInterface
+class CppRefactoringEngine : public CppTools::RefactoringEngineInterface
 {
 public:
-    using RenameCallback = ClangBackEnd::RefactoringClientInterface::RenameCallback;
+    void startLocalRenaming(const CppTools::CursorInEditor &data,
+                            CppTools::ProjectPart *projectPart,
+                            RenameCallback &&renameSymbolsCallback) override;
 
-    virtual void startLocalRenaming(const CursorInEditor &data,
-                                    CppTools::ProjectPart *projectPart,
-                                    RenameCallback &&renameSymbolsCallback) = 0;
-
-    virtual bool isUsable() const = 0;
+    bool isUsable() const override { return true; }
 };
 
-} // namespace CppTools
+} // namespace Internal
+} // namespace CppEditor

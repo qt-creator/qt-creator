@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,11 +25,8 @@
 
 #pragma once
 
-#include "cursorineditor.h"
+#include <QTextCursor>
 #include <utils/fileutils.h>
-
-#include <clangsupport/sourcelocationscontainer.h>
-#include <clangsupport/refactoringclientinterface.h>
 
 namespace TextEditor {
 class TextEditorWidget;
@@ -37,25 +34,22 @@ class TextEditorWidget;
 
 namespace CppTools {
 
-class ProjectPart;
-
-enum class CallType
-{
-    Synchronous,
-    Asynchronous
-};
-
-// NOTE: This interface is not supposed to be owned as an interface pointer
-class RefactoringEngineInterface
+class CursorInEditor
 {
 public:
-    using RenameCallback = ClangBackEnd::RefactoringClientInterface::RenameCallback;
-
-    virtual void startLocalRenaming(const CursorInEditor &data,
-                                    CppTools::ProjectPart *projectPart,
-                                    RenameCallback &&renameSymbolsCallback) = 0;
-
-    virtual bool isUsable() const = 0;
+    CursorInEditor(const QTextCursor &cursor, const Utils::FileName &filePath,
+                 TextEditor::TextEditorWidget *editorWidget = nullptr)
+        : m_cursor(cursor)
+        , m_filePath(filePath)
+        , m_editorWidget(editorWidget)
+    {}
+    TextEditor::TextEditorWidget *editorWidget() const { return m_editorWidget; }
+    const QTextCursor &cursor() const { return m_cursor; }
+    const Utils::FileName &filePath() const { return m_filePath; }
+private:
+    QTextCursor m_cursor;
+    Utils::FileName m_filePath;
+    TextEditor::TextEditorWidget *m_editorWidget = nullptr;
 };
 
 } // namespace CppTools
