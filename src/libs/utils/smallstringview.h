@@ -137,10 +137,7 @@ private:
 inline
 bool operator==(const SmallStringView& first, const SmallStringView& second) noexcept
 {
-    if (Q_LIKELY(first.size() != second.size()))
-        return false;
-
-    return !std::memcmp(first.data(), second.data(), first.size());
+    return first.size() == second.size() && std::memcmp(first.data(), second.data(), first.size()) == 0;
 }
 
 inline
