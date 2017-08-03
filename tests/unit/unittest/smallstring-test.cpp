@@ -897,6 +897,23 @@ TEST(SmallString, DontReplaceReplacedText)
     ASSERT_THAT(text, SmallString("here is some foofoo text"));
 }
 
+TEST(SmallString, DontReserveIfNothingIsReplacedForLongerReplacementText)
+{
+    SmallString text("here is some text with some longer text");
+
+    text.replace("bar", "foofoo");
+
+    ASSERT_TRUE(text.isReadOnlyReference());
+}
+
+TEST(SmallString, DontReserveIfNothingIsReplacedForShorterReplacementText)
+{
+    SmallString text("here is some text with some longer text");
+
+    text.replace("foofoo", "bar");
+
+    ASSERT_TRUE(text.isReadOnlyReference());
+}
 
 TEST(SmallString, StartsWith)
 {

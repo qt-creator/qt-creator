@@ -833,41 +833,44 @@ private:
 
     void replaceSmallerSized(SmallStringView fromText, SmallStringView toText)
     {
-        size_type newSize = size();
-        reserve(newSize);
-
-        auto start = begin();
-
-        auto found = std::search(start,
+        auto found = std::search(begin(),
                                  end(),
                                  fromText.begin(),
                                  fromText.end());
 
-        size_type sizeDifference = 0;
+        if (found != end()) {
+            size_type newSize = size();
+            {
+                size_type foundIndex = found - begin();
+                reserve(newSize);
+                found = begin() + foundIndex;
+            }
+            size_type sizeDifference = 0;
 
-        while (found != end()) {
-            start = found + fromText.size();
+            while (found != end()) {
+                auto start = found + fromText.size();
 
-            auto nextFound = std::search(start,
-                                         end(),
-                                         fromText.begin(),
-                                         fromText.end());
+                auto nextFound = std::search(start,
+                                             end(),
+                                             fromText.begin(),
+                                             fromText.end());
 
-            auto replacedTextEndPosition = found + fromText.size();
-            auto replacementTextEndPosition = found + toText.size() - sizeDifference;
-            auto replacementTextStartPosition = found - sizeDifference;
+                auto replacedTextEndPosition = found + fromText.size();
+                auto replacementTextEndPosition = found + toText.size() - sizeDifference;
+                auto replacementTextStartPosition = found - sizeDifference;
+                std::memmove(replacementTextEndPosition.data(),
+                             replacedTextEndPosition.data(),
+                             std::distance(start, nextFound));
+                std::memcpy(replacementTextStartPosition.data(), toText.data(), toText.size());
 
-            std::memmove(replacementTextEndPosition.data(),
-                         replacedTextEndPosition.data(),
-                         nextFound - start);
-            std::memcpy(replacementTextStartPosition.data(), toText.data(), toText.size());
+                sizeDifference += fromText.size() - toText.size();
+                found = nextFound;
+            }
 
-            sizeDifference += fromText.size() - toText.size();
-            found = nextFound;
+            newSize -= sizeDifference;
+            setSize(newSize);
+            at(newSize) = '\0';
         }
-        newSize -= sizeDifference;
-        setSize(newSize);
-        *end() = 0;
     }
 
     iterator replaceLargerSizedRecursive(size_type startIndex,
@@ -902,7 +905,7 @@ private:
                          replacedTextEndPosition.data(),
                          std::distance(endOfFound, nextFound));
             std::memcpy(replacementTextStartPosition.data(), toText.data(), toText.size());
-        } else {
+        } else if (startIndex != 0) {
             size_type newSize = size() + sizeDifference;
             setSize(newSize);
             at(newSize) = 0;
