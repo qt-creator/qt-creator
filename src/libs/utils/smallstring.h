@@ -891,11 +891,10 @@ private:
             size_type newSize = size() + sizeDifference;
             reserve(optimalCapacity(newSize));
             setSize(newSize);
-            found = end();
             *end() = 0;
         }
 
-        return found;
+        return begin() + foundIndex;
     }
 
     void replaceLargerSized(SmallStringView fromText, SmallStringView toText)

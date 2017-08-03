@@ -829,9 +829,9 @@ TEST(SmallString, ReplaceLongSmallStringWithLongerText)
 {
     SmallString text = SmallString::fromUtf8("some very very very very very very very very very very very long string");
 
-    text.replace("some", "much more");
+    text.replace("long", "much much much much much much much much much much much much much much much much much much more");
 
-    ASSERT_THAT(text, Eq(SmallString("much more very very very very very very very very very very very long string")));
+    ASSERT_THAT(text, "some very very very very very very very very very very very much much much much much much much much much much much much much much much much much much more string");
 }
 
 TEST(SmallString, MultipleReplaceSmallStringWithLongerText)
