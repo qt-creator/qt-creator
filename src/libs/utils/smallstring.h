@@ -670,22 +670,14 @@ public:
 
     friend bool operator<(const BasicSmallString& first, SmallStringView second) noexcept
     {
-        if (first.size() != second.size())
-            return first.size() < second.size();
-
-        const int comparison = std::memcmp(first.data(), second.data(), first.size());
-
-        return comparison < 0;
+        return first.size() < second.size()
+            || (first.size() == second.size() && std::memcmp(first.data(), second.data(), first.size()) < 0);
     }
 
     friend bool operator<(SmallStringView first, const BasicSmallString& second) noexcept
     {
-        if (first.size() != second.size())
-            return first.size() < second.size();
-
-        const int comparison = std::memcmp(first.data(), second.data(), first.size());
-
-        return comparison < 0;
+        return first.size() < second.size()
+            || (first.size() == second.size() && std::memcmp(first.data(), second.data(), first.size()) < 0);
     }
 
     friend BasicSmallString operator+(const BasicSmallString &first, const BasicSmallString &second)
@@ -987,12 +979,8 @@ template<template<uint> class String,
                                    || isSameString<String, SizeTwo>::value>>
 bool operator<(const String<SizeOne> &first, const String<SizeTwo> &second) noexcept
 {
-    if (first.size() != second.size())
-        return first.size() < second.size();
-
-    const int comparison = std::memcmp(first.data(), second.data(), first.size() + 1);
-
-    return comparison < 0;
+    return first.size() < second.size()
+        || (first.size() == second.size() && std::memcmp(first.data(), second.data(), first.size()) < 0);
 }
 
 template<typename Key,
