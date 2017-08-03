@@ -39,6 +39,7 @@
 #include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
 #include "symbolfinder.h"
+#include "followsymbolinterface.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -272,6 +273,11 @@ void CppModelManager::setRefactoringEngine(RefactoringEngineInterface *refactori
 RefactoringEngineInterface *CppModelManager::refactoringEngine()
 {
     return instance()->d->m_refactoringEngine;
+}
+
+FollowSymbolInterface *CppModelManager::followSymbolInterface() const
+{
+    return d->m_activeModelManagerSupport->followSymbolInterface();
 }
 
 QString CppModelManager::configurationFileName()

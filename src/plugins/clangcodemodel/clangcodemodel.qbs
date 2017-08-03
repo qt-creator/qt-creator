@@ -71,6 +71,8 @@ QtcPlugin {
         "clangfixitoperation.h",
         "clangfixitoperationsextractor.cpp",
         "clangfixitoperationsextractor.h",
+        "clangfollowsymbol.cpp",
+        "clangfollowsymbol.h",
         "clangfunctionhintmodel.cpp",
         "clangfunctionhintmodel.h",
         "clanghighlightingmarksreporter.cpp",

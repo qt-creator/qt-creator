@@ -63,6 +63,7 @@ HEADERS += \
     cppworkingcopy.h \
     doxygengenerator.h \
     editordocumenthandle.h \
+    followsymbolinterface.h \
     functionutils.h \
     generatedcodemodelsupport.h \
     includeutils.h \

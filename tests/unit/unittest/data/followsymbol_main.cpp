@@ -65,3 +65,18 @@ FooClass::FooClass() {
 int main() {
     return foo() + FooClass::mememember + TEST_DEFINE;
 }
+
+class Bar
+{
+public:
+    int operator&();
+    Bar& operator[](int);
+};
+
+int Bar::operator&() {
+    return 0;
+}
+
+Bar& Bar::operator[](int) {
+    return *this;
+}

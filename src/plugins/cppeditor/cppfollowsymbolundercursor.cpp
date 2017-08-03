@@ -55,12 +55,6 @@ typedef TextEditorWidget::Link Link;
 
 namespace {
 
-static bool useClangFollowSymbol()
-{
-    static bool use = qEnvironmentVariableIntValue("QTC_CLANG_FOLLOW_SYMBOL");
-    return use;
-}
-
 class VirtualFunctionHelper {
 public:
     VirtualFunctionHelper(TypeOfExpression &typeOfExpression,
@@ -305,9 +299,9 @@ inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolvedSymbo
     return result;
 }
 
-CppEditorWidget::Link attemptFuncDeclDef(const QTextCursor &cursor,
-    CppEditorWidget *, Snapshot snapshot, const Document::Ptr &document,
-    SymbolFinder *symbolFinder)
+CppEditorWidget::Link attemptFuncDeclDef(const QTextCursor &cursor, Snapshot snapshot,
+                                         const Document::Ptr &document,
+                                         SymbolFinder *symbolFinder)
 {
     Link result;
     QTC_ASSERT(document, return result);
@@ -467,15 +461,9 @@ QString expressionUnderCursorAsString(const QTextCursor &textCursor,
 
 } // anonymous namespace
 
-FollowSymbolUnderCursor::FollowSymbolUnderCursor(CppEditorWidget *widget)
-    : m_widget(widget)
-    , m_virtualFunctionAssistProvider(new VirtualFunctionAssistProvider)
+FollowSymbolUnderCursor::FollowSymbolUnderCursor()
+    : m_virtualFunctionAssistProvider(new VirtualFunctionAssistProvider)
 {
-}
-
-FollowSymbolUnderCursor::~FollowSymbolUnderCursor()
-{
-    delete m_virtualFunctionAssistProvider;
 }
 
 static int skipMatchingParentheses(const Tokens &tokens, int idx, int initialDepth)
@@ -495,61 +483,28 @@ static int skipMatchingParentheses(const Tokens &tokens, int idx, int initialDep
     return j;
 }
 
-bool FollowSymbolUnderCursor::processorFollowSymbol(uint line, uint column, bool resolveTarget,
-                                                    Link &linkResult)
-{
-    if (!useClangFollowSymbol())
-        return false;
-    CppEditorDocument* editorDocument = m_widget->cppEditorDocument();
-    if (!editorDocument)
-        return false;
-
-    QFuture<CppTools::SymbolInfo> info
-            = editorDocument->requestFollowSymbol(static_cast<int>(line),
-                                                  static_cast<int>(column),
-                                                  resolveTarget);
-    if (info.isCanceled())
-        return false;
-
-    while (!info.isFinished()) {
-        if (info.isCanceled())
-            return false;
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-    }
-    CppTools::SymbolInfo result = info.result();
-
-    // Try again with built-in code model (happens with some includes)
-    if (result.failedToFollow)
-        return false;
-
-    // We did not fail but the result is empty
-    if (result.fileName.isEmpty())
-        return true;
-
-    linkResult = Link(result.fileName, result.startLine, result.startColumn - 1);
-
-    return true;
-}
-
-TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &cursor,
-    bool resolveTarget, const Snapshot &theSnapshot, const Document::Ptr &documentFromSemanticInfo,
-    SymbolFinder *symbolFinder, bool inNextSplit)
+Link FollowSymbolUnderCursor::findLink(
+        const CppTools::CursorInEditor &data,
+        bool resolveTarget,
+        const Snapshot &theSnapshot,
+        const Document::Ptr &documentFromSemanticInfo,
+        SymbolFinder *symbolFinder,
+        bool inNextSplit)
 {
     Link link;
 
     int lineNumber = 0, positionInBlock = 0;
-    m_widget->convertPosition(cursor.position(), &lineNumber, &positionInBlock);
+    QTextCursor cursor = data.cursor();
+    QTextDocument *document = cursor.document();
+    TextEditor::Convenience::convertPosition(document, cursor.position(), &lineNumber,
+                                             &positionInBlock);
     const unsigned line = lineNumber;
     const unsigned column = positionInBlock + 1;
-
-    if (resolveTarget && processorFollowSymbol(line, column, resolveTarget, link))
-        return link;
 
     Snapshot snapshot = theSnapshot;
 
     // Move to end of identifier
     QTextCursor tc = cursor;
-    QTextDocument *document = m_widget->document();
     QChar ch = document->characterAt(tc.position());
     while (CppTools::isValidIdentifierChar(ch)) {
         tc.movePosition(QTextCursor::NextCharacter);
@@ -564,7 +519,7 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
         while (document->characterAt(pos).isSpace())
             ++pos;
         if (document->characterAt(pos) == QLatin1Char('(')) {
-            link = attemptFuncDeclDef(cursor, m_widget, snapshot, documentFromSemanticInfo,
+            link = attemptFuncDeclDef(cursor, snapshot, documentFromSemanticInfo,
                                       symbolFinder);
             if (link.hasValidLinkText())
                 return link;
@@ -636,7 +591,7 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
                     && unsigned(positionInBlock) <= tk.utf16charsEnd()) {
                 cursorRegionReached = true;
                 if (tk.is(T_OPERATOR)) {
-                    link = attemptFuncDeclDef(cursor, m_widget, theSnapshot,
+                    link = attemptFuncDeclDef(cursor, theSnapshot,
                                               documentFromSemanticInfo, symbolFinder);
                     if (link.hasValidLinkText())
                         return link;
@@ -644,7 +599,7 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
                     QTextCursor c = cursor;
                     c.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor,
                                    positionInBlock - tokens.at(i - 1).utf16charsBegin());
-                    link = attemptFuncDeclDef(c, m_widget, theSnapshot, documentFromSemanticInfo,
+                    link = attemptFuncDeclDef(c, theSnapshot, documentFromSemanticInfo,
                                               symbolFinder);
                     if (link.hasValidLinkText())
                         return link;
@@ -655,8 +610,11 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
         }
     }
 
+    CppEditorWidget *editorWidget = static_cast<CppEditorWidget *>(data.editorWidget());
+    if (!editorWidget)
+        return link;
     // Now we prefer the doc from the snapshot with macros expanded.
-    Document::Ptr doc = snapshot.document(m_widget->textDocument()->filePath());
+    Document::Ptr doc = snapshot.document(editorWidget->textDocument()->filePath());
     if (!doc) {
         doc = documentFromSemanticInfo;
         if (!doc)
@@ -705,7 +663,7 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
     } else if (const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1)) {
         const QString fileName = use->macro().fileName();
         if (fileName == CppModelManager::editorConfigurationFileName()) {
-            m_widget->showPreProcessorWidget();
+            editorWidget->showPreProcessorWidget();
         } else if (fileName != CppModelManager::configurationFileName()) {
             const Macro &macro = use->macro();
             link.targetFileName = macro.fileName();
@@ -739,7 +697,7 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
             if (Symbol *d = r.declaration()) {
                 if (d->isDeclaration() || d->isFunction()) {
                     const QString fileName = QString::fromUtf8(d->fileName(), d->fileNameLength());
-                    if (m_widget->textDocument()->filePath().toString() == fileName) {
+                    if (editorWidget->textDocument()->filePath().toString() == fileName) {
                         if (unsigned(lineNumber) == d->line()
                             && unsigned(positionInBlock) >= d->column()) { // TODO: check the end
                             result = r; // take the symbol under cursor.
@@ -748,7 +706,7 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
                     }
                 } else if (d->isUsingDeclaration()) {
                     int tokenBeginLineNumber = 0, tokenBeginColumnNumber = 0;
-                    m_widget->convertPosition(beginOfToken, &tokenBeginLineNumber,
+                    editorWidget->convertPosition(beginOfToken, &tokenBeginLineNumber,
                                               &tokenBeginColumnNumber);
                     if (unsigned(tokenBeginLineNumber) > d->line()
                             || (unsigned(tokenBeginLineNumber) == d->line()
@@ -778,7 +736,7 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
                     params.openInNextSplit = inNextSplit;
 
                     if (m_virtualFunctionAssistProvider->configure(params)) {
-                        m_widget->invokeAssist(FollowSymbol, m_virtualFunctionAssistProvider);
+                        editorWidget->invokeAssist(FollowSymbol, m_virtualFunctionAssistProvider.data());
                         m_virtualFunctionAssistProvider->clearParams();
                     }
 
@@ -827,12 +785,13 @@ TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &curs
     return Link();
 }
 
-VirtualFunctionAssistProvider *FollowSymbolUnderCursor::virtualFunctionAssistProvider()
+QSharedPointer<VirtualFunctionAssistProvider> FollowSymbolUnderCursor::virtualFunctionAssistProvider()
 {
     return m_virtualFunctionAssistProvider;
 }
 
-void FollowSymbolUnderCursor::setVirtualFunctionAssistProvider(VirtualFunctionAssistProvider *provider)
+void FollowSymbolUnderCursor::setVirtualFunctionAssistProvider(
+        const QSharedPointer<VirtualFunctionAssistProvider> &provider)
 {
     m_virtualFunctionAssistProvider = provider;
 }

@@ -67,9 +67,6 @@ public:
     ParseContextModel &parseContextModel();
 
     QFuture<CppTools::CursorInfo> cursorInfo(const CppTools::CursorInfoParams &params);
-    QFuture<CppTools::SymbolInfo> requestFollowSymbol(int line,
-                                                      int column,
-                                                      bool resolveTarget = true);
 
 signals:
     void codeWarningsUpdated(unsigned contentsRevision,

@@ -54,6 +54,7 @@ class CppEditorDocumentHandle;
 class CppIndexingSupport;
 class ModelManagerSupportProvider;
 class RefactoringEngineInterface;
+class FollowSymbolInterface;
 class SymbolFinder;
 class WorkingCopy;
 
@@ -152,6 +153,7 @@ public:
     CppCompletionAssistProvider *completionAssistProvider() const;
     BaseEditorDocumentProcessor *editorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument) const;
+    FollowSymbolInterface *followSymbolInterface() const;
 
     void setIndexingSupport(CppIndexingSupport *indexingSupport);
     CppIndexingSupport *indexingSupport();

@@ -69,3 +69,8 @@ CppCompletionAssistProvider *ModelManagerSupportInternal::completionAssistProvid
 {
     return m_completionAssistProvider.data();
 }
+
+FollowSymbolInterface *ModelManagerSupportInternal::followSymbolInterface()
+{
+    return nullptr;
+}

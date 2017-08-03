@@ -129,8 +129,8 @@ public:
 
     CppLocalRenaming m_localRenaming;
     CppUseSelectionsUpdater m_useSelectionsUpdater;
-    QScopedPointer<FollowSymbolUnderCursor> m_followSymbolUnderCursor;
     CppSelectionChanger m_cppSelectionChanger;
+    FollowSymbolUnderCursor m_builtinFollowSymbol;
     CppRefactoringEngine m_builtinRefactoringEngine;
 };
 
@@ -141,7 +141,6 @@ CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
     , m_declDefLinkFinder(new FunctionDeclDefLinkFinder(q))
     , m_localRenaming(q)
     , m_useSelectionsUpdater(q)
-    , m_followSymbolUnderCursor(new FollowSymbolUnderCursor(q))
     , m_cppSelectionChanger()
 {}
 
@@ -647,12 +646,23 @@ CppEditorWidget::Link CppEditorWidget::findLinkAt(const QTextCursor &cursor,
     if (!d->m_modelManager)
         return Link();
 
-    return d->m_followSymbolUnderCursor->findLink(cursor,
-                                                  resolveTarget,
-                                                  d->m_modelManager->snapshot(),
-                                                  d->m_lastSemanticInfo.doc,
-                                                  d->m_modelManager->symbolFinder(),
-                                                  inNextSplit);
+    const Utils::FileName &filePath = textDocument()->filePath();
+    if (!resolveTarget) {
+        // TODO: get that part also from clang
+        return d->m_builtinFollowSymbol.findLink(CppTools::CursorInEditor{cursor, filePath, this},
+                                                 resolveTarget,
+                                                 d->m_modelManager->snapshot(),
+                                                 d->m_lastSemanticInfo.doc,
+                                                 d->m_modelManager->symbolFinder(),
+                                                 inNextSplit);
+    }
+
+    return followSymbolInterface()->findLink(CppTools::CursorInEditor{cursor, filePath, this},
+                                             resolveTarget,
+                                             d->m_modelManager->snapshot(),
+                                             d->m_lastSemanticInfo.doc,
+                                             d->m_modelManager->symbolFinder(),
+                                             inNextSplit);
 }
 
 unsigned CppEditorWidget::documentRevision() const
@@ -685,6 +695,14 @@ RefactoringEngineInterface *CppEditorWidget::refactoringEngine() const
     RefactoringEngineInterface *engine = CppTools::CppModelManager::refactoringEngine();
     return engine ? engine
                   : static_cast<RefactoringEngineInterface *>(&d->m_builtinRefactoringEngine);
+}
+
+CppTools::FollowSymbolInterface *CppEditorWidget::followSymbolInterface() const
+{
+    CppTools::FollowSymbolInterface *followSymbol
+        = CppTools::CppModelManager::instance()->followSymbolInterface();
+    return followSymbol ? followSymbol
+                        : static_cast<CppTools::FollowSymbolInterface *>(&d->m_builtinFollowSymbol);
 }
 
 bool CppEditorWidget::isSemanticInfoValidExceptLocalUses() const
@@ -971,11 +989,6 @@ void CppEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
     d->m_declDefLink->apply(this, jumpToMatch);
     abortDeclDefLink();
     updateFunctionDeclDefLink();
-}
-
-FollowSymbolUnderCursor *CppEditorWidget::followSymbolUnderCursorDelegate()
-{
-    return d->m_followSymbolUnderCursor.data();
 }
 
 void CppEditorWidget::encourageApply()

@@ -23,6 +23,7 @@ SOURCES += \
     clangeditordocumentprocessor.cpp \
     clangfixitoperation.cpp \
     clangfixitoperationsextractor.cpp \
+    clangfollowsymbol.cpp \
     clangfunctionhintmodel.cpp \
     clanghighlightingmarksreporter.cpp \
     clangmodelmanagersupport.cpp \
@@ -54,6 +55,7 @@ HEADERS += \
     clangeditordocumentprocessor.h \
     clangfixitoperation.h \
     clangfixitoperationsextractor.h \
+    clangfollowsymbol.h \
     clangfunctionhintmodel.h \
     clanghighlightingmarksreporter.h \
     clangisdiagnosticrelatedtolocation.h \

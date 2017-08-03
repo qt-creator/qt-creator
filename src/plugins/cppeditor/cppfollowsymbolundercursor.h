@@ -25,44 +25,31 @@
 
 #pragma once
 
-#include <cplusplus/CppDocument.h>
-#include <texteditor/texteditor.h>
-
-QT_BEGIN_NAMESPACE
-class QTextCursor;
-QT_END_NAMESPACE
-
-namespace CppTools { class SymbolFinder; }
+#include <cpptools/followsymbolinterface.h>
 
 namespace CppEditor {
 namespace Internal {
 
-class CppEditorWidget;
 class VirtualFunctionAssistProvider;
 
-class FollowSymbolUnderCursor
+class FollowSymbolUnderCursor : public CppTools::FollowSymbolInterface
 {
 public:
-    typedef TextEditor::TextEditorWidget::Link Link;
+    FollowSymbolUnderCursor();
 
-    FollowSymbolUnderCursor(CppEditorWidget *widget);
-    ~FollowSymbolUnderCursor();
-
-    Link findLink(const QTextCursor &cursor, bool resolveTarget,
+    Link findLink(const CppTools::CursorInEditor &data,
+                  bool resolveTarget,
                   const CPlusPlus::Snapshot &snapshot,
                   const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
-                  CppTools::SymbolFinder *symbolFinder, bool inNextSplit);
+                  CppTools::SymbolFinder *symbolFinder,
+                  bool inNextSplit) override;
 
-    VirtualFunctionAssistProvider *virtualFunctionAssistProvider();
-    void setVirtualFunctionAssistProvider(VirtualFunctionAssistProvider *provider);
+    QSharedPointer<VirtualFunctionAssistProvider> virtualFunctionAssistProvider();
+    void setVirtualFunctionAssistProvider(
+            const QSharedPointer<VirtualFunctionAssistProvider> &provider);
 
 private:
-    // Try to follow symbol with clang processor
-    // Returns false if it has failed and we want to try again with built-in one
-    bool processorFollowSymbol(uint line, uint column, bool resolveTarget,
-                               Link &result);
-    CppEditorWidget *m_widget;
-    VirtualFunctionAssistProvider *m_virtualFunctionAssistProvider;
+    QSharedPointer<VirtualFunctionAssistProvider> m_virtualFunctionAssistProvider;
 };
 
 } // namespace Internal

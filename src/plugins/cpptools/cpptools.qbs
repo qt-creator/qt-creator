@@ -164,6 +164,7 @@ Project {
             "doxygengenerator.h",
             "editordocumenthandle.cpp",
             "editordocumenthandle.h",
+            "followsymbolinterface.h",
             "functionutils.cpp",
             "functionutils.h",
             "generatedcodemodelsupport.cpp",

@@ -90,6 +90,20 @@ private:
 
 } // anonymous namespace
 
+static SourceRange getOperatorRange(const CXTranslationUnit tu,
+                                    const Tokens &tokens,
+                                    uint operatorIndex)
+{
+    const CXSourceLocation start = clang_getTokenLocation(tu, tokens.data[operatorIndex]);
+    operatorIndex += 2;
+    while (operatorIndex < tokens.tokenCount
+           && !(ClangString(clang_getTokenSpelling(tu, tokens.data[operatorIndex])) == "(")) {
+        ++operatorIndex;
+    }
+    const CXSourceLocation end = clang_getTokenLocation(tu, tokens.data[operatorIndex]);
+    return SourceRange(clang_getRange(start, end));
+}
+
 static SourceRangeContainer extractMatchingTokenRange(const Cursor &cursor,
                                                       const Utf8String &tokenStr)
 {
@@ -99,10 +113,14 @@ static SourceRangeContainer extractMatchingTokenRange(const Cursor &cursor,
         if (!(tokenStr == ClangString(clang_getTokenSpelling(tu, tokens.data[i]))))
             continue;
 
-        if (cursor.isFunctionLike()
-                && (i+1 > tokens.tokenCount
-                    || !(ClangString(clang_getTokenSpelling(tu, tokens.data[i+1])) == "("))) {
-            continue;
+        if (cursor.isFunctionLike() || cursor.isConstructorOrDestructor()) {
+            if (tokenStr == "operator")
+                return getOperatorRange(tu, tokens, i);
+
+            if (i+1 > tokens.tokenCount
+                    || !(ClangString(clang_getTokenSpelling(tu, tokens.data[i+1])) == "(")) {
+                continue;
+            }
         }
         return SourceRange(clang_getTokenExtent(tu, tokens.data[i]));
     }

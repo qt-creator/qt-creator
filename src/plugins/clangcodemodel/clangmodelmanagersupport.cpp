@@ -28,6 +28,7 @@
 #include "clangconstants.h"
 #include "clangeditordocumentprocessor.h"
 #include "clangutils.h"
+#include "clangfollowsymbol.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanager.h>
@@ -52,6 +53,12 @@ using namespace ClangCodeModel::Internal;
 
 static ModelManagerSupportClang *m_instance = 0;
 
+static bool useClangFollowSymbol()
+{
+    static bool use = qEnvironmentVariableIntValue("QTC_CLANG_FOLLOW_SYMBOL");
+    return use;
+}
+
 static CppTools::CppModelManager *cppModelManager()
 {
     return CppTools::CppModelManager::instance();
@@ -62,6 +69,9 @@ ModelManagerSupportClang::ModelManagerSupportClang()
 {
     QTC_CHECK(!m_instance);
     m_instance = this;
+
+    if (useClangFollowSymbol())
+        m_followSymbol.reset(new ClangFollowSymbol);
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::editorOpened,
@@ -94,6 +104,11 @@ ModelManagerSupportClang::~ModelManagerSupportClang()
 CppTools::CppCompletionAssistProvider *ModelManagerSupportClang::completionAssistProvider()
 {
     return &m_completionAssistProvider;
+}
+
+CppTools::FollowSymbolInterface *ModelManagerSupportClang::followSymbolInterface()
+{
+    return m_followSymbol.get();
 }
 
 CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::editorDocumentProcessor(

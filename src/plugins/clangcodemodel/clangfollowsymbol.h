@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,42 +25,21 @@
 
 #pragma once
 
-#include "cpptools_global.h"
+#include <cpptools/followsymbolinterface.h>
 
-#include <QSharedPointer>
-#include <QString>
+namespace ClangCodeModel {
+namespace Internal {
 
-namespace TextEditor { class TextDocument; }
-
-namespace CppTools {
-
-class BaseEditorDocumentProcessor;
-class CppCompletionAssistProvider;
-class FollowSymbolInterface;
-
-class CPPTOOLS_EXPORT ModelManagerSupport
+class ClangFollowSymbol : public CppTools::FollowSymbolInterface
 {
 public:
-    using Ptr = QSharedPointer<ModelManagerSupport>;
-
-public:
-    virtual ~ModelManagerSupport() = 0;
-
-    virtual CppCompletionAssistProvider *completionAssistProvider() = 0;
-    virtual BaseEditorDocumentProcessor *editorDocumentProcessor(
-                TextEditor::TextDocument *baseTextDocument) = 0;
-    virtual FollowSymbolInterface *followSymbolInterface() = 0;
+    Link findLink(const CppTools::CursorInEditor &data,
+                  bool resolveTarget,
+                  const CPlusPlus::Snapshot &,
+                  const CPlusPlus::Document::Ptr &,
+                  CppTools::SymbolFinder *,
+                  bool) override;
 };
 
-class CPPTOOLS_EXPORT ModelManagerSupportProvider
-{
-public:
-    virtual ~ModelManagerSupportProvider() {}
-
-    virtual QString id() const = 0;
-    virtual QString displayName() const = 0;
-
-    virtual ModelManagerSupport::Ptr createModelManagerSupport() = 0;
-};
-
-} // CppTools namespace
+} // namespace Internal
+} // namespace ClangCodeModel

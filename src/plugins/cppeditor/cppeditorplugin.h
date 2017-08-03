@@ -93,6 +93,9 @@ private slots:
     void test_FollowSymbolUnderCursor_data();
     void test_FollowSymbolUnderCursor();
 
+    void test_FollowSymbolUnderCursor_QTCREATORBUG7903_data();
+    void test_FollowSymbolUnderCursor_QTCREATORBUG7903();
+
     void test_FollowSymbolUnderCursor_followCall_data();
     void test_FollowSymbolUnderCursor_followCall();
 

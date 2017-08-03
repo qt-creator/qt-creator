@@ -95,6 +95,13 @@ static bool isValidIdentifierChar(const QChar &c)
         || c.isLowSurrogate();
 }
 
+static bool isAfterOperatorKeyword(QTextCursor cursor)
+{
+    cursor.movePosition(QTextCursor::PreviousWord);
+    cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+    return cursor.selectedText() == "operator";
+}
+
 QTextCursor wordStartCursor(const QTextCursor &textCursor)
 {
     const int originalPosition = textCursor.position();
@@ -108,6 +115,8 @@ QTextCursor wordStartCursor(const QTextCursor &textCursor)
         if (isValidIdentifierChar(c))
             cursor.movePosition(QTextCursor::PreviousWord);
     }
+    if (isAfterOperatorKeyword(cursor))
+        cursor.movePosition(QTextCursor::PreviousWord);
 
     return cursor;
 }

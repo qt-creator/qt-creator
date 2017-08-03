@@ -32,6 +32,7 @@
 namespace CppTools {
 class CppEditorOutline;
 class RefactoringEngineInterface;
+class FollowSymbolInterface;
 class SemanticInfo;
 class ProjectPart;
 }
@@ -42,7 +43,6 @@ namespace Internal {
 class CppEditorDocument;
 
 class CppEditorWidgetPrivate;
-class FollowSymbolUnderCursor;
 class FunctionDeclDefLink;
 
 class CppEditorWidget : public TextEditor::TextEditorWidget
@@ -67,8 +67,6 @@ public:
             TextEditor::AssistKind kind,
             TextEditor::AssistReason reason) const override;
 
-    FollowSymbolUnderCursor *followSymbolUnderCursorDelegate(); // exposed for tests
-
     void encourageApply() override;
 
     void paste() override;
@@ -89,6 +87,8 @@ public:
     static bool isWidgetHighlighted(QWidget *widget);
 
     void updateSemanticInfo();
+
+    CppTools::FollowSymbolInterface *followSymbolInterface() const;
 protected:
     bool event(QEvent *e) override;
     void contextMenuEvent(QContextMenuEvent *) override;

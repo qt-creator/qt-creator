@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,41 +26,28 @@
 #pragma once
 
 #include "cpptools_global.h"
+#include "cursorineditor.h"
 
-#include <QSharedPointer>
-#include <QString>
+#include <cplusplus/CppDocument.h>
 
-namespace TextEditor { class TextDocument; }
+#include <texteditor/texteditor.h>
 
 namespace CppTools {
 
-class BaseEditorDocumentProcessor;
-class CppCompletionAssistProvider;
-class FollowSymbolInterface;
+class SymbolFinder;
 
-class CPPTOOLS_EXPORT ModelManagerSupport
+class CPPTOOLS_EXPORT FollowSymbolInterface
 {
 public:
-    using Ptr = QSharedPointer<ModelManagerSupport>;
+    using Link = TextEditor::TextEditorWidget::Link;
 
-public:
-    virtual ~ModelManagerSupport() = 0;
-
-    virtual CppCompletionAssistProvider *completionAssistProvider() = 0;
-    virtual BaseEditorDocumentProcessor *editorDocumentProcessor(
-                TextEditor::TextDocument *baseTextDocument) = 0;
-    virtual FollowSymbolInterface *followSymbolInterface() = 0;
+    virtual ~FollowSymbolInterface() {}
+    virtual Link findLink(const CursorInEditor &data,
+                          bool resolveTarget,
+                          const CPlusPlus::Snapshot &snapshot,
+                          const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+                          SymbolFinder *symbolFinder,
+                          bool inNextSplit) = 0;
 };
 
-class CPPTOOLS_EXPORT ModelManagerSupportProvider
-{
-public:
-    virtual ~ModelManagerSupportProvider() {}
-
-    virtual QString id() const = 0;
-    virtual QString displayName() const = 0;
-
-    virtual ModelManagerSupport::Ptr createModelManagerSupport() = 0;
-};
-
-} // CppTools namespace
+} // namespace CppTools

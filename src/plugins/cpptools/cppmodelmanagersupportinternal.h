@@ -43,6 +43,7 @@ public:
     virtual CppCompletionAssistProvider *completionAssistProvider();
     virtual BaseEditorDocumentProcessor *editorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument);
+    FollowSymbolInterface *followSymbolInterface() override;
 
 private:
     QScopedPointer<CppCompletionAssistProvider> m_completionAssistProvider;

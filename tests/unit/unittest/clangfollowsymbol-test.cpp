@@ -351,6 +351,34 @@ TEST_F(FollowSymbol, CursorAfterNamespace)
     ASSERT_THAT(namespaceDefinition, MatchesFileSourceRange(QString(""), 0, 0, 0));
 }
 
+TEST_F(FollowSymbol, CursorOnOneSymbolOperatorDefinition)
+{
+    const auto namespaceDefinition = followSymbol(76, 13);
+
+    ASSERT_THAT(namespaceDefinition, MatchesSourceRange(72, 9, 9));
+}
+
+TEST_F(FollowSymbol, CursorOnTwoSymbolOperatorDefinition)
+{
+    const auto namespaceDefinition = followSymbol(80, 15);
+
+    ASSERT_THAT(namespaceDefinition, MatchesSourceRange(73, 10, 10));
+}
+
+TEST_F(FollowSymbol, CursorOnOneSymbolOperatorDeclaration)
+{
+    const auto namespaceDefinition = followSymbol(72, 12);
+
+    ASSERT_THAT(namespaceDefinition, MatchesSourceRange(76, 10, 9));
+}
+
+TEST_F(FollowSymbol, CursorOnTwoSymbolOperatorDeclaration)
+{
+    const auto namespaceDefinition = followSymbol(73, 12);
+
+    ASSERT_THAT(namespaceDefinition, MatchesSourceRange(80, 11, 10));
+}
+
 std::unique_ptr<Data> FollowSymbol::d;
 
 void FollowSymbol::SetUpTestCase()

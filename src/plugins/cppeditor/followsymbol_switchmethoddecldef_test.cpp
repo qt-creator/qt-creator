@@ -33,6 +33,7 @@
 #include "cppvirtualfunctionproposalitem.h"
 
 #include <cpptools/cpptoolstestcase.h>
+#include <cpptools/cppmodelmanager.h>
 
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -326,19 +327,37 @@ F2TestCase::F2TestCase(CppEditorAction action,
     switch (action) {
     case FollowSymbolUnderCursorAction: {
         CppEditorWidget *widget = initialTestFile->m_editorWidget;
-        FollowSymbolUnderCursor *delegate = widget->followSymbolUnderCursorDelegate();
-        VirtualFunctionAssistProvider *original = delegate->virtualFunctionAssistProvider();
+        FollowSymbolInterface* delegate = widget->followSymbolInterface();
+        if (!delegate)
+            QFAIL("No follow symbol interface");
+        auto* builtinFollowSymbol = dynamic_cast<FollowSymbolUnderCursor *>(delegate);
+        if (!builtinFollowSymbol) {
+            if (filePaths.size() > 1)
+                QSKIP("Clang FollowSymbol does not currently support multiple files (except cpp+header)");
+            const QString curTestName = QLatin1String(QTest::currentTestFunction());
+            if (curTestName == "test_FollowSymbolUnderCursor_QObject_connect"
+                    || curTestName == "test_FollowSymbolUnderCursor_virtualFunctionCall"
+                    || curTestName == "test_FollowSymbolUnderCursor_QTCREATORBUG7903") {
+                QSKIP((curTestName + " is not supported by Clang FollowSymbol").toLatin1());
+            }
+
+            initialTestFile->m_editorWidget->openLinkUnderCursor();
+            break;
+        }
+
+        QSharedPointer<VirtualFunctionAssistProvider> original
+                = builtinFollowSymbol->virtualFunctionAssistProvider();
 
         // Set test provider, run and get results
-        QScopedPointer<VirtualFunctionTestAssistProvider> testProvider(
+        QSharedPointer<VirtualFunctionTestAssistProvider> testProvider(
             new VirtualFunctionTestAssistProvider(widget));
-        delegate->setVirtualFunctionAssistProvider(testProvider.data());
+        builtinFollowSymbol->setVirtualFunctionAssistProvider(testProvider);
         initialTestFile->m_editorWidget->openLinkUnderCursor();
         immediateVirtualSymbolResults = testProvider->m_immediateItems;
         finalVirtualSymbolResults = testProvider->m_finalItems;
 
         // Restore original test provider
-        delegate->setVirtualFunctionAssistProvider(original);
+        builtinFollowSymbol->setVirtualFunctionAssistProvider(original);
         break;
     }
     case SwitchBetweenMethodDeclarationDefinitionAction:
@@ -870,41 +889,6 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
         "@Container<int> container;\n"
     );
 
-    QTest::newRow("using_QTCREATORBUG7903_globalNamespace") << _(
-        "namespace NS {\n"
-        "class Foo {};\n"
-        "}\n"
-        "using NS::$Foo;\n"
-        "void fun()\n"
-        "{\n"
-        "    @Foo foo;\n"
-        "}\n"
-    );
-
-    QTest::newRow("using_QTCREATORBUG7903_namespace") << _(
-        "namespace NS {\n"
-        "class Foo {};\n"
-        "}\n"
-        "namespace NS1 {\n"
-        "void fun()\n"
-        "{\n"
-        "    using NS::$Foo;\n"
-        "    @Foo foo;\n"
-        "}\n"
-        "}\n"
-    );
-
-    QTest::newRow("using_QTCREATORBUG7903_insideFunction") << _(
-        "namespace NS {\n"
-        "class Foo {};\n"
-        "}\n"
-        "void fun()\n"
-        "{\n"
-        "    using NS::$Foo;\n"
-        "    @Foo foo;\n"
-        "}\n"
-    );
-
     QTest::newRow("matchFunctionSignature_Follow_1") << _(
         "class Foo {\n"
         "    void @foo(int);\n"
@@ -993,12 +977,59 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
     );
 
     QTest::newRow("template_alias") << _(
+        "template<class T>"
+        "class Bar;"
         "template<class $T>\n"
         "using Foo = Bar<@T>;\n"
     );
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor()
+{
+    QFETCH(QByteArray, source);
+    F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_QTCREATORBUG7903_data()
+{
+    QTest::addColumn<QByteArray>("source");
+    QTest::newRow("using_QTCREATORBUG7903_globalNamespace") << _(
+        "namespace NS {\n"
+        "class Foo {};\n"
+        "}\n"
+        "using NS::$Foo;\n"
+        "void fun()\n"
+        "{\n"
+        "    @Foo foo;\n"
+        "}\n"
+    );
+
+    QTest::newRow("using_QTCREATORBUG7903_namespace") << _(
+        "namespace NS {\n"
+        "class Foo {};\n"
+        "}\n"
+        "namespace NS1 {\n"
+        "void fun()\n"
+        "{\n"
+        "    using NS::$Foo;\n"
+        "    @Foo foo;\n"
+        "}\n"
+        "}\n"
+    );
+
+    QTest::newRow("using_QTCREATORBUG7903_insideFunction") << _(
+        "namespace NS {\n"
+        "class Foo {};\n"
+        "}\n"
+        "void fun()\n"
+        "{\n"
+        "    using NS::$Foo;\n"
+        "    @Foo foo;\n"
+        "}\n"
+    );
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_QTCREATORBUG7903()
 {
     QFETCH(QByteArray, source);
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
