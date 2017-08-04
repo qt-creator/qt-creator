@@ -811,6 +811,12 @@
     To inspect QML and JavaScript properties, methods, and enums, move the
     cursor over them and select \uicontrol Tools > \uicontrol {QML/JS} >
     \uicontrol {Inspect API for Element Under Cursor}.
+
+    \section1 Automatically Formatting QML/JS Files
+
+    To automatically format QML/JS files upon saving, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
+    \uicontrol {Enable auto format on file save}.
 */
 
 
