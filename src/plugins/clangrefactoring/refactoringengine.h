@@ -42,6 +42,7 @@ public:
     void startLocalRenaming(const CppTools::CursorInEditor &data,
                             CppTools::ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) override;
+    void startGlobalRenaming(const CppTools::CursorInEditor &data) override;
 
     bool isUsable() const override;
     void setUsable(bool isUsable);

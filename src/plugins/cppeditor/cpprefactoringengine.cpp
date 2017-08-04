@@ -46,5 +46,13 @@ void CppRefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &da
                           editorWidget->document()->revision());
 }
 
+void CppRefactoringEngine::startGlobalRenaming(const CppTools::CursorInEditor &data)
+{
+    CppEditorWidget *editorWidget = static_cast<CppEditorWidget *>(data.editorWidget());
+    if (!editorWidget)
+        return;
+    editorWidget->renameUsages();
+}
+
 } // namespace Internal
 } // namespace CppEditor

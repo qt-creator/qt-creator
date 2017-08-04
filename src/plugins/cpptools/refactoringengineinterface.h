@@ -54,6 +54,7 @@ public:
     virtual void startLocalRenaming(const CursorInEditor &data,
                                     CppTools::ProjectPart *projectPart,
                                     RenameCallback &&renameSymbolsCallback) = 0;
+    virtual void startGlobalRenaming(const CursorInEditor &data) = 0;
 
     virtual bool isUsable() const = 0;
 };

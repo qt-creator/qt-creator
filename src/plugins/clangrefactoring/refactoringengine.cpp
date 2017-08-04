@@ -84,6 +84,11 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
     server.requestSourceLocationsForRenamingMessage(std::move(message));
 }
 
+void RefactoringEngine::startGlobalRenaming(const CppTools::CursorInEditor &)
+{
+    // TODO: implement
+}
+
 bool RefactoringEngine::isUsable() const
 {
     return server.isUsable();

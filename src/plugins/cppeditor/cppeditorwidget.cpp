@@ -546,8 +546,10 @@ void CppEditorWidget::renameSymbolUnderCursor()
                 setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, selections);
                 d->m_localRenaming.updateSelectionsForVariableUnderCursor(selections);
             }
-            if (!d->m_localRenaming.start()) // Rename local symbol
-                renameUsages();              // Rename non-local symbol or macro
+            if (!d->m_localRenaming.start()) {
+                refactoringEngine()->startGlobalRenaming(
+                    CppTools::CursorInEditor{textCursor(), textDocument()->filePath(), this});
+            }
         }
     };
 
