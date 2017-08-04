@@ -410,6 +410,54 @@ void ToolChainKitInformation::setToolChain(Kit *k, ToolChain *tc)
     k->setValue(id(), result);
 }
 
+/**
+ * @brief ToolChainKitInformation::setAllToolChainsToMatch
+ *
+ * Set up all toolchains to be similar to the one toolchain provided. Similar ideally means
+ * that all toolchains use the "same" compiler from the same installation, but we will
+ * settle for a toolchain with a matching API instead.
+ *
+ * @param k The kit to set up
+ * @param tc The toolchain to match other languages for.
+ */
+void ToolChainKitInformation::setAllToolChainsToMatch(Kit *k, ToolChain *tc)
+{
+    QTC_ASSERT(tc, return);
+
+    const QList<ToolChain *> allTcList = ToolChainManager::toolChains();
+    QTC_ASSERT(allTcList.contains(tc), return);
+
+    QVariantMap result = k->value(ToolChainKitInformation::id()).toMap();
+    result.insert(tc->language().toString(), tc->id());
+
+    for (Core::Id l : ToolChainManager::allLanguages()) {
+        if (l == tc->language())
+            continue;
+
+        ToolChain *match = nullptr;
+        ToolChain *bestMatch = nullptr;
+        for (ToolChain *other : allTcList) {
+            if (!other->isValid() || other->language() != l)
+                continue;
+            if (other->targetAbi() == tc->targetAbi())
+                match = other;
+            if (match == other
+                    && other->compilerCommand().parentDir() == tc->compilerCommand().parentDir()) {
+                bestMatch = other;
+                break;
+            }
+        }
+        if (bestMatch)
+            result.insert(l.toString(), bestMatch->id());
+        else if (match)
+            result.insert(l.toString(), match->id());
+        else
+            result.insert(l.toString(), QByteArray());
+    }
+
+    k->setValue(id(), result);
+}
+
 void ToolChainKitInformation::clearToolChain(Kit *k, Core::Id language)
 {
     QTC_ASSERT(language.isValid(), return);
