@@ -25,6 +25,8 @@
 
 #include "gtestoutputreader.h"
 #include "gtestresult.h"
+#include "../testtreemodel.h"
+#include "../testtreeitem.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -39,9 +41,11 @@ static QString constructSourceFilePath(const QString &path, const QString &fileP
 }
 
 GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                                     QProcess *testApplication, const QString &buildDirectory)
+                                     QProcess *testApplication, const QString &buildDirectory,
+                                     const QString &projectFile)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
     , m_executable(testApplication ? testApplication->program() : QString())
+    , m_projectFile(projectFile)
 {
 }
 
@@ -94,8 +98,9 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
         m_futureInterface.reportResult(TestResultPtr(testResult));
         m_currentTestName.clear();
         m_currentTestSet.clear();
+        m_normalizedCurrentTestSet.clear();
     } else if (newTestStarts.exactMatch(line)) {
-        m_currentTestName = newTestStarts.cap(1);
+        setCurrentTestName(newTestStarts.cap(1));
         TestResultPtr testResult = TestResultPtr(createDefaultResult());
         testResult->setResult(Result::MessageTestCaseStart);
         if (m_iteration > 1) {
@@ -106,7 +111,7 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
         }
         m_futureInterface.reportResult(testResult);
     } else if (newTestSetStarts.exactMatch(line)) {
-        m_currentTestSet = newTestSetStarts.cap(1);
+        setCurrentTestSet(newTestSetStarts.cap(1));
         TestResultPtr testResult = TestResultPtr(new GTestResult);
         testResult->setResult(Result::MessageCurrentTest);
         testResult->setDescription(tr("Entering test set %1").arg(m_currentTestSet));
@@ -155,12 +160,86 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
     }
 }
 
+void GTestOutputReader::setCurrentTestSet(const QString &testSet)
+{
+    m_currentTestSet = testSet;
+    m_normalizedCurrentTestSet = normalizeName(testSet);
+}
+
+void GTestOutputReader::setCurrentTestName(const QString &testName)
+{
+    m_currentTestName = testName;
+    m_normalizedTestName = normalizeTestName(testName);
+}
+
+QString GTestOutputReader::normalizeName(const QString &name) const
+{
+    static QRegExp parameterIndex("/\\d+");
+
+    QString nameWithoutParameterIndices = name;
+    nameWithoutParameterIndices.remove(parameterIndex);
+
+    return nameWithoutParameterIndices.split('/').last();
+}
+
+QString GTestOutputReader::normalizeTestName(const QString &testname) const
+{
+    QString nameWithoutTypeParam = testname.split(',').first();
+
+    return normalizeName(nameWithoutTypeParam);
+}
+
 GTestResult *GTestOutputReader::createDefaultResult() const
 {
     GTestResult *result = new GTestResult(m_executable, m_currentTestName);
     result->setTestSetName(m_currentTestSet);
     result->setIteration(m_iteration);
+
+    const TestTreeItem *testItem = findTestTreeItemForCurrentLine();
+    if (testItem && testItem->line()) {
+        result->setFileName(testItem->filePath());
+        result->setLine(static_cast<int>(testItem->line()));
+    }
+
     return result;
+}
+
+const TestTreeItem *GTestOutputReader::findTestTreeItemForCurrentLine() const
+{
+    const auto item = TestTreeModel::instance()->findNonRooItem([&](const Utils::TreeItem *item) {
+        const TestTreeItem &treeItem = static_cast<const TestTreeItem &>(*item);
+        return matches(treeItem);
+    });
+
+    return static_cast<const TestTreeItem *>(item);
+}
+
+bool GTestOutputReader::matches(const TestTreeItem &treeItem) const
+{
+    if (treeItem.proFile() != m_projectFile)
+        return false;
+
+    if (m_currentTestSet.isEmpty())
+        return matchesTestCase(treeItem);
+
+    return matchesTestFunctionOrSet(treeItem);
+}
+
+bool GTestOutputReader::matchesTestFunctionOrSet(const TestTreeItem &treeItem) const
+{
+    if (treeItem.type() != TestTreeItem::TestFunctionOrSet)
+        return false;
+
+    const QString testItemTestSet = treeItem.parentItem()->name() + '.' + treeItem.name();
+    return testItemTestSet == m_normalizedCurrentTestSet;
+}
+
+bool GTestOutputReader::matchesTestCase(const TestTreeItem &treeItem) const
+{
+    if (treeItem.type() != TestTreeItem::TestCase)
+        return false;
+
+    return treeItem.name() == m_normalizedTestName;
 }
 
 } // namespace Internal

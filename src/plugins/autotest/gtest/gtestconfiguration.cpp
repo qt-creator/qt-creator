@@ -35,7 +35,7 @@ namespace Internal {
 TestOutputReader *GTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
                                                    QProcess *app) const
 {
-    return new GTestOutputReader(fi, app, buildDirectory());
+    return new GTestOutputReader(fi, app, buildDirectory(), projectFile());
 }
 
 QStringList GTestConfiguration::argumentsForTestRunner() const
