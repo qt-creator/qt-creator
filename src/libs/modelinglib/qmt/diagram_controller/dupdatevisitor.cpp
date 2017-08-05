@@ -226,7 +226,7 @@ void DUpdateVisitor::visitMAssociation(const MAssociation *association)
 void DUpdateVisitor::visitMConnection(const MConnection *connection)
 {
     auto dconnection = dynamic_cast<DConnection *>(m_target);
-    QMT_CHECK(dconnection);
+    QMT_ASSERT(dconnection, return);
     if (isUpdating(connection->customRelationId() != dconnection->customRelationId()))
         dconnection->setCustomRelationId(connection->customRelationId());
     DConnectionEnd endA;

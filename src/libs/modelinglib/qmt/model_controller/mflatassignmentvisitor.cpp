@@ -139,7 +139,7 @@ void MFlatAssignmentVisitor::visitMConnection(const MConnection *connection)
 {
     visitMRelation(connection);
     auto targetConnection = dynamic_cast<MConnection *>(m_target);
-    QMT_CHECK(targetConnection);
+    QMT_ASSERT(targetConnection, return);
     targetConnection->setCustomRelationId(connection->customRelationId());
     targetConnection->setEndA(connection->endA());
     targetConnection->setEndB(connection->endB());
