@@ -31,8 +31,6 @@
 namespace qmt {
 
 MDependency::MDependency()
-    : MRelation(),
-      m_direction(AToB)
 {
 }
 

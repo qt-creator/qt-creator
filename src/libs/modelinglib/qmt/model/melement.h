@@ -84,7 +84,7 @@ private:
     MObject *m_owner = nullptr;
     MExpansion *m_expansion = nullptr;
     QList<QString> m_stereotypes;
-    Flags m_flags = 0;
+    Flags m_flags;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(MElement::Flags)

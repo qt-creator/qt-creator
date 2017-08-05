@@ -28,9 +28,6 @@
 namespace qmt {
 
 SourcePos::SourcePos()
-    : m_sourceId(-1),
-      m_lineNumber(-1),
-      m_columnNumber(-1)
 {
 }
 

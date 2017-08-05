@@ -45,7 +45,7 @@ public:
     QList<const DObject *> collidingObjects() const { return m_collidingObjects; }
 
 private:
-    const DObject *m_object;
+    const DObject *m_object = nullptr;
     ObjectVisuals m_objectVisuals;
     QList<const DObject *> m_collidingObjects;
 };

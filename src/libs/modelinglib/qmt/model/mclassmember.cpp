@@ -28,8 +28,7 @@
 namespace qmt {
 
 MClassMember::MClassMember(MemberType memberType)
-    : m_visibility(VisibilityUndefined),
-      m_memberType(memberType)
+    : m_memberType(memberType)
 {
 }
 

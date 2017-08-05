@@ -35,8 +35,7 @@ namespace qmt {
 PaletteBox::PaletteBox(QWidget *parent)
     : QWidget(parent),
       m_brushes(6),
-      m_pens(6),
-      m_currentIndex(-1)
+      m_pens(6)
 {
     setFocusPolicy(Qt::StrongFocus);
 }

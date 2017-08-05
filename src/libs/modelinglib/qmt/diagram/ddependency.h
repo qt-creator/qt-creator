@@ -50,7 +50,7 @@ public:
     void accept(DConstVisitor *visitor) const override;
 
 private:
-    MDependency::Direction m_direction;
+    MDependency::Direction m_direction = MDependency::AToB;
 };
 
 } // namespace qmt

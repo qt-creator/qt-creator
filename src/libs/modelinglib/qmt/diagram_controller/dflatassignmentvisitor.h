@@ -52,7 +52,7 @@ public:
     void visitDSwimlane(const DSwimlane *swimlane) override;
 
 private:
-    DElement *m_target;
+    DElement *m_target = nullptr;
 };
 
 } // namespace qmt

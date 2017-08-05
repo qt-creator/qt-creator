@@ -106,18 +106,18 @@ public:
     void loadProject(const QString &fileName);
 
 private:
-    ProjectController *m_projectController;
-    UndoController *m_undoController;
-    ModelController *m_modelController;
-    DiagramController *m_diagramController;
-    DiagramSceneController *m_diagramSceneController;
-    StyleController *m_styleController;
-    StereotypeController *m_stereotypeController;
-    ConfigController *m_configController;
-    TreeModel *m_treeModel;
-    SortedTreeModel *m_sortedTreeModel;
-    DiagramsManager *m_diagramsManager;
-    SceneInspector *m_sceneInspector;
+    ProjectController *m_projectController = nullptr;
+    UndoController *m_undoController = nullptr;
+    ModelController *m_modelController = nullptr;
+    DiagramController *m_diagramController = nullptr;
+    DiagramSceneController *m_diagramSceneController = nullptr;
+    StyleController *m_styleController = nullptr;
+    StereotypeController *m_stereotypeController = nullptr;
+    ConfigController *m_configController = nullptr;
+    TreeModel *m_treeModel = nullptr;
+    SortedTreeModel *m_sortedTreeModel = nullptr;
+    DiagramsManager *m_diagramsManager = nullptr;
+    SceneInspector *m_sceneInspector = nullptr;
     QScopedPointer<MContainer> m_modelClipboard;
     QScopedPointer<DContainer> m_diagramClipboard;
 };

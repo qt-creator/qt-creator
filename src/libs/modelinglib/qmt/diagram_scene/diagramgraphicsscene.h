@@ -64,7 +64,7 @@ protected:
     void inputMethodEvent(QInputMethodEvent *event) override;
 
 private:
-    DiagramSceneModel *m_diagramSceneModel;
+    DiagramSceneModel *m_diagramSceneModel = nullptr;
 };
 
 } // namespace qmt

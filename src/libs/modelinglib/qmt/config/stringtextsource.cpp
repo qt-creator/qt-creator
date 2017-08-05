@@ -31,10 +31,6 @@
 namespace qmt {
 
 StringTextSource::StringTextSource()
-    : m_sourceId(-1),
-      m_index(-1),
-      m_lineNumber(-1),
-      m_columnNumber(-1)
 {
 }
 

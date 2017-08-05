@@ -62,7 +62,7 @@ protected:
 private:
     QVector<QBrush> m_brushes;
     QVector<QPen> m_pens;
-    int m_currentIndex;
+    int m_currentIndex = -1;
 };
 
 } // namespace qmt

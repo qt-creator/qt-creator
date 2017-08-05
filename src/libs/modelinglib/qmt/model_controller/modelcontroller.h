@@ -151,12 +151,12 @@ private:
                               QHash<Uid, const MRelation *> *relationsMap,
                               QMultiHash<Uid, MRelation *> *objectRelationsMap) const;
 
-    MPackage *m_rootPackage;
-    UndoController *m_undoController;
+    MPackage *m_rootPackage = nullptr;
+    UndoController *m_undoController = nullptr;
     QHash<Uid, MObject *> m_objectsMap;
     QHash<Uid, MRelation *> m_relationsMap;
     QMultiHash<Uid, MRelation *> m_objectRelationsMap;
-    bool m_isResettingModel;
+    bool m_isResettingModel = false;
     QString m_oldPackageName;
 };
 

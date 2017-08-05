@@ -581,10 +581,7 @@ private:
 };
 
 ModelController::ModelController(QObject *parent)
-    : QObject(parent),
-      m_rootPackage(nullptr),
-      m_undoController(nullptr),
-      m_isResettingModel(false)
+    : QObject(parent)
 {
 }
 

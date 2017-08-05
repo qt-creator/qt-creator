@@ -230,8 +230,8 @@ public:
 private:
     ShapePointF m_center;
     ShapeSizeF m_radius;
-    qreal m_startAngle;
-    qreal m_spanAngle;
+    qreal m_startAngle = 0.0;
+    qreal m_spanAngle = 0.0;
 };
 
 class QMT_EXPORT PathShape : public IShape

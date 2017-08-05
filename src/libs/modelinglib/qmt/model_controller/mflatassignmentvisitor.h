@@ -52,7 +52,7 @@ public:
     void visitMConnection(const MConnection *connection) override;
 
 private:
-    MElement *m_target;
+    MElement *m_target = nullptr;
 };
 
 } // namespace qmt

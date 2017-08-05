@@ -91,8 +91,8 @@ private:
     QList<QString> m_stereotypes;
     QString m_group;
     QString m_declaration;
-    Visibility m_visibility;
-    MemberType m_memberType;
+    Visibility m_visibility = VisibilityUndefined;
+    MemberType m_memberType = MemberUndefined;
     Properties m_properties;
 };
 
