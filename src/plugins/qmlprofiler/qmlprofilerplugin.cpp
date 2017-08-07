@@ -47,6 +47,7 @@
 #include "tests/qmlprofilerbindingloopsrenderpass_test.h"
 #include "tests/qmlprofilerclientmanager_test.h"
 #include "tests/qmlprofilerconfigwidget_test.h"
+#include "tests/qmlprofilertraceview_test.h"
 
 // Force QML Debugging to be enabled, so that we can selftest the profiler
 #define QT_QML_DEBUG_NO_WARNING
@@ -117,6 +118,7 @@ QList<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects() c
     tests << new QmlProfilerBindingLoopsRenderPassTest;
     tests << new QmlProfilerClientManagerTest;
     tests << new QmlProfilerConfigWidgetTest;
+    tests << new QmlProfilerTraceViewTest;
 
     tests << new QQmlEngine; // Trigger debug connector to be started
 #endif
