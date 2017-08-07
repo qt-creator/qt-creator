@@ -73,7 +73,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     start();
 
     QTimer::singleShot(0, this, &LocalQmlProfilerRunnerTest::testRunner1);
-    QTRY_COMPARE_WITH_TIMEOUT(runControl, nullptr, 70000);
+    QTRY_COMPARE_WITH_TIMEOUT(runControl, static_cast<ProjectExplorer::RunControl *>(nullptr), 70000);
 }
 
 void LocalQmlProfilerRunnerTest::testRunner1()
