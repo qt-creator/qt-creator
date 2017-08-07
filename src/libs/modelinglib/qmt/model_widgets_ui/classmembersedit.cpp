@@ -123,7 +123,7 @@ QString ClassMembersEdit::Cursor::readUntil(const QString &delimiter)
 {
     QString s;
     while (m_isValid) {
-        if (m_pos >= m_text.length() || m_text.at(m_pos) == "\n") {
+        if (m_pos >= m_text.length() || m_text.at(m_pos) == '\n') {
             m_isValid = false;
             return s;
         }
@@ -154,7 +154,7 @@ void ClassMembersEdit::Cursor::skipUntilOrNewline(const QString &delimiter)
     while (m_isValid) {
         if (m_pos >= m_text.length())
             return;
-        if (m_text.at(m_pos) == "\n")
+        if (m_text.at(m_pos) == '\n')
             return;
         if (m_pos + delimiter.length() <= m_text.length()
                 && QString::compare(m_text.mid(m_pos, delimiter.length()), delimiter, Qt::CaseInsensitive) == 0) {
@@ -238,12 +238,12 @@ QString ClassMembersEdit::Cursor::extractSubstr(int start, int stop)
     if (m_isValid && start >= 0 && start < m_text.length() && stop >= start && stop < m_text.length())
         return m_text.mid(start, stop - start + 1);
     m_isValid = false;
-    return "";
+    return QString();
 }
 
 void ClassMembersEdit::Cursor::skipWhitespaces()
 {
-    while (m_isValid && m_pos < m_text.length() && m_text.at(m_pos).isSpace() && m_text.at(m_pos) != "\n")
+    while (m_isValid && m_pos < m_text.length() && m_text.at(m_pos).isSpace() && m_text.at(m_pos) != '\n')
         ++m_pos;
     if (m_pos >= m_text.length())
         m_isValid = false;
@@ -251,7 +251,7 @@ void ClassMembersEdit::Cursor::skipWhitespaces()
 
 void ClassMembersEdit::Cursor::skipWhitespacesFromRight()
 {
-    while (m_isValid && m_pos >= 0 && m_text.at(m_pos).isSpace() && m_text.at(m_pos) != "\n")
+    while (m_isValid && m_pos >= 0 && m_text.at(m_pos).isSpace() && m_text.at(m_pos) != '\n')
         --m_pos;
     if (m_pos < 0)
         m_isValid = false;
