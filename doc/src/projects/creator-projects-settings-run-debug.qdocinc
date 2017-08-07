@@ -26,7 +26,7 @@
 /*!
 //! [run settings debugger]
 
-    \section2 Specifying Debugger Settings
+    \section1 Specifying Debugger Settings
 
     \image qtquick-debugging-settings.png "Debugger Settings"
 

@@ -26,7 +26,7 @@
 /*!
 //! [run settings linux]
 
-    \section2 Specifying Run Settings for Linux-Based Devices
+    \section1 Specifying Run Settings for Linux-Based Devices
 
     To run and debug an application on a Linux-based device,
     you must create connections from the development

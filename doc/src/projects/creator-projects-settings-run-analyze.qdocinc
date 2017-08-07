@@ -26,7 +26,7 @@
 /*!
 //! [settings valgrind]
 
-    \section2 Specifying Valgrind Settings
+    \section1 Specifying Valgrind Settings
 
     \QC integrates \l{Analyzing Code}{Valgrind code analysis tools} for
     detecting memory leaks and profiling function execution. You can configure

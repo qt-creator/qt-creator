@@ -53,7 +53,7 @@
     \QC automatically adds run configurations for all targets specified in the
     CMake project file, \c {CMakeLists.txt}.
 
-    \section2 Creating Run Configurations for Subprojects
+    \section1 Creating Run Configurations for Subprojects
 
     To prevent \QC from automatically creating run configurations for SUBDIRS
     projects, specify the following variable in the .pro file of the SUBDIRS

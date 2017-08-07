@@ -26,7 +26,7 @@
 /*!
 //! [run settings qnx]
 
-    \section2 Specifying Run Settings for QNX Devices
+    \section1 Specifying Run Settings for QNX Devices
 
     To run and debug an application on a QNX device, you must
     create connections from the development PC to the device. Click

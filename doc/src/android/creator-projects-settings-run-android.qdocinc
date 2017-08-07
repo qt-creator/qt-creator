@@ -26,7 +26,7 @@
 /*!
 //! [run settings android]
 
-    \section2 Specifying Run Settings for Android Devices
+    \section1 Specifying Run Settings for Android Devices
 
     To run and debug an application on an Android device, you must create
     connections from the development host to the device, as instructed in
