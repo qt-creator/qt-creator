@@ -73,6 +73,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     start();
 
     QTimer::singleShot(0, this, &LocalQmlProfilerRunnerTest::testRunner1);
+    QTRY_COMPARE_WITH_TIMEOUT(runControl, nullptr, 70000);
 }
 
 void LocalQmlProfilerRunnerTest::testRunner1()
@@ -115,6 +116,7 @@ void LocalQmlProfilerRunnerTest::testRunner4()
 {
     QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
     delete runControl;
+    runControl = nullptr;
 }
 
 void LocalQmlProfilerRunnerTest::testFindFreePort()
