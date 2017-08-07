@@ -37,7 +37,7 @@ ITestParser *QuickTestFramework::createTestParser() const
 
 TestTreeItem *QuickTestFramework::createRootNode() const
 {
-    return new QuickTestTreeItem(QCoreApplication::translate("QuickTestFramework", "Quick Tests"),
+    return new QuickTestTreeItem(QCoreApplication::translate("QuickTestFramework", "Quick Test"),
                                  QString(), TestTreeItem::Root);
 }
 
