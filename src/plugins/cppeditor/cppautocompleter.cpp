@@ -249,8 +249,7 @@ void CppEditorPlugin::test_autoComplete_data()
             QString expectedText;
             int skippedChar = 0;
 
-            // We always expect to get a closing char in an empty file
-            if (fc == EmptyFile && isOpeningChar(c))
+            if (fc == EmptyFile && isOpeningChar(c) && c != QLatin1Char('{'))
                 expectedText = closingChar(c);
 
             if (fc == InBetween) {
