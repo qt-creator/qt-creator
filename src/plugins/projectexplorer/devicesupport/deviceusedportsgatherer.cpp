@@ -65,8 +65,9 @@ DeviceUsedPortsGatherer::~DeviceUsedPortsGatherer()
 
 void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
 {
-    QTC_ASSERT(!d->connection, return);
-    QTC_ASSERT(device && device->portsGatheringMethod(), return);
+    QTC_ASSERT(!d->connection, emit error("No connection"); return);
+    QTC_ASSERT(device && device->portsGatheringMethod(),
+               emit error("Not implemented"); return);
 
     d->device = device;
     d->connection = QSsh::acquireConnection(device->sshParameters());
