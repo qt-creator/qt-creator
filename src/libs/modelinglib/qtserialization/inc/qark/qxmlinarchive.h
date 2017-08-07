@@ -489,7 +489,7 @@ public:
     {
     public:
         explicit ReferenceTag(ReferenceKind k = Nullpointer,
-                              const QString &string = QLatin1String(""))
+                              const QString &string = QString())
             : kind(k),
               typeName(string)
         {

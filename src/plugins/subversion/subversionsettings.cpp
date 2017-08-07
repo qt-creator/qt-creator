@@ -46,8 +46,8 @@ SubversionSettings::SubversionSettings()
     declareKey(binaryPathKey, QLatin1String("svn" QTC_HOST_EXE_SUFFIX));
     declareKey(logCountKey, 1000);
     declareKey(useAuthenticationKey, false);
-    declareKey(userKey, QLatin1String(""));
-    declareKey(passwordKey, QLatin1String(""));
+    declareKey(userKey, QString());
+    declareKey(passwordKey, QString());
     declareKey(spaceIgnorantAnnotationKey, true);
     declareKey(diffIgnoreWhiteSpaceKey, false);
     declareKey(logVerboseKey, false);

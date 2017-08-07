@@ -1275,7 +1275,7 @@ QStringList Differ::encode(const QString &text1,
                                   QString *encodedText2)
 {
     QStringList lines;
-    lines.append(QLatin1String("")); // don't use code: 0
+    lines.append(QString()); // don't use code: 0
     QMap<QString, int> lineToCode;
 
     *encodedText1 = encode(text1, &lines, &lineToCode);

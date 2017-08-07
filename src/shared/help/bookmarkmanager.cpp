@@ -217,7 +217,7 @@ void BookmarkDialog::customContextMenuRequested(const QPoint &point)
     if (!index.isValid())
         return;
 
-    QMenu menu(QLatin1String(""), this);
+    QMenu menu(this);
 
     QAction *removeItem = menu.addAction(tr("Delete Folder"));
     QAction *renameItem = menu.addAction(tr("Rename Folder"));
@@ -322,7 +322,7 @@ void BookmarkWidget::filterChanged()
         regExp.setPattern(searchField->text());
         filterBookmarkModel->setSourceModel(bookmarkManager->listBookmarkModel());
     } else {
-        regExp.setPattern(QLatin1String(""));
+        regExp.setPattern(QString());
         filterBookmarkModel->setSourceModel(bookmarkManager->treeBookmarkModel());
     }
 
@@ -366,7 +366,7 @@ void BookmarkWidget::customContextMenuRequested(const QPoint &point)
     QAction *renameItem = 0;
     QAction *showItemNewTab = 0;
 
-    QMenu menu(QLatin1String(""), this);
+    QMenu menu(this);
     QString data = index.data(Qt::UserRole + 10).toString();
     if (data == QLatin1String("Folder")) {
         removeItem = menu.addAction(tr("Delete Folder"));

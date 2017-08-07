@@ -201,9 +201,9 @@ const QLatin1String VcsBaseClientSettings::pathKey("Path");
 VcsBaseClientSettings::VcsBaseClientSettings() :
     d(new Internal::VcsBaseClientSettingsPrivate)
 {
-    declareKey(binaryPathKey, QLatin1String(""));
-    declareKey(userNameKey, QLatin1String(""));
-    declareKey(userEmailKey, QLatin1String(""));
+    declareKey(binaryPathKey, QString());
+    declareKey(userNameKey, QString());
+    declareKey(userEmailKey, QString());
     declareKey(logCountKey, 100);
     declareKey(promptOnSubmitKey, true);
     declareKey(timeoutKey, 30);
