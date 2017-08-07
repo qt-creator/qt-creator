@@ -256,4 +256,11 @@ TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeNestedName
     ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
 }
 
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotWithinString)
+{
+    const Document document("\"a@b\"");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
 } // anonymous
