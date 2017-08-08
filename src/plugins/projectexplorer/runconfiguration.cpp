@@ -537,7 +537,7 @@ public:
     RunWorker *q;
     RunWorkerState state = RunWorkerState::Initialized;
     QPointer<RunControl> runControl;
-    QList<RunWorker *> dependencies;
+    QList<RunWorker *> startDependencies;
     QString id;
 
     QVariantMap data;
@@ -1455,7 +1455,7 @@ bool RunWorkerPrivate::canStart() const
 {
     if (state != RunWorkerState::Initialized)
         return false;
-    for (RunWorker *worker : dependencies) {
+    for (RunWorker *worker : startDependencies) {
         QTC_ASSERT(worker, return true);
         if (worker->d->state != RunWorkerState::Done
                 && worker->d->state != RunWorkerState::Running)
@@ -1618,9 +1618,9 @@ Core::Id RunWorker::runMode() const
     return d->runControl->runMode();
 }
 
-void RunWorker::addDependency(RunWorker *dependency)
+void RunWorker::addStartDependency(RunWorker *dependency)
 {
-    d->dependencies.append(dependency);
+    d->startDependencies.append(dependency);
 }
 
 RunControl *RunWorker::runControl() const

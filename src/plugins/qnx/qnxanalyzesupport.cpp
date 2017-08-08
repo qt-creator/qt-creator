@@ -87,12 +87,12 @@ QnxQmlProfilerSupport::QnxQmlProfilerSupport(RunControl *runControl)
     auto portsGatherer = new PortsGatherer(runControl);
 
     auto debuggeeRunner = new QnxAnalyzeeRunner(runControl, portsGatherer);
-    debuggeeRunner->addDependency(portsGatherer);
+    debuggeeRunner->addStartDependency(portsGatherer);
 
     auto slog2InfoRunner = new Slog2InfoRunner(runControl);
-    slog2InfoRunner->addDependency(debuggeeRunner);
+    slog2InfoRunner->addStartDependency(debuggeeRunner);
 
-    addDependency(slog2InfoRunner);
+    addStartDependency(slog2InfoRunner);
 
     // QmlDebug::QmlOutputParser m_outputParser;
     // FIXME: m_outputParser needs to be fed with application output

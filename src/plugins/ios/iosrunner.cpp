@@ -394,10 +394,10 @@ IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
 
     m_runner = new IosRunner(runControl);
     m_runner->setQmlDebugging(QmlDebug::QmlProfilerServices);
-    addDependency(m_runner);
+    addStartDependency(m_runner);
 
     m_profiler = runControl->createWorker(runControl->runMode());
-    m_profiler->addDependency(this);
+    m_profiler->addStartDependency(this);
 }
 
 void IosQmlProfilerSupport::start()
@@ -428,7 +428,7 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
     m_runner->setCppDebugging(isCppDebugging());
     m_runner->setQmlDebugging(isQmlDebugging() ? QmlDebug::QmlDebuggerServices : QmlDebug::NoQmlDebugServices);
 
-    addDependency(m_runner);
+    addStartDependency(m_runner);
 }
 
 void IosDebugSupport::start()

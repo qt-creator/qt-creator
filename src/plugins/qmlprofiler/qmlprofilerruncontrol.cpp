@@ -308,7 +308,7 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
 
     m_profiler = new QmlProfilerRunner(runControl);
     m_profiler->setServerUrl(serverUrl);
-    m_profiler->addDependency(this);
+    m_profiler->addStartDependency(this);
 
     StandardRunnable debuggee = runnable().as<StandardRunnable>();
     QString arguments = QmlDebug::qmlDebugArguments(QmlDebug::QmlProfilerServices, serverUrl);
@@ -321,7 +321,7 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
 
     m_profilee = new SimpleTargetRunner(runControl);
     m_profilee->setRunnable(debuggee);
-    addDependency(m_profilee);
+    addStartDependency(m_profilee);
 }
 
 void LocalQmlProfilerSupport::start()
