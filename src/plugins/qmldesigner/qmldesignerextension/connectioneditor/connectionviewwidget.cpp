@@ -69,17 +69,13 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     ui->tabBar->addTab(tr("Backends", "Title of dynamic properties view"));
     ui->tabBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 
-    ui->connectionView->setStyleSheet(Theme::replaceCssColors(
-            QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
+    const QString themedScrollBarCss = Theme::replaceCssColors(
+                QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css"))));
 
-    ui->bindingView->setStyleSheet(Theme::replaceCssColors(
-            QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
-
-    ui->dynamicPropertiesView->setStyleSheet(Theme::replaceCssColors(
-                QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
-
-    ui->backendView->setStyleSheet(Theme::replaceCssColors(
-                QLatin1String(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
+    ui->connectionView->setStyleSheet(themedScrollBarCss);
+    ui->bindingView->setStyleSheet(themedScrollBarCss);
+    ui->dynamicPropertiesView->setStyleSheet(themedScrollBarCss);
+    ui->backendView->setStyleSheet(Theme::replaceCssColors(themedScrollBarCss);
 
     connect(ui->tabBar, &QTabBar::currentChanged,
             ui->stackedWidget, &QStackedWidget::setCurrentIndex);
