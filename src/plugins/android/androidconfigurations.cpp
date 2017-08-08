@@ -70,6 +70,7 @@
 #include <QThread>
 
 #include <functional>
+#include <memory>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -82,7 +83,7 @@ namespace Android {
 using namespace Internal;
 
 namespace {
-
+    const char jdkSettingsPath[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\JavaSoft\\Java Development Kit";
     const QVersionNumber sdkToolsAntMissingVersion(25, 3, 0);
 
     const QLatin1String SettingsGroup("AndroidConfigurations");
@@ -1247,8 +1248,18 @@ void AndroidConfigurations::load()
                 }
             }
         } else if (HostOsInfo::isWindowsHost()) {
-            QSettings settings(QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Javasoft\\Java Development Kit"), QSettings::NativeFormat);
-            QStringList allVersions = settings.childGroups();
+            QStringList allVersions;
+            std::unique_ptr<QSettings> settings(new QSettings(jdkSettingsPath,
+                                                              QSettings::NativeFormat));
+            allVersions = settings->childGroups();
+#ifdef Q_OS_WIN
+#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
+            if (allVersions.isEmpty()) {
+                settings.reset(new QSettings(jdkSettingsPath, QSettings::Registry64Format));
+                allVersions = settings->childGroups();
+            }
+#endif
+#endif
             QString javaHome;
             int major = -1;
             int minor = -1;
@@ -1264,9 +1275,9 @@ void AndroidConfigurations::load()
                 if (tmpMajor > major
                         || (tmpMajor == major
                             && tmpMinor > minor)) {
-                    settings.beginGroup(version);
-                    QString tmpJavaHome = settings.value(QLatin1String("JavaHome")).toString();
-                    settings.endGroup();
+                    settings->beginGroup(version);
+                    QString tmpJavaHome = settings->value(QLatin1String("JavaHome")).toString();
+                    settings->endGroup();
                     if (!QFileInfo::exists(tmpJavaHome))
                         continue;
 
