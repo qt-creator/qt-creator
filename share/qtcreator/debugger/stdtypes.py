@@ -46,6 +46,7 @@ def qdump__std__complex(d, value):
     innerType = value.type[0]
     (real, imag) = value.split('{%s}{%s}' % (innerType.name, innerType.name))
     d.putValue("(%s, %s)" % (real.display(), imag.display()))
+    d.putNumChild(2)
     if d.isExpanded():
         with Children(d, 2, childType=innerType):
             d.putSubItem("real", real)
