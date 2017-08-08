@@ -133,7 +133,7 @@ void QmlProfilerRunner::stop()
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppRunning:
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStopRequested);
-        break;
+        return; // Don't reportStopped() here. We are still waiting for data.
     case QmlProfilerStateManager::AppStopRequested:
         // Pressed "stop" a second time. Kill the application without collecting data
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
@@ -257,6 +257,7 @@ void QmlProfilerRunner::profilerStateChanged()
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::Idle:
         d->m_noDebugOutputTimer.stop();
+        reportStopped();
         break;
     default:
         break;
@@ -309,6 +310,7 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
     m_profiler = new QmlProfilerRunner(runControl);
     m_profiler->setServerUrl(serverUrl);
     m_profiler->addStartDependency(this);
+    addStopDependency(m_profiler);
 
     StandardRunnable debuggee = runnable().as<StandardRunnable>();
     QString arguments = QmlDebug::qmlDebugArguments(QmlDebug::QmlProfilerServices, serverUrl);
@@ -322,6 +324,7 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
     m_profilee = new SimpleTargetRunner(runControl);
     m_profilee->setRunnable(debuggee);
     addStartDependency(m_profilee);
+    m_profilee->addStopDependency(this);
 }
 
 void LocalQmlProfilerSupport::start()
