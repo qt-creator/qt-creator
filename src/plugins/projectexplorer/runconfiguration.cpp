@@ -961,6 +961,22 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
         return;
     }
 
+    for (RunWorker *dependent : worker->d->stopDependencies) {
+        switch (dependent->d->state) {
+        case RunWorkerState::Done:
+        case RunWorkerState::Failed:
+            break;
+        case RunWorkerState::Initialized:
+            dependent->d->state = RunWorkerState::Done;
+            break;
+        default:
+            debugMessage("Killing " + dependent->d->id + " as it depends on stopped " + workerId);
+            dependent->d->state = RunWorkerState::Stopping;
+            QTimer::singleShot(0, dependent, &RunWorker::initiateStop);
+            break;
+        }
+    }
+
     debugMessage("Checking whether all stopped");
     bool allDone = true;
     for (RunWorker *worker : m_workers) {
