@@ -131,8 +131,9 @@
 
     \endlist
 
-    The Gradle wrappers and scripts are bundled only if you use
-    \l{Selecting the APK Build Tool}{Gradle} to build the application packages.
+    The Gradle wrappers and scripts are bundled only if you use Gradle to build
+    the application packages. For more information, see
+    \l{Connecting Android Devices}.
 
     To view the packages that the \c androiddeployqt tool created, select the
     \uicontrol {Open package location after build} check box.
