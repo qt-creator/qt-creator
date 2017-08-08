@@ -323,6 +323,7 @@ public:
     RunControl *runControl() const;
 
     void addStartDependency(RunWorker *dependency);
+    void addStopDependency(RunWorker *dependency);
 
     void setDisplayName(const QString &id) { setId(id); } // FIXME: Obsoleted by setId.
     void setId(const QString &id);
