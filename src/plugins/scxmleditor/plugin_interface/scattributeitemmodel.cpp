@@ -117,8 +117,6 @@ QVariant SCAttributeItemModel::data(const QModelIndex &index, int role) const
             return Qt::AlignHCenter;
         else
             break;
-    case Qt::ForegroundRole:
-        return bExtraRow ? QBrush(Qt::gray) : QBrush(Qt::black);
     case DataTypeRole: {
         if (m_tag->tagType() == Metadata || m_tag->tagType() == MetadataItem)
             return (int)QVariant::String;
@@ -148,7 +146,7 @@ Qt::ItemFlags SCAttributeItemModel::flags(const QModelIndex &index) const
     if (m_tag->tagType() <= MetadataItem || (index.column() == 1 && m_tag->info()->n_attributes > 0 && m_tag->info()->attributes[index.row()].editable))
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 
-    return Qt::NoItemFlags;
+    return index.column() == 0 ? Qt::ItemIsEnabled : Qt::NoItemFlags;
 }
 
 int SCAttributeItemModel::columnCount(const QModelIndex &parent) const
