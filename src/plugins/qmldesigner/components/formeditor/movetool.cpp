@@ -246,9 +246,9 @@ void MoveTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
         m_movingItems.clear();
     }
 
-    view()->changeToSelectionTool();
-
     AbstractFormEditorTool::mouseReleaseEvent(itemList, event);
+
+    view()->changeToSelectionTool();
 }
 
 void MoveTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event)
