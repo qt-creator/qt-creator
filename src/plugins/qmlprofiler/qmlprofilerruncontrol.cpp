@@ -277,13 +277,17 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl)
 }
 
 LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const QUrl &serverUrl)
-    : RunWorker(runControl)
+    : SimpleTargetRunner(runControl)
 {
     setDisplayName("LocalQmlProfilerSupport");
 
     m_profiler = new QmlProfilerRunner(runControl);
     m_profiler->setServerUrl(serverUrl);
+
     addStopDependency(m_profiler);
+    // We need to open the local server before the application tries to connect.
+    // In the TCP case, it doesn't hurt either to start the profiler before.
+    addStartDependency(m_profiler);
 
     StandardRunnable debuggee = runnable().as<StandardRunnable>();
     QString arguments = QmlDebug::qmlDebugArguments(QmlDebug::QmlProfilerServices, serverUrl);
@@ -294,27 +298,7 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
     debuggee.commandLineArguments = arguments;
     debuggee.runMode = ApplicationLauncher::Gui;
 
-    m_profilee = new SimpleTargetRunner(runControl);
-    m_profilee->setRunnable(debuggee);
-    addStartDependency(m_profilee);
-
-    // We need to open the local server before the application tries to connect.
-    // In the TCP case, it doesn't hurt either to start the profiler before.
-    m_profilee->addStartDependency(m_profiler);
-
-    m_profilee->addStopDependency(this);
-}
-
-void LocalQmlProfilerSupport::start()
-{
-    reportStarted();
-    emit localRunnerStarted();
-}
-
-void LocalQmlProfilerSupport::stop()
-{
-    reportStopped();
-    emit localRunnerStopped();
+    setRunnable(debuggee);
 }
 
 } // namespace QmlProfiler

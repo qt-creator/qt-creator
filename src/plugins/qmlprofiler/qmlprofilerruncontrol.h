@@ -63,7 +63,7 @@ private:
     QmlProfilerRunnerPrivate *d;
 };
 
-class LocalQmlProfilerSupport : public ProjectExplorer::RunWorker
+class LocalQmlProfilerSupport : public ProjectExplorer::SimpleTargetRunner
 {
     Q_OBJECT
 
@@ -72,15 +72,7 @@ public:
     LocalQmlProfilerSupport(ProjectExplorer::RunControl *runControl,
                             const QUrl &serverUrl);
 
-    void start() override;
-    void stop() override;
-
-signals:
-    void localRunnerStarted();
-    void localRunnerStopped();
-
 private:
-    ProjectExplorer::SimpleTargetRunner *m_profilee;
     QmlProfilerRunner *m_profiler;
 };
 
