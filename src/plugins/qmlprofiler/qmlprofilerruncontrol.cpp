@@ -133,10 +133,11 @@ void QmlProfilerRunner::stop()
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppRunning:
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStopRequested);
-        return; // Don't reportStopped() here. We are still waiting for data.
+        break;
     case QmlProfilerStateManager::AppStopRequested:
         // Pressed "stop" a second time. Kill the application without collecting data
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
+        reportStopped();
         break;
     case QmlProfilerStateManager::Idle:
     case QmlProfilerStateManager::AppDying:
@@ -149,7 +150,6 @@ void QmlProfilerRunner::stop()
     }
         break;
     }
-    reportStopped();
 }
 
 void QmlProfilerRunner::notifyRemoteFinished()
