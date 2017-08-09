@@ -75,7 +75,7 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     ui->connectionView->setStyleSheet(themedScrollBarCss);
     ui->bindingView->setStyleSheet(themedScrollBarCss);
     ui->dynamicPropertiesView->setStyleSheet(themedScrollBarCss);
-    ui->backendView->setStyleSheet(Theme::replaceCssColors(themedScrollBarCss);
+    ui->backendView->setStyleSheet(themedScrollBarCss);
 
     connect(ui->tabBar, &QTabBar::currentChanged,
             ui->stackedWidget, &QStackedWidget::setCurrentIndex);
