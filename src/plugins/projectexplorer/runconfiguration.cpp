@@ -825,7 +825,9 @@ void RunControlPrivate::continueStart()
 
 void RunControlPrivate::initiateStop()
 {
-    checkState(RunControlState::Running);
+    if (state != RunControlState::Starting && state != RunControlState::Running)
+        qDebug() << "Unexpected initiateStop() in state" << stateName(state);
+
     setState(RunControlState::Stopping);
     debugMessage("Queue: Stopping for all workers");
 
@@ -1214,6 +1216,7 @@ bool RunControlPrivate::isAllowedTransition(RunControlState from, RunControlStat
             || to == RunControlState::Finishing;
     case RunControlState::Starting:
         return to == RunControlState::Running
+            || to == RunControlState::Stopping
             || to == RunControlState::Finishing;
     case RunControlState::Running:
         return to == RunControlState::Stopping
