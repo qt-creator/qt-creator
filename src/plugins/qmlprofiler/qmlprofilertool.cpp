@@ -185,6 +185,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
     d->m_recordingTimer.setInterval(100);
     connect(&d->m_recordingTimer, &QTimer::timeout, this, &QmlProfilerTool::updateTimeDisplay);
+    connect(d->m_timeLabel, &QObject::destroyed, &d->m_recordingTimer, &QTimer::stop);
     d->m_viewContainer = new QmlProfilerViewManager(this,
                                                     d->m_profilerModelManager,
                                                     d->m_profilerState);
