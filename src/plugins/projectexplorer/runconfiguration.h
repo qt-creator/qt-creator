@@ -347,6 +347,8 @@ public:
     void initiateStop();
     void reportStopped();
 
+    void reportDone();
+
     void reportFailure(const QString &msg = QString());
     void setSupportsReRunning(bool reRunningSupported);
     bool supportsReRunning() const;
