@@ -919,7 +919,10 @@ void RunControlPrivate::onWorkerFailed(RunWorker *worker, const QString &msg)
     worker->d->state = RunWorkerState::Done;
 
     showError(msg);
-    initiateStop();
+    if (state == RunControlState::Running || state == RunControlState::Starting)
+        initiateStop();
+    else
+        continueStopOrFinish();
 }
 
 void RunControlPrivate::onWorkerStopped(RunWorker *worker)
