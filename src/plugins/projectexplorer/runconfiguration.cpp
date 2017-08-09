@@ -508,7 +508,7 @@ namespace Internal {
 
 enum class RunWorkerState
 {
-    Initialized, Starting, Running, Stopping, Done, Failed
+    Initialized, Starting, Running, Stopping, Done
 };
 
 static QString stateName(RunWorkerState s)
@@ -520,7 +520,6 @@ static QString stateName(RunWorkerState s)
         SN(RunWorkerState::Running)
         SN(RunWorkerState::Stopping)
         SN(RunWorkerState::Done)
-        SN(RunWorkerState::Failed)
     }
     return QString("<unknown: %1>").arg(int(s));
 #    undef SN
@@ -812,12 +811,6 @@ void RunControlPrivate::continueStart()
                 case RunWorkerState::Stopping:
                     debugMessage("  " + workerId + " currently stopping");
                     continue;
-                case RunWorkerState::Failed:
-                    // Should not happen.
-                    debugMessage("  " + workerId + " failed before");
-                    QTC_CHECK(false);
-                    //setState(RunControlState::Stopped);
-                    break;
                 case RunWorkerState::Done:
                     debugMessage("  " + workerId + " was done before");
                     break;
@@ -877,9 +870,6 @@ void RunControlPrivate::continueStopOrFinish()
                 case RunWorkerState::Done:
                     debugMessage("  " + workerId + " was Done. Good.");
                     break;
-                case RunWorkerState::Failed:
-                    debugMessage("  " + workerId + " was Failed. Good");
-                    break;
             }
         } else {
             debugMessage("Found unknown deleted worker");
@@ -926,7 +916,7 @@ void RunControlPrivate::onWorkerStarted(RunWorker *worker)
 
 void RunControlPrivate::onWorkerFailed(RunWorker *worker, const QString &msg)
 {
-    worker->d->state = RunWorkerState::Failed;
+    worker->d->state = RunWorkerState::Done;
 
     showError(msg);
     initiateStop();
@@ -952,7 +942,7 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
     default:
         debugMessage(workerId + " stopped unexpectedly in state"
                      + stateName(worker->d->state));
-        worker->d->state = RunWorkerState::Failed;
+        worker->d->state = RunWorkerState::Done;
         break;
     }
 
@@ -964,7 +954,6 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
     for (RunWorker *dependent : worker->d->stopDependencies) {
         switch (dependent->d->state) {
         case RunWorkerState::Done:
-        case RunWorkerState::Failed:
             break;
         case RunWorkerState::Initialized:
             dependent->d->state = RunWorkerState::Done;
@@ -1001,9 +990,6 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
                     break;
                 case RunWorkerState::Done:
                     debugMessage("  " + workerId + " was Done. Good.");
-                    break;
-                case RunWorkerState::Failed:
-                    debugMessage("  " + workerId + " was Failed. Good");
                     break;
             }
         } else {
@@ -1466,8 +1452,7 @@ bool RunWorkerPrivate::canStop() const
         return false;
     for (RunWorker *worker : stopDependencies) {
         QTC_ASSERT(worker, continue);
-        if (worker->d->state != RunWorkerState::Done
-                && worker->d->state != RunWorkerState::Failed)
+        if (worker->d->state != RunWorkerState::Done)
             return false;
     }
     return true;
@@ -1497,7 +1482,7 @@ void RunWorkerPrivate::timerEvent(QTimerEvent *ev)
     or a log parser.
 
     A \c RunWorker has a simple state model covering the \c Initialized,
-    \c Starting, \c Running, \c Stopping, \c Done, and \c Failed states.
+    \c Starting, \c Running, \c Stopping, and \c Done states.
 
     In the course of the operation of tools several \c RunWorkers
     may co-operate and form a combined state that is presented
@@ -1675,11 +1660,6 @@ void RunWorker::setSupportsReRunning(bool reRunningSupported)
 bool RunWorker::supportsReRunning() const
 {
     return d->supportsReRunning;
-}
-
-bool RunWorker::hasFailed() const
-{
-    return d->state == RunWorkerState::Failed;
 }
 
 QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, const QString &program)
