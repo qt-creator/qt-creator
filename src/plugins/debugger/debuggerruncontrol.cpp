@@ -359,16 +359,14 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
         }
     }
 
-    DebuggerRunConfigurationAspect *debuggerAspect
-            = runConfig->extraAspect<DebuggerRunConfigurationAspect>();
-
-    if (debuggerAspect) {
+    if (auto debuggerAspect = runConfig->extraAspect<DebuggerRunConfigurationAspect>()) {
         rp.multiProcess = debuggerAspect->useMultiProcess();
-        rp.languages = NoLanguage;
-        if (debuggerAspect->useCppDebugger())
-            rp.languages |= CppLanguage;
-        if (debuggerAspect->useQmlDebugger())
-            rp.languages |= QmlLanguage;
+        if (rp.languages == NoLanguage) {
+            if (debuggerAspect->useCppDebugger())
+                rp.languages |= CppLanguage;
+            if (debuggerAspect->useQmlDebugger())
+                rp.languages |= QmlLanguage;
+        }
     }
 
     // This can happen e.g. when started from the command line.
