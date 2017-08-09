@@ -237,20 +237,6 @@ void SelectionTool::itemsAboutToRemoved(const QList<FormEditorItem*> &/*itemList
 
 }
 
-//QVariant SelectionTool::itemChange(const QList<QGraphicsItem*> &itemList,
-//                                           QGraphicsItem::GraphicsItemChange change,
-//                                           const QVariant &value )
-//{
-//    qDebug() << Q_FUNC_INFO;
-//    return QVariant();
-//}
-
-//void SelectionTool::update()
-//{
-//
-//}
-
-
 void SelectionTool::clear()
 {
     m_rubberbandSelectionManipulator.clear(),
