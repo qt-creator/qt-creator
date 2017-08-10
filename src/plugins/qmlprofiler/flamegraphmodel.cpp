@@ -63,7 +63,7 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
 void FlameGraphModel::clear()
 {
     beginResetModel();
-    m_stackBottom = FlameGraphData(0, -1, 1);
+    m_stackBottom = FlameGraphData(0, -1, 0);
     m_callStack.clear();
     m_compileStack.clear();
     m_callStack.append(QmlEvent());
