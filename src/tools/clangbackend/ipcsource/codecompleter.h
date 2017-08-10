@@ -43,7 +43,9 @@ public:
     CodeCompleter(const TranslationUnit &translationUnit,
                   const UnsavedFiles &unsavedFiles);
 
-    CodeCompletions complete(uint line, uint column);
+    CodeCompletions complete(uint line, uint column,
+                             int funcNameStartLine = -1,
+                             int funcNameStartColumn = -1);
 
     CompletionCorrection neededCorrection() const;
 
@@ -56,6 +58,10 @@ private:
                                           uint column);
 
     ClangCodeCompleteResults completeHelper(uint line, uint column);
+    ClangCodeCompleteResults completeSmartPointerCreation(uint line,
+                                                          uint column,
+                                                          int funcNameStartLine,
+                                                          int funcNameStartColumn);
     ClangCodeCompleteResults completeWithArrowInsteadOfDot(uint line,
                                                            uint column,
                                                            uint dotPosition);

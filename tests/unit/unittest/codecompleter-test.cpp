@@ -188,6 +188,12 @@ protected:
         readFileContent(QStringLiteral("/complete_withGlobalCompletionAfterForwardDeclaredClassPointer.cpp")),
         true
     };
+    ClangBackEnd::FileContainer smartPointerCompletion{
+        Utf8StringLiteral(TESTDATA_DIR"/complete_smartpointer.cpp"),
+        projectPart.projectPartId(),
+        readFileContent(QStringLiteral("/complete_smartpointer.cpp")),
+        true
+    };
 };
 
 using CodeCompleterSlowTest = CodeCompleter;
@@ -295,6 +301,33 @@ TEST_F(CodeCompleterSlowTest, FunctionInIncludedHeader)
     ASSERT_THAT(completer->complete(27, 1),
                 Contains(IsCodeCompletion(Utf8StringLiteral("FunctionInIncludedHeader"),
                                           CodeCompletion::FunctionCompletionKind)));
+}
+
+TEST_F(CodeCompleterSlowTest, UniquePointerCompletion)
+{
+    auto myCompleter = setupCompleter(smartPointerCompletion);
+
+    ASSERT_THAT(myCompleter.complete(55, 54, 55, 32),
+                Contains(IsCodeCompletion(Utf8StringLiteral("Bar"),
+                                          CodeCompletion::ConstructorCompletionKind)));
+}
+
+TEST_F(CodeCompleterSlowTest, SharedPointerCompletion)
+{
+    auto myCompleter = setupCompleter(smartPointerCompletion);
+
+    ASSERT_THAT(myCompleter.complete(56, 55, 56, 33),
+                Contains(IsCodeCompletion(Utf8StringLiteral("Bar"),
+                                          CodeCompletion::ConstructorCompletionKind)));
+}
+
+TEST_F(CodeCompleterSlowTest, QSharedPointerCompletion)
+{
+    auto myCompleter = setupCompleter(smartPointerCompletion);
+
+    ASSERT_THAT(myCompleter.complete(57, 60, 57, 32),
+                Contains(IsCodeCompletion(Utf8StringLiteral("Bar"),
+                                          CodeCompletion::ConstructorCompletionKind)));
 }
 
 TEST_F(CodeCompleterSlowTest, FunctionInUnsavedIncludedHeader)

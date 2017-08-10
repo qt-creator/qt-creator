@@ -75,7 +75,8 @@ public:
     TranslationUnitUpdateResult parse(const TranslationUnitUpdateInput &parseInput) const;
     TranslationUnitUpdateResult reparse(const TranslationUnitUpdateInput &parseInput) const;
 
-    CodeCompletionResult complete(UnsavedFiles &unsavedFiles, uint line, uint column) const;
+    CodeCompletionResult complete(UnsavedFiles &unsavedFiles, uint line, uint column,
+                                  int funcNameStartLine, int funcNameStartColumn) const;
 
     void extractDiagnostics(DiagnosticContainer &firstHeaderErrorDiagnostic,
                             QVector<DiagnosticContainer> &mainFileDiagnostics) const;

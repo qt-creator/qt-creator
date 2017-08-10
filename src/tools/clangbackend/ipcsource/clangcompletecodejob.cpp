@@ -36,12 +36,15 @@ namespace ClangBackEnd {
 static CompleteCodeJob::AsyncResult runAsyncHelper(const TranslationUnit &translationUnit,
                                                    UnsavedFiles unsavedFiles,
                                                    quint32 line,
-                                                   quint32 column)
+                                                   quint32 column,
+                                                   qint32 funcNameStartLine,
+                                                   qint32 funcNameStartColumn)
 {
     TIME_SCOPE_DURATION("CompleteCodeJobRunner");
 
     const TranslationUnit::CodeCompletionResult results
-            = translationUnit.complete(unsavedFiles, line, column);
+            = translationUnit.complete(unsavedFiles, line, column,
+                                       funcNameStartLine, funcNameStartColumn);
 
     CompleteCodeJob::AsyncResult asyncResult;
     asyncResult.completions = results.completions;
@@ -63,8 +66,12 @@ IAsyncJob::AsyncPrepareResult CompleteCodeJob::prepareAsyncRun()
         const UnsavedFiles unsavedFiles = *context().unsavedFiles;
         const quint32 line = jobRequest.line;
         const quint32 column = jobRequest.column;
-        setRunner([translationUnit, unsavedFiles, line, column]() {
-            return runAsyncHelper(translationUnit, unsavedFiles, line, column);
+        const qint32 funcNameStartLine = jobRequest.funcNameStartLine;
+        const qint32 funcNameStartColumn = jobRequest.funcNameStartColumn;
+        setRunner([translationUnit, unsavedFiles, line, column,
+                  funcNameStartLine, funcNameStartColumn]() {
+            return runAsyncHelper(translationUnit, unsavedFiles, line, column,
+                                  funcNameStartLine, funcNameStartColumn);
         });
         return AsyncPrepareResult{translationUnit.id()};
 

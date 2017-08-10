@@ -110,6 +110,8 @@ public:
     // Specific to some jobs
     quint32 line = 0;
     quint32 column = 0;
+    qint32 funcNameStartLine = -1;
+    qint32 funcNameStartColumn = -1;
     quint64 ticketNumber = 0;
     Utf8StringVector dependentFiles;
     bool resolveTarget = true;

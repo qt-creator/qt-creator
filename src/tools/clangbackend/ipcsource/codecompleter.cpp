@@ -81,11 +81,22 @@ CodeCompleter::CodeCompleter(const TranslationUnit &translationUnit,
 {
 }
 
-CodeCompletions CodeCompleter::complete(uint line, uint column)
+CodeCompletions CodeCompleter::complete(uint line, uint column,
+                                        int funcNameStartLine,
+                                        int funcNameStartColumn)
 {
     neededCorrection_ = CompletionCorrection::NoCorrection;
 
-    ClangCodeCompleteResults results = completeHelper(line, column);
+    // Check if we have a smart pointer completion and get proper constructor signatures in results.
+    // Results are empty when it's not a smart pointer or this completion failed.
+    ClangCodeCompleteResults results = completeSmartPointerCreation(line,
+                                                                    column,
+                                                                    funcNameStartLine,
+                                                                    funcNameStartColumn);
+
+    if (results.isNull() || results.isEmpty())
+        results = completeHelper(line, column);
+
     filterUnknownContextResults(results, unsavedFile(), line, column);
     tryDotArrowCorrectionIfNoResults(results, line, column);
 
@@ -95,6 +106,62 @@ CodeCompletions CodeCompleter::complete(uint line, uint column)
 CompletionCorrection CodeCompleter::neededCorrection() const
 {
     return neededCorrection_;
+}
+
+// For given "make_unique<T>" / "make_shared<T>" / "QSharedPointer<T>::create" return "new T("
+// Otherwize return empty QString
+static QString tweakName(const QString &oldName)
+{
+    QString fullName = oldName.trimmed();
+    if (!fullName.contains('>'))
+        return QString();
+
+    if (!fullName.endsWith('>')) {
+        // This is the class<type>::method case - remove ::method part
+        if (!fullName.endsWith("create") || !fullName.contains("QSharedPointer"))
+            return QString();
+        fullName = fullName.mid(0, fullName.lastIndexOf(':') - 1);
+    } else if (!fullName.contains("make_unique") && !fullName.contains("make_shared")) {
+        return QString();
+    }
+    int templateStart = fullName.indexOf('<');
+    QString name = fullName.mid(0, templateStart);
+    QString templatePart = fullName.mid(templateStart + 1,
+                                        fullName.length() - templateStart - 2);
+    return "new " + templatePart + "(";
+}
+
+ClangCodeCompleteResults CodeCompleter::completeSmartPointerCreation(uint line,
+                                                                     uint column,
+                                                                     int funcNameStartLine,
+                                                                     int funcNameStartColumn)
+{
+    if (column <= 1 || funcNameStartLine == -1)
+        return ClangCodeCompleteResults();
+
+    UnsavedFile &file = unsavedFiles.unsavedFile(translationUnit.filePath());
+    if (!file.hasCharacterAt(line, column - 1, '('))
+        return ClangCodeCompleteResults();
+
+    bool ok;
+    const uint startPos = file.toUtf8Position(funcNameStartLine, funcNameStartColumn, &ok);
+    const uint endPos = file.toUtf8Position(line, column - 1, &ok);
+
+    Utf8String content = file.fileContent();
+    const QString oldName = content.mid(startPos, endPos - startPos);
+    const QString updatedName = tweakName(oldName);
+    if (updatedName.isEmpty())
+        return ClangCodeCompleteResults();
+
+    column += updatedName.length();
+    file.replaceAt(endPos + 1, 0, updatedName);
+
+    ClangCodeCompleteResults results = completeHelper(line, column);
+    if (results.isEmpty()) {
+        column -= updatedName.length();
+        file.replaceAt(endPos + 1, updatedName.length(), QString());
+    }
+    return results;
 }
 
 ClangCodeCompleteResults CodeCompleter::completeHelper(uint line, uint column)

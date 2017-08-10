@@ -119,11 +119,15 @@ bool TranslationUnit::suspend() const
 TranslationUnit::CodeCompletionResult TranslationUnit::complete(
         UnsavedFiles &unsavedFiles,
         uint line,
-        uint column) const
+        uint column,
+        int funcNameStartLine,
+        int funcNameStartColumn) const
 {
     CodeCompleter codeCompleter(*this, unsavedFiles);
 
-    const CodeCompletions completions = codeCompleter.complete(line, column);
+    const CodeCompletions completions = codeCompleter.complete(line, column,
+                                                               funcNameStartLine,
+                                                               funcNameStartColumn);
     const CompletionCorrection correction = codeCompleter.neededCorrection();
 
     return CodeCompletionResult{completions, correction};

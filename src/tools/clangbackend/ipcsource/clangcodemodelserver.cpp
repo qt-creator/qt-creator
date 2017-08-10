@@ -212,6 +212,8 @@ void ClangCodeModelServer::completeCode(const ClangBackEnd::CompleteCodeMessage 
         JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::CompleteCode);
         jobRequest.line = message.line();
         jobRequest.column = message.column();
+        jobRequest.funcNameStartLine = message.funcNameStartLine();
+        jobRequest.funcNameStartColumn = message.funcNameStartColumn();
         jobRequest.ticketNumber = message.ticketNumber();
 
         processor.addJob(jobRequest);
