@@ -46,8 +46,6 @@ public:
     explicit QmlEngine(bool useTerminal);
     ~QmlEngine() override;
 
-    void setRunTool(DebuggerRunTool *runTool) override;
-
     void logServiceStateChange(const QString &service, float version,
                                QmlDebug::QmlDebugClient::State newState);
     void logServiceActivity(const QString &service, const QString &logMessage);
@@ -59,8 +57,8 @@ private:
     void errorMessageBoxFinished(int result);
     void updateCurrentContext();
 
-    void tryToConnect(Utils::Port port = Utils::Port());
-    void beginConnection(Utils::Port port = Utils::Port());
+    void tryToConnect();
+    void beginConnection();
     void handleLauncherStarted();
     void connectionEstablished();
     void connectionStartupFailed();

@@ -189,17 +189,6 @@ public:
     void checkForFinishedUpdate();
     ConsoleItem *constructLogItemTree(const QmlV8ObjectData &objectData);
 
-    void filterApplicationMessage(ProjectExplorer::RunControl *runControl,
-                                  const QString &msg, Utils::OutputFormat format)
-    {
-        if (runControl != engine->runControl())
-            return;
-        if (format == StdErrFormatSameLine
-                || format == StdOutFormatSameLine
-                || format == DebugFormat)
-            outputParser.processOutput(msg);
-    }
-
 public:
     QHash<int, QmlV8ObjectData> refVals; // The mapping of target object handles to retrieved values.
     int sequence = -1;
@@ -223,9 +212,7 @@ public:
     InteractiveInterpreter interpreter;
     ApplicationLauncher applicationLauncher;
     QmlInspectorAgent inspectorAgent;
-    QmlOutputParser outputParser;
 
-    QTimer noDebugOutputTimer;
     QList<quint32> queryIds;
     bool retryOnConnectFail = false;
     bool automaticConnect = false;
@@ -277,24 +264,8 @@ QmlEngine::QmlEngine(bool useTerminal)
     connect(&d->applicationLauncher, &ApplicationLauncher::processStarted,
             this, &QmlEngine::handleLauncherStarted);
 
-    d->outputParser.setNoOutputText(ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput());
-    connect(&d->outputParser, &QmlOutputParser::waitingForConnectionOnPort,
-            this, &QmlEngine::beginConnection);
-    connect(&d->outputParser, &QmlOutputParser::noOutputMessage,
-            this, [this] { tryToConnect(); });
-    connect(&d->outputParser, &QmlOutputParser::errorMessage,
-            this, &QmlEngine::appStartupFailed);
-
-    // Only wait 8 seconds for the 'Waiting for connection' on application output,
-    // then just try to connect (application output might be redirected / blocked)
-    d->noDebugOutputTimer.setSingleShot(true);
-    d->noDebugOutputTimer.setInterval(8000);
-    connect(&d->noDebugOutputTimer, &QTimer::timeout,
-            this, [this] { tryToConnect(); });
-
     // we won't get any debug output
     if (useTerminal) {
-        d->noDebugOutputTimer.setInterval(0);
         d->retryOnConnectFail = true;
         d->automaticConnect = true;
     }
@@ -354,15 +325,6 @@ void QmlEngine::setState(DebuggerState state, bool forced)
     updateCurrentContext();
 }
 
-void QmlEngine::setRunTool(DebuggerRunTool *runTool)
-{
-    DebuggerEngine::setRunTool(runTool);
-
-    d->startupMessageFilterConnection = connect(
-                runTool->runControl(), &RunControl::appendMessageRequested,
-                d, &QmlEnginePrivate::filterApplicationMessage);
-}
-
 void QmlEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
@@ -378,7 +340,7 @@ void QmlEngine::handleLauncherStarted()
     // FIXME: The QmlEngine never calls notifyInferiorPid() triggering the
     // raising, so do it here manually for now.
     runControl()->applicationProcessHandle().activate();
-    d->noDebugOutputTimer.start();
+    tryToConnect();
 }
 
 void QmlEngine::appMessage(const QString &msg, Utils::OutputFormat /* format */)
@@ -394,29 +356,27 @@ void QmlEngine::connectionEstablished()
         notifyEngineRunAndInferiorRunOk();
 }
 
-void QmlEngine::tryToConnect(Utils::Port port)
+void QmlEngine::tryToConnect()
 {
-    showMessage("QML Debugger: No application output received in time, trying to connect ...", LogStatus);
+    showMessage("QML Debugger: Trying to connect ...", LogStatus);
     d->retryOnConnectFail = true;
     if (state() == EngineRunRequested) {
         if (isSlaveEngine()) {
             // Probably cpp is being debugged and hence we did not get the output yet.
             if (!masterEngine()->isDying())
-                beginConnection(port);
+                beginConnection();
             else
                 appStartupFailed(tr("No application output received in time"));
         } else {
-            beginConnection(port);
+            beginConnection();
         }
     } else {
         d->automaticConnect = true;
     }
 }
 
-void QmlEngine::beginConnection(Utils::Port port)
+void QmlEngine::beginConnection()
 {
-    d->noDebugOutputTimer.stop();
-
     if (state() != EngineRunRequested && d->retryOnConnectFail)
         return;
 
@@ -429,6 +389,7 @@ void QmlEngine::beginConnection(Utils::Port port)
     if (host.isEmpty())
         host = QHostAddress(QHostAddress::LocalHost).toString();
 
+    // FIXME: Not needed?
     /*
      * Let plugin-specific code override the port printed by the application. This is necessary
      * in the case of port forwarding, when the port the application listens on is not the same that
@@ -440,8 +401,7 @@ void QmlEngine::beginConnection(Utils::Port port)
      * the connection will be closed again (instead of returning the "connection refused"
      * error that we expect).
      */
-    if (runParameters().qmlServer.port.isValid())
-        port = runParameters().qmlServer.port;
+    Utils::Port port = runParameters().qmlServer.port;
 
     if (!d->connection || d->connection->isConnected())
         return;
@@ -563,13 +523,13 @@ void QmlEngine::runEngine()
 
     if (!isSlaveEngine()) {
         if (runParameters().startMode == AttachToRemoteServer)
-            d->noDebugOutputTimer.start();
+            tryToConnect();
         else if (runParameters().startMode == AttachToRemoteProcess)
             beginConnection();
         else
             startApplicationLauncher();
     } else {
-        d->noDebugOutputTimer.start();
+        tryToConnect();
     }
 }
 
@@ -594,39 +554,6 @@ void QmlEngine::stopApplicationLauncher()
     }
 }
 
-// FIXME: Is the timeout raise still needed? Since the RunWorker conversion,
-// the debugger tool only starts when the remote setup has all interesting
-// ports gathered, so much less chance for waiting on longer operations.
-//void QmlEngine::notifyEngineRemoteSetupFinished()
-//{
-//    QObject::disconnect(d->startupMessageFilterConnection);
-//    switch (state()) {
-//    case InferiorSetupOk:
-//        // FIXME: This is not a legal transition, but we need to
-//        // get to EngineSetupOk somehow from InferiorSetupOk.
-//        // fallthrough. QTCREATORBUG-14089.
-//    case EngineSetupRequested:
-//        notifyEngineSetupOk();
-//        break;
-//    case EngineSetupOk:
-//    case EngineRunRequested:
-//        // QTCREATORBUG-17718: On Android while doing debugging in mixed mode, the QML debug engine
-//        // sometimes reports EngineSetupOK after the EngineRunRequested thus overwriting the state
-//        // which eventually results into app to waiting for the QML engine connection.
-//        // Skipping the EngineSetupOK in aforementioned case.
-//        // Nothing to do here. The setup is already done.
-//        break;
-//    default:
-//        QTC_ASSERT(false, qDebug() << "Unexpected state" << state());
-//    }
-
-//    // The remote setup can take while especialy with mixed debugging.
-//    // Just waiting for 8 seconds is not enough. Increase the timeout
-//    // to 60 s
-//    // In case we get an output the d->outputParser will start the connection.
-//    d->noDebugOutputTimer.setInterval(60000);
-//}
-
 void QmlEngine::shutdownInferior()
 {
     // End session.
@@ -649,7 +576,6 @@ void QmlEngine::shutdownEngine()
     clearExceptionSelection();
 
     debuggerConsole()->setScriptEvaluator(ScriptEvaluator());
-    d->noDebugOutputTimer.stop();
 
    // double check (ill engine?):
     stopApplicationLauncher();
@@ -1095,7 +1021,6 @@ bool QmlEngine::hasCapability(unsigned cap) const
 
 void QmlEngine::quitDebugger()
 {
-    d->noDebugOutputTimer.stop();
     d->automaticConnect = false;
     d->retryOnConnectFail = false;
     shutdownInferior();
