@@ -103,10 +103,44 @@ void QmlProfilerRunner::start()
 
     QUrl serverUrl = this->serverUrl();
 
+    QmlProfilerClientManager *clientManager = Internal::QmlProfilerTool::clientManager();
+
+    connect(clientManager, &QmlProfilerClientManager::connectionFailed,
+            this, [this, clientManager] {
+        QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
+        infoBox->setIcon(QMessageBox::Critical);
+        infoBox->setWindowTitle(QmlProfilerTool::tr("Qt Creator"));
+        infoBox->setText(QmlProfilerTool::tr("Could not connect to the in-process QML profiler.\n"
+                                             "Do you want to retry?"));
+        infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel | QMessageBox::Help);
+        infoBox->setDefaultButton(QMessageBox::Retry);
+        infoBox->setModal(true);
+
+        connect(infoBox, &QDialog::finished, this, [clientManager, this](int result) {
+            switch (result) {
+            case QMessageBox::Retry:
+                clientManager->retryConnect();
+                break;
+            case QMessageBox::Help:
+                HelpManager::handleHelpRequest(
+                            "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html");
+                Q_FALLTHROUGH();
+            case QMessageBox::Cancel:
+                // The actual error message has already been logged.
+                QmlProfilerTool::logState(QmlProfilerTool::tr("Failed to connect."));
+                cancelProcess();
+                break;
+            }
+        });
+
+        infoBox->show();
+    });
+
+    clientManager->setServerUrl(serverUrl);
     if (serverUrl.port() != -1) {
-        QmlProfilerClientManager *clientManager = Internal::QmlProfilerTool::clientManager();
-        clientManager->setServerUrl(serverUrl);
         clientManager->connectToTcpServer();
+    } else {
+        clientManager->startLocalServer();
     }
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);

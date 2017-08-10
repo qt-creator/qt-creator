@@ -352,16 +352,6 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
 
     updateRunActions();
     runWorker->registerProfilerStateManager(d->m_profilerState);
-    QmlProfilerClientManager *clientManager = d->m_profilerConnections;
-
-    // FIXME: Check that there's something sensible in sp.connParams
-    auto serverUrl = runWorker->serverUrl();
-    clientManager->setServerUrl(serverUrl);
-    if (!serverUrl.path().isEmpty()) {
-        // That's the local socket case.
-        // We open the server and the application connects to it, so let's do that right away.
-        clientManager->startLocalServer();
-    }
 
     //
     // Initialize m_projectFinder
@@ -370,37 +360,6 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
     if (runConfiguration) {
         d->m_profilerModelManager->populateFileFinder(runConfiguration);
     }
-
-    connect(clientManager, &QmlProfilerClientManager::connectionFailed,
-            runWorker, [this, clientManager, runWorker]() {
-        QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
-        infoBox->setIcon(QMessageBox::Critical);
-        infoBox->setWindowTitle(tr("Qt Creator"));
-        infoBox->setText(tr("Could not connect to the in-process QML profiler.\n"
-                            "Do you want to retry?"));
-        infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel | QMessageBox::Help);
-        infoBox->setDefaultButton(QMessageBox::Retry);
-        infoBox->setModal(true);
-
-        connect(infoBox, &QDialog::finished, runWorker, [clientManager, runWorker](int result) {
-            switch (result) {
-            case QMessageBox::Retry:
-                clientManager->retryConnect();
-                break;
-            case QMessageBox::Help:
-                HelpManager::handleHelpRequest(
-                            "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html");
-                Q_FALLTHROUGH();
-            case QMessageBox::Cancel:
-                // The actual error message has already been logged.
-                logState(tr("Failed to connect."));
-                runWorker->cancelProcess();
-                break;
-            }
-        });
-
-        infoBox->show();
-    });
 }
 
 void QmlProfilerTool::recordingButtonChanged(bool recording)
