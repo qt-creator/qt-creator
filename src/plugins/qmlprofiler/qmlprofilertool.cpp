@@ -139,8 +139,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_profilerState = new QmlProfilerStateManager(this);
     connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
             this, &QmlProfilerTool::profilerStateChanged);
-    connect(d->m_profilerState, &QmlProfilerStateManager::clientRecordingChanged,
-            this, &QmlProfilerTool::clientRecordingChanged);
     connect(d->m_profilerState, &QmlProfilerStateManager::serverRecordingChanged,
             this, &QmlProfilerTool::serverRecordingChanged);
     connect(d->m_profilerState, &QmlProfilerStateManager::recordedFeaturesChanged,
@@ -205,8 +203,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_recordButton->setPopupMode(QToolButton::MenuButtonPopup);
     connect(d->m_recordFeaturesMenu, &QMenu::triggered,
             this, &QmlProfilerTool::toggleRequestedFeature);
-
-    setRecording(d->m_profilerState->clientRecording());
 
     d->m_clearButton = new QToolButton;
     d->m_clearButton->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
@@ -297,6 +293,46 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
             model->createMarks(this, fileName);
         });
     }
+
+    auto updateRecordButton = [this]() {
+        const bool recording =
+                d->m_profilerState->currentState() != QmlProfilerStateManager::AppRunning
+                ? d->m_profilerState->clientRecording() : d->m_profilerState->serverRecording();
+
+        const static QIcon recordOn = Debugger::Icons::RECORD_ON.icon();
+        const static QIcon recordOff = Debugger::Icons::RECORD_OFF.icon();
+
+        // update display
+        d->m_recordButton->setToolTip(recording ? tr("Disable Profiling") : tr("Enable Profiling"));
+        d->m_recordButton->setIcon(recording ? recordOn : recordOff);
+        d->m_recordButton->setChecked(recording);
+
+        switch (d->m_profilerModelManager->state()) {
+        case QmlProfilerModelManager::Empty:
+        case QmlProfilerModelManager::AcquiringData:
+        case QmlProfilerModelManager::Done:
+            // Don't change the recording button if the application cannot react to it.
+            d->m_recordButton->setEnabled(d->m_profilerState->currentState()
+                                          != QmlProfilerStateManager::AppStopRequested
+                                          && d->m_profilerState->currentState()
+                                          != QmlProfilerStateManager::AppDying);
+            break;
+        case QmlProfilerModelManager::ProcessingData:
+        case QmlProfilerModelManager::ClearingData:
+            d->m_recordButton->setEnabled(false);
+            break;
+        }
+    };
+
+    connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
+            d->m_recordButton, updateRecordButton);
+    connect(d->m_profilerState, &QmlProfilerStateManager::serverRecordingChanged,
+            d->m_recordButton, updateRecordButton);
+    connect(d->m_profilerState, &QmlProfilerStateManager::clientRecordingChanged,
+            d->m_recordButton, updateRecordButton);
+    connect(d->m_profilerModelManager, &QmlProfilerModelManager::stateChanged,
+            d->m_recordButton, updateRecordButton);
+    updateRecordButton();
 }
 
 QmlProfilerTool::~QmlProfilerTool()
@@ -382,28 +418,6 @@ void QmlProfilerTool::recordingButtonChanged(bool recording)
         if (d->m_profilerState->clientRecording() == recording)
             d->m_profilerState->setClientRecording(!recording);
         d->m_profilerState->setClientRecording(recording);
-    }
-}
-
-void QmlProfilerTool::setRecording(bool recording)
-{
-    const static QIcon recordOn = Debugger::Icons::RECORD_ON.icon();
-    const static QIcon recordOff = Debugger::Icons::RECORD_OFF.icon();
-
-    // update display
-    d->m_recordButton->setToolTip( recording ? tr("Disable Profiling") : tr("Enable Profiling"));
-    d->m_recordButton->setIcon(recording ? recordOn : recordOff);
-
-    d->m_recordButton->setChecked(recording);
-
-    // manage timer
-    if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
-        if (recording) {
-            d->m_recordingTimer.start();
-            d->m_recordingElapsedTime.start();
-        } else {
-            d->m_recordingTimer.stop();
-        }
     }
 }
 
@@ -498,7 +512,7 @@ void QmlProfilerTool::clearTextMarks()
 
 bool QmlProfilerTool::prepareTool()
 {
-    if (d->m_recordButton->isChecked()) {
+    if (d->m_profilerState->clientRecording()) {
         if (checkForUnsavedNotes()) {
             clearData(); // clear right away to suppress second warning on server recording change
             return true;
@@ -754,28 +768,23 @@ void QmlProfilerTool::profilerDataModelStateChanged()
 {
     switch (d->m_profilerModelManager->state()) {
     case QmlProfilerModelManager::Empty :
-        d->m_recordButton->setEnabled(true);
         setButtonsEnabled(true);
         break;
     case QmlProfilerModelManager::ClearingData :
         clearTextMarks();
-        d->m_recordButton->setEnabled(false);
         setButtonsEnabled(false);
         clearDisplay();
         break;
     case QmlProfilerModelManager::AcquiringData :
         restoreFeatureVisibility();
-        d->m_recordButton->setEnabled(true); // Press recording button to stop recording
         setButtonsEnabled(false);            // Other buttons disabled
         break;
     case QmlProfilerModelManager::ProcessingData :
-        d->m_recordButton->setEnabled(false);
         setButtonsEnabled(false);
         break;
     case QmlProfilerModelManager::Done :
         showSaveOption();
         updateTimeDisplay();
-        d->m_recordButton->setEnabled(true);
         setButtonsEnabled(true);
         createTextMarks();
     break;
@@ -826,13 +835,10 @@ void QmlProfilerTool::profilerStateChanged()
         break;
     }
     case QmlProfilerStateManager::Idle :
-        // when the app finishes, set recording display to client status
-        setRecording(d->m_profilerState->clientRecording());
         break;
     case QmlProfilerStateManager::AppStopRequested:
         // Don't allow toggling the recording while data is loaded when application quits
         if (d->m_profilerState->serverRecording()) {
-            d->m_recordButton->setEnabled(false);
             // Turn off recording and wait for remaining data
             d->m_profilerConnections->stopRecording();
         } else {
@@ -844,14 +850,6 @@ void QmlProfilerTool::profilerStateChanged()
         // no special action needed for other states
         break;
     }
-}
-
-void QmlProfilerTool::clientRecordingChanged()
-{
-    // if application is running, display server record changes
-    // if application is stopped, display client record changes
-    if (d->m_profilerState->currentState() != QmlProfilerStateManager::AppRunning)
-        setRecording(d->m_profilerState->clientRecording());
 }
 
 void QmlProfilerTool::serverRecordingChanged()
@@ -871,19 +869,16 @@ void QmlProfilerTool::serverRecordingChanged()
                     QMessageBox::Save)
                 showSaveDialog();
 
-            setRecording(true);
+            d->m_recordingTimer.start();
+            d->m_recordingElapsedTime.start();
             if (!d->m_profilerModelManager->aggregateTraces() ||
                     d->m_profilerModelManager->state() == QmlProfilerModelManager::Done)
                 clearData();
             d->m_profilerModelManager->startAcquiring();
         } else {
-            setRecording(false);
-
-            // changes back once loading is finished, see profilerDataModelStateChanged()
-            if (!d->m_profilerModelManager->aggregateTraces()) {
-                d->m_recordButton->setEnabled(false);
+            d->m_recordingTimer.stop();
+            if (!d->m_profilerModelManager->aggregateTraces())
                 d->m_profilerModelManager->acquiringDone();
-            }
         }
     } else if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppStopRequested) {
         d->m_profilerModelManager->acquiringDone();
