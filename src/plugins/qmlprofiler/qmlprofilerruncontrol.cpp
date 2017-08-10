@@ -23,20 +23,15 @@
 **
 ****************************************************************************/
 
-#include "qmlprofilerclientmanager.h"
 #include "qmlprofilerruncontrol.h"
-#include "qmlprofilertool.h"
-#include "qmlprofilerplugin.h"
 
-#include <debugger/analyzer/analyzermanager.h>
+#include "qmlprofilerclientmanager.h"
+#include "qmlprofilertool.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 
-#include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/runconfiguration.h>
@@ -47,17 +42,12 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <qmldebug/qmloutputparser.h>
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <utils/qtcassert.h>
 
-#include <QApplication>
-#include <QMainWindow>
 #include <QMessageBox>
-#include <QPushButton>
 
-using namespace Debugger;
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace QmlProfiler::Internal;
