@@ -102,7 +102,7 @@ QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer
         fileDeletedPrompt(const QString &fileName, bool triggerExternally, QWidget *parent)
 {
     const QString title = QCoreApplication::translate("Utils::fileDeletedPrompt",
-                                                      "File has been removed");
+                                                      "File Has Been Removed");
     QString msg;
     if (triggerExternally) {
         msg = QCoreApplication::translate("Utils::fileDeletedPrompt",
