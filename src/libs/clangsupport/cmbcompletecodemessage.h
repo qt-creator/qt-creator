@@ -41,12 +41,16 @@ public:
     CompleteCodeMessage(const Utf8String &filePath,
                         quint32 line,
                         quint32 column,
-                        const Utf8String &projectPartId)
+                        const Utf8String &projectPartId,
+                        qint32 funcNameStartLine = -1,
+                        qint32 funcNameStartColumn = -1)
         : m_filePath(filePath),
           m_projectPartId(projectPartId),
           m_ticketNumber(++ticketCounter),
           m_line(line),
-          m_column(column)
+          m_column(column),
+          m_funcNameStartLine(funcNameStartLine),
+          m_funcNameStartColumn(funcNameStartColumn)
     {
     }
 
@@ -75,6 +79,16 @@ public:
         return m_ticketNumber;
     }
 
+    qint32 funcNameStartLine() const
+    {
+        return m_funcNameStartLine;
+    }
+
+    qint32 funcNameStartColumn() const
+    {
+        return m_funcNameStartColumn;
+    }
+
     friend QDataStream &operator<<(QDataStream &out, const CompleteCodeMessage &message)
     {
         out << message.m_filePath;
@@ -82,6 +96,8 @@ public:
         out << message.m_ticketNumber;
         out << message.m_line;
         out << message.m_column;
+        out << message.m_funcNameStartLine;
+        out << message.m_funcNameStartColumn;
 
         return out;
     }
@@ -93,6 +109,8 @@ public:
         in >> message.m_ticketNumber;
         in >> message.m_line;
         in >> message.m_column;
+        in >> message.m_funcNameStartLine;
+        in >> message.m_funcNameStartColumn;
 
         return in;
     }
@@ -103,7 +121,9 @@ public:
                 && first.m_filePath == second.m_filePath
                 && first.m_projectPartId == second.m_projectPartId
                 && first.m_line == second.m_line
-                && first.m_column == second.m_column;
+                && first.m_column == second.m_column
+                && first.m_funcNameStartLine == second.m_funcNameStartLine
+                && first.m_funcNameStartColumn == second.m_funcNameStartColumn;
     }
 
     friend CMBIPC_EXPORT QDebug operator<<(QDebug debug, const CompleteCodeMessage &message);
@@ -116,6 +136,8 @@ private:
     quint64 m_ticketNumber = 0;
     quint32 m_line = 0;
     quint32 m_column = 0;
+    qint32 m_funcNameStartLine = -1;
+    qint32 m_funcNameStartColumn = -1;
 };
 
 DECLARE_MESSAGE(CompleteCodeMessage);

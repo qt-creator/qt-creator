@@ -42,6 +42,8 @@ QDebug operator<<(QDebug debug, const CompleteCodeMessage &message)
     debug.nospace() << message.m_column << ", ";
     debug.nospace() << message.m_projectPartId << ", ";
     debug.nospace() << message.m_ticketNumber;
+    debug.nospace() << message.m_funcNameStartLine << ", ";
+    debug.nospace() << message.m_funcNameStartColumn << ", ";
 
     debug.nospace() << ")";
 
@@ -55,7 +57,9 @@ std::ostream &operator<<(std::ostream &os, const CompleteCodeMessage &message)
        << message.m_line << ", "
        << message.m_column << ", "
        << message.m_projectPartId.constData() << ", "
-       << message.m_ticketNumber
+       << message.m_ticketNumber << ", "
+       << message.m_funcNameStartLine << ", "
+       << message.m_funcNameStartColumn
 
        << ")";
 
