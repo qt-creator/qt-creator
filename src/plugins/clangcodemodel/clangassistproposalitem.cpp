@@ -29,12 +29,15 @@
 
 #include <cplusplus/Icons.h>
 #include <cplusplus/MatchingText.h>
+#include <cplusplus/SimpleLexer.h>
 #include <cplusplus/Token.h>
 
 #include <texteditor/completionsettings.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <QTextCursor>
+
+#include <utils/algorithm.h>
 
 using namespace CPlusPlus;
 using namespace ClangBackEnd;
@@ -72,6 +75,43 @@ static void moveToPrevChar(TextEditor::TextDocumentManipulatorInterface &manipul
     cursor.movePosition(QTextCursor::PreviousCharacter);
     while (manipulator.characterAt(cursor.position()).isSpace())
         cursor.movePosition(QTextCursor::PreviousCharacter);
+}
+
+static QString textUntilPreviousStatement(TextEditor::TextDocumentManipulatorInterface &manipulator,
+                                          int startPosition)
+{
+    static const QString stopCharacters(";{}#");
+
+    int endPosition = 0;
+    for (int i = startPosition; i >= 0 ; --i) {
+        if (stopCharacters.contains(manipulator.characterAt(i))) {
+            endPosition = i + 1;
+            break;
+        }
+    }
+
+    return manipulator.textAt(endPosition, startPosition - endPosition);
+}
+
+// 7.3.3: using typename(opt) nested-name-specifier unqualified-id ;
+static bool isAtUsingDeclaration(TextEditor::TextDocumentManipulatorInterface &manipulator,
+                                 int basePosition)
+{
+    SimpleLexer lexer;
+    lexer.setLanguageFeatures(LanguageFeatures::defaultFeatures());
+    const QString textToLex = textUntilPreviousStatement(manipulator, basePosition);
+    const Tokens tokens = lexer(textToLex);
+    if (tokens.empty())
+        return false;
+
+    // The nested-name-specifier always ends with "::", so check for this first.
+    const Token lastToken = tokens[tokens.size() - 1];
+    if (lastToken.kind() != T_COLON_COLON)
+        return false;
+
+    return Utils::contains(tokens, [](const Token &token) {
+        return token.kind() == T_USING;
+    });
 }
 
 void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
@@ -133,6 +173,8 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
                 const QChar prevChar = manipulator.characterAt(cursor.position());
                 abandonParen = QString("(;,{}").contains(prevChar);
             }
+            if (!abandonParen)
+                abandonParen = isAtUsingDeclaration(manipulator, basePosition);
             if (!abandonParen) {
                 if (completionSettings.m_spaceAfterFunctionName)
                     extraCharacters += QLatin1Char(' ');
