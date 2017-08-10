@@ -45,6 +45,7 @@
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcfallthrough.h>
 
 #include <QMessageBox>
 
