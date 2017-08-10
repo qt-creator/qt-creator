@@ -43,19 +43,6 @@ private slots:
     void testRunner();
     void testFindFreePort();
     void testFindFreeSocket();
-
-private:
-    void start();
-    void testRunner1();
-    void testRunner2();
-    void testRunner3();
-    void testRunner4();
-
-    bool running = false;
-    int runCount = 0;
-    ProjectExplorer::RunControl *runControl = nullptr;
-    ProjectExplorer::StandardRunnable debuggee;
-    QUrl serverUrl;
 };
 
 } // namespace Internal
