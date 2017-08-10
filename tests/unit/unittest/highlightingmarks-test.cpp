@@ -1177,6 +1177,13 @@ TEST_F(HighlightingMarks, DISABLED_VariableInOperatorFunctionCall)
     ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::LocalVariable));
 }
 
+TEST_F(HighlightingMarks, UsingTemplateFunction)
+{
+    const auto infos = translationUnit.highlightingMarksInRange(sourceRange(584, 17));
+
+    ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Function));
+}
+
 Data *HighlightingMarks::d;
 
 void HighlightingMarks::SetUpTestCase()
