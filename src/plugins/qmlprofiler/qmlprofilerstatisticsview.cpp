@@ -578,9 +578,8 @@ void QmlProfilerStatisticsMainView::updateNotes(int typeIndex)
                 item->setToolTip(it.value());
             } else if (stats.durationRecursive > 0) {
                 item->setBackground(colors()->noteBackground);
-                item->setToolTip(tr("%1 / %2% of total in recursive calls")
-                                 .arg(Timeline::formatTime(stats.durationRecursive))
-                                 .arg(stats.durationRecursive * 100l / stats.duration));
+                item->setToolTip(tr("+%1 in recursive calls")
+                                 .arg(Timeline::formatTime(stats.durationRecursive)));
             } else if (!item->toolTip().isEmpty()){
                 item->setBackground(colors()->defaultBackground);
                 item->setToolTip(QString());
@@ -619,8 +618,9 @@ void QmlProfilerStatisticsMainView::parseModel()
         }
 
         if (d->m_fieldShown[TotalTime]) {
-            newRow << new StatisticsViewItem(Timeline::formatTime(stats.duration),
-                                             stats.duration);
+            newRow << new StatisticsViewItem(
+                          Timeline::formatTime(stats.duration - stats.durationRecursive),
+                          stats.duration - stats.durationRecursive);
         }
 
         if (d->m_fieldShown[SelfTimeInPercent]) {
