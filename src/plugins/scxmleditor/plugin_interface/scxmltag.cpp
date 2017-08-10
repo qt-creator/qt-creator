@@ -168,9 +168,6 @@ void ScxmlTag::initId()
         case History:
             setAttribute("id", m_document->nextUniqueId("History"));
             break;
-        case Transition:
-            setAttribute("event", m_document->nextUniqueId("Transition"));
-            break;
         case Final:
             setAttribute("id", m_document->nextUniqueId("Final"));
             break;
