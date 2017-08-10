@@ -490,4 +490,11 @@ TEST_F(ClangCompletionContextAnalyzer, AsteriskLeftParen)
     ASSERT_THAT(analyzer, IsPassThroughToClang());
 }
 
+TEST_F(ClangCompletionContextAnalyzer, TemplatedFunctionSecondArgument)
+{
+    auto analyzer = runAnalyzer("f < decltype(bar -> member) > (1, @");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -3, -3, positionInText));
+}
+
 }
