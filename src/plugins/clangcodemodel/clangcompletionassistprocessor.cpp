@@ -253,7 +253,8 @@ IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
     }
     case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen: {
         m_sentRequestType = FunctionHintCompletion;
-        const bool requestSent = sendCompletionRequest(analyzer.positionForClang(), QByteArray());
+        const bool requestSent = sendCompletionRequest(analyzer.positionForClang(), QByteArray(),
+                                                       analyzer.functionNameStart());
         setPerformWasApplicable(requestSent);
         break;
     }
@@ -548,14 +549,26 @@ void setLastCompletionPosition(const QString &filePath,
 
 }
 
-bool ClangCompletionAssistProcessor::sendCompletionRequest(int position,
-                                                           const QByteArray &customFileContent)
+ClangCompletionAssistProcessor::Position
+ClangCompletionAssistProcessor::extractLineColumn(int position)
 {
-    int line, column;
-    TextEditor::Convenience::convertPosition(m_interface->textDocument(), position, &line, &column);
+    if (position < 0)
+        return {-1, -1};
+
+    int line = -1, column = -1;
+    TextEditor::Convenience::convertPosition(m_interface->textDocument(),
+                                             position,
+                                             &line,
+                                             &column);
     const QTextBlock block = m_interface->textDocument()->findBlock(position);
     column += ClangCodeModel::Utils::extraUtf8CharsShift(block.text(), column) + 1;
+    return {line, column};
+}
 
+bool ClangCompletionAssistProcessor::sendCompletionRequest(int position,
+                                                           const QByteArray &customFileContent,
+                                                           int functionNameStartPosition)
+{
     const QString filePath = m_interface->fileName();
 
     auto &ipcCommunicator = m_interface->ipcCommunicator();
@@ -567,8 +580,12 @@ bool ClangCompletionAssistProcessor::sendCompletionRequest(int position,
             setLastDocumentRevision(filePath);
         }
 
+        const Position cursorPosition = extractLineColumn(position);
+        const Position functionNameStart = extractLineColumn(functionNameStartPosition);
         const QString projectPartId = CppTools::CppToolsBridge::projectPartIdForFile(filePath);
-        ipcCommunicator.completeCode(this, filePath, uint(line), uint(column), projectPartId);
+        ipcCommunicator.completeCode(this, filePath, uint(cursorPosition.line),
+                                     uint(cursorPosition.column), projectPartId,
+                                     functionNameStart.line, functionNameStart.column);
         setLastCompletionPosition(filePath, position);
         return true;
     }

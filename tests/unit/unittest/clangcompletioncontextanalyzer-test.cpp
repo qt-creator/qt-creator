@@ -497,4 +497,20 @@ TEST_F(ClangCompletionContextAnalyzer, TemplatedFunctionSecondArgument)
     ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -3, -3, positionInText));
 }
 
+TEST_F(ClangCompletionContextAnalyzer, FunctionNameStartPosition)
+{
+    auto analyzer = runAnalyzer(" f<Bar>(1, @");
+    int functionNameStartPosition = analyzer.functionNameStart();
+
+    ASSERT_THAT(functionNameStartPosition, 1);
+}
+
+TEST_F(ClangCompletionContextAnalyzer, QualifiedFunctionNameStartPosition)
+{
+    auto analyzer = runAnalyzer(" Namespace::f<Bar>(1, @");
+    int functionNameStartPosition = analyzer.functionNameStart();
+
+    ASSERT_THAT(functionNameStartPosition, 1);
+}
+
 }

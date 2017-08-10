@@ -933,9 +933,12 @@ void IpcCommunicator::completeCode(ClangCompletionAssistProcessor *assistProcess
                                    const QString &filePath,
                                    quint32 line,
                                    quint32 column,
-                                   const QString &projectFilePath)
+                                   const QString &projectFilePath,
+                                   qint32 funcNameStartLine,
+                                   qint32 funcNameStartColumn)
 {
-    const CompleteCodeMessage message(filePath, line, column, projectFilePath);
+    const CompleteCodeMessage message(filePath, line, column, projectFilePath, funcNameStartLine,
+                                      funcNameStartColumn);
     m_ipcSender->completeCode(message);
     m_ipcReceiver.addExpectedCodeCompletedMessage(message.ticketNumber(), assistProcessor);
 }

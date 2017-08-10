@@ -82,9 +82,14 @@ private:
     UnsavedFileContentInfo unsavedFileContent(const QByteArray &customFileContent) const;
 
     void sendFileContent(const QByteArray &customFileContent);
-    bool sendCompletionRequest(int position, const QByteArray &customFileContent);
+    bool sendCompletionRequest(int position,
+                               const QByteArray &customFileContent,
+                               int functionNameStartPosition = -1);
 
 private:
+    struct Position { int line; int column; };
+    Position extractLineColumn(int position);
+
     QScopedPointer<const ClangCompletionAssistInterface> m_interface;
     unsigned m_completionOperator;
     enum CompletionRequestType { NormalCompletion, FunctionHintCompletion } m_sentRequestType;

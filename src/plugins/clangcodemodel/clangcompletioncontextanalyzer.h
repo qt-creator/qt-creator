@@ -56,14 +56,17 @@ public:
     unsigned completionOperator() const { return m_completionOperator; }
     int positionForProposal() const { return m_positionForProposal; }
     int positionForClang() const { return m_positionForClang; }
+    int functionNameStart() const { return m_functionNameStart; }
     int positionEndOfExpression() const { return m_positionEndOfExpression; }
 
 private:
     ClangCompletionContextAnalyzer();
 
-    bool looksLikeAFunctionCall(int endOfExpression) const;
+    int startOfFunctionCall(int endOfExpression) const;
 
-    void setActionAndClangPosition(CompletionAction action, int position);
+    void setActionAndClangPosition(CompletionAction action,
+                                   int position,
+                                   int functionNameStart = -1);
     void setAction(CompletionAction action);
 
     bool handleNonFunctionCall(int position);
@@ -79,6 +82,7 @@ private:
     CPlusPlus::Kind m_completionOperator = CPlusPlus::T_EOF_SYMBOL;
     int m_positionForProposal = -1;
     int m_positionForClang = -1;
+    int m_functionNameStart = -1;
     int m_positionEndOfExpression = -1;
 };
 

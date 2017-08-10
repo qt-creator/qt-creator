@@ -174,7 +174,9 @@ public:
     void completeCode(ClangCompletionAssistProcessor *assistProcessor, const QString &filePath,
                       quint32 line,
                       quint32 column,
-                      const QString &projectFilePath);
+                      const QString &projectFilePath,
+                      qint32 funcNameStartLine = -1,
+                      qint32 funcNameStartColumn = -1);
 
     void registerProjectsParts(const QVector<CppTools::ProjectPart::Ptr> projectParts);
 
