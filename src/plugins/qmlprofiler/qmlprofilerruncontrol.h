@@ -50,8 +50,6 @@ public:
 
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
 
-    void notifyRemoteSetupDone(Utils::Port port);
-    void notifyRemoteSetupFailed(const QString &errorMessage);
     void cancelProcess();
     void notifyRemoteFinished();
 
@@ -59,7 +57,6 @@ private:
     void start() override;
     void stop() override;
 
-    void wrongSetupMessageBoxFinished(int);
     void profilerStateChanged();
 
     class QmlProfilerRunnerPrivate;

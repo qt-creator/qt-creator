@@ -56,7 +56,6 @@
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QTimer>
 
 using namespace Debugger;
 using namespace Core;
@@ -75,7 +74,6 @@ class QmlProfilerRunner::QmlProfilerRunnerPrivate
 {
 public:
     QmlProfilerStateManager *m_profilerState = 0;
-    QTimer m_noDebugOutputTimer;
 };
 
 //
@@ -89,14 +87,6 @@ QmlProfilerRunner::QmlProfilerRunner(RunControl *runControl)
     setDisplayName("QmlProfilerRunner");
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     setSupportsReRunning(false);
-
-    // Only wait 4 seconds for the 'Waiting for connection' on application output, then just try to connect
-    // (application output might be redirected / blocked)
-    d->m_noDebugOutputTimer.setSingleShot(true);
-    d->m_noDebugOutputTimer.setInterval(4000);
-    connect(&d->m_noDebugOutputTimer, &QTimer::timeout, this, [this]() {
-        notifyRemoteSetupDone(Utils::Port());
-    });
 }
 
 QmlProfilerRunner::~QmlProfilerRunner()
@@ -118,8 +108,6 @@ void QmlProfilerRunner::start()
         clientManager->setServerUrl(serverUrl);
         clientManager->connectToTcpServer();
     }
-    else if (serverUrl.path().isEmpty())
-        d->m_noDebugOutputTimer.start();
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
 
@@ -190,53 +178,6 @@ void QmlProfilerRunner::cancelProcess()
     runControl()->initiateStop();
 }
 
-void QmlProfilerRunner::notifyRemoteSetupFailed(const QString &errorMessage)
-{
-    QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
-    infoBox->setIcon(QMessageBox::Critical);
-    infoBox->setWindowTitle(tr("Qt Creator"));
-    //: %1 is detailed error message
-    infoBox->setText(tr("Could not connect to the in-process QML debugger:\n%1")
-                     .arg(errorMessage));
-    infoBox->setStandardButtons(QMessageBox::Ok | QMessageBox::Help);
-    infoBox->setDefaultButton(QMessageBox::Ok);
-    infoBox->setModal(true);
-
-    connect(infoBox, &QDialog::finished,
-            this, &QmlProfilerRunner::wrongSetupMessageBoxFinished);
-
-    infoBox->show();
-
-    // KILL
-    d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
-    d->m_noDebugOutputTimer.stop();
-}
-
-void QmlProfilerRunner::wrongSetupMessageBoxFinished(int button)
-{
-    if (button == QMessageBox::Help) {
-        HelpManager::handleHelpRequest(QLatin1String("qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"
-                               "#setting-up-qml-debugging"));
-    }
-}
-
-void QmlProfilerRunner::notifyRemoteSetupDone(Utils::Port port)
-{
-    d->m_noDebugOutputTimer.stop();
-
-    QUrl serverUrl = this->serverUrl();
-    if (!port.isValid())
-        port = Utils::Port(serverUrl.port());
-
-    if (port.isValid()) {
-        serverUrl.setPort(port.number());
-        auto clientManager = Internal::QmlProfilerTool::clientManager();
-        clientManager->setServerUrl(serverUrl);
-        clientManager->connectToTcpServer();
-        reportStarted();
-    }
-}
-
 void QmlProfilerRunner::registerProfilerStateManager( QmlProfilerStateManager *profilerState )
 {
     // disconnect old
@@ -256,7 +197,6 @@ void QmlProfilerRunner::profilerStateChanged()
 {
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::Idle:
-        d->m_noDebugOutputTimer.stop();
         reportStopped();
         break;
     default:
