@@ -71,6 +71,11 @@ ProString::ProString(const QString &str) :
 {
 }
 
+ProString::ProString(const QStringRef &str) :
+    m_string(*str.string()), m_offset(str.position()), m_length(str.size()), m_file(0), m_hash(0x80000000)
+{
+}
+
 ProString::ProString(const char *str, DoPreHashing) :
     m_string(QString::fromLatin1(str)), m_offset(0), m_length(qstrlen(str)), m_file(0)
 {
@@ -333,7 +338,7 @@ ProString ProString::trimmed() const
 
 QTextStream &operator<<(QTextStream &t, const ProString &str)
 {
-    t << str.toQString(); // XXX optimize ... somehow
+    t << str.toQStringRef();
     return t;
 }
 

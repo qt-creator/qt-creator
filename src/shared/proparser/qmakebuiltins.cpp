@@ -730,9 +730,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
             const QString &sep = (args.count() == 2) ? args.at(1).toQString(m_tmp1) : statics.field_sep;
             const auto vars = values(map(args.at(0)));
             for (const ProString &var : vars) {
-                const auto splits = var.toQString(m_tmp2).split(sep);
-                for (const QString &splt : splits)
-                    ret << (splt.isSharedWith(m_tmp2) ? var : ProString(splt).setSource(var));
+                const auto splits = var.toQStringRef().split(sep);
+                for (const auto &splt : splits)
+                    ret << ProString(splt).setSource(var);
             }
         }
         break;
@@ -1538,7 +1538,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             return ReturnFalse;
         }
         return returnBool(values(map(args.at(0))).join(statics.field_sep)
-                          == args.at(1).toQString(m_tmp1));
+                          == args.at(1).toQStringRef());
     case T_VERSION_AT_LEAST:
     case T_VERSION_AT_MOST: {
         if (args.count() != 2) {
