@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/qmlprofiler/tests">
+        <file>Test.qml</file>
+        <file>qmlprofilerdetailsrewriter_test.cpp</file>
+    </qresource>
+</RCC>
