@@ -884,12 +884,10 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
             evalError(fL1S("find(var, str) requires two arguments."));
         } else {
             QRegExp regx(args.at(1).toQString());
-            int t = 0;
             const auto vals = values(map(args.at(0)));
             for (const ProString &val : vals) {
-                if (regx.indexIn(val.toQString(m_tmp[t])) != -1)
+                if (regx.indexIn(val.toQString(m_tmp[m_toggle ^= 1])) != -1)
                     ret += val;
-                t ^= 1;
             }
         }
         break;
@@ -1389,12 +1387,10 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                 copy.detach();
                 regx.setPattern(copy);
             }
-            int t = 0;
             const auto strings = vars.value(map(args.at(1)));
             for (const ProString &s : strings) {
-                if ((!regx.isEmpty() && regx.exactMatch(s.toQString(m_tmp[t]))) || s == qry)
+                if ((!regx.isEmpty() && regx.exactMatch(s.toQString(m_tmp[m_toggle ^= 1]))) || s == qry)
                     return ReturnTrue;
-                t ^= 1;
             }
         }
         return ReturnFalse;
@@ -1459,12 +1455,10 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         }
         const ProStringList &l = values(map(args.at(0)));
         if (args.count() == 2) {
-            int t = 0;
             for (int i = 0; i < l.size(); ++i) {
                 const ProString &val = l[i];
-                if ((!regx.isEmpty() && regx.exactMatch(val.toQString(m_tmp[t]))) || val == qry)
+                if ((!regx.isEmpty() && regx.exactMatch(val.toQString(m_tmp[m_toggle ^= 1]))) || val == qry)
                     return ReturnTrue;
-                t ^= 1;
             }
         } else {
             const auto mutuals = args.at(2).toQStringRef().split(QLatin1Char('|'));

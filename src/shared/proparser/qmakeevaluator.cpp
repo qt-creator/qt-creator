@@ -223,6 +223,7 @@ QMakeEvaluator::QMakeEvaluator(QMakeGlobals *option, QMakeParser *parser, QMakeV
     m_skipLevel = 0;
 #endif
     m_listCount = 0;
+    m_toggle = 0;
     m_valuemapStack.push(ProValueMap());
     m_valuemapInited = false;
 }
@@ -1648,12 +1649,10 @@ bool QMakeEvaluator::isActiveConfig(const QStringRef &config, bool regex)
             return true;
 
         // CONFIG variable
-        int t = 0;
         const auto configValues = values(statics.strCONFIG);
         for (const ProString &configValue : configValues) {
-            if (re.exactMatch(configValue.toQString(m_tmp[t])))
+            if (re.exactMatch(configValue.toQString(m_tmp[m_toggle ^= 1])))
                 return true;
-            t ^= 1;
         }
     } else {
         // mkspecs
