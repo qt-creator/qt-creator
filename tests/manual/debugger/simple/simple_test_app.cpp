@@ -2355,7 +2355,7 @@ namespace final {
         BREAK_HERE;
         // Continue.
 
-        return; // Uncomment.
+        return; // Comment out.
         *(int *)0 = a + b;
     }
 
@@ -2364,7 +2364,7 @@ namespace final {
         BREAK_HERE;
         // Continue.
 
-        return; // Uncomment.
+        return; // Comment out.
         testEndlessRecursion(i + 1);
     }
 
@@ -2429,7 +2429,7 @@ namespace final {
         // Check pp 21 int &.
         // Check qq <null reference> int &.
         // Continue.
-        return; // Uncomment.
+        return; // Comment out.
         testNullReferenceHelper(pp, qq);
         dummyStatement(p, q, &i);
     }
