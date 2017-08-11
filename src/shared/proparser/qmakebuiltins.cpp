@@ -583,8 +583,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
             if (regexp) {
                 QRegExp sepRx(sep);
                 for (const ProString &str : strings) {
-                    const QString &rstr = str.toQString(m_tmp1).section(sepRx, beg, end);
-                    ret << (rstr.isSharedWith(m_tmp1) ? str : ProString(rstr).setSource(str));
+                    const QString &rstr = str.toQString(m_tmp[m_toggle ^= 1]).section(sepRx, beg, end);
+                    ret << (rstr.isSharedWith(m_tmp[m_toggle]) ? str : ProString(rstr).setSource(str));
                 }
             } else {
                 for (const ProString &str : strings) {
@@ -1473,7 +1473,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                 for (int mut = 0; mut < mutuals.count(); mut++) {
                     if (val.toQStringRef() == mutuals[mut].trimmed()) {
                         return returnBool((!regx.isEmpty()
-                                           && regx.exactMatch(val.toQString(m_tmp2)))
+                                           && regx.exactMatch(val.toQString(m_tmp[m_toggle ^= 1])))
                                           || val == qry);
                     }
                 }
