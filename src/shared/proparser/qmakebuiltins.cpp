@@ -818,7 +818,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
         if (args.count() < 1 || args.count() > 2) {
             evalError(fL1S("cat(file, singleline=true) requires one or two arguments."));
         } else {
-            const QString &file = args.at(0).toQString(m_tmp1);
+            QString fn = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
+            fn.detach();
 
             bool blob = false;
             bool lines = false;
@@ -833,7 +834,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
                     lines = true;
             }
 
-            QFile qfile(resolvePath(m_option->expandEnvVars(file)));
+            QFile qfile(fn);
             if (qfile.open(QIODevice::ReadOnly)) {
                 QTextStream stream(&qfile);
                 if (blob) {
@@ -909,7 +910,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
                         lines = true;
                 }
                 int exitCode;
-                QByteArray bytes = getCommandOutput(args.at(0).toQString(m_tmp2), &exitCode);
+                QByteArray bytes = getCommandOutput(args.at(0).toQString(), &exitCode);
                 if (args.count() > 2 && !args.at(2).isEmpty()) {
                     m_valuemapStack.top()[args.at(2).toKey()] =
                             ProStringList(ProString(QString::number(exitCode)));
@@ -1703,7 +1704,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
 #ifndef QT_BOOTSTRAPPED
         QProcess proc;
         proc.setProcessChannelMode(QProcess::ForwardedChannels);
-        runProcess(&proc, args.at(0).toQString(m_tmp2));
+        runProcess(&proc, args.at(0).toQString());
         return returnBool(proc.exitStatus() == QProcess::NormalExit && proc.exitCode() == 0);
 #else
         int ec = system((QLatin1String("cd ")
@@ -1740,8 +1741,10 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             return ReturnTrue;
         int slsh = file.lastIndexOf(QLatin1Char('/'));
         QString fn = file.mid(slsh+1);
+        fn.detach();
         if (fn.contains(QLatin1Char('*')) || fn.contains(QLatin1Char('?'))) {
             QString dirstr = file.left(slsh+1);
+            dirstr.detach();
             if (!QDir(dirstr).entryList(QStringList(fn)).isEmpty())
                 return ReturnTrue;
         }
@@ -1754,7 +1757,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             return ReturnFalse;
         }
 #ifdef PROEVALUATOR_FULL
-        const QString &fn = resolvePath(args.at(0).toQString(m_tmp1));
+        QString fn = resolvePath(args.at(0).toQString(m_tmp1));
+        fn.detach();
         if (!QDir::current().mkpath(fn)) {
             evalError(fL1S("Cannot create directory %1.").arg(QDir::toNativeSeparators(fn)));
             return ReturnFalse;
