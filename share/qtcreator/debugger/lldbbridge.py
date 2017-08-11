@@ -1558,7 +1558,8 @@ class Dumper(DumperBase):
             self.target.BreakpointDelete(bp.GetID())
             res = frame.SetPC(loc.GetLoadAddress())
             status = 'Jumped.' if res else 'Cannot jump.'
-        self.reportResult(self.describeStatus(status) + self.describeLocation(frame), args)
+        self.report(self.describeLocation(frame))
+        self.reportResult(self.describeStatus(status), args)
 
     def breakList(self):
         result = lldb.SBCommandReturnObject()
