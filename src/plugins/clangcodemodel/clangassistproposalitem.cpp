@@ -154,7 +154,7 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
                 }
 
                 // If the function takes no arguments, automatically place the closing parenthesis
-                if (!isOverloaded() && !ccr.hasParameters() && skipClosingParenthesis) {
+                if (!hasOverloadsWithParameters() && !ccr.hasParameters() && skipClosingParenthesis) {
                     extraCharacters += QLatin1Char(')');
                     if (endWithSemicolon) {
                         extraCharacters += semicolon;
@@ -333,19 +333,19 @@ quint64 ClangAssistProposalItem::hash() const
     return 0;
 }
 
+bool ClangAssistProposalItem::hasOverloadsWithParameters() const
+{
+    return m_hasOverloadsWithParameters;
+}
+
+void ClangAssistProposalItem::setHasOverloadsWithParameters(bool hasOverloadsWithParameters)
+{
+    m_hasOverloadsWithParameters = hasOverloadsWithParameters;
+}
+
 void ClangAssistProposalItem::keepCompletionOperator(unsigned compOp)
 {
     m_completionOperator = compOp;
-}
-
-bool ClangAssistProposalItem::isOverloaded() const
-{
-    return !m_overloads.isEmpty();
-}
-
-void ClangAssistProposalItem::addOverload(const CodeCompletion &ccr)
-{
-    m_overloads.append(ccr);
 }
 
 void ClangAssistProposalItem::setCodeCompletion(const CodeCompletion &codeCompletion)

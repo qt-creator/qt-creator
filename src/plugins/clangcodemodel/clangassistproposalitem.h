@@ -53,8 +53,8 @@ public:
 
     void keepCompletionOperator(unsigned compOp);
 
-    bool isOverloaded() const;
-    void addOverload(const ClangBackEnd::CodeCompletion &ccr);
+    bool hasOverloadsWithParameters() const;
+    void setHasOverloadsWithParameters(bool hasOverloadsWithParameters);
 
     void setCodeCompletion(const ClangBackEnd::CodeCompletion &codeCompletion);
     const ClangBackEnd::CodeCompletion &codeCompletion() const;
@@ -62,6 +62,7 @@ public:
 private:
     ClangBackEnd::CodeCompletion m_codeCompletion;
     QList<ClangBackEnd::CodeCompletion> m_overloads;
+    bool m_hasOverloadsWithParameters = false;
     QString m_text;
     unsigned m_completionOperator;
     mutable QChar m_typedCharacter;

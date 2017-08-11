@@ -89,7 +89,8 @@ QList<AssistProposalItemInterface *> toAssistProposalItems(const CodeCompletions
 
         ClangAssistProposalItem *item = items.value(name, 0);
         if (item) {
-            item->addOverload(codeCompletion);
+            if (codeCompletion.hasParameters())
+                item->setHasOverloadsWithParameters(true);
         } else {
             item = new ClangAssistProposalItem;
             items.insert(name, item);
