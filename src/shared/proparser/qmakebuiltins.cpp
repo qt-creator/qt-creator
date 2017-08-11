@@ -1112,7 +1112,11 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
                 QString rstr = val.toQString(m_tmp1);
                 QString copy = rstr; // Force a detach on modify
                 rstr.replace(before, after);
-                ret << (rstr.isSharedWith(m_tmp1) ? val : ProString(rstr).setSource(val));
+                ret << (rstr.isSharedWith(m_tmp1)
+                            ? val
+                            : rstr.isSharedWith(m_tmp2)
+                                ? args.at(2)
+                                : ProString(rstr).setSource(val));
             }
         }
         break;
