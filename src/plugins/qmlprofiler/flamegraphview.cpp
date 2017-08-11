@@ -80,13 +80,7 @@ void FlameGraphView::selectByTypeId(int typeIndex)
 
 void FlameGraphView::onVisibleFeaturesChanged(quint64 features)
 {
-    int rangeTypeMask = 0;
-    for (int rangeType = 0; rangeType < MaximumRangeType; ++rangeType) {
-        if (features & (1ULL << featureFromRangeType(RangeType(rangeType))))
-            rangeTypeMask |= (1 << rangeType);
-    }
-    if (m_content->rootObject())
-        m_content->rootObject()->setProperty("visibleRangeTypes", rangeTypeMask);
+    m_model->restrictToFeatures(features);
 }
 
 void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
