@@ -303,7 +303,6 @@ public:
     ProStringList m_returnValue;
     ProValueMapStack m_valuemapStack; // VariableName must be us-ascii, the content however can be non-us-ascii.
     QString m_tmp1, m_tmp2, m_tmp3, m_tmp[2]; // Temporaries for efficient toQString
-    mutable QString m_mtmp;
 
     QMakeGlobals *m_option;
     QMakeParser *m_parser;
