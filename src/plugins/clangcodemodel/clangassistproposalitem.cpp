@@ -32,9 +32,9 @@
 #include <cplusplus/Token.h>
 
 #include <texteditor/completionsettings.h>
-#include <texteditor/textdocument.h>
-#include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
+
+#include <QTextCursor>
 
 using namespace CPlusPlus;
 using namespace ClangBackEnd;
@@ -86,12 +86,11 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
     bool setAutoCompleteSkipPos = false;
     int currentPosition = manipulator.currentPosition();
 
-    bool autoParenthesesEnabled = true;
     if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
         extraCharacters += QLatin1Char(')');
         if (m_typedCharacter == QLatin1Char('(')) // Eat the opening parenthesis
             m_typedCharacter = QChar();
-    } else  if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind) {
+    } else if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind) {
         CompletionChunksToTextConverter converter;
         converter.setupForKeywords();
 
@@ -160,7 +159,7 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
                         extraCharacters += semicolon;
                         m_typedCharacter = QChar();
                     }
-                } else if (autoParenthesesEnabled) {
+                } else {
                     const QChar lookAhead = manipulator.characterAt(manipulator.currentPosition() + 1);
                     if (MatchingText::shouldInsertMatchingText(lookAhead)) {
                         extraCharacters += QLatin1Char(')');
@@ -175,19 +174,6 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
                 }
             }
         }
-
-#if 0
-        if (autoInsertBrackets && data().canConvert<CompleteFunctionDeclaration>()) {
-            if (m_typedChar == QLatin1Char('('))
-                m_typedChar = QChar();
-
-            // everything from the closing parenthesis on are extra chars, to
-            // make sure an auto-inserted ")" gets replaced by ") const" if necessary
-            int closingParen = toInsert.lastIndexOf(QLatin1Char(')'));
-            extraChars = toInsert.mid(closingParen);
-            toInsert.truncate(closingParen);
-        }
-#endif
     }
 
     // Append an unhandled typed character, adjusting cursor offset when it had been adjusted before
@@ -360,4 +346,3 @@ const ClangBackEnd::CodeCompletion &ClangAssistProposalItem::codeCompletion() co
 
 } // namespace Internal
 } // namespace ClangCodeModel
-
