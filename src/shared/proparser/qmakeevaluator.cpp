@@ -970,11 +970,9 @@ void QMakeEvaluator::setTemplate()
             values.erase(values.begin() + 1, values.end());
     }
     if (!m_option->user_template_prefix.isEmpty()) {
-        QString val = values.first().toQString(m_tmp1);
-        if (!val.startsWith(m_option->user_template_prefix)) {
-            val.prepend(m_option->user_template_prefix);
-            values = ProStringList(ProString(val));
-        }
+        ProString val = values.first();
+        if (!val.startsWith(m_option->user_template_prefix))
+            values = ProStringList(ProString(m_option->user_template_prefix + val));
     }
 }
 
@@ -1755,7 +1753,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBoolFunction(
             if (ret.at(0) == statics.strtrue)
                 return ReturnTrue;
             bool ok;
-            int val = ret.at(0).toQString(m_tmp1).toInt(&ok);
+            int val = ret.at(0).toInt(&ok);
             if (ok) {
                 if (val)
                     return ReturnTrue;

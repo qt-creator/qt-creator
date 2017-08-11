@@ -1777,13 +1777,12 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             if (args.count() >= 3) {
                 const auto opts = split_value_list(args.at(2).toQStringRef());
                 for (const ProString &opt : opts) {
-                    opt.toQString(m_tmp3);
-                    if (m_tmp3 == QLatin1String("append")) {
+                    if (opt == QLatin1String("append")) {
                         mode = QIODevice::Append;
-                    } else if (m_tmp3 == QLatin1String("exe")) {
+                    } else if (opt == QLatin1String("exe")) {
                         flags |= QMakeVfs::VfsExecutable;
                     } else {
-                        evalError(fL1S("write_file(): invalid flag %1.").arg(m_tmp3));
+                        evalError(fL1S("write_file(): invalid flag %1.").arg(opt.toQString(m_tmp3)));
                         return ReturnFalse;
                     }
                 }
@@ -1821,21 +1820,20 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         if (args.count() >= 2) {
             const auto opts = split_value_list(args.at(1).toQStringRef());
             for (const ProString &opt : opts) {
-                opt.toQString(m_tmp3);
-                if (m_tmp3 == QLatin1String("transient")) {
+                if (opt == QLatin1String("transient")) {
                     persist = false;
-                } else if (m_tmp3 == QLatin1String("super")) {
+                } else if (opt == QLatin1String("super")) {
                     target = TargetSuper;
-                } else if (m_tmp3 == QLatin1String("stash")) {
+                } else if (opt == QLatin1String("stash")) {
                     target = TargetStash;
-                } else if (m_tmp3 == QLatin1String("set")) {
+                } else if (opt == QLatin1String("set")) {
                     mode = CacheSet;
-                } else if (m_tmp3 == QLatin1String("add")) {
+                } else if (opt == QLatin1String("add")) {
                     mode = CacheAdd;
-                } else if (m_tmp3 == QLatin1String("sub")) {
+                } else if (opt == QLatin1String("sub")) {
                     mode = CacheSub;
                 } else {
-                    evalError(fL1S("cache(): invalid flag %1.").arg(m_tmp3));
+                    evalError(fL1S("cache(): invalid flag %1.").arg(opt.toQString(m_tmp3)));
                     return ReturnFalse;
                 }
             }
