@@ -1649,7 +1649,7 @@ class Dumper(DumperBase):
                     result += '{line="%s"' % lineNumber
                     result += ',file="%s"' % fileName
                     if 0 < lineNumber and lineNumber <= len(source):
-                        result += ',data="%s"' % source[lineNumber - 1]
+                        result += ',hexdata="%s"' % self.hexencode(source[lineNumber - 1])
                     result += ',hunk="%s"}' % hunk
             result += '{address="%s"' % loadAddr
             result += ',data="%s %s"' % (insn.GetMnemonic(self.target),
