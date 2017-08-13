@@ -176,6 +176,7 @@ public:
     QAction *m_insertLineBelowAction = nullptr;
     QAction *m_upperCaseSelectionAction = nullptr;
     QAction *m_lowerCaseSelectionAction = nullptr;
+    QAction *m_sortSelectedLinesAction = nullptr;
     QAction *m_indentAction = nullptr;
     QAction *m_unindentAction = nullptr;
     QAction *m_followSymbolAction = nullptr;
@@ -382,6 +383,10 @@ void TextEditorActionHandlerPrivate::createActions()
             [] (TextEditorWidget *w) { w->lowercaseSelection(); }, true, tr("Lowercase Selection"),
             QKeySequence(Core::UseMacShortcuts ? tr("Meta+U") : tr("Alt+U")),
             G_EDIT_TEXT, advancedEditMenu);
+    m_sortSelectedLinesAction = registerAction(SORT_SELECTED_LINES,
+            [this] (TextEditorWidget *w) { w->sortSelectedLines(); }, false, tr("&Sort Selected Lines"),
+            QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+S") : tr("Alt+Shift+S")),
+            G_EDIT_TEXT, advancedEditMenu);
     m_foldAction = registerAction(FOLD,
             [] (TextEditorWidget *w) { w->fold(); }, true, tr("Fold"),
             QKeySequence(tr("Ctrl+<")),
@@ -500,6 +505,7 @@ void TextEditorActionHandlerPrivate::createActions()
     m_modifyingActions << m_unCommentSelectionAction;
     m_modifyingActions << m_unindentAction;
     m_modifyingActions << m_upperCaseSelectionAction;
+    m_modifyingActions << m_sortSelectedLinesAction;
 
     // set enabled state of optional actions
     m_followSymbolAction->setEnabled(m_optionalActions & TextEditorActionHandler::FollowSymbolUnderCursor);

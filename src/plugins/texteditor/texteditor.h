@@ -423,6 +423,8 @@ public:
     void uppercaseSelection();
     void lowercaseSelection();
 
+    void sortSelectedLines();
+
     void cleanWhitespace();
 
     void indent();

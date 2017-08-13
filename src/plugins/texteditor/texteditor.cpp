@@ -154,6 +154,7 @@ namespace Internal {
 enum { NExtraSelectionKinds = 12 };
 
 typedef QString (TransformationMethod)(const QString &);
+typedef void (ListTransformationMethod)(QStringList &);
 
 static QString QString_toUpper(const QString &str)
 {
@@ -418,6 +419,8 @@ public:
 
     void transformSelection(TransformationMethod method);
     void transformBlockSelection(TransformationMethod method);
+
+    void transformSelectedLines(ListTransformationMethod method);
 
     void slotUpdateExtraAreaWidth();
     void slotUpdateRequest(const QRect &r, int dy);
@@ -1614,6 +1617,11 @@ void TextEditorWidget::uppercaseSelection()
 void TextEditorWidget::lowercaseSelection()
 {
     d->transformSelection(&QString_toLower);
+}
+
+void TextEditorWidget::sortSelectedLines()
+{
+    d->transformSelectedLines([](QStringList &list) { list.sort(); });
 }
 
 void TextEditorWidget::indent()
@@ -7891,6 +7899,41 @@ void TextEditorWidgetPrivate::transformBlockSelection(TransformationMethod metho
 
     // restore former block selection
     enableBlockSelection(positionBlock, anchorColumn, anchorBlock, positionColumn);
+}
+
+void TextEditorWidgetPrivate::transformSelectedLines(ListTransformationMethod method)
+{
+    if (!method || q->hasBlockSelection())
+        return;
+
+    QTextCursor cursor = q->textCursor();
+    if (!cursor.hasSelection())
+        return;
+
+    const bool downwardDirection = cursor.anchor() < cursor.position();
+    int startPosition = cursor.selectionStart();
+    int endPosition = cursor.selectionEnd();
+
+    cursor.setPosition(startPosition);
+    cursor.movePosition(QTextCursor::StartOfBlock);
+    startPosition = cursor.position();
+
+    cursor.setPosition(endPosition, QTextCursor::KeepAnchor);
+    if (cursor.positionInBlock() == 0)
+        cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::KeepAnchor);
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    endPosition = qMax(cursor.position(), endPosition);
+
+    const QString text = cursor.selectedText();
+    QStringList lines = text.split(QChar::ParagraphSeparator);
+    method(lines);
+    cursor.insertText(lines.join(QChar::ParagraphSeparator));
+
+    // (re)select the changed lines
+    // Note: this assumes the transformation did not change the length
+    cursor.setPosition(downwardDirection ? startPosition : endPosition);
+    cursor.setPosition(downwardDirection ? endPosition : startPosition, QTextCursor::KeepAnchor);
+    q->setTextCursor(cursor);
 }
 
 void TextEditorWidget::inSnippetMode(bool *active)
