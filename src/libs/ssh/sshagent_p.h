@@ -76,7 +76,7 @@ private:
 
         QByteArray key;
         QByteArray dataToSign;
-        uint token;
+        uint token = 0;
     };
 
     struct Packet {
