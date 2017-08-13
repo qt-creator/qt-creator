@@ -61,9 +61,11 @@ bool QmlProjectNode::supportsAction(ProjectAction action, const Node *node) cons
 {
     if (action == AddNewFile || action == EraseFile)
         return true;
+    QTC_ASSERT(node, return false);
 
     if (action == Rename && node->nodeType() == NodeType::File) {
-        const FileNode *fileNode = dynamic_cast<const FileNode *>(node);
+        const FileNode *fileNode = node->asFileNode();
+        QTC_ASSERT(fileNode, return false);
         return fileNode->fileType() != FileType::Project;
     }
 
