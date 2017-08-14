@@ -115,13 +115,16 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
             break;
         case QmlProfilerModelManager::ClearingData:
             d->m_zoomControl->clear();
-            if (!d->m_suspendedModels.isEmpty())
-                break; // Models are suspended already. AcquiringData was aborted.
             Q_FALLTHROUGH();
         case QmlProfilerModelManager::AcquiringData:
-            // Temporarily remove the models, while we're changing them
-            d->m_suspendedModels = d->m_modelProxy->models();
-            d->m_modelProxy->setModels(QVariantList());
+            if (d->m_suspendedModels.isEmpty()) {
+                // Temporarily remove the models, while we're changing them
+                d->m_suspendedModels = d->m_modelProxy->models();
+                d->m_modelProxy->setModels(QVariantList());
+            }
+            // Otherwise models are suspended already. This can happen if either acquiring was
+            // aborted or we're doing a "restrict to range" which consists of a partial clearing and
+            // then re-acquiring of data.
             break;
         }
     });
@@ -307,6 +310,11 @@ bool QmlProfilerTraceView::isUsable() const
 #else
     return true;
 #endif
+}
+
+bool QmlProfilerTraceView::isSuspended() const
+{
+    return !d->m_suspendedModels.isEmpty();
 }
 
 void QmlProfilerTraceView::changeEvent(QEvent *e)

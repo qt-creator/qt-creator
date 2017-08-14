@@ -130,8 +130,6 @@ Item {
                     exportMenuItem.enabled = !backendValue.isAttachedProperty()
                 }
 
-                onAboutToHide: menuLoader.active = false
-
                 Controls.MenuItem {
                     text: qsTr("Reset")
                     onTriggered: {
