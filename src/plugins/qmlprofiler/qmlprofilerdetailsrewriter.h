@@ -42,7 +42,7 @@ class QmlProfilerDetailsRewriter : public QObject
 public:
     explicit QmlProfilerDetailsRewriter(QObject *parent = nullptr);
 
-    void clearRequests();
+    void clear();
     void requestDetailsForLocation(int typeId, const QmlEventLocation &location);
     QString getLocalFile(const QString &remoteFile);
     void reloadDocuments();

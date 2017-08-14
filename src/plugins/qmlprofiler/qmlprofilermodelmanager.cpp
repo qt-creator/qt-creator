@@ -692,7 +692,7 @@ void QmlProfilerModelManager::clear()
     else
         emit error(tr("Cannot open temporary trace file to store events."));
     d->eventTypes.clear();
-    d->detailsRewriter->clearRequests();
+    d->detailsRewriter->clear();
     d->traceTime->clear();
     d->notesModel->clear();
     setVisibleFeatures(0);

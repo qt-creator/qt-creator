@@ -173,7 +173,7 @@ void QmlProfilerDetailsRewriter::disconnectQmlModel()
     }
 }
 
-void QmlProfilerDetailsRewriter::clearRequests()
+void QmlProfilerDetailsRewriter::clear()
 {
     m_filesCache.clear();
     m_pendingEvents.clear();
