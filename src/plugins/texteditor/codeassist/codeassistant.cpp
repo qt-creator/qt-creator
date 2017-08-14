@@ -441,8 +441,6 @@ void CodeAssistantPrivate::notifyChange()
             m_proposalWidget->updateProposal(
                 m_editorWidget->textAt(m_proposal->basePosition(),
                                      m_editorWidget->position() - m_proposal->basePosition()));
-            if (m_proposal->isFragile())
-                startAutomaticProposalTimer();
         }
     }
 }
