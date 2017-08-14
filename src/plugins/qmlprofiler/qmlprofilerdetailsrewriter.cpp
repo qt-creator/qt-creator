@@ -256,6 +256,7 @@ void QmlProfilerDetailsRewriter::populateFileFinder(
     m_projectFinder.setProjectDirectory(projectDirectory);
     m_projectFinder.setProjectFiles(sourceFiles);
     m_projectFinder.setSysroot(activeSysroot);
+    m_filesCache.clear();
 }
 
 } // namespace Internal
