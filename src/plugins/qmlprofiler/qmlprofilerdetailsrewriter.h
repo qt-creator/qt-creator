@@ -46,19 +46,18 @@ public:
     void requestDetailsForLocation(int typeId, const QmlEventLocation &location);
     QString getLocalFile(const QString &remoteFile);
     void reloadDocuments();
-    void documentReady(QmlJS::Document::Ptr doc);
     void populateFileFinder(const ProjectExplorer::RunConfiguration *runConfiguration);
-
-    struct PendingEvent {
-        QmlEventLocation location;
-        int typeId;
-    };
 
 signals:
     void rewriteDetailsString(int typeId, const QString &details);
     void eventDetailsChanged();
 
 private:
+    struct PendingEvent {
+        QmlEventLocation location;
+        int typeId;
+    };
+
     QMultiHash<QString, PendingEvent> m_pendingEvents;
     Utils::FileInProjectFinder m_projectFinder;
     QHash<QString, QString> m_filesCache;
@@ -67,6 +66,9 @@ private:
                                    const QmlEventLocation &location);
     void connectQmlModel();
     void disconnectQmlModel();
+    void documentReady(QmlJS::Document::Ptr doc);
+
+    friend class QTypeInfo<PendingEvent>;
 };
 
 } // namespace Internal
