@@ -436,13 +436,16 @@ QMakeEvaluator::VisitReturn
 QMakeEvaluator::writeFile(const QString &ctx, const QString &fn, QIODevice::OpenMode mode,
                           QMakeVfs::VfsFlags flags, const QString &contents)
 {
+    int oldId = m_vfs->idForFileName(fn, flags | QMakeVfs::VfsAccessedOnly);
+    int id = m_vfs->idForFileName(fn, flags | QMakeVfs::VfsCreate);
     QString errStr;
-    if (!m_vfs->writeFile(fn, mode, flags, contents, &errStr)) {
+    if (!m_vfs->writeFile(id, mode, flags, contents, &errStr)) {
         evalError(fL1S("Cannot write %1file %2: %3")
                   .arg(ctx, QDir::toNativeSeparators(fn), errStr));
         return ReturnFalse;
     }
-    m_parser->discardFileFromCache(fn);
+    if (oldId)
+        m_parser->discardFileFromCache(oldId);
     return ReturnTrue;
 }
 
@@ -709,9 +712,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
                 after = args[3];
             const ProStringList &var = values(map(args.at(0)));
             if (!var.isEmpty()) {
-                const ProFile *src = currentProFile();
+                int src = currentFileId();
                 for (const ProString &v : var)
-                    if (const ProFile *s = v.sourceFile()) {
+                    if (int s = v.sourceFile()) {
                         src = s;
                         break;
                     }
@@ -1062,7 +1065,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
                             dirs.append(fname + QLatin1Char('/'));
                     }
                     if (regex.exactMatch(qdir[i]))
-                        ret += ProString(fname).setSource(currentProFile());
+                        ret += ProString(fname).setSource(currentFileId());
                 }
             }
         }
@@ -1329,7 +1332,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             return ReturnFalse;
         }
         QString fn = resolvePath(args.at(0).toQString(m_tmp1));
-        ProFile *pro = m_parser->parsedProFile(fn, QMakeParser::ParseOnlyCached);
+        QMakeVfs::VfsFlags flags = (m_cumulative ? QMakeVfs::VfsCumulative : QMakeVfs::VfsExact);
+        int pro = m_vfs->idForFileName(fn, flags | QMakeVfs::VfsAccessedOnly);
         if (!pro)
             return ReturnFalse;
         ProValueMap &vmap = m_valuemapStack.first();
@@ -1349,18 +1353,17 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             ++vit;
         }
         for (auto fit = m_functionDefs.testFunctions.begin(); fit != m_functionDefs.testFunctions.end(); ) {
-            if (fit->pro() == pro)
+            if (fit->pro()->id() == pro)
                 fit = m_functionDefs.testFunctions.erase(fit);
             else
                 ++fit;
         }
         for (auto fit = m_functionDefs.replaceFunctions.begin(); fit != m_functionDefs.replaceFunctions.end(); ) {
-            if (fit->pro() == pro)
+            if (fit->pro()->id() == pro)
                 fit = m_functionDefs.replaceFunctions.erase(fit);
             else
                 ++fit;
         }
-        pro->deref();
         ProStringList &iif = m_valuemapStack.first()[ProKey("QMAKE_INTERNAL_INCLUDED_FILES")];
         int idx = iif.indexOf(ProString(fn));
         if (idx >= 0)
@@ -1405,7 +1408,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             VisitReturn ret = ReturnFalse;
             QString contents = args.join(statics.field_sep);
             ProFile *pro = m_parser->parsedProBlock(QStringRef(&contents),
-                                                    m_current.pro->fileName(), m_current.line);
+                                                    0, m_current.pro->fileName(), m_current.line);
             if (m_cumulative || pro->isOk()) {
                 m_locationStack.push(m_current);
                 visitProBlock(pro, pro->tokPtr());

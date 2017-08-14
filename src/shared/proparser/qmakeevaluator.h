@@ -173,12 +173,13 @@ public:
 
     void setTemplate();
 
-    ProStringList split_value_list(const QStringRef &vals, const ProFile *source = 0);
+    ProStringList split_value_list(const QStringRef &vals, int source = 0);
     VisitReturn expandVariableReferences(const ushort *&tokPtr, int sizeHint, ProStringList *ret, bool joined);
 
     QString currentFileName() const;
     QString currentDirectory() const;
     ProFile *currentProFile() const;
+    int currentFileId() const;
     QString resolvePath(const QString &fileName) const
         { return QMakeInternal::IoUtils::resolvePath(currentDirectory(), fileName); }
 

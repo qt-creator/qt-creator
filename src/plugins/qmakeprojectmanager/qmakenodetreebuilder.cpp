@@ -160,10 +160,13 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
                     QString errorMessage;
                     // Prefer the cumulative file if it's non-empty, based on the assumption
                     // that it contains more "stuff".
-                    vfs->readFile(file.toString(), QMakeVfs::VfsCumulative, &contents, &errorMessage);
+                    int cid = vfs->idForFileName(file.toString(), QMakeVfs::VfsCumulative);
+                    vfs->readFile(cid, &contents, &errorMessage);
                     // If the cumulative evaluation botched the file too much, try the exact one.
-                    if (contents.isEmpty())
-                        vfs->readFile(file.toString(), QMakeVfs::VfsExact, &contents, &errorMessage);
+                    if (contents.isEmpty()) {
+                        int eid = vfs->idForFileName(file.toString(), QMakeVfs::VfsExact);
+                        vfs->readFile(eid, &contents, &errorMessage);
+                    }
                     auto resourceNode = new ResourceEditor::ResourceTopLevelNode(file, false, contents, vfolder);
                     vfolder->addNode(resourceNode);
                 }

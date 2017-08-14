@@ -176,7 +176,7 @@ QString ProWriter::compileScope(const QString &scope)
     if (scope.isEmpty())
         return QString();
     QMakeParser parser(0, 0, 0);
-    ProFile *includeFile = parser.parsedProBlock(QStringRef(&scope), QLatin1String("no-file"), 1);
+    ProFile *includeFile = parser.parsedProBlock(QStringRef(&scope), 0, QLatin1String("no-file"), 1);
     if (!includeFile)
         return QString();
     QString result = includeFile->items();

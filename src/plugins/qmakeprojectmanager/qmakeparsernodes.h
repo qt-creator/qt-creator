@@ -201,11 +201,11 @@ private:
     static QStringList baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir, const QString &buildDir);
     static QStringList fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader, const QString &qmakeVariable, const QString &projectDir);
     static void extractSources(
-            QHash<const ProFile *, Internal::QmakePriFileEvalResult *> proToResult,
+            QHash<int, Internal::QmakePriFileEvalResult *> proToResult,
             Internal::QmakePriFileEvalResult *fallback,
             QVector<ProFileEvaluator::SourceFile> sourceFiles, ProjectExplorer::FileType type);
     static void extractInstalls(
-            QHash<const ProFile *, Internal::QmakePriFileEvalResult *> proToResult,
+            QHash<int, Internal::QmakePriFileEvalResult *> proToResult,
             Internal::QmakePriFileEvalResult *fallback,
             const InstallsList &installList);
     static void processValues(Internal::QmakePriFileEvalResult &result);

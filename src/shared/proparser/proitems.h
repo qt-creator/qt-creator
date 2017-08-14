@@ -69,8 +69,8 @@ public:
     void setValue(const QString &str);
     void clear() { m_string.clear(); m_length = 0; }
     ProString &setSource(const ProString &other) { m_file = other.m_file; return *this; }
-    ProString &setSource(const ProFile *pro) { m_file = pro; return *this; }
-    const ProFile *sourceFile() const { return m_file; }
+    ProString &setSource(int id) { m_file = id; return *this; }
+    int sourceFile() const { return m_file; }
 
     ProString &prepend(const ProString &other);
     ProString &append(const ProString &other, bool *pending = 0);
@@ -159,7 +159,7 @@ private:
 
     QString m_string;
     int m_offset, m_length;
-    const ProFile *m_file;
+    int m_file;
     mutable uint m_hash;
     QChar *prepareExtend(int extraLen, int thisTarget, int extraTarget);
     uint updatedHash() const;
@@ -332,9 +332,10 @@ enum ProToken {
 class QMAKE_EXPORT ProFile
 {
 public:
-    explicit ProFile(const QString &fileName);
+    ProFile(int id, const QString &fileName);
     ~ProFile();
 
+    int id() const { return m_id; }
     QString fileName() const { return m_fileName; }
     QString directoryName() const { return m_directoryName; }
     const QString &items() const { return m_proitems; }
@@ -359,6 +360,7 @@ private:
     QString m_proitems;
     QString m_fileName;
     QString m_directoryName;
+    int m_id;
     bool m_ok;
     bool m_hostBuild;
 };

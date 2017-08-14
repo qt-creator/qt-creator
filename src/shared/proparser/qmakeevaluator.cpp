@@ -268,13 +268,13 @@ void QMakeEvaluator::skipHashStr(const ushort *&tokPtr)
 
 // FIXME: this should not build new strings for direct sections.
 // Note that the E_SPRINTF and E_LIST implementations rely on the deep copy.
-ProStringList QMakeEvaluator::split_value_list(const QStringRef &vals, const ProFile *source)
+ProStringList QMakeEvaluator::split_value_list(const QStringRef &vals, int source)
 {
     QString build;
     ProStringList ret;
 
     if (!source)
-        source = currentProFile();
+        source = currentFileId();
 
     const QChar *vals_data = vals.data();
     const int vals_len = vals.length();
@@ -1311,7 +1311,7 @@ void QMakeEvaluator::setupProject()
 {
     setTemplate();
     ProValueMap &vars = m_valuemapStack.top();
-    ProFile *proFile = currentProFile();
+    int proFile = currentFileId();
     vars[ProKey("TARGET")] << ProString(QFileInfo(currentFileName()).baseName()).setSource(proFile);
     vars[ProKey("_PRO_FILE_")] << ProString(currentFileName()).setSource(proFile);
     vars[ProKey("_PRO_FILE_PWD_")] << ProString(currentDirectory()).setSource(proFile);
@@ -1321,7 +1321,7 @@ void QMakeEvaluator::setupProject()
 void QMakeEvaluator::evaluateCommand(const QString &cmds, const QString &where)
 {
     if (!cmds.isEmpty()) {
-        ProFile *pro = m_parser->parsedProBlock(QStringRef(&cmds), where, -1);
+        ProFile *pro = m_parser->parsedProBlock(QStringRef(&cmds), 0, where, -1);
         if (pro->isOk()) {
             m_locationStack.push(m_current);
             visitProBlock(pro, pro->tokPtr());
@@ -1605,6 +1605,14 @@ ProFile *QMakeEvaluator::currentProFile() const
     return 0;
 }
 
+int QMakeEvaluator::currentFileId() const
+{
+    ProFile *pro = currentProFile();
+    if (pro)
+        return pro->id();
+    return 0;
+}
+
 QString QMakeEvaluator::currentFileName() const
 {
     ProFile *pro = currentProFile();
@@ -1819,7 +1827,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditional(
         const QStringRef &cond, const QString &where, int line)
 {
     VisitReturn ret = ReturnFalse;
-    ProFile *pro = m_parser->parsedProBlock(cond, where, line, QMakeParser::TestGrammar);
+    ProFile *pro = m_parser->parsedProBlock(cond, 0, where, line, QMakeParser::TestGrammar);
     if (pro->isOk()) {
         m_locationStack.push(m_current);
         ret = visitProBlock(pro, pro->tokPtr());

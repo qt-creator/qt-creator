@@ -55,7 +55,7 @@ public:
 
     struct SourceFile {
         QString fileName;
-        const ProFile *proFile;
+        int proFileId;
     };
 
     // Call this from a concurrency-free context
