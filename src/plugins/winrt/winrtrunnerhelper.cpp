@@ -183,8 +183,14 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
         break;
     }
 
-    if (m_device->type() == Constants::WINRT_DEVICE_TYPE_LOCAL)
+    switch (m_device->type()) {
+    case Constants::WINRT_DEVICE_TYPE_LOCAL:
         QtcProcess::addArgs(&runnerArgs, QStringLiteral("--profile appx"));
+        break;
+    case Constants::WINRT_DEVICE_TYPE_PHONE:
+        QtcProcess::addArgs(&runnerArgs, QStringLiteral("--profile appxphone"));
+        break;
+    }
 
     QtcProcess::addArg(&runnerArgs, m_executableFilePath);
     if (!m_arguments.isEmpty())
