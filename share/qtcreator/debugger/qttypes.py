@@ -75,10 +75,7 @@ def qdump__QArrayData(d, value):
     d.check(alloc == 0 or (0 <= size and size <= alloc and alloc <= 100000000))
     d.putValue(d.readMemory(data, size), 'latin1')
     d.putNumChild(1)
-    if d.isExpanded():
-        with Children(d):
-            d.putIntItem('size', size)
-            d.putIntItem('alloc', alloc)
+    d.putPlainChildren(value)
 
 def qdump__QByteArrayData(d, value):
     qdump__QArrayData(d, value)
@@ -1369,8 +1366,9 @@ def qdump__QStringData(d, value):
     (ref, size, alloc, pad, offset) = value.split('III@p')
     elided, shown = d.computeLimit(size, d.displayStringLimit)
     data = d.readMemory(value.address() + offset, shown * 2)
-    d.putNumChild(0)
     d.putValue(data, 'utf16', elided=elided)
+    d.putNumChild(1)
+    d.putPlainChildren(value)
 
 def qdump__QHashedString(d, value):
     qdump__QString(d, value)
