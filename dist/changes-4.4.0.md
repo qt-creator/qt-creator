@@ -16,7 +16,8 @@ General
 
 Editing
 
-* Added inline annotations for errors, warnings and bookmarks
+* Added optional inline annotations for Clang code model errors and warnings,
+  and bookmarks
 * Added optional smooth scrolling when navigating within the same file
   (for example with Locator or `Follow Symbol Under Cursor`)
 * Added overridable `DeleteStartOfLine` and `DeleteEndOfLine` actions
@@ -38,10 +39,13 @@ CMake Projects
   (QTCREATORBUG-17973)
 * Added warning when detecting `CMakeCache.txt` in source directory even though
   build is configured for out-of-source build (QTCREATORBUG-18381)
+* Fixed `CMake configuration has changed on disk` dialog (QTCREATORBUG-18292)
 * CMake >= 3.7
+    * Improved handling of `CMAKE_RUNTIME_OUTPUT_DIRECTORY` (QTCREATORBUG-18158)
+    * Removed `<Source Directory>` node from project tree
     * Fixed that headers from top level directory were not shown in project tree
       (QTCREATORBUG-17760)
-    * Improved handling of `CMAKE_RUNTIME_OUTPUT_DIRECTORY` (QTCREATORBUG-18158)
+    * Fixed progress information (QTCREATORBUG-18624)
 
 Qbs Projects
 
@@ -58,6 +62,7 @@ C++ Support
   (QTCREATORBUG-2818, QTCREATORBUG-18004)
 * Fixed highlighting of raw string literals (QTCREATORBUG-17720)
 * Fixed `Add #include` refactoring action for static functions
+* Fixed crash when parsing invalid C++ code (QTCREATORBUG-18499)
 * Clang Code Model
     * Added highlighting of identifier under cursor, which was still
       delegated to built-in code model
@@ -80,6 +85,8 @@ C++ Support
 QML Support
 
 * Updated QML parser to newer QML version (QTCREATORBUG-17842)
+* Fixed crash in QML `Outline` pane
+* Fixed that auto-completion could overwrite text (QTCREATORBUG-18449)
 
 Debugging
 
@@ -88,10 +95,16 @@ Debugging
   and `boost::variant`
 * Improved display of enum bitfields
 * Fixed support for `long double` (QTCREATORBUG-18023)
+* Fixed editing of strings (QTCREATORBUG-18681)
 * CDB
     * Added support for extra debugging helpers and debugging helper
       customization
     * Added warning if run configuration uses unsupported shell command
+
+QML Profiler
+
+* Fixed that timeline could stay empty after analyzing small range
+  (QTCREATORBUG-18354)
 
 Version Control Systems
 
@@ -99,6 +112,7 @@ Version Control Systems
   (QTCREATORBUG-17735)
 * Git
     * Improved branch listing in `Show` (QTCREATORBUG-16949)
+    * Made `git grep` for file system search recurse into submodules
 * Gerrit
     * Added validation of server certificate when using REST API
     * Fixed that non-Gerrit remotes were shown in `Push to Gerrit` dialog
@@ -108,6 +122,7 @@ Version Control Systems
 
 Diff Viewer
 
+* Improved performance
 * Fixed state of actions in `Edit` menu
 * Fixed that context information for chunks was not shown in side-by-side view
   (QTCREATORBUG-18289)
@@ -118,6 +133,7 @@ Test Integration
 * Added view with complete, unprocessed test output
 * Made it possible to enable and disable all tests using a specific test
   framework
+* Fixed wrong location of results for tests with same name (QTCREATORBUG-18502)
 * QTest
     * Added option to run verbose and with logging of signals and slots
       (`-vb` and `-vs`)
@@ -127,11 +143,21 @@ Beautifier
 * Added option for using a different AStyle configuration file
 * Added option for fallback style for `clang-format`
 
+Model Editor
+
+* Fixed crash with invalid files (QTCREATORBUG-18526)
+* Fixed crash when dropping package into itself (QTCREATORBUG-18262)
+
 Platform Specific
 
 Windows
 
 * Removed support for Windows CE
+
+macOS
+
+* Fixed that some context menu items in Qt Quick Designer did nothing
+  (QTCREATORBUG-18662)
 
 Android
 
@@ -145,6 +171,10 @@ iOS
 Remote Linux
 
 * Added support for `ssh-agent` (QTCREATORBUG-16245)
+
+WinRT
+
+* Fixed deployment to Windows 10 Mobile devices (QTCREATORBUG-18728)
 
 Credits for these changes go to:  
 Alessandro Portale  
