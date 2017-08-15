@@ -25,16 +25,18 @@
 #pragma once
 
 #include "qmleventlocation.h"
-#include "qmlprofilertool.h"
 #include <texteditor/textmark.h>
 
 namespace QmlProfiler {
 namespace Internal {
 
+class QmlProfilerViewManager;
+
 class QmlProfilerTextMark : public TextEditor::TextMark
 {
 public:
-    QmlProfilerTextMark(QmlProfilerTool *tool, int typeId, const QString &fileName, int lineNumber);
+    QmlProfilerTextMark(QmlProfilerViewManager *viewManager, int typeId,
+                        const QString &fileName, int lineNumber);
     void addTypeId(int typeId);
 
     void paintIcon(QPainter *painter, const QRect &rect) const override;
@@ -43,7 +45,7 @@ public:
     bool addToolTipContent(QLayout *target) const override;
 
 private:
-    QmlProfilerTool *m_tool;
+    QmlProfilerViewManager *m_viewManager;
     QVector<int> m_typeIds;
 };
 
@@ -55,7 +57,7 @@ public:
 
     void clear();
     void addTextMarkId(int typeId, const QmlEventLocation &location);
-    void createMarks(QmlProfilerTool *tool, const QString &fileName);
+    void createMarks(QmlProfilerViewManager *viewManager, const QString &fileName);
 
 private:
     struct TextMarkId {

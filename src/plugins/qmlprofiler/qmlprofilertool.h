@@ -55,9 +55,6 @@ public:
     bool prepareTool();
     void attachToWaitingApplication();
 
-    QString summary(const QVector<int> &typeIds) const;
-    QStringList details(int typeId) const;
-
     static QList <QAction *> profilerContextMenuActions();
 
     // display dialogs / log output
@@ -76,7 +73,6 @@ public slots:
     void recordingButtonChanged(bool recording);
 
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber);
-    void selectType(int typeId);
 
 private slots:
     void clearData();

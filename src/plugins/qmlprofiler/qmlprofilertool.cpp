@@ -290,7 +290,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
         connect(editorManager, &EditorManager::editorCreated,
                 model, [this, model](Core::IEditor *editor, const QString &fileName) {
             Q_UNUSED(editor);
-            model->createMarks(this, fileName);
+            model->createMarks(d->m_viewContainer, fileName);
         });
     }
 
@@ -437,11 +437,6 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber,
                 EditorManager::DoNotSwitchToDesignMode | EditorManager::DoNotSwitchToEditMode);
 }
 
-void QmlProfilerTool::selectType(int typeId)
-{
-    d->m_viewContainer->typeSelected(typeId);
-}
-
 void QmlProfilerTool::updateTimeDisplay()
 {
     double seconds = 0;
@@ -500,7 +495,7 @@ void QmlProfilerTool::createTextMarks()
 {
     QmlProfilerTextMarkModel *model = d->m_profilerModelManager->textMarkModel();
     foreach (IDocument *document, DocumentModel::openedDocuments())
-        model->createMarks(this, document->filePath().toString());
+        model->createMarks(d->m_viewContainer, document->filePath().toString());
 }
 
 void QmlProfilerTool::clearTextMarks()
@@ -567,16 +562,6 @@ void QmlProfilerTool::attachToWaitingApplication()
     profiler->setServerUrl(serverUrl);
 
     ProjectExplorerPlugin::startRunControl(runControl);
-}
-
-QString QmlProfilerTool::summary(const QVector<int> &typeIds) const
-{
-    return d->m_viewContainer->statisticsView()->summary(typeIds);
-}
-
-QStringList QmlProfilerTool::details(int typeId) const
-{
-    return d->m_viewContainer->statisticsView()->details(typeId);
 }
 
 void QmlProfilerTool::logState(const QString &msg)
