@@ -57,6 +57,7 @@ public:
     const AndroidRunnable &runnable() const { return m_androidRunnable; }
 
     Utils::Port gdbServerPort() const { return m_gdbServerPort; }
+    QString qmlServerHost() const { return m_qmlServerHost; }
     Utils::Port qmlServerPort() const { return m_qmlServerPort; }
     Utils::ProcessHandle pid() const { return m_pid; }
 
@@ -76,7 +77,8 @@ private:
     void remoteOutput(const QString &output);
     void remoteErrorOutput(const QString &output);
     void gotRemoteOutput(const QString &output);
-    void handleRemoteProcessStarted(Utils::Port gdbServerPort, Utils::Port qmlServerPort, int pid);
+    void handleRemoteProcessStarted(Utils::Port gdbServerPort, Utils::Port qmlServerPort,
+                                    QString qmlServerHost, int pid);
     void handleRemoteProcessFinished(const QString &errString = QString());
     void checkAVD();
     void launchAVD();
@@ -88,6 +90,7 @@ private:
     QScopedPointer<AndroidRunnerWorker> m_worker;
     QPointer<ProjectExplorer::Target> m_target;
     Utils::Port m_gdbServerPort;
+    QString m_qmlServerHost;
     Utils::Port m_qmlServerPort;
     Utils::ProcessHandle m_pid;
     QmlDebug::QmlOutputParser m_outputParser;
