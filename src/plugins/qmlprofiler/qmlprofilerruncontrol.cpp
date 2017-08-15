@@ -64,7 +64,7 @@ static QString QmlServerUrl = "QmlServerUrl";
 class QmlProfilerRunner::QmlProfilerRunnerPrivate
 {
 public:
-    QmlProfilerStateManager *m_profilerState = 0;
+    QPointer<QmlProfilerStateManager> m_profilerState;
 };
 
 //
