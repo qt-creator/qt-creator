@@ -57,20 +57,21 @@ std::vector<FilePathIndex> MockSqliteReadStatement::values<FilePathIndex>(std::s
 }
 
 template <>
-std::vector<std::tuple<int64_t, int64_t, int64_t>>
-MockSqliteReadStatement::tupleValues<int64_t, int64_t, int64_t>(
+std::vector<Location>
+MockSqliteReadStatement::structValues<Location, qint64, qint64, qint64>(
         std::size_t reserveSize,
         const Utils::PathString &sourcePath,
         const uint &line,
         const uint &column)
 {
-    return valuesReturnStdVectorTupleInt64Int64Int64(reserveSize, sourcePath, line, column);
+    return structValuesReturnStdVectorLocation(reserveSize, sourcePath, line, column);
 }
 
 template <>
-std::vector<std::tuple<int64_t, Utils::PathString>>
-MockSqliteReadStatement::tupleValues<int64_t, Utils::PathString>(std::size_t reserveSize,
-                                                                 const std::vector<int64_t> &sourceIds)
+std::vector<Source>
+MockSqliteReadStatement::structValues<Source, qint64, Utils::PathString>(
+        std::size_t reserveSize,
+        const std::vector<qint64> &sourceIds)
 {
-    return valuesReturnStdVectorTupleInt64PathString(reserveSize, sourceIds);
+    return structValuesReturnStdVectorSource(reserveSize, sourceIds);
 }

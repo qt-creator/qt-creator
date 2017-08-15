@@ -71,8 +71,10 @@ SOURCES += \
     unittests-main.cpp \
     utf8-test.cpp \
     symbolstorage-test.cpp \
+    mocksqlitereadstatement.cpp \
+    symbolquery-test.cpp \
     storagesqlitestatementfactory-test.cpp \
-    mocksqlitereadstatement.cpp
+    querysqlitestatementfactory-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \

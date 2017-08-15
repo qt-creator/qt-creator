@@ -15,7 +15,10 @@ HEADERS += \
     clangqueryexampletexteditorwidget.h \
     clangquerytexteditorwidget.h \
     baseclangquerytexteditorwidget.h \
-    clangqueryhoverhandler.h
+    clangqueryhoverhandler.h \
+    symbolquery.h \
+    querysqlitestatementfactory.h \
+    sourcelocations.h
 
 SOURCES += \
     clangrefactoringplugin.cpp \
@@ -26,7 +29,8 @@ SOURCES += \
     clangqueryexampletexteditorwidget.cpp \
     clangquerytexteditorwidget.cpp \
     baseclangquerytexteditorwidget.cpp \
-    clangqueryhoverhandler.cpp
+    clangqueryhoverhandler.cpp \
+    symbolquery.cpp
 
 FORMS += \
     clangqueryprojectsfindfilter.ui
