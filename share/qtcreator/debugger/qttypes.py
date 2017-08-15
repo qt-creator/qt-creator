@@ -46,6 +46,11 @@ def qform__QByteArray():
     return [Latin1StringFormat, SeparateLatin1StringFormat,
             Utf8StringFormat, SeparateUtf8StringFormat ]
 
+def qedit__QByteArray(d, value, data):
+    d.call('void', value, 'resize', str(len(data)))
+    (base, size, alloc) = d.stringData(value)
+    d.setValues(base, 'char', [ord(c) for c in data])
+
 def qdump__QByteArray(d, value):
     data, size, alloc = d.byteArrayData(value)
     d.check(alloc == 0 or (0 <= size and size <= alloc and alloc <= 100000000))
@@ -1776,17 +1781,9 @@ def qdump__QVariant(d, value):
 
 def qedit__QVector(d, value, data):
     values = data.split(',')
-    size = len(values)
-    d.call('void', value, 'resize', str(size))
-    innerType = value.type[0]
-    try:
-        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
-        offset = value['d']['offset']
-        base = value['d'].address() + offset
-    except:
-        # Qt 4.
-        base = value['p']['array'].pointer()
-    d.setValues(base, innerType, values)
+    d.call('void', value, 'resize', str(len(values)))
+    base, vsize, valloc = d.vectorDataHelper(d.extractPointer(value))
+    d.setValues(base, value.type[0].name, values)
 
 
 def qform__QVector():

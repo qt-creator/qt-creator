@@ -94,8 +94,9 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest) const
 {
     const JobRequest::ExpirationReasons expirationReasons = jobRequest.expirationReasons;
     const UnsavedFiles unsavedFiles = m_documents.unsavedFiles();
+    using ExpirationReason = JobRequest::ExpirationReason;
 
-    if (expirationReasons.testFlag(JobRequest::UnsavedFilesChanged)) {
+    if (expirationReasons.testFlag(ExpirationReason::UnsavedFilesChanged)) {
         if (jobRequest.unsavedFilesChangeTimePoint != unsavedFiles.lastChangeTimePoint()) {
             qCDebug(jobsLog) << "Removing due to outdated unsaved files:" << jobRequest;
             return true;
@@ -104,7 +105,7 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest) const
 
     bool projectCheckedAndItExists = false;
 
-    if (expirationReasons.testFlag(JobRequest::DocumentClosed)) {
+    if (expirationReasons.testFlag(ExpirationReason::DocumentClosed)) {
         if (!m_documents.hasDocument(jobRequest.filePath, jobRequest.projectPartId)) {
             qCDebug(jobsLog) << "Removing due to already closed document:" << jobRequest;
             return true;
@@ -123,7 +124,7 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest) const
             return true;
         }
 
-        if (expirationReasons.testFlag(JobRequest::DocumentRevisionChanged)) {
+        if (expirationReasons.testFlag(ExpirationReason::DocumentRevisionChanged)) {
             if (document.documentRevision() > jobRequest.documentRevision) {
                 qCDebug(jobsLog) << "Removing due to changed document revision:" << jobRequest;
                 return true;
@@ -131,7 +132,7 @@ bool JobQueue::isJobRequestExpired(const JobRequest &jobRequest) const
         }
     }
 
-    if (expirationReasons.testFlag(JobRequest::ProjectChanged)) {
+    if (expirationReasons.testFlag(ExpirationReason::ProjectChanged)) {
         if (!projectCheckedAndItExists && !m_projectParts.hasProjectPart(jobRequest.projectPartId)) {
             qCDebug(jobsLog) << "Removing due to already closed project:" << jobRequest;
             return true;
@@ -173,6 +174,48 @@ void JobQueue::prioritizeRequests()
     std::stable_sort(m_queue.begin(), m_queue.end(), lessThan);
 }
 
+static bool passesPreconditions(const JobRequest &request, const Document &document)
+{
+    using Condition = JobRequest::Condition;
+    const JobRequest::Conditions conditions = request.conditions;
+
+    if (conditions.testFlag(Condition::DocumentSuspended) && !document.isSuspended()) {
+        qCDebug(jobsLog) << "Not choosing due to unsuspended document:" << request;
+        return false;
+    }
+
+    if (conditions.testFlag(Condition::DocumentUnsuspended) && document.isSuspended()) {
+        qCDebug(jobsLog) << "Not choosing due to suspended document:" << request;
+        return false;
+    }
+
+    if (conditions.testFlag(Condition::DocumentVisible) && !document.isVisibleInEditor()) {
+        qCDebug(jobsLog) << "Not choosing due to invisble document:" << request;
+        return false;
+    }
+
+    if (conditions.testFlag(Condition::DocumentNotVisible) && document.isVisibleInEditor()) {
+        qCDebug(jobsLog) << "Not choosing due to visble document:" << request;
+        return false;
+    }
+
+    if (conditions.testFlag(Condition::CurrentDocumentRevision)) {
+        if (document.isDirty()) {
+            // TODO: If the document is dirty due to a project update,
+            // references are processes later than ideal.
+            qCDebug(jobsLog) << "Not choosing due to dirty document:" << request;
+            return false;
+        }
+
+        if (request.documentRevision != document.documentRevision()) {
+            qCDebug(jobsLog) << "Not choosing due to revision mismatch:" << request;
+            return false;
+        }
+    }
+
+    return true;
+}
+
 JobRequests JobQueue::takeJobRequestsToRunNow()
 {
     JobRequests jobsToRun;
@@ -187,7 +230,7 @@ JobRequests JobQueue::takeJobRequestsToRunNow()
             const Document &document = m_documents.document(request.filePath,
                                                             request.projectPartId);
 
-            if (!document.isUsedByCurrentEditor() && !document.isVisibleInEditor())
+            if (!passesPreconditions(request, document))
                 continue;
 
             const Utf8String id = document.translationUnit(request.preferredTranslationUnit).id();
@@ -196,20 +239,6 @@ JobRequests JobQueue::takeJobRequestsToRunNow()
 
             if (isJobRunningForTranslationUnit(id))
                 continue;
-
-            if (request.conditions.testFlag(JobRequest::Condition::CurrentDocumentRevision)) {
-                if (document.isDirty()) {
-                    // TODO: If the document is dirty due to a project update,
-                    // references are processes later than ideal.
-                    qCDebug(jobsLog) << "Not choosing due to dirty document:" << request;
-                    continue;
-                }
-
-                if (request.documentRevision != document.documentRevision()) {
-                    qCDebug(jobsLog) << "Not choosing due to revision mismatch:" << request;
-                    continue;
-                }
-            }
 
             translationUnitsScheduledForThisRun.insert(id);
             jobsToRun += request;

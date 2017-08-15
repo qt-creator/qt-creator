@@ -99,7 +99,7 @@ AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl)
 {
     setDisplayName("AndroidDebugger");
     m_runner = new AndroidRunner(runControl);
-    addDependency(m_runner);
+    addStartDependency(m_runner);
 }
 
 void AndroidDebugSupport::start()

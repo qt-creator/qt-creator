@@ -256,8 +256,8 @@ DebuggerEngine *createEngine(DebuggerEngineType cppEngineType,
         if (cppEngine) {
             engine = createQmlCppEngine(cppEngine, useTerminal);
         } else {
-            errors->append(DebuggerPlugin::tr("The slave debugging engine required for combined "
-                              "QML/C++-Debugging could not be created: %1"));
+            errors->append(DebuggerPlugin::tr("The debugging engine required for combined "
+                              "QML/C++ debugging could not be created: %1"));
         }
         break;
     }
@@ -266,7 +266,7 @@ DebuggerEngine *createEngine(DebuggerEngineType cppEngineType,
                        .arg(engineTypeName(et)));
     }
     if (!engine)
-        errors->append(DebuggerPlugin::tr("Unable to create a debugger engine of the type \"%1\"").
+        errors->append(DebuggerPlugin::tr("Unable to create a debugging engine of the type \"%1\"").
                        arg(engineTypeName(et)));
     return engine;
 }
@@ -282,7 +282,7 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
 
     // Extract as much as possible from available RunConfiguration.
     const Runnable runnable = runConfig->runnable();
-    if (runnable.is<StandardRunnable>()) {
+    if (rp.needFixup && runnable.is<StandardRunnable>()) {
         // FIXME: Needed for core dump which stores the executable in inferior, but not in runConfig
         // executable.
         const QString prevExecutable = rp.inferior.executable;
@@ -295,7 +295,7 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
     }
 
     // We might get an executable from a local PID.
-    if (rp.inferior.executable.isEmpty() && rp.attachPID.isValid()) {
+    if (rp.needFixup && rp.inferior.executable.isEmpty() && rp.attachPID.isValid()) {
         foreach (const DeviceProcessItem &p, DeviceProcessList::localProcesses()) {
             if (p.pid == rp.attachPID.pid()) {
                 rp.inferior.executable = p.exe;
@@ -313,14 +313,16 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
     if (!envBinary.isEmpty())
         rp.debugger.executable = QString::fromLocal8Bit(envBinary);
 
-    if (auto envAspect = runConfig->extraAspect<EnvironmentAspect>()) {
-        rp.inferior.environment = envAspect->environment(); // Correct.
-        rp.stubEnvironment = rp.inferior.environment; // FIXME: Wrong, but contains DYLD_IMAGE_SUFFIX
+    if (rp.needFixup) {
+        if (auto envAspect = runConfig->extraAspect<EnvironmentAspect>()) {
+            rp.inferior.environment = envAspect->environment(); // Correct.
+            rp.stubEnvironment = rp.inferior.environment; // FIXME: Wrong, but contains DYLD_IMAGE_SUFFIX
 
-        // Copy over DYLD_IMAGE_SUFFIX etc
-        for (auto var : QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"}))
-            if (rp.inferior.environment.hasKey(var))
-                rp.debugger.environment.set(var, rp.inferior.environment.value(var));
+            // Copy over DYLD_IMAGE_SUFFIX etc
+            for (auto var : QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"}))
+                if (rp.inferior.environment.hasKey(var))
+                    rp.debugger.environment.set(var, rp.inferior.environment.value(var));
+        }
     }
     if (Project *project = runConfig->target()->project()) {
         rp.projectSourceDirectory = project->projectDirectory().toString();
@@ -623,7 +625,7 @@ RunConfiguration *dummyRunConfigForKit(ProjectExplorer::Kit *kit)
     QTC_ASSERT(kit, return nullptr); // Caller needs to look for a suitable kit.
     Project *project = SessionManager::startupProject();
     Target *target = project ? project->target(kit) : nullptr;
-    if (!target) {
+    if (!target || !target->activeRunConfiguration()) {
         project = new DummyProject;
         target = project->createTarget(kit);
     }
@@ -685,7 +687,7 @@ void GdbServerPortsGatherer::handlePortListReady()
             return;
         }
     }
-    reportStarted();
+    reportDone();
 }
 
 // GdbServerRunner
@@ -731,7 +733,7 @@ void GdbServerRunner::start()
 
     setRunnable(r);
 
-    appendMessage(tr("Starting GDBserver..."), NormalMessageFormat);
+    appendMessage(tr("Starting gdbserver..."), NormalMessageFormat);
 
     SimpleTargetRunner::start();
 }

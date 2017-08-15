@@ -80,7 +80,11 @@ ClangStaticAnalyzerToolRunner::ClangStaticAnalyzerToolRunner(RunControl *runCont
     RunConfiguration *runConfiguration = runControl->runConfiguration();
     auto tool = ClangStaticAnalyzerTool::instance();
     tool->stopAction()->disconnect();
-    connect(tool->stopAction(), &QAction::triggered, runControl, &RunControl::initiateStop);
+    connect(tool->stopAction(), &QAction::triggered, runControl, [&] {
+        initiateStop();
+        appendMessage(tr("Clang Static Analyzer stopped by user."),
+                      Utils::NormalMessageFormat);
+    });
     tool->handleWorkerStart(this);
 
     ProjectInfo projectInfoBeforeBuild = tool->projectInfoBeforeBuild();
@@ -605,8 +609,6 @@ void ClangStaticAnalyzerToolRunner::stop()
     }
     m_runners.clear();
     m_unitsToProcess.clear();
-    appendMessage(tr("Clang Static Analyzer stopped by user."),
-                  Utils::NormalMessageFormat);
     m_progress.reportFinished();
     ClangStaticAnalyzerTool::instance()->onEngineFinished(m_success);
     reportStopped();

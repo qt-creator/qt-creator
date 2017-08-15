@@ -69,14 +69,11 @@ public:
 
 public slots:
     void profilerStateChanged();
-    void clientRecordingChanged();
     void serverRecordingChanged();
     void clientsDisconnected();
     void setAvailableFeatures(quint64 features);
     void setRecordedFeatures(quint64 features);
-
     void recordingButtonChanged(bool recording);
-    void setRecording(bool recording);
 
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber);
     void selectType(int typeId);

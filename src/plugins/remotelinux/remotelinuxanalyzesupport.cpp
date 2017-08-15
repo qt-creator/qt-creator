@@ -58,10 +58,15 @@ RemoteLinuxQmlProfilerSupport::RemoteLinuxQmlProfilerSupport(RunControl *runCont
     setDisplayName("RemoteLinuxQmlProfilerSupport");
 
     m_portsGatherer = new PortsGatherer(runControl);
-    addDependency(m_portsGatherer);
+    addStartDependency(m_portsGatherer);
+
+    // The ports gatherer can safely be stopped once the process is running, even though it has to
+    // be started before.
+    addStopDependency(m_portsGatherer);
 
     m_profiler = runControl->createWorker(runControl->runMode());
-    m_profiler->addDependency(this);
+    m_profiler->addStartDependency(this);
+    addStopDependency(m_profiler);
 }
 
 void RemoteLinuxQmlProfilerSupport::start()
@@ -102,7 +107,7 @@ RemoteLinuxPerfSupport::RemoteLinuxPerfSupport(RunControl *runControl)
             .join(' ');
 
     auto toolRunner = runControl->createWorker(runControl->runMode());
-    toolRunner->addDependency(this);
+    toolRunner->addStartDependency(this);
 //    connect(&m_outputGatherer, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
 //            this, &RemoteLinuxPerfSupport::remoteIsRunning);
 

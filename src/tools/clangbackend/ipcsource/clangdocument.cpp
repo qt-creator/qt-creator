@@ -71,6 +71,8 @@ public:
 
     uint documentRevision = 0;
 
+    TimePoint visibleTimePoint;
+
     TimePoint isDirtyChangeTimePoint;
     bool isDirty = false;
 
@@ -78,6 +80,7 @@ public:
     bool isUsedByCurrentEditor = false;
     bool isVisibleInEditor = false;
     bool increaseResponsiveness = false;
+    bool isSuspended = false;
 };
 
 DocumentData::DocumentData(const Utf8String &filePath,
@@ -224,6 +227,20 @@ void Document::setResponsivenessIncreaseNeeded(bool responsivenessIncreaseNeeded
     d->increaseResponsiveness = responsivenessIncreaseNeeded;
 }
 
+bool Document::isSuspended() const
+{
+    checkIfNull();
+
+    return d->isSuspended;
+}
+
+void Document::setIsSuspended(bool isSuspended)
+{
+    checkIfNull();
+
+    d->isSuspended = isSuspended;
+}
+
 bool Document::isUsedByCurrentEditor() const
 {
     checkIfNull();
@@ -245,11 +262,20 @@ bool Document::isVisibleInEditor() const
     return d->isVisibleInEditor;
 }
 
-void Document::setIsVisibleInEditor(bool isVisibleInEditor)
+void Document::setIsVisibleInEditor(bool isVisibleInEditor, const TimePoint &timePoint)
 {
     checkIfNull();
 
+    if (isVisibleInEditor)
+        d->visibleTimePoint = timePoint;
     d->isVisibleInEditor = isVisibleInEditor;
+}
+
+TimePoint Document::visibleTimePoint() const
+{
+    checkIfNull();
+
+    return d->visibleTimePoint;;
 }
 
 bool Document::isDirty() const

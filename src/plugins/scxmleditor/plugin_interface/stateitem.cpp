@@ -306,7 +306,7 @@ void StateItem::createContextMenu(QMenu *menu)
 
     if (type() == ParallelType) {
         data[Constants::C_SCXMLTAG_ACTIONTYPE] = TagUtils::Relayout;
-        menu->addAction(tr("Relayout"))->setData(data);
+        menu->addAction(tr("Re-Layout"))->setData(data);
     }
 
     menu->addSeparator();

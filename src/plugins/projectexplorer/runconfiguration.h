@@ -326,7 +326,8 @@ public:
 
     RunControl *runControl() const;
 
-    void addDependency(RunWorker *dependency);
+    void addStartDependency(RunWorker *dependency);
+    void addStopDependency(RunWorker *dependency);
 
     void setDisplayName(const QString &id) { setId(id); } // FIXME: Obsoleted by setId.
     void setId(const QString &id);
@@ -350,12 +351,16 @@ public:
     void initiateStop();
     void reportStopped();
 
+    void reportDone();
+
     void reportFailure(const QString &msg = QString());
     void setSupportsReRunning(bool reRunningSupported);
     bool supportsReRunning() const;
-    bool hasFailed() const;
 
     static QString userMessageForProcessError(QProcess::ProcessError, const QString &programName);
+
+    bool isEssential() const;
+    void setEssential(bool essential);
 
 signals:
     void started();

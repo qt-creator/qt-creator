@@ -8,31 +8,6 @@
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
    <valuemap type="QVariantMap" key="PE.Profile.Data">
     <value type="QString" key="Android.GdbServer.Information"></value>
-    <value type="QString" key="Debugger.Information">{2f514661-b9f7-4f83-8822-a9a9d0699600}</value>
-    <value type="QString" key="PE.Profile.Device">Desktop Device</value>
-    <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
-    <value type="QString" key="PE.Profile.SysRoot"></value>
-    <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Gcc:{c3f59b87-6997-4bd8-8067-ee04dc536371}</value>
-    <valuemap type="QVariantMap" key="PE.Profile.ToolChains">
-     <value type="QByteArray" key="C">{461bb8dc-22ff-461f-82fe-ebe8b21b697f}</value>
-     <value type="QString" key="Cxx">ProjectExplorer.ToolChain.Gcc:{c3f59b87-6997-4bd8-8067-ee04dc536371}</value>
-    </valuemap>
-    <value type="QString" key="QtPM4.mkSpecInformation"></value>
-    <value type="int" key="QtSupport.QtInformation">4</value>
-   </valuemap>
-   <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
-   <value type="QString" key="PE.Profile.Id">{4d9ea3ed-a7f0-4b0e-885f-da3b82931988}</value>
-   <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Desktop 474 GCC</value>
-   <value type="bool" key="PE.Profile.SDK">false</value>
-  </valuemap>
- </data>
- <data>
-  <variable>Profile.1</variable>
-  <valuemap type="QVariantMap">
-   <value type="bool" key="PE.Profile.AutoDetected">false</value>
-   <valuemap type="QVariantMap" key="PE.Profile.Data">
-    <value type="QString" key="Android.GdbServer.Information"></value>
     <value type="QString" key="Debugger.Information">{70e26273-2c0b-4534-bbc0-eb6ca670821a}</value>
     <value type="QString" key="PE.Profile.Device">{7c5a3673-e300-4286-9666-0f86d3e3dc38}</value>
     <value type="QByteArray" key="PE.Profile.DeviceType">GenericLinuxOsType</value>
@@ -53,7 +28,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>Profile.2</variable>
+  <variable>Profile.1</variable>
   <valuemap type="QVariantMap">
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
    <value type="QString" key="PE.Profile.AutoDetectionSource"></value>
@@ -80,7 +55,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>Profile.3</variable>
+  <variable>Profile.2</variable>
   <valuemap type="QVariantMap">
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
    <valuemap type="QVariantMap" key="PE.Profile.Data">
@@ -100,12 +75,12 @@
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{1dcb5509-1670-470d-80a5-8a988f36e4e2}</value>
    <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Desktop 480 GCC</value>
+   <value type="QString" key="PE.Profile.Name">Desktop 487 default</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
   </valuemap>
  </data>
  <data>
-  <variable>Profile.4</variable>
+  <variable>Profile.3</variable>
   <valuemap type="QVariantMap">
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
    <value type="QString" key="PE.Profile.AutoDetectionSource"></value>
@@ -133,7 +108,7 @@
  </data>
  <data>
   <variable>Profile.Count</variable>
-  <value type="int">5</value>
+  <value type="int">4</value>
  </data>
  <data>
   <variable>Profile.Default</variable>

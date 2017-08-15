@@ -1387,6 +1387,8 @@ void ClassOrNamespace::instantiateNestedClasses(ClassOrNamespace *enclosingTempl
 void ClassOrNamespace::NestedClassInstantiator::instantiate(ClassOrNamespace *enclosingTemplateClass,
                                                 ClassOrNamespace *enclosingTemplateClassInstantiation)
 {
+    if (_alreadyConsideredNestedClassInstantiations.size() >= 3)
+        return;
     if (_alreadyConsideredNestedClassInstantiations.contains(enclosingTemplateClass))
         return;
     _alreadyConsideredNestedClassInstantiations.insert(enclosingTemplateClass);

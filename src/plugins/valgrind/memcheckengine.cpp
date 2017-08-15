@@ -97,7 +97,7 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl, bool withGdb)
 
     // We need a real address to connect to from the outside.
     if (device()->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-        addDependency(new LocalAddressFinder(runControl, &m_localServerAddress));
+        addStartDependency(new LocalAddressFinder(runControl, &m_localServerAddress));
 }
 
 QString MemcheckToolRunner::progressTitle() const

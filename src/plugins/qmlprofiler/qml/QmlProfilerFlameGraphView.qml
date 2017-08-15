@@ -36,7 +36,6 @@ ScrollView {
     signal gotoSourceLocation(string filename, int line, int column)
 
     property int selectedTypeId: -1
-    property int visibleRangeTypes: -1
     property int sizeRole: QmlProfilerFlameGraphModel.DurationRole
 
     readonly property var trRoleNames: [
@@ -86,11 +85,9 @@ ScrollView {
 
                 property int typeId: FlameGraph.data(QmlProfilerFlameGraphModel.TypeIdRole) || -1
                 property bool isBindingLoop: parent.checkBindingLoop(typeId)
-                property bool rangeTypeVisible:
-                    root.visibleRangeTypes & (1 << FlameGraph.data(QmlProfilerFlameGraphModel.RangeTypeRole))
 
-                itemHeight: rangeTypeVisible ? flamegraph.delegateHeight : 0
-                isSelected: typeId !== -1 && typeId === root.selectedTypeId && rangeTypeVisible
+                itemHeight: flamegraph.delegateHeight
+                isSelected: typeId !== -1 && typeId === root.selectedTypeId
 
                 borderColor: {
                     if (isSelected)

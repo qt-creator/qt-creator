@@ -37,18 +37,16 @@ using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
 CMakeInputsNode::CMakeInputsNode(const Utils::FileName &cmakeLists) :
-    ProjectExplorer::ProjectNode(CMakeInputsNode::inputsPathFromCMakeListsPath(cmakeLists))
+    ProjectExplorer::ProjectNode(cmakeLists, generateId(cmakeLists))
 {
     setPriority(Node::DefaultPriority - 10); // Bottom most!
     setDisplayName(QCoreApplication::translate("CMakeFilesProjectNode", "CMake Modules"));
     setIcon(QIcon(":/projectexplorer/images/session.png")); // TODO: Use a better icon!
 }
 
-Utils::FileName CMakeInputsNode::inputsPathFromCMakeListsPath(const Utils::FileName &cmakeLists)
+QByteArray CMakeInputsNode::generateId(const Utils::FileName &inputFile)
 {
-    Utils::FileName result = cmakeLists;
-    result.appendPath("cmakeInputs"); // cmakeLists is a file, so this can not exist on disk
-    return result;
+    return inputFile.toString().toUtf8() + "/cmakeInputs";
 }
 
 bool CMakeInputsNode::showInSimpleTree() const
@@ -91,11 +89,16 @@ QString CMakeProjectNode::tooltip() const
     return QString();
 }
 
-CMakeTargetNode::CMakeTargetNode(const Utils::FileName &directory) :
-    ProjectExplorer::ProjectNode(directory)
+CMakeTargetNode::CMakeTargetNode(const Utils::FileName &directory, const QString &target) :
+    ProjectExplorer::ProjectNode(directory, generateId(directory, target))
 {
     setPriority(Node::DefaultProjectPriority + 900);
     setIcon(QIcon(":/projectexplorer/images/build.png")); // TODO: Use proper icon!
+}
+
+QByteArray CMakeTargetNode::generateId(const Utils::FileName &directory, const QString &target)
+{
+    return directory.toString().toUtf8() + "///::///" + target.toUtf8();
 }
 
 bool CMakeTargetNode::showInSimpleTree() const

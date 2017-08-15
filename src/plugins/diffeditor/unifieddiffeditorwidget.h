@@ -74,6 +74,7 @@ signals:
 
 protected:
     void mouseDoubleClickEvent(QMouseEvent *e) override;
+    void keyPressEvent(QKeyEvent *e) override;
     void contextMenuEvent(QContextMenuEvent *e) override;
     QString lineNumber(int blockNumber) const override;
     int lineNumberDigits() const override;

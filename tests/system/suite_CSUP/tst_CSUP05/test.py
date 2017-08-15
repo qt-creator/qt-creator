@@ -28,8 +28,8 @@ source("../../shared/qtcreator.py")
 # entry of test
 def main():
     # prepare example project
-    sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/animation/basics/property-animation")
-    proFile = "propertyanimation.pro"
+    sourceExample = os.path.abspath(qt4examplePath + "/declarative/animation/basics/property-animation")
+    proFile = "property-animation.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
         return
     # copy example project to temp directory
@@ -44,7 +44,7 @@ def main():
         progressBarWait(30000)
         checkCodeModelSettings(useClang)
         # open .cpp file in editor
-        if not openDocument("propertyanimation.Sources.main\\.cpp"):
+        if not openDocument("property-animation.Sources.main\\.cpp"):
             test.fatal("Could not open main.cpp")
             invokeMenuItem("File", "Exit")
             return

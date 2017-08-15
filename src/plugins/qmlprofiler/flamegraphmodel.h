@@ -91,6 +91,7 @@ public slots:
     void loadEvent(const QmlEvent &event, const QmlEventType &type);
     void finalize();
     void onModelManagerStateChanged();
+    void restrictToFeatures(quint64 visibleFeatures);
     void loadNotes(int typeId, bool emitSignal);
     void clear();
 
@@ -105,6 +106,7 @@ private:
     FlameGraphData *m_callStackTop;
     FlameGraphData *m_compileStackTop;
 
+    quint64 m_acceptedFeatures;
     int m_modelId;
     QmlProfilerModelManager *m_modelManager;
 

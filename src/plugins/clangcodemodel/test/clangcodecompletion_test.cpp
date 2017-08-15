@@ -799,7 +799,7 @@ void ClangCodeCompletionTest::testCompleteGlobals()
     ProjectLessCompletionTest t("globalCompletion.cpp");
 
     QVERIFY(hasItem(t.proposal, "globalVariable", "int globalVariable"));
-    QVERIFY(hasItem(t.proposal, "globalFunction", "void globalFunction ()"));
+    QVERIFY(hasItem(t.proposal, "globalFunction", "void globalFunction()"));
     QVERIFY(hasItem(t.proposal, "GlobalClass", "GlobalClass"));
     QVERIFY(hasItem(t.proposal, "class", "class"));    // Keyword
     QVERIFY(hasSnippet(t.proposal, "class")); // Snippet

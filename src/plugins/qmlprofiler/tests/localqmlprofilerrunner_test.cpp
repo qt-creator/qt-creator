@@ -25,16 +25,12 @@
 
 #include "localqmlprofilerrunner_test.h"
 
-#include "../qmlprofilerruncontrol.h"
-
 #include <debugger/analyzer/analyzermanager.h>
-
 #include <projectexplorer/runnables.h>
+#include <qmlprofiler/qmlprofilerruncontrol.h>
 
 #include <QtTest>
 #include <QTcpServer>
-
-using namespace ProjectExplorer;
 
 namespace QmlProfiler {
 namespace Internal {
@@ -43,83 +39,115 @@ LocalQmlProfilerRunnerTest::LocalQmlProfilerRunnerTest(QObject *parent) : QObjec
 {
 }
 
-void LocalQmlProfilerRunnerTest::start()
-{
-    delete runControl;
-    runControl = new ProjectExplorer::RunControl(nullptr, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    runControl->setRunnable(debuggee);
-    auto runner = new LocalQmlProfilerSupport(runControl, serverUrl);
-
-    connect(runner, &LocalQmlProfilerSupport::localRunnerStarted, this, [this] {
-        QVERIFY(!running);
-        ++runCount;
-        running = true;
-    });
-    connect(runner, &LocalQmlProfilerSupport::localRunnerStopped, this, [this] {
-        QVERIFY(running);
-        running = false;
-    });
-    runControl->initiateStart();
-}
-
 void LocalQmlProfilerRunnerTest::testRunner()
 {
+    QPointer<ProjectExplorer::RunControl> runControl;
+    QPointer<LocalQmlProfilerSupport> profiler;
+    ProjectExplorer::StandardRunnable debuggee;
+    QUrl serverUrl;
+
+    bool running = false;
+    bool started = false;
+    int startCount = 0;
+    int runCount = 0;
+    int stopCount = 0;
+
     debuggee.executable = "\\-/|\\-/";
     debuggee.environment = Utils::Environment::systemEnvironment();
 
     // should not be used anywhere but cannot be empty
     serverUrl.setPath("invalid");
 
-    start();
+    runControl = new ProjectExplorer::RunControl(nullptr,
+                                                 ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    runControl->setRunnable(debuggee);
+    profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
 
-    QTimer::singleShot(0, this, &LocalQmlProfilerRunnerTest::testRunner1);
-}
+    auto connectRunner = [&]() {
+        connect(runControl, &ProjectExplorer::RunControl::aboutToStart, this, [&]() {
+            QVERIFY(!started);
+            QVERIFY(!running);
+            ++startCount;
+            started = true;
+        });
+        connect(runControl, &ProjectExplorer::RunControl::started, this, [&]() {
+            QVERIFY(started);
+            QVERIFY(!running);
+            ++runCount;
+            running = true;
+        });
+        connect(runControl, &ProjectExplorer::RunControl::stopped, this, [&]() {
+            QVERIFY(started);
+            ++stopCount;
+            running = false;
+            started = false;
+        });
+        connect(runControl, &ProjectExplorer::RunControl::finished, this, [&]() {
+            running = false;
+            started = false;
+        });
+    };
 
-void LocalQmlProfilerRunnerTest::testRunner1()
-{
-    QTRY_COMPARE_WITH_TIMEOUT(runCount, 1, 10000);
-    QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
+    connectRunner();
 
-    serverUrl = urlFromLocalSocket();
+    runControl->initiateStart();
 
-    debuggee.executable = QCoreApplication::applicationFilePath();
+    QTRY_COMPARE_WITH_TIMEOUT(startCount, 1, 10000);
+    QTRY_VERIFY_WITH_TIMEOUT(!started, 10000);
+    QCOMPARE(stopCount, 1);
+    QCOMPARE(runCount, 0);
+
+    runControl->initiateFinish();
+    QTRY_VERIFY(runControl.isNull());
+    QVERIFY(profiler.isNull());
+
+    serverUrl = ProjectExplorer::urlFromLocalSocket();
+    debuggee.executable = qApp->applicationFilePath();
+
     // comma is used to specify a test function. In this case, an invalid one.
     debuggee.commandLineArguments = QString("-test QmlProfiler,");
+    runControl = new ProjectExplorer::RunControl(nullptr,
+                                                 ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    runControl->setRunnable(debuggee);
+    profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
+    connectRunner();
+    runControl->initiateStart();
 
-    start();
-
-    QTimer::singleShot(0, this, &LocalQmlProfilerRunnerTest::testRunner2);
-}
-
-void LocalQmlProfilerRunnerTest::testRunner2()
-{
-    QTRY_COMPARE_WITH_TIMEOUT(runCount, 2, 10000);
+    QTRY_VERIFY_WITH_TIMEOUT(running, 10000);
     QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
+    QCOMPARE(startCount, 2);
+    QCOMPARE(stopCount, 2);
+    QCOMPARE(runCount, 1);
+
+    runControl->initiateFinish();
+    QTRY_VERIFY(runControl.isNull());
+    QVERIFY(profiler.isNull());
 
     debuggee.commandLineArguments.clear();
-    serverUrl = urlFromLocalHostAndFreePort();
+    serverUrl.clear();
+    serverUrl = ProjectExplorer::urlFromLocalHostAndFreePort();
+    runControl = new ProjectExplorer::RunControl(nullptr,
+                                                 ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    runControl->setRunnable(debuggee);
+    profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
+    connectRunner();
+    runControl->initiateStart();
 
-    start();
-
-    QTimer::singleShot(0, this, &LocalQmlProfilerRunnerTest::testRunner3);
-}
-
-void LocalQmlProfilerRunnerTest::testRunner3()
-{
-    QTRY_COMPARE_WITH_TIMEOUT(runCount, 3, 10000);
+    QTRY_VERIFY_WITH_TIMEOUT(running, 10000);
     runControl->initiateStop();
-    QTimer::singleShot(0, this, &LocalQmlProfilerRunnerTest::testRunner4);
-}
-
-void LocalQmlProfilerRunnerTest::testRunner4()
-{
     QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
-    delete runControl;
+    QCOMPARE(startCount, 3);
+    QCOMPARE(stopCount, 3);
+    QCOMPARE(runCount, 2);
+
+    runControl->initiateFinish();
+    QTRY_VERIFY(runControl.isNull());
+    QVERIFY(profiler.isNull());
 }
 
 void LocalQmlProfilerRunnerTest::testFindFreePort()
 {
-    QUrl serverUrl = urlFromLocalHostAndFreePort();
+    QUrl serverUrl = ProjectExplorer::urlFromLocalHostAndFreePort();
     QVERIFY(serverUrl.port() != -1);
     QVERIFY(!serverUrl.host().isEmpty());
     QTcpServer server;
@@ -128,7 +156,7 @@ void LocalQmlProfilerRunnerTest::testFindFreePort()
 
 void LocalQmlProfilerRunnerTest::testFindFreeSocket()
 {
-    QUrl serverUrl = urlFromLocalSocket();
+    QUrl serverUrl = ProjectExplorer::urlFromLocalSocket();
     QString socket = serverUrl.path();
     QVERIFY(!socket.isEmpty());
     QVERIFY(!QFile::exists(socket));

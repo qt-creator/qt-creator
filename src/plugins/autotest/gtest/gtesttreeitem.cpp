@@ -295,7 +295,7 @@ QSet<QString> GTestTreeItem::internalTargets() const
     const auto projectInfo = cppMM->projectInfo(ProjectExplorer::SessionManager::startupProject());
     for (const CppTools::ProjectPart::Ptr projectPart : projectInfo.projectParts()) {
         if (projectPart->projectFile == proFile())
-            result.insert(projectPart->buildSystemTarget);
+            result.insert(projectPart->buildSystemTarget + '|' + projectPart->projectFile);
     }
     return result;
 }

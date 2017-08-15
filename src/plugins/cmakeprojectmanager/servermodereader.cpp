@@ -250,9 +250,12 @@ static void addCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, i
 {
     if (files.isEmpty())
         return;
-    auto folder = new VirtualFolderNode(basePath, priority);
-    folder->setDisplayName(displayName);
-    base->addNode(folder);
+    FolderNode *folder = base;
+    if (!displayName.isEmpty()) {
+        folder = new VirtualFolderNode(basePath, priority);
+        folder->setDisplayName(displayName);
+        base->addNode(folder);
+    }
     folder->addNestedNodes(files);
     for (FolderNode *fn : folder->folderNodes())
         fn->compress();
@@ -268,9 +271,7 @@ static void addCMakeInputs(FolderNode *root,
     ProjectNode *cmakeVFolder = new CMakeInputsNode(root->filePath());
     root->addNode(cmakeVFolder);
 
-    addCMakeVFolder(cmakeVFolder, sourceDir, 1000,
-                    QCoreApplication::translate("CMakeProjectManager::Internal::ServerModeReader", "<Source Directory>"),
-                    sourceInputs);
+    addCMakeVFolder(cmakeVFolder, sourceDir, 1000, QString(), sourceInputs);
     addCMakeVFolder(cmakeVFolder, buildDir, 100,
                     QCoreApplication::translate("CMakeProjectManager::Internal::ServerModeReader", "<Build Directory>"),
                     buildInputs);
@@ -336,7 +337,7 @@ void ServerModeReader::updateCodeModel(CppTools::RawProjectParts &rpps)
 
         CppTools::RawProjectPart rpp;
         rpp.setProjectFileLocation(fg->target->sourceDirectory.toString() + "/CMakeLists.txt");
-        rpp.setBuildSystemTarget(fg->target->name + '|' + rpp.projectFile);
+        rpp.setBuildSystemTarget(fg->target->name);
         rpp.setDisplayName(fg->target->name + QString::number(counter));
         rpp.setDefines(defineArg.toUtf8());
         rpp.setIncludePaths(includes);
@@ -757,12 +758,13 @@ static CMakeTargetNode *createTargetNode(const QHash<Utils::FileName, ProjectNod
     ProjectNode *cmln = cmakeListsNodes.value(dir);
     QTC_ASSERT(cmln, return nullptr);
 
-    Utils::FileName targetName = dir;
-    targetName.appendPath(".target::" + displayName);
+    QByteArray targetId = CMakeTargetNode::generateId(dir, displayName);
 
-    CMakeTargetNode *tn = static_cast<CMakeTargetNode *>(cmln->projectNode(targetName));
+    CMakeTargetNode *tn = static_cast<CMakeTargetNode *>(cmln->findNode([&targetId](const Node *n) {
+        return n->id() == targetId;
+    }));
     if (!tn) {
-        tn = new CMakeTargetNode(targetName);
+        tn = new CMakeTargetNode(dir, displayName);
         cmln->addNode(tn);
     }
     tn->setDisplayName(displayName);
@@ -849,7 +851,7 @@ void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
             otherFileNodes.append(fn);
     }
 
-    addCMakeVFolder(targetRoot, sourceDirectory, 1000, tr("<Source Directory>"), sourceFileNodes);
+    addCMakeVFolder(targetRoot, sourceDirectory, 1000,  QString(), sourceFileNodes);
     addCMakeVFolder(targetRoot, buildDirectory, 100, tr("<Build Directory>"), buildFileNodes);
     addCMakeVFolder(targetRoot, Utils::FileName(), 10, tr("<Other Locations>"), otherFileNodes);
 }

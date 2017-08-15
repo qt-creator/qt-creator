@@ -84,6 +84,7 @@ SOURCES += \
     clangdocumentprocessors-test.cpp \
     clangdocumentprocessor-test.cpp \
     clangdocuments-test.cpp \
+    clangdocumentsuspenderresumer-test.cpp \
     clangdocument-test.cpp \
     clangfixitoperation-test.cpp \
     clangisdiagnosticrelatedtolocation-test.cpp \
@@ -94,8 +95,10 @@ SOURCES += \
     clangreparsesupportivetranslationunitjob-test.cpp \
     clangrequestdocumentannotationsjob-test.cpp \
     clangrequestreferencesjob-test.cpp \
+    clangresumedocumentjob-test.cpp \
     clangstring-test.cpp \
     clangsupportivetranslationunitinitializer-test.cpp \
+    clangsuspenddocumentjob-test.cpp \
     clangtranslationunits-test.cpp \
     clangtranslationunit-test.cpp \
     clangupdatedocumentannotationsjob-test.cpp \

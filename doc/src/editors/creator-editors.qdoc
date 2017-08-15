@@ -233,7 +233,7 @@
     in Windows. To check JSON data structure, copy the JSON schema file to the
     above folder.
 
-    \section1 Checking JavaScript and QML Syntax
+    \section2 Checking JavaScript and QML Syntax
 
     To run the checks, select \uicontrol Tools > \uicontrol {QML/JS} >
     \uicontrol {Run Checks} or press \key {Ctrl+Shift+C}. The results are shown
@@ -241,7 +241,7 @@
     pane.
 
 
-    \section1 List of JavaScript and QML Checks
+    \section2 List of JavaScript and QML Checks
 
     Many of the JavaScript checks are similar to the ones in Douglas Crockford's
     \l{http://www.jslint.com}{JSLint} tool.
@@ -811,6 +811,12 @@
     To inspect QML and JavaScript properties, methods, and enums, move the
     cursor over them and select \uicontrol Tools > \uicontrol {QML/JS} >
     \uicontrol {Inspect API for Element Under Cursor}.
+
+    \section1 Automatically Formatting QML/JS Files
+
+    To automatically format QML/JS files upon saving, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
+    \uicontrol {Enable auto format on file save}.
 */
 
 

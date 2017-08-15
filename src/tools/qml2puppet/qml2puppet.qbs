@@ -20,7 +20,10 @@ QtcTool {
         condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("bsd")
         cpp.dynamicLibraries: base.concat("rt")
     }
-    bundle.embedInfoPlist: true
+    Properties {
+        condition: qbs.targetOS.contains("darwin")
+        bundle.embedInfoPlist: true
+    }
 
     property path puppetDir: "../../../share/qtcreator/qml/qmlpuppet"
     cpp.includePaths: base.concat([

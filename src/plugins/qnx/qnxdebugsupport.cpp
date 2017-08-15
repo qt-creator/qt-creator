@@ -99,12 +99,12 @@ QnxDebugSupport::QnxDebugSupport(RunControl *runControl)
     m_portsGatherer->setUseQmlServer(isQmlDebugging());
 
     auto debuggeeRunner = new QnxDebuggeeRunner(runControl, m_portsGatherer);
-    debuggeeRunner->addDependency(m_portsGatherer);
+    debuggeeRunner->addStartDependency(m_portsGatherer);
 
     auto slog2InfoRunner = new Slog2InfoRunner(runControl);
-    slog2InfoRunner->addDependency(debuggeeRunner);
+    slog2InfoRunner->addStartDependency(debuggeeRunner);
 
-    addDependency(slog2InfoRunner);
+    addStartDependency(slog2InfoRunner);
 }
 
 void QnxDebugSupport::start()

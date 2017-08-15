@@ -172,19 +172,19 @@ def main():
                 % os.path.join(srcPath, projectName, ".git").replace("\\", "/") in str(vcsLog),
                 "Has initialization of repo been logged:\n%s " % vcsLog)
     createLocalGitConfig(os.path.join(srcPath, projectName, ".git"))
-    commitMessages = [commit("Initial Commit", "Committed 5 file(s).")]
+    commitMessages = [commit("Initial Commit", "Committed 5 files.")]
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     headerName = "pointless_header.h"
     addCPlusPlusFile(headerName, "C++ Header File", projectName + ".pro",
                      addToVCS="Git", expectedHeaderName=headerName)
-    commitMessages.insert(0, commit("Added pointless header file", "Committed 2 file(s)."))
+    commitMessages.insert(0, commit("Added pointless header file", "Committed 2 files."))
     readmeName = "README.txt"
     addEmptyFileOutsideProject(readmeName)
     replaceEditorContent(waitForObject(":Qt Creator_TextEditor::TextEditorWidget"),
                          "Some important advice in the README")
     invokeMenuItem("File", "Save All")
     commitsInProject = list(commitMessages) # deep copy
-    commitOutsideProject = commit("Added README file", "Committed 2 file(s).", True) # QTCREATORBUG-11074
+    commitOutsideProject = commit("Added README file", "Committed 2 files.", True) # QTCREATORBUG-11074
     commitMessages.insert(0, commitOutsideProject)
 
     invokeMenuItem('Tools', 'Git', 'Current File', 'Log of "%s"' % readmeName)
@@ -208,7 +208,7 @@ def main():
     # test for QTCREATORBUG-15051
     addEmptyFileOutsideProject("anotherFile.txt")
     fakeIdCommitMessage = "deadbeefdeadbeefdeadbeef is not a commit id"
-    commit(fakeIdCommitMessage, "Committed 1 file(s).")
+    commit(fakeIdCommitMessage, "Committed 1 files.")
     invokeMenuItem("Tools", "Git", "Local Repository", "Log")
     gitEditor = waitForObject(":Qt Creator_Git::Internal::GitEditor")
     waitFor("len(str(gitEditor.plainText)) > 0 and str(gitEditor.plainText) != 'Working...'", 20000)

@@ -54,6 +54,7 @@ public:
     void prependChild(TreeItem *item);
     void appendChild(TreeItem *item);
     void insertChild(int pos, TreeItem *item);
+    void removeChildAt(int pos);
     void removeChildren();
     void sortChildren(const std::function<bool(const TreeItem *, const TreeItem *)> &cmp);
     void update();
@@ -90,6 +91,7 @@ private:
     void operator=(const TreeItem &) = delete;
 
     void clear();
+    void removeItemAt(int pos);
     void propagateModel(BaseTreeModel *m);
 
     TreeItem *m_parent; // Not owned.

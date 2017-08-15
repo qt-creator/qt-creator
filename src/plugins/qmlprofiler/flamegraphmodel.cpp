@@ -38,6 +38,11 @@
 namespace QmlProfiler {
 namespace Internal {
 
+static inline quint64 supportedFeatures()
+{
+    return Constants::QML_JS_RANGE_FEATURES | (1ULL << ProfileMemory);
+}
+
 FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
                                  QObject *parent) : QAbstractItemModel(parent)
 {
@@ -51,8 +56,9 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
     connect(modelManager->notesModel(), &Timeline::TimelineNotesModel::changed,
             this, [this](int typeId, int, int){loadNotes(typeId, true);});
     m_modelId = modelManager->registerModelProxy();
+    m_acceptedFeatures = supportedFeatures();
 
-    modelManager->announceFeatures(Constants::QML_JS_RANGE_FEATURES | 1 << ProfileMemory,
+    modelManager->announceFeatures(m_acceptedFeatures,
                                    [this](const QmlEvent &event, const QmlEventType &type) {
         loadEvent(event, type);
     }, [this](){
@@ -63,7 +69,7 @@ FlameGraphModel::FlameGraphModel(QmlProfilerModelManager *modelManager,
 void FlameGraphModel::clear()
 {
     beginResetModel();
-    m_stackBottom = FlameGraphData(0, -1, 1);
+    m_stackBottom = FlameGraphData(0, -1, 0);
     m_callStack.clear();
     m_compileStack.clear();
     m_callStack.append(QmlEvent());
@@ -98,7 +104,8 @@ void FlameGraphModel::loadNotes(int typeIndex, bool emitSignal)
 
 void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    Q_UNUSED(type);
+    if (!(m_acceptedFeatures & (1ULL << type.feature())))
+        return;
 
     if (m_stackBottom.children.isEmpty())
         beginResetModel();
@@ -148,6 +155,31 @@ void FlameGraphModel::onModelManagerStateChanged()
 {
     if (m_modelManager->state() == QmlProfilerModelManager::ClearingData)
         clear();
+}
+
+void FlameGraphModel::restrictToFeatures(quint64 visibleFeatures)
+{
+    visibleFeatures = visibleFeatures & supportedFeatures();
+    if (visibleFeatures == m_acceptedFeatures)
+        return;
+
+    m_acceptedFeatures = visibleFeatures;
+    if (m_modelManager->state() != QmlProfilerModelManager::Done)
+        return;
+
+    clear();
+    beginResetModel();
+    if (!m_modelManager->replayEvents(m_modelManager->traceTime()->startTime(),
+                                      m_modelManager->traceTime()->endTime(),
+                                      std::bind(&FlameGraphModel::loadEvent,
+                                                this, std::placeholders::_1,
+                                                std::placeholders::_2))) {
+        emit m_modelManager->error(tr("Could not re-read events from temporary trace file."));
+        endResetModel();
+        clear();
+    } else {
+        finalize();
+    }
 }
 
 static QString nameForType(RangeType typeNumber)

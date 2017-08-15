@@ -27,11 +27,13 @@
 
 #include "clangcompletecodejob.h"
 #include "clangcreateinitialdocumentpreamblejob.h"
+#include "clangfollowsymboljob.h"
 #include "clangparsesupportivetranslationunitjob.h"
 #include "clangreparsesupportivetranslationunitjob.h"
 #include "clangrequestdocumentannotationsjob.h"
 #include "clangrequestreferencesjob.h"
-#include "clangfollowsymboljob.h"
+#include "clangresumedocumentjob.h"
+#include "clangsuspenddocumentjob.h"
 #include "clangupdatedocumentannotationsjob.h"
 
 Q_LOGGING_CATEGORY(jobsLog, "qtc.clangbackend.jobs");
@@ -57,6 +59,10 @@ IAsyncJob *IAsyncJob::create(JobRequest::Type type)
         return new RequestReferencesJob();
     case JobRequest::Type::FollowSymbol:
         return new FollowSymbolJob();
+    case JobRequest::Type::SuspendDocument:
+        return new SuspendDocumentJob();
+    case JobRequest::Type::ResumeDocument:
+        return new ResumeDocumentJob();
     }
 
     return nullptr;

@@ -55,19 +55,25 @@ class QnxPortsGatheringMethod : public PortsGatheringMethod
 {
     // TODO: The command is probably needlessly complicated because the parsing method
     // used to be fixed. These two can now be matched to each other.
-    QByteArray commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const
+    Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const override
     {
         Q_UNUSED(protocol);
-        return "netstat -na "
+        StandardRunnable runnable;
+        // FIXME: Is this extra shell needed?
+        runnable.executable = "/bin/sh";
+        runnable.commandLineArguments = "-c \""
+                "netstat -na "
                 "| sed 's/[a-z]\\+\\s\\+[0-9]\\+\\s\\+[0-9]\\+\\s\\+\\(\\*\\|[0-9\\.]\\+\\)\\.\\([0-9]\\+\\).*/\\2/g' "
                 "| while read line; do "
                     "if [[ $line != udp* ]] && [[ $line != Active* ]]; then "
                         "printf '%x\n' $line; "
                     "fi; "
-                "done";
+                "done"
+                "\"";
+        return runnable;
     }
 
-    QList<Port> usedPorts(const QByteArray &output) const
+    QList<Port> usedPorts(const QByteArray &output) const override
     {
         QList<Port> ports;
         QList<QByteArray> portStrings = output.split('\n');

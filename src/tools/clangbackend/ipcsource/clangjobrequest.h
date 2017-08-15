@@ -54,15 +54,22 @@ public:
         RequestDocumentAnnotations,
         RequestReferences,
         FollowSymbol,
+
+        SuspendDocument,
+        ResumeDocument,
     };
 
     enum class Condition {
-        NoCondition,
-        CurrentDocumentRevision,
+        NoCondition             = 1 << 0,
+        DocumentVisible         = 1 << 1,
+        DocumentNotVisible      = 1 << 2,
+        DocumentSuspended       = 1 << 3,
+        DocumentUnsuspended     = 1 << 4,
+        CurrentDocumentRevision = 1 << 5,
     };
     Q_DECLARE_FLAGS(Conditions, Condition)
 
-    enum ExpirationReason {
+    enum class ExpirationReason {
         Never                   = 1 << 0,
 
         DocumentClosed          = 1 << 1,

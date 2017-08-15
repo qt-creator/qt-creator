@@ -457,8 +457,6 @@ void CppEditorWidget::renameSymbolUnderCursor()
 
 void CppEditorWidget::renameSymbolUnderCursorBuiltin()
 {
-    d->m_useSelectionsUpdater.abortSchedule();
-
     updateSemanticInfo(d->m_cppEditorDocument->recalculateSemanticInfo(),
                        /*updateUseSelectionSynchronously=*/ true);
 

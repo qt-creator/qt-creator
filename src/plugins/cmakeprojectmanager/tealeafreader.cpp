@@ -373,7 +373,7 @@ void TeaLeafReader::updateCodeModel(CppTools::RawProjectParts &rpps)
         includePaths += m_parameters.buildDirectory.toString();
         CppTools::RawProjectPart rpp;
         rpp.setProjectFileLocation(cbt.sourceDirectory.toString() + "/CMakeLists.txt");
-        rpp.setBuildSystemTarget(cbt.title + '|' + rpp.projectFile);
+        rpp.setBuildSystemTarget(cbt.title);
         rpp.setIncludePaths(includePaths);
 
         CppTools::RawProjectPartFlags cProjectFlags;

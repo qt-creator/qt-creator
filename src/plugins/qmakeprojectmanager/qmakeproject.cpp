@@ -287,7 +287,7 @@ void QmakeProject::updateCppCodeModel()
         CppTools::RawProjectPart rpp;
         rpp.setDisplayName(pro->displayName());
         rpp.setProjectFileLocation(pro->filePath().toString());
-        rpp.setBuildSystemTarget(pro->targetInformation().target + '|' + rpp.projectFile);
+        rpp.setBuildSystemTarget(pro->targetInformation().target);
         // TODO: Handle QMAKE_CFLAGS
         rpp.setFlagsForCxx({cxxToolChain, pro->variableValue(Variable::CppFlags)});
         rpp.setDefines(pro->cxxDefines());

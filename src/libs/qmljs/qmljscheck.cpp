@@ -1781,6 +1781,9 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
             addMessage(ErrInvalidMember, idPart->identifierToken, propertyName, objectValue->className());
             return 0;
         }
+        // resolve references
+        if (const Reference *ref = value->asReference())
+            value = _context->lookupReference(ref);
     }
 
     return value;

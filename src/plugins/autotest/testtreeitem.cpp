@@ -291,7 +291,7 @@ QSet<QString> TestTreeItem::internalTargets() const
     const QList<CppTools::ProjectPart::Ptr> projectParts = cppMM->projectPart(filePath());
     QSet<QString> targets;
     for (const CppTools::ProjectPart::Ptr part : projectParts)
-        targets.insert(part->buildSystemTarget);
+        targets.insert(part->buildSystemTarget + '|' + part->projectFile);
     return targets;
 }
 

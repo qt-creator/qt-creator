@@ -46,6 +46,7 @@ def qdump__std__complex(d, value):
     innerType = value.type[0]
     (real, imag) = value.split('{%s}{%s}' % (innerType.name, innerType.name))
     d.putValue("(%s, %s)" % (real.display(), imag.display()))
+    d.putNumChild(2)
     if d.isExpanded():
         with Children(d, 2, childType=innerType):
             d.putSubItem("real", real)
@@ -887,10 +888,10 @@ def qedit__std__vector(d, value, data):
     import gdb
     values = data.split(',')
     n = len(values)
-    innerType = value.type[0]
+    innerType = value.type[0].name
     cmd = "set $d = (%s*)calloc(sizeof(%s)*%s,1)" % (innerType, innerType, n)
     gdb.execute(cmd)
-    cmd = "set {void*[3]}%s = {$d, $d+%s, $d+%s}" % (value.address, n, n)
+    cmd = "set {void*[3]}%s = {$d, $d+%s, $d+%s}" % (value.address(), n, n)
     gdb.execute(cmd)
     cmd = "set (%s[%d])*$d={%s}" % (innerType, n, data)
     gdb.execute(cmd)
@@ -975,10 +976,22 @@ def qdump__std____debug__vector(d, value):
 
 
 def qedit__std__string(d, value, data):
-    d.call(value, "assign", '"%s"' % data.replace('"', '\\"'))
+    d.call('void', value, 'assign', '"%s"' % data.replace('"', '\\"'))
 
 def qedit__string(d, expr, value):
     qedit__std__string(d, expr, value)
+
+def qedit__std____cxx11__string(d, expr, value):
+    qedit__std__string(d, expr, value)
+
+def qedit__std__wstring(d, value, data):
+    d.call('void', value, 'assign', 'L"%s"' % data.replace('"', '\\"'))
+
+def qedit__wstring(d, expr, value):
+    qedit__std__wstring(d, expr, value)
+
+def qedit__std____cxx11__wstring(d, expr, value):
+    qedit__std__wstring(d, expr, value)
 
 def qdump__string(d, value):
     qdump__std__string(d, value)

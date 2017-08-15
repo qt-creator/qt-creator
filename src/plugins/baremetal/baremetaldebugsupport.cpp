@@ -72,7 +72,7 @@ BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
         r.commandLineArguments = Utils::QtcProcess::joinArgs(p->arguments(), Utils::HostOsInfo::hostOs());
         m_gdbServer = new SimpleTargetRunner(runControl);
         m_gdbServer->setRunnable(r);
-        addDependency(m_gdbServer);
+        addStartDependency(m_gdbServer);
     }
 }
 

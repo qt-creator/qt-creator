@@ -28,8 +28,8 @@ import re
 
 # test search in help mode and advanced search
 searchKeywordDictionary={ "deployment":True, "deplmint":False, "build":True, "bld":False }
-urlDictionary = { "deployment":"qthelp://com.trolltech.qt.481/qdoc/gettingstarted-develop.html",
-                  "build":"qthelp://com.trolltech.qt.481/qdoc/sql-driver.html" }
+urlDictionary = { "deployment":"qthelp://com.trolltech.qt.487/qdoc/gettingstarted-develop.html",
+                  "build":"qthelp://com.trolltech.qt.487/qdoc/sql-driver.html" }
 
 
 def __getSelectedText__():
@@ -84,12 +84,11 @@ def verifyUrl(expected):
     return test.compare(expected, __getUrl__(), "Expected URL loaded?")
 
 def main():
-    global sdkPath
     noMatch = "Your search did not match any documents."
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    addHelpDocumentation([os.path.join(sdkPath, "Documentation", "qt.qch")])
+    addHelpDocumentation([os.path.join(qt4Path, "doc", "qch", "qt.qch")])
     # switch to help mode
     switchViewTo(ViewConstants.HELP)
     # verify that search widget is accessible
@@ -160,12 +159,12 @@ def main():
     type(resultsView, "<Tab>")
     type(resultsView, "<Return>")
     verifySelection("printing")
-    verifyUrl("qthelp://com.trolltech.qt.481/qdoc/overviews.html")
+    verifyUrl("qthelp://com.trolltech.qt.487/qdoc/overviews.html")
     for i in range(2):
         type(resultsView, "<Tab>")
     type(resultsView, "<Return>")
     verifySelection("sql")
-    verifyUrl("qthelp://com.trolltech.qt.481/qdoc/best-practices.html")
+    verifyUrl("qthelp://com.trolltech.qt.487/qdoc/best-practices.html")
     # verify if simple search is properly disabled
     test.verify(not searchLineEdit.enabled,
                 "Verifying if simple search is not active in advanced mode.")

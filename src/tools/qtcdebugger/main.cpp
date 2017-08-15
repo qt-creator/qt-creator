@@ -102,6 +102,8 @@ static bool parseArguments(const QStringList &args, QString *errorMessage)
                 optIsWow = true;
             } else if (arg == QLatin1String("nogui")) {
                 noguiMode = true;
+            } else if (arg == QLatin1String("p")) {
+                // Ignore, see QTCREATORBUG-18194.
             } else {
                 *errorMessage = QString::fromLatin1("Unexpected option: %1").arg(arg);
                 return false;
@@ -282,8 +284,13 @@ bool startCreatorAsDebugger(bool asClient, QString *errorMessage)
     // Send to running Creator: Unstable with directly linked CDB engine.
     if (asClient)
         args << QLatin1String("-client");
-    args << QLatin1String("-wincrashevent")
-        << QString::fromLatin1("%1:%2").arg(argWinCrashEvent).arg(argProcessId);
+    if (argWinCrashEvent != 0) {
+        args << QLatin1String("-wincrashevent")
+            << QString::fromLatin1("%1:%2").arg(argWinCrashEvent).arg(argProcessId);
+    } else {
+        args << QLatin1String("-debug")
+            << QString::fromLatin1("%1").arg(argProcessId);
+    }
     if (debug)
         qDebug() << binary << args;
     QProcess p;

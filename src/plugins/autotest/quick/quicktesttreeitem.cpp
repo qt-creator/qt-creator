@@ -193,31 +193,10 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
 
     QuickTestConfiguration *tc = nullptr;
     QHash<QString, QuickTestConfiguration *> foundProFiles;
-    // unnamed Quick Tests must be handled first
-    if (TestTreeItem *unnamed = unnamedQuickTests()) {
-        for (int childRow = 0, ccount = unnamed->childCount(); childRow < ccount; ++ childRow) {
-            const TestTreeItem *grandChild = unnamed->childItem(childRow);
-            const QString &proFile = grandChild->proFile();
-            if (foundProFiles.contains(proFile)) {
-                QTC_ASSERT(tc,
-                           qWarning() << "Illegal state (unnamed Quick Test listed as named)";
-                           return QList<TestConfiguration *>());
-                foundProFiles[proFile]->setTestCaseCount(tc->testCaseCount() + 1);
-            } else {
-                tc = new QuickTestConfiguration;
-                tc->setTestCaseCount(1);
-                tc->setUnnamedOnly(true);
-                tc->setProjectFile(proFile);
-                tc->setProject(project);
-                tc->setInternalTargets(grandChild->internalTargets());
-                foundProFiles.insert(proFile, tc);
-            }
-        }
-    }
 
     for (int row = 0, count = childCount(); row < count; ++row) {
         const TestTreeItem *child = childItem(row);
-        // unnamed Quick Tests have been handled separately already
+        // unnamed Quick Tests cannot get selected explicitly
         if (child->name().isEmpty())
             continue;
 
@@ -239,15 +218,8 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
             if (foundProFiles.contains(child->proFile())) {
                 tc = foundProFiles[child->proFile()];
                 QStringList oldFunctions(tc->testCases());
-                // if oldFunctions.size() is 0 this test configuration is used for at least one
-                // unnamed test case
-                if (oldFunctions.size() == 0) {
-                    tc->setTestCaseCount(tc->testCaseCount() + testFunctions.size());
-                    tc->setUnnamedOnly(false);
-                } else {
-                    oldFunctions << testFunctions;
-                    tc->setTestCases(oldFunctions);
-                }
+                oldFunctions << testFunctions;
+                tc->setTestCases(oldFunctions);
             } else {
                 tc = new QuickTestConfiguration;
                 tc->setTestCases(testFunctions);
@@ -321,7 +293,7 @@ QSet<QString> QuickTestTreeItem::internalTargets() const
     const auto projectInfo = cppMM->projectInfo(ProjectExplorer::SessionManager::startupProject());
     for (const CppTools::ProjectPart::Ptr projectPart : projectInfo.projectParts()) {
         if (projectPart->projectFile == proFile()) {
-            result.insert(projectPart->buildSystemTarget);
+            result.insert(projectPart->buildSystemTarget + '|' + projectPart->projectFile);
             break;
         }
     }

@@ -579,3 +579,6 @@ void f32()
 
     NonConstPointerArgument(x.getter());
 }
+
+namespace N { template <typename T> void SizeIs(); }
+using N::SizeIs;

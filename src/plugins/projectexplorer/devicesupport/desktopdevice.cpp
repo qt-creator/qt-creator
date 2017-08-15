@@ -37,11 +37,13 @@
 #include <ssh/sshconnection.h>
 
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/portlist.h>
 
 #include <QCoreApplication>
 
 using namespace ProjectExplorer::Constants;
+using namespace Utils;
 
 namespace ProjectExplorer {
 
@@ -135,6 +137,104 @@ public:
 DeviceEnvironmentFetcher::Ptr DesktopDevice::environmentFetcher() const
 {
     return DeviceEnvironmentFetcher::Ptr(new DesktopDeviceEnvironmentFetcher());
+}
+
+class DesktopPortsGatheringMethod : public PortsGatheringMethod
+{
+    Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const override
+    {
+        // We might encounter the situation that protocol is given IPv6
+        // but the consumer of the free port information decides to open
+        // an IPv4(only) port. As a result the next IPv6 scan will
+        // report the port again as open (in IPv6 namespace), while the
+        // same port in IPv4 namespace might still be blocked, and
+        // re-use of this port fails.
+        // GDBserver behaves exactly like this.
+
+        Q_UNUSED(protocol)
+
+        StandardRunnable runnable;
+        if (HostOsInfo::isWindowsHost()) {
+            runnable.executable = "netstat";
+            runnable.commandLineArguments =  "-a -n";
+        } else if (HostOsInfo::isLinuxHost()) {
+            runnable.executable = "/bin/sh";
+            runnable.commandLineArguments = "-c 'cat /proc/net/tcp*'";
+        }
+        return runnable;
+    }
+
+    QList<Utils::Port> usedPorts(const QByteArray &output) const override
+    {
+        QList<Utils::Port> ports;
+        const QList<QByteArray> lines = output.split('\n');
+        if (HostOsInfo::isWindowsHost()) {
+            // Expected output is something like
+            //
+            // Active Connections
+            //
+            //   Proto  Local Address          Foreign Address        State
+            //   TCP    0.0.0.0:80             0.0.0.0:0              LISTENING
+            //   TCP    0.0.0.0:113            0.0.0.0:0              LISTENING
+            // [...]
+            //   TCP    10.9.78.4:14714       0.0.0.0:0              LISTENING
+            //   TCP    10.9.78.4:50233       12.13.135.180:993      ESTABLISHED
+            for (const QByteArray &line : lines) {
+                const QByteArray trimmed = line.trimmed();
+                if (!trimmed.startsWith("TCP"))
+                    continue;
+                int colonPos = trimmed.indexOf(':');
+                if (colonPos < 0)
+                    continue;
+                int spacePos = trimmed.indexOf(':', colonPos + 1);
+                if (spacePos < 0)
+                    continue;
+                bool ok;
+                int len = spacePos - colonPos - 1;
+                const Utils::Port port(line.mid(colonPos + 1, len).toInt(&ok, 16));
+                if (ok) {
+                    if (!ports.contains(port))
+                        ports << port;
+                } else {
+                    qWarning("%s: Unexpected string '%s' is not a port.",
+                             Q_FUNC_INFO, line.data());
+                }
+            }
+        } else if (HostOsInfo::isLinuxHost()) {
+            // Expected outpit is something like
+            //
+            //   sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt ...
+            //   0: 00000000:2805 00000000:0000 0A 00000000:00000000 00:00000000 00000000  ...
+            //
+            for (const QByteArray &line : lines) {
+                int firstColonPos = line.indexOf(':');
+                if (firstColonPos < 0)
+                    continue;
+                int secondColonPos = line.indexOf(':', firstColonPos + 1);
+                if (secondColonPos < 0)
+                    continue;
+                int spacePos = line.indexOf(':', secondColonPos + 1);
+                if (spacePos < 0)
+                    continue;
+                bool ok;
+                int len = spacePos - secondColonPos - 1;
+                const Utils::Port port(line.mid(secondColonPos + 1, len).toInt(&ok, 16));
+                if (ok) {
+                    if (!ports.contains(port))
+                        ports << port;
+                } else {
+                    qWarning("%s: Unexpected string '%s' is not a port.",
+                             Q_FUNC_INFO, line.data());
+                }
+            }
+        }
+        return ports;
+    }
+};
+
+PortsGatheringMethod::Ptr DesktopDevice::portsGatheringMethod() const
+{
+    return DesktopPortsGatheringMethod::Ptr(new DesktopPortsGatheringMethod);
 }
 
 QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const

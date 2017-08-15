@@ -741,7 +741,7 @@ class Dumper(DumperBase):
             typeName = "'" + typeName + "'"
         # 'class' is needed, see http://sourceware.org/bugzilla/show_bug.cgi?id=11912
         #exp = '((class %s*)%s)->%s(%s)' % (typeName, value.laddress, function, arg)
-        addr = value.laddress
+        addr = value.address()
         if addr is None:
            addr = self.pokeValue(value)
         #warn('PTR: %s -> %s(%s)' % (value, function, addr))
@@ -750,7 +750,7 @@ class Dumper(DumperBase):
         result = gdb.parse_and_eval(exp)
         #warn('  -> %s' % result)
         res = self.fromNativeValue(result)
-        if value.laddress is None:
+        if value.address() is None:
             self.releaseValue(addr)
         return res
 
@@ -1056,7 +1056,7 @@ class Dumper(DumperBase):
             typeName = typeName[0:pos]
         if typeName in self.qqEditable and not simpleType:
             #self.qqEditable[typeName](self, expr, value)
-            expr = gdb.parse_and_eval(expr)
+            expr = self.parseAndEvaluate(expr)
             self.qqEditable[typeName](self, expr, value)
         else:
             cmd = 'set variable (%s)=%s' % (expr, value)

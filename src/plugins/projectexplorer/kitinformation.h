@@ -98,6 +98,7 @@ public:
     static ToolChain *toolChain(const Kit *k, Core::Id language);
     static QList<ToolChain *> toolChains(const Kit *k);
     static void setToolChain(Kit *k, ToolChain *tc);
+    static void setAllToolChainsToMatch(Kit *k, ToolChain *tc);
     static void clearToolChain(Kit *k, Core::Id language);
     static Abi targetAbi(const Kit *k);
 

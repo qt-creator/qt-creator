@@ -25,6 +25,7 @@
 
 #include "clangtranslationunit.h"
 
+#include "clangbackend_global.h"
 #include "clangreferencescollector.h"
 #include "clangtranslationunitupdater.h"
 
@@ -37,6 +38,8 @@
 #include <skippedsourceranges.h>
 #include <sourcelocation.h>
 #include <sourcerange.h>
+
+#include <utils/qtcassert.h>
 
 namespace ClangBackEnd {
 
@@ -98,6 +101,16 @@ TranslationUnitUpdateResult TranslationUnit::reparse(
     TranslationUnitUpdater updater(id(), cxIndex(), cxTranslationUnit(), parseInput);
 
     return updater.update(TranslationUnitUpdater::UpdateMode::ForceReparse);
+}
+
+bool TranslationUnit::suspend() const
+{
+#ifdef IS_SUSPEND_SUPPORTED
+    return clang_suspendTranslationUnit(cxTranslationUnit());
+#else
+    QTC_CHECK(false && "clang_suspendTranslationUnit() not supported.");
+    return false;
+#endif
 }
 
 TranslationUnit::CodeCompletionResult TranslationUnit::complete(

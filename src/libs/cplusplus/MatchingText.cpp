@@ -326,6 +326,11 @@ static bool allowAutoClosingBrace(const QTextCursor &cursor,
 
     int prevState;
     const Tokens tokens = getTokens(cursor, prevState);
+
+    const Token token = tokenAtPosition(tokens, cursor.positionInBlock());
+    if (token.isStringLiteral())
+        return false;
+
     if (isAfterNamespaceDefinition(tokens, cursor.positionInBlock()))
         return false;
 

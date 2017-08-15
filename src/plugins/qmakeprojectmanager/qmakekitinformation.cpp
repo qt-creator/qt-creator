@@ -95,7 +95,7 @@ void QmakeKitInformation::setup(Kit *k)
                     = Utils::findOr(possibleTcs, possibleTcs.last(),
                                     [&spec](const ToolChain *t) { return t->suggestedMkspecList().contains(spec); });
             if (possibleTc)
-                ToolChainKitInformation::setToolChain(k, possibleTc);
+                ToolChainKitInformation::setAllToolChainsToMatch(k, possibleTc);
         }
     }
 }

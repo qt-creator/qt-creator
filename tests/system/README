@@ -4,17 +4,54 @@ Squish tests inside this folder have several prerequisites to get them running.
 
 First - and most important - you have to own a valid Squish license. Currently it's recommended to use Squish 6.0.
 
-Second - some of the test suites/test cases expect an installed Qt 4 SDK in its default location.
-On Linux/Mac this is ~/QtSDK, and on Windows this is C:\QtSDK.
-After installing the QtSDK you should use the package manager of the QtSDK (SDKMaintenanceTool) to add some more packages.
-You'll need at least Desktop Qt versions 4.7.4, 4.8.0, Harmattan stuff (except QEmu), Maemo Toolchain, Qt Examples, Simulator, Documentation files.
+Second - some of the test suites/test cases expect a build of Qt 4.8.7 to be available:
+ 1. Download the source code from:
+    * Windows: http://download.qt.io/official_releases/qt/4.8/4.8.7/qt-everywhere-opensource-src-4.8.7.zip
+    * Other: http://download.qt.io/official_releases/qt/4.8/4.8.7/qt-everywhere-opensource-src-4.8.7.tar.gz
+ 2. Extract the contents of the archive's directory qt-everywhere-opensource-src-4.8.7 to:
+    * Windows: C:\Qt\Qt4.8.7
+    * Other: $HOME/Qt4.8.7
+ 3. Apply the changes from patch.txt next to this README.
+ 4. In the directory you extracted the sources to, configure Qt:
+    * Windows (MSVC2013 32 bit):
+      .\configure.exe -opensource -developer-build -confirm-license -debug-and-release -nomake tests -nomake examples -nomake demos -no-webkit -no-phonon
+    * Linux (gcc < 6):
+      ./configure -opensource -developer-build -confirm-license -debug-and-release -nomake tests -nomake examples -nomake demos -no-webkit -no-phonon
+    * macOS:
+      ./configure -opensource -developer-build -confirm-license -debug-and-release -nomake tests -nomake examples -nomake demos -no-webkit -no-phonon -sdk <PATH_TO_INSTALLED_MACOSX_SDK>
+ 5. Make:
+    * Windows (do not use jom):
+      nmake
+    * Other:
+      make -j<number of available cores>
 
 Third - some of the test suites/test cases expect Qt 5.3.1 (default toolchain), Qt 5.4.1 (gcc, Linux and Windows only) and Qt 5.6.1-1 (default toolchain)
 installed in their default locations. On Linux/Mac this is ~/Qt5.x.1 and on Windows this is C:\Qt\Qt5.x.1. The default toolchains are gcc on Linux,
 clang on Mac and MSVC2010 (Qt <= 5.5) or MSVC2013 (Qt > 5.5) on Windows. It's easiest to use default installations of the official opensource Qt packages.
 
+On macOS it might be necessary to tweak some files of the Qt installation - depending on the installed Xcode and its installed SDKs.
+If Xcode 8+ is installed you will need to update the file
+~/Qt5.3.1/5.3/clang_64/mkspecs/features/mac/default_pre.prf
+Change the line
+
+ isEmpty($$list($$system("/usr/bin/xcrun -find xcrun 2>/dev/null")))
+
+to
+
+ isEmpty($$list($$system("/usr/bin/xcrun -find xcodebuild 2>/dev/null")))
+
+Furthermore - depending on the installed SDK it might be necessary to update the file
+~/Qt5.3.1/5.3/clang_64/mkspecs/qdevice.pri
+Search for the following line
+
+ !host_build:QMAKE_MAC_SDK = macosx10.8
+
+Newer Xcode might miss the 10.8 SDK. Check
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs
+which SDKs are installed and update the version number accordingly.
+
 Fourth - you'll have to provide some additional repositories (and for the hooking into subprocesses even some more Squish bundles, see below).
-These additional repositories are located inside ~/QtSDK/src or C:\QtSDK\src (depending on the OS you're on).
+These additional repositories are located inside ~/squish-data or C:\Users\<user>\squish-data (depending on the OS you're on).
 You can also just provide them inside a different folder and specify the folder with the environment variable SYSTEST_SRCPATH.
 This folder must contain the following:
  * a QtCreator repository (or source copy) of tag v4.2.2 named 'creator' including the submodule src/shared/qbs
@@ -29,6 +66,10 @@ Normally it should be okay to just install them as usual and add their executabl
 
 Sixth - Qt Creator should be built with ClangCodeModel plugin. How to do so, see QTCREATOR_REPO/src/plugins/clangcodemodel/README. Without the
 plugin, the tests for ClangCodeModel will be skipped but will not cause failures.
+
+On macOS make sure you are using the correct keyboard layout to avoid problems when using keyboard interaction. Tested and known to be
+working would be 'U.S. International - PC', while pure 'U.S.' had problems.
+Use the settings in System Preferences > Keyboard > Input Sources to install missing keyboard layouts and ensure you have set it as default.
 
 Attention! If any of these prerequisites cannot be satisfied the tests will likely fail (or not run at all).
 

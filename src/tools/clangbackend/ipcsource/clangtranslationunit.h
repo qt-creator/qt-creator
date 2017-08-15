@@ -71,6 +71,8 @@ public:
     CXIndex &cxIndex() const;
     CXTranslationUnit &cxTranslationUnit() const;
 
+    bool suspend() const;
+
     TranslationUnitUpdateResult update(const TranslationUnitUpdateInput &parseInput) const;
     TranslationUnitUpdateResult parse(const TranslationUnitUpdateInput &parseInput) const;
     TranslationUnitUpdateResult reparse(const TranslationUnitUpdateInput &parseInput) const;

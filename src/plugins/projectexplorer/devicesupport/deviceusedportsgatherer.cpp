@@ -23,14 +23,14 @@
 **
 ****************************************************************************/
 
+#include "deviceprocess.h"
 #include "deviceusedportsgatherer.h"
+
+#include <projectexplorer/runnables.h>
 
 #include <utils/port.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
-#include <ssh/sshconnection.h>
-#include <ssh/sshconnectionmanager.h>
-#include <ssh/sshremoteprocess.h>
 
 using namespace QSsh;
 using namespace Utils;
@@ -41,12 +41,12 @@ namespace Internal {
 class DeviceUsedPortsGathererPrivate
 {
  public:
-    SshConnection *connection;
-    SshRemoteProcess::Ptr process;
+    QPointer<DeviceProcess> process;
     QList<Port> usedPorts;
     QByteArray remoteStdout;
     QByteArray remoteStderr;
     IDevice::ConstPtr device;
+    PortsGatheringMethod::Ptr portsGatheringMethod;
 };
 
 } // namespace Internal
@@ -54,7 +54,6 @@ class DeviceUsedPortsGathererPrivate
 DeviceUsedPortsGatherer::DeviceUsedPortsGatherer(QObject *parent) :
     QObject(parent), d(new Internal::DeviceUsedPortsGathererPrivate)
 {
-    d->connection = 0;
 }
 
 DeviceUsedPortsGatherer::~DeviceUsedPortsGatherer()
@@ -65,50 +64,36 @@ DeviceUsedPortsGatherer::~DeviceUsedPortsGatherer()
 
 void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
 {
-    QTC_ASSERT(!d->connection, return);
-    QTC_ASSERT(device && device->portsGatheringMethod(), return);
-
     d->device = device;
-    d->connection = QSsh::acquireConnection(device->sshParameters());
-    connect(d->connection, &SshConnection::error,
-            this, &DeviceUsedPortsGatherer::handleConnectionError);
-    if (d->connection->state() == SshConnection::Connected) {
-        handleConnectionEstablished();
-        return;
-    }
-    connect(d->connection, &SshConnection::connected,
-            this, &DeviceUsedPortsGatherer::handleConnectionEstablished);
-    if (d->connection->state() == SshConnection::Unconnected)
-        d->connection->connectToHost();
-}
+    QTC_ASSERT(d->device, emit error("No device given"); return);
 
-void DeviceUsedPortsGatherer::handleConnectionEstablished()
-{
-    const QAbstractSocket::NetworkLayerProtocol protocol
-            = d->connection->connectionInfo().localAddress.protocol();
-    const QByteArray commandLine = d->device->portsGatheringMethod()->commandLine(protocol);
-    d->process = d->connection->createRemoteProcess(commandLine);
+    d->portsGatheringMethod = d->device->portsGatheringMethod();
+    QTC_ASSERT(d->portsGatheringMethod, emit error("Not implemented"); return);
 
-    connect(d->process.data(), &SshRemoteProcess::closed, this, &DeviceUsedPortsGatherer::handleProcessClosed);
-    connect(d->process.data(), &SshRemoteProcess::readyReadStandardOutput, this, &DeviceUsedPortsGatherer::handleRemoteStdOut);
-    connect(d->process.data(), &SshRemoteProcess::readyReadStandardError, this, &DeviceUsedPortsGatherer::handleRemoteStdErr);
+    const QAbstractSocket::NetworkLayerProtocol protocol = QAbstractSocket::AnyIPProtocol;
+    d->process = d->device->createProcess(this);
 
-    d->process->start();
+    connect(d->process.data(), &DeviceProcess::finished,
+            this, &DeviceUsedPortsGatherer::handleProcessFinished);
+    connect(d->process.data(), &DeviceProcess::error,
+            this, &DeviceUsedPortsGatherer::handleProcessError);
+    connect(d->process.data(), &DeviceProcess::readyReadStandardOutput,
+            this, &DeviceUsedPortsGatherer::handleRemoteStdOut);
+    connect(d->process.data(), &DeviceProcess::readyReadStandardError,
+            this, &DeviceUsedPortsGatherer::handleRemoteStdErr);
+
+    const Runnable runnable = d->portsGatheringMethod->runnable(protocol);
+    d->process->start(runnable);
 }
 
 void DeviceUsedPortsGatherer::stop()
 {
-    if (!d->connection)
-        return;
     d->usedPorts.clear();
     d->remoteStdout.clear();
     d->remoteStderr.clear();
     if (d->process)
         disconnect(d->process.data(), 0, this, 0);
     d->process.clear();
-    disconnect(d->connection, 0, this, 0);
-    QSsh::releaseConnection(d->connection);
-    d->connection = 0;
 }
 
 Port DeviceUsedPortsGatherer::getNextFreePort(PortList *freePorts) const
@@ -129,7 +114,7 @@ QList<Port> DeviceUsedPortsGatherer::usedPorts() const
 void DeviceUsedPortsGatherer::setupUsedPorts()
 {
     d->usedPorts.clear();
-    const QList<Port> usedPorts = d->device->portsGatheringMethod()->usedPorts(d->remoteStdout);
+    const QList<Port> usedPorts = d->portsGatheringMethod->usedPorts(d->remoteStdout);
     foreach (const Port port, usedPorts) {
         if (d->device->freePorts().contains(port))
             d->usedPorts << port;
@@ -137,27 +122,23 @@ void DeviceUsedPortsGatherer::setupUsedPorts()
     emit portListReady();
 }
 
-void DeviceUsedPortsGatherer::handleConnectionError()
+void DeviceUsedPortsGatherer::handleProcessError()
 {
-    if (!d->connection)
-        return;
-    emit error(tr("Connection error: %1").arg(d->connection->errorString()));
+    emit error(tr("Connection error: %1").arg(d->process->errorString()));
     stop();
 }
 
-void DeviceUsedPortsGatherer::handleProcessClosed(int exitStatus)
+void DeviceUsedPortsGatherer::handleProcessFinished()
 {
-    if (!d->connection)
+    if (!d->process)
         return;
     QString errMsg;
+    QProcess::ExitStatus exitStatus = d->process->exitStatus();
     switch (exitStatus) {
-    case SshRemoteProcess::FailedToStart:
-        errMsg = tr("Could not start remote process: %1").arg(d->process->errorString());
-        break;
-    case SshRemoteProcess::CrashExit:
+    case QProcess::CrashExit:
         errMsg = tr("Remote process crashed: %1").arg(d->process->errorString());
         break;
-    case SshRemoteProcess::NormalExit:
+    case QProcess::NormalExit:
         if (d->process->exitCode() == 0)
             setupUsedPorts();
         else

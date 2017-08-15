@@ -65,6 +65,7 @@ public:
     Utils::ProcessHandle attachPID;
     QStringList solibSearchPath;
     bool useTerminal = false;
+    bool needFixup = true; // FIXME: Make false the default...
 
     // Used by Qml debugging.
     TcpServerConnection qmlServer;

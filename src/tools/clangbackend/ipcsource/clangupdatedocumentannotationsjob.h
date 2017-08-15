@@ -53,12 +53,18 @@ public:
     AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;
 
+protected:
+    virtual bool isExpectedJobRequestType(const JobRequest &jobRequest) const;
+    virtual TranslationUnitUpdateInput createUpdateInput(const Document &document) const;
+
 private:
     void incorporateUpdaterResult(const AsyncResult &result);
     void sendAnnotations(const AsyncResult &result);
 
-private:
+protected:
     Document m_pinnedDocument;
+
+private:
     FileContainer m_pinnedFileContainer;
 };
 

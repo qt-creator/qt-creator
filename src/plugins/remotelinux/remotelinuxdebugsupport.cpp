@@ -57,9 +57,9 @@ LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
     m_portsGatherer->setUseQmlServer(isQmlDebugging());
 
     auto gdbServer = new GdbServerRunner(runControl, m_portsGatherer);
-    gdbServer->addDependency(m_portsGatherer);
+    gdbServer->addStartDependency(m_portsGatherer);
 
-    addDependency(gdbServer);
+    addStartDependency(gdbServer);
 
     RunConfiguration *runConfig = runControl->runConfiguration();
     if (auto rlrc = qobject_cast<RemoteLinuxRunConfiguration *>(runConfig))
