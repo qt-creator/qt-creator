@@ -671,6 +671,7 @@ struct ForceC {};
 struct EigenProfile {};
 struct UseDebugImage {};
 struct DwarfProfile { explicit DwarfProfile(int v) : version(v) {} int version; };
+struct CoreFoundationProfile {};
 
 struct CoreProfile {};
 struct CorePrivateProfile {};
@@ -900,6 +901,19 @@ public:
             "  CONFIG += no_private_qt_headers_warning\n"
             "}";
 
+        return *this;
+    }
+
+    const Data &operator+(const CoreFoundationProfile &) const
+    {
+        profileExtra +=
+            "CXX_FLAGS += -g -O0\n"
+            "LIBS += -framework CoreFoundation -framework Foundation\n"
+            "CONFIG -= app_bundle qt\n";
+
+        useQt = false;
+        useQHash = false;
+        mainFile = "main.mm";
         return *this;
     }
 
@@ -6877,6 +6891,40 @@ void tst_Dumpers::dumper_data()
             + Check("d.Log10_2_100000", "30103", "int")
             + Check("p.FlagBit", "<optimized out>", "") % NoCdbEngine
             + Check("p.FlagBit", "", "<Value unavailable error>", "") % CdbEngine;
+#endif
+
+#ifdef Q_OS_MAC
+    QTest::newRow("CFStrings")
+            << Data("#include <CoreFoundation/CoreFoundation.h>\n"
+                    "#include <string>\n"
+                    "#import <Foundation/Foundation.h>\n",
+                    "std::string stdString = \"A std::string\"; (void)stdString;\n\n"
+                    "std::string &stdStringReference = stdString; (void)stdStringReference;\n\n"
+                    "CFStringRef cfStringRef = CFSTR(\"A cfstringref\"); (void)cfStringRef;\n\n"
+                    "NSString *aNSString = (NSString *)cfStringRef; (void)aNSString;\n\n"
+                    "NSString *nsString = @\"A nsstring\"; (void)nsString;\n\n"
+
+                    "NSURL *nsUrl = [NSURL URLWithString:@\"http://example.com\"];\n"
+                    "CFURLRef url = (__bridge CFURLRef)nsUrl; (void)url;\n\n"
+
+                    "CFStringRef& cfStringRefReference = cfStringRef; (void)cfStringRefReference;\n"
+                    "NSString *&aNSStringReference = aNSString; (void)aNSStringReference;\n"
+                    "NSURL *&nsUrlReference = nsUrl; (void)nsUrlReference;\n"
+                    "CFURLRef &urlReference = url; (void)urlReference;\n")
+            + CoreFoundationProfile()
+            + Check("stdString", "\"A std::string\"", "std::string")
+            + Check("stdStringReference", "\"A std::string\"", "std::string &")
+            + Check("cfStringRef", "\"A cfstringref\"", "CFStringRef")
+            + Check("aNSString", "\"A cfstringref\"", "__NSCFConstantString *")
+            + Check("nsString", "\"A nsstring\"", "__NSCFConstantString *")
+            + Check("nsUrl", "\"http://example.com\"", "NSURL *")
+            + Check("url", "\"http://example.com\"", "CFURLRef")
+            + Check("cfStringRefReference", "\"A cfstringref\"", "CFStringRef &")
+            + Check("aNSStringReference", "\"A cfstringref\"", "NSString * &")
+            + Check("nsUrlReference", "\"http://example.com\"", "NSURL * &")
+            // FIXME: Fails.
+            // + Check("urlReference", "\"http://example.com\"", "CFURLRef &")
+            ;
 #endif
 
     QTest::newRow("ArrayOfFunctionPointers")

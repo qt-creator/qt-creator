@@ -2714,6 +2714,8 @@ class DumperBase:
 
         if typeobj.code == TypeCodePointer:
             self.putFormattedPointer(value)
+            if value.summary and self.useFancy:
+                self.putValue(self.hexencode(value.summary), 'utf8:1:0')
             return
 
         self.putAddress(value.address())
@@ -2797,6 +2799,12 @@ class DumperBase:
         #warn('INAMES: %s ' % self.expandedINames)
         #warn('EXPANDED: %s ' % (self.currentIName in self.expandedINames))
         self.putType(typeName)
+
+        if value.summary is not None and self.useFancy:
+            self.putValue(self.hexencode(value.summary), 'utf8:1:0')
+            self.putNumChild(0)
+            return
+
         self.putNumChild(1)
         self.putEmptyValue()
         #warn('STRUCT GUTS: %s  ADDRESS: 0x%x ' % (value.name, value.address()))
@@ -2858,6 +2866,7 @@ class DumperBase:
             self.laddress = None    # Own address.
             self.lIsInScope = True
             self.ldisplay = None
+            self.summary = None     # Always hexencoded UTF-8.
             self.lbitpos = None
             self.lbitsize = None
             self.targetValue = None # For references.
@@ -2873,6 +2882,7 @@ class DumperBase:
             val.laddress = self.laddress
             val.lIsInScope = self.lIsInScope
             val.ldisplay = self.ldisplay
+            val.summary = self.summary
             val.lbitpos = self.lbitpos
             val.lbitsize = self.lbitsize
             val.targetValue = self.targetValue
@@ -3190,6 +3200,7 @@ class DumperBase:
                 return self.detypedef().dereference()
             val = self.dumper.Value(self.dumper)
             if self.type.code == TypeCodeReference:
+                val.summary = self.summary
                 if self.nativeValue is None:
                     val.laddress = self.pointer()
                     if val.laddress is None and self.laddress is not None:

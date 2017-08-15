@@ -125,9 +125,26 @@ class Dumper(DumperBase):
 
     def fromNativeValue(self, nativeValue):
         self.check(isinstance(nativeValue, lldb.SBValue))
-        nativeValue.SetPreferSyntheticValue(False)
         nativeType = nativeValue.GetType()
+        typeName = nativeType.GetName()
         code = nativeType.GetTypeClass()
+
+        # Display the result of GetSummary() for Core Foundation string
+        # and string-like types.
+        summary = None
+        if self.useFancy:
+            if (typeName.startswith('CF')
+                    or typeName.startswith('__CF')
+                    or typeName.startswith('NS')
+                    or typeName.startswith('__NSCF')):
+                if code == lldb.eTypeClassPointer:
+                    summary = nativeValue.Dereference().GetSummary()
+                elif code == lldb.eTypeClassReference:
+                    summary = nativeValue.Dereference().GetSummary()
+                else:
+                    summary = nativeValue.GetSummary()
+
+        nativeValue.SetPreferSyntheticValue(False)
 
         if code == lldb.eTypeClassReference:
             nativeTargetType = nativeType.GetDereferencedType()
@@ -196,6 +213,7 @@ class Dumper(DumperBase):
             #elif code == lldb.eTypeClassVector:
             #    val.type.ltarget = self.fromNativeType(nativeType.GetVectorElementType())
 
+        val.summary = summary
         val.lIsInScope = nativeValue.IsInScope()
         val.name = nativeValue.GetName()
         return val
