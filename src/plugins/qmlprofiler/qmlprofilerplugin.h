@@ -51,7 +51,7 @@ public:
     QList<QObject *> createTestObjects() const override;
 
 private:
-    QmlProfilerTool *m_profilerTool;
+    QmlProfilerTool *m_profilerTool = nullptr;
 };
 
 } // namespace Internal
