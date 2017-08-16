@@ -62,7 +62,7 @@ class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
 public:
     static QString browseButtonLabel();
 
-    explicit PathChooser(QWidget *parent = 0);
+    explicit PathChooser(QWidget *parent = nullptr);
     virtual ~PathChooser();
 
     enum Kind {
@@ -172,7 +172,7 @@ public slots:
     void setOkColor(const QColor &okColor);
 
 private:
-    PathChooserPrivate *d;
+    PathChooserPrivate *d = nullptr;
     static AboutToShowContextMenuHandler s_aboutToShowContextMenuHandler;
 };
 

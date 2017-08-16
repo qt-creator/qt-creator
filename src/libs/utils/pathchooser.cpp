@@ -51,11 +51,11 @@
 
 static QString appBundleExpandedPath(const QString &path)
 {
-    if (Utils::HostOsInfo::hostOs() == Utils::OsTypeMac && path.endsWith(QLatin1String(".app"))) {
+    if (Utils::HostOsInfo::hostOs() == Utils::OsTypeMac && path.endsWith(".app")) {
         // possibly expand to Foo.app/Contents/MacOS/Foo
         QFileInfo info(path);
         if (info.isDir()) {
-            QString exePath = path + QLatin1String("/Contents/MacOS/") + info.completeBaseName();
+            QString exePath = path + "/Contents/MacOS/" + info.completeBaseName();
             if (QFileInfo::exists(exePath))
                 return exePath;
         }
@@ -110,16 +110,16 @@ bool BinaryVersionToolTipEventFilter::eventFilter(QObject *o, QEvent *e)
         const QString version = BinaryVersionToolTipEventFilter::toolVersion(QDir::cleanPath(binary), m_arguments);
         if (!version.isEmpty()) {
             // Concatenate tooltips.
-            QString tooltip = QLatin1String("<html><head/><body>");
+            QString tooltip = "<html><head/><body>";
             const QString defaultValue = defaultToolTip();
             if (!defaultValue.isEmpty()) {
-                tooltip += QLatin1String("<p>");
+                tooltip += "<p>";
                 tooltip += defaultValue;
-                tooltip += QLatin1String("</p>");
+                tooltip += "</p>";
             }
-            tooltip += QLatin1String("<pre>");
+            tooltip += "<pre>";
             tooltip += version;
-            tooltip += QLatin1String("</pre><body></html>");
+            tooltip += "</pre><body></html>";
             le->setToolTip(tooltip);
         }
     }
@@ -150,7 +150,7 @@ private:
     virtual QString defaultToolTip() const
         { return m_pathChooser->errorMessage(); }
 
-    const PathChooser *m_pathChooser;
+    const PathChooser *m_pathChooser = nullptr;
 };
 
 // ------------------ PathChooserPrivate
@@ -162,8 +162,8 @@ public:
 
     QString expandedPath(const QString &path) const;
 
-    QHBoxLayout *m_hLayout;
-    FancyLineEdit *m_lineEdit;
+    QHBoxLayout *m_hLayout = nullptr;
+    FancyLineEdit *m_lineEdit = nullptr;
 
     PathChooser::Kind m_acceptingKind;
     QString m_dialogTitleOverride;
@@ -171,15 +171,14 @@ public:
     QString m_initialBrowsePathOverride;
     QString m_baseDirectory;
     Environment m_environment;
-    BinaryVersionToolTipEventFilter *m_binaryVersionToolTipEventFilter;
+    BinaryVersionToolTipEventFilter *m_binaryVersionToolTipEventFilter = nullptr;
     QList<QAbstractButton *> m_buttons;
 };
 
 PathChooserPrivate::PathChooserPrivate() :
     m_hLayout(new QHBoxLayout),
     m_lineEdit(new FancyLineEdit),
-    m_acceptingKind(PathChooser::ExistingDirectory),
-    m_binaryVersionToolTipEventFilter(0)
+    m_acceptingKind(PathChooser::ExistingDirectory)
 {
 }
 
@@ -194,7 +193,7 @@ QString PathChooserPrivate::expandedPath(const QString &input) const
     switch (m_acceptingKind) {
     case PathChooser::Command:
     case PathChooser::ExistingCommand: {
-        const FileName expanded = m_environment.searchInPath(path, QStringList(m_baseDirectory));
+        const FileName expanded = m_environment.searchInPath(path, {m_baseDirectory});
         return expanded.isEmpty() ? path : expanded.toString();
     }
     case PathChooser::Any:
@@ -204,7 +203,7 @@ QString PathChooserPrivate::expandedPath(const QString &input) const
     case PathChooser::File:
     case PathChooser::SaveFile:
         if (!m_baseDirectory.isEmpty() && QFileInfo(path).isRelative())
-            return QFileInfo(m_baseDirectory + QLatin1Char('/') + path).absoluteFilePath();
+            return QFileInfo(m_baseDirectory + '/' + path).absoluteFilePath();
         break;
     }
     return path;
@@ -337,7 +336,7 @@ QString PathChooser::expandedDirectory(const QString &input, const Environment &
     if (path.isEmpty())
         return path;
     if (!baseDir.isEmpty() && QFileInfo(path).isRelative())
-        return QFileInfo(baseDir + QLatin1Char('/') + path).absoluteFilePath();
+        return QFileInfo(baseDir + '/' + path).absoluteFilePath();
     return path;
 }
 
@@ -369,7 +368,8 @@ bool PathChooser::isReadOnly() const
 void PathChooser::setReadOnly(bool b)
 {
     d->m_lineEdit->setReadOnly(b);
-    foreach (QAbstractButton *button, d->m_buttons)
+    const auto buttons = d->m_buttons;
+    for (QAbstractButton *button : buttons)
         button->setEnabled(!b);
 }
 
@@ -663,7 +663,7 @@ FancyLineEdit *PathChooser::lineEdit() const
 {
     // HACK: Make it work with HistoryCompleter.
     if (d->m_lineEdit->objectName().isEmpty())
-        d->m_lineEdit->setObjectName(objectName() + QLatin1String("LineEdit"));
+        d->m_lineEdit->setObjectName(objectName() + "LineEdit");
     return d->m_lineEdit;
 }
 
@@ -695,7 +695,7 @@ void PathChooser::setCommandVersionArguments(const QStringList &arguments)
     if (arguments.isEmpty()) {
         if (d->m_binaryVersionToolTipEventFilter) {
             delete d->m_binaryVersionToolTipEventFilter;
-            d->m_binaryVersionToolTipEventFilter = 0;
+            d->m_binaryVersionToolTipEventFilter = nullptr;
         }
     } else {
         if (!d->m_binaryVersionToolTipEventFilter)
