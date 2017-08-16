@@ -24,9 +24,8 @@
 ############################################################################
 
 # This is a place to add your own dumpers for testing purposes.
-# Any contents here will be picked up by GDB and LLDB based
-# debugging in Qt Creator automatically. This code is not used
-# when debugging with CDB on Windows.
+# Any contents here will be picked up by GDB, LLDB, and CDB based
+# debugging in Qt Creator automatically.
 
 # NOTE: This file will get overwritten when updating Qt Creator.
 #
