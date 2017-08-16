@@ -1069,6 +1069,16 @@
         d.putArrayData(base, size, typeobj)
     \endcode
 
+    To get started with implementing debugging helpers for your own data types,
+    it is possible to put their implementation into the file
+    share/qtcreator/debugger/personaltypes.py in your \QC installation.
+
+    They will be automatically picked up from there each time you start a
+    debugging session in \QC and whenever you select
+    \uicontrol {Reload Debugging Helpers} from the context menu of the
+    \uicontrol {Debugger Log} view.
+
+
     \section2 Debugging Helper Implementation
 
     A debugging helper creates a description of the displayed data item
