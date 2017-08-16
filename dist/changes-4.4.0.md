@@ -172,7 +172,7 @@ Remote Linux
 
 * Added support for `ssh-agent` (QTCREATORBUG-16245)
 
-WinRT
+Universal Windows Platform
 
 * Fixed deployment to Windows 10 Mobile devices (QTCREATORBUG-18728)
 
