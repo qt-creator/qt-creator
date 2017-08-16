@@ -689,6 +689,13 @@ void TreeItem::insertChild(int pos, TreeItem *item)
     }
 }
 
+void TreeItem::insertOrderedChild(TreeItem *item,
+    const std::function<bool (const TreeItem *, const TreeItem *)> &cmp)
+{
+    auto where = std::lower_bound(begin(), end(), item, cmp);
+    insertChild(int(where - begin()), item);
+}
+
 void TreeItem::removeChildAt(int pos)
 {
     QTC_ASSERT(0 <= pos && pos < m_children.count(), return);

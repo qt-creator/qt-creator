@@ -54,6 +54,9 @@ public:
     void prependChild(TreeItem *item);
     void appendChild(TreeItem *item);
     void insertChild(int pos, TreeItem *item);
+    void insertOrderedChild(TreeItem *item,
+        const std::function<bool(const TreeItem *, const TreeItem *)> &cmp);
+
     void removeChildAt(int pos);
     void removeChildren();
     void sortChildren(const std::function<bool(const TreeItem *, const TreeItem *)> &cmp);
@@ -134,6 +137,14 @@ public:
 
     ParentType *parent() const {
         return static_cast<ParentType *>(TreeItem::parent());
+    }
+
+    void insertOrderedChild(ChildType *item, const std::function<bool(const ChildType *, const ChildType *)> &cmp)
+    {
+        const auto cmp0 = [cmp](const TreeItem *lhs, const TreeItem *rhs) {
+            return cmp(static_cast<const ChildType *>(lhs), static_cast<const ChildType *>(rhs));
+        };
+        TreeItem::insertOrderedChild(item, cmp0);
     }
 };
 
