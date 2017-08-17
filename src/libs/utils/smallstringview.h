@@ -193,3 +193,11 @@ int reverseCompare(const SmallStringView& first, const SmallStringView& second) 
 }
 
 } // namespace Utils
+
+#ifdef __cpp_user_defined_literals
+inline
+constexpr Utils::SmallStringView operator""_sv(const char *const string, size_t size)
+{
+    return Utils::SmallStringView(string, size);
+}
+#endif
