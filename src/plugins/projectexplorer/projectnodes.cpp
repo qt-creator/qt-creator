@@ -730,6 +730,11 @@ bool FolderNode::showInSimpleTree() const
     return false;
 }
 
+bool FolderNode::showWhenEmpty() const
+{
+    return false;
+}
+
 /*!
   \class ProjectExplorer::VirtualFolderNode
 

@@ -323,14 +323,15 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
 
 bool FlatModel::trimEmptyDirectories(WrapperNode *parent)
 {
-    if (!parent->m_node->asFolderNode())
+    const FolderNode *fn = parent->m_node->asFolderNode();
+    if (!fn)
         return false;
 
     for (int i = parent->childCount() - 1; i >= 0; --i) {
         if (trimEmptyDirectories(parent->childAt(i)))
             parent->removeChildAt(i);
     }
-    return parent->childCount() == 0;
+    return parent->childCount() == 0 && !fn->showWhenEmpty();
 }
 
 Qt::DropActions FlatModel::supportedDragActions() const

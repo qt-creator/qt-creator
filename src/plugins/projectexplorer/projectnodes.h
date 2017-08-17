@@ -272,6 +272,8 @@ public:
 
     // determines if node will be shown in the flat view, by default folder and projects aren't shown
     virtual bool showInSimpleTree() const;
+    // determines if node will always be shown when hiding empty directories
+    virtual bool showWhenEmpty() const;
 
     void addNode(Node *node);
     void removeNode(Node *node);
