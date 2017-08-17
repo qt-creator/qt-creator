@@ -25,6 +25,8 @@
 
 #include "clangrefactoringplugin.h"
 
+#include <clangpchmanager/qtcreatorprojectupdater.h>
+
 #include <cpptools/cppmodelmanager.h>
 
 #include <coreplugin/icore.h>
@@ -50,6 +52,7 @@ std::unique_ptr<ClangRefactoringPluginData> ClangRefactoringPlugin::d;
 
 class ClangRefactoringPluginData
 {
+    using ProjectUpdater = ClangPchManager::QtCreatorProjectUpdater<ClangPchManager::ProjectUpdater>;
 public:
     RefactoringClient refactoringClient;
     ClangBackEnd::RefactoringConnectionClient connectionClient{&refactoringClient};
@@ -58,6 +61,9 @@ public:
     QtCreatorClangQueryFindFilter qtCreatorfindFilter{connectionClient.serverProxy(),
                                                       qtCreatorSearch,
                                                       refactoringClient};
+    ProjectUpdater projectUpdate{connectionClient.serverProxy()};
+
+
 };
 
 ClangRefactoringPlugin::ClangRefactoringPlugin()

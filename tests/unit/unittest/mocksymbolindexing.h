@@ -27,24 +27,19 @@
 
 #include "googletest.h"
 
-#include <symbolscollectorinterface.h>
+#include <symbolindexinginterface.h>
 
-class MockSymbolsCollector : public ClangBackEnd::SymbolsCollectorInterface
+class MockSymbolIndexing : public ClangBackEnd::SymbolIndexingInterface
 {
 public:
-    MOCK_METHOD0(collectSymbols,
-                 void());
+   MOCK_METHOD2(updateProjectParts,
+                void(const ClangBackEnd::V2::ProjectPartContainers &projectParts,
+                     const ClangBackEnd::V2::FileContainers &generatedFiles));
 
-    MOCK_METHOD2(addFiles,
-                 void(const Utils::PathStringVector &filePaths,
-                      const Utils::SmallStringVector &arguments));
-
-    MOCK_METHOD1(addUnsavedFiles,
-                 void(const ClangBackEnd::V2::FileContainers &unsavedFiles));
-
-    MOCK_CONST_METHOD0(symbols,
-                       const ClangBackEnd::SymbolEntries &());
-
-    MOCK_CONST_METHOD0(sourceLocations,
-                       const ClangBackEnd::SourceLocationEntries &());
+   void updateProjectParts(ClangBackEnd::V2::ProjectPartContainers &&projectParts,
+                           ClangBackEnd::V2::FileContainers &&generatedFiles) override
+   {
+       updateProjectParts(projectParts, generatedFiles);
+   }
 };
+

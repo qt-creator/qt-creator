@@ -29,7 +29,7 @@
 #include "mockpchmanagerserver.h"
 
 #include <pchmanagerclient.h>
-#include <projectupdater.h>
+#include <pchmanagerprojectupdater.h>
 
 #include <precompiledheadersupdatedmessage.h>
 #include <removepchprojectpartsmessage.h>
@@ -49,7 +49,7 @@ protected:
     MockPchManagerServer mockPchManagerServer;
     ClangPchManager::PchManagerClient client;
     MockPchManagerNotifier mockPchManagerNotifier{client};
-    ClangPchManager::ProjectUpdater projectUpdater{mockPchManagerServer, client};
+    ClangPchManager::PchManagerProjectUpdater projectUpdater{mockPchManagerServer, client};
     Utils::SmallString projectPartId{"projectPartId"};
     Utils::SmallString pchFilePath{"/path/to/pch"};
     PrecompiledHeadersUpdatedMessage message{{{projectPartId.clone(), pchFilePath.clone()}}};

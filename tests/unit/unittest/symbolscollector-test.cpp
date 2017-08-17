@@ -39,6 +39,7 @@ using testing::Pair;
 using testing::Value;
 using testing::_;
 
+using ClangBackEnd::V2::FileContainers;
 using ClangBackEnd::SourceLocationEntry;
 using ClangBackEnd::SymbolEntry;
 using ClangBackEnd::SymbolType;
@@ -57,7 +58,7 @@ protected:
     SymbolIndex symbolIdForSymbolName(const Utils::SmallString &symbolName);
 
 protected:
-    ClangBackEnd::FilePathCache<> filePathCache;
+    ClangBackEnd::FilePathCache<std::mutex> filePathCache;
     ClangBackEnd::SymbolsCollector collector{filePathCache};
 };
 
@@ -148,6 +149,21 @@ TEST_F(SymbolsCollector, ReferencedSymboldMatchesLocation)
                     AllOf(Field(&SourceLocationEntry::symbolId, symbolIdForSymbolName("function")),
                           Field(&SourceLocationEntry::line, 14),
                           Field(&SourceLocationEntry::column, 5))));
+}
+
+TEST_F(SymbolsCollector, DISABLED_ON_WINDOWS(CollectInUnsavedFile))
+{
+    FileContainers unsaved{{{TESTDATA_DIR, "symbolscollector_generated_file.h"},
+                            "void function();",
+                            {}}};
+    collector.addFile(TESTDATA_DIR, "symbolscollector_unsaved.cpp", "", {"cc", TESTDATA_DIR"/symbolscollector_unsaved.cpp"});
+    collector.addUnsavedFiles(std::move(unsaved));
+
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.symbols(),
+                Contains(
+                    Pair(_, Field(&SymbolEntry::symbolName, "function"))));
 }
 
 SymbolIndex SymbolsCollector::symbolIdForSymbolName(const Utils::SmallString &symbolName)

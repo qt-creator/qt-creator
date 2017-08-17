@@ -52,10 +52,8 @@ public:
     Utils::PathStringVector sources;
 };
 
-ProjectUpdater::ProjectUpdater(ClangBackEnd::PchManagerServerInterface &server,
-                               PchManagerClient &client)
-    : m_server(server),
-      m_client(client)
+ProjectUpdater::ProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server)
+    : m_server(server)
 {
 }
 
@@ -75,9 +73,6 @@ void ProjectUpdater::removeProjectParts(const QStringList &projectPartIds)
     ClangBackEnd::RemovePchProjectPartsMessage message{Utils::SmallStringVector(projectPartIds)};
 
     m_server.removePchProjectParts(std::move(message));
-
-    for (const QString &projectPartiId : projectPartIds)
-        m_client.precompiledHeaderRemoved(projectPartiId);
 }
 
 void ProjectUpdater::setExcludedPaths(Utils::PathStringVector &&excludedPaths)

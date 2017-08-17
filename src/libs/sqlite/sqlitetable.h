@@ -28,6 +28,7 @@
 #include "createtablesqlstatementbuilder.h"
 #include "sqliteglobal.h"
 #include "sqlitecolumn.h"
+#include "sqliteindex.h"
 #include "sqliteexception.h"
 
 namespace Sqlite {
@@ -37,6 +38,12 @@ class SqliteDatabase;
 class SqliteTable
 {
 public:
+    SqliteTable(std::size_t reserve = 10)
+    {
+        m_sqliteColumns.reserve(reserve);
+        m_sqliteIndices.reserve(reserve);
+    }
+
     void setName(Utils::SmallString &&name)
     {
         m_tableName = std::move(name);
@@ -76,6 +83,13 @@ public:
         return m_sqliteColumns.back();
     }
 
+    SqliteIndex &addIndex(const SqliteColumnConstReferences &columns)
+    {
+        m_sqliteIndices.emplace_back(m_tableName.clone(), sqliteColumnNames(columns));
+
+        return m_sqliteIndices.back();
+    }
+
     const SqliteColumns &columns() const
     {
         return m_sqliteColumns;
@@ -89,22 +103,25 @@ public:
     template <typename Database>
     void initialize(Database &database)
     {
-        try {
-            CreateTableSqlStatementBuilder builder;
+        CreateTableSqlStatementBuilder builder;
 
-            builder.setTableName(m_tableName.clone());
-            builder.setUseWithoutRowId(m_withoutRowId);
-            builder.setUseIfNotExists(m_useIfNotExists);
-            builder.setUseTemporaryTable(m_useTemporaryTable);
-            builder.setColumns(m_sqliteColumns);
+        builder.setTableName(m_tableName.clone());
+        builder.setUseWithoutRowId(m_withoutRowId);
+        builder.setUseIfNotExists(m_useIfNotExists);
+        builder.setUseTemporaryTable(m_useTemporaryTable);
+        builder.setColumns(m_sqliteColumns);
 
-            database.execute(builder.sqlStatement());
+        database.execute(builder.sqlStatement());
 
-            m_isReady = true;
+        initializeIndices(database);
 
-        } catch (const SqliteException &exception) {
-            exception.printWarning();
-        }
+        m_isReady = true;
+    }
+    template <typename Database>
+    void initializeIndices(Database &database)
+    {
+        for (const SqliteIndex &index : m_sqliteIndices)
+            database.execute(index.sqlStatement());
     }
 
     friend bool operator==(const SqliteTable &first, const SqliteTable &second)
@@ -117,8 +134,20 @@ public:
     }
 
 private:
+    Utils::SmallStringVector sqliteColumnNames(const SqliteColumnConstReferences &columns)
+    {
+        Utils::SmallStringVector columnNames;
+
+        for (const SqliteColumn &column : columns)
+            columnNames.push_back(column.name());
+
+        return columnNames;
+    }
+
+private:
     Utils::SmallString m_tableName;
     SqliteColumns m_sqliteColumns;
+    SqliteIndices m_sqliteIndices;
     bool m_withoutRowId = false;
     bool m_useIfNotExists = false;
     bool m_useTemporaryTable = false;

@@ -25,26 +25,58 @@
 
 #pragma once
 
-#include "googletest.h"
 
-#include <symbolscollectorinterface.h>
+#include "sqliteglobal.h"
 
-class MockSymbolsCollector : public ClangBackEnd::SymbolsCollectorInterface
+#include "sqliteexception.h"
+
+#include <utils/smallstringvector.h>
+
+namespace Sqlite {
+
+class SqliteIndex
 {
 public:
-    MOCK_METHOD0(collectSymbols,
-                 void());
+    SqliteIndex(Utils::SmallString &&tableName, Utils::SmallStringVector &&columnNames)
+        : m_tableName(std::move(tableName)),
+          m_columnNames(std::move(columnNames))
+    {
+    }
 
-    MOCK_METHOD2(addFiles,
-                 void(const Utils::PathStringVector &filePaths,
-                      const Utils::SmallStringVector &arguments));
+    Utils::SmallString sqlStatement() const
+    {
+        checkTableName();
+        checkColumns();
 
-    MOCK_METHOD1(addUnsavedFiles,
-                 void(const ClangBackEnd::V2::FileContainers &unsavedFiles));
+        return {"CREATE INDEX IF NOT EXISTS index_",
+                m_tableName,
+                "_",
+                m_columnNames.join("_"),
+                " ON ",
+                m_tableName,
+                "(",
+                m_columnNames.join(", "),
+                ")"
+        };
+    }
 
-    MOCK_CONST_METHOD0(symbols,
-                       const ClangBackEnd::SymbolEntries &());
+    void checkTableName() const
+    {
+        if (m_tableName.isEmpty())
+            throw SqliteException("SqliteIndex has not table name!");
+    }
 
-    MOCK_CONST_METHOD0(sourceLocations,
-                       const ClangBackEnd::SourceLocationEntries &());
+    void checkColumns() const
+    {
+        if (m_columnNames.empty())
+            throw SqliteException("SqliteIndex has no columns!");
+    }
+
+private:
+    Utils::SmallString m_tableName;
+    Utils::SmallStringVector m_columnNames;
 };
+
+using SqliteIndices = std::vector<SqliteIndex>;
+
+} //

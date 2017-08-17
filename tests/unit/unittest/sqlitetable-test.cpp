@@ -27,7 +27,7 @@
 #include "spydummy.h"
 
 #include <sqlitecolumn.h>
-#include <sqlitedatabase.h>
+#include <mocksqlitedatabase.h>
 #include <sqlitetable.h>
 
 namespace {
@@ -41,13 +41,8 @@ using Sqlite::SqliteDatabase;
 class SqliteTable : public ::testing::Test
 {
 protected:
-    void SetUp() override;
-    void TearDown() override;
-
-protected:
-    SpyDummy spyDummy;
-    SqliteDatabase database;
-    Sqlite::SqliteTable &table = database.addTable();
+    NiceMock<MockSqliteDatabase> mockDatabase;
+    Sqlite::SqliteTable table;
     Utils::SmallString tableName = "testTable";
 };
 
@@ -73,26 +68,46 @@ TEST_F(SqliteTable, SetUseWithoutRowid)
     ASSERT_TRUE(table.useWithoutRowId());
 }
 
-TEST_F(SqliteTable, TableIsReadyAfterOpenDatabase)
+TEST_F(SqliteTable, AddIndex)
 {
     table.setName(tableName.clone());
+    auto &column = table.addColumn("name");
+    auto &column2 = table.addColumn("value");
+
+    auto index = table.addIndex({column, column2});
+
+    ASSERT_THAT(Utils::SmallStringView(index.sqlStatement()),
+                Eq("CREATE INDEX IF NOT EXISTS index_testTable_name_value ON testTable(name, value)"));
+}
+
+TEST_F(SqliteTable, InitializeTable)
+{
+    table.setName(tableName.clone());
+    table.setUseIfNotExists(true);
+    table.setUseTemporaryTable(true);
+    table.setUseWithoutRowId(true);
     table.addColumn("name");
+    table.addColumn("value");
 
-    database.open();
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE IF NOT EXISTS testTable(name NUMERIC, value NUMERIC) WITHOUT ROWID")));
 
-    ASSERT_TRUE(table.isReady());
+    table.initialize(mockDatabase);
 }
 
-void SqliteTable::SetUp()
+TEST_F(SqliteTable, InitializeTableWithIndex)
 {
-    database.setJournalMode(JournalMode::Memory);
-    database.setDatabaseFilePath( QStringLiteral(":memory:"));
-}
+    InSequence sequence;
+    table.setName(tableName.clone());
+    auto &column = table.addColumn("name");
+    auto &column2 = table.addColumn("value");
+    table.addIndex({column});
+    table.addIndex({column2});
 
-void SqliteTable::TearDown()
-{
-    if (database.isOpen())
-        database.close();
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE testTable(name NUMERIC, value NUMERIC)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_testTable_name ON testTable(name)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_testTable_value ON testTable(value)")));
+
+    table.initialize(mockDatabase);
 }
 
 }

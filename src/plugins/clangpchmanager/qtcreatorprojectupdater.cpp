@@ -26,25 +26,17 @@
 #include "qtcreatorprojectupdater.h"
 
 #include <cpptools/abstracteditorsupport.h>
-#include <cpptools/cppmodelmanager.h>
 
 #include <projectexplorer/project.h>
 
 namespace ClangPchManager {
 
-static CppTools::CppModelManager *cppModelManager()
+namespace Internal {
+
+CppTools::CppModelManager *cppModelManager()
 {
     return CppTools::CppModelManager::instance();
 }
-
-QtCreatorProjectUpdater::QtCreatorProjectUpdater(ClangBackEnd::PchManagerServerInterface &server,
-                                                 PchManagerClient &client)
-    : ProjectUpdater(server, client)
-{
-    connectToCppModelManager();
-}
-
-namespace {
 
 std::vector<ClangBackEnd::V2::FileContainer> createGeneratedFiles()
 {
@@ -85,30 +77,7 @@ std::vector<CppTools::ProjectPart*> createProjectParts(ProjectExplorer::Project 
                    convertToRawPointer);
 
     return projectParts;
-}
 
 }
-
-void QtCreatorProjectUpdater::projectPartsUpdated(ProjectExplorer::Project *project)
-{
-    updateProjectParts(createProjectParts(project), createGeneratedFiles());
-}
-
-void QtCreatorProjectUpdater::projectPartsRemoved(const QStringList &projectPartIds)
-{
-    removeProjectParts(projectPartIds);
-}
-
-void QtCreatorProjectUpdater::connectToCppModelManager()
-{
-    connect(cppModelManager(),
-            &CppTools::CppModelManager::projectPartsUpdated,
-            this,
-            &QtCreatorProjectUpdater::projectPartsUpdated);
-    connect(cppModelManager(),
-            &CppTools::CppModelManager::projectPartsRemoved,
-            this,
-            &QtCreatorProjectUpdater::projectPartsRemoved);
-}
-
+} // namespace Internal
 } // namespace ClangPchManager

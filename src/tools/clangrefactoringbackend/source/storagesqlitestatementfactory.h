@@ -53,8 +53,9 @@ public:
         table.setUseIfNotExists(true);
         table.setName("symbols");
         table.addColumn("symbolId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
-        table.addColumn("usr", Sqlite::ColumnType::Text);
+        const Sqlite::SqliteColumn &usrColumn = table.addColumn("usr", Sqlite::ColumnType::Text);
         table.addColumn("symbolName", Sqlite::ColumnType::Text);
+        table.addIndex({usrColumn});
 
         Sqlite::SqliteImmediateTransaction<DatabaseType> transaction(database);
         table.initialize(database);
@@ -71,7 +72,8 @@ public:
         table.addColumn("symbolId", Sqlite::ColumnType::Integer);
         table.addColumn("line", Sqlite::ColumnType::Integer);
         table.addColumn("column", Sqlite::ColumnType::Integer);
-        table.addColumn("sourceId", Sqlite::ColumnType::Integer);
+        const Sqlite::SqliteColumn &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
+        table.addIndex({sourceIdColumn});
 
         Sqlite::SqliteImmediateTransaction<DatabaseType> transaction(database);
         table.initialize(database);
@@ -101,9 +103,11 @@ public:
         table.setName("newSymbols");
         table.setUseTemporaryTable(true);
         table.addColumn("temporarySymbolId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
-        table.addColumn("symbolId", Sqlite::ColumnType::Integer);
-        table.addColumn("usr", Sqlite::ColumnType::Text);
-        table.addColumn("symbolName", Sqlite::ColumnType::Text);
+        const Sqlite::SqliteColumn &symbolIdColumn = table.addColumn("symbolId", Sqlite::ColumnType::Integer);
+        const Sqlite::SqliteColumn &usrColumn = table.addColumn("usr", Sqlite::ColumnType::Text);
+        const Sqlite::SqliteColumn &symbolNameColumn = table.addColumn("symbolName", Sqlite::ColumnType::Text);
+        table.addIndex({usrColumn, symbolNameColumn});
+        table.addIndex({symbolIdColumn});
 
         Sqlite::SqliteImmediateTransaction<DatabaseType> transaction(database);
         table.initialize(database);
@@ -121,7 +125,8 @@ public:
         table.addColumn("symbolId", Sqlite::ColumnType::Integer);
         table.addColumn("line", Sqlite::ColumnType::Integer);
         table.addColumn("column", Sqlite::ColumnType::Integer);
-        table.addColumn("sourceId", Sqlite::ColumnType::Integer);
+        const Sqlite::SqliteColumn &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
+        table.addIndex({sourceIdColumn});
 
         Sqlite::SqliteImmediateTransaction<DatabaseType> transaction(database);
         table.initialize(database);
@@ -142,39 +147,49 @@ public:
         database};
     WriteStatement insertLocationsToNewLocationsStatement{
         "INSERT INTO newLocations(temporarySymbolId, line, column, sourceId) VALUES(?,?,?,?)",
-        database};
+        database
+    };
 //    WriteStatement syncNewLocationsToLocationsStatement{
 //        "INSERT INTO locations(symbolId, line, column, sourceId) SELECT symbolId, line, column, sourceId FROM newLocations",
 //        database};
     ReadStatement selectNewSourceIdsStatement{
         "SELECT DISTINCT sourceId FROM newLocations WHERE NOT EXISTS (SELECT sourceId FROM sources WHERE newLocations.sourceId == sources.sourceId)",
-        database};
+        database
+    };
     WriteStatement addNewSymbolsToSymbolsStatement{
-        "INSERT INTO symbols(usr, symbolname) "
-        "SELECT usr, symbolname FROM newsymbols WHERE NOT EXISTS "
-        "(SELECT usr FROM symbols WHERE usr == newsymbols.usr)",
-        database};
+        "INSERT INTO symbols(usr, symbolName) "
+        "SELECT usr, symbolName FROM newSymbols WHERE NOT EXISTS "
+        "(SELECT usr FROM symbols WHERE symbols.usr == newSymbols.usr)",
+        database
+    };
     WriteStatement insertSourcesStatement{
         "INSERT INTO sources(sourceId, sourcePath) VALUES(?,?)",
-        database};
+        database
+    };
     WriteStatement syncNewSymbolsFromSymbolsStatement{
         "UPDATE newSymbols SET symbolId = (SELECT symbolId FROM symbols WHERE newSymbols.usr = symbols.usr)",
-        database};
+        database
+    };
     WriteStatement syncSymbolsIntoNewLocationsStatement{
         "UPDATE newLocations SET symbolId = (SELECT symbolId FROM newSymbols WHERE newSymbols.temporarySymbolId = newLocations.temporarySymbolId)",
-        database};
+        database
+    };
     WriteStatement deleteAllLocationsFromUpdatedFilesStatement{
         "DELETE FROM locations WHERE sourceId IN (SELECT DISTINCT sourceId FROM newLocations)",
-        database};
+        database
+    };
     WriteStatement insertNewLocationsInLocationsStatement{
         "INSERT INTO locations(symbolId, line, column, sourceId) SELECT symbolId, line, column, sourceId FROM newLocations",
-        database};
+        database
+    };
     WriteStatement deleteNewSymbolsTableStatement{
         "DELETE FROM newSymbols",
-        database};
+        database
+    };
     WriteStatement deleteNewLocationsTableStatement{
         "DELETE FROM newLocations",
-        database};
+        database
+    };
 };
 
 } // namespace ClangBackEnd

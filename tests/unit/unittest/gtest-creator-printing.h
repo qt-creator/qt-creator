@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/smallstringio.h>
+
 #include <QtGlobal>
 
 #include <iosfwd>

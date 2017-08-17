@@ -28,6 +28,8 @@
 #include "symbolentry.h"
 #include "sourcelocationentry.h"
 
+#include <filecontainerv2.h>
+
 #include <utils/smallstringvector.h>
 
 #include <string>
@@ -40,6 +42,8 @@ class SymbolsCollectorInterface
 public:
     virtual void addFiles(const Utils::PathStringVector &filePaths,
                           const Utils::SmallStringVector &arguments) = 0;
+
+    virtual void addUnsavedFiles(const V2::FileContainers &unsavedFiles) = 0;
 
     virtual void collectSymbols() = 0;
 

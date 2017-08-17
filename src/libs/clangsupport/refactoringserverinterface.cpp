@@ -47,6 +47,12 @@ void RefactoringServerInterface::dispatch(const MessageEnvelop &messageEnvelop)
         case MessageType::RequestSourceRangesForQueryMessage:
             requestSourceRangesForQueryMessage(messageEnvelop.message<RequestSourceRangesForQueryMessage>());
             break;
+        case MessageType::UpdatePchProjectPartsMessage:
+            updatePchProjectParts(messageEnvelop.message<UpdatePchProjectPartsMessage>());
+            break;
+        case MessageType::RemovePchProjectPartsMessage:
+            removePchProjectParts(messageEnvelop.message<RemovePchProjectPartsMessage>());
+            break;
         case MessageType::CancelMessage:
             cancel();
             break;

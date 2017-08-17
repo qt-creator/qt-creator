@@ -62,6 +62,16 @@ void RefactoringServerProxy::requestSourceRangesForQueryMessage(RequestSourceRan
     writeMessageBlock.write(message);
 }
 
+void RefactoringServerProxy::updatePchProjectParts(UpdatePchProjectPartsMessage &&message)
+{
+    writeMessageBlock.write(message);
+}
+
+void RefactoringServerProxy::removePchProjectParts(RemovePchProjectPartsMessage &&message)
+{
+    writeMessageBlock.write(message);
+}
+
 void RefactoringServerProxy::cancel()
 {
     writeMessageBlock.write(CancelMessage());

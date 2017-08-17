@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "ipcserverinterface.h"
+#include "projectmanagementserverinterface.h"
 
 #include <memory>
 
@@ -35,15 +35,12 @@ class PchManagerClientInterface;
 class RemovePchProjectPartsMessage;
 class UpdatePchProjectPartsMessage;
 
-
-class CMBIPC_EXPORT PchManagerServerInterface : public IpcServerInterface
+class CMBIPC_EXPORT PchManagerServerInterface : public ProjectManagementServerInterface
 {
 public:
     void dispatch(const MessageEnvelop &messageEnvelop) override;
 
     virtual void end() = 0;
-    virtual void updatePchProjectParts(UpdatePchProjectPartsMessage &&message) = 0;
-    virtual void removePchProjectParts(RemovePchProjectPartsMessage &&message) = 0;
 };
 
 } // namespace ClangBackEnd

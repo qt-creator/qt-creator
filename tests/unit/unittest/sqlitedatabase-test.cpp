@@ -96,6 +96,18 @@ TEST_F(SqliteDatabase, AddTable)
     ASSERT_THAT(database.tables(), Contains(sqliteTable));
 }
 
+TEST_F(SqliteDatabase, TableIsReadyAfterOpenDatabase)
+{
+    database.close();
+    auto &table = database.addTable();
+    table.setName("foo");
+    table.addColumn("name");
+
+    database.open();
+
+    ASSERT_TRUE(table.isReady());
+}
+
 void SqliteDatabase::SetUp()
 {
     database.setJournalMode(JournalMode::Memory);

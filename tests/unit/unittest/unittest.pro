@@ -74,7 +74,9 @@ SOURCES += \
     mocksqlitereadstatement.cpp \
     symbolquery-test.cpp \
     storagesqlitestatementfactory-test.cpp \
-    querysqlitestatementfactory-test.cpp
+    querysqlitestatementfactory-test.cpp \
+    symbolindexing-test.cpp \
+    sqliteindex-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -197,7 +199,8 @@ HEADERS += \
     mocksqlitewritestatement.h \
     mocksqlitedatabase.h \
     mocksqlitereadstatement.h \
-    google-using-declarations.h
+    google-using-declarations.h \
+    mocksymbolindexing.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

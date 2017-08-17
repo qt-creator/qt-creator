@@ -125,12 +125,7 @@ public:
     {
         std::lock_guard<Mutex> lock(m_mutex);
 
-        Found found = find(stringView);
-
-        if (!found.wasFound)
-            return insertString(found.iterator, stringView);
-
-        return found.iterator->id;
+        return ungardedStringId(stringView);
     }
 
     template <typename Container>
@@ -144,7 +139,7 @@ public:
         std::transform(strings.begin(),
                        strings.end(),
                        std::back_inserter(ids),
-                       [&] (const auto &string) { return this->stringId(string); });
+                       [&] (const auto &string) { return this->ungardedStringId(string); });
 
         return ids;
     }
@@ -182,6 +177,16 @@ public:
     }
 
 private:
+    IndexType ungardedStringId(Utils::SmallStringView stringView)
+    {
+        Found found = find(stringView);
+
+        if (!found.wasFound)
+            return insertString(found.iterator, stringView);
+
+        return found.iterator->id;
+    }
+
     Found find(Utils::SmallStringView stringView)
     {
         return findInSorted(m_strings.cbegin(), m_strings.cend(), stringView, compare);

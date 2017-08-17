@@ -23,28 +23,44 @@
 **
 ****************************************************************************/
 
-#pragma once
-
 #include "googletest.h"
 
-#include <symbolscollectorinterface.h>
+#include <sqliteindex.h>
 
-class MockSymbolsCollector : public ClangBackEnd::SymbolsCollectorInterface
+namespace {
+
+using Sqlite::SqliteException;
+using Sqlite::SqliteIndex;
+
+TEST(SqliteIndex, OneColumn)
 {
-public:
-    MOCK_METHOD0(collectSymbols,
-                 void());
+    SqliteIndex index{"tableName", {"column1"}};
 
-    MOCK_METHOD2(addFiles,
-                 void(const Utils::PathStringVector &filePaths,
-                      const Utils::SmallStringVector &arguments));
+    auto sqlStatement = index.sqlStatement();
 
-    MOCK_METHOD1(addUnsavedFiles,
-                 void(const ClangBackEnd::V2::FileContainers &unsavedFiles));
+    ASSERT_THAT(sqlStatement, Eq("CREATE INDEX IF NOT EXISTS index_tableName_column1 ON tableName(column1)"));
+}
 
-    MOCK_CONST_METHOD0(symbols,
-                       const ClangBackEnd::SymbolEntries &());
+TEST(SqliteIndex, TwoColumn)
+{
+    SqliteIndex index{"tableName", {"column1", "column2"}};
 
-    MOCK_CONST_METHOD0(sourceLocations,
-                       const ClangBackEnd::SourceLocationEntries &());
-};
+    auto sqlStatement = index.sqlStatement();
+
+    ASSERT_THAT(sqlStatement, Eq("CREATE INDEX IF NOT EXISTS index_tableName_column1_column2 ON tableName(column1, column2)"));
+}
+
+TEST(SqliteIndex, EmptyTableName)
+{
+    SqliteIndex index{"", {"column1", "column2"}};
+
+    ASSERT_THROW(index.sqlStatement(), SqliteException);
+}
+
+TEST(SqliteIndex, EmptyColumns)
+{
+    SqliteIndex index{"tableName", {}};
+
+    ASSERT_THROW(index.sqlStatement(), SqliteException);
+}
+}

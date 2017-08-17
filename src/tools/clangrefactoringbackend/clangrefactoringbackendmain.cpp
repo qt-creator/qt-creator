@@ -26,14 +26,19 @@
 #include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QLoggingCategory>
+#include <QDir>
 
 #include <connectionserver.h>
+#include <stringcache.h>
 #include <refactoringserver.h>
 #include <refactoringclientproxy.h>
+#include <symbolindexing.h>
 
+using ClangBackEnd::FilePathCache;
 using ClangBackEnd::RefactoringClientProxy;
 using ClangBackEnd::RefactoringServer;
 using ClangBackEnd::ConnectionServer;
+using ClangBackEnd::SymbolIndexing;
 
 QString processArguments(QCoreApplication &application)
 {
@@ -52,7 +57,7 @@ QString processArguments(QCoreApplication &application)
 }
 
 int main(int argc, char *argv[])
-{
+try {
     //QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
 
     QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
@@ -64,13 +69,17 @@ int main(int argc, char *argv[])
 
     const QString connection =  processArguments(application);
 
-    RefactoringServer clangCodeModelServer;
+    FilePathCache<std::mutex> filePathCache;
+    SymbolIndexing symbolIndexing{filePathCache, Utils::PathString{QDir::tempPath() + "/symbol.db"}};
+    RefactoringServer clangCodeModelServer{symbolIndexing, filePathCache};
     ConnectionServer<RefactoringServer, RefactoringClientProxy> connectionServer(connection);
     connectionServer.start();
     connectionServer.setServer(&clangCodeModelServer);
 
 
     return application.exec();
+} catch (const Sqlite::SqliteException &exception) {
+    exception.printWarning();
 }
 
 

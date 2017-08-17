@@ -33,10 +33,13 @@ SymbolIndexer::SymbolIndexer(SymbolsCollectorInterface &symbolsCollector, Symbol
 {
 }
 
-void SymbolIndexer::updateProjectParts(V2::ProjectPartContainers &&projectParts)
+void SymbolIndexer::updateProjectParts(V2::ProjectPartContainers &&projectParts,
+                                       V2::FileContainers &&generatedFiles)
 {
     for (const V2::ProjectPartContainer &projectPart : projectParts)
         m_symbolsCollector.addFiles(projectPart.sourcePaths(), projectPart.arguments());
+
+    m_symbolsCollector.addUnsavedFiles(generatedFiles);
 
     m_symbolsCollector.collectSymbols();
 

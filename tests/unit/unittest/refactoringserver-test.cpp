@@ -27,6 +27,7 @@
 
 #include "filesystem-utilities.h"
 #include "mockrefactoringclient.h"
+#include "mocksymbolindexing.h"
 #include "sourcerangecontainer-matcher.h"
 
 #include <refactoringserver.h>
@@ -57,6 +58,9 @@ using ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage;
 using ClangBackEnd::SourceRangesForQueryMessage;
 using ClangBackEnd::SourceRangesContainer;
 using ClangBackEnd::V2::FileContainer;
+using ClangBackEnd::V2::FileContainers;
+using ClangBackEnd::V2::ProjectPartContainer;
+using ClangBackEnd::V2::ProjectPartContainers;
 
 MATCHER_P2(IsSourceLocation, line, column,
            std::string(negation ? "isn't " : "is ")
@@ -76,8 +80,10 @@ protected:
     void TearDown() override;
 
 protected:
-    ClangBackEnd::RefactoringServer refactoringServer;
     NiceMock<MockRefactoringClient> mockRefactoringClient;
+    NiceMock<MockSymbolIndexing> mockSymbolIndexing;
+    ClangBackEnd::FilePathCache<std::mutex> filePathCache;
+    ClangBackEnd::RefactoringServer refactoringServer{mockSymbolIndexing, filePathCache};
     Utils::SmallString sourceContent{"void f()\n {}"};
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
                          sourceContent.clone(),
@@ -281,6 +287,23 @@ TEST_F(RefactoringServerSlowTest, ForInvalidRequestSourceRangesAndDiagnosticsGet
                                  Not(IsEmpty())))));
 
     refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(message));
+}
+
+TEST_F(RefactoringServer, UpdatePchProjectPartsCallsSymbolIndexingUpdateProjectParts)
+{
+    ProjectPartContainers projectParts{{{"projectPartId",
+                                        {"-I", TESTDATA_DIR},
+                                        {"header1.h"},
+                                        {"main.cpp"}}}};
+    FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},
+                            "void f();",
+                            {}}};
+
+
+    EXPECT_CALL(mockSymbolIndexing,
+                updateProjectParts(projectParts, unsaved));
+
+    refactoringServer.updatePchProjectParts({Utils::clone(projectParts), Utils::clone(unsaved)});
 }
 
 void RefactoringServer::SetUp()

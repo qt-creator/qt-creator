@@ -36,7 +36,7 @@ template <typename Database>
 class SqliteAbstractTransaction
 {
 public:
-    virtual ~SqliteAbstractTransaction()
+    ~SqliteAbstractTransaction()
     {
         if (!m_isAlreadyCommited)
             m_database.execute("ROLLBACK");
@@ -68,7 +68,6 @@ public:
     {
         database.execute("BEGIN");
     }
-
 };
 
 template <typename Database>
@@ -80,7 +79,6 @@ public:
     {
         database.execute("BEGIN IMMEDIATE");
     }
-
 };
 
 template <typename Database>
@@ -92,7 +90,6 @@ public:
     {
         database.execute("BEGIN EXCLUSIVE");
     }
-
 };
 
 } // namespace Sqlite

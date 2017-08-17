@@ -35,12 +35,14 @@
 
 #include <clang/Frontend/FrontendAction.h>
 
+#include <mutex>
+
 namespace ClangBackEnd {
 
 class CollectSymbolsAction
 {
 public:
-    CollectSymbolsAction(FilePathCache<> &filePathCache)
+    CollectSymbolsAction(FilePathCache<std::mutex> &filePathCache)
         : m_filePathCache(filePathCache)
     {}
 
@@ -64,7 +66,7 @@ public:
 private:
     SymbolEntries m_symbolEntries;
     SourceLocationEntries m_sourceLocationEntries;
-    FilePathCache<> &m_filePathCache;
+    FilePathCache<std::mutex> &m_filePathCache;
 
 };
 

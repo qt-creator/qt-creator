@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "ipcserverinterface.h"
+#include "projectmanagementserverinterface.h"
 
 #include <memory>
 
@@ -36,8 +36,10 @@ class RequestSourceLocationsForRenamingMessage;
 class RequestSourceRangesAndDiagnosticsForQueryMessage;
 class RequestSourceRangesForQueryMessage;
 class CancelMessage;
+class UpdatePchProjectPartsMessage;
+class RemovePchProjectPartsMessage;
 
-class CMBIPC_EXPORT RefactoringServerInterface : public IpcServerInterface
+class CMBIPC_EXPORT RefactoringServerInterface : public ProjectManagementServerInterface
 
 {
 public:

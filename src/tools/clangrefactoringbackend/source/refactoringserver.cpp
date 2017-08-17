@@ -27,6 +27,7 @@
 
 #include "symbolfinder.h"
 #include "clangquery.h"
+#include "symbolindexing.h"
 
 #include <refactoringclientinterface.h>
 #include <clangrefactoringmessages.h>
@@ -38,7 +39,10 @@
 
 namespace ClangBackEnd {
 
-RefactoringServer::RefactoringServer()
+RefactoringServer::RefactoringServer(SymbolIndexingInterface &symbolIndexing,
+                                     FilePathCache<std::mutex> &filePathCache)
+    : m_symbolIndexing(symbolIndexing),
+      m_filePathCache(filePathCache)
 {
     m_pollTimer.setInterval(100);
 
@@ -88,7 +92,17 @@ void RefactoringServer::requestSourceRangesForQueryMessage(RequestSourceRangesFo
 {
     gatherSourceRangesForQueryMessages(message.takeSources(),
                                                      message.takeUnsavedContent(),
-                                                     message.takeQuery());
+                                       message.takeQuery());
+}
+
+void RefactoringServer::updatePchProjectParts(UpdatePchProjectPartsMessage &&message)
+{
+    m_symbolIndexing.updateProjectParts(message.takeProjectsParts(), message.takeGeneratedFiles());
+}
+
+void RefactoringServer::removePchProjectParts(RemovePchProjectPartsMessage &&)
+{
+
 }
 
 void RefactoringServer::cancel()

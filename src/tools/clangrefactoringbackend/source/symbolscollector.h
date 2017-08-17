@@ -37,10 +37,12 @@ namespace ClangBackEnd {
 class SymbolsCollector : public ClangTool, public SymbolsCollectorInterface
 {
 public:
-    SymbolsCollector(FilePathCache<> &filePathCache);
+    SymbolsCollector(FilePathCache<std::mutex> &filePathCache);
 
     void addFiles(const Utils::PathStringVector &filePaths,
                   const Utils::SmallStringVector &arguments) override;
+
+    void addUnsavedFiles(const V2::FileContainers &unsavedFiles) override;
 
     void collectSymbols() override;
 

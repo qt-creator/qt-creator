@@ -58,7 +58,7 @@ protected:
     void SetUp();
 
 protected:
-    FilePathCache<> filePathCache;
+    FilePathCache<std::mutex> filePathCache;
     NiceMock<MockSqliteDatabase> mockDatabase;
     StatementFactory statementFactory{mockDatabase};
 

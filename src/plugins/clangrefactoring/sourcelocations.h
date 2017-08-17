@@ -50,6 +50,13 @@ public:
         Utils::PathString sourcePath;
     };
 
+    enum LocationGetter
+    {
+        SourceId = 0,
+        Line,
+        Column
+    };
+
     std::vector<Location> locations;
     std::unordered_map<qint64, Utils::PathString> sources;
 };

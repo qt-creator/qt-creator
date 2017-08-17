@@ -9,7 +9,9 @@ HEADERS += \
     $$PWD/symbolscollectorinterface.h \
     $$PWD/symbolstorageinterface.h \
     $$PWD/symbolstorage.h \
-    $$PWD/storagesqlitestatementfactory.h
+    $$PWD/storagesqlitestatementfactory.h \
+    $$PWD/symbolindexing.h \
+    $$PWD/symbolindexinginterface.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
@@ -55,4 +57,5 @@ SOURCES += \
     $$PWD/symbolindexer.cpp \
     $$PWD/symbolentry.cpp \
     $$PWD/sourcelocationentry.cpp \
-    $$PWD/symbolstorage.cpp
+    $$PWD/symbolstorage.cpp \
+    $$PWD/symbolindexing.cpp

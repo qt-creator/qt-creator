@@ -25,7 +25,11 @@
 
 #pragma once
 
-#include "projectupdater.h"
+#include "pchmanagerprojectupdater.h"
+
+#include <cpptools/cppmodelmanager.h>
+
+#include <filecontainerv2.h>
 
 #include <QObject>
 
@@ -33,19 +37,57 @@ namespace ProjectExplorer {
 class Project;
 }
 
+namespace CppTools {
+class CppModelManager;
+}
+
 namespace ClangPchManager {
 
-class QtCreatorProjectUpdater : public QObject, public ProjectUpdater
+namespace Internal {
+CLANGPCHMANAGER_EXPORT CppTools::CppModelManager *cppModelManager();
+CLANGPCHMANAGER_EXPORT std::vector<ClangBackEnd::V2::FileContainer> createGeneratedFiles();
+CLANGPCHMANAGER_EXPORT std::vector<CppTools::ProjectPart*> createProjectParts(ProjectExplorer::Project *project);
+}
+
+template <typename ProjectUpdaterType>
+class QtCreatorProjectUpdater : public ProjectUpdaterType
 {
 public:
-    QtCreatorProjectUpdater(ClangBackEnd::PchManagerServerInterface &server,
-                            PchManagerClient &client);
+    template <typename ClientType>
+    QtCreatorProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
+                            ClientType &client)
+        : ProjectUpdaterType(server, client)
+    {
+        connectToCppModelManager();
+    }
 
-    void projectPartsUpdated(ProjectExplorer::Project *project);
-    void projectPartsRemoved(const QStringList &projectPartIds);
+    QtCreatorProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server)
+        : ProjectUpdaterType(server)
+    {
+        connectToCppModelManager();
+    }
+
+    void projectPartsUpdated(ProjectExplorer::Project *project)
+    {
+        ProjectUpdaterType::updateProjectParts(Internal::createProjectParts(project),
+                                               Internal::createGeneratedFiles());
+    }
+
+    void projectPartsRemoved(const QStringList &projectPartIds)
+    {
+        ProjectUpdaterType::removeProjectParts(projectPartIds);
+    }
 
 private:
-    void connectToCppModelManager();
+    void connectToCppModelManager()
+    {
+        QObject::connect(Internal::cppModelManager(),
+                         &CppTools::CppModelManager::projectPartsUpdated,
+                         [&] (ProjectExplorer::Project *project) { projectPartsUpdated(project); });
+        QObject::connect(Internal::cppModelManager(),
+                         &CppTools::CppModelManager::projectPartsRemoved,
+                         [&] (const QStringList &projectPartIds) { projectPartsRemoved(projectPartIds); });
+    }
 };
 
 } // namespace ClangPchManager

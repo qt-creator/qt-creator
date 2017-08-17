@@ -11,12 +11,14 @@ HEADERS += \
     $$PWD/pchmanagernotifierinterface.h \
     $$PWD/pchmanagerconnectionclient.h \
     $$PWD/clangpchmanager_global.h \
-    $$PWD/projectupdater.h
+    $$PWD/projectupdater.h \
+    $$PWD/pchmanagerprojectupdater.h
 
 
 SOURCES += \
     $$PWD/pchmanagerclient.cpp \
     $$PWD/pchmanagernotifierinterface.cpp \
     $$PWD/pchmanagerconnectionclient.cpp \
-    $$PWD/projectupdater.cpp
+    $$PWD/projectupdater.cpp \
+    $$PWD/pchmanagerprojectupdater.cpp
 

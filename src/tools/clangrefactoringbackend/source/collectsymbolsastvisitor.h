@@ -50,7 +50,7 @@ class CollectSymbolsASTVisitor : public clang::RecursiveASTVisitor<CollectSymbol
 public:
     CollectSymbolsASTVisitor(SymbolEntries &symbolEntries,
                              SourceLocationEntries &sourceLocationEntries,
-                             FilePathCache<> &filePathCache,
+                             FilePathCache<std::mutex> &filePathCache,
                              const clang::SourceManager &sourceManager)
         : m_symbolEntries(symbolEntries),
           m_sourceLocationEntries(sourceLocationEntries),
@@ -58,8 +58,16 @@ public:
           m_sourceManager(sourceManager)
     {}
 
+    bool shouldVisitTemplateInstantiations() const
+    {
+        return true;
+    }
+
     bool VisitNamedDecl(const clang::NamedDecl *declaration)
     {
+        if (!declaration->getIdentifier())
+            return true;
+
         SymbolIndex globalId = toSymbolIndex(declaration->getCanonicalDecl());
         auto sourceLocation = declaration->getLocation();
 
@@ -141,7 +149,7 @@ private:
     SymbolEntries &m_symbolEntries;
     std::unordered_map<uint, FilePathIndex> m_filePathIndices;
     SourceLocationEntries &m_sourceLocationEntries;
-    FilePathCache<> &m_filePathCache;
+    FilePathCache<std::mutex> &m_filePathCache;
     const clang::SourceManager &m_sourceManager;
 };
 

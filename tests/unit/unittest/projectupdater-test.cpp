@@ -29,7 +29,7 @@
 #include "mockpchmanagernotifier.h"
 #include "mockpchmanagerserver.h"
 
-#include <projectupdater.h>
+#include <pchmanagerprojectupdater.h>
 
 #include <pchmanagerclient.h>
 #include <precompiledheadersupdatedmessage.h>
@@ -60,7 +60,7 @@ protected:
     ClangPchManager::PchManagerClient pchManagerClient;
     MockPchManagerNotifier mockPchManagerNotifier{pchManagerClient};
     NiceMock<MockPchManagerServer> mockPchManagerServer;
-    ClangPchManager::ProjectUpdater updater{mockPchManagerServer, pchManagerClient};
+    ClangPchManager::ProjectUpdater updater{mockPchManagerServer};
     Utils::SmallString projectPartId{"project1"};
     Utils::SmallString projectPartId2{"project2"};
     Utils::PathStringVector headerPaths = {"/path/to/header1.h", "/path/to/header2.h"};
@@ -87,7 +87,7 @@ TEST_F(ProjectUpdater, CallUpdatePchProjectParts)
 
 TEST_F(ProjectUpdater, CallRemovePchProjectParts)
 {
-    EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(_)).Times(AnyNumber());
+
     ClangBackEnd::RemovePchProjectPartsMessage message{{projectPartId, projectPartId2}};
 
     EXPECT_CALL(mockPchManagerServer, removePchProjectParts(message));
@@ -95,14 +95,15 @@ TEST_F(ProjectUpdater, CallRemovePchProjectParts)
     updater.removeProjectParts({QString(projectPartId), QString(projectPartId2)});
 }
 
-TEST_F(ProjectUpdater, CallPrecompiledHeaderRemoved)
+TEST_F(ProjectUpdater, CallPrecompiledHeaderRemovedInPchManagerProjectUpdater)
 {
+    ClangPchManager::PchManagerProjectUpdater pchUpdater{mockPchManagerServer, pchManagerClient};
     ClangBackEnd::RemovePchProjectPartsMessage message{{projectPartId, projectPartId2}};
 
     EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId.toQString()));
     EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId2.toQString()));
 
-    updater.removeProjectParts({QString(projectPartId), QString(projectPartId2)});
+    pchUpdater.removeProjectParts({QString(projectPartId), QString(projectPartId2)});
 }
 
 TEST_F(ProjectUpdater, ConvertProjectPartToProjectPartContainer)

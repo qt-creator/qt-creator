@@ -110,4 +110,11 @@ private:
     std::vector<UnsavedFileContent> m_unsavedFileContents;
 };
 
+extern template
+void ClangTool::addFiles<Utils::SmallStringVector>(const Utils::SmallStringVector &filePaths,
+                                                   const Utils::SmallStringVector &arguments);
+extern template
+void ClangTool::addFiles<Utils::PathStringVector>(const Utils::PathStringVector &filePaths,
+                                                  const Utils::SmallStringVector &arguments);
+
 } // namespace ClangBackEnd

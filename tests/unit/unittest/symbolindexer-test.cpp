@@ -46,6 +46,7 @@ using testing::Sequence;
 using Utils::PathString;
 using ClangBackEnd::V2::ProjectPartContainer;
 using ClangBackEnd::V2::ProjectPartContainers;
+using ClangBackEnd::V2::FileContainers;
 using ClangBackEnd::SymbolEntries;
 using ClangBackEnd::SymbolEntry;
 using ClangBackEnd::SourceLocationEntries;
@@ -72,6 +73,9 @@ protected:
                                       {"-I", TESTDATA_DIR, "-x", "c++-header", "-Wno-pragma-once-outside-header"},
                                       {header2Path.clone()},
                                       {main2Path.clone()}};
+    FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},
+                            "void f();",
+                            {}}};
     SymbolEntries symbolEntries{{1, {"function", "function"}}};
     SourceLocationEntries sourceLocations{{1, 1, {42, 23}, SymbolType::Declaration}};
     NiceMock<MockSymbolsCollector> mockCollector;
@@ -83,7 +87,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollector)
 {
     EXPECT_CALL(mockCollector, addFiles(projectPart1.sourcePaths(), projectPart1.arguments()));
 
-    indexer.updateProjectParts({projectPart1});
+    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollectorForEveryProjectPart)
@@ -91,7 +95,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollectorForEveryProjectP
     EXPECT_CALL(mockCollector, addFiles(_, _))
             .Times(2);
 
-    indexer.updateProjectParts({projectPart1, projectPart2});
+    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsDoesNotCallAddFilesInCollectorForEmptyEveryProjectParts)
@@ -99,48 +103,54 @@ TEST_F(SymbolIndexer, UpdateProjectPartsDoesNotCallAddFilesInCollectorForEmptyEv
     EXPECT_CALL(mockCollector, addFiles(_, _))
             .Times(0);
 
-    indexer.updateProjectParts({});
+    indexer.updateProjectParts({}, {});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallscollectSymbolsInCollector)
 {
     EXPECT_CALL(mockCollector, collectSymbols());
 
-    indexer.updateProjectParts({projectPart1});
+    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsSymbolsInCollector)
 {
     EXPECT_CALL(mockCollector, symbols());
 
-    indexer.updateProjectParts({projectPart1});
+    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsSourceLocationsInCollector)
 {
     EXPECT_CALL(mockCollector, sourceLocations());
 
-    indexer.updateProjectParts({projectPart1});
+    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
+}
+
+TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddUnsavedFilesInCollector)
+{
+    EXPECT_CALL(mockCollector, addUnsavedFiles(unsaved));
+
+    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddSymbolsAndSourceLocationsInStorage)
 {
     EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
 
-    indexer.updateProjectParts({projectPart1});
+    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
 {
-    Sequence sequence;
-
     EXPECT_CALL(mockCollector, addFiles(_, _));
+    EXPECT_CALL(mockCollector, addUnsavedFiles(unsaved));
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockCollector, symbols());
     EXPECT_CALL(mockCollector, sourceLocations());
     EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
 
-    indexer.updateProjectParts({projectPart1});
+    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
 }
 
 void SymbolIndexer::SetUp()

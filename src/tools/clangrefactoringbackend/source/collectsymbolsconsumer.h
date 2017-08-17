@@ -40,13 +40,14 @@ class CollectSymbolsConsumer : public clang::ASTConsumer
 public:
     CollectSymbolsConsumer(SymbolEntries &symbolEntries,
                            SourceLocationEntries &sourceLocationEntries,
-                           FilePathCache<> &filePathCache)
+                           FilePathCache<std::mutex> &filePathCache)
         : m_symbolEntries(symbolEntries),
           m_sourceLocationEntries(sourceLocationEntries),
           m_filePathCache(filePathCache)
     {}
 
-    void HandleTranslationUnit(clang::ASTContext &astContext) override {
+    void HandleTranslationUnit(clang::ASTContext &astContext) override
+    {
         CollectSymbolsASTVisitor visitor{m_symbolEntries,
                                          m_sourceLocationEntries,
                                          m_filePathCache,
@@ -54,9 +55,20 @@ public:
         visitor.TraverseDecl(astContext.getTranslationUnitDecl());
     }
 
+     bool shouldSkipFunctionBody(clang::Decl *declation) override
+     {
+         const clang::SourceManager &sourceManager =  declation->getASTContext().getSourceManager();
+         const clang::SourceLocation location = declation->getLocation();
+
+         if (sourceManager.isInSystemHeader(location))
+             return true;
+
+         return false;
+     }
+
 private:
     SymbolEntries &m_symbolEntries;
     SourceLocationEntries &m_sourceLocationEntries;
-    FilePathCache<> &m_filePathCache;
+    FilePathCache<std::mutex> &m_filePathCache;
 };
 }

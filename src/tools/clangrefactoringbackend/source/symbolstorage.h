@@ -27,8 +27,11 @@
 
 #include "symbolstorageinterface.h"
 
+#include <sqliteexception.h>
 #include <sqlitetransaction.h>
 #include <stringcache.h>
+
+#include <mutex>
 
 namespace ClangBackEnd {
 
@@ -42,7 +45,7 @@ class SymbolStorage : public SymbolStorageInterface
 
 public:
     SymbolStorage(StatementFactory &statementFactory,
-                  FilePathCache<> &filePathCache)
+                  FilePathCache<std::mutex> &filePathCache)
         : m_statementFactory(statementFactory),
           m_filePathCache(filePathCache)
     {
@@ -149,7 +152,7 @@ public:
 
 private:
     StatementFactory &m_statementFactory;
-    FilePathCache<> &m_filePathCache;
+    FilePathCache<std::mutex> &m_filePathCache;
 };
 
 } // namespace ClangBackEnd

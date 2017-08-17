@@ -23,28 +23,8 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "symbolindexing.h"
 
-#include "googletest.h"
+namespace ClangBackEnd {
 
-#include <symbolscollectorinterface.h>
-
-class MockSymbolsCollector : public ClangBackEnd::SymbolsCollectorInterface
-{
-public:
-    MOCK_METHOD0(collectSymbols,
-                 void());
-
-    MOCK_METHOD2(addFiles,
-                 void(const Utils::PathStringVector &filePaths,
-                      const Utils::SmallStringVector &arguments));
-
-    MOCK_METHOD1(addUnsavedFiles,
-                 void(const ClangBackEnd::V2::FileContainers &unsavedFiles));
-
-    MOCK_CONST_METHOD0(symbols,
-                       const ClangBackEnd::SymbolEntries &());
-
-    MOCK_CONST_METHOD0(sourceLocations,
-                       const ClangBackEnd::SourceLocationEntries &());
-};
+} // namespace ClangBackEnd

@@ -47,6 +47,11 @@ using ::testing::Args;
 using ::testing::Property;
 using ::testing::Eq;
 
+using ClangBackEnd::UpdatePchProjectPartsMessage;
+using ClangBackEnd::V2::FileContainer;
+using ClangBackEnd::V2::ProjectPartContainer;
+using ClangBackEnd::RemovePchProjectPartsMessage;
+
 class RefactoringClientServerInProcess : public ::testing::Test
 {
 protected:
@@ -166,6 +171,31 @@ TEST_F(RefactoringClientServerInProcess, RequestSourceRangesForQueryMessage)
     EXPECT_CALL(mockRefactoringServer, requestSourceRangesForQueryMessage(message));
 
     serverProxy.requestSourceRangesForQueryMessage(message.clone());
+    scheduleServerMessages();
+}
+
+TEST_F(RefactoringClientServerInProcess, SendUpdatePchProjectPartsMessage)
+{
+    ProjectPartContainer projectPart2{"projectPartId",
+                                      {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
+                                      {TESTDATA_DIR "/includecollector_header.h"},
+                                      {TESTDATA_DIR "/includecollector_main.cpp"}};
+    FileContainer fileContainer{{"/path/to/", "file"}, "content", {}};
+    UpdatePchProjectPartsMessage message{{projectPart2}, {fileContainer}};
+
+    EXPECT_CALL(mockRefactoringServer, updatePchProjectParts(message));
+
+    serverProxy.updatePchProjectParts(message.clone());
+    scheduleServerMessages();
+}
+
+TEST_F(RefactoringClientServerInProcess, SendRemovePchProjectPartsMessage)
+{
+    RemovePchProjectPartsMessage message{{"projectPartId1", "projectPartId2"}};
+
+    EXPECT_CALL(mockRefactoringServer, removePchProjectParts(message));
+
+    serverProxy.removePchProjectParts(message.clone());
     scheduleServerMessages();
 }
 

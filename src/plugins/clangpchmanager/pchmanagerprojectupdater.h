@@ -25,26 +25,20 @@
 
 #pragma once
 
-#include "googletest.h"
+#include "projectupdater.h"
 
-#include <symbolscollectorinterface.h>
+namespace ClangPchManager {
 
-class MockSymbolsCollector : public ClangBackEnd::SymbolsCollectorInterface
+class PchManagerProjectUpdater : public ProjectUpdater
 {
 public:
-    MOCK_METHOD0(collectSymbols,
-                 void());
+    PchManagerProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
+                             PchManagerClient &client);
 
-    MOCK_METHOD2(addFiles,
-                 void(const Utils::PathStringVector &filePaths,
-                      const Utils::SmallStringVector &arguments));
+    void removeProjectParts(const QStringList &projectPartIds);
 
-    MOCK_METHOD1(addUnsavedFiles,
-                 void(const ClangBackEnd::V2::FileContainers &unsavedFiles));
-
-    MOCK_CONST_METHOD0(symbols,
-                       const ClangBackEnd::SymbolEntries &());
-
-    MOCK_CONST_METHOD0(sourceLocations,
-                       const ClangBackEnd::SourceLocationEntries &());
+private:
+    PchManagerClient &m_client;
 };
+
+} // namespace ClangPchManager

@@ -52,7 +52,7 @@ class ClangPchManagerPluginData
 public:
     PchManagerClient pchManagerClient;
     PchManagerConnectionClient connectionClient{&pchManagerClient};
-    QtCreatorProjectUpdater projectUpdate{connectionClient.serverProxy(), pchManagerClient};
+    QtCreatorProjectUpdater<PchManagerProjectUpdater> projectUpdate{connectionClient.serverProxy(), pchManagerClient};
 };
 
 std::unique_ptr<ClangPchManagerPluginData> ClangPchManagerPlugin::d;

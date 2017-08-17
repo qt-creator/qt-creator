@@ -29,6 +29,7 @@
 #include "symbolstorageinterface.h"
 
 #include <projectpartcontainerv2.h>
+#include <filecontainerv2.h>
 
 namespace ClangBackEnd {
 
@@ -38,7 +39,8 @@ public:
     SymbolIndexer(SymbolsCollectorInterface &symbolsCollector,
                   SymbolStorageInterface &symbolStorage);
 
-    void updateProjectParts(V2::ProjectPartContainers &&projectParts);
+    void updateProjectParts(V2::ProjectPartContainers &&projectParts,
+                            V2::FileContainers &&generatedFiles);
 
 private:
     SymbolsCollectorInterface &m_symbolsCollector;

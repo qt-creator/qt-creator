@@ -29,6 +29,8 @@
 
 #include <utils/smallstring.h>
 
+#include <functional>
+
 namespace Sqlite {
 
 class SqliteColumn
@@ -108,5 +110,7 @@ private:
 };
 
 using SqliteColumns = std::vector<SqliteColumn>;
+using SqliteColumnConstReference = std::reference_wrapper<const SqliteColumn>;
+using SqliteColumnConstReferences = std::vector<SqliteColumnConstReference>;
 
 } // namespace Sqlite

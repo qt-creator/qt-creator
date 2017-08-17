@@ -35,7 +35,7 @@ class ProjectFile;
 }
 
 namespace ClangBackEnd {
-class PchManagerServerInterface;
+class ProjectManagementServerInterface;
 
 namespace V2 {
 class ProjectPartContainer;
@@ -51,11 +51,10 @@ namespace ClangPchManager {
 class HeaderAndSources;
 class PchManagerClient;
 
-class ProjectUpdater
+class CLANGPCHMANAGER_EXPORT ProjectUpdater
 {
 public:
-    ProjectUpdater(ClangBackEnd::PchManagerServerInterface &server,
-                   PchManagerClient &client);
+    ProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server);
 
     void updateProjectParts(const std::vector<CppTools::ProjectPart *> &projectParts,
                             ClangBackEnd::V2::FileContainers &&generatedFiles);
@@ -77,8 +76,7 @@ unittest_public:
 
 private:
     Utils::PathStringVector m_excludedPaths;
-    ClangBackEnd::PchManagerServerInterface &m_server;
-    PchManagerClient &m_client;
+    ClangBackEnd::ProjectManagementServerInterface &m_server;
 };
 
 } // namespace ClangPchManager

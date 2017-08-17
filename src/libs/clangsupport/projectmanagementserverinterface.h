@@ -25,26 +25,18 @@
 
 #pragma once
 
-#include "googletest.h"
+#include "ipcserverinterface.h"
 
-#include <symbolscollectorinterface.h>
+namespace ClangBackEnd {
 
-class MockSymbolsCollector : public ClangBackEnd::SymbolsCollectorInterface
+class RemovePchProjectPartsMessage;
+class UpdatePchProjectPartsMessage;
+
+class CMBIPC_EXPORT ProjectManagementServerInterface : public IpcInterface
 {
 public:
-    MOCK_METHOD0(collectSymbols,
-                 void());
-
-    MOCK_METHOD2(addFiles,
-                 void(const Utils::PathStringVector &filePaths,
-                      const Utils::SmallStringVector &arguments));
-
-    MOCK_METHOD1(addUnsavedFiles,
-                 void(const ClangBackEnd::V2::FileContainers &unsavedFiles));
-
-    MOCK_CONST_METHOD0(symbols,
-                       const ClangBackEnd::SymbolEntries &());
-
-    MOCK_CONST_METHOD0(sourceLocations,
-                       const ClangBackEnd::SourceLocationEntries &());
+    virtual void updatePchProjectParts(UpdatePchProjectPartsMessage &&message) = 0;
+    virtual void removePchProjectParts(RemovePchProjectPartsMessage &&message) = 0;
 };
+
+} // namespace ClangBackEnd
