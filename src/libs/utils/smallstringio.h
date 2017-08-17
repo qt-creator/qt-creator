@@ -62,7 +62,7 @@ QDataStream &operator>>(QDataStream &in, BasicSmallString<Size> &string)
 
         char *data = string.data();
 
-        in.readRawData(data, size);
+        in.readRawData(data, int(size));
     }
 
     return in;
@@ -79,38 +79,26 @@ QDebug &operator<<(QDebug &debug, const String &string)
 }
 
 template <uint Size>
-std::ostream &operator<<(std::ostream &stream, const BasicSmallString<Size> &string)
-{
-    using std::operator<<;
-
-    stream.write(string.data(), std::streamsize(string.size()));
-
-    return stream;
-}
-
-inline
-std::ostream &operator<<(std::ostream &stream, SmallStringView string)
-{
-    using std::operator<<;
-
-    stream.write(string.data(), std::streamsize(string.size()));
-
-    return stream;
-}
-
-template <uint Size>
-void PrintTo(const BasicSmallString<Size> &string, ::std::ostream *os)
+std::ostream &operator<<(std::ostream &out, const BasicSmallString<Size> &string)
 {
     BasicSmallString<Size> formatedString = string.clone();
 
     formatedString.replace("\n", "\\n");
     formatedString.replace("\t", "\\t");
 
-    *os << "'";
+    out << "\"";
 
-    os->write(formatedString.data(), formatedString.size());
+    out.write(formatedString.data(), std::streamsize(formatedString.size()));
 
-    *os<< "'";
+    out << "\"";
+
+    return out;
+}
+
+inline
+std::ostream &operator<<(std::ostream &out, SmallStringView string)
+{
+    return out << PathString(string);
 }
 
 template <typename String>
@@ -155,9 +143,9 @@ QDebug operator<<(QDebug debug, const BasicSmallStringVector<String> &stringVect
 }
 
 template <typename String>
-void PrintTo(const BasicSmallStringVector<String> &textVector, ::std::ostream* os)
+std::ostream &operator<<(std::ostream &out, const BasicSmallStringVector<String> &textVector)
 {
-    *os << "[" << textVector.join(", ").constData() << "]";
+    return out << "[" << textVector.join("\", \"") << "]";
 }
 
 } // namespace Utils
