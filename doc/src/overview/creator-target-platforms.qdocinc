@@ -44,7 +44,7 @@
 
         \li QNX
 
-        \li Windows Runtime (including Windows Phone)
+        \li Universal Windows Platform (UWP)
 
     \endlist
 
@@ -96,7 +96,7 @@
             \li \inlineimage ok
                 *
         \row
-            \li Windows Runtime
+            \li UWP
             \li
             \li
             \li \image ok
