@@ -26,12 +26,21 @@
 #pragma once
 
 #include <utils/smallstringview.h>
+#include <utils/smallstringfwd.h>
 
 #include <algorithm>
 #include <mutex>
 #include <vector>
 
 namespace ClangBackEnd {
+
+class StringCacheException : public std::exception
+{
+    const char *what() const noexcept override
+    {
+        return "StringCache entries are in invalid state.";
+    }
+};
 
 class NonLockingMutex
 {
@@ -43,42 +52,49 @@ public:
     void unlock() {}
 };
 
+template <typename StringType>
+class StringCacheEntry
+{
+public:
+    StringCacheEntry(StringType &&string, uint id)
+        : string(std::move(string)),
+          id(id)
+    {}
+
+    friend bool operator<(const StringCacheEntry &entry, Utils::SmallStringView stringView)
+    {
+        return entry.string < stringView;
+    }
+
+    friend bool operator<(Utils::SmallStringView stringView, const StringCacheEntry &entry)
+    {
+        return stringView < entry.string;
+    }
+
+    friend bool operator<(const StringCacheEntry &first, const StringCacheEntry &second)
+    {
+        return first.string < second.string;
+    }
+
+    StringType string;
+    uint id;
+};
+
+template <typename StringType>
+using StringCacheEntries = std::vector<StringCacheEntry<StringType>>;
+
 template <typename StringType,
           typename Mutex = NonLockingMutex>
 class StringCache
 {
-    class StringCacheEntry
-    {
-    public:
-        StringCacheEntry(StringType &&string, uint id)
-            : string(std::move(string)),
-              id(id)
-        {}
-
-        friend bool operator<(const StringCacheEntry &entry, Utils::SmallStringView stringView)
-        {
-            return entry.string < stringView;
-        }
-
-        friend bool operator<(Utils::SmallStringView stringView, const StringCacheEntry &entry)
-        {
-            return stringView < entry.string;
-        }
-
-        StringType string;
-        uint id;
-    };
-
-    using StringCacheEntries = std::vector<StringCacheEntry>;
-    using const_iterator = typename StringCacheEntries::const_iterator;
+    using const_iterator = typename StringCacheEntries<StringType>::const_iterator;
 
     class Found
     {
     public:
-        typename StringCacheEntries::const_iterator iterator;
+        typename StringCacheEntries<StringType>::const_iterator iterator;
         bool wasFound;
     };
-
 
 public:
     StringCache()
@@ -86,6 +102,26 @@ public:
         m_strings.reserve(1024);
         m_indices.reserve(1024);
     }
+
+    void populate(StringCacheEntries<StringType> &&entries)
+    {
+        uncheckedPopulate(std::move(entries));
+
+        checkEntries();
+    }
+
+    void uncheckedPopulate(StringCacheEntries<StringType> &&entries)
+    {
+        std::sort(entries.begin(), entries.end());
+
+        m_strings = std::move(entries);
+        m_indices.resize(m_strings.size());
+
+        auto begin = m_strings.cbegin();
+        for (auto current = begin; current != m_strings.end(); ++current)
+            m_indices.at(current->id) = std::distance(begin, current);
+    }
+
 
     uint stringId(Utils::SmallStringView stringView)
     {
@@ -99,7 +135,8 @@ public:
         return found.iterator->id;
     }
 
-    std::vector<uint> stringIds(const std::vector<StringType> &strings)
+    template <typename Container>
+    std::vector<uint> stringIds(const Container &strings)
     {
         std::lock_guard<Mutex> lock(m_mutex);
 
@@ -109,12 +146,17 @@ public:
         std::transform(strings.begin(),
                        strings.end(),
                        std::back_inserter(ids),
-                       [&] (const StringType &string) { return stringId(string); });
+                       [&] (const auto &string) { return this->stringId(string); });
 
         return ids;
     }
 
-    const StringType &string(uint id) const
+    std::vector<uint> stringIds(std::initializer_list<StringType> strings)
+    {
+        return stringIds<std::initializer_list<StringType>>(strings);
+    }
+
+    Utils::SmallStringView string(uint id) const
     {
         std::lock_guard<Mutex> lock(m_mutex);
 
@@ -134,6 +176,11 @@ public:
                        [&] (uint id) { return m_strings.at(m_indices.at(id)).string; });
 
         return strings;
+    }
+
+    bool isEmpty() const
+    {
+        return m_strings.empty() && m_indices.empty();
     }
 
 private:
@@ -157,7 +204,7 @@ private:
     uint insertString(const_iterator beforeIterator,
                       Utils::SmallStringView stringView)
     {
-        auto id = uint(m_strings.size());
+        auto id = uint(m_indices.size());
 
         auto inserted = m_strings.emplace(beforeIterator, StringType(stringView), id);
 
@@ -170,10 +217,21 @@ private:
         return id;
     }
 
+    void checkEntries()
+    {
+        for (const auto &entry : m_strings) {
+            if (entry.string != string(entry.id) || entry.id != stringId(entry.string))
+                throw StringCacheException();
+        }
+    }
+
 private:
-    StringCacheEntries m_strings;
+    StringCacheEntries<StringType> m_strings;
     std::vector<uint> m_indices;
     mutable Mutex m_mutex;
 };
+
+template <typename Mutex = NonLockingMutex>
+using FilePathCache = StringCache<Utils::PathString, Mutex>;
 
 } // namespace ClangBackEnd

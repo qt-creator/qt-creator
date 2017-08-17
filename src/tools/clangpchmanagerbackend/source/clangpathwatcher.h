@@ -216,7 +216,7 @@ unittest_public:
         std::transform(watcherEntries.begin(),
                        watcherEntries.end(),
                        std::back_inserter(paths),
-                       [&] (const WatcherEntry &entry) { return m_pathCache.string(entry.path); });
+                       [&] (const WatcherEntry &entry) { return QString(m_pathCache.string(entry.path)); });
 
         return paths;
     }
@@ -388,7 +388,7 @@ unittest_public:
                        foundEntries.end(),
                        std::back_inserter(ids),
                        [&] (const WatcherEntry &entry) {
-            return m_idCache.string(entry.id);
+            return Utils::SmallString(m_idCache.string(entry.id));
         });
 
         return ids;

@@ -31,7 +31,8 @@
 
 namespace {
 
-using testing::ElementsAre;
+using ClangBackEnd::StringCacheEntries;
+using ClangBackEnd::StringCacheException;
 
 class StringCache : public testing::Test
 {
@@ -123,6 +124,86 @@ TEST_F(StringCache, AddFilePaths)
     auto ids = cache.stringIds({filePath1, filePath2, filePath3, filePath4});
 
     ASSERT_THAT(ids, ElementsAre(0, 1, 2, 3));
+}
+
+TEST_F(StringCache, IsEmpty)
+{
+    auto isEmpty = cache.isEmpty();
+
+    ASSERT_TRUE(isEmpty);
+}
+
+TEST_F(StringCache, IsNotEmpty)
+{
+    cache.stringId(filePath1);
+
+    auto isEmpty = cache.isEmpty();
+
+    ASSERT_FALSE(isEmpty);
+}
+
+TEST_F(StringCache, PopulateWithEmptyVector)
+{
+    StringCacheEntries<Utils::PathString> entries;
+
+    cache.uncheckedPopulate(std::move(entries));
+
+    ASSERT_TRUE(cache.isEmpty());
+}
+
+TEST_F(StringCache, IsNotEmptyAfterPopulateWithSomeEntries)
+{
+    StringCacheEntries<Utils::PathString> entries{{filePath1.clone(), 0},
+                                                  {filePath2.clone(), 1},
+                                                  {filePath3.clone(), 2},
+                                                  {filePath4.clone(), 3}};
+
+    cache.uncheckedPopulate(std::move(entries));
+
+    ASSERT_TRUE(!cache.isEmpty());
+}
+
+TEST_F(StringCache, GetEntryAfterPopulateWithSomeEntries)
+{
+    StringCacheEntries<Utils::PathString> entries{{filePath1.clone(), 0},
+                                                  {filePath2.clone(), 1},
+                                                  {filePath3.clone(), 2},
+                                                  {filePath4.clone(), 3}};
+    cache.uncheckedPopulate(std::move(entries));
+
+    auto string = cache.string(2);
+
+    ASSERT_THAT(string, filePath3);
+}
+
+TEST_F(StringCache, EntriesHaveUniqueIds)
+{
+    StringCacheEntries<Utils::PathString> entries{{filePath1.clone(), 0},
+                                                  {filePath2.clone(), 1},
+                                                  {filePath3.clone(), 2},
+                                                  {filePath4.clone(), 2}};
+
+    ASSERT_THROW(cache.populate(std::move(entries)), StringCacheException);
+}
+
+TEST_F(StringCache, IdsAreHigherLowerEntriesSize)
+{
+    StringCacheEntries<Utils::PathString> entries{{filePath1.clone(), 0},
+                                                  {filePath2.clone(), 1},
+                                                  {filePath3.clone(), 4},
+                                                  {filePath4.clone(), 3}};
+
+    ASSERT_THROW(cache.populate(std::move(entries)), std::out_of_range);
+}
+
+TEST_F(StringCache, MultipleEntries)
+{
+    StringCacheEntries<Utils::PathString> entries{{filePath1.clone(), 0},
+                                                  {filePath1.clone(), 1},
+                                                  {filePath3.clone(), 2},
+                                                  {filePath4.clone(), 3}};
+
+    ASSERT_THROW(cache.populate(std::move(entries)), StringCacheException);
 }
 
 }
