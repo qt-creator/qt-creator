@@ -798,31 +798,24 @@ void GdbEngine::interruptInferior()
         showMessage("TRYING TO INTERRUPT INFERIOR");
         if (HostOsInfo::isWindowsHost() && !m_isQnxGdb) {
             QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); notifyInferiorStopFailed());
-            QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed());
-            m_signalOperation = runTool()->device()->signalOperation();
-            QTC_ASSERT(m_signalOperation, notifyInferiorStopFailed());
-            connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
-                    this, &GdbEngine::handleInterruptDeviceInferior);
-
-            m_signalOperation->setDebuggerCommand(runParameters().debugger.executable);
-            m_signalOperation->interruptProcess(inferiorPid());
+            DeviceProcessSignalOperation::Ptr signalOperation = runTool()->device()->signalOperation();
+            QTC_ASSERT(signalOperation, notifyInferiorStopFailed(); return);
+            connect(signalOperation.data(), &DeviceProcessSignalOperation::finished,
+                    this, [this, signalOperation](const QString &error) {
+                        if (error.isEmpty()) {
+                            showMessage("Interrupted " + QString::number(inferiorPid()));
+                            notifyInferiorStopOk();
+                        } else {
+                            showMessage(error, LogError);
+                            notifyInferiorStopFailed();
+                        }
+                    });
+            signalOperation->setDebuggerCommand(runParameters().debugger.executable);
+            signalOperation->interruptProcess(inferiorPid());
         } else {
             interruptInferior2();
         }
     }
-}
-
-void GdbEngine::handleInterruptDeviceInferior(const QString &error)
-{
-    if (error.isEmpty()) {
-        showMessage("Interrupted " + QString::number(inferiorPid()));
-        notifyInferiorStopOk();
-    } else {
-        showMessage(error, LogError);
-        notifyInferiorStopFailed();
-    }
-    m_signalOperation->disconnect(this);
-    m_signalOperation.clear();
 }
 
 void GdbEngine::runCommand(const DebuggerCommand &command)

@@ -36,12 +36,10 @@
 
 #include <coreplugin/id.h>
 
-#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/qtcprocess.h>
 
 #include <QProcess>
 #include <QTextCodec>
-#include <QTime>
 #include <QTimer>
 
 #include <functional>
@@ -128,7 +126,6 @@ protected: ////////// Gdb Process Management //////////
 private:
     friend class GdbPlainEngine;
     friend class GdbCoreEngine;
-    void handleInterruptDeviceInferior(const QString &error);
     void handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void handleGdbError(QProcess::ProcessError error);
     void readGdbStandardOutput();
@@ -422,7 +419,6 @@ protected:
 protected:
     Utils::QtcProcess m_gdbProc;
     QString m_errorString;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
 };
 
 } // namespace Internal
