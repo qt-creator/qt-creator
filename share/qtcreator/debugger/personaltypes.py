@@ -31,8 +31,8 @@
 #
 # To add dumpers that don't get overwritten, copy this file here
 # to a safe location outside the Qt Creator installation and
-# make this location known to Qt Creator using the  Debugger /
-# GDB / Dumper customization / Additional file  setting.
+# make this location known to Qt Creator using the Debugger >
+# Locals & Expressions > Extra Debugging Helpers setting.
 
 # Example to display a simple type
 # template<typename U, typename V> struct MapNode
