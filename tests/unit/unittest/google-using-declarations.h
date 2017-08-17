@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,16 +26,21 @@
 #pragma once
 
 #include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
 
-#include "compare-operators.h"
-
-#include "conditionally-disabled-tests.h"
-#include "gtest-qt-printing.h"
-#include "gtest-creator-printing.h"
-#ifdef CLANG_UNIT_TESTS
-#  include "gtest-clang-printing.h"
-#endif
-
-#include "google-using-declarations.h"
+using testing::_;
+using testing::AllOf;
+using testing::AnyOf;
+using testing::Contains;
+using testing::ElementsAre;
+using testing::Eq;
+using testing::Field;
+using testing::InSequence;
+using testing::IsEmpty;
+using testing::NiceMock;
+using testing::Pair;
+using testing::PrintToString;
+using testing::Property;
+using testing::Return;
+using testing::ReturnRef;
+using testing::Sequence;
+using testing::UnorderedElementsAre;
