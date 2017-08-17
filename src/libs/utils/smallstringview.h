@@ -27,7 +27,7 @@
 
 #include "smallstringiterator.h"
 
-#include <QtGlobal>
+#include <QString>
 
 #include <cstring>
 #include <string>
@@ -114,6 +114,11 @@ public:
     operator std::string() const
     {
         return std::string(data(), size());
+    }
+
+    explicit operator QString() const
+    {
+        return QString::fromUtf8(data(), int(size()));
     }
 
     bool startsWith(SmallStringView subStringToSearch) const noexcept
