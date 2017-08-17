@@ -271,8 +271,10 @@ void QmakeProject::updateCppCodeModel()
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
     ProjectPart::QtVersion qtVersionForPart = ProjectPart::NoQt;
     if (qtVersion) {
-        if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
-            qtVersionForPart = ProjectPart::Qt4;
+        if (qtVersion->qtVersion() <= QtSupport::QtVersionNumber(4,8,6))
+            qtVersionForPart = ProjectPart::Qt4_8_6AndOlder;
+        else if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
+            qtVersionForPart = ProjectPart::Qt4Latest;
         else
             qtVersionForPart = ProjectPart::Qt5;
     }

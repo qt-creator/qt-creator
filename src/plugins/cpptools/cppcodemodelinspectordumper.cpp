@@ -144,7 +144,8 @@ QString Utils::toString(ProjectPart::QtVersion qtVersion)
     switch (qtVersion) {
     CASE_QTVERSION(UnknownQt);
     CASE_QTVERSION(NoQt);
-    CASE_QTVERSION(Qt4);
+    CASE_QTVERSION(Qt4_8_6AndOlder);
+    CASE_QTVERSION(Qt4Latest);
     CASE_QTVERSION(Qt5);
     // no default to get a compiler warning if anything is added
     }

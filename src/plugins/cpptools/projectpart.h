@@ -80,7 +80,8 @@ public:
     enum QtVersion {
         UnknownQt = -1,
         NoQt,
-        Qt4,
+        Qt4_8_6AndOlder,
+        Qt4Latest,
         Qt5
     };
 
