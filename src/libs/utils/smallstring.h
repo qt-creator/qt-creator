@@ -232,6 +232,11 @@ public:
         return QString::fromUtf8(data(), int(size()));
     }
 
+    SmallStringView toView() const
+    {
+        return SmallStringView(data(), size());
+    }
+
     operator SmallStringView() const
     {
         return SmallStringView(data(), size());

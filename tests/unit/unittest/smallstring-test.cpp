@@ -1375,6 +1375,16 @@ TEST(SmallString, ShortStringCapacity)
     ASSERT_THAT(PathString().shortStringCapacity(), 189);
 }
 
+TEST(SmallString, ToView)
+{
+    SmallString text = "text";
+
+    auto view = text.toView();
+
+    ASSERT_THAT(view, "text");
+
+}
+
 TEST(SmallString, Compare)
 {
     ASSERT_THAT(Utils::compare("", ""), Eq(0));
