@@ -90,7 +90,7 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
 
 void QmlProfilerPlugin::extensionsInitialized()
 {
-    (void) new QmlProfilerTool(this);
+    m_profilerTool = new QmlProfilerTool(this);
 
     addAutoReleasedObject(new QmlProfilerOptionsPage);
 
@@ -112,6 +112,9 @@ void QmlProfilerPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()
 {
+    delete m_profilerTool;
+    m_profilerTool = nullptr;
+
     // Save settings.
     // Disconnect from signals that are not needed during shutdown
     // Hide UI (if you add UI that is not in the main window directly)

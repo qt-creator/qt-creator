@@ -241,7 +241,7 @@ void AndroidManager::setDeviceSerialNumber(ProjectExplorer::Target *target, cons
 
 QPair<int, int> AndroidManager::apiLevelRange()
 {
-    return qMakePair(9, 23);
+    return qMakePair(9, 26);
 }
 
 QString AndroidManager::androidNameForApiLevel(int x)
@@ -291,6 +291,8 @@ QString AndroidManager::androidNameForApiLevel(int x)
         return QLatin1String("Android 7.0");
     case 25:
         return QLatin1String("Android 7.1");
+    case 26:
+        return QLatin1String("Android 8.0");
     default:
         return tr("Unknown Android version. API Level: %1").arg(QString::number(x));
     }

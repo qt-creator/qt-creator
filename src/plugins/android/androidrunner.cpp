@@ -226,7 +226,8 @@ public:
     Utils::Port localGdbServerPort() const { return m_localGdbServerPort; }
 
 signals:
-    void remoteProcessStarted(Utils::Port gdbServerPort, Utils::Port qmlServerPort, int pid);
+    void remoteProcessStarted(Utils::Port gdbServerPort, Utils::Port qmlServerPort,
+                              QString qmlServerHost, int pid);
     void remoteProcessFinished(const QString &errString = QString());
 
     void remoteOutput(const QString &output);
@@ -257,6 +258,7 @@ private:
     bool m_useCppDebugger = false;
     QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
     Utils::Port m_localGdbServerPort; // Local end of forwarded debug socket.
+    QString m_qmlServerHost;
     Utils::Port m_qmlPort;
     QString m_pingFile;
     QString m_pongFile;
@@ -295,6 +297,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunControl *runControl, const AndroidRu
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)
                    || server.listen(QHostAddress::LocalHostIPv6),
                    qDebug() << tr("No free ports available on host for QML debugging."));
+        m_qmlServerHost = server.serverAddress().toString();
         m_qmlPort = Utils::Port(server.serverPort());
     } else {
         m_qmlPort = Utils::Port();
@@ -638,7 +641,7 @@ void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
     } else {
         // In debugging cases this will be funneled to the engine to actually start
         // and attach gdb. Afterwards this ends up in handleRemoteDebuggerRunning() below.
-        emit remoteProcessStarted(m_localGdbServerPort, m_qmlPort, m_processPID);
+        emit remoteProcessStarted(m_localGdbServerPort, m_qmlPort, m_qmlServerHost, m_processPID);
         logcatReadStandardOutput();
         QTC_ASSERT(!m_psIsAlive, /**/);
         m_psIsAlive.reset(new QProcess);
@@ -782,10 +785,12 @@ void AndroidRunner::remoteErrorOutput(const QString &output)
     m_outputParser.processOutput(output);
 }
 
-void AndroidRunner::handleRemoteProcessStarted(Utils::Port gdbServerPort, Utils::Port qmlServerPort, int pid)
+void AndroidRunner::handleRemoteProcessStarted(Utils::Port gdbServerPort, Utils::Port qmlServerPort,
+                                               QString qmlServerHost, int pid)
 {
     m_pid = ProcessHandle(pid);
     m_gdbServerPort = gdbServerPort;
+    m_qmlServerHost = qmlServerHost;
     m_qmlServerPort = qmlServerPort;
     reportStarted();
 }

@@ -24,16 +24,15 @@
 ############################################################################
 
 # This is a place to add your own dumpers for testing purposes.
-# Any contents here will be picked up by GDB and LLDB based
-# debugging in Qt Creator automatically. This code is not used
-# when debugging with CDB on Windows.
+# Any contents here will be picked up by GDB, LLDB, and CDB based
+# debugging in Qt Creator automatically.
 
 # NOTE: This file will get overwritten when updating Qt Creator.
 #
 # To add dumpers that don't get overwritten, copy this file here
 # to a safe location outside the Qt Creator installation and
-# make this location known to Qt Creator using the  Debugger /
-# GDB / Dumper customization / Additional file  setting.
+# make this location known to Qt Creator using the Debugger >
+# Locals & Expressions > Extra Debugging Helpers setting.
 
 # Example to display a simple type
 # template<typename U, typename V> struct MapNode

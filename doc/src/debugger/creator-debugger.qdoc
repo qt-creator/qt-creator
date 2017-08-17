@@ -981,6 +981,8 @@
     Linux, LLDB on macOS, and CDB on Windows, or any other platform on which at
     least one of the three supported backends is available.
 
+    \section2 Adding Custom Debugging Helpers
+
     To add debugging helpers for your own types, no compilation is required,
     just adding a few lines of Python. The scripts can address multiple versions
     of Qt, or of your own library, at the same time.
@@ -990,6 +992,45 @@
     \c{~/.gdbinit} or \c{~/.lldbinit}) or specify them directly in the
     \uicontrol {Additional Startup Commands} in \uicontrol Tools >
     \uicontrol Options > \uicontrol Debugger > \uicontrol GDB.
+
+    To get started with implementing debugging helpers for your own data types,
+    you can put their implementation into the file
+    \c share/qtcreator/debugger/personaltypes.py in your \QC installation. The
+    file contains one example implementation:
+
+    \quotefromfile ../../share/qtcreator/debugger/personaltypes.py
+    \skipto qdump__
+    \printuntil d.putItem
+
+    To add debugging helpers:
+
+    \list 1
+
+        \li Open the \c share/qtcreator/debugger/personaltypes.py file for
+            editing. For example, if your Qt installation is located in the
+            \c Qt5 directory on Windows, look in
+            \c C:\Qt5\Tools\QtCreator\share\qtcreator\debugger.
+
+        \li Add your dumper implementation to the end of the \c personaltypes.py
+            file.  For more information about implementing debugging helpers,
+            see the following sections.
+
+        \li To prevent \c personaltypes.py from being overwritten when you
+            update your \QC installation (when updating your Qt installation,
+            for example), copy it to a safe location outside the \QC
+            installation in your file system and specify the location in
+            \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+            \uicontrol {Locals & Expressions} >
+            \uicontrol {Extra Debugging Helpers}.
+
+            \image qtcreator-debugging-helper-options.png
+
+    \endlist
+
+    The custom debugging helpers will be automatically picked up from
+    \c personaltypes.py when you start a debugging session in \QC or select
+    \uicontrol {Reload Debugging Helpers} from the context menu of the
+    \uicontrol {Debugger Log} view.
 
     \section2 Debugging Helper Overview
 

@@ -427,7 +427,7 @@ void QmlEngine::beginConnection(Utils::Port port)
     QString host = runParameters().qmlServer.host;
     // Use localhost as default
     if (host.isEmpty())
-        host = "localhost";
+        host = QHostAddress(QHostAddress::LocalHost).toString();
 
     /*
      * Let plugin-specific code override the port printed by the application. This is necessary

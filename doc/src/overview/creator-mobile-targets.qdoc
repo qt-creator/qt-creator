@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -82,11 +82,12 @@
             supported for QNX Neutrino devices, and requires the QNX SDK to be
             installed on the development PC.
 
-        \li \l{Connecting Windows Runtime Devices}
+        \li \l{Connecting UWP Devices}
 
-            You can build Windows Store Apps and run them on Windows Phones, the
-            Windows Phone Emulator, or the Windows computer in Modern UI mode.
-            You can install the necessary tool chains as part of Qt 5.3.
+            You can build applications for the Universal Windows Platform (UWP)
+            and run them on any Windows 10 devices, such as PC, tablet, or
+            phone. You can install the necessary tool chains as part of Qt 5.9
+            or later.
 
     \endlist
 

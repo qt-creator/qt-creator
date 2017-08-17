@@ -709,6 +709,7 @@ void ExamplesListModelFilter::timerEvent(QTimerEvent *timerEvent)
 {
     if (m_timerId == timerEvent->timerId()) {
         invalidateFilter();
+        emit layoutChanged();
         killTimer(m_timerId);
         m_timerId = 0;
     }
