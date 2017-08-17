@@ -161,7 +161,8 @@ static void prependTargetTripleIfNotIncludedAndNotEmpty(QStringList *arguments,
 }
 
 // Removes (1) inputFile (2) -o <somePath>.
-QStringList inputAndOutputArgumentsRemoved(const QString &inputFile, const QStringList &arguments)
+QStringList inputAndOutputArgumentsRemoved(const QString &inputFile, const QStringList &arguments,
+                                           bool isMsvc)
 {
     QStringList newArguments;
 
@@ -171,6 +172,9 @@ QStringList inputAndOutputArgumentsRemoved(const QString &inputFile, const QStri
             skip = false;
             continue;
         } else if (argument == QLatin1String("-o")) {
+            skip = true;
+            continue;
+        } else if (isMsvc && argument == QLatin1String("-target")) {
             skip = true;
             continue;
         } else if (QDir::fromNativeSeparators(argument) == inputFile) {
@@ -233,11 +237,23 @@ public:
 
     ClangStaticAnalyzerOptionsBuilder(const CppTools::ProjectPart &projectPart)
         : CompilerOptionsBuilder(projectPart)
-        , m_isMsvcToolchain(m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        , m_isMsvcToolchain(m_projectPart.toolchainType
+                            == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        , m_isMinGWToolchain(m_projectPart.toolchainType
+                            == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID)
     {
     }
 
 public:
+    bool excludeHeaderPath(const QString &headerPath) const override
+    {
+        if (CompilerOptionsBuilder::excludeHeaderPath(headerPath))
+            return true;
+        if (m_isMinGWToolchain && headerPath.contains(m_projectPart.toolChainTargetTriple))
+            return true;
+        return false;
+    }
+
     void undefineClangVersionMacrosForMsvc()
     {
         if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
@@ -260,7 +276,7 @@ private:
         // For MSVC toolchains we use clang-cl.exe, so there is nothing to do here since
         //    1) clang-cl.exe does not understand the "-triple" option
         //    2) clang-cl.exe already hardcodes the right triple value (even if built with mingw)
-        if (m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        if (!m_isMsvcToolchain)
             CompilerOptionsBuilder::addTargetTriple();
     }
 
@@ -317,6 +333,7 @@ private:
 
 private:
     bool m_isMsvcToolchain;
+    bool m_isMinGWToolchain;
 };
 
 static QStringList createMsCompatibilityVersionOption(const ProjectPart &projectPart)
@@ -364,9 +381,12 @@ static QStringList tweakedArguments(const ProjectPart &projectPart,
                                     const QStringList &arguments,
                                     const QString &targetTriple)
 {
-    QStringList newArguments = inputAndOutputArgumentsRemoved(filePath, arguments);
+    const bool isMsvc = projectPart.toolchainType
+            == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    QStringList newArguments = inputAndOutputArgumentsRemoved(filePath, arguments, isMsvc);
     prependWordWidthArgumentIfNotIncluded(&newArguments, projectPart.toolChainWordWidth);
-    prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, targetTriple);
+    if (!isMsvc)
+        prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, targetTriple);
     newArguments.append(createHeaderPathsOptionsForClangOnMac(projectPart));
     newArguments.append(createMsCompatibilityVersionOption(projectPart));
     newArguments.append(createOptionsToUndefineClangVersionMacrosForMsvc(projectPart));
