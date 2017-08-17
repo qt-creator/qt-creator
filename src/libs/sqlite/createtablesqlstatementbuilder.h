@@ -35,12 +35,14 @@ class SQLITE_EXPORT CreateTableSqlStatementBuilder
 public:
     CreateTableSqlStatementBuilder();
 
-    void setTable(Utils::SmallString &&tableName);
+    void setTableName(Utils::SmallString &&tableName);
     void addColumn(Utils::SmallString &&columnName,
                    ColumnType columnType,
-                   IsPrimaryKey isPrimaryKey = IsPrimaryKey::No);
+                   Contraint constraint = Contraint::NoConstraint);
     void setColumns(const SqliteColumns &columns);
     void setUseWithoutRowId(bool useWithoutRowId);
+    void setUseIfNotExists(bool useIfNotExists);
+    void setUseTemporaryTable(bool useTemporaryTable);
 
     void clear();
     void clearColumns();
@@ -52,12 +54,17 @@ public:
 protected:
     void bindColumnDefinitions() const;
     void bindAll() const;
+    void bindWithoutRowId() const;
+    void bindIfNotExists() const;
+    void bindTemporary() const;
 
 private:
     mutable SqlStatementBuilder m_sqlStatementBuilder;
     Utils::SmallString m_tableName;
     SqliteColumns m_columns;
-    bool m_useWithoutRowId;
+    bool m_useWithoutRowId = false;
+    bool m_useIfNotExits = false;
+    bool m_useTemporaryTable = false;
 };
 
 } // namespace Sqlite

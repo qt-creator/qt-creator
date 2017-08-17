@@ -32,6 +32,9 @@
 
 namespace {
 
+using Sqlite::ColumnType;
+using Sqlite::JournalMode;
+using Sqlite::OpenMode;
 using Sqlite::SqliteColumn;
 using Sqlite::SqliteDatabase;
 

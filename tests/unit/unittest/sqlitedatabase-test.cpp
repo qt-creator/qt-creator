@@ -38,6 +38,9 @@ namespace {
 
 using testing::Contains;
 
+using Sqlite::ColumnType;
+using Sqlite::JournalMode;
+using Sqlite::OpenMode;
 using Sqlite::SqliteTable;
 
 class SqliteDatabase : public ::testing::Test

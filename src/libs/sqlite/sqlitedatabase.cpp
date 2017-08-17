@@ -26,12 +26,19 @@
 #include "sqlitedatabase.h"
 
 #include "sqlitetable.h"
+#include "sqlitetransaction.h"
 
 namespace Sqlite {
 
 SqliteDatabase::SqliteDatabase()
     : m_databaseBackend(*this)
 {
+}
+
+SqliteDatabase::SqliteDatabase(Utils::PathString &&databaseFilePath)
+    : m_databaseBackend(*this)
+{
+    open(std::move(databaseFilePath));
 }
 
 void SqliteDatabase::open()
@@ -61,7 +68,7 @@ bool SqliteDatabase::isOpen() const
 
 SqliteTable &SqliteDatabase::addTable()
 {
-    m_sqliteTables.emplace_back(*this);
+    m_sqliteTables.emplace_back();
 
     return m_sqliteTables.back();
 }
@@ -118,8 +125,12 @@ void SqliteDatabase::execute(Utils::SmallStringView sqlStatement)
 
 void SqliteDatabase::initializeTables()
 {
+    SqliteImmediateTransaction<SqliteDatabase> transaction(*this);
+
     for (SqliteTable &table : m_sqliteTables)
-        table.initialize();
+        table.initialize(*this);
+
+    transaction.commit();
 }
 
 SqliteDatabaseBackend &SqliteDatabase::backend()

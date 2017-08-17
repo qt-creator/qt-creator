@@ -33,6 +33,10 @@ using testing::AllOf;
 using testing::Contains;
 using testing::Property;
 
+using Sqlite::ColumnType;
+using Sqlite::Contraint;
+using Sqlite::JournalMode;
+using Sqlite::OpenMode;
 using Column = Sqlite::SqliteColumn;
 using Sqlite::SqliteColumns;
 
@@ -63,16 +67,16 @@ TEST_F(SqliteColumn, ChangeType)
     ASSERT_THAT(column.type(), ColumnType::Text);
 }
 
-TEST_F(SqliteColumn, DefaultPrimaryKey)
+TEST_F(SqliteColumn, DefaultConstraint)
 {
-    ASSERT_FALSE(column.isPrimaryKey());
+    ASSERT_THAT(column.constraint(), Contraint::NoConstraint);
 }
 
-TEST_F(SqliteColumn, SetPrimaryKey)
+TEST_F(SqliteColumn, SetConstraint)
 {
-    column.setIsPrimaryKey(IsPrimaryKey::Yes);
+    column.setContraint(Contraint::PrimaryKey);
 
-    ASSERT_TRUE(column.isPrimaryKey());
+    ASSERT_THAT(column.constraint(),  Contraint::PrimaryKey);
 }
 
 TEST_F(SqliteColumn, GetColumnDefinition)
@@ -83,7 +87,7 @@ TEST_F(SqliteColumn, GetColumnDefinition)
                     AllOf(
                         Property(&Column::name, "Claudia"),
                         Property(&Column::type, ColumnType::Numeric),
-                        Property(&Column::isPrimaryKey, false)));
+                        Property(&Column::constraint, Contraint::NoConstraint)));
 }
 
 void SqliteColumn::SetUp()

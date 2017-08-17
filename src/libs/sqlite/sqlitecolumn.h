@@ -38,17 +38,17 @@ public:
 
     SqliteColumn(Utils::SmallString &&name,
                  ColumnType type = ColumnType::Numeric,
-                 IsPrimaryKey isPrimaryKey = IsPrimaryKey::No)
+                 Contraint constraint = Contraint::NoConstraint)
         : m_name(std::move(name)),
           m_type(type),
-          m_isPrimaryKey(isPrimaryKey)
+          m_constraint(constraint)
     {}
 
     void clear()
     {
         m_name.clear();
         m_type = ColumnType::Numeric;
-        m_isPrimaryKey = IsPrimaryKey::No;
+        m_constraint = Contraint::NoConstraint;
     }
 
     void setName(Utils::SmallString &&newName)
@@ -71,14 +71,14 @@ public:
         return m_type;
     }
 
-    void setIsPrimaryKey(IsPrimaryKey isPrimaryKey)
+    void setContraint(Contraint constraint)
     {
-        m_isPrimaryKey = isPrimaryKey;
+        m_constraint = constraint;
     }
 
-    bool isPrimaryKey() const
+    Contraint constraint() const
     {
-        return m_isPrimaryKey == IsPrimaryKey::Yes;
+        return m_constraint;
     }
 
     Utils::SmallString typeString() const
@@ -98,13 +98,13 @@ public:
     {
         return first.m_name == second.m_name
             && first.m_type == second.m_type
-            && first.m_isPrimaryKey == second.m_isPrimaryKey;
+            && first.m_constraint == second.m_constraint;
     }
 
 private:
     Utils::SmallString m_name;
     ColumnType m_type = ColumnType::Numeric;
-    IsPrimaryKey m_isPrimaryKey = IsPrimaryKey::No;
+    Contraint m_constraint = Contraint::NoConstraint;
 };
 
 using SqliteColumns = std::vector<SqliteColumn>;

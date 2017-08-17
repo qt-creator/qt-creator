@@ -38,7 +38,7 @@ class SQLITE_EXPORT SqlStatementBuilder
 {
     using BindingPair = std::pair<Utils::SmallString, Utils::SmallString>;
 public:
-    SqlStatementBuilder(Utils::SmallString &&m_sqlTemplate);
+    SqlStatementBuilder(Utils::SmallStringView m_sqlTemplate);
 
     void bindEmptyText(Utils::SmallString &&name);
     void bind(Utils::SmallString &&name, Utils::SmallString &&text);
@@ -79,8 +79,8 @@ protected:
     Q_NORETURN static void throwException(const char *whatHasHappened, const char *errorMessage);
 
 private:
-    Utils::SmallString m_sqlTemplate;
-    mutable Utils::SmallString m_sqlStatement;
+    Utils::BasicSmallString<510> m_sqlTemplate;
+    mutable Utils::BasicSmallString<510> m_sqlStatement;
     mutable std::vector<BindingPair> m_bindings;
 };
 

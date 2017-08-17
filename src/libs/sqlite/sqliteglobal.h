@@ -37,6 +37,8 @@
 #  define SQLITE_EXPORT Q_DECL_IMPORT
 #endif
 
+namespace Sqlite {
+
 enum class ColumnType : char
 {
     Numeric,
@@ -46,10 +48,11 @@ enum class ColumnType : char
     None
 };
 
-enum class IsPrimaryKey : char
+enum class Contraint : char
 {
-    No,
-    Yes
+    NoConstraint,
+    PrimaryKey,
+    Unique
 };
 
 enum class ColumnConstraint : char
@@ -84,3 +87,5 @@ enum TextEncoding : char
 #endif
 
 };
+
+} // namespace Sqlite

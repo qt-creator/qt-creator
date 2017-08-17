@@ -30,14 +30,15 @@
 #include <sqlitereadwritestatement.h>
 #include <sqlitewritestatement.h>
 
+#include <utils/smallstringio.h>
+
 #include <QDir>
 
 #include <vector>
 
 namespace {
-using testing::ElementsAre;
-using testing::PrintToString;
 
+using Sqlite::JournalMode;
 using Sqlite::SqliteException;
 using Sqlite::SqliteDatabase;
 using Sqlite::SqliteReadStatement;
@@ -71,6 +72,21 @@ protected:
     SqliteDatabase database;
 };
 
+struct Output
+{
+    Utils::SmallString name;
+    Utils::SmallString number;
+    long long value;
+    friend bool operator==(const Output &f, const Output &s)
+    {
+        return f.name == s.name && f.number == s.number && f.value == s.value;
+    }
+    friend std::ostream &operator<<(std::ostream &out, const Output &o)
+    {
+        return out << "(" << o.name << ", " << ", " << o.number<< ", " << o.value<< ")";
+    }
+};
+
 TEST_F(SqliteStatement, PrepareFailure)
 {
     ASSERT_THROW(SqliteReadStatement("blah blah blah", database), SqliteException);
@@ -99,11 +115,11 @@ TEST_F(SqliteStatement, Value)
     statement.next();
 
     ASSERT_THAT(statement.value<int>(0), 0);
-    ASSERT_THAT(statement.value<qint64>(0), 0);
+    ASSERT_THAT(statement.value<int64_t>(0), 0);
     ASSERT_THAT(statement.value<double>(0), 0.0);
     ASSERT_THAT(statement.text(0), "foo");
     ASSERT_THAT(statement.value<int>(1), 23);
-    ASSERT_THAT(statement.value<qint64>(1), 23);
+    ASSERT_THAT(statement.value<int64_t>(1), 23);
     ASSERT_THAT(statement.value<double>(1), 23.3);
     ASSERT_THAT(statement.text(1), "23.3");
 }
@@ -127,12 +143,14 @@ TEST_F(SqliteStatement, ValueFailure)
 
 TEST_F(SqliteStatement, ToIntergerValue)
 {
-    ASSERT_THAT(SqliteReadStatement::toValue<int>("SELECT number FROM test WHERE name='foo'", database), 23);
+    auto value = SqliteReadStatement::toValue<int>("SELECT number FROM test WHERE name='foo'", database);
+
+    ASSERT_THAT(value, 23);
 }
 
 TEST_F(SqliteStatement, ToLongIntergerValue)
 {
-    ASSERT_THAT(SqliteReadStatement::toValue<qint64>("SELECT number FROM test WHERE name='foo'", database), 23LL);
+    ASSERT_THAT(SqliteReadStatement::toValue<qint64>("SELECT number FROM test WHERE name='foo'", database), Eq(23));
 }
 
 TEST_F(SqliteStatement, ToDoubleValue)
@@ -143,31 +161,6 @@ TEST_F(SqliteStatement, ToDoubleValue)
 TEST_F(SqliteStatement, ToStringValue)
 {
     ASSERT_THAT(SqliteReadStatement::toValue<Utils::SmallString>("SELECT name FROM test WHERE name='foo'", database), "foo");
-}
-
-TEST_F(SqliteStatement, Utf8Values)
-{
-    SqliteReadStatement statement("SELECT name, number FROM test ORDER by name", database);
-
-    auto values = statement.values<Utils::SmallStringVector>();
-
-    ASSERT_THAT(values, ElementsAre("bar", "foo", "poo"));
-}
-TEST_F(SqliteStatement, DoubleValues)
-{
-    SqliteReadStatement statement("SELECT name, number FROM test ORDER by name", database);
-
-    auto values = statement.values<std::vector<double>>(1);
-
-    ASSERT_THAT(values, ElementsAre(0.0, 23.3, 40.0));
-}
-
-TEST_F(SqliteStatement, ValuesFailure)
-{
-    SqliteReadStatement statement("SELECT name, number FROM test", database);
-
-    ASSERT_THROW(statement.values<Utils::SmallStringVector>({1, 2}), SqliteException);
-    ASSERT_THROW(statement.values<Utils::SmallStringVector>({-1, 1}), SqliteException);
 }
 
 TEST_F(SqliteStatement, ColumnNames)
@@ -206,7 +199,7 @@ TEST_F(SqliteStatement, BindLongInteger)
 {
     SqliteReadStatement statement("SELECT name, number FROM test WHERE number=?", database);
 
-    statement.bind(1, qint64(40));
+    statement.bind(1, int64_t(40));
     statement.next();
 
     ASSERT_THAT(statement.text(0), "poo");
@@ -236,7 +229,7 @@ TEST_F(SqliteStatement, BindLongIntegerByParameter)
 {
     SqliteReadStatement statement("SELECT name, number FROM test WHERE number=@number", database);
 
-    statement.bind("@number", qint64(40));
+    statement.bind("@number", int64_t(40));
     statement.next();
 
     ASSERT_THAT(statement.text(0), "poo");
@@ -315,14 +308,156 @@ TEST_F(SqliteStatement, ClosedDatabase)
     database.open(QDir::tempPath() + QStringLiteral("/SqliteStatementTest.db"));
 }
 
+TEST_F(SqliteStatement, GetTupleValuesWithoutArguments)
+{
+    using Tuple = std::tuple<Utils::SmallString, double, int>;
+    SqliteReadStatement statement("SELECT name, number, value FROM test", database);
+
+    auto values = statement.tupleValues<Utils::SmallString, double, int>(3);
+
+    ASSERT_THAT(values, ElementsAre(Tuple{"bar", 0, 1},
+                                    Tuple{"foo", 23.3, 2},
+                                    Tuple{"poo", 40.0, 3}));
+}
+
+TEST_F(SqliteStatement, GetSingleValuesWithoutArguments)
+{
+    SqliteReadStatement statement("SELECT name FROM test", database);
+
+    std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3);
+
+    ASSERT_THAT(values, ElementsAre("bar", "foo", "poo"));
+}
+
+TEST_F(SqliteStatement, GetStructValuesWithoutArguments)
+{
+    SqliteReadStatement statement("SELECT name, number, value FROM test", database);
+
+    auto values = statement.structValues<Output, Utils::SmallString, Utils::SmallString, long long>(3);
+
+    ASSERT_THAT(values, ElementsAre(Output{"bar", "blah", 1},
+                                    Output{"foo", "23.3", 2},
+                                    Output{"poo", "40", 3}));
+}
+
+
+TEST_F(SqliteStatement, GetValuesForSingleOutputWithBindingMultipleTimes)
+{
+    SqliteReadStatement statement("SELECT name FROM test WHERE number=?", database);
+    statement.values<Utils::SmallString>(3, 40);
+
+    std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3, 40);
+
+    ASSERT_THAT(values, ElementsAre("poo"));
+}
+
+TEST_F(SqliteStatement, GetValuesForMultipleOutputValuesAndContainerQueryValues)
+{
+    using Tuple = std::tuple<Utils::SmallString, double, double>;
+    std::vector<double> queryValues = {40, 23.3};
+    SqliteReadStatement statement("SELECT name, number, value FROM test WHERE number=?", database);
+
+    auto values = statement.tupleValues<Utils::SmallString, double, double>(3, queryValues);
+
+    ASSERT_THAT(values, ElementsAre(Tuple{"poo", 40, 3.},
+                                    Tuple{"foo", 23.3, 2.}));
+}
+
+TEST_F(SqliteStatement, GetValuesForSingleOutputValuesAndContainerQueryValues)
+{
+    std::vector<double> queryValues = {40, 23.3};
+    SqliteReadStatement statement("SELECT name, number FROM test WHERE number=?", database);
+
+    std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3, queryValues);
+
+    ASSERT_THAT(values, ElementsAre("poo", "foo"));
+}
+
+TEST_F(SqliteStatement, GetValuesForMultipleOutputValuesAndContainerQueryTupleValues)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, int>;
+    using Tuple2 = std::tuple<Utils::SmallString, double, int>;
+    std::vector<Tuple> queryValues = {{"poo", "40", 3}, {"bar", "blah", 1}};
+    SqliteReadStatement statement("SELECT name, number, value FROM test WHERE name= ? AND number=? AND value=?", database);
+
+    auto values = statement.tupleValues<Utils::SmallString, double, int>(3, queryValues);
+
+    ASSERT_THAT(values, ElementsAre(Tuple2{"poo", 40, 3},
+                                    Tuple2{"bar", 0, 1}));
+}
+
+TEST_F(SqliteStatement, GetValuesForSingleOutputValuesAndContainerQueryTupleValues)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString>;
+    std::vector<Tuple> queryValues = {{"poo", "40"}, {"bar", "blah"}};
+    SqliteReadStatement statement("SELECT name, number FROM test WHERE name= ? AND number=?", database);
+
+    std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3, queryValues);
+
+    ASSERT_THAT(values, ElementsAre("poo", "bar"));
+}
+
+TEST_F(SqliteStatement, GetValuesForMultipleOutputValuesAndMultipleQueryValue)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    SqliteReadStatement statement("SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
+
+    auto values = statement.tupleValues<Utils::SmallString, Utils::SmallString, long long>(3, "bar", "blah", 1);
+
+    ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
+}
+
+TEST_F(SqliteStatement, CallGetValuesForMultipleOutputValuesAndMultipleQueryValueMultipleTimes)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    SqliteReadStatement statement("SELECT name, number, value FROM test WHERE name=? AND number=?", database);
+    statement.tupleValues<Utils::SmallString, Utils::SmallString, long long>(3, "bar", "blah");
+
+    auto values = statement.tupleValues<Utils::SmallString, Utils::SmallString, long long>(3, "bar", "blah");
+
+    ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
+}
+
+TEST_F(SqliteStatement, GetStructOutputValuesAndMultipleQueryValue)
+{
+    SqliteReadStatement statement("SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
+
+    auto values = statement.structValues<Output, Utils::SmallString, Utils::SmallString, long long>(3, "bar", "blah", 1);
+
+    ASSERT_THAT(values, ElementsAre(Output{"bar", "blah", 1}));
+}
+
+TEST_F(SqliteStatement, GetStructOutputValuesAndContainerQueryValues)
+{
+    std::vector<double> queryValues = {40, 23.3};
+    SqliteReadStatement statement("SELECT name, number, value FROM test WHERE number=?", database);
+
+    auto values = statement.structValues<Output, Utils::SmallString, Utils::SmallString, long long>(3, queryValues);
+
+    ASSERT_THAT(values, ElementsAre(Output{"poo", "40", 3},
+                                    Output{"foo", "23.3", 2}));
+}
+
+TEST_F(SqliteStatement, GetStructOutputValuesAndContainerQueryTupleValues)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, int>;
+    std::vector<Tuple> queryValues = {{"poo", "40", 3}, {"bar", "blah", 1}};
+    SqliteReadStatement statement("SELECT name, number, value FROM test WHERE name= ? AND number=? AND value=?", database);
+
+    auto values = statement.structValues<Output, Utils::SmallString, Utils::SmallString, long long>(3, queryValues);
+
+    ASSERT_THAT(values, ElementsAre(Output{"poo", "40", 3},
+                                    Output{"bar", "blah", 1}));
+}
+
 void SqliteStatement::SetUp()
 {
     database.setJournalMode(JournalMode::Memory);
     database.open(":memory:");
-    database.execute("CREATE TABLE test(name TEXT UNIQUE, number NUMERIC)");
-    database.execute("INSERT INTO  test VALUES ('bar', 'blah')");
-    database.execute("INSERT INTO  test VALUES ('foo', 23.3)");
-    database.execute("INSERT INTO  test VALUES ('poo', 40)");
+    database.execute("CREATE TABLE test(name TEXT UNIQUE, number NUMERIC, value NUMERIC)");
+    database.execute("INSERT INTO  test VALUES ('bar', 'blah', 1)");
+    database.execute("INSERT INTO  test VALUES ('foo', 23.3, 2)");
+    database.execute("INSERT INTO  test VALUES ('poo', 40, 3)");
 }
 
 void SqliteStatement::TearDown()

@@ -31,44 +31,4 @@
 
 namespace Sqlite {
 
-SqliteAbstractTransaction::~SqliteAbstractTransaction()
-{
-    if (!m_isAlreadyCommited)
-        m_databaseBackend.execute("ROLLBACK");
-}
-
-void SqliteAbstractTransaction::commit()
-{
-    m_databaseBackend.execute("COMMIT");
-    m_isAlreadyCommited = true;
-}
-
-SqliteAbstractTransaction::SqliteAbstractTransaction(SqliteDatabaseBackend &backend)
-    : m_databaseBackend(backend)
-{
-}
-
-SqliteAbstractTransaction::SqliteAbstractTransaction(SqliteDatabase &database)
-    : SqliteAbstractTransaction(database.backend())
-{
-}
-
-SqliteTransaction::SqliteTransaction(SqliteDatabase &database)
-    : SqliteAbstractTransaction(database)
-{
-    m_databaseBackend.execute("BEGIN");
-}
-
-SqliteImmediateTransaction::SqliteImmediateTransaction(SqliteDatabase &database)
-    : SqliteAbstractTransaction(database)
-{
-    m_databaseBackend.execute("BEGIN IMMEDIATE");
-}
-
-SqliteExclusiveTransaction::SqliteExclusiveTransaction(SqliteDatabase &database)
-    : SqliteAbstractTransaction(database)
-{
-    m_databaseBackend.execute("BEGIN EXCLUSIVE");
-}
-
 } // namespace Sqlite

@@ -30,6 +30,7 @@
 
 using namespace ::testing;
 
+using Sqlite::ColumnType;
 using Sqlite::SqlStatementBuilder;
 using Sqlite::SqlStatementBuilderException;
 

@@ -37,6 +37,8 @@ public:
     using SqliteStatement::next;
     using SqliteStatement::reset;
     using SqliteStatement::value;
+    using SqliteStatement::structValues;
+    using SqliteStatement::tupleValues;
     using SqliteStatement::text;
     using SqliteStatement::values;
     using SqliteStatement::columnCount;

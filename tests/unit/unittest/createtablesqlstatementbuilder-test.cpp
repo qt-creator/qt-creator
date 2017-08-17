@@ -30,6 +30,10 @@
 
 namespace {
 
+using Sqlite::ColumnType;
+using Sqlite::Contraint;
+using Sqlite::JournalMode;
+using Sqlite::OpenMode;
 using Sqlite::SqliteColumn;
 using Sqlite::SqliteColumns;
 
@@ -81,7 +85,7 @@ TEST_F(CreateTableSqlStatementBuilder, SqlStatement)
     bindValues();
 
     ASSERT_THAT(builder.sqlStatement(),
-                "CREATE TABLE IF NOT EXISTS test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)");
+                "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)");
 }
 
 TEST_F(CreateTableSqlStatementBuilder, AddColumnToExistingColumns)
@@ -91,17 +95,17 @@ TEST_F(CreateTableSqlStatementBuilder, AddColumnToExistingColumns)
     builder.addColumn("number2", ColumnType::Real);
 
     ASSERT_THAT(builder.sqlStatement(),
-                "CREATE TABLE IF NOT EXISTS test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC, number2 REAL)");
+                "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC, number2 REAL)");
 }
 
 TEST_F(CreateTableSqlStatementBuilder, ChangeTable)
 {
     bindValues();
 
-    builder.setTable("test2");
+    builder.setTableName("test2");
 
     ASSERT_THAT(builder.sqlStatement(),
-                "CREATE TABLE IF NOT EXISTS test2(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)"
+                "CREATE TABLE test2(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)"
                 );
 }
 
@@ -124,7 +128,7 @@ TEST_F(CreateTableSqlStatementBuilder, ClearColumnsAndAddColumnNewColumns)
     builder.addColumn("number3", ColumnType::Real);
 
     ASSERT_THAT(builder.sqlStatement(),
-                "CREATE TABLE IF NOT EXISTS test(name3 TEXT, number3 REAL)");
+                "CREATE TABLE test(name3 TEXT, number3 REAL)");
 }
 
 TEST_F(CreateTableSqlStatementBuilder, SetWitoutRowId)
@@ -134,25 +138,60 @@ TEST_F(CreateTableSqlStatementBuilder, SetWitoutRowId)
     builder.setUseWithoutRowId(true);
 
     ASSERT_THAT(builder.sqlStatement(),
-                "CREATE TABLE IF NOT EXISTS test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC) WITHOUT ROWID");
+                "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC) WITHOUT ROWID");
 }
 
 TEST_F(CreateTableSqlStatementBuilder, SetColumnDefinitions)
 {
     builder.clear();
-    builder.setTable("test");
+    builder.setTableName("test");
 
     builder.setColumns(createColumns());
 
     ASSERT_THAT(builder.sqlStatement(),
-                "CREATE TABLE IF NOT EXISTS test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)");
+                "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number NUMERIC)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, UniqueContraint)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Integer, Contraint::Unique);
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER UNIQUE)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, IfNotExitsModifier)
+{
+    builder.clear();
+    builder.setTableName("test");
+    builder.addColumn("id", ColumnType::Integer, Contraint::NoConstraint);
+
+    builder.setUseIfNotExists(true);
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE IF NOT EXISTS test(id INTEGER)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, TemporaryTable)
+{
+    builder.clear();
+    builder.setTableName("test");
+    builder.addColumn("id", ColumnType::Integer, Contraint::NoConstraint);
+
+    builder.setUseTemporaryTable(true);
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TEMPORARY TABLE test(id INTEGER)");
 }
 
 void CreateTableSqlStatementBuilder::bindValues()
 {
     builder.clear();
-    builder.setTable("test");
-    builder.addColumn("id", ColumnType::Integer, IsPrimaryKey::Yes);
+    builder.setTableName("test");
+    builder.addColumn("id", ColumnType::Integer, Contraint::PrimaryKey);
     builder.addColumn("name", ColumnType::Text);
     builder.addColumn("number",ColumnType:: Numeric);
 }
@@ -160,7 +199,7 @@ void CreateTableSqlStatementBuilder::bindValues()
 SqliteColumns CreateTableSqlStatementBuilder::createColumns()
 {
     SqliteColumns columns;
-    columns.emplace_back("id", ColumnType::Integer, IsPrimaryKey::Yes);
+    columns.emplace_back("id", ColumnType::Integer, Contraint::PrimaryKey);
     columns.emplace_back("name", ColumnType::Text);
     columns.emplace_back("number", ColumnType::Numeric);
 

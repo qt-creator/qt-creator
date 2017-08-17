@@ -37,12 +37,14 @@ namespace Sqlite {
 
 class SQLITE_EXPORT SqliteDatabase
 {
+    template <typename Database>
     friend class SqliteAbstractTransaction;
     friend class SqliteStatement;
     friend class SqliteBackend;
 
 public:
     SqliteDatabase();
+    SqliteDatabase(Utils::PathString &&databaseFilePath);
 
     SqliteDatabase(const SqliteDatabase &) = delete;
     bool operator=(const SqliteDatabase &) = delete;

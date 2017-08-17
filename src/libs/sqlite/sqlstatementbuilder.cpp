@@ -33,7 +33,7 @@
 
 namespace Sqlite {
 
-SqlStatementBuilder::SqlStatementBuilder(Utils::SmallString &&sqlTemplate)
+SqlStatementBuilder::SqlStatementBuilder(Utils::SmallStringView sqlTemplate)
     : m_sqlTemplate(std::move(sqlTemplate))
 {
 }

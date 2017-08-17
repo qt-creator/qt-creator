@@ -48,6 +48,8 @@ public:
     using SqliteStatement::value;
     using SqliteStatement::text;
     using SqliteStatement::values;
+    using SqliteStatement::structValues;
+    using SqliteStatement::tupleValues;
     using SqliteStatement::columnCount;
     using SqliteStatement::columnNames;
     using SqliteStatement::toValue;

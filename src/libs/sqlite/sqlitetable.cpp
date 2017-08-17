@@ -25,32 +25,8 @@
 
 #include "sqlitetable.h"
 
-#include "sqlitecolumn.h"
-#include "sqlitedatabase.h"
-#include "createtablesqlstatementbuilder.h"
-#include "sqlitewritestatement.h"
-#include "sqlitetransaction.h"
-
 namespace Sqlite {
 
-void SqliteTable::initialize()
-{
-    try {
-        CreateTableSqlStatementBuilder createTableSqlStatementBuilder;
 
-        createTableSqlStatementBuilder.setTable(m_tableName.clone());
-        createTableSqlStatementBuilder.setUseWithoutRowId(m_withoutRowId);
-        createTableSqlStatementBuilder.setColumns(m_sqliteColumns);
-
-        SqliteImmediateTransaction transaction(m_sqliteDatabase);
-        m_sqliteDatabase.execute(createTableSqlStatementBuilder.sqlStatement());
-        transaction.commit();
-
-        m_isReady = true;
-
-    } catch (const SqliteException &exception) {
-        exception.printWarning();
-    }
-}
 
 } // namespace Sqlite

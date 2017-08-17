@@ -38,6 +38,11 @@ namespace {
 
 using Backend = Sqlite::SqliteDatabaseBackend;
 
+using Sqlite::ColumnType;
+using Sqlite::Contraint;
+using Sqlite::JournalMode;
+using Sqlite::OpenMode;
+using Sqlite::TextEncoding;
 using Sqlite::SqliteException;
 using Sqlite::SqliteWriteStatement;
 
@@ -106,35 +111,35 @@ TEST_F(SqliteDatabaseBackend, PersistJournalMode)
 
 TEST_F(SqliteDatabaseBackend, DefaultTextEncoding)
 {
-    ASSERT_THAT(databaseBackend.textEncoding(), Utf8);
+    ASSERT_THAT(databaseBackend.textEncoding(), TextEncoding::Utf8);
 }
 
 TEST_F(SqliteDatabaseBackend, Utf16TextEncoding)
 {
-    databaseBackend.setTextEncoding(Utf16);
+    databaseBackend.setTextEncoding(TextEncoding::Utf16);
 
-    ASSERT_THAT(databaseBackend.textEncoding(), Utf16);
+    ASSERT_THAT(databaseBackend.textEncoding(), TextEncoding::Utf16);
 }
 
 TEST_F(SqliteDatabaseBackend, Utf16beTextEncoding)
 {
-    databaseBackend.setTextEncoding(Utf16be);
+    databaseBackend.setTextEncoding(TextEncoding::Utf16be);
 
-    ASSERT_THAT(databaseBackend.textEncoding(), Utf16be);
+    ASSERT_THAT(databaseBackend.textEncoding(),TextEncoding::Utf16be);
 }
 
 TEST_F(SqliteDatabaseBackend, Utf16leTextEncoding)
 {
-    databaseBackend.setTextEncoding(Utf16le);
+    databaseBackend.setTextEncoding(TextEncoding::Utf16le);
 
-    ASSERT_THAT(databaseBackend.textEncoding(), Utf16le);
+    ASSERT_THAT(databaseBackend.textEncoding(), TextEncoding::Utf16le);
 }
 
 TEST_F(SqliteDatabaseBackend, Utf8TextEncoding)
 {
-    databaseBackend.setTextEncoding(Utf8);
+    databaseBackend.setTextEncoding(TextEncoding::Utf8);
 
-    ASSERT_THAT(databaseBackend.textEncoding(), Utf8);
+    ASSERT_THAT(databaseBackend.textEncoding(), TextEncoding::Utf8);
 }
 
 TEST_F(SqliteDatabaseBackend, TextEncodingCannotBeChangedAfterTouchingDatabase)
@@ -143,7 +148,7 @@ TEST_F(SqliteDatabaseBackend, TextEncodingCannotBeChangedAfterTouchingDatabase)
 
     databaseBackend.execute("CREATE TABLE text(name, number)");
 
-    ASSERT_THROW(databaseBackend.setTextEncoding(Utf16), SqliteException);
+    ASSERT_THROW(databaseBackend.setTextEncoding(TextEncoding::Utf16), SqliteException);
 }
 
 TEST_F(SqliteDatabaseBackend, OpenModeReadOnly)

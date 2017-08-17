@@ -25,8 +25,10 @@
 
 #pragma once
 
+#include "createtablesqlstatementbuilder.h"
 #include "sqliteglobal.h"
 #include "sqlitecolumn.h"
+#include "sqliteexception.h"
 
 namespace Sqlite {
 
@@ -35,11 +37,6 @@ class SqliteDatabase;
 class SqliteTable
 {
 public:
-    SqliteTable(SqliteDatabase &m_sqliteDatabase)
-        : m_sqliteDatabase(m_sqliteDatabase)
-    {
-    }
-
     void setName(Utils::SmallString &&name)
     {
         m_tableName = std::move(name);
@@ -60,11 +57,16 @@ public:
         return m_withoutRowId;
     }
 
+    void setUseIfNotExists(bool useIfNotExists)
+    {
+        m_useIfNotExists = useIfNotExists;
+    }
+
     SqliteColumn &addColumn(Utils::SmallString &&name,
                             ColumnType type = ColumnType::Numeric,
-                            IsPrimaryKey isPrimaryKey = IsPrimaryKey::No)
+                            Contraint constraint = Contraint::NoConstraint)
     {
-        m_sqliteColumns.emplace_back(std::move(name), type, isPrimaryKey);
+        m_sqliteColumns.emplace_back(std::move(name), type, constraint);
 
         return m_sqliteColumns.back();
     }
@@ -79,13 +81,31 @@ public:
         return m_isReady;
     }
 
-    void initialize();
+    template <typename Database>
+    void initialize(Database &database)
+    {
+        try {
+            CreateTableSqlStatementBuilder builder;
+
+            builder.setTableName(m_tableName.clone());
+            builder.setUseWithoutRowId(m_withoutRowId);
+            builder.setUseIfNotExists(m_useIfNotExists);
+            builder.setColumns(m_sqliteColumns);
+
+            database.execute(builder.sqlStatement());
+
+            m_isReady = true;
+
+        } catch (const SqliteException &exception) {
+            exception.printWarning();
+        }
+    }
 
     friend bool operator==(const SqliteTable &first, const SqliteTable &second)
     {
         return first.m_tableName == second.m_tableName
-            && &first.m_sqliteDatabase == &second.m_sqliteDatabase
             && first.m_withoutRowId == second.m_withoutRowId
+            && first.m_useIfNotExists == second.m_useIfNotExists
             && first.m_isReady == second.m_isReady
             && first.m_sqliteColumns == second.m_sqliteColumns;
     }
@@ -93,8 +113,8 @@ public:
 private:
     Utils::SmallString m_tableName;
     SqliteColumns m_sqliteColumns;
-    SqliteDatabase &m_sqliteDatabase;
     bool m_withoutRowId = false;
+    bool m_useIfNotExists = false;
     bool m_isReady = false;
 };
 

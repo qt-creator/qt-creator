@@ -32,43 +32,66 @@ namespace Sqlite {
 class SqliteDatabaseBackend;
 class SqliteDatabase;
 
-class SQLITE_EXPORT SqliteAbstractTransaction
+template <typename Database>
+class SqliteAbstractTransaction
 {
 public:
-    virtual ~SqliteAbstractTransaction();
+    virtual ~SqliteAbstractTransaction()
+    {
+        if (!m_isAlreadyCommited)
+            m_database.execute("ROLLBACK");
+    }
 
-    void commit();
+    void commit()
+    {
+        m_database.execute("COMMIT");
+        m_isAlreadyCommited = true;
+    }
 
 protected:
-    SqliteAbstractTransaction(SqliteDatabaseBackend &backend);
-    SqliteAbstractTransaction(SqliteDatabase &database);
-
-protected:
-    SqliteDatabaseBackend &m_databaseBackend;
+    SqliteAbstractTransaction(Database &database)
+        : m_database(database)
+    {
+    }
 
 private:
+    Database &m_database;
     bool m_isAlreadyCommited = false;
 };
 
-
-class SQLITE_EXPORT SqliteTransaction final : public SqliteAbstractTransaction
+template <typename Database>
+class SqliteTransaction final : public SqliteAbstractTransaction<Database>
 {
 public:
-    SqliteTransaction(SqliteDatabase &database);
+    SqliteTransaction(Database &database)
+        : SqliteAbstractTransaction<Database>(database)
+    {
+        database.execute("BEGIN");
+    }
 
 };
 
-class SQLITE_EXPORT SqliteImmediateTransaction final : public SqliteAbstractTransaction
+template <typename Database>
+class SqliteImmediateTransaction final : public SqliteAbstractTransaction<Database>
 {
 public:
-    SqliteImmediateTransaction(SqliteDatabase &database);
+    SqliteImmediateTransaction(Database &database)
+        : SqliteAbstractTransaction<Database>(database)
+    {
+        database.execute("BEGIN IMMEDIATE");
+    }
 
 };
 
-class SQLITE_EXPORT SqliteExclusiveTransaction final : public SqliteAbstractTransaction
+template <typename Database>
+class SqliteExclusiveTransaction final : public SqliteAbstractTransaction<Database>
 {
 public:
-    SqliteExclusiveTransaction(SqliteDatabase &database);
+    SqliteExclusiveTransaction(Database &database)
+        : SqliteAbstractTransaction<Database>(database)
+    {
+        database.execute("BEGIN EXCLUSIVE");
+    }
 
 };
 
