@@ -75,8 +75,8 @@
         \li Select \uicontrol {Build > Rebuild Project} to clean and rebuild the
             project.
 
-        \li To debug applications on devices, check that Qt 5.0, or later,
-            libraries are installed on the device and
+        \li To debug applications on \l{glossary-device}{devices}, check that
+            Qt 5.0, or later, libraries are installed on the device and
             \l{Running on Multiple Platforms}{select the corresponding kit for the device}
             before you start debugging.
 

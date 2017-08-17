@@ -96,8 +96,8 @@
                 \list
                     \li \l{Building for Multiple Platforms}
                     \li \l{Running on Multiple Platforms}
-                    \li \l{Deploying to Mobile Devices}
-                    \li \l{Connecting Mobile Devices}
+                    \li \l{Deploying to Devices}
+                    \li \l{Connecting Devices}
                 \endlist
             \li \b {\l{Testing}}
                 \list

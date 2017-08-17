@@ -80,8 +80,8 @@
         \li In the \uicontrol Projects mode, select a \l{glossary-buildandrun-kit}
             {kit} with Qt version 4.7.4 or later.
 
-            \note To profile applications on devices, you must install Qt 4.7.4
-            or later libraries on them.
+            \note To profile applications on \l{glossary-device}{devices}, you
+            must install Qt 4.7.4 or later libraries on them.
 
         \li Select \uicontrol {Analyze > QML Profiler} to profile the current
             application.

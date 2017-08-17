@@ -73,8 +73,8 @@
     \section1 Selecting the Run Environment
 
     \QC automatically selects the environment used for running the application
-    based on the device type. You can edit the environment or select another
-    environment in the \uicontrol {Run Environment} section.
+    based on the \l{glossary-device}{device} type. You can edit the environment
+    or select another environment in the \uicontrol {Run Environment} section.
 
     You can edit existing environment variables or add, reset and unset new
     variables.

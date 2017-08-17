@@ -143,13 +143,13 @@
         \list
             \li \l{Building for Multiple Platforms}
             \li \l{Running on Multiple Platforms}
-            \li \l{Deploying to Mobile Devices}
+            \li \l{Deploying to Devices}
             \list
                 \li \l{Deploying Applications to Android Devices}
                 \li \l{Deploying Applications to Embedded Linux Devices}
                 \li \l{Deploying Applications to QNX Neutrino Devices}
             \endlist
-            \li \l{Connecting Mobile Devices}
+            \li \l{Connecting Devices}
             \list
                 \li \l{Connecting Android Devices}
                 \li \l{Connecting Bare Metal Devices}

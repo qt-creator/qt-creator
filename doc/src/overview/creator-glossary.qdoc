@@ -81,15 +81,21 @@
                 \target glossary-deploy-config
             \li Handles the packaging and copying of the necessary files to a
                 location you want to run the executable at. The files can be
-                copied to a location in the file system of the development PC,
-                an embedded device, or a mobile device.
+                copied to a location in the file system of the development PC or
+                a \l{glossary-device}{device}.
+
+        \row
+            \li Device
+                \target glossary-device
+            \li An embedded device or a mobile device. For more information, see
+                \l{Target Platforms}.
 
         \row
             \li Kit
                 \target glossary-buildandrun-kit
             \li \QC groups build and run specific settings as kits to make
                 cross-platform development easier. Each kit consists of a set
-                of values that define one environment, such as a device,
+                of values that define one environment, such as a \l{glossary-device}{device},
                 tool chain, Qt version, and debugger command to use. Configure kits at
                 \uicontrol {Tools > Options > Build & Run > Kits}.
 
@@ -107,8 +113,8 @@
             \li Project
                 \target glossary-project
             \li Groups together a set of source files, forms, and resource files
-                that you can build for, as well as deploy and run on different desktop,
-                embedded, and mobile device platforms, as
+                that you can build for, as well as deploy and run on different
+                desktop and \l{glossary-device}{device} platforms, as
                 specified by a \e {build configuration}, \e {deploy
                 configuration}, and \e {run configuration}.
 
@@ -124,7 +130,8 @@
                 \target glossary-run-config
             \li Starts the application in the location where it was copied by
                 the \e {deploy configuration}. By default, when you run a
-                project, \QC builds it, deploys it to the device specified in the selected
+                project, \QC builds it, deploys it to the
+                \l{glossary-device}{device} specified in the selected
                 \l{glossary-buildandrun-kit}{kit},
                 and runs it there. However, if you have not made any changes to
                 the project since you last built and deployed it, \QC simply

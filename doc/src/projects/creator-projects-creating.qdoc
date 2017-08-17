@@ -68,7 +68,7 @@
     use qmake, Qbs, or CMake. This enables you to use \QC as a code editor and
     to fully control the steps and commands used to build the project.
 
-    You can install tools for mobile devices as part of Qt distributions.
+    You can install tools for \l{glossary-device}{devices} as part of Qt distributions.
     The \l{glossary-buildandrun-kit}{kits} and build and run settings for the
     installed device types are set up automatically. However, you might need to
     install and configure some additional software on the devices to be able to

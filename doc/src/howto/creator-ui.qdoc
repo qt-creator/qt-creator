@@ -378,7 +378,7 @@
             example, information about missing DLLs.
 
        \li \uicontrol Deployment - Errors encountered between building an application
-            successfully and starting it on a device.
+            successfully and starting it on a \l{glossary-device}{device}.
 
         \li \uicontrol {My Tasks} - Entries from a task list file (.tasks) generated
             by \l{Showing Task List Files in Issues Pane}

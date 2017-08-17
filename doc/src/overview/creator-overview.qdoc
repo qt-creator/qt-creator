@@ -93,8 +93,8 @@
                 and commands used to build the project.
 
                 \QC provides support for running and deploying Qt applications
-                built for the desktop environment as well as embedded and
-                mobile devices. \l{glossary-buildandrun-kit}{Kits}, build,
+                built for the desktop environment or a \l{glossary-device}
+                {device}. \l{glossary-buildandrun-kit}{Kits}, build,
                 run, and deployment settings allow you to quickly switch between
                 different setups and target platforms.
 
