@@ -1295,13 +1295,13 @@ bool rescanExports(const QString &fileName, FindExportedCppTypes &finder,
     return hasNewInfo;
 }
 
-void ModelManagerInterface::updateCppQmlTypes(QFutureInterface<void> &interface,
+void ModelManagerInterface::updateCppQmlTypes(QFutureInterface<void> &futureInterface,
                                      ModelManagerInterface *qmlModelManager,
                                      CPlusPlus::Snapshot snapshot,
                                      QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > documents)
 {
-    interface.setProgressRange(0, documents.size());
-    interface.setProgressValue(0);
+    futureInterface.setProgressRange(0, documents.size());
+    futureInterface.setProgressValue(0);
 
     CppDataHash newData;
     QHash<QString, QList<CPlusPlus::Document::Ptr> > newDeclarations;
@@ -1316,9 +1316,9 @@ void ModelManagerInterface::updateCppQmlTypes(QFutureInterface<void> &interface,
     bool hasNewInfo = false;
     typedef QPair<CPlusPlus::Document::Ptr, bool> DocScanPair;
     foreach (const DocScanPair &pair, documents) {
-        if (interface.isCanceled())
+        if (futureInterface.isCanceled())
             return;
-        interface.setProgressValue(interface.progressValue() + 1);
+        futureInterface.setProgressValue(futureInterface.progressValue() + 1);
 
         CPlusPlus::Document::Ptr doc = pair.first;
         const bool scan = pair.second;
