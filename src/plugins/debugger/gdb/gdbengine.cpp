@@ -800,7 +800,7 @@ void GdbEngine::interruptInferior()
             QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); notifyInferiorStopFailed());
             QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed());
             m_signalOperation = runTool()->device()->signalOperation();
-            QTC_ASSERT(m_signalOperation, notifyInferiorStopFailed());
+            QTC_ASSERT(m_signalOperation, notifyInferiorStopFailed(); return);
             connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
                     this, &GdbEngine::handleInterruptDeviceInferior);
 
