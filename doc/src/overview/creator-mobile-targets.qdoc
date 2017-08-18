@@ -39,8 +39,9 @@
 
     You can connect \l{glossary-device}{devices} to the development PC to run, debug,
     and analyze applications built for them from \QC. When you install Qt for a
-    target platform, such as Android or QNX, the build and run settings for the
-    development targets might be set up automatically in \QC.
+    target platform, such as Android, QNX, or Universal Windows Platform (UWP),
+    the build and run settings for the development targets might be set up
+    automatically in \QC.
 
     You can connect the device to the development PC using a USB connection.
     Additionally, you can connect Linux-based devices by using a WLAN
@@ -81,13 +82,6 @@
             debug applications on them from within \QC. This is currently only
             supported for QNX Neutrino devices, and requires the QNX SDK to be
             installed on the development PC.
-
-        \li \l{Connecting UWP Devices}
-
-            You can build applications for the Universal Windows Platform (UWP)
-            and run them on any Windows 10 devices, such as PC, tablet, or
-            phone. You can install the necessary tool chains as part of Qt 5.9
-            or later.
 
     \endlist
 
