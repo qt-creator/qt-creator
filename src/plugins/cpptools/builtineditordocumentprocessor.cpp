@@ -257,7 +257,7 @@ bool BuiltinEditorDocumentProcessor::isParserRunning() const
 QFuture<CursorInfo>
 BuiltinEditorDocumentProcessor::cursorInfo(const CursorInfoParams &params)
 {
-    return Internal::BuiltinCursorInfo::run(params);
+    return BuiltinCursorInfo::run(params);
 }
 
 void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr document,

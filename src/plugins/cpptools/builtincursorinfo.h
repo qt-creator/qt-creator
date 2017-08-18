@@ -26,17 +26,21 @@
 #pragma once
 
 #include "cppcursorinfo.h"
+#include "cpptools_global.h"
+
+#include <cplusplus/CppDocument.h>
 
 #include <QFuture>
 
 namespace CppTools {
-namespace Internal {
 
-class BuiltinCursorInfo
+class CPPTOOLS_EXPORT BuiltinCursorInfo
 {
 public:
     static QFuture<CursorInfo> run(const CursorInfoParams &params);
+
+    static CppTools::SemanticInfo::LocalUseMap
+    findLocalUses(const CPlusPlus::Document::Ptr &document, int line, int column);
 };
 
-} // namespace Internal
 } // namespace CppTools

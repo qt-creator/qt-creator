@@ -129,8 +129,10 @@ void IpcReceiver::deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *t
     }
 }
 
-QFuture<CppTools::CursorInfo> IpcReceiver::addExpectedReferencesMessage(quint64 ticket,
-                                                                        QTextDocument *textDocument)
+QFuture<CppTools::CursorInfo> IpcReceiver::addExpectedReferencesMessage(
+        quint64 ticket,
+        QTextDocument *textDocument,
+        const CppTools::SemanticInfo::LocalUseMap &localUses)
 {
     QTC_CHECK(textDocument);
     QTC_CHECK(!m_referencesTable.contains(ticket));
@@ -138,7 +140,7 @@ QFuture<CppTools::CursorInfo> IpcReceiver::addExpectedReferencesMessage(quint64 
     QFutureInterface<CppTools::CursorInfo> futureInterface;
     futureInterface.reportStarted();
 
-    const ReferencesEntry entry{futureInterface, textDocument};
+    const ReferencesEntry entry{futureInterface, textDocument, localUses};
     m_referencesTable.insert(ticket, entry);
 
     return futureInterface.future();
@@ -229,6 +231,7 @@ CppTools::CursorInfo::Range toCursorInfoRange(const QTextDocument &textDocument,
 
 static
 CppTools::CursorInfo toCursorInfo(const QTextDocument &textDocument,
+                                  const CppTools::SemanticInfo::LocalUseMap &localUses,
                                   const ReferencesMessage &message)
 {
     CppTools::CursorInfo result;
@@ -239,6 +242,7 @@ CppTools::CursorInfo toCursorInfo(const QTextDocument &textDocument,
         result.useRanges.append(toCursorInfoRange(textDocument, reference));
 
     result.useRanges.reserve(references.size());
+    result.localUses = localUses;
 
     return result;
 }
@@ -257,7 +261,7 @@ void IpcReceiver::references(const ReferencesMessage &message)
         return; // Editor document closed or a new request was issued making this result outdated.
 
     QTC_ASSERT(entry.textDocument, return);
-    futureInterface.reportResult(toCursorInfo(*entry.textDocument, message));
+    futureInterface.reportResult(toCursorInfo(*entry.textDocument, entry.localUses, message));
     futureInterface.reportFinished();
 }
 
@@ -672,12 +676,14 @@ QFuture<CppTools::CursorInfo> IpcCommunicator::requestReferences(
         const FileContainer &fileContainer,
         quint32 line,
         quint32 column,
-        QTextDocument *textDocument)
+        QTextDocument *textDocument,
+        const CppTools::SemanticInfo::LocalUseMap &localUses)
 {
     const RequestReferencesMessage message(fileContainer, line, column);
     m_ipcSender->requestReferences(message);
 
-    return m_ipcReceiver.addExpectedReferencesMessage(message.ticketNumber(), textDocument);
+    return m_ipcReceiver.addExpectedReferencesMessage(message.ticketNumber(), textDocument,
+                                                      localUses);
 }
 
 void IpcCommunicator::updateTranslationUnitWithRevisionCheck(Core::IDocument *document)

@@ -75,8 +75,10 @@ public:
     void addExpectedCodeCompletedMessage(quint64 ticket, ClangCompletionAssistProcessor *processor);
     void deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *textEditorWidget);
 
-    QFuture<CppTools::CursorInfo> addExpectedReferencesMessage(quint64 ticket,
-                                                               QTextDocument *textDocument);
+    QFuture<CppTools::CursorInfo>
+    addExpectedReferencesMessage(quint64 ticket,
+                                 QTextDocument *textDocument,
+                                 const CppTools::SemanticInfo::LocalUseMap &localUses);
     bool isExpectingCodeCompletedMessage() const;
 
     void reset();
@@ -99,11 +101,14 @@ private:
     struct ReferencesEntry {
         ReferencesEntry() = default;
         ReferencesEntry(QFutureInterface<CppTools::CursorInfo> futureInterface,
-                        QTextDocument *textDocument)
+                        QTextDocument *textDocument,
+                        const CppTools::SemanticInfo::LocalUseMap &localUses)
             : futureInterface(futureInterface)
-            , textDocument(textDocument) {}
+            , textDocument(textDocument)
+            , localUses(localUses) {}
         QFutureInterface<CppTools::CursorInfo> futureInterface;
         QPointer<QTextDocument> textDocument;
+        CppTools::SemanticInfo::LocalUseMap localUses;
     };
     QHash<quint64, ReferencesEntry> m_referencesTable;
 };
@@ -149,9 +154,12 @@ public:
     void registerUnsavedFilesForEditor(const FileContainers &fileContainers);
     void unregisterUnsavedFilesForEditor(const FileContainers &fileContainers);
     void requestDocumentAnnotations(const ClangBackEnd::FileContainer &fileContainer);
-    QFuture<CppTools::CursorInfo> requestReferences(const FileContainer &fileContainer,
-                                                    quint32 line,
-                                                    quint32 column, QTextDocument *textDocument);
+    QFuture<CppTools::CursorInfo> requestReferences(
+            const FileContainer &fileContainer,
+            quint32 line,
+            quint32 column,
+            QTextDocument *textDocument,
+            const CppTools::SemanticInfo::LocalUseMap &localUses);
     void completeCode(ClangCompletionAssistProcessor *assistProcessor, const QString &filePath,
                       quint32 line,
                       quint32 column,

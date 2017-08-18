@@ -36,6 +36,7 @@
 #include <diagnosticcontainer.h>
 #include <sourcelocationcontainer.h>
 
+#include <cpptools/builtincursorinfo.h>
 #include <cpptools/clangdiagnosticconfigsmodel.h>
 #include <cpptools/clangdiagnosticconfigsmodel.h>
 #include <cpptools/compileroptionsbuilder.h>
@@ -334,11 +335,14 @@ ClangEditorDocumentProcessor::cursorInfo(const CppTools::CursorInfoParams &param
 
     const QTextBlock block = params.textCursor.document()->findBlockByNumber(line - 1);
     column += ClangCodeModel::Utils::extraUtf8CharsShift(block.text(), column);
+    const CppTools::SemanticInfo::LocalUseMap localUses
+        = CppTools::BuiltinCursorInfo::findLocalUses(params.semanticInfo.doc, line, column);
 
     return m_ipcCommunicator.requestReferences(simpleFileContainer(),
                                                static_cast<quint32>(line),
                                                static_cast<quint32>(column),
-                                               textDocument());
+                                               textDocument(),
+                                               localUses);
 }
 
 ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithArguments() const
