@@ -43,8 +43,6 @@ def main():
             typeLines(cppwindow, ("<Up>", testData.field(record, "declaration")))
             type(cppwindow, testData.field(record, "usage"))
             snooze(1) # maybe find something better
-            if useClang and JIRA.isBugStillOpen(15639):
-                snooze(1)
             type(cppwindow, testData.field(record, "operator"))
             waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 1500)
             found = str(lineUnderCursor(cppwindow)).strip()
