@@ -62,7 +62,14 @@ BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
         return;
     }
 
-    const GdbServerProvider *p = GdbServerProviderManager::findProvider(dev->gdbServerProviderId());
+    const QString providerId = dev->gdbServerProviderId();
+    const GdbServerProvider *p = GdbServerProviderManager::findProvider(providerId);
+    if (!p) {
+        // FIXME: Translate.
+        reportFailure(QString("No GDB server provider found for %1").arg(providerId));
+        return;
+    }
+
     if (p->startupMode() == GdbServerProvider::StartupOnNetwork) {
         StandardRunnable r;
         r.executable = p->executable();
