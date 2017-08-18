@@ -1253,6 +1253,11 @@ void TextEditorWidgetPrivate::editorContentsChange(int position, int charsRemove
         // lines were inserted or removed from outside, keep viewport on same part of text
         if (q->firstVisibleBlock().blockNumber() > posBlock.blockNumber())
             q->verticalScrollBar()->setValue(q->verticalScrollBar()->value() + newBlockCount - m_blockCount);
+
+        if (m_inBlockSelectionMode) {
+            disableBlockSelection(CursorUpdateClearSelection);
+            q->viewport()->update();
+        }
     }
     m_blockCount = newBlockCount;
     m_scrollBarUpdateTimer.start(500);
