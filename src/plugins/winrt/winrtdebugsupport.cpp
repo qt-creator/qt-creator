@@ -64,13 +64,11 @@ WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl)
     }
 
     if (isQmlDebugging()) {
-        QUrl qmlServer = ProjectExplorer::urlFromLocalHostAndFreePort();
-        if (qmlServer.port() <= 0) {
+        params.qmlServer = ProjectExplorer::urlFromLocalHostAndFreePort();
+        if (params.qmlServer.port() <= 0) {
             reportFailure(tr("Not enough free ports for QML debugging."));
             return;
         }
-        params.qmlServer.host = qmlServer.host();
-        params.qmlServer.port = Utils::Port(qmlServer.port());
     }
 
     QString errorMessage;

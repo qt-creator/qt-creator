@@ -126,9 +126,10 @@ void QnxDebugSupport::start()
     params.inferior.commandLineArguments = runConfig->arguments();
 
     if (isQmlDebugging()) {
-        params.qmlServer.host = device()->sshParameters().host;
-        params.qmlServer.port = m_portsGatherer->qmlServerPort();
-        params.inferior.commandLineArguments.replace("%qml_port%", params.qmlServer.port.toString());
+        const int qmlServerPort = m_portsGatherer->qmlServerPort().number();
+        params.qmlServer.setHost(device()->sshParameters().host);
+        params.qmlServer.setPort(qmlServerPort);
+        params.inferior.commandLineArguments.replace("%qml_port%", QString::number(qmlServerPort));
     }
 
     auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(k));

@@ -77,17 +77,16 @@ void LinuxDeviceDebugSupport::start()
 
     const QString host = device()->sshParameters().host;
     const Port gdbServerPort = m_portsGatherer->gdbServerPort();
-    const Port qmlServerPort = m_portsGatherer->qmlServerPort();
+    const int qmlServerPort = m_portsGatherer->qmlServerPort().number();
 
     DebuggerStartParameters params;
     params.startMode = AttachToRemoteServer;
     params.closeMode = KillAndExitMonitorAtClose;
 
     if (isQmlDebugging()) {
-        params.qmlServer.host = host;
-        params.qmlServer.port = qmlServerPort;
-        params.inferior.commandLineArguments.replace("%qml_port%",
-                        QString::number(qmlServerPort.number()));
+        params.qmlServer.setHost(host);
+        params.qmlServer.setPort(qmlServerPort);
+        params.inferior.commandLineArguments.replace("%qml_port%", QString::number(qmlServerPort));
     }
     if (isCppDebugging()) {
         Runnable r = runnable();

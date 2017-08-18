@@ -485,7 +485,7 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
     IDevice::ConstPtr device = runControl->device();
     if (rp.languages & QmlLanguage) {
         if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-            if (rp.qmlServer.host.isEmpty() || !rp.qmlServer.port.isValid()) {
+            if (rp.qmlServer.host().isEmpty() || rp.qmlServer.port() <= 0) {
                 QTcpServer server;
                 const bool canListen = server.listen(QHostAddress::LocalHost)
                         || server.listen(QHostAddress::LocalHostIPv6);
@@ -493,10 +493,8 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
                     m_errors.append(DebuggerPlugin::tr("Not enough free ports for QML debugging.") + ' ');
                     return false;
                 }
-                TcpServerConnection conn;
-                conn.host = server.serverAddress().toString();
-                conn.port = Utils::Port(server.serverPort());
-                rp.qmlServer = conn;
+                rp.qmlServer.setHost(server.serverAddress().toString());
+                rp.qmlServer.setPort(server.serverPort());
             }
 
             // Makes sure that all bindings go through the JavaScript engine, so that
@@ -534,10 +532,10 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
                 service = QmlDebug::QmlDebuggerServices;
             }
             if (rp.startMode != AttachExternal && rp.startMode != AttachCrashedExternal) {
-                QtcProcess::addArg(&rp.inferior.commandLineArguments,
-                                   (rp.languages & CppLanguage) && rp.nativeMixedEnabled ?
-                                       QmlDebug::qmlDebugNativeArguments(service, false) :
-                                       QmlDebug::qmlDebugTcpArguments(service, rp.qmlServer.port));
+                QString qmlarg = (rp.languages & CppLanguage) && rp.nativeMixedEnabled
+                        ? QmlDebug::qmlDebugNativeArguments(service, false)
+                        : QmlDebug::qmlDebugTcpArguments(service, Port(rp.qmlServer.port()));
+                QtcProcess::addArg(&rp.inferior.commandLineArguments, qmlarg);
             }
         }
     }

@@ -518,13 +518,13 @@ void IosDebugSupport::start()
         QTcpServer server;
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)
                    || server.listen(QHostAddress::LocalHostIPv6), return);
-        params.qmlServer.host = server.serverAddress().toString();
+        params.qmlServer.setHost(server.serverAddress().toString());
         if (!cppDebug)
             params.startMode = AttachToRemoteServer;
     }
 
     if (qmlServerPort.isValid()) {
-        params.qmlServer.port = qmlServerPort;
+        params.qmlServer.setPort(qmlServerPort.number());
         params.inferior.commandLineArguments.replace("%qml_port%", qmlServerPort.toString());
     }
 

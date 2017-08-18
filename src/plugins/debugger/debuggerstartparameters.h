@@ -46,13 +46,6 @@ namespace Debugger {
 // Note: This is part of the "soft interface" of the debugger plugin.
 // Do not add anything that needs implementation in a .cpp file.
 
-class DEBUGGER_EXPORT TcpServerConnection
-{
-public:
-    QString host;
-    Utils::Port port;
-};
-
 class DEBUGGER_EXPORT DebuggerStartParameters
 {
 public:
@@ -68,7 +61,7 @@ public:
     bool needFixup = true; // FIXME: Make false the default...
 
     // Used by Qml debugging.
-    TcpServerConnection qmlServer;
+    QUrl qmlServer;
 
     // Used by general remote debugging.
     QString remoteChannel;

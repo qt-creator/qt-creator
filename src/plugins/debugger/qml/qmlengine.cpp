@@ -384,7 +384,7 @@ void QmlEngine::beginConnection()
 
     QObject::disconnect(d->startupMessageFilterConnection);
 
-    QString host = runParameters().qmlServer.host;
+    QString host = runParameters().qmlServer.host();
     // Use localhost as default
     if (host.isEmpty())
         host = QHostAddress(QHostAddress::LocalHost).toString();
@@ -401,12 +401,12 @@ void QmlEngine::beginConnection()
      * the connection will be closed again (instead of returning the "connection refused"
      * error that we expect).
      */
-    Utils::Port port = runParameters().qmlServer.port;
+    int port = runParameters().qmlServer.port();
 
     if (!d->connection || d->connection->isConnected())
         return;
 
-    d->connection->connectToHost(host, port.number());
+    d->connection->connectToHost(host, port);
 
     //A timeout to check the connection state
     d->connectionTimer.start();
