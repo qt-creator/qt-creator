@@ -30,10 +30,6 @@
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/runconfiguration.h>
 
-#include <utils/outputformat.h>
-
-#include <qmldebug/qmloutputparser.h>
-
 namespace RemoteLinux {
 
 class REMOTELINUX_EXPORT RemoteLinuxQmlProfilerSupport
@@ -47,7 +43,6 @@ public:
 private:
     void start() override;
 
-    QmlDebug::QmlOutputParser m_outputParser;
     ProjectExplorer::PortsGatherer *m_portsGatherer;
     ProjectExplorer::RunWorker *m_profiler;
 };
