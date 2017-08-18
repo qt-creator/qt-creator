@@ -1019,6 +1019,7 @@ void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
                 dl.data = line["rawdata"].data();
                 if (!dl.data.isEmpty())
                     dl.data += QString(30 - dl.data.size(), QLatin1Char(' '));
+                dl.data += fromHex(line["hexdata"].data());
                 dl.data += line["data"].data();
                 dl.offset = line["offset"].toInt();
                 dl.lineNumber = line["line"].toInt();

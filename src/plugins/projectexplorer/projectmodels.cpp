@@ -198,6 +198,16 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
     return true;
 }
 
+static bool compareProjectNames(const WrapperNode *lhs, const WrapperNode *rhs)
+{
+    Node *p1 = lhs->m_node;
+    Node *p2 = rhs->m_node;
+    const int displayNameResult = caseFriendlyCompare(p1->displayName(), p2->displayName());
+    if (displayNameResult != 0)
+        return displayNameResult < 0;
+    return p1 < p2; // sort by pointer value
+}
+
 void FlatModel::addOrRebuildProjectModel(Project *project)
 {
     WrapperNode *container = nodeForProject(project);
@@ -205,7 +215,7 @@ void FlatModel::addOrRebuildProjectModel(Project *project)
         container->removeChildren();
     } else {
         container = new WrapperNode(project->containerNode());
-        rootItem()->appendChild(container);
+        rootItem()->insertOrderedChild(container, &compareProjectNames);
     }
 
     QSet<Node *> seen;
@@ -260,16 +270,7 @@ void FlatModel::updateSubtree(FolderNode *node)
 
 void FlatModel::rebuildModel()
 {
-    QList<Project *> projects = SessionManager::projects();
-    QTC_CHECK(projects.size() == rootItem()->childCount());
-
-    Utils::sort(projects, [](Project *p1, Project *p2) {
-        const int displayNameResult = caseFriendlyCompare(p1->displayName(), p2->displayName());
-        if (displayNameResult != 0)
-            return displayNameResult < 0;
-        return p1 < p2; // sort by pointer value
-    });
-
+    const QList<Project *> projects = SessionManager::projects();
     for (Project *project : projects)
         addOrRebuildProjectModel(project);
 }

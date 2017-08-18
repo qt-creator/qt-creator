@@ -156,7 +156,7 @@
                 \li \l{Connecting Embedded Linux Devices}
                 \li \l{Connecting iOS Devices}
                 \li \l{Connecting QNX Devices}
-                \li \l{Connecting Windows Runtime Devices}
+                \li \l{Connecting UWP Devices}
             \endlist
             \li \l{Customizing the Build Process}
         \endlist

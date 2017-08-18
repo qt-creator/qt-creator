@@ -42,8 +42,8 @@ Product {
                         + product.moduleProperty("qtc", "ide_version_minor") + "\n");
                 content = content.replace(/(\n#define IDE_VERSION_RELEASE) .+\n/, "$1 "
                         + product.moduleProperty("qtc", "ide_version_release") + "\n");
-                content = content.replace(/(\n#define IDE_COPYRIGHT_YEAR) .+\n/, "$1 "
-                        + product.moduleProperty("qtc", "qtcreator_copyright_year") + "\n");
+                content = content.replace("$${QTCREATOR_COPYRIGHT_YEAR}",
+                        product.moduleProperty("qtc", "qtcreator_copyright_year"));
                 file = new TextFile(output.filePath, TextFile.WriteOnly);
                 file.truncate();
                 file.write(content);

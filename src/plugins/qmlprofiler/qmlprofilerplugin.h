@@ -34,6 +34,8 @@
 namespace QmlProfiler {
 namespace Internal {
 
+class QmlProfilerTool;
+
 class QmlProfilerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -47,6 +49,9 @@ public:
     static QmlProfilerSettings *globalSettings();
 
     QList<QObject *> createTestObjects() const override;
+
+private:
+    QmlProfilerTool *m_profilerTool = nullptr;
 };
 
 } // namespace Internal

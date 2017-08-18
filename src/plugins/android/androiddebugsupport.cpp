@@ -133,6 +133,7 @@ void AndroidDebugSupport::start()
                                                      .appendPath(toNdkArch(AndroidManager::targetArch(target))).toString();
     }
     if (isQmlDebugging()) {
+        params.qmlServer.host = m_runner->qmlServerHost();
         params.qmlServer.port = m_runner->qmlServerPort();
         //TODO: Not sure if these are the right paths.
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);

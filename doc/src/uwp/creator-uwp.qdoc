@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -27,29 +27,30 @@
 
     \contentspage {Qt Creator Manual}
     \previouspage creator-developing-qnx.html
-    \page creator-developing-winrt.html
+    \page creator-developing-uwp.html
     \nextpage creator-build-process-customizing.html
 
-    \title Connecting Windows Runtime Devices
+    \title Connecting UWP Devices
 
-    You can build Windows Store Apps and run them on Windows Phones, Windows
-    Phone Emulator, or the Windows computer in Modern UI mode.
+    You can build applications for the Universal Windows Platform (UWP) and run
+    them on any Windows 10 devices, such as PC, tablet, or phone.
 
     \QC uses the integrated \c windeployqt and \c winrtrunner tools to deploy
     and run applications. You can also run the tools manually from the command
     line.
 
-    The Qt 5.3 installer adds Windows Runtime and Windows Phone Qt versions to
-    \QC and creates the necessary kits.
+    Since 5.3, the Qt installers add the Windows Runtime and Windows Phone Qt
+    versions to \QC and create the necessary kits. In Qt 5.9, the packages were
+    renamed as UWP packages.
 
-    \image creator-winrt-kits.png "WinRT kits"
+    \image creator-uwp-kits.png "UWP kits"
 
-    To connect Windows Runtime devices:
+    To connect UWP devices:
 
     \list 1
 
         \li Select \uicontrol Help > \uicontrol {About Plugins} > \uicontrol {Device Support} >
-            \uicontrol WinRT to enable the experimental Windows Runtime plugin.
+            \uicontrol WinRT to enable the experimental UWP plugin.
 
         \li Restart \QC to be able to use the plugin.
 
@@ -61,9 +62,8 @@
                 device.
 
             \li Select \uicontrol Projects > \uicontrol {Build & Run} to
-                enable a kit for building applications and running them on Windows
-                Runtime devices (the local computer, for now), Windows Phones,
-                or the Windows Phone emulator.
+                enable a kit for building applications and running them on UWP
+                devices.
 
         \endlist
 
