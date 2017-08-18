@@ -63,6 +63,9 @@ private:
     void updatePosition();
     void abort();
 
+    int loadSelectedHint() const;
+    void storeSelectedHint();
+
 private:
     FunctionHintProposalWidgetPrivate *d;
 };

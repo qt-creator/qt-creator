@@ -57,10 +57,16 @@ public:
     virtual void updateProposal(const QString &prefix) = 0;
     virtual void closeProposal() = 0;
 
+    int basePosition() const;
+    void setBasePosition(int basePosition);
+
 signals:
     void prefixExpanded(const QString &newPrefix);
     void proposalItemActivated(AssistProposalItemInterface *proposalItem);
     void explicitlyAborted();
+
+protected:
+    int m_basePosition = -1;
 };
 
 } // TextEditor

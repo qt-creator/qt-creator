@@ -61,6 +61,15 @@ QString ClangFunctionHintModel::text(int index) const
     return signatureWithEmphasizedCurrentParameter;
 }
 
+QString ClangFunctionHintModel::id(int index) const
+{
+    QString chunks;
+    for (const ClangBackEnd::CodeCompletionChunk &chunk : m_functionSymbols.at(index).chunks())
+        chunks += chunk.text();
+
+    return chunks;
+}
+
 int ClangFunctionHintModel::activeArgument(const QString &prefix) const
 {
     int activeArgumentNumber = 0;

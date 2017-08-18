@@ -53,6 +53,9 @@ public:
     bool hasContext() const;
     void destroyContext();
 
+    QVariant userData() const;
+    void setUserData(const QVariant &data);
+
     void invoke(AssistKind assistKind, IAssistProvider *provider = 0);
 
 signals:

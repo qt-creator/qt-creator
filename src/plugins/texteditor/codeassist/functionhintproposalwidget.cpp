@@ -27,6 +27,7 @@
 #include "ifunctionhintproposalmodel.h"
 #include "codeassistant.h"
 
+#include <utils/algorithm.h>
 #include <utils/faketooltip.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -41,6 +42,56 @@
 #include <QPointer>
 
 namespace TextEditor {
+
+static const int maxSelectedFunctionHints = 20;
+
+class SelectedFunctionHints
+{
+public:
+    void insert(int basePosition, const QString &hintId)
+    {
+        if (basePosition < 0 || hintId.isEmpty())
+            return;
+
+        const int index = indexOf(basePosition);
+
+        // Add new item
+        if (index == -1) {
+            if (m_items.size() + 1 > maxSelectedFunctionHints)
+                m_items.removeLast();
+            m_items.prepend(FunctionHintItem(basePosition, hintId));
+            return;
+        }
+
+        // Update existing item
+        m_items[index].hintId = hintId;
+    }
+
+    QString hintId(int basePosition) const
+    {
+        const int index = indexOf(basePosition);
+        return index == -1 ? QString() : m_items.at(index).hintId;
+    }
+
+private:
+    int indexOf(int basePosition) const
+    {
+        return Utils::indexOf(m_items, [&](const FunctionHintItem &item) {
+            return item.basePosition == basePosition;
+        });
+    }
+
+private:
+    struct FunctionHintItem {
+        FunctionHintItem(int basePosition, const QString &hintId)
+            : basePosition(basePosition), hintId(hintId) {}
+
+        int basePosition = -1;
+        QString hintId;
+    };
+
+    QList<FunctionHintItem> m_items;
+};
 
 // -------------------------
 // HintProposalWidgetPrivate
@@ -158,7 +209,7 @@ void FunctionHintProposalWidget::showProposal(const QString &prefix)
     QTC_ASSERT(d->m_totalHints != 0, abort(); return; );
 
     d->m_pager->setVisible(d->m_totalHints > 1);
-    d->m_currentHint = 0;
+    d->m_currentHint = loadSelectedHint();
     if (!updateAndCheck(prefix))
         return;
 
@@ -182,6 +233,32 @@ void FunctionHintProposalWidget::abort()
     if (d->m_popupFrame->isVisible())
         d->m_popupFrame->close();
     deleteLater();
+}
+
+static SelectedFunctionHints selectedFunctionHints(CodeAssistant &codeAssistant)
+{
+    const QVariant variant = codeAssistant.userData();
+    return variant.value<SelectedFunctionHints>();
+}
+
+int FunctionHintProposalWidget::loadSelectedHint() const
+{
+    const QString hintId = selectedFunctionHints(*d->m_assistant).hintId(basePosition());
+
+    for (int i = 0; i < d->m_model->size(); ++i) {
+        if (d->m_model->id(i) == hintId)
+            return i;
+    }
+
+    return 0;
+}
+
+void FunctionHintProposalWidget::storeSelectedHint()
+{
+    SelectedFunctionHints table = selectedFunctionHints(*d->m_assistant);
+    table.insert(basePosition(), d->m_model->id(d->m_currentHint));
+
+    d->m_assistant->setUserData(QVariant::fromValue(table));
 }
 
 bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
@@ -257,6 +334,8 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
 void FunctionHintProposalWidget::nextPage()
 {
     d->m_currentHint = (d->m_currentHint + 1) % d->m_totalHints;
+
+    storeSelectedHint();
     updateContent();
 }
 
@@ -266,6 +345,8 @@ void FunctionHintProposalWidget::previousPage()
         d->m_currentHint = d->m_totalHints - 1;
     else
         --d->m_currentHint;
+
+    storeSelectedHint();
     updateContent();
 }
 
@@ -322,3 +403,5 @@ void FunctionHintProposalWidget::updatePosition()
 }
 
 } // TextEditor
+
+Q_DECLARE_METATYPE(TextEditor::SelectedFunctionHints)
