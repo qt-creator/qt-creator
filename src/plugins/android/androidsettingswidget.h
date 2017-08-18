@@ -100,11 +100,12 @@ private:
     Ui_AndroidSettingsWidget *m_ui;
     AndroidConfig m_androidConfig;
     AvdModel m_AVDModel;
-    QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcher;
+    QFutureWatcher<CreateAvdInfo> m_futureWatcher;
 
     QFutureWatcher<AndroidDeviceInfoList> m_virtualDevicesWatcher;
     QString m_lastAddedAvd;
     std::unique_ptr<AndroidAvdManager> m_avdManager;
+    std::unique_ptr<AndroidSdkManager> m_sdkManager;
 };
 
 } // namespace Internal

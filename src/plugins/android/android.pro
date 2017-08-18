@@ -50,7 +50,8 @@ HEADERS += \
     androidsdkmanager.h \
     androidavdmanager.h \
     androidrunconfigurationwidget.h \
-    adbcommandswidget.h
+    adbcommandswidget.h \
+    androidsdkpackage.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -94,7 +95,8 @@ SOURCES += \
     androidsdkmanager.cpp \
     androidavdmanager.cpp \
     androidrunconfigurationwidget.cpp \
-    adbcommandswidget.cpp
+    adbcommandswidget.cpp \
+    androidsdkpackage.cpp
 
 FORMS += \
     androidsettingswidget.ui \

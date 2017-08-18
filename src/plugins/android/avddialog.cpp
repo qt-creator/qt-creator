@@ -24,11 +24,12 @@
 ****************************************************************************/
 
 #include "avddialog.h"
-#include "androidconfigurations.h"
+#include "androidsdkmanager.h"
 
 #include <utils/algorithm.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
+#include <utils/qtcassert.h>
 
 #include <QKeyEvent>
 #include <QMessageBox>
@@ -37,10 +38,14 @@
 using namespace Android;
 using namespace Android::Internal;
 
-AvdDialog::AvdDialog(int minApiLevel, const QString &targetArch, const AndroidConfig *config, QWidget *parent) :
-    QDialog(parent), m_config(config), m_minApiLevel(minApiLevel),
+AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QString &targetArch,
+                     QWidget *parent) :
+    QDialog(parent),
+    m_sdkManager(sdkManager),
+    m_minApiLevel(minApiLevel),
     m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*"))
 {
+    QTC_CHECK(m_sdkManager);
     m_avdDialog.setupUi(this);
     m_hideTipTimer.setInterval(2000);
     m_hideTipTimer.setSingleShot(true);
@@ -70,12 +75,27 @@ AvdDialog::AvdDialog(int minApiLevel, const QString &targetArch, const AndroidCo
 
 bool AvdDialog::isValid() const
 {
-    return !name().isEmpty() && target().isValid() && !abi().isEmpty();
+    return !name().isEmpty() && sdkPlatform() && sdkPlatform()->isValid() && !abi().isEmpty();
 }
 
-SdkPlatform AvdDialog::target() const
+CreateAvdInfo AvdDialog::gatherCreateAVDInfo(QWidget *parent, AndroidSdkManager *sdkManager,
+                                             int minApiLevel, QString targetArch)
 {
-    return m_avdDialog.targetComboBox->currentData().value<SdkPlatform>();
+    CreateAvdInfo result;
+    AvdDialog d(minApiLevel, sdkManager, targetArch, parent);
+    if (d.exec() != QDialog::Accepted || !d.isValid())
+        return result;
+
+    result.sdkPlatform = d.sdkPlatform();
+    result.name = d.name();
+    result.abi = d.abi();
+    result.sdcardSize = d.sdcardSize();
+    return result;
+}
+
+const SdkPlatform* AvdDialog::sdkPlatform() const
+{
+    return m_avdDialog.targetComboBox->currentData().value<SdkPlatform*>();
 }
 
 QString AvdDialog::name() const
@@ -96,21 +116,23 @@ int AvdDialog::sdcardSize() const
 void AvdDialog::updateApiLevelComboBox()
 {
     SdkPlatformList filteredList;
-    SdkPlatformList platforms = m_config->sdkTargets(m_minApiLevel);
+    const SdkPlatformList platforms = m_sdkManager->filteredSdkPlatforms(m_minApiLevel);
 
     QString selectedAbi = abi();
-    auto hasAbi = [selectedAbi](const SystemImage &image) {
-        return image.isValid() && (image.abiName == selectedAbi);
+    auto hasAbi = [selectedAbi](const SystemImage *image) {
+        return image && image->isValid() && (image->abiName() == selectedAbi);
     };
 
-    filteredList = Utils::filtered(platforms, [hasAbi](const SdkPlatform &platform) {
-        return Utils::anyOf(platform.systemImages,hasAbi);
+    filteredList = Utils::filtered(platforms, [hasAbi](const SdkPlatform *platform) {
+        return platform && Utils::anyOf(platform->systemImages(), hasAbi);
     });
 
     m_avdDialog.targetComboBox->clear();
-    foreach (const SdkPlatform &platform, filteredList) {
-        m_avdDialog.targetComboBox->addItem(AndroidConfig::apiLevelNameFor(platform),
-                                            QVariant::fromValue<SdkPlatform>(platform));
+    for (SdkPlatform *platform: filteredList) {
+        m_avdDialog.targetComboBox->addItem(platform->displayText(),
+                                            QVariant::fromValue<SdkPlatform *>(platform));
+        m_avdDialog.targetComboBox->setItemData(m_avdDialog.targetComboBox->count() - 1,
+                                                platform->descriptionText(), Qt::ToolTipRole);
     }
 
     if (platforms.isEmpty()) {

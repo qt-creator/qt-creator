@@ -31,6 +31,8 @@
 #include "androidconstants.h"
 #include "androidtoolchain.h"
 #include "androidavdmanager.h"
+#include "androidsdkmanager.h"
+#include "avddialog.h"
 
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
@@ -212,7 +214,8 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     : QWidget(parent),
       m_ui(new Ui_AndroidSettingsWidget),
       m_androidConfig(AndroidConfigurations::currentConfig()),
-      m_avdManager(new AndroidAvdManager(m_androidConfig))
+      m_avdManager(new AndroidAvdManager(m_androidConfig)),
+      m_sdkManager(new AndroidSdkManager(m_androidConfig))
 {
     m_ui->setupUi(this);
 
@@ -390,7 +393,7 @@ void AndroidSettingsWidget::validateSdk()
     summaryWidget->setPointValid(BuildToolsInstalledRow,
                                  !m_androidConfig.buildToolsVersion().isNull());
     summaryWidget->setPointValid(PlatformSdkInstalledRow,
-                                 !m_androidConfig.sdkTargets().isEmpty());
+                                 !m_sdkManager->installedSdkPlatforms().isEmpty());
     updateUI();
 }
 
@@ -412,9 +415,9 @@ void AndroidSettingsWidget::openOpenJDKDownloadUrl()
 void AndroidSettingsWidget::addAVD()
 {
     disableAvdControls();
-    AndroidConfig::CreateAvdInfo info = m_androidConfig.gatherCreateAVDInfo(this);
+    CreateAvdInfo info = AvdDialog::gatherCreateAVDInfo(this, m_sdkManager.get());
 
-    if (!info.target.isValid()) {
+    if (!info.isValid()) {
         enableAvdControls();
         return;
     }
@@ -424,7 +427,7 @@ void AndroidSettingsWidget::addAVD()
 
 void AndroidSettingsWidget::avdAdded()
 {
-    AndroidConfig::CreateAvdInfo info = m_futureWatcher.result();
+    CreateAvdInfo info = m_futureWatcher.result();
     if (!info.error.isEmpty()) {
         enableAvdControls();
         QMessageBox::critical(this, QApplication::translate("AndroidConfig", "Error Creating AVD"), info.error);

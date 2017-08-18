@@ -48,12 +48,25 @@ namespace Internal {
 const QVersionNumber sdkManagerIntroVersion(25, 3 ,0);
 
 const char installLocationKey[] = "Installed Location:";
-const char apiLevelPropertyKey[] = "AndroidVersion.ApiLevel";
-const char abiPropertyKey[] = "SystemImage.Abi";
+const char revisionKey[] = "Version:";
+const char descriptionKey[] = "Description:";
 
 const int sdkManagerCmdTimeoutS = 60;
 
 using namespace Utils;
+
+int platformNameToApiLevel(const QString &platformName)
+{
+    int apiLevel = -1;
+    QRegularExpression re("(android-)(?<apiLevel>[0-9]{1,})",
+                          QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatch match = re.match(platformName);
+    if (match.hasMatch()) {
+        QString apiLevelStr = match.captured("apiLevel");
+        apiLevel = apiLevelStr.toInt();
+    }
+    return apiLevel;
+}
 
 /*!
     Parses the \a line for a [spaces]key[spaces]value[spaces] pattern and returns
@@ -75,7 +88,7 @@ static bool valueForKey(QString key, const QString &line, QString *value = nullp
     \c true if the command is successfully executed. Output is copied into \a output. The function
     blocks the calling thread.
  */
-static bool sdkManagerCommand(const AndroidConfig config, const QStringList &args, QString *output,
+static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &args, QString *output,
                               int timeout = sdkManagerCmdTimeoutS)
 {
     QString sdkManagerToolPath = config.sdkManagerToolPath().toString();
@@ -87,6 +100,29 @@ static bool sdkManagerCommand(const AndroidConfig config, const QStringList &arg
         *output = response.allOutput();
     return response.result == SynchronousProcessResponse::Finished;
 }
+
+
+class AndroidSdkManagerPrivate
+{
+public:
+    AndroidSdkManagerPrivate(AndroidSdkManager &sdkManager, const AndroidConfig &config);
+    ~AndroidSdkManagerPrivate();
+
+    AndroidSdkPackageList filteredPackages(AndroidSdkPackage::PackageState state,
+                                           AndroidSdkPackage::PackageType type,
+                                           bool forceUpdate = false);
+    const AndroidSdkPackageList &allPackages(bool forceUpdate = false);
+    void refreshSdkPackages(bool forceReload = false);
+
+private:
+    void reloadSdkPackages();
+    void clearPackages();
+
+    AndroidSdkManager &m_sdkManager;
+    const AndroidConfig &m_config;
+    AndroidSdkPackageList m_allPackages;
+    FileName lastSdkManagerPath;
+};
 
 /*!
     \class SdkManagerOutputParser
@@ -108,19 +144,20 @@ public:
         SectionMarkers = InstalledPackagesMarker | AvailablePackagesMarkers | AvailableUpdatesMarker
     };
 
+    SdkManagerOutputParser(AndroidSdkPackageList &container) : m_packages(container) {}
     void parsePackageListing(const QString &output);
 
-    SdkPlatformList m_installedPlatforms;
+    AndroidSdkPackageList &m_packages;
 
 private:
-    void compileData();
+    void compilePackageAssociations();
     void parsePackageData(MarkerTag packageMarker, const QStringList &data);
-    bool parsePlatform(const QStringList &data, SdkPlatform *platform) const;
-    bool parseSystemImage(const QStringList &data, SystemImage *image);
+    AndroidSdkPackage *parsePlatform(const QStringList &data) const;
+    QPair<SystemImage *, int> parseSystemImage(const QStringList &data) const;
     MarkerTag parseMarkers(const QString &line);
 
     MarkerTag m_currentSection = MarkerTag::None;
-    SystemImageList m_installedSystemImages;
+    QHash<AndroidSdkPackage *, int> m_systemImages;
 };
 
 const std::map<SdkManagerOutputParser::MarkerTag, const char *> markerTags {
@@ -131,9 +168,9 @@ const std::map<SdkManagerOutputParser::MarkerTag, const char *> markerTags {
     {SdkManagerOutputParser::MarkerTag::SystemImageMarker,         "system-images"}
 };
 
-AndroidSdkManager::AndroidSdkManager(const AndroidConfig &config):
-    m_config(config),
-    m_parser(new SdkManagerOutputParser)
+AndroidSdkManager::AndroidSdkManager(const AndroidConfig &config, QObject *parent):
+    QObject(parent),
+    m_d(new AndroidSdkManagerPrivate(*this, config))
 {
 }
 
@@ -142,21 +179,61 @@ AndroidSdkManager::~AndroidSdkManager()
 
 }
 
-SdkPlatformList AndroidSdkManager::availableSdkPlatforms(bool *ok)
+SdkPlatformList AndroidSdkManager::installedSdkPlatforms()
 {
-    bool success = false;
-    if (m_config.sdkToolsVersion() < sdkManagerIntroVersion) {
-        AndroidToolManager toolManager(m_config);
-        return toolManager.availableSdkPlatforms(ok);
+    AndroidSdkPackageList list = m_d->filteredPackages(AndroidSdkPackage::Installed,
+                                                       AndroidSdkPackage::SdkPlatformPackage);
+    return Utils::transform(list, [](AndroidSdkPackage *p) {
+       return static_cast<SdkPlatform *>(p);
+    });
+}
+
+const AndroidSdkPackageList &AndroidSdkManager::allSdkPackages()
+{
+    return m_d->allPackages();
+}
+
+AndroidSdkPackageList AndroidSdkManager::availableSdkPackages()
+{
+    return m_d->filteredPackages(AndroidSdkPackage::Available, AndroidSdkPackage::AnyValidType);
+}
+
+AndroidSdkPackageList AndroidSdkManager::installedSdkPackages()
+{
+    return m_d->filteredPackages(AndroidSdkPackage::Installed, AndroidSdkPackage::AnyValidType);
+}
+
+SdkPlatform *AndroidSdkManager::latestAndroidSdkPlatform(AndroidSdkPackage::PackageState state)
+{
+    SdkPlatform *result = nullptr;
+    const AndroidSdkPackageList list = m_d->filteredPackages(state,
+                                                             AndroidSdkPackage::SdkPlatformPackage);
+    for (AndroidSdkPackage *p : list) {
+        auto platform = static_cast<SdkPlatform *>(p);
+        if (!result || result->apiLevel() < platform->apiLevel())
+            result = platform;
     }
+    return result;
+}
 
-    QString packageListing;
-    if (sdkManagerCommand(m_config, QStringList({"--list", "--verbose"}), &packageListing))
-        m_parser->parsePackageListing(packageListing);
+SdkPlatformList AndroidSdkManager::filteredSdkPlatforms(int minApiLevel,
+                                                        AndroidSdkPackage::PackageState state)
+{
+    const AndroidSdkPackageList list = m_d->filteredPackages(state,
+                                                             AndroidSdkPackage::SdkPlatformPackage);
 
-    if (ok)
-        *ok = success;
-    return m_parser->m_installedPlatforms;
+    SdkPlatformList result;
+    for (AndroidSdkPackage *p : list) {
+        auto platform = static_cast<SdkPlatform *>(p);
+        if (platform && platform->apiLevel() >= minApiLevel)
+            result << platform;
+    }
+    return result;
+}
+
+void AndroidSdkManager::reloadPackages(bool forceReload)
+{
+    m_d->refreshSdkPackages(forceReload);
 }
 
 void SdkManagerOutputParser::parsePackageListing(const QString &output)
@@ -173,10 +250,9 @@ void SdkManagerOutputParser::parsePackageListing(const QString &output)
         }
     };
 
-    QRegularExpression delimiters("[\n\r]");
+    QRegularExpression delimiters("[\\n\\r]");
     foreach (QString outputLine, output.split(delimiters)) {
         MarkerTag marker = parseMarkers(outputLine.trimmed());
-
         if (marker & SectionMarkers) {
             // Section marker found. Update the current section being parsed.
             m_currentSection = marker;
@@ -211,20 +287,27 @@ void SdkManagerOutputParser::parsePackageListing(const QString &output)
             packageData << outputLine;
         }
     }
-    compileData();
-    Utils::sort(m_installedPlatforms);
+    compilePackageAssociations();
 }
 
-void SdkManagerOutputParser::compileData()
+void SdkManagerOutputParser::compilePackageAssociations()
 {
     // Associate the system images with sdk platforms.
-    for (auto &image : m_installedSystemImages) {
-        auto findPlatfom = [image](const SdkPlatform &platform) {
-            return platform.apiLevel == image.apiLevel;
+    auto imageItr = m_systemImages.cbegin();
+    while (imageItr != m_systemImages.cend()) {
+        auto findPlatform = [imageItr](const AndroidSdkPackage *p) {
+            const SdkPlatform *platform = nullptr;
+            if (p->type() == AndroidSdkPackage::SdkPlatformPackage)
+                platform = static_cast<const SdkPlatform*>(p);
+            return platform && platform->apiLevel() == imageItr.value();
         };
-        auto itr = std::find_if(m_installedPlatforms.begin(), m_installedPlatforms.end(), findPlatfom);
-        if (itr != m_installedPlatforms.end())
-            itr->systemImages.append(image);
+        auto itr = std::find_if(m_packages.begin(), m_packages.end(),
+                                findPlatform);
+        if (itr != m_packages.end()) {
+            SdkPlatform *platform = static_cast<SdkPlatform*>(*itr);
+            platform->addSystemImage(static_cast<SystemImage *>(imageItr.key()));
+        }
+        ++imageItr;
     }
 }
 
@@ -235,24 +318,23 @@ void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QSt
     if (m_currentSection != MarkerTag::InstalledPackagesMarker)
         return; // For now, only interested in installed packages.
 
+    AndroidSdkPackage *package = nullptr;
     switch (packageMarker) {
     case MarkerTag::PlatformMarker:
-    {
-        SdkPlatform platform;
-        if (parsePlatform(data, &platform))
-            m_installedPlatforms.append(platform);
-        else
-            qCDebug(sdkManagerLog) << "Platform: Parsing failed: " << data;
-    }
+        package = parsePlatform(data);
+        if (package)
+            m_packages.append(package);
         break;
 
     case MarkerTag::SystemImageMarker:
     {
-        SystemImage image;
-        if (parseSystemImage(data, &image))
-            m_installedSystemImages.append(image);
-        else
+        QPair<SystemImage *, int> result = parseSystemImage(data);
+        if (result.first) {
+            m_systemImages[result.first] = result.second;
+            package = result.first;
+        } else {
             qCDebug(sdkManagerLog) << "System Image: Parsing failed: " << data;
+        }
     }
         break;
 
@@ -260,71 +342,118 @@ void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QSt
         qCDebug(sdkManagerLog) << "Unhandled package: " << markerTags.at(packageMarker);
         break;
     }
-}
 
-bool SdkManagerOutputParser::parsePlatform(const QStringList &data, SdkPlatform *platform) const
-{
-    QTC_ASSERT(platform && !data.isEmpty(), return false);
-
-    QStringList parts = data.at(0).split(';');
-    if (parts.count() < 2) {
-        qCDebug(sdkManagerLog) << "Platform: Unexpected header: "<< data;
-        return false;
-    }
-    platform->name = parts[1];
-    platform->package = data.at(0);
-
-    foreach (QString line, data) {
-        QString value;
-        if (valueForKey(installLocationKey, line, &value))
-            platform->installedLocation = Utils::FileName::fromString(value);
-    }
-
-    int apiLevel = AndroidManager::findApiLevel(platform->installedLocation);
-    if (apiLevel != -1)
-        platform->apiLevel = apiLevel;
-    else
-        qCDebug(sdkManagerLog) << "Platform: Can not parse api level: "<< data;
-
-    return apiLevel != -1;
-}
-
-bool SdkManagerOutputParser::parseSystemImage(const QStringList &data, SystemImage *image)
-{
-    QTC_ASSERT(image && !data.isEmpty(), return false);
-
-    QStringList parts = data.at(0).split(';');
-    QTC_ASSERT(!data.isEmpty() && parts.count() >= 4,
-               qCDebug(sdkManagerLog) << "System Image: Unexpected header: " << data);
-
-    image->package = data.at(0);
-    foreach (QString line, data) {
-        QString value;
-        if (valueForKey(installLocationKey, line, &value))
-            image->installedLocation = Utils::FileName::fromString(value);
-    }
-
-    Utils::FileName propertiesPath = image->installedLocation;
-    propertiesPath.appendPath("/source.properties");
-    if (propertiesPath.exists()) {
-        // Installed System Image.
-        QSettings imageProperties(propertiesPath.toString(), QSettings::IniFormat);
-        bool validApiLevel = false;
-        image->apiLevel = imageProperties.value(apiLevelPropertyKey).toInt(&validApiLevel);
-        if (!validApiLevel) {
-            qCDebug(sdkManagerLog) << "System Image: Can not parse api level: "<< data;
-            return false;
+    if (package) {
+        switch (m_currentSection) {
+        case MarkerTag::InstalledPackagesMarker:
+            package->setState(AndroidSdkPackage::Installed);
+            break;
+        case MarkerTag::AvailablePackagesMarkers:
+        case MarkerTag::AvailableUpdatesMarker:
+            package->setState(AndroidSdkPackage::Available);
+            break;
+        default:
+            qCDebug(sdkManagerLog) << "Invalid section marker: " << markerTags.at(m_currentSection);
+            break;
         }
-        image->abiName = imageProperties.value(abiPropertyKey).toString();
-    } else if (parts.count() >= 4){
-        image->apiLevel = parts[1].section('-', 1, 1).toInt();
-        image->abiName = parts[3];
+    }
+}
+
+AndroidSdkPackage *SdkManagerOutputParser::parsePlatform(const QStringList &data) const
+{
+    QTC_ASSERT(!data.isEmpty(), qCDebug(sdkManagerLog) << "Platform: Empty input"; return nullptr);
+
+    QStringList parts = data.at(0).split(';');
+    QTC_ASSERT(parts.count() >= 2,
+               qCDebug(sdkManagerLog) << "Platform: Unexpected header:"<< data; return nullptr);
+
+    int apiLevel = platformNameToApiLevel(parts.at(1));
+    if (apiLevel == -1) {
+        qCDebug(sdkManagerLog) << "Platform: Can not parse api level:"<< data;
+        return nullptr;
+    }
+
+    QVersionNumber revision;
+    QString description;
+    Utils::FileName installedLocation;
+    foreach (QString line, data) {
+        QString value;
+        if (valueForKey(installLocationKey, line, &value)) {
+            installedLocation = Utils::FileName::fromString(value);
+            continue;
+        }
+
+        if (valueForKey(revisionKey, line, &value)) {
+            revision = QVersionNumber::fromString(value);
+            continue;
+        }
+
+        if (valueForKey(descriptionKey, line, &value)) {
+            description = value;
+            continue;
+        }
+    }
+
+    SdkPlatform *platform = nullptr;
+    if (!revision.isNull() && apiLevel != -1) {
+        platform = new SdkPlatform(revision, data.at(0), apiLevel);
+        platform->setDescriptionText(description);
+        platform->setInstalledLocation(installedLocation);
+    } else {
+        qCDebug(sdkManagerLog) << "Platform: Parsing failed. Minimum required data unavailable:"
+                               << data;
+    }
+
+    return platform;
+}
+
+QPair<SystemImage *, int> SdkManagerOutputParser::parseSystemImage(const QStringList &data) const
+{
+    QPair <SystemImage *, int> result(nullptr, -1);
+    QTC_ASSERT(!data.isEmpty(),
+               qCDebug(sdkManagerLog) << "System Image: Empty input"; return result);
+
+    QStringList parts = data.at(0).split(';');
+    QTC_ASSERT(parts.count() >= 4,
+               qCDebug(sdkManagerLog) << "System Image: Unexpected header:" << data; return result);
+
+    int apiLevel = platformNameToApiLevel(parts.at(1));
+    if (apiLevel == -1) {
+        qCDebug(sdkManagerLog) << "System Image: Can not parse api level:"<< data;
+        return result;
+    }
+
+    QVersionNumber revision;
+    QString description;
+    Utils::FileName installedLocation;
+    foreach (QString line, data) {
+        QString value;
+        if (valueForKey(installLocationKey, line, &value)) {
+            installedLocation = Utils::FileName::fromString(value);
+            continue;
+        }
+
+        if (valueForKey(revisionKey, line, &value)) {
+            revision = QVersionNumber::fromString(value);
+            continue;
+        }
+
+        if (valueForKey(descriptionKey, line, &value)) {
+            description = value;
+            continue;
+        }
+    }
+
+    if (!revision.isNull()) {
+        auto image = new SystemImage(revision, data.at(0), parts.at(3));
+        image->setInstalledLocation(installedLocation);
+        image->setDisplayText(description);
+        image->setDescriptionText(description);
+        result = qMakePair(image, apiLevel);
     } else {
         qCDebug(sdkManagerLog) << "System Image: Can not parse: "<< data;
-        return false;
     }
-
-    return true;
+    return result;
 }
 
 SdkManagerOutputParser::MarkerTag SdkManagerOutputParser::parseMarkers(const QString &line)
@@ -338,6 +467,80 @@ SdkManagerOutputParser::MarkerTag SdkManagerOutputParser::parseMarkers(const QSt
     }
 
     return None;
+}
+
+AndroidSdkManagerPrivate::AndroidSdkManagerPrivate(AndroidSdkManager &sdkManager,
+                                                   const AndroidConfig &config):
+    m_sdkManager(sdkManager),
+    m_config(config)
+{
+
+}
+
+AndroidSdkManagerPrivate::~AndroidSdkManagerPrivate()
+{
+    clearPackages();
+}
+
+AndroidSdkPackageList
+AndroidSdkManagerPrivate::filteredPackages(AndroidSdkPackage::PackageState state,
+                                           AndroidSdkPackage::PackageType type, bool forceUpdate)
+{
+    refreshSdkPackages(forceUpdate);
+    return Utils::filtered(m_allPackages, [state, type](const AndroidSdkPackage *p) {
+       return p->state() & state && p->type() & type;
+    });
+}
+
+const AndroidSdkPackageList &AndroidSdkManagerPrivate::allPackages(bool forceUpdate)
+{
+    refreshSdkPackages(forceUpdate);
+    return m_allPackages;
+}
+
+void AndroidSdkManagerPrivate::reloadSdkPackages()
+{
+    m_sdkManager.packageReloadBegin();
+    clearPackages();
+
+    lastSdkManagerPath = m_config.sdkManagerToolPath();
+
+    if (m_config.sdkToolsVersion().isNull()) {
+        // Configuration has invalid sdk path or corrupt installation.
+        m_sdkManager.packageReloadFinished();
+        return;
+    }
+
+    if (m_config.sdkToolsVersion() < sdkManagerIntroVersion) {
+        // Old Sdk tools.
+        AndroidToolManager toolManager(m_config);
+        auto toAndroidSdkPackages = [](SdkPlatform *p) -> AndroidSdkPackage *{
+            return p;
+        };
+        m_allPackages = Utils::transform(toolManager.availableSdkPlatforms(), toAndroidSdkPackages);
+    } else {
+        QString packageListing;
+        if (sdkManagerCommand(m_config, QStringList({"--list", "--verbose"}), &packageListing)) {
+            SdkManagerOutputParser parser(m_allPackages);
+            parser.parsePackageListing(packageListing);
+        }
+    }
+    m_sdkManager.packageReloadFinished();
+}
+
+void AndroidSdkManagerPrivate::refreshSdkPackages(bool forceReload)
+{
+    // Sdk path changed. Updated packages.
+    // QTC updates the package listing only
+    if (m_config.sdkManagerToolPath() != lastSdkManagerPath || forceReload)
+        reloadSdkPackages();
+}
+
+void AndroidSdkManagerPrivate::clearPackages()
+{
+    for (AndroidSdkPackage *p : m_allPackages)
+        delete p;
+    m_allPackages.clear();
 }
 
 } // namespace Internal

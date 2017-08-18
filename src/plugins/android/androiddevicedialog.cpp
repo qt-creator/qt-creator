@@ -26,6 +26,7 @@
 #include "androiddevicedialog.h"
 #include "androidmanager.h"
 #include "androidavdmanager.h"
+#include "avddialog.h"
 #include "ui_androiddevicedialog.h"
 
 #include <utils/environment.h>
@@ -580,9 +581,10 @@ void AndroidDeviceDialog::devicesRefreshed()
 void AndroidDeviceDialog::createAvd()
 {
     m_ui->createAVDButton->setEnabled(false);
-    AndroidConfig::CreateAvdInfo info = AndroidConfigurations::currentConfig().gatherCreateAVDInfo(this, m_apiLevel, m_abi);
+    CreateAvdInfo info = AvdDialog::gatherCreateAVDInfo(this, AndroidConfigurations::sdkManager(),
+                                                        m_apiLevel, m_abi);
 
-    if (!info.target.isValid()) {
+    if (!info.isValid()) {
         m_ui->createAVDButton->setEnabled(true);
         return;
     }
@@ -593,7 +595,7 @@ void AndroidDeviceDialog::createAvd()
 void AndroidDeviceDialog::avdAdded()
 {
     m_ui->createAVDButton->setEnabled(true);
-    AndroidConfig::CreateAvdInfo info = m_futureWatcherAddDevice.result();
+    CreateAvdInfo info = m_futureWatcherAddDevice.result();
     if (!info.error.isEmpty()) {
         QMessageBox::critical(this, QApplication::translate("AndroidConfig", "Error Creating AVD"), info.error);
         return;

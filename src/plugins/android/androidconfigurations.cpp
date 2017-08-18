@@ -272,7 +272,6 @@ void AndroidConfig::load(const QSettings &settings)
             m_makeExtraSearchDirectories << extraDirectory;
         // persistent settings
     }
-    m_availableSdkPlatformsUpToDate = false;
     m_NdkInformationUpToDate = false;
 }
 
@@ -333,40 +332,15 @@ void AndroidConfig::updateNdkInformation() const
     m_NdkInformationUpToDate = true;
 }
 
-void AndroidConfig::updateAvailableSdkPlatforms() const
-{
-    if (m_availableSdkPlatformsUpToDate)
-        return;
-
-    m_availableSdkPlatforms.clear();
-    AndroidSdkManager sdkManager(*this);
-    bool success = false;
-    m_availableSdkPlatforms = sdkManager.availableSdkPlatforms(&success);
-    if (success)
-        m_availableSdkPlatformsUpToDate = true;
-}
-
-QStringList AndroidConfig::apiLevelNamesFor(const QList<SdkPlatform> &platforms)
+QStringList AndroidConfig::apiLevelNamesFor(const SdkPlatformList &platforms)
 {
     return Utils::transform(platforms, AndroidConfig::apiLevelNameFor);
 }
 
-QString AndroidConfig::apiLevelNameFor(const SdkPlatform &platform)
+QString AndroidConfig::apiLevelNameFor(const SdkPlatform *platform)
 {
-    return platform.apiLevel > 0 ? QString("android-%1").arg(platform.apiLevel) : "";
-}
-
-QList<SdkPlatform> AndroidConfig::sdkTargets(int minApiLevel) const
-{
-    updateAvailableSdkPlatforms();
-    QList<SdkPlatform> result;
-    for (int i = 0; i < m_availableSdkPlatforms.size(); ++i) {
-        if (m_availableSdkPlatforms.at(i).apiLevel >= minApiLevel)
-            result << m_availableSdkPlatforms.at(i);
-        else
-            break;
-    }
-    return result;
+    return platform && platform->apiLevel() > 0 ?
+                QString("android-%1").arg(platform->apiLevel()) : "";
 }
 
 FileName AndroidConfig::adbToolPath() const
@@ -521,20 +495,6 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const QString &adbToo
                                          "No devices found in output of: %1")
             .arg(adbToolPath + QLatin1String(" devices"));
     return devices;
-}
-
-AndroidConfig::CreateAvdInfo AndroidConfig::gatherCreateAVDInfo(QWidget *parent, int minApiLevel, QString targetArch) const
-{
-    CreateAvdInfo result;
-    AvdDialog d(minApiLevel, targetArch, this, parent);
-    if (d.exec() != QDialog::Accepted || !d.isValid())
-        return result;
-
-    result.target = d.target();
-    result.name = d.name();
-    result.abi = d.abi();
-    result.sdcardSize = d.sdcardSize();
-    return result;
 }
 
 bool AndroidConfig::isConnected(const QString &serialNumber) const
@@ -716,14 +676,6 @@ QStringList AndroidConfig::getAbis(const QString &adbToolPath, const QString &de
     return result;
 }
 
-SdkPlatform AndroidConfig::highestAndroidSdk() const
-{
-    updateAvailableSdkPlatforms();
-    if (m_availableSdkPlatforms.isEmpty())
-        return SdkPlatform();
-    return m_availableSdkPlatforms.first();
-}
-
 QString AndroidConfig::bestNdkPlatformMatch(int target) const
 {
     target = std::max(9, target);
@@ -743,7 +695,6 @@ FileName AndroidConfig::sdkLocation() const
 void AndroidConfig::setSdkLocation(const FileName &sdkLocation)
 {
     m_sdkLocation = sdkLocation;
-    m_availableSdkPlatformsUpToDate = false;
 }
 
 QVersionNumber AndroidConfig::sdkToolsVersion() const
@@ -836,7 +787,6 @@ FileName AndroidConfig::openJDKLocation() const
 void AndroidConfig::setOpenJDKLocation(const FileName &openJDKLocation)
 {
     m_openJDKLocation = openJDKLocation;
-    m_availableSdkPlatformsUpToDate = false;
 }
 
 FileName AndroidConfig::keystoreLocation() const
@@ -1129,6 +1079,11 @@ const AndroidConfig &AndroidConfigurations::currentConfig()
     return m_instance->m_config; // ensure that m_instance is initialized
 }
 
+AndroidSdkManager *AndroidConfigurations::sdkManager()
+{
+    return m_instance->m_sdkManager.get();
+}
+
 AndroidConfigurations *AndroidConfigurations::instance()
 {
     return m_instance;
@@ -1143,7 +1098,8 @@ void AndroidConfigurations::save()
 }
 
 AndroidConfigurations::AndroidConfigurations(QObject *parent)
-    : QObject(parent)
+    : QObject(parent),
+      m_sdkManager(new AndroidSdkManager(m_config))
 {
     load();
 
@@ -1153,6 +1109,11 @@ AndroidConfigurations::AndroidConfigurations(QObject *parent)
     m_force32bit = is32BitUserSpace();
 
     m_instance = this;
+}
+
+AndroidConfigurations::~AndroidConfigurations()
+{
+
 }
 
 static FileName javaHomeForJavac(const FileName &location)
@@ -1264,14 +1225,5 @@ void AndroidConfigurations::updateAndroidDevice()
 }
 
 AndroidConfigurations *AndroidConfigurations::m_instance = 0;
-
-bool SdkPlatform::operator <(const SdkPlatform &other) const
-{
-    if (apiLevel != other.apiLevel)
-        return apiLevel > other.apiLevel;
-    if (name != other.name)
-        return name < other.name;
-    return false;
-}
 
 } // namespace Android

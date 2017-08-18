@@ -25,26 +25,46 @@
 #pragma once
 
 #include "utils/fileutils.h"
-#include "androidconfigurations.h"
+#include "androidsdkpackage.h"
+
+#include <QObject>
 
 #include <memory>
 
 namespace Android {
+
+class AndroidConfig;
+
 namespace Internal {
 
-class SdkManagerOutputParser;
+class AndroidSdkManagerPrivate;
 
-class AndroidSdkManager
+class AndroidSdkManager : public QObject
 {
+    Q_OBJECT
 public:
-    AndroidSdkManager(const AndroidConfig &config);
+    AndroidSdkManager(const AndroidConfig &config, QObject *parent = nullptr);
     ~AndroidSdkManager();
 
-    SdkPlatformList availableSdkPlatforms(bool *ok = nullptr);
+    SdkPlatformList installedSdkPlatforms();
+    const AndroidSdkPackageList &allSdkPackages();
+    AndroidSdkPackageList availableSdkPackages();
+    AndroidSdkPackageList installedSdkPackages();
+
+    SdkPlatform *latestAndroidSdkPlatform(AndroidSdkPackage::PackageState state
+                                          = AndroidSdkPackage::Installed);
+    SdkPlatformList filteredSdkPlatforms(int minApiLevel,
+                                         AndroidSdkPackage::PackageState state
+                                         = AndroidSdkPackage::Installed);
+    void reloadPackages(bool forceReload = false);
+
+signals:
+    void packageReloadBegin();
+    void packageReloadFinished();
 
 private:
-    const AndroidConfig &m_config;
-    std::unique_ptr<SdkManagerOutputParser> m_parser;
+    std::unique_ptr<AndroidSdkManagerPrivate> m_d;
+    friend class AndroidSdkManagerPrivate;
 };
 
 } // namespace Internal

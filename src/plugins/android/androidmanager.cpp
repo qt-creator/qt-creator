@@ -35,6 +35,7 @@
 #include "androidqtversion.h"
 #include "androidbuildapkstep.h"
 #include "androidavdmanager.h"
+#include "androidsdkmanager.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/messagemanager.h>
@@ -174,7 +175,8 @@ QString AndroidManager::buildTargetSDK(ProjectExplorer::Target *target)
     if (androidBuildApkStep)
         return androidBuildApkStep->buildTargetSdk();
 
-    QString fallback = AndroidConfig::apiLevelNameFor(AndroidConfigurations::currentConfig().highestAndroidSdk());
+    QString fallback = AndroidConfig::apiLevelNameFor(
+                AndroidConfigurations::sdkManager()->latestAndroidSdkPlatform());
     return fallback;
 }
 

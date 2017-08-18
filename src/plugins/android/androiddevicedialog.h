@@ -79,7 +79,7 @@ private:
     QString m_defaultDevice;
     std::unique_ptr<AndroidAvdManager> m_avdManager;
     QVector<AndroidDeviceInfo> m_connectedDevices;
-    QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcherAddDevice;
+    QFutureWatcher<CreateAvdInfo> m_futureWatcherAddDevice;
     QFutureWatcher<AndroidDeviceInfoList> m_futureWatcherRefreshDevices;
 };
 

@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #pragma once
-
+#include "androidconfigurations.h"
 #include "ui_addnewavddialog.h"
 
 #include <QDialog>
@@ -35,26 +35,28 @@ class AndroidConfig;
 class SdkPlatform;
 
 namespace Internal {
-
+class AndroidSdkManager;
 class AvdDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit AvdDialog(int minApiLevel, const QString &targetArch,
-                       const AndroidConfig *config, QWidget *parent = 0);
+    explicit AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QString &targetArch,
+                       QWidget *parent = 0);
 
-    Android::SdkPlatform target() const;
+    const SdkPlatform *sdkPlatform() const;
     QString name() const;
     QString abi() const;
     int sdcardSize() const;
     bool isValid() const;
+    static CreateAvdInfo gatherCreateAVDInfo(QWidget *parent, AndroidSdkManager *sdkManager,
+                                             int minApiLevel = 0, QString targetArch = QString());
 
 private:
     void updateApiLevelComboBox();
     bool eventFilter(QObject *obj, QEvent *event);
 
     Ui::AddNewAVDDialog m_avdDialog;
-    const AndroidConfig *m_config;
+    AndroidSdkManager *m_sdkManager;
     int m_minApiLevel;
     QTimer m_hideTipTimer;
     QRegExp m_allowedNameChars;
