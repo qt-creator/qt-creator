@@ -64,11 +64,13 @@ WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl)
     }
 
     if (isQmlDebugging()) {
-        Utils::Port qmlDebugPort;
-        if (!getFreePort(qmlDebugPort))
+        QUrl qmlServer = ProjectExplorer::urlFromLocalHostAndFreePort();
+        if (qmlServer.port() <= 0) {
+            reportFailure(tr("Not enough free ports for QML debugging."));
             return;
-        params.qmlServer.host = QHostAddress(QHostAddress::LocalHost).toString();
-        params.qmlServer.port = qmlDebugPort;
+        }
+        params.qmlServer.host = qmlServer.host();
+        params.qmlServer.port = Utils::Port(qmlServer.port());
     }
 
     QString errorMessage;
@@ -116,18 +118,6 @@ WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl)
 
     reportFailure(tr("Cannot create an appropriate run control for "
                      "the current run configuration."));
-}
-
-bool WinRtDebugSupport::getFreePort(Utils::Port &qmlDebuggerPort)
-{
-    QTcpServer server;
-    if (!server.listen(QHostAddress::LocalHost,
-                       qmlDebuggerPort.isValid() ? qmlDebuggerPort.number() : 0)) {
-        reportFailure(tr("Not enough free ports for QML debugging."));
-        return false;
-    }
-    qmlDebuggerPort = Utils::Port(server.serverPort());
-    return true;
 }
 
 WinRtDebugSupport::~WinRtDebugSupport()

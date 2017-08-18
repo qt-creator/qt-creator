@@ -42,8 +42,6 @@ public:
     ~WinRtDebugSupport();
 
 private:
-    bool getFreePort(Utils::Port &qmlDebuggerPort);
-
     WinRtRunnerHelper *m_runner = nullptr;
 };
 
