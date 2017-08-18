@@ -32,8 +32,6 @@
 #include <QDir>
 #include <QDebug>
 #include <QDateTime>
-#include <QDragEnterEvent>
-#include <QDropEvent>
 #include <QMessageBox>
 #include <QRegExp>
 #include <QTimer>

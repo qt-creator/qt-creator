@@ -43,7 +43,6 @@ QT_BEGIN_NAMESPACE
 class QDataStream;
 class QDateTime;
 class QDir;
-class QDropEvent;
 class QFile;
 class QFileInfo;
 class QTemporaryFile;
