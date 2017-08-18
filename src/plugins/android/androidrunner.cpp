@@ -223,8 +223,6 @@ public:
     void setAndroidRunnable(const AndroidRunnable &runnable);
     void handleRemoteDebuggerRunning();
 
-    Utils::Port localGdbServerPort() const { return m_localGdbServerPort; }
-
 signals:
     void remoteProcessStarted(Utils::Port gdbServerPort, const QUrl &qmlServer, int pid);
     void remoteProcessFinished(const QString &errString = QString());
