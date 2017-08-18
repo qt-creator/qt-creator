@@ -36,6 +36,10 @@
 #include <QRegExp>
 #include <QRect>
 
+#ifdef QT_GUI_LIB
+#include <QMessageBox>
+#endif
+
 #include <utils/qtcassert.h>
 
 // Read and write rectangle in X11 resource syntax "12x12+4+3"
@@ -416,18 +420,30 @@ PersistentSettingsWriter::~PersistentSettingsWriter()
     write(m_savedData, 0);
 }
 
-bool PersistentSettingsWriter::save(const QVariantMap &data, QWidget *parent) const
+bool PersistentSettingsWriter::save(const QVariantMap &data, QString *errorString) const
 {
     if (data == m_savedData)
         return true;
-
-    return write(data, parent);
+    return write(data, errorString);
 }
+
+#ifdef QT_GUI_LIB
+bool PersistentSettingsWriter::save(const QVariantMap &data, QWidget *parent) const
+{
+    QString errorString;
+    const bool success = save(data, &errorString);
+    if (!success)
+        QMessageBox::critical(parent,
+                              QCoreApplication::translate("Utils::FileSaverBase", "File Error"),
+                              errorString);
+    return success;
+}
+#endif // QT_GUI_LIB
 
 FileName PersistentSettingsWriter::fileName() const
 { return m_fileName; }
 
-bool PersistentSettingsWriter::write(const QVariantMap &data, QWidget *parent) const
+bool PersistentSettingsWriter::write(const QVariantMap &data, QString *errorString) const
 {
     QDir tmp;
     tmp.mkpath(m_fileName.toFileInfo().path());
@@ -455,9 +471,12 @@ bool PersistentSettingsWriter::write(const QVariantMap &data, QWidget *parent) c
 
         saver.setResult(&w);
     }
-    bool ok = saver.finalize(parent);
+    bool ok = saver.finalize();
     if (ok)
         m_savedData = data;
+    else if (errorString)
+        *errorString = saver.errorString();
+
     return ok;
 }
 
