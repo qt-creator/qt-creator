@@ -26,6 +26,8 @@
 #include "scattributeitemmodel.h"
 #include "mytypes.h"
 
+#include <utils/qtcfallthrough.h>
+
 #include <QBrush>
 
 using namespace ScxmlEditor::PluginInterface;
@@ -91,6 +93,7 @@ QVariant SCAttributeItemModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         if (bExtraRow)
             return index.column() == 0 ? tr("- name -") : tr(" - value -");
+        Q_FALLTHROUGH();
     case Qt::EditRole: {
         if (index.column() == 0) {
             if (bEditable) {

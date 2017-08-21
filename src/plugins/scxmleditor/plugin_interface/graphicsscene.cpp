@@ -541,7 +541,7 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
                 item->finalizeCreation();
         }
     }
-    // FIXME: intended fallthrough?
+    break;
     case ScxmlDocument::TagAddChild: {
         ScxmlTag *childTag = tag->child(value.toInt());
         if (childTag) {

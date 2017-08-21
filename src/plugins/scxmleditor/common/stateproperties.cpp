@@ -30,6 +30,7 @@
 #include "scxmluifactory.h"
 
 #include <coreplugin/minisplitter.h>
+#include <utils/qtcfallthrough.h>
 
 #include <QHeaderView>
 #include <QLabel>
@@ -84,6 +85,7 @@ void StateProperties::tagChange(ScxmlDocument::TagChange change, ScxmlTag *tag, 
     case ScxmlDocument::TagContentChanged:
         if (tag != m_tag)
             return;
+        Q_FALLTHROUGH();
     case ScxmlDocument::TagCurrentChanged:
         setTag(tag);
         break;

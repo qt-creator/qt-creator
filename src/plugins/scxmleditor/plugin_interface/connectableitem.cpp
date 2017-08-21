@@ -33,6 +33,8 @@
 #include "serializer.h"
 #include "stateitem.h"
 
+#include <utils/qtcfallthrough.h>
+
 #include <QDebug>
 #include <QPainter>
 #include <QPen>
@@ -491,7 +493,7 @@ QVariant ConnectableItem::itemChange(GraphicsItemChange change, const QVariant &
     case ItemParentHasChanged:
         updateTransitions(true);
         updateTransitionAttributes(true);
-        // FIXME: intended fallthrough?
+        Q_FALLTHROUGH();
     case ItemPositionHasChanged:
         if (!m_releasedFromParent && !blockUpdates())
             checkParentBoundingRect();
