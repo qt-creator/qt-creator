@@ -4,7 +4,6 @@ QtcTool {
     name: "sdktool"
 
     Depends { name: "Qt.core" }
-    Depends { name: "Utils" }
     Depends { name: "app_version_header" }
 
     cpp.defines: base.concat([qbs.targetOS.contains("macos")
@@ -47,4 +46,16 @@ QtcTool {
         "settings.cpp",
         "settings.h",
     ]
+
+    Group {
+        name: "Utils"
+        prefix: "../../libs/utils/"
+        files: [
+            "fileutils.cpp", "fileutils.h",
+            "hostosinfo.cpp", "hostosinfo.h",
+            "persistentsettings.cpp", "persistentsettings.h",
+            "qtcassert.cpp", "qtcassert.h",
+            "savefile.cpp", "savefile.h"
+        ]
+    }
 }
