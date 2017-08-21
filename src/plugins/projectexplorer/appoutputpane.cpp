@@ -397,6 +397,8 @@ void AppOutputPane::updateBehaviorSettings()
 
 void AppOutputPane::createNewOutputWindow(RunControl *rc)
 {
+    QTC_ASSERT(rc, return);
+
     connect(rc, &RunControl::aboutToStart,
             this, &AppOutputPane::slotRunControlChanged);
     connect(rc, &RunControl::started,
@@ -418,7 +420,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         if (tab.runControl)
             tab.runControl->initiateFinish();
         tab.runControl = rc;
-        tab.window->setFormatter(rc ? rc->outputFormatter() : nullptr);
+        tab.window->setFormatter(rc->outputFormatter());
 
         handleOldOutput(tab.window);
 
