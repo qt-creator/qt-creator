@@ -73,7 +73,7 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
     const Utils::FileName fileName = entry->fileName();
     QString fixedPath;
     if (!fileName.isEmpty())
-        fixedPath = DocumentManager::fixFileName(fileName.toString(), DocumentManager::ResolveLinks);
+        fixedPath = DocumentManager::filePathKey(fileName.toString(), DocumentManager::ResolveLinks);
 
     // replace a non-loaded entry (aka 'suspended') if possible
     int previousIndex = indexOfFilePath(fileName);
@@ -184,7 +184,7 @@ int DocumentModelPrivate::indexOfFilePath(const Utils::FileName &filePath) const
 {
     if (filePath.isEmpty())
         return -1;
-    const QString fixedPath = DocumentManager::fixFileName(filePath.toString(),
+    const QString fixedPath = DocumentManager::filePathKey(filePath.toString(),
                                                            DocumentManager::ResolveLinks);
     return m_entries.indexOf(m_entryByFixedPath.value(fixedPath));
 }
@@ -201,7 +201,7 @@ void DocumentModelPrivate::removeDocument(int idx)
 
     const QString fileName = entry->fileName().toString();
     if (!fileName.isEmpty()) {
-        const QString fixedPath = DocumentManager::fixFileName(fileName,
+        const QString fixedPath = DocumentManager::filePathKey(fileName,
                                                                DocumentManager::ResolveLinks);
         m_entryByFixedPath.remove(fixedPath);
     }
@@ -298,7 +298,7 @@ void DocumentModelPrivate::itemChanged()
     const QString fileName = document->filePath().toString();
     QString fixedPath;
     if (!fileName.isEmpty())
-        fixedPath = DocumentManager::fixFileName(fileName, DocumentManager::ResolveLinks);
+        fixedPath = DocumentManager::filePathKey(fileName, DocumentManager::ResolveLinks);
     DocumentModel::Entry *entry = m_entries.at(idx);
     bool found = false;
     // The entry's fileName might have changed, so find the previous fileName that was associated

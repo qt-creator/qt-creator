@@ -53,7 +53,7 @@ class CORE_EXPORT DocumentManager : public QObject
 {
     Q_OBJECT
 public:
-    enum FixMode {
+    enum ResolveMode {
         ResolveLinks,
         KeepLinks
     };
@@ -81,7 +81,8 @@ public:
     static void saveSettings();
 
     // helper functions
-    static QString fixFileName(const QString &fileName, FixMode fixmode);
+    static QString cleanAbsoluteFilePath(const QString &filePath, ResolveMode resolveMode);
+    static QString filePathKey(const QString &filePath, ResolveMode resolveMode);
 
     static bool saveDocument(IDocument *document, const QString &fileName = QString(), bool *isReadOnly = 0);
 

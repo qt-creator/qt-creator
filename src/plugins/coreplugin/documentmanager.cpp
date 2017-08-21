@@ -54,6 +54,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
+#include <QLoggingCategory>
 #include <QSettings>
 #include <QTimer>
 #include <QAction>
@@ -61,6 +62,8 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
+
+Q_LOGGING_CATEGORY(log, "qtc.core.documentmanager")
 
 /*!
   \class Core::DocumentManager
@@ -124,6 +127,7 @@ struct FileStateItem
 
 struct FileState
 {
+    QString watchedFilePath;
     QMap<IDocument *, FileStateItem> lastUpdatedState;
     FileStateItem expected;
 };
@@ -140,11 +144,11 @@ public:
     void checkOnNextFocusChange();
     void onApplicationFocusChange();
 
-    QMap<QString, FileState> m_states;
-    QSet<QString> m_changedFiles;
+    QMap<QString, FileState> m_states; // filePathKey -> FileState
+    QSet<QString> m_changedFiles; // watched file paths collected from file watcher notifications
     QList<IDocument *> m_documentsWithoutWatch;
-    QMap<IDocument *, QStringList> m_documentsWithWatch;
-    QSet<QString> m_expectedFileNames;
+    QMap<IDocument *, QStringList> m_documentsWithWatch; // document -> list of filePathKeys
+    QSet<QString> m_expectedFileNames; // set of file names without normalization
 
     QList<DocumentManager::RecentFile> m_recentFiles;
     static const int m_maxRecentFiles = 7;
@@ -248,28 +252,34 @@ DocumentManager *DocumentManager::instance()
 }
 
 /* only called from addFileInfo(IDocument *) */
-static void addFileInfo(const QString &fileName, IDocument *document, bool isLink)
+static void addFileInfo(IDocument *document, const QString &filePath,
+                        const QString &filePathKey, bool isLink)
 {
     FileStateItem state;
-    if (!fileName.isEmpty()) {
-        const QFileInfo fi(fileName);
+    if (!filePath.isEmpty()) {
+        qCDebug(log) << "adding document for" << filePath << "(" << filePathKey << ")";
+        const QFileInfo fi(filePath);
         state.modified = fi.lastModified();
         state.permissions = fi.permissions();
         // Add watcher if we don't have that already
-        if (!d->m_states.contains(fileName))
-            d->m_states.insert(fileName, FileState());
+        if (!d->m_states.contains(filePathKey)) {
+            FileState state;
+            state.watchedFilePath = filePath;
+            d->m_states.insert(filePathKey, state);
 
-        QFileSystemWatcher *watcher = 0;
-        if (isLink)
-            watcher = d->linkWatcher();
-        else
-            watcher = d->fileWatcher();
-        if (!watcher->files().contains(fileName))
-            watcher->addPath(fileName);
+            qCDebug(log) << "adding (" << (isLink ? "link" : "full") << ") watch for"
+                         << state.watchedFilePath;
+            QFileSystemWatcher *watcher = 0;
+            if (isLink)
+                watcher = d->linkWatcher();
+            else
+                watcher = d->fileWatcher();
+            watcher->addPath(state.watchedFilePath);
+        }
 
-        d->m_states[fileName].lastUpdatedState.insert(document, state);
+        d->m_states[filePathKey].lastUpdatedState.insert(document, state);
     }
-    d->m_documentsWithWatch[document].append(fileName); // inserts a new QStringList if not already there
+    d->m_documentsWithWatch[document].append(filePathKey); // inserts a new QStringList if not already there
 }
 
 /* Adds the IDocument's file and possibly it's final link target to both m_states
@@ -278,11 +288,19 @@ static void addFileInfo(const QString &fileName, IDocument *document, bool isLin
    (The added file names are guaranteed to be absolute and cleaned.) */
 static void addFileInfo(IDocument *document)
 {
-    const QString fixedName = DocumentManager::fixFileName(document->filePath().toString(), DocumentManager::KeepLinks);
-    const QString fixedResolvedName = DocumentManager::fixFileName(document->filePath().toString(), DocumentManager::ResolveLinks);
-    addFileInfo(fixedResolvedName, document, false);
-    if (fixedName != fixedResolvedName)
-        addFileInfo(fixedName, document, true);
+    const QString documentFilePath = document->filePath().toString();
+    const QString filePath = DocumentManager::cleanAbsoluteFilePath(
+                documentFilePath, DocumentManager::KeepLinks);
+    const QString filePathKey = DocumentManager::filePathKey(
+                documentFilePath, DocumentManager::KeepLinks);
+    const QString resolvedFilePath = DocumentManager::cleanAbsoluteFilePath(
+                documentFilePath, DocumentManager::ResolveLinks);
+    const QString resolvedFilePathKey = DocumentManager::filePathKey(
+                documentFilePath, DocumentManager::ResolveLinks);
+    const bool isLink = filePath != resolvedFilePath;
+    addFileInfo(document, filePath, filePathKey, isLink);
+    if (isLink)
+        addFileInfo(document, resolvedFilePath, resolvedFilePathKey, false);
 }
 
 /*!
@@ -330,12 +348,18 @@ static void removeFileInfo(IDocument *document)
     foreach (const QString &fileName, d->m_documentsWithWatch.value(document)) {
         if (!d->m_states.contains(fileName))
             continue;
+        qCDebug(log) << "removing document (" << fileName << ")";
         d->m_states[fileName].lastUpdatedState.remove(document);
         if (d->m_states.value(fileName).lastUpdatedState.isEmpty()) {
-            if (d->m_fileWatcher && d->m_fileWatcher->files().contains(fileName))
-                d->m_fileWatcher->removePath(fileName);
-            if (d->m_linkWatcher && d->m_linkWatcher->files().contains(fileName))
-                d->m_linkWatcher->removePath(fileName);
+            const QString &watchedFilePath = d->m_states.value(fileName).watchedFilePath;
+            if (d->m_fileWatcher && d->m_fileWatcher->files().contains(watchedFilePath)) {
+                qCDebug(log) << "removing watch for" << watchedFilePath;
+                d->m_fileWatcher->removePath(watchedFilePath);
+            }
+            if (d->m_linkWatcher && d->m_linkWatcher->files().contains(watchedFilePath)) {
+                qCDebug(log) << "removing watch for" << watchedFilePath;
+                d->m_linkWatcher->removePath(watchedFilePath);
+            }
             d->m_states.remove(fileName);
         }
     }
@@ -388,14 +412,14 @@ static void dump()
 */
 void DocumentManager::renamedFile(const QString &from, const QString &to)
 {
-    const QString &fixedFrom = fixFileName(from, KeepLinks);
+    const QString &fromKey = filePathKey(from, KeepLinks);
 
     // gather the list of IDocuments
     QList<IDocument *> documentsToRename;
     QMapIterator<IDocument *, QStringList> it(d->m_documentsWithWatch);
     while (it.hasNext()) {
         it.next();
-        if (it.value().contains(fixedFrom))
+        if (it.value().contains(fromKey))
             documentsToRename.append(it.key());
     }
 
@@ -478,23 +502,29 @@ void DocumentManager::checkForNewFileName()
 }
 
 /*!
-    Returns a guaranteed cleaned path in native form. If the file exists,
-    it will either be a cleaned absolute file path (fixmode == KeepLinks), or
-    a cleaned canonical file path (fixmode == ResolveLinks).
+    Returns a guaranteed cleaned absolute file path for \a filePath in portable form.
+    Resolves symlinks if \a resolveMode is ResolveLinks.
 */
-QString DocumentManager::fixFileName(const QString &fileName, FixMode fixmode)
+QString DocumentManager::cleanAbsoluteFilePath(const QString &filePath, ResolveMode resolveMode)
 {
-    QString s = fileName;
-    QFileInfo fi(s);
-    if (fi.exists()) {
-        if (fixmode == ResolveLinks)
-            s = fi.canonicalFilePath();
-        else
-            s = QDir::cleanPath(fi.absoluteFilePath());
-    } else {
-        s = QDir::cleanPath(s);
+    QFileInfo fi(QDir::fromNativeSeparators(filePath));
+    if (fi.exists() && resolveMode == ResolveLinks) {
+        // if the filePath is no link, we want this method to return the same for both ResolveModes
+        // so wrap with absoluteFilePath because that forces drive letters upper case
+        return QFileInfo(fi.canonicalFilePath()).absoluteFilePath();
     }
-    s = QDir::toNativeSeparators(s);
+    return QDir::cleanPath(fi.absoluteFilePath());
+}
+
+/*!
+    Returns a representation of \a filePath that can be used as a key for maps.
+    (A cleaned absolute file path in portable form, that is all lowercase
+    if the file system is case insensitive (in the host OS settings).)
+    Resolves symlinks if \a resolveMode is ResolveLinks.
+*/
+QString DocumentManager::filePathKey(const QString &filePath, ResolveMode resolveMode)
+{
+    QString s = cleanAbsoluteFilePath(filePath, resolveMode);
     if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
         s = s.toLower();
     return s;
@@ -533,14 +563,14 @@ void DocumentManager::expectFileChange(const QString &fileName)
 }
 
 /* only called from unblock and unexpect file change functions */
-static void updateExpectedState(const QString &fileName)
+static void updateExpectedState(const QString &filePathKey)
 {
-    if (fileName.isEmpty())
+    if (filePathKey.isEmpty())
         return;
-    if (d->m_states.contains(fileName)) {
-        QFileInfo fi(fileName);
-        d->m_states[fileName].expected.modified = fi.lastModified();
-        d->m_states[fileName].expected.permissions = fi.permissions();
+    if (d->m_states.contains(filePathKey)) {
+        QFileInfo fi(d->m_states.value(filePathKey).watchedFilePath);
+        d->m_states[filePathKey].expected.modified = fi.lastModified();
+        d->m_states[filePathKey].expected.permissions = fi.permissions();
     }
 }
 
@@ -559,11 +589,11 @@ void DocumentManager::unexpectFileChange(const QString &fileName)
     if (fileName.isEmpty())
         return;
     d->m_expectedFileNames.remove(fileName);
-    const QString fixedName = fixFileName(fileName, KeepLinks);
-    updateExpectedState(fixedName);
-    const QString fixedResolvedName = fixFileName(fileName, ResolveLinks);
-    if (fixedName != fixedResolvedName)
-        updateExpectedState(fixedResolvedName);
+    const QString cleanAbsFilePath = cleanAbsoluteFilePath(fileName, KeepLinks);
+    updateExpectedState(filePathKey(fileName, KeepLinks));
+    const QString resolvedCleanAbsFilePath = cleanAbsoluteFilePath(fileName, ResolveLinks);
+    if (cleanAbsFilePath != resolvedCleanAbsFilePath)
+        updateExpectedState(filePathKey(fileName, ResolveLinks));
 }
 
 static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
@@ -907,8 +937,9 @@ void DocumentManager::changedFile(const QString &fileName)
 {
     const bool wasempty = d->m_changedFiles.isEmpty();
 
-    if (d->m_states.contains(fileName))
+    if (d->m_states.contains(filePathKey(fileName, KeepLinks)))
         d->m_changedFiles.insert(fileName);
+    qCDebug(log) << "file change notification for" << fileName;
 
     if (wasempty && !d->m_changedFiles.isEmpty())
         QTimer::singleShot(200, this, &DocumentManager::checkForReload);
@@ -948,18 +979,23 @@ void DocumentManager::checkForReload()
     QMap<QString, IDocument::ChangeType> changeTypes;
     QSet<IDocument *> changedIDocuments;
     foreach (const QString &fileName, d->m_changedFiles) {
+        const QString fileKey = filePathKey(fileName, KeepLinks);
+        qCDebug(log) << "handling file change for" << fileName << "(" << fileKey << ")";
         IDocument::ChangeType type = IDocument::TypeContents;
         FileStateItem state;
         QFileInfo fi(fileName);
         if (!fi.exists()) {
+            qCDebug(log) << "file was removed";
             type = IDocument::TypeRemoved;
         } else {
             state.modified = fi.lastModified();
             state.permissions = fi.permissions();
+            qCDebug(log) << "file was modified, time:" << state.modified
+                         << "permissions: " << state.permissions;
         }
-        currentStates.insert(fileName, state);
-        changeTypes.insert(fileName, type);
-        foreach (IDocument *document, d->m_states.value(fileName).lastUpdatedState.keys())
+        currentStates.insert(fileKey, state);
+        changeTypes.insert(fileKey, type);
+        foreach (IDocument *document, d->m_states.value(fileKey).lastUpdatedState.keys())
             changedIDocuments.insert(document);
     }
 
@@ -971,13 +1007,13 @@ void DocumentManager::checkForReload()
     // we can't do the "resolving" already in expectFileChange, because
     // if the resolved names are different when unexpectFileChange is called
     // we would end up with never-unexpected file names
-    QSet<QString> expectedFileNames;
+    QSet<QString> expectedFileKeys;
     foreach (const QString &fileName, d->m_expectedFileNames) {
-        const QString fixedName = fixFileName(fileName, KeepLinks);
-        expectedFileNames.insert(fixedName);
-        const QString fixedResolvedName = fixFileName(fileName, ResolveLinks);
-        if (fixedName != fixedResolvedName)
-            expectedFileNames.insert(fixedResolvedName);
+        const QString cleanAbsFilePath = cleanAbsoluteFilePath(fileName, KeepLinks);
+        expectedFileKeys.insert(filePathKey(fileName, KeepLinks));
+        const QString resolvedCleanAbsFilePath = cleanAbsoluteFilePath(fileName, ResolveLinks);
+        if (cleanAbsFilePath != resolvedCleanAbsFilePath)
+            expectedFileKeys.insert(filePathKey(fileName, ResolveLinks));
     }
 
     // handle the IDocuments
@@ -990,14 +1026,14 @@ void DocumentManager::checkForReload()
         // find out the type & behavior from the two possible files
         // behavior is internal if all changes are expected (and none removed)
         // type is "max" of both types (remove > contents > permissions)
-        foreach (const QString & fileName, d->m_documentsWithWatch.value(document)) {
+        foreach (const QString &fileKey, d->m_documentsWithWatch.value(document)) {
             // was the file reported?
-            if (!currentStates.contains(fileName))
+            if (!currentStates.contains(fileKey))
                 continue;
 
-            FileStateItem currentState = currentStates.value(fileName);
-            FileStateItem expectedState = d->m_states.value(fileName).expected;
-            FileStateItem lastState = d->m_states.value(fileName).lastUpdatedState.value(document);
+            FileStateItem currentState = currentStates.value(fileKey);
+            FileStateItem expectedState = d->m_states.value(fileKey).expected;
+            FileStateItem lastState = d->m_states.value(fileKey).lastUpdatedState.value(document);
 
             // did the file actually change?
             if (lastState.modified == currentState.modified && lastState.permissions == currentState.permissions)
@@ -1010,12 +1046,12 @@ void DocumentManager::checkForReload()
 
             // was the change unexpected?
             if ((currentState.modified != expectedState.modified || currentState.permissions != expectedState.permissions)
-                    && !expectedFileNames.contains(fileName)) {
+                    && !expectedFileKeys.contains(fileKey)) {
                 trigger = IDocument::TriggerExternal;
             }
 
             // find out the type
-            IDocument::ChangeType fileChange = changeTypes.value(fileName);
+            IDocument::ChangeType fileChange = changeTypes.value(fileKey);
             if (fileChange == IDocument::TypeRemoved)
                 type = IDocument::TypeRemoved;
             else if (fileChange == IDocument::TypeContents && type == IDocument::TypePermissions)
@@ -1179,12 +1215,12 @@ void DocumentManager::addToRecentFiles(const QString &fileName, Id editorId)
 {
     if (fileName.isEmpty())
         return;
-    QString unifiedForm(fixFileName(fileName, KeepLinks));
+    QString fileKey = filePathKey(fileName, KeepLinks);
     QMutableListIterator<RecentFile > it(d->m_recentFiles);
     while (it.hasNext()) {
         RecentFile file = it.next();
-        QString recentUnifiedForm(fixFileName(file.first, DocumentManager::KeepLinks));
-        if (unifiedForm == recentUnifiedForm)
+        QString recentFileKey(filePathKey(file.first, DocumentManager::KeepLinks));
+        if (fileKey == recentFileKey)
             it.remove();
     }
     if (d->m_recentFiles.count() > d->m_maxRecentFiles)
