@@ -62,6 +62,11 @@ public:
         m_useIfNotExists = useIfNotExists;
     }
 
+    void setUseTemporaryTable(bool useTemporaryTable)
+    {
+        m_useTemporaryTable = useTemporaryTable;
+    }
+
     SqliteColumn &addColumn(Utils::SmallString &&name,
                             ColumnType type = ColumnType::Numeric,
                             Contraint constraint = Contraint::NoConstraint)
@@ -90,6 +95,7 @@ public:
             builder.setTableName(m_tableName.clone());
             builder.setUseWithoutRowId(m_withoutRowId);
             builder.setUseIfNotExists(m_useIfNotExists);
+            builder.setUseTemporaryTable(m_useTemporaryTable);
             builder.setColumns(m_sqliteColumns);
 
             database.execute(builder.sqlStatement());
@@ -115,6 +121,7 @@ private:
     SqliteColumns m_sqliteColumns;
     bool m_withoutRowId = false;
     bool m_useIfNotExists = false;
+    bool m_useTemporaryTable = false;
     bool m_isReady = false;
 };
 
