@@ -51,7 +51,7 @@ namespace ClangBackEnd {
 class ClangQuery : public ClangTool
 {
 public:
-    ClangQuery(StringCache<Utils::PathString, std::mutex> &filePathCache, Utils::SmallString &&query={});
+    ClangQuery(FilePathCache<std::mutex> &filePathCache, Utils::SmallString &&query={});
 
     void setQuery(Utils::SmallString &&query);
 
@@ -69,7 +69,7 @@ private:
     SourceRangesContainer sourceRangesContainer;
     Utils::SmallString query;
     std::vector<DynamicASTMatcherDiagnosticContainer> diagnosticContainers_;
-    StringCache<Utils::PathString, std::mutex> &filePathCache;
+    FilePathCache<std::mutex> &filePathCache;
 };
 
 } // namespace ClangBackEnd

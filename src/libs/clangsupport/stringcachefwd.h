@@ -29,14 +29,17 @@
 
 namespace ClangBackEnd {
 
+using FilePathIndex = long long int;
+
 class NonLockingMutex;
 
 template <typename StringType,
+          typename IndexType,
           typename Mutex>
 class StringCache;
 
 template <typename Mutex = NonLockingMutex>
-using FilePathCache = StringCache<Utils::PathString, Mutex>;
+using FilePathCache = StringCache<Utils::PathString, FilePathIndex, Mutex>;
 
 } // namespace ClangBackEnd
 

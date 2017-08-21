@@ -33,7 +33,7 @@
 #include <mutex>
 
 using ClangBackEnd::ClangQuery;
-using ClangBackEnd::StringCache;
+using ClangBackEnd::FilePathCache;
 
 using testing::AllOf;
 using testing::Contains;
@@ -48,7 +48,7 @@ protected:
     void SetUp() override;
 
 protected:
-    StringCache<Utils::PathString, std::mutex> filePathCache;
+    FilePathCache<std::mutex> filePathCache;
     ::ClangQuery simpleFunctionQuery{filePathCache};
     ::ClangQuery simpleClassQuery{filePathCache};
 };

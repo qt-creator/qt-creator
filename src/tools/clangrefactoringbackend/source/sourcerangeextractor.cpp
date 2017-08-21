@@ -54,7 +54,7 @@ namespace ClangBackEnd {
 SourceRangeExtractor::SourceRangeExtractor(
         const clang::SourceManager &sourceManager,
         const clang::LangOptions &languageOptions,
-        ClangBackEnd::StringCache<Utils::PathString, std::mutex> &filePathCache,
+        ClangBackEnd::FilePathCache<std::mutex> &filePathCache,
         SourceRangesContainer &sourceRangesContainer)
     : sourceManager(sourceManager),
       languageOptions(languageOptions),
@@ -145,7 +145,7 @@ void SourceRangeExtractor::insertSourceRange(uint fileId,
                                             std::move(lineSnippet));
 }
 
-uint SourceRangeExtractor::findFileId(clang::FileID fileId, const clang::FileEntry *fileEntry) const
+FilePathIndex SourceRangeExtractor::findFileId(clang::FileID fileId, const clang::FileEntry *fileEntry) const
 {
     auto found = m_fileIdMapping.find(fileId.getHashValue());
     if (found != m_fileIdMapping.end()) {

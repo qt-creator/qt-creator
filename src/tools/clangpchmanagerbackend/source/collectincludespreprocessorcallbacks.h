@@ -47,10 +47,10 @@ class CollectIncludesPreprocessorCallbacks final : public clang::PPCallbacks
 {
 public:
     CollectIncludesPreprocessorCallbacks(clang::HeaderSearch &headerSearch,
-                                         std::vector<uint> &includeIds,
-                                         StringCache<Utils::PathString> &filePathCache,
-                                         const std::vector<uint> &excludedIncludeUID,
-                                         std::vector<uint>  &alreadyIncludedFileUIDs)
+                                         std::vector<FilePathIndex> &includeIds,
+                                         FilePathCache<> &filePathCache,
+                                         const std::vector<FilePathIndex> &excludedIncludeUID,
+                                         std::vector<FilePathIndex>  &alreadyIncludedFileUIDs)
         : m_headerSearch(headerSearch),
           m_includeIds(includeIds),
           m_filePathCache(filePathCache),
@@ -78,7 +78,7 @@ public:
                     m_alreadyIncludedFileUIDs.insert(notAlreadyIncluded.second, fileUID);
                     Utils::PathString filePath = filePathFromFile(file);
                     if (!filePath.isEmpty()) {
-                        uint includeId = m_filePathCache.stringId(filePath);
+                        FilePathIndex includeId = m_filePathCache.stringId(filePath);
                         m_includeIds.emplace_back(includeId);
                     }
                 }
@@ -132,7 +132,7 @@ public:
                                    uid);
     }
 
-    std::pair<bool, std::vector<uint>::iterator> isNotAlreadyIncluded(uint uid) const
+    std::pair<bool, std::vector<FilePathIndex>::iterator> isNotAlreadyIncluded(FilePathIndex uid) const
     {
         auto range = std::equal_range(m_alreadyIncludedFileUIDs.begin(),
                                       m_alreadyIncludedFileUIDs.end(),
@@ -174,10 +174,10 @@ public:
 
 private:
     clang::HeaderSearch &m_headerSearch;
-    std::vector<uint> &m_includeIds;
-    StringCache<Utils::PathString> &m_filePathCache;
-    const std::vector<uint> &m_excludedIncludeUID;
-    std::vector<uint> &m_alreadyIncludedFileUIDs;
+    std::vector<FilePathIndex> &m_includeIds;
+    FilePathCache<> &m_filePathCache;
+    const std::vector<FilePathIndex> &m_excludedIncludeUID;
+    std::vector<FilePathIndex> &m_alreadyIncludedFileUIDs;
     bool m_skipInclude = false;
 };
 

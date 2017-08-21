@@ -29,13 +29,15 @@
 
 #include <iosfwd>
 
+#include <stringcachefwd.h>
+
 namespace ClangBackEnd {
 
 class IdPaths
 {
 public:
     Utils::SmallString id;
-    std::vector<uint> paths;
+    std::vector<FilePathIndex> paths;
 
     friend bool operator==(const IdPaths &first, const IdPaths &second)
     {

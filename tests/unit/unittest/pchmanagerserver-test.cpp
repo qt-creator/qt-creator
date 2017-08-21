@@ -59,7 +59,7 @@ protected:
     NiceMock<MockPchCreator> mockPchCreator;
     NiceMock<MockClangPathWatcher> mockClangPathWatcher;
     NiceMock<MockProjectParts> mockProjectParts;
-    ClangBackEnd::StringCache<Utils::PathString> filePathCache;
+    ClangBackEnd::FilePathCache<> filePathCache;
     ClangBackEnd::PchManagerServer server{filePathCache, mockClangPathWatcher, mockPchCreator, mockProjectParts};
     NiceMock<MockPchManagerClient> mockPchManagerClient;
     SmallString projectPartId1 = "project1";

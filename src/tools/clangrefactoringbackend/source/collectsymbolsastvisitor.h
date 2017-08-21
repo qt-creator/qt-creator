@@ -60,7 +60,7 @@ public:
 
     bool VisitNamedDecl(const clang::NamedDecl *declaration)
     {
-        auto globalId = declaration->getCanonicalDecl()->getLocation().getRawEncoding();
+        SymbolIndex globalId = toSymbolIndex(declaration->getCanonicalDecl());
         auto sourceLocation = declaration->getLocation();
 
         auto found = m_symbolEntries.find(globalId);
@@ -81,7 +81,7 @@ public:
     bool VisitDeclRefExpr(const clang::DeclRefExpr *expression)
     {
         auto declaration = expression->getFoundDecl();
-        auto globalId = declaration->getCanonicalDecl()->getLocation().getRawEncoding();
+        SymbolIndex globalId = toSymbolIndex(declaration->getCanonicalDecl());
         auto sourceLocation = expression->getLocation();
 
         m_sourceLocationEntries.emplace_back(globalId,
@@ -92,7 +92,7 @@ public:
         return true;
     }
 
-    uint filePathId(clang::SourceLocation sourceLocation)
+    FilePathIndex filePathId(clang::SourceLocation sourceLocation)
     {
        auto filePath = m_sourceManager.getFilename(sourceLocation);
 
@@ -112,6 +112,11 @@ public:
         clang::index::generateUSRForDecl(declaration, usr);
 
         return usr;
+    }
+
+    static SymbolIndex toSymbolIndex(const void *pointer)
+    {
+        return SymbolIndex(reinterpret_cast<std::uintptr_t>(pointer));
     }
 
 private:

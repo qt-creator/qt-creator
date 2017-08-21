@@ -36,8 +36,8 @@ namespace ClangBackEnd {
 class CollectIncludesToolAction final : public clang::tooling::FrontendActionFactory
 {
 public:
-    CollectIncludesToolAction(std::vector<uint> &includeIds,
-                              StringCache<Utils::PathString> &filePathCache,
+    CollectIncludesToolAction(std::vector<FilePathIndex> &includeIds,
+                              FilePathCache<> &filePathCache,
                               const Utils::PathStringVector &excludedIncludes)
         : m_includeIds(includeIds),
           m_filePathCache(filePathCache),
@@ -72,9 +72,9 @@ public:
                                          m_alreadyIncludedFileUIDs);
     }
 
-    std::vector<uint> generateExcludedIncludeFileUIDs(clang::FileManager &fileManager) const
+    std::vector<FilePathIndex> generateExcludedIncludeFileUIDs(clang::FileManager &fileManager) const
     {
-        std::vector<uint> fileUIDs;
+        std::vector<FilePathIndex> fileUIDs;
         fileUIDs.reserve(m_excludedIncludes.size());
 
         for (const Utils::PathString &filePath : m_excludedIncludes) {
@@ -90,10 +90,10 @@ public:
     }
 
 private:
-    std::vector<uint> m_alreadyIncludedFileUIDs;
-    std::vector<uint> m_excludedIncludeUIDs;
-    std::vector<uint> &m_includeIds;
-    StringCache<Utils::PathString> &m_filePathCache;
+    std::vector<FilePathIndex> m_alreadyIncludedFileUIDs;
+    std::vector<FilePathIndex> m_excludedIncludeUIDs;
+    std::vector<FilePathIndex> &m_includeIds;
+    FilePathCache<> &m_filePathCache;
     const Utils::PathStringVector &m_excludedIncludes;
 };
 

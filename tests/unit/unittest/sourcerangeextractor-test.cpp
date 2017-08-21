@@ -54,7 +54,7 @@ protected:
     TestClangTool clangTool{TESTDATA_DIR, "sourcerangeextractor_location.cpp", "",  {"cc", "sourcerangeextractor_location.cpp"}};
     ClangBackEnd::SourceRangesContainer sourceRangesContainer;
     const clang::SourceManager &sourceManager{clangTool.sourceManager()};
-    ClangBackEnd::StringCache<Utils::PathString, std::mutex> filePathCache;
+    ClangBackEnd::FilePathCache<std::mutex> filePathCache;
     ClangBackEnd::SourceRangeExtractor extractor{sourceManager, clangTool.languageOptions(), filePathCache, sourceRangesContainer};
     clang::SourceLocation startLocation = sourceManager.getLocForStartOfFile(sourceManager.getMainFileID());
     clang::SourceLocation endLocation = sourceManager.getLocForStartOfFile(sourceManager.getMainFileID()).getLocWithOffset(4);

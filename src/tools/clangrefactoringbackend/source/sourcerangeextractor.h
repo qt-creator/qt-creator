@@ -59,7 +59,7 @@ class SourceRangeExtractor
 public:
     SourceRangeExtractor(const clang::SourceManager &sourceManager,
                          const clang::LangOptions &languageOptions,
-                         ClangBackEnd::StringCache<Utils::PathString, std::mutex> &filePathCache,
+                         ClangBackEnd::FilePathCache<std::mutex> &filePathCache,
                          SourceRangesContainer &sourceRangesContainer);
 
     void addSourceRange(const clang::SourceRange &sourceRange);
@@ -82,13 +82,13 @@ private:
                            uint endOffset,
                            Utils::SmallString &&lineSnippet);
 
-    uint findFileId(clang::FileID fileId, const clang::FileEntry *fileEntry) const;
+    FilePathIndex findFileId(clang::FileID fileId, const clang::FileEntry *fileEntry) const;
 
 private:
     mutable std::unordered_map<uint, uint> m_fileIdMapping;
     const clang::SourceManager &sourceManager;
     const clang::LangOptions &languageOptions;
-    ClangBackEnd::StringCache<Utils::PathString, std::mutex> &filePathCache;
+    ClangBackEnd::FilePathCache<std::mutex> &filePathCache;
     SourceRangesContainer &sourceRangesContainer;
 };
 

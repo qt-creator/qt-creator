@@ -140,6 +140,8 @@ public:
         return m_pointer[0] == characterToSearch;
     }
 
+
+
 private:
     const char *m_pointer;
     size_type m_size;

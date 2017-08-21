@@ -37,7 +37,7 @@
 
 namespace ClangBackEnd {
 
-PchCreator::PchCreator(Environment &environment, StringCache<Utils::PathString> &filePathCache)
+PchCreator::PchCreator(Environment &environment, FilePathCache<> &filePathCache)
    : m_environment(environment),
      m_filePathCache(filePathCache)
 {
@@ -45,7 +45,7 @@ PchCreator::PchCreator(Environment &environment, StringCache<Utils::PathString> 
 
 PchCreator::PchCreator(V2::ProjectPartContainers &&projectsParts,
                        Environment &environment,
-                       StringCache<Utils::PathString> &filePathCache,
+                       FilePathCache<> &filePathCache,
                        PchGeneratorInterface *pchGenerator,
                        V2::FileContainers &&generatedFiles)
     : m_projectParts(std::move(projectsParts)),
@@ -239,7 +239,7 @@ Utils::SmallStringVector PchCreator::generateGlobalClangCompilerArguments() cons
     return compilerArguments;
 }
 
-std::vector<uint> PchCreator::generateGlobalPchIncludeIds() const
+std::vector<FilePathIndex> PchCreator::generateGlobalPchIncludeIds() const
 {
     IncludeCollector collector(m_filePathCache);
 
@@ -267,7 +267,7 @@ std::size_t contentSize(const std::vector<Utils::PathString> &includes)
 }
 
 Utils::SmallString PchCreator::generatePchIncludeFileContent(
-        const std::vector<uint> &includeIds) const
+        const std::vector<FilePathIndex> &includeIds) const
 {
     Utils::SmallString fileContent;
     const std::size_t lineTemplateSize = 12;
@@ -461,7 +461,7 @@ Utils::PathStringVector PchCreator::generateProjectPartHeaderAndSourcePaths(
     return includeAndSources;
 }
 
-std::vector<uint> PchCreator::generateProjectPartPchIncludes(
+std::vector<FilePathIndex> PchCreator::generateProjectPartPchIncludes(
         const V2::ProjectPartContainer &projectPart) const
 {
     Utils::SmallString jointedFileContent = generateProjectPartHeaderAndSourcesContent(projectPart);

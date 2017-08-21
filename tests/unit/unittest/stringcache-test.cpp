@@ -31,13 +31,16 @@
 
 namespace {
 
-using ClangBackEnd::StringCacheEntries;
 using ClangBackEnd::StringCacheException;
+
+using uint64 = unsigned long long;
+
+using CacheEntries = ClangBackEnd::FileCacheCacheEntries;
 
 class StringCache : public testing::Test
 {
 protected:
-    ClangBackEnd::StringCache<Utils::PathString> cache;
+    ClangBackEnd::FilePathCache<> cache;
     Utils::PathString filePath1{"/file/pathOne"};
     Utils::PathString filePath2{"/file/pathTwo"};
     Utils::PathString filePath3{"/file/pathThree"};
@@ -144,7 +147,7 @@ TEST_F(StringCache, IsNotEmpty)
 
 TEST_F(StringCache, PopulateWithEmptyVector)
 {
-    StringCacheEntries<Utils::PathString> entries;
+    CacheEntries entries;
 
     cache.uncheckedPopulate(std::move(entries));
 
@@ -153,10 +156,10 @@ TEST_F(StringCache, PopulateWithEmptyVector)
 
 TEST_F(StringCache, IsNotEmptyAfterPopulateWithSomeEntries)
 {
-    StringCacheEntries<Utils::PathString> entries{{filePath1.clone(), 0},
-                                                  {filePath2.clone(), 1},
-                                                  {filePath3.clone(), 2},
-                                                  {filePath4.clone(), 3}};
+    CacheEntries entries{{filePath1.clone(), 0},
+                         {filePath2.clone(), 1},
+                         {filePath3.clone(), 2},
+                         {filePath4.clone(), 3}};
 
     cache.uncheckedPopulate(std::move(entries));
 
@@ -165,10 +168,10 @@ TEST_F(StringCache, IsNotEmptyAfterPopulateWithSomeEntries)
 
 TEST_F(StringCache, GetEntryAfterPopulateWithSomeEntries)
 {
-    StringCacheEntries<Utils::PathString> entries{{filePath1.clone(), 0},
-                                                  {filePath2.clone(), 1},
-                                                  {filePath3.clone(), 2},
-                                                  {filePath4.clone(), 3}};
+    CacheEntries entries{{filePath1.clone(), 0},
+                         {filePath2.clone(), 1},
+                         {filePath3.clone(), 2},
+                         {filePath4.clone(), 3}};
     cache.uncheckedPopulate(std::move(entries));
 
     auto string = cache.string(2);
@@ -178,30 +181,30 @@ TEST_F(StringCache, GetEntryAfterPopulateWithSomeEntries)
 
 TEST_F(StringCache, EntriesHaveUniqueIds)
 {
-    StringCacheEntries<Utils::PathString> entries{{filePath1.clone(), 0},
-                                                  {filePath2.clone(), 1},
-                                                  {filePath3.clone(), 2},
-                                                  {filePath4.clone(), 2}};
+    CacheEntries entries{{filePath1.clone(), 0},
+                         {filePath2.clone(), 1},
+                         {filePath3.clone(), 2},
+                         {filePath4.clone(), 2}};
 
     ASSERT_THROW(cache.populate(std::move(entries)), StringCacheException);
 }
 
 TEST_F(StringCache, IdsAreHigherLowerEntriesSize)
 {
-    StringCacheEntries<Utils::PathString> entries{{filePath1.clone(), 0},
-                                                  {filePath2.clone(), 1},
-                                                  {filePath3.clone(), 4},
-                                                  {filePath4.clone(), 3}};
+    CacheEntries entries{{filePath1.clone(), 0},
+                         {filePath2.clone(), 1},
+                         {filePath3.clone(), 4},
+                         {filePath4.clone(), 3}};
 
     ASSERT_THROW(cache.populate(std::move(entries)), std::out_of_range);
 }
 
 TEST_F(StringCache, MultipleEntries)
 {
-    StringCacheEntries<Utils::PathString> entries{{filePath1.clone(), 0},
-                                                  {filePath1.clone(), 1},
-                                                  {filePath3.clone(), 2},
-                                                  {filePath4.clone(), 3}};
+    CacheEntries entries{{filePath1.clone(), 0},
+                         {filePath1.clone(), 1},
+                         {filePath3.clone(), 2},
+                         {filePath4.clone(), 3}};
 
     ASSERT_THROW(cache.populate(std::move(entries)), StringCacheException);
 }

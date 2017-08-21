@@ -48,10 +48,10 @@ class PchCreator final : public PchCreatorInterface
 {
 public:
     PchCreator(Environment &environment,
-               StringCache<Utils::PathString> &filePathCache);
+               FilePathCache<> &filePathCache);
     PchCreator(V2::ProjectPartContainers &&projectsParts,
                Environment &environment,
-               StringCache<Utils::PathString> &filePathCache,
+               FilePathCache<> &filePathCache,
                PchGeneratorInterface *pchGenerator,
                V2::FileContainers &&generatedFiles);
 
@@ -70,9 +70,9 @@ unittest_public:
     Utils::SmallStringVector generateGlobalPchCompilerArguments() const;
     Utils::SmallStringVector generateGlobalClangCompilerArguments() const;
 
-    std::vector<uint> generateGlobalPchIncludeIds() const;
+    std::vector<FilePathIndex> generateGlobalPchIncludeIds() const;
 
-    Utils::SmallString generatePchIncludeFileContent(const std::vector<uint> &includeIds) const;
+    Utils::SmallString generatePchIncludeFileContent(const std::vector<FilePathIndex> &includeIds) const;
     Utils::SmallString generateGlobalPchHeaderFileContent() const;
     std::unique_ptr<QFile> generateGlobalPchHeaderFile();
     void generatePch(Utils::SmallStringVector &&commandLineArguments,
@@ -97,7 +97,7 @@ unittest_public:
             const V2::ProjectPartContainer &projectPart);
     static Utils::PathStringVector generateProjectPartHeaderAndSourcePaths(
             const V2::ProjectPartContainer &projectPart);
-    std::vector<uint> generateProjectPartPchIncludes(
+    std::vector<FilePathIndex> generateProjectPartPchIncludes(
             const V2::ProjectPartContainer &projectPart) const;
     Utils::SmallString generateProjectPathPchHeaderFilePath(
             const V2::ProjectPartContainer &projectPart) const;
@@ -127,7 +127,7 @@ private:
     std::vector<ProjectPartPch> m_projectPartPchs;
     std::vector<IdPaths> m_projectsIncludeIds;
     Environment &m_environment;
-    StringCache<Utils::PathString> &m_filePathCache;
+    FilePathCache<> &m_filePathCache;
     PchGeneratorInterface *m_pchGenerator = nullptr;
 };
 

@@ -50,7 +50,7 @@ using ClangBackEnd::PchGenerator;
 using ClangBackEnd::PchManagerClientProxy;
 using ClangBackEnd::PchManagerServer;
 using ClangBackEnd::ProjectParts;
-using ClangBackEnd::StringCache;
+using ClangBackEnd::FilePathCache;
 
 class ApplicationEnvironment : public ClangBackEnd::Environment
 {
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 
     const QString connection =  processArguments(application);
 
-    StringCache<Utils::PathString> filePathCache;
+    FilePathCache<> filePathCache;
     ClangPathWatcher<QFileSystemWatcher, QTimer> includeWatcher(filePathCache);
     ApplicationEnvironment environment;
     PchGenerator<QProcess> pchGenerator(environment);

@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <stringcachefwd.h>
+
 #include <limits>
 #include <vector>
 #include <iosfwd>
@@ -51,11 +53,13 @@ public:
     uint column = 0;
 };
 
+using SymbolIndex = long long;
+
 class SourceLocationEntry
 {
 public:
-    SourceLocationEntry(uint symbolId,
-                        uint fileId,
+    SourceLocationEntry(SymbolIndex symbolId,
+                        FilePathIndex fileId,
                         LineColumn lineColumn,
                         SymbolType symbolType)
         : symbolId(symbolId),
@@ -65,8 +69,8 @@ public:
           symbolType(symbolType)
     {}
 
-    uint symbolId = 0;
-    uint fileId = std::numeric_limits<uint>::max();
+    SymbolIndex symbolId = 0;
+    FilePathIndex fileId = std::numeric_limits<uint>::max();
     uint line =  0;
     uint column = 0;
     SymbolType symbolType;

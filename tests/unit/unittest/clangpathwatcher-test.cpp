@@ -42,11 +42,12 @@ using testing::NiceMock;
 
 using Watcher = ClangBackEnd::ClangPathWatcher<NiceMock<MockQFileSytemWatcher>, FakeTimer>;
 using ClangBackEnd::WatcherEntry;
+using ClangBackEnd::FilePathIndices;
 
 class ClangPathWatcher : public testing::Test
 {
 protected:
-    ClangBackEnd::StringCache<Utils::PathString> pathCache;
+    ClangBackEnd::FilePathCache<> pathCache;
     NiceMock<MockClangPathWatcherNotifier> notifier;
     Watcher watcher{pathCache, &notifier};
     NiceMock<MockQFileSytemWatcher> &mockQFileSytemWatcher = watcher.fileSystemWatcher();
@@ -55,8 +56,8 @@ protected:
     Utils::SmallString id3{"id3"};
     Utils::PathString path1{"/path/path1"};
     Utils::PathString path2{"/path/path2"};
-    std::vector<uint> paths = watcher.pathCache().stringIds({path1, path2});
-    std::vector<uint> ids = watcher.idCache().stringIds({id1, id2, id3});
+    FilePathIndices paths{watcher.pathCache().stringIds({path1, path2})};
+    FilePathIndices ids{watcher.idCache().stringIds({id1, id2, id3})};
     WatcherEntry watcherEntry1{ids[0], paths[0]};
     WatcherEntry watcherEntry2{ids[1], paths[0]};
     WatcherEntry watcherEntry3{ids[0], paths[1]};

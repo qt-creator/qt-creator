@@ -69,7 +69,10 @@ SOURCES += \
     symbolindexer-test.cpp \
     stringcache-test.cpp \
     unittests-main.cpp \
-    utf8-test.cpp
+    utf8-test.cpp \
+    symbolstorage-test.cpp \
+    storagesqlitestatementfactory-test.cpp \
+    mocksqlitereadstatement.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -188,7 +191,11 @@ HEADERS += \
     spydummy.h \
     testenvironment.h \
     mocksymbolscollector.h \
-    mocksymbolstorage.h
+    mocksymbolstorage.h \
+    mocksqlitewritestatement.h \
+    mocksqlitedatabase.h \
+    mocksqlitereadstatement.h \
+    google-using-directive.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

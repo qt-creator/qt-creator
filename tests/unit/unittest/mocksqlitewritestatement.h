@@ -25,16 +25,35 @@
 
 #pragma once
 
-#include "sourcelocationentry.h"
-#include "symbolentry.h"
+#include "mocksqlitedatabase.h"
 
-namespace ClangBackEnd {
+#include <utils/smallstring.h>
 
-class SymbolStorageInterface
+class MockSqliteWriteStatement
 {
 public:
-    virtual void addSymbolsAndSourceLocations(const SymbolEntries &symbolEntries,
-                                              const SourceLocationEntries &sourceLocations) = 0;
-};
+    MockSqliteWriteStatement() = default;
+    MockSqliteWriteStatement(Utils::SmallStringView sqlStatement, MockSqliteDatabase &)
+        : sqlStatement(sqlStatement)
+    {}
 
-} // namespace ClangBackEnd
+    MOCK_METHOD0(execute,
+                 void ());
+
+    MOCK_METHOD2(bind,
+                 void (int index, Utils::SmallStringView value));
+
+    MOCK_METHOD2(bindValues,
+                 void (Utils::SmallStringView, Utils::SmallStringView));
+
+    MOCK_METHOD3(write,
+                 void (uint, Utils::SmallStringView, Utils::SmallStringView));
+
+    MOCK_METHOD4(write,
+                 void (uint, uint, uint, uint));
+
+    MOCK_METHOD2(write,
+                 void (uint, Utils::SmallStringView));
+
+    Utils::SmallString sqlStatement;
+};

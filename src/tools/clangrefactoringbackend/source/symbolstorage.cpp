@@ -23,18 +23,8 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include "sourcelocationentry.h"
-#include "symbolentry.h"
+#include "symbolstorage.h"
 
 namespace ClangBackEnd {
-
-class SymbolStorageInterface
-{
-public:
-    virtual void addSymbolsAndSourceLocations(const SymbolEntries &symbolEntries,
-                                              const SourceLocationEntries &sourceLocations) = 0;
-};
 
 } // namespace ClangBackEnd

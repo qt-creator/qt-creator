@@ -38,10 +38,10 @@ namespace ClangBackEnd {
 class CollectIncludesAction final : public clang::PreprocessOnlyAction
 {
 public:
-    CollectIncludesAction(std::vector<uint> &includeIds,
-                          StringCache<Utils::PathString> &filePathCache,
-                          std::vector<uint> &excludedIncludeUID,
-                          std::vector<uint> &alreadyIncludedFileUIDs)
+    CollectIncludesAction(FilePathIndices &includeIds,
+                          FilePathCache<> &filePathCache,
+                          FilePathIndices &excludedIncludeUID,
+                          FilePathIndices &alreadyIncludedFileUIDs)
         : m_includeIds(includeIds),
           m_filePathCache(filePathCache),
           m_excludedIncludeUID(excludedIncludeUID),
@@ -78,10 +78,10 @@ public:
     }
 
 private:
-    std::vector<uint> &m_includeIds;
-    StringCache<Utils::PathString> &m_filePathCache;
-    std::vector<uint> &m_excludedIncludeUID;
-    std::vector<uint> &m_alreadyIncludedFileUIDs;
+    FilePathIndices &m_includeIds;
+    FilePathCache<> &m_filePathCache;
+    FilePathIndices &m_excludedIncludeUID;
+    FilePathIndices &m_alreadyIncludedFileUIDs;
 };
 
 } // namespace ClangBackEnd

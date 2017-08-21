@@ -54,7 +54,7 @@ struct CollectBoundNodes : MatchFinder::MatchCallback {
   }
 };
 
-ClangQuery::ClangQuery(StringCache<Utils::PathString, std::mutex> &filePathCache,
+ClangQuery::ClangQuery(FilePathCache<std::mutex> &filePathCache,
                        Utils::SmallString &&query)
     : query(std::move(query)),
       filePathCache(filePathCache)

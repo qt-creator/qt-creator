@@ -36,7 +36,7 @@
 
 namespace ClangBackEnd {
 
-PchManagerServer::PchManagerServer(StringCache<Utils::PathString> &filePathCache,
+PchManagerServer::PchManagerServer(FilePathCache<> &filePathCache,
                                    ClangPathWatcherInterface &fileSystemWatcher,
                                    PchCreatorInterface &pchCreator,
                                    ProjectPartsInterface &projectParts)

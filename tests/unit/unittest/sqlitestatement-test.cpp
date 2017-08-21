@@ -340,7 +340,6 @@ TEST_F(SqliteStatement, GetStructValuesWithoutArguments)
                                     Output{"poo", "40", 3}));
 }
 
-
 TEST_F(SqliteStatement, GetValuesForSingleOutputWithBindingMultipleTimes)
 {
     SqliteReadStatement statement("SELECT name FROM test WHERE number=?", database);

@@ -41,13 +41,13 @@ public:
     using Future = std::future<SourceRangesForQueryMessage>;
 
     ClangQueryGatherer() = default;
-    ClangQueryGatherer(StringCache<Utils::PathString, std::mutex> *filePathCache,
+    ClangQueryGatherer(FilePathCache<std::mutex> *filePathCache,
                        std::vector<V2::FileContainer> &&sources,
                        std::vector<V2::FileContainer> &&unsaved,
                        Utils::SmallString &&query);
 
     static SourceRangesForQueryMessage createSourceRangesForSource(
-            StringCache<Utils::PathString, std::mutex> *filePathCache,
+            FilePathCache<std::mutex> *filePathCache,
             V2::FileContainer &&source,
             const std::vector<V2::FileContainer> &unsaved,
             Utils::SmallString &&query);
@@ -69,7 +69,7 @@ protected:
     std::vector<Future> finishedFutures();
 
 private:
-    StringCache<Utils::PathString, std::mutex> *m_filePathCache = nullptr;
+    FilePathCache<std::mutex> *m_filePathCache = nullptr;
     SourceRangeFilter m_sourceRangeFilter;
     std::vector<V2::FileContainer> m_sources;
     std::vector<V2::FileContainer> m_unsaved;

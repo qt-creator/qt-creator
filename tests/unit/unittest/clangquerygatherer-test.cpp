@@ -75,7 +75,7 @@ protected:
     void SetUp() override;
 
 protected:
-    ClangBackEnd::StringCache<Utils::PathString, std::mutex> filePathCache;
+    ClangBackEnd::FilePathCache<std::mutex> filePathCache;
     Utils::SmallString sourceContent{"#include \"query_simplefunction.h\"\nvoid f() {}"};
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
                          sourceContent.clone(),

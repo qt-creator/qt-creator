@@ -29,7 +29,7 @@
 
 namespace ClangBackEnd {
 
-ClangQueryGatherer::ClangQueryGatherer(StringCache<Utils::PathString, std::mutex> *filePathCache,
+ClangQueryGatherer::ClangQueryGatherer(FilePathCache<std::mutex> *filePathCache,
                                        std::vector<V2::FileContainer> &&sources,
                                        std::vector<V2::FileContainer> &&unsaved,
                                        Utils::SmallString &&query)
@@ -43,7 +43,7 @@ ClangQueryGatherer::ClangQueryGatherer(StringCache<Utils::PathString, std::mutex
 
 SourceRangesForQueryMessage
 ClangQueryGatherer::createSourceRangesForSource(
-        StringCache<Utils::PathString, std::mutex> *filePathCache,
+        FilePathCache<std::mutex> *filePathCache,
         V2::FileContainer &&source,
         const std::vector<V2::FileContainer> &unsaved,
         Utils::SmallString &&query)

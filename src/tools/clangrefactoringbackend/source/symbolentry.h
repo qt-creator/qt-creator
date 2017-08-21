@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <stringcachefwd.h>
+
 #include <utils/smallstring.h>
 
 #include <llvm/ADT/SmallVector.h>
@@ -35,6 +37,8 @@
 #include <iosfwd>
 
 namespace ClangBackEnd {
+
+using SymbolIndex = long long;
 
 class SymbolEntry
 {
@@ -60,7 +64,7 @@ public:
     }
 };
 
-using SymbolEntries = std::unordered_map<uint, SymbolEntry>;
+using SymbolEntries = std::unordered_map<SymbolIndex, SymbolEntry>;
 
 std::ostream &operator<<(std::ostream &out, const SymbolEntry &entry);
 

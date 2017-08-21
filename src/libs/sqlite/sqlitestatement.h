@@ -83,27 +83,27 @@ protected:
     {
     }
 
-    template<typename... Values>
-    void bindValues(Values... values)
+    template<typename... ValueType>
+    void bindValues(ValueType... values)
     {
         bindValuesByIndex(1, values...);
     }
 
-    template<typename... Values>
-    void write(Values... values)
+    template<typename... ValueType>
+    void write(ValueType... values)
     {
         bindValuesByIndex(1, values...);
         execute();
     }
 
-    template<typename... Values>
-    void bindNameValues(Values... values)
+    template<typename... ValueType>
+    void bindNameValues(ValueType... values)
     {
         bindValuesByName(values...);
     }
 
-    template<typename... Values>
-    void writeNamed(Values... values)
+    template<typename... ValueType>
+    void writeNamed(ValueType... values)
     {
         bindValuesByName(values...);
         execute();
@@ -117,45 +117,45 @@ protected:
     void setBindingColumnNames(const Utils::SmallStringVector &bindingColumnNames);
     const Utils::SmallStringVector &bindingColumnNames() const;
 
-    template <typename... ResultType>
-    std::vector<std::tuple<ResultType...>> tupleValues(std::size_t reserveSize)
+    template <typename... ResultTypes>
+    std::vector<std::tuple<ResultTypes...>> tupleValues(std::size_t reserveSize)
     {
-        using Container = std::vector<std::tuple<ResultType...>>;
+        using Container = std::vector<std::tuple<ResultTypes...>>;
         Container resultValues;
         resultValues.reserve(reserveSize);
 
         while (next())
-           emplaceTupleValues<Container, ResultType...>(resultValues);
+           emplaceTupleValues<Container, ResultTypes...>(resultValues);
 
         reset();
 
         return resultValues;
     }
 
-    template <typename... ResultType,
-              typename... QueryType>
-    std::vector<std::tuple<ResultType...>> tupleValues(std::size_t reserveSize, const QueryType&... queryValues)
+    template <typename... ResultTypes,
+              typename... QueryTypes>
+    std::vector<std::tuple<ResultTypes...>> tupleValues(std::size_t reserveSize, const QueryTypes&... queryValues)
     {
-        using Container = std::vector<std::tuple<ResultType...>>;
+        using Container = std::vector<std::tuple<ResultTypes...>>;
         Container resultValues;
         resultValues.reserve(reserveSize);
 
         bindValues(queryValues...);
 
         while (next())
-           emplaceTupleValues<Container, ResultType...>(resultValues);
+           emplaceTupleValues<Container, ResultTypes...>(resultValues);
 
         reset();
 
         return resultValues;
     }
 
-    template <typename... ResultType,
-              typename... ElementType>
-    std::vector<std::tuple<ResultType...>> tupleValues(std::size_t reserveSize,
-                                                       const std::vector<std::tuple<ElementType...>> &queryTuples)
+    template <typename... ResultTypes,
+              typename... QueryElementTypes>
+    std::vector<std::tuple<ResultTypes...>> tupleValues(std::size_t reserveSize,
+                                                       const std::vector<std::tuple<QueryElementTypes...>> &queryTuples)
     {
-        using Container = std::vector<std::tuple<ResultType...>>;
+        using Container = std::vector<std::tuple<ResultTypes...>>;
         Container resultValues;
         resultValues.reserve(reserveSize);
 
@@ -163,7 +163,7 @@ protected:
             bindTupleValues(queryTuple);
 
             while (next())
-                emplaceTupleValues<Container, ResultType...>(resultValues);
+                emplaceTupleValues<Container, ResultTypes...>(resultValues);
 
             reset();
         }
@@ -171,12 +171,12 @@ protected:
         return resultValues;
     }
 
-    template <typename... ResultType,
+    template <typename... ResultTypes,
               typename QueryElementType>
-    std::vector<std::tuple<ResultType...>> tupleValues(std::size_t reserveSize,
+    std::vector<std::tuple<ResultTypes...>> tupleValues(std::size_t reserveSize,
                                                        const std::vector<QueryElementType> &queryValues)
     {
-        using Container = std::vector<std::tuple<ResultType...>>;
+        using Container = std::vector<std::tuple<ResultTypes...>>;
         Container resultValues;
         resultValues.reserve(reserveSize);
 
@@ -184,7 +184,7 @@ protected:
             bindValues(queryValue);
 
             while (next())
-                emplaceTupleValues<Container, ResultType...>(resultValues);
+                emplaceTupleValues<Container, ResultTypes...>(resultValues);
 
             reset();
         }
@@ -193,7 +193,7 @@ protected:
     }
 
     template <typename ResultType,
-              typename... ResultEntryType>
+              typename... ResultEntryTypes>
     std::vector<ResultType> structValues(std::size_t reserveSize)
     {
         using Container = std::vector<ResultType>;
@@ -201,7 +201,7 @@ protected:
         resultValues.reserve(reserveSize);
 
         while (next())
-           pushBackStructValues<Container, ResultEntryType...>(resultValues);
+           pushBackStructValues<Container, ResultEntryTypes...>(resultValues);
 
         reset();
 
@@ -209,9 +209,9 @@ protected:
     }
 
     template <typename ResultType,
-              typename... ResultEntryType,
-              typename... QueryType>
-    std::vector<ResultType> structValues(std::size_t reserveSize, const QueryType&... queryValues)
+              typename... ResultEntryTypes,
+              typename... QueryTypes>
+    std::vector<ResultType> structValues(std::size_t reserveSize, const QueryTypes&... queryValues)
     {
         using Container = std::vector<ResultType>;
         Container resultValues;
@@ -220,7 +220,7 @@ protected:
         bindValues(queryValues...);
 
         while (next())
-           pushBackStructValues<Container, ResultEntryType...>(resultValues);
+           pushBackStructValues<Container, ResultEntryTypes...>(resultValues);
 
         reset();
 
@@ -228,7 +228,7 @@ protected:
     }
 
     template <typename ResultType,
-              typename... ResultEntryType,
+              typename... ResultEntryTypes,
               typename QueryElementType>
     std::vector<ResultType> structValues(std::size_t reserveSize,
                                          const std::vector<QueryElementType> &queryValues)
@@ -241,7 +241,7 @@ protected:
             bindValues(queryValue);
 
             while (next())
-                pushBackStructValues<Container, ResultEntryType...>(resultValues);
+                pushBackStructValues<Container, ResultEntryTypes...>(resultValues);
 
             reset();
         }
@@ -250,10 +250,10 @@ protected:
     }
 
     template <typename ResultType,
-              typename... ResultEntryType,
-              typename... QueryElementType>
+              typename... ResultEntryTypes,
+              typename... QueryElementTypes>
     std::vector<ResultType> structValues(std::size_t reserveSize,
-                                         const std::vector<std::tuple<QueryElementType...>> &queryTuples)
+                                         const std::vector<std::tuple<QueryElementTypes...>> &queryTuples)
     {
         using Container = std::vector<ResultType>;
         Container resultValues;
@@ -263,7 +263,7 @@ protected:
             bindTupleValues(queryTuple);
 
             while (next())
-                pushBackStructValues<Container, ResultEntryType...>(resultValues);
+                pushBackStructValues<Container, ResultEntryTypes...>(resultValues);
 
             reset();
         }
@@ -272,7 +272,7 @@ protected:
     }
 
     template <typename ResultType,
-              typename... ElementType>
+              typename... ElementTypes>
     std::vector<ResultType> values(std::size_t reserveSize)
     {
         std::vector<ResultType> resultValues;
@@ -327,8 +327,8 @@ protected:
     }
 
     template <typename ResultType,
-              typename... QueryType>
-    std::vector<ResultType> values(std::size_t reserveSize, const QueryType&... queryValues)
+              typename... QueryTypes>
+    std::vector<ResultType> values(std::size_t reserveSize, const QueryTypes&... queryValues)
     {
         std::vector<ResultType> resultValues;
         resultValues.reserve(reserveSize);
@@ -379,74 +379,74 @@ protected:
                              SqliteDatabaseBackend &databaseBackend);
 
 private:
-    template <typename Container,
-              typename... ResultType,
-              int... Index>
-    void emplaceTupleValues(Container &container, std::integer_sequence<int, Index...>)
+    template <typename ContainerType,
+              typename... ResultTypes,
+              int... ColumnIndices>
+    void emplaceTupleValues(ContainerType &container, std::integer_sequence<int, ColumnIndices...>)
     {
-        container.emplace_back(value<ResultType>(Index)...);
+        container.emplace_back(value<ResultTypes>(ColumnIndices)...);
     }
 
-    template <typename Container,
-              typename... ResultType>
-    void emplaceTupleValues(Container &container)
+    template <typename ContainerType,
+              typename... ResultTypes>
+    void emplaceTupleValues(ContainerType &container)
     {
-        emplaceTupleValues<Container, ResultType...>(container, std::make_integer_sequence<int, sizeof...(ResultType)>{});
+        emplaceTupleValues<ContainerType, ResultTypes...>(container, std::make_integer_sequence<int, sizeof...(ResultTypes)>{});
     }
 
-    template <typename Container,
-              typename... ResultEntryType,
-              int... Index>
-    void pushBackStructValues(Container &container, std::integer_sequence<int, Index...>)
+    template <typename ContainerType,
+              typename... ResultEntryTypes,
+              int... ColumnIndices>
+    void pushBackStructValues(ContainerType &container, std::integer_sequence<int, ColumnIndices...>)
     {
-        using ResultType = typename Container::value_type;
-        container.push_back(ResultType{value<ResultEntryType>(Index)...});
+        using ResultType = typename ContainerType::value_type;
+        container.push_back(ResultType{value<ResultEntryTypes>(ColumnIndices)...});
     }
 
-    template <typename Container,
-              typename... ResultEntryType>
-    void pushBackStructValues(Container &container)
+    template <typename ContainerType,
+              typename... ResultEntryTypes>
+    void pushBackStructValues(ContainerType &container)
     {
-        pushBackStructValues<Container, ResultEntryType...>(container, std::make_integer_sequence<int, sizeof...(ResultEntryType)>{});
+        pushBackStructValues<ContainerType, ResultEntryTypes...>(container, std::make_integer_sequence<int, sizeof...(ResultEntryTypes)>{});
     }
 
-    template<typename Type>
-    void bindValuesByIndex(int index, Type value)
+    template<typename ValueType>
+    void bindValuesByIndex(int index, ValueType value)
     {
         bind(index, value);
     }
 
-    template<typename Type, typename... Value>
-    void bindValuesByIndex(int index, Type value, Value... values)
+    template<typename ValueType, typename... ValueTypes>
+    void bindValuesByIndex(int index, ValueType value, ValueTypes... values)
     {
         bind(index, value);
         bindValuesByIndex(index + 1, values...);
     }
 
-    template<typename Type>
-    void bindValuesByName(Utils::SmallStringView name, Type value)
+    template<typename ValueType>
+    void bindValuesByName(Utils::SmallStringView name, ValueType value)
     {
        bind(bindingIndexForName(name), value);
     }
 
-    template<typename Type, typename... Values>
-    void bindValuesByName(Utils::SmallStringView name, Type value, Values... values)
+    template<typename ValueType, typename... ValueTypes>
+    void bindValuesByName(Utils::SmallStringView name, ValueType value, ValueTypes... values)
     {
        bind(bindingIndexForName(name), value);
        bindValuesByName(values...);
     }
 
-    template <typename TupleType, std::size_t... Index>
-    void bindTupleValuesElement(const TupleType &tuple, std::index_sequence<Index...>)
+    template <typename TupleType, std::size_t... ColumnIndices>
+    void bindTupleValuesElement(const TupleType &tuple, std::index_sequence<ColumnIndices...>)
     {
-        bindValues(std::get<Index>(tuple)...);
+        bindValues(std::get<ColumnIndices>(tuple)...);
     }
 
     template <typename TupleType,
-              typename Indices = std::make_index_sequence<std::tuple_size<TupleType>::value>>
+              typename ColumnIndices = std::make_index_sequence<std::tuple_size<TupleType>::value>>
     void bindTupleValues(const TupleType &element)
     {
-        bindTupleValuesElement(element, Indices());
+        bindTupleValuesElement(element, ColumnIndices());
     }
 
 private:

@@ -75,7 +75,7 @@ private:
                                                           Utils::SmallString &&query);
 
 private:
-    StringCache<Utils::PathString, std::mutex> m_filePathCache;
+    FilePathCache<std::mutex> m_filePathCache;
     ClangQueryGatherer m_gatherer;
     QTimer m_pollTimer;
 };

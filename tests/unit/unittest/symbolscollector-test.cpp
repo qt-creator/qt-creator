@@ -42,6 +42,7 @@ using testing::_;
 using ClangBackEnd::SourceLocationEntry;
 using ClangBackEnd::SymbolEntry;
 using ClangBackEnd::SymbolType;
+using ClangBackEnd::SymbolIndex;
 
 namespace {
 
@@ -53,7 +54,7 @@ protected:
         return filePathCache.stringId(string);
     }
 
-    uint symbolIdForSymbolName(const Utils::SmallString &symbolName);
+    SymbolIndex symbolIdForSymbolName(const Utils::SmallString &symbolName);
 
 protected:
     ClangBackEnd::FilePathCache<> filePathCache;
@@ -149,7 +150,7 @@ TEST_F(SymbolsCollector, ReferencedSymboldMatchesLocation)
                           Field(&SourceLocationEntry::column, 5))));
 }
 
-uint SymbolsCollector::symbolIdForSymbolName(const Utils::SmallString &symbolName)
+SymbolIndex SymbolsCollector::symbolIdForSymbolName(const Utils::SmallString &symbolName)
 {
     for (const auto &entry : collector.symbols()) {
         if (entry.second.symbolName == symbolName)

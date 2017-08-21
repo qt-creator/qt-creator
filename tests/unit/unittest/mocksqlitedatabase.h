@@ -25,16 +25,17 @@
 
 #pragma once
 
-#include "sourcelocationentry.h"
-#include "symbolentry.h"
+#include "googletest.h"
 
-namespace ClangBackEnd {
+#include <sqlitetable.h>
 
-class SymbolStorageInterface
+#include <utils/smallstringview.h>
+
+class MockSqliteDatabase
 {
 public:
-    virtual void addSymbolsAndSourceLocations(const SymbolEntries &symbolEntries,
-                                              const SourceLocationEntries &sourceLocations) = 0;
+    MOCK_METHOD1(execute,
+                 void (Utils::SmallStringView sqlStatement));
+
 };
 
-} // namespace ClangBackEnd

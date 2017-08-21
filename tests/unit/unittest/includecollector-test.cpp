@@ -43,7 +43,7 @@ protected:
     uint id(const Utils::SmallString &path);
 
 protected:
-    ClangBackEnd::StringCache<Utils::PathString> filePathCache;
+    ClangBackEnd::FilePathCache<> filePathCache;
     ClangBackEnd::IncludeCollector collector{filePathCache};
     ClangBackEnd::IncludeCollector emptyCollector{filePathCache};
     Utils::PathStringVector excludePaths = {TESTDATA_DIR "/includecollector_main.h",
