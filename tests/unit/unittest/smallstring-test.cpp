@@ -1375,3 +1375,24 @@ TEST(SmallString, ShortStringCapacity)
     ASSERT_THAT(PathString().shortStringCapacity(), 189);
 }
 
+TEST(SmallString, Compare)
+{
+    ASSERT_THAT(Utils::compare("", ""), Eq(0));
+    ASSERT_THAT(Utils::compare("text", "text"), Eq(0));
+    ASSERT_THAT(Utils::compare("", "text"), Le(0));
+    ASSERT_THAT(Utils::compare("textx", "text"), Gt(0));
+    ASSERT_THAT(Utils::compare("text", "textx"), Le(0));
+    ASSERT_THAT(Utils::compare("textx", "texta"), Gt(0));
+    ASSERT_THAT(Utils::compare("texta", "textx"), Le(0));
+}
+
+TEST(SmallString, ReverseCompare)
+{
+    ASSERT_THAT(Utils::reverseCompare("", ""), Eq(0));
+    ASSERT_THAT(Utils::reverseCompare("text", "text"), Eq(0));
+    ASSERT_THAT(Utils::reverseCompare("", "text"), Le(0));
+    ASSERT_THAT(Utils::reverseCompare("textx", "text"), Gt(0));
+    ASSERT_THAT(Utils::reverseCompare("text", "textx"), Le(0));
+    ASSERT_THAT(Utils::reverseCompare("textx", "texta"), Gt(0));
+    ASSERT_THAT(Utils::reverseCompare("texta", "textx"), Le(0));
+}

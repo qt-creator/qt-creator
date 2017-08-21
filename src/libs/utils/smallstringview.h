@@ -146,4 +146,50 @@ bool operator!=(const SmallStringView& first, const SmallStringView& second) noe
     return !(first == second);
 }
 
+inline
+int compare(const SmallStringView& first, const SmallStringView& second) noexcept
+{
+    int sizeDifference = int(first.size() - second.size());
+
+    if (sizeDifference == 0)
+        return std::memcmp(first.data(), second.data(), first.size());
+
+    return sizeDifference;
+}
+
+namespace Internal {
+inline
+int reverse_memcmp(const char *first, const char *second, size_t n)
+{
+
+    const char *currentFirst = first + n;
+    const char *currentSecond = second + n;
+
+    while (n > 0)
+    {
+        // If the current characters differ, return an appropriately signed
+        // value; otherwise, keep searching backwards
+        if (*currentFirst != *currentSecond)
+            return *currentFirst - *currentSecond;
+
+        --currentFirst;
+        --currentSecond;
+        --n;
+    }
+
+    return 0;
+}
+}
+
+inline
+int reverseCompare(const SmallStringView& first, const SmallStringView& second) noexcept
+{
+    int sizeDifference = int(first.size() - second.size());
+
+    if (sizeDifference == 0)
+        return Internal::reverse_memcmp(first.data(), second.data(), first.size());
+
+    return sizeDifference;
+}
+
 } // namespace Utils
