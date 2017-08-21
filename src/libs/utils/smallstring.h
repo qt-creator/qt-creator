@@ -367,19 +367,17 @@ public:
         return BasicSmallString(utf8ByteArray.constData(), uint(utf8ByteArray.size()));
     }
 
+    // precondition: has to be null terminated
     bool contains(SmallStringView subStringToSearch) const
     {
-        auto found = std::search(begin(),
-                                 end(),
-                                 subStringToSearch.begin(),
-                                 subStringToSearch.end());
+        const char *found = std::strstr(data(), subStringToSearch.data());
 
-        return found != end();
+        return found != nullptr;
     }
 
     bool contains(char characterToSearch) const
     {
-        auto found = std::strchr(data(), characterToSearch);
+        auto found = std::memchr(data(), characterToSearch, size());
 
         return found != nullptr;
     }
