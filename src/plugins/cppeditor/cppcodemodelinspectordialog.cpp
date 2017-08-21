@@ -1775,6 +1775,10 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
             = part->buildSystemTarget.isEmpty() ? QString::fromLatin1("<None>")
                                                 : part->buildSystemTarget;
 
+    const QString precompiledHeaders = part->precompiledHeaders.isEmpty()
+            ? QString::fromLatin1("<None>")
+            : part->precompiledHeaders.join(',');
+
     KeyValueModel::Table table = {
         {QString::fromLatin1("Project Part Name"), part->displayName},
         {QString::fromLatin1("Project Part File"), part->projectFileLocation()},
@@ -1782,6 +1786,7 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
         {QString::fromLatin1("Project File"), projectFilePath},
         {QString::fromLatin1("Buildsystem Target"), buildSystemTarget},
         {QString::fromLatin1("Callgroup Id"), callGroupId},
+        {QString::fromLatin1("Precompiled Headers"), precompiledHeaders},
         {QString::fromLatin1("Selected For Building"), CMI::Utils::toString(part->selectedForBuilding)},
         {QString::fromLatin1("Language Version"), CMI::Utils::toString(part->languageVersion)},
         {QString::fromLatin1("Language Extensions"), CMI::Utils::toString(part->languageExtensions)},
