@@ -244,7 +244,7 @@ void TransitionItem::snapToAnyPoint(int id, const QPointF &newPoint, int diff)
 
 void TransitionItem::snapPointToPoint(int idSnap, const QPointF &p, int diff)
 {
-    if (idSnap >= 0 && idSnap < m_cornerPoints.count()) {
+    if (idSnap >= 0 && static_cast<uint>(idSnap) < static_cast<uint>(m_cornerPoints.count())) {
         if (qAbs(p.x() - m_cornerPoints[idSnap].x()) < diff)
             m_cornerPoints[idSnap].setX(p.x());
         if (qAbs(p.y() - m_cornerPoints[idSnap].y()) < diff)
