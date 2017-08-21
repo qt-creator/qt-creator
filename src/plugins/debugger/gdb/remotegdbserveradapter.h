@@ -44,10 +44,6 @@ private:
     void interruptInferior2() override;
     void shutdownEngine() override;
 
-    void readUploadStandardOutput();
-    void readUploadStandardError();
-    void uploadProcError(QProcess::ProcessError error);
-    void uploadProcFinished();
     void callTargetRemote();
 
     void handleSetTargetAsync(const DebuggerResponse &response);
@@ -60,8 +56,6 @@ private:
     void handleSetNtoExecutable(const DebuggerResponse &response);
     void handleInterruptInferior(const DebuggerResponse &response);
     void handleExecRun(const DebuggerResponse &response);
-
-    QProcess m_uploadProc;
 };
 
 } // namespace Internal

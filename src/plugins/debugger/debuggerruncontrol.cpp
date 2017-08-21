@@ -58,6 +58,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/messagebox.h>
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -79,6 +80,98 @@ DebuggerEngine *createPdbEngine();
 DebuggerEngine *createQmlEngine(bool useTerminal);
 DebuggerEngine *createQmlCppEngine(DebuggerEngine *cppEngine, bool useTerminal);
 DebuggerEngine *createLldbEngine();
+
+
+class LocalProcessRunner : public RunWorker
+{
+public:
+    LocalProcessRunner(RunControl *runControl, const StandardRunnable &runnable)
+        : RunWorker(runControl), m_runnable(runnable)
+    {
+        connect(&m_proc, &QProcess::errorOccurred,
+                this, &LocalProcessRunner::handleError);
+        connect(&m_proc, &QProcess::readyReadStandardOutput,
+                this, &LocalProcessRunner::handleStandardOutput);
+        connect(&m_proc, &QProcess::readyReadStandardError,
+                this, &LocalProcessRunner::handleStandardError);
+        connect(&m_proc, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+                this, &LocalProcessRunner::handleFinished);
+    }
+
+    void start() override
+    {
+        m_proc.setCommand(m_runnable.executable, m_runnable.commandLineArguments);
+        m_proc.start();
+    }
+
+    void stop() override
+    {
+        m_proc.terminate();
+    }
+
+    void handleStandardOutput()
+    {
+        const QByteArray ba = m_proc.readAllStandardOutput();
+        const QString msg = QString::fromLocal8Bit(ba, ba.length());
+        showMessage(msg, LogOutput);
+        showMessage(msg, AppOutput);
+    }
+
+    void handleStandardError()
+    {
+        const QByteArray ba = m_proc.readAllStandardError();
+        const QString msg = QString::fromLocal8Bit(ba, ba.length());
+        showMessage(msg, LogOutput);
+        showMessage(msg, AppError);
+    }
+
+    void handleFinished()
+    {
+        if (m_proc.exitStatus() == QProcess::NormalExit && m_proc.exitCode() == 0) {
+            // all good.
+            reportDone();
+        } else {
+            reportFailure(tr("Upload failed: %1").arg(m_proc.errorString()));
+        }
+    }
+
+    void handleError(QProcess::ProcessError error)
+    {
+        QString msg;
+        switch (error) {
+        case QProcess::FailedToStart:
+            msg = tr("The upload process failed to start. Shell missing?");
+            break;
+        case QProcess::Crashed:
+            msg = tr("The upload process crashed some time after starting "
+                     "successfully.");
+            break;
+        case QProcess::Timedout:
+            msg = tr("The last waitFor...() function timed out. "
+                     "The state of QProcess is unchanged, and you can try calling "
+                     "waitFor...() again.");
+            break;
+        case QProcess::WriteError:
+            msg = tr("An error occurred when attempting to write "
+                     "to the upload process. For example, the process may not be running, "
+                     "or it may have closed its input channel.");
+            break;
+        case QProcess::ReadError:
+            msg = tr("An error occurred when attempting to read from "
+                     "the upload process. For example, the process may not be running.");
+            break;
+        default:
+            msg = tr("An unknown error in the upload process occurred. "
+                     "This is the default return value of error().");
+        }
+
+        showMessage(msg, StatusBar);
+        Core::AsynchronousMessageBox::critical(tr("Error"), msg);
+    }
+
+    StandardRunnable m_runnable;
+    Utils::QtcProcess m_proc;
+};
 
 } // namespace Internal
 
@@ -522,6 +615,15 @@ void DebuggerRunTool::setStartParameters(const DebuggerStartParameters &sp)
 void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp)
 {
     m_runParameters = rp;
+
+    if (!rp.serverStartScript.isEmpty()) {
+        // Provide script information about the environment
+        StandardRunnable serverStarter;
+        serverStarter.executable = rp.serverStartScript;
+        QtcProcess::addArg(&serverStarter.commandLineArguments, rp.inferior.executable);
+        QtcProcess::addArg(&serverStarter.commandLineArguments, rp.remoteChannel);
+        addStartDependency(new LocalProcessRunner(runControl(), serverStarter));
+    }
 }
 
 void DebuggerRunTool::setupEngine()

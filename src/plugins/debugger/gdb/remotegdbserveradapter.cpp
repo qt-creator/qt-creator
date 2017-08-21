@@ -31,8 +31,6 @@
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/procinterrupt.h>
 
-#include <coreplugin/messagebox.h>
-
 #include <utils/hostosinfo.h>
 #include <utils/qtcfallthrough.h>
 #include <utils/qtcassert.h>
@@ -58,13 +56,6 @@ namespace Internal {
 GdbRemoteServerEngine::GdbRemoteServerEngine(bool useTerminal)
     : GdbEngine(useTerminal)
 {
-    connect(&m_uploadProc, &QProcess::errorOccurred, this, &GdbRemoteServerEngine::uploadProcError);
-    connect(&m_uploadProc, &QProcess::readyReadStandardOutput,
-            this, &GdbRemoteServerEngine::readUploadStandardOutput);
-    connect(&m_uploadProc, &QProcess::readyReadStandardError,
-            this, &GdbRemoteServerEngine::readUploadStandardError);
-    connect(&m_uploadProc, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
-            this, &GdbRemoteServerEngine::uploadProcFinished);
 }
 
 void GdbRemoteServerEngine::setupEngine()
@@ -74,80 +65,8 @@ void GdbRemoteServerEngine::setupEngine()
 
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage("TRYING TO START ADAPTER");
-    QString serverStartScript = runParameters().serverStartScript;
-    if (!serverStartScript.isEmpty()) {
-
-        // Provide script information about the environment
-        QString arglist;
-        QtcProcess::addArg(&arglist, serverStartScript);
-        QtcProcess::addArg(&arglist, runParameters().inferior.executable);
-        QtcProcess::addArg(&arglist, runParameters().remoteChannel);
-
-        m_uploadProc.start(arglist);
-        m_uploadProc.waitForStarted();
-        m_uploadProc.waitForFinished();
-    }
 
     startGdb();
-}
-
-void GdbRemoteServerEngine::uploadProcError(QProcess::ProcessError error)
-{
-    QString msg;
-    switch (error) {
-        case QProcess::FailedToStart:
-            msg = tr("The upload process failed to start. Shell missing?");
-            break;
-        case QProcess::Crashed:
-            msg = tr("The upload process crashed some time after starting "
-                "successfully.");
-            break;
-        case QProcess::Timedout:
-            msg = tr("The last waitFor...() function timed out. "
-                "The state of QProcess is unchanged, and you can try calling "
-                "waitFor...() again.");
-            break;
-        case QProcess::WriteError:
-            msg = tr("An error occurred when attempting to write "
-                "to the upload process. For example, the process may not be running, "
-                "or it may have closed its input channel.");
-            break;
-        case QProcess::ReadError:
-            msg = tr("An error occurred when attempting to read from "
-                "the upload process. For example, the process may not be running.");
-            break;
-        default:
-            msg = tr("An unknown error in the upload process occurred. "
-                "This is the default return value of error().");
-    }
-
-    showMessage(msg, StatusBar);
-    Core::AsynchronousMessageBox::critical(tr("Error"), msg);
-}
-
-void GdbRemoteServerEngine::readUploadStandardOutput()
-{
-    const QByteArray ba = m_uploadProc.readAllStandardOutput();
-    const QString msg = QString::fromLocal8Bit(ba, ba.length());
-    showMessage(msg, LogOutput);
-    showMessage(msg, AppOutput);
-}
-
-void GdbRemoteServerEngine::readUploadStandardError()
-{
-    const QByteArray ba = m_uploadProc.readAllStandardError();
-    const QString msg = QString::fromLocal8Bit(ba, ba.length());
-    showMessage(msg, LogOutput);
-    showMessage(msg, AppError);
-}
-
-void GdbRemoteServerEngine::uploadProcFinished()
-{
-    if (m_uploadProc.exitStatus() == QProcess::NormalExit && m_uploadProc.exitCode() == 0) {
-        // all good.
-    } else {
-        runTool()->reportFailure(tr("Upload failed: %1").arg(m_uploadProc.errorString()));
-    }
 }
 
 void GdbRemoteServerEngine::setupInferior()
