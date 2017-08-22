@@ -255,5 +255,6 @@
 
     \QC stores copied text in clipboard history. To retrieve clips from the
     history, press \key {Ctrl+Shift+V} until the clip appears.
+    The number of clips in the history is fixed to 10.
 
 */
