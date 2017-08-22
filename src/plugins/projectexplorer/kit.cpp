@@ -381,7 +381,7 @@ QIcon Kit::icon() const
     if (!d->m_cachedIcon.isNull())
         return d->m_cachedIcon;
 
-    if (d->m_iconPath.exists()) {
+    if (!d->m_iconPath.isEmpty() && d->m_iconPath.exists()) {
         d->m_cachedIcon = QIcon(d->m_iconPath.toString());
         return d->m_cachedIcon;
     }
