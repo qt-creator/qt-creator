@@ -35,16 +35,34 @@ using ClangBackEnd::StringCacheException;
 
 using uint64 = unsigned long long;
 
+using Utils::compare;
+using Utils::reverseCompare;
+using ClangBackEnd::findInSorted;
+
 using CacheEntries = ClangBackEnd::FileCacheCacheEntries;
 
 class StringCache : public testing::Test
 {
+protected:
+    void SetUp();
+
 protected:
     ClangBackEnd::FilePathCache<> cache;
     Utils::PathString filePath1{"/file/pathOne"};
     Utils::PathString filePath2{"/file/pathTwo"};
     Utils::PathString filePath3{"/file/pathThree"};
     Utils::PathString filePath4{"/file/pathFour"};
+    Utils::PathString filePath5{"/file/pathFife"};
+    Utils::PathStringVector filePaths{filePath1,
+                                      filePath2,
+                                      filePath3,
+                                      filePath4,
+                                      filePath5};
+    Utils::PathStringVector reverseFilePaths{filePath1,
+                                             filePath2,
+                                             filePath3,
+                                             filePath4,
+                                             filePath5};
 };
 
 TEST_F(StringCache, AddFilePath)
@@ -209,4 +227,95 @@ TEST_F(StringCache, MultipleEntries)
     ASSERT_THROW(cache.populate(std::move(entries)), StringCacheException);
 }
 
+TEST_F(StringCache, DontFindInSorted)
+{
+    auto found = findInSorted(filePaths.cbegin(), filePaths.cend(), "/file/pathFoo", compare);
+
+    ASSERT_FALSE(found.wasFound);
 }
+
+TEST_F(StringCache, FindInSortedOne)
+{
+    auto found = findInSorted(filePaths.cbegin(), filePaths.cend(), "/file/pathOne", compare);
+
+    ASSERT_TRUE(found.wasFound);
+}
+
+TEST_F(StringCache, FindInSortedTwo)
+{
+    auto found = findInSorted(filePaths.cbegin(), filePaths.cend(), "/file/pathTwo", compare);
+
+    ASSERT_TRUE(found.wasFound);
+}
+
+TEST_F(StringCache, FindInSortedTree)
+{
+    auto found = findInSorted(filePaths.cbegin(), filePaths.cend(), "/file/pathThree", compare);
+
+    ASSERT_TRUE(found.wasFound);
+}
+
+TEST_F(StringCache, FindInSortedFour)
+{
+    auto found = findInSorted(filePaths.cbegin(), filePaths.cend(), "/file/pathFour", compare);
+
+    ASSERT_TRUE(found.wasFound);
+}
+
+TEST_F(StringCache, FindInSortedFife)
+{
+    auto found = findInSorted(filePaths.cbegin(), filePaths.cend(), "/file/pathFife", compare);
+
+    ASSERT_TRUE(found.wasFound);
+}
+
+TEST_F(StringCache, DontFindInSortedReverse)
+{
+    auto found = findInSorted(reverseFilePaths.cbegin(), reverseFilePaths.cend(), "/file/pathFoo", reverseCompare);
+
+    ASSERT_FALSE(found.wasFound);
+}
+
+TEST_F(StringCache, FindInSortedOneReverse)
+{
+    auto found = findInSorted(reverseFilePaths.cbegin(), reverseFilePaths.cend(), "/file/pathOne", reverseCompare);
+
+    ASSERT_TRUE(found.wasFound);
+}
+
+TEST_F(StringCache, FindInSortedTwoReverse)
+{
+    auto found = findInSorted(reverseFilePaths.cbegin(), reverseFilePaths.cend(), "/file/pathTwo", reverseCompare);
+
+    ASSERT_TRUE(found.wasFound);
+}
+
+TEST_F(StringCache, FindInSortedTreeReverse)
+{
+    auto found = findInSorted(reverseFilePaths.cbegin(), reverseFilePaths.cend(), "/file/pathThree", reverseCompare);
+
+    ASSERT_TRUE(found.wasFound);
+}
+
+TEST_F(StringCache, FindInSortedFourReverse)
+{
+    auto found = findInSorted(reverseFilePaths.cbegin(), reverseFilePaths.cend(), "/file/pathFour", reverseCompare);
+
+    ASSERT_TRUE(found.wasFound);
+}
+
+TEST_F(StringCache, FindInSortedFifeReverse)
+{
+    auto found = findInSorted(reverseFilePaths.cbegin(), reverseFilePaths.cend(), "/file/pathFife", reverseCompare);
+
+    ASSERT_TRUE(found.wasFound);
+}
+
+
+void StringCache::SetUp()
+{
+    std::sort(filePaths.begin(), filePaths.end(), [] (auto &f, auto &l) { return compare(f, l) < 0;});
+    std::sort(reverseFilePaths.begin(), reverseFilePaths.end(), [] (auto &f, auto &l) { return reverseCompare(f, l) < 0;});
+}
+}
+

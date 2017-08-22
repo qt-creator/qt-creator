@@ -25,27 +25,48 @@
 
 #pragma once
 
-#include <utils/smallstringfwd.h>
+#include <utils/smallstringio.h>
+
+#include <iterator>
+
+#include <QDebug>
 
 namespace ClangBackEnd {
 
-using FilePathIndex = long long int;
+template <typename Iterator>
+class Found
+{
+public:
+    Iterator iterator;
+    bool wasFound;
+};
 
-class NonLockingMutex;
+template<typename ForwardIterator,
+         typename Type,
+         typename Compare>
+Found<ForwardIterator> findInSorted(ForwardIterator first, ForwardIterator last, const Type& value, Compare compare)
+{
+    ForwardIterator current;
+    using DifferenceType = typename std::iterator_traits<ForwardIterator>::difference_type;
+    DifferenceType count{std::distance(first, last)};
+    DifferenceType step;
 
-template <typename StringType,
-          typename IndexType,
-          typename Mutex,
-          typename Compare,
-          Compare compare>
-class StringCache;
+    while (count > 0) {
+        current = first;
+        step = count / 2;
+        std::advance(current, step);
+        auto comparison = compare(*current, value);
+        if (comparison < 0) {
+            first = ++current;
+            count -= step + 1;
+        } else if (comparison > 0) {
+            count = step;
+        } else {
+            return {current, true};
+        }
+    }
 
-template <typename Mutex = NonLockingMutex>
-using FilePathCache = StringCache<Utils::PathString,
-                                  FilePathIndex,
-                                  Mutex,
-                                  decltype(&Utils::reverseCompare),
-                                  Utils::reverseCompare>;
+    return {first, false};
+}
 
 } // namespace ClangBackEnd
-

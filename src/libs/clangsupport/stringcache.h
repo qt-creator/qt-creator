@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "stringcachealgorithms.h"
 #include "stringcachefwd.h"
 
 #include <utils/smallstringview.h>
@@ -63,23 +64,13 @@ public:
           id(id)
     {}
 
-    friend bool operator<(const StringCacheEntry &entry, Utils::SmallStringView stringView)
+    operator Utils::SmallStringView() const
     {
-        return entry.string < stringView;
-    }
-
-    friend bool operator<(Utils::SmallStringView stringView, const StringCacheEntry &entry)
-    {
-        return stringView < entry.string;
-    }
-
-    friend bool operator<(const StringCacheEntry &first, const StringCacheEntry &second)
-    {
-        return first.string < second.string;
+        return {string.data(), string.size()};
     }
 
     StringType string;
-    IndexType id;
+    uint id;
 };
 
 template <typename StringType, typename IndexType>
@@ -90,19 +81,15 @@ using FileCacheCacheEntries = std::vector<FileCacheCacheEntry>;
 
 template <typename StringType,
           typename IndexType,
-          typename Mutex>
+          typename Mutex,
+          typename Compare,
+          Compare compare = Utils::compare>
 class StringCache
 {
+    using CacheEntry = StringCacheEntry<StringType, IndexType>;
     using CacheEnties = StringCacheEntries<StringType, IndexType>;
     using const_iterator = typename CacheEnties::const_iterator;
-
-    class Found
-    {
-    public:
-        typename CacheEnties::const_iterator iterator;
-        bool wasFound;
-    };
-
+    using Found = ClangBackEnd::Found<const_iterator>;
 public:
     StringCache()
     {
@@ -119,7 +106,11 @@ public:
 
     void uncheckedPopulate(CacheEnties &&entries)
     {
-        std::sort(entries.begin(), entries.end());
+        std::sort(entries.begin(),
+                  entries.end(),
+                  [] (Utils::SmallStringView first, Utils::SmallStringView second) {
+            return compare(first, second) < 0;
+        });
 
         m_strings = std::move(entries);
         m_indices.resize(m_strings.size());
@@ -193,9 +184,7 @@ public:
 private:
     Found find(Utils::SmallStringView stringView)
     {
-        auto range = std::equal_range(m_strings.cbegin(), m_strings.cend(), stringView);
-
-        return {range.first, range.first != range.second};
+        return findInSorted(m_strings.cbegin(), m_strings.cend(), stringView, compare);
     }
 
     void incrementLargerOrEqualIndicesByOne(IndexType newIndex)
@@ -238,8 +227,6 @@ private:
     mutable Mutex m_mutex;
 };
 
-template <typename Mutex>
-using FilePathCache = StringCache<Utils::PathString, FilePathIndex, Mutex>;
 using FilePathIndices = std::vector<FilePathIndex>;
 
 } // namespace ClangBackEnd

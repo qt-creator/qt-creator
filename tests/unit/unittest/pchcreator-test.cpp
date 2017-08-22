@@ -65,7 +65,7 @@ using UnitTests::EndsWith;
 class PchCreator: public ::testing::Test
 {
 protected:
-    uint id(const Utils::PathString &path);
+    ClangBackEnd::FilePathIndex id(const Utils::PathString &path);
 
 protected:
     ClangBackEnd::FilePathCache<> filePathCache;
@@ -340,7 +340,7 @@ TEST_F(PchCreator, CreateProjectPartHeaderAndSourcesContent)
                             "#include \"" TESTDATA_DIR "/includecollector_main3.cpp\"\n"));
 }
 
-uint PchCreator::id(const Utils::PathString &path)
+ClangBackEnd::FilePathIndex PchCreator::id(const Utils::PathString &path)
 {
     return filePathCache.stringId(path);
 }

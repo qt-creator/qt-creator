@@ -173,6 +173,7 @@ HEADERS += \
     $$PWD/writemessageblock.h \
     $$PWD/ipcclientprovider.h \
     $$PWD/requestsourcerangesforquerymessage.h \
-    $$PWD/stringcachefwd.h
+    $$PWD/stringcachefwd.h \
+    $$PWD/stringcachealgorithms.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

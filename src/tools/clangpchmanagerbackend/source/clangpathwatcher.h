@@ -63,7 +63,11 @@ public:
 
 using WatcherEntries = std::vector<WatcherEntry>;
 
-using IdCache = StringCache<Utils::SmallString, FilePathIndex, NonLockingMutex>;
+using IdCache = StringCache<Utils::SmallString,
+                            FilePathIndex,
+                            NonLockingMutex,
+                            decltype(&Utils::compare),
+                            Utils::compare>;
 
 template <typename FileSystemWatcher,
           typename Timer>
