@@ -1709,12 +1709,24 @@ bool Check::visit(TypeOfExpression *ast)
 /// ### Maybe put this into the context as a helper function.
 const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 {
+
     if (!_importsOk)
         return 0;
 
     QList<const ObjectValue *> scopeObjects = _scopeChain.qmlScopeObjects();
     if (scopeObjects.isEmpty())
         return 0;
+
+    const auto getAttachedTypes = [this, &scopeObjects](const QString &propertyName) {
+        bool isAttachedProperty = false;
+        if (! propertyName.isEmpty() && propertyName[0].isUpper()) {
+            isAttachedProperty = true;
+            if (const ObjectValue *qmlTypes = _scopeChain.qmlTypes())
+                scopeObjects += qmlTypes;
+        }
+        return isAttachedProperty;
+    };
+
 
     if (! id)
         return 0; // ### error?
@@ -1728,12 +1740,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
         return 0; // ### should probably be a special value
 
     // attached properties
-    bool isAttachedProperty = false;
-    if (! propertyName.isEmpty() && propertyName[0].isUpper()) {
-        isAttachedProperty = true;
-        if (const ObjectValue *qmlTypes = _scopeChain.qmlTypes())
-            scopeObjects += qmlTypes;
-    }
+    bool isAttachedProperty = getAttachedTypes(propertyName);
 
     if (scopeObjects.isEmpty())
         return 0;
@@ -1775,6 +1782,9 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 
         idPart = idPart->next;
         propertyName = idPart->name.toString();
+        isAttachedProperty = getAttachedTypes(propertyName);
+        if (isAttachedProperty)
+            return 0;
 
         value = objectValue->lookupMember(propertyName, _context);
         if (! value) {
