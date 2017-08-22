@@ -659,7 +659,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         const IDevice::ConstPtr device = runnable.as<StandardRunnable>().device;
         if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
             return true;
-        Target *target = runConfiguration ? runConfiguration->target() : nullptr;
+        Target *target = runConfiguration->target();
         Kit *kit = target ? target->kit() : nullptr;
         return DeviceTypeKitInformation::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
     };
