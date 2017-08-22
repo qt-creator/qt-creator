@@ -150,6 +150,11 @@ bool Document::isIntact() const
         && !d->hasParseOrReparseFailed;
 }
 
+bool Document::isParsed() const
+{
+    return d->translationUnits.areAllTranslationUnitsParsed();
+}
+
 Utf8String Document::filePath() const
 {
     checkIfNull();

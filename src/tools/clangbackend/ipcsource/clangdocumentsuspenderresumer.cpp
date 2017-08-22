@@ -97,7 +97,8 @@ static bool isSuspendable(const Document &document)
 {
     return isFineDocument(document)
         && !document.isSuspended()
-        && !document.isVisibleInEditor();
+        && !document.isVisibleInEditor()
+        && document.isParsed();
 }
 
 static bool isResumable(const Document &document)
