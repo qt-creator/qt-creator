@@ -1202,6 +1202,7 @@ void QmakeProject::collectLibraryData(const QmakeProFile *file, DeploymentData &
     }
     case Abi::LinuxOS:
     case Abi::BsdOS:
+    case Abi::QnxOS:
     case Abi::UnixOS:
         if (!(isPlugin && config.contains(QLatin1String("no_plugin_name_prefix"))))
             targetFileName.prepend(QLatin1String("lib"));
