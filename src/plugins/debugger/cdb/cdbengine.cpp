@@ -607,10 +607,17 @@ bool CdbEngine::launchCDB(const DebuggerRunParameters &sp, QString *errorMessage
 
     m_outputBuffer.clear();
     m_autoBreakPointCorrection = false;
-    const QStringList inferiorEnvironment = sp.inferior.environment.size() == 0 ?
-                                    QProcessEnvironment::systemEnvironment().toStringList() :
-                                    sp.inferior.environment.toStringList();
-    m_process.setEnvironment(mergeEnvironment(inferiorEnvironment, extensionFi.absolutePath()));
+
+    Utils::Environment inferiorEnvironment = sp.inferior.environment.size() == 0
+            ? Utils::Environment::systemEnvironment() : sp.inferior.environment;
+
+    // Make sure that QTestLib uses OutputDebugString for logging.
+    const QString qtLoggingToConsoleKey = QStringLiteral("QT_LOGGING_TO_CONSOLE");
+    if (!sp.useTerminal && !inferiorEnvironment.hasKey(qtLoggingToConsoleKey))
+        inferiorEnvironment.set(qtLoggingToConsoleKey, QString(QLatin1Char('0')));
+
+    m_process.setEnvironment(mergeEnvironment(inferiorEnvironment.toStringList(),
+                                              extensionFi.absolutePath()));
     if (!sp.inferior.workingDirectory.isEmpty())
         m_process.setWorkingDirectory(sp.inferior.workingDirectory);
 
