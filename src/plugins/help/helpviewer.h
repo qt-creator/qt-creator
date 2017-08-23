@@ -49,7 +49,7 @@ public:
     Q_DECLARE_FLAGS(Actions, Action)
 
     explicit HelpViewer(QWidget *parent = 0);
-    ~HelpViewer() { }
+    ~HelpViewer();
 
     virtual QFont viewerFont() const = 0;
     virtual void setViewerFont(const QFont &font) = 0;
@@ -109,7 +109,10 @@ protected:
     void slotLoadStarted();
     void slotLoadFinished();
 
+    void restoreOverrideCursor();
+
     Actions m_visibleActions = 0;
+    int m_loadOverrideStack = 0;
 };
 
 }   // namespace Internal

@@ -85,6 +85,11 @@ HelpViewer::HelpViewer(QWidget *parent)
 {
 }
 
+HelpViewer::~HelpViewer()
+{
+    restoreOverrideCursor();
+}
+
 void HelpViewer::setActionVisible(Action action, bool visible)
 {
     if (visible)
@@ -156,14 +161,23 @@ void HelpViewer::home()
 
 void HelpViewer::slotLoadStarted()
 {
+    ++m_loadOverrideStack;
     QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 }
 
 void HelpViewer::slotLoadFinished()
 {
-    QGuiApplication::restoreOverrideCursor();
+    restoreOverrideCursor();
     emit sourceChanged(source());
     emit loadFinished();
+}
+
+void HelpViewer::restoreOverrideCursor()
+{
+    while (m_loadOverrideStack > 0) {
+        --m_loadOverrideStack;
+        QGuiApplication::restoreOverrideCursor();
+    }
 }
 
 bool HelpViewer::handleForwardBackwardMouseButtons(QMouseEvent *event)
