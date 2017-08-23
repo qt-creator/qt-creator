@@ -195,6 +195,31 @@
             save space.
     \endlist
 
+    \section2 Hightlighting Parts of the Screen
+
+    You can use number icons in screenshots to highlight parts of the screenshot
+    (instead of using red arrows or borders, or something similar). You can then
+    refer to the numbers in text. For and example, see the
+    \l{http://doc.qt.io/qt-5/topics-app-development.html}{Development Tools}
+    topic in the Qt reference documentation.
+
+    This improves the consistency of the look and feel of Qt documentation,
+    and eliminates the need to describe parts of the UI in the text, because
+    you can just insert the number of the element you are referring to in
+    brackets.
+
+    You can find a set of images that show the numbers from 1 to 10  in the
+    \c doc\images\numbers directory (or in the \c qtdoc module sources in
+    \c doc\images\numbers).
+
+    To use the numbers:
+
+    \list
+        \li Take a screenshot as described above.
+        \li After resizing the screenshot, copy-paste the number images on
+            the screenshot to the places that you want to refer to from text.
+    \endlist
+
     \section2 Optimizing Images
 
     Save images in the PNG format in the \QC project folder in the
@@ -240,6 +265,18 @@
     (select the \uicontrol {True Color} option, instead).
 
     You can also see the sizes of the initial and optimized image.
+
+    \section3 Using OptiPNG
+
+    Download and install \l{https://sourceforge.net/projects/optipng/}{OptiPNG}.
+
+    OptiPNG is a command-line tool that you can invoke from the \QC project
+    folder (or any folder that contains your project). To optimize a screenshot,
+    enter the following command (here, from the \QC project folder):
+
+    \code
+    optipng -o 7 -strip all doc/images/<screenshot_name>
+    \endcode
 
     \section1 Building Documentation
 
