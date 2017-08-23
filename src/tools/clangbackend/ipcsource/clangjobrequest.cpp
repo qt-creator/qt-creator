@@ -68,6 +68,16 @@ QDebug operator<<(QDebug debug, JobRequest::Type type)
     return debug;
 }
 
+std::ostream &operator<<(std::ostream &os, JobRequest::Type type)
+{
+    return os << JobRequestTypeToText(type);
+}
+
+std::ostream &operator<<(std::ostream &os, PreferredTranslationUnit preferredTranslationUnit)
+{
+    return os << preferredTranslationUnitToText(preferredTranslationUnit);
+}
+
 QDebug operator<<(QDebug debug, const JobRequest &jobRequest)
 {
     debug.nospace() << "Job<"

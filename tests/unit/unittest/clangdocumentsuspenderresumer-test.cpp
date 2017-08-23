@@ -62,6 +62,17 @@ bool operator==(const SuspendResumeJobsEntry &a, const SuspendResumeJobsEntry &b
         && a.preferredTranslationUnit == b.preferredTranslationUnit;
 }
 
+std::ostream &operator<<(std::ostream &os, const SuspendResumeJobsEntry &entry)
+{
+    os << "SuspendResumeJobsEntry("
+       << entry.document.filePath() << ", "
+       << entry.jobRequestType << ", "
+       << entry.preferredTranslationUnit
+       << ")";
+
+    return os;
+}
+
 } // ClangBackEnd
 
 namespace {
@@ -196,7 +207,7 @@ TEST_F(DocumentSuspenderResumer, DoNotCreateSuspendJobForVisible)
 
     const SuspendResumeJobs jobs = createSuspendResumeJobs(/*hotDocumentsSize=*/ 0);
 
-    ASSERT_THAT(jobs, ContainerEq(SuspendResumeJobs()));
+    ASSERT_THAT(jobs, IsEmpty());
 }
 
 TEST_F(DocumentSuspenderResumer, DoNotCreateSuspendJobForUnparsed)
@@ -207,7 +218,7 @@ TEST_F(DocumentSuspenderResumer, DoNotCreateSuspendJobForUnparsed)
 
     const SuspendResumeJobs jobs = createSuspendResumeJobs(/*hotDocumentsSize=*/ 0);
 
-    ASSERT_THAT(jobs, ContainerEq(SuspendResumeJobs()));
+    ASSERT_THAT(jobs, IsEmpty());
 }
 
 TEST_F(DocumentSuspenderResumer, CreateSuspendJobsForDocumentWithSupportiveTranslationUnit)
@@ -249,7 +260,7 @@ TEST_F(DocumentSuspenderResumer, DoNotCreateResumeJobForInvisible)
 
     const SuspendResumeJobs jobs = createSuspendResumeJobs(/*hotDocumentsSize=*/ 0);
 
-    ASSERT_THAT(jobs, ContainerEq(SuspendResumeJobs()));
+    ASSERT_THAT(jobs, IsEmpty());
 }
 
 TEST_F(DocumentSuspenderResumer, CreateResumeJobsForDocumentWithSupportiveTranslationUnit)
