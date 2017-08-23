@@ -39,6 +39,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/portlist.h>
+#include <utils/stringutils.h>
 
 #include <QCoreApplication>
 
@@ -168,65 +169,10 @@ class DesktopPortsGatheringMethod : public PortsGatheringMethod
     {
         QList<Utils::Port> ports;
         const QList<QByteArray> lines = output.split('\n');
-        if (HostOsInfo::isWindowsHost()) {
-            // Expected output is something like
-            //
-            // Active Connections
-            //
-            //   Proto  Local Address          Foreign Address        State
-            //   TCP    0.0.0.0:80             0.0.0.0:0              LISTENING
-            //   TCP    0.0.0.0:113            0.0.0.0:0              LISTENING
-            // [...]
-            //   TCP    10.9.78.4:14714       0.0.0.0:0              LISTENING
-            //   TCP    10.9.78.4:50233       12.13.135.180:993      ESTABLISHED
-            for (const QByteArray &line : lines) {
-                const QByteArray trimmed = line.trimmed();
-                if (!trimmed.startsWith("TCP"))
-                    continue;
-                int colonPos = trimmed.indexOf(':');
-                if (colonPos < 0)
-                    continue;
-                int spacePos = trimmed.indexOf(':', colonPos + 1);
-                if (spacePos < 0)
-                    continue;
-                bool ok;
-                int len = spacePos - colonPos - 1;
-                const Utils::Port port(line.mid(colonPos + 1, len).toInt(&ok, 16));
-                if (ok) {
-                    if (!ports.contains(port))
-                        ports << port;
-                } else {
-                    qWarning("%s: Unexpected string '%s' is not a port.",
-                             Q_FUNC_INFO, line.data());
-                }
-            }
-        } else if (HostOsInfo::isLinuxHost()) {
-            // Expected outpit is something like
-            //
-            //   sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt ...
-            //   0: 00000000:2805 00000000:0000 0A 00000000:00000000 00:00000000 00000000  ...
-            //
-            for (const QByteArray &line : lines) {
-                int firstColonPos = line.indexOf(':');
-                if (firstColonPos < 0)
-                    continue;
-                int secondColonPos = line.indexOf(':', firstColonPos + 1);
-                if (secondColonPos < 0)
-                    continue;
-                int spacePos = line.indexOf(':', secondColonPos + 1);
-                if (spacePos < 0)
-                    continue;
-                bool ok;
-                int len = spacePos - secondColonPos - 1;
-                const Utils::Port port(line.mid(secondColonPos + 1, len).toInt(&ok, 16));
-                if (ok) {
-                    if (!ports.contains(port))
-                        ports << port;
-                } else {
-                    qWarning("%s: Unexpected string '%s' is not a port.",
-                             Q_FUNC_INFO, line.data());
-                }
-            }
+        for (const QByteArray &line : lines) {
+            const Port port(Utils::parseUsedPortFromNetstatOutput(line));
+            if (port.isValid() && !ports.contains(port))
+                ports.append(port);
         }
         return ports;
     }

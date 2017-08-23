@@ -82,6 +82,8 @@ private slots:
     void testMacroExpander();
     void testStripAccelerator();
     void testStripAccelerator_data();
+    void testParseUsedPortFromNetstatOutput();
+    void testParseUsedPortFromNetstatOutput_data();
 
 private:
     TestMacroExpander mx;
@@ -200,6 +202,37 @@ void tst_StringUtils::testStripAccelerator_data()
     QTest::newRow("T&&&est") << "T&est";
     QTest::newRow("Tes&t") << "Test";
     QTest::newRow("Test&") << "Test";
+}
+
+void tst_StringUtils::testParseUsedPortFromNetstatOutput()
+{
+    QFETCH(QString, line);
+    QFETCH(int, port);
+
+    QCOMPARE(Utils::parseUsedPortFromNetstatOutput(line.toUtf8()), port);
+}
+
+void tst_StringUtils::testParseUsedPortFromNetstatOutput_data()
+{
+    QTest::addColumn<QString>("line");
+    QTest::addColumn<int>("port");
+
+    QTest::newRow("Empty") << "" << -1;
+
+    // Windows netstat.
+    QTest::newRow("Win1") << "Active Connection" <<  -1;
+    QTest::newRow("Win2") << "   Proto  Local Address          Foreign Address        State"       <<       -1;
+    QTest::newRow("Win3") << "   TCP    0.0.0.0:80             0.0.0.0:0              LISTENING"   <<       80;
+    QTest::newRow("Win4") << "   TCP    0.0.0.0:113            0.0.0.0:0              LISTENING"   <<      113;
+    QTest::newRow("Win5") << "   TCP    10.9.78.4:14714       0.0.0.0:0              LISTENING"    <<    14714;
+    QTest::newRow("Win6") << "   TCP    10.9.78.4:50233       12.13.135.180:993      ESTABLISHED"  <<    50233;
+    QTest::newRow("Win7") << "   TCP    [::]:445               [::]:0                 LISTENING"   <<      445;
+    QTest::newRow("Win8") << " TCP    192.168.0.80:51905     169.55.74.50:443       ESTABLISHED"   <<    51905;
+    QTest::newRow("Win9") << "  UDP    [fe80::840a:2942:8def:abcd%6]:1900  *:*   "                 <<     1900;
+
+    // Linux
+    QTest::newRow("Linux1") << "sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt ..." <<     -1;
+    QTest::newRow("Linux2") << "0: 00000000:2805 00000000:0000 0A 00000000:00000000 00:00000000 00000000  ..." <<  10245;
 }
 
 QTEST_MAIN(tst_StringUtils)
