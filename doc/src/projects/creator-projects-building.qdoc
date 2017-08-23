@@ -38,9 +38,8 @@
     \title Building for Multiple Platforms
 
     You can build applications for multiple target platforms, or using different
-    compilers,
-    debuggers or Qt versions. \l{glossary-buildandrun-kit}{Kits} define the tools,
-    device type and other settings to use.
+    compilers, debuggers or Qt versions. \l{glossary-buildandrun-kit}{Kits}
+    define the tools, \l{glossary-device}{device} type and other settings to use.
 
     By default, when you run the application, you
     automatically build and deploy it first.

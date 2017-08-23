@@ -243,7 +243,7 @@ HEADERS += \
     $$PWD/optional.h \
     $$PWD/../3rdparty/optional/optional.hpp \
     $$PWD/qtcfallthrough.h \
-    $$PWD/highlightingitemdelegate.cpp \
+    $$PWD/highlightingitemdelegate.h \
     $$PWD/camelhumpmatcher.h
 
 FORMS += $$PWD/filewizardpage.ui \

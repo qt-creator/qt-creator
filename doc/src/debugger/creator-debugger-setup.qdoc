@@ -120,7 +120,7 @@
     or newer.
 
     For remote debugging using GDB and GDB server, the minimum supported version
-    of GDB server on the target device is 7.0.
+    of GDB server on the target \l{glossary-device}{device} is 7.0.
 
     \section2 Supported CDB Versions
 

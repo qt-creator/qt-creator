@@ -73,7 +73,8 @@
     For more information, see \l{Adding Kits}.
 
     Each kit consists of a set of values that define one environment, such as a
-    device, compiler, and Qt version. If you know you have installed a Qt
+    \l{glossary-device}{device}, compiler, and Qt version. If you know you have
+    installed a Qt
     version, but it is not listed in \uicontrol Tools > \uicontrol Options >
     \uicontrol {Build & Run} > \uicontrol {Qt Versions}, you must add it.
 
@@ -84,7 +85,7 @@
 
     For more information, see \l{Adding Compilers}.
 
-    You can connect mobile devices to the development PC to run, debug, and
+    You can connect devices to the development PC to run, debug, and
     analyze applications on them from \QC. You can connect the device to the
     development PC via USB. Additionally, you can connect Linux-based devices
     over a WLAN. You must also configure a connection between \QC and the
@@ -93,7 +94,7 @@
     To add devices, select \uicontrol Tools > \uicontrol Options >
     \uicontrol Devices > \uicontrol Add.
 
-    For more information, see \l{Connecting Mobile Devices}.
+    For more information, see \l{Connecting Devices}.
 
     \section1 Changing Keyboard Shortcuts
 

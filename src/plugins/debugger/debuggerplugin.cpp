@@ -2119,6 +2119,7 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     rp.startMode = AttachExternal;
     rp.closeMode = DetachAtClose;
     rp.toolChainAbi = rc->abi();
+    rp.languages = CppLanguage;
     if (RunConfiguration *runConfig = rc->runConfiguration()) {
         auto runControl = new RunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
         (void) new DebuggerRunTool(runControl, rp);

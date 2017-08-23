@@ -54,12 +54,15 @@ public:
     PersistentSettingsWriter(const FileName &fileName, const QString &docType);
     ~PersistentSettingsWriter();
 
+    bool save(const QVariantMap &data, QString *errorString) const;
+#ifdef QT_GUI_LIB
     bool save(const QVariantMap &data, QWidget *parent) const;
+#endif
 
     FileName fileName() const;
 
 private:
-    bool write(const QVariantMap &data, QWidget *parent) const;
+    bool write(const QVariantMap &data, QString *errorString) const;
 
     const FileName m_fileName;
     const QString m_docType;

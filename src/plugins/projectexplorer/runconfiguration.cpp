@@ -45,6 +45,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
 
 #include <QDir>
 #include <QPushButton>
@@ -947,10 +948,29 @@ void RunControlPrivate::onWorkerFailed(RunWorker *worker, const QString &msg)
     worker->d->state = RunWorkerState::Done;
 
     showError(msg);
-    if (state == RunControlState::Running || state == RunControlState::Starting)
-        initiateStop();
-    else
+    switch (state) {
+    case RunControlState::Initialized:
+        // FIXME 1: We don't have an output pane yet, so use some other mechanism for now.
+        // FIXME 2: Translation...
+        QMessageBox::critical(Core::ICore::dialogParent(),
+             QCoreApplication::translate("TaskHub", "Error"),
+             QString("Failure during startup. Aborting.") + "<p>" + msg);
         continueStopOrFinish();
+        break;
+    case RunControlState::Starting:
+    case RunControlState::Running:
+        initiateStop();
+        break;
+    case RunControlState::Stopping:
+    case RunControlState::Finishing:
+        continueStopOrFinish();
+        break;
+    case RunControlState::Stopped:
+    case RunControlState::Finished:
+        QTC_CHECK(false); // Should not happen.
+        continueStopOrFinish();
+        break;
+    }
 }
 
 void RunControlPrivate::onWorkerStopped(RunWorker *worker)

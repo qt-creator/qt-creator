@@ -87,6 +87,8 @@ void ClangCodeModelServer::registerTranslationUnitsForEditor(const ClangBackEnd:
 
     try {
         auto createdDocuments = documents.create(message.fileContainers());
+        for (const auto &document : createdDocuments)
+            documentProcessors().create(document);
         unsavedFiles.createOrUpdate(message.fileContainers());
         documents.setUsedByCurrentEditor(message.currentEditorFilePath());
         documents.setVisibleInEditors(message.visibleEditorFilePaths());
@@ -390,7 +392,7 @@ void ClangCodeModelServer::processSuspendResumeJobs(const std::vector<Document> 
 void ClangCodeModelServer::processInitialJobsForDocuments(const std::vector<Document> &documents)
 {
     for (const auto &document : documents) {
-        DocumentProcessor processor = documentProcessors().create(document);
+        DocumentProcessor processor = documentProcessors().processor(document);
         processor.addJob(JobRequest::Type::UpdateDocumentAnnotations);
         processor.addJob(JobRequest::Type::CreateInitialDocumentPreamble);
         processor.process();

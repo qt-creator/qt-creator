@@ -103,7 +103,7 @@ public:
     static bool isValidVersion(const QString &version);
     static int versionCompare(const QString &version1, const QString &version2);
 
-    void enableDependenciesIndirectly();
+    QList<PluginSpec *> enableDependenciesIndirectly(bool enableTestDependencies = false);
 
     bool readMetaData(const QJsonObject &pluginMetaData);
 

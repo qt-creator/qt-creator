@@ -124,8 +124,6 @@ def checkSymbolCompletion(editor, isClangCodeModel):
         missing, expectedSug, expectedRes = args
         symbol = currentLine.lstrip("/").strip()
         timeout = 2500
-        if isClangCodeModel and JIRA.isBugStillOpen(15639):
-            timeout = 5000
         propShown = waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", timeout)
         test.compare(not propShown, symbol in missing,
                      "Proposal widget is (not) shown as expected (%s)" % symbol)

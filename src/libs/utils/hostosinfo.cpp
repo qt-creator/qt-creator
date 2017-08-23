@@ -25,8 +25,11 @@
 
 #include "hostosinfo.h"
 
-#include <QApplication>
+#include <QCoreApplication>
+
+#if !defined(QT_NO_OPENGL) && defined(QT_GUI_LIB)
 #include <QOpenGLContext>
+#endif
 
 #ifdef Q_OS_WIN
 #undef _WIN32_WINNT
@@ -82,14 +85,14 @@ void HostOsInfo::unsetOverrideFileNameCaseSensitivity()
 
 bool HostOsInfo::canCreateOpenGLContext(QString *errorMessage)
 {
-#ifdef QT_NO_OPENGL
+#if defined(QT_NO_OPENGL) || !defined(QT_GUI_LIB)
     Q_UNUSED(errorMessage)
     return false;
 #else
     static const bool canCreate = QOpenGLContext().create();
     if (!canCreate)
-        *errorMessage = QApplication::translate("Utils::HostOsInfo",
-                                                "Cannot create OpenGL context.");
+        *errorMessage = QCoreApplication::translate("Utils::HostOsInfo",
+                                                    "Cannot create OpenGL context.");
     return canCreate;
 #endif
 }

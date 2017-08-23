@@ -66,8 +66,8 @@
     information about managing kits, see \l{Adding Kits}.
 
     Each kit consists of a set of values that define one environment, such as a
-    device, compiler, and Qt version. For more information, see
-    \l{Adding Qt Versions}, \l{Adding Compilers}, and \l{Adding Debuggers}.
+    \l{glossary-device}{device}, compiler, and Qt version. For more information,
+    see \l{Adding Qt Versions}, \l{Adding Compilers}, and \l{Adding Debuggers}.
 
     To copy the build and run settings for a kit to another kit, select
     \uicontrol {Copy Steps from Other Kit} in the context menu.

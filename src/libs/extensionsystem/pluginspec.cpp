@@ -917,19 +917,25 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
     return true;
 }
 
-void PluginSpecPrivate::enableDependenciesIndirectly()
+// returns the plugins that it actually indirectly enabled
+QList<PluginSpec *> PluginSpecPrivate::enableDependenciesIndirectly(bool enableTestDependencies)
 {
     if (!q->isEffectivelyEnabled()) // plugin not enabled, nothing to do
-        return;
+        return {};
+    QList<PluginSpec *> enabled;
     QHashIterator<PluginDependency, PluginSpec *> it(dependencySpecs);
     while (it.hasNext()) {
         it.next();
-        if (it.key().type != PluginDependency::Required)
+        if (it.key().type != PluginDependency::Required
+                && (!enableTestDependencies || it.key().type != PluginDependency::Test))
             continue;
         PluginSpec *dependencySpec = it.value();
-        if (!dependencySpec->isEffectivelyEnabled())
+        if (!dependencySpec->isEffectivelyEnabled()) {
             dependencySpec->d->enabledIndirectly = true;
+            enabled << dependencySpec;
+        }
     }
+    return enabled;
 }
 
 /*!

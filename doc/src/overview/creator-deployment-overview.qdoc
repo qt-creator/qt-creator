@@ -35,13 +35,13 @@
     \page creator-deployment.html
     \nextpage creator-deploying-android.html
 
-    \title Deploying to Mobile Devices
+    \title Deploying to Devices
 
     Deploy configurations in the \uicontrol Project mode
     \uicontrol {Run Settings} handle the packaging of the application as an
     executable and copying it to a location you want to run the executable at.
     The files can be copied to a location in the file system of the development
-    PC or a mobile device.
+    PC or a \l{glossary-device}{device}.
 
     \list
 

@@ -88,7 +88,7 @@
 
     Since Qt 5.7, \l {Qt Quick Controls 2} replace Qt Quick Controls 1 and
     Qt Labs Controls. They provide lightweight QML types for creating performant
-    user interfaces for embedded and mobile devices.
+    user interfaces for \l{glossary-device}{devices}.
 
     Qt Quick Controls 2 achieve improved efficiency by employing a simplified
     \l {Styling Qt Quick Controls 2}{styling architecture} when compared to

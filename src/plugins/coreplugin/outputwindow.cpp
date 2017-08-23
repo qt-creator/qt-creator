@@ -61,7 +61,7 @@ public:
     bool enforceNewline = false;
     bool scrollToBottom = true;
     bool linksActive = true;
-    bool mousePressed = false;
+    Qt::MouseButton mouseButtonPressed = Qt::NoButton;
     bool m_zoomEnabled = false;
     float m_originalFontSize = 0.;
     int maxLineCount = Core::Constants::DEFAULT_MAX_LINE_COUNT;
@@ -134,15 +134,13 @@ OutputWindow::~OutputWindow()
 
 void OutputWindow::mousePressEvent(QMouseEvent * e)
 {
-    d->mousePressed = true;
+    d->mouseButtonPressed = e->button();
     QPlainTextEdit::mousePressEvent(e);
 }
 
 void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 {
-    d->mousePressed = false;
-
-    if (d->linksActive) {
+    if (d->linksActive && d->mouseButtonPressed == Qt::LeftButton) {
         const QString href = anchorAt(e->pos());
         if (d->formatter)
             d->formatter->handleLink(href);
@@ -150,6 +148,7 @@ void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 
     // Mouse was released, activate links again
     d->linksActive = true;
+    d->mouseButtonPressed = Qt::NoButton;
 
     QPlainTextEdit::mouseReleaseEvent(e);
 }
@@ -157,7 +156,7 @@ void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 void OutputWindow::mouseMoveEvent(QMouseEvent *e)
 {
     // Cursor was dragged to make a selection, deactivate links
-    if (d->mousePressed && textCursor().hasSelection())
+    if (d->mouseButtonPressed != Qt::NoButton && textCursor().hasSelection())
         d->linksActive = false;
 
     if (!d->linksActive || anchorAt(e->pos()).isEmpty())

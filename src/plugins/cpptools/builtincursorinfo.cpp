@@ -47,7 +47,6 @@ using namespace CPlusPlus;
 using SemanticUses = QList<CppTools::SemanticInfo::Use>;
 
 namespace CppTools {
-namespace Internal {
 namespace {
 
 CursorInfo::Range toRange(const SemanticInfo::Use &use)
@@ -186,7 +185,8 @@ private:
     {
         CursorInfo result;
 
-        const CppTools::SemanticInfo::LocalUseMap localUses = findLocalUses();
+        const CppTools::SemanticInfo::LocalUseMap localUses
+                = BuiltinCursorInfo::findLocalUses(m_document, m_line, m_column);
         result.localUses = localUses;
         splitLocalUses(localUses, &result.useRanges, &result.unusedVariablesRanges);
 
@@ -198,16 +198,6 @@ private:
         result.useRanges = findReferences();
         result.areUseRangesForLocalVariable = false;
         return result; // OK, result.unusedVariablesRanges will be passed on
-    }
-
-    CppTools::SemanticInfo::LocalUseMap findLocalUses() const
-    {
-        AST *ast = m_document->translationUnit()->ast();
-        FunctionDefinitionUnderCursor functionDefinitionUnderCursor(m_document->translationUnit());
-        DeclarationAST *declaration = functionDefinitionUnderCursor(ast,
-                                                                    static_cast<unsigned>(m_line),
-                                                                    static_cast<unsigned>(m_column));
-        return CppTools::LocalSymbols(m_document, declaration).uses;
     }
 
     void splitLocalUses(const CppTools::SemanticInfo::LocalUseMap &uses,
@@ -365,5 +355,15 @@ QFuture<CursorInfo> BuiltinCursorInfo::run(const CursorInfoParams &cursorInfoPar
     return Utils::runAsync(&FindUses::find, document, snapshot, line, column, scope, expression);
 }
 
-} // namespace Internal
+CppTools::SemanticInfo::LocalUseMap
+BuiltinCursorInfo::findLocalUses(const Document::Ptr &document, int line, int column)
+{
+    AST *ast = document->translationUnit()->ast();
+    FunctionDefinitionUnderCursor functionDefinitionUnderCursor(document->translationUnit());
+    DeclarationAST *declaration = functionDefinitionUnderCursor(ast,
+                                                                static_cast<unsigned>(line),
+                                                                static_cast<unsigned>(column));
+    return CppTools::LocalSymbols(document, declaration).uses;
+}
+
 } // namespace CppTools

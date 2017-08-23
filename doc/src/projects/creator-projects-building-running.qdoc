@@ -41,9 +41,9 @@
 
     \QC provides support for running and deploying Qt applications built
     for different target platforms, or using different compilers, debuggers, or
-    Qt versions.
-    \l{glossary-buildandrun-kit}{Kits} define the tools,
-    device type and other settings to use when building and running your project.
+    Qt versions. \l{glossary-buildandrun-kit}{Kits} define the tools,
+    \l{glossary-device}{device} type and other settings to use when building and
+    running your project.
 
     \list
         \li \l{Building for Multiple Platforms}
@@ -61,17 +61,17 @@
             if you have not made any changes to the project since you last
             built and deployed it, \QC simply runs it again.
 
-        \li \l{Deploying to Mobile Devices}
+        \li \l{Deploying to Devices}
 
             \e {Deploy configurations} handle the packaging and copying of
             the necessary files to a location you want to run the executable
             at. The files can be copied to a location in the file system of
-            the development PC or a mobile device.
+            the development PC or a device.
 
-        \li \l{Connecting Mobile Devices}
+        \li \l{Connecting Devices}
 
             When you install tool chains for device types as part of a Qt distribution,
-            the build and run settings for mobile device types might be set up
+            the build and run settings for the devices might be set up
             automatically. However, you might need to install and configure some
             additional software on the devices to be able to connect to them
             from the development PC.

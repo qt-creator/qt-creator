@@ -147,7 +147,8 @@
     \list
         \li C++ code
         \li Resource files (.qrc)
-        \li Code needed for deploying applications to mobile or embedded devices
+        \li Code needed for deploying applications to \l{glossary-device}
+            {devices}
     \endlist
 
     To create a Qt Quick UI project:

@@ -91,9 +91,12 @@ bool OptionsParser::parse()
         // probably a file or something
         m_pmPrivate->arguments << m_currentArg;
     }
+    if (PluginManager::testRunRequested()) {
+        m_isDependencyRefreshNeeded = true;
+        forceDisableAllPluginsExceptTestedAndForceEnabled();
+    }
     if (m_isDependencyRefreshNeeded)
-        m_pmPrivate->resolveDependencies();
-    m_pmPrivate->enableOnlyTestedSpecs();
+        m_pmPrivate->enableDependenciesIndirectly();
     return !m_hasError;
 }
 
@@ -258,6 +261,16 @@ bool OptionsParser::checkForUnknownOption()
                                                      "Unknown option %1").arg(m_currentArg);
     m_hasError = true;
     return true;
+}
+
+void OptionsParser::forceDisableAllPluginsExceptTestedAndForceEnabled()
+{
+    for (const PluginManagerPrivate::TestSpec &testSpec : m_pmPrivate->testSpecs)
+        testSpec.pluginSpec->d->setForceEnabled(true);
+    for (PluginSpec *spec : m_pmPrivate->pluginSpecs) {
+        if (!spec->isForceEnabled() && !spec->isRequired())
+            spec->d->setForceDisabled(true);
+    }
 }
 
 bool OptionsParser::nextToken(OptionsParser::TokenType type)

@@ -38,9 +38,9 @@
     \title Adding Qt Versions
 
     \QC allows you to have multiple versions of Qt installed on your development
-    PC and use different versions to build your projects.
-    For example, device manufacturers provide special Qt versions for developing
-    applications for their devices.
+    PC and use different versions to build your projects. For example,
+    \l{glossary-device}{device} manufacturers provide special Qt versions for
+    developing applications for their devices.
 
     \QC automatically detects the Qt versions that are registered by
     your system or by installers. To view detailed information for each Qt

@@ -29,15 +29,17 @@
 #include "algorithm.h"
 #include "qtcassert.h"
 
+#include <QDataStream>
 #include <QDir>
 #include <QDebug>
 #include <QDateTime>
-#include <QDragEnterEvent>
-#include <QDropEvent>
-#include <QMessageBox>
 #include <QRegExp>
 #include <QTimer>
 #include <QUrl>
+
+#ifdef QT_GUI_LIB
+#include <QMessageBox>
+#endif
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
@@ -380,6 +382,7 @@ bool FileReader::fetch(const QString &fileName, QIODevice::OpenMode mode, QStrin
     return false;
 }
 
+#ifdef QT_GUI_LIB
 bool FileReader::fetch(const QString &fileName, QIODevice::OpenMode mode, QWidget *parent)
 {
     if (fetch(fileName, mode))
@@ -388,7 +391,7 @@ bool FileReader::fetch(const QString &fileName, QIODevice::OpenMode mode, QWidge
         QMessageBox::critical(parent, tr("File Error"), m_errorString);
     return false;
 }
-
+#endif // QT_GUI_LIB
 
 FileSaverBase::FileSaverBase()
     : m_hasError(false)
@@ -414,6 +417,7 @@ bool FileSaverBase::finalize(QString *errStr)
     return false;
 }
 
+#ifdef QT_GUI_LIB
 bool FileSaverBase::finalize(QWidget *parent)
 {
     if (finalize())
@@ -421,6 +425,7 @@ bool FileSaverBase::finalize(QWidget *parent)
     QMessageBox::critical(parent, tr("File Error"), errorString());
     return false;
 }
+#endif // QT_GUI_LIB
 
 bool FileSaverBase::write(const char *data, int len)
 {

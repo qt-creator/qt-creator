@@ -43,7 +43,6 @@ QT_BEGIN_NAMESPACE
 class QDataStream;
 class QDateTime;
 class QDir;
-class QDropEvent;
 class QFile;
 class QFileInfo;
 class QTemporaryFile;
@@ -160,9 +159,11 @@ public:
     bool fetch(const QString &fileName, QIODevice::OpenMode mode, QString *errorString);
     bool fetch(const QString &fileName, QString *errorString)
         { return fetch(fileName, QIODevice::NotOpen, errorString); }
+#ifdef QT_GUI_LIB
     bool fetch(const QString &fileName, QIODevice::OpenMode mode, QWidget *parent);
     bool fetch(const QString &fileName, QWidget *parent)
         { return fetch(fileName, QIODevice::NotOpen, parent); }
+#endif // QT_GUI_LIB
     const QByteArray &data() const { return m_data; }
     const QString &errorString() const { return m_errorString; }
 private:
@@ -182,7 +183,9 @@ public:
     QString errorString() const { return m_errorString; }
     virtual bool finalize();
     bool finalize(QString *errStr);
+#ifdef QT_GUI_LIB
     bool finalize(QWidget *parent);
+#endif
 
     bool write(const char *data, int len);
     bool write(const QByteArray &bytes);

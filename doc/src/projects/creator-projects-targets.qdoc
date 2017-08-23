@@ -38,9 +38,9 @@
     \title Adding Kits
 
     \QC groups settings used for building and running projects as kits
-    to make cross-platform and cross-configuration
-    development easier. Each kit consists of a set of values that define one
-    environment, such as a device, compiler, Qt version, and debugger command
+    to make cross-platform and cross-configuration development easier. Each kit
+    consists of a set of values that define one environment, such as a
+    \l{glossary-device}{device}, compiler, Qt version, and debugger command
     to use, and some metadata, such as an icon and a name for the kit. Once
     you have defined kits, you can select them to build and run projects.
 

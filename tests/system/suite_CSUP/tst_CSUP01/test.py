@@ -76,8 +76,6 @@ def main():
                      "possible to select one of the suggestions.")
 # Step 4: Insert text "voi" to new line and press Tab.
         resetLine(editorWidget)
-        if useClang and JIRA.isBugStillOpen(15639):
-            snooze(2)
         type(editorWidget, "voi")
         try:
             waitForObjectItem(":popupFrame_Proposal_QListView", "void")
