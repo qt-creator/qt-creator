@@ -43,6 +43,7 @@ namespace Internal {
 Slog2InfoRunner::Slog2InfoRunner(RunControl *runControl)
     : RunWorker(runControl)
 {
+    setDisplayName("Slog2InfoRunner");
     auto qnxRunConfig = qobject_cast<QnxRunConfiguration *>(runControl->runConfiguration());
     QTC_ASSERT(qnxRunConfig, return);
     m_applicationId = FileName::fromString(qnxRunConfig->remoteExecutableFilePath()).fileName();
