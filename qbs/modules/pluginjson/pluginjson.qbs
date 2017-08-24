@@ -54,6 +54,8 @@ Module {
                 vars['IDE_VERSION_MAJOR'] = product.moduleProperty("qtc", "ide_version_major");
                 vars['IDE_VERSION_MINOR'] = product.moduleProperty("qtc", "ide_version_minor");
                 vars['IDE_VERSION_RELEASE'] = product.moduleProperty("qtc", "ide_version_release");
+                vars['QTCREATOR_COPYRIGHT_YEAR']
+                        = product.moduleProperty("qtc", "qtcreator_copyright_year")
                 var deplist = [];
                 for (i in plugin_depends) {
                     deplist.push("        { \"Name\" : \"" + plugin_depends[i] + "\", \"Version\" : \"" + qtcVersion + "\" }");
