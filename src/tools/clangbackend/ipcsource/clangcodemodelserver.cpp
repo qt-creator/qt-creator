@@ -35,8 +35,8 @@
 #include "clangexceptions.h"
 #include "skippedsourceranges.h"
 
-#include <clangbackendipc/clangbackendipcdebugutils.h>
-#include <clangbackendipc/clangcodemodelservermessages.h>
+#include <clangsupport/clangsupportdebugutils.h>
+#include <clangsupport/clangcodemodelservermessages.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

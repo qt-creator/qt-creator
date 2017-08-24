@@ -29,7 +29,7 @@
 #include "cursor.h"
 #include "clangstring.h"
 #include "sourcerange.h"
-#include "clangbackendipcdebugutils.h"
+#include "clangsupportdebugutils.h"
 
 #include <utils/qtcassert.h>
 

@@ -27,7 +27,7 @@
 
 #include <texteditor/quickfix.h>
 
-#include <clangbackendipc/fixitcontainer.h>
+#include <clangsupport/fixitcontainer.h>
 
 #include <utils/changeset.h>
 

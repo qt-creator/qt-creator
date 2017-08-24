@@ -49,7 +49,7 @@
 #include <cplusplus/Icons.h>
 #include <cplusplus/SimpleLexer.h>
 
-#include <clangbackendipc/filecontainer.h>
+#include <clangsupport/filecontainer.h>
 
 #include <utils/algorithm.h>
 #include <utils/mimetypes/mimedatabase.h>

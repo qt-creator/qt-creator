@@ -1,6 +1,6 @@
 QTC_LIB_DEPENDS += \
     sqlite \
-    clangbackendipc
+    clangsupport
 
 include(../../qtcreatortool.pri)
 include(../../shared/clang/clang_installation.pri)

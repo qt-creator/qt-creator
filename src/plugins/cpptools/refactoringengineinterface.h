@@ -27,8 +27,8 @@
 
 #include <utils/fileutils.h>
 
-#include <clangbackendipc/sourcelocationscontainer.h>
-#include <clangbackendipc/refactoringclientinterface.h>
+#include <clangsupport/sourcelocationscontainer.h>
+#include <clangsupport/refactoringclientinterface.h>
 
 QT_BEGIN_NAMESPACE
 class QTextCursor;

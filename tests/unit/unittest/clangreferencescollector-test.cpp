@@ -26,7 +26,7 @@
 #include "googletest.h"
 #include "testenvironment.h"
 
-#include <clangbackendipc_global.h>
+#include <clangsupport_global.h>
 #include <clangreferencescollector.h>
 #include <clangdocument.h>
 #include <clangdocuments.h>

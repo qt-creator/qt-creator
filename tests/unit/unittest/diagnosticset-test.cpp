@@ -27,7 +27,7 @@
 #include "diagnosticcontainer-matcher.h"
 #include "testenvironment.h"
 
-#include <clangbackendipc_global.h>
+#include <clangsupport_global.h>
 #include <clangdocument.h>
 #include <diagnosticcontainer.h>
 #include <diagnosticset.h>

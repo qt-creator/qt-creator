@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <clangbackendipc/sourcerangecontainer.h>
+#include <clangsupport/sourcerangecontainer.h>
 
 #include <QVector>
 

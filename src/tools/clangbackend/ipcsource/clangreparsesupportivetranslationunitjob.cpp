@@ -25,7 +25,7 @@
 
 #include "clangreparsesupportivetranslationunitjob.h"
 
-#include <clangbackendipc/clangbackendipcdebugutils.h>
+#include <clangsupport/clangsupportdebugutils.h>
 
 #include <utils/qtcassert.h>
 

@@ -29,7 +29,7 @@
 #include "cursor.h"
 #include "sourcerange.h"
 
-#include <clangbackendipc/sourcerangecontainer.h>
+#include <clangsupport/sourcerangecontainer.h>
 #include <utils/qtcassert.h>
 
 #include <utf8string.h>

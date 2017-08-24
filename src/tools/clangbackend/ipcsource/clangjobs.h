@@ -27,7 +27,7 @@
 
 #include "clangjobqueue.h"
 
-#include <clangbackendipc/clangcodemodelclientinterface.h>
+#include <clangsupport/clangcodemodelclientinterface.h>
 
 #include <QFuture>
 

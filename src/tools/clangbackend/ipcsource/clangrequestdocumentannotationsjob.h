@@ -28,9 +28,9 @@
 #include "clangasyncjob.h"
 #include "clangdocument.h"
 
-#include <clangbackendipc/diagnosticcontainer.h>
-#include <clangbackendipc/highlightingmarkcontainer.h>
-#include <clangbackendipc/sourcerangecontainer.h>
+#include <clangsupport/diagnosticcontainer.h>
+#include <clangsupport/highlightingmarkcontainer.h>
+#include <clangsupport/sourcerangecontainer.h>
 
 namespace ClangBackEnd {
 

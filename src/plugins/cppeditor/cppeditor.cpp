@@ -38,7 +38,7 @@
 #include "cppquickfixassistant.h"
 #include "cppuseselectionsupdater.h"
 
-#include <clangbackendipc/sourcelocationscontainer.h>
+#include <clangsupport/sourcelocationscontainer.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>

@@ -25,8 +25,8 @@
 
 #include "echoclangcodemodelserver.h"
 
-#include <clangbackendipc/clangcodemodelclientproxy.h>
-#include <clangbackendipc/connectionserver.h>
+#include <clangsupport/clangcodemodelclientproxy.h>
+#include <clangsupport/connectionserver.h>
 
 #include <QCoreApplication>
 

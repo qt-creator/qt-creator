@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <clangbackendipc/codecompletion.h>
+#include <clangsupport/codecompletion.h>
 
 #include <sqlite/utf8string.h>
 

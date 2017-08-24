@@ -48,9 +48,9 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <clangbackendipc/clangcodemodelservermessages.h>
-#include <clangbackendipc/clangcodemodelclientmessages.h>
-#include <clangbackendipc/filecontainer.h>
+#include <clangsupport/clangcodemodelservermessages.h>
+#include <clangsupport/clangcodemodelclientmessages.h>
+#include <clangsupport/filecontainer.h>
 
 #include <cplusplus/Icons.h>
 

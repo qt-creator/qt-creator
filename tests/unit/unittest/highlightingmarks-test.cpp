@@ -30,7 +30,7 @@
 #include <clangdocuments.h>
 #include <clangtranslationunit.h>
 #include <cursor.h>
-#include <clangbackendipc_global.h>
+#include <clangsupport_global.h>
 #include <clangstring.h>
 #include <projectpart.h>
 #include <projects.h>

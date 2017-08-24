@@ -28,7 +28,7 @@
 #include "clangasyncjob.h"
 #include "clangdocument.h"
 
-#include <clangbackendipc/codecompletion.h>
+#include <clangsupport/codecompletion.h>
 
 namespace ClangBackEnd {
 

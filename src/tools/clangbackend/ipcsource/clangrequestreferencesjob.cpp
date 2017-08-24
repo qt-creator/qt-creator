@@ -25,9 +25,9 @@
 
 #include "clangrequestreferencesjob.h"
 
-#include <clangbackendipc/clangbackendipcdebugutils.h>
-#include <clangbackendipc/referencesmessage.h>
-#include <clangbackendipc/clangcodemodelclientinterface.h>
+#include <clangsupport/clangsupportdebugutils.h>
+#include <clangsupport/referencesmessage.h>
+#include <clangsupport/clangcodemodelclientinterface.h>
 
 #include <utils/qtcassert.h>
 

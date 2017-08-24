@@ -32,7 +32,7 @@
 
 #include <texteditor/semantichighlighter.h>
 
-#include <clangbackendipc/highlightingmarkcontainer.h>
+#include <clangsupport/highlightingmarkcontainer.h>
 
 namespace ClangCodeModel {
 

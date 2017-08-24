@@ -28,7 +28,7 @@
 #include "clangasyncjob.h"
 #include "clangdocument.h"
 
-#include <clangbackendipc/sourcerangecontainer.h>
+#include <clangsupport/sourcerangecontainer.h>
 
 namespace ClangBackEnd {
 

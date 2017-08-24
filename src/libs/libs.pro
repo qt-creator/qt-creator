@@ -15,7 +15,7 @@ SUBDIRS   = \
     glsl \
     ssh \
     sqlite \
-    clangbackendipc
+    clangsupport
 
 qtHaveModule(quick) {
     SUBDIRS += \

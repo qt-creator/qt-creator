@@ -25,9 +25,9 @@
 
 #include "clangcompletecodejob.h"
 
-#include <clangbackendipc/clangbackendipcdebugutils.h>
-#include <clangbackendipc/clangcodemodelclientinterface.h>
-#include <clangbackendipc/cmbcodecompletedmessage.h>
+#include <clangsupport/clangsupportdebugutils.h>
+#include <clangsupport/clangcodemodelclientinterface.h>
+#include <clangsupport/cmbcodecompletedmessage.h>
 
 #include <utils/qtcassert.h>
 

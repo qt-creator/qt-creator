@@ -25,8 +25,8 @@
 
 #include "echoclangcodemodelserver.h"
 
-#include <clangbackendipc/clangcodemodelservermessages.h>
-#include <clangbackendipc/connectionserver.h>
+#include <clangsupport/clangcodemodelservermessages.h>
+#include <clangsupport/connectionserver.h>
 
 #include <QCoreApplication>
 #include <QDebug>

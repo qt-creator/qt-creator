@@ -29,7 +29,7 @@
 
 #include <texteditor/refactoroverlay.h>
 
-#include <clangbackendipc/diagnosticcontainer.h>
+#include <clangsupport/diagnosticcontainer.h>
 
 #include <QList>
 #include <QSet>

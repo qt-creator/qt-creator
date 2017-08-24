@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <clangbackendipc_global.h>
-#include <clangbackendipc/diagnosticcontainer.h>
+#include <clangsupport_global.h>
+#include <clangsupport/diagnosticcontainer.h>
 
 #include <texteditor/textmark.h>
 

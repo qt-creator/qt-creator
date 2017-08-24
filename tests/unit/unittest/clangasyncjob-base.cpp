@@ -26,7 +26,7 @@
 #include "clangasyncjob-base.h"
 #include "processevents-utilities.h"
 
-#include <clangbackendipc/filecontainer.h>
+#include <clangsupport/filecontainer.h>
 
 using namespace ClangBackEnd;
 

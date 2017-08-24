@@ -29,7 +29,7 @@
 
 #include <cpptools/cppcompletionassistprocessor.h>
 
-#include <clangbackendipc/codecompletion.h>
+#include <clangsupport/codecompletion.h>
 
 #include <QCoreApplication>
 #include <QTextCursor>

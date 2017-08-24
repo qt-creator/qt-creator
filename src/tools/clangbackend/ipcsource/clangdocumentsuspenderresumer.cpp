@@ -25,7 +25,7 @@
 
 #include "clangdocumentsuspenderresumer.h"
 
-#include "clangbackendipc_global.h"
+#include "clangsupport_global.h"
 #include "clangdocumentprocessors.h"
 #include "clangdocuments.h"
 

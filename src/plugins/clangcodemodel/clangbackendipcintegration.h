@@ -29,10 +29,10 @@
 #include <cpptools/cppcursorinfo.h>
 #include <cpptools/cppsymbolinfo.h>
 
-#include <clangbackendipc/clangcodemodelconnectionclient.h>
-#include <clangbackendipc/filecontainer.h>
-#include <clangbackendipc/clangcodemodelclientinterface.h>
-#include <clangbackendipc/projectpartcontainer.h>
+#include <clangsupport/clangcodemodelconnectionclient.h>
+#include <clangsupport/filecontainer.h>
+#include <clangsupport/clangcodemodelclientinterface.h>
+#include <clangsupport/projectpartcontainer.h>
 
 #include <QFuture>
 #include <QObject>

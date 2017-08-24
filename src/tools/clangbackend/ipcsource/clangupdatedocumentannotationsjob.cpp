@@ -25,9 +25,9 @@
 
 #include "clangupdatedocumentannotationsjob.h"
 
-#include <clangbackendipc/clangbackendipcdebugutils.h>
-#include <clangbackendipc/clangcodemodelclientinterface.h>
-#include <clangbackendipc/documentannotationschangedmessage.h>
+#include <clangsupport/clangsupportdebugutils.h>
+#include <clangsupport/clangcodemodelclientinterface.h>
+#include <clangsupport/documentannotationschangedmessage.h>
 
 #include <utils/qtcassert.h>
 

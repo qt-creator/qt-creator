@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <clangbackendipc_global.h>
+#include <clangsupport_global.h>
 #include <highlightingmarkcontainer.h>
 
 #include "cursor.h"

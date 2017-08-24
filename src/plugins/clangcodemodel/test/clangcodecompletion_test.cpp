@@ -44,7 +44,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <clangbackendipc/clangcodemodelservermessages.h>
+#include <clangsupport/clangcodemodelservermessages.h>
 
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <clangbackendipc/clangcodemodelserverinterface.h>
+#include <clangsupport/clangcodemodelserverinterface.h>
 #include <ipcclientprovider.h>
 
 namespace ClangBackEnd {

@@ -38,9 +38,9 @@
 
 #include <projectexplorer/project.h>
 
-#include <clangbackendipc/cmbregisterprojectsforeditormessage.h>
-#include <clangbackendipc/filecontainer.h>
-#include <clangbackendipc/projectpartcontainer.h>
+#include <clangsupport/cmbregisterprojectsforeditormessage.h>
+#include <clangsupport/filecontainer.h>
+#include <clangsupport/projectpartcontainer.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>

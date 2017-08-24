@@ -25,9 +25,9 @@
 
 #include "clangfollowsymboljob.h"
 
-#include <clangbackendipc/clangbackendipcdebugutils.h>
-#include <clangbackendipc/followsymbolmessage.h>
-#include <clangbackendipc/clangcodemodelclientinterface.h>
+#include <clangsupport/clangsupportdebugutils.h>
+#include <clangsupport/followsymbolmessage.h>
+#include <clangsupport/clangcodemodelclientinterface.h>
 
 #include <utils/qtcassert.h>
 

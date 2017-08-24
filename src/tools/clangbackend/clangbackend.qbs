@@ -3,7 +3,7 @@ import qbs 1.0
 QtcTool {
     name: "clangbackend"
 
-    Depends { name: "ClangBackEndIpc" }
+    Depends { name: "ClangSupport" }
     Depends { name: "libclang"; required: false }
 
     Group {

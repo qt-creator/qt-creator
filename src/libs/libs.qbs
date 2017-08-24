@@ -4,7 +4,7 @@ Project {
     name: "Libs"
     references: [
         "aggregation/aggregation.qbs",
-        "clangbackendipc/clangbackendipc.qbs",
+        "clangsupport/clangsupport.qbs",
         "cplusplus/cplusplus.qbs",
         "extensionsystem/extensionsystem.qbs",
         "flamegraph/flamegraph.qbs",
