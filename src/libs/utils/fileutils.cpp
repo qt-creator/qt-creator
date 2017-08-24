@@ -210,7 +210,9 @@ bool FileUtils::isFileNewerThan(const FileName &filePath, const QDateTime &timeS
 
 /*!
   Recursively resolves symlinks if \a filePath is a symlink.
-  To resolve symlinks anywhere in the path, see canonicalPath
+  To resolve symlinks anywhere in the path, see canonicalPath.
+  Unlike QFileInfo::canonicalFilePath(), this function will still return the expected deepest
+  target file even if the symlink is dangling.
 
   \note Maximum recursion depth == 16.
 
