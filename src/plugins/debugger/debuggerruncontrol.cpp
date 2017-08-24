@@ -764,18 +764,13 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerStartParameters &sp)
     : DebuggerRunTool(runControl)
 {
-    setStartParameters(sp);
+    setRunParameters(sp);
 }
 
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParameters &rp)
     : DebuggerRunTool(runControl)
 {
     setRunParameters(rp);
-}
-
-void DebuggerRunTool::setStartParameters(const DebuggerStartParameters &sp)
-{
-    setRunParameters(sp);
 }
 
 void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp)
