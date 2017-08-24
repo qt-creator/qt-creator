@@ -81,6 +81,20 @@ public:
 
     static void setBreakOnMainNextTime();
 
+    void setInferior(const ProjectExplorer::Runnable &runnable);
+    void appendInferiorCommandLineArgument(const QString &arg);
+    void prependInferiorCommandLineArgument(const QString &arg);
+    void addQmlServerInferiorCommandLineArgumentIfNeeded();
+
+    void setStartMode(DebuggerStartMode startMode);
+    void setCloseMode(DebuggerCloseMode closeMode);
+
+    void setSymbolFile(const QString &symbolFile);
+    void setGdbServerChannel(const QString &channel);
+
+    void setUseExtendedRemote(bool on);
+    void setQmlServer(const QUrl &qmlServer);
+
 signals:
     void aboutToNotifyInferiorSetupOk();
 
@@ -106,10 +120,12 @@ public:
     void setUseGdbServer(bool useIt) { m_useGdbServer = useIt; }
     bool useGdbServer() const { return m_useGdbServer; }
     Utils::Port gdbServerPort() const { return m_gdbServerPort; }
+    QString gdbServerChannel() const;
 
     void setUseQmlServer(bool useIt) { m_useQmlServer = useIt; }
     bool useQmlServer() const { return m_useQmlServer; }
     Utils::Port qmlServerPort() const { return m_qmlServerPort; }
+    QUrl qmlServer() const;
 
 private:
     void start() override;

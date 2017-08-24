@@ -33,16 +33,12 @@ namespace RemoteLinux {
 
 class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public Debugger::DebuggerRunTool
 {
-    Q_OBJECT
-
 public:
     LinuxDeviceDebugSupport(ProjectExplorer::RunControl *runControl);
 
 private:
     void start() override;
 
-protected:
-    QString m_symbolFile;
     Debugger::GdbServerPortsGatherer *m_portsGatherer = nullptr;
 };
 

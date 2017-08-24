@@ -28,22 +28,8 @@
 #include "remotelinuxcustomrunconfiguration.h"
 #include "remotelinuxrunconfiguration.h"
 
-#include <debugger/debuggerruncontrol.h>
-
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/runnables.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-
-#include <qmldebug/qmldebugcommandlinearguments.h>
-
-#include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace Utils;
 
 namespace RemoteLinux {
 
@@ -61,51 +47,22 @@ LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
 
     addStartDependency(gdbServer);
 
+    setStartMode(AttachToRemoteServer);
+    setCloseMode(KillAndExitMonitorAtClose);
+    setUseExtendedRemote(true);
+
     RunConfiguration *runConfig = runControl->runConfiguration();
     if (auto rlrc = qobject_cast<RemoteLinuxRunConfiguration *>(runConfig))
-        m_symbolFile = rlrc->localExecutableFilePath();
+        setSymbolFile(rlrc->localExecutableFilePath());
     else if (auto rlrc = qobject_cast<Internal::RemoteLinuxCustomRunConfiguration *>(runConfig))
-        m_symbolFile = rlrc->localExecutableFilePath();
+        setSymbolFile(rlrc->localExecutableFilePath());
 }
 
 void LinuxDeviceDebugSupport::start()
 {
-    if (m_symbolFile.isEmpty()) {
-        reportFailure(tr("Cannot debug: Local executable is not set."));
-        return;
-    }
-
-    const QString host = device()->sshParameters().host;
-    const Port gdbServerPort = m_portsGatherer->gdbServerPort();
-    const int qmlServerPort = m_portsGatherer->qmlServerPort().number();
-
-    DebuggerStartParameters params;
-    params.startMode = AttachToRemoteServer;
-    params.closeMode = KillAndExitMonitorAtClose;
-
-    if (isQmlDebugging()) {
-        params.qmlServer.setHost(host);
-        params.qmlServer.setPort(qmlServerPort);
-        params.inferior.commandLineArguments.replace("%qml_port%", QString::number(qmlServerPort));
-    }
-    if (isCppDebugging()) {
-        Runnable r = runnable();
-        QTC_ASSERT(r.is<StandardRunnable>(), return);
-        auto stdRunnable = r.as<StandardRunnable>();
-        params.useExtendedRemote = true;
-        params.inferior.executable = stdRunnable.executable;
-        params.inferior.commandLineArguments = stdRunnable.commandLineArguments;
-        if (isQmlDebugging()) {
-            params.inferior.commandLineArguments.prepend(' ');
-            params.inferior.commandLineArguments.prepend(
-                QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices));
-        }
-
-        params.remoteChannel = QString("%1:%2").arg(host).arg(gdbServerPort.number());
-        params.symbolFile = m_symbolFile;
-    }
-
-    setStartParameters(params);
+    setGdbServerChannel(m_portsGatherer->gdbServerChannel());
+    setQmlServer(m_portsGatherer->qmlServer());
+    addQmlServerInferiorCommandLineArgumentIfNeeded();
 
     DebuggerRunTool::start();
 }

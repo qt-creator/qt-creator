@@ -183,6 +183,70 @@ void DebuggerRunTool::setBreakOnMainNextTime()
     breakOnMainNextTime = true;
 }
 
+void DebuggerRunTool::setStartMode(DebuggerStartMode startMode)
+{
+    m_runParameters.startMode = startMode;
+}
+
+void DebuggerRunTool::setCloseMode(DebuggerCloseMode closeMode)
+{
+    m_runParameters.closeMode = closeMode;
+}
+
+void DebuggerRunTool::setSymbolFile(const QString &symbolFile)
+{
+    if (symbolFile.isEmpty())
+        reportFailure(tr("Cannot debug: Local executable is not set."));
+    m_runParameters.symbolFile = symbolFile;
+}
+
+void DebuggerRunTool::setGdbServerChannel(const QString &channel)
+{
+    m_runParameters.remoteChannel = channel;
+}
+
+void DebuggerRunTool::setUseExtendedRemote(bool on)
+{
+    m_runParameters.useExtendedRemote = on;
+}
+
+void DebuggerRunTool::setQmlServer(const QUrl &qmlServer)
+{
+    m_runParameters.qmlServer = qmlServer;
+}
+
+void DebuggerRunTool::setInferior(const Runnable &runnable)
+{
+    QTC_ASSERT(runnable.is<StandardRunnable>(), reportFailure(); return);
+    m_runParameters.inferior = runnable.as<StandardRunnable>();
+}
+
+void DebuggerRunTool::appendInferiorCommandLineArgument(const QString &arg)
+{
+    if (!m_runParameters.inferior.commandLineArguments.isEmpty())
+        m_runParameters.inferior.commandLineArguments.append(' ');
+    m_runParameters.inferior.commandLineArguments.append(arg);
+}
+
+void DebuggerRunTool::prependInferiorCommandLineArgument(const QString &arg)
+{
+    if (!m_runParameters.inferior.commandLineArguments.isEmpty())
+        m_runParameters.inferior.commandLineArguments.prepend(' ');
+    m_runParameters.inferior.commandLineArguments.prepend(arg);
+}
+
+void DebuggerRunTool::addQmlServerInferiorCommandLineArgumentIfNeeded()
+{
+    if (isQmlDebugging() && isCppDebugging()) {
+        using namespace QmlDebug;
+        int qmlServerPort = m_runParameters.qmlServer.port();
+        QTC_ASSERT(qmlServerPort > 0, reportFailure(); return);
+        QString mode = QString("port:%1").arg(qmlServerPort);
+        QString qmlServerArg = qmlDebugCommandLineArguments(QmlDebuggerServices, mode, true);
+        prependInferiorCommandLineArgument(qmlServerArg);
+    }
+}
+
 static QLatin1String engineTypeName(DebuggerEngineType et)
 {
     switch (et) {
@@ -589,6 +653,10 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
                                 " Would you still like to terminate it?"),
                 QString(), QString(), optionalPrompt);
     });
+
+    Runnable r = runnable();
+    if (r.is<StandardRunnable>())
+        m_runParameters.inferior = r.as<StandardRunnable>();
 }
 
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerStartParameters &sp)
@@ -759,6 +827,19 @@ GdbServerPortsGatherer::GdbServerPortsGatherer(RunControl *runControl)
 
 GdbServerPortsGatherer::~GdbServerPortsGatherer()
 {
+}
+
+QString GdbServerPortsGatherer::gdbServerChannel() const
+{
+    const QString host = device()->sshParameters().host;
+    return QString("%1:%2").arg(host).arg(m_gdbServerPort.number());
+}
+
+QUrl GdbServerPortsGatherer::qmlServer() const
+{
+    QUrl server = device()->toolControlChannel(IDevice::QmlControlChannel);
+    server.setPort(m_qmlServerPort.number());
+    return server;
 }
 
 void GdbServerPortsGatherer::start()
