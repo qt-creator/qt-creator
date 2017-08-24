@@ -223,7 +223,7 @@ FileName FileUtils::resolveSymlinks(const FileName &path)
     QFileInfo f = path.toFileInfo();
     int links = 16;
     while (links-- && f.isSymLink())
-        f.setFile(f.symLinkTarget());
+        f.setFile(f.dir(), f.symLinkTarget());
     if (links <= 0)
         return FileName();
     return FileName::fromString(f.filePath());
