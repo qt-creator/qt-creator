@@ -236,7 +236,7 @@ FileName FileUtils::resolveSymlinks(const FileName &path)
 */
 FileName FileUtils::canonicalPath(const FileName &path)
 {
-    const QString result = QFileInfo(path.toString()).canonicalFilePath();
+    const QString result = path.toFileInfo().canonicalFilePath();
     if (result.isEmpty())
         return path;
     return FileName::fromString(result);

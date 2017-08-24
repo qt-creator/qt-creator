@@ -116,7 +116,7 @@ static QStringList candidatesForDirectory(const QString &dir)
 
 QStringList QbsProjectImporter::importCandidates()
 {
-    const QString projectDir = QFileInfo(projectFilePath().toString()).absolutePath();
+    const QString projectDir = projectFilePath().toFileInfo().absolutePath();
     QStringList candidates = candidatesForDirectory(projectDir);
 
     QSet<QString> seenCandidates;
