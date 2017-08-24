@@ -358,6 +358,9 @@ QFuture<CursorInfo> BuiltinCursorInfo::run(const CursorInfoParams &cursorInfoPar
 CppTools::SemanticInfo::LocalUseMap
 BuiltinCursorInfo::findLocalUses(const Document::Ptr &document, int line, int column)
 {
+    if (!document || !document->translationUnit() || !document->translationUnit()->ast())
+        return SemanticInfo::LocalUseMap();
+
     AST *ast = document->translationUnit()->ast();
     FunctionDefinitionUnderCursor functionDefinitionUnderCursor(document->translationUnit());
     DeclarationAST *declaration = functionDefinitionUnderCursor(ast,
