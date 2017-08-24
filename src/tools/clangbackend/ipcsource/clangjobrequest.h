@@ -29,6 +29,7 @@
 #include "clangclock.h"
 
 #include <utf8string.h>
+#include <utf8stringvector.h>
 
 #include <QFlags>
 #include <QDebug>
@@ -110,7 +111,7 @@ public:
     quint32 line = 0;
     quint32 column = 0;
     quint64 ticketNumber = 0;
-    QVector<Utf8String> dependentFiles;
+    Utf8StringVector dependentFiles;
     bool resolveTarget = true;
 };
 
