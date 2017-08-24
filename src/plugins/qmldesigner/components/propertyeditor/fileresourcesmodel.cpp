@@ -123,7 +123,7 @@ void FileResourcesModel::openFileDialog()
 
     //If that one is not valid we try the path for the current file
     if (path.isEmpty() && !m_fileName.isEmpty())
-        path = QFileInfo(modelPath + QStringLiteral("/") + m_fileName.toString()).absoluteDir().absolutePath();
+        path = QFileInfo(modelPath + '/' + m_fileName.toString()).absolutePath();
 
 
     //Next we try to fall back to the path any file browser was opened with
