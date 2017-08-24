@@ -108,41 +108,39 @@ void AndroidDebugSupport::start()
     Target *target = runConfig->target();
     Kit *kit = target->kit();
 
-    DebuggerStartParameters params;
-    params.startMode = AttachToRemoteServer;
-    params.displayName = AndroidManager::packageName(target);
-    params.useContinueInsteadOfRun = true;
-    params.attachPID = m_runner->pid();
+    setStartMode(AttachToRemoteServer);
+    setRunControlName(AndroidManager::packageName(target));
+    setUseContinueInsteadOfRun(true);
+    setAttachPid(m_runner->pid());
+
     if (!Utils::HostOsInfo::isWindowsHost() &&
             AndroidConfigurations::currentConfig().ndkVersion() >= QVersionNumber(11, 0, 0)) {
-        params.useTargetAsync = true;
+        setUseTargetAsync(true);
     }
+
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(kit);
 
     if (isCppDebugging()) {
-        Utils::Port gdbServerPort = m_runner->gdbServerPort();
-        params.symbolFile = target->activeBuildConfiguration()->buildDirectory().toString() + "/app_process";
-        params.skipExecutableValidation = true;
-        params.useExtendedRemote = true;
-        params.remoteChannel = ":" + gdbServerPort.toString();
-        params.solibSearchPath = AndroidManager::androidQtSupport(target)->soLibSearchPath(target);
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
-        params.solibSearchPath.append(qtSoPaths(version));
-        params.solibSearchPath.append(uniquePaths(AndroidManager::androidQtSupport(target)->androidExtraLibs(target)));
-        params.sysRoot = AndroidConfigurations::currentConfig().ndkLocation().appendPath("platforms")
-                                                     .appendPath(QString("android-%1").arg(AndroidManager::minimumSDK(target)))
-                                                     .appendPath(toNdkArch(AndroidManager::targetArch(target))).toString();
+        AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(target);
+        QStringList solibSearchPath = qtSupport->soLibSearchPath(target);
+        solibSearchPath.append(qtSoPaths(qtVersion));
+        solibSearchPath.append(uniquePaths(qtSupport->androidExtraLibs(target)));
+        setSolibSearchPath(solibSearchPath);
+        setSymbolFile(target->activeBuildConfiguration()->buildDirectory().toString()
+                      + "/app_process");
+        setSkipExecutableValidation(true);
+        setUseExtendedRemote(true);
+        setGdbServerChannel(":" + m_runner->gdbServerPort().toString());
+        setSysRoot(AndroidConfigurations::currentConfig().ndkLocation().appendPath("platforms")
+                   .appendPath(QString("android-%1").arg(AndroidManager::minimumSDK(target)))
+                   .appendPath(toNdkArch(AndroidManager::targetArch(target))).toString());
     }
     if (isQmlDebugging()) {
-        params.qmlServer = m_runner->qmlServer();
+        setQmlServer(m_runner->qmlServer());
         //TODO: Not sure if these are the right paths.
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
-        if (version) {
-            const QString qmlQtDir = version->qmakeProperty("QT_INSTALL_QML");
-            params.additionalSearchDirectories = QStringList(qmlQtDir);
-        }
+        if (qtVersion)
+            addSearchDirectory(qtVersion->qmakeProperty("QT_INSTALL_QML"));
     }
-
-    setStartParameters(params);
 
     // FIXME: Move signal to base class and generalize handling.
     connect(this, &DebuggerRunTool::aboutToNotifyInferiorSetupOk,
