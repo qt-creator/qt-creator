@@ -831,6 +831,45 @@ DebuggerEngine *DebuggerRunTool::activeEngine() const
     return m_engine ? m_engine->activeEngine() : nullptr;
 }
 
+class DummyProject : public Project
+{
+public:
+    DummyProject() : Project(QString(""), FileName::fromString("")) {}
+};
+
+RunConfiguration *dummyRunConfigForKit(ProjectExplorer::Kit *kit)
+{
+    QTC_ASSERT(kit, return nullptr); // Caller needs to look for a suitable kit.
+    Project *project = SessionManager::startupProject();
+    Target *target = project ? project->target(kit) : nullptr;
+    if (!target || !target->activeRunConfiguration()) {
+        project = new DummyProject; // FIXME: Leaks.
+        target = project->createTarget(kit);
+    }
+    QTC_ASSERT(target, return nullptr);
+    auto runConfig = target->activeRunConfiguration();
+    return runConfig;
+}
+
+DebuggerRunTool *DebuggerRunTool::createFromKit(Kit *kit)
+{
+    RunConfiguration *runConfig = dummyRunConfigForKit(kit);
+    return createFromRunConfiguration(runConfig);
+}
+
+void DebuggerRunTool::startRunControl()
+{
+    ProjectExplorerPlugin::startRunControl(runControl());
+}
+
+DebuggerRunTool *DebuggerRunTool::createFromRunConfiguration(RunConfiguration *runConfig)
+{
+    QTC_ASSERT(runConfig, return nullptr);
+    auto runControl = new RunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    auto debugger = new DebuggerRunTool(runControl);
+    return debugger;
+}
+
 void DebuggerRunTool::addSolibSearchDir(const QString &str)
 {
     QString path = str;
@@ -875,44 +914,6 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
 // Externally visible helper.
 //
 ////////////////////////////////////////////////////////////////////////
-
-namespace Internal {
-
-/**
- * Used for direct "special" starts from actions in the debugger plugin.
- */
-
-class DummyProject : public Project
-{
-public:
-    DummyProject() : Project(QString(""), FileName::fromString("")) {}
-};
-
-RunConfiguration *dummyRunConfigForKit(ProjectExplorer::Kit *kit)
-{
-    QTC_ASSERT(kit, return nullptr); // Caller needs to look for a suitable kit.
-    Project *project = SessionManager::startupProject();
-    Target *target = project ? project->target(kit) : nullptr;
-    if (!target || !target->activeRunConfiguration()) {
-        project = new DummyProject;
-        target = project->createTarget(kit);
-    }
-    QTC_ASSERT(target, return nullptr);
-    auto runConfig = target->activeRunConfiguration();
-    return runConfig;
-}
-
-RunControl *createAndScheduleRun(const DebuggerRunParameters &rp, Kit *kit)
-{
-    RunConfiguration *runConfig = dummyRunConfigForKit(kit);
-    QTC_ASSERT(runConfig, return nullptr);
-    auto runControl = new RunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    (void) new DebuggerRunTool(runControl, rp);
-    ProjectExplorerPlugin::startRunControl(runControl);
-    return runControl;
-}
-
-} // Internal
 
 // GdbServerPortGatherer
 

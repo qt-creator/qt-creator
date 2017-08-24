@@ -1940,8 +1940,12 @@ void DebuggerPluginPrivate::startAndDebugApplication()
 {
     DebuggerRunParameters rp;
     Kit *kit;
-    if (StartApplicationDialog::run(ICore::dialogParent(), &rp, &kit))
-        createAndScheduleRun(rp, kit);
+    if (StartApplicationDialog::run(ICore::dialogParent(), &rp, &kit)) {
+        auto debugger = DebuggerRunTool::createFromKit(kit);
+        QTC_ASSERT(debugger, return);
+        debugger->setRunParameters(rp);
+        debugger->startRunControl();
+    }
 }
 
 void DebuggerPluginPrivate::attachCore()
@@ -1976,7 +1980,11 @@ void DebuggerPluginPrivate::attachCore()
     rp.startMode = AttachCore;
     rp.closeMode = DetachAtClose;
     rp.overrideStartScript = dlg.overrideStartScript();
-    createAndScheduleRun(rp, dlg.kit());
+
+    auto debugger = DebuggerRunTool::createFromKit(dlg.kit());
+    QTC_ASSERT(debugger, return);
+    debugger->setRunParameters(rp);
+    debugger->startRunControl();
 }
 
 void DebuggerPluginPrivate::startRemoteCdbSession()
@@ -1996,7 +2004,11 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
         return;
     rp.remoteChannel = dlg.connection();
     setConfigValue(connectionKey, rp.remoteChannel);
-    createAndScheduleRun(rp, kit);
+
+    auto debugger = DebuggerRunTool::createFromKit(kit);
+    QTC_ASSERT(debugger, return);
+    debugger->setRunParameters(rp);
+    debugger->startRunControl();
 }
 
 void DebuggerPluginPrivate::attachToRemoteServer()
@@ -2007,7 +2019,10 @@ void DebuggerPluginPrivate::attachToRemoteServer()
     rp.useContinueInsteadOfRun = true;
     if (StartApplicationDialog::run(ICore::dialogParent(), &rp, &kit)) {
         rp.closeMode = KillAtClose;
-        createAndScheduleRun(rp, kit);
+        auto debugger = DebuggerRunTool::createFromKit(kit);
+        QTC_ASSERT(debugger, return);
+        debugger->setRunParameters(rp);
+        debugger->startRunControl();
     }
 }
 
@@ -2112,7 +2127,13 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     rp.startMode = AttachExternal;
     rp.closeMode = DetachAtClose;
     rp.continueAfterAttach = contAfterAttach;
-    return createAndScheduleRun(rp, kit);
+
+    auto debugger = DebuggerRunTool::createFromKit(kit);
+    QTC_ASSERT(debugger, return nullptr);
+    debugger->setRunParameters(rp);
+    debugger->startRunControl();
+
+    return debugger->runControl();
 }
 
 void DebuggerPlugin::attachExternalApplication(RunControl *rc)
@@ -2124,13 +2145,16 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     rp.closeMode = DetachAtClose;
     rp.toolChainAbi = rc->abi();
     rp.languages = CppLanguage;
+    DebuggerRunTool *debugger;
     if (RunConfiguration *runConfig = rc->runConfiguration()) {
-        auto runControl = new RunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
-        (void) new DebuggerRunTool(runControl, rp);
-        ProjectExplorerPlugin::startRunControl(runControl);
+        debugger = DebuggerRunTool::createFromRunConfiguration(runConfig);
     } else {
-        createAndScheduleRun(rp, guessKitFromParameters(rp));
+        Kit *kit = guessKitFromParameters(rp);
+        debugger = DebuggerRunTool::createFromKit(kit);
+        QTC_ASSERT(debugger, return);
     }
+    debugger->setRunParameters(rp);
+    debugger->startRunControl();
 }
 
 void DebuggerPlugin::getEnginesState(QByteArray *json) const
@@ -2210,7 +2234,11 @@ void DebuggerPluginPrivate::attachToQmlPort()
     rp.projectSourceDirectory =
             !projects.isEmpty() ? projects.first()->projectDirectory().toString() : QString();
     rp.projectSourceFiles = sourceFiles;
-    createAndScheduleRun(rp, kit);
+
+    auto debugger = DebuggerRunTool::createFromKit(kit);
+    QTC_ASSERT(debugger, return);
+    debugger->setRunParameters(rp);
+    debugger->startRunControl();
 }
 
 void DebuggerPluginPrivate::enableReverseDebuggingTriggered(const QVariant &value)
@@ -2223,8 +2251,12 @@ void DebuggerPluginPrivate::enableReverseDebuggingTriggered(const QVariant &valu
 
 void DebuggerPluginPrivate::runScheduled()
 {
-    for (const QPair<DebuggerRunParameters, Kit *> pair : m_scheduledStarts)
-        createAndScheduleRun(pair.first, pair.second);
+    for (const QPair<DebuggerRunParameters, Kit *> pair : m_scheduledStarts) {
+        auto debugger = DebuggerRunTool::createFromKit(pair.second);
+        QTC_ASSERT(debugger, return);
+        debugger->setRunParameters(pair.first);
+        debugger->startRunControl();
+    }
 }
 
 void DebuggerPluginPrivate::editorOpened(IEditor *editor)

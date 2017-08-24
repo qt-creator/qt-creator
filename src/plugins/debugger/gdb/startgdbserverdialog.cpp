@@ -214,7 +214,11 @@ void GdbServerStarter::attach(int port)
     rp.inferior.executable = localExecutable;
     rp.startMode = AttachToRemoteServer;
     rp.closeMode = KillAtClose;
-    createAndScheduleRun(rp, d->kit);
+
+    auto debugger = DebuggerRunTool::createFromKit(d->kit);
+    QTC_ASSERT(debugger, return);
+    debugger->setRunParameters(rp);
+    debugger->startRunControl();
 }
 
 void GdbServerStarter::handleProcessClosed(int status)

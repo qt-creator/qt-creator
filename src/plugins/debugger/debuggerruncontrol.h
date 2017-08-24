@@ -55,6 +55,10 @@ public:
     Internal::DebuggerEngine *engine() const { return m_engine; }
     Internal::DebuggerEngine *activeEngine() const;
 
+    static DebuggerRunTool *createFromRunConfiguration(ProjectExplorer::RunConfiguration *runConfig);
+    static DebuggerRunTool *createFromKit(ProjectExplorer::Kit *kit);
+    void startRunControl();
+
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
 
     void start() override;

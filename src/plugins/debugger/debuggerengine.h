@@ -462,8 +462,6 @@ private:
     QPointer<DebuggerEngine> m_engine;
 };
 
-ProjectExplorer::RunControl *createAndScheduleRun(const DebuggerRunParameters &rp, ProjectExplorer::Kit *kit);
-
 } // namespace Internal
 } // namespace Debugger
 
