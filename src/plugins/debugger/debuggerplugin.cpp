@@ -1224,20 +1224,19 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             *errorMessage = msgParameterMissing(*it);
             return false;
         }
-        DebuggerRunParameters rp;
-        rp.startMode = AttachCrashedExternal;
-        rp.crashParameter = it->section(QLatin1Char(':'), 0, 0);
-        rp.attachPID = ProcessHandle(it->section(QLatin1Char(':'), 1, 1).toULongLong());
-        rp.displayName = tr("Crashed process %1").arg(rp.attachPID.pid());
-        rp.startMessage = tr("Attaching to crashed process %1").arg(rp.attachPID.pid());
-        if (!rp.attachPID.isValid()) {
+        qint64 pid = it->section(':', 1, 1).toULongLong();
+        auto debugger = DebuggerRunTool::createFromKit(findUniversalCdbKit());
+        QTC_ASSERT(debugger, return false);
+        debugger->setStartMode(AttachCrashedExternal);
+        debugger->setCrashParameter(it->section(':', 0, 0));
+        debugger->setAttachPid(pid);
+        debugger->setRunControlName(tr("Crashed process %1").arg(pid));
+        debugger->setStartMessage(tr("Attaching to crashed process %1").arg(pid));
+        if (pid < 1) {
             *errorMessage = DebuggerPlugin::tr("The parameter \"%1\" of option \"%2\" "
                 "does not match the pattern <handle>:<pid>.").arg(*it, option);
             return false;
         }
-        auto debugger = DebuggerRunTool::createFromKit(findUniversalCdbKit());
-        QTC_ASSERT(debugger, return false);
-        debugger->setRunParameters(rp);
         m_scheduledStarts.append(debugger);
         return true;
     }

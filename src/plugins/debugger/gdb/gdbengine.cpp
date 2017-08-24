@@ -3294,9 +3294,6 @@ void GdbEngine::createSnapshot()
 void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response, const QString &coreFile)
 {
     if (response.resultClass == ResultDone) {
-        DebuggerRunParameters rp = runParameters();
-        rp.startMode = AttachCore;
-        rp.coreFile = coreFile;
         //snapshot.setDate(QDateTime::currentDateTime());
         StackFrames frames = stackHandler()->frames();
         QString function = "<unknown>";
@@ -3304,11 +3301,12 @@ void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response, const QStri
             const StackFrame &frame = frames.at(0);
             function = frame.function + ":" + QString::number(frame.line);
         }
-        rp.displayName = function + ": " + QDateTime::currentDateTime().toString();
-        rp.isSnapshot = true;
-        auto rc = new RunControl(runControl()->runConfiguration(), ProjectExplorer::Constants::DEBUG_RUN_MODE);
-        (void) new DebuggerRunTool(rc, rp);
-        ProjectExplorerPlugin::startRunControl(rc);
+        auto debugger = DebuggerRunTool::createFromRunConfiguration(runControl()->runConfiguration());
+        QTC_ASSERT(debugger, return);
+        debugger->setStartMode(AttachCore);
+        debugger->setRunControlName(function + ": " + QDateTime::currentDateTime().toString());
+        debugger->setCoreFileName(coreFile, true);
+        debugger->startRunControl();
     } else {
         QString msg = response.data["msg"].data();
         AsynchronousMessageBox::critical(tr("Snapshot Creation Error"),

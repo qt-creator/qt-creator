@@ -207,17 +207,17 @@ void GdbServerStarter::attach(int port)
         return;
     }
 
-    DebuggerRunParameters rp;
-    rp.masterEngineType = GdbEngineType;
-    rp.remoteChannel = QString("%1:%2").arg(d->device->sshParameters().host).arg(port);
-    rp.displayName = tr("Remote: \"%1\"").arg(rp.remoteChannel);
-    rp.inferior.executable = localExecutable;
-    rp.startMode = AttachToRemoteServer;
-    rp.closeMode = KillAtClose;
+    QString remoteChannel = QString("%1:%2").arg(d->device->sshParameters().host).arg(port);
 
     auto debugger = DebuggerRunTool::createFromKit(d->kit);
     QTC_ASSERT(debugger, return);
-    debugger->setRunParameters(rp);
+    debugger->setMasterEngineType(GdbEngineType);
+    debugger->setRemoteChannel(remoteChannel);
+    debugger->setRunControlName(tr("Remote: \"%1\"").arg(remoteChannel));
+    debugger->setInferiorExecutable(localExecutable);
+    debugger->setStartMode(AttachToRemoteServer);
+    debugger->setCloseMode(KillAtClose);
+
     debugger->startRunControl();
 }
 

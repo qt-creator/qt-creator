@@ -88,9 +88,13 @@ public:
     void setInferior(const ProjectExplorer::Runnable &runnable);
     void setInferiorExecutable(const QString &executable);
     void setRunControlName(const QString &name);
+    void setStartMessage(const QString &msg);
     void appendInferiorCommandLineArgument(const QString &arg);
     void prependInferiorCommandLineArgument(const QString &arg);
     void addQmlServerInferiorCommandLineArgumentIfNeeded();
+
+    void setMasterEngineType(DebuggerEngineType engineType);
+    void setCrashParameter(const QString &event);
 
     void addExpectedSignal(const QString &signal);
     void addSearchDirectory(const QString &dir);
@@ -99,9 +103,12 @@ public:
     void setCloseMode(DebuggerCloseMode closeMode);
 
     void setAttachPid(Utils::ProcessHandle pid);
+    void setAttachPid(qint64 pid);
+
     void setSysRoot(const QString &sysRoot);
     void setSymbolFile(const QString &symbolFile);
     void setRemoteChannel(const QString &channel);
+    void setRemoteChannel(const QString &host, int port);
 
     void setUseExtendedRemote(bool on);
     void setUseContinueInsteadOfRun(bool on);
@@ -113,6 +120,8 @@ public:
     void setCommandsForReset(const QString &commands);
 
     void setQmlServer(const QUrl &qmlServer);
+
+    void setCoreFileName(const QString &core, bool isSnapshot = false);
 
     void setIosPlatform(const QString &platform);
     void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);

@@ -198,6 +198,11 @@ void DebuggerRunTool::setAttachPid(ProcessHandle pid)
     m_runParameters.attachPID = pid;
 }
 
+void DebuggerRunTool::setAttachPid(qint64 pid)
+{
+    m_runParameters.attachPID = ProcessHandle(pid);
+}
+
 void DebuggerRunTool::setSysRoot(const QString &sysRoot)
 {
     m_runParameters.sysRoot = sysRoot;
@@ -213,6 +218,11 @@ void DebuggerRunTool::setSymbolFile(const QString &symbolFile)
 void DebuggerRunTool::setRemoteChannel(const QString &channel)
 {
     m_runParameters.remoteChannel = channel;
+}
+
+void DebuggerRunTool::setRemoteChannel(const QString &host, int port)
+{
+    m_runParameters.remoteChannel = QString("%1:%2").arg(host).arg(port);
 }
 
 void DebuggerRunTool::setUseExtendedRemote(bool on)
@@ -286,6 +296,17 @@ void DebuggerRunTool::setRunControlName(const QString &name)
     m_runParameters.displayName = name;
 }
 
+void DebuggerRunTool::setStartMessage(const QString &msg)
+{
+    m_runParameters.startMessage = msg;
+}
+
+void DebuggerRunTool::setCoreFileName(const QString &coreFile, bool isSnapshot)
+{
+    m_runParameters.coreFile = coreFile;
+    m_runParameters.isSnapshot = isSnapshot;
+}
+
 void DebuggerRunTool::appendInferiorCommandLineArgument(const QString &arg)
 {
     if (!m_runParameters.inferior.commandLineArguments.isEmpty())
@@ -310,6 +331,16 @@ void DebuggerRunTool::addQmlServerInferiorCommandLineArgumentIfNeeded()
         QString qmlServerArg = qmlDebugCommandLineArguments(QmlDebuggerServices, mode, true);
         prependInferiorCommandLineArgument(qmlServerArg);
     }
+}
+
+void DebuggerRunTool::setMasterEngineType(DebuggerEngineType engineType)
+{
+    m_runParameters.masterEngineType = engineType;
+}
+
+void DebuggerRunTool::setCrashParameter(const QString &event)
+{
+    m_runParameters.crashParameter = event;
 }
 
 void DebuggerRunTool::addExpectedSignal(const QString &signal)
