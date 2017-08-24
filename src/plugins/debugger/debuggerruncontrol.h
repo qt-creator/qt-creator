@@ -83,6 +83,7 @@ public:
     static void setBreakOnMainNextTime();
 
     void setInferior(const ProjectExplorer::Runnable &runnable);
+    void setRunControlName(const QString &name);
     void appendInferiorCommandLineArgument(const QString &arg);
     void prependInferiorCommandLineArgument(const QString &arg);
     void addQmlServerInferiorCommandLineArgumentIfNeeded();

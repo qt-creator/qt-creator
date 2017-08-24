@@ -246,6 +246,11 @@ void DebuggerRunTool::setInferior(const Runnable &runnable)
     m_runParameters.inferior = runnable.as<StandardRunnable>();
 }
 
+void DebuggerRunTool::setRunControlName(const QString &name)
+{
+    m_runParameters.displayName = name;
+}
+
 void DebuggerRunTool::appendInferiorCommandLineArgument(const QString &arg)
 {
     if (!m_runParameters.inferior.commandLineArguments.isEmpty())
