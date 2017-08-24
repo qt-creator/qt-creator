@@ -94,9 +94,20 @@ public:
 
     FilePathIndex filePathId(clang::SourceLocation sourceLocation)
     {
-       auto filePath = m_sourceManager.getFilename(sourceLocation);
+        uint clangFileId = m_sourceManager.getFileID(sourceLocation).getHashValue();
 
-       return m_filePathCache.stringId(toStringView(filePath));
+        auto found = m_filePathIndices.find(clangFileId);
+
+        if (found != m_filePathIndices.end())
+            return found->second;
+
+        auto filePath = m_sourceManager.getFilename(sourceLocation);
+
+        FilePathIndex index = m_filePathCache.stringId(toStringView(filePath));
+
+        m_filePathIndices.emplace(clangFileId, index);
+
+        return index;
     }
 
     LineColumn lineColum(clang::SourceLocation sourceLocation)
@@ -121,6 +132,7 @@ public:
 
 private:
     SymbolEntries &m_symbolEntries;
+    std::unordered_map<uint, FilePathIndex> m_filePathIndices;
     SourceLocationEntries &m_sourceLocationEntries;
     FilePathCache<> &m_filePathCache;
     const clang::SourceManager &m_sourceManager;
