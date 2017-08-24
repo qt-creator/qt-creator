@@ -193,6 +193,16 @@ void DebuggerRunTool::setCloseMode(DebuggerCloseMode closeMode)
     m_runParameters.closeMode = closeMode;
 }
 
+void DebuggerRunTool::setAttachPid(ProcessHandle pid)
+{
+    m_runParameters.attachPID = pid;
+}
+
+void DebuggerRunTool::setSysRoot(const QString &sysRoot)
+{
+    m_runParameters.sysRoot = sysRoot;
+}
+
 void DebuggerRunTool::setSymbolFile(const QString &symbolFile)
 {
     if (symbolFile.isEmpty())
@@ -208,6 +218,21 @@ void DebuggerRunTool::setGdbServerChannel(const QString &channel)
 void DebuggerRunTool::setUseExtendedRemote(bool on)
 {
     m_runParameters.useExtendedRemote = on;
+}
+
+void DebuggerRunTool::setUseContinueInsteadOfRun(bool on)
+{
+    m_runParameters.useContinueInsteadOfRun = on;
+}
+
+void DebuggerRunTool::setUseTargetAsync(bool on)
+{
+    m_runParameters.useTargetAsync = on;
+}
+
+void DebuggerRunTool::setSkipExecutableValidation(bool on)
+{
+    m_runParameters.skipExecutableValidation = on;
 }
 
 void DebuggerRunTool::setQmlServer(const QUrl &qmlServer)
@@ -245,6 +270,16 @@ void DebuggerRunTool::addQmlServerInferiorCommandLineArgumentIfNeeded()
         QString qmlServerArg = qmlDebugCommandLineArguments(QmlDebuggerServices, mode, true);
         prependInferiorCommandLineArgument(qmlServerArg);
     }
+}
+
+void DebuggerRunTool::addExpectedSignal(const QString &signal)
+{
+    m_runParameters.expectedSignals.append(signal);
+}
+
+void DebuggerRunTool::addSearchDirectory(const QString &dir)
+{
+    m_runParameters.additionalSearchDirectories.append(dir);
 }
 
 static QLatin1String engineTypeName(DebuggerEngineType et)
@@ -353,6 +388,11 @@ const DebuggerRunParameters &DebuggerRunTool::runParameters() const
 int DebuggerRunTool::portsUsedByDebugger() const
 {
     return isCppDebugging() + isQmlDebugging();
+}
+
+void DebuggerRunTool::setSolibSearchPath(const QStringList &list)
+{
+    m_runParameters.solibSearchPath = list;
 }
 
 void DebuggerRunTool::notifyInferiorIll()
@@ -729,7 +769,7 @@ DebuggerEngine *DebuggerRunTool::activeEngine() const
     return m_engine ? m_engine->activeEngine() : nullptr;
 }
 
-void DebuggerRunTool::appendSolibSearchPath(const QString &str)
+void DebuggerRunTool::addSolibSearchDir(const QString &str)
 {
     QString path = str;
     path.replace("%{sysroot}", m_runParameters.sysRoot);

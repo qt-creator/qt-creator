@@ -77,7 +77,8 @@ public:
     bool isQmlDebugging() const { return m_isQmlDebugging; }
     int portsUsedByDebugger() const;
 
-    void appendSolibSearchPath(const QString &str);
+    void setSolibSearchPath(const QStringList &list);
+    void addSolibSearchDir(const QString &str);
 
     static void setBreakOnMainNextTime();
 
@@ -86,13 +87,22 @@ public:
     void prependInferiorCommandLineArgument(const QString &arg);
     void addQmlServerInferiorCommandLineArgumentIfNeeded();
 
+    void addExpectedSignal(const QString &signal);
+    void addSearchDirectory(const QString &dir);
+
     void setStartMode(DebuggerStartMode startMode);
     void setCloseMode(DebuggerCloseMode closeMode);
 
+    void setAttachPid(Utils::ProcessHandle pid);
+    void setSysRoot(const QString &sysRoot);
     void setSymbolFile(const QString &symbolFile);
     void setGdbServerChannel(const QString &channel);
 
     void setUseExtendedRemote(bool on);
+    void setUseContinueInsteadOfRun(bool on);
+    void setUseTargetAsync(bool on);
+    void setSkipExecutableValidation(bool on);
+
     void setQmlServer(const QUrl &qmlServer);
 
 signals:
