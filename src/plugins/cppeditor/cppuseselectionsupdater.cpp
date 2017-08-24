@@ -98,6 +98,8 @@ void CppUseSelectionsUpdater::update(CallType callType)
 
         const int startRevision = cppEditorDocument->document()->revision();
         QFuture<CursorInfo> future = cppEditorDocument->cursorInfo(params);
+        if (future.isCanceled())
+            return;
 
         // QFuture::waitForFinished seems to block completely, not even
         // allowing to process events from QLocalSocket.

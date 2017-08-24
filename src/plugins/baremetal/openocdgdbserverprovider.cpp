@@ -164,7 +164,7 @@ bool OpenOcdGdbServerProvider::isValid() const
     }
 
     if (m == StartupOnNetwork || m == StartupOnPipe) {
-        if (m_executableFile.isEmpty() || m_configurationFile.isEmpty())
+        if (m_executableFile.isEmpty())
             return false;
     }
 

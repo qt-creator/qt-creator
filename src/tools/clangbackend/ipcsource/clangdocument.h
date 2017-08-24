@@ -77,6 +77,7 @@ public:
 
     bool isNull() const;
     bool isIntact() const;
+    bool isParsed() const;
 
     Utf8String filePath() const;
     Utf8StringVector fileArguments() const;

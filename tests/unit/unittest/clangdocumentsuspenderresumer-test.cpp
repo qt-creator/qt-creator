@@ -73,6 +73,7 @@ protected:
     Document getDocument(const Utf8String &filePath);
     void categorizeDocuments(int hotDocumentsSize);
     SuspendResumeJobs createSuspendResumeJobs(int hotDocumentsSize = -1);
+    static void setParsed(Document &document);
 
 protected:
     ClangBackEnd::ProjectParts projects;
@@ -176,6 +177,8 @@ TEST_F(DocumentSuspenderResumer, CreateSuspendJobForInvisible)
     Document document = documents.create({fileContainer1})[0];
     document.setIsSuspended(false);
     document.setIsVisibleInEditor(false, Clock::now());
+    setParsed(document);
+
     const SuspendResumeJobs expectedJobs = {
         {document, JobRequest::Type::SuspendDocument, PreferredTranslationUnit::RecentlyParsed}
     };
@@ -196,12 +199,24 @@ TEST_F(DocumentSuspenderResumer, DoNotCreateSuspendJobForVisible)
     ASSERT_THAT(jobs, ContainerEq(SuspendResumeJobs()));
 }
 
+TEST_F(DocumentSuspenderResumer, DoNotCreateSuspendJobForUnparsed)
+{
+    Document document = documents.create({fileContainer1})[0];
+    document.setIsSuspended(false);
+    document.setIsVisibleInEditor(true, Clock::now());
+
+    const SuspendResumeJobs jobs = createSuspendResumeJobs(/*hotDocumentsSize=*/ 0);
+
+    ASSERT_THAT(jobs, ContainerEq(SuspendResumeJobs()));
+}
+
 TEST_F(DocumentSuspenderResumer, CreateSuspendJobsForDocumentWithSupportiveTranslationUnit)
 {
     Document document = documents.create({fileContainer1})[0];
     document.setIsSuspended(false);
     document.setIsVisibleInEditor(false, Clock::now());
     document.translationUnits().createAndAppend(); // Add supportive translation unit
+    setParsed(document);
     const SuspendResumeJobs expectedJobs = {
         {document, JobRequest::Type::SuspendDocument, PreferredTranslationUnit::RecentlyParsed},
         {document, JobRequest::Type::SuspendDocument, PreferredTranslationUnit::PreviouslyParsed},
@@ -258,6 +273,7 @@ TEST_F(DocumentSuspenderResumer, CreateSuspendAndResumeJobs)
     Document hotDocument = documents.create({fileContainer1})[0];
     hotDocument.setIsSuspended(true);
     Document coldDocument = documents.create({fileContainer2})[0];
+    setParsed(coldDocument);
     coldDocument.setIsSuspended(false);
     documents.setVisibleInEditors({filePath1});
     const SuspendResumeJobs expectedJobs = {
@@ -290,6 +306,17 @@ ClangBackEnd::SuspendResumeJobs
 DocumentSuspenderResumer::createSuspendResumeJobs(int hotDocumentsSize)
 {
     return ClangBackEnd::createSuspendResumeJobs(documents.documents(), hotDocumentsSize);
+}
+
+void DocumentSuspenderResumer::setParsed(ClangBackEnd::Document &document)
+{
+    const Utf8String first = document.translationUnit().id();
+    document.translationUnits().updateParseTimePoint(first, Clock::now());
+
+    const Utf8String second
+            = document.translationUnit(PreferredTranslationUnit::LastUninitialized).id();
+    if (second != first)
+        document.translationUnits().updateParseTimePoint(second, Clock::now());
 }
 
 } // anonymous

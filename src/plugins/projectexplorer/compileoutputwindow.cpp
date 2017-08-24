@@ -110,8 +110,8 @@ private:
 protected:
     void mouseMoveEvent(QMouseEvent *ev)
     {
-        int line = cursorForPosition(ev->pos()).block().blockNumber();
-        if (m_taskids.value(line, 0))
+        const int line = cursorForPosition(ev->pos()).block().blockNumber();
+        if (m_taskids.contains(line) && m_mousePressButton == Qt::NoButton)
             viewport()->setCursor(Qt::PointingHandCursor);
         else
             viewport()->setCursor(Qt::IBeamCursor);
@@ -121,23 +121,27 @@ protected:
     void mousePressEvent(QMouseEvent *ev)
     {
         m_mousePressPosition = ev->pos();
+        m_mousePressButton = ev->button();
         QPlainTextEdit::mousePressEvent(ev);
     }
 
     void mouseReleaseEvent(QMouseEvent *ev)
     {
-        if ((m_mousePressPosition - ev->pos()).manhattanLength() < 4) {
+        if ((m_mousePressPosition - ev->pos()).manhattanLength() < 4
+                && m_mousePressButton == Qt::LeftButton) {
             int line = cursorForPosition(ev->pos()).block().blockNumber();
             if (unsigned taskid = m_taskids.value(line, 0))
                 TaskHub::showTaskInEditor(taskid);
         }
 
+        m_mousePressButton = Qt::NoButton;
         QPlainTextEdit::mouseReleaseEvent(ev);
     }
 
 private:
     QHash<int, unsigned int> m_taskids;   //Map blocknumber to taskId
     QPoint m_mousePressPosition;
+    Qt::MouseButton m_mousePressButton = Qt::NoButton;
 };
 
 } // namespace Internal
