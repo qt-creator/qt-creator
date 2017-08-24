@@ -2977,7 +2977,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
 
     const QString path = stringSetting(ExtraDumperFile);
     if (!path.isEmpty() && QFileInfo(path).isReadable()) {
-        DebuggerCommand cmd("addDumperModule", ScriptCommand);
+        DebuggerCommand cmd("theDumper.addDumperModule", ScriptCommand);
         cmd.arg("path", path);
         runCommand(cmd);
     }
