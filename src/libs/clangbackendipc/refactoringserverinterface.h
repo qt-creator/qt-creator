@@ -37,7 +37,8 @@ class RequestSourceRangesAndDiagnosticsForQueryMessage;
 class RequestSourceRangesForQueryMessage;
 class CancelMessage;
 
-class CMBIPC_EXPORT RefactoringServerInterface : public IpcServerInterface<RefactoringClientInterface>
+class CMBIPC_EXPORT RefactoringServerInterface : public IpcServerInterface
+
 {
 public:
     void dispatch(const MessageEnvelop &messageEnvelop) override;

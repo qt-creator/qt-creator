@@ -30,6 +30,7 @@
 #include <refactoringserverinterface.h>
 
 #include <QTimer>
+#include <ipcclientprovider.h>
 #include <stringcache.h>
 
 #include <utils/smallstring.h>
@@ -46,7 +47,8 @@ namespace V2 {
 class FileContainer;
 }
 
-class RefactoringServer : public RefactoringServerInterface
+class RefactoringServer : public RefactoringServerInterface,
+                          public IpcClientProvider<RefactoringClientInterface>
 {
     using Future = std::future<SourceRangesForQueryMessage>;
 public:

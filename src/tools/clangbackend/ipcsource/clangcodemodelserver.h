@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "clangcodemodelserverinterface.h"
-
 #include "projectpart.h"
 #include "projects.h"
 #include "clangdocument.h"
@@ -35,6 +33,8 @@
 #include "clangjobrequest.h"
 #include "unsavedfiles.h"
 
+#include <clangcodemodelserverinterface.h>
+#include <ipcclientprovider.h>
 #include <utf8string.h>
 
 #include <QScopedPointer>
@@ -42,7 +42,8 @@
 
 namespace ClangBackEnd {
 
-class ClangCodeModelServer : public ClangCodeModelServerInterface
+class ClangCodeModelServer : public ClangCodeModelServerInterface,
+                             public IpcClientProvider<ClangCodeModelClientInterface>
 {
 public:
     ClangCodeModelServer();

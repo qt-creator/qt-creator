@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,25 +25,29 @@
 
 #pragma once
 
-#include "ipcserverinterface.h"
-
-#include <memory>
-
 namespace ClangBackEnd {
 
-class PchManagerClientInterface;
-class RemovePchProjectPartsMessage;
-class UpdatePchProjectPartsMessage;
-
-
-class CMBIPC_EXPORT PchManagerServerInterface : public IpcServerInterface
+template <typename ClientType>
+class IpcClientProvider
 {
 public:
-    void dispatch(const MessageEnvelop &messageEnvelop) override;
+    void setClient(ClientType *client)
+    {
+        client_ = client;
+    }
 
-    virtual void end() = 0;
-    virtual void updatePchProjectParts(UpdatePchProjectPartsMessage &&message) = 0;
-    virtual void removePchProjectParts(RemovePchProjectPartsMessage &&message) = 0;
+    void resetClient()
+    {
+        client_ = nullptr;
+    }
+
+    ClientType *client()
+    {
+        return client_;
+    }
+
+private:
+    ClientType *client_;
 };
 
 } // namespace ClangBackEnd

@@ -170,6 +170,7 @@ HEADERS += \
     $$PWD/updatepchprojectpartsmessage.h \
     $$PWD/updatetranslationunitsforeditormessage.h \
     $$PWD/updatevisibletranslationunitsmessage.h \
-    $$PWD/writemessageblock.h
+    $$PWD/writemessageblock.h \
+    $$PWD/ipcclientprovider.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
