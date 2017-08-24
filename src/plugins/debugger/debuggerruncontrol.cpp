@@ -210,7 +210,7 @@ void DebuggerRunTool::setSymbolFile(const QString &symbolFile)
     m_runParameters.symbolFile = symbolFile;
 }
 
-void DebuggerRunTool::setGdbServerChannel(const QString &channel)
+void DebuggerRunTool::setRemoteChannel(const QString &channel)
 {
     m_runParameters.remoteChannel = channel;
 }
@@ -228,6 +228,11 @@ void DebuggerRunTool::setUseContinueInsteadOfRun(bool on)
 void DebuggerRunTool::setUseTargetAsync(bool on)
 {
     m_runParameters.useTargetAsync = on;
+}
+
+void DebuggerRunTool::setContinueAfterAttach(bool on)
+{
+    m_runParameters.continueAfterAttach = on;
 }
 
 void DebuggerRunTool::setSkipExecutableValidation(bool on)
@@ -250,10 +255,25 @@ void DebuggerRunTool::setQmlServer(const QUrl &qmlServer)
     m_runParameters.qmlServer = qmlServer;
 }
 
+void DebuggerRunTool::setIosPlatform(const QString &platform)
+{
+    m_runParameters.platform = platform;
+}
+
+void DebuggerRunTool::setDeviceSymbolsRoot(const QString &deviceSymbolsRoot)
+{
+    m_runParameters.deviceSymbolsRoot = deviceSymbolsRoot;
+}
+
 void DebuggerRunTool::setInferior(const Runnable &runnable)
 {
     QTC_ASSERT(runnable.is<StandardRunnable>(), reportFailure(); return);
     m_runParameters.inferior = runnable.as<StandardRunnable>();
+}
+
+void DebuggerRunTool::setInferiorExecutable(const QString &executable)
+{
+    m_runParameters.inferior.executable = executable;
 }
 
 void DebuggerRunTool::setRunControlName(const QString &name)

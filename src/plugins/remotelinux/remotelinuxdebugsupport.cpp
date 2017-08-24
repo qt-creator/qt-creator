@@ -60,7 +60,7 @@ LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
 
 void LinuxDeviceDebugSupport::start()
 {
-    setGdbServerChannel(m_portsGatherer->gdbServerChannel());
+    setRemoteChannel(m_portsGatherer->gdbServerChannel());
     setQmlServer(m_portsGatherer->qmlServer());
     addQmlServerInferiorCommandLineArgumentIfNeeded();
 

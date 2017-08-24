@@ -440,11 +440,10 @@ void IosDebugSupport::start()
 
     RunConfiguration *runConfig = runControl()->runConfiguration();
 
-    DebuggerStartParameters params;
     if (device()->type() == Ios::Constants::IOS_DEVICE_TYPE) {
         IosDevice::ConstPtr dev = device().dynamicCast<const IosDevice>();
-        params.startMode = AttachToRemoteProcess;
-        params.platform = "remote-ios";
+        setStartMode(AttachToRemoteProcess);
+        setIosPlatform("remote-ios");
         QString osVersion = dev->osVersion();
         FileName deviceSdk1 = FileName::fromString(QDir::homePath()
                                              + "/Library/Developer/Xcode/iOS DeviceSupport/"
@@ -467,25 +466,25 @@ void IosDebugSupport::start()
                                  ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
             }
         }
-        params.deviceSymbolsRoot = deviceSdk;
+        setDeviceSymbolsRoot(deviceSdk);
     } else {
-        params.startMode = AttachExternal;
-        params.platform = "ios-simulator";
+        setStartMode(AttachExternal);
+        setIosPlatform("ios-simulator");
     }
 
     auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runConfig);
-    params.displayName = iosRunConfig->applicationName();
-    params.continueAfterAttach = true;
+    setRunControlName(iosRunConfig->applicationName());
+    setContinueAfterAttach(true);
 
     Utils::Port gdbServerPort = m_runner->gdbServerPort();
     Utils::Port qmlServerPort = m_runner->qmlServerPort();
-    params.attachPID = ProcessHandle(m_runner->pid());
+    setAttachPid(ProcessHandle(m_runner->pid()));
 
     const bool cppDebug = isCppDebugging();
     const bool qmlDebug = isQmlDebugging();
     if (cppDebug) {
-        params.inferior.executable = iosRunConfig->localExecutable().toString();
-        params.remoteChannel = "connect://localhost:" + gdbServerPort.toString();
+        setInferiorExecutable(iosRunConfig->localExecutable().toString());
+        setRemoteChannel("connect://localhost:" + gdbServerPort.toString());
 
         FileName xcodeInfo = IosConfigurations::developerPath().parentDir().appendPath("Info.plist");
         bool buggyLldb = false;
@@ -514,21 +513,20 @@ void IosDebugSupport::start()
         }
     }
 
+    QUrl qmlServer;
     if (qmlDebug) {
         QTcpServer server;
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)
                    || server.listen(QHostAddress::LocalHostIPv6), return);
-        params.qmlServer.setHost(server.serverAddress().toString());
+        qmlServer.setHost(server.serverAddress().toString());
         if (!cppDebug)
-            params.startMode = AttachToRemoteServer;
+            setStartMode(AttachToRemoteServer);
     }
 
-    if (qmlServerPort.isValid()) {
-        params.qmlServer.setPort(qmlServerPort.number());
-        params.inferior.commandLineArguments.replace("%qml_port%", qmlServerPort.toString());
-    }
+    if (qmlServerPort.isValid())
+        qmlServer.setPort(qmlServerPort.number());
 
-    setStartParameters(params);
+    setQmlServer(qmlServer);
 
     DebuggerRunTool::start();
 }

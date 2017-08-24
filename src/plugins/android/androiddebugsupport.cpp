@@ -130,7 +130,7 @@ void AndroidDebugSupport::start()
                       + "/app_process");
         setSkipExecutableValidation(true);
         setUseExtendedRemote(true);
-        setGdbServerChannel(":" + m_runner->gdbServerPort().toString());
+        setRemoteChannel(":" + m_runner->gdbServerPort().toString());
         setSysRoot(AndroidConfigurations::currentConfig().ndkLocation().appendPath("platforms")
                    .appendPath(QString("android-%1").arg(AndroidManager::minimumSDK(target)))
                    .appendPath(toNdkArch(AndroidManager::targetArch(target))).toString());

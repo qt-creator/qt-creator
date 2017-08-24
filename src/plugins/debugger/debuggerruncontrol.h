@@ -83,6 +83,7 @@ public:
     static void setBreakOnMainNextTime();
 
     void setInferior(const ProjectExplorer::Runnable &runnable);
+    void setInferiorExecutable(const QString &executable);
     void setRunControlName(const QString &name);
     void appendInferiorCommandLineArgument(const QString &arg);
     void prependInferiorCommandLineArgument(const QString &arg);
@@ -97,17 +98,21 @@ public:
     void setAttachPid(Utils::ProcessHandle pid);
     void setSysRoot(const QString &sysRoot);
     void setSymbolFile(const QString &symbolFile);
-    void setGdbServerChannel(const QString &channel);
+    void setRemoteChannel(const QString &channel);
 
     void setUseExtendedRemote(bool on);
     void setUseContinueInsteadOfRun(bool on);
     void setUseTargetAsync(bool on);
+    void setContinueAfterAttach(bool on);
     void setSkipExecutableValidation(bool on);
 
     void setCommandsAfterConnect(const QString &commands);
     void setCommandsForReset(const QString &commands);
 
     void setQmlServer(const QUrl &qmlServer);
+
+    void setIosPlatform(const QString &platform);
+    void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
 
 signals:
     void aboutToNotifyInferiorSetupOk();
