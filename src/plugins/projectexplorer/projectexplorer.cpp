@@ -3446,8 +3446,9 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
                                             .arg(projectFileName)
                                             .arg(QDir::toNativeSeparators(oldFilePath))
                                             .arg(QDir::toNativeSeparators(newFilePath)));
-            if (res == QMessageBox::Yes)
-                FileUtils::renameFile(oldFilePath, newFilePath);
+            if (res == QMessageBox::Yes) {
+                QTC_CHECK(FileUtils::renameFile(oldFilePath, newFilePath));
+            }
 
         });
         return;
