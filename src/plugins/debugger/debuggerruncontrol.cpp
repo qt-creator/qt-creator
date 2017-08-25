@@ -235,6 +235,16 @@ void DebuggerRunTool::setSkipExecutableValidation(bool on)
     m_runParameters.skipExecutableValidation = on;
 }
 
+void DebuggerRunTool::setCommandsAfterConnect(const QString &commands)
+{
+    m_runParameters.commandsAfterConnect = commands;
+}
+
+void DebuggerRunTool::setCommandsForReset(const QString &commands)
+{
+    m_runParameters.commandsForReset = commands;
+}
+
 void DebuggerRunTool::setQmlServer(const QUrl &qmlServer)
 {
     m_runParameters.qmlServer = qmlServer;

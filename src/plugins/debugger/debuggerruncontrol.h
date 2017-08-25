@@ -104,6 +104,9 @@ public:
     void setUseTargetAsync(bool on);
     void setSkipExecutableValidation(bool on);
 
+    void setCommandsAfterConnect(const QString &commands);
+    void setCommandsForReset(const QString &commands);
+
     void setQmlServer(const QUrl &qmlServer);
 
 signals:
