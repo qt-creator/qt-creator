@@ -14,6 +14,11 @@ General
 * Added locator input to extra editor and help windows (QTCREATORBUG-9696)
 * Fixed theming of Debugger Console and TODO pane (QTCREATORBUG-17532)
 
+Help
+
+* QtWebEngine backend
+    * Fixed that wait cursor was sometimes never restored (QTCREATORBUG-17758)
+
 Editing
 
 * Added optional inline annotations for Clang code model errors and warnings,
@@ -96,6 +101,8 @@ Debugging
 * Improved display of enum bitfields
 * Fixed support for `long double` (QTCREATORBUG-18023)
 * Fixed editing of strings (QTCREATORBUG-18681)
+* LLDB
+    * Fixed disassembly view for code that contains quotes (QTCREATORBUG-18721)
 * CDB
     * Added support for extra debugging helpers and debugging helper
       customization
@@ -105,6 +112,10 @@ QML Profiler
 
 * Fixed that timeline could stay empty after analyzing small range
   (QTCREATORBUG-18354)
+
+Qt Quick Designer
+
+* Fixed context menu items that did not work on macOS (QTCREATORBUG-18662)
 
 Version Control Systems
 
@@ -161,6 +172,8 @@ macOS
 
 Android
 
+* Added support for API levels 25 and 26 (QTCREATORBUG-18690)
+* Added support for `android-clang` (QTBUG-60455)
 * Added option to run commands before app starts and after app stopped
 * Fixed state of actions in `Edit` menu in text based manifest editor
 
