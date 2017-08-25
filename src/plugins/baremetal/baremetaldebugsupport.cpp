@@ -106,28 +106,32 @@ void BareMetalDebugSupport::start()
     const GdbServerProvider *p = GdbServerProviderManager::findProvider(dev->gdbServerProviderId());
     QTC_ASSERT(p, reportFailure(); return);
 
-    Debugger::DebuggerStartParameters sp;
-
+#if 0
+    // Currently baremetal plugin does not provide way to configure deployments steps
+    // FIXME: Should it?
+    QString commands;
     if (const BuildConfiguration *bc = target->activeBuildConfiguration()) {
         if (BuildStepList *bsl = bc->stepList(BareMetalGdbCommandsDeployStep::stepId())) {
             foreach (const BareMetalGdbCommandsDeployStep *bs, bsl->allOfType<BareMetalGdbCommandsDeployStep>()) {
-                if (!sp.commandsAfterConnect.endsWith("\n"))
-                    sp.commandsAfterConnect.append("\n");
-                sp.commandsAfterConnect.append(bs->gdbCommands());
+                if (!commands.endsWith("\n"))
+                    commands.append("\n");
+                commands.append(bs->gdbCommands());
             }
         }
     }
+    setCommandsAfterConnect(commands);
+#endif
 
-    sp.inferior.executable = bin;
-    sp.inferior.commandLineArguments = rc->arguments();
-    sp.symbolFile = bin;
-    sp.startMode = AttachToRemoteServer;
-    sp.commandsAfterConnect = p->initCommands();
-    sp.commandsForReset = p->resetCommands();
-    sp.remoteChannel = p->channel();
-    sp.useContinueInsteadOfRun = true;
-
-    setStartParameters(sp);
+    StandardRunnable inferior;
+    inferior.executable = bin;
+    inferior.commandLineArguments = rc->arguments();
+    setInferior(inferior);
+    setSymbolFile(bin);
+    setStartMode(AttachToRemoteServer);
+    setCommandsAfterConnect(p->initCommands()); // .. and here?
+    setCommandsForReset(p->resetCommands());
+    setGdbServerChannel(p->channel());
+    setUseContinueInsteadOfRun(true);
 
     DebuggerRunTool::start();
 }
