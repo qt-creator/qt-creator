@@ -45,8 +45,8 @@ public:
     SshDeviceProcessPrivate(SshDeviceProcess *q) : q(q) {}
 
     SshDeviceProcess * const q;
-    bool serverSupportsSignals;
-    QSsh::SshConnection *connection;
+    bool serverSupportsSignals = false;
+    QSsh::SshConnection *connection = nullptr;
     QSsh::SshRemoteProcess::Ptr process;
     StandardRunnable runnable;
     QString errorMessage;
@@ -55,8 +55,8 @@ public:
     QTimer killTimer;
     QByteArray stdOut;
     QByteArray stdErr;
-    int exitCode;
-    enum State { Inactive, Connecting, Connected, ProcessRunning } state;
+    int exitCode = -1;
+    enum State { Inactive, Connecting, Connected, ProcessRunning } state = Inactive;
 
     void setState(State newState);
     void doSignal(QSsh::SshRemoteProcess::Signal signal);
@@ -65,9 +65,6 @@ public:
 SshDeviceProcess::SshDeviceProcess(const IDevice::ConstPtr &device, QObject *parent)
     : DeviceProcess(device, parent), d(new SshDeviceProcessPrivate(this))
 {
-    d->connection = 0;
-    d->state = SshDeviceProcessPrivate::Inactive;
-    setSshServerSupportsSignals(false);
     connect(&d->killTimer, &QTimer::timeout, this, &SshDeviceProcess::handleKillOperationTimeout);
 }
 
