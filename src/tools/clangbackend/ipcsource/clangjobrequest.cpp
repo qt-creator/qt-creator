@@ -27,6 +27,8 @@
 
 #include <QFileInfo>
 
+#include <ostream>
+
 namespace ClangBackEnd {
 
 #define RETURN_TEXT_FOR_CASE(enumValue) case JobRequest::Type::enumValue: return #enumValue
