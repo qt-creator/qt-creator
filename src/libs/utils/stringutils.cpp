@@ -306,6 +306,37 @@ QTCREATOR_UTILS_EXPORT int parseUsedPortFromNetstatOutput(const QByteArray &line
         const int len = spacePos - firstDigitPos;
         base = 10;
         portString = trimmed.mid(firstDigitPos, len);
+    } else if (trimmed.startsWith("tcp") || trimmed.startsWith("udp")) {
+        // macOS. Expected output is something like
+        //
+        // Active Internet connections (including servers)
+        // Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)
+        // tcp4       0      0  192.168.1.12.55687     88.198.14.66.443       ESTABLISHED
+        // tcp6       0      0  2a01:e34:ee42:d0.55684 2a02:26f0:ff::5c.443   ESTABLISHED
+        // [...]
+        // tcp4       0      0  *.631                  *.*                    LISTEN
+        // tcp6       0      0  *.631                  *.*                    LISTEN
+        // [...]
+        // udp4       0      0  192.168.79.1.123       *.*
+        // udp4       0      0  192.168.8.1.123        *.*
+        int firstDigitPos = -1;
+        int spacePos = -1;
+        if (trimmed[3] == '6') {
+            // IPV6
+            firstDigitPos = trimmed.indexOf('.') + 1;
+            spacePos = trimmed.indexOf(' ', firstDigitPos);
+        } else {
+            // IPV4
+            firstDigitPos = trimmed.indexOf('.') + 1;
+            spacePos = trimmed.indexOf(' ', firstDigitPos);
+            firstDigitPos = trimmed.lastIndexOf('.', spacePos) + 1;
+        }
+        if (spacePos < 0)
+            return -1;
+        base = 10;
+        portString = trimmed.mid(firstDigitPos, spacePos - firstDigitPos);
+        if (portString == "*")
+            return -1;
     } else {
         // Expected output on Linux something like
         //

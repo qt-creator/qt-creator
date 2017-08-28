@@ -155,7 +155,7 @@ class DesktopPortsGatheringMethod : public PortsGatheringMethod
         Q_UNUSED(protocol)
 
         StandardRunnable runnable;
-        if (HostOsInfo::isWindowsHost()) {
+        if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost()) {
             runnable.executable = "netstat";
             runnable.commandLineArguments =  "-a -n";
         } else if (HostOsInfo::isLinuxHost()) {
