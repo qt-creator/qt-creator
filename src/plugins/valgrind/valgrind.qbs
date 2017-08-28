@@ -31,6 +31,7 @@ QtcPlugin {
             "memcheckerrorview.cpp", "memcheckerrorview.h",
             "memchecktool.cpp", "memchecktool.h",
             "suppressiondialog.cpp", "suppressiondialog.h",
+            "valgrind.qrc",
             "valgrindconfigwidget.cpp", "valgrindconfigwidget.h", "valgrindconfigwidget.ui",
             "valgrindengine.cpp", "valgrindengine.h",
             "valgrindplugin.cpp", "valgrindplugin.h",
