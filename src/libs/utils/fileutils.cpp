@@ -615,7 +615,7 @@ QString FileName::fileName(int pathComponents) const
 /// FileName exists.
 bool FileName::exists() const
 {
-    return QFileInfo::exists(*this);
+    return !isEmpty() && QFileInfo::exists(*this);
 }
 
 /// Find the parent directory of a given directory.
