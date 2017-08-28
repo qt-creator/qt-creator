@@ -355,6 +355,13 @@ void MainWindow::extensionsInitialized()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    // work around QTBUG-43344
+    static bool alreadyClosed = false;
+    if (alreadyClosed) {
+        event->accept();
+        return;
+    }
+
     ICore::saveSettings();
 
     // Save opened files
@@ -378,6 +385,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     m_rightNavigationWidget->closeSubWidgets();
 
     event->accept();
+    alreadyClosed = true;
 }
 
 void MainWindow::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
