@@ -267,7 +267,7 @@ def getEditorForFileSuffix(curFile, treeViewSyntax=False):
     if treeViewSyntax:
         expected = simpleFileName(curFile)
     mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
-    if not waitFor("expected in str(mainWindow.windowTitle)", 5000):
+    if not waitFor("str(mainWindow.windowTitle).startswith(expected + ' ')", 5000):
         test.fatal("Window title (%s) did not switch to expected file (%s)."
                    % (str(mainWindow.windowTitle), expected))
     try:
@@ -387,7 +387,7 @@ def openDocument(treeElement):
             doubleClickItem(navigator, treeElement, 5, 5, 0, Qt.LeftButton)
             mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
             expected = str(item.text).split("/")[-1]
-            if waitFor("expected in str(mainWindow.windowTitle)", 5000):
+            if waitFor("str(mainWindow.windowTitle).startswith(expected + ' ')", 5000):
                 return True
         test.log("Expected file (%s) was not being opened in openDocument()" % expected)
         return False

@@ -58,7 +58,7 @@ def main():
                 "Verifying window title contains created session name.")
     checkNavigator(52, "Verifying whether all projects have been re-opened.")
     checkOpenDocuments(2, "Verifying whether 2 files have been re-opened.")
-    if test.verify("main.cpp" in str(mainWindow.windowTitle),
+    if test.verify(str(mainWindow.windowTitle).startswith("main.cpp "),
                    "Verifying whether utility.h has been opened."):
         current = str(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget").plainText)
         test.verify(originalText == current, "Verifying that same file has been opened.")
