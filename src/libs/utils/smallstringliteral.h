@@ -66,11 +66,13 @@ public:
         return Q_LIKELY(isShortString()) ? m_data.shortString.shortStringSize : m_data.allocated.data.size;
     }
 
+    constexpr
     const_iterator begin() const noexcept
     {
         return data();
     }
 
+    constexpr
     const_iterator end() const noexcept
     {
         return data() + size();
@@ -102,6 +104,7 @@ public:
         return m_data.shortString.isReadOnlyReference;
     }
 
+    constexpr
     operator SmallStringView() const
     {
         return SmallStringView(data(), size());

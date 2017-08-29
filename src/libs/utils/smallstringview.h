@@ -97,11 +97,13 @@ public:
         return m_size == 0;
     }
 
+    constexpr
     const_iterator begin() const noexcept
     {
         return data();
     }
 
+    constexpr
     const_iterator end() const noexcept
     {
         return data() + size();
@@ -139,8 +141,6 @@ public:
     {
         return m_pointer[0] == characterToSearch;
     }
-
-
 
 private:
     const char *m_pointer;
