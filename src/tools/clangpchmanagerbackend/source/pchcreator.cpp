@@ -71,7 +71,7 @@ void append(Target &target, const Source &source)
 
     target.reserve(target.size() + source.size());
 
-    for(auto &&entry : clonedSource)
+    for (auto &&entry : clonedSource)
         target.push_back(ValueType(std::move(entry)));
 }
 
@@ -82,7 +82,7 @@ void append(Target &target, Source &source)
     using ValueType = typename Target::value_type;
     target.reserve(target.size() + source.size());
 
-    for(auto &&entry : source)
+    for (auto &&entry : source)
         target.push_back(ValueType(entry));
 }
 
