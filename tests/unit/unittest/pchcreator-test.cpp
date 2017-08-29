@@ -51,7 +51,6 @@ using testing::AtLeast;
 using testing::ContainerEq;
 using testing::Contains;
 using testing::ElementsAre;
-using testing::EndsWith;
 using testing::Eq;
 using testing::Field;
 using testing::HasSubstr;
@@ -61,11 +60,12 @@ using testing::Not;
 using testing::Property;
 using testing::SizeIs;
 using testing::UnorderedElementsAre;
+using UnitTests::EndsWith;
 
 class PchCreator: public ::testing::Test
 {
 protected:
-    uint id(const Utils::SmallString &path);
+    uint id(const Utils::PathString &path);
 
 protected:
     ClangBackEnd::StringCache<Utils::PathString> filePathCache;
@@ -148,7 +148,7 @@ TEST_F(PchCreatorVerySlowTest, CreateGlobalPchFileContent)
 {
     auto content = creator.generateGlobalPchHeaderFileContent();
 
-    ASSERT_THAT(content,
+    ASSERT_THAT(std::string(content),
                 AllOf(HasSubstr("#include \"" TESTDATA_DIR "/includecollector_external3.h\"\n"),
                       HasSubstr("#include \"" TESTDATA_DIR "/includecollector_external1.h\"\n"),
                       HasSubstr("#include \"" TESTDATA_DIR "/includecollector_external2.h\"\n")));
@@ -228,7 +228,7 @@ TEST_F(PchCreatorSlowTest, CreateProjectPartPchFileContent)
 
     auto content = creator.generatePchIncludeFileContent(includes);
 
-    ASSERT_THAT(content,
+    ASSERT_THAT(std::string(content),
                 AllOf(HasSubstr("#include \"" TESTDATA_DIR "/includecollector_header2.h\"\n"),
                       HasSubstr("#include \"" TESTDATA_DIR "/includecollector_external1.h\"\n"),
                       HasSubstr("#include \"" TESTDATA_DIR "/includecollector_external2.h\"\n")));
@@ -282,7 +282,7 @@ TEST_F(PchCreatorVerySlowTest, ProjectPartPchsExistsAfterCreation)
 
     creator.generateProjectPartPch(projectPart1);
 
-    ASSERT_TRUE(QFileInfo::exists(creator.generateProjectPathPchHeaderFilePath(projectPart1)));
+    ASSERT_TRUE(QFileInfo::exists(QString(creator.generateProjectPathPchHeaderFilePath(projectPart1))));
 }
 
 TEST_F(PchCreatorVerySlowTest, DISABLED_CreatePartPchs)
@@ -340,7 +340,7 @@ TEST_F(PchCreator, CreateProjectPartHeaderAndSourcesContent)
                             "#include \"" TESTDATA_DIR "/includecollector_main3.cpp\"\n"));
 }
 
-uint PchCreator::id(const Utils::SmallString &path)
+uint PchCreator::id(const Utils::PathString &path)
 {
     return filePathCache.stringId(path);
 }

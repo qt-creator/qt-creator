@@ -41,6 +41,7 @@ struct SmallStringIterator : public  std::iterator<Category, Type, DistanceType,
 {
     SmallStringIterator() noexcept = default;
 
+    constexpr
     SmallStringIterator(Pointer ptr) noexcept : pointer_(ptr)
     {
     }

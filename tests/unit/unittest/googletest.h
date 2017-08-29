@@ -39,3 +39,5 @@
 #endif
 
 #include "google-using-declarations.h"
+
+#include "unittest-matchers.h"

@@ -34,9 +34,9 @@ namespace Sqlite {
 class SQLITE_EXPORT SqliteException
 {
 public:
-    SqliteException(Utils::SmallString &&whatErrorHasHappen,
+    SqliteException(const char *whatErrorHasHappen,
                     Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
-        : m_whatErrorHasHappen(std::move(whatErrorHasHappen)),
+        : m_whatErrorHasHappen(whatErrorHasHappen),
           m_sqliteErrorMessage(std::move(sqliteErrorMessage))
     {
     }
@@ -44,7 +44,7 @@ public:
     void printWarning() const;
 
 private:
-    Utils::SmallString m_whatErrorHasHappen;
+    const char *m_whatErrorHasHappen;
     Utils::SmallString m_sqliteErrorMessage;
 };
 

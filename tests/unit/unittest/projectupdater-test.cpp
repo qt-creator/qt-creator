@@ -65,10 +65,10 @@ protected:
     Utils::SmallString projectPartId2{"project2"};
     Utils::PathStringVector headerPaths = {"/path/to/header1.h", "/path/to/header2.h"};
     Utils::PathStringVector sourcePaths = {"/path/to/source1.cpp", "/path/to/source2.cpp"};
-    CppTools::ProjectFile header1ProjectFile{headerPaths[0], CppTools::ProjectFile::CXXHeader};
-    CppTools::ProjectFile header2ProjectFile{headerPaths[1], CppTools::ProjectFile::CXXHeader};
-    CppTools::ProjectFile source1ProjectFile{sourcePaths[0], CppTools::ProjectFile::CXXSource};
-    CppTools::ProjectFile source2ProjectFile{sourcePaths[1], CppTools::ProjectFile::CXXSource};
+    CppTools::ProjectFile header1ProjectFile{QString(headerPaths[0]), CppTools::ProjectFile::CXXHeader};
+    CppTools::ProjectFile header2ProjectFile{QString(headerPaths[1]), CppTools::ProjectFile::CXXHeader};
+    CppTools::ProjectFile source1ProjectFile{QString(sourcePaths[0]), CppTools::ProjectFile::CXXSource};
+    CppTools::ProjectFile source2ProjectFile{QString(sourcePaths[1]), CppTools::ProjectFile::CXXSource};
     CppTools::ProjectPart projectPart;
     ProjectPartContainer expectedContainer;
     FileContainer generatedFile{{"/path/to", "header1.h"}, "content", {}};
@@ -92,7 +92,7 @@ TEST_F(ProjectUpdater, CallRemovePchProjectParts)
 
     EXPECT_CALL(mockPchManagerServer, removePchProjectParts(message));
 
-    updater.removeProjectParts({projectPartId, projectPartId2});
+    updater.removeProjectParts({QString(projectPartId), QString(projectPartId2)});
 }
 
 TEST_F(ProjectUpdater, CallPrecompiledHeaderRemoved)
@@ -102,7 +102,7 @@ TEST_F(ProjectUpdater, CallPrecompiledHeaderRemoved)
     EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId.toQString()));
     EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId2.toQString()));
 
-    updater.removeProjectParts({projectPartId, projectPartId2});
+    updater.removeProjectParts({QString(projectPartId), QString(projectPartId2)});
 }
 
 TEST_F(ProjectUpdater, ConvertProjectPartToProjectPartContainer)
@@ -134,7 +134,7 @@ void ProjectUpdater::SetUp()
     projectPart.files.push_back(header2ProjectFile);
     projectPart.files.push_back(source1ProjectFile);
     projectPart.files.push_back(source2ProjectFile);
-    projectPart.displayName = projectPartId;
+    projectPart.displayName = QString(projectPartId);
 
     Utils::SmallStringVector arguments{ClangPchManager::ProjectUpdater::compilerArguments(
                     &projectPart)};

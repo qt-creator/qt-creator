@@ -43,7 +43,7 @@ void PchManagerClient::alive()
 void PchManagerClient::precompiledHeadersUpdated(ClangBackEnd::PrecompiledHeadersUpdatedMessage &&message)
 {
     for (const ClangBackEnd::ProjectPartPch &projectPartPch : message.projectPartPchs())
-        precompiledHeaderUpdated(projectPartPch.id(), projectPartPch.path());
+        precompiledHeaderUpdated(QString(projectPartPch.id()), QString(projectPartPch.path()));
 }
 
 void PchManagerClient::precompiledHeaderRemoved(const QString &projectPartId)

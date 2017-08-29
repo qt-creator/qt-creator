@@ -170,7 +170,7 @@ TEST_F(ClangQueryProjectFindFilter, CallingRequestSourceRangesAndDiagnostics)
                                 Property(&FileContainer::unsavedFileContent, exampleContent)),
                         Property(&Message::query, queryText))));
 
-    findFilter.requestSourceRangesAndDiagnostics(queryText, exampleContent);
+    findFilter.requestSourceRangesAndDiagnostics(QString(queryText), QString(exampleContent));
 }
 
 std::vector<CppTools::ProjectPart::Ptr> createProjectParts()

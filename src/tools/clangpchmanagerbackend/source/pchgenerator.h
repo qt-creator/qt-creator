@@ -70,8 +70,8 @@ unittest_public:
         Process *processPointer = process.get();
 
         process->setProcessChannelMode(QProcess::ForwardedChannels);
-        process->setArguments(compilerArguments);
-        process->setProgram(m_environment.clangCompilerPath());
+        process->setArguments(QStringList(compilerArguments));
+        process->setProgram(QString(m_environment.clangCompilerPath()));
 
         connectProcess(processPointer, std::move(projectPartPch));
 

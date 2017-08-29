@@ -86,7 +86,8 @@ TEST_F(PchManagerClient, Remove)
     EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId.toQString()))
         .Times(2);
 
-    projectUpdater.removeProjectParts({projectPartId.clone(), projectPartId.clone()});
+    projectUpdater.removeProjectParts({QString(projectPartId.clone()),
+                                       QString(projectPartId.clone())});
 }
 
 }

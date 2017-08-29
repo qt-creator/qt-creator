@@ -154,7 +154,7 @@ void RefactoringClient::addSearchResult(const ClangBackEnd::SourceRangeWithTextC
                                         std::unordered_map<uint, QString> &filePaths)
 {
     m_searchHandle->addResult(filePaths[sourceRangeWithText.fileHash()],
-                             sourceRangeWithText.text(),
+                             QString(sourceRangeWithText.text()),
                              {{int(sourceRangeWithText.start().line()),
                                int(sourceRangeWithText.start().column() - 1),
                                int(sourceRangeWithText.start().offset())},

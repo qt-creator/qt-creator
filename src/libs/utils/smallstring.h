@@ -242,11 +242,13 @@ public:
         return SmallStringView(data(), size());
     }
 
+    explicit
     operator QString() const
     {
         return toQString();
     }
 
+    explicit
     operator std::string() const
     {
         return std::string(data(), size());
@@ -589,100 +591,6 @@ public:
         return *(data() + index);
     }
 
-    template<size_type ArraySize>
-    friend bool operator==(const BasicSmallString& first, const char(&second)[ArraySize]) noexcept
-    {
-        return first == SmallStringView(second);
-    }
-
-    template<size_type ArraySize>
-    friend bool operator==(const char(&first)[ArraySize], const BasicSmallString& second) noexcept
-    {
-        return second == first;
-    }
-
-    template<typename Type,
-             typename = std::enable_if_t<std::is_pointer<Type>::value>
-             >
-    friend bool operator==(const BasicSmallString& first, Type second) noexcept
-    {
-        return first == SmallStringView(second);
-    }
-
-    template<typename Type,
-             typename = std::enable_if_t<std::is_pointer<Type>::value>
-             >
-    friend bool operator==(Type first, const BasicSmallString& second) noexcept
-    {
-        return second == first;
-    }
-
-    friend bool operator==(const BasicSmallString& first, const SmallStringView& second) noexcept
-    {
-        return first.size() == second.size()
-            && std::memcmp(first.data(), second.data(), first.size()) == 0;
-    }
-
-    friend bool operator==(const SmallStringView& first, const BasicSmallString& second) noexcept
-    {
-        return second == first;
-    }
-
-    friend bool operator!=(const BasicSmallString& first, const SmallStringView& second) noexcept
-    {
-        return !(first == second);
-    }
-
-    friend bool operator!=(const SmallStringView& first, const BasicSmallString& second) noexcept
-    {
-        return second == first;
-    }
-
-    friend bool operator!=(const BasicSmallString& first, const BasicSmallString& second) noexcept
-    {
-        return !(first == second);
-    }
-
-    template<size_type ArraySize>
-    friend bool operator!=(const BasicSmallString& first, const char(&second)[ArraySize]) noexcept
-    {
-        return !(first == second);
-    }
-
-    template<size_type ArraySize>
-    friend bool operator!=(const char(&first)[ArraySize], const BasicSmallString& second) noexcept
-    {
-        return second != first;
-    }
-
-    template<typename Type,
-             typename = std::enable_if_t<std::is_pointer<Type>::value>
-             >
-    friend bool operator!=(const BasicSmallString& first, Type second) noexcept
-    {
-        return !(first == second);
-    }
-
-    template<typename Type,
-             typename = std::enable_if_t<std::is_pointer<Type>::value>
-             >
-    friend bool operator!=(Type first, const BasicSmallString& second) noexcept
-    {
-        return second != first;
-    }
-
-    friend bool operator<(const BasicSmallString& first, SmallStringView second) noexcept
-    {
-        return first.size() < second.size()
-            || (first.size() == second.size() && std::memcmp(first.data(), second.data(), first.size()) < 0);
-    }
-
-    friend bool operator<(SmallStringView first, const BasicSmallString& second) noexcept
-    {
-        return first.size() < second.size()
-            || (first.size() == second.size() && std::memcmp(first.data(), second.data(), first.size()) < 0);
-    }
-
     friend BasicSmallString operator+(const BasicSmallString &first, const BasicSmallString &second)
     {
         BasicSmallString text;
@@ -993,29 +901,6 @@ private:
 template<template<uint> class String, uint Size>
 using isSameString = std::is_same<std::remove_reference_t<std::remove_cv_t<String<Size>>>,
                                            BasicSmallString<Size>>;
-
-template<template<uint> class String,
-         uint SizeOne,
-         uint SizeTwo,
-         typename =  std::enable_if_t<isSameString<String, SizeOne>::value
-                                   || isSameString<String, SizeTwo>::value>>
-bool operator==(const String<SizeOne> &first, const String<SizeTwo> &second) noexcept
-{
-    return first.size() == second.size()
-        && std::memcmp(first.data(), second.data(), first.size()) == 0;
-}
-
-
-template<template<uint> class String,
-         uint SizeOne,
-         uint SizeTwo,
-         typename =  std::enable_if_t<isSameString<String, SizeOne>::value
-                                   || isSameString<String, SizeTwo>::value>>
-bool operator<(const String<SizeOne> &first, const String<SizeTwo> &second) noexcept
-{
-    return first.size() < second.size()
-        || (first.size() == second.size() && std::memcmp(first.data(), second.data(), first.size()) < 0);
-}
 
 template<typename Key,
          typename Value,

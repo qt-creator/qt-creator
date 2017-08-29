@@ -68,7 +68,7 @@ void ClangTool::addFiles(const Container &filePaths,
         auto fileNameBegin = found.base();
 
         std::vector<std::string> commandLine(arguments.begin(), arguments.end());
-        commandLine.push_back(filePath);
+        commandLine.push_back(std::string(filePath));
 
         addFile({filePath.begin(), std::prev(fileNameBegin)},
                 {fileNameBegin, filePath.end()},

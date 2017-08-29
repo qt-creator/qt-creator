@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <clangpchmanager_global.h>
+#include "clangpchmanager_global.h"
 
 #include <filecontainerv2.h>
 

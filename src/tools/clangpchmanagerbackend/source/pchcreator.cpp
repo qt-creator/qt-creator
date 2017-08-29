@@ -66,24 +66,24 @@ template <typename Source,
           typename Target>
 void append(Target &target, const Source &source)
 {
+    using ValueType = typename Target::value_type;
     Source clonedSource = source.clone();
 
     target.reserve(target.size() + source.size());
 
-    std::move(clonedSource.begin(),
-              clonedSource.end(),
-              std::back_inserter(target));
+    for(auto &&entry : clonedSource)
+        target.push_back(ValueType(std::move(entry)));
 }
 
 template <typename Source,
           typename Target>
 void append(Target &target, Source &source)
 {
+    using ValueType = typename Target::value_type;
     target.reserve(target.size() + source.size());
 
-    std::move(source.begin(),
-              source.end(),
-              std::back_inserter(target));
+    for(auto &&entry : source)
+        target.push_back(ValueType(entry));
 }
 
 template <typename GetterFunction>
@@ -469,14 +469,14 @@ std::vector<uint> PchCreator::generateProjectPartPchIncludes(
     auto jointFile = generateFileWithContent(jointedFilePath, jointedFileContent);
     Utils::SmallStringVector arguments = generateProjectPartCommandLine(projectPart);
     arguments.push_back(jointedFilePath);
-    FilePath filePath(jointedFilePath.clone());
+    FilePath filePath{Utils::PathString(jointedFilePath)};
 
     IncludeCollector collector(m_filePathCache);
 
     collector.setExcludedIncludes(generateProjectPartHeaderAndSourcePaths(projectPart));
 
-    collector.addFile(filePath.directory(),
-                      filePath.name(),
+    collector.addFile(std::string(filePath.directory()),
+                      std::string(filePath.name()),
                       {},
                       arguments);
 
@@ -581,11 +581,11 @@ std::unique_ptr<QFile> PchCreator::generateFileWithContent(
         const Utils::SmallString &filePath,
         const Utils::SmallString &content)
 {
-    std::unique_ptr<QFile> precompiledIncludeFile(new QFile(filePath));
+    std::unique_ptr<QFile> precompiledIncludeFile(new QFile(QString(filePath)));
 
     precompiledIncludeFile->open(QIODevice::WriteOnly);
 
-    precompiledIncludeFile->write(content.data(), content.size());
+    precompiledIncludeFile->write(content.data(), qint64(content.size()));
     precompiledIncludeFile->close();
 
     return precompiledIncludeFile;

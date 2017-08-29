@@ -138,7 +138,8 @@ public:
         QStringList qStringList;
         qStringList.reserve(int(Base::size()));
 
-        std::copy(Base::begin(), Base::end(), std::back_inserter(qStringList));
+        for (const auto &entry : *this)
+            qStringList.push_back(QString(entry));
 
         return qStringList;
     }

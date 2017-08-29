@@ -67,6 +67,12 @@ public:
     {
     }
 
+    SmallStringView(const std::string &string) noexcept
+        : m_pointer(string.data()),
+          m_size(string.size())
+    {
+    }
+
     static
     SmallStringView fromUtf8(const char *const characterPointer)
     {
@@ -74,19 +80,19 @@ public:
     }
 
     constexpr
-    const char *data() const
+    const char *data() const noexcept
     {
         return m_pointer;
     }
 
     constexpr
-    size_type size() const
+    size_type size() const noexcept
     {
         return m_size;
     }
 
     constexpr
-    size_type isEmpty() const
+    size_type isEmpty() const noexcept
     {
         return m_size == 0;
     }
@@ -140,19 +146,19 @@ private:
 };
 
 inline
-bool operator==(const SmallStringView& first, const SmallStringView& second) noexcept
+bool operator==(SmallStringView first, SmallStringView second) noexcept
 {
     return first.size() == second.size() && std::memcmp(first.data(), second.data(), first.size()) == 0;
 }
 
 inline
-bool operator!=(const SmallStringView& first, const SmallStringView& second) noexcept
+bool operator!=(SmallStringView first, SmallStringView second) noexcept
 {
     return !(first == second);
 }
 
 inline
-int compare(const SmallStringView& first, const SmallStringView& second) noexcept
+int compare(SmallStringView first, SmallStringView second) noexcept
 {
     int sizeDifference = int(first.size() - second.size());
 
@@ -160,6 +166,18 @@ int compare(const SmallStringView& first, const SmallStringView& second) noexcep
         return std::memcmp(first.data(), second.data(), first.size());
 
     return sizeDifference;
+}
+
+inline
+bool operator<(SmallStringView first, SmallStringView second) noexcept
+{
+    return compare(first, second) < 0;
+}
+
+inline
+bool operator>(SmallStringView first, SmallStringView second) noexcept
+{
+    return second < first;
 }
 
 namespace Internal {
@@ -187,7 +205,7 @@ int reverse_memcmp(const char *first, const char *second, size_t n)
 }
 
 inline
-int reverseCompare(const SmallStringView& first, const SmallStringView& second) noexcept
+int reverseCompare(SmallStringView first, SmallStringView second) noexcept
 {
     int sizeDifference = int(first.size() - second.size());
 

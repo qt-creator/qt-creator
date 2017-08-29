@@ -66,7 +66,7 @@ public:
 
   std::string takeSymbolName()
   {
-    return std::move(symbolName);
+    return std::string(symbolName);
   }
 
   std::vector<USRName> takeUnifiedSymbolResolutions()
