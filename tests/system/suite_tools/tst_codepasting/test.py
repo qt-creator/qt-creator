@@ -34,6 +34,8 @@ NAME_KDE = "Paste.KDE.Org"
 NAME_PBCA = "Pastebin.Ca"
 NAME_PBCOM = "Pastebin.Com"
 
+serverProblems = "Server side problems."
+
 def invalidPasteId(protocol):
     if protocol == NAME_KDE:
         return None
@@ -41,6 +43,12 @@ def invalidPasteId(protocol):
         return -1
 
 def pasteFile(sourceFile, protocol):
+    def resetFiles():
+        clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
+        invokeMenuItem('File', 'Revert "main.cpp" to Saved')
+        clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
+        snooze(1) # "Close All" might be disabled
+        invokeMenuItem("File", "Close All")
     aut = currentApplicationContext()
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(sourceFile)
@@ -79,16 +87,15 @@ def pasteFile(sourceFile, protocol):
             test.fail("%s protocol error: %s" % (protocol, match.group(1)))
     elif output.strip() == "":
         pasteId = invalidPasteId(protocol)
+    elif "FAIL:There was an error communicating with the database" in output:
+        resetFiles()
+        raise Exception(serverProblems)
     elif "Post limit, maximum pastes per 24h reached" in output:
         test.warning("Maximum pastes per day exceeded.")
         pasteId = None
     else:
         pasteId = output.rsplit("/", 1)[1]
-    clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
-    invokeMenuItem('File', 'Revert "main.cpp" to Saved')
-    clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
-    snooze(1) # "Close All" might be disabled
-    invokeMenuItem("File", "Close All")
+    resetFiles()
     return pasteId, description, pastedText
 
 def fetchSnippet(protocol, description, pasteId, skippedPasting):
@@ -155,7 +162,14 @@ def main():
             pastedText = readFile(os.path.join(os.getcwd(), "testdata", "main-prepasted.cpp"))
         else:
             skippedPasting = False
-            pasteId, description, pastedText = pasteFile(sourceFile, protocol)
+            try:
+                pasteId, description, pastedText = pasteFile(sourceFile, protocol)
+            except Exception as e:
+                if e.message == serverProblems:
+                    test.warning("Ignoring server side issues")
+                    continue
+                else: # if it was not our own exception re-raise
+                    raise e
             if not pasteId:
                 test.fatal("Could not get id of paste to %s" % protocol)
                 continue
