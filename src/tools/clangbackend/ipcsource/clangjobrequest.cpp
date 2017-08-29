@@ -27,6 +27,8 @@
 
 #include <QFileInfo>
 
+#include <ostream>
+
 namespace ClangBackEnd {
 
 #define RETURN_TEXT_FOR_CASE(enumValue) case JobRequest::Type::enumValue: return #enumValue
@@ -67,6 +69,16 @@ QDebug operator<<(QDebug debug, JobRequest::Type type)
     debug << JobRequestTypeToText(type);
 
     return debug;
+}
+
+std::ostream &operator<<(std::ostream &os, JobRequest::Type type)
+{
+    return os << JobRequestTypeToText(type);
+}
+
+std::ostream &operator<<(std::ostream &os, PreferredTranslationUnit preferredTranslationUnit)
+{
+    return os << preferredTranslationUnitToText(preferredTranslationUnit);
 }
 
 QDebug operator<<(QDebug debug, const JobRequest &jobRequest)

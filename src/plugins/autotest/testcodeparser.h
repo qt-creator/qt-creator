@@ -88,7 +88,8 @@ private:
     bool postponed(const QStringList &fileList);
     void scanForTests(const QStringList &fileList = QStringList(), ITestParser *parser = nullptr);
 
-    void onDocumentUpdated(const QString &fileName);
+    // qml files must be handled slightly different
+    void onDocumentUpdated(const QString &fileName, bool isQmlFile = false);
     void onTaskStarted(Core::Id type);
     void onAllTasksFinished(Core::Id type);
     void onFinished();

@@ -237,7 +237,7 @@
 		</dict>
 	</array>
 	<key>NSHumanReadableCopyright</key>
-	<string>(C) 2016 The Qt Company Ltd</string>
+	<string>(C) @QTCREATOR_COPYRIGHT_YEAR@ The Qt Company Ltd</string>
 	<key>CFBundleIconFile</key>
 	<string>qtcreator</string>
 	<key>CFBundlePackageType</key>

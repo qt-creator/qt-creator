@@ -210,7 +210,9 @@ bool FileUtils::isFileNewerThan(const FileName &filePath, const QDateTime &timeS
 
 /*!
   Recursively resolves symlinks if \a filePath is a symlink.
-  To resolve symlinks anywhere in the path, see canonicalPath
+  To resolve symlinks anywhere in the path, see canonicalPath.
+  Unlike QFileInfo::canonicalFilePath(), this function will still return the expected deepest
+  target file even if the symlink is dangling.
 
   \note Maximum recursion depth == 16.
 
@@ -221,7 +223,7 @@ FileName FileUtils::resolveSymlinks(const FileName &path)
     QFileInfo f = path.toFileInfo();
     int links = 16;
     while (links-- && f.isSymLink())
-        f.setFile(f.symLinkTarget());
+        f.setFile(f.dir(), f.symLinkTarget());
     if (links <= 0)
         return FileName();
     return FileName::fromString(f.filePath());
@@ -613,7 +615,7 @@ QString FileName::fileName(int pathComponents) const
 /// FileName exists.
 bool FileName::exists() const
 {
-    return QFileInfo::exists(*this);
+    return !isEmpty() && QFileInfo::exists(*this);
 }
 
 /// Find the parent directory of a given directory.

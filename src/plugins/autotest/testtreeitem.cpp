@@ -207,13 +207,11 @@ void TestTreeItem::markForRemovalRecursively(bool mark)
 
 void TestTreeItem::markForRemovalRecursively(const QString &filePath)
 {
-    if (m_filePath == filePath) {
-        markForRemovalRecursively(true);
-    } else {
-        for (int row = 0, count = childCount(); row < count; ++row) {
-            TestTreeItem *child = childItem(row);
-            child->markForRemovalRecursively(filePath);
-        }
+    if (m_filePath == filePath)
+        markForRemoval(true);
+    for (int row = 0, count = childCount(); row < count; ++row) {
+        TestTreeItem *child = childItem(row);
+        child->markForRemovalRecursively(filePath);
     }
 }
 

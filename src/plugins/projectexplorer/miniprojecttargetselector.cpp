@@ -827,9 +827,9 @@ QVector<int> MiniProjectTargetSelector::listWidgetWidths(int minSize, int maxSiz
 
         int delta;
         if (tooSmall)
-            delta = qMin(next - first, widthToDistribute / i);
+            delta = qMin(next - first, widthToDistribute / qMax(i, 1));
         else
-            delta = qMin(first - next, widthToDistribute / i);
+            delta = qMin(first - next, widthToDistribute / qMax(i, 1));
 
         if (delta == 0)
             return result;

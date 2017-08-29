@@ -89,6 +89,11 @@
             types of the files to beautify, separated by semicolons. Leave the
             field empty to apply the tool on all files.
 
+            This setting is applied only when automatically beautifying files on
+            save. To restrict the MIME types when selecting the menu item to
+            format the currently open file, specify this option in the
+            tool-specific tab.
+
         \li Select the \uicontrol {Restrict to files contained in the current
             project} check box to only beautify files that belong to the
             current project.
@@ -103,6 +108,10 @@
             the tool executable in the \uicontrol {Artistic Style command},
             \uicontrol {Clang Format command}, or
             \uicontrol {Uncrustify command} field.
+
+        \li In the \uicontrol {Restrict to MIME types} field, define the MIME
+            types of the files to beautify. This setting is applied when you
+            select the menu item to format the currently open file.
 
         \li In the \uicontrol Options group, select the configuration file that
             defines the style to use in the source files. If you select several

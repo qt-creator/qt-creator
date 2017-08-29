@@ -286,8 +286,6 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
             }
         }
     });
-
-    d->viewManager.designerActionManager().polishActions();
 }
 
 void QmlDesignerPlugin::showDesigner()

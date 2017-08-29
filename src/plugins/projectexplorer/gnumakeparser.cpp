@@ -115,6 +115,7 @@ void GnuMakeParser::stdError(const QString &line)
 
     QRegularExpressionMatch match = m_errorInMakefile.match(lne);
     if (match.hasMatch()) {
+        flush();
         Result res = parseDescription(match.captured(5));
         if (res.isFatal)
             ++m_fatalErrorCount;
@@ -128,6 +129,7 @@ void GnuMakeParser::stdError(const QString &line)
     }
     match = m_makeLine.match(lne);
     if (match.hasMatch()) {
+        flush();
         Result res = parseDescription(match.captured(6));
         if (res.isFatal)
             ++m_fatalErrorCount;
