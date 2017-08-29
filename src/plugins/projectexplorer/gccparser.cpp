@@ -863,6 +863,18 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                 )
             << QString();
 
+    QTest::newRow("ld: undefined member function reference")
+            << "obj/gtest-clang-printing.o:gtest-clang-printing.cpp:llvm::VerifyDisableABIBreakingChecks: error: undefined reference to 'llvm::DisableABIBreakingChecks'"
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Error,
+                        QLatin1String("error: undefined reference to 'llvm::DisableABIBreakingChecks'"),
+                        Utils::FileName::fromString("gtest-clang-printing.cpp"), -1,
+                        categoryCompile)
+                )
+            << QString();
+
     QTest::newRow("Mac: ranlib warning")
             << QString::fromLatin1("ranlib: file: lib/libtest.a(Test0.cpp.o) has no symbols")
             << OutputParserTester::STDERR
