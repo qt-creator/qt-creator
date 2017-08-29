@@ -14,7 +14,7 @@ The standalone binary packages support the following platforms:
 
 Prerequisites:
 
-* Qt 5.6.0 or later
+* Qt 5.6.2 or later
 * Qt WebEngine module for QtWebEngine based help viewer
 * On Windows:
     * ActiveState Active Perl
