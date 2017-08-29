@@ -133,4 +133,9 @@ void RawProjectPart::setFlagsForCxx(const RawProjectPartFlags &flags)
     flagsForCxx = flags;
 }
 
+void RawProjectPart::setBuildTargetType(ProjectPart::BuildTargetType type)
+{
+    buildTargetType = type;
+}
+
 } // namespace CppTools

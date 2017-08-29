@@ -347,6 +347,9 @@ void ServerModeReader::updateCodeModel(CppTools::RawProjectParts &rpps)
 
         rpp.setFiles(transform(fg->sources, &FileName::toString));
 
+        const bool isExecutable = fg->target->type == "EXECUTABLE";
+        rpp.setBuildTargetType(isExecutable ? CppTools::ProjectPart::Executable
+                                            : CppTools::ProjectPart::Library);
         rpps.append(rpp);
     }
 

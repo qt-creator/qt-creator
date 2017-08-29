@@ -78,6 +78,7 @@ public:
     void setFlagsForC(const RawProjectPartFlags &flags);
     void setFlagsForCxx(const RawProjectPartFlags &flags);
 
+    void setBuildTargetType(ProjectPart::BuildTargetType type);
 public:
     QString displayName;
     QString projectFile;
@@ -97,6 +98,7 @@ public:
 
     QStringList files;
     FileClassifier fileClassifier;
+    ProjectPart::BuildTargetType buildTargetType = ProjectPart::BuildTargetType::Unknown;
 };
 
 using RawProjectParts = QVector<RawProjectPart>;

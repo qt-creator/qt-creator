@@ -288,8 +288,11 @@ QSet<QString> TestTreeItem::internalTargets() const
     auto cppMM = CppTools::CppModelManager::instance();
     const QList<CppTools::ProjectPart::Ptr> projectParts = cppMM->projectPart(filePath());
     QSet<QString> targets;
-    for (const CppTools::ProjectPart::Ptr part : projectParts)
+    for (const CppTools::ProjectPart::Ptr part : projectParts) {
+        if (part->buildTargetType != CppTools::ProjectPart::Executable)
+            continue;
         targets.insert(part->buildSystemTarget + '|' + part->projectFile);
+    }
     return targets;
 }
 

@@ -50,6 +50,7 @@ struct CPPTOOLS_EXPORT Utils
     static QString toString(CppTools::ProjectPart::LanguageVersion languageVersion);
     static QString toString(CppTools::ProjectPart::LanguageExtensions languageExtension);
     static QString toString(CppTools::ProjectPart::QtVersion qtVersion);
+    static QString toString(CppTools::ProjectPart::BuildTargetType buildTargetType);
     static QString toString(const QVector<CppTools::ProjectFile> &projectFiles);
     static QString toString(CppTools::ProjectFile::Kind kind);
     static QString toString(CPlusPlus::Kind kind);

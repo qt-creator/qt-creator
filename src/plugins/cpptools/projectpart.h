@@ -91,6 +91,12 @@ public:
         WordWidth64Bit,
     };
 
+    enum BuildTargetType {
+        Unknown,
+        Executable,
+        Library
+    };
+
     using Ptr = QSharedPointer<ProjectPart>;
 
 public:
@@ -134,6 +140,7 @@ public:
     ProjectExplorer::Macros toolChainMacros;
     ToolChainWordWidth toolChainWordWidth = WordWidth32Bit;
     QString toolChainTargetTriple;
+    BuildTargetType buildTargetType = Unknown;
 };
 
 } // namespace CppTools

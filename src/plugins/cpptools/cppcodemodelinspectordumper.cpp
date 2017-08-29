@@ -154,6 +154,18 @@ QString Utils::toString(ProjectPart::QtVersion qtVersion)
     return QString();
 }
 
+QString Utils::toString(ProjectPart::BuildTargetType buildTargetType)
+{
+#define CASE_BUILDTARGETTYPE(x) case ProjectPart::x: return QLatin1String(#x)
+    switch (buildTargetType) {
+    CASE_BUILDTARGETTYPE(Unknown);
+    CASE_BUILDTARGETTYPE(Executable);
+    CASE_BUILDTARGETTYPE(Library);
+    }
+#undef CASE_BUILDTARGETTYPE
+    return QString();
+}
+
 QString Utils::toString(ProjectFile::Kind kind)
 {
     return QString::fromLatin1(projectFileKindToText(kind));
@@ -483,6 +495,7 @@ void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
             m_out << i3 << "Project Name         : " << projectName << "\n";
             m_out << i3 << "Project File         : " << projectFilePath << "\n";
             m_out << i3 << "Selected For Building: " << part->selectedForBuilding << "\n";
+            m_out << i3 << "Build Target Type    : " << Utils::toString(part->buildTargetType) << "\n";
             m_out << i3 << "Lanugage Version     : " << Utils::toString(part->languageVersion)<<"\n";
             m_out << i3 << "Lanugage Extensions  : " << Utils::toString(part->languageExtensions)
                   << "\n";

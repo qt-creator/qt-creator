@@ -1004,6 +1004,8 @@ void QbsProject::updateCppCodeModel()
             rpp.setProjectFileLocation(grp.location().filePath(),
                                        grp.location().line(), grp.location().column());
             rpp.setBuildSystemTarget(prd.name());
+            rpp.setBuildTargetType(prd.isRunnable() ? CppTools::ProjectPart::Executable
+                                                    : CppTools::ProjectPart::Library);
 
             QHash<QString, qbs::ArtifactData> filePathToSourceArtifact;
             bool hasCFiles = false;

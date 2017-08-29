@@ -186,6 +186,7 @@ static ProjectPart::Ptr projectPartFromRawProjectPart(const RawProjectPart &rawP
     part->projectFileColumn = rawProjectPart.projectFileColumn;
     part->callGroupId = rawProjectPart.callGroupId;
     part->buildSystemTarget = rawProjectPart.buildSystemTarget;
+    part->buildTargetType = rawProjectPart.buildTargetType;
     part->qtVersion = rawProjectPart.qtVersion;
     part->projectMacros = rawProjectPart.projectMacros;
     part->headerPaths = rawProjectPart.headerPaths;

@@ -1800,6 +1800,7 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
         {QString::fromLatin1("Callgroup Id"), callGroupId},
         {QString::fromLatin1("Precompiled Headers"), precompiledHeaders},
         {QString::fromLatin1("Selected For Building"), CMI::Utils::toString(part->selectedForBuilding)},
+        {QString::fromLatin1("Build Target Type"), CMI::Utils::toString(part->buildTargetType)},
         {QString::fromLatin1("Language Version"), CMI::Utils::toString(part->languageVersion)},
         {QString::fromLatin1("Language Extensions"), CMI::Utils::toString(part->languageExtensions)},
         {QString::fromLatin1("Qt Version"), CMI::Utils::toString(part->qtVersion)}

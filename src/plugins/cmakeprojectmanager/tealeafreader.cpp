@@ -388,6 +388,9 @@ void TeaLeafReader::updateCodeModel(CppTools::RawProjectParts &rpps)
         rpp.setDisplayName(cbt.title);
         rpp.setFiles(transform(cbt.files, [](const FileName &fn) { return fn.toString(); }));
 
+        const bool isExecutable = cbt.targetType == ExecutableType;
+        rpp.setBuildTargetType(isExecutable ? CppTools::ProjectPart::Executable
+                                            : CppTools::ProjectPart::Library);
         rpps.append(rpp);
     }
 }
