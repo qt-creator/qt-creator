@@ -3046,13 +3046,18 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
 void ProjectExplorerPluginPrivate::addNewFile()
 {
     QTC_ASSERT(ProjectTree::currentNode(), return);
-    QString location = directoryFor(ProjectTree::currentNode());
+    Node *currentNode = ProjectTree::currentNode();
+    QString location = directoryFor(currentNode);
 
     QVariantMap map;
-    map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(ProjectTree::currentNode()));
-    if (ProjectTree::currentProject()) {
-        QList<Id> profileIds = Utils::transform(ProjectTree::currentProject()->targets(), &Target::id);
+    // store void pointer to avoid QVariant to use qobject_cast, which might core-dump when trying
+    // to access meta data on an object that get deleted in the meantime:
+    map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(static_cast<void *>(currentNode)));
+    map.insert(Constants::PREFERRED_PROJECT_NODE_PATH, currentNode->filePath().toString());
+    if (Project *p = ProjectTree::currentProject()) {
+        QList<Id> profileIds = Utils::transform(p->targets(), &Target::id);
         map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), QVariant::fromValue(profileIds));
+        map.insert(Constants::PROJECT_POINTER, QVariant::fromValue(static_cast<void *>(p)));
     }
     ICore::showNewItemDialog(tr("New File", "Title of dialog"),
                              Utils::filtered(IWizardFactory::allWizardFactories(),
@@ -3121,7 +3126,8 @@ void ProjectExplorerPluginPrivate::addExistingDirectory()
 
 void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const QStringList &filePaths)
 {
-    if (!folderNode) // can happen when project is not yet parsed
+    // can happen when project is not yet parsed or finished parsing while the dialog was open:
+    if (!folderNode || !ProjectTree::hasNode(folderNode))
         return;
 
     const QString dir = directoryFor(folderNode);

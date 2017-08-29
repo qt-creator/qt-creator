@@ -72,10 +72,15 @@ ProjectTree::ProjectTree(QObject *parent) : QObject(parent)
 
     connect(SessionManager::instance(), &SessionManager::projectAdded,
             this, &ProjectTree::sessionChanged);
+    connect(SessionManager::instance(), &SessionManager::projectAdded,
+            this, &ProjectTree::treeChanged);
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
             this, &ProjectTree::sessionChanged);
+    connect(SessionManager::instance(), &SessionManager::projectRemoved,
+            this, &ProjectTree::treeChanged);
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &ProjectTree::sessionChanged);
+    connect(this, &ProjectTree::subtreeChanged, this, &ProjectTree::treeChanged);
 }
 
 ProjectTree::~ProjectTree()
@@ -261,7 +266,8 @@ void ProjectTree::updateContext()
 
 void ProjectTree::emitSubtreeChanged(FolderNode *node)
 {
-    emit s_instance->subtreeChanged(node);
+    if (hasNode(node))
+        emit s_instance->subtreeChanged(node);
 }
 
 void ProjectTree::collapseAll()
@@ -375,6 +381,13 @@ void ProjectTree::applyTreeManager(FolderNode *folder)
 
     for (TreeManagerFunction &f : s_instance->m_treeManagers)
         f(folder);
+}
+
+bool ProjectTree::hasNode(const Node *node)
+{
+    return Utils::contains(SessionManager::projects(), [node](const Project *p) {
+        return p && p->rootProjectNode() && p->rootProjectNode()->findNode([node](const Node *n) { return n == node; });
+    });
 }
 
 void ProjectTree::hideContextMenu()

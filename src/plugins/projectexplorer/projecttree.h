@@ -68,6 +68,8 @@ public:
     static void registerTreeManager(const TreeManagerFunction &treeChange);
     static void applyTreeManager(FolderNode *folder);
 
+    static bool hasNode(const Node *node);
+
     void collapseAll();
 
     // for nodes to emit signals, do not call unless you are a node
@@ -82,6 +84,9 @@ signals:
 
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
                                 ProjectExplorer::Node *node);
+
+    // Emitted on any change to the tree
+    void treeChanged();
 
 private:
     void sessionChanged();
