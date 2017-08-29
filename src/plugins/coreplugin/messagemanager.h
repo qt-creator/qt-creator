@@ -42,8 +42,6 @@ class CORE_EXPORT MessageManager : public QObject
 public:
     static MessageManager *instance();
 
-    static void showOutputPane();
-
     enum PrintToOutputPaneFlag {
         NoModeSwitch   = IOutputPane::NoModeSwitch,
         ModeSwitch     = IOutputPane::ModeSwitch,
@@ -54,6 +52,8 @@ public:
     };
 
     Q_DECLARE_FLAGS(PrintToOutputPaneFlags, PrintToOutputPaneFlag)
+
+    static void showOutputPane(Core::MessageManager::PrintToOutputPaneFlags flags = NoModeSwitch);
 
 public slots:
     static void write(const QString &text,
