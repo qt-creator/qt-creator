@@ -48,7 +48,7 @@ QString RmCMakeOperation::name() const
 
 QString RmCMakeOperation::helpText() const
 {
-    return QString("remove a cmake tool from Qt Creator");
+    return QString("remove a cmake tool");
 }
 
 QString RmCMakeOperation::argumentsHelpText() const

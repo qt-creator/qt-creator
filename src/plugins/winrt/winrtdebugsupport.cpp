@@ -27,6 +27,8 @@
 #include "winrtrunconfiguration.h"
 #include "winrtrunnerhelper.h"
 
+#include <app/app_version.h>
+
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -56,9 +58,10 @@ WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl)
     QFileInfo debuggerHelper(QCoreApplication::applicationDirPath()
                              + QLatin1String("/winrtdebughelper.exe"));
     if (!debuggerHelper.isExecutable()) {
-        reportFailure(tr("The WinRT debugging helper is missing from your Qt Creator "
-                         "installation. It was assumed to be located at %1").arg(
-                    debuggerHelper.absoluteFilePath()));
+        reportFailure(tr("The WinRT debugging helper is missing from your %1 "
+                         "installation. It was assumed to be located at %2")
+                      .arg(Core::Constants::IDE_DISPLAY_NAME)
+                      .arg(debuggerHelper.absoluteFilePath()));
         return;
     }
 

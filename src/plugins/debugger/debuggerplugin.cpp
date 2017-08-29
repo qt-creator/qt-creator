@@ -67,6 +67,8 @@
 #include "analyzer/analyzerconstants.h"
 #include "analyzer/analyzermanager.h"
 
+#include <app/app_version.h>
+
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -2089,9 +2091,11 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     const Abi tcAbi = ToolChainKitInformation::targetAbi(kit);
     const bool isWindows = (tcAbi.os() == Abi::WindowsOS);
     if (isWindows && isWinProcessBeingDebugged(process.pid)) {
-        AsynchronousMessageBox::warning(tr("Process Already Under Debugger Control"),
-                             tr("The process %1 is already under the control of a debugger.\n"
-                                "Qt Creator cannot attach to it.").arg(process.pid));
+        AsynchronousMessageBox::warning(
+                    tr("Process Already Under Debugger Control"),
+                    tr("The process %1 is already under the control of a debugger.\n"
+                       "%2 cannot attach to it.").arg(process.pid)
+                    .arg(Core::Constants::IDE_DISPLAY_NAME));
         return 0;
     }
 

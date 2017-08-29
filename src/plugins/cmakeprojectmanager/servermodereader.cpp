@@ -157,7 +157,7 @@ void ServerModeReader::resetData()
 void ServerModeReader::parse(bool force)
 {
     emit configurationStarted();
-    Core::MessageManager::write(tr("Starting to parse CMake project for Qt Creator."));
+    Core::MessageManager::write(tr("Starting to parse CMake project."));
 
     QTC_ASSERT(m_cmakeServer, return);
     QVariantMap extra;

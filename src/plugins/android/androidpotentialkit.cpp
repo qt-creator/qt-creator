@@ -27,6 +27,8 @@
 #include "androidconstants.h"
 #include "androidconfigurations.h"
 
+#include <app/app_version.h>
+
 #include <utils/detailswidget.h>
 #include <utils/utilsicons.h>
 
@@ -91,8 +93,9 @@ AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)
     auto layout = new QGridLayout(mainWidget);
     layout->setMargin(0);
     auto label = new QLabel;
-    label->setText(tr("Qt Creator needs additional settings to enable Android support."
-                      " You can configure those settings in the Options dialog."));
+    label->setText(tr("%1 needs additional settings to enable Android support."
+                      " You can configure those settings in the Options dialog.")
+                   .arg(Core::Constants::IDE_DISPLAY_NAME));
     label->setWordWrap(true);
     layout->addWidget(label, 0, 0, 1, 2);
 

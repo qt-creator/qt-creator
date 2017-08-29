@@ -29,6 +29,8 @@
 #include "designersettings.h"
 #include "puppetcreator.h"
 
+#include <app/app_version.h>
+
 #include <coreplugin/icore.h>
 
 #include <qmljseditor/qmljseditorconstants.h>
@@ -251,7 +253,8 @@ void SettingsPage::apply()
         if (currentSettings.value(key) != newSettings.value(key)) {
             QMessageBox::information(Core::ICore::mainWindow(), tr("Restart Required"),
                 tr("The made changes will take effect after a "
-                   "restart of the QML Emulation layer or Qt Creator."));
+                   "restart of the QML Emulation layer or %1.")
+                .arg(Core::Constants::IDE_DISPLAY_NAME));
             break;
         }
     }

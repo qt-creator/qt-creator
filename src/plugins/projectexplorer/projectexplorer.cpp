@@ -94,6 +94,7 @@
 #include "projecttree.h"
 #include "projectwelcomepage.h"
 
+#include <app/app_version.h>
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
@@ -2545,9 +2546,10 @@ bool ProjectExplorerPlugin::coreAboutToClose()
         QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Close"), QMessageBox::AcceptRole);
         QPushButton *cancelClose = box.addButton(tr("Do Not Close"), QMessageBox::RejectRole);
         box.setDefaultButton(cancelClose);
-        box.setWindowTitle(tr("Close Qt Creator?"));
+        box.setWindowTitle(tr("Close %1?").arg(Core::Constants::IDE_DISPLAY_NAME));
         box.setText(tr("A project is currently being built."));
-        box.setInformativeText(tr("Do you want to cancel the build process and close Qt Creator anyway?"));
+        box.setInformativeText(tr("Do you want to cancel the build process and close %1 anyway?")
+                               .arg(Core::Constants::IDE_DISPLAY_NAME));
         box.exec();
         if (box.clickedButton() != closeAnyway)
             return false;

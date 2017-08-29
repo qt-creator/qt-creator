@@ -26,11 +26,10 @@
 #include "commandsfile.h"
 #include "command_p.h"
 #include <coreplugin/dialogs/shortcutsettings.h>
+#include <coreplugin/icore.h>
 
 #include <app/app_version.h>
-
 #include <utils/qtcassert.h>
-
 #include <utils/fileutils.h>
 
 #include <QKeySequence>
@@ -137,8 +136,8 @@ bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
         w.setAutoFormattingIndent(1); // Historical, used to be QDom.
         w.writeStartDocument();
         w.writeDTD(QLatin1String("<!DOCTYPE KeyboardMappingScheme>"));
-        w.writeComment(QString::fromLatin1(" Written by Qt Creator %1, %2. ").
-                       arg(QLatin1String(Constants::IDE_VERSION_LONG),
+        w.writeComment(QString::fromLatin1(" Written by %1, %2. ").
+                       arg(ICore::versionString(),
                            QDateTime::currentDateTime().toString(Qt::ISODate)));
         w.writeStartElement(ctx.mappingElement);
         foreach (const ShortcutItem *item, items) {

@@ -25,6 +25,7 @@
 
 #include "task.h"
 
+#include <app/app_version.h>
 #include <texteditor/textmark.h>
 #include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
@@ -68,8 +69,9 @@ Task Task::compilerMissingTask()
 {
     return Task(Task::Error,
                 QCoreApplication::translate("ProjectExplorer::Task",
-                                            "Qt Creator needs a compiler set up to build. "
-                                            "Configure a compiler in the kit options."),
+                                            "%1 needs a compiler set up to build. "
+                                            "Configure a compiler in the kit options.")
+                .arg(Core::Constants::IDE_DISPLAY_NAME),
                 Utils::FileName(), -1,
                 Constants::TASK_CATEGORY_BUILDSYSTEM);
 }
@@ -78,8 +80,9 @@ Task Task::buildConfigurationMissingTask()
 {
     return Task(Task::Error,
                 QCoreApplication::translate("ProjectExplorer::Task",
-                                            "Qt Creator needs a build configuration set up to build. "
-                                            "Configure a build configuration in the project settings."),
+                                            "%1 needs a build configuration set up to build. "
+                                            "Configure a build configuration in the project settings.")
+                .arg(Core::Constants::IDE_DISPLAY_NAME),
                 Utils::FileName(), -1,
                 Constants::TASK_CATEGORY_BUILDSYSTEM);
 }

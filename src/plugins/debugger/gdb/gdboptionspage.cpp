@@ -86,11 +86,11 @@ GdbOptionsPageWidget::GdbOptionsPageWidget()
     auto labelGdbWatchdogTimeout = new QLabel(groupBoxGeneral);
     labelGdbWatchdogTimeout->setText(GdbOptionsPage::tr("GDB timeout:"));
     labelGdbWatchdogTimeout->setToolTip(GdbOptionsPage::tr(
-        "The number of seconds Qt Creator will wait before it terminates\n"
-        "a non-responsive GDB process. The default value of 20 seconds should\n"
-        "be sufficient for most applications, but there are situations when\n"
-        "loading big libraries or listing source files takes much longer than\n"
-        "that on slow machines. In this case, the value should be increased."));
+        "The number of seconds before a non-responsive GDB process is terminated.\n"
+        "The default value of 20 seconds should be sufficient for most\n"
+        "applications, but there are situations when loading big libraries or\n"
+        "listing source files takes much longer than that on slow machines.\n"
+        "In this case, the value should be increased."));
 
     auto spinBoxGdbWatchdogTimeout = new QSpinBox(groupBoxGeneral);
     spinBoxGdbWatchdogTimeout->setToolTip(labelGdbWatchdogTimeout->toolTip());

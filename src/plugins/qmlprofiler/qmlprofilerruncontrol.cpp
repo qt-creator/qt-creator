@@ -28,6 +28,8 @@
 #include "qmlprofilerclientmanager.h"
 #include "qmlprofilertool.h"
 
+#include <app/app_version.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 
@@ -100,7 +102,7 @@ void QmlProfilerRunner::start()
             this, [this, clientManager] {
         QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
         infoBox->setIcon(QMessageBox::Critical);
-        infoBox->setWindowTitle(QmlProfilerTool::tr("Qt Creator"));
+        infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
         infoBox->setText(QmlProfilerTool::tr("Could not connect to the in-process QML profiler.\n"
                                              "Do you want to retry?"));
         infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel | QMessageBox::Help);

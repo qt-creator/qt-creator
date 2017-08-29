@@ -63,7 +63,7 @@ QString AddQtOperation::name() const
 
 QString AddQtOperation::helpText() const
 {
-    return QLatin1String("add a Qt version to Qt Creator");
+    return QLatin1String("add a Qt version");
 }
 
 QString AddQtOperation::argumentsHelpText() const

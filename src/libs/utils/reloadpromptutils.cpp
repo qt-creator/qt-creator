@@ -44,11 +44,11 @@ QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const FileName &fileName,
 
     if (modified) {
         msg = QCoreApplication::translate("Utils::reloadPrompt",
-                "The unsaved file <i>%1</i> has changed outside Qt Creator. "
+                "The unsaved file <i>%1</i> has been changed on disk. "
                 "Do you want to reload it and discard your changes?");
     } else {
         msg = QCoreApplication::translate("Utils::reloadPrompt",
-                "The file <i>%1</i> has changed outside Qt Creator. Do you want to reload it?");
+                "The file <i>%1</i> has been changed on disk. Do you want to reload it?");
     }
     msg = msg.arg(fileName.fileName());
     return reloadPrompt(title, msg, fileName.toUserOutput(), enableDiffOption, parent);
@@ -106,12 +106,12 @@ QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer
     QString msg;
     if (triggerExternally) {
         msg = QCoreApplication::translate("Utils::fileDeletedPrompt",
-                                          "The file %1 has been removed outside Qt Creator. "
+                                          "The file %1 has been removed from disk. "
                                           "Do you want to save it under a different name, or close "
                                           "the editor?").arg(QDir::toNativeSeparators(fileName));
     } else {
         msg = QCoreApplication::translate("Utils::fileDeletedPrompt",
-                                          "The file %1 was removed. "
+                                          "The file %1 has been removed from disk. "
                                           "Do you want to save it under a different name, or close "
                                           "the editor?").arg(QDir::toNativeSeparators(fileName));
     }

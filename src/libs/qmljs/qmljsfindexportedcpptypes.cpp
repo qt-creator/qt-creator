@@ -252,7 +252,7 @@ protected:
                         _doc->fileName(),
                         line, column,
                         QmlJS::FindExportedCppTypes::tr(
-                            "The type will only be available in Qt Creator's QML editors when the type name is a string literal"));
+                            "The type will only be available in the QML editors when the type name is a string literal"));
             return false;
         }
 
@@ -314,7 +314,7 @@ protected:
                         QmlJS::FindExportedCppTypes::tr(
                             "The module URI cannot be determined by static analysis. The type will be available\n"
                             "globally in the QML editor. You can add a \"// @uri My.Module.Uri\" annotation to let\n"
-                            "Qt Creator know about a likely URI."));
+                            "the QML editor know about a likely URI."));
         }
 
         // version arguments must be integer literals

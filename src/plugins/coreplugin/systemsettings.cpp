@@ -31,6 +31,7 @@
 #include "patchtool.h"
 #include "vcsmanager.h"
 
+#include <app/app_version.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/consoleprocess.h>
 #include <utils/environment.h>
@@ -97,6 +98,11 @@ QWidget *SystemSettings::widget()
         m_page->patchChooser->setHistoryCompleter(QLatin1String("General.PatchCommand.History"));
         m_page->patchChooser->setPath(PatchTool::patchCommand());
         m_page->autoSaveCheckBox->setChecked(EditorManagerPrivate::autoSaveEnabled());
+        m_page->autoSaveCheckBox->setToolTip(tr("Automatically creates temporary copies of "
+                                                "modified files. If %1 is restarted after "
+                                                "a crash or power failure, it asks whether to "
+                                                "recover the auto-saved content.")
+                                             .arg(Constants::IDE_DISPLAY_NAME));
         m_page->autoSaveInterval->setValue(EditorManagerPrivate::autoSaveInterval());
         m_page->autoSuspendCheckBox->setChecked(EditorManagerPrivate::autoSuspendEnabled());
         m_page->autoSuspendMinDocumentCount->setValue(EditorManagerPrivate::autoSuspendMinDocumentCount());

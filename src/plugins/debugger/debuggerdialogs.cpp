@@ -34,6 +34,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/toolchain.h>
+
+#include <app/app_version.h>
 #include <utils/pathchooser.h>
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
@@ -264,7 +266,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->serverStartScriptPathChooser->setPromptDialogTitle(tr("Select Server Start Script"));
     d->serverStartScriptPathChooser->setToolTip(tr(
         "This option can be used to point to a script that will be used "
-        "to start a debug server. If the field is empty, Qt Creator's "
+        "to start a debug server. If the field is empty, "
         "default methods to set up debug servers will be used."));
     d->serverStartScriptLabel = new QLabel(tr("&Server start script:"), this);
     d->serverStartScriptLabel->setBuddy(d->serverStartScriptPathChooser);
@@ -558,15 +560,16 @@ static QString cdbRemoteHelp()
     const QString ext32 = QDir::toNativeSeparators(CdbEngine::extensionLibraryName(false));
     const QString ext64 = QDir::toNativeSeparators(CdbEngine::extensionLibraryName(true));
     return  StartRemoteCdbDialog::tr(
-                "<html><body><p>The remote CDB needs to load the matching Qt Creator CDB extension "
-                "(<code>%1</code> or <code>%2</code>, respectively).</p><p>Copy it onto the remote machine and set the "
-                "environment variable <code>%3</code> to point to its folder.</p><p>"
-                "Launch the remote CDB as <code>%4 &lt;executable&gt;</code> "
+                "<html><body><p>The remote CDB needs to load the matching %1 CDB extension "
+                "(<code>%2</code> or <code>%3</code>, respectively).</p><p>Copy it onto the remote machine and set the "
+                "environment variable <code>%4</code> to point to its folder.</p><p>"
+                "Launch the remote CDB as <code>%5 &lt;executable&gt;</code> "
                 "to use TCP/IP as communication protocol.</p><p>Enter the connection parameters as:</p>"
-                "<pre>%5</pre></body></html>").
-            arg(ext32, ext64, QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"),
-                QLatin1String("cdb.exe -server tcp:port=1234"),
-                QLatin1String(cdbConnectionSyntax));
+                "<pre>%6</pre></body></html>")
+            .arg(Core::Constants::IDE_DISPLAY_NAME,
+                 ext32, ext64, QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"),
+                 QLatin1String("cdb.exe -server tcp:port=1234"),
+                 QLatin1String(cdbConnectionSyntax));
 }
 
 StartRemoteCdbDialog::StartRemoteCdbDialog(QWidget *parent) :

@@ -55,7 +55,7 @@ QString AddCMakeOperation::name() const
 
 QString AddCMakeOperation::helpText() const
 {
-    return QString("add a cmake tool to Qt Creator");
+    return QString("add a cmake tool");
 }
 
 QString AddCMakeOperation::argumentsHelpText() const

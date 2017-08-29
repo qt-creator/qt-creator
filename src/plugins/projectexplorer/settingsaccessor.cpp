@@ -35,6 +35,7 @@
 #include "kit.h"
 #include "kitmanager.h"
 
+#include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <utils/persistentsettings.h>
 #include <utils/hostosinfo.h>
@@ -837,11 +838,12 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
         result.message = QApplication::translate("Utils::SettingsAccessor",
                                                  "<p>The versioned backup \"%1\" of the settings "
                                                  "file is used, because the non-versioned file was "
-                                                 "created by an incompatible version of Qt Creator.</p>"
+                                                 "created by an incompatible version of %2.</p>"
                                                  "<p>Settings changes made since the last time this "
-                                                 "version of Qt Creator was used are ignored, and "
+                                                 "version of %2 was used are ignored, and "
                                                  "changes made now will <b>not</b> be propagated to "
-                                                 "the newer version.</p>").arg(path.toUserOutput());
+                                                 "the newer version.</p>").arg(path.toUserOutput())
+                .arg(Core::Constants::IDE_DISPLAY_NAME);
         result.buttons.insert(QMessageBox::Ok, Continue);
     }
 
@@ -853,10 +855,11 @@ SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data
         result.title = differentEnvironmentMsg(project()->displayName());
         result.message = QApplication::translate("ProjectExplorer::EnvironmentIdAccessor",
                                                  "<p>No .user settings file created by this instance "
-                                                 "of Qt Creator was found.</p>"
+                                                 "of %1 was found.</p>"
                                                  "<p>Did you work with this project on another machine or "
                                                  "using a different settings path before?</p>"
-                                                 "<p>Do you still want to load the settings file \"%1\"?</p>")
+                                                 "<p>Do you still want to load the settings file \"%2\"?</p>")
+                .arg(Core::Constants::IDE_DISPLAY_NAME)
                 .arg(path.toUserOutput());
         result.defaultButton = QMessageBox::No;
         result.escapeButton = QMessageBox::No;
@@ -1093,8 +1096,9 @@ QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
                                             "Unsupported Shared Settings File"),
                     QApplication::translate("ProjectExplorer::SettingsAccessor",
                                             "The version of your .shared file is not "
-                                            "supported by Qt Creator. "
-                                            "Do you want to try loading it anyway?"),
+                                            "supported by %1. "
+                                            "Do you want to try loading it anyway?")
+                    .arg(Core::Constants::IDE_DISPLAY_NAME),
                     QMessageBox::Yes | QMessageBox::No,
                     parent);
         msgBox.setDefaultButton(QMessageBox::No);

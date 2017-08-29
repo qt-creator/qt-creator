@@ -30,6 +30,7 @@
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagersettings.h"
 
+#include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
@@ -105,6 +106,8 @@ QbsProfilesSettingsWidget::QbsProfilesSettingsWidget(QWidget *parent)
 {
     m_model.setEditable(false);
     m_ui.setupUi(this);
+    m_ui.settingsDirCheckBox->setText(tr("Store profiles in %1 settings directory")
+                                      .arg(Core::Constants::IDE_DISPLAY_NAME));
     m_ui.settingsDirCheckBox->setChecked(QbsProjectManagerSettings::useCreatorSettingsDirForQbs());
     m_ui.versionValueLabel->setText(qbs::LanguageInfo::qbsVersion());
     connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsChanged,

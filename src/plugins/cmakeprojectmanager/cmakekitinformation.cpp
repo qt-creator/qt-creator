@@ -29,6 +29,7 @@
 #include "cmaketoolmanager.h"
 #include "cmaketool.h"
 
+#include <app/app_version.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/kit.h>
@@ -383,7 +384,8 @@ QList<Task> CMakeGeneratorKitInformation::validate(const Kit *k) const
             if (!tool->hasServerMode() && info.extraGenerator != "CodeBlocks") {
                 result << Task(Task::Warning, tr("The selected CMake binary has no server-mode and the CMake "
                                                  "generator does not generate a CodeBlocks file. "
-                                                 "Qt Creator will not be able to parse CMake projects."),
+                                                 "%1 will not be able to parse CMake projects.")
+                               .arg(Core::Constants::IDE_DISPLAY_NAME),
                                Utils::FileName(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
             }
         }

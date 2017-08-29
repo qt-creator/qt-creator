@@ -26,6 +26,8 @@
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <app/app_version.h>
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
@@ -227,7 +229,8 @@ public:
             l->addWidget(newLabel);
 
             auto learnLabel = new QLabel(tr("Learn how to develop your own applications "
-                                            "and explore Qt Creator."), this);
+                                            "and explore %1.")
+                                         .arg(Core::Constants::IDE_DISPLAY_NAME), this);
             learnLabel->setMaximumWidth(200);
             learnLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
             learnLabel->setWordWrap(true);

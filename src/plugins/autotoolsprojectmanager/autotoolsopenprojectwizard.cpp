@@ -81,7 +81,7 @@ BuildPathPage::BuildPathPage(AutotoolsOpenProjectWizard *w) : QWizardPage(w),
     QLabel *label = new QLabel(this);
     label->setWordWrap(true);
     label->setText(tr("Please enter the directory in which you want to build your project. "
-                      "Qt Creator recommends to not use the source directory for building. "
+                      "It is not recommended to use the source directory for building. "
                       "This ensures that the source directory remains clean and enables multiple builds "
                       "with different settings."));
     fl->addWidget(label);

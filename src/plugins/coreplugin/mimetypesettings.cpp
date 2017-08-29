@@ -31,6 +31,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
+
 #include <utils/algorithm.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -400,7 +401,7 @@ void MimeTypeSettingsPrivate::resetMimeTypes()
     m_userModifiedMimeTypes.clear(); // settings file will be removed with next settings-save
     QMessageBox::information(ICore::dialogParent(),
                              tr("Reset MIME Types"),
-                             tr("Changes will take effect after Qt Creator restart."));
+                             tr("Changes will take effect after restart."));
 }
 
 void MimeTypeSettingsPrivate::setFilterPattern(const QString &pattern)

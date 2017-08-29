@@ -50,7 +50,7 @@ QString AddDeviceOperation::name() const
 
 QString AddDeviceOperation::helpText() const
 {
-    return QLatin1String("add a Device to Qt Creator");
+    return QLatin1String("add a Device");
 }
 
 QString AddDeviceOperation::argumentsHelpText() const

@@ -44,6 +44,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/fileutils.h>
 
+#include <app/app_version.h>
 #include <extensionsystem/pluginerroroverview.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -186,15 +187,22 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                []() { return DocumentManager::projectsDirectory(); });
     expander->registerVariable("Config:LastFileDialogDirectory", tr("The directory last visited in a file dialog."),
                                []() { return DocumentManager::fileDialogLastVisitedDirectory(); });
-    expander->registerVariable("HostOs:isWindows", tr("Is Qt Creator running on Windows?"),
+    expander->registerVariable("HostOs:isWindows",
+                               tr("Is %1 running on Windows?").arg(Constants::IDE_DISPLAY_NAME),
                                []() { return QVariant(Utils::HostOsInfo::isWindowsHost()).toString(); });
-    expander->registerVariable("HostOs:isOSX", tr("Is Qt Creator running on OS X?"),
+    expander->registerVariable("HostOs:isOSX",
+                               tr("Is %1 running on OS X?").arg(Constants::IDE_DISPLAY_NAME),
                                []() { return QVariant(Utils::HostOsInfo::isMacHost()).toString(); });
-    expander->registerVariable("HostOs:isLinux", tr("Is Qt Creator running on Linux?"),
+    expander->registerVariable("HostOs:isLinux",
+                               tr("Is %1 running on Linux?").arg(Constants::IDE_DISPLAY_NAME),
                                []() { return QVariant(Utils::HostOsInfo::isLinuxHost()).toString(); });
-    expander->registerVariable("HostOs:isUnix", tr("Is Qt Creator running on any unix-based platform?"),
+    expander->registerVariable("HostOs:isUnix",
+                               tr("Is %1 running on any unix-based platform?")
+                                   .arg(Constants::IDE_DISPLAY_NAME),
                                []() { return QVariant(Utils::HostOsInfo::isAnyUnixHost()).toString(); });
-    expander->registerVariable("IDE:ResourcePath", tr("The directory where Qt Creator finds its pre-installed resources."),
+    expander->registerVariable("IDE:ResourcePath",
+                               tr("The directory where %1 finds its pre-installed resources.")
+                                   .arg(Constants::IDE_DISPLAY_NAME),
                                []() { return ICore::resourcePath(); });
     expander->registerPrefix("CurrentDate:", tr("The current date (QDate formatstring)."),
                              [](const QString &fmt) { return QDate::currentDate().toString(fmt); });

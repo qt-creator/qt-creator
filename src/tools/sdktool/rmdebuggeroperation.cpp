@@ -53,7 +53,7 @@ QString RmDebuggerOperation::name() const
 
 QString RmDebuggerOperation::helpText() const
 {
-    return QLatin1String("remove a debugger from Qt Creator");
+    return QLatin1String("remove a debugger");
 }
 
 QString RmDebuggerOperation::argumentsHelpText() const

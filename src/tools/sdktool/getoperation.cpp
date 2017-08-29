@@ -34,7 +34,7 @@ QString GetOperation::name() const
 
 QString GetOperation::helpText() const
 {
-    return QLatin1String("get settings from Qt Creator configuration");
+    return QLatin1String("get settings from configuration");
 }
 
 QString GetOperation::argumentsHelpText() const

@@ -57,6 +57,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <app/app_version.h>
 #include <utils/treemodel.h>
 #include <utils/basetreeview.h>
 #include <utils/qtcassert.h>
@@ -422,7 +423,7 @@ void QmlEngine::connectionStartupFailed()
 
     QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
     infoBox->setIcon(QMessageBox::Critical);
-    infoBox->setWindowTitle(tr("Qt Creator"));
+    infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
     infoBox->setText(tr("Could not connect to the in-process QML debugger."
                         "\nDo you want to retry?"));
     infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel |
@@ -443,7 +444,7 @@ void QmlEngine::appStartupFailed(const QString &errorMessage)
     if (isMasterEngine()) {
         QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
         infoBox->setIcon(QMessageBox::Critical);
-        infoBox->setWindowTitle(tr("Qt Creator"));
+        infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
         infoBox->setText(error);
         infoBox->setStandardButtons(QMessageBox::Ok | QMessageBox::Help);
         infoBox->setDefaultButton(QMessageBox::Ok);

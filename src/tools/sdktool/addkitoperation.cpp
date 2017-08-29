@@ -78,7 +78,7 @@ QString AddKitOperation::name() const
 
 QString AddKitOperation::helpText() const
 {
-    return QString("add a Kit to Qt Creator");
+    return QString("add a Kit");
 }
 
 QString AddKitOperation::argumentsHelpText() const

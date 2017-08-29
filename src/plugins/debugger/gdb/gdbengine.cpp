@@ -66,6 +66,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
 
+#include <app/app_version.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
@@ -1636,8 +1637,9 @@ void GdbEngine::handlePythonSetup(const DebuggerResponse &response)
             QString out = "<p>"
                 + tr("The selected build of GDB supports Python scripting, "
                      "but the used version %1.%2 is not sufficient for "
-                     "Qt Creator. Supported versions are Python 2.7 and 3.x.")
-                    .arg(pythonMajor).arg(pythonMinor);
+                     "%3. Supported versions are Python 2.7 and 3.x.")
+                    .arg(pythonMajor).arg(pythonMinor)
+                    .arg(Core::Constants::IDE_DISPLAY_NAME);
             showStatusMessage(out);
             AsynchronousMessageBox::critical(tr("Execution Error"), out);
         }
@@ -1649,7 +1651,8 @@ void GdbEngine::handlePythonSetup(const DebuggerResponse &response)
         QString msg = response.data["msg"].data();
         if (msg.contains("Python scripting is not supported in this copy of GDB.")) {
             QString out1 = "The selected build of GDB does not support Python scripting.";
-            QString out2 = "It cannot be used in Qt Creator.";
+            QString out2 = QStringLiteral("It cannot be used in %1.")
+                    .arg(Core::Constants::IDE_DISPLAY_NAME);
             showStatusMessage(out1 + ' ' + out2);
             AsynchronousMessageBox::critical(tr("Execution Error"), out1 + "<br>" + out2);
         }

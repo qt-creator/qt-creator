@@ -34,7 +34,7 @@ QString RmKeysOperation::name() const
 
 QString RmKeysOperation::helpText() const
 {
-    return QLatin1String("remove settings from Qt Creator configuration");
+    return QLatin1String("remove settings from configuration");
 }
 
 QString RmKeysOperation::argumentsHelpText() const

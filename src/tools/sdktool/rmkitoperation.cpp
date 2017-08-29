@@ -57,7 +57,7 @@ QString RmKitOperation::name() const
 
 QString RmKitOperation::helpText() const
 {
-    return QString("remove a Kit from Qt Creator");
+    return QString("remove a Kit");
 }
 
 QString RmKitOperation::argumentsHelpText() const

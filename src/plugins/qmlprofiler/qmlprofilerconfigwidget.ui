@@ -21,7 +21,7 @@
    <item row="0" column="1">
     <widget class="QCheckBox" name="flushEnabled">
      <property name="toolTip">
-      <string>Periodically flush pending data to Qt Creator. This reduces the delay when loading the
+      <string>Periodically flush pending data to the profiler. This reduces the delay when loading the
 data and the memory usage in the application. It distorts the profile as the flushing
 itself takes time.</string>
      </property>

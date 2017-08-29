@@ -47,7 +47,7 @@ QString RmQtOperation::name() const
 
 QString RmQtOperation::helpText() const
 {
-    return QLatin1String("remove a Qt version from Qt Creator");
+    return QLatin1String("remove a Qt version");
 }
 
 QString RmQtOperation::argumentsHelpText() const

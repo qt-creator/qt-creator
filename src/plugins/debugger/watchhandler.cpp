@@ -46,6 +46,7 @@
 
 #include <texteditor/syntaxhighlighter.h>
 
+#include <app/app_version.h>
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
@@ -271,7 +272,7 @@ public:
         setTabsClosable(true);
         connect(this, &QTabWidget::tabCloseRequested, this, &SeparatedView::closeTab);
         setWindowFlags(windowFlags() | Qt::Window);
-        setWindowTitle(WatchHandler::tr("Debugger - Qt Creator"));
+        setWindowTitle(WatchHandler::tr("Debugger - %1").arg(Core::Constants::IDE_DISPLAY_NAME));
 
         QVariant geometry = sessionValue("DebuggerSeparateWidgetGeometry");
         if (geometry.isValid()) {

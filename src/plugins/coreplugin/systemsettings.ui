@@ -86,9 +86,6 @@
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
          <widget class="QCheckBox" name="autoSaveCheckBox">
-          <property name="toolTip">
-           <string>Automatically creates temporary copies of modified files. If Qt Creator is restarted after a crash or power failure, it asks whether to recover the auto-saved content.</string>
-          </property>
           <property name="text">
            <string>Auto-save modified files</string>
           </property>
@@ -309,7 +306,7 @@
         <item>
          <widget class="QLabel" name="autoSuspendLabel">
           <property name="toolTip">
-           <string>Minimum number of open documents that should be kept in memory. Increasing this number will lead to greater resource usage of Qt Creator when not manually closing documents.</string>
+           <string>Minimum number of open documents that should be kept in memory. Increasing this number will lead to greater resource usage when not manually closing documents.</string>
           </property>
           <property name="text">
            <string>Files to keep open:</string>

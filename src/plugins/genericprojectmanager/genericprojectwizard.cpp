@@ -31,6 +31,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/customwizard/customwizard.h>
 
+#include <app/app_version.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/filewizardpage.h>
@@ -115,7 +116,8 @@ GenericProjectWizard::GenericProjectWizard()
     setDisplayName(tr("Import Existing Project"));
     setId("Z.Makefile");
     setDescription(tr("Imports existing projects that do not use qmake, CMake or Autotools. "
-                      "This allows you to use Qt Creator as a code editor."));
+                      "This allows you to use %1 as a code editor.")
+                   .arg(Core::Constants::IDE_DISPLAY_NAME));
     setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
     setDisplayCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
     setFlags(Core::IWizardFactory::PlatformIndependent);

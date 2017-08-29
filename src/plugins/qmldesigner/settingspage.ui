@@ -252,14 +252,14 @@
            <bool>true</bool>
           </property>
           <property name="toolTip">
-           <string>Path where Qt Creator can find the QML emulation layer executable (qmlpuppet).</string>
+           <string>Path to the QML emulation layer executable (qmlpuppet).</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="resetFallbackPuppetPathButton">
           <property name="toolTip">
-           <string>Resets the path to the QML emulation layer that comes with Qt Creator.</string>
+           <string>Resets the path to the built-in QML emulation layer.</string>
           </property>
           <property name="text">
            <string>Reset Path</string>

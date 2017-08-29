@@ -349,7 +349,7 @@ QWidget *FontSettingsPage::widget()
         d_ptr->m_ui = new Ui::FontSettingsPage;
         d_ptr->m_ui->setupUi(d_ptr->m_widget);
         d_ptr->m_ui->colorSchemeGroupBox->setTitle(
-                    tr("Color Scheme for Qt Creator Theme \"%1\"")
+                    tr("Color Scheme for Theme \"%1\"")
                     .arg(Utils::creatorTheme()->displayName()));
         d_ptr->m_ui->schemeComboBox->setModel(d_ptr->m_schemeListModel);
 

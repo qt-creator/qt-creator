@@ -26,6 +26,7 @@
 #include "externaltool.h"
 #include "externaltoolmanager.h"
 
+#include "icore.h"
 #include "idocument.h"
 #include "messagemanager.h"
 #include "documentmanager.h"
@@ -480,8 +481,8 @@ bool ExternalTool::save(QString *errorMessage) const
         QXmlStreamWriter out(saver.file());
         out.setAutoFormatting(true);
         out.writeStartDocument(QLatin1String("1.0"));
-        out.writeComment(QString::fromLatin1("Written on %1 by Qt Creator %2")
-                         .arg(QDateTime::currentDateTime().toString(), QLatin1String(Constants::IDE_VERSION_LONG)));
+        out.writeComment(QString::fromLatin1("Written on %1 by %2")
+                         .arg(QDateTime::currentDateTime().toString(), ICore::versionString()));
         out.writeStartElement(QLatin1String(kExternalTool));
         out.writeAttribute(QLatin1String(kId), m_id);
         out.writeTextElement(QLatin1String(kDescription), m_description);

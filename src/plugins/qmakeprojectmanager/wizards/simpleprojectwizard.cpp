@@ -27,6 +27,8 @@
 
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
+#include <app/app_version.h>
+
 #include <coreplugin/basefilewizard.h>
 #include <coreplugin/icore.h>
 
@@ -134,9 +136,10 @@ SimpleProjectWizard::SimpleProjectWizard()
     setDisplayName(tr("Import as qmake Project (Limited Functionality)"));
     setId("Z.DummyProFile");
     setDescription(tr("Imports existing projects that do not use qmake, CMake or Autotools.<p>"
-                      "This creates a qmake .pro file that allows you to use Qt Creator as a code editor "
+                      "This creates a qmake .pro file that allows you to use %1 as a code editor "
                       "and as a launcher for debugging and analyzing tools. "
-                      "If you want to build the project, you might need to edit the generated .pro file."));
+                      "If you want to build the project, you might need to edit the generated .pro file.")
+                   .arg(Core::Constants::IDE_DISPLAY_NAME));
     setCategory(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY);
     setDisplayCategory(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY);
     setFlags(IWizardFactory::PlatformIndependent);
@@ -200,7 +203,8 @@ GeneratedFiles SimpleProjectWizard::generateFiles(const QWizard *w,
     GeneratedFile generatedProFile(proFileName);
     generatedProFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     generatedProFile.setContents(
-        "# Created by and for Qt Creator. This file was created for editing the project sources only.\n"
+        "# Created by and for " + QLatin1String(Core::Constants::IDE_DISPLAY_NAME)
+        + " This file was created for editing the project sources only.\n"
         "# You may attempt to use it for building too, by modifying this file here.\n\n"
         "#TARGET = " + projectName + "\n\n"
         + proHeaders + "\n\n"

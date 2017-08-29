@@ -41,6 +41,8 @@
 #include "target.h"
 #include "targetsetuppage.h"
 
+#include <app/app_version.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
@@ -171,20 +173,22 @@ void TargetSetupPageWrapper::updateNoteText()
     bool showHint = false;
     if (!k) {
         text = tr("The project <b>%1</b> is not yet configured.<br/>"
-                  "Qt Creator cannot parse the project, because no kit "
+                  "%2 cannot parse the project, because no kit "
                   "has been set up.")
-                .arg(m_project->displayName());
+                .arg(m_project->displayName(), Core::Constants::IDE_DISPLAY_NAME);
         showHint = true;
     } else if (k->isValid()) {
         text = tr("The project <b>%1</b> is not yet configured.<br/>"
-                  "Qt Creator uses the kit <b>%2</b> to parse the project.")
+                  "%2 uses the kit <b>%3</b> to parse the project.")
                 .arg(m_project->displayName())
+                .arg(Core::Constants::IDE_DISPLAY_NAME)
                 .arg(k->displayName());
         showHint = false;
     } else {
         text = tr("The project <b>%1</b> is not yet configured.<br/>"
-                  "Qt Creator uses the <b>invalid</b> kit <b>%2</b> to parse the project.")
+                  "%2 uses the <b>invalid</b> kit <b>%3</b> to parse the project.")
                 .arg(m_project->displayName())
+                .arg(Core::Constants::IDE_DISPLAY_NAME)
                 .arg(k->displayName());
         showHint = true;
     }

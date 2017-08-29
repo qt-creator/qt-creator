@@ -34,6 +34,8 @@
 #include "documentmodel_p.h"
 #include "ieditor.h"
 
+#include <app/app_version.h>
+
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -1789,7 +1791,7 @@ void EditorManagerPrivate::updateWindowTitleForDocument(IDocument *document, QWi
 
     if (!windowTitle.isEmpty())
         windowTitle.append(dashSep);
-    windowTitle.append(tr("Qt Creator"));
+    windowTitle.append(Core::Constants::IDE_DISPLAY_NAME);
     window->window()->setWindowTitle(windowTitle);
     window->window()->setWindowFilePath(filePath);
 

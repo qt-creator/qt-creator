@@ -61,7 +61,7 @@ QString AddToolChainOperation::name() const
 
 QString AddToolChainOperation::helpText() const
 {
-    return QString("add a tool chain to Qt Creator");
+    return QString("add a tool chain");
 }
 
 QString AddToolChainOperation::argumentsHelpText() const

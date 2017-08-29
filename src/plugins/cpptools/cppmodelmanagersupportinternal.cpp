@@ -27,6 +27,8 @@
 #include "cppmodelmanagersupportinternal.h"
 #include "builtineditordocumentprocessor.h"
 
+#include <app/app_version.h>
+
 #include <QCoreApplication>
 
 using namespace CppTools;
@@ -40,7 +42,7 @@ QString ModelManagerSupportProviderInternal::id() const
 QString ModelManagerSupportProviderInternal::displayName() const
 {
     return QCoreApplication::translate("ModelManagerSupportInternal::displayName",
-                                       "Qt Creator Built-in");
+                                       "%1 Built-in").arg(Core::Constants::IDE_DISPLAY_NAME);
 }
 
 ModelManagerSupport::Ptr ModelManagerSupportProviderInternal::createModelManagerSupport()

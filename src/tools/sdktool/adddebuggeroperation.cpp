@@ -56,7 +56,7 @@ QString AddDebuggerOperation::name() const
 
 QString AddDebuggerOperation::helpText() const
 {
-    return QLatin1String("add a debugger to Qt Creator");
+    return QLatin1String("add a debugger");
 }
 
 QString AddDebuggerOperation::argumentsHelpText() const

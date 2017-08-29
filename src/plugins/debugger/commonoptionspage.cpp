@@ -32,6 +32,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/variablechooser.h>
 
+#include <app/app_version.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -129,7 +130,9 @@ QWidget *CommonOptionsPage::widget()
         checkBoxSwitchModeOnExit->setText(tr("Switch to previous mode on debugger exit"));
 
         auto checkBoxBringToForegroundOnInterrrupt = new QCheckBox(behaviorBox);
-        checkBoxBringToForegroundOnInterrrupt->setText(tr("Bring Qt Creator to foreground when application interrupts"));
+        checkBoxBringToForegroundOnInterrrupt->setText(
+                    tr("Bring %1 to foreground when application interrupts")
+                    .arg(Core::Constants::IDE_DISPLAY_NAME));
 
         auto checkBoxShowQmlObjectTree = new QCheckBox(behaviorBox);
         checkBoxShowQmlObjectTree->setToolTip(tr("Shows QML object tree in Locals and Expressions when connected and not stepping."));
@@ -140,8 +143,12 @@ QWidget *CommonOptionsPage::widget()
         checkBoxBreakpointsFullPath->setText(tr("Set breakpoints using a full absolute path"));
 
         auto checkBoxRegisterForPostMortem = new QCheckBox(behaviorBox);
-        checkBoxRegisterForPostMortem->setToolTip(tr("Registers Qt Creator for debugging crashed applications."));
-        checkBoxRegisterForPostMortem->setText(tr("Use Qt Creator for post-mortem debugging"));
+        checkBoxRegisterForPostMortem->setToolTip(
+                    tr("Registers %1 for debugging crashed applications.")
+                    .arg(Core::Constants::IDE_DISPLAY_NAME));
+        checkBoxRegisterForPostMortem->setText(
+                    tr("Use %1 for post-mortem debugging")
+                    .arg(Core::Constants::IDE_DISPLAY_NAME));
 
         auto checkBoxWarnOnReleaseBuilds = new QCheckBox(behaviorBox);
         checkBoxWarnOnReleaseBuilds->setText(tr("Warn when debugging \"Release\" builds"));
@@ -314,7 +321,7 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
         auto groupBoxCustomDumperCommands = new QGroupBox(debuggingHelperGroupBox);
         groupBoxCustomDumperCommands->setTitle(tr("Debugging Helper Customization"));
         groupBoxCustomDumperCommands->setToolTip(tr(
-            "<html><head/><body><p>Python commands entered here will be executed after Qt Creator's "
+            "<html><head/><body><p>Python commands entered here will be executed after built-in "
             "debugging helpers have been loaded and fully initialized. You can load additional "
             "debugging helpers or modify existing ones here.</p></body></html>"));
 

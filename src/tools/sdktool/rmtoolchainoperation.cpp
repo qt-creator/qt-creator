@@ -48,7 +48,7 @@ QString RmToolChainOperation::name() const
 
 QString RmToolChainOperation::helpText() const
 {
-    return QString("remove a tool chain from Qt Creator");
+    return QString("remove a tool chain");
 }
 
 QString RmToolChainOperation::argumentsHelpText() const

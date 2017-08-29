@@ -39,7 +39,7 @@ QString RmDeviceOperation::name() const
 
 QString RmDeviceOperation::helpText() const
 {
-    return QLatin1String("remove a Device from Qt Creator");
+    return QLatin1String("remove a Device");
 }
 
 QString RmDeviceOperation::argumentsHelpText() const
