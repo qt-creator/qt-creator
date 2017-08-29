@@ -5,6 +5,8 @@ QT -= concurrent gui widgets testlib
 isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PWD/../../shared/qtcreator_pch.h
 
 UTILS = $$PWD/../../libs/utils
+DEFINES += UTILS_LIBRARY
+win32: LIBS += -luser32 -lshell32
 
 SOURCES += \
     main.cpp \
