@@ -86,7 +86,7 @@ TEST_F(SourceRangeExtractorSlowTest, FindStartOfLineInEmptyBuffer)
 
     auto found = ::SourceRangeExtractor::findStartOfLineInBuffer(text, 0);
 
-    ASSERT_THAT(found, Eq(""));
+    ASSERT_THAT(found, StrEq(""));
 }
 
 TEST_F(SourceRangeExtractorSlowTest, FindStartOfLineInBufferInFirstLine)
@@ -95,7 +95,7 @@ TEST_F(SourceRangeExtractorSlowTest, FindStartOfLineInBufferInFirstLine)
 
     auto found = ::SourceRangeExtractor::findStartOfLineInBuffer(text, 5);
 
-    ASSERT_THAT(found, Eq("first line"));
+    ASSERT_THAT(found, StrEq("first line"));
 }
 
 TEST_F(SourceRangeExtractorSlowTest, FindStartOfNewLineInBufferInSecondLine)
