@@ -69,6 +69,7 @@ std::reverse_iterator<Iterator> make_reverse_iterator(Iterator iterator)
 {
     return std::reverse_iterator<Iterator>(iterator);
 }
+
 }
 
 const char *SourceRangeExtractor::findStartOfLineInBuffer(llvm::StringRef buffer, uint startOffset)
@@ -152,7 +153,7 @@ FilePathIndex SourceRangeExtractor::findFileId(clang::FileID fileId, const clang
        return found->second;
     }
 
-    auto filePath = absolutePath(fileEntry->tryGetRealPathName());
+    auto filePath = absolutePath(fileEntry->getName());
     return filePathCache.stringId(fromNativePath(filePath));
 }
 
@@ -175,7 +176,7 @@ void SourceRangeExtractor::addSourceRange(const clang::SourceRange &sourceRange)
                                                          endOffset);
 
         insertSourceRange(findFileId(fileId, fileEntry),
-                          fromNativePath(fileEntry->tryGetRealPathName()),
+                          fromNativePath(absolutePath(fileEntry->getName())),
                           startSourceLocation,
                           startOffset,
                           endSourceLocation,

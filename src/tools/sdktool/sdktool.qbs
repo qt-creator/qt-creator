@@ -6,6 +6,8 @@ QtcTool {
     Depends { name: "Qt.core" }
     Depends { name: "app_version_header" }
 
+    property string libsDir: path + "/../../libs"
+
     cpp.defines: base.concat([
         "UTILS_LIBRARY",
         qbs.targetOS.contains("macos")
@@ -21,6 +23,7 @@ QtcTool {
         condition: qbs.targetOS.contains("macos")
         cpp.frameworks: ["Foundation"]
     }
+    cpp.includePaths: base.concat([libsDir])
 
     files: [
         "addcmakeoperation.cpp", "addcmakeoperation.h",
@@ -60,7 +63,7 @@ QtcTool {
 
     Group {
         name: "Utils"
-        prefix: "../../libs/utils/"
+        prefix: libsDir + "/utils/"
         files: [
             "fileutils.cpp", "fileutils.h",
             "hostosinfo.cpp", "hostosinfo.h",

@@ -39,7 +39,7 @@ def main():
                      expectedHeaderName=headerFileName)
 
     mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
-    if test.verify(waitFor("sourceFileName in str(mainWindow.windowTitle)", 1000),
+    if test.verify(waitFor("str(mainWindow.windowTitle).startswith(sourceFileName + ' ')", 1000),
                    "Source file was opened on time?"):
         editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
         editorText = str(editor.plainText)
@@ -52,7 +52,7 @@ def main():
         type(editor, "<Return>")
         invokeMenuItem("File", "Save All")
         clickButton(waitForObject(":Qt Creator.CloseDoc_QToolButton"))
-    if test.verify(waitFor("headerFileName in str(mainWindow.windowTitle)", 2000),
+    if test.verify(waitFor("str(mainWindow.windowTitle).startswith(headerFileName + ' ')", 2000),
                    "Header file was shown after closing source?"):
         editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
         editorText = str(editor.plainText)
