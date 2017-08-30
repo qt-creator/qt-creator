@@ -33,7 +33,6 @@
 #include <utils/utilsicons.h>
 #include <utils/itemviews.h>
 #include <utils/qtcassert.h>
-#include <utils/treemodel.h>
 
 #include <QDebug>
 #include <QDir>
@@ -42,7 +41,6 @@
 #include <QItemSelectionModel>
 #include <QMessageBox>
 #include <QSet>
-#include <QSortFilterProxyModel>
 
 /*!
     \class ExtensionSystem::PluginView
@@ -86,7 +84,6 @@ static const int HiddenByDefaultRole = Qt::UserRole + 2;
 
 static const QIcon &icon(IconIndex icon)
 {
-    using namespace Utils;
     switch (icon) {
     case OkIcon: {
         static const QIcon ok = Utils::Icons::OK.icon();
