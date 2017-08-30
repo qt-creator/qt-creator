@@ -38,6 +38,7 @@ ClangQueryTextEditorWidget::ClangQueryTextEditorWidget(QWidget *parent)
       m_hoverHandler(std::make_unique<ClangQueryHoverHandler>(m_syntaxHighlighter))
 {
     textDocument()->setSyntaxHighlighter(m_syntaxHighlighter);
+    textDocument()->setPlainText("functionDecl()");
 
     addHoverHandler(m_hoverHandler.get());
 }

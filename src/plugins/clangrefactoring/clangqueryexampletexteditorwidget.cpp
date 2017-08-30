@@ -36,6 +36,7 @@ ClangQueryExampleTextEditorWidget::ClangQueryExampleTextEditorWidget(QWidget *pa
 {
     m_syntaxHighlighter = new ClangQueryExampleHighlighter;
     textDocument()->setSyntaxHighlighter(m_syntaxHighlighter);
+    textDocument()->setPlainText("class Foo {\n    void function() { int local; }\n    int field;\n};");
 }
 
 ClangQueryExampleHighlighter *ClangQueryExampleTextEditorWidget::syntaxHighlighter() const
