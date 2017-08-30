@@ -67,7 +67,7 @@ public:
         if (found == m_symbolEntries.end()) {
             m_symbolEntries.emplace(std::piecewise_construct,
                       std::forward_as_tuple(globalId),
-                      std::forward_as_tuple(generateUSR(declaration), declaration->getName()));
+                      std::forward_as_tuple(generateUSR(declaration), symbolName(declaration)));
         }
 
         m_sourceLocationEntries.emplace_back(globalId,
@@ -116,13 +116,20 @@ public:
                 m_sourceManager.getSpellingColumnNumber(sourceLocation)};
     }
 
-    llvm::SmallVector<char, 128> generateUSR(const clang::Decl *declaration)
+    Utils::PathString generateUSR(const clang::Decl *declaration)
     {
         llvm::SmallVector<char, 128> usr;
 
         clang::index::generateUSRForDecl(declaration, usr);
 
-        return usr;
+        return {usr.data(), usr.size()};
+    }
+
+    Utils::SmallString symbolName(const clang::NamedDecl *declaration)
+    {
+        const llvm::StringRef symbolName{declaration->getName()};
+
+        return {symbolName.data(), symbolName.size()};
     }
 
     static SymbolIndex toSymbolIndex(const void *pointer)

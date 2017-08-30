@@ -29,9 +29,6 @@
 
 #include <utils/smallstring.h>
 
-#include <llvm/ADT/SmallVector.h>
-#include <llvm/ADT/StringRef.h>
-
 #include <limits>
 #include <unordered_map>
 #include <iosfwd>
@@ -43,12 +40,6 @@ using SymbolIndex = long long;
 class SymbolEntry
 {
 public:
-    SymbolEntry(const llvm::SmallVector<char, 128> &usr,
-                llvm::StringRef name)
-        : usr(usr.data(), usr.size()),
-          symbolName(name.data(), name.size())
-    {}
-
     SymbolEntry(Utils::PathString &&usr,
                 Utils::SmallString &&symbolName)
         : usr(std::move(usr)),
