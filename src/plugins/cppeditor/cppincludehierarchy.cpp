@@ -407,7 +407,7 @@ void CppIncludeHierarchyWidget::perform()
     m_inspectedFile->setText(m_editor->textDocument()->displayName());
     m_inspectedFile->setLink(TextEditorWidget::Link(document));
 
-    // expand "Includes" adn "Included by"
+    // expand "Includes" and "Included by"
     m_treeView->expand(m_model.index(0, 0));
     m_treeView->expand(m_model.index(1, 0));
 
