@@ -24,6 +24,7 @@ SOURCES += \
     $$PWD/sourcerangeextractor.cpp \
     $$PWD/locationsourcefilecallbacks.cpp \
     $$PWD/collectsymbolsaction.cpp \
+    $$PWD/collectmacrossourcefilecallbacks.cpp \
     $$PWD/symbolscollector.cpp \
     $$PWD/clangquerygatherer.cpp
 
@@ -41,7 +42,6 @@ HEADERS += \
     $$PWD/clangtool.h \
     $$PWD/sourcerangeextractor.h \
     $$PWD/locationsourcefilecallbacks.h \
-    $$PWD/collectmacrossourcefilecallbacks.cpp \
     $$PWD/collectsymbolsconsumer.h \
     $$PWD/collectsymbolsaction.h \
     $$PWD/collectsymbolsastvisitor.h \
