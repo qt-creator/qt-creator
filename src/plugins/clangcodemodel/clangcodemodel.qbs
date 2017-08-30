@@ -41,7 +41,7 @@ QtcPlugin {
         "clangassistproposalitem.h",
         "clangassistproposalmodel.cpp",
         "clangassistproposalmodel.h",
-        "clangsupportintegration.cpp",
+        "clangbackendipcintegration.cpp",
         "clangbackendipcintegration.h",
         "clangcodemodelplugin.cpp",
         "clangcodemodelplugin.h",
