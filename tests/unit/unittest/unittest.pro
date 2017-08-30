@@ -197,7 +197,7 @@ HEADERS += \
     mocksqlitewritestatement.h \
     mocksqlitedatabase.h \
     mocksqlitereadstatement.h \
-    google-using-directive.h
+    google-using-declarations.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
