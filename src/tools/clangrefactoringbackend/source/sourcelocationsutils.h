@@ -63,10 +63,10 @@ llvm::SmallString<256> absolutePath(clang::StringRef path)
     return absolutePath;
 }
 
-template <typename Container>
-Utils::PathString fromNativePath(Container container)
+inline
+Utils::PathString fromNativePath(const llvm::SmallString<256> &string)
 {
-    Utils::PathString path(container.data(), container.size());
+    Utils::PathString path(string.data(), string.size());
 
 #ifdef _WIN32
     std::replace(path.begin(), path.end(), '\\', '/');
@@ -91,7 +91,7 @@ void appendSourceLocationsToSourceLocationsContainer(
         const auto fileEntry = sourceManager.getFileEntryForID(fileId);
 
         sourceLocationsContainer.insertFilePath(fileId.getHashValue(),
-                                                fromNativePath(fileEntry->tryGetRealPathName()));
+                                                fromNativePath(absolutePath(fileEntry->getName())));
         sourceLocationsContainer.insertSourceLocation(fileId.getHashValue(),
                                                       fullSourceLocation.getSpellingLineNumber(),
                                                       fullSourceLocation.getSpellingColumnNumber(),

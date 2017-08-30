@@ -246,7 +246,7 @@ def verifyBreakPoint(bpToVerify):
             textPos = editor.textCursor().position()
             line = str(editor.plainText)[:textPos].count("\n") + 1
             windowTitle = str(waitForObject(":Qt Creator_Core::Internal::MainWindow").windowTitle)
-            test.verify(os.path.basename(fileName) in windowTitle,
+            test.verify(windowTitle.startswith(os.path.basename(fileName) + " "),
                         "Verify that Creator's window title changed according to current file")
             return test.compare(line, bpToVerify.values()[0],
                                 "Compare hit breakpoint to expected line number in %s" % fileName)

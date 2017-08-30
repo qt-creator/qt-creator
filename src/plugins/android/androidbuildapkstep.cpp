@@ -61,7 +61,6 @@ namespace Android {
 using namespace Internal;
 
 const QVersionNumber gradleScriptRevokedSdkVersion(25, 3, 0);
-const QVersionNumber gradleScriptsContainedQtVersion(5, 9, 0);
 const char DeployActionKey[] = "Qt4ProjectManager.AndroidDeployQtStep.DeployQtAction";
 const char KeystoreLocationKey[] = "KeystoreLocation";
 const char BuildTargetSdkKey[] = "BuildTargetSdk";
@@ -144,11 +143,10 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
 
     const QVersionNumber sdkToolsVersion = AndroidConfigurations::currentConfig().sdkToolsVersion();
     if (sdkToolsVersion >= gradleScriptRevokedSdkVersion &&
-            QVersionNumber::fromString(version->qtVersionString()) < gradleScriptsContainedQtVersion) {
+            !version->sourcePath().appendPath("src/3rdparty/gradle").exists()) {
         emit addOutput(tr("The installed SDK tools version (%1) does not include Gradle scripts. The "
                           "minimum Qt version required for Gradle build to work is %2")
-                       .arg(sdkToolsVersion.toString())
-                       .arg(gradleScriptsContainedQtVersion.toString()), OutputFormat::Stderr);
+                       .arg(sdkToolsVersion.toString()).arg("5.9.0/5.6.3"), OutputFormat::Stderr);
         return false;
     }
 

@@ -35,7 +35,7 @@ namespace {
     // opt. drive letter + filename: (2 brackets)
     const char * const FILE_PATTERN = "(([A-Za-z]:)?[^:]+\\.[^:]+):";
     // line no. or elf segment + offset (1 bracket)
-    const char * const POSITION_PATTERN = "(\\d+|\\(\\..+?[+-]0x[a-fA-F0-9]+\\)):";
+    const char * const POSITION_PATTERN = "(\\S+|\\(\\..+?[+-]0x[a-fA-F0-9]+\\)):";
     const char * const COMMAND_PATTERN = "^(.*[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(ld|gold)(-[0-9\\.]+)?(\\.exe)?: ";
     const char *const RANLIB_PATTERN = "ranlib(.exe)?: (file: (.*) has no symbols)$";
 }
