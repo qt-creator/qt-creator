@@ -270,6 +270,7 @@ ResourceTopLevelNode::ResourceTopLevelNode(const FileName &filePath, bool genera
     setIsGenerated(generated);
     setIcon(FileIconProvider::icon(filePath.toString()));
     setPriority(Node::DefaultFilePriority);
+    setListInProject(true);
     if (!filePath.isEmpty()) {
         QFileInfo fi = filePath.toFileInfo();
         if (fi.isFile() && fi.isReadable()) {
