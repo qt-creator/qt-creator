@@ -24,6 +24,8 @@
 ****************************************************************************/
 #include "androidsdkpackage.h"
 
+#include "utils/algorithm.h"
+
 namespace Android {
 
 AndroidSdkPackage::AndroidSdkPackage(QVersionNumber version, QString sdkStylePathStr,
@@ -185,9 +187,11 @@ void SdkPlatform::addSystemImage(SystemImage *image)
     image->setPlatform(this);
 }
 
-const SystemImageList &SdkPlatform::systemImages() const
+SystemImageList SdkPlatform::systemImages(PackageState state) const
 {
-    return m_systemImages;
+    return Utils::filtered(m_systemImages, [state](const SystemImage *image) {
+        return image->state() & state;
+    });
 }
 
 } // namespace Android

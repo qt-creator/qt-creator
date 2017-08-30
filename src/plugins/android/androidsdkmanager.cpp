@@ -273,12 +273,8 @@ void SdkManagerOutputParser::parsePackageListing(const QString &output)
             continue;
         }
 
-        if (m_currentSection == None
-                || m_currentSection == AvailablePackagesMarkers  // At this point. Not interested in
-                || m_currentSection == AvailableUpdatesMarker) { // available or update packages.
-            // Let go of verbose output utill a valid section starts.
-            continue;
-        }
+        if (m_currentSection == None)
+            continue; // Continue with the verbose output until a valid section starts.
 
         if (marker == EmptyMarker) {
             // Empty marker. Occurs at the end of a package details.
@@ -305,31 +301,54 @@ void SdkManagerOutputParser::parsePackageListing(const QString &output)
 
 void SdkManagerOutputParser::compilePackageAssociations()
 {
+    // Return true if package p is already installed i.e. there exists a installed package having
+    // same sdk style path and same revision as of p.
+    auto isInstalled = [](const AndroidSdkPackageList &container, AndroidSdkPackage *p) {
+        return Utils::anyOf(container, [p](AndroidSdkPackage *other) {
+            return other->state() == AndroidSdkPackage::Installed &&
+                    other->sdkStylePath() == p->sdkStylePath() &&
+                    other->revision() == p->revision();
+        });
+    };
+
+    auto deleteAlreadyInstalled = [isInstalled](AndroidSdkPackageList &packages) {
+        for (auto p = packages.begin(); p != packages.end();) {
+            if ((*p)->state() == AndroidSdkPackage::Available && isInstalled(packages, *p)) {
+                delete *p;
+                p = packages.erase(p);
+            } else {
+                ++p;
+            }
+        }
+    };
+
+    // Remove already installed packages.
+    deleteAlreadyInstalled(m_packages);
+
+    // Filter out available images that are already installed.
+    AndroidSdkPackageList images = m_systemImages.keys();
+    deleteAlreadyInstalled(images);
+
     // Associate the system images with sdk platforms.
-    auto imageItr = m_systemImages.cbegin();
-    while (imageItr != m_systemImages.cend()) {
-        auto findPlatform = [imageItr](const AndroidSdkPackage *p) {
+    for (AndroidSdkPackage *image : images) {
+        int imageApi = m_systemImages[image];
+        auto itr = std::find_if(m_packages.begin(), m_packages.end(),
+                                [imageApi](const AndroidSdkPackage *p) {
             const SdkPlatform *platform = nullptr;
             if (p->type() == AndroidSdkPackage::SdkPlatformPackage)
                 platform = static_cast<const SdkPlatform*>(p);
-            return platform && platform->apiLevel() == imageItr.value();
-        };
-        auto itr = std::find_if(m_packages.begin(), m_packages.end(),
-                                findPlatform);
+            return platform && platform->apiLevel() == imageApi;
+        });
         if (itr != m_packages.end()) {
             SdkPlatform *platform = static_cast<SdkPlatform*>(*itr);
-            platform->addSystemImage(static_cast<SystemImage *>(imageItr.key()));
+            platform->addSystemImage(static_cast<SystemImage *>(image));
         }
-        ++imageItr;
     }
 }
 
 void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QStringList &data)
 {
     QTC_ASSERT(!data.isEmpty() && packageMarker != None, return);
-
-    if (m_currentSection != MarkerTag::InstalledPackagesMarker)
-        return; // For now, only interested in installed packages.
 
     AndroidSdkPackage *package = nullptr;
     auto createPackage = [&](std::function<AndroidSdkPackage *(SdkManagerOutputParser *,

@@ -137,7 +137,8 @@ public:
     int apiLevel() const;
     QVersionNumber version() const;
     void addSystemImage(SystemImage *image);
-    const SystemImageList &systemImages() const;
+    SystemImageList systemImages(AndroidSdkPackage::PackageState state
+                                 = AndroidSdkPackage::Installed) const;
 
 private:
     SystemImageList m_systemImages;
