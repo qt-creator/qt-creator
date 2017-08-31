@@ -72,4 +72,13 @@ QtcTool {
             "savefile.cpp", "savefile.h"
         ]
     }
+    Group {
+        name: "Utils/macOS"
+        condition: qbs.targetOS.contains("macos")
+        prefix: libsDir + "/utils/"
+        files: [
+            "fileutils_mac.h",
+            "fileutils_mac.mm",
+        ]
+    }
 }
