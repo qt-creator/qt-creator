@@ -62,7 +62,11 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     connect(m_toggleSync, &QAbstractButton::clicked,
             this, &OutlineWidgetStack::toggleCursorSynchronization);
 
-    m_filterButton = new QToolButton;
+    m_filterButton = new QToolButton(this);
+    // The ToolButton needs a parent because updateFilterMenu() sets
+    // it visible. That would open a top-level window if the button
+    // did not have a parent in that moment.
+
     m_filterButton->setIcon(Utils::Icons::FILTER.icon());
     m_filterButton->setToolTip(tr("Filter tree"));
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
