@@ -28,6 +28,7 @@
 #include "autotestconstants.h"
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/runnables.h>
 #include <utils/environment.h>
 
 #include <QFutureInterface>
@@ -75,7 +76,7 @@ public:
     QString buildDirectory() const { return m_buildDir; }
     QString projectFile() const { return m_projectFile; }
     QString displayName() const { return m_displayName; }
-    Utils::Environment environment() const { return m_environment; }
+    Utils::Environment environment() const { return m_runnable.environment; }
     ProjectExplorer::Project *project() const { return m_project.data(); }
     TestRunConfiguration *runConfiguration() const { return m_runConfig; }
     bool isGuessed() const { return m_guessedConfiguration; }
@@ -90,16 +91,14 @@ private:
     QStringList m_testCases;
     int m_testCaseCount = 0;
     QString m_projectFile;
-    QString m_executableFile;
-    QString m_workingDir;
     QString m_buildDir;
     QString m_displayName;
     QString m_guessedFrom;
-    Utils::Environment m_environment;
     QPointer<ProjectExplorer::Project> m_project;
     bool m_guessedConfiguration = false;
     TestRunConfiguration *m_runConfig = 0;
     QSet<QString> m_buildTargets;
+    ProjectExplorer::StandardRunnable m_runnable;
 };
 
 class DebuggableTestConfiguration : public TestConfiguration

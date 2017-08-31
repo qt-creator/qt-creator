@@ -154,10 +154,9 @@ void TestConfiguration::completeTestInformation(int runMode)
                                               return b.startsWith(currentBST);
                                           }))) {
             qCDebug(LOG) << "  Using this RunConfig.";
-            m_executableFile = currentExecutable;
+            m_runnable = stdRunnable;
+            m_runnable.executable = currentExecutable;
             m_displayName = runConfig->displayName();
-            m_workingDir = Utils::FileUtils::normalizePathName(stdRunnable.workingDirectory);
-            m_environment = stdRunnable.environment;
             m_project = project;
             if (runMode == TestRunner::Debug)
                 m_runConfig = new TestRunConfiguration(runConfig->target(), this);
@@ -169,9 +168,9 @@ void TestConfiguration::completeTestInformation(int runMode)
     // or we might have end up using the (wrong) path of a locally installed executable
     // for this case try the original executable path of the BuildTargetInfo (the executable
     // before installation) to have at least something to execute
-    if (m_executableFile.isEmpty() && !localExecutable.isEmpty())
-        m_executableFile = localExecutable;
-    if (m_displayName.isEmpty() && !m_executableFile.isEmpty()) {
+    if (m_runnable.executable.isEmpty() && !localExecutable.isEmpty())
+        m_runnable.executable = localExecutable;
+    if (m_displayName.isEmpty() && !m_runnable.executable.isEmpty()) {
         qCDebug(LOG) << "   Fallback";
         // we failed to find a valid runconfiguration - but we've got the executable already
         if (auto rc = target->activeRunConfiguration()) {
@@ -179,7 +178,7 @@ void TestConfiguration::completeTestInformation(int runMode)
                 Runnable runnable = rc->runnable();
                 if (runnable.is<StandardRunnable>()) {
                     StandardRunnable stdRunnable = runnable.as<StandardRunnable>();
-                    m_environment = stdRunnable.environment;
+                    m_runnable.environment = stdRunnable.environment;
                     m_project = project;
                     m_guessedConfiguration = true;
                     m_guessedFrom = rc->displayName();
@@ -219,7 +218,7 @@ void TestConfiguration::setTestCaseCount(int count)
 
 void TestConfiguration::setExecutableFile(const QString &executableFile)
 {
-    m_executableFile = executableFile;
+    m_runnable.executable = executableFile;
 }
 
 void TestConfiguration::setProjectFile(const QString &projectFile)
@@ -229,7 +228,7 @@ void TestConfiguration::setProjectFile(const QString &projectFile)
 
 void TestConfiguration::setWorkingDirectory(const QString &workingDirectory)
 {
-    m_workingDir = workingDirectory;
+    m_runnable.workingDirectory = workingDirectory;
 }
 
 void TestConfiguration::setBuildDirectory(const QString &buildDirectory)
@@ -244,7 +243,7 @@ void TestConfiguration::setDisplayName(const QString &displayName)
 
 void TestConfiguration::setEnvironment(const Utils::Environment &env)
 {
-    m_environment = env;
+    m_runnable.environment = env;
 }
 
 void TestConfiguration::setProject(Project *project)
@@ -259,17 +258,17 @@ void TestConfiguration::setInternalTargets(const QSet<QString> &targets)
 
 QString TestConfiguration::executableFilePath() const
 {
-    if (m_executableFile.isEmpty())
+    if (m_runnable.executable.isEmpty())
         return QString();
 
-    QFileInfo commandFileInfo(m_executableFile);
+    QFileInfo commandFileInfo(m_runnable.executable);
     if (commandFileInfo.isExecutable() && commandFileInfo.path() != ".") {
         return commandFileInfo.absoluteFilePath();
     } else if (commandFileInfo.path() == "."){
-        QString fullCommandFileName = m_executableFile;
+        QString fullCommandFileName = m_runnable.executable;
         // TODO: check if we can use searchInPath() from Utils::Environment
-        const QStringList &pathList = m_environment.toProcessEnvironment().value("PATH").split(
-                    Utils::HostOsInfo::pathListSeparator());
+        const QStringList &pathList = m_runnable.environment.toProcessEnvironment().value("PATH")
+                .split(Utils::HostOsInfo::pathListSeparator());
 
         foreach (const QString &path, pathList) {
             QString filePath(path + QDir::separator() + fullCommandFileName);
@@ -282,8 +281,8 @@ QString TestConfiguration::executableFilePath() const
 
 QString TestConfiguration::workingDirectory() const
 {
-    if (!m_workingDir.isEmpty()) {
-        const QFileInfo info(m_workingDir);
+    if (!m_runnable.workingDirectory.isEmpty()) {
+        const QFileInfo info(m_runnable.workingDirectory);
         if (info.isDir()) // ensure wanted working dir does exist
             return info.absoluteFilePath();
     }
