@@ -194,4 +194,51 @@ SystemImageList SdkPlatform::systemImages(PackageState state) const
     });
 }
 
+BuildTools::BuildTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent):
+    AndroidSdkPackage(revision, sdkStylePathStr, parent)
+{
+}
+
+bool BuildTools::isValid() const
+{
+    return true;
+}
+
+AndroidSdkPackage::PackageType BuildTools::type() const
+{
+    return AndroidSdkPackage::BuildToolsPackage;
+}
+
+SdkTools::SdkTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent):
+    AndroidSdkPackage(revision, sdkStylePathStr, parent)
+{
+
+}
+
+bool SdkTools::isValid() const
+{
+    return true;
+}
+
+AndroidSdkPackage::PackageType SdkTools::type() const
+{
+    return AndroidSdkPackage::SdkToolsPackage;
+}
+
+PlatformTools::PlatformTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent):
+    AndroidSdkPackage(revision, sdkStylePathStr, parent)
+{
+
+}
+
+bool PlatformTools::isValid() const
+{
+    return true;
+}
+
+AndroidSdkPackage::PackageType PlatformTools::type() const
+{
+    return AndroidSdkPackage::PlatformToolsPackage;
+}
+
 } // namespace Android

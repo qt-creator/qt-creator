@@ -146,6 +146,39 @@ private:
     QVersionNumber m_version;
 };
 using SdkPlatformList = QList<SdkPlatform*>;
+
+class BuildTools : public AndroidSdkPackage
+{
+public:
+    BuildTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent = nullptr);
+
+// AndroidSdkPackage Overrides
+public:
+    bool isValid() const override;
+    PackageType type() const override;
+};
+
+class PlatformTools : public AndroidSdkPackage
+{
+public:
+    PlatformTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent = nullptr);
+
+// AndroidSdkPackage Overrides
+public:
+    bool isValid() const override;
+    PackageType type() const override;
+};
+
+class SdkTools : public AndroidSdkPackage
+{
+public:
+    SdkTools(QVersionNumber revision, QString sdkStylePathStr, QObject *parent = nullptr);
+
+// AndroidSdkPackage Overrides
+public:
+    bool isValid() const override;
+    PackageType type() const override;
+};
 } // namespace Android
 
 

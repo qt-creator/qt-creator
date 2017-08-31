@@ -145,13 +145,16 @@ class SdkManagerOutputParser
 public:
     enum MarkerTag
     {
-        None                        = 0x01,
-        InstalledPackagesMarker     = 0x02,
-        AvailablePackagesMarkers    = 0x04,
-        AvailableUpdatesMarker      = 0x08,
-        EmptyMarker                 = 0x10,
-        PlatformMarker              = 0x20,
-        SystemImageMarker           = 0x40,
+        None                        = 0x001,
+        InstalledPackagesMarker     = 0x002,
+        AvailablePackagesMarkers    = 0x004,
+        AvailableUpdatesMarker      = 0x008,
+        EmptyMarker                 = 0x010,
+        PlatformMarker              = 0x020,
+        SystemImageMarker           = 0x040,
+        BuildToolsMarker            = 0x080,
+        SdkToolsMarker              = 0x100,
+        PlatformToolsMarker         = 0x200,
         SectionMarkers = InstalledPackagesMarker | AvailablePackagesMarkers | AvailableUpdatesMarker
     };
 
@@ -167,6 +170,9 @@ private:
                            const QString &logStrTag, QStringList extraKeys = QStringList()) const;
     AndroidSdkPackage *parsePlatform(const QStringList &data) const;
     QPair<SystemImage *, int> parseSystemImage(const QStringList &data) const;
+    BuildTools *parseBuildToolsPackage(const QStringList &data) const;
+    SdkTools *parseSdkToolsPackage(const QStringList &data) const;
+    PlatformTools *parsePlatformToolsPackage(const QStringList &data) const;
     MarkerTag parseMarkers(const QString &line);
 
     MarkerTag m_currentSection = MarkerTag::None;
@@ -174,11 +180,14 @@ private:
 };
 
 const std::map<SdkManagerOutputParser::MarkerTag, const char *> markerTags {
-    {SdkManagerOutputParser::MarkerTag::InstalledPackagesMarker,   "Installed packages:"},
-    {SdkManagerOutputParser::MarkerTag::AvailablePackagesMarkers,  "Available Packages:"},
-    {SdkManagerOutputParser::MarkerTag::AvailablePackagesMarkers,  "Available Updates:"},
-    {SdkManagerOutputParser::MarkerTag::PlatformMarker,            "platforms"},
-    {SdkManagerOutputParser::MarkerTag::SystemImageMarker,         "system-images"}
+    {SdkManagerOutputParser::MarkerTag::InstalledPackagesMarker,    "Installed packages:"},
+    {SdkManagerOutputParser::MarkerTag::AvailablePackagesMarkers,   "Available Packages:"},
+    {SdkManagerOutputParser::MarkerTag::AvailablePackagesMarkers,   "Available Updates:"},
+    {SdkManagerOutputParser::MarkerTag::PlatformMarker,             "platforms"},
+    {SdkManagerOutputParser::MarkerTag::SystemImageMarker,          "system-images"},
+    {SdkManagerOutputParser::MarkerTag::BuildToolsMarker,           "build-tools"},
+    {SdkManagerOutputParser::MarkerTag::SdkToolsMarker,             "tools"},
+    {SdkManagerOutputParser::MarkerTag::PlatformToolsMarker,        "platform-tools"}
 };
 
 AndroidSdkManager::AndroidSdkManager(const AndroidConfig &config, QObject *parent):
@@ -358,6 +367,18 @@ void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QSt
     };
 
     switch (packageMarker) {
+    case MarkerTag::BuildToolsMarker:
+        createPackage(&SdkManagerOutputParser::parseBuildToolsPackage);
+        break;
+
+    case MarkerTag::SdkToolsMarker:
+        createPackage(&SdkManagerOutputParser::parseSdkToolsPackage);
+        break;
+
+    case MarkerTag::PlatformToolsMarker:
+        createPackage(&SdkManagerOutputParser::parsePlatformToolsPackage);
+        break;
+
     case MarkerTag::PlatformMarker:
         createPackage(&SdkManagerOutputParser::parsePlatform);
         break;
@@ -470,6 +491,54 @@ QPair<SystemImage *, int> SdkManagerOutputParser::parseSystemImage(const QString
         qCDebug(sdkManagerLog) << "System-image: Minimum required data unavailable: "<< data;
     }
     return result;
+}
+
+BuildTools *SdkManagerOutputParser::parseBuildToolsPackage(const QStringList &data) const
+{
+    BuildTools *buildTools = nullptr;
+    GenericPackageData packageData;
+    if (parseAbstractData(packageData, data, 2, "Build-tools")) {
+        buildTools = new BuildTools(packageData.revision, data.at(0));
+        buildTools->setDescriptionText(packageData.description);
+        buildTools->setDisplayText(packageData.description);
+        buildTools->setInstalledLocation(packageData.installedLocation);
+    } else {
+        qCDebug(sdkManagerLog) << "Build-tools: Parsing failed. Minimum required data unavailable:"
+                               << data;
+    }
+    return buildTools;
+}
+
+SdkTools *SdkManagerOutputParser::parseSdkToolsPackage(const QStringList &data) const
+{
+    SdkTools *sdkTools = nullptr;
+    GenericPackageData packageData;
+    if (parseAbstractData(packageData, data, 1, "SDK-tools")) {
+        sdkTools = new SdkTools(packageData.revision, data.at(0));
+        sdkTools->setDescriptionText(packageData.description);
+        sdkTools->setDisplayText(packageData.description);
+        sdkTools->setInstalledLocation(packageData.installedLocation);
+    } else {
+        qCDebug(sdkManagerLog) << "SDK-tools: Parsing failed. Minimum required data unavailable:"
+                               << data;
+    }
+    return sdkTools;
+}
+
+PlatformTools *SdkManagerOutputParser::parsePlatformToolsPackage(const QStringList &data) const
+{
+    PlatformTools *platformTools = nullptr;
+    GenericPackageData packageData;
+    if (parseAbstractData(packageData, data, 1, "Platform-tools")) {
+        platformTools = new PlatformTools(packageData.revision, data.at(0));
+        platformTools->setDescriptionText(packageData.description);
+        platformTools->setDisplayText(packageData.description);
+        platformTools->setInstalledLocation(packageData.installedLocation);
+    } else {
+        qCDebug(sdkManagerLog) << "Platform-tools: Parsing failed. Minimum required data "
+                                  "unavailable:" << data;
+    }
+    return platformTools;
 }
 
 SdkManagerOutputParser::MarkerTag SdkManagerOutputParser::parseMarkers(const QString &line)
