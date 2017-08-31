@@ -131,6 +131,17 @@ private:
  */
 class SdkManagerOutputParser
 {
+    class GenericPackageData
+    {
+    public:
+        bool isValid() const { return !revision.isNull() && !description.isNull(); }
+        QStringList headerParts;
+        QVersionNumber revision;
+        QString description;
+        Utils::FileName installedLocation;
+        QMap<QString, QString> extraData;
+    };
+
 public:
     enum MarkerTag
     {
@@ -152,6 +163,8 @@ public:
 private:
     void compilePackageAssociations();
     void parsePackageData(MarkerTag packageMarker, const QStringList &data);
+    bool parseAbstractData(GenericPackageData &output, const QStringList &input, int minParts,
+                           const QString &logStrTag, QStringList extraKeys = QStringList()) const;
     AndroidSdkPackage *parsePlatform(const QStringList &data) const;
     QPair<SystemImage *, int> parseSystemImage(const QStringList &data) const;
     MarkerTag parseMarkers(const QString &line);
@@ -319,11 +332,15 @@ void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QSt
         return; // For now, only interested in installed packages.
 
     AndroidSdkPackage *package = nullptr;
+    auto createPackage = [&](std::function<AndroidSdkPackage *(SdkManagerOutputParser *,
+                                                               const QStringList &)> creator) {
+        if ((package = creator(this, data)))
+            m_packages.append(package);
+    };
+
     switch (packageMarker) {
     case MarkerTag::PlatformMarker:
-        package = parsePlatform(data);
-        if (package)
-            m_packages.append(package);
+        createPackage(&SdkManagerOutputParser::parsePlatform);
         break;
 
     case MarkerTag::SystemImageMarker:
@@ -332,8 +349,6 @@ void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QSt
         if (result.first) {
             m_systemImages[result.first] = result.second;
             package = result.first;
-        } else {
-            qCDebug(sdkManagerLog) << "System Image: Parsing failed: " << data;
         }
     }
         break;
@@ -359,99 +374,81 @@ void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QSt
     }
 }
 
+bool SdkManagerOutputParser::parseAbstractData(SdkManagerOutputParser::GenericPackageData &output,
+                                               const QStringList &input, int minParts,
+                                               const QString &logStrTag,
+                                               QStringList extraKeys) const
+{
+    if (input.isEmpty()) {
+        qCDebug(sdkManagerLog) << logStrTag + ": Empty input";
+        return false;
+    }
+
+    output.headerParts = input.at(0).split(';');
+    if (output.headerParts.count() < minParts) {
+        qCDebug(sdkManagerLog) << logStrTag + "%1: Unexpected header:" << input;
+        return false;
+    }
+
+    extraKeys << installLocationKey << revisionKey << descriptionKey;
+    foreach (QString line, input) {
+        QString value;
+        for (auto key: extraKeys) {
+            if (valueForKey(key, line, &value)) {
+                if (key == installLocationKey)
+                    output.installedLocation = Utils::FileName::fromString(value);
+                else if (key == revisionKey)
+                    output.revision = QVersionNumber::fromString(value);
+                else if (key == descriptionKey)
+                    output.description = value;
+                else
+                    output.extraData[key] = value;
+                break;
+            }
+        }
+    }
+
+    return output.isValid();
+}
+
 AndroidSdkPackage *SdkManagerOutputParser::parsePlatform(const QStringList &data) const
 {
-    QTC_ASSERT(!data.isEmpty(), qCDebug(sdkManagerLog) << "Platform: Empty input"; return nullptr);
-
-    QStringList parts = data.at(0).split(';');
-    QTC_ASSERT(parts.count() >= 2,
-               qCDebug(sdkManagerLog) << "Platform: Unexpected header:"<< data; return nullptr);
-
-    int apiLevel = platformNameToApiLevel(parts.at(1));
-    if (apiLevel == -1) {
-        qCDebug(sdkManagerLog) << "Platform: Can not parse api level:"<< data;
-        return nullptr;
-    }
-
-    QVersionNumber revision;
-    QString description;
-    Utils::FileName installedLocation;
-    foreach (QString line, data) {
-        QString value;
-        if (valueForKey(installLocationKey, line, &value)) {
-            installedLocation = Utils::FileName::fromString(value);
-            continue;
-        }
-
-        if (valueForKey(revisionKey, line, &value)) {
-            revision = QVersionNumber::fromString(value);
-            continue;
-        }
-
-        if (valueForKey(descriptionKey, line, &value)) {
-            description = value;
-            continue;
-        }
-    }
-
     SdkPlatform *platform = nullptr;
-    if (!revision.isNull() && apiLevel != -1) {
-        platform = new SdkPlatform(revision, data.at(0), apiLevel);
-        platform->setDescriptionText(description);
-        platform->setInstalledLocation(installedLocation);
+    GenericPackageData packageData;
+    if (parseAbstractData(packageData, data, 2, "Platform")) {
+        int apiLevel = platformNameToApiLevel(packageData.headerParts.at(1));
+        if (apiLevel == -1) {
+            qCDebug(sdkManagerLog) << "Platform: Can not parse api level:"<< data;
+            return nullptr;
+        }
+        platform = new SdkPlatform(packageData.revision, data.at(0), apiLevel);
+        platform->setDescriptionText(packageData.description);
+        platform->setInstalledLocation(packageData.installedLocation);
     } else {
         qCDebug(sdkManagerLog) << "Platform: Parsing failed. Minimum required data unavailable:"
                                << data;
     }
-
     return platform;
 }
 
 QPair<SystemImage *, int> SdkManagerOutputParser::parseSystemImage(const QStringList &data) const
 {
     QPair <SystemImage *, int> result(nullptr, -1);
-    QTC_ASSERT(!data.isEmpty(),
-               qCDebug(sdkManagerLog) << "System Image: Empty input"; return result);
-
-    QStringList parts = data.at(0).split(';');
-    QTC_ASSERT(parts.count() >= 4,
-               qCDebug(sdkManagerLog) << "System Image: Unexpected header:" << data; return result);
-
-    int apiLevel = platformNameToApiLevel(parts.at(1));
-    if (apiLevel == -1) {
-        qCDebug(sdkManagerLog) << "System Image: Can not parse api level:"<< data;
-        return result;
-    }
-
-    QVersionNumber revision;
-    QString description;
-    Utils::FileName installedLocation;
-    foreach (QString line, data) {
-        QString value;
-        if (valueForKey(installLocationKey, line, &value)) {
-            installedLocation = Utils::FileName::fromString(value);
-            continue;
+    GenericPackageData packageData;
+    if (parseAbstractData(packageData, data, 4, "System-image")) {
+        int apiLevel = platformNameToApiLevel(packageData.headerParts.at(1));
+        if (apiLevel == -1) {
+            qCDebug(sdkManagerLog) << "System-image: Can not parse api level:"<< data;
+            return result;
         }
-
-        if (valueForKey(revisionKey, line, &value)) {
-            revision = QVersionNumber::fromString(value);
-            continue;
-        }
-
-        if (valueForKey(descriptionKey, line, &value)) {
-            description = value;
-            continue;
-        }
-    }
-
-    if (!revision.isNull()) {
-        auto image = new SystemImage(revision, data.at(0), parts.at(3));
-        image->setInstalledLocation(installedLocation);
-        image->setDisplayText(description);
-        image->setDescriptionText(description);
+        auto image = new SystemImage(packageData.revision, data.at(0),
+                                     packageData.headerParts.at(3));
+        image->setInstalledLocation(packageData.installedLocation);
+        image->setDisplayText(packageData.description);
+        image->setDescriptionText(packageData.description);
         result = qMakePair(image, apiLevel);
     } else {
-        qCDebug(sdkManagerLog) << "System Image: Can not parse: "<< data;
+        qCDebug(sdkManagerLog) << "System-image: Minimum required data unavailable: "<< data;
     }
     return result;
 }
