@@ -50,6 +50,7 @@
 #include <QMouseEvent>
 #include <QOpenGLWidget>
 #include <QPainter>
+#include <QScrollArea>
 #include <QStackedWidget>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -289,6 +290,11 @@ WelcomeMode::WelcomeMode()
     m_modeWidget->setPalette(palette);
 
     m_sideBar = new SideBar(m_modeWidget);
+    auto scrollableSideBar = new QScrollArea(m_modeWidget);
+    scrollableSideBar->setWidget(m_sideBar);
+    scrollableSideBar->setWidgetResizable(true);
+    scrollableSideBar->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollableSideBar->setFrameShape(QFrame::NoFrame);
 
     auto divider = new QWidget(m_modeWidget);
     divider->setMaximumWidth(1);
@@ -300,7 +306,7 @@ WelcomeMode::WelcomeMode()
     m_pageStack->setAutoFillBackground(true);
 
     auto hbox = new QHBoxLayout;
-    hbox->addWidget(m_sideBar);
+    hbox->addWidget(scrollableSideBar);
     hbox->addWidget(divider);
     hbox->addWidget(m_pageStack);
     hbox->setStretchFactor(m_pageStack, 10);
