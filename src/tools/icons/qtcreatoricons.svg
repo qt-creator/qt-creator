@@ -6672,38 +6672,28 @@
       </g>
     </g>
     <g
-       style="display:inline"
-       id="src/libs/utils/images/magnifier"
-       transform="translate(37,-80)">
+       id="src/libs/utils/images/magnifier">
       <rect
          style="fill:#ffffff;fill-opacity:1"
          id="rect3817-2-9-1-9-6-0"
-         width="17"
-         height="11"
-         x="171"
-         y="589" />
-      <g
-         transform="translate(-231.13585,386.05488)"
-         id="magnifying_lense-1"
-         style="display:inline;fill:#000000;fill-opacity:1">
-        <path
-           id="path4719-8-0"
-           d="m 402.25285,212.41599 c -0.156,0.155 -0.156,0.41 0,0.565 l 0.84663,0.84863 c 0.156,0.154 0.41,0.154 0.566,0 L 407.231,210.24 c 0.156,-0.154 0.156,-0.41 0.001,-0.565 l -0.84763,-0.84763 c -0.156,-0.156 -0.41,-0.156 -0.566,0 z"
-           inkscape:connector-curvature="0"
-           style="fill-opacity:1"
-           sodipodi:nodetypes="cccccsscc" />
-        <circle
-           style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.17697227;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="path5669-9"
-           cx="409"
-           cy="206.94511"
-           r="3.4115138" />
-      </g>
+         width="16"
+         height="16"
+         x="208"
+         y="504" />
+      <use
+         transform="translate(-193,303)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#magnifying_lense"
+         id="use5882"
+         width="100%"
+         height="100%" />
       <path
          sodipodi:nodetypes="cccc"
          inkscape:connector-curvature="0"
          id="path4784-5"
-         d="m 186,597 -2.5,2.5 -2.5,-2.5 z"
+         d="m 224,516 -2.5,2.5 -2.5,-2.5 z"
          style="display:inline;fill:#000000;fill-opacity:1;stroke:none" />
     </g>
     <g
