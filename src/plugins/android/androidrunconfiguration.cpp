@@ -45,13 +45,8 @@ const char amStartArgsKey[] = "Android.AmStartArgsKey";
 const char preStartShellCmdsKey[] = "Android.PreStartShellCmdListKey";
 const char postFinishShellCmdsKey[] = "Android.PostFinishShellCmdListKey";
 
-AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, Core::Id id)
-    : RunConfiguration(parent, id)
-{
-}
-
-AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, AndroidRunConfiguration *source)
-    : RunConfiguration(parent, source)
+AndroidRunConfiguration::AndroidRunConfiguration(Target *target)
+    : RunConfiguration(target)
 {
 }
 

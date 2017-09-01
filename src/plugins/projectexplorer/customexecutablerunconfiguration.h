@@ -35,17 +35,15 @@ class CustomExecutableDialog;
 
 namespace Internal { class CustomExecutableConfigurationWidget; }
 
-class CustomExecutableRunConfigurationFactory;
-
 class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public RunConfiguration
 {
     Q_OBJECT
     // the configuration widget needs to setExecutable setWorkingDirectory and setCommandLineArguments
     friend class Internal::CustomExecutableConfigurationWidget;
-    friend class CustomExecutableRunConfigurationFactory;
+    friend class ProjectExplorer::IRunConfigurationFactory;
 
 public:
-    explicit CustomExecutableRunConfiguration(Target *parent);
+    explicit CustomExecutableRunConfiguration(Target *target);
     ~CustomExecutableRunConfiguration() override;
 
     /**
@@ -68,8 +66,8 @@ signals:
     void changed();
 
 protected:
-    CustomExecutableRunConfiguration(Target *parent,
-                                     CustomExecutableRunConfiguration *source);
+    void initialize();
+    void copyFrom(const CustomExecutableRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;
 

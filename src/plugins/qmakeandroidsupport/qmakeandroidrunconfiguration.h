@@ -40,11 +40,9 @@ namespace Internal {
 class QmakeAndroidRunConfiguration : public Android::AndroidRunConfiguration
 {
     Q_OBJECT
-    friend class QmakeAndroidRunConfigurationFactory;
 
 public:
-    QmakeAndroidRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
-                                 const Utils::FileName &path = Utils::FileName());
+    explicit QmakeAndroidRunConfiguration(ProjectExplorer::Target *target);
 
     Utils::FileName proFilePath() const;
 
@@ -52,14 +50,15 @@ public:
 
     QString buildSystemTarget() const final;
 
-protected:
-    QmakeAndroidRunConfiguration(ProjectExplorer::Target *parent, QmakeAndroidRunConfiguration *source);
+private:
+    friend class ProjectExplorer::IRunConfigurationFactory;
+    void initialize(Core::Id id, const Utils::FileName &path = Utils::FileName());
+    void copyFrom(const QmakeAndroidRunConfiguration *source);
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
     QString defaultDisplayName();
 
-private:
     QmakeProjectManager::QmakeProject *qmakeProject() const;
     void ctor();
 

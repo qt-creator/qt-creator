@@ -94,28 +94,32 @@ private:
     QComboBox *m_deviceTypeComboBox;
 };
 
-IosRunConfiguration::IosRunConfiguration(Target *parent, Core::Id id, const FileName &path)
-    : RunConfiguration(parent, id)
-    , m_profilePath(path)
+IosRunConfiguration::IosRunConfiguration(Target *target)
+    : RunConfiguration(target)
 {
-    addExtraAspect(new ArgumentsAspect(this, QLatin1String("Ios.run_arguments")));
-    init();
-}
+    addExtraAspect(new ArgumentsAspect(this, "Ios.run_arguments"));
 
-IosRunConfiguration::IosRunConfiguration(Target *parent, IosRunConfiguration *source)
-    : RunConfiguration(parent, source)
-    , m_profilePath(source->m_profilePath)
-{
-    init();
-}
-
-void IosRunConfiguration::init()
-{
-    updateDisplayNames();
     connect(DeviceManager::instance(), &DeviceManager::updated,
             this, &IosRunConfiguration::deviceChanges);
     connect(KitManager::instance(), &KitManager::kitsChanged,
             this, &IosRunConfiguration::deviceChanges);
+}
+
+
+void IosRunConfiguration::initialize(Core::Id id, const FileName &path)
+{
+    RunConfiguration::initialize(id);
+    m_profilePath = path;
+
+    updateDisplayNames();
+}
+
+void IosRunConfiguration::copyFrom(const IosRunConfiguration *source)
+{
+    RunConfiguration::copyFrom(source);
+    m_profilePath = source->m_profilePath;
+
+    updateDisplayNames();
 }
 
 void IosRunConfiguration::deviceChanges() {

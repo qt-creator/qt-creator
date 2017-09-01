@@ -29,17 +29,13 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-QT_BEGIN_NAMESPACE
-class QToolButton;
-QT_END_NAMESPACE
-
 namespace Android {
 
 class ANDROID_EXPORT AndroidRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 public:
-    AndroidRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    explicit AndroidRunConfiguration(ProjectExplorer::Target *target);
 
     QWidget *createConfigurationWidget() override;
     Utils::OutputFormatter *createOutputFormatter() const override;
@@ -51,15 +47,12 @@ public:
     const QStringList &preStartShellCommands() const;
     const QStringList &postFinishShellCommands() const;
 
-protected:
-    AndroidRunConfiguration(ProjectExplorer::Target *parent, AndroidRunConfiguration *source);
-
 private:
+    // FIXME: This appears to miss a copyFrom() implementation.
     void setPreStartShellCommands(const QStringList &cmdList);
     void setPostFinishShellCommands(const QStringList &cmdList);
     void setAmStartExtraArgs(const QStringList &args);
 
-private:
     QStringList m_amStartExtraArgs;
     QStringList m_preStartShellCommands;
     QStringList m_postFinishShellCommands;

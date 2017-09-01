@@ -81,7 +81,7 @@ bool WinRtRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 
 RunConfiguration *WinRtRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
-    return new WinRtRunConfiguration(parent, id);
+    return createHelper<WinRtRunConfiguration>(parent, id);
 }
 
 bool WinRtRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
@@ -94,9 +94,7 @@ bool WinRtRunConfigurationFactory::canRestore(Target *parent, const QVariantMap 
 
 RunConfiguration *WinRtRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
 {
-    RunConfiguration *config = new WinRtRunConfiguration(parent, idFromMap(map));
-    config->fromMap(map);
-    return config;
+    return createHelper<WinRtRunConfiguration>(parent, idFromMap(map));
 }
 
 bool WinRtRunConfigurationFactory::canClone(Target *parent, RunConfiguration *product) const

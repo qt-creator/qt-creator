@@ -99,7 +99,7 @@ signals:
 private:
     void ctor();
 
-    bool m_enabled;
+    bool m_enabled = true;
 };
 
 class PROJECTEXPLORER_EXPORT BuildStepInfo

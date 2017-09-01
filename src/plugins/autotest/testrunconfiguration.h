@@ -47,8 +47,9 @@ class TestRunConfiguration : public ProjectExplorer::RunConfiguration
 
 public:
     TestRunConfiguration(ProjectExplorer::Target *parent, TestConfiguration *config)
-        : ProjectExplorer::RunConfiguration(parent, "AutoTest.TestRunConfig")
+        : ProjectExplorer::RunConfiguration(parent)
     {
+        initialize("AutoTest.TestRunConfig");
         setDefaultDisplayName(tr("AutoTest Debug"));
 
         // disable QmlDebugger that is enabled by default

@@ -53,10 +53,10 @@ class DesktopQmakeRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
     // to change the display name and arguments and set the userenvironmentchanges
     friend class DesktopQmakeRunConfigurationWidget;
-    friend class DesktopQmakeRunConfigurationFactory;
+    friend class ProjectExplorer::IRunConfigurationFactory;
 
 public:
-    DesktopQmakeRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    explicit DesktopQmakeRunConfiguration(ProjectExplorer::Target *target);
 
     QWidget *createConfigurationWidget() override;
 
@@ -88,7 +88,9 @@ signals:
     void effectiveTargetInformationChanged();
 
 protected:
-    DesktopQmakeRunConfiguration(ProjectExplorer::Target *parent, DesktopQmakeRunConfiguration *source);
+    void initialize(Core::Id id);
+    void copyFrom(const DesktopQmakeRunConfiguration *source);
+
     bool fromMap(const QVariantMap &map) override;
 
 private:

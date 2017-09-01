@@ -76,27 +76,32 @@ static Utils::FileName pathFromId(Core::Id id)
 // QmakeRunConfiguration
 //
 
-DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Core::Id id) :
-    RunConfiguration(parent, id),
-    m_proFilePath(pathFromId(id))
+DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target)
+    : RunConfiguration(target)
 {
     addExtraAspect(new LocalEnvironmentAspect(this, [](RunConfiguration *rc, Environment &env) {
                        static_cast<DesktopQmakeRunConfiguration *>(rc)->addToBaseEnvironment(env);
                    }));
-    addExtraAspect(new ArgumentsAspect(this, QStringLiteral("Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments")));
-    addExtraAspect(new TerminalAspect(this, QStringLiteral("Qt4ProjectManager.Qt4RunConfiguration.UseTerminal")));
-    addExtraAspect(new WorkingDirectoryAspect(this,
-                       QStringLiteral("Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory")));
+    addExtraAspect(new ArgumentsAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments"));
+    addExtraAspect(new TerminalAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.UseTerminal"));
+    addExtraAspect(new WorkingDirectoryAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory"));
+}
+
+void DesktopQmakeRunConfiguration::initialize(Core::Id id)
+{
+    RunConfiguration::initialize(id);
+    m_proFilePath = pathFromId(id);
 
     ctor();
 }
 
-DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, DesktopQmakeRunConfiguration *source) :
-    RunConfiguration(parent, source),
-    m_proFilePath(source->m_proFilePath),
-    m_isUsingDyldImageSuffix(source->m_isUsingDyldImageSuffix),
-    m_isUsingLibrarySearchPath(source->m_isUsingLibrarySearchPath)
+void DesktopQmakeRunConfiguration::copyFrom(const DesktopQmakeRunConfiguration *source)
 {
+    RunConfiguration::copyFrom(source);
+    m_proFilePath = source->m_proFilePath;
+    m_isUsingDyldImageSuffix = source->m_isUsingDyldImageSuffix;
+    m_isUsingLibrarySearchPath = source->m_isUsingLibrarySearchPath;
+
     ctor();
 }
 
@@ -464,7 +469,7 @@ bool DesktopQmakeRunConfigurationFactory::canCreate(Target *parent, Core::Id id)
 
 RunConfiguration *DesktopQmakeRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
-    return new DesktopQmakeRunConfiguration(parent, id);
+    return createHelper<DesktopQmakeRunConfiguration>(parent, id);
 }
 
 bool DesktopQmakeRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
@@ -476,7 +481,7 @@ bool DesktopQmakeRunConfigurationFactory::canRestore(Target *parent, const QVari
 
 RunConfiguration *DesktopQmakeRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
 {
-    return new DesktopQmakeRunConfiguration(parent, idFromMap(map));
+    return createHelper<DesktopQmakeRunConfiguration>(parent, idFromMap(map));
 }
 
 bool DesktopQmakeRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
@@ -488,8 +493,7 @@ RunConfiguration *DesktopQmakeRunConfigurationFactory::clone(Target *parent, Run
 {
     if (!canClone(parent, source))
         return 0;
-    DesktopQmakeRunConfiguration *old = static_cast<DesktopQmakeRunConfiguration *>(source);
-    return new DesktopQmakeRunConfiguration(parent, old);
+    return cloneHelper<DesktopQmakeRunConfiguration>(parent, source);
 }
 
 QList<Core::Id> DesktopQmakeRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const

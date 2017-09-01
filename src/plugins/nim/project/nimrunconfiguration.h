@@ -43,7 +43,7 @@ class NimRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
 
 public:
-    NimRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    explicit NimRunConfiguration(ProjectExplorer::Target *target);
 
     QWidget *createConfigurationWidget() override;
     ProjectExplorer::Runnable runnable() const override;
@@ -65,7 +65,7 @@ private:
     void setActiveBuildConfiguration(NimBuildConfiguration *activeBuildConfiguration);
 
     QString m_executable;
-    NimBuildConfiguration *m_buildConfiguration;
+    NimBuildConfiguration *m_buildConfiguration = nullptr;
     ProjectExplorer::WorkingDirectoryAspect* m_workingDirectoryAspect;
     ProjectExplorer::ArgumentsAspect* m_argumentAspect;
     ProjectExplorer::TerminalAspect* m_terminalAspect;

@@ -107,27 +107,25 @@ QString RemoteLinuxRunConfigurationFactory::displayNameForId(Core::Id id) const
 RunConfiguration *RemoteLinuxRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     if (id == RemoteLinuxCustomRunConfiguration::runConfigId())
-        return new RemoteLinuxCustomRunConfiguration(parent);
-    return new RemoteLinuxRunConfiguration(parent, id, stringFromId(id));
+        return createHelper<RemoteLinuxCustomRunConfiguration>(parent);
+    return createHelper<RemoteLinuxRunConfiguration>(parent, id, stringFromId(id));
 }
 
 RunConfiguration *RemoteLinuxRunConfigurationFactory::doRestore(Target *parent,
                                                                 const QVariantMap &map)
 {
     if (idFromMap(map) == RemoteLinuxCustomRunConfiguration::runConfigId())
-        return new RemoteLinuxCustomRunConfiguration(parent);
-    return new RemoteLinuxRunConfiguration(parent,
-                                           Core::Id(RemoteLinuxRunConfiguration::IdPrefix), QString());
+        return createHelper<RemoteLinuxCustomRunConfiguration>(parent);
+    return createHelper<RemoteLinuxRunConfiguration>(parent, RemoteLinuxRunConfiguration::IdPrefix, QString());
 }
 
 RunConfiguration *RemoteLinuxRunConfigurationFactory::clone(Target *parent,
     RunConfiguration *source)
 {
     QTC_ASSERT(canClone(parent, source), return 0);
-    if (RemoteLinuxCustomRunConfiguration *old = qobject_cast<RemoteLinuxCustomRunConfiguration *>(source))
-        return new RemoteLinuxCustomRunConfiguration(parent, old);
-    RemoteLinuxRunConfiguration *old = static_cast<RemoteLinuxRunConfiguration *>(source);
-    return new RemoteLinuxRunConfiguration(parent, old);
+    if (qobject_cast<RemoteLinuxCustomRunConfiguration *>(source))
+        return cloneHelper<RemoteLinuxCustomRunConfiguration>(parent, source);
+    return cloneHelper<RemoteLinuxRunConfiguration>(parent, source);
 }
 
 bool RemoteLinuxRunConfigurationFactory::canHandle(const Target *target) const

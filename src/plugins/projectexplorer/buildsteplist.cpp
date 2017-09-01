@@ -45,14 +45,16 @@ const char STEPS_PREFIX[] = "ProjectExplorer.BuildStepList.Step.";
 } // namespace
 
 BuildStepList::BuildStepList(QObject *parent, Core::Id id) :
-    ProjectConfiguration(parent, id)
+    ProjectConfiguration(parent)
 {
     Q_ASSERT(parent);
+    initialize(id);
 }
 
 BuildStepList::BuildStepList(QObject *parent, BuildStepList *source) :
-    ProjectConfiguration(parent, source)
+    ProjectConfiguration(parent)
 {
+    copyFrom(source);
     setDisplayName(source->displayName());
     Q_ASSERT(parent);
     // do not clone the steps here:

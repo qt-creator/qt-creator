@@ -31,27 +31,14 @@
 #include <QLabel>
 #include <QWidget>
 
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-class QLineEdit;
-class QRadioButton;
-class QComboBox;
-QT_END_NAMESPACE
-
 namespace qbs { class InstallOptions; }
-
-namespace Utils { class PathChooser; }
 
 namespace ProjectExplorer { class BuildStepList; }
 
 namespace QbsProjectManager {
-
-class QbsProject;
-
 namespace Internal {
 
 class QbsInstallStep;
-class QbsRunConfigurationFactory;
 
 class QbsRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -59,10 +46,10 @@ class QbsRunConfiguration : public ProjectExplorer::RunConfiguration
 
     // to change the display name and arguments and set the userenvironmentchanges
     friend class QbsRunConfigurationWidget;
-    friend class QbsRunConfigurationFactory;
+    friend class ProjectExplorer::IRunConfigurationFactory;
 
 public:
-    QbsRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    explicit QbsRunConfiguration(ProjectExplorer::Target *target);
 
     QWidget *createConfigurationWidget() override;
 
@@ -81,10 +68,11 @@ signals:
     void targetInformationChanged();
     void usingDyldImageSuffixChanged(bool);
 
-protected:
-    QbsRunConfiguration(ProjectExplorer::Target *parent, QbsRunConfiguration *source);
 
 private:
+    void initialize(Core::Id id);
+    void copyFrom(const QbsRunConfiguration *source);
+
     void installStepChanged();
     void installStepToBeRemoved(int pos);
     QString baseWorkingDirectory() const;
@@ -96,8 +84,8 @@ private:
 
     QString m_uniqueProductName;
 
-    QbsInstallStep *m_currentInstallStep; // We do not take ownership!
-    ProjectExplorer::BuildStepList *m_currentBuildStepList; // We do not take ownership!
+    QbsInstallStep *m_currentInstallStep = nullptr; // We do not take ownership!
+    ProjectExplorer::BuildStepList *m_currentBuildStepList = nullptr; // We do not take ownership!
 };
 
 class QbsRunConfigurationWidget : public QWidget

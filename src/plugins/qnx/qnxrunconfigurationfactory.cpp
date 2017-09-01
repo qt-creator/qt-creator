@@ -91,7 +91,7 @@ ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::doCreate(ProjectE
     QTC_ASSERT(project, return nullptr);
     for (const QmakeProjectManager::QmakeProFile *file : project->applicationProFiles()) {
         if (file->filePath() == projectFilePath)
-            return new QnxRunConfiguration(parent, id, file->targetInformation().target);
+            return createHelper<QnxRunConfiguration>(parent, id, file->targetInformation().target);
     }
     QTC_CHECK(false);
     return nullptr;
@@ -107,7 +107,7 @@ ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::doRestore(Project
                                                                          const QVariantMap &map)
 {
     Q_UNUSED(map);
-    return new QnxRunConfiguration(parent, Core::Id(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX), QString());
+    return createHelper<QnxRunConfiguration>(parent, Constants::QNX_QNX_RUNCONFIGURATION_PREFIX, QString());
 }
 
 bool QnxRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const
@@ -120,8 +120,7 @@ ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::clone(ProjectExpl
     if (!canClone(parent, source))
         return 0;
 
-    QnxRunConfiguration *old = static_cast<QnxRunConfiguration *>(source);
-    return new QnxRunConfiguration(parent, old);
+    return cloneHelper<QnxRunConfiguration>(parent, source);
 }
 
 bool QnxRunConfigurationFactory::canHandle(ProjectExplorer::Target *t) const

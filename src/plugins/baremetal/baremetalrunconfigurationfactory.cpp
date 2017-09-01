@@ -107,7 +107,7 @@ RunConfiguration *BareMetalRunConfigurationFactory::doCreate(Target *parent, Cor
 {
     if (id == BareMetalCustomRunConfiguration::runConfigId())
         return new BareMetalCustomRunConfiguration(parent);
-    return new BareMetalRunConfiguration(parent, id, pathFromId(id));
+    return createHelper<BareMetalRunConfiguration>(parent, id, pathFromId(id));
 }
 
 RunConfiguration *BareMetalRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
@@ -120,10 +120,9 @@ RunConfiguration *BareMetalRunConfigurationFactory::doRestore(Target *parent, co
 RunConfiguration *BareMetalRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
     QTC_ASSERT(canClone(parent, source), return 0);
-    if (BareMetalCustomRunConfiguration *old = qobject_cast<BareMetalCustomRunConfiguration *>(source))
-        return new BareMetalCustomRunConfiguration(parent, old);
-    BareMetalRunConfiguration *old = static_cast<BareMetalRunConfiguration*>(source);
-    return new BareMetalRunConfiguration(parent,old);
+    if (qobject_cast<BareMetalCustomRunConfiguration *>(source))
+        return cloneHelper<BareMetalCustomRunConfiguration>(parent, source);
+    return cloneHelper<BareMetalRunConfiguration>(parent, source);
 }
 
 bool BareMetalRunConfigurationFactory::canHandle(const Target *target) const

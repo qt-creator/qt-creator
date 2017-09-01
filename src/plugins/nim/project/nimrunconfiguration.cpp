@@ -44,9 +44,8 @@ using namespace Utils;
 
 namespace Nim {
 
-NimRunConfiguration::NimRunConfiguration(Target *parent, Core::Id id)
-    : RunConfiguration(parent, id)
-    , m_buildConfiguration(nullptr)
+NimRunConfiguration::NimRunConfiguration(Target *target)
+    : RunConfiguration(target)
     , m_workingDirectoryAspect(new WorkingDirectoryAspect(this, Nim::Constants::C_NIMRUNCONFIGURATION_WORKINGDIRECTORYASPECT_ID))
     , m_argumentAspect(new ArgumentsAspect(this, Nim::Constants::C_NIMRUNCONFIGURATION_ARGUMENTASPECT_ID))
     , m_terminalAspect(new TerminalAspect(this, Nim::Constants::C_NIMRUNCONFIGURATION_TERMINALASPECT_ID))
@@ -62,9 +61,8 @@ NimRunConfiguration::NimRunConfiguration(Target *parent, Core::Id id)
     setDefaultDisplayName(tr(Constants::C_NIMRUNCONFIGURATION_DEFAULT_DISPLAY));
 
     // Connect target signals
-    connect(this->target(), &Target::activeBuildConfigurationChanged,
+    connect(target, &Target::activeBuildConfigurationChanged,
             this, &NimRunConfiguration::updateConfiguration);
-
     updateConfiguration();
 }
 

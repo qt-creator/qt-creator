@@ -31,16 +31,21 @@ const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
 const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
 const char DEFAULT_DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
 
-ProjectConfiguration::ProjectConfiguration(QObject *parent, Core::Id id) : QObject(parent),
-    m_id(id)
-{ setObjectName(id.toString()); }
+ProjectConfiguration::ProjectConfiguration(QObject *parent)
+    : QObject(parent)
+{}
 
-ProjectConfiguration::ProjectConfiguration(QObject *parent, const ProjectConfiguration *source) :
-    QObject(parent),
-    m_id(source->m_id),
-    m_defaultDisplayName(source->m_defaultDisplayName)
+void ProjectConfiguration::initialize(Core::Id id)
+{
+    m_id = id;
+    setObjectName(id.toString());
+}
+
+void ProjectConfiguration::copyFrom(const ProjectConfiguration *source)
 {
     Q_ASSERT(source);
+    m_id = source->m_id;
+    m_defaultDisplayName = source->m_defaultDisplayName;
     m_displayName = tr("Clone of %1").arg(source->displayName());
 }
 
@@ -129,15 +134,15 @@ bool StatefulProjectConfiguration::isEnabled() const
     return m_isEnabled;
 }
 
-StatefulProjectConfiguration::StatefulProjectConfiguration(QObject *parent, Core::Id id) :
-    ProjectConfiguration(parent, id)
+StatefulProjectConfiguration::StatefulProjectConfiguration(QObject *parent) :
+    ProjectConfiguration(parent)
 { }
 
-StatefulProjectConfiguration::StatefulProjectConfiguration(QObject *parent,
-                                                           const StatefulProjectConfiguration *source) :
-    ProjectConfiguration(parent, source),
-    m_isEnabled(source->m_isEnabled)
-{ }
+void StatefulProjectConfiguration::copyFrom(const StatefulProjectConfiguration *source)
+{
+    ProjectConfiguration::copyFrom(source);
+    m_isEnabled = source->m_isEnabled;
+}
 
 void StatefulProjectConfiguration::setEnabled(bool enabled)
 {

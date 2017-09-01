@@ -189,31 +189,64 @@ void IRunConfigurationAspect::resetProjectToGlobalSettings()
 
 static std::vector<RunConfiguration::AspectFactory> theAspectFactories;
 
-RunConfiguration::RunConfiguration(Target *target, Core::Id id) :
-    StatefulProjectConfiguration(target, id)
+RunConfiguration::RunConfiguration(Target *target)
+    : StatefulProjectConfiguration(target)
 {
     Q_ASSERT(target);
-    ctor();
 
-    for (const AspectFactory &factory : theAspectFactories)
-        addExtraAspect(factory(this));
-}
+    connect(target->project(), &Project::parsingStarted,
+            this, [this]() { updateEnabledState(); });
+    connect(target->project(), &Project::parsingFinished,
+            this, [this]() { updateEnabledState(); });
 
-RunConfiguration::RunConfiguration(Target *target, RunConfiguration *source) :
-    StatefulProjectConfiguration(target, source)
-{
-    Q_ASSERT(target);
-    ctor();
-    foreach (IRunConfigurationAspect *aspect, source->m_aspects) {
-        IRunConfigurationAspect *clone = aspect->clone(this);
-        if (clone)
-            m_aspects.append(clone);
-    }
+    connect(target, &Target::addedRunConfiguration,
+            this, [this](const RunConfiguration *rc) {
+        if (rc == this)
+            updateEnabledState();
+    });
+
+    connect(this, &RunConfiguration::enabledChanged,
+            this, &RunConfiguration::requestRunActionsUpdate);
+
+    Utils::MacroExpander *expander = macroExpander();
+    expander->setDisplayName(tr("Run Settings"));
+    expander->setAccumulating(true);
+    expander->registerSubProvider([target] {
+        BuildConfiguration *bc = target->activeBuildConfiguration();
+        return bc ? bc->macroExpander() : target->macroExpander();
+    });
+    expander->registerPrefix("CurrentRun:Env", tr("Variables in the current run environment"),
+                             [this](const QString &var) {
+        const auto envAspect = extraAspect<EnvironmentAspect>();
+        return envAspect ? envAspect->environment().value(var) : QString();
+    });
+    expander->registerVariable(Constants::VAR_CURRENTRUN_NAME,
+            QCoreApplication::translate("ProjectExplorer", "The currently active run configuration's name."),
+            [this] { return displayName(); }, false);
 }
 
 RunConfiguration::~RunConfiguration()
 {
     qDeleteAll(m_aspects);
+}
+
+void RunConfiguration::initialize(Core::Id id)
+{
+    StatefulProjectConfiguration::initialize(id);
+
+    for (const AspectFactory &factory : theAspectFactories)
+        addExtraAspect(factory(this));
+}
+
+void RunConfiguration::copyFrom(const RunConfiguration *source)
+{
+    StatefulProjectConfiguration::copyFrom(source);
+
+    foreach (IRunConfigurationAspect *aspect, source->m_aspects) {
+        IRunConfigurationAspect *clone = aspect->clone(this);
+        if (clone)
+            m_aspects.append(clone);
+    }
 }
 
 bool RunConfiguration::isActive() const
@@ -246,39 +279,6 @@ void RunConfiguration::addExtraAspect(IRunConfigurationAspect *aspect)
 {
     if (aspect)
         m_aspects += aspect;
-}
-
-void RunConfiguration::ctor()
-{
-    connect(target()->project(), &Project::parsingStarted,
-            this, [this]() { updateEnabledState(); });
-    connect(target()->project(), &Project::parsingFinished,
-            this, [this]() { updateEnabledState(); });
-
-    connect(target(), &Target::addedRunConfiguration,
-            this, [this](const RunConfiguration *rc) {
-        if (rc == this)
-            updateEnabledState();
-    });
-
-    connect(this, &RunConfiguration::enabledChanged,
-            this, &RunConfiguration::requestRunActionsUpdate);
-
-    Utils::MacroExpander *expander = macroExpander();
-    expander->setDisplayName(tr("Run Settings"));
-    expander->setAccumulating(true);
-    expander->registerSubProvider([this]() -> Utils::MacroExpander * {
-        BuildConfiguration *bc = target()->activeBuildConfiguration();
-        return bc ? bc->macroExpander() : target()->macroExpander();
-    });
-    expander->registerPrefix("CurrentRun:Env", tr("Variables in the current run environment"),
-                             [this](const QString &var) {
-        const auto envAspect = extraAspect<EnvironmentAspect>();
-        return envAspect ? envAspect->environment().value(var) : QString();
-    });
-    expander->registerVariable(Constants::VAR_CURRENTRUN_NAME,
-            QCoreApplication::translate("ProjectExplorer", "The currently active run configuration's name."),
-            [this] { return displayName(); }, false);
 }
 
 /*!

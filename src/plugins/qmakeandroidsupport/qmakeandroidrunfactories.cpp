@@ -93,8 +93,8 @@ QList<Core::Id> QmakeAndroidRunConfigurationFactory::availableCreationIds(Target
 RunConfiguration *QmakeAndroidRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     if (parent->project()->rootProjectNode())
-        return new QmakeAndroidRunConfiguration(parent, id, pathFromId(id));
-    return new QmakeAndroidRunConfiguration(parent, id);
+        return createHelper<QmakeAndroidRunConfiguration>(parent, id, pathFromId(id));
+    return createHelper<QmakeAndroidRunConfiguration>(parent, id);
 }
 
 RunConfiguration *QmakeAndroidRunConfigurationFactory::doRestore(Target *parent,
@@ -102,17 +102,15 @@ RunConfiguration *QmakeAndroidRunConfigurationFactory::doRestore(Target *parent,
 {
     Core::Id id = ProjectExplorer::idFromMap(map);
     if (parent->project()->rootProjectNode())
-        return new QmakeAndroidRunConfiguration(parent, id);
-    return new QmakeAndroidRunConfiguration(parent, id);
+        return createHelper<QmakeAndroidRunConfiguration>(parent, id);
+    return createHelper<QmakeAndroidRunConfiguration>(parent, id);
 }
 
 RunConfiguration *QmakeAndroidRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
     if (!canClone(parent, source))
         return 0;
-
-    QmakeAndroidRunConfiguration *old = static_cast<QmakeAndroidRunConfiguration *>(source);
-    return new QmakeAndroidRunConfiguration(parent, old);
+    return cloneHelper<QmakeAndroidRunConfiguration>(parent, source);
 }
 
 bool QmakeAndroidRunConfigurationFactory::canHandle(Target *t) const

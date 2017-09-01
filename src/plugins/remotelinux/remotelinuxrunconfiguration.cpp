@@ -51,26 +51,12 @@ const char WorkingDirectoryKey[] = "RemoteLinux.RunConfig.WorkingDirectory";
 
 } // anonymous namespace
 
-class RemoteLinuxRunConfigurationPrivate {
+class RemoteLinuxRunConfigurationPrivate
+{
 public:
-    RemoteLinuxRunConfigurationPrivate(const QString &targetName)
-        : targetName(targetName),
-          useAlternateRemoteExecutable(false)
-    {
-    }
-
-    RemoteLinuxRunConfigurationPrivate(const RemoteLinuxRunConfigurationPrivate *other)
-        : targetName(other->targetName),
-          arguments(other->arguments),
-          useAlternateRemoteExecutable(other->useAlternateRemoteExecutable),
-          alternateRemoteExecutable(other->alternateRemoteExecutable),
-          workingDirectory(other->workingDirectory)
-    {
-    }
-
     QString targetName;
     QString arguments;
-    bool useAlternateRemoteExecutable;
+    bool useAlternateRemoteExecutable = false;
     QString alternateRemoteExecutable;
     QString workingDirectory;
 };
@@ -79,40 +65,40 @@ public:
 
 using namespace Internal;
 
-RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *parent, Core::Id id,
-        const QString &targetName)
-    : RunConfiguration(parent, id),
-      d(new RemoteLinuxRunConfigurationPrivate(targetName))
+RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target)
+    : RunConfiguration(target), d(new RemoteLinuxRunConfigurationPrivate)
 {
-    init();
+    addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
+
+    connect(target, &Target::deploymentDataChanged,
+            this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
+    connect(target, &Target::applicationTargetsChanged,
+            this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
+    // Handles device changes, etc.
+    connect(target, &Target::kitChanged,
+            this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
 }
 
-RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *parent,
-        RemoteLinuxRunConfiguration *source)
-    : RunConfiguration(parent, source),
-      d(new RemoteLinuxRunConfigurationPrivate(source->d))
+void RemoteLinuxRunConfiguration::initialize(Core::Id id, const QString &targetName)
 {
-    init();
+    RunConfiguration::initialize(id);
+
+    d->targetName = targetName;
+
+    setDefaultDisplayName(defaultDisplayName());
+}
+
+void RemoteLinuxRunConfiguration::copyFrom(const RemoteLinuxRunConfiguration *source)
+{
+    RunConfiguration::copyFrom(source);
+    *d = *source->d;
+
+    setDefaultDisplayName(defaultDisplayName());
 }
 
 RemoteLinuxRunConfiguration::~RemoteLinuxRunConfiguration()
 {
     delete d;
-}
-
-void RemoteLinuxRunConfiguration::init()
-{
-    setDefaultDisplayName(defaultDisplayName());
-
-    addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
-
-    connect(target(), &Target::deploymentDataChanged,
-            this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
-    connect(target(), &Target::applicationTargetsChanged,
-            this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
-    // Handles device changes, etc.
-    connect(target(), &Target::kitChanged,
-            this, &RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated);
 }
 
 QWidget *RemoteLinuxRunConfiguration::createConfigurationWidget()

@@ -82,32 +82,32 @@ private:
     CustomExecutableConfigurationWidget *m_widget;
 };
 
-
-void CustomExecutableRunConfiguration::ctor()
-{
-    setDefaultDisplayName(defaultDisplayName());
-}
-
-CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *parent) :
-    RunConfiguration(parent, CUSTOM_EXECUTABLE_ID)
+CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target)
+    : RunConfiguration(target)
 {
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
     addExtraAspect(new ArgumentsAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.Arguments"));
     addExtraAspect(new TerminalAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal"));
-    if (parent->activeBuildConfiguration())
+}
+
+void CustomExecutableRunConfiguration::initialize()
+{
+    RunConfiguration::initialize(CUSTOM_EXECUTABLE_ID);
+    if (target()->activeBuildConfiguration())
         m_workingDirectory = Constants::DEFAULT_WORKING_DIR;
     else
         m_workingDirectory = Constants::DEFAULT_WORKING_DIR_ALTERNATE;
-    ctor();
+
+    setDefaultDisplayName(defaultDisplayName());
 }
 
-CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *parent,
-                                                                   CustomExecutableRunConfiguration *source) :
-    RunConfiguration(parent, source),
-    m_executable(source->m_executable),
-    m_workingDirectory(source->m_workingDirectory)
+void CustomExecutableRunConfiguration::copyFrom(const CustomExecutableRunConfiguration *source)
 {
-    ctor();
+    RunConfiguration::copyFrom(source);
+    m_executable = source->m_executable;
+    m_workingDirectory = source->m_workingDirectory;
+
+    setDefaultDisplayName(defaultDisplayName());
 }
 
 // Note: Qt4Project deletes all empty customexecrunconfigs for which isConfigured() == false.
@@ -336,7 +336,7 @@ RunConfiguration *
 CustomExecutableRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     Q_UNUSED(id);
-    return new CustomExecutableRunConfiguration(parent);
+    return createHelper<CustomExecutableRunConfiguration>(parent);
 }
 
 bool CustomExecutableRunConfigurationFactory::canRestore(Target *parent,
@@ -352,7 +352,7 @@ RunConfiguration *
 CustomExecutableRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
 {
     Q_UNUSED(map);
-    return new CustomExecutableRunConfiguration(parent);
+    return createHelper<CustomExecutableRunConfiguration>(parent);
 }
 
 bool CustomExecutableRunConfigurationFactory::canClone(Target *parent,
@@ -366,7 +366,7 @@ CustomExecutableRunConfigurationFactory::clone(Target *parent, RunConfiguration 
 {
     if (!canClone(parent, source))
         return 0;
-    return new CustomExecutableRunConfiguration(parent, static_cast<CustomExecutableRunConfiguration*>(source));
+    return cloneHelper<CustomExecutableRunConfiguration>(parent, source);
 }
 
 bool CustomExecutableRunConfigurationFactory::canHandle(Target *parent) const

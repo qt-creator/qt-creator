@@ -54,17 +54,23 @@ static QString pathFromId(const Core::Id id)
     return id.suffixAfter(ANDROID_RC_ID_PREFIX);
 }
 
-QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *parent, Core::Id id, const Utils::FileName &path)
-    : AndroidRunConfiguration(parent, id)
-    , m_proFilePath(path)
+QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *target)
+    : AndroidRunConfiguration(target)
+{}
+
+void QmakeAndroidRunConfiguration::initialize(Core::Id id, const Utils::FileName &path)
 {
+    AndroidRunConfiguration::initialize(id);
+    m_proFilePath = path;
+
     ctor();
 }
 
-QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *parent, QmakeAndroidRunConfiguration *source)
-    : AndroidRunConfiguration(parent, source)
-    , m_proFilePath(source->m_proFilePath)
+void QmakeAndroidRunConfiguration::copyFrom(const QmakeAndroidRunConfiguration *source)
 {
+    AndroidRunConfiguration::copyFrom(source);
+    m_proFilePath = source->m_proFilePath;
+
     ctor();
 }
 

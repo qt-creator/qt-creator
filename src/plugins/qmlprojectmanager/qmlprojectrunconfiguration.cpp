@@ -51,13 +51,43 @@ namespace QmlProjectManager {
 
 const char M_CURRENT_FILE[] = "CurrentFile";
 
-QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *parent, Id id) :
-    RunConfiguration(parent, id),
-    m_scriptFile(QLatin1String(M_CURRENT_FILE))
+QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target)
+    : RunConfiguration(target)
 {
     addExtraAspect(new QmlProjectEnvironmentAspect(this));
 
-    ctor();
+    // reset default settings in constructor
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, &QmlProjectRunConfiguration::changeCurrentFile);
+    connect(EditorManager::instance(), &EditorManager::currentDocumentStateChanged,
+            this, [this] { changeCurrentFile(); });
+
+    connect(target, &Target::kitChanged,
+            this, &QmlProjectRunConfiguration::updateEnabledState);
+}
+
+void QmlProjectRunConfiguration::initialize(Id id)
+{
+    RunConfiguration::initialize(id);
+    m_scriptFile = M_CURRENT_FILE;
+
+    if (id == Constants::QML_SCENE_RC_ID)
+        setDisplayName(tr("QML Scene", "QMLRunConfiguration display name."));
+    else
+        setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
+
+    updateEnabledState();
+}
+
+void QmlProjectRunConfiguration::copyFrom(const QmlProjectRunConfiguration *source)
+{
+    RunConfiguration::copyFrom(source);
+    m_currentFileFilename = source->m_currentFileFilename;
+    m_mainScriptFilename = source->m_mainScriptFilename;
+    m_scriptFile = source->m_scriptFile;
+    m_qmlViewerArgs = source->m_qmlViewerArgs;
+
+    updateEnabledState();
 }
 
 Runnable QmlProjectRunConfiguration::runnable() const
@@ -72,17 +102,6 @@ Runnable QmlProjectRunConfiguration::runnable() const
     return r;
 }
 
-QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *parent,
-                                                       QmlProjectRunConfiguration *source) :
-    RunConfiguration(parent, source),
-    m_currentFileFilename(source->m_currentFileFilename),
-    m_mainScriptFilename(source->m_mainScriptFilename),
-    m_scriptFile(source->m_scriptFile),
-    m_qmlViewerArgs(source->m_qmlViewerArgs)
-{
-    ctor();
-}
-
 QString QmlProjectRunConfiguration::disabledReason() const
 {
     if (mainScript().isEmpty())
@@ -90,24 +109,6 @@ QString QmlProjectRunConfiguration::disabledReason() const
     if (!QFileInfo(executable()).exists())
         return tr("No qmlviewer or qmlscene found.");
     return RunConfiguration::disabledReason();
-}
-
-void QmlProjectRunConfiguration::ctor()
-{
-    // reset default settings in constructor
-    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
-            this, &QmlProjectRunConfiguration::changeCurrentFile);
-    connect(EditorManager::instance(), &EditorManager::currentDocumentStateChanged,
-            this, [this] { changeCurrentFile(); });
-
-    connect(target(), &Target::kitChanged,
-            this, &QmlProjectRunConfiguration::updateEnabledState);
-
-    if (id() == Constants::QML_SCENE_RC_ID)
-        setDisplayName(tr("QML Scene", "QMLRunConfiguration display name."));
-    else
-        setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
-    updateEnabledState();
 }
 
 QString QmlProjectRunConfiguration::executable() const

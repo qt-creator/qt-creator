@@ -44,10 +44,9 @@ class IosRunConfigurationWidget;
 class IosRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    friend class IosRunConfigurationFactory;
 
 public:
-    IosRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const Utils::FileName &path);
+    explicit IosRunConfiguration(ProjectExplorer::Target *target);
 
     QWidget *createConfigurationWidget() override;
     Utils::OutputFormatter *createOutputFormatter() const override;
@@ -67,15 +66,15 @@ public:
 
     QString buildSystemTarget() const final;
 
-protected:
-    IosRunConfiguration(ProjectExplorer::Target *parent, IosRunConfiguration *source);
-
 signals:
     void localExecutableChanged();
 
 private:
+    friend class ProjectExplorer::IRunConfigurationFactory;
+    void initialize(Core::Id id, const Utils::FileName &path);
+    void copyFrom(const IosRunConfiguration *source);
+
     void deviceChanges();
-    void init();
     friend class IosRunConfigurationWidget;
     void updateDisplayNames();
     void updateEnabledState() final;

@@ -151,7 +151,7 @@ class PythonRunConfiguration : public RunConfiguration
     Q_PROPERTY(QString arguments READ arguments)
 
 public:
-    PythonRunConfiguration(Target *parent, Core::Id id);
+    explicit PythonRunConfiguration(Target *target);
 
     QWidget *createConfigurationWidget() override;
     QVariantMap toMap() const override;
@@ -165,8 +165,10 @@ public:
     void setInterpreter(const QString &interpreter) { m_interpreter = interpreter; }
 
 private:
-    friend class PythonRunConfigurationFactory;
-    PythonRunConfiguration(Target *parent, PythonRunConfiguration *source);
+    friend class ProjectExplorer::IRunConfigurationFactory;
+    void initialize(Core::Id id);
+    void copyFrom(const PythonRunConfiguration *source);
+
     QString defaultDisplayName() const;
 
     QString m_interpreter;
@@ -175,26 +177,31 @@ private:
 
 ////////////////////////////////////////////////////////////////
 
-PythonRunConfiguration::PythonRunConfiguration(Target *parent, Core::Id id) :
-    RunConfiguration(parent, id),
-    m_mainScript(scriptFromId(id))
+PythonRunConfiguration::PythonRunConfiguration(Target *target)
+    : RunConfiguration(target)
 {
-    Environment sysEnv = Environment::systemEnvironment();
-    const QString exec = sysEnv.searchInPath("python").toString();
-    m_interpreter = exec.isEmpty() ? "python" : exec;
-
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
     addExtraAspect(new ArgumentsAspect(this, "PythonEditor.RunConfiguration.Arguments"));
     addExtraAspect(new TerminalAspect(this, "PythonEditor.RunConfiguration.UseTerminal"));
     setDefaultDisplayName(defaultDisplayName());
 }
 
-PythonRunConfiguration::PythonRunConfiguration(Target *parent, PythonRunConfiguration *source) :
-    RunConfiguration(parent, source),
-    m_interpreter(source->interpreter()),
-    m_mainScript(source->m_mainScript)
+void PythonRunConfiguration::initialize(Core::Id id)
 {
-    setDefaultDisplayName(defaultDisplayName());
+    RunConfiguration::initialize(id);
+
+    m_mainScript = scriptFromId(id);
+
+    Environment sysEnv = Environment::systemEnvironment();
+    const QString exec = sysEnv.searchInPath("python").toString();
+    m_interpreter = exec.isEmpty() ? "python" : exec;
+}
+
+void PythonRunConfiguration::copyFrom(const PythonRunConfiguration *source)
+{
+    RunConfiguration::copyFrom(source);
+    m_interpreter = source->interpreter();
+    m_mainScript = source->m_mainScript;
 }
 
 QVariantMap PythonRunConfiguration::toMap() const
@@ -324,7 +331,7 @@ public:
     {
         if (!canClone(parent, source))
             return 0;
-        return new PythonRunConfiguration(parent, static_cast<PythonRunConfiguration*>(source));
+        return cloneHelper<PythonRunConfiguration>(parent, source);
     }
 
 private:
@@ -332,13 +339,12 @@ private:
 
     RunConfiguration *doCreate(Target *parent, Core::Id id) override
     {
-        return new PythonRunConfiguration(parent, id);
+        return createHelper<PythonRunConfiguration>(parent, id);
     }
 
     RunConfiguration *doRestore(Target *parent, const QVariantMap &map) override
     {
-        Core::Id id(idFromMap(map));
-        return new PythonRunConfiguration(parent, id);
+        return createHelper<PythonRunConfiguration>(parent, idFromMap(map));
     }
 };
 
@@ -575,7 +581,7 @@ Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *e
                     }
                 }
                 if (!alreadyPresent)
-                    t->addRunConfiguration(new PythonRunConfiguration(t, id));
+                    t->addRunConfiguration(IRunConfigurationFactory::createHelper<PythonRunConfiguration>(t, id));
             }
         }
     }

@@ -37,12 +37,11 @@ class BareMetalRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
     Q_DISABLE_COPY(BareMetalRunConfiguration)
 
-    friend class BareMetalRunConfigurationFactory;
+    friend class ProjectExplorer::IRunConfigurationFactory;
     friend class BareMetalRunConfigurationWidget;
 
 public:
-    explicit BareMetalRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
-                                       const QString &projectFilePath);
+    explicit BareMetalRunConfiguration(ProjectExplorer::Target *target);
 
     QWidget *createConfigurationWidget() override;
     Utils::OutputFormatter *createOutputFormatter() const override;
@@ -65,13 +64,13 @@ signals:
     void targetInformationChanged() const;
 
 protected:
-    BareMetalRunConfiguration(ProjectExplorer::Target *parent, BareMetalRunConfiguration *source);
     bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName();
+    void initialize(Core::Id id, const QString &projectFilePath);
+    void copyFrom(const BareMetalRunConfiguration *source);
 
 private:
     void handleBuildSystemDataUpdated();
-    void init();
 
     QString m_projectFilePath;
     QString m_workingDirectory;

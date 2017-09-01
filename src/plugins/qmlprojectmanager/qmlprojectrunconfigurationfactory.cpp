@@ -104,7 +104,7 @@ bool QmlProjectRunConfigurationFactory::canCreate(ProjectExplorer::Target *paren
 
 ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, Core::Id id)
 {
-    return new QmlProjectRunConfiguration(parent, id);
+    return createHelper<QmlProjectRunConfiguration>(parent, id);
 }
 
 bool QmlProjectRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
@@ -115,7 +115,7 @@ bool QmlProjectRunConfigurationFactory::canRestore(ProjectExplorer::Target *pare
 ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::doRestore(ProjectExplorer::Target *parent,
                                                                                 const QVariantMap &map)
 {
-    return new QmlProjectRunConfiguration(parent, ProjectExplorer::idFromMap(map));
+    return createHelper<QmlProjectRunConfiguration>(parent, ProjectExplorer::idFromMap(map));
 }
 
 bool QmlProjectRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const
@@ -128,7 +128,7 @@ ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::clone(Proj
 {
     if (!canClone(parent, source))
         return 0;
-    return new QmlProjectRunConfiguration(parent, qobject_cast<QmlProjectRunConfiguration *>(source));
+    return cloneHelper<QmlProjectRunConfiguration>(parent, source);
 }
 
 bool QmlProjectRunConfigurationFactory::canHandle(ProjectExplorer::Target *parent) const

@@ -107,44 +107,22 @@ const qbs::ProductData findProduct(const qbs::ProjectData &pro, const QString &u
 // QbsRunConfiguration:
 // --------------------------------------------------------------------
 
-QbsRunConfiguration::QbsRunConfiguration(Target *parent, Core::Id id) :
-    RunConfiguration(parent, id),
-    m_uniqueProductName(uniqueProductNameFromId(id)),
-    m_currentInstallStep(0),
-    m_currentBuildStepList(0)
+QbsRunConfiguration::QbsRunConfiguration(Target *target)
+    : RunConfiguration(target)
 {
-    auto * const envAspect = new LocalEnvironmentAspect(this,
+    auto envAspect = new LocalEnvironmentAspect(this,
             [](RunConfiguration *rc, Environment &env) {
                 static_cast<QbsRunConfiguration *>(rc)->addToBaseEnvironment(env);
-            }
-    );
+            });
     addExtraAspect(envAspect);
-    connect(static_cast<QbsProject *>(parent->project()), &Project::parsingFinished, this,
+    connect(static_cast<QbsProject *>(target->project()), &Project::parsingFinished, this,
             [envAspect]() { envAspect->buildEnvironmentHasChanged(); });
-    addExtraAspect(new ArgumentsAspect(this, QStringLiteral("Qbs.RunConfiguration.CommandLineArguments")));
-    addExtraAspect(new WorkingDirectoryAspect(this, QStringLiteral("Qbs.RunConfiguration.WorkingDirectory")));
+    addExtraAspect(new ArgumentsAspect(this, "Qbs.RunConfiguration.CommandLineArguments"));
+    addExtraAspect(new WorkingDirectoryAspect(this, "Qbs.RunConfiguration.WorkingDirectory"));
 
-    addExtraAspect(new TerminalAspect(this,
-                                      QStringLiteral("Qbs.RunConfiguration.UseTerminal"),
-                                      isConsoleApplication()));
+    addExtraAspect(new TerminalAspect(this, "Qbs.RunConfiguration.UseTerminal", isConsoleApplication()));
 
-    ctor();
-}
-
-QbsRunConfiguration::QbsRunConfiguration(Target *parent, QbsRunConfiguration *source) :
-    RunConfiguration(parent, source),
-    m_uniqueProductName(source->m_uniqueProductName),
-    m_currentInstallStep(0), // no need to copy this, we will get if from the DC anyway.
-    m_currentBuildStepList(0) // ditto
-{
-    ctor();
-}
-
-void QbsRunConfiguration::ctor()
-{
-    setDefaultDisplayName(defaultDisplayName());
-
-    QbsProject *project = static_cast<QbsProject *>(target()->project());
+    QbsProject *project = static_cast<QbsProject *>(target->project());
     connect(project, &Project::parsingFinished, this, [this](bool success) {
         auto terminalAspect = extraAspect<TerminalAspect>();
         if (success && !terminalAspect->isUserSet())
@@ -157,8 +135,29 @@ void QbsRunConfiguration::ctor()
             }
     );
 
-    connect(target(), &Target::activeDeployConfigurationChanged,
+    connect(target, &Target::activeDeployConfigurationChanged,
             this, &QbsRunConfiguration::installStepChanged);
+}
+
+void QbsRunConfiguration::initialize(Core::Id id)
+{
+    m_uniqueProductName = uniqueProductNameFromId(id);
+    ctor();
+}
+
+void QbsRunConfiguration::copyFrom(const QbsRunConfiguration *source)
+{
+    RunConfiguration::copyFrom(source);
+    m_uniqueProductName = source->m_uniqueProductName;
+    m_currentInstallStep = nullptr; // no need to copy this, we will get if from the DC anyway.
+    m_currentBuildStepList = nullptr;  // ditto
+
+    ctor();
+}
+
+void QbsRunConfiguration::ctor()
+{
+    setDefaultDisplayName(defaultDisplayName());
     installStepChanged();
 }
 
@@ -377,7 +376,7 @@ bool QbsRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 
 RunConfiguration *QbsRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
-    return new QbsRunConfiguration(parent, id);
+    return createHelper<QbsRunConfiguration>(parent, id);
 }
 
 bool QbsRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
@@ -389,7 +388,7 @@ bool QbsRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &m
 
 RunConfiguration *QbsRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
 {
-    return new QbsRunConfiguration(parent, idFromMap(map));
+    return createHelper<QbsRunConfiguration>(parent, idFromMap(map));
 }
 
 bool QbsRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
@@ -401,8 +400,7 @@ RunConfiguration *QbsRunConfigurationFactory::clone(Target *parent, RunConfigura
 {
     if (!canClone(parent, source))
         return 0;
-    QbsRunConfiguration *old = static_cast<QbsRunConfiguration *>(source);
-    return new QbsRunConfiguration(parent, old);
+    return cloneHelper<QbsRunConfiguration>(parent, source);
 }
 
 QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const

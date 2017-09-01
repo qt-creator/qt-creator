@@ -108,8 +108,7 @@ RunConfiguration *IosRunConfigurationFactory::clone(Target *parent, RunConfigura
     if (!canClone(parent, source))
         return 0;
 
-    IosRunConfiguration *old = qobject_cast<IosRunConfiguration *>(source);
-    return new IosRunConfiguration(parent, old);
+    return cloneHelper<IosRunConfiguration>(parent, source);
 }
 
 bool IosRunConfigurationFactory::canHandle(Target *t) const
@@ -133,13 +132,13 @@ QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(T
 
 RunConfiguration *IosRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
-    return new IosRunConfiguration(parent, id, pathFromId(id));
+    return createHelper<IosRunConfiguration>(parent, id, pathFromId(id));
 }
 
 RunConfiguration *IosRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
 {
     Core::Id id = ProjectExplorer::idFromMap(map);
-    return new IosRunConfiguration(parent, id, pathFromId(id));
+    return createHelper<IosRunConfiguration>(parent, id, pathFromId(id));
 }
 
 } // namespace Internal

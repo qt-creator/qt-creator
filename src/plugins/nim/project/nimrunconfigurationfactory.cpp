@@ -80,7 +80,8 @@ RunConfiguration *NimRunConfigurationFactory::clone(Target *parent, RunConfigura
 {
     QTC_ASSERT(parent, return nullptr);
     QTC_ASSERT(product, return nullptr);
-    std::unique_ptr<NimRunConfiguration> result(new NimRunConfiguration(parent, Constants::C_NIMRUNCONFIGURATION_ID));
+    std::unique_ptr<NimRunConfiguration> result(
+                createHelper<NimRunConfiguration>(parent, Constants::C_NIMRUNCONFIGURATION_ID));
     return result->fromMap(product->toMap()) ? result.release() : nullptr;
 }
 
@@ -94,14 +95,13 @@ bool NimRunConfigurationFactory::canHandle(Target *parent) const
 
 RunConfiguration *NimRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
-    Q_UNUSED(id);
-    return new NimRunConfiguration(parent, id);
+    return createHelper<NimRunConfiguration>(parent, id);
 }
 
 RunConfiguration *NimRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
 {
     Q_UNUSED(map);
-    auto result = new NimRunConfiguration(parent, idFromMap(map));
+    auto result = createHelper<NimRunConfiguration>(parent, idFromMap(map));
     result->fromMap(map);
     return result;
 }

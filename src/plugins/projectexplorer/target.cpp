@@ -115,9 +115,10 @@ QList<DeployConfigurationFactory *> TargetPrivate::deployFactories() const
 }
 
 Target::Target(Project *project, Kit *k) :
-    ProjectConfiguration(project, k->id()),
+    ProjectConfiguration(project),
     d(new TargetPrivate(k))
 {
+    initialize(k->id());
     QTC_CHECK(d->m_kit);
     connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
 

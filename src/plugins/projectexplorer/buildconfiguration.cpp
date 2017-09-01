@@ -52,9 +52,10 @@ static const char BUILDDIRECTORY_KEY[] = "ProjectExplorer.BuildConfiguration.Bui
 namespace ProjectExplorer {
 
 BuildConfiguration::BuildConfiguration(Target *target, Core::Id id) :
-    ProjectConfiguration(target, id),
+    ProjectConfiguration(target),
     m_clearSystemEnvironment(false)
 {
+    initialize(id);
     Q_ASSERT(target);
     auto bsl = new BuildStepList(this, Core::Id(Constants::BUILDSTEPS_BUILD));
     //: Display name of the build build step list. Used as part of the labels in the project window.
@@ -76,11 +77,12 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id) :
 }
 
 BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *source) :
-    ProjectConfiguration(target, source),
+    ProjectConfiguration(target),
     m_clearSystemEnvironment(source->m_clearSystemEnvironment),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges),
     m_buildDirectory(source->m_buildDirectory)
 {
+    copyFrom(source);
     Q_ASSERT(target);
     // Do not clone stepLists here, do that in the derived constructor instead
     // otherwise BuildStepFactories might reject to set up a BuildStep for us

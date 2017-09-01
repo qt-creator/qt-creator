@@ -34,21 +34,16 @@
 namespace RemoteLinux {
 class RemoteLinuxRunConfigurationWidget;
 
-namespace Internal {
-class RemoteLinuxRunConfigurationPrivate;
-class RemoteLinuxRunConfigurationFactory;
-} // namespace Internal
+namespace Internal { class RemoteLinuxRunConfigurationPrivate; }
 
 class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    Q_DISABLE_COPY(RemoteLinuxRunConfiguration)
-    friend class Internal::RemoteLinuxRunConfigurationFactory;
     friend class RemoteLinuxRunConfigurationWidget;
+    friend class ProjectExplorer::IRunConfigurationFactory;
 
 public:
-    RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
-                                const QString &targetName);
+    explicit RemoteLinuxRunConfiguration(ProjectExplorer::Target *target);
     ~RemoteLinuxRunConfiguration() override;
 
     QWidget *createConfigurationWidget() override;
@@ -79,14 +74,14 @@ signals:
     void targetInformationChanged() const;
 
 protected:
-    RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent,
-        RemoteLinuxRunConfiguration *source);
+    void initialize(Core::Id id, const QString &targetName);
+    void copyFrom(const RemoteLinuxRunConfiguration *source);
+
     bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName();
 
 private:
     void handleBuildSystemDataUpdated();
-    void init();
 
     Internal::RemoteLinuxRunConfigurationPrivate * const d;
 };

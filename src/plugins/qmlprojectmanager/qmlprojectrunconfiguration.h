@@ -40,20 +40,17 @@ namespace QtSupport { class BaseQtVersion; }
 namespace QmlProjectManager {
 class QmlProject;
 
-namespace Internal {
-    class QmlProjectRunConfigurationFactory;
-    class QmlProjectRunConfigurationWidget;
-}
+namespace Internal { class QmlProjectRunConfigurationWidget; }
 
 class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    friend class Internal::QmlProjectRunConfigurationFactory;
+    friend class ProjectExplorer::IRunConfigurationFactory;
     friend class Internal::QmlProjectRunConfigurationWidget;
     friend class QmlProject; // to call updateEnabled()
 
 public:
-    QmlProjectRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    explicit QmlProjectRunConfiguration(ProjectExplorer::Target *target);
 
     ProjectExplorer::Runnable runnable() const override;
 
@@ -79,13 +76,10 @@ public:
 signals:
     void scriptSourceChanged();
 
-protected:
-    QmlProjectRunConfiguration(ProjectExplorer::Target *parent,
-                               QmlProjectRunConfiguration *source);
-    virtual bool fromMap(const QVariantMap &map) override;
-
 private:
-    void ctor();
+    void initialize(Core::Id id);
+    void copyFrom(const QmlProjectRunConfiguration *source);
+    virtual bool fromMap(const QVariantMap &map) override;
 
     void changeCurrentFile(Core::IEditor* = 0);
     void updateEnabledState() final;

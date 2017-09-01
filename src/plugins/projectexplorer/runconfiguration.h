@@ -259,8 +259,11 @@ signals:
     void configurationFinished();
 
 protected:
-    RunConfiguration(Target *parent, Core::Id id);
-    RunConfiguration(Target *parent, RunConfiguration *source);
+    friend class IRunConfigurationFactory;
+
+    RunConfiguration(Target *target);
+    void initialize(Core::Id id);
+    void copyFrom(const RunConfiguration *source);
 
     /// convenience function to get current build configuration.
     BuildConfiguration *activeBuildConfiguration() const;
@@ -268,8 +271,6 @@ protected:
     virtual void updateEnabledState();
 
 private:
-    void ctor();
-
     static void addAspectFactory(const AspectFactory &aspectFactory);
 
     QList<IRunConfigurationAspect *> m_aspects;
@@ -296,6 +297,20 @@ public:
     static IRunConfigurationFactory *find(Target *parent, const QVariantMap &map);
     static IRunConfigurationFactory *find(Target *parent, RunConfiguration *rc);
     static QList<IRunConfigurationFactory *> find(Target *parent);
+
+    template <class RunConfig, typename ...Args>
+    static RunConfig *createHelper(Target *target, Args ...args) {
+        auto runConfig = new RunConfig(target);
+        runConfig->initialize(args...);
+        return runConfig;
+    }
+
+    template <class RunConfig>
+    static RunConfig *cloneHelper(Target *target, const RunConfiguration *source) {
+        auto runConfig = new RunConfig(target);
+        runConfig->copyFrom(static_cast<const RunConfig *>(source));
+        return runConfig;
+    }
 
 signals:
     void availableCreationIdsChanged();

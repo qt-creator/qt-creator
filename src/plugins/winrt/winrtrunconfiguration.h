@@ -35,7 +35,7 @@ class WinRtRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
 
 public:
-    explicit WinRtRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    explicit WinRtRunConfiguration(ProjectExplorer::Target *target);
 
     QWidget *createConfigurationWidget() override;
     QVariantMap toMap() const override;
@@ -53,8 +53,11 @@ signals:
     void uninstallAfterStopChanged(bool);
 
 private:
+    friend class ProjectExplorer::IRunConfigurationFactory;
+    void initialize(Core::Id id);
+
     QString m_proFilePath;
-    bool m_uninstallAfterStop;
+    bool m_uninstallAfterStop = false;
 };
 
 } // namespace Internal

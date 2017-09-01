@@ -41,14 +41,19 @@ namespace Internal {
 
 const char QtLibPathKey[] = "Qt4ProjectManager.QnxRunConfiguration.QtLibPath";
 
-QnxRunConfiguration::QnxRunConfiguration(Target *parent, Core::Id id, const QString &targetName)
-    : RemoteLinuxRunConfiguration(parent, id, targetName)
+QnxRunConfiguration::QnxRunConfiguration(Target *target)
+    : RemoteLinuxRunConfiguration(target)
+{}
+
+void QnxRunConfiguration::initialize(Core::Id id, const QString &targetName)
 {
+    RemoteLinuxRunConfiguration::initialize(id, targetName);
 }
 
-QnxRunConfiguration::QnxRunConfiguration(Target *parent, QnxRunConfiguration *source)
-    : RemoteLinuxRunConfiguration(parent, source), m_qtLibPath(source->m_qtLibPath)
+void QnxRunConfiguration::copyFrom(const QnxRunConfiguration *source)
 {
+    RemoteLinuxRunConfiguration::copyFrom(source);
+    m_qtLibPath = source->m_qtLibPath;
 }
 
 Runnable QnxRunConfiguration::runnable() const

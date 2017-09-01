@@ -44,14 +44,16 @@ static QString pathFromId(Core::Id id)
     return id.suffixAfter(Constants::WINRT_RC_PREFIX);
 }
 
-WinRtRunConfiguration::WinRtRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
-    : RunConfiguration(parent, id)
-    , m_proFilePath(pathFromId(id))
-    , m_uninstallAfterStop(false)
+WinRtRunConfiguration::WinRtRunConfiguration(ProjectExplorer::Target *target)
+    : RunConfiguration(target)
 {
     setDisplayName(tr("Run App Package"));
-    addExtraAspect(new ProjectExplorer::ArgumentsAspect(this,
-                   QLatin1String("WinRtRunConfigurationArgumentsId")));
+    addExtraAspect(new ProjectExplorer::ArgumentsAspect(this, "WinRtRunConfigurationArgumentsId"));
+}
+
+void WinRtRunConfiguration::initialize(Core::Id id)
+{
+    m_proFilePath = pathFromId(id);
 }
 
 QWidget *WinRtRunConfiguration::createConfigurationWidget()
