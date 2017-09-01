@@ -61,11 +61,13 @@ def __openCodeModelOptions__():
     clickItem(":Options_QListView", "C++", 14, 15, 0, Qt.LeftButton)
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Code Model")
 
-def checkCodeModelSettings(useClang):
+def getCodeModelString(useClang):
     codeModelName = "built-in"
     if useClang:
         codeModelName = "Clang"
-    test.log("Testing code model: %s" % codeModelName)
+    return "Testing code model: %s" % codeModelName
+
+def checkCodeModelSettings(useClang):
     __openCodeModelOptions__()
     test.verify(verifyChecked("{name='ignorePCHCheckBox' type='QCheckBox' visible='1'}"),
                 "Verifying whether 'Ignore pre-compiled headers' is checked by default.")

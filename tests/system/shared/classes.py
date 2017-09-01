@@ -231,3 +231,13 @@ class Qt5Path:
             path = "Docs/Qt-5.%d" % qtMinorVersion
 
         return os.path.join(Qt5Path.__createPlatformQtPath__(qtMinorVersion), path)
+
+class TestSection:
+    def __init__(self, description):
+        self.description = description
+
+    def __enter__(self):
+        test.startSection(self.description)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        test.endSection()
