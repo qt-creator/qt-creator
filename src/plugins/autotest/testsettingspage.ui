@@ -74,6 +74,17 @@
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="processArgsCB">
+            <property name="toolTip">
+             <string>Allow passing arguments specified on the respective run configuration.
+Warning: this is an experimental feature and might lead to failing to execute the test executable.</string>
+            </property>
+            <property name="text">
+             <string>Process arguments</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
             <property name="spacing">
              <number>6</number>

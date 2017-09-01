@@ -118,6 +118,15 @@ static QString rcInfo(const TestConfiguration * const config)
     return info + " \"" + config->runConfigDisplayName() + '"';
 }
 
+static QString constructOmittedDetailsString(const QStringList &omitted)
+{
+    QString details = TestRunner::tr("Omitted the following arguments specified on the run "
+                                     "configuration page for \"%1\":");
+    for (const QString &arg : omitted)
+        details += "\n" + arg;
+    return details;
+}
+
 static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
                            const QList<TestConfiguration *> selectedTests,
                            const TestSettings &settings)
@@ -173,7 +182,13 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
             continue;
         }
 
-        testProcess.setArguments(testConfiguration->argumentsForTestRunner());
+        QStringList omitted;
+        testProcess.setArguments(testConfiguration->argumentsForTestRunner(&omitted));
+        if (!omitted.isEmpty()) {
+            const QString &details = constructOmittedDetailsString(omitted);
+            futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
+                details.arg(testConfiguration->displayName()))));
+        }
         testProcess.setWorkingDirectory(testConfiguration->workingDirectory());
         if (Utils::HostOsInfo::isWindowsHost())
             environment.insert("QT_LOGGING_TO_CONSOLE", "1");
@@ -339,12 +354,15 @@ void TestRunner::debugTests()
         return;
     }
 
-    ProjectExplorer::StandardRunnable inferior;
+    QStringList omitted;
+    ProjectExplorer::StandardRunnable inferior = config->runnable();
     inferior.executable = commandFilePath;
-    inferior.commandLineArguments = config->argumentsForTestRunner().join(' ');
-    inferior.environment = config->environment();
-    inferior.workingDirectory = config->workingDirectory();
-
+    inferior.commandLineArguments = config->argumentsForTestRunner(&omitted).join(' ');
+    if (!omitted.isEmpty()) {
+        const QString &details = constructOmittedDetailsString(omitted);
+        emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
+            details.arg(config->displayName()))));
+    }
     auto debugger = new Debugger::DebuggerRunTool(runControl);
     debugger->setInferior(inferior);
     debugger->setRunControlName(config->displayName());

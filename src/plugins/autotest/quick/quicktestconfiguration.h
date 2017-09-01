@@ -36,7 +36,7 @@ public:
     explicit QuickTestConfiguration() {}
     TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
                                    QProcess *app) const override;
-    QStringList argumentsForTestRunner() const override;
+    QStringList argumentsForTestRunner(QStringList *omitted = nullptr) const override;
 
     void setUnnamedOnly(bool unnamedOnly);
     bool unnamedOnly() const { return m_unnamedOnly; }

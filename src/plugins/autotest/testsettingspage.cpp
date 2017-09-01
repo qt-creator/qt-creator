@@ -148,6 +148,7 @@ void TestSettingsWidget::setSettings(const TestSettings &settings)
     m_ui.omitRunConfigWarnCB->setChecked(settings.omitRunConfigWarn);
     m_ui.limitResultOutputCB->setChecked(settings.limitResultOutput);
     m_ui.autoScrollCB->setChecked(settings.autoScroll);
+    m_ui.processArgsCB->setChecked(settings.processArgs);
     m_ui.filterGroupBox->setChecked(settings.filterScan);
     populateFrameworksListWidget(settings.frameworks);
     populateFiltersWidget(settings.whiteListFilters);
@@ -161,6 +162,7 @@ TestSettings TestSettingsWidget::settings() const
     result.omitRunConfigWarn = m_ui.omitRunConfigWarnCB->isChecked();
     result.limitResultOutput = m_ui.limitResultOutputCB->isChecked();
     result.autoScroll = m_ui.autoScrollCB->isChecked();
+    result.processArgs = m_ui.processArgsCB->isChecked();
     result.filterScan = m_ui.filterGroupBox->isChecked();
     result.frameworks = frameworks();
     result.whiteListFilters = filters();

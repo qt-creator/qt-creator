@@ -27,7 +27,10 @@
 #include "../qtest/qttestconstants.h"
 #include "../qtest/qttestoutputreader.h"
 #include "../qtest/qttestsettings.h"
+#include "../qtest/qttest_utils.h"
+#include "../autotestplugin.h"
 #include "../testframeworkmanager.h"
+#include "../testsettings.h"
 
 namespace Autotest {
 namespace Internal {
@@ -47,12 +50,18 @@ TestOutputReader *QuickTestConfiguration::outputReader(const QFutureInterface<Te
         return new QtTestOutputReader(fi, app, buildDirectory(), QtTestOutputReader::PlainText);
 }
 
-QStringList QuickTestConfiguration::argumentsForTestRunner() const
+QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
     static const Core::Id id
             = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
 
     QStringList arguments;
+    if (AutotestPlugin::instance()->settings()->processArgs) {
+        arguments.append(QTestUtils::filterInterfering
+                         (runnable().commandLineArguments.split(' ', QString::SkipEmptyParts),
+                          omitted, true));
+    }
+
     TestFrameworkManager *manager = TestFrameworkManager::instance();
     auto qtSettings = qSharedPointerCast<QtTestSettings>(manager->settingsForTestFramework(id));
     if (qtSettings.isNull())

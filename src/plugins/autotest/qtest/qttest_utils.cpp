@@ -27,9 +27,11 @@
 #include "qttesttreeitem.h"
 #include "../testframeworkmanager.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QByteArrayList>
+#include <QSet>
 
 namespace Autotest {
 namespace Internal {
@@ -81,6 +83,62 @@ QMultiHash<QString, QString> alternativeFiles(const Core::Id &id, const QStringL
         }
     }
     return result;
+}
+
+QStringList filterInterfering(const QStringList &provided, QStringList *omitted, bool isQuickTest)
+{
+    static const QSet<QString> knownInterferingSingleOptions {
+        "-txt", "-xml", "-csv", "-xunitxml", "-lightxml", "-silent", "-v1", "-v2", "-vs", "-vb",
+        "-functions", "-datatags", "-nocrashhandler", "-callgrind", "-perf", "-perfcounterlist",
+        "-tickcounter", "-eventcounter", "-help"
+    };
+    static const QSet<QString> knownInterferingOptionWithParameter = { "-o" };
+    static const QSet<QString> knownAllowedOptionsWithParameter {
+        "-eventdelay", "-keydelay", "-mousedelay", "-maxwarnings", "-perfcounter",
+        "-minimumvalue", "-minimumtotal", "-iterations", "-median"
+    };
+
+    // handle Quick options as well
+    static const QSet<QString> knownInterferingQuickOption = { "-qtquick1" };
+    static const QSet<QString> knownAllowedQuickOptionsWithParameter {
+        "-import", "-plugins", "-input"
+    };
+
+    QStringList allowed;
+    auto it = provided.cbegin();
+    auto end = provided.cend();
+    for ( ; it != end; ++it) {
+        QString currentOpt = *it;
+        if (knownAllowedOptionsWithParameter.contains(currentOpt)) {
+            allowed.append(currentOpt);
+            ++it;
+            QTC_ASSERT(it != end, return QStringList());
+            allowed.append(*it);
+        } else if (knownInterferingOptionWithParameter.contains(currentOpt)) {
+            if (omitted) {
+                omitted->append(currentOpt);
+                ++it;
+                QTC_ASSERT(it != end, return QStringList());
+                omitted->append(*it);
+            }
+        } else if (knownInterferingSingleOptions.contains(currentOpt)) {
+            if (omitted)
+                omitted->append(currentOpt);
+        } else if (isQuickTest) {
+            if (knownAllowedQuickOptionsWithParameter.contains(currentOpt)) {
+                allowed.append(currentOpt);
+                ++it;
+                QTC_ASSERT(it != end, return QStringList());
+                allowed.append(*it);
+            } else if (knownInterferingQuickOption.contains(currentOpt)) {
+                if (omitted)
+                    omitted->append(currentOpt);
+            }
+        } else { // might be bad, but we cannot know anything
+            allowed.append(currentOpt);
+        }
+    }
+    return allowed;
 }
 
 } // namespace QTestUtils

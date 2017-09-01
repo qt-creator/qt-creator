@@ -27,7 +27,11 @@
 #include "gtestconstants.h"
 #include "gtestoutputreader.h"
 #include "gtestsettings.h"
+#include "../autotestplugin.h"
 #include "../testframeworkmanager.h"
+#include "../testsettings.h"
+
+#include <utils/algorithm.h>
 
 namespace Autotest {
 namespace Internal {
@@ -38,12 +42,46 @@ TestOutputReader *GTestConfiguration::outputReader(const QFutureInterface<TestRe
     return new GTestOutputReader(fi, app, buildDirectory(), projectFile());
 }
 
-QStringList GTestConfiguration::argumentsForTestRunner() const
+QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
+{
+    static const QSet<QString> knownInterferingOptions { "--gtest_list_tests",
+                                                         "--gtest_filter=",
+                                                         "--gtest_also_run_disabled_tests",
+                                                         "--gtest_repeat=",
+                                                         "--gtest_shuffle",
+                                                         "--gtest_random_seed=",
+                                                         "--gtest_output=",
+                                                         "--gtest_stream_result_to=",
+                                                         "--gtest_break_on_failure",
+                                                         "--gtest_throw_on_failure",
+                                                         "--gtest_color="
+                                                         };
+
+    QSet<QString> allowed = Utils::filtered(provided.toSet(), [] (const QString &arg) {
+        return Utils::allOf(knownInterferingOptions, [&arg] (const QString &interfering) {
+            return !arg.startsWith(interfering);
+        });
+    });
+
+    if (omitted) {
+        QSet<QString> providedSet = provided.toSet();
+        providedSet.subtract(allowed);
+        omitted->append(providedSet.toList());
+    }
+    return allowed.toList();
+}
+
+QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
     static const Core::Id id
             = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
 
     QStringList arguments;
+    if (AutotestPlugin::instance()->settings()->processArgs) {
+        arguments << filterInterfering(runnable().commandLineArguments.split(
+                                           ' ', QString::SkipEmptyParts), omitted);
+    }
+
     const QStringList &testSets = testCases();
     if (testSets.size())
         arguments << "--gtest_filter=" + testSets.join(':');

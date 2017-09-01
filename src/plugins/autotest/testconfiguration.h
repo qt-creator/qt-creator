@@ -82,9 +82,10 @@ public:
     QString runConfigDisplayName() const { return m_guessedConfiguration ? m_guessedFrom
                                                                          : m_displayName; }
 
+    ProjectExplorer::StandardRunnable runnable() const { return m_runnable; }
     virtual TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
                                            QProcess *app) const = 0;
-    virtual QStringList argumentsForTestRunner() const = 0;
+    virtual QStringList argumentsForTestRunner(QStringList *omitted = nullptr) const = 0;
 
 private:
     QStringList m_testCases;
