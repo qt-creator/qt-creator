@@ -201,7 +201,7 @@
 
     If a test takes more than a minute to execute, the default timeout might
     stop the test execution. To increase the timeout, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Test Settings} > \uicontrol General.
+    \uicontrol Options > \uicontrol {Testing} > \uicontrol General.
 
     \section2 Selecting Tests to Run
 
@@ -220,7 +220,7 @@
 
     You can add filters to specify the directories within the current project
     to scan for tests. Select \uicontrol Tools > \uicontrol Options >
-    \uicontrol {Test Settings} > \uicontrol General > \uicontrol Add, and
+    \uicontrol {Testing} > \uicontrol General > \uicontrol Add, and
     specify paths to the directories to scan for tests. Wildcards are not
     supported in the filter expressions.
 
@@ -242,7 +242,7 @@
     several times in order to get an accurate measurement. This depends on the
     measurement back-end that you can select in the
     \uicontrol {Benchmark Metrics} group in \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Test Settings} > \uicontrol {Qt Test}:
+    \uicontrol Options > \uicontrol {Testing} > \uicontrol {Qt Test}:
     walltime, CPU tick counter, event counter, Valgrind Callgrind, and Linux
     Perf. For more information, see \l{Creating a Benchmark}.
 
@@ -260,7 +260,7 @@
     \section2 Specifying Settings for Running Google Tests
 
     To specify settings for running Google tests, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Test Settings} > \uicontrol {Google Test}.
+    \uicontrol Options > \uicontrol {Testing} > \uicontrol {Google Test}.
 
     \image qtcreator-autotests-options-google.png
 
@@ -286,7 +286,7 @@
     can be parsed, which might lead to information loss. The lost information
     might be retrievable when viewing the results as plain text.
     To view the results of Qt tests as plain text, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Test Settings} > \uicontrol {Qt Test}, and
+    \uicontrol Options > \uicontrol {Testing} > \uicontrol {Qt Test}, and
     then deselect the \uicontrol {Use XML output} check box. Then select the
     \inlineimage text.png
     (\uicontrol {Switch Between Visual and Text Display}) button in the
@@ -356,7 +356,7 @@
     By default, test result output is limited to 100,000 characters. The output
     pane is automatically scrolled down when new results are added. To display
     full results, select \uicontrol Tools > \uicontrol Options >
-    \uicontrol {Test Settings} > \uicontrol General, and then deselect the
+    \uicontrol {Testing} > \uicontrol General, and then deselect the
     \uicontrol {Limit result output} check box. To disable automatic scrolling,
     deselect the \uicontrol {Automatically scroll results} check box.
 
