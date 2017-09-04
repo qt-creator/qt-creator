@@ -628,7 +628,7 @@ void ClassItem::updateMembers(const Style *style)
             }
             *currentVisibility = member.visibility();
         }
-        if (member.group() != currentGroup) {
+        if (member.group() != *currentGroup) {
             if (addSpace)
                 *text += QStringLiteral(" ");
             *text += QString(QStringLiteral("[%1]")).arg(member.group());

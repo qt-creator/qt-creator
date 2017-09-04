@@ -144,7 +144,7 @@ bool AbstractMacroExpander::expandNestedMacros(const QString &str, int *pos, QSt
             if (!expandNestedMacros(str, &i, ret))
                 return false;
             varName.chop(1);
-            varName += ret;
+            varName += *ret;
         } else {
             varName += c;
         }
