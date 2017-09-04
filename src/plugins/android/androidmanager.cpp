@@ -341,7 +341,7 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
     if (targetArch.isEmpty())
         return;
     const int deviceAPILevel = AndroidManager::minimumSDK(target);
-    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch, AndroidConfigurations::None);
+    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch);
     if (!info.isValid()) // aborted
         return;
 
@@ -371,7 +371,7 @@ void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const Q
     if (targetArch.isEmpty())
         return;
     const int deviceAPILevel = AndroidManager::minimumSDK(target);
-    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch, AndroidConfigurations::None);
+    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch);
     if (!info.isValid()) // aborted
         return;
 

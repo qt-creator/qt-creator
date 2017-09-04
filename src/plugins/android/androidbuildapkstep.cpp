@@ -115,12 +115,8 @@ AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent,
       m_buildTargetSdk(other->m_buildTargetSdk)
 {
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (version->qtVersion() <  QtSupport::QtVersionNumber(5, 4, 0)) {
-        if (m_deployAction == DebugDeployment)
-            m_deployAction = BundleLibrariesDeployment;
-        if (m_useGradle)
-            m_useGradle = false;
-    }
+    if (m_useGradle && version->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0))
+        m_useGradle = false;
 }
 
 bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
@@ -237,11 +233,8 @@ bool AndroidBuildApkStep::verifyCertificatePassword()
 bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
 {
     m_deployAction = AndroidDeployAction(map.value(DeployActionKey, BundleLibrariesDeployment).toInt());
-    if ( m_deployAction == DebugDeployment
-         && QtSupport::QtKitInformation::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0)) {
-        m_deployAction = BundleLibrariesDeployment;
-    }
-
+    if (m_deployAction > BundleLibrariesDeployment)
+        m_deployAction = BundleLibrariesDeployment; // BundleLibrariesDeployment used to be 2
     m_keystorePath = Utils::FileName::fromString(map.value(KeystoreLocationKey).toString());
     m_signPackage = false; // don't restore this
     m_buildTargetSdk = map.value(BuildTargetSdkKey).toString();

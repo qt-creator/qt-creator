@@ -82,22 +82,6 @@
     To use Ministro to install the Qt libraries, select the
     \uicontrol {Use Ministro service to install Qt} option.
 
-    \section1 Deploying Qt Libraries for Debugging
-
-    To test your application on a device that is physically connected to the
-    development host (or on an emulator), you can copy the Qt libraries into a
-    temporary directory on your device and run the application against them.
-
-    An APK built in this way is not distributable, since it relies on the device
-    containing the Qt libraries in the correct location. However, as the Qt
-    libraries are only copied into the device once, this method provides a fast
-    turn-around time, and is therefore convenient for testing the application
-    during development.
-
-    Select the \uicontrol {Deploy local Qt libraries to temporary directory} option to
-    deploy Qt libraries to the \c{/data/local/tmp/qt} folder on the device and
-    to run the application against them.
-
     \section1 Packaging Applications
 
     Because bundling applications as APK packages is not

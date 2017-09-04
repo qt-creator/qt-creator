@@ -161,12 +161,9 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     }
 
     int deviceAPILevel = AndroidManager::minimumSDK(target());
-    AndroidConfigurations::Options options = AndroidConfigurations::None;
-    if (androidBuildApkStep->deployAction() == AndroidBuildApkStep::DebugDeployment)
-        options = AndroidConfigurations::FilterAndroid5;
     AndroidDeviceInfo info = earlierDeviceInfo(earlierSteps, Id);
     if (!info.isValid()) {
-        info = AndroidConfigurations::showDeviceDialog(project(), deviceAPILevel, m_targetArch, options);
+        info = AndroidConfigurations::showDeviceDialog(project(), deviceAPILevel, m_targetArch);
         m_deviceInfo = info; // Keep around for later steps
     }
 
@@ -231,9 +228,6 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
         switch (androidBuildApkStep->deployAction()) {
             case AndroidBuildApkStep::MinistroDeployment:
                 Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("ministro"));
-                break;
-            case AndroidBuildApkStep::DebugDeployment:
-                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("debug"));
                 break;
             case AndroidBuildApkStep::BundleLibrariesDeployment:
                 Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("bundled"));

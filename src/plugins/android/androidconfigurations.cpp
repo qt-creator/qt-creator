@@ -941,11 +941,10 @@ void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
 }
 
 AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(Project *project,
-                                                          int apiLevel, const QString &abi,
-                                                          Options options)
+                                                          int apiLevel, const QString &abi)
 {
     QString serialNumber = defaultDevice(project, abi);
-    AndroidDeviceDialog dialog(apiLevel, abi, options, serialNumber, Core::ICore::mainWindow());
+    AndroidDeviceDialog dialog(apiLevel, abi, serialNumber, Core::ICore::mainWindow());
     AndroidDeviceInfo info = dialog.device();
     if (dialog.saveDeviceSelection() && info.isValid()) {
         const QString serialNumber = info.type == AndroidDeviceInfo::Hardware ?

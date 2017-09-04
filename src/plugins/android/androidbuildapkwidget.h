@@ -52,13 +52,11 @@ public:
 private:
     void setTargetSdk(const QString &sdk);
     void setMinistro();
-    void setDeployLocalQtLibs();
     void setBundleQtLibs();
     void createKeyStore();
     void certificatesAliasComboBoxCurrentIndexChanged(const QString &alias);
     void certificatesAliasComboBoxActivated(const QString &alias);
     void updateSigningWarning();
-    void updateDebugDeploySigningWarning();
     void useGradleCheckBoxToggled(bool checked);
     void openPackageLocationCheckBoxToggled(bool checked);
     void verboseOutputCheckBoxToggled(bool checked);

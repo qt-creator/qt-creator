@@ -44,7 +44,6 @@ public:
     enum AndroidDeployAction
     {
         MinistroDeployment, // use ministro
-        DebugDeployment,
         BundleLibrariesDeployment
     };
 

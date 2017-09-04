@@ -117,37 +117,6 @@
         </item>
        </layout>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <item>
-         <widget class="QLabel" name="signingDebugDeployErrorIcon">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="signingDebugDeployError">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Signing an APK that uses &quot;Deploy local Qt libraries&quot; is not allowed.
-Deploying local Qt libraries is incompatible with Android 5.</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
      </layout>
     </widget>
    </item>
@@ -277,17 +246,6 @@ Deploying local Qt libraries is incompatible with Android 5.</string>
         </property>
         <property name="text">
          <string>Bundle Qt libraries in APK</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="temporaryQtOption">
-        <property name="toolTip">
-         <string>Pushes local Qt libraries to device. You must have Qt libraries compiled for that platform.
-The APK will not be usable on any other device.</string>
-        </property>
-        <property name="text">
-         <string>Deploy local Qt libraries to temporary directory</string>
         </property>
        </widget>
       </item>

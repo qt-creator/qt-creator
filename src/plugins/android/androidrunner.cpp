@@ -814,8 +814,7 @@ void AndroidRunner::launchAVD()
 
     // Get AVD info.
     AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(
-                m_target->project(), deviceAPILevel, targetArch,
-                AndroidConfigurations::None);
+                m_target->project(), deviceAPILevel, targetArch);
     AndroidManager::setDeviceSerialNumber(m_target, info.serialNumber);
     m_androidRunnable.deviceSerialNumber = info.serialNumber;
     emit androidRunnableChanged(m_androidRunnable);

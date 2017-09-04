@@ -138,8 +138,6 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     QString deploymentMethod;
     if (m_deployAction == MinistroDeployment)
         deploymentMethod = "ministro";
-    else if (m_deployAction == DebugDeployment)
-        deploymentMethod = "debug";
     else if (m_deployAction == BundleLibrariesDeployment)
         deploymentMethod = "bundled";
 
