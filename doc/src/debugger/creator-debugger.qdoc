@@ -1090,7 +1090,7 @@
         size = value["_size"].integer()
         d.putItemCount(size)
         if d.isExpanded():
-            d.putArrayData(value.type[0], value["_array"], size)
+            d.putArrayData(value["_array"], size, value.type[0])
     \endcode
 
     \note To create dumper functions usable with both LLDB and GDB backends,
@@ -1211,7 +1211,7 @@
 
             \endlist
 
-        \li \c{putArrayData(self, type, address, itemCount)} - Creates the
+        \li \c{putArrayData(self, address, itemCount, type)} - Creates the
             number of children specified by \c itemCount of the type \c type of
             an array-like object located at \c address.
 
