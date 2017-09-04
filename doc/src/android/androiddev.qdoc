@@ -72,10 +72,14 @@
 
         \li \l{http://developer.android.com/sdk/index.html}{Android SDK Tools}
 
-            After installing the Tools, you can use the
-            \l{https://developer.android.com/studio/command-line/sdkmanager.html}
-            {sdkmanager} to get the API and tools packages required for
-            development.
+            The following Android SDK packages and tools are required for
+            development:
+
+            \list
+                \li Platform tools
+                \li Build tools
+                \li At least one SDK platform
+            \endlist
 
         \li On Windows, you also need the following:
 
@@ -98,13 +102,33 @@
 
     \section1 Setting Up the Development Environment
 
-    You must download and install the latest Android NDK and SDK, and update the
-    SDK to get the build and platform tools needed for development. Since
-    SDK tools version 25.3.0, \QC, you must use the
-    \l{https://developer.android.com/studio/command-line/sdkmanager.html}
-    {sdkmanager} command line tool for SDK package management and the
-    \l{https://developer.android.com/studio/command-line/avdmanager.html}
-    {avdmanager} tool for Android Virtual Device (AVD) management.
+    You must download and install the latest Android NDK and SDK, and then
+    update or install the tools and packages needed for development. The SDK
+    tool used to update and install the other SDK tools and packages depends on
+    the Android SDK Tools version that you have installed:
+
+    \list
+
+        \li Android SDK Tools version 25.2.5, or earlier
+
+            Use the
+            \l{https://developer.android.com/studio/tools/help/android.html}
+            {android} tool that comes with the SDK Tools package. For example,
+            on  Ubuntu the following command starts the SDK update:
+
+            \code
+            ./android update sdk
+            \endcode
+
+        \li Android SDK Tools version 25.3.0, or later
+
+            Use the
+            \l{https://developer.android.com/studio/command-line/sdkmanager.html}
+            {sdkmanager} command line tool for SDK package management and the
+            \l{https://developer.android.com/studio/command-line/avdmanager.html}
+            {avdmanager} tool for Android Virtual Device (AVD) management.
+
+    \endlist
 
     In addition, you must install Qt for Android as part of Qt 5.2, or later.
 
