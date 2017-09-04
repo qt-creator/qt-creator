@@ -697,7 +697,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     folderOpenLocationCtxMenu->setOnAllDisabledBehavior(ActionContainer::Show);
 
     ActionContainer *subProjectOpenLocationCtxMenu =
-            ActionManager::createMenu(Constants::PROJECT_OPEN_LOCATIONS_CONTEXT_MENU);
+            ActionManager::createMenu(Constants::SUBPROJECT_OPEN_LOCATIONS_CONTEXT_MENU);
     subProjectOpenLocationCtxMenu->menu()->setTitle(tr("Open..."));
     subProjectOpenLocationCtxMenu->setOnAllDisabledBehavior(ActionContainer::Show);
 
