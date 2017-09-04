@@ -126,7 +126,9 @@ ClangExecutableVersion clangExecutableVersion(const QString &executable)
     Utils::SynchronousProcess runner;
     runner.setEnvironment(environment.toStringList());
     runner.setTimeoutS(10);
-    // We would prefer "-dumpversion", but that one returns some old version number.
+    // We would prefer "-dumpversion", but that one is only there for GCC compatibility
+    // and returns some static/old version.
+    // See also https://bugs.llvm.org/show_bug.cgi?id=28597
     const QStringList arguments(QLatin1String(("--version")));
     const Utils::SynchronousProcessResponse response = runner.runBlocking(executable, arguments);
     if (response.result != Utils::SynchronousProcessResponse::Finished)
