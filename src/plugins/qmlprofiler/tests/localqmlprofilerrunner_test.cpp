@@ -92,8 +92,8 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     runControl->initiateStart();
 
-    QTRY_COMPARE_WITH_TIMEOUT(startCount, 1, 10000);
-    QTRY_VERIFY_WITH_TIMEOUT(!started, 10000);
+    QTRY_COMPARE_WITH_TIMEOUT(startCount, 1, 20000);
+    QTRY_VERIFY_WITH_TIMEOUT(!started, 20000);
     QCOMPARE(stopCount, 1);
     QCOMPARE(runCount, 0);
 
@@ -113,8 +113,8 @@ void LocalQmlProfilerRunnerTest::testRunner()
     connectRunner();
     runControl->initiateStart();
 
-    QTRY_VERIFY_WITH_TIMEOUT(running, 10000);
-    QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
+    QTRY_VERIFY_WITH_TIMEOUT(running, 20000);
+    QTRY_VERIFY_WITH_TIMEOUT(!running, 20000);
     QCOMPARE(startCount, 2);
     QCOMPARE(stopCount, 2);
     QCOMPARE(runCount, 1);
@@ -133,9 +133,9 @@ void LocalQmlProfilerRunnerTest::testRunner()
     connectRunner();
     runControl->initiateStart();
 
-    QTRY_VERIFY_WITH_TIMEOUT(running, 10000);
+    QTRY_VERIFY_WITH_TIMEOUT(running, 20000);
     runControl->initiateStop();
-    QTRY_VERIFY_WITH_TIMEOUT(!running, 10000);
+    QTRY_VERIFY_WITH_TIMEOUT(!running, 20000);
     QCOMPARE(startCount, 3);
     QCOMPARE(stopCount, 3);
     QCOMPARE(runCount, 2);
