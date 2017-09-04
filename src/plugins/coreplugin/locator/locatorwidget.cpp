@@ -746,7 +746,8 @@ QList<ILocatorFilter *> LocatorWidget::filtersFor(const QString &text, QString &
             break;
     }
     const int whiteSpace = text.indexOf(QChar::Space, firstNonSpace);
-    const QList<ILocatorFilter *> filters = Locator::filters();
+    const QList<ILocatorFilter *> filters = Utils::filtered(Locator::filters(),
+                                                            &ILocatorFilter::isEnabled);
     if (whiteSpace >= 0) {
         const QString prefix = text.mid(firstNonSpace, whiteSpace - firstNonSpace).toLower();
         QList<ILocatorFilter *> prefixFilters;

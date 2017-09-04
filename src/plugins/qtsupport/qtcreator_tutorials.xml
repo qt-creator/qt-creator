@@ -34,7 +34,10 @@
       <description><![CDATA[Creating a Qt widget based application.]]></description>
       <tags>qt creator,embedded,device creation</tags>
     </tutorial>
-
+    <tutorial imageUrl=":qtsupport/images/icons/videotutorialicon.png" difficulty="" projectPath="" name="Getting Started with Qt for Device Creation" isVideo="true" videoUrl="https://www.youtube.com/watch?v=QFWPw4UWL9E" videoLength="8:30">
+      <description><![CDATA[Using Qt Creator to deploy applications to an embedded device.]]></description>
+      <tags>qt creator,embedded,device creation</tags>
+    </tutorial>
     <tutorial imageUrl=":qtsupport/images/icons/videotutorialicon.png" difficulty="" projectPath="" name="Qt Quick Designer - The Coffee Machine" isVideo="true" videoUrl="https://www.youtube.com/watch?v=Ko3YPM_tStM" videoLength="3:06">
       <description><![CDATA[Creating a UI for embedded devices.]]></description>
       <tags>qt creator,qt quick,embedded</tags>

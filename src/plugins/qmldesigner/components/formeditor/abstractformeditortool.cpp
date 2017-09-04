@@ -152,8 +152,8 @@ bool AbstractFormEditorTool::selectedItemCursorInMovableArea(const QPointF &pos)
     QRectF boundingRect = boundingRectInSceneSpace.boundingRect();
     QRectF innerRect = boundingRect;
 
-    innerRect.adjust(10, 10, -10, -10);
-    boundingRect.adjust(-10, -20, 10, 10);
+    innerRect.adjust(2, 2, -2, -2);
+    boundingRect.adjust(-2, -20, 2, 2);
 
     return !innerRect.contains(pos) && boundingRect.contains(pos);
 }

@@ -224,14 +224,14 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
         if (role == Qt::CheckStateRole)
             return currentQmlObjectNode.isAliasExported()  ? Qt::Checked : Qt::Unchecked;
         else if (role == Qt::ToolTipRole)
-            return tr("Toggles the visibility of this item in the form editor.\n"
-                      "This is independent of the visibility property in QML.");
+            return tr("Toggles whether this item is exported as an "
+                      "alias property of the root item.");
     } else if (index.column() == 2) { //visible
         if (role == Qt::CheckStateRole)
             return m_view->isNodeInvisible(modelNode) ? Qt::Unchecked : Qt::Checked;
         else if (role == Qt::ToolTipRole)
-            return tr("Toggles whether this item is exported as an "
-                      "alias property of the root item.");
+            return tr("Toggles the visibility of this item in the form editor.\n"
+                      "This is independent of the visibility property in QML.");
     }
 
     return QVariant();

@@ -73,6 +73,7 @@ public:
     QString executableFilePath() const;
     QString workingDirectory() const;
     QString buildDirectory() const { return m_buildDir; }
+    QString projectFile() const { return m_projectFile; }
     QString displayName() const { return m_displayName; }
     Utils::Environment environment() const { return m_environment; }
     ProjectExplorer::Project *project() const { return m_project.data(); }
