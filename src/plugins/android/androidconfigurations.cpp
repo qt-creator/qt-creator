@@ -775,6 +775,17 @@ QVersionNumber AndroidConfig::sdkToolsVersion() const
     return version;
 }
 
+QVersionNumber AndroidConfig::buildToolsVersion() const
+{
+    QVersionNumber maxVersion;
+    Utils::FileName buildtoolsDir = m_sdkLocation;
+    buildtoolsDir.appendPath("build-tools");
+    QDir buildToolsDir(buildtoolsDir.toString());
+    for (const QFileInfo &file: buildToolsDir.entryList(QDir::Dirs|QDir::NoDotAndDotDot))
+        maxVersion = qMax(maxVersion, QVersionNumber::fromString(file.fileName()));
+    return maxVersion;
+}
+
 FileName AndroidConfig::ndkLocation() const
 {
     return m_ndkLocation;

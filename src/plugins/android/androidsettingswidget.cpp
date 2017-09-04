@@ -287,11 +287,7 @@ static QPair<QStringList, bool> checkGdbForBrokenPython(const QStringList &paths
 void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
 {
     if (mode & Sdk) {
-        m_sdkState = Okay;
-        if (m_androidConfig.sdkLocation().isEmpty())
-            m_sdkState = NotSet;
-        else if (!(sdkLocationIsValid() && sdkPlatformToolsInstalled()))
-            m_sdkState = Error;
+        m_sdkState = verifySdkInstallation(&m_sdkInstallationError) ? Okay : Error;
     }
 
     if (mode & Ndk) {
@@ -386,11 +382,7 @@ void AndroidSettingsWidget::applyToUi(AndroidSettingsWidget::Mode mode)
         if (m_sdkState == Error) {
             m_ui->sdkWarningIconLabel->setVisible(true);
             m_ui->sdkWarningLabel->setVisible(true);
-            Utils::FileName location = Utils::FileName::fromUserInput(m_ui->SDKLocationPathChooser->rawPath());
-            if (sdkLocationIsValid())
-                m_ui->sdkWarningLabel->setText(tr("The Platform tools are missing. Please use the Android SDK Manager to install them."));
-            else
-                m_ui->sdkWarningLabel->setText(tr("\"%1\" does not seem to be an Android SDK top folder.").arg(location.toUserOutput()));
+            m_ui->sdkWarningLabel->setText(m_sdkInstallationError);
         } else {
             m_ui->sdkWarningIconLabel->setVisible(false);
             m_ui->sdkWarningLabel->setVisible(false);
@@ -488,20 +480,42 @@ void AndroidSettingsWidget::updateGradleBuildUi()
                                         m_androidConfig.useGrandle());
 }
 
-bool AndroidSettingsWidget::sdkLocationIsValid() const
+bool AndroidSettingsWidget::verifySdkInstallation(QString *errorDetails) const
 {
-    Utils::FileName androidExe = m_androidConfig.sdkLocation();
-    Utils::FileName androidBat = m_androidConfig.sdkLocation();
-    Utils::FileName emulator = m_androidConfig.sdkLocation();
-    return (androidExe.appendPath(QLatin1String("/tools/android" QTC_HOST_EXE_SUFFIX)).exists()
-            || androidBat.appendPath(QLatin1String("/tools/android" ANDROID_BAT_SUFFIX)).exists())
-            && emulator.appendPath(QLatin1String("/tools/emulator" QTC_HOST_EXE_SUFFIX)).exists();
-}
+    if (m_androidConfig.sdkLocation().isEmpty()) {
+        if (errorDetails)
+            *errorDetails = tr("Android SDK path not set.");
+        return false;
+    }
 
-bool AndroidSettingsWidget::sdkPlatformToolsInstalled() const
-{
-    Utils::FileName adb = m_androidConfig.sdkLocation();
-    return adb.appendPath(QLatin1String("platform-tools/adb" QTC_HOST_EXE_SUFFIX)).exists();
+    if (!m_androidConfig.sdkLocation().exists()) {
+        if (errorDetails)
+            *errorDetails = tr("Android SDK path does not exist.");
+        return false;
+    }
+
+    if (m_androidConfig.sdkToolsVersion().isNull()) {
+        if (errorDetails)
+            *errorDetails = tr("The SDK path does not seem to be a valid Android SDK top folder.");
+        return false;
+    }
+
+    QStringList missingComponents;
+    if (!m_androidConfig.adbToolPath().exists())
+        missingComponents << "Platform Tools";
+
+    if (m_androidConfig.buildToolsVersion().isNull())
+        missingComponents << "Build Tools";
+
+    if (m_androidConfig.sdkTargets().isEmpty())
+        missingComponents << "Platform SDK";
+
+    if (!missingComponents.isEmpty() && errorDetails) {
+        *errorDetails = tr("Android SDK components missing (%1).\nUse Android SDK Manager to "
+                           "manage SDK components.").arg(missingComponents.join(", "));
+    }
+
+    return missingComponents.isEmpty();
 }
 
 void AndroidSettingsWidget::saveSettings()

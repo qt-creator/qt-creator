@@ -570,16 +570,10 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
     gradleProperties["buildDir"] = ".build";
     gradleProperties["androidCompileSdkVersion"] = buildTargetSDK(target).split(QLatin1Char('-')).last().toLocal8Bit();
     if (gradleProperties["androidBuildToolsVersion"].isEmpty()) {
-        QVersionNumber maxVersion;
-        QDir buildToolsDir(AndroidConfigurations::currentConfig().sdkLocation().appendPath(QLatin1String("build-tools")).toString());
-        foreach (const QFileInfo &file, buildToolsDir.entryList(QDir::Dirs|QDir::NoDotAndDotDot)) {
-            QVersionNumber ver = QVersionNumber::fromString(file.fileName());
-            if (maxVersion < ver)
-                maxVersion = ver;
-        }
-        if (maxVersion.isNull())
+        QVersionNumber buildtoolVersion = AndroidConfigurations::currentConfig().buildToolsVersion();
+        if (buildtoolVersion.isNull())
             return false;
-        gradleProperties["androidBuildToolsVersion"] = maxVersion.toString().toLocal8Bit();
+        gradleProperties["androidBuildToolsVersion"] = buildtoolVersion.toString().toLocal8Bit();
     }
     return mergeGradleProperties(gradlePropertiesPath, gradleProperties);
 }
