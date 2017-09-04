@@ -178,4 +178,8 @@
     select it when no text is selected, the whole file is formatted by default.
     To disable this behavior, deselect the
     \uicontrol {Format entire file if no text was selected} check box.
+
+    ClangFormat provides additionally the \uicontrol {Disable Formatting for
+    Selected Text} command. If you select it, the selected lines will be
+    wrapped within \c {// clang-format off} and \c {// clang-format on}.
 */

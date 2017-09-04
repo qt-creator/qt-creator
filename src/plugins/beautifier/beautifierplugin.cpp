@@ -496,6 +496,12 @@ QString BeautifierPlugin::msgFormatSelectedText()
     return tr("Format &Selected Text");
 }
 
+QString BeautifierPlugin::msgDisableFormattingSelectedText()
+{
+    //: Menu entry
+    return tr("&Disable Formatting for Selected Text");
+}
+
 QString BeautifierPlugin::msgCommandPromptDialogTitle(const QString &command)
 {
     //: File dialog title for path chooser when choosing binary

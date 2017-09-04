@@ -48,6 +48,7 @@
 
 #include <QAction>
 #include <QMenu>
+#include <QTextBlock>
 
 namespace Beautifier {
 namespace Internal {
@@ -87,6 +88,14 @@ bool ClangFormat::initialize()
                                               Constants::ClangFormat::ACTION_FORMATSELECTED);
     menu->addAction(cmd);
     connect(m_formatRange, &QAction::triggered, this, &ClangFormat::formatSelectedText);
+
+    m_disableFormattingSelectedText
+        = new QAction(BeautifierPlugin::msgDisableFormattingSelectedText(), this);
+    cmd = Core::ActionManager::registerAction(
+        m_disableFormattingSelectedText, Constants::ClangFormat::ACTION_DISABLEFORMATTINGSELECTED);
+    menu->addAction(cmd);
+    connect(m_disableFormattingSelectedText, &QAction::triggered,
+            this, &ClangFormat::disableFormattingSelectedText);
 
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
@@ -128,6 +137,42 @@ void ClangFormat::formatSelectedText()
     } else if (m_settings->formatEntireFileFallback()) {
         formatFile();
     }
+}
+
+void ClangFormat::disableFormattingSelectedText()
+{
+    TextEditor::TextEditorWidget *widget = TextEditor::TextEditorWidget::currentTextEditorWidget();
+    if (!widget)
+        return;
+
+    const QTextCursor tc = widget->textCursor();
+    if (!tc.hasSelection())
+        return;
+
+    // Insert start marker
+    const QTextBlock selectionStartBlock = tc.document()->findBlock(tc.selectionStart());
+    QTextCursor insertCursor(tc.document());
+    insertCursor.beginEditBlock();
+    insertCursor.setPosition(selectionStartBlock.position());
+    insertCursor.insertText("// clang-format off\n");
+    const int positionToRestore = tc.position();
+
+    // Insert end marker
+    QTextBlock selectionEndBlock = tc.document()->findBlock(tc.selectionEnd());
+    insertCursor.setPosition(selectionEndBlock.position() + selectionEndBlock.length() - 1);
+    insertCursor.insertText("\n// clang-format on");
+    insertCursor.endEditBlock();
+
+    // Reset the cursor position in order to clear the selection.
+    QTextCursor restoreCursor(tc.document());
+    restoreCursor.setPosition(positionToRestore);
+    widget->setTextCursor(restoreCursor);
+
+    // The indentation of these markers might be undesired, so reformat.
+    // This is not optimal because two undo steps will be needed to remove the markers.
+    const int reformatTextLength = insertCursor.position() - selectionStartBlock.position();
+    m_beautifierPlugin->formatCurrentFile(command(selectionStartBlock.position(),
+                                                  reformatTextLength));
 }
 
 Command ClangFormat::command() const
