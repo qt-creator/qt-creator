@@ -1065,9 +1065,10 @@ void BaseTreeModel::setRootItem(TreeItem *item)
     QTC_ASSERT(item, return);
     QTC_ASSERT(item->m_model == 0, return);
     QTC_ASSERT(item->m_parent == 0, return);
+    QTC_ASSERT(item != m_root, return);
     QTC_CHECK(m_root);
 
-    emit layoutAboutToBeChanged();
+    beginResetModel();
     if (m_root) {
         QTC_CHECK(m_root->m_parent == 0);
         QTC_CHECK(m_root->m_model == this);
@@ -1079,7 +1080,7 @@ void BaseTreeModel::setRootItem(TreeItem *item)
     }
     m_root = item;
     item->propagateModel(this);
-    emit layoutChanged();
+    endResetModel();
 }
 
 void BaseTreeModel::setHeader(const QStringList &displays)
