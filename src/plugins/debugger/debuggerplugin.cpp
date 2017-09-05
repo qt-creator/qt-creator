@@ -2906,7 +2906,7 @@ static void createNewDock(QWidget *widget)
     dockWidget->show();
 }
 
-static QString formatStartParameters(DebuggerRunParameters &sp)
+static QString formatStartParameters(const DebuggerRunParameters &sp)
 {
     QString rc;
     QTextStream str(&rc);
