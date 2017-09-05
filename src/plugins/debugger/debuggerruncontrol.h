@@ -114,6 +114,8 @@ public:
     void setIosPlatform(const QString &platform);
     void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
 
+    void setNeedFixup(bool on);
+
 signals:
     void aboutToNotifyInferiorSetupOk();
 

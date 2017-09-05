@@ -265,6 +265,11 @@ void DebuggerRunTool::setDeviceSymbolsRoot(const QString &deviceSymbolsRoot)
     m_runParameters.deviceSymbolsRoot = deviceSymbolsRoot;
 }
 
+void DebuggerRunTool::setNeedFixup(bool on)
+{
+    m_runParameters.needFixup = on;
+}
+
 void DebuggerRunTool::setInferior(const Runnable &runnable)
 {
     QTC_ASSERT(runnable.is<StandardRunnable>(), reportFailure(); return);
