@@ -708,6 +708,13 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
         }
     }
 
+    // FIXME: We can't handle terminals yet.
+    if (rp.useTerminal && rp.cppEngineType == LldbEngineType) {
+        qWarning("Run in Terminal is not supported yet with the LLDB backend");
+        m_errors.append(DebuggerPlugin::tr("Run in Terminal is not supported with the LLDB backend."));
+        rp.useTerminal = false;
+    }
+
     return true;
 }
 

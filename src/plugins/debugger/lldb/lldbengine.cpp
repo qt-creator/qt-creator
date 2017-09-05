@@ -176,13 +176,6 @@ void LldbEngine::abortDebugger()
 
 void LldbEngine::setupEngine()
 {
-    // FIXME: We can't handle terminals yet.
-    if (runParameters().useTerminal) {
-        qWarning("Run in Terminal is not supported yet with the LLDB backend");
-        showMessage(tr("Run in Terminal is not supported with the LLDB backend."), AppError);
-        runParameters().useTerminal = false;
-    }
-
     if (runParameters().useTerminal) {
         QTC_CHECK(false); // See above.
         if (HostOsInfo::isWindowsHost()) {
