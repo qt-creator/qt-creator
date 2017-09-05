@@ -50,13 +50,12 @@ class TestRunConfiguration;
 using TestResultPtr = QSharedPointer<TestResult>;
 
 class TestConfiguration
-
 {
 public:
     explicit TestConfiguration();
     virtual ~TestConfiguration();
 
-    void completeTestInformation(int runMode);
+    void completeTestInformation(TestRunMode runMode);
 
     void setTestCases(const QStringList &testCases);
     void setTestCaseCount(int count);
@@ -104,21 +103,15 @@ private:
 class DebuggableTestConfiguration : public TestConfiguration
 {
 public:
-    enum RunMode
-    {
-        Run,
-        Debug
-    };
-
-    explicit DebuggableTestConfiguration(RunMode runMode = Run) : m_runMode(runMode) {}
+    explicit DebuggableTestConfiguration(TestRunMode runMode = TestRunMode::Run)
+        : m_runMode(runMode) {}
     ~DebuggableTestConfiguration() {}
 
-    void setRunMode(RunMode mode) { m_runMode = mode; }
-    RunMode runMode() const { return m_runMode; }
-
-
+    void setRunMode(TestRunMode mode) { m_runMode = mode; }
+    TestRunMode runMode() const { return m_runMode; }
+    bool isDebugRunMode() const;
 private:
-    RunMode m_runMode;
+    TestRunMode m_runMode;
 };
 
 } // namespace Internal

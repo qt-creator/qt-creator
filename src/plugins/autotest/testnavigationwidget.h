@@ -72,7 +72,7 @@ private:
     void onParsingStarted();
     void onParsingFinished();
     void initializeFilterMenu();
-    void onRunThisTestTriggered(TestRunner::Mode runMode);
+    void onRunThisTestTriggered(TestRunMode runMode);
 
     TestTreeModel *m_model;
     TestTreeSortFilterModel *m_sortFilterModel;

@@ -136,13 +136,13 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
                 runThisTest->setEnabled(enabled);
                 connect(runThisTest, &QAction::triggered,
                         this, [this] () {
-                    onRunThisTestTriggered(TestRunner::Run);
+                    onRunThisTestTriggered(TestRunMode::Run);
                 });
                 runWithoutDeploy = new QAction(tr("Run Without Deployment"), &menu);
                 runWithoutDeploy->setEnabled(enabled);
                 connect(runWithoutDeploy, &QAction::triggered,
                         this, [this] () {
-                    onRunThisTestTriggered(TestRunner::RunWithoutDeploy);
+                    onRunThisTestTriggered(TestRunMode::RunWithoutDeploy);
                 });
             }
             if (item->canProvideDebugConfiguration()) {
@@ -150,13 +150,13 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
                 debugThisTest->setEnabled(enabled);
                 connect(debugThisTest, &QAction::triggered,
                         this, [this] () {
-                    onRunThisTestTriggered(TestRunner::Debug);
+                    onRunThisTestTriggered(TestRunMode::Debug);
                 });
                 debugWithoutDeploy = new QAction(tr("Debug Without Deployment"), &menu);
                 debugWithoutDeploy->setEnabled(enabled);
                 connect(debugWithoutDeploy, &QAction::triggered,
                         this, [this] () {
-                    onRunThisTestTriggered(TestRunner::DebugWithoutDeploy);
+                    onRunThisTestTriggered(TestRunMode::DebugWithoutDeploy);
                 });
             }
         }
@@ -291,7 +291,7 @@ void TestNavigationWidget::initializeFilterMenu()
     m_filterMenu->addAction(action);
 }
 
-void TestNavigationWidget::onRunThisTestTriggered(TestRunner::Mode runMode)
+void TestNavigationWidget::onRunThisTestTriggered(TestRunMode runMode)
 {
     const QModelIndexList selected = m_view->selectionModel()->selectedIndexes();
     if (selected.isEmpty())
@@ -303,12 +303,12 @@ void TestNavigationWidget::onRunThisTestTriggered(TestRunner::Mode runMode)
     TestTreeItem *item = static_cast<TestTreeItem *>(sourceIndex.internalPointer());
     TestConfiguration *configuration;
     switch (runMode) {
-    case TestRunner::Run:
-    case TestRunner::RunWithoutDeploy:
+    case TestRunMode::Run:
+    case TestRunMode::RunWithoutDeploy:
         configuration = item->testConfiguration();
         break;
-    case TestRunner::Debug:
-    case TestRunner::DebugWithoutDeploy:
+    case TestRunMode::Debug:
+    case TestRunMode::DebugWithoutDeploy:
         configuration = item->debugConfiguration();
         break;
     default:

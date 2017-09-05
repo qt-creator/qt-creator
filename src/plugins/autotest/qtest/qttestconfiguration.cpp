@@ -73,7 +73,7 @@ QStringList QtTestConfiguration::argumentsForTestRunner() const
     if (qtSettings->logSignalsSlots)
         arguments << "-vs";
 
-    if (runMode() == DebuggableTestConfiguration::Debug) {
+    if (isDebugRunMode()) {
         if (qtSettings->noCrashHandler)
             arguments << "-nocrashhandler";
     }

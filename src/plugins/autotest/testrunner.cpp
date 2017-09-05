@@ -127,7 +127,7 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
     QEventLoop eventLoop;
     int testCaseCount = 0;
     for (TestConfiguration *config : selectedTests) {
-        config->completeTestInformation(TestRunner::Run);
+        config->completeTestInformation(TestRunMode::Run);
         if (config->project()) {
             testCaseCount += config->testCaseCount();
             if (!omitRunConfigWarnings && config->isGuessed()) {
@@ -224,7 +224,7 @@ static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
     futureInterface.setProgressValue(testCaseCount);
 }
 
-void TestRunner::prepareToRunTests(Mode mode)
+void TestRunner::prepareToRunTests(TestRunMode mode)
 {
     m_runMode = mode;
     ProjectExplorer::Internal::ProjectExplorerSettings projectExplorerSettings =
@@ -257,8 +257,8 @@ void TestRunner::prepareToRunTests(Mode mode)
         return;
     }
 
-    if (!projectExplorerSettings.buildBeforeDeploy || mode == TestRunner::DebugWithoutDeploy
-            || mode == TestRunner::RunWithoutDeploy) {
+    if (!projectExplorerSettings.buildBeforeDeploy || mode == TestRunMode::DebugWithoutDeploy
+            || mode == TestRunMode::RunWithoutDeploy) {
         runOrDebugTests();
     } else  if (project->hasActiveBuildSettings()) {
         buildProject(project);
@@ -311,7 +311,7 @@ void TestRunner::debugTests()
     QTC_ASSERT(m_selectedTests.size() == 1, onFinished();return);
 
     TestConfiguration *config = m_selectedTests.first();
-    config->completeTestInformation(Debug);
+    config->completeTestInformation(TestRunMode::Debug);
     if (!config->runConfiguration()) {
         emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
             TestRunner::tr("Failed to get run configuration."))));
@@ -387,12 +387,12 @@ void TestRunner::debugTests()
 void TestRunner::runOrDebugTests()
 {
     switch (m_runMode) {
-    case Run:
-    case RunWithoutDeploy:
+    case TestRunMode::Run:
+    case TestRunMode::RunWithoutDeploy:
         runTests();
         break;
-    case Debug:
-    case DebugWithoutDeploy:
+    case TestRunMode::Debug:
+    case TestRunMode::DebugWithoutDeploy:
         debugTests();
         break;
     default:

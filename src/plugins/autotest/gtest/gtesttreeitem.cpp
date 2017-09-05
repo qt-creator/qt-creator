@@ -115,7 +115,7 @@ TestConfiguration *GTestTreeItem::debugConfiguration() const
 {
     GTestConfiguration *config = static_cast<GTestConfiguration *>(testConfiguration());
     if (config)
-        config->setRunMode(DebuggableTestConfiguration::Debug);
+        config->setRunMode(TestRunMode::Debug);
     return config;
 }
 

@@ -45,4 +45,14 @@ const char FRAMEWORK_PREFIX[]           = "AutoTest.Framework.";
 const char SETTINGSPAGE_PREFIX[]        = "A.AutoTest.";
 const char SETTINGSGROUP[]              = "Autotest";
 } // namespace Constants
+
+namespace Internal {
+enum class TestRunMode
+{
+    Run,
+    RunWithoutDeploy,
+    Debug,
+    DebugWithoutDeploy
+};
+} // namespace Internal
 } // namespace Autotest

@@ -62,7 +62,7 @@ QStringList GTestConfiguration::argumentsForTestRunner() const
     if (gSettings->throwOnFailure)
         arguments << "--gtest_throw_on_failure";
 
-    if (runMode() == DebuggableTestConfiguration::Debug) {
+    if (isDebugRunMode()) {
         if (gSettings->breakOnFailure)
             arguments << "--gtest_break_on_failure";
     }

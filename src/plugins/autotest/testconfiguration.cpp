@@ -26,7 +26,6 @@
 #include "testconfiguration.h"
 #include "testoutputreader.h"
 #include "testrunconfiguration.h"
-#include "testrunner.h"
 
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectinfo.h>
@@ -73,7 +72,7 @@ static QString ensureExeEnding(const QString& file)
     return Utils::HostOsInfo::withExecutableSuffix(file);
 }
 
-void TestConfiguration::completeTestInformation(int runMode)
+void TestConfiguration::completeTestInformation(TestRunMode runMode)
 {
     QTC_ASSERT(!m_projectFile.isEmpty(), return);
     QTC_ASSERT(!m_buildTargets.isEmpty(), return);
@@ -158,7 +157,7 @@ void TestConfiguration::completeTestInformation(int runMode)
             m_runnable.executable = currentExecutable;
             m_displayName = runConfig->displayName();
             m_project = project;
-            if (runMode == TestRunner::Debug)
+            if (runMode == TestRunMode::Debug || runMode == TestRunMode::DebugWithoutDeploy)
                 m_runConfig = new TestRunConfiguration(runConfig->target(), this);
             break;
         }
@@ -182,7 +181,7 @@ void TestConfiguration::completeTestInformation(int runMode)
                     m_project = project;
                     m_guessedConfiguration = true;
                     m_guessedFrom = rc->displayName();
-                    if (runMode == TestRunner::Debug)
+                    if (runMode == TestRunMode::Debug)
                         m_runConfig = new TestRunConfiguration(rc->target(), this);
                 }
             } else {
@@ -289,6 +288,11 @@ QString TestConfiguration::workingDirectory() const
 
     const QString executable = executableFilePath();
     return executable.isEmpty() ? executable : QFileInfo(executable).absolutePath();
+}
+
+bool DebuggableTestConfiguration::isDebugRunMode() const
+{
+    return m_runMode == TestRunMode::Debug || m_runMode == TestRunMode::DebugWithoutDeploy;
 }
 
 } // namespace Internal

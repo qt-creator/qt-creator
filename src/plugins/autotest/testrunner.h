@@ -44,21 +44,13 @@ class TestRunner : public QObject
     Q_OBJECT
 
 public:
-    enum Mode
-    {
-        Run,
-        RunWithoutDeploy,
-        Debug,
-        DebugWithoutDeploy
-    };
-
     static TestRunner* instance();
     ~TestRunner();
 
     void setSelectedTests(const QList<TestConfiguration *> &selected);
     bool isTestRunning() const { return m_executingTests; }
 
-    void prepareToRunTests(Mode mode);
+    void prepareToRunTests(TestRunMode mode);
 
 signals:
     void testRunStarted();
@@ -79,7 +71,7 @@ private:
     QFutureWatcher<TestResultPtr> m_futureWatcher;
     QList<TestConfiguration *> m_selectedTests;
     bool m_executingTests;
-    Mode m_runMode = Run;
+    TestRunMode m_runMode = TestRunMode::Run;
 
     // temporarily used if building before running is necessary
     QMetaObject::Connection m_buildConnect;
