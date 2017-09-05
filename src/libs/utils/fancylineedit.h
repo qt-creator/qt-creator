@@ -45,12 +45,9 @@ class QTCREATOR_UTILS_EXPORT IconButton: public QAbstractButton
     Q_OBJECT
     Q_PROPERTY(float iconOpacity READ iconOpacity WRITE setIconOpacity)
     Q_PROPERTY(bool autoHide READ hasAutoHide WRITE setAutoHide)
-    Q_PROPERTY(QPixmap pixmap READ pixmap WRITE setPixmap)
 public:
     explicit IconButton(QWidget *parent = 0);
     void paintEvent(QPaintEvent *event);
-    void setPixmap(const QPixmap &pixmap) { m_pixmap = pixmap; update(); }
-    QPixmap pixmap() const { return m_pixmap; }
     float iconOpacity() { return m_iconOpacity; }
     void setIconOpacity(float value) { m_iconOpacity = value; update(); }
     void animateShow(bool visible);
@@ -67,7 +64,7 @@ protected:
 private:
     float m_iconOpacity;
     bool m_autoHide;
-    QPixmap m_pixmap;
+    QIcon m_icon;
 };
 
 class QTCREATOR_UTILS_EXPORT FancyLineEdit : public CompletingLineEdit
@@ -86,8 +83,8 @@ public:
     explicit FancyLineEdit(QWidget *parent = 0);
     ~FancyLineEdit();
 
-    QPixmap buttonPixmap(Side side) const;
-    void setButtonPixmap(Side side, const QPixmap &pixmap);
+    QIcon buttonIcon(Side side) const;
+    void setButtonIcon(Side side, const QIcon &icon);
 
     QMenu *buttonMenu(Side side) const;
     void setButtonMenu(Side side, QMenu *menu);

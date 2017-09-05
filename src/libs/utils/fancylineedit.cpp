@@ -38,6 +38,7 @@
 #include <QStylePainter>
 #include <QPropertyAnimation>
 #include <QStyle>
+#include <QWindow>
 
 /*!
     \class Utils::FancyLineEdit
@@ -91,7 +92,6 @@ public:
     HistoryCompleter *m_historyCompleter = 0;
     FancyLineEdit::ValidationFunction m_validationFunction = &FancyLineEdit::validateWithValidator;
     QString m_oldText;
-    QPixmap m_pixmap[2];
     QMenu *m_menu[2];
     FancyLineEdit::State m_state = FancyLineEdit::Invalid;
     bool m_menuTabFocusTrigger[2];
@@ -256,17 +256,17 @@ void FancyLineEdit::resizeEvent(QResizeEvent *)
     updateButtonPositions();
 }
 
-void FancyLineEdit::setButtonPixmap(Side side, const QPixmap &buttonPixmap)
+void FancyLineEdit::setButtonIcon(Side side, const QIcon &icon)
 {
-    d->m_iconbutton[side]->setPixmap(buttonPixmap);
+    d->m_iconbutton[side]->setIcon(icon);
     updateMargins();
     updateButtonPositions();
     update();
 }
 
-QPixmap FancyLineEdit::buttonPixmap(Side side) const
+QIcon FancyLineEdit::buttonIcon(Side side) const
 {
-    return d->m_pixmap[side];
+    return d->m_iconbutton[side]->icon();
 }
 
 void FancyLineEdit::setButtonMenu(Side side, QMenu *buttonMenu)
@@ -360,9 +360,9 @@ void FancyLineEdit::setFiltering(bool on)
                          QLatin1String("edit-clear-locationbar-rtl") :
                          QLatin1String("edit-clear-locationbar-ltr"),
                          QIcon::fromTheme(QLatin1String("edit-clear"),
-                                          Icons::EDIT_CLEAR.pixmap()));
+                                          Icons::EDIT_CLEAR.icon()));
 
-        setButtonPixmap(Right, icon.pixmap(16));
+        setButtonIcon(Right, icon);
         setButtonVisible(Right, true);
         setPlaceholderText(tr("Filter"));
         setButtonToolTip(Right, tr("Clear text"));
@@ -517,15 +517,16 @@ IconButton::IconButton(QWidget *parent)
 
 void IconButton::paintEvent(QPaintEvent *)
 {
-    const qreal pixmapRatio = m_pixmap.devicePixelRatio();
+    QWindow *window = this->window()->windowHandle();
+    const QPixmap iconPixmap = icon().pixmap(window, sizeHint());
     QStylePainter painter(this);
-    QRect pixmapRect = QRect(0, 0, m_pixmap.width()/pixmapRatio, m_pixmap.height()/pixmapRatio);
+    QRect pixmapRect(QPoint(), iconPixmap.size() / window->devicePixelRatio());
     pixmapRect.moveCenter(rect().center());
 
     if (m_autoHide)
         painter.setOpacity(m_iconOpacity);
 
-    painter.drawPixmap(pixmapRect, m_pixmap);
+    painter.drawPixmap(pixmapRect, iconPixmap);
 
     if (hasFocus()) {
         QStyleOptionFocusRect focusOption;
@@ -550,8 +551,8 @@ void IconButton::animateShow(bool visible)
 
 QSize IconButton::sizeHint() const
 {
-    const qreal pixmapRatio = m_pixmap.devicePixelRatio();
-    return QSize(m_pixmap.width()/pixmapRatio, m_pixmap.height()/pixmapRatio);
+    QWindow *window = this->window()->windowHandle();
+    return icon().actualSize(window, QSize(32, 16)); // Find flags icon can be wider than 16px
 }
 
 void IconButton::keyPressEvent(QKeyEvent *ke)

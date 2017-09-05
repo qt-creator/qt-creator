@@ -666,11 +666,11 @@ void FindToolBar::updateIcons()
     bool regexp = effectiveFlags & FindRegularExpression;
     bool preserveCase = effectiveFlags & FindPreserveCase;
     if (!casesensitive && !wholewords && !regexp && !preserveCase) {
-        const QPixmap pixmap = Utils::Icons::MAGNIFIER.pixmap();
-        m_ui.findEdit->setButtonPixmap(Utils::FancyLineEdit::Left, pixmap);
+        const QIcon icon = Utils::Icons::MAGNIFIER.icon();
+        m_ui.findEdit->setButtonIcon(Utils::FancyLineEdit::Left, icon);
     } else {
-        m_ui.findEdit->setButtonPixmap(Utils::FancyLineEdit::Left,
-                                       IFindFilter::pixmapForFindFlags(effectiveFlags));
+        m_ui.findEdit->setButtonIcon(Utils::FancyLineEdit::Left,
+                                     IFindFilter::pixmapForFindFlags(effectiveFlags));
     }
 }
 

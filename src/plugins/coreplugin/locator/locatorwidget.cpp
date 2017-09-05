@@ -539,9 +539,9 @@ LocatorWidget::LocatorWidget(Locator *locator) :
     layout->setMargin(0);
     layout->addWidget(m_fileLineEdit);
 
-    const QPixmap pixmap = Utils::Icons::MAGNIFIER.pixmap();
+    const QIcon icon = Utils::Icons::MAGNIFIER.icon();
     m_fileLineEdit->setFiltering(true);
-    m_fileLineEdit->setButtonPixmap(Utils::FancyLineEdit::Left, pixmap);
+    m_fileLineEdit->setButtonIcon(Utils::FancyLineEdit::Left, icon);
     m_fileLineEdit->setButtonToolTip(Utils::FancyLineEdit::Left, tr("Options"));
     m_fileLineEdit->setFocusPolicy(Qt::ClickFocus);
     m_fileLineEdit->setButtonVisible(Utils::FancyLineEdit::Left, true);

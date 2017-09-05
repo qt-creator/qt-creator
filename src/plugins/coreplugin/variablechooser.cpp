@@ -107,7 +107,7 @@ public:
     void createIconButton()
     {
         m_iconButton = new IconButton;
-        m_iconButton->setPixmap(Utils::Icons::REPLACE.pixmap());
+        m_iconButton->setIcon(Utils::Icons::REPLACE.icon());
         m_iconButton->setToolTip(VariableChooser::tr("Insert Variable"));
         m_iconButton->hide();
         connect(m_iconButton.data(), static_cast<void(QAbstractButton::*)(bool)>(&QAbstractButton::clicked),
@@ -457,11 +457,7 @@ void VariableChooserPrivate::updateDescription(const QModelIndex &index)
  */
 int VariableChooserPrivate::buttonMargin() const
 {
-    int margin = m_iconButton->pixmap().width() + 8;
-    if (q->style()->inherits("OxygenStyle"))
-        margin = qMax(24, margin);
-
-    return margin;
+    return 24;
 }
 
 void VariableChooserPrivate::updateButtonGeometry()
