@@ -315,7 +315,7 @@ public:
     }
 
     template <class Predicate>
-    BestItem *findNonRooItem(const Predicate &pred) const {
+    BestItem *findNonRootItem(const Predicate &pred) const {
         const auto pred0 = [pred](TreeItem *treeItem) -> bool { return pred(static_cast<BestItem *>(treeItem)); };
         return static_cast<BestItem *>(m_root->findAnyChild(pred0));
     }

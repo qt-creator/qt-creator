@@ -517,7 +517,7 @@ void WatchModel::reinitialize(bool includeInspectData)
 
 WatchItem *WatchModel::findItem(const QString &iname) const
 {
-    return findNonRooItem([iname](WatchItem *item) { return item->iname == iname; });
+    return findNonRootItem([iname](WatchItem *item) { return item->iname == iname; });
 }
 
 static QString parentName(const QString &iname)

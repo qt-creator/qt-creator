@@ -206,7 +206,7 @@ GTestResult *GTestOutputReader::createDefaultResult() const
 
 const TestTreeItem *GTestOutputReader::findTestTreeItemForCurrentLine() const
 {
-    const auto item = TestTreeModel::instance()->findNonRooItem([&](const Utils::TreeItem *item) {
+    const auto item = TestTreeModel::instance()->findNonRootItem([&](const Utils::TreeItem *item) {
         const TestTreeItem &treeItem = static_cast<const TestTreeItem &>(*item);
         return matches(treeItem);
     });
