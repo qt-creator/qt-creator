@@ -496,6 +496,12 @@ QString BeautifierPlugin::msgFormatSelectedText()
     return tr("Format &Selected Text");
 }
 
+QString BeautifierPlugin::msgFormatAtCursor()
+{
+    //: Menu entry
+    return tr("&Format at Cursor");
+}
+
 QString BeautifierPlugin::msgDisableFormattingSelectedText()
 {
     //: Menu entry

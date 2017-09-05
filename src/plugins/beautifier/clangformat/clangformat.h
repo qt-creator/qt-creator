@@ -54,7 +54,7 @@ public:
 
 private:
     void formatFile();
-    void formatSelectedText();
+    void formatAtCursor();
     void disableFormattingSelectedText();
     BeautifierPlugin *m_beautifierPlugin;
     QAction *m_formatFile = nullptr;

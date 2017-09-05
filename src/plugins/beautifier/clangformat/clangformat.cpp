@@ -83,11 +83,11 @@ bool ClangFormat::initialize()
     menu->addAction(cmd);
     connect(m_formatFile, &QAction::triggered, this, &ClangFormat::formatFile);
 
-    m_formatRange = new QAction(BeautifierPlugin::msgFormatSelectedText(), this);
+    m_formatRange = new QAction(BeautifierPlugin::msgFormatAtCursor(), this);
     cmd = Core::ActionManager::registerAction(m_formatRange,
-                                              Constants::ClangFormat::ACTION_FORMATSELECTED);
+                                              Constants::ClangFormat::ACTION_FORMATATCURSOR);
     menu->addAction(cmd);
-    connect(m_formatRange, &QAction::triggered, this, &ClangFormat::formatSelectedText);
+    connect(m_formatRange, &QAction::triggered, this, &ClangFormat::formatAtCursor);
 
     m_disableFormattingSelectedText
         = new QAction(BeautifierPlugin::msgDisableFormattingSelectedText(), this);
@@ -122,7 +122,7 @@ void ClangFormat::formatFile()
     m_beautifierPlugin->formatCurrentFile(command());
 }
 
-void ClangFormat::formatSelectedText()
+void ClangFormat::formatAtCursor()
 {
     const TextEditor::TextEditorWidget *widget
             = TextEditor::TextEditorWidget::currentTextEditorWidget();
@@ -134,8 +134,14 @@ void ClangFormat::formatSelectedText()
         const int offset = tc.selectionStart();
         const int length = tc.selectionEnd() - offset;
         m_beautifierPlugin->formatCurrentFile(command(offset, length));
-    } else if (m_settings->formatEntireFileFallback()) {
-        formatFile();
+    } else {
+        // Pretend that the current line was selected.
+        // Note that clang-format will extend the range to the next bigger
+        // syntactic construct if needed.
+        const QTextBlock block = tc.block();
+        const int offset = block.position();
+        const int length = block.length();
+        m_beautifierPlugin->formatCurrentFile(command(offset, length));
     }
 }
 
