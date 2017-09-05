@@ -26,17 +26,21 @@
 #pragma once
 
 #include <QAbstractTableModel>
+#include <utils/treemodel.h>
 
 namespace CMakeProjectManager {
 
-class ConfigModel : public QAbstractTableModel
+namespace Internal {  class ConfigModelTreeItem; }
+
+class ConfigModel : public Utils::TreeModel<>
 {
     Q_OBJECT
 
 public:
     enum Roles {
         ItemTypeRole = Qt::UserRole,
-        ItemValuesRole
+        ItemValuesRole,
+        ItemIsAdvancedRole
     };
 
     class DataItem {
@@ -54,14 +58,9 @@ public:
     };
 
     explicit ConfigModel(QObject *parent = nullptr);
+    ~ConfigModel() override;
 
-    // QAbstractItemModel interface
-    int rowCount(const QModelIndex &parent) const override;
-    int columnCount(const QModelIndex &parent) const override;
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
-    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    QVariant data(const QModelIndex &idx, int role) const final;
 
     void appendConfiguration(const QString &key,
                              const QString &value = QString(),
@@ -92,12 +91,35 @@ private:
         bool isUserNew = false;
         bool isCMakeChanged = false;
         QString newValue;
+        QString kitValue;
     };
 
-    InternalDataItem &itemAtRow(int row);
-    const InternalDataItem &itemAtRow(int row) const;
+    void setConfiguration(const QList<InternalDataItem> &config);
+    void generateTree();
+
     QList<InternalDataItem> m_configuration;
-    QHash<QString, QString> m_kitConfiguartion;
+    QHash<QString, QString> m_kitConfiguration;
+
+    friend class Internal::ConfigModelTreeItem;
 };
 
+namespace Internal {
+
+class ConfigModelTreeItem  : public Utils::TreeItem
+{
+public:
+    ConfigModelTreeItem(ConfigModel::InternalDataItem *di = nullptr) : dataItem(di) {}
+    virtual ~ConfigModelTreeItem() override;
+
+    QVariant data(int column, int role) const final;
+    bool setData(int column, const QVariant &data, int role) final;
+    Qt::ItemFlags flags(int column) const final;
+
+    QString toolTip() const;
+    QString currentValue() const;
+
+    ConfigModel::InternalDataItem *dataItem;
+};
+
+} // namespace Internal
 } // namespace CMakeProjectManager

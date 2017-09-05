@@ -139,21 +139,23 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     connect(tree, &Utils::TreeView::activated,
             tree, [tree](const QModelIndex &idx) { tree->edit(idx); });
     m_configView = tree;
+
     m_configFilterModel->setSourceModel(m_configModel);
-    m_configFilterModel->setFilterKeyColumn(2);
-    m_configFilterModel->setFilterFixedString(QLatin1String("0"));
+    m_configFilterModel->setFilterKeyColumn(0);
+    m_configFilterModel->setFilterRole(ConfigModel::ItemIsAdvancedRole);
+    m_configFilterModel->setFilterFixedString("0");
+
     m_configTextFilterModel->setSourceModel(m_configFilterModel);
     m_configTextFilterModel->setFilterKeyColumn(-1);
     m_configTextFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+
     m_configView->setModel(m_configTextFilterModel);
     m_configView->setMinimumHeight(300);
-    m_configView->setRootIsDecorated(false);
     m_configView->setUniformRowHeights(true);
     auto stretcher = new Utils::HeaderViewStretcher(m_configView->header(), 1);
     m_configView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_configView->setSelectionBehavior(QAbstractItemView::SelectItems);
     m_configView->setFrameShape(QFrame::NoFrame);
-    m_configView->hideColumn(2); // Hide isAdvanced column
     m_configView->setItemDelegate(new ConfigModelItemDelegate(m_configView));
     QFrame *findWrapper = Core::ItemViewFind::createSearchableWrapper(m_configView, Core::ItemViewFind::LightColored);
     findWrapper->setFrameStyle(QFrame::StyledPanel);
@@ -311,8 +313,10 @@ void CMakeBuildSettingsWidget::updateButtonState()
 
 void CMakeBuildSettingsWidget::updateAdvancedCheckBox()
 {
-    // Switch between Qt::DisplayRole (everything is "0") and Qt::EditRole (advanced is "1").
-    m_configFilterModel->setFilterRole(m_showAdvancedCheckBox->isChecked() ? Qt::EditRole : Qt::DisplayRole);
+    if (m_showAdvancedCheckBox->isChecked())
+        m_configTextFilterModel->setSourceModel(m_configModel);
+    else
+        m_configTextFilterModel->setSourceModel(m_configFilterModel);
 }
 
 void CMakeBuildSettingsWidget::updateFromKit()
