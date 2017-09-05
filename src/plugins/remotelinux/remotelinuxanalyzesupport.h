@@ -48,20 +48,4 @@ private:
 };
 
 
-class REMOTELINUX_EXPORT RemoteLinuxPerfSupport : public ProjectExplorer::RunWorker
-{
-    Q_OBJECT
-
-public:
-    RemoteLinuxPerfSupport(ProjectExplorer::RunControl *runControl);
-
-private:
-    void start() override;
-
-    QString m_remoteFifo;
-    QString m_perfRecordArguments;
-
-    ProjectExplorer::ApplicationLauncher m_outputGatherer;
-};
-
 } // namespace RemoteLinux
