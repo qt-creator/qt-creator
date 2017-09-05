@@ -283,7 +283,13 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
     addStartDependency(m_profiler);
 
     StandardRunnable debuggee = runnable().as<StandardRunnable>();
-    QString arguments = QmlDebug::qmlDebugArguments(QmlDebug::QmlProfilerServices, serverUrl);
+
+    QString code = serverUrl.scheme() == "socket"
+            ? QString("file:%1").arg(serverUrl.path())
+            : QString("port:%1").arg(serverUrl.port());
+
+    QString arguments = QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlProfilerServices,
+                                                               code, true);
 
     if (!debuggee.commandLineArguments.isEmpty())
         arguments += ' ' + debuggee.commandLineArguments;
