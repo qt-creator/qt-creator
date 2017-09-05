@@ -205,12 +205,15 @@ void ProjectInfoGenerator::createProjectParts(const RawProjectPart &rawProjectPa
         const ProjectPart::Ptr part = projectPartFromRawProjectPart(rawProjectPart,
                                                                     m_projectUpdateInfo.project);
 
+        ProjectPart::LanguageVersion defaultVersion = ProjectPart::LatestCxxVersion;
+        if (rawProjectPart.qtVersion == ProjectPart::Qt4_8_6AndOlder)
+            defaultVersion = ProjectPart::CXX11;
         if (cat.hasCxxSources()) {
             createProjectPart(rawProjectPart,
                               part,
                               cat.cxxSources(),
                               cat.partName("C++"),
-                              ProjectPart::LatestCxxVersion,
+                              defaultVersion,
                               ProjectPart::NoExtensions);
         }
 
@@ -219,7 +222,7 @@ void ProjectInfoGenerator::createProjectParts(const RawProjectPart &rawProjectPa
                               part,
                               cat.objcxxSources(),
                               cat.partName("Obj-C++"),
-                              ProjectPart::LatestCxxVersion,
+                              defaultVersion,
                               ProjectPart::ObjectiveCExtensions);
         }
 

@@ -650,14 +650,26 @@ ToolChain::SystemHeaderPathsRunner GccToolChain::createSystemHeaderPathsRunner()
             (const QStringList &cxxflags, const QString &sysRoot) {
         // Prepare arguments
         QStringList arguments;
-        if (!sysRoot.isEmpty())
+        const bool hasKitSysroot = !sysRoot.isEmpty();
+        if (hasKitSysroot)
             arguments.append(QString::fromLatin1("--sysroot=%1").arg(sysRoot));
 
         QStringList flags;
         flags << platformCodeGenFlags << cxxflags;
-        foreach (const QString &a, flags) {
-            if (a.startsWith("-stdlib=") || a.startsWith("--gcctoolchain="))
-                arguments << a;
+        for (int i = 0; i < flags.size(); ++i) {
+            const QString &flag = flags.at(i);
+            if (flag.startsWith("-stdlib=") || flag.startsWith("--gcctoolchain=")) {
+                arguments << flag;
+            } else if (!hasKitSysroot) {
+                // pass build system's sysroot to compiler, if we didn't pass one from kit
+                if (flag.startsWith("--sysroot=")) {
+                    arguments << flag;
+                } else if ((flag.startsWith("-isysroot") || flag.startsWith("--sysroot"))
+                           && i < flags.size() - 1) {
+                    arguments << flag << flags.at(i + 1);
+                    ++i;
+                }
+            }
         }
 
         arguments << "-xc++" << "-E" << "-v" << "-";
