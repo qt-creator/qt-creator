@@ -74,7 +74,6 @@ class FancyTabBar : public QWidget
 
 public:
     FancyTabBar(QWidget *parent = 0);
-    ~FancyTabBar();
 
     bool event(QEvent *event);
 
@@ -122,8 +121,6 @@ signals:
     void menuTriggered(int index, QMouseEvent *event);
 
 private:
-    static const int m_rounding;
-    static const int m_textPadding;
     QRect m_hoverRect;
     int m_hoverIndex;
     int m_currentIndex;
