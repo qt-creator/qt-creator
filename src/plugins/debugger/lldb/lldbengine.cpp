@@ -205,9 +205,6 @@ void LldbEngine::setupEngine()
     //    m_stubProc.stop();
     //    m_stubProc.blockSignals(false);
 
-        if (!prepareCommand())
-            return;
-
         m_stubProc.setWorkingDirectory(runParameters().inferior.workingDirectory);
         // Set environment + dumper preload.
         m_stubProc.setEnvironment(runParameters().stubEnvironment);

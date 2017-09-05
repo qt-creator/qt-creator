@@ -336,8 +336,6 @@ public:
     QString expand(const QString &string) const;
     QString nativeStartupCommands() const;
 
-    bool prepareCommand();
-
 protected:
     // The base notify*() function implementation should be sufficient
     // in most cases, but engines are free to override them to do some

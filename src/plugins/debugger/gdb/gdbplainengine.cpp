@@ -112,9 +112,6 @@ void GdbPlainEngine::setupEngine()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage("TRYING TO START ADAPTER");
 
-    if (!prepareCommand())
-        return;
-
     QStringList gdbArgs;
 
     if (!m_outputCollector.listen()) {

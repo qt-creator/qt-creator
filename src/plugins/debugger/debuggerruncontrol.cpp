@@ -693,6 +693,21 @@ static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, Q
         breakOnMainNextTime = false;
     }
 
+    if (HostOsInfo::isWindowsHost()) {
+        QtcProcess::SplitError perr;
+        rp.inferior.commandLineArguments =
+                QtcProcess::prepareArgs(rp.inferior.commandLineArguments, &perr,
+                                        HostOsInfo::hostOs(), nullptr,
+                                        &rp.inferior.workingDirectory).toWindowsArgs();
+        if (perr != QtcProcess::SplitOk) {
+            // perr == BadQuoting is never returned on Windows
+            // FIXME? QTCREATORBUG-2809
+            m_errors.append(DebuggerPlugin::tr("Debugging complex command lines "
+                                               "is currently not supported on Windows."));
+            return false;
+        }
+    }
+
     return true;
 }
 
