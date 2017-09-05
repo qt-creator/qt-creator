@@ -27,10 +27,8 @@ source("../../shared/qtcreator.py")
 
 def main():
     global tmpSettingsDir, availableBuildSystems
-    qtVersionsForQuick = ["5.3"]
+    qtVersionsForQuick = ["5.6"]
     availableBuildSystems = ["qmake", "Qbs"]
-    if platform.system() != 'Darwin':
-        qtVersionsForQuick.append("5.4")
     if which("cmake"):
         availableBuildSystems.append("CMake")
     else:
@@ -73,7 +71,7 @@ def main():
         category = current.keys()[0]
         template = current.values()[0]
         displayedPlatforms = __createProject__(category, template)
-        if template == "Qt Quick Application" or template == "Qt Quick Controls Application":
+        if template.startswith("Qt Quick Application - "):
             for counter, qtVersion in enumerate(qtVersionsForQuick):
                 def additionalFunc(displayedPlatforms, qtVersion):
                     requiredQtVersion = __createProjectHandleQtQuickSelection__(qtVersion)
@@ -83,11 +81,6 @@ def main():
                 # are there more Quick combinations - then recreate this project
                 if counter < len(qtVersionsForQuick) - 1:
                     displayedPlatforms = __createProject__(category, template)
-            continue
-        elif template == "Qt Quick Controls 2 Application": # needs a Qt5.7
-            def additionalFunc(displayedPlatforms):
-                clickButton(waitForObject(":Next_QPushButton")) # ignore this details page for now
-            handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms, additionalFunc)
             continue
         elif template.startswith("Plain C"):
             handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms)
@@ -139,7 +132,11 @@ def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
         test.log("Using build system '%s'" % buildSystem)
         selectFromCombo(combo, buildSystem)
         clickButton(waitForObject(":Next_QPushButton"))
-        if specialHandlingFunc:
+        if (template.startswith("Qt Quick Application - ")
+            and template != "Qt Quick Application - Empty"):
+            test.warning("No suitable Qt version available for '%s'" % template)
+            clickButton(waitForObject(":Next_QPushButton"))
+        elif specialHandlingFunc:
             specialHandlingFunc(displayedPlatforms, *args)
         verifyKitCheckboxes(kits, displayedPlatforms)
         safeClickButton("Cancel")
