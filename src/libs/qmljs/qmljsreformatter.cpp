@@ -1102,7 +1102,8 @@ protected:
         out("case ", ast->caseToken);
         accept(ast->expression);
         out(ast->colonToken);
-        lnAcceptIndented(ast->statements);
+        if (ast->statements)
+            lnAcceptIndented(ast->statements);
         return false;
     }
 
