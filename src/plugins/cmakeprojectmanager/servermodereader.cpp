@@ -294,10 +294,10 @@ void ServerModeReader::generateProjectTree(CMakeProjectNode *root,
         const FileName path = fn->filePath();
         if (path.fileName().compare("CMakeLists.txt", HostOsInfo::fileNameCaseSensitivity()) == 0)
             cmakeLists.append(fn);
-        else if (path.isChildOf(m_parameters.sourceDirectory))
-            cmakeFilesSource.append(fn);
         else if (path.isChildOf(m_parameters.buildDirectory))
             cmakeFilesBuild.append(fn);
+        else if (path.isChildOf(m_parameters.sourceDirectory))
+            cmakeFilesSource.append(fn);
         else
             cmakeFilesOther.append(fn);
     }
