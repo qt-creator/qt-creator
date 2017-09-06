@@ -303,6 +303,7 @@ WelcomeMode::WelcomeMode()
     divider->setPalette(themeColor(Theme::Welcome_DividerColor));
 
     m_pageStack = new QStackedWidget(m_modeWidget);
+    m_pageStack->setObjectName("WelcomeScreenStackedWidget");
     m_pageStack->setAutoFillBackground(true);
 
     auto hbox = new QHBoxLayout;
