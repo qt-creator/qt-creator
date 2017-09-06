@@ -20,6 +20,7 @@ Project {
         Depends { name: "ProjectExplorer" }
         Depends { name: "QtSupport" }
         Depends { name: "TextEditor" }
+        Depends { name: "app_version_header" }
 
         pluginTestDepends: [
             "QmakeProjectManager"

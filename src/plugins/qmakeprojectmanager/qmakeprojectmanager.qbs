@@ -16,6 +16,7 @@ Project {
         Depends { name: "CppTools" }
         Depends { name: "TextEditor" }
         Depends { name: "ResourceEditor" }
+        Depends { name: "app_version_header" }
 
         pluginRecommends: [
             "Designer"

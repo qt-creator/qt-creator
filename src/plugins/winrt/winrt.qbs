@@ -9,6 +9,7 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "QmakeProjectManager" }
     Depends { name: "Qt.gui" }
+    Depends { name: "app_version_header" }
 
     files: [
         "winrtconstants.h",

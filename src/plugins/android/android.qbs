@@ -15,6 +15,7 @@ Project {
         Depends { name: "QtSupport" }
         Depends { name: "TextEditor" }
         Depends { name: "Utils" }
+        Depends { name: "app_version_header" }
 
         files: [
             "android_global.h",

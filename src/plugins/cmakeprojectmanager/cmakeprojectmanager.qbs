@@ -12,6 +12,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "QtSupport" }
+    Depends { name: "app_version_header" }
 
     pluginRecommends: [
         "Designer"
