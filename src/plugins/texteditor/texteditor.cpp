@@ -3370,7 +3370,8 @@ void TextEditorWidget::resizeEvent(QResizeEvent *e)
     QRect cr = rect();
     d->m_extraArea->setGeometry(
         QStyle::visualRect(layoutDirection(), cr,
-                           QRect(cr.left(), cr.top(), extraAreaWidth(), cr.height())));
+                           QRect(cr.left() + frameWidth(), cr.top() + frameWidth(),
+                                 extraAreaWidth(), cr.height() - 2 * frameWidth())));
     d->adjustScrollBarRanges();
     d->updateCurrentLineInScrollbar();
 }
@@ -4648,6 +4649,9 @@ int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
 
     if (!d->m_marksVisible && documentLayout->hasMarks)
         d->m_marksVisible = true;
+
+    if (!d->m_marksVisible && !d->m_lineNumbersVisible && !d->m_codeFoldingVisible)
+        return 0;
 
     int space = 0;
     const QFontMetrics fm(d->m_extraArea->fontMetrics());

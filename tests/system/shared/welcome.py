@@ -37,10 +37,8 @@ def getWelcomeScreenSideBarButton(buttonLabel):
     return __getWelcomeScreenButtonHelper__(buttonLabel, sideBar)
 
 def getWelcomeScreenMainButton(buttonLabel):
-    stackedWidget = waitForObject("{type='QWidget' unnamed='1' visible='1' "
-                                  "leftWidget={type='QWidget' unnamed='1' visible='1' "
-                                  "leftWidget={type='Welcome::Internal::SideBar' unnamed='1' "
-                                  "window=':Qt Creator_Core::Internal::MainWindow'}}}")
+    stackedWidget = waitForObject("{type='QStackedWidget' name='WelcomeScreenStackedWidget' "
+                                  "window=':Qt Creator_Core::Internal::MainWindow'}")
     currentStackWidget = stackedWidget.currentWidget()
     return __getWelcomeScreenButtonHelper__(buttonLabel, currentStackWidget)
 
