@@ -39,7 +39,6 @@ public:
 
 private:
     void start() override;
-    void stop() override;
 
     Debugger::GdbServerPortsGatherer *m_portsGatherer;
 };

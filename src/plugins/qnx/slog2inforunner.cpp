@@ -76,6 +76,7 @@ void Slog2InfoRunner::start()
     StandardRunnable r;
     r.executable = QLatin1String("slog2info");
     m_testProcess->start(r);
+    reportStarted();
 }
 
 void Slog2InfoRunner::stop()
@@ -87,6 +88,7 @@ void Slog2InfoRunner::stop()
         m_logProcess->kill();
         processLog(true);
     }
+    reportStopped();
 }
 
 bool Slog2InfoRunner::commandFound() const
