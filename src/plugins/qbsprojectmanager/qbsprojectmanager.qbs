@@ -43,6 +43,7 @@ QtcPlugin {
     Depends { name: "CppTools" }
     Depends { name: "QtSupport" }
     Depends { name: "QmlJSTools" }
+    Depends { name: "app_version_header" }
 
     cpp.defines: base.concat([
         'QML_BUILD_STATIC_LIB',
