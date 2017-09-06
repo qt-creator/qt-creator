@@ -21,7 +21,9 @@ win32: LIBS += -luser32 -lshell32
 # PortsGatherer
 win32: LIBS += -liphlpapi -lws2_32
 
-SOURCES += $$PWD/environment.cpp \
+SOURCES += \
+    $$PWD/benchmarker.cpp \
+    $$PWD/environment.cpp \
     $$PWD/environmentmodel.cpp \
     $$PWD/environmentdialog.cpp \
     $$PWD/qtcprocess.cpp \
@@ -122,6 +124,7 @@ win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
 
 HEADERS += \
+    $$PWD/benchmarker.h \
     $$PWD/environment.h \
     $$PWD/environmentmodel.h \
     $$PWD/environmentdialog.h \

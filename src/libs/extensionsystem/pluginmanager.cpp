@@ -47,6 +47,7 @@
 #include <QSysInfo>
 
 #include <utils/algorithm.h>
+#include <utils/benchmarker.h>
 #include <utils/executeondestruction.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -1559,6 +1560,13 @@ void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *s
             qDebug("%-22s %-22s %8dms (%8dms)", what, qPrintable(spec->name()), absoluteElapsedMS, elapsedMS);
         else
             qDebug("%-45s %8dms (%8dms)", what, absoluteElapsedMS, elapsedMS);
+        if (what && *what == '<') {
+            QString tc;
+            if (spec)
+                tc = spec->name() + '_';
+            tc += QString::fromUtf8(QByteArray(what + 1));
+            Utils::Benchmarker::report("loadPlugins", tc, elapsedMS);
+        }
     }
 }
 
@@ -1579,6 +1587,7 @@ void PluginManagerPrivate::profilingSummary() const
             qDebug("%-22s %8dms   ( %5.2f%% )", qPrintable(it.value()->name()),
                 it.key(), 100.0 * it.key() / total);
          qDebug("Total: %8dms", total);
+         Utils::Benchmarker::report("loadPlugins", "Total", total);
     }
 }
 
