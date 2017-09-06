@@ -31,8 +31,6 @@
 
 #include <utils/algorithm.h>
 
-#include <QApplication>
-
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
@@ -57,13 +55,7 @@ bool CMakeInputsNode::showInSimpleTree() const
 CMakeListsNode::CMakeListsNode(const Utils::FileName &cmakeListPath) :
     ProjectExplorer::ProjectNode(cmakeListPath)
 {
-    static QIcon folderIcon;
-    if (folderIcon.isNull()) {
-        const QIcon overlayIcon(Constants::FILEOVERLAY_CMAKE);
-        QPixmap dirPixmap = QApplication::style()->standardIcon(QStyle::SP_DirIcon).pixmap(QSize(16, 16));
-
-        folderIcon.addPixmap(Core::FileIconProvider::overlayIcon(dirPixmap, overlayIcon));
-    }
+    static QIcon folderIcon = Core::FileIconProvider::directoryIcon(Constants::FILEOVERLAY_CMAKE);
     setIcon(folderIcon);
 }
 

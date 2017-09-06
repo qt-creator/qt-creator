@@ -564,8 +564,8 @@ void ResourceFile::clearPrefixList()
 ResourceModel::ResourceModel(QObject *parent)
     : QAbstractItemModel(parent), m_dirty(false)
 {
-    m_prefixIcon = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
-        QIcon(QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QRC)), QSize(16, 16));
+    static QIcon resourceFolderIcon = Core::FileIconProvider::directoryIcon(QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QRC));
+    m_prefixIcon = resourceFolderIcon;
 }
 
 void ResourceModel::setDirty(bool b)

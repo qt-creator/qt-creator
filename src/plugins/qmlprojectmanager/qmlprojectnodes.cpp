@@ -32,8 +32,6 @@
 
 #include <utils/algorithm.h>
 
-#include <QStyle>
-
 using namespace ProjectExplorer;
 
 namespace QmlProjectManager {
@@ -43,13 +41,9 @@ QmlProjectNode::QmlProjectNode(QmlProject *project) : ProjectNode(project->proje
     m_project(project)
 {
     setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
-    // make overlay
-    const QSize desiredSize = QSize(16, 16);
-    const QIcon projectBaseIcon(QLatin1String(":/qmlproject/images/qmlfolder.png"));
-    const QPixmap projectPixmap = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
-                                                                      projectBaseIcon,
-                                                                      desiredSize);
-    setIcon(QIcon(projectPixmap));
+
+    static QIcon qmlProjectIcon = Core::FileIconProvider::directoryIcon(QLatin1String(":/qmlproject/images/qmlfolder.png"));
+    setIcon(qmlProjectIcon);
 }
 
 bool QmlProjectNode::showInSimpleTree() const

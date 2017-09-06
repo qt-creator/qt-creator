@@ -43,26 +43,12 @@
 #include <QtDebug>
 #include <QDir>
 #include <QIcon>
-#include <QStyle>
 
 using namespace ProjectExplorer;
 
 // ----------------------------------------------------------------------
 // Helpers:
 // ----------------------------------------------------------------------
-
-static QIcon generateIcon(const QString &overlay)
-{
-    const QSize desiredSize = QSize(16, 16);
-    const QIcon overlayIcon(overlay);
-    const QPixmap pixmap
-            = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon, overlayIcon, desiredSize);
-
-    QIcon result;
-    result.addPixmap(pixmap);
-
-    return result;
-}
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -375,7 +361,7 @@ QbsProductNode::QbsProductNode(const qbs::ProductData &prd) :
     QbsBaseProjectNode(Utils::FileName::fromString(prd.location().filePath())),
     m_qbsProductData(prd)
 {
-    static QIcon productIcon = generateIcon(QString(Constants::QBS_PRODUCT_OVERLAY_ICON));
+    static QIcon productIcon = Core::FileIconProvider::directoryIcon(Constants::QBS_PRODUCT_OVERLAY_ICON);
     setIcon(productIcon);
 }
 
@@ -468,7 +454,7 @@ QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurations() c
 QbsProjectNode::QbsProjectNode(const Utils::FileName &projectDirectory) :
     QbsBaseProjectNode(projectDirectory)
 {
-    static QIcon projectIcon = generateIcon(QString(ProjectExplorer::Constants::FILEOVERLAY_QT));
+    static QIcon projectIcon = Core::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_QT);
     setIcon(projectIcon);
 }
 

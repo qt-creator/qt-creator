@@ -217,5 +217,18 @@ void registerIconOverlayForFilename(const QString &path, const QString &filename
     instance()->registerIconOverlayForFilename(QIcon(path), filename);
 }
 
+// Return a standard directory icon with the specified overlay:
+QIcon directoryIcon(const QString &overlay)
+{
+    // Overlay the SP_DirIcon with the custom icons
+    const QSize desiredSize = QSize(16, 16);
+
+    const QPixmap dirPixmap = QApplication::style()->standardIcon(QStyle::SP_DirIcon).pixmap(desiredSize);
+    const QIcon overlayIcon(overlay);
+    QIcon result;
+    result.addPixmap(Core::FileIconProvider::overlayIcon(dirPixmap, overlayIcon));
+    return result;
+}
+
 } // namespace FileIconProvider
 } // namespace Core
