@@ -167,9 +167,12 @@ void GdbRemoteServerEngine::setupInferior()
 
 //    if (!remoteArch.isEmpty())
 //        postCommand("set architecture " + remoteArch);
-    const QString solibSearchPath = rp.solibSearchPath.join(HostOsInfo::pathListSeparator());
-    if (!solibSearchPath.isEmpty())
-        runCommand({"set solib-search-path " + solibSearchPath});
+    if (!rp.solibSearchPath.isEmpty()) {
+        DebuggerCommand cmd("appendSolibSearchPath");
+        cmd.arg("path", rp.solibSearchPath);
+        cmd.arg("separator", HostOsInfo::pathListSeparator());
+        runCommand(cmd);
+    }
 
     if (!args.isEmpty())
         runCommand({"-exec-arguments " + args});
