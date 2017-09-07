@@ -101,7 +101,7 @@ KitInformation::ItemList SysRootKitInformation::toUserOutput(const Kit *k) const
 
 void SysRootKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const
 {
-    expander->registerFileVariables("SysRoot", tr("Sys Root"), [this, kit]() -> QString {
+    expander->registerFileVariables("SysRoot", tr("Sys Root"), [kit]() -> QString {
         return SysRootKitInformation::sysRoot(kit).toString();
     });
 }
@@ -335,24 +335,24 @@ void ToolChainKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander 
 {
     // Compatibility with Qt Creator < 4.2:
     expander->registerVariable("Compiler:Name", tr("Compiler"),
-                               [this, kit]() -> QString {
+                               [kit]() -> QString {
                                    const ToolChain *tc = toolChain(kit, Constants::CXX_LANGUAGE_ID);
                                    return tc ? tc->displayName() : tr("None");
                                });
 
     expander->registerVariable("Compiler:Executable", tr("Path to the compiler executable"),
-                               [this, kit]() -> QString {
+                               [kit]() -> QString {
                                    const ToolChain *tc = toolChain(kit, Constants::CXX_LANGUAGE_ID);
                                    return tc ? tc->compilerCommand().toString() : QString();
                                });
 
     expander->registerPrefix("Compiler:Name", tr("Compiler for different languages"),
-                             [this, kit](const QString &ls) -> QString {
+                             [kit](const QString &ls) -> QString {
                                  const ToolChain *tc = toolChain(kit, findLanguage(ls));
                                  return tc ? tc->displayName() : tr("None");
                              });
     expander->registerPrefix("Compiler:Executable", tr("Compiler executable for different languages"),
-                             [this, kit](const QString &ls) -> QString {
+                             [kit](const QString &ls) -> QString {
                                  const ToolChain *tc = toolChain(kit, findLanguage(ls));
                                  return tc ? tc->compilerCommand().toString() : QString();
                              });
@@ -518,7 +518,7 @@ void ToolChainKitInformation::kitsWereLoaded()
 
 void ToolChainKitInformation::toolChainUpdated(ToolChain *tc)
 {
-    for (Kit *k : KitManager::kits([tc, this](const Kit *k) { return toolChain(k, tc->language()) == tc; }))
+    for (Kit *k : KitManager::kits([tc](const Kit *k) { return toolChain(k, tc->language()) == tc; }))
         notifyAboutUpdate(k);
 }
 
@@ -691,27 +691,27 @@ KitInformation::ItemList DeviceKitInformation::toUserOutput(const Kit *k) const
 void DeviceKitInformation::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const
 {
     expander->registerVariable("Device:HostAddress", tr("Host address"),
-        [this, kit]() -> QString {
+        [kit]() -> QString {
             const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
             return device ? device->sshParameters().host : QString();
     });
     expander->registerVariable("Device:SshPort", tr("SSH port"),
-        [this, kit]() -> QString {
+        [kit]() -> QString {
             const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
             return device ? QString::number(device->sshParameters().port) : QString();
     });
     expander->registerVariable("Device:UserName", tr("User name"),
-        [this, kit]() -> QString {
+        [kit]() -> QString {
             const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
             return device ? device->sshParameters().userName : QString();
     });
     expander->registerVariable("Device:KeyFile", tr("Private key file"),
-        [this, kit]() -> QString {
+        [kit]() -> QString {
             const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
             return device ? device->sshParameters().privateKeyFile : QString();
     });
     expander->registerVariable("Device:Name", tr("Device name"),
-        [this, kit]() -> QString {
+        [kit]() -> QString {
             const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
             return device ? device->displayName() : QString();
     });

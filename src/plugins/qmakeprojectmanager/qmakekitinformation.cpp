@@ -85,7 +85,8 @@ void QmakeKitInformation::setup(Kit *k)
     ToolChain *tc = ToolChainKitInformation::toolChain(k, Constants::CXX_LANGUAGE_ID);
 
     if (!tc || (!tc->suggestedMkspecList().empty() && !tc->suggestedMkspecList().contains(spec))) {
-        const QList<ToolChain *> possibleTcs = ToolChainManager::toolChains([version, &spec](const ToolChain *t) {
+        const QList<ToolChain *> possibleTcs = ToolChainManager::toolChains(
+                    [version](const ToolChain *t) {
             return t->isValid()
                 && t->language() == Core::Id(Constants::CXX_LANGUAGE_ID)
                 && version->qtAbis().contains(t->targetAbi());
@@ -113,7 +114,7 @@ KitInformation::ItemList QmakeKitInformation::toUserOutput(const Kit *k) const
 void QmakeKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     expander->registerVariable("Qmake:mkspec", tr("Mkspec configured for qmake by the Kit."),
-                [this, kit]() -> QString {
+                [kit]() -> QString {
                     return QmakeKitInformation::mkspec(kit).toUserOutput();
                 });
 }

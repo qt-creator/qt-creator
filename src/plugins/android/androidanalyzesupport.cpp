@@ -42,7 +42,7 @@ AndroidQmlProfilerSupport::AndroidQmlProfilerSupport(RunControl *runControl)
     auto profiler = runControl->createWorker(runControl->runMode());
     profiler->addStartDependency(this);
 
-    connect(runner, &AndroidRunner::qmlServerReady, [this, runner, profiler](const QUrl &server) {
+    connect(runner, &AndroidRunner::qmlServerReady, this, [this, profiler](const QUrl &server) {
         profiler->recordData("QmlServerUrl", server);
         reportStarted();
     });

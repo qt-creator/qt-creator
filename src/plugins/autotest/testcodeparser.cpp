@@ -402,7 +402,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList, ITestParser *pars
         parser->init(list);
 
     QFuture<TestParseResultPtr> future = Utils::map(list,
-        [this, codeParsers](QFutureInterface<TestParseResultPtr> &fi, const QString &file) {
+        [codeParsers](QFutureInterface<TestParseResultPtr> &fi, const QString &file) {
             parseFileForTests(codeParsers, fi, file);
         },
         Utils::MapReduceOption::Unordered,

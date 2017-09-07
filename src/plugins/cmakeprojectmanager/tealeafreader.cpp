@@ -554,7 +554,7 @@ void TeaLeafReader::processCMakeOutput()
 {
     static QString rest;
     rest = lineSplit(rest, m_cmakeProcess->readAllStandardOutput(),
-                     [this](const QString &s) { MessageManager::write(s); });
+                     [](const QString &s) { MessageManager::write(s); });
 }
 
 void TeaLeafReader::processCMakeError()

@@ -334,7 +334,7 @@ void CMakeGeneratorKitConfigWidget::changeGenerator()
     for (auto it = generatorList.constBegin(); it != generatorList.constEnd(); ++it)
         generatorCombo->addItem(it->name);
 
-    auto updateDialog = [this, &generatorList, generatorCombo, extraGeneratorCombo,
+    auto updateDialog = [&generatorList, generatorCombo, extraGeneratorCombo,
             platformEdit, toolsetEdit](const QString &name) {
         auto it = std::find_if(generatorList.constBegin(), generatorList.constEnd(),
                                [name](const CMakeTool::Generator &g) { return g.name == name; });

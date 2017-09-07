@@ -277,7 +277,7 @@ QList<ConfigModel::DataItem> CMakeBuildConfiguration::completeCMakeConfiguration
         return QList<ConfigModel::DataItem>();
 
     return Utils::transform(m_buildDirManager->parsedConfiguration(),
-                            [this](const CMakeConfigItem &i) {
+                            [](const CMakeConfigItem &i) {
         ConfigModel::DataItem j;
         j.key = QString::fromUtf8(i.key);
         j.value = QString::fromUtf8(i.value);

@@ -126,18 +126,18 @@ ProjectExplorer::IOutputParser *QtKitInformation::createOutputParser(const Proje
 void QtKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     expander->registerSubProvider(
-                [this, kit]() -> MacroExpander * {
+                [kit]() -> MacroExpander * {
                     BaseQtVersion *version = qtVersion(kit);
                     return version ? version->macroExpander() : 0;
                 });
 
     expander->registerVariable("Qt:Name", tr("Name of Qt Version"),
-                [this, kit]() -> QString {
+                [kit]() -> QString {
                    BaseQtVersion *version = qtVersion(kit);
                    return version ? version->displayName() : tr("unknown");
                 });
     expander->registerVariable("Qt:qmakeExecutable", tr("Path to the qmake executable"),
-                [this, kit]() -> QString {
+                [kit]() -> QString {
                     BaseQtVersion *version = qtVersion(kit);
                     return version ? version->qmakeCommand().toString() : QString();
                 });

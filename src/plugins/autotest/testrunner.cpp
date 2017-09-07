@@ -370,7 +370,7 @@ void TestRunner::debugTests()
         connect(outputreader, &TestOutputReader::newOutputAvailable,
                 TestResultsPane::instance(), &TestResultsPane::addOutput);
         connect(runControl, &ProjectExplorer::RunControl::appendMessageRequested,
-                this, [this, outputreader]
+                this, [outputreader]
                 (ProjectExplorer::RunControl *, const QString &msg, Utils::OutputFormat format) {
             processOutput(outputreader, msg, format);
         });

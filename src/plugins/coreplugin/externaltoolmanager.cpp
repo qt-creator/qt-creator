@@ -77,7 +77,7 @@ ExternalToolManager::ExternalToolManager()
     d->m_configureSeparator = new QAction(this);
     d->m_configureSeparator->setSeparator(true);
     d->m_configureAction = new QAction(ICore::msgShowOptionsDialog(), this);
-    connect(d->m_configureAction, &QAction::triggered, [this] {
+    connect(d->m_configureAction, &QAction::triggered, this, [] {
         ICore::showOptionsDialog(Constants::SETTINGS_ID_TOOLS);
     });
 

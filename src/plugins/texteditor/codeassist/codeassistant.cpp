@@ -248,7 +248,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     }
     case IAssistProvider::Asynchronous: {
         processor->setAsyncCompletionAvailableHandler(
-            [this, processor, reason](IAssistProposal *newProposal){
+            [this, reason](IAssistProposal *newProposal){
                 QTC_CHECK(newProposal);
                 invalidateCurrentRequestData();
                 displayProposal(newProposal, reason);

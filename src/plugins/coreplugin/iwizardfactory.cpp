@@ -287,7 +287,7 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, I
                 s_reopenData.clear();
             wizard->deleteLater();
         });
-        connect(wizard, &QObject::destroyed, this, [wizard]() {
+        connect(wizard, &QObject::destroyed, this, []() {
             s_isWizardRunning = false;
             s_currentWizard = nullptr;
             s_inspectWizardAction->setEnabled(false);

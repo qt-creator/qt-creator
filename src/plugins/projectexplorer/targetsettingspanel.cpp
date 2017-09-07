@@ -423,7 +423,7 @@ public:
 
         QAction *disableAction = menu->addAction(tr("Disable Kit \"%1\" for Project \"%2\"").arg(kitName, projectName));
         disableAction->setEnabled(m_kitId.isValid() && isEnabled());
-        QObject::connect(disableAction, &QAction::triggered, [this, kit] {
+        QObject::connect(disableAction, &QAction::triggered, m_project, [this] {
             Target *t = target();
             QTC_ASSERT(t, return);
             QString kitName = t->displayName();
@@ -767,7 +767,7 @@ TargetItem *TargetGroupItem::targetItem(Target *target) const
 {
     if (target) {
         Id needle = target->id(); // Unconfigured project have no active target.
-        return findFirstLevelChild([this, needle](TargetItem *item) { return item->m_kitId == needle; });
+        return findFirstLevelChild([needle](TargetItem *item) { return item->m_kitId == needle; });
     }
     return 0;
 }

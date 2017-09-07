@@ -445,7 +445,7 @@ void CdbEngine::consoleStubExited()
 
 void CdbEngine::createFullBacktrace()
 {
-    runCommand({"~*kp", BuiltinCommand, [this](const DebuggerResponse &response) {
+    runCommand({"~*kp", BuiltinCommand, [](const DebuggerResponse &response) {
         Internal::openTextEditor("Backtrace $", response.data.data());
     }});
 }
@@ -1423,7 +1423,7 @@ void CdbEngine::postDisassemblerCommand(quint64 address, quint64 endAddress,
     str <<  "u " << hex <<hexPrefixOn << address << ' ' << endAddress;
     DebuggerCommand cmd;
     cmd.function = ba;
-    cmd.callback = [this, agent](const DebuggerResponse &response) {
+    cmd.callback = [agent](const DebuggerResponse &response) {
         // Parse: "00000000`77606060 cc              int     3"
         agent->setContents(parseCdbDisassembler(response.data.data()));
     };

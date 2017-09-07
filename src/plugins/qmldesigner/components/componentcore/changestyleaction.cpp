@@ -92,7 +92,7 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
     connect(comboBox,
             static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::activated),
             this,
-            [comboBox, this](const QString &style) {
+            [this](const QString &style) {
 
         if (style.isEmpty())
             return;

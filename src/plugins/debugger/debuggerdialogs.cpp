@@ -228,7 +228,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     setWindowTitle(tr("Start Debugger"));
 
     d->kitChooser = new KitChooser(this);
-    d->kitChooser->setKitPredicate([this](const Kit *k) {
+    d->kitChooser->setKitPredicate([](const Kit *k) {
         return !DebuggerKitInformation::configurationErrors(k);
     });
     d->kitChooser->populate();

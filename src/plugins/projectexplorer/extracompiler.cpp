@@ -381,13 +381,13 @@ ProcessExtraCompiler::~ProcessExtraCompiler()
 
 void ProcessExtraCompiler::run(const QByteArray &sourceContents)
 {
-    ContentProvider contents = [this, sourceContents]() { return sourceContents; };
+    ContentProvider contents = [sourceContents]() { return sourceContents; };
     runImpl(contents);
 }
 
 void ProcessExtraCompiler::run(const Utils::FileName &fileName)
 {
-    ContentProvider contents = [this, fileName]() {
+    ContentProvider contents = [fileName]() {
         QFile file(fileName.toString());
         if (!file.open(QFile::ReadOnly | QFile::Text))
             return QByteArray();

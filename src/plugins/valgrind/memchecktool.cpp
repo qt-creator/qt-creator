@@ -434,7 +434,7 @@ MemcheckTool::MemcheckTool()
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, "Memcheck.Remote"),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
-    QObject::connect(action, &QAction::triggered, this, [this, action] {
+    QObject::connect(action, &QAction::triggered, this, [action] {
         auto runConfig = RunConfiguration::startupRunConfiguration();
         if (!runConfig) {
             showCannotStartDialog(action->text());
@@ -583,7 +583,7 @@ RunWorker *MemcheckTool::createRunWorker(RunControl *runControl)
     foreach (const QString &file, runTool->suppressionFiles()) {
         QAction *action = m_filterMenu->addAction(Utils::FileName::fromString(file).fileName());
         action->setToolTip(file);
-        connect(action, &QAction::triggered, this, [this, file]() {
+        connect(action, &QAction::triggered, this, [file]() {
             Core::EditorManager::openEditorAt(file, 0);
         });
         m_suppressionActions.append(action);

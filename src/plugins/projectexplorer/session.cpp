@@ -134,9 +134,9 @@ SessionManager::SessionManager(QObject *parent) : QObject(parent)
     connect(this, &SessionManager::projectDisplayNameChanged,
             EditorManager::instance(), &EditorManager::updateWindowTitles);
     connect(EditorManager::instance(), &EditorManager::editorOpened,
-            [this] { markSessionFileDirty(); });
+            this, [] { markSessionFileDirty(); });
     connect(EditorManager::instance(), &EditorManager::editorsClosed,
-            [this] { markSessionFileDirty(); });
+            this, [] { markSessionFileDirty(); });
 
     EditorManager::setWindowTitleAdditionHandler(&SessionManagerPrivate::windowTitleAddition);
     EditorManager::setSessionTitleHandler(&SessionManagerPrivate::sessionTitle);

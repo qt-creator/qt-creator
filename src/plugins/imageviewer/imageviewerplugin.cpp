@@ -64,56 +64,56 @@ void ImageViewerPlugin::extensionsInitialized()
 {
     QAction *a = registerNewAction(Constants::ACTION_ZOOM_IN, tr("Zoom In"),
                                    QKeySequence(tr("Ctrl++")));
-    connect(a, &QAction::triggered, this, [this]() {
+    connect(a, &QAction::triggered, this, []() {
         if (ImageViewer *iv = currentImageViewer())
             iv->zoomIn();
     });
 
     a = registerNewAction(Constants::ACTION_ZOOM_OUT, tr("Zoom Out"),
                           QKeySequence(tr("Ctrl+-")));
-    connect(a, &QAction::triggered, this, [this]() {
+    connect(a, &QAction::triggered, this, []() {
         if (ImageViewer *iv = currentImageViewer())
             iv->zoomOut();
     });
 
     a = registerNewAction(Constants::ACTION_ORIGINAL_SIZE, tr("Original Size"),
                           QKeySequence(Core::UseMacShortcuts ? tr("Meta+0") : tr("Ctrl+0")));
-    connect(a, &QAction::triggered, this, [this]() {
+    connect(a, &QAction::triggered, this, []() {
         if (ImageViewer *iv = currentImageViewer())
             iv->resetToOriginalSize();
     });
 
     a = registerNewAction(Constants::ACTION_FIT_TO_SCREEN, tr("Fit to Screen"),
                           QKeySequence(tr("Ctrl+=")));
-    connect(a, &QAction::triggered, this, [this]() {
+    connect(a, &QAction::triggered, this, []() {
         if (ImageViewer *iv = currentImageViewer())
             iv->fitToScreen();
     });
 
     a = registerNewAction(Constants::ACTION_BACKGROUND, tr("Switch Background"),
                           QKeySequence(tr("Ctrl+[")));
-    connect(a, &QAction::triggered, this, [this]() {
+    connect(a, &QAction::triggered, this, []() {
         if (ImageViewer *iv = currentImageViewer())
             iv->switchViewBackground();
     });
 
     a = registerNewAction(Constants::ACTION_OUTLINE, tr("Switch Outline"),
                           QKeySequence(tr("Ctrl+]")));
-    connect(a, &QAction::triggered, this, [this]() {
+    connect(a, &QAction::triggered, this, []() {
         if (ImageViewer *iv = currentImageViewer())
             iv->switchViewOutline();
     });
 
     a = registerNewAction(Constants::ACTION_TOGGLE_ANIMATION, tr("Toggle Animation"),
                           QKeySequence());
-    connect(a, &QAction::triggered, this, [this]() {
+    connect(a, &QAction::triggered, this, []() {
         if (ImageViewer *iv = currentImageViewer())
             iv->togglePlay();
     });
 
     a = registerNewAction(Constants::ACTION_EXPORT_IMAGE, tr("Export Image"),
                           QKeySequence());
-    connect(a, &QAction::triggered, this, [this]() {
+    connect(a, &QAction::triggered, this, []() {
         if (ImageViewer *iv = currentImageViewer())
             iv->exportImage();
     });

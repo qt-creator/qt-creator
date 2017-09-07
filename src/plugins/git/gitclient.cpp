@@ -694,7 +694,7 @@ void GitClient::diffFiles(const QString &workingDirectory,
             + QLatin1String(".DiffFiles.") + workingDirectory;
     requestReload(documentId,
                   workingDirectory, tr("Git Diff Files"),
-                  [this, workingDirectory, stagedFileNames, unstagedFileNames]
+                  [workingDirectory, stagedFileNames, unstagedFileNames]
                   (IDocument *doc) -> DiffEditorController* {
                       return new FileListDiffController(doc, workingDirectory,
                                                         stagedFileNames, unstagedFileNames);
@@ -707,7 +707,7 @@ void GitClient::diffProject(const QString &workingDirectory, const QString &proj
             + QLatin1String(".DiffProject.") + workingDirectory;
     requestReload(documentId,
                   workingDirectory, tr("Git Diff Project"),
-                  [this, workingDirectory, projectDirectory]
+                  [workingDirectory, projectDirectory]
                   (IDocument *doc) -> DiffEditorController* {
                       return new ProjectDiffController(doc, workingDirectory, {projectDirectory});
                   });
@@ -719,7 +719,7 @@ void GitClient::diffRepository(const QString &workingDirectory)
             + QLatin1String(".DiffRepository.") + workingDirectory;
     requestReload(documentId,
                   workingDirectory, tr("Git Diff Repository"),
-                  [this, workingDirectory](IDocument *doc) -> DiffEditorController* {
+                  [workingDirectory](IDocument *doc) -> DiffEditorController* {
                       return new RepositoryDiffController(doc, workingDirectory);
                   });
 }
@@ -731,7 +731,7 @@ void GitClient::diffFile(const QString &workingDirectory, const QString &fileNam
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
             + QLatin1String(".DifFile.") + sourceFile;
     requestReload(documentId, sourceFile, title,
-                  [this, workingDirectory, fileName]
+                  [workingDirectory, fileName]
                   (IDocument *doc) -> DiffEditorController* {
                       return new FileDiffController(doc, workingDirectory, fileName);
                   });
@@ -744,7 +744,7 @@ void GitClient::diffBranch(const QString &workingDirectory,
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
             + QLatin1String(".DiffBranch.") + branchName;
     requestReload(documentId, workingDirectory, title,
-                               [this, workingDirectory, branchName]
+                               [workingDirectory, branchName]
                                (IDocument *doc) -> DiffEditorController* {
                                    return new BranchDiffController(doc, workingDirectory, branchName);
                                });
@@ -851,7 +851,7 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
             + QLatin1String(".Show.") + id;
     requestReload(documentId, source, title,
-                               [this, workingDirectory, id]
+                               [workingDirectory, id]
                                (IDocument *doc) -> DiffEditorController* {
                                    return new ShowController(doc, workingDirectory, id);
                                });
@@ -1768,7 +1768,7 @@ bool GitClient::cleanList(const QString &workingDirectory, const QString &module
     const QString relativeBase = modulePath.isEmpty() ? QString() : modulePath + '/';
     const QString prefix = "Would remove ";
     const QStringList removeLines = Utils::filtered(
-                splitLines(resp.stdOut()), [&prefix](const QString &s) {
+                splitLines(resp.stdOut()), [](const QString &s) {
         return s.startsWith("Would remove ");
     });
     *files = Utils::transform(removeLines, [&relativeBase, &prefix](const QString &s) -> QString {

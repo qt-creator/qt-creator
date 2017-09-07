@@ -2347,7 +2347,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
             auto act = menu->addAction(args.address
                 ? DebuggerEngine::tr("Run to Address 0x%1").arg(args.address, 0, 16)
                 : DebuggerEngine::tr("Run to Line %1").arg(args.lineNumber));
-            connect(act, &QAction::triggered, [this, args] {
+            connect(act, &QAction::triggered, this, [args] {
                 DebuggerEngine *engine = currentEngine();
                 QTC_ASSERT(engine, return);
                 engine->executeRunToLine(args);
@@ -2357,7 +2357,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
             auto act = menu->addAction(args.address
                 ? DebuggerEngine::tr("Jump to Address 0x%1").arg(args.address, 0, 16)
                 : DebuggerEngine::tr("Jump to Line %1").arg(args.lineNumber));
-            connect(act, &QAction::triggered, [this, args] {
+            connect(act, &QAction::triggered, this, [args] {
                 DebuggerEngine *engine = currentEngine();
                 QTC_ASSERT(engine, return);
                 engine->executeJumpToLine(args);
@@ -2372,7 +2372,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
                 const QString text = tr("Disassemble Function \"%1\"")
                     .arg(frame.function);
                 auto act = new QAction(text, menu);
-                connect(act, &QAction::triggered, [this, frame] {
+                connect(act, &QAction::triggered, this, [frame] {
                     DebuggerEngine *engine = currentEngine();
                     QTC_ASSERT(engine, return);
                     engine->openDisassemblerView(Location(frame));
@@ -3714,7 +3714,7 @@ void DebuggerUnitTests::testStateMachine()
     auto runControl = new RunControl(rc, ProjectExplorer::Constants::DEBUG_RUN_MODE);
     auto runTool = new DebuggerRunTool(runControl, rp);
 
-    connect(runTool, &DebuggerRunTool::stopped, this, [this] {
+    connect(runTool, &DebuggerRunTool::stopped, this, [] {
         QTestEventLoop::instance().exitLoop();
     });
 

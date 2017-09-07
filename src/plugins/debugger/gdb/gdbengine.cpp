@@ -4232,7 +4232,7 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
 void GdbEngine::createFullBacktrace()
 {
     DebuggerCommand cmd("thread apply all bt full", NeedsTemporaryStop | ConsoleCommand);
-    cmd.callback = [this](const DebuggerResponse &response) {
+    cmd.callback = [](const DebuggerResponse &response) {
         if (response.resultClass == ResultDone) {
             Internal::openTextEditor("Backtrace $",
                 response.consoleStreamOutput + response.logStreamOutput);

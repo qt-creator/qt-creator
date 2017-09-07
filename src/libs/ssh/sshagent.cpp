@@ -57,7 +57,7 @@ void SshAgent::refreshKeysImpl()
     if (state() != Connected)
         return;
     const auto keysRequestIt = std::find_if(m_pendingRequests.constBegin(),
-            m_pendingRequests.constEnd(), [this](const Request &r) { return r.isKeysRequest(); });
+            m_pendingRequests.constEnd(), [](const Request &r) { return r.isKeysRequest(); });
     if (keysRequestIt != m_pendingRequests.constEnd()) {
         qCDebug(sshLog) << "keys request already pending, not adding another one";
         return;

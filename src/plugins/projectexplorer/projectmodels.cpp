@@ -395,7 +395,7 @@ QMimeData *FlatModel::mimeData(const QModelIndexList &indexes) const
 
 WrapperNode *FlatModel::wrapperForNode(const Node *node) const
 {
-    return findNonRootItem([this, node](WrapperNode *item) {
+    return findNonRootItem([node](WrapperNode *item) {
         return item->m_node == node;
     });
 }

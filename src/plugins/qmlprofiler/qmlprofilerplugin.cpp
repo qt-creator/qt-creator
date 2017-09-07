@@ -104,7 +104,7 @@ void QmlProfilerPlugin::extensionsInitialized()
     };
 
     RunControl::registerWorkerCreator(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE,
-        [this](RunControl *runControl) { return new QmlProfilerRunner(runControl); });
+        [](RunControl *runControl) { return new QmlProfilerRunner(runControl); });
 
     RunControl::registerWorker<LocalQmlProfilerSupport>
             (ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, constraint);

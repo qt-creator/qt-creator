@@ -554,12 +554,12 @@ void QmlProfilerModelManager::save(const QString &filename)
         emit error(message);
     }, Qt::QueuedConnection);
 
-    connect(writer, &QmlProfilerFileWriter::success, this, [this, file]() {
+    connect(writer, &QmlProfilerFileWriter::success, this, [file]() {
         file->close();
         delete file;
     }, Qt::QueuedConnection);
 
-    connect(writer, &QmlProfilerFileWriter::canceled, this, [this, file]() {
+    connect(writer, &QmlProfilerFileWriter::canceled, this, [file]() {
         file->close();
         file->remove();
         delete file;

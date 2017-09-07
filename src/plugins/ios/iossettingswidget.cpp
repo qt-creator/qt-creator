@@ -148,7 +148,7 @@ void IosSettingsWidget::onCreate()
     QPointer<SimulatorOperationDialog> statusDialog = new SimulatorOperationDialog(this);
     statusDialog->setAttribute(Qt::WA_DeleteOnClose);
     statusDialog->addMessage(tr("Creating simulator device..."), Utils::NormalMessageFormat);
-    const auto onSimulatorCreate = [this, statusDialog](const QString &name,
+    const auto onSimulatorCreate = [statusDialog](const QString &name,
             const SimulatorControl::ResponseData &response) {
         if (response.success) {
             statusDialog->addMessage(tr("Simulator device (%1) created.\nUDID: %2")

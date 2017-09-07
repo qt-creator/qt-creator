@@ -205,10 +205,10 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerVariable("Cpp:LicenseTemplate",
                                tr("The license template."),
-                               [this]() { return CppToolsPlugin::licenseTemplate(); });
+                               []() { return CppToolsPlugin::licenseTemplate(); });
     expander->registerFileVariables("Cpp:LicenseTemplatePath",
                                     tr("The configured path to the license template"),
-                                    [this]() { return CppToolsPlugin::licenseTemplatePath().toString(); });
+                                    []() { return CppToolsPlugin::licenseTemplatePath().toString(); });
 
     return true;
 }

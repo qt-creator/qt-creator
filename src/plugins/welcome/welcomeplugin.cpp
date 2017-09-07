@@ -401,7 +401,7 @@ void WelcomeMode::addPage(IWelcomePage *page)
     stackPage->setAutoFillBackground(true);
     m_pageStack->insertWidget(idx, stackPage);
 
-    auto onClicked = [this, page, pageId, stackPage] {
+    auto onClicked = [this, pageId, stackPage] {
         m_activePage = pageId;
         m_pageStack->setCurrentWidget(stackPage);
         for (WelcomePageButton *pageButton : m_pageButtons)

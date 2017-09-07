@@ -742,8 +742,10 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
               ? registerSubItem->parent()->m_format
               : HexadecimalFormat;
 
-    auto addFormatAction = [this, menu, currentFormat, registerItem](const QString &display, RegisterFormat format) {
-        addCheckableAction(menu, display, registerItem, currentFormat == format, [this, registerItem, format] {
+    auto addFormatAction =
+            [menu, currentFormat, registerItem](const QString &display, RegisterFormat format) {
+        addCheckableAction(menu, display, registerItem, currentFormat == format,
+                           [registerItem, format] {
             registerItem->m_format = format;
             registerItem->update();
         });

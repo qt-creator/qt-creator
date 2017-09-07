@@ -3390,7 +3390,7 @@ public:
         auto layout = new QFormLayout(&dlg);
 
         auto funcNameEdit = new Utils::FancyLineEdit;
-        funcNameEdit->setValidationFunction([this](Utils::FancyLineEdit *edit, QString *) {
+        funcNameEdit->setValidationFunction([](Utils::FancyLineEdit *edit, QString *) {
             return ExtractFunctionOptions::isValidFunctionName(edit->text());
         });
         layout->addRow(QCoreApplication::translate("QuickFix::ExtractFunction",

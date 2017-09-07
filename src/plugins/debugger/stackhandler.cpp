@@ -418,7 +418,7 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
                    });
 
         addAction(menu, tr("Disassemble Function..."), true,
-                  [this, address] {
+                  [this] {
                         const StackFrame frame = inputFunctionForDisassembly();
                         if (!frame.function.isEmpty())
                             m_engine->openDisassemblerView(Location(frame));

@@ -2012,7 +2012,7 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
 
     addAction(menu, tr("Synchronize Breakpoints"),
               Internal::hasSnapshots(),
-              [this] { Internal::synchronizeBreakpoints(); });
+              [] { Internal::synchronizeBreakpoints(); });
 
     menu->addSeparator();
     menu->addAction(action(UseToolTipsInBreakpointsView));
