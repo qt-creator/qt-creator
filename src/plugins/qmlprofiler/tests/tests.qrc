@@ -2,5 +2,7 @@
     <qresource prefix="/qmlprofiler/tests">
         <file>Test.qml</file>
         <file>qmlprofilerdetailsrewriter_test.cpp</file>
+        <file>traces.dat</file>
+        <file>check.dat</file>
     </qresource>
 </RCC>
