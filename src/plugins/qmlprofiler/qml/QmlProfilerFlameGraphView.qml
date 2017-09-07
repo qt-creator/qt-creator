@@ -32,8 +32,6 @@ import "../flamegraph/"
 
 ScrollView {
     id: root
-    signal typeSelected(int typeIndex)
-    signal gotoSourceLocation(string filename, int line, int column)
 
     property int selectedTypeId: -1
     property int sizeRole: QmlProfilerFlameGraphModel.DurationRole
@@ -157,9 +155,9 @@ ScrollView {
                 onClicked: {
                     if (flamegraphItem.FlameGraph.dataValid) {
                         tooltip.selectedNode = flamegraphItem;
-                        root.typeSelected(flamegraphItem.FlameGraph.data(
+                        flameGraphModel.typeSelected(flamegraphItem.FlameGraph.data(
                                               QmlProfilerFlameGraphModel.TypeIdRole));
-                        root.gotoSourceLocation(
+                        flameGraphModel.gotoSourceLocation(
                                     flamegraphItem.FlameGraph.data(
                                         QmlProfilerFlameGraphModel.FilenameRole),
                                     flamegraphItem.FlameGraph.data(
@@ -269,7 +267,7 @@ ScrollView {
             onClearSelection: {
                 selectedTypeId = -1;
                 selectedNode = null;
-                root.typeSelected(-1);
+                flameGraphModel.typeSelected(-1);
             }
 
             dialogTitle: {

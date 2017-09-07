@@ -183,8 +183,8 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
                                                      d->m_zoomControl);
     d->m_mainView->setSource(QUrl(QLatin1String("qrc:/timeline/MainView.qml")));
 
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    connect(rootObject, SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
+    connect(d->m_modelProxy, &Timeline::TimelineModelAggregator::updateCursorPosition,
+            this, &QmlProfilerTraceView::updateCursorPosition);
 }
 
 QmlProfilerTraceView::~QmlProfilerTraceView()

@@ -87,13 +87,16 @@ public:
     QHash<int, QByteArray> roleNames() const override;
     QmlProfilerModelManager *modelManager() const;
 
-public slots:
     void loadEvent(const QmlEvent &event, const QmlEventType &type);
     void finalize();
     void onModelManagerStateChanged();
     void restrictToFeatures(quint64 visibleFeatures);
     void loadNotes(int typeId, bool emitSignal);
     void clear();
+
+signals:
+    void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
+    void typeSelected(int typeIndex);
 
 private:
     QVariant lookup(const FlameGraphData &data, int role) const;

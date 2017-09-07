@@ -41,13 +41,12 @@ public:
                                     QmlProfilerModelManager *modelManager, QWidget *parent = 0);
     ~QmlProfilerStateWidget();
 
-private slots:
+private:
     void showText(const QString &text);
     void updateDisplay();
     void update();
     void reposition();
 
-private:
     class QmlProfilerStateWidgetPrivate;
     QmlProfilerStateWidgetPrivate *d;
 };

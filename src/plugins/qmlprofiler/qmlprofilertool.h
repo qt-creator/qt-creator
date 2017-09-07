@@ -64,7 +64,6 @@ public:
 
     static QmlProfilerClientManager *clientManager();
 
-public slots:
     void profilerStateChanged();
     void serverRecordingChanged();
     void clientsDisconnected();
@@ -74,7 +73,7 @@ public slots:
 
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber);
 
-private slots:
+private:
     void clearData();
     void showErrorDialog(const QString &error);
     void profilerDataModelStateChanged();
@@ -90,7 +89,6 @@ private slots:
     void toggleRequestedFeature(QAction *action);
     void toggleVisibleFeature(QAction *action);
 
-private:
     void updateRunActions();
     void clearDisplay();
     template<ProfileFeature feature>

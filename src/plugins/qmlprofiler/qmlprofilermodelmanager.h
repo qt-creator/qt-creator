@@ -56,7 +56,6 @@ public:
     qint64 duration() const;
     bool isRestrictedToRange() const;
 
-public slots:
     void clear();
 
     void setTime(qint64 startTime, qint64 endTime);
@@ -135,6 +134,15 @@ public:
 
     static const char *featureName(ProfileFeature feature);
 
+    void clear();
+    void restrictToRange(qint64 startTime, qint64 endTime);
+    bool isRestrictedToRange() const;
+
+    void startAcquiring();
+
+    void save(const QString &filename);
+    void load(const QString &filename);
+
 signals:
     void error(const QString &error);
     void stateChanged();
@@ -145,21 +153,10 @@ signals:
     void visibleFeaturesChanged(quint64 features);
     void recordedFeaturesChanged(quint64 features);
 
-public slots:
-    void clear();
-    void restrictToRange(qint64 startTime, qint64 endTime);
-    bool isRestrictedToRange() const;
-
-    void startAcquiring();
-
-    void save(const QString &filename);
-    void load(const QString &filename);
-
 private:
     void setState(State state);
     void detailsChanged(int typeId, const QString &newString);
 
-private:
     class QmlProfilerModelManagerPrivate;
     QmlProfilerModelManagerPrivate *d;
 };

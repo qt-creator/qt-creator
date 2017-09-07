@@ -85,10 +85,9 @@ signals:
     void depthChanged(int depth);
     void maximumDepthChanged();
 
-private slots:
+private:
     void rebuild();
 
-private:
     QQmlComponent *m_delegate = nullptr;
     QAbstractItemModel *m_model = nullptr;
     int m_sizeRole = 0;

@@ -53,7 +53,6 @@ public:
     void setRecording(bool);
     quint64 recordedFeatures() const;
 
-public slots:
     void clearData();
     void sendRecordingStatus(int engineId = -1);
     void setRequestedFeatures(quint64 features);

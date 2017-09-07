@@ -44,10 +44,9 @@ public:
     explicit QmlProfilerConfigWidget(QmlProfilerSettings *settings, QWidget *parent = 0);
     ~QmlProfilerConfigWidget();
 
-private slots:
+private:
     void updateUi();
 
-private:
     Ui::QmlProfilerConfigWidget *m_ui;
     QmlProfilerSettings *m_settings;
 };

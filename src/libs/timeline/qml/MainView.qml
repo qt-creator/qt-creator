@@ -36,7 +36,6 @@ Rectangle {
 
     property bool lockItemSelection : false
 
-    signal updateCursorPosition
     property string fileName: ""
     property int lineNumber: -1
     property int columnNumber: 0
@@ -242,7 +241,7 @@ Rectangle {
                 var newTypeId = model.typeId(selectedItem);
                 if (newTypeId !== typeId) {
                     typeId = newTypeId;
-                    root.updateCursorPosition();
+                    timelineModelAggregator.updateCursorPosition();
                 }
             } else {
                 selectedModel = -1;

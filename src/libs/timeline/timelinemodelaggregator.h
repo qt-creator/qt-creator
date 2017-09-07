@@ -61,6 +61,7 @@ public:
 signals:
     void modelsChanged();
     void heightChanged();
+    void updateCursorPosition();
 
 private:
     class TimelineModelAggregatorPrivate;

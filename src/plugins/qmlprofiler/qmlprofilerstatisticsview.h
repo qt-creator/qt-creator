@@ -82,7 +82,6 @@ public:
     QString summary(const QVector<int> &typeIds) const;
     QStringList details(int typeId) const;
 
-public slots:
     void selectByTypeId(int typeIndex) override;
     void onVisibleFeaturesChanged(quint64 features) override;
 
@@ -121,16 +120,15 @@ public:
     void setShowExtendedStatistics(bool);
     bool showExtendedStatistics() const;
 
-signals:
-    void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
-    void typeSelected(int typeIndex);
-
-public slots:
     void clear();
     void jumpToItem(const QModelIndex &index);
     void selectType(int typeIndex);
     void buildModel();
     void updateNotes(int typeIndex);
+
+signals:
+    void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
+    void typeSelected(int typeIndex);
 
 private:
     void selectItem(const QStandardItem *item);
@@ -138,10 +136,8 @@ private:
     void parseModel();
     QStandardItem *itemFromIndex(const QModelIndex &index) const;
 
-private:
     class QmlProfilerStatisticsMainViewPrivate;
     QmlProfilerStatisticsMainViewPrivate *d;
-
 };
 
 class QmlProfilerStatisticsRelativesView : public Utils::TreeView
@@ -152,14 +148,13 @@ public:
                                                 QWidget *parent);
     ~QmlProfilerStatisticsRelativesView();
 
-signals:
-    void typeClicked(int typeIndex);
-    void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
-
-public slots:
     void displayType(int typeIndex);
     void jumpToItem(const QModelIndex &);
     void clear();
+
+signals:
+    void typeClicked(int typeIndex);
+    void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
 
 private:
     void rebuildTree(const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesMap &map);

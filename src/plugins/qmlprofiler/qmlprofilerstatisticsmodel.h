@@ -87,11 +87,9 @@ private:
     void loadEvent(const QmlEvent &event, const QmlEventType &type);
     void finalize();
 
-private slots:
     void dataChanged();
     void notesChanged(int typeIndex);
 
-private:
     class QmlProfilerStatisticsModelPrivate;
     QmlProfilerStatisticsModelPrivate *d;
 };
