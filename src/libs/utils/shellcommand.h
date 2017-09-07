@@ -136,6 +136,7 @@ public:
     void setCodec(QTextCodec *codec);
 
     void setProgressParser(ProgressParser *parser);
+    bool hasProgressParser() const;
     void setProgressiveOutput(bool progressive);
 
     void setOutputProxyFactory(const std::function<OutputProxy *()> &factory);
@@ -161,6 +162,7 @@ signals:
 protected:
     virtual unsigned processFlags() const;
     virtual void addTask(QFuture<void> &future);
+    int timeoutS() const;
     QString workDirectory(const QString &wd) const;
 
 private:
