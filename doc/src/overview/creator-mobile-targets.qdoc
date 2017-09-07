@@ -85,4 +85,16 @@
 
     \endlist
 
+    \section1 Related Topics
+
+    \list
+
+        \li \l{http://doc.qt.io/qtcreator/creator-overview-qtasam.html}
+            {Qt Application Manager}
+
+            You can use the experimental Qt Application Manager plugin
+            (commercial only) to deploy, run, and debug applications on the
+            local Linux PC, remote generic SSH Linux targets, or
+            \l{Embedded Devices}{embedded devices}.
+    \endlist
 */
