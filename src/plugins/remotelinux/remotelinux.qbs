@@ -23,8 +23,6 @@ Project {
             "abstractremotelinuxdeployservice.h",
             "abstractremotelinuxdeploystep.cpp",
             "abstractremotelinuxdeploystep.h",
-            "abstractremotelinuxrunsupport.cpp",
-            "abstractremotelinuxrunsupport.h",
             "abstractuploadandinstallpackageservice.cpp",
             "abstractuploadandinstallpackageservice.h",
             "deploymenttimeinfo.cpp",

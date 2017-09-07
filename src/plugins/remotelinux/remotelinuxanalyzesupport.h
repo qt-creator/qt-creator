@@ -25,18 +25,14 @@
 
 #pragma once
 
-#include "abstractremotelinuxrunsupport.h"
-
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/runconfiguration.h>
 
 namespace RemoteLinux {
+namespace Internal {
 
-class REMOTELINUX_EXPORT RemoteLinuxQmlProfilerSupport
-        : public ProjectExplorer::SimpleTargetRunner
+class RemoteLinuxQmlProfilerSupport : public ProjectExplorer::SimpleTargetRunner
 {
-    Q_OBJECT
-
 public:
     RemoteLinuxQmlProfilerSupport(ProjectExplorer::RunControl *runControl);
 
@@ -47,5 +43,5 @@ private:
     ProjectExplorer::RunWorker *m_profiler;
 };
 
-
+} // namespace Internal
 } // namespace RemoteLinux

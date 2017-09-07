@@ -43,7 +43,6 @@ HEADERS += \
     remotelinuxcheckforfreediskspaceservice.h \
     remotelinuxcheckforfreediskspacestep.h \
     remotelinuxanalyzesupport.h \
-    abstractremotelinuxrunsupport.h \
     linuxdeviceprocess.h \
     remotelinuxcustomrunconfiguration.h \
     remotelinuxsignaloperation.h \
@@ -88,7 +87,6 @@ SOURCES += \
     remotelinuxcheckforfreediskspaceservice.cpp \
     remotelinuxcheckforfreediskspacestep.cpp \
     remotelinuxanalyzesupport.cpp \
-    abstractremotelinuxrunsupport.cpp \
     linuxdeviceprocess.cpp \
     remotelinuxcustomrunconfiguration.cpp \
     remotelinuxsignaloperation.cpp \

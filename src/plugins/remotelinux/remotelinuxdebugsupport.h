@@ -25,13 +25,12 @@
 
 #pragma once
 
-#include "abstractremotelinuxrunsupport.h"
-
 #include <debugger/debuggerruncontrol.h>
 
 namespace RemoteLinux {
+namespace Internal {
 
-class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public Debugger::DebuggerRunTool
+class LinuxDeviceDebugSupport : public Debugger::DebuggerRunTool
 {
 public:
     LinuxDeviceDebugSupport(ProjectExplorer::RunControl *runControl);
@@ -42,4 +41,5 @@ private:
     Debugger::GdbServerPortsGatherer *m_portsGatherer = nullptr;
 };
 
+} // namespace Internal
 } // namespace RemoteLinux

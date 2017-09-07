@@ -32,6 +32,7 @@ using namespace Debugger;
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
+namespace Internal {
 
 LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
     : DebuggerRunTool(runControl)
@@ -67,4 +68,5 @@ void LinuxDeviceDebugSupport::start()
     DebuggerRunTool::start();
 }
 
+} // namespace Internal
 } // namespace RemoteLinux

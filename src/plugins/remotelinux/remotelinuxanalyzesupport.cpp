@@ -25,30 +25,17 @@
 
 #include "remotelinuxanalyzesupport.h"
 
-#include "remotelinuxrunconfiguration.h"
-
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runnables.h>
-
-#include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <ssh/sshconnection.h>
 
-#include <qmldebug/qmloutputparser.h>
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
-#include <QPointer>
-
-using namespace QSsh;
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace RemoteLinux {
+namespace Internal {
 
 // RemoteLinuxQmlProfilerSupport
 
@@ -89,4 +76,5 @@ void RemoteLinuxQmlProfilerSupport::start()
     SimpleTargetRunner::start();
 }
 
+} // namespace Internal
 } // namespace RemoteLinux
