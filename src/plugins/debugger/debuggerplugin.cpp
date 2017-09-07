@@ -979,7 +979,7 @@ public:
     QPointer<RunConfiguration> m_previousRunConfiguration;
 
     Id m_previousMode;
-    QVector<QPair<DebuggerRunParameters, Kit *>> m_scheduledStarts;
+    QVector<DebuggerRunTool *> m_scheduledStarts;
 
     ProxyAction *m_visibleStartAction = 0;
     ProxyAction *m_hiddenStopAction = 0;
@@ -1207,7 +1207,10 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
 
         if (!kit)
             kit = guessKitFromParameters(rp);
-        m_scheduledStarts.append(QPair<DebuggerRunParameters, Kit *>(rp, kit));
+        auto debugger = DebuggerRunTool::createFromKit(kit);
+        QTC_ASSERT(debugger, return false);
+        debugger->setRunParameters(rp);
+        m_scheduledStarts.append(debugger);
         return true;
     }
     // -wincrashevent <event-handle>:<pid>. A handle used for
@@ -1232,7 +1235,10 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                 "does not match the pattern <handle>:<pid>.").arg(*it, option);
             return false;
         }
-        m_scheduledStarts.append(QPair<DebuggerRunParameters, Kit *>(rp, findUniversalCdbKit()));
+        auto debugger = DebuggerRunTool::createFromKit(findUniversalCdbKit());
+        QTC_ASSERT(debugger, return false);
+        debugger->setRunParameters(rp);
+        m_scheduledStarts.append(debugger);
         return true;
     }
 
@@ -1990,24 +1996,23 @@ void DebuggerPluginPrivate::attachCore()
 void DebuggerPluginPrivate::startRemoteCdbSession()
 {
     const QString connectionKey = "CdbRemoteConnection";
-    DebuggerRunParameters rp;
     Kit *kit = findUniversalCdbKit();
     QTC_ASSERT(kit, return);
-    rp.startMode = AttachToRemoteServer;
-    rp.closeMode = KillAtClose;
+
     StartRemoteCdbDialog dlg(ICore::dialogParent());
     QString previousConnection = configValue(connectionKey).toString();
     if (previousConnection.isEmpty())
-        previousConnection = QLatin1String("localhost:1234");
+        previousConnection = "localhost:1234";
     dlg.setConnection(previousConnection);
     if (dlg.exec() != QDialog::Accepted)
         return;
-    rp.remoteChannel = dlg.connection();
-    setConfigValue(connectionKey, rp.remoteChannel);
+    setConfigValue(connectionKey, dlg.connection());
 
     auto debugger = DebuggerRunTool::createFromKit(kit);
     QTC_ASSERT(debugger, return);
-    debugger->setRunParameters(rp);
+    debugger->setStartMode(AttachToRemoteServer);
+    debugger->setCloseMode(KillAtClose);
+    debugger->setRemoteChannel(dlg.connection());
     debugger->startRunControl();
 }
 
@@ -2120,17 +2125,15 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
         return 0;
     }
 
-    DebuggerRunParameters rp;
-    rp.attachPID = ProcessHandle(process.pid);
-    rp.displayName = tr("Process %1").arg(process.pid);
-    rp.inferior.executable = process.exe;
-    rp.startMode = AttachExternal;
-    rp.closeMode = DetachAtClose;
-    rp.continueAfterAttach = contAfterAttach;
-
     auto debugger = DebuggerRunTool::createFromKit(kit);
     QTC_ASSERT(debugger, return nullptr);
-    debugger->setRunParameters(rp);
+    debugger->setAttachPid(ProcessHandle(process.pid));
+    debugger->setRunControlName(tr("Process %1").arg(process.pid));
+    debugger->setInferiorExecutable(process.exe);
+    debugger->setStartMode(AttachExternal);
+    debugger->setCloseMode(DetachAtClose);
+    debugger->setContinueAfterAttach(contAfterAttach);
+
     debugger->startRunControl();
 
     return debugger->runControl();
@@ -2251,12 +2254,8 @@ void DebuggerPluginPrivate::enableReverseDebuggingTriggered(const QVariant &valu
 
 void DebuggerPluginPrivate::runScheduled()
 {
-    for (const QPair<DebuggerRunParameters, Kit *> pair : m_scheduledStarts) {
-        auto debugger = DebuggerRunTool::createFromKit(pair.second);
-        QTC_ASSERT(debugger, return);
-        debugger->setRunParameters(pair.first);
+    for (DebuggerRunTool *debugger : m_scheduledStarts)
         debugger->startRunControl();
-    }
 }
 
 void DebuggerPluginPrivate::editorOpened(IEditor *editor)
