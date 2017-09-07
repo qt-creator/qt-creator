@@ -183,7 +183,7 @@ TEST_F(DocumentSuspenderResumer, CategorizeWithMoreVisibleDocumentsThanHotDocume
     ASSERT_THAT(coldDocuments, IsEmpty());
 }
 
-TEST_F(DocumentSuspenderResumer, CreateSuspendJobForInvisible)
+TEST_F(DocumentSuspenderResumer, DISABLED_WITHOUT_SUSPEND_PATCH(CreateSuspendJobForInvisible))
 {
     Document document = documents.create({fileContainer1})[0];
     document.setIsSuspended(false);
@@ -199,7 +199,7 @@ TEST_F(DocumentSuspenderResumer, CreateSuspendJobForInvisible)
     ASSERT_THAT(jobs, ContainerEq(expectedJobs));
 }
 
-TEST_F(DocumentSuspenderResumer, DoNotCreateSuspendJobForVisible)
+TEST_F(DocumentSuspenderResumer, DISABLED_WITHOUT_SUSPEND_PATCH(DoNotCreateSuspendJobForVisible))
 {
     Document document = documents.create({fileContainer1})[0];
     document.setIsSuspended(false);
@@ -210,7 +210,7 @@ TEST_F(DocumentSuspenderResumer, DoNotCreateSuspendJobForVisible)
     ASSERT_THAT(jobs, IsEmpty());
 }
 
-TEST_F(DocumentSuspenderResumer, DoNotCreateSuspendJobForUnparsed)
+TEST_F(DocumentSuspenderResumer, DISABLED_WITHOUT_SUSPEND_PATCH(DoNotCreateSuspendJobForUnparsed))
 {
     Document document = documents.create({fileContainer1})[0];
     document.setIsSuspended(false);
@@ -221,7 +221,7 @@ TEST_F(DocumentSuspenderResumer, DoNotCreateSuspendJobForUnparsed)
     ASSERT_THAT(jobs, IsEmpty());
 }
 
-TEST_F(DocumentSuspenderResumer, CreateSuspendJobsForDocumentWithSupportiveTranslationUnit)
+TEST_F(DocumentSuspenderResumer, DISABLED_WITHOUT_SUSPEND_PATCH(CreateSuspendJobsForDocumentWithSupportiveTranslationUnit))
 {
     Document document = documents.create({fileContainer1})[0];
     document.setIsSuspended(false);
@@ -238,7 +238,7 @@ TEST_F(DocumentSuspenderResumer, CreateSuspendJobsForDocumentWithSupportiveTrans
     ASSERT_THAT(jobs, ContainerEq(expectedJobs));
 }
 
-TEST_F(DocumentSuspenderResumer, CreateResumeJob)
+TEST_F(DocumentSuspenderResumer, DISABLED_WITHOUT_SUSPEND_PATCH(CreateResumeJob))
 {
     Document document = documents.create({fileContainer1})[0];
     document.setIsSuspended(true);
@@ -252,7 +252,7 @@ TEST_F(DocumentSuspenderResumer, CreateResumeJob)
     ASSERT_THAT(jobs, ContainerEq(expectedJobs));
 }
 
-TEST_F(DocumentSuspenderResumer, DoNotCreateResumeJobForInvisible)
+TEST_F(DocumentSuspenderResumer, DISABLED_WITHOUT_SUSPEND_PATCH(DoNotCreateResumeJobForInvisible))
 {
     Document document = documents.create({fileContainer1})[0];
     document.setIsSuspended(true);
@@ -263,7 +263,7 @@ TEST_F(DocumentSuspenderResumer, DoNotCreateResumeJobForInvisible)
     ASSERT_THAT(jobs, IsEmpty());
 }
 
-TEST_F(DocumentSuspenderResumer, CreateResumeJobsForDocumentWithSupportiveTranslationUnit)
+TEST_F(DocumentSuspenderResumer, DISABLED_WITHOUT_SUSPEND_PATCH(CreateResumeJobsForDocumentWithSupportiveTranslationUnit))
 {
     Document document = documents.create({fileContainer1})[0];
     document.setIsSuspended(true);
@@ -279,7 +279,7 @@ TEST_F(DocumentSuspenderResumer, CreateResumeJobsForDocumentWithSupportiveTransl
     ASSERT_THAT(jobs, ContainerEq(expectedJobs));
 }
 
-TEST_F(DocumentSuspenderResumer, CreateSuspendAndResumeJobs)
+TEST_F(DocumentSuspenderResumer, DISABLED_WITHOUT_SUSPEND_PATCH(CreateSuspendAndResumeJobs))
 {
     Document hotDocument = documents.create({fileContainer1})[0];
     hotDocument.setIsSuspended(true);
