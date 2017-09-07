@@ -44,6 +44,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <QDir>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSet>
@@ -72,12 +73,22 @@ BuildDirManager::~BuildDirManager() = default;
 const Utils::FileName BuildDirManager::workDirectory() const
 {
     const Utils::FileName bdir = m_buildConfiguration->buildDirectory();
-    if (bdir.exists())
+    const CMakeTool *cmake = CMakeKitInformation::cmakeTool(m_buildConfiguration->target()->kit());
+    if (bdir.exists()) {
         return bdir;
+    } else {
+        if (cmake && cmake->autoCreateBuildDirectory()) {
+            if (!QDir().mkpath(bdir.toString()))
+                emitErrorOccured(tr("Failed to create build directory \"%1\".").arg(bdir.toUserOutput()));
+            return bdir;
+        }
+    }
     if (!m_tempDir) {
         m_tempDir.reset(new Utils::TemporaryDirectory("qtc-cmake-XXXXXXXX"));
-        if (!m_tempDir->isValid())
-            emitErrorOccured(tr("Failed to create temporary directory \"%1\".").arg(m_tempDir->path()));
+        if (!m_tempDir->isValid()) {
+            emitErrorOccured(tr("Failed to create temporary directory \"%1\".")
+                             .arg(QDir::toNativeSeparators(m_tempDir->path())));
+        }
     }
     return Utils::FileName::fromString(m_tempDir->path());
 }
