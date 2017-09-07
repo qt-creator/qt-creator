@@ -146,8 +146,8 @@ public:
           inspectorAgent(engine, connection)
     {}
 
-    void messageReceived(const QByteArray &data);
-    void stateChanged(State state);
+    void messageReceived(const QByteArray &data) override;
+    void stateChanged(State state) override;
 
     void continueDebugging(StepAction stepAction);
 
