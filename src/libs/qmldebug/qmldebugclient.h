@@ -97,13 +97,10 @@ public:
     QmlDebugConnection *connection() const;
 
     virtual void sendMessage(const QByteArray &);
-
-protected:
     virtual void stateChanged(State);
     virtual void messageReceived(const QByteArray &);
 
 private:
-    friend class QmlDebugConnection;
     QScopedPointer<QmlDebugClientPrivate> d_ptr;
 };
 

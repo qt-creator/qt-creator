@@ -33,6 +33,8 @@
 #include <qlocalserver.h>
 #include <qlocalsocket.h>
 
+#include <QPointer>
+
 namespace QmlDebug {
 
 const int protocolVersion = 1;
@@ -46,7 +48,7 @@ public:
     QmlDebugClientPrivate();
 
     QString name;
-    QmlDebugConnection *connection;
+    QPointer<QmlDebugConnection> connection;
 };
 
 class QmlDebugConnectionPrivate
@@ -263,11 +265,7 @@ QmlDebugConnection::QmlDebugConnection(QObject *parent)
 
 QmlDebugConnection::~QmlDebugConnection()
 {
-    Q_D(QmlDebugConnection);
     socketDisconnected();
-    QHash<QString, QmlDebugClient*>::iterator iter = d->plugins.begin();
-    for (; iter != d->plugins.end(); ++iter)
-        iter.value()->d_func()->connection = 0;
 }
 
 bool QmlDebugConnection::isConnected() const
@@ -435,7 +433,6 @@ QAbstractSocket::SocketState QmlDebugConnection::socketState() const
 }
 
 QmlDebugClientPrivate::QmlDebugClientPrivate()
-    : connection(0)
 {
 }
 

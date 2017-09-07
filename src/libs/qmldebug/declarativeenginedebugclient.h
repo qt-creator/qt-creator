@@ -45,7 +45,6 @@ public:
     quint32 setMethodBody(int objectDebugId, const QString &methodName,
                           const QString &methodBody) override;
 
-protected:
     void messageReceived(const QByteArray &data) override;
 };
 

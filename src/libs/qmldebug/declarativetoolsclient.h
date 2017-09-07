@@ -44,7 +44,6 @@ public:
     // ### Qt 4.8: remove if we can have access to qdeclarativecontextdata or id's
     void setObjectIdList(const QList<ObjectReference> &objectRoots) override;
 
-protected:
     void messageReceived(const QByteArray &) override;
 
 private:

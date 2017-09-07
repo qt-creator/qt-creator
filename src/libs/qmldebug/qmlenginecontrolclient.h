@@ -52,6 +52,8 @@ public:
     void blockEngine(int engineId);
     void releaseEngine(int engineId);
 
+    void messageReceived(const QByteArray &) override;
+
 signals:
     void engineAboutToBeAdded(int engineId, const QString &name);
     void engineAdded(int engineId, const QString &name);
@@ -59,7 +61,6 @@ signals:
     void engineRemoved(int engineId, const QString &name);
 
 protected:
-    void messageReceived(const QByteArray &) override;
     void sendCommand(CommandType command, int engineId);
 
     struct EngineState {
