@@ -69,8 +69,8 @@ signals:
     void cleared();
 
 protected:
-    virtual void stateChanged(State status);
-    virtual void messageReceived(const QByteArray &);
+    virtual void stateChanged(State status) override;
+    virtual void messageReceived(const QByteArray &) override;
 
 private:
     class QmlProfilerTraceClientPrivate *d;

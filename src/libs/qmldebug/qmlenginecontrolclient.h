@@ -59,7 +59,7 @@ signals:
     void engineRemoved(int engineId, const QString &name);
 
 protected:
-    void messageReceived(const QByteArray &);
+    void messageReceived(const QByteArray &) override;
     void sendCommand(CommandType command, int engineId);
 
     struct EngineState {

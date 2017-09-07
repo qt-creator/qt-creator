@@ -59,7 +59,7 @@ signals:
     void logActivity(QString client, QString message);
 
 protected:
-    void stateChanged(State status);
+    void stateChanged(State status) override;
 
     void recurseObjectIdList(const ObjectReference &ref,
                              QList<int> &debugIds, QList<QString> &objectIds);

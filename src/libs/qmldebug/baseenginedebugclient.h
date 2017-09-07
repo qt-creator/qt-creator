@@ -80,8 +80,8 @@ signals:
     void result(quint32 queryId, const QVariant &result, const QByteArray &type);
 
 protected:
-    virtual void stateChanged(State status);
-    virtual void messageReceived(const QByteArray &);
+    virtual void stateChanged(State status) override;
+    virtual void messageReceived(const QByteArray &) override;
 
     quint32 getId() { return m_nextId++; }
 
