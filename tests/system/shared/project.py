@@ -281,12 +281,12 @@ def createProject_Qt_Console(path, projectName, checks = True, buildSystem = Non
     return checkedTargets
 
 def createNewQtQuickApplication(workingDir, projectName = None,
-                                targets=Targets.desktopTargetClasses(), minimumQtVersion="5.3",
+                                targets=Targets.desktopTargetClasses(), minimumQtVersion="5.6",
                                 withControls = False, fromWelcome = False, buildSystem = None):
     if withControls:
-        template = "Qt Quick Controls 2 Application"
+        template = "Qt Quick Application - Swipe"
     else:
-        template = "Qt Quick Application"
+        template = "Qt Quick Application - Empty"
     available = __createProjectOrFileSelectType__("  Application", template, fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     __handleBuildSystem__(buildSystem)

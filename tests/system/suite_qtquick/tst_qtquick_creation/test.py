@@ -30,17 +30,11 @@ def main():
     if not startedWithoutPluginError():
         return
 
-    available = [("5.3", False), ("5.3", True)]
-    if platform.system() != 'Darwin':
-        available.extend([("5.4", False), ("5.4", True)])
+    available = [("5.6", False), ("5.6", True)]
 
     for qtVersion, controls in available:
-        if qtVersion == "5.3":
-            targ = [Targets.DESKTOP_531_DEFAULT]
-            quick = "2.3"
-        else:
-            targ = [Targets.DESKTOP_541_GCC]
-            quick = "2.4"
+        targ = [Targets.DESKTOP_561_DEFAULT]
+        quick = "2.6"
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
         checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=targ,
