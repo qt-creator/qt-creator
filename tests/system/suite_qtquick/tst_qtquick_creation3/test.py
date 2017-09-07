@@ -30,29 +30,17 @@ def main():
     if not startedWithoutPluginError():
         return
     available = ["5.6"]
-    if platform.system() != 'Darwin':
-        available.extend(["5.4"])
 
     for qtVersion in available:
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
         projectName = createNewQtQuickUI(workingDir, qtVersion)
-        if qtVersion == "5.6":
-            kit = Targets.getStringForTarget(Targets.DESKTOP_561_DEFAULT)
-            if addAndActivateKit(Targets.DESKTOP_561_DEFAULT):
-                quick = "2.6"
-            else:
-                test.fatal("Failed to activate kit %s" % kit)
-                continue
-        else: # qtVersion == '5.4'
-            if platform.system() == 'Darwin':
-                continue
-            kit = Targets.getStringForTarget(Targets.DESKTOP_541_GCC)
-            if addAndActivateKit(Targets.DESKTOP_541_GCC):
-                quick = "2.4"
-            else:
-                test.fatal("Failed to activate kit %s" % kit)
-                continue
+        kit = Targets.getStringForTarget(Targets.DESKTOP_561_DEFAULT)
+        if addAndActivateKit(Targets.DESKTOP_561_DEFAULT):
+            quick = "2.6"
+        else:
+            test.fatal("Failed to activate kit %s" % kit)
+            continue
         test.log("Running project Qt Quick UI Prototype (%s)" % kit)
         qmlViewer = modifyRunSettingsForHookIntoQtQuickUI(2, 1, workingDir, projectName, 11223, quick)
         if qmlViewer!=None:

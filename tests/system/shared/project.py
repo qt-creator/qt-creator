@@ -309,7 +309,7 @@ def createNewQtQuickApplication(workingDir, projectName = None,
 
     return checkedTargets, projectName
 
-def createNewQtQuickUI(workingDir, qtVersion = "5.3"):
+def createNewQtQuickUI(workingDir, qtVersion = "5.6"):
     __createProjectOrFileSelectType__("  Other Project", 'Qt Quick UI Prototype')
     if workingDir == None:
         workingDir = tempDir()
