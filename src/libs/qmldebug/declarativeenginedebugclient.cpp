@@ -46,7 +46,7 @@ quint32 DeclarativeEngineDebugClient::setBindingForObject(
     quint32 id = 0;
     if (state() == Enabled && objectDebugId != -1) {
         id = getId();
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("SET_BINDING") << objectDebugId << propertyName
            << bindingExpression << isLiteralValue << source << line;
         sendMessage(ds.data());
@@ -61,7 +61,7 @@ quint32 DeclarativeEngineDebugClient::resetBindingForObject(
     quint32 id = 0;
     if (state() == Enabled && objectDebugId != -1) {
         id = getId();
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("RESET_BINDING") << objectDebugId << propertyName;
         sendMessage(ds.data());
     }
@@ -75,7 +75,7 @@ quint32 DeclarativeEngineDebugClient::setMethodBody(
     quint32 id = 0;
     if (state() == Enabled && objectDebugId != -1) {
         id = getId();
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("SET_METHOD_BODY") << objectDebugId
            << methodName << methodBody;
         sendMessage(ds.data());
@@ -85,7 +85,7 @@ quint32 DeclarativeEngineDebugClient::setMethodBody(
 
 void DeclarativeEngineDebugClient::messageReceived(const QByteArray &data)
 {
-    QPacket ds(connection()->currentDataStreamVersion(), data);
+    QPacket ds(dataStreamVersion(), data);
     QByteArray type;
     ds >> type;
 

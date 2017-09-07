@@ -95,6 +95,7 @@ public:
     float serviceVersion() const;
     State state() const;
     QmlDebugConnection *connection() const;
+    int dataStreamVersion() const;
 
     virtual void sendMessage(const QByteArray &);
     virtual void stateChanged(State);

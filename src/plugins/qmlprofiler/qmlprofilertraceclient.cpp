@@ -166,7 +166,7 @@ void QmlProfilerTraceClientPrivate::processCurrentEvent()
 
 void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
 {
-    QmlDebug::QPacket stream(q->connection()->currentDataStreamVersion());
+    QmlDebug::QPacket stream(q->dataStreamVersion());
     stream << recording << engineId; // engineId -1 is OK. It means "all of them"
     if (recording) {
         stream << requestedFeatures << flushInterval;
@@ -282,7 +282,7 @@ void QmlProfilerTraceClient::stateChanged(State status)
 
 void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
 {
-    QmlDebug::QPacket stream(connection()->currentDataStreamVersion(), data);
+    QmlDebug::QPacket stream(dataStreamVersion(), data);
 
     stream >> d->currentEvent;
 

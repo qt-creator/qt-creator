@@ -38,6 +38,7 @@
 namespace QmlDebug {
 
 const int protocolVersion = 1;
+const int minimumDataStreamVersion = QDataStream::Qt_4_7;
 
 const QString serverId = QLatin1String("QDeclarativeDebugServer");
 const QString clientId = QLatin1String("QDeclarativeDebugClient");
@@ -86,7 +87,7 @@ static QString socketErrorToString(QAbstractSocket::SocketError error)
 
 QmlDebugConnectionPrivate::QmlDebugConnectionPrivate() :
     protocol(0), server(0), device(0), gotHello(false),
-    currentDataStreamVersion(QDataStream::Qt_4_7),
+    currentDataStreamVersion(minimumDataStreamVersion),
     maximumDataStreamVersion(QDataStream::Qt_DefaultCompiledVersion)
 {
 }
@@ -491,6 +492,12 @@ QmlDebugConnection *QmlDebugClient::connection() const
 {
     Q_D(const QmlDebugClient);
     return d->connection;
+}
+
+int QmlDebugClient::dataStreamVersion() const
+{
+    Q_D(const QmlDebugClient);
+    return (d->connection ? d->connection->currentDataStreamVersion() : minimumDataStreamVersion);
 }
 
 void QmlDebugClient::sendMessage(const QByteArray &message)

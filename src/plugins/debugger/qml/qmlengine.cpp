@@ -140,11 +140,10 @@ typedef QHash<int, LookupData> LookupItems; // id -> (iname, exp)
 class QmlEnginePrivate : public QmlDebugClient
 {
 public:
-    QmlEnginePrivate(QmlEngine *engine_, QmlDebugConnection *connection_)
-        : QmlDebugClient("V8Debugger", connection_),
+    QmlEnginePrivate(QmlEngine *engine_, QmlDebugConnection *connection)
+        : QmlDebugClient("V8Debugger", connection),
           engine(engine_),
-          inspectorAgent(engine, connection_),
-          connection(connection_)
+          inspectorAgent(engine, connection)
     {}
 
     void messageReceived(const QByteArray &data);
@@ -221,7 +220,6 @@ public:
     bool contextEvaluate = false;
 
     QTimer connectionTimer;
-    QmlDebug::QmlDebugConnection *connection;
     QmlDebug::QDebugMessageClient *msgClient = 0;
 
     QHash<int, QmlCallback> callbackForToken;
@@ -250,6 +248,7 @@ QmlEngine::QmlEngine(bool useTerminal)
   :  d(new QmlEnginePrivate(this, new QmlDebugConnection(this)))
 {
     setObjectName("QmlEngine");
+    QmlDebugConnection *connection = d->connection();
 
     connect(stackHandler(), &StackHandler::stackChanged,
             this, &QmlEngine::updateCurrentContext);
@@ -280,21 +279,21 @@ QmlEngine::QmlEngine(bool useTerminal)
     connect(&d->connectionTimer, &QTimer::timeout,
             this, &QmlEngine::checkConnectionState);
 
-    connect(d->connection, &QmlDebugConnection::logStateChange,
+    connect(connection, &QmlDebugConnection::logStateChange,
             this, &QmlEngine::showConnectionStateMessage);
-    connect(d->connection, &QmlDebugConnection::logError, this,
+    connect(connection, &QmlDebugConnection::logError, this,
             [this](const QString &error) { showMessage("QML Debugger: " + error, LogWarning); });
 
-    connect(d->connection, &QmlDebugConnection::connectionFailed,
+    connect(connection, &QmlDebugConnection::connectionFailed,
             this, &QmlEngine::connectionFailed);
-    connect(d->connection, &QmlDebugConnection::connected,
+    connect(connection, &QmlDebugConnection::connected,
             &d->connectionTimer, &QTimer::stop);
-    connect(d->connection, &QmlDebugConnection::connected,
+    connect(connection, &QmlDebugConnection::connected,
             this, &QmlEngine::connectionEstablished);
-    connect(d->connection, &QmlDebugConnection::disconnected,
+    connect(connection, &QmlDebugConnection::disconnected,
             this, &QmlEngine::disconnected);
 
-    d->msgClient = new QDebugMessageClient(d->connection);
+    d->msgClient = new QDebugMessageClient(connection);
     connect(d->msgClient, &QDebugMessageClient::newState,
             this, [this](QmlDebugClient::State state) {
         logServiceStateChange(d->msgClient->name(), d->msgClient->serviceVersion(), state);
@@ -404,10 +403,11 @@ void QmlEngine::beginConnection()
      */
     int port = runParameters().qmlServer.port();
 
-    if (!d->connection || d->connection->isConnected())
+    QmlDebugConnection *connection = d->connection();
+    if (!connection || connection->isConnected())
         return;
 
-    d->connection->connectToHost(host, port);
+    connection->connectToHost(host, port);
 
     //A timeout to check the connection state
     d->connectionTimer.start();
@@ -513,8 +513,8 @@ void QmlEngine::closeConnection()
     if (d->connectionTimer.isActive()) {
         d->connectionTimer.stop();
     } else {
-        if (d->connection)
-            d->connection->close();
+        if (QmlDebugConnection *connection = d->connection())
+            connection->close();
     }
 }
 
@@ -1194,7 +1194,10 @@ void QmlEngine::checkConnectionState()
 
 bool QmlEngine::isConnected() const
 {
-    return d->connection->isConnected();
+    if (QmlDebugConnection *connection = d->connection())
+        return connection->isConnected();
+    else
+        return false;
 }
 
 void QmlEngine::showConnectionStateMessage(const QString &message)
@@ -1452,7 +1455,7 @@ void QmlEnginePrivate::setBreakpoint(const QString type, const QString target,
     //                    }
     //    }
     if (type == EVENT) {
-        QPacket rs(connection->currentDataStreamVersion());
+        QPacket rs(dataStreamVersion());
         rs <<  target.toUtf8() << enabled;
         engine->showMessage(QString("%1 %2 %3")
                             .arg(BREAKONSIGNAL, target, QLatin1String(enabled ? "enabled" : "disabled")), LogInput);
@@ -1672,7 +1675,7 @@ void QmlEnginePrivate::runDirectCommand(const QString &type, const QByteArray &m
 
     engine->showMessage(QString("%1 %2").arg(type, QString::fromLatin1(msg)), LogInput);
 
-    QPacket rs(connection->currentDataStreamVersion());
+    QPacket rs(dataStreamVersion());
     rs << cmd << type.toLatin1() << msg;
 
     if (state() == Enabled)
@@ -1694,7 +1697,7 @@ void QmlEnginePrivate::memorizeRefs(const QVariant &refs)
 
 void QmlEnginePrivate::messageReceived(const QByteArray &data)
 {
-    QPacket ds(connection->currentDataStreamVersion(), data);
+    QPacket ds(dataStreamVersion(), data);
     QByteArray command;
     ds >> command;
 
