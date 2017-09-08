@@ -85,7 +85,6 @@ void QmlProfilerAnimationsModel::loadEvent(const QmlEvent &event, const QmlEvent
     lastEvent.typeId = event.typeIndex();
     lastEvent.framerate = event.number<qint32>(0);
     lastEvent.animationcount = event.number<qint32>(1);
-    QTC_ASSERT(lastEvent.animationcount > 0, return);
 
     m_data.insert(insert(realStartTime, realEndTime - realStartTime, lastThread), lastEvent);
 

@@ -51,7 +51,7 @@ void QmlProfilerAnimationsModelTest::initTestCase()
 
     for (int i = 0; i < 10; ++i) {
         event.setTimestamp(i);
-        event.setNumbers<int>({frameRate(i), 20 - i, (i % 2) ? RenderThread : GuiThread});
+        event.setNumbers<int>({frameRate(i), 9 - i, (i % 2) ? RenderThread : GuiThread});
         manager.addEvent(event);
     }
     manager.acquiringDone();
@@ -69,8 +69,8 @@ void QmlProfilerAnimationsModelTest::testAccepted()
 void QmlProfilerAnimationsModelTest::testRowMaxValue()
 {
     QCOMPARE(model.rowMaxValue(0), 0);
-    QCOMPARE(model.rowMaxValue(1), 20);
-    QCOMPARE(model.rowMaxValue(2), 19);
+    QCOMPARE(model.rowMaxValue(1), 9);
+    QCOMPARE(model.rowMaxValue(2), 8);
 }
 
 void QmlProfilerAnimationsModelTest::testRowNumbers()
@@ -133,7 +133,7 @@ void QmlProfilerAnimationsModelTest::testDetails()
         QCOMPARE(details[QmlProfilerAnimationsModel::tr("Framerate")].toString(),
                 QString::fromLatin1("%1 FPS").arg(frameRate(i)));
         QCOMPARE(details[QmlProfilerAnimationsModel::tr("Animations")].toString(),
-                QString::number(20 - i));
+                QString::number(9 - i));
         QCOMPARE(details[QmlProfilerAnimationsModel::tr("Context")].toString(), i % 2 ?
                     QmlProfilerAnimationsModel::tr("Render Thread") :
                     QmlProfilerAnimationsModel::tr("GUI Thread"));
