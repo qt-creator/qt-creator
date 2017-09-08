@@ -111,34 +111,26 @@ QnxDebugSupport::QnxDebugSupport(RunControl *runControl)
 
 void QnxDebugSupport::start()
 {
-    Utils::Port pdebugPort = m_portsGatherer->gdbServerPort();
-
     auto runConfig = qobject_cast<QnxRunConfiguration *>(runControl()->runConfiguration());
     QTC_ASSERT(runConfig, return);
     Target *target = runConfig->target();
     Kit *k = target->kit();
 
-    DebuggerStartParameters params;
-    params.startMode = AttachToRemoteServer;
-    params.useCtrlCStub = true;
-    params.inferior.executable = runConfig->remoteExecutableFilePath();
-    params.symbolFile = runConfig->localExecutableFilePath();
-    params.remoteChannel = QString("%1:%2").arg(device()->sshParameters().host).arg(pdebugPort.number());
-    params.closeMode = KillAtClose;
-    params.inferior.commandLineArguments = runConfig->arguments();
+    auto inferior = runConfig->runnable().as<StandardRunnable>();
+    inferior.executable = runConfig->remoteExecutableFilePath();
+    inferior.commandLineArguments = runConfig->arguments();
 
-    if (isQmlDebugging()) {
-        const int qmlServerPort = m_portsGatherer->qmlServerPort().number();
-        params.qmlServer.setHost(device()->sshParameters().host);
-        params.qmlServer.setPort(qmlServerPort);
-        params.inferior.commandLineArguments.replace("%qml_port%", QString::number(qmlServerPort));
-    }
+    setStartMode(AttachToRemoteServer);
+    setCloseMode(KillAtClose);
+    setUseCtrlCStub(true);
+    setSymbolFile(runConfig->localExecutableFilePath());
+    setRemoteChannel(m_portsGatherer->gdbServerChannel());
+    setQmlServer(m_portsGatherer->qmlServer());
+    setInferior(inferior);
 
     auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(k));
     if (qtVersion)
-        params.solibSearchPath = QnxUtils::searchPaths(qtVersion);
-
-    setRunParameters(params);
+        setSolibSearchPath(QnxUtils::searchPaths(qtVersion));
 
     DebuggerRunTool::start();
 }

@@ -250,6 +250,11 @@ void DebuggerRunTool::setSkipExecutableValidation(bool on)
     m_runParameters.skipExecutableValidation = on;
 }
 
+void DebuggerRunTool::setUseCtrlCStub(bool on)
+{
+    m_runParameters.useCtrlCStub = on;
+}
+
 void DebuggerRunTool::setCommandsAfterConnect(const QString &commands)
 {
     m_runParameters.commandsAfterConnect = commands;

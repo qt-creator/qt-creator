@@ -108,6 +108,7 @@ public:
     void setUseTargetAsync(bool on);
     void setContinueAfterAttach(bool on);
     void setSkipExecutableValidation(bool on);
+    void setUseCtrlCStub(bool on);
 
     void setCommandsAfterConnect(const QString &commands);
     void setCommandsForReset(const QString &commands);
