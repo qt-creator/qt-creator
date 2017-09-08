@@ -69,9 +69,6 @@ public:
     bool verboseOutput() const;
     void setVerboseOutput(bool verbose);
 
-    bool useGradle() const;
-    void setUseGradle(bool b);
-
     bool addDebugger() const;
     void setAddDebugger(bool debug);
 
@@ -80,9 +77,6 @@ public:
 
     virtual Utils::FileName androidPackageSourceDir() const = 0;
     void setDeployAction(AndroidDeployAction deploy);
-
-signals:
-    void useGradleChanged();
 
 protected:
     Q_INVOKABLE void showInGraphicalShell();
@@ -101,7 +95,6 @@ protected:
     AndroidDeployAction m_deployAction = BundleLibrariesDeployment;
     bool m_signPackage = false;
     bool m_verbose = false;
-    bool m_useGradle = true; // Ant builds are deprecated.
     bool m_openPackageLocation = false;
     bool m_openPackageLocationForRun = false;
     bool m_addDebugger = true;

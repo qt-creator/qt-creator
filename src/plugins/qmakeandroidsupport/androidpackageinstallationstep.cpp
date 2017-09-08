@@ -88,12 +88,8 @@ bool AndroidPackageInstallationStep::init(QList<const BuildStep *> &earlierSteps
 
     m_androidDirsToClean.clear();
     // don't remove gradle's cache, it takes ages to rebuild it.
-    if (!QFile::exists(dirPath + "/build.xml") && Android::AndroidManager::useGradle(target())) {
-        m_androidDirsToClean << dirPath + "/assets";
-        m_androidDirsToClean << dirPath + "/libs";
-    } else {
-        m_androidDirsToClean << dirPath;
-    }
+    m_androidDirsToClean << dirPath + "/assets";
+    m_androidDirsToClean << dirPath + "/libs";
 
     return AbstractProcessStep::init(earlierSteps);
 }

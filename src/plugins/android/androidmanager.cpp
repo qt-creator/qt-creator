@@ -463,15 +463,6 @@ AndroidQtSupport *AndroidManager::androidQtSupport(ProjectExplorer::Target *targ
     return 0;
 }
 
-bool AndroidManager::useGradle(ProjectExplorer::Target *target)
-{
-    if (!target)
-        return false;
-    AndroidBuildApkStep *buildApkStep
-        = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
-    return buildApkStep && buildApkStep->useGradle();
-}
-
 typedef QMap<QByteArray, QByteArray> GradleProperties;
 
 static GradleProperties readGradleProperties(const QString &path)
@@ -543,7 +534,7 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
     AndroidBuildApkStep *buildApkStep
         = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
 
-    if (!buildApkStep || !buildApkStep->useGradle() || !buildApkStep->androidPackageSourceDir().appendPath(QLatin1String("gradlew")).exists())
+    if (!buildApkStep || !buildApkStep->androidPackageSourceDir().appendPath(QLatin1String("gradlew")).exists())
         return false;
 
     Utils::FileName wrapperProps(buildApkStep->androidPackageSourceDir());

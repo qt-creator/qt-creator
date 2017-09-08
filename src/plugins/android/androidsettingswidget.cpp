@@ -134,8 +134,6 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
 {
     m_ui->setupUi(this);
 
-    m_ui->deprecatedInfoIconLabel->setPixmap(Utils::Icons::INFO.pixmap());
-
     connect(&m_checkGdbWatcher, &QFutureWatcherBase::finished,
             this, &AndroidSettingsWidget::checkGdbFinished);
 
@@ -143,27 +141,6 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     m_ui->SDKLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK folder"));
     m_ui->NDKLocationPathChooser->setFileName(m_androidConfig.ndkLocation());
     m_ui->NDKLocationPathChooser->setPromptDialogTitle(tr("Select Android NDK folder"));
-
-    QString dir;
-    QString filter;
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        dir = QDir::homePath() + QLatin1String("/ant.bat");
-        filter = QLatin1String("ant (ant.bat)");
-    } else if (Utils::HostOsInfo::isMacHost()) {
-        // work around QTBUG-7739 that prohibits filters that don't start with *
-        dir = QLatin1String("/usr/bin/ant");
-        filter = QLatin1String("ant (*ant)");
-    } else {
-        dir = QLatin1String("/usr/bin/ant");
-        filter = QLatin1String("ant (ant)");
-    }
-    m_ui->AntLocationPathChooser->setFileName(m_androidConfig.antLocation());
-    m_ui->AntLocationPathChooser->setExpectedKind(Utils::PathChooser::Command);
-    m_ui->AntLocationPathChooser->setPromptDialogTitle(tr("Select ant Script"));
-    m_ui->AntLocationPathChooser->setInitialBrowsePathBackup(dir);
-    m_ui->AntLocationPathChooser->setPromptDialogFilter(filter);
-
-    updateGradleBuildUi();
 
     m_ui->OpenJDKLocationPathChooser->setFileName(m_androidConfig.openJDKLocation());
     m_ui->OpenJDKLocationPathChooser->setPromptDialogTitle(tr("Select JDK Path"));
@@ -173,7 +150,6 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     m_ui->AVDTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_ui->AVDTableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
-    m_ui->downloadAntToolButton->setVisible(!Utils::HostOsInfo::isLinuxHost());
     m_ui->downloadOpenJDKToolButton->setVisible(!Utils::HostOsInfo::isLinuxHost());
 
     const QPixmap warningPixmap = Utils::Icons::WARNING.pixmap();
@@ -201,8 +177,6 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
             this, &AndroidSettingsWidget::ndkLocationEditingFinished);
     connect(m_ui->SDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::sdkLocationEditingFinished);
-    connect(m_ui->AntLocationPathChooser, &Utils::PathChooser::rawPathChanged,
-            this, &AndroidSettingsWidget::antLocationEditingFinished);
     connect(m_ui->OpenJDKLocationPathChooser, &Utils::PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::openJDKLocationEditingFinished);
     connect(m_ui->AVDAddPushButton, &QAbstractButton::clicked,
@@ -225,13 +199,8 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
             this, &AndroidSettingsWidget::openSDKDownloadUrl);
     connect(m_ui->downloadNDKToolButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::openNDKDownloadUrl);
-    connect(m_ui->downloadAntToolButton, &QAbstractButton::clicked,
-            this, &AndroidSettingsWidget::openAntDownloadUrl);
     connect(m_ui->downloadOpenJDKToolButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::openOpenJDKDownloadUrl);
-    connect(m_ui->UseGradleCheckBox, &QAbstractButton::toggled,
-            this, &AndroidSettingsWidget::useGradleToggled);
-
 }
 
 AndroidSettingsWidget::~AndroidSettingsWidget()
@@ -473,13 +442,6 @@ void AndroidSettingsWidget::updateAvds()
     enableAvdControls();
 }
 
-void AndroidSettingsWidget::updateGradleBuildUi()
-{
-    m_ui->UseGradleCheckBox->setEnabled(m_androidConfig.antScriptsAvailable());
-    m_ui->UseGradleCheckBox->setChecked(!m_androidConfig.antScriptsAvailable() ||
-                                        m_androidConfig.useGrandle());
-}
-
 bool AndroidSettingsWidget::verifySdkInstallation(QString *errorDetails) const
 {
     if (m_androidConfig.sdkLocation().isEmpty()) {
@@ -522,7 +484,6 @@ void AndroidSettingsWidget::saveSettings()
 {
     sdkLocationEditingFinished();
     ndkLocationEditingFinished();
-    antLocationEditingFinished();
     openJDKLocationEditingFinished();
     dataPartitionSizeEditingFinished();
     AndroidConfigurations::setConfig(m_androidConfig);
@@ -531,13 +492,8 @@ void AndroidSettingsWidget::saveSettings()
 void AndroidSettingsWidget::sdkLocationEditingFinished()
 {
     m_androidConfig.setSdkLocation(Utils::FileName::fromUserInput(m_ui->SDKLocationPathChooser->rawPath()));
-    updateGradleBuildUi();
 
     check(Sdk);
-
-    if (m_sdkState == Okay)
-        searchForAnt(m_androidConfig.sdkLocation());
-
     applyToUi(Sdk);
 }
 
@@ -546,39 +502,7 @@ void AndroidSettingsWidget::ndkLocationEditingFinished()
     m_androidConfig.setNdkLocation(Utils::FileName::fromUserInput(m_ui->NDKLocationPathChooser->rawPath()));
 
     check(Ndk);
-
-    if (m_ndkState == Okay)
-        searchForAnt(m_androidConfig.ndkLocation());
-
     applyToUi(Ndk);
-}
-
-void AndroidSettingsWidget::searchForAnt(const Utils::FileName &location)
-{
-    if (!m_androidConfig.antLocation().isEmpty())
-            return;
-    if (location.isEmpty())
-        return;
-    QDir parentFolder = location.toFileInfo().absoluteDir();
-    foreach (const QString &file, parentFolder.entryList()) {
-        if (file.startsWith(QLatin1String("apache-ant"))) {
-            Utils::FileName ant = Utils::FileName::fromString(parentFolder.absolutePath());
-            ant.appendPath(file).appendPath(QLatin1String("bin"));
-            if (Utils::HostOsInfo::isWindowsHost())
-                ant.appendPath(QLatin1String("ant.bat"));
-            else
-                ant.appendPath(QLatin1String("ant"));
-            if (ant.exists()) {
-                m_androidConfig.setAntLocation(ant);
-                m_ui->AntLocationPathChooser->setFileName(ant);
-            }
-        }
-    }
-}
-
-void AndroidSettingsWidget::antLocationEditingFinished()
-{
-    m_androidConfig.setAntLocation(Utils::FileName::fromUserInput(m_ui->AntLocationPathChooser->rawPath()));
 }
 
 void AndroidSettingsWidget::openJDKLocationEditingFinished()
@@ -597,11 +521,6 @@ void AndroidSettingsWidget::openSDKDownloadUrl()
 void AndroidSettingsWidget::openNDKDownloadUrl()
 {
     QDesktopServices::openUrl(QUrl::fromUserInput("https://developer.android.com/ndk/downloads/"));
-}
-
-void AndroidSettingsWidget::openAntDownloadUrl()
-{
-    QDesktopServices::openUrl(QUrl::fromUserInput("http://ant.apache.org/bindownload.cgi"));
 }
 
 void AndroidSettingsWidget::openOpenJDKDownloadUrl()
@@ -670,11 +589,6 @@ void AndroidSettingsWidget::dataPartitionSizeEditingFinished()
 void AndroidSettingsWidget::createKitToggled()
 {
     m_androidConfig.setAutomaticKitCreation(m_ui->CreateKitCheckBox->isChecked());
-}
-
-void AndroidSettingsWidget::useGradleToggled()
-{
-    m_androidConfig.setUseGradle(m_ui->UseGradleCheckBox->isChecked());
 }
 
 void AndroidSettingsWidget::checkGdbFinished()

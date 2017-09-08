@@ -233,8 +233,8 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
                 Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("bundled"));
                 break;
         }
-        if (androidBuildApkStep->useGradle())
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--gradle"));
+
+        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--gradle"));
 
         if (androidBuildApkStep->signPackage()) {
             // The androiddeployqt tool is not really written to do stand-alone installations.

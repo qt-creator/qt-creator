@@ -172,11 +172,7 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     if (m_verbose)
         arguments << "--verbose";
 
-    if (m_useGradle)
-        arguments << "--gradle";
-    else
-        arguments << "--ant" << AndroidConfigurations::currentConfig().antToolPath().toString();
-
+    arguments << "--gradle";
 
     QStringList argumentsPasswordConcealed = arguments;
 

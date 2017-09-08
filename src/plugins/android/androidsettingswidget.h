@@ -75,12 +75,9 @@ public:
 private:
     void sdkLocationEditingFinished();
     void ndkLocationEditingFinished();
-    void searchForAnt(const Utils::FileName &location);
-    void antLocationEditingFinished();
     void openJDKLocationEditingFinished();
     void openSDKDownloadUrl();
     void openNDKDownloadUrl();
-    void openAntDownloadUrl();
     void openOpenJDKDownloadUrl();
     void addAVD();
     void avdAdded();
@@ -90,12 +87,10 @@ private:
     void dataPartitionSizeEditingFinished();
     void manageAVD();
     void createKitToggled();
-    void useGradleToggled();
 
     void checkGdbFinished();
     void showGdbWarningDialog();
     void updateAvds();
-    void updateGradleBuildUi();
 
 private:
     enum Mode { Sdk = 1, Ndk = 2, Java = 4, All = Sdk | Ndk | Java };

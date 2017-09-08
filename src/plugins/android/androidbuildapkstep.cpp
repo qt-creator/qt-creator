@@ -65,8 +65,6 @@ const char DeployActionKey[] = "Qt4ProjectManager.AndroidDeployQtStep.DeployQtAc
 const char KeystoreLocationKey[] = "KeystoreLocation";
 const char BuildTargetSdkKey[] = "BuildTargetSdk";
 const char VerboseOutputKey[] = "VerboseOutput";
-const char UseGradleKey[] = "UseGradle";
-
 
 class PasswordInputDialog : public QDialog {
 public:
@@ -96,9 +94,6 @@ AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent,
     : ProjectExplorer::AbstractProcessStep(parent, id),
       m_buildTargetSdk(AndroidConfig::apiLevelNameFor(AndroidConfigurations::currentConfig().highestAndroidSdk()))
 {
-    const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (version && version->qtVersion() >=  QtSupport::QtVersionNumber(5, 4, 0))
-        m_useGradle = AndroidConfigurations::currentConfig().useGrandle();
     //: AndroidBuildApkStep default display name
     setDefaultDisplayName(tr("Build Android APK"));
 }
@@ -109,14 +104,10 @@ AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent,
       m_deployAction(other->deployAction()),
       m_signPackage(other->signPackage()),
       m_verbose(other->m_verbose),
-      m_useGradle(other->m_useGradle),
       m_openPackageLocation(other->m_openPackageLocation),
       // leave m_openPackageLocationForRun at false
       m_buildTargetSdk(other->m_buildTargetSdk)
 {
-    const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (m_useGradle && version->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0))
-        m_useGradle = false;
 }
 
 bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
@@ -138,11 +129,18 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
         return false;
 
     const QVersionNumber sdkToolsVersion = AndroidConfigurations::currentConfig().sdkToolsVersion();
-    if (sdkToolsVersion >= gradleScriptRevokedSdkVersion &&
-            !version->sourcePath().appendPath("src/3rdparty/gradle").exists()) {
-        emit addOutput(tr("The installed SDK tools version (%1) does not include Gradle scripts. The "
-                          "minimum Qt version required for Gradle build to work is %2.")
-                       .arg(sdkToolsVersion.toString()).arg("5.9.0/5.6.3"), OutputFormat::Stderr);
+    if (sdkToolsVersion >= gradleScriptRevokedSdkVersion) {
+        if (!version->sourcePath().appendPath("src/3rdparty/gradle").exists()) {
+            emit addOutput(tr("The installed SDK tools version (%1) does not include Gradle "
+                              "scripts. The minimum Qt version required for Gradle build to work "
+                              "is %2").arg(sdkToolsVersion.toString()).arg("5.9.0/5.6.3"),
+                           OutputFormat::Stderr);
+            return false;
+        }
+    } else if (version->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0)) {
+        emit addOutput(tr("The minimum Qt version required for Gradle build to work is %2. "
+                          "It is recommended to install the latest Qt version.")
+                       .arg("5.4.0"), OutputFormat::Stderr);
         return false;
     }
 
@@ -241,7 +239,6 @@ bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
     if (m_buildTargetSdk.isEmpty())
         m_buildTargetSdk = AndroidConfig::apiLevelNameFor(AndroidConfigurations::currentConfig().highestAndroidSdk());
     m_verbose = map.value(VerboseOutputKey).toBool();
-    m_useGradle = map.value(UseGradleKey).toBool();
     return ProjectExplorer::BuildStep::fromMap(map);
 }
 
@@ -252,7 +249,6 @@ QVariantMap AndroidBuildApkStep::toMap() const
     map.insert(KeystoreLocationKey, m_keystorePath.toString());
     map.insert(BuildTargetSdkKey, m_buildTargetSdk);
     map.insert(VerboseOutputKey, m_verbose);
-    map.insert(UseGradleKey, m_useGradle);
     return map;
 }
 
@@ -269,8 +265,7 @@ QString AndroidBuildApkStep::buildTargetSdk() const
 void AndroidBuildApkStep::setBuildTargetSdk(const QString &sdk)
 {
     m_buildTargetSdk = sdk;
-    if (m_useGradle)
-        AndroidManager::updateGradleProperties(target());
+    AndroidManager::updateGradleProperties(target());
 }
 
 AndroidBuildApkStep::AndroidDeployAction AndroidBuildApkStep::deployAction() const
@@ -328,21 +323,6 @@ void AndroidBuildApkStep::setOpenPackageLocation(bool open)
 void AndroidBuildApkStep::setVerboseOutput(bool verbose)
 {
     m_verbose = verbose;
-}
-
-bool AndroidBuildApkStep::useGradle() const
-{
-    return m_useGradle;
-}
-
-void AndroidBuildApkStep::setUseGradle(bool b)
-{
-    if (m_useGradle != b) {
-        m_useGradle = b;
-        if (m_useGradle)
-            AndroidManager::updateGradleProperties(target());
-        emit useGradleChanged();
-    }
 }
 
 bool AndroidBuildApkStep::addDebugger() const

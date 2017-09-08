@@ -54,8 +54,6 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
 {
     m_ui->setupUi(this);
 
-    m_ui->deprecatedInfoIconLabel->setPixmap(Utils::Icons::INFO.pixmap());
-
     // Target sdk combobox
     int minApiLevel = 9;
     const AndroidConfig &config = AndroidConfigurations::currentConfig();
@@ -90,9 +88,6 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     m_ui->signingDebugWarningLabel->hide();
     signPackageCheckBoxToggled(m_step->signPackage());
 
-    m_ui->useGradleCheckBox->setEnabled(config.antScriptsAvailable());
-    m_ui->useGradleCheckBox->setChecked(!config.antScriptsAvailable() ||
-                                        m_step->useGradle());
     m_ui->verboseOutputCheckBox->setChecked(m_step->verboseOutput());
     m_ui->openPackageLocationCheckBox->setChecked(m_step->openPackageLocation());
     m_ui->addDebuggerCheckBox->setChecked(m_step->addDebugger());
@@ -108,8 +103,6 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     connect(m_ui->bundleQtOption, &QAbstractButton::clicked,
             this, &AndroidBuildApkWidget::setBundleQtLibs);
 
-    connect(m_ui->useGradleCheckBox, &QAbstractButton::toggled,
-            this, &AndroidBuildApkWidget::useGradleCheckBoxToggled);
     connect(m_ui->openPackageLocationCheckBox, &QAbstractButton::toggled,
             this, &AndroidBuildApkWidget::openPackageLocationCheckBoxToggled);
     connect(m_ui->verboseOutputCheckBox, &QAbstractButton::toggled,
@@ -135,9 +128,6 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
             this, &AndroidBuildApkWidget::updateSigningWarning);
 
     updateSigningWarning();
-    QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(step->target()->kit());
-    bool qt54 = qt->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
-    m_ui->useGradleCheckBox->setVisible(qt54);
 }
 
 AndroidBuildApkWidget::~AndroidBuildApkWidget()
@@ -246,9 +236,4 @@ void AndroidBuildApkWidget::updateSigningWarning()
         m_ui->signingDebugWarningIcon->setVisible(false);
         m_ui->signingDebugWarningLabel->setVisible(false);
     }
-}
-
-void AndroidBuildApkWidget::useGradleCheckBoxToggled(bool checked)
-{
-    m_step->setUseGradle(checked);
 }
