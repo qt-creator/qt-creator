@@ -138,7 +138,7 @@ void QnxDebugSupport::start()
     if (qtVersion)
         params.solibSearchPath = QnxUtils::searchPaths(qtVersion);
 
-    setStartParameters(params);
+    setRunParameters(params);
 
     DebuggerRunTool::start();
 }
