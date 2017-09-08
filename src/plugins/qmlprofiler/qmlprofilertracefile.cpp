@@ -108,7 +108,7 @@ static QString qmlTypeAsString(Message message, RangeType rangeType)
 {
     if (rangeType < MaximumRangeType)
         return _(RANGE_TYPE_STRINGS[rangeType]);
-    else if (message != MaximumMessage)
+    else if (message < MaximumMessage)
         return _(MESSAGE_STRINGS[message]);
     else
         return QString::number((int)rangeType);
