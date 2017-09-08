@@ -138,7 +138,8 @@ void QmlProfilerTraceClientPrivate::processCurrentEvent()
         break;
     case RangeEnd: {
         int typeIndex = resolveStackTop();
-        QTC_ASSERT(typeIndex != -1, break);
+        if (typeIndex == -1)
+            break;
         currentEvent.event.setTypeIndex(typeIndex);
         while (!pendingMessages.isEmpty())
             modelManager->addEvent(pendingMessages.dequeue());
@@ -147,10 +148,12 @@ void QmlProfilerTraceClientPrivate::processCurrentEvent()
         break;
     }
     case RangeData:
-        rangesInProgress.top().type.setData(currentEvent.type.data());
+        if (!rangesInProgress.isEmpty())
+            rangesInProgress.top().type.setData(currentEvent.type.data());
         break;
     case RangeLocation:
-        rangesInProgress.top().type.setLocation(currentEvent.type.location());
+        if (!rangesInProgress.isEmpty())
+            rangesInProgress.top().type.setLocation(currentEvent.type.location());
         break;
     default: {
         int typeIndex = resolveType(currentEvent);
