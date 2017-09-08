@@ -259,19 +259,29 @@ void QmlJSEditorPlugin::reformatFile()
 
         if (!document->isParsedCorrectly())
             return;
+
         TextEditor::TabSettings tabSettings = m_currentDocument->tabSettings();
         const QString &newText = QmlJS::reformat(document,
                                                  tabSettings.m_indentSize,
                                                  tabSettings.m_tabSize);
+
+        //  QTextDocument::setPlainText cannot be used, as it would reset undo/redo history
+        const auto setNewText = [this, &newText]() {
+            QTextCursor tc(m_currentDocument->document());
+            tc.movePosition(QTextCursor::Start);
+            tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+            tc.insertText(newText);
+        };
+
         QmlJSEditorWidget *widget = EditorManager::currentEditor()
                 ? qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget())
                 : nullptr;
         if (widget) {
             const int position = widget->position();
-            m_currentDocument->document()->setPlainText(newText);
+            setNewText();
             widget->setCursorPosition(position);
         } else {
-            m_currentDocument->document()->setPlainText(newText);
+            setNewText();
         }
     }
 }
