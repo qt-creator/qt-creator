@@ -177,7 +177,7 @@
          <item>
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Limit application output to </string>
+            <string>Limit application output to</string>
            </property>
           </widget>
          </item>

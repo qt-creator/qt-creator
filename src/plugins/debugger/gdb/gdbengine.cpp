@@ -3997,7 +3997,7 @@ void GdbEngine::loadInitScript()
             tr("Cannot find debugger initialization script"),
             tr("The debugger settings point to a script file at \"%1\" "
                "which is not accessible. If a script file is not needed, "
-               "consider clearing that entry to avoid this warning. "
+               "consider clearing that entry to avoid this warning."
               ).arg(script));
         }
     } else {

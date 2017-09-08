@@ -80,10 +80,6 @@ const char positionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContext
 const char layoutCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout");
 const char stackedContainerCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Stacked Container");
 
-const char selectParentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select Parent: %1");
-const char selectDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select: %1");
-const char deSelectDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Deselect: ");
-
 const char cutSelectionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Cut");
 const char copySelectionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Copy");
 const char pasteSelectionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Paste");

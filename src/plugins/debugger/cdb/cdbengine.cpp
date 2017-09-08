@@ -2511,7 +2511,7 @@ void CdbEngine::parseOutputLine(QString line)
         // output(32): ModLoad: 00007ffb 00007ffb   C:\Windows\system32\KERNEL32.DLL
         QRegExp moduleRegExp("[0-9a-fA-F]+(`[0-9a-fA-F]+)? [0-9a-fA-F]+(`[0-9a-fA-F]+)? (.*)");
         if (moduleRegExp.indexIn(line) > -1)
-            showStatusMessage(tr("Module loaded: ") + moduleRegExp.cap(3).trimmed(), 3000);
+            showStatusMessage(tr("Module loaded: %1").arg(moduleRegExp.cap(3).trimmed()), 3000);
     } else {
         showMessage(line, LogMisc);
     }

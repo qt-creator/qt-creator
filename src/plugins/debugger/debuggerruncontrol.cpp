@@ -973,7 +973,7 @@ void GdbServerPortsGatherer::start()
 void GdbServerPortsGatherer::handlePortListReady()
 {
     Utils::PortList portList = device()->freePorts();
-    appendMessage(tr("Found %1 free ports").arg(portList.count()), NormalMessageFormat);
+    appendMessage(tr("Found %n free ports.", nullptr, portList.count()), NormalMessageFormat);
     if (m_useGdbServer) {
         m_gdbServerPort = m_portsGatherer.getNextFreePort(&portList);
         if (!m_gdbServerPort.isValid()) {

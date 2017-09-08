@@ -253,8 +253,9 @@ void Highlighter::highlightBlock(const QString &text)
         } catch (const HighlighterException &e) {
             Core::MessageManager::write(
                         QCoreApplication::translate("GenericHighlighter",
-                                                    "Generic highlighter error: ") + e.message(),
-                        Core::MessageManager::WithFocus);
+                                                    "Generic highlighter error: %1")
+                                                    .arg(e.message()),
+                                                    Core::MessageManager::WithFocus);
             m_isBroken = true;
         }
     }

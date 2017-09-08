@@ -315,7 +315,7 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
         label->setText(QLatin1String("<html><head/><body>\n<p>")
            + tr("The debugging helpers are used to produce a nice "
                 "display of objects of certain types like QString or "
-                "std::map in the &quot;Locals and Expressions&quot; view. ")
+                "std::map in the &quot;Locals and Expressions&quot; view.")
             + QLatin1String("</p></body></html>"));
 
         auto groupBoxCustomDumperCommands = new QGroupBox(debuggingHelperGroupBox);

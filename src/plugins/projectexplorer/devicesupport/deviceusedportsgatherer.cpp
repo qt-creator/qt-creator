@@ -191,7 +191,7 @@ void PortsGatherer::start()
     });
     connect(&m_portsGatherer, &DeviceUsedPortsGatherer::portListReady, this, [this] {
         m_portList = device()->freePorts();
-        appendMessage(tr("Found %1 free ports").arg(m_portList.count()) + '\n', NormalMessageFormat);
+        appendMessage(tr("Found %n free ports.", nullptr, m_portList.count()) + '\n', NormalMessageFormat);
         reportStarted();
     });
     m_portsGatherer.start(device());

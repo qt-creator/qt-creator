@@ -141,7 +141,7 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     if (sdkToolsVersion >= gradleScriptRevokedSdkVersion &&
             !version->sourcePath().appendPath("src/3rdparty/gradle").exists()) {
         emit addOutput(tr("The installed SDK tools version (%1) does not include Gradle scripts. The "
-                          "minimum Qt version required for Gradle build to work is %2")
+                          "minimum Qt version required for Gradle build to work is %2.")
                        .arg(sdkToolsVersion.toString()).arg("5.9.0/5.6.3"), OutputFormat::Stderr);
         return false;
     }
@@ -189,7 +189,7 @@ void AndroidBuildApkStep::processFinished(int exitCode, QProcess::ExitStatus sta
 bool AndroidBuildApkStep::verifyKeystorePassword()
 {
     if (!m_keystorePath.exists()) {
-        addOutput(tr("Cannot sign the package. Invalid keystore path(%1).")
+        addOutput(tr("Cannot sign the package. Invalid keystore path (%1).")
                   .arg(m_keystorePath.toString()), OutputFormat::ErrorMessage);
         return false;
     }

@@ -352,7 +352,8 @@ void HighlightDefinitionHandler::keywordStarted(const QXmlAttributes &atts)
         // Handle broken files. makefile.xml references an invalid list.
         Core::MessageManager::write(
                     QCoreApplication::translate("GenericHighlighter",
-                                                "Generic highlighter warning: ") + e.message());
+                                                "Generic highlighter warning: %1")
+                                                .arg(e.message()));
     }
     rule->setInsensitive(atts.value(kInsensitive));
     ruleElementStarted(atts, QSharedPointer<Rule>(rule));
