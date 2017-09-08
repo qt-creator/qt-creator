@@ -118,7 +118,6 @@ public:
     qint32 funcNameStartColumn = -1;
     quint64 ticketNumber = 0;
     Utf8StringVector dependentFiles;
-    bool resolveTarget = true;
 };
 
 using JobRequests = QVector<JobRequest>;

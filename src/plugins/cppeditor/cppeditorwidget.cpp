@@ -649,15 +649,6 @@ CppEditorWidget::Link CppEditorWidget::findLinkAt(const QTextCursor &cursor,
         return Link();
 
     const Utils::FileName &filePath = textDocument()->filePath();
-    if (!resolveTarget) {
-        // TODO: get that part also from clang
-        return d->m_builtinFollowSymbol.findLink(CppTools::CursorInEditor{cursor, filePath, this},
-                                                 resolveTarget,
-                                                 d->m_modelManager->snapshot(),
-                                                 d->m_lastSemanticInfo.doc,
-                                                 d->m_modelManager->symbolFinder(),
-                                                 inNextSplit);
-    }
 
     return followSymbolInterface()->findLink(CppTools::CursorInEditor{cursor, filePath, this},
                                              resolveTarget,

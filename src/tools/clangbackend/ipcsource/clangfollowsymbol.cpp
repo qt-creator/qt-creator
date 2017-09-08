@@ -41,9 +41,15 @@ namespace {
 
 struct Tokens
 {
+    Tokens(const Tokens &) = delete;
     Tokens(const Cursor &cursor) {
         tu = cursor.cxTranslationUnit();
         clang_tokenize(tu, cursor.cxSourceRange(), &data, &tokenCount);
+    }
+    Tokens(const CXTranslationUnit &tu) {
+        const CXSourceRange range
+                = clang_getCursorExtent(clang_getTranslationUnitCursor(tu));
+        clang_tokenize(tu, range, &data, &tokenCount);
     }
     ~Tokens() {
         clang_disposeTokens(tu, data, tokenCount);
@@ -198,11 +204,11 @@ static IndexerCallbacks createIndexerCallbacks()
     };
 }
 
-static FollowSymbolResult followSymbolInDependentFiles(CXIndex index,
-                                                       const Cursor &cursor,
-                                                       const Utf8String &tokenSpelling,
-                                                       const QVector<Utf8String> &dependentFiles,
-                                                       const CommandLineArguments &currentArgs)
+static SourceRangeContainer followSymbolInDependentFiles(CXIndex index,
+                                                         const Cursor &cursor,
+                                                         const Utf8String &tokenSpelling,
+                                                         const QVector<Utf8String> &dependentFiles,
+                                                         const CommandLineArguments &currentArgs)
 {
     int argsCount = 0;
     if (currentArgs.data())
@@ -250,63 +256,61 @@ static FollowSymbolResult followSymbolInDependentFiles(CXIndex index,
     for (const std::future<void> &future: indexFutures)
         future.wait();
 
-    FollowSymbolResult result;
     for (const FollowSymbolData &data: dataVector) {
         if (!data.result().start().filePath().isEmpty()) {
-            result.range = data.result();
-            break;
+            return data.result();
         }
     }
-    return result;
+    return SourceRangeContainer();
 }
 
-FollowSymbolResult FollowSymbol::followSymbol(CXIndex index,
-                                              const Cursor &fullCursor,
-                                              uint line,
-                                              uint column,
-                                              const QVector<Utf8String> &dependentFiles,
-                                              const CommandLineArguments &currentArgs)
+SourceRangeContainer FollowSymbol::followSymbol(CXTranslationUnit tu,
+                                                CXIndex index,
+                                                const Cursor &fullCursor,
+                                                uint line,
+                                                uint column,
+                                                const QVector<Utf8String> &dependentFiles,
+                                                const CommandLineArguments &currentArgs)
 {
-    FollowSymbolResult result;
-    Tokens tokens(fullCursor);
-    if (!tokens.tokenCount) {
-        result.failedToFollow = true;
-        return result;
-    }
+    std::unique_ptr<Tokens> tokens(new Tokens(fullCursor));
 
-    const CXTranslationUnit tu = fullCursor.cxTranslationUnit();
+    if (!tokens->tokenCount)
+        tokens.reset(new Tokens(tu));
 
-    QVector<CXCursor> cursors(static_cast<int>(tokens.tokenCount));
-    clang_annotateTokens(tu, tokens.data, tokens.tokenCount, cursors.data());
-    int tokenIndex = getTokenIndex(tu, tokens, line, column);
-    QTC_ASSERT(tokenIndex >= 0, return result);
+    if (!tokens->tokenCount)
+        return SourceRangeContainer();
 
-    const Utf8String tokenSpelling = ClangString(clang_getTokenSpelling(tu, tokens.data[tokenIndex]));
+    QVector<CXCursor> cursors(static_cast<int>(tokens->tokenCount));
+    clang_annotateTokens(tu, tokens->data, tokens->tokenCount, cursors.data());
+    int tokenIndex = getTokenIndex(tu, *tokens, line, column);
+    QTC_ASSERT(tokenIndex >= 0, return SourceRangeContainer());
+
+    const Utf8String tokenSpelling = ClangString(
+                clang_getTokenSpelling(tu, tokens->data[tokenIndex]));
     if (tokenSpelling.isEmpty())
-        return result;
+        return SourceRangeContainer();
 
     Cursor cursor{cursors[tokenIndex]};
+
     if (cursor.kind() == CXCursor_InclusionDirective) {
         CXFile file = clang_getIncludedFile(cursors[tokenIndex]);
         const ClangString filename(clang_getFileName(file));
         const SourceLocation loc(tu, filename, 1, 1);
-        result.range = SourceRange(loc, loc);
-        return result;
+        return SourceRange(loc, loc);
     }
 
-    if (cursor.isDefinition()) {
-        // For definitions we can always find a declaration in current TU
-        result.range = extractMatchingTokenRange(cursor.canonical(), tokenSpelling);
-        return result;
-    }
+    // For definitions we can always find a declaration in current TU
+    if (cursor.isDefinition())
+        return extractMatchingTokenRange(cursor.canonical(), tokenSpelling);
 
+    SourceRangeContainer result;
     if (!cursor.isDeclaration()) {
         // This is the symbol usage
         // We want to return definition or at least declaration of this symbol
         const Cursor referencedCursor = cursor.referenced();
         if (referencedCursor.isNull() || referencedCursor == cursor)
-            return result;
-        result.range = extractMatchingTokenRange(referencedCursor, tokenSpelling);
+            return SourceRangeContainer();
+        result = extractMatchingTokenRange(referencedCursor, tokenSpelling);
 
         // We've already found what we need
         if (referencedCursor.isDefinition())
@@ -317,17 +321,16 @@ FollowSymbolResult FollowSymbol::followSymbol(CXIndex index,
     const Cursor definitionCursor = cursor.definition();
     if (!definitionCursor.isNull() && definitionCursor != cursor) {
         // If we are able to find a definition in current TU
-        result.range = extractMatchingTokenRange(definitionCursor, tokenSpelling);
-        return result;
+        return extractMatchingTokenRange(definitionCursor, tokenSpelling);
     }
 
     // Search for the definition in the dependent files
-    FollowSymbolResult dependentFilesResult = followSymbolInDependentFiles(index,
-                                                                           cursor,
-                                                                           tokenSpelling,
-                                                                           dependentFiles,
-                                                                           currentArgs);
-    return dependentFilesResult.range.start().filePath().isEmpty() ?
+    SourceRangeContainer dependentFilesResult = followSymbolInDependentFiles(index,
+                                                                             cursor,
+                                                                             tokenSpelling,
+                                                                             dependentFiles,
+                                                                             currentArgs);
+    return dependentFilesResult.start().filePath().isEmpty() ?
                 result : dependentFilesResult;
 }
 

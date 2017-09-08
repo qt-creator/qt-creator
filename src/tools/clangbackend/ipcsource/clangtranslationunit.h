@@ -37,7 +37,6 @@ class DiagnosticSet;
 class HighlightingMarkContainer;
 class HighlightingMarks;
 class ReferencesResult;
-class FollowSymbolResult;
 class SkippedSourceRanges;
 class SourceLocation;
 class SourceRange;
@@ -101,10 +100,10 @@ public:
     HighlightingMarks highlightingMarksInRange(const SourceRange &range) const;
 
     SkippedSourceRanges skippedSourceRanges() const;
-    FollowSymbolResult followSymbol(uint line,
-                                    uint column,
-                                    const QVector<Utf8String> &dependentFiles,
-                                    const CommandLineArguments &currentArgs) const;
+    SourceRangeContainer followSymbol(uint line,
+                                      uint column,
+                                      const QVector<Utf8String> &dependentFiles,
+                                      const CommandLineArguments &currentArgs) const;
 
 private:
     const Utf8String m_id;

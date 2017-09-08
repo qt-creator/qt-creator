@@ -275,7 +275,6 @@ CppTools::SymbolInfo toSymbolInfo(const FollowSymbolMessage &message)
     result.endLine = static_cast<int>(end.line());
     result.endColumn = static_cast<int>(end.column());
     result.fileName = start.filePath();
-    result.failedToFollow = message.failedToFollow();
 
     return result;
 }
@@ -748,14 +747,12 @@ QFuture<CppTools::SymbolInfo> IpcCommunicator::requestFollowSymbol(
         const FileContainer &curFileContainer,
         const QVector<Utf8String> &dependentFiles,
         quint32 line,
-        quint32 column,
-        bool resolveTarget)
+        quint32 column)
 {
     const RequestFollowSymbolMessage message(curFileContainer,
                                              dependentFiles,
                                              line,
-                                             column,
-                                             resolveTarget);
+                                             column);
     m_ipcSender->requestFollowSymbol(message);
 
     return m_ipcReceiver.addExpectedRequestFollowSymbolMessage(message.ticketNumber());

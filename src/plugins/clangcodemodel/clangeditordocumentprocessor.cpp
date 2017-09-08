@@ -225,6 +225,12 @@ toTextEditorBlocks(QTextDocument *textDocument,
 }
 }
 
+const QVector<ClangBackEnd::HighlightingMarkContainer>
+&ClangEditorDocumentProcessor::highlightingMarks() const
+{
+    return m_highlightingMarks;
+}
+
 void ClangEditorDocumentProcessor::updateHighlighting(
         const QVector<ClangBackEnd::HighlightingMarkContainer> &highlightingMarks,
         const QVector<ClangBackEnd::SourceRangeContainer> &skippedPreprocessorRanges,
@@ -234,6 +240,7 @@ void ClangEditorDocumentProcessor::updateHighlighting(
         const auto skippedPreprocessorBlocks = toTextEditorBlocks(textDocument(), skippedPreprocessorRanges);
         emit ifdefedOutBlocksUpdated(documentRevision, skippedPreprocessorBlocks);
 
+        m_highlightingMarks = highlightingMarks;
         m_semanticHighlighter.setHighlightingRunner(
             [highlightingMarks]() {
                 auto *reporter = new HighlightingMarksReporter(highlightingMarks);
@@ -376,7 +383,7 @@ static QVector<Utf8String> prioritizeByBaseName(const QString &curPath,
 }
 
 QFuture<CppTools::SymbolInfo>
-ClangEditorDocumentProcessor::requestFollowSymbol(int line, int column, bool resolveTarget)
+ClangEditorDocumentProcessor::requestFollowSymbol(int line, int column)
 {
     QVector<Utf8String> dependentFiles;
     CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
@@ -390,8 +397,7 @@ ClangEditorDocumentProcessor::requestFollowSymbol(int line, int column, bool res
     return m_ipcCommunicator.requestFollowSymbol(simpleFileContainer(),
                                                  dependentFiles,
                                                  static_cast<quint32>(line),
-                                                 static_cast<quint32>(column),
-                                                 resolveTarget);
+                                                 static_cast<quint32>(column));
 }
 
 ClangBackEnd::FileContainer ClangEditorDocumentProcessor::fileContainerWithArguments() const

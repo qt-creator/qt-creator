@@ -38,8 +38,6 @@ IAsyncJob::AsyncPrepareResult FollowSymbolJob::prepareAsyncRun()
     const JobRequest jobRequest = context().jobRequest;
     QTC_ASSERT(jobRequest.type == JobRequest::Type::FollowSymbol,
                return AsyncPrepareResult());
-    // Is too slow because of IPC timings, no implementation for now
-    QTC_ASSERT(jobRequest.resolveTarget, return AsyncPrepareResult());
     QTC_ASSERT(acquireDocument(), return AsyncPrepareResult());
 
     const TranslationUnit translationUnit = *m_translationUnit;
@@ -66,8 +64,7 @@ void FollowSymbolJob::finalizeAsyncRun()
         const AsyncResult result = asyncResult();
 
         const FollowSymbolMessage message(m_pinnedFileContainer,
-                                          result.range,
-                                          result.failedToFollow,
+                                          result,
                                           context().jobRequest.ticketNumber);
         context().client->followSymbol(message);
     }

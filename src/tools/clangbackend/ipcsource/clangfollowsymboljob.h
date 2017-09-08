@@ -31,29 +31,10 @@
 
 namespace ClangBackEnd {
 
-class FollowSymbolResult
+class FollowSymbolJob : public DocumentJob<SourceRangeContainer>
 {
 public:
-    FollowSymbolResult() = default;
-    FollowSymbolResult(const SourceRangeContainer &range, bool failedToFollow = false)
-        : range(range)
-        , failedToFollow(failedToFollow)
-    {}
-
-    friend bool operator==(const FollowSymbolResult &first, const FollowSymbolResult &second)
-    {
-        return first.range == second.range
-                && first.failedToFollow == second.failedToFollow;
-    }
-
-    SourceRangeContainer range;
-    bool failedToFollow = false;
-};
-
-class FollowSymbolJob : public DocumentJob<FollowSymbolResult>
-{
-public:
-    using AsyncResult = FollowSymbolResult;
+    using AsyncResult = SourceRangeContainer;
 
     AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;

@@ -105,7 +105,8 @@ bool HighlightingMark::hasFunctionArguments() const
 
 HighlightingMark::operator HighlightingMarkContainer() const
 {
-    return HighlightingMarkContainer(m_line, m_column, m_length, m_types);
+    return HighlightingMarkContainer(m_line, m_column, m_length, m_types, m_isIdentifier,
+                                     m_isInclusion);
 }
 
 namespace {
@@ -288,6 +289,8 @@ void HighlightingMark::functionKind(const Cursor &cursor, Recursion recursion)
 
 void HighlightingMark::identifierKind(const Cursor &cursor, Recursion recursion)
 {
+    m_isIdentifier = (cursor.kind() != CXCursor_PreprocessingDirective);
+
     switch (cursor.kind()) {
         case CXCursor_Destructor:
         case CXCursor_Constructor:
@@ -352,6 +355,7 @@ HighlightingType literalKind(const Cursor &cursor)
     switch (cursor.kind()) {
         case CXCursor_CharacterLiteral:
         case CXCursor_StringLiteral:
+        case CXCursor_InclusionDirective:
         case CXCursor_ObjCStringLiteral: return HighlightingType::StringLiteral;
         case CXCursor_IntegerLiteral:
         case CXCursor_ImaginaryLiteral:
@@ -438,6 +442,8 @@ void HighlightingMark::collectKinds(CXTranslationUnit cxTranslationUnit,
         case CXToken_Comment:     m_types.mainHighlightingType = HighlightingType::Comment; break;
         case CXToken_Literal:     m_types.mainHighlightingType = literalKind(cursor); break;
     }
+
+    m_isInclusion = (cursor.kind() == CXCursor_InclusionDirective);
 }
 
 std::ostream &operator<<(std::ostream &os, const HighlightingMark& highlightingMark)

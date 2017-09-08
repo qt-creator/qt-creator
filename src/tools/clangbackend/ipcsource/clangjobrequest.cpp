@@ -229,7 +229,6 @@ void JobRequest::cancelJob(ClangCodeModelClientInterface &client) const
     case JobRequest::Type::FollowSymbol:
         client.followSymbol(FollowSymbolMessage(FileContainer(),
                                                 SourceRangeContainer(),
-                                                true,
                                                 ticketNumber));
         break;
     }

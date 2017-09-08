@@ -39,7 +39,6 @@ public:
     int endLine = 0;
     int endColumn = 0;
     QString fileName;
-    bool failedToFollow = false;
 };
 
 } // namespace CppTools

@@ -36,8 +36,7 @@ QDebug operator<<(QDebug debug, const FollowSymbolMessage &message)
     debug.nospace() << "FollowSymbolMessage("
                     << message.m_fileContainer
                     << ", " << message.m_ticketNumber
-                    << ", " << message.m_sourceRange
-                    << ", " << message.m_failedToFollow;
+                    << ", " << message.m_sourceRange;
 
     debug.nospace() << ")";
 
@@ -50,7 +49,6 @@ std::ostream &operator<<(std::ostream &os, const FollowSymbolMessage &message)
          << message.m_fileContainer << ", "
          << message.m_ticketNumber << ", "
          << message.m_sourceRange << ", "
-         << message.m_failedToFollow << ", "
          << ")";
 
     return os;

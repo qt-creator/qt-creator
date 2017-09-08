@@ -87,6 +87,8 @@ private:
     uint m_length;
     uint m_offset = 0;
     HighlightingTypes m_types;
+    bool m_isIdentifier = false;
+    bool m_isInclusion = false;
 };
 
 
