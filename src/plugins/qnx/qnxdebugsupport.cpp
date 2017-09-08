@@ -79,6 +79,8 @@ private:
         arguments.append(Utils::QtcProcess::splitArgs(r.commandLineArguments));
         r.commandLineArguments = Utils::QtcProcess::joinArgs(arguments);
 
+        setRunnable(r);
+
         SimpleTargetRunner::start();
     }
 
@@ -102,9 +104,9 @@ QnxDebugSupport::QnxDebugSupport(RunControl *runControl)
     debuggeeRunner->addStartDependency(m_portsGatherer);
 
     auto slog2InfoRunner = new Slog2InfoRunner(runControl);
-    slog2InfoRunner->addStartDependency(debuggeeRunner);
+    debuggeeRunner->addStartDependency(slog2InfoRunner);
 
-    addStartDependency(slog2InfoRunner);
+    addStartDependency(debuggeeRunner);
 }
 
 void QnxDebugSupport::start()
@@ -136,15 +138,9 @@ void QnxDebugSupport::start()
     if (qtVersion)
         params.solibSearchPath = QnxUtils::searchPaths(qtVersion);
 
-    reportStarted();
-}
+    setStartParameters(params);
 
-void QnxDebugSupport::stop()
-{
-    // We have to kill the inferior process, as invoking "kill" in
-    // gdb doesn't work on QNX gdb.
-    auto stdRunnable = runnable().as<StandardRunnable>();
-    device()->signalOperation()->killProcess(stdRunnable.executable);
+    DebuggerRunTool::start();
 }
 
 } // namespace Internal

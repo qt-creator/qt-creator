@@ -47,5 +47,7 @@
             integration
         \li \l{http://doc.qt.io/QtForDeviceCreation/index.html}{Developing for
             embedded devices}
+        \li \l{http://doc.qt.io/qtcreator/creator-overview-qtasam.html}
+            {Qt Application Manager} integration
     \endlist
 */

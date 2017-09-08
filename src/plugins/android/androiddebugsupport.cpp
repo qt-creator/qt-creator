@@ -55,7 +55,7 @@ namespace Internal {
 static const char * const qMakeVariables[] = {
          "QT_INSTALL_LIBS",
          "QT_INSTALL_PLUGINS",
-         "QT_INSTALL_IMPORTS"
+         "QT_INSTALL_QML"
 };
 
 static QStringList qtSoPaths(QtSupport::BaseQtVersion *qtVersion)

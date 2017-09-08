@@ -26,6 +26,8 @@
 #include <QtGlobal>
 #include <clang-c/Index.h>
 
+#include <clangbackend_global.h>
+
 #ifdef Q_OS_WIN
 #  define DISABLED_ON_WINDOWS(x) DISABLED_##x
 #else
@@ -36,4 +38,10 @@
 #  define DISABLED_ON_CLANG3(x) DISABLED_##x
 #else
 #  define DISABLED_ON_CLANG3(x) x
+#endif
+
+#ifdef IS_SUSPEND_SUPPORTED
+#  define DISABLED_WITHOUT_SUSPEND_PATCH(x) x
+#else
+#  define DISABLED_WITHOUT_SUSPEND_PATCH(x) DISABLED_##x
 #endif
