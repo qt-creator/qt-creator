@@ -58,7 +58,7 @@ public:
 
     void clear();
 
-    void setTime(qint64 startTime, qint64 endTime);
+    void update(qint64 time);
     void decreaseStartTime(qint64 time);
     void increaseEndTime(qint64 time);
     void restrictToRange(qint64 startTime, qint64 endTime);

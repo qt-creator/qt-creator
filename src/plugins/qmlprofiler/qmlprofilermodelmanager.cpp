@@ -92,18 +92,23 @@ bool QmlProfilerTraceTime::isRestrictedToRange() const
 void QmlProfilerTraceTime::clear()
 {
     restrictToRange(-1, -1);
-    setTime(-1, -1);
+    m_startTime = -1;
+    m_endTime = -1;
 }
 
-void QmlProfilerTraceTime::setTime(qint64 startTime, qint64 endTime)
+void QmlProfilerTraceTime::update(qint64 time)
 {
-    QTC_ASSERT(startTime <= endTime, endTime = startTime);
-    m_startTime = startTime;
-    m_endTime = endTime;
+    QTC_ASSERT(time >= 0, return);
+    if (m_startTime > time || m_startTime == -1)
+        m_startTime = time;
+    if (m_endTime < time || m_endTime == -1)
+        m_endTime = time;
+    QTC_ASSERT(m_endTime >= m_startTime, m_startTime = m_endTime);
 }
 
 void QmlProfilerTraceTime::decreaseStartTime(qint64 time)
 {
+    QTC_ASSERT(time >= 0, return);
     if (m_startTime > time || m_startTime == -1) {
         m_startTime = time;
         if (m_endTime == -1)
@@ -115,6 +120,7 @@ void QmlProfilerTraceTime::decreaseStartTime(qint64 time)
 
 void QmlProfilerTraceTime::increaseEndTime(qint64 time)
 {
+    QTC_ASSERT(time >= 0, return);
     if (m_endTime < time || m_endTime == -1) {
         m_endTime = time;
         if (m_startTime == -1)
@@ -244,6 +250,7 @@ void QmlProfilerModelManager::addEvents(const QVector<QmlEvent> &events)
 {
     for (const QmlEvent &event : events) {
         d->eventStream << event;
+        d->traceTime->update(event.timestamp());
         d->dispatch(event, d->eventTypes[event.typeIndex()]);
     }
 }
@@ -251,6 +258,7 @@ void QmlProfilerModelManager::addEvents(const QVector<QmlEvent> &events)
 void QmlProfilerModelManager::addEvent(const QmlEvent &event)
 {
     d->eventStream << event;
+    d->traceTime->update(event.timestamp());
     QTC_ASSERT(event.typeIndex() < d->eventTypes.size(),
                d->eventTypes.resize(event.typeIndex() + 1));
     d->dispatch(event, d->eventTypes.at(event.typeIndex()));
@@ -606,7 +614,10 @@ void QmlProfilerModelManager::load(const QString &filename)
             this, &QmlProfilerModelManager::addEvents);
 
     connect(reader, &QmlProfilerFileReader::success, this, [this, reader]() {
-        d->traceTime->setTime(reader->traceStart(), reader->traceEnd());
+        if (reader->traceStart() >= 0)
+            d->traceTime->decreaseStartTime(reader->traceStart());
+        if (reader->traceEnd() >= 0)
+            d->traceTime->increaseEndTime(reader->traceEnd());
         setRecordedFeatures(reader->loadedFeatures());
         delete reader;
         acquiringDone();

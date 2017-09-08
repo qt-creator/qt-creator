@@ -44,7 +44,7 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
         subtype = -1;
     }
 
-    event.event.setTimestamp(time);
+    event.event.setTimestamp(time > 0 ? time : 0);
     event.event.setTypeIndex(-1);
     event.serverTypeId = 0;
 

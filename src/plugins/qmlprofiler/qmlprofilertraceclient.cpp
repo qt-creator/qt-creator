@@ -247,7 +247,7 @@ void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
                        const QmlDebug::QDebugContextInfo &context)
         {
             d->updateFeatures(ProfileDebugMessages);
-            d->currentEvent.event.setTimestamp(context.timestamp);
+            d->currentEvent.event.setTimestamp(context.timestamp > 0 ? context.timestamp : 0);
             d->currentEvent.event.setTypeIndex(-1);
             d->currentEvent.event.setString(text);
             d->currentEvent.type = QmlEventType(DebugMessage, MaximumRangeType, type,

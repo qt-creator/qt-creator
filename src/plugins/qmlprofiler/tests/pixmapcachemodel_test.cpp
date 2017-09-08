@@ -38,7 +38,8 @@ PixmapCacheModelTest::PixmapCacheModelTest(QObject *parent) : QObject(parent),
 void PixmapCacheModelTest::initTestCase()
 {
     manager.startAcquiring();
-    manager.traceTime()->setTime(1, 300);
+    manager.traceTime()->decreaseStartTime(1);
+    manager.traceTime()->increaseEndTime(300);
 
     for (int i = 0; i < MaximumPixmapEventType; ++i) {
         eventTypeIndices[i] = manager.numLoadedEventTypes();

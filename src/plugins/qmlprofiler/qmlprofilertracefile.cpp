@@ -257,6 +257,8 @@ void QmlProfilerFileReader::loadQzt(QIODevice *device)
                     return;
                 }
                 m_loadedFeatures |= (1ULL << m_eventTypes[event.typeIndex()].feature());
+                if (event.timestamp() < 0)
+                    event.setTimestamp(0);
             } else if (bufferStream.status() == QDataStream::ReadPastEnd) {
                 break; // Apparently EOF is a character so we end up here after the last event.
             } else if (bufferStream.status() == QDataStream::ReadCorruptData) {
@@ -506,15 +508,16 @@ void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
                     continue;
                 }
 
-                event.setTimestamp(attributes.value(_("startTime")).toLongLong());
+                const qint64 timestamp = attributes.value(_("startTime")).toLongLong();
+                event.setTimestamp(timestamp > 0 ? timestamp : 0);
                 event.setTypeIndex(attributes.value(_("eventIndex")).toInt());
 
                 if (attributes.hasAttribute(_("duration"))) {
                     event.setRangeStage(RangeStart);
                     QmlEvent rangeEnd(event);
                     rangeEnd.setRangeStage(RangeEnd);
-                    rangeEnd.setTimestamp(event.timestamp()
-                                          + attributes.value(_("duration")).toLongLong());
+                    const qint64 duration = attributes.value(_("duration")).toLongLong();
+                    rangeEnd.setTimestamp(event.timestamp() + (duration > 0 ? duration : 0));
                     events.addRange(event, rangeEnd);
                 } else {
                     // attributes for special events
