@@ -66,7 +66,6 @@ public:
     QByteArray data() const;
 
 private:
-    void init(QIODevice::OpenMode mode);
     QBuffer buf;
 };
 
