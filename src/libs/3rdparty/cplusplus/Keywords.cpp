@@ -255,8 +255,8 @@ static inline int classify5(const char *s, LanguageFeatures features)
       }
     }
   }
-  else if (features.cxxEnabled && s[0] == 'f') {
-    if (s[1] == 'a') {
+  else if (s[0] == 'f') {
+    if (features.cxxEnabled && s[1] == 'a') {
       if (s[2] == 'l') {
         if (s[3] == 's') {
           if (s[4] == 'e') {
