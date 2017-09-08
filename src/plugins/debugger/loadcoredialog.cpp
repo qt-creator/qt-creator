@@ -28,7 +28,7 @@
 #include "debuggerstartparameters.h"
 #include "debuggerdialogs.h"
 #include "debuggerkitinformation.h"
-#include "gdb/coregdbadapter.h"
+#include "gdb/gdbengine.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -364,7 +364,7 @@ void AttachCoreDialog::coreFileChanged(const QString &core)
         Kit *k = d->kitChooser->currentKit();
         QTC_ASSERT(k, return);
         StandardRunnable debugger = DebuggerKitInformation::runnable(k);
-        GdbCoreEngine::CoreInfo cinfo = GdbCoreEngine::readExecutableNameFromCore(debugger, core);
+        CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(debugger, core);
         if (!cinfo.foundExecutableName.isEmpty())
             d->localExecFileName->setFileName(FileName::fromString(cinfo.foundExecutableName));
         else if (!d->localExecFileName->isValid() && !cinfo.rawStringFromCore.isEmpty())
