@@ -131,11 +131,12 @@ void QnxAttachDebugSupport::attachToProcess()
         sp.solibSearchPath = QnxUtils::searchPaths(qtVersion);
 
     auto runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    (void) new Debugger::DebuggerRunTool(runControl, sp);
+    auto debugger = new Debugger::DebuggerRunTool(runControl);
+    debugger->setRunParameters(sp);
 //    connect(qobject_cast<Debugger::DebuggerRunTool *>(runControl->toolRunner()),
 //            &Debugger::DebuggerRunTool::stateChanged,
 //            this, &QnxAttachDebugSupport::handleDebuggerStateChanged);
-    ProjectExplorerPlugin::startRunControl(runControl);
+    debugger->startRunControl();
 }
 
 void QnxAttachDebugSupport::handleDebuggerStateChanged(Debugger::DebuggerState state)

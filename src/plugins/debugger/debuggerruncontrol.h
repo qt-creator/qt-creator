@@ -34,19 +34,12 @@
 
 namespace Debugger {
 
-class DebuggerStartParameters;
-
 class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 
 public:
-    DebuggerRunTool(ProjectExplorer::RunControl *runControl); // Use.
-
-    DebuggerRunTool(ProjectExplorer::RunControl *runControl,
-                    const DebuggerStartParameters &sp); // Use rarely.
-    DebuggerRunTool(ProjectExplorer::RunControl *runControl,
-                    const Internal::DebuggerRunParameters &rp); // FIXME: Don't use.
+    explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl);
     ~DebuggerRunTool();
 
     void setRunParameters(const Internal::DebuggerRunParameters &rp); // FIXME: Don't use.
@@ -55,7 +48,7 @@ public:
     Internal::DebuggerEngine *activeEngine() const;
 
     static DebuggerRunTool *createFromRunConfiguration(ProjectExplorer::RunConfiguration *runConfig);
-    static DebuggerRunTool *createFromKit(ProjectExplorer::Kit *kit);
+    static DebuggerRunTool *createFromKit(ProjectExplorer::Kit *kit); // Avoid, it's guessing.
     void startRunControl();
 
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);

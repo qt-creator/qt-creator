@@ -792,18 +792,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
         m_runParameters.inferior = r.as<StandardRunnable>();
 }
 
-DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerStartParameters &sp)
-    : DebuggerRunTool(runControl)
-{
-    setRunParameters(sp);
-}
-
-DebuggerRunTool::DebuggerRunTool(RunControl *runControl, const DebuggerRunParameters &rp)
-    : DebuggerRunTool(runControl)
-{
-    setRunParameters(rp);
-}
-
 void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp)
 {
     m_runParameters = rp;

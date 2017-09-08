@@ -3710,14 +3710,13 @@ void DebuggerUnitTests::testStateMachine()
     rp.inferior = rc->runnable().as<StandardRunnable>();
     rp.testCase = TestNoBoundsOfCurrentFunction;
 
-    auto runControl = new RunControl(rc, ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    auto runTool = new DebuggerRunTool(runControl, rp);
+    auto debugger = DebuggerRunTool::createFromRunConfiguration(rc);
+    debugger->setRunParameters(rp);
 
-    connect(runTool, &DebuggerRunTool::stopped, this, [] {
-        QTestEventLoop::instance().exitLoop();
-    });
+    connect(debugger, &DebuggerRunTool::stopped,
+            &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
 
-    ProjectExplorerPlugin::startRunControl(runControl);
+    debugger->startRunControl();
 
     QTestEventLoop::instance().enterLoop(5);
 }
