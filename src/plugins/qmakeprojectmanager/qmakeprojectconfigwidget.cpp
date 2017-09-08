@@ -104,7 +104,7 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     });
     connect(project, &Project::activeProjectConfigurationChanged,
             this, [this](ProjectConfiguration *pc) {
-        if (pc->isActive())
+        if (pc && pc->isActive())
             environmentChanged();
     });
     connect(project, &QmakeProject::buildDirectoryInitialized,

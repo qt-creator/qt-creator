@@ -258,7 +258,7 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
     });
     connect(pro, &Project::activeProjectConfigurationChanged,
             this, [this](ProjectConfiguration *pc) {
-        if (pc->isActive()) {
+        if (pc && pc->isActive()) {
             updateMakeOverrideLabel();
             updateDetails();
         }

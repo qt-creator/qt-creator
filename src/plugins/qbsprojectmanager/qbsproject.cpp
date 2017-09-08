@@ -146,7 +146,7 @@ QbsProject::QbsProject(const FileName &fileName) :
     });
     connect(this, &Project::activeProjectConfigurationChanged,
             this, [this](ProjectConfiguration *pc) {
-        if (pc->isActive())
+        if (pc && pc->isActive())
             startParsing();
     });
 

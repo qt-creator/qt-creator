@@ -242,7 +242,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep) :
     });
     connect(makeStep->project(), &Project::activeProjectConfigurationChanged,
             this, [this](ProjectConfiguration *pc) {
-        if (pc->isActive())
+        if (pc && pc->isActive())
             updateDetails();
     });
 }
