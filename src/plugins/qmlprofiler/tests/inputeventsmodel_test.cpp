@@ -32,6 +32,11 @@
 namespace QmlProfiler {
 namespace Internal {
 
+static InputEventType inputType(int i)
+{
+    return static_cast<InputEventType>(i % (MaximumInputEventType + 1));
+}
+
 InputEventsModelTest::InputEventsModelTest(QObject *parent) :
     QObject(parent), manager(nullptr), model(&manager)
 {
@@ -48,13 +53,14 @@ void InputEventsModelTest::initTestCase()
 
     for (int i = 0; i < 10; ++i) {
         event.setTimestamp(i);
-        InputEventType type = static_cast<InputEventType>(i % MaximumInputEventType);
+        InputEventType type = inputType(i);
         event.setTypeIndex(type <= InputKeyUnknown ? keyTypeId : mouseTypeId);
         event.setNumbers({static_cast<qint32>(type),
                           (i * 32) % 256,
                           static_cast<qint32>((i * 0x02000000) & Qt::KeyboardModifierMask)});
         manager.addEvent(event);
     }
+
     manager.acquiringDone();
     QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
 }
@@ -71,7 +77,7 @@ void InputEventsModelTest::testAccepted()
 void InputEventsModelTest::testTypeId()
 {
     for (int i = 0; i < 10; ++i) {
-        InputEventType type = static_cast<InputEventType>(i % MaximumInputEventType);
+        InputEventType type = inputType(i);
         QCOMPARE(model.typeId(i), type <= InputKeyUnknown ? keyTypeId : mouseTypeId);
     }
 }
@@ -81,7 +87,7 @@ void InputEventsModelTest::testColor()
     QRgb keyColor = 0;
     QRgb mouseColor = 0;
     for (int i = 0; i < 10; ++i) {
-        InputEventType type = static_cast<InputEventType>(i % MaximumInputEventType);
+        InputEventType type = inputType(i);
         int selectionId = (type <= InputKeyUnknown ? Key : Mouse);
         QCOMPARE(selectionId, model.selectionId(i));
 
@@ -112,7 +118,7 @@ void InputEventsModelTest::testDetails()
         QCOMPARE(details[model.tr("Timestamp")].toString(), Timeline::formatTime(i));
         QString displayName = details[QString("displayName")].toString();
         QVERIFY(!displayName.isEmpty());
-        switch (static_cast<InputEventType>(i % MaximumInputEventType)) {
+        switch (inputType(i)) {
         case InputKeyPress:
             QCOMPARE(displayName, model.tr("Key Press"));
             if (i == 0) {
@@ -177,7 +183,7 @@ void InputEventsModelTest::testDetails()
             QVERIFY(!details.contains(model.tr("Result")));
             break;
         default:
-            Q_UNREACHABLE();
+            QCOMPARE(displayName, model.tr("Unknown"));
             break;
         }
     }
@@ -186,7 +192,7 @@ void InputEventsModelTest::testDetails()
 void InputEventsModelTest::testExpandedRow()
 {
     for (int i = 0; i < 10; ++i) {
-        InputEventType type = static_cast<InputEventType>(i % MaximumInputEventType);
+        InputEventType type = inputType(i);
         QCOMPARE(model.expandedRow(i), (type <= InputKeyUnknown ? 2 : 1));
     }
 }

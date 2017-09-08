@@ -126,7 +126,7 @@ QVariantMap InputEventsModel::details(int index) const
         type = tr("Mouse Event");
         break;
     default:
-        Q_UNREACHABLE();
+        type = tr("Unknown");
         break;
     }
 
