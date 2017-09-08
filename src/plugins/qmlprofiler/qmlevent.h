@@ -290,9 +290,12 @@ private:
             m_dataType = static_cast<Type>(sizeof(Number) * 8);
             data = static_cast<Number *>(m_dataType & External ? m_data.external : &m_data);
         }
-        quint16 i = 0; // If you really have more than 64k items, this will wrap. Too bad.
-        foreach (Number item, numbers)
+        quint16 i = 0;
+        for (Number item : numbers) {
+            if (i >= m_dataLength)
+                break;
             data[i++] = item;
+        }
     }
 
     void clearPointer()

@@ -39,6 +39,7 @@ public:
 private slots:
     void testCtors();
     void testNumbers();
+    void testMaxSize();
     void testStreamOps();
 
 };

@@ -28,6 +28,8 @@
 #include <QList>
 #include <QQueue>
 
+#include <cstring>
+
 namespace QmlProfiler {
 namespace Internal {
 
@@ -114,6 +116,22 @@ void QmlEventTest::testNumbers()
     QCOMPARE(event.number<qint32>(3), 0xffffff);
     QCOMPARE(event.number<qint64>(4), std::numeric_limits<qint64>::max());
     QCOMPARE(event.number<qint64>(5), 0LL);
+}
+
+void QmlEventTest::testMaxSize()
+{
+    const qint8 marker1 = 0xee;
+    const qint8 marker2 = 0xbb;
+    QmlEvent event;
+    QVarLengthArray<qint8> numbers(1 << 17);
+    std::memset(numbers.data(), 0, (1 << 17));
+    numbers[0] = marker1;
+    numbers[(1 << 16) - 2] = marker2;
+    event.setNumbers<QVarLengthArray<qint8>, qint8>(numbers);
+    const auto result = event.numbers<QVarLengthArray<qint8>, qint8>();
+    QCOMPARE(result.size(), (1 << 16) - 1);
+    QCOMPARE(result[0], marker1);
+    QCOMPARE(result[(1 << 16) - 2], marker2);
 }
 
 void QmlEventTest::testStreamOps()
