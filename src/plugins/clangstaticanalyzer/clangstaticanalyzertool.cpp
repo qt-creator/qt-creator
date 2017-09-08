@@ -75,6 +75,7 @@ public:
     {
         initialize("ClangStaticAnalyzer.DummyRunConfig");
         setDefaultDisplayName(tr("Clang Static Analyzer"));
+        setEnabled(true);
     }
 
 private:
