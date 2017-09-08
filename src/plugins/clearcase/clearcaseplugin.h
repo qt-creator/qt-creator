@@ -199,6 +199,7 @@ private:
     void syncSlot();
     Q_INVOKABLE void updateStatusActions();
 
+    QString commitDisplayName() const final;
     void checkOutCurrentFile();
     void addCurrentFile();
     void undoCheckOutCurrent();

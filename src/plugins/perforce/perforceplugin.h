@@ -113,6 +113,7 @@ private slots:
 #endif
 
 private:
+    QString commitDisplayName() const final;
     void p4Diff(const PerforceDiffParameters &p);
 
     void openCurrentFile();

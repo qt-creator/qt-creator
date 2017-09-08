@@ -926,6 +926,9 @@ void GitPlugin::gitGui()
 
 void GitPlugin::startCommit(CommitType commitType)
 {
+    if (!promptBeforeCommit())
+        return;
+
     if (raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {

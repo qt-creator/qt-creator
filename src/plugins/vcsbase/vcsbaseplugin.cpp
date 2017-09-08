@@ -641,6 +641,16 @@ bool VcsBasePlugin::enableMenuAction(ActionState as, QAction *menuAction) const
     return true;
 }
 
+QString VcsBasePlugin::commitDisplayName() const
+{
+    return tr("commit", "name of \"commit\" action of the VCS.");
+}
+
+bool VcsBasePlugin::promptBeforeCommit()
+{
+    return DocumentManager::saveAllModifiedDocuments(tr("Save before %1?").arg(commitDisplayName());
+}
+
 void VcsBasePlugin::promptToDeleteCurrentFile()
 {
     const VcsBasePluginState state = currentState();

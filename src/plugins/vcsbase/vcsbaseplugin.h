@@ -178,6 +178,11 @@ public:
                                                     const QProcessEnvironment &env = QProcessEnvironment());
 
 protected:
+    // Display name of the commit action:
+    virtual QString commitDisplayName() const;
+    // Prompt to save all files before commit:
+    bool promptBeforeCommit();
+
     // Convenience slot for "Delete current file" action. Prompts to
     // delete the file via VcsManager.
     void promptToDeleteCurrentFile();

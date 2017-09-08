@@ -556,6 +556,8 @@ void PerforcePlugin::printOpenedFileList()
 
 void PerforcePlugin::startSubmitProject()
 {
+    if (!promptBeforeCommit())
+        return;
 
     if (raiseSubmitEditor())
         return;
@@ -1223,6 +1225,11 @@ void PerforceDiffConfig::triggerReRun()
     PerforceDiffParameters effectiveParameters = m_parameters;
     effectiveParameters.diffArguments = arguments();
     emit reRunDiff(effectiveParameters);
+}
+
+QString PerforcePlugin::commitDisplayName() const
+{
+    return tr("submit", "\"commit\" action for perforce");
 }
 
 void PerforcePlugin::p4Diff(const QString &workingDir, const QStringList &files)

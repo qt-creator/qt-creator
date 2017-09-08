@@ -837,6 +837,11 @@ void ClearCasePlugin::updateActions(VcsBasePlugin::ActionState as)
     updateStatusActions();
 }
 
+QString ClearCasePlugin::commitDisplayName() const
+{
+    return tr("check in", "\"commit\" action for ClearCase.");
+}
+
 void ClearCasePlugin::checkOutCurrentFile()
 {
     const VcsBasePluginState state = currentState();
@@ -1206,6 +1211,9 @@ void ClearCasePlugin::startCheckInActivity()
  * check in will start. */
 void ClearCasePlugin::startCheckIn(const QString &workingDir, const QStringList &files)
 {
+    if (!promptBeforeCommit())
+        return;
+
     if (raiseSubmitEditor())
         return;
 

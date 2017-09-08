@@ -651,6 +651,9 @@ void CvsPlugin::startCommitAll()
  * commit will start. */
 void CvsPlugin::startCommit(const QString &workingDir, const QString &file)
 {
+    if (!promptBeforeCommit())
+        return;
+
     if (raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {

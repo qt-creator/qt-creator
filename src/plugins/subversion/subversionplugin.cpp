@@ -642,6 +642,9 @@ void SubversionPlugin::startCommitProject()
  * commit will start. */
 void SubversionPlugin::startCommit(const QString &workingDir, const QStringList &files)
 {
+    if (!promptBeforeCommit())
+        return;
+
     if (raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {

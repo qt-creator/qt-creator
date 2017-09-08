@@ -37,12 +37,12 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/id.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <coreplugin/locator/commandlocator.h>
@@ -494,6 +494,9 @@ void MercurialPlugin::createSubmitEditorActions()
 
 void MercurialPlugin::commit()
 {
+    if (!promptBeforeCommit())
+        return;
+
     if (raiseSubmitEditor())
         return;
 

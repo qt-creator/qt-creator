@@ -509,6 +509,9 @@ void BazaarPlugin::createSubmitEditorActions()
 
 void BazaarPlugin::commit()
 {
+    if (!promptBeforeCommit()))
+        return;
+
     if (raiseSubmitEditor())
         return;
 
