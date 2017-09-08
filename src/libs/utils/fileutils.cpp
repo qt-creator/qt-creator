@@ -592,7 +592,6 @@ QString FileName::fileName(int pathComponents) const
     if (pathComponents < 0)
         return *this;
     const QChar slash = QLatin1Char('/');
-    QTC_CHECK(!endsWith(slash));
     int i = lastIndexOf(slash);
     if (pathComponents == 0 || i == -1)
         return mid(i + 1);
