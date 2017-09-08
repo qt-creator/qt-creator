@@ -1022,9 +1022,8 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
         return result;
     const FileName canonicalPath = FileUtils::canonicalPath(compilerPath);
 
-    result = Utils::filtered(alreadyKnown, [requiredTypeId, canonicalPath](ToolChain *tc) {
-        return tc->typeId() == requiredTypeId
-                && FileUtils::canonicalPath(tc->compilerCommand()) == canonicalPath;
+    result = Utils::filtered(alreadyKnown, [requiredTypeId, compilerPath](ToolChain *tc) {
+        return tc->typeId() == requiredTypeId && tc->compilerCommand() == compilerPath;
     });
     if (!result.isEmpty()) {
         for (ToolChain *tc : result) {
