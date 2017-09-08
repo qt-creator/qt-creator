@@ -30,10 +30,10 @@
       <item>
        <widget class="QCheckBox" name="ignorePCHCheckBox">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When pre-compiled headers are not ignored, the parsing for code completion and semantic highlighting will process the pre-compiled header before processing any file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When precompiled headers are not ignored, the parsing for code completion and semantic highlighting will process the precompiled header before processing any file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>Ignore pre-compiled headers</string>
+         <string>Ignore precompiled headers</string>
         </property>
        </widget>
       </item>
