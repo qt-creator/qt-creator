@@ -57,6 +57,7 @@ void tst_CamelHumpMatcher::camelHumpMatcher_data()
     QTest::addColumn<int>("expectedIndex");
 
     QTest::newRow("underscore") << "vl" << "very_long_camel_hump" << 0;
+    QTest::newRow("underscore-uppercase") << "vl" << "VERY_LONG_CAMEL_HUMP" << 0;
     QTest::newRow("exact") << "VeryLongCamelHump" << "VeryLongCamelHump" << 0;
     QTest::newRow("prefix-segments") << "velo" << "very_long_Camel_hump" << 0;
     QTest::newRow("humps") << "vlc" << "VeryLongCamelHump" << 0;
@@ -74,6 +75,7 @@ void tst_CamelHumpMatcher::camelHumpMatcher_data()
     QTest::newRow("no-partial") << "NCH" << "LongCamelHump" << -1;
     QTest::newRow("middle-after-number") << "CH" << "Long1CamelHump" << 5;
     QTest::newRow("middle-after-underscore") << "CH" << "long_camel_hump" << 5;
+    QTest::newRow("middle-after-underscore-uppercase") << "CH" << "LONG_CAMEL_HUMP" << 5;
     QTest::newRow("middle-continued") << "cahu" << "LongCamelHump" << 4;
 }
 
