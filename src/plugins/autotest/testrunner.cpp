@@ -31,6 +31,7 @@
 #include "testrunconfiguration.h"
 #include "testsettings.h"
 #include "testoutputreader.h"
+#include "testtreeitem.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
@@ -104,6 +105,28 @@ void TestRunner::setSelectedTests(const QList<TestConfiguration *> &selected)
      qDeleteAll(m_selectedTests);
      m_selectedTests.clear();
      m_selectedTests = selected;
+}
+
+void TestRunner::runTest(TestRunMode mode, const TestTreeItem *item)
+{
+    TestConfiguration *configuration;
+    switch (mode) {
+    case TestRunMode::Run:
+    case TestRunMode::RunWithoutDeploy:
+        configuration = item->testConfiguration();
+        break;
+    case TestRunMode::Debug:
+    case TestRunMode::DebugWithoutDeploy:
+        configuration = item->debugConfiguration();
+        break;
+    default:
+        configuration = nullptr;
+    }
+
+    if (configuration) {
+        setSelectedTests({configuration});
+        prepareToRunTests(mode);
+    }
 }
 
 static QString processInformation(const QProcess &proc)

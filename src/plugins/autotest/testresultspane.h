@@ -52,6 +52,7 @@ namespace Internal {
 
 class TestResultModel;
 class TestResultFilterModel;
+class TestResult;
 
 class ResultsTreeView : public Utils::TreeView
 {
@@ -109,9 +110,11 @@ private:
     void onScrollBarRangeChanged(int, int max);
     void updateRunActions();
     void onCustomContextMenuRequested(const QPoint &pos);
-    void onCopyItemTriggered(const QModelIndex &idx);
+    const TestResult *getTestResult(const QModelIndex &idx);
+    void onCopyItemTriggered(const TestResult *result);
     void onCopyWholeTriggered();
     void onSaveWholeTriggered();
+    void onRunThisTestTriggered(TestRunMode runMode, const TestResult *result);
     void toggleOutputStyle();
     QString getWholeOutput(const QModelIndex &parent = QModelIndex());
 

@@ -301,25 +301,7 @@ void TestNavigationWidget::onRunThisTestTriggered(TestRunMode runMode)
         return;
 
     TestTreeItem *item = static_cast<TestTreeItem *>(sourceIndex.internalPointer());
-    TestConfiguration *configuration;
-    switch (runMode) {
-    case TestRunMode::Run:
-    case TestRunMode::RunWithoutDeploy:
-        configuration = item->testConfiguration();
-        break;
-    case TestRunMode::Debug:
-    case TestRunMode::DebugWithoutDeploy:
-        configuration = item->debugConfiguration();
-        break;
-    default:
-        configuration = nullptr;
-    }
-
-    if (configuration) {
-        TestRunner *runner = TestRunner::instance();
-        runner->setSelectedTests({configuration});
-        runner->prepareToRunTests(runMode);
-    }
+    TestRunner::instance()->runTest(runMode, item);
 }
 
 TestNavigationWidgetFactory::TestNavigationWidgetFactory()
