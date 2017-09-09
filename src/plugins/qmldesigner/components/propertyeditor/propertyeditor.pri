@@ -27,5 +27,3 @@ HEADERS += propertyeditorview.h \
     qmlmodelnodeproxy.h
 
 QT += qml quick
-
-RESOURCES += propertyeditor.qrc

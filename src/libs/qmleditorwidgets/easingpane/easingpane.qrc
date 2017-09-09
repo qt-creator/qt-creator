@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/">
         <file>qt_logo.png</file>
-        <file>playicon.png</file>
-        <file>stopicon.png</file>
     </qresource>
 </RCC>

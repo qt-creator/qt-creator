@@ -102,8 +102,10 @@ NavigatorView::NavigatorView(QObject* parent) :
                                          Icons::EXPORT_UNCHECKED.pixmap());
 
 #ifdef _LOCK_ITEMS_
-    IconCheckboxItemDelegate *lockDelegate = new IconCheckboxItemDelegate(this,":/qmldesigner/images/lock.png",
-                                                                          ":/qmldesigner/images/hole.png",m_treeModel.data());
+    IconCheckboxItemDelegate *lockDelegate =
+            new IconCheckboxItemDelegate(this,
+                                         Utils::Icons::LOCKED_TOOLBAR.pixmap(),
+                                         Utils::Icons::UNLOCKED_TOOLBAR.pixmap());
 #endif
 
 

@@ -26,6 +26,7 @@
 #include "easingcontextpane.h"
 #include "ui_easingcontextpane.h"
 #include <qmljs/qmljspropertyreader.h>
+#include <utils/utilsicons.h>
 
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
@@ -124,9 +125,7 @@ EasingContextPane::EasingContextPane(QWidget *parent) :
     m_easingGraph->raise();
     setLinear();
 
-    ui->playButton->setIcon(QIcon(QLatin1String(":/playicon.png")));
-
-
+    ui->playButton->setIcon(Utils::Icons::RUN_SMALL.icon());
 
     setGraphDisplayMode(GraphMode);
 
@@ -228,14 +227,14 @@ void EasingContextPane::startAnimation()
         m_simulation->stop();
     } else {
         m_simulation->animate(ui->durationSpinBox->value(), m_easingGraph->easingCurve());
-        ui->playButton->setIcon(QIcon(QLatin1String(":/stopicon.png")));
+        ui->playButton->setIcon(Utils::Icons::STOP_SMALL.icon());
     }
 
 }
 
 void EasingContextPane::switchToGraph()
 {
-    ui->playButton->setIcon(QIcon(QLatin1String(":/playicon.png")));
+    ui->playButton->setIcon(Utils::Icons::RUN_SMALL.icon());
     setGraphDisplayMode(GraphMode);
 }
 
