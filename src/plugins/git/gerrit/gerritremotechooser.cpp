@@ -80,6 +80,11 @@ void GerritRemoteChooser::setFallbackEnabled(bool value)
     m_enableFallback = value;
 }
 
+void GerritRemoteChooser::setAllowDups(bool value)
+{
+    m_allowDups = value;
+}
+
 bool GerritRemoteChooser::setCurrentRemote(const QString &remoteName)
 {
     for (int i = 0, total = m_remoteComboBox->count(); i < total; ++i) {
@@ -118,9 +123,11 @@ bool GerritRemoteChooser::updateRemotes(bool forceReload)
 
 void GerritRemoteChooser::addRemote(const GerritServer &server, const QString &name)
 {
-    for (auto remote : m_remotes) {
-        if (remote.second == server)
-            return;
+    if (!m_allowDups) {
+        for (auto remote : m_remotes) {
+            if (remote.second == server)
+                return;
+        }
     }
     m_remoteComboBox->addItem(server.host + QString(" (%1)").arg(name));
     m_remotes.push_back({ name, server });
