@@ -68,6 +68,8 @@ QRegularExpression CamelHumpMatcher::createCamelHumpRegExp(
     bool first = true;
     const QChar asterisk = '*';
     const QChar question = '?';
+    const QLatin1String uppercaseWordFirst("(?<=\\b|[a-z0-9_])");
+    const QLatin1String lowercaseWordFirst("(?<=\\b|[A-Z0-9_])");
     const QLatin1String uppercaseWordContinuation("[a-z0-9_]*");
     const QLatin1String lowercaseWordContinuation("(?:[a-zA-Z0-9]*_)?");
     for (const QChar &c : pattern) {
@@ -82,12 +84,10 @@ QRegularExpression CamelHumpMatcher::createCamelHumpRegExp(
             (caseSensitivity == CaseSensitivity::FirstLetterCaseSensitive && !first)) {
 
             keyRegExp += "(?:";
-            if (!first)
-                keyRegExp += uppercaseWordContinuation;
+            keyRegExp += first ? uppercaseWordFirst : uppercaseWordContinuation;
             keyRegExp += QRegularExpression::escape(c.toUpper());
             keyRegExp += '|';
-            if (!first)
-                keyRegExp += lowercaseWordContinuation;
+            keyRegExp += first ? lowercaseWordFirst : lowercaseWordContinuation;
             keyRegExp += QRegularExpression::escape(c.toLower());
             keyRegExp += ')';
         } else {
