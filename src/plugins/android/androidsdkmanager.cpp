@@ -82,12 +82,9 @@ static bool sdkManagerCommand(const AndroidConfig config, const QStringList &arg
     proc.setTimeoutS(timeout);
     proc.setTimeOutMessageBoxEnabled(true);
     SynchronousProcessResponse response = proc.run(sdkManagerToolPath, args);
-    if (response.result == SynchronousProcessResponse::Finished) {
-        if (output)
-            *output = response.allOutput();
-        return true;
-    }
-    return false;
+    if (output)
+        *output = response.allOutput();
+    return response.result == SynchronousProcessResponse::Finished;
 }
 
 /*!
