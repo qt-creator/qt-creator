@@ -64,12 +64,10 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
 
     QString filePath = data.filePath().toString();
     QTextCursor textCursor = data.cursor();
-    Utils::SmallStringVector commandLine{ClangCompilerOptionsBuilder::build(
-                    projectPart,
+    ClangCompilerOptionsBuilder clangCOBuilder{*projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR};
+    Utils::SmallStringVector commandLine{clangCOBuilder.build(
                     fileKindInProjectPart(projectPart, filePath),
-                    CppTools::getPchUsage(),
-                    CLANG_VERSION,
-                    CLANG_RESOURCE_DIR)};
+                    CppTools::getPchUsage())};
 
     commandLine.push_back(filePath);
 

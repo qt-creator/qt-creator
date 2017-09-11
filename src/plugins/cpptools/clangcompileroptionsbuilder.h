@@ -34,33 +34,24 @@ namespace CppTools {
 class CPPTOOLS_EXPORT ClangCompilerOptionsBuilder : public CompilerOptionsBuilder
 {
 public:
-    static QStringList build(const ProjectPart *projectPart,
-                             ProjectFile::Kind fileKind,
-                             PchUsage pchUsage,
-                             const QString &clangVersion,
-                             const QString &clangResourceDirectory);
+    QStringList build(ProjectFile::Kind fileKind,
+                      PchUsage pchUsage);
 
     ClangCompilerOptionsBuilder(const ProjectPart &projectPart,
-                                const QString &clangVersion,
-                                const QString &clangResourceDirectory);
+                                const QString &clangVersion = QString(),
+                                const QString &clangResourceDirectory = QString());
+
+    virtual void addPredefinedHeaderPathsOptions();
+    virtual void addExtraOptions();
 
     bool excludeHeaderPath(const QString &path) const override;
 
-    void addPredefinedMacrosAndHeaderPathsOptions();
-
-    void addPredefinedMacrosAndHeaderPathsOptionsForMsvc();
-
-    void addPredefinedMacrosAndHeaderPathsOptionsForNonMsvc();
-
-    void addWrappedQtHeadersIncludePath();
-
+    virtual void addWrappedQtHeadersIncludePath();
     void addProjectConfigFileInclude();
 
-    void addExtraOptions();
+    void undefineClangVersionMacrosForMsvc();
 private:
     QString clangIncludeDirectory() const;
-
-private:
     QString m_clangVersion;
     QString m_clangResourceDirectory;
 };

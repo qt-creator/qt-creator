@@ -125,7 +125,7 @@ void CompilerOptionsBuilder::addPrecompiledHeaderOptions(PchUsage pchUsage)
     m_options.append(result);
 }
 
-void CompilerOptionsBuilder::addToolchainAndProjectDefines()
+void CompilerOptionsBuilder::addToolchainAndProjectMacros()
 {
     addMacros(m_projectPart.toolChainMacros);
     addMacros(m_projectPart.projectMacros);
@@ -256,21 +256,6 @@ void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtension
         opts << QLatin1String("-fborland-extensions");
 
     m_options.append(opts);
-}
-
-void CompilerOptionsBuilder::addDefineToAvoidIncludingGccOrMinGwIntrinsics()
-{
-    // In gcc headers, lots of built-ins are referenced that clang does not understand.
-    // Therefore, prevent the inclusion of the header that references them. Of course, this
-    // will break if code actually requires stuff from there, but that should be the less common
-    // case.
-
-    const Core::Id type = m_projectPart.toolchainType;
-    if (type == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
-            || type == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID) {
-        addDefine({"_X86INTRIN_H_INCLUDED"});
-        addDefine({"BOOST_UUID_NO_SIMD"});
-    }
 }
 
 static QByteArray toMsCompatibilityVersionFormat(const QByteArray &mscFullVer)
