@@ -353,7 +353,7 @@ static const Terminal knownTerminals[] =
     {"urxvt", "-e"},
     {"xfce4-terminal", "-x"},
     {"konsole", "-e"},
-    {"gnome-terminal", "-x"}
+    {"gnome-terminal", "--"}
 };
 
 QString ConsoleProcess::defaultTerminalEmulator()
