@@ -175,6 +175,8 @@ Project {
             "indexitem.h",
             "insertionpointlocator.cpp",
             "insertionpointlocator.h",
+            "wrappablelineedit.cpp",
+            "wrappablelineedit.h",
             "projectinfo.cpp",
             "projectinfo.h",
             "projectpart.cpp",

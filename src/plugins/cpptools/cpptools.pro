@@ -89,7 +89,8 @@ HEADERS += \
     clangcompileroptionsbuilder.h \
     cppprojectpartchooser.h \
     cppsymbolinfo.h \
-    cursorineditor.h
+    cursorineditor.h \
+    wrappablelineedit.h \
 
 SOURCES += \
     abstracteditorsupport.cpp \
@@ -168,6 +169,7 @@ SOURCES += \
     cppprojectfilecategorizer.cpp \
     clangcompileroptionsbuilder.cpp \
     cppprojectpartchooser.cpp \
+    wrappablelineedit.cpp \
 
 FORMS += \
     clangdiagnosticconfigswidget.ui \

@@ -81,7 +81,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="diagnosticOptionsTextEdit"/>
+    <widget class="CppTools::WrappableLineEdit" name="diagnosticOptionsTextEdit"/>
    </item>
    <item>
     <widget class="QLabel" name="label">
@@ -95,6 +95,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CppTools::WrappableLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">cpptools/wrappablelineedit.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>configChooserComboBox</tabstop>
   <tabstop>copyButton</tabstop>
