@@ -500,50 +500,6 @@ void DebuggerRunTool::abortDebugger()
 
 namespace Internal {
 
-// Re-used for Combined C++/QML engine.
-DebuggerEngine *createEngine(DebuggerEngineType cppEngineType,
-                             DebuggerEngineType et,
-                             DebuggerStartMode sm,
-                             bool useTerminal,
-                             QStringList *errors)
-{
-    DebuggerEngine *engine = nullptr;
-    switch (et) {
-    case GdbEngineType:
-        engine = createGdbEngine(useTerminal, sm);
-        break;
-    case CdbEngineType:
-        engine = createCdbEngine(errors, sm);
-        break;
-    case PdbEngineType:
-        engine = createPdbEngine();
-        break;
-    case QmlEngineType:
-        engine = createQmlEngine(useTerminal);
-        break;
-    case LldbEngineType:
-        engine = createLldbEngine();
-        break;
-    case QmlCppEngineType: {
-        DebuggerEngine *cppEngine = createEngine(cppEngineType, cppEngineType, sm, useTerminal, errors);
-        if (cppEngine) {
-            engine = createQmlCppEngine(cppEngine, useTerminal);
-        } else {
-            errors->append(DebuggerPlugin::tr("The debugging engine required for combined "
-                              "QML/C++ debugging could not be created: %1"));
-        }
-        break;
-    }
-    default:
-        errors->append(DebuggerPlugin::tr("Unknown debugger type \"%1\"")
-                       .arg(engineTypeName(et)));
-    }
-    if (!engine)
-        errors->append(DebuggerPlugin::tr("Unable to create a debugging engine of the type \"%1\"").
-                       arg(engineTypeName(et)));
-    return engine;
-}
-
 static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, QStringList &m_errors)
 {
     RunConfiguration *runConfig = runControl->runConfiguration();
@@ -823,22 +779,54 @@ void DebuggerRunTool::setupEngine()
 //        return;
 //    }
 
-    if (Internal::fixupParameters(m_runParameters, runControl(), m_errors)) {
-        m_engine = createEngine(m_runParameters.cppEngineType,
-                                m_runParameters.masterEngineType,
-                                m_runParameters.startMode,
-                                m_runParameters.useTerminal,
-                                &m_errors);
-        if (!m_engine) {
-            reportFailure(m_errors.join('\n'));
-            return;
-        }
-
-        Utils::globalMacroExpander()->registerFileVariables(
-            "DebuggedExecutable", tr("Debugged executable"),
-            [this] { return m_runParameters.inferior.executable; }
-        );
+    if (!Internal::fixupParameters(m_runParameters, runControl(), m_errors)) {
+        reportFailure(m_errors.join('\n'));
+        return;
     }
+
+    DebuggerEngine *cppEngine = nullptr;
+    switch (m_runParameters.cppEngineType) {
+        case GdbEngineType:
+            cppEngine = createGdbEngine(m_runParameters.useTerminal, m_runParameters.startMode);
+            break;
+        case CdbEngineType:
+            cppEngine = createCdbEngine(&m_errors, m_runParameters.startMode);
+            break;
+        case LldbEngineType:
+            cppEngine = createLldbEngine();
+            break;
+        case PdbEngineType: // FIXME: Yes, Python counts as C++...
+            cppEngine = createPdbEngine();
+            break;
+        default:
+            QTC_CHECK(false);
+            break;
+    }
+
+    switch (m_runParameters.masterEngineType) {
+        case QmlEngineType:
+            m_engine = createQmlEngine(m_runParameters.useTerminal);
+            break;
+        case QmlCppEngineType:
+            if (cppEngine)
+                m_engine = createQmlCppEngine(cppEngine, m_runParameters.useTerminal);
+            break;
+        default:
+            m_engine = cppEngine;
+            break;
+    }
+
+    if (!m_engine) {
+        m_errors.append(DebuggerPlugin::tr("Unable to create a debugging engine of the type \"%1\"").
+                       arg(engineTypeName(m_runParameters.masterEngineType)));
+        reportFailure(m_errors.join('\n'));
+        return;
+    }
+
+    Utils::globalMacroExpander()->registerFileVariables(
+                "DebuggedExecutable", tr("Debugged executable"),
+                [this] { return m_runParameters.inferior.executable; }
+    );
 
     runControl()->setDisplayName(m_runParameters.displayName);
 
