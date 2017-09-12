@@ -102,6 +102,9 @@ public:
     {
     }
 
+    void setIndentSize(int size) { _formatter.setIndentSize(size); }
+    void setTabSize(int size) { _formatter.setTabSize(size); }
+
     QString operator()(Node *node)
     {
         Q_ASSERT(node == _doc->ast()); // comment handling fails otherwise
@@ -1307,5 +1310,13 @@ protected:
 QString QmlJS::reformat(const Document::Ptr &doc)
 {
     Rewriter rewriter(doc);
+    return rewriter(doc->ast());
+}
+
+QString QmlJS::reformat(const Document::Ptr &doc, int indentSize, int tabSize)
+{
+    Rewriter rewriter(doc);
+    rewriter.setIndentSize(indentSize);
+    rewriter.setTabSize(tabSize);
     return rewriter(doc->ast());
 }

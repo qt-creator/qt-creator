@@ -54,6 +54,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/tabsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/json.h>
 
@@ -258,8 +259,10 @@ void QmlJSEditorPlugin::reformatFile()
 
         if (!document->isParsedCorrectly())
             return;
-
-        const QString &newText = QmlJS::reformat(document);
+        TextEditor::TabSettings tabSettings = m_currentDocument->tabSettings();
+        const QString &newText = QmlJS::reformat(document,
+                                                 tabSettings.m_indentSize,
+                                                 tabSettings.m_tabSize);
         QmlJSEditorWidget *widget = EditorManager::currentEditor()
                 ? qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget())
                 : nullptr;
