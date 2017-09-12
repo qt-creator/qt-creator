@@ -65,21 +65,21 @@ static QIcon createCenteredIcon(const QIcon &icon, const QIcon &overlay)
 {
     QPixmap targetPixmap;
     const qreal appDevicePixelRatio = qApp->devicePixelRatio();
-    int deviceSpaceIconSize = Core::Constants::TARGET_ICON_SIZE * appDevicePixelRatio;
-    targetPixmap = QPixmap(deviceSpaceIconSize, deviceSpaceIconSize);
+    targetPixmap = QPixmap(Core::Constants::MODEBAR_ICON_SIZE * appDevicePixelRatio,
+                           Core::Constants::MODEBAR_ICON_SIZE * appDevicePixelRatio);
     targetPixmap.setDevicePixelRatio(appDevicePixelRatio);
     targetPixmap.fill(Qt::transparent);
     QPainter painter(&targetPixmap); // painter in user space
 
-    QPixmap pixmap = icon.pixmap(Core::Constants::TARGET_ICON_SIZE); // already takes app devicePixelRatio into account
+    QPixmap pixmap = icon.pixmap(Core::Constants::MODEBAR_ICON_SIZE); // already takes app devicePixelRatio into account
     qreal pixmapDevicePixelRatio = pixmap.devicePixelRatio();
-    painter.drawPixmap((Core::Constants::TARGET_ICON_SIZE - pixmap.width() / pixmapDevicePixelRatio) / 2,
-                       (Core::Constants::TARGET_ICON_SIZE - pixmap.height() / pixmapDevicePixelRatio) / 2, pixmap);
+    painter.drawPixmap((Core::Constants::MODEBAR_ICON_SIZE - pixmap.width() / pixmapDevicePixelRatio) / 2,
+                       (Core::Constants::MODEBAR_ICON_SIZE - pixmap.height() / pixmapDevicePixelRatio) / 2, pixmap);
     if (!overlay.isNull()) {
-        pixmap = overlay.pixmap(Core::Constants::TARGET_ICON_SIZE); // already takes app devicePixelRatio into account
+        pixmap = overlay.pixmap(Core::Constants::MODEBAR_ICON_SIZE); // already takes app devicePixelRatio into account
         pixmapDevicePixelRatio = pixmap.devicePixelRatio();
-        painter.drawPixmap((Core::Constants::TARGET_ICON_SIZE - pixmap.width() / pixmapDevicePixelRatio) / 2,
-                           (Core::Constants::TARGET_ICON_SIZE - pixmap.height() / pixmapDevicePixelRatio) / 2, pixmap);
+        painter.drawPixmap((Core::Constants::MODEBAR_ICON_SIZE - pixmap.width() / pixmapDevicePixelRatio) / 2,
+                           (Core::Constants::MODEBAR_ICON_SIZE - pixmap.height() / pixmapDevicePixelRatio) / 2, pixmap);
     }
 
     return QIcon(targetPixmap);

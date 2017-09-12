@@ -34,6 +34,7 @@
 #include <QFileInfo>
 #include <QCommonStyle>
 #include <QStyleOption>
+#include <QWindow>
 #include <qmath.h>
 
 // Clamps float color values within (0, 255)
@@ -397,7 +398,9 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
                                      QPainter *p, QIcon::Mode iconMode, int dipRadius, const QColor &color, const QPoint &dipOffset)
 {
     QPixmap cache;
-    QString pixmapName = QString::fromLatin1("icon %0 %1 %2").arg(icon.cacheKey()).arg(iconMode).arg(rect.height());
+    const int devicePixelRatio = p->device()->devicePixelRatio();
+    QString pixmapName = QString::fromLatin1("icon %0 %1 %2 %3")
+            .arg(icon.cacheKey()).arg(iconMode).arg(rect.height()).arg(devicePixelRatio);
 
     if (!QPixmapCache::find(pixmapName, cache)) {
         // High-dpi support: The in parameters (rect, radius, offset) are in
@@ -405,9 +408,8 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
         // return a high-dpi pixmap, which will in that case have a devicePixelRatio
         // different than 1. The shadow drawing caluculations are done in device
         // pixels.
-        QWindow *window = QApplication::allWidgets().first()->windowHandle();
+        QWindow *window = dynamic_cast<QWidget*>(p->device())->window()->windowHandle();
         QPixmap px = icon.pixmap(window, rect.size(), iconMode);
-        int devicePixelRatio = qCeil(px.devicePixelRatio());
         int radius = dipRadius * devicePixelRatio;
         QPoint offset = dipOffset * devicePixelRatio;
         cache = QPixmap(px.size() + QSize(radius * 2, radius * 2));
@@ -415,7 +417,8 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
 
         QPainter cachePainter(&cache);
         if (iconMode == QIcon::Disabled) {
-            const bool hasDisabledState = icon.availableSizes(QIcon::Disabled).contains(px.size());
+            const bool hasDisabledState =
+                    icon.availableSizes().count() == icon.availableSizes(QIcon::Disabled).count();
             if (!hasDisabledState)
                 px = disabledSideBarIcon(icon.pixmap(window, rect.size()));
         } else if (creatorTheme()->flag(Theme::ToolBarIconShadow)) {

@@ -18,6 +18,18 @@
    sodipodi:docname="qtcreatoricons.svg">
   <defs
      id="defs4">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient9821">
+      <stop
+         style="stop-color:#000000;stop-opacity:1"
+         offset="0"
+         id="stop9817" />
+      <stop
+         style="stop-color:#fffff1;stop-opacity:1"
+         offset="1"
+         id="stop9819" />
+    </linearGradient>
     <inkscape:path-effect
        effect="clone_original"
        linkedpath="#path2727"
@@ -457,26 +469,13 @@
     </clipPath>
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient5340"
-       id="linearGradient5346"
-       x1="515.5"
-       y1="439"
-       x2="515.5"
-       y2="442"
+       xlink:href="#linearGradient9821"
+       id="linearGradient9824"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-5.25,-362.50001)" />
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient5340">
-      <stop
-         style="stop-color:#000000;stop-opacity:1"
-         offset="0"
-         id="stop5342" />
-      <stop
-         style="stop-color:#ffffff;stop-opacity:1"
-         offset="1"
-         id="stop5344" />
-    </linearGradient>
+       x1="510.75"
+       y1="73.5"
+       x2="510.75"
+       y2="75.5" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -590,6 +589,13 @@
        id="rect4112"
        style="fill:#00ff00;fill-opacity:1;stroke:none" />
   </g>
+  <rect
+     y="436"
+     x="-16"
+     height="16"
+     width="16"
+     id="backgroundRect"
+     style="display:inline;fill:#ffffff" />
   <rect
      y="452"
      x="-16"
@@ -4423,7 +4429,7 @@
          y="0"
          x="0"
          style="display:inline"
-         transform="translate(387,509)" />
+         transform="translate(388,513)" />
     </g>
     <g
        transform="translate(32,0)"
@@ -6975,147 +6981,164 @@
      id="g4718"
      inkscape:label="Side Bar Icons">
     <g
-       transform="translate(-34,308)"
+       transform="translate(-41,264)"
        style="display:inline"
        id="src/plugins/welcome/images/mode_welcome_mask">
-      <rect
-         style="fill:#ffffff;fill-opacity:1"
-         x="34"
-         y="42"
-         width="48"
-         height="32"
-         id="rect5694-0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="backgroundRect_32_28"
+         transform="matrix(2.125,0,0,2.125,75,-888.5)"
+         width="100%"
+         height="100%"
+         style="stroke-width:0.88038999" />
       <path
          inkscape:connector-curvature="0"
-         d="m 62,62 5,0 0,5 -5,0 z m -7,0 5,0 0,5 -5,0 z m -7,0 5,0 0,5 -5,0 z m 14,-7 5,0 0,5 -5,0 z m -7,0 5,0 0,5 -5,0 z m -7,0 5,0 0,5 -5,0 z m 14,-7 5,0 0,5 -5,0 z m -7,0 5,0 0,5 -5,0 z m -7,0 5,0 0,5 -5,0 z"
+         d="m 62,59 h 5 v 5 h -5 z m -7,0 h 5 v 5 h -5 z m -7,0 h 5 v 5 h -5 z m 14,-7 h 5 v 5 h -5 z m -7,0 h 5 v 5 h -5 z m -7,0 h 5 v 5 h -5 z m 14,-7 h 5 v 5 h -5 z m -7,0 h 5 v 5 h -5 z m -7,0 h 5 v 5 h -5 z"
          id="rect5371-8" />
     </g>
     <g
-       transform="translate(-36,308)"
+       transform="translate(-55,264)"
        style="display:inline;fill:#000000"
        id="src/plugins/coreplugin/images/mode_edit_mask">
-      <rect
-         style="display:inline;fill:#ffffff;fill-opacity:1"
-         x="84"
-         y="42"
-         width="48"
-         height="32"
-         id="rect5706-3-8" />
+      <use
+         transform="translate(50)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913"
+         width="100%"
+         height="100%" />
       <path
          id="path5381-3"
-         d="m 98,48 0,19 19,0 0,-19 z m 4,9 9,0 0,1 -9,0 z m 9,5 -9,0 0,-1 9,0 z m 2,-2 -11,0 0,-1 11,0 z m 0,-4 -11,0 0,-1 11,0 z m 0,-2 -11,0 0,-1 11,0 z"
+         d="m 98,45 v 19 h 19 V 45 Z m 4,9 h 9 v 1 h -9 z m 9,5 h -9 v -1 h 9 z m 2,-2 h -11 v -1 h 11 z m 0,-4 h -11 v -1 h 11 z m 0,-2 h -11 v -1 h 11 z"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccccccccccccccccccccccccccccc" />
     </g>
     <g
-       transform="translate(-38,308)"
+       transform="translate(-69,264)"
        style="display:inline"
        id="src/plugins/coreplugin/images/mode_design_mask">
-      <rect
-         style="fill:#ffffff;fill-opacity:1"
-         x="134"
-         y="42"
-         width="48"
-         height="32"
-         id="rect5706-2" />
+      <use
+         transform="translate(100)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0"
+         width="100%"
+         height="100%" />
       <g
-         transform="translate(-5,-4)"
+         transform="translate(-5,-6)"
          id="g5387-8">
         <path
            id="polygon5391-6"
-           d="m 167.909,59.778 -3.535,-3.536 -10.96,10.96 -1.414,4.95 4.949,-1.414 z m -2.4715,-4.589696 3.18214,-3.180343 3.5338,3.535793 -3.18215,3.180343 z"
+           d="m 167.909,58.778 -3.535,-3.536 -10.96,10.96 -1.414,4.95 4.949,-1.414 z m -2.4715,-4.589696 3.18214,-3.180343 3.5338,3.535793 -3.18215,3.180343 z"
            inkscape:connector-curvature="0" />
       </g>
     </g>
     <g
-       transform="translate(-40,308)"
+       transform="translate(-83,264)"
        style="display:inline"
        id="src/plugins/debugger/images/mode_debug_mask">
-      <rect
-         style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none"
-         x="184"
-         y="42"
-         width="48"
-         height="32"
-         id="rect5706-4-6" />
+      <use
+         transform="translate(150)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8"
+         width="100%"
+         height="100%" />
       <g
-         transform="translate(-4.5,-5)"
+         transform="translate(-4.5,-7)"
          id="g5397-4">
         <path
-           d="M 167.5 356 C 166.225 356 164.19123 357.17695 163.61523 358.75195 L 167.5 360.9375 L 171.38477 358.75195 C 170.80877 357.17595 168.775 356 167.5 356 z M 162.82422 359.68359 L 160.83789 361.44922 L 159.44141 360.05469 C 159.24741 359.86069 158.92837 359.86069 158.73438 360.05469 C 158.54038 360.24869 158.54038 360.56772 158.73438 360.76172 L 160.42188 362.44922 L 159.53516 366 L 158 366 C 157.725 366 157.5 366.225 157.5 366.5 C 157.5 366.775 157.725 367 158 367 L 159.48828 367 L 160.67969 370.8125 L 159.05273 372.43945 C 158.85873 372.63345 158.85873 372.95248 159.05273 373.14648 C 159.24673 373.34048 159.56577 373.34048 159.75977 373.14648 L 161.13477 371.77148 L 164.6875 374.13867 L 167 374.72461 L 167 362 L 162.82422 359.68359 z M 172.17578 359.68359 L 168 362 L 168 374.72461 L 170.3125 374.13867 L 173.86328 371.77148 L 175.23828 373.14648 C 175.43228 373.34048 175.75131 373.34048 175.94531 373.14648 C 176.13931 372.95248 176.13931 372.63345 175.94531 372.43945 L 174.32031 370.81445 L 175.51172 367 L 177 367 C 177.275 367 177.5 366.775 177.5 366.5 C 177.5 366.225 177.275 366 177 366 L 175.46484 366 L 174.57812 362.44922 L 176.26562 360.76172 C 176.45963 360.56772 176.45962 360.24869 176.26562 360.05469 C 176.07163 359.86069 175.75259 359.86069 175.55859 360.05469 L 174.16211 361.44922 L 172.17578 359.68359 z "
-           transform="translate(44.5,-303)"
-           id="path5403-3" />
+           d="m 212,52 c -1.275,0 -3.30877,1.17695 -3.88477,2.75195 L 212,56.9375 215.88477,54.75195 C 215.30877,53.17595 213.275,52 212,52 Z m -4.67578,3.68359 -1.98633,1.76563 -1.39648,-1.39453 c -0.194,-0.194 -0.51304,-0.194 -0.70703,0 -0.194,0.194 -0.194,0.51303 0,0.70703 l 1.6875,1.6875 L 204.03516,62 H 202.5 c -0.275,0 -0.5,0.225 -0.5,0.5 0,0.275 0.225,0.5 0.5,0.5 h 1.48828 l 1.19141,3.8125 -1.62696,1.62695 c -0.194,0.194 -0.194,0.51303 0,0.70703 0.194,0.194 0.51304,0.194 0.70704,0 l 1.375,-1.375 3.55273,2.36719 2.3125,0.58594 V 58 Z m 9.35156,0 L 212.5,58 v 12.72461 l 2.3125,-0.58594 3.55078,-2.36719 1.375,1.375 c 0.194,0.194 0.51303,0.194 0.70703,0 0.194,-0.194 0.194,-0.51303 0,-0.70703 l -1.625,-1.625 L 220.01172,63 H 221.5 c 0.275,0 0.5,-0.225 0.5,-0.5 0,-0.275 -0.225,-0.5 -0.5,-0.5 h -1.53516 l -0.88672,-3.55078 1.6875,-1.6875 c 0.19401,-0.194 0.194,-0.51303 0,-0.70703 -0.19399,-0.194 -0.51303,-0.194 -0.70703,0 l -1.39648,1.39453 z"
+           id="path5403-3"
+           inkscape:connector-curvature="0" />
       </g>
     </g>
     <g
-       transform="translate(-42,308)"
+       transform="translate(-97,264)"
        style="display:inline"
        id="src/plugins/projectexplorer/images/mode_project_mask">
-      <rect
-         style="fill:#ffffff;fill-opacity:1"
-         x="234"
-         y="42"
-         width="48"
-         height="32"
-         id="rect5722-4" />
+      <use
+         transform="translate(200)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-3"
+         width="100%"
+         height="100%" />
       <path
          id="path5439-0"
-         d="m 265.554,57.885 c 1.51,-1.511 1.955,-3.68 1.34,-5.583 l -2.754,2.754 c -0.584,0.583 -1.538,0.583 -2.121,0 l -1.414,-1.415 c -0.584,-0.583 -0.584,-1.538 0,-2.121 l 2.754,-2.754 c -1.903,-0.614 -4.073,-0.17 -5.583,1.34 -1.647,1.647 -2.025,4.081 -1.145,6.095 l -8.048,8.047 c -0.777,0.778 -0.777,2.051 0,2.829 0.777,0.777 2.051,0.777 2.828,0 l 8.048,-8.048 c 2.015,0.882 4.447,0.503 6.095,-1.144 z"
+         d="m 265.554,54.885 c 1.51,-1.511 1.955,-3.68 1.34,-5.583 l -2.754,2.754 c -0.584,0.583 -1.538,0.583 -2.121,0 l -1.414,-1.415 c -0.584,-0.583 -0.584,-1.538 0,-2.121 l 2.754,-2.754 c -1.903,-0.614 -4.073,-0.17 -5.583,1.34 -1.647,1.647 -2.025,4.081 -1.145,6.095 l -8.048,8.047 c -0.777,0.778 -0.777,2.051 0,2.829 0.777,0.777 2.051,0.777 2.828,0 l 8.048,-8.048 c 2.015,0.882 4.447,0.503 6.095,-1.144 z"
          inkscape:connector-curvature="0" />
     </g>
     <g
-       transform="translate(-46,308)"
+       transform="translate(-162,264)"
        style="display:inline"
        id="src/plugins/help/images/mode_help_mask">
-      <rect
-         style="display:inline;fill:#ffffff;fill-opacity:1"
-         x="334"
-         y="42"
-         width="48"
-         height="32"
-         id="rect5706-9-7" />
+      <use
+         transform="translate(301)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-7"
+         width="100%"
+         height="100%" />
       <path
          id="path5457-0"
-         d="m 358,48 c -5.522,0 -10,4.478 -10,10 0,5.522 4.478,10 10,10 5.522,0 10,-4.478 10,-10 0,-5.522 -4.478,-10 -10,-10 z m 1.136,16.182 c -0.274,0.269 -0.604,0.402 -0.989,0.402 -0.187,0 -0.364,-0.035 -0.533,-0.105 -0.169,-0.07 -0.318,-0.163 -0.446,-0.28 -0.129,-0.117 -0.23,-0.257 -0.307,-0.42 -0.076,-0.163 -0.113,-0.338 -0.113,-0.525 0,-0.373 0.137,-0.694 0.411,-0.962 0.273,-0.268 0.603,-0.402 0.988,-0.402 0.374,0 0.7,0.128 0.98,0.385 0.28,0.257 0.42,0.572 0.42,0.945 0,0.372 -0.138,0.693 -0.411,0.962 z m 2.738,-7.98 c -0.104,0.292 -0.245,0.56 -0.42,0.805 -0.175,0.245 -0.376,0.479 -0.604,0.7 -0.228,0.222 -0.47,0.455 -0.727,0.7 -0.163,0.151 -0.303,0.286 -0.42,0.402 -0.116,0.117 -0.213,0.236 -0.288,0.359 -0.076,0.122 -0.132,0.262 -0.167,0.42 -0.034,0.157 -0.052,0.347 -0.052,0.569 l 0,0.665 -2.101,0 0,-0.962 c 0,-0.256 0.015,-0.475 0.044,-0.656 0.029,-0.181 0.081,-0.344 0.157,-0.49 0.076,-0.146 0.175,-0.286 0.298,-0.42 0.122,-0.134 0.271,-0.295 0.446,-0.481 l 1.348,-1.365 c 0.291,-0.292 0.438,-0.67 0.438,-1.137 0,-0.455 -0.149,-0.825 -0.446,-1.111 -0.298,-0.286 -0.674,-0.429 -1.129,-0.429 -0.49,0 -0.893,0.166 -1.208,0.499 -0.314,0.333 -0.495,0.738 -0.542,1.216 l -2.24,-0.175 c 0.07,-0.56 0.216,-1.059 0.438,-1.496 0.222,-0.438 0.511,-0.808 0.866,-1.111 0.355,-0.303 0.768,-0.534 1.234,-0.691 0.466,-0.158 0.979,-0.236 1.54,-0.236 0.524,0 1.012,0.076 1.461,0.228 0.449,0.152 0.84,0.371 1.172,0.656 0.333,0.286 0.593,0.642 0.779,1.067 0.186,0.426 0.28,0.913 0.28,1.461 10e-4,0.382 -0.052,0.721 -0.157,1.013 z"
+         d="m 359,45 c -5.522,0 -10,4.478 -10,10 0,5.522 4.478,10 10,10 5.522,0 10,-4.478 10,-10 0,-5.522 -4.478,-10 -10,-10 z m 1.136,16.182 c -0.274,0.269 -0.604,0.402 -0.989,0.402 -0.187,0 -0.364,-0.035 -0.533,-0.105 -0.169,-0.07 -0.318,-0.163 -0.446,-0.28 -0.129,-0.117 -0.23,-0.257 -0.307,-0.42 -0.076,-0.163 -0.113,-0.338 -0.113,-0.525 0,-0.373 0.137,-0.694 0.411,-0.962 0.273,-0.268 0.603,-0.402 0.988,-0.402 0.374,0 0.7,0.128 0.98,0.385 0.28,0.257 0.42,0.572 0.42,0.945 0,0.372 -0.138,0.693 -0.411,0.962 z m 2.738,-7.98 c -0.104,0.292 -0.245,0.56 -0.42,0.805 -0.175,0.245 -0.376,0.479 -0.604,0.7 -0.228,0.222 -0.47,0.455 -0.727,0.7 -0.163,0.151 -0.303,0.286 -0.42,0.402 -0.116,0.117 -0.213,0.236 -0.288,0.359 -0.076,0.122 -0.132,0.262 -0.167,0.42 -0.034,0.157 -0.052,0.347 -0.052,0.569 v 0.665 h -2.101 V 56.86 c 0,-0.256 0.015,-0.475 0.044,-0.656 0.029,-0.181 0.081,-0.344 0.157,-0.49 0.076,-0.146 0.175,-0.286 0.298,-0.42 0.122,-0.134 0.271,-0.295 0.446,-0.481 l 1.348,-1.365 c 0.291,-0.292 0.438,-0.67 0.438,-1.137 0,-0.455 -0.149,-0.825 -0.446,-1.111 -0.298,-0.286 -0.674,-0.429 -1.129,-0.429 -0.49,0 -0.893,0.166 -1.208,0.499 -0.314,0.333 -0.495,0.738 -0.542,1.216 l -2.24,-0.175 c 0.07,-0.56 0.216,-1.059 0.438,-1.496 0.222,-0.438 0.511,-0.808 0.866,-1.111 0.355,-0.303 0.768,-0.534 1.234,-0.691 0.466,-0.158 0.979,-0.236 1.54,-0.236 0.524,0 1.012,0.076 1.461,0.228 0.449,0.152 0.84,0.371 1.172,0.656 0.333,0.286 0.593,0.642 0.779,1.067 0.186,0.426 0.28,0.913 0.28,1.461 10e-4,0.382 -0.052,0.721 -0.157,1.013 z"
          inkscape:connector-curvature="0" />
     </g>
     <g
-       transform="translate(-262,305)"
+       transform="translate(-595,297)"
        style="display:inline"
        id="src/plugins/projectexplorer/images/run_mask">
-      <rect
-         style="fill:#ffffff;fill-opacity:1"
-         x="600"
-         y="50"
-         width="24"
-         height="24"
-         id="rect5751-4" />
+      <use
+         transform="translate(554,3)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1"
+         width="100%"
+         height="100%" />
       <polygon
          style="fill:#000000"
-         points="621,61 603,72 603,50 "
-         id="polygon5749-6" />
+         points="603,50 621,61 603,72 "
+         id="polygon5749-6"
+         transform="translate(0,-4)" />
     </g>
     <g
-       transform="translate(-388,305)"
+       transform="translate(-708,297)"
        style="display:inline"
        id="src/plugins/projectexplorer/images/debugger_beetle_mask">
-      <rect
-         style="display:inline;fill:#ffffff;fill-opacity:1"
-         x="750"
-         y="50"
-         width="24"
-         height="24"
-         id="rect5759-4-1" />
+      <use
+         transform="translate(703,3)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-3"
+         width="100%"
+         height="100%" />
       <g
          id="big_bug"
-         transform="translate(-4,2.999762)">
+         transform="translate(-5,-1.000238)">
         <path
            d="m 769.50001,58.836563 c -0.65839,0 -1.70859,0.724548 -2.00602,1.694142 l 2.00602,1.345458 2.006,-1.345458 c -0.29742,-0.97021 -1.34763,-1.694142 -2.006,-1.694142 z"
            id="path4874"
            inkscape:connector-curvature="0" />
         <path
            sodipodi:nodetypes="cccccccccccccccc"
-           d="m 767.12627,61.068318 c -0.25633,0.152637 -0.64848,0.411162 -1.25704,1.062795 l -1.53472,-1.238122 -0.75352,0.91144 1.76081,1.340958 C 765.1929,63.665163 764.94085,64.148012 764.875,65 l -1.875,0 0,1 1.875,0 c 0.13153,0.564121 0.25703,1.128242 0.58926,1.692363 l -1.66595,1.498516 0.73938,0.89637 1.61151,-1.446886 c 1.00647,0.777187 1.78541,1.06964 2.8508,1.139875 l 0,-7.354264 z"
+           d="m 767.12627,61.068318 c -0.25633,0.152637 -0.64848,0.411162 -1.25704,1.062795 l -1.53472,-1.238122 -0.75352,0.91144 1.76081,1.340958 C 765.1929,63.665163 764.94085,64.148012 764.875,65 H 763 v 1 h 1.875 c 0.13153,0.564121 0.25703,1.128242 0.58926,1.692363 l -1.66595,1.498516 0.73938,0.89637 1.61151,-1.446886 c 1.00647,0.777187 1.78541,1.06964 2.8508,1.139875 v -7.354264 z"
            id="path4872"
            inkscape:connector-curvature="0" />
         <use
@@ -7130,142 +7153,176 @@
     </g>
     <g
        id="src/plugins/debugger/images/debugger_interrupt_mask"
-       transform="translate(-364,305)"
+       transform="translate(-673,297)"
        style="display:inline">
-      <rect
-         style="display:inline;fill:#ffffff;fill-opacity:1"
-         x="750"
-         y="50"
-         width="24"
-         height="24"
-         id="rect4791" />
+      <use
+         transform="translate(704,3)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-7"
+         width="100%"
+         height="100%" />
       <rect
          style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          id="rect4608-0"
          width="7"
          height="18"
          x="753"
-         y="52" />
+         y="48" />
       <rect
          style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          id="rect4610-6"
          width="7"
          height="18"
          x="763"
-         y="52" />
+         y="48" />
     </g>
     <g
        id="src/plugins/debugger/images/debugger_continue_1_mask"
-       transform="translate(-340,305)"
+       transform="translate(-636,297)"
        style="display:inline">
-      <rect
-         style="display:inline;fill:#ffffff;fill-opacity:1"
-         x="750"
-         y="50"
-         width="24"
-         height="24"
-         id="rect4791-9" />
+      <use
+         transform="translate(703,3)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-30"
+         width="100%"
+         height="100%" />
       <rect
          style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          id="rect4608-0-4"
          width="7"
          height="18"
-         x="753"
-         y="52" />
+         x="752"
+         y="48" />
     </g>
     <g
        id="src/plugins/debugger/images/debugger_continue_2_mask"
-       transform="translate(-316,305)"
+       transform="translate(-602,297)"
        style="display:inline">
-      <rect
-         style="display:inline;fill:#ffffff;fill-opacity:1"
-         x="750"
-         y="50"
-         width="24"
-         height="24"
-         id="rect4791-9-8" />
+      <use
+         transform="translate(705,3)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-8"
+         width="100%"
+         height="100%" />
       <path
          style="display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 763,52 9,9 -9,9 z"
+         d="m 764,48 9,9 -9,9 z"
          id="rect4610-6-2-5"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccc" />
     </g>
     <g
-       transform="translate(-392,305)"
+       transform="translate(-664,297)"
        style="display:inline"
        id="src/plugins/projectexplorer/images/build_hammerhandle_mask">
-      <rect
-         style="fill:#ffffff;fill-opacity:1"
-         x="850"
-         y="50"
-         width="24"
-         height="24"
-         id="rect5759-5" />
+      <use
+         transform="translate(803,3)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-89"
+         width="100%"
+         height="100%" />
       <g
          style="fill:#030303;fill-opacity:1"
-         id="build-5">
+         id="build-5"
+         transform="translate(-1,-3)">
         <rect
-           style="fill:#030303;fill-opacity:1"
-           x="856.98199"
-           y="53.081001"
-           transform="matrix(0.7071,0.7071,-0.7071,0.7071,296.0486,-588.562)"
-           width="3"
-           height="20"
+           style="fill:#030303;fill-opacity:1;stroke-width:0.9999904"
+           x="649.42847"
+           y="-573.14081"
+           transform="rotate(45)"
+           width="2.9999712"
+           height="19.999807"
            id="rect5755-4" />
       </g>
     </g>
     <g
-       transform="translate(-368,305)"
+       transform="translate(-628,297)"
        style="display:inline"
        id="src/plugins/projectexplorer/images/build_hammerhead_mask">
-      <rect
-         style="fill:#ffffff;fill-opacity:1"
-         x="850"
-         y="50"
-         width="24"
-         height="24"
-         id="rect5759-5-9" />
+      <use
+         transform="translate(803,3)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-5"
+         width="100%"
+         height="100%" />
       <g
          style="fill:#030303;fill-opacity:1"
-         id="build-5-2">
+         id="build-5-2"
+         transform="translate(-1,-3)">
         <polygon
            style="fill:#030303;fill-opacity:1"
-           points="866.613,50 873.684,57.071 870.148,60.606 859.542,50 "
-           id="polygon5757-3-4" />
+           points="873.684,57.071 870.148,60.606 859.542,50 866.613,50 "
+           id="polygon5757-3-4"
+           transform="translate(0,-1)" />
       </g>
     </g>
     <g
-       transform="translate(6.5,297)"
+       transform="translate(-247.5,256)"
        id="src/plugins/projectexplorer/images/desktopdevice">
-      <rect
-         style="display:inline;fill:#ffffff;fill-opacity:1"
-         x="499.5"
-         y="50"
-         width="32"
-         height="32"
-         id="rect5759-5-9-0" />
-      <path
-         d="m 525.5,54 -20,0 c -1.1,0 -2,0.9 -2,2 l 0,14 c 0,1.1 0.9,2 2,2 l 20,0 c 1.1,0 2,-0.9 2,-2 l 0,-14 c 0,-1.1 -0.9,-2 -2,-2 l 0,0 z"
-         id="path5514" />
-      <path
-         d="m 521,78 -3.5,-7 -4,0 -3.5,7 z"
-         id="polygon5516"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="ccccc" />
-      <path
-         d="m 525.5,56 0,14 -20,0 0,-14 20,0"
-         id="path4825"
-         style="fill:#b3b3b3" />
+      <use
+         transform="translate(458.5,7)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-5-6"
+         width="100%"
+         height="100%" />
+      <g
+         id="desktopDevice"
+         transform="translate(1,-4)">
+        <path
+           inkscape:connector-curvature="0"
+           id="path5514"
+           d="m 525.5,54 h -20 c -1.1,0 -2,0.9 -2,2 v 14 c 0,1.1 0.9,2 2,2 h 20 c 1.1,0 2,-0.9 2,-2 V 56 c 0,-1.1 -0.9,-2 -2,-2 z" />
+        <path
+           sodipodi:nodetypes="ccccc"
+           inkscape:connector-curvature="0"
+           id="polygon5516"
+           d="m 521,78 -3.5,-7 h -4 l -3.5,7 z" />
+        <path
+           inkscape:connector-curvature="0"
+           style="fill:#b3b3b3"
+           id="path4825"
+           d="m 525.5,56 v 14 h -20 V 56 h 20" />
+      </g>
     </g>
-    <use
-       x="0"
-       y="0"
-       xlink:href="#src/plugins/projectexplorer/images/desktopdevice"
+    <g
        id="src/libs/utils/images/desktopdevicesmall"
-       transform="matrix(0.5,0,0,0.5,285,189.5)"
-       width="100%"
-       height="100%" />
+       transform="translate(-190,-45)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use6054"
+         width="100%"
+         height="100%"
+         transform="translate(458,-54)" />
+      <use
+         transform="matrix(0.5,0,0,0.5,191.75,359)"
+         x="0"
+         y="0"
+         xlink:href="#desktopDevice"
+         id="use8907"
+         width="100%"
+         height="100%"
+         style="stroke-width:2" />
+    </g>
     <g
        id="src/plugins/projectexplorer/images/fileoverlay_qt">
       <rect
@@ -7722,36 +7779,40 @@
          sodipodi:nodetypes="ccccc" />
     </g>
     <g
-       id="src/plugins/ios/images/iosdevice">
-      <rect
-         style="fill:#ffffff"
-         x="554"
-         y="347"
-         width="32"
-         height="32"
-         id="rect5230" />
+       id="src/plugins/ios/images/iosdevice"
+       transform="translate(-266,-42)">
+      <use
+         transform="translate(513,305)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-5-6-8"
+         width="100%"
+         height="100%" />
       <g
-         id="phone_body_big">
+         id="phone_body_big"
+         transform="translate(1,-3)">
         <path
            sodipodi:nodetypes="csssssssc"
            id="path5232"
-           d="m 578,374 0,-22 c 0,-1.1 -1,-2 -2,-2 l -12,0 c -1.1,0 -2,1 -2,2 l 0,22 c 0,1.1 1,2 2,2 l 12,0 c 1.1,0 2,-1 2,-2 z"
+           d="m 578,374 v -22 c 0,-1.1 -1,-2 -2,-2 h -12 c -1.1,0 -2,1 -2,2 v 22 c 0,1.1 1,2 2,2 h 12 c 1.1,0 2,-1 2,-2 z"
            inkscape:connector-curvature="0" />
         <path
            sodipodi:nodetypes="ccccc"
            style="fill:#b3b3b3"
            id="path5234"
-           d="m 564,371 0,-19 12,0 0,19 z"
+           d="m 564,371 v -19 h 12 v 19 z"
            inkscape:connector-curvature="0" />
       </g>
       <circle
          style="fill:#b3b3b3"
          id="circle5236"
-         cx="570"
-         cy="373.5"
+         cx="571"
+         cy="370.5"
          r="1.5" />
       <use
-         transform="matrix(1.7179779,0,0,1.7179779,-422.96128,-273.18602)"
+         transform="matrix(1.7179779,0,0,1.7179779,-421.96128,-276.18602)"
          x="0"
          y="0"
          xlink:href="#ioslogo"
@@ -7761,24 +7822,25 @@
     </g>
     <g
        id="src/plugins/ios/images/iosdevicesmall"
-       transform="translate(16,0)">
-      <rect
-         id="rect5759-5-9-0-8"
-         height="16"
-         width="16"
-         y="363"
-         x="570"
-         style="fill:#ffffff" />
+       transform="translate(-282,-26)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use6054-9"
+         width="100%"
+         height="100%"
+         transform="translate(586,-73)" />
       <g
          id="phone_body_small">
         <path
            inkscape:connector-curvature="0"
-           d="m 582,377 0,-12 c 0,-0.55 -0.5,-1 -1,-1 l -6,0 c -0.55,0 -1,0.5 -1,1 l 0,12 c 0,0.55 0.5,1 1,1 l 6,0 c 0.55,0 1,-0.5 1,-1 z"
+           d="m 582,377 v -12 c 0,-0.55 -0.5,-1 -1,-1 h -6 c -0.55,0 -1,0.5 -1,1 v 12 c 0,0.55 0.5,1 1,1 h 6 c 0.55,0 1,-0.5 1,-1 z"
            id="path5514-4"
            sodipodi:nodetypes="csssssssc" />
         <path
            inkscape:connector-curvature="0"
-           d="m 575,375 0,-10 6,0 0,10 z"
+           d="m 575,375 v -10 h 6 v 10 z"
            id="path4825-5"
            style="fill:#b3b3b3"
            sodipodi:nodetypes="ccccc" />
@@ -7791,20 +7853,22 @@
          style="fill:#b3b3b3" />
       <path
          id="ioslogo"
-         style="fill:#000000;fill-opacity:1.0"
+         style="fill:#000000;fill-opacity:1"
          d="m 578.70257,367.62846 c 0.17676,-0.2141 0.29609,-0.51179 0.26322,-0.80851 -0.25463,0.0103 -0.56283,0.16975 -0.74567,0.38384 -0.16367,0.18922 -0.30725,0.49232 -0.26834,0.783 0.28398,0.022 0.574,-0.14455 0.75079,-0.35833 m 0.6373,1.88113 c -0.006,-0.64069 0.52327,-0.94828 0.5472,-0.96327 -0.29769,-0.43553 -0.76098,-0.4952 -0.92626,-0.50222 -0.39405,-0.0399 -0.76928,0.23197 -0.96901,0.23197 -0.19974,0 -0.5086,-0.22622 -0.83533,-0.21984 -0.4301,0.006 -0.82607,0.24984 -1.0475,0.63463 -0.44638,0.77438 -0.11391,1.92207 0.32066,2.55064 0.21282,0.30726 0.46616,0.65345 0.79927,0.64069 0.32098,-0.0128 0.44223,-0.2074 0.82958,-0.2074 0.38735,0 0.49647,0.2074 0.83565,0.20134 0.34491,-0.007 0.56379,-0.31397 0.77501,-0.62219 0.24377,-0.35672 0.3446,-0.70195 0.35034,-0.72014 -0.008,-0.003 -0.67259,-0.25813 -0.67961,-1.02421"
          inkscape:connector-curvature="0" />
     </g>
     <g
-       transform="translate(48,0)"
+       transform="translate(-230,-42)"
        id="src/plugins/android/images/androiddevice">
-      <rect
-         style="fill:#ffffff"
-         x="554"
-         y="347"
-         width="32"
-         height="32"
-         id="rect5230-4" />
+      <use
+         transform="translate(513,305)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-5-6-8-7"
+         width="100%"
+         height="100%" />
       <use
          x="0"
          y="0"
@@ -7817,23 +7881,23 @@
          id="rect4318"
          width="4"
          height="2"
-         x="568"
-         y="373" />
+         x="569"
+         y="370" />
       <g
-         transform="translate(-48,0)"
+         transform="translate(-47,-3)"
          id="g5128"
-         style="fill:#000000;fill-opacity:1.0">
+         style="fill:#000000;fill-opacity:1">
         <path
            sodipodi:nodetypes="ccccccccccccc"
            inkscape:connector-curvature="0"
            id="path4309"
-           d="m 620.5,360 0,5 -0.5,0 0,2 -1,0 0,-2 -2,0 0,2 -1,0 0,-2 -0.5,0 0,-5 z"
+           d="m 620.5,360 v 5 H 620 v 2 h -1 v -2 h -2 v 2 h -1 v -2 h -0.5 v -5 z"
            style="fill-opacity:1" />
         <path
            sodipodi:nodetypes="cccccccccc"
            inkscape:connector-curvature="0"
            id="path4311"
-           d="m 616.29102,356.80664 -0.58204,0.38672 1,1.5 0.58204,-0.38672 z M 614,360 l 0,4 1,0 0,-4 z"
+           d="m 616.29102,356.80664 -0.58204,0.38672 1,1.5 0.58204,-0.38672 z M 614,360 v 4 h 1 v -4 z"
            style="fill-opacity:1" />
         <use
            height="100%"
@@ -7848,20 +7912,21 @@
            sodipodi:nodetypes="cczc"
            inkscape:connector-curvature="0"
            id="path4315"
-           d="m 615.5,359.5 5,0 c 0,0 -0.5,-2 -2.5,-2 -2,0 -2.5,2 -2.5,2 z"
+           d="m 615.5,359.5 h 5 c 0,0 -0.5,-2 -2.5,-2 -2,0 -2.5,2 -2.5,2 z"
            style="fill-opacity:1" />
       </g>
     </g>
     <g
        id="src/plugins/android/images/androiddevicesmall"
-       transform="translate(64,0)">
-      <rect
-         id="rect5759-5-9-0-8-6"
-         height="16"
-         width="16"
-         y="363"
-         x="570"
-         style="fill:#ffffff" />
+       transform="translate(-246,-26)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use6054-0"
+         width="100%"
+         height="100%"
+         transform="translate(586,-73)" />
       <use
          x="0"
          y="0"
@@ -7877,27 +7942,29 @@
          x="577"
          y="376" />
       <path
-         style="fill:#000000;fill-opacity:1.0"
-         d="m 642,367.5 c -1,0 -1,1.25 -1,1.25 l 2,0 c 0,0 0,-1.25 -1,-1.25 z m -2,1.5 0,2 0.75,0 0,-2 -0.75,0 z m 1,0 0,2 2,0 0,-2 -2,0 z m 2.25,0 0,2 0.75,0 0,-2 -0.75,0 z m -2.25,2.25 0,1.75 2,0 0,-1.75 -2,0 z"
-         transform="translate(-64,0)"
+         style="fill:#000000;fill-opacity:1"
+         d="m 642,367.5 c -1,0 -1,1.25 -1,1.25 h 2 c 0,0 0,-1.25 -1,-1.25 z m -2,1.5 v 2 h 0.75 v -2 z m 1,0 v 2 h 2 v -2 z m 2.25,0 v 2 H 644 v -2 z M 641,371.25 V 373 h 2 v -1.75 z"
+         transform="translate(-64)"
          id="path5131"
          inkscape:connector-curvature="0" />
     </g>
     <g
-       transform="translate(-286,-205)"
+       transform="translate(-503,-249)"
        style="display:inline"
        id="src/plugins/projectexplorer/images/devicestatusindicator">
-      <rect
-         id="rect6782-96-9-2"
-         height="32"
-         width="32"
-         y="552"
-         x="936"
-         style="fill:#ffffff" />
+      <use
+         transform="translate(894,512)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-5-6-8-11-2"
+         width="100%"
+         height="100%" />
       <circle
          style="fill:#000000"
          id="path4864-5"
-         cx="961.5"
+         cx="962.5"
          cy="577.5"
          r="5.5" />
     </g>
@@ -8084,34 +8151,36 @@
          style="fill:#0dbf0d;fill-opacity:1" />
     </g>
     <g
-       transform="translate(-48,32)"
+       transform="translate(-194,-42)"
        id="src/plugins/baremetal/images/baremetaldevice">
-      <rect
-         style="fill:#ffffff"
-         x="554"
-         y="347"
-         width="32"
-         height="32"
-         id="rect5230-4-4" />
+      <use
+         transform="translate(513,305)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-5-6-8-1"
+         width="100%"
+         height="100%" />
       <path
          style="fill:#808080;fill-opacity:1;stroke:#000000;stroke-opacity:1"
-         d="m 563.5,354.5 13,0 2,2 0,13 -2,2 -13,0 -2,-2 0,-13 z"
+         d="m 564.5,351.5 h 13 l 2,2 v 13 l -2,2 h -13 l -2,-2 v -13 z"
          id="rect5155"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="ccccccccc" />
       <circle
          style="fill:#000000"
          id="path5159"
-         cx="565"
-         cy="368"
+         cx="566"
+         cy="365"
          r="1.5" />
       <g
          id="g5189"
-         transform="translate(-0.5,-1)">
+         transform="translate(0.5,-4)">
         <path
            id="path5432-0"
            style="color:#000000"
-           d="m 565.5,352 1,0 0,3 -1,0 z m 3,0 1,0 0,3 -1,0 z m 3,0 1,0 0,3 -1,0 z m 3,0 1,0 0,3 -1,0 z"
+           d="m 565.5,352 h 1 v 3 h -1 z m 3,0 h 1 v 3 h -1 z m 3,0 h 1 v 3 h -1 z m 3,0 h 1 v 3 h -1 z"
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="cccccccccccccccccccc" />
       </g>
@@ -8120,7 +8189,7 @@
          y="0"
          xlink:href="#g5189"
          id="use5200"
-         transform="matrix(1,0,0,-1,0,726)"
+         transform="matrix(1,0,0,-1,0,720)"
          width="100%"
          height="100%" />
       <use
@@ -8128,7 +8197,7 @@
          y="0"
          xlink:href="#g5189"
          id="use5202"
-         transform="matrix(0,1,-1,0,933,-207)"
+         transform="rotate(90,571,360)"
          width="100%"
          height="100%" />
       <use
@@ -8136,36 +8205,37 @@
          y="0"
          xlink:href="#g5189"
          id="use5204"
-         transform="matrix(0,-1,1,0,207,933)"
+         transform="rotate(-90,571,360)"
          width="100%"
          height="100%" />
       <path
          id="rect5208-6-6"
          style="fill:#000000"
-         d="m 565,363 7,0 0,1 -7,0 z m 0,-2 6,0 0,1 -6,0 z m 0,-3 10,0 0,2 -10,0 z"
+         d="m 566,360 h 7 v 1 h -7 z m 0,-2 h 6 v 1 h -6 z m 0,-3 h 10 v 2 h -10 z"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="ccccccccccccccc" />
     </g>
     <g
        id="src/plugins/baremetal/images/baremetaldevicesmall"
-       transform="translate(-32,32)">
-      <rect
-         id="rect5759-5-9-0-8-6-4"
-         height="16"
-         width="16"
-         y="363"
-         x="570"
-         style="fill:#ffffff" />
+       transform="translate(-210,-26)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use6054-7"
+         width="100%"
+         height="100%"
+         transform="translate(586,-73)" />
       <path
          style="fill:#999999;fill-opacity:1;stroke:#000000;stroke-width:0.5"
-         d="m 575.5,367.25 6,0 1.25,1.25 0,6 -1.25,1.25 -6,0 -1.25,-1.25 0,-6 z"
+         d="m 575.5,367.25 h 6 l 1.25,1.25 v 6 l -1.25,1.25 h -6 l -1.25,-1.25 v -6 z"
          id="rect5492"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="ccccccccc" />
       <path
          id="rect5494-5"
          style="fill:#4d4d4d"
-         d="m 580,365 1,0 0,2 -1,0 z m -2,0 1,0 0,2 -1,0 z m -2,0 1,0 0,2 -1,0 z"
+         d="m 580,365 h 1 v 2 h -1 z m -2,0 h 1 v 2 h -1 z m -2,0 h 1 v 2 h -1 z"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="ccccccccccccscc" />
       <use
@@ -8173,7 +8243,7 @@
          y="0"
          xlink:href="#rect5494-5"
          id="use5529"
-         transform="matrix(0,1,-1,0,950,-207)"
+         transform="rotate(90,578.5,371.5)"
          width="100%"
          height="100%" />
       <use
@@ -8189,7 +8259,7 @@
          y="0"
          xlink:href="#rect5494-5"
          id="use5533"
-         transform="matrix(0,-1,1,0,207,950)"
+         transform="rotate(-90,578.5,371.5)"
          width="100%"
          height="100%" />
       <circle
@@ -8201,66 +8271,69 @@
       <path
          id="rect5535-8"
          style="fill:#000000;fill-opacity:1"
-         d="m 576,371 4,0 0,0.5 -4,0 z m 0,-2 5,0 0,0.5 -5,0 z"
+         d="m 576,371 h 4 v 0.5 h -4 z m 0,-2 h 5 v 0.5 h -5 z"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccccccccc" />
     </g>
     <g
-       transform="translate(6.25,362.5)"
+       transform="translate(-247.75,309.5)"
        id="src/boot2qtdevice">
-      <rect
-         style="display:inline;fill:#ffffff;fill-opacity:1"
-         x="499.75"
-         y="48.5"
-         width="32"
-         height="32"
-         id="rect5759-5-9-0-5" />
+      <use
+         transform="translate(458.75,6.5)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-5-6-8-74"
+         width="100%"
+         height="100%" />
       <rect
          style="fill:#555555"
          id="rect6230"
          width="30"
          height="20"
-         x="500.75"
-         y="53.5" />
+         x="501.75"
+         y="50.5" />
       <path
          id="path7535"
          style="fill:#b3b3b3;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 522.75,58.5 3,0 0,3 -3,0 z m 0,5 3,0 0,1 -3,0 z m 0,2 3,0 0,1 -3,0 z m 4,-2 3,0 0,1 -3,0 z m 0,2 3,0 0,1 -3,0 z m -1,4.5 c 0,0.828427 -0.67157,1.5 -1.5,1.5 -0.82843,0 -1.5,-0.671573 -1.5,-1.5 0,-0.828427 0.67157,-1.5 1.5,-1.5 0.82843,0 1.5,0.671573 1.5,1.5 z m -17,-0.5 3,0 0,3.5 -3,0 z m 4,1 3,0 0,2.5 -3,0 z m 17.5,-12 0,3 -3.5,0 0,-3 z"
+         d="m 523.75,55.5 h 3 v 3 h -3 z m 0,5 h 3 v 1 h -3 z m 0,2 h 3 v 1 h -3 z m 4,-2 h 3 v 1 h -3 z m 0,2 h 3 v 1 h -3 z m -1,4.5 c 0,0.828427 -0.67157,1.5 -1.5,1.5 -0.82843,0 -1.5,-0.671573 -1.5,-1.5 0,-0.828427 0.67157,-1.5 1.5,-1.5 0.82843,0 1.5,0.671573 1.5,1.5 z m -17,-0.5 h 3 V 70 h -3 z m 4,1 h 3 V 70 h -3 z m 17.5,-12 v 3 h -3.5 v -3 z"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccccccccccccccccccccccccsssssccccccccccccccc" />
       <path
          inkscape:connector-curvature="0"
          style="fill:#b3b3b3;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 520.75,68.5 -18,0 0,-12 18,0 z"
+         d="m 521.75,65.5 h -18 v -12 h 18 z"
          id="rect5261-2-0"
          sodipodi:nodetypes="ccccc" />
       <g
          id="boottoqtscreen"
-         bottoqtscreen="">
+         bottoqtscreen=""
+         transform="translate(1,-3)">
         <path
            sodipodi:nodetypes="ccccccc"
            inkscape:connector-curvature="0"
            id="use7459-1-0-9-4"
-           d="m 505.75,67.5 10,0 2,-2 0,-8 -10,0 -2,2 z"
+           d="m 505.75,67.5 h 10 l 2,-2 v -8 h -10 l -2,2 z"
            style="fill:#000000;fill-opacity:1" />
         <path
            id="path4482-08"
            style="fill:#ffffff;fill-opacity:1"
-           d="m 514.75034,61.49797 0,2.06092 c 0,0.3626 0.0286,0.6013 0.0811,0.7205 0.0525,0.1193 0.14667,0.1766 0.3614,0.1766 l 0.72529,-0.029 0.0429,0.773 c -0.39605,0.076 -0.69666,0.1145 -0.90661,0.1145 -0.50103,0 -0.84458,-0.1145 -1.03068,-0.3435 -0.18609,-0.2291 -0.28153,-0.6633 -0.28153,-1.3027 l 0,-2.16592 -0.99227,0 0,-1.00235 0.99705,0 0.003,-1.00002 1,0 3.4e-4,1.00002 0.99967,-2e-5 0,0.99765 z m -4.99647,3.84385 c -0.74662,0 -1.26886,-0.2316 -1.56286,-0.69479 C 507.897,64.18374 507.75,63.44871 507.75,62.45099 c 0,-1.00219 0.15087,-1.74609 0.44874,-2.23159 0.29788,-0.48551 0.82012,-0.73046 1.55513,-0.73046 0.73888,0 1.25725,0.24047 1.55126,0.72597 0.29787,0.48112 0.44487,1.22502 0.44487,2.2317 0,0.66361 -0.0619,1.19813 -0.18182,1.60345 -0.12379,0.4099 -0.32108,0.72168 -0.59961,0.93545 l 0.69187,1.26167 -0.73888,0.39645 -0.72669,-1.35082 c -0.0928,0.0364 -0.23984,0.0495 -0.441,0.0495 z m -0.9323,-1.28728 c 0.16247,0.32066 0.47582,0.48551 0.93617,0.48551 0.46035,0 0.76982,-0.16028 0.9323,-0.47655 0.15861,-0.31626 0.15145,-0.85526 0.15145,-1.60803 0,-0.75724 0.007,-1.30511 -0.15919,-1.64807 -0.16634,-0.34306 -0.47195,-0.42391 -0.92456,-0.42391 -0.44875,0 -0.75822,0.0808 -0.92844,0.42391 -0.16634,0.34296 -0.16306,0.88644 -0.16306,1.63921 0,0.74828 -0.007,1.28728 0.15533,1.60793 z"
+           d="m 514.75034,61.49797 v 2.06092 c 0,0.3626 0.0286,0.6013 0.0811,0.7205 0.0525,0.1193 0.14667,0.1766 0.3614,0.1766 l 0.72529,-0.029 0.0429,0.773 c -0.39605,0.076 -0.69666,0.1145 -0.90661,0.1145 -0.50103,0 -0.84458,-0.1145 -1.03068,-0.3435 -0.18609,-0.2291 -0.28153,-0.6633 -0.28153,-1.3027 v -2.16592 h -0.99227 v -1.00235 h 0.99705 l 0.003,-1.00002 h 1 l 3.4e-4,1.00002 0.99967,-2e-5 v 0.99765 z m -4.99647,3.84385 c -0.74662,0 -1.26886,-0.2316 -1.56286,-0.69479 C 507.897,64.18374 507.75,63.44871 507.75,62.45099 c 0,-1.00219 0.15087,-1.74609 0.44874,-2.23159 0.29788,-0.48551 0.82012,-0.73046 1.55513,-0.73046 0.73888,0 1.25725,0.24047 1.55126,0.72597 0.29787,0.48112 0.44487,1.22502 0.44487,2.2317 0,0.66361 -0.0619,1.19813 -0.18182,1.60345 -0.12379,0.4099 -0.32108,0.72168 -0.59961,0.93545 l 0.69187,1.26167 -0.73888,0.39645 -0.72669,-1.35082 c -0.0928,0.0364 -0.23984,0.0495 -0.441,0.0495 z m -0.9323,-1.28728 c 0.16247,0.32066 0.47582,0.48551 0.93617,0.48551 0.46035,0 0.76982,-0.16028 0.9323,-0.47655 0.15861,-0.31626 0.15145,-0.85526 0.15145,-1.60803 0,-0.75724 0.007,-1.30511 -0.15919,-1.64807 -0.16634,-0.34306 -0.47195,-0.42391 -0.92456,-0.42391 -0.44875,0 -0.75822,0.0808 -0.92844,0.42391 -0.16634,0.34296 -0.16306,0.88644 -0.16306,1.63921 0,0.74828 -0.007,1.28728 0.15533,1.60793 z"
            inkscape:connector-curvature="0" />
       </g>
       <circle
          style="fill:#ffffff"
          id="path6232"
-         cx="502.25"
-         cy="55"
+         cx="503.25"
+         cy="52"
          r="0.75" />
       <use
          x="0"
          y="0"
          xlink:href="#path6232"
          id="use6261"
-         transform="translate(27,0)"
+         transform="translate(27)"
          width="100%"
          height="100%" />
       <use
@@ -8280,38 +8353,40 @@
          width="100%"
          height="100%" />
       <path
-         style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;baseline-shift:baseline;text-anchor:start;white-space:normal;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
-         d="m 508.75,73.5 1,1.5 0,1.5 1,0 0,-1.5 1,-1.5 z"
+         style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;baseline-shift:baseline;text-anchor:start;white-space:normal;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
+         d="m 509.75,70.5 1,1.5 v 1.5 h 1 V 72 l 1,-1.5 z"
          id="path5336"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="ccccccc" />
       <rect
-         style="fill:url(#linearGradient5346);fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:url(#linearGradient9824);fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          id="devicecable"
          width="1"
-         height="3"
-         x="509.75"
-         y="76.5"
+         height="2"
+         x="510.75"
+         y="73.5"
          inkscape:label="#rect5338" />
     </g>
     <g
        id="src/boot2qtdevicesmall"
-       transform="translate(-32,64)">
-      <rect
-         id="rect5759-5-9-0-8-6-4-8"
-         height="16"
-         width="16"
-         y="363"
-         x="570"
-         style="fill:#ffffff" />
+       transform="translate(-318,27)">
       <use
-         transform="translate(64.25,299)"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use6054-39"
+         width="100%"
+         height="100%"
+         transform="translate(586,-73)" />
+      <use
+         transform="matrix(1,0,0,1.25,63.25,283.625)"
          x="0"
          y="0"
          xlink:href="#devicecable"
          id="use5375"
          width="100%"
-         height="100%" />
+         height="100%"
+         style="stroke-width:0.89442718" />
       <rect
          style="fill:#333333"
          id="rect5347"
@@ -8322,7 +8397,7 @@
       <path
          id="rect5404-4-2-3"
          style="fill:#b3b3b3"
-         d="m 584,373 0,2 -1,0 0,-2 z m 0,-2 0,0.5 -1,0 0,-0.5 z m 0,-1 0,0.5 -1,0 0,-0.5 z m 0,-1 0,0.5 -1,0 0,-0.5 z m 0,-3 0,2 -1,0 0,-2 z m -6,9 3,0 0,0.5 -3,0 z m -5,0 3,0 0,0.5 -3,0 z m -1,-9 10,0 0,8 -10,0 z"
+         d="m 584,373 v 2 h -1 v -2 z m 0,-2 v 0.5 h -1 V 371 Z m 0,-1 v 0.5 h -1 V 370 Z m 0,-1 v 0.5 h -1 V 369 Z m 0,-3 v 2 h -1 v -2 z m -6,9 h 3 v 0.5 h -3 z m -5,0 h 3 v 0.5 h -3 z m -1,-9 h 10 v 8 h -10 z"
          inkscape:connector-curvature="0" />
       <g
          id="boottoqtscreensmall">
@@ -8330,11 +8405,11 @@
            sodipodi:nodetypes="ccccccc"
            inkscape:connector-curvature="0"
            id="path5089-53"
-           d="m 581,371.5 -1.5,1.5 -6.5,0 0,-4.5 1.5,-1.5 6.5,0 z"
+           d="m 581,371.5 -1.5,1.5 H 573 v -4.5 l 1.5,-1.5 h 6.5 z"
            style="fill:#000000;fill-opacity:1" />
         <path
            id="path4957-9"
-           d="m 577.5,369.5 2.5,0 m -1.48438,-1.54688 -0.0227,2.94133 c 0.002,0.96521 0.83838,0.77673 1.50706,0.60555 m -3.69064,0 1.19887,1.38951 M 575.5,368.5 c 1,0 1,0.28518 1,1.5 0,1.21481 0,1.5 -1,1.5 -1,0 -1,-0.30273 -1,-1.5 0,-1.19726 0,-1.5 1,-1.5 z"
+           d="m 577.5,369.5 h 2.5 m -1.48438,-1.54688 -0.0227,2.94133 c 0.002,0.96521 0.83838,0.77673 1.50706,0.60555 m -3.69064,0 1.19887,1.38951 M 575.5,368.5 c 1,0 1,0.28518 1,1.5 0,1.21481 0,1.5 -1,1.5 -1,0 -1,-0.30273 -1,-1.5 0,-1.19726 0,-1.5 1,-1.5 z"
            inkscape:connector-curvature="0"
            style="fill:none;stroke:#ffffff;stroke-width:0.89999998" />
       </g>
@@ -8350,7 +8425,7 @@
          y="0"
          xlink:href="#rect5349"
          id="use5495"
-         transform="translate(12.5,0)"
+         transform="translate(12.5)"
          width="100%"
          height="100%" />
       <use
@@ -8371,26 +8446,28 @@
          height="100%" />
     </g>
     <g
-       transform="translate(6.25,394.5)"
+       transform="translate(-211.75,309.5)"
        id="src/boot2qtemulator">
-      <rect
-         style="display:inline;fill:#ffffff;fill-opacity:1"
-         x="499.75"
-         y="48.5"
-         width="32"
-         height="32"
-         id="rect5759-5-9-0-5-2" />
+      <use
+         transform="translate(458.75,6.5)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-5-6-8-74-0"
+         width="100%"
+         height="100%" />
       <rect
          style="fill:#000000;fill-opacity:1"
          id="rect7751"
          width="16"
          height="16"
-         x="500.75"
-         y="56.5" />
+         x="501.75"
+         y="53.5" />
       <path
          id="rect7756"
          style="fill:#b3b3b3"
-         d="m 514.75,57.5 1,0 0,1 -1,0 z m -4,0 1,0 0,1 -1,0 z m 2,0 1,0 0,1 -1,0 z m -11,2 14,0 0,12 -14,0 z"
+         d="m 515.75,54.5 h 1 v 1 h -1 z m -4,0 h 1 v 1 h -1 z m 2,0 h 1 v 1 h -1 z m -11,2 h 14 v 12 h -14 z"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccccccccccccccccscc" />
       <use
@@ -8403,7 +8480,7 @@
          height="100%" />
       <g
          id="g7856"
-         transform="translate(1,0)">
+         transform="translate(2,-3)">
         <rect
            y="54.5"
            x="516.75"
@@ -8414,7 +8491,7 @@
         <path
            id="rect5261-2-0-1-9-5"
            style="fill:#b3b3b3"
-           d="m 528.75,74.5 -11,0 0,-6.5 11,0 z m 0,-7 -11,0 0,-6.5 11,0 z m 0,-7 -11,0 0,-3 11,0 z m -5,-5 1,0 0,1 -1,0 z m 2,0 1,0 0,1 -1,0 z m 2,0 1,0 0,1 -1,0 z"
+           d="m 528.75,74.5 h -11 V 68 h 11 z m 0,-7 h -11 V 61 h 11 z m 0,-7 h -11 v -3 h 11 z m -5,-5 h 1 v 1 h -1 z m 2,0 h 1 v 1 h -1 z m 2,0 h 1 v 1 h -1 z"
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="cccccccccccccccccccccccccccccc" />
       </g>
@@ -8422,19 +8499,20 @@
          inkscape:connector-curvature="0"
          id="rect7899-2-7-1-7"
          style="fill:#333333"
-         d="m 524.75,71.5 4,0 0,1 -4,0 z m -5,0 4,0 0,1 -4,0 z m 5,-2 4,0 0,1 -4,0 z m -3,0 2,0 0,1 -2,0 z m 3,-5 4,0 0,1 -4,0 z m -3,0 2,0 0,1 -2,0 z m 3,-2 4,0 0,1 -4,0 z m -5,0 4,0 0,1 -4,0 z m 5,-4 4,0 0,1 -4,0 z m -4,0 3,0 0,1 -3,0 z"
+         d="m 525.75,68.5 h 4 v 1 h -4 z m -5,0 h 4 v 1 h -4 z m 5,-2 h 4 v 1 h -4 z m -3,0 h 2 v 1 h -2 z m 3,-5 h 4 v 1 h -4 z m -3,0 h 2 v 1 h -2 z m 3,-2 h 4 v 1 h -4 z m -5,0 h 4 v 1 h -4 z m 5,-4 h 4 v 1 h -4 z m -4,0 h 3 v 1 h -3 z"
          sodipodi:nodetypes="cccccccccccccccccccccccccccccccccccccccccccccccccc" />
     </g>
     <g
        id="src/boot2qtemulatorsmall"
-       transform="translate(-32,96)">
-      <rect
-         id="rect5759-5-9-0-8-6-4-8-7"
-         height="16"
-         width="16"
-         y="363"
-         x="570"
-         style="fill:#ffffff" />
+       transform="translate(-282,27)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use6054-6"
+         width="100%"
+         height="100%"
+         transform="translate(586,-73)" />
       <rect
          style="fill:#000000;fill-opacity:1"
          id="rect7751-2"
@@ -8445,7 +8523,7 @@
       <path
          id="rect7756-5"
          style="fill:#b3b3b3"
-         d="m 582,366 1,0 0,1 -1,0 z m -4,0 1,0 0,1 -1,0 z m 2,0 1,0 0,1 -1,0 z m -7,2 10,0 0,8 -10,0 z"
+         d="m 582,366 h 1 v 1 h -1 z m -4,0 h 1 v 1 h -1 z m 2,0 h 1 v 1 h -1 z m -7,2 h 10 v 8 h -10 z"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccccccccccccccccscc" />
       <use
@@ -8458,15 +8536,17 @@
          height="100%" />
     </g>
     <g
-       transform="translate(-25.75,394.5)"
+       transform="translate(-175.75,309.5)"
        id="src/boot2qtstartvm">
-      <rect
-         style="display:inline;fill:#ffffff;fill-opacity:1"
-         x="499.75"
-         y="48.5"
-         width="32"
-         height="32"
-         id="rect5759-5-9-0-5-2-7" />
+      <use
+         transform="translate(458.75,6.5)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-5-6-8-74-6"
+         width="100%"
+         height="100%" />
       <use
          x="0"
          y="0"
@@ -8480,17 +8560,19 @@
          id="rect8268-8"
          width="21"
          height="17"
-         x="507.25"
-         y="58"
-         rx="2" />
+         x="508.25"
+         y="55"
+         rx="2"
+         ry="2" />
       <rect
          style="fill:#b3b3b3;fill-opacity:1;stroke:#000000"
          id="rect8268"
          width="21"
          height="17"
-         x="507.25"
-         y="58"
-         rx="2" />
+         x="508.25"
+         y="55"
+         rx="2"
+         ry="2" />
       <use
          transform="translate(6,4)"
          x="0"
@@ -8501,34 +8583,37 @@
          height="100%" />
     </g>
     <g
-       transform="translate(54.25,362.5)"
+       transform="translate(-139.75,310.5)"
        id="src/vxworksqtdevice">
-      <rect
-         style="display:inline;fill:#ffffff;fill-opacity:1"
-         x="499.75"
-         y="48.5"
-         width="32"
-         height="32"
-         id="rect5759-5-9-0-5-9" />
+      <use
+         transform="translate(458.75,5.5)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-5-6-8-74-5"
+         width="100%"
+         height="100%" />
       <path
          style="fill:#000000"
-         d="M 521.18792,71.036287 523.69993,75.5 518.68,75.5 Z M 502.39828,53.5 l 8.75116,0 8.36478,14.341164 -4.39783,7.401968 z m 14.5378,4.930014 2.79243,-4.930014 8.49821,0 -7.09801,12.136563 z"
+         d="M 522.18792,67.036287 524.69993,71.5 H 519.68 Z M 503.39828,49.5 h 8.75116 l 8.36478,14.341164 -4.39783,7.401968 z m 14.5378,4.930014 L 520.72851,49.5 h 8.49821 l -7.09801,12.136563 z"
          id="vxworxkslogo"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccccccccccccc" />
     </g>
     <g
        id="src/vxworksdevicesmall"
-       transform="translate(16,64)">
-      <rect
-         id="rect5759-5-9-0-8-6-4-8-8"
-         height="16"
-         width="16"
-         y="363"
-         x="570"
-         style="fill:#ffffff;fill-opacity:1" />
+       transform="translate(-210,27)">
       <use
-         transform="matrix(0.54545415,0,0,0.54545415,297.22355,335.8182)"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use6054-1"
+         width="100%"
+         height="100%"
+         transform="translate(586,-73)" />
+      <use
+         transform="matrix(0.54545415,0,0,0.54545415,296.67809,338.00004)"
          x="0"
          y="0"
          xlink:href="#vxworxkslogo"
@@ -8537,35 +8622,40 @@
          height="100%" />
     </g>
     <g
-       id="src/plugins/winrt/images/winrtdevice">
-      <rect
-         style="display:inline;fill:#ffffff;fill-opacity:1"
-         x="602"
-         y="379"
-         width="32"
-         height="32"
-         id="rect5759-5-9-0-5-9-1" />
+       id="src/plugins/winrt/images/winrtdevice"
+       transform="translate(-206,-74)">
+      <use
+         transform="translate(561,337)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-5-6-8-11"
+         width="100%"
+         height="100%" />
       <path
          sodipodi:nodetypes="cccccccccccccccccccc"
          style="fill:#000000;fill-opacity:1"
          inkscape:connector-curvature="0"
-         d="m 606,394 10,0 0,-10.16502 -10,1.1313 z m 12,-10.3911 0,10.3911 12,0 0,-11.74108 z m 0,22.75938 12,1.34794 0,-11.71622 -12,0 z m -12,-1.35943 10,1.12952 0,-10.13837 -10,0 z"
+         d="m 607,391 h 10 v -10.16502 l -10,1.1313 z m 12,-10.3911 V 391 h 12 v -11.74108 z m 0,22.75938 12,1.34794 V 393 h -12 z m -12,-1.35943 10,1.12952 V 393 h -10 z"
          id="path5333-0" />
     </g>
     <g
-       id="src/plugins/winrt/images/winrtdevicesmall">
-      <rect
-         id="rect5759-5-9-0-8-6-4-8-8-5"
-         height="16"
-         width="16"
-         y="395"
-         x="634"
-         style="fill:#ffffff;fill-opacity:1" />
+       id="src/plugins/winrt/images/winrtdevicesmall"
+       transform="translate(-238,-58)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use6054-3"
+         width="100%"
+         height="100%"
+         transform="translate(650,-41)" />
       <path
          sodipodi:nodetypes="cccccccccccccccccccc"
          style="fill:#000000;fill-opacity:1"
          inkscape:connector-curvature="0"
-         d="m 636.00003,403 4.99997,0 0,-4.67861 -4.99997,0.67433 z M 642,398.18129 642,403 l 6.00003,0 0,-5.6287 z m 0,10.72061 6.00003,0.81345 0,-5.71535 L 642,404 Z M 636.00003,408.09093 641,408.7667 641,404 l -4.99997,0 z"
+         d="M 636.00003,403 H 641 v -4.67861 l -4.99997,0.67433 z M 642,398.18129 V 403 h 6.00003 v -5.6287 z m 0,10.72061 6.00003,0.81345 V 404 H 642 Z M 636.00003,408.09093 641,408.7667 V 404 h -4.99997 z"
          id="path5333" />
     </g>
     <g

@@ -207,7 +207,7 @@ const char TR_CLEAR_MENU[]         = QT_TRANSLATE_NOOP("Core", "Clear Menu");
 
 const char DEFAULT_BUILD_DIRECTORY[] = "../%{JS: Util.asciify(\"build-%{CurrentProject:Name}-%{CurrentKit:FileSystemName}-%{CurrentBuild:Name}\")}";
 
-const int TARGET_ICON_SIZE = 32;
+const int MODEBAR_ICON_SIZE = 34;
 const int DEFAULT_MAX_LINE_COUNT = 100000;
 
 } // namespace Constants
