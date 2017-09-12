@@ -25,7 +25,6 @@
 
 #include "loadcoredialog.h"
 
-#include "debuggerstartparameters.h"
 #include "debuggerdialogs.h"
 #include "debuggerkitinformation.h"
 #include "gdb/gdbengine.h"
@@ -33,6 +32,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <ssh/sftpfilesystemmodel.h>
+#include <ssh/sshconnection.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>

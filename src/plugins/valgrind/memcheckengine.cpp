@@ -31,7 +31,6 @@
 #include "xmlprotocol/status.h"
 
 #include <debugger/debuggerkitinformation.h>
-#include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -42,6 +41,8 @@
 #include <projectexplorer/toolchain.h>
 
 #include <utils/qtcassert.h>
+
+#include <ssh/sshconnection.h>
 
 using namespace Debugger;
 using namespace ProjectExplorer;

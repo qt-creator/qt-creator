@@ -27,7 +27,6 @@
 
 #include "breakhandler.h"
 #include "debuggerengine.h"
-#include "debuggerstartparameters.h"
 #include "debuggercore.h"
 #include "debuggerinternalconstants.h"
 #include "registerhandler.h"

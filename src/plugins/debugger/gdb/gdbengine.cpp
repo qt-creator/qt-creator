@@ -25,7 +25,6 @@
 
 #include "gdbengine.h"
 
-#include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/disassemblerlines.h>

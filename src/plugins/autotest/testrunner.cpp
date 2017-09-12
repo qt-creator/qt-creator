@@ -51,7 +51,6 @@
 
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
-#include <debugger/debuggerstartparameters.h>
 
 namespace Autotest {
 namespace Internal {

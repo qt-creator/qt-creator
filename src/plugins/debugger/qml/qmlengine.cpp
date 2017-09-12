@@ -67,6 +67,7 @@
 #include <QDir>
 #include <QDockWidget>
 #include <QFileInfo>
+#include <QHostAddress>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>

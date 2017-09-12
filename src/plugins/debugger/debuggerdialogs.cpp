@@ -26,7 +26,6 @@
 #include "debuggerdialogs.h"
 
 #include "debuggerkitinformation.h"
-#include "debuggerstartparameters.h"
 #include "debuggerruncontrol.h"
 #include "cdb/cdbengine.h"
 
@@ -39,6 +38,8 @@
 #include <utils/pathchooser.h>
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
+
+#include <ssh/sshconnection.h>
 
 #include <QButtonGroup>
 #include <QCheckBox>

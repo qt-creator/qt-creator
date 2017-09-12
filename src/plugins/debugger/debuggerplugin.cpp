@@ -26,7 +26,6 @@
 #include "debuggerplugin.h"
 
 #include "debuggermainwindow.h"
-#include "debuggerstartparameters.h"
 #include "debuggeractions.h"
 #include "debuggerinternalconstants.h"
 #include "debuggercore.h"
@@ -105,6 +104,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
+#include <ssh/sshconnection.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>

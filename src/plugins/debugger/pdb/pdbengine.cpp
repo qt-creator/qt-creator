@@ -30,7 +30,6 @@
 #include <debugger/debuggerdialogs.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerprotocol.h>
-#include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/threaddata.h>
 

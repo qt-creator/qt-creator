@@ -29,7 +29,6 @@ HEADERS += \
     debuggerprotocol.h \
     debuggerrunconfigurationaspect.h \
     debuggerruncontrol.h \
-    debuggerstartparameters.h \
     debuggerkitconfigwidget.h \
     debuggerkitinformation.h \
     disassembleragent.h \

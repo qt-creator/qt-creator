@@ -33,7 +33,6 @@
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerruncontrol.h>
-#include <debugger/debuggerstartparameters.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>

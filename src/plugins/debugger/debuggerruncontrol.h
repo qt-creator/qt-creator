@@ -32,6 +32,9 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 
+#include <ssh/sshconnection.h> // FIXME: Remove after downstream was adapted
+#include <QHostAddress> // FIXME: Remove after downstream was adapted
+
 namespace Debugger {
 
 class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker

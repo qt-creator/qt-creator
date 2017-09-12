@@ -33,7 +33,6 @@
 #include "debuggerkitinformation.h"
 #include "debuggerplugin.h"
 #include "debuggerrunconfigurationaspect.h"
-#include "debuggerstartparameters.h"
 #include "breakhandler.h"
 #include "shared/peutils.h"
 
@@ -62,6 +61,8 @@
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <qtsupport/qtkitinformation.h>
+
+#include <ssh/sshconnection.h>
 
 #include <QTcpServer>
 

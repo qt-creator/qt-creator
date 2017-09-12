@@ -29,7 +29,6 @@
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggertooltipmanager.h>
-#include <debugger/debuggerstartparameters.h>
 #include <debugger/breakhandler.h>
 #include <debugger/stackhandler.h>
 #include <debugger/threaddata.h>

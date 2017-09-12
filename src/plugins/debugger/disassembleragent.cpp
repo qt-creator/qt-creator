@@ -30,7 +30,6 @@
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
-#include "debuggerstartparameters.h"
 #include "disassemblerlines.h"
 #include "sourceutils.h"
 

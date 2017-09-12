@@ -29,7 +29,6 @@
 #include "debuggerconstants.h"
 #include "debuggeritem.h"
 #include "debuggerprotocol.h"
-#include "debuggerstartparameters.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runnables.h>
@@ -77,11 +76,58 @@ class MemoryViewSetupData;
 class Terminal;
 class ThreadId;
 
-class DebuggerRunParameters : public DebuggerStartParameters
+class DebuggerRunParameters
 {
 public:
-    DebuggerRunParameters() {}
-    DebuggerRunParameters(const DebuggerStartParameters &sp) : DebuggerStartParameters(sp) {}
+    DebuggerStartMode startMode = NoStartMode;
+    DebuggerCloseMode closeMode = KillAtClose;
+
+    ProjectExplorer::StandardRunnable inferior;
+    QString displayName; // Used in the Snapshots view.
+    Utils::Environment stubEnvironment;
+    Utils::ProcessHandle attachPID;
+    QStringList solibSearchPath;
+    bool useTerminal = false;
+    bool needFixup = true; // FIXME: Make false the default...
+
+    // Used by Qml debugging.
+    QUrl qmlServer;
+
+    // Used by general remote debugging.
+    QString remoteChannel;
+    bool useExtendedRemote = false; // Whether to use GDB's target extended-remote or not.
+    QString symbolFile;
+
+    // Used by Mer plugin (3rd party)
+    QMap<QString, QString> sourcePathMap;
+
+    // Used by baremetal plugin
+    QString commandsForReset; // commands used for resetting the inferior
+    bool useContinueInsteadOfRun = false; // if connected to a hw debugger run is not possible but continue is used
+    QString commandsAfterConnect; // additional commands to post after connection to debug target
+
+    // Used by Valgrind
+    QStringList expectedSignals;
+
+    // For QNX debugging
+    bool useCtrlCStub = false;
+
+    // Used by Android to avoid false positives on warnOnRelease
+    bool skipExecutableValidation = false;
+    bool useTargetAsync = false;
+    QStringList additionalSearchDirectories;
+
+    // Used by iOS.
+    QString platform;
+    QString deviceSymbolsRoot;
+    bool continueAfterAttach = false;
+    QString sysRoot;
+
+    // Used by general core file debugging. Public access requested in QTCREATORBUG-17158.
+    QString coreFile;
+
+    // Macro-expanded and passed to debugger startup.
+    QString additionalStartupCommands;
 
     DebuggerEngineType masterEngineType = NoEngineType;
     DebuggerEngineType cppEngineType = NoEngineType;

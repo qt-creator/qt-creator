@@ -30,7 +30,6 @@
 #include "debuggercore.h"
 #include "debuggericons.h"
 #include "debuggerruncontrol.h"
-#include "debuggerstartparameters.h"
 #include "debuggertooltipmanager.h"
 
 #include "breakhandler.h"

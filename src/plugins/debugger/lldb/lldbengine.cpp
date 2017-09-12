@@ -31,7 +31,6 @@
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerprotocol.h>
-#include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggertooltipmanager.h>
 
 #include <debugger/breakhandler.h>
