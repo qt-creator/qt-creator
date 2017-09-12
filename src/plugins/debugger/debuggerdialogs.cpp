@@ -367,9 +367,8 @@ void StartApplicationDialog::updateState()
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(okEnabled);
 }
 
-bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit **kit)
+void StartApplicationDialog::run(bool attachRemote)
 {
-    const bool attachRemote = rp->startMode == AttachToRemoteServer;
     const QString settingsGroup = QLatin1String("DebugMode");
     const QString arrayName = QLatin1String("StartApplication");
 
@@ -389,7 +388,7 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit
     settings->endArray();
     settings->endGroup();
 
-    StartApplicationDialog dialog(parent);
+    StartApplicationDialog dialog(ICore::dialogParent());
     dialog.setHistory(history);
     dialog.setParameters(history.back());
     if (!attachRemote) {
@@ -401,10 +400,13 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit
         dialog.d->channelOverrideEdit->setVisible(false);
     }
     if (dialog.exec() != QDialog::Accepted)
-        return false;
+        return;
 
     Kit *k = dialog.d->kitChooser->currentKit();
     IDevice::ConstPtr dev = DeviceKitInformation::device(k);
+
+    DebuggerRunTool *debugger = DebuggerRunTool::createFromKit(k);
+    QTC_ASSERT(debugger, return);
 
     const StartApplicationParameters newParameters = dialog.parameters();
     if (newParameters != history.back()) {
@@ -421,27 +423,39 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit
         settings->endGroup();
     }
 
-    rp->inferior.executable = newParameters.runnable.executable;
+    StandardRunnable inferior = newParameters.runnable;
+    debugger->setUseTerminal(newParameters.runnable.runMode == ApplicationLauncher::Console);
     const QString inputAddress = dialog.d->channelOverrideEdit->text();
     if (!inputAddress.isEmpty())
-        rp->remoteChannel = inputAddress;
+        debugger->setRemoteChannel(inputAddress);
     else
-        rp->remoteChannel = QString("%1:%2").arg(dev->sshParameters().host).arg(newParameters.serverPort);
-    rp->displayName = newParameters.displayName();
-    rp->inferior.workingDirectory = newParameters.runnable.workingDirectory;
-    rp->useTerminal = newParameters.runnable.runMode == ApplicationLauncher::Console;
-    if (!newParameters.runnable.commandLineArguments.isEmpty())
-        rp->inferior.commandLineArguments = newParameters.runnable.commandLineArguments;
-    rp->breakOnMain = newParameters.breakAtMain;
-    rp->serverStartScript = newParameters.serverStartScript;
-    rp->debugInfoLocation = newParameters.debugInfoLocation;
+        debugger->setRemoteChannel(dev->sshParameters().host, newParameters.serverPort);
+    debugger->setRunControlName(newParameters.displayName());
+    debugger->setBreakOnMain(newParameters.breakAtMain);
+    debugger->setServerStartScript(newParameters.serverStartScript);
+    debugger->setDebugInfoLocation(newParameters.debugInfoLocation);
+    debugger->setInferior(inferior);
 
     bool isLocal = !dev || (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     if (!attachRemote)
-        rp->startMode = isLocal ? StartExternal : StartRemoteProcess;
-    if (kit)
-        *kit = k;
-    return true;
+        debugger->setStartMode(isLocal ? StartExternal : StartRemoteProcess);
+
+    if (attachRemote) {
+        debugger->setStartMode(AttachToRemoteServer);
+        debugger->setCloseMode(KillAtClose);
+        debugger->setUseContinueInsteadOfRun(true);
+    }
+    debugger->startRunControl();
+}
+
+void StartApplicationDialog::attachToRemoteServer()
+{
+    run(true);
+}
+
+void StartApplicationDialog::startAndDebugApplication()
+{
+    run(false);
 }
 
 StartApplicationParameters StartApplicationDialog::parameters() const

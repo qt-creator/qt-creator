@@ -733,10 +733,8 @@ public:
     void onModeChanged(Id mode);
     void updateDebugWithoutDeployMenu();
 
-    void startAndDebugApplication();
     void startRemoteCdbSession();
     void startRemoteServerAndAttachToProcess();
-    void attachToRemoteServer();
     void attachToRunningApplication();
     void attachToUnstartedApplicationDialog();
     void attachToQmlPort();
@@ -1499,7 +1497,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     act = m_startAndDebugApplicationAction = new QAction(this);
     act->setText(tr("Start and Debug External Application..."));
-    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::startAndDebugApplication);
+    connect(act, &QAction::triggered, this, &StartApplicationDialog::startAndDebugApplication);
 
     act = m_attachToCoreAction = new QAction(this);
     act->setText(tr("Load Core File..."));
@@ -1507,7 +1505,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     act = m_attachToRemoteServerAction = new QAction(this);
     act->setText(tr("Attach to Running Debug Server..."));
-    connect(act, &QAction::triggered, this, &DebuggerPluginPrivate::attachToRemoteServer);
+    connect(act, &QAction::triggered, this, &StartApplicationDialog::attachToRemoteServer);
 
     act = m_startRemoteServerAction = new QAction(this);
     act->setText(tr("Start Debug Server Attached to Process..."));
@@ -1936,18 +1934,6 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     setProxyAction(m_visibleStartAction, Id(Constants::DEBUG));
 }
 
-void DebuggerPluginPrivate::startAndDebugApplication()
-{
-    DebuggerRunParameters rp;
-    Kit *kit;
-    if (StartApplicationDialog::run(ICore::dialogParent(), &rp, &kit)) {
-        auto debugger = DebuggerRunTool::createFromKit(kit);
-        QTC_ASSERT(debugger, return);
-        debugger->setRunParameters(rp);
-        debugger->startRunControl();
-    }
-}
-
 void DebuggerPluginPrivate::attachCore()
 {
     AttachCoreDialog dlg(ICore::dialogParent());
@@ -1971,19 +1957,16 @@ void DebuggerPluginPrivate::attachCore()
     setConfigValue("LastExternalStartScript", dlg.overrideStartScript());
     setConfigValue("LastForceLocalCoreFile", dlg.forcesLocalCoreFile());
 
-    QString display = dlg.useLocalCoreFile() ? dlg.localCoreFile() : dlg.remoteCoreFile();
-    DebuggerRunParameters rp;
-    rp.masterEngineType = DebuggerKitInformation::engineType(dlg.kit());
-    rp.inferior.executable = dlg.localExecutableFile();
-    rp.coreFile = dlg.localCoreFile();
-    rp.displayName = tr("Core file \"%1\"").arg(display);
-    rp.startMode = AttachCore;
-    rp.closeMode = DetachAtClose;
-    rp.overrideStartScript = dlg.overrideStartScript();
-
     auto debugger = DebuggerRunTool::createFromKit(dlg.kit());
     QTC_ASSERT(debugger, return);
-    debugger->setRunParameters(rp);
+    debugger->setMasterEngineType(DebuggerKitInformation::engineType(dlg.kit()));
+    debugger->setInferiorExecutable(dlg.localExecutableFile());
+    debugger->setCoreFileName(dlg.localCoreFile());
+    debugger->setRunControlName(tr("Core file \"%1\"")
+        .arg(dlg.useLocalCoreFile() ? dlg.localCoreFile() : dlg.remoteCoreFile()));
+    debugger->setStartMode(AttachCore);
+    debugger->setCloseMode(DetachAtClose);
+    debugger->setOverrideStartScript(dlg.overrideStartScript());
     debugger->startRunControl();
 }
 
@@ -2008,21 +1991,6 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     debugger->setCloseMode(KillAtClose);
     debugger->setRemoteChannel(dlg.connection());
     debugger->startRunControl();
-}
-
-void DebuggerPluginPrivate::attachToRemoteServer()
-{
-    DebuggerRunParameters rp;
-    Kit *kit;
-    rp.startMode = AttachToRemoteServer;
-    rp.useContinueInsteadOfRun = true;
-    if (StartApplicationDialog::run(ICore::dialogParent(), &rp, &kit)) {
-        rp.closeMode = KillAtClose;
-        auto debugger = DebuggerRunTool::createFromKit(kit);
-        QTC_ASSERT(debugger, return);
-        debugger->setRunParameters(rp);
-        debugger->startRunControl();
-    }
 }
 
 void DebuggerPluginPrivate::startRemoteServerAndAttachToProcess()
@@ -2135,22 +2103,20 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
 
 void DebuggerPlugin::attachExternalApplication(RunControl *rc)
 {
-    DebuggerRunParameters rp;
-    rp.attachPID = rc->applicationProcessHandle();
-    rp.displayName = tr("Process %1").arg(rp.attachPID.pid());
-    rp.startMode = AttachExternal;
-    rp.closeMode = DetachAtClose;
-    rp.toolChainAbi = rc->abi();
-    rp.languages = CppLanguage;
     DebuggerRunTool *debugger;
     if (RunConfiguration *runConfig = rc->runConfiguration()) {
         debugger = DebuggerRunTool::createFromRunConfiguration(runConfig);
     } else {
         Kit *kit = guessKitFromAbis({rc->abi()});
         debugger = DebuggerRunTool::createFromKit(kit);
-        QTC_ASSERT(debugger, return);
     }
-    debugger->setRunParameters(rp);
+    QTC_ASSERT(debugger, return);
+    ProcessHandle pid = rc->applicationProcessHandle();
+    debugger->setAttachPid(pid);
+    debugger->setRunControlName(tr("Process %1").arg(pid.pid()));
+    debugger->setStartMode(AttachExternal);
+    debugger->setCloseMode(DetachAtClose);
+    debugger->setToolChainAbi(rc->abi());
     debugger->startRunControl();
 }
 

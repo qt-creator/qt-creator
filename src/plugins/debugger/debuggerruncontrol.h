@@ -109,9 +109,14 @@ public:
     void setContinueAfterAttach(bool on);
     void setSkipExecutableValidation(bool on);
     void setUseCtrlCStub(bool on);
+    void setBreakOnMain(bool on);
+    void setUseTerminal(bool on);
 
     void setCommandsAfterConnect(const QString &commands);
     void setCommandsForReset(const QString &commands);
+
+    void setServerStartScript(const QString &serverStartScript);
+    void setDebugInfoLocation(const QString &debugInfoLocation);
 
     void setQmlServer(const QUrl &qmlServer);
 
@@ -122,6 +127,8 @@ public:
 
     void setNeedFixup(bool on);
     void setTestCase(int testCase);
+    void setOverrideStartScript(const QString &script);
+    void setToolChainAbi(const ProjectExplorer::Abi &abi);
 
 signals:
     void aboutToNotifyInferiorSetupOk();

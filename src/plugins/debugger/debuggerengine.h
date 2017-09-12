@@ -46,10 +46,7 @@ QT_END_NAMESPACE
 
 namespace Core { class IOptionsPage; }
 
-namespace Utils {
-class MacroExpander;
-class ProcessHandle;
-} // Utils
+namespace Utils { class MacroExpander; }
 
 namespace Debugger {
 

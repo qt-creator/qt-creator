@@ -256,6 +256,16 @@ void DebuggerRunTool::setUseCtrlCStub(bool on)
     m_runParameters.useCtrlCStub = on;
 }
 
+void DebuggerRunTool::setBreakOnMain(bool on)
+{
+    m_runParameters.breakOnMain = on;
+}
+
+void DebuggerRunTool::setUseTerminal(bool on)
+{
+    m_runParameters.useTerminal = on;
+}
+
 void DebuggerRunTool::setCommandsAfterConnect(const QString &commands)
 {
     m_runParameters.commandsAfterConnect = commands;
@@ -264,6 +274,16 @@ void DebuggerRunTool::setCommandsAfterConnect(const QString &commands)
 void DebuggerRunTool::setCommandsForReset(const QString &commands)
 {
     m_runParameters.commandsForReset = commands;
+}
+
+void DebuggerRunTool::setServerStartScript(const QString &serverStartScript)
+{
+    m_runParameters.serverStartScript = serverStartScript;
+}
+
+void DebuggerRunTool::setDebugInfoLocation(const QString &debugInfoLocation)
+{
+    m_runParameters.debugInfoLocation = debugInfoLocation;
 }
 
 void DebuggerRunTool::setQmlServer(const QUrl &qmlServer)
@@ -289,6 +309,16 @@ void DebuggerRunTool::setNeedFixup(bool on)
 void DebuggerRunTool::setTestCase(int testCase)
 {
     m_runParameters.testCase = testCase;
+}
+
+void DebuggerRunTool::setOverrideStartScript(const QString &script)
+{
+    m_runParameters.overrideStartScript = script;
+}
+
+void DebuggerRunTool::setToolChainAbi(const Abi &abi)
+{
+    m_runParameters.toolChainAbi = abi;
 }
 
 void DebuggerRunTool::setInferior(const Runnable &runnable)
