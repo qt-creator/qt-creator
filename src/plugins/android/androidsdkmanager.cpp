@@ -29,9 +29,11 @@
 
 #include "utils/algorithm.h"
 #include "utils/qtcassert.h"
+#include "utils/runextensions.h"
 #include "utils/synchronousprocess.h"
 #include "utils/environment.h"
 
+#include <QFutureWatcher>
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QSettings>
@@ -52,8 +54,10 @@ const char revisionKey[] = "Version:";
 const char descriptionKey[] = "Description:";
 
 const int sdkManagerCmdTimeoutS = 60;
+const int sdkManagerOperationTimeoutS = 600;
 
 using namespace Utils;
+using SdkCmdFutureInterface = QFutureInterface<AndroidSdkManager::OperationOutput>;
 
 int platformNameToApiLevel(const QString &platformName)
 {
@@ -83,22 +87,82 @@ static bool valueForKey(QString key, const QString &line, QString *value = nullp
     return false;
 }
 
-/*!
-    Runs the \c sdkmanger tool specific to configuration \a config with arguments \a args. Returns
-    \c true if the command is successfully executed. Output is copied into \a output. The function
-    blocks the calling thread.
- */
-static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &args, QString *output,
-                              int timeout = sdkManagerCmdTimeoutS)
+int parseProgress(const QString &out)
 {
-    QString sdkManagerToolPath = config.sdkManagerToolPath().toString();
+    int progress = -1;
+    if (out.isEmpty())
+        return progress;
+    QRegularExpression reg("(?<progress>\\d*)%");
+    QStringList lines = out.split(QRegularExpression("[\\n\\r]"), QString::SkipEmptyParts);
+    for (const QString &line : lines) {
+        QRegularExpressionMatch match = reg.match(line);
+        if (match.hasMatch()) {
+            progress = match.captured("progress").toInt();
+            if (progress < 0 || progress > 100)
+                progress = -1;
+        }
+    }
+    return progress;
+}
+
+void watcherDeleter(QFutureWatcher<void> *watcher)
+{
+    if (!watcher->isFinished() && !watcher->isCanceled())
+        watcher->cancel();
+
+    if (!watcher->isFinished())
+        watcher->waitForFinished();
+
+    delete watcher;
+}
+
+/*!
+    Runs the \c sdkmanger tool with arguments \a args. Returns \c true if the command is
+    successfully executed. Output is copied into \a output. The function blocks the calling thread.
+ */
+static bool sdkManagerCommand(const Utils::FileName &toolPath, const QStringList &args,
+                              QString *output, int timeout = sdkManagerCmdTimeoutS)
+{
     SynchronousProcess proc;
     proc.setTimeoutS(timeout);
     proc.setTimeOutMessageBoxEnabled(true);
-    SynchronousProcessResponse response = proc.run(sdkManagerToolPath, args);
+    SynchronousProcessResponse response = proc.run(toolPath.toString(), args);
     if (output)
         *output = response.allOutput();
     return response.result == SynchronousProcessResponse::Finished;
+}
+
+/*!
+    Runs the \c sdkmanger tool with arguments \a args. The operation command progress is updated in
+    to the future interface \a fi and \a output is populated with command output. The command listens
+    to cancel signal emmitted by \a sdkManager and kill the commands. The command is also killed
+    after the lapse of \a timeout seconds. The function blocks the calling thread.
+ */
+static void sdkManagerCommand(const Utils::FileName &toolPath, const QStringList &args,
+                              AndroidSdkManager &sdkManager, SdkCmdFutureInterface &fi,
+                              AndroidSdkManager::OperationOutput &output, double progressQuota,
+                              bool interruptible = true, int timeout = sdkManagerOperationTimeoutS)
+{
+    int offset = fi.progressValue();
+    SynchronousProcess proc;
+    proc.setStdErrBufferedSignalsEnabled(true);
+    proc.setStdOutBufferedSignalsEnabled(true);
+    proc.setTimeoutS(timeout);
+    QObject::connect(&proc, &SynchronousProcess::stdOutBuffered,
+                     [offset, progressQuota, &fi](const QString &out) {
+        int progressPercent = parseProgress(out);
+        if (progressPercent != -1)
+            fi.setProgressValue(offset + qRound((progressPercent / 100.0) * progressQuota));
+    });
+    QObject::connect(&proc, &SynchronousProcess::stdErrBuffered, [&output](const QString &err) {
+        output.stdError = err;
+    });
+    if (interruptible) {
+        QObject::connect(&sdkManager, &AndroidSdkManager::cancelActiveOperations,
+                         &proc, &SynchronousProcess::terminate);
+    }
+    SynchronousProcessResponse response = proc.run(toolPath.toString(), args);
+    output.success = response.result == SynchronousProcessResponse::Finished;
 }
 
 
@@ -113,6 +177,14 @@ public:
                                            bool forceUpdate = false);
     const AndroidSdkPackageList &allPackages(bool forceUpdate = false);
     void refreshSdkPackages(bool forceReload = false);
+
+    void updateInstalled(SdkCmdFutureInterface &fi);
+    void update(SdkCmdFutureInterface &fi, const QStringList &install,
+                const QStringList &uninstall);
+
+    void addWatcher(const QFuture<AndroidSdkManager::OperationOutput> &future);
+
+    std::unique_ptr<QFutureWatcher<void>, decltype(&watcherDeleter)> m_activeOperation;
 
 private:
     void reloadSdkPackages();
@@ -198,7 +270,7 @@ AndroidSdkManager::AndroidSdkManager(const AndroidConfig &config, QObject *paren
 
 AndroidSdkManager::~AndroidSdkManager()
 {
-
+    cancelOperatons();
 }
 
 SdkPlatformList AndroidSdkManager::installedSdkPlatforms()
@@ -256,6 +328,37 @@ SdkPlatformList AndroidSdkManager::filteredSdkPlatforms(int minApiLevel,
 void AndroidSdkManager::reloadPackages(bool forceReload)
 {
     m_d->refreshSdkPackages(forceReload);
+}
+
+bool AndroidSdkManager::isBusy() const
+{
+    return m_d->m_activeOperation && !m_d->m_activeOperation->isFinished();
+}
+
+QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::updateAll()
+{
+    if (isBusy()) {
+        return QFuture<AndroidSdkManager::OperationOutput>();
+    }
+    auto future = Utils::runAsync(&AndroidSdkManagerPrivate::updateInstalled, m_d.get());
+    m_d->addWatcher(future);
+    return future;
+}
+
+QFuture<AndroidSdkManager::OperationOutput>
+AndroidSdkManager::update(const QStringList &install, const QStringList &uninstall)
+{
+    if (isBusy())
+        return QFuture<AndroidSdkManager::OperationOutput>();
+    auto future = Utils::runAsync(&AndroidSdkManagerPrivate::update, m_d.get(), install, uninstall);
+    m_d->addWatcher(future);
+    return future;
+}
+
+void AndroidSdkManager::cancelOperatons()
+{
+    emit cancelActiveOperations();
+    m_d->m_activeOperation.reset();
 }
 
 void SdkManagerOutputParser::parsePackageListing(const QString &output)
@@ -556,6 +659,7 @@ SdkManagerOutputParser::MarkerTag SdkManagerOutputParser::parseMarkers(const QSt
 
 AndroidSdkManagerPrivate::AndroidSdkManagerPrivate(AndroidSdkManager &sdkManager,
                                                    const AndroidConfig &config):
+    m_activeOperation(nullptr, watcherDeleter),
     m_sdkManager(sdkManager),
     m_config(config)
 {
@@ -605,7 +709,8 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
         m_allPackages = Utils::transform(toolManager.availableSdkPlatforms(), toAndroidSdkPackages);
     } else {
         QString packageListing;
-        if (sdkManagerCommand(m_config, QStringList({"--list", "--verbose"}), &packageListing)) {
+        if (sdkManagerCommand(m_config.sdkManagerToolPath(), QStringList({"--list", "--verbose"}),
+                              &packageListing)) {
             SdkManagerOutputParser parser(m_allPackages);
             parser.parsePackageListing(packageListing);
         }
@@ -619,6 +724,85 @@ void AndroidSdkManagerPrivate::refreshSdkPackages(bool forceReload)
     // QTC updates the package listing only
     if (m_config.sdkManagerToolPath() != lastSdkManagerPath || forceReload)
         reloadSdkPackages();
+}
+
+void AndroidSdkManagerPrivate::updateInstalled(SdkCmdFutureInterface &fi)
+{
+    fi.setProgressRange(0, 100);
+    fi.setProgressValue(0);
+    AndroidSdkManager::OperationOutput result;
+    result.type = AndroidSdkManager::UpdateAll;
+    result.stdOutput = QCoreApplication::translate("AndroidSdkManager",
+                                                   "Updating installed packages.");
+    fi.reportResult(result);
+    QStringList args("--update");
+    if (!fi.isCanceled())
+        sdkManagerCommand(m_config.sdkManagerToolPath(), args, m_sdkManager, fi, result, 100);
+    else
+        qCDebug(sdkManagerLog) << "Update: Operation cancelled before start";
+
+    if (result.stdError.isEmpty() && !result.success)
+        result.stdError = QCoreApplication::translate("AndroidSdkManager", "Failed.");
+    result.stdOutput = QCoreApplication::translate("AndroidSdkManager", "Done\n\n");
+    fi.reportResult(result);
+    fi.setProgressValue(100);
+}
+
+void AndroidSdkManagerPrivate::update(SdkCmdFutureInterface &fi, const QStringList &install,
+                                      const QStringList &uninstall)
+{
+    fi.setProgressRange(0, 100);
+    fi.setProgressValue(0);
+    double progressQuota = 100.0 / (install.count() + uninstall.count());
+    int currentProgress = 0;
+
+    QString installTag = QCoreApplication::translate("AndroidSdkManager", "Installing");
+    QString uninstallTag = QCoreApplication::translate("AndroidSdkManager", "Uninstalling");
+
+    auto doOperation = [&](const QString& packagePath, const QStringList& args,
+            bool isInstall) {
+        AndroidSdkManager::OperationOutput result;
+        result.type = AndroidSdkManager::UpdatePackage;
+        result.stdOutput = QString("%1 %2").arg(isInstall ? installTag : uninstallTag)
+                .arg(packagePath);
+        fi.reportResult(result);
+        if (fi.isCanceled()) {
+            qCDebug(sdkManagerLog) << args << "Update: Operation cancelled before start";
+        } else {
+            sdkManagerCommand(m_config.sdkManagerToolPath(), args, m_sdkManager, fi, result,
+                              progressQuota, isInstall);
+        }
+        currentProgress += progressQuota;
+        fi.setProgressValue(currentProgress);
+        if (result.stdError.isEmpty() && !result.success)
+            result.stdError = QCoreApplication::translate("AndroidSdkManager", "Failed");
+        result.stdOutput = QCoreApplication::translate("AndroidSdkManager", "Done\n\n");
+        fi.reportResult(result);
+        return fi.isCanceled();
+    };
+
+
+    // Uninstall packages
+    for (const QString &sdkStylePath : uninstall) {
+        // Uninstall operations are not interptible. We don't want to leave half uninstalled.
+        if (doOperation(sdkStylePath, {"--uninstall", sdkStylePath}, false))
+            break;
+    }
+
+    // Install packages
+    for (const QString &sdkStylePath : install) {
+        if (doOperation(sdkStylePath, {sdkStylePath}, true))
+            break;
+    }
+    fi.setProgressValue(100);
+}
+
+void AndroidSdkManagerPrivate::addWatcher(const QFuture<AndroidSdkManager::OperationOutput> &future)
+{
+    if (future.isFinished())
+        return;
+    m_activeOperation.reset(new QFutureWatcher<void>());
+    m_activeOperation->setFuture(future);
 }
 
 void AndroidSdkManagerPrivate::clearPackages()

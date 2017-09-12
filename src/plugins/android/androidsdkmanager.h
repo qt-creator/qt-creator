@@ -28,6 +28,7 @@
 #include "androidsdkpackage.h"
 
 #include <QObject>
+#include <QFuture>
 
 #include <memory>
 
@@ -43,6 +44,21 @@ class AndroidSdkManager : public QObject
 {
     Q_OBJECT
 public:
+    enum CommandType
+    {
+        None,
+        UpdateAll,
+        UpdatePackage
+    };
+
+    struct OperationOutput
+    {
+        bool success = false;
+        CommandType type = None;
+        QString stdOutput;
+        QString stdError;
+    };
+
     AndroidSdkManager(const AndroidConfig &config, QObject *parent = nullptr);
     ~AndroidSdkManager();
 
@@ -58,9 +74,16 @@ public:
                                          = AndroidSdkPackage::Installed);
     void reloadPackages(bool forceReload = false);
 
+    bool isBusy() const;
+    QFuture<OperationOutput> updateAll();
+    QFuture<OperationOutput> update(const QStringList &install, const QStringList &uninstall);
+
+    void cancelOperatons();
+
 signals:
     void packageReloadBegin();
     void packageReloadFinished();
+    void cancelActiveOperations();
 
 private:
     std::unique_ptr<AndroidSdkManagerPrivate> m_d;
