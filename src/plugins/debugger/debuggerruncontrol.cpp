@@ -279,7 +279,14 @@ void DebuggerRunTool::setCommandsForReset(const QString &commands)
 
 void DebuggerRunTool::setServerStartScript(const QString &serverStartScript)
 {
-    m_runParameters.serverStartScript = serverStartScript;
+    if (!serverStartScript.isEmpty()) {
+        // Provide script information about the environment
+        StandardRunnable serverStarter;
+        serverStarter.executable = serverStartScript;
+        QtcProcess::addArg(&serverStarter.commandLineArguments, m_runParameters.inferior.executable);
+        QtcProcess::addArg(&serverStarter.commandLineArguments, m_runParameters.remoteChannel);
+        addStartDependency(new LocalProcessRunner(runControl(), serverStarter));
+    }
 }
 
 void DebuggerRunTool::setDebugInfoLocation(const QString &debugInfoLocation)
@@ -852,14 +859,6 @@ void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp)
 {
     m_runParameters = rp;
 
-    if (!rp.serverStartScript.isEmpty()) {
-        // Provide script information about the environment
-        StandardRunnable serverStarter;
-        serverStarter.executable = rp.serverStartScript;
-        QtcProcess::addArg(&serverStarter.commandLineArguments, rp.inferior.executable);
-        QtcProcess::addArg(&serverStarter.commandLineArguments, rp.remoteChannel);
-        addStartDependency(new LocalProcessRunner(runControl(), serverStarter));
-    }
 }
 
 DebuggerEngine *DebuggerRunTool::activeEngine() const

@@ -141,7 +141,6 @@ public:
     QString startMessage; // First status message shown.
     QString debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"
-    QString serverStartScript;
     bool isSnapshot = false; // Set if created internally.
     ProjectExplorer::Abi toolChainAbi;
 

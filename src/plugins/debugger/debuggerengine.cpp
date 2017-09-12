@@ -108,7 +108,6 @@ QDebug operator<<(QDebug str, const DebuggerRunParameters &sp)
             << " attachPID=" << sp.attachPID.pid()
             << " useTerminal=" << sp.useTerminal
             << " remoteChannel=" << sp.remoteChannel
-            << " serverStartScript=" << sp.serverStartScript
             << " abi=" << sp.toolChainAbi.toString() << '\n';
     return str;
 }
