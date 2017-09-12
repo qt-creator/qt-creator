@@ -81,6 +81,7 @@ DebuggerEngine *createQmlEngine(bool useTerminal);
 DebuggerEngine *createQmlCppEngine(DebuggerEngine *cppEngine, bool useTerminal);
 DebuggerEngine *createLldbEngine();
 
+static bool fixupParameters(DebuggerRunParameters &rp, RunControl *runControl, QStringList &m_errors);
 
 class LocalProcessRunner : public RunWorker
 {
@@ -388,23 +389,81 @@ void DebuggerRunTool::start()
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
-    setupEngine();
-    DebuggerEngine *engine = m_engine;
-
-    QTC_ASSERT(engine, return);
-    const DebuggerRunParameters &rp = engine->runParameters();
     // User canceled input dialog asking for executable when working on library project.
-    if (rp.startMode == StartInternal
-            && rp.inferior.executable.isEmpty()
-            && rp.interpreter.isEmpty()) {
-        reportFailure(tr("No executable specified.") + '\n');
+    if (m_runParameters.startMode == StartInternal
+            && m_runParameters.inferior.executable.isEmpty()
+            && m_runParameters.interpreter.isEmpty()) {
+        reportFailure(tr("No executable specified."));
         return;
     }
 
-    if (rp.startMode == StartInternal) {
+    // QML and/or mixed are not prepared for it.
+    setSupportsReRunning(!(m_runParameters.languages & QmlLanguage));
+
+    // FIXME: Disabled due to Android. Make Android device report available ports instead.
+//    int portsUsed = portsUsedByDebugger();
+//    if (portsUsed > device()->freePorts().count()) {
+//        reportFailure(tr("Cannot debug: Not enough free ports available."));
+//        return;
+//    }
+
+    if (!Internal::fixupParameters(m_runParameters, runControl(), m_errors)) {
+        reportFailure(m_errors.join('\n'));
+        return;
+    }
+
+    Utils::globalMacroExpander()->registerFileVariables(
+                "DebuggedExecutable", tr("Debugged executable"),
+                [this] { return m_runParameters.inferior.executable; }
+    );
+
+    runControl()->setDisplayName(m_runParameters.displayName);
+
+    DebuggerEngine *cppEngine = nullptr;
+    switch (m_runParameters.cppEngineType) {
+        case GdbEngineType:
+            cppEngine = createGdbEngine(m_runParameters.useTerminal, m_runParameters.startMode);
+            break;
+        case CdbEngineType:
+            cppEngine = createCdbEngine(&m_errors, m_runParameters.startMode);
+            break;
+        case LldbEngineType:
+            cppEngine = createLldbEngine();
+            break;
+        case PdbEngineType: // FIXME: Yes, Python counts as C++...
+            cppEngine = createPdbEngine();
+            break;
+        default:
+            QTC_CHECK(false);
+            break;
+    }
+
+    switch (m_runParameters.masterEngineType) {
+        case QmlEngineType:
+            m_engine = createQmlEngine(m_runParameters.useTerminal);
+            break;
+        case QmlCppEngineType:
+            if (cppEngine)
+                m_engine = createQmlCppEngine(cppEngine, m_runParameters.useTerminal);
+            break;
+        default:
+            m_engine = cppEngine;
+            break;
+    }
+
+    if (!m_engine) {
+        m_errors.append(DebuggerPlugin::tr("Unable to create a debugging engine of the type \"%1\"").
+                       arg(engineTypeName(m_runParameters.masterEngineType)));
+        reportFailure(m_errors.join('\n'));
+        return;
+    }
+
+    m_engine->setRunTool(this);
+
+    if (m_runParameters.startMode == StartInternal) {
         QStringList unhandledIds;
         foreach (Breakpoint bp, breakHandler()->allBreakpoints()) {
-            if (bp.isEnabled() && !engine->acceptsBreakpoint(bp))
+            if (bp.isEnabled() && !m_engine->acceptsBreakpoint(bp))
                 unhandledIds.append(bp.id().toString());
         }
         if (!unhandledIds.isEmpty()) {
@@ -428,7 +487,7 @@ void DebuggerRunTool::start()
 
     appendMessage(tr("Debugging starts"), NormalMessageFormat);
     Internal::runControlStarted(this);
-    engine->start();
+    m_engine->start();
 }
 
 void DebuggerRunTool::startFailed()
@@ -765,72 +824,6 @@ void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp)
         QtcProcess::addArg(&serverStarter.commandLineArguments, rp.remoteChannel);
         addStartDependency(new LocalProcessRunner(runControl(), serverStarter));
     }
-}
-
-void DebuggerRunTool::setupEngine()
-{
-    // QML and/or mixed are not prepared for it.
-    setSupportsReRunning(!(m_runParameters.languages & QmlLanguage));
-
-    // FIXME: Disabled due to Android. Make Android device report available ports instead.
-//    int portsUsed = portsUsedByDebugger();
-//    if (portsUsed > device()->freePorts().count()) {
-//        reportFailure(tr("Cannot debug: Not enough free ports available."));
-//        return;
-//    }
-
-    if (!Internal::fixupParameters(m_runParameters, runControl(), m_errors)) {
-        reportFailure(m_errors.join('\n'));
-        return;
-    }
-
-    DebuggerEngine *cppEngine = nullptr;
-    switch (m_runParameters.cppEngineType) {
-        case GdbEngineType:
-            cppEngine = createGdbEngine(m_runParameters.useTerminal, m_runParameters.startMode);
-            break;
-        case CdbEngineType:
-            cppEngine = createCdbEngine(&m_errors, m_runParameters.startMode);
-            break;
-        case LldbEngineType:
-            cppEngine = createLldbEngine();
-            break;
-        case PdbEngineType: // FIXME: Yes, Python counts as C++...
-            cppEngine = createPdbEngine();
-            break;
-        default:
-            QTC_CHECK(false);
-            break;
-    }
-
-    switch (m_runParameters.masterEngineType) {
-        case QmlEngineType:
-            m_engine = createQmlEngine(m_runParameters.useTerminal);
-            break;
-        case QmlCppEngineType:
-            if (cppEngine)
-                m_engine = createQmlCppEngine(cppEngine, m_runParameters.useTerminal);
-            break;
-        default:
-            m_engine = cppEngine;
-            break;
-    }
-
-    if (!m_engine) {
-        m_errors.append(DebuggerPlugin::tr("Unable to create a debugging engine of the type \"%1\"").
-                       arg(engineTypeName(m_runParameters.masterEngineType)));
-        reportFailure(m_errors.join('\n'));
-        return;
-    }
-
-    Utils::globalMacroExpander()->registerFileVariables(
-                "DebuggedExecutable", tr("Debugged executable"),
-                [this] { return m_runParameters.inferior.executable; }
-    );
-
-    runControl()->setDisplayName(m_runParameters.displayName);
-
-    m_engine->setRunTool(this);
 }
 
 DebuggerEngine *DebuggerRunTool::activeEngine() const

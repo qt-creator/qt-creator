@@ -126,8 +126,6 @@ signals:
     void aboutToNotifyInferiorSetupOk();
 
 private:
-    void setupEngine();
-
     QPointer<Internal::DebuggerEngine> m_engine; // Master engine
     Internal::DebuggerRunParameters m_runParameters;
     QStringList m_errors;
