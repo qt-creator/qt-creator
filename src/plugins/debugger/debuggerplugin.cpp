@@ -1109,17 +1109,11 @@ static QString msgParameterMissing(const QString &a)
     return DebuggerPlugin::tr("Option \"%1\" is missing the parameter.").arg(a);
 }
 
-static Kit *guessKitFromParameters(const DebuggerRunParameters &rp)
+static Kit *guessKitFromAbis(const QList<Abi> &abis)
 {
     Kit *kit = 0;
 
     // Try to find a kit via ABI.
-    QList<Abi> abis;
-    if (rp.toolChainAbi.isValid())
-        abis.push_back(rp.toolChainAbi);
-    else if (!rp.inferior.executable.isEmpty())
-        abis = Abi::abisOfBinary(FileName::fromString(rp.inferior.executable));
-
     if (!abis.isEmpty()) {
         // Try exact abis.
         kit = KitManager::kit([abis](const Kit *k) {
@@ -1206,7 +1200,8 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         rp.debugger.environment = Utils::Environment::systemEnvironment();
 
         if (!kit)
-            kit = guessKitFromParameters(rp);
+            kit = guessKitFromAbis(Abi::abisOfBinary(FileName::fromString(rp.inferior.executable)));
+
         auto debugger = DebuggerRunTool::createFromKit(kit);
         QTC_ASSERT(debugger, return false);
         debugger->setRunParameters(rp);
@@ -2151,7 +2146,7 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     if (RunConfiguration *runConfig = rc->runConfiguration()) {
         debugger = DebuggerRunTool::createFromRunConfiguration(runConfig);
     } else {
-        Kit *kit = guessKitFromParameters(rp);
+        Kit *kit = guessKitFromAbis({rc->abi()});
         debugger = DebuggerRunTool::createFromKit(kit);
         QTC_ASSERT(debugger, return);
     }
