@@ -286,6 +286,11 @@ void DebuggerRunTool::setNeedFixup(bool on)
     m_runParameters.needFixup = on;
 }
 
+void DebuggerRunTool::setTestCase(int testCase)
+{
+    m_runParameters.testCase = testCase;
+}
+
 void DebuggerRunTool::setInferior(const Runnable &runnable)
 {
     QTC_ASSERT(runnable.is<StandardRunnable>(), reportFailure(); return);

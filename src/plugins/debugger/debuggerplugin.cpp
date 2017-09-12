@@ -3699,19 +3699,16 @@ void DebuggerUnitTests::testStateMachine()
     ProjectExplorerPlugin::buildProject(SessionManager::startupProject());
     loop.exec();
 
-    ExecuteOnDestruction guard([] () {
-        EditorManager::closeAllEditors(false);
-    });
-    DebuggerRunParameters rp;
+    ExecuteOnDestruction guard([] { EditorManager::closeAllEditors(false); });
+
     Target *t = SessionManager::startupProject()->activeTarget();
     QVERIFY(t);
     RunConfiguration *rc = t->activeRunConfiguration();
     QVERIFY(rc);
-    rp.inferior = rc->runnable().as<StandardRunnable>();
-    rp.testCase = TestNoBoundsOfCurrentFunction;
 
     auto debugger = DebuggerRunTool::createFromRunConfiguration(rc);
-    debugger->setRunParameters(rp);
+    debugger->setInferior(rc->runnable().as<StandardRunnable>());
+    debugger->setTestCase(TestNoBoundsOfCurrentFunction);
 
     connect(debugger, &DebuggerRunTool::stopped,
             &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);

@@ -121,6 +121,7 @@ public:
     void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
 
     void setNeedFixup(bool on);
+    void setTestCase(int testCase);
 
 signals:
     void aboutToNotifyInferiorSetupOk();
