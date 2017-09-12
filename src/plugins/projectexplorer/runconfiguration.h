@@ -411,6 +411,7 @@ public:
     void initiateStart();
     void initiateReStart();
     void initiateStop();
+    void forceStop();
     void initiateFinish();
 
     bool promptToStop(bool *optionalPrompt = nullptr) const;

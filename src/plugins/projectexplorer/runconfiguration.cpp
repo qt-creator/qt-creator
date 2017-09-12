@@ -640,6 +640,7 @@ public:
     void initiateReStart();
     void continueStart();
     void initiateStop();
+    void forceStop();
     void continueStopOrFinish();
     void initiateFinish();
 
@@ -722,6 +723,11 @@ void RunControl::initiateReStart()
 void RunControl::initiateStop()
 {
     d->initiateStop();
+}
+
+void RunControl::forceStop()
+{
+    d->forceStop();
 }
 
 void RunControl::initiateFinish()
@@ -919,6 +925,43 @@ void RunControlPrivate::continueStopOrFinish()
     } else {
         debugMessage("Not all workers Stopped. Waiting...");
     }
+}
+
+void RunControlPrivate::forceStop()
+{
+    if (state == RunControlState::Finished) {
+        debugMessage("Was finished, too late to force Stop");
+        return;
+    }
+    for (RunWorker *worker : m_workers) {
+        if (worker) {
+            const QString &workerId = worker->d->id;
+            debugMessage("  Examining worker " + workerId);
+            switch (worker->d->state) {
+                case RunWorkerState::Initialized:
+                    debugMessage("  " + workerId + " was Initialized, setting to Done");
+                    break;
+                case RunWorkerState::Stopping:
+                    debugMessage("  " + workerId + " was already Stopping. Set it forcefully to Done.");
+                    break;
+                case RunWorkerState::Starting:
+                    debugMessage("  " + workerId + " was Starting. Set it forcefully to Done.");
+                    break;
+                case RunWorkerState::Running:
+                    debugMessage("  " + workerId + " was Running. Set it forcefully to Done.");
+                    break;
+                case RunWorkerState::Done:
+                    debugMessage("  " + workerId + " was Done. Good.");
+                    break;
+            }
+            worker->d->state = RunWorkerState::Done;
+        } else {
+            debugMessage("Found unknown deleted worker");
+        }
+    }
+
+    setState(RunControlState::Stopped);
+    debugMessage("All Stopped");
 }
 
 void RunControlPrivate::initiateFinish()

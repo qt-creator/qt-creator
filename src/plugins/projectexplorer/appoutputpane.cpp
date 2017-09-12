@@ -534,9 +534,9 @@ void AppOutputPane::stopRunControl()
 
     if (rc->isRunning() && optionallyPromptToStop(rc))
         rc->initiateStop();
-    else if (rc->isStarting()) {
+    else {
         QTC_CHECK(false);
-        rc->initiateStop();
+        rc->forceStop();
     }
 
     if (debug)
