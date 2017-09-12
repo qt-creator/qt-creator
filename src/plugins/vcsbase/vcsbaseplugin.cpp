@@ -648,7 +648,7 @@ QString VcsBasePlugin::commitDisplayName() const
 
 bool VcsBasePlugin::promptBeforeCommit()
 {
-    return DocumentManager::saveAllModifiedDocuments(tr("Save before %1?").arg(commitDisplayName());
+    return DocumentManager::saveAllModifiedDocuments(tr("Save before %1?").arg(commitDisplayName()));
 }
 
 void VcsBasePlugin::promptToDeleteCurrentFile()
