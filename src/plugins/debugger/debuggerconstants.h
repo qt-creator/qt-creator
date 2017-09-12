@@ -120,6 +120,7 @@ enum DebuggerStartMode
     AttachCore,            // Attach to a core file
     AttachToRemoteServer,  // Attach to a running gdbserver
     AttachToRemoteProcess, // Attach to a running remote process
+    AttachToQmlServer,     // Attach to a running QmlServer
     StartRemoteProcess     // Start and attach to a remote process
 };
 

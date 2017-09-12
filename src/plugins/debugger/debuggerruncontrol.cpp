@@ -187,7 +187,28 @@ void DebuggerRunTool::setBreakOnMainNextTime()
 
 void DebuggerRunTool::setStartMode(DebuggerStartMode startMode)
 {
-    m_runParameters.startMode = startMode;
+    if (startMode == AttachToQmlServer) {
+        m_runParameters.startMode = AttachToRemoteProcess;
+        m_runParameters.languages = QmlLanguage;
+        m_runParameters.masterEngineType = QmlEngineType;
+        m_runParameters.closeMode = KillAtClose;
+
+        // FIXME: This is horribly wrong.
+        // get files from all the projects in the session
+        QList<Project *> projects = SessionManager::projects();
+        if (Project *startupProject = SessionManager::startupProject()) {
+            // startup project first
+            projects.removeOne(startupProject);
+            projects.insert(0, startupProject);
+        }
+        foreach (Project *project, projects)
+            m_runParameters.projectSourceFiles.append(project->files(Project::SourceFiles));
+        if (!projects.isEmpty())
+            m_runParameters.projectSourceDirectory = projects.first()->projectDirectory().toString();
+
+    } else {
+        m_runParameters.startMode = startMode;
+    }
 }
 
 void DebuggerRunTool::setCloseMode(DebuggerCloseMode closeMode)

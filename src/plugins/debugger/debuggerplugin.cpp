@@ -2145,14 +2145,11 @@ void DebuggerPlugin::getEnginesState(QByteArray *json) const
 
 void DebuggerPluginPrivate::attachToQmlPort()
 {
-    DebuggerRunParameters rp;
     AttachToQmlPortDialog dlg(ICore::mainWindow());
 
     const QVariant qmlServerPort = configValue("LastQmlServerPort");
     if (qmlServerPort.isValid())
         dlg.setPort(qmlServerPort.toInt());
-    else if (rp.qmlServer.port() > 0)
-        dlg.setPort(rp.qmlServer.port());
     else
         dlg.setPort(-1);
 
@@ -2169,38 +2166,19 @@ void DebuggerPluginPrivate::attachToQmlPort()
     setConfigValue("LastProfile", kit->id().toSetting());
 
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-    if (device) {
-        QSsh::SshConnectionParameters sshParameters = device->sshParameters();
-        rp.remoteChannel = QString("%1:%2").arg(sshParameters.host).arg(sshParameters.port);
-        QUrl toolControl = device->toolControlChannel(IDevice::QmlControlChannel);
-        rp.qmlServer.setHost(toolControl.host());
-    }
-    rp.qmlServer.setPort(dlg.port());
-    rp.startMode = AttachToRemoteProcess;
-    rp.closeMode = KillAtClose;
-    rp.languages = QmlLanguage;
-    rp.masterEngineType = QmlEngineType;
-
-    //
-    // get files from all the projects in the session
-    //
-    QList<Project *> projects = SessionManager::projects();
-    if (Project *startupProject = SessionManager::startupProject()) {
-        // startup project first
-        projects.removeOne(startupProject);
-        projects.insert(0, startupProject);
-    }
-    QStringList sourceFiles;
-    foreach (Project *project, projects)
-        sourceFiles << project->files(Project::SourceFiles);
-
-    rp.projectSourceDirectory =
-            !projects.isEmpty() ? projects.first()->projectDirectory().toString() : QString();
-    rp.projectSourceFiles = sourceFiles;
+    QTC_ASSERT(device, return);
 
     auto debugger = DebuggerRunTool::createFromKit(kit);
     QTC_ASSERT(debugger, return);
-    debugger->setRunParameters(rp);
+
+    QUrl qmlServer = device->toolControlChannel(IDevice::QmlControlChannel);
+    qmlServer.setPort(dlg.port());
+    debugger->setQmlServer(qmlServer);
+
+    QSsh::SshConnectionParameters sshParameters = device->sshParameters();
+    debugger->setRemoteChannel(sshParameters.host, sshParameters.port);
+    debugger->setStartMode(AttachToQmlServer);
+
     debugger->startRunControl();
 }
 
