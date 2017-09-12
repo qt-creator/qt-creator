@@ -1146,63 +1146,73 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             *errorMessage = msgParameterMissing(*it);
             return false;
         }
-        Kit *kit = 0;
-        DebuggerRunParameters rp;
-        qulonglong pid = it->toULongLong();
-        if (pid) {
-            rp.startMode = AttachExternal;
-            rp.closeMode = DetachAtClose;
-            rp.attachPID = ProcessHandle(pid);
-            rp.displayName = tr("Process %1").arg(rp.attachPID.pid());
-            rp.startMessage = tr("Attaching to local process %1.").arg(rp.attachPID.pid());
-        } else {
-            rp.startMode = StartExternal;
-            QStringList args = it->split(QLatin1Char(','));
+        const qulonglong pid = it->toULongLong();
+        const QStringList args = it->split(',');
+
+        Kit *kit = nullptr;
+        DebuggerStartMode startMode = StartExternal;
+        QString executable;
+        QString remoteChannel;
+        QString coreFile;
+        bool useTerminal = false;
+
+        if (!pid) {
             foreach (const QString &arg, args) {
-                QString key = arg.section(QLatin1Char('='), 0, 0);
-                QString val = arg.section(QLatin1Char('='), 1, 1);
+                const QString key = arg.section('=', 0, 0);
+                const QString val = arg.section('=', 1, 1);
                 if (val.isEmpty()) {
                     if (key.isEmpty()) {
                         continue;
-                    } else if (rp.inferior.executable.isEmpty()) {
-                        rp.inferior.executable = key;
+                    } else if (executable.isEmpty()) {
+                        executable = key;
                     } else {
                         *errorMessage = DebuggerPlugin::tr("Only one executable allowed.");
                         return false;
                     }
-                }
-                if (key == QLatin1String("server")) {
-                    rp.startMode = AttachToRemoteServer;
-                    rp.remoteChannel = val;
-                    rp.displayName = tr("Remote: \"%1\"").arg(rp.remoteChannel);
-                    rp.startMessage = tr("Attaching to remote server %1.").arg(rp.remoteChannel);
-                } else if (key == QLatin1String("core")) {
-                    rp.startMode = AttachCore;
-                    rp.closeMode = DetachAtClose;
-                    rp.coreFile = val;
-                    rp.displayName = tr("Core file \"%1\"").arg(rp.coreFile);
-                    rp.startMessage = tr("Attaching to core file %1.").arg(rp.coreFile);
-                } else if (key == QLatin1String("terminal")) {
-                    rp.useTerminal = bool(val.toInt());
-                } else if (key == QLatin1String("kit")) {
+                } else if (key == "kit") {
                     kit = KitManager::kit(Id::fromString(val));
+                } else if (key == "server") {
+                    startMode = AttachToRemoteServer;
+                    remoteChannel = remoteChannel;
+                } else if (key == "core") {
+                    startMode = AttachCore;
+                    coreFile = val;
+                } else if (key == "terminal") {
+                    useTerminal = true;
                 }
             }
         }
-        if (rp.startMode == StartExternal) {
-            rp.displayName = tr("Executable file \"%1\"").arg(rp.inferior.executable);
-            rp.startMessage = tr("Debugging file %1.").arg(rp.inferior.executable);
-        }
-        rp.inferior.environment = Utils::Environment::systemEnvironment();
-        rp.stubEnvironment = Utils::Environment::systemEnvironment();
-        rp.debugger.environment = Utils::Environment::systemEnvironment();
-
         if (!kit)
-            kit = guessKitFromAbis(Abi::abisOfBinary(FileName::fromString(rp.inferior.executable)));
+            kit = guessKitFromAbis(Abi::abisOfBinary(FileName::fromString(executable)));
 
         auto debugger = DebuggerRunTool::createFromKit(kit);
         QTC_ASSERT(debugger, return false);
-        debugger->setRunParameters(rp);
+
+        if (pid) {
+            debugger->setStartMode(AttachExternal);
+            debugger->setCloseMode(DetachAtClose);
+            debugger->setAttachPid(pid);
+            debugger->setRunControlName(tr("Process %1").arg(pid));
+            debugger->setStartMessage(tr("Attaching to local process %1.").arg(pid));
+        } else if (startMode == AttachToRemoteServer) {
+            debugger->setStartMode(AttachToRemoteServer);
+            debugger->setRemoteChannel(remoteChannel);
+            debugger->setRunControlName(tr("Remote: \"%1\"").arg(remoteChannel));
+            debugger->setStartMessage(tr("Attaching to remote server %1.").arg(remoteChannel));
+        } else if (startMode == AttachCore) {
+            debugger->setStartMode(AttachCore);
+            debugger->setCloseMode(DetachAtClose);
+            debugger->setCoreFileName(coreFile);
+            debugger->setRunControlName(tr("Core file \"%1\"").arg(coreFile));
+            debugger->setStartMessage(tr("Attaching to core file %1.").arg(coreFile));
+        } else {
+            debugger->setStartMode(StartExternal);
+            debugger->setInferiorExecutable(executable);
+            debugger->setRunControlName(tr("Executable file \"%1\"").arg(executable));
+            debugger->setStartMessage(tr("Debugging file %1.").arg(executable));
+        }
+        debugger->setUseTerminal(useTerminal);
+
         m_scheduledStarts.append(debugger);
         return true;
     }
