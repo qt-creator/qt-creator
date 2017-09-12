@@ -45,8 +45,6 @@ public:
     explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl);
     ~DebuggerRunTool();
 
-    void setRunParameters(const Internal::DebuggerRunParameters &rp); // FIXME: Don't use.
-
     Internal::DebuggerEngine *engine() const { return m_engine; }
     Internal::DebuggerEngine *activeEngine() const;
 

@@ -876,12 +876,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
         m_runParameters.inferior = r.as<StandardRunnable>();
 }
 
-void DebuggerRunTool::setRunParameters(const DebuggerRunParameters &rp)
-{
-    m_runParameters = rp;
-
-}
-
 DebuggerEngine *DebuggerRunTool::activeEngine() const
 {
     return m_engine ? m_engine->activeEngine() : nullptr;
