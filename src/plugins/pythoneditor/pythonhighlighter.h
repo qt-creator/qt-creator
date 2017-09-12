@@ -41,6 +41,9 @@ private:
     void highlightBlock(const QString &text) override;
     int highlightLine(const QString &text, int initialState);
     void highlightImport(Internal::Scanner &scanner);
+
+    int m_lastIndent = 0;
+    bool withinLicenseHeader = false;
 };
 
 } // namespace Internal

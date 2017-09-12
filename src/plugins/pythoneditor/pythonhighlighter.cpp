@@ -37,6 +37,7 @@
 #include "pythonscanner.h"
 
 #include <texteditor/textdocument.h>
+#include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 
@@ -116,6 +117,24 @@ static bool isImportKeyword(const QString &keyword)
     return keyword == "import" || keyword == "from";
 }
 
+static int indent(const QString &line)
+{
+    for (int i = 0, size = line.size(); i < size; ++i) {
+        if (!line.at(i).isSpace())
+            return i;
+    }
+    return -1;
+}
+
+static void setFoldingIndent(const QTextBlock &block, int indent)
+{
+    if (TextEditor::TextBlockUserData *userData = TextEditor::TextDocumentLayout::userData(block)) {
+         userData->setFoldingIndent(indent);
+         userData->setFoldingStartIncluded(false);
+         userData->setFoldingEndIncluded(false);
+    }
+}
+
 /**
  * @brief Highlight line of code, returns new block state
  * @param text Source code to highlight
@@ -126,6 +145,23 @@ int PythonHighlighter::highlightLine(const QString &text, int initialState)
 {
     Scanner scanner(text.constData(), text.size());
     scanner.setState(initialState);
+
+    const int pos = indent(text);
+    if (pos < 0) {
+        // Empty lines do not change folding indent
+        setFoldingIndent(currentBlock(), m_lastIndent);
+    } else {
+        m_lastIndent = pos;
+        if (pos == 0 && text.startsWith('#') && !text.startsWith("#!")) {
+            // A comment block at indentation 0. Fold on first line.
+            setFoldingIndent(currentBlock(), withinLicenseHeader ? 1 : 0);
+            withinLicenseHeader = true;
+        } else {
+            // Normal Python code. Line indentation can be used as folding indent.
+            setFoldingIndent(currentBlock(), m_lastIndent);
+            withinLicenseHeader = false;
+        }
+    }
 
     FormatToken tk;
     bool hasOnlyWhitespace = true;
