@@ -1162,19 +1162,37 @@ void TextEditorWidgetPrivate::updateCannotDecodeInfo()
     }
 }
 
+// Skip over shebang to license header (Python, Perl, sh)
+// '#!/bin/sh'
+// ''
+// '###############'
+
+static QTextBlock skipShebang(const QTextBlock &block)
+{
+    if (!block.isValid() || !block.text().startsWith("#!"))
+        return block;
+    const QTextBlock nextBlock1 = block.next();
+    if (!nextBlock1.isValid() || !nextBlock1.text().isEmpty())
+        return block;
+    const QTextBlock nextBlock2 = nextBlock1.next();
+    return nextBlock2.isValid() && nextBlock2.text().startsWith('#') ? nextBlock2 : block;
+}
+
 /*
-  Collapses the first comment in a file, if there is only whitespace above
+  Collapses the first comment in a file, if there is only whitespace/shebang line
+  above
   */
 void TextEditorWidgetPrivate::foldLicenseHeader()
 {
     QTextDocument *doc = q->document();
     TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
-    QTextBlock block = doc->firstBlock();
+    QTextBlock block = skipShebang(doc->firstBlock());
     while (block.isValid() && block.isVisible()) {
         QString text = block.text();
         if (TextDocumentLayout::canFold(block) && block.next().isVisible()) {
-            if (text.trimmed().startsWith(QLatin1String("/*"))) {
+            const QString trimmedText = text.trimmed();
+            if (trimmedText.startsWith("/*") || trimmedText.startsWith('#')) {
                 TextDocumentLayout::doFoldOrUnfold(block, false);
                 moveCursorVisible();
                 documentLayout->requestUpdate();
