@@ -340,44 +340,45 @@ protected:
     // The base notify*() function implementation should be sufficient
     // in most cases, but engines are free to override them to do some
     // engine specific cleanup like stopping timers etc.
-    virtual void notifyEngineSetupOk();
-    virtual void notifyEngineSetupFailed();
-    virtual void notifyEngineRunFailed();
+    void notifyEngineSetupOk();
+    void notifyEngineSetupFailed();
+    void notifyEngineRunFailed();
 
-    virtual void notifyInferiorSetupOk();
-    virtual void notifyInferiorSetupFailed();
+    void notifyInferiorSetupOk();
+    void notifyInferiorSetupFailed();
 
-    virtual void notifyEngineRunAndInferiorRunOk();
-    virtual void notifyEngineRunAndInferiorStopOk();
-    virtual void notifyEngineRunOkAndInferiorUnrunnable(); // Called by CoreAdapter.
+    void notifyEngineRunAndInferiorRunOk();
+    void notifyEngineRunAndInferiorStopOk();
+    void notifyEngineRunOkAndInferiorUnrunnable(); // Called by CoreAdapter.
 
     // Use notifyInferiorRunRequested() plus notifyInferiorRunOk() instead.
-    //virtual void notifyInferiorSpontaneousRun();
+    // void notifyInferiorSpontaneousRun();
 
-    virtual void notifyInferiorRunRequested();
-    virtual void notifyInferiorRunOk();
-    virtual void notifyInferiorRunFailed();
+    void notifyInferiorRunRequested();
+    void notifyInferiorRunOk();
+    void notifyInferiorRunFailed();
 
-    virtual void notifyInferiorStopOk();
-    virtual void notifyInferiorSpontaneousStop();
-    virtual void notifyInferiorStopFailed();
+    void notifyInferiorStopOk();
+    void notifyInferiorSpontaneousStop();
+    void notifyInferiorStopFailed();
 
-    public:
-    virtual void notifyInferiorExited();
+    public: // FIXME: Remove, currently needed for Android.
+    void notifyInferiorExited();
+
+    protected:
     void notifyDebuggerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus,
                                        const QString &backendName);
 
-protected:
     virtual void setState(DebuggerState state, bool forced = false);
 
-    virtual void notifyInferiorShutdownOk();
-    virtual void notifyInferiorShutdownFailed();
+    void notifyInferiorShutdownOk();
+    void notifyInferiorShutdownFailed();
 
-    virtual void notifyEngineSpontaneousShutdown();
-    virtual void notifyEngineShutdownOk();
-    virtual void notifyEngineShutdownFailed();
+    void notifyEngineSpontaneousShutdown();
+    void notifyEngineShutdownOk();
+    void notifyEngineShutdownFailed();
 
-    virtual void notifyEngineIll();
+    void notifyEngineIll();
 
     virtual void setupEngine() = 0;
     virtual void setupInferior() = 0;

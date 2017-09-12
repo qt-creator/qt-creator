@@ -78,7 +78,6 @@ private: ////////// General Interface //////////
     DebuggerEngine *cppEngine() final { return this; }
 
     void handleGdbStartFailed();
-    void notifyInferiorSetupFailed() final;
     void prepareForRestart() final;
 
     bool hasCapability(unsigned) const final;
@@ -118,8 +117,8 @@ private: ////////// General Interface //////////
 
     void handleDebugInfoLocation(const DebuggerResponse &response);
 
-    // The adapter is still running just fine, but it failed to acquire a debuggee.
-    void notifyInferiorSetupFailed(const QString &msg);
+    // The engine is still running just fine, but it failed to acquire a debuggee.
+    void notifyInferiorSetupFailedHelper(const QString &msg);
 
     void notifyAdapterShutdownOk();
     void notifyAdapterShutdownFailed();

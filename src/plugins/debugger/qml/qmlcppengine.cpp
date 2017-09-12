@@ -378,36 +378,6 @@ void QmlCppEngine::setupEngine()
     m_cppEngine->setupSlaveEngine();
 }
 
-void QmlCppEngine::notifyEngineRunAndInferiorRunOk()
-{
-    EDEBUG("\nMASTER NOTIFY ENGINE RUN AND INFERIOR RUN OK");
-    DebuggerEngine::notifyEngineRunAndInferiorRunOk();
-}
-
-void QmlCppEngine::notifyInferiorRunOk()
-{
-    EDEBUG("\nMASTER NOTIFY INFERIOR RUN OK");
-    DebuggerEngine::notifyInferiorRunOk();
-}
-
-void QmlCppEngine::notifyInferiorSpontaneousStop()
-{
-    EDEBUG("\nMASTER SPONTANEOUS STOP OK");
-    DebuggerEngine::notifyInferiorSpontaneousStop();
-}
-
-void QmlCppEngine::notifyInferiorShutdownOk()
-{
-    EDEBUG("\nMASTER INFERIOR SHUTDOWN OK");
-    DebuggerEngine::notifyInferiorShutdownOk();
-}
-
-void QmlCppEngine::notifyInferiorSetupOk()
-{
-    EDEBUG("\nMASTER INFERIOR SETUP OK");
-    DebuggerEngine::notifyInferiorSetupOk();
-}
-
 void QmlCppEngine::setupInferior()
 {
     EDEBUG("\nMASTER SETUP INFERIOR");

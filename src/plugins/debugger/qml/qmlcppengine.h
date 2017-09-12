@@ -114,12 +114,6 @@ protected:
     void quitDebugger() override;
     void abortDebugger() override;
 
-    void notifyInferiorRunOk() override;
-    void notifyInferiorSpontaneousStop() override;
-    void notifyEngineRunAndInferiorRunOk() override;
-    void notifyInferiorShutdownOk() override;
-
-    void notifyInferiorSetupOk() override;
     void loadAdditionalQmlStack() override;
 
 private:

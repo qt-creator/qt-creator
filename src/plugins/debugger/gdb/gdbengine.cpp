@@ -4106,14 +4106,6 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, Id settingsIdHint)
     notifyEngineSetupFailed();
 }
 
-void GdbEngine::notifyInferiorSetupFailed()
-{
-    // FIXME: that's not enough to stop gdb from getting confused
-    // by a timeout of the adapter.
-    //resetCommandQueue();
-    DebuggerEngine::notifyInferiorSetupFailed();
-}
-
 void GdbEngine::prepareForRestart()
 {
     m_rerunPending = false;
@@ -4191,7 +4183,7 @@ void GdbEngine::handleDebugInfoLocation(const DebuggerResponse &response)
     }
 }
 
-void GdbEngine::notifyInferiorSetupFailed(const QString &msg)
+void GdbEngine::notifyInferiorSetupFailedHelper(const QString &msg)
 {
     showStatusMessage(tr("Failed to start application:") + ' ' + msg);
     if (state() == EngineSetupFailed) {
@@ -4200,7 +4192,7 @@ void GdbEngine::notifyInferiorSetupFailed(const QString &msg)
     }
     showMessage("INFERIOR START FAILED");
     AsynchronousMessageBox::critical(tr("Failed to start application"), msg);
-    DebuggerEngine::notifyInferiorSetupFailed();
+    notifyInferiorSetupFailed();
 }
 
 void GdbEngine::handleAdapterCrashed(const QString &msg)
@@ -4633,13 +4625,13 @@ void GdbEngine::handleAttach(const DebuggerResponse &response)
         }
         case ResultError:
             if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
-                notifyInferiorSetupFailed(msgPtraceError(runParameters().startMode));
+                notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode));
                 break;
             }
-            notifyInferiorSetupFailed(response.data["msg"].data());
+            notifyInferiorSetupFailedHelper(response.data["msg"].data());
             break;
         default:
-            notifyInferiorSetupFailed(response.data["msg"].data());
+            notifyInferiorSetupFailedHelper(response.data["msg"].data());
             break;
         }
 
@@ -4702,7 +4694,7 @@ void GdbEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
                 showMessage(msg, StatusBar);
                 callTargetRemote(); // Proceed nevertheless.
             } else {
-                notifyInferiorSetupFailed(msg);
+                notifyInferiorSetupFailedHelper(msg);
             }
         }
 
@@ -4718,7 +4710,7 @@ void GdbEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
                                "in the core file.")
                     + ' ' + tr("Try to specify the binary using the "
                                "<i>Debug->Start Debugging->Attach to Core</i> dialog.");
-            notifyInferiorSetupFailed(msg);
+            notifyInferiorSetupFailedHelper(msg);
         }
 
     } else  if (isPlainEngine()) {
@@ -4730,7 +4722,7 @@ void GdbEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
             // Extend the message a bit in unknown cases.
             if (!msg.endsWith("File format not recognized"))
                 msg = tr("Starting executable failed:") + '\n' + msg;
-            notifyInferiorSetupFailed(msg);
+            notifyInferiorSetupFailedHelper(msg);
         }
 
     }
@@ -4817,7 +4809,7 @@ void GdbEngine::handleTargetRemote(const DebuggerResponse &response)
         handleInferiorPrepared();
     } else {
         // 16^error,msg="hd:5555: Connection timed out."
-        notifyInferiorSetupFailed(msgConnectRemoteServerFailed(response.data["msg"].data()));
+        notifyInferiorSetupFailedHelper(msgConnectRemoteServerFailed(response.data["msg"].data()));
     }
 }
 
@@ -4851,14 +4843,14 @@ void GdbEngine::handleTargetExtendedRemote(const DebuggerResponse &response)
             mb->button(QMessageBox::Ok)->setText(tr("Stop Debugging"));
             if (mb->exec() == QMessageBox::Ok) {
                 showMessage("KILLING DEBUGGER AS REQUESTED BY USER");
-                notifyInferiorSetupFailed(title);
+                notifyInferiorSetupFailedHelper(title);
             } else {
                 showMessage("CONTINUE DEBUGGER AS REQUESTED BY USER");
                 handleInferiorPrepared(); // This will likely fail.
             }
         }
     } else {
-        notifyInferiorSetupFailed(msgConnectRemoteServerFailed(response.data["msg"].data()));
+        notifyInferiorSetupFailedHelper(msgConnectRemoteServerFailed(response.data["msg"].data()));
     }
 }
 
@@ -4869,7 +4861,7 @@ void GdbEngine::handleTargetExtendedAttach(const DebuggerResponse &response)
         // gdb server will stop the remote application itself.
         handleInferiorPrepared();
     } else {
-        notifyInferiorSetupFailed(msgConnectRemoteServerFailed(response.data["msg"].data()));
+        notifyInferiorSetupFailedHelper(msgConnectRemoteServerFailed(response.data["msg"].data()));
     }
 }
 
@@ -4891,7 +4883,7 @@ void GdbEngine::handleTargetQnx(const DebuggerResponse &response)
             handleInferiorPrepared();
     } else {
         // 16^error,msg="hd:5555: Connection timed out."
-        notifyInferiorSetupFailed(response.data["msg"].data());
+        notifyInferiorSetupFailedHelper(response.data["msg"].data());
     }
 }
 
@@ -4908,7 +4900,7 @@ void GdbEngine::handleSetNtoExecutable(const DebuggerResponse &response)
     }
     case ResultError:
     default:
-        notifyInferiorSetupFailed(response.data["msg"].data());
+        notifyInferiorSetupFailedHelper(response.data["msg"].data());
     }
 }
 
