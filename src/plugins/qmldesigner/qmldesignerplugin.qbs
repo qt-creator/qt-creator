@@ -551,7 +551,6 @@ Project {
                 "propertyeditor/fileresourcesmodel.h",
                 "propertyeditor/gradientmodel.cpp",
                 "propertyeditor/gradientmodel.h",
-                "propertyeditor/propertyeditor.qrc",
                 "propertyeditor/propertyeditorcontextobject.cpp",
                 "propertyeditor/propertyeditorcontextobject.h",
                 "propertyeditor/propertyeditortransaction.cpp",
