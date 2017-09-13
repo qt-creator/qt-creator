@@ -218,7 +218,8 @@ void ActionHandler::createActions()
     registerCommand(Constants::ACTION_ADD_CANVAS_DIAGRAM, nullptr, Core::Context(), true, tr("Add Canvas Diagram"));
     d->synchronizeBrowserAction = registerCommand(
                 Constants::ACTION_SYNC_BROWSER, nullptr, Core::Context(), true,
-                tr("Synchronize Browser and Diagram<br><i><small>Press&Hold for options</small></i>"))->action();
+                tr("Synchronize Browser and Diagram") + "<br><i><small>"
+                + tr("Press && Hold for options") + "</small></i>")->action();
     d->synchronizeBrowserAction->setIcon(Utils::Icons::LINK.icon());
     d->synchronizeBrowserAction->setCheckable(true);
 

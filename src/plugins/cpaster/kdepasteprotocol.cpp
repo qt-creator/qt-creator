@@ -286,7 +286,8 @@ void KdePasteProtocol::paste(const QString &text, Protocol::ContentType ct, int 
     QString details = tr("Pasting to KDE paster needs authentication.<br/>"
                          "Enter your KDE Identity credentials to continue.");
     if (m_loginFailed)
-        details.prepend(tr("<span style='background-color:LightYellow;color:red'>Login failed</span><br/><br/>"));
+        details.prepend("<span style='background-color:LightYellow;color:red'>"
+                        + tr("Login failed") + "</span><br/><br/>");
 
     AuthenticationDialog authDialog(details, Core::ICore::dialogParent());
     authDialog.setWindowTitle("Authenticate for KDE paster");

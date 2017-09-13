@@ -320,10 +320,11 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
 
         auto groupBoxCustomDumperCommands = new QGroupBox(debuggingHelperGroupBox);
         groupBoxCustomDumperCommands->setTitle(tr("Debugging Helper Customization"));
-        groupBoxCustomDumperCommands->setToolTip(tr(
-            "<html><head/><body><p>Python commands entered here will be executed after built-in "
-            "debugging helpers have been loaded and fully initialized. You can load additional "
-            "debugging helpers or modify existing ones here.</p></body></html>"));
+        groupBoxCustomDumperCommands->setToolTip("<html><head/><body><p>"
+                        + tr("Python commands entered here will be executed after built-in "
+                             "debugging helpers have been loaded and fully initialized. You can "
+                             "load additional debugging helpers or modify existing ones here.")
+                        + "</p></body></html>");
 
         auto textEditCustomDumperCommands = new QTextEdit(groupBoxCustomDumperCommands);
         textEditCustomDumperCommands->setAcceptRichText(false);

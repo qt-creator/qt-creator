@@ -450,9 +450,9 @@ KitInformation::ItemList CMakeGeneratorKitInformation::toUserOutput(const Kit *k
     } else {
         message = tr("Generator: %1<br>Extra generator: %2").arg(info.generator).arg(info.extraGenerator);
         if (!info.platform.isEmpty())
-            message += tr("<br>Platform: %1").arg(info.platform);
+            message += "<br/>" + tr("Platform: %1").arg(info.platform);
         if (!info.toolset.isEmpty())
-            message += tr("<br>Toolset: %1").arg(info.toolset);
+            message += "<br/>" + tr("Toolset: %1").arg(info.toolset);
     }
     return ItemList() << qMakePair(tr("CMake Generator"), message);
 }

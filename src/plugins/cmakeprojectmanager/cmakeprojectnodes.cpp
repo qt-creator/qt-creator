@@ -115,7 +115,7 @@ void CMakeTargetNode::setTargetInformation(const QList<Utils::FileName> &artifac
         m_tooltip += QCoreApplication::translate("CMakeTargetNode", "No build artifacts");
     } else {
         const QStringList tmp = Utils::transform(artifacts, &Utils::FileName::toUserOutput);
-        m_tooltip += QCoreApplication::translate("CMakeTargetNode", "Build artifacts:<br>")
+        m_tooltip += QCoreApplication::translate("CMakeTargetNode", "Build artifacts:") + "<br>"
                 + tmp.join("<br>");
     }
 }
