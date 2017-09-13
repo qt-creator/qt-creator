@@ -250,6 +250,11 @@ void EditorManagerPrivate::init()
     DocumentModel::init();
     connect(ICore::instance(), &ICore::contextAboutToChange,
             this, &EditorManagerPrivate::handleContextChange);
+    connect(qApp, &QApplication::applicationStateChanged,
+            this, [](Qt::ApplicationState state) {
+                if (state == Qt::ApplicationActive)
+                    EditorManager::updateWindowTitles();
+            });
 
     const Context editManagerContext(Constants::C_EDITORMANAGER);
     // combined context for edit & design modes
