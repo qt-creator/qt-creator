@@ -190,7 +190,8 @@ QList<Task> ToolChainKitInformation::validate(const Kit *k) const
             result << tc->validateKit(k);
         }
         if (targetAbis.count() != 1) {
-            result << Task(Task::Error, tr("Compilers produce code for different ABIs."),
+            result << Task(Task::Error, tr("Compilers produce code for different ABIs: %1")
+                           .arg(Utils::transform(targetAbis, &Abi::toString).toList().join(", ")),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         }
     }
