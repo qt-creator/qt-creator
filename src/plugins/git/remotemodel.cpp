@@ -188,9 +188,6 @@ bool RemoteModel::refresh(const QString &workingDirectory, QString *errorMessage
     QMap<QString,QString> remotesList
             = GitPlugin::client()->synchronousRemotesList(workingDirectory, errorMessage);
 
-    if (remotesList.isEmpty())
-        return false;
-
     beginResetModel();
     m_remotes.clear();
     const QList<QString> remotes = remotesList.keys();
