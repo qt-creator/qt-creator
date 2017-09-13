@@ -101,8 +101,6 @@ RunConfiguration *QmakeAndroidRunConfigurationFactory::doRestore(Target *parent,
                                                             const QVariantMap &map)
 {
     Core::Id id = ProjectExplorer::idFromMap(map);
-    if (parent->project()->rootProjectNode())
-        return createHelper<QmakeAndroidRunConfiguration>(parent, id);
     return createHelper<QmakeAndroidRunConfiguration>(parent, id);
 }
 
