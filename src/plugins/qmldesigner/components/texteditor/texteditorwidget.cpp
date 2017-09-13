@@ -80,7 +80,7 @@ void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
         connect(textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged,
                 this, [this]() {
             /* Cursor position is changed by rewriter */
-            if (!m_blockCurserSelectionSyncronisation)
+            if (!m_blockCursorSelectionSynchronisation)
                 m_updateSelectionTimer.start();
         });
 
@@ -168,9 +168,9 @@ int TextEditorWidget::currentLine() const
     return -1;
 }
 
-void TextEditorWidget::setBlockCurserSelectionSyncronisation(bool b)
+void TextEditorWidget::setBlockCursorSelectionSynchronisation(bool b)
 {
-    m_blockCurserSelectionSyncronisation = b;
+    m_blockCursorSelectionSynchronisation = b;
 }
 
 bool TextEditorWidget::eventFilter( QObject *, QEvent *event)

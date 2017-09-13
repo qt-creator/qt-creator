@@ -59,7 +59,7 @@ public:
 
     int currentLine() const;
 
-    void setBlockCurserSelectionSyncronisation(bool b);
+    void setBlockCursorSelectionSynchronisation(bool b);
 
 protected:
     bool eventFilter(QObject *object, QEvent *event) override;
@@ -71,7 +71,7 @@ private:
     QPointer<TextEditorView> m_textEditorView;
     QTimer m_updateSelectionTimer;
     TextEditorStatusBar *m_statusBar;
-    bool m_blockCurserSelectionSyncronisation = false;
+    bool m_blockCursorSelectionSynchronisation = false;
 };
 
 } // namespace QmlDesigner

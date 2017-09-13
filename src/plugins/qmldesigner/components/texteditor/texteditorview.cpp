@@ -173,9 +173,9 @@ void TextEditorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNode
 void TextEditorView::customNotification(const AbstractView * /*view*/, const QString &identifier, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
 {
     if (identifier == StartRewriterApply)
-        m_widget->setBlockCurserSelectionSyncronisation(true);
+        m_widget->setBlockCursorSelectionSynchronisation(true);
     else if (identifier == EndRewriterApply)
-        m_widget->setBlockCurserSelectionSyncronisation(false);
+        m_widget->setBlockCursorSelectionSynchronisation(false);
 }
 
 void TextEditorView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &)
