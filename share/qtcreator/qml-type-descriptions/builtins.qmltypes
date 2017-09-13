@@ -417,6 +417,7 @@ Module {
         Property { name: "amplitude"; type: "qreal" }
         Property { name: "overshoot"; type: "qreal" }
         Property { name: "period"; type: "qreal" }
+        Property { name: "bezierCurve"; type: "QVariantList" }
     }
     Component {
         name: "QDeclarativeFlickable"
