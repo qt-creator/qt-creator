@@ -106,7 +106,11 @@ Declaration::Declaration(Clone *clone, Subst *subst, Declaration *original)
     , _initializer(clone->stringLiteral(original->_initializer))
 {
     const char* nameId = nullptr;
-    if (const Identifier* identifier = name()->identifier())
+    const Name *theName = name();
+    if (!theName)
+        return;
+
+    if (const Identifier* identifier = theName->identifier())
         nameId = identifier->chars();
     else
         return;
