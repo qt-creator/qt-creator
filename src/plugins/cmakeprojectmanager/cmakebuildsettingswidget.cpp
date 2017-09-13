@@ -197,6 +197,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     mainLayout->addLayout(buttonLayout, row, 2);
 
+    connect(m_configView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &CMakeBuildSettingsWidget::updateSelection);
+
     ++row;
     m_reconfigureButton = new QPushButton(tr("Apply Configuration Changes"));
     m_reconfigureButton->setEnabled(false);
@@ -329,6 +332,25 @@ void CMakeBuildSettingsWidget::updateFromKit()
         configHash.insert(QString::fromUtf8(i.key), i.expandedValue(k));
 
     m_configModel->setKitConfiguration(configHash);
+}
+
+static QModelIndex mapToSource(const QAbstractItemView *view, const QModelIndex &idx)
+{
+    QAbstractItemModel *model = view->model();
+    QModelIndex result = idx;
+    while (QSortFilterProxyModel *proxy = qobject_cast<QSortFilterProxyModel *>(model)) {
+        result = proxy->mapToSource(result);
+        model = proxy->sourceModel();
+    }
+    return result;
+}
+
+void CMakeBuildSettingsWidget::updateSelection(const QModelIndex &current, const QModelIndex &previous)
+{
+    Q_UNUSED(previous);
+    const QModelIndex currentModelIndex = mapToSource(m_configView, current);
+    if (currentModelIndex.isValid())
+        m_editButton->setEnabled(currentModelIndex.flags().testFlag(Qt::ItemIsEditable));
 }
 
 } // namespace Internal

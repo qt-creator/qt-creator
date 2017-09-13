@@ -64,6 +64,8 @@ private:
     void updateAdvancedCheckBox();
     void updateFromKit();
 
+    void updateSelection(const QModelIndex &current, const QModelIndex &previous);
+
     CMakeBuildConfiguration *m_buildConfiguration;
     QTreeView *m_configView;
     ConfigModel *m_configModel;
