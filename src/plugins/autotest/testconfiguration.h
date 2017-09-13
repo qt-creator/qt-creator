@@ -56,6 +56,7 @@ public:
     virtual ~TestConfiguration();
 
     void completeTestInformation(TestRunMode runMode);
+    void completeTestInformation(ProjectExplorer::RunConfiguration *rc, TestRunMode runMode);
 
     void setTestCases(const QStringList &testCases);
     void setTestCaseCount(int count);
@@ -67,6 +68,7 @@ public:
     void setEnvironment(const Utils::Environment &env);
     void setProject(ProjectExplorer::Project *project);
     void setInternalTargets(const QSet<QString> &targets);
+    void setOriginalRunConfiguration(ProjectExplorer::RunConfiguration *runConfig);
 
     QStringList testCases() const { return m_testCases; }
     int testCaseCount() const { return m_testCaseCount; }
@@ -77,7 +79,10 @@ public:
     QString displayName() const { return m_displayName; }
     Utils::Environment environment() const { return m_runnable.environment; }
     ProjectExplorer::Project *project() const { return m_project.data(); }
+    QSet<QString> internalTargets() const { return m_buildTargets; }
+    ProjectExplorer::RunConfiguration *originalRunConfiguration() const { return m_origRunConfig; }
     TestRunConfiguration *runConfiguration() const { return m_runConfig; }
+    bool hasExecutable() const;
     bool isGuessed() const { return m_guessedConfiguration; }
     QString runConfigDisplayName() const { return m_guessedConfiguration ? m_guessedFrom
                                                                          : m_displayName; }
@@ -96,8 +101,9 @@ private:
     QString m_guessedFrom;
     QPointer<ProjectExplorer::Project> m_project;
     bool m_guessedConfiguration = false;
-    TestRunConfiguration *m_runConfig = 0;
+    TestRunConfiguration *m_runConfig = nullptr;
     QSet<QString> m_buildTargets;
+    ProjectExplorer::RunConfiguration *m_origRunConfig = nullptr;
     ProjectExplorer::StandardRunnable m_runnable;
 };
 
