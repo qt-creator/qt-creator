@@ -70,7 +70,6 @@ class QnxUtils
 public:
     static QString addQuotes(const QString &string);
     static QString cpuDirShortDescription(const QString &cpuDir);
-    static QStringList searchPaths(Qnx::Internal::QnxQtVersion *qtVersion);
     static QList<Utils::EnvironmentItem> qnxEnvironmentFromEnvFile(const QString &fileName);
     static QString envFilePath(const QString &sdpPath);
     static QString defaultTargetVersion(const QString &sdpPath);

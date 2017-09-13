@@ -23,8 +23,6 @@ SOURCES += qnxplugin.cpp \
     qnxdeviceprocesslist.cpp \
     qnxtoolchain.cpp \
     slog2inforunner.cpp \
-    qnxattachdebugsupport.cpp \
-    qnxattachdebugdialog.cpp \
     qnxconfiguration.cpp \
     qnxsettingswidget.cpp \
     qnxconfigurationmanager.cpp \
@@ -55,8 +53,6 @@ HEADERS += qnxplugin.h\
     qnxdeviceprocesslist.h \
     qnxtoolchain.h \
     slog2inforunner.h \
-    qnxattachdebugsupport.h \
-    qnxattachdebugdialog.h \
     qnxconfiguration.h \
     qnxsettingswidget.h \
     qnxconfigurationmanager.h \

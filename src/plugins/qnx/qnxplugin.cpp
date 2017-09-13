@@ -26,7 +26,6 @@
 #include "qnxplugin.h"
 
 #include "qnxanalyzesupport.h"
-#include "qnxattachdebugsupport.h"
 #include "qnxconfigurationmanager.h"
 #include "qnxconstants.h"
 #include "qnxdebugsupport.h"
@@ -108,12 +107,10 @@ bool QnxPlugin::initialize(const QStringList &arguments, QString *errorString)
 
 void QnxPlugin::extensionsInitialized()
 {
-    // Debug support
-    QnxAttachDebugSupport *debugSupport = new QnxAttachDebugSupport(this);
-
+    // Attach support
     m_attachToQnxApplication = new QAction(this);
     m_attachToQnxApplication->setText(tr("Attach to remote QNX application..."));
-    connect(m_attachToQnxApplication, &QAction::triggered, debugSupport, &QnxAttachDebugSupport::showProcessesDialog);
+    connect(m_attachToQnxApplication, &QAction::triggered, this, [] { QnxAttachDebugSupport::showProcessesDialog(); });
 
     Core::ActionContainer *mstart = Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
     mstart->appendGroup(Constants::QNX_DEBUGGING_GROUP);
