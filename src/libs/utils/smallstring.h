@@ -694,7 +694,7 @@ unittest_public:
     }
 
 private:
-    BasicSmallString(Internal::StringDataLayout<Size> data) noexcept
+    BasicSmallString(const Internal::StringDataLayout<Size> &data) noexcept
         : m_data(data)
     {
     }
