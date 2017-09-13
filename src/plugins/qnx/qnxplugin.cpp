@@ -139,8 +139,8 @@ void QnxPlugin::updateDebuggerActions()
         }
     }
 
-    m_attachToQnxApplication->setVisible(false && hasValidQnxKit); // FIXME
-    m_debugSeparator->setVisible(false && hasValidQnxKit); // FIXME QTCREATORBUG-16608
+    m_attachToQnxApplication->setVisible(hasValidQnxKit);
+    m_debugSeparator->setVisible(hasValidQnxKit);
 }
 
 } // Internal

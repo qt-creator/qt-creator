@@ -1019,7 +1019,8 @@ void GdbServerPortsGatherer::handlePortListReady()
             return;
         }
     }
-    reportDone();
+//    reportDone();
+    reportStarted();
 }
 
 // GdbServerRunner

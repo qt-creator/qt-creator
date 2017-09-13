@@ -28,7 +28,6 @@
 #include <QtGlobal>
 
 namespace Qnx {
-
 namespace Constants {
 
 const char QNX_TARGET_KEY[] = "QNX_TARGET";

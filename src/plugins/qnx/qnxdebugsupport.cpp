@@ -102,7 +102,7 @@ public:
     }
 
 private:
-    void start() override
+    void start() final
     {
         StandardRunnable r = runnable().as<StandardRunnable>();
         QStringList arguments;
@@ -155,17 +155,13 @@ void QnxDebugSupport::start()
     Target *target = runConfig->target();
     Kit *k = target->kit();
 
-    auto inferior = runConfig->runnable().as<StandardRunnable>();
-    inferior.executable = runConfig->remoteExecutableFilePath();
-    inferior.commandLineArguments = runConfig->arguments();
-
     setStartMode(AttachToRemoteServer);
     setCloseMode(KillAtClose);
     setUseCtrlCStub(true);
     setRemoteChannel(m_portsGatherer->gdbServerChannel());
     setQmlServer(m_portsGatherer->qmlServer());
-    setInferior(inferior);
     setSolibSearchPath(searchPaths(k));
+    setSymbolFile(runConfig->localExecutableFilePath());
 
     DebuggerRunTool::start();
 }
@@ -219,20 +215,11 @@ public:
 private:
     void start() final
     {
-        StandardRunnable r = runnable().as<StandardRunnable>();
-        QStringList arguments;
-        if (m_portsGatherer->useGdbServer()) {
-            Port pdebugPort = m_portsGatherer->gdbServerPort();
-            r.executable = Constants::QNX_DEBUG_EXECUTABLE;
-            arguments.append(pdebugPort.toString());
-        }
-        if (m_portsGatherer->useQmlServer()) {
-            arguments.append(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                            m_portsGatherer->qmlServerPort()));
-        }
-        arguments.append(QtcProcess::splitArgs(r.commandLineArguments));
-        r.commandLineArguments = QtcProcess::joinArgs(arguments);
+        Port pdebugPort = m_portsGatherer->gdbServerPort();
 
+        StandardRunnable r;
+        r.executable = Constants::QNX_DEBUG_EXECUTABLE;
+        r.commandLineArguments = pdebugPort.toString();
         setRunnable(r);
 
         SimpleTargetRunner::start();
@@ -250,21 +237,22 @@ QnxAttachDebugSupport::QnxAttachDebugSupport(RunControl *runControl)
     m_portsGatherer->setUseGdbServer(isCppDebugging());
     m_portsGatherer->setUseQmlServer(isQmlDebugging());
 
-    m_pdebugRunner = new PDebugRunner(runControl, m_portsGatherer);
-    m_pdebugRunner->addStartDependency(m_portsGatherer);
+    if (isCppDebugging()) {
+        m_pdebugRunner = new PDebugRunner(runControl, m_portsGatherer);
+        m_pdebugRunner->addStartDependency(m_portsGatherer);
+        addStartDependency(m_pdebugRunner);
+    } else {
+        // No pdebug needed for Qml-only debugging.
+        addStartDependency(m_portsGatherer);
+    }
+}
 
-    addStartDependency(m_pdebugRunner);
+void QnxAttachDebugSupport::start()
+{
+    setRemoteChannel(m_portsGatherer->gdbServerChannel());
+    setQmlServer(m_portsGatherer->qmlServer());
 
-//    connect(m_launcher, &ApplicationLauncher::remoteProcessStarted,
-//            this, &QnxAttachDebugSupport::attachToProcess);
-//    connect(m_launcher, &ApplicationLauncher::reportError,
-//            this, &QnxAttachDebugSupport::handleError);
-//    connect(m_launcher, &ApplicationLauncher::reportProgress,
-//            this, &QnxAttachDebugSupport::handleProgressReport);
-//    connect(m_launcher, &ApplicationLauncher::remoteStdout,
-//            this, &QnxAttachDebugSupport::handleRemoteOutput);
-//    connect(m_launcher, &ApplicationLauncher::remoteStderr,
-//            this, &QnxAttachDebugSupport::handleRemoteOutput);
+    DebuggerRunTool::start();
 }
 
 void QnxAttachDebugSupport::showProcessesDialog()
@@ -285,72 +273,32 @@ void QnxAttachDebugSupport::showProcessesDialog()
         return;
 
     // FIXME: That should be somehow related to the selected kit.
-    auto runConfig = RunConfiguration::startupRunConfiguration();
+    auto startRunConfig = RunConfiguration::startupRunConfiguration();
+    auto runConfig = qobject_cast<QnxRunConfiguration *>(startRunConfig);
     if (!runConfig)
         return;
 
     DeviceProcessItem process = dlg.currentProcess();
     const int pid = process.pid;
+//    QString projectSourceDirectory = dlg.projectSource();
+    QString localExecutable = dlg.localExecutable();
+    if (localExecutable.isEmpty())
+        localExecutable = runConfig->localExecutableFilePath();
 
     auto runControl = new RunControl(runConfig, ProjectExplorer::Constants::DEBUG_RUN_MODE);
     auto debugger = new QnxAttachDebugSupport(runControl);
-    debugger->setAttachPid(pid);
-    debugger->setSymbolFile(dlg.localExecutable());
-//    QString projectSourceDirectory = dlg.projectSource();
-
-//    auto runConfig = qobject_cast<QnxRunConfiguration *>(runControl()->runConfiguration());
-//    QTC_ASSERT(runConfig, return);
-//    Target *target = runConfig->target();
-
-//    StandardRunnable inferior;
-//    inferior.executable = runConfig->remoteExecutableFilePath();
-//    inferior.executable = m_localExecutablePath;
-//    inferior.commandLineArguments = runConfig->arguments();
-
     debugger->setStartMode(AttachToRemoteServer);
     debugger->setCloseMode(DetachAtClose);
+    debugger->setNeedFixup(false);
+    debugger->setSymbolFile(localExecutable);
     debugger->setUseCtrlCStub(true);
-//    setInferior(inferior);
+    debugger->setAttachPid(pid);
 //    setRunControlName(tr("Remote: \"%1\" - Process %2").arg(remoteChannel).arg(m_process.pid));
     debugger->setRunControlName(tr("Remote QNX process %1").arg(pid));
     debugger->setSolibSearchPath(searchPaths(kit));
+    debugger->setUseContinueInsteadOfRun(true);
 
-    (void) new QnxAttachDebugSupport(runControl);
     ProjectExplorerPlugin::startRunControl(runControl);
-}
-
-void QnxAttachDebugSupport::handleDebuggerStateChanged(Debugger::DebuggerState state)
-{
-    if (state == Debugger::DebuggerFinished)
-        stopPDebug();
-}
-
-void QnxAttachDebugSupport::handleError(const QString &message)
-{
-    showMessage(message, Debugger::AppError);
-}
-
-void QnxAttachDebugSupport::handleProgressReport(const QString &message)
-{
-    showMessage(message, Debugger::AppStuff);
-}
-
-void QnxAttachDebugSupport::handleRemoteOutput(const QString &output)
-{
-    showMessage(output, Debugger::AppOutput);
-}
-
-void QnxAttachDebugSupport::stopPDebug()
-{
-//    m_launcher->stop();
-}
-
-void QnxAttachDebugSupport::start()
-{
-    setRemoteChannel(m_portsGatherer->gdbServerChannel());
-    setQmlServer(m_portsGatherer->qmlServer());
-
-    DebuggerRunTool::start();
 }
 
 } // namespace Internal
