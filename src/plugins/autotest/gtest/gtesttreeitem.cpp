@@ -296,13 +296,13 @@ QSet<QString> GTestTreeItem::internalTargets() const
     const auto projectInfo = cppMM->projectInfo(ProjectExplorer::SessionManager::startupProject());
     const QString file = filePath();
     for (const CppTools::ProjectPart::Ptr projectPart : projectInfo.projectParts()) {
-        if (projectPart->buildTargetType != CppTools::ProjectPart::Executable)
-            continue;
         if (projectPart->projectFile == proFile()
                 && Utils::anyOf(projectPart->files, [&file] (const CppTools::ProjectFile &pf) {
                                 return pf.path == file;
         })) {
             result.insert(projectPart->buildSystemTarget + '|' + projectPart->projectFile);
+            if (projectPart->buildTargetType != CppTools::ProjectPart::Executable)
+                result.unite(TestTreeItem::dependingInternalTargets(cppMM, file));
         }
     }
     return result;
