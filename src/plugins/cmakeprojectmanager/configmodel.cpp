@@ -151,11 +151,6 @@ QList<ConfigModel::DataItem> ConfigModel::configurationChanges() const
 void ConfigModel::setConfiguration(const QList<ConfigModel::InternalDataItem> &config)
 {
     QList<InternalDataItem> tmp = config;
-    Utils::sort(tmp,
-                [](const ConfigModel::InternalDataItem &i, const ConfigModel::InternalDataItem &j) {
-                    return i.key < j.key;
-                });
-
     auto newIt = tmp.constBegin();
     auto newEndIt = tmp.constEnd();
     auto oldIt = m_configuration.constBegin();

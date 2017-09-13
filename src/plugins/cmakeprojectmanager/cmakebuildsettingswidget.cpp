@@ -146,12 +146,15 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configFilterModel->setFilterFixedString("0");
 
     m_configTextFilterModel->setSourceModel(m_configFilterModel);
+    m_configTextFilterModel->setSortRole(Qt::DisplayRole);
     m_configTextFilterModel->setFilterKeyColumn(-1);
     m_configTextFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     m_configView->setModel(m_configTextFilterModel);
     m_configView->setMinimumHeight(300);
     m_configView->setUniformRowHeights(true);
+    m_configView->setSortingEnabled(true);
+    m_configView->sortByColumn(0, Qt::AscendingOrder);
     auto stretcher = new Utils::HeaderViewStretcher(m_configView->header(), 1);
     m_configView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_configView->setSelectionBehavior(QAbstractItemView::SelectItems);
