@@ -361,7 +361,6 @@ bool ConfigModelTreeItem::setData(int column, const QVariant &value, int role)
             return false;
         dataItem->key = newValue;
         dataItem->isUserNew = true;
-        dataItem->isUserChanged = false;
         return true;
     case 1:
         if (dataItem->value == newValue) {
