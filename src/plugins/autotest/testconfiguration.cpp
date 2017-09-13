@@ -90,7 +90,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
 
     const QSet<QString> buildSystemTargets = m_buildTargets;
     qCDebug(LOG) << "BuildSystemTargets\n    " << buildSystemTargets;
-    const BuildTargetInfo targetInfo
+    BuildTargetInfo targetInfo
             = Utils::findOrDefault(target->applicationTargets().list,
                                    [&buildSystemTargets] (const BuildTargetInfo &bti) {
         return Utils::anyOf(buildSystemTargets, [&bti](const QString &b) {
@@ -101,11 +101,19 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
                     && targWithProjectFile.at(1).startsWith(bti.projectFilePath.toString());
         });
     });
-    if (!QTC_GUARD(!targetInfo.targetFilePath.isEmpty())) { // empty if BTI default created
+    // we might end up with an empty targetFilePath - e.g. when having a library we just link to
+    // there would be no BuildTargetInfo that could match
+    if (targetInfo.targetFilePath.isEmpty()) {
         qCDebug(LOG) << "BuildTargetInfos";
-        for (const BuildTargetInfo &bti : target->applicationTargets().list)
-            qCDebug(LOG) << "    " << bti.targetName << bti.projectFilePath << bti.targetFilePath;
+        const QList<BuildTargetInfo> buildTargets = target->applicationTargets().list;
+        // if there is only one build target just use it (but be honest that we're guessing)
+        if (buildTargets.size() == 1) {
+            targetInfo = buildTargets.first();
+            m_guessedConfiguration = true;
+            m_guessedFrom = targetInfo.targetName;
+        }
     }
+
     const QString localExecutable = ensureExeEnding(targetInfo.targetFilePath.toString());
 
     QString buildBase;
