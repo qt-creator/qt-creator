@@ -60,7 +60,7 @@ void QmlProfilerClientManager::setFlushInterval(quint32 flushInterval)
 void QmlProfilerClientManager::clearBufferedData()
 {
     if (m_clientPlugin)
-        m_clientPlugin->clearData();
+        m_clientPlugin->clear();
 }
 
 void QmlProfilerClientManager::stopRecording()
