@@ -658,18 +658,9 @@ unittest_public:
     {
         const size_type cacheLineSize = 64;
 
-        const auto divisionByCacheLineSize = std::div(int64_t(size), int64_t(cacheLineSize));
+        size_type cacheLineBlocks = (size - 1) / cacheLineSize;
 
-        size_type cacheLineBlocks = size_type(divisionByCacheLineSize.quot);
-        const size_type supplement = divisionByCacheLineSize.rem ? 1 : 0;
-
-        cacheLineBlocks += supplement;
-        int exponent;
-        const double significand = std::frexp(cacheLineBlocks, &exponent);
-        const double factorOneDotFiveSignificant = std::ceil(significand * 4.) / 4.;
-        cacheLineBlocks = size_type(std::ldexp(factorOneDotFiveSignificant, exponent));
-
-        return cacheLineBlocks * cacheLineSize;
+        return (cacheLineBlocks  + 1) * cacheLineSize;
     }
 
     size_type countOccurrence(SmallStringView text)

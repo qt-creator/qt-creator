@@ -1067,13 +1067,13 @@ TEST(SmallString, OptimalHeapCacheLineForSize)
     ASSERT_THAT(SmallString::optimalHeapCapacity(191), 192);
     ASSERT_THAT(SmallString::optimalHeapCapacity(193), 256);
     ASSERT_THAT(SmallString::optimalHeapCapacity(255), 256);
-    ASSERT_THAT(SmallString::optimalHeapCapacity(257), 384);
-    ASSERT_THAT(SmallString::optimalHeapCapacity(257), 384);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(256), 256);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(257), 320);
     ASSERT_THAT(SmallString::optimalHeapCapacity(383), 384);
-    ASSERT_THAT(SmallString::optimalHeapCapacity(385), 512);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(385), 448);
     ASSERT_THAT(SmallString::optimalHeapCapacity(4095), 4096);
     ASSERT_THAT(SmallString::optimalHeapCapacity(4096), 4096);
-    ASSERT_THAT(SmallString::optimalHeapCapacity(4097), 6144);
+    ASSERT_THAT(SmallString::optimalHeapCapacity(4097), 4160);
 }
 
 TEST(SmallString, OptimalCapacityForSize)
