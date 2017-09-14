@@ -110,6 +110,7 @@ Project {
                 "projectexplorersettingspage.cpp", "projectexplorersettingspage.h", "projectexplorersettingspage.ui",
                 "projectfilewizardextension.cpp", "projectfilewizardextension.h",
                 "projectimporter.cpp", "projectimporter.h",
+                "projectmacro.cpp", "projectmacro.h",
                 "projectmacroexpander.cpp", "projectmacroexpander.h",
                 "projectmanager.h",
                 "projectmodels.cpp", "projectmodels.h",
