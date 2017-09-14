@@ -129,6 +129,8 @@ private:
 
     unsigned documentRevision() const;
 
+    QMenu *createRefactorMenu(QWidget *parent) const;
+
     TextEditor::RefactorMarkers refactorMarkersWithoutClangMarkers() const;
 
     CppTools::RefactoringEngineInterface *refactoringEngine() const;

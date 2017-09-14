@@ -743,51 +743,69 @@ void CppEditorWidget::processKeyNormally(QKeyEvent *e)
     TextEditorWidget::keyPressEvent(e);
 }
 
-void CppEditorWidget::contextMenuEvent(QContextMenuEvent *e)
+static void addRefactoringActions(QMenu *menu, AssistInterface *iface)
 {
+    if (!iface || !menu)
+        return;
+
+    using Processor = QScopedPointer<IAssistProcessor>;
+    using Proposal = QScopedPointer<IAssistProposal>;
+    using Model = QScopedPointer<GenericProposalModel>;
+
+    const Processor processor(CppEditorPlugin::instance()->quickFixProvider()->createProcessor());
+    const Proposal proposal(processor->perform(iface)); // OK, perform() takes ownership of iface.
+    if (proposal) {
+        Model model(static_cast<GenericProposalModel *>(proposal->model()));
+        for (int index = 0; index < model->size(); ++index) {
+            const auto item = static_cast<AssistProposalItem *>(model->proposalItem(index));
+            const QuickFixOperation::Ptr op = item->data().value<QuickFixOperation::Ptr>();
+            const QAction *action = menu->addAction(op->description());
+            QObject::connect(action, &QAction::triggered, menu, [op] { op->perform(); });
+        }
+    }
+}
+
+QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
+{
+    auto *menu = new QMenu(tr("&Refactor"), parent);
+    menu->addAction(ActionManager::command(Constants::RENAME_SYMBOL_UNDER_CURSOR)->action());
+
     // ### enable
     // updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
-    QPointer<QMenu> menu(new QMenu(this));
-
-    ActionContainer *mcontext = ActionManager::actionContainer(Constants::M_CONTEXT);
-    QMenu *contextMenu = mcontext->menu();
-
-    QMenu *quickFixMenu = new QMenu(tr("&Refactor"), menu);
-    quickFixMenu->addAction(ActionManager::command(Constants::RENAME_SYMBOL_UNDER_CURSOR)->action());
-
     if (isSemanticInfoValidExceptLocalUses()) {
         d->m_useSelectionsUpdater.update(CppUseSelectionsUpdater::Synchronous);
-        AssistInterface *interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
-        if (interface) {
-            QScopedPointer<IAssistProcessor> processor(
-                CppEditorPlugin::instance()->quickFixProvider()->createProcessor());
-            QScopedPointer<IAssistProposal> proposal(processor->perform(interface));
-            if (!proposal.isNull()) {
-                auto model = static_cast<GenericProposalModel *>(proposal->model());
-                for (int index = 0; index < model->size(); ++index) {
-                    auto item = static_cast<AssistProposalItem *>(model->proposalItem(index));
-                    QuickFixOperation::Ptr op = item->data().value<QuickFixOperation::Ptr>();
-                    QAction *action = quickFixMenu->addAction(op->description());
-                    connect(action, &QAction::triggered, this, [op] { op->perform(); });
-                }
-                delete model;
-            }
+        addRefactoringActions(menu, createAssistInterface(QuickFix, ExplicitlyInvoked));
+    }
+
+    return menu;
+}
+
+static void appendCustomContextMenuActionsAndMenus(QMenu *menu, QMenu *refactorMenu)
+{
+    bool isRefactoringMenuAdded = false;
+    const QMenu *contextMenu = ActionManager::actionContainer(Constants::M_CONTEXT)->menu();
+    for (QAction *action : contextMenu->actions()) {
+        menu->addAction(action);
+        if (action->objectName() == Constants::M_REFACTORING_MENU_INSERTION_POINT) {
+            isRefactoringMenuAdded = true;
+            menu->addMenu(refactorMenu);
         }
     }
 
-    foreach (QAction *action, contextMenu->actions()) {
-        menu->addAction(action);
-        if (action->objectName() == QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT))
-            menu->addMenu(quickFixMenu);
-    }
+    QTC_CHECK(isRefactoringMenuAdded);
+}
 
+void CppEditorWidget::contextMenuEvent(QContextMenuEvent *e)
+{
+    const QPointer<QMenu> menu(new QMenu(this));
+
+    appendCustomContextMenuActionsAndMenus(menu, createRefactorMenu(menu));
     appendStandardContextMenuActions(menu);
 
     menu->exec(e->globalPos());
-    if (!menu)
-        return;
-    delete menu;
+    if (menu)
+        delete menu; // OK, menu was not already deleted by closed editor widget.
 }
 
 void CppEditorWidget::keyPressEvent(QKeyEvent *e)
