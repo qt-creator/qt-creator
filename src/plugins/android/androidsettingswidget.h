@@ -73,9 +73,9 @@ public:
     void saveSettings();
 
 private:
-    void sdkLocationEditingFinished();
-    void ndkLocationEditingFinished();
-    void openJDKLocationEditingFinished();
+    void validateJdk();
+    void validateNdk();
+    void validateSdk();
     void openSDKDownloadUrl();
     void openNDKDownloadUrl();
     void openOpenJDKDownloadUrl();
@@ -88,25 +88,14 @@ private:
     void manageAVD();
     void createKitToggled();
 
+    void checkMissingQtVersion();
+    void updateUI();
     void updateAvds();
 
 private:
-    enum Mode { Sdk = 1, Ndk = 2, Java = 4, All = Sdk | Ndk | Java };
-    enum State { NotSet = 0, Okay = 1, Error = 2 };
-    bool verifySdkInstallation(QString *errorDetails = nullptr) const;
-    void check(Mode mode);
-    void applyToUi(Mode mode);
     void startUpdateAvd();
     void enableAvdControls();
     void disableAvdControls();
-
-    State m_sdkState;
-    QString m_sdkInstallationError;
-    State m_ndkState;
-    QString m_ndkErrorMessage;
-    int m_ndkCompilerCount;
-    QString m_ndkMissingQtArchs;
-    State m_javaState;
 
     Ui_AndroidSettingsWidget *m_ui;
     AndroidConfig m_androidConfig;
