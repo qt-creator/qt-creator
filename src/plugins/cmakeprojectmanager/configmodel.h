@@ -75,6 +75,9 @@ public:
     bool hasChanges() const;
     bool hasCMakeChanges() const;
 
+    bool canForceToString(const QModelIndex &idx) const;
+    void forceToString(const QModelIndex &idx);
+
     QList<DataItem> configurationChanges() const;
 
 private:

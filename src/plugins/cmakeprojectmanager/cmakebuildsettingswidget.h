@@ -66,6 +66,8 @@ private:
 
     void updateSelection(const QModelIndex &current, const QModelIndex &previous);
 
+    bool eventFilter(QObject *target, QEvent *event);
+
     CMakeBuildConfiguration *m_buildConfiguration;
     QTreeView *m_configView;
     ConfigModel *m_configModel;

@@ -140,6 +140,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             tree, [tree](const QModelIndex &idx) { tree->edit(idx); });
     m_configView = tree;
 
+    m_configView->viewport()->installEventFilter(this);
+
     m_configFilterModel->setSourceModel(m_configModel);
     m_configFilterModel->setFilterKeyColumn(0);
     m_configFilterModel->setFilterRole(ConfigModel::ItemIsAdvancedRole);
@@ -339,6 +341,9 @@ void CMakeBuildSettingsWidget::updateFromKit()
 
 static QModelIndex mapToSource(const QAbstractItemView *view, const QModelIndex &idx)
 {
+    if (!idx.isValid())
+        return idx;
+
     QAbstractItemModel *model = view->model();
     QModelIndex result = idx;
     while (QSortFilterProxyModel *proxy = qobject_cast<QSortFilterProxyModel *>(model)) {
@@ -354,6 +359,31 @@ void CMakeBuildSettingsWidget::updateSelection(const QModelIndex &current, const
     const QModelIndex currentModelIndex = mapToSource(m_configView, current);
     if (currentModelIndex.isValid())
         m_editButton->setEnabled(currentModelIndex.flags().testFlag(Qt::ItemIsEditable));
+}
+
+bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
+{
+    // handle context menu events:
+    if (target != m_configView->viewport() || event->type() != QEvent::ContextMenu)
+        return false;
+
+    auto e = static_cast<QContextMenuEvent *>(event);
+    const QModelIndex idx = mapToSource(m_configView, m_configView->indexAt(e->pos()));
+    if (!idx.isValid())
+        return false;
+
+    QMenu *menu = new QMenu(this);
+    connect(menu, &QMenu::triggered, menu, &QMenu::deleteLater);
+
+    QAction *forceToStringAction = new QAction(tr("Force to String"));
+    forceToStringAction->setEnabled(m_configModel->canForceToString(idx));
+    menu->addAction(forceToStringAction);
+    connect(forceToStringAction, &QAction::triggered, this, [this, idx]() { m_configModel->forceToString(idx); });
+
+    menu->move(e->globalPos());
+    menu->show();
+
+    return true;
 }
 
 } // namespace Internal
