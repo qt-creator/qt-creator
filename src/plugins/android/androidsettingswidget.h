@@ -88,8 +88,6 @@ private:
     void manageAVD();
     void createKitToggled();
 
-    void checkGdbFinished();
-    void showGdbWarningDialog();
     void updateAvds();
 
 private:
@@ -114,8 +112,6 @@ private:
     AndroidConfig m_androidConfig;
     AvdModel m_AVDModel;
     QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcher;
-    QFutureWatcher<QPair<QStringList, bool>> m_checkGdbWatcher;
-    QStringList m_gdbCheckPaths;
 
     QFutureWatcher<AndroidDeviceInfoList> m_virtualDevicesWatcher;
     QString m_lastAddedAvd;
