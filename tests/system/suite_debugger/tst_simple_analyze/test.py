@@ -35,7 +35,9 @@ def main():
     analyzerTargets = Targets.desktopTargetClasses()
     checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=analyzerTargets)
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
-    if placeCursorToLine(editor, "MouseArea.*", True):
+    if placeCursorToLine(editor, "}"):
+        type(editor, '<Left>')
+        type(editor, '<Return>')
         type(editor, '<Up>')
         type(editor, '<Return>')
         typeLines(editor, ['Timer {',
