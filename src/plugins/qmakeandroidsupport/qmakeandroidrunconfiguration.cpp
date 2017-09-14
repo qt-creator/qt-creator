@@ -49,19 +49,19 @@ namespace Internal {
 
 static const char ANDROID_RC_ID_PREFIX[] = "Qt4ProjectManager.AndroidRunConfiguration:";
 
-static QString pathFromId(const Core::Id id)
+static Utils::FileName pathFromId(const Core::Id id)
 {
-    return id.suffixAfter(ANDROID_RC_ID_PREFIX);
+    return Utils::FileName::fromString(id.suffixAfter(ANDROID_RC_ID_PREFIX));
 }
 
 QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *target)
     : AndroidRunConfiguration(target)
 {}
 
-void QmakeAndroidRunConfiguration::initialize(Core::Id id, const Utils::FileName &path)
+void QmakeAndroidRunConfiguration::initialize(Core::Id id)
 {
     AndroidRunConfiguration::initialize(id);
-    m_proFilePath = path;
+    m_proFilePath = pathFromId(id);
 
     ctor();
 }
@@ -110,7 +110,7 @@ QString QmakeAndroidRunConfiguration::defaultDisplayName()
             return node->displayName();
     }
 
-    return QFileInfo(pathFromId(id())).completeBaseName();
+    return displayNameForId(id());
 }
 
 QString QmakeAndroidRunConfiguration::disabledReason() const
@@ -127,6 +127,11 @@ QString QmakeAndroidRunConfiguration::disabledReason() const
 QString QmakeAndroidRunConfiguration::buildSystemTarget() const
 {
     return qmakeProject()->mapProFilePathToTarget(m_proFilePath);
+}
+
+QString QmakeAndroidRunConfiguration::displayNameForId(Core::Id id)
+{
+    return pathFromId(id).toFileInfo().completeBaseName();
 }
 
 QmakeProject *QmakeAndroidRunConfiguration::qmakeProject() const

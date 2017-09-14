@@ -50,9 +50,11 @@ public:
 
     QString buildSystemTarget() const final;
 
+    static QString displayNameForId(Core::Id id);
+
 private:
     friend class ProjectExplorer::IRunConfigurationFactory;
-    void initialize(Core::Id id, const Utils::FileName &path = Utils::FileName());
+    void initialize(Core::Id id);
     void copyFrom(const QmakeAndroidRunConfiguration *source);
 
     bool fromMap(const QVariantMap &map) override;
