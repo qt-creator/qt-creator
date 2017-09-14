@@ -19,59 +19,117 @@
 #include "configmodelitemdelegate.h"
 #include "configmodel.h"
 
+#include <utils/asconst.h>
+#include <utils/pathchooser.h>
+
 #include <QComboBox>
+#include <QCheckBox>
+#include <QLineEdit>
+#include <QPainter>
 
 namespace CMakeProjectManager {
 
-ConfigModelItemDelegate::ConfigModelItemDelegate(QObject* parent)
+ConfigModelItemDelegate::ConfigModelItemDelegate(const Utils::FileName &base, QObject* parent)
     : QStyledItemDelegate(parent)
+    , m_base(base)
 { }
 
-ConfigModelItemDelegate::~ConfigModelItemDelegate()
-{ }
+QWidget *ConfigModelItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                                               const QModelIndex &index) const
 
-QWidget* ConfigModelItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    // ComboBox ony in column 2
-    if (index.column() != 1)
-        return QStyledItemDelegate::createEditor(parent, option, index);
-
-    auto model = index.model();
-    auto values = model->data(index, ConfigModel::ItemValuesRole).toStringList();
-    if (values.isEmpty())
-        return QStyledItemDelegate::createEditor(parent, option, index);
-
-    // Create the combobox and populate it
-    auto cb = new QComboBox(parent);
-    cb->addItems(values);
-    cb->setEditable(true);
-
-    return cb;
-}
-
-void ConfigModelItemDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
-{
-    if (QComboBox* cb = qobject_cast<QComboBox*>(editor)) {
-       // get the index of the text in the combobox that matches the current value of the itenm
-       QString currentText = index.data(Qt::EditRole).toString();
-       int cbIndex = cb->findText(currentText);
-       // if it is valid, adjust the combobox
-       if (cbIndex >= 0)
-           cb->setCurrentIndex(cbIndex);
-       else
-           cb->setEditText(currentText);
-    } else {
-        QStyledItemDelegate::setEditorData(editor, index);
+    if (index.column() == 1) {
+        ConfigModel::DataItem data = ConfigModel::dataItemFromIndex(index);
+        if (data.type == ConfigModel::DataItem::FILE || data.type == ConfigModel::DataItem::DIRECTORY) {
+            auto edit = new Utils::PathChooser(parent);
+            edit->setFocusPolicy(Qt::StrongFocus);
+            edit->setBaseFileName(m_base);
+            edit->setAutoFillBackground(true);
+            if (data.type == ConfigModel::DataItem::FILE) {
+                edit->setExpectedKind(Utils::PathChooser::File);
+                edit->setPromptDialogTitle(tr("Select a file for %1").arg(data.key));
+            } else {
+                edit->setExpectedKind(Utils::PathChooser::Directory);
+                edit->setPromptDialogTitle(tr("Select a directory for %1").arg(data.key));
+            }
+            return edit;
+        } else if (!data.values.isEmpty()) {
+            auto edit = new QComboBox(parent);
+            edit->setFocusPolicy(Qt::StrongFocus);
+            for (const QString &s : Utils::asConst(data.values))
+                edit->addItem(s);
+            return edit;
+        } else if (data.type == ConfigModel::DataItem::BOOLEAN) {
+            auto edit = new QCheckBox(parent);
+            edit->setFocusPolicy(Qt::StrongFocus);
+            return edit;
+        } else if (data.type == ConfigModel::DataItem::STRING) {
+            auto edit = new QLineEdit(parent);
+            edit->setFocusPolicy(Qt::StrongFocus);
+            return edit;
+        }
     }
+
+    return QStyledItemDelegate::createEditor(parent, option, index);
 }
 
-void ConfigModelItemDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
+void ConfigModelItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    if (QComboBox* cb = qobject_cast<QComboBox*>(editor))
-        // save the current text of the combo box as the current value of the item
-        model->setData(index, cb->currentText(), Qt::EditRole);
-    else
-        QStyledItemDelegate::setModelData(editor, model, index);
+    if (index.column() == 1) {
+        ConfigModel::DataItem data = ConfigModel::dataItemFromIndex(index);
+        if (data.type == ConfigModel::DataItem::FILE || data.type == ConfigModel::DataItem::DIRECTORY) {
+            auto edit = static_cast<Utils::PathChooser *>(editor);
+            edit->setFileName(Utils::FileName::fromUserInput(data.value));
+            return;
+        } else if (!data.values.isEmpty()) {
+            auto edit = static_cast<QComboBox *>(editor);
+            edit->setCurrentText(data.value);
+            return;
+        } else if (data.type == ConfigModel::DataItem::BOOLEAN) {
+            auto edit = static_cast<QCheckBox *>(editor);
+            edit->setChecked(index.data(Qt::CheckStateRole).toBool());
+            edit->setText(data.value);
+            return;
+        } else if (data.type == ConfigModel::DataItem::STRING) {
+            auto edit = static_cast<QLineEdit *>(editor);
+            edit->setText(data.value);
+            return;
+        }
+    }
+    QStyledItemDelegate::setEditorData(editor, index);
+}
+
+void ConfigModelItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
+                                           const QModelIndex &index) const
+{
+    if (index.column() == 1) {
+        ConfigModel::DataItem data = ConfigModel::dataItemFromIndex(index);
+        if (data.type == ConfigModel::DataItem::FILE || data.type == ConfigModel::DataItem::DIRECTORY) {
+            auto edit = static_cast<Utils::PathChooser *>(editor);
+            if (edit->rawPath() != data.value)
+                model->setData(index, edit->fileName().toUserOutput(), Qt::EditRole);
+            return;
+        } else if (!data.values.isEmpty()) {
+            auto edit = static_cast<QComboBox *>(editor);
+            model->setData(index, edit->currentText(), Qt::EditRole);
+            return;
+        } else if (data.type == ConfigModel::DataItem::BOOLEAN) {
+            auto edit = static_cast<QCheckBox *>(editor);
+            model->setData(index, edit->text(), Qt::EditRole);
+        } else if (data.type == ConfigModel::DataItem::STRING) {
+            auto edit = static_cast<QLineEdit *>(editor);
+            model->setData(index, edit->text(), Qt::EditRole);
+        }
+    }
+    QStyledItemDelegate::setModelData(editor, model, index);
+}
+
+QSize CMakeProjectManager::ConfigModelItemDelegate::sizeHint(const QStyleOptionViewItem &option,
+                                                             const QModelIndex &index) const
+{
+    Q_UNUSED(option);
+    Q_UNUSED(index);
+    return QSize(100, m_measurement.sizeHint().height());
 }
 
 } // namespace CMakeProjectManager

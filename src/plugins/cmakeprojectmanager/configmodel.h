@@ -38,9 +38,7 @@ class ConfigModel : public Utils::TreeModel<>
 
 public:
     enum Roles {
-        ItemTypeRole = Qt::UserRole,
-        ItemValuesRole,
-        ItemIsAdvancedRole
+        ItemIsAdvancedRole = Qt::UserRole,
     };
 
     class DataItem {
@@ -77,6 +75,8 @@ public:
 
     bool canForceToString(const QModelIndex &idx) const;
     void forceToString(const QModelIndex &idx);
+
+    static DataItem dataItemFromIndex(const QModelIndex &idx);
 
     QList<DataItem> configurationChanges() const;
 

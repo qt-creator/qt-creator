@@ -33,6 +33,7 @@
 #include <QCoreApplication>
 #include <QFont>
 #include <QString>
+#include <QSortFilterProxyModel>
 
 namespace CMakeProjectManager {
 
@@ -152,6 +153,37 @@ void ConfigModel::forceToString(const QModelIndex &idx)
     cmti->dataItem->type = DataItem::STRING;
     const QModelIndex valueIdx = idx.sibling(1, idx.column());
     emit dataChanged(valueIdx, valueIdx);
+}
+
+ConfigModel::DataItem ConfigModel::dataItemFromIndex(const QModelIndex &idx)
+{
+    const QAbstractItemModel *m = idx.model();
+    QModelIndex mIdx = idx;
+    while (auto sfpm = qobject_cast<const QSortFilterProxyModel *>(m)) {
+        m = sfpm->sourceModel();
+        mIdx = sfpm->mapToSource(mIdx);
+    }
+    auto model = qobject_cast<const ConfigModel *>(m);
+    QTC_ASSERT(model, return DataItem());
+    const QModelIndex modelIdx = mIdx;
+
+    Utils::TreeItem *item = model->itemForIndex(modelIdx);
+    auto cmti = dynamic_cast<Internal::ConfigModelTreeItem *>(item);
+
+    if (cmti && cmti->dataItem) {
+        DataItem di;
+        di.key = cmti->dataItem->key;
+        di.type = cmti->dataItem->type;
+        di.isHidden = cmti->dataItem->isHidden;
+        di.isAdvanced = cmti->dataItem->isAdvanced;
+        di.inCMakeCache = cmti->dataItem->inCMakeCache;
+        di.value = cmti->dataItem->currentValue();
+        di.description = cmti->dataItem->description;
+        di.values = cmti->dataItem->values;
+
+        return di;
+    }
+    return DataItem();
 }
 
 QList<ConfigModel::DataItem> ConfigModel::configurationChanges() const
@@ -303,10 +335,6 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
     }
 
     // Leaf node:
-    if (role == ConfigModel::ItemTypeRole)
-        return dataItem->type;
-    if (role == ConfigModel::ItemValuesRole)
-        return dataItem->values;
     if (role == ConfigModel::ItemIsAdvancedRole)
         return dataItem->isAdvanced ? "1" : "0";
 

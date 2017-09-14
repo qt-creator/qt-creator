@@ -34,9 +34,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 
+#include <utils/asconst.h>
 #include <utils/detailswidget.h>
 #include <utils/fancylineedit.h>
 #include <utils/headerviewstretcher.h>
@@ -46,12 +48,14 @@
 
 #include <QBoxLayout>
 #include <QCheckBox>
+#include <QComboBox>
 #include <QFrame>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QSpacerItem>
+#include <QStyledItemDelegate>
 #include <QMenu>
 
 namespace CMakeProjectManager {
@@ -161,7 +165,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_configView->setSelectionBehavior(QAbstractItemView::SelectItems);
     m_configView->setFrameShape(QFrame::NoFrame);
-    m_configView->setItemDelegate(new ConfigModelItemDelegate(m_configView));
+    m_configView->setItemDelegate(new ConfigModelItemDelegate(m_buildConfiguration->project()->projectDirectory(),
+                                                              m_configView));
     QFrame *findWrapper = Core::ItemViewFind::createSearchableWrapper(m_configView, Core::ItemViewFind::LightColored);
     findWrapper->setFrameStyle(QFrame::StyledPanel);
 
@@ -221,14 +226,17 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     if (m_buildConfiguration->isParsing())
         m_showProgressTimer.start();
-    else
+    else {
         m_configModel->setConfiguration(m_buildConfiguration->completeCMakeConfiguration());
+        m_configView->expandAll();
+    }
 
     connect(m_buildConfiguration->target()->project(), &ProjectExplorer::Project::parsingFinished,
             this, [this, buildDirChooser, stretcher]() {
-        updateButtonState();
         m_configModel->setConfiguration(m_buildConfiguration->completeCMakeConfiguration());
+        m_configView->expandAll();
         stretcher->stretch();
+        updateButtonState();
         buildDirChooser->triggerChanged(); // refresh valid state...
         m_showProgressTimer.stop();
         m_progressIndicator->hide();
@@ -237,6 +245,10 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             this, [this]() {
         m_showProgressTimer.stop();
         m_progressIndicator->hide();
+    });
+    connect(m_configTextFilterModel, &QAbstractItemModel::modelReset, this, [this, stretcher]() {
+        m_configView->expandAll();
+        stretcher->stretch();
     });
 
     connect(m_configModel, &QAbstractItemModel::dataChanged,
@@ -321,10 +333,15 @@ void CMakeBuildSettingsWidget::updateButtonState()
 
 void CMakeBuildSettingsWidget::updateAdvancedCheckBox()
 {
-    if (m_showAdvancedCheckBox->isChecked())
+    if (m_showAdvancedCheckBox->isChecked()) {
+        m_configFilterModel->setSourceModel(nullptr);
         m_configTextFilterModel->setSourceModel(m_configModel);
-    else
+
+    } else {
+        m_configTextFilterModel->setSourceModel(nullptr);
+        m_configFilterModel->setSourceModel(m_configModel);
         m_configTextFilterModel->setSourceModel(m_configFilterModel);
+    }
 }
 
 void CMakeBuildSettingsWidget::updateFromKit()

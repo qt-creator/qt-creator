@@ -986,8 +986,7 @@ int BaseTreeModel::rowCount(const QModelIndex &idx) const
     if (idx.column() > 0)
         return 0;
     const TreeItem *item = itemForIndex(idx);
-    QTC_ASSERT(item, return 0);
-    return item->childCount();
+    return item ? item->childCount() : 0;
 }
 
 int BaseTreeModel::columnCount(const QModelIndex &idx) const
@@ -1112,7 +1111,7 @@ TreeItem *BaseTreeModel::itemForIndex(const QModelIndex &idx) const
     CHECK_INDEX(idx);
     TreeItem *item = idx.isValid() ? static_cast<TreeItem*>(idx.internalPointer()) : m_root;
     QTC_ASSERT(item, return 0);
-    QTC_ASSERT(item->m_model == this, return 0);
+    QTC_ASSERT(item->m_model == static_cast<const BaseTreeModel *>(this), return 0);
     return item;
 }
 
