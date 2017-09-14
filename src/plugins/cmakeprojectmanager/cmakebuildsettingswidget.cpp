@@ -378,6 +378,33 @@ void CMakeBuildSettingsWidget::updateSelection(const QModelIndex &current, const
         m_editButton->setEnabled(currentModelIndex.flags().testFlag(Qt::ItemIsEditable));
 }
 
+QAction *CMakeBuildSettingsWidget::createForceAction(int type, const QModelIndex &idx)
+{
+    ConfigModel::DataItem::Type t = static_cast<ConfigModel::DataItem::Type>(type);
+    QString typeString;
+    switch (type) {
+    case ConfigModel::DataItem::BOOLEAN:
+        typeString = tr("bool", "display string for cmake type BOOLEAN");
+        break;
+    case ConfigModel::DataItem::FILE:
+        typeString = tr("file", "display string for cmake type FILE");
+        break;
+    case ConfigModel::DataItem::DIRECTORY:
+        typeString = tr("directory", "display string for cmake type DIRECTORY");
+        break;
+    case ConfigModel::DataItem::STRING:
+        typeString = tr("string", "display string for cmake type STRING");
+        break;
+    case ConfigModel::DataItem::UNKNOWN:
+        return nullptr;
+    }
+    QAction *forceAction = new QAction(tr("Force to %1").arg(typeString));
+    forceAction->setEnabled(m_configModel->canForceTo(idx, t));
+    connect(forceAction, &QAction::triggered,
+            this, [this, idx, t]() { m_configModel->forceTo(idx, t); });
+    return forceAction;
+}
+
 bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
 {
     // handle context menu events:
@@ -392,10 +419,15 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
     QMenu *menu = new QMenu(this);
     connect(menu, &QMenu::triggered, menu, &QMenu::deleteLater);
 
-    QAction *forceToStringAction = new QAction(tr("Force to String"), nullptr);
-    forceToStringAction->setEnabled(m_configModel->canForceToString(idx));
-    menu->addAction(forceToStringAction);
-    connect(forceToStringAction, &QAction::triggered, this, [this, idx]() { m_configModel->forceToString(idx); });
+    QAction *action = nullptr;
+    if ((action = createForceAction(ConfigModel::DataItem::BOOLEAN, idx)))
+        menu->addAction(action);
+    if ((action = createForceAction(ConfigModel::DataItem::FILE, idx)))
+        menu->addAction(action);
+    if ((action = createForceAction(ConfigModel::DataItem::DIRECTORY, idx)))
+        menu->addAction(action);
+    if ((action = createForceAction(ConfigModel::DataItem::STRING, idx)))
+        menu->addAction(action);
 
     menu->move(e->globalPos());
     menu->show();

@@ -135,23 +135,23 @@ bool ConfigModel::hasCMakeChanges() const
     return Utils::contains(m_configuration, [](const InternalDataItem &i) { return i.isCMakeChanged; });
 }
 
-bool ConfigModel::canForceToString(const QModelIndex &idx) const
+bool ConfigModel::canForceTo(const QModelIndex &idx, const ConfigModel::DataItem::Type type) const
 {
     if (idx.model() != const_cast<ConfigModel *>(this) || idx.column() != 1)
         return false;
     Utils::TreeItem *item = itemForIndex(idx);
     auto cmti = dynamic_cast<Internal::ConfigModelTreeItem *>(item);
-    return cmti && (cmti->dataItem->type != DataItem::STRING);
+    return cmti && (cmti->dataItem->type != type);
 }
 
-void ConfigModel::forceToString(const QModelIndex &idx)
+void ConfigModel::forceTo(const QModelIndex &idx, const ConfigModel::DataItem::Type type)
 {
-    QTC_ASSERT(canForceToString(idx), return);
+    QTC_ASSERT(canForceTo(idx, type), return);
     Utils::TreeItem *item = itemForIndex(idx);
     auto cmti = dynamic_cast<Internal::ConfigModelTreeItem *>(item);
 
-    cmti->dataItem->type = DataItem::STRING;
-    const QModelIndex valueIdx = idx.sibling(1, idx.column());
+    cmti->dataItem->type = type;
+    const QModelIndex valueIdx = idx.sibling(idx.row(), 1);
     emit dataChanged(valueIdx, valueIdx);
 }
 
