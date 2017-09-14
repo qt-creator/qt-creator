@@ -178,6 +178,7 @@ GenericProject::GenericProject(const Utils::FileName &fileName) :
     m_filesFileName    = QFileInfo(dir, projectName + ".files").absoluteFilePath();
     m_includesFileName = QFileInfo(dir, projectName + ".includes").absoluteFilePath();
     m_configFileName   = QFileInfo(dir, projectName + ".config").absoluteFilePath();
+    m_pchFilesFileName = QFileInfo(dir, projectName + ".pchfiles").absoluteFilePath ();
 
     m_filesIDocument
             = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_filesFileName),
@@ -187,6 +188,9 @@ GenericProject::GenericProject(const Utils::FileName &fileName) :
                                   [this]() { refresh(Configuration); });
     m_configIDocument
             = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_configFileName),
+                                  [this]() { refresh(Configuration); });
+    m_pchFilesIDocument
+            = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_pchFilesFileName),
                                   [this]() { refresh(Configuration); });
 }
 
@@ -329,6 +333,9 @@ void GenericProject::parseProject(RefreshOptions options)
         m_rawProjectIncludePaths = readLines(m_includesFileName);
         m_projectIncludePaths = processEntries(m_rawProjectIncludePaths);
 
+        m_rawProjectPchFiles = readLines (m_pchFilesFileName);
+        m_projectPchFiles = processEntries (m_rawProjectPchFiles);
+
         // TODO: Possibly load some configuration from the project file
         //QSettings projectInfo(m_fileName, QSettings::IniFormat);
     }
@@ -356,6 +363,9 @@ void GenericProject::refresh(RefreshOptions options)
                                              FileType::Project,
                                              /* generated = */ false));
         newRoot->addNestedNode(new FileNode(Utils::FileName::fromString(m_configFileName),
+                                             FileType::Project,
+                                             /* generated = */ false));
+        newRoot->addNestedNode(new FileNode(Utils::FileName::fromString(m_pchFilesFileName),
                                              FileType::Project,
                                              /* generated = */ false));
 
@@ -447,6 +457,7 @@ void GenericProject::refreshCppCodeModel()
     rpp.setQtVersion(activeQtVersion);
     rpp.setIncludePaths(m_projectIncludePaths);
     rpp.setConfigFileName(m_configFileName);
+    rpp.setPreCompiledHeaders (m_projectPchFiles);
     rpp.setFiles(m_files);
 
     const CppTools::ProjectUpdateInfo projectInfoUpdate(this, cToolChain, cxxToolChain, k, {rpp});
