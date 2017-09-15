@@ -57,6 +57,31 @@ public:
 
 Q_GLOBAL_STATIC(SystemEnvironment, staticSystemEnvironment)
 
+static QMap<QString, QString>::iterator findKey(QMap<QString, QString> &input, Utils::OsType osType,
+                                                const QString &key)
+{
+    const Qt::CaseSensitivity casing
+            = (osType == Utils::OsTypeWindows) ? Qt::CaseInsensitive : Qt::CaseSensitive;
+    for (auto it = input.begin(); it != input.end(); ++it) {
+        if (key.compare(it.key(), casing) == 0)
+            return it;
+    }
+    return input.end();
+}
+
+static QMap<QString, QString>::const_iterator findKey(const QMap<QString, QString> &input,
+                                                      Utils::OsType osType,
+                                                      const QString &key)
+{
+    const Qt::CaseSensitivity casing
+            = (osType == Utils::OsTypeWindows) ? Qt::CaseInsensitive : Qt::CaseSensitive;
+    for (auto it = input.constBegin(); it != input.constEnd(); ++it) {
+        if (key.compare(it.key(), casing) == 0)
+            return it;
+    }
+    return input.constEnd();
+}
+
 namespace Utils {
 
 enum : char
@@ -207,10 +232,9 @@ Environment::Environment(const QStringList &env, OsType osType) : m_osType(osTyp
     for (const QString &s : env) {
         int i = s.indexOf('=', 1);
         if (i >= 0) {
-            if (m_osType == OsTypeWindows)
-                m_values.insert(s.left(i).toUpper(), s.mid(i+1));
-            else
-                m_values.insert(s.left(i), s.mid(i+1));
+            const QString key = s.left(i);
+            const QString value = s.mid(i + 1);
+            set(key, value);
         }
     }
 }
@@ -220,10 +244,8 @@ QStringList Environment::toStringList() const
     QStringList result;
     const QMap<QString, QString>::const_iterator end = m_values.constEnd();
     for (QMap<QString, QString>::const_iterator it = m_values.constBegin(); it != end; ++it) {
-        QString entry = it.key();
-        entry += '=';
-        entry += it.value();
-        result.push_back(entry);
+        const QString entry = it.key() + '=' + it.value();
+        result.append(entry);
     }
     return result;
 }
@@ -239,20 +261,25 @@ QProcessEnvironment Environment::toProcessEnvironment() const
 
 void Environment::set(const QString &key, const QString &value)
 {
-    m_values.insert(m_osType == OsTypeWindows ? key.toUpper() : key, value);
+    auto it = findKey(m_values, m_osType, key);
+    if (it == m_values.end())
+        m_values.insert(key, value);
+    else
+        it.value() = value;
 }
 
 void Environment::unset(const QString &key)
 {
-    m_values.remove(m_osType == OsTypeWindows ? key.toUpper() : key);
+    auto it = findKey(m_values, m_osType, key);
+    if (it != m_values.end())
+        m_values.erase(it);
 }
 
 void Environment::appendOrSet(const QString &key, const QString &value, const QString &sep)
 {
-    const QString &_key = m_osType == OsTypeWindows ? key.toUpper() : key;
-    QMap<QString, QString>::iterator it = m_values.find(_key);
+    auto it = findKey(m_values, m_osType, key);
     if (it == m_values.end()) {
-        m_values.insert(_key, value);
+        m_values.insert(key, value);
     } else {
         // Append unless it is already there
         const QString toAppend = sep + value;
@@ -263,10 +290,9 @@ void Environment::appendOrSet(const QString &key, const QString &value, const QS
 
 void Environment::prependOrSet(const QString&key, const QString &value, const QString &sep)
 {
-    const QString &_key = m_osType == OsTypeWindows ? key.toUpper() : key;
-    QMap<QString, QString>::iterator it = m_values.find(_key);
+    auto it = findKey(m_values, m_osType, key);
     if (it == m_values.end()) {
-        m_values.insert(_key, value);
+        m_values.insert(key, value);
     } else {
         // Prepend unless it is already there
         const QString toPrepend = value + sep;
@@ -563,7 +589,7 @@ QString Environment::expandVariables(const QString &input) const
         for (int vStart = -1, i = 0; i < result.length(); ) {
             if (result.at(i++) == '%') {
                 if (vStart > 0) {
-                    const_iterator it = m_values.constFind(result.mid(vStart, i - vStart - 1).toUpper());
+                    const_iterator it = findKey(m_values, m_osType, result.mid(vStart, i - vStart - 1));
                     if (it != m_values.constEnd()) {
                         result.replace(vStart - 1, i - vStart + 1, *it);
                         i = vStart - 1 + it->length();

@@ -38,6 +38,23 @@ private slots:
     void environment_data();
     void environment();
 
+    void environmentSetup_data();
+    void environmentSetup();
+
+    void environmentSetWindows();
+    void environmentSetWindowsFuzzy();
+    void environmentSetUnix();
+
+    void environmentSetNewWindows();
+    void environmentSetNewUnix();
+
+    void environmentUnsetWindows();
+    void environmentUnsetWindowsFuzzy();
+    void environmentUnsetUnix();
+
+    void environmentUnsetUnknownWindows();
+    void environmentUnsetUnknownUnix();
+
 private:
     Environment env;
 };
@@ -96,6 +113,138 @@ void tst_Environment::environment()
     QFETCH(QString, out);
 
     QCOMPARE(env.expandVariables(in), out);
+}
+
+void tst_Environment::environmentSetup_data()
+{
+    QTest::addColumn<int>("osType");
+    QTest::addColumn<QStringList>("in");
+    QTest::addColumn<QStringList>("out");
+
+    QTest::newRow("EmptyWin")
+            << static_cast<int>(Utils::OsTypeWindows) << QStringList() << QStringList();
+    QTest::newRow("EmptyLinux")
+            << static_cast<int>(Utils::OsTypeLinux) << QStringList() << QStringList();
+
+    QTest::newRow("SimpleWin")
+            << static_cast<int>(Utils::OsTypeWindows) << QStringList({"Foo=bar"}) << QStringList({"Foo=bar"});
+    QTest::newRow("EmptyLinux")
+            << static_cast<int>(Utils::OsTypeLinux) << QStringList({"Foo=bar"}) << QStringList({"Foo=bar"});
+
+    QTest::newRow("MultiWin")
+            << static_cast<int>(Utils::OsTypeWindows)
+            << QStringList({"Foo=bar", "Hi=HO"}) << QStringList({"Foo=bar", "Hi=HO"});
+    QTest::newRow("MultiLinux")
+            << static_cast<int>(Utils::OsTypeLinux)
+            << QStringList({"Foo=bar", "Hi=HO"}) << QStringList({"Foo=bar", "Hi=HO"});
+
+    QTest::newRow("DuplicateWin")
+            << static_cast<int>(Utils::OsTypeWindows)
+            << QStringList({"Foo=bar", "FOO=HO"}) << QStringList({"Foo=HO"});
+    QTest::newRow("DuplicateLinux")
+            << static_cast<int>(Utils::OsTypeLinux)
+            << QStringList({"Foo=bar", "FOO=HO"}) << QStringList({"FOO=HO", "Foo=bar"});
+}
+
+void tst_Environment::environmentSetup()
+{
+    QFETCH(int, osType);
+    QFETCH(QStringList, in);
+    QFETCH(QStringList, out);
+
+    Environment env(in, static_cast<Utils::OsType>(osType));
+
+    QCOMPARE(env.toStringList(), out);
+}
+
+void tst_Environment::environmentSetWindows()
+{
+    Environment env(QStringList({"Foo=bar", "Hi=HO"}), Utils::OsTypeWindows);
+
+    env.set("Foo", "baz");
+
+    QCOMPARE(env.toStringList(), QStringList({"Foo=baz", "Hi=HO"}));
+}
+
+void tst_Environment::environmentSetWindowsFuzzy()
+{
+    Environment env(QStringList({"Foo=bar", "Hi=HO"}), Utils::OsTypeWindows);
+
+    env.set("FOO", "baz");
+
+    QCOMPARE(env.toStringList(), QStringList({"Foo=baz", "Hi=HO"}));
+}
+
+void tst_Environment::environmentSetUnix()
+{
+    Environment env(QStringList({"Foo=bar", "Hi=HO"}), Utils::OsTypeLinux);
+
+    env.set("Foo", "baz");
+
+    QCOMPARE(env.toStringList(), QStringList({"Foo=baz", "Hi=HO"}));
+}
+
+void tst_Environment::environmentSetNewWindows()
+{
+    Environment env(QStringList({"Foo=bar", "Hi=HO"}), Utils::OsTypeWindows);
+
+    env.set("bar", "baz");
+
+    QCOMPARE(env.toStringList(), QStringList({"Foo=bar", "Hi=HO", "bar=baz"}));
+}
+
+void tst_Environment::environmentSetNewUnix()
+{
+    Environment env(QStringList({"Foo=bar", "Hi=HO"}), Utils::OsTypeLinux);
+
+    env.set("bar", "baz");
+
+    QCOMPARE(env.toStringList(), QStringList({"Foo=bar", "Hi=HO", "bar=baz"}));
+}
+
+void tst_Environment::environmentUnsetWindows()
+{
+    Environment env(QStringList({"Foo=bar", "Hi=HO"}), Utils::OsTypeWindows);
+
+    env.unset("Foo");
+
+    QCOMPARE(env.toStringList(), QStringList({"Hi=HO"}));
+}
+
+void tst_Environment::environmentUnsetWindowsFuzzy()
+{
+    Environment env(QStringList({"Foo=bar", "Hi=HO"}), Utils::OsTypeWindows);
+
+    env.unset("FOO");
+
+    QCOMPARE(env.toStringList(), QStringList({"Hi=HO"}));
+}
+
+void tst_Environment::environmentUnsetUnix()
+{
+    Environment env(QStringList({"Foo=bar", "Hi=HO"}), Utils::OsTypeLinux);
+
+    env.unset("Foo");
+
+    QCOMPARE(env.toStringList(), QStringList({"Hi=HO"}));
+}
+
+void tst_Environment::environmentUnsetUnknownWindows()
+{
+    Environment env(QStringList({"Foo=bar", "Hi=HO"}), Utils::OsTypeWindows);
+
+    env.unset("baz");
+
+    QCOMPARE(env.toStringList(), QStringList({"Foo=bar", "Hi=HO"}));
+}
+
+void tst_Environment::environmentUnsetUnknownUnix()
+{
+    Environment env(QStringList({"Foo=bar", "Hi=HO"}), Utils::OsTypeLinux);
+
+    env.unset("baz");
+
+    QCOMPARE(env.toStringList(), QStringList({"Foo=bar", "Hi=HO"}));
 }
 
 QTEST_MAIN(tst_Environment)
