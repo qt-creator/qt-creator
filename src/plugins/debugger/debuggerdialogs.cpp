@@ -427,6 +427,8 @@ bool StartApplicationDialog::run(QWidget *parent, DebuggerRunParameters *rp, Kit
         rp->remoteChannel = QString("%1:%2").arg(dev->sshParameters().host).arg(newParameters.serverPort);
     rp->displayName = newParameters.displayName();
     rp->inferior.workingDirectory = newParameters.runnable.workingDirectory;
+    rp->inferior.runMode = newParameters.runnable.runMode;
+    rp->needFixup = false;
     rp->useTerminal = newParameters.runnable.runMode == ApplicationLauncher::Console;
     if (!newParameters.runnable.commandLineArguments.isEmpty())
         rp->inferior.commandLineArguments = newParameters.runnable.commandLineArguments;
