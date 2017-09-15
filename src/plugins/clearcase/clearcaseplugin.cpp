@@ -1668,10 +1668,12 @@ bool ClearCasePlugin::vcsCheckIn(const QString &messageFile, const QStringList &
     replaceActivity &= (activity != QLatin1String(Constants::KEEP_ACTIVITY));
     if (replaceActivity && !vcsSetActivity(m_checkInView, title, activity))
         return false;
+    QString message;
     QFile msgFile(messageFile);
-    msgFile.open(QFile::ReadOnly | QFile::Text);
-    QString message = QString::fromLocal8Bit(msgFile.readAll().trimmed().constData());
-    msgFile.close();
+    if (msgFile.open(QFile::ReadOnly | QFile::Text)) {
+        message = QString::fromLocal8Bit(msgFile.readAll().trimmed());
+        msgFile.close();
+    }
     QStringList args;
     args << QLatin1String("checkin");
     if (message.isEmpty())
