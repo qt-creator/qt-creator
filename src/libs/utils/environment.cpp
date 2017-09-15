@@ -278,7 +278,7 @@ void Environment::prependOrSet(const QString&key, const QString &value, const QS
 void Environment::appendOrSetPath(const QString &value)
 {
     appendOrSet("PATH", QDir::toNativeSeparators(value),
-            QString(OsSpecificAspects(m_osType).pathListSeparator()));
+                QString(OsSpecificAspects(m_osType).pathListSeparator()));
 }
 
 void Environment::prependOrSetPath(const QString &value)
