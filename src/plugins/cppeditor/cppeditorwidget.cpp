@@ -774,7 +774,7 @@ QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
     // updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
     if (isSemanticInfoValidExceptLocalUses()) {
-        d->m_useSelectionsUpdater.update(CppUseSelectionsUpdater::Synchronous);
+        d->m_useSelectionsUpdater.update(CppUseSelectionsUpdater::CallType::Synchronous);
         addRefactoringActions(menu, createAssistInterface(QuickFix, ExplicitlyInvoked));
     }
 
@@ -881,8 +881,8 @@ void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo,
 
     if (!d->m_localRenaming.isActive()) {
         const CppUseSelectionsUpdater::CallType type = updateUseSelectionSynchronously
-                                                           ? CppUseSelectionsUpdater::Synchronous
-                                                           : CppUseSelectionsUpdater::Asynchronous;
+            ? CppUseSelectionsUpdater::CallType::Synchronous
+            : CppUseSelectionsUpdater::CallType::Asynchronous;
         d->m_useSelectionsUpdater.update(type);
     }
 

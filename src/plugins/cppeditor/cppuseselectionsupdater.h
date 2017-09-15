@@ -49,8 +49,8 @@ public:
     void scheduleUpdate();
     void abortSchedule();
 
-    enum CallType { Synchronous, Asynchronous };
-    void update(CallType callType = Asynchronous);
+    enum class CallType { Synchronous, Asynchronous };
+    void update(CallType callType = CallType::Asynchronous);
 
 signals:
     void finished(CppTools::SemanticInfo::LocalUseMap localUses);

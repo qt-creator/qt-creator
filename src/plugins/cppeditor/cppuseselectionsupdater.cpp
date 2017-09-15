@@ -78,7 +78,7 @@ void CppUseSelectionsUpdater::update(CallType callType)
     params.semanticInfo = cppEditorWidget->semanticInfo();
     params.textCursor = TextEditor::Convenience::wordStartCursor(cppEditorWidget->textCursor());
 
-    if (callType == Asynchronous) {
+    if (callType == CallType::Asynchronous) {
         if (isSameIdentifierAsBefore(params.textCursor))
             return;
 
