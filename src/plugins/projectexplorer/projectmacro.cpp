@@ -26,6 +26,7 @@
 #include "projectmacro.h"
 
 #include <utils/algorithm.h>
+#include <cctype>
 
 namespace ProjectExplorer {
 
