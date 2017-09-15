@@ -436,6 +436,7 @@ void StartApplicationDialog::run(bool attachRemote)
     debugger->setServerStartScript(newParameters.serverStartScript);
     debugger->setDebugInfoLocation(newParameters.debugInfoLocation);
     debugger->setInferior(inferior);
+    debugger->setNeedFixup(false);
 
     bool isLocal = !dev || (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     if (!attachRemote)
