@@ -29,15 +29,18 @@
 
 #include <QWidget>
 
-namespace Utils { class ListView; }
 namespace Core { class IEditor; }
 
+namespace Utils {
+class FileName;
+class NavigationTreeView;
+}
+
 QT_BEGIN_NAMESPACE
-class QLabel;
-class QSortFilterProxyModel;
-class QModelIndex;
-class QFileSystemModel;
 class QAction;
+class QComboBox;
+class QFileSystemModel;
+class QModelIndex;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -58,29 +61,26 @@ public:
     void setAutoSynchronization(bool sync);
     void toggleAutoSynchronization();
 
-private:
-    void setCurrentFile(Core::IEditor *editor);
-    void slotOpenItem(const QModelIndex &viewIndex);
-    void setHiddenFilesFilter(bool filter);
-    void ensureCurrentIndex();
+    void addRootDirectory(const QString &displayName, const Utils::FileName &directory);
+    void removeRootDirectory(const Utils::FileName &directory);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *ev) override;
 
 private:
-    void setCurrentTitle(QString dirName, const QString &fullPath);
-    bool setCurrentDirectory(const QString &directory);
-    void openItem(const QModelIndex &srcIndex, bool openDirectoryAsProject = false);
-    QModelIndex currentItem() const;
-    QString currentDirectory() const;
+    void setHiddenFilesFilter(bool filter);
+    void setCurrentEditor(Core::IEditor *editor);
+    void selectFile(const Utils::FileName &filePath);
+    void setRootDirectory(const Utils::FileName &directory);
+    int bestRootForFile(const Utils::FileName &filePath);
+    void openItem(const QModelIndex &index);
 
-    Utils::ListView *m_listView;
-    QFileSystemModel *m_fileSystemModel;
-    QAction *m_filterHiddenFilesAction;
-    QSortFilterProxyModel *m_filterModel;
-    QLabel *m_title;
+    Utils::NavigationTreeView *m_listView = nullptr;
+    QFileSystemModel *m_fileSystemModel = nullptr;
+    QAction *m_filterHiddenFilesAction = nullptr;
     bool m_autoSync = false;
-    QToolButton *m_toggleSync;
+    QToolButton *m_toggleSync = nullptr;
+    QComboBox *m_rootSelector = nullptr;
 
     // FolderNavigationWidgetFactory needs private members to build a menu
     friend class FolderNavigationWidgetFactory;
@@ -96,6 +96,17 @@ public:
     Core::NavigationView createWidget() override;
     void saveSettings(QSettings *settings, int position, QWidget *widget) override;
     void restoreSettings(QSettings *settings, int position, QWidget *widget) override;
+
+    static void addRootDirectory(const QString &displayName, const Utils::FileName &directory);
+    static void removeRootDirectory(const Utils::FileName &directory);
+
+signals:
+    void rootDirectoryAdded(const QString &displayName, const Utils::FileName &directory);
+    void rootDirectoryRemoved(const Utils::FileName &directory);
+
+private:
+    using DirectoryEntry = std::pair<QString, Utils::FileName>;
+    static QVector<DirectoryEntry> m_rootDirectories;
 };
 
 } // namespace Internal

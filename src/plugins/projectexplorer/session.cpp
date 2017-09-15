@@ -30,6 +30,7 @@
 #include "kit.h"
 #include "buildconfiguration.h"
 #include "deployconfiguration.h"
+#include "foldernavigationwidget.h"
 #include "projectexplorer.h"
 #include "projectnodes.h"
 #include "editorconfiguration.h"
@@ -385,6 +386,8 @@ void SessionManager::addProject(Project *pro)
             m_instance, [pro]() { m_instance->projectDisplayNameChanged(pro); });
 
     emit m_instance->projectAdded(pro);
+    FolderNavigationWidgetFactory::addRootDirectory(pro->displayName(),
+                                                    pro->projectFilePath().parentDir());
     configureEditors(pro);
     connect(pro, &Project::fileListChanged, [pro](){ configureEditors(pro); });
 }
@@ -739,6 +742,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
                    m_instance, &SessionManager::clearProjectFileCache);
         d->m_projectFileCache.remove(pro);
         emit m_instance->projectRemoved(pro);
+        FolderNavigationWidgetFactory::removeRootDirectory(pro->projectFilePath().parentDir());
         delete pro;
     }
 
