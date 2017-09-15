@@ -75,7 +75,6 @@ SOURCES += \
     symbolquery-test.cpp \
     storagesqlitestatementfactory-test.cpp \
     querysqlitestatementfactory-test.cpp \
-    symbolindexing-test.cpp \
     sqliteindex-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
@@ -153,6 +152,7 @@ SOURCES += \
     refactoringengine-test.cpp \
     refactoringserver-test.cpp \
     sourcerangeextractor-test.cpp \
+    symbolindexing-test.cpp \
     symbolscollector-test.cpp \
     symbolfinder-test.cpp \
     testclangtool.cpp \
