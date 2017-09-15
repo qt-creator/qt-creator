@@ -58,9 +58,6 @@ using namespace ClangCodeModel::Internal;
 
 namespace {
 
-QString _(const char text[])
-{ return QString::fromUtf8(text); }
-
 QString qrcPath(const QByteArray relativeFilePath)
 { return QLatin1String(":/unittests/ClangCodeModel/") + QString::fromUtf8(relativeFilePath); }
 
