@@ -99,19 +99,28 @@ const char QMLUI_MIMETYPE[]       = "application/x-qt.ui+qml";
 const char RESOURCE_MIMETYPE[]    = "application/vnd.qt.xml.resource";
 const char SCXML_MIMETYPE[]       = "application/scxml+xml";
 
-// Settings page
-const char PROJECTEXPLORER_SETTINGS_CATEGORY[]  = "K.ProjectExplorer";
-const char PROJECTEXPLORER_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Build & Run");
-const char PROJECTEXPLORER_SETTINGS_CATEGORY_ICON[]  = ":/projectexplorer/images/category_buildrun.png";
-const char PROJECTEXPLORER_SETTINGS_ID[] = "A.ProjectExplorer.ProjectExplorer";
+// Kits settings category
+const char KITS_SETTINGS_CATEGORY[]  = "A.Kits";
+const char KITS_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Kits");
+const char KITS_SETTINGS_CATEGORY_ICON[]  = ":/projectexplorer/images/mode_project_mask@2x.png";
+
+// Kits pages
+const char KITS_SETTINGS_PAGE_ID[] = "D.ProjectExplorer.KitsOptions";
+const char DEVICE_SETTINGS_PAGE_ID[] = "E.ProjectExplorer.DeviceOptions";
 const char TOOLCHAIN_SETTINGS_PAGE_ID[] = "M.ProjectExplorer.ToolChainOptions";
 const char DEBUGGER_SETTINGS_PAGE_ID[] = "N.ProjectExplorer.DebuggerOptions";
-const char KITS_SETTINGS_PAGE_ID[] = "D.ProjectExplorer.KitsOptions";
+
+// Build and Run settings category
+const char BUILD_AND_RUN_SETTINGS_CATEGORY[]  = "K.BuildAndRun";
+const char BUILD_AND_RUN_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Build & Run");
+const char BUILD_AND_RUN_SETTINGS_CATEGORY_ICON[]  = ":/projectexplorer/images/category_buildrun.png";
+
+// Build and Run page
+const char BUILD_AND_RUN_SETTINGS_PAGE_ID[] = "A.ProjectExplorer.BuildAndRunOptions";
 
 // Device settings page
 const char DEVICE_SETTINGS_CATEGORY[] = "XW.Devices";
 const char DEVICE_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Devices");
-const char DEVICE_SETTINGS_PAGE_ID[] = "AA.Device Settings";
 
 // Task categories
 const char TASK_CATEGORY_COMPILE[] = "Task.Category.Compile";

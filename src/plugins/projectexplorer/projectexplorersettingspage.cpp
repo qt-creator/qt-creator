@@ -185,12 +185,12 @@ void ProjectExplorerSettingsWidget::updateResetButton()
 // ------------------ ProjectExplorerSettingsPage
 ProjectExplorerSettingsPage::ProjectExplorerSettingsPage()
 {
-    setId(Constants::PROJECTEXPLORER_SETTINGS_ID);
+    setId(Constants::BUILD_AND_RUN_SETTINGS_PAGE_ID);
     setDisplayName(tr("General"));
-    setCategory(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
+    setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
-        Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
+        Constants::BUILD_AND_RUN_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(Utils::Icon(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *ProjectExplorerSettingsPage::widget()

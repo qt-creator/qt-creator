@@ -572,10 +572,10 @@ CMakeSettingsPage::CMakeSettingsPage()
 {
     setId(Constants::CMAKE_SETTINGSPAGE_ID);
     setDisplayName(tr("CMake"));
-    setCategory(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
+    setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
-       ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
+       ProjectExplorer::Constants::KITS_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(Utils::Icon(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *CMakeSettingsPage::widget()
