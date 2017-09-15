@@ -56,7 +56,6 @@
 #include <projectexplorer/buildconfiguration.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -65,25 +64,16 @@
 
 #include <utils/fancymainwindow.h>
 #include <utils/qtcassert.h>
-#include <utils/styledbar.h>
-#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
-#include <QCheckBox>
-#include <QComboBox>
 #include <QDir>
-#include <QDockWidget>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QHBoxLayout>
 #include <QLabel>
-#include <QLatin1String>
 #include <QMenu>
 #include <QSortFilterProxyModel>
-#include <QSpinBox>
-#include <QString>
 #include <QToolButton>
 
 using namespace Core;
@@ -352,7 +342,7 @@ MemcheckTool::MemcheckTool()
 
     // Load external XML log file
     auto action = new QAction(this);
-    action->setIcon(Utils::Icons::OPENFILE.icon());
+    action->setIcon(Icons::OPENFILE.icon());
     action->setToolTip(tr("Load External XML Log File"));
     connect(action, &QAction::triggered, this, &MemcheckTool::loadExternalXmlLogFile);
     m_loadExternalLogFile = action;
@@ -360,7 +350,7 @@ MemcheckTool::MemcheckTool()
     // Go to previous leak.
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Utils::Icons::PREV_TOOLBAR.icon());
+    action->setIcon(Icons::PREV_TOOLBAR.icon());
     action->setToolTip(tr("Go to previous leak."));
     connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goBack);
     m_goBack = action;
@@ -368,13 +358,13 @@ MemcheckTool::MemcheckTool()
     // Go to next leak.
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(Utils::Icons::NEXT_TOOLBAR.icon());
+    action->setIcon(Icons::NEXT_TOOLBAR.icon());
     action->setToolTip(tr("Go to next leak."));
     connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goNext);
     m_goNext = action;
 
     auto filterButton = new QToolButton;
-    filterButton->setIcon(Utils::Icons::FILTER.icon());
+    filterButton->setIcon(Icons::FILTER.icon());
     filterButton->setText(tr("Error Filter"));
     filterButton->setPopupMode(QToolButton::InstantPopup);
     filterButton->setProperty("noArrow", true);
@@ -391,7 +381,7 @@ MemcheckTool::MemcheckTool()
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     QString toolTip = tr("Valgrind Analyze Memory uses the Memcheck tool to find memory leaks.");
 
-    if (!Utils::HostOsInfo::isWindowsHost()) {
+    if (!HostOsInfo::isWindowsHost()) {
         action = new QAction(this);
         action->setText(tr("Valgrind Memory Analyzer"));
         action->setToolTip(toolTip);
@@ -552,9 +542,7 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
 
 RunWorker *MemcheckTool::createRunWorker(RunControl *runControl)
 {
-    RunConfiguration *runConfig = runControl->runConfiguration();
-    m_errorModel.setRelevantFrameFinder(makeFrameFinder(runConfig
-        ? runConfig->target()->project()->files(Project::AllFiles) : QStringList()));
+    m_errorModel.setRelevantFrameFinder(makeFrameFinder(runControl->project()->files(Project::AllFiles)));
 
     auto runTool = new MemcheckToolRunner(runControl, runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE);
 
@@ -572,19 +560,16 @@ RunWorker *MemcheckTool::createRunWorker(RunControl *runControl)
     clearErrorView();
     m_loadExternalLogFile->setDisabled(true);
 
-    QString dir;
-    if (RunConfiguration *rc = runTool->runControl()->runConfiguration())
-        dir = rc->target()->project()->projectDirectory().toString() + QLatin1Char('/');
+    QString dir = runControl->project()->projectDirectory().toString() + '/';
+    const QString name = FileName::fromString(runTool->executable()).fileName();
 
-    const QString name = Utils::FileName::fromString(runTool->executable()).fileName();
-
-    m_errorView->setDefaultSuppressionFile(dir + name + QLatin1String(".supp"));
+    m_errorView->setDefaultSuppressionFile(dir + name + ".supp");
 
     foreach (const QString &file, runTool->suppressionFiles()) {
-        QAction *action = m_filterMenu->addAction(Utils::FileName::fromString(file).fileName());
+        QAction *action = m_filterMenu->addAction(FileName::fromString(file).fileName());
         action->setToolTip(file);
-        connect(action, &QAction::triggered, this, [file]() {
-            Core::EditorManager::openEditorAt(file, 0);
+        connect(action, &QAction::triggered, this, [file] {
+            EditorManager::openEditorAt(file, 0);
         });
         m_suppressionActions.append(action);
     }
@@ -595,7 +580,7 @@ RunWorker *MemcheckTool::createRunWorker(RunControl *runControl)
 void MemcheckTool::loadExternalXmlLogFile()
 {
     const QString filePath = QFileDialog::getOpenFileName(
-                Core::ICore::mainWindow(),
+                ICore::mainWindow(),
                 tr("Open Memcheck XML Log File"),
                 QString(),
                 tr("XML Files (*.xml);;All Files (*)"));
