@@ -353,6 +353,9 @@ FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
     setActivationSequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Y") : tr("Alt+Y")));
     addRootDirectory(
         {QLatin1String("A.Computer"), FolderNavigationWidget::tr("Computer"), Utils::FileName()});
+    addRootDirectory({QLatin1String("A.Home"),
+                      FolderNavigationWidget::tr("Home"),
+                      Utils::FileName::fromString(QDir::homePath())});
 }
 
 Core::NavigationView FolderNavigationWidgetFactory::createWidget()
