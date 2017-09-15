@@ -6834,6 +6834,55 @@ void tst_Dumpers::dumper_data()
         + Check("s.storage_.@1.size_", "4", "int");
 
 
+    QTest::newRow("Internal4")
+            << Data("template<class T>\n"
+                    "struct QtcDumperTest_List\n"
+                    "{\n"
+                    "    struct Node\n"
+                    "    {\n"
+                    "        virtual ~Node() {}\n"
+                    "        Node *prev = nullptr;\n"
+                    "        Node *next = nullptr;\n"
+                    "    };\n\n"
+                    "    QtcDumperTest_List()\n"
+                    "    {\n"
+                    "        root.prev = &root;\n"
+                    "        root.next = &root;\n"
+                    "    }\n\n"
+                    "    void insert(Node *n)\n"
+                    "    {\n"
+                    "        if (n->next)\n"
+                    "            return;\n"
+                    "        Node *r = root.prev;\n"
+                    "        Node *node = r->next;\n"
+                    "        n->next = node;\n"
+                    "        node->prev = n;\n"
+                    "        r->next = n;\n"
+                    "        n->prev = r;\n"
+                    "    }\n"
+                    "    Node root;\n"
+                    "};\n\n"
+                    "struct Base\n"
+                    "{\n"
+                    "    virtual ~Base() {}\n"
+                    "    int foo = 42;\n"
+                    "};\n\n"
+                    "struct Derived : Base, QtcDumperTest_List<Derived>::Node\n"
+                    "{\n"
+                    "    int baz = 84;\n"
+                    "};\n\n",
+                    "Derived d1, d2; unused(&d1, &d2);\n"
+                    "QtcDumperTest_List<Derived> list; unused(&list);\n"
+                    "list.insert(&d1);\n"
+                    "list.insert(&d2);\n")
+            + Cxx11Profile()
+            + Check("d1.@1.foo", "42", "int")
+            + Check("d1.baz", "84", "int")
+            + Check("d2.@1.foo", "42", "int")
+            + Check("d2.baz", "84", "int")
+            //+ Check("list.1.baz", "15", "int")
+            ;
+
     QTest::newRow("BufArray")
             << Data("#include <new>\n"
                     "static int c = 0;\n"
