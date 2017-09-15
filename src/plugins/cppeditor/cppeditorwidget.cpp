@@ -80,8 +80,9 @@
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/FastPreprocessor.h>
 #include <cplusplus/MatchingText.h>
-#include <utils/textutils.h>
+#include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
+#include <utils/textutils.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -93,6 +94,7 @@
 #include <QTextEdit>
 #include <QTimer>
 #include <QToolButton>
+#include <QWidgetAction>
 
 enum { UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL = 200 };
 
@@ -176,9 +178,11 @@ void CppEditorWidget::finalizeInitialization()
             &CppLocalRenaming::updateSelectionsForVariableUnderCursor);
 
     connect(&d->m_useSelectionsUpdater, &CppUseSelectionsUpdater::finished, this,
-            [this] (SemanticInfo::LocalUseMap localUses) {
-                d->m_lastSemanticInfo.localUsesUpdated = true;
-                d->m_lastSemanticInfo.localUses = localUses;
+            [this] (SemanticInfo::LocalUseMap localUses, bool success) {
+                if (success) {
+                    d->m_lastSemanticInfo.localUsesUpdated = true;
+                    d->m_lastSemanticInfo.localUses = localUses;
+                }
     });
 
     connect(document(), &QTextDocument::contentsChange,
@@ -750,6 +754,20 @@ static void addRefactoringActions(QMenu *menu, AssistInterface *iface)
     }
 }
 
+class ProgressIndicatorMenuItem : public QWidgetAction
+{
+    Q_OBJECT
+
+public:
+    ProgressIndicatorMenuItem(QObject *parent) : QWidgetAction(parent) {}
+
+protected:
+    QWidget *createWidget(QWidget *parent = nullptr) override
+    {
+        return new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Small, parent);
+    }
+};
+
 QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
 {
     auto *menu = new QMenu(tr("&Refactor"), parent);
@@ -759,8 +777,30 @@ QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
     // updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
     if (isSemanticInfoValidExceptLocalUses()) {
-        d->m_useSelectionsUpdater.update(CppUseSelectionsUpdater::CallType::Synchronous);
-        addRefactoringActions(menu, createAssistInterface(QuickFix, ExplicitlyInvoked));
+        d->m_useSelectionsUpdater.abortSchedule();
+
+        const CppUseSelectionsUpdater::RunnerInfo runnerInfo = d->m_useSelectionsUpdater.update();
+        switch (runnerInfo) {
+        case CppUseSelectionsUpdater::RunnerInfo::AlreadyUpToDate:
+            addRefactoringActions(menu, createAssistInterface(QuickFix, ExplicitlyInvoked));
+            break;
+        case CppUseSelectionsUpdater::RunnerInfo::Started: {
+            // Update the refactor menu once we get the results.
+            auto *progressIndicatorMenuItem = new ProgressIndicatorMenuItem(menu);
+            menu->addAction(progressIndicatorMenuItem);
+
+            connect(&d->m_useSelectionsUpdater, &CppUseSelectionsUpdater::finished,
+                    menu, [=] (SemanticInfo::LocalUseMap, bool success) {
+                QTC_CHECK(success);
+                menu->removeAction(progressIndicatorMenuItem);
+                addRefactoringActions(menu, createAssistInterface(QuickFix, ExplicitlyInvoked));
+            });
+            break;
+        }
+        case CppUseSelectionsUpdater::RunnerInfo::FailedToStart:
+        case CppUseSelectionsUpdater::RunnerInfo::Invalid:
+            QTC_CHECK(false && "Unexpected CppUseSelectionsUpdater runner result");
+        }
     }
 
     return menu;
@@ -1041,3 +1081,5 @@ void CppEditorWidget::invokeTextEditorWidgetAssist(TextEditor::AssistKind assist
 
 } // namespace Internal
 } // namespace CppEditor
+
+#include "cppeditorwidget.moc"

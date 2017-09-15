@@ -66,13 +66,13 @@ void CppUseSelectionsUpdater::abortSchedule()
     m_timer.stop();
 }
 
-void CppUseSelectionsUpdater::update(CallType callType)
+CppUseSelectionsUpdater::RunnerInfo CppUseSelectionsUpdater::update(CallType callType)
 {
     auto *cppEditorWidget = qobject_cast<CppEditorWidget *>(m_editorWidget);
-    QTC_ASSERT(cppEditorWidget, return);
+    QTC_ASSERT(cppEditorWidget, return RunnerInfo::FailedToStart);
 
     auto *cppEditorDocument = qobject_cast<CppEditorDocument *>(cppEditorWidget->textDocument());
-    QTC_ASSERT(cppEditorDocument, return);
+    QTC_ASSERT(cppEditorDocument, return RunnerInfo::FailedToStart);
 
     CppTools::CursorInfoParams params;
     params.semanticInfo = cppEditorWidget->semanticInfo();
@@ -80,7 +80,7 @@ void CppUseSelectionsUpdater::update(CallType callType)
 
     if (callType == CallType::Asynchronous) {
         if (isSameIdentifierAsBefore(params.textCursor))
-            return;
+            return RunnerInfo::AlreadyUpToDate;
 
         if (m_runnerWatcher)
             m_runnerWatcher->cancel();
@@ -93,25 +93,28 @@ void CppUseSelectionsUpdater::update(CallType callType)
         m_runnerWordStartPosition = params.textCursor.position();
 
         m_runnerWatcher->setFuture(cppEditorDocument->cursorInfo(params));
+        return RunnerInfo::Started;
     } else { // synchronous case
         abortSchedule();
 
         const int startRevision = cppEditorDocument->document()->revision();
         QFuture<CursorInfo> future = cppEditorDocument->cursorInfo(params);
         if (future.isCanceled())
-            return;
+            return RunnerInfo::Invalid;
 
         // QFuture::waitForFinished seems to block completely, not even
         // allowing to process events from QLocalSocket.
         while (!future.isFinished()) {
             if (future.isCanceled())
-                return;
+                return RunnerInfo::Invalid;
 
-            QTC_ASSERT(startRevision == cppEditorDocument->document()->revision(), return);
+            QTC_ASSERT(startRevision == cppEditorDocument->document()->revision(),
+                       return RunnerInfo::Invalid);
             QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         }
 
         processResults(future.result());
+        return RunnerInfo::Invalid;
     }
 }
 
@@ -134,18 +137,25 @@ void CppUseSelectionsUpdater::processResults(const CursorInfo &result)
     updateUnusedSelections(result.unusedVariablesRanges);
 
     emit selectionsForVariableUnderCursorUpdated(localVariableSelections);
-    emit finished(result.localUses);
+    emit finished(result.localUses, true);
 }
 
 void CppUseSelectionsUpdater::onFindUsesFinished()
 {
-    QTC_ASSERT(m_runnerWatcher, return);
-    if (m_runnerWatcher->isCanceled())
+    QTC_ASSERT(m_runnerWatcher,
+               emit finished(CppTools::SemanticInfo::LocalUseMap(), false); return);
+
+    if (m_runnerWatcher->isCanceled()) {
+        emit finished(CppTools::SemanticInfo::LocalUseMap(), false);
         return;
-    if (m_runnerRevision != m_editorWidget->document()->revision())
+    }
+    if (m_runnerRevision != m_editorWidget->document()->revision()) {
+        emit finished(CppTools::SemanticInfo::LocalUseMap(), false);
         return;
+    }
     if (m_runnerWordStartPosition
             != Utils::Text::wordStartCursor(m_editorWidget->textCursor()).position()) {
+        emit finished(CppTools::SemanticInfo::LocalUseMap(), false);
         return;
     }
 
