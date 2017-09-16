@@ -61,7 +61,9 @@ const Utils::Icon RESULT_BLACKLISTEDFAIL({
         {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestFailTextColor},
         {":/projectexplorer/images/buildstepdisable.png", Utils::Theme::PanelTextColorDark}},
         Utils::Icon::Tint | Utils::Icon::PunchEdges);
-const Utils::Icon RESULT_BENCHMARK(":/images/benchmark.png");
+const Utils::Icon RESULT_BENCHMARK({
+        {":/utils/images/filledcircle.png", Utils::Theme::BackgroundColorNormal},
+        {":/images/benchmark.png", Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint);
 const Utils::Icon RESULT_MESSAGEDEBUG({
         {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestDebugTextColor}},
         Utils::Icon::Tint);
