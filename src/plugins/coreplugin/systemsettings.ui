@@ -22,10 +22,6 @@
         <property name="text">
          <string>?</string>
         </property>
-        <property name="icon">
-         <iconset resource="../../libs/utils/utils.qrc">
-          <normaloff>:/utils/images/help.png</normaloff>:/utils/images/help.png</iconset>
-        </property>
        </widget>
       </item>
       <item row="1" column="2">
@@ -386,8 +382,6 @@
   <tabstop>warnBeforeOpeningBigFiles</tabstop>
   <tabstop>bigFilesLimitSpinBox</tabstop>
  </tabstops>
- <resources>
-  <include location="../../libs/utils/utils.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

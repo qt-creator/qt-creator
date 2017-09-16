@@ -82,4 +82,6 @@ HEADERS = $$PWD/sshsendfacility_p.h \
 
 FORMS = $$PWD/sshkeycreationdialog.ui
 
+RESOURCES += $$PWD/ssh.qrc
+
 include(../3rdparty/botan/botan.pri)
