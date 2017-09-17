@@ -1035,7 +1035,7 @@ void tst_Dumpers::initTestCase()
         ok = debugger.waitForFinished();
         QVERIFY(ok);
         QByteArray output = debugger.readAllStandardOutput();
-        //qDebug() << "stdout: " << output;
+        //qDebug().noquote() << "stdout: " << output;
         bool usePython = !output.contains("Python scripting is not supported in this copy of GDB");
         qDebug() << "Python             : " << (usePython ? "ok" : "*** not ok ***");
         qDebug() << "Dumper dir         : " << DUMPERDIR;
@@ -1404,11 +1404,11 @@ void tst_Dumpers::dumper()
     error = make.readAllStandardError();
     //qDebug() << "stdout: " << output;
     if (make.exitCode()) {
-        qDebug() << error;
+        qDebug().noquote() << error;
         qDebug() << "\n------------------ CODE --------------------";
-        qDebug() << fullCode;
+        qDebug().noquote() << fullCode;
         qDebug() << "\n------------------ CODE --------------------";
-        qDebug() << "Project file: " << proFile.fileName();
+        qDebug().noquote() << "Project file: " << proFile.fileName();
     }
 
     if (data.neededDwarfVersion.isRestricted) {
@@ -1574,7 +1574,7 @@ void tst_Dumpers::dumper()
     if (m_debuggerEngine == GdbEngine) {
         int posDataStart = output.indexOf("data=");
         if (posDataStart == -1) {
-            qDebug() << "NO \"data=\" IN OUTPUT: " << output;
+            qDebug().noquote() << "NO \"data=\" IN OUTPUT: " << output;
             QVERIFY(posDataStart != -1);
         }
         contents = output.mid(posDataStart);
@@ -1586,7 +1586,7 @@ void tst_Dumpers::dumper()
         //qDebug() << "FOUND NS: " << context.nameSpace;
 
     } else if (m_debuggerEngine == LldbEngine) {
-        //qDebug() << "GOT OUTPUT: " << output;
+        //qDebug().noquote() << "GOT OUTPUT: " << output;
         int pos = output.indexOf("data=[{");
         QVERIFY(pos != -1);
         output = output.mid(pos);
@@ -1594,7 +1594,7 @@ void tst_Dumpers::dumper()
 
         int posNameSpaceStart = output.indexOf("@NS@");
         if (posNameSpaceStart == -1)
-            qDebug() << "OUTPUT: " << output;
+            qDebug().noquote() << "OUTPUT: " << output;
         QVERIFY(posNameSpaceStart != -1);
         posNameSpaceStart += sizeof("@NS@") - 1;
         int posNameSpaceEnd = output.indexOf("@", posNameSpaceStart);
@@ -1610,7 +1610,7 @@ void tst_Dumpers::dumper()
         QByteArray locals("|script|");
         int localsBeginPos = output.indexOf(locals, output.indexOf(localsAnswerStart));
         if (localsBeginPos == -1)
-            qDebug() << "OUTPUT: " << output;
+            qDebug().noquote() << "OUTPUT: " << output;
         QVERIFY(localsBeginPos != -1);
         do {
             const int msgStart = localsBeginPos + locals.length();
@@ -1741,8 +1741,8 @@ void tst_Dumpers::dumper()
                 break;
             qDebug() << "MSG: " << fullOutput.mid(pos1, pos2 - pos1 - 1);
         }
-        qDebug() << "CONTENTS     : " << contents;
-        qDebug() << "FULL OUTPUT  : " << fullOutput.data();
+        qDebug().noquote() << "CONTENTS     : " << contents;
+        qDebug().noquote() << "FULL OUTPUT  : " << fullOutput.data();
         qDebug() << "Qt VERSION   : " << QString::number(context.qtVersion, 16);
         if (m_debuggerEngine != CdbEngine)
             qDebug() << "GCC VERSION   : " << context.gccVersion;
