@@ -33,6 +33,9 @@
 #include "qproxystyle.h"
 
 #include "metainfo.h"
+
+#include <utils/qtcassert.h>
+
 #include <QLineEdit>
 #include <QPen>
 #include <QPixmapCache>
@@ -42,11 +45,11 @@
 namespace QmlDesigner {
 
 IconCheckboxItemDelegate::IconCheckboxItemDelegate(QObject *parent,
-                                                   const QPixmap &checkedPixmap,
-                                                   const QPixmap &uncheckedPixmap)
+                                                   const QIcon &checkedIcon,
+                                                   const QIcon &uncheckedIcon)
     : QStyledItemDelegate(parent),
-      m_checkedPixmap(checkedPixmap),
-      m_uncheckedPixmap(uncheckedPixmap)
+      m_checkedIcon(checkedIcon),
+      m_uncheckedIcon(uncheckedIcon)
 {}
 
 QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem & /*option*/,
@@ -82,25 +85,28 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
     if (rowIsPropertyRole(modelIndex.model(), modelIndex))
         return; //Do not paint icons for property rows
 
-    const int yOffset = (styleOption.rect.height()
-                         - (m_checkedPixmap.height() / painter->device()->devicePixelRatio())) / 2;
-    const int xOffset = 2;
-
-    painter->save();
     if (styleOption.state & QStyle::State_Selected)
         NavigatorTreeView::drawSelectionBackground(painter, styleOption);
 
     if (!getModelNode(modelIndex).isRootNode()) {
+        QWindow *window = dynamic_cast<QWidget*>(painter->device())->window()->windowHandle();
+        QTC_ASSERT(window, return);
 
-        if (!isVisible(modelIndex))
+        const QRect iconRect(styleOption.rect.left() + 2, styleOption.rect.top() + 2, 16, 16);
+        const QIcon &icon = isChecked(modelIndex) ? m_checkedIcon : m_uncheckedIcon;
+        const QPixmap iconPixmap = icon.pixmap(window, iconRect.size());
+        const bool visible = isVisible(modelIndex);
+
+        if (!visible) {
+            painter->save();
             painter->setOpacity(0.5);
+        }
 
-        const bool checked = isChecked(modelIndex);
-        painter->drawPixmap(styleOption.rect.x() + xOffset, styleOption.rect.y() + yOffset,
-                            checked ? m_checkedPixmap : m_uncheckedPixmap);
+        painter->drawPixmap(iconRect.topLeft(), iconPixmap);
+
+        if (!visible)
+            painter->restore();
     }
-
-    painter->restore();
 }
 
 } // namespace QmlDesigner

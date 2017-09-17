@@ -93,19 +93,19 @@ NavigatorView::NavigatorView(QObject* parent) :
     NameItemDelegate *idDelegate = new NameItemDelegate(this);
     IconCheckboxItemDelegate *showDelegate =
             new IconCheckboxItemDelegate(this,
-                                         Utils::Icons::EYE_OPEN_TOOLBAR.pixmap(),
-                                         Utils::Icons::EYE_CLOSED_TOOLBAR.pixmap());
+                                         Utils::Icons::EYE_OPEN_TOOLBAR.icon(),
+                                         Utils::Icons::EYE_CLOSED_TOOLBAR.icon());
 
     IconCheckboxItemDelegate *exportDelegate =
             new IconCheckboxItemDelegate(this,
-                                         Icons::EXPORT_CHECKED.pixmap(),
-                                         Icons::EXPORT_UNCHECKED.pixmap());
+                                         Icons::EXPORT_CHECKED.icon(),
+                                         Icons::EXPORT_UNCHECKED.icon());
 
 #ifdef _LOCK_ITEMS_
     IconCheckboxItemDelegate *lockDelegate =
             new IconCheckboxItemDelegate(this,
-                                         Utils::Icons::LOCKED_TOOLBAR.pixmap(),
-                                         Utils::Icons::UNLOCKED_TOOLBAR.pixmap());
+                                         Utils::Icons::LOCKED_TOOLBAR.icon(),
+                                         Utils::Icons::UNLOCKED_TOOLBAR.icon());
 #endif
 
 
