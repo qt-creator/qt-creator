@@ -1014,7 +1014,7 @@ void tst_Dumpers::initTestCase()
     if (base.startsWith("lldb"))
         m_debuggerEngine = LldbEngine;
 
-    m_qmakeBinary = QString::fromLocal8Bit(qgetenv("QTC_QMAKE_PATH_FOR_TEST"));
+    m_qmakeBinary = QDir::fromNativeSeparators(QString::fromLocal8Bit(qgetenv("QTC_QMAKE_PATH_FOR_TEST")));
     if (m_qmakeBinary.isEmpty())
         m_qmakeBinary = "qmake";
     qDebug() << "QMake              : " << m_qmakeBinary;
@@ -1049,18 +1049,19 @@ void tst_Dumpers::initTestCase()
         version = version.mid(pos1, pos2 - pos1);
         extractGdbVersion(version, &m_debuggerVersion,
             &m_gdbBuildVersion, &m_isMacGdb, &m_isQnxGdb);
-        m_env = QProcessEnvironment::systemEnvironment();
-        m_makeBinary = QString::fromLocal8Bit(qgetenv("QTC_MAKE_PATH_FOR_TEST"));
+        m_makeBinary = QDir::fromNativeSeparators(QString::fromLocal8Bit(qgetenv("QTC_MAKE_PATH_FOR_TEST")));
 #ifdef Q_OS_WIN
+        Utils::Environment env = Utils::Environment::systemEnvironment();
         if (m_makeBinary.isEmpty())
             m_makeBinary = "mingw32-make";
+        if (m_makeBinary != "mingw32-make")
+            env.prependOrSetPath(QDir::toNativeSeparators(QFileInfo(m_makeBinary).absolutePath()));
         // if qmake is not in PATH make sure the correct libs for inferior are prepended to PATH
-        if (m_qmakeBinary != "qmake") {
-            Utils::Environment env = Utils::Environment::systemEnvironment();
+        if (m_qmakeBinary != "qmake")
             env.prependOrSetPath(QDir::toNativeSeparators(QFileInfo(m_qmakeBinary).absolutePath()));
-            m_env = env.toProcessEnvironment();
-        }
+        m_env = env.toProcessEnvironment();
 #else
+        m_env = QProcessEnvironment::systemEnvironment();
         if (m_makeBinary.isEmpty())
             m_makeBinary = "make";
 #endif
@@ -1287,9 +1288,11 @@ void tst_Dumpers::dumper()
     QFile source(t->buildPath + '/' + data.mainFile);
     QVERIFY(source.open(QIODevice::ReadWrite));
     QString fullCode = QString() +
-            "\n\n#if defined(_MSC_VER)" + (data.useQt ?
+            "\n\n#ifdef _WIN32" + (data.useQt ?
                 "\n#include <qt_windows.h>" :
-                "\n#define NOMINMAX\n#include <Windows.h>") +
+                "\n#define NOMINMAX\n#include <windows.h>") +
+            "\n#endif"
+            "\n#if defined(_MSC_VER)"
                 "\nvoid qtcDebugBreakFunction() { return; }"
                 "\n#define BREAK qtcDebugBreakFunction();"
                 "\n\nvoid unused(const void *first,...) { (void) first; }"
