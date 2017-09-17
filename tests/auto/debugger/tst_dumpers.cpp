@@ -1405,6 +1405,7 @@ void tst_Dumpers::dumper()
         qDebug().noquote() << fullCode;
         qDebug() << "\n------------------ CODE --------------------";
         qDebug().noquote() << "Project file: " << proFile.fileName();
+        QCOMPARE(make.exitCode(), 0);
     }
 
     if (data.neededDwarfVersion.isRestricted) {
