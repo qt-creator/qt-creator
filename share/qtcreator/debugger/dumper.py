@@ -1177,7 +1177,7 @@ class DumperBase:
         n = arrayByteSize // innerType.size()
         p = value.address()
         if displayFormat != RawFormat and p:
-            if innerType.name in ('char', 'wchar_t', 'unsigned char', 'signed char'):
+            if innerType.name in ('char', 'wchar_t', 'unsigned char', 'signed char', 'CHAR', 'WCHAR'):
                 self.putCharArrayHelper(p, n, innerType, self.currentItemFormat(),
                                         makeExpandable = False)
             else:
@@ -1256,7 +1256,7 @@ class DumperBase:
     # This is shared by pointer and array formatting.
     def tryPutSimpleFormattedPointer(self, ptr, typeName, innerType, displayFormat, limit):
         if displayFormat == AutomaticFormat:
-            if innerType.name in ('char', 'signed char', 'unsigned char'):
+            if innerType.name in ('char', 'signed char', 'unsigned char', 'CHAR'):
                 # Use UTF-8 as default for char *.
                 self.putType(typeName)
                 (elided, shown, data) = self.readToFirstZero(ptr, 1, limit)
@@ -1265,7 +1265,7 @@ class DumperBase:
                     self.putArrayData(ptr, shown, innerType)
                 return True
 
-            if innerType.name == 'wchar_t':
+            if innerType.name in ('wchar_t', 'WCHAR'):
                 self.putType(typeName)
                 charSize = self.lookupType('wchar_t').size()
                 (elided, data) = self.encodeCArray(ptr, charSize, limit)
@@ -1415,7 +1415,7 @@ class DumperBase:
         #warn('INNER: %s' % innerType.name)
         if self.autoDerefPointers:
             # Generic pointer type with AutomaticFormat, but never dereference char types:
-            if innerType.name not in ('char', 'signed char', 'unsigned char', 'wchar_t'):
+            if innerType.name not in ('char', 'signed char', 'unsigned char', 'wchar_t', 'CHAR', 'WCHAR'):
                 self.putDerefedPointer(value)
                 return
 

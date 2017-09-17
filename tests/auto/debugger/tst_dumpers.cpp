@@ -1300,7 +1300,13 @@ void tst_Dumpers::dumper()
                 "\n#define BREAK qtcDebugBreakFunction();"
                 "\n\nvoid unused(const void *first,...) { (void) first; }"
             "\n#else"
-                "\n#include <stdint.h>\n";
+                "\n#include <stdint.h>"
+                "\n#ifndef _WIN32"
+                    "\ntypedef char CHAR;"
+                    "\ntypedef char *PCHAR;"
+                    "\ntypedef wchar_t WCHAR;"
+                    "\ntypedef wchar_t *PWCHAR;"
+                "\n#endif\n";
 
     if (m_debuggerEngine == LldbEngine)
 //#ifdef Q_OS_MAC
@@ -5197,7 +5203,9 @@ void tst_Dumpers::dumper_data()
                     "char s[] = \"aöa\";\n"
                     "char t[] = \"aöax\";\n"
                     "wchar_t w[] = L\"aöa\";\n"
-                    "unused(&s, &t, &w);\n")
+                    "CHAR ch[] = \"aöa\";\n"
+                    "WCHAR wch[] = L\"aöa\";\n"
+                    "unused(&s, &t, &w, &ch, &wch);\n")
 
                + CheckType("s", "char [5]") % NoCdbEngine
                + CheckType("s", "char [4]") % CdbEngine
@@ -5205,7 +5213,12 @@ void tst_Dumpers::dumper_data()
                + CheckType("t", "char [6]") % NoCdbEngine
                + CheckType("t", "char [5]") % CdbEngine
                + Check("t.0", "[0]", "97", "char")
-               + CheckType("w", "wchar_t [4]");
+               + CheckType("w", "wchar_t [4]")
+               + Check("ch.0", "[0]", "97", "CHAR")
+               + CheckType("ch", "CHAR [5]") % NoCdbEngine
+               + CheckType("ch", "CHAR [4]") % CdbEngine
+               + Check("wch.0", "[0]", "97", "WCHAR")
+               + CheckType("wch", "WCHAR [4]");
 
 
     QTest::newRow("CharPointers")
