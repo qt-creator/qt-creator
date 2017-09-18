@@ -88,7 +88,6 @@ public:
     Utils::ProcessHandle attachPID;
     QStringList solibSearchPath;
     bool useTerminal = false;
-    bool needFixup = true; // FIXME: Make false the default...
 
     // Used by Qml debugging.
     QUrl qmlServer;
@@ -160,6 +159,8 @@ public:
 
     // For Debugger testing.
     int testCase = 0;
+
+    QStringList validationErrors;
 };
 
 class UpdateParameters

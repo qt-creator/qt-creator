@@ -126,7 +126,7 @@ public:
     void setIosPlatform(const QString &platform);
     void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
 
-    void setNeedFixup(bool on);
+    void setNeedFixup(bool) {} // FIXME: Remove after use in QtAppMan is gone.
     void setTestCase(int testCase);
     void setOverrideStartScript(const QString &script);
     void setToolChainAbi(const ProjectExplorer::Abi &abi);
@@ -135,9 +135,10 @@ signals:
     void aboutToNotifyInferiorSetupOk();
 
 private:
+    bool fixupParameters();
+
     QPointer<Internal::DebuggerEngine> m_engine; // Master engine
     Internal::DebuggerRunParameters m_runParameters;
-    QStringList m_errors;
     bool m_isDying = false;
     const bool m_isCppDebugging;
     const bool m_isQmlDebugging;
