@@ -375,7 +375,7 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
     QMenu *menu = new QMenu(this);
     connect(menu, &QMenu::triggered, menu, &QMenu::deleteLater);
 
-    QAction *forceToStringAction = new QAction(tr("Force to String"));
+    QAction *forceToStringAction = new QAction(tr("Force to String"), nullptr);
     forceToStringAction->setEnabled(m_configModel->canForceToString(idx));
     menu->addAction(forceToStringAction);
     connect(forceToStringAction, &QAction::triggered, this, [this, idx]() { m_configModel->forceToString(idx); });
