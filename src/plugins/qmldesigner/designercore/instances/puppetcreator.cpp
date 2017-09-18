@@ -549,7 +549,8 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
     process.setProcessEnvironment(processEnvironment());
     process.setWorkingDirectory(buildDirectoryPath);
     process.start(command, processArguments);
-    process.waitForStarted();
+    if (!process.waitForStarted())
+        return false;
     while (process.waitForReadyRead(100) || process.state() == QProcess::Running) {
         if (progressDialog->useFallbackPuppet())
             return false;
