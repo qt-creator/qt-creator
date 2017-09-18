@@ -58,7 +58,6 @@ SOURCES += \
     pchmanagerclient-test.cpp \
     pchmanagerserver-test.cpp \
     processevents-utilities.cpp \
-    projectmacro-test.cpp \
     projectparts-test.cpp \
     projectupdater-test.cpp \
     readandwritemessageblock-test.cpp \
