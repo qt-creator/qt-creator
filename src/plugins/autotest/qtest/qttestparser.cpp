@@ -85,8 +85,11 @@ static bool qtTestLibDefined(const QString &fileName)
 {
     const QList<CppTools::ProjectPart::Ptr> parts =
             CppTools::CppModelManager::instance()->projectPart(fileName);
-    if (parts.size() > 0)
-        return parts.at(0)->projectMacros.contains({"QT_TESTLIB_LIB"});
+    if (parts.size() > 0) {
+        return Utils::anyOf(parts.at(0)->projectMacros, [] (const ProjectExplorer::Macro &macro) {
+            return macro.key == "QT_TESTLIB_LIB";
+        });
+    }
     return false;
 }
 
