@@ -23,36 +23,21 @@
 **
 ****************************************************************************/
 
-#include "cpprefactoringengine.h"
-#include "cppeditorwidget.h"
+#pragma once
 
-#include "utils/qtcassert.h"
+#include "refactoringengineinterface.h"
 
-namespace CppEditor {
-namespace Internal {
+namespace CppTools {
 
-void CppRefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
-                                              CppTools::ProjectPart *,
-                                              RenameCallback &&renameSymbolsCallback)
+class CPPTOOLS_EXPORT CppRefactoringEngine : public RefactoringEngineInterface
 {
-    CppEditorWidget *editorWidget = dynamic_cast<CppEditorWidget *>(data.editorWidget());
-    QTC_ASSERT(editorWidget, renameSymbolsCallback(QString(),
-                                                   ClangBackEnd::SourceLocationsContainer(),
-                                                   0); return;);
-    editorWidget->updateSemanticInfo();
-    // Call empty callback
-    renameSymbolsCallback(QString(),
-                          ClangBackEnd::SourceLocationsContainer(),
-                          editorWidget->document()->revision());
-}
+public:
+    void startLocalRenaming(const CppTools::CursorInEditor &data,
+                            CppTools::ProjectPart *projectPart,
+                            RenameCallback &&renameSymbolsCallback) override;
+    void startGlobalRenaming(const CppTools::CursorInEditor &data) override;
 
-void CppRefactoringEngine::startGlobalRenaming(const CppTools::CursorInEditor &data)
-{
-    CppEditorWidget *editorWidget = dynamic_cast<CppEditorWidget *>(data.editorWidget());
-    if (!editorWidget)
-        return;
-    editorWidget->renameUsages();
-}
+    bool isUsable() const override { return true; }
+};
 
-} // namespace Internal
 } // namespace CppEditor

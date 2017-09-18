@@ -180,7 +180,7 @@ public:
     static QString editorConfigurationFileName();
 
     static void setRefactoringEngine(RefactoringEngineInterface *refactoringEngine);
-    static RefactoringEngineInterface *refactoringEngine();
+    static RefactoringEngineInterface &refactoringEngine();
 
     void renameIncludes(const QString &oldFileName, const QString &newFileName);
 

@@ -81,7 +81,6 @@ public:
 
     void findUsages();
     void renameSymbolUnderCursor();
-    void renameUsages(const QString &replacement = QString());
 
     bool selectBlockUp() override;
     bool selectBlockDown() override;
@@ -105,6 +104,8 @@ protected:
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) override;
 
     void slotCodeStyleSettingsChanged(const QVariant &) override;
+
+    void renameUsagesInternal(const QString &replacement) override;
 
 private:
     void updateFunctionDeclDefLink();
@@ -138,7 +139,7 @@ private:
     TextEditor::RefactorMarkers refactorMarkersWithoutClangMarkers() const;
 
     CppTools::FollowSymbolInterface &followSymbolInterface() const;
-    CppTools::RefactoringEngineInterface *refactoringEngine() const;
+    CppTools::RefactoringEngineInterface &refactoringEngine() const;
 
     CppTools::ProjectPart *projectPart() const;
 

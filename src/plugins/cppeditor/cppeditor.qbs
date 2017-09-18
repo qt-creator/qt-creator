@@ -68,8 +68,6 @@ QtcPlugin {
         "cppquickfixassistant.h",
         "cppquickfixes.cpp",
         "cppquickfixes.h",
-        "cpprefactoringengine.cpp",
-        "cpprefactoringengine.h",
         "cpptypehierarchy.cpp",
         "cpptypehierarchy.h",
         "cppuseselectionsupdater.cpp",

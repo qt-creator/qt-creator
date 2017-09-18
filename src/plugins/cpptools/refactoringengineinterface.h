@@ -25,7 +25,9 @@
 
 #pragma once
 
+#include "cpptools_global.h"
 #include "cursorineditor.h"
+
 #include <utils/fileutils.h>
 
 #include <clangsupport/sourcelocationscontainer.h>
@@ -46,7 +48,7 @@ enum class CallType
 };
 
 // NOTE: This interface is not supposed to be owned as an interface pointer
-class RefactoringEngineInterface
+class CPPTOOLS_EXPORT RefactoringEngineInterface
 {
 public:
     using RenameCallback = ClangBackEnd::RefactoringClientInterface::RenameCallback;

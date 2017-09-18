@@ -33,6 +33,7 @@
 #include "cppindexingsupport.h"
 #include "cppmodelmanagersupportinternal.h"
 #include "cpprefactoringchanges.h"
+#include "cpprefactoringengine.h"
 #include "cppsourceprocessor.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolsplugin.h"
@@ -165,7 +166,8 @@ public:
     QTimer m_delayedGcTimer;
 
     // Refactoring
-    RefactoringEngineInterface *m_refactoringEngine = nullptr;
+    CppRefactoringEngine m_builtInRefactoringEngine;
+    RefactoringEngineInterface *m_refactoringEngine { &m_builtInRefactoringEngine };
 };
 
 } // namespace Internal
@@ -267,12 +269,15 @@ QString CppModelManager::editorConfigurationFileName()
 
 void CppModelManager::setRefactoringEngine(RefactoringEngineInterface *refactoringEngine)
 {
-    instance()->d->m_refactoringEngine = refactoringEngine;
+    if (refactoringEngine)
+        instance()->d->m_refactoringEngine = refactoringEngine;
+    else
+        instance()->d->m_refactoringEngine = &instance()->d->m_builtInRefactoringEngine;
 }
 
-RefactoringEngineInterface *CppModelManager::refactoringEngine()
+RefactoringEngineInterface &CppModelManager::refactoringEngine()
 {
-    return instance()->d->m_refactoringEngine;
+    return *instance()->d->m_refactoringEngine;
 }
 
 FollowSymbolInterface &CppModelManager::followSymbolInterface() const

@@ -51,6 +51,7 @@ HEADERS += \
     cppqtstyleindenter.h \
     cpprawprojectpart.h \
     cpprefactoringchanges.h \
+    cpprefactoringengine.h \
     cppselectionchanger.h \
     cppsemanticinfo.h \
     cppsemanticinfoupdater.h \
@@ -143,6 +144,7 @@ SOURCES += \
     cppqtstyleindenter.cpp \
     cpprawprojectpart.cpp \
     cpprefactoringchanges.cpp \
+    cpprefactoringengine.cpp \
     cppselectionchanger.cpp \
     cppsemanticinfoupdater.cpp \
     cppsourceprocessor.cpp \

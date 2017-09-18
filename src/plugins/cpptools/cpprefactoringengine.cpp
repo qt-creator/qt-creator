@@ -23,25 +23,33 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "cpprefactoringengine.h"
+#include "texteditor/texteditor.h"
 
-#include <cpptools/refactoringengineinterface.h>
+#include "utils/qtcassert.h"
 
-namespace CppEditor {
-namespace Internal {
+namespace CppTools {
 
-class CppEditorWidget;
-
-class CppRefactoringEngine : public CppTools::RefactoringEngineInterface
+void CppRefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
+                                              CppTools::ProjectPart *,
+                                              RenameCallback &&renameSymbolsCallback)
 {
-public:
-    void startLocalRenaming(const CppTools::CursorInEditor &data,
-                            CppTools::ProjectPart *projectPart,
-                            RenameCallback &&renameSymbolsCallback) override;
-    void startGlobalRenaming(const CppTools::CursorInEditor &data) override;
+    CppEditorWidgetInterface *editorWidget = data.editorWidget();
+    QTC_ASSERT(editorWidget, renameSymbolsCallback(QString(),
+                                                   ClangBackEnd::SourceLocationsContainer(),
+                                                   0); return;);
+    editorWidget->updateSemanticInfo();
+    // Call empty callback
+    renameSymbolsCallback(QString(),
+                          ClangBackEnd::SourceLocationsContainer(),
+                          data.cursor().document()->revision());
+}
 
-    bool isUsable() const override { return true; }
-};
+void CppRefactoringEngine::startGlobalRenaming(const CppTools::CursorInEditor &data)
+{
+    CppEditorWidgetInterface *editorWidget = data.editorWidget();
+    QTC_ASSERT(editorWidget, return;);
+    editorWidget->renameUsages();
+}
 
-} // namespace Internal
 } // namespace CppEditor

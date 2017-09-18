@@ -136,6 +136,8 @@ Project {
             "cpprawprojectpart.h",
             "cpprefactoringchanges.cpp",
             "cpprefactoringchanges.h",
+            "cpprefactoringengine.cpp",
+            "cpprefactoringengine.h",
             "cppselectionchanger.cpp",
             "cppselectionchanger.h",
             "cppsemanticinfo.h",

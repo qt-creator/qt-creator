@@ -36,7 +36,6 @@
 #include "cppminimizableinfobars.h"
 #include "cpppreprocessordialog.h"
 #include "cppquickfixassistant.h"
-#include "cpprefactoringengine.h"
 #include "cppuseselectionsupdater.h"
 
 #include <clangsupport/sourcelocationscontainer.h>
@@ -130,7 +129,6 @@ public:
     CppLocalRenaming m_localRenaming;
     CppUseSelectionsUpdater m_useSelectionsUpdater;
     CppSelectionChanger m_cppSelectionChanger;
-    CppRefactoringEngine m_builtinRefactoringEngine;
 };
 
 CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
@@ -361,7 +359,7 @@ void CppEditorWidget::findUsages()
     }
 }
 
-void CppEditorWidget::renameUsages(const QString &replacement)
+void CppEditorWidget::renameUsagesInternal(const QString &replacement)
 {
     if (!d->m_modelManager)
         return;
@@ -522,7 +520,7 @@ void CppEditorWidget::renameSymbolUnderCursor()
     using ClangBackEnd::SourceLocationsContainer;
 
     ProjectPart *projPart = projectPart();
-    if (!refactoringEngine()->isUsable() || !projPart)
+    if (!refactoringEngine().isUsable() || !projPart)
         return;
 
     d->m_useSelectionsUpdater.abortSchedule();
@@ -546,14 +544,14 @@ void CppEditorWidget::renameSymbolUnderCursor()
                 d->m_localRenaming.updateSelectionsForVariableUnderCursor(selections);
             }
             if (!d->m_localRenaming.start()) {
-                refactoringEngine()->startGlobalRenaming(
+                refactoringEngine().startGlobalRenaming(
                     CppTools::CursorInEditor{textCursor(), textDocument()->filePath(), this});
             }
         }
     };
 
     viewport()->setCursor(Qt::BusyCursor);
-    refactoringEngine()->startLocalRenaming(CppTools::CursorInEditor{textCursor(),
+    refactoringEngine().startLocalRenaming(CppTools::CursorInEditor{textCursor(),
                                                                      textDocument()->filePath(),
                                                                      this},
                                             projPart,
@@ -682,11 +680,9 @@ RefactorMarkers CppEditorWidget::refactorMarkersWithoutClangMarkers() const
     return clearedRefactorMarkers;
 }
 
-RefactoringEngineInterface *CppEditorWidget::refactoringEngine() const
+RefactoringEngineInterface &CppEditorWidget::refactoringEngine() const
 {
-    RefactoringEngineInterface *engine = CppTools::CppModelManager::refactoringEngine();
-    return engine ? engine
-                  : static_cast<RefactoringEngineInterface *>(&d->m_builtinRefactoringEngine);
+    return CppTools::CppModelManager::refactoringEngine();
 }
 
 CppTools::FollowSymbolInterface &CppEditorWidget::followSymbolInterface() const
