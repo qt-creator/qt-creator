@@ -88,7 +88,7 @@ QString LinuxDeviceProcess::fullCommandLine(const StandardRunnable &runnable) co
     for (auto it = env.constBegin(); it != env.constEnd(); ++it) {
         if (!envString.isEmpty())
             envString += QLatin1Char(' ');
-        envString.append(it.key()).append(QLatin1String("='")).append(it.value())
+        envString.append(env.key(it)).append(QLatin1String("='")).append(env.value(it))
                 .append(QLatin1Char('\''));
     }
     fullCommandLine.append("echo $$ && ");

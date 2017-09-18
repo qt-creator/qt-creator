@@ -59,7 +59,7 @@ QString QnxDeviceProcess::fullCommandLine(const StandardRunnable &runnable) cons
 
     const Environment env = runnable.environment;
     for (auto it = env.constBegin(); it != env.constEnd(); ++it)
-        fullCommandLine += QString::fromLatin1("%1='%2' ").arg(it.key()).arg(it.value());
+        fullCommandLine += QString::fromLatin1("%1='%2' ").arg(env.key(it)).arg(env.value(it));
 
     fullCommandLine += QString::fromLatin1("%1 & echo $! > %2").arg(cmd).arg(m_pidFile);
 

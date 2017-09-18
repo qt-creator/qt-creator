@@ -394,7 +394,7 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                                 if (abortOnMeta)
                                     goto metaerr; // Assume this is a shell builtin
                             } else {
-                                cret += *vit;
+                                cret += env->value(vit);
                             }
                         }
                         if (!braced)
@@ -444,7 +444,7 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                         if (abortOnMeta)
                             goto metaerr; // Assume this is a shell builtin
                     } else {
-                        val = *vit;
+                        val = env->value(vit);
                     }
                 }
                 for (int i = 0; i < val.length(); i++) {
