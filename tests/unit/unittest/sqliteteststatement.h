@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,23 +25,30 @@
 
 #pragma once
 
-#include "sqlitestatement.h"
+#pragma once
 
-namespace Sqlite {
+#include <sqlitestatement.h>
 
-class SQLITE_EXPORT ReadStatement final : private Statement
+class SQLITE_EXPORT SqliteTestStatement : public Sqlite::Statement
 {
 public:
-    explicit ReadStatement(Utils::SmallStringView sqlStatement, Database &database);
+    explicit SqliteTestStatement(Utils::SmallStringView sqlStatement, Sqlite::Database &database)
+        : Sqlite::Statement(sqlStatement, database)
+    {}
 
-    using Statement::structValues;
-    using Statement::tupleValues;
-    using Statement::values;
-    using Statement::toValue;
+    using Statement::bind;
+    using Statement::bindingColumnNames;
+    using Statement::bindingIndexForName;
+    using Statement::bindNameValues;
+    using Statement::bindValues;
+    using Statement::columnNames;
     using Statement::database;
+    using Statement::execute;
+    using Statement::next;
+    using Statement::text;
+    using Statement::value;
 
 protected:
-    void checkIsReadOnlyStatement();
+    void checkIsWritableStatement();
 };
 
-} // namespace Sqlite

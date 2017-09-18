@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "sqliteteststatement.h"
 
 #include <sqlitedatabase.h>
 #include <sqlitereadstatement.h>
@@ -54,7 +55,7 @@ MATCHER_P3(HasValues, value1, value2, rowid,
 {
     Database &database = arg.database();
 
-    ReadStatement statement("SELECT name, number FROM test WHERE rowid=?", database);
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE rowid=?", database);
     statement.bind(1, rowid);
 
     statement.next();
@@ -106,7 +107,7 @@ TEST_F(SqliteStatement, ThrowsNotReadonlySqlStatementForWritableSqlStatementInRe
 
 TEST_F(SqliteStatement, CountRows)
 {
-    ReadStatement statement("SELECT * FROM test", database);
+    SqliteTestStatement statement("SELECT * FROM test", database);
     int nextCount = 0;
     while (statement.next())
         ++nextCount;
@@ -118,7 +119,7 @@ TEST_F(SqliteStatement, CountRows)
 
 TEST_F(SqliteStatement, Value)
 {
-    ReadStatement statement("SELECT name, number FROM test ORDER BY name", database);
+    SqliteTestStatement statement("SELECT name, number FROM test ORDER BY name", database);
     statement.next();
 
     statement.next();
@@ -135,14 +136,14 @@ TEST_F(SqliteStatement, Value)
 
 TEST_F(SqliteStatement, ThrowNoValuesToFetchForNotSteppedStatement)
 {
-    ReadStatement statement("SELECT name, number FROM test", database);
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
 
     ASSERT_THROW(statement.value<int>(0), Sqlite::NoValuesToFetch);
 }
 
 TEST_F(SqliteStatement, ThrowNoValuesToFetchForDoneStatement)
 {
-    ReadStatement statement("SELECT name, number FROM test", database);
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
     while (statement.next()) {}
 
     ASSERT_THROW(statement.value<int>(0), Sqlite::NoValuesToFetch);
@@ -150,7 +151,7 @@ TEST_F(SqliteStatement, ThrowNoValuesToFetchForDoneStatement)
 
 TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForNegativeColumn)
 {
-    ReadStatement statement("SELECT name, number FROM test", database);
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
     statement.next();
 
     ASSERT_THROW(statement.value<int>(-1), Sqlite::InvalidColumnFetched);
@@ -158,7 +159,7 @@ TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForNegativeColumn)
 
 TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForNotExistingColumn)
 {
-    ReadStatement statement("SELECT name, number FROM test", database);
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
     statement.next();
 
     ASSERT_THROW(statement.value<int>(2), Sqlite::InvalidColumnFetched);
@@ -188,7 +189,7 @@ TEST_F(SqliteStatement, ToStringValue)
 
 TEST_F(SqliteStatement, ColumnNames)
 {
-    ReadStatement statement("SELECT name, number FROM test", database);
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
 
     auto columnNames = statement.columnNames();
 
@@ -198,7 +199,7 @@ TEST_F(SqliteStatement, ColumnNames)
 TEST_F(SqliteStatement, BindString)
 {
 
-    ReadStatement statement("SELECT name, number FROM test WHERE name=?", database);
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE name=?", database);
 
     statement.bind(1, "foo");
 
@@ -210,7 +211,7 @@ TEST_F(SqliteStatement, BindString)
 
 TEST_F(SqliteStatement, BindInteger)
 {
-    ReadStatement statement("SELECT name, number FROM test WHERE number=?", database);
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=?", database);
 
     statement.bind(1, 40);
     statement.next();
@@ -220,7 +221,7 @@ TEST_F(SqliteStatement, BindInteger)
 
 TEST_F(SqliteStatement, BindLongInteger)
 {
-    ReadStatement statement("SELECT name, number FROM test WHERE number=?", database);
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=?", database);
 
     statement.bind(1, int64_t(40));
     statement.next();
@@ -230,7 +231,7 @@ TEST_F(SqliteStatement, BindLongInteger)
 
 TEST_F(SqliteStatement, BindDouble)
 {
-    ReadStatement statement("SELECT name, number FROM test WHERE number=?", database);
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=?", database);
 
     statement.bind(1, 23.3);
     statement.next();
@@ -240,7 +241,7 @@ TEST_F(SqliteStatement, BindDouble)
 
 TEST_F(SqliteStatement, BindIntegerByParameter)
 {
-    ReadStatement statement("SELECT name, number FROM test WHERE number=@number", database);
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=@number", database);
 
     statement.bind("@number", 40);
     statement.next();
@@ -250,7 +251,7 @@ TEST_F(SqliteStatement, BindIntegerByParameter)
 
 TEST_F(SqliteStatement, BindLongIntegerByParameter)
 {
-    ReadStatement statement("SELECT name, number FROM test WHERE number=@number", database);
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=@number", database);
 
     statement.bind("@number", int64_t(40));
     statement.next();
@@ -260,7 +261,7 @@ TEST_F(SqliteStatement, BindLongIntegerByParameter)
 
 TEST_F(SqliteStatement, BindDoubleByIndex)
 {
-    ReadStatement statement("SELECT name, number FROM test WHERE number=@number", database);
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=@number", database);
 
     statement.bind(statement.bindingIndexForName("@number"), 23.3);
     statement.next();
@@ -270,35 +271,35 @@ TEST_F(SqliteStatement, BindDoubleByIndex)
 
 TEST_F(SqliteStatement, BindIndexIsZeroIsThrowingBindingIndexIsOutOfBound)
 {
-    ReadStatement statement("SELECT name, number FROM test WHERE number=$1", database);
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=$1", database);
 
     ASSERT_THROW(statement.bind(0, 40), Sqlite::BindingIndexIsOutOfRange);
 }
 
 TEST_F(SqliteStatement, BindIndexIsTpLargeIsThrowingBindingIndexIsOutOfBound)
 {
-    ReadStatement statement("SELECT name, number FROM test WHERE number=$1", database);
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=$1", database);
 
     ASSERT_THROW(statement.bind(2, 40), Sqlite::BindingIndexIsOutOfRange);
 }
 
 TEST_F(SqliteStatement, WrongBindingNameThrowingBindingIndexIsOutOfBound)
 {
-    ReadStatement statement("SELECT name, number FROM test WHERE number=@name", database);
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=@name", database);
 
     ASSERT_THROW(statement.bind("@name2", 40), Sqlite::WrongBingingName);
 }
 
 TEST_F(SqliteStatement, RequestBindingNamesFromStatement)
 {
-    WriteStatement statement("UPDATE test SET name=@name, number=@number WHERE rowid=@id", database);
+    SqliteTestStatement statement("UPDATE test SET name=@name, number=@number WHERE rowid=@id", database);
 
     ASSERT_THAT(statement.bindingColumnNames(), ElementsAre("name", "number", "id"));
 }
 
 TEST_F(SqliteStatement, BindValues)
 {
-    WriteStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
+    SqliteTestStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
 
     statement.bindValues("see", 7.23, 1);
     statement.execute();
@@ -317,7 +318,7 @@ TEST_F(SqliteStatement, WriteValues)
 
 TEST_F(SqliteStatement, BindNamedValues)
 {
-    WriteStatement statement("UPDATE test SET name=@name, number=@number WHERE rowid=@id", database);
+    SqliteTestStatement statement("UPDATE test SET name=@name, number=@number WHERE rowid=@id", database);
 
     statement.bindNameValues("@name", "see", "@number", 7.23, "@id", 1);
     statement.execute();

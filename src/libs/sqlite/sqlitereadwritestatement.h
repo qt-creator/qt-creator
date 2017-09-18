@@ -36,22 +36,10 @@ class SQLITE_EXPORT ReadWriteStatement final : private Statement
 public:
     ReadWriteStatement(Utils::SmallStringView sqlStatement, Database &database);
 
-    using Statement::next;
     using Statement::execute;
-    using Statement::reset;
-    using Statement::bind;
-    using Statement::bindValues;
-    using Statement::bindNameValues;
-    using Statement::bindingIndexForName;
-    using Statement::setBindingColumnNames;
-    using Statement::bindingColumnNames;
-    using Statement::value;
-    using Statement::text;
     using Statement::values;
     using Statement::structValues;
     using Statement::tupleValues;
-    using Statement::columnCount;
-    using Statement::columnNames;
     using Statement::toValue;
     using Statement::database;
     using Statement::write;

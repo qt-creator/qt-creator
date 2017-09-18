@@ -200,7 +200,8 @@ HEADERS += \
     mocksqlitedatabase.h \
     mocksqlitereadstatement.h \
     google-using-declarations.h \
-    mocksymbolindexing.h
+    mocksymbolindexing.h \
+    sqliteteststatement.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
