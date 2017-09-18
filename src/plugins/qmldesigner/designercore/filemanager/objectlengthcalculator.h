@@ -45,8 +45,8 @@ protected:
 
 private:
     QmlJS::Document::MutablePtr m_doc;
-    quint32 m_offset;
-    quint32 m_length;
+    quint32 m_offset = 0;
+    quint32 m_length = 0;
 };
 
 } // namespace QmlDesigner

@@ -67,14 +67,14 @@ public:
     NodeMetaType metaType() const;
 
 private:
-    qint32 m_instanceId;
+    qint32 m_instanceId = -1;
     TypeName m_type;
-    qint32 m_majorNumber;
-    qint32 m_minorNumber;
+    qint32 m_majorNumber = -1;
+    qint32 m_minorNumber = -1;
     QString m_componentPath;
     QString m_nodeSource;
-    qint32 m_nodeSourceType;
-    qint32 m_metaType;
+    qint32 m_nodeSourceType = 0;
+    qint32 m_metaType = 0;
 };
 
 QDebug operator <<(QDebug debug, const InstanceContainer &command);

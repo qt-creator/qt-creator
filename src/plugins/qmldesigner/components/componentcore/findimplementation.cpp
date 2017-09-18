@@ -231,7 +231,7 @@ private:
 
     QString m_typeName;
     QString m_itemId;
-    const ObjectValue *m_typeValue;
+    const ObjectValue *m_typeValue = nullptr;
     bool m_insideObject = false;
 };
 

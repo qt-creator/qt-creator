@@ -65,9 +65,9 @@ public:
 private:
     QPointer<AbstractView> m_view;
     ModelNode m_targetNode;
-    bool m_showSelectionTools;
+    bool m_showSelectionTools = false;
     QPointF m_scenePosition;
-    bool m_toggled;
+    bool m_toggled = false;
 };
 
 } //QmlDesigner

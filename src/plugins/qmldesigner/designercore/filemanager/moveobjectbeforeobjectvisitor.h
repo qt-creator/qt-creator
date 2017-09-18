@@ -67,8 +67,8 @@ private:
     bool toEnd;
     quint32 beforeObjectLocation;
 
-    QmlJS::AST::UiObjectDefinition *movingObject;
-    QmlJS::AST::UiObjectDefinition *beforeObject;
+    QmlJS::AST::UiObjectDefinition *movingObject = nullptr;
+    QmlJS::AST::UiObjectDefinition *beforeObject = nullptr;
     ASTPath movingObjectParents;
 };
 

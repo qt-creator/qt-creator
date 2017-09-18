@@ -45,7 +45,7 @@ protected:
 
 private:
     QmlJS::Document::MutablePtr m_document;
-    quint32 m_location;
+    quint32 m_location = 0;
     QString m_text;
 };
 

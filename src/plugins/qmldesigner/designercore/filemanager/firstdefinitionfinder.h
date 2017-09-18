@@ -48,7 +48,7 @@ protected:
 private:
     QmlJS::Document::MutablePtr m_doc;
     quint32 m_offset;
-    QmlJS::AST::UiObjectDefinition *m_firstObjectDefinition;
+    QmlJS::AST::UiObjectDefinition *m_firstObjectDefinition = nullptr;
 
 };
 

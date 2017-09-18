@@ -193,7 +193,6 @@ private: //variables
     QHash<ModelNode, NodeInstance> m_nodeInstanceHash;
     QHash<ModelNode, QImage> m_statePreviewImage;
 
-    uint m_blockUpdates;
     QPointer<NodeInstanceServerInterface> m_nodeInstanceServer;
     QImage m_baseStatePreviewImage;
     QTime m_lastCrashTime;

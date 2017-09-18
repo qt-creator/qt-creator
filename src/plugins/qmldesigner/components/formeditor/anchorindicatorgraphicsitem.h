@@ -57,8 +57,8 @@ private:
     QPointF m_sourceAnchorLineSecondPoint;
     QPointF m_targetAnchorLineFirstPoint;
     QPointF m_targetAnchorLineSecondPoint;
-    AnchorLineType m_sourceAnchorLineType;
-    AnchorLineType m_targetAnchorLineType;
+    AnchorLineType m_sourceAnchorLineType = AnchorLineInvalid;
+    AnchorLineType m_targetAnchorLineType = AnchorLineInvalid;
     QRectF m_boundingRect;
 };
 

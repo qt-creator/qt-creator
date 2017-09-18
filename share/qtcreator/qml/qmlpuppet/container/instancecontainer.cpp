@@ -41,7 +41,6 @@ static TypeName properDelemitingOfType(const TypeName &typeName)
 }
 
 InstanceContainer::InstanceContainer()
-    : m_instanceId(-1), m_majorNumber(-1), m_minorNumber(-1)
 {
 }
 
