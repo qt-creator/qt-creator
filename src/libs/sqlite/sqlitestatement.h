@@ -84,26 +84,26 @@ protected:
     }
 
     template<typename... ValueType>
-    void bindValues(ValueType... values)
+    void bindValues(const ValueType&... values)
     {
         bindValuesByIndex(1, values...);
     }
 
     template<typename... ValueType>
-    void write(ValueType... values)
+    void write(const ValueType&... values)
     {
         bindValuesByIndex(1, values...);
         execute();
     }
 
     template<typename... ValueType>
-    void bindNameValues(ValueType... values)
+    void bindNameValues(const ValueType&... values)
     {
         bindValuesByName(values...);
     }
 
     template<typename... ValueType>
-    void writeNamed(ValueType... values)
+    void writeNamed(const ValueType&... values)
     {
         bindValuesByName(values...);
         execute();
@@ -420,26 +420,26 @@ private:
     }
 
     template<typename ValueType>
-    void bindValuesByIndex(int index, ValueType value)
+    void bindValuesByIndex(int index, const ValueType &value)
     {
         bind(index, value);
     }
 
     template<typename ValueType, typename... ValueTypes>
-    void bindValuesByIndex(int index, ValueType value, ValueTypes... values)
+    void bindValuesByIndex(int index, const ValueType &value, const ValueTypes&... values)
     {
         bind(index, value);
         bindValuesByIndex(index + 1, values...);
     }
 
     template<typename ValueType>
-    void bindValuesByName(Utils::SmallStringView name, ValueType value)
+    void bindValuesByName(Utils::SmallStringView name, const ValueType &value)
     {
        bind(bindingIndexForName(name), value);
     }
 
     template<typename ValueType, typename... ValueTypes>
-    void bindValuesByName(Utils::SmallStringView name, ValueType value, ValueTypes... values)
+    void bindValuesByName(Utils::SmallStringView name, const ValueType &value, const ValueTypes&... values)
     {
        bind(bindingIndexForName(name), value);
        bindValuesByName(values...);

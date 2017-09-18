@@ -188,7 +188,7 @@ void Statement::bind(int index, Utils::SmallStringView text)
                                        index,
                                        text.data(),
                                        int(text.size()),
-                                       SQLITE_TRANSIENT);
+                                       SQLITE_STATIC);
     checkForBindingError(resultCode);
 }
 
