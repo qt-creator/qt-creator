@@ -386,7 +386,7 @@ void SessionManager::addProject(Project *pro)
             m_instance, [pro]() { m_instance->projectDisplayNameChanged(pro); });
 
     emit m_instance->projectAdded(pro);
-    FolderNavigationWidgetFactory::addRootDirectory(
+    FolderNavigationWidgetFactory::insertRootDirectory(
         {"P." + pro->displayName() + "." + pro->projectFilePath().toString(),
          pro->displayName(),
          pro->projectFilePath().parentDir()});

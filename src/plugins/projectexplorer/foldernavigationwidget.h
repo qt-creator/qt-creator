@@ -63,7 +63,7 @@ public:
     void saveSettings(QSettings *settings, int position, QWidget *widget) override;
     void restoreSettings(QSettings *settings, int position, QWidget *widget) override;
 
-    static void addRootDirectory(const RootDirectory &directory);
+    static void insertRootDirectory(const RootDirectory &directory);
     static void removeRootDirectory(const QString &id);
 
 signals:
@@ -71,6 +71,8 @@ signals:
     void rootDirectoryRemoved(const QString &id);
 
 private:
+    static int rootIndex(const QString &id);
+    void updateProjectsDirectoryRoot();
     static QVector<RootDirectory> m_rootDirectories;
 };
 
@@ -89,7 +91,7 @@ public:
     void setAutoSynchronization(bool sync);
     void toggleAutoSynchronization();
 
-    void addRootDirectory(const FolderNavigationWidgetFactory::RootDirectory &directory);
+    void insertRootDirectory(const FolderNavigationWidgetFactory::RootDirectory &directory);
     void removeRootDirectory(const QString &id);
 
 protected:

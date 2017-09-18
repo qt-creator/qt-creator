@@ -146,6 +146,7 @@ signals:
     void allDocumentsRenamed(const QString &from, const QString &to);
     /// emitted if one document changed its name e.g. due to save as
     void documentRenamed(Core::IDocument *document, const QString &from, const QString &to);
+    void projectsDirectoryChanged(const Utils::FileName &directory);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *e);
