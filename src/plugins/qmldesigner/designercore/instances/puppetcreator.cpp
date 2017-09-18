@@ -565,8 +565,8 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
 
     process.waitForFinished();
 
-     qCInfo(puppetBuild) << Q_FUNC_INFO;
-     qCInfo(puppetBuild) << m_compileLog;
+    qCInfo(puppetBuild) << Q_FUNC_INFO;
+    qCInfo(puppetBuild) << m_compileLog;
 
     if (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0)
         return true;
