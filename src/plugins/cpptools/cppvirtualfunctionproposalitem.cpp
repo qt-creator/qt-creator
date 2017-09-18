@@ -23,34 +23,34 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "cppvirtualfunctionproposalitem.h"
 
-#include <cpptools/followsymbolinterface.h>
+#include <cppeditor/cppeditorconstants.h>
 
-namespace CppEditor {
-namespace Internal {
+#include <coreplugin/editormanager/editormanager.h>
 
-class VirtualFunctionAssistProvider;
+namespace CppTools {
 
-class FollowSymbolUnderCursor : public CppTools::FollowSymbolInterface
+VirtualFunctionProposalItem::VirtualFunctionProposalItem(
+        const TextEditor::TextEditorWidget::Link &link, bool openInSplit)
+    : m_link(link), m_openInSplit(openInSplit)
 {
-public:
-    FollowSymbolUnderCursor();
+}
 
-    Link findLink(const CppTools::CursorInEditor &data,
-                  bool resolveTarget,
-                  const CPlusPlus::Snapshot &snapshot,
-                  const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
-                  CppTools::SymbolFinder *symbolFinder,
-                  bool inNextSplit) override;
+void VirtualFunctionProposalItem::apply(TextEditor::TextDocumentManipulatorInterface &,
+                                        int) const
+{
+    if (!m_link.hasValidTarget())
+        return;
 
-    QSharedPointer<VirtualFunctionAssistProvider> virtualFunctionAssistProvider();
-    void setVirtualFunctionAssistProvider(
-            const QSharedPointer<VirtualFunctionAssistProvider> &provider);
+    Core::EditorManager::OpenEditorFlags flags = Core::EditorManager::NoFlags;
+    if (m_openInSplit)
+        flags |= Core::EditorManager::OpenInOtherSplit;
+    Core::EditorManager::openEditorAt(m_link.targetFileName,
+                                      m_link.targetLine,
+                                      m_link.targetColumn,
+                                      CppEditor::Constants::CPPEDITOR_ID,
+                                      flags);
+}
 
-private:
-    QSharedPointer<VirtualFunctionAssistProvider> m_virtualFunctionAssistProvider;
-};
-
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppTools

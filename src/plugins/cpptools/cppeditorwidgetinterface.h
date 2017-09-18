@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,30 +25,22 @@
 
 #pragma once
 
-#include "cppeditorwidgetinterface.h"
+#include "cpptools_global.h"
 
-#include <utils/fileutils.h>
+#include <texteditor/codeassist/assistenums.h>
 
-#include <QTextCursor>
+namespace TextEditor { class IAssistProvider; }
 
 namespace CppTools {
 
-class CursorInEditor
+class CPPTOOLS_EXPORT CppEditorWidgetInterface
 {
 public:
-    CursorInEditor(const QTextCursor &cursor, const Utils::FileName &filePath,
-                 CppEditorWidgetInterface *editorWidget = nullptr)
-        : m_cursor(cursor)
-        , m_filePath(filePath)
-        , m_editorWidget(editorWidget)
-    {}
-    CppEditorWidgetInterface *editorWidget() const { return m_editorWidget; }
-    const QTextCursor &cursor() const { return m_cursor; }
-    const Utils::FileName &filePath() const { return m_filePath; }
-private:
-    QTextCursor m_cursor;
-    Utils::FileName m_filePath;
-    CppEditorWidgetInterface *m_editorWidget = nullptr;
+    virtual void showPreProcessorWidget() = 0;
+    virtual void updateSemanticInfo() = 0;
+
+    virtual void invokeTextEditorWidgetAssist(TextEditor::AssistKind assistKind,
+                                              TextEditor::IAssistProvider *provider) = 0;
 };
 
 } // namespace CppTools

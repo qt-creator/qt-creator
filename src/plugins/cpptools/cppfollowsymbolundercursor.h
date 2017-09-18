@@ -25,26 +25,30 @@
 
 #pragma once
 
-#include <texteditor/texteditor.h>
-#include <texteditor/codeassist/assistproposalitem.h>
+#include "followsymbolinterface.h"
 
-namespace CppEditor {
-namespace Internal {
+namespace CppTools {
 
-class VirtualFunctionProposalItem final : public TextEditor::AssistProposalItem
+class VirtualFunctionAssistProvider;
+
+class CPPTOOLS_EXPORT FollowSymbolUnderCursor : public CppTools::FollowSymbolInterface
 {
 public:
-    VirtualFunctionProposalItem(const TextEditor::TextEditorWidget::Link &link,
-                                bool openInSplit = true);
-    ~VirtualFunctionProposalItem() Q_DECL_NOEXCEPT {}
-    void apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
-               int basePosition) const override;
-    TextEditor::TextEditorWidget::Link link() const { return m_link; } // Exposed for tests
+    FollowSymbolUnderCursor();
+
+    Link findLink(const CppTools::CursorInEditor &data,
+                  bool resolveTarget,
+                  const CPlusPlus::Snapshot &snapshot,
+                  const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+                  CppTools::SymbolFinder *symbolFinder,
+                  bool inNextSplit) override;
+
+    QSharedPointer<VirtualFunctionAssistProvider> virtualFunctionAssistProvider();
+    void setVirtualFunctionAssistProvider(
+            const QSharedPointer<VirtualFunctionAssistProvider> &provider);
 
 private:
-    TextEditor::TextEditorWidget::Link m_link;
-    bool m_openInSplit;
+    QSharedPointer<VirtualFunctionAssistProvider> m_virtualFunctionAssistProvider;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppTools

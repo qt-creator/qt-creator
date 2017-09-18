@@ -49,7 +49,7 @@ public:
     virtual CppCompletionAssistProvider *completionAssistProvider() = 0;
     virtual BaseEditorDocumentProcessor *editorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) = 0;
-    virtual FollowSymbolInterface *followSymbolInterface() = 0;
+    virtual FollowSymbolInterface &followSymbolInterface() = 0;
 };
 
 class CPPTOOLS_EXPORT ModelManagerSupportProvider

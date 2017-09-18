@@ -30,7 +30,6 @@
 #include "cppeditorconstants.h"
 #include "cppeditordocument.h"
 #include "cppeditorplugin.h"
-#include "cppfollowsymbolundercursor.h"
 #include "cppfunctiondecldeflink.h"
 #include "cpphighlighter.h"
 #include "cpplocalrenaming.h"
@@ -63,6 +62,7 @@
 #include <cpptools/cpptoolssettings.h>
 #include <cpptools/cppworkingcopy.h>
 #include <cpptools/refactoringengineinterface.h>
+#include <cpptools/followsymbolinterface.h>
 #include <cpptools/symbolfinder.h>
 
 #include <texteditor/behaviorsettings.h>
@@ -130,7 +130,6 @@ public:
     CppLocalRenaming m_localRenaming;
     CppUseSelectionsUpdater m_useSelectionsUpdater;
     CppSelectionChanger m_cppSelectionChanger;
-    FollowSymbolUnderCursor m_builtinFollowSymbol;
     CppRefactoringEngine m_builtinRefactoringEngine;
 };
 
@@ -650,7 +649,7 @@ CppEditorWidget::Link CppEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     const Utils::FileName &filePath = textDocument()->filePath();
 
-    return followSymbolInterface()->findLink(CppTools::CursorInEditor{cursor, filePath, this},
+    return followSymbolInterface().findLink(CppTools::CursorInEditor{cursor, filePath, this},
                                              resolveTarget,
                                              d->m_modelManager->snapshot(),
                                              d->m_lastSemanticInfo.doc,
@@ -690,12 +689,9 @@ RefactoringEngineInterface *CppEditorWidget::refactoringEngine() const
                   : static_cast<RefactoringEngineInterface *>(&d->m_builtinRefactoringEngine);
 }
 
-CppTools::FollowSymbolInterface *CppEditorWidget::followSymbolInterface() const
+CppTools::FollowSymbolInterface &CppEditorWidget::followSymbolInterface() const
 {
-    CppTools::FollowSymbolInterface *followSymbol
-        = CppTools::CppModelManager::instance()->followSymbolInterface();
-    return followSymbol ? followSymbol
-                        : static_cast<CppTools::FollowSymbolInterface *>(&d->m_builtinFollowSymbol);
+    return CppTools::CppModelManager::instance()->followSymbolInterface();
 }
 
 bool CppEditorWidget::isSemanticInfoValidExceptLocalUses() const
@@ -1039,6 +1035,12 @@ void CppEditorWidget::showPreProcessorWidget()
         cppEditorDocument()->setExtraPreprocessorDirectives(extraDirectives);
         cppEditorDocument()->scheduleProcessDocument();
     }
+}
+
+void CppEditorWidget::invokeTextEditorWidgetAssist(TextEditor::AssistKind assistKind,
+                                                   TextEditor::IAssistProvider *provider)
+{
+    invokeAssist(assistKind, provider);
 }
 
 } // namespace Internal

@@ -42,11 +42,10 @@ QT_END_NAMESPACE
 
 namespace Core { class IDocument; }
 namespace TextEditor { class TextEditorWidget; }
+namespace CppTools { class FollowSymbolInterface; }
 
 namespace ClangCodeModel {
 namespace Internal {
-
-class ClangFollowSymbol;
 
 class ModelManagerSupportClang:
         public QObject,
@@ -61,7 +60,7 @@ public:
     CppTools::CppCompletionAssistProvider *completionAssistProvider() override;
     CppTools::BaseEditorDocumentProcessor *editorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) override;
-    CppTools::FollowSymbolInterface *followSymbolInterface() override;
+    CppTools::FollowSymbolInterface &followSymbolInterface() override;
 
     IpcCommunicator &ipcCommunicator();
     QString dummyUiHeaderOnDiskDirPath() const;
@@ -105,7 +104,7 @@ private:
     UiHeaderOnDiskManager m_uiHeaderOnDiskManager;
     IpcCommunicator m_ipcCommunicator;
     ClangCompletionAssistProvider m_completionAssistProvider;
-    std::unique_ptr<ClangFollowSymbol> m_followSymbol;
+    std::unique_ptr<CppTools::FollowSymbolInterface> m_followSymbol;
 };
 
 class ModelManagerSupportProviderClang : public CppTools::ModelManagerSupportProvider

@@ -31,6 +31,7 @@
 #include "clangfollowsymbol.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <cpptools/cppfollowsymbolundercursor.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/editordocumenthandle.h>
 #include <cpptools/projectinfo.h>
@@ -72,6 +73,8 @@ ModelManagerSupportClang::ModelManagerSupportClang()
 
     if (useClangFollowSymbol())
         m_followSymbol.reset(new ClangFollowSymbol);
+    else
+        m_followSymbol.reset(new CppTools::FollowSymbolUnderCursor);
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::editorOpened,
@@ -106,9 +109,9 @@ CppTools::CppCompletionAssistProvider *ModelManagerSupportClang::completionAssis
     return &m_completionAssistProvider;
 }
 
-CppTools::FollowSymbolInterface *ModelManagerSupportClang::followSymbolInterface()
+CppTools::FollowSymbolInterface &ModelManagerSupportClang::followSymbolInterface()
 {
-    return m_followSymbol.get();
+    return *m_followSymbol;
 }
 
 CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::editorDocumentProcessor(

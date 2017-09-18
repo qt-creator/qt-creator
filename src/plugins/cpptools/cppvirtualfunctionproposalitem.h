@@ -23,32 +23,28 @@
 **
 ****************************************************************************/
 
-#include "cppvirtualfunctionproposalitem.h"
+#pragma once
 
-#include "cppeditorconstants.h"
+#include "cpptools_global.h"
 
-#include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/codeassist/assistproposalitem.h>
 
-using namespace CppEditor::Internal;
+namespace CppTools {
 
-VirtualFunctionProposalItem::VirtualFunctionProposalItem(
-        const TextEditor::TextEditorWidget::Link &link, bool openInSplit)
-    : m_link(link), m_openInSplit(openInSplit)
+class CPPTOOLS_EXPORT VirtualFunctionProposalItem final : public TextEditor::AssistProposalItem
 {
-}
+public:
+    VirtualFunctionProposalItem(const TextEditor::TextEditorWidget::Link &link,
+                                bool openInSplit = true);
+    ~VirtualFunctionProposalItem() Q_DECL_NOEXCEPT {}
+    void apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
+               int basePosition) const override;
+    TextEditor::TextEditorWidget::Link link() const { return m_link; } // Exposed for tests
 
-void VirtualFunctionProposalItem::apply(TextEditor::TextDocumentManipulatorInterface &,
-                                        int) const
-{
-    if (!m_link.hasValidTarget())
-        return;
+private:
+    TextEditor::TextEditorWidget::Link m_link;
+    bool m_openInSplit;
+};
 
-    Core::EditorManager::OpenEditorFlags flags = Core::EditorManager::NoFlags;
-    if (m_openInSplit)
-        flags |= Core::EditorManager::OpenInOtherSplit;
-    Core::EditorManager::openEditorAt(m_link.targetFileName,
-                                      m_link.targetLine,
-                                      m_link.targetColumn,
-                                      CppEditor::Constants::CPPEDITOR_ID,
-                                      flags);
-}
+} // namespace CppEditor

@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #include "cppfollowsymbolundercursor.h"
-#include "cppeditorwidget.h"
-#include "cppeditordocument.h"
 #include "cppvirtualfunctionassistprovider.h"
+#include "cppmodelmanager.h"
+#include "functionutils.h"
+#include "cpptoolsreuse.h"
+#include "symbolfinder.h"
 
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/BackwardsScanner.h>
@@ -34,10 +36,6 @@
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/SimpleLexer.h>
 #include <cplusplus/TypeOfExpression.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/functionutils.h>
-#include <cpptools/cpptoolsreuse.h>
-#include <cpptools/symbolfinder.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/convenience.h>
 #include <utils/qtcassert.h>
@@ -46,12 +44,11 @@
 #include <QSet>
 
 using namespace CPlusPlus;
-using namespace CppTools;
-using namespace CppEditor;
-using namespace CppEditor::Internal;
 using namespace TextEditor;
 
 typedef TextEditorWidget::Link Link;
+
+namespace CppTools {
 
 namespace {
 
@@ -299,9 +296,9 @@ inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolvedSymbo
     return result;
 }
 
-CppEditorWidget::Link attemptFuncDeclDef(const QTextCursor &cursor, Snapshot snapshot,
-                                         const Document::Ptr &document,
-                                         SymbolFinder *symbolFinder)
+Link attemptFuncDeclDef(const QTextCursor &cursor, Snapshot snapshot,
+                        const Document::Ptr &document,
+                        SymbolFinder *symbolFinder)
 {
     Link result;
     QTC_ASSERT(document, return result);
@@ -610,11 +607,11 @@ Link FollowSymbolUnderCursor::findLink(
         }
     }
 
-    CppEditorWidget *editorWidget = static_cast<CppEditorWidget *>(data.editorWidget());
+    CppEditorWidgetInterface *editorWidget = data.editorWidget();
     if (!editorWidget)
         return link;
     // Now we prefer the doc from the snapshot with macros expanded.
-    Document::Ptr doc = snapshot.document(editorWidget->textDocument()->filePath());
+    Document::Ptr doc = snapshot.document(data.filePath());
     if (!doc) {
         doc = documentFromSemanticInfo;
         if (!doc)
@@ -697,7 +694,7 @@ Link FollowSymbolUnderCursor::findLink(
             if (Symbol *d = r.declaration()) {
                 if (d->isDeclaration() || d->isFunction()) {
                     const QString fileName = QString::fromUtf8(d->fileName(), d->fileNameLength());
-                    if (editorWidget->textDocument()->filePath().toString() == fileName) {
+                    if (data.filePath().toString() == fileName) {
                         if (unsigned(lineNumber) == d->line()
                             && unsigned(positionInBlock) >= d->column()) { // TODO: check the end
                             result = r; // take the symbol under cursor.
@@ -706,8 +703,8 @@ Link FollowSymbolUnderCursor::findLink(
                     }
                 } else if (d->isUsingDeclaration()) {
                     int tokenBeginLineNumber = 0, tokenBeginColumnNumber = 0;
-                    editorWidget->convertPosition(beginOfToken, &tokenBeginLineNumber,
-                                              &tokenBeginColumnNumber);
+                    TextEditor::Convenience::convertPosition(document, beginOfToken, &tokenBeginLineNumber,
+                                                             &tokenBeginColumnNumber);
                     if (unsigned(tokenBeginLineNumber) > d->line()
                             || (unsigned(tokenBeginLineNumber) == d->line()
                                 && unsigned(tokenBeginColumnNumber) > d->column())) {
@@ -736,7 +733,8 @@ Link FollowSymbolUnderCursor::findLink(
                     params.openInNextSplit = inNextSplit;
 
                     if (m_virtualFunctionAssistProvider->configure(params)) {
-                        editorWidget->invokeAssist(FollowSymbol, m_virtualFunctionAssistProvider.data());
+                        editorWidget->invokeTextEditorWidgetAssist(
+                                    FollowSymbol,m_virtualFunctionAssistProvider.data());
                         m_virtualFunctionAssistProvider->clearParams();
                     }
 
@@ -795,3 +793,5 @@ void FollowSymbolUnderCursor::setVirtualFunctionAssistProvider(
 {
     m_virtualFunctionAssistProvider = provider;
 }
+
+} // namespace CppTools

@@ -153,7 +153,7 @@ public:
     CppCompletionAssistProvider *completionAssistProvider() const;
     BaseEditorDocumentProcessor *editorDocumentProcessor(
         TextEditor::TextDocument *baseTextDocument) const;
-    FollowSymbolInterface *followSymbolInterface() const;
+    FollowSymbolInterface &followSymbolInterface() const;
 
     void setIndexingSupport(CppIndexingSupport *indexingSupport);
     CppIndexingSupport *indexingSupport();

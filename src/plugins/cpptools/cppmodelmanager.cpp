@@ -275,7 +275,7 @@ RefactoringEngineInterface *CppModelManager::refactoringEngine()
     return instance()->d->m_refactoringEngine;
 }
 
-FollowSymbolInterface *CppModelManager::followSymbolInterface() const
+FollowSymbolInterface &CppModelManager::followSymbolInterface() const
 {
     return d->m_activeModelManagerSupport->followSymbolInterface();
 }

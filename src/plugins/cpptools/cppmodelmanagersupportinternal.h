@@ -43,10 +43,11 @@ public:
     CppCompletionAssistProvider *completionAssistProvider() final;
     BaseEditorDocumentProcessor *editorDocumentProcessor(
             TextEditor::TextDocument *baseTextDocument) final;
-    FollowSymbolInterface *followSymbolInterface() final;
+    FollowSymbolInterface &followSymbolInterface() final;
 
 private:
     QScopedPointer<CppCompletionAssistProvider> m_completionAssistProvider;
+    QScopedPointer<FollowSymbolInterface> m_followSymbol;
 };
 
 class ModelManagerSupportProviderInternal : public ModelManagerSupportProvider

@@ -29,11 +29,13 @@ HEADERS += \
     cppcompletionassistprovider.h \
     cppcursorinfo.h \
     cppcurrentdocumentfilter.h \
-    cppeditoroutline.h \
     cppdoxygen.h \
+    cppeditoroutline.h \
+    cppeditorwidgetinterface.h \
     cppfileiterationorder.h \
     cppfilesettingspage.h \
     cppfindreferences.h \
+    cppfollowsymbolundercursor.h \
     cppfunctionsfilter.h \
     cppincludesfilter.h \
     cppindexingsupport.h \
@@ -60,6 +62,8 @@ HEADERS += \
     cpptoolsplugin.h \
     cpptoolsreuse.h \
     cpptoolssettings.h \
+    cppvirtualfunctionassistprovider.h \
+    cppvirtualfunctionproposalitem.h \
     cppworkingcopy.h \
     doxygengenerator.h \
     editordocumenthandle.h \
@@ -123,6 +127,7 @@ SOURCES += \
     cppfileiterationorder.cpp \
     cppfilesettingspage.cpp \
     cppfindreferences.cpp \
+    cppfollowsymbolundercursor.cpp \
     cppfunctionsfilter.cpp \
     cppincludesfilter.cpp \
     cppindexingsupport.cpp \
@@ -145,6 +150,8 @@ SOURCES += \
     cpptoolsplugin.cpp \
     cpptoolsreuse.cpp \
     cpptoolssettings.cpp \
+    cppvirtualfunctionassistprovider.cpp \
+    cppvirtualfunctionproposalitem.cpp \
     cppworkingcopy.cpp \
     doxygengenerator.cpp \
     editordocumenthandle.cpp \
