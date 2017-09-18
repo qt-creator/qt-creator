@@ -59,8 +59,7 @@ namespace Internal {
 static FolderNavigationWidgetFactory *m_instance = nullptr;
 
 QVector<FolderNavigationWidgetFactory::DirectoryEntry>
-    FolderNavigationWidgetFactory::m_rootDirectories = {
-        {FolderNavigationWidget::tr("Computer"), Utils::FileName()}};
+    FolderNavigationWidgetFactory::m_rootDirectories;
 
 // FolderNavigationModel: Shows path as tooltip.
 class FolderNavigationModel : public QFileSystemModel
@@ -344,6 +343,7 @@ FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
     setPriority(400);
     setId("File System");
     setActivationSequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Y") : tr("Alt+Y")));
+    addRootDirectory(FolderNavigationWidget::tr("Computer"), Utils::FileName());
 }
 
 Core::NavigationView FolderNavigationWidgetFactory::createWidget()
