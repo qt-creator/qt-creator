@@ -113,14 +113,11 @@ QList<EnvironmentItem> EnvironmentItem::fromStringList(const QStringList &list)
 
 QStringList EnvironmentItem::toStringList(const QList<EnvironmentItem> &list)
 {
-    QStringList result;
-    for (const EnvironmentItem &item : list) {
+    return Utils::transform(list, [](const EnvironmentItem &item) {
         if (item.operation == EnvironmentItem::Unset)
-            result << QString(item.name);
-        else
-            result << QString(item.name + '=' + item.value);
-    }
-    return result;
+            return QString(item.name);
+        return QString(item.name + '=' + item.value);
+    });
 }
 
 static QString expand(const Environment *e, QString value)
@@ -242,19 +239,15 @@ Environment::Environment(const QStringList &env, OsType osType) : m_osType(osTyp
 QStringList Environment::toStringList() const
 {
     QStringList result;
-    const QMap<QString, QString>::const_iterator end = m_values.constEnd();
-    for (QMap<QString, QString>::const_iterator it = m_values.constBegin(); it != end; ++it) {
-        const QString entry = it.key() + '=' + it.value();
-        result.append(entry);
-    }
+    for (auto it = m_values.constBegin(); it != m_values.constEnd(); ++it)
+        result.append(it.key() + '=' + it.value());
     return result;
 }
 
 QProcessEnvironment Environment::toProcessEnvironment() const
 {
     QProcessEnvironment result;
-    const QMap<QString, QString>::const_iterator end = m_values.constEnd();
-    for (QMap<QString, QString>::const_iterator it = m_values.constBegin(); it != end; ++it)
+    for (auto it = m_values.constBegin(); it != m_values.constEnd(); ++it)
         result.insert(it.key(), it.value());
     return result;
 }
