@@ -124,7 +124,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     chooser->setHistoryCompleter(QLatin1String("Qt.WritableExamplesDir.History"));
     QSettings *settings = ICore::settings();
     chooser->setPath(settings->value(QString::fromLatin1(C_FALLBACK_ROOT),
-                                     DocumentManager::projectsDirectory()).toString());
+                                     DocumentManager::projectsDirectory().toString()).toString());
     lay->addWidget(txt, 1, 0);
     lay->addWidget(chooser, 1, 1);
     enum { Copy = QDialog::Accepted + 1, Keep = QDialog::Accepted + 2 };

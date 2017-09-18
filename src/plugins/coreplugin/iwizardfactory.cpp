@@ -33,6 +33,7 @@
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/wizard.h>
 
@@ -255,9 +256,9 @@ QString IWizardFactory::runPath(const QString &defaultPath)
             // Project wizards: Check for projects directory or
             // use last visited directory of file dialog. Never start
             // at current.
-            path = DocumentManager::useProjectsDirectory() ?
-                       DocumentManager::projectsDirectory() :
-                       DocumentManager::fileDialogLastVisitedDirectory();
+            path = DocumentManager::useProjectsDirectory()
+                       ? DocumentManager::projectsDirectory().toString()
+                       : DocumentManager::fileDialogLastVisitedDirectory();
             break;
         default:
             path = DocumentManager::fileDialogInitialDirectory();

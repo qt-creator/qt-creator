@@ -520,7 +520,7 @@ QString GerritPlugin::findLocalRepository(QString project, const QString &branch
     } // for repositories
     // No match, do we have  a projects folder?
     if (DocumentManager::useProjectsDirectory())
-        return DocumentManager::projectsDirectory();
+        return DocumentManager::projectsDirectory().toString();
 
     return QDir::currentPath();
 }

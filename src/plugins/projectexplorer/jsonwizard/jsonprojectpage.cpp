@@ -28,6 +28,7 @@
 
 #include <coreplugin/documentmanager.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -51,7 +52,7 @@ bool JsonProjectPage::validatePage()
 {
     if (isComplete() && useAsDefaultPath()) {
         // Store the path as default path for new projects if desired.
-        Core::DocumentManager::setProjectsDirectory(path());
+        Core::DocumentManager::setProjectsDirectory(Utils::FileName::fromString(path()));
         Core::DocumentManager::setUseProjectsDirectory(true);
     }
 

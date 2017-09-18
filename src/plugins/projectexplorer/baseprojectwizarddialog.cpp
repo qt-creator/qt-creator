@@ -26,6 +26,7 @@
 #include "baseprojectwizarddialog.h"
 
 #include <coreplugin/documentmanager.h>
+#include <utils/fileutils.h>
 #include <utils/projectintropage.h>
 
 #include <QDir>
@@ -144,7 +145,7 @@ void BaseProjectWizardDialog::slotAccepted()
 {
     if (d->introPage->useAsDefaultPath()) {
         // Store the path as default path for new projects if desired.
-        Core::DocumentManager::setProjectsDirectory(path());
+        Core::DocumentManager::setProjectsDirectory(Utils::FileName::fromString(path()));
         Core::DocumentManager::setUseProjectsDirectory(true);
     }
 }

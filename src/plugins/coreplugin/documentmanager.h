@@ -128,8 +128,8 @@ public:
     static bool useProjectsDirectory();
     static void setUseProjectsDirectory(bool);
 
-    static QString projectsDirectory();
-    static void setProjectsDirectory(const QString &);
+    static Utils::FileName projectsDirectory();
+    static void setProjectsDirectory(const Utils::FileName &directory);
 
     static QString buildDirectory();
     static void setBuildDirectory(const QString &directory);

@@ -159,7 +159,7 @@ public:
     bool m_checkOnFocusChange = false;
     QString m_lastVisitedDirectory;
     QString m_defaultLocationForNewFiles;
-    QString m_projectsDirectory;
+    FileName m_projectsDirectory;
     bool m_useProjectsDirectory;
     QString m_buildDirectory;
     // When we are calling into an IDocument
@@ -238,7 +238,7 @@ DocumentManager::DocumentManager(QObject *parent)
     readSettings();
 
     if (d->m_useProjectsDirectory)
-        setFileDialogLastVisitedDirectory(d->m_projectsDirectory);
+        setFileDialogLastVisitedDirectory(d->m_projectsDirectory.toString());
 }
 
 DocumentManager::~DocumentManager()
@@ -1260,7 +1260,7 @@ void DocumentManager::saveSettings()
     s->setValue(QLatin1String(editorsKeyC), recentEditorIds);
     s->endGroup();
     s->beginGroup(QLatin1String(directoryGroupC));
-    s->setValue(QLatin1String(projectDirectoryKeyC), d->m_projectsDirectory);
+    s->setValue(QLatin1String(projectDirectoryKeyC), d->m_projectsDirectory.toString());
     s->setValue(QLatin1String(useProjectDirectoryKeyC), d->m_useProjectsDirectory);
     s->setValue(QLatin1String(buildDirectoryKeyC), d->m_buildDirectory);
     s->endGroup();
@@ -1286,12 +1286,12 @@ void readSettings()
     }
 
     s->beginGroup(QLatin1String(directoryGroupC));
-    const QString settingsProjectDir = s->value(QLatin1String(projectDirectoryKeyC),
-                                                QString()).toString();
-    if (!settingsProjectDir.isEmpty() && QFileInfo(settingsProjectDir).isDir())
+    const FileName settingsProjectDir = FileName::fromString(s->value(QLatin1String(projectDirectoryKeyC),
+                                                QString()).toString());
+    if (!settingsProjectDir.isEmpty() && settingsProjectDir.toFileInfo().isDir())
         d->m_projectsDirectory = settingsProjectDir;
     else
-        d->m_projectsDirectory = PathChooser::homePath();
+        d->m_projectsDirectory = FileName::fromString(PathChooser::homePath());
     d->m_useProjectsDirectory = s->value(QLatin1String(useProjectDirectoryKeyC),
                                          d->m_useProjectsDirectory).toBool();
 
@@ -1351,7 +1351,7 @@ void DocumentManager::setDefaultLocationForNewFiles(const QString &location)
   \sa setProjectsDirectory, setUseProjectsDirectory
 */
 
-QString DocumentManager::projectsDirectory()
+FileName DocumentManager::projectsDirectory()
 {
     return d->m_projectsDirectory;
 }
@@ -1363,9 +1363,9 @@ QString DocumentManager::projectsDirectory()
   \sa projectsDirectory, useProjectsDirectory
 */
 
-void DocumentManager::setProjectsDirectory(const QString &dir)
+void DocumentManager::setProjectsDirectory(const FileName &directory)
 {
-    d->m_projectsDirectory = dir;
+    d->m_projectsDirectory = directory;
 }
 
 /*!

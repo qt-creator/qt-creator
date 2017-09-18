@@ -184,7 +184,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     expander->registerVariable("CurrentTime:Locale", tr("The current time (Locale)."),
                                []() { return QTime::currentTime().toString(Qt::DefaultLocaleShortDate); });
     expander->registerVariable("Config:DefaultProjectDirectory", tr("The configured default directory for projects."),
-                               []() { return DocumentManager::projectsDirectory(); });
+                               []() { return DocumentManager::projectsDirectory().toString(); });
     expander->registerVariable("Config:LastFileDialogDirectory", tr("The directory last visited in a file dialog."),
                                []() { return DocumentManager::fileDialogLastVisitedDirectory(); });
     expander->registerVariable("HostOs:isWindows",
