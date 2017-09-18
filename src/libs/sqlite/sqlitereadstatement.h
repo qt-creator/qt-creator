@@ -29,28 +29,28 @@
 
 namespace Sqlite {
 
-class SQLITE_EXPORT SqliteReadStatement final : private SqliteStatement
+class SQLITE_EXPORT ReadStatement final : private Statement
 {
 public:
-    explicit SqliteReadStatement(Utils::SmallStringView sqlStatement, SqliteDatabase &database);
+    explicit ReadStatement(Utils::SmallStringView sqlStatement, Database &database);
 
-    using SqliteStatement::next;
-    using SqliteStatement::reset;
-    using SqliteStatement::value;
-    using SqliteStatement::structValues;
-    using SqliteStatement::tupleValues;
-    using SqliteStatement::text;
-    using SqliteStatement::values;
-    using SqliteStatement::columnCount;
-    using SqliteStatement::columnNames;
-    using SqliteStatement::bind;
-    using SqliteStatement::bindValues;
-    using SqliteStatement::bindNameValues;
-    using SqliteStatement::bindingIndexForName;
-    using SqliteStatement::setBindingColumnNames;
-    using SqliteStatement::bindingColumnNames;
-    using SqliteStatement::toValue;
-    using SqliteStatement::database;
+    using Statement::next;
+    using Statement::reset;
+    using Statement::value;
+    using Statement::structValues;
+    using Statement::tupleValues;
+    using Statement::text;
+    using Statement::values;
+    using Statement::columnCount;
+    using Statement::columnNames;
+    using Statement::bind;
+    using Statement::bindValues;
+    using Statement::bindNameValues;
+    using Statement::bindingIndexForName;
+    using Statement::setBindingColumnNames;
+    using Statement::bindingColumnNames;
+    using Statement::toValue;
+    using Statement::database;
 
 protected:
     void checkIsReadOnlyStatement();

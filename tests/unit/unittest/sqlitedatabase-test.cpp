@@ -41,7 +41,7 @@ using testing::Contains;
 using Sqlite::ColumnType;
 using Sqlite::JournalMode;
 using Sqlite::OpenMode;
-using Sqlite::SqliteTable;
+using Sqlite::Table;
 
 class SqliteDatabase : public ::testing::Test
 {
@@ -51,7 +51,7 @@ protected:
 
     SpyDummy spyDummy;
     QString databaseFilePath = QStringLiteral(":memory:");
-    Sqlite::SqliteDatabase database;
+    Sqlite::Database database;
 };
 
 TEST_F(SqliteDatabase, SetDatabaseFilePath)

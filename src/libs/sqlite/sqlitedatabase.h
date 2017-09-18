@@ -35,7 +35,7 @@
 
 namespace Sqlite {
 
-class SQLITE_EXPORT SqliteDatabase
+class SQLITE_EXPORT Database
 {
     template <typename Database>
     friend class SqliteAbstractTransaction;
@@ -43,14 +43,14 @@ class SQLITE_EXPORT SqliteDatabase
     friend class SqliteBackend;
 
 public:
-    SqliteDatabase();
-    SqliteDatabase(Utils::PathString &&databaseFilePath);
+    Database();
+    Database(Utils::PathString &&databaseFilePath);
 
-    SqliteDatabase(const SqliteDatabase &) = delete;
-    bool operator=(const SqliteDatabase &) = delete;
+    Database(const Database &) = delete;
+    bool operator=(const Database &) = delete;
 
-    SqliteDatabase(SqliteDatabase &&) = delete;
-    bool operator=(SqliteDatabase &&) = delete;
+    Database(Database &&) = delete;
+    bool operator=(Database &&) = delete;
 
     void open();
     void open(Utils::PathString &&databaseFilePath);
@@ -58,8 +58,8 @@ public:
 
     bool isOpen() const;
 
-    SqliteTable &addTable();
-    const std::vector<SqliteTable> &tables() const;
+    Table &addTable();
+    const std::vector<Table> &tables() const;
 
     void setDatabaseFilePath(Utils::PathString &&databaseFilePath);
     const Utils::PathString &databaseFilePath() const;
@@ -75,15 +75,15 @@ public:
 
     void execute(Utils::SmallStringView sqlStatement);
 
-    SqliteDatabaseBackend &backend();
+    DatabaseBackend &backend();
 
 private:
     void initializeTables();
 
 
 private:
-    SqliteDatabaseBackend m_databaseBackend;
-    std::vector<SqliteTable> m_sqliteTables;
+    DatabaseBackend m_databaseBackend;
+    std::vector<Table> m_sqliteTables;
     Utils::PathString m_databaseFilePath;
     JournalMode m_journalMode = JournalMode::Wal;
     OpenMode m_openMode = OpenMode::ReadWrite;

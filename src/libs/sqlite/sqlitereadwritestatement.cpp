@@ -27,9 +27,9 @@
 
 namespace Sqlite {
 
-SqliteReadWriteStatement::SqliteReadWriteStatement(Utils::SmallStringView sqlStatement,
-                                                   SqliteDatabase &database)
-    : SqliteStatement(sqlStatement, database)
+ReadWriteStatement::ReadWriteStatement(Utils::SmallStringView sqlStatement,
+                                       Database &database)
+    : Statement(sqlStatement, database)
 {
 }
 

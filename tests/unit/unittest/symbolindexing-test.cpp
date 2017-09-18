@@ -35,8 +35,8 @@
 
 namespace {
 
-using Sqlite::SqliteDatabase;
-using Sqlite::SqliteReadStatement;
+using Sqlite::Database;
+using Sqlite::ReadStatement;
 using ClangBackEnd::SymbolIndexer;
 using ClangBackEnd::SymbolsCollector;
 using ClangBackEnd::SymbolStorage;
@@ -49,7 +49,7 @@ using ClangRefactoring::QuerySqliteStatementFactory;
 using Utils::PathString;
 using SL = ClangRefactoring::SourceLocations;
 
-using StatementFactory = QuerySqliteStatementFactory<SqliteDatabase, SqliteReadStatement>;
+using StatementFactory = QuerySqliteStatementFactory<Database, ReadStatement>;
 using Query = SymbolQuery<StatementFactory>;
 
 MATCHER_P3(IsLocation, sourceId, line, column,

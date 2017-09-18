@@ -29,33 +29,33 @@
 
 namespace Sqlite {
 
-class SQLITE_EXPORT SqliteReadWriteStatement final : private SqliteStatement
+class SQLITE_EXPORT ReadWriteStatement final : private Statement
 {
-    friend class SqliteDatabaseBackend;
+    friend class DatabaseBackend;
 
 public:
-    SqliteReadWriteStatement(Utils::SmallStringView sqlStatement, SqliteDatabase &database);
+    ReadWriteStatement(Utils::SmallStringView sqlStatement, Database &database);
 
-    using SqliteStatement::next;
-    using SqliteStatement::execute;
-    using SqliteStatement::reset;
-    using SqliteStatement::bind;
-    using SqliteStatement::bindValues;
-    using SqliteStatement::bindNameValues;
-    using SqliteStatement::bindingIndexForName;
-    using SqliteStatement::setBindingColumnNames;
-    using SqliteStatement::bindingColumnNames;
-    using SqliteStatement::value;
-    using SqliteStatement::text;
-    using SqliteStatement::values;
-    using SqliteStatement::structValues;
-    using SqliteStatement::tupleValues;
-    using SqliteStatement::columnCount;
-    using SqliteStatement::columnNames;
-    using SqliteStatement::toValue;
-    using SqliteStatement::database;
-    using SqliteStatement::write;
-    using SqliteStatement::writeNamed;
+    using Statement::next;
+    using Statement::execute;
+    using Statement::reset;
+    using Statement::bind;
+    using Statement::bindValues;
+    using Statement::bindNameValues;
+    using Statement::bindingIndexForName;
+    using Statement::setBindingColumnNames;
+    using Statement::bindingColumnNames;
+    using Statement::value;
+    using Statement::text;
+    using Statement::values;
+    using Statement::structValues;
+    using Statement::tupleValues;
+    using Statement::columnCount;
+    using Statement::columnNames;
+    using Statement::toValue;
+    using Statement::database;
+    using Statement::write;
+    using Statement::writeNamed;
 };
 
 } // namespace Sqlite

@@ -101,7 +101,7 @@ void CreateTableSqlStatementBuilder::bindColumnDefinitions() const
 {
     Utils::SmallStringVector columnDefinitionStrings;
 
-    for (const SqliteColumn &columns : m_columns) {
+    for (const Column &columns : m_columns) {
         Utils::SmallString columnDefinitionString = {columns.name(), " ", columns.typeString()};
 
         switch (columns.constraint()) {

@@ -29,10 +29,10 @@
 
 namespace Sqlite {
 
-class SQLITE_EXPORT SqlStatementBuilderException : public SqliteException
+class SQLITE_EXPORT SqlStatementBuilderException : public Exception
 {
 public:
-    using SqliteException::SqliteException;
+    using Exception::Exception;
 };
 
 } // namespace Sqlite

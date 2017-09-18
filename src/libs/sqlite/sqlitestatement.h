@@ -43,13 +43,13 @@ struct sqlite3;
 
 namespace Sqlite {
 
-class SqliteDatabase;
-class SqliteDatabaseBackend;
+class Database;
+class DatabaseBackend;
 
-class SQLITE_EXPORT SqliteStatement
+class SQLITE_EXPORT Statement
 {
 protected:
-    explicit SqliteStatement(Utils::SmallStringView sqlStatement, SqliteDatabase &database);
+    explicit Statement(Utils::SmallStringView sqlStatement, Database &database);
 
     static void deleteCompiledStatement(sqlite3_stmt *m_compiledStatement);
 
@@ -344,7 +344,7 @@ protected:
     }
 
     template <typename Type>
-    static Type toValue(Utils::SmallStringView sqlStatement, SqliteDatabase &database);
+    static Type toValue(Utils::SmallStringView sqlStatement, Database &database);
 
     void prepare(Utils::SmallStringView sqlStatement);
     void waitForUnlockNotify() const;
@@ -372,11 +372,11 @@ protected:
 
     QString columnName(int column) const;
 
-    SqliteDatabase &database() const;
+    Database &database() const;
 
 protected:
-    explicit SqliteStatement(Utils::SmallStringView sqlStatement,
-                             SqliteDatabaseBackend &databaseBackend);
+    explicit Statement(Utils::SmallStringView sqlStatement,
+                             DatabaseBackend &databaseBackend);
 
 private:
     template <typename ContainerType,
@@ -452,27 +452,27 @@ private:
 private:
     std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt*)> m_compiledStatement;
     Utils::SmallStringVector m_bindingColumnNames;
-    SqliteDatabase &m_database;
+    Database &m_database;
     int m_bindingParameterCount;
     int m_columnCount;
     mutable bool m_isReadyToFetchValues;
 };
 
-extern template SQLITE_EXPORT void SqliteStatement::bind(Utils::SmallStringView name, int value);
-extern template SQLITE_EXPORT void SqliteStatement::bind(Utils::SmallStringView name, long value);
-extern template SQLITE_EXPORT void SqliteStatement::bind(Utils::SmallStringView name, long long value);
-extern template SQLITE_EXPORT void SqliteStatement::bind(Utils::SmallStringView name, double value);
-extern template SQLITE_EXPORT void SqliteStatement::bind(Utils::SmallStringView name, Utils::SmallStringView text);
+extern template SQLITE_EXPORT void Statement::bind(Utils::SmallStringView name, int value);
+extern template SQLITE_EXPORT void Statement::bind(Utils::SmallStringView name, long value);
+extern template SQLITE_EXPORT void Statement::bind(Utils::SmallStringView name, long long value);
+extern template SQLITE_EXPORT void Statement::bind(Utils::SmallStringView name, double value);
+extern template SQLITE_EXPORT void Statement::bind(Utils::SmallStringView name, Utils::SmallStringView text);
 
-extern template SQLITE_EXPORT int SqliteStatement::toValue<int>(Utils::SmallStringView sqlStatement, SqliteDatabase &database);
-extern template SQLITE_EXPORT long long SqliteStatement::toValue<long long>(Utils::SmallStringView sqlStatement, SqliteDatabase &database);
-extern template SQLITE_EXPORT double SqliteStatement::toValue<double>(Utils::SmallStringView sqlStatement, SqliteDatabase &database);
-extern template SQLITE_EXPORT Utils::SmallString SqliteStatement::toValue<Utils::SmallString>(Utils::SmallStringView sqlStatement, SqliteDatabase &database);
+extern template SQLITE_EXPORT int Statement::toValue<int>(Utils::SmallStringView sqlStatement, Database &database);
+extern template SQLITE_EXPORT long long Statement::toValue<long long>(Utils::SmallStringView sqlStatement, Database &database);
+extern template SQLITE_EXPORT double Statement::toValue<double>(Utils::SmallStringView sqlStatement, Database &database);
+extern template SQLITE_EXPORT Utils::SmallString Statement::toValue<Utils::SmallString>(Utils::SmallStringView sqlStatement, Database &database);
 
-template <> SQLITE_EXPORT int SqliteStatement::value<int>(int column) const;
-template <> SQLITE_EXPORT long SqliteStatement::value<long>(int column) const;
-template <> SQLITE_EXPORT long long SqliteStatement::value<long long>(int column) const;
-template <> SQLITE_EXPORT double SqliteStatement::value<double>(int column) const;
-extern template SQLITE_EXPORT Utils::SmallString SqliteStatement::value<Utils::SmallString>(int column) const;
-extern template SQLITE_EXPORT Utils::PathString SqliteStatement::value<Utils::PathString>(int column) const;
+template <> SQLITE_EXPORT int Statement::value<int>(int column) const;
+template <> SQLITE_EXPORT long Statement::value<long>(int column) const;
+template <> SQLITE_EXPORT long long Statement::value<long long>(int column) const;
+template <> SQLITE_EXPORT double Statement::value<double>(int column) const;
+extern template SQLITE_EXPORT Utils::SmallString Statement::value<Utils::SmallString>(int column) const;
+extern template SQLITE_EXPORT Utils::PathString Statement::value<Utils::PathString>(int column) const;
 } // namespace Sqlite

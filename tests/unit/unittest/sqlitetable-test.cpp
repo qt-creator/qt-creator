@@ -35,14 +35,14 @@ namespace {
 using Sqlite::ColumnType;
 using Sqlite::JournalMode;
 using Sqlite::OpenMode;
-using Sqlite::SqliteColumn;
-using Sqlite::SqliteDatabase;
+using Sqlite::Column;
+using Sqlite::Database;
 
 class SqliteTable : public ::testing::Test
 {
 protected:
     NiceMock<MockSqliteDatabase> mockDatabase;
-    Sqlite::SqliteTable table;
+    Sqlite::Table table;
     Utils::SmallString tableName = "testTable";
 };
 

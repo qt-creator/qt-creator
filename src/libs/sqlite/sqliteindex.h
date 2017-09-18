@@ -34,10 +34,10 @@
 
 namespace Sqlite {
 
-class SqliteIndex
+class Index
 {
 public:
-    SqliteIndex(Utils::SmallString &&tableName, Utils::SmallStringVector &&columnNames)
+    Index(Utils::SmallString &&tableName, Utils::SmallStringVector &&columnNames)
         : m_tableName(std::move(tableName)),
           m_columnNames(std::move(columnNames))
     {
@@ -63,13 +63,13 @@ public:
     void checkTableName() const
     {
         if (m_tableName.isEmpty())
-            throw SqliteException("SqliteIndex has not table name!");
+            throw Exception("SqliteIndex has not table name!");
     }
 
     void checkColumns() const
     {
         if (m_columnNames.empty())
-            throw SqliteException("SqliteIndex has no columns!");
+            throw Exception("SqliteIndex has no columns!");
     }
 
 private:
@@ -77,6 +77,6 @@ private:
     Utils::SmallStringVector m_columnNames;
 };
 
-using SqliteIndices = std::vector<SqliteIndex>;
+using SqliteIndices = std::vector<Index>;
 
 } //

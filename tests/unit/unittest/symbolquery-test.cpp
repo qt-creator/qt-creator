@@ -36,7 +36,7 @@
 namespace {
 
 using ClangRefactoring::QuerySqliteStatementFactory;
-using Sqlite::SqliteDatabase;
+using Sqlite::Database;
 
 using StatementFactory = QuerySqliteStatementFactory<MockSqliteDatabase,
                                                      MockSqliteReadStatement>;

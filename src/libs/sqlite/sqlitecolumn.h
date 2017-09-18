@@ -33,14 +33,14 @@
 
 namespace Sqlite {
 
-class SqliteColumn
+class Column
 {
 public:
-    SqliteColumn() = default;
+    Column() = default;
 
-    SqliteColumn(Utils::SmallString &&name,
-                 ColumnType type = ColumnType::Numeric,
-                 Contraint constraint = Contraint::NoConstraint)
+    Column(Utils::SmallString &&name,
+           ColumnType type = ColumnType::Numeric,
+           Contraint constraint = Contraint::NoConstraint)
         : m_name(std::move(name)),
           m_type(type),
           m_constraint(constraint)
@@ -96,7 +96,7 @@ public:
         Q_UNREACHABLE();
     }
 
-    friend bool operator==(const SqliteColumn &first, const SqliteColumn &second)
+    friend bool operator==(const Column &first, const Column &second)
     {
         return first.m_name == second.m_name
             && first.m_type == second.m_type
@@ -109,8 +109,8 @@ private:
     Contraint m_constraint = Contraint::NoConstraint;
 };
 
-using SqliteColumns = std::vector<SqliteColumn>;
-using SqliteColumnConstReference = std::reference_wrapper<const SqliteColumn>;
+using SqliteColumns = std::vector<Column>;
+using SqliteColumnConstReference = std::reference_wrapper<const Column>;
 using SqliteColumnConstReferences = std::vector<SqliteColumnConstReference>;
 
 } // namespace Sqlite

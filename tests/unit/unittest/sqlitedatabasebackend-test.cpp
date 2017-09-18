@@ -36,15 +36,15 @@
 
 namespace {
 
-using Backend = Sqlite::SqliteDatabaseBackend;
+using Backend = Sqlite::DatabaseBackend;
 
 using Sqlite::ColumnType;
 using Sqlite::Contraint;
 using Sqlite::JournalMode;
 using Sqlite::OpenMode;
 using Sqlite::TextEncoding;
-using Sqlite::SqliteException;
-using Sqlite::SqliteWriteStatement;
+using Sqlite::Exception;
+using Sqlite::WriteStatement;
 
 class SqliteDatabaseBackend : public ::testing::Test
 {
@@ -53,27 +53,27 @@ protected:
     void TearDown() override;
 
     Utils::PathString databaseFilePath = QDir::tempPath() + "/SqliteDatabaseBackendTest.db";
-    Sqlite::SqliteDatabase database;
-    Sqlite::SqliteDatabaseBackend &databaseBackend = database.backend();
+    Sqlite::Database database;
+    Sqlite::DatabaseBackend &databaseBackend = database.backend();
 };
 
 using SqliteDatabaseBackendSlowTest = SqliteDatabaseBackend;
 
 TEST_F(SqliteDatabaseBackend, OpenAlreadyOpenDatabase)
 {
-    ASSERT_THROW(databaseBackend.open(databaseFilePath, OpenMode::ReadWrite), SqliteException);
+    ASSERT_THROW(databaseBackend.open(databaseFilePath, OpenMode::ReadWrite), Exception);
 }
 
 TEST_F(SqliteDatabaseBackend, CloseAlreadyClosedDatabase)
 {
     databaseBackend.close();
 
-    ASSERT_THROW(databaseBackend.close(), SqliteException);
+    ASSERT_THROW(databaseBackend.close(), Exception);
 }
 
 TEST_F(SqliteDatabaseBackend, OpenWithWrongPath)
 {
-    ASSERT_THROW(databaseBackend.open("/xxx/SqliteDatabaseBackendTest.db", OpenMode::ReadWrite), SqliteException);
+    ASSERT_THROW(databaseBackend.open("/xxx/SqliteDatabaseBackendTest.db", OpenMode::ReadWrite), Exception);
 }
 
 TEST_F(SqliteDatabaseBackend, DefaultJournalMode)
@@ -148,7 +148,7 @@ TEST_F(SqliteDatabaseBackend, TextEncodingCannotBeChangedAfterTouchingDatabase)
 
     databaseBackend.execute("CREATE TABLE text(name, number)");
 
-    ASSERT_THROW(databaseBackend.setTextEncoding(TextEncoding::Utf16), SqliteException);
+    ASSERT_THROW(databaseBackend.setTextEncoding(TextEncoding::Utf16), Exception);
 }
 
 TEST_F(SqliteDatabaseBackend, OpenModeReadOnly)

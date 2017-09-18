@@ -44,8 +44,8 @@ using ClangBackEnd::SourceLocationEntries;
 using ClangBackEnd::SourceLocationEntry;
 using ClangBackEnd::StorageSqliteStatementFactory;
 using ClangBackEnd::SymbolType;
-using Sqlite::SqliteDatabase;
-using Sqlite::SqliteTable;
+using Sqlite::Database;
+using Sqlite::Table;
 
 using StatementFactory = StorageSqliteStatementFactory<MockSqliteDatabase,
                                                 MockSqliteReadStatement,

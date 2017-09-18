@@ -29,22 +29,22 @@
 
 namespace Sqlite {
 
-class SQLITE_EXPORT SqliteWriteStatement : private SqliteStatement
+class SQLITE_EXPORT WriteStatement : private Statement
 {
 public:
-    explicit SqliteWriteStatement(Utils::SmallStringView sqlStatement, SqliteDatabase &database);
+    explicit WriteStatement(Utils::SmallStringView sqlStatement, Database &database);
 
-    using SqliteStatement::execute;
-    using SqliteStatement::reset;
-    using SqliteStatement::bind;
-    using SqliteStatement::bindValues;
-    using SqliteStatement::bindNameValues;
-    using SqliteStatement::bindingIndexForName;
-    using SqliteStatement::setBindingColumnNames;
-    using SqliteStatement::bindingColumnNames;
-    using SqliteStatement::database;
-    using SqliteStatement::write;
-    using SqliteStatement::writeNamed;
+    using Statement::execute;
+    using Statement::reset;
+    using Statement::bind;
+    using Statement::bindValues;
+    using Statement::bindNameValues;
+    using Statement::bindingIndexForName;
+    using Statement::setBindingColumnNames;
+    using Statement::bindingColumnNames;
+    using Statement::database;
+    using Statement::write;
+    using Statement::writeNamed;
 
 protected:
     void checkIsWritableStatement();

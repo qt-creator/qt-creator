@@ -37,7 +37,7 @@ using Sqlite::ColumnType;
 using Sqlite::Contraint;
 using Sqlite::JournalMode;
 using Sqlite::OpenMode;
-using Column = Sqlite::SqliteColumn;
+using Column = Sqlite::Column;
 using Sqlite::SqliteColumns;
 
 class SqliteColumn : public ::testing::Test
@@ -45,7 +45,7 @@ class SqliteColumn : public ::testing::Test
 protected:
     void SetUp() override;
 
-    Sqlite::SqliteColumn column;
+    Sqlite::Column column;
 };
 
 TEST_F(SqliteColumn, ChangeName)

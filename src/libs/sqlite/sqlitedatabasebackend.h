@@ -33,19 +33,19 @@ struct sqlite3;
 
 namespace Sqlite {
 
-class SqliteDatabase;
+class Database;
 
-class SQLITE_EXPORT SqliteDatabaseBackend
+class SQLITE_EXPORT DatabaseBackend
 {
 public:
-    SqliteDatabaseBackend(SqliteDatabase &database);
-    ~SqliteDatabaseBackend();
+    DatabaseBackend(Database &database);
+    ~DatabaseBackend();
 
-    SqliteDatabaseBackend(const SqliteDatabase &) = delete;
-    SqliteDatabase &operator=(const SqliteDatabase &) = delete;
+    DatabaseBackend(const Database &) = delete;
+    Database &operator=(const Database &) = delete;
 
-    SqliteDatabaseBackend(SqliteDatabase &&) = delete;
-    SqliteDatabase &operator=(SqliteDatabase &&) = delete;
+    DatabaseBackend(Database &&) = delete;
+    Database &operator=(Database &&) = delete;
 
     void setMmapSize(qint64 defaultSize, qint64 maximumSize);
     void activateMultiThreading();
@@ -114,7 +114,7 @@ protected:
 
 
 private:
-    SqliteDatabase &m_database;
+    Database &m_database;
     sqlite3 *m_databaseHandle;
     TextEncoding m_cachedTextEncoding;
 

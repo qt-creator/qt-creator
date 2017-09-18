@@ -29,14 +29,14 @@
 
 namespace Sqlite {
 
-SqliteReadStatement::SqliteReadStatement(Utils::SmallStringView sqlStatement,
-                                         SqliteDatabase &database)
-    : SqliteStatement(sqlStatement, database)
+ReadStatement::ReadStatement(Utils::SmallStringView sqlStatement,
+                                         Database &database)
+    : Statement(sqlStatement, database)
 {
     checkIsReadOnlyStatement();
 }
 
-void SqliteReadStatement::checkIsReadOnlyStatement()
+void ReadStatement::checkIsReadOnlyStatement()
 {
     if (!isReadOnlyStatement())
         throwException("SqliteStatement::SqliteReadStatement: is not read only statement!");

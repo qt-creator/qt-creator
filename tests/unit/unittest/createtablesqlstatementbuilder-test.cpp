@@ -34,7 +34,7 @@ using Sqlite::ColumnType;
 using Sqlite::Contraint;
 using Sqlite::JournalMode;
 using Sqlite::OpenMode;
-using Sqlite::SqliteColumn;
+using Sqlite::Column;
 using Sqlite::SqliteColumns;
 
 using Sqlite::SqlStatementBuilderException;

@@ -33,12 +33,12 @@
 
 namespace Sqlite {
 
-class SqliteDatabase;
+class Database;
 
-class SqliteTable
+class Table
 {
 public:
-    SqliteTable(std::size_t reserve = 10)
+    Table(std::size_t reserve = 10)
     {
         m_sqliteColumns.reserve(reserve);
         m_sqliteIndices.reserve(reserve);
@@ -74,7 +74,7 @@ public:
         m_useTemporaryTable = useTemporaryTable;
     }
 
-    SqliteColumn &addColumn(Utils::SmallString &&name,
+    Column &addColumn(Utils::SmallString &&name,
                             ColumnType type = ColumnType::Numeric,
                             Contraint constraint = Contraint::NoConstraint)
     {
@@ -83,7 +83,7 @@ public:
         return m_sqliteColumns.back();
     }
 
-    SqliteIndex &addIndex(const SqliteColumnConstReferences &columns)
+    Index &addIndex(const SqliteColumnConstReferences &columns)
     {
         m_sqliteIndices.emplace_back(m_tableName.clone(), sqliteColumnNames(columns));
 
@@ -120,11 +120,11 @@ public:
     template <typename Database>
     void initializeIndices(Database &database)
     {
-        for (const SqliteIndex &index : m_sqliteIndices)
+        for (const Index &index : m_sqliteIndices)
             database.execute(index.sqlStatement());
     }
 
-    friend bool operator==(const SqliteTable &first, const SqliteTable &second)
+    friend bool operator==(const Table &first, const Table &second)
     {
         return first.m_tableName == second.m_tableName
             && first.m_withoutRowId == second.m_withoutRowId
@@ -138,7 +138,7 @@ private:
     {
         Utils::SmallStringVector columnNames;
 
-        for (const SqliteColumn &column : columns)
+        for (const Column &column : columns)
             columnNames.push_back(column.name());
 
         return columnNames;

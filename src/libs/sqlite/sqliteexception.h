@@ -31,11 +31,11 @@
 
 namespace Sqlite {
 
-class SQLITE_EXPORT SqliteException
+class SQLITE_EXPORT Exception
 {
 public:
-    SqliteException(const char *whatErrorHasHappen,
-                    Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
+    Exception(const char *whatErrorHasHappen,
+              Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
         : m_whatErrorHasHappen(whatErrorHasHappen),
           m_sqliteErrorMessage(std::move(sqliteErrorMessage))
     {

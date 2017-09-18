@@ -43,9 +43,9 @@ namespace ClangBackEnd {
 class SymbolIndexing final : public SymbolIndexingInterface
 {
 public:
-    using StatementFactory = ClangBackEnd::StorageSqliteStatementFactory<Sqlite::SqliteDatabase,
-                                                                         Sqlite::SqliteReadStatement,
-                                                                         Sqlite::SqliteWriteStatement>;
+    using StatementFactory = ClangBackEnd::StorageSqliteStatementFactory<Sqlite::Database,
+                                                                         Sqlite::ReadStatement,
+                                                                         Sqlite::WriteStatement>;
     using Storage = ClangBackEnd::SymbolStorage<StatementFactory>;
 
     SymbolIndexing(FilePathCache<std::mutex> &filePathCache,
@@ -61,7 +61,7 @@ public:
         return m_indexer;
     }
 
-    Sqlite::SqliteDatabase &database()
+    Sqlite::Database &database()
     {
         return m_database;
     }
@@ -74,7 +74,7 @@ public:
 
 private:
     FilePathCache<std::mutex> &m_filePathCache;
-    Sqlite::SqliteDatabase m_database;
+    Sqlite::Database m_database;
     SymbolsCollector m_collector{m_filePathCache};
     StatementFactory m_statementFactory{m_database};
     Storage m_symbolStorage{m_statementFactory, m_filePathCache};

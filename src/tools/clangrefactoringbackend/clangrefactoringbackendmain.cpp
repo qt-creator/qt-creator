@@ -78,7 +78,7 @@ try {
 
 
     return application.exec();
-} catch (const Sqlite::SqliteException &exception) {
+} catch (const Sqlite::Exception &exception) {
     exception.printWarning();
 }
 

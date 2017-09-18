@@ -37,7 +37,7 @@ using StatementFactory = ClangBackEnd::StorageSqliteStatementFactory<NiceMock<Mo
                                                                      MockSqliteReadStatement,
                                                                      MockSqliteWriteStatement>;
 
-using Sqlite::SqliteTable;
+using Sqlite::Table;
 
 class StorageSqliteStatementFactory : public testing::Test
 {

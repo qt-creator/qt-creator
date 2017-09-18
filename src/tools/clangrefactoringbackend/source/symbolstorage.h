@@ -38,7 +38,7 @@ namespace ClangBackEnd {
 template <typename StatementFactory>
 class SymbolStorage : public SymbolStorageInterface
 {
-    using Transaction = Sqlite::SqliteImmediateTransaction<typename StatementFactory::DatabaseType>;
+    using Transaction = Sqlite::ImmediateTransaction<typename StatementFactory::DatabaseType>;
     using ReadStatement = typename StatementFactory::ReadStatementType;
     using WriteStatement = typename StatementFactory::WriteStatementType;
     using Database = typename StatementFactory::DatabaseType;

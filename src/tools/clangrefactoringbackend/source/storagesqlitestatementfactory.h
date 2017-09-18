@@ -47,88 +47,88 @@ public:
     {
     }
 
-    Sqlite::SqliteTable createSymbolsTable()
+    Sqlite::Table createSymbolsTable()
     {
-        Sqlite::SqliteTable table;
+        Sqlite::Table table;
         table.setUseIfNotExists(true);
         table.setName("symbols");
         table.addColumn("symbolId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
-        const Sqlite::SqliteColumn &usrColumn = table.addColumn("usr", Sqlite::ColumnType::Text);
+        const Sqlite::Column &usrColumn = table.addColumn("usr", Sqlite::ColumnType::Text);
         table.addColumn("symbolName", Sqlite::ColumnType::Text);
         table.addIndex({usrColumn});
 
-        Sqlite::SqliteImmediateTransaction<DatabaseType> transaction(database);
+        Sqlite::ImmediateTransaction<DatabaseType> transaction(database);
         table.initialize(database);
         transaction.commit();
 
         return table;
     }
 
-    Sqlite::SqliteTable createLocationsTable()
+    Sqlite::Table createLocationsTable()
     {
-        Sqlite::SqliteTable table;
+        Sqlite::Table table;
         table.setUseIfNotExists(true);
         table.setName("locations");
         table.addColumn("symbolId", Sqlite::ColumnType::Integer);
         table.addColumn("line", Sqlite::ColumnType::Integer);
         table.addColumn("column", Sqlite::ColumnType::Integer);
-        const Sqlite::SqliteColumn &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
+        const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
         table.addIndex({sourceIdColumn});
 
-        Sqlite::SqliteImmediateTransaction<DatabaseType> transaction(database);
+        Sqlite::ImmediateTransaction<DatabaseType> transaction(database);
         table.initialize(database);
         transaction.commit();
 
         return table;
     }
 
-    Sqlite::SqliteTable createSourcesTable()
+    Sqlite::Table createSourcesTable()
     {
-        Sqlite::SqliteTable table;
+        Sqlite::Table table;
         table.setUseIfNotExists(true);
         table.setName("sources");
         table.addColumn("sourceId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
         table.addColumn("sourcePath", Sqlite::ColumnType::Text);
 
-        Sqlite::SqliteImmediateTransaction<DatabaseType> transaction(database);
+        Sqlite::ImmediateTransaction<DatabaseType> transaction(database);
         table.initialize(database);
         transaction.commit();
 
         return table;
     }
 
-    Sqlite::SqliteTable createNewSymbolsTable() const
+    Sqlite::Table createNewSymbolsTable() const
     {
-        Sqlite::SqliteTable table;
+        Sqlite::Table table;
         table.setName("newSymbols");
         table.setUseTemporaryTable(true);
         table.addColumn("temporarySymbolId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
-        const Sqlite::SqliteColumn &symbolIdColumn = table.addColumn("symbolId", Sqlite::ColumnType::Integer);
-        const Sqlite::SqliteColumn &usrColumn = table.addColumn("usr", Sqlite::ColumnType::Text);
-        const Sqlite::SqliteColumn &symbolNameColumn = table.addColumn("symbolName", Sqlite::ColumnType::Text);
+        const Sqlite::Column &symbolIdColumn = table.addColumn("symbolId", Sqlite::ColumnType::Integer);
+        const Sqlite::Column &usrColumn = table.addColumn("usr", Sqlite::ColumnType::Text);
+        const Sqlite::Column &symbolNameColumn = table.addColumn("symbolName", Sqlite::ColumnType::Text);
         table.addIndex({usrColumn, symbolNameColumn});
         table.addIndex({symbolIdColumn});
 
-        Sqlite::SqliteImmediateTransaction<DatabaseType> transaction(database);
+        Sqlite::ImmediateTransaction<DatabaseType> transaction(database);
         table.initialize(database);
         transaction.commit();
 
         return table;
     }
 
-    Sqlite::SqliteTable createNewLocationsTable() const
+    Sqlite::Table createNewLocationsTable() const
     {
-        Sqlite::SqliteTable table;
+        Sqlite::Table table;
         table.setName("newLocations");
         table.setUseTemporaryTable(true);
         table.addColumn("temporarySymbolId", Sqlite::ColumnType::Integer);
         table.addColumn("symbolId", Sqlite::ColumnType::Integer);
         table.addColumn("line", Sqlite::ColumnType::Integer);
         table.addColumn("column", Sqlite::ColumnType::Integer);
-        const Sqlite::SqliteColumn &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
+        const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
         table.addIndex({sourceIdColumn});
 
-        Sqlite::SqliteImmediateTransaction<DatabaseType> transaction(database);
+        Sqlite::ImmediateTransaction<DatabaseType> transaction(database);
         table.initialize(database);
         transaction.commit();
 
@@ -137,11 +137,11 @@ public:
 
 public:
     Database &database;
-    Sqlite::SqliteTable symbolsTable{createSymbolsTable()};
-    Sqlite::SqliteTable locationsTable{createLocationsTable()};
-    Sqlite::SqliteTable sourcesTable{createSourcesTable()};
-    Sqlite::SqliteTable newSymbolsTablet{createNewSymbolsTable()};
-    Sqlite::SqliteTable newLocationsTable{createNewLocationsTable()};
+    Sqlite::Table symbolsTable{createSymbolsTable()};
+    Sqlite::Table locationsTable{createLocationsTable()};
+    Sqlite::Table sourcesTable{createSourcesTable()};
+    Sqlite::Table newSymbolsTablet{createNewSymbolsTable()};
+    Sqlite::Table newLocationsTable{createNewLocationsTable()};
     WriteStatement insertSymbolsToNewSymbolsStatement{
         "INSERT INTO newSymbols(temporarySymbolId, usr, symbolName) VALUES(?,?,?)",
         database};

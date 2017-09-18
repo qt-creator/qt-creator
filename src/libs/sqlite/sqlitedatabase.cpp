@@ -30,18 +30,18 @@
 
 namespace Sqlite {
 
-SqliteDatabase::SqliteDatabase()
+Database::Database()
     : m_databaseBackend(*this)
 {
 }
 
-SqliteDatabase::SqliteDatabase(Utils::PathString &&databaseFilePath)
+Database::Database(Utils::PathString &&databaseFilePath)
     : m_databaseBackend(*this)
 {
     open(std::move(databaseFilePath));
 }
 
-void SqliteDatabase::open()
+void Database::open()
 {
     m_databaseBackend.open(m_databaseFilePath, m_openMode);
     m_databaseBackend.setJournalMode(m_journalMode);
@@ -49,91 +49,91 @@ void SqliteDatabase::open()
     m_isOpen = true;
 }
 
-void SqliteDatabase::open(Utils::PathString &&databaseFilePath)
+void Database::open(Utils::PathString &&databaseFilePath)
 {
     setDatabaseFilePath(std::move(databaseFilePath));
     open();
 }
 
-void SqliteDatabase::close()
+void Database::close()
 {
     m_isOpen = false;
     m_databaseBackend.close();
 }
 
-bool SqliteDatabase::isOpen() const
+bool Database::isOpen() const
 {
     return m_isOpen;
 }
 
-SqliteTable &SqliteDatabase::addTable()
+Table &Database::addTable()
 {
     m_sqliteTables.emplace_back();
 
     return m_sqliteTables.back();
 }
 
-const std::vector<SqliteTable> &SqliteDatabase::tables() const
+const std::vector<Table> &Database::tables() const
 {
     return m_sqliteTables;
 }
 
-void SqliteDatabase::setDatabaseFilePath(Utils::PathString &&databaseFilePath)
+void Database::setDatabaseFilePath(Utils::PathString &&databaseFilePath)
 {
     m_databaseFilePath = std::move(databaseFilePath);
 }
 
-const Utils::PathString &SqliteDatabase::databaseFilePath() const
+const Utils::PathString &Database::databaseFilePath() const
 {
     return m_databaseFilePath;
 }
 
-void SqliteDatabase::setJournalMode(JournalMode journalMode)
+void Database::setJournalMode(JournalMode journalMode)
 {
     m_journalMode = journalMode;
 }
 
-JournalMode SqliteDatabase::journalMode() const
+JournalMode Database::journalMode() const
 {
     return m_journalMode;
 }
 
-void SqliteDatabase::setOpenMode(OpenMode openMode)
+void Database::setOpenMode(OpenMode openMode)
 {
     m_openMode = openMode;
 }
 
-OpenMode SqliteDatabase::openMode() const
+OpenMode Database::openMode() const
 {
     return m_openMode;
 }
 
-int SqliteDatabase::changesCount()
+int Database::changesCount()
 {
     return m_databaseBackend.changesCount();
 }
 
-int SqliteDatabase::totalChangesCount()
+int Database::totalChangesCount()
 {
     return m_databaseBackend.totalChangesCount();
 }
 
-void SqliteDatabase::execute(Utils::SmallStringView sqlStatement)
+void Database::execute(Utils::SmallStringView sqlStatement)
 {
     m_databaseBackend.execute(sqlStatement);
 }
 
-void SqliteDatabase::initializeTables()
+void Database::initializeTables()
 {
-    SqliteImmediateTransaction<SqliteDatabase> transaction(*this);
+    ImmediateTransaction<Database> transaction(*this);
 
-    for (SqliteTable &table : m_sqliteTables)
+    for (Table &table : m_sqliteTables)
         table.initialize(*this);
 
     transaction.commit();
 }
 
-SqliteDatabaseBackend &SqliteDatabase::backend()
+DatabaseBackend &Database::backend()
 {
     return m_databaseBackend;
 }

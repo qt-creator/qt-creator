@@ -29,38 +29,38 @@
 
 namespace {
 
-using Sqlite::SqliteException;
-using Sqlite::SqliteIndex;
+using Sqlite::Exception;
+using Sqlite::Index;
 
-TEST(SqliteIndex, OneColumn)
+TEST(Index, OneColumn)
 {
-    SqliteIndex index{"tableName", {"column1"}};
+    Index index{"tableName", {"column1"}};
 
     auto sqlStatement = index.sqlStatement();
 
     ASSERT_THAT(sqlStatement, Eq("CREATE INDEX IF NOT EXISTS index_tableName_column1 ON tableName(column1)"));
 }
 
-TEST(SqliteIndex, TwoColumn)
+TEST(Index, TwoColumn)
 {
-    SqliteIndex index{"tableName", {"column1", "column2"}};
+    Index index{"tableName", {"column1", "column2"}};
 
     auto sqlStatement = index.sqlStatement();
 
     ASSERT_THAT(sqlStatement, Eq("CREATE INDEX IF NOT EXISTS index_tableName_column1_column2 ON tableName(column1, column2)"));
 }
 
-TEST(SqliteIndex, EmptyTableName)
+TEST(Index, EmptyTableName)
 {
-    SqliteIndex index{"", {"column1", "column2"}};
+    Index index{"", {"column1", "column2"}};
 
-    ASSERT_THROW(index.sqlStatement(), SqliteException);
+    ASSERT_THROW(index.sqlStatement(), Exception);
 }
 
-TEST(SqliteIndex, EmptyColumns)
+TEST(Index, EmptyColumns)
 {
-    SqliteIndex index{"tableName", {}};
+    Index index{"tableName", {}};
 
-    ASSERT_THROW(index.sqlStatement(), SqliteException);
+    ASSERT_THROW(index.sqlStatement(), Exception);
 }
 }
