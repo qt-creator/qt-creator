@@ -33,6 +33,7 @@
 #include "androidavdmanager.h"
 #include "androidsdkmanager.h"
 #include "avddialog.h"
+#include "androidsdkmanagerwidget.h"
 
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
@@ -124,24 +125,35 @@ public:
         data.m_valid = valid;
         data.m_iconLabel->setPixmap(data.m_valid ? Utils::Icons::OK.pixmap() :
                                                    Utils::Icons::BROKEN.pixmap());
-        bool ok = allRowsOk();
-        m_detailsWidget->setIcon(ok ? Utils::Icons::OK.icon() :
-                                      Utils::Icons::CRITICAL.icon());
-        m_detailsWidget->setSummaryText(ok ? m_validText : m_invalidText);
+        updateUi();
     }
 
-    bool allRowsOk() const
+    bool rowsOk(QList<int> keys) const
     {
-        for (auto itr = m_validationData.cbegin(); itr != m_validationData.cend(); ++itr) {
-            if (!itr.value().m_valid)
+        for (auto key : keys) {
+            if (!m_validationData[key].m_valid)
                 return false;
         }
         return true;
     }
 
+    bool allRowsOk() const { return rowsOk(m_validationData.keys()); }
+    void setInfoText(const QString &text) {
+        m_infoText = text;
+        updateUi();
+    }
+
 private:
+    void updateUi() {
+        bool ok = allRowsOk();
+        m_detailsWidget->setIcon(ok ? Utils::Icons::OK.icon() :
+                                      Utils::Icons::CRITICAL.icon());
+        m_detailsWidget->setSummaryText(ok ? QString("%1 %2").arg(m_validText).arg(m_infoText)
+                                           : m_invalidText);
+    }
     QString m_validText;
     QString m_invalidText;
+    QString m_infoText;
     Utils::DetailsWidget *m_detailsWidget = nullptr;
     QMap<int, RowData> m_validationData;
 };
@@ -218,6 +230,21 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
       m_sdkManager(new AndroidSdkManager(m_androidConfig))
 {
     m_ui->setupUi(this);
+    m_sdkManagerWidget = new AndroidSdkManagerWidget(m_androidConfig, m_sdkManager.get(),
+                                                     m_ui->sdkManagerTab);
+    auto sdkMangerLayout = new QVBoxLayout(m_ui->sdkManagerTab);
+    sdkMangerLayout->setMargin(0);
+    sdkMangerLayout->addWidget(m_sdkManagerWidget);
+    connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::updatingSdk, [this]() {
+        m_ui->SDKLocationPathChooser->setEnabled(false);
+        // Disable the tab bar to restrict the user moving away from sdk manager tab untill
+        // operations finish.
+        m_ui->managerTabWidget->tabBar()->setEnabled(false);
+    });
+    connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::updatingSdkFinished, [this]() {
+        m_ui->SDKLocationPathChooser->setEnabled(true);
+        m_ui->managerTabWidget->tabBar()->setEnabled(true);
+    });
 
     QMap<int, QString> javaValidationPoints;
     javaValidationPoints[JavaPathExistsRow] = tr("JDK path exists.");
@@ -283,7 +310,7 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
             this, &AndroidSettingsWidget::avdActivated);
     connect(m_ui->DataPartitionSizeSpinBox, &QAbstractSpinBox::editingFinished,
             this, &AndroidSettingsWidget::dataPartitionSizeEditingFinished);
-    connect(m_ui->manageAVDPushButton, &QAbstractButton::clicked,
+    connect(m_ui->nativeAvdManagerButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::manageAVD);
     connect(m_ui->CreateKitCheckBox, &QAbstractButton::toggled,
             this, &AndroidSettingsWidget::createKitToggled);
@@ -293,14 +320,20 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
             this, &AndroidSettingsWidget::openNDKDownloadUrl);
     connect(m_ui->downloadOpenJDKToolButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::openOpenJDKDownloadUrl);
-
+    // Validate SDK again after any change in SDK packages.
+    connect(m_sdkManager.get(), &AndroidSdkManager::packageReloadFinished,
+            this, &AndroidSettingsWidget::validateSdk);
     validateJdk();
     validateNdk();
-    validateSdk();
+    // Reloading SDK packages is still synchronous. Use zero timer to let settings dialog open
+    // first.
+    QTimer::singleShot(0, std::bind(&AndroidSdkManager::reloadPackages, m_sdkManager.get(), false));
 }
 
 AndroidSettingsWidget::~AndroidSettingsWidget()
 {
+    // Deleting m_sdkManagerWidget will cancel all ongoing and pending sdkmanager operations.
+    delete m_sdkManagerWidget;
     delete m_ui;
     m_futureWatcher.waitForFinished();
 }
@@ -521,14 +554,23 @@ void AndroidSettingsWidget::updateUI()
 {
     auto javaSummaryWidget = static_cast<SummaryWidget *>(m_ui->javaDetailsWidget->widget());
     auto androidSummaryWidget = static_cast<SummaryWidget *>(m_ui->androidDetailsWidget->widget());
-    m_ui->AVDManagerFrame->setEnabled(javaSummaryWidget->allRowsOk()
-                                      && androidSummaryWidget->allRowsOk());
-    m_ui->javaDetailsWidget->setState(javaSummaryWidget->allRowsOk() ?
-                                          Utils::DetailsWidget::Collapsed :
-                                          Utils::DetailsWidget::Expanded);
-    m_ui->androidDetailsWidget->setState(androidSummaryWidget->allRowsOk() ?
-                                             Utils::DetailsWidget::Collapsed :
-                                             Utils::DetailsWidget::Expanded);
+    bool javaSetupOk = javaSummaryWidget->allRowsOk();
+    bool sdkToolsOk = androidSummaryWidget->rowsOk({SdkPathExistsRow, SdkToolsInstalledRow});
+    bool androidSetupOk = androidSummaryWidget->allRowsOk();
+
+    m_ui->avdManagerTab->setEnabled(javaSetupOk && androidSetupOk);
+    m_ui->sdkManagerTab->setEnabled(sdkToolsOk);
+    m_sdkManagerWidget->setSdkManagerControlsEnabled(!m_androidConfig.useNativeUiTools());
+
+    auto infoText = tr("(SDK Version: %1, NDK Version: %2)")
+            .arg(m_androidConfig.sdkToolsVersion().toString())
+            .arg(m_androidConfig.ndkVersion().toString());
+    androidSummaryWidget->setInfoText(androidSetupOk ? infoText : "");
+
+    m_ui->javaDetailsWidget->setState(javaSetupOk ? Utils::DetailsWidget::Collapsed :
+                                                    Utils::DetailsWidget::Expanded);
+    m_ui->androidDetailsWidget->setState(androidSetupOk ? Utils::DetailsWidget::Collapsed :
+                                                          Utils::DetailsWidget::Expanded);
     startUpdateAvd();
     checkMissingQtVersion();
 }

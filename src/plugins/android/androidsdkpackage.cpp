@@ -183,7 +183,19 @@ QVersionNumber SdkPlatform::version() const
 
 void SdkPlatform::addSystemImage(SystemImage *image)
 {
-    m_systemImages.append(image);
+    // Ordered insert. Installed images on top with lexical comparison of the display name.
+    auto itr = m_systemImages.begin();
+    while (itr != m_systemImages.end()) {
+        SystemImage *currentImage = *itr;
+        if (currentImage->state() == image->state()) {
+            if (currentImage->displayText() > image->displayText())
+                break;
+        } else if (currentImage->state() > image->state()) {
+            break;
+        }
+        ++itr;
+    }
+    m_systemImages.insert(itr, image);
     image->setPlatform(this);
 }
 

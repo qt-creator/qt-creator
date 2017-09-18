@@ -51,7 +51,9 @@ HEADERS += \
     androidavdmanager.h \
     androidrunconfigurationwidget.h \
     adbcommandswidget.h \
-    androidsdkpackage.h
+    androidsdkpackage.h \
+    androidsdkmodel.h \
+    androidsdkmanagerwidget.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -96,7 +98,9 @@ SOURCES += \
     androidavdmanager.cpp \
     androidrunconfigurationwidget.cpp \
     adbcommandswidget.cpp \
-    androidsdkpackage.cpp
+    androidsdkpackage.cpp \
+    androidsdkmodel.cpp \
+    androidsdkmanagerwidget.cpp
 
 FORMS += \
     androidsettingswidget.ui \
@@ -106,7 +110,8 @@ FORMS += \
     androiddeployqtwidget.ui \
     androidbuildapkwidget.ui \
     androidrunconfigurationwidget.ui \
-    adbcommandswidget.ui
+    adbcommandswidget.ui \
+    androidsdkmanagerwidget.ui
 
 RESOURCES = android.qrc
 

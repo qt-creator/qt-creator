@@ -42,6 +42,8 @@ QT_END_NAMESPACE
 namespace Android {
 namespace Internal {
 
+class AndroidSdkManagerWidget;
+
 class AndroidAvdManager;
 
 class AvdModel: public QAbstractTableModel
@@ -98,6 +100,7 @@ private:
     void disableAvdControls();
 
     Ui_AndroidSettingsWidget *m_ui;
+    AndroidSdkManagerWidget *m_sdkManagerWidget = nullptr;
     AndroidConfig m_androidConfig;
     AvdModel m_AVDModel;
     QFutureWatcher<CreateAvdInfo> m_futureWatcher;
