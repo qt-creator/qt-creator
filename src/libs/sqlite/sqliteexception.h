@@ -48,4 +48,211 @@ private:
     Utils::SmallString m_sqliteErrorMessage;
 };
 
+class StatementIsBusy : public Exception
+{
+public:
+    StatementIsBusy(const char *whatErrorHasHappen,
+                    Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(sqliteErrorMessage))
+    {
+    }
+};
+
+class DatabaseIsBusy : public Exception
+{
+public:
+    DatabaseIsBusy(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {
+    }
+};
+
+class StatementHasError : public Exception
+{
+public:
+    StatementHasError(const char *whatErrorHasHappen,
+                      Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(sqliteErrorMessage))
+    {
+    }
+};
+
+class StatementIsMisused : public Exception
+{
+public:
+    StatementIsMisused(const char *whatErrorHasHappen,
+                       Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(sqliteErrorMessage))
+    {
+    }
+};
+
+class ContraintPreventsModification : public Exception
+{
+public:
+    ContraintPreventsModification(const char *whatErrorHasHappen,
+                                  Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(sqliteErrorMessage))
+    {
+    }
+};
+
+class NoValuesToFetch : public Exception
+{
+public:
+    NoValuesToFetch(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {
+    }
+};
+
+class InvalidColumnFetched : public Exception
+{
+public:
+    InvalidColumnFetched(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {
+    }
+};
+
+class BindingIndexIsOutOfRange : public Exception
+{
+public:
+    BindingIndexIsOutOfRange(const char *whatErrorHasHappen,
+                             Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(sqliteErrorMessage))
+    {
+    }
+};
+
+class WrongBingingName : public Exception
+{
+public:
+    WrongBingingName(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {
+    }
+};
+
+class DatabaseIsNotOpen : public Exception
+{
+public:
+    DatabaseIsNotOpen(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {
+    }
+};
+
+class DatabaseCannotBeOpened : public Exception
+{
+public:
+    DatabaseCannotBeOpened(const char *whatErrorHasHappen,
+                           Utils::SmallString &&errorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    {
+    }
+};
+
+class DatabaseFilePathIsEmpty : public DatabaseCannotBeOpened
+{
+public:
+    DatabaseFilePathIsEmpty(const char *whatErrorHasHappen)
+        : DatabaseCannotBeOpened(whatErrorHasHappen)
+    {
+    }
+};
+
+class DatabaseIsAlreadyOpen : public DatabaseCannotBeOpened
+{
+public:
+    DatabaseIsAlreadyOpen(const char *whatErrorHasHappen)
+        : DatabaseCannotBeOpened(whatErrorHasHappen)
+    {
+    }
+};
+
+class DatabaseCannotBeClosed : public Exception
+{
+public:
+    DatabaseCannotBeClosed(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {
+    }
+};
+
+class DatabaseIsAlreadyClosed : public DatabaseCannotBeClosed
+{
+public:
+    DatabaseIsAlreadyClosed(const char *whatErrorHasHappen)
+        : DatabaseCannotBeClosed(whatErrorHasHappen)
+    {
+    }
+};
+
+class WrongFilePath : public DatabaseCannotBeOpened
+{
+public:
+    WrongFilePath(const char *whatErrorHasHappen,
+                  Utils::SmallString &&errorMessage = Utils::SmallString())
+        : DatabaseCannotBeOpened(whatErrorHasHappen, std::move(errorMessage))
+    {
+    }
+};
+
+class PragmaValueNotSet : public Exception
+{
+public:
+    PragmaValueNotSet(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {
+    }
+};
+
+class NotReadOnlySqlStatement : public Exception
+{
+public:
+    NotReadOnlySqlStatement(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {
+    }
+};
+
+class NotWriteSqlStatement : public Exception
+{
+public:
+    NotWriteSqlStatement(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {
+    }
+};
+
+class DeadLock : public Exception
+{
+public:
+    DeadLock(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {
+    }
+};
+
+class UnknowError : public Exception
+{
+public:
+    UnknowError(const char *whatErrorHasHappen,
+                Utils::SmallString &&errorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    {
+    }
+};
+
+class BindingTooBig : public Exception
+{
+public:
+    BindingTooBig(const char *whatErrorHasHappen,
+                  Utils::SmallString &&errorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    {
+    }
+};
+
 } // namespace Sqlite

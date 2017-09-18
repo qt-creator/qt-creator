@@ -110,8 +110,9 @@ protected:
 
 
     Q_NORETURN static void throwExceptionStatic(const char *whatHasHappens);
-    Q_NORETURN void throwException(const char *whatHasHappens) const;
-
+    [[noreturn]] void throwException(const char *whatHasHappens) const;
+    [[noreturn]] void throwUnknowError(const char *whatHasHappens) const;
+    [[noreturn]] void throwDatabaseIsNotOpen(const char *whatHasHappens) const;
 
 private:
     Database &m_database;

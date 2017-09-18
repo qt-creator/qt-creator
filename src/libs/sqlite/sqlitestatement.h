@@ -355,17 +355,26 @@ protected:
 
     bool checkForStepError(int resultCode) const;
     void checkForPrepareError(int resultCode) const;
+    void checkForBindingError(int resultCode) const;
     void setIfIsReadyToFetchValues(int resultCode) const;
     void checkIfIsReadyToFetchValues() const;
     void checkColumnsAreValid(const std::vector<int> &columns) const;
     void checkColumnIsValid(int column) const;
-    void checkBindingIndex(int index) const;
     void checkBindingName(int index) const;
     void setBindingParameterCount();
     void setBindingColumnNamesFromStatement();
     void setColumnCount();
     bool isReadOnlyStatement() const;
-    Q_NORETURN void throwException(const char *whatHasHappened) const;
+    [[noreturn]] void throwStatementIsBusy(const char *whatHasHappened) const;
+    [[noreturn]] void throwStatementHasError(const char *whatHasHappened) const;
+    [[noreturn]] void throwStatementIsMisused(const char *whatHasHappened) const;
+    [[noreturn]] void throwConstraintPreventsModification(const char *whatHasHappened) const;
+    [[noreturn]] void throwNoValuesToFetch(const char *whatHasHappened) const;
+    [[noreturn]] void throwInvalidColumnFetched(const char *whatHasHappened) const;
+    [[noreturn]] void throwBindingIndexIsOutOfRange(const char *whatHasHappened) const;
+    [[noreturn]] void throwWrongBingingName(const char *whatHasHappened) const;
+    [[noreturn]] void throwUnknowError(const char *whatHasHappened) const;
+    [[noreturn]] void throwBingingTooBig(const char *whatHasHappened) const;
 
     template <typename ContainerType>
     ContainerType columnValues(const std::vector<int> &columnIndices) const;

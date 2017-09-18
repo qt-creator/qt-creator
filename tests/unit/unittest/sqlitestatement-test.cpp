@@ -87,12 +87,21 @@ struct Output
     }
 };
 
-TEST_F(SqliteStatement, PrepareFailure)
+TEST_F(SqliteStatement, ThrowsStatementHasErrorForWrongSqlStatement)
 {
-    ASSERT_THROW(ReadStatement("blah blah blah", database), Exception);
-    ASSERT_THROW(WriteStatement("blah blah blah", database), Exception);
-    ASSERT_THROW(ReadStatement("INSERT INTO test(name, number) VALUES (?, ?)", database), Exception);
-    ASSERT_THROW(WriteStatement("SELECT name, number FROM test '", database), Exception);
+    ASSERT_THROW(ReadStatement("blah blah blah", database), Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, ThrowsNotReadOnlySqlStatementForWritableSqlStatementInReadStatement)
+{
+    ASSERT_THROW(ReadStatement("INSERT INTO test(name, number) VALUES (?, ?)", database),
+                 Sqlite::NotReadOnlySqlStatement);
+}
+
+TEST_F(SqliteStatement, ThrowsNotReadonlySqlStatementForWritableSqlStatementInReadStatement)
+{
+    ASSERT_THROW(WriteStatement("SELECT name, number FROM test", database),
+                 Sqlite::NotWriteSqlStatement);
 }
 
 TEST_F(SqliteStatement, CountRows)
@@ -124,21 +133,35 @@ TEST_F(SqliteStatement, Value)
     ASSERT_THAT(statement.text(1), "23.3");
 }
 
-TEST_F(SqliteStatement, ValueFailure)
+TEST_F(SqliteStatement, ThrowNoValuesToFetchForNotSteppedStatement)
 {
     ReadStatement statement("SELECT name, number FROM test", database);
-    ASSERT_THROW(statement.value<int>(0), Exception);
 
-    statement.reset();
+    ASSERT_THROW(statement.value<int>(0), Sqlite::NoValuesToFetch);
+}
 
+TEST_F(SqliteStatement, ThrowNoValuesToFetchForDoneStatement)
+{
+    ReadStatement statement("SELECT name, number FROM test", database);
     while (statement.next()) {}
-    ASSERT_THROW(statement.value<int>(0), Exception);
 
-    statement.reset();
+    ASSERT_THROW(statement.value<int>(0), Sqlite::NoValuesToFetch);
+}
 
+TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForNegativeColumn)
+{
+    ReadStatement statement("SELECT name, number FROM test", database);
     statement.next();
-    ASSERT_THROW(statement.value<int>(-1), Exception);
-    ASSERT_THROW(statement.value<int>(2), Exception);
+
+    ASSERT_THROW(statement.value<int>(-1), Sqlite::InvalidColumnFetched);
+}
+
+TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForNotExistingColumn)
+{
+    ReadStatement statement("SELECT name, number FROM test", database);
+    statement.next();
+
+    ASSERT_THROW(statement.value<int>(2), Sqlite::InvalidColumnFetched);
 }
 
 TEST_F(SqliteStatement, ToIntergerValue)
@@ -245,13 +268,25 @@ TEST_F(SqliteStatement, BindDoubleByIndex)
     ASSERT_THAT(statement.text(0), "foo");
 }
 
-TEST_F(SqliteStatement, BindFailure)
+TEST_F(SqliteStatement, BindIndexIsZeroIsThrowingBindingIndexIsOutOfBound)
 {
-    ReadStatement statement("SELECT name, number FROM test WHERE number=@number", database);
+    ReadStatement statement("SELECT name, number FROM test WHERE number=$1", database);
 
-    ASSERT_THROW(statement.bind(0, 40), Exception);
-    ASSERT_THROW(statement.bind(2, 40), Exception);
-    ASSERT_THROW(statement.bind("@name", 40), Exception);
+    ASSERT_THROW(statement.bind(0, 40), Sqlite::BindingIndexIsOutOfRange);
+}
+
+TEST_F(SqliteStatement, BindIndexIsTpLargeIsThrowingBindingIndexIsOutOfBound)
+{
+    ReadStatement statement("SELECT name, number FROM test WHERE number=$1", database);
+
+    ASSERT_THROW(statement.bind(2, 40), Sqlite::BindingIndexIsOutOfRange);
+}
+
+TEST_F(SqliteStatement, WrongBindingNameThrowingBindingIndexIsOutOfBound)
+{
+    ReadStatement statement("SELECT name, number FROM test WHERE number=@name", database);
+
+    ASSERT_THROW(statement.bind("@name2", 40), Sqlite::WrongBingingName);
 }
 
 TEST_F(SqliteStatement, RequestBindingNamesFromStatement)
@@ -299,13 +334,20 @@ TEST_F(SqliteStatement, WriteNamedValues)
     ASSERT_THAT(statement, HasValues("see", "7.23", 1));
 }
 
-TEST_F(SqliteStatement, ClosedDatabase)
+TEST_F(SqliteStatement, CannotWriteToClosedDatabase)
 {
     database.close();
-    ASSERT_THROW(WriteStatement("INSERT INTO test(name, number) VALUES (?, ?)", database), Exception);
-    ASSERT_THROW(ReadStatement("SELECT * FROM test", database), Exception);
-    ASSERT_THROW(ReadWriteStatement("INSERT INTO test(name, number) VALUES (?, ?)", database), Exception);
-    database.open(QDir::tempPath() + QStringLiteral("/SqliteStatementTest.db"));
+
+    ASSERT_THROW(WriteStatement("INSERT INTO test(name, number) VALUES (?, ?)", database),
+                 Sqlite::DatabaseIsNotOpen);
+}
+
+TEST_F(SqliteStatement, CannotReadFromClosedDatabase)
+{
+    database.close();
+
+    ASSERT_THROW(ReadStatement("SELECT * FROM test", database),
+                 Sqlite::DatabaseIsNotOpen);
 }
 
 TEST_F(SqliteStatement, GetTupleValuesWithoutArguments)
@@ -461,7 +503,8 @@ void SqliteStatement::SetUp()
 
 void SqliteStatement::TearDown()
 {
-    database.close();
+    if (database.isOpen())
+        database.close();
 }
 
 }

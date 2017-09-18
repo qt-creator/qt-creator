@@ -39,7 +39,7 @@ ReadStatement::ReadStatement(Utils::SmallStringView sqlStatement,
 void ReadStatement::checkIsReadOnlyStatement()
 {
     if (!isReadOnlyStatement())
-        throwException("SqliteStatement::SqliteReadStatement: is not read only statement!");
+        throw NotReadOnlySqlStatement("SqliteStatement::SqliteReadStatement: is not read only statement!");
 }
 
 } // namespace Sqlite

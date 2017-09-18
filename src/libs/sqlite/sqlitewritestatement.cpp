@@ -37,7 +37,7 @@ WriteStatement::WriteStatement(Utils::SmallStringView sqlStatement,
 void WriteStatement::checkIsWritableStatement()
 {
     if (isReadOnlyStatement())
-        throwException("SqliteStatement::SqliteWriteStatement: is not a writable statement!");
+        throw NotWriteSqlStatement("SqliteStatement::SqliteWriteStatement: is not a writable statement!");
 }
 
 } // namespace Sqlite
